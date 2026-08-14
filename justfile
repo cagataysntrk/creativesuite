@@ -36,11 +36,11 @@ gates group="fast":
 
 # Tek kapıyı çalıştır — hata ayıklarken
 gate name:
-    @bash {{gates_dir}}/{{name}}.sh
+    @if [ -f {{gates_dir}}/{{name}}.sh ]; then bash {{gates_dir}}/{{name}}.sh; else node {{gates_dir}}/{{name}}.mjs; fi
 
 # Hangi kapılar var
 gates-list:
-    @ls -1 {{gates_dir}}/*.sh 2>/dev/null | xargs -rn1 basename | sed 's/\.sh$//' || echo "(henüz kapı yok)"
+    @ls -1 {{gates_dir}}/*.sh {{gates_dir}}/*.mjs 2>/dev/null | xargs -rn1 basename | sed 's/\.\(sh\|mjs\)$//' || echo "(henüz kapı yok)"
 
 # ── test ─────────────────────────────────────────────────────────────────────
 

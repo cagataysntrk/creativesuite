@@ -15,6 +15,6 @@ if [ -f "$f" ]; then
   echo "── adım $adim ($f) ──"
   awk -v a="## $adim " 'index($0,a)==1{p=1} p&&/^## /&&index($0,a)!=1&&NR>1{if(seen)exit} index($0,a)==1{seen=1} p' "$f"
 else
-  echo "── $f henüz yok (FAZ-0.B.8'de gelecek) ──"
+  echo "── $f henüz yok (FAZ-0.B.8a'da gelecek) ──"
   echo "   şimdilik plan dosyasındaki faz haritasını kullan"
 fi
