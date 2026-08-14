@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# commit-msg — FAZ-0.A.1c / FAZ-0.C.7 · D-34
+#
+# İki commit sınıfı:
+#   geliştirme : packages/ apps/ scripts/ docs/ .githooks/ ve kök yapılandırma
+#                → "<tip>(<kapsam>): <özet>" + "Refs: FAZ-N.x · §bölüm"
+#   çalıştırma : YALNIZ corpus/ brand/ derived/runs/
+#                → "Run: <run_id>" + "Actor: human|agent" + "Kind: propose|approve|discovery-apply"
+#                → "Refs:" YASAK (onay kuyruğu her turda faz adımı taşımaz)
+#
+# Her iki sınıfta da: AI atıf footer'ı yasak, konu satırı ≤72 karakter.
+set -euo pipefail
+
+MSG_FILE="$1"
+BODY="$(grep -v '^#' "$MSG_FILE" || true)"
+SUBJECT="$(printf '%s\n' "$BODY" | sed '/^[[:space:]]*$/d' | head -n1)"
+
+fail() { printf '\n✗ commit-msg: %s\n\n' "$1" >&2; exit 1; }
+
+# ── 1. AI atıf footer'ı — D-34, istisnasız ────────────────────────────────────
+if printf '%s' "$BODY" | grep -qiE 'co-authored-by:[[:space:]]*claude|generated with|🤖|noreply@anthropic\.com'; then
+  fail "AI atıf footer'ı yasak (D-34). 'Co-Authored-By: Claude', 'Generated with', '🤖' kaldır."
+fi
+
+# ── 2. Boş mesaj ──────────────────────────────────────────────────────────────
+[ -n "$SUBJECT" ] || fail "commit mesajı boş."
+
+# ── 3. Konu satırı uzunluğu ───────────────────────────────────────────────────
+LEN=$(printf '%s' "$SUBJECT" | wc -m | tr -d ' ')
+[ "$LEN" -le 72 ] || fail "konu satırı $LEN karakter, en fazla 72 olmalı."
+
+# ── 4. Commit sınıfını dosya yollarından belirle ──────────────────────────────
+FILES="$(git diff --cached --name-only || true)"
+RUNTIME_ONLY=1
+if [ -z "$FILES" ]; then
+  RUNTIME_ONLY=0
+else
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    case "$f" in
+      corpus/*|brand/*|derived/runs/*) ;;
+      *) RUNTIME_ONLY=0 ;;
+    esac
+  done <<< "$FILES"
+fi
+
+if [ "$RUNTIME_ONLY" -eq 1 ]; then
+  printf '%s' "$BODY" | grep -qE '^Run: [a-z0-9_-]+$' \
+    || fail "çalıştırma commit'i 'Run: <run_id>' satırı taşımalı."
+  printf '%s' "$BODY" | grep -qE '^Actor: (human|agent)$' \
+    || fail "çalıştırma commit'i 'Actor: human' veya 'Actor: agent' taşımalı."
+  printf '%s' "$BODY" | grep -qE '^Kind: (propose|approve|discovery-apply)$' \
+    || fail "çalıştırma commit'i 'Kind: propose|approve|discovery-apply' taşımalı."
+  if printf '%s' "$BODY" | grep -qE '^Refs:'; then
+    fail "çalıştırma commit'inde 'Refs:' kullanılmaz — Run/Actor/Kind yeterli."
+  fi
+else
+  SCOPES='contracts|kernel|registry|corpus|providers|render|engine|ui|server|cli|docs|gates|repo|brand|deps|motion'
+  TYPES='feat|fix|refactor|perf|test|docs|chore|build|ci'
+  printf '%s' "$SUBJECT" | grep -qE "^($TYPES)\(($SCOPES)\)!?: .+" \
+    || fail "konu '<tip>(<kapsam>): <özet>' olmalı.
+   tip    : $TYPES
+   kapsam : $SCOPES
+   gelen  : $SUBJECT"
+  printf '%s' "$BODY" | grep -qE '^Refs: FAZ-[0-9]+\.[A-Za-z0-9.]+ · §[0-9]+(\.[0-9]+)?' \
+    || fail "'Refs: FAZ-N.x · §bölüm' satırı zorunlu (örn. 'Refs: FAZ-0.A.4 · §3.9')."
+fi
+
+exit 0
