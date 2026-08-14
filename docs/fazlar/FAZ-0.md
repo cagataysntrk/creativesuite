@@ -35,7 +35,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    Engellediği: 0.A.6, 0.A.7, 5.6
 
 ## 0.A.4 — justfile + kapı koşucusu    [x] 2026-08-14
-✅ 2 kapı listeleniyor · ikisi de kasten bozulunca kırmızı, onarılınca yeşil
+✅ ≥2 kapı listeleniyor · her biri kasten bozulunca kırmızı, onarılınca yeşil
 
 ## 0.A.5 — latin-ext marka fontu    [ ]
 📖 §7.2 · V-02
@@ -102,8 +102,9 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.B.7 — docs/LOOP.md    [x] 2026-08-14
 ✅ `LOOP§A`…`LOOP§G` bölümlü · G başarısızlık protokolü
 
-## 0.B.8a — FAZ-0.md ve FAZ-1.md    [x] 2026-08-14
-✅ İki dosya tam, sekizi iskelet · `just tur` adımı ayrıştırabiliyor
+## 0.B.8a — FAZ-0.md ve FAZ-1.md    [ ]
+✅ On dosya var: FAZ-0/1 tam, 2-9 iskelet · `just tur` adımı ayrıştırıyor
+⚠ 2026-08-14: sahte tik geri alındı — yalnız FAZ-0.md yazılmıştı
 
 ## 0.B.8b — FAZ-2.md ve FAZ-3.md    [ ]
 🛠 Plandaki faz haritasından, altı alanlı şablonla.
@@ -146,8 +147,11 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    grep + **Proxy tuzağı** (`attributes` fırlatan kayıt dokuz fiilden geçirilir).
 ✅ Grep destructuring ile atlatılabilir, Proxy atlatılamaz — **ikisini de** kasten dene
 
-## 0.C.4 — turkish-case kapısı    [x] kısmen → 0.C.4b
-✅ `.toUpperCase()` yalnız `kernel/src/text/case.ts`'de (kural yazıldı, kapı 1.5'te)
+## 0.C.4 — turkish-case kapısı    [ ]
+📖 §7.2 · R-21 · 🔗 FAZ-1.5 (`kernel/src/text/case.ts` orada doğuyor)
+🛠 Kapı, case dosyası var olduğunda kurulur. Kural R-21 olarak yazıldı.
+✅ `'ı'.toUpperCase()` yaz → kırmızı
+⚠ 2026-08-14: sahte tik geri alındı — devredilen '0.C.4b' diye bir adım yoktu
 
 ## 0.C.5 — docs-language kapısı    [ ]
 📖 D-37
@@ -155,8 +159,10 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    dosya adı, hata `code`* alanlarına sızmasını yakalar. Belge nesri Türkçe kalır.
 ✅ `code: "SAĞLAYICI_HATASI"` → kırmızı · ANAYASA'daki Türkçe paragraf → yeşil
 
-## 0.C.6 — citations kapısı    [x] 2026-08-14
+## 0.C.6 — citations kapısı    [ ]
+🛠 Ek: `reddedildi` işaretli bir `D-nn`'e atıf da hata olmalı.
 ✅ Var olmayan §'ya atıf → kırmızı · reddedilmiş `D-nn`'e atıf → kırmızı
+⚠ 2026-08-14: sahte tik geri alındı — ikinci yarı kodda yoktu
 
 ## 0.C.7 — commit-msg hook'u    [x] 2026-08-14 (0.A.1c ile)
 ✅ İki commit sınıfı ayrışıyor · beş ihlal reddediliyor

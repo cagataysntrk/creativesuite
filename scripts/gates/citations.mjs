@@ -32,6 +32,23 @@ const idSet = (file, re) => {
 const rules = idSet('KURALLAR.md', /^##+ +`?(R-\d+)`?/gm)
 const decisions = idSet('KARARLAR.md', /^##+ +`?(D-\d+)`?/gm)
 const debts = idSet('KARARLAR.md', /^##+ +`?(V-\d+)`?/gm)
+
+// Reddedilmiş kararlar. Bir karar silinmez, açık bir DURUM satırıyla işaretlenir:
+//     **Durum:** reddedildi → D-nn
+// Anahtar kelime taraması YETMEZ: bir kararın gövdesinde "Remotion reddedildi" yazması,
+// kararın kendisinin reddedildiği anlamına gelmez. İşaretleyici açık olmak zorunda.
+// Reddedilmiş bir karara atıf vermek hatadır — geçersiz gerekçeye dayanmak, gerekçesiz
+// olmaktan kötüdür, çünkü sağlam görünür.
+const rejected = new Set()
+{
+  const t = read('KARARLAR.md')
+  if (t) {
+    for (const b of t.split(/\n(?=##+ +`?[DV]-\d+)/)) {
+      const id = b.match(/^##+ +`?([DV]-\d+)`?/)?.[1]
+      if (id && /^\*\*Durum:\*\*\s*reddedildi\b/m.test(b)) rejected.add(id)
+    }
+  }
+}
 const loopSections = new Set(
   [...(read('docs/LOOP.md') ?? '').matchAll(/\{#loop-([a-g])\}/g)].map((m) => m[1].toUpperCase())
 )
@@ -89,7 +106,10 @@ for (const f of files) {
     // D-nn / V-nn
     for (const m of line.matchAll(/\bD-(\d+)\b/g)) {
       if (decisions === null) { warns.add('KARARLAR.md yok — D-nn atıfları doğrulanmadı'); break }
-      if (!decisions.has(`D-${m[1]}`)) at(`D-${m[1]} — KARARLAR.md'de yok`)
+      const id = `D-${m[1]}`
+      if (!decisions.has(id)) at(`${id} — KARARLAR.md'de yok`)
+      // KARARLAR.md'nin kendi içinde reddedilmeye atıf serbest (yerine geçeni gösterir)
+      else if (rejected.has(id) && f !== 'KARARLAR.md') at(`${id} — bu karar REDDEDİLDİ, ona dayanılamaz`)
     }
     for (const m of line.matchAll(/\bV-(\d+)\b/g)) {
       if (debts === null) { warns.add('KARARLAR.md yok — V-nn atıfları doğrulanmadı'); break }

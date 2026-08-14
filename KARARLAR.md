@@ -1,7 +1,13 @@
 # KARARLAR
 
 Döngünün ve insanın aldığı **her** karar. Tarih · karar · gerekçe.
-Append-only: bir karar silinmez, `reddedildi` işaretlenir ve yerine geçen belirtilir.
+Append-only: bir karar silinmez. Reddedilen karar gövdesine **tam olarak** şu satır
+eklenir ve yerine geçen belirtilir:
+
+    **Durum:** reddedildi → D-nn
+
+`citations` kapısı bu satırı arar; gövdede geçen "reddedildi" kelimesi yetmez
+(bir kararın metninde "Remotion reddedildi" yazması kararın kendisini geçersiz kılmaz).
 Sonda `V-nn` doğrulama borçları (🔴) durur.
 
 Aktif defter 600 satırda tutulur; kapanmış kararlar `docs/kararlar/ARSIV-<yyyy>.md`'ye
@@ -202,28 +208,28 @@ Kısıtlı profil bunu atlatmak için tasarlandı, yine de spike ile doğrula. �
 Belgelenmiş public arayüz mü? Elle tanımlayıcı yedeği her hâlükârda zorunlu. → FAZ-0.D.5
 
 ## V-05 — Anthropic yapılandırılmış çıktı alt kümesi
-OpenAI'ninkiyle aynı mı? Derleyici daha katı olana yazıldı, CI'da gerçek çağrıyla doğrula.
+OpenAI'ninkiyle aynı mı? Derleyici daha katı olana yazıldı, CI'da gerçek çağrıyla doğrula. → FAZ-1.4
 
 ## V-06 — `dima` ürün mü modül mü
 "dima by Upcytech" onaylı-marka modeli doğru mu? Yanlış karar sonradan MAJOR sürüm
-değişikliği demek.
+değişikliği demek. → FAZ-2.11
 
 ## V-07 — Era 1'in dikeyi
 Kanıt otomotiv tedarik/Bursa'yı işaret ediyor ama bu üçüncü taraf verisinden çıkarım,
-gerçek satış pipeline'ından değil. Hipotez olarak tohumla, 10 gerçek görüşmeden sonra üzerine yaz.
+gerçek satış pipeline'ından değil. Hipotez olarak tohumla, 10 gerçek görüşmeden sonra üzerine yaz. → FAZ-2.9
 
 ## V-08 — Kuruluş tarihi çelişkisi
-Sicil 3 Tem 2025 · LinkedIn 2022 · site "2021'den beri". Tek doğruya bağlan.
+Sicil 3 Tem 2025 · LinkedIn 2022 · site "2021'den beri". Tek doğruya bağlan. → FAZ-2.9
 
 ## V-09 — KAP resmî REST API şartları
-Ticari kullanıma uygun mu? Şartlar PDF'i "Hizmete Özel".
+Ticari kullanıma uygun mu? Şartlar PDF'i "Hizmete Özel". → FAZ-6.5
 
 ## V-10 — Türk hukukçu
 KVKK aydınlatma/açık rıza metinleri, sayısal performans iddialarının Reklam Kurulu
-açısından durumu, sınır ötesi veri aktarımı beyanı.
+açısından durumu, sınır ötesi veri aktarımı beyanı. → FAZ-8.6
 
 ## V-11 — Run bağlam anlık görüntülerinin saklama süresi
-Manifest sonsuza, bağlam N gün. N ilk yüz çalıştırmadan **önce** belirlenir.
+Manifest sonsuza, bağlam N gün. N ilk yüz çalıştırmadan **önce** belirlenir. → FAZ-1.9
 
 ## D-45 — KURALLAR.md yalnız zorlanan kuralları taşır
 2026-08-14 · Araştırmadaki 111 kuralın tamamı kopyalanmadı; 46 kural yazıldı, 13'ü bugün
@@ -233,3 +239,15 @@ aktif olarak zorlanıyor, gerisi zorlanacağı faz adımına bağlandı.
 dekor hâline gelir. `Durum` sütunu dürüstlüğü görünür kılıyor.
 **Alternatif:** hepsini kopyalayıp "ileride" işaretlemek — reddedildi, ayırt edilemez olurdu.
 **Geri alma maliyeti:** düşük; tam külliyat `docs/research/5-kural-kitabi--*` altında duruyor.
+
+## D-46 — DURUM tamamlananlar tablosu FAZ dosyasından türetilir
+2026-08-14 · **Neden:** denetim, `DURUM.md` ve `FAZ-0.md`'nin ikisinin de "18 tamamlandı"
+dediğini ama **aynı 18 olmadığını** buldu. İki elle tutulan liste kaçınılmaz olarak ayrışır.
+FAZ dosyası tek doğrudur; DURUM ondan türetilir.
+**Geri alma maliyeti:** yok.
+
+## D-47 — Reddedilen karar açık DURUM satırıyla işaretlenir
+2026-08-14 · Biçim: `**Durum:** reddedildi → D-nn` (gövdenin başında, tam bu biçimde).
+**Neden:** anahtar kelime taraması yetmiyor — D-25'in gövdesinde "Remotion reddedildi"
+yazıyor ve kapı kararın kendisini reddedilmiş sandı. İşaretleyici açık olmak zorunda.
+**Geri alma maliyeti:** düşük.

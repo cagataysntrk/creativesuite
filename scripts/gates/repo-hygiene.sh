@@ -22,6 +22,16 @@ if git ls-files | grep -qE '\.(pem|p12|pfx)$'; then
   say "özel anahtar dosyası izleniyor"
 fi
 
+# ── 2b. Secret DESENİ içerikte de aranmalı ───────────────────────────────────
+# Uzantıya bakmak yetmez: içinde sk-... olan bir config.json .env değildir ama
+# aynı zarardadır. (Denetim bulgusu 2026-08-14.)
+pat='(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AIza[0-9A-Za-z_-]{30,})'
+hits="$(git grep -InE "$pat" -- ':!docs/research' ':!scripts/gates/repo-hygiene.sh' 2>/dev/null | head -5)"
+if [ -n "$hits" ]; then
+  say "izlenen dosyada secret deseni:"
+  echo "$hits" | sed 's/^/  /'
+fi
+
 # ── 3. Git geçmişinde AI atıf imzası olmamalı (D-34) ─────────────────────────
 # commit-msg kapısı ileriye dönük korur; bu, geçmişte kaçan var mı diye bakar.
 if git log --format='%B' 2>/dev/null | grep -qiE 'co-authored-by:[[:space:]]*claude|generated with claude|noreply@anthropic\.com'; then
