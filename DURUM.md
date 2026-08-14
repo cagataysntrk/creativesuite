@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.E.5
+siradaki_adim: 0.B.9
 son_guncelleme: 2026-08-14
 bloke:
   - adim: 0.A.3
@@ -14,7 +14,7 @@ bloke:
     cozum: "kullanıcı çalıştıracak: sudo apt-get install -y ffmpeg xvfb age"
     engellediği: [0.A.7, 5.6]
 deneme_sayaci: {}
-son_kanit: "node v22.23.2 · pnpm 11.21.0 · workspace deseni kuruldu (0.A.2)"
+son_kanit: "KURALLAR.md 46 kural / 13 aktif · 275 satır · 3 kapı yeşil (0.B.3)"
 ```
 
 ## Neredeyiz
@@ -44,6 +44,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.E.2 · tur yordamı | 2026-08-14 | faz + adım + bloke + gövde basıyor |
 | 0.E.3 · doğrulama agent'ı | 2026-08-14 | `.claude/agents/faz-dogrulayici.md` |
 | 0.E.4 · compact protokolü | 2026-08-14 | CLAUDE.md okuma sırası: DURUM → FAZ → `just tur` |
+| 0.B.3 · KURALLAR.md | 2026-08-14 | 46 kural, 13 aktif zorlanıyor, 275 satır |
 
 ## Sıradaki adım
 

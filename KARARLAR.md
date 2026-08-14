@@ -224,3 +224,12 @@ açısından durumu, sınır ötesi veri aktarımı beyanı.
 
 ## V-11 — Run bağlam anlık görüntülerinin saklama süresi
 Manifest sonsuza, bağlam N gün. N ilk yüz çalıştırmadan **önce** belirlenir.
+
+## D-45 — KURALLAR.md yalnız zorlanan kuralları taşır
+2026-08-14 · Araştırmadaki 111 kuralın tamamı kopyalanmadı; 46 kural yazıldı, 13'ü bugün
+aktif olarak zorlanıyor, gerisi zorlanacağı faz adımına bağlandı.
+**Neden:** faz dosyasının kendi kuralı "zorlaması olmayan kural yazılmaz". Uygulanmayan
+111 kural, uygulanan 13'ten kötüdür — kimse hangisinin gerçek olduğunu bilmez ve liste
+dekor hâline gelir. `Durum` sütunu dürüstlüğü görünür kılıyor.
+**Alternatif:** hepsini kopyalayıp "ileride" işaretlemek — reddedildi, ayırt edilemez olurdu.
+**Geri alma maliyeti:** düşük; tam külliyat `docs/research/5-kural-kitabi--*` altında duruyor.

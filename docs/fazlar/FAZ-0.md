@@ -83,7 +83,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 🛠 Güvenlik, test stratejisi, riskler, reddedilenler, açık kalemler, araştırma eki.
 ✅ `grep -rn "TBD\|TODO" docs/ANAYASA.md` boş · `wc -l` ≤1200
 
-## 0.B.3 — KURALLAR.md    [ ]
+## 0.B.3 — KURALLAR.md    [x] 2026-08-14
 📖 `docs/research/5-kural-kitabi--*` · 111 kural orada
 🛠 R-01…R-nn, alan bazlı. Her kural: kural · neden · zorlama · şiddet.
    Zorlaması olmayan kural yazılmaz — "wish" değil kural olacak.
@@ -92,7 +92,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.B.4 — CLAUDE.md    [x] 2026-08-14
 ✅ ≤200 satır · 12 yasa satır içi · compact protokolü · okuma sırası
 
-## 0.B.5 — KARARLAR.md    [ ]
+## 0.B.5 — KARARLAR.md    [x] 2026-08-14
 🛠 D-1…D-42 (plandaki §2'nin tamamı) + V-01…V-11 doğrulama borçları.
 ✅ `grep -c '^## D-' KARARLAR.md` = plandaki karar sayısı · her V bir adıma bağlı
 
