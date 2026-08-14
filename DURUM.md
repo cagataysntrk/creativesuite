@@ -6,11 +6,15 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.A.2
+siradaki_adim: 0.A.4
 son_guncelleme: 2026-08-14
-bloke: []
+bloke:
+  - adim: 0.A.3
+    neden: "ffmpeg + xvfb kurulumu sudo şifresi istiyor; agent kuramaz"
+    cozum: "kullanıcı çalıştıracak: sudo apt-get install -y ffmpeg xvfb age"
+    engellediği: [0.A.7, 5.6]
 deneme_sayaci: {}
-son_kanit: "5 ihlal commit'i reddedildi, geçerli commit kabul edildi (0.A.1c)"
+son_kanit: "node v22.23.2 · pnpm 11.21.0 · workspace deseni kuruldu (0.A.2)"
 ```
 
 ## Neredeyiz
