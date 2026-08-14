@@ -1,0 +1,7 @@
+# Halkalar = paketler. Bağımlılık yönü tek yönlü ve TS project references ile zorlanır:
+#   contracts ← kernel ← {registry, corpus, providers, render} ← engine ← {server, cli}
+#   ui → contracts (yalnız)
+# Paketlerin kendisi FAZ-1.1'de oluşturulur; burası yalnız keşif desenidir.
+packages:
+  - 'packages/*'
+  - 'apps/*'

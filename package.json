@@ -1,0 +1,12 @@
+{
+  "name": "creativesuite",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=22.0.0 <23"
+  },
+  "description": "Upcytech Creative Suite — marka, ürün ve strateji bilgisinin tek doğruluk kaynağı; üstünde agentic üretim hattı",
+  "license": "UNLICENSED"
+}
