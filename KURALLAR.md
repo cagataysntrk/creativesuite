@@ -256,6 +256,11 @@ kullanılmaz.
 çıktı** gösterilir.
 **Zorlama:** faz kapanışında bağımsız doğrulama agent'ı (`LOOP§D`).
 
+**Somut tuzak (2026-08-14'te iki kez yaşandı):** kabuk `&&` zinciri yalan söyler.
+Heredoc'tan sonraki komut zincire dahil değildir; `git commit` reddedilse bile sonraki
+satır çalışır ve "✓ başarılı" yazdırır. **Çıkış kodunu açıkça oku** (`rc=$?`) ve durumu
+komutun kendi çıktısıyla doğrula (`git log`, `git status`), yazdırdığın metinle değil.
+
 ### R-71 · kapi-kasten-ihlal-edilerek-test-edilir · BLOCKING · aktif
 Yeşil bir kapı hiçbir şey kanıtlamaz. Her BLOCKING kapı, kasten ihlal edilip kırmızıya
 döndüğü gösterilerek kabul edilir.
