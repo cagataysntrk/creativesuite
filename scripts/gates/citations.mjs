@@ -52,7 +52,7 @@ try {
   files = execFileSync('git', ['ls-files', '*.md', '*.ts', '*.mjs', '*.sh', 'justfile'],
     { cwd: REPO, encoding: 'utf8' }).split('\n').filter(Boolean)
 } catch { files = [] }
-const SKIP = /^docs\/research\//
+const SKIP = /^docs\/(research|PLAN-ARSIV)/
 files = files.filter((f) => !SKIP.test(f))
 
 // ── kontrol ──────────────────────────────────────────────────────────────────
@@ -73,8 +73,9 @@ for (const f of files) {
       }
     }
 
-    // LOOP§X
+    // LOOP§<harf>. "LOOP§X" literal yer tutucudur (şablon anlatımı) — atlanır.
     for (const m of line.matchAll(/LOOP§([A-Z])/g)) {
+      if (m[1] === 'X') continue
       if (loopSections.size === 0) { warns.add('docs/LOOP.md yok — LOOP§ atıfları doğrulanmadı'); break }
       if (!loopSections.has(m[1])) at(`LOOP§${m[1]} — LOOP.md'de böyle bir bölüm yok`)
     }
@@ -95,12 +96,13 @@ for (const f of files) {
       if (!debts.has(`V-${m[1]}`)) at(`V-${m[1]} — KARARLAR.md'de yok`)
     }
 
-    // FAZ-N.x
+    // FAZ-N.x — dosya adı (FAZ-0.md) ve literal yer tutucu (FAZ-0.x) atlanır
     for (const m of line.matchAll(/\bFAZ-(\d+)\.([A-Za-z0-9.]+)/g)) {
       const [, n, step] = m
-      const set = phaseSteps.get(n)
-      if (!set) { warns.add(`docs/fazlar/FAZ-${n}.md yok — FAZ-${n}.x atıfları doğrulanmadı`); continue }
       const clean = step.replace(/[.,;:)]+$/, '')
+      if (clean === 'x' || clean === 'md') continue
+      const set = phaseSteps.get(n)
+      if (!set) { warns.add(`docs/fazlar/FAZ-${n}.md yok — FAZ-${n} atıfları doğrulanmadı`); continue }
       if (!set.has(clean)) at(`FAZ-${n}.${clean} — FAZ-${n}.md'de böyle bir adım yok`)
     }
   })
