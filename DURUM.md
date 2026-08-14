@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.B.2a
+siradaki_adim: 0.E.5
 son_guncelleme: 2026-08-14
 bloke:
   - adim: 0.A.3
@@ -32,13 +32,24 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.A.2 · Node 22 + workspace | 2026-08-14 | `node -v` v22.23.2 · pnpm 11.21.0 · `.nvmrc` |
 | 0.A.4 · justfile + ilk kapılar | 2026-08-14 | 2 kapı; ikisi de kasten bozulup kırmızıya döndü |
 | 0.B.1 · araştırma eki | 2026-08-14 | 45 çıktı → `docs/research/`, en büyük 96KB |
+| 0.B.2a · ANAYASA iskeleti | 2026-08-14 | 19 bölüm · 72 çapa · `citations` çözüyor |
+| 0.B.4 · CLAUDE.md | 2026-08-14 | 12 yasa satır içi · compact protokolü · ≤200 satır |
+| 0.B.5 · KARARLAR.md | 2026-08-14 | 44 karar + 11 doğrulama borcu · 226 satır |
+| 0.B.6 · DURUM.md | 2026-08-14 | makine-okunur blok · `just tur` ayrıştırıyor |
+| 0.B.7 · docs/LOOP.md | 2026-08-14 | `LOOP§A`…`LOOP§G` çapalı |
+| 0.B.8a · FAZ-0.md | 2026-08-14 | 44 adım, altı alanlı şablon |
+| 0.C.6 · citations kapısı | 2026-08-14 | uydurma §/FAZ atfı → kırmızı; ilk koşuda gerçek kırık atıf yakaladı |
+| 0.C.9 · docs-size kapısı | 2026-08-14 | 175 satıra şişir → kırmızı, geri al → yeşil |
+| 0.E.1 · DURUM sözleşmesi | 2026-08-14 | `just tur` sıradaki adımı buluyor |
+| 0.E.2 · tur yordamı | 2026-08-14 | faz + adım + bloke + gövde basıyor |
+| 0.E.3 · doğrulama agent'ı | 2026-08-14 | `.claude/agents/faz-dogrulayici.md` |
+| 0.E.4 · compact protokolü | 2026-08-14 | CLAUDE.md okuma sırası: DURUM → FAZ → `just tur` |
 
 ## Sıradaki adım
 
-**0.B.2a** — `docs/ANAYASA.md` iskeleti: §1–§19 başlıkları, kararlaştırılmış
-çapa id'leri (`{#section-4-3}`), her bölümün bir cümlelik amacı. İçerik yok, çapa
-şeması kilitli.
-Kabul: 19 `## §` başlığı, çapalar benzersiz, `citations` kapısı çözebiliyor.
+**0.E.5** — ilk döngü provası. `/loop` dinamik modda üç tur; her tur bir adım,
+kanıt, tik, DURUM güncellemesi, commit, 70 sn wakeup.
+Kabul: üç tur `git log`'da `Refs: FAZ-0.x` ile görünüyor · hiçbir tur iki adım denememiş.
 
 ## Bloke adımlar
 

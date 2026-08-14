@@ -96,8 +96,9 @@ for (const f of files) {
       if (!debts.has(`V-${m[1]}`)) at(`V-${m[1]} — KARARLAR.md'de yok`)
     }
 
-    // FAZ-N.x — dosya adı (FAZ-0.md) ve literal yer tutucu (FAZ-0.x) atlanır
-    for (const m of line.matchAll(/\bFAZ-(\d+)\.([A-Za-z0-9.]+)/g)) {
+    // FAZ-N.x — dosya adı (FAZ-0.md), yer tutucu (FAZ-0.x) ve aralık (FAZ-0..9) atlanır.
+    // Adım alfanümerikle BAŞLAMAK zorunda: "FAZ-0..9" ikinci noktada eşleşmez.
+    for (const m of line.matchAll(/\bFAZ-(\d+)\.([A-Za-z0-9][A-Za-z0-9.]*)/g)) {
       const [, n, step] = m
       const clean = step.replace(/[.,;:)]+$/, '')
       if (clean === 'x' || clean === 'md') continue
