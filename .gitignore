@@ -1,0 +1,40 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Ring 3 — DERIVED
+# Kural (D-38): derived/index, derived/blobs ve derived/ingest yeniden üretilebilir.
+# derived/runs TÜRETİLEMEZ — çalıştırma defteri corpus'tan üretilemez, bu yüzden
+# ignore EDİLMEZ ve yedeklenir. Buraya ekleme yapmadan önce D-38'i oku.
+# ─────────────────────────────────────────────────────────────────────────────
+derived/index/
+derived/blobs/
+derived/ingest/
+
+# Node
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+dist/
+build/
+
+# Secrets — şifreli dosya (secrets/secrets.enc.yaml) commit'lenir, düz metin asla
+.env
+.env.*
+!.env.example
+*.pem
+
+# Araç çıktıları
+*.output
+*.log
+coverage/
+playwright-report/
+test-results/
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# Editör
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
