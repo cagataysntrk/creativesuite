@@ -5,7 +5,7 @@
 // komut sağlayıcı çağırabilir. Bütçe tavanı zorunlu ve varsayılan DÜŞÜK: tavansız
 // çalıştırmak, gözetimsiz bir gecede tavanın olmadığını öğrenmektir.
 
-import { readFileSync, existsSync, globSync, statSync } from 'node:fs'
+import { readFileSync, existsSync, statSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -25,6 +25,7 @@ const {
   pricingFromDescriptor,
   runOutputDir,
   storeBlob,
+  knowledgeCommit,
   RateLimiter,
 } = await import(join(REPO, 'packages/engine/dist/index.js'))
 const { candidatesFor, loadDescriptors } = await import(
@@ -40,14 +41,13 @@ const {
   assertCompliance,
   stampPng,
   placementById,
-  climbLadder,
-  formatLadder,
   DEFAULT_LIMITS,
 } = await import(join(REPO, 'packages/render/dist/index.js'))
-const { openDb, systemClock, seededRng, uuidv7 } = await import(
+const { openDb, systemClock, seededRng, newId, readEnv } = await import(
   join(REPO, 'packages/kernel/dist/index.js')
 )
 const { initLedger } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const { selectRecords, selectSearch } = await import(join(REPO, 'packages/corpus/dist/index.js'))
 
 const id = process.argv[2]
 const konu = process.argv.slice(3).join(' ')
@@ -65,7 +65,9 @@ if (!cozum.ok) {
 }
 
 // ── marka bağlamı ───────────────────────────────────────────────────────────
-const MARKA = process.env['SUITE_BRAND'] ?? 'brd_upcytech'
+// Ortam TEK okuyucudan (`secret-okuyucu` darboğazı, §14): dağılmış `process.env`,
+// bir ay ihmalden sonra sistemi başlatamamanın en sık sebebi.
+const MARKA = readEnv('SUITE_BRAND') ?? 'brd_upcytech'
 const tokenYolu = join(REPO, `brand/${MARKA}/derived-tokens/tokens.css`)
 if (!existsSync(tokenYolu)) {
   console.log(`✗ marka token'ları yok: ${tokenYolu}`)
@@ -73,7 +75,9 @@ if (!existsSync(tokenYolu)) {
 }
 const tokenCss = readFileSync(tokenYolu, 'utf8')
 
-const runId = `run_${uuidv7()}`
+// Ön ekli kimlik kernel'den (R-06 · `id-uretici` darboğazı): ikinci bir üreteç,
+// sıralanamayan ve tipi anlaşılmayan id üretir.
+const runId = newId('RunId')
 const clock = systemClock
 const damga = {
   brandId: MARKA,
@@ -84,35 +88,50 @@ const damga = {
   sourceRunId: runId,
 }
 
-// ── corpus'tan gerçek kayıt seçimi ──────────────────────────────────────────
-// Retrieval yüklemi tek yerden geçer (R-13). Burada FTS5 indeksi yerine doğrudan
-// dosya taraması var: indeks `just reindex` gerektiriyor ve bu komut onu kurmuyor.
-// Kayıtlar ZATEN corpus'ta ve `status: draft` — yani üretim onaylanmamış bilgiyle
-// koşuyor ve bu ÇIKTIDA görünmeli (2.9 hâlâ insan onayı bekliyor).
-const kayitlar = globSync('corpus/*/*.md', { cwd: REPO }).map((rel) => ({
-  id: rel,
-  text: readFileSync(join(REPO, rel), 'utf8')
-    .split('---')
-    .slice(2)
-    .join('---')
-    .split('\n')
-    .map((l) =>
-      l
-        .replace(/^#+\s*/, '')
-        .replace(/\*\*/g, '')
-        .trim()
-    )
-    .filter((l) => l !== '' && !l.startsWith('>') && !l.startsWith('|') && !l.startsWith('⚠'))
-    .slice(0, 4)
-    .join('\n'),
-}))
+// ── corpus: TEK retrieval yükleminden (R-13, R-14) ──────────────────────────
+//
+// ⚠ Buranın ilk hâli `globSync('corpus/*/*.md')` ile İKİNCİ BİR YÜKLEM kuruyordu ve
+// yedi `status: draft` kaydı üretime sokuyordu. İki BLOCKING kural birden çiğneniyordu:
+// R-13 (retrieval yüklemi kodda tek yerde) ve R-14 (agent önerir, insan uygular —
+// draft retrieval'a GÖRÜNMEZ). Doğrulama agent'ı 2026-08-15'te yakaladı (D-134).
+//
+// Şimdi `selectRecords` çağrılıyor: `status IN ('active','pinned')` yüklemin İÇİNDE.
+// Onaylanmamış corpus'ta bu SIFIR kayıt döndürür ve hat `NO_CONTEXT` ile durur —
+// **doğru davranış budur.** Onay insanın işidir (FAZ-2.9) ve o kapı atlanamaz.
+const indeksYolu = join(REPO, 'derived/index/suite.db')
+if (!existsSync(indeksYolu)) {
+  console.log(`✗ türetilmiş indeks yok: ${indeksYolu}`)
+  console.log('  önce: just reindex')
+  process.exit(1)
+}
+const corpusDb = openDb({ path: indeksYolu })
 
 const secici = (sorgu, limit) => {
-  const q = sorgu.toLowerCase()
-  const puanli = kayitlar
-    .map((k) => ({ ...k, puan: k.text.toLowerCase().includes(q) ? 2 : 1 }))
-    .sort((a, b) => b.puan - a.puan)
-  return puanli.slice(0, limit)
+  const q = {
+    brandId: MARKA,
+    eraId: 'era_imalat_2026',
+    // Saat ÇAĞIRANDAN gelir; yüklem saat okumaz (R-06).
+    asOf: clock.nowIso(),
+    limit,
+  }
+  // Önce arama (FTS5 + yüklem), sonuç yoksa yüklemin kendisi: konuya değmeyen ama
+  // ONAYLI bir kayıt, konuya değen ama onaysız bir kayıttan iyidir.
+  const hits = selectSearch(corpusDb, q, sorgu, limit)
+  const kayitlar = hits.length > 0 ? hits : selectRecords(corpusDb, q)
+  return kayitlar.map((k) => ({
+    id: k.id,
+    text: (k.body ?? k.snippet ?? '')
+      .split('\n')
+      .map((l) =>
+        l
+          .replace(/^#+\s*/, '')
+          .replace(/\*\*/g, '')
+          .trim()
+      )
+      .filter((l) => l !== '' && !l.startsWith('>') && !l.startsWith('|') && !l.startsWith('⚠'))
+      .slice(0, 4)
+      .join('\n'),
+  }))
 }
 
 // ── QA + lexicon + uyum ─────────────────────────────────────────────────────
@@ -192,6 +211,14 @@ const pricing = Object.fromEntries(
 
 const cikti = runOutputDir(REPO, runId)
 
+const bilgi = await knowledgeCommit(REPO, { PATH: readEnv('PATH') ?? '' })
+if (!bilgi.ok) {
+  console.log("✗ bilgi ağacı commit SHA'sı okunamadı — replay yapılamaz (§13)")
+  console.log("  git deposu değil mi, yoksa `git` PATH'te mi yok?")
+  process.exit(1)
+}
+const bilgiSha = bilgi.sha
+
 // ── GENERATE gövdesi: yönlendirilmiş sağlayıcıya köprü ──────────────────────
 const generate = generateBody({
   call: async (ctx, input) => {
@@ -212,7 +239,19 @@ const generate = generateBody({
   },
 })
 
-const db = openDb({ path: ':memory:' })
+// ── maliyet defteri KALICI olmak zorunda (R-44 · D-137) ────────────────────
+//
+// İlk hâli `:memory:` idi: defter süreçle birlikte ölüyordu. Yani SIGKILL sonrası
+// yeniden başlatma idempotency kaydını bulamıyor ve **aynı çağrı tekrar uçuyordu** —
+// FAZ-3.6'nın "çift ücret yok" iddiasının tam tersi. `scheduler.ts` doğru yazılmıştı;
+// üretim yolu ona boş bir defter veriyordu.
+//
+// `derived/index/` gitignore'lu ve yeniden üretilebilir; defter oraya DEĞİL, çalıştırma
+// dizinine yakın ve kalıcı bir yere gider. Şimdilik `derived/index/ledger.db` — indeksle
+// aynı dizinde ama AYRI dosya ve `just reindex` onu silmez (FAZ-4'te ayrı yola taşınır).
+const ledgerYolu = join(REPO, 'derived/index/ledger.db')
+mkdirSync(dirname(ledgerYolu), { recursive: true })
+const db = openDb({ path: ledgerYolu })
 initLedger(db)
 
 const rapor = await runPipeline({
@@ -221,26 +260,39 @@ const rapor = await runPipeline({
   runId,
   brandId: MARKA,
   eraId: 'era_imalat_2026',
-  corpusCommit: process.env['SUITE_CORPUS_SHA'] ?? 'worktree',
-  registryCommit: process.env['SUITE_REGISTRY_SHA'] ?? 'worktree',
+  // **Bilgi ağacı commit SHA'sı — replay'i GERÇEK yapan alan** (§13).
+  // İlk hâli `'worktree'` sabitiydi: `knowledgeCommit()` yazılmıştı ama sıfır çağıranı
+  // vardı ve 11 manifest'in hepsinde alan sahteydi (D-138). Artık git'ten okunuyor;
+  // okunamazsa çalıştırma DURUR — sahte bir SHA, replay'in yalan söylemesidir.
+  corpusCommit: bilgiSha,
+  registryCommit: bilgiSha,
   verbs: {
     RESOLVE: resolveBody,
     SELECT: selectBody({ select: secici }),
     COMPOSE: composeBody({ tokenCss, stamp: damga }),
-    RENDER: renderBody({ outDir: cikti, layout: 'statement' }),
+    RENDER: renderBody({
+      outDir: cikti,
+      layout: 'statement',
+      // Sınır YERLEŞİMDEN gelir (§9.1): LinkedIn 5MB, Instagram 8MB.
+      maxBytes: (
+        placementById(id.startsWith('linkedin') ? 'linkedin-feed-4x5' : 'instagram-feed-4x5') ?? {
+          maxBytes: 8 * 1024 * 1024,
+        }
+      ).maxBytes,
+    }),
     VALIDATE: validateBody({ check: kaliteKontrol }),
     GENERATE: generate,
   },
   pricing,
   candidatesFor,
-  env: { PATH: process.env['PATH'] ?? '' },
+  env: { PATH: readEnv('PATH') ?? '' },
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
   params: { topic: konu },
   // Tavan DÜŞÜK ve ZORUNLU: tavansız çalıştırmak, gözetimsiz bir gecede tavanın
   // olmadığını öğrenmektir.
   caps: {
-    perRun: { micros: BigInt(process.env['SUITE_RUN_CAP'] ?? '100000'), currency: 'USD' },
+    perRun: { micros: BigInt(readEnv('SUITE_RUN_CAP') ?? '100000'), currency: 'USD' },
     perMonth: null,
   },
   db,

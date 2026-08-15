@@ -1,6 +1,11 @@
 {
   "aciklama": "TAM OLARAK BİR TANE OLMALI listesi (§3.8). Bu dosya lint'i ÜRETİR: satır eklemek zorlamayı otomatik getirir. `desen` alanı doluysa kapı mekanik olarak zorlar; null ise darboğaz beyan edilmiştir ama henüz makine ile denetlenmiyor — o satır bir borçtur, gizlenmez, sayılır.",
-  "kapsam_varsayilan": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts"],
+  "kapsam_varsayilan": [
+    "packages/*/src/**/*.ts",
+    "apps/*/src/**/*.ts",
+    "scripts/uret.mjs",
+    "scripts/plan.mjs"
+  ],
   "darbogazlar": [
     {
       "id": "chromium-baslatan",
@@ -180,7 +185,14 @@
       "neden": "Log olay adları İngilizce ve şemalıdır (D-37). İkinci logger, korelasyon id'si taşımayan satırlar üretir ve hata ayıklama biter.",
       "izinli": ["packages/kernel/src/log.ts"],
       "desen": "\\bconsole\\s*\\.\\s*(log|info|warn|error|debug)\\s*\\(",
-      "faz": "FAZ-1.7"
+      "faz": "FAZ-1.7",
+      "kapsam_haric": [
+        "packages/*/src/**/*.test.ts",
+        "apps/*/src/**/*.test.ts",
+        "scripts/uret.mjs",
+        "scripts/plan.mjs"
+      ],
+      "haric_neden": "CLI giriş noktalarının İŞİ stdout'a yazmaktır — `just plan` ve `just uret` insan okusun diye tablo basar, olay log'u üretmez. Kuralın koruduğu şey \"korelasyon id'si taşımayan ikinci bir OLAY logger'ı\"; bir CLI'ın tablosu öyle bir şey değil. Testler aynı gerekçeyle muaf."
     },
     {
       "id": "saglayici-cagirici",
@@ -227,5 +239,6 @@
       "haric_neden": "Test ekin GERÇEKTEN eklendiğini iddia etmek için sabite bakmak zorunda; iddia etmek, ikinci bir kaynak kurmak değildir.",
       "faz": "FAZ-3.7"
     }
-  ]
+  ],
+  "kapsam_varsayilan_neden": "Son iki desen 2026-08-15'te eklendi. `scripts/uret.mjs` ve `scripts/plan.mjs` ÜRETİM YOLUDUR — `just uret` para harcayabilir — ama hiçbir darboğazın kapsamında değildiler. Doğrulama agent'ı orada dört ihlal buldu: ikinci retrieval yüklemi (R-13, BLOCKING), doğrudan `process.env`, doğrudan `openDb`, kendi maliyet defteri. Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) KAPSAM DIŞI: onlar araçtır, üretim yolu değil — bir kapının `git` çağırması kapının işidir. Bir darboğaz kapsamı, kuralın en çok çiğneneceği yeri dışarıda bırakıyorsa kapı değil."
 }

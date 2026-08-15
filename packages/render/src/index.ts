@@ -20,6 +20,7 @@ export {
   type BrowserOptions,
   type BrowserResult,
 } from './browser.js'
+export { renderWithinLimit, type LadderRender } from './static.js'
 export { renderStatic, toHtml } from './static.js'
 
 // Kapalı düzen kümesi ve taşma bölme (§7.1 · R-23 · FAZ-3.3)

@@ -10,6 +10,7 @@
 // **Türkçe genişleme payı yapısal** (R-23): sabit genişlik yok, satır yüksekliği
 // gevşiyor. "Onayla" sığar ama gerçek etiket "Onayla ve depoya işle" olur.
 
+import { statSync } from 'node:fs'
 import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
 import { withPage, type BrowserResult } from './browser.js'
 
@@ -94,4 +95,94 @@ export const renderStatic = async (
     await page.screenshot({ path: outPath, type: 'png' })
     return { path: outPath, width: doc.width, height: doc.height }
   })
+}
+
+// ── kalite merdiveni GERÇEKTEN uygulanır (§9.1 · D-139) ──────────────────────
+//
+// **İlk sürüm hiçbir şey yapmıyordu.** `climbLadder` uydurma bir formülle
+// (`boyut × kalite/200 × ölçek²`) bir basamak "seçiyor", sonra o basamak hiçbir yere
+// gitmiyordu: dosya orijinal PNG olarak kalıyor ve 53KB'lık bir varlık 30KB limitine
+// karşı **sessizce yayınlanıyordu**. Doğrulama agent'ı 2026-08-15'te yakaladı.
+//
+// Artık merdiven her basamağı GERÇEKTEN render ediyor ve dosya boyutunu ÖLÇÜYOR.
+// Tahmin yok: sıkıştırılmış boyut içeriğe bağlıdır ve hiçbir formül onu bilemez.
+
+import { QUALITY_LADDER, type QualityRung } from './specs/placements.js'
+
+export interface LadderRender {
+  readonly path: string
+  readonly bytes: number
+  readonly rung: QualityRung
+  readonly rungIndex: number
+  readonly width: number
+  readonly height: number
+}
+
+/**
+ * Belgeyi boyut sınırına SIĞANA KADAR render eder.
+ *
+ * Her basamak gerçek bir render ve gerçek bir ölçüm. Merdiven tükenirse **hata döner** —
+ * son basamağı "en iyisi buydu" diye kabul etmek, sınırı aşan bir varlığı yayına
+ * göndermektir (§9.1).
+ *
+ * Uzantı basamağa göre değişir: PNG basamağı `.png`, JPEG basamakları `.jpg`. Aynı
+ * dosyayı üzerine yazmak, "hangi format çıktı" sorusunu dosya adından silerdi.
+ */
+export const renderWithinLimit = async (
+  doc: DocumentModel,
+  outPathBase: string,
+  maxBytes: number
+): Promise<BrowserResult<LadderRender>> => {
+  const dogrulama = validateDocument(doc)
+  if (!dogrulama.ok) {
+    return {
+      ok: false,
+      error: {
+        kind: 'render_failed',
+        message: `belge geçersiz: ${JSON.stringify(dogrulama.errors)}`,
+      },
+    }
+  }
+
+  const taban = outPathBase.replace(/\.(png|jpe?g)$/i, '')
+  let sonBoyut = 0
+  let sonYol = ''
+
+  for (const [i, rung] of QUALITY_LADDER.entries()) {
+    const w = Math.round(doc.width * rung.scale)
+    const h = Math.round(doc.height * rung.scale)
+    const uzanti = rung.jpegQuality === null ? '.png' : '.jpg'
+    const yol = `${taban}${uzanti}`
+
+    const r = await withPage(async (page) => {
+      await page.setViewportSize({ width: w, height: h })
+      // Ölçek düşerken tuval küçülür ama BELGE aynı kalır: tipografi oransal olarak
+      // korunur. Belgeyi yeniden düzenlemek (daha az blok) başka bir varlık üretmek olurdu.
+      await page.setContent(toHtml({ ...doc, width: w, height: h }), { waitUntil: 'load' })
+      await page.evaluate('(async () => { await document.fonts.ready; return true })()')
+      if (rung.jpegQuality === null) await page.screenshot({ path: yol, type: 'png' })
+      else await page.screenshot({ path: yol, type: 'jpeg', quality: rung.jpegQuality })
+      return statSync(yol).size
+    })
+    if (!r.ok) return r
+
+    sonBoyut = r.value
+    sonYol = yol
+    if (r.value <= maxBytes) {
+      return {
+        ok: true,
+        value: { path: yol, bytes: r.value, rung, rungIndex: i, width: w, height: h },
+      }
+    }
+  }
+
+  return {
+    ok: false,
+    error: {
+      kind: 'render_failed',
+      message:
+        `kalite merdiveni tükendi: ${Math.round(sonBoyut / 1024)}KB > ` +
+        `${Math.round(maxBytes / 1024)}KB (${sonYol}) — içerik azaltılmalı, sessizce yayınlanmaz`,
+    },
+  }
 }

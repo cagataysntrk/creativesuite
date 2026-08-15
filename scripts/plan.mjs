@@ -43,7 +43,8 @@ const sonuc = plan({
   brandId: 'brd_plan_dry',
   eraId: '*',
   // Ortam AÇIKÇA geçilir: sağlayıcı kullanılabilirliği PATH'e bakıyor.
-  env: { PATH: process.env.PATH ?? '' },
+  // Ortam TEK okuyucudan (`secret-okuyucu` darboğazı, §14).
+  env: { PATH: readEnv('PATH') ?? '' },
   pricing: Object.fromEntries(
     descriptors
       .filter((d) => d.enabled)

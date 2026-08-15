@@ -22,7 +22,7 @@ import {
   type VerbContext,
   type VerbOutput,
 } from '@suite/kernel'
-import { paginateDocument, renderStatic, type LayoutName } from '@suite/render'
+import { paginateDocument, renderStatic, renderWithinLimit, type LayoutName } from '@suite/render'
 import { join } from 'node:path'
 import { mkdirSync } from 'node:fs'
 
@@ -162,6 +162,15 @@ export interface RenderDeps {
   readonly outDir: string
   /** Taşma bölme düzeni (§7.1). Küçültme YOK — bölme var. */
   readonly layout: LayoutName
+  /**
+   * Platform boyut sınırı (§9.1). Verilirse **kalite merdiveni GERÇEKTEN uygulanır**:
+   * her basamak render edilir, dosya ölçülür, sığan ilk basamak kazanır.
+   *
+   * Verilmezse düz PNG. İlk sürümde merdiven yalnız TAHMİN ediyordu ve seçilen basamak
+   * hiçbir yere gitmiyordu — 53KB'lık bir varlık 30KB limitine karşı sessizce
+   * yayınlanıyordu (D-139).
+   */
+  readonly maxBytes?: number
 }
 
 export const renderBody = (deps: RenderDeps): Verb =>
@@ -177,13 +186,30 @@ export const renderBody = (deps: RenderDeps): Verb =>
     mkdirSync(deps.outDir, { recursive: true })
 
     const yollar: string[] = []
+    const basamaklar: number[] = []
+    const boyutlar: number[] = []
     for (const [i, slayt] of slaytlar.entries()) {
-      const yol = join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
-      const r = await renderStatic(slayt, yol)
-      if (!r.ok) {
-        return err(hata('render_failed', 'RENDER_FAILED', ctx, { slide: i + 1, error: r.error }))
+      const taban = join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
+      if (deps.maxBytes === undefined) {
+        const r = await renderStatic(slayt, taban)
+        if (!r.ok) {
+          return err(hata('render_failed', 'RENDER_FAILED', ctx, { slide: i + 1, error: r.error }))
+        }
+        yollar.push(taban)
+        continue
       }
-      yollar.push(yol)
+      // Merdiven: her basamak GERÇEK bir render ve GERÇEK bir ölçüm. Tükenirse hata —
+      // son basamağı "en iyisi buydu" diye kabul etmek, sınırı aşan bir varlığı yayına
+      // göndermektir (§9.1).
+      const r = await renderWithinLimit(slayt, taban, deps.maxBytes)
+      if (!r.ok) {
+        return err(
+          hata('render_failed', 'SIZE_LIMIT_EXCEEDED', ctx, { slide: i + 1, error: r.error })
+        )
+      }
+      yollar.push(r.value.path)
+      basamaklar.push(r.value.rungIndex + 1)
+      boyutlar.push(r.value.bytes)
     }
 
     // `RENDER` metered: Chromium bir kaynak harcar ve süre de bir maliyettir (§8.3).
@@ -199,7 +225,11 @@ export const renderBody = (deps: RenderDeps): Verb =>
           kind: 'actual' as const,
         },
       ],
-      data: { slides: yollar, count: yollar.length },
+      data: {
+        slides: yollar,
+        count: yollar.length,
+        ...(basamaklar.length > 0 ? { rung: basamaklar, bytes: boyutlar } : {}),
+      },
     })
   })
 

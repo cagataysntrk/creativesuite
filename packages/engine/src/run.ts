@@ -85,6 +85,12 @@ export interface RunInput {
   readonly clock?: Clock
   readonly rng?: Rng
   readonly limiter?: RateLimiter
+  /**
+   * Devre kesici. Verilmezse çalıştırma başına bir tane kurulur — ama **adım başına
+   * ASLA**: adım başına taze bir kesici, 5 ardışık hata eşiğine hiç ulaşamaz (D-135).
+   * Çağıran birden fazla çalıştırma arasında paylaşmak isteyebilir.
+   */
+  readonly breaker?: CircuitBreaker
   readonly signal?: AbortSignal
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
   readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
@@ -115,6 +121,23 @@ export interface RunReport {
  */
 const isteğeBagli = (s: PipelineStep): boolean => s.constraints['optional'] === true
 
+/**
+ * Adım çıktısının manifest'e girecek ÖZETİ.
+ *
+ * Ölçülebilir ve kısa olanı taşır: QA raporu, üretilen slayt sayısı ve yolları, seçilen
+ * kalite basamağı. Belge modelini ya da byte'ları taşımaz — manifest bir defterdir,
+ * bir depo değil (byte'lar `derived/blobs`ta, §3.5).
+ */
+const ozetle = (data: unknown): Readonly<Record<string, unknown>> | null => {
+  if (data === null || typeof data !== 'object') return null
+  const o = data as Record<string, unknown>
+  const cikti: Record<string, unknown> = {}
+  for (const anahtar of ['qa', 'slides', 'count', 'rung', 'bytes', 'format', 'width', 'height']) {
+    if (o[anahtar] !== undefined) cikti[anahtar] = o[anahtar]
+  }
+  return Object.keys(cikti).length > 0 ? cikti : null
+}
+
 const hata = (
   code: string,
   correlationId: CorrelationId,
@@ -143,6 +166,12 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
 
   const sira = topoOrder(input.pipeline)
   const adimlar = new Map(input.pipeline.steps.map((s) => [s.id, s]))
+
+  // ⚠ Devre kesici çalıştırma başına BİR KEZ kurulur. İlk yazımda her adımda
+  // `new CircuitBreaker()` çağrılıyordu: durum adım başına taze kalıyor, eşik 5 ardışık
+  // hata ve tek adımda en fazla 3 deneme olduğu için kesici **yapısal olarak hiç
+  // açılamıyordu** (D-135). Enjekte edilebilir: çağıran çalıştırmalar arası paylaşabilir.
+  const breaker = input.breaker ?? new CircuitBreaker()
 
   const kayitlar: StepRecord[] = []
   const hatalar: { stepId: StepId; error: AppError }[] = []
@@ -243,7 +272,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       const r = await runStep(
         {
           db: input.db,
-          breaker: new CircuitBreaker(),
+          breaker,
           clock,
           rng,
           ...(input.limiter === undefined ? {} : { limiter: input.limiter }),
@@ -334,7 +363,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         const r = await runStep(
           {
             db: input.db,
-            breaker: new CircuitBreaker(),
+            breaker,
             clock,
             rng,
             ...(input.limiter === undefined ? {} : { limiter: input.limiter }),
@@ -418,6 +447,13 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       candidates: adaylarKaydi,
       startedAt: baslangic,
       finishedAt: clock.nowIso(),
+      // **Adım çıktısının ÖZETİ manifest'e girer** (D-136). İlk sürümde QA raporu
+      // yalnız konsola basılıyordu; "QA skorları manifest'te" çıkış kriteri
+      // karşılanmıyordu ve altı ay sonra "bu görsel hangi ölçümlerle geçti"
+      // sorusunun cevabı hiçbir yerde yoktu.
+      // Tam çıktı DEĞİL özet: bir belge modelini manifest'e gömmek dosyayı şişirir ve
+      // `git diff`i okunamaz yapar. Özet, ölçülebilir olanı taşır.
+      output: ozetle(sonuc.outcome?.data ?? null),
     })
 
     if (sonuc.ok) {

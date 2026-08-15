@@ -65,6 +65,15 @@ export interface StepRecord {
   readonly candidates: readonly ProviderCandidate[]
   readonly startedAt: Timestamp | null
   readonly finishedAt: Timestamp | null
+  /**
+   * Adım çıktısının ÖZETİ — QA okumaları, üretilen slayt sayısı, seçilen kalite
+   * basamağı. `null` = özetlenecek bir şey yok.
+   *
+   * **Byte taşımaz.** Manifest bir defterdir, bir depo değil; varlıklar
+   * `derived/blobs`ta yaşar (§3.5). Ama "bu görsel hangi ölçümlerle geçti" sorusunun
+   * cevabı defterde olmak zorunda — yoksa altı ay sonra hiçbir yerde yoktur.
+   */
+  readonly output?: Readonly<Record<string, unknown>> | null
 }
 
 /** Enjekte edilen bağlamın özeti — hangi kayıt, neden dahil edildi, kaç token (§5.3). */

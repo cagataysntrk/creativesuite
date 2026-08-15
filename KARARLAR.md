@@ -483,3 +483,71 @@ sınır UYDURMAK, yanlış sınırı zorlamaktan kötüdür.
 KULLANAN role/comp token'ına uygulanır — kullanım yeri, tanım yeri değil.
 Dört sınıfın dördü de kasten ihlal edilip kırmızıya döndürüldü; sınırın altındaki
 değerler geçiyor.
+
+## D-134 — `uret.mjs` retrieval yüklemini ATLIYORDU: R-13 ve R-14 ihlali
+2026-08-15 · Doğrulama agent'ı FAZ 3 kapanışında buldu: `scripts/uret.mjs`
+`globSync('corpus/*/*.md')` + `.includes()` ile **ikinci bir retrieval yüklemi** kuruyor
+ve yedi `status: draft` kaydı üretime sokuyordu. İki BLOCKING kural birden çiğneniyordu —
+R-13 (yüklem kodda tek yerde) ve R-14 (draft retrieval'a GÖRÜNMEZ, onay insanın işi).
+`retrieval-yuklemi` darboğazı göremedi: deseni SQL şeklini arıyor (`FROM record`,
+`WHERE brand_id`) ve `uret.mjs` dosya sistemi üzerinden gidiyordu. **Desen BİÇİMİ
+yakalıyordu, ERİŞİMİ değil.** Regex'i genişletmek çözüm değil — çözüm ikinci yüklemi
+SİLMEK oldu.
+Artık `selectRecords`/`selectSearch` çağrılıyor. Onaylanmamış corpus'ta bu **sıfır kayıt**
+döndürüyor ve hat `NO_CONTEXT` ile duruyor: **doğru davranış budur.** FAZ-2.9 insan
+onayını bekliyor ve o kapı atlanamaz.
+
+## D-135 — Devre kesici adım başına kuruluyordu: hiç açılamıyordu
+2026-08-15 · `run.ts` her adımda `new CircuitBreaker()` çağırıyordu. Durum süreç-içi bir
+`Map`te ve adım başına taze; eşik 5 ardışık hata, tek adımda en fazla 3 deneme →
+**kesici yapısal olarak hiç açılamıyordu.** FAZ-3.6'nın "devre kesici canlı" iddiası
+kâğıt üstündeydi. Artık çalıştırma başına bir tane, ve `RunInput.breaker` ile
+enjekte edilebilir (çağıran çalıştırmalar arası paylaşabilir).
+
+## D-136 — Adım çıktısının ÖZETİ manifest'e girer
+2026-08-15 · FAZ 3 çıkış kriteri "QA skorları manifest'te" diyordu; `VALIDATE`
+`data: { qa }` döndürüyordu ama `run.ts` `StepRecord`a hiç yazmıyordu — QA yalnız
+konsola basılıyordu ve 11 manifest'in 11'inde alan yoktu.
+`StepRecord.output` eklendi ve **özet** taşıyor: QA raporu, slayt sayısı/yolları, seçilen
+kalite basamağı, boyutlar. Tam çıktı DEĞİL — belge modelini manifest'e gömmek dosyayı
+şişirir ve `git diff`i okunamaz yapar. Byte'lar `derived/blobs`ta (§3.5); manifest bir
+DEFTERDİR, bir depo değil.
+
+## D-137 — Maliyet defteri `:memory:` idi: SIGKILL testi hiç koşmamıştı
+2026-08-15 · `uret.mjs` `openDb({ path: ':memory:' })` kullanıyordu. Defter süreçle
+birlikte ölüyor, yeniden başlatma idempotency kaydını bulamıyor ve **aynı çağrı tekrar
+uçuyordu** — FAZ-3.6'nın "çift ücret yok" iddiasının tam tersi. `scheduler.ts` doğru
+yazılmıştı; üretim yolu ona her seferinde boş bir defter veriyordu.
+Defter artık `derived/index/ledger.db`de kalıcı.
+
+## D-138 — `knowledgeCommit()` yazılmıştı, sıfır çağıranı vardı
+2026-08-15 · §13 bilgi ağacı commit SHA'sını "replay'i GERÇEK yapan alan" diye tanımlıyor.
+`manifest-writer.ts` onu okuyan fonksiyonu taşıyordu ama **hiçbir yerden çağrılmıyordu**;
+`uret.mjs` alanı `'worktree'` sabitiyle dolduruyordu ve 11 manifest'in hepsinde alan
+sahteydi. `inspectManifest` yalnız "boş dize değil" baktığı için temiz raporluyordu.
+Artık git'ten okunuyor ve okunamazsa çalıştırma DURUYOR — sahte bir SHA, replay'in yalan
+söylemesidir. "Yazıldı ama hiç çağrılmadı" deseninin bu segmentteki yedinci örneği.
+
+## D-139 — Kalite merdiveni hiçbir şey YAPMIYORDU
+2026-08-15 · `climbLadder` uydurma bir formülle (`boyut × kalite/200 × ölçek²`) bir
+basamak "seçiyor", sonra o basamak **hiçbir yere gitmiyordu**: dosya orijinal PNG olarak
+kalıyordu. Doğrulama agent'ı limiti 30KB'a indirip 53KB'lık bir varlığın **sessizce
+yayınlandığını** gösterdi. Benim ihlal testim yalnız son-basamak dalını sınamıştı.
+`renderWithinLimit` eklendi: **her basamak GERÇEKTEN render ediliyor ve dosya
+ÖLÇÜLÜYOR.** Tahmin yok — sıkıştırılmış boyut içeriğe bağlıdır ve hiçbir formül onu
+bilemez. JPEG basamakları `.jpg` yazıyor: format dosya adından okunabilmeli.
+Merdiven tükenirse **hata**; son basamağı "en iyisi buydu" diye kabul etmek, sınırı aşan
+bir varlığı yayına göndermektir.
+Ölçülen gerçek: 1200×1500 düz zeminli bir slaytta PNG 30.247 bayt, JPEG %92/%85/%75
+**daha büyük** (düz renkte PNG kazanır) ve ancak ×0,8 ölçekte 29.120 bayta iniyor.
+Merdiven bunu dürüstçe raporluyor.
+
+## D-140 — Darboğaz kapsamı üretim betiklerini dışarıda bırakıyordu
+2026-08-15 · `kapsam_varsayilan` yalnız `packages|apps` idi. **Para harcayan tek betik**
+(`scripts/uret.mjs`) 22 darboğazın hiçbirinin kapsamında değildi; agent orada dört ihlal
+buldu. `scripts/uret.mjs` ve `scripts/plan.mjs` kapsama alındı — ikisi de `just` ile
+koşan ÜRETİM YOLUDUR.
+Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) kapsam DIŞI: onlar
+araçtır: bir kapının `git` çağırması kapının işidir.
+`logger` darboğazı CLI'lar için muaf — bir CLI'ın işi stdout'a tablo basmaktır; kuralın
+koruduğu şey "korelasyon id'si taşımayan ikinci bir OLAY logger'ı".
