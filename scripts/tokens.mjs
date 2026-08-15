@@ -10,9 +10,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const { compileTokens, inheritTokens, toCss, toTailwind, toBrandFacts } = await import(
-  join(REPO, 'packages/registry/dist/index.js')
-)
+const { compileTokens, inheritTokens, toCss, toTailwind, toBrandFacts, checkChroma, formatChroma } =
+  await import(join(REPO, 'packages/registry/dist/index.js'))
 
 const kontrol = process.argv.includes('--check')
 
@@ -123,6 +122,18 @@ for (const marka of MARKALAR) {
     process.exit(1)
   }
 
+  // ── chroma alana göre sınırlı (§12.1) ─────────────────────────────────────
+  // Kademe denetimi "hangi token NEYE bağlanır" sorusunu cevaplıyordu; bu blok
+  // "o renk NE KADAR doygun" sorusunu soruyor. İkisi ayrı: kademesi kusursuz bir
+  // token pekâlâ ekranın dörtte birini C=0.12 ile boyayabilir — ve renk her yerde
+  // olduğunda hiçbir yerde uyarı kalmaz (ISA-101).
+  const chromaIhlalleri = checkChroma(sonuc.value)
+  if (chromaIhlalleri.length > 0) {
+    console.log(`✗ ${marka.id}: chroma sınırı aşıldı:`)
+    console.log(formatChroma(chromaIhlalleri))
+    process.exit(1)
+  }
+
   const MARKA = marka.id
   const CIKTI_DIR = join(REPO, `brand/${MARKA}/derived-tokens`)
   const eraSlug = readFileSync(join(REPO, `brand/${MARKA}/current`), 'utf8').trim()
@@ -175,7 +186,8 @@ if (kontrol) {
     process.exit(1)
   }
   console.log(
-    `  ${MARKALAR.length} marka · ${toplamToken} token · 3 kademe zorlanıyor · çıktılar güncel`
+    `  ${MARKALAR.length} marka · ${toplamToken} token · 3 kademe + chroma sınırları ` +
+      `zorlanıyor · çıktılar güncel`
   )
 } else {
   console.log(

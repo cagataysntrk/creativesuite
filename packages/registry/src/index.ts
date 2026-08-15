@@ -37,4 +37,11 @@ export {
   type TokenNode,
   type TokenResult,
   type TokenTier,
+  checkChroma,
+  formatChroma,
+  areaClassOf,
+  chromaOf,
+  CHROMA_LIMITS,
+  type AreaClass,
+  type ChromaViolation,
 } from './tokens.js'

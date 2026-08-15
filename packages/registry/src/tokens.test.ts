@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { compileTokens, inheritTokens, toBrandFacts, toCss, toTailwind } from './tokens.js'
+import {
+  compileTokens,
+  inheritTokens,
+  toBrandFacts,
+  toCss,
+  toTailwind,
+  checkChroma,
+  formatChroma,
+  areaClassOf,
+  chromaOf,
+  CHROMA_LIMITS,
+} from './tokens.js'
 
 // §12.1'in üç kademesi bir konvansiyon değil, MEKANİK bir kısıt. Bileşenin ham rampaya
 // bağlanması markayı değiştirdiğinde o bileşeni eski renkte bırakır — ve bu hata
@@ -167,5 +178,76 @@ describe('token kalıtımı — alt marka devralır, gerektiği kadar ezer (§4.
     const r = derle(merged)
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.errors[0]?.kind).toBe('tier_violation')
+  })
+})
+
+describe('chroma alana göre sınırlı (§12.1 · ISA-101)', () => {
+  const tok = (path: string, resolved: string, tier: 'ramp' | 'role' | 'comp' = 'role') => ({
+    path,
+    tier,
+    raw: resolved,
+    resolved,
+    type: 'color',
+  })
+
+  it('alan sınıfı token ADINDAN türüyor', () => {
+    expect(areaClassOf('role.bg')).toBe('fill')
+    expect(areaClassOf('role.surface')).toBe('fill')
+    expect(areaClassOf('comp.tolerance-track')).toBe('fill')
+    expect(areaClassOf('role.line-hair')).toBe('line')
+    expect(areaClassOf('role.text')).toBe('text')
+    expect(areaClassOf('role.text-muted')).toBe('text')
+    expect(areaClassOf('ramp.signal.warn')).toBe('signal')
+    expect(areaClassOf('role.state-error')).toBe('signal')
+    expect(areaClassOf('comp.tolerance-limit')).toBe('signal')
+  })
+
+  it('tanınmayan ad `null` — sınır UYDURULMUYOR', () => {
+    // Tanınmayan bir ada sınır uydurmak, yanlış sınırı zorlamaktan kötüdür. Yeni bir
+    // ad ailesi geldiğinde listeye eklenir ve o an bir KARAR verildiği görünür.
+    expect(areaClassOf('role.zamazingo')).toBeNull()
+  })
+
+  it('OKLCH chroma okunuyor, okunamazsa `null`', () => {
+    expect(chromaOf('oklch(0.16 0.120 250)')).toBe(0.12)
+    expect(chromaOf('oklch(50% 0.02 250)')).toBe(0.02)
+    // Sıfır DEĞİL `null`: ayrıştırılamayan bir rengi "chroma 0" saymak, her hex'i
+    // sessizce sınır içi gösterirdi.
+    expect(chromaOf('#0091FF')).toBeNull()
+    expect(chromaOf('')).toBeNull()
+  })
+
+  it('dört sınıfın sınırı ayrı ayrı zorlanıyor', () => {
+    expect(checkChroma([tok('role.bg', 'oklch(0.16 0.120 250)')])).toHaveLength(1)
+    expect(checkChroma([tok('role.line-hair', 'oklch(0.28 0.090 250)')])).toHaveLength(1)
+    expect(checkChroma([tok('role.text', 'oklch(0.97 0.110 250)')])).toHaveLength(1)
+    expect(checkChroma([tok('role.state-warn', 'oklch(0.72 0.220 75)')])).toHaveLength(1)
+  })
+
+  it('sınırın ALTINDAKİ değerler geçiyor', () => {
+    expect(checkChroma([tok('role.bg', 'oklch(0.16 0.010 250)')])).toHaveLength(0)
+    expect(checkChroma([tok('role.line-hair', 'oklch(0.28 0.040 250)')])).toHaveLength(0)
+    expect(checkChroma([tok('role.text', 'oklch(0.97 0.060 250)')])).toHaveLength(0)
+    expect(checkChroma([tok('role.state-warn', 'oklch(0.72 0.160 75)')])).toHaveLength(0)
+  })
+
+  it('sinyal rampası HARİÇ — palet ekranda doğrudan görünmez', () => {
+    // Sinyal rampasının yüksek chroma'ya sahip olması TASARIMDIR. Sınır, o rampayı
+    // KULLANAN role/comp token'ına uygulanır — kullanım yeri, tanım yeri değil.
+    expect(checkChroma([tok('ramp.signal.danger', 'oklch(0.58 0.160 25)', 'ramp')])).toHaveLength(0)
+  })
+
+  it('ihlal raporu SINIRI ve ÖLÇÜMÜ birlikte söylüyor', () => {
+    const v = checkChroma([tok('role.bg', 'oklch(0.16 0.120 250)')])
+    expect(v[0]).toEqual({ path: 'role.bg', area: 'fill', chroma: 0.12, limit: 0.02 })
+    expect(formatChroma(v)).toContain('C=0.12')
+    expect(formatChroma(v)).toContain('fill sınırı 0.02')
+    expect(formatChroma(v)).toContain('§12.1')
+  })
+
+  it('CHROMA_LIMITS ANAYASA §12.1 ile birebir', () => {
+    // Sayı iki yerde yaşarsa biri güncellenir, diğeri kalır ve hangisinin doğru
+    // olduğu ancak ekrana bakarak anlaşılır.
+    expect(CHROMA_LIMITS).toEqual({ fill: 0.02, line: 0.04, text: 0.06, signal: 0.16 })
   })
 })

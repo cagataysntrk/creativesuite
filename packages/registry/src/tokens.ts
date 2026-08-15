@@ -228,3 +228,90 @@ export const inheritTokens = (
 
   return { merged: birlestir(parent, child, ''), overridden }
 }
+
+// ── chroma alana göre sınırlı (§12.1 · ISA-101 · D-133) ──────────────────────
+//
+// **Renk ANORMALLİK demektir.** Her yerde renk varsa hiçbir yerde uyarı yoktur — bu,
+// yüksek performanslı HMI tasarımının (ISA-101) merkezî bulgusu ve komuta merkezinin
+// "izleme kabini" tezinin (§4b) sayısal karşılığı.
+//
+// Sınır alana göre: ekranın %25'inden büyük dolgu C ≤ 0.02 · kenarlık ≤ 0.04 ·
+// metin ≤ 0.06 · yalnız %4'ten küçük sinyal alanları ≤ 0.16.
+//
+// **Alan sınıfı token ADINDAN türer, tahminden değil.** `role.bg` bir dolgudur,
+// `role.line-hair` bir kenarlıktır, `role.text` metindir, `ramp.signal.*` sinyaldir.
+// Tahmin etseydik sınıflandırma sessizce kayar ve sınır yanlış token'a uygulanırdı.
+
+export type AreaClass = 'fill' | 'line' | 'text' | 'signal'
+
+/** §12.1'in dört sınırı. Sayılar ANAYASA'dan; burada tekrar edilmiyor, ORADAN geliyor. */
+export const CHROMA_LIMITS: Readonly<Record<AreaClass, number>> = {
+  fill: 0.02,
+  line: 0.04,
+  text: 0.06,
+  signal: 0.16,
+}
+
+/**
+ * Token adından alan sınıfı. Tanınmayan ad `null` → denetlenmez.
+ *
+ * `null` dönmek bir kaçış değil: tanınmayan bir ada sınır uydurmak, yanlış sınırı
+ * zorlamaktan daha kötü olurdu. Yeni bir ad ailesi geldiğinde buraya eklenir ve o an
+ * bir KARAR verildiği görünür.
+ */
+export const areaClassOf = (path: string): AreaClass | null => {
+  const son = path.split('.').slice(1).join('-')
+  if (/signal/.test(path)) return 'signal'
+  if (/^(bg|surface|track)|-(bg|surface|track)$/.test(son)) return 'fill'
+  if (/^(line|border|edge|hair)|-(line|border|edge|hair)$/.test(son)) return 'line'
+  if (/^(text|label|icon)|-(text|label|icon)$/.test(son)) return 'text'
+  // `state-*` ve `tolerance-*` sinyaldir: küçük alanlarda anormallik gösterirler.
+  if (/^(state|tolerance)-/.test(son)) return 'signal'
+  return null
+}
+
+/** `oklch(L C H)` içinden C. Ayrıştırılamazsa `null` — sıfır DEĞİL. */
+export const chromaOf = (deger: string): number | null => {
+  const m = /oklch\(\s*[\d.]+%?\s+([\d.]+)\s+/i.exec(deger)
+  if (m === null) return null
+  const c = Number(m[1])
+  return Number.isFinite(c) ? c : null
+}
+
+export interface ChromaViolation {
+  readonly path: string
+  readonly area: AreaClass
+  readonly chroma: number
+  readonly limit: number
+}
+
+/**
+ * Chroma sınırlarını denetler. **Yalnız `resolved` değere bakar**: bir rol token'ı bir
+ * rampaya referans verse bile ekranda görünen şey çözülmüş renktir.
+ *
+ * 1. kademe (`ramp`) HARİÇ: rampalar bir palettir, ekranda doğrudan görünmezler ve
+ * sinyal rampasının yüksek chroma'ya sahip olması TASARIMDIR. Sınır, o rampayı KULLANAN
+ * role/comp token'ına uygulanır — kullanım yeri, tanım yeri değil.
+ */
+export const checkChroma = (tokens: readonly FlatToken[]): readonly ChromaViolation[] => {
+  const ihlaller: ChromaViolation[] = []
+  for (const t of tokens) {
+    if (t.tier === 'ramp') continue
+    const alan = areaClassOf(t.path)
+    if (alan === null) continue
+    const c = chromaOf(t.resolved)
+    if (c === null) continue
+    const limit = CHROMA_LIMITS[alan]
+    if (c > limit) ihlaller.push({ path: t.path, area: alan, chroma: c, limit })
+  }
+  return ihlaller
+}
+
+export const formatChroma = (v: readonly ChromaViolation[]): string =>
+  v
+    .map(
+      (x) =>
+        `    chroma_over_limit  ${x.path} → C=${x.chroma} (${x.area} sınırı ${x.limit})\n` +
+        `      renk ANORMALLİK demektir; her yerde renk varsa hiçbir yerde uyarı yoktur (§12.1)`
+    )
+    .join('\n')

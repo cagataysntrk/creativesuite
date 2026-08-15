@@ -83,125 +83,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-90 — `x_signature` "değişti"yi değil "KIRIK"ı yakalıyor, ve artık ÜRETİLİYOR
-2026-08-15 · Doğrulama agent'ı beş senaryoluk matrisle gösterdi: kapı korunması gereken
-durumda AÇIK, meşru güncellemede KAPALIydı.
-- **A) insan gövdeyi elle düzeltti, imza eski** → motor YAZDI, insan metni EZİLDİ.
-- **C) motor yeni içerik üretti** → REDDEDİLDİ (meşru güncelleme bloklandı).
-Sebep: karşılaştırma "gelen imza ≠ dosyadaki imza" idi, yani **imza değişti mi** sorusu.
-Doğru soru: **dosyanın içeriği kendi imzasıyla uyuşuyor mu.** Uyuşmuyorsa dosyaya insan
-dokunmuştur.
-Ayrıca imza hiç ÜRETİLMİYORDU: `grep x_signature` yalnız tip ve okuma buluyordu, hiçbir
-kayıtta alan yoktu — koruma tamamen atıldı. `propose()` artık gövde + frontmatter
-kanonik özetini basıyor. Onay damgaları (`approved_by/at`, `valid_at`) imza dışı:
-onay içeriği değiştirmez, imzaya girseydi onaylanan her kayıt bir sonraki turda
-"elle düzenlenmiş" sanılırdı.
-
-## D-91 — Alan bazlı red/pin gerçekten uygulanıyor
-2026-08-15 · `decisions.ts` tipi `(json_pointer, hash)` sözleşmesi yazıyordu ama
-`plan.ts` her çağrıda `pointer` yerine sabit boş dize geçiyordu: alan bazlı pin hiç
-işlemiyordu ve testlerin dördü de `''` kullandığı için kural sınanmıyordu.
-`CandidateRecord.fields` eklendi; her alan KENDİ pointer'ı ve hash'iyle sorguluyor.
-Sabitlenmiş bir alan op'u durdurmuyor — o alana **dokunulmuyor** ve çıktıda görünüyor.
-Tüm alanlar bastırılmışsa öneri düşüyor.
-**Neden alan bazlı şart:** bir kaydın dokuz alanı doğru, biri yanlış olabilir. Tümünü
-reddetmek doğru dokuzu da çöpe atar ve sonraki turda hepsi yeniden önerilir —
-kullanıcı aynı dokuz kararı tekrar verir. Defterin varlık sebebi tam olarak budur.
-
-## D-92 — Arama elemesi SQL seviyesine taşındı
-2026-08-15 · `selectSearch` önce sıralayıp SONRA eliyordu. Doğrulama agent'ı eşiği
-ölçtü: **100 görünmez kayıt** görünür kaydı sonuçtan sessizce düşürüyordu — koddaki
-yorum eşiği "2000 kayıt" sanıyordu, **20 kat sapma**. Yanlış bir yorum, olmayan bir
-yorumdan tehlikelidir: ikincisi araştırmaya davet eder, birincisi güven verir.
-**Düzeltme:** görünür id kümesi geçici bir tabloya yazılıyor ve FTS sorgularına join
-ediliyor. `IN (...)` kullanılmadı — SQLite'ın ~999 parametre sınırı corpus büyüdüğünde
-sessizce patlardı. Yüklem hâlâ `select.ts`te (R-13); `search.ts` yalnız filtreyi
-uyguluyor, yüklemi bilmiyor.
-**Kalıcı test:** 300 draft / 100 emekli / 200 başka marka arasındaki tek görünür kayıt
-aramada geliyor. Eski davranışa dönüldüğünde üçü de kırmızı.
-
-## D-93 — `era` kapısı: etiketsiz dönem yakalanıyor
-2026-08-15 · `brd_dima`nın dönemi `git tag` almamıştı ve **era için hiç kapı yoktu**.
-Etiketsiz dönem, git geçmişinde tutamağı olmayan dönemdir: "o günkü ağacı ver" sorusu
-cevapsız kalır ve §4.3'ün üç ucuz parçası ikiye iner.
-Kapı üçünü birden denetliyor: her `era.yaml` için etiket, her markada en az bir dönem,
-`current` var olan bir döneme işaret ediyor. İkisi de ihlal testiyle kırmızıya döndürüldü.
-
-## D-94 — Onay komutu `write.ts`ten geçiyor, saati `clock.ts`ten okuyor
-2026-08-15 · `scripts/onayla.mjs` corpus'a `writeFileSync` ile doğrudan yazıyor ve
-`new Date()` çağırıyordu — iki darboğazın da beyan ettiği değişmezi çiğniyordu ama
-kapsam `packages/*/src` olduğu için hiçbir kapı görmüyordu.
-**Düzeltme:** yazma `writeRecord(actor: 'human')`tan geçiyor ve imzayı yeniden
-hesaplıyor (D-90); saat `systemClock`tan okunuyor. `saat`, `rng` ve `id-ureteci`
-darboğazlarının kapsamı `scripts/`i de kapsıyor.
-**Kapsam GENİŞLETİLMEDİĞİ yer:** `corpus-yazici`. O darboğaz corpus'a yazmayı
-kısıtlıyor, her dosya yazmayı değil; `scripts/extract-research.mjs` `docs/research/`
-altına yazıyor ve meşru. Yanlış pozitif de bir hatadır — sürekli alarm veren kapı,
-kapatılan kapıdır.
-
-## D-95 — Karar ile yazma arasına UYGULAMA katmanı kondu
-2026-08-15 · İkinci doğrulama turu yedi blokaj buldu ve ortak kök nedeni gösterdi:
-**karar (plan/defter/onay) ile yazma (`propose`) arasında hiçbir zorlama yoktu.**
-Plan "dokunulmayan alanlar" diye rapor ediyor, `apply` tam o alanları yazıyordu;
-defter yalnız bir rapordu — ve rapor kural değildir.
-Tek bütün olarak düzeltildi (agent'ın uyarısı: ayrı ayrı yamalanırsa dördüncü tur gerekir):
-1. `apply` `suppressedFields`i uyguluyor; iç içe RFC 6901 pointer'lar da kaldırılıyor.
-2. `write.ts`te `zone` yoksa **İNSAN** sayılıyor — fail-safe. Önceki `=== 'human'`
-   kontrolü, alanı olmayan kaydı iki korumadan da muaf tutuyordu.
-3. **Onaylanmış kayıt agent tarafından EZİLEMEZ** (`would_overwrite_approved`). Motor
-   `status: active` bir kaydı yeniden önerdiğinde `approved_by/at` siliniyordu —
-   "bunu ne zaman kabul ettim" sorusunun cevabı yok oluyordu. R-14'ün kendisi.
-4. `scanCorpus` doğdu: `plan` mevcut kayıtları CORPUS'tan tarıyor. Önceden argümanla
-   besleniyordu ve "ikinci koşu 0 op" kanıtı ancak elle yazılmış JSON ile üretilebiliyordu.
-   Artık yedi gerçek kaydın imzasıyla `DEĞİŞİKLİK YOK — 7 kayıt imzası aynı`.
-5. `contentSignature` ile `digest` ayrıldı: ilki DOSYA İÇERİĞİNİN, ikincisi KOŞU
-   GİRDİLERİNİN özeti. `e.signature === c.digest` iki farklı değer uzayını
-   karşılaştırıyordu ve gerçek corpus'ta asla eşleşmezdi.
-6. FAZ-2.9'un yedi kaydı `signature.ts` doğmadan önce yazılmıştı ve imzasızdı; koruma
-   gerçek corpus'ta atıldı. Hepsi imzalandı, içerik değişmedi.
-
-## D-96 — Kapı desenleri büyük/küçük harf duyarsız, yazma ailesi tam
-2026-08-15 · İkinci tur beş kaçış daha buldu:
-- **Küçük harfli SQL** (`select … from record`) `retrieval-yuklemi`ni TAMAMEN atlatıyordu:
-  `new RegExp(desen, 'gm')` — `i` bayrağı yoktu. Kapının en pahalı sessiz hataya karşı
-  tek savunması, harf büyüklüğüne bağlıydı.
-- `corpus-yazici` yalnız `writeFileSync` ailesine bakıyordu; `copyFileSync`,
-  `fs/promises.appendFile`, `openSync+writeSync`, `cpSync`, `renameSync` geçiyordu.
-Desen artık yazma ailesinin tamamını kapsıyor ve `neden` alanı sınırı dürüstçe yazıyor.
-
-## D-97 — `era` kapısı manifesti GERÇEKTEN doğruluyor
-2026-08-15 · Kapı yalnız `existsSync` bakıyordu: çöp YAML ve BOŞ dosya yeşil geçiyordu.
-`validateEra` yazılmıştı ama **çağrılmıyordu** — D-69'un ölü kod deseninin aynısı,
-üçüncü kez. Artık manifest ayrıştırılıyor, doğrulanıyor ve dizin adı ile manifest
-slug'ının uyuştuğu kontrol ediliyor.
-
-## D-98 — FAZ 2 kapandı: iki tur, 23 bulgu, üçüncü tur YOK
-2026-08-15 · İki doğrulama turu (D-79 tavanı) toplam **23 bulgu** verdi: 1. tur 5
-blokaj + 5 ikincil, 2. tur 7 blokaj + 6 ikincil. Hepsi kapatıldı.
-**Faz kapanıyor**, tek istisna `2.9` (yedi corpus kaydı insan onayı bekliyor, D-83).
-Üçüncü tur AÇILMIYOR: ikinci turda bulunmayan şey tanımı gereği minor'dur ve FAZ 9'un
-denetim turlarına düşer (9.2 kural uyumu, 9.5 ölü kod).
-**Çıkış kriterlerinin üçü de GERÇEK corpus ile kanıtlandı** — ilk turda ikisi yalnız
-fixture ile gösterilebiliyordu:
-1. `plan` corpus'u tarayıp yedi gerçek kaydın imzasıyla `0 op` üretiyor.
-2. Emekli kayıt retrieval'a düşmüyor (`:as_of` ile geri getirilebiliyor).
-3. Elle düzeltilmiş gerçek kayıt `signature_broken` ile reddediliyor.
-**FAZ 9'a devredilenler:** `valid_at`in imza dışı olmasının UI'dan elle düzenleme
-gelince yeniden değerlendirilmesi (FAZ-4.3), `x_signature` satırını silmenin korumayı
-kapatması (belgeli tasarım kararı, ama tek `sed` ile geçersizleştirilebiliyor).
-
-## D-99 — İçe aktarıcı tanımlayıcının YARISINI üretir, tamamını değil
-2026-08-15 · V-04 kapandı: fal'ın endpoint başına OpenAPI'si kimlik doğrulamasız 200
-dönüyor ve gerçek şema fixture olarak repoda. Ama asıl karar şu: **OpenAPI fiyat
-taşımaz.** Şekli söyler (alanlar, enum'lar), değeri söylemez (fiyat, kalite, gecikme,
-şerit). Bu yüzden `importOpenApi` çıktısı **daima** `adapter: pending · enabled: false ·
-lanes: []` ve o hâliyle `parseDescriptor`'dan **geçmez** — test bunu tersinden doğruluyor.
-Alternatif (içe aktarılanı otomatik geçerli saymak) reddedildi: fiyatı doğrulanmamış bir
-sağlayıcı aday listesine girerdi ve §8.3'ün "tahmin dürüsttür" iddiası ilk içe aktarmada
-çökerdi. Geri alma maliyeti: düşük — kural tek fonksiyonda.
-**Elle yazma yedeği birinci sınıf:** fal yarın bu URL'i kapatsa sistem çalışmaya devam
-eder, yalnız ilk taslak elle yazılır.
-
 ## D-100 — Kapı `ADAPTERS`'a değil `adapterById`'ye sorar
 2026-08-15 · `providers` kapısı ham `ADAPTERS` listesini barrel'dan istedi; `chokepoints`
 reddetti. Doğru tepki barrel'ı açmak değil, **sorunun kendisini düzeltmekti**: kapının
@@ -589,3 +470,16 @@ anahtar GİBİ görünen bir değeri REDDETTİĞİNİ kanıtlayan test (R-51). D
 Seçilen: `.gitleaksignore`da **parmak izi** (`commit:dosya:kural:satır`). O tek satır,
 o tek hâliyle muaf. İki ihlal testiyle doğrulandı: aynı dosyaya başka bir anahtar
 eklemek → **yakalanıyor**; muaf satırı iki satır kaydırmak → **muafiyet düşüyor**.
+
+## D-133 — Chroma sınırları zorlanmıyordu; `tokens` kapısı §12.1'i iddia ediyordu
+2026-08-15 · `tokens` kapısının docstring'i "§12.1 zorlanır" diyordu ama yalnız KADEME
+denetimi vardı. Kademesi kusursuz bir token pekâlâ ekranın dörtte birini C=0.12 ile
+boyayabiliyordu — ve renk her yerde olduğunda hiçbir yerde uyarı kalmaz (ISA-101).
+`checkChroma` eklendi: alan sınıfı token ADINDAN türer (`bg`/`surface`/`track` → dolgu,
+`line`/`hair` → kenarlık, `text`/`label` → metin, `signal`/`state`/`tolerance` → sinyal),
+sınırlar §12.1'den (0.02 · 0.04 · 0.06 · 0.16). Tanınmayan ad `null` → denetlenmez:
+sınır UYDURMAK, yanlış sınırı zorlamaktan kötüdür.
+1. kademe (`ramp`) hariç: sinyal rampasının yüksek chroma'sı TASARIMDIR; sınır onu
+KULLANAN role/comp token'ına uygulanır — kullanım yeri, tanım yeri değil.
+Dört sınıfın dördü de kasten ihlal edilip kırmızıya döndürüldü; sınırın altındaki
+değerler geçiyor.
