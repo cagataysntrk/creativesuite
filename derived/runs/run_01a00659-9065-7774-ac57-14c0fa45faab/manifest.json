@@ -1,0 +1,214 @@
+{
+  "runId": "run_01a00659-9065-7774-ac57-14c0fa45faab",
+  "brandId": "brd_upcytech",
+  "eraId": "era_imalat_2026",
+  "pipeline": "instagram-carousel",
+  "corpusCommit": "worktree",
+  "registryCommit": "worktree",
+  "createdAt": "2026-08-15T16:55:29.059Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire ölçümü"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-15T16:55:28.112Z",
+      "finishedAt": "2026-08-15T16:55:28.113Z"
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire ölçümü"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-15T16:55:28.113Z",
+      "finishedAt": "2026-08-15T16:55:28.113Z"
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "failed",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire ölçümü",
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 60000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "şu an kullanılamıyor — cloudflare-workers-ai: yerel önkoşul sağlanmadı",
+          "estimatedCost": null
+        },
+        {
+          "providerId": "fal-flux",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "free şeridinde değil (desteklediği: premium)",
+          "estimatedCost": null
+        }
+      ],
+      "startedAt": "2026-08-15T16:55:28.113Z",
+      "finishedAt": "2026-08-15T16:55:28.113Z"
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire ölçümü",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-15T16:55:28.113Z",
+      "finishedAt": "2026-08-15T16:55:28.113Z"
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire ölçümü",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-15T16:55:28.113Z",
+      "finishedAt": "2026-08-15T16:55:28.581Z"
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire ölçümü"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-15T16:55:28.581Z",
+      "finishedAt": "2026-08-15T16:55:29.059Z"
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90
+}
