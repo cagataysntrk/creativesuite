@@ -10,7 +10,7 @@ siradaki_adim: 4.2
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3 SARTLI kapandi (D-158): 12/15 adim tikli, iki dogrulama turu bitti, ucuncu ACILMAZ (D-79). Cikis kriteri (gercek carousel) 3.14 ve 2.9 insan onayina bloke; tikle ORTULMEDI, FAZ-3.md kapanis kaydinda ayrildi. Bu turda: --devam manifesti uzerine yaziyordu ve donmus girdi kavrami yoktu (D-154), corpusCommit 'worktree' kabul ediliyordu (D-155) — 14 varlik yayindan bloke edilip karantinaya alindi, karisik commit defter kunyesini atlatiyordu (D-156), blokaj sinifi eklendi (D-157). 752 test, 25 kapi. Sirada 4.1 tasarim sistemi katmani."
+son_kanit: "FAZ 3 SARTLI kapandi (D-158): cikis kriteri 3.14 insan onayina bloke, tikle ORTULMEDI. FAZ 4.1 + 4.1b bitti: iki yuzey baglami calisiyor (console koyu / studio acik, tema anahtari YOK) ve alt marka devraliyor; theme.css dokuz tip boyutu + 4px olcek + golgesiz yukseklik. Bu turda dort kapi/karar: karisik commit defter kunyesini atlatiyordu (D-156), blokaj sinifi insan/teknik ayrildi (D-157), govdesiz ANAYASA bolumu kapisi (D-159) — §12.3/12.4/12.5/12.7 bu yuzden dolduruldu, toCss duz deger basiyordu ve iki yuzey YAPISAL olarak imkansizdi (D-160), ui-tema kapisinin bes denetiminden ikisi dogdugu anda oluydu (D-161). 754 test, 26 kapi. Sirada 4.2 uygulama iskeleti."
 ```
 
 ## Neredeyiz
