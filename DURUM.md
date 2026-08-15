@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.1b
+siradaki_adim: 1.2
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "0.C.8: 4 darbogaz ihlali (chromium/Date.now/git commit) kirmizi, yorum satiri yanlis pozitif vermiyor"
+son_kanit: "1.1b: record.attributes.foo TS2339; destructuring ile de atlatilamiyor; contracts dependencies bos"
 ```
 
 ## Neredeyiz
@@ -57,13 +57,13 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.E.2 · tur açılış yordamı | 2026-08-14 |
 | 0.E.4 · compact protokolü | 2026-08-14 |
 | **1.1** · pnpm workspace ve halka sınırları | 2026-08-15 |
+| **1.1b** · packages/contracts | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.1b** — `packages/contracts`. `Result<T,E>` · `Brand<T,B>` ve ön ekli uuidv7 id'leri ·
-`Money {micros: bigint, currency:"USD"}` · `RecordEnvelope` + `OpaqueAttributes` ·
-`AppError` kapalı birleşimi · `VerbTable`. Bu paket hiçbir şey import etmez.
-Kabul: `record.attributes.foo` yaz → **derleme hatası** (grep değil, tip sistemi).
+**1.2** — kayıt zarfının Zod şeması ve `schemas/*.schema.json` üretimi.
+Kabul: `just gate schemas` — üretip `git diff --exit-code -- schemas/` boş.
+İhlal: Zod'u değiştir, üretmeden commit'le → kapı kırmızı.
 
 > D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
 > D-53'ün "0.C bloğu FAZ-1.2'den önce kapanır" taahhüdü: bağımsız olan üçü (0.C.1,

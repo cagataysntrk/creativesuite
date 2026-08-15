@@ -1,26 +1,48 @@
 // Ring -1 — CONTRACTS. Bu paket HİÇBİR ŞEY import etmez (§3.1).
-// Gerçek çekirdek tipler (Result, Money, RecordEnvelope, OpaqueAttributes) FAZ-1.1b'de.
+// `package.json` → `dependencies` YOK; halka sınırının en dış katmanı budur.
 
-/** Bir paketin ait olduğu halka. Bağımlılık yönü bu sırayla tek yönlüdür. */
-export type RingName =
-  'contracts' | 'kernel' | 'registry' | 'corpus' | 'providers' | 'render' | 'engine' | 'ui' | 'app'
+export type { RingName, PackageIdentity } from './identity.js'
+export { RING_ORDER, IDENTITY } from './identity.js'
 
-/** Her workspace paketi kendini böyle tanıtır. */
-export interface PackageIdentity {
-  readonly name: string
-  readonly ring: RingName
-}
+export type {
+  Brand,
+  RunId,
+  JobId,
+  RecordId,
+  AssetId,
+  BrandId,
+  EraId,
+  StepId,
+  ProviderId,
+  ChannelId,
+  PipelineId,
+  EntityTypeId,
+  CorrelationId,
+  IdKind,
+} from './brand.js'
+export { ID_PREFIXES } from './brand.js'
 
-export const RING_ORDER: readonly RingName[] = [
-  'contracts',
-  'kernel',
-  'registry',
-  'corpus',
-  'providers',
-  'render',
-  'engine',
-  'ui',
-  'app',
-]
+export type { Currency, Money, MoneyRange } from './money.js'
+export { MICROS_PER_USD, usd, ZERO_USD, addMoney } from './money.js'
 
-export const IDENTITY: PackageIdentity = { name: '@suite/contracts', ring: 'contracts' }
+export type { Ok, Err, Result } from './result.js'
+export { ok, err, isOk, isErr, mapOk } from './result.js'
+
+export type { ErrorKind, AppError } from './errors.js'
+export { ERROR_KINDS } from './errors.js'
+
+export type {
+  OpaqueAttributes,
+  RecordKind,
+  RecordZone,
+  RecordStatus,
+  SourceKind,
+  RecordSource,
+  RecordScope,
+  Timestamp,
+  RecordEnvelope,
+} from './envelope.js'
+export { RECORD_KINDS, RECORD_ZONES, RECORD_STATUSES, SOURCE_KINDS } from './envelope.js'
+
+export type { VerbName, EffectClass, VerbSpec, VerbTable, CostEvent, VerbPlan } from './verbs.js'
+export { VERBS, EFFECT_CLASSES } from './verbs.js'

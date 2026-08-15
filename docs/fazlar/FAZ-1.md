@@ -20,7 +20,7 @@ ağ kablosu çekiliyken de çalışıyor
    `tsc -b` **üçü de** kırmızı
 💾 `feat(repo): pnpm workspace ve halka sınırları` · `Refs: FAZ-1.1 · §3.6`
 
-## 1.1b — packages/contracts    [ ]
+## 1.1b — packages/contracts    [x] 2026-08-15
 
 📖 §3.2, §8.6 · R-01, R-41 · D-36, D-41
 🔗 1.1
