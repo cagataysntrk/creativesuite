@@ -6,9 +6,9 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.13
+siradaki_adim: 4.14
 son_guncelleme: 2026-08-15
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
 son_kanit: "FAZ 4 iskeleti AYAKTA: just dev ile Hono API + Vite SPA birlikte kalkiyor, Komut paleti (Turkce katlamali, foldForSearch), kalici makine durumu seridi SSE'den besleniyor. Kabul kriteri GERCEK SIGKILL ile dogrulandi: canli -> kopuk, 'baglanti yok', son deger GOSTERILMIYOR. Bu turda uc kez ayni desen: iki gercek. D-160 kaskad (comp token duz degere derleniyordu, iki yuzey imkansizdi), D-163 kablo bicimi UYDURULMUS ve dokuz test onu dogrulamisti, D-166 nabiz araligi UI'a gomuluydu. D-165: Turkce katlama Ring -1'e tasindi cunku tarayici halkasi kernel'i import edemez ve ikinci bir katlama palet ile FTS5'i ayristirirdi. 780 test, 26 kapi. Sirada 4.3 Corpus Browser — R-14'un yuzu."
 ```
@@ -20,7 +20,7 @@ Chromium gerçek slayt basıyor, marka QA gerçek sayı veriyor, manifest her ç
 kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle örtülmedi** —
 `3.14` insan onayına bloke. **780 test**, 26 kapı yeşil.
 
-> ⛔ **DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14`.
+> ⛔ **BEŞ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b`.
 > Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: dördü de plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
@@ -63,14 +63,14 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.10** · Reconciliation; BEŞ sütun, kırık imza planı durduruyor | 2026-08-16 |
 | **4.11** · Schema Editor; kuru çalıştırma gerçek corpus'a karşı | 2026-08-16 |
 | **4.12** · Cost & Budget; tavan Ring 1'de, UI'dan ayarlanıyor | 2026-08-16 |
+| **4.13** · Telegram yüzey sınırı; bot üretim başlatamaz (§4c) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.13` — Tailscale + Telegram onay botu** (§9.4). D-19'un üç yüzeyinden ikisi:
-telefondan onay kuyruğuna erişim ve Telegram inline klavyesiyle onayla/reddet.
-⚠ Telegram bot token'ı gerektirir (yeni bir `V-nn` doğrulama borcu olabilir);
-Tailscale kurulumu makineye bağlı. **Bu adım insan girdisi isteyebilir** — o hâlde
-`4.14` Asset Library'ye geçilir.
+**`4.14` — Asset Library** (§12.9). FTS5 arama, **"premium üretildi ama hiç yayınlanmadı"**
+filtresi, **Reuse birinci sınıf eylem**. `derived/blobs` + `.meta.json` sidecar ve
+`packages/engine/src/blobs.ts` hazır. ⚠ 14 varlık `derived/karantina/`da (D-155) —
+kütüphane onları yayınlanabilir gibi göstermemeli.
 
 ## Bloke adımlar
 
@@ -93,6 +93,10 @@ görünürdü. Ölçüldü: düzeltmeyle onay sonrası **7 kayıt** geliyor, dü
 **`3.7` · `3.8` — V-16 anahtarları.** `sops exec-env` altında `CF_ACCOUNT_ID`+
 `CF_API_TOKEN` (bedava şerit) ya da `FAL_KEY` (premium). `3.8` ayrıca ~$3 gerçek para
 harcıyor. Anahtarsız `image.generate` yeteneği hiçbir sağlayıcıya çözülmüyor.
+
+**`4.13b` — Tailscale + gerçek bot token.** `tailscale` kurulu değil (sudo kurulum +
+hesap girişi) ve `TELEGRAM_BOT_TOKEN` yer tutucu (`doldurulacak`). Bot mantığı ve yüzey
+sınırı hazır ve test edilmiş; kalan iş yalnız gerçek erişim. → V-17
 
 **`3.14` — `2.9`'a bağlı.** Onaylı corpus olmadan hat `bilgi-sec` adımında `NO_CONTEXT`
 ile duruyor; bu doğru davranış (R-13), atlatılmıyor. `2.9` açıldığı gün `3.14` koşulur

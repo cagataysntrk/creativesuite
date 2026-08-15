@@ -61,6 +61,30 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.13: Telegram YÜZEY SINIRI — bot üretim başlatamaz (§4c).
+  const tg = (govde) =>
+    fetch(`${U}/api/telegram/webhook`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(govde),
+    })
+  const uretDeneme = await tg({ message: { text: '/uret instagram-post' } })
+  bekle(
+    uretDeneme.status === 403,
+    `Telegram'dan üretim başlatma reddedilmedi (${uretDeneme.status}) — yüzey sınırı yok`
+  )
+  const uretGovde = await uretDeneme.json().catch(() => ({}))
+  bekle(
+    typeof uretGovde.neden === 'string' && uretGovde.neden.length > 0,
+    'yasak komut NEDENSİZ reddediliyor — kullanıcı başka yazımlar dener'
+  )
+  // Gerekçesiz red bu yüzeyde de reddedilir (D-173).
+  const tgRedsiz = await tg({ message: { text: '/reddet run_x onay' } })
+  bekle(tgRedsiz.status === 403, `gerekçesiz red kabul edildi (${tgRedsiz.status})`)
+  // Bozuk inline callback sessizce ONAYA dönüşmez.
+  const bozukCb = await tg({ callback_query: { data: 'hede|run_x|g' } })
+  bekle(bozukCb.status === 400, `bozuk callback ${bozukCb.status} döndü, 400 olmalı`)
+
   // FAZ-4.12: bütçe tavanı UI'dan ayarlanır ve GEÇERSİZ tavan yazılmaz.
   const bt = await (await fetch(`${U}/api/butce`)).json()
   bekle(bt.tavan !== undefined, '/api/butce tavan dönmüyor')
@@ -230,5 +254,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 17 uç · bütçe · şema · keşif · yerleşim · qa · kuyruk · plan · SSE`
+  `    sunucu ayağa kalktı · 18 uç · telegram · bütçe · şema · keşif · yerleşim · qa · kuyruk · SSE`
 )

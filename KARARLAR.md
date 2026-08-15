@@ -469,3 +469,25 @@ insanın kararıdır (R-14). Sunucunun kendi kendine commit atması, "onay = git
 yasasını sunucunun eline verirdi.
 **Ders:** bir yapılandırma değeri env'de yaşıyorsa, o değer hakkında hiçbir soru
 cevaplanamaz — ne "kim değiştirdi", ne "ne zaman", ne "hangi çalıştırma hangisini gördü".
+
+## D-180 — Yüzey sınırı token'a bağlı değil, sözleşmeye bağlı
+2026-08-16 · `4.13` Telegram botu istiyordu ama `TELEGRAM_BOT_TOKEN` yer tutucu
+(`doldurulacak`, 12 karakter — gerçek token ~46) ve `tailscale` kurulu değil. İki seçenek
+vardı: adımı tamamen bloke etmek ya da token gerektirmeyen kısmı yapmak.
+İkincisi seçildi çünkü botun ASIL işi bir sözleşmedir, bir ağ bağlantısı değil:
+**Telegram yalnız onay/red/gerekçedir** (§4c). O sınır saf bir fonksiyonda yaşıyor ve
+token olmadan test edilebiliyor — `/uret` `/plan` `/sema` `/butce` `/discovery` `/sil`
+hepsi **403 + gerekçe** ile geri çevriliyor.
+**403, 404 değil:** komut TANINIYOR ama bu yüzeyde yok. 404 "böyle bir komut yok" derdi
+ve kullanıcı başka yazımlar denerdi — sessiz yok sayma "belki ileride ekleriz"in kibar
+hâlidir.
+Üç ek karar: gerekçesiz red **bu yüzeyde de** reddediliyor (aynı kural iki yüzeyde farklı
+olamaz — D-173); bozuk inline callback `null` dönüyor, sessizce ONAYA dönüşmüyor; ve
+yer tutucu token ile bot **AÇILMIYOR ama bu SESSİZ kalmıyor** — sunucu açılışta
+`telegram botu: KAPALI` yazıyor. Sessiz kalsaydı "bot çalışıyor" sanılır ve masadan
+uzaktayken kuyruk sessizce tıkanırdı.
+Adım bölündü: `4.13` (sözleşme, bitti) · `4.13b` (gerçek token + Tailscale, `bloke: insan`,
+V-17). Beşinci insan blokajı — hepsi `insan` sınıfında ve LOOP§G üçlü kuralına saymıyor
+(D-157), ama DURUM.md ⛔ bloğunda adlarıyla ilan ediliyor.
+**Ders:** bir bileşenin "dış bağımlılığı var" olması, hiçbir parçasının yapılamayacağı
+anlamına gelmez. Sözleşmeyi bağlantıdan ayırmak, blokajın kapsamını daraltır.

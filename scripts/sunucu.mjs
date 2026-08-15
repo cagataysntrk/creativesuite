@@ -53,6 +53,16 @@ console.log(`  marka ${BRAND} · dönem ${eraId}`)
 console.log(`  izlenen: ${sunucu.izlenen.join(', ') || '(hiçbiri)'}`)
 console.log(`  uçlar: /api/durum · /api/olay (SSE) · /api/saglik`)
 
+// Telegram botu: yer tutucu token ile AÇILMAZ ama bu SESSİZ kalmaz (§9.4 · D-180).
+// Sessiz kalsaydı "bot çalışıyor" sanılır ve masadan uzaktayken kuyruk sessizce tıkanırdı.
+const { tokenGercekMi } = await import(join(REPO, 'apps/server/dist/index.js'))
+const tgToken = process.env['TELEGRAM_BOT_TOKEN']
+console.log(
+  tokenGercekMi(tgToken)
+    ? '  telegram botu: token GERÇEK — webhook /api/telegram/webhook'
+    : `  telegram botu: KAPALI — TELEGRAM_BOT_TOKEN ${tgToken === undefined ? 'yok' : 'yer tutucu'} (V-17)`
+)
+
 const kapat = () => {
   sunucu.kapat().then(() => process.exit(0))
   setTimeout(() => process.exit(0), 2000).unref()

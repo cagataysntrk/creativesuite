@@ -162,17 +162,24 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    varsayılana düşür → test kırmızı
 💾 `feat(ui): maliyet ve bütçe panosu` · `Refs: FAZ-4.12 · §8.3`
 
-## 4.13 — Tailscale ve Telegram onay botu    [ ]
+## 4.13 — Telegram onay botu: yüzey sınırı    [x] 2026-08-16
 
 📖 §9.4 · D-19
-🔗 4.7
-🛠 D-19'un üç yüzeyi tamamlanıyor: yerel PC + Tailscale + Telegram. Bot **yalnız
-   onay/red/gerekçe** — üretim başlatmaz, karar değiştirmez (§4c). Masadan uzaktayken
-   kuyruğun tıkanmaması için.
-📁 `apps/server/src/telegram/`
+✅ `/uret` `/plan` `/sema` `/butce` `/discovery` `/sil` → **403 + gerekçe** · onay/red
+   geçiyor · gerekçesiz red 403 · bozuk callback 400 (sessizce onaya dönüşmüyor) · 13 test
+🧪 `/uret`i yasak listesinden çıkar → kapı + test kırmızı · bozuk callback'i onaya
+   çevir → kapı + test kırmızı
+
+## 4.13b — Tailscale erişimi ve gerçek bot    [ ] BLOKE: insan
+
+📖 §9.4 · D-19
+🔗 4.13
+🛠 `tailscale` KURULU DEĞİL (sudo kurulum + hesap girişi gerekiyor) ve
+   `TELEGRAM_BOT_TOKEN` **yer tutucu** (`doldurulacak`, 12 karakter — gerçek token ~46).
+   Bot mantığı ve yüzey sınırı `4.13`te hazır; kalan iş gerçek token + telefon.
+📁 `secrets/secrets.enc.yaml` · makine kurulumu
 ✅ Telefondan Tailscale ile onay kuyruğuna girip bir varlık onaylanıyor
-🧪 Telegram'dan üretim başlatmayı dene → **reddediliyor**, yüzey sınırı zorlanıyor
-💾 `feat(server): tailscale erişimi ve telegram onay botu` · `Refs: FAZ-4.13 · §9.4`
+💾 `feat(server): tailscale erişimi` · `Refs: FAZ-4.13b · §9.4`
 
 ## 4.14 — Asset Library    [ ]
 

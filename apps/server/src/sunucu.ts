@@ -35,6 +35,7 @@ import { launcherPlani } from './launcher.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
+import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -147,6 +148,69 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         status: durum,
       }),
     })
+  })
+
+  // ── Telegram botu: YÜZEY SINIRI (§4c, §9.4 · D-19 · FAZ-4.13) ─────────────
+  //
+  // Webhook ucu. Bot yalnız onay/red/gerekçe işler; yasak komutlar GEREKÇESİYLE geri
+  // çevrilir — sessizce yok saymak, "belki ileride" demenin sessiz hâli olurdu.
+  //
+  // ⚠ Uç, token gerçek olmasa da AÇIKTIR: yüzey sınırı token'a bağlı bir davranış
+  // değil, bir sözleşme. Test ve kapı onu token olmadan da doğrulayabilmeli.
+  app.post('/api/telegram/webhook', async (c) => {
+    const govde = (await c.req.json().catch(() => null)) as {
+      message?: { text?: string }
+      callback_query?: { data?: string }
+    } | null
+    if (govde === null) return c.json({ ok: false, hata: 'geçersiz JSON' }, 400)
+
+    // Inline klavye basımı: `onay|<run_id>|<gate>`.
+    const cb = govde.callback_query?.data
+    if (typeof cb === 'string') {
+      const p = parseCallback(cb)
+      if (p === null) return c.json({ ok: false, hata: 'bozuk callback' }, 400)
+      // Red inline klavyeden GEREKÇESİZ gelir — bot gerekçe İSTER, karar yazmaz.
+      if (p.eylem === 'red') {
+        return c.json({ ok: true, cevap: `/reddet ${p.runId} ${p.gate} <gerekçe>` })
+      }
+      const r = kararVer({
+        repoRoot: o.repoRoot,
+        runId: p.runId,
+        gate: p.gate,
+        karar: 'approved',
+        gerekce: '',
+        at: o.simdi(),
+      })
+      yayinla('degisim')
+      return c.json(r, r.ok ? 200 : 409)
+    }
+
+    const komut = parseKomut(govde.message?.text ?? '')
+    switch (komut.kind) {
+      case 'yasak':
+        // 403: komut TANINIYOR ama bu yüzeyde yok. 404 olsaydı "böyle bir komut yok"
+        // derdi ve kullanıcı başka yazımlar denerdi.
+        return c.json({ ok: false, komut: komut.komut, neden: komut.neden }, 403)
+      case 'kuyruk':
+        return c.json({ ok: true, bekleyenler: bekleyenler(o.repoRoot) })
+      case 'yardim':
+        return c.json({ ok: true, cevap: YARDIM })
+      case 'onayla':
+      case 'reddet': {
+        const r = kararVer({
+          repoRoot: o.repoRoot,
+          runId: komut.runId,
+          gate: komut.gate,
+          karar: komut.kind === 'onayla' ? 'approved' : 'rejected',
+          gerekce: komut.kind === 'reddet' ? komut.gerekce : '',
+          at: o.simdi(),
+        })
+        yayinla('degisim')
+        return c.json(r, r.ok ? 200 : 409)
+      }
+      case 'bilinmeyen':
+        return c.json({ ok: false, cevap: YARDIM }, 400)
+    }
   })
 
   // ── maliyet ve bütçe (§8.3, §12.9 · D-17 · FAZ-4.12) ──────────────────────

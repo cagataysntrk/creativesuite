@@ -11,3 +11,11 @@ export { tersIndeks, tersIndeksOzeti, type Kullanim, type TersIndeksSonuc } from
 export { baglamOnizle, type BaglamGirdisi, type BaglamSonuc } from './baglam.js'
 export { launcherPlani, type LauncherGirdisi, type LauncherSonuc } from './launcher.js'
 export { bekleyenler, kararVer, type KuyrukSatiri, type KararSonuc } from './kuyruk.js'
+export {
+  parseKomut,
+  parseCallback,
+  callbackData,
+  tokenGercekMi,
+  YARDIM,
+  type BotKomutu,
+} from './telegram.js'
