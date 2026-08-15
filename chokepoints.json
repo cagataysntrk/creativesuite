@@ -70,10 +70,11 @@
     {
       "id": "git-cagiran",
       "ad": "Git çağıran",
-      "neden": "Onay = git commit (§5.4). İki git çağırıcı, biri kancasız çalışan iki onay yolu demektir.",
+      "neden": "Onay = git commit (§5.4). İki git çağırıcı, biri kancasız çalışan iki onay yolu demektir. Test dosyaları muaf (D-77 gerekçesi): git.ts'i sınamak gerçek bir depo kurmayı gerektirir, test üretim yoluna import edilmez.",
       "izinli": ["packages/kernel/src/git.ts"],
       "desen": "(exec|execFile|execa|spawn)\\w*\\s*\\(\\s*['\"]git['\"]|from\\s+['\"]simple-git['\"]",
-      "faz": "FAZ-2.4"
+      "faz": "FAZ-2.4",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     },
     {
       "id": "kaydetme",

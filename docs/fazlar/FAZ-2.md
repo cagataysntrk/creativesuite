@@ -78,7 +78,7 @@ yeniden üretilebilsin.
    sınandı**: `runVerb`'den kapıyı sök → test kırmızı (D-69'un dersi)
 💾 `feat(kernel): untrusted_input sınırı` · `Refs: FAZ-2.3b · §14`
 
-## 2.4 — `corpus.propose()` — agent yazma darboğazı    [ ]
+## 2.4 — `corpus.propose()` — agent yazma darboğazı    [x] 2026-08-15
 
 📖 §5.4 · R-14 · D-31
 🔗 FAZ-1.6
@@ -86,9 +86,14 @@ yeniden üretilebilsin.
    **görünmez**. Onay insanın git commit'idir. `git` çağıran tek yer `kernel/src/git.ts`
    (§3.8) ve bu adımda doğuyor.
 📁 `packages/corpus/src/write.ts` · `packages/kernel/src/git.ts`
-✅ `just test propose` yeşil · draft kayıt `select()`'ten dönmüyor
-🧪 Agent olarak `status: active` yaz → reddediliyor (FAZ-1.6'da kuruldu, burada git
-   darboğazıyla tamamlanıyor) · `propose()` dışından `corpus/` altına yaz → kapı kırmızı
+✅ `just test select` → 17 test (2 tanesi UÇTAN UCA: propose → dosyada `status: draft`
+   var → reindex indeksliyor → `selectRecords` ve `selectSearch` BOŞ dönüyor; insan
+   `status: active` yazınca aynı dosya görünür oluyor) · `just test git` → 11 test.
+   `git.ts`te **`commit` fonksiyonu YOK** — commit insanın eylemidir (R-14)
+🧪 Koşuldu: agent `status: active` yazmayı denedi → `{"kind":"agent_must_propose"}` ·
+   ikinci bir git çağırıcı yaz → `chokepoints` iki kapıdan birden kırmızı (`git-cagiran`
+   ve `alt-surec`) · `manifest-yazici` testin kendi yolunu bile yakaladı, kapı
+   gevşetilmedi, test kurala uyduruldu
 💾 `feat(corpus): propose ve git darboğazı` · `Refs: FAZ-2.4 · §5.4`
 
 ## 2.5 — Çelişki tespiti ve tahkim kuyruğu    [ ]

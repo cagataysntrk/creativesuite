@@ -134,3 +134,16 @@ export {
   type IngestGateInput,
   type IngestGateDecision,
 } from './ingest/boundary.js'
+
+// Git — TEK çağırıcı (§3.8 · §5.4 · FAZ-2.4). `commit` YOK: onay insanın eylemidir.
+export {
+  headSha,
+  currentBranch,
+  isClean,
+  changedPaths,
+  fileHistory,
+  isIgnored,
+  type GitOptions,
+  type GitFailure,
+  type GitResult,
+} from './git.js'

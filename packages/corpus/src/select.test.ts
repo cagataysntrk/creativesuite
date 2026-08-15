@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { migrate, openDb, type Db } from '@suite/kernel'
 import { INDEX_MIGRATIONS, search, upsertRecords, type IndexRow } from './search.js'
+import { readFileSync } from 'node:fs'
+import { makeTempDir } from '@suite/kernel/testing'
+import { reindex } from './reindex.js'
+import { propose, writeRecord } from './write.js'
 import { selectRecords, selectSearch, visibleIds } from './select.js'
 
 // §5.2'nin tek vaadi: "emekliye ayrılmış 2024 konumlandırması 2026 deck'ine ASLA
@@ -161,5 +165,62 @@ describe('arama yüklemden GEÇER — sıralama yetkilendirme değildir', () => 
       satir({ id: 'rec_c', era_id: '*' }),
     ])
     expect([...visibleIds(db, sorgu())].sort()).toEqual(idler(selectRecords(db, sorgu())))
+  })
+})
+
+describe('propose → reindex → select: öneri UÇTAN UCA görünmez (§5.4 · R-14)', () => {
+  // 2.2 yüklemi draft'ı eliyor, 2.4 propose'u draft yazıyor. İkisinin AYRI AYRI
+  // doğru olması yetmez: agent'ın yazdığı bir dosyanın gerçekten aranamadığını
+  // dosya sisteminden indekse kadar görmek gerekir.
+  it('agent önerisi dosyaya iniyor ama indekste GÖRÜNMÜYOR', () => {
+    const tmp = makeTempDir('suite-propose-')
+    try {
+      const yazma = propose({
+        root: tmp.path,
+        entityType: 'positioning',
+        slug: 'agent-onerisi',
+        frontmatter: { id: 'rec_oneri', brand_id: MARKA, type: 'positioning', era_id: 'era_1' },
+        body: 'ölçümlerinizi güncelledik',
+      })
+      expect(yazma.ok).toBe(true)
+
+      // Dosya GERÇEKTEN var — öneri kayboluyor değil, görünmüyor.
+      if (yazma.ok) expect(readFileSync(yazma.path, 'utf8')).toContain('status: draft')
+
+      const rapor = reindex(db, tmp.path)
+      expect(rapor.indexed).toBe(1)
+
+      // Ama retrieval yükleminden geçmiyor.
+      expect(selectRecords(db, sorgu())).toEqual([])
+      expect(selectSearch(db, sorgu(), 'ölçüm')).toEqual([])
+    } finally {
+      tmp.cleanup()
+    }
+  })
+
+  it('insan onaylayıp status active yapınca AYNI dosya görünür oluyor', () => {
+    const tmp = makeTempDir('suite-onay-')
+    try {
+      // Onay insanın eylemidir (git commit); burada onun yazma yolunu taklit ediyoruz.
+      writeRecord({
+        root: tmp.path,
+        entityType: 'positioning',
+        slug: 'onayli',
+        frontmatter: {
+          id: 'rec_onayli',
+          brand_id: MARKA,
+          type: 'positioning',
+          era_id: 'era_1',
+          status: 'active',
+          zone: 'human',
+        },
+        body: 'ölçümlerinizi güncelledik',
+        actor: 'human',
+      })
+      reindex(db, tmp.path)
+      expect(idler(selectRecords(db, sorgu()))).toEqual(['rec_onayli'])
+    } finally {
+      tmp.cleanup()
+    }
   })
 })

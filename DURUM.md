@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 2
-siradaki_adim: 2.4
+siradaki_adim: 2.5
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
@@ -87,6 +87,7 @@ indeksi, projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıy
 | **2.2** · retrieval yüklemi (tek nokta) | 2026-08-15 |
 | **2.3** · bağlam tarifleri ve manifest | 2026-08-15 |
 | **2.3b** · untrusted_input sınırı | 2026-08-15 |
+| **2.4** · propose ve git darboğazı | 2026-08-15 |
 
 ## Sıradaki adım
 
