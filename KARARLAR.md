@@ -492,3 +492,18 @@ seviyesinde tam olarak bu oluyordu.
 `scripts/reindex.mjs` EXIT=1 ile açık mesaj basıyor. **Alt dizinlerde yutmak meşru kalıyor**
 (izin sorunu tek bir dosyayı atlar ve rapor edilir), kökte değil — kök yoksa HİÇBİR şey
 indekslenmez ve arama boş dönünce sebebi aranmaz.
+
+## D-76 — Zorlanamayan kabul kriterleri gerçeğe uyduruldu
+2026-08-15 · Doğrulama agent'ı üç kriterin **yazıldığı gibi zorlanamadığını** buldu.
+Kriteri olduğu gibi bırakıp "karşılandı" saymak kanıtsız tikleme olurdu (R-70); metni
+gerçeğe uydurmak ise sessiz sapma (R-74). Doğrusu: **açıkça düzeltmek.**
+1. **FAZ-1.9** — "manifest'siz çıktı üretmeyi dene → hata": bugün bir üretim/yayın yolu
+   YOK, dolayısıyla `inspectManifest()` yalnız saf fonksiyon olarak sınanabiliyor.
+   Üretim yolundaki zorlama **FAZ-3.13**'e bağlandı ve kriter bunu söylüyor.
+2. **FAZ-1.10** — "fixture'da gerçek prospect adı ara → yok": bir İSİM düz metindir,
+   desenle ayırt edilemez. Zorlanabilir olan (example.com dışı e-posta, TR telefon,
+   TCKN/VKN biçimi, `synthetic: true` işareti) zaten denetleniyor ve kriter artık onu
+   söylüyor; ad disiplini `SENTETİK` ön ekiyle konvansiyon olarak sürüyor.
+3. **`just golden`** — no-op'tu ve "`just verify` yeşil" kriterini zayıf okutuyordu.
+   Artık açıkça "hiçbir şey KANITLAMAZ, FAZ-1.10b/V-02'ye bağlı" diyor. Sessiz bir
+   `echo` yerine dürüst bir uyarı: yeşil bir çıktının ne kanıtladığı yazılı olmalı.

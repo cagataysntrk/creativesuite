@@ -52,7 +52,9 @@ test *args:
 
 # Golden-file testleri: commit edilen golden JSON METRİKTİR, piksel değil
 golden:
-    @echo "(FAZ-3.2'de tipografi golden'ı gelecek)"
+    @echo "  golden harness henüz YOK — FAZ-1.10b, V-02'ye (marka fontu) bağlı."
+    @echo "  'just verify' bu ayakta hiçbir şey KANITLAMAZ; gerçek metrikler 3.2'de."
+
 
 # Kaydet: kapı → stage → commit → push → KANITLA. Tek darboğaz (R-05).
 # Mesajı stdin'den alır:  just save <<'EOF' ... EOF

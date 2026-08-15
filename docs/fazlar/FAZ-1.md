@@ -135,7 +135,9 @@ ağ kablosu çekiliyken de çalışıyor
    `inspectManifest()` yedi kusur sınıfı arar; kusur bir DEĞERDİR, istisna değil.
    En sert iki kural: sağlayıcı seçen adım **kaybedenleri de** yazmak zorunda, ve biten
    metered adım gerçek maliyet olmadan kapanamaz.
-✅ Manifest'siz çıktı üretmeyi dene → hata · `just test manifest` yeşil
+✅ `inspectManifest()` yedi kusur sınıfını da yakalıyor · `just test manifest` yeşil
+   ⚠ Üretim yolunda zorlama **FAZ-3.13'te** bağlanır — bugün `PUBLISH` yolu yok, dolayısıyla
+   "manifest'siz çıktı yayınlanamaz" kuralı saf fonksiyon seviyesinde doğrulanıyor (D-76)
 💾 `feat(kernel): run manifest sözleşmesi` · `Refs: FAZ-1.9 · §13`
 
 ## 1.10 — Test altyapısı    [x] 2026-08-15
@@ -148,7 +150,11 @@ ağ kablosu çekiliyken de çalışıyor
    (tek `process.env` okuyucusu) · `errors/make.ts` — cassette sarmalayacak bir istemci
    olmadan anlamsızdı (D-60).
 ✅ `just test` gerçek testler koşuyor (stub değil) · cassette kaydet→oynat çalışıyor
-🧪 Cassette'te secret ara → yok · fixture'da gerçek prospect adı ara → yok
+🧪 Cassette'te secret ara → yok · fixture'da PII ara → yok (e-posta example.com dışı,
+   TR telefon, TCKN/VKN biçimi) ve her fixture `synthetic: true` taşıyor.
+   ⚠ "Gerçek prospect ADI" desenle zorlanamaz — bir isim düz metindir. Bunun yerine
+   zorlanabilir olan denetleniyor; ad disiplini `prospect` fixture'larında `SENTETİK`
+   ön ekiyle sağlanıyor (D-76)
 💾 `feat(repo): test altyapısı, cassette ve fixture corpus` · `Refs: FAZ-1.10 · §15`
 
 ## 1.10b — Golden-file harness    [ ]
