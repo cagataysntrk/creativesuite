@@ -42,15 +42,21 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    yolu ve metrik onu pikselden güvenilir yakalar (antialiasing gürültüsü yok).
 💾 `feat(render): golden tipografi metrikleri` · `Refs: FAZ-3.2 · §7.2`
 
-## 3.3 — Kapalı `LayoutEnum`, taşma otomatik böler    [ ]
+## 3.3 — Kapalı `LayoutEnum`, taşma otomatik böler    [x] 2026-08-15
 
 📖 §7.1 · R-23
 🔗 3.1
 🛠 Dört başlangıç düzeni, kapalı birleşim. **Taşma otomatik BÖLER, asla küçültmez** —
    tipi küçültmek Türkçe metinde okunabilirliği bitirir ve sorunu gizler (§12.3).
 📁 `packages/render/src/layout/`
-✅ `just test layout` yeşil · uzun Türkçe başlık iki satıra bölünüyor, punto sabit
-🧪 +%30 sahte-yerelleştirilmiş metin ver → hiçbir yerde kırpma yok (R-23)
+✅ `just test layout` → 11 test · gerçek render ile kanıt: taşan içerik **iki slayda**
+   bölündü ve ikinci slayt AYNI puntoyla basıldı (`1080×1350 · 2 blok` + `· 1 blok`) ·
+   dört düzenin dördü de sonlanıyor, her blok TAM OLARAK bir slaytta
+🧪 Sahte-yerelleştirme yerine GERÇEK uzun Türkçe metin: taşıyor ve sebebi yazılı
+   (`başlık bütçesi aşıldı (76/68 karakter)`) · **dönen yapıda ÖLÇEK alanı YOK** —
+   kural, yazılmayan alanla zorlanıyor: imza bir çarpan taşısaydı biri onu kullanırdı ·
+   tek başına sığmayan blok kendi slaydına konup `oversized` İŞARETLENİYOR (sessizce
+   kırpmak ve küçültmek yasak olan iki şey; üçüncü yol açıkça işaretlemek)
 💾 `feat(render): kapalı düzen kümesi ve taşma bölme` · `Refs: FAZ-3.3 · §7.1`
 
 ## 3.4 — Sağlayıcı tanımlayıcısı ve içe aktarıcı    [ ]

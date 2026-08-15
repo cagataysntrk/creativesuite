@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.2
+siradaki_adim: 3.4
 son_guncelleme: 2026-08-15
 bloke: ["2.9"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.1 kapandi: gercek Chromium 1080x1350 PNG uretti, marka tokenlariyla, Turkce glifler eksiksiz, baslik kuculmeden bolundu. Uc ihlal testi kirmizi: zarfi renderStatica gecirmek DERLEME hatasi, ikinci chromium.launch chokepoints, metered:false enjekte VERB_CONTRACT_MISMATCH. 414 test, 20 kapi. playwright@1.56.1 sabit surum (D-86)."
+son_kanit: "FAZ 3.3 kapandi: tasan icerik iki slayda bolundu ve ikinci slayt AYNI puntoyla basildi (gercek render). Donen yapida olcek alani YOK — kural yazilmayan alanla zorlanuyor. 3.2 golden metrik V-02ye bagli, ATLANDI (D-59). 425 test, 21 kapi."
 ```
 
 ## Neredeyiz
@@ -37,16 +37,17 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | Adım | Tarih |
 |---|---|
 | **3.1** · COMPOSE ve statik RENDER | 2026-08-15 |
+| **3.3** · kapalı düzen kümesi, taşma bölme | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.2` — golden-file tipografi testi (JSON metrik).** `ĞÜŞİÖÇ ğüşıöç Ağrı İğne` her
-şablon boyutunda render edilir; commit edilen golden bir PNG değil **JSON metriktir**
-(glyph kutuları, satır sayısı, font ailesi, `notdef` = 0).
+**`3.4` — sağlayıcı tanımlayıcı formatı ve adaptör sözleşmesi.** `estimate()` senkron
+ve saf (R-42: `async` derleme hatası), sağlayıcı yanıt şekli adaptör sınırını geçmez
+(R-43). Ardından `3.5` yetenek yönlendiricisi.
 
-⚠ Bu adım **V-02'ye bağlı**: marka fontu seçilmeden metrik dondurmak, testin varlık
-sebebini (Türkçe glif fallback'ini yakalamak) çürütür (D-59). V-02 açıksa `3.3`
-(kapalı LayoutEnum) ile devam edilir.
+⚠ **`3.2` (golden metrik) ATLANDI** — V-02'ye bağlı: marka fontu seçilmeden metrik
+dondurmak, testin varlık sebebini (Türkçe glif fallback'ini yakalamak) çürütür (D-59).
+Font geldiğinde `3.2` açılır.
 
 ## Bloke adımlar
 

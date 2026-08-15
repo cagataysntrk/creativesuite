@@ -21,3 +21,16 @@ export {
   type BrowserResult,
 } from './browser.js'
 export { renderStatic, toHtml } from './static.js'
+
+// Kapalı düzen kümesi ve taşma bölme (§7.1 · R-23 · FAZ-3.3)
+export {
+  LAYOUTS,
+  LAYOUT_SPECS,
+  splitForLayout,
+  paginate,
+  paginateDocument,
+  type LayoutName,
+  type LayoutSpec,
+  type Overflow,
+  type Slide,
+} from './layout/enum.js'
