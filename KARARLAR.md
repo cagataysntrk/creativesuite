@@ -547,8 +547,10 @@ listeliyor ve ANAYASA §8.7 "`just docs` üretir, `docs-drift` sapmayı yakalar"
 **İkisi de doğru değildi**: `just docs` bir `echo` taslağıydı ve `docs-drift` diye bir
 kapı yoktu. `KURALLAR.md`'nin kendi başlığı bunu yasaklıyor: *"Zorlaması olmayan kural
 buraya yazılmaz — uygulanmayan 111 kural, uygulanan 20 kuraldan kötüdür."*
-`just docs` artık `registry/providers/*.provider.yaml`ten `docs/referans/saglayicilar.md`
-üretiyor; `docs-drift` kapısı sapmayı yakalıyor. 23. kapı.
+`just docs` artık İKİ belge üretiyor — ANAYASA ikisini de "üretilmiş" ilan ediyordu:
+`docs/referans/saglayicilar.md` (§8.7, kaynak `registry/providers/*.provider.yaml`) ve
+`docs/referans/pipelinelar.md` (§10, kaynak `registry/pipelines/*.pipeline.yaml`).
+`docs-drift` kapısı ikisini de denetliyor. 23. kapı.
 **Kapı ilk yazımda işi SESSİZCE yok ediyordu:** önce `just docs` koşuyor, elle yapılmış
 düzenlemeyi eziyor, sonra `git diff` boş çıkıyor ve yeşil raporluyordu. R-65 "elle
 düzenleme kaybolur" diyor ama **sessizce kaybolması** başka şey. Kapı artık üretim

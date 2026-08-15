@@ -66,12 +66,70 @@ if (failures.length > 0) {
   satirlar.push('')
 }
 
-const hedef = join(REPO, 'docs/referans/saglayicilar.md')
-const yeni = `${satirlar.join('\n')}`.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n'
-const eski = existsSync(hedef) ? readFileSync(hedef, 'utf8') : null
-writeFileSync(hedef, yeni)
+const yaz = (yol, govde) => {
+  const tam = join(REPO, yol)
+  const yeni = govde.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n'
+  const eski = existsSync(tam) ? readFileSync(tam, 'utf8') : null
+  writeFileSync(tam, yeni)
+  return eski === yeni ? 'güncel' : 'YENİDEN ÜRETİLDİ'
+}
+
+const s1 = yaz('docs/referans/saglayicilar.md', satirlar.join('\n'))
+
+// ── §10 pipeline kataloğu ───────────────────────────────────────────────────
+// ANAYASA §10 "üretilmiş kısım: docs/referans/pipelinelar.md" diyor. Elle yazılsaydı
+// ilk pipeline eklemesinde bayatlar ve kimse fark etmezdi — §8.7 ile aynı gerekçe.
+const { loadPipeline, listPipelines } = await import(join(REPO, 'packages/registry/dist/index.js'))
+const PIPE_KOK = join(REPO, 'registry/pipelines')
+
+const pl = []
+pl.push('# Pipeline kataloğu')
+pl.push('')
+pl.push('> ⚠ **ÜRETİLMİŞ DOSYA — elle düzenleme** (R-65). Üreteci: `just docs`.')
+pl.push('> Kaynak: `registry/pipelines/*.pipeline.yaml`. `docs-drift` kapısı sapmayı yakalar.')
+pl.push('')
+
+const hatlar = listPipelines(PIPE_KOK).sort()
+pl.push(`Toplam **${hatlar.length}** hat.`)
+pl.push('')
+
+const cozulemeyen = []
+for (const ad of hatlar) {
+  const r = loadPipeline(PIPE_KOK, ad)
+  if (!r.ok) {
+    cozulemeyen.push(`- \`${ad}\`: ${r.errors.map((e) => e.kind).join(', ')}`)
+    continue
+  }
+  const hat = r.value
+  const kapilar = hat.steps.filter((x) => x.gate !== null)
+  const ucretli = hat.steps.filter((x) => x.capability !== null)
+  pl.push(`## \`${hat.id}\` — ${hat.title}`)
+  pl.push('')
+  pl.push(
+    `${hat.steps.length} adım · ${ucretli.length} yetenek isteyen · ${kapilar.length} insan kapısı`
+  )
+  pl.push('')
+  pl.push('| adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |')
+  pl.push('|---|---|---|---|---|---|')
+  for (const st of hat.steps) {
+    pl.push(
+      `| \`${st.id}\` | \`${st.verb}\` | ${st.capability === null ? '—' : `\`${st.capability}\``} ` +
+        `| ${st.needs.join(', ') || '—'} | ${st.gate ?? '—'} | ${st.constraints['optional'] === true ? '✓' : '—'} |`
+    )
+  }
+  pl.push('')
+}
+
+if (cozulemeyen.length > 0) {
+  pl.push('## ⚠ Çözülemeyen hatlar')
+  pl.push('')
+  pl.push(...cozulemeyen)
+  pl.push('')
+}
+
+const s2 = yaz('docs/referans/pipelinelar.md', pl.join('\n'))
 
 console.log(
-  `  docs/referans/saglayicilar.md ${eski === yeni ? 'güncel' : 'YENİDEN ÜRETİLDİ'} · ` +
-    `${descriptors.length} tanımlayıcı`
+  `  saglayicilar.md ${s1} (${descriptors.length} tanımlayıcı) · ` +
+    `pipelinelar.md ${s2} (${hatlar.length} hat)`
 )
