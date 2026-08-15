@@ -10,7 +10,7 @@
 // çalıştırmaz, ama çıktısının sonunda ne yazdığını açıkça söyler — "yazmadım" demek
 // yetmez, ne yapmadığını yazmak gerekir.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -19,9 +19,51 @@ const { buildDiscoveryPlan, formatDiscoveryPlan } = await import(
   join(REPO, 'packages/engine/dist/index.js')
 )
 
-const mode = process.argv[2] ?? 'merge'
+// Üç alt komut (§4.4): plan (öneri üret) · review (kaydedilmiş planı oku) ·
+// apply (planı DRAFT olarak yaz). `apply` bile onay değildir — onay insanın commit'i.
+const altKomut = process.argv[2] ?? 'plan'
+if (!['plan', 'review', 'apply'].includes(altKomut)) {
+  console.log(`✗ bilinmeyen alt komut: ${altKomut}`)
+  console.log('  kullanım: just discovery plan [merge|mirror] [adaylar] [mevcut]')
+  console.log('            just discovery review <plan.json>')
+  console.log('            just discovery apply  <plan.json> <icerik.json>')
+  process.exit(1)
+}
+
+if (altKomut !== 'plan') {
+  const { reviewOps, applyPlan, formatApply, formatDiscoveryPlan } = await import(
+    join(REPO, 'packages/engine/dist/index.js')
+  )
+  const planYolu = process.argv[3] ?? ''
+  if (planYolu === '' || !existsSync(planYolu)) {
+    console.log(`✗ plan dosyası yok: ${planYolu || '(verilmedi)'}`)
+    process.exit(1)
+  }
+  const kayitliPlan = JSON.parse(readFileSync(planYolu, 'utf8'))
+
+  if (altKomut === 'review') {
+    console.log(formatDiscoveryPlan(kayitliPlan))
+    console.log(`\n  ${reviewOps(kayitliPlan).length} op incelemede · bu komut HİÇBİR ŞEY yazmadı.`)
+    process.exit(0)
+  }
+
+  const icerikYolu = process.argv[4] ?? ''
+  if (icerikYolu === '' || !existsSync(icerikYolu)) {
+    console.log(`✗ içerik dosyası yok: ${icerikYolu || '(verilmedi)'}`)
+    console.log(
+      '  apply, op gövdelerini içerik dosyasından okur — plan yalnız NE yapılacağını söyler.'
+    )
+    process.exit(1)
+  }
+  const icerikler = new Map(Object.entries(JSON.parse(readFileSync(icerikYolu, 'utf8'))))
+  const rapor = applyPlan(kayitliPlan, icerikler, join(REPO, 'corpus'))
+  console.log(formatApply(rapor))
+  process.exit(rapor.refused > 0 ? 1 : 0)
+}
+
+const mode = process.argv[3] ?? 'merge'
 if (mode !== 'merge' && mode !== 'mirror') {
-  console.log(`✗ bilinmeyen mod: ${mode}\n  kullanım: just discovery [merge|mirror]`)
+  console.log(`✗ bilinmeyen mod: ${mode}\n  kullanım: just discovery plan [merge|mirror]`)
   process.exit(1)
 }
 
@@ -39,8 +81,8 @@ const eraSlug = readFileSync(CURRENT, 'utf8').trim()
 // İkinci ve üçüncü argüman aday/mevcut listelerini dosyadan alır. Sebep kolaylık değil
 // KANIT: "ikinci çalıştırma 0 op üretir" FAZ 2'nin çıkış kriteridir ve corpus doğmadan
 // (FAZ-2.9) gerçek komutla gösterilemezdi.
-const adayYolu = process.argv[3] ?? 'derived/runs/discovery-candidates.json'
-const mevcutYolu = process.argv[4] !== undefined && process.argv[4] !== '' ? process.argv[4] : null
+const adayYolu = process.argv[4] ?? 'derived/runs/discovery-candidates.json'
+const mevcutYolu = process.argv[5] !== undefined && process.argv[5] !== '' ? process.argv[5] : null
 const oku = (rel) => {
   const tam = rel.startsWith('/') ? rel : join(REPO, rel)
   return existsSync(tam) ? JSON.parse(readFileSync(tam, 'utf8')) : null
@@ -71,6 +113,20 @@ const plan = buildDiscoveryPlan({
 })
 
 console.log(formatDiscoveryPlan(plan))
+
+// Plan `--kaydet <yol>` ile diske yazılabilir; `review` ve `apply` onu okur.
+// Varsayılan olarak YAZILMAZ: `plan` komutunun "hiçbir şey yazmaz" iddiası,
+// istisnasız olmadıkça iddia değildir.
+const kaydetIdx = process.argv.indexOf('--kaydet')
+if (kaydetIdx !== -1) {
+  const hedef = process.argv[kaydetIdx + 1]
+  if (hedef === undefined) {
+    console.log('✗ --kaydet bir yol istiyor')
+    process.exit(1)
+  }
+  writeFileSync(hedef, `${JSON.stringify(plan, null, 2)}\n`)
+  console.log(`  plan kaydedildi: ${hedef}`)
+}
 console.log('')
 if (adaylar === null) {
   console.log("  ⚠ aday listesi YOK — keşif çalıştırması FAZ-2.9'da koşacak.")

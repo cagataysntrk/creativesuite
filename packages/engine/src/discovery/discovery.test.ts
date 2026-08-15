@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { buildPlan, formatPlan, type CandidateRecord, type ExistingRecord } from './plan.js'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { makeTempDir } from '@suite/kernel/testing'
 import { parseLedger } from './decisions.js'
+import { applyPlan, type OpContent } from './apply.js'
 import { skipSignature, unchanged, type SkipSignatureInput } from './idempotent.js'
 
 // §4.4'ün iki vaadi: (1) ikinci çalıştırma 0 op üretir, (2) elle düzenlenmiş kayda
@@ -309,5 +313,81 @@ describe('ALAN bazlı red ve pin — pointer gerçekten kullanılıyor (§4.5)',
     ])
     const metin = formatPlan(plan({ candidates: [alanliAday()], ledger: d }))
     expect(metin).toContain('dokunulmayan alanlar: /attributes/tagline')
+  })
+})
+
+describe('apply — planı DRAFT olarak yazar, onay DEĞİLDİR (§4.4 · R-14)', () => {
+  const icerik = (id: string, slug: string): OpContent => ({
+    entityType: 'positioning',
+    slug,
+    frontmatter: { id, brand_id: 'brd_x', type: 'positioning' },
+    body: `${id} gövdesi`,
+  })
+
+  it("create op'u draft olarak yazılıyor", () => {
+    const tmp = makeTempDir('suite-apply-')
+    try {
+      const p = plan({ candidates: [aday()] })
+      const r = applyPlan(p, new Map([['rec_1', icerik('rec_1', 'a')]]), tmp.path)
+      expect(r.written).toBe(1)
+      expect(readFileSync(join(tmp.path, 'positioning/a.md'), 'utf8')).toContain('status: draft')
+    } finally {
+      tmp.cleanup()
+    }
+  })
+
+  it("retire op'u UYGULANMIYOR — insan onayladığı bilgiyi motor geri alamaz", () => {
+    const tmp = makeTempDir('suite-apply-')
+    try {
+      const p = plan({
+        mode: 'mirror',
+        existing: [mevcut({ id: 'rec_eski' })],
+        candidates: [],
+      })
+      const r = applyPlan(p, new Map(), tmp.path)
+      expect(r.needsHuman).toBe(1)
+      expect(r.written).toBe(0)
+      expect(r.outcomes[0]?.kind).toBe('needs_human')
+    } finally {
+      tmp.cleanup()
+    }
+  })
+
+  it('gövdesi olmayan op SESSİZCE atlanmıyor — üretim hatası raporlanıyor', () => {
+    const tmp = makeTempDir('suite-apply-')
+    try {
+      const r = applyPlan(plan({ candidates: [aday()] }), new Map(), tmp.path)
+      expect(r.outcomes[0]?.kind).toBe('no_content')
+      expect(r.refused).toBe(1)
+    } finally {
+      tmp.cleanup()
+    }
+  })
+
+  it('KISMİ başarı normaldir — bir red diğerlerini durdurmuyor', () => {
+    // Bir kaydın elle düzeltilmiş olması, dokuz sağlam kaydın güncellenmemesi için
+    // sebep değil. "Hepsi ya da hiçbiri" burada yanlış olurdu.
+    const tmp = makeTempDir('suite-apply-')
+    try {
+      const p = plan({
+        candidates: [aday(), { id: 'rec_2', path: 'corpus/positioning/b.md', digest: 'd2' }],
+      })
+      const r = applyPlan(p, new Map([['rec_2', icerik('rec_2', 'b')]]), tmp.path)
+      expect(r.written).toBe(1)
+      expect(r.refused).toBe(1)
+    } finally {
+      tmp.cleanup()
+    }
+  })
+
+  it("skip op'ları hiç işlenmiyor", () => {
+    const tmp = makeTempDir('suite-apply-')
+    try {
+      const p = plan({ existing: [mevcut()], candidates: [aday()] })
+      const r = applyPlan(p, new Map(), tmp.path)
+      expect(r.outcomes).toEqual([])
+    } finally {
+      tmp.cleanup()
+    }
   })
 })

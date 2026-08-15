@@ -75,8 +75,8 @@ onayla *yollar:
     @./node_modules/.bin/tsc -b && node scripts/onayla.mjs {{yollar}}
 
 # Keşif planı — op listesi basar, HİÇBİR ŞEY yazmaz (§4.4)
-discovery mode='merge' adaylar='derived/runs/discovery-candidates.json' mevcut='':
-    @./node_modules/.bin/tsc -b && node scripts/discovery.mjs '{{mode}}' '{{adaylar}}' '{{mevcut}}'
+discovery alt='plan' *args:
+    @./node_modules/.bin/tsc -b && node scripts/discovery.mjs '{{alt}}' {{args}}
 
 # Türetilmiş indeksi sıfırdan kur. derived/runs'a DOKUNMAZ (D-38)
 # Argümansız: gerçek corpus → gerçek indeks. Argümanlı: fixture'a karşı kanıt koşusu.

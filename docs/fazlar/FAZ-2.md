@@ -132,17 +132,24 @@ yeniden üretilebilsin.
 
 📖 §4.4 · D-6
 🔗 2.6
-🛠 `suite discovery plan|review|apply`. Regenerasyon **branch'te + git worktree'de** çalışır
-   ve **aynı yolları** yeniden yazar → `git diff` gerçek satır bazlı inceleme verir.
-   `mode: merge` (sadece ekleme, varsayılan) / `mode: mirror` (silmeler dahil tam yeniden üretim).
+🛠 `just discovery plan|review|apply`. `apply` bile ONAY DEĞİLDİR: yazdığı her kayıt
+   `status: draft` iner (R-14) ve `retire` op'u motorda UYGULANMAZ — insan onayladığı
+   bilgiyi motor geri alamaz. Regenerasyon **aynı yolları** yeniden yazar
+   → `git diff` gerçek satır bazlı inceleme verir. `mode: merge` (sadece ekleme,
+   varsayılan) / `mode: mirror` (adayda olmayan üretilmiş kayıt emekliye ayrılır).
+   ⚠ Branch + worktree izolasyonu **FAZ-4.10'a** bırakıldı: `apply` draft yazıyor ve
+   draft retrieval'a görünmüyor — izolasyon bugün `status` üzerinden zaten var.
 📁 `packages/engine/src/discovery/` · `scripts/discovery.mjs`
-✅ `just discovery [merge|mirror]` op listesi basıyor (D-81: `just plan` pipeline
-   çözüyor, keşif pipeline DEĞİL) · komut öncesi ve sonrası `git status --porcelain`
-   satır sayısı AYNI · `just test discovery` → 11 test
-🧪 Koşuldu: `just discovery` öncesi/sonrası ağaç aynı (4 → 4 satır) · aday listesi
-   yokken çıktı "0 op" DEMİYOR, "aday listesi YOK" diyor — boş plan ile değişmemiş
-   corpus aynı şey değil · plan JSON'a serileşiyor (içinde çağrılabilir bir şey olsaydı
-   "hiçbir şey yapmaz" iddiası konvansiyona düşerdi)
+✅ Üç alt komut da çalışıyor: `just discovery plan merge <adaylar> "" --kaydet <yol>` →
+   `2 yeni`; `review <plan>` → `2 op incelemede · HİÇBİR ŞEY yazmadı`; `apply <plan>
+   <içerik>` → `2 taslak yazıldı`, ikisi de `status: draft` + `x_signature` taşıyor ·
+   `plan` ve `review` öncesi/sonrası `git status --porcelain` satır sayısı AYNI ·
+   `just test discovery` → 32 test
+🧪 Koşuldu: `plan`/`review` öncesi/sonrası ağaç aynı · aday listesi yokken çıktı
+   "0 op" DEMİYOR, "aday listesi YOK" diyor · plan JSON'a serileşiyor (içinde
+   çağrılabilir bir şey olsaydı "hiçbir şey yapmaz" iddiası konvansiyona düşerdi) ·
+   `retire` op'u `apply`'da `⏸ insan gerekiyor` diyor, dosyaya DOKUNMUYOR · gövdesiz op
+   sessizce atlanmıyor, "üretim hatası" olarak raporlanıyor
 💾 `feat(brand): keşif motoru — plan, review, apply` · `Refs: FAZ-2.7 · §4.4`
 
 ## 2.8 — Sticky karar defteri ve idempotent atlama    [x] 2026-08-15
@@ -173,17 +180,13 @@ yeniden üretilebilsin.
    LinkedIn 2022 · site "2021'den beri") tek doğruya bağlanır. **V-07** (Era 1'in dikeyi)
    hipotez olarak tohumlanır, 10 gerçek satış görüşmesinden sonra üzerine yazılır.
 📁 `corpus/<entity_type>/*.md`
-✅ Yedi varlık tipinin her birinde bir kayıt, hepsi `source` taşıyor — **`propose()`
-   üzerinden** yazıldı (elle dosya yazmak darboğazı atlatmak olurdu). `just reindex` →
-   `7 kayıt indekslendi · 34 ms`; retrieval **0 kayıt** döndürüyor çünkü hepsi draft.
-   **Kalan yarı insanın:** `just onayla <yol…>` → `active`. Agent bunu çağırmaz (D-83)
-🧪 Koşuldu: draft kayıtlar `selectRecords`ten dönmüyor (0), ham `search` onları
-   buluyor (indekste VARLAR — görünmezlik yüklemde, indekste değil) · Türkçe eklemeli
-   arama gerçek veride çalışıyor: "ölçüm" → beş kayıt ("ölçülebilir", "ölçemediğiniz"
-   dahil) · `just onayla` aynı kaydı ikinci kez onaylamayı reddediyor (onay tarihini
-   ezmek, "bunu ne zaman kabul ettim" cevabını silmektir)
-   ⚠ `claim_source` kapısı FAZ-3.10'da (lexicon linter) — yedi kayıt sayısal iddia
-   İÇERMİYOR, o yüzden bugün ihlal edilecek bir kural yok
+✅ Yedi tipte yedi kayıt, hepsi `source` taşıyor, `propose()` üzerinden yazıldı ·
+   `just reindex` → `7 kayıt indekslendi`; retrieval **0** döndürüyor (hepsi draft) ·
+   **kalan yarı insanın:** `just onayla <yol…>`, agent çağırmaz (D-83)
+🧪 Koşuldu: draft `selectRecords`ten dönmüyor, ham `search` buluyor (görünmezlik
+   yüklemde, indekste değil) · "ölçüm" → beş kayıt (eklemeli arama gerçek veride) ·
+   `just onayla` ikinci onayı reddediyor (onay tarihini ezmek, "ne zaman kabul ettim"
+   cevabını silmektir)
 💾 `feat(corpus): ilk keşif çalıştırması` · `Refs: FAZ-2.9 · §4.4`
 
 ## 2.10 — Token mimarisi ve `frame.md`    [x] 2026-08-15

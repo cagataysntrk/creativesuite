@@ -110,4 +110,10 @@ export {
   type StickyLedger,
   type Suppression,
   type SkipSignatureInput,
+  applyPlan,
+  formatApply,
+  reviewOps,
+  type ApplyOutcome,
+  type ApplyReport,
+  type OpContent,
 } from './discovery/index.js'

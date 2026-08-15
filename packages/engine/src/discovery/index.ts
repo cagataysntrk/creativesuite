@@ -21,3 +21,12 @@ export {
 } from './decisions.js'
 
 export { skipSignature, unchanged, type SkipSignatureInput } from './idempotent.js'
+
+export {
+  applyPlan,
+  formatApply,
+  reviewOps,
+  type ApplyOutcome,
+  type ApplyReport,
+  type OpContent,
+} from './apply.js'
