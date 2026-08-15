@@ -65,12 +65,14 @@ ağ kablosu çekiliyken de çalışıyor
    testi kırmızı (sessizce kabul etmiyor)
 💾 `feat(kernel): projeksiyon derleyicisi` · `Refs: FAZ-1.4 · §3.4`
 
-## 1.5 — Türkçe metin primitifleri    [ ]
+## 1.5 — Türkçe metin primitifleri    [x] 2026-08-15
 
 📖 §7.2 · R-21 · 🔗 FAZ-0.C.4 (kapı burada kurulur)
-🛠 `packages/kernel/src/text/case.ts` — `upper()`, `lower()`, `slug()`, `foldForSearch()`,
-   `softHyphenate()`. Hepsi `toLocaleUpperCase('tr')` tabanlı. Chromium'un Türkçe
-   heceleme sözlüğü **yok**, `U+00AD` sunucuda enjekte edilir.
+🛠 `packages/kernel/src/text/case.ts` — `upper()`, `lower()`, `sentenceCase()`, `slug()`,
+   `foldForSearch()`, `syllables()`, `softHyphenate()`. Hepsi `toLocaleUpperCase('tr')`
+   tabanlı. Chromium'un Türkçe heceleme sözlüğü **yok**, `U+00AD` sunucuda enjekte edilir.
+   Ayrıca `asciiLower()`/`asciiUpper()`: HTTP başlığı, metot, MIME gibi **protokol
+   token'ları** Türkçe kuralıyla dönüştürülmez (`'X-API-KEY'` → `'x-apı-key'` olurdu).
 ✅ `upper('istanbul')` → `İSTANBUL` · `lower('IĞDIR')` → `ığdır` · testler yeşil
 🧪 Başka bir dosyada `.toUpperCase()` yaz → `turkish-case` kapısı kırmızı
 💾 `feat(kernel): locale-güvenli Türkçe metin primitifleri` · `Refs: FAZ-1.5 · §7.2`

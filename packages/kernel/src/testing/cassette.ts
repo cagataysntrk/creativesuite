@@ -11,6 +11,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { asciiLower, asciiUpper } from '../text/case.js'
 import { FIXTURE_ROOT } from './fixtures.js'
 
 const REDACTED = '<REDACTED>'
@@ -70,7 +71,8 @@ export const redactHeaders = (
 ): Record<string, string> => {
   const out: Record<string, string> = {}
   for (const [k, v] of Object.entries(headers)) {
-    out[k] = SENSITIVE_HEADERS.has(k.toLowerCase()) ? REDACTED : redactText(v)
+    // Başlık adı bir protokol token'ıdır: Türkçe case kuralı UYGULANMAZ (§7.2).
+    out[k] = SENSITIVE_HEADERS.has(asciiLower(k)) ? REDACTED : redactText(v)
   }
   return out
 }
@@ -108,7 +110,7 @@ export const toEntry = async (request: Request, response: Response): Promise<Cas
  * gövdeyi farklı alan sırasıyla serileştirir ve eşleşme sessizce kaçar. Aynı URL'e
  * birden fazla farklı çağrı gerekirse cassette'i böl; anahtarı karmaşıklaştırma.
  */
-export const entryKey = (method: string, url: string): string => `${method.toUpperCase()} ${url}`
+export const entryKey = (method: string, url: string): string => `${asciiUpper(method)} ${url}`
 
 export const findEntry = (cassette: Cassette, method: string, url: string): CassetteEntry | null =>
   cassette.entries.find((e) => entryKey(e.method, e.url) === entryKey(method, url)) ?? null

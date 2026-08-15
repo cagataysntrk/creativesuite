@@ -149,9 +149,13 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    grep + **Proxy tuzağı** (`attributes` fırlatan kayıt dokuz fiilden geçirilir).
 ✅ Grep destructuring ile atlatılabilir, Proxy atlatılamaz — **ikisini de** kasten dene
 
-## 0.C.4 — turkish-case kapısı    [ ]
-📖 §7.2 · R-21 · 🔗 FAZ-1.5 (`kernel/src/text/case.ts` orada doğuyor)
-🛠 Kapı, case dosyası var olduğunda kurulur. Kural R-21 olarak yazıldı.
+## 0.C.4 — turkish-case kapısı    [x] 2026-08-15
+📖 §7.2 · R-21 · 🔗 FAZ-1.5 (`kernel/src/text/case.ts` orada doğdu)
+🛠 `scripts/gates/turkish-case.mjs`. İki şey arar: (1) çıplak `.toUpperCase()`/
+   `.toLowerCase()` — tek muaf dosya `text/case.ts` · (2) **daha sinsi hâli:**
+   `toLocale…Case()` çağrılmış ama locale verilmemiş veya `'tr'` dışı. Kutsanmış
+   dosyanın gerçekten `'tr'` kullandığı ayrıca doğrulanır — yoksa muafiyetin dayanağı
+   yok demektir. Node regex'i kullanılır, kabuk değil (D-58 locale tuzağı).
 ✅ `'ı'.toUpperCase()` yaz → kırmızı
 ⚠ 2026-08-14: sahte tik geri alındı — devredilen '0.C.4b' diye bir adım yoktu
 

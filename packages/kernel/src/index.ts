@@ -13,5 +13,17 @@ export {
   SEMADA_EKSIK_ALAN_YOK,
 } from './schema/envelope.js'
 
+export {
+  upper,
+  lower,
+  sentenceCase,
+  asciiLower,
+  asciiUpper,
+  foldForSearch,
+  slug,
+  syllables,
+  softHyphenate,
+} from './text/case.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'
