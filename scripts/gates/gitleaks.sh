@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
-# GROUP: all
-# gitleaks — geçmiş + çalışma ağacı secret taraması (FAZ-0.C.10).
+# GROUP: fast
+# gitleaks — geçmiş + çalışma ağacı secret taraması (FAZ-0.C.10 · R-51 · D-131).
+#
+# ⚠ `fast` grubunda, `all`da DEĞİL — ve bu bilinçli bir taşıma (D-131).
+#
+# `all` grubundayken kapı yalnız `just verify` ve pre-push'ta koşuyordu. Ama **git
+# geçmişi silinmez** — R-51'in bütün gerekçesi bu. Push anında yakalanan bir secret
+# ZATEN yerel geçmişe girmiştir ve çıkarmak için geçmiş yeniden yazılır. Commit anında
+# yakalanan bir secret ise geçmişe HİÇ girmez.
+#
+# Bedeli 1,7 saniye. Geçmiş yeniden yazmanın bedeli bunun yanında ölçülemez.
 #
 # `repo-hygiene` bizim kendi desen listemizdir: hızlı, dar, bildiğimiz anahtar biçimlerini
 # yakalar. Bu kapı onun tamamlayıcısıdır: ~150 hazır kural + entropi analizi, yani

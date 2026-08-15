@@ -1,0 +1,17 @@
+# gitleaks muafiyetleri — PARMAK İZİ bazlı, desen bazlı DEĞİL.
+#
+# Desen muafiyeti (`allowlist.regexes`) bir dosyayı ya da bir deseni TAMAMEN kör eder:
+# `descriptor.test.ts`i muaf tutsak, yarın oraya yazılan GERÇEK bir anahtar da sessizce
+# geçerdi. Parmak izi `commit:dosya:kural:satır` — o tek satır, o tek hâliyle muaf.
+# Satır kayarsa ya da içerik değişirse muafiyet DÜŞER ve kapı yeniden sorar.
+#
+# ── Muafiyet 1 ────────────────────────────────────────────────────────────────
+# `packages/providers/src/descriptor.test.ts:65` — `parseDescriptor`ın anahtar GİBİ
+# görünen bir değeri REDDETTİĞİNİ kanıtlayan test (R-51). Dizeler uydurma:
+# `sk-ant-api03-abc`, `fal-abcdef123456`, `Bearer xyz`, kırk kere `a`.
+#
+# Neden dizeleri "anahtara benzemeyecek" hâle getirmedik: o zaman test, kuralın gerçekten
+# anahtar ŞEKLİNİ yakaladığını kanıtlamazdı. Testi zayıflatarak kapıyı geçirmek yasak
+# (R-73); doğru hamle muafiyeti DAR ve GEREKÇELİ yazmak.
+packages/providers/src/descriptor.test.ts:generic-api-key:65
+462f47493a2c0a7743264ad3f51a9359219a1bb4:packages/providers/src/descriptor.test.ts:generic-api-key:65

@@ -567,3 +567,25 @@ diye devam eder.
 Artık gerçek biçimi (`bloke: [...]`) okuyor ve hangi adımların bloke olduğunu da yazıyor.
 Ayrıca commit'lenmemiş çalıştırma defteri girdilerini bildiriyor — `derived/runs`
 türetilemez (R-52) ve commit'lenmeden duran bir çalıştırma bir `git clean` uzaklıkta.
+
+## D-131 — `gitleaks` `fast` grubuna taşındı: secret kapısı COMMIT'te çalışmalı
+2026-08-15 · `just gates all` FAZ 3 kapanış kanıtı için koşuldu ve **kırmızı çıktı**:
+gitleaks bir bulgu buldu. `just check` (fast) onu hiç koşmadığı için 14 commit boyunca
+görünmemişti.
+Bulgunun kendisi bir test fixture'ıydı (aşağıda), ama **asıl bulgu kapının yerindeydi**:
+`GROUP: all` demek, secret taramasının yalnız `just verify` ve pre-push'ta koşması demek.
+**Git geçmişi silinmez** — R-51'in bütün gerekçesi bu. Push anında yakalanan bir secret
+ZATEN yerel geçmişe girmiştir; çıkarmak için geçmiş yeniden yazılır. Commit anında
+yakalanan geçmişe hiç girmez. Bedel 1,7 saniye; geçmiş yeniden yazmanın bedeli ölçülemez.
+
+## D-132 — gitleaks muafiyeti PARMAK İZİ bazlı, desen bazlı değil
+2026-08-15 · Bulgu `packages/providers/src/descriptor.test.ts:65` — `parseDescriptor`ın
+anahtar GİBİ görünen bir değeri REDDETTİĞİNİ kanıtlayan test (R-51). Dizeler uydurma.
+İki yanlış çözüm vardı:
+1. **Dizeleri "anahtara benzemeyecek" hâle getirmek** → test, kuralın anahtar ŞEKLİNİ
+   yakaladığını artık kanıtlamazdı. Testi zayıflatarak kapıyı geçirmek yasak (R-73).
+2. **Dosyayı ya da deseni allowlist'e almak** → o dosya tamamen körleşirdi ve yarın
+   oraya yazılan GERÇEK bir anahtar sessizce geçerdi.
+Seçilen: `.gitleaksignore`da **parmak izi** (`commit:dosya:kural:satır`). O tek satır,
+o tek hâliyle muaf. İki ihlal testiyle doğrulandı: aynı dosyaya başka bir anahtar
+eklemek → **yakalanıyor**; muaf satırı iki satır kaydırmak → **muafiyet düşüyor**.
