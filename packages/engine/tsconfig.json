@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "references": [
+    {
+      "path": "../../packages/contracts"
+    },
+    {
+      "path": "../../packages/kernel"
+    },
+    {
+      "path": "../../packages/registry"
+    },
+    {
+      "path": "../../packages/corpus"
+    },
+    {
+      "path": "../../packages/providers"
+    },
+    {
+      "path": "../../packages/render"
+    }
+  ]
+}

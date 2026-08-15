@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.1
+siradaki_adim: 0.C.1
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "ANAYASA tam: 19 bolum, 947/1200 satir, TBD yok (0.B.2d)"
+son_kanit: "FAZ-1.1: 11 paket, ihlal testi -> eslint rc=1 depcruise rc=1 tsc rc=2; geri alinca 6 kapi yesil"
 ```
 
 ## Neredeyiz
@@ -46,18 +46,23 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.B.8a · FAZ-0.md ve FAZ-1.md | 2026-08-14 |
 | 0.B.9 · .claude/rules + skills iskeleti | 2026-08-15 |
 | 0.B.10 · denetim bulgularının tasfiyesi | 2026-08-15 |
+| 0.C.2 · halka sınırı zorlaması | 2026-08-15 |
 | 0.C.6 · citations kapısı | 2026-08-14 |
 | 0.C.7 · commit-msg hook'u | 2026-08-14 |
 | 0.C.9 · docs-size | 2026-08-14 |
 | 0.E.1 · DURUM.md sözleşmesi | 2026-08-14 |
 | 0.E.2 · tur açılış yordamı | 2026-08-14 |
 | 0.E.4 · compact protokolü | 2026-08-14 |
+| **1.1** · pnpm workspace ve halka sınırları | 2026-08-15 |
 
 ## Sıradaki adım
 
-**0.E.5** — ilk döngü provası. `/loop` dinamik modda üç tur; her tur bir adım,
-kanıt, tik, DURUM güncellemesi, commit, 70 sn wakeup.
-Kabul: üç tur `git log`'da `Refs: FAZ-0.x` ile görünüyor · hiçbir tur iki adım denememiş.
+**0.C.1** — `tsconfig-drift` kapısı. `tsconfig.base.json` FAZ-1.1'de yazıldı ve katı;
+eksik olan, bir paketin bir bayrağı sessizce zayıflatmasını yakalayan kapı.
+Kabul: bir pakette `strict: false` yaz → kapı kırmızı.
+
+> D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
+> kapılı doğsun diye. Kalan: 0.C.1, 0.C.3, 0.C.4, 0.C.8, 0.C.10, 0.C.11.
 
 ## Bloke adımlar
 

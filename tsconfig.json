@@ -1,0 +1,38 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/contracts"
+    },
+    {
+      "path": "./packages/kernel"
+    },
+    {
+      "path": "./packages/registry"
+    },
+    {
+      "path": "./packages/corpus"
+    },
+    {
+      "path": "./packages/providers"
+    },
+    {
+      "path": "./packages/render"
+    },
+    {
+      "path": "./packages/engine"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./apps/server"
+    },
+    {
+      "path": "./apps/cli"
+    },
+    {
+      "path": "./apps/ui"
+    }
+  ]
+}

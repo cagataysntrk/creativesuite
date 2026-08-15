@@ -8,5 +8,11 @@
     "node": ">=22.0.0 <23"
   },
   "description": "Upcytech Creative Suite — marka, ürün ve strateji bilgisinin tek doğruluk kaynağı; üstünde agentic üretim hattı",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "dependency-cruiser": "18.2.0",
+    "eslint": "10.8.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.67.0"
+  }
 }

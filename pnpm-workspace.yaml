@@ -1,7 +1,29 @@
-# Halkalar = paketler. Bağımlılık yönü tek yönlü ve TS project references ile zorlanır:
+# Halkalar = paketler. Bağımlılık yönü tek yönlü ve üç mekanizmayla zorlanır:
 #   contracts ← kernel ← {registry, corpus, providers, render} ← engine ← {server, cli}
 #   ui → contracts (yalnız)
-# Paketlerin kendisi FAZ-1.1'de oluşturulur; burası yalnız keşif desenidir.
+# Aynı katmandaki paketler birbirini import ETMEZ (kardeş yasağı, FAZ-1.1).
 packages:
   - 'packages/*'
   - 'apps/*'
+
+# ── ayarlar ──────────────────────────────────────────────────────────────────
+# DİKKAT: pnpm 11 bu ayarları `.npmrc`'den OKUMAZ; tek geçerli yer burasıdır.
+# Önceden `.npmrc`'de duruyorlardı ve beşi de sessizce etkisizdi (D-54).
+# Doğrulama: `pnpm config get hoist` → false döndürmeli, `undefined` değil.
+
+# Bağımlılıklar TAM sürüme sabitlenir — aralık yok.
+# Gerekçe: "bir ay ihmal edilse de çalışır" (değişmez ilke 12). Bir caret aralığı,
+# dokunulmamış bir repoda sessizce farklı kod çalıştırır.
+saveExact: true
+
+# Node sürümü package.json engines ile uyuşmuyorsa kur reddedilir.
+engineStrict: true
+
+# Phantom bağımlılık yok: bir paket, package.json'ında yazmadığı hiçbir şeyi import edemez.
+# Halka sınırlarını (D-29) dosya sistemi seviyesinde de zorlar — TS ve lint'ten bağımsız
+# dördüncü bir katman.
+hoist: false
+strictPeerDependencies: true
+
+# Kurulum betikleri varsayılan olarak çalışmaz; izin verilenler açıkça listelenir.
+enablePrePostScripts: false

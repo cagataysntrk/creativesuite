@@ -9,7 +9,7 @@ ağ kablosu çekiliyken de çalışıyor
 
 ---
 
-## 1.1 — pnpm workspace ve halka sınırları    [ ]
+## 1.1 — pnpm workspace ve halka sınırları    [x] 2026-08-15
 
 📖 §3.1, §3.6 · R-03 · D-29
 🛠 `packages/{contracts,kernel,registry,corpus,providers,render,engine,ui}` +

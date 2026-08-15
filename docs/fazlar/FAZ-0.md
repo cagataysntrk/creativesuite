@@ -139,7 +139,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    kabul edene kadar; sessizce tüm tip-farkında kuralları kapatır ve CI yeşil kalır.
 ✅ `just check` yeşil · `tsconfig-drift` bir paketin bayrağı zayıflatmasını yakalıyor
 
-## 0.C.2 — halka sınırı zorlaması    [ ]
+## 0.C.2 — halka sınırı zorlaması    [x] 2026-08-15
 📖 §3.6 · 🔗 1.1
 ✅ Kasten yanlış halka import'u → ESLint, depcruise ve `tsc -b` üçü de kırmızı
 

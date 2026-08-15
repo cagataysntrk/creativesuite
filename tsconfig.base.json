@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+
+  // Tek katı taban. Hiçbir paket bir bayrağı ZAYIFLATAMAZ —
+  // tsconfig-drift kapısı (FAZ-0.C.1) bunu zorlar.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
+    // Halka sınırının 3. katmanı: bir paket referans vermediğini derleyemez.
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Katılık — hepsi FAZ-0.C.1'de listelendi. Sessizce gevşetilemez.
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+
+    // Bağımlılıkların .d.ts'lerini yeniden denetlemek turu yavaşlatır, hata bulmaz.
+    "skipLibCheck": true
+  }
+}
