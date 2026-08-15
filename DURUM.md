@@ -8,7 +8,7 @@
 aktif_faz: 3
 siradaki_adim: FAZ-3-KAPANIS
 son_guncelleme: 2026-08-15
-bloke: ["2.9", "3.2", "3.7", "3.8", "3.14"]
+bloke: ["2.9", "3.7", "3.8", "3.14"]
 deneme_sayaci: {}
 son_kanit: "1. dogrulama turu: 10 blokaj + 13 ikincil. Dokuz blokaj kapatildi (D-134…D-141). En agiri: uret.mjs retrieval yuklemini ATLAYIP 7 draft kaydi uretime sokuyordu (R-13+R-14). Kalite merdiveni HICBIR SEY yapmiyordu; renderWithinLimit ile her basamak gercekten render edilip olculuyor. providerCall uretimden hic cagrilmiyordu. 3.7 ve 3.14 TIKLERI GERI ALINDI — ikisinin de ciktisi kanitlanamiyor. 735 test, 24 kapi."
 ```
@@ -19,17 +19,16 @@ son_kanit: "1. dogrulama turu: 10 blokaj + 13 ikincil. Dokuz blokaj kapatildi (D
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı: 11/15 adım tikli.** Motor uçtan uca çalışıyor ve
+> **FAZ 3 — görsel üretim hattı: 12/15 adım tikli.** Motor uçtan uca çalışıyor ve
 > gerçek Chromium ile gerçek slayt üretiyor; marka QA gerçek sayılar veriyor.
 >
-> ⛔ **DÖRT ADIM BLOKE — hepsi İNSAN girdisi bekliyor** (D-142). LOOP§G eşiği (üç bloke
+> ⛔ **ÜÇ ADIM BLOKE — hepsi İNSAN girdisi bekliyor** (D-142). LOOP§G eşiği (üç bloke
 > adım) aşıldı ve döngü bilinçli olarak devam ediyor: dördü de plan hatası değil,
 > planın önceden kaydettiği doğrulama borçları.
 >
 > | Adım | Bekleyen | Ne gerekiyor |
 > |---|---|---|
 > | `2.9` | insan onayı | `just onayla corpus/*/*.md` → 7 kayıt `draft` |
-> | `3.2` | V-02 | marka fontu lisansı |
 > | `3.7` | V-16 | `CF_ACCOUNT_ID`+`CF_API_TOKEN` ya da `FAL_KEY` |
 > | `3.8` | V-16 | aynı + ~$3 gerçek para |
 > | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |

@@ -29,7 +29,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    eksiksiz veriyor. Golden metrik (FAZ-3.2) fonta bağlı kalmaya devam ediyor
 💾 `feat(render): COMPOSE ve statik RENDER` · `Refs: FAZ-3.1 · §7.1`
 
-## 3.2 — Golden-file tipografi testi (JSON metrik)    [ ]
+## 3.2 — Golden-file tipografi testi (JSON metrik)    [x] 2026-08-15
 
 📖 §7.2, §15 · R-31 · 🔗 FAZ-1.10b
 🛠 `ĞÜŞİÖÇ ğüşıöç Ağrı İğne` her şablon boyutunda render edilir. **Commit edilen golden bir

@@ -108,3 +108,13 @@ export {
   type QualityRung,
   type LadderResult,
 } from './specs/placements.js'
+export {
+  measureGolden,
+  diffMetrics,
+  formatDiff,
+  PROOF_TEXT,
+  type GoldenMetrics,
+  type TextMetric,
+  type GlyphMetric,
+  type MetricDiff,
+} from './golden/metrics.js'

@@ -480,3 +480,22 @@ aynı, dosya metin.
 **İ7 · Uyum dayanağı ÇAĞIRANIN beyanıydı.** `promptDigest`e `uret.mjs` çalıştırma
 kimliğini yazıyordu. `assertCompliance` artık özeti **kendi hesaplıyor** ve çağıranın
 yazdığını yok sayıyor: dayanağını kendi yazan bir iddia, iddia değil beyandır.
+
+## D-144 — `3.2` BLOKE DEĞİLDİ: golden harness font-agnostiktir
+2026-08-15 · `3.2` "V-02 (marka fontu) bekliyor" diye atlanmıştı. Doğrulama agent'ı bu
+gerekçeyi sorguladı ve **haklıydı**: `notdef = 0` hangi fontun lisanslandığına bağlı
+değil. V-02 metriği **DONDURMAYI** engeller, harness'ı **YAZMAYI** değil.
+Harness yazıldı ve çalışıyor. Ölçüm tarayıcıda: `measureText` ilerleme genişliklerini,
+`Range.getClientRects()` satır kutularını, `getComputedStyle` ÇÖZÜLMÜŞ font ailesini
+veriyor. Node tarafında hesaplamak, tarayıcının ne yaptığını TAHMİN etmek olurdu — ve
+tam da tahmin edilemeyen şey (fallback) aranan hata.
+**`notdef` tespiti ölçümle:** U+E000 (özel kullanım alanı, hiçbir fontta tanımlı değil)
+referans alınıyor; bir karakterin ilerleme genişliği onunla EŞİTSE glyph eksiktir.
+Eşik yok, eşitlik — çünkü metrik antialiasing'den etkilenmiyor.
+**İhlal testi:** fontu var olmayan bir ada yönlendirdim → **68 eksik glyph**, font ailesi
+uyuşmazlığı, `Ğ` 59,1px'ten 43,35px'e (monospace fallback). Kanıt dizesini değiştirdim →
+bütün ilerlemeler kaydı. Temiz koşuda 3/3 boyut doğrulanıyor.
+Metrikler bugün SİSTEM fontuyla dondu (`DejaVu Sans`); marka fontu geldiğinde temel
+yeniden alınır — bu bir düzeltme, bir blokaj değil.
+**Ders:** "bloke" gerekçeleri de doğrulanmalı. Bir adımı yanlış sebeple bloke etmek,
+onu yapılabilirken yapmamaktır.
