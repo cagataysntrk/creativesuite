@@ -1,0 +1,13 @@
+{
+  "$description": "dima — Upcytech'ten DEVRALIR, yalnız gerektiği kadar ezer (§4.2).",
+  "ramp": {
+    "$description": "dima kendi sinyal rengini getiriyor; gri rampalar ana markadan devralınır.",
+    "signal": {
+      "ok": { "$value": "oklch(0.68 0.130 195)", "$type": "color" }
+    }
+  },
+  "role": {
+    "$description": "Yalnız bir rol eziliyor. Gerisi ana markadan gelir — ezmediğin şey MİRASTIR.",
+    "state-ok": { "$value": "{ramp.signal.ok}", "$type": "color" }
+  }
+}

@@ -31,9 +31,10 @@ Belgelenmiş public arayüz mü? Elle tanımlayıcı yedeği her hâlükârda zo
 ## V-05 — Anthropic yapılandırılmış çıktı alt kümesi
 OpenAI'ninkiyle aynı mı? Derleyici daha katı olana yazıldı, CI'da gerçek çağrıyla doğrula. → FAZ-1.4
 
-## V-06 — `dima` ürün mü modül mü
-"dima by Upcytech" onaylı-marka modeli doğru mu? Yanlış karar sonradan MAJOR sürüm
-değişikliği demek. → FAZ-2.11
+## V-06 — `dima` ürün mü modül mü ✅ VERİ MODELİ KAPANDI (2026-08-15, D-84)
+`dima` **ayrı marka ekseni** olarak modellendi (token kalıtımıyla). Pazara sunum adı
+("dima by Upcytech" mi bağımsız mı) veri modelini DEĞİŞTİRMİYOR ve kullanıcıya
+bırakıldı. → FAZ-2.11
 
 ## V-07 — Era 1'in dikeyi
 Kanıt otomotiv tedarik/Bursa'yı işaret ediyor ama bu üçüncü taraf verisinden çıkarım,
@@ -52,34 +53,6 @@ açısından durumu, sınır ötesi veri aktarımı beyanı. → FAZ-8.6
 
 ## V-11 — Run bağlam anlık görüntülerinin saklama süresi ✅ KAPANDI
 Manifest sonsuza, bağlam N gün. **N = 90** (2026-08-15, FAZ-1.9). Gerekçe D-63'te.
-
-## D-45 — KURALLAR.md yalnız zorlanan kuralları taşır
-2026-08-14 · Araştırmadaki 111 kuralın tamamı kopyalanmadı; 46 kural yazıldı, 13'ü bugün
-aktif olarak zorlanıyor, gerisi zorlanacağı faz adımına bağlandı.
-**Neden:** faz dosyasının kendi kuralı "zorlaması olmayan kural yazılmaz". Uygulanmayan
-111 kural, uygulanan 13'ten kötüdür — kimse hangisinin gerçek olduğunu bilmez ve liste
-dekor hâline gelir. `Durum` sütunu dürüstlüğü görünür kılıyor.
-**Alternatif:** hepsini kopyalayıp "ileride" işaretlemek — reddedildi, ayırt edilemez olurdu.
-**Geri alma maliyeti:** düşük; tam külliyat `docs/research/5-kural-kitabi--*` altında duruyor.
-
-## D-46 — DURUM tamamlananlar tablosu FAZ dosyasından türetilir
-2026-08-14 · **Neden:** denetim, `DURUM.md` ve `FAZ-0.md`'nin ikisinin de "18 tamamlandı"
-dediğini ama **aynı 18 olmadığını** buldu. İki elle tutulan liste kaçınılmaz olarak ayrışır.
-FAZ dosyası tek doğrudur; DURUM ondan türetilir.
-**Geri alma maliyeti:** yok.
-
-## D-47 — Reddedilen karar açık DURUM satırıyla işaretlenir
-2026-08-14 · Biçim: `**Durum:** reddedildi → D-nn` (gövdenin başında, tam bu biçimde).
-**Neden:** anahtar kelime taraması yetmiyor — D-25'in gövdesinde "Remotion reddedildi"
-yazıyor ve kapı kararın kendisini reddedilmiş sandı. İşaretleyici açık olmak zorunda.
-**Geri alma maliyeti:** düşük.
-
-## D-48 — Yerel ses için Kokoro değil Chatterbox
-2026-08-15 · `hyperframes doctor` Kokoro'yu opsiyonel yerel TTS olarak öneriyor; **kurulmadı**.
-**Neden:** araştırma bulgusu — Kokoro-82M'de **Türkçe yok**. Yerel şerit için Chatterbox
-Multilingual (MIT, 500M, 6GB VRAM'e sığar) seçildi. Birincil altyazı Groq whisper;
-whisper.cpp yalnız çevrimdışı yedek olarak, gerektiğinde kurulacak.
-**Geri alma maliyeti:** yok, kurulmamış bir bağımlılık.
 
 ## D-49 — Secret deseni tireyi kapsamalı
 2026-08-15 · `repo-hygiene` ilk deseni `sk-[A-Za-z0-9]{20,}` idi ve gerçek Anthropic
@@ -580,3 +553,31 @@ beyanını kapsamıyor** — o beyan kullanıcının kendi sözü.
 kullanıcı yedi kaydı okuyup onaylayınca adım kapanır ve FAZ 2 kapanabilir.
 **Bu, "durmak yok" kuralının ihlali değildir** (LOOP§G): bloke adım işaretlenir, döngü
 sonraki bağımsız adıma geçer.
+
+## D-84 — `dima` ayrı marka ekseni; pazar adı ayrı bir soru (V-06)
+2026-08-15 · V-06 iki soruyu birbirine karıştırıyordu: **veri modeli** ("dima ayrı bir
+marka ekseni mi") ve **pazar sunumu** ("dima by Upcytech onaylı-marka mı, bağımsız mı").
+İkisi bağımsızdır ve ayrılınca karar kolaylaşıyor.
+**Veri modeli kararı (benim):** `dima` ayrı `brand_id`. Gerekçe asimetrik risk —
+- Ayrı eksen açıp sonra "aslında ürün hattıymış" demek: `brand/brd_dima/` silinir,
+  kayıtlar `brand_id` değiştirir. Ucuz.
+- Eksen AÇMAYIP sonra ihtiyaç duymak: geriye dönük `brand_id` atanamaz, çünkü hangi
+  kaydın hangi markaya ait olduğu artık yazılı değil. D-39'un tam olarak düzelttiği
+  delik; retrofit imkânsız (R-11'in aynı mantığı).
+Token kalıtımı bu kararı ucuzlatıyor: dima Upcytech'ten devralıyor ve bugün yalnız
+**iki token eziyor** — ayrı eksen olmak, ayrı tasarım sistemi olmak değil.
+**Pazar sunumu kararı (kullanıcının):** onaylı marka mı bağımsız mı — bu bir konumlandırma
+beyanıdır, D-83'ün ayrımına göre kullanıcıya ait. Hangisi seçilirse seçilsin veri modeli
+aynı kalır; değişen şey yalnız `corpus/positioning` kaydının metnidir.
+**Geri alma maliyeti:** düşük (yukarıdaki ilk madde).
+
+## D-85 — DURUM tamamlananlar tablosu yalnız AKTİF fazı gösterir
+2026-08-15 · Tablo her adımda büyüyordu ve `DURUM.md`'nin 120 satır tavanını (R-63)
+yedi. Tavanı yükseltmek yanlış cevap: `DURUM.md` her turda okunan dosyadır ve uzadıkça
+compact sonrası ilk okumanın maliyeti artar.
+**Karar:** tablo yalnız aktif fazın tiklerini taşır; önceki fazlar bir satırlık sayı ile
+özetlenir. Kaynak yine faz dosyaları (D-46 değişmedi) — tablo onların kopyası değil,
+**bugünün özeti**. Tam geçmiş `git log`da ve faz dosyalarında.
+**Aynı desen:** KARARLAR.md 600 satırda arşive devrediyor (D-72). Büyüyen her dosyanın
+yapısal bir boşaltma yolu olmak zorunda; yoksa tavan bir gün "kaldıralım" diye
+gevşetilir ve o gün tavanın anlamı biter.

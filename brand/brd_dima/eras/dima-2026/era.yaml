@@ -1,0 +1,17 @@
+# dima ilk dönemi (aday) — ana markadan AYRI dönem ekseni (§4.2 · D-39).
+#
+# Upcytech'in dönemi değişince dima'nınki değişmez: iki marka aynı anda yaşar.
+# Tek satırlık bir global `current` ile bu imkânsızdı.
+slug: dima-2026
+brand_id: brd_dima
+status: candidate
+commit_sha: ab2869ba894c6725126594fd982c2958bff4f135
+minted_at: 2026-08-15T16:08:00.000Z
+title: dima ilk dönemi
+rationale: >
+  dima, Upcytech'in şirket beyni ürünü. Ayrı marka ekseni açılıyor çünkü ürünün
+  kendi personası, kendi kanalı ve kendi kanıt seti olacak — Upcytech kayıtlarıyla
+  aynı havuzda durursa retrieval ikisini karıştırır ve "asla sızmaz" vaadi çöker.
+  Pazara nasıl sunulacağı (onaylı marka "dima by Upcytech" mi, bağımsız mı) VERİ
+  MODELİNİ değiştirmez — o karar kullanıcının, D-84'te açıkça bırakıldı.
+supersedes: null

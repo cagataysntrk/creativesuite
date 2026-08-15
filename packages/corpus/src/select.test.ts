@@ -224,3 +224,42 @@ describe('propose → reindex → select: öneri UÇTAN UCA görünmez (§5.4 ·
     }
   })
 })
+
+describe('iki marka aynı anda — çıktılar KARIŞMIYOR (§4.2 · R-10 · FAZ-2.11)', () => {
+  const DIMA = 'brd_dima'
+
+  it('aynı sorgu iki markada iki farklı sonuç veriyor', () => {
+    upsertRecords(db, [
+      satir({ id: 'rec_upcy', title: 'Ölçüm', body: 'Upcytech konumlandırması' }),
+      satir({
+        id: 'rec_dima',
+        brand_id: DIMA,
+        era_id: 'era_dima',
+        title: 'Ölçüm',
+        body: 'dima konumlandırması',
+      }),
+    ])
+    expect(idler(selectRecords(db, sorgu()))).toEqual(['rec_upcy'])
+    expect(idler(selectRecords(db, { brandId: DIMA, eraId: 'era_dima', asOf: SIMDI }))).toEqual([
+      'rec_dima',
+    ])
+  })
+
+  it('dima çalıştırırken Upcytech kaydı çağrılamıyor — marka ekseni İLK koşul', () => {
+    // Somut çöküş senaryosu (D-39): tek satırlık global `brand/current` olsaydı,
+    // kuyruktaki her Upcytech çalıştırması sessizce dima'ya kayardı.
+    upsertRecords(db, [satir({ id: 'rec_upcy' })])
+    expect(selectRecords(db, { brandId: DIMA, eraId: 'era_dima', asOf: SIMDI })).toEqual([])
+    expect(selectSearch(db, { brandId: DIMA, eraId: 'era_dima', asOf: SIMDI }, 'ölçüm')).toEqual([])
+  })
+
+  it("`era_id: '*'` bile marka sınırını AŞMIYOR", () => {
+    // Dönemden bağımsız kayıt, MARKADAN bağımsız demek değildir. Aşsaydı dima
+    // konumlandırması her Upcytech deck'ine sızardı — §4.5'in "asla sızmaz" vaadi çökerdi.
+    upsertRecords(db, [satir({ id: 'rec_dima_evrensel', brand_id: DIMA, era_id: '*' })])
+    expect(selectRecords(db, sorgu())).toEqual([])
+    expect(idler(selectRecords(db, { brandId: DIMA, eraId: 'era_dima', asOf: SIMDI }))).toEqual([
+      'rec_dima_evrensel',
+    ])
+  })
+})

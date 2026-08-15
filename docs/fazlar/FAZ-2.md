@@ -206,7 +206,7 @@ yeniden üretilebilsin.
    vermek onu görselde kullanmaya davet eder (R-20'nin renk kardeşi)
 💾 `feat(brand): token mimarisi ve frame.md` · `Refs: FAZ-2.10 · §4.1`
 
-## 2.11 — Çok markalılık: Upcytech + dima    [ ]
+## 2.11 — Çok markalılık: Upcytech + dima    [x] 2026-08-15
 
 📖 §4.2 · R-10 · D-9, D-39 · V-06
 🔗 2.10
@@ -214,8 +214,14 @@ yeniden üretilebilsin.
    **V-06 burada kapanır:** `dima` ürün mü modül mü, "dima by Upcytech" onaylı-marka
    modeli doğru mu.
 📁 `brand/upcytech/` · `brand/dima/`
-✅ Aynı pipeline iki markayla koşuyor ve çıktılar KARIŞMIYOR
-🧪 `dima` çalıştırırken Upcytech kaydı çağır → retrieval getirmiyor (marka ekseni ilk koşul)
+✅ `just tokens` → `brd_upcytech: 22 token · kök marka` + `brd_dima: 22 token ·
+   brd_upcytech'ten devralıyor, 2 ezme`. dima'nın `role-text`i ana markayla AYNI
+   (miras), `role-state-ok`u FARKLI (ezme) · `just test tokens` 15, `just test select`
+   20 test · V-06 veri modeli kapandı (D-84)
+🧪 Üçü de koşuldu: dima sorgusu Upcytech kaydını getirmiyor (ne `selectRecords` ne
+   `selectSearch`) · **`era_id: '*'` bile marka sınırını aşmıyor** — dönemden bağımsız
+   olmak markadan bağımsız olmak değildir; aşsaydı dima konumlandırması her Upcytech
+   deck'ine sızardı · alt marka kademe kuralını aşamıyor (kalıtım muafiyet değil)
 💾 `feat(brand): çok markalılık ve token kalıtımı` · `Refs: FAZ-2.11 · §4.2`
 
 ## 2.12 — Geri dönüşüm geçmişi kanıta çevriliyor    [ ]

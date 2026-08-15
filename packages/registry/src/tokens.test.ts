@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compileTokens, toBrandFacts, toCss, toTailwind } from './tokens.js'
+import { compileTokens, inheritTokens, toBrandFacts, toCss, toTailwind } from './tokens.js'
 
 // §12.1'in üç kademesi bir konvansiyon değil, MEKANİK bir kısıt. Bileşenin ham rampaya
 // bağlanması markayı değiştirdiğinde o bileşeni eski renkte bırakır — ve bu hata
@@ -106,5 +106,66 @@ describe('çıktılar', () => {
       expect(facts).not.toContain('oklch')
       expect(facts).not.toContain('#')
     }
+  })
+})
+
+describe('token kalıtımı — alt marka devralır, gerektiği kadar ezer (§4.2)', () => {
+  const ana = (): Record<string, unknown> => ({
+    ramp: {
+      gray: { '900': { $value: 'oklch(0.21 0.01 250)', $type: 'color' } },
+      signal: { ok: { $value: 'oklch(0.65 0.12 150)', $type: 'color' } },
+    },
+    role: {
+      bg: { $value: '{ramp.gray.900}', $type: 'color' },
+      'state-ok': { $value: '{ramp.signal.ok}', $type: 'color' },
+    },
+  })
+
+  it('ezilmeyen token MİRASTIR — alt marka rol setini yeniden yazmıyor', () => {
+    const alt = { role: { 'state-ok': { $value: '{ramp.signal.ok}', $type: 'color' } } }
+    const { merged } = inheritTokens(ana(), alt)
+    const r = derle(merged)
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      // `role.bg` alt markada HİÇ yazılmadı ama derlemede var.
+      expect(r.value.find((t) => t.path === 'role.bg')?.resolved).toBe('oklch(0.21 0.01 250)')
+    }
+  })
+
+  it('ezilen token alt markanın değerini alıyor ve EZME LİSTELENİYOR', () => {
+    const alt = {
+      ramp: { signal: { ok: { $value: 'oklch(0.68 0.13 195)', $type: 'color' } } },
+    }
+    const { merged, overridden } = inheritTokens(ana(), alt)
+    expect(overridden).toContain('ramp.signal.ok')
+    const r = derle(merged)
+    if (r.ok) {
+      expect(r.value.find((t) => t.path === 'role.state-ok')?.resolved).toBe('oklch(0.68 0.13 195)')
+    }
+  })
+
+  it('DERİN birleştirme: kardeş rampalar kaybolmuyor', () => {
+    // Sığ birleştirme `ramp` nesnesinin tamamını değiştirir ve `gray` yok olurdu —
+    // alt marka o gün ana markanın tüm rampasını yeniden yazmak zorunda kalırdı.
+    const alt = { ramp: { signal: { ok: { $value: 'oklch(0.7 0.1 200)', $type: 'color' } } } }
+    const { merged } = inheritTokens(ana(), alt)
+    const r = derle(merged)
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(r.value.some((t) => t.path === 'ramp.gray.900')).toBe(true)
+  })
+
+  it('yaprak düğüm MELEZLENMİYOR — $type ana markadan, $value alttan olmaz', () => {
+    const alt = { role: { bg: { $value: 'oklch(0.1 0 0)', $type: 'color' } } }
+    const { merged } = inheritTokens(ana(), alt)
+    const rol = (merged['role'] as Record<string, Record<string, unknown>>)['bg']
+    expect(rol?.['$value']).toBe('oklch(0.1 0 0)')
+  })
+
+  it('alt marka kademe kuralını AŞAMAZ — kalıtım muafiyet değildir', () => {
+    const alt = { comp: { x: { $value: '{ramp.gray.900}', $type: 'color' } } }
+    const { merged } = inheritTokens(ana(), alt)
+    const r = derle(merged)
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.errors[0]?.kind).toBe('tier_violation')
   })
 })

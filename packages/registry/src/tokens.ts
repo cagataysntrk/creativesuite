@@ -181,3 +181,50 @@ export const toBrandFacts = (
     null,
     2
   )}\n`
+
+/**
+ * Token kalıtımı — alt marka ana markadan devralır, gerektiği kadar ezer (§4.2).
+ *
+ * **Neden derin birleştirme:** alt marka genelde bir-iki rolü ezer (vurgu rengi,
+ * belki bir bileşen) ve gerisini aynı bırakır. Sığ birleştirme `role` nesnesinin
+ * tamamını değiştirirdi ve alt marka, ana markanın rol setini yeniden yazmak
+ * zorunda kalırdı — ilk gün kolay, altıncı ayda iki ayrı gerçek.
+ *
+ * Ezilen her yol `overridden` listesinde GÖRÜNÜR. Görünmeseydi "bu renk neden farklı"
+ * sorusu iki dosyayı yan yana koymadan cevaplanamazdı.
+ */
+export const inheritTokens = (
+  parent: Record<string, unknown>,
+  child: Record<string, unknown>
+): { readonly merged: Record<string, unknown>; readonly overridden: readonly string[] } => {
+  const overridden: string[] = []
+
+  const birlestir = (
+    a: Record<string, unknown>,
+    b: Record<string, unknown>,
+    yol: string
+  ): Record<string, unknown> => {
+    const out: Record<string, unknown> = { ...a }
+    for (const [k, v] of Object.entries(b)) {
+      const altYol = yol === '' ? k : `${yol}.${k}`
+      const mevcut = out[k]
+      const ikisiDeNesne =
+        mevcut !== null &&
+        typeof mevcut === 'object' &&
+        v !== null &&
+        typeof v === 'object' &&
+        // `$value` taşıyan düğüm YAPRAKTIR: içine inmek, `$type`ı ana markadan
+        // devralıp `$value`yu alt markadan almak gibi tuhaf melezler üretirdi.
+        typeof (v as TokenNode)['$value'] !== 'string'
+      if (ikisiDeNesne) {
+        out[k] = birlestir(mevcut as Record<string, unknown>, v as Record<string, unknown>, altYol)
+      } else {
+        if (k in a && !k.startsWith('$')) overridden.push(altYol)
+        out[k] = v
+      }
+    }
+    return out
+  }
+
+  return { merged: birlestir(parent, child, ''), overridden }
+}

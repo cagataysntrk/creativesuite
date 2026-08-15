@@ -28,6 +28,7 @@ export {
 
 export {
   compileTokens,
+  inheritTokens,
   toCss,
   toTailwind,
   toBrandFacts,

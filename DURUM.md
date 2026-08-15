@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 2
-siradaki_adim: 2.11
+siradaki_adim: 2.12
 son_guncelleme: 2026-08-15
 bloke: ["2.9"]
 deneme_sayaci: {}
@@ -24,62 +24,14 @@ indeksi, projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıy
 
 ## Tamamlananlar
 
-> **Bu tablo `docs/fazlar/FAZ-0.md` tiklerinden türetilir.** Elle düzenlenmez;
-> çelişki çıkarsa FAZ dosyası doğrudur.
+> **Bu tablo yalnız AKTİF fazı gösterir.** Sınırsız büyüyen bir liste `DURUM.md`'nin
+> 120 satır tavanını yiyordu (D-85). Önceki fazlar faz dosyalarındaki tiklerdedir ve
+> `git log` tek başına yol haritasıdır — tablo onların kopyası değil, bugünün özeti.
+>
+> FAZ 0 ve FAZ 1: **51 adım tikli**, hepsi `docs/fazlar/FAZ-0.md` ve `FAZ-1.md`'de.
 
 | Adım | Tarih |
 |---|---|
-| 0.A.1 · git init, .gitignore, README | 2026-08-14 |
-| 0.A.1b · GitHub private repo | 2026-08-14 |
-| 0.A.1c · commit-msg kapısı | 2026-08-14 |
-| 0.A.2 · Node 22 + pnpm workspace | 2026-08-14 |
-| 0.A.3 · ffmpeg + xvfb + age | 2026-08-15 |
-| 0.A.4 · justfile + kapı koşucusu | 2026-08-14 |
-| 0.A.6 · SOPS + age secret yönetimi | 2026-08-15 |
-| 0.A.7 · hyperframes doctor | 2026-08-15 |
-| 0.B.1 · araştırma eki | 2026-08-14 |
-| 0.B.2a · ANAYASA iskeleti | 2026-08-14 |
-| 0.B.2b · ANAYASA §1–§7 | 2026-08-15 |
-| 0.B.2c · ANAYASA §8–§13 | 2026-08-15 |
-| 0.B.2d · ANAYASA §14–§19 | 2026-08-15 |
-| 0.B.3 · KURALLAR.md | 2026-08-14 |
-| 0.B.4 · CLAUDE.md | 2026-08-14 |
-| 0.B.5 · KARARLAR.md | 2026-08-14 |
-| 0.B.6 · DURUM.md | 2026-08-14 |
-| 0.B.7 · docs/LOOP.md | 2026-08-14 |
-| 0.B.8a · FAZ-0.md ve FAZ-1.md | 2026-08-14 |
-| 0.B.9 · .claude/rules + skills iskeleti | 2026-08-15 |
-| 0.B.10 · denetim bulgularının tasfiyesi | 2026-08-15 |
-| 0.C.1 · tsconfig katılığı + prettier | 2026-08-15 |
-| 0.C.2 · halka sınırı zorlaması | 2026-08-15 |
-| 0.C.6 · citations kapısı | 2026-08-14 |
-| 0.C.8 · chokepoints.json | 2026-08-15 |
-| 0.C.10 · commit kancaları + gitleaks | 2026-08-15 |
-| 0.C.7 · commit-msg hook'u | 2026-08-14 |
-| 0.C.9 · docs-size | 2026-08-14 |
-| 0.E.1 · DURUM.md sözleşmesi | 2026-08-14 |
-| 0.E.2 · tur açılış yordamı | 2026-08-14 |
-| 0.E.4 · compact protokolü | 2026-08-14 |
-| **1.1** · pnpm workspace ve halka sınırları | 2026-08-15 |
-| **1.1b** · packages/contracts | 2026-08-15 |
-| **1.2** · kayıt zarfı şeması + JSON üretimi | 2026-08-15 |
-| **1.3** · registry/PROFILE.md + profil kapısı | 2026-08-15 |
-| **1.10** · test altyapısı, cassette, fixture | 2026-08-15 |
-| 0.C.4 · turkish-case kapısı | 2026-08-15 |
-| **1.5** · Türkçe metin primitifleri | 2026-08-15 |
-| **1.7** · hata taksonomisi + Result disiplini | 2026-08-15 |
-| **1.8** · iş kuyruğu + dört durum makinesi | 2026-08-15 |
-| **1.6** · corpus yazma darboğazı + FTS5 indeksi | 2026-08-15 |
-| **1.9** · run manifest sözleşmesi (V-11 kapandı) | 2026-08-15 |
-| 0.C.3 · kernel saflık kapısı (3 katman) | 2026-08-15 |
-| 0.C.11 · verbs kapısı | 2026-08-15 |
-| **1.11** · dokuz fiilin iskeleti | 2026-08-15 |
-| **1.12** · motor: retry, kesici, bütçe, defter | 2026-08-15 |
-| **1.13** · just plan — harcamayan kuru çalıştırma | 2026-08-15 |
-| **1.14** · headless Claude Code adaptörü | 2026-08-15 |
-| **1.4** · projeksiyon derleyicisi (4 hedef) | 2026-08-15 |
-| 0.B.8b · FAZ-2.md ve FAZ-3.md gövdeleri | 2026-08-15 |
-| 0.B.8c · FAZ-4..9.md gövdeleri (60 adım) | 2026-08-15 |
 | **2.1** · yedi strateji varlık tipi | 2026-08-15 |
 | **2.2** · retrieval yüklemi (tek nokta) | 2026-08-15 |
 | **2.3** · bağlam tarifleri ve manifest | 2026-08-15 |
@@ -90,6 +42,7 @@ indeksi, projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıy
 | **2.7** · keşif motoru — plan, review, apply | 2026-08-15 |
 | **2.8** · sticky karar defteri, idempotent atlama | 2026-08-15 |
 | **2.10** · token mimarisi ve frame.md | 2026-08-15 |
+| **2.11** · çok markalılık ve token kalıtımı | 2026-08-15 |
 
 ## Sıradaki adım
 

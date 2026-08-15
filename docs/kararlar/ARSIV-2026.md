@@ -195,3 +195,34 @@ onlarca denetimsiz commit demekti. Ayrıca `.git/hooks/` yerine `.githooks/` se�
 # 🔴 Doğrulama borçları
 
 Her biri bir faz adımına bağlı. Kapanınca tarih ve kanıtla kapatılır.
+
+## D-45 — KURALLAR.md yalnız zorlanan kuralları taşır
+2026-08-14 · Araştırmadaki 111 kuralın tamamı kopyalanmadı; 46 kural yazıldı, 13'ü bugün
+aktif olarak zorlanıyor, gerisi zorlanacağı faz adımına bağlandı.
+**Neden:** faz dosyasının kendi kuralı "zorlaması olmayan kural yazılmaz". Uygulanmayan
+111 kural, uygulanan 13'ten kötüdür — kimse hangisinin gerçek olduğunu bilmez ve liste
+dekor hâline gelir. `Durum` sütunu dürüstlüğü görünür kılıyor.
+**Alternatif:** hepsini kopyalayıp "ileride" işaretlemek — reddedildi, ayırt edilemez olurdu.
+**Geri alma maliyeti:** düşük; tam külliyat `docs/research/5-kural-kitabi--*` altında duruyor.
+
+
+## D-46 — DURUM tamamlananlar tablosu FAZ dosyasından türetilir
+2026-08-14 · **Neden:** denetim, `DURUM.md` ve `FAZ-0.md`'nin ikisinin de "18 tamamlandı"
+dediğini ama **aynı 18 olmadığını** buldu. İki elle tutulan liste kaçınılmaz olarak ayrışır.
+FAZ dosyası tek doğrudur; DURUM ondan türetilir.
+**Geri alma maliyeti:** yok.
+
+
+## D-47 — Reddedilen karar açık DURUM satırıyla işaretlenir
+2026-08-14 · Biçim: `**Durum:** reddedildi → D-nn` (gövdenin başında, tam bu biçimde).
+**Neden:** anahtar kelime taraması yetmiyor — D-25'in gövdesinde "Remotion reddedildi"
+yazıyor ve kapı kararın kendisini reddedilmiş sandı. İşaretleyici açık olmak zorunda.
+**Geri alma maliyeti:** düşük.
+
+
+## D-48 — Yerel ses için Kokoro değil Chatterbox
+2026-08-15 · `hyperframes doctor` Kokoro'yu opsiyonel yerel TTS olarak öneriyor; **kurulmadı**.
+**Neden:** araştırma bulgusu — Kokoro-82M'de **Türkçe yok**. Yerel şerit için Chatterbox
+Multilingual (MIT, 500M, 6GB VRAM'e sığar) seçildi. Birincil altyazı Groq whisper;
+whisper.cpp yalnız çevrimdışı yedek olarak, gerektiğinde kurulacak.
+**Geri alma maliyeti:** yok, kurulmamış bir bağımlılık.
