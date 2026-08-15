@@ -1,0 +1,75 @@
+{
+  "runId": "run_01a0079e-58d4-7be9-b4e1-1c24efe962c5",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "d8f6395694593e6519af18d1bc1d49f6540bd8b7",
+  "registryCommit": "d8f6395694593e6519af18d1bc1d49f6540bd8b7",
+  "createdAt": "2026-08-15T22:50:13.092Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "--konu test"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-15T22:50:13.091Z",
+      "finishedAt": "2026-08-15T22:50:13.092Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "--konu test"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-15T22:50:13.092Z",
+      "finishedAt": "2026-08-15T22:50:13.092Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "bilgi-sec"
+}
