@@ -285,6 +285,16 @@ kural sisteminin altını oyar — testi zayıflatmanın (R-73) kural seviyesind
 `refactor(gates)` tipinde olabilir ve gövdesinde `D-` atfı taşımalı; `fix(...)` tipiyle
 kural değiştirmek `commit-msg` kapısında reddedilir.
 
+### R-77 · kabuk-kapilari-locale-bagimsiz · BLOCKING · aktif
+Kabuk tabanlı her kapı ve git kancası `export LC_ALL=C` ile başlar.
+**Neden:** `LANG=tr_TR.UTF-8` altında POSIX karakter sınıfları Türkçe collation'a göre
+çözülür ve `[A-Za-z]` aralığı `i`/`I` çevresinde **kırılır**:
+`grep -oE "[a-z.]+@[a-z.]+"` → `ahmet.yilmaz@dokumsanayi.com.tr` girdisinde
+`lmaz@dokumsanay` döndürür. Desen eşleşiyormuş gibi görünür ama **yarım** eşleşir;
+kapı yeşil raporlarken hiçbir şey korumaz. `'i'.toUpperCase()` → `I` hatasının (R-21)
+kabuk seviyesindeki kardeşidir. → D-58
+**Zorlama:** `repo-hygiene` kapısı her kapı ve kancada satırı arar.
+
 ### R-75 · bagimlilik-son-care · CONVENTION · aktif
 40 satır yazmak bir bağımlılıktan iyidir. Bağımlılıklar tam sürüme sabitlenir
 (`save-exact`), lisansı kontrol edilir.

@@ -2,6 +2,15 @@
 # Turun 1-2. adımı: DURUM.md'yi oku, sıradaki adımın okuması gerekenleri getir.
 # Bağlamsız bir agent "şimdi ne yapmalıyım" sorusunu SADECE bu çıktıdan cevaplayabilmeli.
 set -uo pipefail
+
+# ⚠ LC_ALL=C ZORUNLU. `LANG=tr_TR.UTF-8` altında POSIX karakter sınıfları Türkçe
+# collation'a göre çözülür ve `[A-Za-z]` aralığı `i`/`I` çevresinde KIRILIR:
+#   $ LANG=tr_TR.UTF-8 grep -oE "[a-z.]+@[a-z.]+" <<< "ahmet.yilmaz@dokumsanayi.com.tr"
+#   lmaz@dokumsanay          ← "yilmaz"ın başı ve "sanayi"nin sonu düştü
+# Yani desen eşleşiyormuş gibi görünür ama YARIM eşleşir; kapı da yeşil raporlar.
+# 2026-08-15'te bu, gerçek bir e-posta adresinin KVKK kapısından geçmesine yol açtı.
+# Bu, `'i'.toUpperCase()` → `I` hatasının (R-21) kabuk seviyesindeki kardeşidir.
+export LC_ALL=C
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 faz="$(sed -n 's/^aktif_faz: *//p' DURUM.md | head -1)"
 adim="$(sed -n 's/^siradaki_adim: *//p' DURUM.md | head -1)"

@@ -85,11 +85,11 @@
     },
     {
       "id": "secret-okuyucu",
-      "ad": "Secret okuyucu",
-      "neden": "Secret'lar yalnız `sops exec-env` üzerinden gelir (§14). İkinci okuyucu, log'a sızabilecek ikinci bir yol demektir.",
-      "izinli": ["packages/kernel/src/config/secrets.ts"],
+      "ad": "Ortam değişkeni / secret okuyucu",
+      "neden": "Secret'lar yalnız `sops exec-env` üzerinden gelir (§14); ikinci okuyucu, log'a sızabilecek ikinci bir yoldur. Ayrıca 'hangi ortam değişkeni gerekiyor' sorusu ancak tek okuma noktası varsa grep'le cevaplanır — dağılmış process.env, bir ay ihmalden sonra sistemi başlatamamanın en sık sebebi. FAZ-3.4 bunun üstüne secrets.ts politikasını kurar.",
+      "izinli": ["packages/kernel/src/config/env.ts"],
       "desen": "\\bprocess\\s*\\.\\s*env\\b",
-      "faz": "FAZ-3.4"
+      "faz": "FAZ-1.10"
     },
     {
       "id": "yapilandirma-cozucu",

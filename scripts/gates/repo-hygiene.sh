@@ -2,6 +2,15 @@
 # GROUP: fast
 # Depo hijyeni — geri alması pahalı olan hataları commit'ten ÖNCE yakalar.
 set -uo pipefail
+
+# ⚠ LC_ALL=C ZORUNLU. `LANG=tr_TR.UTF-8` altında POSIX karakter sınıfları Türkçe
+# collation'a göre çözülür ve `[A-Za-z]` aralığı `i`/`I` çevresinde KIRILIR:
+#   $ LANG=tr_TR.UTF-8 grep -oE "[a-z.]+@[a-z.]+" <<< "ahmet.yilmaz@dokumsanayi.com.tr"
+#   lmaz@dokumsanay          ← "yilmaz"ın başı ve "sanayi"nin sonu düştü
+# Yani desen eşleşiyormuş gibi görünür ama YARIM eşleşir; kapı da yeşil raporlar.
+# 2026-08-15'te bu, gerçek bir e-posta adresinin KVKK kapısından geçmesine yol açtı.
+# Bu, `'i'.toUpperCase()` → `I` hatasının (R-21) kabuk seviyesindeki kardeşidir.
+export LC_ALL=C
 cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
 
 fail=0
@@ -55,6 +64,20 @@ big="$(git ls-files -z 2>/dev/null | xargs -0 -r du -k 2>/dev/null | awk '$1>512
 if [ -n "$big" ]; then
   say "512KB üstü izlenen dosya var — varlık byte'ları derived/blobs'a gider:"
   echo "$big"
+fi
+
+# ── 6. Kabuk kapıları locale-bağımsız olmalı (R-77) ──────────────────────────
+# `LANG=tr_TR.UTF-8` altında POSIX `[A-Za-z]` sınıfı `i`/`I` çevresinde kırılır ve
+# desen YARIM eşleşir — kapı yeşil raporlarken hiçbir şey korumaz. Bu kontrol olmadan
+# bir sonraki kapı aynı tuzağa hatırlanmadığı için düşer.
+eksik=""
+for s in scripts/gates/*.sh scripts/run-gates.sh scripts/save.sh .githooks/commit-msg \
+  .githooks/pre-commit .githooks/pre-push; do
+  [ -f "$s" ] || continue
+  grep -q '^export LC_ALL=C$' "$s" || eksik="$eksik $s"
+done
+if [ -n "$eksik" ]; then
+  say "R-77: 'export LC_ALL=C' eksik —$eksik"
 fi
 
 exit $fail

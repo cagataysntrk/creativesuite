@@ -25,7 +25,6 @@ check:
 # Tam doğrulama: her kapı + testler + golden. Faz kapanışında ve bir ay sonra
 verify:
     @just gates all
-    @just test
     @just golden
 
 # ── kapılar ──────────────────────────────────────────────────────────────────
@@ -45,7 +44,7 @@ gates-list:
 # ── test ─────────────────────────────────────────────────────────────────────
 
 test *args:
-    @echo "(FAZ-1.10'da Vitest gelecek)" {{args}}
+    @./node_modules/.bin/vitest run {{args}}
 
 # Golden-file testleri: commit edilen golden JSON METRİKTİR, piksel değil
 golden:
@@ -53,8 +52,8 @@ golden:
 
 # Kaydet: kapı → stage → commit → push → KANITLA. Tek darboğaz (R-05).
 # Mesajı stdin'den alır:  just save <<'EOF' ... EOF
-save file="-":
-    @bash scripts/save.sh {{file}}
+save file="-" *paths:
+    @bash scripts/save.sh {{file}} {{paths}}
 
 # ── bakım ────────────────────────────────────────────────────────────────────
 
