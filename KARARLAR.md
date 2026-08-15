@@ -571,3 +571,18 @@ kadar koruduğu:
 Yani "üç katman" derinlik değil, **farklı hata modları** demek. Semantik kaçışa karşı
 gerçek savunma dördüncü katmandır: üretilen görselde OCR ile metin araması — ve o
 FAZ 9'a ait (D-147 ile aynı gerekçe: model tabanlı yargı bu fazın kapsamı dışında).
+
+## D-149 — ÖKSÜZ çalıştırma: varlık diskte, defterde izi yok
+2026-08-15 · Doğrulama agent'ının İ4'ü: `derived/runs/run_01a00661-…/` altında iki slayt
+var, `manifest.json` YOK.
+Kök neden **doğru bir davranışın yan etkisi**: `writeManifest` kusurlu bir manifesti
+YAZMAZ (D-136) — yarım bir defter, defter olmadığını söylemez. Ama render adımı zaten
+koşmuş ve slaytları diske yazmıştır. Sonuç: **kimin ürettiği ve neye mal olduğu
+bilinmeyen bir varlık.**
+`doctor` artık bunu raporluyor: `⚠ öksüz : N çalıştırmada varlık VAR manifest YOK`.
+**Rapor eder, SİLMEZ** — `derived/runs` silinmez (R-52) ve otomatik temizlik, bir ay
+sonra dönen kullanıcıya ne olduğunu gizler (§16'nın "rapor yazar, hiçbir şeyi
+değiştirmez" ilkesi).
+Öksüz varlık CAS'a girmediği için `compliance` kapısı onu göremiyor — kapı `derived/blobs`
+tarar, `derived/runs` değil. İki dizin iki farklı şey: biri yayınlanabilir varlıklar,
+diğeri çalıştırma çıktısı. Doctor ikisinin arasındaki boşluğu görüyor.
