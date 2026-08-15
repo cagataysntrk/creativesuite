@@ -52,7 +52,7 @@ done
 # Koşturmadan denetlenir: `node --check` sözdizimini, dinamik import'lar zaten
 # `no-undef` ve `types` kapılarında. Amaç, dosyanın hiç AYRIŞTIRILAMAZ hâle
 # gelmediğini garanti etmek.
-for f in scripts/uret.mjs scripts/onay.mjs scripts/onayla.mjs scripts/golden.mjs; do
+for f in scripts/uret.mjs scripts/onay.mjs scripts/onayla.mjs scripts/golden.mjs scripts/sunucu.mjs; do
   [ -f "$f" ] || continue
   if ! node --check "$f" 2>/dev/null; then
     echo "✗ $f → sözdizimi hatası"
@@ -61,5 +61,17 @@ for f in scripts/uret.mjs scripts/onay.mjs scripts/onayla.mjs scripts/golden.mjs
   fi
 done
 
+# ── sunucu: GERÇEKTEN ayağa kaldırılır ──────────────────────────────────────
+# `node --check` yalnız sözdizimini görür ve D-153'ün tam hatası buydu: dosya
+# ayrıştırılabilirdi ama import'u eksikti. Sunucu başlatılır, üç uç çağrılır, bir
+# dosya değişiminin SSE'ye yansıdığı doğrulanır. Hiçbir şey harcamaz (R-47) — bu
+# yalnız okuyan bir API.
+if [ -f scripts/sunucu-duman.mjs ]; then
+  if ! timeout 30 node scripts/sunucu-duman.mjs; then
+    echo "✗ sunucu duman testi düştü"
+    fail=1
+  fi
+fi
+
 [ "$fail" -eq 0 ] || exit 1
-echo "  $n pipeline 'just plan' ile koşturuldu · 4 CLI betiği ayrıştırıldı"
+echo "  $n pipeline 'just plan' ile koşturuldu · 5 CLI betiği ayrıştırıldı · sunucu koştu"

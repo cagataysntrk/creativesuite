@@ -1280,3 +1280,107 @@ karşılar.
 ΔE76 (Öklid) **reddedildi**: mavi bölgede algıyla ciddi ayrışıyor ve marka paleti mavi
 ağırlıklı (`#0091FF`) — ΔE76 gözle ayırt edilebilir iki maviyi "aynı" sayar ve QA kapısı
 boş geçerdi.
+
+## D-130 — `just doctor` her zaman "bloke: 0" diyordu
+2026-08-15 · Sağlık raporu `grep -c '^  - adim:' DURUM.md` ile bloke sayıyordu —
+`DURUM.md`'nin **hiç sahip olmadığı** bir biçim. Yani doctor her koşuda "bloke: 0"
+diyordu ve gerçekte 3 bloke adım (2.9, 3.2, 3.8) vardı.
+Doctor, §16'nın deyişiyle "bir ay ihmalden sonra açılacak ilk ekran". **Yalan söyleyen
+bir sağlık raporu, sağlık raporu olmamasından kötüdür**: kullanıcı ona bakıp "engel yok"
+diye devam eder.
+Artık gerçek biçimi (`bloke: [...]`) okuyor ve hangi adımların bloke olduğunu da yazıyor.
+Ayrıca commit'lenmemiş çalıştırma defteri girdilerini bildiriyor — `derived/runs`
+türetilemez (R-52) ve commit'lenmeden duran bir çalıştırma bir `git clean` uzaklıkta.
+
+## D-131 — `gitleaks` `fast` grubuna taşındı: secret kapısı COMMIT'te çalışmalı
+2026-08-15 · `just gates all` FAZ 3 kapanış kanıtı için koşuldu ve **kırmızı çıktı**:
+gitleaks bir bulgu buldu. `just check` (fast) onu hiç koşmadığı için 14 commit boyunca
+görünmemişti.
+Bulgunun kendisi bir test fixture'ıydı (aşağıda), ama **asıl bulgu kapının yerindeydi**:
+`GROUP: all` demek, secret taramasının yalnız `just verify` ve pre-push'ta koşması demek.
+**Git geçmişi silinmez** — R-51'in bütün gerekçesi bu. Push anında yakalanan bir secret
+ZATEN yerel geçmişe girmiştir; çıkarmak için geçmiş yeniden yazılır. Commit anında
+yakalanan geçmişe hiç girmez. Bedel 1,7 saniye; geçmiş yeniden yazmanın bedeli ölçülemez.
+
+## D-132 — gitleaks muafiyeti PARMAK İZİ bazlı, desen bazlı değil
+2026-08-15 · Bulgu `packages/providers/src/descriptor.test.ts:65` — `parseDescriptor`ın
+anahtar GİBİ görünen bir değeri REDDETTİĞİNİ kanıtlayan test (R-51). Dizeler uydurma.
+İki yanlış çözüm vardı:
+1. **Dizeleri "anahtara benzemeyecek" hâle getirmek** → test, kuralın anahtar ŞEKLİNİ
+   yakaladığını artık kanıtlamazdı. Testi zayıflatarak kapıyı geçirmek yasak (R-73).
+2. **Dosyayı ya da deseni allowlist'e almak** → o dosya tamamen körleşirdi ve yarın
+   oraya yazılan GERÇEK bir anahtar sessizce geçerdi.
+Seçilen: `.gitleaksignore`da **parmak izi** (`commit:dosya:kural:satır`). O tek satır,
+o tek hâliyle muaf. İki ihlal testiyle doğrulandı: aynı dosyaya başka bir anahtar
+eklemek → **yakalanıyor**; muaf satırı iki satır kaydırmak → **muafiyet düşüyor**.
+
+## D-133 — Chroma sınırları zorlanmıyordu; `tokens` kapısı §12.1'i iddia ediyordu
+2026-08-15 · `tokens` kapısının docstring'i "§12.1 zorlanır" diyordu ama yalnız KADEME
+denetimi vardı. Kademesi kusursuz bir token pekâlâ ekranın dörtte birini C=0.12 ile
+boyayabiliyordu — ve renk her yerde olduğunda hiçbir yerde uyarı kalmaz (ISA-101).
+`checkChroma` eklendi: alan sınıfı token ADINDAN türer (`bg`/`surface`/`track` → dolgu,
+`line`/`hair` → kenarlık, `text`/`label` → metin, `signal`/`state`/`tolerance` → sinyal),
+sınırlar §12.1'den (0.02 · 0.04 · 0.06 · 0.16). Tanınmayan ad `null` → denetlenmez:
+sınır UYDURMAK, yanlış sınırı zorlamaktan kötüdür.
+1. kademe (`ramp`) hariç: sinyal rampasının yüksek chroma'sı TASARIMDIR; sınır onu
+KULLANAN role/comp token'ına uygulanır — kullanım yeri, tanım yeri değil.
+Dört sınıfın dördü de kasten ihlal edilip kırmızıya döndürüldü; sınırın altındaki
+değerler geçiyor.
+
+## D-134 — `uret.mjs` retrieval yüklemini ATLIYORDU: R-13 ve R-14 ihlali
+2026-08-15 · Doğrulama agent'ı FAZ 3 kapanışında buldu: `scripts/uret.mjs`
+`globSync('corpus/*/*.md')` + `.includes()` ile **ikinci bir retrieval yüklemi** kuruyor
+ve yedi `status: draft` kaydı üretime sokuyordu. İki BLOCKING kural birden çiğneniyordu —
+R-13 (yüklem kodda tek yerde) ve R-14 (draft retrieval'a GÖRÜNMEZ, onay insanın işi).
+`retrieval-yuklemi` darboğazı göremedi: deseni SQL şeklini arıyor (`FROM record`,
+`WHERE brand_id`) ve `uret.mjs` dosya sistemi üzerinden gidiyordu. **Desen BİÇİMİ
+yakalıyordu, ERİŞİMİ değil.** Regex'i genişletmek çözüm değil — çözüm ikinci yüklemi
+SİLMEK oldu.
+Artık `selectRecords`/`selectSearch` çağrılıyor. Onaylanmamış corpus'ta bu **sıfır kayıt**
+döndürüyor ve hat `NO_CONTEXT` ile duruyor: **doğru davranış budur.** FAZ-2.9 insan
+onayını bekliyor ve o kapı atlanamaz.
+
+## D-135 — Devre kesici adım başına kuruluyordu: hiç açılamıyordu
+2026-08-15 · `run.ts` her adımda `new CircuitBreaker()` çağırıyordu. Durum süreç-içi bir
+`Map`te ve adım başına taze; eşik 5 ardışık hata, tek adımda en fazla 3 deneme →
+**kesici yapısal olarak hiç açılamıyordu.** FAZ-3.6'nın "devre kesici canlı" iddiası
+kâğıt üstündeydi. Artık çalıştırma başına bir tane, ve `RunInput.breaker` ile
+enjekte edilebilir (çağıran çalıştırmalar arası paylaşabilir).
+
+## D-136 — Adım çıktısının ÖZETİ manifest'e girer
+2026-08-15 · FAZ 3 çıkış kriteri "QA skorları manifest'te" diyordu; `VALIDATE`
+`data: { qa }` döndürüyordu ama `run.ts` `StepRecord`a hiç yazmıyordu — QA yalnız
+konsola basılıyordu ve 11 manifest'in 11'inde alan yoktu.
+`StepRecord.output` eklendi ve **özet** taşıyor: QA raporu, slayt sayısı/yolları, seçilen
+kalite basamağı, boyutlar. Tam çıktı DEĞİL — belge modelini manifest'e gömmek dosyayı
+şişirir ve `git diff`i okunamaz yapar. Byte'lar `derived/blobs`ta (§3.5); manifest bir
+DEFTERDİR, bir depo değil.
+
+## D-137 — Maliyet defteri `:memory:` idi: SIGKILL testi hiç koşmamıştı
+2026-08-15 · `uret.mjs` `openDb({ path: ':memory:' })` kullanıyordu. Defter süreçle
+birlikte ölüyor, yeniden başlatma idempotency kaydını bulamıyor ve **aynı çağrı tekrar
+uçuyordu** — FAZ-3.6'nın "çift ücret yok" iddiasının tam tersi. `scheduler.ts` doğru
+yazılmıştı; üretim yolu ona her seferinde boş bir defter veriyordu.
+Defter artık `derived/index/ledger.db`de kalıcı.
+
+## D-138 — `knowledgeCommit()` yazılmıştı, sıfır çağıranı vardı
+2026-08-15 · §13 bilgi ağacı commit SHA'sını "replay'i GERÇEK yapan alan" diye tanımlıyor.
+`manifest-writer.ts` onu okuyan fonksiyonu taşıyordu ama **hiçbir yerden çağrılmıyordu**;
+`uret.mjs` alanı `'worktree'` sabitiyle dolduruyordu ve 11 manifest'in hepsinde alan
+sahteydi. `inspectManifest` yalnız "boş dize değil" baktığı için temiz raporluyordu.
+Artık git'ten okunuyor ve okunamazsa çalıştırma DURUYOR — sahte bir SHA, replay'in yalan
+söylemesidir. "Yazıldı ama hiç çağrılmadı" deseninin bu segmentteki yedinci örneği.
+
+## D-139 — Kalite merdiveni hiçbir şey YAPMIYORDU
+2026-08-15 · `climbLadder` uydurma bir formülle (`boyut × kalite/200 × ölçek²`) bir
+basamak "seçiyor", sonra o basamak **hiçbir yere gitmiyordu**: dosya orijinal PNG olarak
+kalıyordu. Doğrulama agent'ı limiti 30KB'a indirip 53KB'lık bir varlığın **sessizce
+yayınlandığını** gösterdi. Benim ihlal testim yalnız son-basamak dalını sınamıştı.
+`renderWithinLimit` eklendi: **her basamak GERÇEKTEN render ediliyor ve dosya
+ÖLÇÜLÜYOR.** Tahmin yok — sıkıştırılmış boyut içeriğe bağlıdır ve hiçbir formül onu
+bilemez. JPEG basamakları `.jpg` yazıyor: format dosya adından okunabilmeli.
+Merdiven tükenirse **hata**; son basamağı "en iyisi buydu" diye kabul etmek, sınırı aşan
+bir varlığı yayına göndermektir.
+Ölçülen gerçek: 1200×1500 düz zeminli bir slaytta PNG 30.247 bayt, JPEG %92/%85/%75
+**daha büyük** (düz renkte PNG kazanır) ve ancak ×0,8 ölçekte 29.120 bayta iniyor.
+Merdiven bunu dürüstçe raporluyor.

@@ -16,21 +16,14 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 
 ## 4.1 — Tasarım sistemi katmanı: yüzey bağlamları    [x] 2026-08-15
 
-> **Bölündü** (LOOP§C): `4.1` renk/yüzey, `4.1b` tipografi/boşluk/yükseklik.
-
 📖 §12.1, §12.4 · R-22, R-23 · D-7
 🔗 FAZ-2.10
-🛠 **Üç kademe token** (ramp → role → comp) zaten mekanik olarak zorlanıyordu (D-133).
-   Bu adım **iki yüzey bağlamını** ekler: `[data-surface="console"]` kalıcı koyu,
-   `[data-surface="studio"]` kalıcı açık, **tema anahtarı YOK**.
-   Yüzey dosyası `<ad>.surface.tokens.json` AYRI derlenir ve **yalnız `role.*`
-   tanımlayabilir** — rampa ya da bileşen tanımlarsa iki tasarım sistemi olur.
-   Takma ad token'ları CSS'te `var()`a derlenir; düz değere derlenirse kaskad kademeyi
-   taşımaz ve yüzey bağlamı hiçbir şey yapmaz.
-📁 `packages/registry/src/tokens.ts` · `scripts/tokens.mjs` ·
-   `brand/*/tokens/studio.surface.tokens.json`
-✅ `just gate tokens` yeşil · üretilen `tokens.css` üç blok taşıyor (`:root`,
-   `[data-surface='console']`, `[data-surface='studio']`) · alt marka yüzeyi devralıyor
+🛠 Üç kademe token zaten zorlanıyordu (D-133); bu adım **iki yüzey bağlamını** ekler:
+   `console` kalıcı koyu, `studio` kalıcı açık, **tema anahtarı YOK**. Yüzey dosyası
+   `<ad>.surface.tokens.json` AYRI derlenir ve **yalnız `role.*`** tanımlar. Takma adlar
+   CSS'te `var()`a derlenir — düz değerde kaskad kademeyi taşımaz (D-160).
+📁 `packages/registry/src/tokens.ts` · `scripts/tokens.mjs` · `brand/*/tokens/*.surface.*`
+✅ `just gate tokens` yeşil · `tokens.css` üç blok taşıyor · alt marka yüzeyi devralıyor
 🧪 Yüzeye `ramp` ekle → kırmızı · `comp` ekle → kırmızı · yüzey rolüne C=0.12 ver → kırmızı
 💾 `feat(ui): iki yüzey bağlamı, takma adlar var()a derleniyor` · `Refs: FAZ-4.1 · §12.4`
 
@@ -38,32 +31,41 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 
 📖 §12.2, §12.3, §12.7 · R-22, R-23 · D-7
 🔗 4.1
-🛠 `packages/ui/src/theme.css`: **dokuz tip boyutu** (11px mikro → 36px mono okuma),
-   ağırlık 400/450/500/550/650 — **konsolda 700 YASAK**. Ölçülen her şey
-   `tabular-nums slashed-zero`, birim kardeş `<span>`'de 0.85em.
-   **4px temel birim**, konsolda yalnız 1/2/3/4/6/8 adımları. Satır 28/32/40px,
-   varsayılan 28. **Yarıçap 2px**, `--radius-full` yalnız 8px durum noktası.
-   **Gölge YASAK** — yükseklik arka plan basamağı + pah çizgisi; tek istisna
-   `[data-elevation="overlay"]`. Hareket beyaz listesi: altı şey, ≤320ms.
+🛠 `theme.css`: **dokuz tip boyutu**, ağırlık 400/450/500/550/650 — konsolda 700
+   YASAK. Ölçüm `tabular-nums slashed-zero`, birim 0.85em kardeş span. **4px temel
+   birim** (1/2/3/4/6/8), satır 28/32/40, yarıçap 2px. **Gölge YASAK** — basamak + pah
+   çizgisi; tek istisna `[data-elevation="overlay"]`. Hareket: altı şey, ≤320ms.
 📁 `packages/ui/src/theme.css` · `scripts/gates/ui-tema.sh`
-✅ `just gate ui-tema` yeşil · kapı `box-shadow`, `font-weight: 700`, ölçek dışı boşluk
-   ve `prefers-color-scheme` kullanımını yakalıyor
-🧪 `box-shadow` yaz → kırmızı · konsolda `font-weight: 700` yaz → kırmızı ·
-   `padding: 5px` yaz → kırmızı · `@media (prefers-color-scheme` yaz → kırmızı
+✅ `just gate ui-tema` gölge, 700 ağırlık, ölçek dışı boşluk, tema anahtarını yakalıyor
+🧪 `box-shadow` · `font-weight: 700` · `padding: 5px` · `prefers-color-scheme` → kırmızı
 💾 `feat(ui): tip ölçeği, boşluk ölçeği, gölgesiz yükseklik` · `Refs: FAZ-4.1b · §12.2`
 
-## 4.2 — Vite + React + Hono + SSE iskeleti    [ ]
+## 4.2 — Hono API, SSE ve dosya izleme    [x] 2026-08-15
 
-📖 §12.5, §12.4 · D-26
+📖 §12.4, §12.5 · D-26
 🔗 4.1
-🛠 Vite + React + Tailwind + shadcn (SPA) · Hono API · SSE · `chokidar` registry izleme.
-   **⌘K palet birincil navigasyon** — menü değil. **Kalıcı makine durumu şeridi**:
-   aktif çalıştırma · biriken maliyet (canlı) · bekleyen onay · en yakın kota sınırı.
-   Toast değil, köşede rozet değil — kalıcı enstrüman okuması.
-📁 `apps/ui/src/` · `apps/server/src/`
-✅ `just dev` ayağa kalkıyor · SSE ile canlı maliyet akıyor · ⌘K her ekrandan açılıyor
-🧪 Sunucuyu öldür → UI "bağlantı yok" diyor, **eski değeri canlı gibi göstermiyor**
-💾 `feat(ui): SPA iskeleti, ⌘K palet ve makine durumu şeridi` · `Refs: FAZ-4.2 · §12.5`
+🛠 Hono + SSE + dosya izleme. **`chokidar` YOK** (D-162): `fs.watch` `recursive`
+   yetiyor (R-75). **Kalp atışı VERİ TAŞIMAZ** — UI sessizliği ölüm sayabilsin diye.
+   **Ölçülemeyen alan sıfır girmez**: `kota: null`, indekssiz `bekleyenOnay: -1`.
+   Bekleyen onay = taranan − `visibleIds`: ikinci retrieval yüklemi yok (R-13).
+📁 `apps/server/src/` · `scripts/sunucu.mjs` · `just dev`
+✅ `just gate cli-duman` sunucuyu GERÇEKTEN kaldırıyor · gerçek repoda `/api/durum`
+   → `bekleyenOnay: 7`, `kusurluCalistirma: 12`
+🧪 `izlenen`i boşalt · izlemeyi kapat · maliyeti dize birleştir → üçü de kırmızı
+💾 `feat(server): Hono API, SSE ve dosya izleme` · `Refs: FAZ-4.2 · §12.4`
+
+## 4.2b — Vite + React SPA, ⌘K palet, makine durumu şeridi    [ ]
+
+📖 §12.5, §12.4 · R-22, R-23 · D-26
+🔗 4.2
+🛠 Vite + React + Tailwind + shadcn (SPA), `theme.css` tüketilir. **⌘K palet
+   birincil navigasyon** — menü ağacı YOK (pipeline registry'den gelir, elle menü
+   bayatlar). **Kalıcı makine durumu şeridi** `/api/olay`dan beslenir; nabız kesilince
+   **"bağlantı yok"** der, eski değeri canlı göstermez (§12.6).
+📁 `apps/ui/src/`
+✅ `just dev` + Vite ayağa kalkıyor · ⌘K her ekrandan açılıyor · şerit canlı akıyor
+🧪 Sunucuyu öldür → şerit "bağlantı yok" diyor, son değeri canlı gibi göstermiyor
+💾 `feat(ui): SPA iskeleti, ⌘K palet ve makine durumu şeridi` · `Refs: FAZ-4.2b · §12.5`
 
 ## 4.3 — Corpus Browser    [ ]
 

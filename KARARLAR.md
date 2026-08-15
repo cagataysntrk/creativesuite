@@ -88,110 +88,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-130 — `just doctor` her zaman "bloke: 0" diyordu
-2026-08-15 · Sağlık raporu `grep -c '^  - adim:' DURUM.md` ile bloke sayıyordu —
-`DURUM.md`'nin **hiç sahip olmadığı** bir biçim. Yani doctor her koşuda "bloke: 0"
-diyordu ve gerçekte 3 bloke adım (2.9, 3.2, 3.8) vardı.
-Doctor, §16'nın deyişiyle "bir ay ihmalden sonra açılacak ilk ekran". **Yalan söyleyen
-bir sağlık raporu, sağlık raporu olmamasından kötüdür**: kullanıcı ona bakıp "engel yok"
-diye devam eder.
-Artık gerçek biçimi (`bloke: [...]`) okuyor ve hangi adımların bloke olduğunu da yazıyor.
-Ayrıca commit'lenmemiş çalıştırma defteri girdilerini bildiriyor — `derived/runs`
-türetilemez (R-52) ve commit'lenmeden duran bir çalıştırma bir `git clean` uzaklıkta.
-
-## D-131 — `gitleaks` `fast` grubuna taşındı: secret kapısı COMMIT'te çalışmalı
-2026-08-15 · `just gates all` FAZ 3 kapanış kanıtı için koşuldu ve **kırmızı çıktı**:
-gitleaks bir bulgu buldu. `just check` (fast) onu hiç koşmadığı için 14 commit boyunca
-görünmemişti.
-Bulgunun kendisi bir test fixture'ıydı (aşağıda), ama **asıl bulgu kapının yerindeydi**:
-`GROUP: all` demek, secret taramasının yalnız `just verify` ve pre-push'ta koşması demek.
-**Git geçmişi silinmez** — R-51'in bütün gerekçesi bu. Push anında yakalanan bir secret
-ZATEN yerel geçmişe girmiştir; çıkarmak için geçmiş yeniden yazılır. Commit anında
-yakalanan geçmişe hiç girmez. Bedel 1,7 saniye; geçmiş yeniden yazmanın bedeli ölçülemez.
-
-## D-132 — gitleaks muafiyeti PARMAK İZİ bazlı, desen bazlı değil
-2026-08-15 · Bulgu `packages/providers/src/descriptor.test.ts:65` — `parseDescriptor`ın
-anahtar GİBİ görünen bir değeri REDDETTİĞİNİ kanıtlayan test (R-51). Dizeler uydurma.
-İki yanlış çözüm vardı:
-1. **Dizeleri "anahtara benzemeyecek" hâle getirmek** → test, kuralın anahtar ŞEKLİNİ
-   yakaladığını artık kanıtlamazdı. Testi zayıflatarak kapıyı geçirmek yasak (R-73).
-2. **Dosyayı ya da deseni allowlist'e almak** → o dosya tamamen körleşirdi ve yarın
-   oraya yazılan GERÇEK bir anahtar sessizce geçerdi.
-Seçilen: `.gitleaksignore`da **parmak izi** (`commit:dosya:kural:satır`). O tek satır,
-o tek hâliyle muaf. İki ihlal testiyle doğrulandı: aynı dosyaya başka bir anahtar
-eklemek → **yakalanıyor**; muaf satırı iki satır kaydırmak → **muafiyet düşüyor**.
-
-## D-133 — Chroma sınırları zorlanmıyordu; `tokens` kapısı §12.1'i iddia ediyordu
-2026-08-15 · `tokens` kapısının docstring'i "§12.1 zorlanır" diyordu ama yalnız KADEME
-denetimi vardı. Kademesi kusursuz bir token pekâlâ ekranın dörtte birini C=0.12 ile
-boyayabiliyordu — ve renk her yerde olduğunda hiçbir yerde uyarı kalmaz (ISA-101).
-`checkChroma` eklendi: alan sınıfı token ADINDAN türer (`bg`/`surface`/`track` → dolgu,
-`line`/`hair` → kenarlık, `text`/`label` → metin, `signal`/`state`/`tolerance` → sinyal),
-sınırlar §12.1'den (0.02 · 0.04 · 0.06 · 0.16). Tanınmayan ad `null` → denetlenmez:
-sınır UYDURMAK, yanlış sınırı zorlamaktan kötüdür.
-1. kademe (`ramp`) hariç: sinyal rampasının yüksek chroma'sı TASARIMDIR; sınır onu
-KULLANAN role/comp token'ına uygulanır — kullanım yeri, tanım yeri değil.
-Dört sınıfın dördü de kasten ihlal edilip kırmızıya döndürüldü; sınırın altındaki
-değerler geçiyor.
-
-## D-134 — `uret.mjs` retrieval yüklemini ATLIYORDU: R-13 ve R-14 ihlali
-2026-08-15 · Doğrulama agent'ı FAZ 3 kapanışında buldu: `scripts/uret.mjs`
-`globSync('corpus/*/*.md')` + `.includes()` ile **ikinci bir retrieval yüklemi** kuruyor
-ve yedi `status: draft` kaydı üretime sokuyordu. İki BLOCKING kural birden çiğneniyordu —
-R-13 (yüklem kodda tek yerde) ve R-14 (draft retrieval'a GÖRÜNMEZ, onay insanın işi).
-`retrieval-yuklemi` darboğazı göremedi: deseni SQL şeklini arıyor (`FROM record`,
-`WHERE brand_id`) ve `uret.mjs` dosya sistemi üzerinden gidiyordu. **Desen BİÇİMİ
-yakalıyordu, ERİŞİMİ değil.** Regex'i genişletmek çözüm değil — çözüm ikinci yüklemi
-SİLMEK oldu.
-Artık `selectRecords`/`selectSearch` çağrılıyor. Onaylanmamış corpus'ta bu **sıfır kayıt**
-döndürüyor ve hat `NO_CONTEXT` ile duruyor: **doğru davranış budur.** FAZ-2.9 insan
-onayını bekliyor ve o kapı atlanamaz.
-
-## D-135 — Devre kesici adım başına kuruluyordu: hiç açılamıyordu
-2026-08-15 · `run.ts` her adımda `new CircuitBreaker()` çağırıyordu. Durum süreç-içi bir
-`Map`te ve adım başına taze; eşik 5 ardışık hata, tek adımda en fazla 3 deneme →
-**kesici yapısal olarak hiç açılamıyordu.** FAZ-3.6'nın "devre kesici canlı" iddiası
-kâğıt üstündeydi. Artık çalıştırma başına bir tane, ve `RunInput.breaker` ile
-enjekte edilebilir (çağıran çalıştırmalar arası paylaşabilir).
-
-## D-136 — Adım çıktısının ÖZETİ manifest'e girer
-2026-08-15 · FAZ 3 çıkış kriteri "QA skorları manifest'te" diyordu; `VALIDATE`
-`data: { qa }` döndürüyordu ama `run.ts` `StepRecord`a hiç yazmıyordu — QA yalnız
-konsola basılıyordu ve 11 manifest'in 11'inde alan yoktu.
-`StepRecord.output` eklendi ve **özet** taşıyor: QA raporu, slayt sayısı/yolları, seçilen
-kalite basamağı, boyutlar. Tam çıktı DEĞİL — belge modelini manifest'e gömmek dosyayı
-şişirir ve `git diff`i okunamaz yapar. Byte'lar `derived/blobs`ta (§3.5); manifest bir
-DEFTERDİR, bir depo değil.
-
-## D-137 — Maliyet defteri `:memory:` idi: SIGKILL testi hiç koşmamıştı
-2026-08-15 · `uret.mjs` `openDb({ path: ':memory:' })` kullanıyordu. Defter süreçle
-birlikte ölüyor, yeniden başlatma idempotency kaydını bulamıyor ve **aynı çağrı tekrar
-uçuyordu** — FAZ-3.6'nın "çift ücret yok" iddiasının tam tersi. `scheduler.ts` doğru
-yazılmıştı; üretim yolu ona her seferinde boş bir defter veriyordu.
-Defter artık `derived/index/ledger.db`de kalıcı.
-
-## D-138 — `knowledgeCommit()` yazılmıştı, sıfır çağıranı vardı
-2026-08-15 · §13 bilgi ağacı commit SHA'sını "replay'i GERÇEK yapan alan" diye tanımlıyor.
-`manifest-writer.ts` onu okuyan fonksiyonu taşıyordu ama **hiçbir yerden çağrılmıyordu**;
-`uret.mjs` alanı `'worktree'` sabitiyle dolduruyordu ve 11 manifest'in hepsinde alan
-sahteydi. `inspectManifest` yalnız "boş dize değil" baktığı için temiz raporluyordu.
-Artık git'ten okunuyor ve okunamazsa çalıştırma DURUYOR — sahte bir SHA, replay'in yalan
-söylemesidir. "Yazıldı ama hiç çağrılmadı" deseninin bu segmentteki yedinci örneği.
-
-## D-139 — Kalite merdiveni hiçbir şey YAPMIYORDU
-2026-08-15 · `climbLadder` uydurma bir formülle (`boyut × kalite/200 × ölçek²`) bir
-basamak "seçiyor", sonra o basamak **hiçbir yere gitmiyordu**: dosya orijinal PNG olarak
-kalıyordu. Doğrulama agent'ı limiti 30KB'a indirip 53KB'lık bir varlığın **sessizce
-yayınlandığını** gösterdi. Benim ihlal testim yalnız son-basamak dalını sınamıştı.
-`renderWithinLimit` eklendi: **her basamak GERÇEKTEN render ediliyor ve dosya
-ÖLÇÜLÜYOR.** Tahmin yok — sıkıştırılmış boyut içeriğe bağlıdır ve hiçbir formül onu
-bilemez. JPEG basamakları `.jpg` yazıyor: format dosya adından okunabilmeli.
-Merdiven tükenirse **hata**; son basamağı "en iyisi buydu" diye kabul etmek, sınırı aşan
-bir varlığı yayına göndermektir.
-Ölçülen gerçek: 1200×1500 düz zeminli bir slaytta PNG 30.247 bayt, JPEG %92/%85/%75
-**daha büyük** (düz renkte PNG kazanır) ve ancak ×0,8 ölçekte 29.120 bayta iniyor.
-Merdiven bunu dürüstçe raporluyor.
-
 ## D-140 — Darboğaz kapsamı üretim betiklerini dışarıda bırakıyordu
 2026-08-15 · `kapsam_varsayilan` yalnız `packages|apps` idi. **Para harcayan tek betik**
 (`scripts/uret.mjs`) 22 darboğazın hiçbirinin kapsamında değildi; agent orada dört ihlal
@@ -576,3 +472,54 @@ Gölge muafiyeti DOSYAYA değil KURAL BLOĞUNA bağlı (`[data-elevation='overla
 `}`e kadar) — "bu dosyada gölge serbest" demek, yasağı ilk ihtiyaçta esnetmek olurdu.
 **Ders (bu turda ikinci kez):** bir kapıyı yazmak onu test etmek değildir. Beş denetimden
 ikisi doğdukları anda ölüydü ve tek fark, ihlali gerçekten denemekti.
+
+## D-162 — `chokidar` eklenmedi: `fs.watch` özyineli çalışıyor
+2026-08-15 · FAZ-4.2 açıkça `chokidar` diyordu (plandan gelen bir alışkanlık). Node 20'den
+beri `fs.watch(dir, { recursive: true })` Linux ve macOS'ta çalışıyor ve bu ortamda
+doğrulandı: `/tmp` altında iki seviye derinde açılan bir dosya olay üretti.
+chokidar'ın asıl değeri **platformlar arası tutarsızlığı gizlemesi** — Windows'ta farklı,
+BSD'de farklı davranan `fs.watch`ı tek bir arayüzün arkasına almak. Bizim tek bir yerel
+platformumuz var (§3'ün "yerel komuta merkezi" tezi) ve onu doğrudan test edebiliyoruz;
+gizlenecek bir tutarsızlık yok. 40 satır bir bağımlılıktan iyidir (R-75).
+Yerine yazılan şey debounce'tur ve o gerçekten gerekli: tek bir dosya kaydetme `rename` +
+`change` olarak iki kez gelir, editörün atomik yazması (geçici dosya + rename) üçe çıkarır.
+Debounce olmadan her kaydetme üç SSE mesajı ve üç disk taraması demekti.
+İzleyici kurulamazsa sunucu YİNE ayağa kalkar ama **sessizce "izliyorum" demez**:
+`/api/saglik` gerçekten izlenen dizinleri listeler ve `cli-duman` kapısı o listenin boş
+olmamasını doğruluyor — ihlal testinde listeyi boşalttığımda kapı kırmızıya döndü.
+**Ders:** faz dosyasındaki bir araç adı bir karar değil, bir varsayımdır. Varsayımı
+sorgulamak bir turluk iş; bağımlılığı sökmek bir yıllık.
+
+## D-163 — Kablo biçimi UYDURULDU ve testler onu doğruladı
+2026-08-15 · `apps/server/src/durum.ts` manifest'i okumak için KENDİ `JSON.parse`
+reviver'ını taşıyordu ve `Money`nin diskteki biçimini `{micros: {__bigint: "…"}}`
+sanıyordu. Gerçek biçim `{micros: "0", currency: "USD"}` ve kanonik okuyucu
+(`readManifest`) zaten vardı.
+Hata **sessizdi**: JS'te `bigint + string` bir dize BİRLEŞTİRMESİDİR, istisna atmaz.
+Gerçek repoya karşı ilk istek `maliyetMikros: "000000000000000…"` döndürdü — 69 haneli
+bir sıfır dizisi, `bandDisinda: true` ve tamamen anlamsız bir maliyet göstergesi.
+**Dokuz birim testi bunu geçirdi** çünkü fikstürleri ben yazdım ve fikstür de aynı
+uydurma biçimi kullanıyordu: test kodu değil, kendi varsayımını doğruladı. Bu, "yeşil test
+bir şey kanıtlamaz"ın (R-71) en saf hâli — kapı yok, kandırılan bir ayna var.
+İki düzeltme: (1) kendi okuyucum silindi, `readManifest`e devredildi — ikinci bir
+ayrıştırıcı zaten `chokepoints`in yasakladığı şeydi; (2) fikstürler gerçek biçime
+çevrildi ve regresyonu doğrulandı: maliyeti kasten dize birleştirdiğimde üç test kırmızı.
+**Ders:** bir serileştirme biçimini kod yazarak öğrenemezsin, sadece OKUYARAK.
+Fikstürünü yazan el, kodu yazan elle aynıysa test bir doğrulama değil, bir yankıdır.
+
+## D-164 — Sunucu duman testi: `node --check` yetmez
+2026-08-15 · D-153'te iki üretim CLI'ı import eksikliğinden kırıldı ve hiçbir kapı
+görmedi; çözüm `cli-duman` kapısıydı ama sunucu betiği için yalnız `node --check`
+yapıyordu — ki bu tam olarak D-153'ün yakalayamadığı hata sınıfıdır (dosya
+ayrıştırılabilir, import'u eksik).
+Nitekim ilk sürüm tam bu şekilde düştü: `scripts/sunucu.mjs` `@hono/node-server`ı
+import ediyordu ama o paket pnpm workspace'te `apps/server/node_modules` altında, kökte
+DEĞİL. Sözdizimi kusursuzdu; süreç `ERR_MODULE_NOT_FOUND` ile açılmadı.
+`scripts/sunucu-duman.mjs` sunucuyu GERÇEKTEN kaldırıyor (port 0 — paralel koşuda
+çakışmasın), üç ucu çağırıyor, bir dosya değişiminin SSE'ye yansıdığını doğruluyor ve
+temiz kapatıyor. Hiçbir şey harcamaz: bu yalnız okuyan bir API (R-47 ruhu).
+Ayrıca doğru mimari de ortaya çıktı: dinleyiciyi açan kod artık `apps/server/src/baslat.ts`
+içinde, betikte değil — **bağımlılığın nerede yaşadığı, onu kimin çağırabileceğini
+belirler** ve mantığın tip denetimli pakette durması D-153'ün asıl dersiydi.
+**Ders:** bir dosyanın ayrıştırılabilmesi, çalışabildiğini göstermez. Aradaki farkı
+yalnız çalıştırmak kapatır.

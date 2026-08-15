@@ -11,8 +11,11 @@
     }
   },
   "dependencies": {
+    "@hono/node-server": "1.19.9",
     "@suite/contracts": "workspace:*",
+    "@suite/corpus": "workspace:*",
+    "@suite/engine": "workspace:*",
     "@suite/kernel": "workspace:*",
-    "@suite/engine": "workspace:*"
+    "hono": "4.13.2"
   }
 }

@@ -14,13 +14,17 @@ default:
 
 # ── günlük döngü ─────────────────────────────────────────────────────────────
 
-# Kuru çalıştırma planı: DAG + maliyet aralığı. HİÇBİR ŞEY HARCAMAZ (R-47)
-# Hattı UÇTAN UCA koşar — para HARCAYABİLİR (plan harcamaz)
+# Hattı UÇTAN UCA koşar — para HARCAYABİLİR
 uret *args:
     @./node_modules/.bin/tsc -b && node scripts/uret.mjs {{args}}
 
+# Kuru çalıştırma planı: DAG + maliyet aralığı. HİÇBİR ŞEY HARCAMAZ (R-47)
 plan *args:
     @./node_modules/.bin/tsc -b && node scripts/plan.mjs {{args}}
+
+# Komuta merkezi sunucusu: API + SSE + dosya izleme. Ctrl-C ile durur
+dev:
+    @./node_modules/.bin/tsc -b && node scripts/sunucu.mjs
 
 # Turun 1-2. adımı: DURUM.md oku, aktif adımın okuması gereken her şeyi getir
 tur:
