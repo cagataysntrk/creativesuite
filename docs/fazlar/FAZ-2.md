@@ -96,15 +96,19 @@ yeniden üretilebilsin.
    gevşetilmedi, test kurala uyduruldu
 💾 `feat(corpus): propose ve git darboğazı` · `Refs: FAZ-2.4 · §5.4`
 
-## 2.5 — Çelişki tespiti ve tahkim kuyruğu    [ ]
+## 2.5 — Çelişki tespiti ve tahkim kuyruğu    [x] 2026-08-15
 
 📖 §5.5, §5.6
 🔗 2.2
 🛠 FTS5 yakın-kopya (trigram + RRF, FAZ-1.6'daki arama) + LLM sınıflandırıcı.
    Çelişen iddialar tahkim kuyruğuna düşer; **model karar VERMEZ**, insanı çağırır.
 📁 `packages/corpus/src/conflict.ts`
-✅ `just test conflict` yeşil · aynı olgunun iki farklı sayısı çelişki olarak işaretleniyor
-🧪 Birbirini tutmayan iki `positioning` kaydı ekle → ikisi de `active` KALAMIYOR
+✅ `just test conflict` → 11 test. `%18` ile `%31` çelişki, `%18` ile `%18` değil ·
+   `%18,5` Türkçe ondalıkta ikiye BÖLÜNMÜYOR (bölünse ortak sayı bulunur ve çelişki
+   kaçardı) · farklı tip aday olamıyor · kuyruk yalnız `contradicts` taşıyor
+🧪 İki çelişen kanıt kaydı → tahkim kuyruğunda İKİ kaynak, İKİ tarih, İKİ güven yan
+   yana · dönen yapıda "kazanan/seçilen" alanı YOK ve testle sabitlendi — yeni olan
+   eskiyi otomatik ezmiyor, çünkü tarih doğruluk kanıtı değildir
 💾 `feat(corpus): çelişki tespiti ve tahkim kuyruğu` · `Refs: FAZ-2.5 · §5.5`
 
 ## 2.6 — Era modeli: git tag + manifest + varlık damgası    [ ]

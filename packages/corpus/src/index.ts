@@ -47,3 +47,14 @@ export {
   type ReindexOutcome,
   type ReindexFailure,
 } from './reindex.js'
+
+export {
+  findCandidates,
+  arbitrationQueue,
+  numericConflict,
+  type ClaimRecord,
+  type Classifier,
+  type ConflictCandidate,
+  type ArbitrationItem,
+  type Verdict,
+} from './conflict.js'
