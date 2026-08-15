@@ -59,7 +59,7 @@ save file="-":
 # ── bakım ────────────────────────────────────────────────────────────────────
 
 fmt:
-    @echo "(FAZ-0.C.1'de prettier gelecek)"
+    @./node_modules/.bin/prettier --write . --log-level warn && echo "✓ biçimlendirildi"
 
 # Türetilmiş indeksi sıfırdan kur. derived/runs'a DOKUNMAZ (D-38)
 reindex:

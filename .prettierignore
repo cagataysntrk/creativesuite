@@ -1,0 +1,13 @@
+# Belgeler biçimlendirilmez: satır tavanları (docs-size) ve elle kurulmuş tablo
+# hizalamaları prettier'in yeniden akıtmasıyla bozulur. Nesir bir biçimlendiricinin işi değil.
+**/*.md
+
+# Şifreli secret'lar — biçimlendirme MAC'i bozar, dosya bir daha açılmaz.
+secrets/
+
+# Üretilmiş / türetilmiş
+dist/
+node_modules/
+pnpm-lock.yaml
+derived/
+schemas/

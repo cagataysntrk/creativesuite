@@ -58,7 +58,8 @@ for (let n = 0; n <= 9; n++) {
   const t = read(`docs/fazlar/FAZ-${n}.md`)
   if (t === null) continue
   const s = new Set()
-  for (const m of t.matchAll(/^##+ +(\d+)\.([A-Za-z0-9.]+?) +—/gm)) if (m[1] === String(n)) s.add(m[2])
+  for (const m of t.matchAll(/^##+ +(\d+)\.([A-Za-z0-9.]+?) +—/gm))
+    if (m[1] === String(n)) s.add(m[2])
   phaseSteps.set(String(n), s)
 }
 
@@ -66,9 +67,15 @@ for (let n = 0; n <= 9; n++) {
 let files = []
 try {
   // execFileSync: kabuk yok, pathspec glob'larını git'in kendisi çözer
-  files = execFileSync('git', ['ls-files', '*.md', '*.ts', '*.mjs', '*.sh', 'justfile'],
-    { cwd: REPO, encoding: 'utf8' }).split('\n').filter(Boolean)
-} catch { files = [] }
+  files = execFileSync('git', ['ls-files', '*.md', '*.ts', '*.mjs', '*.sh', 'justfile'], {
+    cwd: REPO,
+    encoding: 'utf8',
+  })
+    .split('\n')
+    .filter(Boolean)
+} catch {
+  files = []
+}
 // Arşiv ve kayıt dosyaları: ARŞİVLENMİŞ bir belgeden alıntı yapan bir kayıt, canlı
 // çapalara karşı doğrulanamaz. denetim-tasfiye planın § numaralarını alıntılıyor;
 // plan arşivde ve numaraları ANAYASA'ya eşlenmiyor.
@@ -88,7 +95,10 @@ for (const f of files) {
     // §N / §N.M — ANAYASA bölümü. Tanım satırlarını (başlıklar) atla.
     if (!/^#+\s/.test(line)) {
       for (const m of line.matchAll(/§(\d+(?:\.\d+)?)/g)) {
-        if (anchors.size === 0) { warns.add('docs/ANAYASA.md yok veya çapasız — § atıfları doğrulanmadı'); break }
+        if (anchors.size === 0) {
+          warns.add('docs/ANAYASA.md yok veya çapasız — § atıfları doğrulanmadı')
+          break
+        }
         if (!anchors.has(m[1])) at(`§${m[1]} — ANAYASA'da böyle bir bölüm yok`)
       }
     }
@@ -96,26 +106,39 @@ for (const f of files) {
     // LOOP§<harf>. "LOOP§X" literal yer tutucudur (şablon anlatımı) — atlanır.
     for (const m of line.matchAll(/LOOP§([A-Z])/g)) {
       if (m[1] === 'X') continue
-      if (loopSections.size === 0) { warns.add('docs/LOOP.md yok — LOOP§ atıfları doğrulanmadı'); break }
+      if (loopSections.size === 0) {
+        warns.add('docs/LOOP.md yok — LOOP§ atıfları doğrulanmadı')
+        break
+      }
       if (!loopSections.has(m[1])) at(`LOOP§${m[1]} — LOOP.md'de böyle bir bölüm yok`)
     }
 
     // R-nn
     for (const m of line.matchAll(/\bR-(\d+)\b/g)) {
-      if (rules === null) { warns.add('KURALLAR.md yok — R-nn atıfları doğrulanmadı'); break }
+      if (rules === null) {
+        warns.add('KURALLAR.md yok — R-nn atıfları doğrulanmadı')
+        break
+      }
       if (!rules.has(`R-${m[1]}`)) at(`R-${m[1]} — KURALLAR.md'de yok`)
     }
 
     // D-nn / V-nn
     for (const m of line.matchAll(/\bD-(\d+)\b/g)) {
-      if (decisions === null) { warns.add('KARARLAR.md yok — D-nn atıfları doğrulanmadı'); break }
+      if (decisions === null) {
+        warns.add('KARARLAR.md yok — D-nn atıfları doğrulanmadı')
+        break
+      }
       const id = `D-${m[1]}`
       if (!decisions.has(id)) at(`${id} — KARARLAR.md'de yok`)
       // KARARLAR.md'nin kendi içinde reddedilmeye atıf serbest (yerine geçeni gösterir)
-      else if (rejected.has(id) && f !== 'KARARLAR.md') at(`${id} — bu karar REDDEDİLDİ, ona dayanılamaz`)
+      else if (rejected.has(id) && f !== 'KARARLAR.md')
+        at(`${id} — bu karar REDDEDİLDİ, ona dayanılamaz`)
     }
     for (const m of line.matchAll(/\bV-(\d+)\b/g)) {
-      if (debts === null) { warns.add('KARARLAR.md yok — V-nn atıfları doğrulanmadı'); break }
+      if (debts === null) {
+        warns.add('KARARLAR.md yok — V-nn atıfları doğrulanmadı')
+        break
+      }
       if (!debts.has(`V-${m[1]}`)) at(`V-${m[1]} — KARARLAR.md'de yok`)
     }
 
@@ -126,7 +149,10 @@ for (const f of files) {
       const clean = step.replace(/[.,;:)]+$/, '')
       if (clean === 'x' || clean === 'md') continue
       const set = phaseSteps.get(n)
-      if (!set) { warns.add(`docs/fazlar/FAZ-${n}.md yok — FAZ-${n} atıfları doğrulanmadı`); continue }
+      if (!set) {
+        warns.add(`docs/fazlar/FAZ-${n}.md yok — FAZ-${n} atıfları doğrulanmadı`)
+        continue
+      }
       if (!set.has(clean)) at(`FAZ-${n}.${clean} — FAZ-${n}.md'de böyle bir adım yok`)
     }
   })

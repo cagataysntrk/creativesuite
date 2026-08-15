@@ -15,7 +15,8 @@ import { fileURLToPath } from 'node:url'
 // fileURLToPath şart: .pathname Türkçe karakterleri URL-kodlu bırakır
 // ("İndirilenler" → "%C4%B0ndirilenler") ve dosyalar yanlış dizine yazılır.
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const SRC = process.env.RESEARCH_SRC ??
+const SRC =
+  process.env.RESEARCH_SRC ??
   join(process.env.HOME, '.claude/projects/-home-cagataysntrk--ndirilenler-projeler-creativesuite')
 const OUT = join(REPO, 'docs/research')
 const MAX_BYTES = 480 * 1024 // repo-hygiene tavanının (512KB) altında kal
@@ -30,9 +31,12 @@ const WAVE_NAMES = {
 }
 
 const slug = (s) =>
-  String(s).toLowerCase()
-    .replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' }[c]))
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
+  String(s)
+    .toLowerCase()
+    .replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' })[c])
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 60)
 
 function findJournals(root) {
   const out = []
@@ -53,14 +57,22 @@ const push = (s) => md.push(s)
 
 function renderList(title, arr) {
   if (!Array.isArray(arr) || arr.length === 0) return ''
-  return `\n### ${title}\n\n` + arr.map((x) => `- ${typeof x === 'string' ? x : JSON.stringify(x)}`).join('\n') + '\n'
+  return (
+    `\n### ${title}\n\n` +
+    arr.map((x) => `- ${typeof x === 'string' ? x : JSON.stringify(x)}`).join('\n') +
+    '\n'
+  )
 }
 
 function renderItems(items) {
   if (!Array.isArray(items) || items.length === 0) return ''
   let s = `\n### Kalemler (${items.length})\n\n| Ad | Tür | Ne | Erişim | Maliyet | Karar |\n|---|---|---|---|---|---|\n`
   for (const i of items) {
-    const c = (v) => String(v ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ').slice(0, 200)
+    const c = (v) =>
+      String(v ?? '')
+        .replace(/\|/g, '\\|')
+        .replace(/\n/g, ' ')
+        .slice(0, 200)
     s += `| ${c(i.name)} | ${c(i.kind)} | ${c(i.what)} | ${c(i.access)} | ${c(i.cost)} | ${c(i.verdict)} |\n`
   }
   s += '\n<details><summary>Notlar</summary>\n\n'
@@ -97,8 +109,16 @@ function writeChunked(base, title, body) {
   }
   // Böl: başlıklardan
   const parts = full.split(/\n(?=#### )/)
-  let buf = header, n = 0, files = 0
-  const flush = () => { if (buf.trim()) { writeFileSync(join(OUT, `${base}-${++n}.md`), buf); files++ } buf = header }
+  let buf = header,
+    n = 0,
+    files = 0
+  const flush = () => {
+    if (buf.trim()) {
+      writeFileSync(join(OUT, `${base}-${++n}.md`), buf)
+      files++
+    }
+    buf = header
+  }
   for (const p of parts) {
     if (Buffer.byteLength(buf + p) > MAX_BYTES) flush()
     buf += '\n' + p
@@ -109,7 +129,8 @@ function writeChunked(base, title, body) {
 
 mkdirSync(OUT, { recursive: true })
 const journals = findJournals(SRC)
-let total = 0, files = 0
+let total = 0,
+  files = 0
 const index = []
 
 for (const j of journals) {
@@ -117,11 +138,25 @@ for (const j of journals) {
   const wave = WAVE_NAMES[wf?.slice(0, 11)] ?? slug(wf)
   for (const line of readFileSync(j, 'utf8').split('\n')) {
     if (!line.trim()) continue
-    let o; try { o = JSON.parse(line) } catch { continue }
+    let o
+    try {
+      o = JSON.parse(line)
+    } catch {
+      continue
+    }
     if (o.type !== 'result' || !o.result || typeof o.result !== 'object') continue
     const r = o.result
-    const title = r.domain ?? (r.verdict ? 'Denetim' : r.rules ? 'Master kural listesi'
-      : r.tokens ? 'Tasarım sistemi' : r.contracts ? 'Sözleşmeler ve kapılar' : 'Sentez')
+    const title =
+      r.domain ??
+      (r.verdict
+        ? 'Denetim'
+        : r.rules
+          ? 'Master kural listesi'
+          : r.tokens
+            ? 'Tasarım sistemi'
+            : r.contracts
+              ? 'Sözleşmeler ve kapılar'
+              : 'Sentez')
     const base = `${wave}--${slug(title)}`
     md.length = 0
     if (r.summary) push(`## Özet\n\n${r.summary}\n`)
@@ -131,33 +166,54 @@ for (const j of journals) {
     push(renderFindings(r.findings))
     push(renderItems(r.items))
     for (const [k, label] of [
-      ['recommendations', 'Öneriler'], ['risks', 'Riskler'], ['unverified', 'Doğrulanmamış'],
-      ['antipatterns', 'Anti-desenler'], ['conflictsResolved', 'Çözülen çelişkiler'],
-      ['droppedAsNoise', 'Elenenler'], ['whatIsGood', 'İyi olanlar'], ['openQuestions', 'Açık sorular'],
-      ['buildVsBuy', 'Yap/Satın al'], ['phasing', 'Fazlama'], ['killedIdeas', 'Reddedilenler'],
+      ['recommendations', 'Öneriler'],
+      ['risks', 'Riskler'],
+      ['unverified', 'Doğrulanmamış'],
+      ['antipatterns', 'Anti-desenler'],
+      ['conflictsResolved', 'Çözülen çelişkiler'],
+      ['droppedAsNoise', 'Elenenler'],
+      ['whatIsGood', 'İyi olanlar'],
+      ['openQuestions', 'Açık sorular'],
+      ['buildVsBuy', 'Yap/Satın al'],
+      ['phasing', 'Fazlama'],
+      ['killedIdeas', 'Reddedilenler'],
       ['uiSurfaces', 'Ekranlar'],
-    ]) push(renderList(label, r[k]))
+    ])
+      push(renderList(label, r[k]))
     for (const [k, label] of [
-      ['coreModel', 'Çekirdek model'], ['memoryDesign', 'Hafıza tasarımı'],
-      ['regenerationDesign', 'Yeniden üretim'], ['extensibilityDesign', 'Genişletilebilirlik'],
-      ['strategySchema', 'Strateji şeması'], ['repoTree', 'Repo ağacı'],
-      ['tokens', 'Token mimarisi'], ['typography', 'Tipografi'], ['layout', 'Yerleşim'],
-      ['interaction', 'Etkileşim'], ['states', 'Durumlar'], ['motion', 'Hareket'],
-      ['contracts', 'TypeScript sözleşmeleri'], ['ciGates', 'CI kapıları'],
-      ['docTree', 'Belge ağacı'], ['justfile', 'justfile'],
-    ]) if (typeof r[k] === 'string' && r[k].trim()) push(`\n### ${label}\n\n${r[k]}\n`)
+      ['coreModel', 'Çekirdek model'],
+      ['memoryDesign', 'Hafıza tasarımı'],
+      ['regenerationDesign', 'Yeniden üretim'],
+      ['extensibilityDesign', 'Genişletilebilirlik'],
+      ['strategySchema', 'Strateji şeması'],
+      ['repoTree', 'Repo ağacı'],
+      ['tokens', 'Token mimarisi'],
+      ['typography', 'Tipografi'],
+      ['layout', 'Yerleşim'],
+      ['interaction', 'Etkileşim'],
+      ['states', 'Durumlar'],
+      ['motion', 'Hareket'],
+      ['contracts', 'TypeScript sözleşmeleri'],
+      ['ciGates', 'CI kapıları'],
+      ['docTree', 'Belge ağacı'],
+      ['justfile', 'justfile'],
+    ])
+      if (typeof r[k] === 'string' && r[k].trim()) push(`\n### ${label}\n\n${r[k]}\n`)
 
     const body = md.filter(Boolean).join('\n')
     if (!body.trim()) continue
     const n = writeChunked(base, title, body)
-    files += n; total++
+    files += n
+    total++
     index.push(`- \`${base}\` — ${title} (${n} dosya)`)
   }
 }
 
-writeFileSync(join(OUT, 'README.md'),
+writeFileSync(
+  join(OUT, 'README.md'),
   `# Araştırma eki\n\n${total} agent çıktısı, ${files} dosya. Damıtılmış — ham transkript git'e girmez.\n\n` +
-  `**Nasıl okunur:** baştan sona okuma. \`ctx_search\` ile sorgula veya ilgili dosyayı aç.\n\n` +
-  `## Dizin\n\n${index.sort().join('\n')}\n`)
+    `**Nasıl okunur:** baştan sona okuma. \`ctx_search\` ile sorgula veya ilgili dosyayı aç.\n\n` +
+    `## Dizin\n\n${index.sort().join('\n')}\n`
+)
 
 console.log(`✓ ${total} sonuç → ${files} dosya, docs/research/`)

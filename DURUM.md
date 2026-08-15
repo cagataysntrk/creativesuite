@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.C.1
+siradaki_adim: 0.C.4
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "FAZ-1.1: 11 paket, ihlal testi -> eslint rc=1 depcruise rc=1 tsc rc=2; geri alinca 6 kapi yesil"
+son_kanit: "0.C.1: tsconfig-drift 3 ihlalde de kirmizi; format kapisi SOPS dosyasini korudu; 8 kapi yesil"
 ```
 
 ## Neredeyiz
@@ -46,6 +46,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.B.8a · FAZ-0.md ve FAZ-1.md | 2026-08-14 |
 | 0.B.9 · .claude/rules + skills iskeleti | 2026-08-15 |
 | 0.B.10 · denetim bulgularının tasfiyesi | 2026-08-15 |
+| 0.C.1 · tsconfig katılığı + prettier | 2026-08-15 |
 | 0.C.2 · halka sınırı zorlaması | 2026-08-15 |
 | 0.C.6 · citations kapısı | 2026-08-14 |
 | 0.C.7 · commit-msg hook'u | 2026-08-14 |
@@ -57,12 +58,13 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 
 ## Sıradaki adım
 
-**0.C.1** — `tsconfig-drift` kapısı. `tsconfig.base.json` FAZ-1.1'de yazıldı ve katı;
-eksik olan, bir paketin bir bayrağı sessizce zayıflatmasını yakalayan kapı.
-Kabul: bir pakette `strict: false` yaz → kapı kırmızı.
+**0.C.10** — `secretlint` + `gitleaks` + `lefthook`. Kapılar `just check` içinde
+çalışıyor ama commit anında **otomatik** çalışmıyorlar; tek zorlayıcı `commit-msg`.
+Kabul: sahte anahtar commit'le → engellendi.
 
 > D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
-> kapılı doğsun diye. Kalan: 0.C.1, 0.C.3, 0.C.4, 0.C.8, 0.C.10, 0.C.11.
+> kapılı doğsun diye. Kalan: 0.C.4 ve 0.C.11 (🔗 FAZ-1.5 / 1.11 kodunu bekliyor),
+> 0.C.3 (🔗 FAZ-1.1b `OpaqueAttributes`), 0.C.8, 0.C.10.
 
 ## Bloke adımlar
 

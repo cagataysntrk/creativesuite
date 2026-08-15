@@ -3,15 +3,7 @@
 
 /** Bir paketin ait olduğu halka. Bağımlılık yönü bu sırayla tek yönlüdür. */
 export type RingName =
-  | 'contracts'
-  | 'kernel'
-  | 'registry'
-  | 'corpus'
-  | 'providers'
-  | 'render'
-  | 'engine'
-  | 'ui'
-  | 'app'
+  'contracts' | 'kernel' | 'registry' | 'corpus' | 'providers' | 'render' | 'engine' | 'ui' | 'app'
 
 /** Her workspace paketi kendini böyle tanıtır. */
 export interface PackageIdentity {

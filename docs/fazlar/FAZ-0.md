@@ -131,7 +131,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 
 ## 0.C — Kural zorlama altyapısı
 
-## 0.C.1 — tsconfig + ESLint + formatter    [ ]
+## 0.C.1 — tsconfig + ESLint + formatter    [x] 2026-08-15
 📖 §3.6 · 🔗 1.1
 🛠 `strict · noUncheckedIndexedAccess · exactOptionalPropertyTypes · noImplicitOverride ·
    noPropertyAccessFromIndexSignature · isolatedModules · verbatimModuleSyntax ·
