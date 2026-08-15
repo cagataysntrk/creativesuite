@@ -65,3 +65,12 @@ export type { ToleranceStatus, ToleranceReading, QaReport } from './tolerance.js
 
 // Platform yerleşim spec'i — ölçen (render) ile gösteren (ui) ortak sözlüğü (D-176).
 export type { Placement, SafeArea, SafeBand } from './placement.js'
+
+// Keşif planı — motor ile inceleme ekranı ortak sözlüğü (D-177).
+export type {
+  OpKind,
+  OpReason,
+  ReconcileColumn,
+  DiscoveryOpView,
+  HaltedRecord,
+} from './discovery.js'

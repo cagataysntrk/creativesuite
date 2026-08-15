@@ -431,3 +431,40 @@ kbd {
   gap: var(--space-6);
   align-items: flex-start;
 }
+
+/* ── reconciliation sütunları (§4.4) ────────────────────────────────────────
+ * ÇELİŞTİ en solda: dikkat, iş bekleyen sütuna ait. DEĞİŞMEDİ en sağda ve katlı. */
+.sutunlar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.sutun h3 {
+  font-size: var(--size-3);
+  font-weight: var(--weight-label);
+  margin: 0 0 var(--space-2);
+  padding-block-end: var(--space-1);
+  border-block-end: 1px solid var(--role-line-hair);
+}
+
+.sutun[data-sutun='conflicted'] h3 {
+  border-block-end-color: var(--role-state-warn);
+}
+
+.sutun[data-sutun='retired'] h3 {
+  border-block-end-color: var(--role-state-error);
+}
+
+.op-listesi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--size-2);
+}
+
+.op-listesi li {
+  padding-block: var(--space-2);
+  border-block-end: 1px solid var(--role-line-hair);
+}

@@ -125,7 +125,27 @@ attributes.ts#unsealAttributes` (bunu yapan tek dosya) açar → `COMPOSE` (saf)
 modelini üretir → `RENDER` yalnız belge modelini görür, `RecordEnvelope`'ı asla.
 
 ### §3.3 Şema profili {#section-3-3}
-İzin verilen JSON Schema 2020-12 alt kümesi. Yasaklananlar ve neden.
+
+Ring 1'deki her varlık tipi **JSON Schema 2020-12** yazar — ama tamamını değil. İzin
+verilen alt küme `registry/PROFILE.md`de tanımlıdır ve `registry` kapısı zorlar.
+
+**Neden alt küme:** tek şema DÖRT hedefe derlenir (§3.4) — rjsf formu · TypeScript tipi ·
+katı LLM şeması · SQLite DDL. Tam JSON Schema'nın ifade gücü bu dördünde eşit değil:
+rjsf `if/then/else`i kısmen destekler ve desteklemediğinde **form sessizce yanlış alan
+gösterir**; LLM yapılandırılmış çıktısı `oneOf`/`not`/`patternProperties` kabul etmez ve
+şema reddedilince model serbest metin döndürür, pipeline "geçerli" sanıp devam eder;
+DDL için bir alanın tipi tek olmak zorundadır.
+
+Yani **profil dışı bir anahtar, dört projeksiyondan en az birini SESSİZCE bozar** — ve
+sessiz bozulma bu sistemin en pahalı hata sınıfıdır: çıktı üretilir, kimse fark etmez.
+
+Yasak anahtarlar: `oneOf` · `not` · `if`/`then`/`else` · `patternProperties` ·
+`unevaluatedProperties` · `$dynamicRef`. Tam liste ve her biri için ne kullanılacağı
+`registry/PROFILE.md`de; burada tekrar edilmez (iki liste zamanla ayrışır).
+
+**Şema değişikliği corpus'a karşı KURU ÇALIŞTIRILIR.** Bir alanı zorunlu yapmak, o alanı
+taşımayan her kaydı geçersiz kılar; editör kaydetmeden önce kaç kaydın kırılacağını
+SAYIYLA söyler ve codemod'suz yıkıcı değişikliği reddeder (§12.9).
 
 ### §3.4 Projeksiyon derleyicisi {#section-3-4}
 Tek şema → form + TS tipi + katı LLM şeması + SQLite DDL.

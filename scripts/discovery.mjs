@@ -93,7 +93,27 @@ const adaylar = oku(adayYolu)
 // Argüman yine kabul ediliyor ama yalnız TEST içindir ve çıktıda söylenir.
 const { scanCorpus } = await import(join(REPO, 'packages/corpus/dist/index.js'))
 const tarama = scanCorpus(join(REPO, 'corpus'), REPO)
-const mevcutlar = mevcutYolu === null ? tarama.records : (oku(mevcutYolu) ?? [])
+// İmza BÜTÜNLÜĞÜ plan yolunda da doğrulanır (§4.4 · D-177). Önceden yalnız yazma yolu
+// (`write.ts`) reddediyordu; plan ekranı "update" gösterip insanın emeğini üzerine
+// yazacakmış gibi görünüyordu. Kırık imza planı DURDURUR.
+const { parseFrontmatter, signatureIntact } = await import(
+  join(REPO, 'packages/corpus/dist/index.js')
+)
+const imzaDurumu = (rel) => {
+  try {
+    const p = parseFrontmatter(readFileSync(join(REPO, rel), 'utf8'))
+    if (!p.ok || p.value.frontmatter === null) return undefined
+    if (p.value.frontmatter.x_signature === undefined) return undefined
+    return signatureIntact(p.value.frontmatter, p.value.body) === false
+  } catch {
+    return undefined
+  }
+}
+
+const mevcutlar = (mevcutYolu === null ? tarama.records : (oku(mevcutYolu) ?? [])).map((r) => {
+  const kirik = mevcutYolu === null ? imzaDurumu(r.path) : undefined
+  return kirik === undefined ? r : { ...r, signatureBroken: kirik }
+})
 if (mevcutYolu !== null) {
   console.log('  ⚠ mevcut liste DOSYADAN okundu — gerçek corpus taranmadı (test yolu)')
 }
@@ -124,6 +144,15 @@ const plan = buildDiscoveryPlan({
 })
 
 console.log(formatDiscoveryPlan(plan))
+
+// İmza kırıksa plan UYGULANAMAZ ve bu SESSİZ kalmaz (§4.4). Uyarı verip devam etmek,
+// insanın elle yazdığını motorun üzerine yazması demekti.
+if (plan.halted.length > 0) {
+  console.log('')
+  console.log(`  ✗ PLAN DURDU — ${plan.halted.length} kaydın imzası kırık:`)
+  for (const h of plan.halted) console.log(`    ${h.path}\n      ${h.reason}`)
+  process.exit(1)
+}
 
 // Plan `--kaydet <yol>` ile diske yazılabilir; `review` ve `apply` onu okur.
 // Varsayılan olarak YAZILMAZ: `plan` komutunun "hiçbir şey yazmaz" iddiası,

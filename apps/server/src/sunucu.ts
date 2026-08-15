@@ -23,9 +23,9 @@ import {
   retireRecord,
   type SelectQuery,
 } from '@suite/corpus'
-import { RUNS_DIR, fileHistory } from '@suite/kernel'
-import type { ToleranceReading } from '@suite/contracts'
-import { readManifest } from '@suite/engine'
+import { RUNS_DIR, fileHistory, runDir } from '@suite/kernel'
+import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
+import { COLUMN_LABELS, byColumn, readManifest } from '@suite/engine'
 import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
@@ -145,6 +145,38 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         status: durum,
       }),
     })
+  })
+
+  // ── keşif planı: Reconciliation (§4.4, §12.9 · FAZ-4.10) ──────────────────
+  //
+  // **Kaydedilmiş bir planı OKUR, yeni plan kurmaz.** Plan kurmak keşif çalıştırması
+  // demek ve o `just discovery plan` ile insanın başlattığı bir iştir (R-14) —
+  // bir ekranın sayfa yenilemesiyle tetiklenmez.
+  app.get('/api/discovery', (c) => {
+    // Yol düz dize DEĞİL: `runDir` tek otoritedir (chokepoints → `manifest-yazici`).
+    // İkinci bir literal, defterin yeri değiştiğinde ekranın olmayan bir dosyayı
+    // aramasıydı — ve "plan yok" ile "plan başka yerde" ayırt edilemezdi.
+    const yol = join(o.repoRoot, runDir(c.req.query('run') ?? ''), 'plan.json')
+    if (!existsSync(yol)) {
+      // Boş plan DÖNMÜYORUZ: boş bir dört sütun "değişiklik yok" okunur, oysa plan
+      // hiç koşmamış olabilir — ikisi zıt sonuçlar (§4.4).
+      return c.json({ ok: false, hata: 'plan yok — `just discovery plan --kaydet <yol>`' }, 404)
+    }
+    try {
+      const plan = JSON.parse(readFileSync(yol, 'utf8')) as {
+        ops: DiscoveryOpView[]
+        halted?: HaltedRecord[]
+      }
+      const sutunlar = byColumn(plan.ops as never)
+      return c.json({
+        ok: true,
+        halted: plan.halted ?? [],
+        etiketler: COLUMN_LABELS,
+        sutunlar,
+      })
+    } catch {
+      return c.json({ ok: false, hata: 'plan okunamadı (bozuk JSON)' }, 422)
+    }
   })
 
   // ── platform yerleşimleri (§9.1 · FAZ-4.9) ────────────────────────────────

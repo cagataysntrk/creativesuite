@@ -14,7 +14,11 @@ import { suppression, type StickyLedger } from './decisions.js'
 
 export type DiscoveryMode = 'merge' | 'mirror'
 
-export type OpKind = 'create' | 'update' | 'retire' | 'skip'
+// Tipler Ring -1'de (D-177): inceleme ekranı `engine`i import edemez ama aynı sözlüğü
+// konuşmak zorunda. Burada MANTIK var, tanım değil.
+import type { OpKind, OpReason, ReconcileColumn } from '@suite/contracts'
+
+export type { OpKind, OpReason, ReconcileColumn }
 
 /** Boş defter — çağıran vermezse kullanılır. Sticky defter isteğe bağlı DEĞİL, ama
  *  ilk çalıştırmada henüz boştur ve o meşrudur. */
@@ -22,6 +26,8 @@ const BOS_DEFTER: StickyLedger = { rejected: new Set(), pinned: new Set(), entri
 
 export interface DiscoveryOp {
   readonly kind: OpKind
+  /** AYRIK sebep — ekran sütunları bundan türer, `reason` metninden DEĞİL (D-177). */
+  readonly why: OpReason
   /** Corpus'a göre yol — AYNI yol, dönem klasörü YOK. */
   readonly path: string
   readonly recordId: string
@@ -43,6 +49,17 @@ export interface DiscoveryPlan {
   readonly eraSlug: string
   readonly mode: DiscoveryMode
   readonly ops: readonly DiscoveryOp[]
+  /**
+   * Planı DURDURAN kayıtlar (§4.4): imzası kırık üretilmiş kayıtlar.
+   *
+   * Boş değilse plan UYGULANAMAZ. Uyarı verip devam etmek, insanın elle yazdığını
+   * motorun üzerine yazması demekti — ve sistemi bir daha açmamanın en kısa yolu.
+   */
+  readonly halted: readonly {
+    readonly recordId: string
+    readonly path: string
+    readonly reason: string
+  }[]
   /** İnsanın okuyacağı özet. `skip` sayısı BURADA görünür: sıfır op da bir sonuçtur. */
   readonly summary: {
     readonly create: number
@@ -59,6 +76,18 @@ export interface ExistingRecord {
   /** `zone: generated` kayıtların imzası; elle yazılmışlarda null. */
   readonly signature: string | null
   readonly zone: 'generated' | 'human' | 'imported'
+  /**
+   * İmza dosya içeriğiyle UYUŞUYOR mu (§4.4).
+   *
+   * `true` = kırık: üretilmiş bir kayda insan dokunmuş. O zaman **çalıştırma DURUR** ve
+   * düzenlemenin `zone: human` kaydına terfi ettirilmesi istenir. Plan yolu bunu
+   * doğrulamıyordu — yalnız yazma yolu (`write.ts`) reddediyordu, yani plan ekranı
+   * "update" gösterip insanın emeğini üzerine yazacakmış gibi görünüyordu (D-177).
+   *
+   * `undefined` = doğrulanmadı (çağıran hesaplamadı). Sessiz `false` DEĞİL: "kırık
+   * değil" ile "bakılmadı" farklı şeyler.
+   */
+  readonly signatureBroken?: boolean
 }
 
 /** Adayın tek bir ALANI. `pointer` RFC 6901 (`/attributes/tagline`). */
@@ -105,6 +134,61 @@ export interface CandidateRecord {
  * `mirror` "hepsini baştan yap" düğmesidir: adayda olmayan üretilmiş kayıtlar
  * **emekliye ayrılır** (silinmez — R-12).
  */
+// ── Reconciliation sütunları (§12.9 · FAZ-4.10 · D-177) ─────────────────────
+//
+// **BEŞ sütun, dört değil.** Plan arşivi dört sütun diyordu (DEĞİŞMEDİ / DEĞİŞTİ /
+// ÇELİŞTİ / YENİ) ama motorun ürettiği `retire` hiçbirine düşmüyor — ve emeklilik,
+// mirror modunun en sonuçlu op'u. Dördüncüye sıkıştırmak, silinen bir kaydı
+// "değişti"nin arkasına gizlemek olurdu.
+//
+// ÇELİŞTİ ise bir op TÜRÜ değil, bir SEBEP: insanın kararı (sabitleme, red, elle
+// yazma) motorun önerisiyle çelişiyor. `kind` bunu göremez, `why` görür.
+
+export const columnOf = (op: DiscoveryOp): ReconcileColumn => {
+  switch (op.why) {
+    case 'unchanged':
+      return 'unchanged'
+    case 'previously_rejected':
+    case 'pinned':
+    case 'human_zone':
+      return 'conflicted'
+    case 'new_record':
+      return 'new'
+    case 'content_changed':
+      return 'changed'
+    case 'absent_in_candidates':
+      return 'retired'
+  }
+}
+
+/** Sütun başlıkları — Türkçe, ekranda aynen görünür. */
+export const COLUMN_LABELS: Readonly<Record<ReconcileColumn, string>> = {
+  unchanged: 'DEĞİŞMEDİ',
+  changed: 'DEĞİŞTİ',
+  conflicted: 'ÇELİŞTİ',
+  new: 'YENİ',
+  retired: 'EMEKLİ',
+}
+
+/**
+ * Op'ları sütunlara ayırır. **Boş bir sütun da bir sonuçtur** ve anahtarı hep var:
+ * eksik anahtar, ekranın o sütunu hiç çizmemesi ve "hiç çelişki yok" ile "çelişki
+ * sütunu unutuldu" arasındaki farkın kaybolması demekti.
+ */
+export const byColumn = (
+  ops: readonly DiscoveryOp[]
+): Readonly<Record<ReconcileColumn, readonly DiscoveryOp[]>> => {
+  const out: Record<ReconcileColumn, DiscoveryOp[]> = {
+    unchanged: [],
+    changed: [],
+    conflicted: [],
+    new: [],
+    retired: [],
+  }
+  for (const o of ops) out[columnOf(o)].push(o)
+  return out
+}
+
 export const buildPlan = (input: {
   readonly runId: string
   readonly brandId: string
@@ -128,6 +212,7 @@ export const buildPlan = (input: {
     if (bastirma.suppressed) {
       ops.push({
         kind: 'skip',
+        why: bastirma.why === 'pinned' ? 'pinned' : 'previously_rejected',
         path: c.path,
         recordId: c.id,
         reason:
@@ -148,6 +233,9 @@ export const buildPlan = (input: {
       // Her alanı bastırılmış bir öneri, öneri değildir.
       ops.push({
         kind: 'skip',
+        // Her alanı bastırılmış bir öneri, insanın kararıyla ÇELİŞEN bir öneridir —
+        // "değişmedi" değil.
+        why: 'previously_rejected',
         path: c.path,
         recordId: c.id,
         reason: `tüm alanlar bastırıldı: ${bastirilan.map((x) => x.f.pointer).join(', ')}`,
@@ -159,6 +247,7 @@ export const buildPlan = (input: {
     if (e === undefined) {
       ops.push({
         kind: 'create',
+        why: 'new_record',
         path: c.path,
         recordId: c.id,
         reason: 'yeni kayıt',
@@ -174,6 +263,7 @@ export const buildPlan = (input: {
     if (e.zone === 'human') {
       ops.push({
         kind: 'skip',
+        why: 'human_zone',
         path: e.path,
         recordId: e.id,
         reason: 'zone: human — motor elle yazılmış kayda dokunmaz',
@@ -190,6 +280,7 @@ export const buildPlan = (input: {
     if (e.signature !== null && e.signature === adayImza) {
       ops.push({
         kind: 'skip',
+        why: 'unchanged',
         path: e.path,
         recordId: e.id,
         reason:
@@ -202,6 +293,7 @@ export const buildPlan = (input: {
     }
     ops.push({
       kind: 'update',
+      why: 'content_changed',
       path: c.path,
       recordId: c.id,
       reason: e.signature === null ? 'imzasız üretilmiş kayıt' : 'imza değişti',
@@ -218,6 +310,7 @@ export const buildPlan = (input: {
       if (e.zone === 'human') continue
       ops.push({
         kind: 'retire',
+        why: 'absent_in_candidates',
         path: e.path,
         recordId: e.id,
         reason: 'mirror modunda adayda yok — emekliye ayrılıyor (silinmiyor, R-12)',
@@ -227,12 +320,25 @@ export const buildPlan = (input: {
   }
 
   const say = (k: OpKind): number => ops.filter((o) => o.kind === k).length
+  // İmzası kırık ÜRETİLMİŞ kayıtlar planı DURDURUR (§4.4). Elle yazılmış (`human`)
+  // kayıtlarda imza aranmaz — onlar zaten motorun dokunmadığı kayıtlar.
+  const halted = input.existing
+    .filter((e) => e.zone === 'generated' && e.signatureBroken === true)
+    .map((e) => ({
+      recordId: e.id,
+      path: e.path,
+      reason:
+        'x_signature içerikle uyuşmuyor — üretilmiş bir kayda elle dokunulmuş. ' +
+        'Düzenlemeyi `zone: human` kaydına terfi ettirin, sonra planı yeniden koşun (§4.4).',
+    }))
+
   return {
     runId: input.runId,
     brandId: input.brandId,
     eraSlug: input.eraSlug,
     mode: input.mode,
     ops,
+    halted,
     summary: {
       create: say('create'),
       update: say('update'),

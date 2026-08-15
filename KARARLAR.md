@@ -402,3 +402,27 @@ Tip yine Ring -1'e taşındı (D-165, D-175 ile aynı gerekçe; üçüncü kez):
 spec güncellendiğinde ekran otomatik doğru ölçüyü çiziyor.
 **Ders:** bir sayı belgede duruyorsa "tanımlı" değildir. Tanımlı olması, onu okuyan bir
 testin ve onu çizen bir kodun olması demektir.
+
+## D-177 — `kind: 'skip'` iki farklı şeyi birleştiriyordu; sütunlar BEŞ oldu
+2026-08-16 · Reconciliation ekranının tüm amacı "hiçbir şey değişmedi" ile "insan hayır
+dedi"yi AYIRMAK: birincisi kaydırıp geçtiğiniz gürültü, ikincisi dikkatinizin ait olduğu
+yer. Motor ikisini de `kind: 'skip'` diyordu ve fark yalnız `reason` METNİNDE vardı —
+bir cümleyi düzeltmek ekranın sütununu değiştirirdi.
+Op'a **ayrık `why` alanı** eklendi (`unchanged` · `previously_rejected` · `pinned` ·
+`human_zone` · `new_record` · `content_changed` · `absent_in_candidates`). Sütunlar
+ondan MEKANİK türüyor, prose ayrıştırılmıyor.
+**Sütun sayısı beş, dört değil.** Plan arşivi dört diyordu (DEĞİŞMEDİ / DEĞİŞTİ /
+ÇELİŞTİ / YENİ) ama `retire` hiçbirine düşmüyordu — ve emeklilik mirror modunun en
+sonuçlu op'u. Dördüncüye sıkıştırmak, silinen bir kaydı "değişti"nin arkasına gizlemek
+olurdu. Sessizce sıkıştırmak yerine faz dosyası düzeltildi.
+İkinci bulgu daha ağır: **plan yolu imza bütünlüğünü HİÇ doğrulamıyordu.** §4.4 "imza
+kırıksa çalıştırma durur" diyor ve `signatureIntact` yalnız YAZMA yolunda (`write.ts`)
+çağrılıyordu. Yani plan ekranı, insanın elle düzelttiği bir kayıt için "update" gösterip
+emeğini üzerine yazacakmış gibi görünüyordu. `ExistingRecord.signatureBroken` +
+`DiscoveryPlan.halted` eklendi; `just discovery plan` artık gerçekten DURUYOR.
+Kanıt: gerçek bir kaydın gövdesine bir cümle ekledim → `✗ PLAN DURDU — 1 kaydın imzası
+kırık`, çıkış kodu 1. Beş sütun gerçek planla doğrulandı: `pinned` ve `human_zone`
+ÇELİŞTİ'ye, `unchanged` ayrı sütuna düştü.
+**Ders:** bir enum iki farklı gerçeği tek değere sıkıştırıyorsa, ekran o ayrımı
+YAPAMAZ — ve ayrımı metinden geri kazanmaya çalışmak, veriyi ikinci kez ve daha kötü
+temsil etmektir.

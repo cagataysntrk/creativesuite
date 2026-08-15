@@ -120,7 +120,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🧪 `topPercent`i boz → kapı + 2 test kırmızı · feed'e sıfırlı güvenli alan ver → kırmızı
 💾 `feat(ui): placement preview ve güvenli alan` · `Refs: FAZ-4.9 · §9.1`
 
-## 4.10 — Discovery / Reconciliation    [ ]
+## 4.10 — Discovery / Reconciliation    [x] 2026-08-16
 
 📖 §4.4, §12.9 · D-6
 🔗 FAZ-2.8
@@ -128,8 +128,10 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    bazlı. İdempotent atlama sayesinde ikinci çalıştırma boş gelir — 900 opluk bir plan
    incelenmez, kabul edilir ve yönetişim tiyatroya döner.
 📁 `apps/ui/src/screens/discovery/`
-✅ İkinci `plan --mode merge` → dört sütun da boş
-🧪 `x_signature` kırık bir dosyayla çalıştır → **plan duruyor**, ekran sebebi gösteriyor
+✅ **BEŞ sütun** (D-177): `retire` dördüncüye sıkışmıyor · `skip` ikiye ayrıldı —
+   DEĞİŞMEDİ ile ÇELİŞTİ ayrı sütunlarda · 6 test
+🧪 Gerçek bir kaydın gövdesine elle dokun → `just discovery plan` **DURDU**, çıkış 1,
+   sebep yazılı · plan yokken boş sütun değil 404
 💾 `feat(ui): discovery reconciliation ekranı` · `Refs: FAZ-4.10 · §4.4`
 
 ## 4.11 — Schema Editor    [ ]

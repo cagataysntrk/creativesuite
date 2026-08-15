@@ -97,6 +97,11 @@ export {
   type DiscoveryOp,
   type DiscoveryPlan,
   type OpKind,
+  type OpReason,
+  columnOf,
+  byColumn,
+  COLUMN_LABELS,
+  type ReconcileColumn,
   type ExistingRecord,
   type CandidateRecord as DiscoveryCandidate,
 } from './discovery/index.js'

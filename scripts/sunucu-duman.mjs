@@ -61,6 +61,10 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.10: keşif planı BOŞ dört sütun DÖNMEZ — plan yoksa 404.
+  const dsc = await fetch(`${U}/api/discovery?run=run_olmayan`)
+  bekle(dsc.status === 404, 'plan yokken boş sütun dönüyor — "değişiklik yok" ile karışır')
+
   // FAZ-4.9: yerleşim spec'i + güvenli alan bandı API'den geliyor.
   const yl = await (await fetch(`${U}/api/yerlesimler`)).json()
   bekle(Array.isArray(yl.yerlesimler) && yl.yerlesimler.length > 0, '/api/yerlesimler boş')
@@ -175,5 +179,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 12 uç · token · yerleşim · qa · kuyruk · plan · bağlam · git · SSE`
+  `    sunucu ayağa kalktı · 13 uç · token · keşif · yerleşim · qa · kuyruk · plan · bağlam · SSE`
 )
