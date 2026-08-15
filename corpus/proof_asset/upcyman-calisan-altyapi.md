@@ -21,6 +21,7 @@ context_weight: 1
 title: "UpcyMan: çalışan üretim altyapısı"
 status: draft
 zone: generated
+x_signature: sha256:56d90bdd26bed921aad0f3beba800fff200cac895fa2fb8ad5bd9ab8400d01ff
 ---
 
 **İddia:** Şirketin canlı, üretimde çalışan bir servis altyapısı var —

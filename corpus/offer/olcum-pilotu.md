@@ -22,6 +22,7 @@ context_weight: 1
 title: Ölçüm pilotu
 status: draft
 zone: generated
+x_signature: sha256:c046aabe7546bcc992bb4e322d53f19553e7dfc83ebf51d3b41de7db1c05df6b
 ---
 
 **Tür:** pilot.

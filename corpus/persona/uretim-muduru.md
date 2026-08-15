@@ -22,6 +22,7 @@ context_weight: 1
 title: Üretim müdürü
 status: draft
 zone: generated
+x_signature: sha256:96cf1b5853ad67f05085519117995ded1b64d5ddd853b268955342bbd7ae19e9
 ---
 
 **Rol:** Üretim müdürü — hattın günlük sorumlusu.

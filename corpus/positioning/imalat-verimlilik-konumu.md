@@ -22,6 +22,7 @@ context_weight: 1
 title: İmalatta ölçülebilir verimlilik konumu
 status: draft
 zone: generated
+x_signature: sha256:ab00d15a3dd8bfe651044eaefb748463154ab37226b797b1f5b992265088437a
 ---
 
 Elli-beş yüz kişilik imalat tesisleri için, hattaki veriyi ölçülebilir

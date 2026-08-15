@@ -22,6 +22,7 @@ context_weight: 1
 title: Ölçüm mesaj evi
 status: draft
 zone: generated
+x_signature: sha256:13afd17984629bee8f99ee6cf274dcd5bf0bc665b49604fc0531bf1281e276f8
 ---
 
 **Ana mesaj:** Hattınız zaten veri üretiyor; biz onu karara çeviriyoruz.

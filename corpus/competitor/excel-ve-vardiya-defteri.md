@@ -22,6 +22,7 @@ context_weight: 1
 title: Excel ve vardiya defteri
 status: draft
 zone: generated
+x_signature: sha256:7cd7e789dd8510177547a673e000ebcb3a65036ef4172df0d57118007e173fb7
 ---
 
 **Tür:** spreadsheet_status_quo — en sık kaybedilen rakip budur.

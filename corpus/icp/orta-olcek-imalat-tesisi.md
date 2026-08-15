@@ -22,6 +22,7 @@ context_weight: 1
 title: Orta ölçekli imalat tesisi
 status: draft
 zone: generated
+x_signature: sha256:123fb91410cec991b1a15139f1546d54d69ca25819cc6457ae4a8014bdddb29d
 ---
 
 **Firmografi:** 50-500 çalışan · çok vardiyalı üretim · Marmara ve Ege
