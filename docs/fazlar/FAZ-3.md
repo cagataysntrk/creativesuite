@@ -88,7 +88,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    pipeline'a model adı yaz → `registry` kapısı kırmızı (R-40)
 💾 `feat(engine): yetenek yönlendiricisi ve bütçe kapıları` · `Refs: FAZ-3.5 · §8.2`
 
-## 3.6 — Retry, idempotency, rate limit bağlanması    [ ]
+## 3.6 — Retry, idempotency, rate limit bağlanması    [x] 2026-08-15
 
 📖 §8.5, §8.6 · R-44, R-45
 🔗 3.5

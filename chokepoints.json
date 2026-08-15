@@ -188,7 +188,9 @@
       "neden": "Model çağıran tek fiil GENERATE'tir (§3.10) ve ona giden tek kapı sağlayıcı kataloğudur. Ham `ADAPTERS` listesine dokunan ikinci bir dosya kendi sağlayıcı kümesini kurabilir; o küme yönlendiriciyi ve maliyet defterini atlar ve çağrının parası hiçbir yerde yazmaz. `adapterById`/`candidatesFor` meşru erişim yoludur.",
       "izinli": ["packages/providers/src/registry.ts"],
       "desen": "\\bADAPTERS\\b",
-      "faz": "FAZ-1.14"
+      "faz": "FAZ-1.14",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"],
+      "haric_neden": "Sözleşme testi katalogun TAMAMINI gezmek zorunda (D-104) — yeni bir adaptör eklendiğinde sözleşmenin ona da sorulmasının tek yolu bu. Kuralın koruduğu şey \"yönlendiriciyi ve defteri atlayan ikinci bir çağrı yolu\"; yalnız okuyup iddia eden bir test öyle bir yol açmaz ve hiçbir metered çağrı yapmaz."
     },
     {
       "id": "kanal-yayinci",

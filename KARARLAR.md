@@ -457,3 +457,42 @@ onları **ekrana da basıyor**: `elendi claude-code: adım tavanını aşıyor: 
 Yalnız manifeste yazmak, "neden bu model" sorusunu hiç açılmayan bir dosyanın arkasına
 saklamak olurdu. Aynı turda `max_cost_usd_micros` de dekoratif olmaktan çıkıp gerçekten
 uygulandı — dekoratif bir tavan, olmayan tavandan kötüdür: var sanılır.
+
+## D-103 — Yarıda kalan iş üç farklı gerçektir, biri değil
+2026-08-15 · Defterde bir kayıt bulunca motor onu "bitmiş" sayıyordu. Bu, `possibly-charged`
+bir kaydı $0.00 maliyetle **başarılı** gösteriyordu — üretilmemiş bir varlığı üretilmiş
+saymanın en sessiz yolu. Artık üç dal var:
+- **kapanmış** (`charged`/`unreported`/`not-charged`) → çağrı atlanır, tutar defterden
+- **yarım + tutamak var** → sağlayıcıya SORULUR (`start()` çağrılmaz), iş devam eder
+- **yarım + tutamak yok** → `NEEDS_RECONCILIATION`. Tahmin etmek yasak: "uçmadı" dersek
+  çift ödeme, "uçtu" dersek hayalet varlık.
+Bunu yazarken **aynı deliğin retry döngüsünde de olduğu** ortaya çıktı: `resumeExternalId`
+döngü öncesi bir kez hesaplanıyordu, yani 2. deneme sağlayıcıda İKİNCİ bir iş açıyordu.
+`noteHandle` artık tutamağı döngü değişkenine de yazıyor. Test `start()` çağrı sayısını
+sayıyor — "çift ücret yok" iddiası ancak sayılabilir bir şeyle kanıtlanır.
+Üçüncü bulgu: başarısızlık yolundaki `settle` tutamağı `null`'a çekiyordu — mutabakat için
+özellikle yazdığımız tutamağı, tam ona ihtiyaç duyulan anda siliyordu.
+
+## D-104 — Sözleşme testi adaptör başına değil, KATALOG başına
+2026-08-15 · `provider-contract.test.ts` `describe.each(ADAPTERS)` ile koşuyor: yeni bir
+adaptör eklendiği gün, kimse test yazmasa bile sözleşme ona da soruluyor. Adaptör başına
+elle yazılan testler her zaman **sonuncuyu** atlar.
+İki incelik ihlal testinden çıktı:
+1. `estimate()`in senkronluğu **çalışma zamanında** da kontrol ediliyor: tip seviyesindeki
+   koruma `as unknown as` ile bastırılabiliyor, `expect(t).not.toBeInstanceOf(Promise)`
+   bastırılamıyor.
+2. Ağ yasağı iki katmanlı: `onUnhandledRequest: 'error'` **yetmedi** — `fetch(...).catch(()
+   => undefined)` yazan sahte bir adaptör sessizce geçti. `request:start` sayacı eklendi;
+   **denemenin kendisi ihlaldir**, reddin yakalanıp yakalanmaması adaptörün insafına
+   bırakılamaz.
+Ayrıca `describe.each([])` hiç test üretmeden YEŞİL raporladığı için katalogun boş
+olmadığı ayrıca iddia ediliyor.
+
+## D-105 — Hız sınırı çağrının ÖNÜNDE, arkasında değil
+2026-08-15 · Token kovası (`RateLimiter`), anahtar `(providerId, capability)`. 429 alıp
+yeniden denemek de mümkündü ama bazı sağlayıcılar reddedilen isteği de sayar ve arka
+arkaya 429'da hesabı geçici kilitler. Saat **dışarıdan** gelir, `setInterval` yok: bir
+zamanlayıcı süreç uyuduğunda sessizce kayar, kova ise her çağrıda saate sorar.
+Reddedilen istek de `lastMs`i günceller — güncellemeseydi ilk 429 kalıcı bir kilit olurdu
+(test bunu ayrıca sınıyor). `LOCAL_RATE_LIMIT` kodu sağlayıcının 429'undan AYRI: ikisini
+aynı koda toplamak "sağlayıcı mı kısıtlıyor biz mi" sorusunu log'dan cevaplanamaz yapardı.

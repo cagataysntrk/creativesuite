@@ -21,6 +21,7 @@ import { ZERO_USD, type Result } from '@suite/contracts'
 import { classify, makeError, systemClock, systemRng } from '@suite/kernel'
 import type { Clock, Db, Rng } from '@suite/kernel'
 import { CircuitBreaker } from './breaker.js'
+import { RateLimiter, rateLimitError } from './ratelimit.js'
 import { decideRetry, DEFAULT_RETRY, type RetryPolicy } from './retry.js'
 import * as budget from './budget.js'
 import * as ledger from './cost/ledger.js'
@@ -43,8 +44,22 @@ export interface CallOutcome {
   readonly data: unknown
 }
 
+export interface StepCallContext {
+  readonly signal: AbortSignal
+  /**
+   * Sağlayıcı iş tutamağını verir vermez ÇAĞIR. Motor onu deftere yazar; aradaki bir
+   * çökme tutamağı kaybetmez ve yeniden başlatma çağrıyı tekrarlamaz (R-44).
+   */
+  readonly noteHandle: (externalId: string) => void
+  /**
+   * Önceki çalıştırmadan kalan tutamak. `null` değilse **yeni çağrı YAPMA** — bu işi
+   * sağlayıcıya sor ve sonucunu bekle. Yeni çağrı yapmak, tam olarak çift ücrettir.
+   */
+  readonly resumeExternalId: string | null
+}
+
 /** Gerçek çağrı. Motor onu yalnız SARAR; ne yaptığını bilmez. */
-export type StepCall = (signal: AbortSignal) => Promise<Result<CallOutcome, AppError>>
+export type StepCall = (c: StepCallContext) => Promise<Result<CallOutcome, AppError>>
 
 export interface EngineDeps {
   readonly db: Db
@@ -52,6 +67,12 @@ export interface EngineDeps {
   readonly clock?: Clock
   readonly rng?: Rng
   readonly retry?: RetryPolicy
+  /**
+   * Yerel hız sınırı. Verilmezse sınır YOK — ve bu bilinçli: limiter'ı zorunlu kılmak,
+   * onu yapılandırmayı unutan her çağrıyı sessizce yavaşlatırdı. Üretim yolu (`runPipeline`)
+   * her zaman verir.
+   */
+  readonly limiter?: RateLimiter
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
   readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
 }
@@ -132,6 +153,9 @@ export const runStep = async (
   }
 
   // ── 3. idempotency: defterde varsa çağrı YAPILMAZ ──────────────────────────
+  // Üç ayrı durum, üç ayrı davranış. İlk sürüm üçünü de "bitmiş" sayıyordu ve yarıda
+  // kalan bir iş sessizce $0.00 maliyetle başarılı görünüyordu (D-103).
+  let devamTutamak: string | null = null
   if (spec.metered) {
     const rez = ledger.reserve(deps.db, {
       idempotencyKey: spec.idempotencyKey,
@@ -142,20 +166,46 @@ export const runStep = async (
       capability: spec.capability,
     })
     if (!rez.fresh) {
-      // Çökme sonrası yeniden başlatma. Ücret zaten alınmış olabilir; ikinci kez
-      // ödememek için çağrı atlanır ve defterdeki tutar aynen kullanılır.
-      return {
-        outcome: {
-          amount: rez.entry.amount,
-          chargeStatus: rez.entry.chargeStatus,
-          externalId: rez.entry.externalId,
-          data: null,
-        },
-        error: null,
-        attempts: 0,
-        costs: [],
-        replayedFromLedger: true,
-        budget: budget.settleLease(bState, spec.estimateHigh, rez.entry.amount),
+      const yarim = rez.entry.chargeStatus === 'possibly-charged'
+      if (!yarim) {
+        // (a) KAPANMIŞ kayıt: iş bitmiş, tutarı biliniyor. Çağrı atlanır.
+        return {
+          outcome: {
+            amount: rez.entry.amount,
+            chargeStatus: rez.entry.chargeStatus,
+            externalId: rez.entry.externalId,
+            data: null,
+          },
+          error: null,
+          attempts: 0,
+          costs: [],
+          replayedFromLedger: true,
+          budget: budget.settleLease(bState, spec.estimateHigh, rez.entry.amount),
+        }
+      }
+      if (rez.entry.externalId !== null) {
+        // (b) YARIDA KALMIŞ ama tutamak var: sağlayıcıya SORULUR, yeniden çağrılmaz.
+        devamTutamak = rez.entry.externalId
+      } else {
+        // (c) YARIDA KALMIŞ ve tutamak YOK: çağrının uçup uçmadığı bilinmiyor.
+        // Burada tahmin etmek yasak — ikisi de yanlış: "uçmadı" dersek çift ödeme
+        // riski, "uçtu" dersek üretilmemiş varlığı üretilmiş sayarız. İnsan bakar.
+        if (spec.metered) ledger.settle(deps.db, spec.idempotencyKey, ZERO_USD, 'possibly-charged')
+        return bos(
+          makeError({
+            kind: 'internal',
+            code: 'NEEDS_RECONCILIATION',
+            userMessageKey: 'error.ledger.needsReconciliation',
+            correlationId,
+            retryable: false,
+            details: {
+              idempotencyKey: spec.idempotencyKey,
+              providerId: spec.providerId,
+              reason: 'çağrı uçtu mu bilinmiyor — sağlayıcı panelinden doğrulanmalı (§8.5)',
+            },
+          }),
+          budget.settleLease(bState, spec.estimateHigh, ZERO_USD)
+        )
       }
     }
   }
@@ -178,6 +228,21 @@ export const runStep = async (
     )
   }
 
+  // ── 4b. yerel hız sınırı ───────────────────────────────────────────────────
+  // Limiter çağrının ÖNÜNDE: 429 alıp yeniden denemek de mümkün ama bazı sağlayıcılar
+  // reddedilen isteği de sayar. Kendi hızımızı kendimiz sınırlarsak sağlayıcının bizi
+  // sınırlamasına gerek kalmaz.
+  if (deps.limiter !== undefined) {
+    const izin = deps.limiter.take(spec.providerId, spec.capability)
+    if (!izin.allowed) {
+      if (spec.metered) ledger.settle(deps.db, spec.idempotencyKey, ZERO_USD, 'not-charged')
+      return bos(
+        rateLimitError(spec.providerId, spec.capability, izin.retryAfterMs, correlationId),
+        budget.settleLease(bState, spec.estimateHigh, ZERO_USD)
+      )
+    }
+  }
+
   // ── 5. çağrı + yeniden deneme ──────────────────────────────────────────────
   let attempt = 0
   let sonHata: AppError | null = null
@@ -194,7 +259,17 @@ export const runStep = async (
       break
     }
 
-    const sonuc = await call(signal)
+    const sonuc = await call({
+      signal,
+      noteHandle: (externalId) => {
+        if (spec.metered) ledger.noteHandle(deps.db, spec.idempotencyKey, externalId)
+        // Tutamak AYNI `runStep` içindeki sonraki denemeye de taşınır. Taşınmasaydı
+        // yeniden deneme sağlayıcıda İKİNCİ bir iş açardı — çökme senaryosunu
+        // kapatıp retry döngüsünde aynı deliği açık bırakmak olurdu (D-103).
+        devamTutamak = externalId
+      },
+      resumeExternalId: devamTutamak,
+    })
 
     if (sonuc.ok) {
       deps.breaker.onSuccess(spec.providerId, spec.capability)
@@ -252,11 +327,21 @@ export const runStep = async (
   // deftere yazılır. Sıfır yazmak, üç görsel üretip 429 alan bir adımı bedava saymaktı.
   const harcanan = sonHata?.costIncurred ?? ZERO_USD
   if (spec.metered) {
+    // Tutamak KORUNUR. `settle`in varsayılanı `null` ve onu geçmek, mutabakat için
+    // özellikle yazdığımız tutamağı tam da ona ihtiyaç duyulan anda — başarısızlıkta —
+    // silmek olurdu.
+    // ÜÇ durum, üçü de farklı bir gerçeği anlatıyor:
+    //   `charged`          hata geldi ama para harcandığını BİLİYORUZ (`costIncurred`)
+    //   `possibly-charged` sağlayıcıda iş AÇILDI, âkıbeti bilinmiyor — tutamak var
+    //   `not-charged`      hiç iş açılmadı, bu güvenle söylenebilir
+    // Ortadakini `not-charged` yazmak iki yalan söyler: maliyet raporunu eksiltir ve
+    // yeniden başlatmanın işi devam ettirmesini engeller (devam yolu tutamağa bakar).
     ledger.settle(
       deps.db,
       spec.idempotencyKey,
       harcanan,
-      harcanan.micros > 0n ? 'charged' : 'not-charged'
+      harcanan.micros > 0n ? 'charged' : devamTutamak !== null ? 'possibly-charged' : 'not-charged',
+      devamTutamak
     )
   }
 

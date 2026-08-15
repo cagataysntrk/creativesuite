@@ -399,7 +399,7 @@ describe('iptal uçtan uca (§8.5)', () => {
             code: 'T',
             userMessageKey: 'x',
             correlationId: CID,
-            details: { aborted: s.aborted },
+            details: { aborted: s.signal.aborted },
           })
         )
       },
@@ -419,7 +419,7 @@ describe('iptal uçtan uca (§8.5)', () => {
       spec({ metered: false }),
       emptyBudget({ perRun: null, perMonth: null }),
       async (s) => {
-        gorulen = s.aborted
+        gorulen = s.signal.aborted
         return ok(basarili(0n))
       },
       CID,

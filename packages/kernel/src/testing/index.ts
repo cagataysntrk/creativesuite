@@ -19,7 +19,14 @@ export {
   type CassetteEntry,
 } from './cassette.js'
 
-export { recordingServer, replayServer, type MswServer, type RecordingServer } from './msw.js'
+export {
+  recordingServer,
+  replayServer,
+  type MswServer,
+  type RecordingServer,
+  offlineServer,
+  OFFLINE_LISTEN,
+} from './msw.js'
 
 export { FIXTURE_ROOT, fixturePath, readFixture, readJsonFixture } from './fixtures.js'
 

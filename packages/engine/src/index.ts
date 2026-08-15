@@ -70,6 +70,7 @@ export {
   runScope,
   type StepSpec,
   type StepCall,
+  type StepCallContext,
   type StepResult,
   type CallOutcome,
   type EngineDeps,
@@ -136,3 +137,19 @@ export {
 } from './router/route.js'
 export { rejectionMessage } from './router/reasons.js'
 export { displayTry, displayUsd, type RateSnapshot } from './router/rate.js'
+
+export {
+  providerCall,
+  DEFAULT_POLL,
+  type PollPolicy,
+  type ProviderCallDeps,
+} from './provider-call.js'
+
+export {
+  RateLimiter,
+  DEFAULT_BUCKET,
+  bucketKey,
+  rateLimitError,
+  type BucketConfig,
+  type RateDecision,
+} from './ratelimit.js'

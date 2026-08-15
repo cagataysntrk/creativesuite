@@ -92,7 +92,22 @@ const POLICIES: Record<ErrorKind, ErrorPolicy> = {
   internal: { retryable: false, backoff: 'none', trips: false, humanActionable: true },
 }
 
-export const classify = (kind: ErrorKind): ErrorPolicy => POLICIES[kind]
+/**
+ * Politikayı döner. **Toplam fonksiyon**: tanınmayan bir `kind` için de bir politika
+ * verir, `undefined` değil.
+ *
+ * Tip sistemi bunu imkânsız kılıyor gibi görünür ama tipin geçmediği sınırlar var:
+ * `derived/runs/` altındaki bir manifest'ten replay edilen hata JSON'dan gelir ve
+ * `ErrorKind` olduğu ORADA doğrulanmaz. Böyle bir değer `classify(...)`e girdiğinde
+ * eski hâli `undefined` dönüyordu ve `.trips` okuması motoru çalışma zamanında
+ * patlatıyordu — adım yarım, defter `possibly-charged` kalırdı.
+ *
+ * Bilinmeyen için varsayılan **muhafazakâr**: yeniden deneme YOK (para riski),
+ * devre kesici AÇILIR (aynı sağlayıcıdan gelen anlaşılmaz hatalar birikmemeli),
+ * insan bakmalı.
+ */
+export const classify = (kind: ErrorKind): ErrorPolicy =>
+  POLICIES[kind] ?? { retryable: false, backoff: 'none', trips: true, humanActionable: true }
 
 /** Kapalı birleşimin tükendiğini derleme zamanında iddia eder. */
 export const assertNever = (x: never): never => x

@@ -116,6 +116,21 @@ export const reserve = (
   }
 }
 
+/**
+ * Sağlayıcının iş tutamağını **çağrı uçar uçmaz** yazar — sonuç beklenmeden.
+ *
+ * Bu satır olmadan `start()` ile `settle()` arasında çöken bir süreç tutamağı kaybeder;
+ * yeniden başlatma sağlayıcının hâlâ koşan işini bulamaz, `start()`'ı tekrar çağırır ve
+ * **iki kez ödenir**. Tutamak defterde olduğu sürece yeniden başlatma "bu iş zaten
+ * uçtu, sonucunu sor" diyebilir. (§8.5 · R-44)
+ */
+export const noteHandle = (db: Db, idempotencyKey: string, externalId: string): void => {
+  db.prepare('UPDATE cost_ledger SET external_id = @ext WHERE idempotency_key = @k').run({
+    k: idempotencyKey,
+    ext: externalId,
+  })
+}
+
 /** Çağrı SONRASI kesinleştirme. Yalnız rezerve edilmiş bir anahtar kapatılabilir. */
 export const settle = (
   db: Db,

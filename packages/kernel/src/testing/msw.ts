@@ -60,3 +60,18 @@ export const replayServer = (cassette: Cassette): MswServer =>
       return toResponse(entry)
     })
   )
+
+/**
+ * **Ağ KAPALI** sunucusu: hiçbir handler yok, her istek hata.
+ *
+ * "Bu kod ağa çıkmıyor" iddiası ancak çıkmaya çalıştığında testin DÜŞMESİYLE kanıtlanır.
+ * Handler'sız `setupServer` + `onUnhandledRequest: 'error'` tam olarak bunu yapar.
+ *
+ * Neden burada: msw tek bir yerde yaşar (§3.8). İkinci bir paket kendi msw'sini
+ * kurarsa iki dispatcher birbiriyle kavga eder ve "tek başına geçer, paket içinde
+ * düşer" tipi flake üretir.
+ */
+export const offlineServer = (): MswServer => setupServer()
+
+/** `offlineServer()` için doğru `listen` seçenekleri — çağıranın hatırlaması gerekmesin. */
+export const OFFLINE_LISTEN = { onUnhandledRequest: 'error' } as const
