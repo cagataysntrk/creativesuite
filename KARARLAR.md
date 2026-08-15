@@ -56,6 +56,11 @@ açısından durumu, sınır ötesi veri aktarımı beyanı. → FAZ-8.6
 ## V-11 — Run bağlam anlık görüntülerinin saklama süresi ✅ KAPANDI
 Manifest sonsuza, bağlam N gün. **N = 90** (2026-08-15, FAZ-1.9). Gerekçe D-63'te.
 
+## V-17 — Md. 27/12 ifşası makine-okunur DEĞİL
+Damga `Upcytech:*` özel `iTXt` anahtarları taşıyor; hiçbir platform bunu okumaz.
+`aiGenerated` bayrağı repo içinde denetlenebilir ama dışarıya bir şey söylemiyor.
+Platform-tarafı ifşa (Meta/LinkedIn "AI-generated" işareti) FAZ 7'nin işi. → FAZ-7.2
+
 ## V-16 — fal ve Cloudflare anahtarları yok, canlı üretim DOĞRULANMADI
 İki görsel adaptörü de yazıldı ve cassette'lerle test edildi ama `FAL_KEY`,
 `CF_ACCOUNT_ID`, `CF_API_TOKEN` `secrets.enc.yaml`da yok. Yani **gerçek bir görsel
@@ -518,3 +523,51 @@ idempotency defterindeki ödenmiş adımları yeniden ödemek demekti (R-44).
 Beş test: karar yoksa durur · onaylıysa geçer ve `PROPOSE` GERÇEKTEN koşar · reddedilmişse
 `GATE_REJECTED` + gerekçe taşınır · BAŞKA bir kapının kararı bu kapıyı açmaz · kararlar
 manifest'e aynen yazılır.
+
+## D-146 — Bağlam manifesti üretiliyordu ama HİÇ YAZILMIYORDU
+2026-08-15 · `run.ts` `context: []` sabit koduydu ve `assembleContext` üretim yolunda
+hiç çağrılmıyordu. §5.3'ün bağlam manifesti — *"hangi kayıt neden dahil edildi"* —
+kâğıt üstündeydi ve "bu çıktı neden böyle" sorusunun cevabı hiçbir yerde yoktu.
+`toManifestEntries()` eklendi ve `uret.mjs` tarif varsa gerçek bir manifest üretiyor.
+**Düşen kayıtlar da yazılıyor** (`tokens: 0`, `reason: 'DÜŞTÜ: …'`): "hangi kayıt
+girdi" kadar "hangisi bütçeye sığmadı" da önemli — altı ay sonra "bu çıktı neden bu
+bilgiyi kullanmamış" sorusu ancak düşenler kayıtlıysa cevaplanabilir.
+Adaylar **retrieval yükleminden** geliyor; ikinci bir yol yok (R-13, D-134).
+
+## D-147 — 3.9'un üç model-tabanlı maddesi FAZ 9'a ERTELENDİ
+2026-08-15 · FAZ-3.9 🛠 "CLIP brief uyumu · estetik skor · Tesseract güvenli-alan"
+diyordu; üçü de yazılmadı ve **düşüş hiçbir yere kaydedilmemişti** — doğrulama agent'ı
+haklı olarak işaretledi (İ5). Sessiz düşüş, sessiz sapmadır (R-74).
+Gerekçe: üçü de **model tabanlı yargı**, bu adım ise deterministik ölçüme dayanıyor
+(§11.2'nin "modele sorulmaz, listeye bakılır" ilkesi). ΔE, palet payı, metin kaplama ve
+en-boy sapması ölçülebilir ve tekrar üretilebilir; CLIP skoru değil.
+Tesseract'ın işi "görselde nerede metin var"ı TAHMİN etmek; oysa metni biz
+yerleştiriyoruz ve yerini kesin biliyoruz (D-110). Güvenli-alan ölçümü belge modelinden
+yapılabilir ve FAZ-4.9'da (Placement Preview) gerçek platform chrome'uyla gelecek.
+Faz dosyası düzeltildi — artık ne yapıldığını ve neyin ertelendiğini yazıyor.
+
+## D-148 — R-20'nin denylist'i kelimesiz metin isteklerini kaçırıyordu
+2026-08-15 · Doğrulama agent'ı R-20'yi sekiz farklı prompt'la denedi; **yedisi geçti**.
+Hepsi ortak bir boşluktan geçiyordu: **metin istemek için "metin" demek gerekmiyor.**
+`ekranda "%12 fire" görünüyor` · `neon levha: ÖLÇÜM` · `tişört üzerine baskılı UPCYTECH`
+İki genel yakalayıcı eklendi, dokuz gövde ön ekiyle birlikte:
+1. **Tırnak içi metin** — görsel prompt'unda tırnak neredeyse her zaman "şunu yaz" demek.
+2. **BÜYÜK HARF** (üç+ harf, Unicode `\p{Lu}` ile — `ĞÜŞİÖÇ` ASCII `[A-Z]` ile
+   yakalanmaz ve tam da onlar kaçardı). Meşru sanayi kısaltmaları muaf: `CNC`, `ISO`,
+   `PLC`, `SCADA`… Liste **kapalı ve kısa** — uzadıkça kural erir.
+Sonuç: 10 kötü prompt'un 0'ı kaçıyor, 6 meşru prompt'un 0'ı yanlış reddediliyor.
+`pano` gövdesi **kasıtlı olarak listede YOK**: Türkçe'de iki anlamlı — "ilan panosu"
+(metin) ve "kumanda panosu" (ekipman). `PLC panosunun yakın çekimi` meşru bir sanayi
+prompt'u; onu reddetmek yanlış pozitif olurdu ve *sürekli alarm veren kapı, kapatılan
+kapıdır*. Gerçek ihlaller (`panoda BÜYÜK HARFLERLE…`, `ÖLÇÜM panosu`) zaten BÜYÜK HARF
+yakalayıcısına takılıyor — yani kural kaybolmuyor, doğru katmana taşınıyor.
+**Ama denylist doğası gereği eksiktir ve bu KABUL EDİLİYOR.** Üç katmanın gerçekte ne
+kadar koruduğu:
+- **Katman 1** (`buildImagePrompt` reddi) — semantik iş yapan tek katman. Bugün bilinen
+  bütün kaçışları yakalıyor; yarın bilinmeyen bir ifade bulunabilir.
+- **Katman 2** (`assertNoTextSuffix`) — yalnız ekin VARLIĞINI doğrular, prompt'un
+  anlamını değil. Katman 1 atlanırsa yakalamaz; atlanmadığını garanti eder.
+- **Katman 3** (`gorsel-prompt-kurucu` darboğazı) — yalnız İKİNCİ bir kurucuyu engeller.
+Yani "üç katman" derinlik değil, **farklı hata modları** demek. Semantik kaçışa karşı
+gerçek savunma dördüncü katmandır: üretilen görselde OCR ile metin araması — ve o
+FAZ 9'a ait (D-147 ile aynı gerekçe: model tabanlı yargı bu fazın kapsamı dışında).

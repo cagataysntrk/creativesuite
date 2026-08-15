@@ -234,6 +234,40 @@ const pricing = Object.fromEntries(
     .flatMap((d) => d.capabilities.map((c) => [d.id, pricingFromDescriptor(d, c.name)]))
 )
 
+// ── bağlam manifesti (§5.3) ─────────────────────────────────────────────────
+// Tarif varsa gerçek bir manifest üretilir; yoksa BOŞ kalır ve bu dürüsttür —
+// uydurma bir bağlam kaydı, olmayan bir denetim izidir.
+let bagamManifesti = []
+{
+  const { loadRecipe, listRecipes } = await import(join(REPO, 'packages/registry/dist/index.js'))
+  const { assembleContext, toManifestEntries } = await import(
+    join(REPO, 'packages/engine/dist/index.js')
+  )
+  const RECIPES = join(REPO, 'registry/recipes')
+  if (listRecipes(RECIPES).includes(id)) {
+    const tarif = loadRecipe(RECIPES, id)
+    if (tarif.ok) {
+      // Adaylar retrieval yükleminden gelir — ikinci bir yol YOK (R-13).
+      const adaylar = {}
+      for (const b of tarif.value.sections) {
+        adaylar[b.entityType] = selectRecords(corpusDb, {
+          brandId: MARKA,
+          eraId: 'era_imalat_2026',
+          asOf: clock.nowIso(),
+          type: b.entityType,
+          limit: 20,
+        }).map((k) => ({
+          id: k.id,
+          title: k.title ?? k.id,
+          type: k.type,
+          body: k.body ?? '',
+        }))
+      }
+      bagamManifesti = toManifestEntries(assembleContext(tarif.value, adaylar))
+    }
+  }
+}
+
 const cikti = runOutputDir(REPO, runId)
 
 const bilgi = await knowledgeCommit(REPO, { PATH: readEnv('PATH') ?? '' })
@@ -315,6 +349,10 @@ const rapor = await runPipeline({
   params: { topic: konu },
   // Kararlar manifest'ten OKUNUR; motor yalnız yazılmış olanı görür.
   decisions: kararlar,
+  // **Bağlam manifesti** (§5.3): hangi kayıt enjekte edildi, hangisi bütçeye sığmadı.
+  // İlk sürümde `context: []` sabit koduydu ve "bu çıktı neden böyle" sorusunun cevabı
+  // hiçbir yerde yoktu (D-146).
+  context: bagamManifesti,
   // Tavan DÜŞÜK ve ZORUNLU: tavansız çalıştırmak, gözetimsiz bir gecede tavanın
   // olmadığını öğrenmektir.
   caps: {

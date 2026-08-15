@@ -53,6 +53,16 @@ const METIN_ISTEYEN: readonly { readonly desen: RegExp; readonly ornek: string }
   { desen: /\btabela\w*/, ornek: 'tabela' },
   { desen: /\bpankart\w*/, ornek: 'pankart' },
   { desen: /\bafis\w*/, ornek: 'afiş' },
+  { desen: /\bibare\w*/, ornek: 'ibare' },
+  { desen: /\blevha\w*/, ornek: 'levha' },
+  // ⚠ `pano` KASITLI olarak listede YOK: Türkçe'de iki anlamlı — hem "ilan panosu"
+  // (metin) hem "kumanda panosu" (ekipman). `PLC panosunun yakın çekimi` meşru bir
+  // sanayi prompt'u ve onu reddetmek yanlış pozitif olurdu. "Panoda ÖLÇÜM" gibi gerçek
+  // ihlaller zaten BÜYÜK HARF ve tırnak yakalayıcılarına takılıyor.
+  { desen: /\bbaski\w*|\bbasili\w*/, ornek: 'baskı / basılı' },
+  { desen: /\brakam\w*/, ornek: 'rakam' },
+  { desen: /\bbasamak\w*/, ornek: 'basamak' },
+  { desen: /\bcumle\w*/, ornek: 'cümle' },
   { desen: /\bustunde .* yaz/, ornek: 'üstünde … yazan' },
   // İngilizce — prompt'lar karışık dilde yazılabiliyor
   { desen: /\btext\b/, ornek: 'text' },
@@ -65,6 +75,50 @@ const METIN_ISTEYEN: readonly { readonly desen: RegExp; readonly ornek: string }
   { desen: /\bsign(age|board)\b/, ornek: 'signage' },
   { desen: /\bwatermark\b/, ornek: 'watermark' },
 ]
+
+/**
+ * Sanayide meşru kısaltmalar. Bunlar BÜYÜK HARF kuralından muaf: "CNC tezgâhı" bir
+ * metin isteği değil, bir makine adı.
+ *
+ * Liste kısa ve KAPALI: uzadıkça büyük harf kuralı erir. Yeni bir kısaltma eklemek
+ * bilinçli bir karar olmalı.
+ */
+const MESRU_KISALTMALAR = new Set([
+  'cnc',
+  'iso',
+  'kvkk',
+  'erp',
+  'mes',
+  'oee',
+  'plc',
+  'scada',
+  'led',
+  'uv',
+  'hd',
+  '4k',
+  '8k',
+  'ai',
+  'ml',
+  'kw',
+  'mm',
+  'cm',
+])
+
+/**
+ * TIRNAK İÇİ metin — görsel prompt'unda neredeyse her zaman "şunu yaz" demektir.
+ * `ekranda "%12 fire" görünüyor` gibi bir prompt hiçbir metin kelimesi içermez ama
+ * tam olarak metin ister.
+ */
+const TIRNAK_ICI = /["“”'']\s*\S[^"“”'']{0,80}["“”'']/
+
+/**
+ * BÜYÜK HARFLE yazılmış üç+ harfli kelime. `FİRE`, `ÖLÇÜM`, `UPCYTECH` — hepsi
+ * "bunu böyle yaz" demenin kelimesiz hâli.
+ *
+ * Meşru sanayi kısaltmaları hariç (yukarıdaki kapalı liste). Türkçe büyük harfler
+ * dahil: `ĞÜŞİÖÇ` ASCII `[A-Z]` ile yakalanmaz ve tam da onlar kaçardı.
+ */
+const BUYUK_HARF = /(?:^|[^\p{L}])(\p{Lu}{3,})(?![\p{Ll}])/gu
 
 export type PromptRefusal =
   | { readonly kind: 'empty' }
@@ -111,6 +165,23 @@ export const buildImagePrompt = (
   for (const { desen, ornek } of METIN_ISTEYEN) {
     if (desen.test(katlanmis)) {
       return err(reddet({ kind: 'requests_text', matched: ornek }, correlationId))
+    }
+  }
+
+  // Tırnak içi metin: kelimesiz metin isteği. `ekranda "%12 fire" görünüyor` hiçbir
+  // metin kelimesi içermez ama tam olarak metin ister.
+  if (TIRNAK_ICI.test(temiz)) {
+    return err(reddet({ kind: 'requests_text', matched: 'tırnak içi metin' }, correlationId))
+  }
+
+  // BÜYÜK HARF: `FİRE`, `ÖLÇÜM`, `UPCYTECH`. Meşru sanayi kısaltmaları hariç.
+  BUYUK_HARF.lastIndex = 0
+  for (const m of temiz.matchAll(BUYUK_HARF)) {
+    const kelime = m[1] as string
+    if (!MESRU_KISALTMALAR.has(foldForSearch(kelime))) {
+      return err(
+        reddet({ kind: 'requests_text', matched: `BÜYÜK HARF "${kelime}"` }, correlationId)
+      )
     }
   }
 

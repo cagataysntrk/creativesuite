@@ -8,6 +8,7 @@
 // manifest her bölümün ne kaybettiğini sayıyla söyler. Sessiz kırpma, prompt'un yarısını
 // kaybedip çıktıyı "model kötü" diye açıklamaktır.
 
+import type { ContextManifestEntry } from '@suite/kernel'
 import type { ContextRecipe, RecipeSection } from '@suite/registry'
 import { estimateTokens } from './estimate.js'
 
@@ -143,3 +144,33 @@ export const formatContext = (m: ContextManifest): string => {
   }
   return satirlar.join('\n')
 }
+
+/**
+ * Bağlam manifestini `RunManifest.context` biçimine düzleştirir (§5.3 · §13 · D-146).
+ *
+ * **Düşen kayıtlar da yazılır.** "Hangi kayıt enjekte edildi" sorusu kadar "hangisi
+ * bütçeye sığmadı" da önemli: altı ay sonra "bu çıktı neden bu bilgiyi kullanmamış"
+ * sorusunun cevabı ancak düşenler kayıtlıysa verilebilir. Düşen kayıt `tokens: 0`
+ * taşır ve `reason` neden düştüğünü söyler.
+ *
+ * İlk sürümde `run.ts` `context: []` yazıyordu ve bu manifest hiç üretilmiyordu:
+ * §5.3'ün bağlam manifesti kâğıt üstündeydi.
+ */
+export const toManifestEntries = (m: ContextManifest): readonly ContextManifestEntry[] => [
+  ...m.sections.flatMap((s) =>
+    s.included.map((r) => ({
+      recordId: r.id,
+      section: s.id,
+      tokens: r.tokenEstimate,
+      reason: r.reason,
+    }))
+  ),
+  ...m.sections.flatMap((s) =>
+    s.dropped.map((d) => ({
+      recordId: d.id,
+      section: s.id,
+      tokens: 0,
+      reason: `DÜŞTÜ: ${d.reason}`,
+    }))
+  ),
+]

@@ -97,7 +97,11 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    `Retry-After` başlığı okunur. **Webhook YOK** — yerel makine NAT arkasında; uzun işler
    jitter'lı polling ile izlenir ve iş tutamağı `derived/runs/` altında kalıcıdır.
 📁 `packages/engine/src/scheduler.ts` (FAZ-1.12 üstüne genişletilir)
-✅ `just test provider-contract` cassette'lerle yeşil · ağ kapalıyken de koşuyor
+✅ `just test provider-contract` yeşil · **ağ kapalıyken koşuyor** — msw handler'sız
+   sunucu + `request:start` sayacı: yutulmuş bir `fetch` bile yakalanıyor (D-104).
+   ⚠ Cassette KULLANILMIYOR: cassette kayıtlı bir yanıtı oynatır, bu test ise hiçbir
+   isteğin YAPILMADIĞINI iddia eder. İkisi farklı şeyler; cassette'ler gerçek sağlayıcı
+   yanıtları kaydedilince (V-16) anlamlı olacak.
 🧪 Bir işi SIGKILL ile kes → yeniden başlatınca kaldığı yerden devam, **çift ücret yok**
 💾 `feat(engine): retry ve idempotency sağlayıcılara bağlandı` · `Refs: FAZ-3.6 · §8.5`
 
@@ -128,9 +132,13 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 
 📖 §11.1, §12 · D-22
 🔗 3.7
-🛠 culori ΔE2000 · node-vibrant palet payı · CLIP brief uyumu · estetik skor · Tesseract
-   güvenli-alan. Sonuç **rozet değil TOLERANS OKUMASI**: `ΔE 2.4 / limit 5.0` sana kenara
-   ne kadar yakın olduğunu söyler, "✓ uygun" hiçbir şey söylemez (§12).
+🛠 ΔE2000 (kendi implementasyonumuz, D-109) · palet payı · metin kaplama · en-boy sapması.
+   Sonuç **rozet değil TOLERANS OKUMASI**: `ΔE 2.4 / limit 5.0` sana kenara ne kadar yakın
+   olduğunu söyler, "✓ uygun" hiçbir şey söylemez (§12).
+   ⚠ **CLIP brief uyumu, estetik skor ve Tesseract güvenli-alan FAZ 9'a ERTELENDİ**
+   (D-147): üçü de model tabanlı yargı ve bu adım deterministik ölçüme dayanıyor.
+   `culori`/`node-vibrant` de düştü — kendi ΔE'miz bağımsız referans veriyle doğrulandı
+   (D-109), `sharp`/`tesseract` yerine Chromium kullanıldı (D-110).
 📁 `packages/render/src/qa/`
 ✅ `just test qa` yeşil · her metrik limit karşısında sayı döndürüyor
 🧪 Palet dışı renk oranı limiti aşan görsel ver → **SINIR DIŞI** işaretleniyor
@@ -147,13 +155,18 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Kaynaksız sayı yaz ("1.247 ilan") → `claim_source` eksik diye reddediliyor (R-32)
 💾 `feat(render): deterministik lexicon linter` · `Refs: FAZ-3.10 · §11.2`
 
-## 3.11 — Uyum kapısı ve ExifTool damgası    [x] 2026-08-15
+## 3.11 — Uyum kapısı ve PNG damgası    [x] 2026-08-15
 
 📖 §11.3 · R-33 · D-23
-🛠 `containsSyntheticPerson=false` **kod seviyesinde iddia** · `aiGenerated` işareti ·
-   ExifTool IPTC damgası. Reklam Yönetmeliği Md. 27/12, 1 Ağu 2026'dan yürürlükte.
+🛠 `containsSyntheticPerson=false` **kod seviyesinde iddia** (tip `false` literali:
+   `true` yazan bir iddia DERLENMEZ) · `aiGenerated` işareti · **kendi PNG `iTXt`
+   damgamız** — ExifTool düşürüldü (D-115): kurulu değil ve gözetimsiz bir çalıştırmada
+   var olduğu varsayılan bir sistem ikilisi, §16'nın vaadiyle bağdaşmıyor.
+   Reklam Yönetmeliği Md. 27/12, 1 Ağu 2026'dan yürürlükte.
+   ⚠ Damga **IPTC değil**, `Upcytech:*` özel anahtarlarıdır. Md. 27/12 ifşasının
+   platformlarca makine-okunur olması ayrı bir iş ve FAZ 7'ye ait (V-17).
 📁 `packages/render/src/compliance/`
-✅ `just gate compliance` yeşil · her varlık IPTC damgası taşıyor
+✅ `just gate compliance` yeşil · her varlık `Upcytech:*` damgası taşıyor
 🧪 Sentetik insan içeren varlığı onaylamayı dene → **kod seviyesinde** bloklanıyor
 💾 `feat(render): uyum kapısı ve IPTC damgası` · `Refs: FAZ-3.11 · §11.3`
 

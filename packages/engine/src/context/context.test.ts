@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { parseRecipe } from '@suite/registry'
-import { assembleContext, formatContext, type CandidateRecord } from './assemble.js'
+import {
+  assembleContext,
+  formatContext,
+  toManifestEntries,
+  type CandidateRecord,
+} from './assemble.js'
 import { estimateTokens } from './estimate.js'
 
 // §5.3'ün tek vaadi: bağlam kesilirse bu MANİFESTTE görünür. Sessiz kırpma, prompt'un
@@ -141,5 +146,45 @@ describe('tarif doğrulama — bozuk tarif SESSİZCE geçmez', () => {
     const r = parseRecipe(iki)
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.errors.some((e) => e.kind === 'duplicate_section')).toBe(true)
+  })
+})
+
+describe('manifest düzleştirme — `RunManifest.context` (§13 · D-146)', () => {
+  it('giren kayıtlar bölüm, token ve SEBEP ile geliyor', () => {
+    const e = toManifestEntries(
+      assembleContext(tarif(), { positioning: [kayit('rec_k1', 'positioning', 60)] })
+    )
+    expect(e).toHaveLength(1)
+    expect(e[0]?.recordId).toBe('rec_k1')
+    expect(e[0]?.section).toBe('konum')
+    expect(e[0]?.tokens).toBeGreaterThan(0)
+    expect(e[0]?.reason).toContain('konum bölümü')
+  })
+
+  it('DÜŞEN kayıtlar da yazılıyor — "neden kullanılmadı" cevabı', () => {
+    // "Hangi kayıt enjekte edildi" kadar "hangisi bütçeye sığmadı" da önemli: altı ay
+    // sonra "bu çıktı neden bu bilgiyi kullanmamış" sorusu ancak düşenler kayıtlıysa
+    // cevaplanabilir.
+    const m = assembleContext(tarif(), {
+      positioning: [kayit('rec_buyuk', 'positioning', 4000), kayit('rec_kucuk', 'positioning', 40)],
+    })
+    const e = toManifestEntries(m)
+    const dusenler = e.filter((x) => x.reason.startsWith('DÜŞTÜ:'))
+    expect(dusenler.length).toBeGreaterThan(0)
+    // Düşen kayıt SIFIR token taşır: yer kaplamadı, ama izi kaldı.
+    expect(dusenler[0]?.tokens).toBe(0)
+  })
+
+  it('boş bağlam boş dizi — uydurma girdi YOK', () => {
+    expect(toManifestEntries(assembleContext(tarif(), {}))).toEqual([])
+  })
+
+  it('her girdi manifest şemasının DÖRT alanını taşıyor', () => {
+    const e = toManifestEntries(
+      assembleContext(tarif(), { positioning: [kayit('rec_k1', 'positioning', 60)] })
+    )
+    for (const x of e) {
+      expect(Object.keys(x).sort()).toEqual(['reason', 'recordId', 'section', 'tokens'])
+    }
   })
 })

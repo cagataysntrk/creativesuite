@@ -188,6 +188,7 @@ export {
 } from './manifest-writer.js'
 
 export { runPipeline, formatRun, type RunInput, type RunReport } from './run.js'
+export { toManifestEntries } from './context/assemble.js'
 
 export {
   resolveBody,

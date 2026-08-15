@@ -95,3 +95,58 @@ describe('`hasNoTextSuffix` ikinci savunma hattı', () => {
     expect(hasNoTextSuffix(`bir ${NO_TEXT_SUFFIX} fabrika`)).toBe(false)
   })
 })
+
+describe('kelimesiz metin istekleri (İ1 · D-148)', () => {
+  it('TIRNAK İÇİ metin yakalanıyor', () => {
+    // `ekranda "%12 fire" görünüyor` hiçbir metin KELİMESİ içermez ama tam olarak
+    // metin ister. Doğrulama agent'ı bu boşluktan sekiz denemeden altısını geçirdi.
+    for (const p of [
+      'ekranda "%12 fire" görünüyor',
+      "panoda 'Önce ölç' okunuyor",
+      'duvarda “ÖLÇÜM” yazısı',
+    ]) {
+      expect(red(p), p).toBe('requests_text')
+    }
+  })
+
+  it('BÜYÜK HARF yakalanıyor — Türkçe harfler dahil', () => {
+    // `ĞÜŞİÖÇ` ASCII `[A-Z]` ile yakalanmaz; tam da onlar kaçardı.
+    for (const p of ['neon levha: OLCUM', 'tişört üzerine baskılı UPCYTECH', 'ÖLÇÜM panosu']) {
+      expect(red(p), p).toBe('requests_text')
+    }
+  })
+
+  it('MEŞRU sanayi kısaltmaları BÜYÜK HARF kuralından muaf', () => {
+    // "CNC tezgâhı" bir metin isteği değil, bir makine adı. Liste kapalı ve kısa:
+    // uzadıkça kural erir.
+    for (const p of [
+      'CNC tezgâhının makro çekimi',
+      'ISO sertifikalı üretim hattı',
+      'PLC panosunun yakın çekimi',
+    ]) {
+      expect(red(p), p).toBe('KABUL')
+    }
+  })
+
+  it('sayı ve baskı gövdeleri yakalanıyor', () => {
+    for (const p of ['3 basamaklı rakamlar', 'tişörte basılı desen', 'levhada bir ibare']) {
+      expect(red(p), p).toBe('requests_text')
+    }
+  })
+
+  it("agent'ın SEKİZ denemesinin sekizi de reddediliyor", () => {
+    // Doğrulama turu 1'de 8 denemeden 7'si geçmişti. Bu blok o regresyonu kilitliyor.
+    for (const p of [
+      'atölye duvarında büyük FİRE ibaresi',
+      'ekranda "%12 fire" görünüyor',
+      'duvarda Türkçe bir cümle: Önce ölç',
+      'neon levha: ÖLÇÜM',
+      'tişört üzerine baskılı UPCYTECH',
+      '3 basamaklı rakamlar',
+      'kapıda bir yazı var',
+      'panoda BÜYÜK HARFLERLE bir şey',
+    ]) {
+      expect(red(p), p).toBe('requests_text')
+    }
+  })
+})

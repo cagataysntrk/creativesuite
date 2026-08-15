@@ -32,6 +32,7 @@ import {
   type Db,
   type ProviderCandidate,
   type Rng,
+  type ContextManifestEntry,
   type HumanDecision,
   type RunManifest,
   type StepRecord,
@@ -104,6 +105,14 @@ export interface RunInput {
    * karşılığı.
    */
   readonly decisions?: readonly HumanDecision[]
+  /**
+   * Enjekte edilen bağlamın manifesti (§5.3 · §13).
+   *
+   * İlk sürümde `context: []` sabit koduydu ve `assembleContext` üretim yolunda hiç
+   * çağrılmıyordu: "bu çıktı neden böyle" sorusunun cevabı hiçbir yerde yoktu (D-146).
+   * Çağıran `toManifestEntries()` ile üretip verir; motor onu manifest'e AYNEN yazar.
+   */
+  readonly context?: readonly ContextManifestEntry[]
   readonly signal?: AbortSignal
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
   readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
@@ -525,7 +534,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     createdAt: clock.nowIso(),
     steps: kayitlar,
     decisions: input.decisions ?? [],
-    context: [],
+    context: input.context ?? [],
     contextRetentionDays: 90,
   }
 
