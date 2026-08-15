@@ -23,9 +23,10 @@ import {
   retireRecord,
   type SelectQuery,
 } from '@suite/corpus'
-import { RUNS_DIR } from '@suite/kernel'
+import { RUNS_DIR, fileHistory } from '@suite/kernel'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
+import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -35,6 +36,13 @@ export interface SunucuSecenekleri {
   readonly debounceMs: number
   /** Saat dışarıdan verilir — R-06: fiil gövdesinde `Date` yok, sunucuda da tek nokta. */
   readonly simdi: () => string
+  /**
+   * Alt süreçlere geçecek ortam — **AÇIKÇA verilir** (§14). Sunucu `process.env`e
+   * uzanmaz: uzanan bir kütüphane, hangi değişkenin nereye gittiğini denetlenemez
+   * yapar ve `git`e tüm ortamı vermek gizli anahtarları alt sürece taşımaktır.
+   * En azı `PATH` — onsuz `git` bulunamaz.
+   */
+  readonly env?: Readonly<Record<string, string>>
 }
 
 export interface Sunucu {
@@ -124,6 +132,25 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         status: durum,
       }),
     })
+  })
+
+  // ── ters indeks: bu kaydı hangi çalıştırma kullandı (§12.9 · FAZ-4.4) ─────
+  app.get('/api/kayitlar/:id/etki', (c) => {
+    const s = tersIndeks(o.repoRoot, c.req.param('id'))
+    return c.json({ ...s, ozet: tersIndeksOzeti(s) })
+  })
+
+  // ── git zaman çizgisi (§12.9 · FAZ-4.4) ───────────────────────────────────
+  //
+  // Bir kaydın geçmişi ayrı bir yerde TUTULMAZ: git zaten tutuyor. İkinci bir
+  // değişiklik günlüğü, git ile ayrışabilen bir gerçek olurdu (12. yasa: kurtarma
+  // `git clone` + `cat`).
+  app.get('/api/kayitlar/:tip/:slug/gecmis', async (c) => {
+    const yol = `corpus/${c.req.param('tip')}/${c.req.param('slug')}.md`
+    const r = await fileHistory(yol, { cwd: o.repoRoot, env: o.env ?? {} })
+    return r.ok
+      ? c.json({ yol, commitler: r.value })
+      : c.json({ yol, commitler: [], hata: 'git geçmişi okunamadı' }, 500)
   })
 
   // ── yaşam döngüsü: emeklilik ve sabitleme ─────────────────────────────────

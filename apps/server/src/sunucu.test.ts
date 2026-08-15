@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { RUNS_DIR } from '@suite/kernel'
 import { kurSunucu } from './sunucu.js'
 import { makineDurumu } from './durum.js'
+import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 
 const SORGU = { brandId: 'brd_test', eraId: 'era_test', asOf: '2026-08-15T00:00:00.000Z' } as const
 
@@ -323,6 +324,93 @@ describe('corpus tarayıcısı', () => {
       const j = (await r.json()) as { ok: boolean; mesaj: string }
       expect(j.ok).toBe(false)
       expect(j.mesaj).toContain('kayıt yok')
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('ters indeks', () => {
+  const baglamli = (runId: string, kayitlar: readonly string[], corpusCommit = 'a'.repeat(40)) => {
+    const m = manifest({ runId, biten: true, gercekMikros: '10' })
+    m['corpusCommit'] = corpusCommit
+    m['context'] = kayitlar.map((id) => ({
+      recordId: id,
+      section: 'strateji',
+      tokens: 120,
+      reason: 'konumlandırma bölümüne dahil',
+    }))
+    return m
+  }
+
+  it('kaydı kullanan çalıştırmaları bulur, EN YENİ ÜSTTE', () => {
+    const a = baglamli('run_a', ['rec_pos'])
+    a['createdAt'] = '2026-08-10T10:00:00.000Z'
+    const b = baglamli('run_b', ['rec_pos', 'rec_icp'])
+    b['createdAt'] = '2026-08-14T10:00:00.000Z'
+    const kok = kurRepo([a, b])
+    try {
+      const s = tersIndeks(kok, 'rec_pos')
+      expect(s.kullanimlar).toHaveLength(2)
+      // "Bu olgu yanlıştı" dendiğinde ilk sorulan, en son ne ürettiğidir.
+      expect(s.kullanimlar[0]?.runId).toBe('run_b')
+      expect(s.kullanimlar[0]?.reason).toContain('konumlandırma')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('hiç kullanılmamış kayıt için "ETKİSİ YOK" AÇIKÇA yazılır', () => {
+    // Sessiz bir boş liste, "henüz yüklenmedi" ile "hiç kullanılmadı"yı aynı şeye
+    // çevirir; biri beklemek, diğeri kaydı gözden geçirmek demektir.
+    const kok = kurRepo([baglamli('run_a', ['rec_baska'])])
+    try {
+      const s = tersIndeks(kok, 'rec_pos')
+      expect(s.kullanimlar).toHaveLength(0)
+      expect(s.taranan).toBe(1)
+      expect(tersIndeksOzeti(s)).toContain('etkisi yok')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('hiç çalıştırma yokken "0 kullanım" DEMEZ — ayrı bir cümle kurar', () => {
+    const kok = kurRepo([])
+    try {
+      expect(tersIndeksOzeti(tersIndeks(kok, 'rec_pos'))).toContain('hiç çalıştırma yok')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('KUSURLU manifest işaretlenir — o varlık zaten yayınlanamaz (D-155)', () => {
+    const kok = kurRepo([baglamli('run_a', ['rec_pos'], 'worktree')])
+    try {
+      const s = tersIndeks(kok, 'rec_pos')
+      expect(s.kullanimlar[0]?.manifestSaglam).toBe(false)
+      expect(tersIndeksOzeti(s)).toContain('KUSURLU')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('/api/kayitlar/:id/etki özeti ile birlikte döner', async () => {
+    const kok = kurRepo([baglamli('run_a', ['rec_pos'])])
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const j = (await (await s.app.request('/api/kayitlar/rec_pos/etki')).json()) as {
+        ozet: string
+        kullanimlar: unknown[]
+      }
+      expect(j.kullanimlar).toHaveLength(1)
+      expect(j.ozet).toContain('1 çalıştırma')
     } finally {
       s.kapat()
       rmSync(kok, { recursive: true, force: true })

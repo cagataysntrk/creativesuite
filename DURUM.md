@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.4
+siradaki_adim: 4.5
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -53,12 +53,13 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.2** · Hono API, SSE, dosya izleme (`just dev`), sunucu duman testi | 2026-08-15 |
 | **4.2b** · Vite + React SPA, ⌘K palet, kalıcı makine durumu şeridi | 2026-08-15 |
 | **4.3** · Corpus Browser; silme yok, yalnız emeklilik (R-12) | 2026-08-15 |
+| **4.4** · Record Detail, git zaman çizgisi, ters indeks | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`4.4` — Record Detail** (§12.9). Kaynak alıntısı, `git log --follow` zaman çizgisi,
-supersedes zinciri ve **ters indeks**: bu kaydın etkilediği her varlık. Ters indeks
-manifest'lerin `context` alanından türetilir — hangi çalıştırma hangi kaydı kullandı.
+**`4.5` — Context Preview** (§5.3, §12.9). Bölüm başına token çubuğu, tam prompt metni,
+kart başına "neden dahil edildi", canlı aç/kapa. Kapatma manifest'e yazılır: bağlamı
+elle daraltmak bir karardır ve kararın kaydı olmadan çıktı açıklanamaz.
 
 
 ## Bloke adımlar
@@ -73,6 +74,11 @@ kapanır; ardından `just reindex` ve çalıştırma commit'i.
 
 **Okurken dikkat:** `positioning`, `icp`, `offer` kayıtları HİPOTEZ (V-07) — dikey
 seçimi üçüncü taraf verisinden çıkarım.
+
+✅ **2026-08-15'te sessiz bir engel kaldırıldı (D-167):** altı kaydın `era_id`si
+`era_imalat_2026` yazıyordu, dönemin gerçek adı `imalat-2026`. Onayladığınızda kayıtlar
+`active` olacak ama retrieval onları YİNE görmeyecekti — onay işe yaramamış gibi
+görünürdü. Ölçüldü: düzeltmeyle onay sonrası **7 kayıt** geliyor, düzeltmesiz **1**.
 
 **`3.7` · `3.8` — V-16 anahtarları.** `sops exec-env` altında `CF_ACCOUNT_ID`+
 `CF_API_TOKEN` (bedava şerit) ya da `FAL_KEY` (premium). `3.8` ayrıca ~$3 gerçek para

@@ -78,7 +78,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🧪 `DELETE` yok (404) · emekliyi tekrar emekli et → 409 · `era_id`yi boz → kırmızı
 💾 `feat(ui): corpus browser` · `Refs: FAZ-4.3 · §12.9`
 
-## 4.4 — Record Detail ve ters indeks    [ ]
+## 4.4 — Record Detail ve ters indeks    [x] 2026-08-15
 
 📖 §12.9, §13 · R-11
 🔗 4.3
@@ -86,8 +86,8 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    **ters indeks: bu kaydın etkilediği HER varlık**. Ters indeks olmadan bir olguyu
    düzeltmek, hangi çıktıların yanlış olduğunu bilmeden düzeltmektir.
 📁 `apps/ui/src/screens/record/`
-✅ Bir olguyu düzelt → etkilediği varlıklar listeleniyor
-🧪 Hiç varlığa girmemiş kayıt → liste boş ve **"etkisi yok" diye açıkça yazıyor**
+✅ `/api/kayitlar/:id/etki` + `/gecmis` gerçek veriyle çalışıyor (3 commit, 16 tarandı)
+🧪 "etkisi yok" cümlesini sustur → kırmızı · git çizgisini boşalt → kırmızı
 💾 `feat(ui): record detail ve ters indeks` · `Refs: FAZ-4.4 · §12.9`
 
 ## 4.5 — Context Preview    [ ]

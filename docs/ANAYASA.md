@@ -298,7 +298,24 @@ ayrılmış 2024 geri dönüşüm konumlandırması 2026 imalat deck'ine asla s�
 Yüklem `SystemRecord` (attributes'sız projeksiyon) üzerinde derlenir — `attributes`
 üzerinde derlenseydi §2'nin 1. yasasını kendi içinde çiğnerdi.
 ### §5.3 Bağlam tarifleri {#section-5-3}
-Bölüm başına token bütçesi + bağlam manifesti.
+
+Bir tarif, prompt'a hangi bilginin **hangi bölümde ve hangi bütçeyle** gireceğini söyler.
+Bütçe bölüm başınadır, toplam değil: tek bir havuz olsaydı uzun bir persona kaydı
+konumlandırma bölümünü tamamen dışarı iter ve bunu kimse görmezdi.
+
+**Her dahil edilen kayıt bir GEREKÇE taşır.** `reason` alanı süs değil: bağlam
+manifesti (§13) altı ay sonra "bu deck neden böyle dedi" sorusunun tek cevabıdır ve
+"seçildi" diye bir gerekçe o soruyu cevaplamaz.
+
+**Seçilmeyen de kaydedilir.** Bütçeye sığmayan kayıt, sığmadığı gerekçesiyle manifest'e
+girer — yönlendiricinin kaybedenleri kaydetmesiyle (§8.2) aynı ilke: görünmeyen bir
+eleme, denetlenemeyen bir elemedir.
+
+**Elle daraltma bir KARARDIR.** Operatör Context Preview'da (§12.9) bir kartı kapatırsa
+bu manifest'e yazılır; yazılmazsa aynı girdiyle iki farklı çıktı üretilir ve farkın
+sebebi hiçbir yerde durmaz — replay (§13) o an yalan söyler.
+
+`untrusted_input` bölümü AYRIDIR ve asla talimat olarak sunulmaz (§14, R-50).
 ### §5.4 Öneri → onay yolu {#section-5-4}
 
 **Agent yalnız `corpus.propose()` çağırabilir.** Öneri `status: draft`, `zone: generated`,

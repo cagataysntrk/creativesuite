@@ -32,6 +32,9 @@ const sunucu = await baslat({
   debounceMs: 150,
   simdi: () => systemClock.nowIso(),
   port: PORT,
+  // `git` alt sürecine YALNIZ PATH gider (§14). Tüm ortamı geçirmek, `sops exec-env`
+  // ile enjekte edilen sağlayıcı anahtarlarını da alt sürece taşımak olurdu.
+  env: { PATH: process.env['PATH'] ?? '' },
 })
 
 console.log(`  komuta merkezi API   http://localhost:${sunucu.port}`)

@@ -18,6 +18,7 @@ import {
   type Filtre,
   type KayitSatiri,
 } from './corpus.js'
+import { KayitDetay } from './KayitDetay.js'
 
 const yolParcala = (path: string): { tip: string; slug: string } | null => {
   // `corpus/<entity_type>/<slug>.md` — kanonik yerleşim (§3.9).
@@ -30,6 +31,7 @@ export const CorpusTarayici = (): React.JSX.Element => {
   const [hata, setHata] = useState<string | null>(null)
   const [filtre, setFiltre] = useState<Filtre>(BOS_FILTRE)
   const [mesaj, setMesaj] = useState<string | null>(null)
+  const [detay, setDetay] = useState<KayitSatiri | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
     try {
@@ -86,6 +88,10 @@ export const CorpusTarayici = (): React.JSX.Element => {
   }
 
   if (satirlar === null) return <p>yükleniyor…</p>
+
+  if (detay !== null) {
+    return <KayitDetay kayit={detay} uzerineKapat={() => setDetay(null)} />
+  }
 
   const gorunen = filtrele(satirlar, filtre, foldForSearch)
 
@@ -152,7 +158,13 @@ export const CorpusTarayici = (): React.JSX.Element => {
                     {i.metin}
                   </td>
                   <td>{r.type}</td>
-                  <td title={r.path}>{r.title}</td>
+                  <td>
+                    {/* Başlık DETAYA GİDER: ters indeks olmadan bir olguyu düzeltmek,
+                        hangi çıktıların yanlış olduğunu bilmeden düzeltmektir. */}
+                    <button type="button" className="baglanti" onClick={() => setDetay(r)}>
+                      {r.title}
+                    </button>
+                  </td>
                   <td className="olcum">{r.era_id}</td>
                   <td className="eylem-hucresi">
                     {/* Devre dışı düğme GÖSTERİLİR, gizlenmez: kaybolan bir düğme

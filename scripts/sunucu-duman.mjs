@@ -23,6 +23,7 @@ const s = await baslat({
   debounceMs: 50,
   simdi: () => systemClock.nowIso(),
   port: 0, // 0 = işletim sistemi boş port versin; sabit port paralel koşuda çakışır
+  env: { PATH: process.env['PATH'] ?? '' },
 })
 
 const U = `http://localhost:${s.port}`
@@ -50,6 +51,18 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.4 uçları: ters indeks ve git zaman çizgisi GERÇEKTEN çağrılır.
+  const etki = await (await fetch(`${U}/api/kayitlar/rec_yok/etki`)).json()
+  bekle(typeof etki.ozet === 'string', '/api/kayitlar/:id/etki özet dönmüyor')
+  bekle(Array.isArray(etki.kullanimlar), '/api/kayitlar/:id/etki kullanimlar dizisi değil')
+  // Hiç kullanılmamış kayıt "etkisi yok" DEMELİ — sessiz boş liste yeterli değil.
+  bekle(/etkisi yok|hiç çalıştırma/.test(etki.ozet), 'kullanılmamış kayıt için açık cümle yok')
+
+  const gecmis = await (
+    await fetch(`${U}/api/kayitlar/positioning/imalat-verimlilik-konumu/gecmis`)
+  ).json()
+  bekle(Array.isArray(gecmis.commitler) && gecmis.commitler.length > 0, 'git zaman çizgisi boş')
+
   const r = await fetch(`${U}/api/olay`)
   const rd = r.body.getReader()
   const dec = new TextDecoder()
@@ -75,4 +88,4 @@ if (hatalar.length > 0) {
   for (const h of hatalar) console.log(`    ✗ ${h}`)
   process.exit(1)
 }
-console.log(`    sunucu ayağa kalktı · 4 uç · token CSS'i · SSE dosya değişimini yaydı`)
+console.log(`    sunucu ayağa kalktı · 6 uç · token CSS'i · ters indeks · git çizgisi · SSE`)

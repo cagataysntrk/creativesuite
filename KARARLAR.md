@@ -88,174 +88,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-140 — Darboğaz kapsamı üretim betiklerini dışarıda bırakıyordu
-2026-08-15 · `kapsam_varsayilan` yalnız `packages|apps` idi. **Para harcayan tek betik**
-(`scripts/uret.mjs`) 22 darboğazın hiçbirinin kapsamında değildi; agent orada dört ihlal
-buldu. `scripts/uret.mjs` ve `scripts/plan.mjs` kapsama alındı — ikisi de `just` ile
-koşan ÜRETİM YOLUDUR.
-Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) kapsam DIŞI: onlar
-araçtır: bir kapının `git` çağırması kapının işidir.
-`logger` darboğazı CLI'lar için muaf — bir CLI'ın işi stdout'a tablo basmaktır; kuralın
-koruduğu şey "korelasyon id'si taşımayan ikinci bir OLAY logger'ı".
-
-## D-141 — `providerCall` üretimden hiç çağrılmıyordu; GENERATE sahte bir köprüydü
-2026-08-15 · Doğrulama agent'ının B8+B9 bulgusu, aynı kökün iki yüzü:
-- `providerCall` (jitter'lı polling, `Retry-After`, tutamak kalıcılığı) yazılmıştı ama
-  **yalnız kendi testinden** çağrılıyordu. `run.ts` `externalId: null` sabit yazıyordu,
-  yani `noteHandle` hiç tetiklenmiyor ve R-44'ün tutamak koruması ölü kalıyordu.
-- `uret.mjs`'teki `generate` köprüsü sabit `MISSING_CREDENTIALS` döndürüyordu:
-  `cloudflareImage`/`falImage` adaptörlerine **hiç ulaşılmıyordu.** "İki şerit de görsel
-  üretiyor" iddiası (FAZ-3.7 ✅) hiç sınanmamıştı.
-Kök neden aynıydı: motor kazanan sağlayıcıyı gövdeye AKTARMIYORDU. `BodyInput` artık
-`providerId`, `noteHandle` ve `resumeExternalId` taşıyor; `generateBody` adaptörü bulup
-`validate()`ten (prompt R-20 kurucusundan geçer) sonra `providerCall`ı kuruyor.
-Anahtar yoksa hata artık **adaptörün kendisinden** geliyor — sahte bir sabitten değil.
-Bu, bu segmentteki "yazıldı ama hiç çağrılmadı" deseninin sekizinci ve dokuzuncu örneği.
-
-## D-142 — `3.7` ve `3.14` tikleri GERİ ALINDI; LOOP§G eşiği aşıldı ve döngü DEVAM ediyor
-2026-08-15 · Doğrulama turu iki tiki geçersiz kıldı:
-- **3.7** ✅ "İki şerit de görsel üretiyor" — hiçbir şerit görsel üretmedi. Sözleşme,
-  msw ile HTTP şekli ve R-20 kuralı sınandı; **canlı üretim sınanmadı** (V-16: anahtar yok).
-- **3.14** ✅ "Gerçek bir carousel üretildi" — üretildi ama **onaylanmamış corpus** ile,
-  yani R-14 çiğnenerek (D-134). Retrieval düzeltildikten sonra hat dürüstçe `NO_CONTEXT`
-  veriyor: ✅ artık FAZ-2.9'un insan onayını bekliyor.
-Tiki geri almak pahalı görünüyor ama alternatifi daha pahalı: **karşılanmamış bir kriteri
-tikli bırakmak, faz dosyasını yalancı yapar** ve bağlamı sıfırlanmış bir agent onu
-"bitmiş" sanar (LOOP§C).
-
-**LOOP§G tetiklendi ve bilinçli olarak DEVAM ediliyor.** Kural: *"Aynı fazda üç adım
-birden bloke olursa döngü durur ve kullanıcıya sorar — çünkü üç bloke adım artık bir
-uygulama sorunu değil, plan hatasıdır."* FAZ 3'te dört bloke adım var: 3.2 (V-02), 3.7
-(V-16), 3.8 (V-16), 3.14 (FAZ-2.9).
-**Ama kuralın gerekçesi burada geçerli değil:** dördü de PLAN HATASI değil, planın
-**önceden kaydettiği** dış girdilerdir — V-02 (marka fontu lisansı), V-16 (sağlayıcı
-anahtarları), 2.9 (insan onayı). Üçü de `KARARLAR.md`'de doğrulama borcu olarak duruyor
-ve üçü de yalnız İNSAN tarafından açılabilir; döngünün durup sorması yeni bir bilgi
-üretmez, yalnız ilerlemeyi durdurur.
-Kullanıcı "ben pc başında değilim, tam yetki sende" dedi. Durmak yerine: durum
-`DURUM.md`'de **görünür** kılındı, bloke listesi dörde çıkarıldı ve tur çıktısında açıkça
-bildirildi. Sessiz sapma yok — kuralın tetiklendiği ve neden aşıldığı burada yazılı.
-
-## D-143 — Dört ikincil bulgu: denylist'ler, NUL baytı, sahte dayanak
-2026-08-15 · Doğrulama turu 1'in ikincil bulgularından dördü kapatıldı:
-**İ2 · `lexicon` R-20 bloğu yalnız İNGİLİZCE anahtar arıyordu.** `ustyazi:` gibi bir
-Türkçe anahtarı hiç görmüyordu — *Türkçe içerik üreten bir sistemde İngilizce anahtar
-listesi*. Türkçe adlar eklendi ve **kısıt DEĞERLERİ de taranıyor**: anahtar masum
-olabilir, değeri olmayabilir (`scene_hint: 'duvarda büyük FİRE ibaresi'`).
-**İ3 · `registry` R-40 denylist'i eksik ve anchor'ı delikti.** `ideogram`, `recraft`,
-`kling`, `veo`, `qwen`, `seedream` listede yoktu — faz dosyasının kendi metninde geçen
-Ideogram dahil. Ayrıca `^\s*-?\s*(model|…)` anchor'ı `video_model:` ve
-`fallback_engine:` gibi ÖN EKLİ adları kaçırıyordu; artık `\w*` iki yandan açık.
-Yedi ihlal denendi, yedisi de yakalandı.
-**İ8 · `idempotency.ts` gerçek bir NUL baytı içeriyordu.** `file` komutu dosyayı `data`
-(binary) sanıyor, `grep -r` ve birçok tarama aracı onu **sessizce atlıyordu** — bir
-kaynak dosyada kör nokta. Ayırıcı artık `'\u0000'` kaçış dizisiyle yazılıyor; davranış
-aynı, dosya metin.
-**İ7 · Uyum dayanağı ÇAĞIRANIN beyanıydı.** `promptDigest`e `uret.mjs` çalıştırma
-kimliğini yazıyordu. `assertCompliance` artık özeti **kendi hesaplıyor** ve çağıranın
-yazdığını yok sayıyor: dayanağını kendi yazan bir iddia, iddia değil beyandır.
-
-## D-144 — `3.2` BLOKE DEĞİLDİ: golden harness font-agnostiktir
-2026-08-15 · `3.2` "V-02 (marka fontu) bekliyor" diye atlanmıştı. Doğrulama agent'ı bu
-gerekçeyi sorguladı ve **haklıydı**: `notdef = 0` hangi fontun lisanslandığına bağlı
-değil. V-02 metriği **DONDURMAYI** engeller, harness'ı **YAZMAYI** değil.
-Harness yazıldı ve çalışıyor. Ölçüm tarayıcıda: `measureText` ilerleme genişliklerini,
-`Range.getClientRects()` satır kutularını, `getComputedStyle` ÇÖZÜLMÜŞ font ailesini
-veriyor. Node tarafında hesaplamak, tarayıcının ne yaptığını TAHMİN etmek olurdu — ve
-tam da tahmin edilemeyen şey (fallback) aranan hata.
-**`notdef` tespiti ölçümle:** U+E000 (özel kullanım alanı, hiçbir fontta tanımlı değil)
-referans alınıyor; bir karakterin ilerleme genişliği onunla EŞİTSE glyph eksiktir.
-Eşik yok, eşitlik — çünkü metrik antialiasing'den etkilenmiyor.
-**İhlal testi:** fontu var olmayan bir ada yönlendirdim → **68 eksik glyph**, font ailesi
-uyuşmazlığı, `Ğ` 59,1px'ten 43,35px'e (monospace fallback). Kanıt dizesini değiştirdim →
-bütün ilerlemeler kaydı. Temiz koşuda 3/3 boyut doğrulanıyor.
-Metrikler bugün SİSTEM fontuyla dondu (`DejaVu Sans`); marka fontu geldiğinde temel
-yeniden alınır — bu bir düzeltme, bir blokaj değil.
-**Ders:** "bloke" gerekçeleri de doğrulanmalı. Bir adımı yanlış sebeple bloke etmek,
-onu yapılabilirken yapmamaktır.
-
-## D-145 — `just onay`: çalıştırma kapısı kararı; `decisions: []` sabit kodu kalktı
-2026-08-15 · `run.ts` `decisions: []` yazıyordu ve insan kapısı **kalıcı bir duvardı**:
-onay mekanizması olmadan hiçbir çalıştırma tamamlanamazdı. Doğrulama agent'ının B2'si.
-İki komut, iki ayrı şey:
-- `just onayla <corpus-yolu>` → bir KAYDIN doğruluğu (`draft` → `active`, R-14)
-- `just onay <run_id> onayla|reddet [gerekçe]` → bir ÇALIŞTIRMANIN çıktısı (§4c)
-**Red GEREKÇE ister.** Gerekçesiz bir red sonraki çalıştırmaya negatif kısıt olarak
-giremez (§12.9) ve altı ay sonra "bu neden reddedildi" sorusu cevapsız kalır. Komut
-gerekçesiz reddi reddediyor.
-Motor kararları **yalnız OKUR**, üretmez: `just onay` insanın klavyesinden çalışır ve
-manifest'e yazar. Agent'ın onu çağırması R-14'ü çiğnemektir — kendi ürettiğini onaylayan
-bir agent, onay kuyruğunu formaliteye çevirir. Bu, R-14'ün çalıştırma tarafındaki
-karşılığı.
-`just uret … --devam <run_id>` **AYNI runId** ile sürdürüyor: yeni bir kimlik,
-idempotency defterindeki ödenmiş adımları yeniden ödemek demekti (R-44).
-Beş test: karar yoksa durur · onaylıysa geçer ve `PROPOSE` GERÇEKTEN koşar · reddedilmişse
-`GATE_REJECTED` + gerekçe taşınır · BAŞKA bir kapının kararı bu kapıyı açmaz · kararlar
-manifest'e aynen yazılır.
-
-## D-146 — Bağlam manifesti üretiliyordu ama HİÇ YAZILMIYORDU
-2026-08-15 · `run.ts` `context: []` sabit koduydu ve `assembleContext` üretim yolunda
-hiç çağrılmıyordu. §5.3'ün bağlam manifesti — *"hangi kayıt neden dahil edildi"* —
-kâğıt üstündeydi ve "bu çıktı neden böyle" sorusunun cevabı hiçbir yerde yoktu.
-`toManifestEntries()` eklendi ve `uret.mjs` tarif varsa gerçek bir manifest üretiyor.
-**Düşen kayıtlar da yazılıyor** (`tokens: 0`, `reason: 'DÜŞTÜ: …'`): "hangi kayıt
-girdi" kadar "hangisi bütçeye sığmadı" da önemli — altı ay sonra "bu çıktı neden bu
-bilgiyi kullanmamış" sorusu ancak düşenler kayıtlıysa cevaplanabilir.
-Adaylar **retrieval yükleminden** geliyor; ikinci bir yol yok (R-13, D-134).
-
-## D-147 — 3.9'un üç model-tabanlı maddesi FAZ 9'a ERTELENDİ
-2026-08-15 · FAZ-3.9 🛠 "CLIP brief uyumu · estetik skor · Tesseract güvenli-alan"
-diyordu; üçü de yazılmadı ve **düşüş hiçbir yere kaydedilmemişti** — doğrulama agent'ı
-haklı olarak işaretledi (İ5). Sessiz düşüş, sessiz sapmadır (R-74).
-Gerekçe: üçü de **model tabanlı yargı**, bu adım ise deterministik ölçüme dayanıyor
-(§11.2'nin "modele sorulmaz, listeye bakılır" ilkesi). ΔE, palet payı, metin kaplama ve
-en-boy sapması ölçülebilir ve tekrar üretilebilir; CLIP skoru değil.
-Tesseract'ın işi "görselde nerede metin var"ı TAHMİN etmek; oysa metni biz
-yerleştiriyoruz ve yerini kesin biliyoruz (D-110). Güvenli-alan ölçümü belge modelinden
-yapılabilir ve FAZ-4.9'da (Placement Preview) gerçek platform chrome'uyla gelecek.
-Faz dosyası düzeltildi — artık ne yapıldığını ve neyin ertelendiğini yazıyor.
-
-## D-148 — R-20'nin denylist'i kelimesiz metin isteklerini kaçırıyordu
-2026-08-15 · Doğrulama agent'ı R-20'yi sekiz farklı prompt'la denedi; **yedisi geçti**.
-Hepsi ortak bir boşluktan geçiyordu: **metin istemek için "metin" demek gerekmiyor.**
-`ekranda "%12 fire" görünüyor` · `neon levha: ÖLÇÜM` · `tişört üzerine baskılı UPCYTECH`
-İki genel yakalayıcı eklendi, dokuz gövde ön ekiyle birlikte:
-1. **Tırnak içi metin** — görsel prompt'unda tırnak neredeyse her zaman "şunu yaz" demek.
-2. **BÜYÜK HARF** (üç+ harf, Unicode `\p{Lu}` ile — `ĞÜŞİÖÇ` ASCII `[A-Z]` ile
-   yakalanmaz ve tam da onlar kaçardı). Meşru sanayi kısaltmaları muaf: `CNC`, `ISO`,
-   `PLC`, `SCADA`… Liste **kapalı ve kısa** — uzadıkça kural erir.
-Sonuç: 10 kötü prompt'un 0'ı kaçıyor, 6 meşru prompt'un 0'ı yanlış reddediliyor.
-`pano` gövdesi **kasıtlı olarak listede YOK**: Türkçe'de iki anlamlı — "ilan panosu"
-(metin) ve "kumanda panosu" (ekipman). `PLC panosunun yakın çekimi` meşru bir sanayi
-prompt'u; onu reddetmek yanlış pozitif olurdu ve *sürekli alarm veren kapı, kapatılan
-kapıdır*. Gerçek ihlaller (`panoda BÜYÜK HARFLERLE…`, `ÖLÇÜM panosu`) zaten BÜYÜK HARF
-yakalayıcısına takılıyor — yani kural kaybolmuyor, doğru katmana taşınıyor.
-**Ama denylist doğası gereği eksiktir ve bu KABUL EDİLİYOR.** Üç katmanın gerçekte ne
-kadar koruduğu:
-- **Katman 1** (`buildImagePrompt` reddi) — semantik iş yapan tek katman. Bugün bilinen
-  bütün kaçışları yakalıyor; yarın bilinmeyen bir ifade bulunabilir.
-- **Katman 2** (`assertNoTextSuffix`) — yalnız ekin VARLIĞINI doğrular, prompt'un
-  anlamını değil. Katman 1 atlanırsa yakalamaz; atlanmadığını garanti eder.
-- **Katman 3** (`gorsel-prompt-kurucu` darboğazı) — yalnız İKİNCİ bir kurucuyu engeller.
-Yani "üç katman" derinlik değil, **farklı hata modları** demek. Semantik kaçışa karşı
-gerçek savunma dördüncü katmandır: üretilen görselde OCR ile metin araması — ve o
-FAZ 9'a ait (D-147 ile aynı gerekçe: model tabanlı yargı bu fazın kapsamı dışında).
-
-## D-149 — ÖKSÜZ çalıştırma: varlık diskte, defterde izi yok
-2026-08-15 · Doğrulama agent'ının İ4'ü: `derived/runs/run_01a00661-…/` altında iki slayt
-var, `manifest.json` YOK.
-Kök neden **doğru bir davranışın yan etkisi**: `writeManifest` kusurlu bir manifesti
-YAZMAZ (D-136) — yarım bir defter, defter olmadığını söylemez. Ama render adımı zaten
-koşmuş ve slaytları diske yazmıştır. Sonuç: **kimin ürettiği ve neye mal olduğu
-bilinmeyen bir varlık.**
-`doctor` artık bunu raporluyor: `⚠ öksüz : N çalıştırmada varlık VAR manifest YOK`.
-**Rapor eder, SİLMEZ** — `derived/runs` silinmez (R-52) ve otomatik temizlik, bir ay
-sonra dönen kullanıcıya ne olduğunu gizler (§16'nın "rapor yazar, hiçbir şeyi
-değiştirmez" ilkesi).
-Öksüz varlık CAS'a girmediği için `compliance` kapısı onu göremiyor — kapı `derived/blobs`
-tarar, `derived/runs` değil. İki dizin iki farklı şey: biri yayınlanabilir varlıklar,
-diğeri çalıştırma çıktısı. Doctor ikisinin arasındaki boşluğu görüyor.
-
 ## D-150 — Tazelik denetimi; iki anlık görüntü İKİ FARKLI alan adı kullanıyordu
 2026-08-15 · §8.7 *"UI, anlık görüntü 60 günden eskiyse uyarı rozeti gösterir"* diyor ve
 §9.1 *"üç aylık bir iş kaynakları yeniden çeker"* diyor. **İkisi de yoktu** ve
@@ -579,3 +411,25 @@ Kapı yazıldığı anda altısını da kırmızıya çevirdi.
 **Ders:** dönem modeli üç parçadır dedik (§4.3) ve kapı o üçünü denetliyordu. **Dördüncü
 bir yer vardı** — kayıtların kendisi. Bir tutarlılık kapısı, kontrol ettiği kümenin TAM
 olduğunu varsayar; o küme eksikse kapı yeşil yanar ve hiçbir şey korumaz.
+
+## D-168 — Ters indeks manifest'ten TÜRETİLİR, saklanmaz
+2026-08-15 · "Bu kaydı hangi çalıştırma kullandı" sorusunun cevabı manifest'lerin
+`context` alanında zaten yazıyordu — yalnız ters yönde okunmuyordu. İki seçenek vardı:
+ayrı bir tablo tutmak ya da her istekte manifest'leri taramak.
+Tarama seçildi. Saklanan bir ters indeks **ikinci bir gerçek** olurdu ve manifest'le
+ayrıştığı gün hangisinin doğru olduğu anlaşılmazdı; §13 açık: manifest bir çalıştırmanın
+TEK kanıtıdır. Bu turda aynı deseni üç kez yaşadık (D-160, D-163, D-166) ve dördüncüsünü
+bilerek yaratmanın gerekçesi yok — 16 çalıştırma için tarama 10 ms sürüyor, binler
+olduğunda `derived/index` zaten var ve kaynağı yine manifest olur.
+Üç dürüstlük kararı: (1) **"etkisi yok" AÇIKÇA yazılır** — sessiz bir boş liste "henüz
+yüklenmedi" ile "hiç kullanılmadı"yı aynı şeye çevirir ve biri beklemek, diğeri kaydı
+gözden geçirmek demektir; (2) "hiç çalıştırma yok" ayrı bir cümledir, "0 kullanım"
+değil; (3) kusurlu manifest'le üretilmiş kullanımlar İŞARETLENİR — o varlık zaten
+yayınlanamaz (D-155) ve bunu söylememek yarım cevaptır.
+Git zaman çizgisi de ayrı bir günlükte tutulmuyor: `fileHistory` zaten vardı ve hiç
+çağrılmıyordu. İkinci bir değişiklik günlüğü, git ile ayrışabilen bir gerçek olurdu
+(12. yasa: kurtarma `git clone` + `cat`).
+`git` alt sürecine **yalnız `PATH`** geçiyor (§14): tüm ortamı vermek, `sops exec-env`
+ile enjekte edilen sağlayıcı anahtarlarını da alt sürece taşımak olurdu.
+**Ders:** bir soruyu cevaplamanın en ucuz yolu genelde yeni veri üretmek değil, var olan
+veriyi ters yönde okumaktır.

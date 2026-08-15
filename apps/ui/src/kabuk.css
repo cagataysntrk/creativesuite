@@ -235,3 +235,79 @@ kbd {
 .bos {
   color: var(--role-text-muted);
 }
+
+/* ── kayıt detayı (§12.9) ───────────────────────────────────────────────────*/
+.baglanti {
+  background: transparent;
+  border: 0;
+  color: var(--role-text);
+  font: inherit;
+  text-align: start;
+  text-decoration: underline;
+  padding: 0;
+  cursor: pointer;
+}
+
+.detay-baslik {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.detay-baslik h2 {
+  font-size: var(--size-6);
+  font-weight: var(--weight-strong);
+  margin: 0;
+}
+
+.detay-baslik button {
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  min-inline-size: 96px;
+  block-size: var(--row-dense);
+}
+
+.detay h3 {
+  font-size: var(--size-4);
+  font-weight: var(--weight-label);
+  margin-block: var(--space-6) var(--space-2);
+}
+
+.detay-kimlik {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  font-size: var(--size-3);
+}
+
+.detay-kimlik dt {
+  color: var(--role-text-muted);
+}
+
+.detay-kimlik dd {
+  margin: 0;
+}
+
+.zaman-cizgisi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--size-3);
+}
+
+.zaman-cizgisi li {
+  block-size: var(--row-dense);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-block-end: 1px solid var(--role-line-hair);
+}
+
+.etki-ozet {
+  font-size: var(--size-3);
+  color: var(--role-text-muted);
+}
