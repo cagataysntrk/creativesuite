@@ -65,15 +65,23 @@ export const spawnProcess = (
     let aborted = false
     let bitti = false
 
+    // Sınır PARÇA İÇİNDE de uygulanır. İlk sürüm yalnız parça BAŞINDA bakıyordu:
+    // 50 KB'lık tek bir chunk geldiğinde `stdout.length` hâlâ 0 olduğu için tamamı
+    // yazılıyor ve `truncated` hiç işaretlenmiyordu. Test bunu yakaladı — kod yanlıştı,
+    // test değil. Tek parça hâlinde gelen büyük çıktı bu sistemde normaldir
+    // (ffmpeg log'u, model yanıtı), yani yol istisnai değil tipik.
     const ekle = (hedef: 'out' | 'err', chunk: Buffer): void => {
       const mevcut = hedef === 'out' ? stdout : stderr
-      if (mevcut.length >= maxOut) {
+      const kalan = maxOut - mevcut.length
+      if (kalan <= 0) {
         truncated = true
         return
       }
       const metin = chunk.toString('utf8')
-      if (hedef === 'out') stdout += metin
-      else stderr += metin
+      const parca = metin.length > kalan ? metin.slice(0, kalan) : metin
+      if (parca.length < metin.length) truncated = true
+      if (hedef === 'out') stdout += parca
+      else stderr += parca
     }
 
     child.stdout.on('data', (c: Buffer) => ekle('out', c))

@@ -119,5 +119,8 @@ export {
   type CompileResult,
 } from './projection/types.js'
 
+export { log, setSink, type LogEvent, type LogLevel, type Sink } from './log.js'
+export { fromFileUrl, moduleDir, repoRootFrom, underRoot } from './paths.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'

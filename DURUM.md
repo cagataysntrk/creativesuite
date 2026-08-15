@@ -10,7 +10,7 @@ siradaki_adim: 1.10b
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "Dogrulama agenti 3 bloklayici buldu, ucu de kapandi: schemas bayat dist okuyordu (D-67), derived/runs korumasi bostaydi (D-68), validateVerbOutput olu koddu (D-69). 200 test."
+son_kanit: "Agent bulgulari: 3 bloklayici + 3 ikincil kapandi (D-67..D-72). spawn.ts testleri gercek bir hata buldu (cikti siniri parca icinde uygulanmiyordu). 213 test, 17 kapi."
 ```
 
 ## Neredeyiz

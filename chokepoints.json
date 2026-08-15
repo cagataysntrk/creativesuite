@@ -135,10 +135,10 @@
     {
       "id": "plan-dondurucu",
       "ad": "Plan dondurucu",
-      "neden": "`rerun` donmuş planı, `replay` bugünün tanımını kullanır (§13). Tek dondurucu yoksa ikisi ayırt edilemez.",
+      "neden": "`rerun` donmuş planı, `replay` bugünün tanımını kullanır (§13). Tek dondurucu yoksa ikisi ayırt edilemez ve insanın 40 TL'ye onayladığı çalıştırma farklı bir modelle koşabilir (R-07). Sahibi onay akışıyla birlikte doğar.",
       "izinli": ["packages/engine/src/plan/freeze.ts"],
       "desen": null,
-      "faz": "FAZ-1.13"
+      "faz": "FAZ-4.6"
     },
     {
       "id": "is-kuyrugu",

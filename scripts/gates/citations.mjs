@@ -30,7 +30,23 @@ const idSet = (file, re) => {
   return new Set([...t.matchAll(re)].map((m) => m[1]))
 }
 const rules = idSet('KURALLAR.md', /^##+ +`?(R-\d+)`?/gm)
-const decisions = idSet('KARARLAR.md', /^##+ +`?(D-\d+)`?/gm)
+
+// Karar defteri İKİ dosyada yaşar: aktif `KARARLAR.md` + `docs/kararlar/ARSIV-<yyyy>.md`.
+// Satır tavanını (R-63) yapısal çözmenin yolu bu: kapanmış kararlar devredilir,
+// aktif defter okunabilir kalır. Her `D-nn` ikisinden **TAM OLARAK BİRİNDE** çözülmeli —
+// ikisinde birden olması hangisinin geçerli olduğunu belirsiz bırakır ve arşivlenmiş bir
+// kararın aktif sanılmasına yol açar (D-72).
+const ARSIV = ['docs/kararlar/ARSIV-2026.md']
+const aktifD = idSet('KARARLAR.md', /^##+ +`?(D-\d+)`?/gm) ?? new Set()
+const arsivD = new Set()
+for (const f of ARSIV) for (const d of idSet(f, /^##+ +`?(D-\d+)`?/gm) ?? []) arsivD.add(d)
+const cakisan = [...aktifD].filter((d) => arsivD.has(d))
+if (cakisan.length > 0) {
+  console.log(`  aynı karar hem KARARLAR.md'de hem arşivde: ${cakisan.join(', ')}`)
+  console.log('\nkarar defteri çift kayıt')
+  process.exit(1)
+}
+const decisions = new Set([...aktifD, ...arsivD])
 const debts = idSet('KARARLAR.md', /^##+ +`?(V-\d+)`?/gm)
 
 // Reddedilmiş kararlar. Bir karar silinmez, açık bir DURUM satırıyla işaretlenir:
@@ -41,7 +57,7 @@ const debts = idSet('KARARLAR.md', /^##+ +`?(V-\d+)`?/gm)
 // olmaktan kötüdür, çünkü sağlam görünür.
 const rejected = new Set()
 {
-  const t = read('KARARLAR.md')
+  const t = ['KARARLAR.md', ...ARSIV].map(read).filter(Boolean).join('\n')
   if (t) {
     for (const b of t.split(/\n(?=##+ +`?[DV]-\d+)/)) {
       const id = b.match(/^##+ +`?([DV]-\d+)`?/)?.[1]
@@ -129,9 +145,10 @@ for (const f of files) {
         break
       }
       const id = `D-${m[1]}`
-      if (!decisions.has(id)) at(`${id} — KARARLAR.md'de yok`)
-      // KARARLAR.md'nin kendi içinde reddedilmeye atıf serbest (yerine geçeni gösterir)
-      else if (rejected.has(id) && f !== 'KARARLAR.md')
+      if (!decisions.has(id)) at(`${id} — ne KARARLAR.md'de ne arşivde var`)
+      // Defterin kendi içinde (aktif ya da arşiv) reddedilmeye atıf serbest:
+      // yerine geçen kararı gösterir.
+      else if (rejected.has(id) && f !== 'KARARLAR.md' && !ARSIV.includes(f))
         at(`${id} — bu karar REDDEDİLDİ, ona dayanılamaz`)
     }
     for (const m of line.matchAll(/\bV-(\d+)\b/g)) {

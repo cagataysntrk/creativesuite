@@ -10,7 +10,7 @@
 // henüz yok. Bunlar gizlenmez, SAYILIR ve her turda ekrana basılır. Zorlanmayan bir
 // kuralı zorlanıyormuş gibi göstermek, hiç yazmamaktan kötüdür.
 
-import { readFileSync, globSync } from 'node:fs'
+import { readFileSync, globSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -68,6 +68,38 @@ for (const cp of list) {
   }
 }
 
+// ── sahip dosyası var mı ─────────────────────────────────────────────────────
+// Darboğazın `faz`ı ZATEN TİKLİYSE sahip dosyası var olmak zorunda. Yoksa kapı,
+// var olmayan bir dosyayı "tek yetkili yer" diye gösteriyor ve "mekanik zorlanıyor"
+// sayısı şişiyor — doğrulama agent'ı 2026-08-15'te tam bunu buldu (D-70).
+// Gelecek fazlara ait beyanlar meşrudur ve AYRICA sayılır.
+const tikli = new Map()
+for (let n = 0; n <= 9; n++) {
+  const f = `docs/fazlar/FAZ-${n}.md`
+  if (!existsSync(p(f))) continue
+  for (const m of readFileSync(p(f), 'utf8').matchAll(
+    /^##+ +(\d+)\.([A-Za-z0-9.]+?) +—.*?\[( |x)\]/gm
+  )) {
+    if (m[1] === String(n)) tikli.set(`FAZ-${m[1]}.${m[2]}`, m[3] === 'x')
+  }
+}
+
+let bekleyenSahip = 0
+for (const cp of list) {
+  for (const yol of cp.izinli ?? []) {
+    if (existsSync(p(yol))) continue
+    const faz = cp.faz ?? null
+    if (faz !== null && tikli.get(faz) === true) {
+      errors.push(
+        `${cp.id}: sahip dosyası YOK (${yol}) ama ${faz} TİKLİ — ` +
+          `kapı var olmayan bir dosyayı "tek yetkili yer" gösteriyor`
+      )
+    } else {
+      bekleyenSahip++
+    }
+  }
+}
+
 if (scannedTotal === 0 && enforced > 0) {
   console.log('✗ hiçbir kaynak dosya taranmadı — kapsam yanlış, kapı boş geçiyor')
   process.exit(1)
@@ -80,6 +112,7 @@ if (errors.length) {
 }
 
 console.log(
-  `  ${list.length} darboğaz · ${enforced} mekanik zorlanıyor · ${declaredOnly.length} beyan (kod doğunca desen kazanır)`
+  `  ${list.length} darboğaz · ${enforced} mekanik zorlanıyor · ` +
+    `${declaredOnly.length} beyan · ${bekleyenSahip} sahibi gelecek fazda`
 )
 if (declaredOnly.length) console.log(`  beyan: ${declaredOnly.join(', ')}`)
