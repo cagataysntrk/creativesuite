@@ -32,7 +32,7 @@
       "neden": "İki saat replay'i bozar. `now()` tek yerden gelmezse bir çalıştırmayı yeniden oynatmak imkânsızlaşır (§13).",
       "izinli": ["packages/kernel/src/time/clock.ts"],
       "desen": "\\bDate\\s*\\.\\s*now\\s*\\(\\)|\\bnew\\s+Date\\s*\\(\\s*\\)|\\bperformance\\s*\\.\\s*now\\s*\\(\\)",
-      "faz": "FAZ-1.7"
+      "faz": "FAZ-1.8"
     },
     {
       "id": "rng",
@@ -40,7 +40,7 @@
       "neden": "Seed'siz rastgelelik, aynı girdiyle farklı çıktı demektir; idempotent atlama (§4.5) çöker ve her keşif çalıştırması 900 op üretir.",
       "izinli": ["packages/kernel/src/rng.ts"],
       "desen": "\\bMath\\s*\\.\\s*random\\s*\\(\\)|\\bcrypto\\s*\\.\\s*randomBytes\\s*\\(",
-      "faz": "FAZ-1.7"
+      "faz": "FAZ-1.8"
     },
     {
       "id": "id-uretici",
@@ -48,15 +48,15 @@
       "neden": "Kimlikler uuidv7 ve ön ekli olmak zorunda (§3.9). İkinci bir üretici, sıralanamayan ve tipi anlaşılmayan id üretir.",
       "izinli": ["packages/kernel/src/ids.ts"],
       "desen": "\\brandomUUID\\s*\\(|\\buuidv?[47]\\s*\\(|from\\s+['\"]uuid['\"]",
-      "faz": "FAZ-1.7"
+      "faz": "FAZ-1.8"
     },
     {
       "id": "sqlite-handle",
       "ad": "SQLite handle",
-      "neden": "İkinci bir bağlantı, WAL ayarları ve pragma'ları farklı bir dosya açar; indeks sessizce iki gerçeğe böler (§3.5).",
-      "izinli": ["packages/corpus/src/db.ts"],
+      "neden": "İkinci bir bağlantı, WAL ve pragma'ları farklı kurar; aynı dosya iki farklı dayanıklılık garantisiyle yazılır ve indeks sessizce iki gerçeğe bölünür (§3.5). Handle Ring 0'dadır çünkü iş kuyruğu kernel'in işidir ve kernel corpus'u import EDEMEZ (§3.6) — corpus'ta kalsaydı kuyruk ikinci bir bağlantı açardı (D-61).",
+      "izinli": ["packages/kernel/src/db.ts"],
       "desen": "new\\s+Database\\s*\\(|from\\s+['\"]better-sqlite3['\"]|from\\s+['\"]node:sqlite['\"]",
-      "faz": "FAZ-1.6"
+      "faz": "FAZ-1.8"
     },
     {
       "id": "corpus-yazici",

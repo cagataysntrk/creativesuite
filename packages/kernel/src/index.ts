@@ -38,5 +38,31 @@ export {
 } from './errors/classify.js'
 export { chainOf, formatChain, rootCause, fromUnknown, type ChainLink } from './errors/chain.js'
 
+export { systemClock, fixedClock, manualClock, type Clock, type Millis } from './time/clock.js'
+export { systemRng, seededRng, type Rng } from './rng.js'
+export { uuidv7, newId, hasKind, stripPrefix } from './ids.js'
+export { openDb, migrate, schemaVersion, setSchemaVersion, type Db, type Migration } from './db.js'
+export {
+  TRANSITIONS,
+  transition,
+  canTransition,
+  isTerminal,
+  statesOf,
+  type MachineName,
+  type StateOf,
+  type NextOf,
+} from './fsm/machines.js'
+export {
+  QUEUE_MIGRATIONS,
+  enqueue,
+  lease,
+  setState,
+  retryOrFail,
+  getJob,
+  countByState,
+  type Job,
+  type JobState,
+} from './queue.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'

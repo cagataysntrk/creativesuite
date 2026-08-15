@@ -103,12 +103,16 @@ ağ kablosu çekiliyken de çalışıyor
 🧪 `ErrorKind`'a yeni değer ekle, `classify`'ı güncelleme → `tsc` kırmızı
 💾 `feat(kernel): hata taksonomisi ve Result sözleşmesi` · `Refs: FAZ-1.7 · §8.6`
 
-## 1.8 — İş kuyruğu ve durum makineleri    [ ]
+## 1.8 — İş kuyruğu ve durum makineleri    [x] 2026-08-15
 
 📖 §3.7 · D-28
-🛠 SQLite iş tablosu + süreç-içi worker. Dört durum makinesi: `run` · `asset` · `record` ·
-   `job`. Yasal geçişler tabloda, hand-rolled discriminated union (XState değil —
-   kalıcı anlık görüntü kütüphane sürümüne bağlanmasın).
+🛠 SQLite iş tablosu + **kiralama (lease)** modeli: iş alınır ve süreliğine kiralanır;
+   süreç SIGKILL yerse iş ne kaybolur ne kilitlenir. Dört durum makinesi: `run` · `asset` ·
+   `record` · `job`. Yasal geçişler tabloda, hand-rolled discriminated union (XState
+   değil — kalıcı anlık görüntü kütüphane sürümüne bağlanmasın, D-28).
+   Yanında doğan darboğazlar: `db.ts` (tek SQLite handle, **Ring 0**'a taşındı — D-61) ·
+   `time/clock.ts` (dondurulabilir saat) · `rng.ts` (seed'li) · `ids.ts` (uuidv7, ön ekli,
+   kütüphanesiz). Kuyruk dördünü de gerektiriyordu; ayrı ayrı doğurmanın anlamı yoktu.
 ✅ Yasadışı geçiş denemesi tip hatası · `just test fsm` yeşil
 💾 `feat(kernel): iş kuyruğu ve dört durum makinesi` · `Refs: FAZ-1.8 · §3.7`
 

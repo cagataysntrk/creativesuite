@@ -421,3 +421,30 @@ dosyaya taşındı. FAZ-3.4 bunun üstüne `secrets.ts` politikasını kurar.
 **İkinci karar:** test altyapısı `@suite/kernel/testing` **ayrı export yolundan** açılır.
 Ana girişten dışa açılsaydı `msw` üretim bağımlılık grafiğine girerdi; test aracı üretim
 grafiğine girdiği gün "bir ay ihmal edilse de çalışır" (ilke 12) zayıflar.
+
+## D-61 — SQLite handle Ring 0'da (`kernel/src/db.ts`), Ring 2'de değil
+2026-08-15 · `chokepoints.json` `sqlite-handle` darboğazının sahibi `packages/corpus/src/
+db.ts` idi. FAZ-1.8'de iş kuyruğu yazılırken çelişki ortaya çıktı: kuyruk kernel'in işidir
+(§3.7) ve **kernel `packages/corpus`'u import edemez** (§3.6). İki çıkış vardı ve ikisi de
+kabul edilemezdi: kuyruk ikinci bir bağlantı açacaktı (iki WAL ayarı, aynı dosyanın iki
+farklı dayanıklılık garantisiyle yazılması) ya da halka yasası çiğnenecekti.
+**Karar:** handle `packages/kernel/src/db.ts`'e taşındı. Sahip sayısı hâlâ **bir**;
+corpus onu import eder (corpus → kernel yasaldır). FTS5 şeması corpus'un işi kalır,
+bağlantı kernel'in. **Gevşetme değil, doğru halkaya yerleştirme.**
+
+## D-62 — `better-sqlite3` korundu; Türkçe arama tezi deneysel olarak doğrulandı
+2026-08-15 · Node 22'nin yerleşik `node:sqlite`'ı FTS5'i, `unicode61 remove_diacritics 2`
+ve `trigram` tokenizer'larını **bağımlılıksız** destekliyor (denendi, çalışıyor).
+R-75 ("40 satır bir bağımlılıktan iyidir") bunu cazip yapıyordu.
+**Yine de D-27 korundu:** `node:sqlite` Node 22'de deneysel (`--experimental-sqlite`
+bayrağı gerekiyor ve API "her an değişebilir" uyarısı veriyor). `better-sqlite3@13.0.3`
+linux-x64 **prebuild** ile kuruldu — yerel derleme gerekmedi, yani "native modül
+kırılganlığı" itirazının bu makinede karşılığı yok.
+**Yan kazanç — §5.6'nın tezi ölçüldü:** aynı veri iki tokenizer'a verildi.
+| Sorgu | `unicode61 remove_diacritics 2` | `trigram` |
+|---|---|---|
+| `olcumlerinizi` (tam kelime, aksansız) | **bulur** | — |
+| `olcum` (kök, ek düşmüş) | **bulamaz** | — |
+| `ölçüm` (kelime içi) | — | **bulur** |
+Yani Türkçe'nin eklemeli yapısı tek indeksle çözülmüyor: aksan katlama tam kelimeyi
+kurtarıyor ama kökü bulmuyor. **Paralel trigram + RRF kararı artık varsayım değil, ölçüm.**

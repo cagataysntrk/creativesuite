@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.8
+siradaki_adim: 1.6
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.7: ErrorKind ekle -> TS2741, politika sil -> TS2741, tutarsiz politika -> test kirmizi; throw darbogazi bagli"
+son_kanit: "1.8: 70 test; 4 yasadisi gecis de TS2345; kira dolunca is geri aliniyor, hak bitince failed terminal"
 ```
 
 ## Neredeyiz
@@ -64,6 +64,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.C.4 · turkish-case kapısı | 2026-08-15 |
 | **1.5** · Türkçe metin primitifleri | 2026-08-15 |
 | **1.7** · hata taksonomisi + Result disiplini | 2026-08-15 |
+| **1.8** · iş kuyruğu + dört durum makinesi | 2026-08-15 |
 
 ## Sıradaki adım
 

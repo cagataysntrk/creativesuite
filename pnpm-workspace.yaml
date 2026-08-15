@@ -33,3 +33,5 @@ enablePrePostScripts: false
 # tek HTTP kesici olarak kullanıyoruz (§15) — tarayıcı tarafı hiç doğmadı.
 allowBuilds:
   msw: false
+  # Yerel derleme gerekebilir (prebuild yoksa node-gyp). Süre ve kırılganlık burada ölçülüyor.
+  better-sqlite3: true

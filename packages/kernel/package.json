@@ -17,9 +17,11 @@
   },
   "dependencies": {
     "@suite/contracts": "workspace:*",
+    "better-sqlite3": "13.0.3",
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "9.6.0",
     "@types/node": "26.2.0",
     "msw": "2.15.0",
     "vitest": "4.1.10"
