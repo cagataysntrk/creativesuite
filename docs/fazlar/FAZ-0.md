@@ -178,8 +178,10 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.C.9 — docs-size    [x] 2026-08-14
 ✅ DURUM.md'yi 175 satıra şişir → kırmızı; geri al → yeşil
 
-## 0.C.10 — secretlint + gitleaks + lefthook    [ ]
-🔗 0.A.6
+## 0.C.10 — commit kancaları + gitleaks    [x] 2026-08-15
+🔗 0.A.6 · D-56 (lefthook ve secretlint reddedildi)
+🛠 `.githooks/pre-commit` → `fast` grubu · `.githooks/pre-push` → `all` grubu ·
+   `scripts/gates/gitleaks.sh` (geçmiş + çalışma ağacı, `--redact`)
 ✅ Sahte anahtar commit'le → engellendi
 
 ## 0.C.11 — verbs kapısı    [ ]

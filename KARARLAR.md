@@ -337,3 +337,24 @@ bir kapının doğruluğunu çalıştırma sırasına bağlamak, sıranın deği
 ESLint rc=1, depcruise rc=1 (`cozulemeyen`), `tsc -b` rc=2. Bağımlılık `package.json`'a da
 eklenince depcruise dört kural birden verdi: `halka-contracts`, `dongu-modul`, iki `dongu-klasor`.
 Geri alınca üçü de rc=0.
+
+## D-56 — lefthook ve secretlint kullanılmıyor; kancalar `.githooks/`'ta, gitleaks ikinci katman
+2026-08-15 · FAZ-0.C.10 üç araç öngörüyordu: `secretlint` + `gitleaks` + `lefthook`.
+**lefthook reddedildi:** repo `core.hooksPath=.githooks` ile çalışıyor ve lefthook
+`.git/hooks`'a yazıyor. İkisi bir arada, git'in `.git/hooks`'u tamamen yok saymasına —
+yani **hiçbir kancanın çalışmamasına** yol açar ve bunu sessizce yapar. Yerine iki
+kanca elle yazıldı: `pre-commit` → `fast` grubu, `pre-push` → `all` grubu. Otuz satır.
+**secretlint reddedildi:** kapsamı gitleaks ile büyük ölçüde örtüşüyor ve ~30 npm
+bağımlılığı getiriyor. İki tarayıcı yeter, üç değil.
+**gitleaks 8.30.1 KABUL EDİLDİ** ve `repo-hygiene`'in yanına kondu, yerine değil —
+ikisi farklı hata sınıfı içindir. **Kanıt:** `sk_live_51QwEr…` (Stripe biçimi) yazıldı;
+`repo-hygiene` rc=0 ile **kaçırdı** (deseni `sk-` tire bekliyor, `sk_` alt çizgi değil),
+`gitleaks` rc=1 ile yakaladı. Kendi listemiz bildiğimizi, gitleaks bilmediğimizi yakalar.
+**Sürpriz bulgu:** kaynak dosya silindikten sonra bile `packages/kernel/dist/leak.js`
+anahtarı taşımaya devam etti — `tsc -b` kaynağı silinen çıktıyı temizlemiyor ve `dist/`
+gitignore'lu olduğu için `gitleaks git` onu asla göremezdi. Bu yüzden kapı **hem** git
+geçmişini **hem** çalışma ağacını tarar.
+**Kanca hatası ve düzeltmesi:** ilk sürümde `nvm use` alt kabukta çalıştırılıyordu ve
+üst kabuğun PATH'ini değiştirmiyordu; kanca Node 20 ile koştu, bir kapı çöktü ve commit
+doğru sebeple değil, **yanlış sebeple** engellendi. Yeşil değil kırmızıydı ama yine de
+yanlıştı — kapının doğru sebeple kırmızı olduğunu görmek şart (R-71).

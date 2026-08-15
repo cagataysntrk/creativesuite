@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# pre-commit — FAZ-0.C.10
+#
+# `just save` zaten kapıları çalıştırır. Bu kancanın varlık sebebi, `just save`'den
+# GEÇMEYEN commit'ler: editörden atılan, UI onay kuyruğundan gelen (D-31), bir betiğin
+# ürettiği. Tek darboğaz kuralı ancak darboğaz atlanamıyorsa kuraldır.
+#
+# lefthook KULLANILMIYOR (D-56): `core.hooksPath=.githooks` zaten kurulu ve lefthook
+# .git/hooks'a yazıyor — ikisi bir arada sessizce hiçbir kancanın çalışmamasına yol açar.
+# Otuz satırlık bir kanca, o riski taşıyan bir bağımlılıktan iyidir.
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# just taze bir kabukta çalışır, nvm yüklü değildir — scripts/sh.sh ile aynı gerekçe.
+# DİKKAT: `nvm use` alt kabukta çalıştırılırsa üst kabuğun PATH'ini DEĞİŞTİRMEZ.
+# 2026-08-15'te tam olarak bu oldu: kanca Node 20 ile koştu, kapı çöktü ve commit
+# doğru sebeple değil, yanlış sebeple engellendi. `cd` önce, `nvm use` aynı kabukta.
+cd "$ROOT" || exit 1
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  # shellcheck disable=SC1091
+  . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
+  nvm use >/dev/null 2>&1 || true
+fi
+
+if ! bash "$ROOT/scripts/run-gates.sh" fast; then
+  cat >&2 <<'EOF'
+
+✗ pre-commit: hızlı kapılar kırmızı — commit reddedildi.
+  Düzelt ve tekrar dene. `--no-verify` YASAK (LOOP§C): atlanan kapı,
+  push öncesi tam grupta zaten yakalanır, sadece daha pahalıya.
+EOF
+  exit 1
+fi

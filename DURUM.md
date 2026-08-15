@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.C.4
+siradaki_adim: 0.C.8
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "0.C.1: tsconfig-drift 3 ihlalde de kirmizi; format kapisi SOPS dosyasini korudu; 8 kapi yesil"
+son_kanit: "0.C.10: sahte anahtarli commit pre-commit ile reddedildi (23 commit sabit); gitleaks sk_live_ yakaladi, repo-hygiene kacirdi"
 ```
 
 ## Neredeyiz
@@ -49,6 +49,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.C.1 · tsconfig katılığı + prettier | 2026-08-15 |
 | 0.C.2 · halka sınırı zorlaması | 2026-08-15 |
 | 0.C.6 · citations kapısı | 2026-08-14 |
+| 0.C.10 · commit kancaları + gitleaks | 2026-08-15 |
 | 0.C.7 · commit-msg hook'u | 2026-08-14 |
 | 0.C.9 · docs-size | 2026-08-14 |
 | 0.E.1 · DURUM.md sözleşmesi | 2026-08-14 |
@@ -58,13 +59,13 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 
 ## Sıradaki adım
 
-**0.C.10** — `secretlint` + `gitleaks` + `lefthook`. Kapılar `just check` içinde
-çalışıyor ama commit anında **otomatik** çalışmıyorlar; tek zorlayıcı `commit-msg`.
-Kabul: sahte anahtar commit'le → engellendi.
+**0.C.8** — `chokepoints.json`. "Tam olarak bir tane olmalı" listesi; dosya lint'i
+**üretir**, yani listeye satır eklemek zorlamayı otomatik getirir.
+Kabul: ikinci bir `chromium.launch()` yaz → kırmızı.
 
 > D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
 > kapılı doğsun diye. Kalan: 0.C.4 ve 0.C.11 (🔗 FAZ-1.5 / 1.11 kodunu bekliyor),
-> 0.C.3 (🔗 FAZ-1.1b `OpaqueAttributes`), 0.C.8, 0.C.10.
+> 0.C.3 (🔗 FAZ-1.1b `OpaqueAttributes`), 0.C.8.
 
 ## Bloke adımlar
 

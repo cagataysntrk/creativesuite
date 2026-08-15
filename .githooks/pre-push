@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# pre-push — FAZ-0.C.10
+#
+# Tam kapı grubu. Burası `--no-verify` ile atlanan bir commit'in yakalandığı yerdir:
+# pre-commit atlanabilir ama sızıntı push edilmeden önce gitleaks git geçmişini tarar
+# ve bir kez commit'lenmiş secret, sonradan silinse bile geçmişte durur.
+#
+# Testler ve golden burada ÇALIŞMAZ — `just verify` onların yeri. Push'u dakikalarca
+# bekleten bir kanca, kapatılan bir kancadır.
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# DİKKAT: `nvm use` alt kabukta çalıştırılırsa üst kabuğun PATH'ini DEĞİŞTİRMEZ.
+# 2026-08-15'te tam olarak bu oldu: kanca Node 20 ile koştu, kapı çöktü ve commit
+# doğru sebeple değil, yanlış sebeple engellendi. `cd` önce, `nvm use` aynı kabukta.
+cd "$ROOT" || exit 1
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  # shellcheck disable=SC1091
+  . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
+  nvm use >/dev/null 2>&1 || true
+fi
+
+if ! bash "$ROOT/scripts/run-gates.sh" all; then
+  cat >&2 <<'EOF'
+
+✗ pre-push: kapılar kırmızı — push reddedildi.
+  Uzaktaki depo private olsa da geçmişe giren secret geri alınamaz (§14).
+EOF
+  exit 1
+fi
