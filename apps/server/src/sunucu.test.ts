@@ -253,3 +253,79 @@ describe('HTTP uçları', () => {
     }
   })
 })
+
+describe('corpus tarayıcısı', () => {
+  it('SİLME UCU YOK — hiçbir yol DELETE kabul etmiyor (R-12)', async () => {
+    // Bu test bir davranışı değil, bir YOKLUĞU koruyor. `DELETE /api/kayitlar/:id`
+    // eklemek R-12'yi bir konvansiyona indirgerdi: kural kodda değil, kimsenin o ucu
+    // yazmamış olmasında yaşardı.
+    const kok = kurRepo([])
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      for (const yol of [
+        '/api/kayitlar',
+        '/api/kayitlar/fact',
+        '/api/kayitlar/fact/x',
+        '/api/kayitlar/fact/x/emekli',
+      ]) {
+        const r = await s.app.request(yol, { method: 'DELETE' })
+        expect(r.status).not.toBe(200)
+        expect(r.status).not.toBe(204)
+      }
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('indeks yoksa BOŞ LİSTE değil 503 — "corpus boş" ile "indeks yok" ayrı', async () => {
+    const kok = kurRepo([])
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const r = await s.app.request('/api/kayitlar')
+      expect(r.status).toBe(503)
+      const j = (await r.json()) as { hata: string }
+      expect(j.hata).toContain('reindex')
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('emeklilik ucu olmayan kayıtta 409 döner — sessizce başarılı olmaz', async () => {
+    const kok = kurRepo([])
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const r = await s.app.request('/api/kayitlar/fact/yok/emekli', {
+        method: 'POST',
+        body: '{}',
+        headers: { 'content-type': 'application/json' },
+      })
+      expect(r.status).toBe(409)
+      const j = (await r.json()) as { ok: boolean; mesaj: string }
+      expect(j.ok).toBe(false)
+      expect(j.mesaj).toContain('kayıt yok')
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})

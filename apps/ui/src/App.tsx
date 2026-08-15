@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react'
 import { DurumSeridi, type MakineDurumu } from './DurumSeridi.js'
 import { Palet } from './Palet.js'
+import { CorpusTarayici } from './CorpusTarayici.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -17,6 +18,7 @@ const KOMUTLAR: readonly Komut[] = [
   { id: 'instagram-carousel', etiket: 'Instagram carousel üret', grup: 'Üretim' },
   { id: 'linkedin-post', etiket: 'LinkedIn postu üret', grup: 'Üretim' },
   { id: 'onay-kuyrugu', etiket: 'Onay kuyruğu', grup: 'Gözden geçir', anahtarlar: ['approve'] },
+  { id: 'corpus', etiket: 'Corpus tarayıcı', grup: 'Bilgi', anahtarlar: ['kayit', 'records'] },
 ]
 
 // Nabız aralığı SUNUCUDAN öğrenilir. Buraya bir sabit yazmak, sunucu nabzını
@@ -27,7 +29,7 @@ const VARSAYILAN_NABIZ_MS = 5000
 export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
   const [sonOlayMs, setSonOlayMs] = useState<number | null>(null)
-  const [secilen, setSecilen] = useState<string | null>(null)
+  const [ekran, setEkran] = useState<'giris' | 'corpus'>('giris')
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
 
   useEffect(() => {
@@ -67,14 +69,22 @@ export const App = (): React.JSX.Element => {
   return (
     <div className="kabuk" data-surface="console">
       <main className="govde">
-        <h1>Upcytech Creative Suite</h1>
-        <p>
-          Komut paletini açmak için <kbd>⌘K</kbd> — menü yok, palet birincil navigasyondur.
-        </p>
-        {secilen === null ? null : <p className="secilen">seçilen komut: {secilen}</p>}
+        {ekran === 'corpus' ? (
+          <CorpusTarayici />
+        ) : (
+          <>
+            <h1>Upcytech Creative Suite</h1>
+            <p>
+              Komut paletini açmak için <kbd>⌘K</kbd> — menü yok, palet birincil navigasyondur.
+            </p>
+          </>
+        )}
       </main>
 
-      <Palet komutlar={KOMUTLAR} uzerineSec={(k) => setSecilen(k.etiket)} />
+      <Palet
+        komutlar={KOMUTLAR}
+        uzerineSec={(k) => setEkran(k.id === 'corpus' ? 'corpus' : 'giris')}
+      />
 
       <DurumSeridi
         durum={durum}

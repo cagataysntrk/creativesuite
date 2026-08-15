@@ -76,6 +76,14 @@ if (!cozum.ok) {
 // Ortam TEK okuyucudan (`secret-okuyucu` darboğazı, §14): dağılmış `process.env`,
 // bir ay ihmalden sonra sistemi başlatamamanın en sık sebebi.
 const MARKA = readEnv('SUITE_BRAND') ?? 'brd_upcytech'
+
+// Dönem `brand/<id>/current`tan OKUNUR, gömülmez (D-167).
+//
+// 2026-08-15'e kadar burada `'era_imalat_2026'` yazıyordu; dönemin gerçek adı
+// `imalat-2026`. Altı corpus kaydı da aynı yanlış dizeyi taşıyordu, yani retrieval
+// yüklemi hiçbirini GÖRMÜYORDU — ve hepsi `draft` olduğu için bu maskeliydi. Onay
+// verildiği gün kayıtlar `active` olacak ve HÂLÂ görünmeyecekti.
+const AKTIF_DONEM = readFileSync(join(REPO, `brand/${MARKA}/current`), 'utf8').trim()
 const tokenYolu = join(REPO, `brand/${MARKA}/derived-tokens/tokens.css`)
 if (!existsSync(tokenYolu)) {
   console.log(`✗ marka token'ları yok: ${tokenYolu}`)
@@ -124,7 +132,7 @@ if (devamRunId !== undefined) {
 const clock = systemClock
 const damga = {
   brandId: MARKA,
-  eraId: 'era_imalat_2026',
+  eraId: AKTIF_DONEM,
   kitVersion: 'kit-1',
   definitionDigest: 'sha256:faz3',
   contextManifest: `ctx_${runId}`,
@@ -152,7 +160,7 @@ const corpusDb = openDb({ path: indeksYolu })
 const secici = (sorgu, limit) => {
   const q = {
     brandId: MARKA,
-    eraId: 'era_imalat_2026',
+    eraId: AKTIF_DONEM,
     // Saat ÇAĞIRANDAN gelir; yüklem saat okumaz (R-06).
     asOf: clock.nowIso(),
     limit,
@@ -276,7 +284,7 @@ let bagamManifesti = []
       for (const b of tarif.value.sections) {
         adaylar[b.entityType] = selectRecords(corpusDb, {
           brandId: MARKA,
-          eraId: 'era_imalat_2026',
+          eraId: AKTIF_DONEM,
           asOf: clock.nowIso(),
           type: b.entityType,
           limit: 20,
@@ -341,7 +349,7 @@ const rapor = await runPipeline({
   pipeline: cozum.value,
   runId,
   brandId: MARKA,
-  eraId: 'era_imalat_2026',
+  eraId: AKTIF_DONEM,
   // **Bilgi ağacı commit SHA'sı — replay'i GERÇEK yapan alan** (§13).
   // İlk hâli `'worktree'` sabitiydi: `knowledgeCommit()` yazılmıştı ama sıfır çağıranı
   // vardı ve 11 manifest'in hepsinde alan sahteydi (D-138). Artık git'ten okunuyor;

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // `era` kapısı: dönem manifesti, git etiketi ve `current` işaretçisi tutarlı mı (§4.3).
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
-import { join, dirname } from 'node:path'
+import { join, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -81,6 +81,50 @@ for (const marka of markalar) {
       hatalar.push(`${marka}: current '${aktif}' diyor ama o dönem yok`)
     }
   }
+}
+
+// ── corpus `era_id`'leri VAR OLAN bir döneme çözülmeli (D-167) ──────────────
+//
+// Dönem modeli üç parçadır (§4.3): `era.yaml` · `brand/current` · `git tag`. Kapı bu
+// üçünün birbirini tutmasını denetliyordu ama DÖRDÜNCÜ bir yer daha var: kayıtların
+// `era_id` alanı. Orada yazan dize üçüyle eşleşmezse retrieval yüklemi hiçbir şey
+// döndürmez ve **sebebi hiçbir yerde yazmaz** — kayıtlar diskte durur, indekste durur,
+// yalnız görünmezler.
+//
+// 2026-08-15'te tam bu oldu: altı kayıt `era_imalat_2026` taşıyordu, dönemin adı
+// `imalat-2026`. Bütün kayıtlar `draft` olduğu için maskeliydi — `2.9` onaylandığı gün
+// hepsi `active` olacak ve HÂLÂ görünmeyecekti; kullanıcı onaylayıp hiçbir şeyin
+// değişmediğini görecekti.
+const corpusKok = join(REPO, 'corpus')
+if (existsSync(corpusKok)) {
+  const gecerli = new Set(['*'])
+  for (const m of markalar) {
+    const d = join(REPO, `brand/${m}/eras`)
+    if (existsSync(d)) for (const e of readdirSync(d)) gecerli.add(e)
+  }
+
+  const yur = (dizin) => {
+    for (const ad of readdirSync(dizin)) {
+      const tam = join(dizin, ad)
+      if (statSync(tam).isDirectory()) yur(tam)
+      else if (ad.endsWith('.md')) {
+        const metin = readFileSync(tam, 'utf8')
+        const m = /^era_id:\s*(\S+)\s*$/m.exec(metin)
+        if (m === null) {
+          hatalar.push(`${relative(REPO, tam)}: era_id alanı YOK (R-11)`)
+          continue
+        }
+        const deger = m[1].replace(/^['"]|['"]$/g, '')
+        if (!gecerli.has(deger)) {
+          hatalar.push(
+            `${relative(REPO, tam)}: era_id '${deger}' hiçbir döneme çözülmüyor — ` +
+              `geçerli: ${[...gecerli].sort().join(', ')}. Retrieval bu kaydı ASLA görmez.`
+          )
+        }
+      }
+    }
+  }
+  yur(corpusKok)
 }
 
 if (hatalar.length > 0) {

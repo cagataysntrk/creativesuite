@@ -5,7 +5,7 @@ type: positioning
 schema_version: 1
 kind: dna
 locale: tr-TR
-era_id: era_imalat_2026
+era_id: imalat-2026
 created_at: 2026-08-15T15:50:00.000Z
 confidence: 0.55
 source:
@@ -22,7 +22,7 @@ context_weight: 1
 title: İmalatta ölçülebilir verimlilik konumu
 status: draft
 zone: generated
-x_signature: sha256:ab00d15a3dd8bfe651044eaefb748463154ab37226b797b1f5b992265088437a
+x_signature: sha256:c1b033efaa5c978fe1251d61212d39ab002417d06a3855a6208bf9b76dc491f7
 ---
 
 Elli-beş yüz kişilik imalat tesisleri için, hattaki veriyi ölçülebilir

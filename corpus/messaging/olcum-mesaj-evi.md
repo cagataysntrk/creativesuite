@@ -5,7 +5,7 @@ type: messaging
 schema_version: 1
 kind: dna
 locale: tr-TR
-era_id: era_imalat_2026
+era_id: imalat-2026
 created_at: 2026-08-15T15:50:00.000Z
 confidence: 0.5
 source:
@@ -22,7 +22,7 @@ context_weight: 1
 title: Ölçüm mesaj evi
 status: draft
 zone: generated
-x_signature: sha256:13afd17984629bee8f99ee6cf274dcd5bf0bc665b49604fc0531bf1281e276f8
+x_signature: sha256:8a2bfab1baaa159b71834ac5810ebfcea9b72e4d9eabe4c75da5dff17b0eed53
 ---
 
 **Ana mesaj:** Hattınız zaten veri üretiyor; biz onu karara çeviriyoruz.

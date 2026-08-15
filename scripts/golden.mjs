@@ -26,6 +26,14 @@ const BOYUTLAR = [
 ]
 
 const MARKA = 'brd_upcytech'
+
+// Dönem `brand/<id>/current`tan OKUNUR, gömülmez (D-167).
+//
+// 2026-08-15'e kadar burada `'era_imalat_2026'` yazıyordu; dönemin gerçek adı
+// `imalat-2026`. Altı corpus kaydı da aynı yanlış dizeyi taşıyordu, yani retrieval
+// yüklemi hiçbirini GÖRMÜYORDU — ve hepsi `draft` olduğu için bu maskeliydi. Onay
+// verildiği gün kayıtlar `active` olacak ve HÂLÂ görünmeyecekti.
+const AKTIF_DONEM = readFileSync(join(REPO, `brand/${MARKA}/current`), 'utf8').trim()
 const tokenYolu = join(REPO, `brand/${MARKA}/derived-tokens/tokens.css`)
 if (!existsSync(tokenYolu)) {
   console.log(`✗ marka token'ları yok: ${tokenYolu}`)
@@ -35,7 +43,7 @@ const tokenCss = readFileSync(tokenYolu, 'utf8')
 
 const damga = {
   brandId: MARKA,
-  eraId: 'era_imalat_2026',
+  eraId: AKTIF_DONEM,
   kitVersion: 'golden',
   definitionDigest: 'sha256:golden',
   contextManifest: 'golden',

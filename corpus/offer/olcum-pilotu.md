@@ -5,7 +5,7 @@ type: offer
 schema_version: 1
 kind: dna
 locale: tr-TR
-era_id: era_imalat_2026
+era_id: imalat-2026
 created_at: 2026-08-15T15:50:00.000Z
 confidence: 0.6
 source:
@@ -22,7 +22,7 @@ context_weight: 1
 title: Ölçüm pilotu
 status: draft
 zone: generated
-x_signature: sha256:c046aabe7546bcc992bb4e322d53f19553e7dfc83ebf51d3b41de7db1c05df6b
+x_signature: sha256:b4a9c3bff8fb750ae23393096f5afeaa4f91ad89c6eb8218f053e3e1932649aa
 ---
 
 **Tür:** pilot.

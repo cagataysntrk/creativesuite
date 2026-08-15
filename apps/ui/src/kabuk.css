@@ -136,3 +136,102 @@ kbd {
 .secilen {
   font-family: var(--font-mono);
 }
+
+/* ── corpus tarayıcı (§12.9) ────────────────────────────────────────────────
+ * Kart değil SATIR. Bir ekranda kaç kayıt göründüğü, kaç kaydırma gerektiğini
+ * belirler ve bu ekranın işi taramaktır. */
+.filtre-cubugu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-end: var(--space-3);
+}
+
+.filtre-arama {
+  /* Türkçe etiket İngilizcesinden %20-30 uzun: sabit genişlik YOK (R-23). */
+  flex: 1 1 auto;
+  min-inline-size: 96px;
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--size-3);
+}
+
+.filtre-cubugu select {
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  padding: var(--space-1);
+  font-size: var(--size-2);
+}
+
+.kayit-tablosu {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--size-3);
+}
+
+.kayit-tablosu th {
+  /* 40px: Türkçe başlık İKİ SATIR sığsın diye (§12.2). */
+  block-size: var(--row-header);
+  text-align: start;
+  font-weight: var(--weight-label);
+  color: var(--role-text-muted);
+  border-block-end: 1px solid var(--role-line-hair);
+  padding-inline: var(--space-2);
+}
+
+.kayit-tablosu td {
+  block-size: var(--row-dense);
+  border-block-end: 1px solid var(--role-line-hair);
+  padding-inline: var(--space-2);
+}
+
+/* Bayat/emekli satır SOLDURULMAZ — tam opaklık, tam etkileşim (§12.6). */
+.eylem-hucresi {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.eylem-hucresi button {
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  min-inline-size: 96px;
+  block-size: var(--row-dense);
+  font-size: var(--size-2);
+}
+
+.eylem-hucresi button:disabled {
+  color: var(--role-text-muted);
+  border-style: dashed;
+}
+
+.hata-kutusu {
+  border: 1px solid var(--role-state-error);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+
+.hata-kutusu button {
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  min-inline-size: 96px;
+  block-size: var(--row-dense);
+}
+
+.ret-mesaji {
+  color: var(--role-state-warn);
+  font-size: var(--size-2);
+}
+
+.bos {
+  color: var(--role-text-muted);
+}

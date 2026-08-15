@@ -67,15 +67,15 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    kırmızı · token CSS'ini boşalt → kırmızı
 💾 `feat(ui): SPA iskeleti, ⌘K palet ve makine durumu şeridi` · `Refs: FAZ-4.2b · §12.5`
 
-## 4.3 — Corpus Browser    [ ]
+## 4.3 — Corpus Browser    [x] 2026-08-15
 
 📖 §12.9 · R-12, R-14 · D-12
 🔗 4.2
 🛠 Filtreli tablo (marka · tip · durum · dönem), satır içi düzenleme → **git commit**,
    toplu pin/emeklilik. Kart değil **satır**; yoğunluk tablo lehine.
 📁 `apps/ui/src/screens/corpus/`
-✅ 1000 kayıtla akıcı · düzenleme commit üretiyor · emeklilik `expired_at` yazıyor
-🧪 Kayıt silmeyi dene → **silme yok**, yalnız emeklilik (R-12)
+✅ `/api/kayitlar` 7 kaydı `visible` bayrağıyla döndürüyor · emeklilik dosyayı BIRAKIR
+🧪 `DELETE` yok (404) · emekliyi tekrar emekli et → 409 · `era_id`yi boz → kırmızı
 💾 `feat(ui): corpus browser` · `Refs: FAZ-4.3 · §12.9`
 
 ## 4.4 — Record Detail ve ters indeks    [ ]

@@ -16,7 +16,13 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
-import type { SelectQuery } from '@suite/corpus'
+import {
+  browseRecords,
+  lifecycleMessage,
+  pinRecord,
+  retireRecord,
+  type SelectQuery,
+} from '@suite/corpus'
 import { RUNS_DIR } from '@suite/kernel'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
@@ -94,6 +100,63 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       })
     }
     return c.text(readFileSync(yol, 'utf8'), 200, { 'content-type': 'text/css; charset=utf-8' })
+  })
+
+  // ── corpus tarayıcısı (§12.9 · FAZ-4.3) ───────────────────────────────────
+  //
+  // **Bu uç retrieval DEĞİL.** `browseRecords` taslakları ve emeklileri DE döndürür —
+  // tarayıcının tüm işi budur (D-12). Bağlam derleyen hiçbir yol buradan geçmez;
+  // görünürlük her satırda `visible` bayrağı olarak GÖSTERİLİR, gizlenmez.
+  app.get('/api/kayitlar', (c) => {
+    if (db === null) {
+      // İndeks yoksa BOŞ LİSTE dönmüyoruz: boş bir tablo "corpus boş" okunur ve
+      // operatör kayıtlarının silindiğini sanır. `just reindex` demek gerekiyor.
+      return c.json({ hata: 'indeks yok — `just reindex` çalıştır', kayitlar: [] }, 503)
+    }
+    const tip = c.req.query('tip') ?? ''
+    const durum = c.req.query('durum') ?? ''
+    return c.json({
+      kayitlar: browseRecords(db, {
+        brandId: o.query.brandId,
+        eraId: o.query.eraId,
+        asOf: o.query.asOf,
+        type: tip,
+        status: durum,
+      }),
+    })
+  })
+
+  // ── yaşam döngüsü: emeklilik ve sabitleme ─────────────────────────────────
+  //
+  // **SİLME UCU YOKTUR.** Bilerek: `DELETE /api/kayitlar/:id` yazmak, R-12'yi bir
+  // konvansiyona indirger. Emeklilik bir yazma işlemidir ve `write.ts`ten geçer.
+  app.post('/api/kayitlar/:tip/:slug/emekli', async (c) => {
+    const govde = (await c.req.json().catch(() => ({}))) as { supersededBy?: string }
+    const r = retireRecord({
+      root: join(o.repoRoot, 'corpus'),
+      entityType: c.req.param('tip'),
+      slug: c.req.param('slug'),
+      at: o.simdi(),
+      supersededBy: govde.supersededBy ?? null,
+    })
+    yayinla('degisim')
+    return r.ok
+      ? c.json({ ok: true, path: r.path })
+      : c.json({ ok: false, mesaj: lifecycleMessage(r.refusal) }, 409)
+  })
+
+  app.post('/api/kayitlar/:tip/:slug/sabitle', async (c) => {
+    const govde = (await c.req.json().catch(() => ({}))) as { pinned?: boolean }
+    const r = pinRecord({
+      root: join(o.repoRoot, 'corpus'),
+      entityType: c.req.param('tip'),
+      slug: c.req.param('slug'),
+      pinned: govde.pinned === true,
+    })
+    yayinla('degisim')
+    return r.ok
+      ? c.json({ ok: true, path: r.path })
+      : c.json({ ok: false, mesaj: lifecycleMessage(r.refusal) }, 409)
   })
 
   // ── SSE ────────────────────────────────────────────────────────────────────

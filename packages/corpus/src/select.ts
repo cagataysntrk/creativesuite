@@ -84,6 +84,58 @@ export const visibleIds = (db: Db, q: SelectQuery): ReadonlySet<string> => {
   return new Set(rows.map((r) => r.id))
 }
 
+// ── TARAYICI listelemesi — retrieval DEĞİL ──────────────────────────────────
+//
+// Corpus Browser'ın (§12.9, FAZ-4.3) tüm işi taslakları ve emeklileri DE göstermek:
+// "her şey görülebilir, düzeltilebilir, sabitlenebilir, emekliye ayrılabilir" (D-12).
+// Yani bu liste kasten yüklemin DIŞINDADIR.
+//
+// **İkinci bir yüklem yazılmıyor** (R-13). Görünürlük hâlâ tek yerde tanımlı; burası
+// `visibleIds`i ÇAĞIRIP her satıra `visible` bayrağı basıyor. Kopyalasaydık iki tanım
+// zamanla ayrışır ve tarayıcı "bu kayıt yayında" derken hat onu hiç görmezdi —
+// operatörün fark etmesi imkânsız bir yalan.
+//
+// ⚠ **Bu fonksiyonun çıktısı prompt'a GİRMEZ.** Bağlam derleyen her yol
+// `selectRecords`/`selectSearch` kullanır; buradan gelen satırlar yalnız EKRANA gider.
+
+export interface BrowseRow extends SelectedRecord {
+  /** Retrieval yüklemine göre görünür mü — `visibleIds`ten TÜRETİLİR, tekrar hesaplanmaz. */
+  readonly visible: boolean
+  readonly expired_at: string | null
+}
+
+export interface BrowseQuery {
+  readonly brandId: string
+  readonly eraId: string
+  readonly asOf: string
+  /** Boşsa marka altındaki HER tip. */
+  readonly type?: string
+  /** Boşsa her durum. Tarayıcı varsayılanı: hepsi — gizlenen kayıt yönetilemez. */
+  readonly status?: string
+  readonly limit?: number
+}
+
+export const browseRecords = (db: Db, q: BrowseQuery): readonly BrowseRow[] => {
+  const tipKosulu = q.type === undefined || q.type === '' ? '' : ' AND type = :type'
+  const durumKosulu = q.status === undefined || q.status === '' ? '' : ' AND status = :status'
+  const rows = db
+    .prepare(
+      `SELECT ${SUTUNLAR}, expired_at FROM record
+        WHERE brand_id = :brand AND (era_id = :era OR era_id = '*')${tipKosulu}${durumKosulu}
+        ORDER BY type, id LIMIT :limit`
+    )
+    .all({
+      brand: q.brandId,
+      era: q.eraId,
+      type: q.type ?? '',
+      status: q.status ?? '',
+      limit: q.limit ?? 1000,
+    }) as (SelectedRecord & { expired_at: string | null })[]
+
+  const gorunen = visibleIds(db, { brandId: q.brandId, eraId: q.eraId, asOf: q.asOf })
+  return rows.map((r) => ({ ...r, visible: gorunen.has(r.id) }))
+}
+
 /**
  * Arama + yüklem. **Yayına giden her arama buradan geçer**, `search()`ten değil.
  *

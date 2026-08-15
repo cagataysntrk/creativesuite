@@ -5,7 +5,7 @@ type: competitor
 schema_version: 1
 kind: dna
 locale: tr-TR
-era_id: era_imalat_2026
+era_id: imalat-2026
 created_at: 2026-08-15T15:50:00.000Z
 confidence: 0.8
 source:
@@ -22,7 +22,7 @@ context_weight: 1
 title: Excel ve vardiya defteri
 status: draft
 zone: generated
-x_signature: sha256:7cd7e789dd8510177547a673e000ebcb3a65036ef4172df0d57118007e173fb7
+x_signature: sha256:4d37c3e04a2fd6d670d976e0d6c3d2edc878e0a0e9830daaa5853a2e2d84d3eb
 ---
 
 **Tür:** spreadsheet_status_quo — en sık kaybedilen rakip budur.

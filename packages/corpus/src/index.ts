@@ -21,10 +21,13 @@ export {
 } from './search.js'
 
 export {
+  browseRecords,
   selectRecords,
   selectSearch,
   visibleIds,
   VISIBLE_STATUSES,
+  type BrowseQuery,
+  type BrowseRow,
   type SelectQuery,
   type SelectedRecord,
 } from './select.js'
@@ -62,3 +65,14 @@ export {
 export { computeSignature, signatureIntact } from './signature.js'
 
 export { scanCorpus, type ScannedRecord, type ScanReport } from './scan.js'
+
+// Yaşam döngüsü — emeklilik SİLME DEĞİLDİR (R-12). Yazma yolu `write.ts`ten geçer.
+export {
+  retireRecord,
+  pinRecord,
+  lifecycleMessage,
+  type LifecycleRefusal,
+  type LifecycleResult,
+  type RetireInput,
+  type PinInput,
+} from './lifecycle.js'

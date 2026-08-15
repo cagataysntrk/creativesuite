@@ -558,3 +558,24 @@ yapabileceği en kötü şey, sustuğunu söylemeden son gördüğü değeri son
 göstermesidir; toast'ın böyle bir sorunu yoktur çünkü zaten kaybolur.
 **Ders:** iki tarafın paylaştığı her sayı, taraflardan birinde SABİT olduğu an bir
 zaman bombasıdır. Sözleşmeyi taşıyan taraf onu ilan etmeli.
+
+## D-167 — Dönem adı İKİ FARKLI dizeydi: corpus retrieval'a görünmezdi
+2026-08-15 · Corpus Browser'ı gerçek veriye bağladığımda tarayıcı 7 kayıt yerine **1**
+gösterdi. Sebep: `brand/brd_upcytech/current`, `era.yaml` `slug`ı ve `git tag era/…`
+üçü de **`imalat-2026`** diyor; altı corpus kaydı ise `era_id: era_imalat_2026` taşıyordu.
+İki farklı dize, hiçbir yerde karşılaştırılmıyor.
+**Sonuç:** retrieval yüklemi (`era_id = :era OR era_id = '*'`) o altı kaydı ASLA
+döndürmezdi. Ve bu **maskeliydi**: hepsi `draft` olduğu için zaten görünmüyorlardı.
+`2.9` onaylandığı gün hepsi `active` olacak, kullanıcı onayladığını görecek ve `3.14`
+yine `NO_CONTEXT` ile duracaktı — onayın işe yaramadığı sanılırdı.
+Gerçek kodla ölçüldü: onaylanmış bir corpus kopyasında retrieval **7 kayıt** döndürüyor;
+eski dizeyle **1**. Yani bu düzeltme olmadan `3.14` insan onayından sonra da bloke kalırdı.
+Üç parça düzeltildi: (1) altı kaydın `era_id`si düzeltildi ve `x_signature` yeniden
+hesaplandı — imzaya dokunmamak motoru "insan bu dosyaya dokundu" diye durdururdu ve bu
+bir içerik yazarlığı değil, sistem seviyesinde veri düzeltmesi; (2) `uret.mjs` ve
+`golden.mjs` dönemi GÖMÜYORDU, artık `brand/<id>/current`tan okuyorlar — kök neden buydu;
+(3) `era` kapısı artık her corpus `era_id`sinin var olan bir döneme çözüldüğünü denetliyor.
+Kapı yazıldığı anda altısını da kırmızıya çevirdi.
+**Ders:** dönem modeli üç parçadır dedik (§4.3) ve kapı o üçünü denetliyordu. **Dördüncü
+bir yer vardı** — kayıtların kendisi. Bir tutarlılık kapısı, kontrol ettiği kümenin TAM
+olduğunu varsayar; o küme eksikse kapı yeşil yanar ve hiçbir şey korumaz.
