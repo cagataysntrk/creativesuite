@@ -184,6 +184,8 @@ export {
 export {
   writeManifest,
   readManifest,
+  writeFrozenPlan,
+  readFrozenPlan,
   canPublish,
   costVariance,
   knowledgeCommit,

@@ -16,6 +16,7 @@ import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
 import { ButceEkrani } from './ButceEkrani.js'
 import { VarlikKutuphanesi } from './VarlikKutuphanesi.js'
+import { RunGecmisi } from './RunGecmisi.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -35,7 +36,24 @@ const KOMUTLAR: readonly Komut[] = [
     grup: 'Üretim',
     anahtarlar: ['placement', 'safe'],
   },
+  { id: 'kesif', etiket: 'Keşif / mutabakat', grup: 'Bilgi', anahtarlar: ['discovery', 'era'] },
+  { id: 'sema', etiket: 'Şema editörü', grup: 'Bilgi', anahtarlar: ['schema', 'tip', 'alan'] },
+  { id: 'butce', etiket: 'Maliyet ve bütçe', grup: 'Gözden geçir', anahtarlar: ['cost', 'tavan'] },
+  { id: 'varliklar', etiket: 'Varlık kütüphanesi', grup: 'Gözden geçir', anahtarlar: ['asset'] },
+  {
+    id: 'gecmis',
+    etiket: 'Çalıştırma geçmişi',
+    grup: 'Gözden geçir',
+    anahtarlar: ['run', 'history', 'koken', 'rerun', 'replay'],
+  },
 ]
+
+/** Bir hattı çalıştıran komutlar — ekran açmaz, launcher'ı O hatla açar. */
+const URETIM_KOMUTLARI: ReadonlySet<string> = new Set([
+  'instagram-post',
+  'instagram-carousel',
+  'linkedin-post',
+])
 
 // Nabız aralığı SUNUCUDAN öğrenilir. Buraya bir sabit yazmak, sunucu nabzını
 // değiştirdiği gün UI'ın sessizce yanlış ölçmesi demekti (iki gerçek).
@@ -56,7 +74,12 @@ export const App = (): React.JSX.Element => {
     | 'sema'
     | 'butce'
     | 'varliklar'
+    | 'gecmis'
   >('giris')
+  // Hangi hat çalıştırılacak. Palet komutu ekranı AÇMAKLA kalmaz, hattı da seçer —
+  // yoksa "Instagram postu üret" komutu sabit bir hattın launcher'ını açardı ve
+  // komutun adı ile açtığı şey ayrışırdı.
+  const [pipeline, setPipeline] = useState('instagram-post')
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
 
   useEffect(() => {
@@ -101,7 +124,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'baglam' ? (
           <BaglamOnizleme tarif="instagram-post" />
         ) : ekran === 'calistir' ? (
-          <RunLauncher pipeline="instagram-post" />
+          <RunLauncher pipeline={pipeline} />
         ) : ekran === 'kuyruk' ? (
           <OnayKuyrugu />
         ) : ekran === 'yerlesim' ? (
@@ -114,6 +137,8 @@ export const App = (): React.JSX.Element => {
           <ButceEkrani />
         ) : ekran === 'varliklar' ? (
           <VarlikKutuphanesi />
+        ) : ekran === 'gecmis' ? (
+          <RunGecmisi />
         ) : (
           <>
             <h1>Upcytech Creative Suite</h1>
@@ -126,7 +151,12 @@ export const App = (): React.JSX.Element => {
 
       <Palet
         komutlar={KOMUTLAR}
-        uzerineSec={(k) =>
+        uzerineSec={(k) => {
+          if (URETIM_KOMUTLARI.has(k.id)) {
+            setPipeline(k.id)
+            setEkran('calistir')
+            return
+          }
           setEkran(
             k.id === 'corpus'
               ? 'corpus'
@@ -146,9 +176,11 @@ export const App = (): React.JSX.Element => {
                             ? 'butce'
                             : k.id === 'varliklar'
                               ? 'varliklar'
-                              : 'giris'
+                              : k.id === 'gecmis'
+                                ? 'gecmis'
+                                : 'giris'
           )
-        }
+        }}
       />
 
       <DurumSeridi

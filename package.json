@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@11.21.0",
   "engines": {
-    "node": ">=22.0.0 <23"
+    "node": ">=22"
   },
   "description": "Upcytech Creative Suite — marka, ürün ve strateji bilgisinin tek doğruluk kaynağı; üstünde agentic üretim hattı",
   "license": "UNLICENSED",

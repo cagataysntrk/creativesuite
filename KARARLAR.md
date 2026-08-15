@@ -510,3 +510,45 @@ boş bir form açmak, kullanıcının donmuş girdileri elle yeniden yazması de
 şeridi saysak da toplam 0 çıkıyordu. Fikstür `5000`e çevrildi ve ihlal kırmızıya döndü.
 **Ders:** bir kuralı sınayan fikstür, kural KALDIRILDIĞINDA sonucu değişecek biçimde
 seçilmelidir. Sıfır değerler her iki dalda da aynı sonucu verir ve testi süse çevirir.
+
+## D-182 — Donmuş plan diske yazılmıyordu: `rerun` düğmesi sessizce `replay` olurdu
+2026-08-16 · `4.15`in ön koşulunu ararken veri akışı izlendi (D-173'ün dersi) ve şu
+çıktı: `freezePlan` üretiliyor, `launcherPlani` HTTP cevabında döndürüyor, `runPipeline`
+geri alıp kullanıyor — ve süreç bitince plan **kayboluyordu**. Diskte yalnız manifest
+vardı. Gerçek repoda ölçüldü: **18 çalıştırmanın 0'ında donmuş plan var.**
+Sonuç, bir eksiklikten fazlası olurdu: `rerun` ("kararı tekrarla") düğmesi koysaydık,
+donmuş plan olmadığı için sessizce yeniden planlardı — yani `replay` yapardı. Ekran iki
+ayrı eylem gösterip tek eylem yapardı ve fark ancak farklı bir sağlayıcıyla farklı bir
+fatura geldiğinde görülürdü.
+Karar: donmuş plan `derived/runs/<id>/plan.json` altına yazılır (`planPath`, kernel'in
+`manifest-yazici` darboğazında). Manifest'ten TÜRETİLEMEZ: manifest gerçekleşeni yazar,
+plan onay anındaki kararı — alternatifler, kısıtlar, kayıt kümesi.
+Ve plan **yoksa** `rerun` MÜMKÜN DEĞİL olarak, gerekçesiyle döner. Düğmeyi gizlemek de
+etkinleştirmek de yalan olurdu; üçüncü seçenek gerçeği söylemek.
+
+## D-183 — Dört ekran yönlendirmede vardı, palette yoktu: ulaşılamaz "biten" adımlar
+2026-08-16 · `kesif` · `sema` · `butce` · `varliklar` — dördü de `App.tsx`te
+yönlendiriliyordu, dördü de `KOMUTLAR` listesinde yoktu. **Menü yok, palet birincil
+navigasyondur** (§12.5); palette olmayan ekranı açmanın hiçbir yolu yok. Dört faz adımı
+"bitti" diye tiklenmişti, dördünün de ucu cevap veriyordu, testleri geçiyordu — ve
+kullanıcı hiçbirini göremezdi. 26 kapının hiçbiri bakmıyordu.
+Ters yön de sessizdi: `instagram-post` gibi üç üretim komutu seçildiğinde `giris`e
+düşüyordu, yani komut bulunup tıklanıyor ve hiçbir şey olmuyordu.
+Karar: `ui-navigasyon` kapısı — her yönlendirilen ekranın bir palet komutu, her palet
+komutunun bir hedefi olmalı. Üretim komutları artık launcher'ı O hatla açıyor.
+**Ders:** "uç çalışıyor + test yeşil" ile "kullanıcı ulaşabiliyor" farklı iddialar.
+İkincisi ölçülmediği sürece birincisi bir şey kanıtlamaz.
+
+## D-184 — Node 20'ye düşen kabuk 144 testi sessizce KOŞTURMUYORDU
+2026-08-16 · Tam test paketi `Test Files 56 passed (64)` yazıyordu ve bunun yanında tek
+satırlık `Errors 8` vardı. Sekiz dosya hiç koşmamıştı: `better-sqlite3` başka bir Node
+ABI'si için derlenmişti ve `require` anında **SIGSEGV** veriyordu (çıkış kodu 139).
+Kabuk `nvm` varsayılanıyla v20.20.0'a düşmüştü. `.nvmrc` FAZ-0'dan beri `22` yazıyordu —
+ama **`.nvmrc` bir dilektir, zorlama değil**: `nvm use` çağrılmadıkça kimse okumaz.
+`engines` alanı yoktu ve hiçbir kapı sürüme bakmıyordu.
+Belirti yanıltıcı: hata testin içinde değil koşucunun altyapısında, çıktı yeşile çok
+benziyor ve test SAYISI düşüyor — kimsenin ezberinde olmayan tek sayı.
+Karar: `.nvmrc` (22) + `engines.node >=22` + `node-surum` kapısı. Kapı sürüm numarasına
+bakıp geçmiyor, `better-sqlite3`ü GERÇEKTEN yüklemeyi deniyor: doğru sürümde yeniden
+derlenmemiş bir bağımlılık da aynı sessiz kaybı verir.
+Node 22'de: **64 dosya, 902 test, hepsi yeşil.**

@@ -17,6 +17,7 @@ import {
   pricingFromDescriptor,
   type FrozenPlan,
   type LaunchBlock,
+  type StaleCheck,
 } from '@suite/engine'
 import { loadPipeline, listPipelines } from '@suite/registry'
 import { loadDescriptors, type ProviderDescriptor } from '@suite/providers'
@@ -106,12 +107,37 @@ export const launcherPlani = (g: LauncherGirdisi): LauncherSonuc => {
 }
 
 /**
+ * Bugünün dünyası — donmuş bir planın hâlâ geçerli olup olmadığını ölçmek için (§13).
+ *
+ * `planStale` bunu ister ve **tahmin etmez**: eksik bir dünya tanımıyla çağrılsaydı
+ * "fark yok" cevabı verir, oysa doğrusu "ölçemedim" olurdu (D-175). Bu yüzden dünya
+ * açıkça kurulur ve çağıran, kuramadığında `null` geçer.
+ */
+export const dunyaDurumu = (
+  repoRoot: string,
+  corpusCommit: string,
+  registryCommit: string
+): StaleCheck => {
+  const { descriptors } = loadDescriptors(join(repoRoot, 'registry/providers'))
+  const aktif = descriptors.filter((d: ProviderDescriptor) => d.enabled)
+  return {
+    corpusCommit,
+    registryCommit,
+    descriptorDigests: tanimlayiciOzetleri(
+      repoRoot,
+      descriptors.map((d: ProviderDescriptor) => d.id)
+    ),
+    availableProviders: new Set(aktif.map((d: ProviderDescriptor) => d.id)),
+  }
+}
+
+/**
  * Tanımlayıcı dosyalarının özeti — **içerikten**, sürüm alanından değil.
  *
  * Sürüm numarasına güvenmek, sürümü artırmadan dosyayı düzenleyen herkesi görünmez
  * yapardı; ve tam o düzenleme (bir fiyatın değişmesi) donmuş planı geçersiz kılan şey.
  */
-const tanimlayiciOzetleri = (
+export const tanimlayiciOzetleri = (
   repoRoot: string,
   ids: readonly string[]
 ): Readonly<Record<string, string>> => {

@@ -47,7 +47,7 @@ import { runStep, type CallOutcome, type StepSpec } from './scheduler.js'
 import { resolveVerb, type VerbImplementations } from './verbs/registry.js'
 import { route, type ProviderPricing, type RoutingDecision } from './router/route.js'
 import { rejectionMessage } from './router/reasons.js'
-import { writeManifest, type WriteResult } from './manifest-writer.js'
+import { writeFrozenPlan, writeManifest, type WriteResult } from './manifest-writer.js'
 import { digest, idempotencyKey } from './idempotency.js'
 import type { FrozenPlan } from './plan/freeze.js'
 
@@ -601,6 +601,14 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
   // Manifest HER HÂLÜKÂRDA yazılır: yarıda kalan bir hattın ne kadar harcadığı ve
   // nerede durduğu, başarılı bir hattınki kadar önemli.
   const yazim = writeManifest({ repoRoot: input.repoRoot, manifest })
+
+  // **Donmuş plan da diske düşer** (FAZ-4.15). Manifest "ne oldu"yu yazar; onay anındaki
+  // KARAR (hangi sağlayıcı, hangi kısıt, hangi seed, hangi kayıt kümesi) yalnız burada
+  // kalıcılaşır. Yazmasaydık `rerun` düğmesi sessizce `replay`e dönerdi — kararı değil,
+  // bugünün tanımını tekrarlardı — ve ekran bunu bilemezdi.
+  if (input.frozen !== undefined && input.frozen !== null) {
+    writeFrozenPlan(input.repoRoot, input.frozen)
+  }
 
   return {
     runId: input.runId,

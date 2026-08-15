@@ -196,17 +196,12 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    bedava şeridi boşa harcanana say → kırmızı
 💾 `feat(ui): asset library ve reuse` · `Refs: FAZ-4.14 · §12.9`
 
-## 4.15 — Run History / Provenance Browser    [ ]
+## 4.15 — Run History / Provenance Browser    [x] 2026-08-16
 
 📖 §13, §12.9 · D-38
 🔗 FAZ-3.13
-🛠 Her manifest zaman çizgisi olarak. **`rerun` ve `replay` AYRI düğmeler** ve UI açıkça
-   yazar: *"rerun kararı tekrarlar, eseri değil."* Medya uçlarının çoğu deterministik
-   değil; bu uyuşmazlığı bug sanan kullanıcı diğer her şeye olan güvenini kaybeder.
-📁 `apps/ui/src/screens/runs/`
 ✅ Bir çalıştırmanın girdileri, commit SHA'sı, şerit/model/seed, tahmini vs gerçek görünüyor
 🧪 `rerun` ile `replay`i karşılaştır → sapma **açıkça** gösteriliyor
-💾 `feat(ui): run history ve provenance` · `Refs: FAZ-4.15 · §13`
 
 ## 4.16 — Strategy Health    [ ]
 

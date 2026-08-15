@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.15
-son_guncelleme: 2026-08-15
+siradaki_adim: 4.16
+son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 4 iskeleti AYAKTA: just dev ile Hono API + Vite SPA birlikte kalkiyor, Komut paleti (Turkce katlamali, foldForSearch), kalici makine durumu seridi SSE'den besleniyor. Kabul kriteri GERCEK SIGKILL ile dogrulandi: canli -> kopuk, 'baglanti yok', son deger GOSTERILMIYOR. Bu turda uc kez ayni desen: iki gercek. D-160 kaskad (comp token duz degere derleniyordu, iki yuzey imkansizdi), D-163 kablo bicimi UYDURULMUS ve dokuz test onu dogrulamisti, D-166 nabiz araligi UI'a gomuluydu. D-165: Turkce katlama Ring -1'e tasindi cunku tarayici halkasi kernel'i import edemez ve ikinci bir katlama palet ile FTS5'i ayristirirdi. 780 test, 26 kapi. Sirada 4.3 Corpus Browser — R-14'un yuzu."
+son_kanit: "4.15 Run History BITTI. Uc bulgu, ucu de 'kod var ama akis yok' sinifindan. (1) D-182: donmus plan HIC diske yazilmiyordu — freezePlan uretiyor, HTTP cevabinda donuyor, surec bitince kayboluyordu. Gercek repoda olculdu: 18 calistirmanin 0'inda plan var. rerun dugmesi koysaydik sessizce replay yapardi. Artik derived/runs/<id>/plan.json yaziliyor; plan yoksa rerun MUMKUN DEGIL, gerekcesiyle. (2) D-183: kesif/sema/butce/varliklar dort ekran yonlendirmede vardi, palette YOKTU — menu olmadigi icin ulasilamazdilar; dordu de tikli. ui-navigasyon kapisi eklendi, kasten ihlal edilip kirmizi goruldu. (3) D-184: kabuk Node 20'ye dusmustu, better-sqlite3 SIGSEGV veriyordu ve 8 test dosyasi (144 test) HIC kosmuyordu — cikti yesile benziyordu. .nvmrc + engines + node-surum kapisi. Node 22'de 64 dosya 902 test yesil, 28 kapi yesil."
 ```
 
 ## Neredeyiz
@@ -65,14 +65,15 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.12** · Cost & Budget; tavan Ring 1'de, UI'dan ayarlanıyor | 2026-08-16 |
 | **4.13** · Telegram yüzey sınırı; bot üretim başlatamaz (§4c) | 2026-08-16 |
 | **4.14** · Asset Library; karantina sayılıyor ama listelenmiyor | 2026-08-16 |
+| **4.15** · Run History; donmuş plan diske yazılıyor, rerun ≠ replay | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.15` — Run History / Provenance Browser** (§13, §12.9). Her manifest bir zaman
-çizgisi: girdiler, bilgi ağacı commit'i, adım başına şerit ve model, seed, tahmini vs
-gerçek, insan kararları. **`rerun` (donmuş plan) ve `replay` (bugünün tanımı) AYRI
-düğmeler** ve ekran açıkça "rerun kararı tekrarlar, eseri değil" der. `freezePlan`,
-`readManifest`, `costVariance` ve ters indeks hazır.
+**`4.16` — Strategy Health** (§11, §12.9 · R-32). Aktif dönemin lint panosu: kaynaksız
+iddia · birimsiz değer teması · süresi geçmiş kanıt · `generalisation_note`'suz
+dönem-aşırı kanıt · `re_verify_by` geçmiş mevzuat kaydı · yasak sözlük terimi. Her bulgu
+ilgili kayda **tıklanabilir** bağlantı taşımalı. Hazır: `lexiconLint`, corpus zarf
+alanları (`re_verify_by`, `expired_at`, `transfer_confidence`), `browseRecords`.
 
 ## Bloke adımlar
 

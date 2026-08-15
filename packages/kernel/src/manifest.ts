@@ -263,4 +263,13 @@ export const RUNS_DIR = 'derived/runs'
 
 export const runDir = (runId: string): string => `${RUNS_DIR}/${runId}`
 export const manifestPath = (runId: string): string => `${runDir(runId)}/manifest.json`
+/**
+ * Donmuş plan (§8.3 · R-07). Manifest "ne oldu"yu, plan "neye onay verildi"yi tutar.
+ *
+ * İkisi AYRI dosya çünkü ayrı sorulara cevap veriyorlar ve biri diğerinden türetilemez:
+ * manifest gerçekleşen adımları yazar, plan ise onay anındaki KARARI — hangi sağlayıcı,
+ * hangi parametre, hangi seed, hangi kayıt kümesi. `rerun` kararı tekrarlayabilmek için
+ * bu dosyayı okur; dosya yoksa rerun **yapılamaz** ve bu söylenir (FAZ-4.15).
+ */
+export const planPath = (runId: string): string => `${runDir(runId)}/plan.json`
 export const publishedLedgerPath = (): string => `${RUNS_DIR}/published.ndjson`

@@ -15,12 +15,14 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import type { Money, RunId } from '@suite/contracts'
+import type { FrozenPlan } from './plan/freeze.js'
 import { usd } from '@suite/contracts'
 import {
   headSha,
   inspectManifest,
   isPublishable,
   manifestPath,
+  planPath,
   runDir,
   type ManifestDefect,
   type RunManifest,
@@ -100,6 +102,40 @@ export const readManifest = (repoRoot: string, runId: RunId): RunManifest | null
  */
 export const canPublish = (repoRoot: string, runId: RunId): boolean =>
   isPublishable(readManifest(repoRoot, runId))
+
+// ── donmuş plan: kararın diskteki hâli (§13 · R-07 · FAZ-4.15) ──────────────
+//
+// **Diske yazılmayan bir karar tekrarlanamaz.** Donmuş plan şimdiye kadar yalnız
+// süreç belleğinde ve HTTP cevabında yaşıyordu: `launcherPlani` üretiyor, `runPipeline`
+// geri alıyor, süreç bitince kayboluyordu. Yani `rerun` ("kararı tekrarla") diye bir
+// düğme koysaydık, o düğme sessizce `replay`e ("bugünün tanımıyla koş") dönerdi ve
+// ekran yalan söylerdi — tam da 4.15'in engellemek için var olduğu şey.
+//
+// Manifest'ten TÜRETİLEMEZ: manifest gerçekleşen adımı yazar, donmuş plan onay anındaki
+// alternatifleri, kısıtları ve kayıt kümesini. Bu yüzden ayrı dosya, aynı append-only
+// dizinde (D-38).
+
+export const writeFrozenPlan = (
+  repoRoot: string,
+  plan: FrozenPlan
+): { readonly ok: true; readonly path: string } => {
+  const rel = planPath(plan.runId)
+  const mutlak = join(repoRoot, rel)
+  mkdirSync(dirname(mutlak), { recursive: true })
+  writeFileSync(mutlak, `${JSON.stringify(plan, bigintDizeye, 2)}\n`)
+  return { ok: true, path: rel }
+}
+
+/** `null` = donmuş plan YOK. "Boş plan" değil — rerun'un mümkün olmadığı anlamına gelir. */
+export const readFrozenPlan = (repoRoot: string, runId: RunId): FrozenPlan | null => {
+  const mutlak = join(repoRoot, planPath(runId))
+  if (!existsSync(mutlak)) return null
+  try {
+    return JSON.parse(readFileSync(mutlak, 'utf8'), dizeBiginte) as FrozenPlan
+  } catch {
+    return null
+  }
+}
 
 export interface CostVariance {
   readonly estimatedLow: Money

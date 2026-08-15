@@ -76,6 +76,32 @@ try {
   const reuseYok = await fetch(`${U}/api/varliklar/run_olmayan/yeniden-kullan`)
   bekle(reuseYok.status === 404, `manifetsiz Reuse ${reuseYok.status} döndü, 404 olmalı`)
 
+  // FAZ-4.15: çalıştırma geçmişi — `rerun` ile `replay` AYRI ve fark GÖSTERİLİYOR.
+  const calGecmis = await (await fetch(`${U}/api/calistirmalar`)).json()
+  bekle(Array.isArray(calGecmis.calistirmalar), '/api/calistirmalar liste dönmüyor')
+  const yokDetay = await fetch(`${U}/api/calistirmalar/run_olmayan`)
+  bekle(yokDetay.status === 404, `manifestsiz çalıştırma detayı ${yokDetay.status} döndü`)
+  if (ORNEK_RUN !== 'run_yok') {
+    const d = await (await fetch(`${U}/api/calistirmalar/${ORNEK_RUN}`)).json()
+    bekle(Array.isArray(d.adimlar), 'çalıştırma detayı adım listesi taşımıyor')
+    bekle(d.tekrar?.rerun?.kind === 'rerun', 'rerun seçeneği yok')
+    bekle(d.tekrar?.replay?.kind === 'replay', 'replay seçeneği yok')
+    // İki düğme AYRI olmalı: aynı şeyi yapan iki isim, farkı gizler.
+    bekle(d.tekrar.rerun.ne !== d.tekrar.replay.ne, 'rerun ile replay aynı şeyi anlatıyor')
+    bekle(
+      typeof d.tekrar.uyari === 'string' && d.tekrar.uyari.includes('ESERİ değil'),
+      'ekran "rerun kararı tekrarlar, eseri değil" demiyor'
+    )
+    // Donmuş plan yoksa rerun KAPALI ve gerekçeli — sessizce replay'e dönmüyor.
+    if (d.tekrar.rerun.mumkun === false) {
+      bekle(
+        typeof d.tekrar.rerun.neden === 'string' && d.tekrar.rerun.neden.length > 0,
+        'rerun kapalı ama gerekçesi yok'
+      )
+      bekle(d.tekrar.sapmaOlculdu === false, 'donmuş plan yokken sapma ÖLÇÜLDÜ sanılıyor')
+    }
+  }
+
   // FAZ-4.13: Telegram YÜZEY SINIRI — bot üretim başlatamaz (§4c).
   const tg = (govde) =>
     fetch(`${U}/api/telegram/webhook`, {
@@ -269,5 +295,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 20 uç · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
+  `    sunucu ayağa kalktı · 22 uç · geçmiş · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
 )

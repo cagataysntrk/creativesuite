@@ -80,6 +80,7 @@ export {
   RUNS_DIR,
   runDir,
   manifestPath,
+  planPath,
   publishedLedgerPath,
 } from './manifest.js'
 

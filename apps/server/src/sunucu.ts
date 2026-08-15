@@ -31,12 +31,13 @@ import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { baglamOnizle } from './baglam.js'
-import { launcherPlani } from './launcher.js'
+import { dunyaDurumu, launcherPlani } from './launcher.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
+import { calistirmaDetayi, calistirmalar } from './gecmis.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -157,6 +158,28 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // yayınlanmamış" bir SORU, bir sorgu parametresi değil — operatör onu açıp kapatarak
   // karşılaştırma yapar. Sunucuda filtrelemek, toplam harcamayı da filtrelerdi.
   app.get('/api/varliklar', (c) => c.json(kutuphane(o.repoRoot)))
+
+  // ── çalıştırma geçmişi / köken tarayıcısı (§13, §12.9 · FAZ-4.15) ─────────
+  //
+  // Liste ucu donmuş planın VARLIĞINI de bildirir: `rerun` düğmesinin etkin olup
+  // olmayacağı diskteki bir dosyaya bağlı ve UI bunu tahmin etmemeli.
+  app.get('/api/calistirmalar', (c) => c.json({ calistirmalar: calistirmalar(o.repoRoot) }))
+
+  // Detay: zaman çizgisi + rerun/replay karşılaştırması. Dünya durumu BURADA kurulur —
+  // kurulamazsa `null` geçer ve ekran "sapma ölçülmedi" der, "sapma yok" demez (D-175).
+  app.get('/api/calistirmalar/:runId', (c) => {
+    let dunya = null
+    try {
+      dunya = dunyaDurumu(o.repoRoot, o.corpusCommit ?? 'worktree', o.registryCommit ?? 'worktree')
+    } catch {
+      // Tanımlayıcılar okunamadı: sapma ölçülemez ve bu AÇIKÇA söylenir.
+    }
+    const d = calistirmaDetayi(o.repoRoot, c.req.param('runId'), dunya)
+    if (d === null) {
+      return c.json({ ok: false, hata: `çalıştırma manifesti yok: ${c.req.param('runId')}` }, 404)
+    }
+    return c.json(d)
+  })
 
   // Reuse: varlığı DEĞİL, onu üreten çalıştırmayı açar — kopyalanacak olan bayt değil,
   // KARARDIR (donmuş girdiler, konu, bağlam).

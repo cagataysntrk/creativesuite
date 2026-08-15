@@ -14,6 +14,7 @@ import {
 } from '@suite/contracts'
 import type { Pipeline } from '@suite/registry'
 import { initLedger } from './cost/ledger.js'
+import { readFrozenPlan } from './manifest-writer.js'
 import { runPipeline } from './run.js'
 import { readManifest } from './manifest-writer.js'
 import type { ProviderPricing } from './router/route.js'
@@ -297,6 +298,14 @@ describe('bütçe tavanı hattı KİLİTLİYOR (D-17)', () => {
     expect(r.manifest.steps[1]?.providerId).toBe('p1')
     // Donmuş tahmin kullanıldı: $9.00 hiçbir yere yazılmadı.
     expect(r.manifest.steps[1]?.estimatedCost.high.micros).toBe(25_000n)
+
+    // **Donmuş plan DİSKE düştü** (FAZ-4.15). Yalnız bellekte kalsaydı `rerun` düğmesi
+    // sessizce `replay`e dönerdi: kararı değil, bugünün tanımını tekrarlardı.
+    const diskten = readFrozenPlan(tmp.path, r.runId)
+    expect(diskten?.digest).toBe(donmus.digest)
+    expect(diskten?.steps[0]?.providerId).toBe('p1')
+    // Para kablo biçiminden geri OKUNDU: `bigint`, dize değil (D-163).
+    expect(diskten?.steps[0]?.estimatedCost.high.micros).toBe(25_000n)
   })
 
   it('donmuş plan YOKSA yönlendirici normal çalışır — davranış değişmedi', async () => {
