@@ -202,119 +202,6 @@ karşılar.
 ağırlıklı (`#0091FF`) — ΔE76 gözle ayırt edilebilir iki maviyi "aynı" sayar ve QA kapısı
 boş geçerdi.
 
-## D-120 — Doğrulayıcı geçersiz girdide ÇÖKMEZ
-2026-08-15 · `inspectManifest` diskten okunan boş bir `{}` üstünde
-`Cannot read properties of undefined (reading 'length')` ile patladı. `JSON.parse` bir
-`{}`'ı da `RunManifest` sanar — **tip JSON sınırını geçmez.**
-Doğrulayıcının kendisi geçersiz girdide çökerse doğrulayıcı değildir; ve `{}` bir
-manifest dosyası olarak pekâlâ var olabilir. `steps` ve `candidates` artık
-`Array.isArray` ile korunuyor, eksikse `missing_field` raporlanıyor.
-Bu, `classify`ın toplam fonksiyona çevrilmesiyle (D-114 civarı) aynı desen: **tipin
-geçmediği her sınırda çalışma zamanı savunması gerekir.** Üçüncü kez.
-
-## D-121 — Manifest kapıya bağlandı: manifest'siz varlık yayınlanamaz
-2026-08-15 · §13 "manifest'siz çıktı bir hatadır" diyor. `compliance` kapısı artık her
-blob'un sidecar'ındaki `sourceRunId`'yi okuyup `derived/runs/<id>/manifest.json`
-varlığını VE temizliğini doğruluyor. Gerçek bir varlık `run_manifestsiz` ile depoya
-alındı ve kapı reddetti.
-Sapma oranı **tahminin ÜST sınırına** göre: kullanıcı onaylarken gördüğü sayı odur ve
-sapma "onayladığım rakamı aştı mı" sorusunu cevaplamalı. Ortalamaya göre hesaplasaydık
-her çalıştırma yarı yarıya sapmış görünür ve %20 eşiği anlamını kaybederdi.
-
-## D-122 — `RENDER` yönlendirilmez: yetenek YOK, yerel metered adım
-2026-08-15 · Hat ilk koşuşunda `render` adımı `NO_PROVIDER` ile düştü: `image.render`
-yeteneğini sağlayan hiçbir sağlayıcı yok — ve olmamalı da. **R-30 tek render motoru
-diyor; bir motoru "seçmek", ikinci bir motorun var olabileceğini varsayar.**
-Yönlendirici DIŞARIDAKİ sağlayıcılar içindir; Chromium içeride.
-Motor artık üç dala ayrılıyor: metered + yetenekli → yönlendirilir · metered +
-yeteneksiz → **yerel** (bütçe/defter yolundan geçer ama seçim yok) · metered değil →
-doğrudan koşar. Pipeline'lardan `capability: image.render` silindi.
-`RENDER`ın metered kalması doğru: para harcamıyor ama kaynak harcıyor ve **süre de bir
-maliyettir** (§8.3). Tutar sıfır ama olayın kendisi deftere yazılıyor.
-
-## D-123 — Marka QA'sı markanın KENDİ paletini göremiyordu
-2026-08-15 · İlk gerçek carousel çalıştırmasında ΔE ve palet payı okumaları rapordan
-**sessizce düştü**. Sebep: marka token'ları OKLCH (§12.1) ve `parseHex` yalnız hex
-okuyor; palet boş kalınca `measure` o okumaları hiç eklemiyordu.
-Davranış **doğruydu** (D-111: ölçülemeyen metrik rapora girmez) ama **sebep yanlıştı**:
-ölçülemeyen şey aslında ölçülebilirdi. Kapı yeşil, marka QA'sı kör.
-`parseOklch` eklendi (OKLCH → OKLab → doğrusal sRGB → sRGB → Lab, ~35 satır, yine
-bağımlılıksız). Doğruluk bilinen bir eşleşmeyle sınandı: `oklch(0.628 0.2577 29.23)`
-tam olarak `#FF0000` veriyor ve iki gösterim arasındaki ΔE < 0,5.
-Sonuç: gerçek carousel'de **ΔE 0,1 · palet dışı %0,9** — marka QA'sı artık görüyor.
-**Ders:** "ölçülemedi" diyen bir kapı da bir bulgudur; neden ölçemediği sorulmalı.
-
-## D-124 — ★ FAZ 3'ün hedefi karşılandı: hat uçtan uca koştu
-2026-08-15 · `just uret instagram-carousel "imalat fire ölçümü"` gerçek bir çalıştırma
-üretti: corpus'tan kayıt seçildi → belge modeli kuruldu → **gerçek Chromium** iki slayt
-render etti → marka QA ölçtü → slaytlar damgalandı → içerik-adresli depoya alındı →
-manifest yazıldı → hat **insan kapısında durdu**.
-Türkçe tipografi doğru: `İddia` · `Şirketin` · `çalışan` · `altyapısı` · `ölçülebilir`.
-Marka QA gerçek sayılar veriyor: **ΔE 0,1 · palet dışı %0,9 · metin kaplama %6,7**.
-**Görsel adımı dürüstçe düştü** (`NO_PROVIDER`, iki gerekçesiyle) ve hat DEVAM etti —
-çünkü adım `optional: true`. Bu bir yedek değil, `free` şeridin dürüst hâli: arka plan
-görseli olmayan bir slayt düz zeminle render edilir ve tipografi ikisinde de aynıdır
-(§8.2). Zorunlu saysaydık, anahtarı olmayan bir kurulumda hat hiç koşmazdı.
-**Kalan tek eksik sağlayıcı anahtarları** (V-16) — hattın kendisi değil.
-
-## D-125 — Çalıştırma parametresi ile pipeline kısıtı AYRI
-2026-08-15 · Hat ilk koşuşunda `MISSING_TOPIC` ile durdu: konu pipeline'da yoktu ve
-olmamalıydı da. Pipeline kısıtları **sözleşmedir** (bu hat neyi nasıl yapar); çalıştırma
-parametreleri **örnektir** (bu sefer hangi konu). Konuyu pipeline'a yazmak, her konu
-için ayrı bir YAML demekti.
-**Parametre kısıtı EZEMEZ**: birleştirme sırası `{...params, ...constraints}` — pipeline
-her zaman kazanır. Aksi hâlde çalıştırma anında `no_text: false` geçilebilirdi ve R-20
-bir çalıştırma tercihine dönerdi.
-
-## D-126 — Platform spec'i KOD, tolerans platforma ÖZEL
-2026-08-15 · `packages/render/src/specs/placements.ts`: her satır `sourceUrl` +
-`verifiedAt` taşıyor. Tarihsiz bir spec, **ne zaman doğru olduğunu söylemez** ve
-platform ölçüleri sessizce değişiyor (Meta feed'i 1:1'den 4:5'e taşıdı).
-**Tolerans tek ve global DEĞİL**: Instagram ±%1, LinkedIn ±%5. Tek bir sayı ikisinden
-birinde yanlış olurdu — "yeterince yakın" bir yeniden boyutlandırma Facebook'tan geçip
-Instagram'dan reddedilir. `measure` artık limiti yerleşimden alıyor.
-`specAgeDays` bozuk tarihte `Infinity` dönüyor, 0 değil: "yeni doğrulandı" demek en
-kötü yalan olurdu.
-
-## D-127 — Kalite merdiveninde ÖLÇEK en son düşer
-2026-08-15 · LinkedIn 5MB'ı aşan görseli reddeder. Merdiven altı basamak: PNG → JPEG
-%92/%85/%75 → ölçek ×0,8 ile %85/%75.
-**Sıra bilinçli:** 1200px'de %70 JPEG, 900px'de %90 JPEG'den okunaklıdır ve tipografi
-ölçek düşünce doğrudan zarar görür — §7.1'in "küçültme yok" ilkesinin yayın tarafındaki
-karşılığı. Bir test her basamağın bir öncekinden küçük olduğunu ayrıca doğruluyor;
-yukarı çıkan bir basamak merdiveni anlamsız yapardı.
-**Merdiven tükenirse hat DURUR.** İhlal testi: sınır 3KB'a indirildi → `QA_OUT_OF_TOLERANCE`,
-`kalite` adımında durdu, hiçbir şey yayınlanmadı. Sessizce yayınlamak, "3 varlık
-ürettim" sanıp sıfır yayınlamaktır.
-
-## D-128 — Döngünün durum modelinde "faz kapanıyor" hâli YOKTU
-2026-08-15 · `durum` kapısı `siradaki_adim: FAZ-3-KAPANIS`i reddetti: her değer bir faz
-adımı olmak zorundaydı. Ama faz kapanışı (LOOP§D) gerçek bir iş ve bir adım değil —
-model eksikti.
-`FAZ-N-KAPANIS` eklendi ve **kaçış deliği değil**: kontrol edilebilir bir koşulu var —
-o fazın BLOKE OLMAYAN her adımı tikli olmalı. `bloke` listesi boşaltılınca kapı
-kırmızıya dönüyor.
-**Kapı eklerken gerçek bir tutarsızlık yakaladı:** `3.2` düzyazıda "ATLANDI" yazıyordu
-ama makine-okunur `bloke` listesinde YOKTU. Bağlamı sıfırlanmış bir agent o adımı
-"sıradaki iş" sanabilirdi. Düzyazı ile makine bloğunun ayrışması, `DURUM.md`'nin tam
-olarak önlemesi gereken şey.
-
-## D-129 — R-65 BLOCKING yazıyordu ama zorlaması YOKTU
-2026-08-15 · `KURALLAR.md` R-65'i "BLOCKING · Zorlama: `docs-drift` kapısı" diye
-listeliyor ve ANAYASA §8.7 "`just docs` üretir, `docs-drift` sapmayı yakalar" diyor.
-**İkisi de doğru değildi**: `just docs` bir `echo` taslağıydı ve `docs-drift` diye bir
-kapı yoktu. `KURALLAR.md`'nin kendi başlığı bunu yasaklıyor: *"Zorlaması olmayan kural
-buraya yazılmaz — uygulanmayan 111 kural, uygulanan 20 kuraldan kötüdür."*
-`just docs` artık İKİ belge üretiyor — ANAYASA ikisini de "üretilmiş" ilan ediyordu:
-`docs/referans/saglayicilar.md` (§8.7, kaynak `registry/providers/*.provider.yaml`) ve
-`docs/referans/pipelinelar.md` (§10, kaynak `registry/pipelines/*.pipeline.yaml`).
-`docs-drift` kapısı ikisini de denetliyor. 23. kapı.
-**Kapı ilk yazımda işi SESSİZCE yok ediyordu:** önce `just docs` koşuyor, elle yapılmış
-düzenlemeyi eziyor, sonra `git diff` boş çıkıyor ve yeşil raporluyordu. R-65 "elle
-düzenleme kaybolur" diyor ama **sessizce kaybolması** başka şey. Kapı artık üretim
-ÖNCESİ ve SONRASI içeriği karşılaştırıyor ve iki durumu da bildiriyor: elle düzenleme
-ve tazelenmemiş kaynak.
-
 ## D-130 — `just doctor` her zaman "bloke: 0" diyordu
 2026-08-15 · Sağlık raporu `grep -c '^  - adim:' DURUM.md` ile bloke sayıyordu —
 `DURUM.md`'nin **hiç sahip olmadığı** bir biçim. Yani doctor her koşuda "bloke: 0"
@@ -586,3 +473,19 @@ değiştirmez" ilkesi).
 Öksüz varlık CAS'a girmediği için `compliance` kapısı onu göremiyor — kapı `derived/blobs`
 tarar, `derived/runs` değil. İki dizin iki farklı şey: biri yayınlanabilir varlıklar,
 diğeri çalıştırma çıktısı. Doctor ikisinin arasındaki boşluğu görüyor.
+
+## D-150 — Tazelik denetimi; iki anlık görüntü İKİ FARKLI alan adı kullanıyordu
+2026-08-15 · §8.7 *"UI, anlık görüntü 60 günden eskiyse uyarı rozeti gösterir"* diyor ve
+§9.1 *"üç aylık bir iş kaynakları yeniden çeker"* diyor. **İkisi de yoktu** ve
+`specAgeDays` yazılmış ama hiçbir yerden çağrılmıyordu (desen, on üçüncü kez).
+`scripts/tazelik.mjs` eklendi ve `just doctor`a bağlandı: fiyat anlık görüntüleri 60,
+platform spec'leri 90 gün sınırıyla raporlanıyor. **Rapor eder, değiştirmez** (§16).
+**Rapor kendi yazıldığı gün bir hata buldu:** `fal-2026-08-15.json` `captured_at`,
+`cloudflare-2026-08-15.json` `date` kullanıyordu — **aynı şey için iki alan adı**.
+`providers` kapısı yalnız `verified`a baktığı için hiç fark etmemişti; tazelik raporu
+birini `Infinity günlük` gösterdi.
+Kanonik ad `captured_at` seçildi ve **kapı artık varlığını ve biçimini zorluyor**:
+tarihsiz bir anlık görüntü yaşlandırılamaz, ve *tarihli ama denetlenmeyen* bir spec
+tarihi olduğu için doğru SANILIR — ikincisi daha tehlikeli.
+`claude-code` "anlık görüntü YOK ama enabled" diye uyarı alıyor ve bu DOĞRU: abonelikle
+ödenmiş bir sağlayıcının fiyat listesi yoktur, ama bu bir olgu olarak görünmeli.

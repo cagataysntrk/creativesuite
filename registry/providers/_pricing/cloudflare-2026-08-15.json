@@ -1,6 +1,6 @@
 {
   "provider": "cloudflare-workers-ai",
-  "date": "2026-08-15",
+  "captured_at": "2026-08-15",
   "verified": false,
   "note": "Bedava katman: günlük nöron kotası dahilinde ücretsiz, ticari kullanıma açık. verified:false — kota AŞIMININ nasıl faturalandığı ölçülmedi ve 'bedava' ile 'kotası bitince ne olur' ayrı sorular (V-14). Fiyat anlık görüntüleri DEĞİŞMEZDİR: bu dosya güncellenmez, yenisi eklenir.",
   "unitMicros": 0,

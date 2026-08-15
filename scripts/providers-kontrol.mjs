@@ -64,6 +64,18 @@ for (const d of descriptors) {
     continue
   }
   const snap = JSON.parse(readFileSync(yol, 'utf8'))
+
+  // **Tarihsiz anlık görüntü yaşlandırılamaz** (§8.7 · D-150). İki dosya iki farklı
+  // alan adı kullanıyordu (`captured_at` ve `date`) ve kapı yalnız `verified`a baktığı
+  // için hiç fark etmedi: tazelik raporu birini `Infinity` günlük gösteriyordu.
+  // Kanonik ad `captured_at`; alan adı sözleşmenin parçasıdır, bir tercih değil.
+  if (typeof snap.captured_at !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(snap.captured_at)) {
+    hatalar.push(
+      `${d.id}: fiyat anlık görüntüsünde \`captured_at\` yok ya da biçimsiz ` +
+        `(${JSON.stringify(snap.captured_at ?? null)}) — tarihsiz anlık görüntü yaşlandırılamaz`
+    )
+  }
+
   if (snap.verified !== true && d.enabled) {
     hatalar.push(
       `${d.id}: fiyat DOĞRULANMAMIŞ (verified: false) ama sağlayıcı enabled — ` +
@@ -79,5 +91,6 @@ if (hatalar.length > 0) {
 }
 
 console.log(
-  `  ${descriptors.length} tanımlayıcı · ${bagli} adaptöre bağlı · ${bekleyen} gövdesi bekliyor`
+  `  ${descriptors.length} tanımlayıcı · ${bagli} adaptöre bağlı · ${bekleyen} gövdesi bekliyor · ` +
+    `fiyat anlık görüntüleri tarihli`
 )

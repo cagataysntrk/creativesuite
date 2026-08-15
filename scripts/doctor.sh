@@ -59,4 +59,8 @@ done
 [ "$oksuz" -gt 0 ] && echo "⚠ öksüz    : $oksuz çalıştırmada varlık VAR manifest YOK —$oksuz_liste"
 
 echo
-echo "(sağlayıcı fiyat drift'i ve kayıt tazeliği FAZ-8.4'te eklenecek)"
+echo "── tazelik (§8.7 · §9.1) ──"
+node scripts/tazelik.mjs 2>/dev/null || echo "  (tazelik raporu üretilemedi — 'just check' çalıştır)"
+
+echo
+echo "(kayıt tazeliği ve %20 maliyet sapması FAZ-8.4'te eklenecek)"
