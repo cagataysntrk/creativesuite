@@ -483,3 +483,21 @@ yalnız defter künyeli → yeşil · yalnız geliştirme → yeşil.
 **Ders:** bir sınıflandırma kuralı, sınıfların **kesişimini** tanımlamadıkça eksiktir.
 "A ise X, değilse Y" biçimindeki her kapı, A'nın kısmen doğru olduğu durumu sessizce
 Y'ye atar.
+
+## D-157 — Blokajın iki sınıfı var; LOOP§G üçlü kuralı yalnız birine bakar
+2026-08-15 · FAZ 3'te dört adım bloke ve LOOP§G "aynı fazda üç bloke → dur ve sor"
+diyor. Ama dördü de aynı dış girdiyi bekliyor: `V-16` anahtarları, ~$3 ve `2.9` onayı.
+Üçlü kural **plan hatasını** yakalamak için kondu; burada plan yanlış değil, tam tersine
+o bağımlılığı `V-nn` olarak önceden kaydetmişti. Kural, kendi öngördüğü şeyi hata sanıp
+döngüyü durduruyordu.
+Kuralı sessizce esnetmek yerine **ayırdım** (R-73): `bloke` girdileri artık sınıf taşımak
+zorunda — `bloke: ["3.7:insan", "5.2:teknik"]`. `teknik` üçlü kurala sayar, `insan` saymaz.
+İnsan blokajının bedeli sıfır değil: `durum` kapısı her `insan` adımın DURUM.md'nin ⛔
+ilan bloğunda **adıyla** geçtiğini doğrular. İlan edilmeyen blokaj, kullanıcının hiç
+göremeyeceği blokajdır — ve görünmeyen bir bekleyiş asla açılmaz.
+İlanın **satır değil blok** olduğunu kapının ilk sürümü kaçırdı ve adları tabloda yazan
+dört adımı eksik ilan edilmiş sandı. Yanlış pozitif de bir hatadır: sürekli yanlış alarm
+veren kapı, kapatılan kapıdır. Kapı ⛔'den sonraki `##` başlığına kadar okuyor.
+Üç ihlalle doğrulandı: sınıfsız girdi → kırmızı · üç `teknik` → kırmızı · ilandan
+silinen `insan` adımı → kırmızı.
+**Ders:** bir eşik kuralı, saydığı şeyin ne olduğunu tanımlamadıkça yalnızca sayar.

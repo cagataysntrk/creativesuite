@@ -8,7 +8,7 @@
 aktif_faz: 3
 siradaki_adim: FAZ-3-KAPANIS
 son_guncelleme: 2026-08-15
-bloke: ["2.9", "3.7", "3.8", "3.14"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
 son_kanit: "1. dogrulama turu: 10 blokaj + 13 ikincil. Dokuz blokaj kapatildi (D-134…D-141). En agiri: uret.mjs retrieval yuklemini ATLAYIP 7 draft kaydi uretime sokuyordu (R-13+R-14). Kalite merdiveni HICBIR SEY yapmiyordu; renderWithinLimit ile her basamak gercekten render edilip olculuyor. providerCall uretimden hic cagrilmiyordu. 3.7 ve 3.14 TIKLERI GERI ALINDI — ikisinin de ciktisi kanitlanamiyor. 735 test, 24 kapi."
 ```

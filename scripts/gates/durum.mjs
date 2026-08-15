@@ -79,10 +79,29 @@ if (adimlar.size === 0) {
 
 // Bloke listesi kapanış kontrolünden ÖNCE okunur: kapanış, bloke adımları hariç
 // tutabilmek için onları bilmek zorunda.
-const blokeListesi = (durum.match(/^bloke:\s*\[(.*)\]$/m)?.[1] ?? '')
+//
+// Biçim: `bloke: ["3.7:insan", "5.2:teknik"]` — SINIF ZORUNLU (D-157).
+// `insan`  = dışarıdan girdi bekliyor (anahtar, para, onay) → LOOP§G üçlü kuralına SAYMAZ
+// `teknik` = üç deneme tükendi, yaklaşım bulunamadı        → SAYAR, üçü döngüyü durdurur
+const blokeHam = (durum.match(/^bloke:\s*\[(.*)\]$/m)?.[1] ?? '')
   .split(',')
   .map((x) => x.trim().replace(/^['"]|['"]$/g, ''))
   .filter(Boolean)
+
+const SINIFLAR = new Set(['insan', 'teknik'])
+const bloke = []
+for (const ham of blokeHam) {
+  const [ad, sinif] = ham.split(':')
+  if (sinif === undefined || !SINIFLAR.has(sinif)) {
+    errors.push(
+      `bloke girdisi '${ham}' sınıfsız — '<adım>:insan' veya '<adım>:teknik' olmalı (D-157). ` +
+        `Sınıfsız blokaj, dış bağımlılığı plan hatası sanan bir durdurma üretir.`
+    )
+    continue
+  }
+  bloke.push({ ad, sinif })
+}
+const blokeListesi = bloke.map((b) => b.ad)
 
 // ── 1. sıradaki adım gerçekten var mı ve BİTMEMİŞ mi ─────────────────────────
 //
@@ -120,6 +139,48 @@ if (kapanisEslesme !== null) {
 // ── 2. bloke adımlar gerçek mi ───────────────────────────────────────────────
 for (const b of blokeListesi) {
   if (!adimlar.has(b)) errors.push(`bloke listesindeki '${b}' hiçbir faz dosyasında yok`)
+}
+
+// ── 2b. LOOP§G üçlü kuralı — YALNIZ teknik blokajlar sayılır (D-157) ─────────
+const teknikSayim = new Map()
+for (const b of bloke) {
+  if (b.sinif !== 'teknik') continue
+  const faz = b.ad.split('.')[0]
+  teknikSayim.set(faz, (teknikSayim.get(faz) ?? 0) + 1)
+}
+for (const [faz, n] of teknikSayim) {
+  if (n >= 3) {
+    errors.push(
+      `FAZ ${faz}'te ${n} adım TEKNİK olarak bloke — LOOP§G eşiği aşıldı: döngü durmalı ` +
+        `ve kullanıcıya sormalı. Üç teknik blokaj bir uygulama sorunu değil, plan hatasıdır.`
+    )
+  }
+}
+
+// ── 2c. insan blokajı SESSİZLEŞEMEZ (D-157) ──────────────────────────────────
+// Dış girdi bekleyen bir adım, üçlü kurala saymadığı için bedava görünür. Bedeli şu:
+// DURUM.md'nin ⛔ satırında ADIYLA ilan edilmek zorunda. İlan edilmezse blokaj
+// görünmez olur ve kullanıcı hiç bilmediği bir şeyi asla açamaz.
+//
+// İlan bir SATIR değil bir BLOKTUR: ⛔ satırı başlığı, altındaki tablo gerekçeyi taşır.
+// İlk sürüm yalnız ⛔ içeren satırlara bakıyordu ve adları tabloda YAZAN dört adımı
+// eksik ilan edilmiş sandı — yanlış pozitif de bir hatadır (`.claude/rules/gates.md`).
+const durumSatirlari = durum.split('\n')
+const ilanMetni = durumSatirlari
+  .map((l, i) => {
+    if (!l.includes('⛔')) return ''
+    const son = durumSatirlari.findIndex((x, j) => j > i && /^##\s/.test(x))
+    return durumSatirlari.slice(i, son === -1 ? undefined : son).join(' ')
+  })
+  .join(' ')
+for (const b of bloke) {
+  if (b.sinif !== 'insan') continue
+  if (!ilanMetni.includes(b.ad)) {
+    errors.push(
+      `'${b.ad}' insan girdisi bekliyor ama DURUM.md'nin ⛔ satırında adı geçmiyor (D-157) — ` +
+        `ilan edilmeyen blokaj, kullanıcının hiç göremeyeceği blokajdır`
+    )
+  }
 }
 
 // ── 3. tamamlananlar tablosu tiklerden TÜRETİLİR — İKİ YÖNDE (D-46 · D-155) ──

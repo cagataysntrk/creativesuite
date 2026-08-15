@@ -99,9 +99,25 @@ Bloke adımlar biriktikçe her turda biri yeniden denenir.
 - ⛔ Testi zayıflatarak geçirmek — kural ihlali, geri alınır
 - ⛔ Bloke adımı "tamam" diye tiklemek
 - ✅ Bir adım bloke olduğunda iş bitmez; sıradaki bağımsız adım alınır
-- ✅ **Aynı fazda üç adım birden bloke olursa döngü durur ve kullanıcıya sorar** —
-  "durmak yok" kuralının tek istisnası, çünkü üç bloke adım artık bir uygulama
+- ✅ **Aynı fazda üç adım TEKNİK olarak bloke olursa döngü durur ve kullanıcıya sorar** —
+  "durmak yok" kuralının tek istisnası, çünkü üç teknik blokaj artık bir uygulama
   sorunu değil, plan hatasıdır
+
+**İki blokaj sınıfı — sayan yalnız biri (D-157):**
+
+| Sınıf | Ne demek | Üçlü kurala sayar mı |
+|---|---|---|
+| `bloke: teknik` | Üç deneme tükendi, yaklaşım bulunamadı | **Evet** — plan hatası sinyali |
+| `bloke: insan` | Dışarıdan girdi bekliyor: API anahtarı, para, onay | **Hayır** |
+
+Ayrım şu yüzden var: üçlü kural **plan hatasını** yakalamak için kondu, dış bağımlılığı
+değil. `V-16` anahtarı yoksa üç adım da aynı anda durur ve bu, planın yanlış olduğunu
+DEĞİL, doğru olduğunu gösterir — plan o bağımlılığı zaten `V-nn` olarak öngörmüştü.
+Sınıf ayrımı olmadan kural, kendi öngördüğü şeyi hata sanıp döngüyü durdururdu.
+
+**İnsan blokajının bedeli sıfır değildir:** her turda `DURUM.md`'nin en üstünde,
+tam olarak ne gerektiği ve hangi adımların beklediğiyle birlikte ilan edilir.
+Sessizleşirse teknik blokaja terfi eder.
 
 **Kırmızı kapı ile commit yok.** `just check` kırmızıysa tur commit'siz biter,
 `DURUM.md` güncellenir, sonraki tur oradan devam eder.
