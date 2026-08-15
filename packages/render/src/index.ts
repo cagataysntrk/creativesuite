@@ -59,3 +59,11 @@ export {
   type PixelStats,
 } from './qa/measure.js'
 export { samplePng, pngSize, type SampleOptions } from './qa/pixels.js'
+export {
+  lintDocument,
+  formatLexicon,
+  hexFromTokens,
+  MIRAS_YER_TUTUCULAR,
+  type LexiconRules,
+  type LexiconViolation,
+} from './lexicon/linter.js'

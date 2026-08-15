@@ -136,7 +136,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Palet dışı renk oranı limiti aşan görsel ver → **SINIR DIŞI** işaretleniyor
 💾 `feat(render): marka QA tolerans okumaları` · `Refs: FAZ-3.9 · §11.1`
 
-## 3.10 — Deterministik lexicon linter    [ ]
+## 3.10 — Deterministik lexicon linter    [x] 2026-08-15
 
 📖 §11.2, §11.4 · R-32, R-35 · D-22
 🛠 Modele "bu marka uygun mu" **sorulmaz** — listeye bakılır: yasak terim, kaynaksız

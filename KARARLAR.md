@@ -83,123 +83,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-71 — `spawn.ts` çıktı sınırı parça içinde uygulanmıyordu
-2026-08-15 · FAZ-1.12'nin ✅'si "iptal 5 sn içinde alt süreçleri temizliyor" diyordu ama
-`packages/kernel/src/proc/spawn.ts` **sıfır testliydi** — kriterin karşılığı yoktu.
-Testler yazılınca gerçek bir hata çıktı: `maxOutputBytes` yalnız parça BAŞINDA
-denetleniyordu; 50 KB'lık tek bir chunk geldiğinde `stdout.length` hâlâ 0 olduğu için
-tamamı yazılıyor ve `truncated` hiç işaretlenmiyordu. Tek parça hâlinde gelen büyük çıktı
-bu sistemde tipiktir (ffmpeg log'u, model yanıtı), istisnai değil.
-**Düzeltme:** sınır parça içinde de uygulanıyor, kırpma açıkça bildiriliyor.
-**On üç test:** çıkış kodu · olmayan komut · stdin · **ortam devralınmıyor** · iptal
-(<5 sn ölçüldü) · zaten iptalli sinyal · zaman aşımı · **SIGTERM'i yutan süreç SIGKILL
-ile ölüyor** · çıktı sınırı · `commandExists` üç vaka.
-**Ders:** kabul kriteri yazılıp testi yazılmayınca kriter bir temenniye dönüşüyor —
-ve altındaki kod gerçekten bozuk olabiliyor.
-
-## D-72 — Karar defteri ikiye ayrıldı: aktif + `docs/kararlar/ARSIV-2026.md`
-2026-08-15 · `KARARLAR.md` 608 satıra çıktı ve `docs-size` tavanını (600, R-63) aştı.
-Tavan keyfî değil: agent'ın her turda okuduğu bir dosya şişerse bağlam yanar ve kimse
-okumaz — şişmiş bir defter, olmayan bir defterden kötüdür çünkü okunmadığı hâlde
-okunmuş sayılır.
-**Karar:** planlama döneminin kapanmış kararları (D-1…D-42, hepsi FAZ 0 ve FAZ 1 boyunca
-uygulandı) `docs/kararlar/ARSIV-2026.md`'ye devredildi. Aktif defterde döngü sırasında
-alınan kararlar (D-43+) ve tüm açık `V-nn` borçları kaldı. **448 + 176 satır.**
-**Arşiv iptal DEĞİLDİR:** oradaki kararlar hâlâ bağlayıcı. Bir kararı geçersiz kılmak
-için aktif defterde yeni bir `D-nn` yazılır ve eskisi `**Durum:** reddedildi` alır.
-**`citations` kapısı iki dosyayı da çözüyor** ve **çift kaydı reddediyor**: aynı `D-nn`
-ikisinde birden bulunursa hangisinin geçerli olduğu belirsizleşir ve arşivlenmiş bir
-karar aktif sanılabilir. Reddedilme taraması da her iki dosyayı kapsıyor.
-
-## D-73 — `unsealAttributes` dört belgede vardı, kodda yoktu
-2026-08-15 · `packages/contracts/src/envelope.ts`, `docs/ANAYASA.md`, `.claude/rules/kernel.md`
-ve `docs/fazlar/FAZ-3.md` `packages/registry/src/attributes.ts#unsealAttributes`'ı
-"`attributes`ı açmanın TEK yasal yolu" diye gösteriyordu. **Ne dosya vardı ne darboğaz**
-(`grep attributes chokepoints.json` → boş). Yani `OpaqueAttributes` markası bir engel
-koyuyordu ama meşru geçiş kapısı hiç yapılmamıştı.
-**Karar:** dosya yazıldı ve `attributes-acici` darboğazı eklendi. Açılan attributes
-`Object.freeze` ile donduruluyor: okunur, üzerine yazılmaz — yazma tek noktadan
-(`corpus/write.ts`) geçer ve oradan geçmeyen değişiklik onay kuyruğunu atlar (§5.4).
-**Desen daraltıldı:** ilk yazdığım `as unknown as Record<string, unknown>` masum şema
-cast'lerini de yakalıyordu. Aranan şey `attributes`ın markasını sıyırmak; desen ona özgü.
-Meşru bir kullanımı yasaklamak, kapıyı gürültüyle kapatılan bir kapı yapar.
-
-## D-74 — `just plan` manşetinde sayı iddia etmiyor
-2026-08-15 · FAZ-1.13'ün metni "sağlayıcısı seçilmemiş metered adım için `$0.00` YAZILMAZ"
-diyordu; çıktı ise başlıkta `maliyet aralığı: $0.0000 – $0.0000` yazıp uyarıyı ALTINA
-koyuyordu. Başlıktaki sayı tam olarak yasaklanan iddiaydı ve göz önce onu okur.
-**Karar:** fiyatlanamayan bir tahmin bir sayı değil, bir BOŞLUKTUR. Manşet artık
-`FİYATLANAMADI — N ücretli adımın sağlayıcısı seçilmedi` diyor; fiyatlanan kısım varsa
-ayrı satırda ve **ALT SINIR** etiketiyle. Manşetin `$0.00` taşımadığını doğrulayan test
-eklendi — kural artık metinde değil, testte.
-
-## D-75 — `just reindex` corpus yokken sessizce başarılı dönüyordu
-2026-08-15 · `corpus/` hiç yokken `just reindex` "0 kayıt indekslendi" deyip **EXIT=0**
-dönüyordu. `walk()` içindeki `catch { return out }` okuma hatasını kökte de yutuyordu.
-FAZ-1.6'nın kendi ilkesi "sessiz atlama, aranamayan kayıt demektir" — kök dizin
-seviyesinde tam olarak bu oluyordu.
-**Karar:** `reindexChecked()` kök dizinin varlığını denetliyor ve yoksa `Result` döndürüyor;
-`scripts/reindex.mjs` EXIT=1 ile açık mesaj basıyor. **Alt dizinlerde yutmak meşru kalıyor**
-(izin sorunu tek bir dosyayı atlar ve rapor edilir), kökte değil — kök yoksa HİÇBİR şey
-indekslenmez ve arama boş dönünce sebebi aranmaz.
-
-## D-76 — Zorlanamayan kabul kriterleri gerçeğe uyduruldu
-2026-08-15 · Doğrulama agent'ı üç kriterin **yazıldığı gibi zorlanamadığını** buldu.
-Kriteri olduğu gibi bırakıp "karşılandı" saymak kanıtsız tikleme olurdu (R-70); metni
-gerçeğe uydurmak ise sessiz sapma (R-74). Doğrusu: **açıkça düzeltmek.**
-1. **FAZ-1.9** — "manifest'siz çıktı üretmeyi dene → hata": bugün bir üretim/yayın yolu
-   YOK, dolayısıyla `inspectManifest()` yalnız saf fonksiyon olarak sınanabiliyor.
-   Üretim yolundaki zorlama **FAZ-3.13**'e bağlandı ve kriter bunu söylüyor.
-2. **FAZ-1.10** — "fixture'da gerçek prospect adı ara → yok": bir İSİM düz metindir,
-   desenle ayırt edilemez. Zorlanabilir olan (example.com dışı e-posta, TR telefon,
-   TCKN/VKN biçimi, `synthetic: true` işareti) zaten denetleniyor ve kriter artık onu
-   söylüyor; ad disiplini `SENTETİK` ön ekiyle konvansiyon olarak sürüyor.
-3. **`just golden`** — no-op'tu ve "`just verify` yeşil" kriterini zayıf okutuyordu.
-   Artık açıkça "hiçbir şey KANITLAMAZ, FAZ-1.10b/V-02'ye bağlı" diyor. Sessiz bir
-   `echo` yerine dürüst bir uyarı: yeşil bir çıktının ne kanıtladığı yazılı olmalı.
-
-## D-77 — `attributes` darboğazı özelliğe DOKUNMAYI arıyor, cast'i değil
-2026-08-15 · İkinci doğrulama agent'ı deseni **iki satıra bölerek** atlattı:
-`const ham = r.attributes` + `const acik = ham as unknown as Record<string, unknown>`
-üç kapıdan da (chokepoints, tsc, lint) geçti. Dar desen (`\.attributes\s+as\s+unknown`)
-tek satırlık biçimi arıyordu; R-01 "değişmez yasa" listesinde ve zorlanmayan bir yasa
-yasa değildir.
-**Düzeltme:** desen `\.attributes\b|\bas\s+unknown\s+as\b` oldu — özelliğe dokunmak
-zaten ihlal; değeri önce değişkene almak ilk satırda yakalanıyor. Kapıya `kapsam_haric`
-alanı eklendi (`izinli`den farklıdır: "tek yetkili yer" değil, "kural burada anlamsız").
-Test dosyaları muaf — üretim yoluna import edilmezler.
-**Reddedilen alternatif:** ESLint AST kuralı (`TSAsExpression > TSUnknownKeyword`).
-Daha güçlü olurdu ama `eslint.config.js` yapılandırma-koruma kancasıyla kilitli ve
-kancayı kapatmak, kapıyı kapatmayı öğrenmektir.
-**Dürüst sınır:** `const ara: unknown = r.attributes` biçiminde cast HİÇ yoktur —
-regex bunu yalnız ilk satırdan yakalar. Genel çözüm regex değil, **Proxy tuzağıdır**
-(`purity.test.ts`): çalışma zamanında özelliğe erişen her yol, değeri nasıl elde
-ettiğinden bağımsız olarak patlar.
-
-## D-78 — `just reindex` corpus kökü ve db yolu argümanı alıyor
-2026-08-15 · D-75 `reindex`i corpus yokken EXIT=1'e çevirdi — doğru karar, ama
-**FAZ-1.6'nın kabul komutunu kırdı**: tikli bir adımın ✅'si EXIT=1 veriyordu ve
-`corpus/` FAZ-2.9'a kadar doğmuyor. Kriteri gevşetmek (R-70) ya da `reindex`i corpus
-yokken yeşil döndürmek (D-75'i geri almak) iki yanlış seçenekti.
-**Düzeltme:** `just reindex <kök> <db>` — varsayılanlar aynı, argümanlar isteğe bağlı.
-Kabul komutu artık sentetik fixture corpus'una karşı **aynı kod yolunu** koşuyor:
-`2 kayıt indekslendi · ~30 ms` + bozuk dosya `id_yok` diye raporlanıyor. D-75'in
-koruması argümansız çağrıda aynen duruyor.
-
-## D-79 — Doğrulama agent'ı turu **en fazla iki**
-2026-08-15 · Kullanıcı müdahalesi ve haklı: *"sorun bul denince sorun olmayan şeyi bile
-sorun gibi getirebilir, çünkü sorun bulmak için bakıyor zaten — 3 tur değil 30 tur bile
-olabilir, bu asla bitmez."*
-Somut kanıt bu projeden: 1. tur 9 bulgu, 2. tur 3 yeni blokaj + 4 ikincil. Her tur
-kapanınca bir sonraki tur **yeni bir yüzey** buluyor; yakınsama yok çünkü agent'ın
-görevi yakınsamak değil, bulmak.
-**Kural:** bir faz en fazla **iki** doğrulama turu görür. İkinci tur kapandıktan sonra
-faz KAPANIR. İkinci turda bulunmayan şey tanımı gereği **minor**'dur ve FAZ 9'un denetim
-turlarına düşer — orada zaten sürekli aranıyor (9.2 kural uyumu, 9.5 ölü kod).
-**Reddedilen alternatif:** "temiz rapor gelene kadar tur" — LOOP§D'nin ilk hâli buydu ve
-sonsuz döngüydü; bir fazın kapanması agent'ın yorulmasına bağlı olamaz.
-**Geri alma maliyeti:** sıfır — tavan tek satır, gerekirse artırılır.
-
 ## D-80 — V-01 kapandı: Remotion lisansı D-25'i teyit etti
 2026-08-15 · Birincil kaynak: `LICENSE.md` "a for-profit organization with **up to 3
 employees**" ve `remotion.dev/docs/license/pricing`. UPCYTECH 6 kişi → bedava lisansa
@@ -579,3 +462,40 @@ paletle "mükemmel uyumlu" bir siyah olurdu.
 **Uyarı eşiği limitten ayrı** tutuldu: yalnız limit olsaydı sistem geçti/kaldı ikilisine
 düşer ve limite doğru SÜRÜKLENME görünmezdi — tek tek hiçbir varlığın düşmediği ama
 ortalamanın kenara yaslandığı durum, markanın yavaşça bozulduğu durumdur.
+
+## D-112 — Lexicon linter, corpus'a bağlandığı gün 11 YANLIŞ POZİTİF verdi
+2026-08-15 · Linter yazıldı, testleri geçti, `lexicon` kapısına bağlandı — ve gerçek
+corpus'ta 11 ihlal raporladı. **Hepsi yanlış pozitifti** ve üçü ayrı bir ders:
+1. **Tırnak içi alıntı iddia değildir.** `eski sitedeki "1.247 İlan"` cümlesi o sayıyı
+   REDDEDİYOR, öne sürmüyor. Alıntıyı iddia saymak, kuralı ANLATAN belgeyi kuralın
+   ihlali sayardı — ve o kapı ilk gün kapatılırdı.
+2. **Aralık tariftir.** `50-500 çalışanlı tesisler` bir firmografi, bir performans
+   iddiası değil.
+3. **Çıplak küçük sayı iddia değildir.** `confidence 0.55` bir parametre. Eşik 100:
+   birimi/yüzdesi olan sayı her zaman iddiadır, çıplak sayı ancak büyükse.
+Bilinen ödünleşme: gerçek bir iddiayı tırnağa alarak kaçırmak mümkün. Alternatifi
+dokümantasyonu imkânsız kılan bir linter — kabul edildi ve yazıldı.
+**Asıl ders:** kapıyı sadece sentetik testle değil GERÇEK veriyle koşturmak zorunlu.
+Testlerim 20/20 yeşildi ve linter kullanılamaz durumdaydı.
+
+## D-113 — "Palet tanımsız" ile "palette hex yok" AYRI durumlar
+2026-08-15 · `allowedHex: []` başlangıçta "denetimi atla" demekti. Marka token'ları
+OKLCH olduğu için (§12.1) hex çıkarımı hep boş dönüyordu — yani hex denetimi **hiç
+çalışmıyordu** ve kapı bunu yeşil raporluyordu.
+Üç durum ayrıldı: `null` palet tanımsız (atla) · `[]` palet tanımlı, hex içermiyor
+(HER hex token dışı) · dolu liste (yalnız listedekiler).
+OKLCH bir palette yazılmış her hex, tanımı gereği token dışıdır. İkisini karıştırmak,
+denetimi tam da en çok gerektiği yerde kapatıyordu — bu segmentte üçüncü kez görülen
+desen: **kod yazıldı ama hiç çalışmadı.**
+
+## D-114 — `turkish-case` kapısı dize İÇERİĞİNİ tarıyordu
+2026-08-15 · Lexicon linter'ının hata mesajı `'i'.toUpperCase() → 'I'` yazıyor —
+kullanıcıya sorunu ANLATIYOR, bir çağrı yapmıyor. Kapı onu ihlal saydı.
+Kapı zaten yorumları düşürüyordu; dize içerikleri de düşürüldü. **Ama şablon
+dizelerindeki `${...}` blokları KORUNUYOR**: `` `${x.toUpperCase()}` `` gerçek bir
+çağrıdır ve maskelenirse kural sessizce ölür.
+**İlk yazımım tam bunu yaptı:** `derinlik` 0'dan başlayan bir `do-while`, `${`yi
+görünce ilk karakterde çıkıyor ve bloğu maskeliyordu. İhlal testi (R-71) yakaladı —
+kapı yeşil raporluyordu ve gerçek bir `.toUpperCase()` sessizce geçmişti.
+Dört vaka ayrı ayrı sınandı: çıplak çağrı · şablon içi çağrı · iç içe şablon içi
+çağrı · mesaj dizesi. Dördü de doğru davranıyor.

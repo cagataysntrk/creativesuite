@@ -35,6 +35,76 @@ const GLOBS = [
 const stripComments = (src) =>
   src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
 
+/**
+ * Dize İÇERİĞİ maskelenir — bir hata MESAJI kuralı çiğnemez.
+ *
+ * `\`'i'.toUpperCase() → 'I'\`` yazan bir hata mesajı, kullanıcıya sorunu anlatıyor;
+ * kendisi bir çağrı değil. 2026-08-15'te `lexicon` linter'ının mesajı tam bu yüzden
+ * kapıyı kırmızıya döndürdü.
+ *
+ * ⚠ Şablon dizelerinde `\${...}` blokları KORUNUR: `\`\${x.toUpperCase()}\`` gerçek bir
+ * çağrıdır ve maskelenirse kural sessizce ölür. Maskeleme yalnız literal metne uygulanır.
+ */
+const stripStringBodies = (src) => {
+  let out = ''
+  let i = 0
+  while (i < src.length) {
+    const c = src[i]
+    if (c === "'" || c === '"') {
+      const kapanis = c
+      out += c
+      i++
+      while (i < src.length && src[i] !== kapanis) {
+        if (src[i] === '\\') {
+          out += '  '
+          i += 2
+          continue
+        }
+        out += src[i] === '\n' ? '\n' : ' '
+        i++
+      }
+      out += kapanis
+      i++
+      continue
+    }
+    if (c === '`') {
+      out += c
+      i++
+      while (i < src.length && src[i] !== '`') {
+        if (src[i] === '\\') {
+          out += '  '
+          i += 2
+          continue
+        }
+        // `\${` bloğu AYNEN taşınır: içindeki çağrı gerçektir.
+        if (src[i] === '$' && src[i + 1] === '{') {
+          // `derinlik` `${`yi görür görmez 1 olmalı. 0'dan başlayan bir döngü ilk
+          // karakterde çıkar ve blok maskelenir — ilk yazımda tam bu oldu ve ihlal
+          // testi kapının SESSİZCE öldüğünü gösterdi (D-114).
+          out += '${'
+          i += 2
+          let derinlik = 1
+          while (i < src.length && derinlik > 0) {
+            if (src[i] === '{') derinlik++
+            else if (src[i] === '}') derinlik--
+            out += src[i]
+            i++
+          }
+          continue
+        }
+        out += src[i] === '\n' ? '\n' : ' '
+        i++
+      }
+      out += '`'
+      i++
+      continue
+    }
+    out += c
+    i++
+  }
+  return out
+}
+
 const CIPLAK = /\.\s*to(Upper|Lower)Case\s*\(/g
 const LOCALE_SIZ = /\.\s*toLocale(Upper|Lower)Case\s*\(\s*(?!['"`]tr)/g
 
@@ -44,7 +114,7 @@ let tarandi = 0
 for (const g of GLOBS) {
   for (const rel of globSync(g, { cwd: REPO }).sort()) {
     tarandi++
-    const src = stripComments(readFileSync(p(rel), 'utf8'))
+    const src = stripStringBodies(stripComments(readFileSync(p(rel), 'utf8')))
     const lines = src.split('\n')
 
     lines.forEach((line, i) => {

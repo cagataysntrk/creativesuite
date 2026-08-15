@@ -91,6 +91,72 @@ for (const f of dosyalar) {
   })
 }
 
+// ── R-32/R-35: TÜM corpus metinleri deterministik linter'dan geçiyor ────────
+// `proof_asset` denetimi (yukarısı) aktarım argümanını sorar; bu blok metnin KENDİSİNİ
+// sorar. İkisi ayrı sorular: doğru aktarım argümanı taşıyan bir kanıt yine de kaynaksız
+// bir sayı ya da yasak bir terim içerebilir.
+const { lintDocument, formatLexicon, hexFromTokens } = await import(
+  join(REPO, 'packages/render/dist/index.js')
+)
+
+// İzinli hex üç durumlu (D-113):
+//   `null` → hiç token dosyası yok, palet TANIMSIZ → denetim atlanır
+//   `[]`   → token var ama hex içermiyor (OKLCH, §12.1) → HER hex token dışıdır
+//   dolu   → yalnız listedekiler geçer
+const tokenDosyalari = globSync('brand/*/derived-tokens/*.css', { cwd: REPO })
+let izinliHex = tokenDosyalari.length === 0 ? null : []
+for (const tokenYolu of tokenDosyalari) {
+  izinliHex = izinliHex.concat(hexFromTokens(readFileSync(join(REPO, tokenYolu), 'utf8')))
+}
+
+const YASAK_TERIMLER = [
+  'devrim niteliğinde',
+  'çığır açan',
+  'dünyanın en iyisi',
+  'sektör lideri',
+  'benzersiz',
+  'kusursuz',
+]
+
+const lexIhlaller = []
+let denetlenenKayit = 0
+for (const rel of globSync('corpus/*/*.md', { cwd: REPO })) {
+  const ham = readFileSync(join(REPO, rel), 'utf8')
+  const fm = parseFrontmatter(ham)
+  if (!fm.ok) continue
+  denetlenenKayit++
+  // Kayıt gövdesi tek bir `body` bloğu gibi denetleniyor: linter belge modeli bekliyor
+  // ve corpus kaydının metni de bir belgedir — sadece henüz render edilmemiş hâli.
+  const sahteBelge = {
+    kind: 'post',
+    width: 1080,
+    height: 1350,
+    tokenCss: '',
+    stamp: {},
+    blocks: [{ type: 'body', text: fm.value.body }],
+  }
+  const kaynak =
+    typeof fm.value.frontmatter['claim_source'] === 'string'
+      ? fm.value.frontmatter['claim_source']
+      : null
+  for (const v of lintDocument(sahteBelge, {
+    forbidden: YASAK_TERIMLER,
+    allowedHex: izinliHex,
+    claimSource: kaynak,
+  })) {
+    lexIhlaller.push({ rel, v })
+  }
+}
+
+if (lexIhlaller.length > 0) {
+  for (const { rel, v } of lexIhlaller) {
+    console.log(`  ${rel}`)
+    console.log(formatLexicon([v]))
+  }
+  console.log(`\n${lexIhlaller.length} lexicon ihlali`)
+  process.exit(1)
+}
+
 // ── R-20: pipeline'da görsel adımı metin isteyemez ──────────────────────────
 // Prompt'un KENDİSİ `buildImagePrompt`ten geçiyor (darboğaz), ama pipeline'ın kısıtları
 // da bir prompt kaynağıdır: `no_text: false` yazan ya da sabit metin taşıyan bir adım,
@@ -133,5 +199,7 @@ if (ihlaller.length > 0) {
 
 console.log(
   `  ${kanitlar.length} proof_asset denetlendi · aktif dönem ${aktifEra} · aktarım argümanları tam · ` +
-    `R-20 pipeline taraması temiz`
+    `R-20 pipeline taraması temiz · ${denetlenenKayit} kayıt lexicon'dan geçti ` +
+    `(${izinliHex === null ? 'palet tanımsız' : `${izinliHex.length} izinli hex`}, ` +
+    `${YASAK_TERIMLER.length} yasak terim)`
 )
