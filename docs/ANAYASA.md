@@ -4,7 +4,7 @@
 > hangi bölümü okuyacağını söyler. Bölüm numaraları kalıcıdır: bir bölüm silinmez,
 > `(kaldırıldı → §X.Y)` işaretiyle bırakılır ki eski atıflar kırılmasın.
 >
-> Durum: §1–§7 dolu. §8–§19 iskelet, 0.B.2c–0.B.2d'de dolacak.
+> Durum: **tam.** §1–§19 dolu. Üretilmiş bölümler (§8.7, §10) `just docs` ile tazelenir.
 
 ## §1 Amaç, kapsam, işletim modeli {#section-1}
 
@@ -792,25 +792,156 @@ her şeye olan güvenini kaybeder.
 
 ## §14 Güvenlik {#section-14}
 
-Prompt injection sınırı (`untrusted_input`) · sandbox katmanları · secret yönetimi (SOPS+age).
+Tek kullanıcılı bir sistemde gerçek tehdit kararlı bir saldırgan değil; **kendi
+agent'ının hata yapması** ve **kazınan bir prospect sayfasından gelen talimat**.
+
+### Prompt injection sınırı
+
+`INGEST` dışarıdan çektiği her metni `derived/ingest/<domain>/` altına indirir ve
+bağlama **ayrı, açıkça sınırlandırılmış bir `untrusted_input` bölümü** olarak girer.
+Asla talimat gibi sunulmaz.
+
+**Sert kural:** taze dış metin içeren bir turda `PUBLISH` ve hiçbir metered fiil
+(`GENERATE`, `RENDER`, `INGEST`) insan onayı olmadan ateşlenemez. Prospect
+kişiselleştirmesi tam da bu yüzden en riskli akış: agent bir prospect sitesini okuyor ve
+aynı turda para harcayıp yayın yapabiliyor olsaydı, bu bir sızdırma ve aşırı harcama
+yolu olurdu.
+
+### Sandbox
+
+Şablonlar ve maliyet formülleri **QuickJS**'te: bellek sınırı, 10ms deadline, sıfır host
+bağlantısı. Blast radius bir yanlış sayı.
+
+Ağ gerektiren kullanıcı betikleri **Deno alt sürecinde**, pipeline'ın bildirdiği egress
+host'ları `--allow-net=<host>` olarak. `--allow-run` ve `--allow-ffi` asla verilmez —
+Deno'nun kendi dokümanı bunları `--allow-all` saymayı öneriyor. `node:vm` kullanılmaz;
+kendi dokümanı güvenlik sınırı olmadığını yazıyor.
+
+### Secret
+
+**SOPS + age.** Değerler şifreli, **anahtar adları düz** — bu kasıtlı: `git diff` hangi
+anahtarın eklendiğini/silindiğini gösterir, değerini göstermez.
+
+Erişim yalnız `sops exec-env`. **`direnv` kullanılmaz**: gözetimsiz bir gece render'ında
+kabuk kancası yoktur. Tanımlayıcılarda yalnız `${ENV_ADI}` dolaylaması.
+
+`repo-hygiene` kapısı hem uzantıya hem **içeriğe** bakar. Desen ilk yazıldığında
+`sk-[A-Za-z0-9]{20,}` idi ve gerçek Anthropic anahtarını tirede durduğu için kaçırıyordu;
+kapı yazıldığı gün kördü ve yalnız ihlal testi ortaya çıkardı (D-49).
 
 ## §15 Test stratejisi {#section-15}
 
-Golden-file · kontrat testleri · cassette · LLM değerlendirme · her ücretli fiil dry-run edilebilir.
+Çıktıların çoğu deterministik değil; strateji bunu kabul edip **deterministik olan her
+şeyi sıkıca** test etmek üzerine kurulu.
+
+| Katman | Ne | Nasıl |
+|---|---|---|
+| Birim | Saf fonksiyonlar: yönlendirici skorlama, maliyet formülü, Türkçe primitifler, projeksiyon derleyicisi, spec doğrulayıcılar | Vitest, gerçek assertion |
+| Kontrat | Sağlayıcı adaptörleri | Kaydedilmiş cassette + msw (tek kesici) |
+| Golden | Tipografi, şablon yerleşimi, deck sayfaları | **JSON metrik**, piksel değil |
+| Değerlendirme | LLM çıktısı | Deterministik iddialar: şema geçerliliği, karakter sınırı, yasak terim yokluğu, diacritic bütünlüğü, `claim_source` varlığı |
+
+**LLM'e "bu iyi mi" diye sorulmaz.** LLM-as-judge zayıf; şema geçerliliği ve yasak terim
+listesi güçlü.
+
+**Agentic katman fiil sınırında mock'lanır.** DAG, yönlendirici kararları, insan kapısı
+geçişleri ve manifest içeriği test edilir — nesir değil.
+
+**Tek HTTP kesici: msw.** İki dispatcher birbiriyle kavga eder ve "tek başına geçer,
+paket içinde düşer" tipi flake üretir.
+
+**Fixture'da gerçek prospect verisi asla bulunmaz** (KVKK). Sentetik corpus, sentetik
+marka, sentetik prospect.
+
+**Pahalı işlemin testi `plan`'dır.** Her metered fiilin kuru ikizi vardır: sıfır ağ,
+sıfır yazma. Kuru ikizi olmayan bir fiil `plan`'ı yalancı yapar.
 
 ## §16 Riskler ve azaltmalar {#section-16}
 
-En büyüğü: aşırı mühendislik. Üç ay strateji CMS'i yazıp imalatçılarla sıfır hafta konuşmak.
+**1 — Aşırı mühendislik. En büyük risk bu.** Tek kişilik bir şirket üç ay strateji CMS'i
+yazıp imalatçılarla sıfır hafta konuşabilir.
+*Azaltma:* on gerçek varlık yayınlanana ve bir iş kapanana kadar yedi strateji tipinin
+ötesine geçilmez. `x_signature`, üç yollu merge, probe bake-off ve karar defteri **ilk
+yeniden üretim gerçekten acıtana kadar** eklenmez.
+
+**2 — Kernel sızıntısı.** Bir renderer'da `record.attributes.headline` yazmak zararsız
+görünür; altı ay sonra kırk yerde Türkçe bir başlık varsayılır ve şirket dönüşemez.
+*Azaltma:* derleme hatası + lint + Proxy tuzağı, ilk commit'ten itibaren.
+
+**3 — Regenerasyon gürültüsü.** LLM her koşuda değişmemiş metni yeniden yazar; 900
+opsiyonluk plan incelenemez, insan hepsini kabul eder ve yönetişim tiyatroya döner.
+*Azaltma:* girdi-hash'li atlama zorunlu altyapıdır.
+
+**4 — Mevzuat çürümesi.** On sekiz ayda CBAM iki kez, CSRD iki kez, TSRS bir kez
+değişti. Eski eşiği söyleyen bir varlık yalnız bayat değil, **itibar zedeleyicidir** —
+karşısındaki uyum sorumlusu kontrol eder.
+*Azaltma:* `regulation` kayıtlarında `re_verify_by` zorunlu; süresi geçince o kaydı
+kullanan varlıklar için hedefli regenerasyon önerilir.
+
+**5 — Yeşil ama boş doğrulama.** `just verify` üç bileşenden ikisi stub'ken de yeşil
+verir. Yeşilin kendisi kanıt değildir.
+*Azaltma:* her BLOCKING kapı kasten ihlal edilerek kabul edilir (R-71); faz kapanışında
+bağımsız doğrulama agent'ı.
+
+**6 — Sahte tik.** Kriter karşılanmadan tiklemek. 2026-08-15'te iki kez oldu ve ikisini
+de doğrulama agent'ı yakaladı.
+*Azaltma:* `LOOP§D` + kanıt-önce disiplini + `just save` darboğazı.
+
+**7 — Bir aylık ihmal.** Hiçbir daemon doğruluk tutmaz. Kurtarma `git clone` + `cat`;
+`just verify` sıfırdan her şeyi yeniden kurar. Haftalık `doctor` **rapor yazar, hiçbir
+şeyi değiştirmez** — gözetimsiz otomatik düzeltme, ihmal edilen sistemlerin çürüme yolu.
 
 ## §17 Reddedilenler {#section-17}
 
-~60 araç ve yaklaşım, her biri gerekçesiyle. Reddedilmiş bir karara atıf vermek hata.
+Tam liste ve gerekçeler `docs/research/` altında. Reddedilmiş bir `D-nn`'e atıf vermek
+`citations` kapısında **hatadır** — geçersiz gerekçeye dayanmak, gerekçesiz olmaktan
+kötüdür çünkü sağlam görünür.
+
+**Altyapı:** Postgres · Langfuse · Temporal/Trigger.dev/Inngest · LiteLLM proxy ·
+vektör DB · DVC · Git LFS · Turborepo/Nx (ilk gün) · n8n/Windmill/Dify · her agent
+framework'ü (LangGraph/CrewAI/Mastra) · ayrı DAM · ayrı BI aracı · CRM.
+
+**Kreatif:** Satori (Türkçe tipografi riski) · Canva Connect (Enterprise kapılı) ·
+Gamma/Presenton/hazır deck üreticileri · Midjourney (API yok, ToS otomasyonu yasaklıyor) ·
+otomatik klipleyiciler · ffmpeg `zoompan` · Playwright `recordVideo`.
+
+**Lisans tuzakları:** FLUX.2 [dev] self-host (ticari değil) · XTTS-v2 (CPML, şirket
+dağıldı) · F5-TTS ağırlıkları (CC BY-NC) · Bria RMBG (CC BY-NC, MIT rembg içinde paketli —
+yanlışlıkla seçilmesi kolay) · ElevenLabs bedava katmanı (ticari lisans **yok**) ·
+Kokoro (Türkçe yok).
+
+**Kanallar:** TikTok (denetim headless pipeline'ın yapısal olarak geçemeyeceği şeyler
+istiyor) · X (link içeren postta $0.20) · Pinterest (Trial'da Pin'leri yalnız siz
+görürsünüz) · Reddit (en yüksek deplatform riski).
+
+**Ölü/ölmekte:** Imagen 4 · gpt-image-1 · OpenAI Sora Videos API · Proxycurl ·
+Crunchbase Basic API · Google CSE · Flowise · GitHub Models.
+
+**Kapsam:** çok kiracılılık · müşteri koltuğu · white-label · public API.
 
 ## §18 Açık kalemler {#section-18}
 
-`V-nn` doğrulama borçları. Her biri bir faz adımına bağlı.
+`KARARLAR.md` sonunda `V-nn` olarak durur. **Her borç bir faz adımına bağlıdır** —
+bağlanmamış borç, unutulmuş borçtur.
+
+Doğrulanmamış bir sayı koda gömülmez; 🔴 işaretli her şey burada kalır ve kapanınca
+tarih + kanıtla kapatılır.
+
+Denetim tasfiyesi: üç düşman denetçinin 75 bulgusunun tamamı `docs/denetim-tasfiye.md`'de
+karara bağlandı — uygulandı, reddedildi veya `V-nn` olarak ertelendi. **Sessizce düşen
+bulgu yok.**
 
 ## §19 Araştırma eki {#section-19}
 
-`docs/research/` — 45 agent çıktısı, damıtılmış. Baştan sona okunmaz, `ctx_search` ile sorgulanır.
-Ham transkript `~/.claude/projects/.../subagents/workflows/` altında.
+`docs/research/` — altı dalgada 45 agent çıktısı, damıtılmış markdown. 1000'den fazla
+araç, model ve proje incelendi; fiyat, lisans ve karar (ADOPT/TRIAL/HOLD/AVOID) ile.
+
+**Baştan sona okunmaz.** `ctx_search` ile sorgulanır veya ilgili dosya açılır.
+`docs/research/README.md` dizini taşır.
+
+Ham transkript (26 MB, her araç çağrısı ve çekilen her sayfa)
+`~/.claude/projects/.../subagents/workflows/` altında kalır — git'e girmez, çünkü
+`repo-hygiene` 512KB üstünü zaten bloklar ve varlık byte'ları içerik-adresli depoya aittir.
+
+**Bir agent'ın neden öyle dediğini** öğrenmek gerektiğinde bakılacak yer ham transkripttir;
+**ne dediğini** öğrenmek için damıtılmış hâli yeter.

@@ -77,7 +77,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    **§8.7 elle yazılmaz** — `just docs` YAML'dan üretir.
 ✅ `docs-drift` kapısı yeşil · üretilmiş dosyalar commit'li
 
-## 0.B.2d — ANAYASA §14–§19    [ ]
+## 0.B.2d — ANAYASA §14–§19    [x] 2026-08-15
 🛠 Güvenlik, test stratejisi, riskler, reddedilenler, açık kalemler, araştırma eki.
 ✅ `grep -rn "TBD\|TODO" docs/ANAYASA.md` boş · `wc -l` ≤1200
 
