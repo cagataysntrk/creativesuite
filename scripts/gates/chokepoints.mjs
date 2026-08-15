@@ -30,6 +30,19 @@ if (list.length === 0) {
 const stripComments = (src) =>
   src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
 
+/**
+ * Kabuk yorumları. **Yalnız TAM SATIR yorumları** (`^\s*#`) düşürülür.
+ *
+ * Satır sonu yorumları (` # …`) düşürülmez: kabukta `#` parametre genişletmesinde
+ * (`${v#onek}`) ve `$#`ta da geçer; naif bir soyma komutu bozar ve kapı yanlış yerde
+ * eşleşir. Tam satır yorumu ise hiçbir zaman bunlardan biri olamaz.
+ *
+ * Neden gerekti: `doctor.sh` içinde D-151'i ANLATAN bir yorum `git commit` dizesini
+ * içeriyordu ve `kaydetme` darboğazı onu ihlal saydı. Bir kuralı anlatan yorum, kuralı
+ * çiğnemez — `turkish-case`te aynı ders (D-114).
+ */
+const stripShellComments = (src) => src.replace(/^\s*#.*$/gm, '')
+
 const errors = []
 let enforced = 0
 const declaredOnly = []
@@ -59,7 +72,8 @@ for (const cp of list) {
   for (const rel of files) {
     if (allowed.has(rel) || haric.has(rel)) continue
     scannedTotal++
-    const src = stripComments(readFileSync(p(rel), 'utf8'))
+    const ham = readFileSync(p(rel), 'utf8')
+    const src = rel.endsWith('.sh') ? stripShellComments(ham) : stripComments(ham)
     const lines = src.split('\n')
     lines.forEach((line, i) => {
       re.lastIndex = 0

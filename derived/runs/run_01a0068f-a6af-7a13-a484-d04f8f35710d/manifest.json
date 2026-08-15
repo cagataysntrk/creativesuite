@@ -1,0 +1,80 @@
+{
+  "runId": "run_01a0068f-a6af-7a13-a484-d04f8f35710d",
+  "brandId": "brd_upcytech",
+  "eraId": "era_imalat_2026",
+  "pipeline": "instagram-carousel",
+  "corpusCommit": "ffbe3d9861f3bad39a9fcfb3ef7456f4f2bfa1d3",
+  "registryCommit": "ffbe3d9861f3bad39a9fcfb3ef7456f4f2bfa1d3",
+  "createdAt": "2026-08-15T18:38:19.485Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-15T18:38:19.484Z",
+      "finishedAt": "2026-08-15T18:38:19.485Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalat fire"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-15T18:38:19.485Z",
+      "finishedAt": "2026-08-15T18:38:19.485Z",
+      "output": null
+    }
+  ],
+  "decisions": [
+    {
+      "gate": "insan-onayi",
+      "decision": "rejected",
+      "at": "2026-08-15T18:09:41.354Z",
+      "note": "başlık ikinci slaytta kesiliyor"
+    }
+  ],
+  "context": [],
+  "contextRetentionDays": 90
+}

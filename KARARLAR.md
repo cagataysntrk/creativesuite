@@ -489,3 +489,25 @@ tarihsiz bir anlık görüntü yaşlandırılamaz, ve *tarihli ama denetlenmeyen
 tarihi olduğu için doğru SANILIR — ikincisi daha tehlikeli.
 `claude-code` "anlık görüntü YOK ama enabled" diye uyarı alıyor ve bu DOĞRU: abonelikle
 ödenmiş bir sağlayıcının fiyat listesi yoktur, ama bu bir olgu olarak görünmeli.
+
+## D-151 — `just save` atlandı: 24 commit push edilmemiş kalmıştı
+2026-08-15 · Bu oturumda doğrudan `git commit` kullandım, `just save` değil. Sonuç:
+**99 commit'in 24'ü uzak depoya gitmemişti.**
+`save.sh` yalnız commit atmıyor — kapıları koşuyor, commit sayısını ÖNCE/SONRA
+karşılaştırıyor (heredoc'tan sonraki komutların yalan söylemesine karşı, R-70) ve
+**push ediyor**. Push başarısız olursa açıkça uyarıyor: *"yasa 12 (git clone ile
+kurtarma) geçersiz"*.
+Yasa 12 (§16) diyor ki: *"Bir ay ihmal edilse de çalışır. Kurtarma `git clone` + `cat`."*
+24 push edilmemiş commit'le bir `git clone` bu oturumun **tamamını** kaçırırdı — FAZ 3'ün
+uçtan uca hattı, 17 karar, iki doğrulama turunun bütün düzeltmeleri.
+Darboğaz beni engelleyemedi çünkü kapsamı `scripts/**`: bir *betiğin* ikinci bir
+`git commit` çağırmasını yasaklıyor, bir *insanın/agent'ın* kabuğa yazmasını değil.
+**Bu, darboğazların yapısal sınırı:** kod içindeki ikinci yolu kapatırlar, kabuktaki
+alışkanlığı değil. Kalan savunma disiplin ve `doctor` — artık "push edilmemiş" sayısını raporluyor ve
+upstream yoksa *"'git clone' ile kurtarma İMKÂNSIZ"* diyor.
+**Düzeltmenin kendisi bir kapı boşluğu açığa çıkardı:** `doctor.sh`taki bu kararı
+ANLATAN yorum `git commit` dizesini içeriyordu ve `kaydetme` darboğazı onu ihlal saydı —
+`chokepoints` kabuk `#` yorumlarını soymuyordu. Artık **tam satır** kabuk yorumları
+soyuluyor; satır sonu yorumları soyulmuyor çünkü `#` kabukta `${v#onek}` ve `$#`ta da
+geçer ve naif bir soyma komutu bozar. `turkish-case`te aynı ders (D-114): bir kuralı
+anlatan yorum, kuralı çiğnemez.

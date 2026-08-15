@@ -15,6 +15,18 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 echo "── doctor · $(date +%F) ──"
 echo "git      : $(git log --oneline -1 2>/dev/null || echo yok)"
 echo "temiz mi : $([ -z "$(git status --porcelain)" ] && echo evet || echo HAYIR)"
+
+# Push edilmemiş commit: yasa 12'nin (§16) sessiz düşmanı. `git clone` ile kurtarma,
+# yalnız uzak depo güncelse çalışır. 2026-08-15'te 24 commit push edilmemiş kalmıştı
+# çünkü `just save` yerine doğrudan `git commit` kullanılmıştı (D-151).
+unpushed=$(git rev-list --count '@{u}'..HEAD 2>/dev/null || echo "?")
+if [ "$unpushed" = "?" ]; then
+  echo "⚠ push     : upstream YOK — 'git clone' ile kurtarma İMKÂNSIZ (yasa 12)"
+elif [ "$unpushed" -gt 0 ]; then
+  echo "⚠ push     : $unpushed commit uzakta YOK — 'git clone' onları kaçırır (yasa 12)"
+else
+  echo "push     : güncel"
+fi
 echo "kapılar  : $(ls -1 scripts/gates/*.sh scripts/gates/*.mjs 2>/dev/null | wc -l | tr -d ' ') adet"
 echo "aktif faz: $(sed -n 's/^aktif_faz: *//p' DURUM.md 2>/dev/null | head -1 || echo '?')"
 echo "sıradaki : $(sed -n 's/^siradaki_adim: *//p' DURUM.md 2>/dev/null | head -1 || echo '?')"
