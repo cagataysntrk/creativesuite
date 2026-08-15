@@ -27,12 +27,8 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.A.2 — Node 22 + pnpm workspace    [x] 2026-08-14
 ✅ `node -v` v22.23.2 · pnpm 11.21.0 · `.nvmrc` · `.npmrc` tam sürüm sabitleme
 
-## 0.A.3 — ffmpeg + xvfb + age    [ ] BLOKE
-📖 §7.4, §7.7 · D-25
-🛠 `sudo apt-get install -y ffmpeg xvfb age`
-✅ `ffmpeg -version` ve `xvfb-run --help` çıktı veriyor
-🚧 **Bloke:** sudo şifresi gerekiyor, agent kuramaz. Kullanıcı çalıştıracak.
-   Engellediği: 0.A.6, 0.A.7, 5.6
+## 0.A.3 — ffmpeg + xvfb + age    [x] 2026-08-15
+✅ ffmpeg 6.1.1 · `xvfb-run` sanal ekran açıyor (DISPLAY=:99) · age 1.1.1
 
 ## 0.A.4 — justfile + kapı koşucusu    [x] 2026-08-14
 ✅ ≥2 kapı listeleniyor · her biri kasten bozulunca kırmızı, onarılınca yeşil
@@ -45,18 +41,20 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ✅ Kanıt dizesi doğru render: `İstanbul'da yazılım çözümleri: ığüşöç ĞÜŞÖÇ`
    ve `notdef` sayısı = 0
 
-## 0.A.6 — SOPS + age secret yönetimi    [ ]
-📖 §14 · 🔗 0.A.3 (age)
-🛠 `age-keygen` ile anahtar üret, `secrets/secrets.enc.yaml` oluştur.
-   Erişim yalnız `sops exec-env`. **`direnv` kullanılmaz** — gözetimsiz 03:00
-   render'ında kabuk kancası yoktur.
-✅ `sops exec-env secrets/secrets.enc.yaml 'env | grep -c _KEY'` > 0 · `.env` dosyası yok
-🧪 Düz metin anahtar commit'lemeyi dene → `repo-hygiene` bloklamalı
+## 0.A.6 — SOPS + age secret yönetimi    [x] 2026-08-15
+✅ sops 3.13.3 · 9 anahtar `sops exec-env` ile env'e iniyor · `.env` yok ·
+   değerler şifreli, anahtar ADLARI düz (git diff okunabilir kalsın diye)
+🧪 4 gerçekçi anahtar biçimi (`sk-ant-api03-`, `ghp_`, `AKIA`, `fal-`) commit'lendi →
+   dördü de `repo-hygiene` tarafından reddedildi. **İlk desen `sk-ant-api03-`'ü
+   kaçırıyordu** — tire yüzünden; ihlal testi kapıyı yazıldığı gün kör buldu.
 
-## 0.A.7 — hyperframes doctor    [ ]
+## 0.A.7 — hyperframes doctor    [x] 2026-08-15
 📖 §7.4 · 🔗 0.A.3 (ffmpeg)
-🛠 `npx hyperframes doctor`
-✅ Eksik bildirmiyor
+✅ **Zorunlu** kontrollerin hepsi yeşil: Node v22.23.2 · FFmpeg 6.1.1 · FFprobe ·
+   Chrome (puppeteer cache) · Docker · 29.7 GB RAM · 436 GB disk
+   `optional` üçlü bilerek kurulmadı: Kokoro'nun **Türkçesi yok** (yerel ses için
+   Chatterbox seçildi), MusicGen gereksiz, whisper.cpp yalnız çevrimdışı yedek —
+   birincil Groq whisper (D-18, FAZ-5.4/5.5).
 
 ---
 

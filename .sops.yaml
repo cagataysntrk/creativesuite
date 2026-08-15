@@ -1,0 +1,6 @@
+# SOPS yapılandırması — secrets/ altındaki her şey age ile şifrelenir.
+# Varsayılan davranış: DEĞERLER şifrelenir, ANAHTAR ADLARI düz kalır.
+# Bu kasıtlı: git diff hangi anahtarın eklendiğini/silindiğini gösterir, değerini göstermez.
+creation_rules:
+  - path_regex: secrets/.*\.enc\.ya?ml$
+    age: age1526hzkz5rn4dgus84cxp6nnm9ze7v8fwqwd32ws0hdlkjd6ug5msjswz3k

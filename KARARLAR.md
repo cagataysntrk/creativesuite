@@ -251,3 +251,17 @@ FAZ dosyası tek doğrudur; DURUM ondan türetilir.
 **Neden:** anahtar kelime taraması yetmiyor — D-25'in gövdesinde "Remotion reddedildi"
 yazıyor ve kapı kararın kendisini reddedilmiş sandı. İşaretleyici açık olmak zorunda.
 **Geri alma maliyeti:** düşük.
+
+## D-48 — Yerel ses için Kokoro değil Chatterbox
+2026-08-15 · `hyperframes doctor` Kokoro'yu opsiyonel yerel TTS olarak öneriyor; **kurulmadı**.
+**Neden:** araştırma bulgusu — Kokoro-82M'de **Türkçe yok**. Yerel şerit için Chatterbox
+Multilingual (MIT, 500M, 6GB VRAM'e sığar) seçildi. Birincil altyazı Groq whisper;
+whisper.cpp yalnız çevrimdışı yedek olarak, gerektiğinde kurulacak.
+**Geri alma maliyeti:** yok, kurulmamış bir bağımlılık.
+
+## D-49 — Secret deseni tireyi kapsamalı
+2026-08-15 · `repo-hygiene` ilk deseni `sk-[A-Za-z0-9]{20,}` idi ve gerçek Anthropic
+anahtarını (`sk-ant-api03-…`) **kaçırıyordu** — tirede duruyordu. Desen `[A-Za-z0-9_-]`
+yapıldı, `fal-` biçimi eklendi.
+**Neden kayda değer:** kapı yazıldığı gün kördü ve yalnızca ihlal testi ortaya çıkardı.
+R-71'in ("yeşil kapı hiçbir şey kanıtlamaz") somut kanıtı.
