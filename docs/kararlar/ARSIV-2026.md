@@ -174,3 +174,24 @@ Zarfın alanları sabit sistem alanlarıdır, kernel okur. Kullanıcının tanı
 ## D-42 — Açık kalemler `V-nn`
 Doğrulama borçları `R-nn` değil `V-nn`. `R-nn` zaten KURALLAR kuralı demek; aynı ön ek
 iki hedefe işaret ederse atıf kapısı yanlış belgeyi doğrular.
+
+## D-43 — GateGuard fact-force kancası kapatıldı
+2026-08-14 · `.claude/settings.local.json` içinde `ECC_DISABLED_HOOKS`.
+**Neden:** her yeni dosyada dört maddelik beyan istiyordu; FAZ 0 ~30 dosya üretiyor ve
+beyan, planda zaten yazılı olanı tekrar ettiriyordu. Her dosya onaylı bir faz adımından
+geliyor, her adımın ✅ kriteri var, her commit hook'tan geçiyor.
+**Alternatif:** açık bırakıp her dosyada beyan vermek — ~30 ekstra tur.
+**Geri alma maliyeti:** tek satır silmek.
+
+
+## D-44 — commit-msg kapısı 0.C.7'den 0.A.1c'ye çekildi
+2026-08-14 · **Neden:** kural ancak zorlandığında gerçektir. 0.C.7'ye kadar beklemek
+onlarca denetimsiz commit demekti. Ayrıca `.git/hooks/` yerine `.githooks/` seçildi —
+`.git/hooks/` commit'lenmez ve taze klonda kural kaybolur.
+**Geri alma maliyeti:** yok, saf kazanç.
+
+---
+
+# 🔴 Doğrulama borçları
+
+Her biri bir faz adımına bağlı. Kapanınca tarih ve kanıtla kapatılır.

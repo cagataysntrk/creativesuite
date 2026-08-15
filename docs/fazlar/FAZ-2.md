@@ -163,7 +163,7 @@ yeniden üretilebilsin.
    hash'ten bağımsız susuyor · bozuk JSONL satırı → `✗ bozuk satır: 2`, EXIT=1
 💾 `feat(brand): sticky karar defteri ve idempotent atlama` · `Refs: FAZ-2.8 · §4.5`
 
-## 2.9 — İlk keşif çalıştırması    [ ]
+## 2.9 — İlk keşif çalıştırması    [ ] BLOKE: insan onayı → D-83
 
 📖 §4.4, §6 · D-5 · V-07, V-08
 🔗 2.8
@@ -172,8 +172,17 @@ yeniden üretilebilsin.
    LinkedIn 2022 · site "2021'den beri") tek doğruya bağlanır. **V-07** (Era 1'in dikeyi)
    hipotez olarak tohumlanır, 10 gerçek satış görüşmesinden sonra üzerine yazılır.
 📁 `corpus/<entity_type>/*.md`
-✅ Yedi varlık tipinin her birinde en az bir `status: active` kayıt · her biri `source` taşıyor
-🧪 Kaynaksız sayısal iddia ekle → `claim_source` eksik diye reddediliyor (R-32)
+✅ Yedi varlık tipinin her birinde bir kayıt, hepsi `source` taşıyor — **`propose()`
+   üzerinden** yazıldı (elle dosya yazmak darboğazı atlatmak olurdu). `just reindex` →
+   `7 kayıt indekslendi · 34 ms`; retrieval **0 kayıt** döndürüyor çünkü hepsi draft.
+   **Kalan yarı insanın:** `just onayla <yol…>` → `active`. Agent bunu çağırmaz (D-83)
+🧪 Koşuldu: draft kayıtlar `selectRecords`ten dönmüyor (0), ham `search` onları
+   buluyor (indekste VARLAR — görünmezlik yüklemde, indekste değil) · Türkçe eklemeli
+   arama gerçek veride çalışıyor: "ölçüm" → beş kayıt ("ölçülebilir", "ölçemediğiniz"
+   dahil) · `just onayla` aynı kaydı ikinci kez onaylamayı reddediyor (onay tarihini
+   ezmek, "bunu ne zaman kabul ettim" cevabını silmektir)
+   ⚠ `claim_source` kapısı FAZ-3.10'da (lexicon linter) — yedi kayıt sayısal iddia
+   İÇERMİYOR, o yüzden bugün ihlal edilecek bir kural yok
 💾 `feat(corpus): ilk keşif çalıştırması` · `Refs: FAZ-2.9 · §4.4`
 
 ## 2.10 — Token mimarisi ve `frame.md`    [ ]

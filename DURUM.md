@@ -6,9 +6,9 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 2
-siradaki_adim: 2.9
+siradaki_adim: 2.10
 son_guncelleme: 2026-08-15
-bloke: []
+bloke: ["2.9"]
 deneme_sayaci: {}
 son_kanit: "FAZ 1 KAPANDI. Iki dogrulama turu kosuldu (D-79 tavani), her ikisinin butun bulgulari kapatildi: D-67..D-78. Cikis kriterinin dordu de kanitli: 18 kapi yesil, 9 fiil + verbs kapisi, just plan 8 adimli DAG + FIYATLANAMADI mansetti, strace ile 0 socket. 236 test. 1.10b golden harness FAZ-3.2'ye ertelendi (V-02 marka fontu). V-01 kapandi (D-80).""
 ```
@@ -19,11 +19,8 @@ son_kanit: "FAZ 1 KAPANDI. Iki dogrulama turu kosuldu (D-79 tavani), her ikisini
 indeksi, projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıyor.
 236 test, 18 kapı. Henüz hiçbir ÜRETİM yok — ilk gerçek görsel FAZ 3'te.
 
-> **FAZ 2 — bilgi çekirdeği ve marka DNA motoru** başlıyor. Sıradaki adım `2.1`:
-> yedi strateji varlık tipi. Şirketin bugün ne olduğu buradan sonra KAYITLI olacak.
->
-> `1.10b` (golden harness) **FAZ-3.2'ye ertelendi** — Chromium orada doğuyor, marka
-> fontu V-02'de. Fazın dört çıkış kriterinin hiçbiri ona bağlı değildi.
+> **FAZ 2 — bilgi çekirdeği ve marka DNA motoru** işleniyor: 8/13 adım kapandı,
+> `2.9` insan onayı bekliyor. `1.10b` (golden harness) FAZ-3.2'ye ertelendi.
 
 ## Tamamlananlar
 
@@ -107,7 +104,13 @@ bırakıyor.
 
 ## Bloke adımlar
 
-Yok.
+**`2.9` — insan onayı bekliyor (D-83).** Yedi corpus kaydı `propose()` ile yazıldı,
+`status: draft` indi, retrieval'a görünmüyorlar. Onları `active` yapmak agent'ın işi
+değil (R-14). Kullanıcı kayıtları okuyup `just onayla corpus/*/*.md` çalıştırınca adım
+kapanır; ardından `just reindex` ve çalıştırma commit'i.
+
+**Okurken dikkat:** `positioning`, `icp`, `offer` kayıtları HİPOTEZ (V-07) — dikey
+seçimi üçüncü taraf verisinden çıkarım. FAZ 2 bu adım kapanmadan kapanmaz.
 
 ## Notlar
 

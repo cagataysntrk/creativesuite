@@ -15,26 +15,6 @@ devredilir. `citations` kapısı her `D-nn`'in ikisinden **tam olarak birinde** 
 doğrular.
 
 ---
-## D-43 — GateGuard fact-force kancası kapatıldı
-2026-08-14 · `.claude/settings.local.json` içinde `ECC_DISABLED_HOOKS`.
-**Neden:** her yeni dosyada dört maddelik beyan istiyordu; FAZ 0 ~30 dosya üretiyor ve
-beyan, planda zaten yazılı olanı tekrar ettiriyordu. Her dosya onaylı bir faz adımından
-geliyor, her adımın ✅ kriteri var, her commit hook'tan geçiyor.
-**Alternatif:** açık bırakıp her dosyada beyan vermek — ~30 ekstra tur.
-**Geri alma maliyeti:** tek satır silmek.
-
-## D-44 — commit-msg kapısı 0.C.7'den 0.A.1c'ye çekildi
-2026-08-14 · **Neden:** kural ancak zorlandığında gerçektir. 0.C.7'ye kadar beklemek
-onlarca denetimsiz commit demekti. Ayrıca `.git/hooks/` yerine `.githooks/` seçildi —
-`.git/hooks/` commit'lenmez ve taze klonda kural kaybolur.
-**Geri alma maliyeti:** yok, saf kazanç.
-
----
-
-# 🔴 Doğrulama borçları
-
-Her biri bir faz adımına bağlı. Kapanınca tarih ve kanıtla kapatılır.
-
 ## V-01 — Remotion lisansı ✅ KAPANDI (2026-08-15, D-80)
 Bedava lisans "up to 3 employees" (LICENSE.md), şirket 6 kişi. Bizim kullanımımız
 *Automators* katmanı: **$100/ay asgari**. D-25 teyit edildi. → FAZ-0.D.3
@@ -59,8 +39,9 @@ değişikliği demek. → FAZ-2.11
 Kanıt otomotiv tedarik/Bursa'yı işaret ediyor ama bu üçüncü taraf verisinden çıkarım,
 gerçek satış pipeline'ından değil. Hipotez olarak tohumla, 10 gerçek görüşmeden sonra üzerine yaz. → FAZ-2.9
 
-## V-08 — Kuruluş tarihi çelişkisi
-Sicil 3 Tem 2025 · LinkedIn 2022 · site "2021'den beri". Tek doğruya bağlan. → FAZ-2.9
+## V-08 — Kuruluş tarihi çelişkisi ✅ KAPANDI (2026-08-15, D-82)
+**3 Temmuz 2025** tek doğrudur — ticaret sicili BELGELİDİR, diğer ikisi beyandır.
+LinkedIn "2022" ve upcymarket.com "2021'den beri" düzeltilecek. → FAZ-2.9
 
 ## V-09 — KAP resmî REST API şartları
 Ticari kullanıma uygun mu? Şartlar PDF'i "Hizmete Özel". → FAZ-6.5
@@ -574,3 +555,28 @@ mantığı).
 **Ayrıca:** aday listesi yokken çıktı "0 op" demiyor, **aday listesi YOK** diyor. Boş bir
 plan ile değişmemiş bir corpus aynı şey değildir; ikisini karıştırmak hiç koşmamış bir
 motoru çalışıyor sanmaktır (D-75'in aynı hatası).
+
+## D-82 — Kuruluş tarihi: sicil belgesi tek doğru (V-08 kapandı)
+2026-08-15 · Üç tarih çatışıyordu: ticaret sicili **3 Tem 2025** · LinkedIn **2022** ·
+upcymarket.com **"2021'den beri"**.
+**Karar:** sicil tarihi tek doğrudur. Gerekçe basit ve tartışılmaz: **yalnız o belgeli**.
+Diğer ikisi beyandır ve beyan, kayıtla çelişince kaybeder.
+**Sonuç iki iş doğuruyor** (ikisi de insan işi, FAZ-7 kanal adaptörlerinden ÖNCE):
+LinkedIn şirket sayfasındaki kuruluş yılı ve upcymarket.com'daki "2021'den beri"
+ifadesi düzeltilecek. Düzeltilmezse ilk prospect doğrulamasında sistem yalancı çıkar —
+ve bu, üretilen her içeriğin güvenilirliğini birlikte götürür.
+**Not:** "2021/2022" beyanları muhtemelen kurucunun çalışmaya başladığı tarihi
+anlatıyor; o iddia meşrudur ama **şirket kuruluşu** diye sunulamaz. Gerekirse
+"2021'den beri bu alanda çalışıyoruz, 2025'te şirketleştik" biçiminde ayrıştırılır.
+
+## D-83 — İlk keşif kayıtları DRAFT kalıyor, onay insanın
+2026-08-15 · FAZ-2.9'un ✅'si "her varlık tipinde en az bir `status: active` kayıt"
+diyordu. Yedi kayıt `propose()` üzerinden yazıldı ve **draft** indi.
+**Onları `active` yapmak agent'ın işi DEĞİL** (R-14, D-31, CLAUDE.md yasa 2): agent
+kendi önerisini onaylayabilseydi "agent önerir, insan uygular" bir konvansiyona dönerdi.
+Kullanıcının "tam yetki" talimatı geliştirme kararlarını kapsıyor; **şirketin ne olduğu
+beyanını kapsamıyor** — o beyan kullanıcının kendi sözü.
+**Karar:** adım `2.9` BLOKE, engel: insan onayı. `just onayla <yol…>` komutu yazıldı;
+kullanıcı yedi kaydı okuyup onaylayınca adım kapanır ve FAZ 2 kapanabilir.
+**Bu, "durmak yok" kuralının ihlali değildir** (LOOP§G): bloke adım işaretlenir, döngü
+sonraki bağımsız adıma geçer.

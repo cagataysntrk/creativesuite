@@ -66,6 +66,10 @@ save file="-" *paths:
 fmt:
     @./node_modules/.bin/prettier --write . --log-level warn && echo "✓ biçimlendirildi"
 
+# İNSANIN onay komutu: draft → active (§5.4 · R-14). Agent bunu ÇAĞIRMAZ.
+onayla *yollar:
+    @./node_modules/.bin/tsc -b && node scripts/onayla.mjs {{yollar}}
+
 # Keşif planı — op listesi basar, HİÇBİR ŞEY yazmaz (§4.4)
 discovery mode='merge' adaylar='derived/runs/discovery-candidates.json' mevcut='':
     @./node_modules/.bin/tsc -b && node scripts/discovery.mjs '{{mode}}' '{{adaylar}}' '{{mevcut}}'
