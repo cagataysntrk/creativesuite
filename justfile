@@ -22,8 +22,12 @@ uret *args:
 plan *args:
     @./node_modules/.bin/tsc -b && node scripts/plan.mjs {{args}}
 
-# Komuta merkezi sunucusu: API + SSE + dosya izleme. Ctrl-C ile durur
+# Komuta merkezi: API + SSE + SPA. Ctrl-C ikisini de durdurur
 dev:
+    @./node_modules/.bin/tsc -b && bash scripts/dev.sh
+
+# Yalnız API — SPA olmadan uçları denemek için
+dev-api:
     @./node_modules/.bin/tsc -b && node scripts/sunucu.mjs
 
 # Turun 1-2. adımı: DURUM.md oku, aktif adımın okuması gereken her şeyi getir

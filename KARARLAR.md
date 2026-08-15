@@ -523,3 +523,38 @@ içinde, betikte değil — **bağımlılığın nerede yaşadığı, onu kimin 
 belirler** ve mantığın tip denetimli pakette durması D-153'ün asıl dersiydi.
 **Ders:** bir dosyanın ayrıştırılabilmesi, çalışabildiğini göstermez. Aradaki farkı
 yalnız çalıştırmak kapatır.
+
+## D-165 — Türkçe katlama Ring -1'e taşındı: iki halkanın da ihtiyacı var
+2026-08-15 · Komut paleti Türkçe arama yapmak zorunda (kullanıcı `icerik` yazıp `İçerik`
+bulmalı) ve ilk sürümde kendi `.replace` zincirini taşıyordu. `turkish-case` kapısı onu
+yakaladı (R-21: case dönüştüren tek yer). Kanonik `foldForSearch`e geçtiğimde bu kez
+`rings` kapısı kırmızıya döndü: `apps/ui` **tarayıcı halkasıdır** ve kernel'i import
+edemez — kernel `better-sqlite3` taşır.
+Üç seçenek vardı: (a) `mayImport`u genişletmek — kırmızı kapının kuralını aynı turda
+gevşetmek, R-76 açıkça yasaklıyor; (b) tarayıcıda ikinci bir katlama yazmak — o zaman
+paletin bulduğu ile FTS5 indeksinin bulduğu ayrışır ve kullanıcı iki farklı sonuç görüp
+hangisinin doğru olduğunu asla anlayamaz (§5.6 katlamanın `unicode61 remove_diacritics 2`
+ile AYNI olmasını şart koşuyor); (c) primitifi doğru halkaya taşımak.
+(c) seçildi: `packages/contracts/src/text-tr.ts`. Ring -1 hiçbir şey import etmez ve
+herkes onu import eder — `Money` neyse Türkçe katlama da odur: **herkesin aynı biçimde
+konuşmak zorunda olduğu bir ilkel.** Kernel onu yeniden dışa açıyor, o yüzden mevcut
+`@suite/kernel` tüketicilerinin hiçbiri değişmedi. Yetkili yer hâlâ TEK, sadece doğru
+halkada; `turkish-case` kapısının `KUTSANMIS` sabiti yeni yolu gösteriyor.
+Tarayıcı paketi doğrulandı: `better-sqlite3` sızıntısı 0.
+**Ders:** bir halka ihlali çoğu zaman "kural fazla katı" demek değil, "kod yanlış yerde"
+demektir. Kuralı gevşetmek soruyu susturur; taşımak cevaplar.
+
+## D-166 — Nabız aralığı UI'a gömülüydü: ölçüm aracı ölçümü bozar
+2026-08-15 · Makine durumu şeridi "bağlantı yok"u nabız aralığının katıyla ölçüyor
+(1,5 kat bayat, 3 kat kopuk) ve o aralık `App.tsx`te `NABIZ_MS = 5000` olarak GÖMÜLÜYDÜ.
+Sunucu nabzını 30 sn'ye çıkardığı gün UI her nabızda "bağlantı yok" derdi — yani bağlantı
+sağlıklıyken sürekli alarm veren bir gösterge, ki o gösterge bir hafta içinde yok sayılır.
+İki gerçek deseninin bu turdaki üçüncü örneği (D-160 kaskad, D-163 kablo biçimi).
+Aralık artık `/api/saglik`ta İLAN EDİLİYOR ve UI onu okuyor; gömülü sabit yalnız
+öğrenene kadarki başlangıç değeri. Kapı ilanı zorunlu tutuyor — ilanı kaldırınca kırmızı.
+Kabul kriteri gerçek bir SIGKILL ile doğrulandı: `canli` → sunucu ölür → `kopuk`,
+"bağlantı yok" ve **son maliyet değeri gösterilmiyor**. Kalıcı bir göstergenin
+yapabileceği en kötü şey, sustuğunu söylemeden son gördüğü değeri sonsuza kadar canlı
+göstermesidir; toast'ın böyle bir sorunu yoktur çünkü zaten kaybolur.
+**Ders:** iki tarafın paylaştığı her sayı, taraflardan birinde SABİT olduğu an bir
+zaman bombasıdır. Sözleşmeyi taşıyan taraf onu ilan etmeli.

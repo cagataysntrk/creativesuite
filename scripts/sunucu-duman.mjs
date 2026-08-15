@@ -29,7 +29,18 @@ const U = `http://localhost:${s.port}`
 try {
   const saglik = await (await fetch(`${U}/api/saglik`)).json()
   bekle(saglik.ok === true, '/api/saglik ok:true dönmedi')
+  // Nabız aralığı İLAN EDİLMELİ: UI onu gömerse sunucu değiştiğinde sessizce
+  // yanlış ölçer ve şerit durup dururken "bağlantı yok" der (D-166).
+  bekle(typeof saglik.nabizAraligiMs === 'number', '/api/saglik nabizAraligiMs ilan etmiyor')
   bekle(Array.isArray(saglik.izlenen) && saglik.izlenen.length > 0, 'hiçbir dizin izlenmiyor')
+
+  // Marka token'ları çalışma anında servis edilmeli (D-39): statik import tek markayı
+  // derlemeye gömerdi. `--role-bg` tanımsızsa kabuk şeffaf açılır.
+  const tokens = await fetch(`${U}/api/tokens.css`)
+  bekle(tokens.ok, '/api/tokens.css 200 dönmedi')
+  const css = await tokens.text()
+  bekle(css.includes('--role-bg:'), "token CSS'inde --role-bg TANIMLI değil")
+  bekle(css.includes("data-surface='studio'"), "token CSS'inde stüdyo yüzeyi yok")
 
   const durum = await (await fetch(`${U}/api/durum`)).json()
   bekle(
@@ -64,4 +75,4 @@ if (hatalar.length > 0) {
   for (const h of hatalar) console.log(`    ✗ ${h}`)
   process.exit(1)
 }
-console.log(`    sunucu ayağa kalktı · 3 uç · SSE dosya değişimini yaydı`)
+console.log(`    sunucu ayağa kalktı · 4 uç · token CSS'i · SSE dosya değişimini yaydı`)

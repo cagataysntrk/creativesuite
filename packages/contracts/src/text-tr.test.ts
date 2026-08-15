@@ -7,7 +7,7 @@ import {
   softHyphenate,
   syllables,
   upper,
-} from './case.js'
+} from './text-tr.js'
 
 describe('Türkçe case — R-21', () => {
   it("upper('istanbul') → İSTANBUL (naif hâli ISTANBUL verirdi)", () => {

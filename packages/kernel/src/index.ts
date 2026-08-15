@@ -23,7 +23,7 @@ export {
   slug,
   syllables,
   softHyphenate,
-} from './text/case.js'
+} from '@suite/contracts'
 
 export { panic, InvariantViolation } from './errors/panic.js'
 export { makeError, type MakeErrorInput } from './errors/make.js'

@@ -1,6 +1,13 @@
-// Türkçe metin primitifleri (§7.2 · R-21).
+// Türkçe metin primitifleri (§7.2 · R-21 · D-165).
 //
 // BU DOSYA, TÜM REPODA CASE DÖNÜŞTÜREN TEK YERDİR.
+//
+// **Ring -1'de (contracts) duruyor, kernel'de değil.** Sebep: katlama hem sunucuda
+// (FTS5 indeksi) hem tarayıcıda (komut paleti) AYNI sonucu vermek zorunda (§5.6) ve
+// tarayıcı halkası kernel'i import EDEMEZ — kernel `better-sqlite3` taşır. Kernel'de
+// kalsaydı ya tarayıcı ikinci bir katlama yazacaktı (iki gerçek: paletin bulduğu ile
+// indeksin bulduğu ayrışır) ya da halka sınırı gevşetilecekti. `Money` gibi: herkesin
+// aynı biçimde konuşmak zorunda olduğu bir ilkel, sözleşme halkasına aittir.
 //
 // Neden: `'i'.toUpperCase()` → `'I'`, olması gereken `'İ'`. `'I'.toLowerCase()` → `'i'`,
 // olması gereken `'ı'`. Hata sessizdir; ekran görüntüsünde tipo gibi görünür ve üretime

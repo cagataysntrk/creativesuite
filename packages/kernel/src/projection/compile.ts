@@ -14,7 +14,7 @@
 // OpenAI ve Anthropic'in yapılandırılmış çıktı alt kümeleri farklı olabilir (V-05);
 // derleyici DAHA KATI olana yazıldı — gevşek olana da geçerlidir, tersi değil.
 
-import { asciiLower, asciiUpper } from '../text/case.js'
+import { asciiLower, asciiUpper } from '@suite/contracts'
 import {
   validateSchema,
   type CompileError,

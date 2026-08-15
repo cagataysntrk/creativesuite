@@ -12,6 +12,8 @@
 // anlamalı. Yalnız veri gönderirsek, hiçbir şey değişmediğinde sessizlik ile ölüm
 // birbirinden ayırt edilemez — ve kalıcı bir gösterge bayat değeri canlı gibi gösterir.
 
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import type { SelectQuery } from '@suite/corpus'
@@ -64,6 +66,10 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   app.get('/api/saglik', (c) =>
     c.json({
       ok: true,
+      // Nabız aralığı İLAN EDİLİR. UI onu kendi içine gömseydi iki gerçek olurdu:
+      // sunucu 5 sn'den 30 sn'ye çıktığında UI her nabızda "bağlantı yok" derdi —
+      // yani ölçüm aracının kendisi ölçümü bozardı.
+      nabizAraligiMs: o.kalpAtisiMs,
       izlenen: izleme.izlenen,
       indeks: db !== null,
       simdi: o.simdi(),
@@ -71,6 +77,24 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   )
 
   app.get('/api/durum', (c) => c.json(durumOku()))
+
+  // ── marka token'ları ÇALIŞMA ANINDA servis edilir ─────────────────────────
+  //
+  // UI bunları statik import EDEMEZ: hangi markanın renkleri geçerliyse o gelmeli
+  // (D-39 — marka bir çalıştırma parametresidir, dosyadan okunan global durum değil).
+  // Statik import tek markayı derlemeye gömer ve `dima`ya geçmek yeniden build ister.
+  //
+  // Dosya ÜRETİLMİŞTİR (R-65) ve burada yalnız okunur. Yoksa 404: boş bir CSS dönmek,
+  // `--role-bg` tanımsızken sayfayı sessizce şeffaf bırakmak olurdu.
+  app.get('/api/tokens.css', (c) => {
+    const yol = join(o.repoRoot, `brand/${o.query.brandId}/derived-tokens/tokens.css`)
+    if (!existsSync(yol)) {
+      return c.text(`/* ${o.query.brandId} için token üretilmemiş — 'just tokens' */`, 404, {
+        'content-type': 'text/css; charset=utf-8',
+      })
+    }
+    return c.text(readFileSync(yol, 'utf8'), 200, { 'content-type': 'text/css; charset=utf-8' })
+  })
 
   // ── SSE ────────────────────────────────────────────────────────────────────
   // İlk mesaj ANINDA gider: UI'ın ilk kalp atışını beklemesi, açılışta boş bir şerit

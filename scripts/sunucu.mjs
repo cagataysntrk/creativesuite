@@ -28,7 +28,7 @@ const eraId = existsSync(donemYolu) ? readFileSync(donemYolu, 'utf8').trim() : '
 const sunucu = await baslat({
   repoRoot: REPO,
   query: { brandId: BRAND, eraId, asOf: systemClock.nowIso() },
-  kalpAtisiMs: 5000,
+  kalpAtisiMs: Number(process.env['SUITE_NABIZ'] ?? 5000),
   debounceMs: 150,
   simdi: () => systemClock.nowIso(),
   port: PORT,

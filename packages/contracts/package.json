@@ -8,6 +8,11 @@
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./text": {
+      "development": "./src/text-tr.ts",
+      "types": "./dist/text-tr.d.ts",
+      "default": "./dist/text-tr.js"
     }
   },
   "devDependencies": {

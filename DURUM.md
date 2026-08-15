@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.2b
+siradaki_adim: 4.3
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 4.1 + 4.1b + 4.2 bitti. Sunucu GERCEKTEN kosuyor: just dev ile /api/durum · /api/olay (SSE) · /api/saglik; gercek repoda bekleyenOnay 7, kusurluCalistirma 12. chokidar EKLENMEDI (D-162, fs.watch ozyineli calisiyor). Bu turun en agir bulgusu D-163: durum.ts kendi manifest okuyucusunu yazmisti ve KABLO BICIMINI UYDURMUSTU; bigint+string JS'te dize BIRLESTIRMESI oldugu icin hata SESSIZDI ve maliyet 69 haneli sifir dizisi dondu — dokuz birim testi gecti cunku fiksturler de ayni uydurmayi kullaniyordu. readManifest'e devredildi. cli-duman kapisi artik sunucuyu GERCEKTEN kaldiriyor (D-164). 763 test, 26 kapi. Sirada 4.2b SPA + Komut paleti + makine durumu seridi."
+son_kanit: "FAZ 4 iskeleti AYAKTA: just dev ile Hono API + Vite SPA birlikte kalkiyor, Komut paleti (Turkce katlamali, foldForSearch), kalici makine durumu seridi SSE'den besleniyor. Kabul kriteri GERCEK SIGKILL ile dogrulandi: canli -> kopuk, 'baglanti yok', son deger GOSTERILMIYOR. Bu turda uc kez ayni desen: iki gercek. D-160 kaskad (comp token duz degere derleniyordu, iki yuzey imkansizdi), D-163 kablo bicimi UYDURULMUS ve dokuz test onu dogrulamisti, D-166 nabiz araligi UI'a gomuluydu. D-165: Turkce katlama Ring -1'e tasindi cunku tarayici halkasi kernel'i import edemez ve ikinci bir katlama palet ile FTS5'i ayristirirdi. 780 test, 26 kapi. Sirada 4.3 Corpus Browser — R-14'un yuzu."
 ```
 
 ## Neredeyiz
@@ -18,7 +18,7 @@ son_kanit: "FAZ 4.1 + 4.1b + 4.2 bitti. Sunucu GERCEKTEN kosuyor: just dev ile /
 **FAZ 3 ŞARTLI KAPANDI** (2026-08-15, D-158) — motor uçtan uca çalışıyor: gerçek
 Chromium gerçek slayt basıyor, marka QA gerçek sayı veriyor, manifest her çalıştırmayı
 kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle örtülmedi** —
-`3.14` insan onayına bloke. **763 test**, 26 kapı yeşil.
+`3.14` insan onayına bloke. **780 test**, 26 kapı yeşil.
 
 > ⛔ **DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14`.
 > Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: dördü de plan
@@ -51,14 +51,14 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.1** · iki yüzey bağlamı, takma adlar `var()`a derleniyor | 2026-08-15 |
 | **4.1b** · tip ölçeği, 4px boşluk, gölgesiz yükseklik, `ui-tema` kapısı | 2026-08-15 |
 | **4.2** · Hono API, SSE, dosya izleme (`just dev`), sunucu duman testi | 2026-08-15 |
+| **4.2b** · Vite + React SPA, ⌘K palet, kalıcı makine durumu şeridi | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`4.2b` — Vite + React SPA** (§12.5). Sunucu hazır ve `just dev` ile koşuyor:
-`/api/durum` · `/api/olay` (SSE) · `/api/saglik`. Kalan: SPA iskeleti, ⌘K paleti
-(**birincil navigasyon**, menü değil) ve alt kenardaki kalıcı makine durumu şeridi.
-Kritik kabul: nabız kesilince şerit **"bağlantı yok"** demeli, son değeri canlı
-göstermemeli.
+**`4.3` — Corpus Browser** (§12.9). Filtreli tablo, satır içi düzenleme → commit,
+toplu pin/emeklilik. Kabuk hazır: `just dev` API + SPA'yı birlikte kaldırıyor, ⌘K
+paleti ve kalıcı durum şeridi çalışıyor. Bu ekran **R-14'ün yüzü**: düzenleme doğrudan
+yazmaz, `propose()` ile taslak açar ve onay insanın git commit'idir.
 
 
 ## Bloke adımlar

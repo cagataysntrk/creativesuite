@@ -18,10 +18,9 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 
 📖 §12.1, §12.4 · R-22, R-23 · D-7
 🔗 FAZ-2.10
-🛠 Üç kademe token zaten zorlanıyordu (D-133); bu adım **iki yüzey bağlamını** ekler:
-   `console` kalıcı koyu, `studio` kalıcı açık, **tema anahtarı YOK**. Yüzey dosyası
-   `<ad>.surface.tokens.json` AYRI derlenir ve **yalnız `role.*`** tanımlar. Takma adlar
-   CSS'te `var()`a derlenir — düz değerde kaskad kademeyi taşımaz (D-160).
+🛠 Üç kademe token zorlanıyordu (D-133); bu adım **iki yüzey bağlamını** ekler: `console`
+   koyu, `studio` açık, **tema anahtarı YOK**. `<ad>.surface.tokens.json` AYRI derlenir,
+   **yalnız `role.*`** tanımlar. Takma adlar CSS'te `var()`a derlenir (D-160).
 📁 `packages/registry/src/tokens.ts` · `scripts/tokens.mjs` · `brand/*/tokens/*.surface.*`
 ✅ `just gate tokens` yeşil · `tokens.css` üç blok taşıyor · alt marka yüzeyi devralıyor
 🧪 Yüzeye `ramp` ekle → kırmızı · `comp` ekle → kırmızı · yüzey rolüne C=0.12 ver → kırmızı
@@ -48,13 +47,13 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    yetiyor (R-75). **Kalp atışı VERİ TAŞIMAZ** — UI sessizliği ölüm sayabilsin diye.
    **Ölçülemeyen alan sıfır girmez**: `kota: null`, indekssiz `bekleyenOnay: -1`.
    Bekleyen onay = taranan − `visibleIds`: ikinci retrieval yüklemi yok (R-13).
-📁 `apps/server/src/` · `scripts/sunucu.mjs` · `just dev`
+📁 `apps/server/src/` · `scripts/sunucu.mjs`
 ✅ `just gate cli-duman` sunucuyu GERÇEKTEN kaldırıyor · gerçek repoda `/api/durum`
    → `bekleyenOnay: 7`, `kusurluCalistirma: 12`
 🧪 `izlenen`i boşalt · izlemeyi kapat · maliyeti dize birleştir → üçü de kırmızı
 💾 `feat(server): Hono API, SSE ve dosya izleme` · `Refs: FAZ-4.2 · §12.4`
 
-## 4.2b — Vite + React SPA, ⌘K palet, makine durumu şeridi    [ ]
+## 4.2b — Vite + React SPA, ⌘K palet, makine durumu şeridi    [x] 2026-08-15
 
 📖 §12.5, §12.4 · R-22, R-23 · D-26
 🔗 4.2
@@ -63,8 +62,9 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    bayatlar). **Kalıcı makine durumu şeridi** `/api/olay`dan beslenir; nabız kesilince
    **"bağlantı yok"** der, eski değeri canlı göstermez (§12.6).
 📁 `apps/ui/src/`
-✅ `just dev` + Vite ayağa kalkıyor · ⌘K her ekrandan açılıyor · şerit canlı akıyor
-🧪 Sunucuyu öldür → şerit "bağlantı yok" diyor, son değeri canlı gibi göstermiyor
+✅ `just dev` ikisini kaldırıyor · marka token'ı `/api/tokens.css`ten · 17 test
+🧪 SIGKILL → `kopuk`, "bağlantı yok", değer GÖSTERİLMİYOR · nabız ilanını kaldır →
+   kırmızı · token CSS'ini boşalt → kırmızı
 💾 `feat(ui): SPA iskeleti, ⌘K palet ve makine durumu şeridi` · `Refs: FAZ-4.2b · §12.5`
 
 ## 4.3 — Corpus Browser    [ ]

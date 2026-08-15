@@ -11,7 +11,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { asciiLower, asciiUpper } from '../text/case.js'
+import { asciiLower, asciiUpper } from '@suite/contracts'
 import { FIXTURE_ROOT } from './fixtures.js'
 
 const REDACTED = '<REDACTED>'

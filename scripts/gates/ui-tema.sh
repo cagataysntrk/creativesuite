@@ -24,7 +24,8 @@ cd "$ROOT"
 # Tema kaynakları: elle yazılan CSS. Üretilmiş `derived-tokens/` HARİÇ — orayı
 # `tokens` kapısı denetler ve iki kapının aynı dosyaya iki farklı kural uygulaması,
 # birinin diğerini görmeden gevşetilmesi demektir.
-DOSYALAR=$(find packages apps -name '*.css' -not -path '*/node_modules/*' -not -path '*/dist/*' 2>/dev/null || true)
+DOSYALAR=$(find packages apps -name '*.css' \
+  -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path '*/dist-web/*' 2>/dev/null || true)
 if [ -z "$DOSYALAR" ]; then
   echo "✗ hiç tema CSS'i bulunamadı — kapı boş geçiyor"
   exit 1

@@ -46,3 +46,16 @@ export { RECORD_KINDS, RECORD_ZONES, RECORD_STATUSES, SOURCE_KINDS } from './env
 
 export type { VerbName, EffectClass, VerbSpec, VerbTable, CostEvent, VerbPlan } from './verbs.js'
 export { VERBS, EFFECT_CLASSES } from './verbs.js'
+
+// Türkçe metin primitifleri — sunucu ve tarayıcı AYNI katlamayı kullanır (D-165).
+export {
+  upper,
+  lower,
+  sentenceCase,
+  asciiLower,
+  asciiUpper,
+  foldForSearch,
+  slug,
+  syllables,
+  softHyphenate,
+} from './text-tr.js'

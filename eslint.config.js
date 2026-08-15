@@ -34,6 +34,7 @@ export default tseslint.config(
   {
     ignores: [
       '**/dist/**',
+      '**/dist-web/**', // Vite derleme çıktısı — üretilmiş dosya denetlenmez
       '**/node_modules/**',
       '**/*.d.ts',
       'docs/**',

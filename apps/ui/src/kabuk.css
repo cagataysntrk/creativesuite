@@ -1,0 +1,138 @@
+/* Kabuk yerleşimi (§12.3, §12.4 · FAZ-4.2b).
+ *
+ * Burada RENK ve TİP ÖLÇEĞİ tanımlanmaz — ikisi de `@suite/ui/theme.css` ve marka
+ * `tokens.css`inden gelir. Bu dosya yalnız YERLEŞİM: neyin nerede durduğu.
+ * `ui-tema` kapısı bu dosyayı da denetler (gölge, 700 ağırlık, ölçek dışı boşluk).
+ */
+
+.kabuk {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-block-size: 100vh;
+  background: var(--role-bg);
+  color: var(--role-text);
+}
+
+.govde {
+  padding: var(--space-6);
+}
+
+.govde h1 {
+  font-size: var(--size-7);
+  font-weight: var(--weight-strong);
+  margin: 0 0 var(--space-2);
+}
+
+.govde p {
+  color: var(--role-text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: var(--size-2);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  padding: 0 var(--space-1);
+}
+
+/* ── makine durumu şeridi ───────────────────────────────────────────────────
+ * Alt kenarda KALICI. Yükseklik gölgeyle değil, arka plan basamağı + üst pah
+ * çizgisiyle ifade edilir (§12.4). */
+.serit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  block-size: var(--row-default);
+  padding-inline: var(--space-3);
+  background: var(--role-surface);
+  border-block-start: 1px solid var(--role-line-hair);
+  font-size: var(--size-1);
+  /* Türkçe etiketler uzundur: şerit taşarsa KAYAR, kırpmaz (R-23). Tip küçültmek
+     yasak — içerik sığmıyorsa satır gevşer, harf küçülmez (§12.3). */
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.serit-durum {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.olcum-oge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.olcum-etiket {
+  color: var(--role-text-muted);
+}
+
+/* ── komut paleti ───────────────────────────────────────────────────────────
+ * Üst katman: tek `data-elevation="overlay"` istisnası (§12.4). */
+.palet-ortu {
+  position: fixed;
+  inset-block-start: 12vh;
+  inset-inline: 0;
+  margin-inline: auto;
+  inline-size: min(560px, 92vw);
+  background: var(--role-surface);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+}
+
+.palet-girdi {
+  inline-size: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  color: var(--role-text);
+  border: 0;
+  border-block-end: 1px solid var(--role-line-hair);
+  padding: var(--space-3);
+  font-family: var(--font-grotesk);
+  font-size: var(--size-5);
+}
+
+.palet-girdi:focus {
+  outline: none;
+}
+
+.palet-liste {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1);
+  max-block-size: 48vh;
+  overflow-y: auto;
+}
+
+.palet-satir {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  /* Satır 28px varsayılan (§12.3) — bu bir tablo aracıdır. */
+  block-size: var(--row-dense);
+  align-items: center;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius);
+  cursor: default;
+}
+
+.palet-satir[data-secili='true'] {
+  background: var(--role-bg);
+}
+
+.palet-grup {
+  color: var(--role-text-muted);
+  font-size: var(--size-1);
+}
+
+.palet-bos {
+  padding: var(--space-3);
+  color: var(--role-text-muted);
+}
+
+.secilen {
+  font-family: var(--font-mono);
+}

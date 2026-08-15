@@ -21,7 +21,9 @@ const REPO = join(dirname(fileURLToPath(import.meta.url)), '../..')
 const p = (f) => join(REPO, f)
 
 /** Case dönüştürmeye izin verilen TEK dosya (§3.8). */
-const KUTSANMIS = 'packages/kernel/src/text/case.ts'
+// Yetkili yer Ring -1'e taşındı (D-165): katlama hem sunucuda hem tarayıcıda aynı
+// olmak zorunda ve tarayıcı halkası kernel'i import edemez. Sayı hâlâ BİR.
+const KUTSANMIS = 'packages/contracts/src/text-tr.ts'
 
 const GLOBS = [
   'packages/*/src/**/*.ts',

@@ -17,6 +17,7 @@ node_modules/
 .pnpm-store/
 *.tsbuildinfo
 dist/
+dist-web/
 build/
 
 # Secrets — şifreli dosya (secrets/secrets.enc.yaml) commit'lenir, düz metin asla

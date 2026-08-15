@@ -829,6 +829,32 @@ bir şey olduğunda o soru artık sorulmaz.
 ### §12.8 Erişilebilirlik {#section-12-8}
 ### §12.9 Ekranlar {#section-12-9}
 
+Ekranlar bir menüde değil, **⌘K paletinde** yaşar (§12.5). Aşağıdaki liste bir navigasyon
+yapısı değil, bir **kapsam beyanı**: bunlar yapılacak, fazlası değil.
+
+| # | Ekran | Tek işi |
+|---|---|---|
+| 1 | Corpus Browser | Filtreli tablo; düzenleme `propose()` açar, **doğrudan yazmaz** (R-14) |
+| 2 | Record Detail | Kaynak alıntısı, `git log --follow` zaman çizgisi, **ters indeks**: bu kaydın etkilediği her varlık |
+| 3 | Context Preview | Bölüm başına token çubuğu, tam prompt metni, kart başına "neden dahil edildi" |
+| 4 | Run Launcher | Şemadan üretilmiş tipli form, şerit seçimi, maliyet **aralığı** + güven noktası |
+| 5 | Approval Queue | Klavye odaklı (`j/k/a/e/r/p`); red gerekçesi kalıcı ve sonraki çalıştırmaya negatif kısıt |
+| 6 | Placement Preview | Gerçek platform chrome'u, güvenli alan overlay'i |
+| 7 | Discovery / Reconciliation | Dört sütun: DEĞİŞMEDİ / DEĞİŞTİ / ÇELİŞTİ / YENİ |
+| 8 | Schema Editor | Kaydetmeden önce **tüm corpus'a karşı kuru çalıştırma**; kaç kaydın kırılacağını sayıyla söyler |
+| 9 | Cost & Budget | Tahmin vs gerçek, canlı kota sayaçları, fiyat anlık görüntüsü yaşı |
+| 10 | Asset Library | FTS5 arama, "premium üretildi ama hiç yayınlanmadı" filtresi, **Reuse** birinci sınıf eylem |
+| 11 | Run History | Her manifest bir zaman çizgisi; `rerun` (donmuş plan) ve `replay` (bugünün tanımı) AYRI düğmeler |
+
+**Ortak kurallar:** kart yerine **satır** (yoğunluk tablo lehine) · boş durum bir eylem
+daveti, illüstrasyon değil · bayat içerik soldurulmaz, **bildirilir** (§12.6) · her ekran
+klavyeyle tam çalışır (§12.5) · ölçülen her sayı mono ve tabular (§12.2).
+
+**`rerun` ile `replay` ayrımı ekranda YAZILI olmak zorunda:** rerun donmuş planı tekrar
+koşar (aynı model, aynı seed, aynı bağlam), replay bugünün tanımıyla koşar. İkisini tek
+düğmeye toplamak, "geçen ayki deck'i yeniden üret" diyen kullanıcıya sessizce başka bir
+şey vermektir — ve fark ancak iki çıktıyı yan yana koyunca görülür.
+
 ## §13 Gözlemlenebilirlik {#section-13}
 
 **Langfuse yok, MLflow yok, W&B yok.** Self-host'ları Postgres + ClickHouse demek —
