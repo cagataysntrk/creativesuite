@@ -9,7 +9,7 @@
 // çalıştırma öncesi maliyet tahminini yalan yapardı.
 
 import type { AppError, Result, VerbName } from '@suite/contracts'
-import { ZERO_USD, err, ok, usd } from '@suite/contracts'
+import { ZERO_USD, err, ok } from '@suite/contracts'
 import {
   asciiLower,
   getVerb,
@@ -23,6 +23,8 @@ import {
   type VerbOutput,
 } from '@suite/kernel'
 import { paginateDocument, renderStatic, renderWithinLimit, type LayoutName } from '@suite/render'
+import type { ProviderAdapter, ProviderInput } from '@suite/providers'
+import { providerCall } from '../provider-call.js'
 import { join } from 'node:path'
 import { mkdirSync } from 'node:fs'
 
@@ -30,6 +32,17 @@ import { mkdirSync } from 'node:fs'
 export interface BodyInput {
   readonly constraints: Readonly<Record<string, unknown>>
   readonly inputs: Readonly<Record<string, unknown>>
+  /**
+   * Yönlendiricinin SEÇTİĞİ sağlayıcı. Yalnız metered + yetenekli adımlarda dolu.
+   *
+   * Gövde bunu bilmeden `providerCall`ı kuramaz; ilk sürümde aktarılmıyordu ve
+   * `providerCall` üretimden hiç çağrılmıyordu (D-141).
+   */
+  readonly providerId?: string
+  /** Motorun tutamak köprüsü — sağlayıcı iş kimliğini verir vermez çağrılır (R-44). */
+  readonly noteHandle?: (externalId: string) => void
+  /** Önceki çalıştırmadan kalan tutamak. `null` değilse YENİ çağrı yapılmaz. */
+  readonly resumeExternalId?: string | null
 }
 
 const hata = (
@@ -266,30 +279,74 @@ export const validateBody = (deps: ValidateDeps): Verb =>
 
 // ── GENERATE: yalnız sağlayıcı ──────────────────────────────────────────────
 export interface GenerateDeps {
-  /** Sağlayıcı çağrısı motorun `providerCall`ından gelir; gövde onu yalnız SARAR. */
-  readonly call: (
-    ctx: VerbContext,
-    input: BodyInput
-  ) => Promise<Result<{ readonly data: unknown; readonly micros: bigint }, AppError>>
+  /** Yönlendiricinin seçtiği id'den adaptörü bulur. `adapterById` geçilir. */
+  readonly resolveAdapter: (providerId: string) => ProviderAdapter | null
+  /** Ortam AÇIKÇA verilir (§14); gövde `process.env`e dokunamaz. */
+  readonly env: Readonly<Record<string, string>>
+  readonly capability: string
+  /** Test bunu 0 yapar; üretimde gerçekten bekler. */
+  readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
 }
 
+/**
+ * `GENERATE` — **gerçek sağlayıcıya gider** (§3.10 · R-04).
+ *
+ * Zincir: yönlendirici kazananı seçer → gövde adaptörü bulur → `validate()` girdiyi
+ * doğrular (prompt R-20 kurucusundan geçer) → `providerCall` işi başlatır, tutamağı
+ * deftere yazdırır, jitter'lı polling yapar.
+ *
+ * İlk sürümde bu zincir YOKTU: `uret.mjs` sabit bir `MISSING_CREDENTIALS` döndüren
+ * sahte bir köprü kuruyordu ve `cloudflareImage`/`falImage` adaptörlerine hiç
+ * ulaşılmıyordu (D-141). Yani "iki şerit de görsel üretiyor" iddiası hiç sınanmamıştı.
+ */
 export const generateBody = (deps: GenerateDeps): Verb =>
   govde('GENERATE', async (ctx, input) => {
-    const r = await deps.call(ctx, input)
-    if (!r.ok) return err(r.error)
+    const providerId = input.providerId
+    if (providerId === undefined) return err(hata('internal', 'NO_ROUTED_PROVIDER', ctx))
+
+    const adapter = deps.resolveAdapter(providerId)
+    if (adapter === null) {
+      return err(hata('config', 'ADAPTER_NOT_FOUND', ctx, { providerId }))
+    }
+
+    const serit = input.constraints['lane'] === 'premium' ? 'premium' : 'free'
+    const ham: ProviderInput = {
+      capability: deps.capability,
+      lane: serit,
+      prompt: typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : '',
+      constraints: input.constraints,
+      idempotencyKey: `${ctx.runId}:${ctx.stepId}`,
+    }
+
+    // `validate()` prompt'u R-20 kurucusundan geçirir; geçersizse sağlayıcıya HİÇ gidilmez.
+    const dogrulanmis = adapter.validate(ham)
+    if (!dogrulanmis.ok) return err(dogrulanmis.error)
+
+    const call = providerCall({
+      adapter,
+      input: dogrulanmis.value,
+      ctx: { correlationId: ctx.correlationId, env: deps.env },
+      rng: ctx.rng,
+      ...(deps.sleep === undefined ? {} : { sleep: deps.sleep }),
+    })
+
+    const sonuc = await call({
+      signal: ctx.signal ?? new AbortController().signal,
+      noteHandle: input.noteHandle ?? (() => undefined),
+      resumeExternalId: input.resumeExternalId ?? null,
+    })
+    if (!sonuc.ok) return err(sonuc.error)
+
     return ok({
       costs: [
         {
           verb: 'GENERATE' as VerbName,
-          capability:
-            typeof input.constraints['capability'] === 'string'
-              ? input.constraints['capability']
-              : 'unknown',
-          providerId: 'routed',
-          amount: usd(r.value.micros),
+          capability: deps.capability,
+          providerId,
+          amount: sonuc.value.amount,
           kind: 'actual' as const,
         },
       ],
-      data: r.value.data,
+      data: sonuc.value.data,
     })
   })

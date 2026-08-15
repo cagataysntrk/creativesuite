@@ -20,10 +20,22 @@
 
 import type { AppError } from '@suite/contracts'
 import { err, ok, type Result } from '@suite/contracts'
+import { createHash } from 'node:crypto'
 import { foldForSearch, makeError } from '@suite/kernel'
 
 /** İddianın neye dayandığı. Dayanaksız iddia kurulamaz. */
 export type PersonBasis =
+  /**
+   * Prompt tarandı ve insan istemiyor.
+   *
+   * `promptDigest` **taranan prompt'un özeti** olmak zorunda — bir çalıştırma kimliği
+   * ya da rastgele bir dize değil. İlk sürümde `uret.mjs` oraya `sha256:${runId}`
+   * yazıyordu ve iddia **denetlenemez** hâle geliyordu: altı ay sonra "hangi prompt
+   * tarandı" sorusunun cevabı yoktu (D-143).
+   *
+   * `assertCompliance` artık özeti KENDİ hesaplıyor ve çağıranın yazdığını kabul
+   * etmiyor — çağıranın beyanına güvenen bir iddia, iddia değil beyandır.
+   */
   | { readonly kind: 'prompt_forbids_people'; readonly promptDigest: string }
   | { readonly kind: 'human_photograph'; readonly sourceRef: string }
   | { readonly kind: 'human_reviewed'; readonly reviewer: string; readonly reviewedAt: string }
@@ -110,6 +122,13 @@ const INSAN_ISTEYEN: readonly {
   },
 ]
 
+/**
+ * Taranan prompt'un özeti. `sha256:` ön ekli — `x_signature` ve blob digest'leriyle aynı
+ * biçim, karışmasın diye.
+ */
+export const promptDigest = (prompt: string): string =>
+  `sha256:${createHash('sha256').update(prompt.trim(), 'utf8').digest('hex').slice(0, 32)}`
+
 const reddet = (r: ComplianceRefusal, correlationId: string): AppError =>
   makeError({
     kind: 'policy_blocked',
@@ -152,6 +171,7 @@ export interface ClaimInput {
 export const assertCompliance = (input: ClaimInput): Result<ComplianceClaim, AppError> => {
   const { basis } = input
 
+  let kesinBasis = basis
   if (basis.kind === 'prompt_forbids_people') {
     const p = input.prompt ?? ''
     if (p.trim() === '') return err(reddet({ kind: 'basis_missing' }, input.correlationId))
@@ -159,6 +179,9 @@ export const assertCompliance = (input: ClaimInput): Result<ComplianceClaim, App
     if (eslesme !== null) {
       return err(reddet({ kind: 'prompt_requests_person', matched: eslesme }, input.correlationId))
     }
+    // Özet BURADA hesaplanır. Çağıranın verdiği değer YOK SAYILIR: dayanağını kendi
+    // yazan bir iddia denetlenemez.
+    kesinBasis = { kind: 'prompt_forbids_people', promptDigest: promptDigest(p) }
   }
 
   if (basis.kind === 'human_reviewed' && basis.reviewer.trim() === '') {
@@ -172,7 +195,7 @@ export const assertCompliance = (input: ClaimInput): Result<ComplianceClaim, App
 
   return ok({
     containsSyntheticPerson: false,
-    basis,
+    basis: kesinBasis,
     aiGenerated: input.aiGenerated,
     disclosureRequired: input.aiGenerated && input.minorEditsOnly !== true,
   })

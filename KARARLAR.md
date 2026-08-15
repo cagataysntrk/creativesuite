@@ -197,134 +197,6 @@ karşılar.
 ağırlıklı (`#0091FF`) — ΔE76 gözle ayırt edilebilir iki maviyi "aynı" sayar ve QA kapısı
 boş geçerdi.
 
-## D-110 — Piksel Chromium'dan okunuyor; metin kaplaması OCR'sız
-2026-08-15 · İki bağımlılık daha eklenmedi:
-1. **sharp/jimp yok.** Chromium zaten var, zaten tek başlatıcıdan geçiyor ve `<canvas>`
-   piksel erişimini standart veriyor. İkinci bir PNG çözücü = ikinci bir renk profili
-   yorumu = farklı ΔE, ve hangisinin doğru olduğu ancak gözle anlaşılır.
-2. **Tesseract yok.** OCR'ın yapacağı iş "bu görselde nerede metin var" sorusunu tahmin
-   etmek; oysa metni BİZ yerleştiriyoruz ve yerini kesin biliyoruz (§7.1). Bildiğimiz bir
-   şeyi %90 doğrulukla yeniden keşfetmek olurdu. OCR'ın gerçek işi modelin ürettiği metni
-   yakalamak — ama R-20 zaten onu yasaklıyor.
-**Örnekleme ızgara, rastgele değil:** rastgele örnekleme aynı görselde iki farklı QA
-sonucu üretir ve manifest'e yazılan sayı tekrar üretilemez olur (§13).
-Ayrıca `getImageData` piksel başına değil TEK seferde çağrılıyor — 2000 örnekte
-piksel başına çağrı saniyeler sürüyor ve render zaman aşımını tetikliyordu.
-
-## D-111 — Ölçülemeyen metrik rapora GİRMEZ, sıfır olarak da girmez
-2026-08-15 · Palet tanımlı değilse ΔE `0,0` yazmak "mükemmel uyum" göstermek demektir
-ve tam da hiçbir şey ölçülmediği anda kapı yeşil yanar. `pixelStats` boş palette `null`
-dönüyor, `measure` o okumayı rapora hiç koymuyor. Aynı ilke `nearestDeltaE` ve
-`parseHex`te de var: geçersiz hex `null`, siyah değil — siyaha düşseydi bozuk bir token
-paletle "mükemmel uyumlu" bir siyah olurdu.
-**Uyarı eşiği limitten ayrı** tutuldu: yalnız limit olsaydı sistem geçti/kaldı ikilisine
-düşer ve limite doğru SÜRÜKLENME görünmezdi — tek tek hiçbir varlığın düşmediği ama
-ortalamanın kenara yaslandığı durum, markanın yavaşça bozulduğu durumdur.
-
-## D-112 — Lexicon linter, corpus'a bağlandığı gün 11 YANLIŞ POZİTİF verdi
-2026-08-15 · Linter yazıldı, testleri geçti, `lexicon` kapısına bağlandı — ve gerçek
-corpus'ta 11 ihlal raporladı. **Hepsi yanlış pozitifti** ve üçü ayrı bir ders:
-1. **Tırnak içi alıntı iddia değildir.** `eski sitedeki "1.247 İlan"` cümlesi o sayıyı
-   REDDEDİYOR, öne sürmüyor. Alıntıyı iddia saymak, kuralı ANLATAN belgeyi kuralın
-   ihlali sayardı — ve o kapı ilk gün kapatılırdı.
-2. **Aralık tariftir.** `50-500 çalışanlı tesisler` bir firmografi, bir performans
-   iddiası değil.
-3. **Çıplak küçük sayı iddia değildir.** `confidence 0.55` bir parametre. Eşik 100:
-   birimi/yüzdesi olan sayı her zaman iddiadır, çıplak sayı ancak büyükse.
-Bilinen ödünleşme: gerçek bir iddiayı tırnağa alarak kaçırmak mümkün. Alternatifi
-dokümantasyonu imkânsız kılan bir linter — kabul edildi ve yazıldı.
-**Asıl ders:** kapıyı sadece sentetik testle değil GERÇEK veriyle koşturmak zorunlu.
-Testlerim 20/20 yeşildi ve linter kullanılamaz durumdaydı.
-
-## D-113 — "Palet tanımsız" ile "palette hex yok" AYRI durumlar
-2026-08-15 · `allowedHex: []` başlangıçta "denetimi atla" demekti. Marka token'ları
-OKLCH olduğu için (§12.1) hex çıkarımı hep boş dönüyordu — yani hex denetimi **hiç
-çalışmıyordu** ve kapı bunu yeşil raporluyordu.
-Üç durum ayrıldı: `null` palet tanımsız (atla) · `[]` palet tanımlı, hex içermiyor
-(HER hex token dışı) · dolu liste (yalnız listedekiler).
-OKLCH bir palette yazılmış her hex, tanımı gereği token dışıdır. İkisini karıştırmak,
-denetimi tam da en çok gerektiği yerde kapatıyordu — bu segmentte üçüncü kez görülen
-desen: **kod yazıldı ama hiç çalışmadı.**
-
-## D-114 — `turkish-case` kapısı dize İÇERİĞİNİ tarıyordu
-2026-08-15 · Lexicon linter'ının hata mesajı `'i'.toUpperCase() → 'I'` yazıyor —
-kullanıcıya sorunu ANLATIYOR, bir çağrı yapmıyor. Kapı onu ihlal saydı.
-Kapı zaten yorumları düşürüyordu; dize içerikleri de düşürüldü. **Ama şablon
-dizelerindeki `${...}` blokları KORUNUYOR**: `` `${x.toUpperCase()}` `` gerçek bir
-çağrıdır ve maskelenirse kural sessizce ölür.
-**İlk yazımım tam bunu yaptı:** `derinlik` 0'dan başlayan bir `do-while`, `${`yi
-görünce ilk karakterde çıkıyor ve bloğu maskeliyordu. İhlal testi (R-71) yakaladı —
-kapı yeşil raporluyordu ve gerçek bir `.toUpperCase()` sessizce geçmişti.
-Dört vaka ayrı ayrı sınandı: çıplak çağrı · şablon içi çağrı · iç içe şablon içi
-çağrı · mesaj dizesi. Dördü de doğru davranıyor.
-
-## D-115 — ExifTool yerine kendi PNG chunk yazıcımız
-2026-08-15 · ExifTool kurulu değil ve kurmak, gözetimsiz bir çalıştırmada var olduğu
-VARSAYILAN bir sistem ikilisi demek — "bir ay ihmal edilse de çalışır" (§16) vaadiyle
-bağdaşmıyor. PNG chunk formatı otuz yıldır sabit; ihtiyacımız olan kısmı ~60 satır
-(uzunluk · tip · veri · CRC32) ve `node:zlib` zaten yerleşik.
-**`iTXt` seçildi, `tEXt` değil:** `tEXt` Latin-1 taşır ve `ğüşıöç` içeren bir damgayı
-sessizce bozar — tam da bu projenin her yerde kaçındığı hata modu. Kapının öz-testi
-her koşuda `ĞÜŞİÖÇ ğüşıöç` turu atıyor; `latin1`e çevirince kırmızıya dönüyor.
-**CRC doğruluğu Chromium'la sınandı**, kendi okuyucumuzla değil: kendi okuyucumuz aynı
-yanlışı iki kez yapabilirdi. Damgalı PNG hâlâ çözülüyor, IHDR yerinde, IEND son chunk.
-
-## D-116 — Sabit probe listesi KODUN DIŞINDA yaşar
-2026-08-15 · `containsSyntheticPerson` bir bayrak değil bir **tür**: `false` literali,
-`true` yazan bir iddia DERLENMEZ. Ve tek yapıcı bir `basis` istiyor — dayanağı kayda
-geçmeyen iddia kurulamaz. Üç dayanak: prompt taraması · gerçek fotoğraf · insan onayı.
-**Asıl ders ihlal testinden geldi, iki kez:**
-1. Kapının öz-testi TEK bir prompt kullanıyordu. `müşteri` desenini sildim — `gülümse`
-   deseni aynı prompt'u yakaladı ve kapı YEŞİL kaldı. Yani desenlerin çoğu silinebilir
-   ve kapı hiçbir şey söylemezdi. Her desene kendi `probe`'u eklendi.
-2. Probe listesi desen listesinden TÜRETİLİYORDU — desen silinince probe'u da siliniyor
-   ve kapı yine yeşil kalıyordu. Liste `packages/render/person-probes.json`'a
-   **sabitlendi**: kodun dışında, `verbs.json` ile aynı mantık (R-02).
-Artık iki yönde de kırmızı: desen silmek "sabit probe KODDA YOK" veriyor, desen eklemek
-"person-probes.json'a eklenmemiş" veriyor. Desen listesini değiştirmek artık bir KARAR.
-
-## D-117 — Blob deposu: dedup EDER ama ilk çalıştırmayı EZMEZ
-2026-08-15 · `derived/blobs/<ab>/<sha256>.<ext>` + `<sha256>.png.meta.json` sidecar.
-Aynı byte iki kez saklanmıyor — ama sidecar da **ezilmiyor**: ilk üretimin
-`sourceRunId`'si korunuyor. Ezseydik "bu byte'ı hangi çalıştırma üretti" sorusu son
-çalıştırmayı gösterirdi ve maliyet defteriyle (§13) çelişirdi — **para ilk üretimde
-harcandı.**
-`rename` tercih edildi (`copy` yedek): yarım yazılmış bir blob, içerik-adresli deponun
-tek yasasını (adres = içerik) çiğner.
-**`verifyBlob` kapıya BAĞLANDI** — `compliance` kapısı her blob için içeriğin kendi
-adresiyle uyuştuğunu ve sidecar'ın var olduğunu doğruluyor. Bağlanmasaydı bu segmentte
-üç kez görülen "kod yazıldı ama hiç çalışmadı" deseninin dördüncüsü olacaktı.
-Gerçek bir blob uçtan uca sınandı: depoya alındı, damgalandı, sonra içeriği bozuldu
-(`içerik adresle UYUŞMUYOR`) ve sidecar'ı silindi (`sidecar YOK`) — ikisi de kırmızı.
-
-## D-118 — Blob deposu `engine`'de, `corpus`ta değil (faz dosyasından SAPMA)
-2026-08-15 · FAZ-3.12 dosyası `packages/corpus/src/blobs.ts` diyordu. `corpus-yazici`
-darboğazı `packages/corpus/src/**` altındaki HER yazmayı reddetti — ve **haklıydı**:
-orada ikinci bir yazma yolu, onay kuyruğunu atlayan bir yoldur (§5.4) ve 2. doğrulama
-turunda bu darboğaz beş ayrı yoldan atlatılmıştı.
-Üç seçenek vardı:
-1. `izinli`ye eklemek → darboğazı gerçekten zayıflatır, ikinci bir corpus yazıcısı yaratır
-2. `kapsam_haric`e eklemek → "kural burada anlamsız" demek olurdu; değil, blobs.ts
-   pekâlâ corpus'a yazabilirdi
-3. **Doğru pakete taşımak** → seçilen
-`derived/blobs` bir corpus kaydı değil, bir **çalıştırma çıktısıdır**. Motor zaten
-`derived/runs` ile maliyet defterini yazıyor; doğru komşu orası. Faz dosyasındaki yol
-düzeltildi — **sessiz sapma yok** (R-74).
-**Ders:** darboğaz kapısı bir engel değil, tasarım geri bildirimi. Dördüncü kez.
-
-## D-119 — `bigint` para manifest'te DİZE olarak yazılır
-2026-08-15 · Manifest yazıcısının ilk testi şunu gösterdi: **`JSON.stringify` bir
-`bigint`i serileştiremez, atar.** Para `bigint` USD mikro olduğu için (R-41) manifest
-bu düzeltme olmadan **hiç yazılamıyordu** — testi yazmasaydık bunu ilk gerçek
-çalıştırmada, para harcandıktan sonra öğrenirdik.
-Sözleşme: `bigint` → **ondalık dize**. `Number`a çevirmek reddedildi — 2^53 üstü mikro
-değerler sessizce yuvarlanır ve defter yanlış toplar; dize kayıpsız ve `git diff`te
-okunabilir. Okurken şekil tabanlı revive: `{micros: <dize>, currency: <dize>}` bir
-`Money`dir. Alan ADINA göre çevirmek kırılgan olurdu.
-**Revive olmasaydı `costVariance` sessizce felaket olurdu:** `micros` dize kalır ve
-`+` toplama yerine BİRLEŞTİRME yapardı — `"28000" + "10000"` = `"2800010000"`.
-Test bunu ayrıca sınıyor.
-
 ## D-120 — Doğrulayıcı geçersiz girdide ÇÖKMEZ
 2026-08-15 · `inspectManifest` diskten okunan boş bir `{}` üstünde
 `Cannot read properties of undefined (reading 'length')` ile patladı. `JSON.parse` bir
@@ -551,3 +423,60 @@ Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) kapsam DIŞI:
 araçtır: bir kapının `git` çağırması kapının işidir.
 `logger` darboğazı CLI'lar için muaf — bir CLI'ın işi stdout'a tablo basmaktır; kuralın
 koruduğu şey "korelasyon id'si taşımayan ikinci bir OLAY logger'ı".
+
+## D-141 — `providerCall` üretimden hiç çağrılmıyordu; GENERATE sahte bir köprüydü
+2026-08-15 · Doğrulama agent'ının B8+B9 bulgusu, aynı kökün iki yüzü:
+- `providerCall` (jitter'lı polling, `Retry-After`, tutamak kalıcılığı) yazılmıştı ama
+  **yalnız kendi testinden** çağrılıyordu. `run.ts` `externalId: null` sabit yazıyordu,
+  yani `noteHandle` hiç tetiklenmiyor ve R-44'ün tutamak koruması ölü kalıyordu.
+- `uret.mjs`'teki `generate` köprüsü sabit `MISSING_CREDENTIALS` döndürüyordu:
+  `cloudflareImage`/`falImage` adaptörlerine **hiç ulaşılmıyordu.** "İki şerit de görsel
+  üretiyor" iddiası (FAZ-3.7 ✅) hiç sınanmamıştı.
+Kök neden aynıydı: motor kazanan sağlayıcıyı gövdeye AKTARMIYORDU. `BodyInput` artık
+`providerId`, `noteHandle` ve `resumeExternalId` taşıyor; `generateBody` adaptörü bulup
+`validate()`ten (prompt R-20 kurucusundan geçer) sonra `providerCall`ı kuruyor.
+Anahtar yoksa hata artık **adaptörün kendisinden** geliyor — sahte bir sabitten değil.
+Bu, bu segmentteki "yazıldı ama hiç çağrılmadı" deseninin sekizinci ve dokuzuncu örneği.
+
+## D-142 — `3.7` ve `3.14` tikleri GERİ ALINDI; LOOP§G eşiği aşıldı ve döngü DEVAM ediyor
+2026-08-15 · Doğrulama turu iki tiki geçersiz kıldı:
+- **3.7** ✅ "İki şerit de görsel üretiyor" — hiçbir şerit görsel üretmedi. Sözleşme,
+  msw ile HTTP şekli ve R-20 kuralı sınandı; **canlı üretim sınanmadı** (V-16: anahtar yok).
+- **3.14** ✅ "Gerçek bir carousel üretildi" — üretildi ama **onaylanmamış corpus** ile,
+  yani R-14 çiğnenerek (D-134). Retrieval düzeltildikten sonra hat dürüstçe `NO_CONTEXT`
+  veriyor: ✅ artık FAZ-2.9'un insan onayını bekliyor.
+Tiki geri almak pahalı görünüyor ama alternatifi daha pahalı: **karşılanmamış bir kriteri
+tikli bırakmak, faz dosyasını yalancı yapar** ve bağlamı sıfırlanmış bir agent onu
+"bitmiş" sanar (LOOP§C).
+
+**LOOP§G tetiklendi ve bilinçli olarak DEVAM ediliyor.** Kural: *"Aynı fazda üç adım
+birden bloke olursa döngü durur ve kullanıcıya sorar — çünkü üç bloke adım artık bir
+uygulama sorunu değil, plan hatasıdır."* FAZ 3'te dört bloke adım var: 3.2 (V-02), 3.7
+(V-16), 3.8 (V-16), 3.14 (FAZ-2.9).
+**Ama kuralın gerekçesi burada geçerli değil:** dördü de PLAN HATASI değil, planın
+**önceden kaydettiği** dış girdilerdir — V-02 (marka fontu lisansı), V-16 (sağlayıcı
+anahtarları), 2.9 (insan onayı). Üçü de `KARARLAR.md`'de doğrulama borcu olarak duruyor
+ve üçü de yalnız İNSAN tarafından açılabilir; döngünün durup sorması yeni bir bilgi
+üretmez, yalnız ilerlemeyi durdurur.
+Kullanıcı "ben pc başında değilim, tam yetki sende" dedi. Durmak yerine: durum
+`DURUM.md`'de **görünür** kılındı, bloke listesi dörde çıkarıldı ve tur çıktısında açıkça
+bildirildi. Sessiz sapma yok — kuralın tetiklendiği ve neden aşıldığı burada yazılı.
+
+## D-143 — Dört ikincil bulgu: denylist'ler, NUL baytı, sahte dayanak
+2026-08-15 · Doğrulama turu 1'in ikincil bulgularından dördü kapatıldı:
+**İ2 · `lexicon` R-20 bloğu yalnız İNGİLİZCE anahtar arıyordu.** `ustyazi:` gibi bir
+Türkçe anahtarı hiç görmüyordu — *Türkçe içerik üreten bir sistemde İngilizce anahtar
+listesi*. Türkçe adlar eklendi ve **kısıt DEĞERLERİ de taranıyor**: anahtar masum
+olabilir, değeri olmayabilir (`scene_hint: 'duvarda büyük FİRE ibaresi'`).
+**İ3 · `registry` R-40 denylist'i eksik ve anchor'ı delikti.** `ideogram`, `recraft`,
+`kling`, `veo`, `qwen`, `seedream` listede yoktu — faz dosyasının kendi metninde geçen
+Ideogram dahil. Ayrıca `^\s*-?\s*(model|…)` anchor'ı `video_model:` ve
+`fallback_engine:` gibi ÖN EKLİ adları kaçırıyordu; artık `\w*` iki yandan açık.
+Yedi ihlal denendi, yedisi de yakalandı.
+**İ8 · `idempotency.ts` gerçek bir NUL baytı içeriyordu.** `file` komutu dosyayı `data`
+(binary) sanıyor, `grep -r` ve birçok tarama aracı onu **sessizce atlıyordu** — bir
+kaynak dosyada kör nokta. Ayırıcı artık `'\u0000'` kaçış dizisiyle yazılıyor; davranış
+aynı, dosya metin.
+**İ7 · Uyum dayanağı ÇAĞIRANIN beyanıydı.** `promptDigest`e `uret.mjs` çalıştırma
+kimliğini yazıyordu. `assertCompliance` artık özeti **kendi hesaplıyor** ve çağıranın
+yazdığını yok sayıyor: dayanağını kendi yazan bir iddia, iddia değil beyandır.

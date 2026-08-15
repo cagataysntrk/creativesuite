@@ -81,6 +81,7 @@ export {
 export {
   assertCompliance,
   promptRequestsPerson,
+  promptDigest,
   PERSON_PROBES,
   personPatternHits,
   type ComplianceClaim,

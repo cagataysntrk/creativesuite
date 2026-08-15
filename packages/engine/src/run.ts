@@ -371,18 +371,31 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
           },
           spec,
           bState,
-          async () => {
-            const o = await verb.run(ctx, { constraints: s.constraints, inputs: ciktilar })
+          async (c) => {
+            // Seçilen sağlayıcı ve motorun tutamak köprüsü gövdeye AKTARILIR.
+            // Aktarılmasaydı gövde hangi sağlayıcının kazandığını bilemez ve
+            // `providerCall`ı kuramazdı — B8'in kökü buydu (D-141).
+            let tutamak: string | null = null
+            const o = await verb.run(ctx, {
+              constraints: s.constraints,
+              inputs: ciktilar,
+              providerId: kazanan.providerId,
+              noteHandle: (id: string) => {
+                tutamak = id
+                c.noteHandle(id)
+              },
+              resumeExternalId: c.resumeExternalId,
+            })
             return o.ok
               ? {
                   ok: true as const,
                   value: {
                     amount: o.value.costs.reduce<Money>(
-                      (t, c) => usd(t.micros + c.amount.micros),
+                      (t, c2) => usd(t.micros + c2.amount.micros),
                       ZERO_USD
                     ),
                     chargeStatus: 'charged' as const,
-                    externalId: null,
+                    externalId: tutamak,
                     data: o.value.data,
                   },
                 }

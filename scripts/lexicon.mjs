@@ -175,9 +175,34 @@ for (const rel of globSync('registry/pipelines/*.pipeline.yaml', { cwd: REPO }))
         `${rel}:${i + 1}  R-20 — \`no_text: false\` yazılamaz; görsel modeline metin çizdirilmez`
       )
     }
-    // Kısıt DEĞERİNDE metin isteği: `overlay_text`, `caption`, `slogan`…
-    if (/^\s*(overlay_text|caption|text|slogan|headline|watermark)\s*:/.test(satir)) {
+    // Metin isteyen KISIT ADI — İngilizce VE Türkçe.
+    //
+    // ⚠ İlk sürüm yalnız İngilizce anahtar arıyordu ve `ustyazi:` gibi bir Türkçe
+    // anahtarı hiç görmüyordu. **Türkçe içerik üreten bir sistemde İngilizce anahtar
+    // listesi** — doğrulama agent'ı 2026-08-15'te yakaladı (D-143).
+    if (
+      /^\s*(overlay_text|caption|text|slogan|headline|watermark|copy|label|title)\s*:/i.test(
+        satir
+      ) ||
+      /^\s*(ustyazi|üstyazı|metin|yazi|yazı|baslik|başlık|etiket|slogan|altyazi|altyazı)\s*:/i.test(
+        satir
+      )
+    ) {
       r20.push(`${rel}:${i + 1}  R-20 — görsel adımında metin kısıtı: ${satir.trim()}`)
+      return
+    }
+
+    // Kısıt DEĞERİNDE metin isteği: `scene_hint: 'duvarda büyük FİRE ibaresi'`.
+    // Anahtar masum olabilir; değeri olmayabilir. Değer taraması olmadan kural,
+    // anahtar adını değiştirmekle atlatılırdı.
+    const deger = satir.includes(':') ? satir.slice(satir.indexOf(':') + 1) : ''
+    if (
+      /\b(yazi\w*|metin\w*|harf\w*|ibare\w*|tabela\w*|pankart\w*|slogan\w*)\b/i.test(deger) ||
+      /\b(text|lettering|caption|typography|written|signage|watermark)\b/i.test(deger)
+    ) {
+      r20.push(
+        `${rel}:${i + 1}  R-20 — görsel adımı kısıt DEĞERİNDE metin istiyor: ${satir.trim()}`
+      )
     }
   })
 }

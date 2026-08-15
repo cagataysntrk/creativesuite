@@ -8,9 +8,9 @@
 aktif_faz: 3
 siradaki_adim: FAZ-3-KAPANIS
 son_guncelleme: 2026-08-15
-bloke: ["2.9", "3.2", "3.8"]
+bloke: ["2.9", "3.2", "3.7", "3.8", "3.14"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.15 kapandi: LinkedIn spec'i (1200x1500, tolerans ±%5, 5MB) uygulandi ve gercek cikti uretildi. Kalite merdiveni sinir 3KBa indirilince TUKENDI ve hat DURDU — sessizce yayinlanmadi. FAZ 3'un 13 adimi tikli; 3.2 (V-02) ATLANDI, 3.8 (V-16) BLOKE. Faz kapanis protokolu (LOOP§D) basliyor: en fazla IKI dogrulama turu. 721 test, 22 kapi."
+son_kanit: "1. dogrulama turu: 10 blokaj + 13 ikincil. Dokuz blokaj kapatildi (D-134…D-141). En agiri: uret.mjs retrieval yuklemini ATLAYIP 7 draft kaydi uretime sokuyordu (R-13+R-14). Kalite merdiveni HICBIR SEY yapmiyordu; renderWithinLimit ile her basamak gercekten render edilip olculuyor. providerCall uretimden hic cagrilmiyordu. 3.7 ve 3.14 TIKLERI GERI ALINDI — ikisinin de ciktisi kanitlanamiyor. 735 test, 24 kapi."
 ```
 
 ## Neredeyiz
@@ -19,13 +19,23 @@ son_kanit: "FAZ 3.15 kapandi: LinkedIn spec'i (1200x1500, tolerans ±%5, 5MB) uy
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı: 13/15 adım tikli.** ★ Hedef karşılandı: sistem gerçek
-> bir carousel ve LinkedIn postu üretti (D-124). Kalan iki adım kapalı sebeplerle
-> dışarıda: `3.2` golden metrik V-02'ye (marka fontu) bağlı, `3.8` marka LoRA V-16'ya
-> (sağlayıcı anahtarları + ~$3 gerçek para) bağlı.
+> **FAZ 3 — görsel üretim hattı: 11/15 adım tikli.** Motor uçtan uca çalışıyor ve
+> gerçek Chromium ile gerçek slayt üretiyor; marka QA gerçek sayılar veriyor.
 >
-> **Faz kapanış protokolü işliyor** (LOOP§D): bağımsız doğrulama agent'ı, **en fazla
-> İKİ tur** (D-79). İkinci turda bulunmayan minor'dur ve FAZ 9'a düşer.
+> ⛔ **DÖRT ADIM BLOKE — hepsi İNSAN girdisi bekliyor** (D-142). LOOP§G eşiği (üç bloke
+> adım) aşıldı ve döngü bilinçli olarak devam ediyor: dördü de plan hatası değil,
+> planın önceden kaydettiği doğrulama borçları.
+>
+> | Adım | Bekleyen | Ne gerekiyor |
+> |---|---|---|
+> | `2.9` | insan onayı | `just onayla corpus/*/*.md` → 7 kayıt `draft` |
+> | `3.2` | V-02 | marka fontu lisansı |
+> | `3.7` | V-16 | `CF_ACCOUNT_ID`+`CF_API_TOKEN` ya da `FAL_KEY` |
+> | `3.8` | V-16 | aynı + ~$3 gerçek para |
+> | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |
+>
+> **Faz kapanış protokolü işliyor** (LOOP§D): 1. tur bitti (10 blokaj + 13 ikincil,
+> dokuzu kapatıldı). **En fazla İKİ tur** (D-79).
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -46,13 +56,11 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.4** · sağlayıcı tanımlayıcısı, içe aktarıcı (V-04 kapandı) | 2026-08-15 |
 | **3.5** · yetenek yönlendiricisi, maliyet formülü, bütçe kapısı | 2026-08-15 |
 | **3.6** · retry, idempotency, rate limit; çift ücret kapatıldı | 2026-08-15 |
-| **3.7** · `image.generate`, iki şerit, R-20 üç katmanda | 2026-08-15 |
 | **3.9** · marka QA tolerans okumaları (ΔE2000 kendi implementasyonu) | 2026-08-15 |
 | **3.10** · deterministik lexicon linter, corpus'a bağlı | 2026-08-15 |
 | **3.11** · uyum kapısı, kendi PNG damgamız (ExifTool'suz) | 2026-08-15 |
 | **3.12** · içerik-adresli varlık deposu + sidecar | 2026-08-15 |
 | **3.13** · run manifest yazıcı, tahmini vs gerçek maliyet | 2026-08-15 |
-| **3.14 ★** · carousel UÇTAN UCA — gerçek çıktı üretildi | 2026-08-15 |
 | **3.15** · linkedin-post, platform spec'i, kalite merdiveni | 2026-08-15 |
 
 ## Sıradaki adım

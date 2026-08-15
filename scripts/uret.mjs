@@ -28,7 +28,7 @@ const {
   knowledgeCommit,
   RateLimiter,
 } = await import(join(REPO, 'packages/engine/dist/index.js'))
-const { candidatesFor, loadDescriptors } = await import(
+const { candidatesFor, loadDescriptors, adapterById } = await import(
   join(REPO, 'packages/providers/dist/index.js')
 )
 const {
@@ -219,24 +219,23 @@ if (!bilgi.ok) {
 }
 const bilgiSha = bilgi.sha
 
-// ── GENERATE gövdesi: yönlendirilmiş sağlayıcıya köprü ──────────────────────
+// ── GENERATE: GERÇEK adaptöre gider ────────────────────────────────────────
+//
+// ⚠ İlk hâli sabit `MISSING_CREDENTIALS` döndüren SAHTE bir köprüydü: `cloudflareImage`
+// ve `falImage` adaptörlerine hiç ulaşılmıyor, "iki şerit de görsel üretiyor" iddiası
+// hiç sınanmıyordu (D-141). Artık yönlendiricinin seçtiği adaptöre gidiyor; anahtar
+// yoksa ADAPTÖRÜN KENDİSİ `MISSING_CREDENTIALS` diyor — ve bu fark önemli: hata artık
+// gerçek bir kod yolundan geliyor.
 const generate = generateBody({
-  call: async (ctx, input) => {
-    const cap =
-      typeof input.constraints['capability'] === 'string' ? input.constraints['capability'] : null
-    return {
-      ok: false,
-      error: {
-        kind: 'provider_auth',
-        code: 'MISSING_CREDENTIALS',
-        userMessageKey: 'error.provider.missing_credentials',
-        correlationId: ctx.correlationId,
-        costIncurred: { micros: 0n, currency: 'USD' },
-        retryable: false,
-        details: { capability: cap, needs: ['CF_ACCOUNT_ID', 'CF_API_TOKEN'], debt: 'V-16' },
-      },
-    }
+  resolveAdapter: adapterById,
+  env: {
+    PATH: readEnv('PATH') ?? '',
+    // Sağlayıcı anahtarları AÇIKÇA aktarılır (§14). Yoksa adaptör kendi hatasını verir.
+    ...(readEnv('FAL_KEY') === undefined ? {} : { FAL_KEY: readEnv('FAL_KEY') }),
+    ...(readEnv('CF_ACCOUNT_ID') === undefined ? {} : { CF_ACCOUNT_ID: readEnv('CF_ACCOUNT_ID') }),
+    ...(readEnv('CF_API_TOKEN') === undefined ? {} : { CF_API_TOKEN: readEnv('CF_API_TOKEN') }),
   },
+  capability: 'image.generate',
 })
 
 // ── maliyet defteri KALICI olmak zorunda (R-44 · D-137) ────────────────────
@@ -312,7 +311,10 @@ if (slaytlar.length > 0) {
   const iddia = assertCompliance({
     // Bu hatta görsel model çağrısı YOK; metin gerçek fontla kompozit ediliyor ve
     // hiçbir insan üretilmiyor. Dayanak prompt taraması.
-    basis: { kind: 'prompt_forbids_people', promptDigest: `sha256:${runId}` },
+    // Özet `assertCompliance` tarafından TARANAN prompt'tan hesaplanır; buradaki
+    // değer yok sayılır (D-143). Yer tutucu bırakmak, iddianın kendi dayanağını
+    // yazdığı izlenimini verirdi.
+    basis: { kind: 'prompt_forbids_people', promptDigest: '' },
     aiGenerated: false,
     prompt: konu,
     correlationId: `cor_${runId}`,

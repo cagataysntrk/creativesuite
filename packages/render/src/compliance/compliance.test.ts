@@ -10,6 +10,7 @@ import {
   assertCompliance,
   personPatternHits,
   promptRequestsPerson,
+  promptDigest,
   type PersonBasis,
 } from './claim.js'
 import { STAMP_KEYS, hasComplianceStamp, readStamp, stampPng } from './stamp.js'
@@ -323,4 +324,38 @@ describe('PNG damgası — GERÇEK render üstünde', () => {
     // kaçındığı hata modu.
     expect(readStamp(yol)?.[STAMP_KEYS.kit]).toBe('ĞÜŞİÖÇ ğüşıöç sürüm')
   }, 60_000)
+})
+
+describe('dayanak ÇAĞIRANIN beyanı değil (İ7 · D-143)', () => {
+  it("`promptDigest` çağıranın yazdığı değil, TARANAN prompt'un özeti", () => {
+    // İlk sürümde `uret.mjs` oraya çalıştırma kimliğini yazıyordu ve iddia
+    // denetlenemez hâle geliyordu: "hangi prompt tarandı" sorusunun cevabı yoktu.
+    const r = assertCompliance({
+      basis: { kind: 'prompt_forbids_people', promptDigest: 'UYDURMA-DEGER' },
+      aiGenerated: true,
+      prompt: PROMPT_TEMIZ,
+      correlationId: CID,
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.value.basis.kind).toBe('prompt_forbids_people')
+    if (r.value.basis.kind !== 'prompt_forbids_people') return
+    expect(r.value.basis.promptDigest).not.toBe('UYDURMA-DEGER')
+    expect(r.value.basis.promptDigest).toBe(promptDigest(PROMPT_TEMIZ))
+  })
+
+  it('AYNI prompt aynı özeti, FARKLI prompt farklı özeti veriyor', () => {
+    expect(promptDigest(PROMPT_TEMIZ)).toBe(promptDigest(` ${PROMPT_TEMIZ} `))
+    expect(promptDigest(PROMPT_TEMIZ)).not.toBe(promptDigest('başka bir prompt'))
+    expect(promptDigest(PROMPT_TEMIZ)).toMatch(/^sha256:[0-9a-f]{32}$/)
+  })
+
+  it('diğer dayanaklarda özet HESAPLANMIYOR — orada prompt yok', () => {
+    const r = assertCompliance({
+      basis: { kind: 'human_photograph', sourceRef: 'assets/foto.jpg' },
+      aiGenerated: false,
+      correlationId: CID,
+    })
+    expect(r.ok && r.value.basis.kind).toBe('human_photograph')
+  })
 })

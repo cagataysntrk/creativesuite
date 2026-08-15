@@ -102,12 +102,19 @@ for (const rel of tipler) {
 const MODEL_DESENLERI = [
   // Sağlayıcı/model aileleri. Yorumda geçmeleri meşru (R-40'ı ANLATAN yorum gibi),
   // bu yüzden yalnız ANAHTAR DEĞERİ konumunda aranır.
-  /\b(gpt|claude|gemini|flux|imagen|sora|dall-?e|midjourney|stable-?diffusion|llama|whisper|elevenlabs|chatterbox)\b/i,
+  // Model aileleri. ⚠ İlk liste `ideogram`, `recraft`, `kling`, `veo`, `qwen`,
+  // `seedream` ve `nano-banana`yı TANIMIYORDU — faz dosyasının kendi metninde geçen
+  // Ideogram dahil (D-143). Denylist doğası gereği eksiktir; bu yüzden ikinci savunma
+  // ANAHTAR desenidir ve o da genişletildi.
+  /\b(gpt|claude|gemini|flux|imagen|sora|dall-?e|midjourney|stable-?diffusion|llama|whisper|elevenlabs|chatterbox|ideogram|recraft|kling|veo|qwen|seedream|nano-?banana|runway|luma|pika|hailuo|minimax|wan|hunyuan|mistral|deepseek|grok)\b/i,
   // Doğrudan sağlayıcı yönlendirmesi
   /\b(fal-ai|openrouter|replicate|anthropic|openai)\b/i,
 ]
 /** `model:`, `provider:`, `model_id:` gibi anahtarlar tek başına bile ihlal. */
-const YASAK_ANAHTARLAR = /^\s*-?\s*(model|model_id|modelId|provider|provider_id|engine)\s*:/
+// ⚠ Anchor `^\s*-?\s*(model|…)` idi ve `video_model:` / `fallback_engine:` gibi ÖN EKLİ
+// adları kaçırıyordu. Artık ad İÇİNDE arıyor: `\w*` iki yandan da açık.
+const YASAK_ANAHTARLAR =
+  /^\s*-?\s*\w*(model|model_id|modelId|provider|provider_id|engine|adapter|checkpoint|lora)\w*\s*:/i
 
 const pipelinelar = globSync('registry/pipelines/*.pipeline.yaml', { cwd: REPO })
 for (const rel of pipelinelar) {
