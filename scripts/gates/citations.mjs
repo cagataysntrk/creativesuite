@@ -69,7 +69,10 @@ try {
   files = execFileSync('git', ['ls-files', '*.md', '*.ts', '*.mjs', '*.sh', 'justfile'],
     { cwd: REPO, encoding: 'utf8' }).split('\n').filter(Boolean)
 } catch { files = [] }
-const SKIP = /^docs\/(research|PLAN-ARSIV)/
+// Arşiv ve kayıt dosyaları: ARŞİVLENMİŞ bir belgeden alıntı yapan bir kayıt, canlı
+// çapalara karşı doğrulanamaz. denetim-tasfiye planın § numaralarını alıntılıyor;
+// plan arşivde ve numaraları ANAYASA'ya eşlenmiyor.
+const SKIP = /^docs\/(research|PLAN-ARSIV|denetim-tasfiye)/
 files = files.filter((f) => !SKIP.test(f))
 
 // ── kontrol ──────────────────────────────────────────────────────────────────

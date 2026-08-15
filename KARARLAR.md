@@ -284,3 +284,15 @@ değiştirebiliyor; tek kısıt "kod ve kural aynı olsun" idi. Bu, kırmızı k
 için kuralı gevşetmeyi meşru gösteriyordu. R-76 eklendi: kural değişikliği ayrı tur,
 ayrı commit, `D-nn` atfı zorunlu.
 **Geri alma maliyeti:** yok — saf kısıt.
+
+## D-52 — Bir tur = bir veya daha fazla adım
+2026-08-15 · `LOOP§C`'nin "bir turda birden fazla adım deneme" kuralı **kaldırıldı**.
+Tur doğal bir durakta biter: bağlam dolduğunda, bloke adıma çarpıldığında, faz
+kapandığında veya kullanıcı müdahale ettiğinde. Her adım kendi commit'ini alır ama
+commit turu bitirmez.
+**Neden:** kullanıcının açık talimatı — "her committe durmak yasak, uzun geliştirmeler
+yapılacak, sürekli wakeup beklemeyeceğiz". Orijinal kural bağlam kaybına karşı
+tasarlanmıştı; ama `DURUM.md` + faz dosyası tikleri zaten o güvenliği sağlıyor,
+tur sınırı ek koruma getirmiyordu.
+**Korunan kısıt:** yarım adım yasağı. Bir adım ya biter, ya başlamaz, ya bloke işaretlenir.
+**Geri alma maliyeti:** tek satır.

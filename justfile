@@ -51,6 +51,11 @@ test *args:
 golden:
     @echo "(FAZ-3.2'de tipografi golden'ı gelecek)"
 
+# Kaydet: kapı → stage → commit → push → KANITLA. Tek darboğaz (R-05).
+# Mesajı stdin'den alır:  just save <<'EOF' ... EOF
+save file="-":
+    @bash scripts/save.sh {{file}}
+
 # ── bakım ────────────────────────────────────────────────────────────────────
 
 fmt:

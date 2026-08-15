@@ -15,6 +15,10 @@ ilerleme üretir.
 
 ## LOOP§B — tur anatomisi {#loop-b}
 
+**Bir tur = bir veya daha fazla adım.** Tur, doğal bir durakta biter: bağlam dolduğunda,
+bloke bir adıma çarpıldığında, faz kapandığında veya kullanıcı müdahale ettiğinde.
+Her adım **kendi commit'ini** alır — ama commit turu bitirmez (D-52).
+
 ```
 1. ARAŞTIR   just tur  →  adımın 📖 satırındaki her hedefi getirir
              ANAYASA bölümünü HEDEFLİ oku (baştan sona değil)
@@ -24,12 +28,13 @@ ilerleme üretir.
 4. DOĞRULA   Nokta atışı test. ⛔ Uzun/kapsamlı test turda YAPILMAZ
 5. KABUL     Faz dosyasındaki ✅ kriterini kontrol et. Karşılanmadıysa adım BİTMEZ
 6. KAYDET    Faz dosyasında tikle + tarih → DURUM.md güncelle → commit
-7. PLANLA    ScheduleWakeup(70s) + sonraki adımı ilan et
+6b. DEVAM   Doğal durak gelmediyse bir sonraki adıma geç — commit'te durma
+7. PLANLA    ScheduleWakeup(≤70s) + kaldığın yeri ilan et
 ```
 
 ## LOOP§C — turda yapılmaz {#loop-c}
 
-- ⛔ Bir turda birden fazla faz adımı bitirmeye çalışmak
+- ⛔ Yarım adım bırakmak — bir adım ya biter, ya başlamaz, ya bloke işaretlenir
 - ⛔ Kabul kriteri karşılanmadan tiklemek
 - ⛔ `just check` kırmızıyken commit
 - ⛔ Kuralı `KURALLAR.md`'de değiştirmeden koda farklı yazmak
