@@ -10,13 +10,17 @@ siradaki_adim: 1.10b
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "0.B.8b: FAZ-2 (13 adim) + FAZ-3 (15 adim) yedi alanli; kirik atif ve tavan asimi ihlal testleri kirmizi verdi"
+son_kanit: "Dogrulama agenti 3 bloklayici buldu, ucu de kapandi: schemas bayat dist okuyordu (D-67), derived/runs korumasi bostaydi (D-68), validateVerbOutput olu koddu (D-69). 200 test."
 ```
 
 ## Neredeyiz
 
-**FAZ 0 — ön hazırlık.** Depo kuruldu, private, commit kapısı çalışıyor.
-Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
+**FAZ 1 — kurulum.** Çekirdek ayakta: dokuz halka, dokuz fiil, motor, corpus indeksi,
+projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıyor. 200 test, 17 kapı.
+Henüz hiçbir ÜRETİM yok — ilk gerçek görsel FAZ 3'te.
+
+> FAZ 1'in 15 adımının 14'ü tikli; `1.10b` (golden harness) **V-02'ye bağlı**.
+> Faz kapanışı bağımsız doğrulama agent'ının raporunu bekliyor (LOOP§D).
 
 ## Tamamlananlar
 

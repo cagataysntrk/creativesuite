@@ -12,6 +12,7 @@
 // fiile çevirmenin en kolay yoludur.
 
 import { readFileSync, existsSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -40,9 +41,16 @@ if (!existsSync(p(PIN))) {
   console.log(`✗ ${PIN} yok — sabitlenmiş liste olmadan kapı anlamsız`)
   process.exit(1)
 }
-if (!existsSync(p(DIST))) {
-  console.log(`✗ ${DIST} yok — önce 'just gate types'`)
-  process.exit(1)
+// dist TAZE olmak zorunda: kapı sırasına güvenmek, sıranın değiştiği gün bayat
+// çıktı üstünde yeşil rapor vermek demektir (D-67).
+{
+  const { status, stdout, stderr } = spawnSync('bash', [join(REPO, 'scripts/ensure-build.sh')], {
+    encoding: 'utf8',
+  })
+  if (status !== 0) {
+    console.log(`✗ derleme başarısız — kapı bayat dist üstünde çalışmaz\n${stdout}${stderr}`)
+    process.exit(1)
+  }
 }
 
 const pinned = JSON.parse(readFileSync(p(PIN), 'utf8')).verbs

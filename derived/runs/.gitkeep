@@ -1,0 +1,6 @@
+# derived/runs TÜRETİLEMEZ (D-38) ve ASLA silinmez.
+#
+# Bu dosya dizinin git'te VAR OLMASI için duruyor. Sebep sadece kozmetik değil:
+# `repo-hygiene` kapısı "derived/runs ignore ediliyor mu" diye soruyordu ve
+# `git check-ignore` var olmayan bir dizin için daima "hayır" der — yani koruma
+# dizin doğana kadar BOŞTA dönüyordu (D-68). Dizin artık var; kontrol artık gerçek.

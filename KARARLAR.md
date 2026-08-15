@@ -528,3 +528,53 @@ Aynı kütüphanenin farklı seçeneklerle çağrılması da iki ayrıştırıc�
 sürüm numarasını sayı, diğeri dize okur ve fark aylar sonra, bambaşka bir yerde çıkar.
 **D-61 ile aynı örüntü:** halka yasası bir kaynağın hangi katmanda yaşayacağını
 belirliyor. SQLite handle da, YAML ayrıştırıcı da bu yüzden Ring 0'da.
+
+## D-67 — `dist/` okuyan kapı kendi derlemesini yapar; kapı sırasına güvenilmez
+2026-08-15 · Bağımsız doğrulama agent'ı FAZ-1.2'nin ihlal testinin **gerçekte çalışmadığını**
+buldu: Zod şemasında tip-nötr bir değişiklik (`z.string().min(1)` → `.min(3)`) yapılıp
+`schemas/` üretilmeden **tam `just check`'ten 17/17 yeşil** geçiyordu.
+**Sebep:** `schemas.sh` şemaları `packages/kernel/dist/index.js`'ten üretiyordu ve
+`run-gates.sh` `.sh` kapılarını ALFABETİK koşturuyor — `schemas` (s), dist'i yeniden
+derleyen `types`'tan (t) ÖNCE. Kapı bayat çıktı üstünde çalışıyor, farkı görmüyordu.
+Aynı delik `.githooks/pre-commit`'te de vardı. Kapının kendi başlığındaki "commit'li şema
+sessizce YALAN söyler" senaryosu tam olarak mümkündü.
+**Karar:** `scripts/ensure-build.sh` — `dist/` okuyan HER kapı (`schemas`, `verbs`,
+`projection`) onu ilk iş çağırır. `tsc -b` artımlıdır; ikinci çağrının bedeli yok.
+**İlke:** **bir kapının doğruluğu BAŞKA bir kapının çalışma sırasına bağlı olamaz.**
+Sıra bir gün değişir — dosya adı değişir, kapı eklenir — ve o gün koruma sessizce kalkar.
+D-55'te aynı sebeple `import-x/no-restricted-paths` reddedilmişti: çözümleme gerektiren
+bir kural çözemediğinde susar. Bu onun sıralama biçimindeki hâli.
+**Kanıt:** aynı Zod değişikliği düzeltmeden sonra `just gate schemas` rc=1 verdi ve
+diff'i gösterdi; geri alınca yeşile döndü.
+
+## D-68 — `derived/runs` koruması dizin doğana kadar boştaydı
+2026-08-15 · Doğrulama agent'ı `repo-hygiene`'in D-38 korumasının **ateşlemediğini** buldu:
+`.gitignore`'a `derived/runs/` eklendiğinde kapı YEŞİL kaldı.
+**İki ayrı sebep üst üste binmişti:**
+1. `git check-ignore`, VAR OLMAYAN bir yol için daima "eşleşmedi" der — `derived/runs/`
+   deseni sondaki eğik çizgi yüzünden yalnız dizinlerle eşleşir ve git, olmayan bir yolun
+   dizin olduğunu bilemez. Dizin repoda hiç yoktu.
+2. `git check-ignore` İZLENEN bir dosyayı da "ignore değil" sayar. Yani dizin yaratılıp
+   `.gitkeep` commit'lense bile, sonradan eklenen bir desen kapıdan geçerdi.
+**Karar:** `derived/runs/.gitkeep` commit'lendi (dizin artık git'te var) ve kapı üç şeyi
+birden denetliyor: dizin var mı · deseni `--no-index` ile ignore'lu mu · `.gitkeep`
+izleniyor mu. **Kanıt:** üç vaka da kırmızı verdi; temizde yeşil.
+**Ders:** "kapı zaten doğruluyor" cümlesi bir faz adımında yazılıydı ve **yanlıştı**.
+Kapıyı yazmak yetmiyor; kasten ihlal edip kırmızıya döndüğünü GÖRMEK gerekiyor (R-71) —
+ve bu ihlal testi FAZ-1.6'da atlanmıştı.
+
+## D-69 — Fiil çıktı sözleşmesi `runVerb` ile zorlanıyor; `CostEvent` kriteri netleşti
+2026-08-15 · FAZ-1.11'in ✅ satırı "her metered fiil ≥1 `CostEvent` döndürüyor" diyordu.
+Agent iki şeyi buldu: (a) hiçbir fiil `CostEvent` döndürmüyor — gövdeler iskelet,
+(b) sözleşmeyi zorlayacak `validateVerbOutput()` **hiçbir yerden çağrılmıyor**, docstring'i
+"motor bunu her çağrıdan sonra çalıştırır" dediği hâlde. Zorlaması olmayan bir sözleşme,
+sözleşme değil temennidir.
+**Karar iki parçalı:**
+1. **Zorlama BUGÜN bağlandı:** `packages/engine/src/run-verb.ts` fiili çağırıp çıktıyı
+   `validateVerbOutput` ile denetliyor. Metered fiil sıfır `CostEvent` döndürürse çağrı
+   `VERB_OUTPUT_CONTRACT_VIOLATION` ile BAŞARISIZ. Sahte fiillerle beş test: sıfır maliyet
+   reddediliyor, metered olmayan fiilin maliyet döndürmesi de reddediliyor.
+2. **Kriter netleşti:** "her metered fiil ≥1 `CostEvent` döndürüyor" ifadesi iskelet
+   fiillerle karşılanamaz; gerçek gövdeler FAZ-3.7'de doğuyor. FAZ-1.11'in ✅'si
+   **sözleşmenin zorlandığını** ölçer; gövdelerin gerçekten maliyet bildirmesi FAZ-3.7'nin
+   kabul kriteridir. Sessiz sapma değil, açık düzeltme (R-74).

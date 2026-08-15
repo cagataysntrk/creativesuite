@@ -94,8 +94,9 @@ ağ kablosu çekiliyken de çalışıyor
    `reindex` atlananları RAPORLAR — sessiz atlama, aranamayan kayıt demektir.
 ✅ `just reindex` sıfırdan kurup saniyeler içinde bitiriyor ·
    "ölçüm" araması "ölçümlerinizi" buluyor
-🧪 `derived/index/` sil → `just reindex` geri kuruyor · `derived/runs/` sil → **veri kaybı**,
-   bu yüzden ignore edilmiyor (kapı zaten doğruluyor)
+🧪 `derived/index/` sil → `just reindex` geri kuruyor · `.gitignore`'a `derived/runs/`
+   ekle → `repo-hygiene` kırmızı (D-68: bu kontrol dizin doğana kadar BOŞTA dönüyordu,
+   ihlal testi atlandığı için fark edilmemişti)
 💾 `feat(corpus): tek yazma darboğazı ve FTS5 indeksi` · `Refs: FAZ-1.6 · §3.5`
 
 ## 1.7 — Hata taksonomisi ve Result disiplini    [x] 2026-08-15
@@ -167,7 +168,9 @@ ağ kablosu çekiliyken de çalışıyor
 📖 §3.10 · R-02, R-04, R-06 · D-35, D-40 · 🔗 FAZ-0.C.11
 🛠 Her fiil `{name, effectClass, metered, plan, run}`. `plan` kuru ikiz: sıfır ağ, sıfır
    yazma. `verbs.json` sabitlenir ve kapı bağlanır.
-✅ `just gate verbs` yeşil · her metered fiil ≥1 `CostEvent` döndürüyor
+✅ `just gate verbs` yeşil · `runVerb` metered fiili sıfır `CostEvent` ile GEÇİRMİYOR
+   (D-69: iskelet gövdeler maliyet bildiremez; **sözleşmenin zorlandığı** ölçülür,
+   gövdelerin gerçekten bildirmesi FAZ-3.7'nin kriteridir)
 🧪 Onuncu fiil ekle → kapı kırmızı · `RENDER` içinden sağlayıcı çağır → depcruise kırmızı
 💾 `feat(kernel): dokuz fiil iskeleti ve kuru ikizleri` · `Refs: FAZ-1.11 · §3.10`
 

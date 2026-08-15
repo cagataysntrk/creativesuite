@@ -19,8 +19,16 @@ say() { echo "$1"; fail=1; }
 # ── 1. derived/runs ignore EDİLMEMELİ (D-38) ─────────────────────────────────
 # Çalıştırma defteri corpus'tan türetilemez. Yanlışlıkla ignore edilirse bir
 # çalıştırmanın maliyeti ve hangi sağlayıcıya ne gittiği KALICI olarak kaybolur.
-if git check-ignore -q derived/runs 2>/dev/null; then
+# ⚠ `git check-ignore` VAR OLMAYAN bir dizin için daima "eşleşmedi" der: `derived/runs/`
+# deseni sondaki eğik çizgi yüzünden yalnız dizinlerle eşleşir ve git, olmayan bir yolun
+# dizin olduğunu bilemez. Koruma bu yüzden dizin doğana kadar BOŞTA dönüyordu (D-68).
+# Üç kontrol birlikte: dizin var mı, kendisi ignore'lu mu, altındaki dosya izleniyor mu.
+if [ ! -d derived/runs ]; then
+  say "derived/runs dizini yok — D-38 koruması boşta döner, .gitkeep ile var olmalı"
+elif git check-ignore -q --no-index derived/runs || git check-ignore -q --no-index derived/runs/.gitkeep; then
   say "derived/runs ignore ediliyor — D-38 ihlali, çalıştırma defteri türetilemez"
+elif ! git ls-files --error-unmatch derived/runs/.gitkeep >/dev/null 2>&1; then
+  say "derived/runs/.gitkeep izlenmiyor — dizinin git'te var olduğu KANITLANAMIYOR"
 fi
 
 # ── 2. Düz metin secret commit'lenmemeli ─────────────────────────────────────

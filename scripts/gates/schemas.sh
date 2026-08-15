@@ -21,10 +21,9 @@ export LC_ALL=C
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT" || exit 1
 
-[ -f "packages/kernel/dist/index.js" ] || {
-  echo "✗ packages/kernel derlenmemiş — önce 'just gate types'"
-  exit 1
-}
+# dist TAZE olmak zorunda. "Önce types'ı çalıştır" demek yetmiyordu: kapı sırası
+# alfabetik ve `schemas` < `types`, yani dist bayat okunuyordu (D-67).
+bash "$ROOT/scripts/ensure-build.sh" || exit 1
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT

@@ -63,6 +63,8 @@ export {
   type PlannedStep,
 } from './plan.js'
 
+export { runVerb, type VerbCallResult } from './run-verb.js'
+
 export {
   runStep,
   runScope,
