@@ -111,10 +111,11 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.B.8c — FAZ-4..9.md    [ ]
 ✅ Aynı · toplam adım sayısı plan faz haritasıyla eşleşiyor
 
-## 0.B.9 — .claude/rules + skills iskeleti    [ ]
+## 0.B.9 — .claude/rules + skills iskeleti    [x] 2026-08-15
 📖 §14
-🛠 Yol-kapsamlı kurallar (`paths:` taşır, yalnız eşleşen dosyaya dokununca yüklenir).
-✅ Her kural dosyası `paths:` taşıyor · ≤120 satır
+✅ 5 kural dosyası, hepsi `paths:` taşıyor, hepsi ≤32 satır:
+   `corpus-editing` · `turkish-copy` · `registry` · `gates` · `kernel`
+   Skill'ler FAZ 3'te çıktı tipi başına gelecek (şimdi yazılırsa bayatlar).
 
 ## 0.B.10 — denetim bulgularının tasfiyesi    [ ]
 📖 `docs/research/6-denetim--*` · 75 bulgu
