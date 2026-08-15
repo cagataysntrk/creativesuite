@@ -3,7 +3,8 @@
 **Amaç:** Sistem, kullanmaya devam edeceğin kadar keyifli olsun — hayatta kalmasının
 gerçek belirleyicisi budur.
 **Yöneten kararlar:** D-1, D-7, D-12, D-17, D-19, D-26
-**Ön koşul:** FAZ 3 kapalı
+**Ön koşul:** FAZ 3 **şartlı** kapalı (D-158) — `4.1`–`4.2` bekleyen üç adımdan
+bağımsız; `4.6`–`4.9` gerçek bir çalıştırma gerektirir ve `3.14` açılmadan tiklenmez
 **Çıkış kriteri:** Klavyeyle uçtan uca bir çalıştırma: ⌘K → pipeline seç → başlat →
 onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 +%30 sahte-yerelleştirmede hiçbir yerde kırpma yok

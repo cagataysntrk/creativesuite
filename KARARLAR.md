@@ -501,3 +501,20 @@ veren kapı, kapatılan kapıdır. Kapı ⛔'den sonraki `##` başlığına kada
 Üç ihlalle doğrulandı: sınıfsız girdi → kırmızı · üç `teknik` → kırmızı · ilandan
 silinen `insan` adımı → kırmızı.
 **Ders:** bir eşik kuralı, saydığı şeyin ne olduğunu tanımlamadıkça yalnızca sayar.
+
+## D-158 — FAZ 3 ŞARTLI kapandı: çıkış kriteri tikle örtülmez
+2026-08-15 · FAZ 3'ün çıkış kriteri "gerçek bir carousel üretildi ve onaylandı".
+12/15 adım tikli, iki doğrulama turu bitti, ama o kriter `3.14`'tür ve `2.9` insan
+onayına bloke. Üç seçenek vardı: (a) fazı kapalı yazmak — kriteri karşılamadan tiklemek,
+R-70 ihlali; (b) fazı açık tutup FAZ 4'e hiç geçmemek — döngü insan uyanana kadar boşta,
+kullanıcının açık talimatına aykırı; (c) **şartlı kapanış**.
+(c) seçildi: FAZ 3 dosyasına ne bittiğini ve ne beklediğini AYIRAN bir kapanış kaydı
+yazıldı, FAZ 4'ün ön koşulu "FAZ 3 kapalı"dan "şartlı kapalı, `4.1`–`4.2` bağımsız"a
+çevrildi. `4.6`–`4.9` gerçek bir çalıştırma gerektirdiği için `3.14` açılmadan tiklenemez
+— yani şart, ertelenen işi ilerideki adımlara **bağlayarak** taşıyor, unutturarak değil.
+Neden meşru: `4.1` token, tipografi ve yüzey bağlamıdır; bir carousel'in var olmasını
+gerektirmez. "UI'ı pipeline'lardan sonra yap" kuralının sebebi (neyin gösterileceğini
+bilmek) motor uçtan uca çalıştığı için zaten karşılandı — eksik olan çıktı değil, çıktının
+İNSAN ONAYI.
+**Ders:** bir faz "bitti mi" ikili bir soru değil. Teknik kapsam ile kanıt ayrı ayrı
+tamamlanır ve ikisini tek tike sıkıştırmak, hangisinin eksik olduğunu gizler.

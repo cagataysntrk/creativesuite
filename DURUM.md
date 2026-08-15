@@ -5,26 +5,25 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 3
-siradaki_adim: FAZ-3-KAPANIS
+aktif_faz: 4
+siradaki_adim: 4.1
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
-son_kanit: "1. dogrulama turu: 10 blokaj + 13 ikincil. Dokuz blokaj kapatildi (D-134…D-141). En agiri: uret.mjs retrieval yuklemini ATLAYIP 7 draft kaydi uretime sokuyordu (R-13+R-14). Kalite merdiveni HICBIR SEY yapmiyordu; renderWithinLimit ile her basamak gercekten render edilip olculuyor. providerCall uretimden hic cagrilmiyordu. 3.7 ve 3.14 TIKLERI GERI ALINDI — ikisinin de ciktisi kanitlanamiyor. 735 test, 24 kapi."
+son_kanit: "FAZ 3 SARTLI kapandi (D-158): 12/15 adim tikli, iki dogrulama turu bitti, ucuncu ACILMAZ (D-79). Cikis kriteri (gercek carousel) 3.14 ve 2.9 insan onayina bloke; tikle ORTULMEDI, FAZ-3.md kapanis kaydinda ayrildi. Bu turda: --devam manifesti uzerine yaziyordu ve donmus girdi kavrami yoktu (D-154), corpusCommit 'worktree' kabul ediliyordu (D-155) — 14 varlik yayindan bloke edilip karantinaya alindi, karisik commit defter kunyesini atlatiyordu (D-156), blokaj sinifi eklendi (D-157). 752 test, 25 kapi. Sirada 4.1 tasarim sistemi katmani."
 ```
 
 ## Neredeyiz
 
-**FAZ 2 KAPANDI** (2026-08-15) — `2.9` hariç: yedi corpus kaydı draft, insan onayı
-bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
-752 test, 25 kapı yeşil.
+**FAZ 3 ŞARTLI KAPANDI** (2026-08-15, D-158) — motor uçtan uca çalışıyor: gerçek
+Chromium gerçek slayt basıyor, marka QA gerçek sayı veriyor, manifest her çalıştırmayı
+kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle örtülmedi** —
+`3.14` insan onayına bloke. 752 test, 25 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı: 12/15 adım tikli.** Motor uçtan uca çalışıyor ve
-> gerçek Chromium ile gerçek slayt üretiyor; marka QA gerçek sayılar veriyor.
->
-> ⛔ **DÖRT ADIM BLOKE — hepsi İNSAN girdisi bekliyor** (D-142). LOOP§G eşiği (üç bloke
-> adım) aşıldı ve döngü bilinçli olarak devam ediyor: dördü de plan hatası değil,
-> planın önceden kaydettiği doğrulama borçları.
+> ⛔ **DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: dördü de plan
+> hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
+> bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
 > | Adım | Bekleyen | Ne gerekiyor |
 > |---|---|---|
@@ -33,36 +32,23 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 > | `3.8` | V-16 | aynı + ~$3 gerçek para |
 > | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |
 >
-> **Faz kapanış protokolü tamamlandı** (LOOP§D · D-79 tavanı):
-> 1. tur **10 blokaj + 13 ikincil**, 2. tur **5 blokaj + 11 ikincil** buldu.
-> Hepsi kapatıldı (D-134…D-155). **Üçüncü tur AÇILMAZ** — ikinci turda bulunmayan
-> minor'dur ve FAZ 9 denetim turlarına düşer (`9.2` kural uyumu, `9.5` ölü kod).
->
-> 2. turun en ağır bulgusu: 1. turun **düzeltme commit'i** iki üretim CLI'ını kırmıştı
-> ve 24 kapının hiçbiri görmedi (D-153). `no-undef` + `cli-duman` kapısı eklendi.
+> **Faz kapanış protokolü tamamlandı** (LOOP§D · D-79 tavanı): 1. tur 10 blokaj +
+> 13 ikincil, 2. tur 5 blokaj + 11 ikincil buldu; hepsi kapatıldı (D-134…D-158).
+> **Üçüncü tur AÇILMAZ** — bulunmayan FAZ 9'a düşer (`9.2` kural uyumu, `9.5` ölü kod).
+> En ağır bulgu: 1. turun **düzeltme commit'i** iki üretim CLI'ını kırmıştı ve 24
+> kapının hiçbiri görmedi (D-153). `no-undef` + `cli-duman` kapısı eklendi.
 
 ## Tamamlananlar
 
 > **Bu tablo yalnız AKTİF fazı gösterir** (D-85). Önceki fazlar faz dosyalarındaki
 > tiklerdedir ve `git log` tek başına yol haritasıdır.
 >
-> FAZ 0 ve FAZ 1: 51 adım tikli · **FAZ 2: 12/13 adım tikli**, yalnız `2.9` insan
-> onayı bekliyor.
+> FAZ 0 + FAZ 1: 51 adım · **FAZ 2: 12/13** (`2.9` insan onayı) ·
+> **FAZ 3: 12/15** (`3.7` `3.8` `3.14` insan girdisi) — şartlı kapalı, D-158.
 
 | Adım | Tarih |
 |---|---|
-| **3.1** · COMPOSE ve statik RENDER | 2026-08-15 |
-| **3.3** · kapalı düzen kümesi, taşma bölme | 2026-08-15 |
-| **3.4** · sağlayıcı tanımlayıcısı, içe aktarıcı (V-04 kapandı) | 2026-08-15 |
-| **3.5** · yetenek yönlendiricisi, maliyet formülü, bütçe kapısı | 2026-08-15 |
-| **3.6** · retry, idempotency, rate limit; çift ücret kapatıldı | 2026-08-15 |
-| **3.9** · marka QA tolerans okumaları (ΔE2000 kendi implementasyonu) | 2026-08-15 |
-| **3.2** · golden tipografi metrikleri (font-agnostik harness) | 2026-08-15 |
-| **3.10** · deterministik lexicon linter, corpus'a bağlı | 2026-08-15 |
-| **3.11** · uyum kapısı, kendi PNG damgamız (ExifTool'suz) | 2026-08-15 |
-| **3.12** · içerik-adresli varlık deposu + sidecar | 2026-08-15 |
-| **3.13** · run manifest yazıcı, tahmini vs gerçek maliyet | 2026-08-15 |
-| **3.15** · linkedin-post, platform spec'i, kalite merdiveni | 2026-08-15 |
+| _(FAZ 4 henüz başlamadı)_ | — |
 
 ## Sıradaki adım
 
@@ -85,7 +71,15 @@ değil (R-14). Kullanıcı kayıtları okuyup `just onayla corpus/*/*.md` çalı
 kapanır; ardından `just reindex` ve çalıştırma commit'i.
 
 **Okurken dikkat:** `positioning`, `icp`, `offer` kayıtları HİPOTEZ (V-07) — dikey
-seçimi üçüncü taraf verisinden çıkarım. FAZ 2 bu adım kapanmadan kapanmaz.
+seçimi üçüncü taraf verisinden çıkarım.
+
+**`3.7` · `3.8` — V-16 anahtarları.** `sops exec-env` altında `CF_ACCOUNT_ID`+
+`CF_API_TOKEN` (bedava şerit) ya da `FAL_KEY` (premium). `3.8` ayrıca ~$3 gerçek para
+harcıyor. Anahtarsız `image.generate` yeteneği hiçbir sağlayıcıya çözülmüyor.
+
+**`3.14` — `2.9`'a bağlı.** Onaylı corpus olmadan hat `bilgi-sec` adımında `NO_CONTEXT`
+ile duruyor; bu doğru davranış (R-13), atlatılmıyor. `2.9` açıldığı gün `3.14` koşulur
+ve FAZ 3 TAM kapanır (D-158).
 
 ## Notlar
 

@@ -215,3 +215,27 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 ✅ LinkedIn spec'ine uyan görsel üretiliyor · boyut sınırı aşılmıyor
 🧪 5MB üstü çıktı üret → kalite merdiveni devreye giriyor, sessizce yayınlanmıyor
 💾 `feat(cli): linkedin-post` · `Refs: FAZ-3.15 · §10`
+
+---
+
+## FAZ 3 KAPANIŞ — ŞARTLI (2026-08-15, D-158)
+
+**12/15 adım tikli.** İki doğrulama turu koşuldu (LOOP§D · D-79 tavanı), 15 blokaj +
+24 ikincil bulgu kapatıldı (D-134…D-157). Üçüncü tur AÇILMAZ.
+
+**Çıkış kriteri KARŞILANMADI ve bu tikle örtülmüyor:** "gerçek bir carousel üretildi ve
+onaylandı" `3.14`'tür, o da `2.9` insan onayına bloke. `3.7`/`3.8` `V-16` anahtarlarına.
+
+| Tamamlanan | Bekleyen |
+|---|---|
+| Motor uçtan uca: `COMPOSE`→`RENDER`→`VALIDATE` gerçek Chromium'la | gerçek carousel (`3.14`) |
+| Marka QA gerçek sayı veriyor (ΔE, palet, kaplama, en-boy) | model çağrısı (`3.7`, `3.8`) |
+| Yönlendirici, maliyet defteri, manifest, CAS, uyum damgası | — |
+
+**FAZ 4'e geçiş meşru:** `4.1` tasarım sistemi katmanıdır ve bekleyen üç adımın hiçbirine
+bağlı değil — token, tipografi ve yüzey bağlamı bir carousel'in var olmasını gerektirmez.
+Bekleyen adımlar `bloke: …:insan` olarak kayıtlı ve `durum` kapısı her turda ilan
+edilmelerini zorluyor (D-157).
+
+**FAZ 3 TAM kapanış koşulu:** `2.9` onaylandığında `3.14` koşulur, `V-16` girildiğinde
+`3.7`/`3.8` koşulur. Üçü de tiklenmeden FAZ 3 "kapalı" yazılamaz.
