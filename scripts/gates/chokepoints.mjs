@@ -49,10 +49,15 @@ for (const cp of list) {
   const globs = cp.kapsam ?? cfg.kapsam_varsayilan
   const files = globs.flatMap((g) => globSync(g, { cwd: REPO }))
   const allowed = new Set(cp.izinli)
+  // `kapsam_haric` ile `izinli` AYNI ŞEY DEĞİLDİR. `izinli` = "tek yetkili yer",
+  // kuralın anlamı orada yaşar. `kapsam_haric` = "kural burada anlamsız". Test
+  // dosyaları üretim yoluna import edilmez; oradaki bir cast ikinci bir açıcı değildir.
+  // Ayrım kaybolursa muafiyet listesi sessizce şişer ve kapı boşalır.
+  const haric = new Set((cp.kapsam_haric ?? []).flatMap((g) => globSync(g, { cwd: REPO })))
   const re = new RegExp(cp.desen, 'gm')
 
   for (const rel of files) {
-    if (allowed.has(rel)) continue
+    if (allowed.has(rel) || haric.has(rel)) continue
     scannedTotal++
     const src = stripComments(readFileSync(p(rel), 'utf8'))
     const lines = src.split('\n')

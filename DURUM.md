@@ -10,17 +10,19 @@ siradaki_adim: 1.10b
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "Agent bulgulari: 3 bloklayici + 3 ikincil kapandi (D-67..D-72). spawn.ts testleri gercek bir hata buldu (cikti siniri parca icinde uygulanmiyordu). 213 test, 17 kapi."
+son_kanit: "Ikinci dogrulama agenti dokuz bulgunun DOKUZUNU da kapali buldu (D-67..D-76), ama uc yeni blokaj acti: attributes darbogazi iki satira bolunerek atlatiliyordu (D-77), FAZ-1.6 kabul komutu EXIT=1 veriyordu (D-78), DURUM.md iki commit geride kalmisti. Ucu de kapandi. 214 test, 18 kapi."
 ```
 
 ## Neredeyiz
 
 **FAZ 1 — kurulum.** Çekirdek ayakta: dokuz halka, dokuz fiil, motor, corpus indeksi,
-projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıyor. 200 test, 17 kapı.
+projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıyor. 214 test, 18 kapı.
 Henüz hiçbir ÜRETİM yok — ilk gerçek görsel FAZ 3'te.
 
 > FAZ 1'in 15 adımının 14'ü tikli; `1.10b` (golden harness) **V-02'ye bağlı**.
-> Faz kapanışı bağımsız doğrulama agent'ının raporunu bekliyor (LOOP§D).
+> İkinci doğrulama agent'ı raporladı: dokuz bulgunun dokuzu da gerçekten kapalı, ama
+> üç yeni blokaj (D-77, D-78 ve bayat DURUM.md) çıktı — üçü de kapatıldı. Kapanış
+> üçüncü ve son doğrulama turunu bekliyor (LOOP§D.3).
 
 ## Tamamlananlar
 

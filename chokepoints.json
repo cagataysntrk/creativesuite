@@ -199,10 +199,11 @@
     {
       "id": "attributes-acici",
       "ad": "`attributes` açıcı",
-      "neden": "`OpaqueAttributes` markası kernel'in `record.attributes`a dokunmasını derleme hatası yapar (§3.2, R-01). Veriye bir yerde erişilmek zorunda; o yer TEK olmalı. İkinci bir açıcı, `OpaqueAttributes` markasını anlamsızlaştırır — marka bir sözleşme değil, atlatılması hatırlanması gereken bir engel hâline gelir. Ring 1'de çünkü kernel SABİTTİR ve bugünkü kayıt tipine kaynak olamaz.",
+      "neden": "`OpaqueAttributes` markası `record.attributes.foo`yu derleme hatası yapar (§3.2, R-01). Ama veri bir yerde açılmak zorunda; o yer TEK olmalı — ikinci bir açıcı markayı sözleşme olmaktan çıkarır. Desen ÖZELLİĞE DOKUNMAYI arar (`.attributes`), yalnız cast'i değil: doğrulama agent'ı 2026-08-15'te dar deseni iki satıra bölerek atlattı (D-77). Değeri bir değişkene alıp sonra genişletmek de artık ilk satırda yakalanıyor. Regex'in yakalayamayacağı biçimler için üçüncü katman Proxy tuzağıdır (purity.test.ts) — çalışma zamanında özelliğe erişen her yol, değeri nasıl elde ettiğinden bağımsız olarak patlar. Ring 1'de çünkü kernel SABİTTİR.",
       "izinli": ["packages/registry/src/attributes.ts"],
-      "desen": "\\.attributes\\s+as\\s+unknown|attributes\\s*\\)\\s*as\\s+unknown",
-      "faz": "FAZ-1.4"
+      "desen": "\\.attributes\\b|\\bas\\s+unknown\\s+as\\b",
+      "faz": "FAZ-1.4",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     }
   ]
 }

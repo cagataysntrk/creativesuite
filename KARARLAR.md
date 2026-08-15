@@ -507,3 +507,31 @@ gerçeğe uydurmak ise sessiz sapma (R-74). Doğrusu: **açıkça düzeltmek.**
 3. **`just golden`** — no-op'tu ve "`just verify` yeşil" kriterini zayıf okutuyordu.
    Artık açıkça "hiçbir şey KANITLAMAZ, FAZ-1.10b/V-02'ye bağlı" diyor. Sessiz bir
    `echo` yerine dürüst bir uyarı: yeşil bir çıktının ne kanıtladığı yazılı olmalı.
+
+## D-77 — `attributes` darboğazı özelliğe DOKUNMAYI arıyor, cast'i değil
+2026-08-15 · İkinci doğrulama agent'ı deseni **iki satıra bölerek** atlattı:
+`const ham = r.attributes` + `const acik = ham as unknown as Record<string, unknown>`
+üç kapıdan da (chokepoints, tsc, lint) geçti. Dar desen (`\.attributes\s+as\s+unknown`)
+tek satırlık biçimi arıyordu; R-01 "değişmez yasa" listesinde ve zorlanmayan bir yasa
+yasa değildir.
+**Düzeltme:** desen `\.attributes\b|\bas\s+unknown\s+as\b` oldu — özelliğe dokunmak
+zaten ihlal; değeri önce değişkene almak ilk satırda yakalanıyor. Kapıya `kapsam_haric`
+alanı eklendi (`izinli`den farklıdır: "tek yetkili yer" değil, "kural burada anlamsız").
+Test dosyaları muaf — üretim yoluna import edilmezler.
+**Reddedilen alternatif:** ESLint AST kuralı (`TSAsExpression > TSUnknownKeyword`).
+Daha güçlü olurdu ama `eslint.config.js` yapılandırma-koruma kancasıyla kilitli ve
+kancayı kapatmak, kapıyı kapatmayı öğrenmektir.
+**Dürüst sınır:** `const ara: unknown = r.attributes` biçiminde cast HİÇ yoktur —
+regex bunu yalnız ilk satırdan yakalar. Genel çözüm regex değil, **Proxy tuzağıdır**
+(`purity.test.ts`): çalışma zamanında özelliğe erişen her yol, değeri nasıl elde
+ettiğinden bağımsız olarak patlar.
+
+## D-78 — `just reindex` corpus kökü ve db yolu argümanı alıyor
+2026-08-15 · D-75 `reindex`i corpus yokken EXIT=1'e çevirdi — doğru karar, ama
+**FAZ-1.6'nın kabul komutunu kırdı**: tikli bir adımın ✅'si EXIT=1 veriyordu ve
+`corpus/` FAZ-2.9'a kadar doğmuyor. Kriteri gevşetmek (R-70) ya da `reindex`i corpus
+yokken yeşil döndürmek (D-75'i geri almak) iki yanlış seçenekti.
+**Düzeltme:** `just reindex <kök> <db>` — varsayılanlar aynı, argümanlar isteğe bağlı.
+Kabul komutu artık sentetik fixture corpus'una karşı **aynı kod yolunu** koşuyor:
+`2 kayıt indekslendi · ~30 ms` + bozuk dosya `id_yok` diye raporlanıyor. D-75'in
+koruması argümansız çağrıda aynen duruyor.

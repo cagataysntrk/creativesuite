@@ -67,8 +67,9 @@ fmt:
     @./node_modules/.bin/prettier --write . --log-level warn && echo "✓ biçimlendirildi"
 
 # Türetilmiş indeksi sıfırdan kur. derived/runs'a DOKUNMAZ (D-38)
-reindex:
-    @./node_modules/.bin/tsc -b && node scripts/reindex.mjs
+# Argümansız: gerçek corpus → gerçek indeks. Argümanlı: fixture'a karşı kanıt koşusu.
+reindex kok='corpus' db='derived/index/suite.db':
+    @./node_modules/.bin/tsc -b && node scripts/reindex.mjs '{{kok}}' '{{db}}'
 
 # Haftalık sağlık raporu. Rapor yazar, HİÇBİR ŞEYİ DEĞİŞTİRMEZ
 doctor:

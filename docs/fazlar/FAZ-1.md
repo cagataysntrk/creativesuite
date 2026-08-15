@@ -64,8 +64,9 @@ ağ kablosu çekiliyken de çalışıyor
    olarak KALIR (tarihsel kayıt okunabilir), DDL'de sütunu KALIR (aynı sebep), LLM
    şemasından ÇIKARILIR (modelden emekli alan istenmez), formdan ÇIKARILIR (kullanıcıyı
    doldurmaya davet etmek yanlış).
-✅ Her varlık tipi için dört projeksiyonun CI snapshot'ı eşleşiyor ·
-   `just test projection` yeşil
+✅ `just gate projection` → `1 şema × 4 projeksiyon · öz-test geçti · 0 gerçek varlık
+   tipi (FAZ-2.1'de dolar)` — kapı GERÇEK sayıyı basar, tip doğdukça kendiliğinden
+   kapsar · `just test projection` yeşil
 🧪 Şemaya iç içe bir nesne ekle, `additionalProperties:false` koyma → LLM projeksiyonu
    testi kırmızı (sessizce kabul etmiyor)
 💾 `feat(kernel): projeksiyon derleyicisi` · `Refs: FAZ-1.4 · §3.4`
@@ -92,9 +93,11 @@ ağ kablosu çekiliyken de çalışıyor
    bulduğu sonuçta görünür. `derived/runs/` **ayrı ve silinmez**.
    Tek frontmatter ayrıştırıcı; bozuk dosya istisna değil **veri durumu** döndürür ve
    `reindex` atlananları RAPORLAR — sessiz atlama, aranamayan kayıt demektir.
-✅ `just reindex` sıfırdan kurup saniyeler içinde bitiriyor ·
-   "ölçüm" araması "ölçümlerinizi" buluyor
-🧪 `derived/index/` sil → `just reindex` geri kuruyor · `.gitignore`'a `derived/runs/`
+✅ `just reindex test/fixtures/corpus derived/index/kontrol.db` → `2 kayıt indekslendi`
+   ~30 ms'de, bozuk dosyayı `id_yok` diye RAPORLUYOR · `just test corpus` → "ölçüm"
+   araması "ölçümlerinizi" buluyor
+🧪 Kökü yanlış ver → `✗ corpus kökü yok` + EXIT=1; sessiz "0 kayıt" YOK (D-75) ·
+   `derived/index/` sil → aynı komut geri kuruyor · `.gitignore`'a `derived/runs/`
    ekle → `repo-hygiene` kırmızı (D-68: bu kontrol dizin doğana kadar BOŞTA dönüyordu,
    ihlal testi atlandığı için fark edilmemişti)
 💾 `feat(corpus): tek yazma darboğazı ve FTS5 indeksi` · `Refs: FAZ-1.6 · §3.5`

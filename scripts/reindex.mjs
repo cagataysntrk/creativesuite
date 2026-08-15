@@ -9,8 +9,15 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const DB = join(REPO, 'derived/index/suite.db')
-const CORPUS = join(REPO, 'corpus')
+
+// İki isteğe bağlı argüman: corpus kökü ve veritabanı yolu.
+//
+// Varsayılanlar gerçek corpus'u gerçek indekse kurar. Argüman almasının sebebi
+// kolaylık değil KANIT: `corpus/` FAZ-2.9'da doğuyor, o güne kadar FAZ-1.6'nın kabul
+// komutu çalıştırılamaz durumdaydı — tikli bir adımın ✅'si EXIT=1 veriyordu (D-78).
+// Sentetik fixture corpus'una karşı koşmak, aynı kod yolunu bugün çalıştırır.
+const CORPUS = join(REPO, process.argv[2] ?? 'corpus')
+const DB = join(REPO, process.argv[3] ?? 'derived/index/suite.db')
 
 const { reindexToPath } = await import(join(REPO, 'packages/corpus/dist/index.js'))
 
