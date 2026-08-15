@@ -153,7 +153,7 @@ describe('sticky karar defteri — insan reddeder, sistem HATIRLAR (§4.5)', () 
       { recordId: 'rec_1', pointer: '', hash: 'farketmez', kind: 'pinned', reason: 'elle yazdım' },
     ])
     const p = plan({ candidates: [aday({ digest: 'apayri-bir-icerik' })], ledger: d })
-    expect(p.ops[0]?.reason).toContain('sabitlenmiş alan')
+    expect(p.ops[0]?.reason).toContain('sabitlenmiş kayıt')
   })
 
   it('bozuk JSONL satırı SESSİZCE atlanmıyor — satır numarasıyla raporlanıyor', () => {
@@ -208,5 +208,106 @@ describe('idempotent imza — altı girdi, biri eksikse atlama yalan olur (§4.4
     expect(unchanged(null, 'x')).toBe(false)
     expect(unchanged('x', 'x')).toBe(true)
     expect(unchanged('x', 'y')).toBe(false)
+  })
+})
+
+describe('ALAN bazlı red ve pin — pointer gerçekten kullanılıyor (§4.5)', () => {
+  // Doğrulama agent'ı 2026-08-15'te `pointer: "/attributes/tagline"` ile pin yazdı ve
+  // plan hiç etkilenmedi: `plan.ts` pointer'ı sabit boş dize geçiyordu. Tip düzeyindeki
+  // sözleşme kodda yoktu; bu testler o boşluğu kapatıyor.
+  const defter = (satirlar: readonly Record<string, unknown>[]) =>
+    parseLedger(satirlar.map((s) => JSON.stringify(s)).join('\n')).ledger
+
+  const alanliAday = (): CandidateRecord => ({
+    ...aday(),
+    fields: [
+      { pointer: '/attributes/tagline', hash: 'h-tagline' },
+      { pointer: '/attributes/summary', hash: 'h-summary' },
+    ],
+  })
+
+  it("sabitlenmiş ALAN op'u durdurmuyor ama o alana dokunulmuyor", () => {
+    const d = defter([
+      {
+        recordId: 'rec_1',
+        pointer: '/attributes/tagline',
+        hash: 'farketmez',
+        kind: 'pinned',
+        reason: 'sloganı elle yazdım',
+      },
+    ])
+    const p = plan({ candidates: [alanliAday()], ledger: d })
+    expect(p.summary.create).toBe(1)
+    expect(p.ops[0]?.suppressedFields).toEqual(['/attributes/tagline'])
+  })
+
+  it('TÜM alanlar bastırılmışsa öneri düşüyor — öneri olmayan bir öneri', () => {
+    const d = defter([
+      { recordId: 'rec_1', pointer: '/attributes/tagline', hash: 'x', kind: 'pinned' },
+      { recordId: 'rec_1', pointer: '/attributes/summary', hash: 'y', kind: 'pinned' },
+    ])
+    const p = plan({ candidates: [alanliAday()], ledger: d })
+    expect(p.ops[0]?.kind).toBe('skip')
+    expect(p.ops[0]?.reason).toContain('tüm alanlar bastırıldı')
+  })
+
+  it('alan bazlı RED içeriğe bağlı — daha iyi öneri o alana yeniden dokunabiliyor', () => {
+    const d = defter([
+      {
+        recordId: 'rec_1',
+        pointer: '/attributes/tagline',
+        hash: 'h-tagline',
+        kind: 'rejected',
+        reason: 'çok iddialı',
+      },
+    ])
+    const eskiOneri = plan({ candidates: [alanliAday()], ledger: d })
+    expect(eskiOneri.ops[0]?.suppressedFields).toEqual(['/attributes/tagline'])
+
+    const yeniOneri = plan({
+      candidates: [
+        {
+          ...aday(),
+          fields: [
+            { pointer: '/attributes/tagline', hash: 'h-YENI' },
+            { pointer: '/attributes/summary', hash: 'h-summary' },
+          ],
+        },
+      ],
+      ledger: d,
+    })
+    expect(yeniOneri.ops[0]?.suppressedFields).toBeUndefined()
+  })
+
+  it("başka KAYDIN aynı pointer'ı etkilenmiyor", () => {
+    const d = defter([
+      { recordId: 'rec_1', pointer: '/attributes/tagline', hash: 'x', kind: 'pinned' },
+    ])
+    const p = plan({
+      candidates: [
+        {
+          id: 'rec_2',
+          path: 'corpus/positioning/b.md',
+          digest: 'd2',
+          fields: [{ pointer: '/attributes/tagline', hash: 'x' }],
+        },
+      ],
+      ledger: d,
+    })
+    expect(p.ops[0]?.suppressedFields).toBeUndefined()
+  })
+
+  it('alansız aday eskisi gibi çalışıyor — mevcut çağrılar kırılmadı', () => {
+    const p = plan({ candidates: [aday()] })
+    expect(p.summary.create).toBe(1)
+    expect(p.ops[0]?.suppressedFields).toBeUndefined()
+  })
+
+  it('çıktıda dokunulmayan alanlar GÖRÜNÜYOR', () => {
+    const d = defter([
+      { recordId: 'rec_1', pointer: '/attributes/tagline', hash: 'x', kind: 'pinned' },
+    ])
+    const metin = formatPlan(plan({ candidates: [alanliAday()], ledger: d }))
+    expect(metin).toContain('dokunulmayan alanlar: /attributes/tagline')
   })
 })

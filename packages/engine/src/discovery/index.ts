@@ -7,6 +7,7 @@ export {
   type OpKind,
   type ExistingRecord,
   type CandidateRecord,
+  type CandidateField,
 } from './plan.js'
 
 export {

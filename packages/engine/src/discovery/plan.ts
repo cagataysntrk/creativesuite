@@ -29,6 +29,12 @@ export interface DiscoveryOp {
   readonly reason: string
   /** `skip` için: hangi imza eşleştiği. Idempotent atlamanın kanıtı. */
   readonly digest: string
+  /**
+   * Bu op'ta UYGULANMAYACAK alanlar (sabitlenmiş ya da daha önce reddedilmiş).
+   * Op ilerliyor ama bu alanlara dokunulmuyor — kullanıcının "buraya dokunma"sı
+   * kaydın tamamını dondurmaz.
+   */
+  readonly suppressedFields?: readonly string[]
 }
 
 export interface DiscoveryPlan {
@@ -55,12 +61,29 @@ export interface ExistingRecord {
   readonly zone: 'generated' | 'human' | 'imported'
 }
 
+/** Adayın tek bir ALANI. `pointer` RFC 6901 (`/attributes/tagline`). */
+export interface CandidateField {
+  readonly pointer: string
+  /** Bu alanın önerilen İÇERİĞİNİN özeti — red içeriğe bağlıdır (§4.5). */
+  readonly hash: string
+}
+
 /** Keşfin ürettiği aday kayıt. */
 export interface CandidateRecord {
   readonly id: string
   readonly path: string
   /** `(input_hashes, prompt_hash, model_id, temperature, seed, retrieval_snapshot)` özeti. */
   readonly digest: string
+  /**
+   * Alan bazlı öneriler. Boşsa kayıt bütün olarak değerlendirilir.
+   *
+   * **Neden alan bazlı:** bir kaydın dokuz alanı doğru, biri yanlış olabilir. Tümünü
+   * reddetmek, doğru dokuz alanı da çöpe atar ve bir sonraki turda hepsi yeniden
+   * önerilir — kullanıcı aynı dokuz kararı tekrar verir. İlk sürüm `pointer`ı sabit
+   * boş dize geçiyordu, yani `decisions.ts`in tip düzeyindeki sözleşmesi KODDA YOKTU
+   * (doğrulama agent'ı buldu, 2026-08-15).
+   */
+  readonly fields?: readonly CandidateField[]
 }
 
 /**
@@ -100,8 +123,25 @@ export const buildPlan = (input: {
         recordId: c.id,
         reason:
           bastirma.why === 'pinned'
-            ? `sabitlenmiş alan — plana girmiyor (${bastirma.reason})`
+            ? `sabitlenmiş kayıt — plana girmiyor (${bastirma.reason})`
             : `daha önce reddedildi (${bastirma.reason})`,
+        digest: c.digest,
+      })
+      continue
+    }
+
+    // Alan bazlı bastırma. Her alan KENDİ pointer'ı ve KENDİ hash'iyle sorulur.
+    const alanlar = c.fields ?? []
+    const bastirilan = alanlar
+      .map((f) => ({ f, s: suppression(defter, c.id, f.pointer, f.hash) }))
+      .filter((x) => x.s.suppressed)
+    if (alanlar.length > 0 && bastirilan.length === alanlar.length) {
+      // Her alanı bastırılmış bir öneri, öneri değildir.
+      ops.push({
+        kind: 'skip',
+        path: c.path,
+        recordId: c.id,
+        reason: `tüm alanlar bastırıldı: ${bastirilan.map((x) => x.f.pointer).join(', ')}`,
         digest: c.digest,
       })
       continue
@@ -114,6 +154,9 @@ export const buildPlan = (input: {
         recordId: c.id,
         reason: 'yeni kayıt',
         digest: c.digest,
+        ...(bastirilan.length === 0
+          ? {}
+          : { suppressedFields: bastirilan.map((x) => x.f.pointer) }),
       })
       continue
     }
@@ -148,6 +191,7 @@ export const buildPlan = (input: {
       recordId: c.id,
       reason: e.signature === null ? 'imzasız üretilmiş kayıt' : 'imza değişti',
       digest: c.digest,
+      ...(bastirilan.length === 0 ? {} : { suppressedFields: bastirilan.map((x) => x.f.pointer) }),
     })
   }
 
@@ -196,6 +240,9 @@ export const formatPlan = (p: DiscoveryPlan): string => {
   for (const o of p.ops) {
     if (o.kind === 'skip') continue
     satirlar.push(`    ${o.kind.padEnd(7)} ${o.path} — ${o.reason}`)
+    if (o.suppressedFields !== undefined && o.suppressedFields.length > 0) {
+      satirlar.push(`            ↳ dokunulmayan alanlar: ${o.suppressedFields.join(', ')}`)
+    }
   }
   return satirlar.join('\n')
 }

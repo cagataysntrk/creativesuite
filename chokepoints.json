@@ -65,7 +65,8 @@
       "izinli": ["packages/corpus/src/write.ts"],
       "desen": "\\b(writeFileSync|appendFileSync|createWriteStream|writeFile|rmSync|unlinkSync|mkdirSync)\\b",
       "faz": "FAZ-1.6",
-      "kapsam": ["packages/corpus/src/**/*.ts"]
+      "kapsam": ["packages/corpus/src/**/*.ts"],
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     },
     {
       "id": "git-cagiran",

@@ -58,56 +58,6 @@ Manifest sonsuza, bağlam N gün. **N = 90** (2026-08-15, FAZ-1.9). Gerekçe D-6
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-54 — `.npmrc` sessizce ölüydü; ayarlar `pnpm-workspace.yaml`'a taşındı
-2026-08-15 · FAZ-0.A.2'de yazılan `.npmrc` beş garanti veriyordu: `save-exact`,
-`engine-strict`, `hoist=false`, `strict-peer-dependencies`, `enable-pre-post-scripts=false`.
-**pnpm 11 bu dosyayı okumuyor.** `pnpm config get hoist` beşi için de `undefined` döndü —
-yani phantom bağımlılık koruması, tam sürüm sabitleme ve Node sürüm kontrolü aylarca
-"kurulu" görünüp hiçbir şey yapmayacaktı. İlk somut kanıt: `pnpm add eslint-import-resolver-node`
-`^0.4.0` yazdı, `save-exact` varken caret imkânsız olmalıydı.
-**Karar:** `.npmrc` silindi; beş ayar `pnpm-workspace.yaml`'a camelCase adlarıyla taşındı.
-Kurulum betiği izni `pnpm.onlyBuiltDependencies` (package.json) değil `allowBuilds:` altında.
-**Neden önemli:** bu, R-71'in ta kendisi — yapılandırma da bir kapıdır ve doğrulanmadan
-yeşil sayılamaz. **Kanıt:** `pnpm config get hoist` → `false`, beş ayarın beşi de okunuyor.
-**Ders:** bir ayarın dosyada yazıyor olması, aracın onu okuduğu anlamına gelmez.
-
-## D-55 — Halka lint'i PAKET ADINA bakar, çözümlenmiş yola değil
-2026-08-15 · FAZ-0.C.2 `import-x/no-restricted-paths` bölgeleri öngörüyordu. Uygulamada
-o kural import'u **çözmek** zorunda: `@suite/kernel` → dosya yolu. Paketler `exports`
-üzerinden `dist/`'e çözülür ve `dist/` derlenmemişse çözümleme başarısız olur — kural
-o zaman hata vermez, **sessizce hiçbir şey demez**. Yani `rm -rf dist` yapan biri kapıyı
-farkında olmadan kapatırdı.
-**Karar:** halka sınırı ESLint'te ad tabanlı `no-restricted-imports` ile kurulur; yol ve
-grafik tabanlı denetim `depcruise`'a bırakılır ve orada `couldNotResolve` **hata** sayılır.
-Kural tablosu tek yerde: `rings.config.mjs` — ESLint ve depcruise ikisi de oradan okur.
-**Alternatif:** `just check` sırasını "önce tsc -b, sonra lint" diye sabitlemek. Reddedildi:
-bir kapının doğruluğunu çalıştırma sırasına bağlamak, sıranın değiştiği gün sessiz yeşil üretir.
-**Kanıt (ihlal testi):** `packages/contracts`'a `@suite/kernel` import'u eklendi →
-ESLint rc=1, depcruise rc=1 (`cozulemeyen`), `tsc -b` rc=2. Bağımlılık `package.json`'a da
-eklenince depcruise dört kural birden verdi: `halka-contracts`, `dongu-modul`, iki `dongu-klasor`.
-Geri alınca üçü de rc=0.
-
-## D-56 — lefthook ve secretlint kullanılmıyor; kancalar `.githooks/`'ta, gitleaks ikinci katman
-2026-08-15 · FAZ-0.C.10 üç araç öngörüyordu: `secretlint` + `gitleaks` + `lefthook`.
-**lefthook reddedildi:** repo `core.hooksPath=.githooks` ile çalışıyor ve lefthook
-`.git/hooks`'a yazıyor. İkisi bir arada, git'in `.git/hooks`'u tamamen yok saymasına —
-yani **hiçbir kancanın çalışmamasına** yol açar ve bunu sessizce yapar. Yerine iki
-kanca elle yazıldı: `pre-commit` → `fast` grubu, `pre-push` → `all` grubu. Otuz satır.
-**secretlint reddedildi:** kapsamı gitleaks ile büyük ölçüde örtüşüyor ve ~30 npm
-bağımlılığı getiriyor. İki tarayıcı yeter, üç değil.
-**gitleaks 8.30.1 KABUL EDİLDİ** ve `repo-hygiene`'in yanına kondu, yerine değil —
-ikisi farklı hata sınıfı içindir. **Kanıt:** `sk_live_51QwEr…` (Stripe biçimi) yazıldı;
-`repo-hygiene` rc=0 ile **kaçırdı** (deseni `sk-` tire bekliyor, `sk_` alt çizgi değil),
-`gitleaks` rc=1 ile yakaladı. Kendi listemiz bildiğimizi, gitleaks bilmediğimizi yakalar.
-**Sürpriz bulgu:** kaynak dosya silindikten sonra bile `packages/kernel/dist/leak.js`
-anahtarı taşımaya devam etti — `tsc -b` kaynağı silinen çıktıyı temizlemiyor ve `dist/`
-gitignore'lu olduğu için `gitleaks git` onu asla göremezdi. Bu yüzden kapı **hem** git
-geçmişini **hem** çalışma ağacını tarar.
-**Kanca hatası ve düzeltmesi:** ilk sürümde `nvm use` alt kabukta çalıştırılıyordu ve
-üst kabuğun PATH'ini değiştirmiyordu; kanca Node 20 ile koştu, bir kapı çöktü ve commit
-doğru sebeple değil, **yanlış sebeple** engellendi. Yeşil değil kırmızıydı ama yine de
-yanlıştı — kapının doğru sebeple kırmızı olduğunu görmek şart (R-71).
-
 ## D-57 — Zarfın Zod şeması `packages/kernel`'de, `packages/contracts`'ta değil
 2026-08-15 · FAZ-1.2'nin 💾 satırı `feat(contracts): …` diyordu, ama Zod bir ÇALIŞMA
 ZAMANI bağımlılığıdır ve `packages/contracts` **hiçbir şey import etmez** (§3.1) —
@@ -581,3 +531,28 @@ marka dizini açıp kademe ihlalli token yazdı: hiçbir kapı görmedi.
 **Listeye eklemeyi hatırlamak bir zorlama değildir** — ve fazın başlığı çok markalılıkken
 üçüncü markanın denetimsiz kalması, kapının korumadığı şeyin ta kendisi.
 `brand/` dizini taranıyor; kalıtım `brand/<id>/parent` tek satırından okunuyor.
+
+## D-90 — `x_signature` "değişti"yi değil "KIRIK"ı yakalıyor, ve artık ÜRETİLİYOR
+2026-08-15 · Doğrulama agent'ı beş senaryoluk matrisle gösterdi: kapı korunması gereken
+durumda AÇIK, meşru güncellemede KAPALIydı.
+- **A) insan gövdeyi elle düzeltti, imza eski** → motor YAZDI, insan metni EZİLDİ.
+- **C) motor yeni içerik üretti** → REDDEDİLDİ (meşru güncelleme bloklandı).
+Sebep: karşılaştırma "gelen imza ≠ dosyadaki imza" idi, yani **imza değişti mi** sorusu.
+Doğru soru: **dosyanın içeriği kendi imzasıyla uyuşuyor mu.** Uyuşmuyorsa dosyaya insan
+dokunmuştur.
+Ayrıca imza hiç ÜRETİLMİYORDU: `grep x_signature` yalnız tip ve okuma buluyordu, hiçbir
+kayıtta alan yoktu — koruma tamamen atıldı. `propose()` artık gövde + frontmatter
+kanonik özetini basıyor. Onay damgaları (`approved_by/at`, `valid_at`) imza dışı:
+onay içeriği değiştirmez, imzaya girseydi onaylanan her kayıt bir sonraki turda
+"elle düzenlenmiş" sanılırdı.
+
+## D-91 — Alan bazlı red/pin gerçekten uygulanıyor
+2026-08-15 · `decisions.ts` tipi `(json_pointer, hash)` sözleşmesi yazıyordu ama
+`plan.ts` her çağrıda `pointer` yerine sabit boş dize geçiyordu: alan bazlı pin hiç
+işlemiyordu ve testlerin dördü de `''` kullandığı için kural sınanmıyordu.
+`CandidateRecord.fields` eklendi; her alan KENDİ pointer'ı ve hash'iyle sorguluyor.
+Sabitlenmiş bir alan op'u durdurmuyor — o alana **dokunulmuyor** ve çıktıda görünüyor.
+Tüm alanlar bastırılmışsa öneri düşüyor.
+**Neden alan bazlı şart:** bir kaydın dokuz alanı doğru, biri yanlış olabilir. Tümünü
+reddetmek doğru dokuzu da çöpe atar ve sonraki turda hepsi yeniden önerilir —
+kullanıcı aynı dokuz kararı tekrar verir. Defterin varlık sebebi tam olarak budur.

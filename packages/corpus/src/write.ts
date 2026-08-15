@@ -10,6 +10,7 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { serializeFrontmatter, parseFrontmatter } from './frontmatter.js'
+import { computeSignature, signatureIntact } from './signature.js'
 
 export type Actor = 'human' | 'agent'
 
@@ -63,15 +64,16 @@ export const writeRecord = (req: WriteRequest): WriteResult => {
         return { ok: false, refusal: { kind: 'would_overwrite_human', path } }
       }
 
-      // Üretilmiş bir kaydın imzası kırıksa (elle düzenlenmiş) çalıştırma DURUR.
-      // Devam etmek, kullanıcının düzeltmesini üretimle ezmektir.
-      if (
-        req.actor === 'agent' &&
-        fm['zone'] === 'generated' &&
-        fm['x_signature'] !== undefined &&
-        fm['x_signature'] !== req.frontmatter['x_signature']
-      ) {
-        return { ok: false, refusal: { kind: 'signature_broken', path } }
+      // Üretilmiş bir kaydın imzası KIRIKSA çalıştırma DURUR.
+      //
+      // "Kırık" = dosyanın içeriği kendi imzasıyla uyuşmuyor, yani dosyaya bir insan
+      // dokunmuş. Gelen imzayla karşılaştırmak YANLIŞ soruydu: insan gövdeyi düzeltip
+      // imzaya dokunmadığında imzalar eşit çıkıyor ve motor insanın metnini sessizce
+      // eziyordu — korunması gereken tam o durumdu (doğrulama agent'ı, 2026-08-15).
+      if (req.actor === 'agent' && fm['zone'] === 'generated') {
+        if (signatureIntact(fm, mevcut.value.body) === false) {
+          return { ok: false, refusal: { kind: 'signature_broken', path } }
+        }
       }
     }
   }
@@ -89,9 +91,14 @@ export const propose = (
   req: Omit<WriteRequest, 'actor' | 'frontmatter'> & {
     readonly frontmatter: Omit<Record<string, unknown>, 'status' | 'zone'>
   }
-): WriteResult =>
-  writeRecord({
+): WriteResult => {
+  // İmza ÜRETİM anında basılır. Üretilmediği sürece `x_signature` bir tip alanıydı
+  // ve hiçbir kayıtta yoktu; koruma da tamamen atıl kalıyordu — belgelenmiş ama
+  // hiç çalışmayan bir mekanizma (doğrulama agent'ı buldu).
+  const temel = { ...req.frontmatter, status: 'draft', zone: 'generated' }
+  return writeRecord({
     ...req,
     actor: 'agent',
-    frontmatter: { ...req.frontmatter, status: 'draft', zone: 'generated' },
+    frontmatter: { ...temel, x_signature: computeSignature(temel, req.body) },
   })
+}

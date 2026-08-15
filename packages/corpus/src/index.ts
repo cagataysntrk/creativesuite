@@ -58,3 +58,5 @@ export {
   type ArbitrationItem,
   type Verdict,
 } from './conflict.js'
+
+export { computeSignature, signatureIntact } from './signature.js'
