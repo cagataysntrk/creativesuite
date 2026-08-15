@@ -18,6 +18,7 @@
   "dependencies": {
     "@suite/contracts": "workspace:*",
     "better-sqlite3": "13.0.3",
+    "yaml": "2.9.0",
     "zod": "4.4.3"
   },
   "devDependencies": {

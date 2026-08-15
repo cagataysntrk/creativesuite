@@ -95,5 +95,7 @@ export {
   type VerbFingerprint,
 } from './verbs/table.js'
 
+export { parseYaml, stringifyYaml, type YamlParseResult } from './yaml.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'

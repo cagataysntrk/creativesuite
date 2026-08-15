@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 1
-siradaki_adim: 1.13
+siradaki_adim: 1.14
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.12: 143 test; ayni idempotency anahtariyla ikinci calistirma cagriyi TEKRARLAMADI (cift ucret yok); kesici 5te acildi, 4te acilmadi"
+son_kanit: "1.13: 156 test; just plan agsiz calisti (dns/socket/fetch oldurulmus), calisma agaci degismedi; model adi, DAG dongusu ve bilinmeyen fiil reddedildi"
 ```
 
 ## Neredeyiz
@@ -71,17 +71,20 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.C.11 · verbs kapısı | 2026-08-15 |
 | **1.11** · dokuz fiilin iskeleti | 2026-08-15 |
 | **1.12** · motor: retry, kesici, bütçe, defter | 2026-08-15 |
+| **1.13** · just plan — harcamayan kuru çalıştırma | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.13** — `just plan`: DAG + seçilen sağlayıcı + maliyet **aralığı** + enjekte edilecek
-bağlam basar. **Hiçbir şey harcamaz.**
-Kabul: `just plan <pipeline>` çıktı veriyor · **ağ kablosu çekiliyken de çalışıyor**.
-İhlal: kuru ikizi olmayan bir fiil ekle → `plan` hata veriyor (sessizce atlamıyor).
+**1.14** — Claude Code köprüsü. `GENERATE` fiilinin "akıl gerektiren" şeridi: headless
+Claude Code'u alt süreç olarak çağıran adaptör (D-8). Mevcut abonelik kullanılır, ekstra
+API faturası yok. Aynı yetenek API şeridine de düşebilmeli — sağlayıcı seçimi
+yönlendiricinin işi.
+Kabul: `just plan` bu sağlayıcıyı aday olarak listeliyor · adaptör `estimate()` **senkron**.
+İhlal: Claude Code yokken çalıştır → `provider_unavailable`, sessizce atlamıyor.
 
-> FAZ 1'de kalan: 1.4 (projeksiyon derleyicisi), 1.13, 1.14 (Claude Code köprüsü).
-> 1.4 hâlâ bekliyor çünkü LLM projeksiyonu V-05'e (Anthropic yapılandırılmış çıktı
-> alt kümesi) dayanıyor — o borç FAZ-1.4'te gerçek bir çağrıyla kapanacak.
+> FAZ 1'de kalan tek diğer adım **1.4** (projeksiyon derleyicisi): LLM projeksiyonu
+> V-05'e (Anthropic yapılandırılmış çıktı alt kümesi) dayanıyor ve o borç gerçek bir
+> çağrıyla kapanacak — 1.14'ün getirdiği köprü tam da onu mümkün kılıyor.
 
 ## Bloke adımlar
 

@@ -95,18 +95,18 @@
     {
       "id": "yapilandirma-cozucu",
       "ad": "Yapılandırma çözücü",
-      "neden": "Registry YAML'ı iki farklı yerde çözülürse, UI'ın gördüğü pipeline ile motorun çalıştırdığı pipeline ayrışır (§3.3).",
+      "neden": "Registry YAML'ı iki farklı yerde çözülürse, UI'ın gördüğü pipeline ile motorun çalıştırdığı pipeline AYRIŞIR — ve kullanıcı onayladığı şeyden başkasını çalıştırmış olur (§3.3). Model adı yasağı (R-40) da burada zorlanır; ikinci bir çözücü o kontrolü atlar.",
       "izinli": ["packages/registry/src/resolve.ts"],
-      "desen": null,
-      "faz": "FAZ-1.3"
+      "desen": "\\.pipeline\\.yaml|pipelines/",
+      "faz": "FAZ-1.13"
     },
     {
       "id": "frontmatter-ayristirici",
-      "ad": "Frontmatter ayrıştırıcı",
-      "neden": "İki ayrıştırıcı bir dosyayı indekste geçerli, pipeline'da geçersiz yapar — ve hata dosyada değil, aradaki farkta olur.",
-      "izinli": ["packages/corpus/src/frontmatter.ts"],
+      "ad": "YAML ayrıştırıcı",
+      "neden": "İki ayrıştırıcı bir dosyayı indekste geçerli, pipeline'da geçersiz yapar — ve hata dosyada değil, İKİSİNİN ARASINDA olur; hiçbir dosyayı açarak bulunamaz. Ayrıştırıcı Ring 0'dadır çünkü corpus (kayıt zarfları) ve registry (pipeline tanımları) KARDEŞ halkadır ve birbirini import edemez (§3.6 · D-66). Seçenekler de sabittir: aynı kütüphanenin farklı seçeneklerle çağrılması da iki ayrıştırıcıdır.",
+      "izinli": ["packages/kernel/src/yaml.ts"],
       "desen": "from\\s+['\"](gray-matter|front-matter|js-yaml|yaml)['\"]",
-      "faz": "FAZ-1.6"
+      "faz": "FAZ-1.13"
     },
     {
       "id": "retrieval-yuklemi",

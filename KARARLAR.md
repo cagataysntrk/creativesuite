@@ -515,3 +515,16 @@ görüldü.
 doğrulanıyor. Ama aynı turda `assert` patlarken sonraki komut yine de koştu ve **kısmi
 durum commit'lendi** — R-70'in kabuk tuzağının üçüncü yüzü. Düzenleme ile commit aynı
 kabuk çağrısında zincirlenmemeli; `just save` ayrı çağrıdır ve doğrulama ondan önce gelir.
+
+## D-66 — YAML ayrıştırıcı Ring 0'da; corpus ve registry aynı ayrıştırıcıyı kullanır
+2026-08-15 · FAZ-1.13'te `packages/registry` pipeline YAML'ı okumak istedi ve
+`frontmatter-ayristirici` darboğazına çarptı: `yaml` import'una izin verilen tek dosya
+`packages/corpus/src/frontmatter.ts` idi. Çıkışlar kapalıydı — corpus ile registry
+**kardeş halkadır** ve birbirini import edemez (§3.6).
+**Karar:** ayrıştırıcı `packages/kernel/src/yaml.ts`'e taşındı; ikisi de oradan okuyor.
+`yaml` bağımlılığı corpus'tan kaldırılıp kernel'e alındı. Sahip sayısı hâlâ **bir**.
+**Neden sadece "aynı kütüphaneyi kullanalım" yetmez:** seçenekler de sabitlendi.
+Aynı kütüphanenin farklı seçeneklerle çağrılması da iki ayrıştırıcıdır — biri `1.20`
+sürüm numarasını sayı, diğeri dize okur ve fark aylar sonra, bambaşka bir yerde çıkar.
+**D-61 ile aynı örüntü:** halka yasası bir kaynağın hangi katmanda yaşayacağını
+belirliyor. SQLite handle da, YAML ayrıştırıcı da bu yüzden Ring 0'da.

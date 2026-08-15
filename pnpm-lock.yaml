@@ -77,9 +77,6 @@ importers:
       '@suite/kernel':
         specifier: workspace:*
         version: link:../kernel
-      yaml:
-        specifier: 2.9.0
-        version: 2.9.0
     devDependencies:
       '@types/node':
         specifier: 26.2.0
@@ -124,6 +121,9 @@ importers:
       better-sqlite3:
         specifier: 13.0.3
         version: 13.0.3
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -158,6 +158,13 @@ importers:
       '@suite/kernel':
         specifier: workspace:*
         version: link:../kernel
+    devDependencies:
+      '@types/node':
+        specifier: 26.2.0
+        version: 26.2.0
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.2.0)(msw@2.15.0(@types/node@26.2.0)(typescript@5.9.3))(vite@8.2.1(@types/node@26.2.0)(yaml@2.9.0))
 
   packages/render:
     dependencies:

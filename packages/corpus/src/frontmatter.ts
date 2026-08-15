@@ -7,7 +7,9 @@
 // sonra gövde. TOML frontmatter, JSON frontmatter, `+++` sınırlayıcı — hiçbiri yok.
 // Dar biçim, elle düzenlenen bir corpus'ta "neden bu dosya okunmadı" sorusunu bitirir.
 
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
+// YAML ayrıştırıcı kernel'de: corpus ve registry kardeş halkadır ve ikisi de YAML
+// okur; ayrıştırıcı birinde kalsaydı diğeri kendi kütüphanesini kurardı (§3.8 · D-66).
+import { parseYaml, stringifyYaml } from '@suite/kernel'
 
 const DELIM = '---'
 
@@ -52,15 +54,11 @@ export const parseFrontmatter = (text: string): ParseResult => {
   if (end === -1) return { ok: false, error: { kind: 'unterminated' } }
 
   const yamlText = lines.slice(start, end).join('\n')
-  let data: unknown
-  try {
-    data = parseYaml(yamlText)
-  } catch (e) {
-    return {
-      ok: false,
-      error: { kind: 'invalid_yaml', message: e instanceof Error ? e.message : String(e) },
-    }
+  const ayristirma = parseYaml(yamlText)
+  if (!ayristirma.ok) {
+    return { ok: false, error: { kind: 'invalid_yaml', message: ayristirma.message } }
   }
+  const data = ayristirma.value
   if (data === null || typeof data !== 'object' || Array.isArray(data)) {
     return { ok: false, error: { kind: 'not_a_map' } }
   }
@@ -83,7 +81,7 @@ export const parseFrontmatter = (text: string): ParseResult => {
  * `git diff` her turda gürültü üretir — gürültülü diff okunmayan diff'tir (§5.4).
  */
 export const serializeFrontmatter = (fm: Record<string, unknown>, body: string): string => {
-  const yamlText = stringifyYaml(fm, { lineWidth: 0 }).trimEnd()
+  const yamlText = stringifyYaml(fm).trimEnd()
   const govde = body.trimEnd()
   return `${DELIM}\n${yamlText}\n${DELIM}\n${govde === '' ? '' : `\n${govde}\n`}`
 }

@@ -54,6 +54,16 @@ export {
 export { idempotencyKey, digest, type IdempotencyInput } from './idempotency.js'
 
 export {
+  plan,
+  formatPlan,
+  type PlanInput,
+  type PlanReport,
+  type PlanResult,
+  type PlanError,
+  type PlannedStep,
+} from './plan.js'
+
+export {
   runStep,
   runScope,
   type StepSpec,

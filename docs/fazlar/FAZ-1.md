@@ -180,12 +180,16 @@ ağ kablosu çekiliyken de çalışıyor
 🧪 Bir işi SIGKILL ile kes → yeniden başlatınca kaldığı yerden devam, **çift ücret yok**
 💾 `feat(engine): zamanlama, retry, bütçe ve maliyet defteri` · `Refs: FAZ-1.12 · §8.5`
 
-## 1.13 — just plan    [ ]
+## 1.13 — just plan    [x] 2026-08-15
 
 📖 §8.3, §15 · R-47
 🔗 1.11, 1.12
-🛠 DAG + seçilen sağlayıcı + maliyet **aralığı** + enjekte edilecek bağlam basar.
-   Hiçbir şey harcamaz.
+🛠 DAG + seçilen sağlayıcı + maliyet **aralığı** + insan kapıları basar. Hiçbir şey
+   harcamaz: sıfır ağ, sıfır yazma, sabit saat ve seed (aynı plan iki kez = aynı çıktı).
+   Pipeline çözücü `registry/resolve.ts`'te (D-66) ve **model adını reddeder** (R-40);
+   ayrıca DAG döngüsü, bilinmeyen fiil ve olmayan bağımlılık da reddedilir.
+   Sağlayıcısı seçilmemiş metered adım için `$0.00` YAZILMAZ — "aralık EKSİKTİR,
+   sıfır değil" denir; sıfır göstermek bir sıfır-maliyet iddiasıdır.
 ✅ `just plan <pipeline>` çıktı veriyor · ağ kablosu çekiliyken de çalışıyor
 🧪 Kuru ikizi olmayan bir fiil ekle → `plan` hata veriyor (sessizce atlamıyor)
 💾 `feat(cli): just plan — harcamayan kuru çalıştırma` · `Refs: FAZ-1.13 · §8.3`

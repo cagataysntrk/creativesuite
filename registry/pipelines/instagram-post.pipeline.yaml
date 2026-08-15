@@ -1,0 +1,53 @@
+# Instagram tek görsel postu (§10).
+#
+# MODEL ADI YOK (R-40): adımlar YETENEK ister, hangi modelin koşacağı yönlendiricinin
+# kararıdır. Model ID'si burada olsaydı, o sağlayıcı öldüğü gün pipeline kırılırdı.
+id: instagram-post
+title: Instagram tek görsel postu
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  - id: metin-uret
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec]
+    constraints:
+      locale: tr-TR
+      max_chars: 2200
+
+  - id: gorsel-uret
+    verb: GENERATE
+    capability: image.generate
+    needs: [bilgi-sec]
+    constraints:
+      aspect: '4:5'
+      # Görsel modeline Türkçe metin çizdirilmez (R-20) — metin kompozitte gelir.
+      no_text: true
+      max_cost_usd_micros: 20000
+
+  - id: kompozit
+    verb: COMPOSE
+    needs: [metin-uret, gorsel-uret]
+
+  - id: render
+    verb: RENDER
+    capability: image.render
+    needs: [kompozit]
+    constraints:
+      width: 1080
+      height: 1350
+
+  - id: kalite
+    verb: VALIDATE
+    needs: [render]
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

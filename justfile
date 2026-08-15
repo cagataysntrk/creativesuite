@@ -14,6 +14,10 @@ default:
 
 # ── günlük döngü ─────────────────────────────────────────────────────────────
 
+# Kuru çalıştırma planı: DAG + maliyet aralığı. HİÇBİR ŞEY HARCAMAZ (R-47)
+plan *args:
+    @./node_modules/.bin/tsc -b && node scripts/plan.mjs {{args}}
+
 # Turun 1-2. adımı: DURUM.md oku, aktif adımın okuması gereken her şeyi getir
 tur:
     @bash scripts/tur.sh
