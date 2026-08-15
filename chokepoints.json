@@ -119,9 +119,9 @@
     {
       "id": "maliyet-defteri",
       "ad": "Maliyet defteri yazıcı",
-      "neden": "İki yazıcı, tahmin ile gerçeğin karşılaştırılamaması demektir; bütçe tavanı (D-17) o an anlamsızlaşır.",
+      "neden": "İki yazıcı, tahmin ile gerçeğin karşılaştırılamaması demektir; bütçe tavanı (D-17) o an anlamsızlaşır. Defter aynı zamanda idempotency kaydıdır (R-44): ikinci bir yazıcı, rezervasyonu görmeden çağrı yapar ve ÇİFT ÜCRET üretir.",
       "izinli": ["packages/engine/src/cost/ledger.ts"],
-      "desen": null,
+      "desen": "\\bcost_ledger\\b",
       "faz": "FAZ-1.12"
     },
     {

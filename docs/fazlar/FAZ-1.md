@@ -166,13 +166,16 @@ ağ kablosu çekiliyken de çalışıyor
 🧪 Onuncu fiil ekle → kapı kırmızı · `RENDER` içinden sağlayıcı çağır → depcruise kırmızı
 💾 `feat(kernel): dokuz fiil iskeleti ve kuru ikizleri` · `Refs: FAZ-1.11 · §3.10`
 
-## 1.12 — Motor    [ ]
+## 1.12 — Motor    [x] 2026-08-15
 
 📖 §8.5, §13 · R-44, R-45
 🔗 1.8, 1.11
-🛠 `packages/engine`: adım zamanlama · retry sınıflandırması · devre kesici (5 ardışık,
-   `(providerId, capability)` anahtarlı) · bütçe kiralama · maliyet defteri yazımı
-   (**tek nokta**) · iptal yayılımı (`AbortSignal` uçtan uca).
+🛠 `packages/engine`: adım zamanlama · retry sınıflandırması (1.7'deki `classify()`
+   bağlandı; zamanlama motorda, taksonomi kernel'de) · devre kesici (5 ardışık,
+   `(providerId, capability)` anahtarlı, yarı-açıkta TEK deneme) · bütçe kiralama
+   (tahminin ÜST sınırı kiralanır) · maliyet defteri (**tek nokta**, aynı zamanda
+   idempotency kaydı) · iptal yayılımı (`AbortSignal` uçtan uca).
+   Sıra sabit: bütçe → kesici → idempotency → çağrı → defter. Her fiil aynı yoldan geçer.
 ✅ `just test engine` yeşil · iptal 5 sn içinde alt süreçleri temizliyor
 🧪 Bir işi SIGKILL ile kes → yeniden başlatınca kaldığı yerden devam, **çift ücret yok**
 💾 `feat(engine): zamanlama, retry, bütçe ve maliyet defteri` · `Refs: FAZ-1.12 · §8.5`

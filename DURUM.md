@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 1
-siradaki_adim: 1.12
+siradaki_adim: 1.13
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.11+0.C.3+0.C.11: 113 test; Proxy tuzagi grep ve ESLintin kacirdigini yakaladi (D-64); durum kapisi 3 tutarsizligi kirmizi verdi (D-65)"
+son_kanit: "1.12: 143 test; ayni idempotency anahtariyla ikinci calistirma cagriyi TEKRARLAMADI (cift ucret yok); kesici 5te acildi, 4te acilmadi"
 ```
 
 ## Neredeyiz
@@ -70,20 +70,18 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.C.3 · kernel saflık kapısı (3 katman) | 2026-08-15 |
 | 0.C.11 · verbs kapısı | 2026-08-15 |
 | **1.11** · dokuz fiilin iskeleti | 2026-08-15 |
+| **1.12** · motor: retry, kesici, bütçe, defter | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.12** — motor. `packages/engine`: adım zamanlama · retry sınıflandırması (1.7'deki
-`classify()` bağlanır) · devre kesici (5 ardışık, `(providerId, capability)` anahtarlı) ·
-bütçe kiralama · maliyet defteri yazımı (**tek nokta**) · iptal yayılımı (`AbortSignal`
-uçtan uca).
-Kabul: `just test engine` yeşil · iptal 5 sn içinde alt süreçleri temizliyor.
-İhlal: bir işi SIGKILL ile kes → yeniden başlatınca kaldığı yerden devam, **çift ücret yok**.
+**1.13** — `just plan`: DAG + seçilen sağlayıcı + maliyet **aralığı** + enjekte edilecek
+bağlam basar. **Hiçbir şey harcamaz.**
+Kabul: `just plan <pipeline>` çıktı veriyor · **ağ kablosu çekiliyken de çalışıyor**.
+İhlal: kuru ikizi olmayan bir fiil ekle → `plan` hata veriyor (sessizce atlamıyor).
 
-> **FAZ 0'ın kural zorlama bloğu (0.C) KAPANDI** — kapıların hepsi bağlı ve kasten ihlal
-> edilerek denendi. Kalan FAZ 0 borçları kod değil KARAR bekliyor: 0.A.5 (marka fontu,
-> V-02) · 0.B.8b/c (FAZ-2..9 gövdeleri) · 0.D.1–0.D.5 (bake-off'lar, ~$7) · 1.10b (golden
-> harness, V-02'ye bağlı). 0.E.5 (döngü provası) fiilen koşuyor.
+> FAZ 1'de kalan: 1.4 (projeksiyon derleyicisi), 1.13, 1.14 (Claude Code köprüsü).
+> 1.4 hâlâ bekliyor çünkü LLM projeksiyonu V-05'e (Anthropic yapılandırılmış çıktı
+> alt kümesi) dayanıyor — o borç FAZ-1.4'te gerçek bir çağrıyla kapanacak.
 
 ## Bloke adımlar
 

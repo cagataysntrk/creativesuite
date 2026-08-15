@@ -12,10 +12,14 @@
   },
   "dependencies": {
     "@suite/contracts": "workspace:*",
-    "@suite/kernel": "workspace:*",
-    "@suite/registry": "workspace:*",
     "@suite/corpus": "workspace:*",
+    "@suite/kernel": "workspace:*",
     "@suite/providers": "workspace:*",
+    "@suite/registry": "workspace:*",
     "@suite/render": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "vitest": "4.1.10"
   }
 }
