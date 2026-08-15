@@ -442,58 +442,325 @@ hareket katmanında, float hassasiyetiyle yapılır.
 
 ### §8.1 Tanımlayıcı formatı {#section-8-1}
 ### §8.2 Yetenek yönlendiricisi {#section-8-2}
-Filtrele → fiyatla → skorla → yedek → **kaybedenleri de kaydet**.
+
+Pipeline adımı **yetenek + kısıt** ister, model adı değil:
+`video.text2video · aspect 9:16 · ≤6sn · ≤0.15 USD · prefer: cost`
+
+Beş aşama, ~300 satır, tablo tabanlı:
+
+1. **Filtrele** — yetenek etiketi + tipli kısıt + `enabled` + dönemin izin listesi
+2. **Fiyatla** — maliyet formülü QuickJS'te (10ms deadline, host bağlantısı yok);
+   bütçe kısıtı **USD mikro** üzerinden, TRY yalnız görüntüde (D-36)
+3. **Skorla** — kalite / maliyet / gecikme, adımın `prefer:` alanına göre ağırlıklı
+4. **Yedek zinciri** — hata veya zaman aşımında sıralı
+5. **Kaydet** — kazananı **ve her kaybedeni red gerekçesiyle** run manifest'ine
+
+Beşinci aşama yönlendirmeyi sihirden yönetişime çevirir: altı ay sonra "neden bu model
+seçildi" sorusunun cevabı manifest'te yazılı.
+
+Bugün hiçbir açık kaynak sistem "Türkçe seslendirmeli 9:16 video, 30sn altı, 5 TL altı"
+sorusunu cevaplamıyor. OpenRouter'ın `max_price`'ı milyon-token başına ve yalnız metin;
+LiteLLM etiketleri anlamsız string. Bu boşluk gerçek farklılaştırıcı ve bir yıl sonra
+okunabilir kalacak kadar küçük.
 ### §8.3 Maliyet ve bütçe {#section-8-3}
-Para = bigint USD mikro (D-36). Tavan UI'dan ayarlanır (D-17).
+
+Para `{ micros: bigint, currency: "USD" }`. Float yok, kuruş yok: görsel başına $0.0035
+minor-unit'te hassasiyet kaybeder ve float'ta zaten toplanamaz.
+
+**Çalıştırma öncesi tahmin bir aralıktır, tek sayı değil** — güven noktasıyla: yeşil
+(birim başına kesin medya fiyatı), amber (aralıklı token tahmini), kırmızı (saniye
+başına GPU, fiyatlanamaz). Duvar saati de gösterilir; 6GB'lık bir laptopta **zaman da
+bir maliyettir** ve para modeli onu görünür kılmalı.
+
+Tavanlar UI'dan ayarlanır (D-17): aylık · çalıştırma başına · pipeline başına.
+Tahminin üst sınırı tavanı aşıyorsa Başlat **kilitlenir** ve gerekçe Türkçe gösterilir.
+
+Gerçekleşen maliyet tahminden **kopyalanmaz**; sağlayıcı bildirmiyorsa `chargeStatus`
+`unreported` olur. `possibly-charged` durumu da vardır — bilmediğimizi bilmek,
+bilmediğimizi tahmin etmekten iyidir.
 ### §8.4 Adaptör sözleşmesi {#section-8-4}
-`estimate` senkron ve saf. Sağlayıcı yanıt şekli sınırı geçemez.
+
+Her sağlayıcı tam olarak şunu uygular ve başka hiçbir şey dışa açmaz:
+
+```
+capabilities()  → yetenek tanımlayıcıları
+validate(input) → ValidatedInput | AppError
+estimate(vi)    → CostEstimate     ← SENKRON ve saf; dönüş tipi `async`'i derleme hatası yapar
+start(vi, ctx)  → JobHandle        ← idempotency anahtarı zorunlu
+status(handle)  → JobStatus
+cancel(handle)
+actualCost(terminal) → Money | null
+```
+
+`estimate()`'in senkron olması bir stil tercihi değil: çalıştırma öncesi maliyet ancak
+ağ gerektirmiyorsa dürüsttür. Ağ çağrısı gerektiren bir tahmin, tahmin değil ön-çağrıdır.
+
+**Sağlayıcı SDK tipi, yanıt nesnesi veya string enum'u adaptör sınırını geçemez.** Bu
+kategoride ölüm oranı yüksek: Proxycurl kapandı, Crunchbase Basic API kaldırıldı, Google
+CSE sunuluyor. Sınırı geçen bir tip, sağlayıcı öldüğünde şablona kadar sızan bir
+refactor demektir.
+
+`ArtifactRef`'te **URL alanı yoktur, tasarım gereği**: sağlayıcı çıktı URL'leri süresi
+dolar (Google üretilen videoyu 2 günde siliyor). Byte'lar aynı istek döngüsünde indirilir.
 ### §8.5 Yeniden deneme, idempotency, rate limit {#section-8-5}
-Devre kesici 5 ardışık hata, `(providerId, capability)` anahtarlı.
+
+**Yeniden denenir:** 429, 5xx, ağ hatası. **Asla denenmez:** 4xx doğrulama, içerik
+politikası reddi, yetersiz bakiye. Üstel geri çekilme + tam jitter.
+
+**Devre kesici 5 ardışık hatada açılır**, `(providerId, capability)` anahtarlı. 3
+seçilmedi çünkü 3-denemelik retry sınırıyla çakışır ve tek mantıksal çağrıda kesiciyi
+attırır.
+
+**Idempotency anahtarı** deterministiktir: girdi + model + parametreler + seed + bilgi
+ağacı commit'i. Çökme sonrası yeniden başlatma çift ücret veya çift yayın üretmez.
+
+**Yayın asla körlemesine tekrar edilmez** — önce okuma ile mutabakat. Meta yinelenen
+gönderimde *mevcut* ID'yi döndürür; yerel defterle karşılaştırılmazsa 3 varlık
+üretildiği hâlde 20 üretildiği sanılır.
+
+Yerel makine NAT arkasında ve public ingress yok — **webhook çoğunlukla kullanılamaz**.
+Uzun işler jitter'lı polling ile izlenir; iş tutamağı `derived/runs/` altında kalıcıdır,
+böylece laptop kapanıp açılsa da iş kaldığı yerden sürer.
 ### §8.6 Hata taksonomisi {#section-8-6}
-Kapalı birleşim. Her hata harcanan parayı taşır.
+
+Kapalı ayrık birleşim: `config` · `validation` · `not_found` · `conflict` ·
+`provider_auth` · `provider_rate_limit` · `provider_quota` · `provider_unavailable` ·
+`provider_bad_response` · `content_rejected` · `budget_exceeded` · `timeout` ·
+`cancelled` · `render_failed` · `subprocess_failed` · `io` · `internal`.
+
+Her hata **`costIncurred` taşır**: 3 görsel ürettikten sonra gelen bir 429 yine de para
+harcadı. Bunu taşımayan bir hata modeli, maliyet defterini sessizce eksik bırakır.
+
+`userMessageKey` İngilizce bir enum anahtarıdır; Türkçe karşılık yalnız UI kataloğunda.
+Türkçe hiçbir zaman bir tanımlayıcıya, log anahtarına veya kernel'in fırlattığı bir
+hataya girmez (D-37).
+
+`classify()` toplam fonksiyondur — yeni bir `ErrorKind` eklenip sınıflandırma
+güncellenmezse `tsc` kırmızıya döner. Hata sınıflandırması unutulabilecek bir şey olmamalı.
 ### §8.7 Sağlayıcı kataloğu {#section-8-7}
-**ÜRETİLMİŞ** — `docs/referans/saglayicilar.md`. Elle yazılmaz.
+
+**ÜRETİLMİŞ.** `just docs` → `docs/referans/saglayicilar.md`, kaynak
+`registry/providers/*.yaml`. Elle yazılmaz; `docs-drift` kapısı sapmayı yakalar (R-65).
+
+Araştırma külliyatı (1000+ araç, fiyat, lisans, verdict) `docs/research/` altında ve
+`ctx_search` ile sorgulanır — baştan sona okunmaz.
+
+**Fiyat anlık görüntüleri değişmezdir:** `registry/providers/_pricing/<sağlayıcı>-<tarih>.json`,
+commit'li. Bir çalıştırmanın maliyeti hangi fiyat listesine göre hesaplandı sorusu altı
+ay sonra da cevaplanabilmeli. UI, anlık görüntü 60 günden eskiyse uyarı rozeti gösterir —
+yoksa "çalıştırma öncesi maliyet" vaadi sessizce kurguya döner.
 
 ## §9 Kanallar {#section-9}
 
 ### §9.1 Platform spec tablosu {#section-9-1}
-Her satır `sourceUrl` + `verifiedAt` taşır. Üç aylık drift denetçisi.
+
+Ölçüler **kod olarak** tutulur (`packages/specs/placements.ts`), her satır `sourceUrl` +
+`verifiedAt` taşır. Üç aylık bir iş kaynakları yeniden çeker ve diff'ler.
+
+**Neden bu kadar titiz:** platform ölçüleri sessizce değişiyor. Meta feed'i 1:1'den
+4:5'e taşıdı ve şimdi Instagram feed videosunda bile 9:16 öneriyor. Tolerans da
+platforma göre farklı — Instagram ±%1, Facebook ±%3, LinkedIn ±%5. "Yeterince yakın"
+bir yeniden boyutlandırma Facebook'tan geçip Instagram'dan **reddedilir**.
+
+Güvenli alanlar yapısaldır, sonradan doğrulanan bir şey değil: Reels'te üst %14, alt %35,
+yanlar %6 — 1080×1920'lik bir masterda 950×979'luk kullanılabilir bant kalır. İçerik
+kutusu bu koordinatlarda tanımlanır ki başlık UI chrome'un altına düşemesin.
 ### §9.2 Meta adaptörü {#section-9-2}
-Kendi işletmen için App Review gerekmiyor. Token 60 günde ölür.
+
+IG feed / carousel / Reels / Stories + Threads. **App Review gerekmiyor** — Meta'nın
+kendi dokümantasyonu, uygulama yalnız sahip olunan bir işletmeye hizmet ediyorsa
+incelemeyi "gerekli değil" sayıyor. Bu, ekosistemdeki en yaygın yanlış inanış ve
+Instagram'ı bizim için self-servis yapan şey.
+
+**Token 60 günde ölür ve sessizce ölür.** Yenileme işi yayın hattından **önce** kurulur
+ve başarısızlığı bloklayıcıdır, uyarı değil.
+
+Her yayından önce `content_publishing_limit` sorgulanır (24 saatte sınırlı gönderi).
+Token-bucket rate limiter uploader'dan **önce** gelir: okuma 1 puan, yazma 3 puan.
 ### §9.3 LinkedIn adaptörü {#section-9-3}
-Döküman postu en yüksek etkileşimli format; hiçbir aggregator vermiyor.
+
+`w_member_social` ile kişisel profil: metin, görsel **ve döküman** postu.
+
+Döküman postu (PDF carousel) LinkedIn'in en yüksek etkileşimli formatı ve **hiçbir
+aggregator bunu vermiyor** — Ayrshare, Buffer, Postiz hepsi soyutlayıp kaybediyor.
+Kendi adaptörümüzü yazmamızın asıl sebebi bu; ~400 satır karşılığında aggregator'ların
+sıyırdığı yetenekler elde kalıyor.
+
+Görsel boyut sınırı **5MB** — Meta'nın 30MB'ının altı kat altında. Meta'ya göre
+ayarlanmış tek bir export hattı, LinkedIn'in reddedeceği dosyaları sessizce üretir.
+Kalite merdiveni sınırın altına inene kadar aşağı iner.
+
+Sürüm sabiti pinlenir ve üç ayda bir yeniden kontrol edilir; LinkedIn sürümleri
+takvimle emekliye ayırıyor.
 ### §9.4 Onay yüzeyleri {#section-9-4}
-PC · Tailscale · Telegram.
+
+Üçü de aynı onay kuyruğuna bakar:
+
+- **Yerel PC** — tam UI, klavye odaklı, zengin QA paneli
+- **Tailscale** — telefondan tam UI, özel ağ üzerinden; public internete açılmaz
+- **Telegram botu** — yalnız onay/red/gerekçe, inline klavye
+
+Telegram bacağı ~20 satır ve **çalışan bir sistemle masadan uzakken tıkanan bir sistem
+arasındaki fark** o kadar. Red gerekçesi her üç yüzeyde de kalıcıdır ve sonraki
+çalıştırmaya negatif kısıt olarak enjekte edilir.
 
 ## §10 Pipeline kataloğu {#section-10}
 
-Dokuz iş: adım şeması, insan kapıları, çıktılar, maliyet. **ÜRETİLMİŞ** kısmı
-`docs/referans/pipelinelar.md`.
+Dokuz iş. Adım şeması, insan kapıları, çıktılar ve maliyet **üretilmiş** kısımda:
+`docs/referans/pipelinelar.md`, kaynak `registry/pipelines/*.yaml`.
+
+| Pipeline | Kurulduğu faz |
+|---|---|
+| `instagram-post`, `instagram-carousel` | FAZ-3.14 |
+| `linkedin-post` | FAZ-3.15 |
+| `demo-video` | FAZ-5.7 |
+| `reels` | FAZ-5.8 |
+| `explainer-video` | FAZ-5.9 |
+| `linkedin-document` | FAZ-6.3 |
+| `prospect-deck` | FAZ-6.9 |
+| `ad-creative-set` | FAZ-8.1 |
+
+**Ortak insan kapıları** — hepsinde aynı sırada:
+
+`G0` çalıştırma öncesi (şerit + maliyet aralığı + duvar saati) · `G1` yapı/açı (en ucuz
+düzeltme noktası — görsel üretilmeden önce) · `G2` Türkçe metin (diacritics kapısı
+geçtikten sonra; doğrulayıcı imlayı yakalar, tonu yalnız insan) · `G3` görsel
+(contact sheet + QA skorkartı) · `G4` yayın.
+
+Video pipeline'larında ek bir `G2b` transkript kapısı vardır ve **atlanamaz**: Türkçe
+ASR hata oranı %10–25, makine altyazısını otomatik yayınlamak seçenek değil.
+
+**En pahalı kapı `G1`'dir.** Yanlış anlatıyı görsel üretildikten sonra yakalamak, önce
+yakalamaktan on kat pahalı.
 
 ## §11 Kalite ve uyum {#section-11}
 
 ### §11.1 Marka QA {#section-11-1}
-Rozet değil tolerans okuması: ΔE limit karşısında ölçüm.
+
+Bedava katman her varlıkta, her zaman: culori ΔE2000 (marka token'larına karşı) ·
+node-vibrant palet payı · transformers.js CLIP brief uyumu · LAION estetik skoru ·
+Tesseract kelime kutularıyla güvenli alan ve metin kaplama. Hepsi yerel, süreç içi.
+
+Premium katman yalnız prospect'e giden ve ücretli medyaya gidecek varlıklarda: bir VLM
+rubrik yargıcı (~$0.006/görsel), marka kılavuzu önbellekli prefix'te.
+
+**Sonuç rozet değil, tolerans okumasıdır.** "Marka uyumu ✓" hiçbir şey söylemez;
+**ΔE 2.4 / limit 5.0** kenara ne kadar yakın olunduğunu söyler. Aynı mantık her yerde:
+maliyet bir yetenek grafiği (eksen 0 → bütçe tavanı, tahmin bandı, gerçek dolgu, tavan
+etiketli spec-limit), ETA bir p20–p80 bandı, kota bir doluluk göstergesi.
+
+**QA kapısı aşırı-uyum riski taşır:** periyodik olarak neyin *reddedildiğine* bakılmalı,
+yalnız neyin geçtiğine değil. Aksi hâlde sistem güvenli, birbirine benzer, düşük
+kontrastlı kreatifi seçmeye başlar ve kimse fark etmez.
 ### §11.2 Deterministik lexicon linter {#section-11-2}
-Modele "bu marka uygun mu" diye sormak işe yaramaz; yasak terim listesi yarar.
+
+**Modele "bu marka uygun mu" diye sorulmaz.** Sorulan model neredeyse her şeye evet der.
+Liste bakar: yasak terim (`registry/lexicon/tr.lexicon.yaml`) · token dışı hex ·
+`claim_source`'suz sayısal iddia · eksik alt-text · locale-naif casing · prospect tüzel
+adında büyük harf hatası · Meta kişisel-özellik kuralını tetikleyen ikinci tekil yapılar
+(`KOBİ sahibi misiniz?` → `KOBİ'ler için…`) · nitelenmemiş üstünlük iddiaları.
+
+Meta'nın kişisel-özellik kuralı B2B lead-gen metninde **en sık sessiz red sebebi** ve
+kolayca lint edilebilir. Reddedilen reklam sebebini söylemiyor; linter söylüyor.
+
+Gözetimsiz zamanlamayı güvenli kılan bileşen budur ve satın alınamaz — markanın kendi
+sözlüğünden doğar.
 ### §11.3 Hukuki kapılar {#section-11-3}
-Reklam Yönetmeliği Md. 27/12 · KVKK · EU AI Act Md. 50.
+
+**Reklam Yönetmeliği Md. 27/12** (1 Ağu 2026'dan yürürlükte): onay ima eden yapay insan
+üretilemez. `containsSyntheticPerson=false` iddiası olmayan varlık onaylanamaz. Sentetik
+müşteri referansı, klonlanmış müşteri sesi, avatar testimonial — hepsi yasak. Adı geçen
+bir prospect'e giden deck'te AI ile üretilmiş bir "müşteri", tam olarak yasaklanan desen.
+
+**EU AI Act Md. 50** (2 Ağu 2026'dan uygulanabilir): AB kitlesine giden üretilmiş
+içerikte ifşa katmanı. Kayda değer istisna: yeniden boyutlandırma, kırpma, renk düzeltme
+ve olayı değiştirmeyen arka plan düzenlemeleri ifşa tetiklemiyor — reframe/retouch
+hattımız kapsam dışı.
+
+**KVKK:** prospect verisi için amaç-bazlı hukuki dayanak ve saklama tarihi zorunlu.
+Aydınlatma ve açık rıza metinleri **LLM'e yazdırılmaz** — 2026/347 kararı geri
+dönüştürülmüş şablonları açıkça cezalandırıyor; hukukçuya bir kez yazdırılır (V-10).
+
+Prospect dizini dosya sisteminden **tek komutla silinir**, `cat` ile okunur: silme ve
+erişim talebi birer satır. Hiçbir CRM'in veremeyeceği avantaj.
 ### §11.4 Kaynaksız iddia yasağı {#section-11-4}
-`claim_source` olmadan sayı yayınlanmaz.
+
+Sayısal iddia içeren hiçbir metin `claim_source` olmadan yayınlanamaz. Kaynak bir
+`proof_asset` kaydına işaret eder; onun da `era_of_origin` ve `transfer_confidence`
+alanları vardır.
+
+Kural somut bir mirasa karşı yazıldı: eski sitede "1.247 İlan", "892 Satıcı",
+"2.456 Eşleşme", "1.234.567 ton CO2" gibi **desenli yer tutucular** duruyor. Hiçbiri
+gerçek değil. Yeni kreatife taşınmaları, sistemin ilk gününde uydurma sayı yayınlaması
+demek olurdu.
+
+Ürün ekran görüntüleri de bu kapsamda: adı geçen bir prospect'e giden deck'te üretilmiş
+bir dashboard **estetik tercih değil, olgusal iddiadır**. Gerçek Playwright çekimi zorunlu.
 
 ## §12 Komuta merkezi tasarım sistemi {#section-12}
 
 ### §12.1 Renk {#section-12-1}
-İzleme kabini tezi: kabuk marka-nötr, ekrandaki tek renkli şey iş.
+
+**Tez: komuta merkezi bir izleme kabinidir.** Baskı ve fotoğrafta renk yargısı nötr gri
+çevrede yapılır (ISO 3664) çünkü renkli bir çevre yargılanan renge yalan söyletir. Sistem
+çok markalı: bugün Upcytech, yarın dima, öbür gün bilinmeyen bir marka. Aracın kendi
+rengi işin rengiyle kavga ederse hiçbir marka dürüst görünmez.
+
+Bu yüzden **kabuk marka-nötr enstrüman grisidir; ekrandaki tek renkli şey iştir.**
+
+İki renk bağlamı, `data-surface` üzerinde: `console` kalıcı koyu, `studio` kalıcı açık.
+**Tema anahtarı yok** — `prefers-color-scheme` yapısal olarak yok sayılır. Toggle token
+matrisini ikiye katlar ve ikinci tema asla bakımlanmaz.
+
+Üç kademe token: ham OKLCH rampalar (bileşen dokunmaz) → anlamsal roller (yüzey bağlamına
+göre) → bileşen token'ları (yalnız 2. kademeye referans).
+
+**Chroma alana göre sınırlı** (ISA-101 yüksek performanslı HMI): %25'ten büyük dolgu
+C ≤ 0.02 · kenarlık ≤ 0.04 · metin ≤ 0.06 · yalnız %4'ten küçük sinyal alanları ≤ 0.16.
+**Renk anormallik demektir** — her yerde renk varsa hiçbir yerde uyarı yoktur.
+
+Gölge yok: yükseklik arka plan basamağı + pah çizgisiyle. Kontrast CI'da **hesaplanır**,
+göze bakılmaz — OKLCH L, WCAG luminance değildir.
 ### §12.2 Tipografi {#section-12-2}
-Ölçülen her şey mono ve tabular. Türkçe %20-30 uzun.
+
+**Ölçülen her şey mono ve tabular.** Maliyet, ΔE, süre, boyut, token, kota, yüzde —
+hepsi `tabular-nums slashed-zero`, birim kardeş `<span>`'de 0.85em. Prose ve etiketler
+grotesk. Tek kural enstrüman metaforunu taşır ve tabloda göz taramasını hızlandırır.
+
+Dokuz boyut, 11px mikrodan 36px mono okumaya. Ağırlık 400/450/500/550/650 — **konsolda
+700 yasak**. Sayı biçimi `Intl.NumberFormat('tr-TR')`.
+
+**Türkçe kısıtı yapısaldır.** Her etiket İngilizcesinden %20–30 uzun. Hiçbir etiket,
+düğme, sekme veya tablo başlığı sabit genişlik alamaz; düğme `min-inline-size: 96px`;
+tablo başlığı 40px (iki satır). CI'da **+%30 sahte-yerelleştirme** turu zorunlu.
+
+İçerik sığmıyorsa **tip küçültülmez, satır gevşer**.
 ### §12.3 Boşluk ve yoğunluk {#section-12-3}
 ### §12.4 Kabuk ↔ yüzey modeli {#section-12-4}
 Stüdyo bir rota, modal değil.
 ### §12.5 Klavye haritası {#section-12-5}
 Komut paleti birincil navigasyon, kısayol değil.
 ### §12.6 Durum matrisi {#section-12-6}
-Yedi durum. Bayat içerik soldurulmaz. Hata toast değil.
+
+Yedi durum, ayrık birleşim olarak: `empty` · `loading` · `streaming` · `ready` ·
+`stale` · `error` · `success`. Biri unutulursa derlenmez.
+
+**Bayat içerik soldurulmaz.** Tam opaklık, tam etkileşim; bayatlık üst kenarda taralı
+çizgi + mono zaman damgası + `Yenile` eylemiyle bildirilir. Solduran arayüzde operatör
+"devre dışı" okur, indekse güvenmeyi bırakır ve corpus'u elle tarar — yani türetilmiş
+indeksin var olma sebebini iptal eder.
+
+**Hata toast değildir**, içeriğin olacağı yerde durur: bir cümle Türkçe açıklama,
+katlanmış `<details>` içinde makine detayı, kopyalanabilir korelasyon id'si, **tek**
+birincil kurtarma eylemi. 6 dakikalık render 5. dakikada patlar ve operatör başka
+penceredeyse toast kaybolur; geri döndüğünde boş bir yüzey bulur.
+
+**Yükleme 200ms'den önce gösterilmez**, gösterilince en az 400ms durur. Skeleton gerçek
+satır yüksekliğinde ve **parıltısız**. Belirsiz spinner yalnız az önce basılan düğmede.
+
+Kullanıcının baktığı yüzey **asla otomatik yenilenmez**. Onaylamaya bir tuş kala satır
+yeniden sıralanırsa yanlış kayıt onaylanır — ve burada onay, doğruluk kaynağına yapılan
+bir git commit'idir.
 ### §12.7 Hareket {#section-12-7}
 Altı şey animasyonlanır, hiçbiri 320ms'yi geçmez.
 ### §12.8 Erişilebilirlik {#section-12-8}
@@ -501,7 +768,27 @@ Altı şey animasyonlanır, hiçbiri 320ms'yi geçmez.
 
 ## §13 Gözlemlenebilirlik {#section-13}
 
-Run manifest sözleşmesi · maliyet defteri · `rerun` (donmuş plan) vs `replay` (bugünün tanımı).
+**Langfuse yok, MLflow yok, W&B yok.** Self-host'ları Postgres + ClickHouse demek —
+tam da ihmal edilince çürüyen altyapı. Git'teki run manifest'i grep'lenebilir,
+diff'lenebilir, sunucusuz ve zaten gereken maliyet denetim izini de veriyor.
+
+**Manifest sözleşmesi** — her çalıştırma şunları taşır: `brand_id` · `era_id` · **bilgi
+ağacı commit SHA'sı** · adım başına şerit/model/seed/parametre · tahmini vs gerçek
+maliyet · her insan kararı · seçilen sağlayıcı **ve her kaybeden, red gerekçesiyle** ·
+enjekte edilen bağlamın manifest'i.
+
+Commit SHA'sı replay'i gerçek yapan alandır: prompt'lar haftalık değişen dosyalardan
+derleniyor, o yüzden "aynı girdiyle tekrar çalıştır" ancak aynı ağaçta anlamlı.
+
+**İki ayrı düğme, karıştırılmaz:**
+- `rerun` — donmuş planı çalıştırır. Aynı sağlayıcı, aynı parametre, aynı bağlam.
+- `replay` — aynı girdileri **bugünün tanımıyla** çalıştırır ve sapmayı gösterir.
+
+UI açıkça yazar: **`rerun` kararı tekrarlar, eseri değil.** Medya uçlarının çoğu
+deterministik değil ve seed bile sunmuyor; bu uyuşmazlığı bug sanan kullanıcı diğer
+her şeye olan güvenini kaybeder.
+
+**Manifest'siz çıktı bir hatadır** — kapı üretimi reddeder.
 
 ## §14 Güvenlik {#section-14}
 

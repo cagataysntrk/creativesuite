@@ -66,13 +66,13 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.B.2a — ANAYASA iskeleti    [x] 2026-08-14
 ✅ 19 `## §` başlığı · çapalar benzersiz
 
-## 0.B.2b — ANAYASA §1–§7    [ ]
+## 0.B.2b — ANAYASA §1–§7    [x] 2026-08-15
 📖 `docs/research/` ilgili dalgalar · D-1…D-42
 🛠 Amaç, değişmez ilkeler, mimari, marka sistemi, bilgi/hafıza, strateji modeli, üretim.
    Her bölüm arşivden en az bir kaynağa atıf verir.
 ✅ Bu yedi bölümde TBD yok · `just gate citations` yeşil
 
-## 0.B.2c — ANAYASA §8–§13    [ ]
+## 0.B.2c — ANAYASA §8–§13    [x] 2026-08-15
 🛠 Sağlayıcılar, kanallar, pipeline kataloğu, kalite/uyum, tasarım sistemi, gözlemlenebilirlik.
    **§8.7 elle yazılmaz** — `just docs` YAML'dan üretir.
 ✅ `docs-drift` kapısı yeşil · üretilmiş dosyalar commit'li

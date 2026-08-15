@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.B.2b
+siradaki_adim: 0.B.2d
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "75 denetim bulgusunun 75'i karara bağlandı, kararsız 0 (0.B.10)"
+son_kanit: "ANAYASA §1-§13 dolu, 8xx/1200 satır (0.B.2c)"
 ```
 
 ## Neredeyiz
@@ -35,6 +35,8 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.A.7 · hyperframes doctor | 2026-08-15 |
 | 0.B.1 · araştırma eki | 2026-08-14 |
 | 0.B.2a · ANAYASA iskeleti | 2026-08-14 |
+| 0.B.2b · ANAYASA §1–§7 | 2026-08-15 |
+| 0.B.2c · ANAYASA §8–§13 | 2026-08-15 |
 | 0.B.3 · KURALLAR.md | 2026-08-14 |
 | 0.B.4 · CLAUDE.md | 2026-08-14 |
 | 0.B.5 · KARARLAR.md | 2026-08-14 |
