@@ -30,9 +30,14 @@ export type UnsealedAttributes = Readonly<Record<string, unknown>>
  */
 export const unsealAttributes = (record: RecordEnvelope): UnsealedAttributes => {
   const acik = record.attributes as unknown as Record<string, unknown>
+  // Prototipi NULL. Alan adları kullanıcının tanımladığı veridir (D-11): `toString`,
+  // `constructor` veya `valueOf` adlı bir alan tanımlamak meşrudur. Düz `{...acik}`
+  // ile `attribute(kayit, 'toString')` tanımsız yerine bir FONKSİYON döndürüyordu —
+  // testi yazarken çıktı (2026-08-15). Bu değer `COMPOSE`'a, oradan prompt'a sızardı.
+  //
   // Donduruluyor: açılan attributes OKUNUR, üzerine yazılmaz. Yazma tek noktadan
   // (`corpus/write.ts`) geçer ve oradan geçmeyen bir değişiklik onay kuyruğunu atlar (§5.4).
-  return Object.freeze({ ...acik })
+  return Object.freeze(Object.assign(Object.create(null) as Record<string, unknown>, acik))
 }
 
 /**

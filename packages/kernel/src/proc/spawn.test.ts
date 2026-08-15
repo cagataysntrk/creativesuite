@@ -1,6 +1,9 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { readEnv } from '../config/env.js'
 import { fixturePath } from '../testing/fixtures.js'
+import { makeTempDir } from '../testing/tempdir.js'
 import { systemClock } from '../time/clock.js'
 import { commandExists, spawnProcess } from './spawn.js'
 
@@ -109,16 +112,40 @@ describe('iptal ve zaman aşımı — alt süreç TEMİZLENİYOR (FAZ-1.12 ✅)'
 
   it('SIGTERM yok sayan süreç SIGKILL ile öldürülür — iki aşamalı', async () => {
     // SIGTERM'i yutan bir süreç. Yalnız SIGTERM gönderilseydi bu test asılı kalırdı.
-    const ac = new AbortController()
-    const p = spawnProcess(NODE, kod('process.on("SIGTERM",()=>{}); setInterval(()=>{},1000)'), {
-      env: PATH_ENV,
-      signal: ac.signal,
-      graceMs: 300,
-    })
-    setTimeout(() => ac.abort(), 50)
-    const r = await p
-    expect(r.aborted).toBe(true)
-    expect(r.signal).toBe('SIGKILL')
+    //
+    // Abort SABİT GECİKMEYLE değil, çocuğun HAZIR sinyaliyle veriliyor: handler
+    // kurulmadan gelen SIGTERM süreci varsayılan davranışla öldürür ve test rastgele
+    // kırmızıya döner (bkz. sigterm-yutan.cjs). Yarışı testten silmek, yarışın
+    // kendisini test etmekten daha değerli — burada sınanan şey iki aşamalı öldürme.
+    const tmp = makeTempDir('suite-sigterm-')
+    try {
+      const hazirlik = join(tmp.path, 'hazir')
+      const ac = new AbortController()
+      const p = spawnProcess(NODE, [fixturePath('proc', 'sigterm-yutan.mjs'), hazirlik], {
+        env: PATH_ENV,
+        signal: ac.signal,
+        graceMs: 300,
+      })
+
+      // Hazırlık dosyası belirene kadar bekle. Tavan 5 sn: süreç hiç açılmazsa test
+      // asılı kalmasın, ZAMAN AŞIMIYLA değil AÇIK bir iddiayla düşsün. `throw`
+      // kullanılmıyor — `hata-taksonomisi` darboğazı testleri de kapsıyor ve haklı:
+      // fırlatma tek dosyada yaşar, bir iddia zaten aynı bilgiyi taşır (§8.6).
+      const bitis = systemClock.now() + 5_000
+      let hazir = existsSync(hazirlik)
+      while (!hazir && systemClock.now() < bitis) {
+        await new Promise((r) => setTimeout(r, 10))
+        hazir = existsSync(hazirlik)
+      }
+      expect(hazir, 'alt süreç 5 sn içinde hazır olmadı').toBe(true)
+
+      ac.abort()
+      const r = await p
+      expect(r.aborted).toBe(true)
+      expect(r.signal).toBe('SIGKILL')
+    } finally {
+      tmp.cleanup()
+    }
   })
 })
 
