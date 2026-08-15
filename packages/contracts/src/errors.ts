@@ -25,6 +25,7 @@ export const ERROR_KINDS = [
   'provider_unavailable',
   'provider_bad_response',
   'content_rejected',
+  'policy_blocked',
   'budget_exceeded',
   'timeout',
   'cancelled',

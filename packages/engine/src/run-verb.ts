@@ -11,8 +11,10 @@
 import type { AppError, CorrelationId, Money } from '@suite/contracts'
 import { ZERO_USD, err, ok, type Result } from '@suite/contracts'
 import {
+  ingestGate,
   makeError,
   validateVerbOutput,
+  type UntrustedDocument,
   type Verb,
   type VerbContext,
   type VerbOutput,
@@ -31,11 +33,41 @@ export interface VerbCallResult {
  * bir model çağrısı yoktur; sıfır görünüyorsa defter eksik yazılmıştır ve bütçe tavanı
  * (D-17) o adım için sessizce devre dışı kalır.
  */
+export interface RunVerbGuards {
+  /** Bu turda karantinaya inen dış belgeler (§14). Boşsa sınır kapısı açıktır. */
+  readonly freshDocuments?: readonly UntrustedDocument[]
+  /** İnsan bu turu açıkça onayladı mı (§5.4). */
+  readonly humanApproved?: boolean
+}
+
 export const runVerb = async (
   verb: Verb,
   ctx: VerbContext,
-  input: unknown
+  input: unknown,
+  guards: RunVerbGuards = {}
 ): Promise<Result<VerbCallResult, AppError>> => {
+  // Sınır kapısı fiil ÇALIŞMADAN ÖNCE: taze dış metin varken metered bir fiil
+  // insan onayı olmadan ateşlenemez (§14, R-50). Kontrol sonra yapılsaydı para
+  // çoktan harcanmış, istek çoktan gönderilmiş olurdu.
+  const kapi = ingestGate({
+    verb: verb.name,
+    effectClass: verb.effectClass,
+    metered: verb.metered,
+    freshDocuments: guards.freshDocuments ?? [],
+    humanApproved: guards.humanApproved ?? false,
+  })
+  if (!kapi.allowed) {
+    return err(
+      makeError({
+        kind: 'policy_blocked',
+        code: 'UNTRUSTED_INPUT_GATE',
+        userMessageKey: 'error.ingest.gate',
+        correlationId: ctx.correlationId as CorrelationId,
+        details: { verb: verb.name, reason: kapi.reason },
+      })
+    )
+  }
+
   const sonuc = await verb.run(ctx, input)
   if (!sonuc.ok) return err(sonuc.error)
 

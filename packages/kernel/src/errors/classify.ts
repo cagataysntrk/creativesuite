@@ -37,6 +37,11 @@ const POLICIES: Record<ErrorKind, ErrorPolicy> = {
   not_found: { retryable: false, backoff: 'none', trips: false, humanActionable: true },
   conflict: { retryable: false, backoff: 'none', trips: false, humanActionable: true },
 
+  // Kapı reddi: girdi geçerli, kod doğru, KURAL hayır diyor (§14 · R-50). Tekrar
+  // denemek anlamsız — kural değişmez, insan onaylar. Devre kesiciyi BESLEMEZ:
+  // sağlayıcının hatası değil, sistemin doğru çalışmasıdır.
+  policy_blocked: { retryable: false, backoff: 'none', trips: false, humanActionable: true },
+
   // ── sağlayıcı: kimlik ve kota insan işi, hız ve erişilebilirlik zaman işi ──
   provider_auth: { retryable: false, backoff: 'none', trips: false, humanActionable: true },
   provider_quota: { retryable: false, backoff: 'none', trips: false, humanActionable: true },

@@ -124,3 +124,13 @@ export { fromFileUrl, moduleDir, repoRootFrom, underRoot } from './paths.js'
 
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'
+
+// `untrusted_input` sınırı (§14 · R-50 · FAZ-2.3b)
+export {
+  quarantineDir,
+  untrustedSection,
+  ingestGate,
+  type UntrustedDocument,
+  type IngestGateInput,
+  type IngestGateDecision,
+} from './ingest/boundary.js'
