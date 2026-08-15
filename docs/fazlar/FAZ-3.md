@@ -178,7 +178,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Manifest'siz varlık yayınlamayı dene → reddediliyor
 💾 `feat(engine): run manifest yazıcı` · `Refs: FAZ-3.13 · §13`
 
-## 3.14 — `instagram-post` + `instagram-carousel` uçtan uca ★    [ ]
+## 3.14 — `instagram-post` + `instagram-carousel` uçtan uca ★    [x] 2026-08-15
 
 📖 §10 · D-13
 🔗 3.9, 3.13

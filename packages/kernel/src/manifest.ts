@@ -41,9 +41,17 @@ export interface HumanDecision {
   readonly note: string | null
 }
 
+/**
+ * Adımın âkıbeti. Manifest bunu taşımadan "nerede durdu" sorusunu cevaplayamaz —
+ * ve yarıda kalan bir hattın nerede durduğu, başarılı bir hattın her şeyinden önemli.
+ */
+export type StepStatus = 'ok' | 'failed' | 'skipped'
+
 export interface StepRecord {
   readonly stepId: StepId
   readonly verb: VerbName
+  /** Verilmezse `ok` sayılır — eski manifest'ler geçerli kalsın diye. */
+  readonly status?: StepStatus
   readonly lane: Lane
   /** Yetenek adı — fiil adı DEĞİL (§3.10). `image.generate` gibi. */
   readonly capability: string | null
@@ -146,10 +154,15 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
   for (const s of steps) {
     // Sağlayıcı seçen her adım adaylarını yazmak zorunda — kaybedenler dahil.
     const candidates = Array.isArray(s.candidates) ? s.candidates : []
+    const basarili = (s.status ?? 'ok') === 'ok'
+
     if (s.providerId !== null && candidates.length === 0) {
       defects.push({ kind: 'step_without_candidates', stepId: s.stepId })
     }
-    if (candidates.length > 0 && !candidates.some((c) => c.selected)) {
+    // "Aday var ama seçilmemiş" yalnız BAŞARILI adımda kusurdur. Başarısız bir adımın
+    // adaylarının hepsi elenmiş olabilir — zaten bu yüzden başarısız. Ayrım olmadan
+    // dürüst bir başarısızlık manifest'i "kusurlu" sayılır ve HİÇ YAZILMAZDI.
+    if (basarili && candidates.length > 0 && !candidates.some((c) => c.selected)) {
       defects.push({ kind: 'no_selected_provider', stepId: s.stepId })
     }
     for (const c of candidates) {
@@ -159,7 +172,9 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
         break
       }
     }
-    if (METERED.has(s.verb) && s.finishedAt !== null && s.actualCost === null) {
+    // Metered ve BAŞARILI bir adım maliyetsiz kapanamaz: sıfır maliyetli bir model
+    // çağrısı yoktur. Başarısız adımda maliyet `null` meşru — çağrı hiç uçmamış olabilir.
+    if (basarili && METERED.has(s.verb) && s.finishedAt !== null && s.actualCost === null) {
       defects.push({ kind: 'metered_step_without_cost', stepId: s.stepId })
     }
   }

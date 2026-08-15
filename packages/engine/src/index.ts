@@ -186,3 +186,20 @@ export {
   type WriteResult,
   type CostVariance,
 } from './manifest-writer.js'
+
+export { runPipeline, formatRun, type RunInput, type RunReport } from './run.js'
+
+export {
+  resolveBody,
+  selectBody,
+  composeBody,
+  renderBody,
+  validateBody,
+  generateBody,
+  type BodyInput,
+  type SelectDeps,
+  type ComposeDeps,
+  type RenderDeps,
+  type ValidateDeps,
+  type GenerateDeps,
+} from './verbs/bodies.js'

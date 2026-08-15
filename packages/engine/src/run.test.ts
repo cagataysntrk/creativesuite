@@ -1,0 +1,315 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { makeTempDir, type TempDir } from '@suite/kernel/testing'
+import { openDb, manualClock, seededRng, type Db, type Verb, type VerbContext } from '@suite/kernel'
+import { getVerb } from '@suite/kernel'
+import {
+  ZERO_USD,
+  ok,
+  err,
+  usd,
+  type BrandId,
+  type EraId,
+  type RunId,
+  type VerbName,
+} from '@suite/contracts'
+import type { Pipeline } from '@suite/registry'
+import { initLedger } from './cost/ledger.js'
+import { runPipeline } from './run.js'
+import { readManifest } from './manifest-writer.js'
+import type { ProviderPricing } from './router/route.js'
+
+const RUN = 'run_0192f3a1-0000-7000-8000-000000000060' as RunId
+
+let tmp: TempDir
+let db: Db
+beforeEach(() => {
+  tmp = makeTempDir('suite-run-')
+  db = openDb({ path: ':memory:' })
+  initLedger(db)
+})
+afterEach(() => tmp.cleanup())
+
+/** Sözleşmeyi kernel'den alıp gövdeyi üstüne koyan sahte fiil. */
+const sahte = (name: VerbName, run: Verb['run']): Verb => {
+  const s = getVerb(name)
+  return { name: s.name, effectClass: s.effectClass, metered: s.metered, plan: s.plan, run }
+}
+
+const basarili = (name: VerbName, veri: unknown, micros = 0n): Verb =>
+  sahte(name, async () =>
+    ok({
+      costs: getVerb(name).metered
+        ? [
+            {
+              verb: name,
+              capability: 'test',
+              providerId: 'p1',
+              amount: usd(micros),
+              kind: 'actual' as const,
+            },
+          ]
+        : [],
+      data: veri,
+    })
+  )
+
+const dusen = (name: VerbName): Verb =>
+  sahte(name, async (ctx: VerbContext) =>
+    err({
+      kind: 'provider_error' as never,
+      code: 'PATLADI',
+      userMessageKey: 'e',
+      correlationId: ctx.correlationId,
+      costIncurred: ZERO_USD,
+      retryable: false,
+    })
+  )
+
+const hat = (steps: Pipeline['steps']): Pipeline => ({ id: 'test-hat', title: 'Test', steps })
+
+const aday = (id: string) => [
+  {
+    providerId: id,
+    title: id,
+    lanes: ['free', 'premium'] as const,
+    available: true,
+    unavailableReason: null,
+  },
+]
+
+const fiyat = (id: string, formula: string): Record<string, ProviderPricing> => ({
+  [id]: {
+    providerId: id,
+    costFormula: formula,
+    pricingVerified: true,
+    quality: 50,
+    latencySeconds: 1,
+    supports: {},
+  },
+})
+
+const kos = (steps: Pipeline['steps'], over: Record<string, unknown> = {}) =>
+  runPipeline({
+    repoRoot: tmp.path,
+    pipeline: hat(steps),
+    runId: RUN,
+    brandId: 'brd_test' as BrandId,
+    eraId: 'era_test' as EraId,
+    corpusCommit: 'abc1234',
+    registryCommit: 'def5678',
+    verbs: {},
+    pricing: {},
+    candidatesFor: () => [],
+    env: {},
+    caps: { perRun: null, perMonth: null },
+    db,
+    clock: manualClock('2026-08-15T09:00:00.000Z'),
+    rng: seededRng(1),
+    sleep: async () => undefined,
+    ...over,
+  } as Parameters<typeof runPipeline>[0])
+
+describe('hat uçtan uca', () => {
+  it('bütün adımlar geçiyor ve manifest yazılıyor', async () => {
+    const r = await kos(
+      [
+        { id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null },
+        { id: 'b', verb: 'COMPOSE', capability: null, constraints: {}, needs: ['a'], gate: null },
+      ],
+      { verbs: { RESOLVE: basarili('RESOLVE', { x: 1 }), COMPOSE: basarili('COMPOSE', { y: 2 }) } }
+    )
+    expect(r.stoppedAt).toBeNull()
+    expect(r.errors).toHaveLength(0)
+    expect(r.manifestWrite.ok).toBe(true)
+    expect(readManifest(tmp.path, RUN)?.steps).toHaveLength(2)
+  })
+
+  it('önceki adımın ÇIKTISI sonrakine geçiyor', async () => {
+    let gorulen: unknown = null
+    const r = await kos(
+      [
+        { id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null },
+        { id: 'b', verb: 'COMPOSE', capability: null, constraints: {}, needs: ['a'], gate: null },
+      ],
+      {
+        verbs: {
+          RESOLVE: basarili('RESOLVE', { kaynak: 'a-çıktısı' }),
+          COMPOSE: sahte('COMPOSE', async (_c, i) => {
+            gorulen = (i as { inputs: Record<string, unknown> }).inputs['a']
+            return ok({ costs: [], data: null })
+          }),
+        },
+      }
+    )
+    expect(r.errors).toHaveLength(0)
+    expect(gorulen).toEqual({ kaynak: 'a-çıktısı' })
+  })
+
+  it('ZORUNLU adım düşünce hat DURUYOR', async () => {
+    const r = await kos(
+      [
+        { id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null },
+        { id: 'b', verb: 'COMPOSE', capability: null, constraints: {}, needs: ['a'], gate: null },
+        { id: 'c', verb: 'VALIDATE', capability: null, constraints: {}, needs: ['b'], gate: null },
+      ],
+      {
+        verbs: {
+          RESOLVE: basarili('RESOLVE', {}),
+          COMPOSE: dusen('COMPOSE'),
+          VALIDATE: basarili('VALIDATE', {}),
+        },
+      }
+    )
+    expect(r.stoppedAt).toBe('b')
+    expect(r.errors).toHaveLength(1)
+    // `c` HİÇ koşmadı: manifest iki adım taşıyor.
+    expect(r.manifest.steps).toHaveLength(2)
+  })
+
+  it('İSTEĞE BAĞLI adım düşünce hat DEVAM ediyor', async () => {
+    // Carousel'in arka plan görseli üretilemezse slayt düz zeminle render edilir ve bu
+    // MEŞRU bir çıktıdır — "bedava ve premium tipografide aynıdır" (§8.2).
+    const r = await kos(
+      [
+        { id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null },
+        {
+          id: 'b',
+          verb: 'COMPOSE',
+          capability: null,
+          constraints: { optional: true },
+          needs: ['a'],
+          gate: null,
+        },
+        { id: 'c', verb: 'VALIDATE', capability: null, constraints: {}, needs: ['b'], gate: null },
+      ],
+      {
+        verbs: {
+          RESOLVE: basarili('RESOLVE', {}),
+          COMPOSE: dusen('COMPOSE'),
+          VALIDATE: basarili('VALIDATE', { qa: 'ok' }),
+        },
+      }
+    )
+    expect(r.stoppedAt).toBeNull()
+    expect(r.errors).toHaveLength(1) // hata KAYBOLMUYOR, listeleniyor
+    expect(r.manifest.steps).toHaveLength(3)
+    expect(r.manifest.steps[1]?.status).toBe('failed')
+    expect(r.manifest.steps[2]?.status).toBe('ok')
+  })
+
+  it('İNSAN KAPISI hattı durduruyor — otomatik geçilmiyor', async () => {
+    // Kapıyı otomatik geçmek, "agent önerir insan uygular" (§5.4) yasasının tek
+    // mekanik karşılığını silmek olurdu.
+    const r = await kos(
+      [
+        { id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null },
+        {
+          id: 'onay',
+          verb: 'PROPOSE',
+          capability: null,
+          constraints: {},
+          needs: ['a'],
+          gate: 'insan-onayi',
+        },
+      ],
+      { verbs: { RESOLVE: basarili('RESOLVE', {}), PROPOSE: basarili('PROPOSE', {}) } }
+    )
+    expect(r.awaitingGate).toBe('insan-onayi')
+    expect(r.stoppedAt).toBe('onay')
+    // PROPOSE HİÇ koşmadı — kapı çalıştırmadan önce durdurdu.
+    expect(r.manifest.steps).toHaveLength(1)
+  })
+
+  it('manifest BAŞARISIZ çalıştırmada da yazılıyor', async () => {
+    // Yarıda kalan bir hattın nerede durduğu, başarılı bir hattınki kadar önemli —
+    // hatta daha önemli, çünkü tekrar denenecek olan odur.
+    const r = await kos(
+      [{ id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null }],
+      { verbs: { RESOLVE: dusen('RESOLVE') } }
+    )
+    expect(r.stoppedAt).toBe('a')
+    expect(r.manifestWrite.ok).toBe(true)
+    expect(readManifest(tmp.path, RUN)?.steps[0]?.status).toBe('failed')
+  })
+})
+
+describe('bütçe tavanı hattı KİLİTLİYOR (D-17)', () => {
+  const uretimHat = [
+    { id: 'a', verb: 'RESOLVE' as const, capability: null, constraints: {}, needs: [], gate: null },
+    {
+      id: 'uret',
+      verb: 'GENERATE' as const,
+      capability: 'image.generate',
+      constraints: { lane: 'premium', num_images: 1 },
+      needs: ['a'],
+      gate: null,
+    },
+  ]
+
+  it('tavanın ALTINDA koşuyor', async () => {
+    const r = await kos(uretimHat, {
+      verbs: {
+        RESOLVE: basarili('RESOLVE', {}),
+        GENERATE: basarili('GENERATE', { url: 'x' }, 25_000n),
+      },
+      candidatesFor: () => aday('p1'),
+      pricing: fiyat('p1', '0.025'),
+      caps: { perRun: usd(100_000n), perMonth: null },
+    })
+    expect(r.errors).toHaveLength(0)
+    expect(r.manifest.steps[1]?.actualCost?.micros).toBe(25_000n)
+  })
+
+  it('tavanı AŞAN çalıştırma BAŞLAMIYOR — çağrı hiç yapılmıyor', async () => {
+    let cagrildi = false
+    const r = await kos(uretimHat, {
+      verbs: {
+        RESOLVE: basarili('RESOLVE', {}),
+        GENERATE: sahte('GENERATE', async () => {
+          cagrildi = true
+          return ok({ costs: [], data: null })
+        }),
+      },
+      candidatesFor: () => aday('p1'),
+      pricing: fiyat('p1', '0.025'),
+      caps: { perRun: usd(10_000n), perMonth: null }, // $0.01 < $0.025
+    })
+    expect(r.stoppedAt).toBe('uret')
+    expect(r.errors[0]?.error.code).toBe('BUDGET_CAP_EXCEEDED')
+    // ASIL İDDİA: sağlayıcı hiç çağrılmadı. Çağrılıp sonra reddedilseydi para
+    // harcanmış olurdu ve tavan bir rapor olurdu, bir kapı değil.
+    expect(cagrildi).toBe(false)
+  })
+
+  it('gerekçe TÜRKÇE ve SAYILI', async () => {
+    const r = await kos(uretimHat, {
+      verbs: { RESOLVE: basarili('RESOLVE', {}), GENERATE: basarili('GENERATE', {}, 25_000n) },
+      candidatesFor: () => aday('p1'),
+      pricing: fiyat('p1', '0.025'),
+      caps: { perRun: usd(10_000n), perMonth: null },
+    })
+    const mesaj = String(r.errors[0]?.error.details?.['reason'] ?? '')
+    expect(mesaj).toContain('Çalıştırma bütçesi aşılıyor')
+    expect(mesaj).toContain('0.0250')
+    expect(mesaj).toContain('0.0100')
+  })
+
+  it('SAĞLAYICI YOKSA gerekçeler taşınıyor — sessiz atlama yok', async () => {
+    const r = await kos(uretimHat, {
+      verbs: { RESOLVE: basarili('RESOLVE', {}), GENERATE: basarili('GENERATE', {}, 0n) },
+      candidatesFor: () => [
+        {
+          providerId: 'p1',
+          title: 'p1',
+          lanes: ['free'] as const,
+          available: true,
+          unavailableReason: null,
+        },
+      ],
+      pricing: fiyat('p1', '0.025'),
+    })
+    expect(r.errors[0]?.error.code).toBe('NO_PROVIDER')
+    const gerekce = r.errors[0]?.error.details?.['rejected'] as string[]
+    expect(gerekce[0]).toContain('premium şeridinde değil')
+  })
+})

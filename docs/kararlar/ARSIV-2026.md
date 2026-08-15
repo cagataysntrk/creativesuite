@@ -683,3 +683,126 @@ turlarına düşer — orada zaten sürekli aranıyor (9.2 kural uyumu, 9.5 öl�
 **Reddedilen alternatif:** "temiz rapor gelene kadar tur" — LOOP§D'nin ilk hâli buydu ve
 sonsuz döngüydü; bir fazın kapanması agent'ın yorulmasına bağlı olamaz.
 **Geri alma maliyeti:** sıfır — tavan tek satır, gerekirse artırılır.
+
+## D-80 — V-01 kapandı: Remotion lisansı D-25'i teyit etti
+2026-08-15 · Birincil kaynak: `LICENSE.md` "a for-profit organization with **up to 3
+employees**" ve `remotion.dev/docs/license/pricing`. UPCYTECH 6 kişi → bedava lisansa
+uygun değil.
+Fiyat katmanı **koltuk değil**: pipeline'lar programatik ve toplu render ediyor
+(FAZ-5.7/5.8/5.9), bu tanım gereği *Remotion for Automators* — "$0.01 per render,
+**$100/mo minimum**". Yani hiç render etmesen de yılda **$1.200**.
+HyperFrames Apache 2.0 ve aynı motoru (headless Chrome + FFmpeg) kullanıyor; R-30
+korunuyor. Yıllık $1.200'lük yükümlülük, aynı yasayı koruyan bedava alternatif varken
+alınmaz. Yedek (Revideo, MIT) belgeli hâliyle duruyor. 🔴 kalktı.
+
+## D-81 — Keşif `just plan` altında değil, kendi komutunda
+2026-08-15 · FAZ-2.7'nin ✅'si `just plan discovery` diyordu. Uygulanamaz: `just plan`
+argümanını `registry/pipelines/<id>.pipeline.yaml` olarak çözüyor ve keşif bir pipeline
+DEĞİL — marka DNA'sının yeniden üretimi.
+**Karar:** `just discovery [merge|mirror]`. Kriter gerçeğe uyduruldu (D-76 deseni).
+**Neden ayrı komut:** keşfi pipeline listesine sokmak `just plan` çıktısının anlamını
+ikiye bölerdi — biri maliyet tahmini olan bir üretim planı, diğeri corpus farkı olan bir
+öneri listesi. Aynı kelime iki şeye işaret ederse ikisi de güvenilmez olur (§3.9 kanonik adlar
+mantığı).
+**Ayrıca:** aday listesi yokken çıktı "0 op" demiyor, **aday listesi YOK** diyor. Boş bir
+plan ile değişmemiş bir corpus aynı şey değildir; ikisini karıştırmak hiç koşmamış bir
+motoru çalışıyor sanmaktır (D-75'in aynı hatası).
+
+## D-82 — Kuruluş tarihi: sicil belgesi tek doğru (V-08 kapandı)
+2026-08-15 · Üç tarih çatışıyordu: ticaret sicili **3 Tem 2025** · LinkedIn **2022** ·
+upcymarket.com **"2021'den beri"**.
+**Karar:** sicil tarihi tek doğrudur. Gerekçe basit ve tartışılmaz: **yalnız o belgeli**.
+Diğer ikisi beyandır ve beyan, kayıtla çelişince kaybeder.
+**Sonuç iki iş doğuruyor** (ikisi de insan işi, FAZ-7 kanal adaptörlerinden ÖNCE):
+LinkedIn şirket sayfasındaki kuruluş yılı ve upcymarket.com'daki "2021'den beri"
+ifadesi düzeltilecek. Düzeltilmezse ilk prospect doğrulamasında sistem yalancı çıkar —
+ve bu, üretilen her içeriğin güvenilirliğini birlikte götürür.
+**Not:** "2021/2022" beyanları muhtemelen kurucunun çalışmaya başladığı tarihi
+anlatıyor; o iddia meşrudur ama **şirket kuruluşu** diye sunulamaz. Gerekirse
+"2021'den beri bu alanda çalışıyoruz, 2025'te şirketleştik" biçiminde ayrıştırılır.
+
+## D-83 — İlk keşif kayıtları DRAFT kalıyor, onay insanın
+2026-08-15 · FAZ-2.9'un ✅'si "her varlık tipinde en az bir `status: active` kayıt"
+diyordu. Yedi kayıt `propose()` üzerinden yazıldı ve **draft** indi.
+**Onları `active` yapmak agent'ın işi DEĞİL** (R-14, D-31, CLAUDE.md yasa 2): agent
+kendi önerisini onaylayabilseydi "agent önerir, insan uygular" bir konvansiyona dönerdi.
+Kullanıcının "tam yetki" talimatı geliştirme kararlarını kapsıyor; **şirketin ne olduğu
+beyanını kapsamıyor** — o beyan kullanıcının kendi sözü.
+**Karar:** adım `2.9` BLOKE, engel: insan onayı. `just onayla <yol…>` komutu yazıldı;
+kullanıcı yedi kaydı okuyup onaylayınca adım kapanır ve FAZ 2 kapanabilir.
+**Bu, "durmak yok" kuralının ihlali değildir** (LOOP§G): bloke adım işaretlenir, döngü
+sonraki bağımsız adıma geçer.
+
+## D-84 — `dima` ayrı marka ekseni; pazar adı ayrı bir soru (V-06)
+2026-08-15 · V-06 iki soruyu birbirine karıştırıyordu: **veri modeli** ("dima ayrı bir
+marka ekseni mi") ve **pazar sunumu** ("dima by Upcytech onaylı-marka mı, bağımsız mı").
+İkisi bağımsızdır ve ayrılınca karar kolaylaşıyor.
+**Veri modeli kararı (benim):** `dima` ayrı `brand_id`. Gerekçe asimetrik risk —
+- Ayrı eksen açıp sonra "aslında ürün hattıymış" demek: `brand/brd_dima/` silinir,
+  kayıtlar `brand_id` değiştirir. Ucuz.
+- Eksen AÇMAYIP sonra ihtiyaç duymak: geriye dönük `brand_id` atanamaz, çünkü hangi
+  kaydın hangi markaya ait olduğu artık yazılı değil. D-39'un tam olarak düzelttiği
+  delik; retrofit imkânsız (R-11'in aynı mantığı).
+Token kalıtımı bu kararı ucuzlatıyor: dima Upcytech'ten devralıyor ve bugün yalnız
+**iki token eziyor** — ayrı eksen olmak, ayrı tasarım sistemi olmak değil.
+**Pazar sunumu kararı (kullanıcının):** onaylı marka mı bağımsız mı — bu bir konumlandırma
+beyanıdır, D-83'ün ayrımına göre kullanıcıya ait. Hangisi seçilirse seçilsin veri modeli
+aynı kalır; değişen şey yalnız `corpus/positioning` kaydının metnidir.
+**Geri alma maliyeti:** düşük (yukarıdaki ilk madde).
+
+## D-85 — DURUM tamamlananlar tablosu yalnız AKTİF fazı gösterir
+2026-08-15 · Tablo her adımda büyüyordu ve `DURUM.md`'nin 120 satır tavanını (R-63)
+yedi. Tavanı yükseltmek yanlış cevap: `DURUM.md` her turda okunan dosyadır ve uzadıkça
+compact sonrası ilk okumanın maliyeti artar.
+**Karar:** tablo yalnız aktif fazın tiklerini taşır; önceki fazlar bir satırlık sayı ile
+özetlenir. Kaynak yine faz dosyaları (D-46 değişmedi) — tablo onların kopyası değil,
+**bugünün özeti**. Tam geçmiş `git log`da ve faz dosyalarında.
+**Aynı desen:** KARARLAR.md 600 satırda arşive devrediyor (D-72). Büyüyen her dosyanın
+yapısal bir boşaltma yolu olmak zorunda; yoksa tavan bir gün "kaldıralım" diye
+gevşetilir ve o gün tavanın anlamı biter.
+
+## D-86 — Snap Chromium reddedildi, Playwright'ın kendi tarayıcısı
+2026-08-15 · Sistemde `/snap/bin/chromium` hazır duruyordu. Ölçüldü ve **reddedildi**:
+- **Confinement:** `/tmp` altına yazamıyor (`No such file or directory`), yalnız `$HOME`.
+  Playwright'ın `chromium-1194`'ü aynı komutla aynı yola 33.446 baytlık PNG yazdı.
+- **Sürüm sabitlenemiyor:** snap kendi kendine güncelleniyor. Golden metrik testinin
+  (R-31) tek varlık sebebi glif metriklerinin sabit kalması; kendini güncelleyen bir
+  tarayıcı hiçbir commit olmadan metriği değiştirir — build sebepsiz kırmızıya döner
+  ya da daha kötüsü metrik güncellenir ve o gün gerçek bir regresyon gizlenir.
+`playwright@1.56.1` sabit sürümle eklenecek; `browser.ts` tarayıcıyı sistemden ARAMAZ.
+Yan kazanç: Playwright `ffmpeg-1011`'i de indiriyor (FAZ 5 için, sürümü de sabit).
+
+## D-87 — Darboğaz desenleri BİÇİM değil ERİŞİM arar
+2026-08-15 · FAZ 2 birinci doğrulama turu üç darboğazı trivial biçim değişiklikleriyle
+atlattı: satır bölme, koşul sırası, dize birleştirme, takma adlı import. Kapılar yeşil
+raporluyordu.
+**Düzeltme:**
+- `retrieval-yuklemi`: desen yüklem biçimini değil `record` tablosuna ERİŞİMİ arıyor
+  (`FROM record`). İzinli dosya sayısı üç ve listede görünüyor.
+- `corpus-yazici`: desen çağrı parantezi değil TANIMLAYICI arıyor —
+  `import { writeFileSync as yaz }` satırı parantez taşımıyordu ve geçiyordu.
+**Dürüst sınır (D-77'nin aynı notu):** `'FROM rec' + 'ord'` hâlâ kaçabilir. Bu kapılar
+kopyala-yapıştıra karşı **tel tuzaktır, kum havuzu değil**. Asıl güvence dosya sayısının
+küçük ve listede görünür olması. Zorlanmayan bir kuralı zorlanıyormuş gibi göstermemek
+için bu sınır `chokepoints.json`'ın `neden` alanına da yazıldı (R-70).
+**Yapısal iyi haber:** `git-cagiran`'ı atlatma denemesi `alt-surec` tarafından yakalandı —
+git'i çağırmak için `node:child_process` import etmek gerekiyor ve onu yalnız
+`proc/spawn.ts` yapabiliyor. Katmanlı savunmanın işe yaradığı yer.
+
+## D-88 — `lexicon` fail-open kapatıldı, sayısal iddia tanımı genişledi
+2026-08-15 · İki kör nokta, ikisi de doğrulama agent'ından:
+1. **Fail-open:** `era_of_origin` alanı olmayan kayıt `'*'`e düşüyordu; `'*'`
+   "dönemden bağımsız olgu" demek ve bütün aktarım denetimini atlatıyordu. Kapı
+   argümansız bir kayıt için "argümanları tam" diyordu. **Eksik bilgi güvenli tarafa
+   değil HATA tarafına düşer** — artık `missing_era_of_origin`.
+2. **Tamsayı iddiaları:** desen yalnız `%N` görüyordu. "1.247 İlan", "892 Satıcı",
+   "300 müşteri kazandırdık" kaynaksız geçiyordu — ve bunlar `.claude/rules/`
+   içinde BİREBİR yasak örnek olarak sayılan ifadeler. Desen binlik ayraçlı ve
+   üç haneli tamsayıları da kapsıyor; 1900-2100 arası çıplak dört hane (yıl) hariç.
+
+## D-89 — `tokens` kapısı markaları TARAR, listelemez
+2026-08-15 · Kapı sabit bir marka dizisine bakıyordu. Doğrulama agent'ı üçüncü bir
+marka dizini açıp kademe ihlalli token yazdı: hiçbir kapı görmedi.
+**Listeye eklemeyi hatırlamak bir zorlama değildir** — ve fazın başlığı çok markalılıkken
+üçüncü markanın denetimsiz kalması, kapının korumadığı şeyin ta kendisi.
+`brand/` dizini taranıyor; kalıtım `brand/<id>/parent` tek satırından okunuyor.

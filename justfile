@@ -15,6 +15,10 @@ default:
 # ── günlük döngü ─────────────────────────────────────────────────────────────
 
 # Kuru çalıştırma planı: DAG + maliyet aralığı. HİÇBİR ŞEY HARCAMAZ (R-47)
+# Hattı UÇTAN UCA koşar — para HARCAYABİLİR (plan harcamaz)
+uret *args:
+    @./node_modules/.bin/tsc -b && node scripts/uret.mjs {{args}}
+
 plan *args:
     @./node_modules/.bin/tsc -b && node scripts/plan.mjs {{args}}
 

@@ -35,7 +35,16 @@ export {
   type Slide,
 } from './layout/enum.js'
 
-export { deltaE2000, deltaEHex, parseHex, rgbToLab, type Lab, type Rgb } from './qa/deltae.js'
+export {
+  deltaE2000,
+  deltaEHex,
+  parseHex,
+  parseOklch,
+  parseColor,
+  rgbToLab,
+  type Lab,
+  type Rgb,
+} from './qa/deltae.js'
 export {
   formatReading,
   formatReport,
@@ -63,6 +72,7 @@ export {
   lintDocument,
   formatLexicon,
   hexFromTokens,
+  colorsFromTokens,
   MIRAS_YER_TUTUCULAR,
   type LexiconRules,
   type LexiconViolation,

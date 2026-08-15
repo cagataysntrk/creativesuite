@@ -37,7 +37,8 @@ steps:
 
   - id: render
     verb: RENDER
-    capability: image.render
+    # Yetenek YOK: render YÖNLENDİRİLMEZ. R-30 tek motor diyor ve bir motoru "seçmek",
+    # ikinci bir motorun var olabileceğini varsayar (D-122).
     needs: [kompozit]
     constraints:
       width: 1080

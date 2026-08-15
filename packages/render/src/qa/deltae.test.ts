@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { deltaE2000, deltaEHex, parseHex, rgbToLab, type Lab } from './deltae.js'
+import {
+  deltaE2000,
+  deltaEHex,
+  parseColor,
+  parseHex,
+  parseOklch,
+  rgbToLab,
+  type Lab,
+} from './deltae.js'
 
 const lab = (L: number, a: number, b: number): Lab => ({ L, a, b })
 
@@ -109,5 +117,55 @@ describe('hex ayrıştırma', () => {
 
   it('aynı hex ΔE 0', () => {
     expect(deltaEHex('#0091FF', '#0091ff')).toBe(0)
+  })
+})
+
+describe('OKLCH — marka rampalarının biçimi (§12.1)', () => {
+  it('uç noktalar: beyaz ve siyah', () => {
+    expect(parseOklch('oklch(1 0 0)')).toEqual({ r: 255, g: 255, b: 255 })
+    expect(parseOklch('oklch(0 0 0)')).toEqual({ r: 0, g: 0, b: 0 })
+  })
+
+  it('sRGB kırmızısının OKLCH karşılığı TAM dönüyor', () => {
+    // Yayınlanmış referans: `#FF0000` = oklch(0.628 0.2577 29.23). Kendi
+    // matematiğimize kendi beklentimizi yazmak yerine bilinen bir eşleşme.
+    expect(parseOklch('oklch(0.628 0.2577 29.23)')).toEqual({ r: 255, g: 0, b: 0 })
+  })
+
+  it('yüzdeli açıklık kabul ediliyor', () => {
+    expect(parseOklch('oklch(100% 0 0)')).toEqual({ r: 255, g: 255, b: 255 })
+  })
+
+  it('gam DIŞI değer KIRPILIYOR — negatif ışık yok', () => {
+    const r = parseOklch('oklch(0.5 0.9 140)')
+    expect(r).not.toBeNull()
+    if (r === null) return
+    for (const k of [r.r, r.g, r.b]) {
+      expect(k).toBeGreaterThanOrEqual(0)
+      expect(k).toBeLessThanOrEqual(255)
+    }
+  })
+
+  it('geçersiz OKLCH `null` — sessizce siyaha düşmüyor', () => {
+    for (const k of ['oklch()', 'oklch(a b c)', 'rgb(1,2,3)', '']) {
+      expect(parseOklch(k), k).toBeNull()
+    }
+  })
+
+  it('`parseColor` hem hex hem OKLCH okuyor', () => {
+    expect(parseColor('#FF0000')).toEqual({ r: 255, g: 0, b: 0 })
+    expect(parseColor('oklch(0.628 0.2577 29.23)')).toEqual({ r: 255, g: 0, b: 0 })
+    expect(parseColor('mavi')).toBeNull()
+  })
+
+  it('aynı rengin iki gösterimi arasında ΔE ~0', () => {
+    // Bu, dönüşümün gerçekten doğru olduğunun en sıkı testi: iki farklı yoldan
+    // gelen aynı renk, algısal olarak AYNI çıkmalı.
+    const a = parseColor('#FF0000')
+    const b = parseColor('oklch(0.628 0.2577 29.23)')
+    expect(a).not.toBeNull()
+    expect(b).not.toBeNull()
+    if (a === null || b === null) return
+    expect(deltaE2000(rgbToLab(a), rgbToLab(b))).toBeLessThan(0.5)
   })
 })

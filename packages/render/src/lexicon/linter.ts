@@ -212,6 +212,23 @@ export const hexFromTokens = (tokenCss: string): readonly string[] => [
   ...new Set((tokenCss.match(HEX) ?? []).map(asciiLower)),
 ]
 
+/** Aynı CSS'ten OKLCH renklerini çıkarır. Marka rampaları OKLCH biçiminde (§12.1). */
+const OKLCH_TARAMA = /oklch\([^)]*\)/gi
+
+/**
+ * Paletin TAMAMI: hex + OKLCH.
+ *
+ * `hexFromTokens` tek başına bu projede hep boş dönüyordu — token'lar OKLCH ve QA
+ * markanın kendi paletini göremiyordu. Kapı "ölçülemedi" deyip yeşil kalıyordu:
+ * doğru davranış (D-111), yanlış sebep.
+ */
+export const colorsFromTokens = (tokenCss: string): readonly string[] => [
+  ...new Set([
+    ...(tokenCss.match(HEX) ?? []).map(asciiLower),
+    ...(tokenCss.match(OKLCH_TARAMA) ?? []),
+  ]),
+]
+
 export const formatLexicon = (v: readonly LexiconViolation[]): string => {
   if (v.length === 0) return '  ✓ lexicon temiz'
   const satir = (x: LexiconViolation): string => {

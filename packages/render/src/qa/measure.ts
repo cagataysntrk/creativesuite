@@ -13,7 +13,7 @@
 // yakalamak — ama R-20 zaten onu yasaklıyor ve `image.generate` metinsiz üretiyor.
 
 import type { Block, DocumentModel } from '@suite/kernel'
-import { deltaE2000, parseHex, rgbToLab, type Lab, type Rgb } from './deltae.js'
+import { deltaE2000, parseColor, rgbToLab, type Lab, type Rgb } from './deltae.js'
 import { reading, report, type QaReport, type ToleranceReading } from './tolerance.js'
 
 export interface BrandPalette {
@@ -65,7 +65,9 @@ export const nearestDeltaE = (piksel: Rgb, palet: readonly Lab[]): number | null
 
 export const paletteToLab = (p: BrandPalette): readonly Lab[] =>
   p.colors
-    .map(parseHex)
+    // Hex VE OKLCH: marka token'ları OKLCH (§12.1) ve yalnız hex okumak, QA'nın
+    // markanın kendi paletini görememesi demekti (D-123).
+    .map(parseColor)
     .filter((r): r is Rgb => r !== null)
     .map(rgbToLab)
 

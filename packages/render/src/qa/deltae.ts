@@ -147,3 +147,51 @@ export const deltaEHex = (a: string, b: string): number | null => {
   if (ra === null || rb === null) return null
   return deltaE2000(rgbToLab(ra), rgbToLab(rb))
 }
+
+// ── OKLCH ────────────────────────────────────────────────────────────────────
+//
+// **Marka token'ları OKLCH** (§12.1): ham rampalar `oklch(0.21 0.010 250)` biçiminde.
+// Bu destek olmadan marka QA'sı markanın KENDİ paletini göremiyordu — ΔE ve palet payı
+// okumaları rapordan sessizce düşüyordu ve kapı "ölçülemedi" diyerek yeşil kalıyordu.
+// Doğru davranış (D-111) ama yanlış sebep: ölçülemeyen şey aslında ölçülebilirdi.
+//
+// Zincir: OKLCH → OKLab → doğrusal sRGB → sRGB → Lab. Katsayılar Björn Ottosson'ın
+// yayınlanmış OKLab tanımından; sabit ve kendi başına test edilebilir.
+
+const OKLCH = /oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)\s*\)/i
+
+/** `oklch(L C H)` → sRGB 0-255. Gam dışı değerler KIRPILIR (ekranda da öyle görünür). */
+export const parseOklch = (metin: string): Rgb | null => {
+  const m = OKLCH.exec(metin)
+  if (m === null) return null
+  const ham = m[1] as string
+  const L = ham.endsWith('%') ? Number(ham.slice(0, -1)) / 100 : Number(ham)
+  const C = Number(m[2])
+  const H = Number(m[3])
+  if (!Number.isFinite(L) || !Number.isFinite(C) || !Number.isFinite(H)) return null
+
+  const a = C * Math.cos((H * Math.PI) / 180)
+  const b = C * Math.sin((H * Math.PI) / 180)
+
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b
+  const s_ = L - 0.0894841775 * a - 1.291485548 * b
+
+  const l3 = l_ * l_ * l_
+  const m3 = m_ * m_ * m_
+  const s3 = s_ * s_ * s_
+
+  const rl = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3
+  const gl = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3
+  const bl = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3
+
+  /** Doğrusal → sRGB gama. Kırpma BURADA: negatif ışık diye bir şey yok. */
+  const kodla = (v: number): number => {
+    const c = v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(Math.max(v, 0), 1 / 2.4) - 0.055
+    return Math.round(Math.min(255, Math.max(0, c * 255)))
+  }
+  return { r: kodla(rl), g: kodla(gl), b: kodla(bl) }
+}
+
+/** Hex ya da OKLCH — hangisi geçerliyse. Marka paleti ikisini de içerebilir. */
+export const parseColor = (metin: string): Rgb | null => parseHex(metin) ?? parseOklch(metin)

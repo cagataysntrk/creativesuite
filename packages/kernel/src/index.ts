@@ -72,6 +72,7 @@ export {
   type ProviderCandidate,
   type HumanDecision,
   type StepRecord,
+  type StepStatus,
   type ContextManifestEntry,
   type RunManifest,
   type ManifestDefect,
