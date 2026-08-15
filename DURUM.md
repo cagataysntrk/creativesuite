@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.7
+siradaki_adim: 1.8
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.5+0.C.4: 29 test; turkish-case kapisi 3 ihlalde de kirmizi ve cassette.ts'te ortulu ASCII case kullanimini buldu"
+son_kanit: "1.7: ErrorKind ekle -> TS2741, politika sil -> TS2741, tutarsiz politika -> test kirmizi; throw darbogazi bagli"
 ```
 
 ## Neredeyiz
@@ -63,6 +63,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.10** · test altyapısı, cassette, fixture | 2026-08-15 |
 | 0.C.4 · turkish-case kapısı | 2026-08-15 |
 | **1.5** · Türkçe metin primitifleri | 2026-08-15 |
+| **1.7** · hata taksonomisi + Result disiplini | 2026-08-15 |
 
 ## Sıradaki adım
 

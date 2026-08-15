@@ -149,10 +149,10 @@
     },
     {
       "id": "hata-taksonomisi",
-      "ad": "Hata taksonomisi (`throw`)",
-      "neden": "`throw` yalnız burada; her yerde `Result` (§8.6). İkinci fırlatma noktası, `costIncurred` taşımayan bir hata demektir — para harcanmış ama defterde yok.",
-      "izinli": ["packages/kernel/src/errors/index.ts"],
-      "desen": null,
+      "ad": "`throw` eden yer",
+      "neden": "Hata bir DEĞERDİR (`Result`), kontrol akışı sıçraması değil (§8.6). Bir istisna çağıranın tip imzasında görünmez; gözetimsiz bir çalıştırmada yakalanmamış istisna, maliyeti defterine yazılmamış yarım bir çalıştırma bırakır. Tek meşru fırlatma: değişmez ihlali (`panic`), o da tek dosyada.",
+      "izinli": ["packages/kernel/src/errors/panic.ts"],
+      "desen": "\\bthrow\\s",
       "faz": "FAZ-1.7"
     },
     {

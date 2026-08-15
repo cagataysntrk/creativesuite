@@ -89,13 +89,16 @@ ağ kablosu çekiliyken de çalışıyor
    bu yüzden ignore edilmiyor (kapı zaten doğruluyor)
 💾 `feat(corpus): tek yazma darboğazı ve FTS5 indeksi` · `Refs: FAZ-1.6 · §3.5`
 
-## 1.7 — Hata taksonomisi ve Result disiplini    [ ]
+## 1.7 — Hata taksonomisi ve Result disiplini    [x] 2026-08-15
 
 📖 §8.6 · R-41
 🔗 1.1b
 🛠 `AppError` kapalı birleşimi; her hata `costIncurred` taşır (3 görselden sonra gelen
    429 yine de para harcadı). `Error.cause` zinciri korunur. `classify()` toplam fonksiyon.
-   I/O yapan her dışa açık fonksiyon `Result` döner; `throw` yalnız `kernel/src/errors/`.
+   I/O yapan her dışa açık fonksiyon `Result` döner; `throw` yalnız `errors/panic.ts` —
+   ve yalnız **değişmez ihlalinde**, ağ/dosya/kullanıcı hatasında asla.
+   Toplamlık `switch`+`assertNever` ile değil, tam `Record<ErrorKind, ErrorPolicy>` ile:
+   `default` dalı yazılmayı unutulabilir, eksik tablo anahtarını derleyici doğrudan görür.
 ✅ `just test errors` yeşil · `classify()` her `ErrorKind` için tanımlı (exhaustive)
 🧪 `ErrorKind`'a yeni değer ekle, `classify`'ı güncelleme → `tsc` kırmızı
 💾 `feat(kernel): hata taksonomisi ve Result sözleşmesi` · `Refs: FAZ-1.7 · §8.6`

@@ -12,9 +12,16 @@ set -uo pipefail
 # Bu, `'i'.toUpperCase()` → `I` hatasının (R-21) kabuk seviyesindeki kardeşidir.
 export LC_ALL=C
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
-faz="$(sed -n 's/^aktif_faz: *//p' DURUM.md | head -1)"
 adim="$(sed -n 's/^siradaki_adim: *//p' DURUM.md | head -1)"
-echo "════ TUR · FAZ $faz · adım $adim ════"
+
+# Faz numarası ADIMDAN türetilir, `aktif_faz` alanından DEĞİL.
+# Gerekçe: D-53'ten beri sıradaki adım başka bir fazdan gelebiliyor (0.C.x kapıları
+# FAZ 1 kodunu bekliyor). 2026-08-15'te `aktif_faz: 0` iken `siradaki_adim: 1.7` idi
+# ve `just tur` FAZ-0.md'yi açıp adımı BULAMADI — bağlamı sıfırlanmış bir agent
+# "böyle bir adım yok" görüp yanlış işe başlardı. Adım numarası fazı zaten taşıyor.
+faz="${adim%%.*}"
+etiket="$(sed -n 's/^aktif_faz: *//p' DURUM.md | head -1)"
+echo "════ TUR · adım $adim (FAZ $faz) · açık faz: $etiket ════"
 echo
 echo "── bloke adımlar ──"
 sed -n '/^bloke:/,/^deneme_sayaci:/p' DURUM.md | sed '$d' | sed 's/^/  /'
