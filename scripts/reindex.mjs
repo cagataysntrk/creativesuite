@@ -21,8 +21,17 @@ for (const ek of ['', '-wal', '-shm']) {
 }
 
 const t0 = process.hrtime.bigint()
-const rapor = reindexToPath(DB, CORPUS)
+const sonuc = reindexToPath(DB, CORPUS)
 const ms = Number(process.hrtime.bigint() - t0) / 1e6
+
+// `corpus/` yoksa bu bir BAŞARI değildir. Sessizce "0 kayıt" demek, indekslenmemiş
+// bir corpus'u indekslenmiş sanmaktır — ve arama boş dönünce sebebi aranmaz (D-75).
+if (!sonuc.ok) {
+  console.log(`✗ corpus kökü yok: ${sonuc.error.path}`)
+  console.log('  indeksleme YAPILMADI. Corpus FAZ-2.9 adımında doğuyor.')
+  process.exit(1)
+}
+const rapor = sonuc.report
 
 console.log(`  ${rapor.indexed} kayıt indekslendi · ${ms.toFixed(0)} ms`)
 if (rapor.skipped.length > 0) {

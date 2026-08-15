@@ -30,4 +30,11 @@ export {
   type WriteResult,
 } from './write.js'
 
-export { reindex, reindexToPath, type ReindexReport } from './reindex.js'
+export {
+  reindex,
+  reindexChecked,
+  reindexToPath,
+  type ReindexReport,
+  type ReindexOutcome,
+  type ReindexFailure,
+} from './reindex.js'

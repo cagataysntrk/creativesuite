@@ -187,15 +187,24 @@ export const formatPlan = (r: PlanReport): string => {
   })
 
   satirlar.push('')
-  satirlar.push(`  maliyet aralığı: ${usdStr(r.totalLow)} – ${usdStr(r.totalHigh)}`)
-  satirlar.push(`  ücretli adım: ${r.meteredSteps} · insan kapısı: ${r.gates.length}`)
   if (r.unpricedSteps.length > 0) {
-    // Tahminin EKSİK olduğu açıkça yazılır. "0.00" göstermek, sıfır maliyet iddiasıdır.
+    // **Manşette SAYI YOK.** İlk sürüm "maliyet aralığı: $0.0000 – $0.0000" yazıp altına
+    // uyarı koyuyordu; başlıktaki sayı tam olarak yasaklanan iddiaydı ve göz önce onu
+    // okur. Fiyatlanamayan bir tahmin bir sayı değil, bir BOŞLUKTUR (D-74).
     satirlar.push(
-      `  ⚠ ${r.unpricedSteps.length} ücretli adımın sağlayıcısı henüz seçilmedi ` +
-        `(${r.unpricedSteps.join(', ')}) — aralık EKSİKTİR, sıfır değil.`
+      `  maliyet aralığı: FİYATLANAMADI — ${r.unpricedSteps.length} ücretli adımın ` +
+        `sağlayıcısı seçilmedi (${r.unpricedSteps.join(', ')})`
     )
+    const bilinen = r.meteredSteps - r.unpricedSteps.length
+    if (bilinen > 0) {
+      satirlar.push(
+        `  fiyatlanan ${bilinen} adım: ${usdStr(r.totalLow)} – ${usdStr(r.totalHigh)} (ALT SINIR)`
+      )
+    }
+  } else {
+    satirlar.push(`  maliyet aralığı: ${usdStr(r.totalLow)} – ${usdStr(r.totalHigh)}`)
   }
+  satirlar.push(`  ücretli adım: ${r.meteredSteps} · insan kapısı: ${r.gates.length}`)
   satirlar.push('')
   satirlar.push('  Bu plan hiçbir şey harcamadı: sıfır ağ, sıfır yazma (R-47).')
   return satirlar.join('\n')

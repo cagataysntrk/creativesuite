@@ -460,3 +460,35 @@ için aktif defterde yeni bir `D-nn` yazılır ve eskisi `**Durum:** reddedildi`
 **`citations` kapısı iki dosyayı da çözüyor** ve **çift kaydı reddediyor**: aynı `D-nn`
 ikisinde birden bulunursa hangisinin geçerli olduğu belirsizleşir ve arşivlenmiş bir
 karar aktif sanılabilir. Reddedilme taraması da her iki dosyayı kapsıyor.
+
+## D-73 — `unsealAttributes` dört belgede vardı, kodda yoktu
+2026-08-15 · `packages/contracts/src/envelope.ts`, `docs/ANAYASA.md`, `.claude/rules/kernel.md`
+ve `docs/fazlar/FAZ-3.md` `packages/registry/src/attributes.ts#unsealAttributes`'ı
+"`attributes`ı açmanın TEK yasal yolu" diye gösteriyordu. **Ne dosya vardı ne darboğaz**
+(`grep attributes chokepoints.json` → boş). Yani `OpaqueAttributes` markası bir engel
+koyuyordu ama meşru geçiş kapısı hiç yapılmamıştı.
+**Karar:** dosya yazıldı ve `attributes-acici` darboğazı eklendi. Açılan attributes
+`Object.freeze` ile donduruluyor: okunur, üzerine yazılmaz — yazma tek noktadan
+(`corpus/write.ts`) geçer ve oradan geçmeyen değişiklik onay kuyruğunu atlar (§5.4).
+**Desen daraltıldı:** ilk yazdığım `as unknown as Record<string, unknown>` masum şema
+cast'lerini de yakalıyordu. Aranan şey `attributes`ın markasını sıyırmak; desen ona özgü.
+Meşru bir kullanımı yasaklamak, kapıyı gürültüyle kapatılan bir kapı yapar.
+
+## D-74 — `just plan` manşetinde sayı iddia etmiyor
+2026-08-15 · FAZ-1.13'ün metni "sağlayıcısı seçilmemiş metered adım için `$0.00` YAZILMAZ"
+diyordu; çıktı ise başlıkta `maliyet aralığı: $0.0000 – $0.0000` yazıp uyarıyı ALTINA
+koyuyordu. Başlıktaki sayı tam olarak yasaklanan iddiaydı ve göz önce onu okur.
+**Karar:** fiyatlanamayan bir tahmin bir sayı değil, bir BOŞLUKTUR. Manşet artık
+`FİYATLANAMADI — N ücretli adımın sağlayıcısı seçilmedi` diyor; fiyatlanan kısım varsa
+ayrı satırda ve **ALT SINIR** etiketiyle. Manşetin `$0.00` taşımadığını doğrulayan test
+eklendi — kural artık metinde değil, testte.
+
+## D-75 — `just reindex` corpus yokken sessizce başarılı dönüyordu
+2026-08-15 · `corpus/` hiç yokken `just reindex` "0 kayıt indekslendi" deyip **EXIT=0**
+dönüyordu. `walk()` içindeki `catch { return out }` okuma hatasını kökte de yutuyordu.
+FAZ-1.6'nın kendi ilkesi "sessiz atlama, aranamayan kayıt demektir" — kök dizin
+seviyesinde tam olarak bu oluyordu.
+**Karar:** `reindexChecked()` kök dizinin varlığını denetliyor ve yoksa `Result` döndürüyor;
+`scripts/reindex.mjs` EXIT=1 ile açık mesaj basıyor. **Alt dizinlerde yutmak meşru kalıyor**
+(izin sorunu tek bir dosyayı atlar ve rapor edilir), kökte değil — kök yoksa HİÇBİR şey
+indekslenmez ve arama boş dönünce sebebi aranmaz.

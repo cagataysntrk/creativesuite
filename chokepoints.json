@@ -195,6 +195,14 @@
       "izinli": ["packages/kernel/src/paths.ts"],
       "desen": "new\\s+URL\\s*\\(\\s*import\\s*\\.\\s*meta\\s*\\.\\s*url\\s*\\)\\s*\\.\\s*pathname",
       "faz": "FAZ-1.7"
+    },
+    {
+      "id": "attributes-acici",
+      "ad": "`attributes` açıcı",
+      "neden": "`OpaqueAttributes` markası kernel'in `record.attributes`a dokunmasını derleme hatası yapar (§3.2, R-01). Veriye bir yerde erişilmek zorunda; o yer TEK olmalı. İkinci bir açıcı, `OpaqueAttributes` markasını anlamsızlaştırır — marka bir sözleşme değil, atlatılması hatırlanması gereken bir engel hâline gelir. Ring 1'de çünkü kernel SABİTTİR ve bugünkü kayıt tipine kaynak olamaz.",
+      "izinli": ["packages/registry/src/attributes.ts"],
+      "desen": "\\.attributes\\s+as\\s+unknown|attributes\\s*\\)\\s*as\\s+unknown",
+      "faz": "FAZ-1.4"
     }
   ]
 }

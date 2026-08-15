@@ -3,6 +3,8 @@ import type { PackageIdentity } from '@suite/contracts'
 
 export const IDENTITY: PackageIdentity = { name: '@suite/registry', ring: 'registry' }
 
+export { unsealAttributes, attribute, type UnsealedAttributes } from './attributes.js'
+
 export {
   parsePipeline,
   loadPipeline,

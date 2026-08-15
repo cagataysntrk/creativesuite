@@ -96,11 +96,23 @@ describe('kuru çalıştırma planı (§8.3 · R-47)', () => {
   })
 
   it('sağlayıcısı seçilmemiş metered adım AÇIKÇA işaretlenir', () => {
-    // Sıfır maliyet göstermek, sıfır maliyet İDDİASIDIR. Eksik olduğu yazılmalı.
     const r = planla(coz())
     if (!r.ok) return
     expect(r.report.unpricedSteps).toEqual(['b'])
-    expect(formatPlan(r.report)).toContain('aralık EKSİKTİR, sıfır değil')
+    expect(formatPlan(r.report)).toContain('FİYATLANAMADI')
+  })
+
+  it('MANŞETTE $0.00 YAZMAZ — sıfır göstermek sıfır-maliyet iddiasıdır', () => {
+    // Doğrulama agent'ının bulgusu: uyarı altta olsa da başlıktaki sayı yasaklanan
+    // iddianın ta kendisiydi ve göz önce onu okur (D-74).
+    const r = planla(coz())
+    if (!r.ok) return
+    const manset = formatPlan(r.report)
+      .split('\n')
+      .find((s) => s.includes('maliyet aralığı'))
+    expect(manset).toBeDefined()
+    expect(manset).not.toContain('$0.0000')
+    expect(manset).not.toMatch(/\$0\.00/)
   })
 
   it('aynı plan iki kez çağrılınca AYNI çıktıyı verir — saat ve rng sabit', () => {

@@ -6,7 +6,7 @@
 // Bu dosya HİÇBİR ŞEY YAZMAZ: yalnız okur ve indekse besler. Corpus'a yazan tek yer
 // `write.ts`tir (§3.8) ve kapı bunu `packages/corpus/src/**` kapsamında zorlar.
 
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { migrate, openDb, type Db } from '@suite/kernel'
 import { parseFrontmatter } from './frontmatter.js'
@@ -18,6 +18,13 @@ export interface ReindexReport {
   readonly skipped: readonly { readonly path: string; readonly reason: string }[]
 }
 
+/**
+ * ⚠ Okuma hatası KÖK dizinde yutulmaz. İlk sürüm `catch { return out }` ile her hatayı
+ * sessizce yutuyordu: `corpus/` hiç yokken `just reindex` "0 kayıt indekslendi" deyip
+ * EXIT=0 dönüyordu — adımın kendi ilkesi "sessiz atlama, aranamayan kayıt demektir"
+ * olduğu hâlde (D-75). Alt dizinlerde yutmak meşru (izin sorunu bir dosyayı atlar),
+ * kökte değil (kök yoksa HİÇBİR şey indekslenmez ve bunu bilmek gerekir).
+ */
 const walk = (dir: string): string[] => {
   const out: string[] = []
   let entries: string[]
@@ -36,6 +43,20 @@ const walk = (dir: string): string[] => {
 
 const str = (v: unknown, fallback = ''): string => (typeof v === 'string' ? v : fallback)
 const nul = (v: unknown): string | null => (typeof v === 'string' ? v : null)
+
+export type ReindexFailure = { readonly kind: 'corpus_root_missing'; readonly path: string }
+
+export type ReindexOutcome =
+  | { readonly ok: true; readonly report: ReindexReport }
+  | { readonly ok: false; readonly error: ReindexFailure }
+
+/** Kök dizin var mı — yoksa indeksleme YAPILMAZ ve bu bir SONUÇTUR, sessizlik değil. */
+export const reindexChecked = (db: Db, corpusRoot: string): ReindexOutcome => {
+  if (!existsSync(corpusRoot)) {
+    return { ok: false, error: { kind: 'corpus_root_missing', path: corpusRoot } }
+  }
+  return { ok: true, report: reindex(db, corpusRoot) }
+}
 
 export const reindex = (db: Db, corpusRoot: string): ReindexReport => {
   migrate(db, INDEX_MIGRATIONS)
@@ -76,10 +97,10 @@ export const reindex = (db: Db, corpusRoot: string): ReindexReport => {
 }
 
 /** `just reindex` girişi: veritabanını açar, kurar, raporlar. */
-export const reindexToPath = (dbPath: string, corpusRoot: string): ReindexReport => {
+export const reindexToPath = (dbPath: string, corpusRoot: string): ReindexOutcome => {
   const db = openDb({ path: dbPath })
   try {
-    return reindex(db, corpusRoot)
+    return reindexChecked(db, corpusRoot)
   } finally {
     db.close()
   }
