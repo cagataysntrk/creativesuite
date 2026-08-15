@@ -148,6 +148,8 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 🛠 Üç katman: `OpaqueAttributes` markası (derleme hatası) · ESLint `no-restricted-syntax` ·
    grep + **Proxy tuzağı** (`attributes` fırlatan kayıt dokuz fiilden geçirilir).
 ✅ Grep destructuring ile atlatılabilir, Proxy atlatılamaz — **ikisini de** kasten dene
+   → D-64: üç katmanın hangisinin neyi yakaladığı tabloyla ölçüldü
+   → D-64: üç katmanın hangisinin neyi yakaladığı tabloyla ölçüldü
 
 ## 0.C.4 — turkish-case kapısı    [x] 2026-08-15
 📖 §7.2 · R-21 · 🔗 FAZ-1.5 (`kernel/src/text/case.ts` orada doğdu)

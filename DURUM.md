@@ -5,12 +5,12 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 0
-siradaki_adim: 1.11
+aktif_faz: 1
+siradaki_adim: 1.12
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.9: 105 test; manifestsiz cikti reddediliyor; kaybeden saglayici yazilmazsa kusur; V-11 kapandi (90 gun, D-63)"
+son_kanit: "1.11+0.C.3+0.C.11: 113 test; Proxy tuzagi grep ve ESLintin kacirdigini yakaladi (D-64); durum kapisi 3 tutarsizligi kirmizi verdi (D-65)"
 ```
 
 ## Neredeyiz
@@ -67,23 +67,23 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.8** · iş kuyruğu + dört durum makinesi | 2026-08-15 |
 | **1.6** · corpus yazma darboğazı + FTS5 indeksi | 2026-08-15 |
 | **1.9** · run manifest sözleşmesi (V-11 kapandı) | 2026-08-15 |
+| 0.C.3 · kernel saflık kapısı (3 katman) | 2026-08-15 |
+| 0.C.11 · verbs kapısı | 2026-08-15 |
+| **1.11** · dokuz fiilin iskeleti | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.10** — test altyapısı (Vitest · golden harness · msw · cassette · sentetik fixture).
-**Sıra değişti:** FAZ-1.4'ün kabul kriteri `just test projection`; koşucu olmadan o adım
-kapanamaz. Bu yüzden 1.10 öne alındı — 1.4, 1.5, 1.7, 1.8 hepsi `just test`'e dayanıyor
-ve dördünü de test altyapısı olmadan "bitti" saymak kanıtsız tikleme olurdu (R-70).
-Kabul: `just test` gerçek testler koşuyor (stub değil) · cassette kaydet→oynat çalışıyor.
-İhlal: cassette'te secret ara → yok · fixture'da gerçek prospect adı ara → yok (KVKK).
+**1.12** — motor. `packages/engine`: adım zamanlama · retry sınıflandırması (1.7'deki
+`classify()` bağlanır) · devre kesici (5 ardışık, `(providerId, capability)` anahtarlı) ·
+bütçe kiralama · maliyet defteri yazımı (**tek nokta**) · iptal yayılımı (`AbortSignal`
+uçtan uca).
+Kabul: `just test engine` yeşil · iptal 5 sn içinde alt süreçleri temizliyor.
+İhlal: bir işi SIGKILL ile kes → yeniden başlatınca kaldığı yerden devam, **çift ücret yok**.
 
-> D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
-> D-53'ün "0.C bloğu FAZ-1.2'den önce kapanır" taahhüdü: bağımsız olan üçü (0.C.1,
-> 0.C.2, 0.C.8, 0.C.10) kapandı. Kalan üçü **kod bekliyor**, engel değil bağımlılık:
-> 0.C.3 → 1.1b hazır, sıradaki turda · 0.C.4 → 1.5 (`text/case.ts`) · 0.C.11 → 1.11 (fiiller).
-> Ayrıca **1.10b** (golden harness) FAZ-3.1 + V-02 bekliyor — D-59.
-> Sıra: 1.1b → 0.C.3 → 1.5 → 0.C.4 → … → 1.11 → 0.C.11. Her kapı, koruduğu kodla
-> **aynı turda** doğar; hiçbiri sonraya bırakılmaz.
+> **FAZ 0'ın kural zorlama bloğu (0.C) KAPANDI** — kapıların hepsi bağlı ve kasten ihlal
+> edilerek denendi. Kalan FAZ 0 borçları kod değil KARAR bekliyor: 0.A.5 (marka fontu,
+> V-02) · 0.B.8b/c (FAZ-2..9 gövdeleri) · 0.D.1–0.D.5 (bake-off'lar, ~$7) · 1.10b (golden
+> harness, V-02'ye bağlı). 0.E.5 (döngü provası) fiilen koşuyor.
 
 ## Bloke adımlar
 

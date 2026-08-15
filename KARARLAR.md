@@ -497,3 +497,21 @@ bir kullanıcı hatası değil, bir **değişmez ihlalidir**.
 `str.replace` tabanlı düzenlemem **sessizce hiçbir şey yapmadı** ve testi haftalarca
 yanlış çalıştırabilirdi. Desen eşleşmesi artık `assert` ile doğrulanıyor — eşleşmeyen
 düzenleme hata verir, sessizce geçmez. R-70'in kabuk tuzağının editör seviyesindeki hâli.
+
+## D-65 — `durum` kapısı: döngünün sözleşmesi sessizce bayatlayamaz
+2026-08-15 · FAZ-1.11 turunda art arda birkaç metin düzenlemesi **sessizce boşa gitti**
+(biçimlendirici satırı çok satıra bölünce `str.replace` deseni eşleşmedi) ve `DURUM.md`
+altı adım geride kaldı: `siradaki_adim` bitmiş bir adımı gösteriyordu ve "Sıradaki adım"
+bölümü iki farklı turun metnini üst üste taşıyordu. **On altı kapının hiçbiri görmedi.**
+**Neden ciddi:** `DURUM.md` LOOP§E'de döngünün sözleşmesi olarak tanımlı — bağlamı
+sıfırlanmış bir agent "şimdi ne yapmalıyım" sorusunu YALNIZ oradan cevaplıyor. Bayat bir
+`siradaki_adim`, o agent'ı bitmiş bir işe yönlendirir; iyi ihtimalle tur boşa gider, kötü
+ihtimalle iş ikinci kez yapılır ve tikler çakışır.
+**Karar:** `scripts/gates/durum.mjs`. Dört kontrol: (1) `siradaki_adim` gerçekten var mı,
+(2) ZATEN TİKLİ mi, (3) `bloke[]` gerçek adımlar mı, (4) "Tamamlananlar" tablosundaki her
+satır faz dosyasında tikli mi (D-46'nın mekanik hâli). Üçü de kasten ihlal edilip kırmızı
+görüldü.
+**İkinci ders (araç disiplini):** desen tabanlı düzenlemelerde eşleşme artık `assert` ile
+doğrulanıyor. Ama aynı turda `assert` patlarken sonraki komut yine de koştu ve **kısmi
+durum commit'lendi** — R-70'in kabuk tuzağının üçüncü yüzü. Düzenleme ile commit aynı
+kabuk çağrısında zincirlenmemeli; `just save` ayrı çağrıdır ve doğrulama ondan önce gelir.
