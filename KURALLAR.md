@@ -275,6 +275,16 @@ kullanılmaz.
 ### R-74 · kural-once-burada-degisir · BLOCKING · aktif
 Kod bir kuraldan farklı davranacaksa önce bu dosya değişir. Sessiz sapma yasak.
 
+### R-76 · kural-gevsetme-yasagi · BLOCKING · aktif
+Bir kapı kırmızıyken **aynı turda** o kapının kuralını gevşetmek yasak. Kural değişikliği
+ayrı bir turda, ayrı bir commit'te ve `KARARLAR.md`'de bir `D-nn` girdisiyle yapılır.
+**Neden:** döngünün tam yetkisi var ve kural değiştirebiliyor. Bu sınır olmadan
+"başarısız kapıyı geçmek için kuralı gevşetmek" meşru bir hamle gibi görünür ve tüm
+kural sisteminin altını oyar — testi zayıflatmanın (R-73) kural seviyesindeki hâli.
+**Zorlama:** `KURALLAR.md` değişikliği içeren commit yalnız `docs(docs)` veya
+`refactor(gates)` tipinde olabilir ve gövdesinde `D-` atfı taşımalı; `fix(...)` tipiyle
+kural değiştirmek `commit-msg` kapısında reddedilir.
+
 ### R-75 · bagimlilik-son-care · CONVENTION · aktif
 40 satır yazmak bir bağımlılıktan iyidir. Bağımlılıklar tam sürüme sabitlenir
 (`save-exact`), lisansı kontrol edilir.

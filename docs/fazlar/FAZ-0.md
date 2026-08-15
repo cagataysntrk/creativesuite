@@ -105,7 +105,10 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ⚠ 2026-08-14: sahte tik geri alındı — yalnız FAZ-0.md yazılmıştı
 
 ## 0.B.8b — FAZ-2.md ve FAZ-3.md    [ ]
-🛠 Plandaki faz haritasından, altı alanlı şablonla.
+🛠 Plandaki faz haritasından, **yedi alanlı** şablonla: 📖 Oku · 🔗 Bağımlı · 🛠 Yap ·
+   📁 Çıktı yolu · ✅ Kabul · 🧪 İhlal testi · 💾 Commit.
+   📁 alanı denetim bulgusu #44 ile eklendi: bağlamsız bir agent, başlamadığı bir adımı
+   sürdürürken hangi dosyanın hedef olduğunu bilmeli.
 ✅ Her ✅ çalıştırılabilir komut içeriyor · "çalışıyor" yazan kriter yok
 
 ## 0.B.8c — FAZ-4..9.md    [ ]
@@ -117,7 +120,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    `corpus-editing` · `turkish-copy` · `registry` · `gates` · `kernel`
    Skill'ler FAZ 3'te çıktı tipi başına gelecek (şimdi yazılırsa bayatlar).
 
-## 0.B.10 — denetim bulgularının tasfiyesi    [ ]
+## 0.B.10 — denetim bulgularının tasfiyesi    [x] 2026-08-15
 📖 `docs/research/6-denetim--*` · 75 bulgu
 🛠 26 BLOCKER plana işlendi. Kalan 49 MAJOR/MINOR tek tek: ya faz adımına dönüşür,
    ya `KARARLAR.md`'de gerekçesiyle reddedilir. Sessizce düşen bulgu olmaz.

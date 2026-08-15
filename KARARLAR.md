@@ -265,3 +265,22 @@ anahtarını (`sk-ant-api03-…`) **kaçırıyordu** — tirede duruyordu. Desen
 yapıldı, `fal-` biçimi eklendi.
 **Neden kayda değer:** kapı yazıldığı gün kördü ve yalnızca ihlal testi ortaya çıkardı.
 R-71'in ("yeşil kapı hiçbir şey kanıtlamaz") somut kanıtı.
+
+## V-12 — Aday dönem probe bake-off mekanizması
+`brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
+kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
+
+## D-50 — brand/ ve content/ halka aidiyeti
+2026-08-15 · Denetim, `brand/` ve `content/`'in dört halkadan hiçbirine ait olmadığını
+buldu. Karar: **`brand/` Ring 1'dir** (kullanıcının düzenlediği yapılandırma, registry
+ile aynı sınıf), **`content/` Ring 2'dir** (corpus'un üretilmiş kardeşi, aynı yaşam
+döngüsü kurallarına tabi). Yeni halka açılmadı.
+**Neden:** beşinci bir halka, dört halkanın tek değerini — import yönünün mekanik
+zorlanabilirliğini — sulandırırdı.
+
+## D-51 — Döngü kuralı gevşetemez (R-76)
+2026-08-15 · Denetim bulgusu #71: döngünün tam yetkisi var ve `KURALLAR.md`'yi
+değiştirebiliyor; tek kısıt "kod ve kural aynı olsun" idi. Bu, kırmızı kapıyı geçmek
+için kuralı gevşetmeyi meşru gösteriyordu. R-76 eklendi: kural değişikliği ayrı tur,
+ayrı commit, `D-nn` atfı zorunlu.
+**Geri alma maliyeti:** yok — saf kısıt.

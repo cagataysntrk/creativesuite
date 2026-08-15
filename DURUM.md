@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.B.10
+siradaki_adim: 0.B.2b
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "5 yol-kapsamlı kural dosyası · 3 kapı yeşil (0.B.9)"
+son_kanit: "75 denetim bulgusunun 75'i karara bağlandı, kararsız 0 (0.B.10)"
 ```
 
 ## Neredeyiz
@@ -42,6 +42,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.B.7 · docs/LOOP.md | 2026-08-14 |
 | 0.B.8a · FAZ-0.md ve FAZ-1.md | 2026-08-14 |
 | 0.B.9 · .claude/rules + skills iskeleti | 2026-08-15 |
+| 0.B.10 · denetim bulgularının tasfiyesi | 2026-08-15 |
 | 0.C.6 · citations kapısı | 2026-08-14 |
 | 0.C.7 · commit-msg hook'u | 2026-08-14 |
 | 0.C.9 · docs-size | 2026-08-14 |
