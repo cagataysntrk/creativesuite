@@ -1,19 +1,26 @@
-# fal — FLUX.2 görsel üretimi (premium şerit).
+# fal — FLUX görsel üretimi (premium şerit).
 #
-# ⚠ `adapter: pending`: tanımlayıcı yazıldı ama ADAPTÖR HENÜZ YOK. Yönlendirici bunu
-# aday listesine ALMAZ ve bu AÇIKÇA söylenir — sessizce eksik bir adaptör, çalıştırma
-# anında "sağlayıcı yok" hatası demektir ve o an geçtir (FAZ-3.7'de yazılacak).
+# Adaptörü FAZ-3.7'de yazıldı: `packages/providers/src/image/fal.ts`. Kuyruk API'si,
+# gerçekten asenkron — Cloudflare'in senkron ucunun tam tersi ve ikisinin de aynı
+# `ProviderAdapter` sözleşmesine oturması sözleşmenin doğru çizildiğinin kanıtı.
+#
+# ⚠ `enabled: false`: fiyat anlık görüntüsü DOĞRULANMAMIŞ (`verified: false`) ve
+# `FAL_KEY` henüz `secrets.enc.yaml`da yok. `providers` kapısı doğrulanmamış fiyatla
+# enabled bir sağlayıcıyı reddediyor — doğrulanmamış fiyatla maliyet tahmini yapmak,
+# tahmini yalan yapar (§8.3). V-16.
 id: fal-flux
-title: FLUX.2 (fal)
-adapter: pending
+title: FLUX (fal)
+adapter: fal-flux
 enabled: false
 
-# Formül FAZ-3.5'te QuickJS'te koşacak; burada BEYAN. Fiyat anlık görüntüsü
-# değişmezdir ve commit'lidir — sağlayıcı fiyatını değiştirdiğinde eski çalıştırmanın
-# maliyeti hâlâ açıklanabilir olmalı (§8.3).
-cost_formula: 'perImageMicros * count'
+# Maliyet formülü kapalı aritmetik dilbilgisinde koşar (D-101): sayı, tanımlayıcı,
+# `+ - * /`, parantez, min/max/ceil/floor. Fiyat anlık görüntüsü değişmezdir ve
+# commit'lidir — sağlayıcı fiyatını değiştirdiğinde eski çalıştırmanın maliyeti
+# hâlâ açıklanabilir olmalı (§8.3).
+cost_formula: '0.025 * num_images'
 pricing_snapshot: _pricing/fal-2026-08-15.json
 
+# Ortam değişkeninin ADI — değeri asla (R-51).
 auth_env: FAL_KEY
 
 capabilities:
@@ -21,4 +28,6 @@ capabilities:
     lanes: [premium]
     supports:
       aspect: ['1:1', '4:5', '9:16', '16:9']
-      count: [1, 2, 4]
+      # `no_text` yalnız `true`. `false` sözleşmede YOK: desteklenen değerler
+      # listesinde göründüğü an biri onu seçer ve R-20 bir öneriye dönüşür.
+      no_text: [true]

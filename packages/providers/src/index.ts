@@ -35,3 +35,25 @@ export {
   type ImportError,
   type ImportResult,
 } from './import.js'
+
+// `NO_TEXT_SUFFIX` BİLEREK dışa açılmıyor: dışarıdan ihtiyaç duyulan şey kurucudur
+// (`buildImagePrompt`), ham ek değil. Sabiti dağıtmak, onu ikinci bir yerde
+// birleştirmeyi kolaylaştırır — `gorsel-prompt-kurucu` darboğazının önlediği şey tam bu.
+export {
+  buildImagePrompt,
+  hasNoTextSuffix,
+  type ImagePrompt,
+  type PromptRefusal,
+} from './image/prompt.js'
+export {
+  ASPECTS,
+  ASPECT_PIXELS,
+  IMAGE_CAPABILITY,
+  assertNoTextSuffix,
+  imageCapability,
+  rangeFromUnit,
+  validateImageInput,
+  type Aspect,
+} from './image/lanes.js'
+export { cloudflareImage } from './image/cloudflare.js'
+export { falImage, FAL_UNIT_MICROS, FAL_UNIT_USD } from './image/fal.js'

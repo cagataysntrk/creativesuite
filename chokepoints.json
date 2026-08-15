@@ -216,6 +216,16 @@
       "desen": "\\.attributes\\b|\\bas\\s+unknown\\s+as\\b",
       "faz": "FAZ-1.4",
       "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
+    },
+    {
+      "id": "gorsel-prompt-kurucu",
+      "ad": "Görsel prompt kurucusu",
+      "neden": "Görsel modeline Türkçe metin çizdirilmez (R-20, on iki yasadan biri). Kural iki parçalı: her prompt'a \"no text, no lettering\" eklenir VE metin isteyen prompt reddedilir. İkinci bir yerde prompt birleştiren kod, ikinci parçayı atlar ve ek eklenmiş bir çelişki gönderir — çelişkide model genellikle ilk isteği dinler. `buildImagePrompt` tek kurucudur; `NO_TEXT_SUFFIX`e dokunan başka dosya, ekin ikinci bir kaynağıdır.",
+      "izinli": ["packages/providers/src/image/prompt.ts"],
+      "desen": "\\bNO_TEXT_SUFFIX\\b",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"],
+      "haric_neden": "Test ekin GERÇEKTEN eklendiğini iddia etmek için sabite bakmak zorunda; iddia etmek, ikinci bir kaynak kurmak değildir.",
+      "faz": "FAZ-3.7"
     }
   ]
 }

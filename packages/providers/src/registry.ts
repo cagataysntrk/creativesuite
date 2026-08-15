@@ -4,13 +4,16 @@
 // sorusunu cevaplar; **hangisinin seçileceği** yönlendiricinin işidir (FAZ-3.5) ve
 // kaybedenler red gerekçesiyle manifest'e yazılır (§13).
 //
-// Şimdilik liste kodda. FAZ-3.4'te `registry/providers/*.provider.yaml` tanımlayıcıları
-// gelecek ve bu liste onlardan doğacak — ama sözleşme aynı kalacak.
+// Liste KODDA, tanımlayıcı VERİDE (FAZ-3.4). İkisi ayrı şeyleri söylüyor: kod
+// "bu sağlayıcıyla nasıl konuşulur"u, tanımlayıcı "ne kadara ve neyi yapar"ı.
+// `providers` kapısı ikisinin ayrışmadığını denetler.
 
 import type { Lane, ProviderAdapter } from './types.js'
 import { claudeCode } from './claude-code.js'
+import { cloudflareImage } from './image/cloudflare.js'
+import { falImage } from './image/fal.js'
 
-export const ADAPTERS: readonly ProviderAdapter[] = [claudeCode]
+export const ADAPTERS: readonly ProviderAdapter[] = [claudeCode, cloudflareImage, falImage]
 
 export interface Candidate {
   readonly providerId: string

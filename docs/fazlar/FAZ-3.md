@@ -101,7 +101,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Bir işi SIGKILL ile kes → yeniden başlatınca kaldığı yerden devam, **çift ücret yok**
 💾 `feat(engine): retry ve idempotency sağlayıcılara bağlandı` · `Refs: FAZ-3.6 · §8.5`
 
-## 3.7 — `GENERATE` yeteneği `"image.generate"`    [ ]
+## 3.7 — `GENERATE` yeteneği `"image.generate"`    [x] 2026-08-15
 
 📖 §7.3, §8.2 · R-20 · D-2
 🔗 3.5

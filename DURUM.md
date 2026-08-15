@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.7
+siradaki_adim: 3.9
 son_guncelleme: 2026-08-15
-bloke: ["2.9"]
+bloke: ["2.9", "3.8"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.6 kapandi: SIGKILL sonrasi yeniden baslatma sağlayicida IKINCI is acmiyor (start() cagri sayaci = 0). Uc gercek hata bulundu ve kapatildi: retry dongusu start()i tekrar cagiriyordu, basarisizlik yolundaki settle tutamagi siliyordu, yarim kayit $0.00 ile BASARILI sayiliyordu. Sozlesme testi katalog basina kosuyor; yutulmus fetch de yakalaniyor (request:start sayaci). 497 test, 21 kapi."
+son_kanit: "FAZ 3.7 kapandi: iki serit de yazildi (Cloudflare senkron, fal kuyruk) ve ayni sozlesmeye oturdu. R-20 UC katmanda: kurucu metin isteyen prompt'u reddediyor, start() sinirinda ek dogrulaniyor, lexicon kapisi pipeline kisitlarini tariyor. Turkce eklemeli yapi desenleri degistirdi: harfler yakalaniyordu, harflerle kaciyordu -> govde on eki. Sozlesme testi yeni adaptorlere KENDILIGINDEN uygulandi ve ikisinde de dustu. 545 test, 21 kapi."
 ```
 
 ## Neredeyiz
@@ -19,9 +19,9 @@ son_kanit: "FAZ 3.6 kapandi: SIGKILL sonrasi yeniden baslatma sağlayicida IKINC
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.7`: `GENERATE` yeteneği
-> `"image.generate"` ile — iki şerit, her prompt'ta "no text, no lettering" (R-20).
-> Fazın sonunda gerçek bir carousel üretilmiş olacak.
+> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.9`: marka QA tolerans
+> okumaları (ΔE2000, palet payı, güvenli alan). Fazın sonunda gerçek bir carousel
+> üretilmiş olacak.
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -42,14 +42,16 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.4** · sağlayıcı tanımlayıcısı, içe aktarıcı (V-04 kapandı) | 2026-08-15 |
 | **3.5** · yetenek yönlendiricisi, maliyet formülü, bütçe kapısı | 2026-08-15 |
 | **3.6** · retry, idempotency, rate limit; çift ücret kapatıldı | 2026-08-15 |
+| **3.7** · `image.generate`, iki şerit, R-20 üç katmanda | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.7` — `GENERATE` yeteneği `"image.generate"`.** İki şerit sözleşmede donmuş
-(`free` | `premium`); `free` içinde ucuz/orta model seçimi **yönlendiricinin** işi,
-üçüncü şerit değil. Her prompt'ta **"no text, no lettering"** (R-20): görsel modeline
-Türkçe metin çizdirilmez, metin kompozitte gerçek fontla gelir.
-Ardından `3.8` marka LoRA, `3.9` marka QA.
+**`3.9` — marka QA tolerans okumaları.** ΔE2000 · palet payı · güvenli alan.
+Sonuç **rozet değil ÖLÇÜM**: `ΔE 2.4 / limit 5.0` kenara ne kadar yakın olduğunu
+söyler, "✓ uygun" hiçbir şey söylemez (§12). Ardından `3.10` lexicon linter.
+
+⚠ **`3.8` (marka LoRA) BLOKE** — ~$3 gerçek para harcıyor ve `FAL_KEY` yok (V-16).
+Anahtarlar `secrets.enc.yaml`a girdiğinde açılır.
 
 ⚠ **`3.2` (golden metrik) ATLANDI** — V-02'ye bağlı: marka fontu seçilmeden metrik
 dondurmak, testin varlık sebebini (Türkçe glif fallback'ini yakalamak) çürütür (D-59).

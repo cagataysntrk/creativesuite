@@ -56,6 +56,23 @@ açısından durumu, sınır ötesi veri aktarımı beyanı. → FAZ-8.6
 ## V-11 — Run bağlam anlık görüntülerinin saklama süresi ✅ KAPANDI
 Manifest sonsuza, bağlam N gün. **N = 90** (2026-08-15, FAZ-1.9). Gerekçe D-63'te.
 
+## V-16 — fal ve Cloudflare anahtarları yok, canlı üretim DOĞRULANMADI
+İki görsel adaptörü de yazıldı ve cassette'lerle test edildi ama `FAL_KEY`,
+`CF_ACCOUNT_ID`, `CF_API_TOKEN` `secrets.enc.yaml`da yok. Yani **gerçek bir görsel
+henüz üretilmedi**; sözleşme, prompt kuralı ve HTTP şekli doğrulandı, sağlayıcının
+gerçek davranışı doğrulanmadı. → FAZ-3.14 (ilk gerçek carousel)
+
+## V-15 — `status()` kimliği ortamdan alamıyor
+`ProviderAdapter.status(h)` yalnız tutamak alıyor; kimlik `ProviderContext`te ve o
+yalnız `start()`e geçiyor. Bugün sorun değil (`providerCall` aynı süreçte poll ediyor),
+ama süreçler arası devam (SIGKILL sonrası ayrı bir işlem) kimliksiz `status()`
+çağıramaz. Sözleşme değişikliği gerektirir. → FAZ-3.14
+
+## V-14 — Cloudflare bedava katman kota aşımı
+"Bedava" ile "kotası bitince ne olur" ayrı sorular. Günlük nöron kotası aşıldığında
+faturalama mı başlıyor, istek mi reddediliyor — ölçülmedi. `cost_formula: '0'` bu
+yüzden `verified: false` bir anlık görüntüye bağlı. → FAZ-3.14
+
 ## V-13 — TCMB kuru doğrulanmadı
 `registry/rates/tcmb-2026-08-15.json` elle girildi (`usdTry: 41.85`), TCMB XML'inden
 doğrulanmadı. TRY yalnız GÖRÜNTÜDE kullanıldığı için (D-36) hesabı etkilemiyor —
@@ -496,3 +513,33 @@ zamanlayıcı süreç uyuduğunda sessizce kayar, kova ise her çağrıda saate 
 Reddedilen istek de `lastMs`i günceller — güncellemeseydi ilk 429 kalıcı bir kilit olurdu
 (test bunu ayrıca sınıyor). `LOCAL_RATE_LIMIT` kodu sağlayıcının 429'undan AYRI: ikisini
 aynı koda toplamak "sağlayıcı mı kısıtlıyor biz mi" sorusunu log'dan cevaplanamaz yapardı.
+
+## D-106 — R-20 iki parçalıdır: ek eklemek YETMEZ
+2026-08-15 · "Her prompt'a 'no text' ekle" tek başına bir yarım kural. `üstünde FİRE
+yazan tabela` isteyen bir prompt'a bu eki eklemek modele **çelişki** gönderir ve
+çelişkide model genellikle ilk isteği dinler — kapı yeşil, çıktı bozuk. Bu yüzden
+`buildImagePrompt` metin İSTEYEN prompt'u reddediyor.
+**Türkçe eklemeli yapı desen tasarımını değiştirdi:** `\bharf(ler|li)?\b` "harfler"i
+yakalıyordu ama "harflerle"yi kaçırıyordu. Sonlu bir ek listesi her zaman bir sonraki
+eki kaçırır. Türkçe desenler **gövde ön eki** (`\bharf\w*`) oldu. Tek istisna
+`yazi(?!lim)`: "yazılım çözümleri" bu şirketin kendi sözlüğü ve yanlış pozitif de bir
+hatadır.
+Üç savunma katmanı: (1) kurucu reddi, (2) `assertNoTextSuffix` `start()` sınırında,
+(3) `lexicon` kapısı pipeline kısıtlarında (`no_text: false`, `overlay_text`).
+
+## D-107 — Sözleşme testi girdiyi `supports`tan KURUYOR
+2026-08-15 · İki görsel adaptörü eklenince sözleşme testi kendiliğinden onlara da
+uygulandı (D-104) ve ikisinde de düştü: test elle `constraints: {}` veriyordu, görsel
+adaptörleri `aspect` istiyordu. Elle kısıt yazmak yerine test artık kısıtları adaptörün
+KENDİ `supports` beyanından kuruyor — her anahtarın ilk değeri.
+Bu, sözleşmeye sessizce bir madde ekledi: **`supports` eyleme dönüştürülebilir olmak
+zorunda.** Yönlendiricinin yaptığı da tam bu. Test elle kısıt yazsaydı, `supports`u
+eksik yazan bir adaptör testte geçer ama yönlendiricide elenirdi — ve bu ancak üretim
+anında fark edilirdi.
+
+## D-108 — `NO_TEXT_SUFFIX` barrel'dan dışa AÇILMIYOR
+2026-08-15 · Dışarıdan ihtiyaç duyulan şey kurucudur (`buildImagePrompt`), ham ek
+değil. Sabiti paket sınırından dağıtmak, onu ikinci bir yerde birleştirmeyi
+kolaylaştırır — `gorsel-prompt-kurucu` darboğazının önlediği şey tam bu. Darboğaz
+zaten yakalardı; ama bir kuralı hem kapıyla hem API şekliyle zorlamak, kapının bir gün
+gevşetilmesine karşı ikinci hat.

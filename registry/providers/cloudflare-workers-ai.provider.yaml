@@ -1,0 +1,26 @@
+# Cloudflare Workers AI — görsel üretimi (bedava şerit).
+#
+# Bedava katman ticari kullanıma açık ve günlük nöron kotasıyla sınırlı. `free` şeridin
+# varsayılanı bu; `free` içinde ucuz/orta model seçimi yönlendiricinin işidir, üçüncü
+# bir şerit değil (D-2).
+#
+# ⚠ `enabled: false`: `CF_ACCOUNT_ID` ve `CF_API_TOKEN` henüz `secrets.enc.yaml`da yok.
+# Anahtarlar geldiğinde `true` yapılır — adaptör hazır ve cassette'lerle test edilmiş.
+id: cloudflare-workers-ai
+title: Cloudflare Workers AI (bedava şerit)
+adapter: cloudflare-workers-ai
+enabled: false
+
+# Bedava katman: sıfır. Bu sıfır bir BİLGİSİZLİK değil bir OLGU — `unreported` ile
+# ayrımı tam olarak bu (§8.3). Kota aşımının nasıl faturalandığı ayrı bir soru (V-14).
+cost_formula: '0'
+pricing_snapshot: _pricing/cloudflare-2026-08-15.json
+
+auth_env: CF_API_TOKEN
+
+capabilities:
+  - name: image.generate
+    lanes: [free]
+    supports:
+      aspect: ['1:1', '4:5', '9:16', '16:9']
+      no_text: [true]

@@ -6,7 +6,7 @@
 // kapı o gün "0 kayıt denetlendi" diye yeşil raporlasaydı hiçbir şey korumazdı.
 // Bugün corpus var; sayı çıktıda GÖRÜNÜYOR ki sıfıra düştüğü gün fark edilsin.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, globSync, readFileSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -91,6 +91,36 @@ for (const f of dosyalar) {
   })
 }
 
+// ── R-20: pipeline'da görsel adımı metin isteyemez ──────────────────────────
+// Prompt'un KENDİSİ `buildImagePrompt`ten geçiyor (darboğaz), ama pipeline'ın kısıtları
+// da bir prompt kaynağıdır: `no_text: false` yazan ya da sabit metin taşıyan bir adım,
+// kuralı çalışma zamanına ertelemiş olur. Kapı onu commit anında yakalar.
+const r20 = []
+for (const rel of globSync('registry/pipelines/*.pipeline.yaml', { cwd: REPO })) {
+  const satirlar = readFileSync(join(REPO, rel), 'utf8').split('\n')
+  let gorselAdimda = false
+  satirlar.forEach((ham, i) => {
+    const satir = ham.replace(/#.*$/, '')
+    if (/^\s*-\s+id:/.test(satir)) gorselAdimda = false
+    if (/capability:\s*image\.generate/.test(satir)) gorselAdimda = true
+    if (!gorselAdimda) return
+    if (/no_text:\s*false/.test(satir)) {
+      r20.push(
+        `${rel}:${i + 1}  R-20 — \`no_text: false\` yazılamaz; görsel modeline metin çizdirilmez`
+      )
+    }
+    // Kısıt DEĞERİNDE metin isteği: `overlay_text`, `caption`, `slogan`…
+    if (/^\s*(overlay_text|caption|text|slogan|headline|watermark)\s*:/.test(satir)) {
+      r20.push(`${rel}:${i + 1}  R-20 — görsel adımında metin kısıtı: ${satir.trim()}`)
+    }
+  })
+}
+if (r20.length > 0) {
+  console.log(r20.map((x) => `  ${x}`).join('\n'))
+  console.log(`\n${r20.length} R-20 ihlali`)
+  process.exit(1)
+}
+
 const ihlaller = kanitlar.flatMap((k) =>
   checkTransfer([k], { currentEra: aktifEra, outboundToProspect: true })
 )
@@ -102,5 +132,6 @@ if (ihlaller.length > 0) {
 }
 
 console.log(
-  `  ${kanitlar.length} proof_asset denetlendi · aktif dönem ${aktifEra} · aktarım argümanları tam`
+  `  ${kanitlar.length} proof_asset denetlendi · aktif dönem ${aktifEra} · aktarım argümanları tam · ` +
+    `R-20 pipeline taraması temiz`
 )

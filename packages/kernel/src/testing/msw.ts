@@ -75,3 +75,16 @@ export const offlineServer = (): MswServer => setupServer()
 
 /** `offlineServer()` için doğru `listen` seçenekleri — çağıranın hatırlaması gerekmesin. */
 export const OFFLINE_LISTEN = { onUnhandledRequest: 'error' } as const
+
+/**
+ * Handler'lı sahte sunucu + msw'nin kendi yapıcıları.
+ *
+ * Neden yeniden dışa açılıyor: msw **tek bir pakette** yaşar (§3.8). Ring 1 paketleri
+ * kendi msw bağımlılığını eklerse iki dispatcher birbiriyle kavga eder ve "tek başına
+ * geçer, paket içinde düşer" tipi flake doğar. Testler `@suite/kernel/testing`ten
+ * alır — böylece kesici tek kalır ve sürüm tek yerden yükseltilir.
+ */
+export const mockServer = (...handlers: readonly RequestHandler[]): MswServer =>
+  setupServer(...handlers)
+
+export { http, HttpResponse, type RequestHandler }

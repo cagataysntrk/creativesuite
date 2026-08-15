@@ -44,6 +44,25 @@ const girdi = (over: Partial<ProviderInput> = {}): ProviderInput => ({
   ...over,
 })
 
+/**
+ * Kısıtları adaptörün KENDİ `supports` beyanından kurar: her anahtarın ilk değeri.
+ *
+ * Bu, sözleşmeye ikinci bir madde ekliyor — **`supports` eyleme dönüştürülebilir olmak
+ * zorunda**. Yönlendiricinin yaptığı da tam bu: beyanı okuyup geçerli bir çağrı kurmak.
+ * Test elle kısıt yazsaydı, `supports`u eksik yazan bir adaptör testte geçer ama
+ * yönlendiricide elenirdi — ve bu ancak üretim anında fark edilirdi.
+ */
+const kisitlardan = (c: { supports: Readonly<Record<string, readonly unknown[]>> }) =>
+  Object.fromEntries(
+    Object.entries(c.supports)
+      .map(([k, v]) => [k, v[0]] as const)
+      .filter(([, v]) => v !== undefined)
+  )
+
+/** `bigint` içeren nesneler `JSON.stringify`i patlatır — mesaj testi düşürmemeli. */
+const yazdir = (v: unknown): string =>
+  JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? `${x}n` : x))
+
 describe.each(ADAPTERS.map((a) => [a.id, a] as const))(
   'sözleşme: %s',
   (_id, adapter: ProviderAdapter) => {
@@ -71,8 +90,10 @@ describe.each(ADAPTERS.map((a) => [a.id, a] as const))(
       const yetenek = adapter.capabilities()[0]
       const serit = yetenek?.lanes[0]
       if (yetenek === undefined || serit === undefined) return
-      const v = adapter.validate(girdi({ capability: yetenek.name, lane: serit }))
-      expect(v.ok, v.ok ? '' : JSON.stringify(v.error)).toBe(true)
+      const v = adapter.validate(
+        girdi({ capability: yetenek.name, lane: serit, constraints: kisitlardan(yetenek) })
+      )
+      expect(v.ok, v.ok ? '' : yazdir(v.error)).toBe(true)
       if (!v.ok) return
       const t = adapter.estimate(v.value)
       // Çalışma zamanı kanıtı: derleme hatası tip seviyesinde zaten var (types kapısı),
