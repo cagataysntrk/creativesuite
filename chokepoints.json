@@ -5,10 +5,11 @@
     {
       "id": "chromium-baslatan",
       "ad": "Chromium başlatan",
-      "neden": "İki tarayıcı başlatıcı = iki font yükleme yolu = iki Türkçe tipografi hata modu (§7.1). Tek motor kararının (D-24) kodda karşılığı budur.",
+      "neden": "Tek render motoru (R-30 · D-24): statik görsel, deck PDF'i ve hareket AYNI Chromium'u, aynı fontları, aynı token CSS'ini kullanır. İkinci bir motor = ikinci bir CSS alt kümesi = ikinci bir Türkçe tipografi hata modu. Desen `playwright` import'unu da yakalar: tarayıcıyı başlatmanın yolu o paketten geçer ve import edilmeden başlatılamaz — `alt-surec` darboğazının git'i yakalaması gibi yapısal bir savunma. Playwright'ın KENDİ tarayıcısı kullanılır, sistemdeki değil (D-86): snap `/tmp`ye yazamıyor ve kendi kendine güncellenip golden metriği bozuyor.",
       "izinli": ["packages/render/src/browser.ts"],
-      "desen": "\\b(chromium|firefox|webkit)\\s*\\.\\s*launch\\s*\\(|puppeteer\\s*\\.\\s*launch\\s*\\(",
-      "faz": "FAZ-3.1"
+      "desen": "chromium\\.launch|puppeteer\\.launch|from\\s+['\"]playwright['\"]|require\\(['\"]playwright['\"]\\)",
+      "faz": "FAZ-3.1",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     },
     {
       "id": "alt-surec",

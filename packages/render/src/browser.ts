@@ -1,0 +1,67 @@
+// HEDEF: packages/render/src/browser.ts
+//
+// Chromium'u başlatan TEK dosya (§3.8 · §7.1 · chokepoints.json → `chromium-baslatan`).
+//
+// **Tek motor yasası (R-30) burada yaşıyor.** Statik görsel, deck PDF'i ve hareket
+// (HyperFrames) aynı Chromium'u, aynı fontları, aynı token CSS'ini kullanır. İkinci bir
+// motor = ikinci bir CSS alt kümesi = **ikinci bir Türkçe tipografi hata modu** (D-24).
+//
+// **Playwright'ın kendi tarayıcısı** kullanılıyor, sistemdeki değil (D-86):
+//   - snap Chromium `/tmp` altına yazamıyor (confinement) — ölçüldü,
+//   - snap kendi kendine güncelleniyor ve golden metriği (R-31) hiçbir commit olmadan
+//     değiştirir; sürümü sabitlenemeyen tarayıcı golden testin altını oyar.
+// `chromium.launch()` Playwright'ın indirdiği sürümü kullanır; yol sistemden ARANMAZ.
+
+import { chromium, type Browser, type Page } from 'playwright'
+
+export interface BrowserOptions {
+  /** Milisaniye. Sonsuza kadar bekleyen bir render, gözetimsiz bir gecede asılı kalır. */
+  readonly timeoutMs?: number
+}
+
+export type BrowserFailure =
+  | { readonly kind: 'launch_failed'; readonly message: string }
+  | { readonly kind: 'render_failed'; readonly message: string }
+
+export type BrowserResult<T> =
+  { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: BrowserFailure }
+
+/**
+ * Tarayıcıyı açar, işi yapar, KAPATIR.
+ *
+ * `finally` şart: bir hata Chromium'u ayakta bırakırsa gözetimsiz çalıştırmada
+ * süreç sızıntısı birikir ve makine bir sabah takas alanında boğulur. Kapanış,
+ * başarı yolunda değil HER yolda olmalı.
+ */
+export const withPage = async <T>(
+  fn: (page: Page) => Promise<T>,
+  opts: BrowserOptions = {}
+): Promise<BrowserResult<T>> => {
+  let browser: Browser | null = null
+  try {
+    browser = await chromium.launch({
+      // Sandbox devre dışı DEĞİL: kapatmak konteynerde kolaylık sağlar ama bu makinede
+      // gerekmiyor ve güvenlik sınırını gereksiz yere gevşetmek, gerekmeden ödenen
+      // bir borçtur (§14).
+      args: ['--font-render-hinting=none'],
+    })
+  } catch (e) {
+    return {
+      ok: false,
+      error: { kind: 'launch_failed', message: e instanceof Error ? e.message : String(e) },
+    }
+  }
+
+  try {
+    const page = await browser.newPage()
+    page.setDefaultTimeout(opts.timeoutMs ?? 30_000)
+    return { ok: true, value: await fn(page) }
+  } catch (e) {
+    return {
+      ok: false,
+      error: { kind: 'render_failed', message: e instanceof Error ? e.message : String(e) },
+    }
+  } finally {
+    await browser.close()
+  }
+}

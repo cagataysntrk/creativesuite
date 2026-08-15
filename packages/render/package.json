@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@suite/contracts": "workspace:*",
-    "@suite/kernel": "workspace:*"
+    "@suite/kernel": "workspace:*",
+    "playwright": "1.56.1"
   }
 }

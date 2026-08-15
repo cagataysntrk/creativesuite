@@ -163,3 +163,15 @@ export {
   type EraResult,
   type AssetStamp,
 } from './era.js'
+
+// Belge modeli — `RENDER`ın gördüğü tek şey (§7.1 · FAZ-3.1)
+export {
+  validateDocument,
+  type Block,
+  type BlockType,
+  type DocError,
+  type DocResult,
+  type DocumentKind,
+  type DocumentModel,
+  type ImageBlock,
+} from './doc/model.js'

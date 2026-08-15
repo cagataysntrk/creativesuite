@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.1
+siradaki_adim: 3.2
 son_guncelleme: 2026-08-15
 bloke: ["2.9"]
 deneme_sayaci: {}
-son_kanit: "FAZ 2 kapandi (2.9 insan onayi haric). Iki dogrulama turu kosuldu (D-79 tavani): 1. tur 5 blokaj + 5 ikincil, 2. tur 7 blokaj + 6 ikincil — hepsi kapatildi. Ortak kok neden: karar ile yazma arasinda uygulama katmani yoktu (D-95). Cikis kriterlerinin ucu de GERCEK corpus ile kanitlandi: 7 kayit imzasiyla plan 0 op uretiyor, elle duzeltilmis kayit signature_broken ile reddediliyor, emekli kayit retrievala dusmuyor. 400 test, 21 kapi."
+son_kanit: "FAZ 3.1 kapandi: gercek Chromium 1080x1350 PNG uretti, marka tokenlariyla, Turkce glifler eksiksiz, baslik kuculmeden bolundu. Uc ihlal testi kirmizi: zarfi renderStatica gecirmek DERLEME hatasi, ikinci chromium.launch chokepoints, metered:false enjekte VERB_CONTRACT_MISMATCH. 414 test, 20 kapi. playwright@1.56.1 sabit surum (D-86)."
 ```
 
 ## Neredeyiz
@@ -36,14 +36,17 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 
 | Adım | Tarih |
 |---|---|
-| _(FAZ 3 henüz başlamadı)_ | — |
+| **3.1** · COMPOSE ve statik RENDER | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.1` — `COMPOSE` (saf) + `RENDER mode:static`.** Belge modeli → Playwright →
-1080×1350 PNG. `RENDER` `RecordEnvelope` GÖRMEZ ve bu imza düzeyinde zorlanır.
-Chromium'u başlatan tek yer `packages/render/src/browser.ts`; Playwright'ın kendi
-sabit sürümlü tarayıcısı kullanılır (D-86 — snap ölçümle reddedildi).
+**`3.2` — golden-file tipografi testi (JSON metrik).** `ĞÜŞİÖÇ ğüşıöç Ağrı İğne` her
+şablon boyutunda render edilir; commit edilen golden bir PNG değil **JSON metriktir**
+(glyph kutuları, satır sayısı, font ailesi, `notdef` = 0).
+
+⚠ Bu adım **V-02'ye bağlı**: marka fontu seçilmeden metrik dondurmak, testin varlık
+sebebini (Türkçe glif fallback'ini yakalamak) çürütür (D-59). V-02 açıksa `3.3`
+(kapalı LayoutEnum) ile devam edilir.
 
 ## Bloke adımlar
 

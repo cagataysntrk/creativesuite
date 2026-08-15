@@ -8,7 +8,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 
 ---
 
-## 3.1 — `COMPOSE` (saf) + `RENDER` mode:static    [ ]
+## 3.1 — `COMPOSE` (saf) + `RENDER` mode:static    [x] 2026-08-15
 
 📖 §7.1 · R-30 · D-21, D-24
 🔗 FAZ-2.10
@@ -17,9 +17,16 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    modelini — varlığa özgü veriye yasal yol `SELECT → unsealAttributes → COMPOSE` (§3.2).
    Chromium'u başlatan tek yer `packages/render/src/browser.ts` (§3.8).
 📁 `packages/render/src/browser.ts` · `packages/kernel/src/verbs/compose.ts`
-✅ `just test render` yeşil · `RENDER` çıktısı 1080×1350 PNG
-🧪 `RENDER` içine `RecordEnvelope` geçir → **tip hatası** · ikinci bir `chromium.launch()`
-   yaz → `chokepoints` kapısı kırmızı
+✅ `just test static` → 8 test · gerçek Chromium **1080×1350 PNG** üretti (boyut PNG'nin
+   IHDR başlığından okundu, Playwright'ın kendi iddiasından değil) · gerçek marka
+   token'larıyla render edildi ve gözle doğrulandı: Türkçe glifler eksiksiz, başlık
+   **küçülmeden iki satıra bölündü** · `just test registry` → 6 test
+🧪 Üçü de koşuldu: zarfı `renderStatic`e geçir → `error TS2345: Argument of type
+   'RecordEnvelope' is not assignable to parameter of type 'DocumentModel'` (grep değil,
+   TİP) · ikinci `chromium.launch()` → `chokepoints` kırmızı · `metered: false` gövde
+   enjekte et → `VERB_CONTRACT_MISMATCH`, bütçe kapısı atlanamıyor
+   ⚠ Marka fontu henüz yok (V-02): render DejaVu Sans ile koşuyor ve Türkçe glifleri
+   eksiksiz veriyor. Golden metrik (FAZ-3.2) fonta bağlı kalmaya devam ediyor
 💾 `feat(render): COMPOSE ve statik RENDER` · `Refs: FAZ-3.1 · §7.1`
 
 ## 3.2 — Golden-file tipografi testi (JSON metrik)    [ ]

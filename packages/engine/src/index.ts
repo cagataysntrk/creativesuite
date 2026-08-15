@@ -117,3 +117,6 @@ export {
   type ApplyReport,
   type OpContent,
 } from './discovery/index.js'
+
+// Fiil gövdelerinin motora bağlandığı yer (§3.10 · FAZ-3.1)
+export { resolveVerb, type VerbImplementations } from './verbs/registry.js'
