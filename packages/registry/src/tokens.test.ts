@@ -4,6 +4,7 @@ import {
   inheritTokens,
   toBrandFacts,
   toCss,
+  toSurfaceCss,
   toTailwind,
   checkChroma,
   formatChroma,
@@ -91,9 +92,37 @@ describe('çıktılar', () => {
     expect(r.ok).toBe(true)
     if (r.ok) {
       const css = toCss(r.value)
-      expect(css).toContain('--comp-status-bar-bg: oklch(0.21 0.01 250);')
       expect(css).toContain('--role-bg:')
       expect(css).toContain('ÜRETİLMİŞ')
+    }
+  })
+
+  it('takma ad DÜZ DEĞERE değil var()a derlenir — kaskad kademeyi taşısın', () => {
+    // Düz değer basılsaydı `[data-surface]` içinde rolü yeniden tanımlamak hiçbir şey
+    // yapmazdı: bileşen token'ı çoktan pişmiş olurdu. İki yüzey bağlamı (§12.4)
+    // yapısal olarak imkânsız olurdu ve bunu ancak yüzeyi yazmaya kalkınca görürdük.
+    const r = derle(agac())
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      const css = toCss(r.value)
+      expect(css).toContain('--comp-status-bar-bg: var(--role-bg);')
+      expect(css).not.toContain('--comp-status-bar-bg: oklch')
+      // Ham rampanın kendisi takma ad DEĞİL — düz değer olarak kalır, yoksa zincir
+      // hiçbir yerde gerçek bir renge bağlanmazdı.
+      expect(css).toMatch(/--ramp-gray-900: oklch\(/)
+    }
+  })
+
+  it('yüzey bloğu YALNIZ rolleri yayar — yüzey rengi değiştirir, yapıyı değil', () => {
+    const r = derle(agac())
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      const css = toSurfaceCss('studio', r.value)
+      expect(css).toContain("[data-surface='studio']")
+      expect(css).toContain('--role-bg:')
+      // TANIM aranıyor, kullanım değil: rol değerleri elbette `var(--ramp-…)` içerir.
+      expect(css).not.toMatch(/^\s*--comp-/m)
+      expect(css).not.toMatch(/^\s*--ramp-/m)
     }
   })
 

@@ -30,6 +30,7 @@ export {
   compileTokens,
   inheritTokens,
   toCss,
+  toSurfaceCss,
   toTailwind,
   toBrandFacts,
   type FlatToken,

@@ -1,0 +1,40 @@
+{
+  "$description": "STÜDYO yüzeyi (§12.4). Kalıcı AÇIK — görsel yargılama bağlamı. Yalnız 2. kademe rolleri yeniden tanımlar: rampalar ve bileşen token'ları konsolla AYNIDIR. Yüzey rengi değiştirir, yapıyı değil; ikincisi iki tasarım sistemi demektir ve biri bakımsız kalır.",
+  "role": {
+    "bg": {
+      "$description": "Levhanın etrafındaki çerçeve. Açık ama levhadan KOYU: §12.4 stüdyo levhasının dört yandan en az 12px koyu boşlukla çevrelenmesini istiyor — göz çevreye adapte olur ve levhadaki renk yalan söyler.",
+      "$value": "{ramp.gray.300}",
+      "$type": "color"
+    },
+    "surface": {
+      "$description": "Levhanın kendisi. Yargılanan görselin oturduğu yer.",
+      "$value": "{ramp.gray.50}",
+      "$type": "color"
+    },
+    "line-hair": {
+      "$value": "{ramp.gray.200}",
+      "$type": "color"
+    },
+    "text": {
+      "$value": "{ramp.gray.950}",
+      "$type": "color"
+    },
+    "text-muted": {
+      "$value": "{ramp.gray.500}",
+      "$type": "color"
+    },
+    "state-warn": {
+      "$description": "Sinyal renkleri iki yüzeyde AYNI rampadan gelir — bir uyarının rengi bağlama göre değişirse operatör onu öğrenemez (ISA-101).",
+      "$value": "{ramp.signal.warn}",
+      "$type": "color"
+    },
+    "state-error": {
+      "$value": "{ramp.signal.danger}",
+      "$type": "color"
+    },
+    "state-ok": {
+      "$value": "{ramp.signal.ok}",
+      "$type": "color"
+    }
+  }
+}

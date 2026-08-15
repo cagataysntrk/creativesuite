@@ -14,23 +14,43 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 
 ---
 
-## 4.1 — Tasarım sistemi katmanı    [ ]
+## 4.1 — Tasarım sistemi katmanı: yüzey bağlamları    [x] 2026-08-15
 
-📖 §12.1, §12.2, §12.3, §12.4, §12.7 · R-22, R-23 · D-7
+> **Bölündü** (LOOP§C): `4.1` renk/yüzey, `4.1b` tipografi/boşluk/yükseklik.
+
+📖 §12.1, §12.4 · R-22, R-23 · D-7
 🔗 FAZ-2.10
-🛠 **Üç kademe token:** ham OKLCH rampalar (bileşen asla dokunmaz) → anlamsal roller
-   (yüzey bağlamına göre) → bileşen token'ları (yalnız 2. kademeye referans).
-   **İki renk bağlamı, tema anahtarı YOK:** `[data-surface="console"]` kalıcı koyu,
-   `[data-surface="studio"]` kalıcı açık. `prefers-color-scheme` yapısal olarak yok sayılır —
-   kabuk bir **izleme kabinidir** (ISO 3664) ve çok markalı bir sistemde aracın kendi
-   rengi işin rengiyle kavga ederse hiçbir marka dürüst görünmez.
-   **Chroma alana göre sınırlı:** ekranın %25'inden büyük dolgu C ≤ 0.02 · kenarlık ≤ 0.04 ·
-   metin ≤ 0.06 · yalnız %4'ten küçük sinyal alanları ≤ 0.16. **Gölge yasak** — yükseklik
-   arka plan basamağı + pah çizgisiyle.
-📁 `packages/ui/src/tokens/` · `packages/ui/src/theme.css`
-✅ `just gate tokens` üç kademe ihlalini yakalıyor · chroma sınırları makineyle denetleniyor
-🧪 Bileşen token'ını 1. kademeye bağla → kırmızı · %30 alanlı bir dolguya C=0.12 ver → kırmızı
-💾 `feat(ui): üç kademe token ve iki yüzey bağlamı` · `Refs: FAZ-4.1 · §12.1`
+🛠 **Üç kademe token** (ramp → role → comp) zaten mekanik olarak zorlanıyordu (D-133).
+   Bu adım **iki yüzey bağlamını** ekler: `[data-surface="console"]` kalıcı koyu,
+   `[data-surface="studio"]` kalıcı açık, **tema anahtarı YOK**.
+   Yüzey dosyası `<ad>.surface.tokens.json` AYRI derlenir ve **yalnız `role.*`
+   tanımlayabilir** — rampa ya da bileşen tanımlarsa iki tasarım sistemi olur.
+   Takma ad token'ları CSS'te `var()`a derlenir; düz değere derlenirse kaskad kademeyi
+   taşımaz ve yüzey bağlamı hiçbir şey yapmaz.
+📁 `packages/registry/src/tokens.ts` · `scripts/tokens.mjs` ·
+   `brand/*/tokens/studio.surface.tokens.json`
+✅ `just gate tokens` yeşil · üretilen `tokens.css` üç blok taşıyor (`:root`,
+   `[data-surface='console']`, `[data-surface='studio']`) · alt marka yüzeyi devralıyor
+🧪 Yüzeye `ramp` ekle → kırmızı · `comp` ekle → kırmızı · yüzey rolüne C=0.12 ver → kırmızı
+💾 `feat(ui): iki yüzey bağlamı, takma adlar var()a derleniyor` · `Refs: FAZ-4.1 · §12.4`
+
+## 4.1b — Tasarım sistemi katmanı: tipografi, boşluk, yükseklik    [ ]
+
+📖 §12.2, §12.3, §12.7 · R-22, R-23 · D-7
+🔗 4.1
+🛠 `packages/ui/src/theme.css`: **dokuz tip boyutu** (11px mikro → 36px mono okuma),
+   ağırlık 400/450/500/550/650 — **konsolda 700 YASAK**. Ölçülen her şey
+   `tabular-nums slashed-zero`, birim kardeş `<span>`'de 0.85em.
+   **4px temel birim**, konsolda yalnız 1/2/3/4/6/8 adımları. Satır 28/32/40px,
+   varsayılan 28. **Yarıçap 2px**, `--radius-full` yalnız 8px durum noktası.
+   **Gölge YASAK** — yükseklik arka plan basamağı + pah çizgisi; tek istisna
+   `[data-elevation="overlay"]`. Hareket beyaz listesi: altı şey, ≤320ms.
+📁 `packages/ui/src/theme.css` · `scripts/gates/ui-tema.sh`
+✅ `just gate ui-tema` yeşil · kapı `box-shadow`, `font-weight: 700`, ölçek dışı boşluk
+   ve `prefers-color-scheme` kullanımını yakalıyor
+🧪 `box-shadow` yaz → kırmızı · konsolda `font-weight: 700` yaz → kırmızı ·
+   `padding: 5px` yaz → kırmızı · `@media (prefers-color-scheme` yaz → kırmızı
+💾 `feat(ui): tip ölçeği, boşluk ölçeği, gölgesiz yükseklik` · `Refs: FAZ-4.1b · §12.2`
 
 ## 4.2 — Vite + React + Hono + SSE iskeleti    [ ]
 

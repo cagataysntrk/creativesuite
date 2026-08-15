@@ -535,3 +535,24 @@ Kapı yazıldığı anda işini yaptı: `§12.3`, `§12.4` ve `§12.7` bu turda 
 Üst başlıklar (`§3`, `§4`) muaf — gövdeleri alt bölümleridir; yanlış pozitif de hatadır.
 **Ders:** bir atıf kapısı hedefin VAR olduğunu doğrular, OKUNABİLİR olduğunu değil.
 İkisi arasındaki fark, bir belge sisteminin işe yarayıp yaramadığıdır.
+
+## D-160 — Bileşen token'ı düz değere derleniyordu: iki yüzey imkânsızdı
+2026-08-15 · `toCss` her token'ın **çözülmüş** değerini basıyordu:
+`--comp-status-bar-bg: oklch(0.21 …)`. Kademe denetimi kusursuz çalışıyordu, çıktı
+doğru görünüyordu ve `[data-surface="studio"]` içinde `--role-surface`ı yeniden
+tanımlamak **hiçbir şey yapmazdı** — bileşen token'ı çoktan pişmişti. Yani §12.4'ün iki
+yüzey bağlamı yapısal olarak imkânsızdı ve bunu ancak yüzeyi yazmaya kalkınca gördük.
+Takma ad artık `var(--role-x)`e derleniyor: üç kademe CSS'te de kademe olarak duruyor ve
+kaskad onu taşıyor. Ham rampalar düz değer kalır — zincirin bir yerde gerçek bir renge
+bağlanması gerekiyor.
+Yüzey dosyaları (`<ad>.surface.tokens.json`) AYRI derlenir, temel ağacın rampalarını
+ödünç alır ve **yalnız `role.*` tanımlayabilir**. Rampa tanımlasa kabuk iki farklı gri
+olurdu — "marka-nötr izleme kabini" tezinin (§12.1) tam tersi. Bileşen tanımlasa iki
+tasarım sistemi olurdu ve biri bakımsız kalırdı. Yüzey RENGİ değiştirir, YAPIYI değil.
+Yüzey tanımları kalıtılır: `brd_dima` stüdyo yüzeyini `brd_upcytech`ten aldı, tek satır
+yazmadan. Kalıtılmasaydı ana markanın yüzeyini güncellemek her alt markada elle tekrar
+gerektirirdi ve biri unutulurdu.
+Üç ihlalle doğrulandı: yüzeye `ramp` → kırmızı · `comp` → kırmızı · rol chroma'sı
+C=0.12 → kırmızı.
+**Ders:** "çıktı doğru görünüyor" bir doğrulama değil. Bu token derleyicisi iki fazdır
+doğru CSS üretiyordu ve üzerine inşa edilemeyecek bir CSS'ti.

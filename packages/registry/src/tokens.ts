@@ -145,9 +145,40 @@ export const compileTokens = (tree: Record<string, unknown>): TokenResult<readon
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: cikti }
 }
 
+/** `a.b.c` → `--a-b-c`. Tek yerde: iki farklı dönüşüm iki farklı değişken adı demektir. */
+const cssAdi = (yol: string): string => `--${yol.replace(/\./g, '-')}`
+
+/**
+ * Takma ad token'ı CSS'te DÜZ DEĞERE DEĞİL, `var()`a derlenir.
+ *
+ * İlk sürüm `resolved`ı basıyordu: `--comp-status-bar-bg: oklch(0.21 …)`. O hâlde
+ * `[data-surface="studio"]` içinde `--role-surface`ı yeniden tanımlamak HİÇBİR ŞEY
+ * yapmazdı — bileşen token'ı çoktan pişmişti. Yani iki yüzey bağlamı (§12.4) yapısal
+ * olarak imkânsızdı ve bunu ancak yüzeyi yazmaya kalkınca fark ettik.
+ * `var()` zinciri, üç kademenin CSS'teki karşılığıdır: kaskad kademeyi taşır.
+ */
+const cssDeger = (t: FlatToken): string => {
+  const m = REF_RE.exec(t.raw)
+  return m === null ? t.resolved : `var(${cssAdi(m[1] ?? '')})`
+}
+
+/**
+ * Bir yüzey bağlamının rol bloğu (§12.4).
+ *
+ * **Yalnız `role.*` yayılır.** Bir yüzeyin ham rampayı ya da bileşen token'ını yeniden
+ * tanımlaması, iki yüzeyin farklı bileşenlere sahip olması demektir — o an iki tasarım
+ * sistemi vardır ve biri bakımsız kalır. Yüzey RENGİ değiştirir, YAPIYI değil.
+ */
+export const toSurfaceCss = (surface: string, tokens: readonly FlatToken[]): string => {
+  const satirlar = tokens
+    .filter((t) => t.tier === 'role')
+    .map((t) => `  ${cssAdi(t.path)}: ${cssDeger(t)};`)
+  return `[data-surface='${surface}'] {\n${satirlar.join('\n')}\n}\n`
+}
+
 /** CSS özel değişkenleri. Kademe adı değişken adında KALIR: `--role-bg` neye ait belli. */
 export const toCss = (tokens: readonly FlatToken[]): string => {
-  const satirlar = tokens.map((t) => `  --${t.path.replace(/\./g, '-')}: ${t.resolved};`)
+  const satirlar = tokens.map((t) => `  ${cssAdi(t.path)}: ${cssDeger(t)};`)
   return `/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n${satirlar.join('\n')}\n}\n`
 }
 

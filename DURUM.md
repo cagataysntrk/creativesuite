@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.1
+siradaki_adim: 4.1b
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -48,16 +48,15 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 
 | Adım | Tarih |
 |---|---|
-| _(FAZ 4 henüz başlamadı)_ | — |
+| **4.1** · iki yüzey bağlamı, takma adlar `var()`a derleniyor | 2026-08-15 |
 
 ## Sıradaki adım
 
-**FAZ 4.1 — tasarım sistemi katmanı** (§12.1–12.4, §12.7).
-Üç kademe token ve chroma alan sınırları HAZIR (D-133); kalan: `packages/ui/src/theme.css`,
-iki yüzey bağlamı `[data-surface="console"|"studio"]` (**tema anahtarı YOK** —
-`prefers-color-scheme` yapısal olarak yok sayılır), **gölge yasağı** (yükseklik = arka
-plan basamağı + pah çizgisi), dokuz tip boyutu (konsolda 700 ağırlık yasak), 4px temel
-birim.
+**`4.1b` — tipografi, boşluk, yükseklik** (§12.2, §12.3, §12.7).
+Renk ve yüzey katmanı bitti: iki yüzey bağlamı çalışıyor, alt marka devralıyor.
+Kalan: `packages/ui/src/theme.css` — dokuz tip boyutu (konsolda 700 ağırlık yasak),
+4px temel birim (yalnız 1/2/3/4/6/8), satır 28/32/40, yarıçap 2px, **gölge yasağı**
+(yükseklik = arka plan basamağı + pah çizgisi) ve bunları zorlayan `ui-tema` kapısı.
 
 
 ## Bloke adımlar

@@ -10,8 +10,16 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const { compileTokens, inheritTokens, toCss, toTailwind, toBrandFacts, checkChroma, formatChroma } =
-  await import(join(REPO, 'packages/registry/dist/index.js'))
+const {
+  compileTokens,
+  inheritTokens,
+  toCss,
+  toSurfaceCss,
+  toTailwind,
+  toBrandFacts,
+  checkChroma,
+  formatChroma,
+} = await import(join(REPO, 'packages/registry/dist/index.js'))
 
 const kontrol = process.argv.includes('--check')
 
@@ -38,9 +46,13 @@ if (MARKALAR.length === 0) {
   process.exit(1)
 }
 
-// Birden fazla dosya TEK ağaçta birleşir: `console.tokens.json` ve gelecekteki
-// `studio.tokens.json` aynı kademe kurallarına tabidir. Ayrı derlemek, bir dosyanın
-// diğerinin rampasına referans vermesini sessizce imkânsız kılardı.
+// **`studio.tokens.json` AYRI derlenir** (§12.4). Diğer her dosya tek ağaçta birleşir.
+//
+// Sebep: iki yüzey bağlamı aynı rol ADLARINI farklı DEĞERLERLE tanımlar. Tek ağaçta
+// birleştirmek, `role.bg`'nin iki tanımından birinin sessizce diğerini ezmesi demekti —
+// yani yüzeylerden biri hiç var olmazdı. Yüzey ağacı, temel ağacın RAMPALARINI ödünç
+// alarak derlenir; kendi rampasını tanımlayamaz.
+const YUZEY_DOSYASI = /^([a-z]+)\.surface\.tokens\.json$/
 const agacOku = (marka) => {
   const dizin = join(REPO, `brand/${marka}/tokens`)
   if (!existsSync(dizin)) return null
@@ -49,14 +61,17 @@ const agacOku = (marka) => {
     .sort()
   if (dosyalar.length === 0) return null
   const agac = {}
+  const yuzeyler = {}
   for (const f of dosyalar) {
     const d = JSON.parse(readFileSync(join(dizin, f), 'utf8'))
+    const y = YUZEY_DOSYASI.exec(f)
+    const hedef = y === null ? agac : (yuzeyler[y[1]] ??= {})
     for (const [k, v] of Object.entries(d)) {
       if (k.startsWith('$')) continue
-      agac[k] = { ...(agac[k] ?? {}), ...v }
+      hedef[k] = { ...(hedef[k] ?? {}), ...v }
     }
   }
-  return { agac, dosyaSayisi: dosyalar.length }
+  return { agac, yuzeyler, dosyaSayisi: dosyalar.length }
 }
 
 let toplamToken = 0
@@ -94,7 +109,15 @@ for (const marka of MARKALAR) {
   }
 
   let agac = {}
+  let yuzeyAgaclari = {}
   let devralinan = 0
+  const yuzeyBirlestir = (alt, ust) => {
+    const cikti = { ...alt }
+    for (const [ad, agaci] of Object.entries(ust)) {
+      cikti[ad] = ad in cikti ? inheritTokens(cikti[ad], agaci).merged : agaci
+    }
+    return cikti
+  }
   for (const ata of zincir) {
     const a = agacOku(ata.id)
     if (a === null) {
@@ -102,13 +125,19 @@ for (const marka of MARKALAR) {
       process.exit(1)
     }
     agac = Object.keys(agac).length === 0 ? a.agac : inheritTokens(agac, a.agac).merged
+    // Yüzey tanımları da KALITILIR: alt marka stüdyo yüzeyini yeniden tanımlamak
+    // zorunda değil. Zorunda olsaydı, ana markanın yüzeyini güncellemek her alt
+    // markada elle tekrar gerektirirdi ve biri unutulurdu.
+    yuzeyAgaclari = yuzeyBirlestir(yuzeyAgaclari, a.yuzeyler)
   }
   if (zincir.length === 0) {
     agac = kendi.agac
+    yuzeyAgaclari = kendi.yuzeyler
   } else {
     const k = inheritTokens(agac, kendi.agac)
     agac = k.merged
     devralinan = k.overridden.length
+    yuzeyAgaclari = yuzeyBirlestir(yuzeyAgaclari, kendi.yuzeyler)
   }
   const dosyaSayisi = kendi.dosyaSayisi
 
@@ -134,6 +163,38 @@ for (const marka of MARKALAR) {
     process.exit(1)
   }
 
+  // ── yüzey bağlamları (§12.4) ──────────────────────────────────────────────
+  // Her yüzey, temel ağacın RAMPALARIYLA birlikte derlenir: kendi rampasını
+  // tanımlayamaz, çünkü iki yüzeyin farklı ham renkleri olması "marka-nötr izleme
+  // kabini" tezini (§12.1) çürütür — kabuk iki farklı gri olurdu.
+  const yuzeyCss = []
+  for (const [ad, yuzeyAgaci] of Object.entries(yuzeyAgaclari).sort()) {
+    const disari = Object.keys(yuzeyAgaci).filter((k) => k !== 'role')
+    if (disari.length > 0) {
+      console.log(
+        `✗ ${marka.id}: '${ad}' yüzeyi yalnız 'role' tanımlayabilir, şunları da tanımlamış: ` +
+          `${disari.join(', ')} — yüzey RENGİ değiştirir, YAPIYI değil (§12.4)`
+      )
+      process.exit(1)
+    }
+    const y = compileTokens({ ramp: agac.ramp, role: yuzeyAgaci.role })
+    if (!y.ok) {
+      console.log(`✗ ${marka.id}: '${ad}' yüzeyi derlenemedi:`)
+      for (const e of y.errors) console.log(`    ${e.kind}  ${e.path}`)
+      process.exit(1)
+    }
+    const yIhlal = checkChroma(y.value)
+    if (yIhlal.length > 0) {
+      console.log(`✗ ${marka.id}: '${ad}' yüzeyinde chroma sınırı aşıldı:`)
+      console.log(formatChroma(yIhlal))
+      process.exit(1)
+    }
+    yuzeyCss.push(toSurfaceCss(ad, y.value))
+  }
+  // Konsol yüzeyi AÇIKÇA yayılır, `:root`a güvenilmez: stüdyo levhasının içinde bir
+  // konsol adası (§12.4) rolleri geri alabilmeli. `:root` yalnız varsayılandır.
+  yuzeyCss.unshift(toSurfaceCss('console', sonuc.value))
+
   const MARKA = marka.id
   const CIKTI_DIR = join(REPO, `brand/${MARKA}/derived-tokens`)
   const eraSlug = readFileSync(join(REPO, `brand/${MARKA}/current`), 'utf8').trim()
@@ -151,7 +212,7 @@ for (const marka of MARKALAR) {
     '\n'
 
   const ciktilar = {
-    'tokens.css': toCss(sonuc.value),
+    'tokens.css': toCss(sonuc.value) + '\n' + yuzeyCss.join('\n'),
     'tailwind-theme.ts': toTailwind(sonuc.value),
     'brand-facts.json': toBrandFacts(sonuc.value, { brandId: MARKA, eraSlug }),
     'frame.md': frame,
