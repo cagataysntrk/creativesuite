@@ -12,6 +12,11 @@
   },
   "dependencies": {
     "@suite/contracts": "workspace:*",
-    "@suite/kernel": "workspace:*"
+    "@suite/kernel": "workspace:*",
+    "yaml": "2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "vitest": "4.1.10"
   }
 }

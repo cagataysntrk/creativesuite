@@ -62,7 +62,7 @@ fmt:
 
 # Türetilmiş indeksi sıfırdan kur. derived/runs'a DOKUNMAZ (D-38)
 reindex:
-    @echo "(FAZ-1.6'da gelecek)"
+    @./node_modules/.bin/tsc -b && node scripts/reindex.mjs
 
 # Haftalık sağlık raporu. Rapor yazar, HİÇBİR ŞEYİ DEĞİŞTİRMEZ
 doctor:

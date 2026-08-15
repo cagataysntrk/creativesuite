@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.6
+siradaki_adim: 1.9
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.8: 70 test; 4 yasadisi gecis de TS2345; kira dolunca is geri aliniyor, hak bitince failed terminal"
+son_kanit: "1.6: 87 test; just reindex 0dan 27ms; olcum -> olcumlerinizi [word,trigram]; corpus-yazici ve is-kuyrugu darbogazlari kirmizi verdi"
 ```
 
 ## Neredeyiz
@@ -65,6 +65,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.5** · Türkçe metin primitifleri | 2026-08-15 |
 | **1.7** · hata taksonomisi + Result disiplini | 2026-08-15 |
 | **1.8** · iş kuyruğu + dört durum makinesi | 2026-08-15 |
+| **1.6** · corpus yazma darboğazı + FTS5 indeksi | 2026-08-15 |
 
 ## Sıradaki adım
 

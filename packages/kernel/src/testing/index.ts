@@ -22,3 +22,5 @@ export {
 export { recordingServer, replayServer, type MswServer, type RecordingServer } from './msw.js'
 
 export { FIXTURE_ROOT, fixturePath, readFixture, readJsonFixture } from './fixtures.js'
+
+export { makeTempDir, type TempDir } from './tempdir.js'

@@ -77,12 +77,16 @@ ağ kablosu çekiliyken de çalışıyor
 🧪 Başka bir dosyada `.toUpperCase()` yaz → `turkish-case` kapısı kırmızı
 💾 `feat(kernel): locale-güvenli Türkçe metin primitifleri` · `Refs: FAZ-1.5 · §7.2`
 
-## 1.6 — Corpus yazma darboğazı ve türetilmiş indeks    [ ]
+## 1.6 — Corpus yazma darboğazı ve türetilmiş indeks    [x] 2026-08-15
 
 📖 §3.5, §5.6 · R-05, R-52 · D-27, D-38
-🛠 Tek yazma noktası (`corpus/write.ts`). `derived/index/` SQLite: FTS5 `unicode61
-   remove_diacritics 2` + paralel `trigram` + RRF birleştirme. `derived/runs/` **ayrı ve
-   silinmez**.
+🛠 Tek yazma noktası (`corpus/write.ts`) — agent yalnız `propose()` çağırabilir, `status`
+   ve `zone` seçtirilmez; elle düzenlenmiş (`zone: human`) kaydın ve imzası kırık
+   üretilmiş kaydın üzerine yazmak REDDEDİLİR. `derived/index/` SQLite: FTS5 `unicode61
+   remove_diacritics 2` + paralel `trigram` + RRF (k=60) birleştirme; hangi indeksin
+   bulduğu sonuçta görünür. `derived/runs/` **ayrı ve silinmez**.
+   Tek frontmatter ayrıştırıcı; bozuk dosya istisna değil **veri durumu** döndürür ve
+   `reindex` atlananları RAPORLAR — sessiz atlama, aranamayan kayıt demektir.
 ✅ `just reindex` sıfırdan kurup saniyeler içinde bitiriyor ·
    "ölçüm" araması "ölçümlerinizi" buluyor
 🧪 `derived/index/` sil → `just reindex` geri kuruyor · `derived/runs/` sil → **veri kaybı**,

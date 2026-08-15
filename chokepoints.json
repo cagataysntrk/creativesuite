@@ -61,10 +61,11 @@
     {
       "id": "corpus-yazici",
       "ad": "Corpus yazıcı",
-      "neden": "Agent önerir, insan uygular (§5.4). İkinci bir yazma yolu, onay kuyruğunu atlayan bir yazma yoludur.",
+      "neden": "Agent önerir, insan uygular (§5.4). İkinci bir yazma yolu, onay kuyruğunu ATLAYAN bir yazma yoludur — kendi kendini değiştirebilen bir yapılandırmanın tek güvenlik hikâyesi budur. Kapsam corpus paketiyle sınırlı: başka paketlerin dosya yazması ayrı darboğazlarda (manifest-yazici, blob CAS) ele alınır.",
       "izinli": ["packages/corpus/src/write.ts"],
-      "desen": null,
-      "faz": "FAZ-1.6"
+      "desen": "\\b(writeFileSync|appendFileSync|createWriteStream|writeFile|rmSync|unlinkSync)\\s*\\(",
+      "faz": "FAZ-1.6",
+      "kapsam": ["packages/corpus/src/**/*.ts"]
     },
     {
       "id": "git-cagiran",
@@ -142,9 +143,9 @@
     {
       "id": "is-kuyrugu",
       "ad": "İş kuyruğu",
-      "neden": "İki kuyruk, SIGKILL sonrası çift ücretlendirme demektir (§3.7).",
+      "neden": "İki kuyruk, SIGKILL sonrası çift ücretlendirme demektir (§3.7). `job` tablosuna dokunan tek dosya kuyruğun kendisidir; ikinci bir sorgu, kiralama sözleşmesini bilmeyen ve işi iki kez alan bir yoldur.",
       "izinli": ["packages/kernel/src/queue.ts"],
-      "desen": null,
+      "desen": "\\b(FROM|INTO|UPDATE|DELETE FROM)\\s+job\\b",
       "faz": "FAZ-1.8"
     },
     {

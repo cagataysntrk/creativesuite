@@ -2,3 +2,32 @@
 import type { PackageIdentity } from '@suite/contracts'
 
 export const IDENTITY: PackageIdentity = { name: '@suite/corpus', ring: 'corpus' }
+
+export {
+  parseFrontmatter,
+  serializeFrontmatter,
+  type ParsedFile,
+  type ParseError,
+  type ParseResult,
+} from './frontmatter.js'
+
+export {
+  INDEX_MIGRATIONS,
+  clearIndex,
+  upsertRecords,
+  search,
+  type IndexRow,
+  type SearchHit,
+} from './search.js'
+
+export {
+  writeRecord,
+  propose,
+  recordPath,
+  type Actor,
+  type WriteRequest,
+  type WriteRefusal,
+  type WriteResult,
+} from './write.js'
+
+export { reindex, reindexToPath, type ReindexReport } from './reindex.js'
