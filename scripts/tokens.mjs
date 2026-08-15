@@ -70,15 +70,44 @@ for (const marka of MARKALAR) {
     console.log(`✗ ${marka.id}: hiç token dosyası yok — kapı boş geçiyor`)
     process.exit(1)
   }
-  let agac = kendi.agac
+  // Kalıtım ZİNCİRİ özyineli çözülür: A -> B -> C varsa C, B'nin devraldigi A'yi da
+  // gormeli. Ilk surum yalniz BIR seviye bakiyordu ve dede kademesi sessizce
+  // kayboluyordu (2. dogrulama turu). Dongu tespiti de burada: parent kendini ya da
+  // bir atasini gosterirse sonsuz dongu yerine ACIK hata.
+  const zincir = []
+  {
+    const gorulen = new Set([marka.id])
+    let p = marka.parent
+    while (p !== null) {
+      if (gorulen.has(p)) {
+        console.log(`X ${marka.id}: kalitim DONGUSU - ${[...gorulen, p].join(' -> ')}`)
+        process.exit(1)
+      }
+      gorulen.add(p)
+      const ata = MARKALAR.find((m) => m.id === p)
+      if (ata === undefined) {
+        console.log(`X ${marka.id}: ana marka '${p}' brand/ altinda YOK`)
+        process.exit(1)
+      }
+      zincir.unshift(ata)
+      p = ata.parent
+    }
+  }
+
+  let agac = {}
   let devralinan = 0
-  if (marka.parent !== null) {
-    const ana = agacOku(marka.parent)
-    if (ana === null) {
-      console.log(`✗ ${marka.id}: ana marka ${marka.parent} token taşımıyor`)
+  for (const ata of zincir) {
+    const a = agacOku(ata.id)
+    if (a === null) {
+      console.log(`X ${marka.id}: ana marka ${ata.id} token tasimiyor`)
       process.exit(1)
     }
-    const k = inheritTokens(ana.agac, kendi.agac)
+    agac = Object.keys(agac).length === 0 ? a.agac : inheritTokens(agac, a.agac).merged
+  }
+  if (zincir.length === 0) {
+    agac = kendi.agac
+  } else {
+    const k = inheritTokens(agac, kendi.agac)
     agac = k.merged
     devralinan = k.overridden.length
   }

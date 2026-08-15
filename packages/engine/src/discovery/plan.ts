@@ -248,9 +248,11 @@ export const formatPlan = (p: DiscoveryPlan): string => {
   const degisen = s.create + s.update + s.retire
   const satirlar = [
     `  keşif planı · ${p.brandId} · dönem ${p.eraSlug} · mod ${p.mode}`,
-    degisen === 0
-      ? `  DEĞİŞİKLİK YOK — ${s.skip} kayıt imzası aynı (idempotent atlama çalışıyor)`
-      : `  ${s.create} yeni · ${s.update} güncelleme · ${s.retire} emeklilik · ${s.skip} atlandı`,
+    degisen === 0 && s.skip === 0
+      ? '  DEĞİŞİKLİK YOK — ama hiç KARŞILAŞTIRMA da yapılmadı (aday yok)'
+      : degisen === 0
+        ? `  DEĞİŞİKLİK YOK — ${s.skip} kayıt imzası aynı (idempotent atlama çalışıyor)`
+        : `  ${s.create} yeni · ${s.update} güncelleme · ${s.retire} emeklilik · ${s.skip} atlandı`,
   ]
   for (const o of p.ops) {
     if (o.kind === 'skip') continue

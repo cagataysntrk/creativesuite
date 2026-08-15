@@ -35,7 +35,7 @@ yeniden üretilebilsin.
    pencere `:as_of`'a göre. `SystemRecord` (attributes'sız projeksiyon) üzerinde derlenir —
    `attributes` üzerinde derlenseydi R-01'i kendi içinde çiğnerdi.
 📁 `packages/corpus/src/select.ts`
-✅ `just test select` → 15 test yeşil · emekliye ayrılmış 2024 kaydı 2026 sorgusunda
+✅ `just test select` → 24 test yeşil · emekliye ayrılmış 2024 kaydı 2026 sorgusunda
    gelmiyor, `:as_of` 2025'e alınınca GELİYOR · `chokepoints` `22 mekanik zorlanıyor`
    (yüklem beyandan zorlamaya geçti)
 🧪 İkisi de koşuldu: ikinci bir dosyada yüklem yaz → `chokepoints` `darboğaz ihlali
@@ -86,7 +86,7 @@ yeniden üretilebilsin.
    **görünmez**. Onay insanın git commit'idir. `git` çağıran tek yer `kernel/src/git.ts`
    (§3.8) ve bu adımda doğuyor.
 📁 `packages/corpus/src/write.ts` · `packages/kernel/src/git.ts`
-✅ `just test select` → 17 test (2 tanesi UÇTAN UCA: propose → dosyada `status: draft`
+✅ `just test select` → 24 test (2 tanesi UÇTAN UCA: propose → dosyada `status: draft`
    var → reindex indeksliyor → `selectRecords` ve `selectSearch` BOŞ dönüyor; insan
    `status: active` yazınca aynı dosya görünür oluyor) · `just test git` → 11 test.
    `git.ts`te **`commit` fonksiyonu YOK** — commit insanın eylemidir (R-14)
@@ -144,7 +144,7 @@ yeniden üretilebilsin.
    `2 yeni`; `review <plan>` → `2 op incelemede · HİÇBİR ŞEY yazmadı`; `apply <plan>
    <içerik>` → `2 taslak yazıldı`, ikisi de `status: draft` + `x_signature` taşıyor ·
    `plan` ve `review` öncesi/sonrası `git status --porcelain` satır sayısı AYNI ·
-   `just test discovery` → 32 test
+   `just test discovery` → 35 test
 🧪 Koşuldu: `plan`/`review` öncesi/sonrası ağaç aynı · aday listesi yokken çıktı
    "0 op" DEMİYOR, "aday listesi YOK" diyor · plan JSON'a serileşiyor (içinde
    çağrılabilir bir şey olsaydı "hiçbir şey yapmaz" iddiası konvansiyona düşerdi) ·
@@ -164,7 +164,7 @@ yeniden üretilebilsin.
    `brand/<brand_id>/decisions.jsonl` olarak doğar (bugün yok: hiç red kaydedilmedi)
 ✅ **İkinci çalıştırma → 0 op**, gerçek komutla kanıtlandı (faz çıkış kriteri):
    1. koşu `2 yeni · 0 güncelleme · 0 emeklilik · 0 atlandı` · 2. koşu (aynı imzalar)
-   `DEĞİŞİKLİK YOK — 2 kayıt imzası aynı` · `just test discovery` → 21 test
+   `DEĞİŞİKLİK YOK — 2 kayıt imzası aynı` · `just test discovery` → 35 test
 🧪 Koşuldu: `decisions.jsonl`'a bir red yaz → aynı öneri plandan düştü (`2 yeni` →
    `1 yeni · 1 atlandı`), gerekçe KATLANMIŞ geldi · DAHA İYİ öneri (farklı hash) geçiyor,
    yoksa bir kez reddedilen alan sonsuza kadar iyileştirilemezdi · `pinned` alan
@@ -198,10 +198,10 @@ yeniden üretilebilsin.
    (prompt'a enjeksiyon). **Üç kademe token** (§12.1): ham rampa → anlamsal rol → bileşen.
 📁 `brand/<brand_id>/tokens/*.tokens.json` · `brand/<brand_id>/derived-tokens/frame.md`
    (ÜRETİLMİŞ; `motion/` altına kopyalanması FAZ-5.2'nin işi)
-✅ `just gate tokens` → `22 token · 3 kademe zorlanıyor · üretilmiş çıktılar güncel`.
+✅ `just gate tokens` → `2 marka · 44 token · 3 kademe zorlanıyor · çıktılar güncel`.
    Kapı `--check` modunda koşuyor: üreteci çalıştırıp `git diff`e bakmak, kapının
    çalışma ağacını KİRLETMESİ olurdu · dört çıktı tek kaynaktan (CSS · Tailwind ·
-   `brand-facts.json` · `frame.md`) · `just test tokens` → 10 test
+   `brand-facts.json` · `frame.md`) · `just test tokens` → 15 test
    ⚠ Style Dictionary KULLANILMADI (R-75): iş takma ad çözme ve dize birleştirme;
    onun asıl değeri onlarca platform çıktısı, bizim tek platformumuz var
 🧪 Üçü de koşuldu: `comp → ramp` kademe atlaması → `tier_violation` · aynı kademe içi
@@ -221,8 +221,7 @@ yeniden üretilebilsin.
 📁 `brand/brd_upcytech/` · `brand/brd_dima/`
 ✅ `just tokens` → `brd_upcytech: 22 token · kök marka` + `brd_dima: 22 token ·
    brd_upcytech'ten devralıyor, 2 ezme`. dima'nın `role-text`i ana markayla AYNI
-   (miras), `role-state-ok`u FARKLI (ezme) · `just test tokens` 15, `just test select`
-   20 test · V-06 veri modeli kapandı (D-84)
+   (miras), `role-state-ok`u FARKLI (ezme) · `just test tokens` 15, `just test select` → 24 test · V-06 veri modeli kapandı (D-84)
 🧪 Üçü de koşuldu: dima sorgusu Upcytech kaydını getirmiyor (ne `selectRecords` ne
    `selectSearch`) · **`era_id: '*'` bile marka sınırını aşmıyor** — dönemden bağımsız
    olmak markadan bağımsız olmak değildir; aşsaydı dima konumlandırması her Upcytech

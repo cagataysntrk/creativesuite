@@ -67,18 +67,23 @@ for (const f of dosyalar) {
         ? fm['transfer_confidence']
         : gvd('Aktarım güveni'),
     claimSource: typeof fm['claim_source'] === 'string' ? fm['claim_source'] : gvd('Kaynak'),
-    // Sayısal iddia: yüzde, ondalık ve **binlik ayraçlı ya da birim taşıyan tamsayı**.
-    // İlk sürüm yalnız `%N` görüyordu; "1.247 İlan", "892 Satıcı", "300 müşteri
-    // kazandırdık" kaynaksız geçiyordu — ve bunlar `.claude/rules/turkish-copy.md`'de
-    // BİREBİR yasak örnek olarak sayılan ifadeler (doğrulama agent'ı buldu).
-    // Yıl (2024, 2026) hariç: dört haneli ve 1900-2100 arasıysa sayısal iddia değildir.
+    // Sayısal iddia: rakamla YA DA kelimeyle. İkinci grup kritik — doğrulama agent'ı
+    // "yüzde 40", "3 kat", "1/3 oranında", "yarım milyon" ifadelerinin kaynaksız
+    // geçtiğini gösterdi. Türkçe'de nicelik çoğu zaman rakamsız yazılır ve rakam
+    // arayan bir desen, dilin yarısını görmez.
+    //
+    // Yıl (1900-2100 arası çıplak dört hane) iddia DEĞİLDİR: "2024'te kurulduk" bir
+    // tarihtir. Binlik ayraçlı olan (1.247) iddiadır.
     hasNumericClaim: (() => {
+      const KELIME = /\b(yüzde|kat\b|misli|oran(ında|ı)?|çeyrek|yarım|milyon|milyar|bin\b)/i
+      if (KELIME.test(govde)) return true
+      // Kesir: 1/3, 2/5
+      if (/\b\d+\s*\/\s*\d+\b/.test(govde)) return true
       const adaylar = govde.match(/%\s?\d[\d.,]*|\b\d[\d.,]*\b/g) ?? []
       return adaylar.some((a) => {
         if (a.startsWith('%')) return true
         const sade = a.replace(/[.,]/g, '')
         const n = Number(sade)
-        // Yıl gibi görünen çıplak sayı iddia değildir; binlik ayraçlı olan (1.247) iddiadır.
         if (/^\d{4}$/.test(a) && n >= 1900 && n <= 2100) return false
         return sade.length >= 3 || a.includes('.') || a.includes(',')
       })

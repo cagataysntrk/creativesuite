@@ -550,3 +550,18 @@ Desen artık yazma ailesinin tamamını kapsıyor ve `neden` alanı sınırı d�
 `validateEra` yazılmıştı ama **çağrılmıyordu** — D-69'un ölü kod deseninin aynısı,
 üçüncü kez. Artık manifest ayrıştırılıyor, doğrulanıyor ve dizin adı ile manifest
 slug'ının uyuştuğu kontrol ediliyor.
+
+## D-98 — FAZ 2 kapandı: iki tur, 23 bulgu, üçüncü tur YOK
+2026-08-15 · İki doğrulama turu (D-79 tavanı) toplam **23 bulgu** verdi: 1. tur 5
+blokaj + 5 ikincil, 2. tur 7 blokaj + 6 ikincil. Hepsi kapatıldı.
+**Faz kapanıyor**, tek istisna `2.9` (yedi corpus kaydı insan onayı bekliyor, D-83).
+Üçüncü tur AÇILMIYOR: ikinci turda bulunmayan şey tanımı gereği minor'dur ve FAZ 9'un
+denetim turlarına düşer (9.2 kural uyumu, 9.5 ölü kod).
+**Çıkış kriterlerinin üçü de GERÇEK corpus ile kanıtlandı** — ilk turda ikisi yalnız
+fixture ile gösterilebiliyordu:
+1. `plan` corpus'u tarayıp yedi gerçek kaydın imzasıyla `0 op` üretiyor.
+2. Emekli kayıt retrieval'a düşmüyor (`:as_of` ile geri getirilebiliyor).
+3. Elle düzeltilmiş gerçek kayıt `signature_broken` ile reddediliyor.
+**FAZ 9'a devredilenler:** `valid_at`in imza dışı olmasının UI'dan elle düzenleme
+gelince yeniden değerlendirilmesi (FAZ-4.3), `x_signature` satırını silmenin korumayı
+kapatması (belgeli tasarım kararı, ama tek `sed` ile geçersizleştirilebiliyor).

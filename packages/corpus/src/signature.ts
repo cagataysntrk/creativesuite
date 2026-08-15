@@ -22,6 +22,12 @@ import { createHash } from 'node:crypto'
  * ilk onaydan sonra tamamen dururdu.
  */
 const IMZA_DISI = new Set(['x_signature', 'approved_by', 'approved_at', 'valid_at'])
+// `valid_at` neden hariç: `just onayla` onay anını hem `approved_at`e hem `valid_at`e
+// yazıyor — kayıt o an geçerli olmaya başlıyor. İkisi de onayın YAN ÜRÜNÜ, içeriğin
+// parçası değil. ⚠ Bilinen sınır (2. doğrulama turu): `valid_at`i ELLE değiştirmek
+// imzayı kırmıyor ve o alan bi-temporal yüklemi etkiliyor (§5.2). Bugün zararsız
+// çünkü alanı yalnız `onayla` yazıyor; UI'dan elle düzenleme geldiğinde (FAZ-4.3)
+// ya imzaya girecek ya da ayrı bir denetim gerekecek.
 
 /**
  * Kanonik dize: anahtarlar SIRALI, değerler JSON. `JSON.stringify(fm)` kullanılamaz —
