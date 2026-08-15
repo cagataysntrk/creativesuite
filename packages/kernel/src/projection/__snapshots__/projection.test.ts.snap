@@ -1,0 +1,160 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dört projeksiyon birlikte — snapshot (kabul kriteri) > tek şemadan dördü de üretiliyor ve sabit kalıyor 1`] = `
+{
+  "ddl": "CREATE TABLE IF NOT EXISTS attr_positioning (
+  record_id TEXT PRIMARY KEY,
+  statement TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  confidence_note TEXT,
+  proof_points TEXT NOT NULL,
+  seat_count INTEGER,
+  is_primary INTEGER,
+  scope TEXT NOT NULL,
+  legacy_tagline TEXT
+);
+",
+  "form": {
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence_note": {
+          "maxLength": 200,
+          "type": "string",
+        },
+        "is_primary": {
+          "type": "boolean",
+        },
+        "kind": {
+          "enum": [
+            "saas",
+            "bespoke",
+          ],
+          "title": "Tür",
+          "type": "string",
+        },
+        "proof_points": {
+          "items": {
+            "maxLength": 120,
+            "type": "string",
+          },
+          "type": "array",
+        },
+        "scope": {
+          "additionalProperties": false,
+          "properties": {
+            "region": {
+              "type": "string",
+            },
+            "vertical": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "vertical",
+          ],
+          "type": "object",
+        },
+        "seat_count": {
+          "minimum": 0,
+          "type": "integer",
+        },
+        "statement": {
+          "maxLength": 400,
+          "minLength": 10,
+          "title": "Konumlandırma cümlesi",
+          "type": "string",
+        },
+      },
+      "required": [
+        "statement",
+        "kind",
+        "proof_points",
+        "scope",
+      ],
+      "title": "Konumlandırma",
+      "type": "object",
+    },
+    "uiSchema": {
+      "statement": {
+        "ui:widget": "textarea",
+      },
+    },
+  },
+  "llm": {
+    "name": "positioning",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence_note": {
+          "type": "string",
+        },
+        "is_primary": {
+          "type": "boolean",
+        },
+        "kind": {
+          "enum": [
+            "saas",
+            "bespoke",
+          ],
+          "type": "string",
+        },
+        "proof_points": {
+          "items": {
+            "type": "string",
+          },
+          "type": "array",
+        },
+        "scope": {
+          "additionalProperties": false,
+          "properties": {
+            "region": {
+              "type": "string",
+            },
+            "vertical": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "vertical",
+            "region",
+          ],
+          "type": "object",
+        },
+        "seat_count": {
+          "type": "integer",
+        },
+        "statement": {
+          "type": "string",
+        },
+      },
+      "required": [
+        "statement",
+        "kind",
+        "confidence_note",
+        "proof_points",
+        "seat_count",
+        "is_primary",
+        "scope",
+      ],
+      "type": "object",
+    },
+    "strict": true,
+  },
+  "typescript": "export interface PositioningAttributes {
+  readonly statement: string
+  readonly kind: 'saas' | 'bespoke'
+  readonly confidence_note?: string
+  readonly proof_points: readonly string[]
+  readonly seat_count?: number
+  readonly is_primary?: boolean
+  readonly scope: {
+    readonly vertical: string
+    readonly region?: string
+  }
+  /** @deprecated emekli alan */
+  readonly legacy_tagline?: string
+}
+",
+}
+`;

@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 1
-siradaki_adim: 1.4
+siradaki_adim: 1.10b
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.14: 171 test; just plan claude-code adayini listeliyor; PATH bosken provider_unavailable donuyor ve katalogda kullanilamiyor diye isaretleniyor"
+son_kanit: "1.4: 195 test; ic ice nesneden additionalProperties:false silinince derleme REDDEDILDI; derleyici korelirse oz-test yakaliyor"
 ```
 
 ## Neredeyiz
@@ -73,19 +73,22 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.12** · motor: retry, kesici, bütçe, defter | 2026-08-15 |
 | **1.13** · just plan — harcamayan kuru çalıştırma | 2026-08-15 |
 | **1.14** · headless Claude Code adaptörü | 2026-08-15 |
+| **1.4** · projeksiyon derleyicisi (4 hedef) | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.4** — projeksiyon derleyicisi: tek şema → dört hedef (rjsf form şeması · TS tipi ·
-**katı LLM şeması** · SQLite DDL). FAZ 1'in son adımı.
-Kabul: her varlık tipi için dört projeksiyonun snapshot'ı eşleşiyor · `just test projection`.
-İhlal: şemaya iç içe nesne ekle, `additionalProperties:false` koyma → LLM projeksiyonu
-testi kırmızı (sessizce kabul etmiyor).
+**FAZ 1'in on beş adımının on dördü kapandı.** Kalan tek adım `1.10b` (golden harness)
+ve o **V-02'ye bağlı** — marka fontu seçilmeden metrik dondurmak, testin varlık sebebini
+çürütür (D-59).
 
-> 1.4 en sona kaldı çünkü LLM projeksiyonu **V-05**'e dayanıyor (Anthropic yapılandırılmış
-> çıktı alt kümesi OpenAI'ninkiyle aynı mı). 1.14'ün getirdiği Claude Code köprüsü tam da
-> o borcu gerçek bir çağrıyla kapatmayı mümkün kılıyor — derleyici daha KATI olana yazılır,
-> sonra çağrıyla doğrulanır.
+Sıradaki iş bir ADIM değil, **faz kapanış protokolü** (LOOP§D):
+1. FAZ-1'in her ✅ kriterini tek tek çalıştır, somut kanıt üret
+2. **Bağımsız doğrulama agent'ı** (`.claude/agents/faz-dogrulayici.md`) çalıştır
+3. Agent temiz derse faz kapanır; aksi hâlde eksikler tur listesine eklenir
+
+> FAZ 1 çıkış kriteri: `just verify` yeşil · dokuz fiil tanımlı ve `verbs` kapısı bağlı ·
+> `just plan` hiçbir şey harcamadan DAG + sağlayıcı + maliyet aralığı basıyor · ağ
+> kablosu çekiliyken de çalışıyor. Dördü de kanıtlandı; agent bağımsız doğrulayacak.
 
 ## Bloke adımlar
 

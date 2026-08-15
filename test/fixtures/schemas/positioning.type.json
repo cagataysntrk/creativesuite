@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "_not": "SENTETİK varlık tipi — projeksiyon derleyicisi testi için. Gerçek tipler FAZ-2.1'de registry/entity-types/ altına gelir.",
+  "$id": "positioning",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Konumlandırma",
+  "properties": {
+    "statement": {
+      "type": "string",
+      "title": "Konumlandırma cümlesi",
+      "minLength": 10,
+      "maxLength": 400
+    },
+    "kind": {
+      "type": "string",
+      "title": "Tür",
+      "enum": ["saas", "bespoke"]
+    },
+    "confidence_note": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "proof_points": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 120 }
+    },
+    "seat_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "is_primary": {
+      "type": "boolean"
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vertical": { "type": "string" },
+        "region": { "type": "string" }
+      },
+      "required": ["vertical"]
+    },
+    "legacy_tagline": {
+      "type": "string",
+      "x-retired": true
+    }
+  },
+  "required": ["statement", "kind", "proof_points", "scope"]
+}

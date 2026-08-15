@@ -101,5 +101,23 @@ export { spawnProcess, commandExists, type SpawnOptions, type SpawnResult } from
 
 export { readEnv, envFlag } from './config/env.js'
 
+export {
+  compile,
+  toForm,
+  toTypeScript,
+  toLlmSchema,
+  toSqliteDdl,
+  type Projections,
+  type FormProjection,
+} from './projection/compile.js'
+export {
+  validateSchema,
+  FORBIDDEN_KEYWORDS,
+  type SchemaNode,
+  type EntityTypeSchema,
+  type CompileError,
+  type CompileResult,
+} from './projection/types.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'

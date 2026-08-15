@@ -53,12 +53,17 @@ ağ kablosu çekiliyken de çalışıyor
 ✅ Profil dışı anahtar kullanan bir tip yaz → `registry` kapısı kırmızı
 💾 `docs(registry): kısıtlı JSON Schema profili` · `Refs: FAZ-1.3 · §3.3`
 
-## 1.4 — Projeksiyon derleyicisi    [ ]
+## 1.4 — Projeksiyon derleyicisi    [x] 2026-08-15
 
 📖 §3.4 · V-05
 🔗 1.3
 🛠 Tek şema → dört hedef: rjsf form şeması · TS tipi · **katı LLM şeması**
-   (allOf inline, her alan required, `additionalProperties:false`) · SQLite DDL.
+   (her alan required, `additionalProperties:false`, `strict: true`) · SQLite DDL.
+   Doğrulama ÖNCE koşar: geçersiz şemadan "üç geçerli bir bozuk" projeksiyon üretilmez.
+   **Emeklilik üç projeksiyonda üç farklı davranır** ve bu kasıtlı: TS'te `@deprecated`
+   olarak KALIR (tarihsel kayıt okunabilir), DDL'de sütunu KALIR (aynı sebep), LLM
+   şemasından ÇIKARILIR (modelden emekli alan istenmez), formdan ÇIKARILIR (kullanıcıyı
+   doldurmaya davet etmek yanlış).
 ✅ Her varlık tipi için dört projeksiyonun CI snapshot'ı eşleşiyor ·
    `just test projection` yeşil
 🧪 Şemaya iç içe bir nesne ekle, `additionalProperties:false` koyma → LLM projeksiyonu
