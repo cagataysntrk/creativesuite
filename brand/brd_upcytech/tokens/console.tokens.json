@@ -1,0 +1,39 @@
+{
+  "$description": "Komuta merkezi kabuğu — marka-NÖTR enstrüman grisi (§12.1). Ekrandaki tek renkli şey iştir.",
+  "ramp": {
+    "$description": "1. kademe: ham OKLCH rampalar. Bileşen ASLA dokunmaz.",
+    "gray": {
+      "50": { "$value": "oklch(0.97 0.004 250)", "$type": "color" },
+      "200": { "$value": "oklch(0.84 0.006 250)", "$type": "color" },
+      "500": { "$value": "oklch(0.58 0.008 250)", "$type": "color" },
+      "800": { "$value": "oklch(0.28 0.010 250)", "$type": "color" },
+      "900": { "$value": "oklch(0.21 0.010 250)", "$type": "color" },
+      "950": { "$value": "oklch(0.16 0.010 250)", "$type": "color" }
+    },
+    "signal": {
+      "$description": "Yalnız %4'ten küçük alanlarda. Renk ANORMALLİK demektir (§12.1).",
+      "warn": { "$value": "oklch(0.72 0.150 75)", "$type": "color" },
+      "danger": { "$value": "oklch(0.58 0.160 25)", "$type": "color" },
+      "ok": { "$value": "oklch(0.65 0.120 150)", "$type": "color" }
+    }
+  },
+  "role": {
+    "$description": "2. kademe: anlamsal roller. Yalnız ramp'a referans verir.",
+    "bg": { "$value": "{ramp.gray.950}", "$type": "color" },
+    "surface": { "$value": "{ramp.gray.900}", "$type": "color" },
+    "line-hair": { "$value": "{ramp.gray.800}", "$type": "color" },
+    "text": { "$value": "{ramp.gray.50}", "$type": "color" },
+    "text-muted": { "$value": "{ramp.gray.500}", "$type": "color" },
+    "state-warn": { "$value": "{ramp.signal.warn}", "$type": "color" },
+    "state-error": { "$value": "{ramp.signal.danger}", "$type": "color" },
+    "state-ok": { "$value": "{ramp.signal.ok}", "$type": "color" }
+  },
+  "comp": {
+    "$description": "3. kademe: bileşen token'ları. Yalnız role'e referans verir.",
+    "tolerance-track": { "$value": "{role.line-hair}", "$type": "color" },
+    "tolerance-limit": { "$value": "{role.state-warn}", "$type": "color" },
+    "tolerance-out": { "$value": "{role.state-error}", "$type": "color" },
+    "status-bar-bg": { "$value": "{role.surface}", "$type": "color" },
+    "status-bar-text": { "$value": "{role.text-muted}", "$type": "color" }
+  }
+}

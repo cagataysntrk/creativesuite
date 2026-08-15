@@ -1,0 +1,25 @@
+/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */
+:root {
+  --comp-status-bar-bg: oklch(0.21 0.010 250);
+  --comp-status-bar-text: oklch(0.58 0.008 250);
+  --comp-tolerance-limit: oklch(0.72 0.150 75);
+  --comp-tolerance-out: oklch(0.58 0.160 25);
+  --comp-tolerance-track: oklch(0.28 0.010 250);
+  --ramp-gray-200: oklch(0.84 0.006 250);
+  --ramp-gray-50: oklch(0.97 0.004 250);
+  --ramp-gray-500: oklch(0.58 0.008 250);
+  --ramp-gray-800: oklch(0.28 0.010 250);
+  --ramp-gray-900: oklch(0.21 0.010 250);
+  --ramp-gray-950: oklch(0.16 0.010 250);
+  --ramp-signal-danger: oklch(0.58 0.160 25);
+  --ramp-signal-ok: oklch(0.65 0.120 150);
+  --ramp-signal-warn: oklch(0.72 0.150 75);
+  --role-bg: oklch(0.16 0.010 250);
+  --role-line-hair: oklch(0.28 0.010 250);
+  --role-state-error: oklch(0.58 0.160 25);
+  --role-state-ok: oklch(0.65 0.120 150);
+  --role-state-warn: oklch(0.72 0.150 75);
+  --role-surface: oklch(0.21 0.010 250);
+  --role-text: oklch(0.97 0.004 250);
+  --role-text-muted: oklch(0.58 0.008 250);
+}

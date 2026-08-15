@@ -185,7 +185,7 @@ yeniden üretilebilsin.
    İÇERMİYOR, o yüzden bugün ihlal edilecek bir kural yok
 💾 `feat(corpus): ilk keşif çalıştırması` · `Refs: FAZ-2.9 · §4.4`
 
-## 2.10 — Token mimarisi ve `frame.md`    [ ]
+## 2.10 — Token mimarisi ve `frame.md`    [x] 2026-08-15
 
 📖 §4.1, §12
 🔗 2.6
@@ -193,8 +193,17 @@ yeniden üretilebilsin.
    Style Dictionary → CSS · Tailwind teması · `motion/frame.md` · `brand-facts.json`
    (prompt'a enjeksiyon). **Üç kademe token** (§12.1): ham rampa → anlamsal rol → bileşen.
 📁 `brand/<brand_id>/tokens/*.tokens.json` · `motion/frame.md`
-✅ `just gate tokens` üretip `git diff --exit-code` boş · üç kademe ayrımı zorlanıyor
-🧪 Bileşen token'ı 1. kademeye doğrudan bağla → kapı kırmızı
+✅ `just gate tokens` → `22 token · 3 kademe zorlanıyor · üretilmiş çıktılar güncel`.
+   Kapı `--check` modunda koşuyor: üreteci çalıştırıp `git diff`e bakmak, kapının
+   çalışma ağacını KİRLETMESİ olurdu · dört çıktı tek kaynaktan (CSS · Tailwind ·
+   `brand-facts.json` · `frame.md`) · `just test tokens` → 10 test
+   ⚠ Style Dictionary KULLANILMADI (R-75): iş takma ad çözme ve dize birleştirme;
+   onun asıl değeri onlarca platform çıktısı, bizim tek platformumuz var
+🧪 Üçü de koşuldu: `comp → ramp` kademe atlaması → `tier_violation` · aynı kademe içi
+   referans (`role → role`) → reddediliyor, yani döngü yapısal olarak İMKÂNSIZ ·
+   üretilmiş `tokens.css`i elle düzenle → `✗ güncel değil` (R-65)
+   `brand-facts.json` renk DEĞERİ taşımıyor, yalnız rol ADLARI — modele renk kodu
+   vermek onu görselde kullanmaya davet eder (R-20'nin renk kardeşi)
 💾 `feat(brand): token mimarisi ve frame.md` · `Refs: FAZ-2.10 · §4.1`
 
 ## 2.11 — Çok markalılık: Upcytech + dima    [ ]

@@ -66,6 +66,10 @@ save file="-" *paths:
 fmt:
     @./node_modules/.bin/prettier --write . --log-level warn && echo "✓ biçimlendirildi"
 
+# Marka token'larını derle: CSS + Tailwind teması + brand-facts.json (§4.1)
+tokens:
+    @./node_modules/.bin/tsc -b && node scripts/tokens.mjs
+
 # İNSANIN onay komutu: draft → active (§5.4 · R-14). Agent bunu ÇAĞIRMAZ.
 onayla *yollar:
     @./node_modules/.bin/tsc -b && node scripts/onayla.mjs {{yollar}}
