@@ -32,6 +32,7 @@ import {
   type Db,
   type ProviderCandidate,
   type Rng,
+  type HumanDecision,
   type RunManifest,
   type StepRecord,
   type Verb,
@@ -91,6 +92,18 @@ export interface RunInput {
    * Çağıran birden fazla çalıştırma arasında paylaşmak isteyebilir.
    */
   readonly breaker?: CircuitBreaker
+  /**
+   * İnsanın verdiği kapı kararları (§4c · §13).
+   *
+   * Bir kapı için `approved` bir karar varsa hat o kapıdan GEÇER; yoksa DURUR.
+   * `decisions: []` sabit koduydu ve kapı kalıcı bir duvardı: onay mekanizması
+   * olmadan hiçbir çalıştırma tamamlanamazdı (D-145).
+   *
+   * ⚠ Kararları AGENT üretemez. `just onay` insanın klavyesinden çalışır ve manifest'e
+   * yazar; motor yalnız yazılmış olanı OKUR. Bu ayrım R-14'ün çalıştırma tarafındaki
+   * karşılığı.
+   */
+  readonly decisions?: readonly HumanDecision[]
   readonly signal?: AbortSignal
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
   readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
@@ -193,11 +206,30 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
 
     // ── insan kapısı: onay bir yan etki değil, bir KAPIDIR (§4c) ───────────
     if (s.gate !== null) {
-      // Kapıya gelindi ve hat DURUR. Kapıyı otomatik geçmek, "agent önerir insan
-      // uygular" (§5.4) yasasının tek mekanik karşılığını silmek olurdu.
-      bekleyenKapi = s.gate
-      durduguYer = stepId
-      break
+      const karar = (input.decisions ?? []).find((d) => d.gate === s.gate)
+      if (karar === undefined) {
+        // Karar YOK: hat durur. Kapıyı otomatik geçmek, "agent önerir insan uygular"
+        // (§5.4) yasasının tek mekanik karşılığını silmek olurdu.
+        bekleyenKapi = s.gate
+        durduguYer = stepId
+        break
+      }
+      if (karar.decision === 'rejected') {
+        // Red de bir karardır ve gerekçesi KALICIDIR: sonraki çalıştırmaya negatif
+        // kısıt olarak girer (§12.9). Sessizce "durdu" demek gerekçeyi kaybederdi.
+        hatalar.push({
+          stepId,
+          error: hata('GATE_REJECTED', correlationId, {
+            gate: s.gate,
+            note: karar.note,
+            at: karar.at,
+          }),
+        })
+        durduguYer = stepId
+        break
+      }
+      // Onaylandı: kapı GEÇİLDİ ve karar manifest'e yazılacak. Adımın kendisi
+      // (`PROPOSE`) normal akışta koşmaya devam eder.
     }
 
     const verbAdi = s.verb as VerbName
@@ -492,7 +524,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     registryCommit: input.registryCommit,
     createdAt: clock.nowIso(),
     steps: kayitlar,
-    decisions: [],
+    decisions: input.decisions ?? [],
     context: [],
     contextRetentionDays: 90,
   }

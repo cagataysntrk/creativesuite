@@ -50,7 +50,14 @@ const { initLedger } = await import(join(REPO, 'packages/engine/dist/index.js'))
 const { selectRecords, selectSearch } = await import(join(REPO, 'packages/corpus/dist/index.js'))
 
 const id = process.argv[2]
-const konu = process.argv.slice(3).join(' ')
+// `--devam <run_id>`: mevcut bir çalıştırmanın KARARLARINI okuyup hattı sürdürür.
+// Kararlar manifest'ten gelir; bu betik onları ÜRETMEZ, yalnız OKUR (R-14 · D-145).
+const devamIndeks = process.argv.indexOf('--devam')
+const devamRunId = devamIndeks > 0 ? process.argv[devamIndeks + 1] : undefined
+const konu = process.argv
+  .slice(3)
+  .filter((a, i, arr) => a !== '--devam' && arr[i - 1] !== '--devam')
+  .join(' ')
 if (id === undefined || konu === '') {
   console.log(`  kullanım: just uret <pipeline> <konu>`)
   console.log(`  mevcut: ${listPipelines(PIPELINES).join(', ') || '(yok)'}`)
@@ -77,7 +84,25 @@ const tokenCss = readFileSync(tokenYolu, 'utf8')
 
 // Ön ekli kimlik kernel'den (R-06 · `id-uretici` darboğazı): ikinci bir üreteç,
 // sıralanamayan ve tipi anlaşılmayan id üretir.
-const runId = newId('RunId')
+// `--devam` AYNI runId'yi kullanır: idempotency defteri o kimliğe bağlı ve yeni bir
+// kimlik, ödenmiş adımları yeniden ödemek demektir (R-44).
+const runId = devamRunId ?? newId('RunId')
+
+let kararlar = []
+if (devamRunId !== undefined) {
+  const { readManifest } = await import(join(REPO, 'packages/engine/dist/index.js'))
+  const onceki = readManifest(REPO, devamRunId)
+  if (onceki === null) {
+    console.log(`✗ devam edilecek çalıştırma bulunamadı: ${devamRunId}`)
+    process.exit(1)
+  }
+  kararlar = onceki.decisions ?? []
+  if (kararlar.length === 0) {
+    console.log(`✗ ${devamRunId}: hiç kapı kararı yok — önce: just onay ${devamRunId} onayla`)
+    process.exit(1)
+  }
+  console.log(`  ${devamRunId} sürdürülüyor · ${kararlar.length} kapı kararı okundu`)
+}
 const clock = systemClock
 const damga = {
   brandId: MARKA,
@@ -288,6 +313,8 @@ const rapor = await runPipeline({
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
   params: { topic: konu },
+  // Kararlar manifest'ten OKUNUR; motor yalnız yazılmış olanı görür.
+  decisions: kararlar,
   // Tavan DÜŞÜK ve ZORUNLU: tavansız çalıştırmak, gözetimsiz bir gecede tavanın
   // olmadığını öğrenmektir.
   caps: {

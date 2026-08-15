@@ -313,3 +313,83 @@ describe('bütçe tavanı hattı KİLİTLİYOR (D-17)', () => {
     expect(gerekce[0]).toContain('premium şeridinde değil')
   })
 })
+
+describe('insan kapısı kararı (§4c · D-145)', () => {
+  const kapiliHat = [
+    { id: 'a', verb: 'RESOLVE' as const, capability: null, constraints: {}, needs: [], gate: null },
+    {
+      id: 'onay',
+      verb: 'PROPOSE' as const,
+      capability: null,
+      constraints: {},
+      needs: ['a'],
+      gate: 'insan-onayi',
+    },
+  ]
+  const verbs = { RESOLVE: basarili('RESOLVE', {}), PROPOSE: basarili('PROPOSE', { ok: true }) }
+
+  it('KARAR YOKSA hat kapıda duruyor', async () => {
+    const r = await kos(kapiliHat, { verbs })
+    expect(r.awaitingGate).toBe('insan-onayi')
+    expect(r.manifest.steps).toHaveLength(1)
+    expect(r.manifest.decisions).toHaveLength(0)
+  })
+
+  it("ONAYLANDIYSA kapı geçiliyor ve karar manifest'e yazılıyor", async () => {
+    const r = await kos(kapiliHat, {
+      verbs,
+      decisions: [
+        { gate: 'insan-onayi', decision: 'approved', at: '2026-08-15T09:00:00.000Z', note: null },
+      ],
+    })
+    expect(r.awaitingGate).toBeNull()
+    expect(r.stoppedAt).toBeNull()
+    // `PROPOSE` GERÇEKTEN koştu.
+    expect(r.manifest.steps).toHaveLength(2)
+    expect(r.manifest.decisions[0]?.decision).toBe('approved')
+  })
+
+  it('REDDEDİLDİYSE hat duruyor ve GEREKÇE taşınıyor', async () => {
+    // Red de bir karardır ve gerekçesi KALICIDIR: sonraki çalıştırmaya negatif kısıt
+    // olarak girer (§12.9). Sessizce "durdu" demek gerekçeyi kaybederdi.
+    const r = await kos(kapiliHat, {
+      verbs,
+      decisions: [
+        {
+          gate: 'insan-onayi',
+          decision: 'rejected',
+          at: '2026-08-15T09:00:00.000Z',
+          note: 'başlık ikinci slaytta kesiliyor',
+        },
+      ],
+    })
+    expect(r.stoppedAt).toBe('onay')
+    expect(r.errors[0]?.error.code).toBe('GATE_REJECTED')
+    expect(r.errors[0]?.error.details?.['note']).toBe('başlık ikinci slaytta kesiliyor')
+    // PROPOSE koşmadı: red bir kapıdır, bir uyarı değil.
+    expect(r.manifest.steps).toHaveLength(1)
+  })
+
+  it('BAŞKA bir kapının kararı bu kapıyı AÇMIYOR', async () => {
+    const r = await kos(kapiliHat, {
+      verbs,
+      decisions: [
+        { gate: 'baska-kapi', decision: 'approved', at: '2026-08-15T09:00:00.000Z', note: null },
+      ],
+    })
+    expect(r.awaitingGate).toBe('insan-onayi')
+  })
+
+  it("kararlar manifest'e AYNEN yazılıyor — `decisions: []` sabit kodu kalktı", async () => {
+    const kararlar = [
+      {
+        gate: 'insan-onayi',
+        decision: 'approved' as const,
+        at: '2026-08-15T09:00:00.000Z',
+        note: 'tamam',
+      },
+    ]
+    await kos(kapiliHat, { verbs, decisions: kararlar })
+    expect(readManifest(tmp.path, RUN)?.decisions).toEqual(kararlar)
+  })
+})

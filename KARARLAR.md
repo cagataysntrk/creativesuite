@@ -499,3 +499,22 @@ Metrikler bugün SİSTEM fontuyla dondu (`DejaVu Sans`); marka fontu geldiğinde
 yeniden alınır — bu bir düzeltme, bir blokaj değil.
 **Ders:** "bloke" gerekçeleri de doğrulanmalı. Bir adımı yanlış sebeple bloke etmek,
 onu yapılabilirken yapmamaktır.
+
+## D-145 — `just onay`: çalıştırma kapısı kararı; `decisions: []` sabit kodu kalktı
+2026-08-15 · `run.ts` `decisions: []` yazıyordu ve insan kapısı **kalıcı bir duvardı**:
+onay mekanizması olmadan hiçbir çalıştırma tamamlanamazdı. Doğrulama agent'ının B2'si.
+İki komut, iki ayrı şey:
+- `just onayla <corpus-yolu>` → bir KAYDIN doğruluğu (`draft` → `active`, R-14)
+- `just onay <run_id> onayla|reddet [gerekçe]` → bir ÇALIŞTIRMANIN çıktısı (§4c)
+**Red GEREKÇE ister.** Gerekçesiz bir red sonraki çalıştırmaya negatif kısıt olarak
+giremez (§12.9) ve altı ay sonra "bu neden reddedildi" sorusu cevapsız kalır. Komut
+gerekçesiz reddi reddediyor.
+Motor kararları **yalnız OKUR**, üretmez: `just onay` insanın klavyesinden çalışır ve
+manifest'e yazar. Agent'ın onu çağırması R-14'ü çiğnemektir — kendi ürettiğini onaylayan
+bir agent, onay kuyruğunu formaliteye çevirir. Bu, R-14'ün çalıştırma tarafındaki
+karşılığı.
+`just uret … --devam <run_id>` **AYNI runId** ile sürdürüyor: yeni bir kimlik,
+idempotency defterindeki ödenmiş adımları yeniden ödemek demekti (R-44).
+Beş test: karar yoksa durur · onaylıysa geçer ve `PROPOSE` GERÇEKTEN koşar · reddedilmişse
+`GATE_REJECTED` + gerekçe taşınır · BAŞKA bir kapının kararı bu kapıyı açmaz · kararlar
+manifest'e aynen yazılır.

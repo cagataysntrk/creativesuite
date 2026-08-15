@@ -74,6 +74,11 @@ tokens:
     @./node_modules/.bin/tsc -b && node scripts/tokens.mjs
 
 # İNSANIN onay komutu: draft → active (§5.4 · R-14). Agent bunu ÇAĞIRMAZ.
+# Bir ÇALIŞTIRMAYI onayla/reddet — insan kapısı kararı (§4c). İnsan çalıştırır.
+onay *args:
+    @./node_modules/.bin/tsc -b && node scripts/onay.mjs {{args}}
+
+# Bir corpus KAYDINI onayla — draft → active (R-14). İnsan çalıştırır.
 onayla *yollar:
     @./node_modules/.bin/tsc -b && node scripts/onayla.mjs {{yollar}}
 
