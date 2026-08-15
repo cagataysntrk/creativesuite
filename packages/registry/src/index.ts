@@ -58,3 +58,15 @@ export {
   type BrokenRecord,
   type Refusal,
 } from './migrate.js'
+
+// Bütçe tavanları — Ring 1, UI'dan ayarlanır (§8.3 · D-17).
+export {
+  parseButce,
+  serializeButce,
+  toBudgetCaps,
+  butceHatasiMesaji,
+  VARSAYILAN as VARSAYILAN_BUTCE,
+  type ButceTavanlari,
+  type ButceHatasi,
+  type ButceSonuc,
+} from './butce.js'

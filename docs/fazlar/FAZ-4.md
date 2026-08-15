@@ -148,7 +148,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🧪 Reddedilene 200 döndür → kırmızı · silme reddini kaldır → kapı + 2 test kırmızı
 💾 `feat(ui): schema editor ve göç dry-run'ı` · `Refs: FAZ-4.11 · §3.3`
 
-## 4.12 — Cost & Budget    [ ]
+## 4.12 — Cost & Budget    [x] 2026-08-16
 
 📖 §8.3, §12.9 · D-17
 🔗 FAZ-3.5
@@ -156,8 +156,10 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    yazısı değil) · fiyat anlık görüntüsü yaşı uyarısı · **UI'dan ayarlanabilir tavanlar**
    (aylık / çalıştırma / pipeline).
 📁 `apps/ui/src/screens/budget/`
-✅ Tavanı UI'dan değiştir → sonraki çalıştırma yeni tavana uyuyor
-🧪 %20 üstü sapma olan bir sağlayıcı → panoda işaretleniyor (§16)
+✅ Tavan `registry/butce.yaml`de (env DEĞİL — D-179). UI yazdı → sonraki `just uret`
+   `100000` yerine `250000` okudu. Çelişkili tavan **422**, sayı olmayan **400** · 10 test
+🧪 Çelişki denetimini etkisizleştir → kapı + test kırmızı · bozuk dosyayı sessizce
+   varsayılana düşür → test kırmızı
 💾 `feat(ui): maliyet ve bütçe panosu` · `Refs: FAZ-4.12 · §8.3`
 
 ## 4.13 — Tailscale ve Telegram onay botu    [ ]

@@ -61,6 +61,24 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.12: bütçe tavanı UI'dan ayarlanır ve GEÇERSİZ tavan yazılmaz.
+  const bt = await (await fetch(`${U}/api/butce`)).json()
+  bekle(bt.tavan !== undefined, '/api/butce tavan dönmüyor')
+  bekle(bt.kota === null, 'kota ölçülmüyorken null olmalı — uydurma doluluk yasak')
+  bekle(typeof bt.tavan.varsayilan === 'boolean', 'varsayılan tavan kullanıldığı SÖYLENMİYOR')
+  const tavanYaz = (govde) =>
+    fetch(`${U}/api/butce`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(govde),
+    })
+  // Çelişkili tavan (çalıştırma > aylık) YAZILMAZ.
+  const celiskili = await tavanYaz({ perRunMicros: '9000000', perMonthMicros: '1000' })
+  bekle(celiskili.status === 422, `çelişkili tavan kabul edildi (${celiskili.status})`)
+  // Sayı olmayan tavan 500 DEĞİL 400.
+  const bozuk = await tavanYaz({ perRunMicros: 'abc' })
+  bekle(bozuk.status === 400, `sayı olmayan tavan ${bozuk.status} döndü, 400 olmalı`)
+
   // FAZ-4.11: şema kuru çalıştırması. Reddedilen bir göç 200 DÖNMEZ — durum koduna
   // bakan bir istemci yıkıcı değişikliği başarılı sanardı (D-178).
   const sm = await (await fetch(`${U}/api/semalar`)).json()
@@ -212,5 +230,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 15 uç · şema · keşif · yerleşim · qa · kuyruk · plan · bağlam · SSE`
+  `    sunucu ayağa kalktı · 17 uç · bütçe · şema · keşif · yerleşim · qa · kuyruk · plan · SSE`
 )

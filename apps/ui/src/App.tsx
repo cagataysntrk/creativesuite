@@ -14,6 +14,7 @@ import { OnayKuyrugu } from './OnayKuyrugu.js'
 import { YerlesimEkrani } from './YerlesimEkrani.js'
 import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
+import { ButceEkrani } from './ButceEkrani.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -44,7 +45,7 @@ export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
   const [sonOlayMs, setSonOlayMs] = useState<number | null>(null)
   const [ekran, setEkran] = useState<
-    'giris' | 'corpus' | 'baglam' | 'calistir' | 'kuyruk' | 'yerlesim' | 'kesif' | 'sema'
+    'giris' | 'corpus' | 'baglam' | 'calistir' | 'kuyruk' | 'yerlesim' | 'kesif' | 'sema' | 'butce'
   >('giris')
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
 
@@ -99,6 +100,8 @@ export const App = (): React.JSX.Element => {
           <DiscoveryEkrani runId="run_discovery_dry" />
         ) : ekran === 'sema' ? (
           <SemaEkrani />
+        ) : ekran === 'butce' ? (
+          <ButceEkrani />
         ) : (
           <>
             <h1>Upcytech Creative Suite</h1>
@@ -127,7 +130,9 @@ export const App = (): React.JSX.Element => {
                         ? 'kesif'
                         : k.id === 'sema'
                           ? 'sema'
-                          : 'giris'
+                          : k.id === 'butce'
+                            ? 'butce'
+                            : 'giris'
           )
         }
       />

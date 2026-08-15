@@ -448,3 +448,24 @@ ve `0` ise "şema hiçbir kayda bağlı değil" yazıyor — yoksa kuru çalış
 kırılacak" demesi açıklanamaz bir alarm olurdu.
 **Ders:** bir `Result` iki soruyu cevaplıyorsa ("işlem yapılabildi mi" ve "sonuç iyi mi")
 çağıran ikisini karıştırır. Ayrı alanlar, ayrı durum kodları.
+
+## D-179 — Bütçe tavanı env değişkeninden Ring 1'e taşındı
+2026-08-16 · Tavan `SUITE_RUN_CAP` ortam değişkenindeydi. Üç sorun: UI'dan
+değiştirilemez (D-17 "tavanlar UI'dan ayarlanır" diyor), git'te görünmez, iki makinede
+farklı olabilir — ve "bu çalıştırma hangi tavanla koştu" sorusu cevapsız kalır.
+**Tavan bir KARARDIR ve kararlar Ring 1'de, git'te yaşar** (D-11). `registry/butce.yaml`
+açıldı; `uret.mjs` onu okuyor, sunucu okuyup YAZIYOR, ekran düzenliyor.
+Kabul kriteri uçtan uca ölçüldü: `just uret` `100000` okuyordu → UI `250000` yazdı →
+sonraki `just uret` `250000` okudu.
+Dört dürüstlük kararı: (1) **`null` ile `0` karıştırılmaz** — biri tavansız, diğeri "hiç
+harcama yapma" ve ikincisi meşru bir tercih; (2) **çalıştırma tavanı aylıktan büyük
+olamaz** — ikisinden biri anlamsız olurdu (422); (3) **bozuk dosya sessizce varsayılana
+düşmez**, hata panoda görünür: kullanıcının koyduğunu sandığı tavanın yerine başka bir
+tavanla koşmak, tavan koymamaktan tehlikelidir; (4) **kota ÖLÇÜLMÜYOR ve bu yazılıyor** —
+sağlayıcı kota uçları FAZ-7.8'de gelecek, uydurulmuş bir "%80 dolu" göstergesi hiç
+göstergesi olmamaktan tehlikelidir (D-175).
+Yazma ucu var ama **commit yok**: dosya güncellenir, `git diff`te görünür ve commit
+insanın kararıdır (R-14). Sunucunun kendi kendine commit atması, "onay = git commit"
+yasasını sunucunun eline verirdi.
+**Ders:** bir yapılandırma değeri env'de yaşıyorsa, o değer hakkında hiçbir soru
+cevaplanamaz — ne "kim değiştirdi", ne "ne zaman", ne "hangi çalıştırma hangisini gördü".

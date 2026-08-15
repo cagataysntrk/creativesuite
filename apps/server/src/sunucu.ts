@@ -34,6 +34,7 @@ import { baglamOnizle } from './baglam.js'
 import { launcherPlani } from './launcher.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
+import { butcePanosu, tavanYaz } from './butce-uc.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -146,6 +147,26 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         status: durum,
       }),
     })
+  })
+
+  // ── maliyet ve bütçe (§8.3, §12.9 · D-17 · FAZ-4.12) ──────────────────────
+  app.get('/api/butce', (c) => c.json(butcePanosu(o.repoRoot)))
+
+  app.put('/api/butce', async (c) => {
+    const govde = (await c.req.json().catch(() => null)) as {
+      perRunMicros?: string | null
+      perMonthMicros?: string | null
+    } | null
+    if (govde === null) return c.json({ ok: false, hata: 'geçersiz JSON' }, 400)
+    let r
+    try {
+      r = tavanYaz(o.repoRoot, govde, o.simdi())
+    } catch {
+      // `BigInt('abc')` fırlatır — sayı olmayan bir tavan 500 değil 400'dür.
+      return c.json({ ok: false, hata: 'tavan tam sayı (USD mikro) ya da null olmalı' }, 400)
+    }
+    yayinla('degisim')
+    return c.json(r, r.ok ? 200 : 422)
   })
 
   // ── şema editörü: KURU ÇALIŞTIRMA (§3.3, §12.9 · FAZ-4.11) ────────────────

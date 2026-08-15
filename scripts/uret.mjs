@@ -84,6 +84,31 @@ const MARKA = readEnv('SUITE_BRAND') ?? 'brd_upcytech'
 // yüklemi hiçbirini GÖRMÜYORDU — ve hepsi `draft` olduğu için bu maskeliydi. Onay
 // verildiği gün kayıtlar `active` olacak ve HÂLÂ görünmeyecekti.
 const AKTIF_DONEM = readFileSync(join(REPO, `brand/${MARKA}/current`), 'utf8').trim()
+
+// ── bütçe tavanı: Ring 1'den, ortam değişkeninden DEĞİL (D-179) ─────────────
+//
+// Tavan `SUITE_RUN_CAP` env'indeydi: UI'dan değiştirilemez, git'te görünmez, iki
+// makinede farklı olabilir ve "hangi tavanla koştu" sorusu cevapsız kalırdı. Tavan bir
+// KARARDIR ve kararlar Ring 1'de, git'te yaşar.
+const { parseButce, toBudgetCaps, butceHatasiMesaji, VARSAYILAN_BUTCE } = await import(
+  join(REPO, 'packages/registry/dist/index.js')
+)
+const BUTCE_YOLU = join(REPO, 'registry/butce.yaml')
+const butceSonuc = existsSync(BUTCE_YOLU)
+  ? parseButce(readFileSync(BUTCE_YOLU, 'utf8'))
+  : { ok: true, value: VARSAYILAN_BUTCE }
+if (!butceSonuc.ok) {
+  // Bozuk bütçe dosyası SESSİZCE varsayılana düşmez: kullanıcının koyduğu tavanın
+  // yerine başka bir tavanla koşmak, tavan koymamaktan tehlikelidir.
+  console.log('✗ bütçe tavanı okunamadı:')
+  for (const e of butceSonuc.errors) console.log(`    ${butceHatasiMesaji(e)}`)
+  process.exit(1)
+}
+const BUTCE = toBudgetCaps(butceSonuc.value)
+console.log(
+  `  bütçe tavanı: çalıştırma ${BUTCE.perRun === null ? 'yok' : `${BUTCE.perRun.micros} mikro`}` +
+    ` · aylık ${BUTCE.perMonth === null ? 'yok' : `${BUTCE.perMonth.micros} mikro`}`
+)
 const tokenYolu = join(REPO, `brand/${MARKA}/derived-tokens/tokens.css`)
 if (!existsSync(tokenYolu)) {
   console.log(`✗ marka token'ları yok: ${tokenYolu}`)
@@ -403,10 +428,7 @@ const rapor = await runPipeline({
   previous: oncekiManifest,
   // Tavan DÜŞÜK ve ZORUNLU: tavansız çalıştırmak, gözetimsiz bir gecede tavanın
   // olmadığını öğrenmektir.
-  caps: {
-    perRun: { micros: BigInt(readEnv('SUITE_RUN_CAP') ?? '100000'), currency: 'USD' },
-    perMonth: null,
-  },
+  caps: BUTCE,
   db,
   clock,
   rng: seededRng(1),

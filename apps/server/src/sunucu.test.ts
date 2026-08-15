@@ -7,6 +7,8 @@ import { kurSunucu } from './sunucu.js'
 import { makineDurumu } from './durum.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
+import { butceOku } from './butce-uc.js'
+import { writeFileSync as _yaz, mkdirSync as _mk } from 'node:fs'
 import { readFileSync } from 'node:fs'
 
 const SORGU = { brandId: 'brd_test', eraId: 'era_test', asOf: '2026-08-15T00:00:00.000Z' } as const
@@ -556,6 +558,55 @@ describe('onay kuyruğu (§12.5 · R-14)', () => {
       })
       expect(r.ok).toBe(false)
       if (!r.ok) expect(r.hata).toContain('EZİLMEZ')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('bütçe tavanı (§8.3 · D-17)', () => {
+  const kur = (icerik: string | null): string => {
+    const kok = mkdtempSync(join(tmpdir(), 'suite-butce-'))
+    if (icerik !== null) {
+      _mk(join(kok, 'registry'), { recursive: true })
+      _yaz(join(kok, 'registry/butce.yaml'), icerik)
+    }
+    return kok
+  }
+
+  it('dosya YOKSA varsayılan kullanılır ve bu SÖYLENİR', () => {
+    const kok = kur(null)
+    try {
+      const b = butceOku(kok)
+      expect(b.varsayilan).toBe(true)
+      expect(b.hata).toBeNull()
+      // Varsayılan TAVANSIZ değil: gözetimsiz bir gece için düşük bir tavan.
+      expect(b.value.perRunMicros).not.toBeNull()
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('BOZUK dosya sessizce varsayılana DÜŞMEZ — hata görünür', () => {
+    // Sessiz düşüş, kullanıcının koyduğu tavanın yerine başka bir tavanla koşmaktır
+    // ve bu, tavan koymamaktan tehlikelidir.
+    const kok = kur('per_run_micros: -5\n')
+    try {
+      const b = butceOku(kok)
+      expect(b.varsayilan).toBe(true)
+      expect(b.hata).not.toBeNull()
+      expect(b.hata).toContain('negatif')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('geçerli dosya okunur ve varsayılan İŞARETLENMEZ', () => {
+    const kok = kur('per_run_micros: 250000\nper_month_micros: 5000000\n')
+    try {
+      const b = butceOku(kok)
+      expect(b.varsayilan).toBe(false)
+      expect(b.value.perRunMicros).toBe(250_000n)
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }
