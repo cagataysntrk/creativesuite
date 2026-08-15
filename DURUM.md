@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.11
+siradaki_adim: 3.12
 son_guncelleme: 2026-08-15
 bloke: ["2.9", "3.8"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.10 kapandi: 4 kasten ihlal (kaynaksiz sayi, yasak terim, token disi hex, ISTANBUL casing) dorttu de kapiyi kirmiziya dondurdu. Linter GERCEK corpusa baglandiginda 11 YANLIS POZITIF verdi — tirnak ici alinti, araliklar ve cip lak kucuk sayilar iddia degil; ucu de duzeltildi. Testlerim 20/20 yesildi ve linter kullanilamaz durumdaydi. 628 test, 21 kapi."
+son_kanit: "FAZ 3.11 kapandi: R-33 desenini SIL -> kapi kirmizi; yeni desen EKLE ama sabitleme -> kapi kirmizi; damgayi latin1e cevir -> Turkce BOZULDU, kirmizi; damgasiz varlik -> kirmizi. Ilk oz-test TEK prompt kullaniyordu ve desen silinince gulumse deseni maskeliyordu; probe listesi person-probes.jsona SABITLENDI (verbs.json mantigi). ExifTool yok, PNG iTXt chunkini kendimiz yaziyoruz; CRC Chromiumla dogrulandi. 666 test, 22 kapi."
 ```
 
 ## Neredeyiz
@@ -19,9 +19,8 @@ son_kanit: "FAZ 3.10 kapandi: 4 kasten ihlal (kaynaksiz sayi, yasak terim, token
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.11`: uyum kapısı —
-> `containsSyntheticPerson=false` kod seviyesinde iddia (R-33, Reklam Yönetmeliği
-> Md. 27/12). Fazın sonunda gerçek bir carousel üretilmiş olacak.
+> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.12`: varlık CAS +
+> `<sha256>.meta.json` sidecar. Fazın sonunda gerçek bir carousel üretilmiş olacak.
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -45,13 +44,14 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.7** · `image.generate`, iki şerit, R-20 üç katmanda | 2026-08-15 |
 | **3.9** · marka QA tolerans okumaları (ΔE2000 kendi implementasyonu) | 2026-08-15 |
 | **3.10** · deterministik lexicon linter, corpus'a bağlı | 2026-08-15 |
+| **3.11** · uyum kapısı, kendi PNG damgamız (ExifTool'suz) | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.11` — uyum kapısı ve ExifTool damgası.** `containsSyntheticPerson=false` bir
-KOD SEVİYESİ iddia olacak (R-33): onay ima eden yapay insan üretilmez — Reklam
-Yönetmeliği Md. 27/12, 1 Ağu 2026'dan yürürlükte. Ayrıca `aiGenerated` bayrağı ve
-IPTC damgası. Ardından `3.12` varlık CAS, `3.13` run manifest yazıcı.
+**`3.12` — varlık CAS ve `<sha256>.meta.json` sidecar.** İçerik-adresli depo:
+`derived/blobs/<ab>/<sha256>.<ext>`. Aynı byte iki kez saklanmaz; sidecar damgayı,
+uyum iddiasını ve kökeni taşır. Ardından `3.13` run manifest yazıcı (tahmini vs
+gerçek maliyet), sonra `3.14` **fazın ★ hedefi**: instagram-post + carousel uçtan uca.
 
 ⚠ **`3.8` (marka LoRA) BLOKE** — ~$3 gerçek para harcıyor ve `FAL_KEY` yok (V-16).
 Anahtarlar `secrets.enc.yaml`a girdiğinde açılır.

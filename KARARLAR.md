@@ -499,3 +499,28 @@ görünce ilk karakterde çıkıyor ve bloğu maskeliyordu. İhlal testi (R-71) 
 kapı yeşil raporluyordu ve gerçek bir `.toUpperCase()` sessizce geçmişti.
 Dört vaka ayrı ayrı sınandı: çıplak çağrı · şablon içi çağrı · iç içe şablon içi
 çağrı · mesaj dizesi. Dördü de doğru davranıyor.
+
+## D-115 — ExifTool yerine kendi PNG chunk yazıcımız
+2026-08-15 · ExifTool kurulu değil ve kurmak, gözetimsiz bir çalıştırmada var olduğu
+VARSAYILAN bir sistem ikilisi demek — "bir ay ihmal edilse de çalışır" (§16) vaadiyle
+bağdaşmıyor. PNG chunk formatı otuz yıldır sabit; ihtiyacımız olan kısmı ~60 satır
+(uzunluk · tip · veri · CRC32) ve `node:zlib` zaten yerleşik.
+**`iTXt` seçildi, `tEXt` değil:** `tEXt` Latin-1 taşır ve `ğüşıöç` içeren bir damgayı
+sessizce bozar — tam da bu projenin her yerde kaçındığı hata modu. Kapının öz-testi
+her koşuda `ĞÜŞİÖÇ ğüşıöç` turu atıyor; `latin1`e çevirince kırmızıya dönüyor.
+**CRC doğruluğu Chromium'la sınandı**, kendi okuyucumuzla değil: kendi okuyucumuz aynı
+yanlışı iki kez yapabilirdi. Damgalı PNG hâlâ çözülüyor, IHDR yerinde, IEND son chunk.
+
+## D-116 — Sabit probe listesi KODUN DIŞINDA yaşar
+2026-08-15 · `containsSyntheticPerson` bir bayrak değil bir **tür**: `false` literali,
+`true` yazan bir iddia DERLENMEZ. Ve tek yapıcı bir `basis` istiyor — dayanağı kayda
+geçmeyen iddia kurulamaz. Üç dayanak: prompt taraması · gerçek fotoğraf · insan onayı.
+**Asıl ders ihlal testinden geldi, iki kez:**
+1. Kapının öz-testi TEK bir prompt kullanıyordu. `müşteri` desenini sildim — `gülümse`
+   deseni aynı prompt'u yakaladı ve kapı YEŞİL kaldı. Yani desenlerin çoğu silinebilir
+   ve kapı hiçbir şey söylemezdi. Her desene kendi `probe`'u eklendi.
+2. Probe listesi desen listesinden TÜRETİLİYORDU — desen silinince probe'u da siliniyor
+   ve kapı yine yeşil kalıyordu. Liste `packages/render/person-probes.json`'a
+   **sabitlendi**: kodun dışında, `verbs.json` ile aynı mantık (R-02).
+Artık iki yönde de kırmızı: desen silmek "sabit probe KODDA YOK" veriyor, desen eklemek
+"person-probes.json'a eklenmemiş" veriyor. Desen listesini değiştirmek artık bir KARAR.

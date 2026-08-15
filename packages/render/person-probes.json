@@ -1,0 +1,21 @@
+{
+  "not": "R-33 desenlerinin SABİTLENMİŞ probe listesi (§11.3 · D-116). Kodun DIŞINDA yaşıyor: probe listesi desen listesinden türetilseydi ikisi birlikte küçülür ve silinen bir desen kapıyı yeşil bırakırdı — ihlal testi tam bunu gösterdi. Buradaki her prompt bloklanmak ZORUNDA. Yeni desen eklerken probe da buraya eklenir; desen silmek isteyen, bu dosyadan da silmek zorunda kalır ve o an bir karar (D-nn) verdiğini fark eder. verbs.json ile aynı mantık (R-02).",
+  "probes": [
+    "insanlarla dolu bir alan",
+    "bir kişi duruyor",
+    "müşterimiz memnun",
+    "kullanıcılarımız",
+    "çalışanların vardiyası",
+    "mühendisler hattı inceliyor",
+    "işçiler tezgâhta",
+    "yöneticiler toplantıda",
+    "bir portre çekimi",
+    "yüz ifadesi yakın plan",
+    "el sıkışma anı",
+    "referans veren biri",
+    "gülümseyen biri",
+    "a person standing",
+    "a smiling portrait shot",
+    "he is holding the part"
+  ]
+}

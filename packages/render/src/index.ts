@@ -67,3 +67,21 @@ export {
   type LexiconRules,
   type LexiconViolation,
 } from './lexicon/linter.js'
+export {
+  assertCompliance,
+  promptRequestsPerson,
+  PERSON_PROBES,
+  personPatternHits,
+  type ComplianceClaim,
+  type ComplianceRefusal,
+  type ClaimInput,
+  type PersonBasis,
+} from './compliance/claim.js'
+export {
+  stampPng,
+  readStamp,
+  hasComplianceStamp,
+  STAMP_KEYS,
+  type StampInput,
+  type StampResult,
+} from './compliance/stamp.js'

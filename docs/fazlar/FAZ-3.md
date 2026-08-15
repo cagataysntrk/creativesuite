@@ -147,7 +147,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Kaynaksız sayı yaz ("1.247 ilan") → `claim_source` eksik diye reddediliyor (R-32)
 💾 `feat(render): deterministik lexicon linter` · `Refs: FAZ-3.10 · §11.2`
 
-## 3.11 — Uyum kapısı ve ExifTool damgası    [ ]
+## 3.11 — Uyum kapısı ve ExifTool damgası    [x] 2026-08-15
 
 📖 §11.3 · R-33 · D-23
 🛠 `containsSyntheticPerson=false` **kod seviyesinde iddia** · `aiGenerated` işareti ·
