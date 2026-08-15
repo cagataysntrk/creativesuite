@@ -183,16 +183,22 @@ const kaliteKontrol = async (doc, slides) => {
       `(doğrulandı ${yerlesim.verifiedAt})`
   )
 
-  // Kalite merdiveni: sınırı aşan görsel SESSİZCE yayınlanmaz.
+  // Boyut GERÇEKTEN ölçülür. Merdiven `RENDER` adımında uygulandı (D-139); burada
+  // yalnız sonucu doğruluyoruz — sınırı aşan bir dosya buraya hiç ulaşmamalı.
+  //
+  // ⚠ İlk hâli `climbLadder`ı UYDURMA bir formülle çağırıyordu
+  // (`boyut × kalite/200 × ölçek²`) — `static.ts`in bizzat "uydurma" dediği şey.
+  // D-139 gövdeyi düzeltti ama CLI raporunu düzeltmemişti; 2. doğrulama turu yakaladı
+  // (D-153). Tahmin edilen bir boyut, ölçülebilir bir şeyi tahmin etmektir.
   for (const [i, yol] of slides.entries()) {
     const boyut = statSync(yol).size
-    const m = climbLadder(
-      (r) =>
-        Math.round(boyut * (r.jpegQuality === null ? 1 : r.jpegQuality / 200) * r.scale * r.scale),
-      yerlesim.maxBytes
+    const uygun = boyut <= yerlesim.maxBytes
+    const uzanti = yol.split('.').pop()
+    satirlar.push(
+      `  slayt ${i + 1} boyut: ${uygun ? '✓' : '✗'} ${Math.round(boyut / 1024)}KB / ` +
+        `${Math.round(yerlesim.maxBytes / 1024)}KB · ${uzanti}`
     )
-    satirlar.push(`  slayt ${i + 1} boyut: ${formatLadder(m)}`)
-    if (!m.ok) bloke = true
+    if (!uygun) bloke = true
   }
 
   const lex = lintDocument(doc, {

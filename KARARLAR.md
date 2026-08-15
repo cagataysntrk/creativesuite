@@ -511,3 +511,41 @@ ANLATAN yorum `git commit` dizesini içeriyordu ve `kaydetme` darboğazı onu ih
 soyuluyor; satır sonu yorumları soyulmuyor çünkü `#` kabukta `${v#onek}` ve `$#`ta da
 geçer ve naif bir soyma komutu bozar. `turkish-case`te aynı ders (D-114): bir kuralı
 anlatan yorum, kuralı çiğnemez.
+
+## D-152 — `just tur` faz kapanışında YANLIŞ KAYNAĞA yönlendiriyordu
+2026-08-15 · `siradaki_adim: FAZ-3-KAPANIS` (D-128) eklendikten sonra `just tur` onu bir
+adım sanıp `docs/fazlar/FAZ-FAZ-3-KAPANIS.md` arıyor, bulamayınca *"şimdilik plan
+dosyasındaki faz haritasını kullan"* diyordu.
+**Plan dosyası ARŞİVDİR** — `CLAUDE.md` bunu açıkça yazıyor ve `docs/ANAYASA.md` ile faz
+dosyalarını tek doğru ilan ediyor. Yani compact sonrası ilk komut, bağlamı sıfırlanmış
+bir agent'ı **bayat bir kaynağa** gönderiyordu; compact protokolünün tam olarak önlemesi
+gereken şey.
+`tur.sh` artık kapanış durumunu tanıyor: LOOP§D'nin dört adımını ve fazın TİKSİZ
+adımlarını basıyor. Bir özellik eklerken (D-128) onun okunduğu yeri güncellememek —
+bu turda iki kez oldu (diğeri D-153).
+
+## D-153 — 1. turun DÜZELTME commit'i iki üretim CLI'ını kırdı ve 24 kapı görmedi
+2026-08-15 · 2. doğrulama turunun en ağır bulgusu, ve tamamen benim hatam.
+`551b848` ("doğrulama turu 1 — yedi blokaj kapatıldı") iki import'u sildi:
+- `scripts/plan.mjs`: `readEnv` kullanılıyor, import YOK → **`just plan` hiç çalışmıyordu**
+- `scripts/uret.mjs`: `climbLadder`/`formatLadder` çağrılıyor, import YOK → `just uret`in
+  `VALIDATE` adımı `ReferenceError` ile patlıyordu
+İkincisi **maskeliydi**: FAZ-2.9 yüzünden hat `bilgi-sec`te `NO_CONTEXT` ile duruyor ve
+`kalite` adımına hiç ulaşmıyordu. 2.9 açıldığı an her `just uret` çökecekti — yani
+`3.14`'ün tek blokajı 2.9 değildi ve ikincisi `DURUM.md`'de görünmüyordu.
+**Neden hiçbir kapı görmedi:** `lint` yalnız `tseslint.configs.recommended` kullanıyor ve
+o **`no-undef` içermez**; `types` kapısı `scripts/**`ı kapsamıyor (JS); hiçbir kapı
+`just plan`ı gerçekten KOŞTURMUYORDU.
+İki savunma eklendi:
+1. **`no-undef`** `scripts/**/*.mjs` için açıldı. Node globalleri açıkça listelendi —
+   `globals` paketi yok ve 40 satır yazmak bir bağımlılıktan iyidir (R-75).
+2. **`cli-duman` kapısı** (25.): her pipeline için `just plan` GERÇEKTEN koşturuluyor ve
+   çıktının beklenen tabloyu içerdiği doğrulanıyor. `just plan` hiçbir şey harcamaz
+   (R-47) — dürüst bir kuru çalıştırmanın bedeli tam olarak budur.
+   `just uret` koşturulmaz (para harcayabilir); onun yerine `node --check` ile
+   ayrıştırılır.
+Üç ihlal testi: import'u sil → kırmızı · dosyayı sözdizimsel boz → kırmızı · çıktıyı
+sessizce boşalt → kırmızı.
+**Ders:** "kod yazıldı ama çağrılmadı" deseninin kardeşi var — **"kod çağrıldı ama
+tanımlanmadı"**. İkincisi daha sinsi: birincisi ölü kod, ikincisi ÇALIŞAN bir yolun
+ortasında patlayan kod. Ve ikisini de yakalayan tek şey, komutu gerçekten koşturmak.

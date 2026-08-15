@@ -18,6 +18,8 @@ const { plan, formatPlan, assembleContext, formatContext, pricingFromDescriptor 
   join(REPO, 'packages/engine/dist/index.js')
 )
 const { loadDescriptors } = await import(join(REPO, 'packages/providers/dist/index.js'))
+// Ortam TEK okuyucudan (`secret-okuyucu` darboğazı, §14).
+const { readEnv } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 
 // Fiyatlar tanımlayıcılardan gelir, koddan değil (D-32). `plan()` dosya OKUMAZ —
 // çağıran okur ve verir; plan saf kalır ki testte gerçek dosya sistemi gerekmesin.

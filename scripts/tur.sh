@@ -19,15 +19,43 @@ adim="$(sed -n 's/^siradaki_adim: *//p' DURUM.md | head -1)"
 # FAZ 1 kodunu bekliyor). 2026-08-15'te `aktif_faz: 0` iken `siradaki_adim: 1.7` idi
 # ve `just tur` FAZ-0.md'yi açıp adımı BULAMADI — bağlamı sıfırlanmış bir agent
 # "böyle bir adım yok" görüp yanlış işe başlardı. Adım numarası fazı zaten taşıyor.
-faz="${adim%%.*}"
+# `FAZ-N-KAPANIS` özel bir durumdur: adım değil, faz kapanış protokolü (LOOP§D · D-128).
+# İlk sürüm onu bir adım sanıp `docs/fazlar/FAZ-FAZ-3-KAPANIS.md` arıyor ve bulamayınca
+# "plan dosyasını kullan" diyordu — oysa CLAUDE.md plan dosyasının ARŞİV olduğunu ve
+# faz dosyalarının tek doğru olduğunu söylüyor. Bağlamı sıfırlanmış bir agent yanlış
+# kaynağa yönlendirilirdi; compact protokolünün tam olarak önlemesi gereken şey (D-152).
+kapanis=""
+case "$adim" in
+  FAZ-*-KAPANIS)
+    kapanis="evet"
+    faz="${adim#FAZ-}"
+    faz="${faz%-KAPANIS}"
+    ;;
+  *) faz="${adim%%.*}" ;;
+esac
 etiket="$(sed -n 's/^aktif_faz: *//p' DURUM.md | head -1)"
-echo "════ TUR · adım $adim (FAZ $faz) · açık faz: $etiket ════"
+if [ -n "$kapanis" ]; then
+  echo "════ TUR · FAZ $faz KAPANIŞ PROTOKOLÜ (LOOP§D) · açık faz: $etiket ════"
+else
+  echo "════ TUR · adım $adim (FAZ $faz) · açık faz: $etiket ════"
+fi
 echo
 echo "── bloke adımlar ──"
 sed -n '/^bloke:/,/^deneme_sayaci:/p' DURUM.md | sed '$d' | sed 's/^/  /'
 echo
 f="docs/fazlar/FAZ-$faz.md"
-if [ -f "$f" ]; then
+if [ -n "$kapanis" ]; then
+  echo "── FAZ $faz kapanış protokolü (LOOP§D) ──"
+  echo "  1. Her ✅ için somut kanıt üret (komut çıktısı, test sonucu, dosya varlığı)"
+  echo "  2. Bağımsız doğrulama agent'ı: .claude/agents/faz-dogrulayici.md"
+  echo "  3. EN FAZLA İKİ TUR (D-79) — üçüncü tur AÇILMAZ"
+  echo "  4. İkinci turda bulunmayan minor'dur ve FAZ 9 denetim turlarına düşer"
+  echo
+  if [ -f "$f" ]; then
+    echo "── $f · tiksiz adımlar ──"
+    grep -nE "^## $faz\..*\[ \]" "$f" | sed 's/^/  /' || echo "  (hepsi tikli)"
+  fi
+elif [ -f "$f" ]; then
   echo "── adım $adim ($f) ──"
   awk -v a="## $adim " 'index($0,a)==1{p=1} p&&/^## /&&index($0,a)!=1&&NR>1{if(seen)exit} index($0,a)==1{seen=1} p' "$f"
 else

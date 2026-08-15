@@ -67,6 +67,38 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
 
+  // ── betikler: TANIMSIZ DEĞİŞKEN kapısı (D-153) ────────────────────────────
+  //
+  // `scripts/**` tip denetimi dışında (JS) ve `tseslint.configs.recommended`
+  // `no-undef` İÇERMEZ. Sonuç: 2026-08-15'te bir düzeltme commit'i iki üretim CLI'ının
+  // import'unu sildi (`readEnv`, `climbLadder`) ve **24 kapının hiçbiri görmedi** —
+  // `just plan` ve `just uret` kırık hâlde yeşil raporlandı.
+  //
+  // Node globalleri açıkça listelenir: `globals` paketi yok ve 40 satır yazmak bir
+  // bağımlılıktan iyidir (R-75). Liste betiklerin gerçekten kullandıklarıyla sınırlı.
+  {
+    files: ['scripts/**/*.mjs'],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        URL: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        fetch: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        AbortController: 'readonly',
+        structuredClone: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'error',
+    },
+  },
+
   // ── kernel saflığı: 2. katman (§3.2 · R-01 · FAZ-0.C.3) ───────────────────
   //
   // 1. katman `OpaqueAttributes` markası → derleme hatası (özellik erişimini keser).
