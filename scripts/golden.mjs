@@ -84,7 +84,12 @@ for (const b of BOYUTLAR) {
     console.log(`  ${b.ad}: TEMEL YAZILDI (${aile}) — bu bir doğrulama DEĞİL`)
   } else {
     dogrulanan++
-    console.log(`  ${b.ad}: ✓ ${olcum.value.blocks.length} blok · notdef 0 · metrik eşleşiyor`)
+    // ⚠ `notdef 0` SABİT DİZE değil, ÖLÇÜLEN değer. Sabit yazmak, kanıt dizesinin
+    // kendini yazması olurdu — doğrulama agent'ı yakaladı (D-155).
+    console.log(
+      `  ${b.ad}: ✓ ${olcum.value.blocks.length} blok · notdef ${olcum.value.notdefCount} · ` +
+        `metrik eşleşiyor`
+    )
   }
 }
 

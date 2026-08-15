@@ -1166,3 +1166,117 @@ düzenlemeyi eziyor, sonra `git diff` boş çıkıyor ve yeşil raporluyordu. R-
 düzenleme kaybolur" diyor ama **sessizce kaybolması** başka şey. Kapı artık üretim
 ÖNCESİ ve SONRASI içeriği karşılaştırıyor ve iki durumu da bildiriyor: elle düzenleme
 ve tazelenmemiş kaynak.
+
+## D-100 — Kapı `ADAPTERS`'a değil `adapterById`'ye sorar
+2026-08-15 · `providers` kapısı ham `ADAPTERS` listesini barrel'dan istedi; `chokepoints`
+reddetti. Doğru tepki barrel'ı açmak değil, **sorunun kendisini düzeltmekti**: kapının
+ihtiyacı "bu id bir adaptöre çözülüyor mu" ve `adapterById` tam olarak o soruyu meşru
+yoldan cevaplıyor. Ham liste `registry.ts`'te kilitli kaldı.
+**Ders (üçüncü kez):** darboğaz kapısı bir engel değil, tasarım geri bildirimi. İki kez
+"kancayı kapatmak yerine kapıyı öğren" dedik; bu üçüncüsü.
+
+## D-101 — Maliyet formülü QuickJS'te değil, kapalı bir dilbilgisinde
+2026-08-15 · §8.2 "QuickJS, 10 ms deadline" diyordu. Gerçek formüller
+`0.025 * num_images` mertebesinde; bunun için bir WASM JS motoru taşımak çözdüğünden
+büyük bir yüzey getirir. Yerine ~180 satırlık **kapalı aritmetik dilbilgisi**: sayı,
+tanımlayıcı, `+ - * /`, parantez, `min/max/ceil/floor`.
+**Neden daha güvenli, sadece daha küçük değil:**
+1. Döngü **dilbilgisinde yok** → sonsuz döngü imkânsız → deadline'a gerek yok. Deadline
+   gerektiren tasarım, deadline'ın kaçırılabileceğini kabul eder.
+2. `fetch`/`require`/`process`/prototip zinciri QuickJS'te "verilmediği için" yoktu;
+   burada **söylenemedikleri için** yok. Test 8 kaçış denemesini reddediyor.
+3. Tanımsız değişken **hata**dır. JS'te `steps * fiyat` yanlış anahtarla `NaN` verir,
+   `NaN` 0 mikro'ya yuvarlanır ve **ücretli çağrı bedava görünür**.
+4. Float yok (R-41): sabit nokta `bigint`, ölçek 10^12, tek yuvarlama en sonda ve
+   **yukarı** — az göstermek tavanı sessizce deler.
+Alternatif (bağımlılık ekleyip QuickJS kurmak) reddedildi: "40 satır yazmak bir
+bağımlılıktan iyidir". ANAYASA §8.2 ve §14 güncellendi — sessiz sapma yok.
+Geri alma maliyeti: düşük, `evaluateFormula` tek arayüz.
+
+## D-102 — Kaybedenler manifestte DEĞİL, ekranda DA
+2026-08-15 · §8.2 aşama 5 kaybedenleri manifest'e yazmayı söylüyor. `just plan` artık
+onları **ekrana da basıyor**: `elendi claude-code: adım tavanını aşıyor: $0.0625 > $0.0100`.
+Yalnız manifeste yazmak, "neden bu model" sorusunu hiç açılmayan bir dosyanın arkasına
+saklamak olurdu. Aynı turda `max_cost_usd_micros` de dekoratif olmaktan çıkıp gerçekten
+uygulandı — dekoratif bir tavan, olmayan tavandan kötüdür: var sanılır.
+
+## D-103 — Yarıda kalan iş üç farklı gerçektir, biri değil
+2026-08-15 · Defterde bir kayıt bulunca motor onu "bitmiş" sayıyordu. Bu, `possibly-charged`
+bir kaydı $0.00 maliyetle **başarılı** gösteriyordu — üretilmemiş bir varlığı üretilmiş
+saymanın en sessiz yolu. Artık üç dal var:
+- **kapanmış** (`charged`/`unreported`/`not-charged`) → çağrı atlanır, tutar defterden
+- **yarım + tutamak var** → sağlayıcıya SORULUR (`start()` çağrılmaz), iş devam eder
+- **yarım + tutamak yok** → `NEEDS_RECONCILIATION`. Tahmin etmek yasak: "uçmadı" dersek
+  çift ödeme, "uçtu" dersek hayalet varlık.
+Bunu yazarken **aynı deliğin retry döngüsünde de olduğu** ortaya çıktı: `resumeExternalId`
+döngü öncesi bir kez hesaplanıyordu, yani 2. deneme sağlayıcıda İKİNCİ bir iş açıyordu.
+`noteHandle` artık tutamağı döngü değişkenine de yazıyor. Test `start()` çağrı sayısını
+sayıyor — "çift ücret yok" iddiası ancak sayılabilir bir şeyle kanıtlanır.
+Üçüncü bulgu: başarısızlık yolundaki `settle` tutamağı `null`'a çekiyordu — mutabakat için
+özellikle yazdığımız tutamağı, tam ona ihtiyaç duyulan anda siliyordu.
+
+## D-104 — Sözleşme testi adaptör başına değil, KATALOG başına
+2026-08-15 · `provider-contract.test.ts` `describe.each(ADAPTERS)` ile koşuyor: yeni bir
+adaptör eklendiği gün, kimse test yazmasa bile sözleşme ona da soruluyor. Adaptör başına
+elle yazılan testler her zaman **sonuncuyu** atlar.
+İki incelik ihlal testinden çıktı:
+1. `estimate()`in senkronluğu **çalışma zamanında** da kontrol ediliyor: tip seviyesindeki
+   koruma `as unknown as` ile bastırılabiliyor, `expect(t).not.toBeInstanceOf(Promise)`
+   bastırılamıyor.
+2. Ağ yasağı iki katmanlı: `onUnhandledRequest: 'error'` **yetmedi** — `fetch(...).catch(()
+   => undefined)` yazan sahte bir adaptör sessizce geçti. `request:start` sayacı eklendi;
+   **denemenin kendisi ihlaldir**, reddin yakalanıp yakalanmaması adaptörün insafına
+   bırakılamaz.
+Ayrıca `describe.each([])` hiç test üretmeden YEŞİL raporladığı için katalogun boş
+olmadığı ayrıca iddia ediliyor.
+
+## D-105 — Hız sınırı çağrının ÖNÜNDE, arkasında değil
+2026-08-15 · Token kovası (`RateLimiter`), anahtar `(providerId, capability)`. 429 alıp
+yeniden denemek de mümkündü ama bazı sağlayıcılar reddedilen isteği de sayar ve arka
+arkaya 429'da hesabı geçici kilitler. Saat **dışarıdan** gelir, `setInterval` yok: bir
+zamanlayıcı süreç uyuduğunda sessizce kayar, kova ise her çağrıda saate sorar.
+Reddedilen istek de `lastMs`i günceller — güncellemeseydi ilk 429 kalıcı bir kilit olurdu
+(test bunu ayrıca sınıyor). `LOCAL_RATE_LIMIT` kodu sağlayıcının 429'undan AYRI: ikisini
+aynı koda toplamak "sağlayıcı mı kısıtlıyor biz mi" sorusunu log'dan cevaplanamaz yapardı.
+
+## D-106 — R-20 iki parçalıdır: ek eklemek YETMEZ
+2026-08-15 · "Her prompt'a 'no text' ekle" tek başına bir yarım kural. `üstünde FİRE
+yazan tabela` isteyen bir prompt'a bu eki eklemek modele **çelişki** gönderir ve
+çelişkide model genellikle ilk isteği dinler — kapı yeşil, çıktı bozuk. Bu yüzden
+`buildImagePrompt` metin İSTEYEN prompt'u reddediyor.
+**Türkçe eklemeli yapı desen tasarımını değiştirdi:** `\bharf(ler|li)?\b` "harfler"i
+yakalıyordu ama "harflerle"yi kaçırıyordu. Sonlu bir ek listesi her zaman bir sonraki
+eki kaçırır. Türkçe desenler **gövde ön eki** (`\bharf\w*`) oldu. Tek istisna
+`yazi(?!lim)`: "yazılım çözümleri" bu şirketin kendi sözlüğü ve yanlış pozitif de bir
+hatadır.
+Üç savunma katmanı: (1) kurucu reddi, (2) `assertNoTextSuffix` `start()` sınırında,
+(3) `lexicon` kapısı pipeline kısıtlarında (`no_text: false`, `overlay_text`).
+
+## D-107 — Sözleşme testi girdiyi `supports`tan KURUYOR
+2026-08-15 · İki görsel adaptörü eklenince sözleşme testi kendiliğinden onlara da
+uygulandı (D-104) ve ikisinde de düştü: test elle `constraints: {}` veriyordu, görsel
+adaptörleri `aspect` istiyordu. Elle kısıt yazmak yerine test artık kısıtları adaptörün
+KENDİ `supports` beyanından kuruyor — her anahtarın ilk değeri.
+Bu, sözleşmeye sessizce bir madde ekledi: **`supports` eyleme dönüştürülebilir olmak
+zorunda.** Yönlendiricinin yaptığı da tam bu. Test elle kısıt yazsaydı, `supports`u
+eksik yazan bir adaptör testte geçer ama yönlendiricide elenirdi — ve bu ancak üretim
+anında fark edilirdi.
+
+## D-108 — `NO_TEXT_SUFFIX` barrel'dan dışa AÇILMIYOR
+2026-08-15 · Dışarıdan ihtiyaç duyulan şey kurucudur (`buildImagePrompt`), ham ek
+değil. Sabiti paket sınırından dağıtmak, onu ikinci bir yerde birleştirmeyi
+kolaylaştırır — `gorsel-prompt-kurucu` darboğazının önlediği şey tam bu. Darboğaz
+zaten yakalardı; ama bir kuralı hem kapıyla hem API şekliyle zorlamak, kapının bir gün
+gevşetilmesine karşı ikinci hat.
+
+## D-109 — ΔE2000 kendimiz yazıldı, `culori` eklenmedi
+2026-08-15 · İhtiyaç iki fonksiyon (sRGB→Lab, ΔE2000); `culori`nin getirdiği yüzey
+onlarca renk uzayı, ayrıştırıcı ve interpolasyon. Formüller yayınlanmış, sabit ve otuz
+yıldır değişmiyor — "40 satır yazmak bir bağımlılıktan iyidir".
+**Doğruluk bağımsız kaynakla kanıtlandı:** Sharma, Wu & Dalal (2005) makalesinin 21
+referans çifti, 4 ondalık hassasiyetle geçiyor. Kendi matematiğine kendi beklentini
+yazmak hiçbir şey kanıtlamaz: yanlış bir formül, ondan türetilmiş beklentiyi her zaman
+karşılar.
+ΔE76 (Öklid) **reddedildi**: mavi bölgede algıyla ciddi ayrışıyor ve marka paleti mavi
+ağırlıklı (`#0091FF`) — ΔE76 gözle ayırt edilebilir iki maviyi "aynı" sayar ve QA kapısı
+boş geçerdi.

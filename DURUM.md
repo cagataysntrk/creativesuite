@@ -17,12 +17,12 @@ son_kanit: "1. dogrulama turu: 10 blokaj + 13 ikincil. Dokuz blokaj kapatildi (D
 
 **FAZ 2 KAPANDI** (2026-08-15) — `2.9` hariç: yedi corpus kaydı draft, insan onayı
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
-400 test, 21 kapı yeşil.
+752 test, 25 kapı yeşil.
 
 > **FAZ 3 — görsel üretim hattı: 12/15 adım tikli.** Motor uçtan uca çalışıyor ve
 > gerçek Chromium ile gerçek slayt üretiyor; marka QA gerçek sayılar veriyor.
 >
-> ⛔ **ÜÇ ADIM BLOKE — hepsi İNSAN girdisi bekliyor** (D-142). LOOP§G eşiği (üç bloke
+> ⛔ **DÖRT ADIM BLOKE — hepsi İNSAN girdisi bekliyor** (D-142). LOOP§G eşiği (üç bloke
 > adım) aşıldı ve döngü bilinçli olarak devam ediyor: dördü de plan hatası değil,
 > planın önceden kaydettiği doğrulama borçları.
 >
@@ -33,12 +33,13 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 > | `3.8` | V-16 | aynı + ~$3 gerçek para |
 > | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |
 >
-> **Faz kapanış protokolü işliyor** (LOOP§D): 1. tur bitti (10 blokaj + 13 ikincil,
-> dokuzu kapatıldı). **En fazla İKİ tur** (D-79).
+> **Faz kapanış protokolü tamamlandı** (LOOP§D · D-79 tavanı):
+> 1. tur **10 blokaj + 13 ikincil**, 2. tur **5 blokaj + 11 ikincil** buldu.
+> Hepsi kapatıldı (D-134…D-155). **Üçüncü tur AÇILMAZ** — ikinci turda bulunmayan
+> minor'dur ve FAZ 9 denetim turlarına düşer (`9.2` kural uyumu, `9.5` ölü kod).
 >
-> İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
-> tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
-> bulunmayan FAZ 9 denetim turlarına düşer.
+> 2. turun en ağır bulgusu: 1. turun **düzeltme commit'i** iki üretim CLI'ını kırmıştı
+> ve 24 kapının hiçbiri görmedi (D-153). `no-undef` + `cli-duman` kapısı eklendi.
 
 ## Tamamlananlar
 
@@ -56,6 +57,7 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.5** · yetenek yönlendiricisi, maliyet formülü, bütçe kapısı | 2026-08-15 |
 | **3.6** · retry, idempotency, rate limit; çift ücret kapatıldı | 2026-08-15 |
 | **3.9** · marka QA tolerans okumaları (ΔE2000 kendi implementasyonu) | 2026-08-15 |
+| **3.2** · golden tipografi metrikleri (font-agnostik harness) | 2026-08-15 |
 | **3.10** · deterministik lexicon linter, corpus'a bağlı | 2026-08-15 |
 | **3.11** · uyum kapısı, kendi PNG damgamız (ExifTool'suz) | 2026-08-15 |
 | **3.12** · içerik-adresli varlık deposu + sidecar | 2026-08-15 |
@@ -64,19 +66,18 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 
 ## Sıradaki adım
 
-**FAZ 3 kapanış turu.** Bağımsız doğrulama agent'ı (`.claude/agents/faz-dogrulayici.md`)
-her ✅ kriterini kodda ve repoda arar. Bulguları kapatılır, ikinci tur koşulur, onun
-bulguları da kapatılır ve **faz kapanır** — üçüncü tur açılmaz (D-79).
-Sonra FAZ 4: komuta merkezi (§12).
+**FAZ 4.1 — tasarım sistemi katmanı** (§12.1–12.4, §12.7).
+Üç kademe token ve chroma alan sınırları HAZIR (D-133); kalan: `packages/ui/src/theme.css`,
+iki yüzey bağlamı `[data-surface="console"|"studio"]` (**tema anahtarı YOK** —
+`prefers-color-scheme` yapısal olarak yok sayılır), **gölge yasağı** (yükseklik = arka
+plan basamağı + pah çizgisi), dokuz tip boyutu (konsolda 700 ağırlık yasak), 4px temel
+birim.
 
-⚠ **`3.8` (marka LoRA) BLOKE** — ~$3 gerçek para harcıyor ve `FAL_KEY` yok (V-16).
-Anahtarlar `secrets.enc.yaml`a girdiğinde açılır.
-
-⚠ **`3.2` (golden metrik) ATLANDI** — V-02'ye bağlı: marka fontu seçilmeden metrik
-dondurmak, testin varlık sebebini (Türkçe glif fallback'ini yakalamak) çürütür (D-59).
-Font geldiğinde `3.2` açılır.
 
 ## Bloke adımlar
+
+> Not: golden metrikler bugün SİSTEM fontuyla donduruldu; marka fontu geldiğinde
+> (V-02) temel yeniden alınır — bu bir düzeltme, bir blokaj değil (D-144).
 
 **`2.9` — insan onayı bekliyor (D-83).** Yedi corpus kaydı `propose()` ile yazıldı,
 `status: draft` indi, retrieval'a görünmüyorlar. Onları `active` yapmak agent'ın işi

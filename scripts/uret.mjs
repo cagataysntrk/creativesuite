@@ -58,8 +58,9 @@ const konu = process.argv
   .slice(3)
   .filter((a, i, arr) => a !== '--devam' && arr[i - 1] !== '--devam')
   .join(' ')
-if (id === undefined || konu === '') {
+if (id === undefined || (konu === '' && devamRunId === undefined)) {
   console.log(`  kullanım: just uret <pipeline> <konu>`)
+  console.log(`  devam:    just uret <pipeline> --devam <run_id>   (konu manifest'ten okunur)`)
   console.log(`  mevcut: ${listPipelines(PIPELINES).join(', ') || '(yok)'}`)
   process.exit(1)
 }
@@ -89,19 +90,36 @@ const tokenCss = readFileSync(tokenYolu, 'utf8')
 const runId = devamRunId ?? newId('RunId')
 
 let kararlar = []
+let oncekiManifest = null
+let devamKonu = null
 if (devamRunId !== undefined) {
   const { readManifest } = await import(join(REPO, 'packages/engine/dist/index.js'))
-  const onceki = readManifest(REPO, devamRunId)
-  if (onceki === null) {
+  oncekiManifest = readManifest(REPO, devamRunId)
+  if (oncekiManifest === null) {
     console.log(`✗ devam edilecek çalıştırma bulunamadı: ${devamRunId}`)
     process.exit(1)
   }
-  kararlar = onceki.decisions ?? []
+  kararlar = oncekiManifest.decisions ?? []
   if (kararlar.length === 0) {
     console.log(`✗ ${devamRunId}: hiç kapı kararı yok — önce: just onay ${devamRunId} onayla`)
     process.exit(1)
   }
-  console.log(`  ${devamRunId} sürdürülüyor · ${kararlar.length} kapı kararı okundu`)
+  // ── DONMUŞ GİRDİLER yeniden kullanılır (R-07 · D-154) ────────────────────
+  //
+  // Devam etmek AYNI çalıştırmayı sürdürmektir; girdileri yeniden çözmek başka bir
+  // çalıştırma yapmaktır. `idempotencyKey` `corpusCommit` ve `topic` içeriyor
+  // (`run.ts`): ikisi değişirse bütün anahtarlar değişir ve **ödenmiş adımlar yeniden
+  // ödenir** — R-44'ün tam tersi. `just onay` araya `just save` öneriyor, yani
+  // corpus SHA'sının değişmesi olağan bir senaryo.
+  const konuKaydi = (oncekiManifest.steps ?? []).find(
+    (st) => typeof st.params?.topic === 'string' && st.params.topic !== ''
+  )
+  devamKonu = konuKaydi?.params.topic ?? null
+  console.log(
+    `  ${devamRunId} sürdürülüyor · ${kararlar.length} kapı kararı · ` +
+      `donmuş girdiler yeniden kullanılıyor (corpus ${oncekiManifest.corpusCommit.slice(0, 8)}` +
+      `${devamKonu === null ? '' : `, konu "${devamKonu}"`})`
+  )
 }
 const clock = systemClock
 const damga = {
@@ -328,8 +346,10 @@ const rapor = await runPipeline({
   // İlk hâli `'worktree'` sabitiydi: `knowledgeCommit()` yazılmıştı ama sıfır çağıranı
   // vardı ve 11 manifest'in hepsinde alan sahteydi (D-138). Artık git'ten okunuyor;
   // okunamazsa çalıştırma DURUR — sahte bir SHA, replay'in yalan söylemesidir.
-  corpusCommit: bilgiSha,
-  registryCommit: bilgiSha,
+  // Devam ediyorsa DONMUŞ SHA; yoksa bugünün ağacı. Yeniden çözmek, aynı çalıştırmayı
+  // farklı bir bilgi ağacında koşturmak olurdu (R-07).
+  corpusCommit: oncekiManifest?.corpusCommit ?? bilgiSha,
+  registryCommit: oncekiManifest?.registryCommit ?? bilgiSha,
   verbs: {
     RESOLVE: resolveBody,
     SELECT: selectBody({ select: secici }),
@@ -352,13 +372,14 @@ const rapor = await runPipeline({
   env: { PATH: readEnv('PATH') ?? '' },
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
-  params: { topic: konu },
+  params: { topic: devamKonu ?? konu },
   // Kararlar manifest'ten OKUNUR; motor yalnız yazılmış olanı görür.
   decisions: kararlar,
   // **Bağlam manifesti** (§5.3): hangi kayıt enjekte edildi, hangisi bütçeye sığmadı.
   // İlk sürümde `context: []` sabit koduydu ve "bu çıktı neden böyle" sorusunun cevabı
   // hiçbir yerde yoktu (D-146).
   context: bagamManifesti,
+  previous: oncekiManifest,
   // Tavan DÜŞÜK ve ZORUNLU: tavansız çalıştırmak, gözetimsiz bir gecede tavanın
   // olmadığını öğrenmektir.
   caps: {

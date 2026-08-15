@@ -114,7 +114,10 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    (R-20): Ideogram kendi dokümanında aksanlı Latin'i render edemeyebileceğini kabul ediyor.
 📁 `packages/providers/src/image/`
 ✅ İki şerit de görsel üretiyor · üretilen görselde metin YOK
-🧪 Prompt'a Türkçe metin isteği koy → `lexicon` kapısı reddediyor
+🧪 Prompt'a Türkçe metin isteği koy → `buildImagePrompt` REDDEDİYOR
+   (`packages/providers/src/image/prompt.ts`; `lexicon` kapısı prompt taramaz —
+   o pipeline KISITLARINI tarar, D-143). Ayrıca `no_text: false` yazmayı dene →
+   `lexicon` kapısı kırmızı.
 💾 `feat(providers): image.generate iki şeritli` · `Refs: FAZ-3.7 · §7.3`
 
 ## 3.8 — Marka LoRA    [ ]

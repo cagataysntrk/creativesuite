@@ -122,15 +122,32 @@ for (const b of blokeListesi) {
   if (!adimlar.has(b)) errors.push(`bloke listesindeki '${b}' hiçbir faz dosyasında yok`)
 }
 
-// ── 3. tamamlananlar tablosu tiklerden TÜRETİLİR (D-46) ──────────────────────
+// ── 3. tamamlananlar tablosu tiklerden TÜRETİLİR — İKİ YÖNDE (D-46 · D-155) ──
 // Tabloda olup faz dosyasında tikli olmayan bir satır, "bitti" diye yazılmış ama
 // bitmemiş bir adımdır — kanıtsız tikleme (R-70) tablodan sızabilir.
+//
+// ⚠ TERS YÖN de denetlenir. İlk sürüm yalnız tablo→tik bakıyordu ve `3.2` tikli olduğu
+// hâlde tablodan eksikti: bağlamı sıfırlanmış bir agent tabloya bakıp o adımı YAPILMAMIŞ
+// sanardı — kapının önlemek için var olduğu şeyin tam tersi. Doğrulama turu 2 yakaladı.
+const AKTIF = aktifFaz ?? ''
 const tabloAdimlari = new Set(
   [...durum.matchAll(/^\|\s*\**([0-9]+\.[A-Za-z0-9.]+)\**\s*·/gm)].map((m) => m[1])
 )
 for (const a of tabloAdimlari) {
   if (adimlar.get(a) !== true) {
     errors.push(`Tamamlananlar tablosunda '${a}' var ama faz dosyasında tikli değil (D-46)`)
+  }
+}
+
+// Ters yön: AKTİF fazın tikli her adımı tabloda olmalı. Yalnız aktif faz — tablo
+// "yalnız AKTİF fazı gösterir" (D-85) ve geçmiş fazlar faz dosyalarındaki tiklerdedir.
+for (const [ad, tikli] of adimlar) {
+  if (!tikli || !ad.startsWith(`${AKTIF}.`)) continue
+  if (!tabloAdimlari.has(ad)) {
+    errors.push(
+      `'${ad}' faz dosyasında TİKLİ ama Tamamlananlar tablosunda yok (D-46) — ` +
+        `bağlamı sıfırlanmış agent onu yapılmamış sanar`
+    )
   }
 }
 

@@ -113,6 +113,15 @@ export interface RunInput {
    * Çağıran `toManifestEntries()` ile üretip verir; motor onu manifest'e AYNEN yazar.
    */
   readonly context?: readonly ContextManifestEntry[]
+  /**
+   * Devam edilen çalıştırmanın ÖNCEKİ manifest'i (§13 · D-154).
+   *
+   * Verilirse: `createdAt` korunur ve önceki adım kayıtları BİRLEŞTİRİLİR — bu koşuda
+   * yeniden koşmayan adımların kaydı kaybolmaz. Üzerine yazmak, "manifest bir
+   * çalıştırmanın TEK kanıtıdır" (§13) ve "`derived/runs` türetilemez" (D-38) ile
+   * çelişirdi: yeniden üretilemeyen bir kanıt siliniyor.
+   */
+  readonly previous?: RunManifest | null
   readonly signal?: AbortSignal
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
   readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
@@ -524,6 +533,15 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     ciktilar[id] = null
   }
 
+  // Adım kayıtları BİRLEŞTİRİLİR: bu koşuda yeniden koşmayan adımların önceki kaydı
+  // korunur. Sıra önceki manifest'in sırasını izler; yeni adımlar sona eklenir.
+  const oncekiAdimlar = input.previous?.steps ?? []
+  const yeniIds = new Set(kayitlar.map((k) => String(k.stepId)))
+  const birlesik: StepRecord[] = [
+    ...oncekiAdimlar.filter((o) => !yeniIds.has(String(o.stepId))),
+    ...kayitlar,
+  ]
+
   const manifest: RunManifest = {
     runId: input.runId,
     brandId: input.brandId,
@@ -531,8 +549,10 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     pipeline: input.pipeline.id,
     corpusCommit: input.corpusCommit,
     registryCommit: input.registryCommit,
-    createdAt: clock.nowIso(),
-    steps: kayitlar,
+    // İlk çalıştırmanın zamanı KORUNUR: `createdAt` çalıştırmanın doğum anıdır,
+    // son denemenin değil.
+    createdAt: input.previous?.createdAt ?? clock.nowIso(),
+    steps: birlesik,
     decisions: input.decisions ?? [],
     context: input.context ?? [],
     contextRetentionDays: 90,

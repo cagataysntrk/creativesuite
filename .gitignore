@@ -6,6 +6,10 @@
 # ─────────────────────────────────────────────────────────────────────────────
 derived/index/
 derived/blobs/
+# Karantina: yayınlanamaz varlıklar (D-155). Byte'lar `derived/blobs` gibi ignore'lu;
+# gerekçe `derived/karantina/OKU.md`da ve o dosya İZLENİR.
+derived/karantina/*
+!derived/karantina/OKU.md
 derived/ingest/
 
 # Node

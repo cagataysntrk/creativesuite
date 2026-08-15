@@ -35,7 +35,17 @@ export interface GlyphMetric {
 
 export interface TextMetric {
   readonly text: string
-  /** Çözülmüş font ailesi — tarayıcının GERÇEKTEN kullandığı, CSS'te yazan değil. */
+  /**
+   * `getComputedStyle().fontFamily` — CSS'te YAZAN listedir, tarayıcının seçtiği aile
+   * DEĞİL. Tarayıcı çözülmüş aileyi standart bir API ile vermiyor.
+   *
+   * Yani bu alan tek başına fallback'i yakalamaz: fontu var olmayan bir ada
+   * yönlendirdiğinde burada o var olmayan ad görünür. **Fallback'i yakalayan şey
+   * `notdefCount` ve `advance` farklarıdır** — ilerleme genişlikleri gerçekten
+   * çizilen glyph'ten gelir ve yalan söyleyemez.
+   * Bu alan yine de değerli: CSS'in ne İSTEDİĞİNİ kaydeder ve bir tanım değişikliği
+   * (birinin font listesini düzenlemesi) metrik farkı olarak görünür.
+   */
   readonly fontFamily: string
   readonly fontSize: number
   /** Satır sayısı: taşma bölmenin (§7.1) çalıştığının kanıtı. */
@@ -104,7 +114,7 @@ export const measureGolden = async (doc: DocumentModel): Promise<BrowserResult<G
 
         blocks.push({
           text: metin,
-          // Çözülmüş aile: tarayıcının GERÇEKTEN kullandığı.
+          // CSS'te yazan aile listesi (çözülmüş aile DEĞİL — tarayıcı onu vermiyor).
           fontFamily: st.fontFamily,
           fontSize: parseFloat(st.fontSize),
           lineCount: kutular.length,

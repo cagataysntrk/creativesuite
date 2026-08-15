@@ -120,6 +120,7 @@ export type ManifestDefect =
   | { readonly kind: 'metered_step_without_cost'; readonly stepId: string }
   | { readonly kind: 'selected_with_rejection'; readonly stepId: string }
   | { readonly kind: 'no_selected_provider'; readonly stepId: string }
+  | { readonly kind: 'invalid_sha'; readonly field: string; readonly value: string }
 
 /** Ağ/model çağıran fiiller — bunların maliyeti yazılmadan çalıştırma kapanamaz (§8.3). */
 const METERED: ReadonlySet<VerbName> = new Set<VerbName>([
@@ -151,6 +152,19 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
   for (const f of REQUIRED_FIELDS) {
     const v = m[f]
     if (typeof v !== 'string' || v.trim() === '') defects.push({ kind: 'missing_field', field: f })
+  }
+
+  // ── commit SHA'sı GERÇEK bir SHA olmalı (D-155) ────────────────────────────
+  //
+  // "Boş dize değil" yeterli değildi: `corpusCommit: "worktree"` beş manifest'te
+  // duruyor ve `inspectManifest` onları TEMİZ raporluyordu. §13 bu alanı "replay'i
+  // GERÇEK yapan alan" diye tanımlıyor; yer tutucu bir değer, replay'in yalan
+  // söylemesidir ve doğrulayıcı tam da bunu yakalamalıydı.
+  for (const f of ['corpusCommit', 'registryCommit'] as const) {
+    const v = m[f]
+    if (typeof v === 'string' && v.trim() !== '' && !/^[0-9a-f]{7,40}$/.test(v)) {
+      defects.push({ kind: 'invalid_sha', field: f, value: v })
+    }
   }
 
   // ⚠ Diskten okunan manifest TİPİ TAŞIMAZ: `JSON.parse` bir `{}`'ı da `RunManifest`
