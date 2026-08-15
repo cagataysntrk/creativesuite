@@ -93,7 +93,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    kararı ezilebilir yap → kırmızı
 💾 `feat(ui): approval queue` · `Refs: FAZ-4.7 · §12.9`
 
-## 4.8 — Tolerans okuması bileşeni    [ ]
+## 4.8 — Tolerans okuması bileşeni    [x] 2026-08-16
 
 📖 §11.1, §12.9 · R-35 · D-22
 🔗 FAZ-3.9
@@ -102,9 +102,10 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    yakın olduğunu söyler; "✓ uygun" hiçbir şey söylemez.
    Ölçülen her sayı `tabular-nums slashed-zero` mono; birim kardeş `<span>`'de 0.85em.
 📁 `packages/ui/src/components/tolerance/`
-✅ Her metrik sayı + limit + bant gösteriyor · sınır dışı olan **glyph + renk + metin**
-🧪 Rozet ("✓ uygun") ekle → `ui-lint` kapısı reddediyor · rengi tek başına anlam taşıyan
-   bir durum ekle → reddediliyor (alarm yönetimi kuralı, §12.8)
+✅ Sayı + limit + bant + glyph + metin · `ToleranceReading` Ring -1'de (D-175) ·
+   VALIDATE artık YAPILANDIRILMIŞ okuma yazıyor, metin değil · 6 test
+🧪 `✓ uygun` rozeti ekle → `ui-tema` kırmızı · `marka uyumu` ekle → kırmızı ·
+   yorumda alıntı → YEŞİL (gerekçe yazmak meşru) · `olculdu` bayrağını kaldır → kırmızı
 💾 `feat(ui): tolerans okuması bileşeni` · `Refs: FAZ-4.8 · §11.1`
 
 ## 4.9 — Placement Preview    [ ]

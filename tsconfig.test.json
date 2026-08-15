@@ -12,7 +12,11 @@
     "declaration": false,
     "declarationMap": false,
     "sourceMap": false,
-    "types": ["node"]
+    "types": ["node"],
+    // Test dosyaları React bileşenlerini import edebiliyor (tolerans okuması,
+    // FAZ-4.8) — `jsx` olmadan `.tsx` çözümlemesi derleme hatası verir ve `types`
+    // kapısı bileşen testlerini HİÇ denetleyemez.
+    "jsx": "react-jsx"
   },
   "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "vitest.config.ts"]
 }

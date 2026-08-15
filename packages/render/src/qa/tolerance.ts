@@ -13,22 +13,11 @@
 // düşmediği ama ortalamanın kenara yaslandığı durumdur — ve fark edilmediğinde marka
 // yavaşça bozulur.
 
-/** Ölçünün limite göre durumu. Üç değer, çünkü ikisi sürüklenmeyi göremez. */
-export type ToleranceStatus = 'in' | 'warn' | 'out'
+// Tipler Ring -1'de (D-175): tarayıcı halkası `render`ı import EDEMEZ ama aynı yapıyı
+// konuşmak zorunda. Burada KURMA ve BİÇİMLENDİRME mantığı var, tanım değil.
+import type { QaReport, ToleranceReading, ToleranceStatus } from '@suite/contracts'
 
-export interface ToleranceReading {
-  /** İngilizce tanımlayıcı — enum değeri (D-37). */
-  readonly metric: string
-  /** İnsana gösterilen Türkçe etiket. */
-  readonly label: string
-  readonly value: number
-  readonly warn: number
-  readonly limit: number
-  /** `'lower'` = küçük iyi (ΔE), `'upper'` = büyük iyi (kontrast oranı). */
-  readonly direction: 'lower' | 'upper'
-  readonly unit: string
-  readonly status: ToleranceStatus
-}
+export type { QaReport, ToleranceReading, ToleranceStatus }
 
 export const reading = (spec: Omit<ToleranceReading, 'status'>): ToleranceReading => ({
   ...spec,
@@ -92,14 +81,6 @@ export const formatReading = (r: ToleranceReading, basamak = 1): string => {
     `${r.label.padEnd(18)}${sayi(r.value, basamak).padStart(7)}${r.unit} ` +
     `│${hucreler.join('')}│ limit ${sayi(r.limit, basamak)}${r.unit}  ${isaret} ${soz}`
   )
-}
-
-export interface QaReport {
-  readonly readings: readonly ToleranceReading[]
-  /** Herhangi bir okuma sınır dışıysa varlık **yayınlanamaz**. */
-  readonly blocked: boolean
-  /** Uyarı bandındaki okuma sayısı — sürüklenme göstergesi. */
-  readonly warnings: number
 }
 
 export const report = (readings: readonly ToleranceReading[]): QaReport => ({

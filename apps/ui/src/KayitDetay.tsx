@@ -9,6 +9,7 @@
 
 import { useEffect, useState } from 'react'
 import type { KayitSatiri } from './corpus.js'
+import { QaEkrani } from './QaEkrani.js'
 
 interface Commit {
   readonly sha: string
@@ -43,6 +44,7 @@ const yolParcala = (path: string): { tip: string; slug: string } | null => {
 export const KayitDetay = ({ kayit, uzerineKapat }: DetayOzellikleri): React.JSX.Element => {
   const [gecmis, setGecmis] = useState<readonly Commit[] | null>(null)
   const [etki, setEtki] = useState<Etki | null>(null)
+  const [qa, setQa] = useState<string | null>(null)
 
   useEffect(() => {
     const p = yolParcala(kayit.path)
@@ -97,6 +99,8 @@ export const KayitDetay = ({ kayit, uzerineKapat }: DetayOzellikleri): React.JSX
         </ul>
       )}
 
+      {qa === null ? null : <QaEkrani runId={qa} />}
+
       <h3>Etkilediği çalıştırmalar</h3>
       {etki === null ? (
         <p>yükleniyor…</p>
@@ -119,7 +123,13 @@ export const KayitDetay = ({ kayit, uzerineKapat }: DetayOzellikleri): React.JSX
               <tbody>
                 {etki.kullanimlar.map((k) => (
                   <tr key={k.runId}>
-                    <td className="olcum">{k.runId.slice(0, 12)}</td>
+                    <td className="olcum">
+                      {/* Çalıştırmanın tolerans raporuna giden yol: bir olgu yanlışsa
+                          o çıktının ÖLÇÜMLERİ de sorgulanmalı. */}
+                      <button type="button" className="baglanti" onClick={() => setQa(k.runId)}>
+                        {k.runId.slice(0, 12)}
+                      </button>
+                    </td>
                     <td>{k.pipeline}</td>
                     <td>{k.section}</td>
                     <td>{k.reason}</td>

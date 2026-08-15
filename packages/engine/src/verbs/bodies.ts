@@ -8,7 +8,7 @@
 // Chromium, `GENERATE` yalnız sağlayıcı. `COMPOSE`un sessizce bir model çağırması,
 // çalıştırma öncesi maliyet tahminini yalan yapardı.
 
-import type { AppError, Result, VerbName } from '@suite/contracts'
+import type { AppError, Result, ToleranceReading, VerbName } from '@suite/contracts'
 import { ZERO_USD, err, ok } from '@suite/contracts'
 import {
   asciiLower,
@@ -251,7 +251,22 @@ export interface ValidateDeps {
   readonly check: (
     doc: DocumentModel,
     slides: readonly string[]
-  ) => Promise<{ readonly blocked: boolean; readonly report: string }>
+  ) => Promise<{
+    readonly blocked: boolean
+    /** İnsan okunur rapor — CLI çıktısı ve hata gövdesi için. */
+    readonly report: string
+    /**
+     * YAPILANDIRILMIŞ okumalar (§11.1 · FAZ-4.8).
+     *
+     * Rapor metni bir ÖLÜ UÇTUR: tolerans bileşeni sayının altına bant çizemez, çünkü
+     * sayı bir dizenin içindedir. Ölçüm kaynağında zaten yapılandırılmış (`measure()`
+     * `QaReport` döner); metne düzleştirip UI'da yeniden ayrıştırmak, aynı bilgiyi iki
+     * kez temsil etmek ve ikisinin ayrışmasını beklemek olurdu.
+     *
+     * İsteğe bağlı: eski çağıranlar (yalnız metin veren) çalışmaya devam eder.
+     */
+    readonly readings?: readonly ToleranceReading[]
+  }>
 }
 
 export const validateBody = (deps: ValidateDeps): Verb =>
@@ -274,7 +289,15 @@ export const validateBody = (deps: ValidateDeps): Verb =>
       // bir süse çevirirdi (§11.1).
       return err(hata('policy_blocked', 'QA_OUT_OF_TOLERANCE', ctx, { report: sonuc.report }))
     }
-    return ok({ costs: [], data: { qa: sonuc.report } })
+    return ok({
+      costs: [],
+      // Hem metin hem YAPILANDIRILMIŞ okuma manifeste gider: biri insan için, diğeri
+      // ekran için. Yalnız metin yazsaydık imza öğesi (§11.1) hiç çizilemezdi.
+      data: {
+        qa: sonuc.report,
+        ...(sonuc.readings === undefined ? {} : { qaReadings: sonuc.readings }),
+      },
+    })
   })
 
 // ── GENERATE: yalnız sağlayıcı ──────────────────────────────────────────────

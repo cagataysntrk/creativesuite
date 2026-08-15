@@ -24,6 +24,8 @@ import {
   type SelectQuery,
 } from '@suite/corpus'
 import { RUNS_DIR, fileHistory } from '@suite/kernel'
+import type { ToleranceReading } from '@suite/contracts'
+import { readManifest } from '@suite/engine'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
@@ -141,6 +143,31 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         type: tip,
         status: durum,
       }),
+    })
+  })
+
+  // ── QA okumaları: bir çalıştırmanın tolerans raporu (§11.1 · FAZ-4.8) ─────
+  //
+  // Manifest'ten okunur, YENİDEN ÖLÇÜLMEZ: yeniden ölçmek Chromium açmak demek ve
+  // o zaman ekranda gördüğünüz, çalıştırmanın ölçtüğü şey olmazdı (§13: manifest bir
+  // çalıştırmanın TEK kanıtıdır).
+  app.get('/api/calistirma/:runId/qa', (c) => {
+    const m = readManifest(o.repoRoot, c.req.param('runId') as never)
+    if (m === null) return c.json({ ok: false, hata: 'çalıştırma yok' }, 404)
+
+    const okumalar = m.steps.flatMap((s) => {
+      const r = (s.output as { qaReadings?: unknown } | null | undefined)?.qaReadings
+      return Array.isArray(r) ? (r as ToleranceReading[]) : []
+    })
+
+    // Boş liste "her şey yolunda" DEĞİLDİR: QA hiç koşmamış olabilir. Ayrımı bileşen
+    // yapabilsin diye `olculdu` bayrağı ayrı gidiyor.
+    return c.json({
+      ok: true,
+      olculdu: okumalar.length > 0,
+      readings: okumalar,
+      blocked: okumalar.some((r) => r.status === 'out'),
+      warnings: okumalar.filter((r) => r.status === 'warn').length,
     })
   })
 

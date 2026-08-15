@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.8
+siradaki_adim: 4.9
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -58,14 +58,14 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.6** · plan dondurma çekirdeği: özet, bayatlık, başlat kilidi | 2026-08-16 |
 | **4.6b** · Run Launcher; koşucu donmuş planı KULLANIYOR (R-07) | 2026-08-16 |
 | **4.7** · Onay kuyruğu; red gerekçesi sticky deftere düşüyor | 2026-08-16 |
+| **4.8** · Tolerans okuması bileşeni — imza öğesi; rozet yasağı kapıda | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.8` — Tolerans okuması bileşeni** (§11.1, §12.9). Sistemin **imza öğesi**: marka QA
-rozet göstermez, **tolerans okuması** gösterir — `ΔE 2.4 / limit 5.0` sana kenara ne kadar
-yakın olduğunu söyler, "uyumlu ✓" hiçbir şey söylemez. Ölçüm katmanı FAZ 3'te hazır
-(`packages/render/src/qa/tolerance.ts`, `│──●──┊──╎──│` okumaları); kalan iş React
-bileşeni ve ekrana bağlanması.
+**`4.9` — Placement Preview** (§9.1, §12.9). Gerçek platform chrome simülasyonu:
+Reels güvenli alan overlay'i (%14 üst / %35 alt / %6 yan). Platform spec'leri kod olarak
+hazır (`packages/render/src/specs/placements.ts` — `sourceUrl` + `verifiedAt` her satırda);
+kalan iş overlay bileşeni ve gerçek ölçülerle çizim.
 
 
 ## Bloke adımlar

@@ -59,3 +59,6 @@ export {
   syllables,
   softHyphenate,
 } from './text-tr.js'
+
+// Tolerans okuması — ölçen (render) ile gösteren (ui) ortak sözlüğü (D-175).
+export type { ToleranceStatus, ToleranceReading, QaReport } from './tolerance.js'

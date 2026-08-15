@@ -11,6 +11,7 @@
 #   3. ölçek dışı px boşluk    — 4px temel birim, yalnız 4/8/12/16/24/32
 #   4. `prefers-color-scheme`  — tema anahtarı YAPISAL olarak yok
 #   5. >320ms geçiş            — hareket tavanı
+#   6. rozet ifadeleri         — ölçüm ekranı rozet göstermez (§11.1)
 set -euo pipefail
 
 # R-77: LANG=tr_TR.UTF-8 altında POSIX karakter sınıfları Türkçe collation'a göre
@@ -127,6 +128,31 @@ for f in $DOSYALAR; do
   fi
 done
 
+# ── 6. ROZET YASAĞI (§11.1 · §4b · FAZ-4.8) ─────────────────────────────────
+#
+# "Marka uyumu ✓" hiçbir şey söylemez: sınırın hemen içinde mi, çok uzağında mı,
+# hangi yöne gidiyor — hiçbiri görünmez. Sistemin imza öğesi TOLERANS OKUMASIDIR:
+# `ΔE 2,4 / limit 5,0`. Rozet, ölçümün yerini alan en kolay şeydir ve bir kez girdiğinde
+# ölçüm ekranı yavaşça bir onay damgası panosuna döner.
+#
+# Desen İFADEYİ arar, tek tek kelimeleri değil: `✓ uygun`, `uyumlu ✓`, "marka uyumu"
+# gibi. `✓ tolerans içi` MEŞRU — o bir durum METNİ ve yanında sayı, limit ve bant var.
+TSX=$(find packages/ui/src apps/ui/src -name '*.tsx' 2>/dev/null || true)
+for f in $TSX; do
+  # ⚠ YORUMLAR SOYULUR. Bir kuralı ihlal eden ifadeyi, NEDEN yasak olduğunu anlatan
+  # yorumda alıntılamak meşrudur — ve kapının ilk sürümü tam da bu dosyanın kendi
+  # gerekçe yorumunu yakaladı. Aynı muafiyet `turkish-case` kapısında da var (test
+  # içinde hatanın kendisini göstermek meşrudur).
+  # Satır numarası KORUNUR: `sed` satırları silmez, içeriğini boşaltır.
+  rozet=$(sed 's|//.*||; s|^[[:space:]]*\*.*||' "$f" \
+    | grep -nE '(✓|✔)[[:space:]]*(uygun|uyumlu|geçti|onaylı)|(uygun|uyumlu|geçti)[[:space:]]*(✓|✔)|marka uyumu' || true)
+  if [ -n "$rozet" ]; then
+    while IFS= read -r satir; do
+      bildir "$f:${satir%%:*}  ROZET — ölçüm ekranı rozet göstermez, tolerans okuması gösterir (§11.1)"
+    done <<< "$rozet"
+  fi
+done
+
 if [ "$hata" -eq 1 ]; then
   echo ""
   echo "tema katmanı ihlali — kural §12'de, düzeltme CSS'te"
@@ -134,4 +160,5 @@ if [ "$hata" -eq 1 ]; then
 fi
 
 n=$(printf '%s\n' "$DOSYALAR" | grep -c . || true)
-echo "  $n tema dosyası · gölge yasağı · 700 ağırlık · 4px ölçek · tema anahtarı · 320ms tavanı"
+t=$(printf '%s\n' "$TSX" | grep -c . || true)
+echo "  $n tema + $t bileşen · gölge · 700 ağırlık · 4px ölçek · tema anahtarı · 320ms · rozet yasağı"

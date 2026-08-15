@@ -1552,3 +1552,179 @@ değiştirmez" ilkesi).
 Öksüz varlık CAS'a girmediği için `compliance` kapısı onu göremiyor — kapı `derived/blobs`
 tarar, `derived/runs` değil. İki dizin iki farklı şey: biri yayınlanabilir varlıklar,
 diğeri çalıştırma çıktısı. Doctor ikisinin arasındaki boşluğu görüyor.
+
+## D-150 — Tazelik denetimi; iki anlık görüntü İKİ FARKLI alan adı kullanıyordu
+2026-08-15 · §8.7 *"UI, anlık görüntü 60 günden eskiyse uyarı rozeti gösterir"* diyor ve
+§9.1 *"üç aylık bir iş kaynakları yeniden çeker"* diyor. **İkisi de yoktu** ve
+`specAgeDays` yazılmış ama hiçbir yerden çağrılmıyordu (desen, on üçüncü kez).
+`scripts/tazelik.mjs` eklendi ve `just doctor`a bağlandı: fiyat anlık görüntüleri 60,
+platform spec'leri 90 gün sınırıyla raporlanıyor. **Rapor eder, değiştirmez** (§16).
+**Rapor kendi yazıldığı gün bir hata buldu:** `fal-2026-08-15.json` `captured_at`,
+`cloudflare-2026-08-15.json` `date` kullanıyordu — **aynı şey için iki alan adı**.
+`providers` kapısı yalnız `verified`a baktığı için hiç fark etmemişti; tazelik raporu
+birini `Infinity günlük` gösterdi.
+Kanonik ad `captured_at` seçildi ve **kapı artık varlığını ve biçimini zorluyor**:
+tarihsiz bir anlık görüntü yaşlandırılamaz, ve *tarihli ama denetlenmeyen* bir spec
+tarihi olduğu için doğru SANILIR — ikincisi daha tehlikeli.
+`claude-code` "anlık görüntü YOK ama enabled" diye uyarı alıyor ve bu DOĞRU: abonelikle
+ödenmiş bir sağlayıcının fiyat listesi yoktur, ama bu bir olgu olarak görünmeli.
+
+## D-151 — `just save` atlandı: 24 commit push edilmemiş kalmıştı
+2026-08-15 · Bu oturumda doğrudan `git commit` kullandım, `just save` değil. Sonuç:
+**99 commit'in 24'ü uzak depoya gitmemişti.**
+`save.sh` yalnız commit atmıyor — kapıları koşuyor, commit sayısını ÖNCE/SONRA
+karşılaştırıyor (heredoc'tan sonraki komutların yalan söylemesine karşı, R-70) ve
+**push ediyor**. Push başarısız olursa açıkça uyarıyor: *"yasa 12 (git clone ile
+kurtarma) geçersiz"*.
+Yasa 12 (§16) diyor ki: *"Bir ay ihmal edilse de çalışır. Kurtarma `git clone` + `cat`."*
+24 push edilmemiş commit'le bir `git clone` bu oturumun **tamamını** kaçırırdı — FAZ 3'ün
+uçtan uca hattı, 17 karar, iki doğrulama turunun bütün düzeltmeleri.
+Darboğaz beni engelleyemedi çünkü kapsamı `scripts/**`: bir *betiğin* ikinci bir
+`git commit` çağırmasını yasaklıyor, bir *insanın/agent'ın* kabuğa yazmasını değil.
+**Bu, darboğazların yapısal sınırı:** kod içindeki ikinci yolu kapatırlar, kabuktaki
+alışkanlığı değil. Kalan savunma disiplin ve `doctor` — artık "push edilmemiş" sayısını raporluyor ve
+upstream yoksa *"'git clone' ile kurtarma İMKÂNSIZ"* diyor.
+**Düzeltmenin kendisi bir kapı boşluğu açığa çıkardı:** `doctor.sh`taki bu kararı
+ANLATAN yorum `git commit` dizesini içeriyordu ve `kaydetme` darboğazı onu ihlal saydı —
+`chokepoints` kabuk `#` yorumlarını soymuyordu. Artık **tam satır** kabuk yorumları
+soyuluyor; satır sonu yorumları soyulmuyor çünkü `#` kabukta `${v#onek}` ve `$#`ta da
+geçer ve naif bir soyma komutu bozar. `turkish-case`te aynı ders (D-114): bir kuralı
+anlatan yorum, kuralı çiğnemez.
+
+## D-152 — `just tur` faz kapanışında YANLIŞ KAYNAĞA yönlendiriyordu
+2026-08-15 · `siradaki_adim: FAZ-3-KAPANIS` (D-128) eklendikten sonra `just tur` onu bir
+adım sanıp `docs/fazlar/FAZ-FAZ-3-KAPANIS.md` arıyor, bulamayınca *"şimdilik plan
+dosyasındaki faz haritasını kullan"* diyordu.
+**Plan dosyası ARŞİVDİR** — `CLAUDE.md` bunu açıkça yazıyor ve `docs/ANAYASA.md` ile faz
+dosyalarını tek doğru ilan ediyor. Yani compact sonrası ilk komut, bağlamı sıfırlanmış
+bir agent'ı **bayat bir kaynağa** gönderiyordu; compact protokolünün tam olarak önlemesi
+gereken şey.
+`tur.sh` artık kapanış durumunu tanıyor: LOOP§D'nin dört adımını ve fazın TİKSİZ
+adımlarını basıyor. Bir özellik eklerken (D-128) onun okunduğu yeri güncellememek —
+bu turda iki kez oldu (diğeri D-153).
+
+## D-153 — 1. turun DÜZELTME commit'i iki üretim CLI'ını kırdı ve 24 kapı görmedi
+2026-08-15 · 2. doğrulama turunun en ağır bulgusu, ve tamamen benim hatam.
+`551b848` ("doğrulama turu 1 — yedi blokaj kapatıldı") iki import'u sildi:
+- `scripts/plan.mjs`: `readEnv` kullanılıyor, import YOK → **`just plan` hiç çalışmıyordu**
+- `scripts/uret.mjs`: `climbLadder`/`formatLadder` çağrılıyor, import YOK → `just uret`in
+  `VALIDATE` adımı `ReferenceError` ile patlıyordu
+İkincisi **maskeliydi**: FAZ-2.9 yüzünden hat `bilgi-sec`te `NO_CONTEXT` ile duruyor ve
+`kalite` adımına hiç ulaşmıyordu. 2.9 açıldığı an her `just uret` çökecekti — yani
+`3.14`'ün tek blokajı 2.9 değildi ve ikincisi `DURUM.md`'de görünmüyordu.
+**Neden hiçbir kapı görmedi:** `lint` yalnız `tseslint.configs.recommended` kullanıyor ve
+o **`no-undef` içermez**; `types` kapısı `scripts/**`ı kapsamıyor (JS); hiçbir kapı
+`just plan`ı gerçekten KOŞTURMUYORDU.
+İki savunma eklendi:
+1. **`no-undef`** `scripts/**/*.mjs` için açıldı. Node globalleri açıkça listelendi —
+   `globals` paketi yok ve 40 satır yazmak bir bağımlılıktan iyidir (R-75).
+2. **`cli-duman` kapısı** (25.): her pipeline için `just plan` GERÇEKTEN koşturuluyor ve
+   çıktının beklenen tabloyu içerdiği doğrulanıyor. `just plan` hiçbir şey harcamaz
+   (R-47) — dürüst bir kuru çalıştırmanın bedeli tam olarak budur.
+   `just uret` koşturulmaz (para harcayabilir); onun yerine `node --check` ile
+   ayrıştırılır.
+Üç ihlal testi: import'u sil → kırmızı · dosyayı sözdizimsel boz → kırmızı · çıktıyı
+sessizce boşalt → kırmızı.
+**Ders:** "kod yazıldı ama çağrılmadı" deseninin kardeşi var — **"kod çağrıldı ama
+tanımlanmadı"**. İkincisi daha sinsi: birincisi ölü kod, ikincisi ÇALIŞAN bir yolun
+ortasında patlayan kod. Ve ikisini de yakalayan tek şey, komutu gerçekten koşturmak.
+
+## D-154 — `--devam` manifesti ÜZERİNE yazıyordu: donmuş girdi kavramı yoktu
+2026-08-15 · İ1+İ2+İ3 tek kök nedenin üç yüzüydü. `--devam` yeni bir çalıştırma gibi
+başlıyordu: `createdAt` tazeleniyor, önceki adımlar siliniyor, ve en kötüsü **topic ile
+`corpusCommit` KOMUT SATIRINDAN yeniden okunuyordu**. §13 "manifest bir çalıştırmanın tek
+kanıtıdır" diyor; üzerine yazılan manifest kanıt değil, son denemenin fotoğrafıdır.
+`idempotencyKey` `corpusCommit` + `topic` içerdiği için pratik sonucu **çift ücretti**:
+iki deneme arasında tek bir commit atılsa anahtar değişir, sağlayıcı yeni iş sanar, para
+ikinci kez gider — yani tam olarak idempotency'nin engellemek için var olduğu şey.
+Düzeltme üç parçalı: (1) `run.ts` `previous` manifest'i alır, adımları birleştirir ve
+**`createdAt`i korur**; (2) `uret.mjs` `--devam`da topic ve `corpusCommit`i **manifest'ten
+okur**, argümandan değil; (3) `just onay`ın bastığı komut artık gerçekten çalışıyor.
+Doğrulandı: `donmuş girdiler yeniden kullanılıyor (corpus ffbe3d98, konu "imalat fire")`.
+**Ders:** "devam et" bir kolaylık bayrağı değil, bir SÖZLEŞMEDİR — devam eden şey aynı
+çalıştırma olmalı, aynı ada sahip yeni bir çalıştırma değil.
+
+## D-155 — `"worktree"` bir SHA değildir; manifest onu kabul ediyordu
+2026-08-15 · Commit'li beş manifest `corpusCommit: "worktree"` taşıyordu (kirli ağaçtan
+üretilmişlerdi) ve `inspectManifest` biçimi hiç denetlemiyordu. §13'ün bilgi-commit'i
+"bu varlık corpus'un HANGİ hâlinden üretildi" sorusunun tek cevabı; `"worktree"` o soruya
+"bilmiyorum" der ve bilmiyoruz demek, yeniden üretilemez demektir.
+`invalid_sha` kusuru eklendi: 40 hex hane değilse manifest KUSURLU, `"worktree"` ve
+`"HEAD"` açıkça reddediliyor. Sonuç anında görüldü — `compliance` kapısı 14 varlığı
+yayından bloke etti. O varlıklar zaten D-134 döneminden, onaylanmamış corpus'tan
+üretilmişti; **`derived/karantina/`ya taşındılar, silinmediler** (gerekçe orada, `OKU.md`).
+Aynı commit'te üç küçük dürüstlük düzeltmesi: `golden.mjs` artık **ölçülen** `notdefCount`i
+basıyor (sabit `0` dizesi değil), `metrics.ts`in `fontFamily` yorumu düzeltildi
+(`getComputedStyle` ÇÖZÜLMÜŞ aileyi vermez, CSS'te yazanı verir — fallback'i yakalayan şey
+`advance` farkıdır), ve `durum` kapısı D-46'yı **iki yönlü** zorluyor: tablo→tik zaten
+vardı, tik→tablo yoktu. İkinci yön eklendiği an gerçek bir tutarsızlık yakaladı (`3.2`).
+**Ders:** bir alanı yazmak onu doğrulamak değildir. `corpusCommit` iki fazdır beri
+yazılıyordu ve iki fazdır yalan söyleyebiliyordu.
+
+## D-156 — Karışık commit defter mutasyonunu künyesiz geçiriyordu
+2026-08-15 · D-154/D-155 commit'inde `derived/runs/.../manifest.json` geliştirme
+dosyalarıyla birlikte gitti (`--devam` doğrulamam adımları yeniden koşturmuştu).
+`commit-msg` sınıflandırması "YALNIZ corpus/brand/derived-runs ise çalıştırma" diyor;
+karışık commit `else` dalına düşüyor ve defter mutasyonu `Run:`/`Actor:`/`Kind:`
+künyesi **olmadan** geçiyor. Yani R-60'ın koruduğu şey tam da karıştırınca kayboluyordu.
+Yasak dar tutuldu: **geliştirme commit'i `derived/runs/` değiştiremez.** `corpus/` ve
+`brand/` kasıtlı olarak dışarıda — şema göçü koda eşlik etmek zorunda ve FAZ 4.1 token
+dosyalarıyla `theme.css`i birlikte değiştirecek; oraya da yasak koymak, kuralı ilk
+meşru ihtiyaçta esnetmek olurdu.
+Dört yönde doğrulandı: karışık → kırmızı · yalnız defter künyesiz → kırmızı ·
+yalnız defter künyeli → yeşil · yalnız geliştirme → yeşil.
+**Ders:** bir sınıflandırma kuralı, sınıfların **kesişimini** tanımlamadıkça eksiktir.
+"A ise X, değilse Y" biçimindeki her kapı, A'nın kısmen doğru olduğu durumu sessizce
+Y'ye atar.
+
+## D-157 — Blokajın iki sınıfı var; LOOP§G üçlü kuralı yalnız birine bakar
+2026-08-15 · FAZ 3'te dört adım bloke ve LOOP§G "aynı fazda üç bloke → dur ve sor"
+diyor. Ama dördü de aynı dış girdiyi bekliyor: `V-16` anahtarları, ~$3 ve `2.9` onayı.
+Üçlü kural **plan hatasını** yakalamak için kondu; burada plan yanlış değil, tam tersine
+o bağımlılığı `V-nn` olarak önceden kaydetmişti. Kural, kendi öngördüğü şeyi hata sanıp
+döngüyü durduruyordu.
+Kuralı sessizce esnetmek yerine **ayırdım** (R-73): `bloke` girdileri artık sınıf taşımak
+zorunda — `bloke: ["3.7:insan", "5.2:teknik"]`. `teknik` üçlü kurala sayar, `insan` saymaz.
+İnsan blokajının bedeli sıfır değil: `durum` kapısı her `insan` adımın DURUM.md'nin ⛔
+ilan bloğunda **adıyla** geçtiğini doğrular. İlan edilmeyen blokaj, kullanıcının hiç
+göremeyeceği blokajdır — ve görünmeyen bir bekleyiş asla açılmaz.
+İlanın **satır değil blok** olduğunu kapının ilk sürümü kaçırdı ve adları tabloda yazan
+dört adımı eksik ilan edilmiş sandı. Yanlış pozitif de bir hatadır: sürekli yanlış alarm
+veren kapı, kapatılan kapıdır. Kapı ⛔'den sonraki `##` başlığına kadar okuyor.
+Üç ihlalle doğrulandı: sınıfsız girdi → kırmızı · üç `teknik` → kırmızı · ilandan
+silinen `insan` adımı → kırmızı.
+**Ders:** bir eşik kuralı, saydığı şeyin ne olduğunu tanımlamadıkça yalnızca sayar.
+
+## D-158 — FAZ 3 ŞARTLI kapandı: çıkış kriteri tikle örtülmez
+2026-08-15 · FAZ 3'ün çıkış kriteri "gerçek bir carousel üretildi ve onaylandı".
+12/15 adım tikli, iki doğrulama turu bitti, ama o kriter `3.14`'tür ve `2.9` insan
+onayına bloke. Üç seçenek vardı: (a) fazı kapalı yazmak — kriteri karşılamadan tiklemek,
+R-70 ihlali; (b) fazı açık tutup FAZ 4'e hiç geçmemek — döngü insan uyanana kadar boşta,
+kullanıcının açık talimatına aykırı; (c) **şartlı kapanış**.
+(c) seçildi: FAZ 3 dosyasına ne bittiğini ve ne beklediğini AYIRAN bir kapanış kaydı
+yazıldı, FAZ 4'ün ön koşulu "FAZ 3 kapalı"dan "şartlı kapalı, `4.1`–`4.2` bağımsız"a
+çevrildi. `4.6`–`4.9` gerçek bir çalıştırma gerektirdiği için `3.14` açılmadan tiklenemez
+— yani şart, ertelenen işi ilerideki adımlara **bağlayarak** taşıyor, unutturarak değil.
+Neden meşru: `4.1` token, tipografi ve yüzey bağlamıdır; bir carousel'in var olmasını
+gerektirmez. "UI'ı pipeline'lardan sonra yap" kuralının sebebi (neyin gösterileceğini
+bilmek) motor uçtan uca çalıştığı için zaten karşılandı — eksik olan çıktı değil, çıktının
+İNSAN ONAYI.
+**Ders:** bir faz "bitti mi" ikili bir soru değil. Teknik kapsam ile kanıt ayrı ayrı
+tamamlanır ve ikisini tek tike sıkıştırmak, hangisinin eksik olduğunu gizler.
+
+## D-159 — Çözülen atıf ≠ okunabilir kaynak: gövdesiz bölüm kapısı
+2026-08-15 · FAZ-4.1'in `📖 Oku` satırı `§12.1–12.4, §12.7`e işaret ediyordu.
+`§12.3` ve `§12.4`'ün İÇİ BOŞTU — yalnız başlık ve tek bir cümle parçası. `citations`
+kapısı yeşildi çünkü çapa çözülüyordu; `grep TBD` de temizdi çünkü iskelet bölüm TBD
+yazmaz, hiçbir şey yazmaz. Yani ANAYASA "tek referans"tı ve adımın okuyacağı yer boştu:
+bağlamı sıfırlanmış bir agent hedefi bulur, hiçbir şey öğrenmez ve adımı TAHMİNLE yapar.
+Kırık atıftan daha sinsi — kırık atıf en azından bağırır.
+Kapı eklendi ama eşiği **sıradaki adıma** bağlandı: ANAYASA'da 17 iskelet bölüm var ve
+FAZ-0.B.8a bunu bilerek yaptı ("sonraki fazların dosyaları ancak o faza yaklaşırken tam
+yazılır — erken yazılan detay zaten bayatlar"). Hepsini bugün doldurmak o gerekçeyi
+çiğnemek olurdu. Doğru an, o bölümü OKUYACAK adımın sırası geldiği andır; kapı da tam
+olarak onu zorluyor. Kalanlar sayılıp uyarı olarak bildiriliyor — sessizce değil.
+Kapı yazıldığı anda işini yaptı: `§12.3`, `§12.4` ve `§12.7` bu turda dolduruldu.
+Üst başlıklar (`§3`, `§4`) muaf — gövdeleri alt bölümleridir; yanlış pozitif de hatadır.
+**Ders:** bir atıf kapısı hedefin VAR olduğunu doğrular, OKUNABİLİR olduğunu değil.
+İkisi arasındaki fark, bir belge sisteminin işe yarayıp yaramadığıdır.

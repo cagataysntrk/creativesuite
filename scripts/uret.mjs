@@ -191,6 +191,8 @@ const izinliHex = hexFromTokens(tokenCss)
 // QA'nın markanın kendi paletini görememesi demekti (D-123).
 const palet = { colors: colorsFromTokens(tokenCss) }
 
+const AGIRLIK = { in: 0, warn: 1, out: 2 }
+
 const kaliteKontrol = async (doc, slides) => {
   const satirlar = []
   let bloke = false
@@ -237,6 +239,10 @@ const kaliteKontrol = async (doc, slides) => {
     satirlar.push(`  ✗ ${lex.length} lexicon ihlali: ${lex.map((v) => v.kind).join(', ')}`)
   }
 
+  // Okumalar YAPILANDIRILMIŞ toplanır ve manifeste öyle gider (FAZ-4.8): tolerans
+  // bileşeni sayının altına bant çizebilsin diye. Metin rapor insan için kalıyor.
+  const okumalar = []
+
   for (const [i, yol] of slides.entries()) {
     const ornek = await samplePng(yol, { grid: 24 })
     if (!ornek.ok) {
@@ -253,9 +259,16 @@ const kaliteKontrol = async (doc, slides) => {
     })
     satirlar.push(`  slayt ${i + 1}:`)
     satirlar.push(formatReport(rapor))
+    // Aynı metrik birden fazla slayttan gelirse en KÖTÜ okuma kalır: ortalama almak,
+    // bir slaydın sınır dışı olduğunu diğerlerinin arkasına gizlerdi.
+    for (const o of rapor.readings) {
+      const eski = okumalar.findIndex((x) => x.metric === o.metric)
+      if (eski === -1) okumalar.push(o)
+      else if (AGIRLIK[o.status] > AGIRLIK[okumalar[eski].status]) okumalar[eski] = o
+    }
     if (rapor.blocked) bloke = true
   }
-  return { blocked: bloke, report: satirlar.join('\n') }
+  return { blocked: bloke, report: satirlar.join('\n'), readings: okumalar }
 }
 
 // ── sağlayıcı fiyatları ─────────────────────────────────────────────────────

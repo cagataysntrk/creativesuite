@@ -169,3 +169,65 @@ body {
     --dur-surface: 0ms;
   }
 }
+
+/* ── tolerans okuması: imza öğesi (§11.1) ──────────────────────────────────
+ * Bant bir ÖLÇÜ ALETİ: ölçüm noktası, uyarı eşiği ve limit ayrı işaretler.
+ * Yalnız limit olsaydı sistem "geçti/kaldı" ikilisine düşer ve limite doğru
+ * sürüklenme — markanın yavaşça bozulması — hiç görünmezdi. */
+.tolerans {
+  display: grid;
+  grid-template-columns: 12rem 5rem 1fr 6rem 10rem;
+  align-items: center;
+  gap: var(--space-3);
+  block-size: var(--row-default);
+  font-size: var(--size-3);
+}
+
+.tolerans-etiket {
+  color: var(--role-text-muted);
+}
+
+.tolerans-deger,
+.tolerans-limit {
+  text-align: end;
+}
+
+.tolerans-bant {
+  position: relative;
+  display: block;
+  block-size: 8px;
+  background: var(--comp-tolerance-track);
+  border-radius: var(--radius);
+}
+
+.tolerans-bant > span {
+  position: absolute;
+  inset-block: 0;
+  inline-size: 2px;
+}
+
+/* Uyarı eşiği: kesikli, çünkü bir SINIR değil bir HABERDİR. */
+.bant-uyari {
+  background: var(--comp-tolerance-limit);
+  opacity: 0.6;
+}
+
+.bant-limit {
+  background: var(--comp-tolerance-out);
+}
+
+/* Ölçüm noktası en geniş ve en son çizilir: tam limitte duran bir okuma —
+   en çok bakılması gereken okuma — eşiğin altında kaybolmasın. */
+.bant-olcum {
+  inline-size: 4px;
+  border-radius: var(--radius-full);
+}
+
+.tolerans-durum {
+  white-space: nowrap;
+}
+
+.tolerans-raporu {
+  display: flex;
+  flex-direction: column;
+}

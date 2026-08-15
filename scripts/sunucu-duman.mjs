@@ -11,6 +11,16 @@ const REPO = process.env['SUITE_REPO'] ?? join(dirname(fileURLToPath(import.meta
 const { baslat } = await import(join(REPO, 'apps/server/dist/index.js'))
 const { systemClock } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 
+import { readdirSync as _rd } from 'node:fs'
+const _runs = (() => {
+  try {
+    return _rd(join(REPO, 'derived/runs')).filter((x) => x.startsWith('run_'))
+  } catch {
+    return []
+  }
+})()
+const ORNEK_RUN = _runs[0] ?? 'run_yok'
+
 const hatalar = []
 const bekle = (k, d) => {
   if (!k) hatalar.push(d)
@@ -50,6 +60,18 @@ try {
   )
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
+
+  // FAZ-4.8: QA okumaları manifest'ten okunur ve "ölçülmedi" ile "geçti" AYRILIR.
+  const qa = await (await fetch(`${U}/api/calistirma/run_yok/qa`)).json()
+  bekle(qa.ok === false, 'olmayan çalıştırma için QA ok:true dönüyor')
+  const runlar = await (await fetch(`${U}/api/kuyruk`)).json()
+  void runlar
+  // Var olan bir çalıştırma: ölçüm yoksa `olculdu:false` DEMELİ, boş liste yetmez.
+  const qa2 = await (await fetch(`${U}/api/calistirma/${ORNEK_RUN}/qa`)).json()
+  if (qa2.ok === true) {
+    bekle(typeof qa2.olculdu === 'boolean', 'QA yanıtı `olculdu` bayrağı taşımıyor')
+    bekle(Array.isArray(qa2.readings), 'QA yanıtı readings dizisi taşımıyor')
+  }
 
   // FAZ-4.7: onay kuyruğu manifest'lerden beslenir ve GEREKÇESİZ REDDİ reddeder.
   const kq = await (await fetch(`${U}/api/kuyruk`)).json()
@@ -129,5 +151,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 10 uç · token · kuyruk · plan · bağlam · ters indeks · git · SSE`
+  `    sunucu ayağa kalktı · 11 uç · token · qa · kuyruk · plan · bağlam · ters indeks · git · SSE`
 )
