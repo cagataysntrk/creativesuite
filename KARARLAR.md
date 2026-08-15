@@ -524,3 +524,32 @@ geçmeyen iddia kurulamaz. Üç dayanak: prompt taraması · gerçek fotoğraf �
    **sabitlendi**: kodun dışında, `verbs.json` ile aynı mantık (R-02).
 Artık iki yönde de kırmızı: desen silmek "sabit probe KODDA YOK" veriyor, desen eklemek
 "person-probes.json'a eklenmemiş" veriyor. Desen listesini değiştirmek artık bir KARAR.
+
+## D-117 — Blob deposu: dedup EDER ama ilk çalıştırmayı EZMEZ
+2026-08-15 · `derived/blobs/<ab>/<sha256>.<ext>` + `<sha256>.png.meta.json` sidecar.
+Aynı byte iki kez saklanmıyor — ama sidecar da **ezilmiyor**: ilk üretimin
+`sourceRunId`'si korunuyor. Ezseydik "bu byte'ı hangi çalıştırma üretti" sorusu son
+çalıştırmayı gösterirdi ve maliyet defteriyle (§13) çelişirdi — **para ilk üretimde
+harcandı.**
+`rename` tercih edildi (`copy` yedek): yarım yazılmış bir blob, içerik-adresli deponun
+tek yasasını (adres = içerik) çiğner.
+**`verifyBlob` kapıya BAĞLANDI** — `compliance` kapısı her blob için içeriğin kendi
+adresiyle uyuştuğunu ve sidecar'ın var olduğunu doğruluyor. Bağlanmasaydı bu segmentte
+üç kez görülen "kod yazıldı ama hiç çalışmadı" deseninin dördüncüsü olacaktı.
+Gerçek bir blob uçtan uca sınandı: depoya alındı, damgalandı, sonra içeriği bozuldu
+(`içerik adresle UYUŞMUYOR`) ve sidecar'ı silindi (`sidecar YOK`) — ikisi de kırmızı.
+
+## D-118 — Blob deposu `engine`'de, `corpus`ta değil (faz dosyasından SAPMA)
+2026-08-15 · FAZ-3.12 dosyası `packages/corpus/src/blobs.ts` diyordu. `corpus-yazici`
+darboğazı `packages/corpus/src/**` altındaki HER yazmayı reddetti — ve **haklıydı**:
+orada ikinci bir yazma yolu, onay kuyruğunu atlayan bir yoldur (§5.4) ve 2. doğrulama
+turunda bu darboğaz beş ayrı yoldan atlatılmıştı.
+Üç seçenek vardı:
+1. `izinli`ye eklemek → darboğazı gerçekten zayıflatır, ikinci bir corpus yazıcısı yaratır
+2. `kapsam_haric`e eklemek → "kural burada anlamsız" demek olurdu; değil, blobs.ts
+   pekâlâ corpus'a yazabilirdi
+3. **Doğru pakete taşımak** → seçilen
+`derived/blobs` bir corpus kaydı değil, bir **çalıştırma çıktısıdır**. Motor zaten
+`derived/runs` ile maliyet defterini yazıyor; doğru komşu orası. Faz dosyasındaki yol
+düzeltildi — **sessiz sapma yok** (R-74).
+**Ders:** darboğaz kapısı bir engel değil, tasarım geri bildirimi. Dördüncü kez.

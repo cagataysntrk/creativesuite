@@ -157,12 +157,12 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Sentetik insan içeren varlığı onaylamayı dene → **kod seviyesinde** bloklanıyor
 💾 `feat(render): uyum kapısı ve IPTC damgası` · `Refs: FAZ-3.11 · §11.3`
 
-## 3.12 — Varlık CAS ve R2 senkronu    [ ]
+## 3.12 — Varlık CAS ve R2 senkronu    [x] 2026-08-15
 
 📖 §3.5 · R-64 · D-38
 🛠 `derived/blobs/<ab>/<sha256>.<ext>` içerik-adresli + `<sha256>.meta.json` sidecar.
    R2 senkronu ~60 satır. **512KB üstü dosya git'e girmez** (R-64); Git LFS kullanılmaz.
-📁 `packages/corpus/src/blobs.ts` · `derived/blobs/<ab>/`
+📁 `packages/engine/src/blobs.ts` · `derived/blobs/<ab>/` (D-118)
 ✅ `just gate repo-hygiene` yeşil · varlık byte'ları git'te değil
 🧪 512KB üstü dosyayı commit'lemeyi dene → engelleniyor
 💾 `feat(corpus): içerik-adresli varlık deposu` · `Refs: FAZ-3.12 · §3.5`

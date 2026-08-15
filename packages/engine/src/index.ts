@@ -153,3 +153,24 @@ export {
   type BucketConfig,
   type RateDecision,
 } from './ratelimit.js'
+
+// İçerik-adresli varlık deposu (§3.5 · D-118).
+//
+// **Neden `corpus` değil `engine`:** `derived/blobs` bir corpus kaydı değil, bir
+// çalıştırma çıktısıdır. `corpus-yazici` darboğazı `packages/corpus/src/**` altındaki
+// HER yazmayı reddediyor — haklı olarak: orada ikinci bir yazma yolu, onay kuyruğunu
+// atlayan bir yoldur. Blob yazıcısı corpus'a hiç dokunmuyor ve motor zaten
+// `derived/runs` ile maliyet defterini yazıyor; doğru komşu burası.
+export {
+  storeBlob,
+  readBlobMeta,
+  verifyBlob,
+  blobPath,
+  metaPath,
+  GIT_SIZE_LIMIT,
+  type BlobRef,
+  type BlobMeta,
+  type BlobDefect,
+  type StoreInput,
+  type StoreResult,
+} from './blobs.js'

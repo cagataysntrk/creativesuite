@@ -150,11 +150,27 @@ try {
   rmSync(tmp, { recursive: true, force: true })
 }
 
-// ── gerçek varlıklar: hepsi damga TAŞIMAK ZORUNDA ───────────────────────────
+// ── gerçek varlıklar: damga + BÜTÜNLÜK ──────────────────────────────────────
+// İki ayrı soru: "uyum iddiası var mı" ve "içerik kendi adresiyle uyuşuyor mu".
+// İkincisi olmadan bozuk bir blob sessizce YANLIŞ varlığı döndürür ve o varlık bir
+// prospect'e gider. `verifyBlob` FAZ-3.12'de yazıldı; buradan çağrılmasaydı bu
+// segmentte üç kez görülen "kod yazıldı ama hiç çalışmadı" deseninin dördüncüsü olurdu.
+const { verifyBlob } = await import(join(REPO, 'packages/engine/dist/index.js'))
+
 const varliklar = globSync('derived/blobs/**/*.png', { cwd: REPO })
 for (const rel of varliklar) {
-  if (!hasComplianceStamp(join(REPO, rel))) {
+  const mutlak = join(REPO, rel)
+  if (!hasComplianceStamp(mutlak)) {
     hatalar.push(`${rel}: uyum damgası YOK — R-33 iddiası olmayan varlık yayınlanamaz`)
+  }
+  for (const k of verifyBlob(mutlak)) {
+    hatalar.push(
+      k.kind === 'digest_mismatch'
+        ? `${rel}: içerik adresle UYUŞMUYOR (gerçek ${k.actual.slice(0, 12)}…) — depo bozuk`
+        : k.kind === 'meta_missing'
+          ? `${rel}: sidecar YOK — damga ve köken kayıp (R-11)`
+          : `${rel}: ${Math.round(k.bytes / 1024)}KB — git sınırı aşıldı (R-64)`
+    )
   }
 }
 
@@ -166,5 +182,5 @@ if (hatalar.length > 0) {
 
 console.log(
   `  öz-test geçti · ${PERSON_PROBES.length} R-33 deseni tek tek kanıtlandı (sabit listeyle) · ` +
-    `damga + UTF-8 + PNG doğrulama · ${varliklar.length} varlık damgalı`
+    `damga + UTF-8 + PNG doğrulama · ${varliklar.length} varlık damgalı ve bütünlüğü doğrulandı`
 )
