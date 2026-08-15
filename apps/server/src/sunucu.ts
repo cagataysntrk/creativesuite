@@ -29,6 +29,7 @@ import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { baglamOnizle } from './baglam.js'
 import { launcherPlani } from './launcher.js'
+import { bekleyenler, kararVer } from './kuyruk.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -141,6 +142,27 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         status: durum,
       }),
     })
+  })
+
+  // ── onay kuyruğu (§12.5, §12.9 · R-14 · FAZ-4.7) ──────────────────────────
+  app.get('/api/kuyruk', (c) => c.json({ bekleyenler: bekleyenler(o.repoRoot) }))
+
+  app.post('/api/kuyruk/:runId/:gate', async (c) => {
+    const govde = (await c.req.json().catch(() => ({}))) as {
+      karar?: string
+      gerekce?: string
+    }
+    const karar = govde.karar === 'rejected' ? 'rejected' : 'approved'
+    const r = kararVer({
+      repoRoot: o.repoRoot,
+      runId: c.req.param('runId'),
+      gate: c.req.param('gate'),
+      karar,
+      gerekce: govde.gerekce ?? '',
+      at: o.simdi(),
+    })
+    yayinla('degisim')
+    return c.json(r, r.ok ? 200 : 409)
   })
 
   // ── run launcher: planı kur, DONDUR, kilidi hesapla (§8.3 · FAZ-4.6b) ─────

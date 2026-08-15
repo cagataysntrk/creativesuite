@@ -592,6 +592,10 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     decisions: input.decisions ?? [],
     context: input.context ?? [],
     contextRetentionDays: 90,
+    // Nerede ve NEDEN durduğu manifeste yazılır: süreç bittiğinde rapor nesnesi
+    // kaybolur, manifest kalır — ve onay kuyruğu diskten okur (FAZ-4.7).
+    awaitingGate: bekleyenKapi,
+    stoppedAt: durduguYer,
   }
 
   // Manifest HER HÂLÜKÂRDA yazılır: yarıda kalan bir hattın ne kadar harcadığı ve

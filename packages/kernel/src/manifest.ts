@@ -108,6 +108,20 @@ export interface RunManifest {
    * `null` = süresiz. Manifest sonsuza saklanır; BAĞLAM (tam prompt metni) N gün.
    */
   readonly contextRetentionDays: number | null
+
+  /**
+   * Hangi insan kapısında BEKLİYOR (§4c · FAZ-4.7). `null` = beklemiyor.
+   *
+   * Manifest, bir çalıştırmanın TEK kanıtıdır (§13) — ama "bu çalıştırma beni mi
+   * bekliyor" sorusunu cevaplayamıyordu: `awaitingGate` yalnız çalıştırma anındaki
+   * rapor nesnesindeydi ve süreç bittiğinde kayboluyordu. Onay kuyruğu (ve bir ay
+   * sonra dönen operatör) bu bilgiyi diskten okumak zorunda.
+   *
+   * İsteğe bağlı: bu alandan önce yazılmış manifest'ler geçerli kalır.
+   */
+  readonly awaitingGate?: string | null
+  /** Hangi adımda durdu. `null` = hat sonuna kadar koştu. */
+  readonly stoppedAt?: string | null
 }
 
 // ── doğrulama: manifest'siz veya eksik manifest'li çıktı bir HATADIR ─────────

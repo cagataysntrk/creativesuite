@@ -79,7 +79,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    özete `frozenAt` ekle → kırmızı · fiyatsız adım kilidini kaldır → kırmızı
 💾 `feat(ui): run launcher ve donmuş planla koşma` · `Refs: FAZ-4.6b · §8.3`
 
-## 4.7 — Approval Queue    [ ]
+## 4.7 — Approval Queue    [x] 2026-08-16
 
 📖 §12.5, §12.9 · R-14 · D-31
 🔗 4.6
@@ -87,8 +87,10 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    negatif kısıt olarak enjekte edilir; son kabul edilen 5-10 varlık referans olarak geçer.
    Onay = git commit (çalıştırma commit'i, `Refs:` YASAK — R-60).
 📁 `apps/ui/src/screens/approval/`
-✅ Fareye dokunmadan onayla/reddet · red gerekçesi `brand/decisions.jsonl`'a düşüyor
-🧪 Reddedilen bir öneri tekrar üretilsin → **"daha önce reddettin" ile katlanmış** geliyor
+✅ `j/k/a/r` klavye · red gerekçesi `brand/<id>/decisions.jsonl`'a DÜŞÜYOR · manifest
+   `awaitingGate` yazıyor (önce yalnız rapor nesnesindeydi) · 7 test
+🧪 Gerekçesiz redi kabul et → kırmızı · defter yazımını kaldır → kırmızı ·
+   kararı ezilebilir yap → kırmızı
 💾 `feat(ui): approval queue` · `Refs: FAZ-4.7 · §12.9`
 
 ## 4.8 — Tolerans okuması bileşeni    [ ]

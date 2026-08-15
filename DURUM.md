@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.7
+siradaki_adim: 4.8
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -57,13 +57,15 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.5** · Context Preview; kapatma bir karar, manifest'e yazılıyor | 2026-08-16 |
 | **4.6** · plan dondurma çekirdeği: özet, bayatlık, başlat kilidi | 2026-08-16 |
 | **4.6b** · Run Launcher; koşucu donmuş planı KULLANIYOR (R-07) | 2026-08-16 |
+| **4.7** · Onay kuyruğu; red gerekçesi sticky deftere düşüyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.7` — Approval Queue** (§12.5, §12.9). Klavye odaklı (`j/k/a/e/r/p`); **red
-gerekçesi KALICI** ve sonraki çalıştırmaya negatif kısıt olarak enjekte edilir; son
-kabul edilen 5-10 varlık referans olarak geçer. Kuyruk `derived/runs` manifest'lerinden
-beslenir — `HumanDecision` yapısı ve `just onay` CLI'ı zaten var.
+**`4.8` — Tolerans okuması bileşeni** (§11.1, §12.9). Sistemin **imza öğesi**: marka QA
+rozet göstermez, **tolerans okuması** gösterir — `ΔE 2.4 / limit 5.0` sana kenara ne kadar
+yakın olduğunu söyler, "uyumlu ✓" hiçbir şey söylemez. Ölçüm katmanı FAZ 3'te hazır
+(`packages/render/src/qa/tolerance.ts`, `│──●──┊──╎──│` okumaları); kalan iş React
+bileşeni ve ekrana bağlanması.
 
 
 ## Bloke adımlar

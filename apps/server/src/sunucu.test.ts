@@ -6,6 +6,8 @@ import { RUNS_DIR } from '@suite/kernel'
 import { kurSunucu } from './sunucu.js'
 import { makineDurumu } from './durum.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
+import { bekleyenler, kararVer } from './kuyruk.js'
+import { readFileSync } from 'node:fs'
 
 const SORGU = { brandId: 'brd_test', eraId: 'era_test', asOf: '2026-08-15T00:00:00.000Z' } as const
 
@@ -61,7 +63,19 @@ const manifest = (o: {
       // fikstür de aynı uydurmayı kullandığı için test kendi varsayımını doğruluyordu
       // (D-163). Gerçek manifest'e karşı koşan ilk istek sıfır dizisi döndürdü.
       actualCost: o.gercekMikros === undefined ? null : { micros: o.gercekMikros, currency: 'USD' },
-      candidates: [{ providerId: 'cloudflare', outcome: 'won', reason: null }],
+      // ⚠ Kablo biçimi UYDURULMAZ, `ProviderCandidate`ten okunur (D-163). İlk sürüm
+      // `{ outcome: 'won', reason: null }` yazıyordu — öyle bir alan YOK. Diğer testler
+      // geçiyordu çünkü `writeManifest` çağrılmıyordu; onay kuyruğu çağırdığı an
+      // `no_selected_provider` kusuruyla düştü.
+      candidates: [
+        {
+          providerId: 'cloudflare',
+          capability: 'image.generate',
+          selected: true,
+          rejectionReason: null,
+          estimatedCost: null,
+        },
+      ],
       startedAt: '2026-08-15T10:00:02.000Z',
       finishedAt: o.biten ? '2026-08-15T10:00:40.000Z' : null,
     },
@@ -413,6 +427,136 @@ describe('ters indeks', () => {
       expect(j.ozet).toContain('1 çalıştırma')
     } finally {
       s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('onay kuyruğu (§12.5 · R-14)', () => {
+  const kapida = (runId: string, gate: string | null, kararlar: unknown[] = []) => {
+    const m = manifest({ runId, biten: false })
+    m['awaitingGate'] = gate
+    m['stoppedAt'] = gate === null ? null : 'gorsel'
+    m['decisions'] = kararlar
+    return m
+  }
+
+  it('yalnız kapıda BEKLEYENLER listelenir', () => {
+    const kok = kurRepo([kapida('run_bekleyen', 'onay'), kapida('run_bitmis', null)])
+    try {
+      const b = bekleyenler(kok)
+      expect(b).toHaveLength(1)
+      expect(b[0]?.runId).toBe('run_bekleyen')
+      expect(b[0]?.gate).toBe('onay')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('kararı verilmiş kapı kuyrukta DURMAZ', () => {
+    const kok = kurRepo([
+      kapida('run_x', 'onay', [{ gate: 'onay', decision: 'approved', at: 'S', note: null }]),
+    ])
+    try {
+      expect(bekleyenler(kok)).toHaveLength(0)
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('en ESKİ önce — bekleyen iş dipte unutulmaz', () => {
+    const a = kapida('run_yeni', 'onay')
+    a['createdAt'] = '2026-08-16T10:00:00.000Z'
+    const b = kapida('run_eski', 'onay')
+    b['createdAt'] = '2026-08-01T10:00:00.000Z'
+    const kok = kurRepo([a, b])
+    try {
+      expect(bekleyenler(kok).map((x) => x.runId)).toEqual(['run_eski', 'run_yeni'])
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('GEREKÇESİZ RED reddedilir — bilgi taşımayan bir hayır kaydedilmez', () => {
+    const kok = kurRepo([kapida('run_x', 'onay')])
+    try {
+      const r = kararVer({
+        repoRoot: kok,
+        runId: 'run_x',
+        gate: 'onay',
+        karar: 'rejected',
+        gerekce: '   ',
+        at: 'S',
+      })
+      expect(r.ok).toBe(false)
+      if (!r.ok) expect(r.hata).toContain('GEREKÇE')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('RED sticky deftere DÜŞER — sonraki keşif aynı öneriyi getirmesin diye', () => {
+    const kok = kurRepo([kapida('run_x', 'onay')])
+    mkdirSync(join(kok, 'brand/brd_test'), { recursive: true })
+    try {
+      const r = kararVer({
+        repoRoot: kok,
+        runId: 'run_x',
+        gate: 'onay',
+        karar: 'rejected',
+        gerekce: 'görsel markaya uymuyor',
+        at: '2026-08-16T00:00:00.000Z',
+      })
+      expect(r.ok).toBe(true)
+      if (!r.ok) return
+      expect(r.defter).not.toBeNull()
+
+      const satir = JSON.parse(readFileSync(r.defter as string, 'utf8').trim()) as {
+        kind: string
+        reason: string
+      }
+      expect(satir.kind).toBe('rejected')
+      expect(satir.reason).toBe('görsel markaya uymuyor')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('ONAY deftere düşmez — defter REDLERİN hafızası', () => {
+    const kok = kurRepo([kapida('run_x', 'onay')])
+    mkdirSync(join(kok, 'brand/brd_test'), { recursive: true })
+    try {
+      const r = kararVer({
+        repoRoot: kok,
+        runId: 'run_x',
+        gate: 'onay',
+        karar: 'approved',
+        gerekce: '',
+        at: 'S',
+      })
+      expect(r.ok).toBe(true)
+      if (r.ok) expect(r.defter).toBeNull()
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('karar EZİLMEZ — ikinci karar reddedilir', () => {
+    const kok = kurRepo([
+      kapida('run_x', 'onay', [{ gate: 'onay', decision: 'approved', at: 'S', note: null }]),
+    ])
+    try {
+      const r = kararVer({
+        repoRoot: kok,
+        runId: 'run_x',
+        gate: 'onay',
+        karar: 'rejected',
+        gerekce: 'fikrimi değiştirdim',
+        at: 'S',
+      })
+      expect(r.ok).toBe(false)
+      if (!r.ok) expect(r.hata).toContain('EZİLMEZ')
+    } finally {
       rmSync(kok, { recursive: true, force: true })
     }
   })

@@ -406,3 +406,18 @@ kbd {
   color: var(--role-text-muted);
   font-size: var(--size-2);
 }
+
+/* ── onay kuyruğu (§12.5) ───────────────────────────────────────────────────*/
+.kayit-tablosu tr[data-secili='true'] td {
+  background: var(--role-surface);
+}
+
+.gerekce-kutusu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-block-start: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--role-state-warn);
+  border-radius: var(--radius);
+}

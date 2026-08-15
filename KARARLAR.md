@@ -503,3 +503,34 @@ V-16 anahtarları olmadığı için fiyatlanamıyor ve **başlat kilitli** — e
 onay vermek, bilinmeyen bir tutara onay vermektir.
 **Ders:** bir kural iki uçlu olduğunda (dondur + donmuşu kullan) yalnız birini yazmak,
 kuralı yazılı ama işlemez bırakır. `freezePlan` tek başına bir belge parçasıydı.
+
+## D-173 — Red iki yere yazılır: manifest o çalıştırmanın kanıtı, defter markanın hafızası
+2026-08-16 · `just onay` reddi yalnız çalıştırmanın manifest'ine yazıyordu. Sonuç: red o
+çalıştırmayla birlikte ölüyordu. `brand/<id>/decisions.jsonl` **hiç oluşmamıştı** —
+sticky karar defteri (§4.5) kodu tamdı (`parseLedger`/`suppression`/`appendLine`),
+`discovery.mjs` onu okuyordu, ama **hiçbir yol ona yazmıyordu.** Yazılı, okunan ve hep
+boş kalan bir defter.
+Onay kuyruğu artık iki yere yazıyor: manifest (o çalıştırmanın kanıtı, §13) ve defter
+(markanın hafızası, §4.5). Onay yalnız manifeste gider — defter REDLERİN hafızasıdır,
+"evet" kendini açıklar ve tekrar sorulması zaten istenen şeydir.
+İki koruma daha: **gerekçesiz red reddedilir** (bilgi taşımayan bir "hayır" sonraki
+çalıştırmaya hiçbir şey söylemez) ve **karar EZİLMEZ** (aynı kapıya ikinci karar 409).
+Üçü de ihlal testiyle doğrulandı.
+Yol boyunca manifest'te gerçek bir eksik çıktı: `awaitingGate` yalnız çalıştırma anındaki
+RAPOR nesnesindeydi, diske yazılmıyordu. Yani manifest "bu çalıştırma beni mi bekliyor"
+sorusunu cevaplayamıyordu — ve onay kuyruğunun tek kaynağı manifest. Alan eklendi
+(isteğe bağlı, eski manifest'ler geçerli kalıyor).
+**Ders (yedinci kez):** bir mekanizmanın kodu, testi ve okuyucusu olabilir ve yine de
+hiç çalışmıyor olabilir — çünkü kimse ona YAZMIYOR. "Bu özellik var mı" sorusunun cevabı
+kodda değil, veri akışında.
+
+## D-174 — Fikstür yine kablo biçimini uydurdu: `ProviderCandidate`
+2026-08-16 · `sunucu.test.ts` fikstürü `candidates: [{ providerId, outcome: 'won',
+reason: null }]` yazıyordu. Gerçek `ProviderCandidate` şu: `{ providerId, capability,
+selected, rejectionReason, estimatedCost }`. `outcome` diye bir alan YOK.
+Yedi test bu fikstürle geçiyordu çünkü hiçbiri `writeManifest` çağırmıyordu. Onay kuyruğu
+çağırdığı an `no_selected_provider` kusuruyla düştü — yani manifest doğrulayıcısı doğru
+çalıştı ve fikstürün yalanını ilk fırsatta yakaladı.
+Bu D-163'ün birebir tekrarı ve aynı turda ikinci kez oldu. **Kural artık şu: bir fikstür
+yazmadan önce tipin tanımı OKUNUR.** Tip zaten repoda; onu okumamak, kendi varsayımını
+test etmektir.

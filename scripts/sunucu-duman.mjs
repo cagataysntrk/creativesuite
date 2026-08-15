@@ -51,6 +51,16 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.7: onay kuyruğu manifest'lerden beslenir ve GEREKÇESİZ REDDİ reddeder.
+  const kq = await (await fetch(`${U}/api/kuyruk`)).json()
+  bekle(Array.isArray(kq.bekleyenler), '/api/kuyruk bekleyenler dizisi dönmüyor')
+  const redsiz = await fetch(`${U}/api/kuyruk/run_yok/onay`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ karar: 'rejected', gerekce: '' }),
+  })
+  bekle(redsiz.status === 409, 'olmayan çalıştırma/gerekçesiz red 409 dönmüyor')
+
   // FAZ-4.6b: launcher planı DONDURUR, hiçbir şey harcamaz (R-47).
   const pl = await (await fetch(`${U}/api/plan?pipeline=instagram-post`)).json()
   bekle(pl.ok === true, '/api/plan instagram-post planını üretemedi')
@@ -119,5 +129,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 8 uç · token · plan dondurma · bağlam · ters indeks · git · SSE`
+  `    sunucu ayağa kalktı · 10 uç · token · kuyruk · plan · bağlam · ters indeks · git · SSE`
 )
