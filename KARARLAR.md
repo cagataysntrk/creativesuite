@@ -56,170 +56,15 @@ açısından durumu, sınır ötesi veri aktarımı beyanı. → FAZ-8.6
 ## V-11 — Run bağlam anlık görüntülerinin saklama süresi ✅ KAPANDI
 Manifest sonsuza, bağlam N gün. **N = 90** (2026-08-15, FAZ-1.9). Gerekçe D-63'te.
 
+## V-13 — TCMB kuru doğrulanmadı
+`registry/rates/tcmb-2026-08-15.json` elle girildi (`usdTry: 41.85`), TCMB XML'inden
+doğrulanmadı. TRY yalnız GÖRÜNTÜDE kullanıldığı için (D-36) hesabı etkilemiyor —
+ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu söylüyor.
+→ FAZ-4.12 (Cost & Budget ekranı)
+
 ## V-12 — Aday dönem probe bake-off mekanizması
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
-
-## D-62 — `better-sqlite3` korundu; Türkçe arama tezi deneysel olarak doğrulandı
-2026-08-15 · Node 22'nin yerleşik `node:sqlite`'ı FTS5'i, `unicode61 remove_diacritics 2`
-ve `trigram` tokenizer'larını **bağımlılıksız** destekliyor (denendi, çalışıyor).
-R-75 ("40 satır bir bağımlılıktan iyidir") bunu cazip yapıyordu.
-**Yine de D-27 korundu:** `node:sqlite` Node 22'de deneysel (`--experimental-sqlite`
-bayrağı gerekiyor ve API "her an değişebilir" uyarısı veriyor). `better-sqlite3@13.0.3`
-linux-x64 **prebuild** ile kuruldu — yerel derleme gerekmedi, yani "native modül
-kırılganlığı" itirazının bu makinede karşılığı yok.
-**Yan kazanç — §5.6'nın tezi ölçüldü:** aynı veri iki tokenizer'a verildi.
-| Sorgu | `unicode61 remove_diacritics 2` | `trigram` |
-|---|---|---|
-| `olcumlerinizi` (tam kelime, aksansız) | **bulur** | — |
-| `olcum` (kök, ek düşmüş) | **bulamaz** | — |
-| `ölçüm` (kelime içi) | — | **bulur** |
-Yani Türkçe'nin eklemeli yapısı tek indeksle çözülmüyor: aksan katlama tam kelimeyi
-kurtarıyor ama kökü bulmuyor. **Paralel trigram + RRF kararı artık varsayım değil, ölçüm.**
-
-## D-63 — Bağlam anlık görüntüsü 90 gün, manifest sonsuza (V-11 kapandı)
-2026-08-15 · V-11 "N ilk yüz çalıştırmadan önce belirlenir" diyordu; FAZ-1.9 o an.
-**Karar:** `RunManifest.contextRetentionDays = 90`. Manifest (metadata: marka, dönem,
-commit SHA'sı, adımlar, maliyet, kararlar, aday sağlayıcılar) **süresiz** saklanır;
-**bağlam anlık görüntüsü** (enjekte edilen tam prompt metni) 90 gün sonra silinebilir.
-**Neden 90:** üç gerekçe üst üste biniyor.
-1. **Kurtarılabilirlik.** Manifest `corpusCommit` taşıyor; bağlam o ağaçtan tarif
-   yeniden çalıştırılarak ÜRETİLEBİLİR. Anlık görüntü bir kolaylıktır, tek kaynak değil —
-   yani silinmesi kanıt kaybı değil, kolaylık kaybı.
-2. **Hata ayıklama penceresi.** "Bu çalıştırma neden böyle çıktı" sorusu pratikte bir
-   çeyrek yaşıyor; ötesinde cevap zaten "ağaç değişti" ve onu commit SHA'sı söylüyor.
-3. **KVKK.** `INGEST` çektiği prospect metni bağlama girer (§14). Kazınmış kişisel veriyi
-   süresiz saklamak, silme talebini teknik olarak karşılanamaz kılar — sınırsız saklama
-   burada yalnız maliyet değil, yükümlülüktür.
-**Alternatif (reddedildi):** "sonsuza sakla, disk ucuz". Disk ucuz ama sorumluluk değil;
-ayrıca 100 çalıştırma/ay × ~30 KB, üç yılda grep'lenemeyecek bir yığın yapar.
-**Geri alma maliyeti:** düşük — alan manifest'te, değeri değiştirmek tek satır. Ama
-silinen bağlam geri gelmez, o yüzden temizlik işi FAZ-8.4'te `doctor` raporuyla gelir
-ve **rapor eder, silmez**; silme insan onayıyla.
-
-## D-64 — Kernel saflığının üç katmanı ölçüldü; her biri farklı şeyi yakalıyor
-2026-08-15 · FAZ-0.C.3 "üç katman" diyordu ama hangisinin neyi yakaladığı yazılı değildi.
-Tek bir ihlal dört mekanizmadan geçirildi ve sınırlar **ölçüldü**:
-
-| İhlal biçimi | grep `\.attributes` | ESLint | `tsc` | Proxy tuzağı |
-|---|---|---|---|---|
-| `rec.attributes.foo` | yakalar | yakalar | **yakalar** | yakalar |
-| `const { attributes } = rec` | **kaçırır** | **yakalar** | kaçırır | yakalar |
-| `rec['attri'+'butes']` | **kaçırır** | **kaçırır** | **kaçırır** | **yakalar** |
-
-§3.2'nin "grep destructuring ile atlatılır, Proxy atlatılmaz" cümlesi doğrulandı ve
-aradaki boşluğun ESLint `no-restricted-syntax` ile kapandığı gösterildi.
-**Tuzağın kendisi `panic()` kullanır** — `throw` eden tek yer orası (§8.6). `chokepoints`
-kapısı testte elle yazılmış bir `throw`u haklı olarak reddetti; kural doğruydu, ilk
-yazdığım tuzak yanlıştı. Semantik olarak da doğrusu bu: kernel'in `attributes` okuması
-bir kullanıcı hatası değil, bir **değişmez ihlalidir**.
-
-**İki tuzak hatası ve dersleri:**
-1. Tuzak önce yalnız `{ record: … }` biçimiyle deneniyordu; `input['attributes']` okuyan
-   bir ihlal hiç tetiklemiyordu — **tuzak yeşil raporluyordu** (R-71). Artık dört biçim
-   deneniyor: çıplak kayıt, `{record}`, `{records:[]}`, iç içe payload.
-2. Hata mesajı `Object.keys(girdi)` çağırıyordu ve tuzağı **testin kendisi** patlatıyordu;
-   temiz kodda bile kırmızıydı. Etiketler artık girdiden türetilmiyor.
-
-**Çalışma biçimi dersi:** bu turda iki kez, biçimlendirici satırı çok satıra bölünce
-`str.replace` tabanlı düzenlemem **sessizce hiçbir şey yapmadı** ve testi haftalarca
-yanlış çalıştırabilirdi. Desen eşleşmesi artık `assert` ile doğrulanıyor — eşleşmeyen
-düzenleme hata verir, sessizce geçmez. R-70'in kabuk tuzağının editör seviyesindeki hâli.
-
-## D-65 — `durum` kapısı: döngünün sözleşmesi sessizce bayatlayamaz
-2026-08-15 · FAZ-1.11 turunda art arda birkaç metin düzenlemesi **sessizce boşa gitti**
-(biçimlendirici satırı çok satıra bölünce `str.replace` deseni eşleşmedi) ve `DURUM.md`
-altı adım geride kaldı: `siradaki_adim` bitmiş bir adımı gösteriyordu ve "Sıradaki adım"
-bölümü iki farklı turun metnini üst üste taşıyordu. **On altı kapının hiçbiri görmedi.**
-**Neden ciddi:** `DURUM.md` LOOP§E'de döngünün sözleşmesi olarak tanımlı — bağlamı
-sıfırlanmış bir agent "şimdi ne yapmalıyım" sorusunu YALNIZ oradan cevaplıyor. Bayat bir
-`siradaki_adim`, o agent'ı bitmiş bir işe yönlendirir; iyi ihtimalle tur boşa gider, kötü
-ihtimalle iş ikinci kez yapılır ve tikler çakışır.
-**Karar:** `scripts/gates/durum.mjs`. Dört kontrol: (1) `siradaki_adim` gerçekten var mı,
-(2) ZATEN TİKLİ mi, (3) `bloke[]` gerçek adımlar mı, (4) "Tamamlananlar" tablosundaki her
-satır faz dosyasında tikli mi (D-46'nın mekanik hâli). Üçü de kasten ihlal edilip kırmızı
-görüldü.
-**İkinci ders (araç disiplini):** desen tabanlı düzenlemelerde eşleşme artık `assert` ile
-doğrulanıyor. Ama aynı turda `assert` patlarken sonraki komut yine de koştu ve **kısmi
-durum commit'lendi** — R-70'in kabuk tuzağının üçüncü yüzü. Düzenleme ile commit aynı
-kabuk çağrısında zincirlenmemeli; `just save` ayrı çağrıdır ve doğrulama ondan önce gelir.
-
-## D-66 — YAML ayrıştırıcı Ring 0'da; corpus ve registry aynı ayrıştırıcıyı kullanır
-2026-08-15 · FAZ-1.13'te `packages/registry` pipeline YAML'ı okumak istedi ve
-`frontmatter-ayristirici` darboğazına çarptı: `yaml` import'una izin verilen tek dosya
-`packages/corpus/src/frontmatter.ts` idi. Çıkışlar kapalıydı — corpus ile registry
-**kardeş halkadır** ve birbirini import edemez (§3.6).
-**Karar:** ayrıştırıcı `packages/kernel/src/yaml.ts`'e taşındı; ikisi de oradan okuyor.
-`yaml` bağımlılığı corpus'tan kaldırılıp kernel'e alındı. Sahip sayısı hâlâ **bir**.
-**Neden sadece "aynı kütüphaneyi kullanalım" yetmez:** seçenekler de sabitlendi.
-Aynı kütüphanenin farklı seçeneklerle çağrılması da iki ayrıştırıcıdır — biri `1.20`
-sürüm numarasını sayı, diğeri dize okur ve fark aylar sonra, bambaşka bir yerde çıkar.
-**D-61 ile aynı örüntü:** halka yasası bir kaynağın hangi katmanda yaşayacağını
-belirliyor. SQLite handle da, YAML ayrıştırıcı da bu yüzden Ring 0'da.
-
-## D-67 — `dist/` okuyan kapı kendi derlemesini yapar; kapı sırasına güvenilmez
-2026-08-15 · Bağımsız doğrulama agent'ı FAZ-1.2'nin ihlal testinin **gerçekte çalışmadığını**
-buldu: Zod şemasında tip-nötr bir değişiklik (`z.string().min(1)` → `.min(3)`) yapılıp
-`schemas/` üretilmeden **tam `just check`'ten 17/17 yeşil** geçiyordu.
-**Sebep:** `schemas.sh` şemaları `packages/kernel/dist/index.js`'ten üretiyordu ve
-`run-gates.sh` `.sh` kapılarını ALFABETİK koşturuyor — `schemas` (s), dist'i yeniden
-derleyen `types`'tan (t) ÖNCE. Kapı bayat çıktı üstünde çalışıyor, farkı görmüyordu.
-Aynı delik `.githooks/pre-commit`'te de vardı. Kapının kendi başlığındaki "commit'li şema
-sessizce YALAN söyler" senaryosu tam olarak mümkündü.
-**Karar:** `scripts/ensure-build.sh` — `dist/` okuyan HER kapı (`schemas`, `verbs`,
-`projection`) onu ilk iş çağırır. `tsc -b` artımlıdır; ikinci çağrının bedeli yok.
-**İlke:** **bir kapının doğruluğu BAŞKA bir kapının çalışma sırasına bağlı olamaz.**
-Sıra bir gün değişir — dosya adı değişir, kapı eklenir — ve o gün koruma sessizce kalkar.
-D-55'te aynı sebeple `import-x/no-restricted-paths` reddedilmişti: çözümleme gerektiren
-bir kural çözemediğinde susar. Bu onun sıralama biçimindeki hâli.
-**Kanıt:** aynı Zod değişikliği düzeltmeden sonra `just gate schemas` rc=1 verdi ve
-diff'i gösterdi; geri alınca yeşile döndü.
-
-## D-68 — `derived/runs` koruması dizin doğana kadar boştaydı
-2026-08-15 · Doğrulama agent'ı `repo-hygiene`'in D-38 korumasının **ateşlemediğini** buldu:
-`.gitignore`'a `derived/runs/` eklendiğinde kapı YEŞİL kaldı.
-**İki ayrı sebep üst üste binmişti:**
-1. `git check-ignore`, VAR OLMAYAN bir yol için daima "eşleşmedi" der — `derived/runs/`
-   deseni sondaki eğik çizgi yüzünden yalnız dizinlerle eşleşir ve git, olmayan bir yolun
-   dizin olduğunu bilemez. Dizin repoda hiç yoktu.
-2. `git check-ignore` İZLENEN bir dosyayı da "ignore değil" sayar. Yani dizin yaratılıp
-   `.gitkeep` commit'lense bile, sonradan eklenen bir desen kapıdan geçerdi.
-**Karar:** `derived/runs/.gitkeep` commit'lendi (dizin artık git'te var) ve kapı üç şeyi
-birden denetliyor: dizin var mı · deseni `--no-index` ile ignore'lu mu · `.gitkeep`
-izleniyor mu. **Kanıt:** üç vaka da kırmızı verdi; temizde yeşil.
-**Ders:** "kapı zaten doğruluyor" cümlesi bir faz adımında yazılıydı ve **yanlıştı**.
-Kapıyı yazmak yetmiyor; kasten ihlal edip kırmızıya döndüğünü GÖRMEK gerekiyor (R-71) —
-ve bu ihlal testi FAZ-1.6'da atlanmıştı.
-
-## D-69 — Fiil çıktı sözleşmesi `runVerb` ile zorlanıyor; `CostEvent` kriteri netleşti
-2026-08-15 · FAZ-1.11'in ✅ satırı "her metered fiil ≥1 `CostEvent` döndürüyor" diyordu.
-Agent iki şeyi buldu: (a) hiçbir fiil `CostEvent` döndürmüyor — gövdeler iskelet,
-(b) sözleşmeyi zorlayacak `validateVerbOutput()` **hiçbir yerden çağrılmıyor**, docstring'i
-"motor bunu her çağrıdan sonra çalıştırır" dediği hâlde. Zorlaması olmayan bir sözleşme,
-sözleşme değil temennidir.
-**Karar iki parçalı:**
-1. **Zorlama BUGÜN bağlandı:** `packages/engine/src/run-verb.ts` fiili çağırıp çıktıyı
-   `validateVerbOutput` ile denetliyor. Metered fiil sıfır `CostEvent` döndürürse çağrı
-   `VERB_OUTPUT_CONTRACT_VIOLATION` ile BAŞARISIZ. Sahte fiillerle beş test: sıfır maliyet
-   reddediliyor, metered olmayan fiilin maliyet döndürmesi de reddediliyor.
-2. **Kriter netleşti:** "her metered fiil ≥1 `CostEvent` döndürüyor" ifadesi iskelet
-   fiillerle karşılanamaz; gerçek gövdeler FAZ-3.7'de doğuyor. FAZ-1.11'in ✅'si
-   **sözleşmenin zorlandığını** ölçer; gövdelerin gerçekten maliyet bildirmesi FAZ-3.7'nin
-   kabul kriteridir. Sessiz sapma değil, açık düzeltme (R-74).
-
-## D-70 — Darboğaz kapısı sahip dosyasının VARLIĞINI denetlemiyordu
-2026-08-15 · `chokepoints.json` "tek yetkili yer" olarak var olmayan dosyaları
-gösterebiliyordu ve kapı bunu hiç sorgulamıyordu. Sekiz darboğazın sahibi yoktu; üçü
-**tikli fazlara** aitti: `logger` → `kernel/src/log.ts` (FAZ-1.7), `yol-cozucu` →
-`kernel/src/paths.ts` (FAZ-1.7), `plan-dondurucu` → `engine/src/plan/freeze.ts` (FAZ-1.13).
-"20 mekanik zorlanıyor" sayısı şişikti: desen vardı, sahip yoktu.
-**Karar:** kapı artık her `izinli` yol için sorar — darboğazın `faz`ı TİKLİYSE dosya var
-olmak zorunda; gelecek fazlara ait beyanlar meşrudur ve AYRI sayılır
-(`20 mekanik · 4 beyan · 6 sahibi gelecek fazda`).
-**Üç boşluk kapatıldı:** `log.ts` (NDJSON, İngilizce şemalı olay adları, hassas anahtar
-redaksiyonu, saati ÇAĞIRAN verir) ve `paths.ts` (2026-08-14'te 44 dosyayı yanlış dizine
-yazan `new URL(...).pathname` hatasının tek doğru karşılığı) yazıldı; `plan-dondurucu`
-**FAZ-4.6'ya taşındı** — plan dondurma onay akışının parçası (R-07), `just plan`ın değil.
 
 ## D-71 — `spawn.ts` çıktı sınırı parça içinde uygulanmıyordu
 2026-08-15 · FAZ-1.12'nin ✅'si "iptal 5 sn içinde alt süreçleri temizliyor" diyordu ama
@@ -587,3 +432,28 @@ ihtiyacı "bu id bir adaptöre çözülüyor mu" ve `adapterById` tam olarak o s
 yoldan cevaplıyor. Ham liste `registry.ts`'te kilitli kaldı.
 **Ders (üçüncü kez):** darboğaz kapısı bir engel değil, tasarım geri bildirimi. İki kez
 "kancayı kapatmak yerine kapıyı öğren" dedik; bu üçüncüsü.
+
+## D-101 — Maliyet formülü QuickJS'te değil, kapalı bir dilbilgisinde
+2026-08-15 · §8.2 "QuickJS, 10 ms deadline" diyordu. Gerçek formüller
+`0.025 * num_images` mertebesinde; bunun için bir WASM JS motoru taşımak çözdüğünden
+büyük bir yüzey getirir. Yerine ~180 satırlık **kapalı aritmetik dilbilgisi**: sayı,
+tanımlayıcı, `+ - * /`, parantez, `min/max/ceil/floor`.
+**Neden daha güvenli, sadece daha küçük değil:**
+1. Döngü **dilbilgisinde yok** → sonsuz döngü imkânsız → deadline'a gerek yok. Deadline
+   gerektiren tasarım, deadline'ın kaçırılabileceğini kabul eder.
+2. `fetch`/`require`/`process`/prototip zinciri QuickJS'te "verilmediği için" yoktu;
+   burada **söylenemedikleri için** yok. Test 8 kaçış denemesini reddediyor.
+3. Tanımsız değişken **hata**dır. JS'te `steps * fiyat` yanlış anahtarla `NaN` verir,
+   `NaN` 0 mikro'ya yuvarlanır ve **ücretli çağrı bedava görünür**.
+4. Float yok (R-41): sabit nokta `bigint`, ölçek 10^12, tek yuvarlama en sonda ve
+   **yukarı** — az göstermek tavanı sessizce deler.
+Alternatif (bağımlılık ekleyip QuickJS kurmak) reddedildi: "40 satır yazmak bir
+bağımlılıktan iyidir". ANAYASA §8.2 ve §14 güncellendi — sessiz sapma yok.
+Geri alma maliyeti: düşük, `evaluateFormula` tek arayüz.
+
+## D-102 — Kaybedenler manifestte DEĞİL, ekranda DA
+2026-08-15 · §8.2 aşama 5 kaybedenleri manifest'e yazmayı söylüyor. `just plan` artık
+onları **ekrana da basıyor**: `elendi claude-code: adım tavanını aşıyor: $0.0625 > $0.0100`.
+Yalnız manifeste yazmak, "neden bu model" sorusunu hiç açılmayan bir dosyanın arkasına
+saklamak olurdu. Aynı turda `max_cost_usd_micros` de dekoratif olmaktan çıkıp gerçekten
+uygulandı — dekoratif bir tavan, olmayan tavandan kötüdür: var sanılır.

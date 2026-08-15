@@ -14,9 +14,14 @@ const RECIPES = join(REPO, 'registry/recipes')
 const { loadPipeline, listPipelines, loadRecipe, listRecipes } = await import(
   join(REPO, 'packages/registry/dist/index.js')
 )
-const { plan, formatPlan, assembleContext, formatContext } = await import(
+const { plan, formatPlan, assembleContext, formatContext, pricingFromDescriptor } = await import(
   join(REPO, 'packages/engine/dist/index.js')
 )
+const { loadDescriptors } = await import(join(REPO, 'packages/providers/dist/index.js'))
+
+// Fiyatlar tanımlayıcılardan gelir, koddan değil (D-32). `plan()` dosya OKUMAZ —
+// çağıran okur ve verir; plan saf kalır ki testte gerçek dosya sistemi gerekmesin.
+const { descriptors } = loadDescriptors(join(REPO, 'registry/providers'))
 
 const id = process.argv[2]
 if (id === undefined) {
@@ -39,6 +44,11 @@ const sonuc = plan({
   eraId: '*',
   // Ortam AÇIKÇA geçilir: sağlayıcı kullanılabilirliği PATH'e bakıyor.
   env: { PATH: process.env.PATH ?? '' },
+  pricing: Object.fromEntries(
+    descriptors
+      .filter((d) => d.enabled)
+      .flatMap((d) => d.capabilities.map((c) => [d.id, pricingFromDescriptor(d, c.name)]))
+  ),
 })
 
 if (!sonuc.ok) {

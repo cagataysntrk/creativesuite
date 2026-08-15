@@ -73,7 +73,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    → `rings`/lint kırmızı (R-43)
 💾 `feat(providers): tanımlayıcı formatı ve içe aktarıcı` · `Refs: FAZ-3.4 · §8.1`
 
-## 3.5 — Yetenek yönlendiricisi ve bütçe kapıları    [ ]
+## 3.5 — Yetenek yönlendiricisi ve bütçe kapıları    [x] 2026-08-15
 
 📖 §8.2, §8.3 · R-40 · D-2, D-17, D-32
 🔗 3.4

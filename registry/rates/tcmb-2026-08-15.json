@@ -1,0 +1,8 @@
+{
+  "source": "TCMB günlük döviz kurları",
+  "sourceUrl": "https://www.tcmb.gov.tr/kurlar/202608/15082026.xml",
+  "date": "2026-08-15",
+  "verified": false,
+  "note": "SABİTLENMİŞ anlık görüntü. Çalıştırma anında canlı çekilmez — aynı çalıştırma iki kez farklı maliyet raporlamamalı (D-36). verified:false = kur elle girildi, XML'den doğrulanmadı; V-13.",
+  "usdTry": 41.85
+}

@@ -8,10 +8,12 @@
 // ödeyeceğinden az bir rakama onay verirdi.
 
 import type { BrandId, EraId, Money, MoneyRange, RunId, StepId, VerbName } from '@suite/contracts'
-import { VERBS, ZERO_USD, addMoney } from '@suite/contracts'
+import { VERBS, ZERO_USD, addMoney, usd } from '@suite/contracts'
 import { getVerb, seededRng, fixedClock, type VerbContext } from '@suite/kernel'
 import { topoOrder, type Pipeline } from '@suite/registry'
 import { candidatesFor } from '@suite/providers'
+import { route, type ProviderPricing, type RoutingDecision } from './router/route.js'
+import { rejectionMessage } from './router/reasons.js'
 
 export interface PlannedStep {
   readonly stepId: StepId
@@ -26,6 +28,12 @@ export interface PlannedStep {
   readonly candidateProviders: readonly string[]
   /** Yeteneği yapabilen ama ŞU AN kullanılamayan sağlayıcılar — sessizce düşürülmez. */
   readonly unavailableProviders: readonly string[]
+  /**
+   * Yönlendirici kararı: kazanan, yedek zinciri ve **her kaybeden gerekçesiyle** (§8.2).
+   * `null` = bu adım yetenek istemiyor (`COMPOSE` gibi) ya da hiç aday yok.
+   * Bu alan manifest'e olduğu gibi yazılır — "neden bu model" sorusunun cevabı.
+   */
+  readonly routing: RoutingDecision | null
 }
 
 export interface PlanReport {
@@ -61,6 +69,12 @@ export interface PlanInput {
   readonly eraId: EraId | '*'
   /** Ortam AÇIKÇA verilir: sağlayıcı kullanılabilirliği `PATH`e bakıyor (§3.8). */
   readonly env?: Readonly<Record<string, string>>
+  /**
+   * Sağlayıcı fiyat beyanları — `registry/providers/*.provider.yaml`'dan gelir.
+   * Plan bunu OKUMAZ, ÇAĞIRAN verir: plan saf kalmalı ki testte gerçek dosya
+   * sistemi olmadan da aynı kararı versin.
+   */
+  readonly pricing?: Readonly<Record<string, ProviderPricing>>
 }
 
 export const plan = (input: PlanInput): PlanResult => {
@@ -117,9 +131,50 @@ export const plan = (input: PlanInput): PlanResult => {
     const adaylar = s.capability === null ? [] : candidatesFor(s.capability, input.env ?? {})
     const kullanilabilir = adaylar.filter((a) => a.available).map((a) => a.providerId)
 
-    low = addMoney(low, vp.estimatedCost.low)
-    high = addMoney(high, vp.estimatedCost.high)
-    if (verb.metered && kullanilabilir.length === 0) unpriced.push(s.id)
+    // Yönlendirme: metered ve yetenekli adımlarda sağlayıcı SEÇİLİR ve kaybedenler
+    // gerekçesiyle kaydedilir. Seçim yapılamıyorsa fiilin kendi tahmini kullanılır ve
+    // adım `unpriced` sayılır — eksik olduğunu SÖYLEYEN bir tahmin, sessizce eksik
+    // olandan iyidir (§8.3).
+    const yonlendirme: RoutingDecision | null =
+      s.capability === null || adaylar.length === 0
+        ? null
+        : route(
+            {
+              capability: s.capability,
+              lane: (s.constraints['lane'] === 'premium' ? 'premium' : 'free') as
+                'free' | 'premium',
+              constraints: Object.fromEntries(
+                Object.entries(s.constraints).filter(
+                  (e): e is [string, string | number | boolean] =>
+                    typeof e[1] === 'string' ||
+                    typeof e[1] === 'number' ||
+                    typeof e[1] === 'boolean'
+                )
+              ),
+              params: Object.fromEntries(
+                Object.entries(s.constraints).filter(
+                  (e): e is [string, number] => typeof e[1] === 'number'
+                )
+              ),
+              prefer: 'cost',
+              // Pipeline'ın beyan ettiği adım tavanı GERÇEKTEN uygulanır. Okunmasaydı
+              // `max_cost_usd_micros` dekoratif bir yorum olurdu — ve dekoratif bir
+              // tavan, olmayan bir tavandan kötüdür: var sanılır.
+              maxCost:
+                typeof s.constraints['max_cost_usd_micros'] === 'number'
+                  ? usd(BigInt(Math.trunc(s.constraints['max_cost_usd_micros'])))
+                  : null,
+            },
+            adaylar,
+            input.pricing ?? {}
+          )
+
+    const adimMaliyet = yonlendirme?.winner?.cost ?? vp.estimatedCost
+    low = addMoney(low, adimMaliyet.low)
+    high = addMoney(high, adimMaliyet.high)
+    if (verb.metered && (kullanilabilir.length === 0 || yonlendirme?.winner == null)) {
+      unpriced.push(s.id)
+    }
 
     steps.push({
       stepId: s.id as StepId,
@@ -130,9 +185,10 @@ export const plan = (input: PlanInput): PlanResult => {
       needs: s.needs,
       gate: s.gate,
       constraints: s.constraints,
-      estimatedCost: vp.estimatedCost,
+      estimatedCost: adimMaliyet,
       candidateProviders: kullanilabilir,
       unavailableProviders: adaylar.filter((a) => !a.available).map((a) => a.providerId),
+      routing: yonlendirme,
     })
   }
 
@@ -181,6 +237,21 @@ export const formatPlan = (r: PlanReport): string => {
       satirlar.push(`        └─ aday sağlayıcı: ${a}`)
       if (s.unavailableProviders.length > 0) {
         satirlar.push(`           kullanılamıyor: ${s.unavailableProviders.join(', ')}`)
+      }
+      // **Kaybedenler EKRANA da basılır**, yalnız manifest'e değil (§8.2 aşama 5).
+      // Manifeste yazıp göstermemek, "neden bu model" sorusunu bir dosya arkasına
+      // saklar — ve o dosya hiç açılmaz.
+      const y = s.routing
+      if (y?.winner != null) {
+        satirlar.push(
+          `           SEÇİLEN: ${y.winner.providerId} · ${usdStr(y.winner.cost.low)}` +
+            `–${usdStr(y.winner.cost.high)} · güven ${y.winner.confidence} · skor ${y.winner.score}`
+        )
+        for (const f of y.fallbacks)
+          satirlar.push(`           yedek: ${f.providerId} (skor ${f.score})`)
+      }
+      for (const red of y?.rejected ?? []) {
+        satirlar.push(`           elendi ${red.providerId}: ${rejectionMessage(red.reason)}`)
       }
     }
     if (s.gate !== null) satirlar.push(`        └─ insan kapısı: ${s.gate}`)

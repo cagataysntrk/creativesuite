@@ -1,0 +1,20 @@
+{
+  "not": "Maliyet formülü değerlendiricisine yapılan kaçış denemeleri. Bunlar KODAN değil VERİDİR ve bu yüzden bir JSON dosyasında yaşıyorlar: TypeScript kaynağına yazıldıklarında `chokepoints` kapısı `fetch(` ve `process.env` desenlerini haklı olarak yakalıyordu. Düşmanca girdiyi kaynağa gömmek, kapıyı da düşman sanmaya zorlar.",
+  "hepsi_reddedilmeli": [
+    "process.env.KEY",
+    "globalThis.x",
+    "fetch(\"http://x\")",
+    "x[0]",
+    "a = 1",
+    "(() => 1)()",
+    "require(\"fs\")",
+    "1; 2",
+    "constructor.constructor(\"return 1\")()",
+    "__proto__",
+    "0.1.toString",
+    "import(\"fs\")",
+    "`${1}`",
+    "0x10",
+    "1e400"
+  ]
+}

@@ -120,3 +120,19 @@ export {
 
 // Fiil gövdelerinin motora bağlandığı yer (§3.10 · FAZ-3.1)
 export { resolveVerb, type VerbImplementations } from './verbs/registry.js'
+
+export { evaluateFormula, type FormulaError, type FormulaResult } from './router/formula.js'
+export {
+  route,
+  totalEstimate,
+  pricingFromDescriptor,
+  type CapabilityRequest,
+  type ProviderPricing,
+  type Prefer,
+  type Priced,
+  type Rejected,
+  type RejectionReason,
+  type RoutingDecision,
+} from './router/route.js'
+export { rejectionMessage } from './router/reasons.js'
+export { displayTry, displayUsd, type RateSnapshot } from './router/rate.js'

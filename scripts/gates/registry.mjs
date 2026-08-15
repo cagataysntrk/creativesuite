@@ -95,12 +95,52 @@ for (const rel of tipler) {
   }
 }
 
+// ── 4. R-40: pipeline'da MODEL ADI geçemez ──────────────────────────────────
+// Pipeline yetenek ister, model istemez. Model ID'si bir pipeline'a girdiği gün, o
+// sağlayıcının emekliye ayrıldığı gün pipeline kırılır — ve emeklilik haber vermez.
+// Desen ERİŞİMİ yakalar (model/sağlayıcı adı geçen bir alan), BİÇİMİ değil.
+const MODEL_DESENLERI = [
+  // Sağlayıcı/model aileleri. Yorumda geçmeleri meşru (R-40'ı ANLATAN yorum gibi),
+  // bu yüzden yalnız ANAHTAR DEĞERİ konumunda aranır.
+  /\b(gpt|claude|gemini|flux|imagen|sora|dall-?e|midjourney|stable-?diffusion|llama|whisper|elevenlabs|chatterbox)\b/i,
+  // Doğrudan sağlayıcı yönlendirmesi
+  /\b(fal-ai|openrouter|replicate|anthropic|openai)\b/i,
+]
+/** `model:`, `provider:`, `model_id:` gibi anahtarlar tek başına bile ihlal. */
+const YASAK_ANAHTARLAR = /^\s*-?\s*(model|model_id|modelId|provider|provider_id|engine)\s*:/
+
+const pipelinelar = globSync('registry/pipelines/*.pipeline.yaml', { cwd: REPO })
+for (const rel of pipelinelar) {
+  const satirlar = readFileSync(p(rel), 'utf8').split('\n')
+  satirlar.forEach((satir, i) => {
+    // Yorum satırı atlanır: R-40'ı açıklayan yorumun kuralı ihlal etmesi saçma olurdu.
+    const kod = satir.replace(/#.*$/, '')
+    if (kod.trim() === '') return
+    if (YASAK_ANAHTARLAR.test(kod)) {
+      errors.push(`${rel}:${i + 1}  R-40 — pipeline'da sağlayıcı/model anahtarı: ${kod.trim()}`)
+      return
+    }
+    // Değer konumu: `anahtar: deger`. Anahtar adının kendisi değil, DEĞERİ taranır.
+    const deger = kod.includes(':') ? kod.slice(kod.indexOf(':') + 1) : ''
+    for (const d of MODEL_DESENLERI) {
+      if (d.test(deger)) {
+        errors.push(`${rel}:${i + 1}  R-40 — model/sağlayıcı adı: ${kod.trim()}`)
+        break
+      }
+    }
+  })
+}
+if (pipelinelar.length === 0) {
+  errors.push('registry/pipelines/ boş — R-40 kapısı denetleyecek dosya bulamıyor')
+}
+
 if (errors.length) {
   console.log(errors.map((e) => `  ${e}`).join('\n'))
-  console.log(`\n${errors.length} profil ihlali`)
+  console.log(`\n${errors.length} kayıt defteri ihlali`)
   process.exit(1)
 }
 
 console.log(
-  `  profil ${YASAK.length} anahtar yasaklıyor · öz-test geçti · ${tipler.length} varlık tipi denetlendi`
+  `  profil ${YASAK.length} anahtar yasaklıyor · öz-test geçti · ${tipler.length} varlık tipi · ` +
+    `${pipelinelar.length} pipeline R-40'a karşı denetlendi`
 )

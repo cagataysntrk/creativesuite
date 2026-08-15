@@ -35,6 +35,15 @@ export interface ProviderDescriptor {
   readonly authEnv: string | null
   /** `_pricing/` altındaki değişmez fiyat anlık görüntüsü. */
   readonly pricingSnapshot: string | null
+  /**
+   * Fiyat anlık görüntüsü DOĞRULANMIŞ mı (§8.3). Dosyadan okunur, tanımlayıcıda beyan
+   * edilmez — sağlayıcının kendi fiyatını "doğrulanmış" ilan etmesi bir doğrulama değil.
+   *
+   * `parseDescriptor` tek başına bunu bilemez (dosyaya bakmaz) ve `false` bırakır;
+   * `loadDescriptors` anlık görüntüyü okuyup düzeltir. Varsayılan **false**: bilinmeyen
+   * fiyatı doğrulanmış saymak, tahmini yalan yapardı.
+   */
+  readonly pricingVerified: boolean
   /** Maliyet formülü — QuickJS'te FAZ-3.5'te koşacak; burada BEYAN. */
   readonly costFormula: string | null
 }
@@ -131,8 +140,27 @@ export const parseDescriptor = (text: string): DescriptorResult => {
       capabilities,
       authEnv,
       pricingSnapshot: str(map['pricing_snapshot']),
+      pricingVerified: false,
       costFormula: str(map['cost_formula']),
     },
+  }
+}
+
+/**
+ * Fiyat anlık görüntüsünü okur ve `verified` bayrağını döner.
+ *
+ * Anlık görüntü yoksa `false`. Sıfır maliyetli sağlayıcılar da (`cost_formula: '0'`,
+ * abonelikle ödenmiş) `false` alır ve bu DOĞRUDUR: sıfır bir fiyattır ve o fiyatın
+ * gerçekten sıfır olduğu doğrulanmamıştır. Yanlış olsaydı `amber` yerine `green`
+ * gösterip abonelik limitini görünmez kılardık.
+ */
+const snapshotVerified = (root: string, d: ProviderDescriptor): boolean => {
+  if (d.pricingSnapshot === null) return false
+  try {
+    const ham: unknown = JSON.parse(readFileSync(join(root, d.pricingSnapshot), 'utf8'))
+    return (ham as { verified?: unknown } | null)?.verified === true
+  } catch {
+    return false
   }
 }
 
@@ -157,8 +185,11 @@ export const loadDescriptors = (
   const failures: { file: string; errors: readonly DescriptorError[] }[] = []
   for (const f of dosyalar) {
     const r = parseDescriptor(readFileSync(join(root, f), 'utf8'))
-    if (r.ok) descriptors.push(r.value)
-    else failures.push({ file: basename(f), errors: r.errors })
+    if (!r.ok) {
+      failures.push({ file: basename(f), errors: r.errors })
+      continue
+    }
+    descriptors.push({ ...r.value, pricingVerified: snapshotVerified(root, r.value) })
   }
   return { descriptors, failures }
 }

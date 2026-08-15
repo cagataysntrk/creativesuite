@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.5
+siradaki_adim: 3.6
 son_guncelleme: 2026-08-15
 bloke: ["2.9"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.4 kapandi: estimate() async yapildi -> DERLEME hatasi (R-42); saglayici SDK tipi disa sizdirildi -> rings kirmizi (R-43); pending adaptor + enabled -> kapi kirmizi; literal secret ve FIIL adi yetenek -> kapi kirmizi. V-04 KAPANDI: fal per-endpoint OpenAPI HTTP 200, kimlik dogrulamasiz, fixture repoda. 441 test, 21 kapi."
+son_kanit: "FAZ 3.5 kapandi: just plan SECILEN saglayiciyi, guven noktasini ve skoru basiyor; adim tavani asilinca ELENDI satiri Turkce gerekcesiyle cikiyor ($0.0625 > $0.0100). Pipeline'a model adi yazildi -> registry kapisi kirmizi (R-40), iki yoldan (anahtar ve deger). QuickJS yerine kapali aritmetik dilbilgisi (D-101): 8 kacis denemesi reddediliyor, float yok. 471 test, 21 kapi."
 ```
 
 ## Neredeyiz
@@ -19,9 +19,9 @@ son_kanit: "FAZ 3.4 kapandi: estimate() async yapildi -> DERLEME hatasi (R-42); 
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.5`: yetenek
-> yönlendiricisi + QuickJS maliyet formülü + TCMB kuru + bütçe tavanı. Fazın sonunda
-> gerçek bir carousel üretilmiş olacak.
+> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.6`: yeniden deneme,
+> idempotency ve rate limit disiplininin motora bağlanması. Fazın sonunda gerçek bir
+> carousel üretilmiş olacak.
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -40,13 +40,15 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.1** · COMPOSE ve statik RENDER | 2026-08-15 |
 | **3.3** · kapalı düzen kümesi, taşma bölme | 2026-08-15 |
 | **3.4** · sağlayıcı tanımlayıcısı, içe aktarıcı (V-04 kapandı) | 2026-08-15 |
+| **3.5** · yetenek yönlendiricisi, maliyet formülü, bütçe kapısı | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.5` — yetenek yönlendiricisi.** Filtrele → fiyatla (QuickJS'te maliyet formülü,
-10ms deadline, TCMB kuru) → skorla → yedek zincir → kazananı VE her kaybedeni
-gerekçesiyle manifest'e yaz. Bütçe tavanı UI'dan ayarlanabilir (D-17). Ardından
-`3.6` retry/idempotency/rate limit.
+**`3.6` — retry, idempotency, rate limit bağlanması.** `retry.ts`, `breaker.ts` ve
+`idempotency.ts` yazıldı ama motorun çalıştırma yoluna tam bağlanmadı; her üretim
+çağrısı deterministik idempotency anahtarı taşımalı (R-44) ve devre kesici
+`(providerId, capability)` anahtarıyla 5 ardışık hatada açılmalı (R-45).
+Ardından `3.7` GENERATE image.generate.
 
 ⚠ **`3.2` (golden metrik) ATLANDI** — V-02'ye bağlı: marka fontu seçilmeden metrik
 dondurmak, testin varlık sebebini (Türkçe glif fallback'ini yakalamak) çürütür (D-59).

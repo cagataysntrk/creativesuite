@@ -449,7 +449,8 @@ Pipeline adımı **yetenek + kısıt** ister, model adı değil:
 Beş aşama, ~300 satır, tablo tabanlı:
 
 1. **Filtrele** — yetenek etiketi + tipli kısıt + `enabled` + dönemin izin listesi
-2. **Fiyatla** — maliyet formülü QuickJS'te (10ms deadline, host bağlantısı yok);
+2. **Fiyatla** — maliyet formülü **kapalı aritmetik dilbilgisinde** (D-101: döngü
+   söylenemediği için deadline gerekmiyor); 
    bütçe kısıtı **USD mikro** üzerinden, TRY yalnız görüntüde (D-36)
 3. **Skorla** — kalite / maliyet / gecikme, adımın `prefer:` alanına göre ağırlıklı
 4. **Yedek zinciri** — hata veya zaman aşımında sıralı
@@ -809,8 +810,16 @@ yolu olurdu.
 
 ### Sandbox
 
-Şablonlar ve maliyet formülleri **QuickJS**'te: bellek sınırı, 10ms deadline, sıfır host
-bağlantısı. Blast radius bir yanlış sayı.
+**Maliyet formülleri kapalı bir aritmetik dilbilgisinde** (D-101): sayı, tanımlayıcı,
+`+ - * /`, parantez, `min/max/ceil/floor`. Başka hiçbir şey. Döngü, atama, özellik
+erişimi ve fonksiyon tanımı **dilbilgisinde yok** — QuickJS'te bunlar "verilmediği için"
+yoktu, burada **söylenemedikleri için** yok. Döngü yazılamadığı için deadline'a da gerek
+kalmıyor; deadline gerektiren bir tasarım, deadline'ın kaçırılabileceğini kabul eder.
+Hesap sabit noktalı `bigint` üzerinde (R-41) ve tanımsız değişken hatadır, `NaN` değil.
+Blast radius bir yanlış sayı.
+
+Şablonlar (formül değil, gerçek kod çalıştıran yüzeyler) hâlâ bir sandbox gerektirir ve
+o karar FAZ-4'e aittir; kapalı dilbilgisi orada yetmez.
 
 Ağ gerektiren kullanıcı betikleri **Deno alt sürecinde**, pipeline'ın bildirdiği egress
 host'ları `--allow-net=<host>` olarak. `--allow-run` ve `--allow-ffi` asla verilmez —
