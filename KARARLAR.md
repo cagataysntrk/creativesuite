@@ -556,3 +556,14 @@ düzenlemeyi eziyor, sonra `git diff` boş çıkıyor ve yeşil raporluyordu. R-
 düzenleme kaybolur" diyor ama **sessizce kaybolması** başka şey. Kapı artık üretim
 ÖNCESİ ve SONRASI içeriği karşılaştırıyor ve iki durumu da bildiriyor: elle düzenleme
 ve tazelenmemiş kaynak.
+
+## D-130 — `just doctor` her zaman "bloke: 0" diyordu
+2026-08-15 · Sağlık raporu `grep -c '^  - adim:' DURUM.md` ile bloke sayıyordu —
+`DURUM.md`'nin **hiç sahip olmadığı** bir biçim. Yani doctor her koşuda "bloke: 0"
+diyordu ve gerçekte 3 bloke adım (2.9, 3.2, 3.8) vardı.
+Doctor, §16'nın deyişiyle "bir ay ihmalden sonra açılacak ilk ekran". **Yalan söyleyen
+bir sağlık raporu, sağlık raporu olmamasından kötüdür**: kullanıcı ona bakıp "engel yok"
+diye devam eder.
+Artık gerçek biçimi (`bloke: [...]`) okuyor ve hangi adımların bloke olduğunu da yazıyor.
+Ayrıca commit'lenmemiş çalıştırma defteri girdilerini bildiriyor — `derived/runs`
+türetilemez (R-52) ve commit'lenmeden duran bir çalıştırma bir `git clean` uzaklıkta.

@@ -17,6 +17,26 @@ echo "git      : $(git log --oneline -1 2>/dev/null || echo yok)"
 echo "temiz mi : $([ -z "$(git status --porcelain)" ] && echo evet || echo HAYIR)"
 echo "kapılar  : $(ls -1 scripts/gates/*.sh scripts/gates/*.mjs 2>/dev/null | wc -l | tr -d ' ') adet"
 echo "aktif faz: $(sed -n 's/^aktif_faz: *//p' DURUM.md 2>/dev/null | head -1 || echo '?')"
-echo "bloke    : $(grep -c '^  - adim:' DURUM.md 2>/dev/null || echo 0)"
+echo "sıradaki : $(sed -n 's/^siradaki_adim: *//p' DURUM.md 2>/dev/null | head -1 || echo '?')"
+
+# ⚠ Bloke sayısı `bloke: ["2.9", "3.2"]` satırından okunur. İlk sürüm `^  - adim:`
+# arıyordu — DURUM.md'nin HİÇ sahip olmadığı bir biçim. Yani doctor her zaman "bloke: 0"
+# diyordu ve bir ay sonra dönen kullanıcıya "engel yok" raporluyordu. Sağlık raporunun
+# yalan söylemesi, sağlık raporu olmamasından kötüdür.
+bloke_satiri="$(sed -n 's/^bloke: *\[\(.*\)\]$/\1/p' DURUM.md 2>/dev/null | head -1)"
+if [ -z "$bloke_satiri" ]; then
+  echo "bloke    : 0"
+else
+  bloke_temiz="$(echo "$bloke_satiri" | tr -d '\"' | tr -d "'" | tr ',' ' ')"
+  n=0
+  for b in $bloke_temiz; do n=$((n + 1)); done
+  echo "bloke    : $n  ($(echo "$bloke_temiz" | tr -s ' '))"
+fi
+
+# Commit'lenmemiş çalıştırma defteri: `derived/runs` türetilemez (R-52) ve
+# commit'lenmeden duran bir çalıştırma, bir `git clean` uzaklıkta kaybolur.
+kayit_disi="$(git status --porcelain derived/runs 2>/dev/null | wc -l | tr -d ' ')"
+[ "$kayit_disi" -gt 0 ] && echo "⚠ defter   : $kayit_disi commit'lenmemiş çalıştırma girdisi (R-52: silinmez, yedeklenir)"
+
 echo
 echo "(sağlayıcı fiyat drift'i ve kayıt tazeliği FAZ-8.4'te eklenecek)"
