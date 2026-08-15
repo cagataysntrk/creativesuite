@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.6
+siradaki_adim: 4.6b
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -55,13 +55,15 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.3** · Corpus Browser; silme yok, yalnız emeklilik (R-12) | 2026-08-15 |
 | **4.4** · Record Detail, git zaman çizgisi, ters indeks | 2026-08-15 |
 | **4.5** · Context Preview; kapatma bir karar, manifest'e yazılıyor | 2026-08-16 |
+| **4.6** · plan dondurma çekirdeği: özet, bayatlık, başlat kilidi | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.6` — Run Launcher** (§8.3, §12.9). Şemadan üretilmiş tipli girdi formu, şerit
-seçimi (bedava/premium, adım bazında ezme), maliyet **ARALIĞI** + güven noktası ve duvar
-saati tahmini. Tek sayı gösterilmez — tahmin bir bant, gerçek bir noktadır (§8.3).
-⚠ `4.6`–`4.9` gerçek çalıştırma gerektirir; `3.14` açılmadan TİKLENMEZ (D-158).
+**`4.6b` — Run Launcher ekranı ve donmuş planla koşma** (§8.3, §12.9).
+Dondurma çekirdeği hazır (`freezePlan`/`planStale`/`launchBlocks`, 15 test). Kalan:
+şemadan tipli girdi formu, şerit seçimi, maliyet **ARALIĞI** + güven noktası ve
+**koşucunun donmuş planı KULLANMASI** — yeniden çözmesi değil (R-07).
+⚠ Gerçek çalıştırma gerektirir; `3.14` açılmadan TİKLENMEZ (D-158).
 
 
 ## Bloke adımlar

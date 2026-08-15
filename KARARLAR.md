@@ -466,3 +466,19 @@ gerçekten değiştiği `assert` edilir. İkisi de düzeltildikten sonra iki ihl
 döndü.
 **Ders:** "kapı yakalamadı" sonucunun iki açıklaması var ve ikincisi daha olası —
 ihlal hiç uygulanmamıştır. Yeşil bir ihlal testi, kapıdan çok TESTİ şüpheli kılar.
+
+## D-171 — Bitmiş adımın TALİMATI faz dosyasında kalmaz
+2026-08-16 · FAZ-4.md 250 satır tavanına (R-63) beş kez dayandı ve her seferinde bir
+adımı sıkıştırarak yer açtım. Beşincide bunun bir sıkışıklık değil bir SİNYAL olduğunu
+kabul ettim: 17 adımlık bir faz, her adımın tam talimatıyla birlikte 250 satıra sığmaz —
+ve tavanı yükseltmek yanlış cevap olurdu (tavan, bir faz dosyasının tek oturuşta
+okunabilir kalması için var).
+Doğru cevap: **bir faz dosyası bir ÇALIŞMA TALİMATIDIR; bitmiş bir adımın talimatı
+arkeolojidir.** Tikli adımlarda `🛠` (ne yapılacak), `📁` (nereye) ve `💾` (commit
+mesajı) satırları siliniyor; `📖` (kaynaklar), `✅` (KANIT) ve `🧪` (ihlal testi)
+kalıyor. Silinen bilgi kaybolmuyor: kod, `git log` ve `KARARLAR.md` onu taşıyor —
+üçü de faz dosyasından daha güvenilir kaynaklar.
+Tikli altı adım sıkıştırıldı: 257 → 212 satır. Kalan on bir adım için yer açıldı ve
+her tikleme artık dosyayı KÜÇÜLTÜYOR.
+**Ders:** aynı sınıra beşinci kez çarpmak, sınırın yanlış olduğunu değil, dosyanın
+yanlış şey taşıdığını gösterir. Tavanı yükseltmek soruyu susturur.

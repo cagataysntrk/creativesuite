@@ -205,3 +205,18 @@ export {
   type ValidateDeps,
   type GenerateDeps,
 } from './verbs/bodies.js'
+
+// Plan dondurma — onaylanan plan ile koşan plan AYNI olmak zorunda (R-07).
+export {
+  freezePlan,
+  planStale,
+  staleMessage,
+  launchBlocks,
+  blockMessage,
+  type FrozenPlan,
+  type FrozenStep,
+  type FreezeInput,
+  type StaleCheck,
+  type StaleReason,
+  type LaunchBlock,
+} from './plan/freeze.js'

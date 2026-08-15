@@ -17,103 +17,65 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 ## 4.1 — Tasarım sistemi katmanı: yüzey bağlamları    [x] 2026-08-15
 
 📖 §12.1, §12.4 · R-22, R-23 · D-7
-🔗 FAZ-2.10
-🛠 Üç kademe token zorlanıyordu (D-133); bu adım **iki yüzey bağlamını** ekler: `console`
-   koyu, `studio` açık, **tema anahtarı YOK**. `<ad>.surface.tokens.json` AYRI derlenir,
-   **yalnız `role.*`** tanımlar. Takma adlar CSS'te `var()`a derlenir (D-160).
-📁 `packages/registry/src/tokens.ts` · `scripts/tokens.mjs` · `brand/*/tokens/*.surface.*`
 ✅ `just gate tokens` yeşil · `tokens.css` üç blok taşıyor · alt marka yüzeyi devralıyor
 🧪 Yüzeye `ramp` ekle → kırmızı · `comp` ekle → kırmızı · yüzey rolüne C=0.12 ver → kırmızı
-💾 `feat(ui): iki yüzey bağlamı, takma adlar var()a derleniyor` · `Refs: FAZ-4.1 · §12.4`
 
 ## 4.1b — Tasarım sistemi katmanı: tipografi, boşluk, yükseklik    [x] 2026-08-15
 
 📖 §12.2, §12.3, §12.7 · R-22, R-23 · D-7
-🔗 4.1
-🛠 `theme.css`: **dokuz tip boyutu**, ağırlık 400/450/500/550/650 — konsolda 700
-   YASAK. Ölçüm `tabular-nums slashed-zero`, birim 0.85em kardeş span. **4px temel
-   birim** (1/2/3/4/6/8), satır 28/32/40, yarıçap 2px. **Gölge YASAK** — basamak + pah
-   çizgisi; tek istisna `[data-elevation="overlay"]`. Hareket: altı şey, ≤320ms.
-📁 `packages/ui/src/theme.css` · `scripts/gates/ui-tema.sh`
 ✅ `just gate ui-tema` gölge, 700 ağırlık, ölçek dışı boşluk, tema anahtarını yakalıyor
 🧪 `box-shadow` · `font-weight: 700` · `padding: 5px` · `prefers-color-scheme` → kırmızı
-💾 `feat(ui): tip ölçeği, boşluk ölçeği, gölgesiz yükseklik` · `Refs: FAZ-4.1b · §12.2`
 
 ## 4.2 — Hono API, SSE ve dosya izleme    [x] 2026-08-15
 
 📖 §12.4, §12.5 · D-26
-🔗 4.1
-🛠 Hono + SSE + dosya izleme. **`chokidar` YOK** (D-162): `fs.watch` `recursive`
-   yetiyor (R-75). **Kalp atışı VERİ TAŞIMAZ** — UI sessizliği ölüm sayabilsin diye.
-   **Ölçülemeyen alan sıfır girmez**: `kota: null`, indekssiz `bekleyenOnay: -1`.
-   Bekleyen onay = taranan − `visibleIds`: ikinci retrieval yüklemi yok (R-13).
-📁 `apps/server/src/` · `scripts/sunucu.mjs`
 ✅ `just gate cli-duman` sunucuyu GERÇEKTEN kaldırıyor · gerçek repoda `/api/durum`
    → `bekleyenOnay: 7`, `kusurluCalistirma: 12`
 🧪 `izlenen`i boşalt · izlemeyi kapat · maliyeti dize birleştir → üçü de kırmızı
-💾 `feat(server): Hono API, SSE ve dosya izleme` · `Refs: FAZ-4.2 · §12.4`
 
 ## 4.2b — Vite + React SPA, ⌘K palet, makine durumu şeridi    [x] 2026-08-15
 
 📖 §12.5, §12.4 · R-22, R-23 · D-26
-🔗 4.2
-🛠 Vite + React + Tailwind + shadcn (SPA), `theme.css` tüketilir. **⌘K palet
-   birincil navigasyon** — menü ağacı YOK (pipeline registry'den gelir, elle menü
-   bayatlar). **Kalıcı makine durumu şeridi** `/api/olay`dan beslenir; nabız kesilince
-   **"bağlantı yok"** der, eski değeri canlı göstermez (§12.6).
-📁 `apps/ui/src/`
 ✅ `just dev` ikisini kaldırıyor · marka token'ı `/api/tokens.css`ten · 17 test
 🧪 SIGKILL → `kopuk`, "bağlantı yok", değer GÖSTERİLMİYOR · nabız ilanını kaldır →
    kırmızı · token CSS'ini boşalt → kırmızı
-💾 `feat(ui): SPA iskeleti, ⌘K palet ve makine durumu şeridi` · `Refs: FAZ-4.2b · §12.5`
 
 ## 4.3 — Corpus Browser    [x] 2026-08-15
 
 📖 §12.9 · R-12, R-14 · D-12
-🔗 4.2
-🛠 Filtreli tablo (marka · tip · durum · dönem), satır içi düzenleme → **git commit**,
-   toplu pin/emeklilik. Kart değil **satır**; yoğunluk tablo lehine.
-📁 `apps/ui/src/screens/corpus/`
 ✅ `/api/kayitlar` 7 kaydı `visible` bayrağıyla döndürüyor · emeklilik dosyayı BIRAKIR
 🧪 `DELETE` yok (404) · emekliyi tekrar emekli et → 409 · `era_id`yi boz → kırmızı
-💾 `feat(ui): corpus browser` · `Refs: FAZ-4.3 · §12.9`
 
 ## 4.4 — Record Detail ve ters indeks    [x] 2026-08-15
 
 📖 §12.9, §13 · R-11
-🔗 4.3
-🛠 Kaynak alıntısı · `git log --follow` zaman çizgisi · `supersedes` zinciri ·
-   **ters indeks: bu kaydın etkilediği HER varlık**. Ters indeks olmadan bir olguyu
-   düzeltmek, hangi çıktıların yanlış olduğunu bilmeden düzeltmektir.
-📁 `apps/ui/src/screens/record/`
 ✅ `/api/kayitlar/:id/etki` + `/gecmis` gerçek veriyle çalışıyor (3 commit, 16 tarandı)
 🧪 "etkisi yok" cümlesini sustur → kırmızı · git çizgisini boşalt → kırmızı
-💾 `feat(ui): record detail ve ters indeks` · `Refs: FAZ-4.4 · §12.9`
 
 ## 4.5 — Context Preview    [x] 2026-08-16
 
 📖 §5.3, §12.9 · D-63
-🔗 FAZ-2.3
-🛠 Bölüm başına token çubuğu · kart başına **"neden dahil edildi"** · canlı aç/kapa.
-   Kapatma bir FİLTRE değil KARAR: `dropped`a girer ve manifeste yazılır (D-169).
-📁 `apps/server/src/baglam.ts` · `apps/ui/src/BaglamOnizleme.tsx`
 ✅ Kapatılan kart manifeste yazılıyor · boş bölüm NEDENİNİ söylüyor
 🧪 Boş bölüm nedenini sustur → kırmızı · olmayan tarife boş manifest döndür → kırmızı
-💾 `feat(ui): context preview ve token bütçesi` · `Refs: FAZ-4.5 · §5.3`
 
-## 4.6 — Run Launcher ve plan dondurma    [ ]
+## 4.6 — Plan dondurma çekirdeği    [x] 2026-08-16
 
+> **Bölündü** (LOOP§C): `4.6` dondurma mantığı, `4.6b` ekran + koşucu.
 📖 §8.3, §12.9 · R-07, R-47 · D-17
-🔗 FAZ-3.5
-🛠 Tipli girdi formu (şemadan üretilmiş, FAZ-1.4) · şerit seçimi (toplu + adım bazında
-   ezme) · maliyet **aralığı + güven noktası** · duvar saati tahmini.
-   **Plan onaya giderken DONAR** (R-07): corpus commit'i, registry commit'i, DAG,
-   çözülmüş sağlayıcı + model + descriptor hash'i, parametreler, seed, kayıt id'leri.
-   Geç çözüm, insanın 40 TL'ye onayladığı çalıştırmanın pahalı bir modelle koşmasıdır.
-📁 `apps/ui/src/screens/launcher/` · `packages/engine/src/plan/freeze.ts`
-✅ Başlat öncesi donmuş plan gösteriliyor · tahmin üst sınırı tavanı aşarsa **kilitli**
+✅ 15 test · aynı karar aynı özeti veriyor · sağlayıcı değişince özet değişiyor
+🧪 Tavanı alt sınırın üstüne, üst sınırın altına koy → yine kilitli
+
+## 4.6b — Run Launcher ekranı ve donmuş planla koşma    [ ]
+
+📖 §8.3, §12.9 · R-07 · D-17
+🔗 4.6
+🛠 Tipli girdi formu (şemadan) · şerit seçimi · maliyet aralığı + güven noktası.
+   **Koşucu donmuş planı KULLANIR**, yeniden çözmez (R-07). ⚠ Gerçek çalıştırma
+   gerektirir; `3.14` açılmadan tiklenmez (D-158).
+📁 `apps/ui/src/RunLauncher.tsx` · `packages/engine/src/run.ts`
+✅ Başlat öncesi donmuş plan gösteriliyor · tavan aşılırsa **kilitli**
 🧪 Donmuş planı çalıştırırken registry'yi değiştir → çalıştırma **eski planla** koşuyor
-💾 `feat(ui): run launcher ve plan dondurma` · `Refs: FAZ-4.6 · §8.3`
+💾 `feat(ui): run launcher ve donmuş planla koşma` · `Refs: FAZ-4.6b · §8.3`
 
 ## 4.7 — Approval Queue    [ ]
 
