@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.4
+siradaki_adim: 1.10
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
@@ -63,12 +63,12 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 
 ## Sıradaki adım
 
-**1.4** — projeksiyon derleyicisi: tek şema → dört hedef (rjsf formu · TS tipi ·
-katı LLM şeması · SQLite DDL). Her varlık tipi için CI snapshot'ı.
-Kabul: `just test projection` yeşil · dört projeksiyonun snapshot'ı eşleşiyor.
-İhlal: şemaya iç içe nesne ekle, `additionalProperties:false` koyma → LLM projeksiyonu
-testi kırmızı (sessizce kabul etmiyor).
-⚠ Ön koşul: FAZ-1.10 test altyapısı (Vitest) henüz yok — 1.4'ten önce 1.10 gelir.
+**1.10** — test altyapısı (Vitest · golden harness · msw · cassette · sentetik fixture).
+**Sıra değişti:** FAZ-1.4'ün kabul kriteri `just test projection`; koşucu olmadan o adım
+kapanamaz. Bu yüzden 1.10 öne alındı — 1.4, 1.5, 1.7, 1.8 hepsi `just test`'e dayanıyor
+ve dördünü de test altyapısı olmadan "bitti" saymak kanıtsız tikleme olurdu (R-70).
+Kabul: `just test` gerçek testler koşuyor (stub değil) · cassette kaydet→oynat çalışıyor.
+İhlal: cassette'te secret ara → yok · fixture'da gerçek prospect adı ara → yok (KVKK).
 
 > D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
 > D-53'ün "0.C bloğu FAZ-1.2'den önce kapanır" taahhüdü: bağımsız olan üçü (0.C.1,
