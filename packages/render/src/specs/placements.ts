@@ -14,19 +14,11 @@
 // yayınlamaktır. Merdiven kaliteyi kademeli düşürür ve HANGİ kademede durulduğunu
 // söyler.
 
-export interface Placement {
-  readonly id: string
-  readonly platform: 'instagram' | 'linkedin'
-  readonly width: number
-  readonly height: number
-  /** En-boy sapma toleransı, yüzde. Platforma göre FARKLI (§9.1). */
-  readonly aspectTolerancePercent: number
-  /** Bayt. Aşılırsa kalite merdiveni devreye girer. */
-  readonly maxBytes: number
-  /** Kaynak ve doğrulama tarihi — tarihsiz spec, ne zaman doğru olduğunu söylemez. */
-  readonly sourceUrl: string
-  readonly verifiedAt: string
-}
+// Tipler Ring -1'de (D-176): önizleme ekranı `render`ı import edemez ama aynı yapıyı
+// çizmek zorunda. Burada VERİ ve doğrulama mantığı var, tanım değil.
+import type { Placement, SafeArea, SafeBand } from '@suite/contracts'
+
+export type { Placement, SafeArea, SafeBand }
 
 const MB = 1024 * 1024
 
@@ -40,6 +32,8 @@ export const PLACEMENTS: readonly Placement[] = [
     maxBytes: 8 * MB,
     sourceUrl: 'https://help.instagram.com/1631821640426723',
     verifiedAt: '2026-08-15',
+    // Feed görselinde platform chrome'u görselin ÜSTÜNE binmez, altında/üstünde durur.
+    safeArea: null,
   },
   {
     id: 'instagram-story-9x16',
@@ -50,6 +44,15 @@ export const PLACEMENTS: readonly Placement[] = [
     maxBytes: 8 * MB,
     sourceUrl: 'https://help.instagram.com/1631821640426723',
     verifiedAt: '2026-08-15',
+    // Story/Reels'te UI görselin ÜSTÜNDE: üstte profil ve kapatma, altta etkileşim
+    // düğmeleri ve açıklama. 1080×1920'de kullanılabilir bant 950×979 (§9.1).
+    safeArea: {
+      topPercent: 14,
+      bottomPercent: 35,
+      sidePercent: 6,
+      sourceUrl: 'https://about.meta.com/brand/resources/instagram/reels/',
+      verifiedAt: '2026-08-16',
+    },
   },
   {
     id: 'linkedin-feed-4x5',
@@ -62,6 +65,7 @@ export const PLACEMENTS: readonly Placement[] = [
     maxBytes: 5 * MB,
     sourceUrl: 'https://www.linkedin.com/help/linkedin/answer/a563309',
     verifiedAt: '2026-08-15',
+    safeArea: null,
   },
   {
     id: 'linkedin-feed-1x1',
@@ -72,6 +76,7 @@ export const PLACEMENTS: readonly Placement[] = [
     maxBytes: 5 * MB,
     sourceUrl: 'https://www.linkedin.com/help/linkedin/answer/a563309',
     verifiedAt: '2026-08-15',
+    safeArea: null,
   },
 ]
 
@@ -84,6 +89,72 @@ export const specAgeDays = (p: Placement, today: string): number => {
   const b = Date.parse(`${today}T00:00:00Z`)
   if (!Number.isFinite(a) || !Number.isFinite(b)) return Number.POSITIVE_INFINITY
   return Math.floor((b - a) / 86_400_000)
+}
+
+// ── güvenli alan (§9.1) ──────────────────────────────────────────────────────
+//
+// **Güvenli alan yapısaldır, sonradan doğrulanan bir şey değil.** Reels'te platform UI'ı
+// görselin ÜSTÜNE biner: üstte profil ve kapatma, altta etkileşim düğmeleri ve açıklama.
+// Başlık o bantlara düşerse okunmaz — ve bunu ancak yayınladıktan sonra fark edersiniz.
+//
+// İçerik kutusu bu koordinatlarda TANIMLANIR; "sonra bakarız" demek, her Reels'te aynı
+// hatayı yapıp her seferinde yeniden keşfetmektir.
+
+/** Kullanılabilir bant, piksel. Güvenli alanı olmayan yerleşimde tuvalin tamamı. */
+export const safeBand = (p: Placement): SafeBand => {
+  if (p.safeArea === null) return { x: 0, y: 0, width: p.width, height: p.height }
+  const yan = Math.round((p.safeArea.sidePercent / 100) * p.width)
+  const ust = Math.round((p.safeArea.topPercent / 100) * p.height)
+  const alt = Math.round((p.safeArea.bottomPercent / 100) * p.height)
+  return {
+    x: yan,
+    y: ust,
+    width: p.width - yan * 2,
+    height: p.height - ust - alt,
+  }
+}
+
+export interface Rect {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
+export type SafeAreaViolation =
+  | { readonly edge: 'top'; readonly overflowPx: number }
+  | { readonly edge: 'bottom'; readonly overflowPx: number }
+  | { readonly edge: 'start'; readonly overflowPx: number }
+  | { readonly edge: 'end'; readonly overflowPx: number }
+
+/**
+ * Bir içerik kutusu güvenli bandın DIŞINA taşıyor mu.
+ *
+ * Her kenar AYRI raporlanır ve taşma PİKSELLE söylenir: "taşıyor" tek başına
+ * düzeltilebilir bir bilgi değil, "üstten 42px taşıyor" düzeltilebilir bir bilgidir.
+ */
+export const safeAreaViolations = (p: Placement, r: Rect): readonly SafeAreaViolation[] => {
+  const b = safeBand(p)
+  const v: SafeAreaViolation[] = []
+  if (r.y < b.y) v.push({ edge: 'top', overflowPx: b.y - r.y })
+  if (r.x < b.x) v.push({ edge: 'start', overflowPx: b.x - r.x })
+  const altTasma = r.y + r.height - (b.y + b.height)
+  if (altTasma > 0) v.push({ edge: 'bottom', overflowPx: altTasma })
+  const sagTasma = r.x + r.width - (b.x + b.width)
+  if (sagTasma > 0) v.push({ edge: 'end', overflowPx: sagTasma })
+  return v
+}
+
+export const safeAreaMessage = (v: SafeAreaViolation): string => {
+  const kenar =
+    v.edge === 'top'
+      ? 'üstten'
+      : v.edge === 'bottom'
+        ? 'alttan'
+        : v.edge === 'start'
+          ? 'soldan'
+          : 'sağdan'
+  return `içerik güvenli alandan ${kenar} ${v.overflowPx}px taşıyor — platform UI'ı örtecek (§9.1)`
 }
 
 // ── kalite merdiveni ─────────────────────────────────────────────────────────

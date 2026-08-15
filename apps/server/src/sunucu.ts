@@ -26,6 +26,7 @@ import {
 import { RUNS_DIR, fileHistory } from '@suite/kernel'
 import type { ToleranceReading } from '@suite/contracts'
 import { readManifest } from '@suite/engine'
+import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
@@ -145,6 +146,23 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       }),
     })
   })
+
+  // ── platform yerleşimleri (§9.1 · FAZ-4.9) ────────────────────────────────
+  //
+  // Spec KOD OLARAK tutulur (`render`), ekrana API'den gelir: tarayıcı halkası
+  // `render`ı import edemez (Playwright çeker) ve ikinci bir kopya tutmak, spec
+  // güncellendiğinde ekranın eski ölçüyle çizmesi demekti (D-176).
+  app.get('/api/yerlesimler', (c) =>
+    c.json({
+      yerlesimler: PLACEMENTS.map((p) => ({
+        ...p,
+        band: safeBand(p),
+        // Spec YAŞI da gidiyor: üç aylık drift denetimi (§9.1) ekranda da görünmeli,
+        // yoksa operatör bayat bir ölçüye göre yargı verir.
+        yasGun: specAgeDays(p, o.simdi().slice(0, 10)),
+      })),
+    })
+  )
 
   // ── QA okumaları: bir çalıştırmanın tolerans raporu (§11.1 · FAZ-4.8) ─────
   //

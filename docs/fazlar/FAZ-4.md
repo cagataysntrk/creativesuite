@@ -108,15 +108,16 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    yorumda alıntı → YEŞİL (gerekçe yazmak meşru) · `olculdu` bayrağını kaldır → kırmızı
 💾 `feat(ui): tolerans okuması bileşeni` · `Refs: FAZ-4.8 · §11.1`
 
-## 4.9 — Placement Preview    [ ]
+## 4.9 — Placement Preview    [x] 2026-08-16
 
 📖 §9.1, §12.9 · R-23
 🔗 4.8
 🛠 Gerçek platform chrome simülasyonu; Reels güvenli alan overlay'i (%14 üst / %35 alt /
    %6 yan). Spec tablosu `sourceUrl` + `verifiedAt` taşır (§9.1).
 📁 `apps/ui/src/screens/placement/`
-✅ Contact sheet'te başlık hiçbir yerde UI chrome altında değil
-🧪 Güvenli alana taşan bir başlık ver → **görünür şekilde işaretleniyor**
+✅ Reels bandı §9.1 ile birebir: `950×979` · güvenli alan KENDİ `sourceUrl`+`verifiedAt`
+   taşıyor · `safeArea: null` ("chrome yok") ile `{0,0,0}` ("ölçüldü sıfır") AYRI · 9 test
+🧪 `topPercent`i boz → kapı + 2 test kırmızı · feed'e sıfırlı güvenli alan ver → kırmızı
 💾 `feat(ui): placement preview ve güvenli alan` · `Refs: FAZ-4.9 · §9.1`
 
 ## 4.10 — Discovery / Reconciliation    [ ]

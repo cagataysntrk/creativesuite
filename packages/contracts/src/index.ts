@@ -62,3 +62,6 @@ export {
 
 // Tolerans okuması — ölçen (render) ile gösteren (ui) ortak sözlüğü (D-175).
 export type { ToleranceStatus, ToleranceReading, QaReport } from './tolerance.js'
+
+// Platform yerleşim spec'i — ölçen (render) ile gösteren (ui) ortak sözlüğü (D-176).
+export type { Placement, SafeArea, SafeBand } from './placement.js'

@@ -231,3 +231,80 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* ── yerleşim önizleme: güvenli alan (§9.1) ────────────────────────────────
+ * Overlay simüle edilmiş bir telefon DEĞİL, ölçülmüş bir maske. Süslü bir cihaz
+ * çerçevesi, ölçünün kendisini bir illüstrasyonun arkasına gizlerdi. */
+.yerlesim-tuval {
+  position: relative;
+  inline-size: 220px;
+  background: var(--role-surface);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.chrome {
+  position: absolute;
+  background: var(--role-bg);
+  opacity: 0.75;
+}
+
+.chrome-ust {
+  inset-block-start: 0;
+  inset-inline: 0;
+}
+
+.chrome-alt {
+  inset-block-end: 0;
+  inset-inline: 0;
+}
+
+.chrome-yan {
+  inset-block: 0;
+}
+
+.chrome-sol {
+  inset-inline-start: 0;
+}
+
+.chrome-sag {
+  inset-inline-end: 0;
+}
+
+/* Güvenli bant: kesikli, çünkü bir SINIR değil bir HEDEF. */
+.guvenli-bant {
+  position: absolute;
+  border: 1px dashed var(--role-text-muted);
+}
+
+.icerik-kutusu {
+  position: absolute;
+  border: 1px solid var(--role-state-ok);
+}
+
+/* Taşan içerik GÖRÜNÜR şekilde işaretlenir — soldurulmaz, bağırır. */
+.icerik-kutusu[data-tasma='true'] {
+  border-color: var(--role-state-error);
+  border-width: 2px;
+}
+
+.yerlesim-tuval[data-tasma='true'] {
+  border-color: var(--role-state-error);
+}
+
+.tasma-listesi {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  font-size: var(--size-2);
+}
+
+.yerlesim {
+  margin: 0;
+}
+
+.yerlesim-baslik {
+  margin-block-end: var(--space-2);
+  font-size: var(--size-3);
+}

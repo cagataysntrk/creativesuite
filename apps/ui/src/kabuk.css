@@ -421,3 +421,13 @@ kbd {
   border: 1px solid var(--role-state-warn);
   border-radius: var(--radius);
 }
+
+/* ── contact sheet: yerleşimler YAN YANA (§9.1) ─────────────────────────────
+ * Tek bir yerleşimde doğru görünen bir başlık diğerinde chrome altına düşebilir;
+ * bunu ancak yan yana koyunca görürsünüz. */
+.contact-sheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: flex-start;
+}

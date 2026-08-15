@@ -11,6 +11,7 @@ import { CorpusTarayici } from './CorpusTarayici.js'
 import { BaglamOnizleme } from './BaglamOnizleme.js'
 import { RunLauncher } from './RunLauncher.js'
 import { OnayKuyrugu } from './OnayKuyrugu.js'
+import { YerlesimEkrani } from './YerlesimEkrani.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -24,6 +25,12 @@ const KOMUTLAR: readonly Komut[] = [
   { id: 'corpus', etiket: 'Corpus tarayıcı', grup: 'Bilgi', anahtarlar: ['kayit', 'records'] },
   { id: 'baglam', etiket: 'Bağlam önizleme', grup: 'Bilgi', anahtarlar: ['context', 'prompt'] },
   { id: 'calistir', etiket: 'Çalıştır', grup: 'Üretim', anahtarlar: ['run', 'launch', 'plan'] },
+  {
+    id: 'yerlesim',
+    etiket: 'Yerleşim önizleme',
+    grup: 'Üretim',
+    anahtarlar: ['placement', 'safe'],
+  },
 ]
 
 // Nabız aralığı SUNUCUDAN öğrenilir. Buraya bir sabit yazmak, sunucu nabzını
@@ -34,7 +41,9 @@ const VARSAYILAN_NABIZ_MS = 5000
 export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
   const [sonOlayMs, setSonOlayMs] = useState<number | null>(null)
-  const [ekran, setEkran] = useState<'giris' | 'corpus' | 'baglam' | 'calistir' | 'kuyruk'>('giris')
+  const [ekran, setEkran] = useState<
+    'giris' | 'corpus' | 'baglam' | 'calistir' | 'kuyruk' | 'yerlesim'
+  >('giris')
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
 
   useEffect(() => {
@@ -82,6 +91,8 @@ export const App = (): React.JSX.Element => {
           <RunLauncher pipeline="instagram-post" />
         ) : ekran === 'kuyruk' ? (
           <OnayKuyrugu />
+        ) : ekran === 'yerlesim' ? (
+          <YerlesimEkrani />
         ) : (
           <>
             <h1>Upcytech Creative Suite</h1>
@@ -104,7 +115,9 @@ export const App = (): React.JSX.Element => {
                   ? 'calistir'
                   : k.id === 'onay-kuyrugu'
                     ? 'kuyruk'
-                    : 'giris'
+                    : k.id === 'yerlesim'
+                      ? 'yerlesim'
+                      : 'giris'
           )
         }
       />

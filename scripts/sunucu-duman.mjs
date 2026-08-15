@@ -61,6 +61,30 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.9: yerleşim spec'i + güvenli alan bandı API'den geliyor.
+  const yl = await (await fetch(`${U}/api/yerlesimler`)).json()
+  bekle(Array.isArray(yl.yerlesimler) && yl.yerlesimler.length > 0, '/api/yerlesimler boş')
+  const reels = yl.yerlesimler.find((x) => x.id === 'instagram-story-9x16')
+  bekle(reels !== undefined, 'story/reels yerleşimi yok')
+  if (reels !== undefined) {
+    // §9.1: 1080×1920'de kullanılabilir bant 950×979. Belge ile kod ayrışırsa
+    // hangisinin doğru olduğu anlaşılmaz.
+    bekle(
+      reels.band?.width === 950 && reels.band?.height === 979,
+      `Reels güvenli bandı §9.1 ile uyuşmuyor: ${JSON.stringify(reels.band)}`
+    )
+    bekle(
+      reels.safeArea?.sourceUrl !== reels.sourceUrl,
+      'güvenli alan KENDİ kaynağını taşımıyor — yerleşim ölçüsüyle aynı doküman değil'
+    )
+    bekle(typeof reels.yasGun === 'number', 'spec yaşı ekrana gitmiyor (drift denetimi görünmez)')
+  }
+  const feed = yl.yerlesimler.find((x) => x.id === 'instagram-feed-4x5')
+  bekle(
+    feed?.safeArea === null,
+    'feed yerleşiminde safeArea null DEĞİL — "chrome yok" ile "sıfır" ayrı'
+  )
+
   // FAZ-4.8: QA okumaları manifest'ten okunur ve "ölçülmedi" ile "geçti" AYRILIR.
   const qa = await (await fetch(`${U}/api/calistirma/run_yok/qa`)).json()
   bekle(qa.ok === false, 'olmayan çalıştırma için QA ok:true dönüyor')
@@ -151,5 +175,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 11 uç · token · qa · kuyruk · plan · bağlam · ters indeks · git · SSE`
+  `    sunucu ayağa kalktı · 12 uç · token · yerleşim · qa · kuyruk · plan · bağlam · git · SSE`
 )

@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.9
+siradaki_adim: 4.10
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -59,13 +59,14 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.6b** · Run Launcher; koşucu donmuş planı KULLANIYOR (R-07) | 2026-08-16 |
 | **4.7** · Onay kuyruğu; red gerekçesi sticky deftere düşüyor | 2026-08-16 |
 | **4.8** · Tolerans okuması bileşeni — imza öğesi; rozet yasağı kapıda | 2026-08-16 |
+| **4.9** · Placement Preview; Reels güvenli alanı kodda ve ölçülü | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.9` — Placement Preview** (§9.1, §12.9). Gerçek platform chrome simülasyonu:
-Reels güvenli alan overlay'i (%14 üst / %35 alt / %6 yan). Platform spec'leri kod olarak
-hazır (`packages/render/src/specs/placements.ts` — `sourceUrl` + `verifiedAt` her satırda);
-kalan iş overlay bileşeni ve gerçek ölçülerle çizim.
+**`4.10` — Discovery / Reconciliation** (§4.4, §12.9). Dört sütun: DEĞİŞMEDİ /
+DEĞİŞTİ / ÇELİŞTİ / YENİ. Keşif motoru hazır (`packages/engine/src/discovery/` —
+`buildPlan`, `applyPlan`, `reviewOps`, sticky defter, idempotent atlama); kalan iş
+plan çıktısını dört sütuna ayıran ekran ve `just discovery` ile bağlanması.
 
 
 ## Bloke adımlar

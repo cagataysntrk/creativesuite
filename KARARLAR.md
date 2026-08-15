@@ -382,3 +382,23 @@ kendi gerekçe yorumunu yakaladı.
 **Ders:** "ölçülmedi" ile "geçti" iki farklı cümledir. Boş bir tolerans raporu gösterip
 sessiz kalmak, QA hiç koşmamış bir varlığı temiz göstermektir — `olculdu` bayrağı ayrı
 gidiyor ve kapı onun varlığını zorluyor.
+
+## D-176 — Güvenli alan kodda ve KENDİ kaynağıyla; `null` ile sıfır ayrı
+2026-08-16 · §9.1 Reels güvenli alanını sayıyla veriyordu (üst %14, alt %35, yan %6 →
+1080×1920'de 950×979) ama **kod bunu hiç bilmiyordu**. Placement Preview'ın tek işi o
+bandı çizmek; belgede duran bir sayı, çizilemeyen bir sayıdır.
+`Placement.safeArea` eklendi ve bir test §9.1'in sayısını kodla karşılaştırıyor: belge ile
+kod ayrışırsa hangisinin doğru olduğu anlaşılmaz, o yüzden ayrışma bir hatadır.
+**Güvenli alan KENDİ `sourceUrl`+`verifiedAt`ini taşıyor.** Yerleşim ölçüsü Meta'nın boyut
+dokümanından, güvenli alan Reels tasarım kılavuzundan geliyor — tek tarih paylaşsalardı
+biri güncellenince diğeri de "doğrulanmış" görünürdü.
+**`safeArea: null` ile `{0,0,0}` AYRI:** birincisi "bu yerleşimde chrome yok" (feed
+görselinde UI görselin üstüne binmez), ikincisi "ölçüldü ve sıfır çıktı" — ve ikincisi
+hiçbir platformda doğru değil. Kapı bu ayrımı zorluyor.
+Taşma **pikselle** raporlanıyor: "taşıyor" düzeltilebilir bir bilgi değil, "üstten 69px
+taşıyor" düzeltilebilir bir bilgidir. Her kenar ayrı.
+Tip yine Ring -1'e taşındı (D-165, D-175 ile aynı gerekçe; üçüncü kez): tarayıcı halkası
+`render`ı import edemez, ama VERİ de kopyalanmadı — `/api/yerlesimler` ile geliyor ve
+spec güncellendiğinde ekran otomatik doğru ölçüyü çiziyor.
+**Ders:** bir sayı belgede duruyorsa "tanımlı" değildir. Tanımlı olması, onu okuyan bir
+testin ve onu çizen bir kodun olması demektir.

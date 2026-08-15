@@ -18,6 +18,7 @@
     "@suite/kernel": "workspace:*",
     "@suite/providers": "workspace:*",
     "@suite/registry": "workspace:*",
+    "@suite/render": "workspace:*",
     "hono": "4.13.2"
   }
 }
