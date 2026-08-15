@@ -65,7 +65,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 ✅ 15 test · aynı karar aynı özeti veriyor · sağlayıcı değişince özet değişiyor
 🧪 Tavanı alt sınırın üstüne, üst sınırın altına koy → yine kilitli
 
-## 4.6b — Run Launcher ekranı ve donmuş planla koşma    [ ]
+## 4.6b — Run Launcher ekranı ve donmuş planla koşma    [x] 2026-08-16
 
 📖 §8.3, §12.9 · R-07 · D-17
 🔗 4.6
@@ -73,8 +73,10 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    **Koşucu donmuş planı KULLANIR**, yeniden çözmez (R-07). ⚠ Gerçek çalıştırma
    gerektirir; `3.14` açılmadan tiklenmez (D-158).
 📁 `apps/ui/src/RunLauncher.tsx` · `packages/engine/src/run.ts`
-✅ Başlat öncesi donmuş plan gösteriliyor · tavan aşılırsa **kilitli**
-🧪 Donmuş planı çalıştırırken registry'yi değiştir → çalıştırma **eski planla** koşuyor
+✅ `/api/plan` gerçek HEAD commit'iyle donduruyor · özet KARARLI · fiyatlanmamış
+   `gorsel-uret` adımı başlatı KİLİTLİYOR (V-16 anahtarsız — doğru davranış)
+🧪 Registry'yi değiştir (p1→p2, $0.025→$9.00) → çalıştırma **p1 ve $0.025 ile** koştu ·
+   özete `frozenAt` ekle → kırmızı · fiyatsız adım kilidini kaldır → kırmızı
 💾 `feat(ui): run launcher ve donmuş planla koşma` · `Refs: FAZ-4.6b · §8.3`
 
 ## 4.7 — Approval Queue    [ ]

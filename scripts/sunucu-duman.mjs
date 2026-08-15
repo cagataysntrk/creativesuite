@@ -51,6 +51,18 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.6b: launcher planı DONDURUR, hiçbir şey harcamaz (R-47).
+  const pl = await (await fetch(`${U}/api/plan?pipeline=instagram-post`)).json()
+  bekle(pl.ok === true, '/api/plan instagram-post planını üretemedi')
+  bekle(typeof pl.frozen?.digest === 'string', 'donmuş planın özeti yok')
+  // Özet KARARLI olmalı: `frozenAt` özete girseydi her istek "plan değişti" derdi.
+  const pl2 = await (await fetch(`${U}/api/plan?pipeline=instagram-post`)).json()
+  bekle(pl2.frozen?.digest === pl.frozen?.digest, 'donmuş plan özeti KARARLI değil')
+  // Fiyatlanmamış ücretli adım BAŞLAT'ı kilitler — eksik tahminle onay verilemez.
+  bekle(Array.isArray(pl.bloklar), '/api/plan blok listesi dönmüyor')
+  const yokHat = await fetch(`${U}/api/plan?pipeline=yok-boyle-bir-hat`)
+  bekle(yokHat.status === 404, 'olmayan pipeline için 404 dönmüyor')
+
   // FAZ-4.5: bağlam önizleme HİÇBİR ŞEY HARCAMAZ ve boş bölümün NEDENİNİ söyler.
   const bag = await (await fetch(`${U}/api/baglam?tarif=instagram-post`)).json()
   bekle(bag.ok === true, '/api/baglam instagram-post tarifini çözemedi')
@@ -106,4 +118,6 @@ if (hatalar.length > 0) {
   for (const h of hatalar) console.log(`    ✗ ${h}`)
   process.exit(1)
 }
-console.log(`    sunucu ayağa kalktı · 7 uç · token CSS'i · bağlam · ters indeks · git · SSE`)
+console.log(
+  `    sunucu ayağa kalktı · 8 uç · token · plan dondurma · bağlam · ters indeks · git · SSE`
+)

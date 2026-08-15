@@ -15,6 +15,13 @@ const { baslat } = await import(join(REPO, 'apps/server/dist/index.js'))
 // Saat TEK yerden gelir (chokepoints → `saat`). İkinci bir `new Date()`, bir
 // çalıştırmanın yeniden oynatılmasını imkânsız kılan sapmanın başlangıcıdır (§13).
 const { systemClock } = await import(join(REPO, 'packages/kernel/dist/index.js'))
+const { knowledgeCommit } = await import(join(REPO, 'packages/engine/dist/index.js'))
+
+// Planın dondurulacağı DÜNYA gerçek HEAD commit'idir, 'worktree' değil (D-155, D-167).
+// 'worktree' yazan bir manifest KUSURLUDUR ve o plandan çıkan varlık yayınlanamaz —
+// yani sunucu bunu okumazsa launcher baştan yayınlanamaz planlar donduruyor demektir.
+const GIT_ENV = { PATH: process.env['PATH'] ?? '' }
+const { sha: HEAD_SHA, ok: shaOk } = await knowledgeCommit(REPO, GIT_ENV)
 
 const PORT = Number(process.env['SUITE_PORT'] ?? 5177)
 
@@ -34,7 +41,11 @@ const sunucu = await baslat({
   port: PORT,
   // `git` alt sürecine YALNIZ PATH gider (§14). Tüm ortamı geçirmek, `sops exec-env`
   // ile enjekte edilen sağlayıcı anahtarlarını da alt sürece taşımak olurdu.
-  env: { PATH: process.env['PATH'] ?? '' },
+  env: GIT_ENV,
+  // Kirli ağaç da bir gerçektir: commit okunamazsa 'worktree' kalır ve kusurlu
+  // manifest kapısı (D-155) o çalıştırmanın çıktısını yayından bloke eder.
+  corpusCommit: shaOk ? HEAD_SHA : 'worktree',
+  registryCommit: shaOk ? HEAD_SHA : 'worktree',
 })
 
 console.log(`  komuta merkezi API   http://localhost:${sunucu.port}`)

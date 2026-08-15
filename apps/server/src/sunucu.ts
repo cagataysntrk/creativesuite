@@ -28,6 +28,7 @@ import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { baglamOnizle } from './baglam.js'
+import { launcherPlani } from './launcher.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -44,6 +45,13 @@ export interface SunucuSecenekleri {
    * En azı `PATH` — onsuz `git` bulunamaz.
    */
   readonly env?: Readonly<Record<string, string>>
+  /**
+   * Planın dondurulacağı dünya: bilgi ve registry commit'i (§13).
+   * Verilmezse `worktree` — ve `inspectManifest` onu KUSURLU sayar (D-155), yani
+   * kirli ağaçtan dondurulmuş bir plan yayınlanabilir bir çıktı üretemez.
+   */
+  readonly corpusCommit?: string
+  readonly registryCommit?: string
 }
 
 export interface Sunucu {
@@ -133,6 +141,36 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         status: durum,
       }),
     })
+  })
+
+  // ── run launcher: planı kur, DONDUR, kilidi hesapla (§8.3 · FAZ-4.6b) ─────
+  //
+  // GET ve hiçbir şey harcamaz (R-47): `plan()` kuru ikizleri çağırır. Dondurma da
+  // yan etkisiz — donmuş plan yalnız cevapta döner; onaylanan plan çalıştırma anında
+  // motora GERİ VERİLİR (`runPipeline({ frozen })`).
+  app.get('/api/plan', (c) => {
+    const tavanMikros = c.req.query('tavan_mikros')
+    const r = launcherPlani({
+      repoRoot: o.repoRoot,
+      pipelineId: c.req.query('pipeline') ?? '',
+      runId: (c.req.query('run') ?? 'run_onizleme') as never,
+      brandId: o.query.brandId as never,
+      eraId: o.query.eraId as never,
+      corpusCommit: o.corpusCommit ?? 'worktree',
+      registryCommit: o.registryCommit ?? 'worktree',
+      frozenAt: o.simdi(),
+      recordIds: [],
+      cap:
+        tavanMikros === undefined || tavanMikros === ''
+          ? null
+          : { micros: BigInt(tavanMikros), currency: 'USD' },
+      env: o.env ?? {},
+    })
+    // `bigint` JSON'a girmez (D-119): para alanları dize olarak yayılır.
+    return c.json(
+      JSON.parse(JSON.stringify(r, (_k, v) => (typeof v === 'bigint' ? v.toString() : v))),
+      r.ok ? 200 : 404
+    )
   })
 
   // ── ters indeks: bu kaydı hangi çalıştırma kullandı (§12.9 · FAZ-4.4) ─────

@@ -246,6 +246,72 @@ describe('bütçe tavanı hattı KİLİTLİYOR (D-17)', () => {
     },
   ]
 
+  it('DONMUŞ plan varsa registry değişse bile ESKİ kararla koşuyor (R-07)', async () => {
+    // Kabul kriterinin çekirdeği. Senaryo: operatör `p1`e $0.025 ile onay verdi;
+    // onayla çalıştırma arasında `p1` registry'den kalktı ve `p2` $9.00 ile geldi.
+    // Yeniden yönlendirseydik onaylanmayan bir sağlayıcı, onaylanmayan bir fiyatla
+    // koşardı — ve fark ancak fatura gelince görülürdü.
+    const donmus = {
+      runId: RUN,
+      pipeline: 'test-hat',
+      brandId: 'brd_test',
+      eraId: 'era_test',
+      corpusCommit: 'abc1234',
+      registryCommit: 'def5678',
+      frozenAt: '2026-08-16T00:00:00.000Z',
+      order: ['a', 'uret'],
+      recordIds: [],
+      totalLow: usd(25_000n),
+      totalHigh: usd(25_000n),
+      digest: 'sha256:test',
+      steps: [
+        {
+          stepId: 'uret',
+          verb: 'GENERATE',
+          capability: 'image.generate',
+          metered: true,
+          providerId: 'p1',
+          descriptorDigest: 'sha256:d1',
+          confidence: 'green' as const,
+          params: {},
+          seed: null,
+          estimatedCost: { low: usd(25_000n), high: usd(25_000n) },
+        },
+      ],
+    }
+
+    const r = await kos(uretimHat, {
+      verbs: {
+        RESOLVE: basarili('RESOLVE', {}),
+        GENERATE: basarili('GENERATE', { url: 'x' }, 25_000n),
+      },
+      // Registry DEĞİŞTİ: p1 yok, p2 çok pahalı.
+      candidatesFor: () => aday('p2'),
+      pricing: fiyat('p2', '9.00'),
+      caps: { perRun: usd(100_000n), perMonth: null },
+      frozen: donmus,
+    })
+
+    expect(r.errors).toHaveLength(0)
+    // Donmuş sağlayıcı koştu, yeni gelen DEĞİL.
+    expect(r.manifest.steps[1]?.providerId).toBe('p1')
+    // Donmuş tahmin kullanıldı: $9.00 hiçbir yere yazılmadı.
+    expect(r.manifest.steps[1]?.estimatedCost.high.micros).toBe(25_000n)
+  })
+
+  it('donmuş plan YOKSA yönlendirici normal çalışır — davranış değişmedi', async () => {
+    const r = await kos(uretimHat, {
+      verbs: {
+        RESOLVE: basarili('RESOLVE', {}),
+        GENERATE: basarili('GENERATE', { url: 'x' }, 25_000n),
+      },
+      candidatesFor: () => aday('p2'),
+      pricing: fiyat('p2', '0.030'),
+      caps: { perRun: usd(100_000n), perMonth: null },
+    })
+    expect(r.manifest.steps[1]?.providerId).toBe('p2')
+  })
+
   it('tavanın ALTINDA koşuyor', async () => {
     const r = await kos(uretimHat, {
       verbs: {

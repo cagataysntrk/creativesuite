@@ -482,3 +482,24 @@ Tikli altı adım sıkıştırıldı: 257 → 212 satır. Kalan on bir adım iç
 her tikleme artık dosyayı KÜÇÜLTÜYOR.
 **Ders:** aynı sınıra beşinci kez çarpmak, sınırın yanlış olduğunu değil, dosyanın
 yanlış şey taşıdığını gösterir. Tavanı yükseltmek soruyu susturur.
+
+## D-172 — Koşucu donmuş planı KULLANIR, yeniden çözmez
+2026-08-16 · R-07'nin çalıştırma tarafı eksikti: `freezePlan` planı donduruyordu ama
+`runPipeline` her adımda yönlendiriciyi YENİDEN çağırıyordu. Yani onay bir plana
+veriliyor, koşan başka bir plan oluyordu — ve fark ancak fatura gelince görülürdü.
+`RunInput.frozen` eklendi. Donmuş adımın sağlayıcısı varsa `candidatesFor` HİÇ
+çağrılmıyor. "Çağır ve karşılaştır" alternatifi reddedildi: karşılaştırma "farklı çıktı,
+ne yapayım" sorusunu doğurur ve tek doğru cevap zaten donmuş olanı kullanmaktır.
+Kabul kriteri gerçek kodla doğrulandı: registry'yi değiştirdim (`p1` kalktı, `p2` $9.00
+ile geldi) ve çalıştırma **`p1` ile $0.025'e** koştu. Testi kaldırdığımda kırmızıya
+döndü — koruduğu doğrulandı.
+Üç ek dürüstlük: (1) launcher planı **gerçek HEAD commit'iyle** donduruyor, `worktree`
+ile değil — `worktree` yazan manifest KUSURLUDUR (D-155) ve o plandan çıkan varlık
+yayınlanamaz, yani sunucu commit'i okumazsa baştan yayınlanamaz planlar donardı;
+(2) tanımlayıcı özeti dosya İÇERİĞİNDEN hesaplanıyor, sürüm alanından değil — sürümü
+artırmadan fiyat değiştiren herkes görünmez kalırdı ve tam o düzenleme planı geçersiz
+kılan şey; (3) `unpriced` kilidi gerçek repoda hemen iş gördü: `gorsel-uret` adımı
+V-16 anahtarları olmadığı için fiyatlanamıyor ve **başlat kilitli** — eksik bir tahminle
+onay vermek, bilinmeyen bir tutara onay vermektir.
+**Ders:** bir kural iki uçlu olduğunda (dondur + donmuşu kullan) yalnız birini yazmak,
+kuralı yazılı ama işlemez bırakır. `freezePlan` tek başına bir belge parçasıydı.

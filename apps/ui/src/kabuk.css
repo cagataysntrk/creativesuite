@@ -376,3 +376,33 @@ kbd {
 .baglam-dusuk .baglam-neden {
   color: var(--role-state-warn);
 }
+
+/* ── run launcher (§8.3) ────────────────────────────────────────────────────*/
+.kilit-listesi {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+}
+
+.baslat {
+  margin-block-start: var(--space-4);
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  min-inline-size: 96px;
+  block-size: var(--row-loose);
+  font-size: var(--size-4);
+  font-weight: var(--weight-label);
+}
+
+/* Kilitli düğme SOLDURULMAZ, kenarlığı taralı olur ve sebebi üstünde yazılıdır. */
+.baslat:disabled {
+  color: var(--role-text-muted);
+  border-style: dashed;
+}
+
+.filtre-cubugu label {
+  color: var(--role-text-muted);
+  font-size: var(--size-2);
+}

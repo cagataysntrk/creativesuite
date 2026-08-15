@@ -49,6 +49,7 @@ import { route, type ProviderPricing, type RoutingDecision } from './router/rout
 import { rejectionMessage } from './router/reasons.js'
 import { writeManifest, type WriteResult } from './manifest-writer.js'
 import { digest, idempotencyKey } from './idempotency.js'
+import type { FrozenPlan } from './plan/freeze.js'
 
 export interface RunInput {
   readonly repoRoot: string
@@ -121,6 +122,19 @@ export interface RunInput {
    * çalıştırmanın TEK kanıtıdır" (§13) ve "`derived/runs` türetilemez" (D-38) ile
    * çelişirdi: yeniden üretilemeyen bir kanıt siliniyor.
    */
+  /**
+   * Onaylanmış DONMUŞ plan (§8.3 · R-07 · FAZ-4.6b).
+   *
+   * Verilirse motor **yeniden yönlendirme YAPMAZ**: donmuş adımın sağlayıcısı ve
+   * donmuş maliyeti kullanılır. Sebep tek cümle: insanın onayladığı plan ile koşan
+   * plan aynı olmak zorunda. Yeniden çözseydik, onay ile çalıştırma arasında biri
+   * `registry/providers/`de fiyat güncellediğinde onaylanmayan bir şey koşardı ve
+   * fark ancak fatura gelince görülürdü.
+   *
+   * **Dünya değiştiyse bu bir HATA değil, bir bilgidir** (`planStale`): plan yine
+   * donmuş hâliyle koşar, değişiklik operatöre bildirilir.
+   */
+  readonly frozen?: FrozenPlan | null
   readonly previous?: RunManifest | null
   readonly signal?: AbortSignal
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
@@ -260,36 +274,58 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     const verb: Verb = cozum.value
 
     // ── yönlendirme: hangi sağlayıcı, kaybedenler gerekçesiyle (§8.2) ──────
-    const adaylar = s.capability === null ? [] : input.candidatesFor(s.capability, input.env)
-    const yonlendirme: RoutingDecision | null =
-      s.capability === null || adaylar.length === 0
+    // Donmuş planda bu adımın kararı varsa yönlendirici HİÇ ÇAĞRILMAZ (R-07).
+    // Çağırıp sonucu karşılaştırmak da yeterli olmazdı: karşılaştırma "farklı çıktı,
+    // ne yapayım" sorusunu doğurur ve tek doğru cevap zaten donmuş olanı kullanmaktır.
+    const donmusAdim = (input.frozen?.steps ?? []).find((f) => f.stepId === stepId) ?? null
+    const donmusKarar =
+      donmusAdim === null || donmusAdim.providerId === null
         ? null
-        : route(
-            {
-              capability: s.capability,
-              lane: s.constraints['lane'] === 'premium' ? 'premium' : 'free',
-              constraints: Object.fromEntries(
-                Object.entries(s.constraints).filter(
-                  (e): e is [string, string | number | boolean] =>
-                    typeof e[1] === 'string' ||
-                    typeof e[1] === 'number' ||
-                    typeof e[1] === 'boolean'
-                )
-              ),
-              params: Object.fromEntries(
-                Object.entries(s.constraints).filter(
-                  (e): e is [string, number] => typeof e[1] === 'number'
-                )
-              ),
-              prefer: 'cost',
-              maxCost:
-                typeof s.constraints['max_cost_usd_micros'] === 'number'
-                  ? usd(BigInt(Math.trunc(s.constraints['max_cost_usd_micros'])))
-                  : null,
-            },
-            adaylar,
-            input.pricing
-          )
+        : {
+            providerId: donmusAdim.providerId,
+            title: donmusAdim.providerId,
+            cost: donmusAdim.estimatedCost,
+            confidence: donmusAdim.confidence ?? ('amber' as const),
+            quality: 0,
+            latencySeconds: null,
+            score: 0,
+          }
+
+    const adaylar =
+      s.capability === null || donmusKarar !== null
+        ? []
+        : input.candidatesFor(s.capability, input.env)
+    const yonlendirme: RoutingDecision | null =
+      donmusKarar !== null
+        ? { winner: donmusKarar, rejected: [], fallbacks: [] }
+        : s.capability === null || adaylar.length === 0
+          ? null
+          : route(
+              {
+                capability: s.capability,
+                lane: s.constraints['lane'] === 'premium' ? 'premium' : 'free',
+                constraints: Object.fromEntries(
+                  Object.entries(s.constraints).filter(
+                    (e): e is [string, string | number | boolean] =>
+                      typeof e[1] === 'string' ||
+                      typeof e[1] === 'number' ||
+                      typeof e[1] === 'boolean'
+                  )
+                ),
+                params: Object.fromEntries(
+                  Object.entries(s.constraints).filter(
+                    (e): e is [string, number] => typeof e[1] === 'number'
+                  )
+                ),
+                prefer: 'cost',
+                maxCost:
+                  typeof s.constraints['max_cost_usd_micros'] === 'number'
+                    ? usd(BigInt(Math.trunc(s.constraints['max_cost_usd_micros'])))
+                    : null,
+              },
+              adaylar,
+              input.pricing
+            )
 
     const kazanan = yonlendirme?.winner ?? null
     const tahmin = kazanan?.cost ?? { low: ZERO_USD, high: ZERO_USD }
