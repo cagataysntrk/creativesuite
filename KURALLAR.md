@@ -221,6 +221,9 @@ başka hiçbir yerde yazmıyor.
 Geliştirme commit'i `<tip>(<kapsam>)` + `Refs: FAZ-N.x · §bölüm` ister.
 Çalıştırma commit'i (`corpus/`, `brand/`, `derived/runs/`) `Run` + `Actor` + `Kind`
 ister ve `Refs:` **kullanamaz**.
+Bir geliştirme commit'i `derived/runs/` DEĞİŞTİREMEZ: defter append-only kanıttır
+(D-38) ve karışık bir commit künyesiz geçerdi (D-156). `corpus/`+`brand/` bu yasağın
+dışında — şema göçü ve token düzenlemesi meşru biçimde koda eşlik eder.
 **Zorlama:** `.githooks/commit-msg`.
 
 ### R-61 · ai-imzasi-yasak · BLOCKING · aktif

@@ -467,3 +467,19 @@ basıyor (sabit `0` dizesi değil), `metrics.ts`in `fontFamily` yorumu düzeltil
 vardı, tik→tablo yoktu. İkinci yön eklendiği an gerçek bir tutarsızlık yakaladı (`3.2`).
 **Ders:** bir alanı yazmak onu doğrulamak değildir. `corpusCommit` iki fazdır beri
 yazılıyordu ve iki fazdır yalan söyleyebiliyordu.
+
+## D-156 — Karışık commit defter mutasyonunu künyesiz geçiriyordu
+2026-08-15 · D-154/D-155 commit'inde `derived/runs/.../manifest.json` geliştirme
+dosyalarıyla birlikte gitti (`--devam` doğrulamam adımları yeniden koşturmuştu).
+`commit-msg` sınıflandırması "YALNIZ corpus/brand/derived-runs ise çalıştırma" diyor;
+karışık commit `else` dalına düşüyor ve defter mutasyonu `Run:`/`Actor:`/`Kind:`
+künyesi **olmadan** geçiyor. Yani R-60'ın koruduğu şey tam da karıştırınca kayboluyordu.
+Yasak dar tutuldu: **geliştirme commit'i `derived/runs/` değiştiremez.** `corpus/` ve
+`brand/` kasıtlı olarak dışarıda — şema göçü koda eşlik etmek zorunda ve FAZ 4.1 token
+dosyalarıyla `theme.css`i birlikte değiştirecek; oraya da yasak koymak, kuralı ilk
+meşru ihtiyaçta esnetmek olurdu.
+Dört yönde doğrulandı: karışık → kırmızı · yalnız defter künyesiz → kırmızı ·
+yalnız defter künyeli → yeşil · yalnız geliştirme → yeşil.
+**Ders:** bir sınıflandırma kuralı, sınıfların **kesişimini** tanımlamadıkça eksiktir.
+"A ise X, değilse Y" biçimindeki her kapı, A'nın kısmen doğru olduğu durumu sessizce
+Y'ye atar.

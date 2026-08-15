@@ -64,6 +64,20 @@ if [ "$RUNTIME_ONLY" -eq 1 ]; then
     fail "çalıştırma commit'inde 'Refs:' kullanılmaz — Run/Actor/Kind yeterli."
   fi
 else
+  # ⚠ KARIŞIK commit: geliştirme dosyalarıyla birlikte `derived/runs/` değişmiş.
+  # Bu commit geliştirme sınıfına düşer ve defter mutasyonu Run/Actor/Kind künyesi
+  # OLMADAN geçer — 2026-08-15'te tam olarak bu oldu (D-156).
+  # `derived/runs/` append-only KANITTIR (D-38): bir geliştirme commit'inin onu
+  # değiştirmesi için meşru bir sebep yoktur. Değiştiyse ya geliştirme sırasında
+  # gerçek bir çalıştırma koşuldu (ayrı commit'lensin) ya da bir şey kanıtı eziyor.
+  # `corpus/` ve `brand/` KASITLI olarak bu yasağın dışında: şema göçü ya da token
+  # düzenlemesi meşru biçimde koda eşlik edebilir.
+  if printf '%s\n' "$FILES" | grep -q '^derived/runs/'; then
+    fail "geliştirme commit'i 'derived/runs/' değiştiremez (D-156) — defter append-only KANIT.
+   Çalıştırma defterini AYRI commit'le: Run: · Actor: · Kind: (Refs: yasak).
+   Karışan: $(printf '%s\n' "$FILES" | grep '^derived/runs/' | head -3 | tr '\n' ' ')"
+  fi
+
   SCOPES='contracts|kernel|registry|corpus|providers|render|engine|ui|server|cli|docs|gates|repo|brand|deps|motion'
   TYPES='feat|fix|refactor|perf|test|docs|chore|build|ci'
   printf '%s' "$SUBJECT" | grep -qE "^($TYPES)\(($SCOPES)\)!?: .+" \
