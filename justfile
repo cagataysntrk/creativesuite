@@ -101,5 +101,5 @@ schemas:
 
 # Üretilmiş belgeler (sağlayıcı kataloğu, şema referansı, CLI referansı)
 docs:
-    @echo "(FAZ-0.B.2c'de gelecek)"
+    @./node_modules/.bin/tsc -b && node scripts/docs-uret.mjs
 

@@ -540,3 +540,17 @@ kırmızıya dönüyor.
 ama makine-okunur `bloke` listesinde YOKTU. Bağlamı sıfırlanmış bir agent o adımı
 "sıradaki iş" sanabilirdi. Düzyazı ile makine bloğunun ayrışması, `DURUM.md`'nin tam
 olarak önlemesi gereken şey.
+
+## D-129 — R-65 BLOCKING yazıyordu ama zorlaması YOKTU
+2026-08-15 · `KURALLAR.md` R-65'i "BLOCKING · Zorlama: `docs-drift` kapısı" diye
+listeliyor ve ANAYASA §8.7 "`just docs` üretir, `docs-drift` sapmayı yakalar" diyor.
+**İkisi de doğru değildi**: `just docs` bir `echo` taslağıydı ve `docs-drift` diye bir
+kapı yoktu. `KURALLAR.md`'nin kendi başlığı bunu yasaklıyor: *"Zorlaması olmayan kural
+buraya yazılmaz — uygulanmayan 111 kural, uygulanan 20 kuraldan kötüdür."*
+`just docs` artık `registry/providers/*.provider.yaml`ten `docs/referans/saglayicilar.md`
+üretiyor; `docs-drift` kapısı sapmayı yakalıyor. 23. kapı.
+**Kapı ilk yazımda işi SESSİZCE yok ediyordu:** önce `just docs` koşuyor, elle yapılmış
+düzenlemeyi eziyor, sonra `git diff` boş çıkıyor ve yeşil raporluyordu. R-65 "elle
+düzenleme kaybolur" diyor ama **sessizce kaybolması** başka şey. Kapı artık üretim
+ÖNCESİ ve SONRASI içeriği karşılaştırıyor ve iki durumu da bildiriyor: elle düzenleme
+ve tazelenmemiş kaynak.
