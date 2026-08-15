@@ -34,3 +34,28 @@ export {
   type Overflow,
   type Slide,
 } from './layout/enum.js'
+
+export { deltaE2000, deltaEHex, parseHex, rgbToLab, type Lab, type Rgb } from './qa/deltae.js'
+export {
+  formatReading,
+  formatReport,
+  reading,
+  report,
+  type QaReport,
+  type ToleranceReading,
+  type ToleranceStatus,
+} from './qa/tolerance.js'
+export {
+  DEFAULT_LIMITS,
+  aspectDeviation,
+  measure,
+  nearestDeltaE,
+  paletteToLab,
+  pixelStats,
+  textCoverage,
+  type BrandPalette,
+  type QaInput,
+  type QaLimits,
+  type PixelStats,
+} from './qa/measure.js'
+export { samplePng, pngSize, type SampleOptions } from './qa/pixels.js'

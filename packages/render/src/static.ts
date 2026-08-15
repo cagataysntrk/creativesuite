@@ -90,10 +90,7 @@ export const renderStatic = async (
     //
     // `document.fonts.ready` bir `FontFaceSet`e çözülür ve Playwright onu SERİLEŞTİREMEZ —
     // doğrudan döndürmek çağrıyı hata ile düşürürdü. Beklenen şey promise, taşınan bayrak.
-    await page.evaluate(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      '(async () => { await document.fonts.ready; return true })()'
-    )
+    await page.evaluate('(async () => { await document.fonts.ready; return true })()')
     await page.screenshot({ path: outPath, type: 'png' })
     return { path: outPath, width: doc.width, height: doc.height }
   })

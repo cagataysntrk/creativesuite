@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.9
+siradaki_adim: 3.10
 son_guncelleme: 2026-08-15
 bloke: ["2.9", "3.8"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.7 kapandi: iki serit de yazildi (Cloudflare senkron, fal kuyruk) ve ayni sozlesmeye oturdu. R-20 UC katmanda: kurucu metin isteyen prompt'u reddediyor, start() sinirinda ek dogrulaniyor, lexicon kapisi pipeline kisitlarini tariyor. Turkce eklemeli yapi desenleri degistirdi: harfler yakalaniyordu, harflerle kaciyordu -> govde on eki. Sozlesme testi yeni adaptorlere KENDILIGINDEN uygulandi ve ikisinde de dustu. 545 test, 21 kapi."
+son_kanit: "FAZ 3.9 kapandi: GERCEK Chromium render + GERCEK piksel okuma. Marka tokenlariyla render edilen gorsel tolerans ici; token yerine macenta zemin koyunca palet disi %98 -> SINIR DISI, yayin bloklu. CIEDE2000 kendimiz yazildi ve Sharma (2005) 21 referans ciftiyle 4 ondalik dogrulandi — culori/sharp/tesseract eklenmedi. 59 QA testi, 604 test toplam, 21 kapi."
 ```
 
 ## Neredeyiz
@@ -19,9 +19,9 @@ son_kanit: "FAZ 3.7 kapandi: iki serit de yazildi (Cloudflare senkron, fal kuyru
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.9`: marka QA tolerans
-> okumaları (ΔE2000, palet payı, güvenli alan). Fazın sonunda gerçek bir carousel
-> üretilmiş olacak.
+> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.10`: deterministik
+> lexicon linter — yasak terim, kaynaksız sayısal iddia, token dışı hex, eksik alt-text.
+> Fazın sonunda gerçek bir carousel üretilmiş olacak.
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -43,12 +43,14 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.5** · yetenek yönlendiricisi, maliyet formülü, bütçe kapısı | 2026-08-15 |
 | **3.6** · retry, idempotency, rate limit; çift ücret kapatıldı | 2026-08-15 |
 | **3.7** · `image.generate`, iki şerit, R-20 üç katmanda | 2026-08-15 |
+| **3.9** · marka QA tolerans okumaları (ΔE2000 kendi implementasyonu) | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.9` — marka QA tolerans okumaları.** ΔE2000 · palet payı · güvenli alan.
-Sonuç **rozet değil ÖLÇÜM**: `ΔE 2.4 / limit 5.0` kenara ne kadar yakın olduğunu
-söyler, "✓ uygun" hiçbir şey söylemez (§12). Ardından `3.10` lexicon linter.
+**`3.10` — deterministik lexicon linter.** Yasak terim · kaynaksız sayısal iddia ·
+token dışı hex · eksik alt-text · locale-naif Türkçe casing. Türkçe'de sayısal iddia
+sık sık rakamsız yazılır ("yüzde 40", "3 kat", "yarım milyon") — desen bunu görmeli.
+Ardından `3.11` uyum kapısı (sentetik insan yasağı).
 
 ⚠ **`3.8` (marka LoRA) BLOKE** — ~$3 gerçek para harcıyor ve `FAL_KEY` yok (V-16).
 Anahtarlar `secrets.enc.yaml`a girdiğinde açılır.

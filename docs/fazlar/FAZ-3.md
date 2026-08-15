@@ -124,7 +124,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Bütçe tavanı $3'ün altındayken eğitimi başlat → reddediliyor
 💾 `feat(providers): marka LoRA eğitimi` · `Refs: FAZ-3.8 · §7.3`
 
-## 3.9 — Marka QA: ΔE, palet, CLIP, güvenli alan    [ ]
+## 3.9 — Marka QA: ΔE, palet, CLIP, güvenli alan    [x] 2026-08-15
 
 📖 §11.1, §12 · D-22
 🔗 3.7

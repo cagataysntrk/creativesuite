@@ -543,3 +543,39 @@ değil. Sabiti paket sınırından dağıtmak, onu ikinci bir yerde birleştirme
 kolaylaştırır — `gorsel-prompt-kurucu` darboğazının önlediği şey tam bu. Darboğaz
 zaten yakalardı; ama bir kuralı hem kapıyla hem API şekliyle zorlamak, kapının bir gün
 gevşetilmesine karşı ikinci hat.
+
+## D-109 — ΔE2000 kendimiz yazıldı, `culori` eklenmedi
+2026-08-15 · İhtiyaç iki fonksiyon (sRGB→Lab, ΔE2000); `culori`nin getirdiği yüzey
+onlarca renk uzayı, ayrıştırıcı ve interpolasyon. Formüller yayınlanmış, sabit ve otuz
+yıldır değişmiyor — "40 satır yazmak bir bağımlılıktan iyidir".
+**Doğruluk bağımsız kaynakla kanıtlandı:** Sharma, Wu & Dalal (2005) makalesinin 21
+referans çifti, 4 ondalık hassasiyetle geçiyor. Kendi matematiğine kendi beklentini
+yazmak hiçbir şey kanıtlamaz: yanlış bir formül, ondan türetilmiş beklentiyi her zaman
+karşılar.
+ΔE76 (Öklid) **reddedildi**: mavi bölgede algıyla ciddi ayrışıyor ve marka paleti mavi
+ağırlıklı (`#0091FF`) — ΔE76 gözle ayırt edilebilir iki maviyi "aynı" sayar ve QA kapısı
+boş geçerdi.
+
+## D-110 — Piksel Chromium'dan okunuyor; metin kaplaması OCR'sız
+2026-08-15 · İki bağımlılık daha eklenmedi:
+1. **sharp/jimp yok.** Chromium zaten var, zaten tek başlatıcıdan geçiyor ve `<canvas>`
+   piksel erişimini standart veriyor. İkinci bir PNG çözücü = ikinci bir renk profili
+   yorumu = farklı ΔE, ve hangisinin doğru olduğu ancak gözle anlaşılır.
+2. **Tesseract yok.** OCR'ın yapacağı iş "bu görselde nerede metin var" sorusunu tahmin
+   etmek; oysa metni BİZ yerleştiriyoruz ve yerini kesin biliyoruz (§7.1). Bildiğimiz bir
+   şeyi %90 doğrulukla yeniden keşfetmek olurdu. OCR'ın gerçek işi modelin ürettiği metni
+   yakalamak — ama R-20 zaten onu yasaklıyor.
+**Örnekleme ızgara, rastgele değil:** rastgele örnekleme aynı görselde iki farklı QA
+sonucu üretir ve manifest'e yazılan sayı tekrar üretilemez olur (§13).
+Ayrıca `getImageData` piksel başına değil TEK seferde çağrılıyor — 2000 örnekte
+piksel başına çağrı saniyeler sürüyor ve render zaman aşımını tetikliyordu.
+
+## D-111 — Ölçülemeyen metrik rapora GİRMEZ, sıfır olarak da girmez
+2026-08-15 · Palet tanımlı değilse ΔE `0,0` yazmak "mükemmel uyum" göstermek demektir
+ve tam da hiçbir şey ölçülmediği anda kapı yeşil yanar. `pixelStats` boş palette `null`
+dönüyor, `measure` o okumayı rapora hiç koymuyor. Aynı ilke `nearestDeltaE` ve
+`parseHex`te de var: geçersiz hex `null`, siyah değil — siyaha düşseydi bozuk bir token
+paletle "mükemmel uyumlu" bir siyah olurdu.
+**Uyarı eşiği limitten ayrı** tutuldu: yalnız limit olsaydı sistem geçti/kaldı ikilisine
+düşer ve limite doğru SÜRÜKLENME görünmezdi — tek tek hiçbir varlığın düşmediği ama
+ortalamanın kenara yaslandığı durum, markanın yavaşça bozulduğu durumdur.
