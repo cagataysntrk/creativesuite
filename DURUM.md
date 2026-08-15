@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.2
+siradaki_adim: 1.3
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.1b: record.attributes.foo TS2339; destructuring ile de atlatilamiyor; contracts dependencies bos"
+son_kanit: "1.2: sema-tip ayrisma bekcisi 3 yonde de kirmizi; schemas kapisi Zod degisimini yakaladi"
 ```
 
 ## Neredeyiz
@@ -58,12 +58,14 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.E.4 · compact protokolü | 2026-08-14 |
 | **1.1** · pnpm workspace ve halka sınırları | 2026-08-15 |
 | **1.1b** · packages/contracts | 2026-08-15 |
+| **1.2** · kayıt zarfı şeması + JSON üretimi | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.2** — kayıt zarfının Zod şeması ve `schemas/*.schema.json` üretimi.
-Kabul: `just gate schemas` — üretip `git diff --exit-code -- schemas/` boş.
-İhlal: Zod'u değiştir, üretmeden commit'le → kapı kırmızı.
+**1.3** — `registry/PROFILE.md`: izin verilen JSON Schema 2020-12 alt kümesi.
+Yasak: `unevaluatedProperties`, `$dynamicRef`, `if/then/else`, `patternProperties`,
+`not`, `oneOf`. Varyantlar açık ayırt edici alanla (`kind: 'saas' | 'bespoke'`).
+Kabul: profil dışı anahtar kullanan bir tip yaz → `registry` kapısı kırmızı.
 
 > D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
 > D-53'ün "0.C bloğu FAZ-1.2'den önce kapanır" taahhüdü: bağımsız olan üçü (0.C.1,

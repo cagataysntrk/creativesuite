@@ -358,3 +358,22 @@ geçmişini **hem** çalışma ağacını tarar.
 üst kabuğun PATH'ini değiştirmiyordu; kanca Node 20 ile koştu, bir kapı çöktü ve commit
 doğru sebeple değil, **yanlış sebeple** engellendi. Yeşil değil kırmızıydı ama yine de
 yanlıştı — kapının doğru sebeple kırmızı olduğunu görmek şart (R-71).
+
+## D-57 — Zarfın Zod şeması `packages/kernel`'de, `packages/contracts`'ta değil
+2026-08-15 · FAZ-1.2'nin 💾 satırı `feat(contracts): …` diyordu, ama Zod bir ÇALIŞMA
+ZAMANI bağımlılığıdır ve `packages/contracts` **hiçbir şey import etmez** (§3.1) —
+`dependencies` boşluğu FAZ-1.1b'nin kabul kriteridir. İkisi aynı anda doğru olamaz.
+**Karar:** derleme zamanı gerçeği (`RecordEnvelope`) contracts'ta kalır; çalışma zamanı
+gerçeği (`RecordEnvelopeSchema`, Zod 4.4.3) `packages/kernel/src/schema/envelope.ts`'te
+yaşar. Faz dosyasının 💾 satırı `feat(kernel)` olarak düzeltildi — sessizce sapılmadı.
+**Ayrışma riski ve çözümü:** iki yerde duran bir gerçek ayrışır. Üç tip iddiası ayrışmayı
+derleme hatasına çevirir: `TIP_SEMAYA_UYUYOR` (tip çakışması), `SEMADA_FAZLA_ALAN_YOK`,
+`SEMADA_EKSIK_ALAN_YOK`. Üçü de kasten ihlal edilerek doğrulandı (A: zarfa alan ekle →
+111. satır kırmızı · B: şemaya fazla alan → 110+111 · C: `confidence: z.string()` → 109).
+**Kaldırılan dördüncü iddia:** `SchemaShape extends ContractShape` yazıldı ve **temiz
+repoda bile kırmızı verdi** — şema düz `string` üretir, sözleşme markalı `RecordId` ister;
+ters yön tasarım gereği asla doğru olamaz. Daima kırmızı bir kapı, daima yeşil bir kapı
+kadar işe yaramaz: ilki kapatılır, ikincisi kandırır. Kaldırıldı, yerine iki yönlü
+anahtar kümesi kontrolü kondu.
+**`schemas` kapısı çalışma ağacını DEĞİŞTİRMEZ:** geçici dizine üretip commit'li hâliyle
+karşılaştırır. Kendi kendini düzelten bir kapı, hiçbir zaman kırmızı olmayan kapıdır.

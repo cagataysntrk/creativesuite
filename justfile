@@ -73,6 +73,10 @@ doctor:
 setup:
     @bash scripts/setup.sh
 
+# Üretilmiş JSON şemaları — kaynak Zod, çıktı commit'li (§3.2)
+schemas:
+    @./node_modules/.bin/tsc -b && node scripts/gen-schemas.mjs
+
 # Üretilmiş belgeler (sağlayıcı kataloğu, şema referansı, CLI referansı)
 docs:
     @echo "(FAZ-0.B.2c'de gelecek)"

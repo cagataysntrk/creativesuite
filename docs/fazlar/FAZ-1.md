@@ -31,7 +31,7 @@ ağ kablosu çekiliyken de çalışıyor
 🧪 `record.attributes.foo` yaz → **derleme hatası** (grep değil, tip sistemi)
 💾 `feat(contracts): çekirdek tipler ve opak attributes markası` · `Refs: FAZ-1.1b · §3.2`
 
-## 1.2 — Kayıt zarfı ve şema üretimi    [ ]
+## 1.2 — Kayıt zarfı ve şema üretimi    [x] 2026-08-15
 
 📖 §3.2, §3.3 · D-41
 🔗 1.1b
@@ -41,7 +41,8 @@ ağ kablosu çekiliyken de çalışıyor
    `z.toJSONSchema()` → `schemas/*.schema.json`, **commit'li**.
 ✅ `just gate schemas` — üretip `git diff --exit-code -- schemas/` boş
 🧪 Zod'u değiştir, üretmeden commit'le → kapı kırmızı
-💾 `feat(contracts): kayıt zarfı ve üretilmiş JSON şemaları` · `Refs: FAZ-1.2 · §3.2`
+💾 `feat(kernel): kayıt zarfı şeması ve üretilmiş JSON şemaları` · `Refs: FAZ-1.2 · §3.2`
+   (D-57: Zod çalışma zamanı bağımlılığıdır, contracts hiçbir şey import etmez)
 
 ## 1.3 — registry/PROFILE.md    [ ]
 

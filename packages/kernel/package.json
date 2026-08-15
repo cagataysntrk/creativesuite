@@ -11,6 +11,7 @@
     }
   },
   "dependencies": {
-    "@suite/contracts": "workspace:*"
+    "@suite/contracts": "workspace:*",
+    "zod": "4.4.3"
   }
 }
