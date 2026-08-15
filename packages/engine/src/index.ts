@@ -74,3 +74,14 @@ export {
   type CallOutcome,
   type EngineDeps,
 } from './scheduler.js'
+
+// Bağlam birleştirme (§5.3 · FAZ-2.3)
+export {
+  estimateTokens,
+  assembleContext,
+  formatContext,
+  type CandidateRecord,
+  type ContextManifest,
+  type IncludedRecord,
+  type SectionManifest,
+} from './context/index.js'

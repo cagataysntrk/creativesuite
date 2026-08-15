@@ -43,7 +43,7 @@ yeniden üretilebilsin.
    döndürmüyor — sıralama ile yetkilendirmenin ayrı olduğu testle sabitlendi
 💾 `feat(corpus): retrieval yüklemi — tek nokta` · `Refs: FAZ-2.2 · §5.2`
 
-## 2.3 — Bağlam tarifleri ve bağlam manifesti    [ ]
+## 2.3 — Bağlam tarifleri ve bağlam manifesti    [x] 2026-08-15
 
 📖 §5.3, §13 · D-63
 🔗 2.2
@@ -51,8 +51,12 @@ yeniden üretilebilsin.
    kayıt, hangi sırayla. Çıktı **bağlam manifesti** — hangi kayıt, neden dahil edildi,
    kaç token (§13). Manifest olmadan "bu çıktı neden böyle" sorusu cevapsız kalır.
 📁 `registry/recipes/*.recipe.yaml` · `packages/engine/src/context/`
-✅ `just plan <pipeline>` enjekte edilecek bağlamı ve token dağılımını basıyor
-🧪 Bütçeyi aşan bir tarif yaz → kesme SESSİZ olmuyor, hangi bölümün kırpıldığı raporlanıyor
+✅ `just plan instagram-post` → `bağlam: instagram-post · 0/2400 tahmini token` +
+   bölüm başına satır. Sayı `tokenEstimate` diye geçiyor, `tokens` DEĞİL: gerçek
+   tokenizer ağda yaşıyor, bütçe kararı ise sıfır ağla veriliyor (R-47)
+🧪 Koşuldu: sıfır bütçeli bölüm → `non_positive_budget`, bozuk YAML → `invalid_yaml`,
+   ikisi de `just plan`'ı EXIT=1 yapıyor · bütçeyi aşan kayıt manifestte `KESME VAR` +
+   `✗ rec_2 — bölüm bütçesi aşılıyor (203/200)` olarak görünüyor, sessizce düşmüyor
 💾 `feat(registry): bağlam tarifleri ve manifest` · `Refs: FAZ-2.3 · §5.3`
 
 ## 2.3b — `untrusted_input` sınırı    [ ]

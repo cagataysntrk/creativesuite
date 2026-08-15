@@ -1,0 +1,29 @@
+# Instagram tek görsel postu için bağlam tarifi (§5.3).
+#
+# SIRA BELİRLEYİCİDİR: toplam bütçe dolduğunda SONDAKİ bölüm kesilir. Konumlandırma
+# ilk sırada çünkü o olmadan üretilen metin markaya ait olmaz; kanıt son sırada çünkü
+# kesilirse iddia zayıflar ama YANLIŞ olmaz.
+id: instagram-post
+title: Instagram postu bağlamı
+total_budget: 2400
+
+sections:
+  - id: konum
+    entity_type: positioning
+    max_records: 2
+    token_budget: 600
+
+  - id: mesaj
+    entity_type: messaging
+    max_records: 2
+    token_budget: 700
+
+  - id: persona
+    entity_type: persona
+    max_records: 2
+    token_budget: 500
+
+  - id: kanit
+    entity_type: proof_asset
+    max_records: 3
+    token_budget: 600

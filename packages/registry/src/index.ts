@@ -15,3 +15,13 @@ export {
   type ResolveError,
   type ResolveResult,
 } from './resolve.js'
+
+export {
+  parseRecipe,
+  loadRecipe,
+  listRecipes,
+  type ContextRecipe,
+  type RecipeSection,
+  type RecipeError,
+  type RecipeResult,
+} from './recipe.js'

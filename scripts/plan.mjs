@@ -9,9 +9,14 @@ import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
 const PIPELINES = join(REPO, 'registry/pipelines')
+const RECIPES = join(REPO, 'registry/recipes')
 
-const { loadPipeline, listPipelines } = await import(join(REPO, 'packages/registry/dist/index.js'))
-const { plan, formatPlan } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const { loadPipeline, listPipelines, loadRecipe, listRecipes } = await import(
+  join(REPO, 'packages/registry/dist/index.js')
+)
+const { plan, formatPlan, assembleContext, formatContext } = await import(
+  join(REPO, 'packages/engine/dist/index.js')
+)
 
 const id = process.argv[2]
 if (id === undefined) {
@@ -43,3 +48,23 @@ if (!sonuc.ok) {
 }
 
 console.log(formatPlan(sonuc.report))
+
+// ── bağlam manifesti (§5.3 · FAZ-2.3) ───────────────────────────────────────
+// `just plan` neyin ENJEKTE EDİLECEĞİNİ de göstermek zorunda: maliyet tahmini
+// dürüst olsa bile "bu çıktı neden böyle" sorusu bağlam görünmeden cevaplanamaz.
+if (listRecipes(RECIPES).includes(id)) {
+  const tarif = loadRecipe(RECIPES, id)
+  if (!tarif.ok) {
+    console.log(`\n✗ bağlam tarifi çözülemedi: ${id}`)
+    for (const e of tarif.errors) console.log(`    ${JSON.stringify(e)}`)
+    process.exit(1)
+  }
+  // Corpus HENÜZ YOK (FAZ-2.9'da doğuyor): kayıtlar boş, manifest yapıyı gösterir.
+  // Boş corpus'u "bağlam hazır" gibi göstermemek için satır açıkça söylüyor.
+  const manifest = assembleContext(tarif.value, {})
+  console.log('')
+  console.log(formatContext(manifest))
+  console.log("    (corpus boş — FAZ-2.9'da dolacak; bütçe yapısı yukarıda)")
+} else {
+  console.log(`\n  bağlam tarifi YOK: registry/recipes/${id}.recipe.yaml`)
+}
