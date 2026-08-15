@@ -224,7 +224,7 @@ yeniden üretilebilsin.
    deck'ine sızardı · alt marka kademe kuralını aşamıyor (kalıtım muafiyet değil)
 💾 `feat(brand): çok markalılık ve token kalıtımı` · `Refs: FAZ-2.11 · §4.2`
 
-## 2.12 — Geri dönüşüm geçmişi kanıta çevriliyor    [ ]
+## 2.12 — Geri dönüşüm geçmişi kanıta çevriliyor    [x] 2026-08-15
 
 📖 §4.6 · R-11
 🔗 2.9
@@ -233,6 +233,13 @@ yeniden üretilebilsin.
    ve **asla imalat sonucu gibi sunulmaz** — açık bir aktarım argümanıyla *daha zor bir
    vaka* olarak sunulur.
 📁 `packages/render/src/lexicon/transfer.ts`
-✅ `just gate lexicon` önceki dönemden `generalisation_note`'suz kanıt kullanımını bloklıyor
-🧪 Eski dönem kanıtını notsuz kullan → yayın reddediliyor
+✅ `just gate lexicon` → `1 proof_asset denetlendi · aktif dönem imalat-2026 · aktarım
+   argümanları tam` · `just test transfer` → 16 test · gerçek corpus kaydı üzerinde
+   koşuyor (fixture değil)
+🧪 Dördü de kırmızıya döndü: notsuz kanıt · tek kelimelik not (`3 karakter — geçilmek
+   için doldurulmuş alan hiçbir şey korumaz`) · `illustrative_only` kanıt prospect
+   belgesinde · **tanınmayan güven değeri**.
+   ⚠ Sonuncusu bu adımın en değerli bulgusu: ilk sürümde CLI çıkarıcı çok satır yutup
+   `"analogous.\n\n⚠ …"` üretiyordu; değer ne null ne geçerli enum olduğu için HER
+   kontrolden geçti — kapı yeşil, koruma sıfır. İhlal testi olmasa görülmezdi (R-71)
 💾 `feat(corpus): dönem-aşırı kanıt aktarımı` · `Refs: FAZ-2.12 · §4.6`

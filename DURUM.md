@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 2
-siradaki_adim: 2.12
+siradaki_adim: 3.1
 son_guncelleme: 2026-08-15
 bloke: ["2.9"]
 deneme_sayaci: {}
@@ -43,6 +43,7 @@ indeksi, projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıy
 | **2.8** · sticky karar defteri, idempotent atlama | 2026-08-15 |
 | **2.10** · token mimarisi ve frame.md | 2026-08-15 |
 | **2.11** · çok markalılık ve token kalıtımı | 2026-08-15 |
+| **2.12** · dönem-aşırı kanıt aktarımı | 2026-08-15 |
 
 ## Sıradaki adım
 
