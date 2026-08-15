@@ -35,8 +35,9 @@ onlarca denetimsiz commit demekti. Ayrıca `.git/hooks/` yerine `.githooks/` se�
 
 Her biri bir faz adımına bağlı. Kapanınca tarih ve kanıtla kapatılır.
 
-## V-01 — Remotion Creators koltuk fiyatı
-JS widget'ta, statik HTML'de yok. HyperFrames kararını (D-25) teyit için. → FAZ-0.D.3
+## V-01 — Remotion lisansı ✅ KAPANDI (2026-08-15, D-80)
+Bedava lisans "up to 3 employees" (LICENSE.md), şirket 6 kişi. Bizim kullanımımız
+*Automators* katmanı: **$100/ay asgari**. D-25 teyit edildi. → FAZ-0.D.3
 
 ## V-02 — Hangi latin-ext font lisanslanacak
 Marka kararı, FAZ 2 keşfiyle bağlantılı. → FAZ-0.A.5
@@ -535,3 +536,28 @@ yokken yeşil döndürmek (D-75'i geri almak) iki yanlış seçenekti.
 Kabul komutu artık sentetik fixture corpus'una karşı **aynı kod yolunu** koşuyor:
 `2 kayıt indekslendi · ~30 ms` + bozuk dosya `id_yok` diye raporlanıyor. D-75'in
 koruması argümansız çağrıda aynen duruyor.
+
+## D-79 — Doğrulama agent'ı turu **en fazla iki**
+2026-08-15 · Kullanıcı müdahalesi ve haklı: *"sorun bul denince sorun olmayan şeyi bile
+sorun gibi getirebilir, çünkü sorun bulmak için bakıyor zaten — 3 tur değil 30 tur bile
+olabilir, bu asla bitmez."*
+Somut kanıt bu projeden: 1. tur 9 bulgu, 2. tur 3 yeni blokaj + 4 ikincil. Her tur
+kapanınca bir sonraki tur **yeni bir yüzey** buluyor; yakınsama yok çünkü agent'ın
+görevi yakınsamak değil, bulmak.
+**Kural:** bir faz en fazla **iki** doğrulama turu görür. İkinci tur kapandıktan sonra
+faz KAPANIR. İkinci turda bulunmayan şey tanımı gereği **minor**'dur ve FAZ 9'un denetim
+turlarına düşer — orada zaten sürekli aranıyor (9.2 kural uyumu, 9.5 ölü kod).
+**Reddedilen alternatif:** "temiz rapor gelene kadar tur" — LOOP§D'nin ilk hâli buydu ve
+sonsuz döngüydü; bir fazın kapanması agent'ın yorulmasına bağlı olamaz.
+**Geri alma maliyeti:** sıfır — tavan tek satır, gerekirse artırılır.
+
+## D-80 — V-01 kapandı: Remotion lisansı D-25'i teyit etti
+2026-08-15 · Birincil kaynak: `LICENSE.md` "a for-profit organization with **up to 3
+employees**" ve `remotion.dev/docs/license/pricing`. UPCYTECH 6 kişi → bedava lisansa
+uygun değil.
+Fiyat katmanı **koltuk değil**: pipeline'lar programatik ve toplu render ediyor
+(FAZ-5.7/5.8/5.9), bu tanım gereği *Remotion for Automators* — "$0.01 per render,
+**$100/mo minimum**". Yani hiç render etmesen de yılda **$1.200**.
+HyperFrames Apache 2.0 ve aynı motoru (headless Chrome + FFmpeg) kullanıyor; R-30
+korunuyor. Yıllık $1.200'lük yükümlülük, aynı yasayı koruyan bedava alternatif varken
+alınmaz. Yedek (Revideo, MIT) belgeli hâliyle duruyor. 🔴 kalktı.

@@ -211,10 +211,11 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 🛠 500 kelimelik Türkçe metin × 4 TTS (biri yerel Chatterbox).
 ✅ Kazanan yazılmış · ses dosyaları saklanmış
 
-## 0.D.3 — Remotion koltuk fiyatı    [ ]
-📖 §7.4 · V-01
-🛠 Tarayıcıdan doğrula (JS widget, statik HTML'de yok) → HyperFrames kararını teyit et.
-✅ `KARARLAR.md`'de V-01 kapandı
+## 0.D.3 — Remotion lisansı    [x] 2026-08-15
+📖 §7.4 · V-01 · D-80
+🛠 Birincil kaynaktan: koltuk fiyatı DEĞİL, katman sorusuydu.
+✅ `LICENSE.md` bedava lisansı "up to 3 employees" veriyor, şirket 6 kişi; programatik
+   toplu render *Automators* katmanı = `$100/mo minimum` (yılda $1.200) → V-01 kapandı.
 
 ## 0.D.4 — rjsf 2020-12 kapsaması    [ ]
 📖 §3.3 · V-03

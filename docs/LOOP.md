@@ -51,8 +51,15 @@ Bir faz bitti sanıldığında, **tiklemeden önce**:
    > *"FAZ-N'in her kabul kriterini `docs/fazlar/FAZ-N.md`'den oku, kodda ve repoda
    > gerçekten karşılandığını doğrula, karşılanmayanları ve yarım kalanları listele.
    > Kabul etme eğiliminde olma — kanıt ara."*
-3. **Agent temiz derse** faz kapatılır. Aksi hâlde eksikler tur listesine eklenir.
-4. **Tam kapsamlı test paketi FAZ 5 sonunda** çalıştırılır — o zaman, ondan önce değil.
+3. **En fazla İKİ tur** (D-79). 1. tur bulgularını kapat, 2. turu koş, onun bulgularını
+   da kapat — **faz kapanır**. Üçüncü tur açılmaz.
+   **Neden:** "sorun bul" diye bakan bir agent her turda sorun bulur; yakınsama yoktur
+   çünkü agent'ın görevi yakınsamak değil, bulmaktır. Bu projede 1. tur 9 bulgu, 2. tur
+   3 blokaj + 4 ikincil verdi ve üçüncüsü de verecekti. **Faz kapanışı agent'ın
+   yorulmasına bağlanamaz.**
+4. **İkinci turda bulunmayan şey minor'dur** ve FAZ 9 denetim turlarına düşer —
+   `9.2` (kural uyumu, kasten ihlal) ve `9.5` (ölü kod) zaten sürekli arıyor.
+5. **Tam kapsamlı test paketi FAZ 5 sonunda** çalıştırılır — o zaman, ondan önce değil.
 
 ## LOOP§E — bağlam sıfırlanmasına dayanıklılık {#loop-e}
 

@@ -5,24 +5,25 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 1
-siradaki_adim: 1.10b
+aktif_faz: 2
+siradaki_adim: 2.1
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "Ikinci dogrulama agenti dokuz bulgunun DOKUZUNU da kapali buldu (D-67..D-76), ama uc yeni blokaj acti: attributes darbogazi iki satira bolunerek atlatiliyordu (D-77), FAZ-1.6 kabul komutu EXIT=1 veriyordu (D-78), DURUM.md iki commit geride kalmisti. Ucu de kapandi. 214 test, 18 kapi."
+son_kanit: "FAZ 1 KAPANDI. Iki dogrulama turu kosuldu (D-79 tavani), her ikisinin butun bulgulari kapatildi: D-67..D-78. Cikis kriterinin dordu de kanitli: 18 kapi yesil, 9 fiil + verbs kapisi, just plan 8 adimli DAG + FIYATLANAMADI mansetti, strace ile 0 socket. 236 test. 1.10b golden harness FAZ-3.2'ye ertelendi (V-02 marka fontu). V-01 kapandi (D-80).""
 ```
 
 ## Neredeyiz
 
-**FAZ 1 — kurulum.** Çekirdek ayakta: dokuz halka, dokuz fiil, motor, corpus indeksi,
-projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıyor. 214 test, 18 kapı.
-Henüz hiçbir ÜRETİM yok — ilk gerçek görsel FAZ 3'te.
+**FAZ 1 KAPANDI (2026-08-15).** Çekirdek ayakta: dört halka, dokuz fiil, motor, corpus
+indeksi, projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıyor.
+236 test, 18 kapı. Henüz hiçbir ÜRETİM yok — ilk gerçek görsel FAZ 3'te.
 
-> FAZ 1'in 15 adımının 14'ü tikli; `1.10b` (golden harness) **V-02'ye bağlı**.
-> İkinci doğrulama agent'ı raporladı: dokuz bulgunun dokuzu da gerçekten kapalı, ama
-> üç yeni blokaj (D-77, D-78 ve bayat DURUM.md) çıktı — üçü de kapatıldı. Kapanış
-> üçüncü ve son doğrulama turunu bekliyor (LOOP§D.3).
+> **FAZ 2 — bilgi çekirdeği ve marka DNA motoru** başlıyor. Sıradaki adım `2.1`:
+> yedi strateji varlık tipi. Şirketin bugün ne olduğu buradan sonra KAYITLI olacak.
+>
+> `1.10b` (golden harness) **FAZ-3.2'ye ertelendi** — Chromium orada doğuyor, marka
+> fontu V-02'de. Fazın dört çıkış kriterinin hiçbiri ona bağlı değildi.
 
 ## Tamamlananlar
 
@@ -85,18 +86,15 @@ Henüz hiçbir ÜRETİM yok — ilk gerçek görsel FAZ 3'te.
 
 ## Sıradaki adım
 
-**FAZ 1'in on beş adımının on dördü kapandı.** Kalan tek adım `1.10b` (golden harness)
-ve o **V-02'ye bağlı** — marka fontu seçilmeden metrik dondurmak, testin varlık sebebini
-çürütür (D-59).
+**`2.1` — yedi strateji varlık tipi** (`docs/fazlar/FAZ-2.md`):
+positioning · messaging · icp · persona · proof_asset · competitor · offer.
+Her biri `registry/entity-types/<ad>.type.yaml`, kısıtlı profile (§3.3) uygun, dört
+projeksiyonu da üretiyor — `projection` kapısı "0 gerçek varlık tipi" demeyi burada
+bırakıyor.
 
-Sıradaki iş bir ADIM değil, **faz kapanış protokolü** (LOOP§D):
-1. FAZ-1'in her ✅ kriterini tek tek çalıştır, somut kanıt üret
-2. **Bağımsız doğrulama agent'ı** (`.claude/agents/faz-dogrulayici.md`) çalıştır
-3. Agent temiz derse faz kapanır; aksi hâlde eksikler tur listesine eklenir
-
-> FAZ 1 çıkış kriteri: `just verify` yeşil · dokuz fiil tanımlı ve `verbs` kapısı bağlı ·
-> `just plan` hiçbir şey harcamadan DAG + sağlayıcı + maliyet aralığı basıyor · ağ
-> kablosu çekiliyken de çalışıyor. Dördü de kanıtlandı; agent bağımsız doğrulayacak.
+> **Doğrulama turu tavanı: iki** (D-79). "Sorun bul" diye bakan agent her turda sorun
+> bulur; faz kapanışı onun yorulmasına bağlanamaz. İkinci turda bulunmayan minor'dur
+> ve FAZ 9 denetim turlarına düşer.
 
 ## Bloke adımlar
 

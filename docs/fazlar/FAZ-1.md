@@ -160,15 +160,17 @@ ağ kablosu çekiliyken de çalışıyor
    ön ekiyle sağlanıyor (D-76)
 💾 `feat(repo): test altyapısı, cassette ve fixture corpus` · `Refs: FAZ-1.10 · §15`
 
-## 1.10b — Golden-file harness    [ ]
+## 1.10b — Golden-file harness    [ ] ERTELENDİ → FAZ-3.2
 
 📖 §15, §7.2 · R-31 · D-59
 🔗 FAZ-3.1 (Playwright/Chromium), V-02 (marka fontu)
 🛠 Font sabitli headless Chromium; commit edilen golden **JSON metriktir** (glyph
    kutuları, satır sayısı, ilerleme genişliği, font ailesi, `notdef` = 0). Piksel
    referansı içerik-adresli depoda durur ve sha256 ile anılır.
-⚠ **Bilerek ertelendi:** yer tutucu bir fontla metrik dondurmak, testin varlık sebebini
-   (Türkçe glyph fallback'ini yakalamak) doğrudan çürütür. Font kararı V-02'de.
+⚠ **Bilerek ertelendi ve FAZ 1'i BLOKLAMIYOR:** yer tutucu bir fontla metrik dondurmak,
+   testin varlık sebebini (Türkçe glyph fallback'ini yakalamak) doğrudan çürütür. Font
+   kararı V-02'de, Chromium FAZ-3.1'de. Adım **FAZ-3.2'de** koşulur; fazın dört çıkış
+   kriterinin hiçbiri buna bağlı değil (2026-08-15, LOOP§D).
 ✅ `just golden` gerçek metrik üretiyor · fontu kasten boz → kırmızı
 💾 `feat(repo): golden-file harness ve JSON metrikleri` · `Refs: FAZ-1.10b · §15`
 
