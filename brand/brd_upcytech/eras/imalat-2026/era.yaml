@@ -1,0 +1,17 @@
+# İLK dönem — değişmez manifest (§4.3 · D-30).
+#
+# Bu dosya bir kez yazılır ve DEĞİŞMEZ. Dönem, bir git ağacının fotoğrafıdır:
+# `commit_sha` o anı sabitler. Manifest değişirse fotoğraf yalan olur.
+slug: imalat-2026
+brand_id: brd_upcytech
+status: candidate
+commit_sha: d351d9bcb76f112e23111d8549b369f0057d11a4
+minted_at: 2026-08-15T15:33:00.000Z
+title: İmalat dönemi
+rationale: >
+  Şirket geri dönüşüm sektörüne odaklı bir yazılımcıdan, imalat sektörüne AI/ML
+  destekli verimlilik ve raporlama çözümleri üreten bir özel çözümler + SaaS evine
+  konum değiştiriyor. Dış dünyada hâlâ önceki girişim (UpcyMarket) görünüyor.
+  Dönem ADAY olarak açıldı: içeriği FAZ-2.9'daki ilk keşif çalıştırması dolduracak,
+  `active` işaretlemesi o zaman ve İNSAN eliyle olur (R-14).
+supersedes: null

@@ -111,15 +111,21 @@ yeniden üretilebilsin.
    eskiyi otomatik ezmiyor, çünkü tarih doğruluk kanıtı değildir
 💾 `feat(corpus): çelişki tespiti ve tahkim kuyruğu` · `Refs: FAZ-2.5 · §5.5`
 
-## 2.6 — Era modeli: git tag + manifest + varlık damgası    [ ]
+## 2.6 — Era modeli: git tag + manifest + varlık damgası    [x] 2026-08-15
 
 📖 §4.3 · R-11 · D-30, D-39
 🛠 `brand/<brand_id>/eras/<slug>/era.yaml` (değişmez manifest + commit SHA) +
    `brand/<brand_id>/current` + `git tag era/<slug>`. **Dönem klasörü YOK** — klasör
    kopyalama regenerasyonu "ekleme" yapar ve `git diff` yan yana gösteremez, inceleme ölür.
 📁 `brand/<brand_id>/eras/<slug>/era.yaml` · `packages/kernel/src/era.ts`
-✅ `just test era` yeşil · `git tag -l 'era/*'` dönemleri listeliyor
-🧪 Damgasız varlık üretmeyi dene → reddediliyor (retrofit imkânsız, R-11)
+✅ `just test era` → 14 test · gerçek `brand/brd_upcytech/eras/imalat-2026/era.yaml`
+   yazıldı ve GERÇEK kodla doğrulandı (`commit d351d9bc`) · `git tag -l 'era/*'` →
+   `era/imalat-2026` · dönem **candidate** açıldı: `active` işaretlemesi FAZ-2.9'da ve
+   İNSAN eliyle olur (R-14)
+🧪 Koşuldu: damganın ALTI alanı tek tek silindi → altısında da `missing_stamp_field` ·
+   boş dize dolu sayılmıyor ("vardı ama boştu" hiç olmamaktan kötüdür) · `commitSha`
+   `HEAD` verilince reddediliyor (dönem bir ağacın FOTOĞRAFIDIR) · kendini devralan
+   dönem reddediliyor
 💾 `feat(brand): era modeli ve varlık damgası` · `Refs: FAZ-2.6 · §4.3`
 
 ## 2.7 — Marka DNA keşif motoru    [ ]

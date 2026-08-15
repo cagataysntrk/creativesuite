@@ -147,3 +147,19 @@ export {
   type GitFailure,
   type GitResult,
 } from './git.js'
+
+// Dönem modeli ve varlık damgası (§4.3 · R-11 · FAZ-2.6)
+export {
+  eraDir,
+  eraManifestPath,
+  currentEraPath,
+  eraTag,
+  lineagePath,
+  validateEra,
+  validateStamp,
+  type EraManifest,
+  type EraStatus,
+  type EraError,
+  type EraResult,
+  type AssetStamp,
+} from './era.js'
