@@ -144,7 +144,39 @@ const K = 60 // RRF sabiti. Standart değer; sıralamanın kuyruğunu bastırır
  * Skorları toplamak yerine SIRALARI birleştiriyoruz: bm25 ile trigram skorları
  * karşılaştırılabilir ölçekte değil, sıralar ise her zaman karşılaştırılabilir.
  */
-export const search = (db: Db, query: string, limit = 20): SearchHit[] => {
+/**
+ * Görünür id kümesini geçici bir tabloya koyar ve join için ad döndürür.
+ *
+ * **Neden geçici tablo, `IN (...)` değil:** SQLite'ın parametre sınırı ~999; corpus
+ * büyüdüğünde `IN` listesi sessizce patlar ya da sorgu devasa olur. Geçici tablo
+ * kayıt sayısından bağımsız çalışır ve bağlantı kapanınca kendiliğinden gider.
+ */
+const gorunurTablo = (db: Db, ids: ReadonlySet<string>): string => {
+  db.exec('DROP TABLE IF EXISTS temp.gorunur; CREATE TEMP TABLE gorunur (id TEXT PRIMARY KEY)')
+  const ekle = db.prepare('INSERT OR IGNORE INTO temp.gorunur (id) VALUES (?)')
+  const islem = db.transaction((liste: readonly string[]) => {
+    for (const id of liste) ekle.run(id)
+  })
+  islem([...ids])
+  return 'temp.gorunur'
+}
+
+/**
+ * @param allowedIds verilirse sonuçlar SQL SEVİYESİNDE bu kümeyle sınırlanır.
+ *   Sonradan filtrelemek yetmiyordu: 100 görünmez kayıt aday havuzunu doldurup
+ *   görünür kaydı SESSİZCE düşürüyordu (doğrulama agent'ı ölçtü — koddaki yorum
+ *   "2000 kayıt" diyordu, gerçek eşik 20 kat düşüktü).
+ */
+export const search = (
+  db: Db,
+  query: string,
+  limit = 20,
+  allowedIds?: ReadonlySet<string>
+): SearchHit[] => {
+  // Boş küme = hiçbir kayıt görünür değil. Sorguyu hiç koşturmadan dönüyoruz:
+  // boş bir geçici tabloyla join etmek aynı sonucu verir ama boşuna iş yapar.
+  if (allowedIds !== undefined && allowedIds.size === 0) return []
+  const kisit = allowedIds === undefined ? '' : gorunurTablo(db, allowedIds)
   const kelime = quote(foldForSearch(query))
   const tri = quote(query)
 
@@ -152,6 +184,7 @@ export const search = (db: Db, query: string, limit = 20): SearchHit[] => {
     .prepare(
       `SELECT r.id, r.path, r.title FROM record_fts f
          JOIN record r ON r.rowid = f.rowid
+         ${kisit === '' ? '' : `JOIN ${kisit} g ON g.id = r.id`}
         WHERE record_fts MATCH ? ORDER BY bm25(record_fts) LIMIT ?`
     )
     .all(kelime, limit * 2) as { id: string; path: string; title: string }[]
@@ -160,6 +193,7 @@ export const search = (db: Db, query: string, limit = 20): SearchHit[] => {
     .prepare(
       `SELECT r.id, r.path, r.title FROM record_tri t
          JOIN record r ON r.rowid = t.rowid
+         ${kisit === '' ? '' : `JOIN ${kisit} g ON g.id = r.id`}
         WHERE record_tri MATCH ? ORDER BY bm25(record_tri) LIMIT ?`
     )
     .all(tri, limit * 2) as { id: string; path: string; title: string }[]

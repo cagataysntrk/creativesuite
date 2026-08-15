@@ -263,3 +263,39 @@ describe('iki marka aynı anda — çıktılar KARIŞMIYOR (§4.2 · R-10 · FAZ
     ])
   })
 })
+
+describe('selectSearch eleme SQL seviyesinde — sessiz kayıp YOK (D-92)', () => {
+  // Doğrulama agent'ı 2026-08-15'te ölçtü: 100 görünmez kayıt, görünür kaydı arama
+  // sonucundan SESSİZCE düşürüyordu. Koddaki yorum eşiği "2000" sanıyordu — 20 kat
+  // sapma. Sessiz kayıp, sonucun eksik olduğunu kimseye söylemez.
+  const doldur = (adet: number, over: Partial<IndexRow>) => {
+    const rows: IndexRow[] = []
+    for (let i = 0; i < adet; i++) {
+      rows.push(satir({ id: `rec_dolgu_${i}`, path: `positioning/d${i}.md`, ...over }))
+    }
+    upsertRecords(db, rows)
+  }
+
+  it('300 draft kaydın arasındaki TEK active kayıt aramada geliyor', () => {
+    doldur(300, { status: 'draft' })
+    upsertRecords(db, [satir({ id: 'rec_aktif', path: 'positioning/aktif.md' })])
+    expect(idler(selectSearch(db, sorgu(), 'ölçüm'))).toEqual(['rec_aktif'])
+  })
+
+  it('100 emekli kayıt eşiğinde de görünür kayıt kaybolmuyor', () => {
+    doldur(100, { status: 'retired' })
+    upsertRecords(db, [satir({ id: 'rec_aktif', path: 'positioning/aktif.md' })])
+    expect(idler(selectSearch(db, sorgu(), 'ölçüm'))).toEqual(['rec_aktif'])
+  })
+
+  it('başka markanın 200 kaydı da sonucu bastırmıyor', () => {
+    doldur(200, { brand_id: 'brd_baska', era_id: 'era_baska' })
+    upsertRecords(db, [satir({ id: 'rec_aktif', path: 'positioning/aktif.md' })])
+    expect(idler(selectSearch(db, sorgu(), 'ölçüm'))).toEqual(['rec_aktif'])
+  })
+
+  it('hiç görünür kayıt yoksa boş dönüyor — hata değil, sonuç', () => {
+    doldur(50, { status: 'draft' })
+    expect(selectSearch(db, sorgu(), 'ölçüm')).toEqual([])
+  })
+})

@@ -135,7 +135,7 @@ yeniden üretilebilsin.
 🛠 `suite discovery plan|review|apply`. Regenerasyon **branch'te + git worktree'de** çalışır
    ve **aynı yolları** yeniden yazar → `git diff` gerçek satır bazlı inceleme verir.
    `mode: merge` (sadece ekleme, varsayılan) / `mode: mirror` (silmeler dahil tam yeniden üretim).
-📁 `packages/engine/src/discovery/` · `apps/cli/src/discovery.ts`
+📁 `packages/engine/src/discovery/` · `scripts/discovery.mjs`
 ✅ `just discovery [merge|mirror]` op listesi basıyor (D-81: `just plan` pipeline
    çözüyor, keşif pipeline DEĞİL) · komut öncesi ve sonrası `git status --porcelain`
    satır sayısı AYNI · `just test discovery` → 11 test
@@ -153,7 +153,8 @@ yeniden üretilebilsin.
    kaydı; aynı öneri tekrar gelirse katlanmış gelir, `pin` işaretli alanlar plana hiç girmez.
    **İdempotent atlama zorunlu altyapı:** `(input_hashes, prompt_hash, model_id,
    temperature, seed, retrieval_snapshot)` değişmemişse bölüm atlanır.
-📁 `brand/<brand_id>/decisions.jsonl` · `packages/engine/src/discovery/idempotent.ts`
+📁 `packages/engine/src/discovery/{decisions,idempotent}.ts` · defter çalışma anında
+   `brand/<brand_id>/decisions.jsonl` olarak doğar (bugün yok: hiç red kaydedilmedi)
 ✅ **İkinci çalıştırma → 0 op**, gerçek komutla kanıtlandı (faz çıkış kriteri):
    1. koşu `2 yeni · 0 güncelleme · 0 emeklilik · 0 atlandı` · 2. koşu (aynı imzalar)
    `DEĞİŞİKLİK YOK — 2 kayıt imzası aynı` · `just test discovery` → 21 test
@@ -192,7 +193,8 @@ yeniden üretilebilsin.
 🛠 `brand/<brand_id>/tokens/*.tokens.json` (DTCG şekilli, kendi Zod şemamızla doğrulanır) →
    Style Dictionary → CSS · Tailwind teması · `motion/frame.md` · `brand-facts.json`
    (prompt'a enjeksiyon). **Üç kademe token** (§12.1): ham rampa → anlamsal rol → bileşen.
-📁 `brand/<brand_id>/tokens/*.tokens.json` · `motion/frame.md`
+📁 `brand/<brand_id>/tokens/*.tokens.json` · `brand/<brand_id>/derived-tokens/frame.md`
+   (ÜRETİLMİŞ; `motion/` altına kopyalanması FAZ-5.2'nin işi)
 ✅ `just gate tokens` → `22 token · 3 kademe zorlanıyor · üretilmiş çıktılar güncel`.
    Kapı `--check` modunda koşuyor: üreteci çalıştırıp `git diff`e bakmak, kapının
    çalışma ağacını KİRLETMESİ olurdu · dört çıktı tek kaynaktan (CSS · Tailwind ·
@@ -213,7 +215,7 @@ yeniden üretilebilsin.
 🛠 İki marka aynı anda yaşar: `brand/upcytech/` ve `brand/dima/`, token kalıtımıyla.
    **V-06 burada kapanır:** `dima` ürün mü modül mü, "dima by Upcytech" onaylı-marka
    modeli doğru mu.
-📁 `brand/upcytech/` · `brand/dima/`
+📁 `brand/brd_upcytech/` · `brand/brd_dima/`
 ✅ `just tokens` → `brd_upcytech: 22 token · kök marka` + `brd_dima: 22 token ·
    brd_upcytech'ten devralıyor, 2 ezme`. dima'nın `role-text`i ana markayla AYNI
    (miras), `role-state-ok`u FARKLI (ezme) · `just test tokens` 15, `just test select`

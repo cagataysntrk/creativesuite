@@ -556,3 +556,34 @@ Tüm alanlar bastırılmışsa öneri düşüyor.
 **Neden alan bazlı şart:** bir kaydın dokuz alanı doğru, biri yanlış olabilir. Tümünü
 reddetmek doğru dokuzu da çöpe atar ve sonraki turda hepsi yeniden önerilir —
 kullanıcı aynı dokuz kararı tekrar verir. Defterin varlık sebebi tam olarak budur.
+
+## D-92 — Arama elemesi SQL seviyesine taşındı
+2026-08-15 · `selectSearch` önce sıralayıp SONRA eliyordu. Doğrulama agent'ı eşiği
+ölçtü: **100 görünmez kayıt** görünür kaydı sonuçtan sessizce düşürüyordu — koddaki
+yorum eşiği "2000 kayıt" sanıyordu, **20 kat sapma**. Yanlış bir yorum, olmayan bir
+yorumdan tehlikelidir: ikincisi araştırmaya davet eder, birincisi güven verir.
+**Düzeltme:** görünür id kümesi geçici bir tabloya yazılıyor ve FTS sorgularına join
+ediliyor. `IN (...)` kullanılmadı — SQLite'ın ~999 parametre sınırı corpus büyüdüğünde
+sessizce patlardı. Yüklem hâlâ `select.ts`te (R-13); `search.ts` yalnız filtreyi
+uyguluyor, yüklemi bilmiyor.
+**Kalıcı test:** 300 draft / 100 emekli / 200 başka marka arasındaki tek görünür kayıt
+aramada geliyor. Eski davranışa dönüldüğünde üçü de kırmızı.
+
+## D-93 — `era` kapısı: etiketsiz dönem yakalanıyor
+2026-08-15 · `brd_dima`nın dönemi `git tag` almamıştı ve **era için hiç kapı yoktu**.
+Etiketsiz dönem, git geçmişinde tutamağı olmayan dönemdir: "o günkü ağacı ver" sorusu
+cevapsız kalır ve §4.3'ün üç ucuz parçası ikiye iner.
+Kapı üçünü birden denetliyor: her `era.yaml` için etiket, her markada en az bir dönem,
+`current` var olan bir döneme işaret ediyor. İkisi de ihlal testiyle kırmızıya döndürüldü.
+
+## D-94 — Onay komutu `write.ts`ten geçiyor, saati `clock.ts`ten okuyor
+2026-08-15 · `scripts/onayla.mjs` corpus'a `writeFileSync` ile doğrudan yazıyor ve
+`new Date()` çağırıyordu — iki darboğazın da beyan ettiği değişmezi çiğniyordu ama
+kapsam `packages/*/src` olduğu için hiçbir kapı görmüyordu.
+**Düzeltme:** yazma `writeRecord(actor: 'human')`tan geçiyor ve imzayı yeniden
+hesaplıyor (D-90); saat `systemClock`tan okunuyor. `saat`, `rng` ve `id-ureteci`
+darboğazlarının kapsamı `scripts/`i de kapsıyor.
+**Kapsam GENİŞLETİLMEDİĞİ yer:** `corpus-yazici`. O darboğaz corpus'a yazmayı
+kısıtlıyor, her dosya yazmayı değil; `scripts/extract-research.mjs` `docs/research/`
+altına yazıyor ve meşru. Yanlış pozitif de bir hatadır — sürekli alarm veren kapı,
+kapatılan kapıdır.

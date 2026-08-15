@@ -11,14 +11,15 @@
 //
 // Komut commit ATMAZ: onay, insanın `just save` ile attığı commit'tir.
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const { parseFrontmatter, serializeFrontmatter } = await import(
+const { parseFrontmatter, writeRecord, computeSignature } = await import(
   join(REPO, 'packages/corpus/dist/index.js')
 )
+const { systemClock } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 
 const hedefler = process.argv.slice(2).filter((a) => a !== '')
 if (hedefler.length === 0) {
@@ -27,7 +28,10 @@ if (hedefler.length === 0) {
   process.exit(1)
 }
 
-const zaman = new Date().toISOString()
+// Saat `time/clock.ts`ten okunuyor: `new Date()` ikinci bir saat kaynağıdır ve
+// replay'i bozar (R-06). Darboğaz kapsamı `scripts/`i kapsamıyordu, bu yüzden kapı
+// görmemişti — kapsam bu turda genişletildi (doğrulama agent'ı buldu).
+const zaman = new Date(systemClock.now()).toISOString()
 let onaylanan = 0
 
 for (const rel of hedefler) {
@@ -55,7 +59,24 @@ for (const rel of hedefler) {
     approved_at: zaman,
     valid_at: zaman,
   }
-  writeFileSync(yol, serializeFrontmatter(yeni, p.value.body))
+  // Yazma TEK noktadan: `writeFileSync` ile doğrudan yazmak, `corpus-yazici`
+  // darboğazının yasakladığı ikinci yoldur (R-14). Yol parçalarından tip ve slug
+  // çıkarılıyor; `recordPath` ile aynı yerleşim.
+  const parcalar = rel.replace(/^corpus\//, '').split('/')
+  const entityType = parcalar[0] ?? ''
+  const slug = (parcalar[1] ?? '').replace(/\.md$/, '')
+  const sonuc = writeRecord({
+    root: join(REPO, 'corpus'),
+    entityType,
+    slug,
+    frontmatter: { ...yeni, x_signature: computeSignature(yeni, p.value.body) },
+    body: p.value.body,
+    actor: 'human',
+  })
+  if (!sonuc.ok) {
+    console.log(`✗ ${rel}: yazma reddedildi — ${JSON.stringify(sonuc.refusal)}`)
+    process.exit(1)
+  }
   console.log(`  ✓ ${rel}`)
   onaylanan++
 }

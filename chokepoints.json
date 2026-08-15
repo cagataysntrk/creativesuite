@@ -32,7 +32,8 @@
       "neden": "İki saat replay'i bozar. `now()` tek yerden gelmezse bir çalıştırmayı yeniden oynatmak imkânsızlaşır (§13).",
       "izinli": ["packages/kernel/src/time/clock.ts"],
       "desen": "\\bDate\\s*\\.\\s*now\\s*\\(\\)|\\bnew\\s+Date\\s*\\(\\s*\\)|\\bperformance\\s*\\.\\s*now\\s*\\(\\)",
-      "faz": "FAZ-1.8"
+      "faz": "FAZ-1.8",
+      "kapsam": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "scripts/**/*.mjs"]
     },
     {
       "id": "rng",
@@ -40,7 +41,8 @@
       "neden": "Seed'siz rastgelelik, aynı girdiyle farklı çıktı demektir; idempotent atlama (§4.5) çöker ve her keşif çalıştırması 900 op üretir.",
       "izinli": ["packages/kernel/src/rng.ts"],
       "desen": "\\bMath\\s*\\.\\s*random\\s*\\(\\)|\\bcrypto\\s*\\.\\s*randomBytes\\s*\\(",
-      "faz": "FAZ-1.8"
+      "faz": "FAZ-1.8",
+      "kapsam": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "scripts/**/*.mjs"]
     },
     {
       "id": "id-uretici",

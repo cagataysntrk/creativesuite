@@ -91,18 +91,14 @@ export const visibleIds = (db: Db, q: SelectQuery): ReadonlySet<string> => {
  * Bu kasıtlı (sıralama ile yetkilendirme ayrı sorumluluklardır) ama tehlikelidir —
  * bu yüzden yayına giden yol budur ve `search()` yalnız indeks testlerinde çıplak kullanılır.
  *
- * ⚠ **Bilinen sınır:** önce sıralanır, sonra elenir. Aday havuzu `limit * 5` ile
- * genişletiliyor; corpus büyüdüğünde (>2000 kayıt) yüklem SQL'e taşınmalı — o gün
- * `search()` bir id kümesi parametresi alır, yüklem yine BU dosyada kalır.
+ * **Eleme SQL SEVİYESİNDE.** İlk sürüm önce sıralayıp sonra eliyordu ve görünmez
+ * kayıtlar aday havuzunu doldurunca görünür kayıt SESSİZCE düşüyordu: doğrulama
+ * agent'ı eşiği **100 kayıtta** ölçtü (koddaki yorum "2000" diyordu — 20 kat sapma).
+ * Sessiz kayıp, arama sonucunun eksik olduğunu kimseye söylemez.
  */
 export const selectSearch = (
   db: Db,
   q: SelectQuery,
   query: string,
   limit = 20
-): readonly SearchHit[] => {
-  const gorunur = visibleIds(db, q)
-  return search(db, query, limit * 5)
-    .filter((h) => gorunur.has(h.id))
-    .slice(0, limit)
-}
+): readonly SearchHit[] => search(db, query, limit, visibleIds(db, q))
