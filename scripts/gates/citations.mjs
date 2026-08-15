@@ -175,6 +175,74 @@ for (const f of files) {
   })
 }
 
+// ── GÖVDESİZ BÖLÜM: çözülen atıf ≠ okunabilir kaynak (D-159) ─────────────────
+//
+// `§12.3` çapası vardı, atıf kapısı yeşildi ve bölümün İÇİ BOŞTU — yalnız başlık.
+// FAZ-4.1'in `📖 Oku` satırı oraya işaret ediyordu; bağlamı sıfırlanmış bir agent
+// hedefi bulur, hiçbir şey öğrenmez ve adımı TAHMİNLE yapar. Kırık atıftan sinsi,
+// çünkü kırık atıf en azından bağırır.
+//
+// **Eşik neden SIRADAKİ ADIMA bağlı:** ANAYASA'da 24 iskelet bölüm var (FAZ-0.B.2a
+// bilerek tek cümlelik amaçlarla açtı). Hepsini bugün doldurmak, henüz yapılmamış
+// fazların detayını yazmaktır ve o detay yapılana kadar bayatlar (FAZ-0.B.8a'nın
+// kendi gerekçesi). Doğru an, o bölümü OKUYACAK adımın sırası geldiği andır — nitekim
+// §12.3/§12.4 tam olarak FAZ-4.1 başlarken dolduruldu.
+//
+// Yani: sıradaki adımın okuduğu bölüm gövdesizse HATA; diğerleri sayılıp bildirilir.
+const govdeSayisi = (metin) => {
+  const satirlar = metin.split('\n')
+  const basliklar = satirlar
+    .map((l, i) => ({ i, m: /^(#{2,4})\s+§([0-9.]+)/.exec(l) }))
+    .filter((x) => x.m !== null)
+  const harita = new Map()
+  for (const [k, b] of basliklar.entries()) {
+    const son = k + 1 < basliklar.length ? basliklar[k + 1].i : satirlar.length
+    // Üst başlık (alt bölümleri olan) gövdesiz olabilir — gövdesi alt bölümlerdir.
+    const ustBaslik = k + 1 < basliklar.length && basliklar[k + 1].m[1].length > b.m[1].length
+    harita.set(b.m[2], {
+      satir: satirlar.slice(b.i + 1, son).filter((l) => l.trim() !== '').length,
+      ustBaslik,
+    })
+  }
+  return harita
+}
+
+if (anayasa) {
+  const bolumler = govdeSayisi(anayasa)
+
+  // Sıradaki adımın `📖 Oku` satırındaki § atıfları.
+  const durum = read('DURUM.md') ?? ''
+  const siradaki = /^siradaki_adim:\s*(\S+)/m.exec(durum)?.[1] ?? ''
+  const fazNo = /^(\d+)\./.exec(siradaki)?.[1] ?? null
+  const okunacak = new Set()
+  if (fazNo !== null) {
+    const faz = read(`docs/fazlar/FAZ-${fazNo}.md`) ?? ''
+    const adimBas = faz.indexOf(`## ${siradaki} —`)
+    if (adimBas !== -1) {
+      const govde = faz.slice(adimBas, adimBas + 600)
+      const oku = /^📖\s+(.+)$/m.exec(govde)?.[1] ?? ''
+      for (const m of oku.matchAll(/§([0-9.]+)/g)) okunacak.add(m[1])
+    }
+  }
+
+  let iskelet = 0
+  for (const [bolum, bilgi] of bolumler) {
+    if (bilgi.ustBaslik || bilgi.satir >= 3) continue
+    iskelet++
+    if (okunacak.has(bolum)) {
+      errors.push(
+        `docs/ANAYASA.md  §${bolum} GÖVDESİZ (${bilgi.satir} satır) ama SIRADAKİ ADIM ` +
+          `'${siradaki}' onu okumak zorunda — adım kaynaksız yapılamaz`
+      )
+    }
+  }
+  if (iskelet > 0) {
+    warns.add(
+      `ANAYASA'da ${iskelet} iskelet bölüm — sırası gelen adım kendi bölümünü doldurur (D-159)`
+    )
+  }
+}
+
 for (const w of warns) console.log(`  ⚠ ${w}`)
 if (errors.length) {
   console.log(errors.map((e) => `  ${e}`).join('\n'))

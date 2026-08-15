@@ -737,8 +737,41 @@ tablo başlığı 40px (iki satır). CI'da **+%30 sahte-yerelleştirme** turu zo
 
 İçerik sığmıyorsa **tip küçültülmez, satır gevşer**.
 ### §12.3 Boşluk ve yoğunluk {#section-12-3}
+
+**Temel birim 4px.** Konsolda yalnız 1/2/3/4/6/8 adımları (4·8·12·16·24·32px) kullanılır;
+5 ve 7 yoktur. Kapalı bir ölçek, "biraz daha boşluk" kararını her seferinde yeniden
+vermeyi imkânsız kılar — ve o karar her seferinde farklı verilirse hizalama diye bir şey
+kalmaz.
+
+Satır yükseklikleri 28/32/40px, **varsayılan 28**. Bu bir tablo aracıdır: bir ekranda
+kaç satır göründüğü, kaç tıklama gerektiğini belirler.
+
+**İçerik sığmıyorsa tip küçültülmez, satır gevşer.** Küçültme Türkçe'de iki kat
+cezalıdır: metin zaten %20–30 uzun ve `ğ ü ş i` çıkıntıları küçük punto da okunaksızdır.
+
+**Yarıçap 2px.** `--radius-full` yalnız 8px durum noktası için — yuvarlak köşe bir
+enstrümanda süs değil, dokunulabilirlik sinyalidir ve her yerde kullanılırsa sinyal olmaz.
+
 ### §12.4 Kabuk ↔ yüzey modeli {#section-12-4}
-Stüdyo bir rota, modal değil.
+
+İki yüzey bağlamı, `data-surface` özniteliğinde: **`console` kalıcı koyu** (veri tarama,
+karar verme), **`studio` kalıcı açık** (görsel yargılama). Aralarında geçiş bir tema
+anahtarı DEĞİL, bir **rota** değişimidir — stüdyoya girmek bir yere gitmektir.
+
+**Stüdyo levhası her zaman koyu çerçeve içindedir**, dört yandan en az 12px koyu boşlukla.
+Sebebi §12.1'in aynısı: açık bir levha koyu çevre olmadan yargılanırsa göz çevreye adapte
+olur ve levhadaki renk yalan söyler.
+
+**`prefers-color-scheme` yapısal olarak yok sayılır.** İşletim sisteminin tercihine uymak,
+kalibre edilmiş bir izleme kabininin duvarını kullanıcının ruh hâline göre boyamaktır.
+
+**Gölge yasak.** Yükseklik iki şeyle ifade edilir: arka plan basamağı (`bg` → `surface`)
+ve pah çizgisi (üst kenar `--line-edge`, diğer üçü `--line-hair`). Tek istisna
+`[data-elevation="overlay"]`. Gölge koyu yüzeyde ya görünmez ya kirli bir bulanıklıktır;
+basamak ve çizgi ikisi de ölçülebilir.
+
+**Modal üç şeyle sınırlı:** komut paleti, geri alınamaz eylem onayı, sağlayıcı kimlik
+girişi. Dördüncüsü eklenirse `<dialog>` bir kaçış deliğine döner ve yüzey modeli çöker.
 ### §12.5 Klavye haritası {#section-12-5}
 Komut paleti birincil navigasyon, kısayol değil.
 ### §12.6 Durum matrisi {#section-12-6}
@@ -763,7 +796,21 @@ Kullanıcının baktığı yüzey **asla otomatik yenilenmez**. Onaylamaya bir t
 yeniden sıralanırsa yanlış kayıt onaylanır — ve burada onay, doğruluk kaynağına yapılan
 bir git commit'idir.
 ### §12.7 Hareket {#section-12-7}
-Altı şey animasyonlanır, hiçbiri 320ms'yi geçmez.
+
+**Beyaz liste, kara liste değil.** Yalnız altı şey animasyonlanır ve hiçbiri 320ms'yi
+geçmez: yüzey geçişi · `<dialog>` açılışı · satır vurgusu · durum noktası geçişi ·
+ilerleme rayı ilerlemesi · odak halkası. Yedincisi eklenecekse önce bu liste değişir.
+
+**Yasaklar açık:** sayı animasyonu (ölçüm okunurken oynayan rakam yanlış okunur),
+liste yeniden sıralama (operatör onaya bir tuş kala satır kayarsa yanlış kayıt onaylanır),
+skeleton parıltısı, hover ölçekleme, grafik çizilme animasyonu.
+
+Sebep enstrüman metaforunun kendisi: bir ölçü aleti hareket ederse ölçüm değişmiştir.
+Süsleme amaçlı hareket, her seferinde "bir şey mi oldu?" sorusunu sordurur ve gerçekten
+bir şey olduğunda o soru artık sorulmaz.
+
+`prefers-reduced-motion: reduce` altında altısı da süreyi 0'a çeker — kaldırılmaz,
+**anında** olur; kaybolan bir geçiş, olmayan bir geri bildirimdir.
 ### §12.8 Erişilebilirlik {#section-12-8}
 ### §12.9 Ekranlar {#section-12-9}
 

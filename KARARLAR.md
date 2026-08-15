@@ -518,3 +518,20 @@ bilmek) motor uçtan uca çalıştığı için zaten karşılandı — eksik ola
 İNSAN ONAYI.
 **Ders:** bir faz "bitti mi" ikili bir soru değil. Teknik kapsam ile kanıt ayrı ayrı
 tamamlanır ve ikisini tek tike sıkıştırmak, hangisinin eksik olduğunu gizler.
+
+## D-159 — Çözülen atıf ≠ okunabilir kaynak: gövdesiz bölüm kapısı
+2026-08-15 · FAZ-4.1'in `📖 Oku` satırı `§12.1–12.4, §12.7`e işaret ediyordu.
+`§12.3` ve `§12.4`'ün İÇİ BOŞTU — yalnız başlık ve tek bir cümle parçası. `citations`
+kapısı yeşildi çünkü çapa çözülüyordu; `grep TBD` de temizdi çünkü iskelet bölüm TBD
+yazmaz, hiçbir şey yazmaz. Yani ANAYASA "tek referans"tı ve adımın okuyacağı yer boştu:
+bağlamı sıfırlanmış bir agent hedefi bulur, hiçbir şey öğrenmez ve adımı TAHMİNLE yapar.
+Kırık atıftan daha sinsi — kırık atıf en azından bağırır.
+Kapı eklendi ama eşiği **sıradaki adıma** bağlandı: ANAYASA'da 17 iskelet bölüm var ve
+FAZ-0.B.8a bunu bilerek yaptı ("sonraki fazların dosyaları ancak o faza yaklaşırken tam
+yazılır — erken yazılan detay zaten bayatlar"). Hepsini bugün doldurmak o gerekçeyi
+çiğnemek olurdu. Doğru an, o bölümü OKUYACAK adımın sırası geldiği andır; kapı da tam
+olarak onu zorluyor. Kalanlar sayılıp uyarı olarak bildiriliyor — sessizce değil.
+Kapı yazıldığı anda işini yaptı: `§12.3`, `§12.4` ve `§12.7` bu turda dolduruldu.
+Üst başlıklar (`§3`, `§4`) muaf — gövdeleri alt bölümleridir; yanlış pozitif de hatadır.
+**Ders:** bir atıf kapısı hedefin VAR olduğunu doğrular, OKUNABİLİR olduğunu değil.
+İkisi arasındaki fark, bir belge sisteminin işe yarayıp yaramadığıdır.
