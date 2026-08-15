@@ -134,7 +134,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    sebep yazılı · plan yokken boş sütun değil 404
 💾 `feat(ui): discovery reconciliation ekranı` · `Refs: FAZ-4.10 · §4.4`
 
-## 4.11 — Schema Editor    [ ]
+## 4.11 — Schema Editor    [x] 2026-08-16
 
 📖 §3.3, §12.9 · D-11, D-20
 🔗 FAZ-1.4
@@ -142,8 +142,10 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    Kaydetmeden önce **tüm corpus'a karşı dry-run**: kaç kaydın kırılacağını SAYIYLA söyler
    ve codemod'suz yıkıcı değişikliği **reddeder**. Alan silmek yerine `x-retired: true`.
 📁 `apps/ui/src/screens/schema/` · `packages/registry/src/migrate.ts`
-✅ Bir alanı zorunlu yapmayı dene → "N kayıt kırılacak" deyip reddediyor
-🧪 Alan sil → reddediliyor, `x-retired` öneriliyor (tarihsel kayıt okunabilir kalmalı)
+✅ Gerçek corpus'a karşı: zorunlu yapma → **409** `1 kayıt kırılacak · rec_comp_excel ·
+   evidence_url` · alan silme → **409** + `x-retired` önerisi · profil dışı → **422** ·
+   güvenli ekleme → **200** · 10 test
+🧪 Reddedilene 200 döndür → kırmızı · silme reddini kaldır → kapı + 2 test kırmızı
 💾 `feat(ui): schema editor ve göç dry-run'ı` · `Refs: FAZ-4.11 · §3.3`
 
 ## 4.12 — Cost & Budget    [ ]

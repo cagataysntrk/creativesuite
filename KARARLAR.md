@@ -426,3 +426,25 @@ kırık`, çıkış kodu 1. Beş sütun gerçek planla doğrulandı: `pinned` ve
 **Ders:** bir enum iki farklı gerçeği tek değere sıkıştırıyorsa, ekran o ayrımı
 YAPAMAZ — ve ayrımı metinden geri kazanmaya çalışmak, veriyi ikinci kez ve daha kötü
 temsil etmektir.
+
+## D-178 — `ok: true` "analiz koştu" demek, "değişiklik güvenli" DEĞİL
+2026-08-16 · Şema kuru çalıştırma ucu reddedilen bir göçe **200** dönüyordu. Gövdede
+`✗ 5 yıkıcı değişiklik — kaydetme REDDEDİLDİ` yazıyordu ama durum kodu başarı diyordu:
+gövdeyi okumayan her istemci yıkıcı bir göçü uygulanmış sanardı. Kendi yorumumda bu
+tehlikeyi yazmıştım ve kodda yapmıştım — `r.ok` "analiz yapılabildi" demekti, ben onu
+"sonuç iyi" diye okudum.
+Üç durum kodu, üç farklı gerçek: **422** şema profil dışı (analiz HİÇ yapılamadı) ·
+**409** analiz koştu ama değişiklik güvenli değil · **200** güvenli. Gerçek corpus'a
+karşı dördü de doğrulandı.
+Alan silmek **kayıt sayısından bağımsız** reddediliyor: sıfır kayıt etkilense bile
+gelecekte yazılacak tarihsel okuyucular kırılır. Ret yetmez, yol gösterilir —
+`x-retired: true` (R-12'nin şema seviyesindeki karşılığı: emeklilik silme değildir).
+**Yol boyunca daha büyük bir bulgu:** hiçbir corpus kaydı `attributes` bloğu taşımıyor.
+Yedi varlık tipi tanımlı, projeksiyon derleyicisi dört hedefe derliyor (§3.4), `registry`
+kapısı şemaları doğruluyor — ama kayıtlar alanları NESİR GÖVDEDE taşıyor ve şemalara
+hiç bağlı değil. Yani form, katı LLM şeması ve SQLite DDL projeksiyonlarının bağlanacak
+verisi yok. Ekran bunu sessizce geçmiyor: her tip için `ozniteliktiKayit` gösteriliyor
+ve `0` ise "şema hiçbir kayda bağlı değil" yazıyor — yoksa kuru çalıştırmanın "her kayıt
+kırılacak" demesi açıklanamaz bir alarm olurdu.
+**Ders:** bir `Result` iki soruyu cevaplıyorsa ("işlem yapılabildi mi" ve "sonuç iyi mi")
+çağıran ikisini karıştırır. Ayrı alanlar, ayrı durum kodları.

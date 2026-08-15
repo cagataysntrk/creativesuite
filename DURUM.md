@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.11
+siradaki_adim: 4.12
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -61,14 +61,14 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.8** · Tolerans okuması bileşeni — imza öğesi; rozet yasağı kapıda | 2026-08-16 |
 | **4.9** · Placement Preview; Reels güvenli alanı kodda ve ölçülü | 2026-08-16 |
 | **4.10** · Reconciliation; BEŞ sütun, kırık imza planı durduruyor | 2026-08-16 |
+| **4.11** · Schema Editor; kuru çalıştırma gerçek corpus'a karşı | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.11` — Schema Editor** (§3.3, §12.9). Yasak anahtar kelime fiziksel olarak
-yazılamaz; kaydetmeden önce **tüm corpus'a karşı kuru çalıştırma** — kaç kaydın
-kırılacağını SAYIYLA söyler ve codemod'suz yıkıcı değişikliği reddeder. Projeksiyon
-derleyicisi hazır (`packages/kernel/src/projection/`, `registry/PROFILE.md`).
-
+**`4.12` — Cost & Budget** (§8.3, §12.9). Tahmin vs gerçek, canlı bedava kota sayaçları,
+fiyat anlık görüntüsü yaşı uyarısı, **UI'dan ayarlanabilir tavanlar** (D-17). Maliyet
+defteri hazır (`packages/engine/src/cost/ledger.ts` — `runTotals`, `reserve`, `settle`,
+`ChargeStatus`); `costVariance` ve `costSummary` de var.
 
 ## Bloke adımlar
 

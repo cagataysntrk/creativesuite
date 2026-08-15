@@ -46,3 +46,15 @@ export {
   type AreaClass,
   type ChromaViolation,
 } from './tokens.js'
+
+// Şema göç analizi — kaydetmeden önce kaç kayıt kırılacak (§3.3 · FAZ-4.11).
+export {
+  diffSchemas,
+  migrationImpact,
+  impactMessage,
+  type SchemaChange,
+  type MigrationRecord,
+  type MigrationImpact,
+  type BrokenRecord,
+  type Refusal,
+} from './migrate.js'

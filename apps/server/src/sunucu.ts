@@ -33,6 +33,7 @@ import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { baglamOnizle } from './baglam.js'
 import { launcherPlani } from './launcher.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
+import { kuruCalistir, semaListesi } from './sema.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -145,6 +146,25 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         status: durum,
       }),
     })
+  })
+
+  // ── şema editörü: KURU ÇALIŞTIRMA (§3.3, §12.9 · FAZ-4.11) ────────────────
+  //
+  // **Yazma ucu YOK.** Şema `registry/entity-types/`de yaşar ve oraya yazmak insanın
+  // git commit'idir (R-14). Bu uç yalnız "kaydedersem ne olur" sorusunu cevaplar;
+  // cevabı görüp commit etmek kullanıcının işi.
+  app.get('/api/semalar', (c) => c.json({ semalar: semaListesi(o.repoRoot) }))
+
+  app.post('/api/semalar/:tip/kuru', async (c) => {
+    const onerilen = await c.req.json().catch(() => null)
+    if (onerilen === null) return c.json({ ok: false, hata: 'geçersiz JSON' }, 400)
+    const r = kuruCalistir(o.repoRoot, c.req.param('tip'), onerilen)
+    if (!r.ok) return c.json(r, 422) // şema profil dışı — analiz hiç yapılamadı
+
+    // ⚠ `ok: true` "analiz koştu" demek, "değişiklik güvenli" DEĞİL. İlk sürüm ikisini
+    // karıştırıp reddedilen bir göçe 200 dönüyordu: durum koduna bakan bir istemci
+    // yıkıcı bir değişikliği başarılı sanardı (D-178).
+    return c.json(r, r.impact.safe ? 200 : 409)
   })
 
   // ── keşif planı: Reconciliation (§4.4, §12.9 · FAZ-4.10) ──────────────────

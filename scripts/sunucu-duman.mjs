@@ -61,6 +61,39 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.11: şema kuru çalıştırması. Reddedilen bir göç 200 DÖNMEZ — durum koduna
+  // bakan bir istemci yıkıcı değişikliği başarılı sanardı (D-178).
+  const sm = await (await fetch(`${U}/api/semalar`)).json()
+  bekle(Array.isArray(sm.semalar) && sm.semalar.length > 0, '/api/semalar boş')
+  bekle(
+    sm.semalar.every((x) => typeof x.ozniteliktiKayit === 'number'),
+    'şema özeti `ozniteliktiKayit` taşımıyor — "0 kayıt kırılacak" açıklanamaz olurdu'
+  )
+  const kuru = async (govde) =>
+    fetch(`${U}/api/semalar/competitor/kuru`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(govde),
+    })
+  // Alan silmek: SIFIR kayıt etkilense bile reddedilir.
+  const sil = await kuru({
+    $id: 'competitor',
+    type: 'object',
+    additionalProperties: false,
+    required: ['name'],
+    properties: { name: { type: 'string' } },
+  })
+  bekle(sil.status === 409, `alan silme reddedilmedi (${sil.status}) — yıkıcı göç geçiyor`)
+  // Profil dışı anahtar analize HİÇ girmemeli.
+  const profilDisi = await kuru({
+    $id: 'competitor',
+    type: 'object',
+    additionalProperties: false,
+    oneOf: [],
+    properties: {},
+  })
+  bekle(profilDisi.status === 422, 'profil dışı şema analize giriyor')
+
   // FAZ-4.10: keşif planı BOŞ dört sütun DÖNMEZ — plan yoksa 404.
   const dsc = await fetch(`${U}/api/discovery?run=run_olmayan`)
   bekle(dsc.status === 404, 'plan yokken boş sütun dönüyor — "değişiklik yok" ile karışır')
@@ -179,5 +212,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 13 uç · token · keşif · yerleşim · qa · kuyruk · plan · bağlam · SSE`
+  `    sunucu ayağa kalktı · 15 uç · şema · keşif · yerleşim · qa · kuyruk · plan · bağlam · SSE`
 )
