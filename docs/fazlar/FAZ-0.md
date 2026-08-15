@@ -104,7 +104,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ✅ On dosya var: FAZ-0/1 tam, 2-9 iskelet · `just tur` adımı ayrıştırıyor
 ⚠ 2026-08-14: sahte tik geri alındı — yalnız FAZ-0.md yazılmıştı
 
-## 0.B.8b — FAZ-2.md ve FAZ-3.md    [ ]
+## 0.B.8b — FAZ-2.md ve FAZ-3.md    [x] 2026-08-15
 🛠 Plandaki faz haritasından, **yedi alanlı** şablonla: 📖 Oku · 🔗 Bağımlı · 🛠 Yap ·
    📁 Çıktı yolu · ✅ Kabul · 🧪 İhlal testi · 💾 Commit.
    📁 alanı denetim bulgusu #44 ile eklendi: bağlamsız bir agent, başlamadığı bir adımı

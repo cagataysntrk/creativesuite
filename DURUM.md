@@ -10,7 +10,7 @@ siradaki_adim: 1.10b
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.4: 195 test; ic ice nesneden additionalProperties:false silinince derleme REDDEDILDI; derleyici korelirse oz-test yakaliyor"
+son_kanit: "0.B.8b: FAZ-2 (13 adim) + FAZ-3 (15 adim) yedi alanli; kirik atif ve tavan asimi ihlal testleri kirmizi verdi"
 ```
 
 ## Neredeyiz
@@ -74,6 +74,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.13** · just plan — harcamayan kuru çalıştırma | 2026-08-15 |
 | **1.14** · headless Claude Code adaptörü | 2026-08-15 |
 | **1.4** · projeksiyon derleyicisi (4 hedef) | 2026-08-15 |
+| 0.B.8b · FAZ-2.md ve FAZ-3.md gövdeleri | 2026-08-15 |
 
 ## Sıradaki adım
 
