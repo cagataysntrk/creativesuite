@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.10
+siradaki_adim: 1.4
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.3: registry kapisi oz-test geciyor, oneOf iceren tip kirmizi, PROFILE.md ayrismasi da kirmizi"
+son_kanit: "1.10: 14 test gecti; KVKK kapisi tr_TR locale yuzunden gercek e-postayi KACIRIYORDU, LC_ALL=C ile duzeldi (D-58)"
 ```
 
 ## Neredeyiz
@@ -60,6 +60,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.1b** · packages/contracts | 2026-08-15 |
 | **1.2** · kayıt zarfı şeması + JSON üretimi | 2026-08-15 |
 | **1.3** · registry/PROFILE.md + profil kapısı | 2026-08-15 |
+| **1.10** · test altyapısı, cassette, fixture | 2026-08-15 |
 
 ## Sıradaki adım
 
@@ -73,7 +74,8 @@ Kabul: `just test` gerçek testler koşuyor (stub değil) · cassette kaydet→o
 > D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
 > D-53'ün "0.C bloğu FAZ-1.2'den önce kapanır" taahhüdü: bağımsız olan üçü (0.C.1,
 > 0.C.2, 0.C.8, 0.C.10) kapandı. Kalan üçü **kod bekliyor**, engel değil bağımlılık:
-> 0.C.3 → 1.1b (`OpaqueAttributes`) · 0.C.4 → 1.5 (`text/case.ts`) · 0.C.11 → 1.11 (fiiller).
+> 0.C.3 → 1.1b hazır, sıradaki turda · 0.C.4 → 1.5 (`text/case.ts`) · 0.C.11 → 1.11 (fiiller).
+> Ayrıca **1.10b** (golden harness) FAZ-3.1 + V-02 bekliyor — D-59.
 > Sıra: 1.1b → 0.C.3 → 1.5 → 0.C.4 → … → 1.11 → 0.C.11. Her kapı, koruduğu kodla
 > **aynı turda** doğar; hiçbiri sonraya bırakılmaz.
 

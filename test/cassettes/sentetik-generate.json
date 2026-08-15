@@ -1,0 +1,21 @@
+{
+  "name": "sentetik-generate",
+  "recordedAtCommit": null,
+  "entries": [
+    {
+      "method": "POST",
+      "url": "https://api.ornek.test/v1/generate",
+      "requestHeaders": {
+        "authorization": "<REDACTED>",
+        "content-type": "application/json"
+      },
+      "requestBody": "{\"prompt\":\"sentetik\",\"api_key\":\"<REDACTED>\"}",
+      "status": 200,
+      "responseHeaders": {
+        "content-length": "170",
+        "content-type": "application/json"
+      },
+      "responseBody": "{\"id\":\"gen_sentetik_1\",\"echo\":\"{\\\"prompt\\\":\\\"sentetik\\\",\\\"api_key\\\":\\\"<REDACTED>\\\"}\",\"used_key\":\"<REDACTED>\"}"
+    }
+  ]
+}

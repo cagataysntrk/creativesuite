@@ -27,3 +27,9 @@ strictPeerDependencies: true
 
 # Kurulum betikleri varsayılan olarak çalışmaz; izin verilenler açıkça listelenir.
 enablePrePostScripts: false
+
+# Kurulum betiği izinleri. `false` = bilerek REDDEDİLDİ, unutulmuş değil.
+# msw'nin postinstall'ı tarayıcı service worker'ını kurar; biz onu yalnız Node'da
+# tek HTTP kesici olarak kullanıyoruz (§15) — tarayıcı tarafı hiç doğmadı.
+allowBuilds:
+  msw: false

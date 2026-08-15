@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "_not": "SENTETİK. Gerçek prospect verisi fixture'a asla girmez (KVKK, §15). E-posta yalnız example.com, telefon yok, vergi/kimlik numarası yok.",
+  "id": "rec_0192f3a1-0000-7000-8000-000000000001",
+  "brand_id": "brd_0192f3a1-0000-7000-8000-00000000000a",
+  "type": "positioning",
+  "schema_version": 1,
+  "kind": "dna",
+  "zone": "human",
+  "status": "active",
+  "locale": "tr-TR",
+  "era_id": "era_0192f3a1-0000-7000-8000-00000000000b",
+  "created_at": "2026-01-15T09:00:00.000Z",
+  "valid_at": "2026-01-15T09:00:00.000Z",
+  "invalid_at": null,
+  "expired_at": null,
+  "re_verify_by": "2026-07-15T09:00:00.000Z",
+  "supersedes": [],
+  "superseded_by": null,
+  "confidence": 0.8,
+  "approved_by": "sentetik-kullanici",
+  "approved_at": "2026-01-15T10:00:00.000Z",
+  "source": {
+    "kind": "interview",
+    "ref": "sentetik/roportaj-01",
+    "quote": "İmalatta ölçemediğin şeyi iyileştiremezsin."
+  },
+  "scope": {
+    "channels": ["linkedin"],
+    "verticals": ["imalat"],
+    "personas": ["uretim-muduru"]
+  },
+  "tags": ["konumlandirma", "sentetik"],
+  "context_weight": 1,
+  "x_signature": null,
+  "attributes": {
+    "statement": "SENTETİK MARKA, imalat hatlarında ölçülemeyen kaybı görünür kılar.",
+    "proof_points": ["sentetik-kanit-1", "sentetik-kanit-2"]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "_not": "SENTETİK marka. Gerçek marka token'ları brand/ altındadır; fixture onları taşımaz.",
+  "brand_id": "brd_0192f3a1-0000-7000-8000-00000000000a",
+  "slug": "sentetik-marka",
+  "display_name": "SENTETİK Marka",
+  "locale": "tr-TR",
+  "tokens": {
+    "color.primary": "oklch(0.55 0.14 250)",
+    "color.surface": "oklch(0.21 0.01 250)",
+    "font.body": "SentetikSans"
+  }
+}

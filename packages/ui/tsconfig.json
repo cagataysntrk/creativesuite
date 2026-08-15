@@ -10,5 +10,6 @@
     {
       "path": "../../packages/contracts"
     }
-  ]
+  ],
+  "exclude": ["src/**/*.test.ts"]
 }

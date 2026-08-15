@@ -116,15 +116,30 @@ ağ kablosu çekiliyken de çalışıyor
 ✅ Manifest'siz çıktı üretmeyi dene → hata · `just test manifest` yeşil
 💾 `feat(kernel): run manifest sözleşmesi` · `Refs: FAZ-1.9 · §13`
 
-## 1.10 — Test altyapısı    [ ]
+## 1.10 — Test altyapısı    [x] 2026-08-15
 
-📖 §15 · R-31
-🛠 Vitest (tek koşucu) · golden-file harness (font sabitli Chromium, **JSON metrik**) ·
-   msw (tek HTTP kesici) · cassette katmanı (secret redaksiyonlu) · sentetik fixture
-   corpus + marka + prospect. **Gerçek prospect verisi fixture'a asla girmez (KVKK).**
+📖 §15 · R-31 · D-59 (golden harness 1.10b'ye ayrıldı)
+🛠 Vitest (tek koşucu) · msw (tek HTTP kesici) · cassette katmanı (secret redaksiyonlu,
+   commit'li) · sentetik fixture corpus + marka + prospect.
+   **Gerçek prospect verisi fixture'a asla girmez (KVKK).**
+   Yanında doğan darboğazlar: `net/http.ts` (tek HTTP istemcisi) · `config/env.ts`
+   (tek `process.env` okuyucusu) · `errors/make.ts` — cassette sarmalayacak bir istemci
+   olmadan anlamsızdı (D-60).
 ✅ `just test` gerçek testler koşuyor (stub değil) · cassette kaydet→oynat çalışıyor
 🧪 Cassette'te secret ara → yok · fixture'da gerçek prospect adı ara → yok
 💾 `feat(repo): test altyapısı, cassette ve fixture corpus` · `Refs: FAZ-1.10 · §15`
+
+## 1.10b — Golden-file harness    [ ]
+
+📖 §15, §7.2 · R-31 · D-59
+🔗 FAZ-3.1 (Playwright/Chromium), V-02 (marka fontu)
+🛠 Font sabitli headless Chromium; commit edilen golden **JSON metriktir** (glyph
+   kutuları, satır sayısı, ilerleme genişliği, font ailesi, `notdef` = 0). Piksel
+   referansı içerik-adresli depoda durur ve sha256 ile anılır.
+⚠ **Bilerek ertelendi:** yer tutucu bir fontla metrik dondurmak, testin varlık sebebini
+   (Türkçe glyph fallback'ini yakalamak) doğrudan çürütür. Font kararı V-02'de.
+✅ `just golden` gerçek metrik üretiyor · fontu kasten boz → kırmızı
+💾 `feat(repo): golden-file harness ve JSON metrikleri` · `Refs: FAZ-1.10b · §15`
 
 ## 1.11 — Dokuz fiilin iskeleti    [ ]
 

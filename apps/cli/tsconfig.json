@@ -15,5 +15,6 @@
     {
       "path": "../../packages/engine"
     }
-  ]
+  ],
+  "exclude": ["src/**/*.test.ts"]
 }

@@ -24,5 +24,6 @@
     {
       "path": "../../packages/render"
     }
-  ]
+  ],
+  "exclude": ["src/**/*.test.ts"]
 }

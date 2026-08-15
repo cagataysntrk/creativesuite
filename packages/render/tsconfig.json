@@ -12,5 +12,6 @@
     {
       "path": "../../packages/kernel"
     }
-  ]
+  ],
+  "exclude": ["src/**/*.test.ts"]
 }

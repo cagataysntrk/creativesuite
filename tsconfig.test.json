@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+
+  // Test dosyaları composite build'e girmez (dist'e .test.js yazmanın anlamı yok),
+  // ama TİP DENETİMSİZ de kalamaz: vitest esbuild ile transpile eder, tip BAKMAZ.
+  // Denetlenmeyen bir test, yanlış tipte bir fixture'ı sessizce kabul eder ve
+  // "test geçti" der. `types` kapısı bu programı da derler.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "types": ["node"]
+  },
+  "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "vitest.config.ts"]
+}
