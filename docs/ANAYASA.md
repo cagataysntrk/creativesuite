@@ -773,7 +773,22 @@ basamak ve çizgi ikisi de ölçülebilir.
 **Modal üç şeyle sınırlı:** komut paleti, geri alınamaz eylem onayı, sağlayıcı kimlik
 girişi. Dördüncüsü eklenirse `<dialog>` bir kaçış deliğine döner ve yüzey modeli çöker.
 ### §12.5 Klavye haritası {#section-12-5}
-Komut paleti birincil navigasyon, kısayol değil.
+
+**⌘K birincil navigasyondur, kısayol değil.** Menü ağacı yok: her pipeline, her ekran ve
+her çalıştırma paletten açılır. Sebep pratik — pipeline'lar registry'den gelir ve
+kullanıcı çalışma anında yenisini ekler (D-11); elle bakımlanan bir menü ilk yeni
+pipeline'da bayatlar.
+
+**Onay kuyruğu tek elle çalışır:** `j`/`k` gezinme · `a` onayla · `e` düzenle ·
+`r` reddet (gerekçe ZORUNLU) · `p` sabitle. Kuyruk bir gözden geçirme aracıdır ve fare
+her varlıkta eli klavyeden koparır.
+
+**İptal her zaman görünür ve etkin** — menüde değil, devre dışı değil, onay arkasında
+değil. Çalışan bir işi durduramamak, para harcayan bir sistemde kabul edilemez.
+
+**Fareye hiç dokunmadan uçtan uca** bir çalıştırma FAZ 4'ün çıkış kriteridir: ⌘K →
+pipeline seç → başlat → onayla. Odak halkası bu yüzden kalın ve her zaman görünür
+(§12.7'nin beyaz listesindeki altı şeyden biri).
 ### §12.6 Durum matrisi {#section-12-6}
 
 Yedi durum, ayrık birleşim olarak: `empty` · `loading` · `streaming` · `ready` ·

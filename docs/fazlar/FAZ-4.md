@@ -34,7 +34,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🧪 Yüzeye `ramp` ekle → kırmızı · `comp` ekle → kırmızı · yüzey rolüne C=0.12 ver → kırmızı
 💾 `feat(ui): iki yüzey bağlamı, takma adlar var()a derleniyor` · `Refs: FAZ-4.1 · §12.4`
 
-## 4.1b — Tasarım sistemi katmanı: tipografi, boşluk, yükseklik    [ ]
+## 4.1b — Tasarım sistemi katmanı: tipografi, boşluk, yükseklik    [x] 2026-08-15
 
 📖 §12.2, §12.3, §12.7 · R-22, R-23 · D-7
 🔗 4.1

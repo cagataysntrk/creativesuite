@@ -556,3 +556,23 @@ gerektirirdi ve biri unutulurdu.
 C=0.12 → kırmızı.
 **Ders:** "çıktı doğru görünüyor" bir doğrulama değil. Bu token derleyicisi iki fazdır
 doğru CSS üretiyordu ve üzerine inşa edilemeyecek bir CSS'ti.
+
+## D-161 — `ui-tema` kapısının iki denetimi hiçbir şey yapmıyordu
+2026-08-15 · Tema katmanı (`theme.css`) elle yazılır, yani kuralları yorumda kalırsa
+kural değil temennidir. Kapı beş şey arıyor; yazdıktan sonra beşini de kasten ihlal
+ettim ve **ikisi sessizce yeşil geçti**:
+1. **Boşluk deseni satır BAŞINA bağlıydı** (`^[[:space:]]*padding`). `.x { padding: 5px }`
+   tek satırlık bir kuraldır ve kaçtı. Bir CSS özelliği satırın herhangi bir yerinde
+   başlayabilir; anchor `^` değil, sınır karakteridir.
+2. **Süre denetimi `bc` kullanıyordu ve HER ZAMAN 0 hesaplıyordu.** `printf '%s'` sondaki
+   satır sonunu basmıyor, `bc` ise ifadeyi sonlandırmak için onu istiyor; sonuç sessiz
+   bir "syntax error" ve `|| echo 0` ile yutulan bir hata. 500ms'lik geçiş yeşil geçti.
+   Aritmetik kabuğa taşındı — bir bağımlılık, yanlış kullanıldığında 40 satır koddan
+   daha kırılgandır (R-75), ve `|| echo 0` kalıbı hatayı VARSAYILANA çevirdiği için
+   yanlış kullanımı görünmez yapar.
+Yedi ihlal + üç meşru durum doğrulandı: `box-shadow` · 700 ağırlık · 5px · 18px ·
+`prefers-color-scheme` · 500ms · 0.5s kırmızı; `gap: 4px` · 300ms · `border: 1px` yeşil.
+Gölge muafiyeti DOSYAYA değil KURAL BLOĞUNA bağlı (`[data-elevation='overlay']`'den ilk
+`}`e kadar) — "bu dosyada gölge serbest" demek, yasağı ilk ihtiyaçta esnetmek olurdu.
+**Ders (bu turda ikinci kez):** bir kapıyı yazmak onu test etmek değildir. Beş denetimden
+ikisi doğdukları anda ölüydü ve tek fark, ihlali gerçekten denemekti.

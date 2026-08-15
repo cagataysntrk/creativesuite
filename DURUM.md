@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.1b
+siradaki_adim: 4.2
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -18,7 +18,7 @@ son_kanit: "FAZ 3 SARTLI kapandi (D-158): 12/15 adim tikli, iki dogrulama turu b
 **FAZ 3 ŞARTLI KAPANDI** (2026-08-15, D-158) — motor uçtan uca çalışıyor: gerçek
 Chromium gerçek slayt basıyor, marka QA gerçek sayı veriyor, manifest her çalıştırmayı
 kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle örtülmedi** —
-`3.14` insan onayına bloke. 752 test, 25 kapı yeşil.
+`3.14` insan onayına bloke. 752 test, **26 kapı** yeşil.
 
 > ⛔ **DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14`.
 > Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: dördü de plan
@@ -49,14 +49,14 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | Adım | Tarih |
 |---|---|
 | **4.1** · iki yüzey bağlamı, takma adlar `var()`a derleniyor | 2026-08-15 |
+| **4.1b** · tip ölçeği, 4px boşluk, gölgesiz yükseklik, `ui-tema` kapısı | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`4.1b` — tipografi, boşluk, yükseklik** (§12.2, §12.3, §12.7).
-Renk ve yüzey katmanı bitti: iki yüzey bağlamı çalışıyor, alt marka devralıyor.
-Kalan: `packages/ui/src/theme.css` — dokuz tip boyutu (konsolda 700 ağırlık yasak),
-4px temel birim (yalnız 1/2/3/4/6/8), satır 28/32/40, yarıçap 2px, **gölge yasağı**
-(yükseklik = arka plan basamağı + pah çizgisi) ve bunları zorlayan `ui-tema` kapısı.
+**`4.2` — uygulama iskeleti** (§12.5). Vite + React + Tailwind + shadcn + Hono + SSE.
+⌘K paleti **birincil navigasyon** (menü değil), kalıcı makine durumu şeridi: aktif
+çalıştırma · biriken maliyet · bekleyen onay · en yakın kota sınırı — toast değil,
+kalıcı enstrüman okuması. Tasarım sistemi katmanı hazır: `theme.css` + iki yüzey.
 
 
 ## Bloke adımlar

@@ -1,0 +1,171 @@
+/* Tema katmanı — tipografi, boşluk, yükseklik, hareket (§12.2, §12.3, §12.7).
+ *
+ * Bu dosya RENK TANIMLAMAZ. Renk `brand/<id>/derived-tokens/tokens.css`ten gelir ve
+ * markaya göre değişir; burası markadan BAĞIMSIZ olan her şeydir. Ayrım şu yüzden:
+ * marka değiştiğinde tipografi ölçeği ve boşluk ritmi değişmez, yalnız renk değişir.
+ * İkisini tek dosyada tutmak, her marka için tip ölçeğini yeniden yazma davetiydi.
+ *
+ * ⚠ Bu dosya ELLE yazılır (üretilmiş değildir) ve `ui-tema` kapısı onu denetler.
+ */
+
+:root {
+  /* ── tipografi (§12.2) ────────────────────────────────────────────────────
+   * Dokuz boyut. Ara değer YOK: "biraz daha büyük" kararı her seferinde farklı
+   * verilir ve on farklı boyut, ölçeği ölçek olmaktan çıkarır.
+   *
+   * Ölçülen her şey MONO ve TABULAR. Maliyet, ΔE, süre, boyut, kota, yüzde —
+   * hepsi. Tek kural enstrüman metaforunu taşır ve tabloda göz taramasını
+   * hızlandırır: rakamlar sütun hâlinde hizalanır, virgül aynı yerde durur.
+   */
+  --font-grotesk: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+
+  --size-1: 11px; /* mikro: birim, rozet, tablo alt satırı */
+  --size-2: 12px; /* etiket */
+  --size-3: 13px; /* tablo gövdesi */
+  --size-4: 14px; /* gövde — varsayılan */
+  --size-5: 16px; /* vurgulu gövde */
+  --size-6: 18px; /* bölüm başlığı */
+  --size-7: 22px; /* ekran başlığı */
+  --size-8: 28px; /* tek büyük sayı */
+  --size-9: 36px; /* mono okuma: kalıcı durum şeridinin ana ölçümü */
+
+  /* Ağırlık 700 LİSTEDE YOK ve konsolda yasak (§12.2). Kalın metin bir vurgu
+   * aracıdır; her yerde vurgu varsa hiçbir yerde vurgu yoktur — rengin
+   * anormallik olması kuralının (§12.1) tipografideki karşılığı. */
+  --weight-normal: 400;
+  --weight-reading: 450;
+  --weight-medium: 500;
+  --weight-label: 550;
+  --weight-strong: 650;
+
+  /* ── boşluk (§12.3) ───────────────────────────────────────────────────────
+   * Temel birim 4px, konsolda yalnız bu altı adım. 5 ve 7 yoktur. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Satır yükseklikleri. Varsayılan 28: bu bir tablo aracıdır ve bir ekranda kaç
+   * satır göründüğü kaç tıklama gerektiğini belirler. */
+  --row-dense: 28px;
+  --row-default: 32px;
+  --row-loose: 40px;
+
+  /* Tablo başlığı 40px — İKİ SATIR sığsın diye. Türkçe etiket İngilizcesinden
+   * %20–30 uzun ve 28px'lik bir başlık onu kırpar (§12.2). */
+  --row-header: 40px;
+
+  /* Düğme asla sabit genişlik almaz; bu bir TABANDIR, bir genişlik değil. */
+  --button-min: 96px;
+
+  /* ── yarıçap (§12.3) ──────────────────────────────────────────────────────
+   * 2px. `--radius-full` yalnız 8px durum noktası için — yuvarlak köşe bir
+   * enstrümanda süs değil, sinyaldir ve her yerde kullanılırsa sinyal olmaz. */
+  --radius: 2px;
+  --radius-full: 9999px;
+
+  /* ── hareket (§12.7) ──────────────────────────────────────────────────────
+   * Üç süre, hiçbiri 320ms'yi geçmez. Beyaz liste: yüzey geçişi, dialog açılışı,
+   * satır vurgusu, durum noktası, ilerleme rayı, odak halkası. Başka hiçbir şey. */
+  --dur-instant: 90ms;
+  --dur-quick: 160ms;
+  --dur-surface: 320ms;
+  --ease: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* ── temel ──────────────────────────────────────────────────────────────────
+ * `color-scheme` yüzey bağlamıyla birlikte gelir: kaydırma çubuğu ve form
+ * kontrolleri de yüzeye uymalı, yoksa açık levhanın kenarında koyu bir kaydırma
+ * çubuğu belirir ve levha "uygulamanın içi" gibi görünmez. */
+[data-surface='console'] {
+  color-scheme: dark;
+}
+
+[data-surface='studio'] {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--role-bg);
+  color: var(--role-text);
+  font-family: var(--font-grotesk);
+  font-size: var(--size-4);
+  font-weight: var(--weight-normal);
+  line-height: 1.45;
+}
+
+/* ── ölçüm (§12.2) ─────────────────────────────────────────────────────────
+ * Ölçülen bir sayı `.olcum`dur. Birim KARDEŞ span'de ve 0.85em: "3.2 ΔE" ile
+ * "3.2ΔE" arasındaki fark, gözün sayıyı mı birimi mi okuduğudur. */
+.olcum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-weight: var(--weight-medium);
+}
+
+.olcum > .birim {
+  font-size: 0.85em;
+  color: var(--role-text-muted);
+  margin-inline-start: 0.25em;
+}
+
+/* ── yükseklik: GÖLGE YOK (§12.4) ──────────────────────────────────────────
+ * Yükseklik iki şeyle ifade edilir: arka plan basamağı (bg → surface) ve pah
+ * çizgisi. Gölge koyu yüzeyde ya görünmez ya kirli bir bulanıklıktır; basamak
+ * ve çizgi ikisi de ölçülebilir. */
+[data-elevation='raised'] {
+  background: var(--role-surface);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+}
+
+/* Tek istisna: üst katman. Bir `<dialog>` arka plandan basamakla ayrılamaz,
+ * çünkü ARKA PLANIN ÜSTÜNDE durur — basamak zaten kullanılmıştır. */
+[data-elevation='overlay'] {
+  background: var(--role-surface);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.45);
+}
+
+/* ── stüdyo levhası (§12.4) ────────────────────────────────────────────────
+ * Levha her zaman koyu çerçeve içinde, dört yandan en az 12px. Göz çevreye adapte
+ * olur; açık bir levha koyu çevre olmadan yargılanırsa levhadaki renk yalan söyler. */
+[data-surface='studio'] {
+  padding: var(--space-3);
+  background: var(--role-bg);
+}
+
+/* ── durum noktası ─────────────────────────────────────────────────────────
+ * Renk TEK BAŞINA anlam taşımaz (alarm yönetimi kuralı): glyph + renk + metin.
+ * Nokta yalnız üçüncü işarettir, tek işaret değil. */
+.durum-noktasi {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--radius-full);
+  transition: background var(--dur-instant) var(--ease);
+}
+
+/* ── odak ──────────────────────────────────────────────────────────────────
+ * Görünür ve KALIN. Klavyeyle uçtan uca çalışmak FAZ 4'ün çıkış kriteri; odağın
+ * nerede olduğunu kaybetmek o kriteri imkânsız kılar. */
+:focus-visible {
+  outline: 2px solid var(--role-text);
+  outline-offset: 2px;
+  transition: outline-color var(--dur-instant) var(--ease);
+}
+
+/* ── azaltılmış hareket (§12.7) ────────────────────────────────────────────
+ * Süre 0'a çekilir, geçiş KALDIRILMAZ: kaybolan bir geçiş, olmayan bir geri
+ * bildirimdir. Kullanıcı hareketi değil, hareketin SÜRESİNİ reddediyor. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-quick: 0ms;
+    --dur-surface: 0ms;
+  }
+}
