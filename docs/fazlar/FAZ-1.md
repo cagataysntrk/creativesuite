@@ -120,12 +120,15 @@ ağ kablosu çekiliyken de çalışıyor
 ✅ Yasadışı geçiş denemesi tip hatası · `just test fsm` yeşil
 💾 `feat(kernel): iş kuyruğu ve dört durum makinesi` · `Refs: FAZ-1.8 · §3.7`
 
-## 1.9 — Run manifest sözleşmesi    [ ]
+## 1.9 — Run manifest sözleşmesi    [x] 2026-08-15
 
 📖 §13 · V-11
 🛠 Manifest: `brand_id` · `era_id` · corpus commit SHA'sı · adım başına şerit/model/seed ·
    tahmini vs gerçek maliyet · her insan kararı · **kaybeden sağlayıcılar ve red gerekçeleri**.
-   Bağlam anlık görüntüsü saklama süresi burada belirlenir (V-11 kapanır).
+   Bağlam anlık görüntüsü saklama süresi burada belirlendi: **90 gün** (V-11 kapandı → D-63).
+   `inspectManifest()` yedi kusur sınıfı arar; kusur bir DEĞERDİR, istisna değil.
+   En sert iki kural: sağlayıcı seçen adım **kaybedenleri de** yazmak zorunda, ve biten
+   metered adım gerçek maliyet olmadan kapanamaz.
 ✅ Manifest'siz çıktı üretmeyi dene → hata · `just test manifest` yeşil
 💾 `feat(kernel): run manifest sözleşmesi` · `Refs: FAZ-1.9 · §13`
 

@@ -127,9 +127,9 @@
     {
       "id": "manifest-yazici",
       "ad": "Run manifest yazıcı",
-      "neden": "Manifest bir çalıştırmanın tek kanıtıdır (§13). İki yazıcı, hangi sağlayıcıya ne gönderildiğini iki farklı şekilde anlatır.",
-      "izinli": ["packages/engine/src/manifest.ts"],
-      "desen": null,
+      "neden": "Manifest bir çalıştırmanın TEK kanıtıdır (§13); `derived/runs/` türetilemez (D-38). İki yazıcı, hangi sağlayıcıya ne gönderildiğini iki farklı şekilde anlatır ve hangisinin doğru olduğu asla bilinemez. Yolu bilen tek dosya sözleşmenin kendisidir.",
+      "izinli": ["packages/kernel/src/manifest.ts"],
+      "desen": "derived/runs",
       "faz": "FAZ-1.9"
     },
     {

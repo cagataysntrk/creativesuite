@@ -228,8 +228,8 @@ Ticari kullanıma uygun mu? Şartlar PDF'i "Hizmete Özel". → FAZ-6.5
 KVKK aydınlatma/açık rıza metinleri, sayısal performans iddialarının Reklam Kurulu
 açısından durumu, sınır ötesi veri aktarımı beyanı. → FAZ-8.6
 
-## V-11 — Run bağlam anlık görüntülerinin saklama süresi
-Manifest sonsuza, bağlam N gün. N ilk yüz çalıştırmadan **önce** belirlenir. → FAZ-1.9
+## V-11 — Run bağlam anlık görüntülerinin saklama süresi ✅ KAPANDI
+Manifest sonsuza, bağlam N gün. **N = 90** (2026-08-15, FAZ-1.9). Gerekçe D-63'te.
 
 ## D-45 — KURALLAR.md yalnız zorlanan kuralları taşır
 2026-08-14 · Araştırmadaki 111 kuralın tamamı kopyalanmadı; 46 kural yazıldı, 13'ü bugün
@@ -448,3 +448,23 @@ kırılganlığı" itirazının bu makinede karşılığı yok.
 | `ölçüm` (kelime içi) | — | **bulur** |
 Yani Türkçe'nin eklemeli yapısı tek indeksle çözülmüyor: aksan katlama tam kelimeyi
 kurtarıyor ama kökü bulmuyor. **Paralel trigram + RRF kararı artık varsayım değil, ölçüm.**
+
+## D-63 — Bağlam anlık görüntüsü 90 gün, manifest sonsuza (V-11 kapandı)
+2026-08-15 · V-11 "N ilk yüz çalıştırmadan önce belirlenir" diyordu; FAZ-1.9 o an.
+**Karar:** `RunManifest.contextRetentionDays = 90`. Manifest (metadata: marka, dönem,
+commit SHA'sı, adımlar, maliyet, kararlar, aday sağlayıcılar) **süresiz** saklanır;
+**bağlam anlık görüntüsü** (enjekte edilen tam prompt metni) 90 gün sonra silinebilir.
+**Neden 90:** üç gerekçe üst üste biniyor.
+1. **Kurtarılabilirlik.** Manifest `corpusCommit` taşıyor; bağlam o ağaçtan tarif
+   yeniden çalıştırılarak ÜRETİLEBİLİR. Anlık görüntü bir kolaylıktır, tek kaynak değil —
+   yani silinmesi kanıt kaybı değil, kolaylık kaybı.
+2. **Hata ayıklama penceresi.** "Bu çalıştırma neden böyle çıktı" sorusu pratikte bir
+   çeyrek yaşıyor; ötesinde cevap zaten "ağaç değişti" ve onu commit SHA'sı söylüyor.
+3. **KVKK.** `INGEST` çektiği prospect metni bağlama girer (§14). Kazınmış kişisel veriyi
+   süresiz saklamak, silme talebini teknik olarak karşılanamaz kılar — sınırsız saklama
+   burada yalnız maliyet değil, yükümlülüktür.
+**Alternatif (reddedildi):** "sonsuza sakla, disk ucuz". Disk ucuz ama sorumluluk değil;
+ayrıca 100 çalıştırma/ay × ~30 KB, üç yılda grep'lenemeyecek bir yığın yapar.
+**Geri alma maliyeti:** düşük — alan manifest'te, değeri değiştirmek tek satır. Ama
+silinen bağlam geri gelmez, o yüzden temizlik işi FAZ-8.4'te `doctor` raporuyla gelir
+ve **rapor eder, silmez**; silme insan onayıyla.

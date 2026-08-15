@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.9
+siradaki_adim: 1.11
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.6: 87 test; just reindex 0dan 27ms; olcum -> olcumlerinizi [word,trigram]; corpus-yazici ve is-kuyrugu darbogazlari kirmizi verdi"
+son_kanit: "1.9: 105 test; manifestsiz cikti reddediliyor; kaybeden saglayici yazilmazsa kusur; V-11 kapandi (90 gun, D-63)"
 ```
 
 ## Neredeyiz
@@ -66,6 +66,7 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.7** · hata taksonomisi + Result disiplini | 2026-08-15 |
 | **1.8** · iş kuyruğu + dört durum makinesi | 2026-08-15 |
 | **1.6** · corpus yazma darboğazı + FTS5 indeksi | 2026-08-15 |
+| **1.9** · run manifest sözleşmesi (V-11 kapandı) | 2026-08-15 |
 
 ## Sıradaki adım
 

@@ -64,5 +64,19 @@ export {
   type JobState,
 } from './queue.js'
 
+export {
+  inspectManifest,
+  isPublishable,
+  costSummary,
+  type Lane,
+  type ProviderCandidate,
+  type HumanDecision,
+  type StepRecord,
+  type ContextManifestEntry,
+  type RunManifest,
+  type ManifestDefect,
+  type CostSummary,
+} from './manifest.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'
