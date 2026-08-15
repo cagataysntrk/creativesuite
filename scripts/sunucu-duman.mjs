@@ -61,6 +61,21 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.14: kütüphane karantinayı SAYAR ama listelemez; Reuse manifest ister.
+  const kut = await (await fetch(`${U}/api/varliklar`)).json()
+  bekle(Array.isArray(kut.varliklar), '/api/varliklar liste dönmüyor')
+  bekle(typeof kut.karantina === 'number', 'karantina SAYILMIYOR — boş kütüphane açıklanamaz olur')
+  bekle(
+    typeof kut.yayinDefteriYok === 'boolean',
+    '"yayınlanmadı" ile "defter yok" ayrılmıyor — varsayım ölçüm sanılır'
+  )
+  bekle(
+    !kut.varliklar.some((v) => v.digest.startsWith('sha256:k')),
+    'karantina varlıkları kütüphaneye SIZDI — yayınlanamaz varlık kullanılabilir görünüyor'
+  )
+  const reuseYok = await fetch(`${U}/api/varliklar/run_olmayan/yeniden-kullan`)
+  bekle(reuseYok.status === 404, `manifetsiz Reuse ${reuseYok.status} döndü, 404 olmalı`)
+
   // FAZ-4.13: Telegram YÜZEY SINIRI — bot üretim başlatamaz (§4c).
   const tg = (govde) =>
     fetch(`${U}/api/telegram/webhook`, {
@@ -254,5 +269,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 18 uç · telegram · bütçe · şema · keşif · yerleşim · qa · kuyruk · SSE`
+  `    sunucu ayağa kalktı · 20 uç · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
 )

@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.14
+siradaki_adim: 4.15
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
@@ -64,13 +64,15 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.11** · Schema Editor; kuru çalıştırma gerçek corpus'a karşı | 2026-08-16 |
 | **4.12** · Cost & Budget; tavan Ring 1'de, UI'dan ayarlanıyor | 2026-08-16 |
 | **4.13** · Telegram yüzey sınırı; bot üretim başlatamaz (§4c) | 2026-08-16 |
+| **4.14** · Asset Library; karantina sayılıyor ama listelenmiyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.14` — Asset Library** (§12.9). FTS5 arama, **"premium üretildi ama hiç yayınlanmadı"**
-filtresi, **Reuse birinci sınıf eylem**. `derived/blobs` + `.meta.json` sidecar ve
-`packages/engine/src/blobs.ts` hazır. ⚠ 14 varlık `derived/karantina/`da (D-155) —
-kütüphane onları yayınlanabilir gibi göstermemeli.
+**`4.15` — Run History / Provenance Browser** (§13, §12.9). Her manifest bir zaman
+çizgisi: girdiler, bilgi ağacı commit'i, adım başına şerit ve model, seed, tahmini vs
+gerçek, insan kararları. **`rerun` (donmuş plan) ve `replay` (bugünün tanımı) AYRI
+düğmeler** ve ekran açıkça "rerun kararı tekrarlar, eseri değil" der. `freezePlan`,
+`readManifest`, `costVariance` ve ters indeks hazır.
 
 ## Bloke adımlar
 

@@ -36,6 +36,7 @@ import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
+import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -147,6 +148,36 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         type: tip,
         status: durum,
       }),
+    })
+  })
+
+  // ── varlık kütüphanesi (§12.9, §3.5 · FAZ-4.14) ───────────────────────────
+  //
+  // Filtre sunucuda DEĞİL istemcide: liste zaten tam geliyor ve "premium ama
+  // yayınlanmamış" bir SORU, bir sorgu parametresi değil — operatör onu açıp kapatarak
+  // karşılaştırma yapar. Sunucuda filtrelemek, toplam harcamayı da filtrelerdi.
+  app.get('/api/varliklar', (c) => c.json(kutuphane(o.repoRoot)))
+
+  // Reuse: varlığı DEĞİL, onu üreten çalıştırmayı açar — kopyalanacak olan bayt değil,
+  // KARARDIR (donmuş girdiler, konu, bağlam).
+  app.get('/api/varliklar/:runId/yeniden-kullan', (c) => {
+    const runId = c.req.param('runId')
+    if (!yenidenKullanilabilir(o.repoRoot, runId)) {
+      // Manifest yoksa Reuse YAPILAMAZ ve bu sessiz kalmaz: "kopyalandı" deyip boş bir
+      // form açmak, kullanıcının donmuş girdileri elle yeniden yazması demekti.
+      return c.json({ ok: false, hata: `çalıştırma manifesti yok: ${runId}` }, 404)
+    }
+    const m = readManifest(o.repoRoot, runId as never)
+    if (m === null) return c.json({ ok: false, hata: 'manifest okunamadı' }, 422)
+    return c.json({
+      ok: true,
+      pipeline: m.pipeline,
+      brandId: m.brandId,
+      eraId: m.eraId,
+      // Donmuş girdiler: aynı kararla yeniden koşmak için gereken her şey.
+      params: m.steps.map((s) => s.params).find((p) => Object.keys(p).length > 0) ?? {},
+      context: m.context,
+      corpusCommit: m.corpusCommit,
     })
   })
 

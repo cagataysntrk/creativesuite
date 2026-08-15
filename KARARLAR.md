@@ -491,3 +491,22 @@ V-17). Beşinci insan blokajı — hepsi `insan` sınıfında ve LOOP§G üçlü
 (D-157), ama DURUM.md ⛔ bloğunda adlarıyla ilan ediliyor.
 **Ders:** bir bileşenin "dış bağımlılığı var" olması, hiçbir parçasının yapılamayacağı
 anlamına gelmez. Sözleşmeyi bağlantıdan ayırmak, blokajın kapsamını daraltır.
+
+## D-181 — Karantina SAYILIR ama listelenmez; "defter yok" ile "yayınlanmadı" ayrıdır
+2026-08-16 · Varlık kütüphanesi gerçek repoda **0 varlık** gösteriyor — `derived/blobs`
+boş, çünkü 14 varlık D-155'te karantinaya alındı. Boş bir kütüphane açıklanamaz bir
+sonuçtur: operatör "hiç üretmemişim" sanar. Üç seçenek vardı: karantinayı listelemek
+(yayınlanamaz varlığı kullanılabilir göstermek), hiç saymamak (sessizlik), ya da
+**listeye almadan saymak**. Üçüncüsü seçildi ve ekran sebebini yazıyor.
+İkinci ayrım daha ince: **yayın defteri HİÇ YOK.** Bu durumda "yayınlanmadı" bir ölçüm
+değil bir varsayımdır ve fark söylenmeli — `yayinDefteriYok` ayrı bir alan olarak gidiyor.
+Aynı ilkenin üçüncü uygulaması (D-175 "ölçülmedi ≠ geçti", D-179 "kota null = ölçülmüyor").
+**Reuse varlığı değil KARARI kopyalar** (§4c): donmuş girdiler, konu, bağlam commit'i.
+Baytı kopyalamak yeni bir iş üretmez; kararı kopyalamak LLM'i yeniden çalıştırmadan
+benzer bir iş üretir. Manifest yoksa Reuse yapılamaz ve 404 döner — "kopyalandı" deyip
+boş bir form açmak, kullanıcının donmuş girdileri elle yeniden yazması demekti.
+**Kendi ihlal testim yine geçersizdi:** "bedava şerit boşa harcanana sayılmaz" testi
+`gercek: '0'` fikstürü kullanıyordu, yani kuralı değil rastlantıyı sınıyordu — bedava
+şeridi saysak da toplam 0 çıkıyordu. Fikstür `5000`e çevrildi ve ihlal kırmızıya döndü.
+**Ders:** bir kuralı sınayan fikstür, kural KALDIRILDIĞINDA sonucu değişecek biçimde
+seçilmelidir. Sıfır değerler her iki dalda da aynı sonucu verir ve testi süse çevirir.

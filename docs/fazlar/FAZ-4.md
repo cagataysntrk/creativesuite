@@ -181,7 +181,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 ✅ Telefondan Tailscale ile onay kuyruğuna girip bir varlık onaylanıyor
 💾 `feat(server): tailscale erişimi` · `Refs: FAZ-4.13b · §9.4`
 
-## 4.14 — Asset Library    [ ]
+## 4.14 — Asset Library    [x] 2026-08-16
 
 📖 §12.9, §3.5
 🔗 FAZ-3.12
@@ -189,8 +189,11 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    değer alınmamış) · **Reuse birinci sınıf eylem** — benzer bir iş geldiğinde LLM'i
    yeniden çalıştırmak yerine IR'ı kopyalayıp düzenlemek hem ucuz hem tutarlı.
 📁 `apps/ui/src/screens/assets/`
-✅ Türkçe arama varlık bulur · Reuse mevcut IR'ı açıyor
-🧪 Yayınlanmamış premium varlıkları filtrele → liste ve **toplam harcanan** görünüyor
+✅ Gerçek repo: **0 varlık · 14 karantinada** (listeye girmiyor, sayılıyor) · yayın
+   defteri yok → "yayınlanmadı" ölçüm DEĞİL varsayım, ayrıca bildiriliyor · Reuse
+   manifest ister (404) · Türkçe arama `foldForSearch` ile · 9 test
+🧪 Karantinayı kütüphaneye kat → kapı + test kırmızı · "defter yok"u gizle → kırmızı ·
+   bedava şeridi boşa harcanana say → kırmızı
 💾 `feat(ui): asset library ve reuse` · `Refs: FAZ-4.14 · §12.9`
 
 ## 4.15 — Run History / Provenance Browser    [ ]
