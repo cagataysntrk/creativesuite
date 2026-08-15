@@ -51,6 +51,24 @@ try {
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
   bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
 
+  // FAZ-4.5: bağlam önizleme HİÇBİR ŞEY HARCAMAZ ve boş bölümün NEDENİNİ söyler.
+  const bag = await (await fetch(`${U}/api/baglam?tarif=instagram-post`)).json()
+  bekle(bag.ok === true, '/api/baglam instagram-post tarifini çözemedi')
+  bekle(
+    Array.isArray(bag.manifest?.sections) && bag.manifest.sections.length > 0,
+    'bağlam manifesti bölümsüz'
+  )
+  const bosOlan = (bag.manifest?.sections ?? []).find((b) => b.included.length === 0)
+  if (bosOlan !== undefined) {
+    const neden = bag.bosNedenleri?.[bosOlan.entityType]
+    bekle(
+      typeof neden === 'string' && neden.length > 0,
+      `boş bölüm '${bosOlan.id}' SESSİZ — nedeni yazmıyor (operatör "bağlam kullanmıyor" sanar)`
+    )
+  }
+  const yokTarif = await fetch(`${U}/api/baglam?tarif=yok-boyle-bir-tarif`)
+  bekle(yokTarif.status === 404, 'olmayan tarif için boş manifest dönüyor — 404 olmalı')
+
   // FAZ-4.4 uçları: ters indeks ve git zaman çizgisi GERÇEKTEN çağrılır.
   const etki = await (await fetch(`${U}/api/kayitlar/rec_yok/etki`)).json()
   bekle(typeof etki.ozet === 'string', '/api/kayitlar/:id/etki özet dönmüyor')
@@ -88,4 +106,4 @@ if (hatalar.length > 0) {
   for (const h of hatalar) console.log(`    ✗ ${h}`)
   process.exit(1)
 }
-console.log(`    sunucu ayağa kalktı · 6 uç · token CSS'i · ters indeks · git çizgisi · SSE`)
+console.log(`    sunucu ayağa kalktı · 7 uç · token CSS'i · bağlam · ters indeks · git · SSE`)

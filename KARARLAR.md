@@ -433,3 +433,36 @@ Git zaman çizgisi de ayrı bir günlükte tutulmuyor: `fileHistory` zaten vard�
 ile enjekte edilen sağlayıcı anahtarlarını da alt sürece taşımak olurdu.
 **Ders:** bir soruyu cevaplamanın en ucuz yolu genelde yeni veri üretmek değil, var olan
 veriyi ters yönde okumaktır.
+
+## D-169 — Elle bağlam daraltma manifest'e yazılır; boş bölüm nedenini söyler
+2026-08-16 · Context Preview'ın iki kararı motorda, UI'da değil.
+**Kapatma bir FİLTRE değil, bir KARAR.** `assembleContext` artık `excluded` alıyor ve
+kapatılan kayıt listeden silinmiyor — `dropped`a `insan kapattı (Context Preview)`
+gerekçesiyle giriyor ve `toManifestEntries` onu defter satırına çeviriyor. UI'da
+filtreleseydik aynı girdi iki farklı çıktı üretir, farkın sebebi hiçbir yerde durmaz ve
+replay (§13) o an yalan söylerdi. Ekranda da silinmiyor: üstü çizili durup "geri aç"
+düğmesi taşıyor.
+**Boş bölüm SESSİZ KALMAZ.** Önizleme gerçek corpus'ta sıfır kayıt gösterdi ve bu doğru
+davranıştı (kayıtlar `draft`), ama ekran NEDENİNİ söylemiyordu — operatörün "bu pipeline
+bağlam kullanmıyor" sanmasının kısa yolu. Üç ayrı sebep var ve üçü farklı iş gerektirir:
+o tipte hiç kayıt yok · kayıt var ama onay bekliyor · kayıt var ama dönem dışı. Sebep
+`browseRecords` ile ÖLÇÜLÜYOR (R-13: ikinci yüklem yok, görünürlük türetiliyor).
+Adaylar `selectRecords`ten geliyor — `uret.mjs` ile AYNI yol. İki ayrı seçim yolu,
+ekranda görülenle çalışanın ayrışması demekti.
+
+## D-170 — İhlal testim BAYAT `dist` koşturuyordu: `2>/dev/null` derleme hatasını yuttu
+2026-08-16 · `ui-tema` ve bağlam ucunun ihlal testlerini koşarken iki ihlal de YEŞİL
+geçti. Kapı bozuk değildi: `./node_modules/.bin/tsc -b 2>/dev/null` derleme hatasını
+yutuyordu, `dist` güncellenmiyordu ve duman testi **eski kodu** koşuyordu. Yani ihlali
+hiç uygulamamıştım ve "kapı yakalamadı" diye okuyordum.
+Aynı turda ikinci bir sessiz başarısızlık: duman testine bağlam denetimlerini ekleyen
+`python str.replace` hedefi bulamadı ve sessizce hiçbir şey yapmadı — ama aynı betikteki
+ikinci replace (özet satırı) tuttu. Sonuç en kötü biçim: kapı `7 uç · bağlam` diye
+**ilan ediyordu** ve bağlam ucuna hiç bakmıyordu. Korumadığı şeyi duyuran bir kapı,
+hiç olmayandan kötüdür.
+İki kural: (1) ihlal testinde derlemenin BAŞARILI olduğu doğrulanmadan sonuç okunmaz —
+`if tsc -b; then koş; else "test geçersiz"; fi`; (2) her `str.replace` sonrası dizenin
+gerçekten değiştiği `assert` edilir. İkisi de düzeltildikten sonra iki ihlal de kırmızıya
+döndü.
+**Ders:** "kapı yakalamadı" sonucunun iki açıklaması var ve ikincisi daha olası —
+ihlal hiç uygulanmamıştır. Yeşil bir ihlal testi, kapıdan çok TESTİ şüpheli kılar.

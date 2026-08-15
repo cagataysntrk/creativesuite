@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { DurumSeridi, type MakineDurumu } from './DurumSeridi.js'
 import { Palet } from './Palet.js'
 import { CorpusTarayici } from './CorpusTarayici.js'
+import { BaglamOnizleme } from './BaglamOnizleme.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -19,6 +20,7 @@ const KOMUTLAR: readonly Komut[] = [
   { id: 'linkedin-post', etiket: 'LinkedIn postu üret', grup: 'Üretim' },
   { id: 'onay-kuyrugu', etiket: 'Onay kuyruğu', grup: 'Gözden geçir', anahtarlar: ['approve'] },
   { id: 'corpus', etiket: 'Corpus tarayıcı', grup: 'Bilgi', anahtarlar: ['kayit', 'records'] },
+  { id: 'baglam', etiket: 'Bağlam önizleme', grup: 'Bilgi', anahtarlar: ['context', 'prompt'] },
 ]
 
 // Nabız aralığı SUNUCUDAN öğrenilir. Buraya bir sabit yazmak, sunucu nabzını
@@ -29,7 +31,7 @@ const VARSAYILAN_NABIZ_MS = 5000
 export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
   const [sonOlayMs, setSonOlayMs] = useState<number | null>(null)
-  const [ekran, setEkran] = useState<'giris' | 'corpus'>('giris')
+  const [ekran, setEkran] = useState<'giris' | 'corpus' | 'baglam'>('giris')
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
 
   useEffect(() => {
@@ -71,6 +73,8 @@ export const App = (): React.JSX.Element => {
       <main className="govde">
         {ekran === 'corpus' ? (
           <CorpusTarayici />
+        ) : ekran === 'baglam' ? (
+          <BaglamOnizleme tarif="instagram-post" />
         ) : (
           <>
             <h1>Upcytech Creative Suite</h1>
@@ -83,7 +87,9 @@ export const App = (): React.JSX.Element => {
 
       <Palet
         komutlar={KOMUTLAR}
-        uzerineSec={(k) => setEkran(k.id === 'corpus' ? 'corpus' : 'giris')}
+        uzerineSec={(k) =>
+          setEkran(k.id === 'corpus' ? 'corpus' : k.id === 'baglam' ? 'baglam' : 'giris')
+        }
       />
 
       <DurumSeridi

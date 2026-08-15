@@ -27,6 +27,7 @@ import { RUNS_DIR, fileHistory } from '@suite/kernel'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
+import { baglamOnizle } from './baglam.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -138,6 +139,23 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   app.get('/api/kayitlar/:id/etki', (c) => {
     const s = tersIndeks(o.repoRoot, c.req.param('id'))
     return c.json({ ...s, ozet: tersIndeksOzeti(s) })
+  })
+
+  // ── bağlam önizleme (§5.3, §12.9 · FAZ-4.5) ───────────────────────────────
+  //
+  // `haric` çoklu sorgu parametresi: `?tarif=instagram-post&haric=rec_a&haric=rec_b`.
+  // GET seçildi çünkü bu uç hiçbir şey DEĞİŞTİRMEZ ve harcamaz (R-47) — önizlemenin
+  // yan etkisi olsaydı "çalıştırmadan önce bak" vaadi çökerdi.
+  app.get('/api/baglam', (c) => {
+    if (db === null) return c.json({ ok: false, hata: 'indeks yok — `just reindex`' }, 503)
+    const r = baglamOnizle({
+      db,
+      recipesDir: join(o.repoRoot, 'registry/recipes'),
+      recipeId: c.req.query('tarif') ?? '',
+      query: o.query,
+      excluded: c.req.queries('haric') ?? [],
+    })
+    return c.json(r, r.ok ? 200 : 404)
   })
 
   // ── git zaman çizgisi (§12.9 · FAZ-4.4) ───────────────────────────────────

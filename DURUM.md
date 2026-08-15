@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.5
+siradaki_adim: 4.6
 son_guncelleme: 2026-08-15
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan"]
 deneme_sayaci: {}
@@ -54,12 +54,14 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.2b** · Vite + React SPA, ⌘K palet, kalıcı makine durumu şeridi | 2026-08-15 |
 | **4.3** · Corpus Browser; silme yok, yalnız emeklilik (R-12) | 2026-08-15 |
 | **4.4** · Record Detail, git zaman çizgisi, ters indeks | 2026-08-15 |
+| **4.5** · Context Preview; kapatma bir karar, manifest'e yazılıyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.5` — Context Preview** (§5.3, §12.9). Bölüm başına token çubuğu, tam prompt metni,
-kart başına "neden dahil edildi", canlı aç/kapa. Kapatma manifest'e yazılır: bağlamı
-elle daraltmak bir karardır ve kararın kaydı olmadan çıktı açıklanamaz.
+**`4.6` — Run Launcher** (§8.3, §12.9). Şemadan üretilmiş tipli girdi formu, şerit
+seçimi (bedava/premium, adım bazında ezme), maliyet **ARALIĞI** + güven noktası ve duvar
+saati tahmini. Tek sayı gösterilmez — tahmin bir bant, gerçek bir noktadır (§8.3).
+⚠ `4.6`–`4.9` gerçek çalıştırma gerektirir; `3.14` açılmadan TİKLENMEZ (D-158).
 
 
 ## Bloke adımlar

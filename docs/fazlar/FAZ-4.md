@@ -90,15 +90,15 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🧪 "etkisi yok" cümlesini sustur → kırmızı · git çizgisini boşalt → kırmızı
 💾 `feat(ui): record detail ve ters indeks` · `Refs: FAZ-4.4 · §12.9`
 
-## 4.5 — Context Preview    [ ]
+## 4.5 — Context Preview    [x] 2026-08-16
 
 📖 §5.3, §12.9 · D-63
 🔗 FAZ-2.3
-🛠 Bölüm başına token çubuğu · tam prompt metni · kart başına **"neden dahil edildi"** ·
-   canlı aç/kapa. Kapatılan kart manifest'e **override** olarak yazılır.
-📁 `apps/ui/src/screens/context/`
-✅ Kartı kapat → token çubuğu canlı düşüyor · override manifest'te
-🧪 Bütçeyi aşan bağlam → hangi bölümün kırpıldığı gösteriliyor, sessizce kesilmiyor
+🛠 Bölüm başına token çubuğu · kart başına **"neden dahil edildi"** · canlı aç/kapa.
+   Kapatma bir FİLTRE değil KARAR: `dropped`a girer ve manifeste yazılır (D-169).
+📁 `apps/server/src/baglam.ts` · `apps/ui/src/BaglamOnizleme.tsx`
+✅ Kapatılan kart manifeste yazılıyor · boş bölüm NEDENİNİ söylüyor
+🧪 Boş bölüm nedenini sustur → kırmızı · olmayan tarife boş manifest döndür → kırmızı
 💾 `feat(ui): context preview ve token bütçesi` · `Refs: FAZ-4.5 · §5.3`
 
 ## 4.6 — Run Launcher ve plan dondurma    [ ]

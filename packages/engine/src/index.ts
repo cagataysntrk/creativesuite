@@ -80,6 +80,7 @@ export {
 export {
   estimateTokens,
   assembleContext,
+  type AssembleOptions,
   formatContext,
   type CandidateRecord,
   type ContextManifest,

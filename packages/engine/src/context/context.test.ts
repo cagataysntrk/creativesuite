@@ -188,3 +188,45 @@ describe('manifest düzleştirme — `RunManifest.context` (§13 · D-146)', () 
     }
   })
 })
+
+describe('elle kapatma bir KARARDIR, filtre değil (§5.3 · FAZ-4.5)', () => {
+  it("kapatılan kayıt SESSİZCE ÇIKMAZ — dropped'a gerekçesiyle girer", () => {
+    const m = assembleContext(
+      tarif(),
+      { positioning: [kayit('p1', 'positioning', 40), kayit('p2', 'positioning', 40)] },
+      { excluded: ['p1'] }
+    )
+    const konum = m.sections.find((x) => x.id === 'konum')
+    expect(konum?.included.map((r) => r.id)).toEqual(['p2'])
+    expect(konum?.dropped.find((d) => d.id === 'p1')?.reason).toContain('insan kapattı')
+  })
+
+  it('manifest satırına DÖNÜŞÜR — replay farkı açıklayabilsin diye', () => {
+    // Yazılmasaydı aynı girdi iki farklı çıktı üretir ve farkın sebebi hiçbir yerde
+    // durmazdı; replay (§13) o an yalan söylerdi.
+    const m = assembleContext(
+      tarif(),
+      { positioning: [kayit('p1', 'positioning', 40)] },
+      { excluded: ['p1'] }
+    )
+    const satirlar = toManifestEntries(m)
+    const p1 = satirlar.find((e) => e.recordId === 'p1')
+    expect(p1?.reason).toContain('DÜŞTÜ')
+    expect(p1?.reason).toContain('insan kapattı')
+    expect(p1?.tokens).toBe(0)
+  })
+
+  it('kapatma token tahminini DÜŞÜRÜR — çubuk canlı iner', () => {
+    const kayitlar = {
+      positioning: [kayit('p1', 'positioning', 40), kayit('p2', 'positioning', 40)],
+    }
+    const tam = assembleContext(tarif(), kayitlar)
+    const eksik = assembleContext(tarif(), kayitlar, { excluded: ['p1'] })
+    expect(eksik.tokenEstimate).toBeLessThan(tam.tokenEstimate)
+  })
+
+  it('boş `excluded` davranışı DEĞİŞTİRMEZ — mevcut çağrılar aynı kalır', () => {
+    const kayitlar = { positioning: [kayit('p1', 'positioning', 40)] }
+    expect(assembleContext(tarif(), kayitlar, {})).toEqual(assembleContext(tarif(), kayitlar))
+  })
+})

@@ -52,7 +52,8 @@ export interface CandidateRecord {
 const bolumuDoldur = (
   section: RecipeSection,
   adaylar: readonly CandidateRecord[],
-  kalanToplam: number
+  kalanToplam: number,
+  haric: ReadonlySet<string>
 ): SectionManifest => {
   const included: IncludedRecord[] = []
   const dropped: { id: string; reason: string }[] = []
@@ -61,6 +62,14 @@ const bolumuDoldur = (
   for (const [i, r] of adaylar.entries()) {
     const maliyet = estimateTokens(`${r.title}\n${r.body}`)
 
+    // İnsan bu kaydı Context Preview'da KAPATTI. Bir kaçırma değil, bir KARAR — ve
+    // kararın manifeste yazılması şart (§5.3): yazılmazsa aynı girdi iki farklı çıktı
+    // üretir, farkın sebebi hiçbir yerde durmaz ve replay (§13) o an yalan söyler.
+    // `dropped`a gerekçesiyle girer; `toManifestEntries` onu defter satırına çevirir.
+    if (haric.has(r.id)) {
+      dropped.push({ id: r.id, reason: 'insan kapattı (Context Preview)' })
+      continue
+    }
     if (i >= section.maxRecords) {
       dropped.push({ id: r.id, reason: `max_records ${section.maxRecords} doldu` })
       continue
@@ -106,15 +115,28 @@ const bolumuDoldur = (
  * Tarifte bölüm sırasını değiştirmek, neyin feda edileceğini değiştirmektir — ve bu
  * kararın kod yerine YAML'da yaşaması, D-11'in ("şema veri, kod değil") bağlam hâlidir.
  */
+export interface AssembleOptions {
+  /**
+   * Operatörün Context Preview'da kapattığı kayıt id'leri (§12.9).
+   *
+   * **Filtre DEĞİL, karar.** Kapatılan kayıt listeden silinmez; `dropped`a gerekçesiyle
+   * girer ve manifeste yazılır. Sessizce çıkarsaydı, iki çalıştırma arasındaki farkın
+   * sebebi hiçbir yerde durmazdı.
+   */
+  readonly excluded?: readonly string[]
+}
+
 export const assembleContext = (
   recipe: ContextRecipe,
-  kayitlar: Readonly<Record<string, readonly CandidateRecord[]>>
+  kayitlar: Readonly<Record<string, readonly CandidateRecord[]>>,
+  opts: AssembleOptions = {}
 ): ContextManifest => {
   const sections: SectionManifest[] = []
+  const haric = new Set(opts.excluded ?? [])
   let toplam = 0
 
   for (const s of recipe.sections) {
-    const bolum = bolumuDoldur(s, kayitlar[s.entityType] ?? [], recipe.totalBudget - toplam)
+    const bolum = bolumuDoldur(s, kayitlar[s.entityType] ?? [], recipe.totalBudget - toplam, haric)
     sections.push(bolum)
     toplam += bolum.tokenEstimate
   }

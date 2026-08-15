@@ -59,6 +59,9 @@ importers:
       '@suite/kernel':
         specifier: workspace:*
         version: link:../../packages/kernel
+      '@suite/registry':
+        specifier: workspace:*
+        version: link:../../packages/registry
       hono:
         specifier: 4.13.2
         version: 4.13.2

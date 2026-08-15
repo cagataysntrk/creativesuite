@@ -311,3 +311,68 @@ kbd {
   font-size: var(--size-3);
   color: var(--role-text-muted);
 }
+
+/* ── bağlam önizleme (§5.3) ─────────────────────────────────────────────────*/
+.baglam-bolum {
+  margin-block: var(--space-6);
+}
+
+.baglam-baslik {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  block-size: var(--row-dense);
+}
+
+/* Token çubuğu bir ÖLÇÜM: dolu bir çubuk "bitti" değil "sınırdasın" der. */
+.cubuk {
+  display: inline-block;
+  inline-size: 160px;
+  block-size: 8px;
+  background: var(--role-bg);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.cubuk-dolu {
+  display: block;
+  block-size: 100%;
+  background: var(--role-text-muted);
+}
+
+.baglam-kartlar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.baglam-kart {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1) var(--space-4);
+  padding-block: var(--space-2);
+  border-block-end: 1px solid var(--role-line-hair);
+  font-size: var(--size-3);
+}
+
+.baglam-kart button {
+  grid-row: span 2;
+  align-self: center;
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  min-inline-size: 96px;
+  block-size: var(--row-dense);
+}
+
+.baglam-neden {
+  color: var(--role-text-muted);
+  font-size: var(--size-2);
+}
+
+/* Düşen kart SOLDURULMAZ (§12.6) — üstü çizili ve gerekçesi yazılı durur. */
+.baglam-dusuk .baglam-neden {
+  color: var(--role-state-warn);
+}
