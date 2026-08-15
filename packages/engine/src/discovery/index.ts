@@ -8,3 +8,15 @@ export {
   type ExistingRecord,
   type CandidateRecord,
 } from './plan.js'
+
+export {
+  parseLedger,
+  appendLine,
+  suppression,
+  type DecisionEntry,
+  type DecisionKind,
+  type StickyLedger,
+  type Suppression,
+} from './decisions.js'
+
+export { skipSignature, unchanged, type SkipSignatureInput } from './idempotent.js'

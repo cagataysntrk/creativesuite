@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { buildPlan, formatPlan, type CandidateRecord, type ExistingRecord } from './plan.js'
+import { parseLedger } from './decisions.js'
+import { skipSignature, unchanged, type SkipSignatureInput } from './idempotent.js'
 
 // §4.4'ün iki vaadi: (1) ikinci çalıştırma 0 op üretir, (2) elle düzenlenmiş kayda
 // motor dokunmaz. İkisi de bu sistemin kullanılmaya devam edilip edilmeyeceğini
@@ -111,5 +113,100 @@ describe('plan HİÇBİR ŞEY yazmaz', () => {
     // Planın içinde çağrılabilir bir şey olsaydı, "plan hiçbir şey yapmaz" iddiası
     // bir konvansiyona düşerdi. JSON'a serileşebiliyorsa yan etkisi olamaz.
     expect(JSON.parse(JSON.stringify(p))).toEqual(p)
+  })
+})
+
+describe('sticky karar defteri — insan reddeder, sistem HATIRLAR (§4.5)', () => {
+  const defter = (satirlar: readonly Record<string, unknown>[]) =>
+    parseLedger(satirlar.map((s) => JSON.stringify(s)).join('\n')).ledger
+
+  it('reddedilen aynı öneri plana GİRMİYOR', () => {
+    const d = defter([
+      {
+        recordId: 'rec_1',
+        pointer: '',
+        hash: 'dgst-1',
+        kind: 'rejected',
+        at: '2026-08-15T09:00:00.000Z',
+        reason: 'çok iddialı, kaynağı yok',
+      },
+    ])
+    const p = plan({ candidates: [aday()], ledger: d })
+    expect(p.summary.create).toBe(0)
+    expect(p.ops[0]?.kind).toBe('skip')
+    expect(p.ops[0]?.reason).toContain('daha önce reddedildi')
+    // Gerekçe KATLANMIŞ geliyor: insan neden reddettiğini hatırlamak zorunda değil.
+    expect(p.ops[0]?.reason).toContain('kaynağı yok')
+  })
+
+  it('DAHA İYİ bir öneri geçiyor — red içeriğe bağlı, alana değil', () => {
+    // Bir kez reddedilen alan sonsuza kadar iyileştirilemez olsaydı, sistem
+    // kendi kendini düzeltemezdi.
+    const d = defter([{ recordId: 'rec_1', pointer: '', hash: 'dgst-eski', kind: 'rejected' }])
+    const p = plan({ candidates: [aday({ digest: 'dgst-yeni' })], ledger: d })
+    expect(p.summary.create).toBe(1)
+  })
+
+  it("`pinned` alan hash'ten BAĞIMSIZ olarak susturuluyor", () => {
+    // "Bu alana bir daha dokunma" demek, içeriğin ne olduğundan bağımsızdır.
+    const d = defter([
+      { recordId: 'rec_1', pointer: '', hash: 'farketmez', kind: 'pinned', reason: 'elle yazdım' },
+    ])
+    const p = plan({ candidates: [aday({ digest: 'apayri-bir-icerik' })], ledger: d })
+    expect(p.ops[0]?.reason).toContain('sabitlenmiş alan')
+  })
+
+  it('bozuk JSONL satırı SESSİZCE atlanmıyor — satır numarasıyla raporlanıyor', () => {
+    // Atlanan bir red kaydı, kullanıcının hayır dediği bir öneriyi tekrar sormaktır.
+    const r = parseLedger('{"recordId":"a","pointer":"","hash":"h","kind":"rejected"}\n{bozuk\n')
+    expect(r.badLines).toEqual([2])
+    expect(r.ledger.entries).toHaveLength(1)
+  })
+
+  it('eksik alanlı satır da bozuk sayılıyor', () => {
+    const r = parseLedger('{"recordId":"a"}\n')
+    expect(r.badLines).toEqual([1])
+  })
+})
+
+describe('idempotent imza — altı girdi, biri eksikse atlama yalan olur (§4.4)', () => {
+  const girdi = (over: Partial<SkipSignatureInput> = {}): SkipSignatureInput => ({
+    inputHashes: ['a', 'b'],
+    promptHash: 'p1',
+    modelId: 'm1',
+    temperature: 0.7,
+    seed: 42,
+    retrievalSnapshot: 'r1',
+    ...over,
+  })
+
+  it('aynı girdi aynı imza — her koşuda, her makinede', () => {
+    expect(skipSignature(girdi())).toBe(skipSignature(girdi()))
+  })
+
+  it('girdi sırası imzayı DEĞİŞTİRMİYOR — sıra anlam değişimi değil', () => {
+    expect(skipSignature(girdi({ inputHashes: ['b', 'a'] }))).toBe(skipSignature(girdi()))
+  })
+
+  it('ALTI girdinin her biri imzayı değiştiriyor', () => {
+    const temel = skipSignature(girdi())
+    expect(skipSignature(girdi({ inputHashes: ['a', 'c'] }))).not.toBe(temel)
+    expect(skipSignature(girdi({ promptHash: 'p2' }))).not.toBe(temel)
+    expect(skipSignature(girdi({ modelId: 'm2' }))).not.toBe(temel)
+    expect(skipSignature(girdi({ temperature: 0.8 }))).not.toBe(temel)
+    expect(skipSignature(girdi({ seed: 43 }))).not.toBe(temel)
+    expect(skipSignature(girdi({ retrievalSnapshot: 'r2' }))).not.toBe(temel)
+  })
+
+  it('0.7 ile 0.70 aynı imza — sayı biçimi sabitlenmiş', () => {
+    expect(skipSignature(girdi({ temperature: 0.7 }))).toBe(
+      skipSignature(girdi({ temperature: 0.7 }))
+    )
+  })
+
+  it('unchanged imzasız kaydı DEĞİŞMEDİ saymıyor', () => {
+    expect(unchanged(null, 'x')).toBe(false)
+    expect(unchanged('x', 'x')).toBe(true)
+    expect(unchanged('x', 'y')).toBe(false)
   })
 })

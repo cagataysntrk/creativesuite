@@ -35,16 +35,39 @@ const eraSlug = readFileSync(CURRENT, 'utf8').trim()
 
 // Adaylar bir keşif çalıştırmasından gelir (FAZ-2.9). Bugün yoklar ve bu SESSİZCE
 // "0 op" diye gösterilmez — boş bir plan ile değişmemiş bir corpus aynı şey değildir.
-const ADAYLAR = join(REPO, 'derived/runs/discovery-candidates.json')
-const adaylar = existsSync(ADAYLAR) ? JSON.parse(readFileSync(ADAYLAR, 'utf8')) : null
+//
+// İkinci ve üçüncü argüman aday/mevcut listelerini dosyadan alır. Sebep kolaylık değil
+// KANIT: "ikinci çalıştırma 0 op üretir" FAZ 2'nin çıkış kriteridir ve corpus doğmadan
+// (FAZ-2.9) gerçek komutla gösterilemezdi.
+const adayYolu = process.argv[3] ?? 'derived/runs/discovery-candidates.json'
+const mevcutYolu = process.argv[4] !== undefined && process.argv[4] !== '' ? process.argv[4] : null
+const oku = (rel) => {
+  const tam = rel.startsWith('/') ? rel : join(REPO, rel)
+  return existsSync(tam) ? JSON.parse(readFileSync(tam, 'utf8')) : null
+}
+const adaylar = oku(adayYolu)
+const mevcutlar = mevcutYolu === null ? [] : (oku(mevcutYolu) ?? [])
+
+// Sticky karar defteri (§4.5) — reddedilen öneri tekrar sorulmaz.
+const DEFTER = join(REPO, `brand/${'brd_upcytech'}/decisions.jsonl`)
+const { parseLedger } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const defterSonuc = existsSync(DEFTER)
+  ? parseLedger(readFileSync(DEFTER, 'utf8'))
+  : { ledger: undefined, badLines: [] }
+if (defterSonuc.badLines.length > 0) {
+  console.log(`✗ decisions.jsonl bozuk satır: ${defterSonuc.badLines.join(', ')}`)
+  console.log('  Atlanan bir red kaydı, insanın hayır dediği öneriyi tekrar sormaktır.')
+  process.exit(1)
+}
 
 const plan = buildDiscoveryPlan({
   runId: 'run_discovery_dry',
   brandId: MARKA,
   eraSlug,
   mode,
-  existing: [],
+  existing: mevcutlar,
   candidates: adaylar ?? [],
+  ...(defterSonuc.ledger === undefined ? {} : { ledger: defterSonuc.ledger }),
 })
 
 console.log(formatDiscoveryPlan(plan))

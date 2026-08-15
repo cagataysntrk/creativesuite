@@ -10,9 +10,15 @@
 // Klasör kopyalayan bir tasarımda her regenerasyon "N yeni dosya" olarak görünür,
 // insan okumadan kabul eder ve yönetişim tiyatroya döner.
 
+import { suppression, type StickyLedger } from './decisions.js'
+
 export type DiscoveryMode = 'merge' | 'mirror'
 
 export type OpKind = 'create' | 'update' | 'retire' | 'skip'
+
+/** Boş defter — çağıran vermezse kullanılır. Sticky defter isteğe bağlı DEĞİL, ama
+ *  ilk çalıştırmada henüz boştur ve o meşrudur. */
+const BOS_DEFTER: StickyLedger = { rejected: new Set(), pinned: new Set(), entries: [] }
 
 export interface DiscoveryOp {
   readonly kind: OpKind
@@ -74,12 +80,32 @@ export const buildPlan = (input: {
   readonly mode: DiscoveryMode
   readonly existing: readonly ExistingRecord[]
   readonly candidates: readonly CandidateRecord[]
+  /** Sticky karar defteri (§4.5). Verilmezse boş kabul edilir. */
+  readonly ledger?: StickyLedger
 }): DiscoveryPlan => {
+  const defter = input.ledger ?? BOS_DEFTER
   const mevcut = new Map(input.existing.map((r) => [r.id, r]))
   const aday = new Map(input.candidates.map((r) => [r.id, r]))
   const ops: DiscoveryOp[] = []
 
   for (const c of input.candidates) {
+    // Sticky defter ÖNCE bakılır: insanın "hayır" dediği bir öneriyi tekrar sormak,
+    // defterin varlık sebebini çürütür (§4.5). Kayıt yeni olsa bile geçerli —
+    // reddedilen bir öneri, kayıt silinip yeniden önerildiğinde de reddedilmiştir.
+    const bastirma = suppression(defter, c.id, '', c.digest)
+    if (bastirma.suppressed) {
+      ops.push({
+        kind: 'skip',
+        path: c.path,
+        recordId: c.id,
+        reason:
+          bastirma.why === 'pinned'
+            ? `sabitlenmiş alan — plana girmiyor (${bastirma.reason})`
+            : `daha önce reddedildi (${bastirma.reason})`,
+        digest: c.digest,
+      })
+      continue
+    }
     const e = mevcut.get(c.id)
     if (e === undefined) {
       ops.push({

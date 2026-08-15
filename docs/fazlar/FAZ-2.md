@@ -145,7 +145,7 @@ yeniden üretilebilsin.
    "hiçbir şey yapmaz" iddiası konvansiyona düşerdi)
 💾 `feat(brand): keşif motoru — plan, review, apply` · `Refs: FAZ-2.7 · §4.4`
 
-## 2.8 — Sticky karar defteri ve idempotent atlama    [ ]
+## 2.8 — Sticky karar defteri ve idempotent atlama    [x] 2026-08-15
 
 📖 §4.5 · D-6
 🔗 2.7
@@ -154,8 +154,13 @@ yeniden üretilebilsin.
    **İdempotent atlama zorunlu altyapı:** `(input_hashes, prompt_hash, model_id,
    temperature, seed, retrieval_snapshot)` değişmemişse bölüm atlanır.
 📁 `brand/<brand_id>/decisions.jsonl` · `packages/engine/src/discovery/idempotent.ts`
-✅ **`plan --mode merge` ikinci kez → 0 op** (faz çıkış kriteri)
-🧪 Bir öneriyi reddet, tekrar çalıştır → aynı öneri plana GİRMİYOR
+✅ **İkinci çalıştırma → 0 op**, gerçek komutla kanıtlandı (faz çıkış kriteri):
+   1. koşu `2 yeni · 0 güncelleme · 0 emeklilik · 0 atlandı` · 2. koşu (aynı imzalar)
+   `DEĞİŞİKLİK YOK — 2 kayıt imzası aynı` · `just test discovery` → 21 test
+🧪 Koşuldu: `decisions.jsonl`'a bir red yaz → aynı öneri plandan düştü (`2 yeni` →
+   `1 yeni · 1 atlandı`), gerekçe KATLANMIŞ geldi · DAHA İYİ öneri (farklı hash) geçiyor,
+   yoksa bir kez reddedilen alan sonsuza kadar iyileştirilemezdi · `pinned` alan
+   hash'ten bağımsız susuyor · bozuk JSONL satırı → `✗ bozuk satır: 2`, EXIT=1
 💾 `feat(brand): sticky karar defteri ve idempotent atlama` · `Refs: FAZ-2.8 · §4.5`
 
 ## 2.9 — İlk keşif çalıştırması    [ ]

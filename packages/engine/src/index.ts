@@ -98,3 +98,16 @@ export {
   type ExistingRecord,
   type CandidateRecord as DiscoveryCandidate,
 } from './discovery/index.js'
+
+export {
+  parseLedger,
+  appendLine as appendDecision,
+  suppression,
+  skipSignature,
+  unchanged,
+  type DecisionEntry,
+  type DecisionKind,
+  type StickyLedger,
+  type Suppression,
+  type SkipSignatureInput,
+} from './discovery/index.js'
