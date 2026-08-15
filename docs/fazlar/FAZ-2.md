@@ -26,7 +26,7 @@ yeniden üretilebilsin.
    `$id`'yi dosya adından ayır → `projection` eşleşmiyor diyor (tablo adı dosyayı bulamaz)
 💾 `feat(registry): yedi strateji varlık tipi` · `Refs: FAZ-2.1 · §6`
 
-## 2.2 — Retrieval yüklemi — kodda TEK yer    [ ]
+## 2.2 — Retrieval yüklemi — kodda TEK yer    [x] 2026-08-15
 
 📖 §5.2, §3.8 · R-10, R-13 · D-39
 🔗 2.1
@@ -35,9 +35,12 @@ yeniden üretilebilsin.
    pencere `:as_of`'a göre. `SystemRecord` (attributes'sız projeksiyon) üzerinde derlenir —
    `attributes` üzerinde derlenseydi R-01'i kendi içinde çiğnerdi.
 📁 `packages/corpus/src/select.ts`
-✅ `just test retrieval` yeşil · emekliye ayrılmış 2024 kaydı 2026 sorgusunda **gelmiyor**
-🧪 İkinci bir yerde `WHERE brand_id` yaz → `chokepoints` kapısı kırmızı ·
-   `:as_of`'u geçmişe al → emekli kayıt geri geliyor (bi-temporal gerçekten çalışıyor)
+✅ `just test select` → 15 test yeşil · emekliye ayrılmış 2024 kaydı 2026 sorgusunda
+   gelmiyor, `:as_of` 2025'e alınınca GELİYOR · `chokepoints` `22 mekanik zorlanıyor`
+   (yüklem beyandan zorlamaya geçti)
+🧪 İkisi de koşuldu: ikinci bir dosyada yüklem yaz → `chokepoints` `darboğaz ihlali
+   "retrieval-yuklemi"` · ham `search()` emekli kaydı döndürüyor ama `selectSearch`
+   döndürmüyor — sıralama ile yetkilendirmenin ayrı olduğu testle sabitlendi
 💾 `feat(corpus): retrieval yüklemi — tek nokta` · `Refs: FAZ-2.2 · §5.2`
 
 ## 2.3 — Bağlam tarifleri ve bağlam manifesti    [ ]

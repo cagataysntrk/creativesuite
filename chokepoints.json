@@ -111,10 +111,11 @@
     {
       "id": "retrieval-yuklemi",
       "ad": "Retrieval yüklemi",
-      "neden": "`brand_id` + `era_id` + `status` + geçerlilik penceresi TEK sorguda toplanmazsa, emekliye ayrılmış konumlandırma yeni deck'e sızar (§5.2). Bu, sistemin en pahalı sessiz hatası.",
+      "neden": "`brand_id` + `era_id` + `status` + geçerlilik penceresi TEK sorguda toplanmazsa, emekliye ayrılmış konumlandırma yeni deck'e sızar (§5.2). Bu, sistemin en pahalı sessiz hatası. Desen yüklemin İKİ imzasını arar: `WHERE brand_id` ve görünür durum listesi. İkincisi olmadan biri yüklemi kopyalayıp marka koşulunu değiştirebilir ve kapı görmezdi.",
       "izinli": ["packages/corpus/src/select.ts"],
-      "desen": null,
-      "faz": "FAZ-2.2"
+      "desen": "WHERE\\s+brand_id\\b|status\\s+IN\\s*\\(\\s*'active'",
+      "faz": "FAZ-2.2",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     },
     {
       "id": "maliyet-defteri",

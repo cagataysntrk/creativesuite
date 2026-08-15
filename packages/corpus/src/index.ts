@@ -21,6 +21,15 @@ export {
 } from './search.js'
 
 export {
+  selectRecords,
+  selectSearch,
+  visibleIds,
+  VISIBLE_STATUSES,
+  type SelectQuery,
+  type SelectedRecord,
+} from './select.js'
+
+export {
   writeRecord,
   propose,
   recordPath,
