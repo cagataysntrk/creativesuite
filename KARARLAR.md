@@ -296,3 +296,15 @@ tasarlanmıştı; ama `DURUM.md` + faz dosyası tikleri zaten o güvenliği sağ
 tur sınırı ek koruma getirmiyordu.
 **Korunan kısıt:** yarım adım yasağı. Bir adım ya biter, ya başlamaz, ya bloke işaretlenir.
 **Geri alma maliyeti:** tek satır.
+
+## D-53 — FAZ 0 kapanmadan FAZ 1'e geçiliyor
+2026-08-15 · FAZ 0'da 17 adım kaldı ama **yedisi `packages/` gerektiriyor** (0.C.1, 0.C.2,
+0.C.3, 0.C.4, 0.C.8, 0.C.10, 0.C.11) — workspace olmadan yazılamaz. Beşi bake-off ve
+marka kararı bekliyor (0.A.5, 0.D.1–0.D.5), ikisi ileri faz dosyası (0.B.8b/c), biri
+zaten çalışan döngü provası (0.E.5).
+**Karar:** FAZ 1.1'e geçilir; `packages/` doğduğunda 0.C bloğu geri dönülüp kapatılır.
+**Neden:** bloke bir adımda beklemek, bağımsız bir adımı ilerletmekten kötüdür (LOOP§G).
+Kullanıcı bu durumda FAZ 1'e geçme yetkisini açıkça verdi.
+**Risk:** FAZ 0 "kapalı" sayılmadan FAZ 1 ilerlerse kapılar geç kurulur ve o aralıkta
+yazılan kod denetimsiz kalır. **Azaltma:** 0.C bloğu FAZ-1.1 biter bitmez, FAZ-1.2'den
+ÖNCE kapatılır — yani workspace'in ilk gerçek kodu zaten kapılı doğar.
