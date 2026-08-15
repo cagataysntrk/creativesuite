@@ -169,10 +169,11 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.C.7 — commit-msg hook'u    [x] 2026-08-14 (0.A.1c ile)
 ✅ İki commit sınıfı ayrışıyor · beş ihlal reddediliyor
 
-## 0.C.8 — chokepoints.json    [ ]
+## 0.C.8 — chokepoints.json    [x] 2026-08-15
 📖 §3.8
 🛠 "Tam olarak bir tane olmalı" listesi. **Dosya lint'i üretir** — satır eklemek
-   zorlamayı otomatik getirir.
+   zorlamayı otomatik getirir. 24 darboğaz; 13'ü mekanik zorlanıyor, 11'i beyan
+   (`desen: null`) ve kapı her turda kaç tanesinin zorlanmadığını **basar**.
 ✅ İkinci bir `chromium.launch()` yaz → kırmızı
 
 ## 0.C.9 — docs-size    [x] 2026-08-14

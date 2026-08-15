@@ -1,0 +1,199 @@
+{
+  "aciklama": "TAM OLARAK BİR TANE OLMALI listesi (§3.8). Bu dosya lint'i ÜRETİR: satır eklemek zorlamayı otomatik getirir. `desen` alanı doluysa kapı mekanik olarak zorlar; null ise darboğaz beyan edilmiştir ama henüz makine ile denetlenmiyor — o satır bir borçtur, gizlenmez, sayılır.",
+  "kapsam_varsayilan": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts"],
+  "darbogazlar": [
+    {
+      "id": "chromium-baslatan",
+      "ad": "Chromium başlatan",
+      "neden": "İki tarayıcı başlatıcı = iki font yükleme yolu = iki Türkçe tipografi hata modu (§7.1). Tek motor kararının (D-24) kodda karşılığı budur.",
+      "izinli": ["packages/render/src/browser.ts"],
+      "desen": "\\b(chromium|firefox|webkit)\\s*\\.\\s*launch\\s*\\(|puppeteer\\s*\\.\\s*launch\\s*\\(",
+      "faz": "FAZ-3.1"
+    },
+    {
+      "id": "alt-surec",
+      "ad": "Alt süreç başlatan",
+      "neden": "İptal yayılımı (AbortSignal) uçtan uca çalışmak zorunda. İkinci bir spawn noktası, iptal edilemeyen bir ffmpeg süreci demektir (§8.5).",
+      "izinli": ["packages/kernel/src/proc/spawn.ts"],
+      "desen": "from\\s+['\"]node:child_process['\"]|require\\(['\"]node:child_process['\"]\\)",
+      "faz": "FAZ-1.12"
+    },
+    {
+      "id": "http-istemcisi",
+      "ad": "HTTP istemcisi",
+      "neden": "İki HTTP istemcisi çevrimdışı modu yalan yapar: biri msw ile kesilir, diğeri gerçekten ağa çıkar ve test yeşil kalır (§15).",
+      "izinli": ["packages/kernel/src/net/http.ts"],
+      "desen": "\\bglobalThis\\s*\\.\\s*fetch\\s*\\(|(^|[^.\\w])fetch\\s*\\(|from\\s+['\"](undici|axios|node-fetch|got)['\"]",
+      "faz": "FAZ-1.12"
+    },
+    {
+      "id": "saat",
+      "ad": "Saat",
+      "neden": "İki saat replay'i bozar. `now()` tek yerden gelmezse bir çalıştırmayı yeniden oynatmak imkânsızlaşır (§13).",
+      "izinli": ["packages/kernel/src/time/clock.ts"],
+      "desen": "\\bDate\\s*\\.\\s*now\\s*\\(\\)|\\bnew\\s+Date\\s*\\(\\s*\\)|\\bperformance\\s*\\.\\s*now\\s*\\(\\)",
+      "faz": "FAZ-1.7"
+    },
+    {
+      "id": "rng",
+      "ad": "Rastgelelik",
+      "neden": "Seed'siz rastgelelik, aynı girdiyle farklı çıktı demektir; idempotent atlama (§4.5) çöker ve her keşif çalıştırması 900 op üretir.",
+      "izinli": ["packages/kernel/src/rng.ts"],
+      "desen": "\\bMath\\s*\\.\\s*random\\s*\\(\\)|\\bcrypto\\s*\\.\\s*randomBytes\\s*\\(",
+      "faz": "FAZ-1.7"
+    },
+    {
+      "id": "id-uretici",
+      "ad": "Kimlik üreteci",
+      "neden": "Kimlikler uuidv7 ve ön ekli olmak zorunda (§3.9). İkinci bir üretici, sıralanamayan ve tipi anlaşılmayan id üretir.",
+      "izinli": ["packages/kernel/src/ids.ts"],
+      "desen": "\\brandomUUID\\s*\\(|\\buuidv?[47]\\s*\\(|from\\s+['\"]uuid['\"]",
+      "faz": "FAZ-1.7"
+    },
+    {
+      "id": "sqlite-handle",
+      "ad": "SQLite handle",
+      "neden": "İkinci bir bağlantı, WAL ayarları ve pragma'ları farklı bir dosya açar; indeks sessizce iki gerçeğe böler (§3.5).",
+      "izinli": ["packages/corpus/src/db.ts"],
+      "desen": "new\\s+Database\\s*\\(|from\\s+['\"]better-sqlite3['\"]|from\\s+['\"]node:sqlite['\"]",
+      "faz": "FAZ-1.6"
+    },
+    {
+      "id": "corpus-yazici",
+      "ad": "Corpus yazıcı",
+      "neden": "Agent önerir, insan uygular (§5.4). İkinci bir yazma yolu, onay kuyruğunu atlayan bir yazma yoludur.",
+      "izinli": ["packages/corpus/src/write.ts"],
+      "desen": null,
+      "faz": "FAZ-1.6"
+    },
+    {
+      "id": "git-cagiran",
+      "ad": "Git çağıran",
+      "neden": "Onay = git commit (§5.4). İki git çağırıcı, biri kancasız çalışan iki onay yolu demektir.",
+      "izinli": ["packages/kernel/src/git.ts"],
+      "desen": "(exec|execFile|execa|spawn)\\w*\\s*\\(\\s*['\"]git['\"]|from\\s+['\"]simple-git['\"]",
+      "faz": "FAZ-2.4"
+    },
+    {
+      "id": "kaydetme",
+      "ad": "Kaydetme (`just save`)",
+      "neden": "2026-08-15: kabuk `&&` zinciri ve heredoc sonrası komutlar üç kez reddedilen bir commit'i BAŞARILI raporladı. Hatırlamaya güvenmek işe yaramadı; darboğaz işe yaradı (R-70).",
+      "izinli": ["scripts/save.sh"],
+      "kapsam": ["scripts/**/*.sh", "scripts/**/*.mjs"],
+      "desen": "git\\s+commit\\b",
+      "faz": "FAZ-0.C.8"
+    },
+    {
+      "id": "secret-okuyucu",
+      "ad": "Secret okuyucu",
+      "neden": "Secret'lar yalnız `sops exec-env` üzerinden gelir (§14). İkinci okuyucu, log'a sızabilecek ikinci bir yol demektir.",
+      "izinli": ["packages/kernel/src/config/secrets.ts"],
+      "desen": "\\bprocess\\s*\\.\\s*env\\b",
+      "faz": "FAZ-3.4"
+    },
+    {
+      "id": "yapilandirma-cozucu",
+      "ad": "Yapılandırma çözücü",
+      "neden": "Registry YAML'ı iki farklı yerde çözülürse, UI'ın gördüğü pipeline ile motorun çalıştırdığı pipeline ayrışır (§3.3).",
+      "izinli": ["packages/registry/src/resolve.ts"],
+      "desen": null,
+      "faz": "FAZ-1.3"
+    },
+    {
+      "id": "frontmatter-ayristirici",
+      "ad": "Frontmatter ayrıştırıcı",
+      "neden": "İki ayrıştırıcı bir dosyayı indekste geçerli, pipeline'da geçersiz yapar — ve hata dosyada değil, aradaki farkta olur.",
+      "izinli": ["packages/corpus/src/frontmatter.ts"],
+      "desen": "from\\s+['\"](gray-matter|front-matter|js-yaml|yaml)['\"]",
+      "faz": "FAZ-1.6"
+    },
+    {
+      "id": "retrieval-yuklemi",
+      "ad": "Retrieval yüklemi",
+      "neden": "`brand_id` + `era_id` + `status` + geçerlilik penceresi TEK sorguda toplanmazsa, emekliye ayrılmış konumlandırma yeni deck'e sızar (§5.2). Bu, sistemin en pahalı sessiz hatası.",
+      "izinli": ["packages/corpus/src/select.ts"],
+      "desen": null,
+      "faz": "FAZ-2.2"
+    },
+    {
+      "id": "maliyet-defteri",
+      "ad": "Maliyet defteri yazıcı",
+      "neden": "İki yazıcı, tahmin ile gerçeğin karşılaştırılamaması demektir; bütçe tavanı (D-17) o an anlamsızlaşır.",
+      "izinli": ["packages/engine/src/cost/ledger.ts"],
+      "desen": null,
+      "faz": "FAZ-1.12"
+    },
+    {
+      "id": "manifest-yazici",
+      "ad": "Run manifest yazıcı",
+      "neden": "Manifest bir çalıştırmanın tek kanıtıdır (§13). İki yazıcı, hangi sağlayıcıya ne gönderildiğini iki farklı şekilde anlatır.",
+      "izinli": ["packages/engine/src/manifest.ts"],
+      "desen": null,
+      "faz": "FAZ-1.9"
+    },
+    {
+      "id": "plan-dondurucu",
+      "ad": "Plan dondurucu",
+      "neden": "`rerun` donmuş planı, `replay` bugünün tanımını kullanır (§13). Tek dondurucu yoksa ikisi ayırt edilemez.",
+      "izinli": ["packages/engine/src/plan/freeze.ts"],
+      "desen": null,
+      "faz": "FAZ-1.13"
+    },
+    {
+      "id": "is-kuyrugu",
+      "ad": "İş kuyruğu",
+      "neden": "İki kuyruk, SIGKILL sonrası çift ücretlendirme demektir (§3.7).",
+      "izinli": ["packages/kernel/src/queue.ts"],
+      "desen": null,
+      "faz": "FAZ-1.8"
+    },
+    {
+      "id": "hata-taksonomisi",
+      "ad": "Hata taksonomisi (`throw`)",
+      "neden": "`throw` yalnız burada; her yerde `Result` (§8.6). İkinci fırlatma noktası, `costIncurred` taşımayan bir hata demektir — para harcanmış ama defterde yok.",
+      "izinli": ["packages/kernel/src/errors/index.ts"],
+      "desen": null,
+      "faz": "FAZ-1.7"
+    },
+    {
+      "id": "gecis-uygulayici",
+      "ad": "Şema geçişi uygulayıcı",
+      "neden": "İki geçiş uygulayıcı, corpus'un yarısını göç ettirip yarısını bırakabilir; kısmi göç, hiç göç etmemekten kötüdür (§3.3).",
+      "izinli": ["packages/registry/src/migrate.ts"],
+      "desen": null,
+      "faz": "FAZ-4.11"
+    },
+    {
+      "id": "logger",
+      "ad": "Logger",
+      "neden": "Log olay adları İngilizce ve şemalıdır (D-37). İkinci logger, korelasyon id'si taşımayan satırlar üretir ve hata ayıklama biter.",
+      "izinli": ["packages/kernel/src/log.ts"],
+      "desen": "\\bconsole\\s*\\.\\s*(log|info|warn|error|debug)\\s*\\(",
+      "faz": "FAZ-1.7"
+    },
+    {
+      "id": "saglayici-cagirici",
+      "ad": "Sağlayıcı çağırıcı",
+      "neden": "Model çağıran tek fiil GENERATE'tir (§3.10). İkinci çağırıcı, yönlendiriciyi ve maliyet defterini atlar.",
+      "izinli": ["packages/providers/src/invoke.ts"],
+      "desen": null,
+      "faz": "FAZ-3.4"
+    },
+    {
+      "id": "kanal-yayinci",
+      "ad": "Kanal yayıncısı",
+      "neden": "Yayınlama tek fiildir (PUBLISH) ve yerel defterle yineleme kontrolü yapar. İkinci yayıncı, Meta'nın mevcut id döndürmesini 'başardım' sanar (§9.2).",
+      "izinli": ["packages/providers/src/publish.ts"],
+      "desen": null,
+      "faz": "FAZ-7.2"
+    },
+    {
+      "id": "yol-cozucu",
+      "ad": "Yol çözücü",
+      "neden": "Mutlak yolu basan tek yer. İkincisi, Türkçe karakterli dizin adlarında URL-kodlu yol üretir — 2026-08-14'te tam olarak bu oldu ve 44 dosya yanlış dizine yazıldı.",
+      "izinli": ["packages/kernel/src/paths.ts"],
+      "desen": "new\\s+URL\\s*\\(\\s*import\\s*\\.\\s*meta\\s*\\.\\s*url\\s*\\)\\s*\\.\\s*pathname",
+      "faz": "FAZ-1.7"
+    }
+  ]
+}
