@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 1.3
+siradaki_adim: 1.4
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.2: sema-tip ayrisma bekcisi 3 yonde de kirmizi; schemas kapisi Zod degisimini yakaladi"
+son_kanit: "1.3: registry kapisi oz-test geciyor, oneOf iceren tip kirmizi, PROFILE.md ayrismasi da kirmizi"
 ```
 
 ## Neredeyiz
@@ -59,13 +59,16 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.1** · pnpm workspace ve halka sınırları | 2026-08-15 |
 | **1.1b** · packages/contracts | 2026-08-15 |
 | **1.2** · kayıt zarfı şeması + JSON üretimi | 2026-08-15 |
+| **1.3** · registry/PROFILE.md + profil kapısı | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.3** — `registry/PROFILE.md`: izin verilen JSON Schema 2020-12 alt kümesi.
-Yasak: `unevaluatedProperties`, `$dynamicRef`, `if/then/else`, `patternProperties`,
-`not`, `oneOf`. Varyantlar açık ayırt edici alanla (`kind: 'saas' | 'bespoke'`).
-Kabul: profil dışı anahtar kullanan bir tip yaz → `registry` kapısı kırmızı.
+**1.4** — projeksiyon derleyicisi: tek şema → dört hedef (rjsf formu · TS tipi ·
+katı LLM şeması · SQLite DDL). Her varlık tipi için CI snapshot'ı.
+Kabul: `just test projection` yeşil · dört projeksiyonun snapshot'ı eşleşiyor.
+İhlal: şemaya iç içe nesne ekle, `additionalProperties:false` koyma → LLM projeksiyonu
+testi kırmızı (sessizce kabul etmiyor).
+⚠ Ön koşul: FAZ-1.10 test altyapısı (Vitest) henüz yok — 1.4'ten önce 1.10 gelir.
 
 > D-53 uyarınca **0.C bloğu FAZ-1.2'den ÖNCE kapanır** — workspace'in ilk gerçek kodu
 > D-53'ün "0.C bloğu FAZ-1.2'den önce kapanır" taahhüdü: bağımsız olan üçü (0.C.1,

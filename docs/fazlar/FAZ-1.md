@@ -44,7 +44,7 @@ ağ kablosu çekiliyken de çalışıyor
 💾 `feat(kernel): kayıt zarfı şeması ve üretilmiş JSON şemaları` · `Refs: FAZ-1.2 · §3.2`
    (D-57: Zod çalışma zamanı bağımlılığıdır, contracts hiçbir şey import etmez)
 
-## 1.3 — registry/PROFILE.md    [ ]
+## 1.3 — registry/PROFILE.md    [x] 2026-08-15
 
 📖 §3.3
 🛠 İzin verilen JSON Schema 2020-12 alt kümesi. **Yasak:** `unevaluatedProperties`,
