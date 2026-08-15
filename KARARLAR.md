@@ -561,3 +561,16 @@ Fiyat katmanı **koltuk değil**: pipeline'lar programatik ve toplu render ediyo
 HyperFrames Apache 2.0 ve aynı motoru (headless Chrome + FFmpeg) kullanıyor; R-30
 korunuyor. Yıllık $1.200'lük yükümlülük, aynı yasayı koruyan bedava alternatif varken
 alınmaz. Yedek (Revideo, MIT) belgeli hâliyle duruyor. 🔴 kalktı.
+
+## D-81 — Keşif `just plan` altında değil, kendi komutunda
+2026-08-15 · FAZ-2.7'nin ✅'si `just plan discovery` diyordu. Uygulanamaz: `just plan`
+argümanını `registry/pipelines/<id>.pipeline.yaml` olarak çözüyor ve keşif bir pipeline
+DEĞİL — marka DNA'sının yeniden üretimi.
+**Karar:** `just discovery [merge|mirror]`. Kriter gerçeğe uyduruldu (D-76 deseni).
+**Neden ayrı komut:** keşfi pipeline listesine sokmak `just plan` çıktısının anlamını
+ikiye bölerdi — biri maliyet tahmini olan bir üretim planı, diğeri corpus farkı olan bir
+öneri listesi. Aynı kelime iki şeye işaret ederse ikisi de güvenilmez olur (§3.9 kanonik adlar
+mantığı).
+**Ayrıca:** aday listesi yokken çıktı "0 op" demiyor, **aday listesi YOK** diyor. Boş bir
+plan ile değişmemiş bir corpus aynı şey değildir; ikisini karıştırmak hiç koşmamış bir
+motoru çalışıyor sanmaktır (D-75'in aynı hatası).

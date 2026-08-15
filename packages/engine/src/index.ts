@@ -85,3 +85,16 @@ export {
   type IncludedRecord,
   type SectionManifest,
 } from './context/index.js'
+
+// Keşif motoru (§4.4 · FAZ-2.7). `formatPlan` adı çakışıyor: pipeline planı ile
+// keşif planı ayrı şeylerdir ve ikisi de "plan" adını hak ediyor.
+export {
+  buildPlan as buildDiscoveryPlan,
+  formatPlan as formatDiscoveryPlan,
+  type DiscoveryMode,
+  type DiscoveryOp,
+  type DiscoveryPlan,
+  type OpKind,
+  type ExistingRecord,
+  type CandidateRecord as DiscoveryCandidate,
+} from './discovery/index.js'

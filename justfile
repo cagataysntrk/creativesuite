@@ -66,6 +66,10 @@ save file="-" *paths:
 fmt:
     @./node_modules/.bin/prettier --write . --log-level warn && echo "✓ biçimlendirildi"
 
+# Keşif planı — op listesi basar, HİÇBİR ŞEY yazmaz (§4.4)
+discovery mode='merge':
+    @./node_modules/.bin/tsc -b && node scripts/discovery.mjs '{{mode}}'
+
 # Türetilmiş indeksi sıfırdan kur. derived/runs'a DOKUNMAZ (D-38)
 # Argümansız: gerçek corpus → gerçek indeks. Argümanlı: fixture'a karşı kanıt koşusu.
 reindex kok='corpus' db='derived/index/suite.db':

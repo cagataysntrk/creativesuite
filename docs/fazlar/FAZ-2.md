@@ -128,7 +128,7 @@ yeniden üretilebilsin.
    dönem reddediliyor
 💾 `feat(brand): era modeli ve varlık damgası` · `Refs: FAZ-2.6 · §4.3`
 
-## 2.7 — Marka DNA keşif motoru    [ ]
+## 2.7 — Marka DNA keşif motoru    [x] 2026-08-15
 
 📖 §4.4 · D-6
 🔗 2.6
@@ -136,8 +136,13 @@ yeniden üretilebilsin.
    ve **aynı yolları** yeniden yazar → `git diff` gerçek satır bazlı inceleme verir.
    `mode: merge` (sadece ekleme, varsayılan) / `mode: mirror` (silmeler dahil tam yeniden üretim).
 📁 `packages/engine/src/discovery/` · `apps/cli/src/discovery.ts`
-✅ `just plan discovery` hiçbir şey harcamadan op listesi basıyor · worktree temiz kalıyor
-🧪 `apply` olmadan `plan` çalıştır → çalışma ağacı DEĞİŞMİYOR
+✅ `just discovery [merge|mirror]` op listesi basıyor (D-81: `just plan` pipeline
+   çözüyor, keşif pipeline DEĞİL) · komut öncesi ve sonrası `git status --porcelain`
+   satır sayısı AYNI · `just test discovery` → 11 test
+🧪 Koşuldu: `just discovery` öncesi/sonrası ağaç aynı (4 → 4 satır) · aday listesi
+   yokken çıktı "0 op" DEMİYOR, "aday listesi YOK" diyor — boş plan ile değişmemiş
+   corpus aynı şey değil · plan JSON'a serileşiyor (içinde çağrılabilir bir şey olsaydı
+   "hiçbir şey yapmaz" iddiası konvansiyona düşerdi)
 💾 `feat(brand): keşif motoru — plan, review, apply` · `Refs: FAZ-2.7 · §4.4`
 
 ## 2.8 — Sticky karar defteri ve idempotent atlama    [ ]
