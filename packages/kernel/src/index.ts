@@ -76,6 +76,10 @@ export {
   type RunManifest,
   type ManifestDefect,
   type CostSummary,
+  RUNS_DIR,
+  runDir,
+  manifestPath,
+  publishedLedgerPath,
 } from './manifest.js'
 
 export {

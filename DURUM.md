@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.13
+siradaki_adim: 3.14
 son_guncelleme: 2026-08-15
 bloke: ["2.9", "3.8"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.12 kapandi: gercek bir blob uctan uca depolandi (af2f613c…png), damgalandi, dogrulandi. Icerigini bozunca -> icerik adresle UYUSMUYOR; sidecari silince -> sidecar YOK; ikisi de kirmizi. 600KB dosyayi gite sokmayi denedim -> repo-hygiene reddetti (R-64). verifyBlob compliance kapisina BAGLANDI — olu kod olmasin. 677 test, 22 kapi."
+son_kanit: "FAZ 3.13 kapandi: manifestsiz varlik depoya alindi -> compliance kapisi REDDETTI. Iki gercek hata: JSON.stringify bigint'i ATIYOR ve manifest HIC yazilamiyordu (D-119); inspectManifest bos {} uzerinde COKUYORDU (D-120). Sapma tahminin UST sinirina gore, %20 esigi anlamli. 693 test, 22 kapi."
 ```
 
 ## Neredeyiz
@@ -19,9 +19,9 @@ son_kanit: "FAZ 3.12 kapandi: gercek bir blob uctan uca depolandi (af2f613c…pn
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.13`: run manifest
-> yazıcı — `knowledgeCommitSha`, dönem damgası, tahmini vs gerçek maliyet, kaybeden
-> sağlayıcılar. Fazın sonunda gerçek bir carousel üretilmiş olacak.
+> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.14` — **fazın ★ hedefi**:
+> `instagram-post` + `instagram-carousel` uçtan uca. Bu adım bittiğinde sistem gerçek
+> bir carousel üretmiş olacak.
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -47,13 +47,15 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.10** · deterministik lexicon linter, corpus'a bağlı | 2026-08-15 |
 | **3.11** · uyum kapısı, kendi PNG damgamız (ExifTool'suz) | 2026-08-15 |
 | **3.12** · içerik-adresli varlık deposu + sidecar | 2026-08-15 |
+| **3.13** · run manifest yazıcı, tahmini vs gerçek maliyet | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.13` — run manifest yazıcı.** FAZ-1.9'daki sözleşme gerçek çalıştırmalara
-bağlanır: `knowledgeCommitSha`, dönem damgası, **tahmini vs gerçek maliyet**, kaybeden
-sağlayıcılar gerekçesiyle. `derived/runs/` silinmez (R-52).
-Ardından `3.14` — **fazın ★ hedefi**: `instagram-post` + `instagram-carousel` uçtan uca.
+**`3.14` — `instagram-post` + `instagram-carousel` uçtan uca ★.** Fazın hedefi:
+CLI'dan bir carousel üretmek. Bugün eksik olan tek şey sağlayıcı anahtarları (V-16) —
+`free` şerit `CF_ACCOUNT_ID`/`CF_API_TOKEN` bekliyor. Anahtarsız yol: hat uçtan uca
+koşuyor, `GENERATE` adımı `MISSING_CREDENTIALS` ile duruyor ve bu **dürüst** bir
+sonuç. Ardından `3.15` linkedin-post.
 
 ⚠ **`3.8` (marka LoRA) BLOKE** — ~$3 gerçek para harcıyor ve `FAL_KEY` yok (V-16).
 Anahtarlar `secrets.enc.yaml`a girdiğinde açılır.

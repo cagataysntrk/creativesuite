@@ -136,17 +136,23 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
     if (typeof v !== 'string' || v.trim() === '') defects.push({ kind: 'missing_field', field: f })
   }
 
-  if (m.steps.length === 0) defects.push({ kind: 'no_steps' })
+  // ⚠ Diskten okunan manifest TİPİ TAŞIMAZ: `JSON.parse` bir `{}`'ı da `RunManifest`
+  // sanır. Doğrulayıcının kendisi geçersiz girdide çökerse doğrulayıcı değildir —
+  // `{}` bir manifest dosyası olarak pekâlâ var olabilir ve tam da o an patlıyordu.
+  const steps: readonly StepRecord[] = Array.isArray(m.steps) ? m.steps : []
+  if (!Array.isArray(m.steps)) defects.push({ kind: 'missing_field', field: 'steps' })
+  if (steps.length === 0) defects.push({ kind: 'no_steps' })
 
-  for (const s of m.steps) {
+  for (const s of steps) {
     // Sağlayıcı seçen her adım adaylarını yazmak zorunda — kaybedenler dahil.
-    if (s.providerId !== null && s.candidates.length === 0) {
+    const candidates = Array.isArray(s.candidates) ? s.candidates : []
+    if (s.providerId !== null && candidates.length === 0) {
       defects.push({ kind: 'step_without_candidates', stepId: s.stepId })
     }
-    if (s.candidates.length > 0 && !s.candidates.some((c) => c.selected)) {
+    if (candidates.length > 0 && !candidates.some((c) => c.selected)) {
       defects.push({ kind: 'no_selected_provider', stepId: s.stepId })
     }
-    for (const c of s.candidates) {
+    for (const c of candidates) {
       // Seçilen aday red gerekçesi taşıyamaz: taşıyorsa defter kendi içinde çelişir.
       if (c.selected && c.rejectionReason !== null) {
         defects.push({ kind: 'selected_with_rejection', stepId: s.stepId })
@@ -192,3 +198,17 @@ export const costSummary = (m: RunManifest): CostSummary => {
     outsideBand: actual.micros < low.micros || actual.micros > high.micros,
   }
 }
+
+// ── kanonik yollar ───────────────────────────────────────────────────────────
+//
+// Çalıştırma defterinin nerede yaşadığını bilen TEK yer burasıdır
+// (`chokepoints.json` → `manifest-yazici`). Yolu ikinci bir dosyaya yazmak, defterin
+// iki farklı yere düşmesi ve birinin yedeklenmemesi demektir — ve `derived/runs`
+// türetilemez (D-38), yani kayıp kalıcıdır.
+
+/** Repo köküne göreli. Motor yazıcısı bunu import eder, kendi yolunu KURMAZ. */
+export const RUNS_DIR = 'derived/runs'
+
+export const runDir = (runId: string): string => `${RUNS_DIR}/${runId}`
+export const manifestPath = (runId: string): string => `${runDir(runId)}/manifest.json`
+export const publishedLedgerPath = (): string => `${RUNS_DIR}/published.ndjson`

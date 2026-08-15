@@ -174,6 +174,24 @@ for (const rel of varliklar) {
   }
 }
 
+// ── her varlığın MANİFEST'i var mı (§13 · FAZ-3.13) ─────────────────────────
+// "Manifest'siz çıktı bir hatadır" — kapı üretimi reddeder. Sidecar `sourceRunId`
+// söylüyor; o çalıştırmanın manifest'i `derived/runs/` altında OLMAK ZORUNDA.
+const { readBlobMeta, readManifest, canPublish } = await import(
+  join(REPO, 'packages/engine/dist/index.js')
+)
+for (const rel of varliklar) {
+  const meta = readBlobMeta(join(REPO, rel))
+  if (meta === null) continue // sidecar eksikliği yukarıda zaten raporlandı
+  if (readManifest(REPO, meta.sourceRunId) === null) {
+    hatalar.push(
+      `${rel}: çalıştırma manifest'i YOK (${meta.sourceRunId}) — manifest'siz varlık yayınlanamaz (§13)`
+    )
+  } else if (!canPublish(REPO, meta.sourceRunId)) {
+    hatalar.push(`${rel}: manifest KUSURLU (${meta.sourceRunId}) — yayın bloklu`)
+  }
+}
+
 if (hatalar.length > 0) {
   console.log(hatalar.map((h) => `  ✗ ${h}`).join('\n'))
   console.log(`\n${hatalar.length} uyum ihlali`)

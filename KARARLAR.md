@@ -553,3 +553,35 @@ turunda bu darboğaz beş ayrı yoldan atlatılmıştı.
 `derived/runs` ile maliyet defterini yazıyor; doğru komşu orası. Faz dosyasındaki yol
 düzeltildi — **sessiz sapma yok** (R-74).
 **Ders:** darboğaz kapısı bir engel değil, tasarım geri bildirimi. Dördüncü kez.
+
+## D-119 — `bigint` para manifest'te DİZE olarak yazılır
+2026-08-15 · Manifest yazıcısının ilk testi şunu gösterdi: **`JSON.stringify` bir
+`bigint`i serileştiremez, atar.** Para `bigint` USD mikro olduğu için (R-41) manifest
+bu düzeltme olmadan **hiç yazılamıyordu** — testi yazmasaydık bunu ilk gerçek
+çalıştırmada, para harcandıktan sonra öğrenirdik.
+Sözleşme: `bigint` → **ondalık dize**. `Number`a çevirmek reddedildi — 2^53 üstü mikro
+değerler sessizce yuvarlanır ve defter yanlış toplar; dize kayıpsız ve `git diff`te
+okunabilir. Okurken şekil tabanlı revive: `{micros: <dize>, currency: <dize>}` bir
+`Money`dir. Alan ADINA göre çevirmek kırılgan olurdu.
+**Revive olmasaydı `costVariance` sessizce felaket olurdu:** `micros` dize kalır ve
+`+` toplama yerine BİRLEŞTİRME yapardı — `"28000" + "10000"` = `"2800010000"`.
+Test bunu ayrıca sınıyor.
+
+## D-120 — Doğrulayıcı geçersiz girdide ÇÖKMEZ
+2026-08-15 · `inspectManifest` diskten okunan boş bir `{}` üstünde
+`Cannot read properties of undefined (reading 'length')` ile patladı. `JSON.parse` bir
+`{}`'ı da `RunManifest` sanar — **tip JSON sınırını geçmez.**
+Doğrulayıcının kendisi geçersiz girdide çökerse doğrulayıcı değildir; ve `{}` bir
+manifest dosyası olarak pekâlâ var olabilir. `steps` ve `candidates` artık
+`Array.isArray` ile korunuyor, eksikse `missing_field` raporlanıyor.
+Bu, `classify`ın toplam fonksiyona çevrilmesiyle (D-114 civarı) aynı desen: **tipin
+geçmediği her sınırda çalışma zamanı savunması gerekir.** Üçüncü kez.
+
+## D-121 — Manifest kapıya bağlandı: manifest'siz varlık yayınlanamaz
+2026-08-15 · §13 "manifest'siz çıktı bir hatadır" diyor. `compliance` kapısı artık her
+blob'un sidecar'ındaki `sourceRunId`'yi okuyup `derived/runs/<id>/manifest.json`
+varlığını VE temizliğini doğruluyor. Gerçek bir varlık `run_manifestsiz` ile depoya
+alındı ve kapı reddetti.
+Sapma oranı **tahminin ÜST sınırına** göre: kullanıcı onaylarken gördüğü sayı odur ve
+sapma "onayladığım rakamı aştı mı" sorusunu cevaplamalı. Ortalamaya göre hesaplasaydık
+her çalıştırma yarı yarıya sapmış görünür ve %20 eşiği anlamını kaybederdi.

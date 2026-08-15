@@ -174,3 +174,15 @@ export {
   type StoreInput,
   type StoreResult,
 } from './blobs.js'
+
+export {
+  writeManifest,
+  readManifest,
+  canPublish,
+  costVariance,
+  knowledgeCommit,
+  runOutputDir,
+  type WriteInput,
+  type WriteResult,
+  type CostVariance,
+} from './manifest-writer.js'

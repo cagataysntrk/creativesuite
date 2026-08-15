@@ -167,7 +167,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 512KB üstü dosyayı commit'lemeyi dene → engelleniyor
 💾 `feat(corpus): içerik-adresli varlık deposu` · `Refs: FAZ-3.12 · §3.5`
 
-## 3.13 — Run manifest yazıcı    [ ]
+## 3.13 — Run manifest yazıcı    [x] 2026-08-15
 
 📖 §13 · R-11 · D-38
 🔗 FAZ-1.9
