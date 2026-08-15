@@ -7,6 +7,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
+const { parseYaml, validateEra } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 const hatalar = []
 
 const etiketler = new Set(
@@ -33,8 +34,35 @@ for (const marka of markalar) {
 
   for (const slug of donemler) {
     donemSayisi++
-    if (!existsSync(join(eraKok, slug, 'era.yaml'))) {
+    const manifestYolu = join(eraKok, slug, 'era.yaml')
+    if (!existsSync(manifestYolu)) {
       hatalar.push(`${marka}/${slug}: era.yaml yok`)
+    } else {
+      const y = parseYaml(readFileSync(manifestYolu, 'utf8'))
+      if (!y.ok) {
+        hatalar.push(`${marka}/${slug}: era.yaml AYRIŞMIYOR — ${y.message.split('\n')[0]}`)
+      } else if (y.value === null || typeof y.value !== 'object') {
+        hatalar.push(`${marka}/${slug}: era.yaml boş ya da eşleme değil`)
+      } else {
+        const d = y.value
+        const r = validateEra({
+          slug: typeof d.slug === 'string' ? d.slug : '',
+          brandId: typeof d.brand_id === 'string' ? d.brand_id : '',
+          status: d.status,
+          commitSha: typeof d.commit_sha === 'string' ? d.commit_sha : '',
+          mintedAt: typeof d.minted_at === 'string' ? d.minted_at : '',
+          title: typeof d.title === 'string' ? d.title : '',
+          rationale: typeof d.rationale === 'string' ? d.rationale : '',
+          supersedes: typeof d.supersedes === 'string' ? d.supersedes : null,
+        })
+        if (!r.ok) {
+          for (const e of r.errors)
+            hatalar.push(`${marka}/${slug}: ${e.kind} (${JSON.stringify(e)})`)
+        }
+        // Dizin adı ile manifestteki slug ayrışırsa git etiketi hangisine ait belirsizleşir.
+        if (d.slug !== slug)
+          hatalar.push(`${marka}/${slug}: manifest slug'ı '${d.slug}' — dizinle uyuşmuyor`)
+      }
     }
     // Etiket, dönemin git tutamağıdır: onsuz "o günkü ağacı ver" cevapsız kalır.
     if (!etiketler.has(`era/${slug}`)) {

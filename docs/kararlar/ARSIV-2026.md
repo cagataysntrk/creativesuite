@@ -328,3 +328,80 @@ geçmişini **hem** çalışma ağacını tarar.
 üst kabuğun PATH'ini değiştirmiyordu; kanca Node 20 ile koştu, bir kapı çöktü ve commit
 doğru sebeple değil, **yanlış sebeple** engellendi. Yeşil değil kırmızıydı ama yine de
 yanlıştı — kapının doğru sebeple kırmızı olduğunu görmek şart (R-71).
+
+## D-57 — Zarfın Zod şeması `packages/kernel`'de, `packages/contracts`'ta değil
+2026-08-15 · FAZ-1.2'nin 💾 satırı `feat(contracts): …` diyordu, ama Zod bir ÇALIŞMA
+ZAMANI bağımlılığıdır ve `packages/contracts` **hiçbir şey import etmez** (§3.1) —
+`dependencies` boşluğu FAZ-1.1b'nin kabul kriteridir. İkisi aynı anda doğru olamaz.
+**Karar:** derleme zamanı gerçeği (`RecordEnvelope`) contracts'ta kalır; çalışma zamanı
+gerçeği (`RecordEnvelopeSchema`, Zod 4.4.3) `packages/kernel/src/schema/envelope.ts`'te
+yaşar. Faz dosyasının 💾 satırı `feat(kernel)` olarak düzeltildi — sessizce sapılmadı.
+**Ayrışma riski ve çözümü:** iki yerde duran bir gerçek ayrışır. Üç tip iddiası ayrışmayı
+derleme hatasına çevirir: `TIP_SEMAYA_UYUYOR` (tip çakışması), `SEMADA_FAZLA_ALAN_YOK`,
+`SEMADA_EKSIK_ALAN_YOK`. Üçü de kasten ihlal edilerek doğrulandı (A: zarfa alan ekle →
+111. satır kırmızı · B: şemaya fazla alan → 110+111 · C: `confidence: z.string()` → 109).
+**Kaldırılan dördüncü iddia:** `SchemaShape extends ContractShape` yazıldı ve **temiz
+repoda bile kırmızı verdi** — şema düz `string` üretir, sözleşme markalı `RecordId` ister;
+ters yön tasarım gereği asla doğru olamaz. Daima kırmızı bir kapı, daima yeşil bir kapı
+kadar işe yaramaz: ilki kapatılır, ikincisi kandırır. Kaldırıldı, yerine iki yönlü
+anahtar kümesi kontrolü kondu.
+**`schemas` kapısı çalışma ağacını DEĞİŞTİRMEZ:** geçici dizine üretip commit'li hâliyle
+karşılaştırır. Kendi kendini düzelten bir kapı, hiçbir zaman kırmızı olmayan kapıdır.
+
+
+## D-58 — Kabuk kapıları `LC_ALL=C` ile başlar; Türkçe locale karakter sınıfını kırıyor
+2026-08-15 · `fixtures` kapısının KVKK ihlal testi **kapıyı kaçırdı**: gerçek görünümlü
+`ahmet.yilmaz@dokumsanayi.com.tr` adresi yeşil geçti. İlk teşhis yanlıştı (`pipefail` +
+`grep -q` SIGPIPE tuzağı sanıldı, o da düzeltildi ama sebep o değildi).
+**Gerçek sebep:** `LANG=tr_TR.UTF-8` altında POSIX karakter sınıfları Türkçe collation'a
+göre çözülüyor ve `[A-Za-z]` aralığı `i`/`I` çevresinde kırılıyor:
+```
+$ LANG=tr_TR.UTF-8 grep -oE "[a-z.]+@[a-z.]+" <<< "ahmet.yilmaz@dokumsanayi.com.tr"
+lmaz@dokumsanay        ← "yilmaz"ın başı ve "sanayi"nin sonu düştü
+```
+Desen eşleşiyormuş gibi görünür ama **yarım** eşleşir. Kapı hata vermez, yeşil raporlar.
+**Karar:** kabuk tabanlı her kapı ve git kancası `export LC_ALL=C` ile başlar (17 betik).
+Kural `R-77` olarak yazıldı ve `repo-hygiene` kapısı satırın varlığını denetliyor —
+hatırlamaya bırakılmadı. **Kanıt:** bir kapıdan satır silindi → `repo-hygiene` kırmızı;
+geri alındı → yeşil. E-posta ihlal testi düzeltmeden sonra rc=1 verdi.
+**Neden bu kadar önemli:** `.mjs` kapıları etkilenmiyor (JS regex'i Unicode tabanlı), yani
+sorun yalnız kabuk kapılarında ve **sessiz**. Bu, `'i'.toUpperCase()` → `I` hatasının
+(R-21) kabuk seviyesindeki kardeşi; aynı kök, farklı katman.
+**Yan bulgu:** `set -o pipefail` + `grep -q` de gerçek bir tuzak — `-q` ilk eşleşmede
+çıkar, üstteki `grep` SIGPIPE alır, boru durumu 141 olur ve koşul sessizce yanlışlanır.
+İki tuzak da aynı kapıda üst üste binmişti.
+
+
+## D-59 — FAZ-1.10 bölündü: golden harness `1.10b`'ye alındı
+2026-08-15 · FAZ-1.10'un 🛠 satırı dört şey sayıyordu: Vitest · **golden-file harness
+(font sabitli Chromium)** · msw · cassette + fixture. Golden harness iki şeye bağlı:
+Playwright/Chromium (FAZ-3.1'de kuruluyor) ve **marka fontu** (V-02 açık, FAZ-0.A.5 bloke).
+Yer tutucu bir fontla golden metrik üretmek yalnız ertelenebilir değil, **yanlış** olurdu:
+testin varlık sebebi Türkçe glyph fallback'ini yakalamak; sevk etmeyeceğimiz bir fontun
+metriklerini dondurmak o amacı doğrudan çürütür.
+**Karar:** 1.10 = Vitest + msw + cassette + fixture (✅ ve 🧪'nın tamamı bu üçünde).
+Golden harness `1.10b` olarak ayrıldı, ön koşulu `FAZ-3.1` + `V-02`. LOOP§B'nin
+"bitmiyorsa adım değil alt-fazdır, böl" kuralının uygulanışı.
+
+
+## D-60 — `process.env`in tek sahibi `config/env.ts`; test altyapısı ayrı export yolunda
+2026-08-15 · `chokepoints.json`'daki `secret-okuyucu` darboğazının sahibi henüz var olmayan
+`config/secrets.ts` idi; kapı, cassette testindeki `process.env['UPDATE_CASSETTES']`i
+yakaladı. **Kuralı gevşetmek (test dosyasını izinli listeye eklemek) reddedildi** — bu,
+darboğazın kendisini delerdi. Yerine tek okuyucu gerçekten yazıldı: `packages/kernel/src/
+config/env.ts`. Sahip sayısı hâlâ **bir**; yalnız var olmayan bir dosyadan gerçek bir
+dosyaya taşındı. FAZ-3.4 bunun üstüne `secrets.ts` politikasını kurar.
+**İkinci karar:** test altyapısı `@suite/kernel/testing` **ayrı export yolundan** açılır.
+Ana girişten dışa açılsaydı `msw` üretim bağımlılık grafiğine girerdi; test aracı üretim
+grafiğine girdiği gün "bir ay ihmal edilse de çalışır" (ilke 12) zayıflar.
+
+
+## D-61 — SQLite handle Ring 0'da (`kernel/src/db.ts`), Ring 2'de değil
+2026-08-15 · `chokepoints.json` `sqlite-handle` darboğazının sahibi `packages/corpus/src/
+db.ts` idi. FAZ-1.8'de iş kuyruğu yazılırken çelişki ortaya çıktı: kuyruk kernel'in işidir
+(§3.7) ve **kernel `packages/corpus`'u import edemez** (§3.6). İki çıkış vardı ve ikisi de
+kabul edilemezdi: kuyruk ikinci bir bağlantı açacaktı (iki WAL ayarı, aynı dosyanın iki
+farklı dayanıklılık garantisiyle yazılması) ya da halka yasası çiğnenecekti.
+**Karar:** handle `packages/kernel/src/db.ts`'e taşındı. Sahip sayısı hâlâ **bir**;
+corpus onu import eder (corpus → kernel yasaldır). FTS5 şeması corpus'un işi kalır,
+bağlantı kernel'in. **Gevşetme değil, doğru halkaya yerleştirme.**

@@ -63,9 +63,9 @@
     {
       "id": "corpus-yazici",
       "ad": "Corpus yazıcı",
-      "neden": "Agent önerir, insan uygular (§5.4). İkinci bir yazma yolu, onay kuyruğunu ATLAYAN bir yazma yoludur — kendi kendini değiştirebilen bir yapılandırmanın tek güvenlik hikâyesi budur. Kapsam corpus paketiyle sınırlı: başka paketlerin dosya yazması ayrı darboğazlarda (manifest-yazici, blob CAS) ele alınır. Desen çağrı değil TANIMLAYICI arar: takma adlı import (`writeFileSync as yaz`) çağrı parantezi taşımıyor ve ilk sürümü atlattı (doğrulama agent'ı, 2026-08-15).",
+      "neden": "Agent önerir, insan uygular (§5.4). İkinci bir yazma yolu, onay kuyruğunu ATLAYAN bir yazma yoludur — kendi kendini değiştirebilen bir yapılandırmanın tek güvenlik hikâyesi budur. Desen çağrıyı değil TANIMLAYICIYI arar ve yazma ailesinin TAMAMINI kapsar: ilk sürüm yalnız `writeFileSync` ailesine bakıyordu ve `copyFileSync`, `fs/promises.appendFile`, `openSync+writeSync`, `cpSync`, `renameSync` ile beş ayrı yoldan atlatıldı (2. doğrulama turu). Kapsam yalnız `packages/corpus/src/**`: bu darboğaz CORPUS'a yazmayı kısıtlar, her dosya yazmayı değil.",
       "izinli": ["packages/corpus/src/write.ts"],
-      "desen": "\\b(writeFileSync|appendFileSync|createWriteStream|writeFile|rmSync|unlinkSync|mkdirSync)\\b",
+      "desen": "\\b(writeFileSync|writeFile|appendFileSync|appendFile|createWriteStream|copyFileSync|copyFile|cpSync|cp|renameSync|rename|openSync|writeSync|rmSync|rm|unlinkSync|unlink|mkdirSync|mkdir|truncateSync|ftruncateSync)\\b",
       "faz": "FAZ-1.6",
       "kapsam": ["packages/corpus/src/**/*.ts"],
       "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
@@ -115,7 +115,7 @@
     {
       "id": "retrieval-yuklemi",
       "ad": "Retrieval yüklemi",
-      "neden": "`brand_id` + `era_id` + `status` + geçerlilik penceresi TEK sorguda toplanmazsa, emekliye ayrılmış konumlandırma yeni deck'e sızar (§5.2) — sistemin en pahalı sessiz hatası. Desen yüklemin BİÇİMİNİ değil, `record` tablosuna ERİŞİMİ arar: doğrulama agent'ı 2026-08-15'te koşul sırasını değiştirerek, satır bölerek ve `status = 'active' OR ...` yazarak üç kez atlattı. Dürüst sınır: dize birleştirme (`'FROM rec' + 'ord'`) hâlâ kaçabilir — bu kapı kopyala-yapıştıra karşı bir tel tuzaktır, kum havuzu değil. Asıl güvence, corpus SQL'ine dokunabilen dosya sayısının ÜÇ olması ve bunun listede görünmesi.",
+      "neden": "`brand_id` + `era_id` + `status` + geçerlilik penceresi TEK sorguda toplanmazsa, emekliye ayrılmış konumlandırma yeni deck'e sızar (§5.2) — sistemin en pahalı sessiz hatası. Desen yüklemin BİÇİMİNİ değil, `record` tablosuna ERİŞİMİ arar: doğrulama agent'ı 2026-08-15'te koşul sırasını değiştirerek, satır bölerek ve `status = 'active' OR ...` yazarak üç kez atlattı. Desen büyük/küçük harf duyarsız koşar: küçük harfli `select … from record` ilk sürümü tamamen atlatıyordu (2. doğrulama turu). Dürüst sınır: dize birleştirme (`'FROM rec' + 'ord'`) ve çalışma anında üretilen sorgu hâlâ kaçabilir — bu kapı kopyala-yapıştıra karşı bir tel tuzaktır, kum havuzu değil. Asıl güvence, corpus SQL'ine dokunabilen dosya sayısının ÜÇ olması ve bunun listede görünmesi.",
       "izinli": [
         "packages/corpus/src/select.ts",
         "packages/corpus/src/search.ts",

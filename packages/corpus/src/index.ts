@@ -60,3 +60,5 @@ export {
 } from './conflict.js'
 
 export { computeSignature, signatureIntact } from './signature.js'
+
+export { scanCorpus, type ScannedRecord, type ScanReport } from './scan.js'

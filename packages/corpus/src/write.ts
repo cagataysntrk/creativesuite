@@ -29,6 +29,11 @@ export type WriteRefusal =
   | { readonly kind: 'would_overwrite_human'; readonly path: string }
   | { readonly kind: 'invalid_slug'; readonly slug: string }
   | { readonly kind: 'signature_broken'; readonly path: string }
+  | {
+      readonly kind: 'would_overwrite_approved'
+      readonly path: string
+      readonly approvedAt: unknown
+    }
 
 export type WriteResult =
   | { readonly ok: true; readonly path: string }
@@ -58,10 +63,25 @@ export const writeRecord = (req: WriteRequest): WriteResult => {
     if (mevcut.ok && mevcut.value.frontmatter !== null) {
       const fm = mevcut.value.frontmatter
 
-      // Elle düzenlenmiş bir kaydın üzerine agent yazamaz. `zone: human` kullanıcının
-      // emeğidir; sessizce silmek, sistemi bir daha açmamanın en kısa yoludur (§4.5).
-      if (req.actor === 'agent' && fm['zone'] === 'human') {
+      // **`zone` yoksa İNSAN sayılır.** İlk sürüm `=== 'human'` bakıyordu ve alanı
+      // olmayan bir kayıt iki korumadan da muaf kalıyordu — elle yazılmış kayıtlar
+      // (corpus-editing kuralının normal yolu) korumasızdı. Eksik bilgi güvenli
+      // tarafa düşer: fail-safe, fail-open değil (2. doğrulama turu).
+      const zone = typeof fm['zone'] === 'string' ? fm['zone'] : 'human'
+      if (req.actor === 'agent' && zone !== 'generated') {
         return { ok: false, refusal: { kind: 'would_overwrite_human', path } }
+      }
+
+      // **İnsanın ONAYLADIĞI kayıt agent tarafından EZİLEMEZ.** Onay bir durumdur ve
+      // agent onu geri alamaz (R-14): motor `status: active` bir kaydı yeniden
+      // önerirse `approved_by`/`approved_at` silinir ve "bunu ne zaman kabul ettim"
+      // sorusunun cevabı yok olur. Yeni öneri gelmesi meşru — ama üzerine değil,
+      // yeni bir taslak olarak gelir ve tahkim insanın işidir (§5.5).
+      if (req.actor === 'agent' && fm['approved_at'] !== undefined && fm['status'] === 'active') {
+        return {
+          ok: false,
+          refusal: { kind: 'would_overwrite_approved', path, approvedAt: fm['approved_at'] },
+        }
       }
 
       // Üretilmiş bir kaydın imzası KIRIKSA çalıştırma DURUR.
@@ -70,7 +90,7 @@ export const writeRecord = (req: WriteRequest): WriteResult => {
       // dokunmuş. Gelen imzayla karşılaştırmak YANLIŞ soruydu: insan gövdeyi düzeltip
       // imzaya dokunmadığında imzalar eşit çıkıyor ve motor insanın metnini sessizce
       // eziyordu — korunması gereken tam o durumdu (doğrulama agent'ı, 2026-08-15).
-      if (req.actor === 'agent' && fm['zone'] === 'generated') {
+      if (req.actor === 'agent' && zone === 'generated') {
         if (signatureIntact(fm, mevcut.value.body) === false) {
           return { ok: false, refusal: { kind: 'signature_broken', path } }
         }

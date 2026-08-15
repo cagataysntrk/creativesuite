@@ -41,13 +41,26 @@ describe('idempotent atlama — ZORUNLU altyapı, optimizasyon değil (§4.4)', 
   it('imza aynıysa op üretilmiyor — ikinci çalıştırma SIFIR değişiklik', () => {
     const p = plan({ existing: [mevcut()], candidates: [aday()] })
     expect(p.summary).toEqual({ create: 0, update: 0, retire: 0, skip: 1 })
-    expect(p.ops[0]?.reason).toContain('imza aynı')
+    expect(p.ops[0]?.reason).toContain('değişmedi')
+    expect(p.ops[0]?.reason).toContain('ZAYIF')
   })
 
   it('sıfır op bir SONUÇTUR ve öyle yazılıyor', () => {
     const metin = formatPlan(plan({ existing: [mevcut()], candidates: [aday()] }))
     expect(metin).toContain('DEĞİŞİKLİK YOK')
     expect(metin).toContain('idempotent atlama çalışıyor')
+  })
+
+  it('içerik imzası verildiğinde karşılaştırma GÜÇLÜ ve sebep öyle diyor', () => {
+    // `digest` koşu girdilerinin, `contentSignature` dosya içeriğinin özeti. İlk sürüm
+    // ikisini karşılaştırıyordu — iki farklı değer uzayı, gerçek corpus'ta asla
+    // eşleşmez (2. doğrulama turu).
+    const p = plan({
+      existing: [mevcut({ signature: 'sha256:icerik' })],
+      candidates: [aday({ digest: 'apayri', contentSignature: 'sha256:icerik' })],
+    })
+    expect(p.summary.skip).toBe(1)
+    expect(p.ops[0]?.reason).toContain('içerik imzası aynı')
   })
 
   it('imza değiştiyse güncelleme öneriliyor', () => {
@@ -386,6 +399,103 @@ describe('apply — planı DRAFT olarak yazar, onay DEĞİLDİR (§4.4 · R-14)'
       const p = plan({ existing: [mevcut()], candidates: [aday()] })
       const r = applyPlan(p, new Map(), tmp.path)
       expect(r.outcomes).toEqual([])
+    } finally {
+      tmp.cleanup()
+    }
+  })
+})
+
+describe('apply BASTIRILMIŞ alanları yazmıyor (B1 · 2. doğrulama turu)', () => {
+  // Plan "dokunulmayan alanlar" diye raporluyor, apply tam o alanları yazıyordu.
+  // Karar ile yazma arasında uygulama katmanı yoksa defter yalnız bir rapordur —
+  // ve rapor kural değildir.
+  const defter = (satirlar: readonly Record<string, unknown>[]) =>
+    parseLedger(satirlar.map((s) => JSON.stringify(s)).join('\n')).ledger
+
+  it('pinlenmiş alan dosyaya YAZILMIYOR', () => {
+    const tmp = makeTempDir('suite-pin-apply-')
+    try {
+      const d = defter([
+        { recordId: 'rec_1', pointer: '/attributes/tagline', hash: 'x', kind: 'pinned' },
+      ])
+      const p = plan({
+        candidates: [
+          {
+            ...aday(),
+            fields: [
+              { pointer: '/attributes/tagline', hash: 'h1' },
+              { pointer: '/attributes/summary', hash: 'h2' },
+            ],
+          },
+        ],
+        ledger: d,
+      })
+      const r = applyPlan(
+        p,
+        new Map([
+          [
+            'rec_1',
+            {
+              entityType: 'positioning',
+              slug: 'a',
+              frontmatter: {
+                id: 'rec_1',
+                attributes: { tagline: 'MOTORUN YAZDIĞI', summary: 'özet' },
+              },
+              body: 'gövde',
+            },
+          ],
+        ]),
+        tmp.path
+      )
+      expect(r.written).toBe(1)
+      const yazilan = readFileSync(join(tmp.path, 'positioning/a.md'), 'utf8')
+      expect(yazilan).not.toContain('MOTORUN YAZDIĞI')
+      expect(yazilan).toContain('özet')
+    } finally {
+      tmp.cleanup()
+    }
+  })
+
+  it('iç içe pointer da kaldırılıyor', () => {
+    const tmp = makeTempDir('suite-pin-nested-')
+    try {
+      const d = defter([
+        { recordId: 'rec_1', pointer: '/attributes/nested/field', hash: 'x', kind: 'pinned' },
+      ])
+      const p = plan({
+        candidates: [
+          {
+            ...aday(),
+            fields: [
+              { pointer: '/attributes/nested/field', hash: 'h1' },
+              { pointer: '/attributes/other', hash: 'h2' },
+            ],
+          },
+        ],
+        ledger: d,
+      })
+      applyPlan(
+        p,
+        new Map([
+          [
+            'rec_1',
+            {
+              entityType: 'positioning',
+              slug: 'a',
+              frontmatter: {
+                id: 'rec_1',
+                attributes: { nested: { field: 'REDDEDİLMİŞ', kalan: 'durur' }, other: 'o' },
+              },
+              body: 'g',
+            },
+          ],
+        ]),
+        tmp.path
+      )
+      const yazilan = readFileSync(join(tmp.path, 'positioning/a.md'), 'utf8')
+      expect(yazilan).not.toContain('REDDEDİLMİŞ')
+      expect(yazilan).toContain('durur')
     } finally {
       tmp.cleanup()
     }

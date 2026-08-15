@@ -88,7 +88,18 @@ const oku = (rel) => {
   return existsSync(tam) ? JSON.parse(readFileSync(tam, 'utf8')) : null
 }
 const adaylar = oku(adayYolu)
-const mevcutlar = mevcutYolu === null ? [] : (oku(mevcutYolu) ?? [])
+// Mevcut kayıtlar CORPUS'tan taranır. Argümanla beslemek "ikinci koşu 0 op" kanıtını
+// sahte yapıyordu: gerçek yedi kayıt o yola hiç girmiyordu (2. doğrulama turu).
+// Argüman yine kabul ediliyor ama yalnız TEST içindir ve çıktıda söylenir.
+const { scanCorpus } = await import(join(REPO, 'packages/corpus/dist/index.js'))
+const tarama = scanCorpus(join(REPO, 'corpus'), REPO)
+const mevcutlar = mevcutYolu === null ? tarama.records : (oku(mevcutYolu) ?? [])
+if (mevcutYolu !== null) {
+  console.log('  ⚠ mevcut liste DOSYADAN okundu — gerçek corpus taranmadı (test yolu)')
+}
+if (tarama.skipped.length > 0 && mevcutYolu === null) {
+  for (const s of tarama.skipped) console.log(`  ⚠ atlandı: ${s.path} — ${s.reason}`)
+}
 
 // Sticky karar defteri (§4.5) — reddedilen öneri tekrar sorulmaz.
 const DEFTER = join(REPO, `brand/${'brd_upcytech'}/decisions.jsonl`)

@@ -75,6 +75,15 @@ export interface CandidateRecord {
   /** `(input_hashes, prompt_hash, model_id, temperature, seed, retrieval_snapshot)` özeti. */
   readonly digest: string
   /**
+   * Adayın ÜRETECEĞİ içeriğin imzası (`computeSignature`).
+   *
+   * `digest` ile karıştırılmamalı: `digest` KOŞU GİRDİLERİNİN özeti, `contentSignature`
+   * DOSYA İÇERİĞİNİN özeti. İlk sürüm `e.signature === c.digest` karşılaştırıyordu —
+   * iki farklı değer uzayı, hiçbir zaman eşleşmez ve "değişmedi" tespiti gerçek
+   * corpus'ta ASLA çalışmazdı (2. doğrulama turu).
+   */
+  readonly contentSignature?: string
+  /**
    * Alan bazlı öneriler. Boşsa kayıt bütün olarak değerlendirilir.
    *
    * **Neden alan bazlı:** bir kaydın dokuz alanı doğru, biri yanlış olabilir. Tümünü
@@ -175,12 +184,18 @@ export const buildPlan = (input: {
     // **Idempotent atlama zorunlu altyapıdır** (§4.4): imza aynıysa op üretilmez.
     // Üretilseydi ikinci çalıştırma 900 op verirdi, insan hepsini kabul ederdi ve
     // "insan inceledi" güvencesi sahte olurdu.
-    if (e.signature !== null && e.signature === c.digest) {
+    // Karşılaştırma İÇERİK imzası üstünden. `contentSignature` yoksa geri düşüş
+    // `digest`tir ve bu ZAYIF bir karşılaştırmadır — o yüzden sebep metninde görünür.
+    const adayImza = c.contentSignature ?? c.digest
+    if (e.signature !== null && e.signature === adayImza) {
       ops.push({
         kind: 'skip',
         path: e.path,
         recordId: e.id,
-        reason: 'imza aynı — değişmedi',
+        reason:
+          c.contentSignature === undefined
+            ? 'digest aynı — değişmedi (ZAYIF karşılaştırma: içerik imzası verilmedi)'
+            : 'içerik imzası aynı — değişmedi',
         digest: c.digest,
       })
       continue

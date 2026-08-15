@@ -54,7 +54,7 @@ for (const cp of list) {
   // dosyaları üretim yoluna import edilmez; oradaki bir cast ikinci bir açıcı değildir.
   // Ayrım kaybolursa muafiyet listesi sessizce şişer ve kapı boşalır.
   const haric = new Set((cp.kapsam_haric ?? []).flatMap((g) => globSync(g, { cwd: REPO })))
-  const re = new RegExp(cp.desen, 'gm')
+  const re = new RegExp(cp.desen, 'gmi')
 
   for (const rel of files) {
     if (allowed.has(rel) || haric.has(rel)) continue

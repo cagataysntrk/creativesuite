@@ -40,6 +40,34 @@ export interface ApplyReport {
  * "Hepsi ya da hiçbiri" burada yanlış olurdu — bir kaydın elle düzeltilmiş olması,
  * dokuz sağlam kaydın güncellenmemesi için sebep değil.
  */
+/**
+ * RFC 6901 pointer'ların gösterdiği alanları KALDIRIR.
+ *
+ * Yalnız `/attributes/...` altındaki alanlar kaldırılabilir: zarf alanları sistemindir
+ * (D-41) ve `id` ya da `brand_id` bastırmak kaydı anlamsız yapardı. Pointer kök
+ * (`''`) ise kayıt zaten plan aşamasında düşmüştür, buraya gelmez.
+ */
+const stripPointers = (
+  frontmatter: Readonly<Record<string, unknown>>,
+  pointers: readonly string[]
+): Record<string, unknown> => {
+  if (pointers.length === 0) return { ...frontmatter }
+  const out: Record<string, unknown> = structuredClone(frontmatter) as Record<string, unknown>
+  for (const ptr of pointers) {
+    const parcalar = ptr.split('/').filter((x) => x !== '')
+    if (parcalar.length === 0) continue
+    let dugum: Record<string, unknown> | null = out
+    for (const p of parcalar.slice(0, -1)) {
+      const alt: unknown = dugum[p]
+      dugum = alt !== null && typeof alt === 'object' ? (alt as Record<string, unknown>) : null
+      if (dugum === null) break
+    }
+    const son = parcalar[parcalar.length - 1]
+    if (dugum !== null && son !== undefined) delete dugum[son]
+  }
+  return out
+}
+
 export const applyPlan = (
   plan: DiscoveryPlan,
   icerikler: ReadonlyMap<string, OpContent>,
@@ -67,11 +95,17 @@ export const applyPlan = (
       continue
     }
 
+    // **Bastırılmış alanlar YAZILMAZ.** İlk sürüm `op.suppressedFields`i hiç okumuyordu:
+    // plan "dokunulmayan alanlar" diye rapor ediyor, `apply` tam o alanları yazıyordu
+    // (2. doğrulama turu). Karar ile yazma arasında uygulama katmanı yoksa, defter
+    // yalnız bir rapordur — ve rapor kural değildir.
+    const frontmatter = stripPointers(icerik.frontmatter, op.suppressedFields ?? [])
+
     const sonuc = propose({
       root: corpusRoot,
       entityType: icerik.entityType,
       slug: icerik.slug,
-      frontmatter: icerik.frontmatter,
+      frontmatter,
       body: icerik.body,
     })
     outcomes.push(
