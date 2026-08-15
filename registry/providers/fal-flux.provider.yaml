@@ -1,0 +1,24 @@
+# fal — FLUX.2 görsel üretimi (premium şerit).
+#
+# ⚠ `adapter: pending`: tanımlayıcı yazıldı ama ADAPTÖR HENÜZ YOK. Yönlendirici bunu
+# aday listesine ALMAZ ve bu AÇIKÇA söylenir — sessizce eksik bir adaptör, çalıştırma
+# anında "sağlayıcı yok" hatası demektir ve o an geçtir (FAZ-3.7'de yazılacak).
+id: fal-flux
+title: FLUX.2 (fal)
+adapter: pending
+enabled: false
+
+# Formül FAZ-3.5'te QuickJS'te koşacak; burada BEYAN. Fiyat anlık görüntüsü
+# değişmezdir ve commit'lidir — sağlayıcı fiyatını değiştirdiğinde eski çalıştırmanın
+# maliyeti hâlâ açıklanabilir olmalı (§8.3).
+cost_formula: 'perImageMicros * count'
+pricing_snapshot: _pricing/fal-2026-08-15.json
+
+auth_env: FAL_KEY
+
+capabilities:
+  - name: image.generate
+    lanes: [premium]
+    supports:
+      aspect: ['1:1', '4:5', '9:16', '16:9']
+      count: [1, 2, 4]

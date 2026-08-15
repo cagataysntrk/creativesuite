@@ -1,0 +1,10 @@
+{
+  "_not": "DEĞİŞMEZ anlık görüntü. Fiyat değişirse YENİ dosya açılır, bu düzenlenmez — eski çalıştırmanın maliyeti hâlâ açıklanabilir olmalı (§8.3).",
+  "provider": "fal",
+  "captured_at": "2026-08-15",
+  "source_url": "https://fal.ai/pricing",
+  "verified_by": "human",
+  "verified": false,
+  "note": "Rakamlar HENÜZ DOĞRULANMADI — bu dosya biçimi sabitlemek için var. Gerçek fiyatlar FAZ-0.D.1 bake-off'unda ölçülecek ve verified: true yapılacak.",
+  "perImageMicros": null
+}

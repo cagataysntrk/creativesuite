@@ -25,8 +25,10 @@ Marka kararı, FAZ 2 keşfiyle bağlantılı. → FAZ-0.A.5
 ## V-03 — rjsf'nin JSON Schema 2020-12 kapsaması
 Kısıtlı profil bunu atlatmak için tasarlandı, yine de spike ile doğrula. → FAZ-0.D.4
 
-## V-04 — fal endpoint-başına OpenAPI URL'i
-Belgelenmiş public arayüz mü? Elle tanımlayıcı yedeği her hâlükârda zorunlu. → FAZ-0.D.5
+## V-04 — fal endpoint-başına OpenAPI URL'i ✅ KAPANDI (2026-08-15, D-99)
+`https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=<id>` → HTTP 200,
+**kimlik doğrulamasız**, `openapi: 3.0.4`. Fixture repoda:
+`packages/providers/test-fixtures/fal-flux-dev.openapi.json`. → FAZ-3.4
 
 ## V-05 — Anthropic yapılandırılmış çıktı alt kümesi
 OpenAI'ninkiyle aynı mı? Derleyici daha katı olana yazıldı, CI'da gerçek çağrıyla doğrula. → FAZ-1.4
@@ -565,3 +567,23 @@ fixture ile gösterilebiliyordu:
 **FAZ 9'a devredilenler:** `valid_at`in imza dışı olmasının UI'dan elle düzenleme
 gelince yeniden değerlendirilmesi (FAZ-4.3), `x_signature` satırını silmenin korumayı
 kapatması (belgeli tasarım kararı, ama tek `sed` ile geçersizleştirilebiliyor).
+
+## D-99 — İçe aktarıcı tanımlayıcının YARISINI üretir, tamamını değil
+2026-08-15 · V-04 kapandı: fal'ın endpoint başına OpenAPI'si kimlik doğrulamasız 200
+dönüyor ve gerçek şema fixture olarak repoda. Ama asıl karar şu: **OpenAPI fiyat
+taşımaz.** Şekli söyler (alanlar, enum'lar), değeri söylemez (fiyat, kalite, gecikme,
+şerit). Bu yüzden `importOpenApi` çıktısı **daima** `adapter: pending · enabled: false ·
+lanes: []` ve o hâliyle `parseDescriptor`'dan **geçmez** — test bunu tersinden doğruluyor.
+Alternatif (içe aktarılanı otomatik geçerli saymak) reddedildi: fiyatı doğrulanmamış bir
+sağlayıcı aday listesine girerdi ve §8.3'ün "tahmin dürüsttür" iddiası ilk içe aktarmada
+çökerdi. Geri alma maliyeti: düşük — kural tek fonksiyonda.
+**Elle yazma yedeği birinci sınıf:** fal yarın bu URL'i kapatsa sistem çalışmaya devam
+eder, yalnız ilk taslak elle yazılır.
+
+## D-100 — Kapı `ADAPTERS`'a değil `adapterById`'ye sorar
+2026-08-15 · `providers` kapısı ham `ADAPTERS` listesini barrel'dan istedi; `chokepoints`
+reddetti. Doğru tepki barrel'ı açmak değil, **sorunun kendisini düzeltmekti**: kapının
+ihtiyacı "bu id bir adaptöre çözülüyor mu" ve `adapterById` tam olarak o soruyu meşru
+yoldan cevaplıyor. Ham liste `registry.ts`'te kilitli kaldı.
+**Ders (üçüncü kez):** darboğaz kapısı bir engel değil, tasarım geri bildirimi. İki kez
+"kancayı kapatmak yerine kapıyı öğren" dedik; bu üçüncüsü.

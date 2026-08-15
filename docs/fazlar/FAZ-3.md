@@ -59,7 +59,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    kırpmak ve küçültmek yasak olan iki şey; üçüncü yol açıkça işaretlemek)
 💾 `feat(render): kapalı düzen kümesi ve taşma bölme` · `Refs: FAZ-3.3 · §7.1`
 
-## 3.4 — Sağlayıcı tanımlayıcısı ve içe aktarıcı    [ ]
+## 3.4 — Sağlayıcı tanımlayıcısı ve içe aktarıcı    [x] 2026-08-15
 
 📖 §8.1, §8.4 · R-42, R-43 · V-04
 🔗 FAZ-1.14

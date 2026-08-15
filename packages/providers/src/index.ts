@@ -19,3 +19,19 @@ export { claudeCode } from './claude-code.js'
 // kurabilirdi ve o küme yönlendiriciyi de maliyet defterini de atlardı. Dışarıya
 // yalnız erişimciler açılır — kapı bu satırı bir kez zaten yakaladı.
 export { candidatesFor, adapterById, allCapabilities, type Candidate } from './registry.js'
+
+export {
+  parseDescriptor,
+  loadDescriptors,
+  type DescriptorCapability,
+  type DescriptorError,
+  type DescriptorResult,
+  type ProviderDescriptor,
+} from './descriptor.js'
+export {
+  importOpenApi,
+  draftToYaml,
+  type ImportedDraft,
+  type ImportError,
+  type ImportResult,
+} from './import.js'

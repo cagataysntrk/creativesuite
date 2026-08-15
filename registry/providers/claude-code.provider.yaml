@@ -1,0 +1,23 @@
+# Headless Claude Code — akıl gerektiren adımların sağlayıcısı (D-8).
+#
+# Adaptörü FAZ-1.14'te yazıldı ve KOŞUYOR. Tanımlayıcı veridir: fiyat, yetenek ve
+# kısıtlar burada; onunla konuşma biçimi `packages/providers/src/claude-code.ts`te.
+id: claude-code
+title: Claude Code (headless)
+adapter: claude-code
+enabled: true
+
+# Mevcut abonelik kullanılıyor, ekstra API faturası YOK — bu yüzden maliyet formülü
+# sıfır ve `estimate()` sıfır aralık döndürüyor. "Bedava" değil, ZATEN ÖDENMİŞ.
+cost_formula: '0'
+pricing_snapshot: null
+
+# Kimlik ortamdan gelir; ADI yazılır, DEĞERİ asla (R-51).
+auth_env: null
+
+capabilities:
+  - name: text.generate
+    lanes: [free]
+    supports:
+      locale: ['tr-TR', 'en-US']
+      max_chars: [2200, 3000, 10000]

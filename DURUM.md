@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.4
+siradaki_adim: 3.5
 son_guncelleme: 2026-08-15
 bloke: ["2.9"]
 deneme_sayaci: {}
-son_kanit: "FAZ 3.3 kapandi: tasan icerik iki slayda bolundu ve ikinci slayt AYNI puntoyla basildi (gercek render). Donen yapida olcek alani YOK — kural yazilmayan alanla zorlanuyor. 3.2 golden metrik V-02ye bagli, ATLANDI (D-59). 425 test, 21 kapi."
+son_kanit: "FAZ 3.4 kapandi: estimate() async yapildi -> DERLEME hatasi (R-42); saglayici SDK tipi disa sizdirildi -> rings kirmizi (R-43); pending adaptor + enabled -> kapi kirmizi; literal secret ve FIIL adi yetenek -> kapi kirmizi. V-04 KAPANDI: fal per-endpoint OpenAPI HTTP 200, kimlik dogrulamasiz, fixture repoda. 441 test, 21 kapi."
 ```
 
 ## Neredeyiz
@@ -19,8 +19,9 @@ son_kanit: "FAZ 3.3 kapandi: tasan icerik iki slayda bolundu ve ikinci slayt AYN
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı** başlıyor. Sıradaki adım `3.1`: `COMPOSE` (saf) +
-> `RENDER mode:static`. Fazın sonunda gerçek bir carousel üretilmiş olacak.
+> **FAZ 3 — görsel üretim hattı** işleniyor. Sıradaki adım `3.5`: yetenek
+> yönlendiricisi + QuickJS maliyet formülü + TCMB kuru + bütçe tavanı. Fazın sonunda
+> gerçek bir carousel üretilmiş olacak.
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -38,12 +39,14 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 |---|---|
 | **3.1** · COMPOSE ve statik RENDER | 2026-08-15 |
 | **3.3** · kapalı düzen kümesi, taşma bölme | 2026-08-15 |
+| **3.4** · sağlayıcı tanımlayıcısı, içe aktarıcı (V-04 kapandı) | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.4` — sağlayıcı tanımlayıcı formatı ve adaptör sözleşmesi.** `estimate()` senkron
-ve saf (R-42: `async` derleme hatası), sağlayıcı yanıt şekli adaptör sınırını geçmez
-(R-43). Ardından `3.5` yetenek yönlendiricisi.
+**`3.5` — yetenek yönlendiricisi.** Filtrele → fiyatla (QuickJS'te maliyet formülü,
+10ms deadline, TCMB kuru) → skorla → yedek zincir → kazananı VE her kaybedeni
+gerekçesiyle manifest'e yaz. Bütçe tavanı UI'dan ayarlanabilir (D-17). Ardından
+`3.6` retry/idempotency/rate limit.
 
 ⚠ **`3.2` (golden metrik) ATLANDI** — V-02'ye bağlı: marka fontu seçilmeden metrik
 dondurmak, testin varlık sebebini (Türkçe glif fallback'ini yakalamak) çürütür (D-59).
