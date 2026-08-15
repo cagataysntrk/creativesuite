@@ -102,7 +102,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 ## 0.B.7 — docs/LOOP.md    [x] 2026-08-14
 ✅ `LOOP§A`…`LOOP§G` bölümlü · G başarısızlık protokolü
 
-## 0.B.8a — FAZ-0.md ve FAZ-1.md    [ ]
+## 0.B.8a — FAZ-0.md ve FAZ-1.md    [x] 2026-08-14
 ✅ On dosya var: FAZ-0/1 tam, 2-9 iskelet · `just tur` adımı ayrıştırıyor
 ⚠ 2026-08-14: sahte tik geri alındı — yalnız FAZ-0.md yazılmıştı
 
@@ -159,7 +159,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    dosya adı, hata `code`* alanlarına sızmasını yakalar. Belge nesri Türkçe kalır.
 ✅ `code: "SAĞLAYICI_HATASI"` → kırmızı · ANAYASA'daki Türkçe paragraf → yeşil
 
-## 0.C.6 — citations kapısı    [ ]
+## 0.C.6 — citations kapısı    [x] 2026-08-14
 🛠 Ek: `reddedildi` işaretli bir `D-nn`'e atıf da hata olmalı.
 ✅ Var olmayan §'ya atıf → kırmızı · reddedilmiş `D-nn`'e atıf → kırmızı
 ⚠ 2026-08-14: sahte tik geri alındı — ikinci yarı kodda yoktu

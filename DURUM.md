@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 0
-siradaki_adim: 0.B.8a
+siradaki_adim: 0.B.9
 son_guncelleme: 2026-08-14
 bloke:
   - adim: 0.A.3
@@ -14,7 +14,7 @@ bloke:
     cozum: "kullanıcı çalıştıracak: sudo apt-get install -y ffmpeg xvfb age"
     engellediği: [0.A.6, 0.A.7, 5.6]
 deneme_sayaci: {}
-son_kanit: "denetim 20 bulgu; sahte tikler geri alındı, push edildi, 2 kapı güçlendirildi"
+son_kanit: "10 faz dosyası · citations her iki yarısıyla doğrulandı · 3 kapı yeşil (0.B.8a)"
 ```
 
 ## Neredeyiz
@@ -41,6 +41,8 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | 0.B.5 · KARARLAR.md | 2026-08-14 |
 | 0.B.6 · DURUM.md | 2026-08-14 |
 | 0.B.7 · docs/LOOP.md | 2026-08-14 |
+| 0.B.8a · FAZ-0.md ve FAZ-1.md | 2026-08-14 |
+| 0.C.6 · citations kapısı | 2026-08-14 |
 | 0.C.7 · commit-msg hook'u | 2026-08-14 |
 | 0.C.9 · docs-size | 2026-08-14 |
 | 0.E.1 · DURUM.md sözleşmesi | 2026-08-14 |
