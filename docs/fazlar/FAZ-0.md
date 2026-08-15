@@ -111,8 +111,10 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    sürdürürken hangi dosyanın hedef olduğunu bilmeli.
 ✅ Her ✅ çalıştırılabilir komut içeriyor · "çalışıyor" yazan kriter yok
 
-## 0.B.8c — FAZ-4..9.md    [ ]
-✅ Aynı · toplam adım sayısı plan faz haritasıyla eşleşiyor
+## 0.B.8c — FAZ-4..9.md    [x] 2026-08-15
+✅ Altı dosya tam, 60 adım (4:17 · 5:10 · 6:9 · 7:9 · 8:9 · 9:6), hepsi yedi alanlı,
+   `citations` 146 dosyada kırık atıf bulmuyor. FAZ 9 adımları TİKLENMEZ, döngüsel
+   koşar — tik kutusu son koşulduğu tarihi taşır.
 
 ## 0.B.9 — .claude/rules + skills iskeleti    [x] 2026-08-15
 📖 §14

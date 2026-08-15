@@ -81,6 +81,7 @@ Henüz hiçbir ÜRETİM yok — ilk gerçek görsel FAZ 3'te.
 | **1.14** · headless Claude Code adaptörü | 2026-08-15 |
 | **1.4** · projeksiyon derleyicisi (4 hedef) | 2026-08-15 |
 | 0.B.8b · FAZ-2.md ve FAZ-3.md gövdeleri | 2026-08-15 |
+| 0.B.8c · FAZ-4..9.md gövdeleri (60 adım) | 2026-08-15 |
 
 ## Sıradaki adım
 
