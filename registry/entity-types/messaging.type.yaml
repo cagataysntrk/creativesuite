@@ -1,0 +1,42 @@
+# Mesaj evi — konumun kanala ve personaya inen hâli (§6).
+$id: messaging
+type: object
+title: Mesaj evi
+description: Bir hedef kitle için ana mesaj, destekleyici sütunlar ve kanıt bağları.
+additionalProperties: false
+required: [headline, pillars, audience]
+properties:
+  headline:
+    type: string
+    title: Ana mesaj
+    description: Prospect'in aklında kalacak tek cümle.
+    minLength: 10
+    maxLength: 200
+  pillars:
+    type: array
+    title: Sütunlar
+    description: Ana mesajı taşıyan 2-4 destekleyici tema. Beşincisi mesajı sulandırır.
+    items:
+      type: string
+  audience:
+    type: string
+    title: Hedef kitle
+    description: Hangi persona veya ICP'ye söyleniyor.
+    minLength: 5
+    maxLength: 200
+  tone:
+    type: string
+    title: Ton
+    description: Metin üretiminde kullanılacak ton etiketi.
+    enum: [teknik, yonetici, saha, basin]
+  forbidden_terms:
+    type: array
+    title: Yasak terimler
+    description: Bu mesajda geçmemesi gereken kelimeler. lexicon linter'ı bunu okur (R-35).
+    items:
+      type: string
+  claim_source:
+    type: string
+    title: İddia kaynağı
+    description: Sayısal iddia içeriyorsa kaynak zorunlu (R-32). Yoksa boş bırakılır.
+    maxLength: 500

@@ -1,0 +1,46 @@
+# Konumlandırma — şirketin kim için, hangi alternatife karşı, neden var olduğu (§6).
+#
+# Bu tip DEĞİŞTİRİLEBİLİR: alanlar veri, kod değil (D-11). Şirket bir yıl sonra
+# tamamen dönüşürse bu dosya değişir, kernel değişmez.
+$id: positioning
+type: object
+title: Konumlandırma
+description: Bir dönem için tek cümlelik konum, hedef segment ve rakip alternatif.
+additionalProperties: false
+required: [statement, target_segment, alternative, differentiator]
+properties:
+  statement:
+    type: string
+    title: Konum cümlesi
+    description: Tek cümle. "X için Y yapan Z'yiz" kalıbı zorunlu değil ama tek cümle zorunlu.
+    minLength: 20
+    maxLength: 280
+  target_segment:
+    type: string
+    title: Hedef segment
+    description: Kime. Sektör + ölçek + rol. "İmalatçılar" yetersiz, "50-500 kişilik döküm tesisleri" yeterli.
+    minLength: 10
+    maxLength: 200
+  alternative:
+    type: string
+    title: Alternatif
+    description: Bizi almazsa ne yapar. "Hiçbir şey" ve "Excel" en sık gerçek cevaplardır.
+    minLength: 5
+    maxLength: 200
+  differentiator:
+    type: string
+    title: Ayrıştırıcı
+    description: Alternatifin YAPAMADIĞI şey. Rakibin de söyleyebileceği bir cümle ayrıştırıcı değildir.
+    minLength: 10
+    maxLength: 300
+  proof_refs:
+    type: array
+    title: Kanıt referansları
+    description: Bu konumu destekleyen proof_asset kayıt id'leri.
+    items:
+      type: string
+  vertical:
+    type: string
+    title: Dikey
+    description: Bu konumun geçerli olduğu sektör dikeyi. Boşsa dikeyden bağımsız.
+    maxLength: 80

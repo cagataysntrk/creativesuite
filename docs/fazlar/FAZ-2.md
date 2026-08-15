@@ -10,7 +10,7 @@ yeniden üretilebilsin.
 
 ---
 
-## 2.1 — Yedi strateji varlık tipi    [ ]
+## 2.1 — Yedi strateji varlık tipi    [x] 2026-08-15
 
 📖 §6, §3.3 · R-12 · D-11
 🔗 FAZ-1.4
@@ -18,9 +18,12 @@ yeniden üretilebilsin.
    Hepsi kısıtlı profile uyar (§3.3) ve dört projeksiyona da çevrilir. **Yedinin ötesine
    geçilmez** — 10 gerçek varlık yayınlanana kadar (§16, en büyük risk: aşırı mühendislik).
 📁 `registry/entity-types/{positioning,messaging,icp,persona,proof_asset,competitor,offer}.type.yaml`
-✅ `just gate projection` yedi tipi de dört projeksiyona çeviriyor · `just gate registry` yeşil
-🧪 Bir tipe `oneOf` ekle → `registry` kapısı kırmızı · `additionalProperties:false` sil →
-   `projection` kapısı kırmızı
+✅ `just gate projection` → `1 fixture + 7 gerçek varlık tipi × 4 projeksiyon` ·
+   `just gate registry` → `7 varlık tipi denetlendi`. **Kapı önce yalnız SAYIYORDU**;
+   bu adımda derlemeye bağlandı — sayı doğrulama değildir.
+🧪 Üçü de koşuldu ve kırmızıya döndü: `oneOf` ekle → `registry` `profil dışı anahtar` ·
+   `additionalProperties:false` sil → `projection` `object_without_additional_properties_false` ·
+   `$id`'yi dosya adından ayır → `projection` eşleşmiyor diyor (tablo adı dosyayı bulamaz)
 💾 `feat(registry): yedi strateji varlık tipi` · `Refs: FAZ-2.1 · §6`
 
 ## 2.2 — Retrieval yüklemi — kodda TEK yer    [ ]

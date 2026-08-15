@@ -1,0 +1,48 @@
+# Kanıt varlığı — bir iddiayı destekleyen doğrulanabilir olgu (§6, §4.6).
+#
+# Geri dönüşüm geçmişi burada YÜK DEĞİL KANIT olur: eski dönem sonucu silinmez,
+# `era_of_origin` + `generalisation_note` + `transfer_confidence` ile taşınır.
+# Aktarım argümanı olmayan dönem-aşırı kanıt yayınlanamaz (§4.6, FAZ-2.12).
+$id: proof_asset
+type: object
+title: Kanıt varlığı
+description: Ölçülmüş bir sonuç, kaynağı ve hangi bağlama aktarılabileceği.
+additionalProperties: false
+required: [claim, claim_source, era_of_origin, transfer_confidence]
+properties:
+  claim:
+    type: string
+    title: İddia
+    description: Ne başarıldı. Sayı içeriyorsa claim_source ZORUNLU (R-32).
+    minLength: 10
+    maxLength: 400
+  claim_source:
+    type: string
+    title: İddia kaynağı
+    description: Doğrulanabilir kaynak — müşteri onayı, ölçüm raporu, kamuya açık belge.
+    minLength: 5
+    maxLength: 500
+  era_of_origin:
+    type: string
+    title: Kaynak dönem
+    description: Hangi dönemde üretildi. Geri dönüşüm dönemi kanıtı imalat kanıtı gibi SUNULMAZ.
+    minLength: 2
+    maxLength: 80
+  generalisation_note:
+    type: string
+    title: Genelleme notu
+    description: Dönem dışına taşınıyorsa aktarım argümanı. Agent'ın kelimesi kelimesine tekrarlaması gereken metin.
+    maxLength: 600
+  transfer_confidence:
+    type: string
+    title: Aktarım güveni
+    enum: [direct, analogous, illustrative_only]
+  metric_value:
+    type: string
+    title: Metrik değeri
+    description: Sayı METİN olarak — birim ve bağlam ondan ayrılamaz ("%18 fire azalması").
+    maxLength: 120
+  verified_at:
+    type: string
+    title: Doğrulama tarihi
+    format: date

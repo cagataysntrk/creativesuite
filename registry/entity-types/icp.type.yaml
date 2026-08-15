@@ -1,0 +1,44 @@
+# İdeal müşteri profili — firmografi, kimin ARANMAYACAĞI dahil (§6).
+$id: icp
+type: object
+title: İdeal müşteri profili
+description: Firmografik tanım, tetikleyici olaylar ve dışlama kriterleri.
+additionalProperties: false
+required: [name, industry, size_band, trigger_events]
+properties:
+  name:
+    type: string
+    title: Profil adı
+    minLength: 3
+    maxLength: 120
+  industry:
+    type: string
+    title: Sektör
+    minLength: 3
+    maxLength: 160
+  size_band:
+    type: string
+    title: Ölçek bandı
+    description: Çalışan sayısı veya ciro aralığı. Tek sayı değil BAND — tek sayı yanlış kesinlik verir.
+    enum: [micro_1_9, small_10_49, mid_50_249, large_250_999, enterprise_1000_plus]
+  region:
+    type: string
+    title: Bölge
+    maxLength: 120
+  trigger_events:
+    type: array
+    title: Tetikleyici olaylar
+    description: Bu profili ALIM ANINA getiren olaylar (yeni tesis, ihale kazanımı, mevzuat).
+    items:
+      type: string
+  disqualifiers:
+    type: array
+    title: Dışlayıcılar
+    description: Kimin ARANMAYACAĞI. Bunu yazmayan bir ICP, ICP değil bir dilek listesidir.
+    items:
+      type: string
+  budget_signal:
+    type: string
+    title: Bütçe sinyali
+    description: Bütçenin var olduğunu gösteren doğrulanabilir işaret (yayınlanmış ihale, yatırım teşviki).
+    maxLength: 300

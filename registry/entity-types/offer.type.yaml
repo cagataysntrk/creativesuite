@@ -1,0 +1,45 @@
+# Teklif — satılan şeyin paketlenmiş hâli (§6).
+#
+# Varyant AYRIŞTIRICI ALANLA yapılır (`kind`), şema yapısıyla değil: `oneOf` dört
+# projeksiyondan en az birini sessizce bozar (registry/PROFILE.md).
+$id: offer
+type: object
+title: Teklif
+description: 'Paketlenmiş çözüm: kapsam, fiyat modeli, giriş engeli, ilk değer anı.'
+additionalProperties: false
+required: [name, kind, scope, pricing_model]
+properties:
+  name:
+    type: string
+    title: Ad
+    minLength: 3
+    maxLength: 160
+  kind:
+    type: string
+    title: Tür
+    enum: [saas, bespoke, pilot, workshop]
+  scope:
+    type: string
+    title: Kapsam
+    description: Neyin dahil olduğu VE neyin olmadığı. İkincisi yazılmazsa proje şişer.
+    minLength: 20
+    maxLength: 800
+  pricing_model:
+    type: string
+    title: Fiyat modeli
+    enum: [subscription, per_project, per_seat, usage_based, hybrid]
+  entry_barrier:
+    type: string
+    title: Giriş engeli
+    description: Müşterinin başlamak için ödemesi gereken bedel — para değil, EFOR ve RİSK.
+    maxLength: 400
+  time_to_value:
+    type: string
+    title: İlk değer anı
+    description: Müşterinin ilk somut faydayı gördüğü an. Haftalarla ölçülür, vaatle değil.
+    maxLength: 200
+  proof_refs:
+    type: array
+    title: Kanıt referansları
+    items:
+      type: string

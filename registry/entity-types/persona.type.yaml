@@ -1,0 +1,43 @@
+# Persona — karar masasındaki bir rol (§6).
+#
+# Persona kişi DEĞİL roldür: "Mehmet Bey" bir prospect kaydıdır, "üretim müdürü"
+# bir personadır. Karıştırmak, KVKK yükümlülüğü olan veriyi strateji kaydına sokar.
+$id: persona
+type: object
+title: Persona
+description: Karar masasındaki bir rolün hedefi, itirazı ve bilgi kaynakları.
+additionalProperties: false
+required: [role, goal, objection, decision_power]
+properties:
+  role:
+    type: string
+    title: Rol
+    minLength: 3
+    maxLength: 120
+  goal:
+    type: string
+    title: Hedef
+    description: Bu rolün başarı ölçütü. Şirketin değil, KİŞİNİN ölçütü.
+    minLength: 10
+    maxLength: 300
+  objection:
+    type: string
+    title: İtiraz
+    description: Satın almaya karşı ilk refleks. "Bütçe yok" nadiren gerçek itirazdır.
+    minLength: 10
+    maxLength: 300
+  decision_power:
+    type: string
+    title: Karar gücü
+    enum: [economic_buyer, champion, technical_gatekeeper, end_user, blocker]
+  information_sources:
+    type: array
+    title: Bilgi kaynakları
+    description: Bu rol nereden bilgi alıyor. Kanal seçimi buradan çıkar, tahminden değil.
+    items:
+      type: string
+  language_notes:
+    type: string
+    title: Dil notları
+    description: Bu rolün kullandığı gerçek kelimeler; müşteri-sesi kaydı (FAZ-7.9 buraya akar).
+    maxLength: 500

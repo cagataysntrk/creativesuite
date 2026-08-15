@@ -1,0 +1,43 @@
+# Rakip — alternatif çözüm ve onun gerçek gücü (§6).
+#
+# Rakip kaydı zayıflık listesi DEĞİLDİR. Rakibin neyi gerçekten iyi yaptığını yazmayan
+# bir kayıt, ilk gerçek görüşmede satıcıyı hazırlıksız yakalar.
+$id: competitor
+type: object
+title: Rakip
+description: Alternatif çözüm, gücü, sınırı ve bizim karşı konumumuz.
+additionalProperties: false
+required: [name, kind, strength, our_counter]
+properties:
+  name:
+    type: string
+    title: Ad
+    minLength: 2
+    maxLength: 160
+  kind:
+    type: string
+    title: Tür
+    description: Doğrudan rakip mi, yerleşik alışkanlık mı, iç kaynak mı — en sık kaybedilen rakip "hiçbir şey"dir.
+    enum: [direct_product, in_house_build, spreadsheet_status_quo, consultancy, do_nothing]
+  strength:
+    type: string
+    title: Gücü
+    description: Gerçekten iyi yaptığı şey. Yazılmazsa kayıt propaganda olur.
+    minLength: 10
+    maxLength: 400
+  limitation:
+    type: string
+    title: Sınırı
+    description: Doğrulanabilir sınır. "Kötü ürün" sınır değil, iddiadır.
+    maxLength: 400
+  our_counter:
+    type: string
+    title: Karşı konumumuz
+    description: Bu alternatife karşı söylediğimiz tek cümle.
+    minLength: 10
+    maxLength: 300
+  evidence_url:
+    type: string
+    title: Kanıt bağlantısı
+    description: Fiyat sayfası, dokümantasyon, ihale sonucu — iddianın kaynağı.
+    maxLength: 500

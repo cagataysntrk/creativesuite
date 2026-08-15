@@ -6,9 +6,10 @@
 // bugün fark edilmezse, yarın form alanı gösterir ama DDL sütunu yoktur — ve hata
 // hiçbir katmanda değil, İKİ KATMANIN ARASINDA çıkar.
 //
-// Kapı bugün sıfır gerçek varlık tipi görüyor (onlar FAZ-2.1'de doğuyor) ve bunu
-// SESSİZCE geçmiyor: fixture şemaları üstünde derleyicinin çalıştığını doğruluyor,
-// gerçek tipler geldiğinde otomatik olarak onları da kapsıyor.
+// Kapı hem fixture şemaları hem `registry/entity-types/*.type.yaml` altındaki GERÇEK
+// tipleri derler. FAZ-2.1'e kadar yalnız fixture'lar vardı; o gün eklenen yedi tipi
+// kapı önce yalnız SAYIYORDU ve "7 gerçek varlık tipi" diye yeşil rapor veriyordu.
+// Sayı doğrulama değildir — derleme doğrulamadır.
 
 import { readFileSync, globSync, existsSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
@@ -31,28 +32,19 @@ const DIST = 'packages/kernel/dist/index.js'
   }
 }
 
-const { compile, validateSchema, FORBIDDEN_KEYWORDS } = await import(p(DIST))
+const { compile, validateSchema, parseYaml, FORBIDDEN_KEYWORDS } = await import(p(DIST))
 
 const errors = []
 
-// ── 1. derleyici gerçekten çalışıyor mu (öz-test) ────────────────────────────
-// Sıfır gerçek varlık tipi varken bu kapı boş geçerdi. Fixture'lar onu doldurur.
-const fixtureler = globSync('test/fixtures/schemas/*.type.json', { cwd: REPO })
-if (fixtureler.length === 0) {
-  console.log('✗ hiç fixture şema yok — kapı boş geçiyor')
-  process.exit(1)
-}
-
-let derlenen = 0
-for (const rel of [...fixtureler].sort()) {
-  const s = JSON.parse(readFileSync(p(rel), 'utf8'))
-  const r = compile(s)
+/** Bir şemayı dört projeksiyona da çevirir ve dördünün de DOLU olduğunu doğrular. */
+const dortProjeksiyon = (rel, sema) => {
+  const r = compile(sema)
   if (!r.ok) {
     errors.push(`${rel}: derlenemedi → ${JSON.stringify(r.errors)}`)
-    continue
+    return false
   }
-  derlenen++
-  // Dördü de gerçekten üretilmiş mi — biri boşsa "derlendi" yalan olur.
+  // "Derlendi" demek yetmez: biri boş dönerse hata katmanların ARASINDA kalır —
+  // form alanı görünür ama DDL sütunu yoktur ve kimse bağlantıyı kuramaz.
   if (typeof r.value.typescript !== 'string' || r.value.typescript.length < 10) {
     errors.push(`${rel}: TS projeksiyonu boş`)
   }
@@ -64,6 +56,20 @@ for (const rel of [...fixtureler].sort()) {
     errors.push(`${rel}: LLM şemasında additionalProperties:false yok`)
   }
   if (r.value.form?.schema === undefined) errors.push(`${rel}: form projeksiyonu yok`)
+  return true
+}
+
+// ── 1. derleyici gerçekten çalışıyor mu (öz-test) ────────────────────────────
+// Sıfır gerçek varlık tipi varken bu kapı boş geçerdi. Fixture'lar onu doldurur.
+const fixtureler = globSync('test/fixtures/schemas/*.type.json', { cwd: REPO })
+if (fixtureler.length === 0) {
+  console.log('✗ hiç fixture şema yok — kapı boş geçiyor')
+  process.exit(1)
+}
+
+let derlenen = 0
+for (const rel of [...fixtureler].sort()) {
+  if (dortProjeksiyon(rel, JSON.parse(readFileSync(p(rel), 'utf8')))) derlenen++
 }
 
 // ── 2. öz-test: bozuk şema GERÇEKTEN reddediliyor mu ─────────────────────────
@@ -98,8 +104,29 @@ if (existsSync(p(PROFILE))) {
   }
 }
 
-// ── 4. gerçek varlık tipleri (FAZ-2.1'den itibaren dolar) ────────────────────
+// ── 4. gerçek varlık tipleri — SAYILMAZ, DERLENİR (FAZ-2.1) ──────────────────
+// İlk sürüm yalnız `gercekler.length` basıyordu: yedi tip eklendiğinde kapı "7 gerçek
+// varlık tipi" diye yeşil rapor verirdi ve HİÇBİRİNİ derlemezdi. Sayı, doğrulama değildir.
 const gercekler = globSync('registry/entity-types/*.type.yaml', { cwd: REPO })
+let gercekDerlenen = 0
+for (const rel of [...gercekler].sort()) {
+  const y = parseYaml(readFileSync(p(rel), 'utf8'))
+  if (!y.ok) {
+    errors.push(`${rel}: YAML ayrıştırılamadı → ${y.message}`)
+    continue
+  }
+  // Dosya adı ile `$id` ayrışırsa SQLite tablosu ile dosya birbirini bulamaz.
+  const beklenenId = basename(rel).replace(/\.type\.yaml$/, '')
+  if (y.value?.$id !== beklenenId) {
+    errors.push(`${rel}: $id "${y.value?.$id}" dosya adıyla ("${beklenenId}") eşleşmiyor`)
+  }
+  if (dortProjeksiyon(rel, y.value)) gercekDerlenen++
+}
+if (gercekler.length > 0 && gercekDerlenen !== gercekler.length) {
+  errors.push(
+    `${gercekler.length} tipten yalnız ${gercekDerlenen} tanesi dört projeksiyona çevrildi`
+  )
+}
 
 if (errors.length > 0) {
   console.log(errors.map((e) => `  ${e}`).join('\n'))
@@ -108,6 +135,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `  ${derlenen} şema × 4 projeksiyon · öz-test geçti · ` +
-    `${gercekler.length} gerçek varlık tipi (FAZ-2.1'de dolar)`
+  `  ${derlenen} fixture + ${gercekDerlenen} gerçek varlık tipi × 4 projeksiyon · öz-test geçti`
 )
