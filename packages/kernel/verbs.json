@@ -1,0 +1,50 @@
+{
+  "aciklama": "DOKUZ FİİL — sabitlenmiş liste (§3.10 · R-02). Sapma iki yönde de hatadır: onuncu fiil eklemek de, birini çıkarmak da. Onuncu fiil AYNI COMMIT'te bir D-nn girdisi gerektirir. Bu dosya elle düzenlenmez; kaynak packages/kernel/src/verbs/table.ts.",
+  "verbs": [
+    {
+      "name": "RESOLVE",
+      "effectClass": "read-registry",
+      "metered": false
+    },
+    {
+      "name": "SELECT",
+      "effectClass": "read-corpus",
+      "metered": false
+    },
+    {
+      "name": "COMPOSE",
+      "effectClass": "pure",
+      "metered": false
+    },
+    {
+      "name": "GENERATE",
+      "effectClass": "network-model",
+      "metered": true
+    },
+    {
+      "name": "RENDER",
+      "effectClass": "browser",
+      "metered": true
+    },
+    {
+      "name": "VALIDATE",
+      "effectClass": "read-corpus",
+      "metered": false
+    },
+    {
+      "name": "PROPOSE",
+      "effectClass": "write-tree",
+      "metered": false
+    },
+    {
+      "name": "PUBLISH",
+      "effectClass": "network-channel",
+      "metered": true
+    },
+    {
+      "name": "INGEST",
+      "effectClass": "network-source",
+      "metered": true
+    }
+  ]
+}

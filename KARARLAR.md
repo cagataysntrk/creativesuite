@@ -468,3 +468,32 @@ ayrıca 100 çalıştırma/ay × ~30 KB, üç yılda grep'lenemeyecek bir yığ�
 **Geri alma maliyeti:** düşük — alan manifest'te, değeri değiştirmek tek satır. Ama
 silinen bağlam geri gelmez, o yüzden temizlik işi FAZ-8.4'te `doctor` raporuyla gelir
 ve **rapor eder, silmez**; silme insan onayıyla.
+
+## D-64 — Kernel saflığının üç katmanı ölçüldü; her biri farklı şeyi yakalıyor
+2026-08-15 · FAZ-0.C.3 "üç katman" diyordu ama hangisinin neyi yakaladığı yazılı değildi.
+Tek bir ihlal dört mekanizmadan geçirildi ve sınırlar **ölçüldü**:
+
+| İhlal biçimi | grep `\.attributes` | ESLint | `tsc` | Proxy tuzağı |
+|---|---|---|---|---|
+| `rec.attributes.foo` | yakalar | yakalar | **yakalar** | yakalar |
+| `const { attributes } = rec` | **kaçırır** | **yakalar** | kaçırır | yakalar |
+| `rec['attri'+'butes']` | **kaçırır** | **kaçırır** | **kaçırır** | **yakalar** |
+
+§3.2'nin "grep destructuring ile atlatılır, Proxy atlatılmaz" cümlesi doğrulandı ve
+aradaki boşluğun ESLint `no-restricted-syntax` ile kapandığı gösterildi.
+**Tuzağın kendisi `panic()` kullanır** — `throw` eden tek yer orası (§8.6). `chokepoints`
+kapısı testte elle yazılmış bir `throw`u haklı olarak reddetti; kural doğruydu, ilk
+yazdığım tuzak yanlıştı. Semantik olarak da doğrusu bu: kernel'in `attributes` okuması
+bir kullanıcı hatası değil, bir **değişmez ihlalidir**.
+
+**İki tuzak hatası ve dersleri:**
+1. Tuzak önce yalnız `{ record: … }` biçimiyle deneniyordu; `input['attributes']` okuyan
+   bir ihlal hiç tetiklemiyordu — **tuzak yeşil raporluyordu** (R-71). Artık dört biçim
+   deneniyor: çıplak kayıt, `{record}`, `{records:[]}`, iç içe payload.
+2. Hata mesajı `Object.keys(girdi)` çağırıyordu ve tuzağı **testin kendisi** patlatıyordu;
+   temiz kodda bile kırmızıydı. Etiketler artık girdiden türetilmiyor.
+
+**Çalışma biçimi dersi:** bu turda iki kez, biçimlendirici satırı çok satıra bölünce
+`str.replace` tabanlı düzenlemem **sessizce hiçbir şey yapmadı** ve testi haftalarca
+yanlış çalıştırabilirdi. Desen eşleşmesi artık `assert` ile doğrulanıyor — eşleşmeyen
+düzenleme hata verir, sessizce geçmez. R-70'in kabuk tuzağının editör seviyesindeki hâli.

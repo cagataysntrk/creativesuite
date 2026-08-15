@@ -78,5 +78,22 @@ export {
   type CostSummary,
 } from './manifest.js'
 
+export {
+  notImplemented,
+  validateVerbOutput,
+  ZERO_RANGE,
+  type Verb,
+  type VerbContext,
+  type VerbOutput,
+} from './verbs/types.js'
+export {
+  VERB_TABLE,
+  EFFECT_OF,
+  METERED_OF,
+  getVerb,
+  fingerprint,
+  type VerbFingerprint,
+} from './verbs/table.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'

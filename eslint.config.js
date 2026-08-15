@@ -43,10 +43,55 @@ export default tseslint.config(
 
   ...tseslint.configs.recommended,
 
+  // Kullanılmayan bağlayıcılar hata; `_` öneki AÇIK "bilerek kullanılmıyor" işaretidir.
+  // Bir sözleşme imzasını (`plan(ctx, input)`) korumak için parametreyi tutmak
+  // meşrudur — silmek imzayı bozar. İşaretsiz kullanılmayan değişken ise ölü koddur.
+  {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+
   // Kök seviyesindeki yapılandırma dosyaları — tip denetimi dışı, düz JS
   {
     files: ['*.mjs', '*.js'],
     ...tseslint.configs.disableTypeChecked,
+  },
+
+  // ── kernel saflığı: 2. katman (§3.2 · R-01 · FAZ-0.C.3) ───────────────────
+  //
+  // 1. katman `OpaqueAttributes` markası → derleme hatası (özellik erişimini keser).
+  // 2. katman BU → `attributes`e DOKUNMAYI keser; derleme hatası vermeyen
+  //    `const { attributes } = rec` biçimini de yakalar. Grep bunu KAÇIRIR
+  //    (destructuring'de nokta yok) — §3.2 zaten öyle söylüyor.
+  // 3. katman Proxy tuzağı → çalışma zamanında atlatılamaz (purity.test.ts).
+  {
+    files: ['packages/kernel/src/**/*.ts'],
+    ignores: ['packages/kernel/src/**/*.test.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[property.name='attributes']",
+          message:
+            'R-01: kernel `attributes` okuyamaz. Yol: SELECT → unsealAttributes (yalnız packages/registry) → COMPOSE belge modeli → RENDER (§3.2).',
+        },
+        {
+          selector: "ObjectPattern > Property[key.name='attributes']",
+          message:
+            'R-01: `attributes` destructuring de okumadır. Grep bunu kaçırır, bu kural kaçırmaz (§3.2).',
+        },
+      ],
+    },
   },
 
   // ── halka sınırları: her paket kendi yasak listesini alır ──────────────────

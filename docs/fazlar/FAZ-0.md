@@ -143,7 +143,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
 📖 §3.6 · 🔗 1.1
 ✅ Kasten yanlış halka import'u → ESLint, depcruise ve `tsc -b` üçü de kırmızı
 
-## 0.C.3 — kernel saflık kapısı    [ ]
+## 0.C.3 — kernel saflık kapısı    [x] 2026-08-15
 📖 §3.2 · D-41
 🛠 Üç katman: `OpaqueAttributes` markası (derleme hatası) · ESLint `no-restricted-syntax` ·
    grep + **Proxy tuzağı** (`attributes` fırlatan kayıt dokuz fiilden geçirilir).
@@ -189,7 +189,7 @@ her 🔴 ya kapanmış ya bir adıma bağlanmış · bağımsız doğrulama agen
    `scripts/gates/gitleaks.sh` (geçmiş + çalışma ağacı, `--redact`)
 ✅ Sahte anahtar commit'le → engellendi
 
-## 0.C.11 — verbs kapısı    [ ]
+## 0.C.11 — verbs kapısı    [x] 2026-08-15
 📖 §3.10 · D-35, D-40 · 🔗 1.11
 ✅ Dokuzuncu fiil listesi `packages/kernel/verbs.json`'a sabit; onuncu → kırmızı
 

@@ -157,7 +157,7 @@ ağ kablosu çekiliyken de çalışıyor
 ✅ `just golden` gerçek metrik üretiyor · fontu kasten boz → kırmızı
 💾 `feat(repo): golden-file harness ve JSON metrikleri` · `Refs: FAZ-1.10b · §15`
 
-## 1.11 — Dokuz fiilin iskeleti    [ ]
+## 1.11 — Dokuz fiilin iskeleti    [x] 2026-08-15
 
 📖 §3.10 · R-02, R-04, R-06 · D-35, D-40 · 🔗 FAZ-0.C.11
 🛠 Her fiil `{name, effectClass, metered, plan, run}`. `plan` kuru ikiz: sıfır ağ, sıfır
