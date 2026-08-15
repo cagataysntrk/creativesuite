@@ -97,5 +97,9 @@ export {
 
 export { parseYaml, stringifyYaml, type YamlParseResult } from './yaml.js'
 
+export { spawnProcess, commandExists, type SpawnOptions, type SpawnResult } from './proc/spawn.js'
+
+export { readEnv, envFlag } from './config/env.js'
+
 export { SCHEMA_REGISTRY } from './schema/registry.js'
 export type { SchemaEntry } from './schema/registry.js'

@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 1
-siradaki_adim: 1.14
+siradaki_adim: 1.4
 son_guncelleme: 2026-08-15
 bloke: []
 deneme_sayaci: {}
-son_kanit: "1.13: 156 test; just plan agsiz calisti (dns/socket/fetch oldurulmus), calisma agaci degismedi; model adi, DAG dongusu ve bilinmeyen fiil reddedildi"
+son_kanit: "1.14: 171 test; just plan claude-code adayini listeliyor; PATH bosken provider_unavailable donuyor ve katalogda kullanilamiyor diye isaretleniyor"
 ```
 
 ## Neredeyiz
@@ -72,19 +72,20 @@ Henüz hiçbir üretim yok; bu faz bilinçli olarak altyapı ve belge fazıdır.
 | **1.11** · dokuz fiilin iskeleti | 2026-08-15 |
 | **1.12** · motor: retry, kesici, bütçe, defter | 2026-08-15 |
 | **1.13** · just plan — harcamayan kuru çalıştırma | 2026-08-15 |
+| **1.14** · headless Claude Code adaptörü | 2026-08-15 |
 
 ## Sıradaki adım
 
-**1.14** — Claude Code köprüsü. `GENERATE` fiilinin "akıl gerektiren" şeridi: headless
-Claude Code'u alt süreç olarak çağıran adaptör (D-8). Mevcut abonelik kullanılır, ekstra
-API faturası yok. Aynı yetenek API şeridine de düşebilmeli — sağlayıcı seçimi
-yönlendiricinin işi.
-Kabul: `just plan` bu sağlayıcıyı aday olarak listeliyor · adaptör `estimate()` **senkron**.
-İhlal: Claude Code yokken çalıştır → `provider_unavailable`, sessizce atlamıyor.
+**1.4** — projeksiyon derleyicisi: tek şema → dört hedef (rjsf form şeması · TS tipi ·
+**katı LLM şeması** · SQLite DDL). FAZ 1'in son adımı.
+Kabul: her varlık tipi için dört projeksiyonun snapshot'ı eşleşiyor · `just test projection`.
+İhlal: şemaya iç içe nesne ekle, `additionalProperties:false` koyma → LLM projeksiyonu
+testi kırmızı (sessizce kabul etmiyor).
 
-> FAZ 1'de kalan tek diğer adım **1.4** (projeksiyon derleyicisi): LLM projeksiyonu
-> V-05'e (Anthropic yapılandırılmış çıktı alt kümesi) dayanıyor ve o borç gerçek bir
-> çağrıyla kapanacak — 1.14'ün getirdiği köprü tam da onu mümkün kılıyor.
+> 1.4 en sona kaldı çünkü LLM projeksiyonu **V-05**'e dayanıyor (Anthropic yapılandırılmış
+> çıktı alt kümesi OpenAI'ninkiyle aynı mı). 1.14'ün getirdiği Claude Code köprüsü tam da
+> o borcu gerçek bir çağrıyla kapatmayı mümkün kılıyor — derleyici daha KATI olana yazılır,
+> sonra çağrıyla doğrulanır.
 
 ## Bloke adımlar
 

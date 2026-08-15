@@ -32,6 +32,8 @@ const sonuc = plan({
   runId: 'run_plan_dry',
   brandId: 'brd_plan_dry',
   eraId: '*',
+  // Ortam AÇIKÇA geçilir: sağlayıcı kullanılabilirliği PATH'e bakıyor.
+  env: { PATH: process.env.PATH ?? '' },
 })
 
 if (!sonuc.ok) {

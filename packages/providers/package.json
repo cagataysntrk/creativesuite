@@ -13,5 +13,9 @@
   "dependencies": {
     "@suite/contracts": "workspace:*",
     "@suite/kernel": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "vitest": "4.1.10"
   }
 }

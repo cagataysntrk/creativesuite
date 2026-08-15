@@ -11,6 +11,7 @@ import type { BrandId, EraId, Money, MoneyRange, RunId, StepId, VerbName } from 
 import { VERBS, ZERO_USD, addMoney } from '@suite/contracts'
 import { getVerb, seededRng, fixedClock, type VerbContext } from '@suite/kernel'
 import { topoOrder, type Pipeline } from '@suite/registry'
+import { candidatesFor } from '@suite/providers'
 
 export interface PlannedStep {
   readonly stepId: StepId
@@ -23,6 +24,8 @@ export interface PlannedStep {
   readonly constraints: Readonly<Record<string, unknown>>
   readonly estimatedCost: MoneyRange
   readonly candidateProviders: readonly string[]
+  /** Yeteneği yapabilen ama ŞU AN kullanılamayan sağlayıcılar — sessizce düşürülmez. */
+  readonly unavailableProviders: readonly string[]
 }
 
 export interface PlanReport {
@@ -56,6 +59,8 @@ export interface PlanInput {
   readonly runId: RunId
   readonly brandId: BrandId
   readonly eraId: EraId | '*'
+  /** Ortam AÇIKÇA verilir: sağlayıcı kullanılabilirliği `PATH`e bakıyor (§3.8). */
+  readonly env?: Readonly<Record<string, string>>
 }
 
 export const plan = (input: PlanInput): PlanResult => {
@@ -106,9 +111,15 @@ export const plan = (input: PlanInput): PlanResult => {
       continue
     }
 
+    // Yetenek → aday sağlayıcılar. Seçim YAPILMAZ (o FAZ-3.5'in işi); yalnız kimin
+    // yapabileceği listelenir. KULLANILAMAYANLAR da listelenir: "aday yok" ile "aday
+    // var ama kurulu değil" farklı sorunlardır ve kullanıcıya farklı şey yaptırır.
+    const adaylar = s.capability === null ? [] : candidatesFor(s.capability, input.env ?? {})
+    const kullanilabilir = adaylar.filter((a) => a.available).map((a) => a.providerId)
+
     low = addMoney(low, vp.estimatedCost.low)
     high = addMoney(high, vp.estimatedCost.high)
-    if (verb.metered && vp.candidateProviders.length === 0) unpriced.push(s.id)
+    if (verb.metered && kullanilabilir.length === 0) unpriced.push(s.id)
 
     steps.push({
       stepId: s.id as StepId,
@@ -120,7 +131,8 @@ export const plan = (input: PlanInput): PlanResult => {
       gate: s.gate,
       constraints: s.constraints,
       estimatedCost: vp.estimatedCost,
-      candidateProviders: vp.candidateProviders,
+      candidateProviders: kullanilabilir,
+      unavailableProviders: adaylar.filter((a) => !a.available).map((a) => a.providerId),
     })
   }
 
@@ -164,6 +176,13 @@ export const formatPlan = (r: PlanReport): string => {
         `${(s.capability ?? '—').padEnd(17)}  ${(s.metered ? 'ücret' : '—').padEnd(5)}  ` +
         `${s.needs.join(', ') || '—'}`
     )
+    if (s.capability !== null) {
+      const a = s.candidateProviders.length > 0 ? s.candidateProviders.join(', ') : '—'
+      satirlar.push(`        └─ aday sağlayıcı: ${a}`)
+      if (s.unavailableProviders.length > 0) {
+        satirlar.push(`           kullanılamıyor: ${s.unavailableProviders.join(', ')}`)
+      }
+    }
     if (s.gate !== null) satirlar.push(`        └─ insan kapısı: ${s.gate}`)
   })
 

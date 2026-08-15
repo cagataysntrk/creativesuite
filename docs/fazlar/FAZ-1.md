@@ -194,14 +194,19 @@ ağ kablosu çekiliyken de çalışıyor
 🧪 Kuru ikizi olmayan bir fiil ekle → `plan` hata veriyor (sessizce atlamıyor)
 💾 `feat(cli): just plan — harcamayan kuru çalıştırma` · `Refs: FAZ-1.13 · §8.3`
 
-## 1.14 — Claude Code köprüsü    [ ]
+## 1.14 — Claude Code köprüsü    [x] 2026-08-15
 
 📖 §3.10 · D-8
 🔗 1.11
 🛠 `GENERATE` fiilinin "akıl gerektiren" şeridi: headless Claude Code'u alt süreç olarak
    çağıran adaptör. Mevcut abonelik kullanılır, ekstra API faturası yok (D-8).
    Aynı yetenek API şeridine de düşebilmeli — sağlayıcı seçimi yönlendiricinin işi.
-📁 `packages/providers/src/claude-code.ts`
+📁 `packages/providers/src/claude-code.ts` · sözleşme `types.ts` · katalog `registry.ts`
+   Yanında doğan darboğaz: `kernel/src/proc/spawn.ts` (tek alt süreç başlatıcı; öldürme
+   iki aşamalı — `SIGTERM`, sonra `graceMs`, sonra `SIGKILL`).
+   `estimate()` sıfır aralık döndürür ve bu **"bilinmiyor" değil, gerçekten ücretsiz**:
+   abonelik zaten ödenmiş (D-8). Ham `ADAPTERS` listesi paket dışına AÇILMAZ —
+   erişim yalnız `candidatesFor`/`adapterById` üzerinden.
 ✅ `just plan` bu sağlayıcıyı aday olarak listeliyor · adaptör `estimate()` senkron
 🧪 Claude Code yokken çalıştır → hata `provider_unavailable`, sessizce atlamıyor
 💾 `feat(providers): headless Claude Code adaptörü` · `Refs: FAZ-1.14 · §8.4`

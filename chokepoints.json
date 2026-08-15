@@ -175,10 +175,10 @@
     {
       "id": "saglayici-cagirici",
       "ad": "Sağlayıcı çağırıcı",
-      "neden": "Model çağıran tek fiil GENERATE'tir (§3.10). İkinci çağırıcı, yönlendiriciyi ve maliyet defterini atlar.",
-      "izinli": ["packages/providers/src/invoke.ts"],
-      "desen": null,
-      "faz": "FAZ-3.4"
+      "neden": "Model çağıran tek fiil GENERATE'tir (§3.10) ve ona giden tek kapı sağlayıcı kataloğudur. Ham `ADAPTERS` listesine dokunan ikinci bir dosya kendi sağlayıcı kümesini kurabilir; o küme yönlendiriciyi ve maliyet defterini atlar ve çağrının parası hiçbir yerde yazmaz. `adapterById`/`candidatesFor` meşru erişim yoludur.",
+      "izinli": ["packages/providers/src/registry.ts"],
+      "desen": "\\bADAPTERS\\b",
+      "faz": "FAZ-1.14"
     },
     {
       "id": "kanal-yayinci",
