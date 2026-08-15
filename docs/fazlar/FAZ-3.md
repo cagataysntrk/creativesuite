@@ -189,7 +189,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Bütçe tavanını aşan bir carousel dene → Başlat kilitli
 💾 `feat(cli): instagram-post ve carousel uçtan uca` · `Refs: FAZ-3.14 · §10`
 
-## 3.15 — `linkedin-post`    [ ]
+## 3.15 — `linkedin-post`    [x] 2026-08-15
 
 📖 §10, §9.1
 🔗 3.14

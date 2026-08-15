@@ -5,7 +5,7 @@
 // komut sağlayıcı çağırabilir. Bütçe tavanı zorunlu ve varsayılan DÜŞÜK: tavansız
 // çalıştırmak, gözetimsiz bir gecede tavanın olmadığını öğrenmektir.
 
-import { readFileSync, existsSync, globSync } from 'node:fs'
+import { readFileSync, existsSync, globSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -39,6 +39,10 @@ const {
   colorsFromTokens,
   assertCompliance,
   stampPng,
+  placementById,
+  climbLadder,
+  formatLadder,
+  DEFAULT_LIMITS,
 } = await import(join(REPO, 'packages/render/dist/index.js'))
 const { openDb, systemClock, seededRng, uuidv7 } = await import(
   join(REPO, 'packages/kernel/dist/index.js')
@@ -121,6 +125,32 @@ const kaliteKontrol = async (doc, slides) => {
   const satirlar = []
   let bloke = false
 
+  // ── platform spec'i: tolerans ve boyut sınırı YERLEŞİME göre (§9.1) ────────
+  // Tek global tolerans ikisinden birinde yanlış olurdu: Instagram ±%1, LinkedIn ±%5.
+  const yerlesimAdi = doc.width === 1200 ? 'linkedin-feed-4x5' : 'instagram-feed-4x5'
+  const yerlesim = placementById(yerlesimAdi)
+  if (yerlesim === null) {
+    satirlar.push(`  ✗ bilinmeyen yerleşim: ${yerlesimAdi}`)
+    return { blocked: true, report: satirlar.join('\n') }
+  }
+  satirlar.push(
+    `  yerleşim ${yerlesim.id} · ${yerlesim.width}×${yerlesim.height} · ` +
+      `tolerans ±%${yerlesim.aspectTolerancePercent} · sınır ${Math.round(yerlesim.maxBytes / 1024 / 1024)}MB ` +
+      `(doğrulandı ${yerlesim.verifiedAt})`
+  )
+
+  // Kalite merdiveni: sınırı aşan görsel SESSİZCE yayınlanmaz.
+  for (const [i, yol] of slides.entries()) {
+    const boyut = statSync(yol).size
+    const m = climbLadder(
+      (r) =>
+        Math.round(boyut * (r.jpegQuality === null ? 1 : r.jpegQuality / 200) * r.scale * r.scale),
+      yerlesim.maxBytes
+    )
+    satirlar.push(`  slayt ${i + 1} boyut: ${formatLadder(m)}`)
+    if (!m.ok) bloke = true
+  }
+
   const lex = lintDocument(doc, {
     forbidden: ['devrim niteliğinde', 'çığır açan', 'dünyanın en iyisi', 'sektör lideri'],
     allowedHex: izinliHex.length === 0 ? [] : izinliHex,
@@ -142,7 +172,8 @@ const kaliteKontrol = async (doc, slides) => {
       doc,
       palette: palet,
       pixels: ornek.value,
-      targetAspect: doc.width / doc.height,
+      targetAspect: yerlesim.width / yerlesim.height,
+      limits: { ...DEFAULT_LIMITS, aspectLimit: yerlesim.aspectTolerancePercent },
     })
     satirlar.push(`  slayt ${i + 1}:`)
     satirlar.push(formatReport(rapor))

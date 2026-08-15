@@ -1,0 +1,57 @@
+# LinkedIn tek görsel postu (§10, §9.1 · FAZ-3.15).
+#
+# **Aynı motor, farklı spec.** Instagram ile tek farkı tuval ölçüsü, tolerans (±%5 vs
+# ±%1) ve boyut sınırı (5MB vs 8MB). Hat, düzen ve tipografi AYNI — "bedava ve premium
+# çıktı tipografide aynıdır" (§8.2) ilkesinin platformlar arası karşılığı.
+#
+# MODEL ADI YOK (R-40).
+id: linkedin-post
+title: LinkedIn tek görsel postu
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  - id: gorsel-uret
+    verb: GENERATE
+    capability: image.generate
+    needs: [bilgi-sec]
+    constraints:
+      aspect: '4:5'
+      # Görsel modeline Türkçe metin çizdirilmez (R-20).
+      no_text: true
+      max_cost_usd_micros: 60000
+      optional: true
+
+  - id: kompozit
+    verb: COMPOSE
+    needs: [bilgi-sec, gorsel-uret]
+    constraints:
+      # LinkedIn 1200×1500 (§9.1, doğrulandı 2026-08-15).
+      width: 1200
+      height: 1500
+      placement: linkedin-feed-4x5
+
+  - id: render
+    verb: RENDER
+    # Yetenek YOK: render YÖNLENDİRİLMEZ (D-122).
+    needs: [kompozit]
+    constraints:
+      width: 1200
+      height: 1500
+      placement: linkedin-feed-4x5
+
+  - id: kalite
+    verb: VALIDATE
+    needs: [render]
+    constraints:
+      placement: linkedin-feed-4x5
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

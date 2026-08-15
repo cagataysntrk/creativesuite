@@ -507,3 +507,36 @@ için ayrı bir YAML demekti.
 **Parametre kısıtı EZEMEZ**: birleştirme sırası `{...params, ...constraints}` — pipeline
 her zaman kazanır. Aksi hâlde çalıştırma anında `no_text: false` geçilebilirdi ve R-20
 bir çalıştırma tercihine dönerdi.
+
+## D-126 — Platform spec'i KOD, tolerans platforma ÖZEL
+2026-08-15 · `packages/render/src/specs/placements.ts`: her satır `sourceUrl` +
+`verifiedAt` taşıyor. Tarihsiz bir spec, **ne zaman doğru olduğunu söylemez** ve
+platform ölçüleri sessizce değişiyor (Meta feed'i 1:1'den 4:5'e taşıdı).
+**Tolerans tek ve global DEĞİL**: Instagram ±%1, LinkedIn ±%5. Tek bir sayı ikisinden
+birinde yanlış olurdu — "yeterince yakın" bir yeniden boyutlandırma Facebook'tan geçip
+Instagram'dan reddedilir. `measure` artık limiti yerleşimden alıyor.
+`specAgeDays` bozuk tarihte `Infinity` dönüyor, 0 değil: "yeni doğrulandı" demek en
+kötü yalan olurdu.
+
+## D-127 — Kalite merdiveninde ÖLÇEK en son düşer
+2026-08-15 · LinkedIn 5MB'ı aşan görseli reddeder. Merdiven altı basamak: PNG → JPEG
+%92/%85/%75 → ölçek ×0,8 ile %85/%75.
+**Sıra bilinçli:** 1200px'de %70 JPEG, 900px'de %90 JPEG'den okunaklıdır ve tipografi
+ölçek düşünce doğrudan zarar görür — §7.1'in "küçültme yok" ilkesinin yayın tarafındaki
+karşılığı. Bir test her basamağın bir öncekinden küçük olduğunu ayrıca doğruluyor;
+yukarı çıkan bir basamak merdiveni anlamsız yapardı.
+**Merdiven tükenirse hat DURUR.** İhlal testi: sınır 3KB'a indirildi → `QA_OUT_OF_TOLERANCE`,
+`kalite` adımında durdu, hiçbir şey yayınlanmadı. Sessizce yayınlamak, "3 varlık
+ürettim" sanıp sıfır yayınlamaktır.
+
+## D-128 — Döngünün durum modelinde "faz kapanıyor" hâli YOKTU
+2026-08-15 · `durum` kapısı `siradaki_adim: FAZ-3-KAPANIS`i reddetti: her değer bir faz
+adımı olmak zorundaydı. Ama faz kapanışı (LOOP§D) gerçek bir iş ve bir adım değil —
+model eksikti.
+`FAZ-N-KAPANIS` eklendi ve **kaçış deliği değil**: kontrol edilebilir bir koşulu var —
+o fazın BLOKE OLMAYAN her adımı tikli olmalı. `bloke` listesi boşaltılınca kapı
+kırmızıya dönüyor.
+**Kapı eklerken gerçek bir tutarsızlık yakaladı:** `3.2` düzyazıda "ATLANDI" yazıyordu
+ama makine-okunur `bloke` listesinde YOKTU. Bağlamı sıfırlanmış bir agent o adımı
+"sıradaki iş" sanabilirdi. Düzyazı ile makine bloğunun ayrışması, `DURUM.md`'nin tam
+olarak önlemesi gereken şey.

@@ -95,3 +95,14 @@ export {
   type StampInput,
   type StampResult,
 } from './compliance/stamp.js'
+export {
+  PLACEMENTS,
+  QUALITY_LADDER,
+  climbLadder,
+  formatLadder,
+  placementById,
+  specAgeDays,
+  type Placement,
+  type QualityRung,
+  type LadderResult,
+} from './specs/placements.js'

@@ -53,7 +53,9 @@ const siradaki = alan('siradaki_adim')
 if (aktifFaz === null || !/^\d+$/.test(aktifFaz)) {
   errors.push(`aktif_faz okunamadı veya sayı değil: ${aktifFaz}`)
 }
-if (siradaki === null || !/^\d+\.[A-Za-z0-9.]+$/.test(siradaki)) {
+// İki geçerli biçim: bir adım (`3.14`) ya da faz kapanışı (`FAZ-3-KAPANIS`).
+// İkincisinin kendi koşulu var (aşağıda) — serbest metin kabul edilmiyor.
+if (siradaki === null || !/^(\d+\.[A-Za-z0-9.]+|FAZ-\d-KAPANIS)$/.test(siradaki)) {
   errors.push(`siradaki_adim okunamadı veya biçimsiz: ${siradaki}`)
 }
 
@@ -75,8 +77,34 @@ if (adimlar.size === 0) {
   process.exit(1)
 }
 
+// Bloke listesi kapanış kontrolünden ÖNCE okunur: kapanış, bloke adımları hariç
+// tutabilmek için onları bilmek zorunda.
+const blokeListesi = (durum.match(/^bloke:\s*\[(.*)\]$/m)?.[1] ?? '')
+  .split(',')
+  .map((x) => x.trim().replace(/^['"]|['"]$/g, ''))
+  .filter(Boolean)
+
 // ── 1. sıradaki adım gerçekten var mı ve BİTMEMİŞ mi ─────────────────────────
-if (siradaki !== null) {
+//
+// `FAZ-N-KAPANIS` özel bir değerdir: faz kapanış protokolü (LOOP§D) işliyor demek.
+// Bu bir kaçış deliği DEĞİL — kontrol edilebilir bir koşulu var: o fazın BLOKE
+// OLMAYAN her adımı tikli olmalı. Aksi hâlde "kapanışa geçtim" demek, yarım kalmış
+// adımların üstünü örtmenin en kolay yolu olurdu.
+const KAPANIS = /^FAZ-(\d)-KAPANIS$/
+const kapanisEslesme = siradaki === null ? null : KAPANIS.exec(siradaki)
+
+if (kapanisEslesme !== null) {
+  const faz = kapanisEslesme[1]
+  const acikta = [...adimlar.entries()]
+    .filter(([ad, tikli]) => ad.startsWith(`${faz}.`) && !tikli && !blokeListesi.includes(ad))
+    .map(([ad]) => ad)
+  if (acikta.length > 0) {
+    errors.push(
+      `siradaki_adim '${siradaki}' ama FAZ ${faz}'te bloke OLMAYAN ${acikta.length} adım ` +
+        `hâlâ tiksiz: ${acikta.join(', ')} — kapanış yarım adımların üstünü örtemez`
+    )
+  }
+} else if (siradaki !== null) {
   if (!adimlar.has(siradaki)) {
     errors.push(
       `siradaki_adim '${siradaki}' hiçbir faz dosyasında yok — bağlamsız agent olmayan bir adımı arar`
@@ -90,11 +118,7 @@ if (siradaki !== null) {
 }
 
 // ── 2. bloke adımlar gerçek mi ───────────────────────────────────────────────
-const blokeSatiri = durum.match(/^bloke:\s*\[(.*)\]$/m)?.[1] ?? ''
-for (const b of blokeSatiri
-  .split(',')
-  .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
-  .filter(Boolean)) {
+for (const b of blokeListesi) {
   if (!adimlar.has(b)) errors.push(`bloke listesindeki '${b}' hiçbir faz dosyasında yok`)
 }
 

@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 3
-siradaki_adim: 3.15
+siradaki_adim: FAZ-3-KAPANIS
 son_guncelleme: 2026-08-15
-bloke: ["2.9", "3.8"]
+bloke: ["2.9", "3.2", "3.8"]
 deneme_sayaci: {}
-son_kanit: "★ FAZ 3.14 kapandi: just uret instagram-carousel GERCEK bir carousel uretti. Corpus -> belge -> Chromium (2 slayt) -> marka QA (dE 0,1 · palet disi %0,9) -> damga -> CAS -> manifest -> INSAN KAPISINDA durdu. Turkce tipografi dogru (Iddia/Sirketin/calisan/olculebilir). Butce tavani asilinca saglayici HIC cagrilmiyor. OKLCH destegi eklenene kadar marka QA kendi paletini GOREMIYORDU (D-123). 710 test, 22 kapi."
+son_kanit: "FAZ 3.15 kapandi: LinkedIn spec'i (1200x1500, tolerans ±%5, 5MB) uygulandi ve gercek cikti uretildi. Kalite merdiveni sinir 3KBa indirilince TUKENDI ve hat DURDU — sessizce yayinlanmadi. FAZ 3'un 13 adimi tikli; 3.2 (V-02) ATLANDI, 3.8 (V-16) BLOKE. Faz kapanis protokolu (LOOP§D) basliyor: en fazla IKI dogrulama turu. 721 test, 22 kapi."
 ```
 
 ## Neredeyiz
@@ -19,9 +19,13 @@ son_kanit: "★ FAZ 3.14 kapandi: just uret instagram-carousel GERCEK bir carous
 bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üretilebilir.
 400 test, 21 kapı yeşil.
 
-> **FAZ 3 — görsel üretim hattı** işleniyor. ★ **Hedef karşılandı**: sistem gerçek bir
-> carousel üretti (D-124). Sıradaki adım `3.15`: `linkedin-post` — aynı motor, farklı
-> spec (≤5MB kalite merdiveni).
+> **FAZ 3 — görsel üretim hattı: 13/15 adım tikli.** ★ Hedef karşılandı: sistem gerçek
+> bir carousel ve LinkedIn postu üretti (D-124). Kalan iki adım kapalı sebeplerle
+> dışarıda: `3.2` golden metrik V-02'ye (marka fontu) bağlı, `3.8` marka LoRA V-16'ya
+> (sağlayıcı anahtarları + ~$3 gerçek para) bağlı.
+>
+> **Faz kapanış protokolü işliyor** (LOOP§D): bağımsız doğrulama agent'ı, **en fazla
+> İKİ tur** (D-79). İkinci turda bulunmayan minor'dur ve FAZ 9'a düşer.
 >
 > İki doğrulama turu koşuldu (D-79 tavanı): birinci tur 5 blokaj + 5 ikincil, ikinci
 > tur 7 blokaj + 6 ikincil buldu; hepsi kapatıldı. Üçüncü tur AÇILMAZ — ikinci turda
@@ -49,13 +53,14 @@ bekliyor (D-83). Şirketin bugün ne olduğu kayıtlı, imzalı ve yeniden üret
 | **3.12** · içerik-adresli varlık deposu + sidecar | 2026-08-15 |
 | **3.13** · run manifest yazıcı, tahmini vs gerçek maliyet | 2026-08-15 |
 | **3.14 ★** · carousel UÇTAN UCA — gerçek çıktı üretildi | 2026-08-15 |
+| **3.15** · linkedin-post, platform spec'i, kalite merdiveni | 2026-08-15 |
 
 ## Sıradaki adım
 
-**`3.15` — `linkedin-post`.** Aynı motor, farklı spec: ≤5MB kalite merdiveni,
-1200×1500 tuval. Hat zaten çalışıyor; bu adım spec farkını ve kalite merdivenini
-ekliyor. FAZ 3'ün son adımı — sonra faz kapanış protokolü (LOOP§D, en fazla İKİ
-doğrulama turu).
+**FAZ 3 kapanış turu.** Bağımsız doğrulama agent'ı (`.claude/agents/faz-dogrulayici.md`)
+her ✅ kriterini kodda ve repoda arar. Bulguları kapatılır, ikinci tur koşulur, onun
+bulguları da kapatılır ve **faz kapanır** — üçüncü tur açılmaz (D-79).
+Sonra FAZ 4: komuta merkezi (§12).
 
 ⚠ **`3.8` (marka LoRA) BLOKE** — ~$3 gerçek para harcıyor ve `FAL_KEY` yok (V-16).
 Anahtarlar `secrets.enc.yaml`a girdiğinde açılır.
