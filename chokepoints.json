@@ -61,9 +61,9 @@
     {
       "id": "corpus-yazici",
       "ad": "Corpus yazıcı",
-      "neden": "Agent önerir, insan uygular (§5.4). İkinci bir yazma yolu, onay kuyruğunu ATLAYAN bir yazma yoludur — kendi kendini değiştirebilen bir yapılandırmanın tek güvenlik hikâyesi budur. Kapsam corpus paketiyle sınırlı: başka paketlerin dosya yazması ayrı darboğazlarda (manifest-yazici, blob CAS) ele alınır.",
+      "neden": "Agent önerir, insan uygular (§5.4). İkinci bir yazma yolu, onay kuyruğunu ATLAYAN bir yazma yoludur — kendi kendini değiştirebilen bir yapılandırmanın tek güvenlik hikâyesi budur. Kapsam corpus paketiyle sınırlı: başka paketlerin dosya yazması ayrı darboğazlarda (manifest-yazici, blob CAS) ele alınır. Desen çağrı değil TANIMLAYICI arar: takma adlı import (`writeFileSync as yaz`) çağrı parantezi taşımıyor ve ilk sürümü atlattı (doğrulama agent'ı, 2026-08-15).",
       "izinli": ["packages/corpus/src/write.ts"],
-      "desen": "\\b(writeFileSync|appendFileSync|createWriteStream|writeFile|rmSync|unlinkSync)\\s*\\(",
+      "desen": "\\b(writeFileSync|appendFileSync|createWriteStream|writeFile|rmSync|unlinkSync|mkdirSync)\\b",
       "faz": "FAZ-1.6",
       "kapsam": ["packages/corpus/src/**/*.ts"]
     },
@@ -112,9 +112,13 @@
     {
       "id": "retrieval-yuklemi",
       "ad": "Retrieval yüklemi",
-      "neden": "`brand_id` + `era_id` + `status` + geçerlilik penceresi TEK sorguda toplanmazsa, emekliye ayrılmış konumlandırma yeni deck'e sızar (§5.2). Bu, sistemin en pahalı sessiz hatası. Desen yüklemin İKİ imzasını arar: `WHERE brand_id` ve görünür durum listesi. İkincisi olmadan biri yüklemi kopyalayıp marka koşulunu değiştirebilir ve kapı görmezdi.",
-      "izinli": ["packages/corpus/src/select.ts"],
-      "desen": "WHERE\\s+brand_id\\b|status\\s+IN\\s*\\(\\s*'active'",
+      "neden": "`brand_id` + `era_id` + `status` + geçerlilik penceresi TEK sorguda toplanmazsa, emekliye ayrılmış konumlandırma yeni deck'e sızar (§5.2) — sistemin en pahalı sessiz hatası. Desen yüklemin BİÇİMİNİ değil, `record` tablosuna ERİŞİMİ arar: doğrulama agent'ı 2026-08-15'te koşul sırasını değiştirerek, satır bölerek ve `status = 'active' OR ...` yazarak üç kez atlattı. Dürüst sınır: dize birleştirme (`'FROM rec' + 'ord'`) hâlâ kaçabilir — bu kapı kopyala-yapıştıra karşı bir tel tuzaktır, kum havuzu değil. Asıl güvence, corpus SQL'ine dokunabilen dosya sayısının ÜÇ olması ve bunun listede görünmesi.",
+      "izinli": [
+        "packages/corpus/src/select.ts",
+        "packages/corpus/src/search.ts",
+        "packages/corpus/src/reindex.ts"
+      ],
+      "desen": "FROM\\s+record\\b|WHERE\\s+brand_id\\b|status\\s+IN\\s*\\(\\s*'active'",
       "faz": "FAZ-2.2",
       "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     },

@@ -38,6 +38,7 @@ export type TransferViolation =
   | { readonly kind: 'note_too_thin'; readonly proofId: string; readonly length: number }
   | { readonly kind: 'illustrative_used_as_evidence'; readonly proofId: string }
   | { readonly kind: 'missing_claim_source'; readonly proofId: string }
+  | { readonly kind: 'missing_era_of_origin'; readonly proofId: string }
   | {
       readonly kind: 'invalid_transfer_confidence'
       readonly proofId: string
@@ -83,6 +84,16 @@ export const checkTransfer = (
     // Sayısal iddianın kaynağı her dönemde zorunlu (R-32) — dönem-aşırı olmasa bile.
     if (p.hasNumericClaim && (p.claimSource === null || p.claimSource.trim() === '')) {
       ihlaller.push({ kind: 'missing_claim_source', proofId: p.id })
+    }
+
+    // Dönem alanı BOŞ olamaz. İlk sürümde boş değer `'*'`e düşüyordu ve `'*'`
+    // "dönemden bağımsız olgu" demek — yani alanı hiç yazmayan kayıt BÜTÜN denetimi
+    // atlıyor, kapı da "argümanları tam" diye rapor ediyordu. **Fail-open bir kapı,
+    // kapı değildir**: eksik bilgi güvenli tarafa değil, HATA tarafına düşer
+    // (doğrulama agent'ı buldu, 2026-08-15).
+    if (p.eraOfOrigin.trim() === '') {
+      ihlaller.push({ kind: 'missing_era_of_origin', proofId: p.id })
+      continue
     }
 
     // Dönemden bağımsız olgu (`'*'`) ve aynı dönemden kanıt aktarım argümanı istemez.
@@ -145,6 +156,8 @@ export const formatViolations = (v: readonly TransferViolation[]): string =>
           return `  ✗ ${x.proofId}: illustrative_only kanıt prospect'e giden belgede KANIT olarak kullanılamaz (§11.4)`
         case 'missing_claim_source':
           return `  ✗ ${x.proofId}: sayısal iddia var, claim_source YOK (R-32)`
+        case 'missing_era_of_origin':
+          return `  ✗ ${x.proofId}: era_of_origin YOK — dönem bilinmeden aktarım denetlenemez; boş alan '*' SAYILMAZ (§4.6)`
         case 'invalid_transfer_confidence':
           return `  ✗ ${x.proofId}: transfer_confidence tanınmıyor: "${x.value.slice(0, 40)}" — direct | analogous | illustrative_only`
       }

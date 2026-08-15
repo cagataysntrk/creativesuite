@@ -16,13 +16,28 @@ const { compileTokens, inheritTokens, toCss, toTailwind, toBrandFacts } = await 
 
 const kontrol = process.argv.includes('--check')
 
-// Marka kalıtım ağacı. Alt marka ana markadan DEVRALIR (§4.2); ezmediği her token
-// mirastır. Ağacı burada tutmak geçici: FAZ-4'te `brand/<id>/brand.yaml`a taşınacak
-// ve o gün bu sabit silinecek. Bugün iki marka var ve bir satır, bir dosyadan ucuz.
-const MARKALAR = [
-  { id: 'brd_upcytech', parent: null },
-  { id: 'brd_dima', parent: 'brd_upcytech' },
-]
+// Markalar `brand/` dizininden TARANIR, elle listelenmez.
+//
+// İlk sürüm sabit bir diziydi ve doğrulama agent'ı 2026-08-15'te üçüncü bir marka
+// dizini ekleyip kademe İHLALLİ token yazdı: hiçbir kapı görmedi. **Listeye eklemeyi
+// hatırlamak bir zorlama değildir** — ve fazın başlığı çok markalılıkken, üçüncü
+// markanın denetimsiz kalması kapının tam olarak korumadığı şeydir.
+//
+// Kalıtım ilişkisi `brand/<id>/parent` dosyasından okunur (tek satır, ana marka id'si).
+// Dosya yoksa marka köktür. FAZ-4'te `brand.yaml`a taşınacak.
+const MARKALAR = readdirSync(join(REPO, 'brand'), { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .map((d) => d.name)
+  .sort()
+  .map((id) => {
+    const parentYolu = join(REPO, `brand/${id}/parent`)
+    const parent = existsSync(parentYolu) ? readFileSync(parentYolu, 'utf8').trim() : null
+    return { id, parent: parent === '' ? null : parent }
+  })
+if (MARKALAR.length === 0) {
+  console.log('✗ brand/ altında hiç marka yok — kapı boş geçiyor')
+  process.exit(1)
+}
 
 // Birden fazla dosya TEK ağaçta birleşir: `console.tokens.json` ve gelecekteki
 // `studio.tokens.json` aynı kademe kurallarına tabidir. Ayrı derlemek, bir dosyanın

@@ -54,55 +54,9 @@ açısından durumu, sınır ötesi veri aktarımı beyanı. → FAZ-8.6
 ## V-11 — Run bağlam anlık görüntülerinin saklama süresi ✅ KAPANDI
 Manifest sonsuza, bağlam N gün. **N = 90** (2026-08-15, FAZ-1.9). Gerekçe D-63'te.
 
-## D-49 — Secret deseni tireyi kapsamalı
-2026-08-15 · `repo-hygiene` ilk deseni `sk-[A-Za-z0-9]{20,}` idi ve gerçek Anthropic
-anahtarını (`sk-ant-api03-…`) **kaçırıyordu** — tirede duruyordu. Desen `[A-Za-z0-9_-]`
-yapıldı, `fal-` biçimi eklendi.
-**Neden kayda değer:** kapı yazıldığı gün kördü ve yalnızca ihlal testi ortaya çıkardı.
-R-71'in ("yeşil kapı hiçbir şey kanıtlamaz") somut kanıtı.
-
 ## V-12 — Aday dönem probe bake-off mekanizması
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
-
-## D-50 — brand/ ve content/ halka aidiyeti
-2026-08-15 · Denetim, `brand/` ve `content/`'in dört halkadan hiçbirine ait olmadığını
-buldu. Karar: **`brand/` Ring 1'dir** (kullanıcının düzenlediği yapılandırma, registry
-ile aynı sınıf), **`content/` Ring 2'dir** (corpus'un üretilmiş kardeşi, aynı yaşam
-döngüsü kurallarına tabi). Yeni halka açılmadı.
-**Neden:** beşinci bir halka, dört halkanın tek değerini — import yönünün mekanik
-zorlanabilirliğini — sulandırırdı.
-
-## D-51 — Döngü kuralı gevşetemez (R-76)
-2026-08-15 · Denetim bulgusu #71: döngünün tam yetkisi var ve `KURALLAR.md`'yi
-değiştirebiliyor; tek kısıt "kod ve kural aynı olsun" idi. Bu, kırmızı kapıyı geçmek
-için kuralı gevşetmeyi meşru gösteriyordu. R-76 eklendi: kural değişikliği ayrı tur,
-ayrı commit, `D-nn` atfı zorunlu.
-**Geri alma maliyeti:** yok — saf kısıt.
-
-## D-52 — Bir tur = bir veya daha fazla adım
-2026-08-15 · `LOOP§C`'nin "bir turda birden fazla adım deneme" kuralı **kaldırıldı**.
-Tur doğal bir durakta biter: bağlam dolduğunda, bloke adıma çarpıldığında, faz
-kapandığında veya kullanıcı müdahale ettiğinde. Her adım kendi commit'ini alır ama
-commit turu bitirmez.
-**Neden:** kullanıcının açık talimatı — "her committe durmak yasak, uzun geliştirmeler
-yapılacak, sürekli wakeup beklemeyeceğiz". Orijinal kural bağlam kaybına karşı
-tasarlanmıştı; ama `DURUM.md` + faz dosyası tikleri zaten o güvenliği sağlıyor,
-tur sınırı ek koruma getirmiyordu.
-**Korunan kısıt:** yarım adım yasağı. Bir adım ya biter, ya başlamaz, ya bloke işaretlenir.
-**Geri alma maliyeti:** tek satır.
-
-## D-53 — FAZ 0 kapanmadan FAZ 1'e geçiliyor
-2026-08-15 · FAZ 0'da 17 adım kaldı ama **yedisi `packages/` gerektiriyor** (0.C.1, 0.C.2,
-0.C.3, 0.C.4, 0.C.8, 0.C.10, 0.C.11) — workspace olmadan yazılamaz. Beşi bake-off ve
-marka kararı bekliyor (0.A.5, 0.D.1–0.D.5), ikisi ileri faz dosyası (0.B.8b/c), biri
-zaten çalışan döngü provası (0.E.5).
-**Karar:** FAZ 1.1'e geçilir; `packages/` doğduğunda 0.C bloğu geri dönülüp kapatılır.
-**Neden:** bloke bir adımda beklemek, bağımsız bir adımı ilerletmekten kötüdür (LOOP§G).
-Kullanıcı bu durumda FAZ 1'e geçme yetkisini açıkça verdi.
-**Risk:** FAZ 0 "kapalı" sayılmadan FAZ 1 ilerlerse kapılar geç kurulur ve o aralıkta
-yazılan kod denetimsiz kalır. **Azaltma:** 0.C bloğu FAZ-1.1 biter bitmez, FAZ-1.2'den
-ÖNCE kapatılır — yani workspace'in ilk gerçek kodu zaten kapılı doğar.
 
 ## D-54 — `.npmrc` sessizce ölüydü; ayarlar `pnpm-workspace.yaml`'a taşındı
 2026-08-15 · FAZ-0.A.2'de yazılan `.npmrc` beş garanti veriyordu: `save-exact`,
@@ -581,3 +535,49 @@ compact sonrası ilk okumanın maliyeti artar.
 **Aynı desen:** KARARLAR.md 600 satırda arşive devrediyor (D-72). Büyüyen her dosyanın
 yapısal bir boşaltma yolu olmak zorunda; yoksa tavan bir gün "kaldıralım" diye
 gevşetilir ve o gün tavanın anlamı biter.
+
+## D-86 — Snap Chromium reddedildi, Playwright'ın kendi tarayıcısı
+2026-08-15 · Sistemde `/snap/bin/chromium` hazır duruyordu. Ölçüldü ve **reddedildi**:
+- **Confinement:** `/tmp` altına yazamıyor (`No such file or directory`), yalnız `$HOME`.
+  Playwright'ın `chromium-1194`'ü aynı komutla aynı yola 33.446 baytlık PNG yazdı.
+- **Sürüm sabitlenemiyor:** snap kendi kendine güncelleniyor. Golden metrik testinin
+  (R-31) tek varlık sebebi glif metriklerinin sabit kalması; kendini güncelleyen bir
+  tarayıcı hiçbir commit olmadan metriği değiştirir — build sebepsiz kırmızıya döner
+  ya da daha kötüsü metrik güncellenir ve o gün gerçek bir regresyon gizlenir.
+`playwright@1.56.1` sabit sürümle eklenecek; `browser.ts` tarayıcıyı sistemden ARAMAZ.
+Yan kazanç: Playwright `ffmpeg-1011`'i de indiriyor (FAZ 5 için, sürümü de sabit).
+
+## D-87 — Darboğaz desenleri BİÇİM değil ERİŞİM arar
+2026-08-15 · FAZ 2 birinci doğrulama turu üç darboğazı trivial biçim değişiklikleriyle
+atlattı: satır bölme, koşul sırası, dize birleştirme, takma adlı import. Kapılar yeşil
+raporluyordu.
+**Düzeltme:**
+- `retrieval-yuklemi`: desen yüklem biçimini değil `record` tablosuna ERİŞİMİ arıyor
+  (`FROM record`). İzinli dosya sayısı üç ve listede görünüyor.
+- `corpus-yazici`: desen çağrı parantezi değil TANIMLAYICI arıyor —
+  `import { writeFileSync as yaz }` satırı parantez taşımıyordu ve geçiyordu.
+**Dürüst sınır (D-77'nin aynı notu):** `'FROM rec' + 'ord'` hâlâ kaçabilir. Bu kapılar
+kopyala-yapıştıra karşı **tel tuzaktır, kum havuzu değil**. Asıl güvence dosya sayısının
+küçük ve listede görünür olması. Zorlanmayan bir kuralı zorlanıyormuş gibi göstermemek
+için bu sınır `chokepoints.json`'ın `neden` alanına da yazıldı (R-70).
+**Yapısal iyi haber:** `git-cagiran`'ı atlatma denemesi `alt-surec` tarafından yakalandı —
+git'i çağırmak için `node:child_process` import etmek gerekiyor ve onu yalnız
+`proc/spawn.ts` yapabiliyor. Katmanlı savunmanın işe yaradığı yer.
+
+## D-88 — `lexicon` fail-open kapatıldı, sayısal iddia tanımı genişledi
+2026-08-15 · İki kör nokta, ikisi de doğrulama agent'ından:
+1. **Fail-open:** `era_of_origin` alanı olmayan kayıt `'*'`e düşüyordu; `'*'`
+   "dönemden bağımsız olgu" demek ve bütün aktarım denetimini atlatıyordu. Kapı
+   argümansız bir kayıt için "argümanları tam" diyordu. **Eksik bilgi güvenli tarafa
+   değil HATA tarafına düşer** — artık `missing_era_of_origin`.
+2. **Tamsayı iddiaları:** desen yalnız `%N` görüyordu. "1.247 İlan", "892 Satıcı",
+   "300 müşteri kazandırdık" kaynaksız geçiyordu — ve bunlar `.claude/rules/`
+   içinde BİREBİR yasak örnek olarak sayılan ifadeler. Desen binlik ayraçlı ve
+   üç haneli tamsayıları da kapsıyor; 1900-2100 arası çıplak dört hane (yıl) hariç.
+
+## D-89 — `tokens` kapısı markaları TARAR, listelemez
+2026-08-15 · Kapı sabit bir marka dizisine bakıyordu. Doğrulama agent'ı üçüncü bir
+marka dizini açıp kademe ihlalli token yazdı: hiçbir kapı görmedi.
+**Listeye eklemeyi hatırlamak bir zorlama değildir** — ve fazın başlığı çok markalılıkken
+üçüncü markanın denetimsiz kalması, kapının korumadığı şeyin ta kendisi.
+`brand/` dizini taranıyor; kalıtım `brand/<id>/parent` tek satırından okunuyor.

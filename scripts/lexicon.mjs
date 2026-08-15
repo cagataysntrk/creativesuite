@@ -57,7 +57,7 @@ for (const f of dosyalar) {
     eraOfOrigin:
       typeof fm['era_of_origin'] === 'string'
         ? fm['era_of_origin']
-        : (gvd('Kaynak dönem') ?? '').split(' ')[0] || '*',
+        : ((gvd('Kaynak dönem') ?? '').split(' ')[0] ?? ''),
     generalisationNote:
       typeof fm['generalisation_note'] === 'string'
         ? fm['generalisation_note']
@@ -67,8 +67,22 @@ for (const f of dosyalar) {
         ? fm['transfer_confidence']
         : gvd('Aktarım güveni'),
     claimSource: typeof fm['claim_source'] === 'string' ? fm['claim_source'] : gvd('Kaynak'),
-    // Yüzde ve ondalık sayı arıyoruz; yıl (2024) sayısal iddia değildir.
-    hasNumericClaim: /%\s?\d|(\d+[.,]\d+)\s?(kat|puan|saat|gün)/.test(govde),
+    // Sayısal iddia: yüzde, ondalık ve **binlik ayraçlı ya da birim taşıyan tamsayı**.
+    // İlk sürüm yalnız `%N` görüyordu; "1.247 İlan", "892 Satıcı", "300 müşteri
+    // kazandırdık" kaynaksız geçiyordu — ve bunlar `.claude/rules/turkish-copy.md`'de
+    // BİREBİR yasak örnek olarak sayılan ifadeler (doğrulama agent'ı buldu).
+    // Yıl (2024, 2026) hariç: dört haneli ve 1900-2100 arasıysa sayısal iddia değildir.
+    hasNumericClaim: (() => {
+      const adaylar = govde.match(/%\s?\d[\d.,]*|\b\d[\d.,]*\b/g) ?? []
+      return adaylar.some((a) => {
+        if (a.startsWith('%')) return true
+        const sade = a.replace(/[.,]/g, '')
+        const n = Number(sade)
+        // Yıl gibi görünen çıplak sayı iddia değildir; binlik ayraçlı olan (1.247) iddiadır.
+        if (/^\d{4}$/.test(a) && n >= 1900 && n <= 2100) return false
+        return sade.length >= 3 || a.includes('.') || a.includes(',')
+      })
+    })(),
   })
 }
 

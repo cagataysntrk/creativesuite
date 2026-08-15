@@ -226,3 +226,53 @@ yazıyor ve kapı kararın kendisini reddedilmiş sandı. İşaretleyici açık 
 Multilingual (MIT, 500M, 6GB VRAM'e sığar) seçildi. Birincil altyazı Groq whisper;
 whisper.cpp yalnız çevrimdışı yedek olarak, gerektiğinde kurulacak.
 **Geri alma maliyeti:** yok, kurulmamış bir bağımlılık.
+
+## D-49 — Secret deseni tireyi kapsamalı
+2026-08-15 · `repo-hygiene` ilk deseni `sk-[A-Za-z0-9]{20,}` idi ve gerçek Anthropic
+anahtarını (`sk-ant-api03-…`) **kaçırıyordu** — tirede duruyordu. Desen `[A-Za-z0-9_-]`
+yapıldı, `fal-` biçimi eklendi.
+**Neden kayda değer:** kapı yazıldığı gün kördü ve yalnızca ihlal testi ortaya çıkardı.
+R-71'in ("yeşil kapı hiçbir şey kanıtlamaz") somut kanıtı.
+
+
+## D-50 — brand/ ve content/ halka aidiyeti
+2026-08-15 · Denetim, `brand/` ve `content/`'in dört halkadan hiçbirine ait olmadığını
+buldu. Karar: **`brand/` Ring 1'dir** (kullanıcının düzenlediği yapılandırma, registry
+ile aynı sınıf), **`content/` Ring 2'dir** (corpus'un üretilmiş kardeşi, aynı yaşam
+döngüsü kurallarına tabi). Yeni halka açılmadı.
+**Neden:** beşinci bir halka, dört halkanın tek değerini — import yönünün mekanik
+zorlanabilirliğini — sulandırırdı.
+
+
+## D-51 — Döngü kuralı gevşetemez (R-76)
+2026-08-15 · Denetim bulgusu #71: döngünün tam yetkisi var ve `KURALLAR.md`'yi
+değiştirebiliyor; tek kısıt "kod ve kural aynı olsun" idi. Bu, kırmızı kapıyı geçmek
+için kuralı gevşetmeyi meşru gösteriyordu. R-76 eklendi: kural değişikliği ayrı tur,
+ayrı commit, `D-nn` atfı zorunlu.
+**Geri alma maliyeti:** yok — saf kısıt.
+
+
+## D-52 — Bir tur = bir veya daha fazla adım
+2026-08-15 · `LOOP§C`'nin "bir turda birden fazla adım deneme" kuralı **kaldırıldı**.
+Tur doğal bir durakta biter: bağlam dolduğunda, bloke adıma çarpıldığında, faz
+kapandığında veya kullanıcı müdahale ettiğinde. Her adım kendi commit'ini alır ama
+commit turu bitirmez.
+**Neden:** kullanıcının açık talimatı — "her committe durmak yasak, uzun geliştirmeler
+yapılacak, sürekli wakeup beklemeyeceğiz". Orijinal kural bağlam kaybına karşı
+tasarlanmıştı; ama `DURUM.md` + faz dosyası tikleri zaten o güvenliği sağlıyor,
+tur sınırı ek koruma getirmiyordu.
+**Korunan kısıt:** yarım adım yasağı. Bir adım ya biter, ya başlamaz, ya bloke işaretlenir.
+**Geri alma maliyeti:** tek satır.
+
+
+## D-53 — FAZ 0 kapanmadan FAZ 1'e geçiliyor
+2026-08-15 · FAZ 0'da 17 adım kaldı ama **yedisi `packages/` gerektiriyor** (0.C.1, 0.C.2,
+0.C.3, 0.C.4, 0.C.8, 0.C.10, 0.C.11) — workspace olmadan yazılamaz. Beşi bake-off ve
+marka kararı bekliyor (0.A.5, 0.D.1–0.D.5), ikisi ileri faz dosyası (0.B.8b/c), biri
+zaten çalışan döngü provası (0.E.5).
+**Karar:** FAZ 1.1'e geçilir; `packages/` doğduğunda 0.C bloğu geri dönülüp kapatılır.
+**Neden:** bloke bir adımda beklemek, bağımsız bir adımı ilerletmekten kötüdür (LOOP§G).
+Kullanıcı bu durumda FAZ 1'e geçme yetkisini açıkça verdi.
+**Risk:** FAZ 0 "kapalı" sayılmadan FAZ 1 ilerlerse kapılar geç kurulur ve o aralıkta
+yazılan kod denetimsiz kalır. **Azaltma:** 0.C bloğu FAZ-1.1 biter bitmez, FAZ-1.2'den
+ÖNCE kapatılır — yani workspace'in ilk gerçek kodu zaten kapılı doğar.

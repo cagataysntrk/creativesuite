@@ -10,7 +10,7 @@ siradaki_adim: 3.1
 son_guncelleme: 2026-08-15
 bloke: ["2.9"]
 deneme_sayaci: {}
-son_kanit: "FAZ 1 KAPANDI. Iki dogrulama turu kosuldu (D-79 tavani), her ikisinin butun bulgulari kapatildi: D-67..D-78. Cikis kriterinin dordu de kanitli: 18 kapi yesil, 9 fiil + verbs kapisi, just plan 8 adimli DAG + FIYATLANAMADI mansetti, strace ile 0 socket. 236 test. 1.10b golden harness FAZ-3.2'ye ertelendi (V-02 marka fontu). V-01 kapandi (D-80).""
+son_kanit: "FAZ 2 birinci dogrulama turu: 5 blokaj + 7 ikincil bulgu. Bloklayanlar: x_signature semantigi yanlis ve uretici yok, 2.8 alan bazli red baglanmamis, retrieval-yuklemi darbogazi uc bicimle atlatildi, lexicon donem alani yoksa fail-open, tokens kapisi sabit marka listesine bagli. Kapatiliyor."
 ```
 
 ## Neredeyiz
@@ -47,15 +47,12 @@ indeksi, projeksiyon derleyicisi. `just plan` ağ kablosu çekiliyken DAG basıy
 
 ## Sıradaki adım
 
-**`2.1` — yedi strateji varlık tipi** (`docs/fazlar/FAZ-2.md`):
-positioning · messaging · icp · persona · proof_asset · competitor · offer.
-Her biri `registry/entity-types/<ad>.type.yaml`, kısıtlı profile (§3.3) uygun, dört
-projeksiyonu da üretiyor — `projection` kapısı "0 gerçek varlık tipi" demeyi burada
-bırakıyor.
+**`3.1`'den önce FAZ 2 doğrulama bulguları kapatılıyor** (birinci tur, D-79 tavanı iki).
+Beş blokaj: x_signature semantiği + üretici · 2.8 alan bazlı red · retrieval-yuklemi
+darboğazı · lexicon fail-open · tokens sabit marka listesi.
 
-> **Doğrulama turu tavanı: iki** (D-79). "Sorun bul" diye bakan agent her turda sorun
-> bulur; faz kapanışı onun yorulmasına bağlanamaz. İkinci turda bulunmayan minor'dur
-> ve FAZ 9 denetim turlarına düşer.
+Bunlar kapanınca **ikinci tur**, sonra FAZ 3 (`3.1` COMPOSE + statik RENDER).
+FAZ 2'nin resmî kapanışı ayrıca `2.9`'un insan onayını bekliyor ama FAZ 3'ü bloklamıyor.
 
 ## Bloke adımlar
 
