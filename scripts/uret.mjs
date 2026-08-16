@@ -46,6 +46,9 @@ const {
   assertCompliance,
   stampPng,
   placementById,
+  reklamBloklayici,
+  reklamIhlalMesaji,
+  reklamLint,
   DEFAULT_LIMITS,
 } = await import(join(REPO, 'packages/render/dist/index.js'))
 const { openDb, systemClock, seededRng, newId, readEnv } = await import(
@@ -319,6 +322,9 @@ const palet = { colors: colorsFromTokens(tokenCss) }
 
 const AGIRLIK = { in: 0, warn: 1, out: 2 }
 
+/** Reklam hattı mı — kişisel özellik kuralı yalnız burada koşar (§11.2). */
+const REKLAM_HATTI = id === 'ad-creative-set'
+
 /**
  * Lexicon denetimi — **çıktı biçiminden bağımsız** (§11.2 · R-32, R-35).
  *
@@ -326,12 +332,38 @@ const AGIRLIK = { in: 0, warn: 1, out: 2 }
  * çağrılıyordu: PDF hatlarında kaynaksız sayı kapısı HİÇ koşmuyordu (2. doğrulama turu).
  * Artık `validateBody`e ayrı bir yetenek olarak geçiyor ve her biçimde koşuyor.
  */
-const lexiconDenetimi = (doc) =>
-  lintDocument(doc, {
+const lexiconDenetimi = (doc) => {
+  const ihlaller = lintDocument(doc, {
     forbidden: ['devrim niteliğinde', 'çığır açan', 'dünyanın en iyisi', 'sektör lideri'],
     allowedHex: izinliHex.length === 0 ? [] : izinliHex,
     claimSource: null,
   })
+
+  // ── reklam metni kuralları (§11.2 · FAZ-8.2) ────────────────────────────
+  //
+  // **Yalnız reklam hattında koşar.** Meta'nın kişisel özellik kuralı bir REKLAM
+  // standardı; organik bir LinkedIn postuna uygulamak, kuralı olmadığı yere taşımak
+  // olurdu. `PIPELINE` reklam hattıysa metin blokları buradan da geçiyor.
+  //
+  // ⚠ Bu satır olmadan modül + test yeşil kalır ve üretimden HİÇ çağrılmaz —
+  // D-216/D-222/D-224'ün üç kez tekrarladığı hata. "Çağıran var mı" ZİNCİR için.
+  if (REKLAM_HATTI) {
+    for (const blok of doc.blocks ?? []) {
+      const metin = typeof blok.text === 'string' ? blok.text : ''
+      if (metin === '') continue
+      for (const r of reklamLint(metin, { claimSource: null })) {
+        // Uyarı ile ret aynı listede durur ama aynı şey DEĞİL: `text_coverage`
+        // bloklamaz (Meta %20 kuralını artık uygulamıyor).
+        ihlaller.push({
+          kind: reklamBloklayici(r) ? 'ad_policy' : 'ad_warning',
+          term: reklamIhlalMesaji(r),
+          where: 'reklam-metni',
+        })
+      }
+    }
+  }
+  return ihlaller
+}
 
 const kaliteKontrol = async (doc, slides) => {
   const satirlar = []

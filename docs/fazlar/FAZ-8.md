@@ -31,7 +31,7 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    tanımı budur; OFAT kuralını oraya uygulamak geçerli bir seti reddederdi.
 💾 `feat(cli): ad-creative-set matrisi` · `Refs: FAZ-8.1 · §10`
 
-## 8.2 — Reklam metni linter'ı    [ ]
+## 8.2 — Reklam metni linter'ı    [x] 2026-08-16
 
 📖 §11.2 · R-35
 🔗 FAZ-3.10
@@ -39,9 +39,24 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    deterministik olarak lint edilebilir: "sen"li varsayım, sağlık/finans/etnik ima,
    hedef kitleye özellik atfetme. Sessiz red, sebebini söylemeyen bir reddir — bu yüzden
    kapı bizde, onlarda değil.
-📁 `packages/render/src/lint/ads.ts`
-✅ Kural ihlali içeren metin **yayın öncesi** yakalanıyor, gerekçe Türkçe
-🧪 "Borçlarınızdan kurtulun" gibi bir ifade yaz → linter reddediyor
+📁 `packages/render/src/lexicon/reklam.ts` (mevcut lexicon altyapısı — ayrı bir lint
+   dizini açmak ikinci bir paralel sistem olurdu)
+✅ `uret.mjs` reklam hattında her metin bloğunu geçiriyor; ret gerekçesi **çözümü de
+   söylüyor** — sebebini söylemeyen bir ret, sessiz reddin bizdeki kopyası olurdu.
+🧪 `"Borçlarınızdan kurtulun"` → **reddediliyor** (11 test).
+   ⚠ **Asıl incelik: saf ikinci şahıs YASAK DEĞİL.** "Demoyu izleyin" meşru; yasak
+   olan ikinci şahsın **kişisel özellikle kesişmesi**. Yalnız ikinci şahsa bakan bir
+   linter her reklamı reddeder ve ilk haftada kapatılır.
+   ⚠ **İki gerçek hata yakalandı ve düzeltildi:** (1) `iniz\b` deseni
+   `borçlarınız**dan**`ı kaçırıyordu — Türkçe eklemeli, iyelikten sonra durum eki
+   gelir; kelime sonuna çapalanan bir ek deseni en tipik cümleyi kaçırır.
+   (2) `kurt` (köken) **`kurtul`**un içinde eşleşiyordu: `foldForSearch` `Kürt` ile
+   `kurtul-`u aynı dizeye düşürüyor. Katlamanın yok ettiği ayrımlar (`kurt`, `kilo`,
+   `sakat`, `zarar`) listeden **çıkarıldı** ve sebebi yazıldı — kaçırmak, her cümlede
+   ateşleyip kapatılmaktan iyidir.
+   ⚠ **%20 metin kaplama UYARI, red DEĞİL:** Meta bu kuralı artık uygulamıyor;
+   blocker yapmak geçerli reklamları reddetmek olurdu. Ölçülmediyse denetim ATLANIR
+   (D-175) — `undefined`ı "eşik altı" saymak temiz göstermek olurdu.
 💾 `feat(render): reklam metni linter'ı` · `Refs: FAZ-8.2 · §11.2`
 
 ## 8.3 — Compliance Panel    [ ]
