@@ -120,6 +120,7 @@ export {
   buildLinkedinPost,
   isLinkedinRefusal,
   linkedinRefusalMessage,
+  surumYasiGun,
   versionStale,
   type LinkedinPost,
   type LinkedinPostKind,

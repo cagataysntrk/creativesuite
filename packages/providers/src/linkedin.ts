@@ -82,11 +82,26 @@ export interface LinkedinRequestBody {
  * hatayla durur.
  */
 export const versionStale = (now: string, maxDays = SURUM_TAZELIK_GUN): number | null => {
+  const gun = surumYasiGun(now)
+  if (gun === null) return Number.POSITIVE_INFINITY
+  return gun > maxDays ? gun : null
+}
+
+/**
+ * Sürüm sabiti kaç günlük — **eskimiş olmasa da**.
+ *
+ * `versionStale` yalnız eşiği geçince konuşur; ekran ise hatırlatıcıyı eşikten ÖNCE
+ * göstermek zorunda. "90. günde kırmızı yanan" bir gösterge, yeniden kontrol için
+ * zaman bırakmaz — hatırlatma geç kalmışsa hatırlatma değildir.
+ *
+ * Tarih matematiği tek yerde: iki ayrı hesap, bir gün ayrışıp ekranın "taze" derken
+ * çağrının 426 almasına yol açardı.
+ */
+export const surumYasiGun = (now: string): number | null => {
   const a = Date.parse(`${LINKEDIN_VERSION_VERIFIED_AT}T00:00:00Z`)
   const b = Date.parse(now)
-  if (!Number.isFinite(a) || !Number.isFinite(b)) return Number.POSITIVE_INFINITY
-  const gun = Math.floor((b - a) / 86_400_000)
-  return gun > maxDays ? gun : null
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null
+  return Math.floor((b - a) / 86_400_000)
 }
 
 /**

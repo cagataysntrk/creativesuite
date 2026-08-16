@@ -154,6 +154,8 @@ export {
 export {
   RateLimiter,
   DEFAULT_BUCKET,
+  OKUMA_PUANI,
+  YAZMA_PUANI,
   bucketKey,
   rateLimitError,
   type BucketConfig,

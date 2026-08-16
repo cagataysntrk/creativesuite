@@ -204,6 +204,49 @@ describe('HTTP uçları', () => {
     }
   })
 
+  // Uç GERÇEKTEN bağlı mı: veri modülünün testi, ucun bağlandığını KANITLAMAZ.
+  // Bu oturumun tekrar eden dersi — girdiyi üretim üretir, tüketiciye o verilir.
+  it('/api/kanallar üç gün kalan token için UYARI durumu döner', async () => {
+    const kok = mkdtempSync(join(tmpdir(), 'kanal-uc-'))
+    mkdirSync(join(kok, 'secrets'), { recursive: true })
+    writeFileSync(
+      join(kok, 'secrets/token-durumu.json'),
+      JSON.stringify({
+        kayitlar: [
+          {
+            provider: 'meta',
+            expiresAt: '2026-08-19T10:00:00.000Z',
+            obtainedAt: '2026-06-20T10:00:00.000Z',
+            scopes: [],
+          },
+        ],
+      })
+    )
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => '2026-08-16T10:00:00.000Z',
+    })
+    try {
+      const j = (await (await s.app.request('/api/kanallar')).json()) as {
+        kanallar: { kanal: string; token: { durum: { kind: string } }; oran: { kalan: null } }[]
+        gecmis: unknown
+      }
+      const meta = j.kanallar.find((k) => k.kanal === 'meta')!
+      expect(meta.token.durum.kind).toBe('yenile')
+      // Sunucu limiter TAŞIMIYOR: kovalar çalıştırma sürecinde. "Dolu" demek yerine
+      // ölçülmediğini söylüyor (D-175).
+      expect(meta.oran.kalan).toBeNull()
+      // Defter yok → geçmiş ÖLÇÜLEMEDİ, sıfır değil.
+      expect(j.gecmis).toBeNull()
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
   it('SSE ilk durumu ANINDA yollar ve nabız VERİ TAŞIMAZ', async () => {
     const kok = kurRepo([manifest({ runId: 'run_07', biten: true, gercekMikros: '42' })])
     const s = kurSunucu({

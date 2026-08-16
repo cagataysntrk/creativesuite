@@ -32,6 +32,7 @@ import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { baglamOnizle } from './baglam.js'
 import { dunyaDurumu, launcherPlani } from './launcher.js'
+import { kanalPanosu } from './kanal-uc.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
@@ -414,6 +415,13 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
 
   // ── onay kuyruğu (§12.5, §12.9 · R-14 · FAZ-4.7) ──────────────────────────
   app.get('/api/kuyruk', (c) => c.json({ bekleyenler: bekleyenler(o.repoRoot) }))
+
+  // ── kanal durumu: token ömrü · oran bütçesi · sürüm sabiti (§9.4 · FAZ-7.7) ─
+  //
+  // Limiter GEÇİLMİYOR ve bu bilinçli: kovalar çalıştırma sürecinde yaşıyor. Burada
+  // yeni bir limiter kurup sormak her seferinde "kova dolu" derdi — sağlayıcı 429
+  // dönerken ekranda yeşil bir çubuk. Uç `kalan: null` döner, ekran "ölçülmedi" der.
+  app.get('/api/kanallar', (c) => c.json(kanalPanosu({ repoRoot: o.repoRoot, simdi: o.simdi() })))
 
   app.post('/api/kuyruk/:runId/:gate', async (c) => {
     const govde = (await c.req.json().catch(() => ({}))) as {

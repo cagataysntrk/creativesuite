@@ -172,7 +172,7 @@ token son kullanma tarihi ekranda görünüyor
 🧪 Yenileme başarısız olduğunda `doctor` **kritik** veriyor, sessiz kalmıyor
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
-## 7.7 — Publish Queue ve Channel Status ekranı    [ ]
+## 7.7 — Publish Queue ve Channel Status ekranı    [x] 2026-08-16
 
 📖 §9.4, §12.9 · D-19
 🔗 FAZ-4.2, 7.6
@@ -180,9 +180,22 @@ token son kullanma tarihi ekranda görünüyor
    bütçesi, LinkedIn sürüm sabiti ve üç aylık yeniden kontrol hatırlatıcısı, token son
    kullanma tarihi. Bunlar log'da değil **ekranda** durur; log'a bakmayı hatırlaman
    gereken bir sağlık göstergesi, olmayan bir sağlık göstergesidir.
-📁 `apps/ui/src/screens/publish/`
-✅ Ekran token bitişine kalan günü ve oran bütçesini gösteriyor
-🧪 Token'ı 3 gün kalacak şekilde ayarla → ekran uyarı durumuna geçiyor (glyph + renk + metin)
+📁 `apps/server/src/kanal-uc.ts` · `apps/ui/src/KanalDurumu.tsx` (kabuk düz dosya
+   kullanıyor; `screens/` alt dizini repoda hiç var olmadı)
+✅ `/api/kanallar` gerçek sunucudan ölçüldü — üç gün kalan token, oran bütçesi ve
+   sürüm sabiti aynı cevapta:
+   `"durum":{"kind":"yenile","kalanGun":3}` · `"oran":{"kapasite":5,"yayinPuani":3,"kalan":null}`
+   · `"surum":{"pinned":"202508","yasGun":0,"kalanGun":90}`
+🧪 Üç gün kalan token → **uyarı**, yayın hâlâ mümkün · kaydı sil → **BİLİNMİYOR, bloklu**
+   · sürümü bir yıl eskit → LinkedIn **bloklu**, Meta etkilenmiyor (10 test)
+   ⚠ **Ölçülmeyen üç şey ÜÇ AYRI cümleyle söyleniyor** (D-175): oran bütçesi tüketimi
+   `null` çünkü kovalar ÇALIŞTIRMA sürecinde yaşıyor — sunucuda yeni limiter kurup
+   `available()` sormak her seferinde "kova dolu" derdi, sağlayıcı 429 dönerken ekranda
+   yeşil çubuk. Yayın defteri yoksa geçmiş **ÖLÇÜLEMEDİ**, sıfır değil (D-38).
+   Zamanlayıcı **yok** ve bu yazıyor: boş bir "zamanlanmış" listesi, var olup iş
+   almadığını ima ederdi.
+   ⚠ Sürüm hatırlatıcısı eşikten ÖNCE konuşuyor (`surumYasiGun`): 90. günde kırmızı
+   yanan bir gösterge, yeniden kontrol için zaman bırakmaz.
 💾 `feat(ui): publish queue ve kanal durumu` · `Refs: FAZ-7.7 · §9.4`
 
 ## 7.8 — Günlük insight anlık görüntüleri    [ ]

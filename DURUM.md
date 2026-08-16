@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.7
+siradaki_adim: 7.8
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.6 KAPANDI (token omru izleme). ANAHTAR TASARIM KARARI: son kullanma tarihi SIR DEGIL. Token in kendisi sops altinda ama omru secrets/token-durumu.json da DUZ METIN — cunku just doctor bir ay sonra acildiginda sops cozmeden token 4 gun sonra oluyor diyebilmeli; sirri okumak zorunda olan bir saglik raporu gozetimsiz bir kurulumda HIC KOSMAZ (§16). UC DURUM DA OLCULDU: olmus token → kritik (token 76 gun once OLDU, yayin BLOKLU) · pay icinde → uyari (4 gun sonra oluyor, YENILEME ZAMANI) · uzun omurlu → sessiz. KAYIT YOKSA yayin BLOKLU: bilinmeyen omur uzun omur degildir ve kaydi silmek kontrolu kapatmanin en kolay yolu OLMAMALI. expiresAt saglayicinin SOYLEDIGINDEN hesaplaniyor, sabitten degil — Meta 60 gun diyor ama bir gun 45 derse ve biz 60 yazarsak token olmusken 15 gun var deriz; sapma beklenendenKisa ile isaretleniyor. just token-durum insan komutu acildi ve o da secret cozmuyor. Gercek yenileme cagrisi 7.6b (V-26). ONCEKI: 7.5 OAuth (D-218 csrfToken seedsiz, D-219 secret deseni Meta/LinkedIn i kacirıyordu)."
+son_kanit: "7.7 KAPANDI (kanal durumu ekrani). /api/kanallar GERCEK sunucudan olculdu: uc gun kalan token durum yenile kalanGun 3 · oran kapasite 5 yayinPuani 3 kalan null · surum 202508 yasGun 0 kalanGun 90 · gecmis null gecmisNeden yayin defteri yok. TASARIM: OLCULMEYEN UC SEY UC AYRI CUMLEYLE (D-175). (1) oran butcesi tuketimi null cunku kovalar CALISTIRMA surecinde yasiyor — sunucuda yeni limiter kurup available() sormak her seferinde kova dolu derdi, saglayici 429 donerken ekranda yesil cubuk; limiter verilirse gercek okuma giriyor (test). (2) yayin defteri yoksa gecmis OLCULEMEDI, sifir DEGIL (D-38 defter turetilemez). (3) zamanlayici YOK ve bu yaziyor — bos bir zamanlanmis listesi var olup is almadigini ima ederdi. Surum hatirlaticisi esikten ONCE konusuyor (yeni surumYasiGun): 90. gunde kirmizi yanan gosterge yeniden kontrol icin zaman birakmaz. LinkedIn surumu eskirse yayin BLOKLU (426), Meta etkilenmiyor. 10 + 1 test (uc testi ucun bagli oldugunu kanitliyor). ONCEKI: 7.6 token omru, son kullanma tarihi SIR DEGIL."
 ```
 
 ## Neredeyiz
@@ -68,14 +68,14 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 | **7.4** · ağırlıklı limiter + yayın defteri; "yok" ≠ "boş" | 2026-08-16 |
 | **7.5** · OAuth akışı, kapsam gerekçeleri, CSRF (D-218, D-219) | 2026-08-16 |
 | **7.6** · token ömrü; son kullanma SIR DEĞİL, doctor secret çözmüyor | 2026-08-16 |
+| **7.7** · kanal durumu ekranı; ölçülmeyen üç şey üç ayrı cümleyle | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`7.7` — Publish Queue ve Channel Status ekranı** (§9.4, §12.9). Zamanlanan/giden
-içerik ve kanal başına **operasyonel durum**: Meta tier ve oran bütçesi, LinkedIn sürüm
-sabiti + üç aylık yeniden kontrol hatırlatıcısı, token son kullanma tarihi. Veri hazır —
-`yenilemeRaporu`, `versionStale`, `RateLimiter.available()` ve yayın defteri hepsi
-ölçülebilir; kalan iş ekran.
+**`7.8` — Günlük insight anlık görüntüleri** (§13). **İLK POSTLA BAŞLAR**: IG hesap
+insight'ları 90 günde kayboluyor ve **backfill endpoint'i YOK** — bugün alınmayan ölçüm
+yarın alınamaz, geriye dönük kurtarılamaz. Bu yüzden iş, ilk yayından önce kurulur;
+"yayın başlayınca ekleriz" demek, ilk üç ayın verisini kalıcı olarak kaybetmektir.
 
 ## Devreden borçlar
 
