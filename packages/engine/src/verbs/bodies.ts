@@ -241,9 +241,28 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // Önceki adımlardan gelen ürün ekranı çekimleri belgeye BLOK olarak giriyor.
     // `role: 'product_screenshot'` bir İDDİADIR: "ürün gerçekten böyle görünüyor".
     const cekimler = urunCekimleri(input.inputs)
+    const gorsel = uretilenGorsel(input.inputs)
     const blocks: Block[] = [
       { type: 'heading', text: satirlar[0] as string, level: 1 },
       ...satirlar.slice(1, 4).map((t): Block => ({ type: 'body', text: t })),
+      // Üretilen görsel `role` TAŞIMIYOR: `product_screenshot` bir iddiadır ("ürün
+      // gerçekten böyle görünüyor") ve model üretimi bir görsel onu iddia edemez.
+      // Rolsüz görüntü hiçbir şey iddia etmez ve serbesttir (§7.1).
+      ...(gorsel === null
+        ? []
+        : [
+            {
+              type: 'image' as const,
+              src: gorsel.src,
+              // ⚠ `alt` KONUDAN geliyor ve bu bir SINIRDIR: konu görselin ne İÇİN
+              // üretildiğini söylüyor, ne GÖSTERDİĞİNİ değil. Doğru çözüm brief'i
+              // Türkçe bir betimlemeyle birlikte istemek (D-250'de borç olarak
+              // yazılı). `decorative: true` yazmak yalan olurdu — görsel akışta
+              // duruyor ve anlam taşıyor.
+              alt: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
+              decorative: false,
+            },
+          ]),
       ...cekimler.map((c): Block => ({
         type: 'image',
         src: c.path,
@@ -342,6 +361,37 @@ const kisisellestirmeCiktisi = (
  * Çekim yoksa boş döner ve belge ürün ekranı TAŞIMAZ — "ekran koyamadım" sessizce
  * uydurma bir ekrana dönüşemez (R-32).
  */
+/**
+ * `image.generate` çıktısını belgeye giren bir bloğa çevirir (§7.1 · D-250).
+ *
+ * ⚠ **Bu çıktı SESSİZCE DÜŞÜYORDU.** `composeBody` yalnız `capture` (ürün ekran
+ * çekimi) arıyordu; üretilen görsel `inputs`ta duruyor, hiçbir bloğa dönüşmüyordu.
+ * Yani Cloudflare'e çağrı gidiyor, kota harcanıyor, görsel damgalanıp depoya alınıyor
+ * — **ve belgeye hiç konmuyordu.** Siyah slayt + beyaz metin bundan.
+ * Zincir kopukluğunun yedinci tekrarı: modül var, çağrı var, çıktı var, tüketen yok.
+ *
+ * **`data:` URI, dosya DEĞİL.** `COMPOSE`un yan etki sınıfı `pure` (§3.10): saf bir
+ * fiil diske yazamaz. Base64 zaten `inputs`ta ve Chromium `data:` URI'yi doğrudan
+ * çözüyor — tek motor yasası (R-30) korunuyor, ikinci bir yazma yolu açılmıyor.
+ */
+const uretilenGorsel = (
+  inputs: Readonly<Record<string, unknown>>
+): { readonly src: string; readonly width: number; readonly height: number } | null => {
+  for (const v of Object.values(inputs)) {
+    if (v === null || typeof v !== 'object') continue
+    const o = v as { format?: unknown; data?: unknown; width?: unknown; height?: unknown }
+    if (o.format !== 'base64' || typeof o.data !== 'string' || o.data === '') continue
+    return {
+      // PNG varsayımı YOK: Cloudflare JPEG döndürüyor ve `image/png` yazmak tarayıcıyı
+      // yanıltmazdı ama yalan olurdu. Base64 imzasından okunuyor.
+      src: `data:${o.data.startsWith('/9j/') ? 'image/jpeg' : 'image/png'};base64,${o.data}`,
+      width: typeof o.width === 'number' ? o.width : 0,
+      height: typeof o.height === 'number' ? o.height : 0,
+    }
+  }
+  return null
+}
+
 const urunCekimleri = (
   inputs: Readonly<Record<string, unknown>>
 ): readonly { path: string; alt: string; captureRunId: string; demoRef: string }[] =>

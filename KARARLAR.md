@@ -463,3 +463,58 @@ daha eşleşmez.
 bir varlıktan kötüdür: görünüm "hepsi burada" gibi durur.
 
 **Geri alma maliyeti:** yok — `content/` silinebilir, hiçbir şey kaybolmaz.
+
+## D-250 — Üretilen görsel belgeye hiç girmiyordu: kota çöpe gidiyordu
+
+**2026-08-16 · tasarım katmanı, 1. bulgu**
+
+`composeBody` yalnız `capture` (ürün ekran çekimi) arıyordu. `image.generate`
+çıktısı `input.inputs`ta duruyor ve **hiçbir bloğa dönüşmüyordu**: Cloudflare'e çağrı
+gidiyor, kota harcanıyor, görsel damgalanıp içerik-adresli depoya alınıyor — ve belgeye
+hiç konmuyordu. **Siyah slayt + beyaz metin bundan.**
+
+Zincir kopukluğunun **yedinci** tekrarı: modül var, çağrı var, çıktı var, tüketen yok.
+Öncekilerden farkı, bu sefer harcanan şeyin **para/kota** olması — sessiz bir kayıp
+değil, ölçülebilir bir israf.
+
+**`data:` URI, dosya DEĞİL.** `COMPOSE`un yan etki sınıfı `pure` (§3.10): saf bir fiil
+diske yazamaz. Base64 zaten `inputs`ta ve Chromium `data:` URI'yi doğrudan çözüyor —
+tek motor yasası (R-30) korunuyor, ikinci bir yazma yolu açılmıyor.
+
+**MIME tipi imzadan okunuyor, varsayılmıyor:** Cloudflare `sdxl-lightning` yolunda JPEG
+döndürüyor; `image/png` yazmak tarayıcıyı yanıltmazdı ama **yalan olurdu**.
+
+**`role` verilmiyor:** `product_screenshot` bir iddiadır ("ürün gerçekten böyle
+görünüyor") ve model üretimi bir görsel onu iddia edemez (FAZ-6.8).
+
+⚠ **Kalan borç — `alt` metni:** bugün KONUDAN geliyor, yani görselin ne İÇİN
+üretildiğini söylüyor, ne GÖSTERDİĞİNİ değil. `decorative: true` yazmak yalan olurdu —
+görsel akışta duruyor ve anlam taşıyor. Doğru çözüm görsel brief'ini Türkçe bir
+betimlemeyle birlikte istemek. Bugün yok ve olmadığını söylüyorum.
+
+**Ölçüldü:** `olcum olmadan iyilestirme olmaz` konusuyla koşu → metroloji atölyesi
+görseli belgeye girdi, 5 slayt üretildi (önceki koşularda 4).
+
+**Geri alma maliyeti:** yok.
+
+## D-251 — Kapı, sistemin üretmesi gereken şeyi reddediyordu
+
+**2026-08-16 · tasarım katmanı**
+
+Görsel belgeye girer girmez slayt boyutu 713KB'a çıktı ve `compliance` kapısı reddetti:
+*"713KB — git sınırı aşıldı (R-64)"*. Ama `derived/blobs` **gitignore'lu** ve
+`blobs.ts`in kendi yorumu bunu zaten söylüyordu:
+
+> *"R-64: 512KB. Blob deposu git'te değil ama sınır burada da **raporlanır**."*
+
+**Niyet "raporla", uygulama "engelle" idi.** Sonuç: gerçek fotoğraf taşıyan bir
+Instagram slaytı 512KB'ı rutin olarak aşıyor ve kapı sistemin üretmesi gereken şeyi
+reddediyordu. Yayın sınırı zaten AYRI ölçülüyor ve gerçek olan o: `✓ 156KB / 8192KB`.
+
+`oversize_for_git` artık uyarı. **Bozulma** (`digest_mismatch`) ve **damgasızlık**
+(`meta_missing`) hata olarak kalıyor — ikisi de deponun vaadini çiğniyor.
+
+**Uyarılar HER ZAMAN basılıyor**, yalnız hata varken değil: temiz koşuda bilgiyi
+gizlemek "her şey mükemmel" izlenimi verir.
+
+**Geri alma maliyeti:** yok.

@@ -63,6 +63,8 @@ const minikPng = () => {
 }
 
 const hatalar = []
+/** Bloklamayan bulgular — bkz. `oversize_for_git` (D-251). */
+const uyarilar = []
 const tmp = mkdtempSync(join(tmpdir(), 'uyum-kapisi-'))
 
 try {
@@ -164,12 +166,27 @@ for (const rel of varliklar) {
     hatalar.push(`${rel}: uyum damgası YOK — R-33 iddiası olmayan varlık yayınlanamaz`)
   }
   for (const k of verifyBlob(mutlak)) {
+    // ⚠ **`oversize_for_git` HATA DEĞİL, uyarıdır.** `blobs.ts`in kendi yorumu bunu
+    // söylüyordu — *"Blob deposu git'te değil ama sınır burada da raporlanır"* — ama
+    // kapı onu `hatalar`a koyuyordu. Niyet "raporla", uygulama "engelle" idi (D-251).
+    //
+    // Sonuç: gerçek fotoğraf taşıyan bir Instagram slaytı 512KB'ı rutin olarak aşıyor
+    // ve **sistemin üretmesi gereken şeyi kapı reddediyordu.** Yayın sınırı zaten AYRI
+    // ölçülüyor ve gerçek olan o: `slayt boyut: ✓ 156KB / 8192KB`.
+    //
+    // Bozulma (`digest_mismatch`) ve damgasızlık (`meta_missing`) hata olarak KALIYOR:
+    // ikisi de deponun vaadini çiğniyor.
+    if (k.kind === 'oversize_for_git') {
+      uyarilar.push(
+        `${rel}: ${Math.round(k.bytes / 1024)}KB — git sınırının (512KB) üstünde. ` +
+          'Blob deposu git`te DEĞİL; yayın sınırı ayrı ölçülüyor (R-64 bilgi amaçlı).'
+      )
+      continue
+    }
     hatalar.push(
       k.kind === 'digest_mismatch'
         ? `${rel}: içerik adresle UYUŞMUYOR (gerçek ${k.actual.slice(0, 12)}…) — depo bozuk`
-        : k.kind === 'meta_missing'
-          ? `${rel}: sidecar YOK — damga ve köken kayıp (R-11)`
-          : `${rel}: ${Math.round(k.bytes / 1024)}KB — git sınırı aşıldı (R-64)`
+        : `${rel}: sidecar YOK — damga ve köken kayıp (R-11)`
     )
   }
 }
@@ -191,6 +208,10 @@ for (const rel of varliklar) {
     hatalar.push(`${rel}: manifest KUSURLU (${meta.sourceRunId}) — yayın bloklu`)
   }
 }
+
+// Uyarılar HER ZAMAN basılır — hatadan önce. Yalnız hata varken göstermek, temiz
+// koşuda bilgiyi gizlerdi ve "her şey mükemmel" izlenimi verirdi.
+for (const u of uyarilar) console.log(`  ⚠ ${u}`)
 
 if (hatalar.length > 0) {
   console.log(hatalar.map((h) => `  ✗ ${h}`).join('\n'))
