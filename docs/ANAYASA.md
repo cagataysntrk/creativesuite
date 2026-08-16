@@ -526,9 +526,15 @@ düzenlemek hem ucuz hem tutarlı.
 marka tutarlılığı kişisel hafızaya geri döner. Taşma **böler, küçültmez** (§7.1 · R-23);
 en-boy ekseninde de aynı kural (FAZ-5.9).
 
-**PDF DÜZLEŞTİRİLİR.** LinkedIn döküman yüklemesi seçilebilir metin katmanı olan
-PDF'lerde satır kırılmalarını bozuyor; düzleştirme bunu yapısal olarak imkânsız kılıyor.
-Bedeli metin seçilemezliği — bir deck'te kabul edilebilir, bir raporda değil.
+**Düzleştirme KANALA aittir, PDF'e değil.**
+
+| Çıktı | Metin katmanı | Neden |
+|---|---|---|
+| prospect deck'i (6.1) | **seçilebilir** | okunan, kopyalanan, alıntılanan bir belge; metni kilitlemek okuyucuya zarar verir |
+| LinkedIn dökümanı (6.3) | **düzleştirilmiş** | LinkedIn'in kendi görüntüleyicisi metin katmanlı PDF'lerde satır kırılmalarını bozuyor |
+
+İkisini tek kurala bağlamak — "PDF hep düzleştirilir" — deck'i gereksiz yere sakat
+bırakırdı. Düzleştirme bir maliyet ve yalnız onu gerektiren kanalda ödenir.
 
 **Veri bağlama ANLIK GÖRÜNTÜLENİR** (FAZ-6.3): Mart'ta paylaşılan bir döküman Haziran'da
 hâlâ Mart rakamını göstermelidir. Canlı bağlanan bir grafik, geçmişte paylaşılmış bir

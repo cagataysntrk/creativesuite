@@ -247,6 +247,15 @@
       "desen": "recordVideo|record_video",
       "faz": "FAZ-5.6",
       "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
+    },
+    {
+      "id": "hazir-deck-ureticisi",
+      "ad": "Hazır deck/sunum üreticisi",
+      "neden": "Gamma, Presenton, Canva, Beautiful.ai, Tome, Pitch — hiçbiri prospect'e giden bir şeye dokunamaz (D-21 · §7.6). İki sebep: (1) çıktıları kendi şablon tipografisini taşır ve 'bedava ve premium çıktı tipografide aynıdır' (§8.2) vaadi bizim tek render motorumuza dayanır (2) 'size özel yazılım yaparız' diyen bir şirketin deck'i hazır bir şablon üreticisinden çıkıyorsa, iddia kendi çıktısıyla çürütülmüş olur. `izinli` listesi BOŞ — bu bir 'tam olarak bir tane' değil, 'hiç olmasın' kuralı.",
+      "izinli": [],
+      "desen": "gamma\\.app|presenton|beautiful\\.ai|tome\\.app|pitch\\.com|canva\\.com/api|slidesgo",
+      "faz": "FAZ-6.1",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     }
   ],
   "kapsam_varsayilan_neden": "Son iki desen 2026-08-15'te eklendi. `scripts/uret.mjs` ve `scripts/plan.mjs` ÜRETİM YOLUDUR — `just uret` para harcayabilir — ama hiçbir darboğazın kapsamında değildiler. Doğrulama agent'ı orada dört ihlal buldu: ikinci retrieval yüklemi (R-13, BLOCKING), doğrudan `process.env`, doğrudan `openDb`, kendi maliyet defteri. Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) KAPSAM DIŞI: onlar araçtır, üretim yolu değil — bir kapının `git` çağırması kapının işidir. Bir darboğaz kapsamı, kuralın en çok çiğneneceği yeri dışarıda bırakıyorsa kapı değil."

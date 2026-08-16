@@ -23,6 +23,10 @@ const BOYUTLAR = [
   { ad: 'post-4x5', width: 1080, height: 1350 },
   { ad: 'story-9x16', width: 1080, height: 1920 },
   { ad: 'linkedin-4x5', width: 1200, height: 1500 },
+  // Deck boyutu (FAZ-6.1): 16:9 yatay. Aynı font farklı puntoda farklı hinting alır ve
+  // fallback yalnız bir boyutta görünebilir — deck ölçüsü ölçülmezse deck'te sessizce
+  // bozuk çıkabilirdi.
+  { ad: 'deck-16x9', width: 1600, height: 900 },
 ]
 
 const MARKA = 'brd_upcytech'

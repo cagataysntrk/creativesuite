@@ -75,6 +75,12 @@ const IHLALLER = [
     imza: 'düz renk',
   },
   {
+    kapi: 'chokepoints',
+    dosya: 'packages/render/src/deck/ihlal-gecici.ts',
+    icerik: "export const uc = 'https://gamma.app/api/generate'\n",
+    imza: 'hazir-deck-ureticisi',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',

@@ -400,3 +400,42 @@ ihlali kapının kaçırabileceği bir biçimde de denemek gerekiyor.
    test · 3/3 golden · 26 uç duman testi · 5 ihlal kırmızı**.
 **Karar:** FAZ 6'ya geçilir. Kalan iki madde dış bağımlılık — plan hatası değil, planın
 `V-nn` olarak zaten öngördüğü şeyler.
+
+## D-207 — "Düzleştirme" KANALA aittir, deck'e değil
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.1 · §7.6
+
+§7.6'yı bu oturumda yazarken "PDF DÜZLEŞTİRİLİR" diye **kayıtsız** bir kural koydum.
+FAZ-6.1'in kendi ✅ kriteri ise "düzleştirilmiş, **metin seçilebilir**" diyor — kendi
+anayasa maddem, uygulayacağı adımla çelişiyordu.
+
+**Karar:** prospect deck'i tek düz belge olarak üretilir ama **metin katmanını KORUR**.
+Rasterleştirme yalnız `linkedin-document` (6.3) için, çünkü LinkedIn'in görüntüleyicisi
+metin katmanlı PDF'lerde satır kırılmalarını bozuyor. Deck okunan, kopyalanan, alıntılanan
+bir belgedir; metnini kilitlemek okuyucuya zarar verir ve hiçbir şey kazandırmaz.
+
+**Alternatif (reddedildi):** her PDF'i rasterleştirmek. Tek kural olması basit görünüyor
+ama iki farklı kanalın iki farklı kısıtını tek doğruymuş gibi sunuyor.
+
+**Ders:** genelleme, bir maddeyi kapsadığı VAKALARDAN daha geniş yazmaktır. Kural yazarken
+"hangi kanal bunu istiyor" sorusu sorulmazsa, bir kanalın arızası tüm sistemin yasası olur.
+
+**Geri alma maliyeti:** düşük — `page.pdf()` çağrısında tek bayrak.
+
+## D-208 — `izinli: []` — "hiç olmasın" da bir darboğaz biçimidir
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.1 · D-21
+
+`chokepoints.json` bugüne kadar "tam olarak bir tane olmalı" listesiydi. D-21 ise
+Gamma/Presenton/Canva gibi hazır deck üreticilerinin **hiç** kullanılmamasını istiyor —
+tek yetkili yeri de yok.
+
+**Karar:** boş `izinli` listesi "yasak" anlamına gelir ve aynı lint bunu zorlar. Ayrı bir
+"yasaklı bağımlılıklar" mekanizması kurulmadı: ikinci bir liste, ikinci bir bakım yüzeyi
+ve kaçınılmaz olarak birinin unutulduğu gün demektir.
+
+**Kanıt:** `gamma.app/api/generate` yazan bir dosya → `hazir-deck-ureticisi` kırmızı;
+ihlal `scripts/ihlal-bataryasi.mjs`'e eklendi, geri alınca yeşile döndü.
+
+**Geri alma maliyeti:** düşük — `chokepoints.json`'dan bir kayıt.
+

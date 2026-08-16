@@ -1,0 +1,49 @@
+# Prospect deck'i (§7.6 · §10).
+#
+# Deck IR **kaynaktır**, PDF build çıktısıdır (§4c): benzer bir deck geldiğinde LLM
+# yeniden koşturulmaz, IR kopyalanıp düzenlenir — hem ucuz hem tutarlı.
+#
+# **Hazır üretici YOK** (D-21): Gamma/Presenton/Canva prospect'e giden hiçbir şeye
+# dokunmaz; `hazir-deck-ureticisi` darboğazı bunu mekanik olarak zorluyor.
+id: deck
+title: Prospect deck'i (PDF)
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  - id: anlati-uret
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec]
+    constraints:
+      locale: tr-TR
+      # Deck IR sayfa başına başlık + gövde taşır; sayfalama `paginate`in işi,
+      # modelin değil. Modele "10 slayt yaz" demek, tavanı metne gömmek olurdu.
+      max_chars: 4000
+
+  - id: kompozit
+    verb: COMPOSE
+    needs: [anlati-uret]
+
+  - id: render
+    verb: RENDER
+    # Yetenek YOK: render YÖNLENDİRİLMEZ (R-30, D-122). Deck de aynı Chromium.
+    needs: [kompozit]
+    constraints:
+      width: 1600
+      height: 900
+      format: pdf
+
+  - id: kalite
+    verb: VALIDATE
+    needs: [render]
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

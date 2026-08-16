@@ -181,3 +181,6 @@ export {
   type ExplainerAspect,
   type AspectLayout,
 } from './layout/coklu-enboy.js'
+
+// Deck PDF (§7.6 · FAZ-6.1). ÜÇÜNCÜ RENDERER YOK: aynı Chromium, aynı toHtml, page.pdf().
+export { deckPages, renderDeckPdf, type DeckPage, type DeckPdfResult } from './deck/pdf.js'

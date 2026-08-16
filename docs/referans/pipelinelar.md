@@ -3,7 +3,21 @@
 > ⚠ **ÜRETİLMİŞ DOSYA — elle düzenleme** (R-65). Üreteci: `just docs`.
 > Kaynak: `registry/pipelines/*.pipeline.yaml`. `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **6** hat.
+Toplam **7** hat.
+
+## `deck` — Prospect deck'i (PDF)
+
+7 adım · 1 yetenek isteyen · 1 insan kapısı
+
+| adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
+|---|---|---|---|---|---|
+| `cozumle` | `RESOLVE` | — | — | — | — |
+| `bilgi-sec` | `SELECT` | — | cozumle | — | — |
+| `anlati-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
+| `kompozit` | `COMPOSE` | — | anlati-uret | — | — |
+| `render` | `RENDER` | — | kompozit | — | — |
+| `kalite` | `VALIDATE` | — | render | — | — |
+| `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
 
 ## `demo-video` — Ürün demo videosu
 

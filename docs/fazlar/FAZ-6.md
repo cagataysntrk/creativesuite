@@ -9,7 +9,7 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 
 ---
 
-## 6.1 — Deck IR ve `page.pdf()`    [ ]
+## 6.1 — Deck IR ve `page.pdf()`    [x] 2026-08-16
 
 📖 §7.6, §7.1 · R-30 · D-21, D-24
 🔗 FAZ-3.1
