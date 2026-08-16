@@ -19,8 +19,8 @@ import type { FrozenPlan } from './plan/freeze.js'
 import { usd } from '@suite/contracts'
 import {
   headSha,
-  inspectManifest,
   isPublishable,
+  structuralDefects,
   manifestPath,
   frozenPlanPath,
   runDir,
@@ -74,7 +74,13 @@ export type WriteResult =
  * eksik, ancak birileri açıp okuduğunda fark edilir.
  */
 export const writeManifest = (input: WriteInput): WriteResult => {
-  const kusurlar = inspectManifest(input.manifest)
+  // **Yalnız BİÇİM kusurları yazmayı engeller.** Politika kusuru (bayat kaynak, tavan
+  // aşımı, uydurma ekran) manifest'in yazılmasına engel DEĞİLDİR: o kusur koşu hakkında
+  // bir OLGUDUR ve deftere geçmelidir. Yayını `isPublishable` bloklar.
+  //
+  // Eskiden ikisi birdi ve sonuç şuydu: kuralı çiğneyen koşu defterden tamamen
+  // kayboluyordu — ihlalin kaydı olmaması, ihlalin kendisinden kötü (D-216).
+  const kusurlar = structuralDefects(input.manifest)
   if (kusurlar.length > 0) return { ok: false, defects: kusurlar }
 
   const rel = manifestPath(input.manifest.runId)

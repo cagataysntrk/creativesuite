@@ -22,7 +22,7 @@ import type {
   StepId,
   VerbName,
 } from '@suite/contracts'
-import { ZERO_USD, usd } from '@suite/contracts'
+import { ZERO_USD, usd, type Result } from '@suite/contracts'
 import {
   asciiLower,
   makeError,
@@ -38,12 +38,14 @@ import {
   type StepRecord,
   type Verb,
   type VerbContext,
+  type VerbOutput,
 } from '@suite/kernel'
 import { topoOrder, type Pipeline, type PipelineStep } from '@suite/registry'
 import { CircuitBreaker } from './breaker.js'
 import * as budget from './budget.js'
 import { RateLimiter } from './ratelimit.js'
 import { runStep, type CallOutcome, type StepSpec } from './scheduler.js'
+import { runVerb } from './run-verb.js'
 import { resolveVerb, type VerbImplementations } from './verbs/registry.js'
 import { route, type ProviderPricing, type RoutingDecision } from './router/route.js'
 import { rejectionMessage } from './router/reasons.js'
@@ -182,7 +184,43 @@ const ozetle = (data: unknown): Readonly<Record<string, unknown>> | null => {
   if (data === null || typeof data !== 'object') return null
   const o = data as Record<string, unknown>
   const cikti: Record<string, unknown> = {}
-  for (const anahtar of ['qa', 'slides', 'count', 'rung', 'bytes', 'format', 'width', 'height']) {
+  // ⚠ **BEYAZ LİSTE, ve bu listenin eksik olması FAZ 6'nın en sessiz hatasıydı.**
+  // `inspectManifest`in üç yeni dedektörü (`stale_source`, `personalization_cap`,
+  // `fabricated_product_shot`) adım çıktısında `fetchedAt` / `personalizationFields` /
+  // `productShots` arıyor. Gövdeler onları üretse bile bu liste onları ELİYORDU —
+  // dedektörler yazılmış, test edilmiş ve manifest'te aradıkları veriyi hiç
+  // görmemişlerdi. Beyaz liste bir güvenlik önlemi (manifest bir defter, bir depo
+  // değil) ama eksik bir beyaz liste sessiz bir körlüktür (D-216).
+  for (const anahtar of [
+    'qa',
+    'slides',
+    'count',
+    'rung',
+    'bytes',
+    'format',
+    'width',
+    'height',
+    // PDF yolu (FAZ-6.1, 6.3)
+    'deck',
+    'document',
+    'pages',
+    'flattened',
+    'quality',
+    'oversizedPages',
+    // dedektörlerin OKUDUĞU anahtarlar (FAZ-6.6, 6.7, 6.8) — bu üçü manifest'e
+    // girmezse üç kural sonsuza kadar sessiz kalır
+    'fetchedAt',
+    'sourceRef',
+    'personalizationFields',
+    'productShots',
+    // INGEST raporu (FAZ-6.5): kaç kaynak hazır, kaçı bloke
+    'sourcesReady',
+    'sourcesBlocked',
+    'quarantinePath',
+    // zincir (FAZ-6.9)
+    'chain',
+    'chainGates',
+  ]) {
     if (o[anahtar] !== undefined) cikti[anahtar] = o[anahtar]
   }
   return Object.keys(cikti).length > 0 ? cikti : null
@@ -243,6 +281,16 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
   const kayitlar: StepRecord[] = []
   const hatalar: { stepId: StepId; error: AppError }[] = []
   const ciktilar: Record<string, unknown> = {}
+
+  // ── §14 sınırının girdisi ──────────────────────────────────────────────────
+  //
+  // Bu koşuda karantinaya inen dış belgeler. `ingestGate` yalnız SAYILARINA ve
+  // alan adlarına bakıyor (metni okumuyor) — sınır konumsaldır, içeriğe bakmaz.
+  const tazeDisBelgeler: { domain: string; sourceRef: string; fetchedAt: string; text: string }[] =
+    []
+  // İnsan bu turu açıkça onayladı mı. Kararları AGENT üretemez (R-14): `just onay`
+  // insanın klavyesinden çalışır ve motor yalnız YAZILMIŞ olanı okur.
+  const insanOnayVerdi = (input.decisions ?? []).some((d) => d.decision === 'approved')
   let bState = budget.emptyBudget(input.caps)
   let durduguYer: StepId | null = null
   let bekleyenKapi: string | null = null
@@ -364,6 +412,21 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       ...(input.signal === undefined ? {} : { signal: input.signal }),
     }
 
+    // ── fiil çağrısının TEK yolu (§14 · R-50 · D-216) ──────────────────────
+    //
+    // ⚠ **`runPipeline` `verb.run`u DOĞRUDAN çağırıyordu** ve bu iki sözleşmeyi birden
+    // atlıyordu: `ingestGate` (taze dış metin varken metered fiil insan onayı ister) ve
+    // `validateVerbOutput` (metered fiil `CostEvent`siz geçemez). İkisi de yazılmış,
+    // test edilmiş ve üretimde hiç koşmamıştı — `runVerb`ün KENDİSİ D-69'da aynı hatayı
+    // kapatmak için yazılmıştı ve bir seviye yukarıda tekrar edilmişti (FAZ-6 denetimi).
+    const fiiliCagir = async (v: Verb, girdi: unknown): Promise<Result<VerbOutput, AppError>> => {
+      const r = await runVerb(v, ctx, girdi, {
+        freshDocuments: tazeDisBelgeler,
+        humanApproved: insanOnayVerdi,
+      })
+      return r.ok ? { ok: true, value: r.value.output } : { ok: false, error: r.error }
+    }
+
     // Metered fiiller motorun tam yolundan geçer; metered olmayanlar doğrudan koşar.
     // Ayrım gövdede değil SÖZLEŞMEDE: `verb.metered` kernel'in dediğidir (R-04).
     let sonuc: {
@@ -409,7 +472,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         },
         bState,
         async () => {
-          const o = await verb.run(ctx, { constraints: s.constraints, inputs: ciktilar })
+          const o = await fiiliCagir(verb, { constraints: s.constraints, inputs: ciktilar })
           return o.ok
             ? {
                 ok: true as const,
@@ -484,7 +547,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
             // Aktarılmasaydı gövde hangi sağlayıcının kazandığını bilemez ve
             // `providerCall`ı kuramazdı — B8'in kökü buydu (D-141).
             let tutamak: string | null = null
-            const o = await verb.run(ctx, {
+            const o = await fiiliCagir(verb, {
               constraints: s.constraints,
               inputs: ciktilar,
               providerId: kazanan.providerId,
@@ -516,7 +579,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         sonuc = { ok: r.error === null, outcome: r.outcome, error: r.error }
       }
     } else {
-      const o = await verb.run(ctx, { constraints: s.constraints, inputs: ciktilar })
+      const o = await fiiliCagir(verb, { constraints: s.constraints, inputs: ciktilar })
       sonuc = o.ok
         ? {
             ok: true,
@@ -579,6 +642,24 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
 
     if (sonuc.ok) {
       ciktilar[id] = sonuc.outcome?.data ?? null
+      // Dış metin karantinaya indiyse §14 sınırı BUNDAN SONRAKİ metered fiiller için
+      // devreye girer: taze dış metin varken insan onayı olmadan para harcanamaz,
+      // yayın yapılamaz. Sınır fiil ÇALIŞMADAN ÖNCE sorulur (`runVerb`).
+      const d = sonuc.outcome?.data as {
+        fetchedAt?: unknown
+        sourceRef?: unknown
+        domain?: unknown
+      } | null
+      if (d !== null && typeof d?.fetchedAt === 'string') {
+        tazeDisBelgeler.push({
+          domain: typeof d.domain === 'string' ? d.domain : 'bilinmiyor',
+          sourceRef: typeof d.sourceRef === 'string' ? d.sourceRef : 'bilinmiyor',
+          fetchedAt: d.fetchedAt,
+          // Metin karantinada, DİSKTE. Sınır onu okumaz — konumsaldır, içeriğe bakmaz
+          // (nötrleştirme kasten yok: atlatılan bir filtre olmayan filtreden kötüdür).
+          text: '',
+        })
+      }
       continue
     }
 

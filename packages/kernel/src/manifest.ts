@@ -346,6 +346,37 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
 export const isPublishable = (m: RunManifest | null | undefined): boolean =>
   inspectManifest(m).length === 0
 
+/**
+ * **Kusurun iki sınıfı vardır ve karıştırmak defteri kaybettirir.**
+ *
+ * `bicim` kusurları manifest'in KENDİSİ hakkındadır: alan eksik, adım yok, SHA bozuk.
+ * Böyle bir dosya defter değildir ve yazılmamalıdır.
+ *
+ * `politika` kusurları KOŞU hakkındadır: kaynak bayat, tavan aşıldı, ekran uydurma.
+ * Manifest kusursuz biçimde bu olguları YAZAR — ve `isPublishable` yayını bloklar.
+ *
+ * ⚠ İkisi ayrılmadan önce `writeManifest` politika kusurlu manifest'i **hiç
+ * yazmıyordu**: yani bir kuralı çiğneyen koşu defterden tamamen kayboluyordu. İhlalin
+ * kaydı olmaması, ihlalin kendisinden kötüdür — ve `derived/runs` türetilemez (D-38),
+ * yazılmayan bir manifest geri gelmez. Uçtan uca zincir testi bunu ortaya çıkardı.
+ */
+const BICIM_KUSURLARI = new Set([
+  'missing_manifest',
+  'missing_field',
+  'no_steps',
+  'invalid_sha',
+  'step_without_candidates',
+  'no_selected_provider',
+  'selected_with_rejection',
+  'metered_step_without_cost',
+])
+
+export const isStructuralDefect = (d: ManifestDefect): boolean => BICIM_KUSURLARI.has(d.kind)
+
+/** Manifest YAZILABİLİR mi — yalnız biçim kusurlarına bakar. */
+export const structuralDefects = (m: RunManifest | null | undefined): readonly ManifestDefect[] =>
+  inspectManifest(m).filter(isStructuralDefect)
+
 // ── maliyet toplamı: tahmin vs gerçek ────────────────────────────────────────
 
 export interface CostSummary {

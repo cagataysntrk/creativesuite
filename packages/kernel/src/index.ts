@@ -67,6 +67,8 @@ export {
 export {
   inspectManifest,
   isPublishable,
+  isStructuralDefect,
+  structuralDefects,
   costSummary,
   type Lane,
   type ProviderCandidate,
