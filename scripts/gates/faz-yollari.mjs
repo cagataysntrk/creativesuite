@@ -35,7 +35,10 @@ for (const dosya of readdirSync(FAZLAR).filter((f) => /^FAZ-\d+\.md$/.test(f))) 
   let blokta = false
   satirlar.forEach((satir, i) => {
     // Adım başlığı: tik durumunu belirler ve sonraki `📁` satırları ona ait.
-    if (/^## \d+\.\w* —/.test(satir)) {
+    // ⚠ Regex `## 0.A.1` biçimini HİÇ görmüyordu: 125 tikli adımın 37'si (FAZ-0'ın
+    // tamamı) denetim dışı kalıyordu (2. denetim turu, m3). Kapının ilk körlüğü
+    // sarılmış satırdı, bu ikincisi — **kapı iki kez baktığı yeri eksik tanımladı.**
+    if (/^## \d+(?:\.[A-Za-z0-9]+)* —/.test(satir)) {
       tikli = satir.includes('[x]')
       blokta = false
     }

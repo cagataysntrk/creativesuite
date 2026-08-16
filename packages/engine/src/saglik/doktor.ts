@@ -64,9 +64,14 @@ export interface DoktorGirdisi {
    * `bugun + T00:00` gece yarısını okur ve bugün 09:00'da ölmüş bir token'ı saat
    * 15:00'te hâlâ "1 gün var" diye gösterebilir; `just token-durum` gerçek saatle
    * "ÖLDÜ" der. Aynı kayıt için iki farklı cevap veren iki rapor, ikisi de
-   * güvenilmez olur (FAZ-7 denetimi, m3). Verilmezse gece yarısına düşer.
+   * güvenilmez olur (FAZ-7 denetimi, m3).
+   *
+   * **Zorunlu.** Opsiyoneldi ve testi yoktu: yeni bir çağıran alanı unutsa gece yarısı
+   * davranışı SESSİZCE geri dönerdi (2. denetim turu, m2). Bu repoda karşılığı
+   * `publish()`in zorunlu dep deseni — unutulabilen bir doğruluk garantisi, garanti
+   * değildir.
    */
-  readonly simdi?: string
+  readonly simdi: string
   /** Aktif dönem — verilmezse strateji denetimi ATLANIR ve bu raporlanır. */
   readonly aktifEra?: string | null
   /** Türetilmiş indeks. Verilmezse indeks/corpus karşılaştırması ATLANIR. */
@@ -215,7 +220,7 @@ export const doktorRaporu = (g: DoktorGirdisi): DoktorRaporu => {
         hedef: 'secrets/token-durumu.json',
       })
     }
-    const an = g.simdi ?? `${g.bugun}T00:00:00.000Z`
+    const an = g.simdi
     for (const r of yenilemeRaporu(kayitlar, ['meta', 'linkedin'], an)) {
       if (r.durum.kind === 'ok') continue
       bulgular.push({

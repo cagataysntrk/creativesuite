@@ -10,7 +10,7 @@
 // `siradaki_adim` altı adım geride kaldı, "Sıradaki adım" bölümü iki farklı turun
 // metnini üst üste taşıdı. Hiçbir kapı bunu görmedi. Bu kapı onun için var.
 
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -220,6 +220,38 @@ for (const [ad, tikli] of adimlar) {
   const ilk = bolum.match(/`(\d+\.[A-Za-z0-9.]+)`/)?.[1] ?? null
   if (ilk !== null && adimlar.get(ilk) === true) {
     errors.push(`"Sıradaki adım" bölümünün İLK adımı '${ilk}' ama o adım TİKLİ — bayat metin`)
+  }
+}
+
+// ── 3b. SAYAÇ TAZELİĞİ ───────────────────────────────────────────────────────
+//
+// `DURUM.md` "36 kapı · 13 ihlal kırmızı · 1144 test" diyordu; gerçek 37 · 15 · 1243'tü
+// (2. denetim turu, m4). Bayat bir sayaç, bayat bir `siradaki_adim`den daha sinsi:
+// bağlamsız agent onu **ölçüm** sanır ve kendi ölçümünü yapmaz.
+//
+// Kapı ölçülebilir olanı ölçüyor: **kapı sayısı** (dizin) ve **ihlal sayısı**
+// (batarya listesi). Test sayısı burada doğrulanmıyor — vitest'i her `just check`te
+// koşturmak kapıyı yavaşlatırdı ve `tests` kapısı zaten koşuyor.
+{
+  // TOPLAM kapı sayısı (`just gates all`). `just check` yalnız `fast` grubunu koşar
+  // ve daha küçük bir sayı basar — DURUM toplamı yazar, çünkü "kaç kapı var" sorusu
+  // hangi komutu koşturduğuna göre değişmemeli.
+  const kapiSayisi = readdirSync(p('scripts/gates')).filter((f) => /\.(mjs|sh|ts)$/.test(f)).length
+  const batarya = readFileSync(p('scripts/ihlal-bataryasi.mjs'), 'utf8')
+  const ihlalSayisi = [...batarya.matchAll(/^\s{4}kapi: '/gm)].length
+
+  const yazan = durum.match(/\*\*(\d+) kapı · (\d+) ihlal kırmızı/)
+  if (yazan === null) {
+    errors.push('sayaç satırı yok — "**N kapı · M ihlal kırmızı · K test**" biçimi bekleniyor')
+  } else {
+    if (Number(yazan[1]) !== kapiSayisi) {
+      errors.push(
+        `kapı sayısı BAYAT: DURUM ${yazan[1]}, gerçek ${kapiSayisi} — bayat sayaç ölçüm sanılır`
+      )
+    }
+    if (Number(yazan[2]) !== ihlalSayisi) {
+      errors.push(`ihlal sayısı BAYAT: DURUM ${yazan[2]}, gerçek ${ihlalSayisi}`)
+    }
   }
 }
 

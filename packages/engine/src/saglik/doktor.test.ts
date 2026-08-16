@@ -6,6 +6,13 @@ import { RUNS_DIR, manifestPath, publishedLedgerPath } from '@suite/kernel'
 import { doktorMetni, doktorRaporu } from './doktor.js'
 
 const BUGUN = '2026-08-16'
+/**
+ * Tam an — `bugun`un gece yarısı DEĞİL: token ömrü gün değil AN meselesi.
+ *
+ * `simdi` **zorunlu** (2. denetim turu, m2): opsiyoneldi ve hiçbir test onu geçmiyordu,
+ * yani yeni bir çağıran alanı unutsa gece yarısı davranışı sessizce geri dönerdi.
+ */
+const SIMDI = '2026-08-16T13:00:00.000Z'
 
 /** Manifest kablo biçimi diskteki gerçek dosyadan okundu (D-174). */
 const manifest = (o: { runId: string; tahminUst: string; gercek: string }) => ({
@@ -58,7 +65,7 @@ const manifestYaz = (kok: string, m: ReturnType<typeof manifest>): void => {
 
 describe('doctor', () => {
   it('koşan ve ATLANAN denetimleri ayrı bildirir — atlanan denetim "temiz" değildir', () => {
-    const r = doktorRaporu({ repoRoot: kur(), bugun: BUGUN })
+    const r = doktorRaporu({ repoRoot: kur(), bugun: BUGUN, simdi: SIMDI })
     // İndeks ve git verilmedi: rapor bunu söylemeli, sessizce temiz göstermemeli.
     expect(r.atlananDenetimler.map((a) => a.ad).sort()).toEqual([
       'defter/git',
@@ -87,7 +94,7 @@ describe('doctor', () => {
     // tahmin üst 1000, gerçek 2000 → %100 sapma (eşiğin ÜSTÜNDE)
     manifestYaz(kok, manifest({ runId: 'run_cok', tahminUst: '1000', gercek: '2000' }))
 
-    const r = doktorRaporu({ repoRoot: kok, bugun: BUGUN })
+    const r = doktorRaporu({ repoRoot: kok, bugun: BUGUN, simdi: SIMDI })
     const maliyet = r.bulgular.filter((b) => b.alan === 'maliyet')
     expect(maliyet.map((b) => b.hedef)).toEqual(['run_cok'])
     expect(maliyet[0]?.mesaj).toContain('%100.0 sapma')
@@ -99,7 +106,7 @@ describe('doctor', () => {
     mkdirSync(join(kok, RUNS_DIR, 'run_oksuz'), { recursive: true })
     writeFileSync(join(kok, RUNS_DIR, 'run_oksuz', 'slayt.png'), 'x')
 
-    const r = doktorRaporu({ repoRoot: kok, bugun: BUGUN })
+    const r = doktorRaporu({ repoRoot: kok, bugun: BUGUN, simdi: SIMDI })
     const defter = r.bulgular.filter((b) => b.alan === 'defter')
     expect(defter.map((b) => b.hedef)).toEqual(['run_oksuz'])
     expect(defter[0]?.siddet).toBe('kritik')
@@ -109,6 +116,7 @@ describe('doctor', () => {
     const yok = doktorRaporu({
       repoRoot: kur(),
       bugun: BUGUN,
+      simdi: SIMDI,
       git: { pushEdilmemis: null, commitlenmemisDefterSatiri: 0 },
     })
     expect(yok.bulgular.some((b) => b.siddet === 'kritik' && b.mesaj.includes('upstream'))).toBe(
@@ -119,13 +127,14 @@ describe('doctor', () => {
     const guncel = doktorRaporu({
       repoRoot: kur(),
       bugun: BUGUN,
+      simdi: SIMDI,
       git: { pushEdilmemis: 0, commitlenmemisDefterSatiri: 0 },
     })
     expect(guncel.bulgular.filter((b) => b.alan === 'defter')).toEqual([])
   })
 
   it('metin çıktısı atlanan denetimleri GİZLEMEZ', () => {
-    const metin = doktorMetni(doktorRaporu({ repoRoot: kur(), bugun: BUGUN }))
+    const metin = doktorMetni(doktorRaporu({ repoRoot: kur(), bugun: BUGUN, simdi: SIMDI }))
     expect(metin).toContain('⊘ indeks atlandı')
     expect(metin).toContain('koşan:')
   })
@@ -136,7 +145,7 @@ describe('doctor', () => {
     writeFileSync(join(kok, RUNS_DIR, 'run_a', 'slayt.png'), 'x')
     const once = readdirSync(join(kok, RUNS_DIR, 'run_a')).sort()
 
-    doktorRaporu({ repoRoot: kok, bugun: BUGUN })
+    doktorRaporu({ repoRoot: kok, bugun: BUGUN, simdi: SIMDI })
 
     expect(readdirSync(join(kok, RUNS_DIR, 'run_a')).sort()).toEqual(once)
   })
@@ -158,7 +167,7 @@ describe('doctor', () => {
         publishedAt: '2026-04-01T09:00:00.000Z',
       })}\n`
     )
-    const r = doktorRaporu({ repoRoot: kok, bugun: BUGUN })
+    const r = doktorRaporu({ repoRoot: kok, bugun: BUGUN, simdi: SIMDI })
     const insight = r.bulgular.filter((b) => b.alan === 'insight')
     expect(r.kosanDenetimler).toContain('insight')
     expect(insight.some((b) => b.siddet === 'kritik' && b.mesaj.includes('backfill'))).toBe(true)

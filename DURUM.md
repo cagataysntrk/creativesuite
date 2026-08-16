@@ -5,12 +5,12 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 7
-siradaki_adim: FAZ-7-KAPANIS
+aktif_faz: 8
+siradaki_adim: 8.1
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.9 KAPANDI — FAZ 7 IN DOKUZ ADIMI DA BITTI. ANAHTAR KARAR: KUMULATIF TOPLAM SIRALANAMAZ, YASLA KIRLENIR. Uc ay onceki postu dunku postla toplam erisime gore karsilastirmak eskiyi kazanan ilan etmektir; olctugun sey icerik degil TAKVIM. Siralama sabit pencerede: yayin + 7 gun (PENCERE_GUN). Olculmemis pencere siralamaya GIRMEZ ve bu OLCULDU: 9999 erisimle en yuksek gorunen post onerilemedi (180 siralanabilir degil, 2026-08-11 olculmemis; bu dusuk performans DEGIL). Siralanamayanlar GIZLENMIYOR — en iyi uc post listesi, olculemeyen on postu gorunmez kilarak yalan soyler. Ucdan uca olculdu: just hook-oner 179 < metin.txt → corpus/messaging/kazanan-hook-instagram-179.md, status draft + x_signature + claim_source (7 gunluk pencere, 1 gun olculdu). status active zorlamasi agent_must_propose ile reddediliyor (R-14). GERCEK CALISTIRMA GERCEK HATA BULDU: just *args tirnagi korumuyor, cumlenin bir kelimesi metrik parametresine dustu → metin artik STDIN den. R-76 UYGULANDI: ui-navigasyon kirmizi iken ternary yerine tablo refactor unu GERI ALDIM — kirmizi kapinin kuralini ayni turda degistirmek yasak; kapi+sekil degisimi ayri tura. KARARLAR.md 541 → 366 (D-207..D-213 arsive)."
+son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 1. TURUN KAPATMA IDDIASINI CURUTTU: PUBLISH fiil haritasindaydi ama grep -rn PUBLISH registry/ SIFIR satir veriyordu — hicbir hat cagirmiyordu. AYNI SINIF HATA UC KEZ ve her seferinde BIR SEVIYE YUKARI: D-216 gövde yok → D-222 govde yok → D-224 hat adimi yok. Insan hafizasi uc kez tutamadi; fiil-haritasi kapisi artik IKI soru soruyor (govde bagli mi + cagiran hat var mi), iki yonde ihlal edilip kirmiziya donduruldu, yorum satirlari sayilmiyor. KISIR DONGU KIRILDI: publish defter yoksa duruyordu, defter ancak basarili yayinla olusuyordu → ilk gercek yayin HICBIR ZAMAN mumkun degildi; just defter-baslat acildi (idempotent, bozuk defteri ONARMAZ). YANLIS POZITIF: yineleme anahtari yalniz assets[0].digest idi, ayni kapakla farkli metin ZATEN YAYINDA diye blokluyordu — artik platform+yerlesim+tum varliklar+metin (R-44). Desteklenmeyen platform ciplak TypeError veriyordu → tipli ret. Platform sayfa siniri editoryal tavandan ONCE (350 sayfa max:10 cevabi aliyordu). doktor simdi ZORUNLU (opsiyoneldi, testi yoktu). faz-yollari IKI KEZ kordu: sarilmis satir + 0.A.1 baslik bicimi. durum kapisi artik SAYAC TAZELIGI zorluyor (36/13 yaziyordu, gercek 38/15). SIRADA 8.1: matris modulu hazir, DIKLIK OLCUTU OFAT — tam izgara ogrenme tasarimi DEGIL (3x3x3te 27 render, OFAT 7; Meta kombinasyonu SUNUCUDA kuruyor)."
 ```
 
 ## Neredeyiz
@@ -19,7 +19,9 @@ son_kanit: "7.9 KAPANDI — FAZ 7 IN DOKUZ ADIMI DA BITTI. ANAHTAR KARAR: KUMULA
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **36 kapı · 13 ihlal kırmızı · 1144 test.**
+**D-79: üçüncü tur AÇILMAZ.** **38 kapı · 15 ihlal kırmızı · 1243 test.**
+**FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
+ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
 > **Kök neden, üçüncü tekrar:** D-182 donmuş planı yazdı ama `uret.mjs` çağırmıyordu ·
 > D-190 düğmeyi çizdi ama `onClick` yoktu · şimdi aynı hata **bir seviye yukarıda**:
@@ -75,10 +77,13 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 
 ## Sıradaki adım
 
-**FAZ 7 KAPANIŞI** (`LOOP§D`). Dokuz adımın da kabul kriteri karşılandı; sıradaki iş
-kapanış protokolü: her ✅ için somut kanıt üret, sonra **bağımsız doğrulama agent'ı**
-(`.claude/agents/faz-dogrulayici.md`) — **en fazla İKİ tur** (D-79). Üçüncü tur açılmaz;
-ikinci turda bulunmayan şey minor'dur ve FAZ 9 denetim turlarına düşer.
+**`8.1` — `ad-creative-set` ve dik varyant matrisi** (§10 · D-4). Hook × copy × visual
+**dik** olmalı: üç ekseni birden değiştiren bir test hiçbir şey öğretmez ve "kazanan"
+diye corpus'a yazılan şey (7.9 geri besleme yolu) bir yanılsama olur.
+⚠ **Diklik ölçütü OFAT'tır, tam ızgara DEĞİL** — araştırma tam ızgarayı öğrenme
+tasarımı olarak reddediyor: 3×3×3'te 27 render ister, OFAT 7 ile aynı bilgiyi verir ve
+Meta kombinasyonu zaten **sunucuda** kuruyor (`asset_feed_spec`: bileşen yüklenir,
+çarpım render edilmez).
 
 ## Devreden borçlar
 
