@@ -1,0 +1,79 @@
+{
+  "runId": "run_01a00997-9995-7bec-ba93-fb79d03c1173",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "prospect-deck",
+  "corpusCommit": "89892d1afab157f51ee367ec393913fa658885b4",
+  "registryCommit": "89892d1afab157f51ee367ec393913fa658885b4",
+  "createdAt": "2026-08-16T08:02:05.365Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "url": "http://127.0.0.1:8791/hakkimizda",
+        "demo_ref": "demos/dima/demo-script.ts#fire",
+        "topic": "fire olcumu"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T08:02:05.364Z",
+      "finishedAt": "2026-08-16T08:02:05.364Z",
+      "output": null
+    },
+    {
+      "stepId": "prospect-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "url": "http://127.0.0.1:8791/hakkimizda",
+        "demo_ref": "demos/dima/demo-script.ts#fire",
+        "topic": "fire olcumu"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-16T08:02:05.364Z",
+      "finishedAt": "2026-08-16T08:02:05.365Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "prospect-sec"
+}

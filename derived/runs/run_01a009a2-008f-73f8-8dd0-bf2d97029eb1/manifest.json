@@ -1,0 +1,75 @@
+{
+  "runId": "run_01a009a2-008f-73f8-8dd0-bf2d97029eb1",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "deck",
+  "corpusCommit": "e9ef35d18fb215e42789b053691950cb19ddb458",
+  "registryCommit": "e9ef35d18fb215e42789b053691950cb19ddb458",
+  "createdAt": "2026-08-16T08:13:27.090Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "IR denemesi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T08:13:27.088Z",
+      "finishedAt": "2026-08-16T08:13:27.089Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "IR denemesi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-16T08:13:27.089Z",
+      "finishedAt": "2026-08-16T08:13:27.090Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "bilgi-sec"
+}
