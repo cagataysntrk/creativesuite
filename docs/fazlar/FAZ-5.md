@@ -111,15 +111,11 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
 🧪 16:9'a sığan başlık 9:16'da BÖLÜNÜYOR, küçültülmüyor · bütçe oranını kaldır →
    2 test kırmızı
 
-## 5.10 — Tam kapsamlı test paketi    [ ]
+## 5.10 — Tam kapsamlı test paketi    [x] 2026-08-16
 
-📖 §15 · R-71 · 🔗 LOOP§D
-🛠 Döngü protokolünün öngördüğü **tek geniş test turu**. FAZ-1.10'da kurulan altyapı
-   burada tam koşar: birim · kontrat (cassette) · golden · değerlendirme.
-   Daha önce koşulmaz çünkü her turda tam paket koşturmak turu yavaşlatır ve yavaş
-   kapı atlanan kapıdır.
-📁 `just verify` · `just golden`
-✅ `just verify` yeşil ve golden ayağı **gerçek metrik** üretiyor (artık no-op değil)
-🧪 **Her BLOCKING kuralı kasten ihlal et** ve kırmızıya döndüğünü gör (R-71) —
-   yeşil paket hiçbir şey kanıtlamaz
-💾 `test(repo): tam kapsamlı doğrulama turu` · `Refs: FAZ-5.10 · §15`
+📖 §15 · R-71 · D-205 · 🔗 LOOP§D
+📁 `scripts/ihlal-bataryasi.mjs` · `justfile`
+✅ `just verify`: **34 kapı · 3/3 golden · 5 ihlal KIRMIZI** · 979 test (75 dosya) ·
+   26 uç duman testi · `just doctor` 2 kritik 1 uyarı raporluyor
+🧪 Batarya `just verify`e bağlandı ve ilk koşuşunda `turkce-genisleme`de gerçek bir
+   delik buldu (`button.ihlal` sınıflı seçici kuraldan kaçıyordu)

@@ -42,6 +42,9 @@ check:
 verify:
     @just gates all
     @just golden
+    # R-71: yeşil bir kapı hiçbir şey kanıtlamaz. Her BLOCKING kapı KASTEN ihlal
+    # edilir ve kırmızıya döndüğü görülür. FAZ-9.2 kural uyum turu da bunu çağırır.
+    @node scripts/ihlal-bataryasi.mjs
 
 # ── kapılar ──────────────────────────────────────────────────────────────────
 

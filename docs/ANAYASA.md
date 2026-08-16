@@ -513,6 +513,26 @@ ağırlıkları (CC BY-NC) · ElevenLabs bedava katmanı ticari kullanımda. Lis
 dipnot değil: ticari lisansı olmayan bir sesle üretilmiş bir prospect videosu,
 geri alınamaz bir yayındır.
 ### §7.6 Deck ve döküman {#section-7-6}
+
+**Aynı Chromium, `page.pdf()`** (R-30 · D-24). Deck ve döküman ayrı bir motor
+kullanmaz: ikinci bir CSS alt kümesi, ikinci bir Türkçe tipografi hata modudur. Statik
+görselle deck arasındaki tek fark çağrılan API — `screenshot()` yerine `pdf()`.
+
+**Deck IR bir KAYNAK, çıktı değil** (§4c). `deck.ir.json` git'te yaşar; PDF build
+çıktısıdır. Benzer bir deck geldiğinde LLM'i yeniden çalıştırmak yerine IR'ı kopyalayıp
+düzenlemek hem ucuz hem tutarlı.
+
+**Kapalı `LayoutEnum`.** Serbest düzen, her deck'te farklı bir tipografi demektir ve
+marka tutarlılığı kişisel hafızaya geri döner. Taşma **böler, küçültmez** (§7.1 · R-23);
+en-boy ekseninde de aynı kural (FAZ-5.9).
+
+**PDF DÜZLEŞTİRİLİR.** LinkedIn döküman yüklemesi seçilebilir metin katmanı olan
+PDF'lerde satır kırılmalarını bozuyor; düzleştirme bunu yapısal olarak imkânsız kılıyor.
+Bedeli metin seçilemezliği — bir deck'te kabul edilebilir, bir raporda değil.
+
+**Veri bağlama ANLIK GÖRÜNTÜLENİR** (FAZ-6.3): Mart'ta paylaşılan bir döküman Haziran'da
+hâlâ Mart rakamını göstermelidir. Canlı bağlanan bir grafik, geçmişte paylaşılmış bir
+belgeyi sessizce değiştirir — ve o belge artık kimsenin onaylamadığı bir şeydir.
 ### §7.7 Demo yakalama {#section-7-7}
 
 Xvfb + headed Chromium 1920×1080 (`--force-device-scale-factor=2`) +

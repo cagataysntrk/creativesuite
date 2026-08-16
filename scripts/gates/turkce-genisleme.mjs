@@ -30,8 +30,12 @@ const gez = (d, out = []) => {
 }
 
 /** Metin taşıyan kontroller — genişlikleri İÇERİĞE göre olmalı. */
+// ⚠ Terminatör listesi `.` ve `{` İÇERMEK ZORUNDA. İlk sürüm `button` sonrası yalnız
+// `\s , : [ $` kabul ediyordu ve `button.ihlal` gibi SINIFLI her seçici kuraldan
+// kaçıyordu — gerçek kodda düğmeler zaten sınıflı yazılıyor (`button.baslat`).
+// İhlal bataryası (FAZ-5.10) bunu yakaladı: kapı yeşil kalmıştı.
 const METIN_KONTROLU =
-  /(^|[\s,>])(button|label|th|summary|legend|kbd)(\s|,|:|\[|$)|\.(baslat|etiket|sekme|tab|dugme|komut)/i
+  /(^|[\s,>])(button|label|th|summary|legend|kbd)(\s|,|:|\[|\.|\{|$)|\.(baslat|etiket|sekme|tab|dugme|komut)/i
 
 /** Sabit genişlik: sayı + mutlak birim. `%`, `auto`, `min-content`, `var()` serbest. */
 const SABIT_GENISLIK = /(?:^|[\s;{])(inline-size|width)\s*:\s*[\d.]+\s*(px|rem|em|ch|pt)\b/i

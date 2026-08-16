@@ -5,24 +5,25 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 5
-siradaki_adim: 5.10
+aktif_faz: 6
+siradaki_adim: 6.1
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.9 BITTI (D-204). Uc en-boy TEK kompozisyondan; en-boy ekseni karakter BUTCESINI daraltiyor, puntoyu DEGIL. Olculdu: statement baslik butcesi 68 (16:9) → 42 (1:1) → 33 (9:16). 9:16 da kullanilabilir genislik GUVENLI ALAN (950px), tuval degil. paginate YENIDEN YAZILMADI — ilk taslagim kendi dongusunu kuruyordu, sonsuz dongu korumasi ikinci bir yerde yasayacakti; splitForLayout/paginate istege bagli CharBudget aldi. Var olmayan bir imza uydurmustum, derleme yakaladi (D-174). Ihlal testi ilk denemede GECERSIZDI (derlenmedi), tekrarlandi: 2 test kirmizi. 35 kapi, 979 test."
+son_kanit: "FAZ 5 SARTLI KAPANDI (D-206). 5.10 (D-205): ihlal bataryasi yazildi ve just verify e BAGLANDI — kapilar artik gectikleriyle degil KIRDIKLARIYLA da kanitlaniyor; FAZ-9.2 ayni bataryayi cagiracak. Ilk kosusunda IKI bulgu: (1) imzam yanlisti, kapi adini ariyordum oysa kapi mesajinda toUpperCase() yaziyor (2) turkce-genisleme YESIL KALDI — button.ihlal gibi SINIFLI her secici kuraldan kaciyordu; kapi iki tur once yazilmisti ve o gunku ihlal testim tesaduf en .baslat sinif listesinden gecmisti. Ders: bir kapiyi bir kez kirmizi gormek yetmiyor, kapinin KACIRABILECEGI bicimde de dene. Cikis kriteri: h264/yuv420p olculdu, AAC YOK (ses akisi yok — 5.4b/5.5b blokaji) ve tikle ortulmedi. 34 kapi, 979 test."
 ```
 
 ## Neredeyiz
 
-**FAZ 4 ŞARTLI KAPANDI** (2026-08-16, D-193) — komuta merkezi ayakta: 26 uç, 12 ekran,
-hepsi ⌘K paletinden ulaşılabilir. Çalıştırma UI'dan başlatılıyor, `rerun` ile `replay`
-ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
+**FAZ 5 ŞARTLI KAPANDI** (2026-08-16, D-206) — hareket katmanı ayakta: HyperFrames
+tipografisi bizimkiyle aynı (ölçüldü), marka-bağımsız hareket kütüphanesi, `.ass`
+altyazı + atlanamaz transkript kapısı, Xvfb yakalama, deterministik `reels`, çok en-boy
+explainer. **34 kapı · 979 test · 5 ihlal kırmızı.**
 
-> **Çıkış kriterinin ikisi karşılanmadı ve tikle ÖRTÜLMEDİ** (D-193): klavye zincirinin
-> "onayla" halkası hiç yürütülmedi (`2.9` blokajı) · Tailscale telefonda onay (`4.13b`,
-> V-18). Üçüncü kriter — +%30 sahte-yerelleştirme — kuralın yazılı hâli olarak
-> `turkce-genisleme` kapısıyla zorlanıyor; görsel ölçüm V-19.
+> **Çıkış kriterinin bir maddesi karşılanmadı ve tikle ÖRTÜLMEDİ** (D-206):
+> `ffprobe` **aac** doğrulayamıyor — ses akışı yok, çünkü TTS (`5.4b`, V-21) ve ASR
+> (`5.5b`, V-22) insan girdisi bekliyor. Video tarafı ölçüldü: h264 · yuv420p ·
+> 1920×1080. "İzlendi" kısmı bir insan eylemidir; sistem onu iddia edemez.
 
 > ⛔ **YEDİ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
 > `5.4b` · `5.5b`.
@@ -79,17 +80,16 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **5.7** · `demo-video` hattı + kalıcı üçlü; V-20 kapandı | 2026-08-16 |
 | **5.8** · `reels` deterministik türetme; tahmin yok, eşik gerekçeli | 2026-08-16 |
 | **5.9** · Çok en-boy; bütçe daralır, punto sabit (68→42→33) | 2026-08-16 |
+| **5.10** · İhlal bataryası `just verify`de; 5 kural kırmızı | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.10` — Tam kapsamlı test paketi.** Protokolün öngördüğü **TEK** geniş tur
-(LOOP§D.5) ve FAZ 5'in çıkış kriteri. `just verify` + tüm testler + golden + duman.
-Ardından FAZ 5 kapanış turu (LOOP§D, D-79: en fazla iki doğrulama turu).
+**`6.1` — Deck IR + `page.pdf()`** (§7.6). Kapalı `LayoutEnum`, düzleştirilmiş PDF,
+aynı Chromium (R-30). `paginate`/`CharBudget` ve golden altyapısı hazır.
 
-## FAZ 4 kalanı
+## Devreden borçlar
 
-QA ve bağlam girdisi 0/18 — `2.9` blokajı; ölçüm `3.14` koştuğu gün gelir. Bileşen
-testi (DOM altyapısı) FAZ 9'a bırakıldı.
+QA/bağlam girdisi 0/18 (`2.9` blokajı) · bileşen testi FAZ 9'a · V-19 +%30 görsel ölçüm.
 
 ## Bloke adımlar
 

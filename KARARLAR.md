@@ -364,3 +364,39 @@ göstermek olurdu (§11.4).
 **İhlal testi ilk denemede GEÇERSİZDİ:** oranı `1` yapınca `aspect` kullanılmaz oldu ve
 derleme düştü — D-170 uyarınca "derlenmiyorsa test geçersiz". `aspect.usableWidth /
 aspect.usableWidth` ile tekrarlandı: **2 test kırmızı**.
+
+## D-205 — İhlal bataryası: `just verify` artık kapıları GEÇMEKLE kalmıyor, KIRIYOR
+2026-08-16 · `5.10`un 🧪 kriteri "her BLOCKING kuralı kasten ihlal et"ti. Tek seferlik
+bir kabuk komutu yazmak yerine `scripts/ihlal-bataryasi.mjs` yazıldı ve `just verify`e
+bağlandı — FAZ-9.2 "kural uyum turu" da aynı bataryayı çağıracak. Bir kez koşup unutulan
+ihlal testi, koşulmamış ihlal testidir.
+**Batarya üç ayrı şeyi doğruluyor** (D-186 · D-170): ihlal UYGULANDI mı · kod hâlâ
+DERLENİYOR mu (derlenmiyorsa kapı değil derleyici konuşur) · kırmızı DOĞRU kapıdan mı
+geldi. Üçüncüsü için her ihlal bir `imza` taşıyor: kapının GERÇEK mesajından bir parça.
+**Batarya ilk koşuşunda iki bulgu verdi ve ikisi de öğreticiydi:**
+1. `turkish-case` "kırmızı ama başka kuraldan" dedi — **batarya haklıydı, imzam
+   yanlıştı**: kapı adını aramıştım, kapı ise "çıplak `.toUpperCase()`" diyor. İmza
+   kapının adından değil MESAJINDAN alınır.
+2. `turkce-genisleme` **YEŞİL KALDI** — gerçek bir delik. Desen `button` sonrası
+   yalnız `\s , : [ $` kabul ediyordu ve `button.ihlal` gibi **sınıflı her seçici**
+   kuraldan kaçıyordu. Gerçek kodda düğmeler zaten sınıflı yazılıyor; kapı iki tur
+   önce yazılmıştı ve o gün yaptığım ihlal testi tesadüfen `.baslat` sınıf listesinden
+   geçmişti. Terminatör listesine `.` ve `{` eklendi.
+İkinci bulgu bu turun asıl kazancı: **bir kapıyı bir kez kırmızı görmek yetmiyor**;
+ihlali kapının kaçırabileceği bir biçimde de denemek gerekiyor.
+
+## D-206 — FAZ 5 ŞARTLI kapandı: `aac` ses ölçülemedi, tikle örtülmedi
+2026-08-16 · On adımın sekizi tikli, ikisi (`5.4b`, `5.5b`) bilinçli `BLOKE: insan`.
+Çıkış kriterinin üç maddesinden ikisi karşılandı:
+1. *"Gerçek bir demo videosu üretildi"* — üretildi ve `ffprobe` ile ölçüldü:
+   **h264 · yuv420p · 1920×1080 · 6 sn**. *"ve izlendi"* kısmı bir İNSAN eylemidir;
+   sistem onu iddia edemez.
+2. *"`ffprobe` h264/yuv420p/**aac** doğruluyor"* — **aac YOK**: ffprobe tek akış
+   gösteriyor (`codec_type=video`). Ses üretimi `5.4b`ye (TTS ağırlıkları ve
+   anahtarları, V-21) ve `5.5b`ye (ASR, V-22) bağlı; ikisi de insan girdisi bekliyor.
+   Bunu tikle örtmek, FAZ 3 ve FAZ 4'te reddettiğimiz şeyin (D-158 · D-193) tekrarı
+   olurdu.
+3. *"Tam kapsamlı test paketi burada çalıştırıldı"* — çalıştırıldı: **34 kapı · 979
+   test · 3/3 golden · 26 uç duman testi · 5 ihlal kırmızı**.
+**Karar:** FAZ 6'ya geçilir. Kalan iki madde dış bağımlılık — plan hatası değil, planın
+`V-nn` olarak zaten öngördüğü şeyler.
