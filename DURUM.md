@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.17
+siradaki_adim: 5.1
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "4.15 + 4.16 BITTI. Tema yine ayni: kural VAR ama tek yerde degil / akis yok. D-182 donmus plan hic diske yazilmiyordu (18 calistirmanin 0'inda) — rerun sessizce replay olurdu; artik plan.json yaziliyor, plan yoksa rerun MUMKUN DEGIL ve gerekcesi yaziliyor. D-183 dort ekran palette yoktu, ulasilamazdilar — ui-navigasyon kapisi. D-184 kabuk Node 20'ye dusmustu, better-sqlite3 SIGSEGV, 144 test HIC kosmuyordu — node-surum kapisi. D-185 strateji lint kurallari yalniz kapi betiginde yasiyordu; panoya kopyalamak D-160'in tekrari olurdu, kurallar engine'e cikarildi ve KAPI ILE PANO ayni fonksiyonu cagiriyor. D-186 kendi ihlal testim SAYI dogruluyordu, ICERIK degil — yasak terim listesini bosaltinca test yesil kaliyordu. Gercek corpus: 7 kayit, 0 blocking, 1 uyari (aktarim alanlari nesirde). 65 dosya 912 test, 28 kapi yesil."
+son_kanit: "FAZ 4 TAMAM (4.1…4.17). Bu turda 4.15+4.16+4.17. Uc yeni kapi: ui-navigasyon (dort ekran palette yoktu, ULASILAMAZDILAR), node-surum (kabuk Node 20'ye dusmus, better-sqlite3 SIGSEGV, 144 test HIC kosmuyordu), doctor-salt-okur (rapor eder degistirmez — rmSync ve GET->POST ihlalleriyle kirmizi goruldu). Uc kural TEK yere tasindi: donmus plan artik diske yaziliyor (D-182, 18 calistirmanin 0'inda vardi), strateji lint kurallari engine'e (D-185, kapi ile pano ayni fonksiyon), doctor denetimleri engine'e (kabuk ile ekran ayni bulgu). D-186: kendi ihlal testim SAYI dogruluyordu ICERIK degil. Gercek doctor ciktisi: 2 kritik (claude-code fiyat gorumtusu yok, 1 oksuz calistirma) 1 uyari. 66 dosya 918 test, 29 kapi yesil."
 ```
 
 ## Neredeyiz
@@ -67,14 +67,16 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.14** · Asset Library; karantina sayılıyor ama listelenmiyor | 2026-08-16 |
 | **4.15** · Run History; donmuş plan diske yazılıyor, rerun ≠ replay | 2026-08-16 |
 | **4.16** · Strategy Health; kural kapı ile panoda TEK yerde | 2026-08-16 |
+| **4.17** · Doctor; rapor eder, `doctor-salt-okur` kapısı zorluyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.17` — Doctor ekranı** (§13, §12.9). Bir ay ihmalden sonra açılacak İLK ekran:
-sağlayıcı fiyat/şema sürüklenmesi · emekliye ayrılacak modeller · süresi geçmiş kayıtlar ·
-%20 üstü maliyet sapması · indeks/corpus ayrışması. **Rapor yazar, hiçbir şeyi
-değiştirmez.** Hazır: `costVariance`/`butcePanosu`, `stratejiSagligi`, `specAgeDays`,
-`reindexChecked`, `calistirmalar`. Sonra FAZ 4 kapanış turu (LOOP§D, EN FAZLA İKİ tur).
+**ÖNCE FAZ 4 kapanış turu** (LOOP§D · D-79 tavanı: **EN FAZLA İKİ** doğrulama turu).
+`docs/fazlar/FAZ-4.md`in 20 adımının hepsi tikli; bağımsız doğrulama agent'ı
+(`faz-dogrulayici`) her ✅ kriterini repoda arayacak — kabul etme eğiliminde olmadan,
+kanıt arayarak. Çıkan eksikler tur listesine eklenir. Faz kapandıktan sonra `5.1`
+(HyperFrames kurulumu) — ön koşulu `ffmpeg` + `xvfb` (0.A.3'te kuruldu). Makine-okunur
+blok `5.1` diyor çünkü kapanış turu numaralı bir adım DEĞİL, bir protokoldür.
 
 ## Bloke adımlar
 

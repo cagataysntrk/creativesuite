@@ -212,6 +212,15 @@ export {
 } from './saglik/strateji.js'
 
 export {
+  doktorRaporu,
+  doktorMetni,
+  type DoktorAlani,
+  type DoktorBulgusu,
+  type DoktorGirdisi,
+  type DoktorRaporu,
+} from './saglik/doktor.js'
+
+export {
   resolveBody,
   selectBody,
   composeBody,

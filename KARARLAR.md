@@ -385,3 +385,26 @@ MESAJLARINI doğrulayacak biçimde yeniden yazıldı ve ihlal kırmızıya dönd
 derleme geçti ve liste hiç boşalmadı. `assert` vardı ama fazla gevşekti.
 **Ders:** ihlal testinde üç şey ayrı ayrı doğrulanmalı — ihlal UYGULANDI mı, kod
 DERLENİYOR mu, ve iddia ihlal edilen KURALA mı bakıyor.
+
+## D-187 — Doctor'ın denetimleri kabuk betiğindeydi; kapı ile ekran ayrışırdı
+2026-08-16 · `4.17`nin ✅ kriteri açık: *"`just doctor` ile aynı bulguları gösteriyor"*.
+Denetimler `scripts/doctor.sh` içinde bash olarak yaşıyordu — öksüz çalıştırma taraması,
+defter kirliliği, tazelik. Ekranın aynı bulguları göstermesi için ya betiği HTTP'den
+çağırmak ya da kuralları TypeScript'te tekrar yazmak gerekiyordu. İkincisi D-185'in
+tekrarı olurdu.
+Denetimler `packages/engine/src/saglik/doktor.ts`e taşındı; `scripts/doctor.sh` artık
+yalnız kabuğun kendi bağlamını (git özeti, kapı sayısı) basıyor ve gövdeyi modülden
+alıyor. Taşıma sırasında iki denetim KAZANILDI: indeks/corpus ayrışması (kabukta hiç
+yoktu) ve %20 üstü maliyet sapması (`doctor.sh` sonunda *"FAZ-8.4'te eklenecek"*
+yazıyordu — modülde `costVariance` zaten hazırdı).
+**`doctor-salt-okur` kapısı.** "Rapor eder, hiçbir şeyi değiştirmez" bir yorumla
+korunamaz: "düzelt" düğmesi her zaman makul görünür ve tam bu yüzden bir gün eklenir.
+Kapı doctor yolundaki üç dosyada yazma çağrısı ve durum değiştiren uç arıyor. İki farklı
+ihlalle kırmızıya döndürüldü: öksüz çalıştırmayı silen `rmSync`, ve `/api/doktor`un
+POST'a çevrilmesi.
+**Atlanan denetim GİZLENMİYOR.** Sunucu ucu git olgularını toplamıyor (`git-cagiran`
+darboğazı tek dosyaya kilitli), indeks kapalıysa ayrışma ölçülemiyor — rapor bunları
+`atlananDenetimler` altında ADIYLA söylüyor. Boş bırakmak "kontrol edildi, temiz"
+izlenimi verirdi (D-175 ailesinin altıncı uygulaması).
+Gerçek çıktı: **2 kritik** (`claude-code` fiyat anlık görüntüsü yok ama enabled ·
+1 çalıştırmada 2 varlık var manifest yok) **1 uyarı**.

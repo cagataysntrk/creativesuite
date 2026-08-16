@@ -115,6 +115,20 @@ export interface BrowseQuery {
   readonly limit?: number
 }
 
+/**
+ * İndeksteki kayıt sayısı — doctor'ın indeks/corpus ayrışma denetimi için (FAZ-4.17).
+ *
+ * **Neden burada:** `record` tablosuna erişim `retrieval-yuklemi` darboğazına kilitli
+ * (R-01). Doctor'ın kendi `SELECT`ini yazması, sayının nereden geldiğini ikinci bir
+ * dosyaya dağıtmak olurdu — ve o dosya bir gün yüklemi de yazmaya başlar.
+ *
+ * Yükleme TABİ DEĞİLDİR ve olmamalı: ayrışma denetimi indeksin TAMAMINI corpus'un
+ * tamamıyla karşılaştırır; görünürlük filtresi uygulasaydık emekli kayıtlar "eksik"
+ * görünür ve doctor her seferinde sahte bir ayrışma raporlardı.
+ */
+export const recordCount = (db: Db): number =>
+  (db.prepare('SELECT COUNT(*) AS n FROM record').get() as { n: number }).n
+
 export const browseRecords = (db: Db, q: BrowseQuery): readonly BrowseRow[] => {
   const tipKosulu = q.type === undefined || q.type === '' ? '' : ' AND type = :type'
   const durumKosulu = q.status === undefined || q.status === '' ? '' : ' AND status = :status'

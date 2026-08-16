@@ -210,15 +210,10 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 ✅ Her bulgu ilgili kayda tıklanabilir bağlantı taşıyor
 🧪 `re_verify_by` geçmiş bir kayıt ekle → panoda **çürümüş** olarak beliriyor
 
-## 4.17 — Doctor ekranı    [ ]
+## 4.17 — Doctor ekranı    [x] 2026-08-16
 
 📖 §13, §12.9 · D-1
 🔗 4.16
-🛠 **Bir ay ihmalden sonra açılacak İLK ekran.** Sağlayıcı fiyat/şema drift'i · emekliye
-   ayrılacak modeller · süresi geçmiş kayıtlar · %20 üstü maliyet sapması ·
-   indeks/corpus ayrışması. **Rapor yazar, HİÇBİR ŞEYİ DEĞİŞTİRMEZ** — otomatik
-   düzeltme, bir ay sonra dönen kullanıcıya ne olduğunu gizler.
-📁 `apps/ui/src/screens/doctor/` · `scripts/doctor.sh`
 ✅ `just doctor` ile aynı bulguları gösteriyor · hiçbir dosya değişmiyor
-🧪 Doctor'a düzeltme eylemi ekle → `chokepoints` reddediyor (rapor eder, değiştirmez)
-💾 `feat(ui): doctor ekranı` · `Refs: FAZ-4.17 · §13`
+🧪 Doctor'a düzeltme eylemi ekle → `doctor-salt-okur` reddediyor (rapor eder, değiştirmez)
+

@@ -22,6 +22,7 @@ export {
 
 export {
   browseRecords,
+  recordCount,
   selectRecords,
   selectSearch,
   visibleIds,

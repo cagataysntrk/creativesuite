@@ -12,7 +12,6 @@ set -uo pipefail
 # Bu, `'i'.toUpperCase()` → `I` hatasının (R-21) kabuk seviyesindeki kardeşidir.
 export LC_ALL=C
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
-echo "── doctor · $(date +%F) ──"
 echo "git      : $(git log --oneline -1 2>/dev/null || echo yok)"
 echo "temiz mi : $([ -z "$(git status --porcelain)" ] && echo evet || echo HAYIR)"
 
@@ -28,8 +27,6 @@ else
   echo "push     : güncel"
 fi
 echo "kapılar  : $(ls -1 scripts/gates/*.sh scripts/gates/*.mjs 2>/dev/null | wc -l | tr -d ' ') adet"
-echo "aktif faz: $(sed -n 's/^aktif_faz: *//p' DURUM.md 2>/dev/null | head -1 || echo '?')"
-echo "sıradaki : $(sed -n 's/^siradaki_adim: *//p' DURUM.md 2>/dev/null | head -1 || echo '?')"
 
 # ⚠ Bloke sayısı `bloke: ["2.9", "3.2"]` satırından okunur. İlk sürüm `^  - adim:`
 # arıyordu — DURUM.md'nin HİÇ sahip olmadığı bir biçim. Yani doctor her zaman "bloke: 0"
@@ -45,34 +42,10 @@ else
   echo "bloke    : $n  ($(echo "$bloke_temiz" | tr -s ' '))"
 fi
 
-# Commit'lenmemiş çalıştırma defteri: `derived/runs` türetilemez (R-52) ve
-# commit'lenmeden duran bir çalıştırma, bir `git clean` uzaklıkta kaybolur.
-kayit_disi="$(git status --porcelain derived/runs 2>/dev/null | wc -l | tr -d ' ')"
-[ "$kayit_disi" -gt 0 ] && echo "⚠ defter   : $kayit_disi commit'lenmemiş çalıştırma girdisi (R-52: silinmez, yedeklenir)"
-
-# ── ÖKSÜZ çalıştırma: varlık var, manifest YOK ──────────────────────────────
-# "Manifest'siz çıktı bir hatadır" (§13). `writeManifest` kusurlu bir manifesti
-# YAZMAZ — doğru davranış — ama üretilmiş slaytlar diskte öksüz kalır: defterde
-# izi olmayan bir varlık, kimin ürettiği ve neye mal olduğu bilinmeyen bir varlıktır.
-# Doctor RAPOR EDER, silmez: `derived/runs` silinmez (R-52) ve otomatik temizlik,
-# bir ay sonra dönen kullanıcıya ne olduğunu gizler.
-oksuz=0
-oksuz_liste=""
-for d in derived/runs/*/; do
-  [ -d "$d" ] || continue
-  if [ ! -f "$d/manifest.json" ]; then
-    n=$(find "$d" -name '*.png' -o -name '*.jpg' 2>/dev/null | wc -l | tr -d ' ')
-    if [ "$n" -gt 0 ]; then
-      oksuz=$((oksuz + 1))
-      oksuz_liste="$oksuz_liste $(basename "$d")($n)"
-    fi
-  fi
-done
-[ "$oksuz" -gt 0 ] && echo "⚠ öksüz    : $oksuz çalıştırmada varlık VAR manifest YOK —$oksuz_liste"
-
-echo
-echo "── tazelik (§8.7 · §9.1) ──"
-node scripts/tazelik.mjs 2>/dev/null || echo "  (tazelik raporu üretilemedi — 'just check' çalıştır)"
-
-echo
-echo "(kayıt tazeliği ve %20 maliyet sapması FAZ-8.4'te eklenecek)"
+# ── denetimlerin TAMAMI `scripts/doktor.mjs` içindeki modülden gelir (FAZ-4.17) ──
+#
+# Bu betikte eskiden öksüz çalıştırma, defter kirliliği ve tazelik denetimleri de vardı.
+# Doctor EKRANI aynı bulguları göstermek zorunda (adımın ✅ kriteri) ve kuralları iki
+# yerde tutmak D-185'in tekrarı olurdu: kabuk "temiz" derken ekran "kırık" der.
+# Burada kalan tek şey, kabuğun kendi bağlamı — repo ve döngü durumu.
+node scripts/doktor.mjs

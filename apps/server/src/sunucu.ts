@@ -25,7 +25,7 @@ import {
 } from '@suite/corpus'
 import { RUNS_DIR, fileHistory, runDir } from '@suite/kernel'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
-import { COLUMN_LABELS, byColumn, readManifest } from '@suite/engine'
+import { COLUMN_LABELS, byColumn, doktorRaporu, readManifest } from '@suite/engine'
 import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
@@ -38,7 +38,7 @@ import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 import { calistirmaDetayi, calistirmalar } from './gecmis.js'
-import { stratejiPanosu } from './strateji-uc.js'
+import { aktifEra, stratejiPanosu } from './strateji-uc.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -159,6 +159,25 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // yayınlanmamış" bir SORU, bir sorgu parametresi değil — operatör onu açıp kapatarak
   // karşılaştırma yapar. Sunucuda filtrelemek, toplam harcamayı da filtrelerdi.
   app.get('/api/varliklar', (c) => c.json(kutuphane(o.repoRoot)))
+
+  // ── doctor: bir ay ihmalden sonra açılacak İLK ekran (§13, §16 · FAZ-4.17) ─
+  //
+  // `just doctor` ile AYNI fonksiyonu çağırır. Rapor eder, hiçbir şeyi değiştirmez —
+  // uç GET ve gövdesiz; POST olsaydı "düzelt" düğmesi bir gün eklenirdi.
+  app.get('/api/doktor', (c) => {
+    const era = aktifEra(o.repoRoot, o.query.brandId)
+    return c.json(
+      doktorRaporu({
+        repoRoot: o.repoRoot,
+        bugun: o.simdi().slice(0, 10),
+        aktifEra: era,
+        db,
+        // Git olguları sunucuda toplanmıyor: `git-cagiran` darboğazı tek dosyaya kilitli
+        // ve bu uç alt süreç başlatmamalı. Denetim ATLANIR ve rapor bunu SÖYLER.
+        git: null,
+      })
+    )
+  })
 
   // ── strateji sağlığı: aktif dönemin lint panosu (§11, §12.9 · FAZ-4.16) ──
   //

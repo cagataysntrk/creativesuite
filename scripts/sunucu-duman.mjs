@@ -76,6 +76,17 @@ try {
   const reuseYok = await fetch(`${U}/api/varliklar/run_olmayan/yeniden-kullan`)
   bekle(reuseYok.status === 404, `manifetsiz Reuse ${reuseYok.status} döndü, 404 olmalı`)
 
+  // FAZ-4.17: doctor — RAPOR EDER, HİÇBİR ŞEYİ DEĞİŞTİRMEZ.
+  const dk = await (await fetch(`${U}/api/doktor`)).json()
+  bekle(Array.isArray(dk.bulgular), '/api/doktor bulgu listesi dönmüyor')
+  // Atlanan denetim gizlenmez: "kontrol edilmedi" ile "sağlam" ayrı sonuçlardır.
+  bekle(Array.isArray(dk.kosanDenetimler), 'koşan denetimler bildirilmiyor')
+  bekle(Array.isArray(dk.atlananDenetimler), 'atlanan denetimler bildirilmiyor')
+  bekle(dk.kosanDenetimler.length > 0, 'hiçbir denetim koşmadı — rapor boş')
+  // POST kabul EDİLMEMELİ: durum değiştiren bir doctor ucu, doctor değildir.
+  const dkPost = await fetch(`${U}/api/doktor`, { method: 'POST' })
+  bekle(dkPost.status === 404 || dkPost.status === 405, `/api/doktor POST ${dkPost.status} döndü`)
+
   // FAZ-4.16: strateji sağlığı — kapı ile pano AYNI kuralları çağırıyor.
   const sg = await fetch(`${U}/api/strateji-sagligi`)
   const sgj = await sg.json()
@@ -309,5 +320,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 23 uç · geçmiş · sağlık · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
+  `    sunucu ayağa kalktı · 24 uç · geçmiş · sağlık · doctor · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
 )
