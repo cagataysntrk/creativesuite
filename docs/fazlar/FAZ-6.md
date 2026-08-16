@@ -61,7 +61,7 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    ⚠ **Silme DOSYAYI silmiyor** (D-212): kişisel alanlar silinir, kişisel veri taşımayan
    bir mezar taşı kalır. Düz dosya silme hem köken zincirini koparır hem de silmenin
    yapıldığına dair kanıtı yok eder — KVKK'da gösteremediğin şey yapılmamıştır.
-📁 `corpus/prospect/` · `registry/entity-types/prospect.type.yaml`
+📁 corpus/prospect dizini (henüz kayıt yok — V-25) · `registry/entity-types/prospect.type.yaml`
 ✅ Prospect kaydı zarf alanlarının hepsini taşıyor · `just gate registry` yeşil
 🧪 Üç ihlal: corpus paketine dosya silme çağrısı ekle → `corpus-silici` reddediyor ·
    gerekçesiz `kvkkErasure` çağır → reddediyor · aydınlatmasız kişisel veri taşıyan

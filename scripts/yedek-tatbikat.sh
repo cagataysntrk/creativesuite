@@ -65,11 +65,32 @@ fi
 echo ""
 echo "── klonda kurulum ve doğrulama ──"
 cd "$HEDEF/repo" || exit 1
+# ⚠ Tatbikat, RUNBOOK'un kendisini izlemek zorunda. İlk sürüm yalnız `pnpm install`
+# + `just check` koşuyordu ve iki adımı atlıyordu; sonuç kırmızıydı ama sebebi
+# "kurtarma bozuk" değil "tatbikat eksik"ti. **Kendi prosedürünü izlemeyen bir
+# tatbikat, prosedürü değil kendini sınar.**
 if ! pnpm install --frozen-lockfile --silent >/dev/null 2>&1; then
   echo "✗ pnpm install BAŞARISIZ — klon kendi kendine ayakta duramıyor"
   exit 1
 fi
 echo "✓ bağımlılıklar kuruldu"
+
+# `just setup` git kancalarını kurar. **Temiz bir klonda kancalar YOKTUR** ve bu
+# sessiz bir boşluktur: commit kapıları devre dışıyken yapılan bir commit, kuralları
+# hiç görmeden geçer. Kurtarma sonrası ilk iş bu.
+if ! just setup >/dev/null 2>&1; then
+  echo "✗ just setup BAŞARISIZ — git kancaları kurulamadı, commit kapıları DEVRE DIŞI"
+  exit 1
+fi
+echo "✓ kancalar kuruldu (commit kapıları aktif)"
+
+# `derived/index` gitignore'lu ve clone ile GELMEZ — gelmemesi de doğru (11. yasa).
+# Ama gelmediği için yeniden kurulmalı; kurulmazsa bağlam çözümü çalışmaz.
+if ! just reindex >/dev/null 2>&1; then
+  echo "✗ just reindex BAŞARISIZ — türetilmiş indeks kurulamıyor (11. yasa çürür)"
+  exit 1
+fi
+echo "✓ indeks sıfırdan kuruldu"
 
 if just check >/dev/null 2>&1; then
   echo "✓ just check YEŞİL — klon kendi kendine doğrulanıyor"
