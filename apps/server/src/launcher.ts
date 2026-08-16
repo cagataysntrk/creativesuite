@@ -8,7 +8,6 @@
 // üst ucunda gelen faturayı "hata" gibi hissettirir; oysa aralık zaten onu söylüyordu.
 
 import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
 import {
   freezePlan,
   launchBlocks,
@@ -20,7 +19,7 @@ import {
   type StaleCheck,
 } from '@suite/engine'
 import { loadPipeline, listPipelines } from '@suite/registry'
-import { loadDescriptors, type ProviderDescriptor } from '@suite/providers'
+import { descriptorDigests, loadDescriptors, type ProviderDescriptor } from '@suite/providers'
 import type { BrandId, EraId, Money, RunId } from '@suite/contracts'
 
 export interface LauncherGirdisi {
@@ -89,8 +88,8 @@ export const launcherPlani = (g: LauncherGirdisi): LauncherSonuc => {
     registryCommit: g.registryCommit,
     frozenAt: g.frozenAt,
     recordIds: g.recordIds,
-    descriptorDigests: tanimlayiciOzetleri(
-      g.repoRoot,
+    descriptorDigests: descriptorDigests(
+      join(g.repoRoot, 'registry/providers'),
       aktif.map((d: ProviderDescriptor) => d.id)
     ),
   })
@@ -123,38 +122,10 @@ export const dunyaDurumu = (
   return {
     corpusCommit,
     registryCommit,
-    descriptorDigests: tanimlayiciOzetleri(
-      repoRoot,
+    descriptorDigests: descriptorDigests(
+      join(repoRoot, 'registry/providers'),
       descriptors.map((d: ProviderDescriptor) => d.id)
     ),
     availableProviders: new Set(aktif.map((d: ProviderDescriptor) => d.id)),
   }
-}
-
-/**
- * Tanımlayıcı dosyalarının özeti — **içerikten**, sürüm alanından değil.
- *
- * Sürüm numarasına güvenmek, sürümü artırmadan dosyayı düzenleyen herkesi görünmez
- * yapardı; ve tam o düzenleme (bir fiyatın değişmesi) donmuş planı geçersiz kılan şey.
- */
-export const tanimlayiciOzetleri = (
-  repoRoot: string,
-  ids: readonly string[]
-): Readonly<Record<string, string>> => {
-  const out: Record<string, string> = {}
-  for (const id of ids) {
-    try {
-      const metin = readFileSync(join(repoRoot, `registry/providers/${id}.provider.yaml`), 'utf8')
-      // Basit ama yeterli: içerik değişirse özet değişir. Kriptografik güç gerekmiyor —
-      // bu bir bütünlük kontrolü değil, bir DEĞİŞİKLİK tespiti.
-      let h = 5381
-      for (let i = 0; i < metin.length; i++) h = ((h * 33) ^ metin.charCodeAt(i)) >>> 0
-      out[id] = `d${h.toString(16)}`
-    } catch {
-      // Dosyası okunamayan tanımlayıcı özetsiz kalır: `planStale` onu "değişti" diye
-      // raporlamaz (özet yoksa karşılaştırma da yok) ama `provider_unavailable`
-      // yakalar — sessiz kalan bir yol bırakmıyoruz.
-    }
-  }
-  return out
 }

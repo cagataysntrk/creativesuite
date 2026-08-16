@@ -193,3 +193,34 @@ export const loadDescriptors = (
   }
   return { descriptors, failures }
 }
+
+/**
+ * Tanımlayıcı dosyalarının özeti — **içerikten**, sürüm alanından değil (FAZ-4.6b).
+ *
+ * Sürüm numarasına güvenmek, sürümü artırmadan dosyayı düzenleyen herkesi görünmez
+ * yapardı; ve tam o düzenleme (bir fiyatın değişmesi) donmuş planı geçersiz kılan şey.
+ *
+ * **Neden burada:** hem komuta merkezi (`launcherPlani`) hem üretim CLI'ı (`just uret`)
+ * aynı özeti hesaplamak zorunda. İkisi ayrı hesaplasaydı `planStale` bir yüzeyde
+ * "değişti" diğerinde "değişmedi" derdi — aynı dosya için iki gerçek.
+ */
+export const descriptorDigests = (
+  providersDir: string,
+  ids: readonly string[]
+): Readonly<Record<string, string>> => {
+  const out: Record<string, string> = {}
+  for (const id of ids) {
+    try {
+      const metin = readFileSync(join(providersDir, `${id}.provider.yaml`), 'utf8')
+      // Basit ama yeterli: içerik değişirse özet değişir. Kriptografik güç gerekmiyor —
+      // bu bir bütünlük kontrolü değil, bir DEĞİŞİKLİK tespiti.
+      let h = 5381
+      for (let i = 0; i < metin.length; i++) h = ((h * 33) ^ metin.charCodeAt(i)) >>> 0
+      out[id] = `d${h.toString(16)}`
+    } catch {
+      // Okunamayan tanımlayıcı özetsiz kalır: `planStale` onu "değişti" diye raporlamaz
+      // (özet yoksa karşılaştırma da yok) ama `provider_unavailable` yakalar.
+    }
+  }
+  return out
+}

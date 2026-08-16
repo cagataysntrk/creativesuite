@@ -27,6 +27,7 @@ export {
   type DescriptorError,
   type DescriptorResult,
   type ProviderDescriptor,
+  descriptorDigests,
 } from './descriptor.js'
 export {
   importOpenApi,

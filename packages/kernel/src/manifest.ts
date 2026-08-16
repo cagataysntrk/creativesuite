@@ -264,12 +264,22 @@ export const RUNS_DIR = 'derived/runs'
 export const runDir = (runId: string): string => `${RUNS_DIR}/${runId}`
 export const manifestPath = (runId: string): string => `${runDir(runId)}/manifest.json`
 /**
- * Donmuş plan (§8.3 · R-07). Manifest "ne oldu"yu, plan "neye onay verildi"yi tutar.
+ * **Keşif** planı (§4.4) — `suite discovery plan` çıktısı, beş sütunlu inceleme ekranı.
  *
- * İkisi AYRI dosya çünkü ayrı sorulara cevap veriyorlar ve biri diğerinden türetilemez:
- * manifest gerçekleşen adımları yazar, plan ise onay anındaki KARARI — hangi sağlayıcı,
- * hangi parametre, hangi seed, hangi kayıt kümesi. `rerun` kararı tekrarlayabilmek için
- * bu dosyayı okur; dosya yoksa rerun **yapılamaz** ve bu söylenir (FAZ-4.15).
+ * Tarihsel ad `plan.json` ve öyle kalıyor: `just discovery plan --kaydet` bu adı yazıyor.
  */
-export const planPath = (runId: string): string => `${runDir(runId)}/plan.json`
+export const discoveryPlanPath = (runId: string): string => `${runDir(runId)}/plan.json`
+
+/**
+ * **Donmuş** plan (§8.3 · R-07) — onay anındaki KARAR: hangi sağlayıcı, hangi parametre,
+ * hangi seed, hangi kayıt kümesi. `rerun` bunu okur.
+ *
+ * ⚠ Adı `plan.json` DEĞİL. İkisi de aynı çalıştırma dizininde yaşıyor ve şemaları
+ * uyumsuz: keşif planı `{ops, halted}`, donmuş plan `{steps, digest, recordIds}`.
+ * Aynı adı taşısalardı bir keşif planı `readFrozenPlan`ten geçer, `donmusPlanVar: true`
+ * olur ve Run History ekranı keşif planı için "rerun mümkün" derdi (2026-08-16 denetimi).
+ * Ayrı ad + `readFrozenPlan`teki şekil doğrulaması, iki katmanlı savunma.
+ */
+export const frozenPlanPath = (runId: string): string => `${runDir(runId)}/donmus-plan.json`
+
 export const publishedLedgerPath = (): string => `${RUNS_DIR}/published.ndjson`

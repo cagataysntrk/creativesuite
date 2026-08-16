@@ -22,7 +22,7 @@ import {
   inspectManifest,
   isPublishable,
   manifestPath,
-  planPath,
+  frozenPlanPath,
   runDir,
   type ManifestDefect,
   type RunManifest,
@@ -119,7 +119,7 @@ export const writeFrozenPlan = (
   repoRoot: string,
   plan: FrozenPlan
 ): { readonly ok: true; readonly path: string } => {
-  const rel = planPath(plan.runId)
+  const rel = frozenPlanPath(plan.runId)
   const mutlak = join(repoRoot, rel)
   mkdirSync(dirname(mutlak), { recursive: true })
   writeFileSync(mutlak, `${JSON.stringify(plan, bigintDizeye, 2)}\n`)
@@ -128,10 +128,18 @@ export const writeFrozenPlan = (
 
 /** `null` = donmuş plan YOK. "Boş plan" değil — rerun'un mümkün olmadığı anlamına gelir. */
 export const readFrozenPlan = (repoRoot: string, runId: RunId): FrozenPlan | null => {
-  const mutlak = join(repoRoot, planPath(runId))
+  const mutlak = join(repoRoot, frozenPlanPath(runId))
   if (!existsSync(mutlak)) return null
   try {
-    return JSON.parse(readFileSync(mutlak, 'utf8'), dizeBiginte) as FrozenPlan
+    const d = JSON.parse(readFileSync(mutlak, 'utf8'), dizeBiginte) as Partial<FrozenPlan>
+    // **Şekil DOĞRULANIR, körlemesine cast edilmez.** Aynı dizinde bir de keşif planı
+    // yaşıyor (`plan.json`, `{ops, halted}`); adları ayrıldı ama bir gün biri yanlış
+    // dosyayı buraya kopyalarsa `donmusPlanVar: true` olur ve Run History ekranı bir
+    // keşif planı için "rerun mümkün" der. İki katmanlı savunma: ayrı ad + bu kontrol.
+    if (typeof d.digest !== 'string' || !Array.isArray(d.steps) || !Array.isArray(d.recordIds)) {
+      return null
+    }
+    return d as FrozenPlan
   } catch {
     return null
   }

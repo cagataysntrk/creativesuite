@@ -382,7 +382,48 @@ mkdirSync(dirname(ledgerYolu), { recursive: true })
 const db = openDb({ path: ledgerYolu })
 initLedger(db)
 
+// ── planı DONDUR ve motora ver (§8.3 · R-07 · D-182) ────────────────────────
+//
+// **Bu blok olmadan `rerun` diye bir şey yoktu.** `writeFrozenPlan` yazılmış, `runPipeline`
+// onu çağırıyordu — ama üretim yolu `frozen` alanını hiç geçmiyordu ve disk 18
+// çalıştırmanın 18'inde plansızdı. Kod vardı, çağıran yoktu (D-173 sınıfı, D-182'de
+// yarım kapatılmıştı ve 2026-08-16 denetimi yakaladı).
+//
+// Dondurma HİÇBİR ŞEY HARCAMAZ: `plan()` kuru ikizleri çağırır (R-47).
+const { plan: planKur, freezePlan } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const { descriptorDigests } = await import(join(REPO, 'packages/providers/dist/index.js'))
+
+const planSonuc = planKur({
+  pipeline: cozum.value,
+  runId,
+  brandId: MARKA,
+  eraId: AKTIF_DONEM,
+  env: { PATH: readEnv('PATH') ?? '' },
+  pricing,
+})
+if (!planSonuc.ok) {
+  // **Dondurulamayan plan çalıştırılmaz.** Donmuş plan olmadan üretilen bir varlık
+  // denetlenemez: hangi karara onay verildiği hiçbir yerde yazmaz (§13). Sessizce
+  // devam etmek, `rerun` düğmesinin bir daha asla çalışmaması demekti.
+  console.log(`✗ plan dondurulamadı: ${planSonuc.errors.map((e) => e.kind).join(', ')}`)
+  process.exit(1)
+}
+const donmusPlan = freezePlan({
+  report: planSonuc.report,
+  runId,
+  corpusCommit: oncekiManifest?.corpusCommit ?? bilgiSha,
+  registryCommit: oncekiManifest?.registryCommit ?? bilgiSha,
+  frozenAt: clock.nowIso(),
+  // Bağlama giren kayıtlar da donar: seçim yeniden sorgulanmaz (R-07).
+  recordIds: bagamManifesti.map((e) => e.recordId),
+  descriptorDigests: descriptorDigests(
+    join(REPO, 'registry/providers'),
+    descriptors.map((d) => d.id)
+  ),
+})
+
 const rapor = await runPipeline({
+  frozen: donmusPlan,
   repoRoot: REPO,
   pipeline: cozum.value,
   runId,

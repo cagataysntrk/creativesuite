@@ -23,7 +23,7 @@ import {
   retireRecord,
   type SelectQuery,
 } from '@suite/corpus'
-import { RUNS_DIR, fileHistory, runDir } from '@suite/kernel'
+import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
 import { COLUMN_LABELS, byColumn, doktorRaporu, readManifest } from '@suite/engine'
 import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
@@ -344,7 +344,9 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // Yol düz dize DEĞİL: `runDir` tek otoritedir (chokepoints → `manifest-yazici`).
     // İkinci bir literal, defterin yeri değiştiğinde ekranın olmayan bir dosyayı
     // aramasıydı — ve "plan yok" ile "plan başka yerde" ayırt edilemezdi.
-    const yol = join(o.repoRoot, runDir(c.req.query('run') ?? ''), 'plan.json')
+    // Dosya adı da kernel'den: `'plan.json'` literali burada ikinci bir otoriteydi
+    // ve donmuş planla aynı adı taşıyordu (2026-08-16 denetimi).
+    const yol = join(o.repoRoot, discoveryPlanPath(c.req.query('run') ?? ''))
     if (!existsSync(yol)) {
       // Boş plan DÖNMÜYORUZ: boş bir dört sütun "değişiklik yok" okunur, oysa plan
       // hiç koşmamış olabilir — ikisi zıt sonuçlar (§4.4).

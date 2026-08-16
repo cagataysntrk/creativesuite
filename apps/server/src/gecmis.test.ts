@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { RUNS_DIR, manifestPath, planPath } from '@suite/kernel'
+import { RUNS_DIR, frozenPlanPath, manifestPath } from '@suite/kernel'
 import type { StaleCheck } from '@suite/engine'
 import { belirsizAdimlar, calistirmaDetayi, calistirmalar } from './gecmis.js'
 
@@ -122,7 +122,7 @@ const kur = (o: {
   }
   for (const p of o.planlar ?? []) {
     mkdirSync(join(kok, RUNS_DIR, p.runId), { recursive: true })
-    writeFileSync(join(kok, planPath(p.runId)), JSON.stringify(p))
+    writeFileSync(join(kok, frozenPlanPath(p.runId)), JSON.stringify(p))
   }
   return kok
 }
