@@ -200,3 +200,16 @@ export {
   type TazelikRaporu,
   type TazelikSonucu,
 } from './freshness.js'
+
+// Beş alanlık kişiselleştirme tavanı (FAZ-6.7 · R-36). Sayının kaynağı KURALLAR.md;
+// `kisisellestirme` kapısı sabitin oradaki değerle eşleştiğini doğruluyor (D-214).
+// Kernel'de, çünkü `inspectManifest` onu çağırıyor — kural yayın yükleminin İÇİNDE.
+export {
+  KISISELLESTIRME_TAVANI,
+  tavanKapisi,
+  tavanaIndir,
+  type Guven,
+  type KisiselAlan,
+  type TavanIhlali,
+  type TavanSonucu,
+} from './personalization.js'

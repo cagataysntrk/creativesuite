@@ -6,18 +6,18 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 6
-siradaki_adim: 6.7
+siradaki_adim: 6.8
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "6.6 KAPANDI. 14 gunluk tazelik kapisi YAYIN YUKLEMINE BAGLI — asil sinav buydu: fonksiyonun dogru cevap vermesi yetmez, cagiran olmasi gerekir (D-182 dersi). inspectManifest artik stale_source kusuru uretiyor ve isPublishable 15 gunluk kaynakta false donuyor. Karsilastirma SAAT OKUMADAN yapiliyor: olcu calistirmanin kendi createdAt i, yani replay yillar sonra da ayni cevabi veriyor. Gelecek tarihli kaynak da reddediliyor — saati bozuk bir makineden gelen sidecar her zaman taze bir kaynak yaratirdi. FIKSTUR DERSI TEKRARLANDI: ilk bagllanma testim kisa SHA ve maliyetsiz metered adim tasiyordu, iki alakasiz kusur uretti ve test bagllanmadi dedi — oysa bagllanmisti; yanlis fikstur yanlis teshis. ONCEKI: 6.5 KAPANDI. INGEST TARAYICI ACMIYOR (D-213): plan yerel Playwright diyordu ama R-04 yalniz RENDER Chromium a dokunur diyor — ve asil gerekce guvenlik: tarayici acmak prospect sitesinin JavaScript ini CALISTIRMAK demek, §14 sinirinin altini oyan tam olarak bu. Tek HTTP istemcisi + 20 satirlik HTML-metin donusturucu. DISKTE KANIT (yerel sunucuya gercek cekim): derived/ingest/<domain>/ altina metin + provenance sidecar yazildi, script/style sizmadi, sidecar metinle eslesti, enjeksiyon cumlesi UNTRUSTED sinirinin ICINDE veri olarak durdu, LinkedIn profili AGA CIKMADAN reddedildi. Selale 1 hazir 4 BLOKE gosterdi — sessizce atlamiyor. BATARYA GERCEK BULGU VERDI: kendi slugFor um ciplak toLowerCase cagiriyordu (R-21); URL de Turkce yok diye zararsiz gorunuyordu, oysa kuralin degeri istisna yok tan geliyor. Batarya artik 10 kural kiriyor. ONCEKI: 6.4 KAPANDI. Prospect ayri bir CRM DEGIL, corpus kaydi. KVKK silmesi DOSYAYI SILMIYOR (D-212): kisisel alanlar siliniyor, kisisel veri tasimayan mezar tasi kaliyor — cunku duz silme hem koken zincirini koparir hem de silmenin YAPILDIGINA dair kaniti yok eder; KVKK da gosteremedigin sey yapilmamistir. Test ikisini karsi karsiya koyuyor: retireRecord sonrasi kisisel veri DURUYOR, kvkkErasure sonrasi YOK. Uc yeni kapi/kural kasten ihlal edildi: corpus-silici (izinli BOS), gerekcesiz silme reddi, prospect-kvkk aydinlatma. Batarya artik 9 kural kiriyor. SAHTE PROSPECT YAZILMADI — uydurulmus sirket dogruluk kaynagina giren kurgudur; kaydin SEKLI testte dogrulandi, gercek kayitlar insan girdisiyle gelir. ONCEKI: 6.3 KAPANDI. Duzlestirme IKINCI ARAC GEREKTIRMEDI (D-211): ghostscript/qpdf yerine her sayfa ayni Chromium da JPEG e cevriliyor, goruntuler yine ayni Chromium da tek PDF e basiliyor; kalite merdiveni 92-82-72-62 tavanin altina inene kadar. OLCULDU, karsitlik net: deck te pdftotext Turkce metni TAM veriyor + pdfimages SIFIR satir; dokumanda pdftotext BOS + pdfimages iki 1200x1500 JPEG. 11 sayfa RENDER EDILMEDEN reddedildi. IR anlik goruntu testi gecti: kaynak 4,2 den 9,9 a degistirildi, dokuman yeniden acildi, ESKI deger duruyor — IR corpus a referans degil DEGER tasiyor. ONCEKI TUR 6.2: ECharts SSR olculup reddedildi (D-209), Turkce etiketlerde +%12,6 ile +%83,4 sapma. Sayfa tavani 10 ve 5 MB BIZIM editoryal kararimiz, platform sinirini dogrulamadim → V-23 (FAZ-7.3). 34 kapi, 8 hat."
+son_kanit: "6.7 KAPANDI ve KARARLAR.md ARSIVLENDI (591 → 306; FAZ 4-5 in 14 karari docs/kararlar/ARSIV-2026.md e devredildi, citations yesil). Tavan sayisi KODA YAZILMIYOR, KURALLAR.md R-36 dan OKUNUYOR (D-214): kisisellestirme kapisi iki degeri karsilastiriyor, ayrisirlarsa kirmizi. Yani tavani degistirmenin tek yolu once kural kitabidir (R-74). Iki ihlal bicimi de kirmizi dondu: sabiti 6 yap (AYRISMIS) · ikinci bir tanim ekle (tum kaynak taraniyor, sabit dosya listesi DEGIL — ilk surumum uc dosya adi sayiyordu ve biri ayni turda tasininca kapi ENOENT ile coktu). Kural once KURALLAR.md e yazildi ve AYRI docs(docs) commit i aldi (R-76). Kapi yayin yuklemine BAGLI: isPublishable alti alanda false. Siralama gerekceli — kaniti guclu olan kaliyor, zayif kanit gucluyu eleyemiyor. Batarya 11 kural kiriyor. ONCEKI: 6.6 KAPANDI. 14 gunluk tazelik kapisi YAYIN YUKLEMINE BAGLI — asil sinav buydu: fonksiyonun dogru cevap vermesi yetmez, cagiran olmasi gerekir (D-182 dersi). inspectManifest artik stale_source kusuru uretiyor ve isPublishable 15 gunluk kaynakta false donuyor. Karsilastirma SAAT OKUMADAN yapiliyor: olcu calistirmanin kendi createdAt i, yani replay yillar sonra da ayni cevabi veriyor. Gelecek tarihli kaynak da reddediliyor — saati bozuk bir makineden gelen sidecar her zaman taze bir kaynak yaratirdi. FIKSTUR DERSI TEKRARLANDI: ilk bagllanma testim kisa SHA ve maliyetsiz metered adim tasiyordu, iki alakasiz kusur uretti ve test bagllanmadi dedi — oysa bagllanmisti; yanlis fikstur yanlis teshis. Oncesi icin git log ve docs/fazlar/FAZ-6.md."
 ```
 
 ## Neredeyiz
 
-**FAZ 6'DA 6/10 ADIM KAPALI** — deck PDF, grafik/diyagram, LinkedIn dökümanı, prospect
+**FAZ 6'DA 7/10 ADIM KAPALI** — deck PDF, grafik/diyagram, LinkedIn dökümanı, prospect
 kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses akışı yok,
-`5.4b`/`5.5b` blokajı, tikle örtülmedi). **35 kapı · 10 ihlal kırmızı.**
+`5.4b`/`5.5b` blokajı, tikle örtülmedi). **36 kapı · 11 ihlal kırmızı.**
 
 > **Çıkış kriterinin bir maddesi karşılanmadı ve tikle ÖRTÜLMEDİ** (D-206):
 > `ffprobe` **aac** doğrulayamıyor — ses akışı yok, çünkü TTS (`5.4b`, V-21) ve ASR
@@ -57,14 +57,16 @@ kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses ak
 | **6.4** · Prospect = corpus; KVKK silmesi mezar taşı bırakıyor (D-212) | 2026-08-16 |
 | **6.5** · `INGEST` şelalesi; tarayıcı yok, karantina + sidecar (D-213) | 2026-08-16 |
 | **6.6** · 14 günlük tazelik; `isPublishable` bayat kaynağı bloklıyor | 2026-08-16 |
+| **6.7** · Kişiselleştirme tavanı; sayı `KURALLAR.md`'den okunuyor (D-214) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`6.7` — Beş alanlık kişiselleştirme tavanı** (§10, §11.4). Bir deck'te en fazla **beş**
-prospect'e özgü alan. Türk B2B'sinde fazlası iltifat değil **şüphe** uyandırıyor:
-"bunları nereden biliyorsun" sorusu, satış görüşmesini veri kaynağı savunmasına çeviriyor.
-Tavan yapısaldır, öneri değil. 🧪 tavanı 6'ya çıkarmayı dene → `KURALLAR.md` değişmeden
-kod değişmemeli (R-74).
+**`6.8` — Gerçek ürün ekran görüntüleri** (§10, §11.4 · R-32, R-33 · FAZ-5.6'ya bağlı).
+Ürün ekran görüntüleri **gerçek Playwright çekimi**, asla üretilmiş. Adı geçen bir
+prospect'e giden deck'te uydurma bir dashboard **olgusal bir iddiadır**: ürünün
+yapmadığı bir şeyi yaptığını söyler ve ilk demoda çöker. ✅ deck'teki her görüntü
+`source_run_id` taşıyıp gerçek bir çekime bağlanmalı. 🧪 üretilmiş bir görseli ürün
+ekranı olarak koy → uyum kapısı reddetmeli.
 
 ## Devreden borçlar
 

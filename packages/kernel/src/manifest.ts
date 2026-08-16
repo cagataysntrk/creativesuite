@@ -12,6 +12,7 @@
 // üretilemez, çünkü hangi sağlayıcıya ne gönderildiği başka hiçbir yerde yazmıyor.
 
 import { tazeMi } from './freshness.js'
+import { KISISELLESTIRME_TAVANI } from './personalization.js'
 import type { BrandId, EraId, Money, MoneyRange, RunId, StepId, VerbName } from '@suite/contracts'
 import { ZERO_USD, addMoney } from '@suite/contracts'
 import type { Timestamp } from '@suite/contracts'
@@ -158,6 +159,14 @@ export type ManifestDefect =
       readonly sourceRef: string
       readonly ageDays: number | null
     }
+  /**
+   * Kişiselleştirme tavanı aşılmış (§10 · R-36 · FAZ-6.7).
+   *
+   * Kapı burada, çünkü `PUBLISH` yüklemi son savunma hattıdır: tavanı `COMPOSE`da
+   * kontrol edip burada kontrol etmemek, elle düzenlenmiş bir IR'ın tavanı aşmasına
+   * izin verirdi.
+   */
+  | { readonly kind: 'personalization_cap'; readonly stepId: string; readonly count: number }
 
 /** Ağ/model çağıran fiiller — bunların maliyeti yazılmadan çalıştırma kapanamaz (§8.3). */
 const METERED: ReadonlySet<VerbName> = new Set<VerbName>([
@@ -270,6 +279,19 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
     const t = tazeMi({ sourceRef, fetchedAt }, m.createdAt)
     if (!t.taze) {
       defects.push({ kind: 'stale_source', stepId: s.stepId, sourceRef, ageDays: t.yasGun })
+    }
+  }
+
+  // ── kişiselleştirme tavanı (§10 · R-36 · FAZ-6.7) ─────────────────────────
+  // Tetikleyici yine ÜRÜN: çıktısında `personalizationFields` taşıyan adım
+  // kişiselleştirme yapmıştır. Fazlası iltifat değil şüphe uyandırır.
+  for (const s of steps) {
+    const cikti = s.output
+    if (cikti === null || cikti === undefined || !('personalizationFields' in cikti)) continue
+    const alanlar = (cikti as { personalizationFields?: unknown }).personalizationFields
+    if (!Array.isArray(alanlar)) continue
+    if (alanlar.length > KISISELLESTIRME_TAVANI) {
+      defects.push({ kind: 'personalization_cap', stepId: s.stepId, count: alanlar.length })
     }
   }
 

@@ -110,6 +110,12 @@ const IHLALLER = [
     imza: 'linkedin-kazima',
   },
   {
+    kapi: 'kisisellestirme',
+    dosya: 'packages/engine/src/ihlal-gecici.ts',
+    icerik: 'export const KISISELLESTIRME_TAVANI = 9\n',
+    imza: 'ikinci kez tanımlanmış',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',

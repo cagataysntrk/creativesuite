@@ -116,16 +116,19 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    doğru cevap vermesi yetmez, çağıran olması gerekir (D-182'nin dersi).
 💾 `feat(engine): 14 günlük tazelik kapısı` · `Refs: FAZ-6.6 · §10`
 
-## 6.7 — Beş alanlık kişiselleştirme tavanı    [ ]
+## 6.7 — Beş alanlık kişiselleştirme tavanı    [x] 2026-08-16
 
 📖 §10, §11.4
 🔗 6.6
 🛠 Bir deck'te en fazla **beş** prospect'e özgü alan. Türk B2B'sinde fazlası iltifat
    değil **şüphe** uyandırıyor: "bunları nereden biliyorsun" sorusu, satış görüşmesini
    veri kaynağı savunmasına çeviriyor. Tavan yapısaldır, öneri değil.
-📁 `packages/engine/src/personalization.ts`
+📁 `packages/kernel/src/personalization.ts` (kernel'de: `inspectManifest` onu çağırıyor)
 ✅ Altıncı alanı eklemeyi dene → kapı reddediyor, hangi beşinin kaldığını gösteriyor
-🧪 Tavanı 6'ya çıkarmayı dene → `KURALLAR.md` değişmeden kod değişmiyor (R-74)
+🧪 Tavanı 6'ya çıkarmayı dene → `kisisellestirme` kapısı AYRIŞMA diye reddediyor
+   ⚠ Tavan sayısı koda YAZILMIYOR, `KURALLAR.md` R-36'dan **okunuyor** (D-214): kapı iki
+   değeri karşılaştırıyor. Yani kuralı değiştirmenin tek yolu önce kural kitabıdır (R-74).
+   ⚠ İkinci bir tanım da yakalanıyor — kapı sabit dosya listesi değil, tüm kaynağı tarıyor.
 💾 `feat(engine): beş alanlık kişiselleştirme tavanı` · `Refs: FAZ-6.7 · §10`
 
 ## 6.8 — Gerçek ürün ekran görüntüleri    [ ]
