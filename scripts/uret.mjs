@@ -494,6 +494,35 @@ if (beklenenDigest !== undefined && beklenenDigest !== donmusPlan.digest) {
   process.exit(1)
 }
 
+// ── geçmiş redler NEGATİF KISIT olarak okunur (§12.9 · D-191) ───────────────
+//
+// Defter yazılıyordu (`kuyruk.ts`) ama HİÇ okunmuyordu — `DecisionEntry.reason`ın
+// kendi dokümanı "sonraki çalıştırmaya negatif kısıt olarak enjekte edilir" derken
+// (2026-08-16 denetimi). Yazan var okuyan yok, D-173'ün tam kendisi.
+//
+// Yalnız KAPI redleri (`/gate/…`) alınır: keşif redleri corpus kayıtlarına ait ve
+// kreatif prompt'a girmeleri anlamsız olurdu.
+const { parseLedger } = await import(join(REPO, 'packages/engine/dist/index.js'))
+let kacinilacak = ''
+{
+  const defterYolu = join(REPO, `brand/${MARKA}/decisions.jsonl`)
+  if (existsSync(defterYolu)) {
+    const d = parseLedger(readFileSync(defterYolu, 'utf8'))
+    const gerekceler = d.ledger.entries
+      .filter((e) => e.kind === 'rejected' && e.pointer.startsWith('/gate/') && e.reason !== '')
+      // En YENİ beş gerekçe: hepsini eklemek prompt'u geçmişin çöplüğüne çevirir ve
+      // altı ay önceki bir red bugünkü işi kısıtlamaya devam ederdi.
+      .slice(-5)
+      .map((e) => e.reason)
+    kacinilacak = [...new Set(gerekceler)].join(' · ')
+    if (kacinilacak !== '') {
+      console.log(
+        `  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor (${gerekceler.length})`
+      )
+    }
+  }
+}
+
 const rapor = await runPipeline({
   frozen: donmusPlan,
   repoRoot: REPO,
@@ -531,7 +560,11 @@ const rapor = await runPipeline({
   env: { PATH: readEnv('PATH') ?? '' },
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
-  params: { topic: devamKonu ?? kaynakKonu ?? konu },
+  params: {
+    topic: devamKonu ?? kaynakKonu ?? konu,
+    // Boşsa hiç geçilmez: boş bir `kacinilacak`, prompt'a anlamsız bir başlık eklerdi.
+    ...(kacinilacak === '' ? {} : { kacinilacak }),
+  },
   // Kararlar manifest'ten OKUNUR; motor yalnız yazılmış olanı görür.
   decisions: kararlar,
   // **Bağlam manifesti** (§5.3): hangi kayıt enjekte edildi, hangisi bütçeye sığmadı.

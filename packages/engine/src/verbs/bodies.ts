@@ -333,10 +333,30 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     }
 
     const serit = input.constraints['lane'] === 'premium' ? 'premium' : 'free'
+
+    // ── geçmiş redlerin gerekçesi: NEGATİF KISIT (§12.9 · D-191) ─────────────
+    //
+    // `DecisionEntry.reason`ın kendi dokümanı "sonraki çalıştırmaya negatif kısıt
+    // olarak enjekte edilir" diyordu ve hiçbir yer enjekte etmiyordu: defter
+    // yazılıyor, hiç okunmuyordu (2026-08-16 denetimi).
+    //
+    // ⚠ **Yalnız METİN yeteneklerine.** Red gerekçesi serbest Türkçe nesirdir ve
+    // görsel prompt'una eklenirse iki şey olur: (1) "başlıktaki yazı fazla küçük"
+    // gibi bir gerekçe R-20 kurucusunu tetikler ve çalıştırma reddedilir, (2) daha
+    // kötüsü, metin İSTEYEN bir cümle görsel modeline gider. Görsel modeline Türkçe
+    // metin çizdirilmez — on iki yasadan biri ve bir kolaylık için esnetilmez.
+    const metinYetenegi = !deps.capability.startsWith('image.')
+    const kacinilacak =
+      metinYetenegi && typeof input.constraints['kacinilacak'] === 'string'
+        ? input.constraints['kacinilacak'].trim()
+        : ''
+    const temelPrompt =
+      typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : ''
+
     const ham: ProviderInput = {
       capability: deps.capability,
       lane: serit,
-      prompt: typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : '',
+      prompt: kacinilacak === '' ? temelPrompt : `${temelPrompt}\n\nKAÇIN: ${kacinilacak}`,
       constraints: input.constraints,
       idempotencyKey: `${ctx.runId}:${ctx.stepId}`,
     }

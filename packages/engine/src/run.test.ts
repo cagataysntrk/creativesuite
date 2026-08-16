@@ -219,6 +219,14 @@ describe('hat uçtan uca', () => {
     expect(r.stoppedAt).toBe('onay')
     // PROPOSE HİÇ koşmadı — kapı çalıştırmadan önce durdurdu.
     expect(r.manifest.steps).toHaveLength(1)
+
+    // **DİSKTEN okunuyor.** Rapor nesnesi süreçle birlikte ölür; onay kuyruğu ve bir
+    // ay sonra dönen operatör bu bilgiyi dosyadan okumak zorunda (D-173). Rapor
+    // alanını doğrulamak, alanın manifeste YAZILDIĞINI kanıtlamaz — 2026-08-16
+    // denetimi "18 manifestin 0'ında awaitingGate" derken tam bu boşluğa bakıyordu.
+    const diskten = readManifest(tmp.path, r.runId)
+    expect(diskten?.awaitingGate).toBe('insan-onayi')
+    expect(diskten?.stoppedAt).toBe('onay')
   })
 
   it('manifest BAŞARISIZ çalıştırmada da yazılıyor', async () => {

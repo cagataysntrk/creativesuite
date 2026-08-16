@@ -457,3 +457,20 @@ dondurmayan iki üretim yolu olurdu (D-185 ailesi).
 `ui-dugme` kapısı eklendi: her `<button>` bir eylem taşımalı. Kapı yazıldığı anda
 **benim `4.15`te yazdığım iki ölü düğmeyi daha buldu** (`rerun`, `replay`) — ikisi de
 bağlandı.
+
+## D-191 — Red gerekçesi yazılıyordu, hiç okunmuyordu; ve görsele ASLA gitmez
+2026-08-16 · `brand/<marka>/decisions.jsonl` bir redde yazılıyordu ama **hiçbir üretim
+yolu okumuyordu.** `DecisionEntry.reason`ın kendi dokümanı *"sonraki çalıştırmaya
+negatif kısıt olarak enjekte edilir"* diyordu — D-173'ün en birebir hâli: tipin
+dokümantasyonu var olmayan bir davranışı tarif ediyordu.
+`uret.mjs` artık defteri okuyor, **yalnız kapı redlerini** (`/gate/…`) alıyor (keşif
+redleri corpus kayıtlarına ait, kreatif prompt'a girmeleri anlamsız) ve **en yeni beşini**
+tekilleştirip `kacinilacak` kısıtı olarak veriyor. Hepsini eklemek prompt'u geçmişin
+çöplüğüne çevirirdi; altı ay önceki bir red bugünkü işi kısıtlamaya devam ederdi.
+**Karar — gerekçe YALNIZ metin yeteneklerine girer, görsele ASLA.** Red gerekçesi
+serbest Türkçe nesirdir ve görsel prompt'una eklenmesi iki şeyden birini yapar:
+*"başlıktaki yazı fazla küçük"* gibi bir gerekçe R-20 kurucusunu tetikler ve çalıştırma
+reddedilir; ya da daha kötüsü, metin İSTEYEN bir cümle görsel modeline gider. Görsel
+modeline Türkçe metin çizdirilmez — on iki yasadan biri ve bir kolaylık için esnetilmez.
+Sınır `deps.capability.startsWith('image.')` ile çiziliyor ve ihlal testiyle kırmızıya
+döndürüldü: aynı gerekçe metin yeteneğinde prompt'a giriyor, görsel yeteneğinde girmiyor.
