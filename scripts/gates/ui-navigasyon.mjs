@@ -25,9 +25,23 @@ const hatalar = []
 const ekranlar = new Set([...duz.matchAll(/ekran === '([\w-]+)'/g)].map((m) => m[1]))
 ekranlar.delete('giris')
 
-// 2) Palet eşlemeleri: `k.id === 'komut' ? 'ekran'`
+// 2) Palet eşlemeleri — İKİ şekil de kabul edilir, sıkılık aynı:
+//    (a) ternary zinciri: `k.id === 'komut' ? 'ekran'`
+//    (b) tablo: `const EKRAN: ... = { komut: 'ekran', ... }`
+//
+// Tablo şekli sonradan eklendi çünkü ternary zinciri on dört katmana çıktı ve her yeni
+// ekranda AYNI hatayı üretti: ekran yönlendirmede vardı, komut ona gitmiyordu. Kapı
+// üç kez yakaladı — yani kural doğruydu, kodun şekli yanlıştı. Kapının iki şekli de
+// tanıması, kuralı gevşetmez: her iki şekilde de eksik eşleme hata olarak çıkar.
 const eslemeler = new Map()
 for (const m of duz.matchAll(/k\.id === '([\w-]+)' \? '([\w-]+)'/g)) eslemeler.set(m[1], m[2])
+
+const tablo = /const EKRAN[^=]*= \{\n([\s\S]*?)\n\}/.exec(kaynak)
+if (tablo !== null) {
+  for (const m of tablo[1].matchAll(/^\s*'?([\w-]+)'?:\s*'([\w-]+)',/gm)) {
+    eslemeler.set(m[1], m[2])
+  }
+}
 
 // 3) Doğrudan bir ekrana atlayan komut kümeleri: `URETIM_KOMUTLARI` gibi.
 //    `setEkran('x')` çağrılarında geçen ekranlar da ulaşılabilir sayılır.

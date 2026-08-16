@@ -364,3 +364,25 @@ listeler ve 90 günü geçmişse **`kurtarilabilir: false`** işaretler. Kurtar�
 kaybı bilmek, bilmemekten iyidir; bilinmezse pano onu "düşük performans" diye okur.
 
 **Geri alma maliyeti:** yok — indeks zaten türetilmiş.
+
+## D-221 — Kabuk yönlendirmesi tabloya çevrildi; kapı iki şekli de tanıyor
+
+**2026-08-16 · FAZ-7.9 sonrası**
+
+`App.tsx`'te palet komutu → ekran eşlemesi **on dört katmanlık iç içe ternary**'di ve her
+yeni ekranda AYNI hatayı üretti: ekran yönlendirmede vardı, hiçbir komut ona gitmiyordu.
+`ui-navigasyon` kapısı **üç kez** yakaladı — yani kural doğruydu, **kodun şekli** yanlıştı.
+
+**Karar:** eşleme bir `Readonly<Record<string, Ekran>>` tablosu. Tabloda unutmak zor:
+komut ya haritadadır ya değildir.
+
+**Kapı da genişletildi, ama GEVŞETİLMEDİ.** Artık iki şekli de ayrıştırıyor ve ikisinde
+de eksik eşleme hata. Kasten ihlal edilerek doğrulandı: satırı sil → *"ulaşılamaz"* ·
+hedefi `giris` yap → *"sessiz no-op"*.
+
+**Sıralama önemliydi (R-76).** Bu değişikliği ilk denediğimde kapı KIRMIZIYDI ve tabloyu
+tanımıyordu; **geri aldım**. Kırmızı bir kapının tanıma biçimini aynı turda değiştirmek,
+"kapıyı geçmek için kapıyı düzenlemek"le ayırt edilemez — niyet doğru olsa bile. Kapı
+yeşile döndükten sonra, ayrı bir turda yapıldı.
+
+**Geri alma maliyeti:** yok.

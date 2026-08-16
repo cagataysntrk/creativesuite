@@ -71,6 +71,31 @@ const KOMUTLAR: readonly Komut[] = [
   },
 ]
 
+/**
+ * Komut → ekran. **Tablo, iç içe ternary DEĞİL.**
+ *
+ * Ternary zinciri on dört katmana çıkmıştı ve her yeni ekranda aynı hatayı üretti:
+ * ekran yönlendirmede vardı ama hiçbir komut ona gitmiyordu. `ui-navigasyon` kapısı üç
+ * kez yakaladı — kural doğruydu, şekil yanlıştı. Tabloda unutmak zor: komut ya
+ * haritadadır ya değildir, ve kapı iki şekli de aynı sıkılıkta denetliyor.
+ */
+const EKRAN: Readonly<Record<string, Ekran>> = {
+  corpus: 'corpus',
+  baglam: 'baglam',
+  calistir: 'calistir',
+  'onay-kuyrugu': 'kuyruk',
+  yerlesim: 'yerlesim',
+  kesif: 'kesif',
+  sema: 'sema',
+  butce: 'butce',
+  varliklar: 'varliklar',
+  gecmis: 'gecmis',
+  saglik: 'saglik',
+  doktor: 'doktor',
+  kanallar: 'kanallar',
+  performans: 'performans',
+}
+
 /** Bir hattı çalıştıran komutlar — ekran açmaz, launcher'ı O hatla açar. */
 const URETIM_KOMUTLARI: ReadonlySet<string> = new Set([
   'instagram-post',
@@ -83,26 +108,28 @@ const URETIM_KOMUTLARI: ReadonlySet<string> = new Set([
 // Öğrenene kadarki varsayılan yalnız bir başlangıç değeri.
 const VARSAYILAN_NABIZ_MS = 5000
 
+/** Kabuğun açabileceği ekranlar. Tek liste — yönlendirme ve tablo ikisi de buna bakar. */
+type Ekran =
+  | 'giris'
+  | 'corpus'
+  | 'baglam'
+  | 'calistir'
+  | 'kuyruk'
+  | 'yerlesim'
+  | 'kesif'
+  | 'sema'
+  | 'butce'
+  | 'varliklar'
+  | 'gecmis'
+  | 'saglik'
+  | 'doktor'
+  | 'kanallar'
+  | 'performans'
+
 export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
   const [sonOlayMs, setSonOlayMs] = useState<number | null>(null)
-  const [ekran, setEkran] = useState<
-    | 'giris'
-    | 'corpus'
-    | 'baglam'
-    | 'calistir'
-    | 'kuyruk'
-    | 'yerlesim'
-    | 'kesif'
-    | 'sema'
-    | 'butce'
-    | 'varliklar'
-    | 'gecmis'
-    | 'saglik'
-    | 'doktor'
-    | 'kanallar'
-    | 'performans'
-  >('giris')
+  const [ekran, setEkran] = useState<Ekran>('giris')
   // Hangi hat çalıştırılacak. Palet komutu ekranı AÇMAKLA kalmaz, hattı da seçer —
   // yoksa "Instagram postu üret" komutu sabit bir hattın launcher'ını açardı ve
   // komutun adı ile açtığı şey ayrışırdı.
@@ -192,37 +219,7 @@ export const App = (): React.JSX.Element => {
             setEkran('calistir')
             return
           }
-          setEkran(
-            k.id === 'corpus'
-              ? 'corpus'
-              : k.id === 'baglam'
-                ? 'baglam'
-                : k.id === 'calistir'
-                  ? 'calistir'
-                  : k.id === 'onay-kuyrugu'
-                    ? 'kuyruk'
-                    : k.id === 'yerlesim'
-                      ? 'yerlesim'
-                      : k.id === 'kesif'
-                        ? 'kesif'
-                        : k.id === 'sema'
-                          ? 'sema'
-                          : k.id === 'butce'
-                            ? 'butce'
-                            : k.id === 'varliklar'
-                              ? 'varliklar'
-                              : k.id === 'gecmis'
-                                ? 'gecmis'
-                                : k.id === 'saglik'
-                                  ? 'saglik'
-                                  : k.id === 'doktor'
-                                    ? 'doktor'
-                                    : k.id === 'kanallar'
-                                      ? 'kanallar'
-                                      : k.id === 'performans'
-                                        ? 'performans'
-                                        : 'giris'
-          )
+          setEkran(EKRAN[k.id] ?? 'giris')
         }}
       />
 
