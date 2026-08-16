@@ -210,6 +210,16 @@ export const composeBody = (deps: ComposeDeps): Verb =>
                 captureRunId: c.captureRunId,
                 demoRef: c.demoRef,
                 aiGenerated: false,
+                // ⚠ `basis` ZORUNLU: zincirin 3. kapısı (`prospectDeckZinciri`) ve
+                // `inspectManifest` bunu arıyor. İlk sürüm onu YAZMIYORDU ve zincir
+                // kendi üretimini reddediyordu — testler ise elle `basis` yazılmış,
+                // üretimin hiç üretmediği bir fikstür kullanıyordu. Kendi kendini
+                // onaylayan test çifti (2. doğrulama turu).
+                basis: {
+                  kind: 'product_capture',
+                  captureRunId: c.captureRunId,
+                  demoRef: c.demoRef,
+                },
               })),
             }
           : {}),
@@ -527,6 +537,16 @@ export const ingestBody = (deps: IngestDeps): Verb =>
 
 // ── VALIDATE: QA + lexicon, model yargısı YOK ───────────────────────────────
 export interface ValidateDeps {
+  /**
+   * **Lexicon denetimi — çıktı biçiminden BAĞIMSIZ** (§11.2 · R-32, R-35).
+   *
+   * ⚠ İlk sürümde lexicon `check`in İÇİNDEYDİ ve `check` yalnız `slides` varken
+   * çağrılıyordu. PDF çıktısı `slides` taşımaz → kaynaksız sayı kapısı `deck`,
+   * `linkedin-document` ve `prospect-deck` hatlarında **hiç koşmuyordu** — yani fazın
+   * çıxış kriteri ("her sayısal iddia `claim_source` taşıyor") üretimde zorlanmıyordu.
+   * İkinci doğrulama turu yakaladı. Lexicon yalnız BELGEYE bakar; rastere değil.
+   */
+  readonly lint: (doc: DocumentModel) => readonly { readonly kind: string }[]
   readonly check: (
     doc: DocumentModel,
     slides: readonly string[]
@@ -572,6 +592,21 @@ export const validateBody = (deps: ValidateDeps): Verb =>
       return err(hata('validation', 'NOTHING_TO_VALIDATE', ctx))
     }
 
+    // ── lexicon: HER çıktı biçiminde (§11.2 · R-32) ─────────────────────────
+    // Belgeye bakar, rastere değil — bu yüzden PDF yolunda da koşar. Kaynaksız sayısal
+    // iddia yayınlanamaz ve bu kural çıktı biçimine göre değişmez.
+    const lexIhlalleri = deps.lint(belge.document)
+    if (lexIhlalleri.length > 0) {
+      const turler = [...new Set(lexIhlalleri.map((v) => v.kind))].join(', ')
+      return err(
+        hata('policy_blocked', 'LEXICON_BLOCKED', ctx, {
+          count: lexIhlalleri.length,
+          kinds: turler,
+          rule: 'R-32/R-35',
+        })
+      )
+    }
+
     // Piksel QA yalnız PNG üzerinde anlamlı: ΔE ve kaplama ölçümleri bir raster ister.
     // PDF'te bu denetim **ATLANIYOR ve bu YAZILIYOR** — atlanan bir denetim "temiz"
     // değildir (D-175 ailesi) ve manifest ikisini ayırt edebilmeli.
@@ -596,9 +631,10 @@ export const validateBody = (deps: ValidateDeps): Verb =>
         kaynaklar: ingestKaynaklari(input.inputs),
         alanlar: kisiselAlanlar(input.inputs),
         urunEkranlari: urunEkranlari(input.inputs),
-        // Lexicon `deps.check`in içinde koşuyor ve `blocked` ile döndü; buraya ayrıca
-        // geçmek aynı kuralı iki kez saymak olurdu (D-198).
-        lexiconIhlalleri: [],
+        // Lexicon yukarıda KOŞTU ve boş çıktı (dolu olsaydı adım zaten durmuştu).
+        // Zincire gerçek sonucu veriyoruz — eski hâli sabit `[]` geçiyordu ve yorumu
+        // "check'in içinde koştu" diyordu; koşmamıştı (2. doğrulama turu).
+        lexiconIhlalleri: lexIhlalleri,
         // Manifest kusurları YAYIN anında `inspectManifest`te bakılıyor: adım koşarken
         // manifest henüz yazılmadı ve olmayan bir defteri denetlemek uydurma olurdu.
         manifestKusurlari: [],

@@ -211,6 +211,10 @@ const ozetle = (data: unknown): Readonly<Record<string, unknown>> | null => {
     // girmezse üç kural sonsuza kadar sessiz kalır
     'fetchedAt',
     'sourceRef',
+    // ⚠ `capture` eksikti: RENDER'ın çekim dalı `{capture:{...}}` döndürüyor ve manifest
+    // özeti onu eliyordu — yani "her ekran görüntüsü gerçek bir çekime bağlanıyor"
+    // iddiasının defterde karşılığı yoktu (2. doğrulama turu, bulgu 8).
+    'capture',
     'personalizationFields',
     'productShots',
     // INGEST raporu (FAZ-6.5): kaç kaynak hazır, kaçı bloke

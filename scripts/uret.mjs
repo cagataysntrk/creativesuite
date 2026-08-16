@@ -264,6 +264,20 @@ const palet = { colors: colorsFromTokens(tokenCss) }
 
 const AGIRLIK = { in: 0, warn: 1, out: 2 }
 
+/**
+ * Lexicon denetimi — **çıktı biçiminden bağımsız** (§11.2 · R-32, R-35).
+ *
+ * ⚠ Eskiden yalnız `kaliteKontrol`un içindeydi ve o da yalnız `slides` varken
+ * çağrılıyordu: PDF hatlarında kaynaksız sayı kapısı HİÇ koşmuyordu (2. doğrulama turu).
+ * Artık `validateBody`e ayrı bir yetenek olarak geçiyor ve her biçimde koşuyor.
+ */
+const lexiconDenetimi = (doc) =>
+  lintDocument(doc, {
+    forbidden: ['devrim niteliğinde', 'çığır açan', 'dünyanın en iyisi', 'sektör lideri'],
+    allowedHex: izinliHex.length === 0 ? [] : izinliHex,
+    claimSource: null,
+  })
+
 const kaliteKontrol = async (doc, slides) => {
   const satirlar = []
   let bloke = false
@@ -300,11 +314,7 @@ const kaliteKontrol = async (doc, slides) => {
     if (!uygun) bloke = true
   }
 
-  const lex = lintDocument(doc, {
-    forbidden: ['devrim niteliğinde', 'çığır açan', 'dünyanın en iyisi', 'sektör lideri'],
-    allowedHex: izinliHex.length === 0 ? [] : izinliHex,
-    claimSource: null,
-  })
+  const lex = lexiconDenetimi(doc)
   if (lex.length > 0) {
     bloke = true
     satirlar.push(`  ✗ ${lex.length} lexicon ihlali: ${lex.map((v) => v.kind).join(', ')}`)
@@ -553,7 +563,7 @@ const rapor = await runPipeline({
         }
       ).maxBytes,
     }),
-    VALIDATE: validateBody({ check: kaliteKontrol }),
+    VALIDATE: validateBody({ lint: lexiconDenetimi, check: kaliteKontrol }),
     GENERATE: generate,
     // ⚠ FAZ 6 denetimi: `INGEST` fiil haritasında HİÇ YOKTU — şelale, karantina ve
     // enjeksiyon sınırı yazılmıştı ama hattaki `arastir` adımı çalıştırılamıyordu.

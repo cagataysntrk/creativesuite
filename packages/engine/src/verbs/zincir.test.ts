@@ -44,9 +44,10 @@ const ctx = () => ({
 })
 
 const temizCheck = async () => ({ blocked: false, report: 'temiz' })
+const temizLint = () => []
 
 const kos = (inputs: Record<string, unknown>, constraints: Record<string, unknown> = {}) =>
-  validateBody({ check: temizCheck }).run(ctx(), { constraints, inputs })
+  validateBody({ lint: temizLint, check: temizCheck }).run(ctx(), { constraints, inputs })
 
 const TAZE = '2026-08-13T12:00:00.000Z' // 3 gün
 const BAYAT = '2026-07-07T12:00:00.000Z' // 40 gün
@@ -122,5 +123,41 @@ describe('VALIDATE · zincir (bağlanma)', () => {
     expect(r.ok).toBe(false)
     if (r.ok) return
     expect(JSON.stringify(r.error.details)).toContain('kisisellestirme')
+  })
+})
+
+// ── lexicon HER biçimde koşuyor mu (2. doğrulama turu, bulgu 1) ─────────────
+describe('VALIDATE · lexicon (çıktı biçiminden bağımsız)', () => {
+  const kirliLint = () => [{ kind: 'unsourced_claim' }]
+
+  // 🧪 En ağır gerileme: PDF çıktısı `slides` taşımadığı için `deps.check` hiç
+  // çağrılmıyordu ve lexicon onun İÇİNDEYDİ — yani `deck`, `linkedin-document` ve
+  // `prospect-deck` hatlarında kaynaksız sayı kapısı HİÇ koşmuyordu. Fazın çıkış
+  // kriteri üretimde zorlanmıyordu.
+  it('PDF çıktısında kaynaksız iddia hattı DURDURUYOR', async () => {
+    const r = await validateBody({ lint: kirliLint, check: temizCheck }).run(ctx(), {
+      constraints: {},
+      inputs: { kompozit: { document: doc }, render: { deck: '/tmp/x.pdf' } },
+    })
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.code).toBe('LEXICON_BLOCKED')
+    expect(JSON.stringify(r.error.details)).toContain('R-32')
+  })
+
+  it('PNG çıktısında da aynı kapı koşuyor — biçim ayrımı yok', async () => {
+    const r = await validateBody({ lint: kirliLint, check: temizCheck }).run(ctx(), {
+      constraints: {},
+      inputs: { kompozit: { document: doc }, render: { slides: ['/tmp/a.png'] } },
+    })
+    expect(r.ok === false && r.error.code).toBe('LEXICON_BLOCKED')
+  })
+
+  it('lexicon temizse zincire GERÇEK sonuç geçiyor — sabit [] değil', async () => {
+    const r = await validateBody({ lint: temizLint, check: temizCheck }).run(ctx(), {
+      constraints: { chain: 'prospect-deck' },
+      inputs: temizGirdi(),
+    })
+    expect(r.ok).toBe(true)
   })
 })
