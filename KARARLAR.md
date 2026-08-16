@@ -33,14 +33,16 @@ Kısıtlı profil bunu atlatmak için tasarlandı, yine de spike ile doğrula. �
 ## V-05 — Anthropic yapılandırılmış çıktı alt kümesi
 OpenAI'ninkiyle aynı mı? Derleyici daha katı olana yazıldı, CI'da gerçek çağrıyla doğrula. → FAZ-1.4
 
-## V-06 — `dima` ürün mü modül mü ✅ VERİ MODELİ KAPANDI (2026-08-15, D-84)
-`dima` **ayrı marka ekseni** olarak modellendi (token kalıtımıyla). Pazara sunum adı
-("dima by Upcytech" mi bağımsız mı) veri modelini DEĞİŞTİRMİYOR ve kullanıcıya
-bırakıldı. → FAZ-2.11
+## V-06 — `dima` ürün mü modül mü ✅ TAMAMEN KAPANDI (2026-08-16, D-235)
+`dima` ayrı marka ekseni olarak modellendi (2026-08-15, D-84). **Pazara sunum adı da
+kapandı: onaylı marka — "Dima by Upcytech"** (kurucu, 2026-08-16). Her ürün kendi
+adıyla yaşar, Upcytech çatı olarak arkasında durur. → FAZ-2.11 · FAZ-2.9
 
-## V-07 — Era 1'in dikeyi
-Kanıt otomotiv tedarik/Bursa'yı işaret ediyor ama bu üçüncü taraf verisinden çıkarım,
-gerçek satış pipeline'ından değil. Hipotez olarak tohumla, 10 gerçek görüşmeden sonra üzerine yaz. → FAZ-2.9
+## V-07 — Era 1'in dikeyi ✅ KAPANDI (2026-08-16, D-235)
+Hipotez **otomotiv tedarik/Bursa** idi ve üçüncü taraf verisinden çıkarımdı. Kurucu
+doğrulamadı: dikey **imalat**, ama asıl ayrım ekseni sektör değil **veri olgunluğu**.
+Bölge iddiası tamamen düştü — uydurulmuş bir coğrafya kaydı, kayıt olmayandan kötüdür.
+→ FAZ-2.9
 
 ## V-08 — Kuruluş tarihi çelişkisi ✅ KAPANDI (2026-08-15, D-82)
 **3 Temmuz 2025** tek doğrudur — ticaret sicili BELGELİDİR, diğer ikisi beyandır.
@@ -491,3 +493,48 @@ satırdan pahalıydı ve profil zaten bu alt kümeyi zorunlu kılıyor.
 ikinciye takılmasından daha yardımcı değil.
 
 **Geri alma maliyeti:** yok.
+
+## D-235 — Röportaj: dikey, marka mimarisi ve kanıt durumu kurucudan alındı
+
+**2026-08-16 · FAZ-2.9 ikinci yarı (D-5)**
+
+İlk yedi strateji kaydı kamuya açık kaynaklardan **çıkarımla** yazılmıştı
+(`source.kind: inference`, confidence 0.5–0.6) ve iki yerde yanlıştı: ürünler hiç
+geçmiyordu, dikey/bölge tahmindi. Kurucu röportajı dördünü de kapattı.
+
+**1 · Dikey: imalat — ama ayrım ekseni SEKTÖR DEĞİL, VERİ OLGUNLUĞU.**
+Bu röportajın en değerli çıktısı ve dışarıdan asla çıkarılamayacak olan şey:
+*"Dima ERP üstüne kurulduğunda gittiğimiz firmada veritabanı yoksa UpcyMan'i
+genelleştirip kuruyoruz ya da açık kaynak kuruyoruz."*
+
+Bu bir uygulama ayrıntısı değil, **konumun kendisi**: bu alandaki araçların hepsi
+verinin var olduğunu varsayar. Power BI bir veri kaynağı ister; GenBI bir veritabanı
+ister. Veri yoksa iş orada biter. Upcytech'te bitmiyor. ICP artık üç kovaya ayrılıyor
+(verisi yok · verisi var ama karara çevrilmiyor · sürdürülebilirlik zorunluluğu) ve
+birincisi rakiplerin **çalışamadığı** yer.
+
+⚠ **Coğrafya iddiası tamamen düştü.** "Marmara ve Ege" uydurmaydı; yerine bir şey
+yazılmadı. Ölçek bandı da (çalışan/ciro) boş bırakıldı — kurucudan alınmadı.
+**Uydurulmuş bir alan, boş bir alandan kötüdür:** boş alan sorulur, uydurma alan
+doğru sanılır.
+
+**2 · Marka mimarisi: onaylı marka — "Dima by Upcytech".** V-06'nın açık kalan yarısı.
+Veri modeli değişmiyor (`brand_id` zaten ayrı eksen, D-84); değişen şey sunum ve token
+kalıtımı: ürün kendi adıyla yaşar, çatı kredisini taşır.
+
+**3 · Giriş teklifi bugün İKİ ürün, yarın Dima.** `upcyman.com` + `upcycarbon.com`
+üzerinden demo ile giriliyor; Dima'nın ilk sürümü tamamlanınca giriş ürünü Dima olacak.
+Teklif kaydı bunu **tarihli bir geçiş** olarak yazıyor — "yakında" demiyor.
+
+**4 · Yayınlanabilir kanıt YOK ve bu kayda geçti.** Müşteri sonucu, sayı, referans —
+hiçbiri yok. Yedi kaydın hiçbirinde tek bir sayısal iddia bulunmuyor. UpcyMan
+`transfer_confidence: analogous` ile **yetenek kanıtı** olarak duruyor, müşteri sonucu
+olarak değil (§4.6). Rakip kaydı bu zayıflığı **açıkça yazıyor** — kapatılana kadar
+öyle anlatılacak, uydurulmayacak.
+
+**Eski beş taslak silinmedi.** Hiçbiri onaylanmadı, yani hiçbir zaman doğru olmadılar;
+ama silme kararı insanın (R-14, `corpus-silici` darboğazı). Retrieval'a görünmüyorlar
+(`status: draft`). ⚠ Toplu onay (`just onayla corpus/*/*.md`) ikisini birden aktif
+yapar ve **§5.5 anlamında bir çelişki** doğurur — onay yolları tek tek verildi.
+
+**Geri alma maliyeti:** yok — hepsi draft, hiçbiri onaylanmadı.
