@@ -163,3 +163,6 @@ export {
   type TokenKaydi,
   type YenilemeRaporu,
 } from './token-refresh.js'
+
+// Sağlayıcı ortamı tek yerde kurulur — elle sayılan anahtar listesi yok (D-237).
+export { saglayiciOrtami, authEnvNames } from './ortam.js'

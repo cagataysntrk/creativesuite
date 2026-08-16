@@ -173,15 +173,24 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 🧪 Sentetik insan içeren varlığı onaylamayı dene → **kod seviyesinde** bloklanıyor
 💾 `feat(render): uyum kapısı ve IPTC damgası` · `Refs: FAZ-3.11 · §11.3`
 
-## 3.12 — Varlık CAS ve R2 senkronu    [x] 2026-08-15
-
+## 3.12 — Varlık CAS (içerik-adresli depo)    [x] 2026-08-15
 📖 §3.5 · R-64 · D-38
 🛠 `derived/blobs/<ab>/<sha256>.<ext>` içerik-adresli + `<sha256>.meta.json` sidecar.
-   R2 senkronu ~60 satır. **512KB üstü dosya git'e girmez** (R-64); Git LFS kullanılmaz.
+   **512KB üstü dosya git'e girmez** (R-64); Git LFS kullanılmaz.
 📁 `packages/engine/src/blobs.ts` · `derived/blobs/<ab>/` (D-118)
 ✅ `just gate repo-hygiene` yeşil · varlık byte'ları git'te değil
 🧪 512KB üstü dosyayı commit'lemeyi dene → engelleniyor
+   ⚠ Başlık düzeltildi (D-236): "ve R2 senkronu" diyordu, o kod hiç yazılmamıştı.
 💾 `feat(corpus): içerik-adresli varlık deposu` · `Refs: FAZ-3.12 · §3.5`
+
+## 3.12b — R2 senkronu    [ ]
+📖 §3.5, §14 · R-64 · D-38, D-236 · 🔗 3.12
+🛠 `derived/blobs/` R2'ye senkronlansın (~60 satır; iki anahtar kasada bekliyor).
+   Tatbikatın sınayamadığı dal bu: blob'lar `git clone` ile gelmiyor.
+📁 `packages/engine/src/blobs.ts`
+✅ Blob yükle → sil → getir; sha256 aynı · tatbikat blob dalına `✓ geldi` diyor
+🧪 Bozuk sha256'lı blob'u getirmeyi dene → reddediliyor
+💾 `feat(engine): R2 blob senkronu` · `Refs: FAZ-3.12b · §3.5`
 
 ## 3.13 — Run manifest yazıcı    [x] 2026-08-15
 

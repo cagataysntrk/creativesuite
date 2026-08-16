@@ -17,7 +17,9 @@ const { loadPipeline, listPipelines, loadRecipe, listRecipes } = await import(
 const { plan, formatPlan, assembleContext, formatContext, pricingFromDescriptor } = await import(
   join(REPO, 'packages/engine/dist/index.js')
 )
-const { loadDescriptors } = await import(join(REPO, 'packages/providers/dist/index.js'))
+const { loadDescriptors, saglayiciOrtami } = await import(
+  join(REPO, 'packages/providers/dist/index.js')
+)
 // Ortam TEK okuyucudan (`secret-okuyucu` darboğazı, §14).
 const { readEnv } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 
@@ -44,9 +46,11 @@ const sonuc = plan({
   runId: 'run_plan_dry',
   brandId: 'brd_plan_dry',
   eraId: '*',
-  // Ortam AÇIKÇA geçilir: sağlayıcı kullanılabilirliği PATH'e bakıyor.
-  // Ortam TEK okuyucudan (`secret-okuyucu` darboğazı, §14).
-  env: { PATH: readEnv('PATH') ?? '' },
+  // ⚠ **Eskiden yalnız `PATH` geçiliyordu** ve `just plan` anahtarlar kasada olsa
+  // bile her sağlayıcıyı "yerel önkoşul sağlanmadı" diye eliyordu (D-237). Ortam
+  // artık tanımlayıcıların `auth_env` beyanından türetiliyor; elle sayılan liste yok.
+  // Okuyucu TEK: `readEnv` (secret-okuyucu darboğazı, §14).
+  env: saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID']),
   pricing: Object.fromEntries(
     descriptors
       .filter((d) => d.enabled)

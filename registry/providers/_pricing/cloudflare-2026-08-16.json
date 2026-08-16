@@ -1,0 +1,11 @@
+{
+  "provider": "cloudflare-workers-ai",
+  "captured_at": "2026-08-16",
+  "verified": true,
+  "verified_by": "measured",
+  "measurement": "Gerçek çağrı: POST /accounts/{id}/ai/run/@cf/black-forest-labs/flux-1-schnell → HTTP 200, 1024x1024 JPEG (611642 bayt). Bedava katman içinde ücret oluşmadı.",
+  "unitMicros": 0,
+  "sourceUrl": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
+  "openRisk": "V-14: günlük nöron kotası AŞILDIĞINDA ne olduğu hesabın planına bağlı ve ÖLÇÜLMEDİ. Free planda istek reddedilir; Workers Paid planda dahil kotanın ötesi faturalanır. Bu bir FİYAT belirsizliği değil, bir LİMİT belirsizliğidir — birim fiyat ölçüldü ve sıfır.",
+  "_not": "DEĞİŞMEZ anlık görüntü. Fiyat değişirse YENİ dosya açılır, bu düzenlenmez — eski çalıştırmanın maliyeti hâlâ açıklanabilir olmalı."
+}

@@ -10,7 +10,7 @@ Toplam **6** tanımlayıcı.
 |---|---|---|---|---|---|---|
 | `chatterbox` | Chatterbox Multilingual V3 (yerel, MIT) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
 | `claude-code` | Claude Code (headless) | `claude-code` | ✅ aktif | `text.generate` | free | — |
-| `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ⏸ kapalı | `image.generate` | free | `_pricing/cloudflare-2026-08-15.json` ⚠ doğrulanmamış |
+| `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ✅ aktif | `image.generate` | free | `_pricing/cloudflare-2026-08-16.json` |
 | `elevenlabs` | ElevenLabs (premium şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | premium | — |
 | `fal-flux` | FLUX (fal) | `fal-flux` | ⏸ kapalı | `image.generate` | premium | `_pricing/fal-2026-08-15.json` ⚠ doğrulanmamış |
 | `gemini-tts` | Gemini TTS (bedava şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |

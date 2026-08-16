@@ -3155,3 +3155,105 @@ denetim agent'ı buldu. **İnsan hafızası bunu üç kez tutamadı.**
   hesap kurulumu" diyordu. **D-217'nin kendi dersi kendi düzeltmesine uygulanmamıştı.**
 
 **Geri alma maliyeti:** yok.
+
+## D-225 — Diklik ölçütü OFAT'tır; tam ızgara öğrenme tasarımı değildir
+
+**2026-08-16 · FAZ-8.1**
+
+Faz dosyasının ✅ kriteri *"3×3 matris tek çalıştırmada üretiliyor"* diyordu ve ilk
+tasarımım da "ızgara TAM olmalı" kuralını koyuyordu. **İkisi de yanlış** — araştırma
+(`docs/research/2-b2b-ve-seritler--*`) tam çapraz çarpımı yalnız Meta'nın
+`asset_feed_spec`i için ayırıyor:
+
+> *"run one-factor-at-a-time (vary hooks with headline and visual fixed) for LEARNING,
+> and reserve full cross-product only for `asset_feed_spec`, which does combinatorial
+> testing server-side so you upload H+D+V assets instead of H×D×V creatives."*
+
+**Karar: `ofat` varsayılan, `full` yalnız `asset_feed_spec`.**
+
+- **Maliyet:** 3×3×3'te OFAT **7** varyant, tam ızgara **27**. Dört kat render ve
+  öğrenme açısından sıfır ek bilgi — kombinasyonu Meta zaten sunucuda kuruyor.
+- **Ölçüm:** OFAT'ta temelden **tek eksende** ayrılan bir varyantın farkı doğrudan o
+  eksene atfedilir. Tam ızgarada iki varyant iki eksende ayrılabilir ve bu **hata
+  değildir** — kombinatoryal tasarımın tanımı budur. Yani "iki ekseni birden değiştirme"
+  yasağı yalnız OFAT'ta anlamlı.
+- **Faz kriteri düzeltildi** (R-74): "3×3 matris" → "OFAT kümesi; `full` yalnız
+  `asset_feed_spec` hedefinde".
+
+**Neden zarif olan yanlıştı:** "ızgara tam olsun" tek cümlelik, mekanik ve güzel bir
+kuraldı. Ama öğrenme tasarımı ile kombinatoryal test tasarımını aynı şey sanıyordu —
+ve bu proje varyant başına gerçek para ödüyor.
+
+**Geri alma maliyeti:** yok — iki mod da destekleniyor, karar hangi modun varsayılan
+olduğu.
+
+## D-226 — Yerel MCP yüzeyi KABUL — ama dar: üç araç, tek yazma yolu
+
+**2026-08-16 · FAZ-8.9** (D-33 aday kararı kapanıyor)
+
+**Soru:** Claude Code zaten `corpus/*.md` okuyabiliyorken MCP ne ekler?
+
+**Cevap — üçü de ham dosya okumakla elde EDİLEMEZ:**
+1. **Retrieval yüklemi** (R-13). Ham dosyayı okuyan bir agent **emekliye ayrılmış** bir
+   kaydı güncel sanır; §4.5'in "asla sızmaz" vaadi yalnız yüklemden geçerken geçerli.
+   `grep` marka, dönem, `status` ve geçerlilik tarihlerini bilmez — **ve bilmediğini de
+   söylemez.**
+2. **Türkçe arama** (§5.6). FTS5 + trigram + RRF: "ölçüm" → "ölçümlerinizi" bulur.
+   `grep` bulmaz ve bulamadığını sessizce geçer.
+3. **`propose` yolu** (R-14). Dosyayı elle yazan bir agent `x_signature`sız, `status`ü
+   keyfi bir kayıt üretir; kapı bunu ancak commit anında yakalar — saatler sonra.
+
+**Kabul, ama DAR:**
+- **Üç araç, hepsi bu kadar.** Her yeni araç yeni bir yüzey ve yeni bir bakım borcu;
+  MCP sözleşmesi değişince güncellenecek yer sayısı bu listeye eşit.
+- **`derived/ingest/` ASLA açılmıyor** (R-50). Karantina metni dış kaynaktan gelir ve
+  talimat olarak sunulamaz; bir araç onu döndürseydi prospect'in sitesindeki bir cümle
+  modele **komut** olarak ulaşırdı. Enjeksiyon sınırının koruduğu şey tam olarak bu.
+- **`status`/`zone`/`x_signature` REDDEDİLİYOR, yok sayılmıyor.** Sessizce silmek,
+  çağıranın "active yazdım" sanmasına yol açardı; reddetmek kuralı öğretiyor.
+  **Sessiz düzeltme, öğrenilmeyen bir kuraldır.**
+- **Yüklemden geçmeyen kayıt "bulunamadı" sayılıyor**, "var ama göremezsin" değil —
+  ikincisi emekli bir kaydın varlığını sızdırırdı.
+
+**Reddedilmedi çünkü:** maliyeti düşük (mevcut fonksiyonların üstünde ince bir
+adaptör), yerel bağlanıyor ve öldüğünde geriye düşüş dosya okumak — bozulma değil,
+körelme (12. yasa korunuyor).
+
+**Kapsam dürüstlüğü:** taşıma katmanı **minimal** (HTTP + JSON), tam MCP el sıkışması
+ve SSE taşıması yazılmadı. Bugün açılan şey araç sözleşmesi ve sınırlar; protokolün
+tamamı gerektiğinde eklenir ve o iş bu kararın kapsamında değil.
+
+**Geri alma maliyeti:** düşük — iki uç kaldırılır, altındaki fonksiyonlar UI'ın zaten
+kullandığı fonksiyonlar.
+
+## D-227 — Beşinci tekrar: aldatan şey, düzeltmeyi kanıtlayan yorumun kendisiydi
+
+**2026-08-16 · FAZ-8 kapanış denetimi, 1. tur**
+
+`publishBody` girdilerde `assets` arıyordu; **hiçbir gövde onu üretmiyordu.**
+`renderBody` `{ slides, count }` basıyor — yani `PUBLISH` her koşuda
+`NO_PUBLISHABLE_ASSET` ile dönerdi ve 8.3'ün ifşa kapısı hiç çalışamazdı.
+
+**Aynı sınıfın beşinci tekrarı** (D-216 gövde · D-222 gövde · D-224 hat · 8.3 kapı ·
+bu: **şekil**). Ama bu sefer farklı bir şey oldu: aldatan şey kodun kendisi değil,
+**düzeltmeyi kanıtlamak için yazdığım yorumdu.** `yayin-baglanma.test.ts` şöyle
+diyordu: *"`RENDER` çıktısının GERÇEK şekli — gövde varlıkları buradan topluyor"* ve
+altındaki şekil hiç üretilmemişti. Test kendi köprüsünü kurup ölçüyordu; yorum ise
+tersini iddia ediyordu.
+
+**Kapatılanlar:**
+- `renderBody` artık `assets` basıyor: `path` · `altTr` (**belge modelinden**, R-34
+  boşsa kapı reddeder) · `decorative` · `digest` (render edilen **baytın** özeti;
+  CAS damgası koşu sonrası basılıyor, `PUBLISH` koşu içinde)
+- **`PUBLISH_ARANAN_ANAHTARLAR` tek tanım**: üretici ve tüketici aynı listeyi
+  kullanıyor. İki liste olsaydı biri güncellenir diğeri unutulurdu — bu bulgunun
+  doğuş sebebi tam olarak buydu.
+- `uretim-sekli-render.test.ts` şekli **ölçüyor**, anlatmıyor.
+
+**Kalan gerçek boşluk — `8.3b` olarak açıldı:** damgalama ve blob yazımı tüm koşu
+BİTTİKTEN sonra çalışıyor (`uret.mjs`), `PUBLISH` ise koşunun İÇİNDE. Yani
+`stamped: true` yayın anında hiçbir zaman doğru olamaz. İfşa kapısı bu yüzden
+**fail-closed** davranıyor ve bu doğru — ama sıralama düzeltilene kadar gerçek yayın
+yapılamaz. **Bunu bilmek, bilmemekten iyidir.**
+
+**Geri alma maliyeti:** yok.

@@ -33,7 +33,7 @@ const {
   uyumKapsami,
   taranacakPrompt,
 } = await import(join(REPO, 'packages/engine/dist/index.js'))
-const { candidatesFor, loadDescriptors, adapterById } = await import(
+const { candidatesFor, loadDescriptors, adapterById, saglayiciOrtami } = await import(
   join(REPO, 'packages/providers/dist/index.js')
 )
 const {
@@ -527,13 +527,10 @@ const bilgiSha = bilgi.sha
 // gerçek bir kod yolundan geliyor.
 const generate = generateBody({
   resolveAdapter: adapterById,
-  env: {
-    PATH: readEnv('PATH') ?? '',
-    // Sağlayıcı anahtarları AÇIKÇA aktarılır (§14). Yoksa adaptör kendi hatasını verir.
-    ...(readEnv('FAL_KEY') === undefined ? {} : { FAL_KEY: readEnv('FAL_KEY') }),
-    ...(readEnv('CF_ACCOUNT_ID') === undefined ? {} : { CF_ACCOUNT_ID: readEnv('CF_ACCOUNT_ID') }),
-    ...(readEnv('CF_API_TOKEN') === undefined ? {} : { CF_API_TOKEN: readEnv('CF_API_TOKEN') }),
-  },
+  // ⚠ Bu liste ELLE SAYILIYORDU (üç ad) ve dördüncü sağlayıcı eklendiği gün sessizce
+  // unutulacaktı (D-237). Artık tanımlayıcıların `auth_env` beyanından türetiliyor —
+  // hangi anahtarın gerektiği veridir, kod değil. Okuyucu TEK: `readEnv` (§14).
+  env: saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID']),
   capability: 'image.generate',
 })
 

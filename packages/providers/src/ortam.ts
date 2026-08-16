@@ -1,0 +1,59 @@
+// Sağlayıcı ortamı TEK yerde kurulur (§14 · R-51 · D-237).
+//
+// **Bulunan kusur:** `candidatesFor(capability, env)` sağlayıcının kullanılabilirliğini
+// `env` içindeki anahtarlara bakarak belirliyor. Ama iki çağıran farklı davranıyordu:
+//
+//   · `scripts/plan.mjs` yalnız `PATH` geçiriyordu → anahtar kasada olsa bile
+//     `just plan` her sağlayıcıyı "yerel önkoşul sağlanmadı" diye eliyordu.
+//   · `scripts/uret.mjs` üç adı ELLE sayıyordu (`FAL_KEY`, `CF_ACCOUNT_ID`,
+//     `CF_API_TOKEN`) → dördüncü sağlayıcı eklendiği gün sessizce unutulacaktı.
+//
+// İkisi de aynı hatanın iki yüzü: **hangi anahtarların gerektiği VERİDİR** ve o veri
+// tanımlayıcılarda zaten yazıyor (`auth_env:`). Elle sayan her liste bir gün ayrışır.
+//
+// ⚠ Bu modül ortamı OKUMAZ. Okuyucu `readEnv` (secret-okuyucu darboğazı, §3.8) ve
+// çağıran onu geçirir. Burada `process.env`e dokunmak, darboğazın ikinci bir kopyasını
+// açmak olurdu.
+
+import type { ProviderDescriptor } from './descriptor.js'
+
+/**
+ * Tanımlayıcıların beyan ettiği anahtar adları — yalnız **enabled** olanlardan.
+ *
+ * Kapalı bir sağlayıcının anahtarını ortama koymak zararsız görünür ama yanlış:
+ * `enabled: false` "bu sağlayıcı kullanılmıyor" demektir ve sırrı gereksiz yere
+ * alt süreçlere yaymak, en az yetki ilkesinin sessiz ihlalidir.
+ */
+export const authEnvNames = (descriptors: readonly ProviderDescriptor[]): readonly string[] =>
+  [
+    ...new Set(
+      descriptors
+        .filter((d) => d.enabled)
+        .map((d) => d.authEnv)
+        .filter((x): x is string => x !== null)
+    ),
+  ].sort()
+
+/**
+ * Sağlayıcı kullanılabilirliği için gereken ortam.
+ *
+ * `PATH` her zaman var: bazı sağlayıcılar yerel bir ikili arıyor (`claude-code`).
+ * Değeri `undefined` olan anahtar **hiç eklenmez** — boş dize ile "var ama boş"
+ * arasındaki farkı sağlayıcıya taşımak, yanlış pozitif bir kullanılabilirlik verir.
+ *
+ * ⚠ **`CF_ACCOUNT_ID` gibi `auth_env` OLMAYAN yardımcı değişkenler:** tanımlayıcı tek
+ * bir `auth_env` beyan edebiliyor, oysa Cloudflare iki değişken istiyor. `ek` bunun
+ * için var ve çağıran açıkça verir — sessiz bir varsayım yerine görünür bir parametre.
+ */
+export const saglayiciOrtami = (
+  descriptors: readonly ProviderDescriptor[],
+  oku: (ad: string) => string | undefined,
+  ek: readonly string[] = []
+): Readonly<Record<string, string>> => {
+  const sonuc: Record<string, string> = { PATH: oku('PATH') ?? '' }
+  for (const ad of [...authEnvNames(descriptors), ...ek]) {
+    const v = oku(ad)
+    if (v !== undefined && v !== '') sonuc[ad] = v
+  }
+  return sonuc
+}
