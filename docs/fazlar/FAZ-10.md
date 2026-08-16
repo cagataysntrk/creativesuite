@@ -37,7 +37,7 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 ---
 
-## 10.2 — Referansların ölçülmesi: eşikler tahmin edilmez    [ ]
+## 10.2 — Referansların ölçülmesi: eşikler tahmin edilmez    [x] 2026-08-17
 
 📖 §11.1, §12.1 · R-74 · D-253
 🔗 —
@@ -45,19 +45,52 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    oranı, palet dışı piksel payı, farklı tip boyutu sayısı, kenar payı, kontrast oranı.
    Çıktı `docs/referans/tasarim-temeli.md` — her sayı ölçüm komutuyla birlikte.
 📁 `scripts/tasarim-temeli.mjs` · `docs/referans/tasarim-temeli.md`
-✅ Her eşik bir ÖLÇÜMDEN geliyor, hiçbiri yuvarlak sayı olduğu için seçilmemiş.
-   ⚠ **Bu adım 10.3'ten ÖNCE gelmek zorunda.** Chroma tavanında ders alındı (D-253):
-   0.156 değeri ölçüldüğü için savunulabildi; tahmin edilseydi ilk itirazda düşerdi.
-   Eşiği önce koyup sonra ölçmek, eşiği kendi çıktımıza göre ayarlamak demektir.
-🧪 —
+✅ **ÖLÇÜLDÜ** — 3 bölge (sol çift · merkez kapak · sağ çift), palet dışı
+   `9.5% · 13.8% · 20.4%`, ortalama ΔE `2.5 · 3.3 · 2.7`. Ölçüm **kendi çıktımızı ölçen
+   fonksiyonla** (`pixelStats`, ΔE2000, `paletteMatch 5.0`) yapıldı; ayrı bir tanımla
+   ölçmek iki farklı büyüklüğü karşılaştırmak olurdu.
+   **Sonuç eşikten daha değerli çıktı — üç şey öğrenildi ve üçü de ret:**
+   1. **T9 ve T11 referanstan TÜRETİLEMEZ.** `textCoverage` pikselden değil BELGE
+      MODELİNDEN ölçüyor; referansın modeli yok. Tip ölçeği ise anti-aliasing yüzünden
+      pikselden sayılamaz. İkisi de dışsal/kendi kısıtımızdan geliyor ve raporda yazılı.
+   2. **T10 görsel bloklarını DIŞLAMALI** — ölçüldü: `04-kapanis` %24.8 verdi, bakıldı,
+      alanın %60'ı bir AI fotoğrafıydı. Fotoğraf tanımı gereği palet dışıdır.
+   3. **Metin sütununu daraltmak Türkçede metni daraltmıyor** → 10.2b.
+🧪 **Ölçüm aracının KENDİSİ ihlal edildi.** İlk sürüm renk kovasının MERKEZİNİ palet
+   girdisi yapıyordu; yuvarlama hatası amber için ΔE 5.28 = `paletteMatch` 5.0'ın üstünde,
+   yani her baskın renk pikseli "palet dışı" sayılıyordu. Ölçüm %97.8 veriyor ve **iki
+   farklı tasarım için aynı sayıyı** üretiyordu. Kova ortalamasına geçildi. Ayrıca betik
+   ikiden az bölgede artık DURUYOR — ilk sürüm sessizce 2 bölge bulup raporu yine
+   yazıyordu; eksik ölçüm, ölçüm gibi görünüyordu.
 💾 `docs(docs): referans karosellerin tasarım temeli` · `Refs: FAZ-10.2 · §11.1`
+
+---
+
+## 10.2b — Tip ölçeği: en uzun Türkçe kelime güvenli sütuna SIĞMALI    [ ]
+
+📖 §7.2, §12.2 · R-23, R-30 · D-255
+🔗 10.2 (kusur orada ölçüldü)
+🛠 Kapak metni hâlâ eğri sınırını kesiyor ve sebebi **kutu değil PUNTO**:
+   `guvenliMetinYuzdesi` kutuyu %36'ya (389 px) kilitliyor ama `iyileştiremezsiniz`
+   kelimesi `h1`in 76 px puntosunda ~690 px yer kaplıyor. **Kelime bölünmez, kutudan
+   taşar** — kutuyu daraltmak taşmayı yok etmiyor, yalnız hangi kenardan taştığını
+   değiştiriyor. Bu, R-23'ün (Türkçe genişleme yapısaldır) tipografi tarafı.
+   Yapılacak: temsili uzun Türkçe kelimeler render edilip ÖLÇÜLÜR, güvenli sütuna sığan
+   en büyük punto seçilir ve tip ölçeği ona göre sabitlenir.
+📁 `packages/render/src/static.ts` · `packages/render/src/sablon.ts`
+✅ ⚠ **Otomatik küçültme YOK** (R-30): `fitText` benzeri hiçbir şey yazılmayacak — sığdırmak
+   için tipi küçültmek makine üretimi kreatifin bir numaralı görsel işareti. Punto
+   ÖNCEDEN, ölçülerek seçiliyor; bu bir tip ölçeği kararı, çalışma zamanı düzeltmesi değil.
+   Kabul: ölçülen kelime listesinin tamamı güvenli sütuna sığıyor, hiçbiri taşmıyor.
+🧪 Listeye sütuna sığmayan bir kelime ekle → ölçüm onu RAPORLUYOR, sessizce geçmiyor.
+💾 `fix(render): tip ölçeği en uzun Türkçe kelimeden türetiliyor` · `Refs: FAZ-10.2b · §7.2`
 
 ---
 
 ## 10.3 — Tasarım metrikleri ve `tasarim` kapısı    [ ]
 
 📖 §11.1, §7.2 · R-30 · D-255
-🔗 10.2 (eşikler oradan gelir)
+🔗 10.2 (eşikler ve ölçüm tanımı oradan)
 🛠 İki katmanlı ölçüm. **Model katmanı** (saf, ucuz, her koşuda): belge modeli +
    `SlaytKimligi`den hesaplanır. **Piksel katmanı** (render sonrası): mevcut
    `qa/pixels.ts` üstüne. Kapı ikisini de okur; **bloklayıcı** olanlar aşağıda.
@@ -74,15 +107,19 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 | T6 | Kullanılan font ailesi sayısı | **= 2** | model | bloklayıcı |
 | T7 | Komşu iki slaytta aynı zemin | **0 çift** | model | bloklayıcı |
 | T8 | Kelime: kapak / gövde / kapanış | **≤8 / ≤30 / ≤14** | model | bloklayıcı |
-| T9 | Metin kaplama oranı | *10.2'den* | piksel | uyarı |
-| T10 | Palet dışı piksel payı | *10.2'den* | piksel | uyarı |
-| T11 | Farklı tip boyutu sayısı | *10.2'den* | model | uyarı |
+| T9 | Metin kaplama oranı | **≤ %20** | model | uyarı |
+| T10 | Palet dışı — **görsel bloklar hariç** | **≤ %15** | piksel | uyarı |
+| T11 | Farklı tip boyutu sayısı | **≤ 3** | model | uyarı |
 | T12 | ΔE2000, marka kehribarına | **≤ 5.0** | piksel | uyarı |
 
    **Neden T2–T3–T8 bloklayıcı:** üçü de bu hafta GERÇEKTEN oldu. Bir kapı, olmuş bir
    hatayı yakalamıyorsa kapı değil, temennidir.
    **Neden T9–T12 uyarı:** estetik tercih payı var; sıfır tolerans, meşru bir tasarımı
    reddeder. Uyarılar sayılır ve teslimat görünümünde raporlanır.
+   ⚠ **Eşikler 10.2'den GELMEDİ ve bu bir başarısızlık değil, ölçümün sonucu:** T9 model
+   tabanlı (kaynağı Meta reklam kuralı), T11 kendi gramerimizin kısıtı, T10 zaten
+   yürürlükteki marka paleti limiti. Referans hiçbirini iyileştiremiyor; iyileştirdiğini
+   iddia eden bir sayı yazmak, kaynağı unutulduğunda ölçüm sanılırdı.
 🧪 T2'yi kasten ihlal et (`guvenliMetinYuzdesi`'ni 70 yap) → kapı kırmızı, çıktıda
    ihlal eden slayt ve piksel bandı yazılı. T6, T7, T8 için de birer ihlal koşulur.
 💾 `feat(gates): tasarım metrikleri ve kapısı` · `Refs: FAZ-10.3 · §11.1`

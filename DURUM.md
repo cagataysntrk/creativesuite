@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 10
-siradaki_adim: 10.2
+siradaki_adim: 10.2b
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -31,23 +31,13 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
-> | Adım | Bekleyen | Ne gerekiyor |
-> |---|---|---|
-> | `2.9` | insan onayı | `just onayla corpus/*/*.md` → 7 kayıt `draft` |
-> | `3.7` | V-16 | `CF_ACCOUNT_ID`+`CF_API_TOKEN` ya da `FAL_KEY` |
-> | `3.8` | V-16 | aynı + ~$3 gerçek para |
-> | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |
-> | `4.13b` | V-18 | Tailscale kurulumu + gerçek Telegram token'ı |
-> | `5.4b` | V-21 | `chatterbox` ağırlıkları (~2 GB) + `GEMINI_API_KEY` + `ELEVENLABS_API_KEY` |
-> | `5.5b` | V-22 | `whisper.cpp` kurulumu ya da gerçek `GROQ_API_KEY` |
-> | `6.5b` | V-24 | Bright Data · Tavily · ihale-mcp · borsa-mcp anahtarları |
-> | `6.9b` | V-25 | gerçek bir prospect kaydı (+ `2.9` onayı) |
-> | `7.2b` | V-26 | Meta uygulaması + token **ve** HTTP adaptörü (kod da eksik) |
-> | `7.5b` | V-27 | uygulama kaydı + dört değişken **ve** OAuth komutu (kod da eksik) |
-> | `7.6b` | V-26 | gerçek token → yenileme çağrısı denenebilsin |
-> | `7.8b` | V-26 | gerçek token → günlük insight çekimi koşabilsin |
-> | `8.6` | V-10 | Türk hukukçu → KVKK metinleri (**LLM'e yazdırılmaz**) |
-> | `8.8b` | V-27 | gerçek anahtar → gerçekten döndürülebilsin |
+> | Adım | Bekleyen | | Adım | Bekleyen |
+> |---|---|---|---|---|
+> | `2.9` | `just onayla corpus/*/*.md` | | `6.5b` | V-24 şelale anahtarları |
+> | `3.7` `3.8` | V-16 anahtar (+~$3) | | `6.9b` | V-25 gerçek prospect |
+> | `3.14` | `2.9`'a bağlı | | `7.2b` `7.6b` `7.8b` | V-26 Meta token |
+> | `4.13b` | V-18 Tailscale+Telegram | | `7.5b` `8.8b` | V-27 OAuth kaydı |
+> | `5.4b` `5.5b` | V-21/V-22 ses+altyazı | | `8.6` | V-10 hukukçu |
 
 ## Tamamlananlar
 
@@ -72,6 +62,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **8.8** · rotasyon tablosu kodla senkron; kapı 5 anahtar buldu | 2026-08-16 |
 | **8.9** · yerel MCP (D-226 kabul, dar); yükleme bağlı, tek yazma yolu | 2026-08-16 |
 | **10.1** · karosel başına tek tarayıcı; 4.9x, çıktı bayt bayt özdeş | 2026-08-17 |
+| **10.2** · referans ölçüldü; T9/T11 türetilemez, T10 görseli dışlamalı | 2026-08-17 |
 
 ## Sıradaki adım
 
@@ -82,7 +73,14 @@ değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
 Ölçüldü: `3795 ms → 776 ms = 4.9x`, çıktı **sha256 bayt bayt özdeş**. Oturum içinde
 kasten hata → tarayıcı yine kapanıyor, sızıntı yok. Singleton DEĞİL: ömür işin ömrü.
 
-**10.2 referansları ÖLÇ** (eşikler tahmin edilmez) → 10.3 `tasarim` kapısı
+**10.2 KAPANDI** — referans ölçüldü (palet dışı `9.5·13.8·20.4%`); ayrıntı
+`docs/referans/tasarim-temeli.md`. Sonuç eşikten değerli: T9/T11 **türetilemez**,
+T10 **görsel bloklarını dışlamalı**. Ölçüm aracı da ihlal edildi (kova merkezi →
+ΔE 5.28 > eşik 5.0 → %97.8, iki tasarıma AYNI sayı; ortalamaya geçildi).
+
+**SIRADAKİ 10.2b** — kapak metni hâlâ eğriyi kesiyor, sebep kutu değil PUNTO:
+`iyileştiremezsiniz` 76 px'te ~690 px, güvenli sütun 389 px; kelime bölünmez.
+Otomatik küçültme YOK (R-30), punto ölçülerek seçilecek. Sonra: 10.3 `tasarim` kapısı
 (8 bloklayıcı + 4 uyarı metriği) → 10.4 düzen seçimi → 10.5 görsel yargı
 (sınırlayıcı kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
 
