@@ -1,0 +1,32 @@
+{
+  "$aciklama": "Tıklama hedefleri ve bölüm işaretleri (§7.7 · FAZ-5.6). demo-script.ts bunu YAZAR; zoom odağı ve reels klipleri bundan deterministik türer.",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "targets": [
+    {
+      "label": "giris",
+      "at": 0,
+      "box": { "x": 760, "y": 420, "width": 400, "height": 120 },
+      "chapter": true
+    },
+    {
+      "label": "fire tablosu",
+      "at": 3.5,
+      "box": { "x": 240, "y": 300, "width": 720, "height": 380 },
+      "chapter": false
+    },
+    {
+      "label": "olcum",
+      "at": 7,
+      "box": { "x": 1100, "y": 260, "width": 560, "height": 300 },
+      "chapter": true
+    },
+    {
+      "label": "kapanis",
+      "at": 12,
+      "box": { "x": 700, "y": 800, "width": 520, "height": 140 },
+      "chapter": true
+    }
+  ]
+}

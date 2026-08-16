@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.7
+siradaki_adim: 5.8
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.6 BITTI (D-200). Tiklama niyeti PIKSEL OLUSMADAN ONCE yaziliyor: boundingBox() tiklamadan once cagriliyor ve timeline.json a veri olarak dusuyor; zoom odagi, bolum isaretleri ve reels klipleri bundan DETERMINISTIK turuyor (ses enerjisinden degil). recordVideo chokepoints e izinli:[] ile kondu — istenen cozunurlugu karsilayamayinca SESSIZCE 800x800 WebM e dusuyor. Ihlal testim ilk denemede YANLIS kurali sindi; sadelestirilip dogru kuraldan kirmizi alindi (D-186). Gercek kanit: Xvfb 1920x1080x24 + uretilen argumanlarla x11grab → h264 yuv420p 1920x1080 60fps. Kosum betigim iki kez yalan soyledi (xterm yoklugu, zsh kelime bolmuyor). 35 kapi, 955 test."
+son_kanit: "5.7 BITTI (D-201, D-202). V-20 KAPANDI: beklenen window.__hf ti, __timelines degil — sozlesmeyi paketten okumak dogru refleksti ama YANLIS sozlesmeyi okudum; cevap aracin kendi yardim metnindeydi. Kompozisyonlarimiz player runtime i calistirmiyor, --player-ready-timeout 2000 ile 1dk34sn → 8,3sn. demos/upcyman ucluSu kuruldu; yeni degismez: bolum isaretleri anlati bolumleriyle ESLESMELI — ayrisirlarsa video anlatilmayan bolum gosterir ve bu ancak izleyerek fark edilir. 35 kapi, 965 test."
 ```
 
 ## Neredeyiz
@@ -76,13 +76,13 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **5.4** · `audio.tts` şerit sözleşmesi; lisans beyanı zorunlu | 2026-08-16 |
 | **5.5** · `.ass` yazıcısı + transkript kapısı (yayın yükleminde) | 2026-08-16 |
 | **5.6** · Demo yakalama; tıklama niyeti pikselden önce yazılıyor | 2026-08-16 |
+| **5.7** · `demo-video` hattı + kalıcı üçlü; V-20 kapandı | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.7` — `demo-video` pipeline** (§10). Demo **sürümlü artefakt**, MP4 yalnız build
-çıktısı. Kalıcı üçlü `demos/<urun>/`: `demo-script.ts` · `timeline.json` (5.6 şeması) ·
-`narration.tr.json`. Sonraki video METNİ düzenleyip yeniden render ederek üretilir.
-⚠ V-20 burada çözülür.
+**`5.8` — `reels` deterministik türetme** (§10). Bölüm işaretlerinden klip üretimi.
+**Otomatik klipleyici YOK** (§17): konuşma enerjisiyle çalışır, sessiz kayıtta işe
+yaramaz. `chapters()`/`zoomOrigin()` hazır; `demos/upcyman/` üç bölüm işareti taşıyor.
 
 ## FAZ 4 kalanı
 

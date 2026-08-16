@@ -1,0 +1,19 @@
+{
+  "$aciklama": "Bölüm başına Türkçe anlatı (§10 · FAZ-5.7). KALICI ARTEFAKT — video build çıktısı, bu dosya kaynak. Metni düzenle, yeniden render et; yeniden KAYIT yapma.",
+  "urun": "upcyman",
+  "locale": "tr-TR",
+  "bolumler": [
+    {
+      "id": "giris",
+      "metin": "UpcyMan, üretim hattındaki fireyi ölçen bir servis. Ekranda gördüğünüz her sayı gerçek bir kayıttan geliyor."
+    },
+    {
+      "id": "olcum",
+      "metin": "Vardiya bazında fire oranı burada. Rakam değil, eğilim önemli: iki hafta üst üste artıyorsa sebep hatta."
+    },
+    {
+      "id": "kapanis",
+      "metin": "Kurulum bir gün. Kendi verinizle görmek isterseniz pilot açıyoruz."
+    }
+  ]
+}

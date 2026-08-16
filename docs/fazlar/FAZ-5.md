@@ -80,18 +80,15 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
    işaretlerini taşıyor, zoom odağı hedefin merkezinden türüyor
 🧪 `recordVideo` kullanmayı dene → `chokepoints` (`ekran-kaydedici`) reddediyor
 
-## 5.7 — `demo-video` pipeline    [ ]
+## 5.7 — `demo-video` pipeline    [x] 2026-08-16
 
-📖 §10 · D-13
+📖 §10 · D-13, D-201, D-202
 🔗 5.6
-🛠 **Demo bir SÜRÜMLÜ ARTEFAKTTIR**, MP4 yalnız build çıktısı. Kalıcı üçlü:
-   `demo-script.ts` (Playwright akışı) · `timeline.json` · `narration.tr.json`.
-   Ürün arayüzü değişince script güncellenir, video **yeniden render edilir** — yeniden
-   kayıt YAPILMAZ.
-📁 `registry/pipelines/demo-video.pipeline.yaml` · `demos/<product>/`
-✅ Metni düzenle → yeniden render, yeni kayıt gerekmiyor
-🧪 `timeline.json`'suz render dene → hata (hedefler bilinmeden zoom yapılamaz)
-💾 `feat(cli): demo-video pipeline` · `Refs: FAZ-5.7 · §10`
+📁 `registry/pipelines/demo-video.pipeline.yaml` · `demos/upcyman/`
+✅ Kalıcı üçlü kuruldu; anlatı metnini düzenlemek yeniden KAYIT gerektirmiyor ·
+   bölüm işaretleri anlatı bölümleriyle eşleşiyor (test) · `just plan demo-video`
+   üç insan kapısı ve dört ücretli adım basıyor · **V-20 kapandı: render 1dk34sn → 8,3sn**
+🧪 `timeline.json`'suz render dene → `missing_file` (BOŞ zaman çizgisinden AYRI hata)
 
 ## 5.8 — `reels` — deterministik türetme    [ ]
 

@@ -139,6 +139,7 @@ export {
 // Demo yakalama (§7.7 · FAZ-5.6). Tarayıcıya ve sürece DOKUNMAZ: şema + argüman.
 export {
   validateTimeline,
+  loadTimeline,
   zoomOrigin,
   chapters,
   timelineHataMesaji,

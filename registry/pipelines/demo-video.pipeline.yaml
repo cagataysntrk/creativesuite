@@ -1,0 +1,80 @@
+# Demo videosu (§10 · D-13 · FAZ-5.7).
+#
+# **Demo bir SÜRÜMLÜ ARTEFAKTTIR; MP4 yalnız build çıktısı.** Kalıcı olan üçlü
+# `demos/<urun>/` altında: `demo-script.ts` (Playwright akışı), `timeline.json`
+# (tıklama hedefleri ve bölüm işaretleri — 5.6), `narration.tr.json` (bölüm başına
+# Türkçe anlatı). Ürün arayüzü değişince script güncellenir ve video **yeniden render
+# edilir**; yeniden KAYIT yapılmaz.
+#
+# Aynı ilke her yerde: `carousel.ir.json`, `deck.ir.json` — hepsi KAYNAK, çıktı değil.
+# Benzer bir iş geldiğinde LLM'i yeniden çalıştırmak yerine kaynağı düzenlemek hem ucuz
+# hem tutarlı (§4c).
+#
+# MODEL ADI YOK (R-40): yetenek + kısıt istenir, yönlendirici seçer.
+id: demo-video
+title: Ürün demo videosu
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  # Anlatı metni `narration.tr.json`dan gelir ama BÖLÜM SIRASI insan kapısından geçer:
+  # yanlış sıralanmış bir demo, ürünü yanlış anlatır ve bunu ancak izleyince görürsünüz.
+  - id: bolum-sirasi
+    verb: PROPOSE
+    needs: [bilgi-sec]
+    gate: bolum-sirasi
+
+  - id: anlati-uret
+    verb: GENERATE
+    capability: audio.tts
+    needs: [bolum-sirasi]
+    constraints:
+      locale: tr-TR
+      # Şerit çalıştırma anında seçilir (D-18); dördü de meşru.
+      optional: true
+
+  # Yakalama: Xvfb + x11grab (5.6). Yönlendirilmez — RENDER tek motordur (D-122).
+  - id: yakala
+    verb: RENDER
+    needs: [bolum-sirasi]
+    constraints:
+      width: 1920
+      height: 1080
+      fps: 60
+      # `timeline.json` ZORUNLU: hedefler bilinmeden zoom yapılamaz (§7.7).
+      timeline_required: true
+
+  - id: altyazi
+    verb: RENDER
+    needs: [yakala, anlati-uret]
+    constraints:
+      captions: ass
+      locale: tr-TR
+
+  # Transkript kapısı ATLANAMAZ: Türkçe WER %10-25 (§7.5). Kapı ayrıca
+  # `isPublishable` yükleminin İÇİNDE de zorlanıyor (D-199) — iki katman.
+  - id: transkript
+    verb: PROPOSE
+    needs: [altyazi]
+    gate: transkript
+
+  - id: kurgu
+    verb: RENDER
+    needs: [transkript]
+    constraints:
+      width: 1920
+      height: 1080
+
+  - id: kalite
+    verb: VALIDATE
+    needs: [kurgu]
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

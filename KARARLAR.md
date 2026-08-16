@@ -67,14 +67,9 @@ tasarımı yok. Ama "gerçek render'da hiçbir yerde kırpma yok" ölçümü YAP
 harness'ı ister (jsdom + testing-library, iki bağımlılık, R-75). Ölçüm gelene kadar
 FAZ 4'ün bu çıkış kriteri **karşılanmadı** sayılır. → FAZ-9.2
 
-## V-20 — HyperFrames render'ı 45 sn boşuna bekliyor
-`sub_timeline_readiness_timeout`: 6 saniyelik video **1 dk 34 sn**de render oluyor,
-oysa iskelet kompozisyonu (GSAP'li) 10,7 sn'de bitiyordu. Koşucunun sözleşmesi
-paketten OKUNDU (`hyperframe.runtime.iife.js`): `Object.keys(__timelines).length > 0`
-ve `typeof timeline.duration === 'function'`. İkisi de karşılandı — bekleme sürüyor,
-yani tetikleyen başka bir koşul var (mesaj "**sub**-composition" diyor ve bizim
-alt-kompozisyonumuz yok). Çıktı DOĞRU (h264/yuv420p/1920×1080/30fps); bedel yalnız
-süre. Hareket hattı gerçekten kullanılmaya başlayınca (FAZ-5.7) ölçülüp çözülür. → FAZ-5.7
+## V-20 — HyperFrames render'ı 45 sn boşuna bekliyor ✅ KAPANDI
+Beklenen `window.__hf`ti, `__timelines` değil (D-201). Kompozisyonlarımız player
+runtime'ı çalıştırmıyor; `--player-ready-timeout 2000` ile **1 dk 34 sn → 8,3 sn**.
 
 ## V-21 — TTS anahtarları ve model ağırlıkları yok, ses ÜRETİLMEDİ
 Üç sağlayıcı da `enabled: false`: `chatterbox` model ağırlıkları indirilmedi (~2 GB),
@@ -473,3 +468,37 @@ Gerçek kanıt: Xvfb 1920×1080x24 + üretilen argümanlarla x11grab →
 sonra zsh unquoted değişkeni **kelime bölmediği** için tüm argüman dizisi tek argüman
 oldu ve "Unrecognized option" verdi. İkisi de koddaki değil harness'taki hataydı —
 D-170'in kabuk seviyesindeki hâli.
+
+## D-201 — V-20 çözüldü: beklenen `window.__hf`, `__timelines` değildi
+2026-08-16 · Render 6 saniyelik bir videoyu **1 dk 34 sn**de bitiriyordu. İlk teşhis
+yanlıştı: `hyperframe.runtime.iife.js`ten `__timelines` sözleşmesini okuyup karşıladım,
+bekleme sürdü. Doğru cevap CLI yardımındaydı — *"the post-goto **`window.__hf`**
+readiness poll has its own 45s budget"*. `__hf` player paketinin kurduğu bir nesne ve
+bizim kompozisyonlarımız player runtime'ı ÇALIŞTIRMIYOR: hareket CSS'te, süreler
+token'da (§12.7). Yani beklenen şey hiç gelmeyecekti.
+Çözüm bir hile değil, belgelenmiş bayrak: `--player-ready-timeout 2000`.
+**8,3 saniye** — aynı çıktı (66,9 KB, 6 sn), 11 kat hızlı. Uyarı hâlâ çıkıyor ve
+çıkmalı: doğruyu söylüyor, hiçbir player zaman çizgisi hazır olmadı.
+Bayrak `motion/kanit/package.json`daki `render` script'ine kondu ve gerekçesi dosyanın
+içinde — komut satırında kalsaydı ilk temiz çalıştırmada kaybolurdu.
+**Ders:** bir sözleşmeyi paketten okumak doğru refleksti (D-174) ama **yanlış
+sözleşmeyi** okudum. Hata mesajındaki kelime (`sub_timeline`) beni `__timelines`e
+yönlendirdi; asıl cevap aracın kendi yardım metnindeydi. Kaynağı okumadan önce
+**aracın kendi belgesine bakmak** daha ucuzdu.
+
+## D-202 — Demo bir sürümlü artefakt: kalıcı olan üçlü, MP4 değil
+2026-08-16 · `demos/upcyman/` üçlüsü kuruldu: `demo-script.ts` (Playwright akışı,
+adımlar VERİ — sıra değiştirmek bir düzenleme, yeniden yazma değil) · `timeline.json`
+(tıklama kutuları ve bölüm işaretleri) · `narration.tr.json` (bölüm başına Türkçe
+anlatı). Ürün arayüzü değişince script güncellenir, video **yeniden render edilir**;
+yeniden KAYIT yapılmaz — yeniden kayıt her seferinde farklı zamanlama ve farklı fare
+izi demektir.
+**Yeni bir değişmez test edildi: bölüm işaretleri anlatı bölümleriyle EŞLEŞMELİ.**
+Ayrışırlarsa video ya anlatılmayan bir bölüm gösterir ya da anlatı boşluğa konuşur —
+ve bu ancak videoyu izleyerek fark edilir, yani en pahalı yoldan.
+**`timeline.json` YOKLUĞU ile BOŞLUĞU ayrı hatalar** (D-198 deseni): ilki script'in hiç
+koşmadığını, ikincisi koştuğunu ama hiçbir öğe bulamadığını söyler. Tek hataya
+sıkıştırmak, hangisinin olduğunu bilmeden hata ayıklamak demekti.
+`demo-video` hattı yetenek + kısıt istiyor (R-40), **üç insan kapısı** taşıyor
+(bölüm sırası · transkript · onay) ve `just plan` maliyeti dürüstçe "FİYATLANAMADI"
+diyor — dört ücretli adımın sağlayıcısı henüz seçilemiyor (V-21).

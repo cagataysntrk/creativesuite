@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "npx --yes hyperframes@0.7.109 preview",
     "check": "npx --yes hyperframes@0.7.109 check",
-    "render": "npx --yes hyperframes@0.7.109 render",
+    "render": "npx --yes hyperframes@0.7.109 render --player-ready-timeout 2000",
     "publish": "npx --yes hyperframes@0.7.109 publish"
-  }
+  },
+  "$aciklama": "V-20 (D-201): --player-ready-timeout 2000 — kompozisyonlarımız CSS tabanlı ve HyperFrames player runtime'ı çalıştırmıyor. Varsayılan 45 sn'lik bekleme, 6 sn'lik bir videoyu 1 dk 34 sn'de render ettiriyordu; 8,3 sn'ye düştü."
 }

@@ -41,6 +41,8 @@ export interface CaptureTimeline {
 }
 
 export type TimelineError =
+  /** Dosya hiç YOK — demo script'i koşmamış. `no_targets`ten AYRI bir gerçek. */
+  | { readonly kind: 'missing_file' }
   | { readonly kind: 'no_targets' }
   | { readonly kind: 'negative_time'; readonly label: string }
   /** Hedef ekranın DIŞINDA: zoom oraya giderse siyah kare çıkar. */
@@ -101,10 +103,37 @@ export const zoomOrigin = (t: CaptureTimeline, hedef: ClickTarget): string => {
 export const chapters = (t: CaptureTimeline): readonly ClickTarget[] =>
   t.targets.filter((h) => h.chapter)
 
+/**
+ * `timeline.json`u diskten okur ve doğrular.
+ *
+ * **"Dosya yok" ile "zaman çizgisi boş" AYRI sonuçlardır** (D-198'in deseni): ilki
+ * demo script'inin hiç koşmadığını, ikincisi koştuğunu ama hiçbir hedef bulamadığını
+ * söyler. Tek hataya sıkıştırmak, hangisinin olduğunu bilmeden hata ayıklamak demekti.
+ */
+export const loadTimeline = (
+  oku: (yol: string) => string | null,
+  yol: string
+):
+  TimelineResult | { readonly ok: false; readonly errors: readonly [{ kind: 'missing_file' }] } => {
+  const ham = oku(yol)
+  if (ham === null) return { ok: false, errors: [{ kind: 'missing_file' }] }
+  let d: unknown
+  try {
+    d = JSON.parse(ham)
+  } catch {
+    return { ok: false, errors: [{ kind: 'missing_file' }] }
+  }
+  const t = d as CaptureTimeline
+  if (!Array.isArray(t.targets)) return { ok: false, errors: [{ kind: 'missing_file' }] }
+  return validateTimeline(t)
+}
+
 export const timelineHataMesaji = (e: TimelineError): string => {
   switch (e.kind) {
+    case 'missing_file':
+      return "timeline.json YOK — demo script'i hiç koşmamış; hedefler bilinmeden zoom yapılamaz"
     case 'no_targets':
-      return 'hiç tıklama hedefi yok — zoom ve bölüm işaretleri türetilemez'
+      return 'hiç tıklama hedefi yok — script koştu ama hiçbir öğe bulunamadı'
     case 'negative_time':
       return `'${e.label}' negatif zaman taşıyor`
     case 'out_of_bounds':
