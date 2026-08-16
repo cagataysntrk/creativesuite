@@ -21,10 +21,22 @@ steps:
       locale: tr-TR
       max_chars: 2200
 
+  # Görsel prompt'unu MODEL yazar, hat dosyası değil (D-241 · D-243). Sabit bir prompt
+  # içeriğe kör bir görsel verir; Türkçe konuyu doğrudan görsel modeline vermek ise
+  # ölçülerek elendi. Brief İngilizce, insansız ve metinsiz isteniyor — R-20 ve 9. yasa
+  # kapıları yine de bu metnin üzerinden geçiyor.
+  - id: gorsel-brief
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec]
+    constraints:
+      gorsel_brief: true
+      max_chars: 600
+
   - id: gorsel-uret
     verb: GENERATE
     capability: image.generate
-    needs: [bilgi-sec]
+    needs: [gorsel-brief]
     constraints:
       aspect: '4:5'
       # Görsel modeline Türkçe metin çizdirilmez (R-20) — metin kompozitte gelir.

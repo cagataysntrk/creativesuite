@@ -27,6 +27,25 @@ import type {
 const ID = 'claude-code'
 const BIN = 'claude'
 
+/**
+ * İkiliyi ortamdan SABİTLEME kancası (D-244).
+ *
+ * ⚠ **Ölçülen tuzak:** bu makinede iki Claude Code kurulumu vardı —
+ * `/usr/bin/claude` (global npm, emekli bir modele ayarlı, her çağrıda
+ * `404 not_found_error`) ve `~/.claude/local/claude` (çalışan). PATH eskisini önce
+ * buluyordu ve `available()` "var" diyordu: kapı yeşil, çağrı ölü.
+ *
+ * **Bir ikilinin PATH'te BULUNMASI, doğru ikili olduğunu göstermez.** Sürüm sormak
+ * da yetmez; kırık olan şey sürüm değil yapılandırmaydı. Tek dürüst çözüm operatörün
+ * sabitleyebilmesi.
+ */
+const BIN_ENV = 'CLAUDE_CODE_BIN'
+
+const ikili = (env: Readonly<Record<string, string | undefined>>): string => {
+  const ozel = env[BIN_ENV]
+  return ozel !== undefined && ozel.trim() !== '' ? ozel : BIN
+}
+
 /** Tamamlanan çağrıların sonuçları — `status()` bunları okur. */
 const sonuclar = new Map<string, JobStatus>()
 
@@ -92,7 +111,7 @@ export const claudeCode: ProviderAdapter = {
   estimate: (_vi: ValidatedInput): MoneyRange => ({ low: ZERO_USD, high: ZERO_USD }),
 
   // SENKRON. Ağa çıkmaz; yalnız ikili dosya PATH'te mi diye bakar.
-  available: (env) => commandExists(BIN, env['PATH']),
+  available: (env) => commandExists(ikili(env), env['PATH']),
 
   start: async (vi, ctx: ProviderContext): Promise<Result<JobHandle, AppError>> => {
     // **Sessizce atlamaz.** Claude Code yoksa açık bir `provider_unavailable` döner;
@@ -100,13 +119,13 @@ export const claudeCode: ProviderAdapter = {
     if (!claudeCode.available(ctx.env)) {
       return err(
         hata('provider_unavailable', 'CLAUDE_CODE_NOT_FOUND', ctx.correlationId, {
-          binary: BIN,
+          binary: ikili(ctx.env),
           hint: 'claude PATH üzerinde bulunamadı',
         })
       )
     }
 
-    const sonuc = await spawnProcess(BIN, ['-p', vi.prompt, '--output-format', 'json'], {
+    const sonuc = await spawnProcess(ikili(ctx.env), ['-p', vi.prompt, '--output-format', 'json'], {
       env: ctx.env,
       signal: ctx.signal,
       timeoutMs: 10 * 60_000,

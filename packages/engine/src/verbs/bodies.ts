@@ -36,6 +36,13 @@ import {
   type LayoutName,
 } from '@suite/render'
 import {
+  duzMetin,
+  gorselBriefPromptu,
+  icerikPromptu,
+  metneCevir,
+  type PromptKaydi,
+} from '../metin-akisi.js'
+import {
   fetchSource,
   isIngestFailure,
   planWaterfall,
@@ -931,6 +938,59 @@ export interface GenerateDeps {
  * sahte bir köprü kuruyordu ve `cloudflareImage`/`falImage` adaptörlerine hiç
  * ulaşılmıyordu (D-141). Yani "iki şerit de görsel üretiyor" iddiası hiç sınanmamıştı.
  */
+/**
+ * Prompt'u içerikten türetir. **Yetenek hangi kurucuya gideceğini belirler.**
+ *
+ * Görsel adımı kendi prompt'unu KURMAZ: `gorsel-brief` adımının çıktısını okur
+ * (D-241). Türkçe konuyu doğrudan görsel modeline vermek ölçülerek elendi; brief'i
+ * bir metin modeli yazınca R-20 ve 9. yasa kapıları o metnin üzerinden geçiyor.
+ */
+const promptTuret = (yetenek: string, input: BodyInput): string => {
+  const konu = typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : ''
+  const kacinilacak =
+    typeof input.constraints['kacinilacak'] === 'string'
+      ? input.constraints['kacinilacak']
+      : undefined
+
+  if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
+    // Önceki adımların METİN çıktısı = görsel brief'i. `needs` zaten yalnız o adımı
+    // bağlıyor; burada şekle bakmak, adım id'sine bakmaktan sağlam (D-229 dersi).
+    for (const v of Object.values(input.inputs)) {
+      const d = duzMetin(v)
+      if (d !== null) return d
+    }
+    return ''
+  }
+
+  const kayitlar = kayitlariTopla(input.inputs)
+  const girdi = {
+    konu,
+    kayitlar,
+    ...(typeof input.constraints['locale'] === 'string'
+      ? { locale: input.constraints['locale'] }
+      : {}),
+    ...(typeof input.constraints['max_chars'] === 'number'
+      ? { maxChars: input.constraints['max_chars'] }
+      : {}),
+    ...(kacinilacak === undefined ? {} : { kacinilacak }),
+  }
+  const gorselBriefMi = input.constraints['gorsel_brief'] === true
+  return (gorselBriefMi ? gorselBriefPromptu(girdi) : icerikPromptu(girdi)) ?? ''
+}
+
+/** `SELECT` çıktısındaki kayıtları toplar — şekle bakarak, adım adına değil. */
+const kayitlariTopla = (inputs: Readonly<Record<string, unknown>>): PromptKaydi[] => {
+  for (const v of Object.values(inputs)) {
+    if (v === null || typeof v !== 'object') continue
+    const r = (v as { records?: unknown }).records
+    if (!Array.isArray(r)) continue
+    return r
+      .filter((x): x is PromptKaydi => typeof (x as PromptKaydi)?.text === 'string')
+      .map((x) => ({ id: String(x.id ?? ''), text: x.text }))
+  }
+  return []
+}
+
 export const generateBody = (deps: GenerateDeps): Verb =>
   govde('GENERATE', async (ctx, input) => {
     // **Yetenek ADIMDAN gelir** (D-241); `deps.capability` yalnız geriye dönük
@@ -991,8 +1051,14 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       metinYetenegi && typeof input.constraints['kacinilacak'] === 'string'
         ? input.constraints['kacinilacak'].trim()
         : ''
-    const temelPrompt =
+    // ── prompt'un KAYNAĞI (§5.3 · D-243) ────────────────────────────────────
+    //
+    // ⚠ Hiçbir hat `prompt` beyan etmiyor ve etmemeli: prompt içerikten türer, hat
+    // dosyasından değil. Sabit yazılsaydı her konu için ayrı YAML gerekirdi.
+    // Kısıt YİNE DE kazanır — elle verilmiş bir prompt varsa ona dokunulmuyor.
+    const beyanEdilen =
       typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : ''
+    const temelPrompt = beyanEdilen !== '' ? beyanEdilen : promptTuret(yetenek, input)
 
     const ham: ProviderInput = {
       capability: yetenek,
@@ -1021,6 +1087,16 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     })
     if (!sonuc.ok) return err(sonuc.error)
 
+    // ── çıktı `COMPOSE`un beklediği şekle çevriliyor (D-243) ────────────────
+    //
+    // ⚠ `composeBody` `{lines: string[]}` arıyor; sağlayıcı çıktısı o şekilde değil.
+    // Bulamayınca **sessizce ham kayıtlara düşüyordu** — yani model koşsa bile metni
+    // kullanılmıyor ve bunu çıktıya bakarak anlamak imkânsızdı.
+    //
+    // Ham çıktı da taşınıyor (`raw`): normalize edilmiş şekil bir KOLAYLIK, kanıt
+    // değil. Manifest ve replay ham olanı görmeli.
+    const metin = yetenek.startsWith('text.') ? metneCevir(sonuc.value.data) : null
+
     return ok({
       costs: [
         {
@@ -1031,7 +1107,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
           kind: 'actual' as const,
         },
       ],
-      data: sonuc.value.data,
+      data: metin === null ? sonuc.value.data : { ...metin, raw: sonuc.value.data },
     })
   })
 

@@ -355,3 +355,13 @@ export {
   VARYANT_AYRAC,
   type GenisletmeSonucu,
 } from './varyant-genislet.js'
+
+// `GENERATE`in metin girdisi ve çıktısı — prompt kaynağı + `{lines}` normalizasyonu.
+export {
+  icerikPromptu,
+  gorselBriefPromptu,
+  metneCevir,
+  duzMetin,
+  type PromptGirdisi,
+  type PromptKaydi,
+} from './metin-akisi.js'

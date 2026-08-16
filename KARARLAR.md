@@ -530,3 +530,66 @@ tahmin etmek yasak.
 yani gerçek eksiği gösteriyor. Bu eksik (`3.7b`) daha önce defterin arkasına saklanmıştı.
 
 **Geri alma maliyeti:** yok.
+
+## D-243 — Prompt'un kaynağı yoktu; çıktı da `COMPOSE`a ulaşmıyordu
+
+**2026-08-16 · FAZ-3.7b**
+
+Corpus onaylandıktan ve defter kusuru kapandıktan (D-242) sonra hat dürüstçe
+`EMPTY_PROMPT` dedi ve **aynı dikişin iki ucunun da açık olduğu** görüldü:
+
+**1 · Prompt'un kaynağı yoktu.** `topic` bir çalıştırma parametresi, kayıtlar
+`SELECT`ten `input.inputs`e akıyor — ama hiçbir kod ikisini bir prompt'a çevirmiyordu.
+`constraints['prompt']` hep boş kalıyordu.
+
+**2 · Çıktı `COMPOSE`a ulaşmıyordu.** `composeBody` `{lines: string[]}` arıyor;
+sağlayıcı çıktısı o şekilde değil. Bulamayınca **sessizce ham kayıtlara düşüyordu** —
+yani model koşsa bile metni kullanılmıyor ve bunu çıktıya bakarak anlamak imkânsızdı.
+İkinci boşluk birincisinin arkasında saklıydı: prompt hiç kurulamadığı için model hiç
+koşmuyordu ve normalizasyonun eksikliği görünmüyordu.
+
+**Önce ARADIM, sonra yazdım** (kullanıcının uyarısı üzerine): `assembleContext` hangi
+kaydın bütçeye sığdığını hesaplıyor (köken ve planlama), `buildImagePrompt` R-20 ekini
+basıyor (güvenlik), `selectBody` kayıtları getiriyor. **Üçü de prompt kurmuyor** ve
+hiçbiri bu işi yapacak yer değil — karıştırılırsa "bu kayıt neden düştü" ile "bu prompt
+neden böyle" tek cevaba sıkışır. Tikli fazlar bir şeyin var olduğunu garanti etmiyor;
+aramak ucuz, ikinci kopya pahalı.
+
+**İkisi tek dosyada** (`metin-akisi.ts`) çünkü aynı dikişin iki ucu: ayrı dosyalarda
+olsalardı biri düzeltilip diğeri unutulurdu.
+
+**Görsel brief'i MODEL yazıyor** (D-241'in kararı uygulandı): hat dosyasına sabit prompt
+yazmak içeriğe kör görsel verir; Türkçe konuyu doğrudan görsel modeline vermek ölçülerek
+elendi. Brief İngilizce, insansız ve metinsiz isteniyor — ve bake-off'un ölçtüğü şey
+prompt'a yazıldı: **tabela içeren konular açıkça eleniyor** (kantar göstergesi, raf
+etiketi, dashboard), çünkü metin sızması konu seçiminden geliyor, ekten değil.
+
+**Kapılar yine de duruyor:** brief bir metin modelinden çıkıp görsel modeline giderken
+R-20 ve 9. yasa kapılarının ikisinden de geçiyor. Bir kapıya çarpmadan geçmek, çarpıp
+geri dönmekten ucuz — ama kapı kaldırılmıyor.
+
+**Geri alma maliyeti:** yok.
+
+## D-244 — PATH'te bulunan ikili, DOĞRU ikili demek değil
+
+**2026-08-16 · ilk gerçek metin üretimi**
+
+Prompt kurulduktan sonra `claude` çağrıldı ve `CLAUDE_CODE_EXIT: {code:1, stderr:""}`
+döndü. Kazınca: bu makinede **iki Claude Code kurulumu** var —
+
+- `/usr/bin/claude` → global npm paketi, **emekli bir modele ayarlı**, her çağrıda
+  `API Error: 404 {"type":"not_found_error","message":"model: claude-opus-4-1-…"}`
+- `~/.claude/local/claude` → çalışan kurulum
+
+PATH eskisini önce buluyor. `available()` "var" diyordu ve **kapı yeşildi, çağrı ölü.**
+
+**Ders:** bir ikilinin PATH'te BULUNMASI, doğru ikili olduğunu göstermez. Sürüm sormak
+da yetmezdi — kırık olan sürüm değil yapılandırmaydı. Tek dürüst çözüm operatörün
+sabitleyebilmesi: `CLAUDE_CODE_BIN` ortam değişkeni, `ctx.env` üzerinden okunuyor
+(`secret-okuyucu` darboğazı korunuyor; adaptör `process.env`e dokunmuyor).
+
+Bu, "yalnız bu makinede çalışan şey çalışmıyor demektir" kuralının aynadaki hâli:
+**bu makinede çalışmayan şey, başka makinede çalışıyor olabilir** — ve ikisini ayırt
+etmenin yolu ikiliyi tahmin etmek değil, sabitlemek.
+
+**Geri alma maliyeti:** yok — değişken verilmezse davranış eskisi gibi.

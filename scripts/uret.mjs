@@ -457,7 +457,7 @@ const { descriptors } = loadDescriptors(join(REPO, 'registry/providers'))
  * Üçü ayrı ayrı kurulduğunda ikisi `PATH`ten ibaret kalmıştı ve kasadaki anahtar
  * hiçbirine ulaşmıyordu. Bir şeyi üç yerde kurmak, ikisini güncellemeyi unutmaktır.
  */
-const SAGLAYICI_ORTAMI = saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID'])
+const SAGLAYICI_ORTAMI = saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID', 'CLAUDE_CODE_BIN'])
 const pricing = Object.fromEntries(
   descriptors
     .filter((d) => d.enabled)
