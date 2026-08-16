@@ -104,6 +104,8 @@ export {
   formatLadder,
   placementById,
   specAgeDays,
+  specStaleness,
+  type SpecStaleness,
   safeBand,
   safeAreaViolations,
   safeAreaMessage,

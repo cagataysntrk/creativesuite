@@ -9,16 +9,22 @@ token son kullanma tarihi ekranda görünüyor
 
 ---
 
-## 7.1 — Platform spec tablosu ve drift denetçisi    [ ]
+## 7.1 — Platform spec tablosu ve drift denetçisi    [x] 2026-08-16
 
 📖 §9.1 · R-63
 🔗 FAZ-4.9
 🛠 Platform ölçüleri **kod olarak**, her satırda `sourceUrl` + `verifiedAt`. Üç aylık
    drift denetçisi `verifiedAt`i eskiyen satırı işaretler. Spec'i yorumda tutmak,
    altı ay sonra hangi ölçünün nereden geldiğini bilmemek demektir.
-📁 `packages/channels/src/specs/`
-✅ `just doctor` üç aydan eski `verifiedAt` satırlarını listeliyor
-🧪 `verifiedAt`i geriye al → denetçi işaretliyor; `sourceUrl`suz satır ekle → tip hatası
+📁 `packages/render/src/specs/placements.ts` · `packages/engine/src/saglik/doktor.ts`
+   ⚠ Faz dosyası `packages/channels/` diyordu; **öyle bir paket yok**. Tablo 3.15'te
+   `render` altında kuruldu ve denetçi 4.17'de doctor'a bağlandı — yeni bir paket açmak
+   aynı veriyi ikinci bir yere koymak olurdu.
+✅ `just doctor` üç aydan eski `verifiedAt` satırlarını listeliyor (90 gün)
+🧪 `verifiedAt`i geriye al → denetçi işaretliyor (ölçüldü: 592 gün, `⚠ [spec]`) ·
+   `sourceUrl`suz satır ekle → tip hatası (`Placement.sourceUrl` zorunlu alan)
+   ⚠ **Güvenli alanın KENDİ tarihi ayrı ölçülüyor** (D-215): `specAgeDays` yalnız satırın
+   `verifiedAt`ini okuyordu, güvenli alan bir yıl bayatlasa "1 gün" diyordu.
 💾 `feat(channels): platform spec tablosu ve drift denetçisi` · `Refs: FAZ-7.1 · §9.1`
 
 ## 7.2 — Meta adaptörü    [ ]

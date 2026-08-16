@@ -5,19 +5,20 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 6
-siradaki_adim: 7.1
+aktif_faz: 7
+siradaki_adim: 7.2
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan"]
 deneme_sayaci: {}
-son_kanit: "6.9 ZINCIRI KAPANDI, TESLIM 6.9b ye ayrildi. prospectDeckZinciri bes kapiyi SIRAYLA kosuyor ve ILK HATADA duruyor; YENI KURAL YAZMIYOR — her kural kendi sahibinde, burada olan tek sey sira. Sira MALIYET sirasi: tazelik bir tarih karsilastirmasi, lexicon butun belgeyi tariyor; ikisi birden bozuksa TAZELIK konusuyor. UCTAN UCA KANIT tek kosuda: gercek urun cekimi (yerel sunucu, ayni Chromium) + grafik + PDF, zincir 5/5 GECTI, 25862 bayt 1 sayfa. Iki ihlal dogru kapilarda durdu: kaynaksiz sayi → lexicon, 15 gunluk kaynak → tazelik. GERCEK DELIK BULUNDU: lexicon linter inin metin() fonksiyonu GRAFIK BLOGUNU gormuyordu — 6.2 de blok tipini ben ekledim, linter i guncellemedim, switch olmadigi icin derleyici susmustu; Fire oranini %40 dusurduk basligi tamamen kaciyordu. Duzeltildi ve kanitlandi: duzeltme geri alininca 2 test kirmizi. 6.9 un ✅ i GERCEK prospect istiyor — o insan girdisi (V-25), uydurulmus sirket dogruluk kaynagina giren kurgudur. ONCEKI: 6.8 KAPANDI. Urun ekran goruntusu icin YENI BIR BAYRAK degil, DORDUNCU BIR DAYANAK eklendi: product_capture (captureRunId + demoRef ZORUNLU). aiGenerated: true ile birlikte iddia EDILEMIYOR — ikisi birden dogruysa biri yalandir ve sistem hangisi oldugunu bilemez, o yuzden iddia hic KURULMUYOR. Ayni kural iki anda uygulaniyor ama TEK: uretimde assertCompliance, yayinda inspectManifest → fabricated_product_shot. GERCEK CEKIM KANITI: yerel bir urun ayaga kaldirildi ve ayni Chromium ile cekildi — 1200x700 PNG, 13665 bayt, demoRef bagli; sabit bekleme YOK, hazir seciciyle beklendi. Yayin yuklemi testi: gercek cekim true, uretilmis false, kaynaksiz false. Oncesi icin git log ve docs/fazlar/FAZ-6.md."
+son_kanit: "7.1 KAPANDI. Spec tablosu 3.15 te, drift denetcisi 4.17 de kurulmustu; 7.1 in isi kriteri OLCMEKTI ve olcerken BOSLUK cikti (D-215): specAgeDays yalniz satirin verifiedAt ini okuyor, oysa safeArea nin KENDI sourceUrl + verifiedAt i var — guvenli alani bir yil geriye alinmis satir icin denetci 1 GUN diyordu. Guvenli alan olculeri Reels tasarim kilavuzundan gelir ve platform olcusunden BAGIMSIZ degisir. Artik specStaleness iki tarihi AYRI dondururyor ve doctor iki ayri bulgu uretiyor; guvenli alani olmayan satirda safeAreaDays null, 0 DEGIL. KANIT: tarih geriye alininca just doctor ⚠ [spec] GUVENLI ALAN 592 gunluk dedi, geri alininca bulgu kayboldu. DERS UCUNCU KEZ: yeni bir alan eklemek onu OKUMASI GEREKEN her yeri guncellemeyi gerektirir — bu turda ayni siniftan IKI hata bulundu (chart blogu lexicon da, safeArea.verifiedAt drift denetcisinde) ve ikisinde de derleyici sustu. ONCEKI: 6.9 ZINCIRI KAPANDI. prospectDeckZinciri bes kapiyi SIRAYLA kosuyor ve ILK HATADA duruyor; YENI KURAL YAZMIYOR — her kural kendi sahibinde, burada olan tek sey sira. Sira MALIYET sirasi: tazelik bir tarih karsilastirmasi, lexicon butun belgeyi tariyor; ikisi birden bozuksa TAZELIK konusuyor. UCTAN UCA KANIT tek kosuda: gercek urun cekimi (yerel sunucu, ayni Chromium) + grafik + PDF, zincir 5/5 GECTI, 25862 bayt 1 sayfa. Iki ihlal dogru kapilarda durdu: kaynaksiz sayi → lexicon, 15 gunluk kaynak → tazelik. GERCEK DELIK BULUNDU: lexicon linter inin metin() fonksiyonu GRAFIK BLOGUNU gormuyordu — 6.2 de blok tipini ben ekledim, linter i guncellemedim, switch olmadigi icin derleyici susmustu; Fire oranini %40 dusurduk basligi tamamen kaciyordu. Duzeltildi ve kanitlandi: duzeltme geri alininca 2 test kirmizi. 6.9 un ✅ i GERCEK prospect istiyor — o insan girdisi (V-25), uydurulmus sirket dogruluk kaynagina giren kurgudur. Oncesi icin git log ve docs/fazlar/."
 ```
 
 ## Neredeyiz
 
-**FAZ 6'DA 9/11 ADIM KAPALI** — deck PDF, grafik/diyagram, LinkedIn dökümanı, prospect
-kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses akışı yok,
-`5.4b`/`5.5b` blokajı, tikle örtülmedi). **36 kapı · 11 ihlal kırmızı.**
+**FAZ 7 BAŞLADI.** FAZ 6 şartlı kapalı: dokuz adım tikli, `6.5b` (V-24) ve `6.9b` (V-25)
+bilinçli `BLOKE: insan`. **Fazın çıkış kriteri karşılanmadı ve tikle ÖRTÜLMEDİ** — "adı
+geçen gerçek bir şirkete deck gönderildi" bir insan eylemidir; zincir uçtan uca
+doğrulandı ama teslim edilmedi. **36 kapı · 11 ihlal kırmızı.**
 
 > **Çıkış kriterinin bir maddesi karşılanmadı ve tikle ÖRTÜLMEDİ** (D-206):
 > `ffprobe` **aac** doğrulayamıyor — ses akışı yok, çünkü TTS (`5.4b`, V-21) ve ASR
@@ -48,27 +49,23 @@ kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses ak
 > tiklerdedir ve `git log` tek başına yol haritasıdır.
 >
 > FAZ 0+1: 51 adım · **FAZ 2: 12/13** · **FAZ 3: 12/15** (şartlı, D-158) ·
-> **FAZ 4: 17/17** · **FAZ 5: 8/10** (şartlı, D-206). Tikler faz dosyalarında.
+> **FAZ 4: 17/17** · **FAZ 5: 8/10** (şartlı, D-206) · **FAZ 6: 9/11** (şartlı;
+> `6.5b` V-24, `6.9b` V-25). Tikler faz dosyalarında.
 
 | Adım | Tarih |
 |---|---|
-| **6.1** · Deck IR + `page.pdf()`; metin katmanı korunuyor (D-207) | 2026-08-16 |
-| **6.2** · Grafik + diyagram; ECharts ölçülüp reddedildi (D-209) | 2026-08-16 |
-| **6.3** · `linkedin-document`; düzleştirme tek motorla (D-211) | 2026-08-16 |
-| **6.4** · Prospect = corpus; KVKK silmesi mezar taşı bırakıyor (D-212) | 2026-08-16 |
-| **6.5** · `INGEST` şelalesi; tarayıcı yok, karantina + sidecar (D-213) | 2026-08-16 |
-| **6.6** · 14 günlük tazelik; `isPublishable` bayat kaynağı bloklıyor | 2026-08-16 |
-| **6.7** · Kişiselleştirme tavanı; sayı `KURALLAR.md`'den okunuyor (D-214) | 2026-08-16 |
-| **6.8** · Ürün ekranı dördüncü uyum DAYANAĞI; çekim ≠ üretim | 2026-08-16 |
-| **6.9** · `prospect-deck` zinciri; beş kapı sırayla, ilk hatada durur | 2026-08-16 |
+| **7.1** · Spec drift denetçisi; güvenli alan AYRI ölçülüyor (D-215) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**FAZ 6 KAPANIŞ TURU** (LOOP§D) — dokuz adımın dokuzu tikli, ikisi (`6.5b`, `6.9b`)
-bilinçli `BLOKE: insan`. Sırada bağımsız doğrulama agent'ı var: her ✅ kriterini faz
-dosyasından okuyup kodda gerçekten karşılandığını arayacak, **en fazla iki tur** (D-79).
-Ardından **`7.1` — platform spec tablosu kod olarak** (§9.1): her satır `sourceUrl` +
-`verifiedAt` taşıyacak ve üç aylık drift denetçisi kurulacak.
+**`7.2` — Meta adaptörü** (§9.2 · R-46). IG feed/carousel/Reels/Stories + Threads. Kendi
+işletmen için App Review gerekmiyor. `content_publishing_limit` **her yayından önce**
+sorgulanır; token yenileme işi **ilk gün** kurulur — Meta uzun ömürlü token 60 günde
+ölür ve yenilemenin başarısızlığı sessiz değil **bloklayıcı** olmalıdır.
+
+> ⏳ FAZ 6 kapanış turu (LOOP§D) sürüyor: bağımsız doğrulama agent'ı koşuyor, bulguları
+> geldiğinde önce onlar kapatılır (D-79: en fazla iki tur). Agent beklenmiyor — bağımsız
+> adımlar bu arada ilerliyor.
 
 ## Devreden borçlar
 

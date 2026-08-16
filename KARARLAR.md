@@ -332,3 +332,34 @@ bağlanır — bir deseni ihtiyaç doğmadan genelleştirmek, kullanılmayan soy
 
 **Geri alma maliyeti:** düşük — kapı tek dosya.
 
+## D-215 — Güvenli alan KENDİ tarihini taşır, satırın tazeliği onu kapsamaz
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-7.1 · §9.1
+
+Spec tablosu 3.15'te kuruldu, drift denetçisi 4.17'de doctor'a bağlandı. 7.1'de kriteri
+**ölçerken** boşluk çıktı: `specAgeDays` yalnız `placement.verifiedAt`i okuyor, oysa
+`safeArea`nın **kendi** `sourceUrl` + `verifiedAt`i var. Ölçüm: güvenli alanı bir yıl
+geriye alınmış bir satır için denetçi **1 gün** diyordu.
+
+**Neden önemli:** güvenli alan ölçüleri Reels tasarım kılavuzundan gelir ve platform
+ölçüsünden **bağımsız** değişir. Biri tazelendiğinde diğeri tazelenmiş sayılamaz. Yanlış
+bir güvenli alan başlığı UI chrome'un altına düşürür — ve bunu ancak yayınladıktan sonra
+fark edersiniz.
+
+**Karar:** `specStaleness(p, today)` iki tarihi **ayrı ayrı** döndürüyor ve doctor iki
+ayrı bulgu üretiyor. En eskisini alıp tek sayı vermek daha basitti ama hangi kaynağın
+yenilenmesi gerektiğini gizlerdi — iki farklı URL'e bakan bir insan için o bilgi işin
+kendisi (D-198).
+
+**Ayrım korundu:** güvenli alanı olmayan satırda `safeAreaDays` **`null`**, `0` değil.
+`0` "bugün doğrulandı" demek olurdu; `null` "böyle bir şey yok" demek.
+
+**Kanıt:** güvenli alan tarihi geriye alındığında `⚠ [spec] instagram-story-9x16:
+GÜVENLİ ALAN 592 günlük` çıktı; geri alınınca bulgu kayboldu.
+
+**Ders (üçüncü kez):** yeni bir alan eklemek, onu OKUMASI GEREKEN her yeri güncellemeyi
+gerektirir. Bu turda aynı sınıftan iki hata bulundu — `chart` bloğu lexicon linter'ında,
+`safeArea.verifiedAt` drift denetçisinde. İkisinde de derleyici sustu.
+
+**Geri alma maliyeti:** düşük.
+

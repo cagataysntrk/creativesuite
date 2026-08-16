@@ -16,7 +16,7 @@ import { RUNS_DIR, type Db } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
 import { recordCount } from '@suite/corpus'
 import { loadDescriptors } from '@suite/providers'
-import { PLACEMENTS, specAgeDays } from '@suite/render'
+import { PLACEMENTS, specAgeDays, specStaleness } from '@suite/render'
 import { costVariance, readManifest } from '../manifest-writer.js'
 import { stratejiSagligi } from './strateji.js'
 
@@ -160,13 +160,24 @@ export const doktorRaporu = (g: DoktorGirdisi): DoktorRaporu => {
   // ── platform spec tazeliği (§9.1) ─────────────────────────────────────────
   kosan.push('spec')
   for (const p of PLACEMENTS) {
-    const yas = specAgeDays(p, g.bugun)
-    if (yas > SPEC_UYARI_GUN) {
+    const { placementDays, safeAreaDays } = specStaleness(p, g.bugun)
+    if (placementDays > SPEC_UYARI_GUN) {
       bulgular.push({
         alan: 'spec',
         siddet: 'uyari',
-        mesaj: `${p.id}: spec ${yas} günlük — ${SPEC_UYARI_GUN} gün sınırı aşıldı (§9.1)`,
-        hedef: null,
+        mesaj: `${p.id}: spec ${placementDays} günlük — ${SPEC_UYARI_GUN} gün sınırı aşıldı (§9.1)`,
+        hedef: p.sourceUrl,
+      })
+    }
+    // Güvenli alan AYRI bir bulgu: kaynağı farklı (Reels tasarım kılavuzu) ve satırın
+    // ölçüsünden bağımsız değişir. Tek mesaja sıkıştırmak, hangi URL'e bakılacağını
+    // gizlerdi (D-198).
+    if (safeAreaDays !== null && safeAreaDays > SPEC_UYARI_GUN) {
+      bulgular.push({
+        alan: 'spec',
+        siddet: 'uyari',
+        mesaj: `${p.id}: GÜVENLİ ALAN ${safeAreaDays} günlük — ${SPEC_UYARI_GUN} gün sınırı aşıldı (§9.1)`,
+        hedef: p.safeArea?.sourceUrl ?? null,
       })
     }
   }

@@ -84,12 +84,41 @@ export const placementById = (id: string): Placement | null =>
   PLACEMENTS.find((p) => p.id === id) ?? null
 
 /** Spec kaç gün önce doğrulandı — `doctor` üç aylık drift denetimini bununla yapar. */
-export const specAgeDays = (p: Placement, today: string): number => {
-  const a = Date.parse(`${p.verifiedAt}T00:00:00Z`)
+const gunFarki = (verifiedAt: string, today: string): number => {
+  const a = Date.parse(`${verifiedAt}T00:00:00Z`)
   const b = Date.parse(`${today}T00:00:00Z`)
+  // Okunamayan tarih SONSUZ yaşlıdır: bilinmeyen tazelik, taze DEĞİLDİR.
   if (!Number.isFinite(a) || !Number.isFinite(b)) return Number.POSITIVE_INFINITY
   return Math.floor((b - a) / 86_400_000)
 }
+
+export const specAgeDays = (p: Placement, today: string): number => gunFarki(p.verifiedAt, today)
+
+export interface SpecStaleness {
+  /** Satırın kendi ölçüsünün yaşı. */
+  readonly placementDays: number
+  /**
+   * Güvenli alanın yaşı — **ayrı tarih, ayrı kaynak**. `null` = güvenli alan yok.
+   *
+   * ⚠ `specAgeDays` bunu GÖRMÜYORDU (FAZ-6 sonu denetimi): güvenli alan bir yıl
+   * bayatlasa bile satırın `verifiedAt`i tazeyse denetçi "1 gün" diyordu. Güvenli alan
+   * ölçüleri Reels tasarım kılavuzundan gelir ve satırın kaynağından BAĞIMSIZ değişir —
+   * biri tazelendiğinde diğeri tazelenmiş sayılamaz.
+   */
+  readonly safeAreaDays: number | null
+}
+
+/**
+ * İki tarihi AYRI AYRI döndürür.
+ *
+ * En eskisini alıp tek sayı vermek daha basit olurdu ama hangi kaynağın yenilenmesi
+ * gerektiğini gizlerdi — ve iki farklı URL'e bakan bir insan için o bilgi işin kendisi
+ * (D-198: iki gerçeği tek hataya sıkıştırma).
+ */
+export const specStaleness = (p: Placement, today: string): SpecStaleness => ({
+  placementDays: gunFarki(p.verifiedAt, today),
+  safeAreaDays: p.safeArea === null ? null : gunFarki(p.safeArea.verifiedAt, today),
+})
 
 // ── güvenli alan (§9.1) ──────────────────────────────────────────────────────
 //
