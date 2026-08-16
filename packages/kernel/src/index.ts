@@ -176,11 +176,14 @@ export {
   validateDocument,
   type Block,
   type BlockType,
+  type ChartBlock,
+  type ChartPoint,
   type DocError,
   type DocResult,
   type DocumentKind,
   type DocumentModel,
   type ImageBlock,
+  type SeriesTone,
 } from './doc/model.js'
 
 // Tek HTTP istemcisi (§3.8). Barrel'dan açılıyor ki Ring 1 sağlayıcıları kendi

@@ -256,6 +256,15 @@
       "desen": "gamma\\.app|presenton|beautiful\\.ai|tome\\.app|pitch\\.com|canva\\.com/api|slidesgo",
       "faz": "FAZ-6.1",
       "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
+    },
+    {
+      "id": "metin-olcen-grafik-kutuphanesi",
+      "ad": "Metni kendi ölçen grafik/diyagram kütüphanesi",
+      "neden": "ECharts SSR · Chart.js · Plotly · Highcharts · Vega · D2 — hepsi metin genişliğini KENDİ tahmin eder ve o tahminle eksen payı, etiket döndürme, 'sığmayanı gizle' kararları verir. Ölçüldü (D-209): ECharts SSR Türkçe etiketlerde %12,6 ile %83,4 arası sapıyor ('Çğüşiöı' → 74,6 px tahmin, Chromium'un gerçeği 40,7 px). Satori'yi reddettiğimiz gerekçenin aynısı (D-24 · R-30): ikinci metin ölçüm motoru = ikinci Türkçe hata modu. `izinli` BOŞ. Ölçek matematiği (d3-scale gibi metinsiz kütüphaneler) bu kuralın konusu değildir — kural metin ÖLÇENLERE bakar.",
+      "izinli": [],
+      "desen": "['\"](echarts|chart\\.js|plotly|plotly\\.js|highcharts|vega|vega-lite|d2lang)(/[^'\"]*)?['\"]",
+      "faz": "FAZ-6.2",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     }
   ],
   "kapsam_varsayilan_neden": "Son iki desen 2026-08-15'te eklendi. `scripts/uret.mjs` ve `scripts/plan.mjs` ÜRETİM YOLUDUR — `just uret` para harcayabilir — ama hiçbir darboğazın kapsamında değildiler. Doğrulama agent'ı orada dört ihlal buldu: ikinci retrieval yüklemi (R-13, BLOCKING), doğrudan `process.env`, doğrudan `openDb`, kendi maliyet defteri. Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) KAPSAM DIŞI: onlar araçtır, üretim yolu değil — bir kapının `git` çağırması kapının işidir. Bir darboğaz kapsamı, kuralın en çok çiğneneceği yeri dışarıda bırakıyorsa kapı değil."

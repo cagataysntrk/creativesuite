@@ -439,3 +439,53 @@ ihlal `scripts/ihlal-bataryasi.mjs`'e eklendi, geri alınca yeşile döndü.
 
 **Geri alma maliyeti:** düşük — `chokepoints.json`'dan bir kayıt.
 
+## D-209 — ECharts SSR ölçüldü ve reddedildi: Türkçe'de %83 sapıyor
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.2 · §7.6 · D-24
+
+FAZ-6.2 "ECharts SSR (SVG)" öngörüyordu. Kurdum ve **ölçtüm** — çünkü bir bağımlılığı
+gerekçeyle reddetmek, hakkında hüküm vermekten farklıdır:
+
+| etiket | echarts | chromium | sapma |
+|---|---|---|---|
+| Ağustos | 48,8 | 43,4 | +%12,6 |
+| İğne fire % | 71,5 | 57,4 | +%24,7 |
+| Çğüşiöı | 74,6 | 40,7 | **+%83,4** |
+
+SSR'da tuval yok, bu yüzden zrender metin genişliğini tahmin ediyor. Eksen payı, etiket
+döndürme ve "sığmayanı gizle" kararları bu sayılarla veriliyor: **sığan etiket gizlenir,
+sığmayan taşar.** Ayrıca varsayılan paletini (`#5070dd`) SVG'ye sızdırıyordu — adımın
+kendi ✅ kriteri tam da bunu yasaklıyor.
+
+**Karar:** `packages/render/src/charts/` — geometri SVG, **metnin tamamı HTML**. Ölçek
+matematiği (nice-tick, normalizasyon) ~60 satır; metin ölçümü hiç yok.
+
+**Alternatif (reddedildi):** ECharts'ı `--no-label-layout` benzeri bir kısıtla kullanmak.
+Böyle bir bayrak yok ve olsaydı bile kütüphanenin yarısını kullanmak için tamamını
+taşımak olurdu.
+
+**Ders:** bir bağımlılığı reddetmenin dürüst yolu onu KURMAK ve ölçmektir. "Muhtemelen
+Türkçe'de bozulur" bir tahmindi; %83,4 bir kanıt.
+
+**Geri alma maliyeti:** orta — `chartHtml` imzası korunarak içi değiştirilebilir.
+
+## D-210 — D2 diyagramı da reddedildi; ok bir karakter değil, geometridir
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.2 · §7.6
+
+D2 aynı hatayı yapıyor (kendi font metriğiyle kutu genişliği hesaplıyor) **ve** harici bir
+Go ikilisi: `alt-surec` darboğazından geçmesi, kurulum adımı eklemesi ve "bir ay ihmal
+edilse de çalışır" (§16) vaadini zayıflatması gerekirdi.
+
+**Karar:** `diagram.ts` — kutular HTML (`grid-auto-columns: 1fr`, sabit genişlik yok,
+R-23), oklar SVG geometrisi. Ok için `→` karakteri **kullanılmadı**: latin-ext bir font
+o glifi taşımayabilir ve yerine `notdef` kutusu basılırdı (§7.2). Yatay akış tavanı 5
+kutu; fazlası deck'te okunamıyor ve sessizce daraltmak yerine reddediliyor.
+
+**Kapı:** `metin-olcen-grafik-kutuphanesi` darboğazı (`izinli: []`) echarts · chart.js ·
+plotly · highcharts · vega · d2lang'i yasaklıyor. İlk deseni kendi `./charts/chart.js`
+modülümüzü yakalıyordu — **yanlış pozitif de bir hatadır**, desen paket adına daraltıldı
+ve iki biçim (düz ad · alt yol) ayrı ayrı ihlal edilerek doğrulandı.
+
+**Geri alma maliyeti:** düşük.
+

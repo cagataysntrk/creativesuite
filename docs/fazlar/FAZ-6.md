@@ -24,13 +24,15 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    (D-21: prospect'e giden hiçbir şeye dokunmaz)
 💾 `feat(render): deck IR ve PDF çıktısı` · `Refs: FAZ-6.1 · §7.6`
 
-## 6.2 — ECharts SSR ve D2 diyagram    [ ]
+## 6.2 — Grafik ve diyagram (SSR, vektör)    [x] 2026-08-16
 
 📖 §7.6 · R-30
 🔗 6.1
-🛠 ECharts sunucu tarafında **SVG** üretir (canvas değil — PDF'te vektör kalmalı),
-   D2 diyagram aynı yolla. Marka renkleri token'dan enjekte edilir; grafik kütüphanesinin
+🛠 Grafik sunucu tarafında **SVG** üretir (canvas değil — PDF'te vektör kalmalı),
+   diyagram aynı yolla. Marka renkleri token'dan enjekte edilir; hazır bir kütüphanenin
    varsayılan paleti **hiçbir yerde** görünmez.
+   ⚠ **ECharts ve D2 ölçülüp REDDEDİLDİ** (D-209, D-210): ikisi de metin genişliğini
+   kendi tahmin ediyor ve Türkçe'de %83'e varan sapma veriyor. Geometri SVG, metin HTML.
 📁 `packages/render/src/charts/`
 ✅ Grafik PDF'te vektör (yakınlaştırınca bozulmuyor) · renkler `brand/<id>/tokens/`'dan
 🧪 Palet dışı bir hex ver → `lexicon` linter'ı reddediyor (R-35)

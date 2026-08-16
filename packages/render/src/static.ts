@@ -13,10 +13,10 @@
 import { statSync } from 'node:fs'
 import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
 import { withPage, type BrowserResult } from './browser.js'
+import { chartHtml, isChartError } from './charts/chart.js'
+import { kacir } from './html.js'
 
-/** HTML kaçışı — metin İÇERİK, işaretleme değil. Kullanıcı metni etiket açamaz. */
-const kacir = (s: string): string =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+export { kacir } from './html.js'
 
 const blokHtml = (b: Block): string => {
   switch (b.type) {
@@ -24,6 +24,12 @@ const blokHtml = (b: Block): string => {
       return `<h${b.level}>${kacir(b.text)}</h${b.level}>`
     case 'body':
       return `<p>${kacir(b.text)}</p>`
+    case 'chart': {
+      // Grafik VERİ olarak geldi, çizim burada oluyor (D-209). Bozuk grafik sessizce
+      // boş kutu basmıyor — `validateDocument` zaten reddediyor, bu dal ikinci savunma.
+      const g = chartHtml(b)
+      return isChartError(g) ? '' : g.html
+    }
     case 'image':
       // `alt` her zaman yazılır; dekoratif görselde BOŞ alt + `aria-hidden` doğru
       // biçimdir (ekran okuyucu atlar), alt'ı hiç yazmamak değil.

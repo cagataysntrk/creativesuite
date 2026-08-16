@@ -13,7 +13,7 @@
 
 import type { AssetStamp } from '../era.js'
 
-export type BlockType = 'heading' | 'body' | 'image' | 'spacer'
+export type BlockType = 'heading' | 'body' | 'image' | 'spacer' | 'chart'
 
 /**
  * Görsel blok. `alt` ZORUNLU: R-34 yayında alt-text'siz görseli bloklar ve alanı
@@ -28,11 +28,44 @@ export interface ImageBlock {
   readonly decorative: boolean
 }
 
+/**
+ * Serinin ANLAMI — rengi değil (R-35 · §12.1). Rol token'ına render katmanında çözülür.
+ *
+ * Belge modeli renk TAŞIMAZ: bir hex burada olsaydı marka değiştiğinde grafik eski
+ * markanın renginde kalırdı ve bunu ancak PDF'e bakan bir insan fark ederdi.
+ */
+export type SeriesTone = 'neutral' | 'ok' | 'warn' | 'error'
+
+export interface ChartPoint {
+  readonly label: string
+  readonly value: number
+  readonly tone?: SeriesTone
+}
+
+/**
+ * Grafik bloğu — **veri**, çizim değil.
+ *
+ * Alternatif, `COMPOSE`un grafiği HTML'e çevirip belgeye gömmesiydi. O yol belge
+ * modeline serbest işaretleme sokardı ve "tek render motoru" yasası (R-30) bir şablon
+ * diline kaçardı — bu dosyanın başındaki uyarının tam olarak tarif ettiği şey.
+ */
+export interface ChartBlock {
+  readonly type: 'chart'
+  readonly chartKind: 'bar' | 'line'
+  readonly title: string
+  /** Birim (`%`, `adet`). Birimsiz sayı iddia değil, süstür (R-32). */
+  readonly unit?: string
+  readonly points: readonly ChartPoint[]
+  /** Verinin anlık görüntü tarihi (§7.6). Zorunlu ve sayfada görünür. */
+  readonly asOf: string
+}
+
 export type Block =
   | { readonly type: 'heading'; readonly text: string; readonly level: 1 | 2 }
   | { readonly type: 'body'; readonly text: string }
   | ImageBlock
   | { readonly type: 'spacer'; readonly size: 'sm' | 'md' | 'lg' }
+  | ChartBlock
 
 export type DocumentKind = 'post' | 'carousel-slide' | 'deck-page'
 
@@ -53,6 +86,9 @@ export type DocError =
   | { readonly kind: 'missing_alt'; readonly index: number }
   | { readonly kind: 'invalid_size'; readonly width: number; readonly height: number }
   | { readonly kind: 'empty_text'; readonly index: number }
+  /** Noktasız ya da sonlu olmayan değerli grafik. Boş kutu, verinin yokluğunu DEĞİL
+   *  render'ın bozulduğunu düşündürür — sessizce basılmaz. */
+  | { readonly kind: 'invalid_chart'; readonly index: number }
 
 export type DocResult =
   | { readonly ok: true; readonly value: DocumentModel }
@@ -74,6 +110,15 @@ export const validateDocument = (doc: DocumentModel): DocResult => {
     }
     if ((b.type === 'heading' || b.type === 'body') && b.text.trim() === '') {
       errors.push({ kind: 'empty_text', index: i })
+    }
+    // Grafik doğrulaması BURADA, render'da değil: `isPublishable` bu listeyi okuyor
+    // ve bozuk bir grafik yayına gitmemeli. Render katmanı da ayrıca reddediyor —
+    // ama orada reddedilen bir şey zaten üretim zamanına kalmış demektir.
+    if (
+      b.type === 'chart' &&
+      (b.points.length === 0 || b.points.some((p) => !Number.isFinite(p.value)))
+    ) {
+      errors.push({ kind: 'invalid_chart', index: i })
     }
   })
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: doc }

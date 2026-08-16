@@ -81,6 +81,12 @@ const IHLALLER = [
     imza: 'hazir-deck-ureticisi',
   },
   {
+    kapi: 'chokepoints',
+    dosya: 'packages/render/src/charts/ihlal-gecici.ts',
+    icerik: "export const c = { kutuphane: 'chart.js' }\n",
+    imza: 'metin-olcen-grafik-kutuphanesi',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',

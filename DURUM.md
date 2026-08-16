@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 6
-siradaki_adim: 6.2
+siradaki_adim: 6.3
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "6.1 KAPANDI: deck IR + page.pdf(). Ucuncu renderer YOK — ayni Chromium, ayni toHtml, ayni paginate; degisen tek sey screenshot() yerine pdf(). Kanit DISKTE: 2 sayfa, 1200x675 pt, 18937 bayt ve pdftotext metni SECILEBILIR cikardi (GUSIOC gusioc Agri Igne tam). Bu turda kendi anayasa maddemi duzelttim (D-207): §7.6 PDF DUZLESTIRILIR diye kayitsiz yaziyordu, oysa 6.1 in kendi ✅ kriteri metin secilebilir diyor — duzlestirme KANALA ait, yalniz linkedin-document (6.3) rasterlesir. D-208: izinli listesi BOS bir darbogaz hiC olmasin demektir; hazir-deck-ureticisi (Gamma/Presenton/Canva) eklendi, kasten ihlal edildi, DOGRU kuraldan kirmizi dondu ve bataryaya girdi. deck.pipeline.yaml just plan dan gecti (7 hat). golden deck-16x9 temeli yazildi. 35 kapi (28 darbogaz), 984 test."
+son_kanit: "6.2 KAPANDI ama ONGORULDUGU GIBI DEGIL. FAZ-6.2 ECharts SSR + D2 diyor; ikisini de OLCUP reddettim (D-209, D-210). ECharts SSR de tuval yok, metni kendi tahmin ediyor: Agustos +%12,6 · Igne fire %% +%24,7 · Cgusioi +%83,4 (74,6 px tahmin, Chromium un gercegi 40,7). Bu sayilarla eksen payi ve sigmayani gizle karari veriliyor — yani SIGAN etiket gizleniyor. Satori yi reddettigimiz gerekcenin aynisi (D-24). Ustelik varsayilan paletini #5070dd SVG ye sizdiriyordu, oysa adimin kendi kriteri bunu yasakliyor. Yerine: geometri SVG, metnin TAMAMI HTML — hicbir yerde metin genisligi tahmin edilmiyor. KANIT: pdfimages sifir raster listeliyor, Do (goruntu XObject) 0, buna karsilik 8 re + 4 l + 36 Tj — grafik vektor, etiket secilebilir, sayilar tr-TR (15.000). metin-olcen-grafik-kutuphanesi darbogazi (izinli BOS) eklendi; ilk deseni kendi ./charts/chart.js modulumuzu yakaladi — yanlis pozitif de bir hatadir, daraltildi ve iki bicim ayri ayri ihlal edildi. 998 test, 35 kapi."
 ```
 
 ## Neredeyiz
@@ -51,13 +51,15 @@ kırmızı.**
 | Adım | Tarih |
 |---|---|
 | **6.1** · Deck IR + `page.pdf()`; metin katmanı korunuyor (D-207) | 2026-08-16 |
+| **6.2** · Grafik + diyagram; ECharts ölçülüp reddedildi (D-209) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`6.2` — ECharts SSR + D2 diyagram** (§7.6). Grafik **SVG** üretilecek, canvas değil:
-PDF'te vektör kalmalı, yoksa yakınlaştırınca bozulur. Marka renkleri token'dan enjekte;
-kütüphanenin varsayılan paleti hiçbir yerde görünmeyecek — `lexicon` linter'ı (R-35)
-palet dışı hex'i zaten reddediyor ve ihlal testi bunu kullanacak.
+**`6.3` — `linkedin-document` hattı** (§10, §9.3 · R-11). Düzleştirilmiş PDF, **≤10
+sayfa**. Deck'ten ayrılan tek nokta burası (D-207): LinkedIn'in görüntüleyicisi metin
+katmanlı PDF'te satır kırılmalarını bozuyor, o yüzden rasterleşiyor. Veri bağlama
+**anlık görüntülenir** — 🧪 kaynak kaydı değiştir, dokümanı yeniden aç, **eski değer**
+durmalı. Yayınlanmış bir iddiayı geriye dönük değiştirmek düzeltme değil tahrifattır.
 
 ## Devreden borçlar
 

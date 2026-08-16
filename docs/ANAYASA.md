@@ -536,6 +536,16 @@ en-boy ekseninde de aynı kural (FAZ-5.9).
 İkisini tek kurala bağlamak — "PDF hep düzleştirilir" — deck'i gereksiz yere sakat
 bırakırdı. Düzleştirme bir maliyet ve yalnız onu gerektiren kanalda ödenir.
 
+**Grafik ve diyagram: geometri SVG, metin HTML** (FAZ-6.2 · D-209, D-210). Hazır grafik
+kütüphaneleri sunucu tarafında tuval bulamadığı için metin genişliğini **kendi tahmin
+eder**; ECharts SSR ölçüldüğünde Türkçe etiketlerde %12,6–%83,4 sapıyordu (`Çğüşiöı`:
+74,6 px tahmin, gerçeği 40,7 px). Bu tahminle eksen payı ve "sığmayanı gizle" kararı
+verilir — yani sığan etiket gizlenir. **Satori'yi reddeden gerekçenin aynısı** (D-24):
+ikinci metin ölçüm motoru = ikinci Türkçe hata modu. Bizde SVG yalnız çubuk, çizgi ve ok
+taşır; her etiket bir HTML kutusudur ve Chromium yerleştirir. Grafik PDF'te **vektör**
+kalır (ölçüldü: sıfır raster XObject), renkleri yalnız rol token'ından alır ve
+`metin-olcen-grafik-kutuphanesi` darboğazı geri dönüşü mekanik olarak engeller.
+
 **Veri bağlama ANLIK GÖRÜNTÜLENİR** (FAZ-6.3): Mart'ta paylaşılan bir döküman Haziran'da
 hâlâ Mart rakamını göstermelidir. Canlı bağlanan bir grafik, geçmişte paylaşılmış bir
 belgeyi sessizce değiştirir — ve o belge artık kimsenin onaylamadığı bir şeydir.

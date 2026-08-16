@@ -184,3 +184,25 @@ export {
 
 // Deck PDF (§7.6 · FAZ-6.1). ÜÇÜNCÜ RENDERER YOK: aynı Chromium, aynı toHtml, page.pdf().
 export { deckPages, renderDeckPdf, type DeckPage, type DeckPdfResult } from './deck/pdf.js'
+
+// ── grafik katmanı (FAZ-6.2) ────────────────────────────────────────────────
+// Geometri SVG, metin HTML: hiçbir yerde metin genişliği tahmin edilmiyor (D-209).
+export {
+  CHART_CSS,
+  chartHtml,
+  isChartError,
+  type ChartError,
+  type ChartResult,
+  type ChartSpec,
+} from './charts/chart.js'
+export { kacir } from './html.js'
+export { niceAxis, norm, sayiTr, type Axis } from './charts/scale.js'
+export {
+  DIAGRAM_CSS,
+  MAX_DUGUM,
+  diagramHtml,
+  isDiagramError,
+  type DiagramError,
+  type DiagramNode,
+  type DiagramSpec,
+} from './charts/diagram.js'

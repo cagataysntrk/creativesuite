@@ -58,6 +58,11 @@ const metinUzunlugu = (b: Block): number => {
     case 'heading':
     case 'body':
       return b.text.length
+    case 'chart':
+      // Grafiğin GEOMETRİSİ esner (yüzdeyle konumlanıyor), BAŞLIĞI esnemez. Bütçeye
+      // giren şey bu yüzden yalnız başlık: grafiği "uzun" saymak, kısa başlıklı bir
+      // grafiği sığmıyor diye ikinci sayfaya atardı.
+      return b.title.length
     case 'image':
     case 'spacer':
       return 0
