@@ -1,0 +1,404 @@
+{
+  "runId": "run_01a00c33-f876-72cc-83ab-545b3e9885b4",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "a085f500bc232bd048ed6b5621774c32fb775fc5",
+  "registryCommit": "a085f500bc232bd048ed6b5621774c32fb775fc5",
+  "createdAt": "2026-08-16T20:13:47.824Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T20:12:07.691Z",
+      "finishedAt": "2026-08-16T20:12:07.691Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T20:12:07.691Z",
+      "finishedAt": "2026-08-16T20:12:07.693Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-16T20:12:07.693Z",
+      "finishedAt": "2026-08-16T20:13:14.779Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali",
+        "gorsel_brief": true,
+        "max_chars": 600
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-16T20:13:14.779Z",
+      "finishedAt": "2026-08-16T20:13:39.254Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali",
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-16T20:13:39.254Z",
+      "finishedAt": "2026-08-16T20:13:45.944Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T20:13:45.944Z",
+      "finishedAt": "2026-08-16T20:13:45.945Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a00c33-f876-72cc-83ab-545b3e9885b4",
+            "sourceRunId": "run_01a00c33-f876-72cc-83ab-545b3e9885b4"
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Dün gece hat neden durdu sorusunun cevabı çoğu tesiste bir yerde yazılı değildir. Vardiya amirinin aklındadır. Sabah toplantısında anlatılır, herkes başını sallar, gün devam eder.",
+              "level": 1
+            },
+            {
+              "type": "body",
+              "text": "Hafıza kötü bir kayıt ortamı, insanlar kötü olduğu için değil; seçici olduğu için. Uzun süren duruş hatırlanır, tekrar eden kısa duruşlar hatırlanmaz. Vardiyayı zor geçiren amir olayı büyük anlatır, sakin geçiren küçük. İki vardiyayı yan yana koyduğunuzda karşılaştırdığınız şey hattın performansı değil, iki kişinin anlatım tarzıdır."
+            },
+            {
+              "type": "body",
+              "text": "Pratik sonucu şu: fire nerede oluştu, hangi üründe hangi vardiyada daha çok duruş çıktı, yapılan ayar değişikliği işe yaradı mı. Kaydı olmayan bir dönem için kök neden analizi yapılamaz; yapılırsa tahmindir."
+            },
+            {
+              "type": "body",
+              "text": "Karşımızdaki asıl alternatif başka bir yazılım değil. Excel ve vardiya defteri. Bedava görünür, kimseden onay gerektirmez, kimse yeni bir şey öğrenmek zorunda kalmaz. Bu yüzden çoğu zaman kazanır. İtirazımız \"Excel kötü\" değil: Excel'e girilen kayıt vardiya bittikten sonra doldurulur, yani zaten hafızadan doldurulur. Kayıt ortamı değişir, kaynak aynı kalır."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T20:13:45.945Z",
+      "finishedAt": "2026-08-16T20:13:46.880Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00c33-f876-72cc-83ab-545b3e9885b4/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00c33-f876-72cc-83ab-545b3e9885b4/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00c33-f876-72cc-83ab-545b3e9885b4/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00c33-f876-72cc-83ab-545b3e9885b4/slayt-04.png"
+        ],
+        "count": 4,
+        "rung": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "bytes": [
+          99798,
+          75631,
+          51774,
+          83431
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya karsilastirmasi neden hafizaya kalmamali"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-16T20:13:46.880Z",
+      "finishedAt": "2026-08-16T20:13:47.823Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "kalite"
+}
