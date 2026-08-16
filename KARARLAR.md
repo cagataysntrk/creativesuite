@@ -61,6 +61,12 @@ Damga `Upcytech:*` özel `iTXt` anahtarları taşıyor; hiçbir platform bunu ok
 `aiGenerated` bayrağı repo içinde denetlenebilir ama dışarıya bir şey söylemiyor.
 Platform-tarafı ifşa (Meta/LinkedIn "AI-generated" işareti) FAZ 7'nin işi. → FAZ-7.2
 
+## V-19 — +%30 sahte-yerelleştirme turu GÖRSEL olarak ölçülmedi
+R-23'ün yazılı hâli (`turkce-genisleme` kapısı) zorlanıyor: sabit genişlik yok, kırpma
+tasarımı yok. Ama "gerçek render'da hiçbir yerde kırpma yok" ölçümü YAPILMADI — bir DOM
+harness'ı ister (jsdom + testing-library, iki bağımlılık, R-75). Ölçüm gelene kadar
+FAZ 4'ün bu çıkış kriteri **karşılanmadı** sayılır. → FAZ-9.2
+
 ## V-18 — Tailscale kurulu değil, Telegram token'ı yer tutucu
 `tailscale` binary yok (sudo kurulum + hesap girişi) ve `TELEGRAM_BOT_TOKEN`
 `doldurulacak`. Bot mantığı ve yüzey sınırı yazılmış, test edilmiş; kalan iş yalnız
@@ -497,3 +503,22 @@ yapmıyor" — `ui-dugme` kapısıyla sıfır bağımlılıkla ve tüm ekranlar�
 kapatıldı; kapı düğmelere ek olarak `onChange`siz kontrollü girdileri de yakalıyor
 (ikisi de sessizdir: kullanıcı bir şey yapmaya çalışır, hiçbir şey olmaz, hata da yok).
 Render durumları ve hata dalları için gerçek bileşen testi FAZ 9'a kalıyor.
+
+## D-193 — FAZ 4 ŞARTLI kapandı: iki çıkış kriteri karşılanmadı ve tikle örtülmedi
+2026-08-16 · FAZ 4'ün yirmi adımının on dokuzu tikli, biri (`4.13b`) bilinçli
+`BLOKE: insan`. Kapanış turunun altı bulgusu da kapatıldı (D-188…D-192). Ama **çıkış
+kriterinin üç maddesinden ikisi karşılanmadı** ve bunu tikle örtmek, FAZ 3'te
+reddettiğimiz şeyin (D-158) tekrarı olurdu:
+1. *"Klavyeyle uçtan uca: ⌘K → seç → başlat → onayla"* — **başlat** artık bağlı
+   (D-190), ama **onayla** hiç yürütülmedi: hiçbir çalıştırma insan kapısına ulaşmadı
+   çünkü hepsi `2.9` blokajı yüzünden `bilgi-sec`te duruyor. Zincirin son halkası
+   `3.14` koştuğu gün kapanır.
+2. *"Tailscale üzerinden telefondan onay"* — `4.13b`, V-18.
+3. *"+%30 sahte-yerelleştirmede kırpma yok"* — kuralın YAZILI hâli artık
+   `turkce-genisleme` kapısıyla zorlanıyor (sabit genişlik yok, `text-overflow:
+   ellipsis` yok; ikisi de kırmızıya döndürüldü). **Görsel ölçüm yapılmadı** ve V-19
+   olarak açık duruyor.
+**Karar:** FAZ 5'e geçilir. Üçünün de ortak özelliği dış bağımlılık ya da ayrı bir
+altyapı olması — plan hatası değil, planın `V-nn` olarak zaten öngördüğü şeyler.
+İkinci doğrulama turu AÇILMAZ (D-79): 1. tur bulguları kapandı, kalan her şey FAZ 9
+denetim turlarının zaten aradığı sınıfta.

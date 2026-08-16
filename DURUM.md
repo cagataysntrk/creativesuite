@@ -5,23 +5,27 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 4
+aktif_faz: 5
 siradaki_adim: 5.1
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 4 kapanis turu bitti. D-188 donmus plan uretimde (disk kaniti: rerun mumkun=true, sapma olculdu=true) · D-189 butce verisi kapida (just uret HIC baslamiyordu) · D-190 Baslat/rerun/replay bagli (ui-dugme kapisi yazildiginda kendi iki olu dugmemi buldu) · D-191 red gerekcesi negatif kisit olarak okunuyor ve YALNIZ metin yetenegine giriyor, gorsele ASLA (R-20) · D-192 sabit kodlu ekran parametreleri kalkti, faz-yollari kapisi tikli adimlarin yollarini dogruluyor. awaitingGate BOZUK DEGIL: diske yazildigi testle kanitlandi, 0/18 olmasi 2.9 blokaji. 32 kapi, 926 test yesil."
+son_kanit: "FAZ 4 SARTLI KAPANDI (D-193): 20 adimin 19u tikli, 4.13b bilincli BLOKE:insan. Kapanis turunun alti bulgusu kapatildi (D-188…D-192). Cikis kriterinin ikisi KARSILANMADI ve tikle ortulmedi: (a) klavyeyle uctan uca zincirin ONAYLA halkasi hic yurutulmedi — hicbir calistirma insan kapisina ulasmadi, hepsi 2.9 blokaji yuzunden bilgi-sec te duruyor (b) Tailscale telefonda onay, V-18. Ucuncu kriter (+%30 sahte-yerellestirme) kuralin YAZILI hali olarak turkce-genisleme kapisiyla zorlaniyor (sabit genislik yok, ellipsis yok — ikisi de kirmiziya donduruldu), GORSEL olcum V-19 olarak acik. 33 kapi, 926 test yesil."
 ```
 
 ## Neredeyiz
 
-**FAZ 3 ŞARTLI KAPANDI** (2026-08-15, D-158) — motor uçtan uca çalışıyor: gerçek
-Chromium gerçek slayt basıyor, marka QA gerçek sayı veriyor, manifest her çalıştırmayı
-kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle örtülmedi** —
-`3.14` insan onayına bloke. **780 test**, 26 kapı yeşil.
+**FAZ 4 ŞARTLI KAPANDI** (2026-08-16, D-193) — komuta merkezi ayakta: 26 uç, 12 ekran,
+hepsi ⌘K paletinden ulaşılabilir. Çalıştırma UI'dan başlatılıyor, `rerun` ile `replay`
+ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
+
+> **Çıkış kriterinin ikisi karşılanmadı ve tikle ÖRTÜLMEDİ** (D-193): klavye zincirinin
+> "onayla" halkası hiç yürütülmedi (`2.9` blokajı) · Tailscale telefonda onay (`4.13b`,
+> V-18). Üçüncü kriter — +%30 sahte-yerelleştirme — kuralın yazılı hâli olarak
+> `turkce-genisleme` kapısıyla zorlanıyor; görsel ölçüm V-19.
 
 > ⛔ **BEŞ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: dördü de plan
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: beşi de plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -31,12 +35,7 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 > | `3.7` | V-16 | `CF_ACCOUNT_ID`+`CF_API_TOKEN` ya da `FAL_KEY` |
 > | `3.8` | V-16 | aynı + ~$3 gerçek para |
 > | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |
->
-> **Faz kapanış protokolü tamamlandı** (LOOP§D · D-79 tavanı): 1. tur 10 blokaj +
-> 13 ikincil, 2. tur 5 blokaj + 11 ikincil buldu; hepsi kapatıldı (D-134…D-158).
-> **Üçüncü tur AÇILMAZ** — bulunmayan FAZ 9'a düşer (`9.2` kural uyumu, `9.5` ölü kod).
-> En ağır bulgu: 1. turun **düzeltme commit'i** iki üretim CLI'ını kırmıştı ve 24
-> kapının hiçbiri görmedi (D-153). `no-undef` + `cli-duman` kapısı eklendi.
+> | `4.13b` | V-18 | Tailscale kurulumu + gerçek Telegram token'ı |
 
 ## Tamamlananlar
 
