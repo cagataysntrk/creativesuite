@@ -1,0 +1,75 @@
+{
+  "runId": "run_01a0097d-5669-7f8c-88c4-f451749324cc",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "deck",
+  "corpusCommit": "baf9677c12c126b44bae4ede80904b2177781115",
+  "registryCommit": "baf9677c12c126b44bae4ede80904b2177781115",
+  "createdAt": "2026-08-16T07:33:24.220Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "denetim turu deck"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T07:33:24.219Z",
+      "finishedAt": "2026-08-16T07:33:24.220Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "denetim turu deck"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-16T07:33:24.220Z",
+      "finishedAt": "2026-08-16T07:33:24.220Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "bilgi-sec"
+}
