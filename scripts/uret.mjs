@@ -19,6 +19,7 @@ const {
   resolveBody,
   selectBody,
   composeBody,
+  ingestBody,
   renderBody,
   validateBody,
   generateBody,
@@ -554,6 +555,21 @@ const rapor = await runPipeline({
     }),
     VALIDATE: validateBody({ check: kaliteKontrol }),
     GENERATE: generate,
+    // ⚠ FAZ 6 denetimi: `INGEST` fiil haritasında HİÇ YOKTU — şelale, karantina ve
+    // enjeksiyon sınırı yazılmıştı ama hattaki `arastir` adımı çalıştırılamıyordu.
+    // Ortam AÇIK LİSTEYLE okunuyor (`secret-okuyucu` darboğazı): `process.env`i
+    // olduğu gibi geçirmek, "hangi değişken gerekiyor" sorusunu grep'le
+    // cevaplanamaz hâle getirirdi — ve bir ay ihmalden sonra sistemi başlatamamanın
+    // en sık sebebi tam olarak budur.
+    INGEST: ingestBody({
+      repoRoot: REPO,
+      env: {
+        BRIGHTDATA_API_KEY: readEnv('BRIGHTDATA_API_KEY'),
+        TAVILY_API_KEY: readEnv('TAVILY_API_KEY'),
+        IHALE_MCP_URL: readEnv('IHALE_MCP_URL'),
+        BORSA_MCP_URL: readEnv('BORSA_MCP_URL'),
+      },
+    }),
   },
   pricing,
   candidatesFor,

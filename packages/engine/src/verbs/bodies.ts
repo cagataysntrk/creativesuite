@@ -22,11 +22,29 @@ import {
   type VerbContext,
   type VerbOutput,
 } from '@suite/kernel'
-import { paginateDocument, renderStatic, renderWithinLimit, type LayoutName } from '@suite/render'
-import type { ProviderAdapter, ProviderInput } from '@suite/providers'
+import {
+  deckPages,
+  isLinkedinDocError,
+  paginateDocument,
+  renderDeckPdf,
+  renderLinkedinDocument,
+  renderStatic,
+  renderWithinLimit,
+  type LayoutName,
+} from '@suite/render'
+import {
+  fetchSource,
+  isIngestFailure,
+  planWaterfall,
+  provenanceJson,
+  type ProviderAdapter,
+  type ProviderInput,
+} from '@suite/providers'
 import { providerCall } from '../provider-call.js'
-import { join } from 'node:path'
-import { mkdirSync } from 'node:fs'
+import { prospectDeckZinciri } from '../prospect-deck.js'
+import type { Kaynak, KisiselAlan } from '@suite/kernel'
+import { dirname, join } from 'node:path'
+import { mkdirSync, writeFileSync } from 'node:fs'
 
 /** Gövdelere geçen girdi. `inputs` önceki adımların çıktıları — id ile anahtarlı. */
 export interface BodyInput {
@@ -194,9 +212,78 @@ export const renderBody = (deps: RenderDeps): Verb =>
     )
     if (belgeCiktisi === undefined) return err(hata('validation', 'NO_DOCUMENT', ctx))
 
+    mkdirSync(deps.outDir, { recursive: true })
+
+    // ── PDF yolu (§7.6 · FAZ-6.1, 6.3) ──────────────────────────────────────
+    //
+    // ⚠ **Bu dal FAZ 6 denetiminde EKSİK bulundu** (D-216): `renderDeckPdf` ve
+    // `renderLinkedinDocument` yazılmış, test edilmiş ve hiç ÇAĞRILMAMIŞTI. Gövde her
+    // zaman PNG yazıyordu; `format: pdf` kısıtı YAML'da duruyor ama kimse okumuyordu.
+    // Diskte sıfır PDF vardı ve `deck.pdf üretiliyor` kriteri tikliydi.
+    //
+    // `flatten` ayrımı kanala ait (D-207): deck metin katmanını korur, LinkedIn
+    // dökümanı rasterleşir.
+    if (input.constraints['format'] === 'pdf') {
+      const sayfalar = deckPages(belgeCiktisi.document, deps.layout)
+      const duzlestir = input.constraints['flatten'] === true
+      const cikti = join(deps.outDir, duzlestir ? 'dokuman.pdf' : 'deck.pdf')
+
+      if (duzlestir) {
+        const maxBytes = input.constraints['max_bytes']
+        const r = await renderLinkedinDocument(
+          sayfalar,
+          cikti,
+          typeof maxBytes === 'number' ? { maxBytes } : {}
+        )
+        if (!r.ok) return err(hata('render_failed', 'RENDER_FAILED', ctx, { error: r.error }))
+        if (isLinkedinDocError(r.value)) {
+          // Sayfa tavanı ve bayt tavanı BURADA zorlanıyor — "üretildi ama reddedilir"
+          // bir dosya, reddedilen bir dosyadan tehlikelidir.
+          return err(hata('validation', 'DOCUMENT_REJECTED', ctx, { refusal: r.value }))
+        }
+        return ok({
+          costs: [
+            {
+              verb: 'RENDER' as VerbName,
+              capability: 'image.render',
+              providerId: 'local-chromium',
+              amount: ZERO_USD,
+              kind: 'actual' as const,
+            },
+          ],
+          data: {
+            document: r.value.path,
+            pages: r.value.pageCount,
+            quality: r.value.quality,
+            bytes: r.value.bytes,
+            flattened: true,
+          },
+        })
+      }
+
+      const r = await renderDeckPdf(sayfalar, cikti)
+      if (!r.ok) return err(hata('render_failed', 'RENDER_FAILED', ctx, { error: r.error }))
+      return ok({
+        costs: [
+          {
+            verb: 'RENDER' as VerbName,
+            capability: 'image.render',
+            providerId: 'local-chromium',
+            amount: ZERO_USD,
+            kind: 'actual' as const,
+          },
+        ],
+        data: {
+          deck: r.value.path,
+          pages: r.value.pageCount,
+          oversizedPages: r.value.oversizedPages,
+          flattened: false,
+        },
+      })
+    }
+
     // Taşma BÖLER, asla küçültmez (§7.1): her slayt kendi PNG'si.
     const slaytlar = paginateDocument(belgeCiktisi.document, deps.layout)
-    mkdirSync(deps.outDir, { recursive: true })
 
     const yollar: string[] = []
     const basamaklar: number[] = []
@@ -246,6 +333,87 @@ export const renderBody = (deps: RenderDeps): Verb =>
     })
   })
 
+// ── INGEST: dış kaynak çeken TEK fiil (§14 · R-50 · D-40 · FAZ-6.10) ────────
+//
+// ⚠ **Bu gövde FAZ 6 denetiminde EKSİK bulundu** (D-216). Şelale, karantina, köken
+// sidecar'ı ve enjeksiyon sınırı yazılmış ve test edilmişti — ama `INGEST` fiilinin
+// gövdesi hiç yoktu. `uret.mjs`in fiil haritasında `INGEST` anahtarı bile yoktu, yani
+// hattaki `arastir` adımı çalıştırılamıyordu.
+//
+// **Çıktı `fetchedAt` taşıyor** ve bu tesadüf değil: `inspectManifest`in `stale_source`
+// dedektörü tam olarak o anahtarı arıyor (FAZ-6.6). Dedektör yazılmıştı, besleyeni
+// yoktu — kural zincirinin kopuk halkası buydu.
+
+export interface IngestDeps {
+  /** Karantina kökü (repo kökü). Dosyalar `derived/ingest/<domain>/` altına iner. */
+  readonly repoRoot: string
+  /** Ortam — şelale hangi kaynakların hazır olduğunu buradan okur. Ağ ÇAĞIRMAZ. */
+  readonly env: Readonly<Record<string, string | undefined>>
+}
+
+export const ingestBody = (deps: IngestDeps): Verb =>
+  govde('INGEST', async (ctx, input) => {
+    // Şelale planı: anahtarsız kaynak ATLANMIYOR, `bloke` işaretleniyor ve raporlanıyor.
+    const plan = planWaterfall(deps.env)
+
+    const url = typeof input.constraints['url'] === 'string' ? input.constraints['url'] : ''
+    if (url === '') {
+      // Kaynaksız `INGEST` sessizce boş dönmez: çekilecek bir şey yoksa bu bir HATADIR,
+      // "hiçbir şey bulunamadı" değil. İkisi karışırsa araştırma yapılmamış bir deck
+      // "araştırıldı" diye görünür.
+      return err(
+        hata('validation', 'NO_SOURCE_URL', ctx, {
+          hazir: plan.hazirSayisi,
+          bloke: plan.steps.filter((x) => x.durum === 'bloke').map((x) => x.id),
+        })
+      )
+    }
+
+    const r = await fetchSource({
+      url,
+      sourceId: 'own-site',
+      confidence: 'direct',
+      fetchedAt: ctx.clock.nowIso(),
+      correlationId: ctx.correlationId,
+      ...(ctx.signal === undefined ? {} : { signal: ctx.signal }),
+    })
+    if (isIngestFailure(r)) {
+      return err(hata('io', 'INGEST_FAILED', ctx, { refusal: r }))
+    }
+
+    // Metin ve sidecar YAN YANA yazılıyor; sidecar metne GÖMÜLMÜYOR — gömülü meta veri
+    // modele gider ve modelin okuduğu her satır bir enjeksiyon yüzeyidir (§14).
+    const metinYolu = join(deps.repoRoot, r.paths.text)
+    mkdirSync(dirname(metinYolu), { recursive: true })
+    writeFileSync(metinYolu, r.text)
+    writeFileSync(join(deps.repoRoot, r.paths.sidecar), provenanceJson(r.provenance))
+
+    return ok({
+      costs: [
+        {
+          verb: 'INGEST' as VerbName,
+          capability: 'web.fetch',
+          providerId: 'own-site',
+          amount: ZERO_USD,
+          kind: 'actual' as const,
+        },
+      ],
+      data: {
+        // ⚠ `fetchedAt` ve `sourceRef` manifest dedektörünün OKUDUĞU anahtarlar
+        // (`stale_source`, FAZ-6.6). Adları değişirse dedektör sessizce körleşir.
+        fetchedAt: r.provenance.fetchedAt,
+        sourceRef: r.provenance.sourceRef,
+        domain: r.provenance.domain,
+        bytes: r.provenance.bytes,
+        quarantinePath: r.paths.text,
+        // Bloke kaynaklar RAPORLANIYOR: "5 kaynak tarandı" diyen ama 1 kaynak taramış
+        // bir araştırma, eksik araştırmadan tehlikelidir (eksikliği görünmez).
+        sourcesReady: plan.hazirSayisi,
+        sourcesBlocked: plan.blokeSayisi,
+      },
+    })
+  })
+
 // ── VALIDATE: QA + lexicon, model yargısı YOK ───────────────────────────────
 export interface ValidateDeps {
   readonly check: (
@@ -279,16 +447,72 @@ export const validateBody = (deps: ValidateDeps): Verb =>
       (v): v is { readonly slides: readonly string[] } =>
         v !== null && typeof v === 'object' && Array.isArray((v as { slides?: unknown }).slides)
     )
-    if (belge === undefined || render === undefined) {
+    // PDF çıktısı `slides` TAŞIMAZ (`deck` ya da `document` taşır). İlk sürüm yalnız
+    // `slides` arıyordu ve PDF hattı `NOTHING_TO_VALIDATE` ile duruyordu — PDF yolunu
+    // bağlarken açılan boşluk (FAZ-6.10).
+    const pdf = Object.values(input.inputs).find(
+      (v): v is { readonly deck?: string; readonly document?: string } =>
+        v !== null &&
+        typeof v === 'object' &&
+        (typeof (v as { deck?: unknown }).deck === 'string' ||
+          typeof (v as { document?: unknown }).document === 'string')
+    )
+    if (belge === undefined || (render === undefined && pdf === undefined)) {
       return err(hata('validation', 'NOTHING_TO_VALIDATE', ctx))
     }
 
-    const sonuc = await deps.check(belge.document, render.slides)
+    // Piksel QA yalnız PNG üzerinde anlamlı: ΔE ve kaplama ölçümleri bir raster ister.
+    // PDF'te bu denetim **ATLANIYOR ve bu YAZILIYOR** — atlanan bir denetim "temiz"
+    // değildir (D-175 ailesi) ve manifest ikisini ayırt edebilmeli.
+    const sonuc =
+      render === undefined
+        ? { blocked: false, report: 'piksel QA ATLANDI: çıktı PDF, raster ölçüm yok' }
+        : await deps.check(belge.document, render.slides)
     if (sonuc.blocked) {
       // QA sınır dışıysa hat DURUR. "Uyarı verip devam etmek", tolerans okumasını
       // bir süse çevirirdi (§11.1).
       return err(hata('policy_blocked', 'QA_OUT_OF_TOLERANCE', ctx, { report: sonuc.report }))
     }
+
+    // ── zincir (§10 · D-216 · FAZ-6.9) ──────────────────────────────────────
+    //
+    // ⚠ **`chain:` kısıtı FAZ 6 denetiminde ÖLÜ bulundu**: `prospect-deck.pipeline.yaml`
+    // onu yazıyordu, hiçbir kod okumuyordu ve `prospectDeckZinciri`nin sıfır çağıranı
+    // vardı. Beş kapı yazılmış, test edilmiş ve hiç koşmamıştı.
+    const zincirAdi = input.constraints['chain']
+    if (zincirAdi === 'prospect-deck') {
+      const z = prospectDeckZinciri({
+        kaynaklar: ingestKaynaklari(input.inputs),
+        alanlar: kisiselAlanlar(input.inputs),
+        urunEkranlari: urunEkranlari(input.inputs),
+        // Lexicon `deps.check`in içinde koşuyor ve `blocked` ile döndü; buraya ayrıca
+        // geçmek aynı kuralı iki kez saymak olurdu (D-198).
+        lexiconIhlalleri: [],
+        // Manifest kusurları YAYIN anında `inspectManifest`te bakılıyor: adım koşarken
+        // manifest henüz yazılmadı ve olmayan bir defteri denetlemek uydurma olurdu.
+        manifestKusurlari: [],
+        now: ctx.clock.nowIso(),
+      })
+      if (!z.gecti) {
+        return err(
+          hata('policy_blocked', 'CHAIN_BLOCKED', ctx, {
+            kapi: z.kapi,
+            mesaj: z.mesaj,
+            kosulanKapilar: z.kosulanKapilar,
+          })
+        )
+      }
+      return ok({
+        costs: [],
+        data: {
+          qa: sonuc.report,
+          ...(sonuc.readings === undefined ? {} : { qaReadings: sonuc.readings }),
+          chain: 'prospect-deck',
+          chainGates: z.kosulanKapilar,
+        },
+      })
+    }
+
     return ok({
       costs: [],
       // Hem metin hem YAPILANDIRILMIŞ okuma manifeste gider: biri insan için, diğeri
@@ -298,6 +522,53 @@ export const validateBody = (deps: ValidateDeps): Verb =>
         ...(sonuc.readings === undefined ? {} : { qaReadings: sonuc.readings }),
       },
     })
+  })
+
+// ── zincir girdisini önceki adım ÇIKTILARINDAN toplar ───────────────────────
+//
+// Anahtar adları `inspectManifest`in aradıklarıyla AYNI olmak zorunda: `fetchedAt`,
+// `personalizationFields`, `productShots`. Aynı veri hem adım anında (zincir) hem yayın
+// anında (manifest) denetleniyor — iki kontrol noktası değil, aynı kuralın iki anı.
+
+const ingestKaynaklari = (inputs: Readonly<Record<string, unknown>>): readonly Kaynak[] =>
+  Object.values(inputs).flatMap((v) => {
+    if (v === null || typeof v !== 'object') return []
+    const o = v as { fetchedAt?: unknown; sourceRef?: unknown }
+    return typeof o.fetchedAt === 'string'
+      ? [
+          {
+            sourceRef: typeof o.sourceRef === 'string' ? o.sourceRef : 'bilinmiyor',
+            fetchedAt: o.fetchedAt,
+          },
+        ]
+      : []
+  })
+
+const kisiselAlanlar = (inputs: Readonly<Record<string, unknown>>): readonly KisiselAlan[] =>
+  Object.values(inputs).flatMap((v) => {
+    if (v === null || typeof v !== 'object') return []
+    const alanlar = (v as { personalizationFields?: unknown }).personalizationFields
+    if (!Array.isArray(alanlar)) return []
+    return alanlar.map((a, i) => {
+      const o = (a ?? {}) as Record<string, unknown>
+      return {
+        id: typeof o['id'] === 'string' ? o['id'] : `alan-${i}`,
+        label: typeof o['label'] === 'string' ? o['label'] : String(a),
+        sourceRef: typeof o['sourceRef'] === 'string' ? o['sourceRef'] : 'bilinmiyor',
+        confidence: (o['confidence'] === 'direct' || o['confidence'] === 'corroborating'
+          ? o['confidence']
+          : 'pointer') as KisiselAlan['confidence'],
+      }
+    })
+  })
+
+const urunEkranlari = (
+  inputs: Readonly<Record<string, unknown>>
+): readonly { readonly aiGenerated?: unknown; readonly basis?: { readonly kind?: unknown } }[] =>
+  Object.values(inputs).flatMap((v) => {
+    if (v === null || typeof v !== 'object') return []
+    const g = (v as { productShots?: unknown }).productShots
+    return Array.isArray(g) ? (g as { aiGenerated?: unknown; basis?: { kind?: unknown } }[]) : []
   })
 
 // ── GENERATE: yalnız sağlayıcı ──────────────────────────────────────────────
