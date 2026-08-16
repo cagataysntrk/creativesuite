@@ -186,6 +186,7 @@ export {
   type DocResult,
   type DocumentKind,
   type DocumentModel,
+  type SlaytKimligi,
   type ImageBlock,
   type SeriesTone,
 } from './doc/model.js'

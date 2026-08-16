@@ -62,6 +62,17 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     'MARKA BİLGİSİ (yalnız buradaki bilgiyi kullan):',
     baglam,
     '',
+    'BİÇİM (karosel — her satır BİR slayt olur, sırayla):',
+    // ⚠ **Uzunluk disiplini prompt'ta olmak ZORUNDA.** Modelden serbest metin isteyip
+    // sonra sayfalayıcıya "böl" demek, ilk slayta 12 satırlık bir metin duvarı
+    // koyuyordu: kapak bir başlık değil, bir paragraf oluyordu. Sayfalayıcı taşmayı
+    // böler (R-30: küçültmez) ama neyin BAŞLIK olduğunu bilemez — o bilgi ancak
+    // metnin üretildiği yerde vardır.
+    '- 1. satır = KAPAK: en fazla 8 kelime. Nokta koyma. İddia ya da soru.',
+    '- 2.–5. satır = GÖVDE: her biri tek fikir, en fazla 30 kelime.',
+    '- Son satır = KAPANIŞ: tek cümle, en fazla 14 kelime. Davet ya da sonuç.',
+    '- Toplam 5 ya da 6 satır. Satırları numaralama, madde işareti koyma.',
+    '',
     'KURALLAR:',
     `- Dil: ${g.locale ?? 'tr-TR'}. Doğal, abartısız, teknik ve somut.`,
     '- **Hiçbir sayısal iddia yazma.** Yüzde, oran, kat, "X kat hızlı" gibi ifadeler',

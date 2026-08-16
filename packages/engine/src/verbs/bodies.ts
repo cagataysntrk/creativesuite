@@ -420,6 +420,8 @@ const urunCekimleri = (
 
 // ── RENDER: yalnız Chromium ─────────────────────────────────────────────────
 export interface RenderDeps {
+  /** Profil adı şeridi — her slaytta basılır (D-254). */
+  readonly kulp?: string
   readonly outDir: string
   /** Taşma bölme düzeni (§7.1). Küçültme YOK — bölme var. */
   readonly layout: LayoutName
@@ -595,7 +597,8 @@ export const renderBody = (deps: RenderDeps): Verb =>
     }
 
     // Taşma BÖLER, asla küçültmez (§7.1): her slayt kendi PNG'si.
-    const slaytlar = paginateDocument(belgeCiktisi.document, deps.layout)
+    // Kulp markanın süreklilik ögesi: ızgaraya bakan göz onu tanır (D-254).
+    const slaytlar = paginateDocument(belgeCiktisi.document, deps.layout, deps.kulp)
 
     const yollar: string[] = []
     const basamaklar: number[] = []

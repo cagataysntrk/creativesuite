@@ -236,3 +236,14 @@ export {
 
 // Marka fontları — base64 gömülü, latin+latin-ext (§7.2 · D-252).
 export { fontCss, YUZLER, type FontYuzu, type FontSonucu } from './fonts.js'
+
+// Karosel şablon grameri — slayt kimliğinden kompozisyon (§7.1 · D-254).
+export {
+  alanRolleri,
+  akanEgri,
+  egriSagda,
+  hayaletRakam,
+  sayacEtiketi,
+  navIsareti,
+  type AlanRolleri,
+} from './sablon.js'

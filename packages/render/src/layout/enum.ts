@@ -172,9 +172,39 @@ export const paginate = (
   return slides
 }
 
-/** Belgeyi düzene göre slaytlara böler; boyut ve token'lar korunur. */
+/**
+ * Belgeyi düzene göre slaytlara böler; boyut ve token'lar korunur.
+ *
+ * **Slayt kimliği BURADA doğuyor** (§7.1 · D-254): sayfalama kaç slayt olduğunu ve
+ * hangisinin kaçıncı olduğunu bilen tek yer. Kimliği çağırana hesaplatmak, iki yerde
+ * iki farklı sayı demekti — ve `total` yanlışsa hayalet rakam da sayaç da yalan söyler.
+ *
+ * Roller: ilk **kapak**, son **kapanış**, arası **gövde**; tek slaytta **tek**.
+ * Kapak ve kapanışın ayrı olması bir süs değil — ızgarada dizinin nerede başlayıp
+ * nerede bittiği görünmeli.
+ */
 export const paginateDocument = (
   doc: DocumentModel,
-  layout: LayoutName
-): readonly DocumentModel[] =>
-  paginate(doc.blocks, layout).map((s) => ({ ...doc, blocks: s.blocks }))
+  layout: LayoutName,
+  kulp?: string
+): readonly DocumentModel[] => {
+  const slaytlar = paginate(doc.blocks, layout)
+  const n = slaytlar.length
+  return slaytlar.map((s, i) => ({
+    ...doc,
+    blocks: s.blocks,
+    slayt: {
+      role:
+        n === 1
+          ? ('tek' as const)
+          : i === 0
+            ? ('kapak' as const)
+            : i === n - 1
+              ? ('kapanis' as const)
+              : ('govde' as const),
+      index: i,
+      total: n,
+      ...(kulp === undefined ? {} : { kulp }),
+    },
+  }))
+}

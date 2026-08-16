@@ -709,6 +709,7 @@ const rapor = await runPipeline({
     RENDER: renderBody({
       outDir: cikti,
       layout: 'statement',
+      kulp: '@upcytech',
       // Sınır YERLEŞİMDEN gelir (§9.1): LinkedIn 5MB, Instagram 8MB.
       maxBytes: (
         placementById(id.startsWith('linkedin') ? 'linkedin-feed-4x5' : 'instagram-feed-4x5') ?? {

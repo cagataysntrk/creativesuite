@@ -3666,3 +3666,156 @@ geçiyor · `insansız` ✓ geçiyor · `engineers` ✓ yakalanıyor.
 hem uyumlu hem **daha iyi**; kısıt burada kaliteyi düşürmedi, yükseltti.
 
 **Geri alma maliyeti:** yok.
+
+## D-240 — Genişletme TEK yerde: plan ne sayıyorsa koşu onu koşar
+
+**2026-08-16 · FAZ-8.1b**
+
+`plan()` yedi varyantı fiyatlıyordu, `runPipeline` tek varyant koşuyordu. Tahmin
+dürüsttü, üretim değildi — ve iki ayrı hesap bir gün ayrışır. Ayrıştığı gün kullanıcı
+yedi varyantın parasını onaylayıp bir varyant alır, ya da tersi.
+
+**Karar: genişletme tek bir fonksiyon** (`varyantlaGenislet`) ve **plan da koşu da onu
+okuyor**. `plan()`in gösterdiği koşum sayısı ayrı bir formülden değil, genişletmenin
+kendi SAYIMINDAN geliyor (`kosumSayilari`). Ayrı formül yazmak, bu projenin en sık
+tekrarlayan hatasının (D-228 · D-229 · D-237) varyant tarafındaki kardeşi olurdu.
+
+**Üç kova, üç davranış — ve ayrım "ücretli mi" DEĞİL:**
+
+- **Paylaşılan önek** (ücretli hiçbir adıma bağlı olmayan): bir kez. `RESOLVE` tarifi
+  çözer, `SELECT` bağlamı seçer; yedi varyant aynı bağlamı paylaşır. Yedi kez seçmek
+  seçimin varyanttan varyanta kayma riskini doğurur — oysa OFAT'ın tek vaadi diğer her
+  şeyin SABİT kalmasıdır.
+- **Varyant gövdesi** (ücretli bir adıma transitif bağlı olan her adım): varyant başına.
+  ⚠ **İlk modelim eksikti:** "ücretli adımlar çoğalır" diyordum. `COMPOSE` ücretsizdir
+  ama her varyantın KENDİ belge modeli olmak zorunda — çoğaltılmazsa yedi render aynı
+  belgeyi basar ve matris bir ölçüm değil bir kopya üretir. Ücretsiz adımı çoğaltmak
+  maliyeti değiştirmiyor (sıfır × yedi = sıfır); çoğaltmamak ölçümü yok ediyor.
+- **Toplayıcı** (`PROPOSE`): bir kez, tüm varyant yapraklarına bağlı. Yedi varyantlık
+  bir set TEK öneridir; yedi ayrı öneri insan kuyruğunu aynı kararla yedi kez meşgul
+  eder ve "hangisi kazandı" sorusunu sorulamaz kılar.
+
+**Koordinat kısıtlara giriyor** (`constraints.varyant`), ayrı bir parametre kanalına
+değil: kısıtların "adımın tüm girdisi" olma vaadi bozulmamalı.
+
+**Varyant içi bağımlılık aynı varyanta bağlanıyor**, çapraz değil — `kompozit#3` yalnız
+`metin-uret#3` ve `gorsel-uret#3`e bakar. Çapraz bağlanma OFAT'ı sessizce bozardı.
+
+**Ekranda da görünüyor:** ücretsiz ama yedi kez koşan adımlar artık `×7` basıyor.
+Maliyeti yok diye görünmez olmaz — süresi ve çıktısı var.
+
+**Geri alma maliyeti:** yok — matrissiz hat aynı nesneyi geri alıyor, hiçbir davranış
+değişmiyor.
+
+## D-241 — Yetenek gövde kurulumundaydı; ortam üç yerde ayrı kuruluyordu
+
+**2026-08-16 · corpus onaylandıktan sonraki ilk gerçek koşu**
+
+Corpus `active` olunca hat ilk kez `bilgi-sec`i geçti ve arkasındaki üç kusur **sırayla**
+ortaya çıktı. Üçü de aynı sınıf: **adımın verisi olması gereken şey koda gömülmüştü.**
+
+**1 · Yetenek kurulumdaydı.** `uret.mjs` tek bir `generateBody({capability:
+'image.generate'})` kuruyor ve o gövde TÜM `GENERATE` adımlarına hizmet ediyordu. Metin
+adımı görsel yeteneğiyle koşup `CAPABILITY_UNSUPPORTED` alıyordu. `BodyInput` yeteneği
+hiç taşımıyordu. Artık taşıyor; `deps.capability` yalnız geriye dönük varsayılan.
+
+⚠ **Bu kusur bugüne kadar maskeliydi:** `image.generate` hiçbir sağlayıcıya
+çözülmediği için hat o adıma hiç varamıyordu. Bir anahtar eklemek, arkasındaki üç
+kusuru aynı anda görünür yaptı — **engeli kaldırmadan arkasını göremezsin.**
+
+**2 · Ortam üç yerde ayrı kuruluyordu.** `plan()`, `runPipeline()` ve `generateBody()`
+üç ayrı `env` alıyordu ve ikisi `{ PATH }`ten ibaretti. Kasada duran anahtar
+`candidatesFor`a hiç ulaşmıyor, her sağlayıcı "yerel önkoşul sağlanmadı" diye
+eleniyordu. Tek tanım (`SAGLAYICI_ORTAMI`), üç çağıran. D-237'nin `uret.mjs`
+tarafındaki ikizi — **bir şeyi üç yerde kurmak, ikisini güncellemeyi unutmaktır.**
+
+**3 · Görsel prompt'unun KAYNAĞI YOK** — `3.7b` olarak açıldı. Hiçbir hat `prompt`
+kısıtı beyan etmiyor ve hiçbir kod onu türetmiyor; `buildImagePrompt` boş dize alıp
+`{kind:'empty'}` ile reddediyor (doğru davranış). Mekanizma tam, besleyen yok.
+
+**Karar — nasıl doldurulacağı:** görsel brief'i **bir `text.generate` adımı üretecek**
+ve `gorsel-uret` ona bağlanacak. Alternatifler reddedildi: (a) hat dosyasına sabit
+prompt yazmak içeriğe kör bir görsel verir; (b) Türkçe konuyu doğrudan prompt yapmak
+görsel modellerinde belirgin biçimde kötü sonuç veriyor ve **6. yasayı da zorlar** —
+model seçimi yönlendiricinin işi ama prompt dili bizim kararımız. Brief'i model
+yazınca R-20 ve 9. yasa kapılarının ikisi de o metnin üzerinden geçiyor.
+
+**Geri alma maliyeti:** yok.
+
+## D-242 — Başarısız adım deftere kapanıyor ve sonraki koşuda "başarılı" oluyordu
+
+**2026-08-16 · corpus onayı sonrası ilk koşular**
+
+Manifest'te şu satırı gördüm: `metin-uret · status: ok · output: null · 1 ms`. Ücretli
+bir `GENERATE` adımı hiçbir iş yapmadan başarılı olmuştu.
+
+**Zincir, ölçülerek:**
+1. `idempotencyKey` **bilerek `runId` içermiyor** — aynı iş koşular arası aynı anahtarı
+   paylaşsın ve çift ödeme olmasın diye. Bu doğru.
+2. 1. koşuda `metin-uret` `CAPABILITY_UNSUPPORTED` ile düştü ve `scheduler.ts` hatada
+   deftere **`not-charged`** yazıp kaydı kapattı.
+3. 3. koşuda aynı anahtar bulundu. Kod `chargeStatus === 'possibly-charged'` değilse
+   *"(a) KAPANMIŞ kayıt: iş bitmiş, çağrı atlanır"* diyordu — ve `not-charged` de
+   `possibly-charged` değil.
+
+Yani **bir kez hata veren adım, sonraki HER koşuda `output: null` ile yeşile dönüyordu.**
+Aşağı akış (`kompozit`) boş girdiyle devam ediyordu.
+
+**Kırmızı bir adım, yeşile dönmüş bir adımdan iyidir.** Kırmızı adım bakılır; yeşile
+dönen adım bakılmaz ve boş çıktı hattın sonuna kadar taşınır.
+
+**Kök ayrım:** `not-charged` = *çağrı uçmadı*, yani **iş yapılmadı**. `charged` = iş
+yapıldı ve ödendi. İkisini "kapanmış" diye aynı kovaya koymak, defterin ne için var
+olduğunu karıştırmaktı. **Defterin işi ÖDEMEYİ tekrarlamamak, İŞİ tekrarlamamak
+değil** — ödenmemiş bir iş tekrar denenmeli ve çift ödeme riski yok, çünkü ödeme hiç
+olmadı.
+
+**Düzeltme:** `not-charged` kayıt `ledger.reopen()` ile `possibly-charged`a çevrilip
+yeni koşuya bağlanıyor. Kayıt **SİLİNMİYOR** — defter append-only bir kanıttır (R-52)
+ve "bu adım daha önce denendi" bilgisi kaybolmamalı. `charged` ve `possibly-charged`
+kayıtlara dokunulmuyor: birincisinde çift ödeme riski var, ikincisinde bilinmeyeni
+tahmin etmek yasak.
+
+**Ölçüldü:** düzeltmeden sonra aynı hat `metin-uret`te dürüstçe `EMPTY_PROMPT` veriyor —
+yani gerçek eksiği gösteriyor. Bu eksik (`3.7b`) daha önce defterin arkasına saklanmıştı.
+
+**Geri alma maliyeti:** yok.
+
+## D-243 — Prompt'un kaynağı yoktu; çıktı da `COMPOSE`a ulaşmıyordu
+
+**2026-08-16 · FAZ-3.7b**
+
+Corpus onaylandıktan ve defter kusuru kapandıktan (D-242) sonra hat dürüstçe
+`EMPTY_PROMPT` dedi ve **aynı dikişin iki ucunun da açık olduğu** görüldü:
+
+**1 · Prompt'un kaynağı yoktu.** `topic` bir çalıştırma parametresi, kayıtlar
+`SELECT`ten `input.inputs`e akıyor — ama hiçbir kod ikisini bir prompt'a çevirmiyordu.
+`constraints['prompt']` hep boş kalıyordu.
+
+**2 · Çıktı `COMPOSE`a ulaşmıyordu.** `composeBody` `{lines: string[]}` arıyor;
+sağlayıcı çıktısı o şekilde değil. Bulamayınca **sessizce ham kayıtlara düşüyordu** —
+yani model koşsa bile metni kullanılmıyor ve bunu çıktıya bakarak anlamak imkânsızdı.
+İkinci boşluk birincisinin arkasında saklıydı: prompt hiç kurulamadığı için model hiç
+koşmuyordu ve normalizasyonun eksikliği görünmüyordu.
+
+**Önce ARADIM, sonra yazdım** (kullanıcının uyarısı üzerine): `assembleContext` hangi
+kaydın bütçeye sığdığını hesaplıyor (köken ve planlama), `buildImagePrompt` R-20 ekini
+basıyor (güvenlik), `selectBody` kayıtları getiriyor. **Üçü de prompt kurmuyor** ve
+hiçbiri bu işi yapacak yer değil — karıştırılırsa "bu kayıt neden düştü" ile "bu prompt
+neden böyle" tek cevaba sıkışır. Tikli fazlar bir şeyin var olduğunu garanti etmiyor;
+aramak ucuz, ikinci kopya pahalı.
+
+**İkisi tek dosyada** (`metin-akisi.ts`) çünkü aynı dikişin iki ucu: ayrı dosyalarda
+olsalardı biri düzeltilip diğeri unutulurdu.
+
+**Görsel brief'i MODEL yazıyor** (D-241'in kararı uygulandı): hat dosyasına sabit prompt
+yazmak içeriğe kör görsel verir; Türkçe konuyu doğrudan görsel modeline vermek ölçülerek
+elendi. Brief İngilizce, insansız ve metinsiz isteniyor — ve bake-off'un ölçtüğü şey
+prompt'a yazıldı: **tabela içeren konular açıkça eleniyor** (kantar göstergesi, raf
+etiketi, dashboard), çünkü metin sızması konu seçiminden geliyor, ekten değil.
+
+**Kapılar yine de duruyor:** brief bir metin modelinden çıkıp görsel modeline giderken
+R-20 ve 9. yasa kapılarının ikisinden de geçiyor. Bir kapıya çarpmadan geçmek, çarpıp
+geri dönmekten ucuz — ama kapı kaldırılmıyor.
+
+**Geri alma maliyeti:** yok.

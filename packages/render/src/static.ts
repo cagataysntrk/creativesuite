@@ -16,6 +16,15 @@ import { withPage, type BrowserResult } from './browser.js'
 import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
 import { DIAGRAM_CSS, diagramHtml, isDiagramError } from './charts/diagram.js'
 import { kacir } from './html.js'
+import {
+  akanEgri,
+  alanRolleri,
+  egriSagda,
+  guvenliMetinYuzdesi,
+  hayaletRakam,
+  navIsareti,
+  sayacEtiketi,
+} from './sablon.js'
 
 export { kacir } from './html.js'
 
@@ -57,6 +66,14 @@ const blokHtml = (b: Block): string => {
 export const toHtml = (doc: DocumentModel): string =>
   [
     '<!doctype html><meta charset="utf-8">',
+    // ⚠ **Yüzey BEYAN EDİLMEK zorunda.** `kreatif` rolleri `[data-surface='kreatif']`
+    // ile kapsanmış; öznitelik yoksa `:root` devreye girer ve o KONSOL grisidir.
+    // İlk kompozisyon koşusu tam olarak böyle çıktı: eğri, hayalet rakam, sayaç —
+    // hepsi doğru, ama siyah üstüne siyah. Kapsanmış bir token, beyan edilmeyen bir
+    // yüzeyde sessizce varsayılana düşer (D-254).
+    ...(doc.slayt === undefined
+      ? []
+      : ['<html data-surface="kreatif"><body data-surface="kreatif">']),
     '<style>',
     // Font bloğu EN ÖNDE: `@font-face` tanımı kullanımından önce gelmeli.
     doc.fontCss ?? '',
@@ -85,9 +102,104 @@ export const toHtml = (doc: DocumentModel): string =>
     `  p  { font-size: 34px; line-height: 1.45; margin: 0 0 16px; color: var(--role-text-muted); }`,
     `  img { max-width: 100%; height: auto; }`,
     `  .spacer.sm { height: 16px } .spacer.md { height: 40px } .spacer.lg { height: 88px }`,
+    sablonCss(doc),
     '</style>',
+    sablonKatmanlari(doc),
+    `<main class="icerik">`,
     doc.blocks.map(blokHtml).join('\n'),
+    '</main>',
   ].join('\n')
+
+/**
+ * Şablon katmanlarının CSS'i. **Slayt kimliği yoksa hiçbir şey basılmaz** — eski
+ * belgeler ve testler aynen çalışmaya devam eder.
+ */
+const sablonCss = (doc: DocumentModel): string => {
+  const k = doc.slayt
+  if (k === undefined) return ''
+  const r = alanRolleri(k)
+  // Metin sütunu eğrinin KARŞI tarafında: eğri sağı dolduruyorsa metin solda.
+  const sagda = egriSagda(k)
+  // Güvenli alan: 4px tabanın katı (§12.3) ve platform kenar payından geniş.
+  const pay = 88
+  return [
+    // Zemin ve metin rolleri KİMLİKTEN geliyor; `body`nin varsayılanını eziyor.
+    `  body { background: ${r.zemin}; color: ${r.metin};`,
+    `         display: block; padding: 0; position: relative; overflow: hidden; }`,
+    // ── metin sütunu: EĞRİNİN KARŞI TARAFINDA, bandın dışında ────────────────
+    //
+    // ⚠ İlk sürümde `max-width: 78%` idi ve metin eğri sınırını KESİYORDU: bir cümlenin
+    // yarısı kehribar, yarısı kâğıt üstünde kalıyordu. Referansta metin her zaman tek
+    // alanda durur — bu bir üslup tercihi değil, okunabilirlik kuralı: iki zemin
+    // arasında geçen bir satırın kontrastı satır ortasında değişir.
+    //
+    // Sütun eğrinin karşı tarafına yerleşiyor ve genişliği `guvenliMetinYuzdesi`
+    // (şablon gramerinden) ile sınırlı. Taraf `egriSagda` ile dönüyor, yani metin de
+    // slayttan slayta yer değiştiriyor — ritim buradan da besleniyor.
+    `  .icerik { position: relative; z-index: 3; box-sizing: border-box;`,
+    `            width: ${guvenliMetinYuzdesi}%; ${sagda ? '' : 'margin-left: auto;'}`,
+    `            padding: ${pay}px ${sagda ? 0 : pay}px ${pay + 64}px ${sagda ? pay : 0}px;`,
+    `            display: flex; flex-direction: column;`,
+    // Dikey yerleşim ROLE göre. Kapak alta yaslı: referansta kapak başlığı optik
+    // merkezin ALTINDA durur ve üstteki boşluk nefes olur. Gövde ortalı: kısa bir
+    // paragrafı tepeye yaslamak, altında 900 piksel boşluk bırakıyordu.
+    `            justify-content: ${k.role === 'kapak' || k.role === 'tek' ? 'flex-end' : 'center'};`,
+    `            min-height: 100%; }`,
+    `  h1 { color: ${r.metin} }`,
+    `  p  { color: ${r.metinSoluk} }`,
+    // ── katman 1: karşı alan + akan eğri ────────────────────────────────────
+    `  .alan { position: absolute; inset: 0; z-index: 1; }`,
+    `  .alan svg { width: 100%; height: 100%; display: block; }`,
+    // ── katman 2: hayalet rakam ─────────────────────────────────────────────
+    // Kontur-only tipografi: dolgu yok, `-webkit-text-stroke` var. DIŞ kenardan taşıyor
+    // ve `overflow: hidden` onu kırpıyor — referanstaki "yarım rakam" bundan.
+    //
+    // ⚠ İki konum düzeltmesi, ikisi de ölçülmüş:
+    //   1. **Metnin karşı tarafında.** Aynı tarafta olduğunda dev konturlar paragrafın
+    //      arkasından geçiyor ve ikisi de okunmuyordu.
+    //   2. **Alt şeridin ÜSTÜNDE bitiyor.** Öncesinde `bottom` negatifti ve rakam
+    //      `kaydır ››` ile üst üste biniyordu — z-index onu arkada tutuyordu ama
+    //      çakışma yine de kazara duruyordu. Nefes payı bırakmak yeterli.
+    `  .hayalet { position: absolute; z-index: 2;`,
+    `             ${sagda ? 'right' : 'left'}: -${Math.round(pay * 0.7)}px; bottom: ${pay + 62}px;`,
+    `             font-family: "Marka Display", sans-serif;`,
+    `             font-size: 560px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
+    `             color: transparent; -webkit-text-stroke: 3px ${r.motif}; opacity: 0.42;`,
+    `             pointer-events: none; }`,
+    // ── katman 3: sayaç ve kulp ─────────────────────────────────────────────
+    `  .sayac { position: absolute; z-index: 4; top: ${pay}px; right: ${pay}px;`,
+    `           font-size: 26px; font-weight: 600; letter-spacing: 0.06em;`,
+    `           font-variant-numeric: tabular-nums slashed-zero; color: ${r.metinSoluk}; }`,
+    `  .kulp { position: absolute; z-index: 4; left: ${pay}px; bottom: ${pay}px;`,
+    `          font-size: 24px; letter-spacing: 0.02em; color: ${r.metinSoluk}; }`,
+    `  .nav { position: absolute; z-index: 4; right: ${pay}px; bottom: ${pay}px;`,
+    `         font-size: 24px; letter-spacing: 0.04em; color: ${r.metinSoluk}; }`,
+    // Görsel tam alanı kaplıyor ve karşı alanın maskesine giriyor.
+    `  .icerik img { width: 100%; border-radius: 2px; }`,
+  ].join('\n')
+}
+
+/** Katmanların HTML'i — sıra z-index'i izliyor. */
+const sablonKatmanlari = (doc: DocumentModel): string => {
+  const k = doc.slayt
+  if (k === undefined) return ''
+  const r = alanRolleri(k)
+  const sagda = egriSagda(k)
+  const d = akanEgri(k)
+  // Eğrinin bir TARAFI dolduruluyor: path'i kutunun kenarlarıyla kapatıp alan yapıyoruz.
+  const kapali = sagda ? `${d} L 100 100 L 100 0 Z` : `${d} L 0 100 L 0 0 Z`
+  const rakam = hayaletRakam(k)
+  const sayac = sayacEtiketi(k)
+  const nav = navIsareti(k)
+  return [
+    `<div class="alan"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
+    `<path d="${kapali}" fill="${r.karsiAlan}"/></svg></div>`,
+    ...(rakam === null ? [] : [`<div class="hayalet" aria-hidden="true">${kacir(rakam)}</div>`]),
+    ...(sayac === null ? [] : [`<div class="sayac">${kacir(sayac)}</div>`]),
+    ...(k.kulp === undefined ? [] : [`<div class="kulp">${kacir(k.kulp)}</div>`]),
+    ...(nav === null ? [] : [`<div class="nav">${kacir(nav)}</div>`]),
+  ].join('\n')
+}
 
 /**
  * PNG üretir. Çıktı **yola yazılır**, byte döndürülmez: bir varlığın byte'ları

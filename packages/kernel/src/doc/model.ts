@@ -117,8 +117,33 @@ export interface DocumentModel {
    * `golden` metrikleri `notdef = 0` arıyor ve boş font orada yakalanır.
    */
   readonly fontCss?: string
+  /**
+   * Slayt kimliği — **rol taşır, çizim taşımaz** (§7.1 · D-254).
+   *
+   * ⚠ Modelde `ornament: '<svg>…'` gibi bir alan YOK ve olmayacak: belge modeline
+   * işaretleme sokmak "tek render motoru" yasasını (R-30) bir şablon diline çevirir
+   * ve o dil ikinci bir CSS alt kümesi doğurur — D-24'ün tam olarak reddettiği şey.
+   *
+   * Model **hangi slayt olduğunu** söyler; hayalet rakamı, akan eğriyi, sayacı ve
+   * renk rotasyonunu `static.ts` bundan TÜRETİR. Aynı kimlik her koşuda aynı
+   * kompozisyonu verir (deterministik) ama slayttan slayta değişir (generative).
+   */
+  readonly slayt?: SlaytKimligi
   /** Üretim damgası (R-11). Çıktı meta'sına basılır; retrofit imkânsız. */
   readonly stamp: AssetStamp
+}
+
+/** Slaytın teslimat içindeki yeri. `derived/blobs` sidecar'ındaki `deliverable` ile aynı dil. */
+export interface SlaytKimligi {
+  readonly role: 'kapak' | 'govde' | 'kapanis' | 'tek'
+  /** 0 tabanlı. Hayalet rakam `index + 1` olarak basılır. */
+  readonly index: number
+  readonly total: number
+  /**
+   * Kulp — profil adı şeridi. Referanslarda her slaytta var ve **süreklilik
+   * ögesidir**: ızgaraya bakan göz onu tanır ve postu markaya bağlar.
+   */
+  readonly kulp?: string
 }
 
 export type DocError =
