@@ -87,6 +87,16 @@ export type McpRet =
   | { readonly kind: 'index_missing' }
   /** Çağıran `status`/`zone` geçirmeye çalıştı — yazma kapısı tektir (R-14). */
   | { readonly kind: 'status_not_accepted'; readonly alan: string }
+  /**
+   * 7. yasanın zorunlu damgası eksik: `brand_id` · `era_id` · `type`.
+   *
+   * **Sonradan retrofit imkânsız** (§4.3): damgasız inen bir kayıt, hangi markanın
+   * hangi döneminde doğduğunu bir daha asla söyleyemez. Kapı bunu commit anında
+   * yakalıyordu — ama commit, kaydın YAZILMASINDAN sonradır ve arada agent "yazdım"
+   * sanır. Reddetmek, sessizce doldurmaktan iyi: uydurulmuş bir `era_id`, eksik bir
+   * `era_id`den beterdir.
+   */
+  | { readonly kind: 'damga_eksik'; readonly alanlar: readonly string[] }
   /** Yazma reddedildi; sebep corpus yazıcısından geliyor. */
   | { readonly kind: 'write_refused'; readonly neden: string }
 
@@ -96,10 +106,20 @@ export type McpRet =
  * Sessizce silmek, çağıranın "active yazdım" sanmasına yol açardı; reddetmek ona
  * kuralı öğretiyor. Sessiz düzeltme, öğrenilmeyen bir kuraldır.
  */
+export const ZORUNLU_DAMGA = ['brand_id', 'era_id', 'type'] as const
+
 export const oneriDogrula = (frontmatter: Readonly<Record<string, unknown>>): McpRet | null => {
   for (const alan of ['status', 'zone', 'x_signature']) {
     if (alan in frontmatter) return { kind: 'status_not_accepted', alan }
   }
+  // ⚠ Bu kontrol 2. doğrulama turunda eklendi: `corpus_propose` damgasız yazabiliyordu
+  // ve 7. yasa YALNIZ commit anında zorlanıyordu. Yazma ile commit arasındaki her an,
+  // damgasız bir kaydın "yazıldı" sanıldığı bir andı.
+  const eksik = ZORUNLU_DAMGA.filter((a) => {
+    const v = frontmatter[a]
+    return typeof v !== 'string' || v.trim() === ''
+  })
+  if (eksik.length > 0) return { kind: 'damga_eksik', alanlar: eksik }
   return null
 }
 
@@ -111,6 +131,11 @@ export const mcpHataMesaji = (r: McpRet): string => {
       return 'indeks yok — `just reindex` çalıştırın; arama KOŞMADI ("sonuç yok" değil)'
     case 'status_not_accepted':
       return `'${r.alan}' alanı kabul edilmiyor: öneri her zaman draft iner ve imzayı üretim basar (R-14)`
+    case 'damga_eksik':
+      return (
+        `zorunlu damga eksik: ${r.alanlar.join(', ')} — her kayıt ÜRETİM ANINDA marka ` +
+        've dönem damgası alır (7. yasa, §4.3); sonradan retrofit imkânsız'
+      )
     case 'write_refused':
       return `öneri yazılamadı: ${r.neden}`
   }

@@ -13,14 +13,28 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
+
+/**
+ * Defterin okunacağı kök. Varsayılan gerçek depo; `--kok <yol>` ile bir fikstüre
+ * yönlendirilebilir.
+ *
+ * ⚠ Eskiden sabitti ve **8.5'in ✅ ölçümü yeniden üretilemiyordu**: kanıt "şu an
+ * defterde ne varsa" idi ve defter değişince kanıt sessizce değişiyordu. Tekrar
+ * üretilemeyen bir ölçüm, bir ölçüm değil bir anıdır.
+ *
+ * Kod YÜKLEMESİ her zaman gerçek depodan: fikstür veriyi değiştirir, mantığı değil.
+ */
+const kokBayragi = process.argv.indexOf('--kok')
+const VERI_KOKU = kokBayragi === -1 ? REPO : (process.argv[kokBayragi + 1] ?? REPO)
+
 const { haftalikOneriler, readLedger, performansPanosu, readInsights, ONERI_TAVANI } = await import(
   join(REPO, 'packages/engine/dist/index.js')
 )
 const { systemClock } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 
 const simdi = systemClock.nowIso()
-const defter = readLedger(REPO)
-const olcumler = readInsights(REPO)
+const defter = readLedger(VERI_KOKU)
+const olcumler = readInsights(VERI_KOKU)
 
 // Kazananlar 7.9'un sıralamasından gelir: ölçülmemiş pencere zaten dışarıda.
 const pano = defter.ok
@@ -44,7 +58,11 @@ const sonuc = haftalikOneriler({
     tekrarKullanildi: false,
   })),
   bugun: simdi,
-  hat: process.argv[2] ?? 'instagram-post',
+  // ⚠ Bayraklar hat adı SAYILMAZ: `--kok` geçildiğinde `argv[2]` bayrağın kendisiydi ve
+  // öneri `just uret --kok` diye çalıştırılamaz bir satır basıyordu. Öneri metni bir
+  // KOMUT iddiasıdır; çalışmayan bir komut önermek, öneri vermemekten kötüdür.
+  hat:
+    process.argv.slice(2).find((a) => !a.startsWith('--') && a !== VERI_KOKU) ?? 'instagram-post',
 })
 
 console.log(`── haftalık öneriler · ${simdi.slice(0, 10)} ──`)

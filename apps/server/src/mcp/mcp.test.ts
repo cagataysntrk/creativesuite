@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { RUNS_DIR } from '@suite/kernel'
 import { kurSunucu } from '../sunucu.js'
-import { ARACLAR, mcpHataMesaji, oneriDogrula } from './araclar.js'
+import { ARACLAR, ZORUNLU_DAMGA, mcpHataMesaji, oneriDogrula } from './araclar.js'
 
 const SORGU = { brandId: 'brd_test', eraId: 'era_test', asOf: '2026-08-16T00:00:00.000Z' } as const
 
@@ -38,7 +38,30 @@ describe('MCP araç sözleşmesi', () => {
   })
 
   it('temiz frontmatter geçiyor', () => {
-    expect(oneriDogrula({ type: 'fact', brand_id: 'brd_test' })).toBeNull()
+    expect(oneriDogrula({ type: 'fact', brand_id: 'brd_test', era_id: 'imalat-2026' })).toBeNull()
+  })
+
+  // 🧪 7. yasa (§4.3): damga ÜRETİM ANINDA basılır, sonradan retrofit imkânsız.
+  describe('zorunlu damga — commit beklenmeden', () => {
+    it('era_id yoksa reddediliyor', () => {
+      const r = oneriDogrula({ type: 'fact', brand_id: 'brd_test' })
+      expect(r).toMatchObject({ kind: 'damga_eksik', alanlar: ['era_id'] })
+      expect(mcpHataMesaji(r!)).toContain('7. yasa')
+    })
+
+    it('üçü birden eksikse ÜÇÜ de adıyla raporlanıyor', () => {
+      const r = oneriDogrula({})
+      expect(r).toMatchObject({ kind: 'damga_eksik', alanlar: [...ZORUNLU_DAMGA] })
+    })
+
+    it('boş dize damga sayılmıyor — var görünüp yok olmak en kötüsü', () => {
+      const r = oneriDogrula({ type: 'fact', brand_id: '  ', era_id: 'imalat-2026' })
+      expect(r).toMatchObject({ kind: 'damga_eksik', alanlar: ['brand_id'] })
+    })
+
+    it('`status` reddi damga kontrolünden ÖNCE gelir — yazma kapısı tektir', () => {
+      expect(oneriDogrula({ status: 'active' })).toMatchObject({ kind: 'status_not_accepted' })
+    })
   })
 })
 
