@@ -386,3 +386,44 @@ tanımıyordu; **geri aldım**. Kırmızı bir kapının tanıma biçimini aynı
 yeşile döndükten sonra, ayrı bir turda yapıldı.
 
 **Geri alma maliyeti:** yok.
+
+## D-222 — `PUBLISH` gövdesi hiç yazılmamıştı: `INGEST` hatasının birebir tekrarı
+
+**2026-08-16 · FAZ-7 kapanış denetimi, 1. tur**
+
+Doğrulama agent'ı FAZ 7'nin yayın tarafının **üretimde erişilemez** olduğunu buldu:
+`publish()`, `buildLinkedinPost()`, `authorizeUrl()`, `appendPublished()` — dokuz
+fonksiyonun tek çağıranı test dosyalarıydı. Kesin kanıt: `verbs/bodies.ts` dokuz
+fiilden sekizini tanımlıyordu, **`publishBody` yoktu** ve `uret.mjs`in fiil haritasında
+`PUBLISH` anahtarı hiç geçmiyordu.
+
+**Bu D-216'nın (FAZ 6 · `INGEST`) birebir tekrarı** — ve o maddenin yorumu `bodies.ts`
+içinde, `ingestBody`nin hemen üstünde duruyordu. Aynı hatanın iki fazda tekrarlaması
+tesadüf değil: **bir yetenek "bitti" sanılıyor çünkü modülü ve testi var.** Eksik olan
+hep aynı yer — fiil haritası.
+
+**Kapatılanlar (hepsi tipe gömüldü):**
+- `publishBody` yazıldı; `PUBLISH` üretim haritasına bağlandı
+- **Defteri artık `publish()` yazıyor** (`recordPublished` zorunlu dep). Çağırana
+  bırakılsaydı yineleme koruması ancak herkes hatırladığı sürece çalışırdı
+- **Oran kovası fonksiyon olarak iniyor** (`rateGate`, zorunlu). Kova motorda yaşıyor,
+  `providers` onu import edemez (R-03) — "limiter uploader'dan önce oturur" artık
+  ölçülen bir sıra: `token → kova:1 → kota → defter → kova:3 → yükleme → kaydet`
+- **`lookupLedger` üç durumlu.** Eski tip `LedgerEntry | null` idi ve `null` hem
+  "yayınlanmamış" hem "defter okunamadı" demekti; ikincisini birincisi sanmak, defteri
+  bozulmuş bir sistemde HER ŞEYİ yeniden yayınlamaktı
+- **Yükleme hatası artık `upload_failed`.** Eski dal `quota_exhausted` döndürüyordu ve
+  operatöre "kota doldu (3/25) — kuyrukta bekliyor" diyordu; oysa ağ hatası ve
+  beklemekle geçmez. Yanlış teşhis, teşhissizlikten kötüdür
+- **Yükleyici yoksa AÇIK duruş:** `CHANNEL_NOT_CONNECTED`. Sahte bir yükleyici,
+  defterde olmayan bir yayın üretirdi
+
+**Testin kendi köprüsünü ölçmesi:** `yayin-baglanma.test.ts` defteri yayıncıya bağlayan
+adaptörü KENDİ kuruyordu ve üretimde eşi yoktu. Artık `publishBody`yi çağırıyor —
+köprü bozulursa kırmızıya döner. Önceki hâlinde köprü hiç olmasa bile yeşildi.
+
+**Kalan iş gerçekten insan girdisi:** `upload` ve `publishingLimit` verilmiyor çünkü
+gerçek kanal bağlantısı `7.2b` (V-26). Fark şu: **eskiden yol yoktu, şimdi yol var ve
+ucunda bir insan var.**
+
+**Geri alma maliyeti:** yok.

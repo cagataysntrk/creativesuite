@@ -739,16 +739,16 @@ Token-bucket rate limiter uploader'dan **önce** gelir: okuma 1 puan, yazma 3 pu
 `w_member_social` ile kişisel profil: metin, görsel **ve döküman** postu.
 
 Döküman postu (PDF carousel) LinkedIn'in en yüksek etkileşimli formatı ve **hiçbir
-aggregator bunu vermiyor** — Ayrshare, Buffer, Postiz hepsi soyutlayıp kaybediyor.
-Kendi adaptörümüzü yazmamızın asıl sebebi bu; ~400 satır karşılığında aggregator'ların
-sıyırdığı yetenekler elde kalıyor.
+aggregator bunu vermiyor** (Ayrshare, Buffer, Postiz hepsi soyutlayıp kaybediyor) —
+kendi adaptörümüzün asıl gerekçesi bu.
 
-Görsel boyut sınırı **5MB** — Meta'nın 30MB'ının altı kat altında. Meta'ya göre
-ayarlanmış tek bir export hattı, LinkedIn'in reddedeceği dosyaları sessizce üretir.
-Kalite merdiveni sınırın altına inene kadar aşağı iner.
+**İki medya tipi, iki ayrı limit — karıştırmak pahalı:** GÖRSEL 5MB (Meta'nın
+30MB'ının altı kat altında), DÖKÜMAN **300 sayfa · 100MB**. Döküman sınırını 5MB
+sanmak, 40MB'lık meşru bir deck'i reddeder ve hata "LinkedIn kabul etmedi" gibi
+görünür. Meta'ya ayarlanmış tek bir export hattı da LinkedIn'in reddedeceği görselleri
+sessizce üretir. Editoryal tavanımız **10 sayfa**: platform sınırı değil, karar.
 
-Sürüm sabiti pinlenir ve üç ayda bir yeniden kontrol edilir; LinkedIn sürümleri
-takvimle emekliye ayırıyor.
+Sürüm sabiti pinlenir, üç ayda bir kontrol edilir; LinkedIn sürümleri takvimle emekli.
 ### §9.4 Onay yüzeyleri {#section-9-4}
 
 Üçü de aynı onay kuyruğuna bakar:

@@ -20,6 +20,7 @@ const {
   selectBody,
   composeBody,
   ingestBody,
+  publishBody,
   proposeBody,
   renderBody,
   validateBody,
@@ -451,6 +452,24 @@ let bagamManifesti = []
 const cikti = runOutputDir(REPO, runId)
 
 const bilgi = await knowledgeCommit(REPO, { PATH: readEnv('PATH') ?? '' })
+
+// Oran kovası TEK örnek: motorun adım zamanlaması ile `PUBLISH` gövdesi AYNI kovayı
+// paylaşmalı. İki kova, aynı sınırı iki kez sayar ve ikisi de "yerim var" der.
+const oranKovasi = new RateLimiter()
+
+/** Token ömrü kaydı — düz metin, sır değil (FAZ-7.6). Yoksa yayın bloklu. */
+const tokenKaydiOku = (provider) => {
+  const yol = join(REPO, 'secrets/token-durumu.json')
+  if (!existsSync(yol)) return null
+  try {
+    const ham = JSON.parse(readFileSync(yol, 'utf8'))
+    const liste = Array.isArray(ham.kayitlar) ? ham.kayitlar : []
+    return liste.find((k) => k.provider === provider) ?? null
+  } catch {
+    // Bozuk dosya = ömür bilinmiyor = yayın bloklu. "Herhalde geçerlidir" yok.
+    return null
+  }
+}
 if (!bilgi.ok) {
   console.log("✗ bilgi ağacı commit SHA'sı okunamadı — replay yapılamaz (§13)")
   console.log("  git deposu değil mi, yoksa `git` PATH'te mi yok?")
@@ -630,6 +649,18 @@ const rapor = await runPipeline({
     // Onay adımı: insan kapıyı geçtiyse SONUCU deftere geçirir. Corpus'a YAZMAZ —
     // yazma darboğazı ayrı ve onay kuyruğu oradan geçiyor (R-14).
     PROPOSE: proposeBody(),
+    // ⚠ FAZ 7 denetimi: `PUBLISH` de fiil haritasında HİÇ YOKTU — `INGEST`in birebir
+    // tekrarı (D-216). Kapılar, sıra, defter ve limiter yazılmıştı; gövdesi ve haritada
+    // anahtarı olmadığı için `publish()`in tek çağıranı testlerdi.
+    //
+    // `upload` ve `publishingLimit` VERİLMİYOR: gerçek kanal bağlantısı `7.2b`de ve
+    // insan girdisi bekliyor. Gövde bu durumda AÇIKÇA duruyor (`CHANNEL_NOT_CONNECTED`);
+    // sahte bir yükleyici koymak, defterde olmayan bir yayın üretirdi.
+    PUBLISH: publishBody({
+      repoRoot: REPO,
+      limiter: oranKovasi,
+      tokenKaydi: tokenKaydiOku,
+    }),
     INGEST: ingestBody({
       repoRoot: REPO,
       env: {
@@ -664,7 +695,7 @@ const rapor = await runPipeline({
   db,
   clock,
   rng: seededRng(1),
-  limiter: new RateLimiter(),
+  limiter: oranKovasi,
   sleep: async () => undefined,
 })
 

@@ -38,9 +38,17 @@ import {
   isIngestFailure,
   planWaterfall,
   provenanceJson,
+  publish,
+  refusalMessage,
   type ProviderAdapter,
   type ProviderInput,
+  type PublishAsset,
+  type PublishRequest,
+  type PublishingLimit,
+  type TokenKaydi,
 } from '@suite/providers'
+import { RateLimiter } from '../ratelimit.js'
+import { appendPublished, lookupPublished } from '../publish-ledger.js'
 import { providerCall } from '../provider-call.js'
 import { prospectDeckZinciri } from '../prospect-deck.js'
 import type { Kaynak, KisiselAlan } from '@suite/kernel'
@@ -936,3 +944,156 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       data: sonuc.value.data,
     })
   })
+
+// ── PUBLISH: kanal API'si çağıran TEK fiil (§9.2 · R-34, R-46 · FAZ-7.2) ────
+//
+// ⚠ **Bu gövde FAZ 7 denetiminde EKSİK bulundu — `INGEST`in birebir tekrarı** (D-216).
+// Yayın kapıları, sıra sözleşmesi, defter, limiter ve OAuth yazılmış ve test edilmişti;
+// ama `PUBLISH` fiilinin gövdesi yoktu ve `uret.mjs`in fiil haritasında `PUBLISH`
+// anahtarı bile geçmiyordu. Yani `publish()`in tek çağıranı testlerdi: hat tip
+// düzeyinde doğru, üretimde **erişilemez**.
+//
+// **Aynı hatanın iki fazda tekrarlaması tesadüf değil:** bir yetenek "bitti" sanılıyor
+// çünkü modülü ve testi var. Eksik olan hep aynı yer — fiil haritası.
+//
+// **Tutkal BURADA, testte değil.** Denetim, defter ile yayıncıyı birbirine bağlayan
+// adaptörün yalnız test dosyasında var olduğunu buldu (B3): test kendi kurduğu köprüyü
+// ölçüyordu. Köprü artık üretimde ve testler onu ÇAĞIRIYOR.
+
+export interface PublishBodyDeps {
+  readonly repoRoot: string
+  /** Oran kovası — motorun kovası, yayıncıya fonksiyon olarak iner (R-03). */
+  readonly limiter: RateLimiter
+  /** Token kaydı okuyucu. `null` = kayıt yok → yayın bloklu (FAZ-7.6). */
+  readonly tokenKaydi: (provider: string) => TokenKaydi | null
+  /** Kota sorgusu — gerçek kanal çağrısı. Yoksa yayın DURUR, varsayılmaz. */
+  readonly publishingLimit?: (platform: string) => Promise<PublishingLimit>
+  /** Gerçek yükleyici. Yoksa yayın DURUR: "yükleyici yok" sessiz başarı değildir. */
+  readonly upload?: (req: PublishRequest) => Promise<Result<string, string>>
+}
+
+/** Yayın yeteneği — oran kovasının anahtarı. Kanal durumu ekranıyla AYNI dize. */
+export const YAYIN_YETENEGI = 'channel.publish'
+
+export const publishBody = (deps: PublishBodyDeps): Verb =>
+  govde('PUBLISH', async (ctx, input) => {
+    const platform =
+      typeof input.constraints['platform'] === 'string'
+        ? (input.constraints['platform'] as PublishRequest['platform'])
+        : 'instagram'
+
+    // Varlıklar ÜRETİMDEN gelir — testin elle yazdığı bir şekilden değil. `RENDER`
+    // çıktısındaki yollar ve alt-text'ler burada toplanıyor; toplanamıyorsa yayın
+    // yapılmaz (boş bir liste "yayınlanacak bir şey yok" demek DEĞİL, "girdiyi
+    // bulamadım" demektir ve ikisi ayrı hatalardır).
+    const varliklar = yayinVarliklari(input.inputs)
+    if (varliklar.length === 0) {
+      return err(hata('validation', 'NO_PUBLISHABLE_ASSET', ctx, { platform }))
+    }
+
+    if (deps.upload === undefined || deps.publishingLimit === undefined) {
+      // **Yükleyici yoksa sessiz başarı YOK.** Gerçek kanal bağlantısı `7.2b`de ve
+      // insan girdisi bekliyor; o gelene kadar bu fiil AÇIKÇA durur. "Yayınlandı
+      // sayalım" diyen bir dal, defterde olmayan bir yayın üretirdi.
+      return err(
+        hata('io', 'CHANNEL_NOT_CONNECTED', ctx, {
+          platform,
+          neden: 'kanal adaptörü bağlı değil (FAZ-7.2b · V-26)',
+        })
+      )
+    }
+
+    const kayit = deps.tokenKaydi(platform === 'linkedin' ? 'linkedin' : 'meta')
+    const istek: PublishRequest = {
+      platform,
+      placementId: String(input.constraints['placementId'] ?? ''),
+      assets: varliklar,
+      caption: String(input.constraints['caption'] ?? ''),
+      runId: ctx.runId,
+      now: ctx.clock.nowIso(),
+    }
+
+    const sonuc = await publish(istek, {
+      // Token ÖMRÜ düz metinden, token'ın KENDİSİ sops'tan (FAZ-7.6). Kayıt yoksa
+      // `null` geçiyor ve `publish` onu ölmüş sayıyor — bilinmeyen ömür, uzun ömür
+      // değildir.
+      tokenState: async () =>
+        kayit === null ? null : { expiresAt: kayit.expiresAt, scopes: kayit.scopes },
+      rateGate: (cost) => {
+        const karar = deps.limiter.take(platform, YAYIN_YETENEGI, cost)
+        return karar.allowed
+          ? { allowed: true }
+          : { allowed: false, retryAfterMs: karar.retryAfterMs }
+      },
+      publishingLimit: async () => deps.publishingLimit!(platform),
+      lookupLedger: async (digest) => {
+        const r = lookupPublished(deps.repoRoot, digest, platform)
+        // Üç durum KORUNUYOR: okunamayan defter, boş deftere çökertilmiyor (B3).
+        return r.ok
+          ? { ok: true, entry: r.entry }
+          : {
+              ok: false,
+              reason: r.error.kind === 'ledger_missing' ? 'missing' : 'unreadable',
+              detay: r.error.kind === 'ledger_missing' ? r.error.path : r.error.reason,
+            }
+      },
+      upload: deps.upload,
+      // Defteri `publish()` yazıyor; gövde yalnız nereye yazılacağını biliyor.
+      recordPublished: (kayitSatiri) =>
+        appendPublished(deps.repoRoot, {
+          digest: kayitSatiri.digest,
+          platform: kayitSatiri.platform,
+          externalId: kayitSatiri.externalId,
+          runId: ctx.runId,
+          publishedAt: kayitSatiri.publishedAt,
+        }),
+    })
+
+    if (!sonuc.ok) {
+      return err(
+        hata('io', 'PUBLISH_REFUSED', ctx, {
+          platform,
+          kind: sonuc.error.kind,
+          mesaj: refusalMessage(sonuc.error),
+        })
+      )
+    }
+
+    return ok({
+      costs: [],
+      data: {
+        published: sonuc.value.externalId,
+        platform,
+        // Yayından ÖNCEKİ kota manifest'e yazılıyor: "yayın anında kota neredeydi"
+        // sorusunun cevabı sonradan üretilemez.
+        quotaBefore: `${sonuc.value.limitBefore.quotaUsed}/${sonuc.value.limitBefore.quotaTotal}`,
+      },
+    })
+  })
+
+/**
+ * Yayınlanacak varlıkları ÖNCEKİ ADIM ÇIKTILARINDAN toplar.
+ *
+ * `RENDER` çıktısı `{ path, altTr, decorative, digest }` taşır; alt-text'i burada
+ * uydurmuyoruz — uydurulsaydı R-34 kapısı kendi ürettiği veriyi denetlerdi.
+ */
+const yayinVarliklari = (inputs: Readonly<Record<string, unknown>>): PublishAsset[] => {
+  const sonuc: PublishAsset[] = []
+  for (const cikti of Object.values(inputs)) {
+    if (cikti === null || typeof cikti !== 'object') continue
+    const liste = (cikti as Record<string, unknown>)['assets']
+    if (!Array.isArray(liste)) continue
+    for (const ham of liste) {
+      if (ham === null || typeof ham !== 'object') continue
+      const o = ham as Record<string, unknown>
+      if (typeof o['path'] !== 'string' || typeof o['digest'] !== 'string') continue
+      sonuc.push({
+        path: o['path'],
+        altTr: typeof o['altTr'] === 'string' ? o['altTr'] : '',
+        decorative: o['decorative'] === true,
+        digest: o['digest'],
+      })
+    }
+  }
+  return sonuc
+}

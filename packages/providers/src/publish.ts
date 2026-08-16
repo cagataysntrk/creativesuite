@@ -6,14 +6,19 @@
 // `chokepoints.json` → `kanal-yayinci` bu dosyayı tek yetkili yer olarak kilitliyor.
 //
 // **Sıra bir tercih değil, sözleşmedir:**
-//   1. token yaşıyor mu        → ölmüşse DUR (uyarı değil, blokaj)
-//   2. alt-text var mı         → yoksa DUR (R-34; yayınlanmış post düzenlenemiyor)
-//   3. kota sorgusu            → yayından ÖNCE, her seferinde
-//   4. yerel defterle mutabakat → daha önce yayınlandıysa TEKRAR ETME
-//   5. yayınla
+//   1. token yaşıyor mu         → ölmüşse DUR (uyarı değil, blokaj)
+//   2. alt-text var mı          → yoksa DUR (R-34; yayınlanmış post düzenlenemiyor)
+//   3. oran kovası (okuma)      → kota sorgusu da bir API çağrısıdır
+//   4. kota sorgusu             → yayından ÖNCE, her seferinde
+//   5. yerel defterle mutabakat → daha önce yayınlandıysa TEKRAR ETME
+//   6. oran kovası (yazma, 3 puan) → uploader'dan ÖNCE (§9.2)
+//   7. yayınla
+//   8. **deftere YAZ** — yazmayan bir yayın, bir sonraki çalıştırmada yeniden yayınlanır
 //
-// Sıra tipe gömülü: `publish()` bu dört yeteneği ZORUNLU parametre olarak alıyor. Biri
-// verilmezse kod derlenmez — "kota sorgusunu unutmak" mümkün değil.
+// Sıra tipe gömülü: `publish()` bu yeteneklerin HEPSİNİ zorunlu parametre olarak alıyor.
+// Biri verilmezse kod derlenmez — "kota sorgusunu unutmak" mümkün değil. **Defter yazımı
+// da zorunlu bir yetenek**: çağıranın hatırlamasına bırakılsaydı, yineleme koruması
+// ancak herkes hatırladığı sürece çalışırdı (FAZ-7 denetimi, B4).
 
 import type { Result } from '@suite/contracts'
 import { err, ok } from '@suite/contracts'
@@ -60,6 +65,22 @@ export interface LedgerEntry {
   readonly publishedAt: string
 }
 
+/**
+ * Defter okumasının **üç** sonucu.
+ *
+ * Önceki tip `LedgerEntry | null` idi ve `null` iki farklı şeyi anlatıyordu:
+ * "bu içerik yayınlanmamış" ile "defter okunamadı". İkincisini birincisi sanmak,
+ * defteri bozulmuş bir sistemde her şeyi YENİDEN yayınlamak demekti — defterin var
+ * olma sebebinin tam tersi (FAZ-7 denetimi, B3).
+ */
+export type LedgerLookup =
+  | { readonly ok: true; readonly entry: LedgerEntry | null }
+  | { readonly ok: false; readonly reason: 'missing' | 'unreadable'; readonly detay: string }
+
+/** Oran kovası kararı. Kova motorda yaşıyor; buraya FONKSİYON olarak iniyor (R-03). */
+export type RateGate =
+  { readonly allowed: true } | { readonly allowed: false; readonly retryAfterMs: number }
+
 export type PublishRefusal =
   | { readonly kind: 'token_expired'; readonly expiredAt: string }
   | { readonly kind: 'token_missing_scope'; readonly needed: string }
@@ -69,6 +90,26 @@ export type PublishRefusal =
   /** Daha önce yayınlanmış — bu bir HATA değil, bir OLGU. Çağıran mevcut id'yi alır. */
   | { readonly kind: 'already_published'; readonly externalId: string }
   | { readonly kind: 'no_assets' }
+  /**
+   * Defter okunamadı. **`already_published` DEĞİL, `no_assets` DEĞİL** — durum
+   * bilinmiyor ve bilinmeyen durumda yayın yapmak yinelemeyi göze almaktır.
+   */
+  | {
+      readonly kind: 'ledger_unavailable'
+      readonly reason: 'missing' | 'unreadable'
+      readonly detay: string
+    }
+  /** Oran kovası boş. Kota DEĞİL: sınır bizim, sağlayıcının değil. */
+  | { readonly kind: 'rate_limited'; readonly retryAfterMs: number }
+  /**
+   * Yükleme başarısız. **Sağlayıcının hatası KORUNUR.**
+   *
+   * Önceden bu dal `quota_exhausted` döndürüyordu ve operatöre "kota doldu (3/25)"
+   * diyordu — oysa ağ hatasıydı. Yanlış teşhis, doğru teşhisin olmamasından kötüdür:
+   * operatör kotanın dolmasını bekler, oysa beklemekle geçmeyecek bir hata var
+   * (FAZ-7 denetimi, M1).
+   */
+  | { readonly kind: 'upload_failed'; readonly hata: string }
 
 export interface PublishSuccess {
   readonly externalId: string
@@ -89,12 +130,26 @@ export const REQUIRED_SCOPES: Record<PublishRequest['platform'], readonly string
 export interface PublishDeps {
   /** Token durumu. **Sorgulanır, varsayılmaz.** */
   readonly tokenState: () => Promise<TokenState | null>
+  /**
+   * Oran kovası. **Kova motorda yaşıyor** (`packages/engine`), bu paket onu import
+   * edemez (R-03) — o yüzden fonksiyon olarak iniyor. Zorunlu: isteğe bağlı olsaydı
+   * "limiter uploader'dan önce oturur" bir belge cümlesi olarak kalırdı (denetim B2).
+   */
+  readonly rateGate: (cost: number) => RateGate
   /** Kota sorgusu — yayından ÖNCE, HER seferinde çağrılır. */
   readonly publishingLimit: () => Promise<PublishingLimit>
-  /** Yerel defter okuması — yineleme mutabakatı (R-46). */
-  readonly lookupLedger: (digest: string) => Promise<LedgerEntry | null>
-  /** Gerçek yükleme. Yalnız dört kapı geçildikten SONRA çağrılır. */
+  /** Yerel defter okuması — yineleme mutabakatı (R-46). Üç durumlu. */
+  readonly lookupLedger: (digest: string) => Promise<LedgerLookup>
+  /** Gerçek yükleme. Yalnız tüm kapılar geçildikten SONRA çağrılır. */
   readonly upload: (req: PublishRequest) => Promise<Result<string, string>>
+  /**
+   * Deftere yazma. **Zorunlu** — başarıdan sonra publish'in KENDİSİ yazar.
+   *
+   * Çağıranın hatırlamasına bırakılsaydı, yineleme koruması ancak herkes hatırladığı
+   * sürece çalışırdı; ve unutulduğunda hata sessiz olurdu — bir sonraki çalıştırma
+   * aynı içeriği yeniden yayınlar, Meta aynı id'yi döndürür, biz "başardım" sanarız.
+   */
+  readonly recordPublished: (entry: LedgerEntry & { readonly platform: string }) => void
 }
 
 /**
@@ -130,25 +185,59 @@ export const publish = async (
     }
   }
 
-  // ── 3. kota — yayından ÖNCE ─────────────────────────────────────────────
+  // ── 3. oran kovası: OKUMA (1 puan) ──────────────────────────────────────
+  // Kota sorgusu da bir API çağrısıdır. Kovayı yalnız yüklemeden önce sormak, sınıra
+  // sorgularla çarpmak demekti — ve o 429, yayın anında değil, ondan da önce gelirdi.
+  const okumaIzni = deps.rateGate(OKUMA_PUANI)
+  if (!okumaIzni.allowed) {
+    return err({ kind: 'rate_limited', retryAfterMs: okumaIzni.retryAfterMs })
+  }
+
+  // ── 4. kota — yayından ÖNCE ─────────────────────────────────────────────
   const limit = await deps.publishingLimit()
   if (limit.quotaUsed >= limit.quotaTotal) {
     return err({ kind: 'quota_exhausted', used: limit.quotaUsed, total: limit.quotaTotal })
   }
 
-  // ── 4. yerel defterle mutabakat (R-46) ──────────────────────────────────
+  // ── 5. yerel defterle mutabakat (R-46) ──────────────────────────────────
   // **Körlemesine tekrar YOK.** Meta yinelenen gönderide mevcut id'yi döndürür; yeniden
   // denemeden önce okuyup mutabakat yapmazsak "3 varlık ürettim" sanıp 20 üretmiş
   // görünürüz. Digest içerikten türüyor: aynı byte = aynı yayın.
-  const onceki = await deps.lookupLedger(req.assets[0]!.digest)
-  if (onceki !== null) return err({ kind: 'already_published', externalId: onceki.externalId })
+  const defter = await deps.lookupLedger(req.assets[0]!.digest)
+  if (!defter.ok) {
+    // Defter okunamıyorsa YAYIN YOK. "Herhalde yayınlanmamıştır" varsayımı, defterin
+    // bozulduğu gün her şeyi ikinci kez yayınlar.
+    return err({ kind: 'ledger_unavailable', reason: defter.reason, detay: defter.detay })
+  }
+  if (defter.entry !== null) {
+    return err({ kind: 'already_published', externalId: defter.entry.externalId })
+  }
 
-  // ── 5. yayınla ──────────────────────────────────────────────────────────
+  // ── 6. oran kovası: YAZMA (3 puan) — uploader'dan hemen ÖNCE ────────────
+  const yazmaIzni = deps.rateGate(YAZMA_PUANI)
+  if (!yazmaIzni.allowed) {
+    return err({ kind: 'rate_limited', retryAfterMs: yazmaIzni.retryAfterMs })
+  }
+
+  // ── 7. yayınla ──────────────────────────────────────────────────────────
   const r = await deps.upload(req)
-  return r.ok
-    ? ok({ externalId: r.value, limitBefore: limit })
-    : err({ kind: 'quota_exhausted', used: limit.quotaUsed, total: limit.quotaTotal })
+  if (!r.ok) return err({ kind: 'upload_failed', hata: r.error })
+
+  // ── 8. deftere YAZ ──────────────────────────────────────────────────────
+  // Yayın gerçekleşti; kaydedilmezse bir sonraki çalıştırma aynı içeriği yeniden
+  // yayınlar. Bu satır opsiyonel olsaydı, yineleme koruması bir konvansiyon olurdu.
+  deps.recordPublished({
+    digest: req.assets[0]!.digest,
+    externalId: r.value,
+    publishedAt: req.now,
+    platform: req.platform,
+  })
+  return ok({ externalId: r.value, limitBefore: limit })
 }
+
+/** Oran puanları (§9.2) — motorla AYNI değerler; ikisi ayrışırsa kova yanlış ölçer. */
+export const OKUMA_PUANI = 1
+export const YAZMA_PUANI = 3
 
 /** İnsan okunur ret açıklaması — UI ve CLI bunu doğrudan gösterir. */
 export const refusalMessage = (r: PublishRefusal): string => {
@@ -167,6 +256,12 @@ export const refusalMessage = (r: PublishRefusal): string => {
       return `bu içerik zaten yayında (${r.externalId}) — Meta mevcut id'yi döndürürdü (R-46)`
     case 'no_assets':
       return 'yayınlanacak varlık yok'
+    case 'ledger_unavailable':
+      return `yayın defteri okunamadı (${r.reason}: ${r.detay}) — yayın DURDU; bilinmeyen defter durumunda yayınlamak yinelemeyi göze almaktır (R-46)`
+    case 'rate_limited':
+      return `oran kovası boş — ${r.retryAfterMs}ms sonra tekrar (bu KOTA değil, bizim sınırımız)`
+    case 'upload_failed':
+      return `yükleme başarısız: ${r.hata}`
   }
 }
 

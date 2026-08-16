@@ -33,17 +33,24 @@ const deps = (over: Partial<PublishDeps> = {}) => {
       sira.push('token')
       return { expiresAt: '2026-10-01T00:00:00.000Z', scopes: ['instagram_content_publish'] }
     },
+    rateGate: (cost) => {
+      sira.push(`kova:${cost}`)
+      return { allowed: true }
+    },
     publishingLimit: async () => {
       sira.push('kota')
       return { quotaUsed: 3, quotaTotal: 25, checkedAt: SIMDI }
     },
     lookupLedger: async () => {
       sira.push('defter')
-      return null
+      return { ok: true, entry: null }
     },
     upload: async () => {
       sira.push('yukleme')
       return sonucOk('ig_media_123')
+    },
+    recordPublished: () => {
+      sira.push('kaydet')
     },
     ...over,
   }
@@ -55,9 +62,14 @@ describe('yayın sırası', () => {
     const { d, sira } = deps()
     const r = await publish(istek(), d)
     expect(r.ok).toBe(true)
-    expect(sira).toEqual(['token', 'kota', 'defter', 'yukleme'])
+    // Kova İKİ kez: okuma (kota sorgusu) ve yazma (yükleme) ayrı puanlar (§9.2).
+    // Kaydetme yüklemeden SONRA ve publish'in kendi işi — çağırana bırakılmıyor.
+    expect(sira).toEqual(['token', 'kova:1', 'kota', 'defter', 'kova:3', 'yukleme', 'kaydet'])
     // Kota indeksi yükleme indeksinden KÜÇÜK: "sonra bakarız" bu hatta yok.
     expect(sira.indexOf('kota')).toBeLessThan(sira.indexOf('yukleme'))
+    // Yazma kovası uploader'dan ÖNCE (§9.2) — "limiter uploader'dan önce oturur"
+    // artık bir belge cümlesi değil, ölçülen bir sıra.
+    expect(sira.indexOf('kova:3')).toBeLessThan(sira.indexOf('yukleme'))
   })
 
   it('başarılı yayın yayından ÖNCEKİ kotayı döndürüyor — manifest kanıtı', async () => {
@@ -144,9 +156,12 @@ describe('yineleme mutabakatı (R-46)', () => {
   it('daha önce yayınlanmış içerik TEKRAR yayınlanmıyor', async () => {
     const { d, sira } = deps({
       lookupLedger: async () => ({
-        digest: 'sha256:a',
-        externalId: 'ig_media_eski',
-        publishedAt: '2026-08-01T00:00:00.000Z',
+        ok: true,
+        entry: {
+          digest: 'sha256:a',
+          externalId: 'ig_media_eski',
+          publishedAt: '2026-08-01T00:00:00.000Z',
+        },
       }),
     })
     const r = await publish(istek(), d)
@@ -166,9 +181,45 @@ describe('yineleme mutabakatı (R-46)', () => {
     expect(sira).not.toContain('yukleme')
   })
 
-  it('yükleme hatası kota mesajına düşüyor ama defter BOZULMUYOR', async () => {
-    const { d } = deps({ upload: async () => sonucErr('ağ hatası') })
+  // 🧪 Yükleme hatası KOTA diye raporlanamaz (denetim M1). Eski davranış operatöre
+  // "kota doldu (3/25) — kuyrukta bekliyor" diyordu; oysa ağ hatası ve beklemekle
+  // geçmez. Yanlış teşhis, teşhis olmamasından kötüdür.
+  it('yükleme hatası GERÇEK hatayı taşıyor ve deftere YAZILMIYOR', async () => {
+    const { d, sira } = deps({ upload: async () => sonucErr('ağ hatası') })
     const r = await publish(istek(), d)
     expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind).toBe('upload_failed')
+    expect(refusalMessage(r.error)).toContain('ağ hatası')
+    expect(refusalMessage(r.error)).not.toContain('kota')
+    // Yayın olmadıysa defter satırı da olmaz: yazılsaydı, olmayan bir yayın
+    // gelecekteki gerçek yayını `already_published` diye bloklardı.
+    expect(sira).not.toContain('kaydet')
+  })
+
+  // 🧪 Defter OKUNAMIYORSA yayın durur (denetim B3). Eski tip bunu ifade edemiyordu:
+  // `LedgerEntry | null` içinde `null` hem "yayınlanmamış" hem "okunamadı" demekti.
+  it('defter okunamıyorsa yayın DURUR — "yayınlanmamış" sayılmıyor', async () => {
+    const { d, sira } = deps({
+      lookupLedger: async () => ({ ok: false, reason: 'unreadable', detay: '3. satır bozuk' }),
+    })
+    const r = await publish(istek(), d)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind).toBe('ledger_unavailable')
+    expect(sira).not.toContain('yukleme')
+  })
+
+  // 🧪 Oran kovası boşsa yükleme DENENMEZ ve bu "kota" ile karıştırılmaz: kota
+  // sağlayıcının sınırı, kova bizimki. İkisi aynı mesaja düşerse operatör yanlış
+  // yerde bekler.
+  it('oran kovası boşsa yükleme DENENMİYOR ve kotadan AYRI raporlanıyor', async () => {
+    const { d, sira } = deps({ rateGate: () => ({ allowed: false, retryAfterMs: 1500 }) })
+    const r = await publish(istek(), d)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind).toBe('rate_limited')
+    expect(refusalMessage(r.error)).toContain('KOTA değil')
+    expect(sira).not.toContain('yukleme')
   })
 })
