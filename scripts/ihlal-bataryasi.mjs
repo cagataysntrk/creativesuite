@@ -131,9 +131,18 @@ const IHLALLER = [
         ara: "import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'",
         yaz: "import { chartHtml, isChartError } from './charts/chart.js'",
       },
-      { ara: "import { DIAGRAM_CSS } from './charts/diagram.js'\n", yaz: '' },
+      {
+        ara: "import { DIAGRAM_CSS, diagramHtml, isDiagramError } from './charts/diagram.js'",
+        yaz: "import { diagramHtml, isDiagramError } from './charts/diagram.js'",
+      },
     ],
     imza: 'CHART_CSS) gömülmüyor',
+  },
+  {
+    kapi: 'chokepoints',
+    dosya: 'packages/providers/src/ihlal-gecici.ts',
+    icerik: "export const uc = 'https://graph.facebook.com/v21.0/me/media'\n",
+    imza: 'kanal-yayinci',
   },
   {
     kapi: 'turkce-genisleme',

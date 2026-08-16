@@ -77,6 +77,12 @@ runtime'ı çalıştırmıyor; `--player-ready-timeout 2000` ile **1 dk 34 sn �
 şerit gerçek para harcıyor. Sözleşme yazıldı ve test edildi (lisans kuralı iki ihlalle
 kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
 
+## V-26 — Meta uygulaması ve token yok: gerçek yayın yapılmadı
+Yayın kapıları (token ömrü, alt-text, kota, defter mutabakatı) yazıldı ve **çağrı
+sırasıyla** doğrulandı; `kanal-yayinci` darboğazı mekanik kurala çevrildi. Ama gerçek bir
+Meta uygulaması, sayfa bağlantısı ve uzun ömürlü token **insan eylemidir**. App Review
+gerekmiyor (D-3) — gereken şey hesap kurulumu. → FAZ-7.2b
+
 ## V-25 — Gerçek prospect yok: deck teslim edilmedi
 Zincir kuruldu ve uçtan uca doğrulandı (gerçek çekim + grafik → PDF, beş kapı 5/5,
 iki ihlal biçimi doğru kapılarda durdu). Ama **gerçek bir prospect kaydı yok** ve

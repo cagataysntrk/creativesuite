@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.2
+siradaki_adim: 7.3
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 6 DENETIMININ 12 BULGUSU DA KAPANDI (D-216). Hepsi ayni siniftandi: kod yazilmis, uretim yolunda cagirani yok. RENDER govdesi artik format: pdf ve flatten okuyor (%PDF- olculdu, bayt tavani asiminda REDDEDIYOR) · INGEST fiil govdesi yazildi ve fiil haritasina girdi · zincir VALIDATE te kosuyor (bayat kaynak, uretilmis ekran, altinci alan hatti durduruyor) · runVerb uc cagri yerine de baglandi, ingestGate artik uretimde kosuyor · captureProductShot RENDER da, role: product_screenshot artik productShots in KAYNAGI · diagram blok tipi belge modeline girdi ve okuyan HER yer guncellendi · just kvkk-sil insan girisi acildi ve gercek bir kayit uzerinde ucdan uca kosturuldu. BULGU 5 IN ASIL SEBEBI ozetle() BEYAZ LISTESIYDI: govdeler anahtarlari uretse bile manifest ozeti onlari ELIYORDU. ARADA GERCEK BIR TASARIM CELISKISI CIKTI: writeManifest politika kusurlu manifesti HIC yazmiyordu, yani kurali cigneyen kosu defterden tamamen kayboluyordu — ihlalin kaydi olmamasi ihlalden kotudur; kusurlar bicim/politika diye ayrildi. Ayrica blok-css kapisi yazildi (kendi ilk surumu import satirini kullanim saniyordu) ve batarya YAMA moduyla genisletildi. 1113 test, 36 kapi, 12 ihlal kirmizi."
+son_kanit: "7.2 KAPANDI (yayin kapilari). SIRA TIPE GOMULU: publish() dort yetenegi de ZORUNLU parametre aliyor — token durumu, kota sorgusu, defter okumasi, yukleme; biri eksikse DERLENMIYOR, yani kota sorgusunu unutmak mumkun degil. Kanit CAGRI SIRASI: sahte bagimliliklar sirayi kaydediyor ve test kota indeksinin yukleme den kucuk oldugunu olcuyor (token → kota → defter → yukleme). Dort ret yolu da yuklemeyi HIC denemiyor: olmus token BLOKLUYOR (uyari degil), alt-textsiz varlik reddediliyor (R-34: yayinlanmis post duzenlenemiyor), kota dolu kuyrukta bekliyor, daha once yayinlanmis icerik tekrar edilmiyor (R-46: Meta mevcut id dondurur, korlemesine tekrar 3 varlik urettim sanip 20 uretmis gorunmektir). Token yenileme SON gune birakilmiyor: 7 gunluk pay, bir haftalik ihmali tolere ediyor. kanal-yayinci darbogazi BEYANDAN mekanik kurala cevrildi ve iki bicimde ihlal edildi; artik sahibi gelecek fazda olan darbogaz KALMADI (29 mekanik, 2 beyan). Gercek yayin insan girdisi → 7.2b (V-26). Batarya 13 kural kiriyor. ONCEKI: FAZ 6 denetiminin 12 bulgusu kapandi (D-216) ve ikinci dogrulama turu kosuyor."
 ```
 
 ## Neredeyiz
@@ -30,9 +30,9 @@ kırmızı · 1113 test.**
 > FAZ 5'in `aac` maddesi de karşılanmadı ve tikle örtülmedi (D-206): ses akışı yok,
 > `5.4b`/`5.5b` insan girdisi bekliyor. Video ölçüldü: h264 · yuv420p · 1920×1080.
 
-> ⛔ **DOKUZ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b` · `5.5b` · `6.5b` · `6.9b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: dokuzu da plan
+> ⛔ **ON ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: onu da plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -47,6 +47,7 @@ kırmızı · 1113 test.**
 > | `5.5b` | V-22 | `whisper.cpp` kurulumu ya da gerçek `GROQ_API_KEY` |
 > | `6.5b` | V-24 | Bright Data · Tavily · ihale-mcp · borsa-mcp anahtarları |
 > | `6.9b` | V-25 | gerçek bir prospect kaydı (+ `2.9` onayı) |
+> | `7.2b` | V-26 | Meta uygulaması + sayfa bağlantısı + uzun ömürlü token |
 
 ## Tamamlananlar
 
@@ -70,22 +71,24 @@ kırmızı · 1113 test.**
 | **6.9** · `prospect-deck` zinciri; beş kapı sırayla | 2026-08-16 |
 | **6.10** · denetimin 12 bulgusu üretim yoluna bağlandı (D-216) | 2026-08-16 |
 | **7.1** · spec drift denetçisi; güvenli alan ayrı (D-215) | 2026-08-16 |
+| **7.2** · yayın kapıları; sıra tipe gömülü, tek yayıncı mekanik | 2026-08-16 |
 
 ## Sıradaki adım
 
-**İKİNCİ DOĞRULAMA TURU** (LOOP§D · D-79) — 12 bulgunun hepsi kapandı, agent yeniden
-koşacak. Temiz derse FAZ 6 kapanır; bulguları varsa kapatılır ve **üçüncü tur açılmaz**.
+**`7.3` — LinkedIn adaptörü** (§9.3 · R-34). `w_member_social`: metin, görsel **ve
+döküman** postu — en yüksek etkileşimli format ve hiçbir aggregator vermiyor. Görsel
+sınırı **5 MB**, Meta'nın 30 MB'ının altı katı altı; tek export hattı LinkedIn'in
+reddedeceği dosyaları sessizce üretir. **V-23 burada kapanır:** döküman sayfa tavanını
+kaynağıyla doğrula (bugünkü 10 sayfa BİZİM editoryal kararımız, platform sınırı değil).
 
-Ardından **`7.2` — Meta adaptörü** (§9.2 · R-46): IG feed/carousel/Reels/Stories +
-Threads. `content_publishing_limit` **her yayından önce** sorgulanır; token yenileme işi
-**ilk gün** kurulur — Meta uzun ömürlü token 60 günde ölür ve yenilemenin başarısızlığı
-sessiz değil **bloklayıcı** olmalıdır.
+> ⏳ FAZ 6'nın ikinci (son) doğrulama turu koşuyor. Bulguları geldiğinde önce onlar
+> kapatılır; **üçüncü tur açılmaz** (D-79) ve kalanlar FAZ 9 denetim turlarına düşer.
 
 ## Devreden borçlar
 
 QA/bağlam girdisi 0/18 (`2.9` blokajı) · bileşen testi FAZ 9'a · V-19 +%30 görsel
 ölçüm · V-23 LinkedIn döküman sınırı (→ 7.3) · V-24 şelale anahtarları (→ 6.5b) ·
-V-25 gerçek prospect (→ 6.9b).
+V-25 gerçek prospect (→ 6.9b) · V-26 Meta token (→ 7.2b).
 
 ## Bloke adımlar
 

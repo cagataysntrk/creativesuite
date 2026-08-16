@@ -27,7 +27,7 @@ token son kullanma tarihi ekranda görünüyor
    `verifiedAt`ini okuyordu, güvenli alan bir yıl bayatlasa "1 gün" diyordu.
 💾 `feat(channels): platform spec tablosu ve drift denetçisi` · `Refs: FAZ-7.1 · §9.1`
 
-## 7.2 — Meta adaptörü    [ ]
+## 7.2 — Yayın kapıları ve tek yayıncı    [x] 2026-08-16
 
 📖 §9.2, §11.1 · R-34, R-46 · D-3
 🔗 7.1, 7.5
@@ -35,11 +35,32 @@ token son kullanma tarihi ekranda görünüyor
    değil** — ramp hızlı (D-3). `content_publishing_limit` **her yayından önce** sorgulanır.
    Alt-text eksikse yayın bloklanır (R-34): erişilebilirlik sonradan eklenemez, çünkü
    yayınlanmış post düzenlenemiyor.
-📁 `packages/channels/src/meta/`
-✅ Tek test postu yayınlandı · limit yayından ÖNCE sorgulanıyor (log sırası kanıt)
-🧪 Alt-text'siz varlık yayınlamayı dene → reddediliyor · limiti aşan çağrı → kuyrukta
-   bekliyor, körlemesine tekrar denemiyor (R-46)
-💾 `feat(channels): meta adaptörü` · `Refs: FAZ-7.2 · §9.2`
+📁 `packages/providers/src/publish.ts`
+   ⚠ Faz dosyası ayrı bir "channels" paketi öngörüyordu; öyle bir paket yok ve
+   `kanal-yayinci` darboğazı bu dosyayı zaten sahibi ilan etmişti.
+✅ Dört kapı SIRAYLA: token → alt-text → kota → defter mutabakatı → yayın. Sıra **tipe
+   gömülü**: `publish()` dört yeteneği de zorunlu parametre alıyor, biri eksikse
+   derlenmiyor — "kota sorgusunu unutmak" mümkün değil.
+🧪 Alt-text'siz varlık → reddediliyor · kota dolu → yükleme DENENMİYOR · daha önce
+   yayınlanmış içerik → tekrar edilmiyor (R-46) · ölmüş token → BLOKLUYOR (uyarı değil)
+   ⚠ Kanıt **çağrı sırası**: sahte bağımlılıklar sırayı kaydediyor ve test
+   `kota` indeksinin `yukleme`den küçük olduğunu ölçüyor.
+   ⚠ `kanal-yayinci` darboğazı BEYANDAN mekanik kurala çevrildi: kanal uç noktası deseni
+   greplenip tek dosyaya kilitlendi, iki biçimde ihlal edildi.
+💾 `feat(providers): yayın kapıları ve tek yayıncı` · `Refs: FAZ-7.2 · §9.2`
+
+## 7.2b — Meta'ya gerçek yayın    [ ] BLOKE:insan (V-26)
+
+📖 §9.2 · R-46 · D-3
+🔗 7.2, 7.5
+🛠 Gerçek Meta uygulaması, uzun ömürlü token ve `instagram_content_publish` kapsamı.
+   **App Review kendi işletmen için gerekmiyor** (D-3) ama uygulama, sayfa bağlantısı ve
+   token insan eylemidir. Kapılar ve sıra yazıldı ve test edildi; kalan iş bağlantı.
+✅ Tek test postu yayınlandı · `content_publishing_limit` yayından ÖNCE sorgulandı
+   (gerçek yanıt log'da) · yerel defter yayını kaydetti
+🧪 Aynı postu iki kez gönder → yerel defter yinelemeyi yakalıyor, Meta'nın döndürdüğü
+   mevcut id "başardım" sanılmıyor
+💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
 ## 7.3 — LinkedIn adaptörü    [ ]
 

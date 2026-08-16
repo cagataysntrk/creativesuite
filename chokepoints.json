@@ -207,10 +207,11 @@
     {
       "id": "kanal-yayinci",
       "ad": "Kanal yayıncısı",
-      "neden": "Yayınlama tek fiildir (PUBLISH) ve yerel defterle yineleme kontrolü yapar. İkinci yayıncı, Meta'nın mevcut id döndürmesini 'başardım' sanar (§9.2).",
+      "neden": "Yayınlama tek fiildir (PUBLISH) ve yerel defterle yineleme kontrolü yapar. İkinci yayıncı, Meta'nın mevcut id döndürmesini 'başardım' sanar (§9.2). FAZ-7.2'de beyandan MEKANİK kurala çevrildi: kanal uç noktası deseni artık greplenip tek dosyaya kilitleniyor.",
       "izinli": ["packages/providers/src/publish.ts"],
-      "desen": null,
-      "faz": "FAZ-7.2"
+      "desen": "graph\\.facebook\\.com|api\\.linkedin\\.com|graph\\.threads\\.net|content_publishing_limit",
+      "faz": "FAZ-7.2",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     },
     {
       "id": "yol-cozucu",
