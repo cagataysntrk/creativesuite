@@ -6,9 +6,9 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.8
+siradaki_adim: 8.9
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan"]
 deneme_sayaci: {}
 son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 1. TURUN KAPATMA IDDIASINI CURUTTU: PUBLISH fiil haritasindaydi ama grep -rn PUBLISH registry/ SIFIR satir veriyordu — hicbir hat cagirmiyordu. AYNI SINIF HATA UC KEZ ve her seferinde BIR SEVIYE YUKARI: D-216 gövde yok → D-222 govde yok → D-224 hat adimi yok. Insan hafizasi uc kez tutamadi; fiil-haritasi kapisi artik IKI soru soruyor (govde bagli mi + cagiran hat var mi), iki yonde ihlal edilip kirmiziya donduruldu, yorum satirlari sayilmiyor. KISIR DONGU KIRILDI: publish defter yoksa duruyordu, defter ancak basarili yayinla olusuyordu → ilk gercek yayin HICBIR ZAMAN mumkun degildi; just defter-baslat acildi (idempotent, bozuk defteri ONARMAZ). YANLIS POZITIF: yineleme anahtari yalniz assets[0].digest idi, ayni kapakla farkli metin ZATEN YAYINDA diye blokluyordu — artik platform+yerlesim+tum varliklar+metin (R-44). Desteklenmeyen platform ciplak TypeError veriyordu → tipli ret. Platform sayfa siniri editoryal tavandan ONCE (350 sayfa max:10 cevabi aliyordu). doktor simdi ZORUNLU (opsiyoneldi, testi yoktu). faz-yollari IKI KEZ kordu: sarilmis satir + 0.A.1 baslik bicimi. durum kapisi artik SAYAC TAZELIGI zorluyor (36/13 yaziyordu, gercek 38/15). SIRADA 8.1: matris modulu hazir, DIKLIK OLCUTU OFAT — tam izgara ogrenme tasarimi DEGIL (3x3x3te 27 render, OFAT 7; Meta kombinasyonu SUNUCUDA kuruyor)."
 ```
@@ -19,7 +19,7 @@ son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **39 kapı · 15 ihlal kırmızı · 1284 test.**
+**D-79: üçüncü tur AÇILMAZ.** **40 kapı · 15 ihlal kırmızı · 1284 test.**
 **FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
 ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
@@ -54,6 +54,7 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 > | `7.6b` | V-26 | gerçek token → yenileme çağrısı denenebilsin |
 > | `7.8b` | V-26 | gerçek token → günlük insight çekimi koşabilsin |
 > | `8.6` | V-10 | Türk hukukçu → KVKK metinleri (**LLM'e yazdırılmaz**) |
+> | `8.8b` | V-27 | gerçek anahtar → gerçekten döndürülebilsin |
 
 ## Tamamlananlar
 
@@ -80,15 +81,15 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **8.3** · uyum panosu; ifşa kapısı yayın hattına bağlandı | 2026-08-16 |
 | **8.4** · haftalık doctor; damga YOK — alarm saati, doğruluk değil | 2026-08-16 |
 | **8.5** · proaktif katman; gözlemsiz öneri kurulamıyor, tavan 3 | 2026-08-16 |
-| **8.7** · geri yükleme tatbikatı; GERÇEK kusur buldu (pnpm onayları) | 2026-08-16 |
+| **8.7** · geri yükleme tatbikatı; ÜÇ gerçek kusur buldu | 2026-08-16 |
+| **8.8** · rotasyon tablosu kodla senkron; kapı 5 anahtar buldu | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`8.8` — Secret rotasyon ve sızıntı müdahalesi** (§14). Hangi anahtar nereden döner,
-sızıntıda ilk 10 dakikada ne yapılır. Prosedürün taslağı `docs/RUNBOOK.md`'de yazıldı
-(8.7 ile birlikte); bu adım onu **tatbik edilebilir** hâle getirecek ve rotasyon
-komutlarını bağlayacak. ⚠ İptal önce gelir: dönmesini beklemek, sızan anahtarın
-kullanılabilir kaldığı her dakikayı uzatır.
+**`8.9` — Yerel MCP yüzeyi** (D-33 · §3.8, §14). **Aday karar**: Hono sunucusu
+`corpus.search/get/propose` ve aktif çalıştırmayı MCP olarak açsın mı? Claude Code,
+UI'ın gördüğü aynı projeyi görürdü. ⚠ Karara bağlanacak — **kabul ya da gerekçeli
+ret**, ikisi de bir `D-nn` ister. FAZ 8'in son adımı; sonrası kapanış protokolü.
 
 ## Devreden borçlar
 

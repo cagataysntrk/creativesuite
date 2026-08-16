@@ -41,14 +41,52 @@ ta ki gerçekten kurtarmaya çalışana kadar. Onaylar `package.json` →
 
 ## 3. Secret sızıntısı — ilk 10 dakika
 
-1. **Anahtarı iptal et** (sağlayıcı panelinden) — dönmesini bekleme, önce iptal
-2. `git log -S '<sızan dize>' --all` ile hangi commit'te olduğunu bul
-3. Sızan anahtar **yeni bir anahtarla değiştirilir**, aynısı yenilenmez
-4. `secrets/secrets.enc.yaml` güncellenir, `just token-durum` ile doğrulanır
-5. Geçmişten silmek **gerekmez ve denenmez**: iptal edilmiş bir anahtar zararsız,
-   geçmişi yeniden yazmak ise her klonu bozar
+**Sızıntı anında prosedürü düşünmek, prosedürü uygulamamaktır.** Sırayla:
+
+1. **İPTAL ET** (aşağıdaki tablodan panel URL'i) — yenisini beklemeden. Sızan bir
+   anahtarın kullanılabilir kaldığı her dakika, saldırganın dakikasıdır.
+2. `git log -S '<sızan dize>' --all` → hangi commit, hangi tarih
+3. **Yeni anahtar üret** — aynısını "yenilemek" diye bir şey yok
+4. `sops secrets/secrets.enc.yaml` ile güncelle
+5. `just token-durum` → yeni anahtarla yayın açılıyor mu
+6. `KARARLAR.md`'ye bir satır: ne sızdı, ne zaman, ne yapıldı
+
+⚠ **Geçmişten silmek gerekmez ve denenmez.** İptal edilmiş bir anahtar zararsızdır;
+geçmişi yeniden yazmak ise her klonu bozar ve `derived/runs` defterinin commit
+zincirini kırar (D-38).
 
 ⚠ **Repo private** (D-34) ama private olmak sızıntıyı değil, yalnız erişimi sınırlar.
+Sızıntı çoğu zaman repodan değil, ekran görüntüsünden ya da log'dan olur.
+
+### Rotasyon tablosu — her anahtar, nereden döner
+
+⚠ **Bu tablo `secret-rotasyon` kapısıyla kod ile senkron tutuluyor:** kodda
+`readEnv` ile okunan her anahtar burada bir satır taşımak zorunda. Bir anahtar
+eklenip tabloya yazılmazsa kapı kırmızıya döner — çünkü nasıl döndürüleceği
+bilinmeyen bir anahtar, sızdığında döndürülemez.
+
+| Anahtar | Sağlayıcı | Nereden döner | Not |
+|---|---|---|---|
+| `FAL_KEY` | fal.ai | `fal.ai/dashboard/keys` | eskiyi sil, yenisini üret |
+| `CF_API_TOKEN` | Cloudflare | `dash.cloudflare.com` → API Tokens | token bazlı, kapsam daralt |
+| `CF_ACCOUNT_ID` | Cloudflare | hesap kimliği — **sır değil**, rotasyon yok | döndürülemez, gizli de değil |
+| `BRIGHTDATA_API_KEY` | Bright Data | müşteri paneli → API | SERP şelalesi (FAZ-6.5) |
+| `TAVILY_API_KEY` | Tavily | `app.tavily.com` → API Keys | ücretsiz katman 1k/ay |
+| `IHALE_MCP_URL` | ihale-mcp | kendi uç noktan | URL gömülü token taşıyorsa sırdır |
+| `BORSA_MCP_URL` | borsa-mcp | kendi uç noktan | aynı uyarı |
+| `META_APP_SECRET` | Meta | `developers.facebook.com` → App → Settings | **V-27: henüz yok** |
+| `META_APP_ID` | Meta | aynı sayfa — **sır değil** | rotasyon yok |
+| `LINKEDIN_CLIENT_SECRET` | LinkedIn | `linkedin.com/developers` → App → Auth | **V-27: henüz yok** |
+| `LINKEDIN_CLIENT_ID` | LinkedIn | aynı sayfa — **sır değil** | rotasyon yok |
+| `TELEGRAM_BOT_TOKEN` | Telegram | BotFather → `/revoke` | **V-18: yer tutucu** |
+| `SUITE_BRAND` | — | yapılandırma, sır değil | rotasyon yok |
+| `BRAND_ID` | — | çalıştırma parametresi, sır değil | rotasyon yok |
+| `ERA_ID` | — | çalıştırma parametresi, sır değil | rotasyon yok |
+| `SUITE_PORT` | — | yerel sunucu portu, sır değil | rotasyon yok |
+| `SUITE_NABIZ` | — | SSE kalp atışı ms, sır değil | rotasyon yok |
+
+**Sır olmayanlar da tabloda:** "bu neden burada yok" sorusunun cevabı bir satır
+olmalı; listede olmayan bir anahtar, unutulmuş bir anahtardan ayırt edilemez.
 
 ## 4. Bir ay ihmalden sonra
 

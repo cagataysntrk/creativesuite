@@ -163,17 +163,36 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    defter korundu)` · `derived/blobs` gitignore'lu, ayrı yedek şart.
 💾 `feat(scripts): yedekleme ve geri yükleme tatbikatı` · `Refs: FAZ-8.7 · §14`
 
-## 8.8 — Secret rotasyon ve sızıntı müdahalesi    [ ]
+## 8.8 — Secret rotasyon ve sızıntı müdahalesi    [x] 2026-08-16
 
 📖 §14 · R-51
 🔗 8.7
 🛠 Hangi anahtar nereden döner, sızıntıda **ilk 10 dakikada** ne yapılır — yazılı,
    sıralı, kişi bağımsız. Sızıntı anında prosedürü düşünmek, prosedürü uygulamamaktır.
    `KARARLAR.md`'de kayıtlı, yılda bir tatbik edilir.
-📁 `docs/RUNBOOK.md`
-✅ Runbook her sağlayıcı için rotasyon adımı ve iptal URL'i içeriyor
-🧪 Bir anahtarı gerçekten döndür → sistem yeni anahtarla çalışıyor, eski anahtar reddediliyor
+📁 `docs/RUNBOOK.md` · `scripts/gates/secret-rotasyon.mjs`
+✅ Rotasyon tablosu **kodla senkron** — `secret-rotasyon` kapısı zorluyor: kodda
+   `readEnv`/`process.env` ile okunan her anahtar tabloda bir satır taşımak zorunda.
+   **17 anahtar** kapsandı ve kapı beş tanesini ben yazmadan buldu.
+   ⚠ **Sır olmayanlar da tabloda** (`CF_ACCOUNT_ID`, `SUITE_PORT`…): listede olmayan
+   bir anahtar, "unutulmuş" ile "sır değil" arasında ayırt edilemez.
+🧪 Yeni bir `process.env` okuması ekle → kapı **kırmızı**, ölçüldü:
+   `✗ YENI_GIZLI_ANAHTAR kodda okunuyor ama RUNBOOK rotasyon tablosunda YOK`
+   ⚠ Kapı ilk sürümünde **kendi yorum satırındaki örneği** gerçek anahtar sandı —
+   `chart.js` darboğazının kendi modülünü yakalamasıyla aynı sınıf. Yorumlar
+   çıkarıldı: bir kapı kendi belgesiyle kandırılmamalı.
+   ⚠ **Gerçek rotasyon `8.8b`de** (V-27): anahtar yokken "döndürdüm" demek ölçüm değil.
 💾 `docs(docs): secret rotasyon ve sızıntı müdahale prosedürü` · `Refs: FAZ-8.8 · §14`
+
+## 8.8b — Gerçek anahtar rotasyonu    [ ] BLOKE:insan (V-27)
+
+📖 §14 · R-51
+🔗 8.8, 7.5b
+🛠 Prosedür, tablo ve kapsam kapısı yazıldı ve **ölçüldü**; kalan iş gerçek bir
+   anahtarı gerçekten döndürmek. Anahtar yokken "döndürdüm" demek ölçüm değildir.
+✅ Bir anahtar döndürüldü → yeni anahtarla çalışıyor, **eski anahtar reddediliyor**
+🧪 Eski anahtarla çağrı dene → sağlayıcı reddediyor (iptal gerçekten işlemiş)
+💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
 ## 8.9 — Yerel MCP yüzeyi (aday)    [ ]
 
