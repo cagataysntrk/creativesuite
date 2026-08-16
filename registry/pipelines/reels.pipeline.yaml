@@ -1,0 +1,49 @@
+# Reels — demo bölüm işaretlerinden DETERMİNİSTİK türetme (§10, §9.1 · FAZ-5.8).
+#
+# **Yeni bir çekim YOK.** Kaynak zaten var: `demo-video`nun ürettiği yakalama ve
+# `timeline.json`daki bölüm işaretleri. Reels bir TÜRETMEDİR, ikinci bir üretim değil —
+# ve bu yüzden hiçbir ücretli üretim adımı taşımıyor.
+#
+# **Otomatik klipleyici YOK** (§17): piyasadaki hepsi konuşma enerjisiyle çalışır ve
+# sessiz ekran kaydında bulduğunu sandığı şey gürültüdür. Bizde bölüm sınırı VERİ.
+#
+# MODEL ADI YOK (R-40).
+id: reels
+title: Reels (demo bölümlerinden türetme)
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  # Kaynak demo çalıştırmasının zaman çizgisi okunur. Bölüm işareti YOKSA türetme
+  # reddedilir — tahmin YAPILMAZ.
+  - id: bolumleri-oku
+    verb: SELECT
+    needs: [cozumle]
+    constraints:
+      timeline_required: true
+      chapters_required: true
+
+  # Kırpma: 9:16 pencere bölüm hedefinin merkezine oturur ve kaynağın içine kenetlenir.
+  # Yönlendirilmez — RENDER tek motordur (D-122).
+  - id: kirp
+    verb: RENDER
+    needs: [bolumleri-oku]
+    constraints:
+      width: 1080
+      height: 1920
+      placement: instagram-story-9x16
+
+  # Güvenli alan: Reels'te UI görselin ÜSTÜNDE (%14 üst · %35 alt · %6 yan). Metni
+  # oraya koymak, onu platformun kendi düğmelerinin altına gömmektir.
+  - id: kalite
+    verb: VALIDATE
+    needs: [kirp]
+    constraints:
+      placement: instagram-story-9x16
+      safe_area: true
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

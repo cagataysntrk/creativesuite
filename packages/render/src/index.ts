@@ -157,3 +157,17 @@ export {
   type CaptureArgError,
   type CaptureArgResult,
 } from './capture/ffmpeg.js'
+
+// reels deterministik türetme (§10 · FAZ-5.8). Video KESMEZ: dikdörtgen ve süre hesaplar.
+export {
+  deriveReels,
+  cropFor,
+  textBand,
+  reelsHataMesaji,
+  MIN_KLIP_SN,
+  MAX_KLIP_SN,
+  type Reel,
+  type CropRect,
+  type ReelsError,
+  type ReelsResult,
+} from './capture/reels.js'

@@ -3,7 +3,7 @@
 > ⚠ **ÜRETİLMİŞ DOSYA — elle düzenleme** (R-65). Üreteci: `just docs`.
 > Kaynak: `registry/pipelines/*.pipeline.yaml`. `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **4** hat.
+Toplam **5** hat.
 
 ## `demo-video` — Ürün demo videosu
 
@@ -63,4 +63,16 @@ Toplam **4** hat.
 | `kompozit` | `COMPOSE` | — | bilgi-sec, gorsel-uret | — | — |
 | `render` | `RENDER` | — | kompozit | — | — |
 | `kalite` | `VALIDATE` | — | render | — | — |
+| `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
+
+## `reels` — Reels (demo bölümlerinden türetme)
+
+5 adım · 0 yetenek isteyen · 1 insan kapısı
+
+| adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
+|---|---|---|---|---|---|
+| `cozumle` | `RESOLVE` | — | — | — | — |
+| `bolumleri-oku` | `SELECT` | — | cozumle | — | — |
+| `kirp` | `RENDER` | — | bolumleri-oku | — | — |
+| `kalite` | `VALIDATE` | — | kirp | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |

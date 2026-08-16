@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.8
+siradaki_adim: 5.9
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.7 BITTI (D-201, D-202). V-20 KAPANDI: beklenen window.__hf ti, __timelines degil — sozlesmeyi paketten okumak dogru refleksti ama YANLIS sozlesmeyi okudum; cevap aracin kendi yardim metnindeydi. Kompozisyonlarimiz player runtime i calistirmiyor, --player-ready-timeout 2000 ile 1dk34sn → 8,3sn. demos/upcyman ucluSu kuruldu; yeni degismez: bolum isaretleri anlati bolumleriyle ESLESMELI — ayrisirlarsa video anlatilmayan bolum gosterir ve bu ancak izleyerek fark edilir. 35 kapi, 965 test."
+son_kanit: "5.8 BITTI (D-203). reels bir TURETMEDIR: yeni cekim yok, tahmin yok, sihirli esik yok. Klip sinirlari timeline.json daki chapter isaretlerinden geliyor. Deterministiklik testle dogrulandi (iki cagri toEqual). Sure sinirlari gerekceli: MIN 3sn, MAX 60sn — uzun bolum KESILMIYOR REDDEDILIYOR, nereden kesilecegi bir KARAR. 9:16 kirpma iki tuzagi kapatiyor: genislik CIFT (h264 tek boyutu sessizce yuvarlar) ve pencere kaynaga KENETLI; kenetleme ihlal testi ortadaki hedefin kenetlenMEDIGINI de dogruluyor. KARARLAR arsivi: D-182..D-192 devredildi. 35 kapi, 972 test."
 ```
 
 ## Neredeyiz
@@ -77,17 +77,18 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **5.5** · `.ass` yazıcısı + transkript kapısı (yayın yükleminde) | 2026-08-16 |
 | **5.6** · Demo yakalama; tıklama niyeti pikselden önce yazılıyor | 2026-08-16 |
 | **5.7** · `demo-video` hattı + kalıcı üçlü; V-20 kapandı | 2026-08-16 |
+| **5.8** · `reels` deterministik türetme; tahmin yok, eşik gerekçeli | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.8` — `reels` deterministik türetme** (§10). Bölüm işaretlerinden klip üretimi.
-**Otomatik klipleyici YOK** (§17): konuşma enerjisiyle çalışır, sessiz kayıtta işe
-yaramaz. `chapters()`/`zoomOrigin()` hazır; `demos/upcyman/` üç bölüm işareti taşıyor.
+**`5.9` — `explainer-video`** (§10). Aynı hareket kütüphanesi, **çok en-boy render**.
+`marka.css` marka-bağımsız (D-197), `placements.ts` dört yerleşimi taşıyor. Sonra
+**`5.10` tam kapsamlı test paketi** — protokolün öngördüğü tek geniş tur.
 
 ## FAZ 4 kalanı
 
-QA okumaları ve bağlam girdisi 0/18 — `2.9` blokajı; ölçüm `3.14` koştuğu gün gelir.
-Gerçek bileşen testi (DOM altyapısı) FAZ 9'a bırakıldı — D-192.
+QA ve bağlam girdisi 0/18 — `2.9` blokajı; ölçüm `3.14` koştuğu gün gelir. Bileşen
+testi (DOM altyapısı) FAZ 9'a bırakıldı.
 
 ## Bloke adımlar
 
@@ -107,14 +108,12 @@ seçimi üçüncü taraf verisinden çıkarım.
 `active` olacak ama retrieval onları YİNE görmeyecekti — onay işe yaramamış gibi
 görünürdü. Ölçüldü: düzeltmeyle onay sonrası **7 kayıt** geliyor, düzeltmesiz **1**.
 
-**`3.7` · `3.8` — V-16 anahtarları.** `sops exec-env` altında `CF_ACCOUNT_ID`+
-`CF_API_TOKEN` (bedava şerit) ya da `FAL_KEY` (premium). `3.8` ayrıca ~$3 gerçek para
-harcıyor. Anahtarsız `image.generate` yeteneği hiçbir sağlayıcıya çözülmüyor.
+**`3.7` · `3.8` — V-16.** `sops exec-env` altında `CF_ACCOUNT_ID`+`CF_API_TOKEN` ya da
+`FAL_KEY`; `3.8` ayrıca ~$3 gerçek para. Anahtarsız `image.generate` hiçbir sağlayıcıya
+çözülmüyor.
 
-**`4.13b` — Tailscale + gerçek bot token.** `tailscale` kurulu değil (sudo kurulum +
-hesap girişi) ve `TELEGRAM_BOT_TOKEN` yer tutucu (`doldurulacak`). Bot mantığı ve yüzey
-sınırı hazır ve test edilmiş; kalan iş yalnız gerçek erişim. → V-18
+**`4.13b` — V-18.** `tailscale` kurulu değil, `TELEGRAM_BOT_TOKEN` yer tutucu. Bot
+mantığı ve yüzey sınırı test edilmiş; kalan iş yalnız gerçek erişim.
 
-**`3.14` — `2.9`'a bağlı.** Onaylı corpus olmadan hat `bilgi-sec` adımında `NO_CONTEXT`
-ile duruyor; bu doğru davranış (R-13), atlatılmıyor. `2.9` açıldığı gün `3.14` koşulur
-ve FAZ 3 TAM kapanır (D-158).
+**`3.14` — `2.9`'a bağlı.** Onaylı corpus olmadan hat `bilgi-sec`te `NO_CONTEXT` ile
+duruyor; doğru davranış (R-13), atlatılmıyor. `2.9` açıldığı gün FAZ 3 TAM kapanır.

@@ -90,17 +90,16 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
    üç insan kapısı ve dört ücretli adım basıyor · **V-20 kapandı: render 1dk34sn → 8,3sn**
 🧪 `timeline.json`'suz render dene → `missing_file` (BOŞ zaman çizgisinden AYRI hata)
 
-## 5.8 — `reels` — deterministik türetme    [ ]
+## 5.8 — `reels` deterministik türetme    [x] 2026-08-16
 
-📖 §10, §9.1
+📖 §10, §9.1 · D-203
 🔗 5.7
-🛠 Demo bölüm işaretlerinden **deterministik** türetme. **Otomatik klipleyici YOK**:
-   konuşma enerjisiyle çalışır, sessiz ekran kaydında işe yaramaz.
-   Reels güvenli alanı (%14/%35/%6) render öncesi uygulanır.
-📁 `registry/pipelines/reels.pipeline.yaml`
-✅ Aynı demodan aynı reels üretiliyor (deterministik) · güvenli alan ihlali yok
-🧪 Bölüm işareti olmayan bir demo ver → türetme reddediliyor, tahmin YAPMIYOR
-💾 `feat(cli): reels deterministik türetme` · `Refs: FAZ-5.8 · §10`
+📁 `packages/render/src/capture/reels.ts` · `registry/pipelines/reels.pipeline.yaml`
+✅ Aynı demo AYNI reels (test `toEqual` ile doğruluyor) · gerçek `demos/upcyman`
+   üçlüsünden üç klip türüyor · 9:16 pencere çift genişlikte ve kaynağa kenetli ·
+   güvenli alan %14/%35/%6
+🧪 Bölüm işareti olmayan demo → `no_chapters`, tahmin YAPMIYOR · uzun bölüm kesilmiyor,
+   reddediliyor (nereden keseceği bir KARAR)
 
 ## 5.9 — `explainer-video`    [ ]
 

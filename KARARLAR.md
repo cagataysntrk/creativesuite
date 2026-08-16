@@ -116,189 +116,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-182 — Donmuş plan diske yazılmıyordu: `rerun` düğmesi sessizce `replay` olurdu
-2026-08-16 · `4.15`in ön koşulunu ararken veri akışı izlendi (D-173'ün dersi) ve şu
-çıktı: `freezePlan` üretiliyor, `launcherPlani` HTTP cevabında döndürüyor, `runPipeline`
-geri alıp kullanıyor — ve süreç bitince plan **kayboluyordu**. Diskte yalnız manifest
-vardı. Gerçek repoda ölçüldü: **18 çalıştırmanın 0'ında donmuş plan var.**
-Sonuç, bir eksiklikten fazlası olurdu: `rerun` ("kararı tekrarla") düğmesi koysaydık,
-donmuş plan olmadığı için sessizce yeniden planlardı — yani `replay` yapardı. Ekran iki
-ayrı eylem gösterip tek eylem yapardı ve fark ancak farklı bir sağlayıcıyla farklı bir
-fatura geldiğinde görülürdü.
-Karar: donmuş plan `derived/runs/<id>/plan.json` altına yazılır (`planPath`, kernel'in
-`manifest-yazici` darboğazında). Manifest'ten TÜRETİLEMEZ: manifest gerçekleşeni yazar,
-plan onay anındaki kararı — alternatifler, kısıtlar, kayıt kümesi.
-Ve plan **yoksa** `rerun` MÜMKÜN DEĞİL olarak, gerekçesiyle döner. Düğmeyi gizlemek de
-etkinleştirmek de yalan olurdu; üçüncü seçenek gerçeği söylemek.
-
-## D-183 — Dört ekran yönlendirmede vardı, palette yoktu: ulaşılamaz "biten" adımlar
-2026-08-16 · `kesif` · `sema` · `butce` · `varliklar` — dördü de `App.tsx`te
-yönlendiriliyordu, dördü de `KOMUTLAR` listesinde yoktu. **Menü yok, palet birincil
-navigasyondur** (§12.5); palette olmayan ekranı açmanın hiçbir yolu yok. Dört faz adımı
-"bitti" diye tiklenmişti, dördünün de ucu cevap veriyordu, testleri geçiyordu — ve
-kullanıcı hiçbirini göremezdi. 26 kapının hiçbiri bakmıyordu.
-Ters yön de sessizdi: `instagram-post` gibi üç üretim komutu seçildiğinde `giris`e
-düşüyordu, yani komut bulunup tıklanıyor ve hiçbir şey olmuyordu.
-Karar: `ui-navigasyon` kapısı — her yönlendirilen ekranın bir palet komutu, her palet
-komutunun bir hedefi olmalı. Üretim komutları artık launcher'ı O hatla açıyor.
-**Ders:** "uç çalışıyor + test yeşil" ile "kullanıcı ulaşabiliyor" farklı iddialar.
-İkincisi ölçülmediği sürece birincisi bir şey kanıtlamaz.
-
-## D-184 — Node 20'ye düşen kabuk 144 testi sessizce KOŞTURMUYORDU
-2026-08-16 · Tam test paketi `Test Files 56 passed (64)` yazıyordu ve bunun yanında tek
-satırlık `Errors 8` vardı. Sekiz dosya hiç koşmamıştı: `better-sqlite3` başka bir Node
-ABI'si için derlenmişti ve `require` anında **SIGSEGV** veriyordu (çıkış kodu 139).
-Kabuk `nvm` varsayılanıyla v20.20.0'a düşmüştü. `.nvmrc` FAZ-0'dan beri `22` yazıyordu —
-ama **`.nvmrc` bir dilektir, zorlama değil**: `nvm use` çağrılmadıkça kimse okumaz.
-`engines` alanı yoktu ve hiçbir kapı sürüme bakmıyordu.
-Belirti yanıltıcı: hata testin içinde değil koşucunun altyapısında, çıktı yeşile çok
-benziyor ve test SAYISI düşüyor — kimsenin ezberinde olmayan tek sayı.
-Karar: `.nvmrc` (22) + `engines.node >=22` + `node-surum` kapısı. Kapı sürüm numarasına
-bakıp geçmiyor, `better-sqlite3`ü GERÇEKTEN yüklemeyi deniyor: doğru sürümde yeniden
-derlenmemiş bir bağımlılık da aynı sessiz kaybı verir.
-Node 22'de: **64 dosya, 902 test, hepsi yeşil.**
-
-## D-185 — Strateji lint kuralları yalnız kapı betiğinde yaşıyordu
-2026-08-16 · `4.16` panosunu yazarken kuralların nerede olduğu arandı: yasak terim
-listesi, sayısal iddia tespiti, gövdeden alan çıkarma — hepsi `scripts/lexicon.mjs`
-içinde, kapı betiğinin gövdesinde, test edilemez JavaScript olarak. Pano aynı kuralları
-göstermek zorunda. İkinci bir kopya yazmak D-160'ın birebir tekrarı olurdu: iki gerçek,
-ikisi de "doğru", bir gün sessizce ayrışırlar — ve o gün pano "temiz" derken kapı
-kırmızı olur, hangisinin haklı olduğu belirsiz kalır.
-Kurallar `packages/engine/src/saglik/strateji.ts`e çıkarıldı; kapı da pano da **aynı
-fonksiyonu** çağırıyor. Halka gerekçesi: corpus okumak `@suite/corpus`, lexicon
-`@suite/render` — kardeşler, birbirini import edemez; ikisini birleştiren en alçak
-halka `engine`.
-**Ayrıştırmadan sonra kapı yeniden ihlal edildi** (D-153: bir düzeltme commit'i iki CLI'ı
-kırmıştı ve 24 kapı görmedi): gerçek bir corpus kaydına yasak terim + kaynaksız `%47`
-eklendi, kapı ikisini de yakalayıp kırmızıya döndü.
-**Yeni ayrım — `alanlar_nesirde`.** Gerçek `proof_asset` kaydında `generalisation_note`,
-`era_of_origin` ve `transfer_confidence` **nesirde** yazılı, frontmatter'da değil.
-"Alan eksik" demek haksız bir suçlama olurdu — argüman orada. Ayrı bir tür açıldı
-(D-177: enum iki gerçeği sıkıştırmasın) ve `uyari` şiddetinde: denetim bugün gövde
-başlıklarını okuyarak çalışıyor, başlıklar değişirse sessizce kör kalır.
-Gerçek repoda ölçüldü: **7 kayıt, 0 blocking, 1 uyarı.**
-
-## D-186 — İhlal testi SAYI doğruluyordu, İÇERİK değil
-2026-08-16 · `4.16`nın ilk ihlal testi yasak terim listesini boşalttı ve **testler yeşil
-kaldı**. Sebep: test `bulgular.map(b => b.kayitId)`in `['rec_kirli','rec_kirli']` olmasını
-bekliyordu — yani iki bulgu olmasını, hangisi olduğunu değil. Yasak terim kuralı
-kalktığında başka bir bulgu sayıyı doldurabilirdi.
-D-181 fikstürün değerini düzeltmişti; bu onun bir üst katmanı: **fikstür doğru olsa da
-İDDİA yanlış yerde durabilir.** Sayı, iki kuralı birbirinin yerine geçirir. Test bulgu
-MESAJLARINI doğrulayacak biçimde yeniden yazıldı ve ihlal kırmızıya döndü.
-İkinci ders aynı turdan: ihlali uygulayan betiğin kendisi de hatalıydı —
-`s.index("]")` `readonly string[]` içindeki köşeli ayraca takıldı ve üretilen kod
-`= [] = [...]` oldu; bu **geçerli JavaScript** (boş dizi destructuring) olduğu için
-derleme geçti ve liste hiç boşalmadı. `assert` vardı ama fazla gevşekti.
-**Ders:** ihlal testinde üç şey ayrı ayrı doğrulanmalı — ihlal UYGULANDI mı, kod
-DERLENİYOR mu, ve iddia ihlal edilen KURALA mı bakıyor.
-
-## D-187 — Doctor'ın denetimleri kabuk betiğindeydi; kapı ile ekran ayrışırdı
-2026-08-16 · `4.17`nin ✅ kriteri açık: *"`just doctor` ile aynı bulguları gösteriyor"*.
-Denetimler `scripts/doctor.sh` içinde bash olarak yaşıyordu — öksüz çalıştırma taraması,
-defter kirliliği, tazelik. Ekranın aynı bulguları göstermesi için ya betiği HTTP'den
-çağırmak ya da kuralları TypeScript'te tekrar yazmak gerekiyordu. İkincisi D-185'in
-tekrarı olurdu.
-Denetimler `packages/engine/src/saglik/doktor.ts`e taşındı; `scripts/doctor.sh` artık
-yalnız kabuğun kendi bağlamını (git özeti, kapı sayısı) basıyor ve gövdeyi modülden
-alıyor. Taşıma sırasında iki denetim KAZANILDI: indeks/corpus ayrışması (kabukta hiç
-yoktu) ve %20 üstü maliyet sapması (`doctor.sh` sonunda *"FAZ-8.4'te eklenecek"*
-yazıyordu — modülde `costVariance` zaten hazırdı).
-**`doctor-salt-okur` kapısı.** "Rapor eder, hiçbir şeyi değiştirmez" bir yorumla
-korunamaz: "düzelt" düğmesi her zaman makul görünür ve tam bu yüzden bir gün eklenir.
-Kapı doctor yolundaki üç dosyada yazma çağrısı ve durum değiştiren uç arıyor. İki farklı
-ihlalle kırmızıya döndürüldü: öksüz çalıştırmayı silen `rmSync`, ve `/api/doktor`un
-POST'a çevrilmesi.
-**Atlanan denetim GİZLENMİYOR.** Sunucu ucu git olgularını toplamıyor (`git-cagiran`
-darboğazı tek dosyaya kilitli), indeks kapalıysa ayrışma ölçülemiyor — rapor bunları
-`atlananDenetimler` altında ADIYLA söylüyor. Boş bırakmak "kontrol edildi, temiz"
-izlenimi verirdi (D-175 ailesinin altıncı uygulaması).
-Gerçek çıktı: **2 kritik** (`claude-code` fiyat anlık görüntüsü yok ama enabled ·
-1 çalıştırmada 2 varlık var manifest yok) **1 uyarı**.
-
-## D-188 — FAZ 4 kapanış turu: "düzeltildi" sanılan üç şey düzeltilmemişti
-2026-08-16 · Bağımsız doğrulama (LOOP§D) FAZ 4'ü **kapanışa hazır DEĞİL** buldu ve en
-ağır bulgu benim kendi düzeltmemdi: **D-182 yarım kapatılmıştı.** `writeFrozenPlan`
-yazıldı, `runPipeline` onu çağırıyordu — ama üretim CLI'ı (`scripts/uret.mjs`) `frozen`
-alanını hiç geçmiyordu. Disk hâlâ **0/18**. `DURUM.md` "donmuş plan artık diske
-yazılıyor" diyordu; yazmıyordu. Düzeltme koda ve teste girdi, **çağırana girmedi** —
-yani D-173'ün tam kendisi, üstelik D-173'ü anlatan bir commit'te.
-Şimdi `uret.mjs` planı `plan()` + `freezePlan()` ile donduruyor, motora veriyor ve
-`derived/runs/<id>/donmus-plan.json` diske düşüyor. Gerçek kanıt: `rerun mümkün = true`,
-`sapma ÖLÇÜLDÜ = true`, sapma listesi dolu (corpus/registry commit'i kaymış).
-**Ders:** bir düzeltmenin kanıtı, düzeltilen katmanın testi değil, **üretim yolunun
-diskte bıraktığı izdir.** "0/18" ölçümünü yazdım ama ölçümü tekrarlamadım.
-
-## D-189 — Bozuk bir VERİ dosyası üretimi tamamen durdurmuştu, 29 kapı görmedi
-2026-08-16 · `registry/butce.yaml` diskte `per_run 9_000_000` > `per_month 1_000`
-taşıyordu — çelişkili. Sonuç: `just uret` **hiç başlamıyordu**, her çalıştırma açılışta
-"bütçe tavanı okunamadı" ile düşüyordu. Değerler FAZ-4.12'nin kendi commit'inden
-(`f2767ba`) geliyor: bir ihlal testinden kalmış ve geri alınmamış.
-Okuma yolu doğru davrandı — sessizce varsayılana düşmedi (D-179 tam da bunu istiyordu).
-Eksik olan, **bozuk verinin commit edilebilmesiydi**: 29 kapı `packages/` ve `apps/`
-altındaki her satırı denetliyordu, `registry/` altındaki VERİYİ hiçbiri denetlemiyordu.
-`registry-veri` kapısı eklendi ve tam bu bozulma ile kırmızıya döndürüldü.
-**Ders:** kod kadar veri de commit edilebilir ve veri de sistemi durdurabilir. "Kapı"
-demek "kod kapısı" demek değil.
-
-## D-190 — "Başlat" düğmesinin eylemi yoktu; FAZ 4'ün çıkış kriteri kopuktu
-2026-08-16 · Run Launcher planı kuruyor, maliyet aralığını basıyor, bütçe kilidini
-hesaplıyordu — düğmenin `onClick`i yoktu ve sunucuda çalıştırma başlatan uç yoktu.
-FAZ 4'ün çıkış kriteri *"⌘K → seç → çalıştır → onayla, fareye hiç dokunmadan"* zincirin
-"çalıştır" adımında kopuyordu. 29 kapı ve 918 test bunu görmedi çünkü **13 ekran
-bileşeninin sıfır testi var**; sayılan testler sunucu testleri.
-Eklenenler: `POST /api/calistir` (özet ZORUNLU — onay bir ÖZETE verilir, R-07),
-`POST /api/calistirmalar/:id/rerun|replay` (AYRI uçlar, çünkü ayrı eylemler), ve
-CLI'da `--run` · `--plan-digest` · `--rerun` · `--replay`. Digest uyuşmazlığı
-çalıştırmayı **başlamadan durduruyor** ve bu kırmızıya döndürülerek gösterildi.
-**İkinci bir üretim yolu AÇILMADI:** sunucu `runPipeline`ı kendi içinde çağırmıyor,
-`just uret`i başlatıyor. İçeride çağırsaydık biri planı donduran, diğeri belki
-dondurmayan iki üretim yolu olurdu (D-185 ailesi).
-`ui-dugme` kapısı eklendi: her `<button>` bir eylem taşımalı. Kapı yazıldığı anda
-**benim `4.15`te yazdığım iki ölü düğmeyi daha buldu** (`rerun`, `replay`) — ikisi de
-bağlandı.
-
-## D-191 — Red gerekçesi yazılıyordu, hiç okunmuyordu; ve görsele ASLA gitmez
-2026-08-16 · `brand/<marka>/decisions.jsonl` bir redde yazılıyordu ama **hiçbir üretim
-yolu okumuyordu.** `DecisionEntry.reason`ın kendi dokümanı *"sonraki çalıştırmaya
-negatif kısıt olarak enjekte edilir"* diyordu — D-173'ün en birebir hâli: tipin
-dokümantasyonu var olmayan bir davranışı tarif ediyordu.
-`uret.mjs` artık defteri okuyor, **yalnız kapı redlerini** (`/gate/…`) alıyor (keşif
-redleri corpus kayıtlarına ait, kreatif prompt'a girmeleri anlamsız) ve **en yeni beşini**
-tekilleştirip `kacinilacak` kısıtı olarak veriyor. Hepsini eklemek prompt'u geçmişin
-çöplüğüne çevirirdi; altı ay önceki bir red bugünkü işi kısıtlamaya devam ederdi.
-**Karar — gerekçe YALNIZ metin yeteneklerine girer, görsele ASLA.** Red gerekçesi
-serbest Türkçe nesirdir ve görsel prompt'una eklenmesi iki şeyden birini yapar:
-*"başlıktaki yazı fazla küçük"* gibi bir gerekçe R-20 kurucusunu tetikler ve çalıştırma
-reddedilir; ya da daha kötüsü, metin İSTEYEN bir cümle görsel modeline gider. Görsel
-modeline Türkçe metin çizdirilmez — on iki yasadan biri ve bir kolaylık için esnetilmez.
-Sınır `deps.capability.startsWith('image.')` ile çiziliyor ve ihlal testiyle kırmızıya
-döndürüldü: aynı gerekçe metin yeteneğinde prompt'a giriyor, görsel yeteneğinde girmiyor.
-
-## D-192 — Ekranların sabit kodlu parametreleri ve tikli adımların bayat yolları
-2026-08-16 · İki ayrı sessiz bozulma, aynı kök: **bir kez yazılıp bir daha
-doğrulanmayan iddia.**
-`DiscoveryEkrani` `runId="run_discovery_dry"` ile açılıyordu; o çalıştırma repoda hiç
-var olmadı ve ekran gerçek veride **kalıcı olarak 404** gösteriyordu — beş sütun hiç
-görülmedi. `BaglamOnizleme` `tarif="instagram-post"`a çivilenmişti; palet başka tarif
-seçtiremiyordu. İlki artık kimliği kullanıcıdan alıyor (plan kurmak insanın işidir,
-R-14 — bir sayfa yenilemesiyle tetiklenmez), ikincisi paletin seçtiği hattı izliyor.
-FAZ-4'ün yedi `📁` yolu planlama sırasında yazılmış ve hiç güncellenmemişti; gerçek
-yerleşim düz `apps/ui/src/*.tsx`. FAZ-3'te bir tane daha: `COMPOSE` gövdesi
-`packages/kernel/src/verbs/compose.ts` diye gösteriliyordu, gerçekte
-`packages/engine/src/verbs/bodies.ts`.
-`faz-yollari` kapısı eklendi: **tikli** bir adımın `📁` satırı artık plan değil,
-İDDİADIR ve dosya var olmak zorunda. Tiksiz adımlar denetlenmiyor — onların yolu hâlâ
-bir plan. Kapı ilk koşuşunda 13 yanlış pozitif verdi (glob, brace, yer tutucu) ve
-onlar elendi: sürekli alarm veren kapı, kapatılan kapıdır.
-**Bileşen testi kararı:** 13 ekranın sıfır testi olması gerçek bir boşluk ama DOM test
-altyapısı iki bağımlılık demek (R-75). Boşluğun SOMUT hâli — "kontrol hiçbir şey
-yapmıyor" — `ui-dugme` kapısıyla sıfır bağımlılıkla ve tüm ekranları birden kapsayarak
-kapatıldı; kapı düğmelere ek olarak `onChange`siz kontrollü girdileri de yakalıyor
-(ikisi de sessizdir: kullanıcı bir şey yapmaya çalışır, hiçbir şey olmaz, hata da yok).
-Render durumları ve hata dalları için gerçek bileşen testi FAZ 9'a kalıyor.
-
 ## D-193 — FAZ 4 ŞARTLI kapandı: iki çıkış kriteri karşılanmadı ve tikle örtülmedi
 2026-08-16 · FAZ 4'ün yirmi adımının on dokuzu tikli, biri (`4.13b`) bilinçli
 `BLOKE: insan`. Kapanış turunun altı bulgusu da kapatıldı (D-188…D-192). Ama **çıkış
@@ -502,3 +319,24 @@ sıkıştırmak, hangisinin olduğunu bilmeden hata ayıklamak demekti.
 `demo-video` hattı yetenek + kısıt istiyor (R-40), **üç insan kapısı** taşıyor
 (bölüm sırası · transkript · onay) ve `just plan` maliyeti dürüstçe "FİYATLANAMADI"
 diyor — dört ücretli adımın sağlayıcısı henüz seçilemiyor (V-21).
+
+## D-203 — `reels` bir TÜRETMEDİR: yeni çekim yok, tahmin yok, sihirli eşik yok
+2026-08-16 · Klip sınırları veriden geliyor: `timeline.json`daki `chapter: true`
+işaretleri, demo script'i tıklamadan ÖNCE yazdı (D-200). Piyasadaki otomatik
+klipleyicilerin hepsi konuşma ENERJİSİYLE çalışır — sessiz bir ekran kaydında
+bulduğunu sandıkları şey gürültüdür (§17).
+**Deterministik demek: aynı demo → aynı reels.** Test bunu doğrudan doğruluyor
+(`a` ile `b` çağrısı `toEqual`). İkinci koşuda farklı klip veren bir türetme, "bu
+klibi onayladım" cümlesini anlamsız yapardı.
+**Süre sınırları koda gömülü sihir DEĞİL, gerekçeli sabit:** `MIN_KLIP_SN = 3`
+(altı klip değil, karedir) · `MAX_KLIP_SN = 60` (Reels tavanı 90; 90'a dayanan klip
+kesilme riskindedir). **Uzun bölüm KESİLMİYOR, REDDEDİLİYOR**: nereden kesileceği bir
+KARARDIR ve sistem tahmin ederse bölümün ortasını atar — insan bölümü ikiye ayırsın.
+**9:16 kırpma matematiği iki tuzağı birden kapatıyor:** genişlik ÇİFT'e yuvarlanıyor
+(h264 tek boyutu sessizce yuvarlar, 1 piksellik kayma her kareyi yeniden örnekler —
+5.6'daki aynı tuzak) ve pencere kaynağın içine KENETLENİYOR (kenara yakın hedefte
+negatif `x`, ffmpeg'de siyah kenar demekti). Kenetlemenin ihlal testi ortadaki hedefin
+kenetlenMEDİĞİNİ de doğruluyor — yoksa kural koşulu okumadan hep kenetlerdi.
+Kırpma merkezi zoom odağıyla AYNI hesaptan geliyor: ayrışırlarsa klip, zoom'un
+gösterdiğinden başka bir yeri gösterir.
+`reels` hattı **hiçbir üretim adımı taşımıyor** — türetme, ikinci bir üretim değil.
