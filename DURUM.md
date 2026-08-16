@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.3
+siradaki_adim: 7.4
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan"]
 deneme_sayaci: {}
-son_kanit: "IKINCI DOGRULAMA TURUNUN BULGULARI DA KAPANDI (16 bulgu). En agiri BENIM ILK TURDA ACTIGIM GERILEMEYDI: PDF ciktisi slides tasimadigi icin deps.check hic cagrilmiyordu ve lintDocument onun ICINDEYDI — deck, linkedin-document ve prospect-deck hatlarinda kaynaksiz sayi kapisi HIC kosmuyordu, yani fazin cikis kriteri uretimde zorlanmiyordu; ustune zincire lexiconIhlalleri: [] geciyordum ve yorumum check in icinde kostu diyordu. Lexicon artik AYRI bir yetenek, her bicimde kosuyor. KENDI KENDINI ONAYLAYAN TEST CIFTI: composeBody productShots u basis siz uretiyordu, zincir basis ariyordu, testlerim elle basis yazilmis URETIMIN HIC URETMEDIGI fikstur kullaniyordu — yeni uretim-sekli.test.ts fikstur yazmiyor, gercek COMPOSE ciktisini gercek zincire ve gercek dedektore veriyor. IR YOLU ACILDI: deck.ir.json artik CLI tarafindan okunuyor (COMPOSE saf kaliyor, §3.10) ve grafik/diyagram bloklari uretime giriyor; IR dan gelen grafik PDF te VEKTOR olarak olculdu. Kisisellestirme alanlarinin URETICISI eklendi (operator sayar, sistem cikarim yapmaz — tavan editoryal bir karardir). PROPOSE govdesi, CLI serbest parametreleri, max_pages olu kisiti, capture ozetle listesi, sayfaAlt exhaustive switch. §14 SINIRI ARTIK KENDI KAPISINI ISTIYOR: yayin onayi ingestGate i aciyordu, artik untrusted-input kapisi ayri. SELALE IDDIASI DARALTILDI: dort kaynagin adaptoru yazilmamis ve bu V-24 anahtar blokajinin arkasina saklanmis TEKNIK bir eksikti — faz dosyasi ve V-24 duzeltildi. 1144 test, 36 kapi, 13 ihlal kirmizi."
+son_kanit: "7.3 KAPANDI ve V-23 GERCEK KAYNAKLA KAPANDI. LinkedIn dokuman siniri belgesinden okundu: 300 SAYFA · 100 MB (linkedin.com/help/linkedin/answer/a523054) ve placements.ts e linkedin-document satiri olarak sourceUrl + verifiedAt ile girdi. DOGRULAMA BIR HATA ORTAYA CIKARDI: dokuman icin LinkedIn in GORSEL siniri (5 MB) kullaniliyordu — iki farkli medya tipinin limitini karistirmisim ve 40 MB lik mesru bir dokuman reddedilirdi. Editoryal tavanimiz (10 sayfa) platform sinirindan AYRI duruyor: biri bir OLGU, digeri bir KARAR; karistirilsa ya tavan yukseltilir ya platform siniri unutulurdu. Adaptor AGA CIKMIYOR — istegi kuruyor ve dogruluyor, yayin publish.ts ten geciyor (kanal-yayinci darbogazi). Surum sabiti YYYYMM ve eskirse istek HIC KURULMUYOR: sessizce eski API ye dusmek en kotu senaryo degil, en kotusu FARK EDILMEMESI. Basliksiz dokuman reddediliyor (feed de dokuman.pdf gorunur ve duzenlenemez), PDF olmayan dokuman reddediliyor (yanlis baglanmis hat gizlenmiyor). Gercek yayin 7.2b ye bagli (V-26). ONCEKI: FAZ 6 SARTLI KAPANDI (D-217), iki tur 28 bulgu."
 ```
 
 ## Neredeyiz
@@ -62,21 +62,20 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 |---|---|
 | **7.1** · spec drift denetçisi; güvenli alan ayrı (D-215) | 2026-08-16 |
 | **7.2** · yayın kapıları; sıra tipe gömülü, tek yayıncı mekanik | 2026-08-16 |
+| **7.3** · LinkedIn adaptörü; V-23 kapandı (300 sayfa · 100 MB) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**FAZ 6'yı ŞARTLI KAPAT** — sonra `7.3`. İki doğrulama turunun bulguları kapandı;
-kalan tek engel insan girdisi: `6.5b` (V-24) ve `6.9b` (V-25). Çıkış kriteri **tikle
-ÖRTÜLMEYECEK** (D-206 deseni): "adı geçen gerçek bir şirkete deck gönderildi" bir insan
-eylemidir.
-
-Ardından **`7.3` — LinkedIn adaptörü** (§9.3 · R-34): `w_member_social`, döküman postu,
-5 MB sınırı. **V-23 orada kapanır** — döküman sayfa tavanını kaynağıyla doğrula.
+**`7.4` — Token-bucket rate limiter ve yinelenme defteri** (§8.5, §9.2 · R-46).
+Limiter **uploader'dan ÖNCE** gelir: okuma 1 puan, yazma 3 puan. Yinelenme defteri
+`publish.ts`in dördüncü kapısını besleyecek — bugün `lookupLedger` bir bağımlılık ve
+gerçek defteri henüz yok. Meta yinelenen gönderide mevcut id'yi döndürüyor; defter
+olmadan "3 varlık ürettim" sanıp 20 üretmiş görünmek mümkün.
 
 ## Devreden borçlar
 
 QA/bağlam girdisi 0/18 (`2.9` blokajı) · bileşen testi FAZ 9'a · V-19 +%30 görsel
-ölçüm · V-23 LinkedIn döküman sınırı (→ 7.3) · V-24 şelale anahtarları (→ 6.5b) ·
+ölçüm · V-24 şelale anahtarları ve ADAPTÖRLERİ (→ 6.5b) ·
 V-25 gerçek prospect (→ 6.9b) · V-26 Meta token (→ 7.2b).
 
 ## Bloke adımlar

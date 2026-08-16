@@ -60,3 +60,22 @@ describe('spec tazeliği', () => {
     )
   })
 })
+
+// ── LinkedIn döküman sınırı: OLGU ile KARAR ayrı (V-23 · FAZ-7.3) ───────────
+describe('linkedin-document spec', () => {
+  const doc = PLACEMENTS.find((p) => p.id === 'linkedin-document')
+
+  it('platform sınırı KAYNAĞIYLA duruyor — 100 MB', () => {
+    expect(doc).toBeDefined()
+    expect(doc?.maxBytes).toBe(100 * 1024 * 1024)
+    expect(doc?.sourceUrl).toContain('linkedin.com/help')
+    expect(doc?.verifiedAt).toBe('2026-08-16')
+  })
+
+  // 🧪 Bu satır yazılana kadar döküman için GÖRSEL sınırı (5 MB) kullanılıyordu.
+  // İki medya tipinin limiti karıştırılmıştı: 40 MB'lık meşru bir döküman reddedilirdi.
+  it('döküman sınırı görsel sınırından FARKLI', () => {
+    const gorsel = PLACEMENTS.find((p) => p.id === 'linkedin-feed-4x5')
+    expect(doc?.maxBytes).toBeGreaterThan(gorsel?.maxBytes ?? 0)
+  })
+})

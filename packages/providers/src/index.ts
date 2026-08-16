@@ -109,3 +109,20 @@ export {
   type PublishingLimit,
   type TokenState,
 } from './publish.js'
+
+// LinkedIn adaptörü (FAZ-7.3). Ağa ÇIKMAZ — isteği kurar ve doğrular; yayın
+// `publish.ts`ten geçer (`kanal-yayinci` darboğazı).
+export {
+  COMMENTARY_MAX,
+  LINKEDIN_VERSION,
+  LINKEDIN_VERSION_VERIFIED_AT,
+  SURUM_TAZELIK_GUN,
+  buildLinkedinPost,
+  isLinkedinRefusal,
+  linkedinRefusalMessage,
+  versionStale,
+  type LinkedinPost,
+  type LinkedinPostKind,
+  type LinkedinRefusal,
+  type LinkedinRequestBody,
+} from './linkedin.js'

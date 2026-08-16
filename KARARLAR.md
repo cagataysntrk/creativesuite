@@ -97,12 +97,14 @@ anahtar blokajının arkasına saklanmış TEKNİK bir eksikti. Anahtar geldiği
 iş: dört adaptör + fallback döngüsü. Karantina, sidecar ve enjeksiyon sınırı hazır ve
 gerçek çekimle doğrulandı. → FAZ-6.5b
 
-## V-23 — LinkedIn dökümanının GERÇEK platform sınırı doğrulanmadı
-Sayfa tavanı 10 ve bayt tavanı 5 MB koda girdi ama ikisi de **bizim editoryal
-kararımız**; LinkedIn'in kendi belgelenmiş sınırı okunmadı. Uydurulmuş bir platform
-sayısı, `sourceUrl` + `verifiedAt` taşıyan spec tablosunun (§9.1) tamamını
-değersizleştirirdi — o yüzden kod bunu platform sınırı DİYE yazmıyor, ayrımı yorumda
-taşıyor. Adaptör yazılırken kaynağıyla doğrulanacak. → FAZ-7.3
+## V-23 — LinkedIn döküman sınırı ✅ KAPANDI (2026-08-16, FAZ-7.3)
+Kaynak okundu: **300 sayfa · 100 MB**
+(`https://www.linkedin.com/help/linkedin/answer/a523054`) ve `placements.ts`e
+`linkedin-document` satırı olarak `sourceUrl` + `verifiedAt` ile girdi.
+**Doğrulama bir hatayı ortaya çıkardı:** döküman için LinkedIn'in **görsel** sınırı
+(5 MB) kullanılıyordu — iki farklı medya tipinin limiti karıştırılmıştı ve 40 MB'lık
+meşru bir döküman reddedilirdi. Editoryal tavanımız (10 sayfa) platform sınırından AYRI
+duruyor: biri bir olgu, diğeri bir karar.
 
 ## V-22 — ASR bağlantısı yok: gerçek ses transkript edilmedi
 Yerel `whisper.cpp` kurulu değil ve `GROQ_API_KEY` yer tutucu. `.ass` yazıcısı ve

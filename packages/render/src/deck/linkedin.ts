@@ -30,13 +30,36 @@ import { deckHtml, type DeckPage } from './pdf.js'
 export const LINKEDIN_DOC_MAX_SAYFA = 10
 
 /**
+ * **Platform sınırı** — bizim tavanımız değil (V-23 kapandı 2026-08-16).
+ *
+ * LinkedIn dökümanı: **300 sayfa · 100 MB**, kaynak
+ * `https://www.linkedin.com/help/linkedin/answer/a523054`. Bizim editoryal tavanımız
+ * (10 sayfa) bunun otuzda biri ve bu bilinçli: on birinci sayfaya kadar okunan bir
+ * LinkedIn dökümanı yok.
+ *
+ * İki sayının AYRI durması şart: biri bir olgu, diğeri bir karar. Karıştırılsaydı
+ * "platform izin veriyor" diye tavan yükseltilirdi ya da "biz 10 diyoruz" diye platform
+ * sınırı unutulurdu.
+ */
+export const LINKEDIN_PLATFORM_MAX_SAYFA = 300
+
+/**
  * Kalite merdiveni (§9.3). Sınırın altına inene kadar aşağı iner.
  *
  * Meta'nın 30 MB'ına göre ayarlanmış tek bir hat, LinkedIn'in reddedeceği dosyaları
  * sessizce üretir — o yüzden tavan burada, üretim anında zorlanıyor.
  */
 export const KALITE_MERDIVENI = [92, 82, 72, 62] as const
-export const VARSAYILAN_BAYT_TAVANI = 5 * 1024 * 1024
+/**
+ * Varsayılan bayt tavanı.
+ *
+ * ⚠ Burası **5 MB** yazıyordu ve o LinkedIn'in **GÖRSEL** sınırıydı (§9.3); döküman
+ * sınırı 100 MB. İki farklı medya tipinin limitini karıştırmak, 40 MB'lık meşru bir
+ * dökümanı reddettirirdi. Platform sınırı `placements.ts`te kaynağıyla duruyor; burası
+ * bizim **editoryal** varsayılanımız: on sayfalık bir deck 8 MB'ı aşıyorsa sorun
+ * sıkıştırmada değil içeriktedir.
+ */
+export const VARSAYILAN_BAYT_TAVANI = 8 * 1024 * 1024
 
 export interface LinkedinDocResult {
   readonly path: string

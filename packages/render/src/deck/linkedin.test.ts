@@ -98,3 +98,20 @@ describe('IR anlık görüntüsü (🧪 FAZ-6.3)', () => {
     expect(isIrError(r) && r.kind).toBe('invalid_doc')
   })
 })
+
+// ── editoryal tavan ile platform sınırı AYRI (V-23) ────────────────────────
+import { LINKEDIN_PLATFORM_MAX_SAYFA, VARSAYILAN_BAYT_TAVANI } from './linkedin.js'
+
+describe('tavan ile sınır ayrımı', () => {
+  it('editoryal tavan platform sınırının ÇOK altında', () => {
+    expect(LINKEDIN_DOC_MAX_SAYFA).toBe(10)
+    expect(LINKEDIN_PLATFORM_MAX_SAYFA).toBe(300)
+    expect(LINKEDIN_DOC_MAX_SAYFA).toBeLessThan(LINKEDIN_PLATFORM_MAX_SAYFA)
+  })
+
+  it('bayt varsayılanı artık GÖRSEL sınırı değil', () => {
+    // 5 MB LinkedIn'in görsel sınırıydı; döküman sınırı 100 MB.
+    expect(VARSAYILAN_BAYT_TAVANI).not.toBe(5 * 1024 * 1024)
+    expect(VARSAYILAN_BAYT_TAVANI).toBeLessThan(100 * 1024 * 1024)
+  })
+})

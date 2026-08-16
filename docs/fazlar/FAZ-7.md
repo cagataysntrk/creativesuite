@@ -62,17 +62,26 @@ token son kullanma tarihi ekranda görünüyor
    mevcut id "başardım" sanılmıyor
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
-## 7.3 — LinkedIn adaptörü    [ ]
+## 7.3 — LinkedIn adaptörü    [x] 2026-08-16
 
 📖 §9.3 · R-34
 🔗 7.1, 7.5
 🛠 `w_member_social` kapsamı; metin, görsel **ve döküman** postu. Döküman postu en yüksek
    etkileşimli format ve **hiçbir aggregator** onu vermiyor — kendi adaptörümüzün tek
    başına haklı çıktığı yer burası.
-📁 `packages/channels/src/linkedin/`
-✅ Üç format da yayınlanıyor · döküman postu FAZ-6.3 çıktısını kabul ediyor
-🧪 Sürüm sabitini eskit → adaptör açık hata veriyor, sessizce eski API'ye düşmüyor
-💾 `feat(channels): linkedin adaptörü` · `Refs: FAZ-7.3 · §9.3`
+📁 `packages/providers/src/linkedin.ts` (ayrı bir "channels" paketi yok — bkz. 7.2)
+✅ Üç formatın isteği de KURULUYOR ve doğrulanıyor · döküman postu FAZ-6.3 çıktısını
+   (PDF) kabul ediyor, başka biçimi reddediyor
+🧪 Sürüm sabitini eskit → istek HİÇ kurulmuyor, sessizce eski API'ye düşmüyor ·
+   başlıksız döküman reddediliyor (feed'de `dokuman.pdf` görünürdü ve düzenlenemez) ·
+   metin postuna varlık ekle → biçim karışması reddediliyor
+   ⚠ **V-23 KAPANDI:** LinkedIn döküman sınırı kaynağından okundu — **300 sayfa · 100 MB**
+   (`linkedin.com/help/linkedin/answer/a523054`) ve `placements.ts`e `linkedin-document`
+   satırı olarak girdi. Doğrulama bir HATA ortaya çıkardı: döküman için LinkedIn'in
+   **görsel** sınırı (5 MB) kullanılıyordu; 40 MB'lık meşru bir döküman reddedilirdi.
+   Editoryal tavanımız (10 sayfa) platform sınırından AYRI duruyor — biri olgu, diğeri karar.
+   ⚠ Gerçek yayın `7.2b`ye bağlı (V-26): token ve uygulama insan girdisi.
+💾 `feat(providers): linkedin adaptörü` · `Refs: FAZ-7.3 · §9.3`
 
 ## 7.4 — Token-bucket rate limiter ve yinelenme defteri    [ ]
 

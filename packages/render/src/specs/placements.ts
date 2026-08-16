@@ -68,6 +68,26 @@ export const PLACEMENTS: readonly Placement[] = [
     safeArea: null,
   },
   {
+    // **Döküman postu (PDF carousel).** Platform sınırları DOĞRULANDI (V-23 kapandı):
+    // 300 sayfa · 100 MB. Bizim editoryal tavanımız 10 sayfa ve o AYRI bir sayı —
+    // `LINKEDIN_DOC_MAX_SAYFA`da ve orada "platform sınırı DEĞİL" diye yazıyor.
+    //
+    // ⚠ Bu satır yazılana kadar döküman için **görsel** sınırı (5 MB) kullanılıyordu:
+    // iki farklı limiti karıştırmıştım ve 40 MB'lık meşru bir döküman reddedilirdi.
+    // Farklı medya tipinin farklı limiti olduğunu spec tablosu söylemeli, kod tahmin
+    // etmemeli.
+    id: 'linkedin-document',
+    platform: 'linkedin',
+    // Deck ölçüsü; döküman postu sayfa en-boyunu korur.
+    width: 1200,
+    height: 1500,
+    aspectTolerancePercent: 5,
+    maxBytes: 100 * MB,
+    sourceUrl: 'https://www.linkedin.com/help/linkedin/answer/a523054',
+    verifiedAt: '2026-08-16',
+    safeArea: null,
+  },
+  {
     id: 'linkedin-feed-1x1',
     platform: 'linkedin',
     width: 1200,
