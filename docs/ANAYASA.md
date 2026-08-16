@@ -487,6 +487,31 @@ bağlamına çeviren katman, token mimarimize doğrudan oturuyor · `/media-use`
 Build adımı yok — `index.html` olduğu gibi oynar. Agent'a devir düz HTML dosyasıdır,
 JSX projesi değil.
 ### §7.5 Ses, altyazı, müzik {#section-7-5}
+
+**Dört seslendirme şeridi, dördü de UI'dan seçilebilir** (D-18). Şerit bir kalite
+tercihi değil, bir LİSANS ve MAHREMİYET tercihidir — bu yüzden seçim çalıştırma anında
+insanın, varsayılan bir modelin değil.
+
+| Şerit | Ne | Sınır |
+|---|---|---|
+| kendi kaydın | dosya girdisi — **fiil değil** | en iyi sonuç, en çok emek |
+| Chatterbox Multilingual V3 | yerel klon, MIT, 500M | 6 GB VRAM'de koşar; kalite bulut kadar değil |
+| Gemini TTS | bedava şerit | kota sağlayıcıdan; ölçülmüyorsa `null` (D-175) |
+| ElevenLabs | premium şerit | **bedava katmanının TİCARİ lisansı YOK** (§17) |
+
+Kendi kaydın bir FİİL DEĞİLDİR: dosya girdisi olarak gelir. Fiil saymak, "ses üret"
+adımının bazen ağ çağırıp bazen çağırmaması demekti ve maliyet tahmini yalan olurdu
+(§3.10).
+
+**Altyazıda insan transkript kapısı ATLANAMAZ.** Türkçe WER %10–25: on kelimede bir
+hata, bir markanın kendi videosunda kabul edilemez. Zincir: Groq whisper-large-v3 ya da
+yerel whisper.cpp → kelime bazlı zamanlama → `.ass` karaoke altyazı. Otomatik kabul
+YOKTUR; operatör transkripti diff olarak görür ve onaylar (FAZ-5.5).
+
+**Reddedilenler ve sebepleri** (§17): XTTS-v2 (CPML, şirket dağıldı) · F5-TTS
+ağırlıkları (CC BY-NC) · ElevenLabs bedava katmanı ticari kullanımda. Lisans bir
+dipnot değil: ticari lisansı olmayan bir sesle üretilmiş bir prospect videosu,
+geri alınamaz bir yayındır.
 ### §7.6 Deck ve döküman {#section-7-6}
 ### §7.7 Demo yakalama {#section-7-7}
 

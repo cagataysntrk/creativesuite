@@ -1,0 +1,162 @@
+/* Marka hareket kütüphanesi (§7.4, §12.7 · FAZ-5.3).
+ *
+ * **Bu dosya MARKA-BAĞIMSIZDIR.** Tek bir renk değeri, tek bir süre sayısı içermez;
+ * yalnız `var(--role-*)` ve `var(--dur-*)` kullanır. Marka, kompozisyona `tokens.css`
+ * olarak GELİR (§4.1) — bu yüzden aynı kütüphane `brd_upcytech` ve `brd_dima` için
+ * değişmeden çalışır. İkinci bir palet tanımlamak iki marka gerçeği demektir.
+ *
+ * **Beyaz liste, kara liste değil** (§12.7). Yalnız altı şey animasyonlanır ve hiçbiri
+ * 320 ms'yi geçmez. Yedincisi eklenecekse önce ANAYASA §12.7 değişir, sonra burası.
+ *
+ * Yasaklar burada da geçerli ve sebepleri hareket katmanında daha da sert:
+ *   sayı animasyonu   — ölçüm okunurken oynayan rakam yanlış okunur
+ *   hover ölçekleme   — videoda hover yoktur; ekran kaydında imleç sahtedir
+ *   grafik çizilme    — veriyi zamana yayan bir animasyon, veriyi anlatmaz süsler
+ */
+
+/* ── intro / outro ─────────────────────────────────────────────────────────
+ * Yüzey geçişi (beyaz liste #1). Marka açılışı bir logo dansı DEĞİL: yüzey gelir,
+ * metin durur. Hareketin işi dikkati yönlendirmek, kendini göstermek değil. */
+.hf-intro,
+.hf-outro {
+  background: var(--role-bg);
+  color: var(--role-text);
+  animation: hf-yuzey var(--dur-surface) var(--ease) both;
+}
+
+.hf-outro {
+  animation-direction: reverse;
+}
+
+@keyframes hf-yuzey {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── lower-third ───────────────────────────────────────────────────────────
+ * Alt bant: konuşmacı/bölüm etiketi. Kayarak değil, yüzey geçişiyle gelir —
+ * kayan bir bant göz takibi ister ve okuma o sırada durur.
+ *
+ * Genişlik SABİT DEĞİL (R-23): Türkçe etiket İngilizcesinden ~%30 uzun. */
+.hf-lower-third {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-inline-size: 96px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--role-surface);
+  color: var(--role-text);
+  /* Yükseklik gölgeyle DEĞİL, kenarlık ve tonla (§12.1). */
+  border: 1px solid var(--role-line-hair);
+  border-inline-start: 2px solid var(--role-state-ok);
+  animation: hf-yuzey var(--dur-quick) var(--ease) both;
+}
+
+.hf-lower-third .hf-etiket {
+  font-size: var(--size-2);
+  color: var(--role-text-muted);
+}
+
+.hf-lower-third .hf-baslik {
+  font-size: var(--size-6);
+}
+
+/* ── ZoomToTarget ──────────────────────────────────────────────────────────
+ * Bir hedefe yaklaşma. `transform` ile — `width/height` animasyonu her karede
+ * yeniden düzen (layout) hesaplattırır ve 60 fps yakalamada kare düşürür.
+ *
+ * Ölçek DEĞİŞKENDEN gelir: kompozisyon `--hf-zoom` ve `--hf-odak` ayarlar, bu dosya
+ * bir sayı GÖMMEZ — gömseydi her hedef için ikinci bir sınıf gerekirdi. */
+.hf-zoom {
+  transform-origin: var(--hf-odak, 50% 50%);
+  transform: scale(var(--hf-zoom, 1));
+  transition: transform var(--dur-surface) var(--ease);
+  will-change: transform;
+}
+
+/* ── SyntheticCursor ───────────────────────────────────────────────────────
+ * Sahte imleç: demo yakalamada gerçek imleç kaydedilmez
+ * (`ffmpeg -draw_mouse 0`, §7.7) çünkü gerçek imleç titrer ve hedefi ıskalar.
+ * Buradaki imleç `timeline.json`daki tıklama hedefine DETERMİNİSTİK gider. */
+.hf-cursor {
+  position: absolute;
+  inline-size: var(--space-4);
+  block-size: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--role-text);
+  /* Koyu yüzeyde de açık yüzeyde de görünür kalsın diye ters kenarlık. */
+  border: 2px solid var(--role-bg);
+  transition: transform var(--dur-surface) var(--ease);
+  pointer-events: none;
+}
+
+/* ── ClickRipple ───────────────────────────────────────────────────────────
+ * Tıklama geri bildirimi. Durum noktası geçişi (beyaz liste #4) sınıfında:
+ * bir şey OLDUĞUNU söyler, süslemez. Tek atım, tekrar yok. */
+.hf-ripple {
+  position: absolute;
+  inline-size: var(--space-8);
+  block-size: var(--space-8);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--role-state-ok);
+  animation: hf-ripple var(--dur-quick) var(--ease) both;
+  pointer-events: none;
+}
+
+@keyframes hf-ripple {
+  from {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* ── BrowserChrome ─────────────────────────────────────────────────────────
+ * Ürün ekran görüntüsünü çerçeveleyen tarayıcı kabuğu. Süslü bir cihaz maketi
+ * DEĞİL: amacı "bu bir ekran" demek ve içeriğe yer açmak. Ekran görüntüsünün
+ * KENDİSİ gerçek Playwright çekimidir, asla üretilmiş (§10 · FAZ-6.8). */
+.hf-chrome {
+  background: var(--role-surface);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.hf-chrome-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-block-end: 1px solid var(--role-line-hair);
+  background: var(--role-bg);
+}
+
+.hf-chrome-adres {
+  font-size: var(--size-2);
+  color: var(--role-text-muted);
+}
+
+/* ── azaltılmış hareket ────────────────────────────────────────────────────
+ * Süre 0'a çekilir, geçiş KALDIRILMAZ: kaybolan bir geçiş, olmayan bir geri
+ * bildirimdir (§12.7). Videoda bu ayar tarayıcıdan gelmez ama kütüphane aynı
+ * dosyada iki davranış tanımlamaz — kabuk ile hareket aynı sözleşmeyi taşır. */
+@media (prefers-reduced-motion: reduce) {
+  .hf-intro,
+  .hf-outro,
+  .hf-lower-third,
+  .hf-ripple {
+    animation-duration: 0ms;
+  }
+
+  .hf-zoom,
+  .hf-cursor {
+    transition-duration: 0ms;
+  }
+}

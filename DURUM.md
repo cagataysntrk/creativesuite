@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.3
+siradaki_adim: 5.4
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.2 BITTI (D-196). frame.md markaya ait (brand/<id>/derived-tokens/), motion/e degil — iki marka var ve motion/ altinda tek dosya global aktif-marka durumuna baglanirdi (D-39). Dosya IKI kaynagi yan yana getiriyor: renk rolleri markadan, tip olcegi/bosluk/hareket sureleri theme.css ten (kabuk marka-notr). Uretecte iki hata bulundu: (1) sureler IKI KEZ cikiyordu — prefers-reduced-motion blogu 0ms yapiyor, ayni degisken hem 320ms hem 0ms gorunuyordu; ilk tanim kazaniyor ve ezme GIZLENMIYOR, ayri cumle olarak yaziliyor (2) regex bayatlarsa bos tablo uretilirdi; artik uretec DUSUYOR — --size-* yeniden adlandirilarak dogrulandi. 34 kapi, 926 test yesil."
+son_kanit: "5.3 BITTI (D-197). motion/components/marka.css alti bileseni tasiyor ve TEK BIR renk degeri ya da sure sayisi icermiyor — yalniz var(--role-*) ve var(--dur-*); marka kompozisyona tokens.css olarak GELIR, ayni kutuphane iki marka icin degismeden calisir. ui-tema artik motion/u de tariyor (yoksa 320ms tavani kabukta zorlanir VIDEODA zorlanmazdi) ve YENI KURAL: duz renk degeri yasak, tek istisna box-shadow. Uc ihlal de kirmizi. Iskeletin CDN GSAP i ve gomulu #000/Inter i atildi (12. yasa). Kanit: h264 yuv420p 1920x1080 30fps 6sn, golden metrikler DEGISMEDI. V-20: GSAP siz render 45sn bosuna bekliyor (6sn video 1dk34sn) — sozlesme paketten okundu, karsilandi, bekleme suruyor; FAZ-5.7 de cozulur. 34 kapi, 926 test."
 ```
 
 ## Neredeyiz
@@ -69,13 +69,14 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **4.17** · Doctor; rapor eder, `doctor-salt-okur` kapısı zorluyor | 2026-08-16 |
 | **5.1** · HyperFrames; iki Chromium aynı tipografiyi veriyor (ölçüldü) | 2026-08-16 |
 | **5.2** · `frame.md` token köprüsü; marka + sistem yan yana | 2026-08-16 |
+| **5.3** · Hareket kütüphanesi; marka-bağımsız, düz renk yasak | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.3` — Marka hareket kütüphanesi** (§7.4, §12.7). intro/outro · lower-third ·
-`ZoomToTarget` · `SyntheticCursor` · `ClickRipple` · `BrowserChrome`. **Hareket beyaz
-listesi:** süre 320 ms'yi geçmez; sayı animasyonu, liste yeniden sıralama, skeleton
-parıltısı ve grafik çizilme YASAK. `frame.md` bu tanımları zaten taşıyor (D-196).
+**`5.4` — `GENERATE` yeteneği `"audio.tts"`, dört şerit** (§7.5 · D-18). Kendi kaydın
+(dosya girdisi, fiil değil) · Chatterbox klonu (yerel, MIT) · Gemini TTS (bedava şerit) ·
+ElevenLabs (premium şerit). **Dördü de UI'da seçilebilir.** ⚠ ElevenLabs bedava
+katmanının TİCARİ lisansı YOK (§17) — şerit seçimi bunu bilmeli.
 
 ## Kapanış turu — kalan bulgular
 

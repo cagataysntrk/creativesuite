@@ -67,6 +67,15 @@ tasarımı yok. Ama "gerçek render'da hiçbir yerde kırpma yok" ölçümü YAP
 harness'ı ister (jsdom + testing-library, iki bağımlılık, R-75). Ölçüm gelene kadar
 FAZ 4'ün bu çıkış kriteri **karşılanmadı** sayılır. → FAZ-9.2
 
+## V-20 — HyperFrames render'ı 45 sn boşuna bekliyor
+`sub_timeline_readiness_timeout`: 6 saniyelik video **1 dk 34 sn**de render oluyor,
+oysa iskelet kompozisyonu (GSAP'li) 10,7 sn'de bitiyordu. Koşucunun sözleşmesi
+paketten OKUNDU (`hyperframe.runtime.iife.js`): `Object.keys(__timelines).length > 0`
+ve `typeof timeline.duration === 'function'`. İkisi de karşılandı — bekleme sürüyor,
+yani tetikleyen başka bir koşul var (mesaj "**sub**-composition" diyor ve bizim
+alt-kompozisyonumuz yok). Çıktı DOĞRU (h264/yuv420p/1920×1080/30fps); bedel yalnız
+süre. Hareket hattı gerçekten kullanılmaya başlayınca (FAZ-5.7) ölçülüp çözülür. → FAZ-5.7
+
 ## V-18 — Tailscale kurulu değil, Telegram token'ı yer tutucu
 `tailscale` binary yok (sudo kurulum + hesap girişi) ve `TELEGRAM_BOT_TOKEN`
 `doldurulacak`. Bot mantığı ve yüzey sınırı yazılmış, test edilmiş; kalan iş yalnız
@@ -366,3 +375,25 @@ D-39'un tam olarak kapattığı delik.
 2. Bir regex `theme.css` yeniden biçimlendiğinde sessizce hiçbir şey bulur ve `frame.md`
    boş tabloyla üretilirdi. Artık boş çıkarım üreteci **düşürüyor** — ihlal testiyle
    doğrulandı (`--size-*` → `--typescale-*` yeniden adlandırıldı, üreteç düştü).
+
+## D-197 — Hareket kütüphanesi marka-BAĞIMSIZ; ve iskeletin getirdiği iki şey atıldı
+2026-08-16 · `motion/components/marka.css` altı bileşeni taşıyor (intro/outro,
+lower-third, `ZoomToTarget`, `SyntheticCursor`, `ClickRipple`, `BrowserChrome`) ve
+**tek bir renk değeri, tek bir süre sayısı içermiyor** — yalnız `var(--role-*)` ve
+`var(--dur-*)`. Marka kompozisyona `tokens.css` olarak GELİR (§4.1); bu yüzden aynı
+kütüphane `brd_upcytech` ve `brd_dima` için değişmeden çalışır.
+**`ui-tema` kapısı `motion/`ü de tarıyor artık.** Taramasaydı 320 ms tavanı kabukta
+zorlanır, VİDEODA zorlanmazdı — ve videoyu prospect izliyor. 400 ms'lik bir geçişle
+kırmızıya döndürüldü.
+**Yeni kural: düz renk değeri yasak.** Kütüphanenin tüm iddiası marka-bağımsız olmak
+ve bunu hiçbir kapı denetlemiyordu (ihlal testi hex'i geçirdi). Artık elle yazılan
+hiçbir CSS `#hex`/`rgb()`/`oklch()` içeremez; TEK istisna `box-shadow` — §12.1 gölgeyi
+yalnız `[data-elevation="overlay"]`de meşru sayıyor ve o bir yükseklik aracı, marka
+rengi değil. İki yönde de kırmızıya döndürüldü.
+**İskeletin getirdiği iki şey atıldı:** `hyperframes init` kompozisyonu CDN'den GSAP
+çekiyordu — render anında ağ çağrısı, ve bir CDN kesintisi hareket katmanını tamamen
+durdurur (12. yasa). Gömülü `#000` ve `Inter` de kaldırıldı; artık `ui-tema` onları
+zaten reddederdi.
+Kanıt: kompozisyon gerçek Chromium'da render edildi — **h264 · yuv420p · 1920×1080 ·
+30 fps · 6 sn** — ve golden metrikler DEĞİŞMEDİ (3/3 boyut + iki ikili karşılaştırması
+yeşil). GSAP'siz render'ın bedeli ölçüldü ve V-20 olarak açık duruyor.

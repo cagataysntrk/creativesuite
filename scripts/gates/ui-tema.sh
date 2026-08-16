@@ -25,7 +25,10 @@ cd "$ROOT"
 # Tema kaynakları: elle yazılan CSS. Üretilmiş `derived-tokens/` HARİÇ — orayı
 # `tokens` kapısı denetler ve iki kapının aynı dosyaya iki farklı kural uygulaması,
 # birinin diğerini görmeden gevşetilmesi demektir.
-DOSYALAR=$(find packages apps -name '*.css' \
+# `motion/` de taranır (FAZ-5.3): hareket kütüphanesi aynı 320ms tavanına ve aynı
+# token disiplinine tabi. Taramasaydık kural kabukta zorlanır, VİDEODA zorlanmazdı —
+# ve videoyu prospect izliyor.
+DOSYALAR=$(find packages apps motion -name '*.css' \
   -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path '*/dist-web/*' 2>/dev/null || true)
 if [ -z "$DOSYALAR" ]; then
   echo "✗ hiç tema CSS'i bulunamadı — kapı boş geçiyor"
@@ -39,6 +42,28 @@ bildir() {
 }
 
 for f in $DOSYALAR; do
+  # ── 0. DÜZ RENK DEĞERİ YASAĞI (§4.1 · FAZ-5.3) ────────────────────────────
+  #
+  # Elle yazılan CSS bir renk DEĞERİ içeremez — yalnız `var(--role-*)`. Sebep tek
+  # cümle: gömülü bir renk, marka değiştiğinde değişmeyen bir pikseldir. Hareket
+  # kütüphanesinin tüm iddiası "marka-bağımsız" olmak ve bu iddia yorumla değil
+  # kapıyla korunur (2026-08-16: kütüphane yazıldı, hiçbir kapı hex'i görmüyordu).
+  #
+  # TEK istisna `[data-elevation="overlay"]` gölgesi: §12.1 gölgeyi yalnız orada
+  # meşru sayıyor ve o gölge bir marka rengi değil, bir yükseklik aracıdır.
+  renk=$(grep -nE '#[0-9a-fA-F]{3,8}\b|\brgba?\(|\boklch\(|\bhsl\(' "$f" 2>/dev/null || true)
+  if [ -n "$renk" ]; then
+    while IFS= read -r satir; do
+      [ -z "$satir" ] && continue
+      no=${satir%%:*}
+      icerik=${satir#*:}
+      case "$icerik" in
+        *box-shadow*) continue ;;
+      esac
+      bildir "$f:$no  düz renk değeri — yalnız var(--role-*) kullanılır (§4.1)."
+    done <<< "$renk"
+  fi
+
   # ── 1. gölge yasağı ────────────────────────────────────────────────────────
   # İstisna KURAL BLOĞUNA bağlı, dosyaya değil: `[data-elevation='overlay']`
   # seçicisinden sonraki ilk `}`e kadar. "Bu dosyada gölge serbest" demek,
@@ -161,4 +186,4 @@ fi
 
 n=$(printf '%s\n' "$DOSYALAR" | grep -c . || true)
 t=$(printf '%s\n' "$TSX" | grep -c . || true)
-echo "  $n tema + $t bileşen · gölge · 700 ağırlık · 4px ölçek · tema anahtarı · 320ms · rozet yasağı"
+echo "  $n tema + $t bileşen · gölge · 700 ağırlık · 4px ölçek · tema anahtarı · 320ms · düz renk · rozet yasağı"

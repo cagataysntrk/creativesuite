@@ -1,30 +1,51 @@
 <!doctype html>
-<html lang="en">
+<!--
+  Marka hareket kütüphanesi KANIT kompozisyonu (§7.4, §12.7 · FAZ-5.3).
+
+  Bu dosya bir örnek değil, bir KANITTIR: altı bileşenin de gerçek Chromium'da
+  render edildiğini ve marka token'larını tükettiğini gösterir.
+
+  İskeletin getirdiği iki şey KALDIRILDI:
+    1. CDN'den GSAP — render anında ağ çağrısı. "Bir ay ihmal edilse de çalışır"
+       (12. yasa) bir CDN'in ayakta olmasına bağlanamaz; hareket CSS'te, süreler
+       token'da ve ikisi de repoda.
+    2. Gömülü `#000` ve `Inter` — marka token'ları varken gömülü renk, marka
+       değiştiğinde değişmeyen bir pikseldir (§4.1). `ui-tema` kapısı artık yakalar.
+
+  Diller: `lang="tr"` — içerik Türkçe (D-37) ve `text-transform` yok (R-22).
+-->
+<html lang="tr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <!-- Marka: rolleri getirir. Kütüphane markadan habersizdir, roller markadan gelir. -->
+    <link rel="stylesheet" href="../../brand/brd_upcytech/derived-tokens/tokens.css" />
+    <!-- Sistem: tip ölçeği, boşluk, hareket süreleri (§4.1 · frame.md). -->
+    <link rel="stylesheet" href="../../packages/ui/src/theme.css" />
+    <!-- Hareket kütüphanesi: marka-bağımsız, yalnız var(--role-*) ve var(--dur-*). -->
+    <link rel="stylesheet" href="../components/marka.css" />
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
       html,
       body {
         margin: 0;
-        width: 1920px;
-        height: 1080px;
+        inline-size: 1920px;
+        block-size: 1080px;
         overflow: hidden;
-        background: #000;
+        background: var(--role-bg);
+        color: var(--role-text);
       }
-      body {
-        font-family: 'Inter', sans-serif;
+
+      .sahne {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        block-size: 100%;
+        padding: var(--space-8);
       }
-      code,
-      pre,
-      .monospace {
-        font-family: 'JetBrains Mono', monospace;
+
+      .kanit-metin {
+        font-size: var(--size-9);
       }
     </style>
   </head>
@@ -33,24 +54,71 @@
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="10"
+      data-duration="6"
       data-width="1920"
       data-height="1080"
     >
-      <!--
-        Add your clips here. Example:
-        <div id="title" class="clip" data-start="0" data-duration="5" data-track-index="1"
-             style="font-size: 64px; color: #fff; padding: 40px">
-          Hello World
+      <div class="sahne hf-intro">
+        <!-- Kanıt dizesi: diacritics kapısının tamamı bu satırda (R-31). -->
+        <p class="kanit-metin">ĞÜŞİÖÇ ğüşıöç Ağrı İğne</p>
+
+        <div class="hf-chrome hf-zoom" style="--hf-zoom: 1.04; --hf-odak: 30% 40%">
+          <div class="hf-chrome-bar">
+            <span class="hf-chrome-adres">upcytech.com/olcum</span>
+          </div>
+          <div style="padding: var(--space-8)">
+            <p>Ölçüm odaklı imalat yazılımı</p>
+          </div>
+          <span class="hf-cursor" style="transform: translate(420px, 120px)"></span>
+          <span
+            class="hf-ripple"
+            style="inset-inline-start: 410px; inset-block-start: 110px"
+          ></span>
         </div>
-      -->
+
+        <div class="hf-lower-third">
+          <span class="hf-etiket">bölüm</span>
+          <span class="hf-baslik">Fire ölçümü</span>
+        </div>
+      </div>
     </div>
 
     <script>
-      window.__timelines = window.__timelines || {}
-      const tl = gsap.timeline({ paused: true })
-      // Example: tl.from("#title", { opacity: 0, y: -50, duration: 1 }, 0);
-      window.__timelines['main'] = tl
+      /*
+       * **Zaman çizgisi sözleşmesi — TAHMİN EDİLMEDİ, PAKETTEN OKUNDU** (D-174).
+       *
+       * `hyperframe.runtime.iife.js` şunu yapıyor:
+       *   hazır mı  = Object.keys(window.__timelines).length > 0
+       *   geçerli mi= typeof timeline.duration === 'function' && Number.isFinite(duration())
+       * ve kare kare yürürken `pause() · seek() · totalTime() · play() · progress()`
+       * çağırıyor.
+       *
+       * Anahtar YOKSA 45 saniye bekleyip `sub_timeline_readiness_timeout` uyarısıyla
+       * devam ediyor: 6 saniyelik video 1 dk 34 sn'de render oldu (ÖLÇÜLDÜ). Boş bir
+       * `{}` da yetmedi — anahtar sayısı sıfır.
+       *
+       * **GSAP CDN'den ÇEKİLMEZ** (12. yasa): render anında bir ağ çağrısı, bir CDN
+       * kesintisinde hareket katmanının tamamen durması demektir. Hareketimiz zaten
+       * CSS'te ve süreler token'da (§12.7); bize gereken tek şey koşucunun beklediği
+       * sözleşme. Bu nesne onu KARŞILIYOR, taklit etmiyor: sabit süreli, durağan bir
+       * zaman çizgisi gerçekten de bizim durumumuz.
+       */
+      const SURE = 6
+      const durgunCizgi = {
+        duration: () => SURE,
+        totalTime: () => 0,
+        progress: () => 0,
+        seek() {
+          return this
+        },
+        pause() {
+          return this
+        },
+        play() {
+          return this
+        },
+      }
+      window.__timelines = { main: durgunCizgi }
     </script>
   </body>
 </html>

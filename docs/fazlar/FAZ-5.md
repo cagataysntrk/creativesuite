@@ -27,17 +27,14 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
 🧪 Elle düzenle, üreteci çalıştır → değişiklik kayboluyor (R-65) · `theme.css` deseni
    bayatlarsa üreteç SESSİZ geçmiyor, düşüyor
 
-## 5.3 — Marka hareket kütüphanesi    [ ]
+## 5.3 — Marka hareket kütüphanesi    [x] 2026-08-16
 
-📖 §7.4, §12.7
+📖 §7.4, §12.7 · D-197
 🔗 5.2
-🛠 intro/outro · lower-third · `ZoomToTarget` · `SyntheticCursor` · `ClickRipple` ·
-   `BrowserChrome`. **Hareket beyaz listesi** (§12.7): süre 320 ms'yi geçmez; sayı
-   animasyonu, liste yeniden sıralama, skeleton parıltısı, grafik çizilme YASAK.
-📁 `motion/components/`
-✅ Her bileşen 320 ms altında · golden metrik sabit
-🧪 400 ms'lik bir geçiş ekle → `ui-lint` kırmızı
-💾 `feat(motion): marka hareket kütüphanesi` · `Refs: FAZ-5.3 · §7.4`
+📁 `motion/components/marka.css` · `motion/kanit/index.html`
+✅ Altı bileşen de 320 ms altında ve **düz renk değeri içermiyor** (marka-bağımsız) ·
+   golden metrik sabit: 3/3 boyut + iki Chromium karşılaştırması yeşil
+🧪 400 ms'lik geçiş ekle → `ui-tema` kırmızı · marka rengi göm → `ui-tema` kırmızı
 
 ## 5.4 — `GENERATE` yeteneği `"audio.tts"` — dört şerit    [ ]
 
