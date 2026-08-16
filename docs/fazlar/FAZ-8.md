@@ -194,7 +194,7 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
 🧪 Eski anahtarla çağrı dene → sağlayıcı reddediyor (iptal gerçekten işlemiş)
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
-## 8.9 — Yerel MCP yüzeyi (aday)    [ ]
+## 8.9 — Yerel MCP yüzeyi    [x] 2026-08-16
 
 📖 §3.8, §14 · D-33
 🔗 FAZ-4.2
@@ -202,7 +202,20 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    Claude Code, UI'ın gördüğü **aynı** projeyi görür. **Aday karar (D-33)**: burada
    karara bağlanır. Yazma yolu MCP'de de `propose`dur — ikinci bir yazma kapısı,
    R-14'ün tek güvenlik hikâyesini bozar.
-📁 `apps/server/src/mcp/`
-✅ Claude Code MCP üzerinden corpus arıyor ve öneri açabiliyor · karar `KARARLAR.md`'de
-🧪 MCP'den doğrudan `status: active` kayıt yazmayı dene → reddediliyor
+📁 `apps/server/src/mcp/araclar.ts`
+✅ **D-33 karara bağlandı → D-226: KABUL, ama dar.** Üç araç: `corpus_search` ·
+   `corpus_get` · `corpus_propose`. MCP'nin eklediği şey dosya okumak DEĞİL —
+   retrieval yüklemi (emekli kayıt görünmez), Türkçe FTS5 araması, ve imzalı
+   `draft` yazma yolu. Üçü de `grep` ile elde edilemez.
+🧪 MCP'den `status: active` yaz → **reddediliyor** (`zone` ve `x_signature` de).
+   ⚠ **Sessizce silinmiyor, REDDEDİLİYOR:** silmek çağıranın "active yazdım"
+   sanmasına yol açardı. Sessiz düzeltme, öğrenilmeyen bir kuraldır.
+   ⚠ `derived/ingest/` **ASLA açılmıyor** (R-50): karantina metni talimat olarak
+   sunulamaz; bir araç onu döndürseydi prospect'in sitesindeki bir cümle modele
+   komut olarak ulaşırdı.
+   ⚠ İndeks yoksa **503 + "arama KOŞMADI"** — boş liste dönmek corpus'un boş
+   olduğunu söylerdi (D-175). Yüklemden geçmeyen kayıt "bulunamadı" sayılıyor,
+   "var ama göremezsin" değil.
+   ⚠ **Kapsam dürüstlüğü:** taşıma katmanı minimal (HTTP+JSON); tam MCP el sıkışması
+   ve SSE taşıması YAZILMADI ve bu D-226'da açıkça yazılı.
 💾 `feat(server): yerel MCP yüzeyi` · `Refs: FAZ-8.9 · §3.8`

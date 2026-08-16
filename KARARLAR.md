@@ -402,3 +402,42 @@ ve bu proje varyant başına gerçek para ödüyor.
 
 **Geri alma maliyeti:** yok — iki mod da destekleniyor, karar hangi modun varsayılan
 olduğu.
+
+## D-226 — Yerel MCP yüzeyi KABUL — ama dar: üç araç, tek yazma yolu
+
+**2026-08-16 · FAZ-8.9** (D-33 aday kararı kapanıyor)
+
+**Soru:** Claude Code zaten `corpus/*.md` okuyabiliyorken MCP ne ekler?
+
+**Cevap — üçü de ham dosya okumakla elde EDİLEMEZ:**
+1. **Retrieval yüklemi** (R-13). Ham dosyayı okuyan bir agent **emekliye ayrılmış** bir
+   kaydı güncel sanır; §4.5'in "asla sızmaz" vaadi yalnız yüklemden geçerken geçerli.
+   `grep` marka, dönem, `status` ve geçerlilik tarihlerini bilmez — **ve bilmediğini de
+   söylemez.**
+2. **Türkçe arama** (§5.6). FTS5 + trigram + RRF: "ölçüm" → "ölçümlerinizi" bulur.
+   `grep` bulmaz ve bulamadığını sessizce geçer.
+3. **`propose` yolu** (R-14). Dosyayı elle yazan bir agent `x_signature`sız, `status`ü
+   keyfi bir kayıt üretir; kapı bunu ancak commit anında yakalar — saatler sonra.
+
+**Kabul, ama DAR:**
+- **Üç araç, hepsi bu kadar.** Her yeni araç yeni bir yüzey ve yeni bir bakım borcu;
+  MCP sözleşmesi değişince güncellenecek yer sayısı bu listeye eşit.
+- **`derived/ingest/` ASLA açılmıyor** (R-50). Karantina metni dış kaynaktan gelir ve
+  talimat olarak sunulamaz; bir araç onu döndürseydi prospect'in sitesindeki bir cümle
+  modele **komut** olarak ulaşırdı. Enjeksiyon sınırının koruduğu şey tam olarak bu.
+- **`status`/`zone`/`x_signature` REDDEDİLİYOR, yok sayılmıyor.** Sessizce silmek,
+  çağıranın "active yazdım" sanmasına yol açardı; reddetmek kuralı öğretiyor.
+  **Sessiz düzeltme, öğrenilmeyen bir kuraldır.**
+- **Yüklemden geçmeyen kayıt "bulunamadı" sayılıyor**, "var ama göremezsin" değil —
+  ikincisi emekli bir kaydın varlığını sızdırırdı.
+
+**Reddedilmedi çünkü:** maliyeti düşük (mevcut fonksiyonların üstünde ince bir
+adaptör), yerel bağlanıyor ve öldüğünde geriye düşüş dosya okumak — bozulma değil,
+körelme (12. yasa korunuyor).
+
+**Kapsam dürüstlüğü:** taşıma katmanı **minimal** (HTTP + JSON), tam MCP el sıkışması
+ve SSE taşıması yazılmadı. Bugün açılan şey araç sözleşmesi ve sınırlar; protokolün
+tamamı gerektiğinde eklenir ve o iş bu kararın kapsamında değil.
+
+**Geri alma maliyeti:** düşük — iki uç kaldırılır, altındaki fonksiyonlar UI'ın zaten
+kullandığı fonksiyonlar.

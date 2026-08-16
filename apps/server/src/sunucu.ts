@@ -20,7 +20,10 @@ import {
   browseRecords,
   lifecycleMessage,
   pinRecord,
+  propose,
   retireRecord,
+  selectRecords,
+  selectSearch,
   type SelectQuery,
 } from '@suite/corpus'
 import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
@@ -42,6 +45,7 @@ import { baglamOnizle } from './baglam.js'
 import { dunyaDurumu, launcherPlani } from './launcher.js'
 import { kanalPanosu } from './kanal-uc.js'
 import { uyumPanosu } from './uyum-uc.js'
+import { ARACLAR, mcpHataMesaji, oneriDogrula, type McpRet } from './mcp/araclar.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
@@ -444,6 +448,63 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // GET ve yazmıyor: uyum kaydı ÜRETİM anında basılır, panodan düzeltilmez. Bir
   // "uyumlu işaretle" düğmesi, dayanaksız iddiayı bir tıklamaya indirirdi (D-23).
   app.get('/api/uyum', (c) => c.json(uyumPanosu(o.repoRoot)))
+
+  // ── yerel MCP yüzeyi (§3.8 · D-33 · D-226 · FAZ-8.9) ─────────────────────
+  //
+  // **Claude Code, UI'ın gördüğü AYNI projeyi görür.** Ham dosya okumaktan farkı:
+  // sonuçlar retrieval yükleminden geçiyor (emekli kayıt görünmez), arama Türkçe
+  // (FTS5 + trigram), ve yazma yolu `propose` — yani `draft` ve imzalı.
+  //
+  // ⚠ `derived/ingest/` ASLA açılmıyor (R-50): karantina metni talimat olarak
+  // sunulamaz. Bir MCP aracı onu döndürseydi, prospect'in sitesindeki bir cümle
+  // modele komut olarak ulaşırdı.
+  app.get('/mcp/araclar', (c) => c.json({ araclar: ARACLAR }))
+
+  app.post('/mcp/cagir/:arac', async (c) => {
+    const arac = c.req.param('arac')
+    if (!ARACLAR.some((a) => a.ad === arac)) {
+      const r: McpRet = { kind: 'unknown_tool', ad: arac }
+      return c.json({ hata: mcpHataMesaji(r) }, 404)
+    }
+    if (db === null) {
+      // İndeks yoksa BOŞ SONUÇ dönmüyoruz: arama hiç koşmadı ve "sonuç yok" demek
+      // corpus'un boş olduğunu söylerdi (D-175).
+      return c.json({ hata: mcpHataMesaji({ kind: 'index_missing' }) }, 503)
+    }
+    const govde = (await c.req.json().catch(() => ({}))) as Record<string, unknown>
+
+    if (arac === 'corpus_search') {
+      // `selectSearch` aramayı ve yüklemi BİRLİKTE uyguluyor — ikisini ayrı
+      // çağırmak yüklemin ikinci bir kopyası olurdu (R-13: tek yer).
+      const q = typeof govde['query'] === 'string' ? govde['query'] : ''
+      const limit = typeof govde['limit'] === 'number' ? govde['limit'] : 20
+      return c.json({ sonuclar: selectSearch(db, o.query, q, limit) })
+    }
+
+    if (arac === 'corpus_get') {
+      const id = typeof govde['id'] === 'string' ? govde['id'] : ''
+      const gorunur = new Set(selectRecords(db, o.query).map((r) => r.id))
+      // Yüklemden geçmeyen kayıt BULUNAMADI sayılır: "var ama göremezsin" demek,
+      // emekli bir kaydın varlığını sızdırmak olurdu.
+      if (!gorunur.has(id)) return c.json({ kayit: null }, 404)
+      return c.json({ kayit: selectRecords(db, o.query).find((r) => r.id === id) ?? null })
+    }
+
+    // corpus_propose — TEK yazma yolu (R-14)
+    const fm = (govde['frontmatter'] ?? {}) as Record<string, unknown>
+    const redd = oneriDogrula(fm)
+    if (redd !== null) return c.json({ hata: mcpHataMesaji(redd) }, 422)
+    const sonuc = propose({
+      root: join(o.repoRoot, 'corpus'),
+      entityType: String(govde['entityType'] ?? ''),
+      slug: String(govde['slug'] ?? ''),
+      frontmatter: fm,
+      body: String(govde['body'] ?? ''),
+    })
+    return sonuc.ok
+      ? c.json({ path: sonuc.path, status: 'draft' })
+      : c.json({ hata: mcpHataMesaji({ kind: 'write_refused', neden: sonuc.refusal.kind }) }, 422)
+  })
 
   app.get('/api/performans', (c) => {
     const yayinlar = readLedger(o.repoRoot)

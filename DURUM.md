@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.9
+siradaki_adim: FAZ-8-KAPANIS
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan"]
 deneme_sayaci: {}
@@ -19,7 +19,7 @@ son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **40 kapı · 15 ihlal kırmızı · 1284 test.**
+**D-79: üçüncü tur AÇILMAZ.** **40 kapı · 15 ihlal kırmızı · 1290 test.**
 **FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
 ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
@@ -67,15 +67,7 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
 | Adım | Tarih |
 |---|---|
-| **7.1** · spec drift denetçisi; güvenli alan ayrı (D-215) | 2026-08-16 |
-| **7.2** · yayın kapıları; sıra tipe gömülü, tek yayıncı mekanik | 2026-08-16 |
-| **7.3** · LinkedIn adaptörü; V-23 kapandı (300 sayfa · 100 MB) | 2026-08-16 |
-| **7.4** · ağırlıklı limiter + yayın defteri; "yok" ≠ "boş" | 2026-08-16 |
-| **7.5** · OAuth akışı, kapsam gerekçeleri, CSRF (D-218, D-219) | 2026-08-16 |
-| **7.6** · token ömrü; son kullanma SIR DEĞİL, doctor secret çözmüyor | 2026-08-16 |
-| **7.7** · kanal durumu ekranı; ölçülmeyen üç şey üç ayrı cümleyle | 2026-08-16 |
-| **7.8** · insight defteri; doğruluk NDJSON'da, kalıcı kayıp ayrı sayılıyor | 2026-08-16 |
-| **7.9** · performans panosu; sabit pencere, ölçülmeyen sıralanmıyor | 2026-08-16 |
+| **FAZ 7 (9/9)** · yayın hattı; iki denetim turu (D-222·223·224) | 2026-08-16 |
 | **8.1** · dik varyant matrisi; diklik OFAT'la ölçülüyor (D-225) | 2026-08-16 |
 | **8.2** · reklam linter'ı; ikinci şahıs × özellik kesişimi | 2026-08-16 |
 | **8.3** · uyum panosu; ifşa kapısı yayın hattına bağlandı | 2026-08-16 |
@@ -83,13 +75,14 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **8.5** · proaktif katman; gözlemsiz öneri kurulamıyor, tavan 3 | 2026-08-16 |
 | **8.7** · geri yükleme tatbikatı; ÜÇ gerçek kusur buldu | 2026-08-16 |
 | **8.8** · rotasyon tablosu kodla senkron; kapı 5 anahtar buldu | 2026-08-16 |
+| **8.9** · yerel MCP (D-226 kabul, dar); yükleme bağlı, tek yazma yolu | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`8.9` — Yerel MCP yüzeyi** (D-33 · §3.8, §14). **Aday karar**: Hono sunucusu
-`corpus.search/get/propose` ve aktif çalıştırmayı MCP olarak açsın mı? Claude Code,
-UI'ın gördüğü aynı projeyi görürdü. ⚠ Karara bağlanacak — **kabul ya da gerekçeli
-ret**, ikisi de bir `D-nn` ister. FAZ 8'in son adımı; sonrası kapanış protokolü.
+**FAZ 8 KAPANIŞI** (`LOOP§D`). Yedi adım kapandı, ikisi bilinçli olarak insana bloke
+(`8.6` KVKK · `8.8b` gerçek rotasyon). Sıradaki iş kapanış protokolü: her ✅ için somut
+kanıt, sonra **bağımsız doğrulama agent'ı** — **en fazla İKİ tur** (D-79). Üçüncü tur
+açılmaz; ikinci turda bulunmayan minor'dur ve FAZ 9 denetim turlarına düşer.
 
 ## Devreden borçlar
 
