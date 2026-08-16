@@ -23,7 +23,19 @@ export {
   type BrowserResult,
 } from './browser.js'
 export { renderWithinLimit, type LadderRender } from './static.js'
+// Karosel şablon grameri (D-254) — sabitler de dışa aktarılıyor: kapı ve ölçüm
+// betikleri bunları OKUMAK zorunda; ayrı kopya tutmak iki gerçek üretirdi.
+export { SINIR_MIN, SINIR_MAX, guvenliMetinYuzdesi } from './sablon.js'
 export { renderStatic, toHtml } from './static.js'
+// Tasarım metrikleri — saf katman (FAZ-10.3 · D-255)
+export {
+  tasarimOlc,
+  tipografiSay,
+  kontrastOrani,
+  KELIME_TAVANI,
+  KENAR_PAYI,
+  type TasarimGirdisi,
+} from './tasarim-olcum.js'
 
 // Kapalı düzen kümesi ve taşma bölme (§7.1 · R-23 · FAZ-3.3)
 export {

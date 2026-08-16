@@ -101,7 +101,7 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 ---
 
-## 10.3 — Tasarım metrikleri ve `tasarim` kapısı    [ ]
+## 10.3 — Tasarım metrikleri ve `tasarim` kapısı    [x] 2026-08-17
 
 📖 §11.1, §7.2 · R-30 · D-255
 🔗 10.2 (eşikler ve ölçüm tanımı oradan)
@@ -109,7 +109,14 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    `SlaytKimligi`den hesaplanır. **Piksel katmanı** (render sonrası): mevcut
    `qa/pixels.ts` üstüne. Kapı ikisini de okur; **bloklayıcı** olanlar aşağıda.
 📁 `packages/render/src/tasarim-olcum.ts` · `scripts/gates/tasarim.mjs`
-✅ Tablodaki her metrik hesaplanıyor ve kapı eşiği aşanı REDDEDİYOR:
+✅ **KOŞUYOR** — `✓ tasarim: 23 okuma tolerans içi`. Çıktı `QaReport`, yani komuta
+   merkezindeki tolerans okuması yüzeyiyle AYNI şekil; paralel bir rapor biçimi icat
+   etmek aynı bilgiyi iki yerde bayatlatırdı. Kapı bir ÇALIŞTIRMAYI değil GRAMERİ
+   denetliyor: üretim hiç yapılmasa bile gramerdeki gerilemeyi yakalıyor.
+   ⚠ **T11 ilk sürümde YANLIŞ ŞEYİ ölçtü** — HTML'deki her `font-size`ı sayıp 11
+   buluyordu: sayaç (26), kulp (24), nav (24), hayalet rakam (560) da sayıya giriyordu.
+   Onlar krom, tip ölçeği değil. Artık yalnız `h1/h2/p` sayılıyor → 3.
+   Tablodaki her metrik hesaplanıyor ve kapı eşiği aşanı REDDEDİYOR:
 
 | # | Metrik | Eşik | Katman | Sınıf |
 |---|---|---|---|---|
@@ -134,8 +141,14 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    tabanlı (kaynağı Meta reklam kuralı), T11 kendi gramerimizin kısıtı, T10 zaten
    yürürlükteki marka paleti limiti. Referans hiçbirini iyileştiremiyor; iyileştirdiğini
    iddia eden bir sayı yazmak, kaynağı unutulduğunda ölçüm sanılırdı.
-🧪 T2'yi kasten ihlal et (`guvenliMetinYuzdesi`'ni 70 yap) → kapı kırmızı, çıktıda
-   ihlal eden slayt ve piksel bandı yazılı. T6, T7, T8 için de birer ihlal koşulur.
+🧪 **DÖRT İHLAL KOŞULDU**, dördü de kırmızı ve okuma eyleme çevrilebilir:
+   `slayt 1 metin taşması 191,0 px │ limit 0,0` · `komşu slaytta aynı zemin 2,0 çift` ·
+   `slayt 1 kelime (kapak) 16,0 │ limit 8,0` · `slayt 1 metin kontrastı 1,1:1 │ limit 4,5`.
+   T2 ve T7 kalıcı ihlal bataryasına eklendi.
+   ⚠ **Bataryanın `durum` girdileri de düzeltildi:** çapaları `siradaki_adim: 10.1` idi ve
+   o değer her turda değişiyor — ikinci turda "yama hedefi bulunamadı" verdiler. Çapa
+   kapının KAYNAĞINA taşındı. Her tur kırılan bir ihlal testi, ihlal testlerini görmezden
+   gelmeyi öğretir; kırılgan bir kapı kapatılmış bir kapıdır.
 💾 `feat(gates): tasarım metrikleri ve kapısı` · `Refs: FAZ-10.3 · §11.1`
 
 ---

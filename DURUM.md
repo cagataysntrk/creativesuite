@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 10
-siradaki_adim: 10.3
+siradaki_adim: 10.4
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -16,7 +16,7 @@ son_kanit: "FAZ 10 ACILDI (D-255): 'uretebiliyor' ile 'iyi' ayri sorular; ikinci
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**42 kapı · 21 ihlal kırmızı · 1366 test.**
+**43 kapı · 22 ihlal kırmızı · 1366 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, dört tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 ·
@@ -62,31 +62,28 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **10.1** · karosel başına tek tarayıcı; 4.9x, çıktı bayt bayt özdeş | 2026-08-17 |
 | **10.2** · referans ölçüldü; T9/T11 türetilemez, T10 görseli dışlamalı | 2026-08-17 |
 | **10.2b** · punto ölçüldü: sütun %62, h1 64 px; 3 kusur kapandı | 2026-08-17 |
+| **10.3** · `tasarim` kapısı: 23 okuma, 4 ihlal kırmızı, grameri denetliyor | 2026-08-17 |
 
 ## Sıradaki adım
 
 **FAZ 10 — TASARIM KATMANI** (D-255). FAZ 3 "üretebiliyor mu"yu kapattı, "iyi mi"yi
 değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
 
-**10.1 KAPANDI** — `withOturum` eklendi ve üretim yoluna BAĞLANDI (`renderBody`).
-Ölçüldü: `3795 ms → 776 ms = 4.9x`, çıktı **sha256 bayt bayt özdeş**. Oturum içinde
-kasten hata → tarayıcı yine kapanıyor, sızıntı yok. Singleton DEĞİL: ömür işin ömrü.
+**10.1–10.3 KAPANDI.** Ayrıntı `docs/fazlar/FAZ-10.md` ve üretilmiş raporlarda
+(`docs/referans/tasarim-temeli.md`, `tip-olcegi.md`).
+· **10.1** tarayıcı oturumu: 4.9x, çıktı bayt bayt özdeş.
+· **10.2** referans ölçüldü: T9/T11 türetilemez, T10 görsel bloklarını dışlamalı.
+  Ölçüm aracının kendisi bozuktu (kova merkezi → ΔE 5.28 > eşik 5.0 → %97.8).
+· **10.2b** punto ölçüldü: %36 sütunda hiçbir punto sığmıyordu
+  (`taşıyabileceğimizin` 76 px'te 665 px). Bant %69–78, sütun %62, h1 64 px.
+  İki yan kusur aynı sınıf: renk zeminden seçiliyordu, öge DOLGUNUN üstündeydi.
+· **10.3** `tasarim` kapısı: 23 okuma, 4 ihlal kırmızı, GRAMERİ denetliyor.
+  T11 önce krom puntolarını sayıyordu (11) → yalnız `h1/h2/p` (3).
 
-**10.2 KAPANDI** — referans ölçüldü (palet dışı `9.5·13.8·20.4%`); ayrıntı
-`docs/referans/tasarim-temeli.md`. Sonuç eşikten değerli: T9/T11 **türetilemez**,
-T10 **görsel bloklarını dışlamalı**. Ölçüm aracı da ihlal edildi (kova merkezi →
-ΔE 5.28 > eşik 5.0 → %97.8, iki tasarıma AYNI sayı; ortalamaya geçildi).
+⚠ Bu fazın dersi: **1359 test geometri ve punto değişikliğini KAÇIRDI.**
 
-**10.2b KAPANDI** — punto ÖLÇÜLDÜ (`docs/referans/tip-olcegi.md`): %36 sütunda hiçbir
-punto sığmıyordu (`taşıyabileceğimizin` 76 px'te 665 px). Bant %69–78, sütun %62,
-h1 64 px, eğri dolgu tarafına AYNALANIYOR. İki yan kusur aynı sınıftan: renk zeminden
-seçiliyordu ama öge DOLGUNUN üstündeydi → hayalet rakam üç rolde görünmez, kulp
-kontrastı 1.9:1. İkisi de `kontrast(karsiAlan)`den türetiliyor. ⚠ `sablon.test.ts`
-yazıldı: geometriyi ve puntoyu değiştirdim, **1359 testin hiçbiri kırılmadı**.
-
-**SIRADAKİ 10.3** — `tasarim` kapısı
-(8 bloklayıcı + 4 uyarı metriği) → 10.4 düzen seçimi → 10.5 görsel yargı
-(sınırlayıcı kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
+**SIRADAKİ 10.4** — düzen içerikten seçiliyor → 10.5 görsel yargı (sınırlayıcı
+kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
 
 **FAZ 8 açık kalanı:** `8.3b` BLOKE:teknik (`7.2b` gerçek yayınına bağlı), `8.6`
 BLOKE:insan (V-10 hukukçu).

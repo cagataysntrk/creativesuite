@@ -57,24 +57,47 @@ const IHLALLER = [
     imza: 'toUpperCase()',
   },
   {
-    // Onuncu faz açıldığında iki tek-haneli varsayım ortaya çıktı ve İKİSİ DE bu
-    // kapının kendi içindeydi: adım taraması `n <= 9`da duruyordu, kapanış regex'i
-    // `FAZ-(\d)` idi. Yani FAZ 10'dan itibaren kapı, tam olarak örtmek için var
-    // olduğu şeyi — yarım adımların üstünü örtmeyi — serbest bırakacaktı. Batarya
-    // artık bunu hatırlıyor; ben hatırlamayabilirim.
+    // Onuncu faz açıldığında iki tek-haneli varsayım ortaya çıktı ve İKİSİ DE bu kapının
+    // kendi içindeydi: adım taraması `n <= 9`da duruyordu, kapanış regex'i `FAZ-(\d)` idi.
+    // FAZ 10'dan itibaren kapı, tam olarak örtmek için var olduğu şeyi — yarım adımların
+    // üstünü örtmeyi — serbest bırakacaktı.
+    //
+    // ⚠ **Çapa KAPININ KAYNAĞINDA, `DURUM.md`de değil.** İlk sürüm `siradaki_adim: 10.1`
+    // dizesini hedefliyordu ve o değer HER TURDA değişiyor: batarya ikinci turda
+    // "yama hedefi bulunamadı" dedi. Her tur kırılan bir ihlal testi, ihlal testlerini
+    // görmezden gelmeyi öğretir — kırılgan bir kapı, kapatılmış bir kapıdır.
     kapi: 'durum',
-    dosya: 'DURUM.md',
-    yamalar: [{ ara: 'siradaki_adim: 10.1', yaz: 'siradaki_adim: FAZ-10-KAPANIS' }],
-    imza: 'kapanış yarım adımların üstünü örtemez',
+    dosya: 'scripts/gates/durum.mjs',
+    yamalar: [
+      {
+        ara: "for (const dosya of readdirSync(p('docs/fazlar')).filter((f) => /^FAZ-\\d+\\.md$/.test(f))) {",
+        yaz: 'for (let n = 0; n <= 9; n++) {',
+      },
+      {
+        ara: '  const n = Number(/^FAZ-(\\d+)\\.md$/.exec(dosya)[1])\n  const f = `docs/fazlar/${dosya}`',
+        yaz: '  const f = `docs/fazlar/FAZ-${n}.md`\n  if (!existsSync(p(f))) continue',
+      },
+    ],
+    imza: 'hiçbir faz dosyasında yok',
   },
   {
-    // İkinci yön: var OLMAYAN bir adıma işaret etmek. Bu, aktif faz dosyasının
-    // gerçekten OKUNDUĞUNU da kanıtlıyor — okunmasaydı hiçbir adım bulunmaz ve
-    // kapı her değere aynı hatayı verirdi, yani hiçbir şey ayırt etmezdi.
-    kapi: 'durum',
-    dosya: 'DURUM.md',
-    yamalar: [{ ara: 'siradaki_adim: 10.1', yaz: 'siradaki_adim: 10.99' }],
-    imza: 'hiçbir faz dosyasında yok',
+    // Metin eğri sınırını kesiyordu ve İKİ KEZ düzeltilip iki kez geri geldi: ilk iki
+    // denemede kutu daraltıldı, ama Türkçede kelime bölünmediği için taşma sürdü
+    // (R-23). Kapı artık metnin GERÇEK render genişliğini tarayıcıdan ölçüyor.
+    kapi: 'tasarim',
+    dosya: 'packages/render/src/sablon.ts',
+    yamalar: [
+      { ara: 'guvenliMetinYuzdesi = SINIR_MIN - 7', yaz: 'guvenliMetinYuzdesi = SINIR_MIN - 33' },
+    ],
+    imza: 'metin taşması',
+  },
+  {
+    // Izgaraya bakınca iki komşu kare ayırt edilebilmeli; aynı zemin onları tek bloğa
+    // çeviriyor. Renk rotasyonu grameri taşıyan üç kuraldan biri (D-254).
+    kapi: 'tasarim',
+    dosya: 'packages/render/src/sablon.ts',
+    yamalar: [{ ara: 'const kagitMi = k.index % 2 === 1', yaz: 'const kagitMi = true' }],
+    imza: 'aynı zemin',
   },
   {
     kapi: 'chokepoints',
