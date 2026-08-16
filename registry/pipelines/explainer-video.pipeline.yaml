@@ -1,0 +1,63 @@
+# Explainer video — TEK kompozisyon, ÜÇ en-boy (§10 · FAZ-5.9).
+#
+# **Üç ayrı kompozisyon üç ayrı bakım yüküdür.** Metin bir yerde düzeltilir, diğer
+# ikisinde unutulur; altı ay sonra hangisinin doğru olduğu bilinmez. Kompozisyon tek,
+# en-boy bir PARAMETRE.
+#
+# **Punto hiçbir en-boyda değişmez** (§7.1 · R-23): dar çerçevede metin BÖLÜNÜR.
+# Küçülen metin dikey videoda telefonda okunamaz ve bunu ancak yayınladıktan sonra
+# fark edersiniz. 9:16'da kullanılabilir genişlik GÜVENLİ ALANDIR (950px), tuval değil.
+#
+# MODEL ADI YOK (R-40).
+id: explainer-video
+title: Explainer video (çok en-boy)
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  - id: anlati-uret
+    verb: GENERATE
+    capability: audio.tts
+    needs: [bilgi-sec]
+    constraints:
+      locale: tr-TR
+      optional: true
+
+  # Üç render, TEK kompozisyondan. Yönlendirilmez — RENDER tek motordur (D-122).
+  - id: render-16x9
+    verb: RENDER
+    needs: [bilgi-sec, anlati-uret]
+    constraints:
+      width: 1920
+      height: 1080
+
+  - id: render-9x16
+    verb: RENDER
+    needs: [bilgi-sec, anlati-uret]
+    constraints:
+      width: 1080
+      height: 1920
+      placement: instagram-story-9x16
+      safe_area: true
+
+  - id: render-1x1
+    verb: RENDER
+    needs: [bilgi-sec, anlati-uret]
+    constraints:
+      width: 1200
+      height: 1200
+      placement: linkedin-feed-1x1
+
+  - id: kalite
+    verb: VALIDATE
+    needs: [render-16x9, render-9x16, render-1x1]
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

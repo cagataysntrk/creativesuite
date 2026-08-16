@@ -171,3 +171,13 @@ export {
   type ReelsError,
   type ReelsResult,
 } from './capture/reels.js'
+
+// Çok en-boy render (§10 · FAZ-5.9). Punto sabit, bütçe en-boya göre daralır.
+export {
+  layoutAcrossAspects,
+  budgetFor,
+  EXPLAINER_ASPECTS,
+  MASTER,
+  type ExplainerAspect,
+  type AspectLayout,
+} from './layout/coklu-enboy.js'

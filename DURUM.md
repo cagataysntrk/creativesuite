@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.9
+siradaki_adim: 5.10
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.8 BITTI (D-203). reels bir TURETMEDIR: yeni cekim yok, tahmin yok, sihirli esik yok. Klip sinirlari timeline.json daki chapter isaretlerinden geliyor. Deterministiklik testle dogrulandi (iki cagri toEqual). Sure sinirlari gerekceli: MIN 3sn, MAX 60sn — uzun bolum KESILMIYOR REDDEDILIYOR, nereden kesilecegi bir KARAR. 9:16 kirpma iki tuzagi kapatiyor: genislik CIFT (h264 tek boyutu sessizce yuvarlar) ve pencere kaynaga KENETLI; kenetleme ihlal testi ortadaki hedefin kenetlenMEDIGINI de dogruluyor. KARARLAR arsivi: D-182..D-192 devredildi. 35 kapi, 972 test."
+son_kanit: "5.9 BITTI (D-204). Uc en-boy TEK kompozisyondan; en-boy ekseni karakter BUTCESINI daraltiyor, puntoyu DEGIL. Olculdu: statement baslik butcesi 68 (16:9) → 42 (1:1) → 33 (9:16). 9:16 da kullanilabilir genislik GUVENLI ALAN (950px), tuval degil. paginate YENIDEN YAZILMADI — ilk taslagim kendi dongusunu kuruyordu, sonsuz dongu korumasi ikinci bir yerde yasayacakti; splitForLayout/paginate istege bagli CharBudget aldi. Var olmayan bir imza uydurmustum, derleme yakaladi (D-174). Ihlal testi ilk denemede GECERSIZDI (derlenmedi), tekrarlandi: 2 test kirmizi. 35 kapi, 979 test."
 ```
 
 ## Neredeyiz
@@ -78,12 +78,13 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **5.6** · Demo yakalama; tıklama niyeti pikselden önce yazılıyor | 2026-08-16 |
 | **5.7** · `demo-video` hattı + kalıcı üçlü; V-20 kapandı | 2026-08-16 |
 | **5.8** · `reels` deterministik türetme; tahmin yok, eşik gerekçeli | 2026-08-16 |
+| **5.9** · Çok en-boy; bütçe daralır, punto sabit (68→42→33) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.9` — `explainer-video`** (§10). Aynı hareket kütüphanesi, **çok en-boy render**.
-`marka.css` marka-bağımsız (D-197), `placements.ts` dört yerleşimi taşıyor. Sonra
-**`5.10` tam kapsamlı test paketi** — protokolün öngördüğü tek geniş tur.
+**`5.10` — Tam kapsamlı test paketi.** Protokolün öngördüğü **TEK** geniş tur
+(LOOP§D.5) ve FAZ 5'in çıkış kriteri. `just verify` + tüm testler + golden + duman.
+Ardından FAZ 5 kapanış turu (LOOP§D, D-79: en fazla iki doğrulama turu).
 
 ## FAZ 4 kalanı
 

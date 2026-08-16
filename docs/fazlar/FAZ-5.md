@@ -101,16 +101,15 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
 🧪 Bölüm işareti olmayan demo → `no_chapters`, tahmin YAPMIYOR · uzun bölüm kesilmiyor,
    reddediliyor (nereden keseceği bir KARAR)
 
-## 5.9 — `explainer-video`    [ ]
+## 5.9 — `explainer-video` çok en-boy    [x] 2026-08-16
 
-📖 §10
+📖 §10 · D-204
 🔗 5.3
-🛠 Aynı hareket kütüphanesi, çok en-boy render (16:9 · 9:16 · 1:1). Tek kompozisyon,
-   üç çıktı — üç ayrı kompozisyon üç ayrı bakım yüküdür.
-📁 `registry/pipelines/explainer-video.pipeline.yaml`
-✅ Üç en-boy da üretiliyor · üçünde de tipografi golden'ı yeşil
-🧪 9:16'da taşan bir başlık ver → otomatik bölünüyor, küçültülmüyor (R-23)
-💾 `feat(cli): explainer-video çok en-boy` · `Refs: FAZ-5.9 · §10`
+📁 `packages/render/src/layout/coklu-enboy.ts` · `registry/pipelines/explainer-video.pipeline.yaml`
+✅ Üç en-boy tek kompozisyondan · bütçe ölçüldü: başlık 68 (16:9) → 42 (1:1) → **33**
+   (9:16) karakter · 9:16'da kullanılabilir genişlik GÜVENLİ ALAN (950px)
+🧪 16:9'a sığan başlık 9:16'da BÖLÜNÜYOR, küçültülmüyor · bütçe oranını kaldır →
+   2 test kırmızı
 
 ## 5.10 — Tam kapsamlı test paketi    [ ]
 

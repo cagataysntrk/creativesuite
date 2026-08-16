@@ -340,3 +340,27 @@ kenetlenMEDİĞİNİ de doğruluyor — yoksa kural koşulu okumadan hep kenetle
 Kırpma merkezi zoom odağıyla AYNI hesaptan geliyor: ayrışırlarsa klip, zoom'un
 gösterdiğinden başka bir yeri gösterir.
 `reels` hattı **hiçbir üretim adımı taşımıyor** — türetme, ikinci bir üretim değil.
+
+## D-204 — Çok en-boy: değişen BÜTÇE, punto değil; ve `paginate` yeniden yazılmadı
+2026-08-16 · Explainer videosu üç en-boy üretiyor ama **tek kompozisyondan**. Üç ayrı
+kompozisyon üç ayrı bakım yüküdür: metin bir yerde düzeltilir, diğer ikisinde unutulur
+ve altı ay sonra hangisinin doğru olduğu bilinmez.
+**En-boy ekseni karakter BÜTÇESİNİ daraltır, puntoyu DEĞİL** (R-23 · §7.1). Ölçüldü:
+`statement` başlık bütçesi master 16:9'da 68, 1:1'de 42, 9:16'da **33** karakter.
+16:9'a sığan bir başlık 9:16'da bölünüyor — küçülmüyor. Küçülen metin dikey videoda
+telefonda okunamaz hâle gelir ve bu ancak yayınlandıktan sonra görülür.
+**9:16'da kullanılabilir genişlik GÜVENLİ ALANDIR** (950px), tuvalin tamamı (1080px)
+değil: yanlarda %6 Reels UI var ve oraya yazmak metni platformun kendi düğmelerinin
+altına gömmektir.
+**`paginate` YENİDEN YAZILMADI.** İlk taslağım kendi sayfalama döngüsünü kuruyordu —
+sonsuz döngü koruması ve `oversized` işareti ikinci bir yerde yaşayacaktı. Bunun yerine
+`splitForLayout`/`paginate` isteğe bağlı bir `CharBudget` aldı; en-boy modülü yalnız
+bütçeyi hesaplıyor. Ayrıca `splitForLayout(kalan, layout, butce)` diye var olmayan bir
+imza uydurmuştum ve derleme yakaladı — imzayı ÖNCE okumak gerekiyordu (D-174).
+**Master 16:9 bir platform spec'i DEĞİL**, bizim yakalama ölçümüz (5.6) ve bütçe
+oranlarının paydası. `placements.ts`teki her satır `sourceUrl` + `verifiedAt` taşıyor;
+oraya uydurma bir kaynakla 16:9 eklemek, doğrulanmamış bir sayıyı doğrulanmış
+göstermek olurdu (§11.4).
+**İhlal testi ilk denemede GEÇERSİZDİ:** oranı `1` yapınca `aspect` kullanılmaz oldu ve
+derleme düştü — D-170 uyarınca "derlenmiyorsa test geçersiz". `aspect.usableWidth /
+aspect.usableWidth` ile tekrarlandı: **2 test kırmızı**.

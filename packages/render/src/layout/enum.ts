@@ -71,8 +71,28 @@ const metinUzunlugu = (b: Block): number => {
  * blok listesidir, bir ölçek çarpanı değil. İmza bu yüzden `scale` alanı taşımıyor —
  * taşıyabilseydi biri onu kullanırdı.
  */
-export const splitForLayout = (blocks: readonly Block[], layout: LayoutName): Overflow => {
-  const spec = LAYOUT_SPECS[layout]
+/**
+ * Karakter bütçesi. Verilmezse düzenin kendi tavanı kullanılır.
+ *
+ * **En-boy ekseni bunu daraltır, puntoyu DEĞİL** (FAZ-5.9): 9:16 çerçeve 16:9'dan dar
+ * ve aynı başlık orada daha az karakter alır. Doğru tepki bölmek, küçültmek değil.
+ */
+export interface CharBudget {
+  readonly heading: number
+  readonly body: number
+}
+
+export const splitForLayout = (
+  blocks: readonly Block[],
+  layout: LayoutName,
+  butce?: CharBudget
+): Overflow => {
+  const temel = LAYOUT_SPECS[layout]
+  const spec = {
+    ...temel,
+    headingBudget: butce?.heading ?? temel.headingBudget,
+    bodyBudget: butce?.body ?? temel.bodyBudget,
+  }
   const fits: Block[] = []
   let baslikKullanilan = 0
   let govdeKullanilan = 0
@@ -121,12 +141,16 @@ export interface Slide {
   readonly oversized: boolean
 }
 
-export const paginate = (blocks: readonly Block[], layout: LayoutName): readonly Slide[] => {
+export const paginate = (
+  blocks: readonly Block[],
+  layout: LayoutName,
+  butce?: CharBudget
+): readonly Slide[] => {
   const slides: Slide[] = []
   let kalan = blocks
 
   while (kalan.length > 0) {
-    const { fits, overflow } = splitForLayout(kalan, layout)
+    const { fits, overflow } = splitForLayout(kalan, layout, butce)
     if (fits.length === 0) {
       // İlk blok tek başına sığmıyor: bölmek çözmez. Kendi slaydına konur ve
       // `oversized` ile İŞARETLENİR — çağıran metni kısaltmalı.
