@@ -27,6 +27,7 @@ import {
   deckPages,
   isLinkedinDocError,
   paginateDocument,
+  promptRequestsPerson,
   renderDeckPdf,
   renderLinkedinDocument,
   LINKEDIN_PLATFORM_MAX_SAYFA,
@@ -922,6 +923,33 @@ export interface GenerateDeps {
  */
 export const generateBody = (deps: GenerateDeps): Verb =>
   govde('GENERATE', async (ctx, input) => {
+    // ── 9. yasa: SAĞLAYICI SEÇİLMEDEN ÖNCE (§11.3 · R-33 · D-239) ───────────
+    //
+    // ⚠ **Bu kapı bir adım GEÇ çalışıyordu.** `promptRequestsPerson` yalnız
+    // `assertCompliance` içinde, yani DAMGALAMA anında koşuyordu. Sonuç: insan isteyen
+    // bir prompt modele gidiyor, PARA HARCIYOR, görsel üretiliyor — ve ancak damga
+    // aşamasında iddia kurulamıyor. İlk gerçek bake-off tam olarak bunu üretti:
+    // "two factory workers in safety vests" prompt'u `validate()`ten geçti, çünkü R-20
+    // yalnız METİN isteğini denetliyor, kişi isteğini değil.
+    //
+    // **Fail-closed olmak yetmez; ERKEN fail-closed olmak gerekir.** Harcanmış para
+    // geri gelmez ve üretilmiş uyumsuz bir varlık diskte durur.
+    //
+    // En başta duruyor — yönlendirici bile çalışmadan. Reddedilecek bir iş için
+    // sağlayıcı seçmek, seçimi manifest'e yazmak ve sonra reddetmek gürültüdür.
+    //
+    // Kontrol burada, `providers`ta DEĞİL: `providers` ile `render` kardeştir (§3.6)
+    // ve birbirini import edemez. Deseni ikinci kez yazmak, iki listeden birinin
+    // güncellenmemesi demekti — bu projenin en sık tekrarlayan hatası.
+    if (deps.capability.startsWith('image.') || deps.capability.startsWith('video.')) {
+      const istenenPrompt =
+        typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : ''
+      const insan = promptRequestsPerson(istenenPrompt)
+      if (insan !== null) {
+        return err(hata('policy_blocked', 'PROMPT_REQUESTS_PERSON', ctx, { matched: insan }))
+      }
+    }
+
     const providerId = input.providerId
     if (providerId === undefined) return err(hata('internal', 'NO_ROUTED_PROVIDER', ctx))
 

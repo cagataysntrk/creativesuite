@@ -136,8 +136,12 @@ describe.each([
 })
 
 describe('bedava şerit — senkron uç', () => {
-  it('sonuç base64 olarak dönüyor', async () => {
-    const v = cloudflareImage.validate(girdi())
+  // ⚠ **En-boy artık MODEL SEÇİYOR** (D-238): `1:1` → flux (JSON `{result:{image}}`,
+  // boyut gönderilmez), diğerleri → sdxl-lightning (ham JPEG, boyut gönderilir).
+  // İlk sürümde tek yol vardı ve gerçek uç onu reddediyordu.
+
+  it('JSON tel biçimi (1:1 · flux) base64 çözülüyor', async () => {
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '1:1' } }))
     expect(v.ok).toBe(true)
     if (!v.ok) return
     const h = await cloudflareImage.start(v.value, ctx(CF_ENV))
@@ -150,13 +154,35 @@ describe('bedava şerit — senkron uç', () => {
     }
   })
 
+  it('1:1 isteğinde BOYUT GÖNDERİLMİYOR — gerçek uç fazladan alanı reddediyor', async () => {
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '1:1' } }))
+    if (!v.ok) return
+    await cloudflareImage.start(v.value, ctx(CF_ENV))
+    const govde = (gonderilen.at(-1)?.body ?? {}) as Record<string, unknown>
+    expect(govde['prompt']).toBeTypeOf('string')
+    // Bu iki satır bir YORUM değil bir ÖLÇÜM: `width`/`height` sızarsa gerçek uç
+    // `5006 Additional properties not allowed` ile sekiz isteğin sekizini de düşürür.
+    expect(govde['width']).toBeUndefined()
+    expect(govde['height']).toBeUndefined()
+  })
+
+  it('ham tel biçimi (4:5 · sdxl) boyutu GÖNDERİYOR', async () => {
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '4:5' } }))
+    expect(v.ok).toBe(true)
+    if (!v.ok) return
+    await cloudflareImage.start(v.value, ctx(CF_ENV))
+    const govde = (gonderilen.at(-1)?.body ?? {}) as Record<string, unknown>
+    expect(govde['width']).toBe(1024)
+    expect(govde['height']).toBe(1280)
+  })
+
   it('bozuk yanıt sessizce kabul EDİLMİYOR', async () => {
     server.use(
       http.post('https://api.cloudflare.com/client/v4/accounts/:h/ai/run/*', () =>
         HttpResponse.json({ success: false, errors: [{ message: 'kota doldu' }] })
       )
     )
-    const v = cloudflareImage.validate(girdi())
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '1:1' } }))
     expect(v.ok).toBe(true)
     if (!v.ok) return
     const r = await cloudflareImage.start(v.value, ctx(CF_ENV))

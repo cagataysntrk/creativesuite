@@ -1,0 +1,108 @@
+{
+  "kosum": "bakeoff-gorsel",
+  "serit": "free",
+  "saglayici": "cloudflare-workers-ai",
+  "alinan": "2026-08-16T17:09:53.307Z",
+  "toplamSureMs": 20184,
+  "uretilen": 8,
+  "toplam": 8,
+  "_not": "Metin tespiti MEKANİK olarak yapılmadı (tesseract kurulu değil) — görseller insan/agent gözüyle denetlendi. Ölçülmeyen bir şeyi ölçülmüş göstermemek için bu satır burada duruyor.",
+  "satirlar": [
+    {
+      "slug": "uretim-hatti-olcum",
+      "brief": "Üretim hattı — ölçüm noktaları görünür",
+      "durum": "uretildi",
+      "dosya": "free-uretim-hatti-olcum.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 687028,
+      "sureMs": 2557,
+      "prompt": "wide shot of a modern manufacturing production line, sensors and measurement points visible on machinery, cool neutral industrial lighting, clean composition, photographic, shallow depth of field, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    },
+    {
+      "slug": "kantar-tesis-girisi",
+      "brief": "Kantar / tesis girişi — UpcyMan zemini",
+      "durum": "uretildi",
+      "dosya": "free-kantar-tesis-girisi.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 479128,
+      "sureMs": 1470,
+      "prompt": "industrial weighbridge at a facility entrance, truck on the scale, overcast daylight, documentary photographic style, muted colours, wide angle, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    },
+    {
+      "slug": "kontrol-odasi",
+      "brief": "Kontrol odası — Dima karar motoru sahnesi",
+      "durum": "uretildi",
+      "dosya": "free-kontrol-odasi.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 514759,
+      "sureMs": 1461,
+      "prompt": "industrial control room interior, large blank display panels glowing softly, operator chair, dark neutral instrument grey environment, cinematic lighting, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    },
+    {
+      "slug": "vardiya-devri",
+      "brief": "Vardiya devri — insansız anlatım",
+      "durum": "uretildi",
+      "dosya": "free-vardiya-devri.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 573839,
+      "sureMs": 1366,
+      "prompt": "two safety helmets resting on an empty workbench at a production line, end of shift, low warm light, no people, documentary photograph, shallow depth, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    },
+    {
+      "slug": "surdurulebilirlik-tesisi",
+      "brief": "Sürdürülebilirlik — UpcyCarbon zemini",
+      "durum": "uretildi",
+      "dosya": "free-surdurulebilirlik-tesisi.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 293856,
+      "sureMs": 3430,
+      "prompt": "industrial facility exterior at dawn, clean stacks, solar panels on the roof, calm sky, muted teal and grey palette, architectural photography, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    },
+    {
+      "slug": "fason-uretim-atolyesi",
+      "brief": "Fason üretim atölyesi — maliyet ve kârlılık",
+      "durum": "uretildi",
+      "dosya": "free-fason-uretim-atolyesi.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 488311,
+      "sureMs": 4523,
+      "prompt": "contract manufacturing workshop, metal parts organised in bins on shelves, neutral daylight, orderly composition, photographic, high detail, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    },
+    {
+      "slug": "veri-yoksa-kagit",
+      "brief": "Veri yoksa — kâğıt ve dosya dolabı (asıl ayrıştırıcımız)",
+      "durum": "uretildi",
+      "dosya": "free-veri-yoksa-kagit.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 719673,
+      "sureMs": 2454,
+      "prompt": "old paper archive shelves and folders in a small factory office, dusty light through blinds, muted colours, documentary photograph, melancholic mood, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    },
+    {
+      "slug": "soyut-veri-akisi",
+      "brief": "Soyut veri akışı — arka plan olarak kullanılabilir",
+      "durum": "uretildi",
+      "dosya": "free-soyut-veri-akisi.jpg",
+      "genislik": 1024,
+      "yukseklik": 1024,
+      "bayt": 561491,
+      "sureMs": 2910,
+      "prompt": "abstract flowing data streams as thin luminous lines over a dark neutral grey background, minimal, elegant, no interface elements, rendered, no text, no lettering, no words, no captions, no watermark, no logo, no signage",
+      "maliyetMikros": "0"
+    }
+  ]
+}

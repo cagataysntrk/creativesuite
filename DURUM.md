@@ -19,7 +19,7 @@ son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **42 kapı · 19 ihlal kırmızı · 1319 test.**
+**D-79: üçüncü tur AÇILMAZ.** **42 kapı · 19 ihlal kırmızı · 1324 test.**
 **FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
 ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 

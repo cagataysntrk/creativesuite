@@ -11,6 +11,11 @@ derived/blobs/
 derived/karantina/*
 !derived/karantina/OKU.md
 derived/ingest/
+# Bake-off çıktıları: varlık byte'ı, R-64 gereği git'e girmez. **Ama YENİDEN
+# ÜRETİLEMEZ** — görsel modeli seed kabul etmiyor, yani aynı prompt aynı görseli
+# vermiyor. Manifest (prompt + ölçüm) `docs/research/bakeoff/`ta ve İZLENİR;
+# byte'lar 3.12b'ye (R2 senkronu) kadar yalnız bu makinede.
+derived/bakeoff/
 
 # Node
 node_modules/

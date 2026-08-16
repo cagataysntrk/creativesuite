@@ -121,14 +121,21 @@ const INSAN_ISTEYEN: readonly {
   { desen: /\bel\s+(sikis|sallama)\w*/, ornek: 'el sıkışma', probe: 'el sıkışma anı' },
   { desen: /\breferans\w*/, ornek: 'referans', probe: 'referans veren biri' },
   { desen: /\bgulumse\w*/, ornek: 'gülümseyen', probe: 'gülümseyen biri' },
-  // İngilizce — prompt'lar karışık dilde yazılabiliyor
+  // ── İngilizce ─────────────────────────────────────────────────────────────
+  //
+  // ⚠ **ÇOĞUL EKİ KÖR NOKTAYDI** (ilk gerçek bake-off, D-239): desen `\bworker\b`
+  // idi ve "two factory **workers** in safety vests" ile EŞLEŞMİYORDU — `\b` sondaki
+  // `s`yi kelime karakteri sayıyor. Sekiz brief'ten biri iki yapay insan üretti ve
+  // kapı yeşil kaldı. Türkçe tarafı `\w*` ile yazılmıştı; İngilizce tarafı değil.
+  // **Aynı kural iki dilde iki farklı titizlikle yazılırsa, gevşek olan geçerlidir.**
   {
-    desen: /\b(person|people|human|man|woman|worker|engineer|customer|client)\b/,
+    desen:
+      /\b(person|people|peoples|human|man|men|woman|women|worker|engineer|customer|client|operator|technician|employee|staff|crew|colleague)s?\b/,
     ornek: 'person',
     probe: 'a person standing',
   },
   {
-    desen: /\b(portrait|face|smiling|handshake|testimonial|model|crowd|team)\b/,
+    desen: /\b(portrait|face|smiling|handshake|testimonial|model|crowd|team)s?\b/,
     ornek: 'portrait',
     probe: 'a smiling portrait shot',
   },
@@ -160,10 +167,30 @@ const reddet = (r: ComplianceRefusal, correlationId: string): AppError =>
   })
 
 /** Prompt'ta insan isteği var mı — mekanik tarama, model yargısı DEĞİL. */
+/**
+ * Olumsuzlayıcılar — **"insan İSTEMEK" ile "insan İSTEMEMEK" zıt şeylerdir.**
+ *
+ * ⚠ İkinci kör nokta (D-239): `no people` ifadesi `people` desenine takılıyor ve
+ * kapı, R-20'nin tam olarak teşvik ettiği prompt'u reddediyordu. Bir kapının
+ * kuralına uyan girdiyi reddetmesi, kuralı uygulanamaz kılar.
+ *
+ * Türkçe tarafında aynı tuzak `-sız/-siz` ekinde: `insansız` (= insan YOK) katlandıktan
+ * sonra `insansiz` oluyor ve `\binsan\w*` ona da uyuyor.
+ */
+const OLUMSUZ_ONEK =
+  /(?:\b(?:no|without|avoid|free of|devoid of|excluding|hayir)\s+(?:\w+\s+){0,2})$/
+const OLUMSUZ_EK = /(?:siz|suz)\b/
+
 export const promptRequestsPerson = (prompt: string): string | null => {
   const katlanmis = foldForSearch(prompt)
   for (const { desen, ornek } of INSAN_ISTEYEN) {
-    if (desen.test(katlanmis)) return ornek
+    // `exec` ile konum alınıyor: olumsuzlama ancak eşleşmenin ÖNÜNE bakılarak
+    // anlaşılır ve `test()` konum vermiyor.
+    const m = desen.exec(katlanmis)
+    if (m === null) continue
+    if (OLUMSUZ_EK.test(m[0])) continue
+    if (OLUMSUZ_ONEK.test(katlanmis.slice(0, m.index))) continue
+    return ornek
   }
   return null
 }

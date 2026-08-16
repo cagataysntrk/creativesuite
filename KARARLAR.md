@@ -499,3 +499,69 @@ sır değil, hesap kimliği). Sessiz bir varsayım yerine parametreye yazıldı.
 gerçek bir görsel sağlayıcı çözdü.
 
 **Geri alma maliyeti:** yok.
+
+## D-238 — Cassette, sağlayıcının davranışını değil benim varsayımımı kaydetmiş
+
+**2026-08-16 · ilk gerçek bake-off**
+
+Cloudflare adaptörü cassette'lerle test edilmiş ve yeşildi. İlk gerçek koşuda sekiz
+brief'in **sekizi de** `MALFORMED_RESPONSE` verdi:
+
+```
+AiError: Bad input: Additional or unevaluated properties '/width, /height' at '/' not allowed (5006)
+```
+
+`flux-1-schnell` fazladan alan görünce isteği **tümden reddediyor**. Cassette bunu kabul
+ediyordu çünkü cassette'i ben yazmıştım. **Kaydedilmemiş bir cassette, sağlayıcının
+davranışını değil yazarının varsayımını sabitler** — ve yeşil kalarak o varsayımı bir
+olguya benzetir. V-16 tam olarak bunu bekliyordu; bekleyen borç haklı çıktı.
+
+**İkinci olgu, ölçülerek:** iki CF modeli iki farklı **tel biçimi** konuşuyor.
+`flux-1-schnell` JSON `{result:{image:<base64>}}` döndürüyor ve boyut SABİT 1024×1024;
+`sdxl-lightning` ham JPEG gövdesi döndürüyor ve `width`/`height` KABUL ediyor. Yani
+Instagram'ın 4:5'i ancak ikinci modelden geçiyor.
+
+**Karar:** adaptörde `MODELLER` tablosu — en-boy → (model, tel). Model seçimi
+adaptörün işidir (D-32): hat yetenek ister, model adı yazmaz. Boyut yalnız kabul eden
+modele gönderiliyor; "göndersek de yok sayar" varsayımı ölçüldü ve yanlış çıktı.
+
+**Üçüncü olgu — kendi betiğimde:** bake-off `sonuc.value.data.output` arıyordu, gerçek
+şekil `sonuc.value.data`. Sekizi de "şekil bozuk" verdi. D-227'nin dersi bir kez daha:
+şekli varsayma, ölç. **Betik gürültülü çöktüğü için bunu öğrendim** — sessizce boş
+liste dönseydi "üretim çalışıyor" derdim.
+
+**Geri alma maliyeti:** yok.
+
+## D-239 — 9. yasa kapısı bir adım geçti ve iki kör noktası vardı
+
+**2026-08-16 · ilk gerçek bake-off**
+
+Sekiz brief'ten biri **iki yapay insan üretti** (Md. 27/12 · R-33). Üç ayrı kusur:
+
+**1 · Kapı GEÇ.** `promptRequestsPerson` yalnız `assertCompliance` içinde, yani
+**damgalama anında** koşuyordu. İnsan isteyen bir prompt modele gidiyor, para harcıyor,
+görsel üretiliyor — ve ancak damga aşamasında iddia kurulamıyor. **Fail-closed olmak
+yetmez, ERKEN fail-closed olmak gerekir:** harcanmış para geri gelmez ve üretilmiş
+uyumsuz varlık diskte durur. Kontrol artık `generateBody`nin **ilk satırında**,
+yönlendirici bile çalışmadan. Yeri `engine` çünkü `providers` ile `render` kardeştir
+(§3.6) ve deseni ikinci kez yazmak iki listeden birinin unutulması demekti.
+
+**2 · İngilizce çoğullar KÖR.** Desen `\bworker\b` idi ve *"two factory **workers** in
+safety vests"* ile eşleşmiyordu — `\b` sondaki `s`yi kelime karakteri sayıyor. Türkçe
+tarafı `\w*` ile yazılmıştı, İngilizce tarafı değil. **Aynı kural iki dilde iki farklı
+titizlikle yazılırsa, gevşek olan geçerlidir.** Ve prompt'lar üretimde İngilizce
+yazılıyor — yani kapı, asıl kullanıldığı dilde gevşekti.
+
+**3 · Olumsuzlama KÖR.** `no people` ifadesi `people` desenine takılıyor ve kapı,
+R-20'nin tam olarak teşvik ettiği prompt'u reddediyordu. Türkçede aynı tuzak `-sız`
+ekinde: `insansız` katlandıktan sonra `insansiz` oluyor ve `\binsan\w*` ona da uyuyor.
+**Bir kapının, kuralına uyan girdiyi reddetmesi kuralı uygulanamaz kılar** — ve
+uygulanamaz kural, kapatılan kuraldır.
+
+**Ölçüldü, sekiz durumun sekizi doğru:** `workers` ✓ yakalanıyor · `no people` ✓
+geçiyor · `insansız` ✓ geçiyor · `engineers` ✓ yakalanıyor.
+
+**Brief de düzeltildi:** vardiya sahnesi artık insansız — boş tezgâhta iki kask. Çıktı
+hem uyumlu hem **daha iyi**; kısıt burada kaliteyi düşürmedi, yükseltti.
+
+**Geri alma maliyeti:** yok.

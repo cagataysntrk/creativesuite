@@ -32,7 +32,30 @@ import {
 } from './lanes.js'
 
 const ID = 'cloudflare-workers-ai'
-const MODEL_PATH = '@cf/black-forest-labs/flux-1-schnell'
+
+/**
+ * En-boy → model. **Bu tablo GERÇEK uçtan ölçülerek yazıldı, cassette'ten değil.**
+ *
+ * ⚠ İlk sürüm tek modeldi (`flux-1-schnell`) ve her istekte `width`/`height`
+ * gönderiyordu. Cassette bunu kabul ediyordu çünkü cassette'i ben yazmıştım; gerçek
+ * uç ise reddediyor:
+ *   `AiError: Bad input: Additional or unevaluated properties '/width, /height'` (5006)
+ * Yani sekiz brief'in sekizi de `MALFORMED_RESPONSE` verdi ve bunu ancak **ilk gerçek
+ * bake-off** ortaya çıkardı (V-16'nın uyardığı tam durum, D-238).
+ * **Bir cassette, sağlayıcının davranışını değil senin varsayımını kaydeder.**
+ *
+ * İki model iki farklı TEL BİÇİMİ konuşuyor ve bu da ölçüldü:
+ *   · flux-1-schnell → JSON `{result:{image: <base64>}}`, boyut SABİT 1024×1024
+ *   · sdxl-lightning → ham JPEG gövdesi, `width`/`height` KABUL EDİYOR
+ * Model seçimi adaptörün işidir (D-32): hat yetenek ister, model adı yazmaz.
+ */
+const MODELLER: Record<Aspect, { readonly path: string; readonly tel: 'json' | 'raw' }> = {
+  // 1:1'de flux tercih ediliyor: aynı bedava katmanda daha iyi çıktı veriyor.
+  '1:1': { path: '@cf/black-forest-labs/flux-1-schnell', tel: 'json' },
+  '4:5': { path: '@cf/bytedance/stable-diffusion-xl-lightning', tel: 'raw' },
+  '9:16': { path: '@cf/bytedance/stable-diffusion-xl-lightning', tel: 'raw' },
+  '16:9': { path: '@cf/bytedance/stable-diffusion-xl-lightning', tel: 'raw' },
+}
 
 /** Ortam değişkeninin ADI — değeri asla (R-51). */
 const ACCOUNT_ENV = 'CF_ACCOUNT_ID'
@@ -94,10 +117,11 @@ export const cloudflareImage: ProviderAdapter = {
 
     const aspect = vi.constraints['aspect'] as Aspect
     const boyut = ASPECT_PIXELS[aspect]
+    const model = MODELLER[aspect]
 
     const yanit = await httpFetch(
       {
-        url: `https://api.cloudflare.com/client/v4/accounts/${hesap}/ai/run/${MODEL_PATH}`,
+        url: `https://api.cloudflare.com/client/v4/accounts/${hesap}/ai/run/${model.path}`,
         method: 'POST',
         headers: {
           authorization: `Bearer ${token}`,
@@ -106,26 +130,48 @@ export const cloudflareImage: ProviderAdapter = {
           // kayıt/replay ve sağlayıcı destek talebi için izlenebilirlik sağlar (R-44).
           'idempotency-key': vi.idempotencyKey,
         },
-        body: JSON.stringify({ prompt: vi.prompt, width: boyut.w, height: boyut.h }),
+        // **Boyut yalnız KABUL EDEN modele gönderilir.** flux-1-schnell fazladan
+        // alan görünce isteği tümden reddediyor — "göndersek de yok sayar" varsayımı
+        // ölçüldü ve yanlış çıktı.
+        body: JSON.stringify(
+          model.tel === 'raw'
+            ? { prompt: vi.prompt, width: boyut.w, height: boyut.h }
+            : { prompt: vi.prompt }
+        ),
         signal: ctx.signal,
       },
       ctx.correlationId as AppError['correlationId']
     )
     if (!yanit.ok) return err(yanit.error)
 
-    const govde = (await yanit.value.json()) as {
-      success?: boolean
-      result?: { image?: string }
-      errors?: readonly { message?: string }[]
-    }
-    if (govde.success !== true || typeof govde.result?.image !== 'string') {
-      return err(
-        hata('provider_bad_response', 'MALFORMED_RESPONSE', ctx.correlationId, {
-          // Sağlayıcının hata METNİ taşınır ama sağlayıcı NESNESİ taşınmaz (R-43):
-          // yanıt şekli adaptör sınırını geçemez.
-          providerMessage: govde.errors?.[0]?.message ?? null,
-        })
-      )
+    // İki tel biçimi, tek çıkış: base64. Adaptörün işi tam olarak bu — sağlayıcının
+    // şekli sınırı geçmez (R-43).
+    let base64: string
+    if (model.tel === 'raw') {
+      base64 = Buffer.from(await yanit.value.arrayBuffer()).toString('base64')
+      if (base64.length === 0) {
+        return err(
+          hata('provider_bad_response', 'MALFORMED_RESPONSE', ctx.correlationId, {
+            providerMessage: 'boş gövde',
+          })
+        )
+      }
+    } else {
+      const govde = (await yanit.value.json()) as {
+        success?: boolean
+        result?: { image?: string }
+        errors?: readonly { message?: string }[]
+      }
+      if (govde.success !== true || typeof govde.result?.image !== 'string') {
+        return err(
+          hata('provider_bad_response', 'MALFORMED_RESPONSE', ctx.correlationId, {
+            // Sağlayıcının hata METNİ taşınır ama sağlayıcı NESNESİ taşınmaz (R-43):
+            // yanıt şekli adaptör sınırını geçemez.
+            providerMessage: govde.errors?.[0]?.message ?? null,
+          })
+        )
+      }
+      base64 = govde.result.image
     }
 
     const handle: JobHandle = {
@@ -137,7 +183,7 @@ export const cloudflareImage: ProviderAdapter = {
     }
     sonuclar.set(handle.externalId, {
       state: 'succeeded',
-      output: { format: 'base64', data: govde.result.image, width: boyut.w, height: boyut.h },
+      output: { format: 'base64', data: base64, width: boyut.w, height: boyut.h },
     })
     return ok(handle)
   },
