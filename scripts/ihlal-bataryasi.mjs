@@ -87,6 +87,23 @@ const IHLALLER = [
     imza: 'metin-olcen-grafik-kutuphanesi',
   },
   {
+    kapi: 'chokepoints',
+    dosya: 'packages/corpus/src/ihlal-gecici.ts',
+    icerik:
+      "import { unlinkSync } from 'node:fs'\nexport const s = (p: string): void => unlinkSync(p)\n",
+    imza: 'corpus-silici',
+  },
+  {
+    kapi: 'prospect-kvkk',
+    dosya: 'corpus/prospect/ihlal-gecici.md',
+    icerik:
+      '---\nid: rec_prospect_ihlal\nbrand_id: brd_upcytech\ntype: prospect\nera_id: imalat-2026\n' +
+      'status: draft\nlegal_name: Sentetik Test\nstage: contacted\n' +
+      'source_url: https://ornek.gecersiz/x\nkvkk_basis: mesru_menfaat\n' +
+      'retention_until: 2027-01-01\ncontact_name: Sentetik Kisi\n---\n\nGövde.\n',
+    imza: 'kvkk_disclosure_sent',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',

@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 6
-siradaki_adim: 6.4
+siradaki_adim: 6.5
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "6.3 KAPANDI. Duzlestirme IKINCI ARAC GEREKTIRMEDI (D-211): ghostscript/qpdf yerine her sayfa ayni Chromium da JPEG e cevriliyor, goruntuler yine ayni Chromium da tek PDF e basiliyor; kalite merdiveni 92-82-72-62 tavanin altina inene kadar. OLCULDU, karsitlik net: deck te pdftotext Turkce metni TAM veriyor + pdfimages SIFIR satir; dokumanda pdftotext BOS + pdfimages iki 1200x1500 JPEG. 11 sayfa RENDER EDILMEDEN reddedildi. IR anlik goruntu testi gecti: kaynak 4,2 den 9,9 a degistirildi, dokuman yeniden acildi, ESKI deger duruyor — IR corpus a referans degil DEGER tasiyor. ONCEKI TUR 6.2: ECharts SSR olculup reddedildi (D-209), Turkce etiketlerde +%12,6 ile +%83,4 sapma. Sayfa tavani 10 ve 5 MB BIZIM editoryal kararimiz, platform sinirini dogrulamadim → V-23 (FAZ-7.3). 34 kapi, 8 hat."
+son_kanit: "6.4 KAPANDI. Prospect ayri bir CRM DEGIL, corpus kaydi. KVKK silmesi DOSYAYI SILMIYOR (D-212): kisisel alanlar siliniyor, kisisel veri tasimayan mezar tasi kaliyor — cunku duz silme hem koken zincirini koparir hem de silmenin YAPILDIGINA dair kaniti yok eder; KVKK da gosteremedigin sey yapilmamistir. Test ikisini karsi karsiya koyuyor: retireRecord sonrasi kisisel veri DURUYOR, kvkkErasure sonrasi YOK. Uc yeni kapi/kural kasten ihlal edildi: corpus-silici (izinli BOS), gerekcesiz silme reddi, prospect-kvkk aydinlatma. Batarya artik 9 kural kiriyor. SAHTE PROSPECT YAZILMADI — uydurulmus sirket dogruluk kaynagina giren kurgudur; kaydin SEKLI testte dogrulandi, gercek kayitlar insan girdisiyle gelir. ONCEKI: 6.3 KAPANDI. Duzlestirme IKINCI ARAC GEREKTIRMEDI (D-211): ghostscript/qpdf yerine her sayfa ayni Chromium da JPEG e cevriliyor, goruntuler yine ayni Chromium da tek PDF e basiliyor; kalite merdiveni 92-82-72-62 tavanin altina inene kadar. OLCULDU, karsitlik net: deck te pdftotext Turkce metni TAM veriyor + pdfimages SIFIR satir; dokumanda pdftotext BOS + pdfimages iki 1200x1500 JPEG. 11 sayfa RENDER EDILMEDEN reddedildi. IR anlik goruntu testi gecti: kaynak 4,2 den 9,9 a degistirildi, dokuman yeniden acildi, ESKI deger duruyor — IR corpus a referans degil DEGER tasiyor. ONCEKI TUR 6.2: ECharts SSR olculup reddedildi (D-209), Turkce etiketlerde +%12,6 ile +%83,4 sapma. Sayfa tavani 10 ve 5 MB BIZIM editoryal kararimiz, platform sinirini dogrulamadim → V-23 (FAZ-7.3). 34 kapi, 8 hat."
 ```
 
 ## Neredeyiz
@@ -53,13 +53,15 @@ kırmızı.**
 | **6.1** · Deck IR + `page.pdf()`; metin katmanı korunuyor (D-207) | 2026-08-16 |
 | **6.2** · Grafik + diyagram; ECharts ölçülüp reddedildi (D-209) | 2026-08-16 |
 | **6.3** · `linkedin-document`; düzleştirme tek motorla (D-211) | 2026-08-16 |
+| **6.4** · Prospect = corpus; KVKK silmesi mezar taşı bırakıyor (D-212) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`6.4` — Prospect dizini = CRM** (§10, §5.1 · R-12 · D-27). Ayrı bir CRM YOK:
-`corpus/prospect/<slug>.md`. Dosya silme talebi = KVKK silme talebi, `cat` = erişim
-talebi — yükümlülükler dosya sistemi işlemlerine iniyor. Emeklilik silme DEĞİLDİR
-(R-12); KVKK silme talebi **ayrı bir yoldur** ve gerekçesi kayda yazılır.
+**`6.5` — `INGEST` araştırma şelalesi** (§10, §14 · R-50 · D-40). Sıra maliyet ve güven
+sırasıdır: kendi siteleri → SERP → Tavily → ihale-mcp → borsa-mcp. Çıktı **daima**
+`derived/ingest/` karantinasına iner ve **asla talimat olarak sunulmaz**. 🧪 çekilen
+metne "önceki talimatları unut" yaz → alıntı olarak kalmalı; LinkedIn kazıyan sağlayıcı
+ekle → lint reddetmeli. Anahtarsız kaynaklar `bloke: insan` olacak.
 
 ## Devreden borçlar
 

@@ -265,6 +265,16 @@
       "desen": "['\"](echarts|chart\\.js|plotly|plotly\\.js|highcharts|vega|vega-lite|d2lang)(/[^'\"]*)?['\"]",
       "faz": "FAZ-6.2",
       "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
+    },
+    {
+      "id": "corpus-silici",
+      "ad": "Corpus dosyası silen çağrı",
+      "neden": "`packages/corpus/` altında hiçbir dosya silme çağrısı olamaz. Emeklilik silme değildir (R-12) ve KVKK silme talebi bile dosyayı silmez — kişisel alanları siler, kişisel veri taşımayan bir mezar taşı bırakır (D-212). Düz `unlink` iki şeyi birden bozar: o kaydı kaynak gösteren varlıkların kökeni kopar, ve silmenin YAPILDIĞINA dair kanıt kalmaz — KVKK'da gösteremediğin şey yapılmamıştır. `izinli` BOŞ.",
+      "izinli": [],
+      "desen": "unlinkSync|rmSync|\\brmdir\\b|fs\\.unlink|fs\\.rm\\(",
+      "faz": "FAZ-6.4",
+      "kapsam": ["packages/corpus/src/**/*.ts"],
+      "kapsam_haric": ["packages/*/src/**/*.test.ts"]
     }
   ],
   "kapsam_varsayilan_neden": "Son iki desen 2026-08-15'te eklendi. `scripts/uret.mjs` ve `scripts/plan.mjs` ÜRETİM YOLUDUR — `just uret` para harcayabilir — ama hiçbir darboğazın kapsamında değildiler. Doğrulama agent'ı orada dört ihlal buldu: ikinci retrieval yüklemi (R-13, BLOCKING), doğrudan `process.env`, doğrudan `openDb`, kendi maliyet defteri. Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) KAPSAM DIŞI: onlar araçtır, üretim yolu değil — bir kapının `git` çağırması kapının işidir. Bir darboğaz kapsamı, kuralın en çok çiğneneceği yeri dışarıda bırakıyorsa kapı değil."

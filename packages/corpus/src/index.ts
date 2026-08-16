@@ -77,3 +77,15 @@ export {
   type RetireInput,
   type PinInput,
 } from './lifecycle.js'
+
+// KVKK silme talebi — emeklilikten AYRI yol (D-212). Dosya silinmez, kişisel veri
+// silinir ve kişisel veri taşımayan bir mezar taşı kalır.
+export {
+  KISISEL_ALANLAR,
+  MEZAR_TASI_GOVDE,
+  erasureMessage,
+  kvkkErasure,
+  type ErasureInput,
+  type ErasureRefusal,
+  type ErasureResult,
+} from './kvkk.js'

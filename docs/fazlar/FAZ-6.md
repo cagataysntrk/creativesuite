@@ -51,16 +51,21 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 🧪 Kaynak kaydı değiştir, dokümanı yeniden aç → **eski değer** duruyor
 💾 `feat(cli): linkedin-document pipeline` · `Refs: FAZ-6.3 · §10`
 
-## 6.4 — Prospect dizini = CRM    [ ]
+## 6.4 — Prospect dizini = CRM    [x] 2026-08-16
 
 📖 §10, §5.1 · R-12 · D-27
 🔗 FAZ-2.1
-🛠 Ayrı bir CRM YOK: `corpus/prospect/<slug>.md`. `rm -rf` = silme talebi, `cat` = erişim
-   talebi — KVKK yükümlülükleri dosya sistemi işlemlerine indirgeniyor. Emeklilik silme
+🛠 Ayrı bir CRM YOK: `corpus/prospect/<slug>.md`. Erişim talebi bir okuma, silme talebi
+   `kvkkErasure` — KVKK yükümlülükleri dosya sistemi işlemlerine iniyor. Emeklilik silme
    değildir (R-12); **KVKK silme talebi** ayrı bir yoldur ve gerekçesi kayda yazılır.
+   ⚠ **Silme DOSYAYI silmiyor** (D-212): kişisel alanlar silinir, kişisel veri taşımayan
+   bir mezar taşı kalır. Düz dosya silme hem köken zincirini koparır hem de silmenin
+   yapıldığına dair kanıtı yok eder — KVKK'da gösteremediğin şey yapılmamıştır.
 📁 `corpus/prospect/` · `registry/entity-types/prospect.type.yaml`
 ✅ Prospect kaydı zarf alanlarının hepsini taşıyor · `just gate registry` yeşil
-🧪 Prospect kaydını `status: retired` yapmadan silmeyi dene → yazma darboğazı reddediyor
+🧪 Üç ihlal: corpus paketine dosya silme çağrısı ekle → `corpus-silici` reddediyor ·
+   gerekçesiz `kvkkErasure` çağır → reddediyor · aydınlatmasız kişisel veri taşıyan
+   prospect kaydı yaz → `prospect-kvkk` reddediyor
 💾 `feat(corpus): prospect varlık tipi` · `Refs: FAZ-6.4 · §10`
 
 ## 6.5 — `INGEST` araştırma şelalesi    [ ]

@@ -519,3 +519,40 @@ ama gizlemiyor da.
 
 **Geri alma maliyeti:** düşük — `renderDeckPdf` zaten metin katmanlı yolu tutuyor.
 
+## D-212 — KVKK silmesi dosyayı silmez: kişisel veri silinir, mezar taşı kalır
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.4 · §5.1 · R-12
+
+FAZ-6.4 "silme talebi = dosya silme" diye yazıyordu. Uygularken iki yükümlülüğün
+çatıştığını gördüm; düz dosya silme ikisini birden kaybettiriyor:
+
+1. **Köken zinciri.** Silinen kayda atıf veren varlıkların kaynağı kopar; altı ay sonra
+   bir deck'teki iddianın nereden geldiği sorulduğunda cevap "dosya yoktu" olur — iddia
+   geriye dönük olarak kaynaksız hâle gelir (R-32'nin geçmişe bakan hâli).
+2. **Silmenin kanıtı.** KVKK'da yükümlülüğü yerine getirdiğini **gösteremiyorsan**
+   getirmemişsindir. Dosyayı yok etmek hiçbir iz bırakmaz.
+
+**Karar:** `kvkkErasure` kişisel alanları siler, gövdeyi sabit bir bildirimle değiştirir
+ve kaydı `retired` + `expired_at` + `kvkk_erased_at` + gerekçe ile bırakır. Kalan kayıt
+kişisel veri **taşımaz**: şirket unvanı bile silinir. Kalan tek şey "burada bir kayıt
+vardı ve silindi"dir.
+
+**Neden emeklilikten ayrı:** emeklilik bir GEÇERLİLİK kararıdır (bu bilgi artık doğru
+değil), silme bir YASAL yükümlülüktür. İkisi tek fonksiyona bağlansaydı ya her emeklilik
+veri silerdi ya hiçbir silme gerçekleşmezdi. Test ikisini karşı karşıya koyuyor:
+`retireRecord` sonrası kişisel veri **duruyor**, `kvkkErasure` sonrası **yok**.
+
+**Kapılar:** `corpus-silici` darboğazı (`izinli: []`) `packages/corpus/` altında her
+dosya silme çağrısını yasaklıyor. `prospect-kvkk` kapısı şemanın kuramadığı koşullu
+kuralı zorluyor — PROFILE `if/then`i yasaklıyor çünkü dört projeksiyonun hiçbiri
+çeviremiyor: kişisel veri varsa `kvkk_disclosure_sent`, silinmiş kayıtta kişisel alan
+kalmamış olmalı. Üçü de kasten ihlal edildi, üçü de kırmızı, ikisi bataryada.
+
+**`x_signature` siliniyor:** içerik kasten değişti; kalsaydı imza kontrolü bunu "elle
+düzenlenmiş" sayıp çalıştırmayı durdururdu (§4.6) — oysa bu meşru bir silme.
+
+**Sahte prospect YAZILMADI:** uydurulmuş bir şirket, doğruluk kaynağına giren bir
+kurgudur. Kaydın ŞEKLİ testte doğrulanıyor; gerçek kayıtlar insan girdisiyle gelir.
+
+**Geri alma maliyeti:** düşük — fonksiyon tek dosyada, çağıranı yok.
+

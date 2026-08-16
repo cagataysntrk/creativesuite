@@ -1,0 +1,95 @@
+# Prospect — ayrı bir CRM DEĞİL, corpus kaydı (§10 · §5.1 · D-27).
+#
+# Ayrı bir CRM kurulmadı çünkü ihtiyacın tamamı zaten burada: kayıt, geçmiş, kaynak
+# alıntısı, erişim ve silme. KVKK yükümlülükleri böylece dosya sistemi işlemlerine iner —
+# erişim talebi bir okuma, silme talebi `kvkkErasure`dır (D-212).
+#
+# **Kişisel veri alanı azdır ve isteğe bağlıdır.** Bir şirketin ticaret unvanı kişisel
+# veri değildir; bir kişinin adı ve e-postası kişisel veridir. Şema bu ikisini AYIRIR ve
+# ikincisini zorunlu tutmaz: toplanmayan veri, korunması gerekmeyen veridir.
+$id: prospect
+type: object
+title: Prospect
+description: Görüşülecek şirket, hangi aşamada olduğu ve verinin nereden geldiği.
+additionalProperties: false
+required: [legal_name, stage, source_url, kvkk_basis, retention_until]
+properties:
+  legal_name:
+    type: string
+    title: Ticaret unvanı
+    description: Sicildeki tam unvan. Kısaltma değil — iki şirketi karıştırmanın en ucuz yolu kısaltmadır.
+    minLength: 2
+    maxLength: 200
+  trade_name:
+    type: string
+    title: Bilinen adı
+    maxLength: 160
+  website:
+    type: string
+    title: Site
+    maxLength: 300
+  city:
+    type: string
+    title: Şehir
+    maxLength: 80
+  sector:
+    type: string
+    title: Sektör
+    description: Serbest metin değil, konuştuğumuz dikey. Retrieval `scope.verticals` ile eşler.
+    maxLength: 120
+  size_band:
+    type: string
+    title: Ölçek bandı
+    description: Kesin çalışan sayısı DEĞİL. Kesin sayı üçüncü taraf tahminidir ve kaynaksız sayısal iddiadır (R-32).
+    enum: [micro, small, medium, large, unknown]
+  stage:
+    type: string
+    title: Aşama
+    description: CRM durumu. `disqualified` bir başarısızlık değil, kaydedilmesi gereken bir sonuçtur.
+    enum: [identified, researched, contacted, meeting, proposal, won, lost, disqualified]
+  stage_reason:
+    type: string
+    title: Aşama gerekçesi
+    description: Özellikle `lost` ve `disqualified` için. Gerekçesiz kayıp, tekrar edilen kayıptır.
+    maxLength: 400
+  source_url:
+    type: string
+    title: Kaynak
+    description: Bu şirketi NEREDEN bulduğumuz. Zorunlu — kaynağı bilinmeyen veri, silme talebinde nereye bakılacağı bilinmeyen veridir.
+    minLength: 4
+    maxLength: 500
+  kvkk_basis:
+    type: string
+    title: KVKK işleme sebebi
+    description: Hangi hukuki sebeple işliyoruz. Zorunlu ve varsayılanı YOK — varsayılanı olan bir hukuki sebep, hiç düşünülmemiş bir hukuki sebeptir.
+    enum: [mesru_menfaat, acik_riza, sozlesme, hukuki_yukumluluk]
+  retention_until:
+    type: string
+    title: Saklama sonu
+    description: Bu tarihten sonra kayıt KVKK silmesine adaydır (ISO 8601 tarih). Süresiz saklama bir karar değil, kararsızlıktır.
+    minLength: 10
+    maxLength: 10
+  contact_role:
+    type: string
+    title: Muhatap unvanı
+    description: Unvan (örneğin üretim müdürü). Unvan kişisel veri değildir ve çoğu iş için yeterlidir.
+    maxLength: 120
+  contact_name:
+    type: string
+    title: Muhatap adı
+    description: KİŞİSEL VERİ. Yalnız gerçekten gerekiyorsa; `kvkk_basis` ve aydınlatma yükümlülüğü bu alanla birlikte doğar.
+    maxLength: 160
+  contact_email:
+    type: string
+    title: Muhatap e-postası
+    description: KİŞİSEL VERİ. Aynı uyarı. `kvkk_disclosure_sent` işaretlenmeden yayın hattına giremez.
+    maxLength: 200
+  kvkk_disclosure_sent:
+    type: boolean
+    title: Aydınlatma yapıldı
+    description: Kişisel veri alanları doluysa zorunlu — şema koşul kuramaz (PROFILE), kural `prospect-kvkk` kapısında.
+  notes:
+    type: string
+    title: Not
+    description: Görüşme notu. Kişi hakkında değerlendirme YAZILMAZ — bu bir kişisel veri kategorisi genişletmesidir.
+    maxLength: 2000
