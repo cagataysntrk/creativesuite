@@ -157,82 +157,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-230 — ANAYASA tavanı belgeyi TAMAMLANAMAZ yapıyordu: ölçüt değişti
-
-**2026-08-16 · FAZ-8 kapanışı**
-
-`docs/ANAYASA.md` tam **1200/1200** ve **sekiz alt bölüm boştu**: §3.4 · §3.6 · §3.9 ·
-§3.10 · §5.5 · §7.3 · §8.1 · §12.8. Yedisi **kapanmış** fazlara ait — yani D-159'un
-"sırası gelen adım kendi bölümünü doldurur" mekanizması çalışmadı: bir fazı kapatmak,
-o fazın ANAYASA bölümünü doldurmayı hiç gerektirmedi.
-
-**Ölçtüm, sonra karar verdim** (R-76). Belgede yağ yok: bölümler konularıyla orantılı
-ve 150 satır kırpmak gerçek içerik silmek olurdu. Yani tavan, sekiz bölümü doldurmanın
-önündeki tek engeldi.
-
-**Karar: ölçüt değişiyor, tavan gevşemiyor.** R-63'ün ANAYASA satırı 1200 → **1400**,
-ama tek başına değil: **alt bölüm (`### §N.M`) başına 60 satır** tavanı eklendi ve
-`docs-size` onu da zorluyor.
-
-⚠ **Ölçü birimi ikinci ölçümde düzeldi.** Önce "bölüm (`## §N`) başına 180" yazmıştım;
-iki kusuru vardı: (1) sekiz bölüm dolunca §3 ≈193 satıra çıkıyor ve kural **kendi
-doldurma işini** kırmızıya döndürüyordu, (2) daha önemlisi **yanlış birimi ölçüyordu** —
-atıflar `§3` değil `§3.4` biçiminde veriliyor ve `just tur` alt bölümü getiriyor.
-
-⚠ **Ölçüm aracı da yanlış ölçebilir.** İlk awk yalnız `###` sınırına bakıyordu ve son
-alt bölümü dosya sonuna kadar sayıyordu: §12.9 28 satır yerine **215** görünüyordu. Bir
-tavan, tavanı ölçen araç kadar doğrudur. Sınır artık `###` **veya** `##`.
-
-**Neden bu daha SIKI:** okuyucunun maliyeti belgenin değil, **atıf verilen bölümün**
-boyu. 1400 satırlık bir belgede 60 satırlık on bölüm, 1200 satırlık bir belgede 300
-satırlık tek bölümden ucuz okunur. Ve **boş bir bölüm uzun bir bölümden pahalıdır**:
-§12.8'e bakan biri erişilebilirlik kuralını bulamayınca kuralı yok sanmaz — **kendi
-uydurur**. Eksik belge, yanlış belgenin yavaş hâlidir.
-
-**Alternatif — reddedildi:** sekiz bölümü "bilinçli olarak boş" tombstone'larıyla
-kapatmak. Yedisi kapanmış fazlara ait ve içerikleri **var** — kodda, kararlarda, faz
-dosyalarında. Boş bırakmak bilgiyi yok etmiyor, yalnız **bulunamaz** kılıyor; ve
-ANAYASA'nın tek işi bulunabilir kılmak.
-
-**Sıra önemli:** önce doldur, sonra `citations`ı sık (D-231). Kırmızı bir kapıyla
-başlamak her commit'i bloke ederdi.
-
-**Geri alma maliyeti:** yok — tavan bir sayı.
-
-## D-231 — `citations` yalnız İLERİ bakıyordu: tikli adımın atfı da denetleniyor
-
-**2026-08-16 · FAZ-8 kapanışı, ANAYASA borcu**
-
-`citations` bugüne kadar **yalnız `siradaki_adim`ın** `📖` satırındaki atıfları
-denetliyordu: sıradaki adım gövdesiz bir bölümü okumak zorundaysa hata. Doğru ama eksik.
-
-**Bir faz kapandığında o bölüm bir daha hiç kontrol edilmiyordu.** §12.8 FAZ-4.1'e ait
-ve FAZ 4 kapandı; §8.1 FAZ-3.4'e ait ve FAZ 3 kapandı. İkisi de boş kaldı ve kapı yalnız
-"8 iskelet bölüm" diye **uyarıyordu** — o uyarı dokuz turdur okunup geçildi. **Gürültülü
-şey kapatılır; uyarı da bir kapatma biçimidir.**
-
-**Karar: tiklemek bir iddiadır.** `faz-yollari` bunu `📁` için zaten söylüyor ("tikli bir
-adımın yol satırı plan değil, iddiadır"); aynısı `📖` için de geçerli. Bir adımı
-tiklemek, okuduğu bölümün VAR olduğunu iddia etmektir. Kaynaksız yapılmış bir adım,
-yapılmamış bir adımdan kötüdür: yapıldığı sanılır ve kimse geri dönmez.
-
-**Sıra zorunluydu** (R-76): önce sekiz bölüm dolduruldu (D-230), sonra kapı sıkıldı.
-Ters sırada yedi kapanmış faz yüzünden kapı kırmızıya döner ve **her commit bloke
-olurdu** — ve o durumda tek makul çıkış kuralı gevşetmek olurdu.
-
-⚠ **İhlal testi kapının SINIRINI da ölçtü.** Önce §12.8'i boşalttım ve kapı kırmızıya
-dönmedi: **hiçbir adımın `📖` satırı §12.8'e atıf vermiyor.** Yani mekanizma çalıştı,
-kapsamı dışındaydı. §8.1 ile tekrarladım (FAZ-3.4 tikli ve ona atıf veriyor) ve kapı
-kırmızıya döndü. Kalan boşluk **bilinçli ve beyanlı**: hiç atıf almayan bir bölüm yalnız
-"iskelet" uyarısıyla korunuyor. Bunu kapatmanın yolu kapıyı büyütmek değil, o bölümü
-okuyan adımı `📖` satırına yazmaktır — kapı bir eksikliği bildirir, planı yazmaz.
-
-**Kalıcı ders:** *bir denetim yalnız ileri bakıyorsa, geçmiş sessizce birikir.* D-159
-"sırası gelen adım doldurur" diyordu ve bu doğruydu — ama sıra geçtikten sonra kimse
-bakmıyordu. Kapanış, denetimin BİTTİĞİ an değil, denetimin **kalıcılaştığı** an olmalı.
-
-**Geri alma maliyeti:** yok.
-
 ## D-232 — `aiGenerated: false` SABİTTİ; Md. 50 ifşası sessizce kapalıydı
 
 **2026-08-16 · FAZ-8 doğrulama 2. tur, BLOKER**
@@ -565,5 +489,44 @@ prompt yazmak içeriğe kör bir görsel verir; (b) Türkçe konuyu doğrudan pr
 görsel modellerinde belirgin biçimde kötü sonuç veriyor ve **6. yasayı da zorlar** —
 model seçimi yönlendiricinin işi ama prompt dili bizim kararımız. Brief'i model
 yazınca R-20 ve 9. yasa kapılarının ikisi de o metnin üzerinden geçiyor.
+
+**Geri alma maliyeti:** yok.
+
+## D-242 — Başarısız adım deftere kapanıyor ve sonraki koşuda "başarılı" oluyordu
+
+**2026-08-16 · corpus onayı sonrası ilk koşular**
+
+Manifest'te şu satırı gördüm: `metin-uret · status: ok · output: null · 1 ms`. Ücretli
+bir `GENERATE` adımı hiçbir iş yapmadan başarılı olmuştu.
+
+**Zincir, ölçülerek:**
+1. `idempotencyKey` **bilerek `runId` içermiyor** — aynı iş koşular arası aynı anahtarı
+   paylaşsın ve çift ödeme olmasın diye. Bu doğru.
+2. 1. koşuda `metin-uret` `CAPABILITY_UNSUPPORTED` ile düştü ve `scheduler.ts` hatada
+   deftere **`not-charged`** yazıp kaydı kapattı.
+3. 3. koşuda aynı anahtar bulundu. Kod `chargeStatus === 'possibly-charged'` değilse
+   *"(a) KAPANMIŞ kayıt: iş bitmiş, çağrı atlanır"* diyordu — ve `not-charged` de
+   `possibly-charged` değil.
+
+Yani **bir kez hata veren adım, sonraki HER koşuda `output: null` ile yeşile dönüyordu.**
+Aşağı akış (`kompozit`) boş girdiyle devam ediyordu.
+
+**Kırmızı bir adım, yeşile dönmüş bir adımdan iyidir.** Kırmızı adım bakılır; yeşile
+dönen adım bakılmaz ve boş çıktı hattın sonuna kadar taşınır.
+
+**Kök ayrım:** `not-charged` = *çağrı uçmadı*, yani **iş yapılmadı**. `charged` = iş
+yapıldı ve ödendi. İkisini "kapanmış" diye aynı kovaya koymak, defterin ne için var
+olduğunu karıştırmaktı. **Defterin işi ÖDEMEYİ tekrarlamamak, İŞİ tekrarlamamak
+değil** — ödenmemiş bir iş tekrar denenmeli ve çift ödeme riski yok, çünkü ödeme hiç
+olmadı.
+
+**Düzeltme:** `not-charged` kayıt `ledger.reopen()` ile `possibly-charged`a çevrilip
+yeni koşuya bağlanıyor. Kayıt **SİLİNMİYOR** — defter append-only bir kanıttır (R-52)
+ve "bu adım daha önce denendi" bilgisi kaybolmamalı. `charged` ve `possibly-charged`
+kayıtlara dokunulmuyor: birincisinde çift ödeme riski var, ikincisinde bilinmeyeni
+tahmin etmek yasak.
+
+**Ölçüldü:** düzeltmeden sonra aynı hat `metin-uret`te dürüstçe `EMPTY_PROMPT` veriyor —
+yani gerçek eksiği gösteriyor. Bu eksik (`3.7b`) daha önce defterin arkasına saklanmıştı.
 
 **Geri alma maliyeti:** yok.

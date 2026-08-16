@@ -76,6 +76,32 @@ const toEntry = (r: Record<string, unknown>): LedgerEntry => ({
  * Çağrı ÖNCESİ rezervasyon. Anahtar zaten varsa mevcut kayıt döner ve çağıran
  * **çağrıyı tekrarlamaz** — çökme sonrası çift ücretin engellendiği yer burasıdır.
  */
+/**
+ * Ödenmemiş bir kaydı yeniden AÇAR — iş tekrar denenecek (D-242).
+ *
+ * `not-charged` "çağrı uçmadı" demek: para harcanmadı, iş yapılmadı. Böyle bir kaydı
+ * "kapanmış" saymak, bir kez hata veren adımı sonraki her koşuda `output: null` ile
+ * "başarılı" yapıyordu. **Defterin işi ÖDEMEYİ tekrarlamamak, İŞİ tekrarlamamak
+ * değil.**
+ *
+ * Kayıt SİLİNMİYOR, `possibly-charged`a çevriliyor ve yeni koşuya bağlanıyor: defter
+ * append-only bir KANIT (R-52) ve "bu adım daha önce denendi" bilgisi kaybolmamalı.
+ */
+export const reopen = (
+  db: Db,
+  idempotencyKey: string,
+  runId: RunId,
+  stepId: StepId,
+  clock: Clock = systemClock
+): void => {
+  db.prepare(
+    `UPDATE cost_ledger
+        SET charge_status = 'possibly-charged', run_id = @run, step_id = @step,
+            micros = '0', external_id = NULL, created_at = @now
+      WHERE idempotency_key = @k AND charge_status = 'not-charged'`
+  ).run({ k: idempotencyKey, run: String(runId), step: String(stepId), now: clock.nowIso() })
+}
+
 export const reserve = (
   db: Db,
   input: Omit<LedgerEntry, 'amount' | 'chargeStatus' | 'externalId' | 'createdAt'>,

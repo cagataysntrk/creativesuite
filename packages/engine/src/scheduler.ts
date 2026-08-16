@@ -167,7 +167,24 @@ export const runStep = async (
     })
     if (!rez.fresh) {
       const yarim = rez.entry.chargeStatus === 'possibly-charged'
-      if (!yarim) {
+
+      // ── (0) BAŞARISIZ kayıt: iş HİÇ OLMADI, tekrar denenmeli (D-242) ───────
+      //
+      // ⚠ **En sinsi hata buradaydı.** `not-charged` "çağrı uçmadı" demek — yani iş
+      // yapılmadı. Eski kod onu `possibly-charged` DEĞİL diye "kapanmış" sayıyor ve
+      // çağrıyı atlıyordu. Sonuç: bir kez hata veren adım, sonraki HER koşuda
+      // `status: ok` + `output: null` ile 1 milisaniyede "başarılı" oluyordu.
+      //
+      // Ölçüldü: `metin-uret` `CAPABILITY_UNSUPPORTED` ile düştü, deftere
+      // `not-charged` kapandı, bir sonraki koşuda hattı sessizce geçti ve `kompozit`
+      // boş girdiyle devam etti. **Kırmızı bir adım, yeşile dönmüş bir adımdan
+      // iyidir; asıl tehlike yeşile dönmesidir.**
+      //
+      // Defterin işi ÖDEMEYİ tekrarlamamak, İŞİ tekrarlamamak değil. Ödenmemiş bir
+      // iş tekrar denenmeli — çift ödeme riski yok, çünkü ödeme hiç olmadı.
+      if (rez.entry.chargeStatus === 'not-charged') {
+        ledger.reopen(deps.db, spec.idempotencyKey, spec.runId, spec.stepId)
+      } else if (!yarim) {
         // (a) KAPANMIŞ kayıt: iş bitmiş, tutarı biliniyor. Çağrı atlanır.
         return {
           outcome: {
@@ -183,7 +200,7 @@ export const runStep = async (
           budget: budget.settleLease(bState, spec.estimateHigh, rez.entry.amount),
         }
       }
-      if (rez.entry.externalId !== null) {
+      if (rez.entry.chargeStatus !== 'not-charged' && rez.entry.externalId !== null) {
         // (b) YARIDA KALMIŞ ama tutamak var: sağlayıcıya SORULUR, yeniden çağrılmaz.
         devamTutamak = rez.entry.externalId
       } else {
