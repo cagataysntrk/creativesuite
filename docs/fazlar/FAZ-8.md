@@ -83,17 +83,27 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    ⚠ Panoda **"uyumlu işaretle" düğmesi yok**: dayanaksız iddia bir tıklamaya inerdi.
 💾 `feat(render): compliance panel ve AI ifşası` · `Refs: FAZ-8.3 · §11.3`
 
-## 8.4 — Haftalık `just doctor`    [ ]
+## 8.4 — Haftalık `just doctor`    [x] 2026-08-16
 
 📖 §16, §13 · R-70
 🔗 FAZ-4.17
 🛠 Sağlayıcı fiyat drift'i · `re_verify_by` geçmiş kayıtlar · %20 üstü bütçe sapması ·
    indeks/corpus ayrışması. **Rapor yazar, HİÇBİR ŞEYİ DEĞİŞTİRMEZ**: otomatik düzeltme,
    bir ay sonra dönen kullanıcıdan ne olduğunu gizler ve ilke 12'yi çürütür.
-📁 `scripts/doctor.sh`
-✅ `just doctor` rapor basıyor · `git status` **temiz** kalıyor (hiçbir dosya değişmedi)
-🧪 Doctor'a bir düzeltme eylemi ekle → `chokepoints` reddediyor
-💾 `feat(scripts): haftalık doctor raporu` · `Refs: FAZ-8.4 · §16`
+📁 `scripts/doctor.sh` · `scripts/doktor.mjs`
+✅ `just doctor` rapor basıyor ve **hiçbir dosya yazmıyor**; `just doctor --json`
+   makine-okunur çıktı veriyor — **yönlendirmeyi kullanıcı yapar, betik yazmaz.**
+   ⚠ **"Son çalışma damgası" bilinçli olarak YOK.** Yazılsaydı iki şey birden
+   bozulurdu: (1) betik salt-okur olmaktan çıkardı, (2) o damga bir doğruluk kaynağı
+   olurdu ve silindiğinde sistem "hiç koşmadı" ile "damga kayboldu"yu ayırt edemezdi.
+   **Haftalık tetik bir ALARM SAATİDİR** (kullanıcının kendi `crontab` satırı),
+   doğruluk kaynağı değil — 12. yasa: hiçbir daemon doğruluk tutmaz. Kurulumu komut
+   YAPMAZ, yalnız satırı basar: kullanıcının makinesine izinsiz iş yazılmaz.
+🧪 Doctor'a `writeFileSync` ekle → `doctor-salt-okur` **kırmızı**, ölçüldü:
+   `✗ scripts/doktor.mjs: doctor yolunda YAZMA çağrısı — 72:writeFileSync(...)`
+💾 `feat(cli): haftalık doctor raporu` · `Refs: FAZ-8.4 · §16`
+   (faz dosyası `scripts` kapsamı öneriyordu; `commit-msg` kapısının izinli listesinde
+   yok ve kapı haklı — kapsam paket adıdır, dizin adı değil.)
 
 ## 8.5 — Proaktif katman    [ ]
 

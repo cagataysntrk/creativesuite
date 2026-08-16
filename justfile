@@ -124,8 +124,8 @@ reindex kok='corpus' db='derived/index/suite.db':
     @./node_modules/.bin/tsc -b && node scripts/reindex.mjs '{{kok}}' '{{db}}'
 
 # Haftalık sağlık raporu. Rapor yazar, HİÇBİR ŞEYİ DEĞİŞTİRMEZ
-doctor:
-    @bash scripts/doctor.sh
+doctor *args:
+    @bash scripts/doctor.sh {{args}}
 
 # Araç zinciri kontrolü + bağımlılıklar
 setup:

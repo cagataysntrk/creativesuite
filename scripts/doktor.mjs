@@ -62,6 +62,40 @@ const rapor = doktorRaporu({
   },
 })
 
+// ── haftalık iş modu (§16 · FAZ-8.4) ────────────────────────────────────────
+//
+// **Hiçbir daemon doğruluk tutmaz** (12. yasa) ve bu betik hiçbir şey YAZAMAZ
+// (`doctor-salt-okur`). O yüzden "en son ne zaman koştu" bilgisi hiçbir yerde
+// saklanmıyor — saklansaydı, o damga bir doğruluk kaynağı olurdu ve silindiğinde
+// sistem "hiç koşmadı" ile "damga kayboldu"yu ayırt edemezdi.
+//
+// **Haftalık tetik bir ALARM SAATİDİR, doğruluk kaynağı değil.** Kullanıcının kendi
+// makinesindeki bir `cron` satırı bu komutu koşturur; komut idempotent ve ucuz, o
+// yüzden fazladan koşması zarar vermez ve kaçırması telafi edilebilir — tek maliyet
+// bir haftalık gecikme. Kurulum `docs/referans/` altında değil, aşağıda: kurulumu
+// otomatikleştirmek, kullanıcının makinesine izinsiz bir iş yazmak olurdu.
+//
+// `--json`: makine-okunur çıktı. Bir cron satırı bunu bir dosyaya yazabilir; betik
+// KENDİSİ yazmaz — yazsaydı salt-okur olmaktan çıkardı.
+const jsonMod = process.argv.includes('--json')
+if (jsonMod) {
+  console.log(
+    JSON.stringify(
+      {
+        bugun: rapor.bugun,
+        kritik: rapor.kritik,
+        uyari: rapor.uyari,
+        bulgular: rapor.bulgular,
+        kosanDenetimler: rapor.kosanDenetimler,
+        atlananDenetimler: rapor.atlananDenetimler,
+      },
+      null,
+      2
+    )
+  )
+  process.exit(0)
+}
+
 const durum = existsSync(join(REPO, 'DURUM.md')) ? readFileSync(join(REPO, 'DURUM.md'), 'utf8') : ''
 const alan = (ad) => (new RegExp(`^${ad}: *(.*)$`, 'm').exec(durum)?.[1] ?? '?').trim()
 
@@ -72,3 +106,14 @@ console.log(
 // Doctor **rapor eder**; çıkış kodu her zaman 0. Kritik bulguda kırmızıya dönseydi
 // `just doctor` bir kapıya dönerdi — oysa kapılar `just check`te ve doctor'ın işi
 // bir ay sonra dönen kullanıcıya TABLO göstermek, kapıyı kapatmak değil.
+//
+// ── haftalık kurulum (kullanıcı kendi makinesinde, bir kez) ──────────────────
+//   crontab -e
+//   0 9 * * 1  cd <repo> && just doctor >> ~/.upcytech-doctor.log 2>&1
+//
+// Cron bir alarm saatidir: doğruluk tutmaz, yalnız hatırlatır. Kaçırılan bir hafta
+// telafi edilebilir; komut idempotent ve hiçbir şey değiştirmiyor.
+console.log('')
+console.log('  Haftalık koşturmak için (bir kez, kendi makinenizde):')
+console.log('    0 9 * * 1  cd ' + REPO + ' && just doctor >> ~/.upcytech-doctor.log 2>&1')
+console.log('  ⚠ Kurulumu bu komut YAPMAZ: kullanıcının makinesine izinsiz iş yazılmaz.')

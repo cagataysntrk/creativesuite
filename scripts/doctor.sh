@@ -12,6 +12,15 @@ set -uo pipefail
 # Bu, `'i'.toUpperCase()` → `I` hatasının (R-21) kabuk seviyesindeki kardeşidir.
 export LC_ALL=C
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
+
+# ── makine-okunur mod (§16 · FAZ-8.4) ────────────────────────────────────────
+# Haftalık bir cron satırı çıktıyı bir dosyaya yazabilsin diye. **Betik kendisi
+# YAZMAZ** — yazsaydı salt-okur olmaktan çıkardı ve `doctor-salt-okur` kapısı haklı
+# olarak kırmızıya dönerdi. Yönlendirmeyi kullanıcı yapar, biz değil.
+if [ "${1:-}" = "--json" ]; then
+  exec node scripts/doktor.mjs --json
+fi
+
 echo "git      : $(git log --oneline -1 2>/dev/null || echo yok)"
 echo "temiz mi : $([ -z "$(git status --porcelain)" ] && echo evet || echo HAYIR)"
 

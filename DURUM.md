@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.4
+siradaki_adim: 8.5
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
 deneme_sayaci: {}
@@ -77,14 +77,14 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **8.1** · dik varyant matrisi; diklik OFAT'la ölçülüyor (D-225) | 2026-08-16 |
 | **8.2** · reklam linter'ı; ikinci şahıs × özellik kesişimi | 2026-08-16 |
 | **8.3** · uyum panosu; ifşa kapısı yayın hattına bağlandı | 2026-08-16 |
+| **8.4** · haftalık doctor; damga YOK — alarm saati, doğruluk kaynağı değil | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`8.4` — Haftalık `just doctor`** (§16). Sağlayıcı fiyat drift'i, `re_verify_by`
-geçmiş kayıtlar, bütçe sapması. **Rapor yazar, hiçbir şeyi değiştirmez** — bir ay
-ihmalden sonra otomatik düzeltme, kullanıcıya ne olduğunu gizler. Doctor'ın kendisi
-FAZ-4.17'de kuruldu ve sekiz denetim alanı koşuyor; bu adım onu **haftalık bir işe**
-bağlıyor ve raporun nereye yazıldığını belirliyor.
+**`8.5` — Proaktif katman** (§10 · D-10). Haftalık içerik önerisi, boş takvim uyarısı,
+mevzuat değişiminden içerik fırsatı. ⚠ **Kademeli olmasının sebebi var:** erken
+proaktiflik gürültüdür ve gürültü kapatılır. Öneri `corpus.propose()` üzerinden akmalı
+(R-14) — sistem kendi kendine içerik üretip yayınlamaz, **önerir**.
 
 ## Devreden borçlar
 
