@@ -174,6 +174,15 @@ export interface RunReport {
 const isteğeBagli = (s: PipelineStep): boolean => s.constraints['optional'] === true
 
 /**
+ * Dış metin sınırının KENDİ kapısı (§14 · R-50).
+ *
+ * Ayrı bir ad taşıması şart: "yayınla" onayı ile "dış metin okundu, harcamaya izin
+ * veriyorum" onayı iki ayrı karardır ve birini diğerinin yerine saymak, sınırı
+ * kullanıcının hiç görmediği bir onayla açardı.
+ */
+export const UNTRUSTED_GATE = 'untrusted-input'
+
+/**
  * Adım çıktısının manifest'e girecek ÖZETİ.
  *
  * Ölçülebilir ve kısa olanı taşır: QA raporu, üretilen slayt sayısı ve yolları, seçilen
@@ -292,9 +301,17 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
   // alan adlarına bakıyor (metni okumuyor) — sınır konumsaldır, içeriğe bakmaz.
   const tazeDisBelgeler: { domain: string; sourceRef: string; fetchedAt: string; text: string }[] =
     []
-  // İnsan bu turu açıkça onayladı mı. Kararları AGENT üretemez (R-14): `just onay`
-  // insanın klavyesinden çalışır ve motor yalnız YAZILMIŞ olanı okur.
-  const insanOnayVerdi = (input.decisions ?? []).some((d) => d.decision === 'approved')
+  // İnsan **DIŞ METİN sınırını** açıkça onayladı mı (§14).
+  //
+  // ⚠ İlk sürüm `decisions.some(d => d.decision === 'approved')` yazıyordu — yani
+  // hattın SONUNDAKİ `insan-onayi` kapısına verilen onay, `ingestGate`i de açıyordu.
+  // Oysa bunlar iki farklı karar: "bu çıktıyı yayınla" ile "bu dış metni okuduktan
+  // sonra para harcamana izin veriyorum" aynı şey değil (2. doğrulama turu, bulgu 15).
+  //
+  // Sınır kendi kapısını ister: `untrusted-input`. Başka bir kapının onayı onu açmaz.
+  const insanOnayVerdi = (input.decisions ?? []).some(
+    (d) => d.gate === UNTRUSTED_GATE && d.decision === 'approved'
+  )
   let bState = budget.emptyBudget(input.caps)
   let durduguYer: StepId | null = null
   let bekleyenKapi: string | null = null

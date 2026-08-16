@@ -21,7 +21,7 @@ import { ok, usd, type BrandId, type EraId, type RunId, type VerbName } from '@s
 import type { Pipeline } from '@suite/registry'
 import { initLedger } from './cost/ledger.js'
 import { readManifest } from './manifest-writer.js'
-import { runPipeline } from './run.js'
+import { runPipeline, UNTRUSTED_GATE } from './run.js'
 
 const RUN = 'run_0192f3a1-0000-7000-8000-0000000000c1' as RunId
 const SIMDI = '2026-08-16T09:00:00.000Z'
@@ -284,5 +284,48 @@ describe('çalıştırma parametreleri', () => {
     } as Parameters<typeof runPipeline>[0])
     // R-20'nin genel hâli: bir çalıştırma parametresi yasayı ezemez.
     expect(gorulen['url']).toBe('SÖZLEŞME')
+  })
+})
+
+// ── §14 sınırı KENDİ kapısını istiyor (2. doğrulama turu, bulgu 15) ─────────
+describe('dış metin sınırının kapısı', () => {
+  const hat = [adim('arastir', 'INGEST'), adim('render', 'RENDER', ['arastir'])]
+  const fiiller = {
+    INGEST: sahte('INGEST', { fetchedAt: '2026-08-14T00:00:00.000Z', sourceRef: 'u', domain: 'x' }),
+    RENDER: sahte('RENDER', { slides: ['/tmp/a.png'] }),
+  }
+  const kararla = (gate: string) =>
+    runPipeline({
+      repoRoot: tmp.path,
+      pipeline: { id: 'p', title: 'p', steps: hat },
+      runId: RUN,
+      brandId: 'brd_test' as BrandId,
+      eraId: 'era_test' as EraId,
+      corpusCommit: 'abc1234',
+      registryCommit: 'def5678',
+      verbs: fiiller,
+      pricing: {},
+      candidatesFor: () => [],
+      env: {},
+      caps: { perRun: null, perMonth: null },
+      db,
+      clock: manualClock(SIMDI),
+      rng: seededRng(1),
+      sleep: async () => undefined,
+      decisions: [{ gate, decision: 'approved', at: SIMDI, note: null }],
+    } as Parameters<typeof runPipeline>[0])
+
+  // 🧪 BAŞKA bir kapının onayı sınırı AÇMAMALI. İlk sürüm `decision === 'approved'`
+  // diye bakıyordu; hattın sonundaki yayın onayı `ingestGate`i de açıyordu.
+  it('yayın onayı dış metin sınırını AÇMIYOR', async () => {
+    const r = await kararla('insan-onayi')
+    expect(r.stoppedAt).toBe('render')
+    expect(r.errors.some((e) => e.error.code === 'UNTRUSTED_INPUT_GATE')).toBe(true)
+  })
+
+  it('sınırın KENDİ kapısı onaylandığında geçiyor', async () => {
+    const r = await kararla(UNTRUSTED_GATE)
+    expect(r.stoppedAt).toBeNull()
+    expect(r.errors).toHaveLength(0)
   })
 })

@@ -38,6 +38,8 @@ const {
   formatReport,
   samplePng,
   lintDocument,
+  parseIr,
+  isIrError,
   hexFromTokens,
   colorsFromTokens,
   assertCompliance,
@@ -113,6 +115,30 @@ if (
   console.log(`  parametre: just uret prospect-deck <konu> --url <site> --demo-ref <yol>`)
   console.log(`  mevcut: ${listPipelines(PIPELINES).join(', ') || '(yok)'}`)
   process.exit(1)
+}
+
+// ── deck IR'ı: KAYNAK dosya (§4c · FAZ-6.1) ─────────────────────────────────
+//
+// `--ir <yol>` verilirse belge blokları oradan gelir — grafik ve diyagram blokları
+// dahil. Benzer bir deck geldiğinde LLM yeniden koşturulmaz, IR kopyalanıp düzenlenir:
+// hem ucuz hem tutarlı. Şekil doğrulaması `parseIr`de; bozuk IR render'ın ortasında
+// değil OKUMADA reddedilir.
+let irBelge = null
+if (typeof serbestParam.ir === 'string') {
+  const irYol = serbestParam.ir.startsWith('/') ? serbestParam.ir : join(REPO, serbestParam.ir)
+  if (!existsSync(irYol)) {
+    console.log(`✗ IR dosyası yok: ${serbestParam.ir}`)
+    process.exit(1)
+  }
+  const cozulen = parseIr(readFileSync(irYol, 'utf8'))
+  if (isIrError(cozulen)) {
+    console.log(`✗ IR okunamadı: ${JSON.stringify(cozulen)}`)
+    process.exit(1)
+  }
+  irBelge = cozulen.doc
+  // `ir` bir CLI bayrağı, bir adım kısıtı DEĞİL: kısıtlara sızarsa manifestte dosya
+  // yolu görünür ve replay başka bir makinede kırılır.
+  delete serbestParam.ir
 }
 
 const cozum = loadPipeline(PIPELINES, id)
@@ -580,7 +606,9 @@ const rapor = await runPipeline({
   verbs: {
     RESOLVE: resolveBody,
     SELECT: selectBody({ select: secici }),
-    COMPOSE: composeBody({ tokenCss, stamp: damga }),
+    // Deck IR'ı **CLI okur**, gövde değil: `COMPOSE` saf (§3.10). IR verilmediyse
+    // metin üretiminden gelen satırlar kullanılır — eski davranış aynen duruyor.
+    COMPOSE: composeBody({ tokenCss, stamp: damga, ...(irBelge === null ? {} : { ir: irBelge }) }),
     RENDER: renderBody({
       outDir: cikti,
       layout: 'statement',

@@ -136,6 +136,18 @@ export const selectBody = (deps: SelectDeps): Verb =>
 export interface ComposeDeps {
   readonly tokenCss: string
   readonly stamp: AssetStamp
+  /**
+   * Deck IR'ı — **KAYNAK, çıktı değil** (§4c · FAZ-6.1).
+   *
+   * ⚠ İkinci doğrulama turu: `deck.ir.json` yazılmıyordu, okunmuyordu ve `chart`/
+   * `diagram` bloklarını ÜRETEN hiçbir gövde yoktu — yani "grafik PDF'te vektör"
+   * kriteri üretimde hiçbir çıktıda görünmüyordu. IR bu boşluğu kapatıyor: benzer bir
+   * deck geldiğinde LLM yeniden koşturulmaz, IR kopyalanıp düzenlenir.
+   *
+   * **Dosyayı CLI okur, bu gövde DEĞİL:** `COMPOSE`un yan etki sınıfı `pure` (§3.10)
+   * ve saf bir fiil dosya açamaz. Ayrım korunuyor.
+   */
+  readonly ir?: DocumentModel | null
 }
 
 /**
@@ -155,6 +167,31 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       (v): v is { readonly records: readonly { readonly text: string }[] } =>
         v !== null && typeof v === 'object' && Array.isArray((v as { records?: unknown }).records)
     )
+
+    // ── IR verildiyse blokların KAYNAĞI odur ────────────────────────────────
+    // Metin üretimi atlanır: IR zaten insan tarafından düzenlenmiş bir belgedir ve
+    // model onu "iyileştirmeye" çalışırsa düzenlemeyi geri alır.
+    if (deps.ir !== undefined && deps.ir !== null) {
+      const irBelge: DocumentModel = {
+        ...deps.ir,
+        // Damga ve token'lar ÇALIŞTIRMADAN gelir, IR'dan değil: bir varlık üretim anında
+        // damgalanır (R-11) ve IR aylar önce yazılmış olabilir.
+        tokenCss: deps.tokenCss,
+        stamp: deps.stamp,
+      }
+      const irGecerli = validateDocument(irBelge)
+      if (!irGecerli.ok) {
+        return err(hata('validation', 'INVALID_IR', ctx, { defects: irGecerli.errors }))
+      }
+      return ok({
+        costs: [],
+        data: {
+          document: irBelge,
+          irKullanildi: true,
+          ...kisisellestirmeCiktisi(input.constraints),
+        },
+      })
+    }
 
     const satirlar =
       metinCiktisi?.lines ??
@@ -204,6 +241,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       costs: [],
       data: {
         document: doc,
+        ...kisisellestirmeCiktisi(input.constraints),
         ...(cekimler.length > 0
           ? {
               productShots: cekimler.map((c) => ({
@@ -226,6 +264,39 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       },
     })
   })
+
+/**
+ * Kişiselleştirme alanları — **operatörün açıkça saydığı** prospect'e özgü alanlar.
+ *
+ * ⚠ İkinci doğrulama turu: bu anahtarın yalnız OKUYUCULARI vardı (`ozetle`,
+ * `inspectManifest`, zincir toplayıcı) ve tek bir üreticisi yoktu — yani `kisisellestirme`
+ * kapısı ve `personalization_cap` dedektörü ölüydü.
+ *
+ * **Neden operatör sayıyor, sistem çıkarmıyor:** tavan bir EDİTORYAL karardır (R-36) ve
+ * "hangi cümle prospect'e özgü" sorusunun mekanik bir cevabı yok. Sistemin çıkarım
+ * yapması, sayının anlamını kaybettirirdi. Operatör `--kisisellestirme "a,b,c"` yazar;
+ * kapı sayar.
+ */
+const kisisellestirmeCiktisi = (
+  constraints: Readonly<Record<string, unknown>>
+): Readonly<Record<string, unknown>> => {
+  const ham = constraints['personalization']
+  if (typeof ham !== 'string' || ham.trim() === '') return {}
+  const alanlar = ham
+    .split(',')
+    .map((x) => x.trim())
+    .filter((x) => x !== '')
+  return alanlar.length === 0
+    ? {}
+    : {
+        personalizationFields: alanlar.map((label, i) => ({
+          id: `alan-${i + 1}`,
+          label,
+          sourceRef: 'operatör beyanı',
+          confidence: 'direct' as const,
+        })),
+      }
+}
 
 /**
  * Önceki adımların ürettiği ürün ekranı çekimleri.
@@ -350,6 +421,18 @@ export const renderBody = (deps: RenderDeps): Verb =>
       const cikti = join(deps.outDir, duzlestir ? 'dokuman.pdf' : 'deck.pdf')
 
       if (duzlestir) {
+        // ⚠ `max_pages` kısıtı YAML'da duruyordu ve hiçbir kod okumuyordu; sınır
+        // yalnız `LINKEDIN_DOC_MAX_SAYFA` sabitinden geliyordu (2. doğrulama turu,
+        // bulgu 14). Ölü bir kısıt, okunduğu sanılan bir kısıttır — ve YAML'ı
+        // değiştiren kişi hiçbir şeyin değişmediğini fark etmez.
+        const maxPages = input.constraints['max_pages']
+        if (typeof maxPages === 'number' && sayfalar.length > maxPages) {
+          return err(
+            hata('validation', 'DOCUMENT_REJECTED', ctx, {
+              refusal: { kind: 'too_many_pages', count: sayfalar.length, max: maxPages },
+            })
+          )
+        }
         const maxBytes = input.constraints['max_bytes']
         const r = await renderLinkedinDocument(
           sayfalar,

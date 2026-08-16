@@ -10,16 +10,16 @@ siradaki_adim: 7.3
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.2 KAPANDI (yayin kapilari). SIRA TIPE GOMULU: publish() dort yetenegi de ZORUNLU parametre aliyor — token durumu, kota sorgusu, defter okumasi, yukleme; biri eksikse DERLENMIYOR, yani kota sorgusunu unutmak mumkun degil. Kanit CAGRI SIRASI: sahte bagimliliklar sirayi kaydediyor ve test kota indeksinin yukleme den kucuk oldugunu olcuyor (token → kota → defter → yukleme). Dort ret yolu da yuklemeyi HIC denemiyor: olmus token BLOKLUYOR (uyari degil), alt-textsiz varlik reddediliyor (R-34: yayinlanmis post duzenlenemiyor), kota dolu kuyrukta bekliyor, daha once yayinlanmis icerik tekrar edilmiyor (R-46: Meta mevcut id dondurur, korlemesine tekrar 3 varlik urettim sanip 20 uretmis gorunmektir). Token yenileme SON gune birakilmiyor: 7 gunluk pay, bir haftalik ihmali tolere ediyor. kanal-yayinci darbogazi BEYANDAN mekanik kurala cevrildi ve iki bicimde ihlal edildi; artik sahibi gelecek fazda olan darbogaz KALMADI (29 mekanik, 2 beyan). Gercek yayin insan girdisi → 7.2b (V-26). Batarya 13 kural kiriyor. ONCEKI: FAZ 6 denetiminin 12 bulgusu kapandi (D-216) ve ikinci dogrulama turu kosuyor."
+son_kanit: "IKINCI DOGRULAMA TURUNUN BULGULARI DA KAPANDI (16 bulgu). En agiri BENIM ILK TURDA ACTIGIM GERILEMEYDI: PDF ciktisi slides tasimadigi icin deps.check hic cagrilmiyordu ve lintDocument onun ICINDEYDI — deck, linkedin-document ve prospect-deck hatlarinda kaynaksiz sayi kapisi HIC kosmuyordu, yani fazin cikis kriteri uretimde zorlanmiyordu; ustune zincire lexiconIhlalleri: [] geciyordum ve yorumum check in icinde kostu diyordu. Lexicon artik AYRI bir yetenek, her bicimde kosuyor. KENDI KENDINI ONAYLAYAN TEST CIFTI: composeBody productShots u basis siz uretiyordu, zincir basis ariyordu, testlerim elle basis yazilmis URETIMIN HIC URETMEDIGI fikstur kullaniyordu — yeni uretim-sekli.test.ts fikstur yazmiyor, gercek COMPOSE ciktisini gercek zincire ve gercek dedektore veriyor. IR YOLU ACILDI: deck.ir.json artik CLI tarafindan okunuyor (COMPOSE saf kaliyor, §3.10) ve grafik/diyagram bloklari uretime giriyor; IR dan gelen grafik PDF te VEKTOR olarak olculdu. Kisisellestirme alanlarinin URETICISI eklendi (operator sayar, sistem cikarim yapmaz — tavan editoryal bir karardir). PROPOSE govdesi, CLI serbest parametreleri, max_pages olu kisiti, capture ozetle listesi, sayfaAlt exhaustive switch. §14 SINIRI ARTIK KENDI KAPISINI ISTIYOR: yayin onayi ingestGate i aciyordu, artik untrusted-input kapisi ayri. SELALE IDDIASI DARALTILDI: dort kaynagin adaptoru yazilmamis ve bu V-24 anahtar blokajinin arkasina saklanmis TEKNIK bir eksikti — faz dosyasi ve V-24 duzeltildi. 1144 test, 36 kapi, 13 ihlal kirmizi."
 ```
 
 ## Neredeyiz
 
-**FAZ 6'nın 12 denetim bulgusu KAPANDI** (D-216). Doğrulama agent'ı fazın çekirdek
-iddiasını çürütmüştü: kod yazılmış, üretim yolunda çağıranı yoktu. Şimdi zincir
-kesintisiz — adım çıktısı → manifest → dedektör → yayın blokajı, uçtan uca ölçüldü.
-**İkinci doğrulama turu sırada** (D-79: üçüncü tur açılmaz). **36 kapı · 12 ihlal
-kırmızı · 1113 test.**
+**FAZ 6 ŞARTLI KAPANDI** (D-217). **İki doğrulama turu koştu, 28 bulgunun hepsi kapandı.** Birinci tur 12, ikinci tur 16
+bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
+İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
+hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
+**D-79: üçüncü tur AÇILMAZ.** **36 kapı · 13 ihlal kırmızı · 1144 test.**
 
 > **Kök neden, üçüncü tekrar:** D-182 donmuş planı yazdı ama `uret.mjs` çağırmıyordu ·
 > D-190 düğmeyi çizdi ama `onClick` yoktu · şimdi aynı hata **bir seviye yukarıda**:
@@ -54,35 +54,24 @@ kırmızı · 1113 test.**
 > **Bu tablo yalnız AKTİF fazı gösterir** (D-85). Önceki fazlar faz dosyalarındaki
 > tiklerdedir ve `git log` tek başına yol haritasıdır.
 >
-> FAZ 0+1: 51 adım · **FAZ 2: 12/13** · **FAZ 3: 12/15** (şartlı, D-158) ·
-> **FAZ 4: 17/17** · **FAZ 5: 8/10** (şartlı, D-206) · **FAZ 6: 9/11** (şartlı;
-> `6.5b` V-24, `6.9b` V-25). Tikler faz dosyalarında.
+> FAZ 0+1: 51 · **FAZ 2: 12/13** · **FAZ 3: 12/15** (şartlı, D-158) · **FAZ 4: 17/17** ·
+> **FAZ 5: 8/10** (şartlı, D-206) · **FAZ 6: 10/12** (şartlı, D-217; `6.5b` V-24,
+> `6.9b` V-25). Tikler faz dosyalarında.
 
 | Adım | Tarih |
 |---|---|
-| **6.1** · deck PDF; metin katmanı korunuyor (D-207) | 2026-08-16 |
-| **6.2** · grafik + diyagram; ECharts reddedildi (D-209) | 2026-08-16 |
-| **6.3** · LinkedIn dökümanı; düzleştirme tek motorla (D-211) | 2026-08-16 |
-| **6.4** · prospect = corpus; KVKK mezar taşı (D-212) | 2026-08-16 |
-| **6.5** · `INGEST` şelalesi; tarayıcı yok (D-213) | 2026-08-16 |
-| **6.6** · 14 günlük tazelik kapısı | 2026-08-16 |
-| **6.7** · kişiselleştirme tavanı; sayı kural kitabından (D-214) | 2026-08-16 |
-| **6.8** · ürün ekranı dördüncü uyum dayanağı | 2026-08-16 |
-| **6.9** · `prospect-deck` zinciri; beş kapı sırayla | 2026-08-16 |
-| **6.10** · denetimin 12 bulgusu üretim yoluna bağlandı (D-216) | 2026-08-16 |
 | **7.1** · spec drift denetçisi; güvenli alan ayrı (D-215) | 2026-08-16 |
 | **7.2** · yayın kapıları; sıra tipe gömülü, tek yayıncı mekanik | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`7.3` — LinkedIn adaptörü** (§9.3 · R-34). `w_member_social`: metin, görsel **ve
-döküman** postu — en yüksek etkileşimli format ve hiçbir aggregator vermiyor. Görsel
-sınırı **5 MB**, Meta'nın 30 MB'ının altı katı altı; tek export hattı LinkedIn'in
-reddedeceği dosyaları sessizce üretir. **V-23 burada kapanır:** döküman sayfa tavanını
-kaynağıyla doğrula (bugünkü 10 sayfa BİZİM editoryal kararımız, platform sınırı değil).
+**FAZ 6'yı ŞARTLI KAPAT** — sonra `7.3`. İki doğrulama turunun bulguları kapandı;
+kalan tek engel insan girdisi: `6.5b` (V-24) ve `6.9b` (V-25). Çıkış kriteri **tikle
+ÖRTÜLMEYECEK** (D-206 deseni): "adı geçen gerçek bir şirkete deck gönderildi" bir insan
+eylemidir.
 
-> ⏳ FAZ 6'nın ikinci (son) doğrulama turu koşuyor. Bulguları geldiğinde önce onlar
-> kapatılır; **üçüncü tur açılmaz** (D-79) ve kalanlar FAZ 9 denetim turlarına düşer.
+Ardından **`7.3` — LinkedIn adaptörü** (§9.3 · R-34): `w_member_social`, döküman postu,
+5 MB sınırı. **V-23 orada kapanır** — döküman sayfa tavanını kaynağıyla doğrula.
 
 ## Devreden borçlar
 

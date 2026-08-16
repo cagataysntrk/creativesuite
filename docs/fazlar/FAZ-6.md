@@ -80,7 +80,13 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    karantinasına iner ve **asla talimat olarak sunulmaz** (R-50).
    **LinkedIn kaynaklı her yol lint kuralıyla bloklu** — ToS ihlali, hesap kaybı riski.
 📁 `packages/providers/src/ingest/` · `derived/ingest/<domain>/`
-✅ Şelale sırayla düşüyor · her kaynak `provenance` sidecar'ı yazıyor
+✅ Şelale PLANI sırayla düşüyor (`planWaterfall`: hazır/bloke ayrımı raporlanıyor) ·
+   `own-site` kaynağı gerçekten çekiyor ve `provenance` sidecar'ı yazıyor
+   ⚠ **İddia daraltıldı** (2. doğrulama turu): ilk hâli "şelale sırayla düşüyor"
+   diyordu ama `ingestBody` yalnız `own-site`ı çağırıyor — dört uzak kaynağın
+   ADAPTÖRÜ YAZILMAMIŞ, yalnız tanımlayıcı tablosu var. Bu V-24 anahtar blokajının
+   arkasına saklanmış bir TEKNİK eksikti; `6.5b`nin "kalan iş yalnız bağlantı"
+   ifadesi de düzeltildi.
 🧪 Çekilen metne "önceki talimatları unut" yaz → talimat olarak İŞLENMİYOR, alıntı
    olarak kalıyor · LinkedIn kazıyan bir sağlayıcı ekle → lint reddediyor
 💾 `feat(providers): INGEST araştırma şelalesi` · `Refs: FAZ-6.5 · §10`
@@ -90,9 +96,12 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 📖 §10 · R-50
 🔗 6.5
 🛠 Dört kaynak anahtarsız: `BRIGHTDATA_API_KEY` · `TAVILY_API_KEY` · `IHALE_MCP_URL` ·
-   `BORSA_MCP_URL`. Şelale mantığı, karantina, sidecar ve enjeksiyon sınırı **yazıldı ve
-   gerçek HTTP çekimiyle doğrulandı**; kalan iş yalnız bağlantı. Anahtarsız kaynak
-   sessizce atlanmıyor, `bloke` işaretleniyor ve raporda görünüyor.
+   `BORSA_MCP_URL`. **Kalan iş yalnız bağlantı DEĞİL** (2. doğrulama turu): dört
+   kaynağın ADAPTÖRÜ de yazılmamış ve `ingestBody` şelale üzerinde iterasyon yapmıyor —
+   tek `own-site` çağrısı var. Anahtar geldiğinde yazılacak: dört adaptör + fallback
+   döngüsü (bir kaynak boş dönerse sıradakine geç, hepsi raporlanır).
+   Karantina, sidecar ve enjeksiyon sınırı yazıldı ve gerçek HTTP çekimiyle doğrulandı;
+   anahtarsız kaynak sessizce atlanmıyor, `bloke` işaretleniyor.
 ✅ `planWaterfall(process.env)` dört kaynağı da `hazir` gösteriyor · her biri gerçek bir
    çekim yapıp `derived/ingest/<domain>/` altına metin + sidecar yazıyor
 🧪 Bir anahtarı `doldurulacak` yap → kaynak `bloke` düşüyor, sessizce atlanmıyor

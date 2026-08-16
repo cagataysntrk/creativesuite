@@ -89,11 +89,13 @@ iki ihlal biçimi doğru kapılarda durdu). Ama **gerçek bir prospect kaydı yo
 uydurulmuş bir şirket doğruluk kaynağına giren bir kurgudur. `2.9`'a da bağlı: onaylı
 corpus olmadan `bilgi-sec` `NO_CONTEXT` veriyor. → FAZ-6.9b
 
-## V-24 — Araştırma şelalesinin dört kaynağı anahtarsız
-`BRIGHTDATA_API_KEY` · `TAVILY_API_KEY` · `IHALE_MCP_URL` · `BORSA_MCP_URL` yok. Şelale
-mantığı, karantina, köken sidecar'ı ve enjeksiyon sınırı yazıldı ve **gerçek HTTP
-çekimiyle** doğrulandı (yerel sunucu); kalan iş yalnız bağlantı. Anahtarsız kaynaklar
-sessizce atlanmıyor, `bloke` işaretleniyor. → FAZ-6.5b
+## V-24 — Şelalenin dört kaynağı: anahtar YOK ve ADAPTÖR de yok
+⚠ Bu borç ilk yazıldığında "kalan iş yalnız bağlantı" diyordu; **yanlıştı** (2. doğrulama
+turu). `ingestBody` `SELALE` üzerinde iterasyon yapmıyor, yalnız `own-site` çağırıyor ve
+dört uzak kaynağın adaptörü yazılmamış — yalnız tanımlayıcı tablosu var. Yani bu, bir
+anahtar blokajının arkasına saklanmış TEKNİK bir eksikti. Anahtar geldiğinde yazılacak
+iş: dört adaptör + fallback döngüsü. Karantina, sidecar ve enjeksiyon sınırı hazır ve
+gerçek çekimle doğrulandı. → FAZ-6.5b
 
 ## V-23 — LinkedIn dökümanının GERÇEK platform sınırı doğrulanmadı
 Sayfa tavanı 10 ve bayt tavanı 5 MB koda girdi ama ikisi de **bizim editoryal
@@ -411,4 +413,43 @@ kapı sınıfı kalırdı — yani her turda kanıtlanamayan kapılar.
 ve `import { CHART_CSS }` satırı onu sağlıyordu — kullanımı silsen bile kapı yeşildi.
 
 **Geri alma maliyeti:** yok — bu bir kayıt düzeltmesi.
+
+## D-217 — FAZ 6 ŞARTLI kapandı: iki tur, 28 bulgu, tek sınıf hata
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6 kapanışı (LOOP§D · D-79) · D-216
+
+İki doğrulama turu koştu ve **28 bulgu** verdi. Birinci tur 12, ikinci tur 16 — ve
+neredeyse hepsi tek sınıftandı: **kod yazılmış, üretim yolunda çağıranı yok.** Hepsi
+kapatıldı; **üçüncü tur açılmıyor** (D-79).
+
+**İkinci turun iki bulgusu özellikle öğretici:**
+
+1. **Kendi gerilemem.** PDF yolunu bağlarken `deps.check`in yalnız `slides` varken
+   çağrıldığını fark etmedim ve `lintDocument` onun içindeydi — üç PDF hattında
+   kaynaksız sayı kapısı **hiç koşmuyordu**. Üstüne zincire `lexiconIhlalleri: []`
+   geçiyordum ve **yorumum "check'in içinde koştu" diyordu**. Yorum yanlıştı ve yanlış
+   bir yorum, olmayan bir kapıyı var gösterir.
+2. **Kendi kendini onaylayan test çifti.** `composeBody` `productShots`u `basis`siz
+   üretiyordu, zincir `basis` arıyordu; testlerim ise elle `basis` yazılmış, **üretimin
+   hiç üretmediği** bir fikstür kullanıyordu. İkisi de yeşildi ve zincir gerçek üretimi
+   reddediyordu. Karşılığı `uretim-sekli.test.ts`: girdiyi ÜRETİM üretir, tüketiciye o
+   verilir.
+
+**Kapanış ŞARTLI ve çıkış kriteri tikle ÖRTÜLMÜYOR** (D-206 deseni). Faz şunu istiyordu:
+*"adı geçen gerçek bir şirkete özel deck üretildi ve görüşmeden önce gönderildi"*. Bu bir
+**insan eylemidir**: gerçek prospect kaydı (`6.9b`, V-25) ve şelale anahtarları
+(`6.5b`, V-24) olmadan sistem onu iddia edemez. Zincir uçtan uca doğrulandı; teslim
+edilmedi.
+
+**Dürüstlük düzeltmesi:** V-24 önce "kalan iş yalnız bağlantı" diyordu. Yanlıştı — dört
+kaynağın **adaptörü de yazılmamış**. Bir anahtar blokajının arkasına saklanmış teknik
+eksikti ve borç metni düzeltildi. Aynı şekilde FAZ-6.5'in "şelale sırayla düşüyor" ✅'sı
+daraltıldı: plan sırayla düşüyor, çekim yalnız `own-site`tan.
+
+**Kalıcı ders — üç kez tekrarladı:** yeni bir blok tipi, alan ya da çıktı anahtarı
+eklerken onu **okuması gereken her yeri** ara. `chart` linter'da, `safeArea.verifiedAt`
+drift denetçisinde, çıktı anahtarları `ozetle()`de kaçtı. Derleyici üçünde de sustu,
+çünkü hiçbiri `switch` değildi.
+
+**Geri alma maliyeti:** yok — bu bir kapanış kaydı.
 

@@ -1,0 +1,41 @@
+{
+  "doc": {
+    "kind": "deck-page",
+    "width": 1600,
+    "height": 900,
+    "tokenCss": "",
+    "stamp": {
+      "brandId": "brd_upcytech",
+      "eraId": "imalat-2026",
+      "kitVersion": "deck",
+      "definitionDigest": "sha256:ir",
+      "contextManifest": "ir",
+      "sourceRunId": "ir"
+    },
+    "blocks": [
+      { "type": "heading", "text": "Ölçüm odaklı imalat yazılımı", "level": 1 },
+      {
+        "type": "chart",
+        "chartKind": "bar",
+        "title": "Fire oranı — İğne hattı",
+        "unit": "%",
+        "asOf": "2026-03-31",
+        "points": [
+          { "label": "Ağustos", "value": 4.2 },
+          { "label": "Eylül", "value": 6.1, "tone": "warn" },
+          { "label": "Şubat", "value": 2.4, "tone": "ok" }
+        ]
+      },
+      {
+        "type": "diagram",
+        "title": "Ölçüm döngüsü",
+        "nodes": [
+          { "label": "Ölç", "detail": "vardiya" },
+          { "label": "Analiz" },
+          { "label": "Aksiyon", "tone": "ok" }
+        ]
+      }
+    ]
+  },
+  "writtenAt": "2026-08-16T00:00:00.000Z"
+}

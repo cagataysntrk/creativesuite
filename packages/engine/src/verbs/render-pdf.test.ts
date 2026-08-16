@@ -195,3 +195,27 @@ describe('RENDER · ürün ekranı çekimi (bağlanma)', () => {
     expect(d.productShots).toBeUndefined()
   })
 })
+
+// 🧪 `max_pages` ölü kısıttı (2. doğrulama turu, bulgu 14): YAML'da duruyordu ve
+// hiçbir kod okumuyordu. Ölü bir kısıt, okunduğu sanılan bir kısıttır.
+describe('RENDER · max_pages kısıtı', () => {
+  it('sayfa tavanını aşan döküman REDDEDİLİYOR', async () => {
+    const d = mkdtempSync(join(tmpdir(), 'render-mp-'))
+    const uzunBelge: DocumentModel = {
+      ...belge(),
+      blocks: Array.from({ length: 12 }, (_, i) => ({
+        type: 'heading' as const,
+        text: `Başlık ${i + 1}`,
+        level: 1 as const,
+      })),
+    }
+    const r = await renderBody({ outDir: d, layout: 'statement' }).run(ctx(), {
+      constraints: { format: 'pdf', flatten: true, max_pages: 2 },
+      inputs: { kompozit: { document: uzunBelge } },
+    })
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.code).toBe('DOCUMENT_REJECTED')
+    expect(JSON.stringify(r.error.details)).toContain('too_many_pages')
+  }, 60_000)
+})
