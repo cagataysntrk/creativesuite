@@ -3,7 +3,22 @@
 > ⚠ **ÜRETİLMİŞ DOSYA — elle düzenleme** (R-65). Üreteci: `just docs`.
 > Kaynak: `registry/pipelines/*.pipeline.yaml`. `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **9** hat.
+Toplam **10** hat.
+
+## `ad-creative-set` — Reklam varyant seti (hook × copy × visual)
+
+8 adım · 2 yetenek isteyen · 1 insan kapısı
+
+| adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
+|---|---|---|---|---|---|
+| `cozumle` | `RESOLVE` | — | — | — | — |
+| `bilgi-sec` | `SELECT` | — | cozumle | — | — |
+| `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
+| `gorsel-uret` | `GENERATE` | `image.generate` | bilgi-sec | — | — |
+| `kompozit` | `COMPOSE` | — | metin-uret, gorsel-uret | — | — |
+| `render` | `RENDER` | — | kompozit | — | — |
+| `kalite` | `VALIDATE` | — | render | — | — |
+| `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
 
 ## `deck` — Prospect deck'i (PDF)
 

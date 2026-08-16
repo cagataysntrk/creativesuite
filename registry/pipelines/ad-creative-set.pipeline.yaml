@@ -1,0 +1,75 @@
+# Reklam varyant seti — DİK eksenler (§10 · D-4 · D-225 · FAZ-8.1).
+#
+# Üç eksen: hook (ilk 3 saniye / ilk satır) · copy (başlık) · visual (görsel).
+# Değişkenler dik olmazsa hangi öğenin çalıştığı ölçülemez ve 7.9'un geri besleme
+# yolu, atfedilemeyen bir farkı "kazanan hook" diye corpus'a yazar.
+#
+# ⚠ **`mod: ofat` VARSAYILAN ve bu bir maliyet kararıdır** (D-225): 3×3×3'te OFAT 7
+# varyant, tam çapraz çarpım 27. Dört kat render, sıfır ek öğrenme — Meta kombinasyonu
+# `asset_feed_spec` ile SUNUCUDA kuruyor; oraya H+C+V bileşenleri yüklenir, H×C×V
+# kreatif render EDİLMEZ. `mod: full` yalnız o hedef için.
+#
+# ⚠ **Varyantlar elle YAZILMAZ, eksenlerden TÜRETİLİR.** Elle yazılan bir listede iki
+# eksenli sapma her zaman mümkündür ve ancak denetimle yakalanır; türetilen listede o
+# varyant hiç doğmaz. `matris` kapısı yine de duruyor — elle `varyantlar` verilirse.
+id: ad-creative-set
+title: Reklam varyant seti (hook × copy × visual)
+
+matris:
+  mod: ofat
+  eksenler:
+    - ad: hook
+      duzeyler: [olcum-kaybi, vardiya-korlugu, fire-maliyeti]
+    - ad: copy
+      duzeyler: [rakamla, soruyla, kanitla]
+    - ad: visual
+      duzeyler: [panel, atolye, grafik]
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  - id: metin-uret
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec]
+    constraints:
+      locale: tr-TR
+      # Reklam metni tavanı postan dar: Meta birincil metni erken kırpıyor.
+      max_chars: 500
+
+  - id: gorsel-uret
+    verb: GENERATE
+    capability: image.generate
+    needs: [bilgi-sec]
+    constraints:
+      aspect: '4:5'
+      # Görsel modeline Türkçe metin çizdirilmez (R-20).
+      no_text: true
+      max_cost_usd_micros: 20000
+
+  - id: kompozit
+    verb: COMPOSE
+    needs: [metin-uret, gorsel-uret]
+
+  - id: render
+    verb: RENDER
+    needs: [kompozit]
+    constraints:
+      width: 1080
+      height: 1350
+
+  # Reklam metni linter'ı 8.2'de bu adıma bağlanacak: Meta'nın kişisel özellik kuralı
+  # B2B lead-gen'in en sık SESSİZ red sebebi ve deterministik olarak lintlenebilir.
+  - id: kalite
+    verb: VALIDATE
+    needs: [render]
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

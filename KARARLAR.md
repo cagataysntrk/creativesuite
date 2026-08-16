@@ -155,141 +155,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-214 — Tavan sayısı KURALLAR.md'den okunur, koda ikinci kez yazılmaz
-
-**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.7 · R-36 · R-74
-
-Adımın 🧪 kriteri şuydu: *"tavanı 6'ya çıkarmayı dene → `KURALLAR.md` değişmeden kod
-değişmiyor"*. Bunu bir temenni olarak bırakmak mümkündü; kapıya bağlamak da mümkündü.
-
-**Karar:** `kisisellestirme` kapısı sayıyı `KURALLAR.md`'deki R-36 satırından **okur** ve
-koddaki sabitle karşılaştırır. İki yerde iki farklı sayı yazması artık derleme değil ama
-**kapı** hatasıdır. Kuralın yazılı hâli ile kodun hâli, ancak biri diğerinin kaynağıysa
-ayrışamaz.
-
-**Alternatif (reddedildi):** sayıyı yalnız kodda tutup kural kitabına "koda bak" yazmak.
-O zaman kural kitabı, kuralı bilmeyen bir belge olurdu — ve bu projede kural kitabının
-tek işi kuralı bilmek.
-
-**Genel biçim:** bu desen sayı taşıyan her kural için tekrarlanabilir (tazelik 14 gün,
-sayfa tavanı 10). Şimdilik yalnız R-36'ya uygulandı; diğerleri kendi adımlarında
-bağlanır — bir deseni ihtiyaç doğmadan genelleştirmek, kullanılmayan soyutlama üretir.
-
-**Geri alma maliyeti:** düşük — kapı tek dosya.
-
-## D-215 — Güvenli alan KENDİ tarihini taşır, satırın tazeliği onu kapsamaz
-
-**Tarih:** 2026-08-16 · **Bağlam:** FAZ-7.1 · §9.1
-
-Spec tablosu 3.15'te kuruldu, drift denetçisi 4.17'de doctor'a bağlandı. 7.1'de kriteri
-**ölçerken** boşluk çıktı: `specAgeDays` yalnız `placement.verifiedAt`i okuyor, oysa
-`safeArea`nın **kendi** `sourceUrl` + `verifiedAt`i var. Ölçüm: güvenli alanı bir yıl
-geriye alınmış bir satır için denetçi **1 gün** diyordu.
-
-**Neden önemli:** güvenli alan ölçüleri Reels tasarım kılavuzundan gelir ve platform
-ölçüsünden **bağımsız** değişir. Biri tazelendiğinde diğeri tazelenmiş sayılamaz. Yanlış
-bir güvenli alan başlığı UI chrome'un altına düşürür — ve bunu ancak yayınladıktan sonra
-fark edersiniz.
-
-**Karar:** `specStaleness(p, today)` iki tarihi **ayrı ayrı** döndürüyor ve doctor iki
-ayrı bulgu üretiyor. En eskisini alıp tek sayı vermek daha basitti ama hangi kaynağın
-yenilenmesi gerektiğini gizlerdi — iki farklı URL'e bakan bir insan için o bilgi işin
-kendisi (D-198).
-
-**Ayrım korundu:** güvenli alanı olmayan satırda `safeAreaDays` **`null`**, `0` değil.
-`0` "bugün doğrulandı" demek olurdu; `null` "böyle bir şey yok" demek.
-
-**Kanıt:** güvenli alan tarihi geriye alındığında `⚠ [spec] instagram-story-9x16:
-GÜVENLİ ALAN 592 günlük` çıktı; geri alınınca bulgu kayboldu.
-
-**Ders (üçüncü kez):** yeni bir alan eklemek, onu OKUMASI GEREKEN her yeri güncellemeyi
-gerektirir. Bu turda aynı sınıftan iki hata bulundu — `chart` bloğu lexicon linter'ında,
-`safeArea.verifiedAt` drift denetçisinde. İkisinde de derleyici sustu.
-
-**Geri alma maliyeti:** düşük.
-
-## D-216 — FAZ 6 KAPANMADI: mekanizma yazıldı, üretim yoluna bağlanmadı
-
-**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6 kapanış turu (LOOP§D) · D-182
-
-Bağımsız doğrulama agent'ı FAZ 6'nın **çekirdek iddiasını çürüttü**. `just verify` yeşil,
-1087 test geçiyor, 12 kural kırmızıya döndürülüyor — ve buna rağmen sistem **hiçbir**
-şirkete deck üretemiyor. Bulgular tek bir sınıfta toplanıyor: **kod yazıldı, üretim
-yolunda çağıranı yok.**
-
-| # | Ne | Kanıt |
-|---|---|---|
-| 1 | `renderDeckPdf` sıfır çağıran; RENDER gövdesi `format: pdf`i hiç okumuyor | diskte 0 PDF, 23 manifest'in hepsi post/carousel |
-| 2 | `deck`/`prospect-deck` hatları plan aşamasında sağlayıcısız | `max_chars: 4000` desteklenmeyen kademe |
-| 3 | `prospectDeckZinciri` sıfır çağıran; `chain:` kısıtını kimse okumuyor | VALIDATE gövdesi yalnız `kaliteKontrol` koşuyor |
-| 4 | `INGEST` fiil gövdesi HİÇ YOK | `uret.mjs` fiil haritasında INGEST ve PROPOSE yok |
-| 5 | Üç yeni manifest dedektörü ölü | hiçbir kod `fetchedAt`/`personalizationFields`/`productShots` yazmıyor |
-| 6 | `captureProductShot` sıfır çağıran | testte bile yok |
-| 7 | `chart` CSS'i statik yolda gömülmüyor | üretim PNG'sinde grafik bozuk, kapı görmüyor |
-| 9 | `runVerb` (→ `ingestGate`) üretimde koşmuyor | `runPipeline` `verb.run`u doğrudan çağırıyor |
-
-**Karar:** FAZ 6 **KAPANMADI**. Dokuz tik duruyor ama fazın kendisi açık; `DURUM.md`
-bunu ilan ediyor ve kapanış ancak bulgular kapandıktan sonra tekrar denenir. Tikleri
-silmiyorum — adımların ürettiği kod gerçek, testli ve doğru; eksik olan **bağlanma**.
-Silmek yapılan işi de silerdi; asıl dürüst hamle eksiğin ADINI koymak.
-
-**Kök neden — ve bu üçüncü tekrar:** D-182'de donmuş plan yazılmıştı, `uret.mjs`
-çağırmıyordu. D-190'da düğmenin `onClick`i yoktu. Şimdi aynı hata **bir seviye yukarıda**:
-`tazeMi`nin çağıranı var (`inspectManifest`), ama `inspectManifest` o veriyi hiç görmüyor
-çünkü onu yazan yok. **"Çağıran var mı" sorusu bir adım değil, ZİNCİR sorulmalı:** üretim
-girişinden kurala kadar kesintisiz bir yol var mı?
-
-**Bu turda kapatılanlar:** bulgu 2 (kademe düzeltildi, hatlar planlanıyor) · bulgu 7
-(CSS gömüldü + `blok-css` kapısı yazıldı, üç biçimde ihlal edildi).
-
-**Batarya genişletildi:** `blok-css` ihlali "yeni dosya yaz" biçimiyle ifade edilemiyordu;
-batarya artık **yama** modunu da destekliyor. Desteklemeseydi, bataryaya giremeyen bir
-kapı sınıfı kalırdı — yani her turda kanıtlanamayan kapılar.
-
-**Kendi kapımı da ihlal testi yakaladı:** `blok-css` ilk sürümü dosyada dizeyi arıyordu
-ve `import { CHART_CSS }` satırı onu sağlıyordu — kullanımı silsen bile kapı yeşildi.
-
-**Geri alma maliyeti:** yok — bu bir kayıt düzeltmesi.
-
-## D-217 — FAZ 6 ŞARTLI kapandı: iki tur, 28 bulgu, tek sınıf hata
-
-**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6 kapanışı (LOOP§D · D-79) · D-216
-
-İki doğrulama turu koştu ve **28 bulgu** verdi. Birinci tur 12, ikinci tur 16 — ve
-neredeyse hepsi tek sınıftandı: **kod yazılmış, üretim yolunda çağıranı yok.** Hepsi
-kapatıldı; **üçüncü tur açılmıyor** (D-79).
-
-**İkinci turun iki bulgusu özellikle öğretici:**
-
-1. **Kendi gerilemem.** PDF yolunu bağlarken `deps.check`in yalnız `slides` varken
-   çağrıldığını fark etmedim ve `lintDocument` onun içindeydi — üç PDF hattında
-   kaynaksız sayı kapısı **hiç koşmuyordu**. Üstüne zincire `lexiconIhlalleri: []`
-   geçiyordum ve **yorumum "check'in içinde koştu" diyordu**. Yorum yanlıştı ve yanlış
-   bir yorum, olmayan bir kapıyı var gösterir.
-2. **Kendi kendini onaylayan test çifti.** `composeBody` `productShots`u `basis`siz
-   üretiyordu, zincir `basis` arıyordu; testlerim ise elle `basis` yazılmış, **üretimin
-   hiç üretmediği** bir fikstür kullanıyordu. İkisi de yeşildi ve zincir gerçek üretimi
-   reddediyordu. Karşılığı `uretim-sekli.test.ts`: girdiyi ÜRETİM üretir, tüketiciye o
-   verilir.
-
-**Kapanış ŞARTLI ve çıkış kriteri tikle ÖRTÜLMÜYOR** (D-206 deseni). Faz şunu istiyordu:
-*"adı geçen gerçek bir şirkete özel deck üretildi ve görüşmeden önce gönderildi"*. Bu bir
-**insan eylemidir**: gerçek prospect kaydı (`6.9b`, V-25) ve şelale anahtarları
-(`6.5b`, V-24) olmadan sistem onu iddia edemez. Zincir uçtan uca doğrulandı; teslim
-edilmedi.
-
-**Dürüstlük düzeltmesi:** V-24 önce "kalan iş yalnız bağlantı" diyordu. Yanlıştı — dört
-kaynağın **adaptörü de yazılmamış**. Bir anahtar blokajının arkasına saklanmış teknik
-eksikti ve borç metni düzeltildi. Aynı şekilde FAZ-6.5'in "şelale sırayla düşüyor" ✅'sı
-daraltıldı: plan sırayla düşüyor, çekim yalnız `own-site`tan.
-
-**Kalıcı ders — üç kez tekrarladı:** yeni bir blok tipi, alan ya da çıktı anahtarı
-eklerken onu **okuması gereken her yeri** ara. `chart` linter'da, `safeArea.verifiedAt`
-drift denetçisinde, çıktı anahtarları `ozetle()`de kaçtı. Derleyici üçünde de sustu,
-çünkü hiçbiri `switch` değildi.
-
-**Geri alma maliyeti:** yok — bu bir kapanış kaydı.
-
 ## D-218 — CSRF token'ı SEED'SİZ: R-06'nın konusu karar, bunun konusu sır
 
 **Tarih:** 2026-08-16 · **Bağlam:** FAZ-7.5 · §14 · R-06
@@ -506,3 +371,34 @@ denetim agent'ı buldu. **İnsan hafızası bunu üç kez tutamadı.**
   hesap kurulumu" diyordu. **D-217'nin kendi dersi kendi düzeltmesine uygulanmamıştı.**
 
 **Geri alma maliyeti:** yok.
+
+## D-225 — Diklik ölçütü OFAT'tır; tam ızgara öğrenme tasarımı değildir
+
+**2026-08-16 · FAZ-8.1**
+
+Faz dosyasının ✅ kriteri *"3×3 matris tek çalıştırmada üretiliyor"* diyordu ve ilk
+tasarımım da "ızgara TAM olmalı" kuralını koyuyordu. **İkisi de yanlış** — araştırma
+(`docs/research/2-b2b-ve-seritler--*`) tam çapraz çarpımı yalnız Meta'nın
+`asset_feed_spec`i için ayırıyor:
+
+> *"run one-factor-at-a-time (vary hooks with headline and visual fixed) for LEARNING,
+> and reserve full cross-product only for `asset_feed_spec`, which does combinatorial
+> testing server-side so you upload H+D+V assets instead of H×D×V creatives."*
+
+**Karar: `ofat` varsayılan, `full` yalnız `asset_feed_spec`.**
+
+- **Maliyet:** 3×3×3'te OFAT **7** varyant, tam ızgara **27**. Dört kat render ve
+  öğrenme açısından sıfır ek bilgi — kombinasyonu Meta zaten sunucuda kuruyor.
+- **Ölçüm:** OFAT'ta temelden **tek eksende** ayrılan bir varyantın farkı doğrudan o
+  eksene atfedilir. Tam ızgarada iki varyant iki eksende ayrılabilir ve bu **hata
+  değildir** — kombinatoryal tasarımın tanımı budur. Yani "iki ekseni birden değiştirme"
+  yasağı yalnız OFAT'ta anlamlı.
+- **Faz kriteri düzeltildi** (R-74): "3×3 matris" → "OFAT kümesi; `full` yalnız
+  `asset_feed_spec` hedefinde".
+
+**Neden zarif olan yanlıştı:** "ızgara tam olsun" tek cümlelik, mekanik ve güzel bir
+kuraldı. Ama öğrenme tasarımı ile kombinatoryal test tasarımını aynı şey sanıyordu —
+ve bu proje varyant başına gerçek para ödüyor.
+
+**Geri alma maliyeti:** yok — iki mod da destekleniyor, karar hangi modun varsayılan
+olduğu.

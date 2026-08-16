@@ -314,3 +314,16 @@ export {
   type PerformansSatiri,
   type SiralamaDurumu,
 } from './performans.js'
+
+// Reklam varyant matrisi — diklik OFAT'la ölçülür (§10 · D-4 · FAZ-8.1).
+export {
+  matrisDenetle,
+  matrisHataMesaji,
+  varyantSayisi,
+  varyantUret,
+  type Eksen,
+  type MatrisGirdisi,
+  type MatrisHatasi,
+  type MatrisModu,
+  type Varyant,
+} from './matris.js'

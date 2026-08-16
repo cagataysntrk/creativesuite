@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.1
+siradaki_adim: 8.2
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
 deneme_sayaci: {}
@@ -19,7 +19,7 @@ son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **38 kapı · 15 ihlal kırmızı · 1243 test.**
+**D-79: üçüncü tur AÇILMAZ.** **39 kapı · 15 ihlal kırmızı · 1255 test.**
 **FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
 ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
@@ -74,16 +74,17 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **7.7** · kanal durumu ekranı; ölçülmeyen üç şey üç ayrı cümleyle | 2026-08-16 |
 | **7.8** · insight defteri; doğruluk NDJSON'da, kalıcı kayıp ayrı sayılıyor | 2026-08-16 |
 | **7.9** · performans panosu; sabit pencere, ölçülmeyen sıralanmıyor | 2026-08-16 |
+| **8.1** · dik varyant matrisi; diklik OFAT'la ölçülüyor (D-225) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`8.1` — `ad-creative-set` ve dik varyant matrisi** (§10 · D-4). Hook × copy × visual
-**dik** olmalı: üç ekseni birden değiştiren bir test hiçbir şey öğretmez ve "kazanan"
-diye corpus'a yazılan şey (7.9 geri besleme yolu) bir yanılsama olur.
-⚠ **Diklik ölçütü OFAT'tır, tam ızgara DEĞİL** — araştırma tam ızgarayı öğrenme
-tasarımı olarak reddediyor: 3×3×3'te 27 render ister, OFAT 7 ile aynı bilgiyi verir ve
-Meta kombinasyonu zaten **sunucuda** kuruyor (`asset_feed_spec`: bileşen yüklenir,
-çarpım render edilmez).
+**`8.2` — Reklam metni linter'ı** (§11.2 · R-35). Meta'nın **kişisel özellik** kuralı
+B2B lead-gen'in en sık **sessiz** red sebebi ve deterministik olarak lintlenebilir:
+ikinci şahıs kurulumu (`"…misiniz?"`) özellik ima ediyor → üçüncü şahsa çevir
+(`"KOBİ'ler için…"`). Kaynaksız sayısal sonuç iddiası ikinci sık sebep (`claim_source`
+yoksa blok). Önce/sonra çerçevelemesi ve niteliksiz üstünlük de bloklanır.
+⚠ **%20 metin kuralı ARTIK red sebebi DEĞİL** — blocker yaparsak geçerli reklamları
+reddederiz; uyarı olarak kodlanacak.
 
 ## Devreden borçlar
 

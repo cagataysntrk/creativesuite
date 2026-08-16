@@ -9,16 +9,26 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
 
 ---
 
-## 8.1 — `ad-creative-set` ve H/C/V matrisi    [ ]
+## 8.1 — `ad-creative-set` ve H/C/V matrisi    [x] 2026-08-16
 
 📖 §10, §7.1 · D-4
 🔗 FAZ-3.14
 🛠 Dik matris: **hook × copy × visual**. Tek kompozisyondan çok yerleşim (feed · story ·
    reel). Değişkenler dik olmazsa hangi öğenin çalıştığı ölçülemez — üç varyantı birden
    değiştiren bir test hiçbir şey öğretmez.
-📁 `registry/pipelines/ad-creative-set.pipeline.yaml`
-✅ 3×3 matris tek çalıştırmada üretiliyor · her varyant kendi `x_signature`'ını taşıyor
-🧪 İki ekseni aynı anda değiştiren bir varyant tanımla → kapı reddediyor
+📁 `registry/pipelines/ad-creative-set.pipeline.yaml` · `packages/engine/src/matris.ts` ·
+   `scripts/gates/matris.mjs`
+✅ Varyantlar **eksenlerden TÜRETİLİYOR**, elle yazılmıyor (`varyantUret`): iki eksenli
+   bir sapma doğamıyor. 3 eksen × 3 düzey → **7 varyant** (ölçüldü), tam ızgara 27.
+   ⚠ **Kriter değişti (D-225, R-74):** "3×3 matris" diyordu; araştırma tam çapraz
+   çarpımı yalnız Meta `asset_feed_spec` için ayırıyor — orada H+C+V bileşenleri
+   yüklenir ve kombinasyonu **sunucu** kurar, H×C×V kreatif render EDİLMEZ. Öğrenme
+   tasarımı **OFAT**: dört kat daha ucuz, aynı bilgi.
+🧪 İki ekseni aynı anda değiştiren varyant elle tanımlandı → kapı **kırmızı**, ölçüldü:
+   `✗ temelden 2 eksende ayrılıyor (hook, copy) — fark hangi eksene ait, ATFEDİLEMEZ`
+   `✗ 2 varyant, mod 'ofat' 7 bekliyor — maliyet tahmini bu sayıyı çarpan alıyor`
+   ⚠ `full` modda iki eksenli farklılık **hata değildir** — kombinatoryal tasarımın
+   tanımı budur; OFAT kuralını oraya uygulamak geçerli bir seti reddederdi.
 💾 `feat(cli): ad-creative-set matrisi` · `Refs: FAZ-8.1 · §10`
 
 ## 8.2 — Reklam metni linter'ı    [ ]
