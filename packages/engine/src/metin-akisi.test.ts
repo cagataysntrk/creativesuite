@@ -74,4 +74,13 @@ describe('çıktı normalizasyonu', () => {
   it('`duzMetin` görsel brief`ini tek satıra indiriyor', () => {
     expect(duzMetin({ result: 'a\nb' })).toBe('a b')
   })
+
+  // ⚠ Bu test bir kusurdan doğdu: `generateBody` metin çıktısını `{lines,raw}` yapıyor
+  // ve bir sonraki adım onu okurken ham şekli arıyordu — kendi iki fonksiyonum
+  // arasında şekil uyuşmazlığı. Zincirin İKİ ucu da ölçülmeli.
+  it('ZATEN normalize edilmiş `{lines}` çıktısı da tanınıyor', () => {
+    expect(metneCevir({ lines: ['a', 'b'] })).toEqual({ lines: ['a', 'b'] })
+    expect(duzMetin({ lines: ['a', 'b'], raw: { result: 'a\nb' } })).toBe('a b')
+    expect(metneCevir({ lines: [] })).toBeNull()
+  })
 })

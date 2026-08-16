@@ -129,6 +129,16 @@ export const metneCevir = (output: unknown): { readonly lines: readonly string[]
   if (output === null || typeof output !== 'object') return null
   const o = output as Record<string, unknown>
 
+  // ⚠ **ZATEN normalize edilmiş çıktı da tanınır.** `generateBody` metin adımının
+  // çıktısını `{lines, raw}` yapıyor; bir sonraki adım (görsel) onu okurken ham
+  // şekli arıyordu ve boş dönüyordu — **kendi iki fonksiyonum arasında şekil
+  // uyuşmazlığı** (D-227'nin birebir tekrarı, bu kez üreticiyle tüketici aynı
+  // dosyadaydı). Tek geçitten geçmek, iki şekli de burada tanımayı gerektiriyor.
+  if (Array.isArray(o['lines'])) {
+    const l = (o['lines'] as unknown[]).filter((x): x is string => typeof x === 'string')
+    return l.length === 0 ? null : { lines: l }
+  }
+
   const ham =
     typeof o['result'] === 'string'
       ? o['result']
