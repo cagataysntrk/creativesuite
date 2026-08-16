@@ -20,9 +20,12 @@ scope:
     - imalat
   personas: []
 title: Veri yoksa önce veri — mesaj evi
-status: draft
+status: active
 zone: generated
-x_signature: sha256:d72eef3a270cef06e8ce7081a593ea9de6ea742fe17aa5ba49b2f9be10423647
+x_signature: sha256:d3dd32c201d3ce15f9872a2a7b08200df79ccad1f47d91f486bd3ad56af7a759
+approved_by: human
+approved_at: 2026-08-16T17:53:18.590Z
+valid_at: 2026-08-16T17:53:18.590Z
 ---
 
 **Ana mesaj:** Veriniz yoksa önce veriyi kuruyoruz, varsa karara çeviriyoruz.

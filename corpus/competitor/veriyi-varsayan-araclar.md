@@ -20,9 +20,12 @@ scope:
     - imalat
   personas: []
 title: Veriyi varsayan araçlar ve Excel
-status: draft
+status: active
 zone: generated
-x_signature: sha256:91d16bea04a5518e295b7d78061ed718db8e123f449764949f90368a552c7f3f
+x_signature: sha256:5f0b5bfbb9545377ae1b1e9ff661f4a70bf7d0d28ae8a82bd3f8a4d039f9dd9e
+approved_by: human
+approved_at: 2026-08-16T17:53:18.590Z
+valid_at: 2026-08-16T17:53:18.590Z
 ---
 
 **Gerçek rakip bir firma değil, üç alternatif davranış.**

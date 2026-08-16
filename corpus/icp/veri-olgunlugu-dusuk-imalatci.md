@@ -20,9 +20,12 @@ scope:
     - imalat
   personas: []
 title: Veri olgunluğu düşük imalatçı
-status: draft
+status: active
 zone: generated
-x_signature: sha256:5772dc0cd01fed6bcb82fb1fdcaf43d31733053ebe7d318720ba3ca3cd5fd518
+x_signature: sha256:52eeef1f83dd604ba44e289474b4b502e30d58ff7a3cbf84be7f28e8e76cfac2
+approved_by: human
+approved_at: 2026-08-16T17:53:18.590Z
+valid_at: 2026-08-16T17:53:18.590Z
 ---
 
 **Ayrım ekseni SEKTÖR DEĞİL, VERİ OLGUNLUĞU.** Önceki taslak dikeyi (otomotiv

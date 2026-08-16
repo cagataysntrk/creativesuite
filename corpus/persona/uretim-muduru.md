@@ -20,9 +20,12 @@ scope:
     - imalat
   personas: []
 title: Üretim müdürü
-status: draft
+status: active
 zone: generated
-x_signature: sha256:a95dbc4b238058c92994a2005d40d7ba0ad3c03865cfca57b81c890774e3d357
+x_signature: sha256:634a39d79c47dbf1f14e5b40b007b0ffb6251e597acb2c336feda89d33e3d5f2
+approved_by: human
+approved_at: 2026-08-16T17:53:18.590Z
+valid_at: 2026-08-16T17:53:18.590Z
 ---
 
 **Rol:** Üretim/fabrika müdürü. Hattın çıktısından, duruşundan ve firesinden

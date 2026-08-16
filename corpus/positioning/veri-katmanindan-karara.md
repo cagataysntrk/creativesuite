@@ -20,9 +20,12 @@ scope:
     - imalat
   personas: []
 title: Veri katmanından karara — Upcytech konumu
-status: draft
+status: active
 zone: generated
-x_signature: sha256:35fbf607f56080e44bd63b8f20115eab35c75eae0269d37c2f801a87a7ae4b48
+x_signature: sha256:0fd7f4d3d670c8ad576f60671d84ce496bd1b34050ec77d6d4687b18351ac679
+approved_by: human
+approved_at: 2026-08-16T17:53:18.590Z
+valid_at: 2026-08-16T17:53:18.590Z
 ---
 
 İmalat firmalarına, **veriyi karara çeviren** ürünler ve o ürünlerin firmaya

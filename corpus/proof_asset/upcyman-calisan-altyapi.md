@@ -23,9 +23,12 @@ title: "UpcyMan: çalışan üretim altyapısı"
 era_of_origin: geri-donusum
 generalisation_note: "UpcyMan geri dönüşüm tesisleri için yazıldı ve asıl odağı orası. İmalat bağlamında YETENEK kanıtı olarak sunulur: kantardan satışa uçtan uca bir süreci canlı taşıyabildiğimizi gösterir. Bir imalat müşterisinin sonucu DEĞİLDİR ve öyle sunulamaz."
 transfer_confidence: analogous
-status: draft
+status: active
 zone: generated
-x_signature: sha256:9c28e21eb7dfa9c17aea9ef189017a56fd2701b0b5da8110dfa609a955527032
+x_signature: sha256:45771020e9178b25f2eed0c08b92df6365da3b3bdf08eb4574f3fefbf2ab9623
+approved_by: human
+approved_at: 2026-08-16T17:53:18.590Z
+valid_at: 2026-08-16T17:53:18.590Z
 ---
 
 **Ne kanıtlıyor:** Uçtan uca bir tesis sürecini — kantardan satışa — canlı

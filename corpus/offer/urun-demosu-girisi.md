@@ -20,9 +20,12 @@ scope:
     - imalat
   personas: []
 title: Ürün demosu girişi
-status: draft
+status: active
 zone: generated
-x_signature: sha256:b75013d4dd5c4ebede20ec63983f5f208f68eb44fdfb0ba0d86c5df170c1429e
+x_signature: sha256:19dac3e49a5d2528aecebf69312f714fdec264be3feb3beeea06875447cdf78c
+approved_by: human
+approved_at: 2026-08-16T17:53:18.590Z
+valid_at: 2026-08-16T17:53:18.590Z
 ---
 
 **Tür:** demo → özelleştirme.
