@@ -509,6 +509,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
             constraints: s.constraints,
             inputs: ciktilar,
             ...(s.capability === null ? {} : { capability: s.capability }),
+            needs: s.needs,
           })
           return o.ok
             ? {
@@ -589,6 +590,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
               inputs: ciktilar,
               // Yetenek adımın verisi — gövde kurulumundan değil buradan gelir (D-241).
               ...(s.capability === null ? {} : { capability: s.capability }),
+              needs: s.needs,
               providerId: kazanan.providerId,
               noteHandle: (id: string) => {
                 tutamak = id
@@ -622,6 +624,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         constraints: s.constraints,
         inputs: ciktilar,
         ...(s.capability === null ? {} : { capability: s.capability }),
+        needs: s.needs,
       })
       sonuc = o.ok
         ? {

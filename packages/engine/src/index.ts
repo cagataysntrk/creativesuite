@@ -32,6 +32,7 @@ export {
   initLedger,
   reserve,
   settle,
+  reopen,
   getEntry,
   runTotals,
   LEDGER_MIGRATIONS,

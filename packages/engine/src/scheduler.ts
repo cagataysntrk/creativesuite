@@ -183,9 +183,33 @@ export const runStep = async (
       // Defterin işi ÖDEMEYİ tekrarlamamak, İŞİ tekrarlamamak değil. Ödenmemiş bir
       // iş tekrar denenmeli — çift ödeme riski yok, çünkü ödeme hiç olmadı.
       if (rez.entry.chargeStatus === 'not-charged') {
+        // Kayıt yeniden açılıyor ve **(b)/(c) dalları ATLANIYOR**: iş yapılmadığı
+        // için sorulacak bir tutamak da, mutabakat gerektiren bir belirsizlik de yok.
+        //
+        // ⚠ İlk düzeltmemde `reopen`dan sonra akış (c)'ye düşüyordu ve adım
+        // `NEEDS_RECONCILIATION` ile duruyordu — **açtığım kapıyı iki satır aşağıda
+        // kendim kapatmışım.** Bir dalı eklerken diğer dalların koşullarını
+        // güncellememek, düzeltmeyi düzeltmenin yokluğuna çevirir.
+        ledger.reopen(deps.db, spec.idempotencyKey, spec.runId, spec.stepId)
+      } else if (!yarim && rez.entry.amount.micros === 0n) {
+        // ── (a0) ÜCRETSİZ kapanmış kayıt: atlamak KAYIP (D-247) ───────────────
+        //
+        // **Defter maliyeti saklıyor, ÇIKTIYI saklamıyor.** Kapanmış bir kaydı
+        // atlayınca `data: null` dönüyor ve aşağı akış boş girdiyle kalıyor: ölçüldü,
+        // `gorsel-brief` ✓ göründü ama `gorsel-uret` brief'i `null` aldı ve R-20
+        // boş prompt'u reddetti.
+        //
+        // **Defterin işi çift ÖDEMEYİ önlemek.** Tutarı sıfır olan bir kayıtta
+        // önlenecek ödeme yok — abonelik çağrısı (claude-code) ya da bedava katman
+        // (Cloudflare). Atlamak hiçbir şey kazandırmıyor, çıktıyı kaybettiriyor.
+        //
+        // ⚠ **Ücretli kayıtlarda sınır duruyor ve bu bir EKSİKLİK:** çıktı deftere
+        // yazılmadığı için ücretli bir adım tekrar oynatıldığında aşağı akış boş
+        // kalır. Doğru çözüm çıktıyı `derived/runs/<run>/steps/` altına yazmak —
+        // bugün yok ve olmadığını söylemek, varmış gibi davranmaktan iyi.
         ledger.reopen(deps.db, spec.idempotencyKey, spec.runId, spec.stepId)
       } else if (!yarim) {
-        // (a) KAPANMIŞ kayıt: iş bitmiş, tutarı biliniyor. Çağrı atlanır.
+        // (a) KAPANMIŞ ve ÜCRETLİ kayıt: iş bitmiş, tutarı biliniyor. Çağrı atlanır.
         return {
           outcome: {
             amount: rez.entry.amount,
@@ -199,8 +223,7 @@ export const runStep = async (
           replayedFromLedger: true,
           budget: budget.settleLease(bState, spec.estimateHigh, rez.entry.amount),
         }
-      }
-      if (rez.entry.chargeStatus !== 'not-charged' && rez.entry.externalId !== null) {
+      } else if (rez.entry.externalId !== null) {
         // (b) YARIDA KALMIŞ ama tutamak var: sağlayıcıya SORULUR, yeniden çağrılmaz.
         devamTutamak = rez.entry.externalId
       } else {

@@ -101,6 +101,10 @@ token-durum:
 defter-baslat:
     @./node_modules/.bin/tsc -b && node scripts/defter-baslat.mjs
 
+# Yarıda kalmış maliyet kayıtlarını mutabakata bağlar — KARAR İNSANIN (§8.5 · R-14)
+defter-mutabakat *args:
+    @./node_modules/.bin/tsc -b && node scripts/defter-mutabakat.mjs {{args}}
+
 # Yedek denetimi — yedek ALMAZ, TAM olup olmadığını denetler (§14 · FAZ-8.7)
 yedek:
     @./node_modules/.bin/tsc -b && node scripts/yedek.mjs

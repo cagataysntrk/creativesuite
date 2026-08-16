@@ -3406,3 +3406,263 @@ okuyan adımı `📖` satırına yazmaktır — kapı bir eksikliği bildirir, p
 bakmıyordu. Kapanış, denetimin BİTTİĞİ an değil, denetimin **kalıcılaştığı** an olmalı.
 
 **Geri alma maliyeti:** yok.
+
+## D-232 — `aiGenerated: false` SABİTTİ; Md. 50 ifşası sessizce kapalıydı
+
+**2026-08-16 · FAZ-8 doğrulama 2. tur, BLOKER**
+
+`scripts/uret.mjs` uyum iddiasını `aiGenerated: false` sabitiyle kuruyordu ve yanındaki
+yorum *"bu hatta görsel model çağrısı YOK"* diyordu. **FAZ 8'de eklenen
+`ad-creative-set` hattı `capability: image.generate` taşıyor** — yorum yanlış oldu,
+hiçbir şey kırmızıya dönmedi.
+
+**Zincir sonuna kadar:** `aiGenerated: false` → `disclosureRequired` daima `false` →
+IPTC'ye `Upcytech:AiGenerated=false` basılıyor (**yanlış beyan**) → `publish.ts`
+`if (!a.compliance.disclosureRequired) continue` → **EU AI Act Md. 50 ifşa kapısı model
+üretimi bir görselde atlanıyor.** Bir sabit, üç katman aşağıda yasal bir kapıyı
+kapatıyordu. Taranan prompt da yanlıştı: CLI konusu, modele giden prompt değil.
+
+**D-227'nin birebir tekrarı ve bu yüzden ayrı bir karar:** aldatan şey kod değil, kodun
+yanındaki iddiaydı. Fark şu — D-227'de yorumu ben yeni yazmıştım; burada yorum **yazıldığı
+gün doğruydu** ve altı hafta sonra bir hat eklenince yanlış oldu. **Doğru bir yorum
+eskiyebilir; bir ölçüm eskiyemez, kırmızıya döner.**
+
+**Kapatılanlar:** `uyumKapsami(pipeline)` kararı hattan okuyor · `taranacakPrompt` konu
+ve adım prompt'larını birlikte tarıyor (fail-safe yön) · `uyum-kapsami.test.ts` gerçek
+hat dosyalarına karşı ölçüyor ve görsel üreten hatları **tarayarak** buluyor (sabit liste
+olsaydı listeye eklemeyi unutmak sessiz olurdu) · `compliance` kapısı `aiGenerated`
+literalini **yazılamaz** kılıyor.
+
+**Kapsam kararı:** `audio.tts` görsel sayılmıyor. Ses ayrı bir varlık ve ayrı bir ifşa
+yüzeyi ister; ikisini tek bayrağa bağlamak birini diğerinin arkasına saklardı.
+
+**Geri alma maliyeti:** yok.
+
+## D-233 — `readonly: true` gerçekten salt-okur değildi; `just doctor` çöküyordu
+
+**2026-08-16 · FAZ-8 doğrulama 2. tur, MAJOR**
+
+`openDb`, `readonly` geçilse bile dizini yaratıyor (`mkdirSync`) ve `journal_mode` +
+`synchronous` pragmalarını yazıyordu — ikisi de yazma. Üstelik `scripts/doktor.mjs`
+`readonly`yi hiç geçmiyordu. Ölçüm:
+
+```
+$ chmod a-w derived/index derived/index/suite.db && just doctor
+SqliteError: attempt to write a readonly database (SQLITE_READONLY_DIRECTORY)
+```
+
+**12. yasanın tam hedefi olan senaryoda** — bir ay ihmalden sonra, salt-okur bir
+kurtarma diskinde — "hiçbir şeyi değiştirmeyen" rapor aracı **çalışmıyordu**.
+`doctor-salt-okur` kapısı çağrıları denetliyordu; çağrının ALTINDAKİ yazmayı görmüyordu.
+**Bir kapı, koruduğu ilkeyi bir katman aşağıda kaybedebilir.**
+
+**Kapatılanlar:** `openDb` salt-okur modda `mkdirSync` ve yazan pragmaları atlıyor ·
+`doktor.mjs` `readonly: true` geçiyor · `doctor-salt-okur` kapısı artık
+`scripts/doctor.sh`ı da denetliyor (**giriş betiği listede yoktu**) ve `.sh` için kabuk
+yazma biçimlerini (yönlendirme, `tee`, `touch`, `cp`, `mv`) arıyor — `echo x > dosya`
+eklemek kapıyı yeşil bırakıyordu. Üçü de kasten ihlal edilip kırmızıya döndürüldü.
+
+**Ölçüldü:** tüm indeks salt-okur → `just doctor` rc=0.
+
+**Geri alma maliyeti:** yok.
+
+## D-234 — MCP girdi şeması bir belgeydi, kapı değildi
+
+**2026-08-16 · FAZ-8 doğrulama 2. tur, MAJOR**
+
+`ARACLAR`ın `girdi` şeması `required`, `minLength`, `maximum`,
+`additionalProperties: false` yazıyordu ve **hiçbiri zorlanmıyordu**:
+
+```
+POST /mcp/cagir/corpus_search -d '{}'                     → {"sonuclar":[]} HTTP 200
+POST /mcp/cagir/corpus_search -d '{"query":"x","limit":100000}' → HTTP 200
+```
+
+Sorgusuz bir çağrı "sonuç yok" cevabı alıyordu — yani **arama hiç koşmadan boş liste**.
+Bu, `araclar.ts`in birkaç satır yukarısında bizzat yasakladığı şeydi (D-175: "boş liste
+dönmek corpus'un boş olduğunu söylerdi"). **Modül kendi ilkesini kendi yüzeyinde
+çiğniyordu.**
+
+**Karar: doğrulayıcı elde yazıldı, bağımlılık eklenmedi.** Desteklenen alt küme
+`registry/PROFILE.md` ile aynı ruhta dar: `required` · `type` · `minLength` · `minimum` ·
+`maximum` · `pattern` · `additionalProperties`. Genel bir JSON Schema doğrulayıcı 40
+satırdan pahalıydı ve profil zaten bu alt kümeyi zorunlu kılıyor.
+
+**İlk eşleşmeyen alanda dönüyor:** alan listesi kusmak, çağıranın ilkini düzeltip
+ikinciye takılmasından daha yardımcı değil.
+
+**Geri alma maliyeti:** yok.
+
+## D-235 — Röportaj: dikey, marka mimarisi ve kanıt durumu kurucudan alındı
+
+**2026-08-16 · FAZ-2.9 ikinci yarı (D-5)**
+
+İlk yedi strateji kaydı kamuya açık kaynaklardan **çıkarımla** yazılmıştı
+(`source.kind: inference`, confidence 0.5–0.6) ve iki yerde yanlıştı: ürünler hiç
+geçmiyordu, dikey/bölge tahmindi. Kurucu röportajı dördünü de kapattı.
+
+**1 · Dikey: imalat — ama ayrım ekseni SEKTÖR DEĞİL, VERİ OLGUNLUĞU.**
+Bu röportajın en değerli çıktısı ve dışarıdan asla çıkarılamayacak olan şey:
+*"Dima ERP üstüne kurulduğunda gittiğimiz firmada veritabanı yoksa UpcyMan'i
+genelleştirip kuruyoruz ya da açık kaynak kuruyoruz."*
+
+Bu bir uygulama ayrıntısı değil, **konumun kendisi**: bu alandaki araçların hepsi
+verinin var olduğunu varsayar. Power BI bir veri kaynağı ister; GenBI bir veritabanı
+ister. Veri yoksa iş orada biter. Upcytech'te bitmiyor. ICP artık üç kovaya ayrılıyor
+(verisi yok · verisi var ama karara çevrilmiyor · sürdürülebilirlik zorunluluğu) ve
+birincisi rakiplerin **çalışamadığı** yer.
+
+⚠ **Coğrafya iddiası tamamen düştü.** "Marmara ve Ege" uydurmaydı; yerine bir şey
+yazılmadı. Ölçek bandı da (çalışan/ciro) boş bırakıldı — kurucudan alınmadı.
+**Uydurulmuş bir alan, boş bir alandan kötüdür:** boş alan sorulur, uydurma alan
+doğru sanılır.
+
+**2 · Marka mimarisi: onaylı marka — "Dima by Upcytech".** V-06'nın açık kalan yarısı.
+Veri modeli değişmiyor (`brand_id` zaten ayrı eksen, D-84); değişen şey sunum ve token
+kalıtımı: ürün kendi adıyla yaşar, çatı kredisini taşır.
+
+**3 · Giriş teklifi bugün İKİ ürün, yarın Dima.** `upcyman.com` + `upcycarbon.com`
+üzerinden demo ile giriliyor; Dima'nın ilk sürümü tamamlanınca giriş ürünü Dima olacak.
+Teklif kaydı bunu **tarihli bir geçiş** olarak yazıyor — "yakında" demiyor.
+
+**4 · Yayınlanabilir kanıt YOK ve bu kayda geçti.** Müşteri sonucu, sayı, referans —
+hiçbiri yok. Yedi kaydın hiçbirinde tek bir sayısal iddia bulunmuyor. UpcyMan
+`transfer_confidence: analogous` ile **yetenek kanıtı** olarak duruyor, müşteri sonucu
+olarak değil (§4.6). Rakip kaydı bu zayıflığı **açıkça yazıyor** — kapatılana kadar
+öyle anlatılacak, uydurulmayacak.
+
+**Eski beş taslak silinmedi.** Hiçbiri onaylanmadı, yani hiçbir zaman doğru olmadılar;
+ama silme kararı insanın (R-14, `corpus-silici` darboğazı). Retrieval'a görünmüyorlar
+(`status: draft`). ⚠ Toplu onay (`just onayla corpus/*/*.md`) ikisini birden aktif
+yapar ve **§5.5 anlamında bir çelişki** doğurur — onay yolları tek tek verildi.
+
+**Geri alma maliyeti:** yok — hepsi draft, hiçbiri onaylanmadı.
+
+## D-236 — Kasadaki anahtar adı kodun okuduğuyla eşleşmiyordu
+
+**2026-08-16 · ilk gerçek anahtar kurulumu**
+
+Kullanıcı Cloudflare token'ını koymaya hazırlandığında ölçtüm: `secrets.enc.yaml`
+**`CLOUDFLARE_API_TOKEN`** taşıyordu, kod **`CF_API_TOKEN`** okuyor. `CF_ACCOUNT_ID`
+ise kasada hiç yoktu. Token mevcut satıra yazılsaydı `sops exec-env` onu ortama
+koyardı, hiçbir kod o adı okumazdı, adaptör `MISSING_CREDENTIALS` derdi ve kullanıcı
+"anahtarı koydum ama çalışmıyor" ile baş başa kalırdı.
+**Yapılandırılmış SANILAN bir sır, yapılandırılmamış sırdan kötüdür.**
+
+**İki doğrulama turu da bunu bulamadı** çünkü `secret-rotasyon` **kod ↔ RUNBOOK**
+eksenine bakıyor. Üçgenin üçüncü kenarı — **kasa ↔ kod** — hiç denetlenmiyordu.
+İki kenarı denetlemek üçüncüsünün doğru olduğunu göstermez.
+
+**`secret-adlari` kapısı** o kenarı kapatıyor: kasada olup hiçbir kodun okumadığı ad
+hatadır. Kasa AÇILMAZ — adlar sops'ta düz metindir (`.sops.yaml`: yalnız değerler
+şifrelenir), yani kapı age anahtarı istemez ve CI'da da koşar.
+
+**Kapı benim elle bulduğumdan dört tane daha buldu** ve biri gerçek bir yalanı ortaya
+çıkardı: `R2_ACCESS_KEY_ID` + `R2_SECRET_ACCESS_KEY` repoda **hiçbir yerde geçmiyor**,
+oysa `FAZ-3.12` başlığı *"Varlık CAS **ve R2 senkronu**"* diyip `[x]` tikliydi. R2
+kodu hiç yazılmamıştı; ✅ kriteri yalnız CAS'ı ölçtüğü için tik teknik olarak
+geçerliydi ama **başlık ölçülenden fazlasını iddia ediyordu**. Başlık daraltıldı ve
+R2 yarısı `3.12b` olarak açıldı. İki ölü anahtar, yapılmamış işin tek iziydi.
+
+**Beyanlı muafiyet, sessiz muafiyetten iyidir:** `BEKLEYEN` listesi her parked anahtarı
+gerekçesi ve hedefiyle taşıyor (`GROQ_API_KEY` → V-22 · R2 ikilisi → 3.12b ·
+`ANTHROPIC_API_KEY` → D-8 gereği kaldırılabilir, karar kullanıcının).
+
+**Geri alma maliyeti:** yok.
+
+## D-237 — Sağlayıcı ortamı iki çağıranda iki farklı şekilde kuruluyordu
+
+**2026-08-16 · ilk gerçek görsel üretimi**
+
+Cloudflare anahtarları kasaya girdikten ve **gerçek çağrı ölçüldükten** sonra
+(HTTP 200, 1024×1024 JPEG, metinsiz) `just plan ad-creative-set` hâlâ şunu diyordu:
+`elendi cloudflare-workers-ai: yerel önkoşul sağlanmadı`.
+
+Sebep: `candidatesFor(capability, env)` kullanılabilirliği `env` içindeki anahtarlara
+bakarak belirliyor ve iki çağıran farklı davranıyordu — `plan.mjs` **yalnız `PATH`**
+geçiriyordu, `uret.mjs` ise üç adı **elle sayıyordu**. Yani plan, anahtar kasada olsa
+bile her sağlayıcıyı eliyordu; üretim ise dördüncü sağlayıcı eklendiği gün sessizce
+unutacaktı.
+
+**Karar: hangi anahtarın gerektiği VERİDİR.** Tanımlayıcılar zaten `auth_env:` beyan
+ediyor; `saglayiciOrtami()` ortamı o beyandan türetiyor ve iki çağıran da onu
+kullanıyor. Elle sayılan her liste bir gün ayrışır — bu, D-229'un (politika hat adından
+okunuyordu) sağlayıcı tarafındaki kardeşi.
+
+**Yalnız `enabled` sağlayıcıların anahtarı geçiliyor:** kapalı bir sağlayıcının sırrını
+alt süreçlere yaymak, en az yetki ilkesinin sessiz ihlali olurdu.
+
+**`ek` parametresi açık bir kaçış değil, görünür bir istisna:** tanımlayıcı tek bir
+`auth_env` beyan edebiliyor ama Cloudflare iki değişken istiyor (`CF_ACCOUNT_ID` bir
+sır değil, hesap kimliği). Sessiz bir varsayım yerine parametreye yazıldı.
+
+**Ölçüldü:** `SEÇİLEN: cloudflare-workers-ai · güven green` — üretim yolu ilk kez
+gerçek bir görsel sağlayıcı çözdü.
+
+**Geri alma maliyeti:** yok.
+
+## D-238 — Cassette, sağlayıcının davranışını değil benim varsayımımı kaydetmiş
+
+**2026-08-16 · ilk gerçek bake-off**
+
+Cloudflare adaptörü cassette'lerle test edilmiş ve yeşildi. İlk gerçek koşuda sekiz
+brief'in **sekizi de** `MALFORMED_RESPONSE` verdi:
+
+```
+AiError: Bad input: Additional or unevaluated properties '/width, /height' at '/' not allowed (5006)
+```
+
+`flux-1-schnell` fazladan alan görünce isteği **tümden reddediyor**. Cassette bunu kabul
+ediyordu çünkü cassette'i ben yazmıştım. **Kaydedilmemiş bir cassette, sağlayıcının
+davranışını değil yazarının varsayımını sabitler** — ve yeşil kalarak o varsayımı bir
+olguya benzetir. V-16 tam olarak bunu bekliyordu; bekleyen borç haklı çıktı.
+
+**İkinci olgu, ölçülerek:** iki CF modeli iki farklı **tel biçimi** konuşuyor.
+`flux-1-schnell` JSON `{result:{image:<base64>}}` döndürüyor ve boyut SABİT 1024×1024;
+`sdxl-lightning` ham JPEG gövdesi döndürüyor ve `width`/`height` KABUL ediyor. Yani
+Instagram'ın 4:5'i ancak ikinci modelden geçiyor.
+
+**Karar:** adaptörde `MODELLER` tablosu — en-boy → (model, tel). Model seçimi
+adaptörün işidir (D-32): hat yetenek ister, model adı yazmaz. Boyut yalnız kabul eden
+modele gönderiliyor; "göndersek de yok sayar" varsayımı ölçüldü ve yanlış çıktı.
+
+**Üçüncü olgu — kendi betiğimde:** bake-off `sonuc.value.data.output` arıyordu, gerçek
+şekil `sonuc.value.data`. Sekizi de "şekil bozuk" verdi. D-227'nin dersi bir kez daha:
+şekli varsayma, ölç. **Betik gürültülü çöktüğü için bunu öğrendim** — sessizce boş
+liste dönseydi "üretim çalışıyor" derdim.
+
+**Geri alma maliyeti:** yok.
+
+## D-239 — 9. yasa kapısı bir adım geçti ve iki kör noktası vardı
+
+**2026-08-16 · ilk gerçek bake-off**
+
+Sekiz brief'ten biri **iki yapay insan üretti** (Md. 27/12 · R-33). Üç ayrı kusur:
+
+**1 · Kapı GEÇ.** `promptRequestsPerson` yalnız `assertCompliance` içinde, yani
+**damgalama anında** koşuyordu. İnsan isteyen bir prompt modele gidiyor, para harcıyor,
+görsel üretiliyor — ve ancak damga aşamasında iddia kurulamıyor. **Fail-closed olmak
+yetmez, ERKEN fail-closed olmak gerekir:** harcanmış para geri gelmez ve üretilmiş
+uyumsuz varlık diskte durur. Kontrol artık `generateBody`nin **ilk satırında**,
+yönlendirici bile çalışmadan. Yeri `engine` çünkü `providers` ile `render` kardeştir
+(§3.6) ve deseni ikinci kez yazmak iki listeden birinin unutulması demekti.
+
+**2 · İngilizce çoğullar KÖR.** Desen `\bworker\b` idi ve *"two factory **workers** in
+safety vests"* ile eşleşmiyordu — `\b` sondaki `s`yi kelime karakteri sayıyor. Türkçe
+tarafı `\w*` ile yazılmıştı, İngilizce tarafı değil. **Aynı kural iki dilde iki farklı
+titizlikle yazılırsa, gevşek olan geçerlidir.** Ve prompt'lar üretimde İngilizce
+yazılıyor — yani kapı, asıl kullanıldığı dilde gevşekti.
+
+**3 · Olumsuzlama KÖR.** `no people` ifadesi `people` desenine takılıyor ve kapı,
+R-20'nin tam olarak teşvik ettiği prompt'u reddediyordu. Türkçede aynı tuzak `-sız`
+ekinde: `insansız` katlandıktan sonra `insansiz` oluyor ve `\binsan\w*` ona da uyuyor.
+**Bir kapının, kuralına uyan girdiyi reddetmesi kuralı uygulanamaz kılar** — ve
+uygulanamaz kural, kapatılan kuraldır.
+
+**Ölçüldü, sekiz durumun sekizi doğru:** `workers` ✓ yakalanıyor · `no people` ✓
+geçiyor · `insansız` ✓ geçiyor · `engineers` ✓ yakalanıyor.
+
+**Brief de düzeltildi:** vardiya sahnesi artık insansız — boş tezgâhta iki kask. Çıktı
+hem uyumlu hem **daha iyi**; kısıt burada kaliteyi düşürmedi, yükseltti.
+
+**Geri alma maliyeti:** yok.

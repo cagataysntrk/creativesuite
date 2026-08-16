@@ -296,10 +296,21 @@ const secici = (sorgu, limit) => {
     asOf: clock.nowIso(),
     limit,
   }
-  // Önce arama (FTS5 + yüklem), sonuç yoksa yüklemin kendisi: konuya değmeyen ama
-  // ONAYLI bir kayıt, konuya değen ama onaysız bir kayıttan iyidir.
+  // ⚠ **ARAMA SIRALAR, YÜKLEM İÇERİK VERİR** (D-245). `selectSearch` bir SIRALAMA
+  // şekli döndürüyor — `{id, path, title, score, sources}` — ve **gövdesi yok**.
+  // Eski kod `k.body ?? k.snippet ?? ''` okuyordu: arama isabet ettiği an üç kaydın
+  // üçü de boş metinle geliyor, prompt kurulamıyor ve hat `EMPTY_PROMPT` ile
+  // duruyordu. Arama ıskaladığında yedek yol (`selectRecords`) gövdeyi getirdiği
+  // için kusur **yalnız arama tuttuğunda** görünüyordu — en sinsi hâli.
+  //
+  // İçerik TEK yerden: `selectRecords` retrieval yükleminin kendisi (R-13). Arama
+  // yalnız sırayı belirliyor; ikinci bir içerik okuyucu açmak yüklemi ikiye bölerdi.
   const hits = selectSearch(corpusDb, q, sorgu, limit)
-  const kayitlar = hits.length > 0 ? hits : selectRecords(corpusDb, q)
+  const tumu = selectRecords(corpusDb, q)
+  const kayitlar =
+    hits.length > 0
+      ? hits.map((h) => tumu.find((k) => k.id === h.id)).filter((k) => k !== undefined)
+      : tumu
   return kayitlar.map((k) => ({
     id: k.id,
     text: (k.body ?? k.snippet ?? '')

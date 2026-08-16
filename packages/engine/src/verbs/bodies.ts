@@ -86,6 +86,16 @@ export interface BodyInput {
    * yapılandırması değil.
    */
   readonly capability?: string
+  /**
+   * Bu adımın BAĞIMLILIKLARI — hangi adımların çıktısını okumaya hakkı var.
+   *
+   * ⚠ Görsel adımı brief'i `Object.values(inputs)` içinde ARIYORDU ve ilk metin
+   * çıktısını alıyordu: `metin-uret`in TÜRKÇE gönderi metni `gorsel-brief`ten önce
+   * geliyor, görsel prompt'u Türkçe oluyor ve R-20 haklı olarak reddediyordu
+   * (`matched: "cümle"`). **Bir adım, bağlanmadığı bir adımın çıktısını okumamalı** —
+   * DAG zaten bunu söylüyordu, gövde onu duymuyordu (D-246).
+   */
+  readonly needs?: readonly string[]
   /** Motorun tutamak köprüsü — sağlayıcı iş kimliğini verir vermez çağrılır (R-44). */
   readonly noteHandle?: (externalId: string) => void
   /** Önceki çalıştırmadan kalan tutamak. `null` değilse YENİ çağrı yapılmaz. */
@@ -953,10 +963,11 @@ const promptTuret = (yetenek: string, input: BodyInput): string => {
       : undefined
 
   if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
-    // Önceki adımların METİN çıktısı = görsel brief'i. `needs` zaten yalnız o adımı
-    // bağlıyor; burada şekle bakmak, adım id'sine bakmaktan sağlam (D-229 dersi).
-    for (const v of Object.values(input.inputs)) {
-      const d = duzMetin(v)
+    // **Yalnız BAĞLANDIĞI adımların çıktısı okunuyor.** Adım id'sine göre değil,
+    // DAG'a göre: hangi adımın brief üreteceğini hat dosyası `needs` ile söylüyor.
+    // Tüm çıktılara bakmak, Türkçe gönderi metnini görsel prompt'u sanmaktı (D-246).
+    for (const ad of input.needs ?? Object.keys(input.inputs)) {
+      const d = duzMetin(input.inputs[ad])
       if (d !== null) return d
     }
     return ''
