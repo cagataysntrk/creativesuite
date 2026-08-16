@@ -83,7 +83,7 @@ token son kullanma tarihi ekranda görünüyor
    ⚠ Gerçek yayın `7.2b`ye bağlı (V-26): token ve uygulama insan girdisi.
 💾 `feat(providers): linkedin adaptörü` · `Refs: FAZ-7.3 · §9.3`
 
-## 7.4 — Token-bucket rate limiter ve yinelenme defteri    [ ]
+## 7.4 — Token-bucket rate limiter ve yinelenme defteri    [x] 2026-08-16
 
 📖 §8.5, §9.2 · R-44, R-46 · D-38
 🔗 7.2
@@ -91,9 +91,17 @@ token son kullanma tarihi ekranda görünüyor
    döndürür** — "başardım" sanmak, aynı postu iki kez yayınladığını fark etmemektir.
    Yerel yayın defteri (`derived/runs/published.ndjson`, D-38) idempotency anahtarıyla
    karşılaştırır (R-44).
-📁 `packages/engine/src/ratelimit.ts` · `derived/runs/published.ndjson`
+📁 `packages/engine/src/ratelimit.ts` · `packages/engine/src/publish-ledger.ts` ·
+   `derived/runs/published.ndjson`
 ✅ Aynı postu iki kez gönder → ikincisi defterce yakalanıyor, kanal çağrısı YAPILMIYOR
-🧪 Defteri sil → yayın **durur** (defter türetilemez, D-38); limiti aşan burst → kuyrukta
+   (ölçüldü: `yuklendi` dizisi boş kalıyor)
+🧪 Defteri sil → yayın **durur** (defter türetilemez, D-38) · iki ardışık YAZMA
+   kapasiteyi aşıyor, ikincisi kuyrukta (`retryAfterMs` tahmin değil hesap)
+   ⚠ **"Yok" ile "boş" AYRI:** boş saymak, defteri silmenin yinelemeleri serbest
+   bırakması demekti. Bozuk bir satır da sessizce atlanmıyor — atlansaydı bozulmuş
+   defter "yayınlanmamış" diye okunur ve içerik ikinci kez yayınlanırdı.
+   ⚠ Ağırlık: okuma 1, **yazma 3** (§9.2). Tek ağırlık ya okumayı gereksiz yavaşlatır
+   ya yazmayı sağlayıcının sınırına çarptırır — ve 429 ancak yayın anında görünür.
 💾 `feat(engine): rate limiter ve yinelenme defteri` · `Refs: FAZ-7.4 · §8.5`
 
 ## 7.5 — OAuth kurulumu    [ ]

@@ -266,3 +266,15 @@ export {
 // Koşu künyesi — manifest'ten ÖNCE yazılır; kesintiye uğramış koşu künyesiz koşudan
 // ayırt edilebilsin diye (FAZ-7.1 denetimi).
 export { readRunStub, stubPath, writeRunStub, type RunStub } from './manifest-writer.js'
+
+// Yayın defteri (FAZ-7.4). TÜRETİLEMEZ (D-38): silinirse yayın durur, boş sayılmaz.
+export {
+  appendPublished,
+  initLedgerFile,
+  ledgerPath,
+  lookupPublished,
+  readLedger,
+  type LedgerError,
+  type LedgerResult,
+  type PublishedEntry,
+} from './publish-ledger.js'

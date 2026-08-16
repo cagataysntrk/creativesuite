@@ -64,3 +64,37 @@ describe('token kovası', () => {
     expect(l.available('p', 'x')).toBe(3)
   })
 })
+
+// ── ağırlıklı puanlar (§9.2 · FAZ-7.4) ──────────────────────────────────────
+import { OKUMA_PUANI, YAZMA_PUANI, verbCost } from './ratelimit.js'
+
+describe('istek ağırlıkları', () => {
+  it('okuma 1, yazma 3 — tek ağırlık ikisinden birinde yanlış olurdu', () => {
+    expect(OKUMA_PUANI).toBe(1)
+    expect(YAZMA_PUANI).toBe(3)
+    expect(verbCost('PUBLISH')).toBe(YAZMA_PUANI)
+    expect(verbCost('GENERATE')).toBe(YAZMA_PUANI)
+    expect(verbCost('SELECT')).toBe(OKUMA_PUANI)
+  })
+
+  // 🧪 Kapasite 5: bir yazma (3) + bir yazma (3) = 6 > 5 → ikincisi kuyrukta.
+  // Ağırlıksız olsaydı beş yazma geçerdi ve 429'u ancak yayın anında görürdük.
+  it('iki ardışık YAZMA kapasiteyi aşıyor, ikincisi kuyrukta', () => {
+    const saat = manualClock('2026-08-16T00:00:00.000Z')
+    const l = new RateLimiter({ capacity: 5, refillPerSecond: 1 }, saat)
+    expect(l.take('meta', 'publish', YAZMA_PUANI).allowed).toBe(true)
+    const ikinci = l.take('meta', 'publish', YAZMA_PUANI)
+    expect(ikinci.allowed).toBe(false)
+    // `retryAfterMs` bir tahmin değil hesap: eksik token / doldurma hızı.
+    expect(ikinci.allowed === false && ikinci.retryAfterMs).toBe(1000)
+  })
+
+  it('aynı kapasitede beş OKUMA geçiyor — ağırlık gerçekten ayrışıyor', () => {
+    const saat = manualClock('2026-08-16T00:00:00.000Z')
+    const l = new RateLimiter({ capacity: 5, refillPerSecond: 1 }, saat)
+    for (let i = 0; i < 5; i++) {
+      expect(l.take('meta', 'read', OKUMA_PUANI).allowed).toBe(true)
+    }
+    expect(l.take('meta', 'read', OKUMA_PUANI).allowed).toBe(false)
+  })
+})

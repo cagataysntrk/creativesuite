@@ -26,6 +26,21 @@ export interface BucketConfig {
 
 export const DEFAULT_BUCKET: BucketConfig = { capacity: 5, refillPerSecond: 2 }
 
+/**
+ * İstek AĞIRLIKLARI (§9.2) — okuma 1 puan, **yazma 3 puan**.
+ *
+ * Tek ağırlık yanlış olurdu: bir yayın çağrısı medya yükler, işler ve yayımlar; bir
+ * kota sorgusu tek okuma. İkisini eşit saymak ya okumayı gereksiz yavaşlatır ya
+ * yazmayı sağlayıcının sınırına çarptırır — ve ikinci durumda 429'u ancak yayın
+ * anında görürüz.
+ */
+export const OKUMA_PUANI = 1
+export const YAZMA_PUANI = 3
+
+/** Fiil → puan. Yazan fiiller 3, okuyanlar 1. */
+export const verbCost = (verb: string): number =>
+  verb === 'PUBLISH' || verb === 'GENERATE' ? YAZMA_PUANI : OKUMA_PUANI
+
 interface Kova {
   tokens: number
   lastMs: number
@@ -49,8 +64,13 @@ export class RateLimiter {
     this.#clock = clock
   }
 
-  /** Bir token ister. **Yan etkilidir**: izin verdiyse token'ı düşürür. */
-  take(providerId: string, capability: string): RateDecision {
+  /**
+   * Token ister. **Yan etkilidir**: izin verdiyse token'ları düşürür.
+   *
+   * `cost` **ağırlıktır** (§9.2): yazma 3, okuma 1. Varsayılan 1 — eski çağıranlar
+   * aynen çalışır ve ağırlık isteyen açıkça belirtir.
+   */
+  take(providerId: string, capability: string, cost = OKUMA_PUANI): RateDecision {
     const k = bucketKey(providerId, capability)
     const now = this.#clock.now()
     const mevcut = this.#kovalar.get(k) ?? { tokens: this.#cfg.capacity, lastMs: now }
@@ -59,15 +79,15 @@ export class RateLimiter {
     const eklenen = (gecenMs / 1000) * this.#cfg.refillPerSecond
     const tokens = Math.min(this.#cfg.capacity, mevcut.tokens + eklenen)
 
-    if (tokens < 1) {
+    if (tokens < cost) {
       // Kovayı GÜNCELLE ama token düşürme: reddedilen istek de zamanın geçtiğini görmeli,
       // yoksa `lastMs` donar ve kova bir daha hiç dolmaz.
       this.#kovalar.set(k, { tokens, lastMs: now })
-      const eksik = 1 - tokens
+      const eksik = cost - tokens
       return { allowed: false, retryAfterMs: Math.ceil((eksik / this.#cfg.refillPerSecond) * 1000) }
     }
 
-    this.#kovalar.set(k, { tokens: tokens - 1, lastMs: now })
+    this.#kovalar.set(k, { tokens: tokens - cost, lastMs: now })
     return { allowed: true }
   }
 

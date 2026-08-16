@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.4
+siradaki_adim: 7.5
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.3 KAPANDI ve V-23 GERCEK KAYNAKLA KAPANDI. LinkedIn dokuman siniri belgesinden okundu: 300 SAYFA · 100 MB (linkedin.com/help/linkedin/answer/a523054) ve placements.ts e linkedin-document satiri olarak sourceUrl + verifiedAt ile girdi. DOGRULAMA BIR HATA ORTAYA CIKARDI: dokuman icin LinkedIn in GORSEL siniri (5 MB) kullaniliyordu — iki farkli medya tipinin limitini karistirmisim ve 40 MB lik mesru bir dokuman reddedilirdi. Editoryal tavanimiz (10 sayfa) platform sinirindan AYRI duruyor: biri bir OLGU, digeri bir KARAR; karistirilsa ya tavan yukseltilir ya platform siniri unutulurdu. Adaptor AGA CIKMIYOR — istegi kuruyor ve dogruluyor, yayin publish.ts ten geciyor (kanal-yayinci darbogazi). Surum sabiti YYYYMM ve eskirse istek HIC KURULMUYOR: sessizce eski API ye dusmek en kotu senaryo degil, en kotusu FARK EDILMEMESI. Basliksiz dokuman reddediliyor (feed de dokuman.pdf gorunur ve duzenlenemez), PDF olmayan dokuman reddediliyor (yanlis baglanmis hat gizlenmiyor). Gercek yayin 7.2b ye bagli (V-26). ONCEKI: FAZ 6 SARTLI KAPANDI (D-217), iki tur 28 bulgu."
+son_kanit: "7.4 KAPANDI. Limiter artik AGIRLIKLI (§9.2): okuma 1, YAZMA 3 — tek agirlik ya okumayi gereksiz yavaslatir ya yazmayi saglayicinin sinirina carptirir ve 429 ancak yayin aninda gorunur. Iki ardisik yazma kapasiteyi asiyor, ikincisi kuyrukta ve retryAfterMs bir TAHMIN degil HESAP. Yayin defteri (derived/runs/published.ndjson) yazildi ve publish.ts in DORDUNCU kapisina GERCEKTEN baglandi: ayni icerik ikinci kez yayinlanmiyor ve KANAL CAGRISI YAPILMIYOR (olculdu, yuklendi dizisi bos kaliyor). Meta yinelenmede mevcut id i donduruyor; cagri yapilsaydi basardim sanilirdi. YOK ile BOS AYRI: defter yoksa yayin DURUR, bos sayilmaz — bos saymak defteri silmenin yinelemeleri serbest birakmasi demekti ve defter TURETILEMEZ (D-38). Bozuk bir satir da sessizce atlanmiyor: atlansaydi bozulmus defter yayinlanmamis diye okunur ve icerik ikinci kez yayinlanirdi. Test ELLE FIKSTUR YAZMIYOR — gercek deftere gercek appendPublished ile yazip gercek publish cagrisina bagliyor (FAZ 6 dersi). ONCEKI: 7.3 kapandi ve V-23 gercek kaynakla kapandi (300 sayfa · 100 MB); dogrulama, dokuman icin GORSEL sinirinin kullanildigi hatasini ortaya cikardi."
 ```
 
 ## Neredeyiz
@@ -63,14 +63,15 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 | **7.1** · spec drift denetçisi; güvenli alan ayrı (D-215) | 2026-08-16 |
 | **7.2** · yayın kapıları; sıra tipe gömülü, tek yayıncı mekanik | 2026-08-16 |
 | **7.3** · LinkedIn adaptörü; V-23 kapandı (300 sayfa · 100 MB) | 2026-08-16 |
+| **7.4** · ağırlıklı limiter + yayın defteri; "yok" ≠ "boş" | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`7.4` — Token-bucket rate limiter ve yinelenme defteri** (§8.5, §9.2 · R-46).
-Limiter **uploader'dan ÖNCE** gelir: okuma 1 puan, yazma 3 puan. Yinelenme defteri
-`publish.ts`in dördüncü kapısını besleyecek — bugün `lookupLedger` bir bağımlılık ve
-gerçek defteri henüz yok. Meta yinelenen gönderide mevcut id'yi döndürüyor; defter
-olmadan "3 varlık ürettim" sanıp 20 üretmiş görünmek mümkün.
+**`7.5` — OAuth kurulumu** (§9.2, §9.3 · D-3). Meta uygulaması (kendi işletmen, App
+Review gerekmiyor) + LinkedIn "Share on LinkedIn" 3-legged OAuth. Her ikisinin
+kapsamları `KARARLAR.md`'ye yazılır. **Büyük olasılıkla `7.5`/`7.5b` diye bölünecek:**
+akış ve kapsam doğrulaması kodla test edilebilir, gerçek uygulama kaydı insan girdisi
+(V-26 ailesi).
 
 ## Devreden borçlar
 
