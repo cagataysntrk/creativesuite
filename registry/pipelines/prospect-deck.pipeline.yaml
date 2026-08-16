@@ -1,0 +1,74 @@
+# Prospect deck'i — uçtan uca (§10 · FAZ-6.9).
+#
+# **Zincir atlanamaz.** Her kapı kendi sahibinde yaşıyor; hat yalnız SIRAYI kuruyor:
+# tazelik (6.6) → kişiselleştirme tavanı (6.7) → ürün ekranı gerçek çekim (6.8) →
+# lexicon/kaynaksız iddia (3.10) → yayınlanabilirlik (§13).
+#
+# **Dış metin karantinadan geçer** (R-50): `INGEST` çıktısı `derived/ingest/` altına
+# iner ve bağlama `untrusted_input` bölümü olarak girer, asla talimat olarak değil.
+id: prospect-deck
+title: Prospect deck'i (uçtan uca)
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: prospect-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  - id: arastir
+    verb: INGEST
+    needs: [prospect-sec]
+    constraints:
+      # Şelale sırası kodda (packages/providers/src/ingest/waterfall.ts); burada yalnız
+      # tavan var. Anahtarsız kaynak sessizce atlanmıyor, bloke işaretleniyor.
+      max_sources: 5
+      quarantine: true
+
+  - id: urun-ekrani
+    verb: RENDER
+    needs: [cozumle]
+    constraints:
+      # Ekran görüntüsü GERÇEK çekim (R-32 · 6.8): uydurma dashboard olgusal bir iddiadır.
+      capture: product
+      width: 1600
+      height: 900
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [arastir]
+
+  - id: metin-uret
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec]
+    constraints:
+      locale: tr-TR
+      max_chars: 4000
+      # Beş alanlık tavan R-36'da; hat onu istemez, kapı zorlar.
+      personalization_fields: 5
+
+  - id: kompozit
+    verb: COMPOSE
+    needs: [metin-uret, urun-ekrani]
+
+  - id: render
+    verb: RENDER
+    needs: [kompozit]
+    constraints:
+      width: 1600
+      height: 900
+      format: pdf
+
+  - id: olgu-dogrulama
+    verb: VALIDATE
+    needs: [render]
+    constraints:
+      # Zincirin tamamı. Kaynaksız her sayısal iddia yayını bloklar (R-32).
+      chain: prospect-deck
+
+  - id: onay
+    verb: PROPOSE
+    needs: [olgu-dogrulama]
+    gate: insan-onayi

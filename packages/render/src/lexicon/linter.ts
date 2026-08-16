@@ -118,7 +118,30 @@ const HEX = /#[0-9a-fA-F]{6}\b/g
 /** Aynı desen, `hexsiz` için ayrı örnek: `lastIndex` paylaşımı sessiz atlamalara yol açar. */
 const HEX_TARAMA = /#[0-9a-fA-F]{6}\b/g
 
-const metin = (b: Block): string => (b.type === 'heading' || b.type === 'body' ? b.text : '')
+/**
+ * Bloğun denetlenecek METNİ.
+ *
+ * ⚠ **Grafik bloğu 6.2'de eklendi ve bu fonksiyon güncellenmemişti** — yani
+ * "Fire oranını %40 düşürdük" başlıklı bir grafik, kaynaksız iddia denetiminden
+ * TAMAMEN kaçıyordu. Yeni bir blok tipi eklemek, onu okuyan her yeri güncellemeyi
+ * gerektirir; derleyici `switch` olmadığı için bunu söylemedi.
+ *
+ * Grafikte üç metin var ve üçü de iddia taşıyabilir: başlık, birim ve nokta etiketleri.
+ * Sayıların KENDİSİ (`points[].value`) denetlenmiyor — bir eksen değeri iddia değil,
+ * veriyi gösteren şeydir; iddia onu ÇEVRELEYEN metindedir.
+ */
+const metin = (b: Block): string => {
+  switch (b.type) {
+    case 'heading':
+    case 'body':
+      return b.text
+    case 'chart':
+      return [b.title, b.unit ?? '', ...b.points.map((p) => p.label)].join(' ')
+    case 'image':
+    case 'spacer':
+      return ''
+  }
+}
 
 /**
  * Belgeyi denetler.

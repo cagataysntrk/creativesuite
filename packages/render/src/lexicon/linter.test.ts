@@ -189,3 +189,74 @@ describe('rapor', () => {
     expect(new Set(v.map((x) => x.kind)).size).toBe(5)
   })
 })
+
+// ── grafik bloğu denetimden KAÇIYOR MUYDU (FAZ-6.9 bulgusu) ─────────────────
+describe('grafik bloğu iddia denetimi', () => {
+  const belge = (blocks: readonly Block[]): DocumentModel =>
+    ({
+      kind: 'deck-page',
+      width: 1600,
+      height: 900,
+      tokenCss: ':root{--role-bg:#000}',
+      stamp: {
+        brandId: 'brd_upcytech',
+        eraId: 'imalat-2026',
+        kitVersion: 'k',
+        definitionDigest: 'sha256:x',
+        contextManifest: 'x',
+        sourceRunId: 'run_x',
+      },
+      blocks,
+    }) as never
+
+  // 🧪 İHLAL TESTİ — grafik BAŞLIĞINDAKİ kaynaksız sayı yakalanıyor. Bu test yazılana
+  // kadar `metin()` grafik bloğu için boş dize döndürüyordu: 6.2'de blok tipi eklendi,
+  // linter güncellenmedi ve derleyici `switch` olmadığı için susmuştu.
+  it('grafik başlığındaki kaynaksız sayı YAKALANIYOR', () => {
+    const ihlaller = lintDocument(
+      belge([
+        {
+          type: 'chart',
+          chartKind: 'bar',
+          title: 'Fire oranını %40 düşürdük',
+          asOf: '2026-03-31',
+          points: [{ label: 'Ağustos', value: 4 }],
+        },
+      ]),
+      { forbidden: [], allowedHex: null, claimSource: null }
+    )
+    expect(ihlaller.some((v) => v.kind === 'unsourced_claim')).toBe(true)
+  })
+
+  it('nokta ETİKETİNDEKİ iddia da yakalanıyor', () => {
+    const ihlaller = lintDocument(
+      belge([
+        {
+          type: 'chart',
+          chartKind: 'bar',
+          title: 'Ölçüm',
+          asOf: '2026-03-31',
+          points: [{ label: '1.247 ilan yayınlandı', value: 4 }],
+        },
+      ]),
+      { forbidden: [], allowedHex: null, claimSource: null }
+    )
+    expect(ihlaller.some((v) => v.kind === 'unsourced_claim')).toBe(true)
+  })
+
+  it('kaynak verilince grafik geçiyor', () => {
+    const ihlaller = lintDocument(
+      belge([
+        {
+          type: 'chart',
+          chartKind: 'bar',
+          title: 'Fire oranını %40 düşürdük',
+          asOf: '2026-03-31',
+          points: [{ label: 'Ağustos', value: 4 }],
+        },
+      ]),
+      { forbidden: [], allowedHex: null, claimSource: 'corpus/proof_asset/fire-olcumu.md' }
+    )
+    expect(ihlaller.some((v) => v.kind === 'unsourced_claim')).toBe(false)
+  })
+})

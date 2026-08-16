@@ -249,3 +249,13 @@ export {
   type StaleReason,
   type LaunchBlock,
 } from './plan/freeze.js'
+
+// `prospect-deck` zinciri (FAZ-6.9). YENİ KURAL YAZMAZ — beş kapının sırasını kurar ve
+// ilk hatada durur; her kural kendi sahibinde yaşıyor.
+export {
+  DECK_KAPI_SIRASI,
+  prospectDeckZinciri,
+  type DeckKapisi,
+  type ProspectDeckInput,
+  type ProspectDeckSonucu,
+} from './prospect-deck.js'

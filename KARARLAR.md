@@ -77,6 +77,12 @@ runtime'ı çalıştırmıyor; `--player-ready-timeout 2000` ile **1 dk 34 sn �
 şerit gerçek para harcıyor. Sözleşme yazıldı ve test edildi (lisans kuralı iki ihlalle
 kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
 
+## V-25 — Gerçek prospect yok: deck teslim edilmedi
+Zincir kuruldu ve uçtan uca doğrulandı (gerçek çekim + grafik → PDF, beş kapı 5/5,
+iki ihlal biçimi doğru kapılarda durdu). Ama **gerçek bir prospect kaydı yok** ve
+uydurulmuş bir şirket doğruluk kaynağına giren bir kurgudur. `2.9`'a da bağlı: onaylı
+corpus olmadan `bilgi-sec` `NO_CONTEXT` veriyor. → FAZ-6.9b
+
 ## V-24 — Araştırma şelalesinin dört kaynağı anahtarsız
 `BRIGHTDATA_API_KEY` · `TAVILY_API_KEY` · `IHALE_MCP_URL` · `BORSA_MCP_URL` yok. Şelale
 mantığı, karantina, köken sidecar'ı ve enjeksiyon sınırı yazıldı ve **gerçek HTTP

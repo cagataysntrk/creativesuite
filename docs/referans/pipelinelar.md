@@ -3,7 +3,7 @@
 > ⚠ **ÜRETİLMİŞ DOSYA — elle düzenleme** (R-65). Üreteci: `just docs`.
 > Kaynak: `registry/pipelines/*.pipeline.yaml`. `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **8** hat.
+Toplam **9** hat.
 
 ## `deck` — Prospect deck'i (PDF)
 
@@ -107,6 +107,23 @@ Toplam **8** hat.
 | `render` | `RENDER` | — | kompozit | — | — |
 | `kalite` | `VALIDATE` | — | render | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
+
+## `prospect-deck` — Prospect deck'i (uçtan uca)
+
+10 adım · 1 yetenek isteyen · 1 insan kapısı
+
+| adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
+|---|---|---|---|---|---|
+| `cozumle` | `RESOLVE` | — | — | — | — |
+| `prospect-sec` | `SELECT` | — | cozumle | — | — |
+| `arastir` | `INGEST` | — | prospect-sec | — | — |
+| `urun-ekrani` | `RENDER` | — | cozumle | — | — |
+| `bilgi-sec` | `SELECT` | — | arastir | — | — |
+| `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
+| `kompozit` | `COMPOSE` | — | metin-uret, urun-ekrani | — | — |
+| `render` | `RENDER` | — | kompozit | — | — |
+| `olgu-dogrulama` | `VALIDATE` | — | render | — | — |
+| `onay` | `PROPOSE` | — | olgu-dogrulama | insan-onayi | — |
 
 ## `reels` — Reels (demo bölümlerinden türetme)
 

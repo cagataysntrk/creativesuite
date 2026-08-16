@@ -149,15 +149,31 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    `inspectManifest` → `fabricated_product_shot`.
 💾 `feat(render): gerçek ürün ekran görüntüsü çekimi` · `Refs: FAZ-6.8 · §10`
 
-## 6.9 — `prospect-deck` uçtan uca    [ ]
+## 6.9 — `prospect-deck` zinciri    [x] 2026-08-16
 
 📖 §10, §11.4 · R-32 · D-4
 🔗 6.1, 6.5, 6.6, 6.7, 6.8
 🛠 Fazın kapanış adımı: prospect kaydı → `INGEST` şelalesi → tazelik + kişiselleştirme
    kapıları → `COMPOSE` deck IR → `RENDER` PDF → **zorunlu olgu-doğrulama kapısı** →
    onay kuyruğu. Kapı atlanamaz: kaynaksız her sayısal iddia yayını bloklar (R-32).
-📁 `registry/pipelines/prospect-deck.pipeline.yaml`
+📁 `registry/pipelines/prospect-deck.pipeline.yaml` · `packages/engine/src/prospect-deck.ts`
+✅ Zincir beş kapıyı SIRAYLA koşuyor ve ilk hatada duruyor; gerçek çekim + grafik taşıyan
+   bir deck uçtan uca PDF'e kadar gidiyor
+🧪 Kaynaksız bir sayı ekle → `lexicon` kapısında duruyor · 15 günlük bir kaynakla koş →
+   `tazelik` kapısında duruyor (ikisi birden varsa TAZELİK konuşur: ucuz olan önce)
+   ⚠ Zincir YENİ KURAL YAZMIYOR — beş kapının sahibi ayrı dosyalarda; burada olan tek
+   şey sıra ve ilk hatada durma. Altıncı bir gerçek yazılsaydı diğer beşiyle ayrışırdı.
+💾 `feat(engine): prospect-deck zinciri` · `Refs: FAZ-6.9 · §10`
+
+## 6.9b — Gerçek prospect'e deck teslimi    [ ] BLOKE:insan (V-25)
+
+📖 §10, §11.4 · R-32 · D-4
+🔗 6.9, 2.9
+🛠 Fazın gerçek çıkış kriteri: **adı geçen gerçek bir şirkete** özel deck üretilir, olgu
+   kapısından geçer ve görüşmeden ÖNCE gönderilir. Sistem bunu kendi başına yapamaz:
+   gerçek bir prospect kaydı insan girdisidir ve uydurulmuş bir şirket, doğruluk
+   kaynağına giren bir kurgudur (D-212).
+📁 `corpus/prospect/<slug>.md`
 ✅ Gerçek bir prospect için deck üretildi, olgu kapısından geçti, görüşmeden önce gitti
-🧪 Kaynaksız bir sayı ekle → `claim_source` eksik diye reddediliyor · 15 günlük bir
-   kaynakla koş → tazelik kapısı reddediyor
-💾 `feat(cli): prospect-deck uçtan uca` · `Refs: FAZ-6.9 · §10`
+🧪 Aynı deck'i ikinci kez üret → aynı IR'dan aynı PDF çıkıyor (rerun ≠ replay)
+💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
