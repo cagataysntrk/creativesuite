@@ -83,9 +83,11 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 **`8.1b` — varyant genişletme.** Doğrulamanın açtığı adım: plan yedi varyant
 fiyatlıyor, koşu tek varyant üretiyor (D-228). Faz, bu adım tiklenmeden kapanamaz.
 
-Kapanış (`LOOP§D`) sırası: 1. doğrulama turu bitti, bulguları kapatıyorum.
-Kapananlar: B1 · B2 (D-227) · M1 (D-228) · M2 · M4. Kalan: M3 · M5.
-Sonra **2. VE SON tur** (D-79); ikinci turda bulunmayan minor'dur ve FAZ 9'a düşer.
+**İKİ DOĞRULAMA TURU DA BİTTİ** (D-79 tavanı; üçüncü tur AÇILMAZ).
+1. tur: B1 · B2 (D-227) · M1 (D-228) · M2 · M3+M5 (D-229) · M4.
+2. tur: BLOKER `aiGenerated` sabiti (D-232) · `openDb` salt-okur değildi (D-233) ·
+MCP şeması zorlanmıyordu (D-234) · üç kapı kör noktası · beş belge sapması.
+Kalan iki teknik adım bende: `8.1b` · `8.3b`. Gerisi insan kararı bekliyor.
 
 ## Devreden borçlar
 
