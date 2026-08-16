@@ -101,6 +101,14 @@ token-durum:
 defter-baslat:
     @./node_modules/.bin/tsc -b && node scripts/defter-baslat.mjs
 
+# Yedek denetimi — yedek ALMAZ, TAM olup olmadığını denetler (§14 · FAZ-8.7)
+yedek:
+    @./node_modules/.bin/tsc -b && node scripts/yedek.mjs
+
+# Geri yükleme TATBİKATI — gerçekten clone eder ve orada doğrular (§16 · FAZ-8.7)
+yedek-tatbikat *hedef:
+    @bash scripts/yedek-tatbikat.sh {{hedef}}
+
 # Haftalık öneriler — HİÇBİR maliyet oluşturmaz, yalnız okur (D-10 · FAZ-8.5)
 oneri *hat:
     @./node_modules/.bin/tsc -b && node scripts/oneri.mjs {{hat}}

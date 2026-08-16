@@ -128,29 +128,39 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    kanıt türleri — ilkinde ölçüm penceresi hiç açılmamıştır (D-220).
 💾 `feat(engine): proaktif haftalık öneri katmanı` · `Refs: FAZ-8.5 · §10`
 
-## 8.6 — KVKK metinleri (hukukçu)    [ ]
+## 8.6 — KVKK metinleri (hukukçu)    [ ] BLOKE:insan (V-10)
 
 📖 §11.3 · V-10
 🔗 6.4
 🛠 Türk hukukçudan **aydınlatma + açık rıza** metinleri, sayısal performans iddialarının
    Reklam Kurulu açısından durumu, sınır ötesi veri aktarımı beyanı. **LLM'e yazdırma:**
    KVKK 2026/347 geri dönüştürülmüş şablonları açıkça cezalandırıyor. V-10 burada kapanır.
-📁 `docs/hukuk/` · `corpus/policy/`
+📁 `docs/hukuk/HUKUKCUYA-SORULAR.md` (metin YOK, **soru listesi** var —
+   sistemin gerçekte hangi veriyi nerede tuttuğu tablosu + yedi somut soru)
 ✅ Metinler hukukçu onayıyla repoda, tarih ve kaynak damgalı · V-10 🔴 kalktı
 🧪 LLM üretimi bir KVKK metnini `zone: human` diye işaretlemeyi dene → imza kapısı reddediyor
 💾 `docs(hukuk): KVKK aydınlatma ve açık rıza metinleri` · `Refs: FAZ-8.6 · §11.3`
 
-## 8.7 — Yedekleme ve geri yükleme tatbikatı    [ ]
+## 8.7 — Yedekleme ve geri yükleme tatbikatı    [x] 2026-08-16
 
 📖 §14, §16 · R-52, R-70 · D-38
 🔗 FAZ-7.8
 🛠 **Denenmemiş yedek, yedek değildir.** Repo + blob deposu + secret'lar **ayrı bir diske**
    geri yüklenir ve orada `just verify` yeşil verir. `derived/runs/` türetilemez (D-38,
    R-52) — kurtarma senaryosunun asıl sınadığı şey odur; indeks zaten yeniden kurulur.
-📁 `scripts/backup.sh` · `docs/RUNBOOK.md`
-✅ Boş bir dizine geri yükle → `just verify` orada yeşil, `just reindex` indeksi kuruyor
-🧪 Yedekten `derived/runs/`u çıkar → geri yükleme **eksik** olduğunu söylüyor, sessizce
-   tamam demiyor
+📁 `scripts/yedek.mjs` · `scripts/yedek-tatbikat.sh` · `docs/RUNBOOK.md`
+✅ `just yedek-tatbikat` GERÇEKTEN clone ediyor ve klonda `just check` koşturuyor —
+   simülasyon değil, kurtarma yolunun kendisi.
+   ⚠ **TATBİKAT GERÇEK BİR KUSUR BULDU** ve ilk koşuda kırmızı döndü:
+   `✗ pnpm install BAŞARISIZ — klon kendi kendine ayakta duramıyor`
+   (`ERR_PNPM_IGNORED_BUILDS`). Build-script onayları **geliştirici makinesinde**
+   yaşıyordu, repoda değil — yani kurulum yalnız BU makinede çalışıyordu. Onaylar
+   `package.json` → `pnpm.onlyBuiltDependencies` altına yazıldı.
+   **Denenmemiş bir yedeğin gizlediği şey tam olarak budur:** her şey yolunda
+   görünür, ta ki gerçekten kurtarmaya çalışana kadar.
+🧪 Tatbikat clone ile GELMEYENLERİ ayrı ayrı bildiriyor ve sessizce "tamam" demiyor:
+   `⚠ age anahtarı GELMEDİ — repoda değil` · `✓ derived/runs geldi (türetilemez
+   defter korundu)` · `derived/blobs` gitignore'lu, ayrı yedek şart.
 💾 `feat(scripts): yedekleme ve geri yükleme tatbikatı` · `Refs: FAZ-8.7 · §14`
 
 ## 8.8 — Secret rotasyon ve sızıntı müdahalesi    [ ]

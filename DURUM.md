@@ -6,9 +6,9 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.6
+siradaki_adim: 8.8
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan"]
 deneme_sayaci: {}
 son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 1. TURUN KAPATMA IDDIASINI CURUTTU: PUBLISH fiil haritasindaydi ama grep -rn PUBLISH registry/ SIFIR satir veriyordu — hicbir hat cagirmiyordu. AYNI SINIF HATA UC KEZ ve her seferinde BIR SEVIYE YUKARI: D-216 gövde yok → D-222 govde yok → D-224 hat adimi yok. Insan hafizasi uc kez tutamadi; fiil-haritasi kapisi artik IKI soru soruyor (govde bagli mi + cagiran hat var mi), iki yonde ihlal edilip kirmiziya donduruldu, yorum satirlari sayilmiyor. KISIR DONGU KIRILDI: publish defter yoksa duruyordu, defter ancak basarili yayinla olusuyordu → ilk gercek yayin HICBIR ZAMAN mumkun degildi; just defter-baslat acildi (idempotent, bozuk defteri ONARMAZ). YANLIS POZITIF: yineleme anahtari yalniz assets[0].digest idi, ayni kapakla farkli metin ZATEN YAYINDA diye blokluyordu — artik platform+yerlesim+tum varliklar+metin (R-44). Desteklenmeyen platform ciplak TypeError veriyordu → tipli ret. Platform sayfa siniri editoryal tavandan ONCE (350 sayfa max:10 cevabi aliyordu). doktor simdi ZORUNLU (opsiyoneldi, testi yoktu). faz-yollari IKI KEZ kordu: sarilmis satir + 0.A.1 baslik bicimi. durum kapisi artik SAYAC TAZELIGI zorluyor (36/13 yaziyordu, gercek 38/15). SIRADA 8.1: matris modulu hazir, DIKLIK OLCUTU OFAT — tam izgara ogrenme tasarimi DEGIL (3x3x3te 27 render, OFAT 7; Meta kombinasyonu SUNUCUDA kuruyor)."
 ```
@@ -32,9 +32,9 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 > FAZ 5'in `aac` maddesi de karşılanmadı ve tikle örtülmedi (D-206): ses akışı yok,
 > `5.4b`/`5.5b` insan girdisi bekliyor. Video ölçüldü: h264 · yuv420p · 1920×1080.
 
-> ⛔ **ON ÜÇ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on üçü de plan
+> ⛔ **ON DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b` · `8.6`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on dördü de plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -53,6 +53,7 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 > | `7.5b` | V-27 | uygulama kaydı + dört değişken **ve** OAuth komutu (kod da eksik) |
 > | `7.6b` | V-26 | gerçek token → yenileme çağrısı denenebilsin |
 > | `7.8b` | V-26 | gerçek token → günlük insight çekimi koşabilsin |
+> | `8.6` | V-10 | Türk hukukçu → KVKK metinleri (**LLM'e yazdırılmaz**) |
 
 ## Tamamlananlar
 
@@ -79,13 +80,15 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **8.3** · uyum panosu; ifşa kapısı yayın hattına bağlandı | 2026-08-16 |
 | **8.4** · haftalık doctor; damga YOK — alarm saati, doğruluk değil | 2026-08-16 |
 | **8.5** · proaktif katman; gözlemsiz öneri kurulamıyor, tavan 3 | 2026-08-16 |
+| **8.7** · geri yükleme tatbikatı; GERÇEK kusur buldu (pnpm onayları) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`8.6` — KVKK aydınlatma ve açık rıza metinleri** (§11.3). ⛔ **BLOKE:insan** — Türk
-hukukçu yazacak. **LLM'e yazdırılmayacak:** KVKK 2026/347 geri dönüştürülmüş şablonları
-açıkça cezalandırıyor ve bir uyum metninin yanlış olması, hiç olmamasından pahalıdır.
-Sıradaki teknik adım `8.7`: yedek ve geri yükleme tatbikatı.
+**`8.8` — Secret rotasyon ve sızıntı müdahalesi** (§14). Hangi anahtar nereden döner,
+sızıntıda ilk 10 dakikada ne yapılır. Prosedürün taslağı `docs/RUNBOOK.md`'de yazıldı
+(8.7 ile birlikte); bu adım onu **tatbik edilebilir** hâle getirecek ve rotasyon
+komutlarını bağlayacak. ⚠ İptal önce gelir: dönmesini beklemek, sızan anahtarın
+kullanılabilir kaldığı her dakikayı uzatır.
 
 ## Devreden borçlar
 
