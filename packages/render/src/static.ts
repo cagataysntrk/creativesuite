@@ -12,7 +12,7 @@
 
 import { statSync } from 'node:fs'
 import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
-import { withPage, type BrowserResult } from './browser.js'
+import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
 import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
 import { DIAGRAM_CSS, diagramHtml, isDiagramError } from './charts/diagram.js'
 import { kacir } from './html.js'
@@ -205,9 +205,23 @@ const sablonKatmanlari = (doc: DocumentModel): string => {
  * PNG üretir. Çıktı **yola yazılır**, byte döndürülmez: bir varlığın byte'ları
  * bellekte dolaşırsa nereye yazıldığı manifestte kaybolur (§13).
  */
+/**
+ * Sayfayı NEREDEN alacağını seçen tek nokta.
+ *
+ * Oturum verilirse onun sayfası kullanılıyor (tarayıcı zaten açık), verilmezse
+ * `withPage` tek kullanımlık bir tarayıcı açıyor. İki dal AYNI işi yapıyor; ayrı
+ * yazılsalardı biri font beklemesini unutur ve o slayt sessizce sistem fontuyla
+ * çıkardı — tam da D-252'nin kapattığı hata modu, arka kapıdan geri gelirdi.
+ */
+const sayfaCalistir = <T>(
+  oturum: Oturum | undefined,
+  fn: (page: Page) => Promise<T>
+): Promise<BrowserResult<T>> => (oturum === undefined ? withPage(fn) : oturum.sayfaIle(fn))
+
 export const renderStatic = async (
   doc: DocumentModel,
-  outPath: string
+  outPath: string,
+  oturum?: Oturum
 ): Promise<
   BrowserResult<{ readonly path: string; readonly width: number; readonly height: number }>
 > => {
@@ -222,7 +236,7 @@ export const renderStatic = async (
     }
   }
 
-  return withPage(async (page) => {
+  return sayfaCalistir(oturum, async (page) => {
     await page.setViewportSize({ width: doc.width, height: doc.height })
     await page.setContent(toHtml(doc), { waitUntil: 'load' })
     // Font yüklemesi TAMAMLANMADAN ekran görüntüsü almak, glif fallback'iyle
@@ -270,7 +284,8 @@ export interface LadderRender {
 export const renderWithinLimit = async (
   doc: DocumentModel,
   outPathBase: string,
-  maxBytes: number
+  maxBytes: number,
+  oturum?: Oturum
 ): Promise<BrowserResult<LadderRender>> => {
   const dogrulama = validateDocument(doc)
   if (!dogrulama.ok) {
@@ -293,7 +308,7 @@ export const renderWithinLimit = async (
     const uzanti = rung.jpegQuality === null ? '.png' : '.jpg'
     const yol = `${taban}${uzanti}`
 
-    const r = await withPage(async (page) => {
+    const r = await sayfaCalistir(oturum, async (page) => {
       await page.setViewportSize({ width: w, height: h })
       // Ölçek düşerken tuval küçülür ama BELGE aynı kalır: tipografi oransal olarak
       // korunur. Belgeyi yeniden düzenlemek (daha az blok) başka bir varlık üretmek olurdu.

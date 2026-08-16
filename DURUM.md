@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 10
-siradaki_adim: 10.1
+siradaki_adim: 10.2
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -71,17 +71,18 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **8.7** · geri yükleme tatbikatı; ÜÇ gerçek kusur buldu | 2026-08-16 |
 | **8.8** · rotasyon tablosu kodla senkron; kapı 5 anahtar buldu | 2026-08-16 |
 | **8.9** · yerel MCP (D-226 kabul, dar); yükleme bağlı, tek yazma yolu | 2026-08-16 |
+| **10.1** · karosel başına tek tarayıcı; 4.9x, çıktı bayt bayt özdeş | 2026-08-17 |
 
 ## Sıradaki adım
 
 **FAZ 10 — TASARIM KATMANI** (D-255). FAZ 3 "üretebiliyor mu"yu kapattı, "iyi mi"yi
 değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
 
-**10.1 tarayıcı oturumu** — ölçüldü: slayt başına Chromium açmak **5.2x** yavaş
-(3656 ms → 704 ms). Singleton DEĞİL, kapsamlı oturum: `browser.ts`teki `finally`
-sızıntı garantisi korunuyor.
+**10.1 KAPANDI** — `withOturum` eklendi ve üretim yoluna BAĞLANDI (`renderBody`).
+Ölçüldü: `3795 ms → 776 ms = 4.9x`, çıktı **sha256 bayt bayt özdeş**. Oturum içinde
+kasten hata → tarayıcı yine kapanıyor, sızıntı yok. Singleton DEĞİL: ömür işin ömrü.
 
-Sonra: 10.2 referansları ÖLÇ (eşikler tahmin edilmez) → 10.3 `tasarim` kapısı
+**10.2 referansları ÖLÇ** (eşikler tahmin edilmez) → 10.3 `tasarim` kapısı
 (8 bloklayıcı + 4 uyarı metriği) → 10.4 düzen seçimi → 10.5 görsel yargı
 (sınırlayıcı kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
 

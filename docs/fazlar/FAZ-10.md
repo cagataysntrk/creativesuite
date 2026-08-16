@@ -16,7 +16,7 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 ---
 
-## 10.1 — Tarayıcı oturumu: karosel başına bir Chromium    [ ]
+## 10.1 — Tarayıcı oturumu: karosel başına bir Chromium    [x] 2026-08-17
 
 📖 §7.1 · R-30 · D-24
 🔗 —
@@ -26,11 +26,13 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    ömrü boyunca ayakta duran tarayıcı gözetimsiz koşuda sızıntı biriktirir; `browser.ts`
    içindeki `finally` yorumu tam bunu engellemek için yazılmış ve korunuyor.
 📁 `packages/render/src/browser.ts` · `packages/render/src/static.ts`
-✅ Ölçüm tekrarlanır ve kayıtlıdır. Bugünkü temel bu makinede ölçüldü:
-   `5 slayt · ayrı tarayıcı 3656 ms` · `tek oturum 704 ms` · **5.2x**.
-   Kabul: 5 slaytlık karosel render süresi **≥3x** düşüyor, çıktı bayt bazında AYNI.
-🧪 Oturum içinde bir sayfa hata fırlatsın → tarayıcı yine kapanıyor (`ps aux | grep
-   chromium` boş). Sızdıran bir sürüm yazılıp kırmızıya döndürülür.
+✅ **ÖLÇÜLDÜ** (aynı belge, iki yol, sha256 karşılaştırmalı):
+   `oturumsuz 3795 ms` · `oturumlu 776 ms` · **4.9x** (kabul ≥3x) ·
+   `çıktı sha256 AYNI — bayt bayt özdeş`. Gerçek koşu 5 slayt üretti, beşinin de
+   tolerans okumaları limit içinde; `pgrep -fc chromium` 32 → 29, birikme yok.
+🧪 **KOŞULDU.** Oturumun içinde kasten `throw` → `ok: false · render_failed · kasten
+   fırlatıldı`, `chromium önce=32 sonra=32` → sızıntı yok. `finally` başarı yolunda
+   değil HER yolda kapatıyor; hata yutulmuyor, tipli dönüyor.
 💾 `perf(render): karosel başına tek tarayıcı oturumu` · `Refs: FAZ-10.1 · §7.1`
 
 ---

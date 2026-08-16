@@ -16,6 +16,8 @@ export {
 // Chromium'u başlatan TEK yer (§3.8 · D-86) ve statik render (§7.1 · FAZ-3.1)
 export {
   withPage,
+  withOturum,
+  type Oturum,
   type BrowserFailure,
   type BrowserOptions,
   type BrowserResult,

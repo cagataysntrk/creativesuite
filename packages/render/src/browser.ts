@@ -14,6 +14,11 @@
 
 import { chromium, type Browser, type Page } from 'playwright'
 
+// `Page` buradan yeniden dışa aktarılıyor: `static.ts` sayfayı görmek zorunda ama
+// `playwright`i doğrudan import etmemeli — chokepoint yalnız `chromium.launch()`u
+// değil, motorun yüzeyini de tek dosyada tutuyor.
+export type { Page }
+
 export interface BrowserOptions {
   /** Milisaniye. Sonsuza kadar bekleyen bir render, gözetimsiz bir gecede asılı kalır. */
   readonly timeoutMs?: number
@@ -81,5 +86,79 @@ export const withPage = async <T>(
     }
   } finally {
     await browser.close()
+  }
+}
+
+/**
+ * Bir işin süresi boyunca AÇIK kalan tarayıcı — çok slaytlı render için (FAZ-10.1).
+ *
+ * **Neden gerekiyordu, ölçüldü:** `renderStatic` slayt başına `withPage` çağırıyordu ve
+ * her çağrı Chromium'u sıfırdan başlatıyordu. Kalite merdiveni devredeyse basamak başına
+ * bir kez daha. Bu makinede ölçüm:
+ *
+ *   5 slayt · her biri ayrı tarayıcı : 3656 ms
+ *   5 slayt · tek paylaşımlı oturum  :  704 ms   → **5.2x**
+ *
+ * **Singleton DEĞİL — ve bu fark önemli.** Alandaki araçlar (Open Carrusel) süreç ömrü
+ * boyunca yaşayan bir tarayıcı tutup "50 dışa aktarımda bir yenile" diyor. O şekil,
+ * gözetimsiz bir gecede sızıntıyı yalnız GECİKTİRİR, engellemez: sürecin kendisi
+ * ölmezse tarayıcı da ölmez. Burada ömür **işin** ömrüdür — `finally` her yolda kapatır,
+ * tıpkı `withPage`te olduğu gibi. Kazanç aynı, garanti duruyor.
+ *
+ * Sayfa BAŞINA yeni bir `Page` açılıyor, paylaşılmıyor: iki slayt aynı sayfayı
+ * kullanırsa birinin `document.fonts` durumu diğerine sızar ve o an render deterministik
+ * olmaktan çıkar.
+ */
+export interface Oturum {
+  readonly sayfaIle: <T>(fn: (page: Page) => Promise<T>) => Promise<BrowserResult<T>>
+}
+
+export const withOturum = async <T>(
+  fn: (oturum: Oturum) => Promise<T>,
+  opts: BrowserOptions = {}
+): Promise<BrowserResult<T>> => {
+  let browser: Browser | null = null
+  try {
+    browser = await chromium.launch({
+      ...(opts.executablePath === undefined ? {} : { executablePath: opts.executablePath }),
+      args: ['--font-render-hinting=none'],
+    })
+  } catch (e) {
+    return {
+      ok: false,
+      error: { kind: 'launch_failed', message: e instanceof Error ? e.message : String(e) },
+    }
+  }
+
+  const acik = browser
+  const oturum: Oturum = {
+    sayfaIle: async (isle) => {
+      let page: Page | null = null
+      try {
+        page = await acik.newPage()
+        page.setDefaultTimeout(opts.timeoutMs ?? 30_000)
+        return { ok: true, value: await isle(page) }
+      } catch (e) {
+        return {
+          ok: false,
+          error: { kind: 'render_failed', message: e instanceof Error ? e.message : String(e) },
+        }
+      } finally {
+        // Sayfa da HER yolda kapanıyor: açık kalan sayfalar oturum boyunca birikir ve
+        // yirmi slaytlık bir karoselde bellek eğrisi tarayıcıyı yavaşlatır.
+        if (page !== null) await page.close().catch(() => {})
+      }
+    },
+  }
+
+  try {
+    return { ok: true, value: await fn(oturum) }
+  } catch (e) {
+    return {
+      ok: false,
+      error: { kind: 'render_failed', message: e instanceof Error ? e.message : String(e) },
+    }
+  } finally {
+    await acik.close()
   }
 }

@@ -32,6 +32,7 @@ import {
   renderLinkedinDocument,
   LINKEDIN_PLATFORM_MAX_SAYFA,
   renderStatic,
+  withOturum,
   renderWithinLimit,
   type LayoutName,
 } from '@suite/render'
@@ -603,28 +604,48 @@ export const renderBody = (deps: RenderDeps): Verb =>
     const yollar: string[] = []
     const basamaklar: number[] = []
     const boyutlar: number[] = []
-    for (const [i, slayt] of slaytlar.entries()) {
-      const taban = join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
-      if (deps.maxBytes === undefined) {
-        const r = await renderStatic(slayt, taban)
-        if (!r.ok) {
-          return err(hata('render_failed', 'RENDER_FAILED', ctx, { slide: i + 1, error: r.error }))
+
+    // ⚠ **Tarayıcı bir kez açılıyor, slayt başına değil** (FAZ-10.1). Önceki hâlde her
+    // `renderStatic` çağrısı Chromium'u sıfırdan başlatıyordu; kalite merdiveni
+    // devredeyse basamak başına bir kez daha. Ölçüldü: 5 slayt için 3656 ms → 704 ms.
+    //
+    // Oturum İŞİN ömrü kadar yaşıyor ve `withOturum` her yolda kapatıyor — süreç ömrü
+    // boyunca yaşayan bir singleton DEĞİL (bkz. `browser.ts`). Hız aynı, sızıntı
+    // garantisi duruyor.
+    const oturumSonucu = await withOturum(async (oturum) => {
+      for (const [i, slayt] of slaytlar.entries()) {
+        const taban = join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
+        if (deps.maxBytes === undefined) {
+          const r = await renderStatic(slayt, taban, oturum)
+          if (!r.ok) {
+            return err(
+              hata('render_failed', 'RENDER_FAILED', ctx, { slide: i + 1, error: r.error })
+            )
+          }
+          yollar.push(taban)
+          continue
         }
-        yollar.push(taban)
-        continue
+        // Merdiven: her basamak GERÇEK bir render ve GERÇEK bir ölçüm. Tükenirse hata —
+        // son basamağı "en iyisi buydu" diye kabul etmek, sınırı aşan bir varlığı yayına
+        // göndermektir (§9.1).
+        const r = await renderWithinLimit(slayt, taban, deps.maxBytes, oturum)
+        if (!r.ok) {
+          return err(
+            hata('render_failed', 'SIZE_LIMIT_EXCEEDED', ctx, { slide: i + 1, error: r.error })
+          )
+        }
+        yollar.push(r.value.path)
+        basamaklar.push(r.value.rungIndex + 1)
+        boyutlar.push(r.value.bytes)
       }
-      // Merdiven: her basamak GERÇEK bir render ve GERÇEK bir ölçüm. Tükenirse hata —
-      // son basamağı "en iyisi buydu" diye kabul etmek, sınırı aşan bir varlığı yayına
-      // göndermektir (§9.1).
-      const r = await renderWithinLimit(slayt, taban, deps.maxBytes)
-      if (!r.ok) {
-        return err(
-          hata('render_failed', 'SIZE_LIMIT_EXCEEDED', ctx, { slide: i + 1, error: r.error })
-        )
-      }
-      yollar.push(r.value.path)
-      basamaklar.push(r.value.rungIndex + 1)
-      boyutlar.push(r.value.bytes)
+      return null
+    })
+    // Oturum içinden dönen `err(...)` bir DEĞER olarak geliyor; `null` "tüm slaytlar
+    // basıldı" demek. Hata yutulmuyor: oturumun kendisi düşerse (tarayıcı açılamadı)
+    // o da burada yakalanıyor.
+    if (oturumSonucu.ok && oturumSonucu.value !== null) return oturumSonucu.value
+    if (!oturumSonucu.ok) {
+      return err(hata('render_failed', 'RENDER_FAILED', ctx, { error: oturumSonucu.error }))
     }
 
     // Alt-text BELGEDEN okunuyor (R-34): görsel blokları sırayla slaytlara karşılık
