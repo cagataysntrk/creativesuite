@@ -48,6 +48,10 @@ const guvenIsareti = (c: FrozenStep['confidence']): { glyph: string; metin: stri
 export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Element => {
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
   const [tavan, setTavan] = useState('')
+  const [konu, setKonu] = useState('')
+  // Başlatma sonucu: `null` henüz denenmedi. Hata TOAST DEĞİL, düğmenin yanında —
+  // içeriğin olacağı yerde, kopyalanabilir kimlikle (§12.6).
+  const [baslatma, setBaslatma] = useState<{ ok: boolean; mesaj: string } | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
     const q = new URLSearchParams({ pipeline })
@@ -63,6 +67,35 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
   useEffect(() => {
     void yukle()
   }, [yukle])
+
+  /**
+   * Başlat — **ekranda gösterilen planın ÖZETİYLE** (R-07).
+   *
+   * Özet gönderilmeseydi sunucu bugünün planını kurup koşardı ve kullanıcı ekranda
+   * gördüğünden başka bir şeye onay vermiş olurdu. CLI özeti karşılaştırıyor; dünya
+   * değiştiyse çalıştırma başlamadan duruyor.
+   */
+  const baslat = useCallback(
+    async (digest: string): Promise<void> => {
+      setBaslatma(null)
+      try {
+        const r = await fetch('/api/calistir', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ pipeline, konu, planDigest: digest }),
+        })
+        const j = (await r.json()) as { ok: boolean; runId?: string; hata?: string }
+        setBaslatma(
+          j.ok
+            ? { ok: true, mesaj: `başlatıldı: ${j.runId ?? ''}` }
+            : { ok: false, mesaj: j.hata ?? 'başlatılamadı' }
+        )
+      } catch {
+        setBaslatma({ ok: false, mesaj: 'sunucuya ulaşılamıyor' })
+      }
+    },
+    [pipeline, konu]
+  )
 
   if (sonuc === null) return <p>plan kuruluyor…</p>
   if (!sonuc.ok || sonuc.frozen === undefined) {
@@ -148,9 +181,32 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
         <span className="olcum">{f.registryCommit.slice(0, 8)}</span>
       </p>
 
-      <button type="button" disabled={kilitli} className="baslat">
-        {kilitli ? 'Başlat — KİLİTLİ' : 'Başlat'}
+      <label>
+        konu{' '}
+        <input
+          type="text"
+          value={konu}
+          onChange={(e) => setKonu(e.target.value)}
+          placeholder="ör. imalatta fire ölçümü"
+        />
+      </label>
+
+      {/* Konu boşken de KİLİTLİ: hat neyi üreteceğini bilmeden koşarsa para harcar
+          ve çıktı kullanılamaz. Sebep düğmenin metninde yazıyor, gizlenmiyor. */}
+      <button
+        type="button"
+        disabled={kilitli || konu.trim() === ''}
+        className="baslat"
+        onClick={() => void baslat(f.digest)}
+      >
+        {kilitli ? 'Başlat — KİLİTLİ' : konu.trim() === '' ? 'Başlat — konu gerek' : 'Başlat'}
       </button>
+
+      {baslatma === null ? null : (
+        <p role={baslatma.ok ? 'status' : 'alert'} className="olcum">
+          {baslatma.mesaj}
+        </p>
+      )}
     </section>
   )
 }

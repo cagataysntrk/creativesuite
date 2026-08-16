@@ -39,6 +39,7 @@ import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 import { calistirmaDetayi, calistirmalar } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
+import { calistirmaBaslat, tekrarBaslat } from './calistir.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -460,6 +461,51 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       JSON.parse(JSON.stringify(r, (_k, v) => (typeof v === 'bigint' ? v.toString() : v))),
       r.ok ? 200 : 404
     )
+  })
+
+  // ── çalıştırmayı BAŞLAT (§4c · R-07 · FAZ-4.6b) ───────────────────────────
+  //
+  // POST çünkü DURUM DEĞİŞTİRİR ve para harcayabilir — GET olsaydı bir sayfa
+  // yenilemesi çalıştırma başlatırdı. `/api/plan` GET ve hiçbir şey harcamıyor;
+  // ayrım kasıtlı.
+  app.post('/api/calistir', async (c) => {
+    const govde = (await c.req.json().catch(() => ({}))) as {
+      pipeline?: string
+      konu?: string
+      planDigest?: string
+    }
+    const r = calistirmaBaslat({
+      repoRoot: o.repoRoot,
+      pipelineId: govde.pipeline ?? '',
+      konu: govde.konu ?? '',
+      planDigest: govde.planDigest ?? '',
+      env: o.env ?? {},
+    })
+    if (r.ok) yayinla('degisim')
+    // 202: kabul edildi ama BİTMEDİ. 200 dönmek "çalıştırma tamam" okunurdu.
+    return c.json(r, r.ok ? 202 : 400)
+  })
+
+  // rerun / replay — AYRI uçlar çünkü AYRI eylemler (FAZ-4.15).
+  // `rerun` donmuş plan yoksa CLI tarafından REDDEDİLİR; ekran zaten düğmeyi kilitli
+  // gösteriyor ama sunucu buna güvenmiyor: istemcinin kilidi bir güvenlik sınırı değil.
+  app.post('/api/calistirmalar/:runId/:kind', (c) => {
+    const kind = c.req.param('kind')
+    if (kind !== 'rerun' && kind !== 'replay') {
+      return c.json({ ok: false, hata: `bilinmeyen eylem: ${kind}` }, 404)
+    }
+    const kaynak = c.req.param('runId')
+    const m = readManifest(o.repoRoot, kaynak as never)
+    if (m === null) return c.json({ ok: false, hata: `çalıştırma manifesti yok: ${kaynak}` }, 404)
+    const r = tekrarBaslat({
+      repoRoot: o.repoRoot,
+      pipelineId: m.pipeline,
+      kaynakRunId: kaynak,
+      kind,
+      env: o.env ?? {},
+    })
+    if (r.ok) yayinla('degisim')
+    return c.json(r, r.ok ? 202 : 400)
   })
 
   // ── ters indeks: bu kaydı hangi çalıştırma kullandı (§12.9 · FAZ-4.4) ─────

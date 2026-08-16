@@ -54,11 +54,32 @@ const id = process.argv[2]
 // Kararlar manifest'ten gelir; bu betik onları ÜRETMEZ, yalnız OKUR (R-14 · D-145).
 const devamIndeks = process.argv.indexOf('--devam')
 const devamRunId = devamIndeks > 0 ? process.argv[devamIndeks + 1] : undefined
+// `--run <id>`: çalıştırma kimliğini ÇAĞIRAN verir (komuta merkezi). Sunucu kimliği
+// üretip hemen döner ve kullanıcı çalıştırmayı o kimlikle izler; CLI kendi kimliğini
+// üretseydi UI hangi çalıştırmayı başlattığını bilemezdi.
+// `--rerun <run_id>`: DONMUŞ planı aynen koşar — kararı tekrarlar. Yeniden planlamaz.
+// `--replay <run_id>`: bugünün tanımıyla yeniden planlar. İkisi AYRI eylemdir ve
+// aradaki fark, üretilen eserin neden farklı olabileceğini açıklayan tek şeydir.
+const rerunIndeks = process.argv.indexOf('--rerun')
+const rerunRunId = rerunIndeks > 0 ? process.argv[rerunIndeks + 1] : undefined
+const replayIndeks = process.argv.indexOf('--replay')
+const replayRunId = replayIndeks > 0 ? process.argv[replayIndeks + 1] : undefined
+const runIndeks = process.argv.indexOf('--run')
+const verilenRunId = runIndeks > 0 ? process.argv[runIndeks + 1] : undefined
+// `--plan-digest <d>`: **onaylanan plan ile koşan plan AYNI olmak zorunda** (R-07).
+// UI ekranda bir maliyet gösterip onay aldıysa, o onay bir ÖZETE verilmiştir; aradan
+// geçen sürede biri fiyat güncellerse özet değişir ve çalıştırma DURMALIDIR.
+const digestIndeks = process.argv.indexOf('--plan-digest')
+const beklenenDigest = digestIndeks > 0 ? process.argv[digestIndeks + 1] : undefined
+const BAYRAKLAR = new Set(['--devam', '--run', '--plan-digest', '--rerun', '--replay'])
 const konu = process.argv
   .slice(3)
-  .filter((a, i, arr) => a !== '--devam' && arr[i - 1] !== '--devam')
+  .filter((a, i, arr) => !BAYRAKLAR.has(a) && !BAYRAKLAR.has(arr[i - 1] ?? ''))
   .join(' ')
-if (id === undefined || (konu === '' && devamRunId === undefined)) {
+if (
+  id === undefined ||
+  (konu === '' && devamRunId === undefined && rerunRunId === undefined && replayRunId === undefined)
+) {
   console.log(`  kullanım: just uret <pipeline> <konu>`)
   console.log(`  devam:    just uret <pipeline> --devam <run_id>   (konu manifest'ten okunur)`)
   console.log(`  mevcut: ${listPipelines(PIPELINES).join(', ') || '(yok)'}`)
@@ -120,7 +141,7 @@ const tokenCss = readFileSync(tokenYolu, 'utf8')
 // sıralanamayan ve tipi anlaşılmayan id üretir.
 // `--devam` AYNI runId'yi kullanır: idempotency defteri o kimliğe bağlı ve yeni bir
 // kimlik, ödenmiş adımları yeniden ödemek demektir (R-44).
-const runId = devamRunId ?? newId('RunId')
+const runId = devamRunId ?? verilenRunId ?? newId('RunId')
 
 let kararlar = []
 let oncekiManifest = null
@@ -154,6 +175,30 @@ if (devamRunId !== undefined) {
       `${devamKonu === null ? '' : `, konu "${devamKonu}"`})`
   )
 }
+
+// ── rerun / replay: konu KAYNAK çalıştırmadan okunur ────────────────────────
+//
+// Konuyu kullanıcıya yeniden yazdırmak, "aynı işi tekrarla" vaadini bozardı: bir harf
+// farkı `idempotencyKey`i değiştirir ve tekrar, tekrar olmaktan çıkar (R-44).
+let kaynakKonu = null
+const kaynakRunId = rerunRunId ?? replayRunId
+if (kaynakRunId !== undefined) {
+  const { readManifest } = await import(join(REPO, 'packages/engine/dist/index.js'))
+  const kaynakManifest = readManifest(REPO, kaynakRunId)
+  if (kaynakManifest === null) {
+    console.log(`✗ kaynak çalıştırma bulunamadı: ${kaynakRunId}`)
+    process.exit(1)
+  }
+  const kayit = (kaynakManifest.steps ?? []).find(
+    (st) => typeof st.params?.topic === 'string' && st.params.topic !== ''
+  )
+  kaynakKonu = kayit?.params.topic ?? null
+  console.log(
+    `  ${rerunRunId !== undefined ? 'rerun' : 'replay'} · kaynak ${kaynakRunId}` +
+      `${kaynakKonu === null ? '' : ` · konu "${kaynakKonu}"`}`
+  )
+}
+
 const clock = systemClock
 const damga = {
   brandId: MARKA,
@@ -408,19 +453,46 @@ if (!planSonuc.ok) {
   console.log(`✗ plan dondurulamadı: ${planSonuc.errors.map((e) => e.kind).join(', ')}`)
   process.exit(1)
 }
-const donmusPlan = freezePlan({
-  report: planSonuc.report,
-  runId,
-  corpusCommit: oncekiManifest?.corpusCommit ?? bilgiSha,
-  registryCommit: oncekiManifest?.registryCommit ?? bilgiSha,
-  frozenAt: clock.nowIso(),
-  // Bağlama giren kayıtlar da donar: seçim yeniden sorgulanmaz (R-07).
-  recordIds: bagamManifesti.map((e) => e.recordId),
-  descriptorDigests: descriptorDigests(
-    join(REPO, 'registry/providers'),
-    descriptors.map((d) => d.id)
-  ),
-})
+// **`rerun` KARARI tekrarlar: donmuş plan diskten AYNEN okunur, yeniden kurulmaz.**
+// Yeniden kursaydık `rerun` ile `replay` aynı şey olurdu ve ekrandaki iki düğme
+// kullanıcıya yalan söylerdi (FAZ-4.15).
+//
+// Bayatlık ENGEL değil BİLGİDİR (R-07): dünya değiştiyse çalıştırma yine donmuş
+// planla koşar; fark Run History ekranında zaten gösteriliyor.
+const { readFrozenPlan } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const kaynakPlan = rerunRunId === undefined ? null : readFrozenPlan(REPO, rerunRunId)
+if (rerunRunId !== undefined && kaynakPlan === null) {
+  console.log(`✗ rerun yapılamaz: ${rerunRunId} çalıştırmasının donmuş planı diskte YOK`)
+  console.log('    Bu çalıştırmanın KARARI kaydedilmemiş — yalnız `--replay` mümkün.')
+  process.exit(1)
+}
+
+const donmusPlan =
+  kaynakPlan ??
+  freezePlan({
+    report: planSonuc.report,
+    runId,
+    corpusCommit: oncekiManifest?.corpusCommit ?? bilgiSha,
+    registryCommit: oncekiManifest?.registryCommit ?? bilgiSha,
+    frozenAt: clock.nowIso(),
+    // Bağlama giren kayıtlar da donar: seçim yeniden sorgulanmaz (R-07).
+    recordIds: bagamManifesti.map((e) => e.recordId),
+    descriptorDigests: descriptorDigests(
+      join(REPO, 'registry/providers'),
+      descriptors.map((d) => d.id)
+    ),
+  })
+
+// **Onaylanan özet ile koşan özet FARKLIYSA çalıştırma DURUR** (R-07).
+// Uyarıp devam etmek, kullanıcının onaylamadığı bir plana para harcamaktır — ve fark
+// ancak fatura gelince görülürdü.
+if (beklenenDigest !== undefined && beklenenDigest !== donmusPlan.digest) {
+  console.log('✗ plan DEĞİŞTİ — onayladığınız plan artık geçerli değil (R-07)')
+  console.log(`    onaylanan: ${beklenenDigest}`)
+  console.log(`    şimdiki  : ${donmusPlan.digest}`)
+  console.log('    Planı yeniden inceleyin: registry ya da fiyat güncellenmiş olabilir.')
+  process.exit(1)
+}
 
 const rapor = await runPipeline({
   frozen: donmusPlan,
@@ -459,7 +531,7 @@ const rapor = await runPipeline({
   env: { PATH: readEnv('PATH') ?? '' },
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
-  params: { topic: devamKonu ?? konu },
+  params: { topic: devamKonu ?? kaynakKonu ?? konu },
   // Kararlar manifest'ten OKUNUR; motor yalnız yazılmış olanı görür.
   decisions: kararlar,
   // **Bağlam manifesti** (§5.3): hangi kayıt enjekte edildi, hangisi bütçeye sığmadı.

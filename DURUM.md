@@ -10,7 +10,7 @@ siradaki_adim: 5.1
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 4 TAMAM (4.1…4.17). Bu turda 4.15+4.16+4.17. Uc yeni kapi: ui-navigasyon (dort ekran palette yoktu, ULASILAMAZDILAR), node-surum (kabuk Node 20'ye dusmus, better-sqlite3 SIGSEGV, 144 test HIC kosmuyordu), doctor-salt-okur (rapor eder degistirmez — rmSync ve GET->POST ihlalleriyle kirmizi goruldu). Uc kural TEK yere tasindi: donmus plan artik diske yaziliyor (D-182, 18 calistirmanin 0'inda vardi), strateji lint kurallari engine'e (D-185, kapi ile pano ayni fonksiyon), doctor denetimleri engine'e (kabuk ile ekran ayni bulgu). D-186: kendi ihlal testim SAYI dogruluyordu ICERIK degil. Gercek doctor ciktisi: 2 kritik (claude-code fiyat gorumtusu yok, 1 oksuz calistirma) 1 uyari. 66 dosya 918 test, 29 kapi yesil."
+son_kanit: "FAZ 4 kapanis turu 1: bagimsiz dogrulama FAZ 4'u KAPANISA HAZIR DEGIL buldu; en agir bulgu benim kendi duzeltmemdi. D-188: D-182 YARIM kapatilmisti — uret.mjs frozen gecmiyordu, disk 0/18 idi. Simdi donmus-plan.json diske dusuyor; kanit: rerun mumkun=true, sapma OLCULDU=true, liste dolu. D-189: registry/butce.yaml celiskili commit'lenmis, just uret HIC baslamiyordu — registry-veri kapisi. D-190: Baslat dugmesinin onClick'i yoktu ve calistirma baslatan uc yoktu; POST /api/calistir (digest ZORUNLU) + rerun/replay uclari eklendi, ui-dugme kapisi iki olu dugmemi daha buldu. V-18 acildi. 31 kapi, 923 test."
 ```
 
 ## Neredeyiz
@@ -71,12 +71,23 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 
 ## Sıradaki adım
 
-**ÖNCE FAZ 4 kapanış turu** (LOOP§D · D-79 tavanı: **EN FAZLA İKİ** doğrulama turu).
-`docs/fazlar/FAZ-4.md`in 20 adımının hepsi tikli; bağımsız doğrulama agent'ı
-(`faz-dogrulayici`) her ✅ kriterini repoda arayacak — kabul etme eğiliminde olmadan,
-kanıt arayarak. Çıkan eksikler tur listesine eklenir. Faz kapandıktan sonra `5.1`
-(HyperFrames kurulumu) — ön koşulu `ffmpeg` + `xvfb` (0.A.3'te kuruldu). Makine-okunur
-blok `5.1` diyor çünkü kapanış turu numaralı bir adım DEĞİL, bir protokoldür.
+**`5.1` — HyperFrames kurulumu** (§7.4 · D-25). Önce FAZ 4 kapanış turunun kalan
+bulguları (aşağıda), sonra bu adım. `npm view hyperframes` → v0.7.109 · Apache-2.0 ·
+`heygen-com/hyperframes`. ffmpeg 6.1.1 ✓ · ffprobe ✓ · xvfb-run ✓ · node v22 ✓.
+
+## Kapanış turu — kalan bulgular
+
+Bağımsız doğrulama (LOOP§D, 1. tur) FAZ 4'ü kapanışa hazır bulmadı. **Kapatılanlar:**
+donmuş plan üretimde (D-188) · bütçe verisi kapıda (D-189) · Başlat + rerun/replay
+bağlı (D-190) · V-18 ayrıldı. **Kalanlar:**
+
+- `awaitingGate` hiçbir manifeste yazılmıyor (0/18) → onay kuyruğu gerçek veriyle hiç
+  çalışmadı; duman testi boş diziyi geçirdiği için bunu örtüyordu
+- `brand/*/decisions.jsonl` yazılıyor ama **hiç okunmuyor**; dosya hiç oluşmamış
+- QA okumaları 0/18 · bağlam girdisi 0/18 manifeste düşmüş
+- 13 ekran bileşeninin **sıfır testi** var — Başlat düğmesi tam bu boşluktan geçti
+- Bağlam önizleme ve keşif ekranları sabit kodlu parametreyle açılıyor
+- `docs/fazlar/FAZ-4.md`nin yedi `📁` yolu mevcut değil (belge sapması)
 
 ## Bloke adımlar
 
@@ -102,14 +113,8 @@ harcıyor. Anahtarsız `image.generate` yeteneği hiçbir sağlayıcıya çözü
 
 **`4.13b` — Tailscale + gerçek bot token.** `tailscale` kurulu değil (sudo kurulum +
 hesap girişi) ve `TELEGRAM_BOT_TOKEN` yer tutucu (`doldurulacak`). Bot mantığı ve yüzey
-sınırı hazır ve test edilmiş; kalan iş yalnız gerçek erişim. → V-17
+sınırı hazır ve test edilmiş; kalan iş yalnız gerçek erişim. → V-18
 
 **`3.14` — `2.9`'a bağlı.** Onaylı corpus olmadan hat `bilgi-sec` adımında `NO_CONTEXT`
 ile duruyor; bu doğru davranış (R-13), atlatılmıyor. `2.9` açıldığı gün `3.14` koşulur
 ve FAZ 3 TAM kapanır (D-158).
-
-## Notlar
-
-- GateGuard fact-force kancası bu proje için kapatıldı (`.claude/settings.local.json`).
-- `sops` ve `gitleaks` apt'ta yok; binary olarak kurulacak (0.A.6).
-- `just` sistemde zaten kuruluydu (1.58.0).

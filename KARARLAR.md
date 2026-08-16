@@ -61,6 +61,13 @@ Damga `Upcytech:*` özel `iTXt` anahtarları taşıyor; hiçbir platform bunu ok
 `aiGenerated` bayrağı repo içinde denetlenebilir ama dışarıya bir şey söylemiyor.
 Platform-tarafı ifşa (Meta/LinkedIn "AI-generated" işareti) FAZ 7'nin işi. → FAZ-7.2
 
+## V-18 — Tailscale kurulu değil, Telegram token'ı yer tutucu
+`tailscale` binary yok (sudo kurulum + hesap girişi) ve `TELEGRAM_BOT_TOKEN`
+`doldurulacak`. Bot mantığı ve yüzey sınırı yazılmış, test edilmiş; kalan iş yalnız
+gerçek erişim. FAZ-4.13b bu borca bağlı. **Bu borç önce yanlışlıkla `V-17` diye
+anılıyordu** — o kimlik Md. 27/12 ifşasına ait; `citations` kapısı yalnız hedefin
+VAR olduğunu denetliyor, anlam eşleşmesini değil (2026-08-16 denetimi). → FAZ-4.13b
+
 ## V-16 — fal ve Cloudflare anahtarları yok, canlı üretim DOĞRULANMADI
 İki görsel adaptörü de yazıldı ve cassette'lerle test edildi ama `FAL_KEY`,
 `CF_ACCOUNT_ID`, `CF_API_TOKEN` `secrets.enc.yaml`da yok. Yani **gerçek bir görsel
@@ -284,7 +291,7 @@ yer tutucu token ile bot **AÇILMIYOR ama bu SESSİZ kalmıyor** — sunucu aç�
 `telegram botu: KAPALI` yazıyor. Sessiz kalsaydı "bot çalışıyor" sanılır ve masadan
 uzaktayken kuyruk sessizce tıkanırdı.
 Adım bölündü: `4.13` (sözleşme, bitti) · `4.13b` (gerçek token + Tailscale, `bloke: insan`,
-V-17). Beşinci insan blokajı — hepsi `insan` sınıfında ve LOOP§G üçlü kuralına saymıyor
+V-18). Beşinci insan blokajı — hepsi `insan` sınıfında ve LOOP§G üçlü kuralına saymıyor
 (D-157), ama DURUM.md ⛔ bloğunda adlarıyla ilan ediliyor.
 **Ders:** bir bileşenin "dış bağımlılığı var" olması, hiçbir parçasının yapılamayacağı
 anlamına gelmez. Sözleşmeyi bağlantıdan ayırmak, blokajın kapsamını daraltır.
@@ -408,3 +415,45 @@ darboğazı tek dosyaya kilitli), indeks kapalıysa ayrışma ölçülemiyor —
 izlenimi verirdi (D-175 ailesinin altıncı uygulaması).
 Gerçek çıktı: **2 kritik** (`claude-code` fiyat anlık görüntüsü yok ama enabled ·
 1 çalıştırmada 2 varlık var manifest yok) **1 uyarı**.
+
+## D-188 — FAZ 4 kapanış turu: "düzeltildi" sanılan üç şey düzeltilmemişti
+2026-08-16 · Bağımsız doğrulama (LOOP§D) FAZ 4'ü **kapanışa hazır DEĞİL** buldu ve en
+ağır bulgu benim kendi düzeltmemdi: **D-182 yarım kapatılmıştı.** `writeFrozenPlan`
+yazıldı, `runPipeline` onu çağırıyordu — ama üretim CLI'ı (`scripts/uret.mjs`) `frozen`
+alanını hiç geçmiyordu. Disk hâlâ **0/18**. `DURUM.md` "donmuş plan artık diske
+yazılıyor" diyordu; yazmıyordu. Düzeltme koda ve teste girdi, **çağırana girmedi** —
+yani D-173'ün tam kendisi, üstelik D-173'ü anlatan bir commit'te.
+Şimdi `uret.mjs` planı `plan()` + `freezePlan()` ile donduruyor, motora veriyor ve
+`derived/runs/<id>/donmus-plan.json` diske düşüyor. Gerçek kanıt: `rerun mümkün = true`,
+`sapma ÖLÇÜLDÜ = true`, sapma listesi dolu (corpus/registry commit'i kaymış).
+**Ders:** bir düzeltmenin kanıtı, düzeltilen katmanın testi değil, **üretim yolunun
+diskte bıraktığı izdir.** "0/18" ölçümünü yazdım ama ölçümü tekrarlamadım.
+
+## D-189 — Bozuk bir VERİ dosyası üretimi tamamen durdurmuştu, 29 kapı görmedi
+2026-08-16 · `registry/butce.yaml` diskte `per_run 9_000_000` > `per_month 1_000`
+taşıyordu — çelişkili. Sonuç: `just uret` **hiç başlamıyordu**, her çalıştırma açılışta
+"bütçe tavanı okunamadı" ile düşüyordu. Değerler FAZ-4.12'nin kendi commit'inden
+(`f2767ba`) geliyor: bir ihlal testinden kalmış ve geri alınmamış.
+Okuma yolu doğru davrandı — sessizce varsayılana düşmedi (D-179 tam da bunu istiyordu).
+Eksik olan, **bozuk verinin commit edilebilmesiydi**: 29 kapı `packages/` ve `apps/`
+altındaki her satırı denetliyordu, `registry/` altındaki VERİYİ hiçbiri denetlemiyordu.
+`registry-veri` kapısı eklendi ve tam bu bozulma ile kırmızıya döndürüldü.
+**Ders:** kod kadar veri de commit edilebilir ve veri de sistemi durdurabilir. "Kapı"
+demek "kod kapısı" demek değil.
+
+## D-190 — "Başlat" düğmesinin eylemi yoktu; FAZ 4'ün çıkış kriteri kopuktu
+2026-08-16 · Run Launcher planı kuruyor, maliyet aralığını basıyor, bütçe kilidini
+hesaplıyordu — düğmenin `onClick`i yoktu ve sunucuda çalıştırma başlatan uç yoktu.
+FAZ 4'ün çıkış kriteri *"⌘K → seç → çalıştır → onayla, fareye hiç dokunmadan"* zincirin
+"çalıştır" adımında kopuyordu. 29 kapı ve 918 test bunu görmedi çünkü **13 ekran
+bileşeninin sıfır testi var**; sayılan testler sunucu testleri.
+Eklenenler: `POST /api/calistir` (özet ZORUNLU — onay bir ÖZETE verilir, R-07),
+`POST /api/calistirmalar/:id/rerun|replay` (AYRI uçlar, çünkü ayrı eylemler), ve
+CLI'da `--run` · `--plan-digest` · `--rerun` · `--replay`. Digest uyuşmazlığı
+çalıştırmayı **başlamadan durduruyor** ve bu kırmızıya döndürülerek gösterildi.
+**İkinci bir üretim yolu AÇILMADI:** sunucu `runPipeline`ı kendi içinde çağırmıyor,
+`just uret`i başlatıyor. İçeride çağırsaydık biri planı donduran, diğeri belki
+dondurmayan iki üretim yolu olurdu (D-185 ailesi).
+`ui-dugme` kapısı eklendi: her `<button>` bir eylem taşımalı. Kapı yazıldığı anda
+**benim `4.15`te yazdığım iki ölü düğmeyi daha buldu** (`rerun`, `replay`) — ikisi de
+bağlandı.

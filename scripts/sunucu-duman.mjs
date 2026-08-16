@@ -101,6 +101,31 @@ try {
     'bulgu kaydın yolunu taşımıyor — tıklanabilir bağlantı kurulamaz'
   )
 
+  // FAZ-4.6b: çalıştırma UI'dan BAŞLATILABİLİR — zincirin son halkası.
+  const cal = (govde) =>
+    fetch(`${U}/api/calistir`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(govde),
+    })
+  // Plan özeti olmadan başlatma REDDEDİLİR: onay bir ÖZETE verilir (R-07).
+  const ozetsiz = await cal({ pipeline: 'instagram-post', konu: 'duman' })
+  bekle(ozetsiz.status === 400, `özetsiz başlatma ${ozetsiz.status} döndü, 400 olmalı`)
+  const ozetsizGovde = await ozetsiz.json().catch(() => ({}))
+  bekle(
+    typeof ozetsizGovde.hata === 'string' && ozetsizGovde.hata.includes('R-07'),
+    'özetsiz başlatma gerekçesiz reddediliyor'
+  )
+  // Konusuz başlatma da reddedilir.
+  const konusuz = await cal({ pipeline: 'instagram-post', planDigest: 'sha256:x' })
+  bekle(konusuz.status === 400, `konusuz başlatma ${konusuz.status} döndü`)
+  // Olmayan çalıştırmanın rerun'ı 404.
+  const rrYok = await fetch(`${U}/api/calistirmalar/run_olmayan/rerun`, { method: 'POST' })
+  bekle(rrYok.status === 404, `olmayan çalıştırmanın rerun'ı ${rrYok.status} döndü`)
+  // Bilinmeyen eylem 404 — sessizce rerun'a düşmüyor.
+  const kotuEylem = await fetch(`${U}/api/calistirmalar/run_x/sil`, { method: 'POST' })
+  bekle(kotuEylem.status === 404, `bilinmeyen tekrar eylemi ${kotuEylem.status} döndü`)
+
   // FAZ-4.15: çalıştırma geçmişi — `rerun` ile `replay` AYRI ve fark GÖSTERİLİYOR.
   const calGecmis = await (await fetch(`${U}/api/calistirmalar`)).json()
   bekle(Array.isArray(calGecmis.calistirmalar), '/api/calistirmalar liste dönmüyor')
@@ -320,5 +345,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 24 uç · geçmiş · sağlık · doctor · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
+  `    sunucu ayağa kalktı · 26 uç · başlat · geçmiş · sağlık · doctor · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
 )

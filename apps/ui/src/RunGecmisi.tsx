@@ -95,6 +95,26 @@ export const RunGecmisi = (): React.JSX.Element => {
   const [liste, setListe] = useState<readonly Ozet[] | null>(null)
   const [secili, setSecili] = useState<string | null>(null)
   const [detay, setDetay] = useState<Detay | null>(null)
+  const [tekrarSonuc, setTekrarSonuc] = useState<string | null>(null)
+
+  /**
+   * İki AYRI uç, iki AYRI eylem. Tek bir "tekrar" çağrısı yapıp sunucuda ayırmak,
+   * ekrandaki iki düğmeyi kozmetiğe çevirirdi (FAZ-4.15).
+   */
+  const tekrarla = async (runId: string, kind: 'rerun' | 'replay'): Promise<void> => {
+    setTekrarSonuc(null)
+    try {
+      const r = await fetch(`/api/calistirmalar/${encodeURIComponent(runId)}/${kind}`, {
+        method: 'POST',
+      })
+      const j = (await r.json()) as { ok: boolean; runId?: string; hata?: string }
+      setTekrarSonuc(
+        j.ok ? `${kind} başlatıldı: ${j.runId ?? ''}` : (j.hata ?? `${kind} başarısız`)
+      )
+    } catch {
+      setTekrarSonuc('sunucuya ulaşılamıyor')
+    }
+  }
 
   useEffect(() => {
     void fetch('/api/calistirmalar')
@@ -169,13 +189,26 @@ export const RunGecmisi = (): React.JSX.Element => {
           {/* Uyarı düğmelerin ÜSTÜNDE: tıkladıktan sonra okunan bir uyarı, uyarı değildir. */}
           <p role="note">{detay.tekrar.uyari}</p>
           <div>
-            <button type="button" disabled={!detay.tekrar.rerun.mumkun}>
+            <button
+              type="button"
+              disabled={!detay.tekrar.rerun.mumkun}
+              onClick={() => void tekrarla(detay.ozet.runId, 'rerun')}
+            >
               rerun — {detay.tekrar.rerun.ne}
             </button>
             {detay.tekrar.rerun.neden === null ? null : <p>{detay.tekrar.rerun.neden}</p>}
-            <button type="button" disabled={!detay.tekrar.replay.mumkun}>
+            <button
+              type="button"
+              disabled={!detay.tekrar.replay.mumkun}
+              onClick={() => void tekrarla(detay.ozet.runId, 'replay')}
+            >
               replay — {detay.tekrar.replay.ne}
             </button>
+            {tekrarSonuc === null ? null : (
+              <p role="status" className="mono">
+                {tekrarSonuc}
+              </p>
+            )}
           </div>
 
           <h4>Donmuş plan ile bugünün dünyası arasındaki fark</h4>
