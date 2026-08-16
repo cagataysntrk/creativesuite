@@ -79,15 +79,19 @@ kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
 
 ## V-27 — OAuth uygulama kaydı yok: gerçek token alınamadı
 Akış, kapsam sözleşmesi, CSRF doğrulaması ve ortam sözleşmesi yazıldı ve test edildi
-(`oauthEnvDurumu` eksik değişkenleri ADLARIYLA raporluyor). Kalan iş **hesap kurulumu**:
-Meta uygulaması (App Review gerekmiyor, D-3) ve LinkedIn "Share on LinkedIn" kaydı,
-ardından `sops` altına dört değişken. → FAZ-7.5b
+(`oauthEnvDurumu` eksik değişkenleri ADLARIYLA raporluyor). ⚠ **Kalan iş yalnız hesap
+kurulumu DEĞİL:** `oauthEnvDurumu` ve `authorizeUrl`ün bugün sıfır üretim çağıranı var —
+yetkilendirme akışını koşturan bir komut/uç de yazılacak. Sonra Meta uygulaması
+(App Review gerekmiyor, D-3) ve LinkedIn "Share on LinkedIn" kaydı, `sops` altına dört
+değişken. → FAZ-7.5b
 
 ## V-26 — Meta uygulaması ve token yok: gerçek yayın yapılmadı
 Yayın kapıları (token ömrü, alt-text, kota, defter mutabakatı) yazıldı ve **çağrı
-sırasıyla** doğrulandı; `kanal-yayinci` darboğazı mekanik kurala çevrildi. Ama gerçek bir
-Meta uygulaması, sayfa bağlantısı ve uzun ömürlü token **insan eylemidir**. App Review
-gerekmiyor (D-3) — gereken şey hesap kurulumu. → FAZ-7.2b
+sırasıyla** doğrulandı; `PUBLISH` gövdesi yazıldı, üç hatta bağlandı ve defter
+bootstrap komutu açıldı (D-224). Ama gerçek bir Meta uygulaması, sayfa bağlantısı ve
+uzun ömürlü token **insan eylemidir**. ⚠ **Kalan iş yalnız hesap kurulumu DEĞİL:**
+HTTP adaptörü (`upload` + `publishingLimit`) de yazılacak. App Review gerekmiyor
+(D-3). → FAZ-7.2b
 
 ## V-25 — Gerçek prospect yok: deck teslim edilmedi
 Zincir kuruldu ve uçtan uca doğrulandı (gerçek çekim + grafik → PDF, beş kapı 5/5,
@@ -461,5 +465,44 @@ varsayılanımız; LinkedIn'in 100 MB'ı `placements.ts`te `sourceUrl` + `verifi
 duruyor. Olgu ile kararı ayrı tutmak bu repoda bir desen (D-220, D-215) — on sayfalık
 bir deck 8 MB'ı aşıyorsa sorun sıkıştırmada değil içeriktedir. Çağıran `maxBytes` ile
 ezebilir.
+
+**Geri alma maliyeti:** yok.
+
+## D-224 — Zincir bir seviye yukarıda da kopuktu: fiil haritası ≠ üretim yolu
+
+**2026-08-16 · FAZ-7 kapanış denetimi, 2. tur**
+
+D-222 `PUBLISH` gövdesini yazıp fiil haritasına bağladı ve *"eskiden yol yoktu, şimdi
+yol var"* dedi. **Yarım doğruydu:** `grep -rn "PUBLISH" registry/` → **0 satır**.
+Hiçbir hat onu çağırmıyordu; harita dolduruldu, hattı yazan olmadı.
+
+**Aynı sınıf hata üç kez:** D-216 (`INGEST` gövdesi yok) → D-222 (`PUBLISH` gövdesi yok)
+→ bu (hat adımı yok). Her seferinde bir seviye yukarı taşındı ve her seferinde bir
+denetim agent'ı buldu. **İnsan hafızası bunu üç kez tutamadı.**
+
+**Kapatılanlar:**
+- `PUBLISH` adımı üç hatta eklendi (`instagram-post`, `instagram-carousel`,
+  `linkedin-post`), `needs: [onay]` ile — yayın onaydan sonra; kapı geçilmediyse hiç
+  koşmaz
+- **`fiil-haritasi` kapısı açıldı ve İKİ soru soruyor:** gövde haritada bağlı mı ·
+  o fiili çağıran en az bir hat var mı. İkisi de kasten ihlal edilip kırmızıya
+  döndürüldü. Yorum satırları sayılmıyor — kapı kendi açıklamasıyla kandırılamaz
+- **`just defter-baslat`** (B2): `publish()` defteri okur ve yoksa DURUR; defter ise
+  ancak başarılı yayının sonunda yazılır. **Kısır döngü:** ilk gerçek yayın hiçbir
+  zaman başarılı olamazdı. Komut idempotent ve bozuk defteri ONARMAZ — var olanı asla
+  sıfırlamaz (D-38)
+- **Yineleme anahtarı düzeltildi** (M1): yalnız `assets[0].digest` idi ve aynı kapakla
+  farklı metin, ya da ikinci slaytı değişmiş bir karusel, "zaten yayında" diye
+  bloklanıyordu — **hiç yayınlanmamış** içerik. Anahtar artık platform + yerleşim +
+  tüm varlıklar + metin (R-44)
+- **Desteklenmeyen platform tipli ret veriyor** (M2): YAML'daki `facebook` yazımı
+  çıplak `TypeError` veriyordu. *"Sıra tipe gömülü"* garantisi **şekli** kapsıyor,
+  **değerleri** değil — değerler sınırda doğrulanmak zorunda
+- **Platform sınırı editoryal tavandan ÖNCE** (M3): 350 sayfalık belge `max: 10`
+  cevabı alıyordu ve "tavanı 400 yapayım" refleksi doğuyordu — D-223'ün tam olarak
+  önlemek istediği şey. Ayrım artık hattın geçtiği yerde
+- **Dürüstlük düzeltmesi dört yerin dördüne** (M4): D-223 yalnız `FAZ-7.md` 7.2b'yi
+  düzeltmişti; `KARARLAR.md` V-26/V-27, `DURUM.md` bloke tablosu ve 7.5b hâlâ "kalan iş
+  hesap kurulumu" diyordu. **D-217'nin kendi dersi kendi düzeltmesine uygulanmamıştı.**
 
 **Geri alma maliyeti:** yok.

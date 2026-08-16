@@ -4,7 +4,8 @@
 **Yöneten kararlar:** D-3, D-19, D-38
 **Ön koşul:** FAZ 6 kapalı
 **Çıkış kriteri:** Meta'ya ve LinkedIn'e gerçek bir yayın yapıldı · aynı içeriği ikinci
-kez göndermek yerel defterce engellendi · insight anlık görüntüleri SQLite'a düşüyor ·
+kez göndermek yerel defterce engellendi · insight anlık görüntüleri NDJSON defterine
+düşüyor (D-220: SQLite yalnız sorgu indeksi) ·
 token son kullanma tarihi ekranda görünüyor
 
 ---
@@ -38,22 +39,21 @@ token son kullanma tarihi ekranda görünüyor
    darboğazı bu dosyayı zaten sahibi ilan etmişti)
 ✅ Sıra **tipe gömülü** ve ölçüldü: `token → kova:1 → kota → defter → kova:3 →
    yükleme → kaydet`. Her yetenek zorunlu parametre; biri eksikse derlenmiyor.
-🧪 Alt-text'siz → red · kota dolu → yükleme DENENMİYOR · yayınlanmış içerik → tekrar
-   YOK (R-46) · ölmüş token → BLOKLU · defter okunamıyor → DURUYOR · yükleme hatası
-   kotaya karışmıyor. `kanal-yayinci` darboğazı iki biçimde ihlal edildi.
+🧪 Alt-text'siz → red · kota dolu → yükleme yok · yayınlanmış → tekrar yok (R-46) ·
+   ölmüş token → BLOKLU · defter okunamıyor → DURUYOR · yükleme hatası kotaya
+   karışmıyor · desteklenmeyen platform → tipli ret. `kanal-yayinci` iki kez ihlal.
 💾 `feat(providers): yayın kapıları ve tek yayıncı` · `Refs: FAZ-7.2 · §9.2`
 
 ## 7.2b — Meta'ya gerçek yayın    [ ] BLOKE:insan (V-26)
 
 📖 §9.2 · R-46 · D-3
 🔗 7.2, 7.5
-🛠 Gerçek Meta uygulaması, uzun ömürlü token ve `instagram_content_publish` kapsamı.
-   **App Review kendi işletmen için gerekmiyor** (D-3) ama uygulama, sayfa bağlantısı ve
-   token insan eylemidir. Kapılar, sıra ve **`PUBLISH` gövdesi** yazıldı ve bağlandı
-   (D-222); gövde yükleyici olmadan `CHANNEL_NOT_CONNECTED` ile AÇIKÇA duruyor.
-   ⚠ **Kalan iş yalnız hesap değil:** `upload` + `publishingLimit` adaptörleri (HTTP
-   katmanı) ve bir insan komutu da bu adımda yazılacak. Önceki metin "kalan iş
-   bağlantı" diyordu ve bu eksikti (FAZ-7 denetimi, M2).
+🛠 Gerçek Meta uygulaması, uzun ömürlü token ve `instagram_content_publish` kapsamı;
+   App Review gerekmiyor (D-3) ama hesap kurulumu insan eylemidir. Kapılar, sıra,
+   **`PUBLISH` gövdesi** ve **hat adımı** yazıldı (D-222, D-224); yükleyici olmadan
+   gövde `CHANNEL_NOT_CONNECTED` ile AÇIKÇA duruyor.
+   ⚠ **Kalan iş yalnız hesap DEĞİL:** `upload` + `publishingLimit` HTTP adaptörleri de
+   bu adımda yazılacak (2. denetim turu, M4).
 ✅ Tek test postu yayınlandı · `content_publishing_limit` yayından ÖNCE sorgulandı
    (gerçek yanıt log'da) · yerel defter yayını kaydetti
 🧪 Aynı postu iki kez gönder → yerel defter yinelemeyi yakalıyor, Meta'nın döndürdüğü
@@ -131,7 +131,8 @@ token son kullanma tarihi ekranda görünüyor
 🛠 Meta uygulaması (kendi işletmen — **App Review gerekmiyor**, D-3) ve LinkedIn
    "Share on LinkedIn" kaydı. `META_APP_ID`/`META_APP_SECRET` ve
    `LINKEDIN_CLIENT_ID`/`LINKEDIN_CLIENT_SECRET` `sops` altına iner. Akış, kapsamlar ve
-   doğrulama yazıldı ve test edildi; kalan iş **hesap kurulumu**.
+   doğrulama yazıldı ve test edildi. ⚠ Kalan iş yalnız hesap kurulumu DEĞİL:
+   `oauthEnvDurumu`/`authorizeUrl` bugün üretimden hiç çağrılmıyor — komut da yazılacak.
 ✅ `sops exec-env` altında `oauthEnvDurumu` iki sağlayıcı için de `hazir: true` ·
    yetkilendirme akışı gerçek bir token'la tamamlanıyor
 🧪 Token'ı düz metin bir dosyaya koy → `gitleaks` + `repo-hygiene` reddediyor
@@ -144,16 +145,16 @@ token son kullanma tarihi ekranda görünüyor
 🛠 Meta uzun ömürlü token **60 günde ölür**. Yenileme yayın hattından **önce** kurulur;
    sonraya bırakılan yenileme, iki ay çalışıp sebepsiz duran bir sistem demektir.
 📁 `packages/providers/src/token-refresh.ts` · `secrets/token-durumu.json` ·
-   `scripts/token-durum.mjs` · `packages/engine/src/saglik/doktor.ts`
+   `scripts/token-durum.mjs`
 ✅ `just doctor` ve `just token-durum` üç durumu da doğru ayırıyor (ölçüldü):
    ölmüş → **kritik** · pay içinde → **uyarı** · uzun ömürlü → sessiz
 🧪 Sahte süresi dolmuş token → `✗ token 76 gün önce ÖLDÜ — yayın BLOKLU` ·
    kaydı sil → `BİLİNMİYOR, yayın BLOKLU` (bilinmeyen ömür uzun ömür değildir)
    ⚠ **Son kullanma tarihi SIR DEĞİL** ve düz metin duruyor: `just doctor` bir ay sonra
-   açıldığında `sops` çözmeden "token 4 gün sonra ölüyor" diyebilmeli. Sırrı okumak
-   zorunda olan bir sağlık raporu, gözetimsiz bir kurulumda hiç koşmaz (§16).
-   ⚠ `expiresAt` sağlayıcının SÖYLEDİĞİNDEN hesaplanıyor, sabitten değil: 60 yazarken
-   sağlayıcı 45 derse, token ölmüşken "15 gün var" deriz (`beklenendenKisa`).
+   `sops` çözmeden "token 4 gün sonra ölüyor" diyebilmeli — sırrı okumak zorunda olan
+   bir sağlık raporu, gözetimsiz kurulumda hiç koşmaz (§16).
+   ⚠ `expiresAt` sağlayıcının SÖYLEDİĞİNDEN hesaplanıyor: 60 yazarken sağlayıcı 45
+   derse token ölmüşken "15 gün var" deriz (`beklenendenKisa`).
 💾 `feat(providers): token ömrü izleme` · `Refs: FAZ-7.6 · §9.2`
 
 ## 7.6b — Gerçek yenileme çağrısı    [ ] BLOKE:insan (V-26)
@@ -181,9 +182,8 @@ token son kullanma tarihi ekranda görünüyor
    · `"surum":{"pinned":"202508","yasGun":0,"kalanGun":90}`
 🧪 Üç gün kalan token → **uyarı**, yayın hâlâ mümkün · kaydı sil → **BİLİNMİYOR, bloklu**
    · sürümü bir yıl eskit → LinkedIn **bloklu**, Meta etkilenmiyor (10 test)
-   ⚠ **Ölçülmeyen üç şey ÜÇ AYRI cümleyle** (D-175): oran bütçesi `null` (kovalar
-   ÇALIŞTIRMA sürecinde) · defter yoksa geçmiş **ÖLÇÜLEMEDİ**, sıfır değil (D-38) ·
-   zamanlayıcı **yok** ve bu yazıyor — boş liste "var ama iş almadı" derdi.
+   ⚠ **Ölçülmeyen üç şey ÜÇ AYRI cümleyle** (D-175): oran bütçesi `null` · defter
+   yoksa geçmiş ÖLÇÜLEMEDİ, sıfır değil (D-38) · zamanlayıcı yok ve bu yazıyor.
    ⚠ Sürüm hatırlatıcısı eşikten ÖNCE konuşuyor (`surumYasiGun`): 90. günde kırmızı
    yanan bir gösterge, yeniden kontrol için zaman bırakmaz.
 💾 `feat(ui): publish queue ve kanal durumu` · `Refs: FAZ-7.7 · §9.4`

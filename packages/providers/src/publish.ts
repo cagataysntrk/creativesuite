@@ -22,6 +22,7 @@
 
 import type { Result } from '@suite/contracts'
 import { err, ok } from '@suite/contracts'
+import { createHash } from 'node:crypto'
 
 /** Yayınlanacak varlık. `altTr` **zorunlu** — isteğe bağlı olsaydı boş geçilirdi. */
 export interface PublishAsset {
@@ -117,6 +118,24 @@ export interface PublishSuccess {
   readonly limitBefore: PublishingLimit
 }
 
+/**
+ * Yayın kimliği — **yayınlanan HER ŞEYDEN** türer (R-44).
+ *
+ * Tek bir görselin hash'i bir yayını tanımlamıyor: aynı kapakla farklı bir metin
+ * farklı bir yayındır, ikinci slaytı değişmiş bir karusel de öyle. Yerleşim de
+ * anahtarın parçası — aynı içerik feed'e ve story'ye ayrı ayrı yayınlanabilir.
+ *
+ * Sıra korunuyor: karusel slayt sırası içeriğin parçasıdır, kümesi değil.
+ */
+export const yayinAnahtari = (req: PublishRequest): string =>
+  [
+    req.platform,
+    req.placementId,
+    ...req.assets.map((a) => a.digest),
+    // Metin de içerik: kaynağı ne olursa olsun, değişmişse yeni bir yayındır.
+    createHash('sha256').update(req.caption).digest('hex').slice(0, 16),
+  ].join('::')
+
 /** Alt-text tavanı (R-34). Ekran okuyucu 125 karakterden sonrasını kesiyor. */
 export const ALT_MAX = 125
 
@@ -202,8 +221,14 @@ export const publish = async (
   // ── 5. yerel defterle mutabakat (R-46) ──────────────────────────────────
   // **Körlemesine tekrar YOK.** Meta yinelenen gönderide mevcut id'yi döndürür; yeniden
   // denemeden önce okuyup mutabakat yapmazsak "3 varlık ürettim" sanıp 20 üretmiş
-  // görünürüz. Digest içerikten türüyor: aynı byte = aynı yayın.
-  const defter = await deps.lookupLedger(req.assets[0]!.digest)
+  // görünürüz.
+  //
+  // ⚠ Anahtar önce **yalnız ilk varlığın digest'iydi** ve bu, hiç yayınlanmamış
+  // içerikleri blokluyordu (FAZ-7 denetimi 2. tur, M1): aynı kapak görseliyle farklı
+  // caption, ya da ikinci slaytı değişmiş bir karusel, "bu içerik zaten yayında"
+  // cevabı alıyordu. Yanlış pozitif, defterin var oluş sebebinin aynadaki hâli —
+  // operatöre bir OLGU gibi sunulan bir yanlış.
+  const defter = await deps.lookupLedger(yayinAnahtari(req))
   if (!defter.ok) {
     // Defter okunamıyorsa YAYIN YOK. "Herhalde yayınlanmamıştır" varsayımı, defterin
     // bozulduğu gün her şeyi ikinci kez yayınlar.
@@ -227,7 +252,7 @@ export const publish = async (
   // Yayın gerçekleşti; kaydedilmezse bir sonraki çalıştırma aynı içeriği yeniden
   // yayınlar. Bu satır opsiyonel olsaydı, yineleme koruması bir konvansiyon olurdu.
   deps.recordPublished({
-    digest: req.assets[0]!.digest,
+    digest: yayinAnahtari(req),
     externalId: r.value,
     publishedAt: req.now,
     platform: req.platform,

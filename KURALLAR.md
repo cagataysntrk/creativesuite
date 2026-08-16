@@ -39,7 +39,11 @@ Chromium'a dokunur, yalnız `PROPOSE` çalışma ağacına yazar, yalnız `PUBLI
 **Neden:** `RENDER` sessizce LLM çağırabilseydi, çalıştırma öncesi gösterdiğimiz maliyet
 tahmini yalan olurdu.
 **Zorlama:** dependency-cruiser fiil dizinlerine göre kural; `VerbTable` tipi yanlış
-imzayı `tsc -b` hatası yapar.
+imzayı `tsc -b` hatası yapar. Ayrıca `fiil-haritasi` kapısı **iki soruyu** sorar:
+gövde üretim haritasında bağlı mı, ve o fiili çağıran en az bir HAT var mı.
+**Neden iki soru:** `INGEST` (D-216) ve `PUBLISH` (D-222) aynı hatayı iki fazda
+tekrarladı — modül ve test vardı, üretim yolu yoktu; `PUBLISH`te harita dolduruldu
+ama hattı yazan olmadı. "Çağıran var mı" ZİNCİR için sorulur.
 
 ### R-05 · tek-nokta · BLOCKING · FAZ-0.C.8
 `chokepoints.json`'daki her yetenek için repoda **tam olarak bir** uygulama olur:

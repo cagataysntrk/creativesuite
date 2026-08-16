@@ -55,3 +55,17 @@ steps:
     verb: PROPOSE
     needs: [kalite]
     gate: insan-onayi
+
+  # ⚠ FAZ-7 denetimi 2. tur (B1): `PUBLISH` fiil haritasındaydı ama **hiçbir hat onu
+  # çağırmıyordu** — `grep -rn PUBLISH registry/` sıfır satır veriyordu. D-216'nın
+  # (`INGEST`) dersi bir seviye yukarıda tekrarladı: gövde yazıldı, harita dolduruldu,
+  # HATTI yazan olmadı. "Çağıran var mı" sorusu tek adım için değil, ZİNCİR için
+  # sorulmalı.
+  #
+  # `needs: [onay]` — yayın **onaydan sonra**. Kapı geçilmediyse bu adım hiç koşmaz;
+  # insan onayı bir yan etki değil, bir kapıdır (§4.1b).
+  - id: yayinla
+    verb: PUBLISH
+    needs: [onay]
+    constraints:
+      platform: linkedin

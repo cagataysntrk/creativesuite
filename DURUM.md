@@ -47,8 +47,8 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 > | `5.5b` | V-22 | `whisper.cpp` kurulumu ya da gerçek `GROQ_API_KEY` |
 > | `6.5b` | V-24 | Bright Data · Tavily · ihale-mcp · borsa-mcp anahtarları |
 > | `6.9b` | V-25 | gerçek bir prospect kaydı (+ `2.9` onayı) |
-> | `7.2b` | V-26 | Meta uygulaması + sayfa bağlantısı + uzun ömürlü token |
-> | `7.5b` | V-27 | Meta ve LinkedIn uygulama kaydı → dört ortam değişkeni |
+> | `7.2b` | V-26 | Meta uygulaması + token **ve** HTTP adaptörü (kod da eksik) |
+> | `7.5b` | V-27 | uygulama kaydı + dört değişken **ve** OAuth komutu (kod da eksik) |
 > | `7.6b` | V-26 | gerçek token → yenileme çağrısı denenebilsin |
 > | `7.8b` | V-26 | gerçek token → günlük insight çekimi koşabilsin |
 

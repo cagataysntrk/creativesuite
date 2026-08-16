@@ -53,7 +53,7 @@ Toplam **9** hat.
 
 ## `instagram-carousel` — Instagram carousel
 
-7 adım · 1 yetenek isteyen · 1 insan kapısı
+8 adım · 1 yetenek isteyen · 1 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -64,10 +64,11 @@ Toplam **9** hat.
 | `render` | `RENDER` | — | kompozit | — | — |
 | `kalite` | `VALIDATE` | — | render | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
+| `yayinla` | `PUBLISH` | — | onay | — | — |
 
 ## `instagram-post` — Instagram tek görsel postu
 
-8 adım · 2 yetenek isteyen · 1 insan kapısı
+9 adım · 2 yetenek isteyen · 1 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -79,6 +80,7 @@ Toplam **9** hat.
 | `render` | `RENDER` | — | kompozit | — | — |
 | `kalite` | `VALIDATE` | — | render | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
+| `yayinla` | `PUBLISH` | — | onay | — | — |
 
 ## `linkedin-document` — LinkedIn dökümanı (düzleştirilmiş PDF)
 
@@ -96,7 +98,7 @@ Toplam **9** hat.
 
 ## `linkedin-post` — LinkedIn tek görsel postu
 
-7 adım · 1 yetenek isteyen · 1 insan kapısı
+8 adım · 1 yetenek isteyen · 1 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -107,6 +109,7 @@ Toplam **9** hat.
 | `render` | `RENDER` | — | kompozit | — | — |
 | `kalite` | `VALIDATE` | — | render | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
+| `yayinla` | `PUBLISH` | — | onay | — | — |
 
 ## `prospect-deck` — Prospect deck'i (uçtan uca)
 

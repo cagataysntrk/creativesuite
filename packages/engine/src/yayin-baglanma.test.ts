@@ -82,7 +82,10 @@ describe('PUBLISH fiili ↔ defter', () => {
     const defter = readLedger(tmp.path)
     expect(defter.ok && defter.entries).toHaveLength(1)
     expect(defter.ok && defter.entries[0]!.externalId).toBe('ig_media_yeni')
-    expect(defter.ok && defter.entries[0]!.digest).toBe(DIGEST)
+    // Defterdeki anahtar YAYINI tanımlar, tek bir görseli değil (M1): platform,
+    // yerleşim, TÜM varlıklar ve metin birlikte. Varlık digest'i onun bir parçası.
+    expect(defter.ok && defter.entries[0]!.digest).toContain(DIGEST)
+    expect(defter.ok && defter.entries[0]!.digest).toContain('instagram')
   })
 
   // 🧪 Aynı postu iki kez gönder → ikincisi defterce yakalanıyor ve KANAL ÇAĞRISI
@@ -90,17 +93,32 @@ describe('PUBLISH fiili ↔ defter', () => {
   // sanılırdı.
   it('aynı içerik İKİNCİ kez yayınlanmıyor ve kanal çağrısı YAPILMIYOR', async () => {
     initLedgerFile(tmp.path)
-    appendPublished(tmp.path, {
-      digest: DIGEST,
-      platform: 'instagram',
-      externalId: 'ig_media_eski',
-      runId: 'run_0',
-      publishedAt: '2026-08-01T00:00:00.000Z',
-    })
+    // İlk yayın GERÇEKTEN koşuyor — defter satırını üretim yazıyor, test değil.
+    expect((await kosLocal([])).ok).toBe(true)
     const yuklendi: string[] = []
     const r = await kosLocal(yuklendi)
     expect(r.ok).toBe(false)
     expect(yuklendi).toEqual([])
+  })
+
+  // 🧪 M1 (2. doğrulama turu): aynı kapak görseli + FARKLI metin = FARKLI yayın.
+  // Eski anahtar yalnız `assets[0].digest` idi ve hiç yayınlanmamış içeriği
+  // "zaten yayında" diye blokluyordu — operatöre bir OLGU gibi sunulan bir yanlış.
+  it('aynı görsel + farklı metin AYRI yayındır, bloklanmıyor', async () => {
+    initLedgerFile(tmp.path)
+    expect((await kosLocal([])).ok).toBe(true)
+
+    const fiil = publishBody(govdeDeps([]))
+    const r = await fiil.run(
+      ctx() as never,
+      {
+        constraints: { platform: 'instagram', placementId: 'instagram-feed-4x5', caption: 'BAŞKA' },
+        inputs: { render: renderCiktisi },
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    const d = readLedger(tmp.path)
+    expect(d.ok && d.entries).toHaveLength(2)
   })
 
   // 🧪 Defteri sil → yayın DURUR (D-38: defter türetilemez). Artık `already_published`

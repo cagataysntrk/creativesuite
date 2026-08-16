@@ -29,6 +29,7 @@ import {
   paginateDocument,
   renderDeckPdf,
   renderLinkedinDocument,
+  LINKEDIN_PLATFORM_MAX_SAYFA,
   renderStatic,
   renderWithinLimit,
   type LayoutName,
@@ -433,6 +434,22 @@ export const renderBody = (deps: RenderDeps): Verb =>
         // yalnız `LINKEDIN_DOC_MAX_SAYFA` sabitinden geliyordu (2. doğrulama turu,
         // bulgu 14). Ölü bir kısıt, okunduğu sanılan bir kısıttır — ve YAML'ı
         // değiştiren kişi hiçbir şeyin değişmediğini fark etmez.
+        // **Platform sınırı ÖNCE** (2. doğrulama turu, M3): editoryal tavan önce
+        // koşarsa 350 sayfalık bir belge "bizim kararımız, aşılabilir" (`max: 10`)
+        // cevabı alır ve "tavanı 400 yapayım" refleksi doğar — D-223'ün tam olarak
+        // önlemek istediği şey. Platform sınırı aşılamaz bir OLGU olduğu için
+        // sıranın başında durur.
+        if (sayfalar.length > LINKEDIN_PLATFORM_MAX_SAYFA) {
+          return err(
+            hata('validation', 'DOCUMENT_REJECTED', ctx, {
+              refusal: {
+                kind: 'platform_limit',
+                count: sayfalar.length,
+                max: LINKEDIN_PLATFORM_MAX_SAYFA,
+              },
+            })
+          )
+        }
         const maxPages = input.constraints['max_pages']
         if (typeof maxPages === 'number' && sayfalar.length > maxPages) {
           return err(
@@ -972,15 +989,34 @@ export interface PublishBodyDeps {
   readonly upload?: (req: PublishRequest) => Promise<Result<string, string>>
 }
 
+/**
+ * Desteklenen platformlar — **çalışma anı doğrulaması**, tip değil.
+ *
+ * `PublishRequest['platform']` bir birleşim tipi ama YAML'dan gelen dize tip
+ * sisteminden geçmiyor; sınırda doğrulanmazsa hata en derinde ve en anlamsız yerde
+ * patlıyor.
+ */
+const DESTEKLENEN_PLATFORMLAR: readonly string[] = ['instagram', 'threads', 'linkedin']
+
 /** Yayın yeteneği — oran kovasının anahtarı. Kanal durumu ekranıyla AYNI dize. */
 export const YAYIN_YETENEGI = 'channel.publish'
 
 export const publishBody = (deps: PublishBodyDeps): Verb =>
   govde('PUBLISH', async (ctx, input) => {
-    const platform =
-      typeof input.constraints['platform'] === 'string'
-        ? (input.constraints['platform'] as PublishRequest['platform'])
-        : 'instagram'
+    // ⚠ Önce doğrulamasız cast vardı ve YAML'daki tek harflik bir yazım hatası
+    // (`facebook`) tipli bir ret yerine ÇIPLAK `TypeError` veriyordu: `REQUIRED_SCOPES`
+    // `undefined` dönüyor, `for…of` çöküyordu (FAZ-7 denetimi 2. tur, M2).
+    // "Sıra tipe gömülü" garantisi ŞEKLİ kapsıyor, DEĞERLERİ değil.
+    const ham = input.constraints['platform']
+    if (typeof ham !== 'string' || !DESTEKLENEN_PLATFORMLAR.includes(ham)) {
+      return err(
+        hata('validation', 'UNSUPPORTED_PLATFORM', ctx, {
+          verilen: typeof ham === 'string' ? ham : null,
+          destekleyen: DESTEKLENEN_PLATFORMLAR,
+        })
+      )
+    }
+    const platform = ham as PublishRequest['platform']
 
     // Varlıklar ÜRETİMDEN gelir — testin elle yazdığı bir şekilden değil. `RENDER`
     // çıktısındaki yollar ve alt-text'ler burada toplanıyor; toplanamıyorsa yayın
