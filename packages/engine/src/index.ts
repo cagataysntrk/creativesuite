@@ -280,3 +280,20 @@ export {
   type LedgerResult,
   type PublishedEntry,
 } from './publish-ledger.js'
+
+// Insight defteri — türetilemez ölçüm (§13 · D-220 · FAZ-7.8).
+export {
+  INSIGHT_UFKU_GUN,
+  appendInsight,
+  bosluklar,
+  insightAnahtari,
+  insightLedgerPath,
+  insightTazeligi,
+  readInsights,
+  type Bosluk,
+  type InsightHatasi,
+  type InsightSatiri,
+  type InsightSonucu,
+  type TazelikRaporu,
+  type YazmaSonucu,
+} from './insight-ledger.js'

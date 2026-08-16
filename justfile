@@ -97,6 +97,10 @@ onayla *yollar:
 token-durum:
     @./node_modules/.bin/tsc -b && node scripts/token-durum.mjs
 
+# Insight ölçüm raporu — AĞA ÇIKMAZ, iki defteri okur (§13 · FAZ-7.8)
+insight-durum:
+    @./node_modules/.bin/tsc -b && node scripts/insight-durum.mjs
+
 # KVKK silme talebi — İNSAN çalıştırır (R-14 · D-212). Dosya silinmez, kişisel veri
 # silinir ve kişisel veri taşımayan bir mezar taşı kalır.
 kvkk-sil *args:

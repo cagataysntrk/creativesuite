@@ -198,17 +198,41 @@ token son kullanma tarihi ekranda görünüyor
    yanan bir gösterge, yeniden kontrol için zaman bırakmaz.
 💾 `feat(ui): publish queue ve kanal durumu` · `Refs: FAZ-7.7 · §9.4`
 
-## 7.8 — Günlük insight anlık görüntüleri    [ ]
+## 7.8 — Insight defteri ve boşluk tespiti    [x] 2026-08-16
 
 📖 §13 · D-27
 🔗 7.2
 🛠 **İlk postla birlikte başlar.** IG hesap insight'ları 90 günde kayboluyor ve
    **backfill endpoint'i yok** — bugün toplamadığın veri yarın satın alınamaz.
    Günlük snapshot `derived/index/` yerine kalıcı bir tabloya yazılır: türetilemez veri.
-📁 `packages/channels/src/insights/` · `derived/runs/insights.ndjson`
-✅ İlk satırlar SQLite'ta · iki gün üst üste çalıştır → iki ayrı anlık görüntü
-🧪 Snapshot işini durdur → `doctor` "N gündür insight alınmadı" diyor
-💾 `feat(channels): günlük insight anlık görüntüleri` · `Refs: FAZ-7.8 · §13`
+📁 `packages/engine/src/insight-ledger.ts` · `scripts/insight-durum.mjs`
+   (`derived/runs/insights.ndjson` **henüz yok ve olmamalı**: ilk gerçek ölçüm onu
+   yazar — 7.8b. Boş bir defter oluşturmak "ölçüm başladı" derdi.)
+✅ Aynı gün ikinci kez yazılmıyor (`zaten_var`), farklı gün ayrı satır — 10 test.
+   ⚠ **Doğruluk NDJSON'da, SQLite'ta DEĞİL** (D-220): kriter "ilk satırlar SQLite'ta"
+   diyordu ve **değiştirildi**. `derived/index/` silinip yeniden kurulabilir (11. yasa);
+   geri getirilemez veriyi oraya koymak `just reindex`i kalıcı veri kaybına çevirirdi.
+🧪 Ölçüm işini durdur (yayın var, ölçüm yok) → `just doctor` ve `just insight-durum`
+   ikisi de **kırmızı**, ölçüldü:
+   `✗ [insight] hiç insight alınmadı — backfill ucu YOK, geçen her gün kalıcı kayıp`
+   `✗ [insight] 137 gün ölçüm eksik, 47 günü KALICI olarak kayıp (90 gün ufkunu geçti)`
+   Üç gün ölçüm yaz → tazelik `✓`e döner **ama 47 günlük kalıcı kayıp `✗` kalır**:
+   "ölçüm yeniden çalışıyor", "hiçbir şey kaybolmadı" DEMEK DEĞİLDİR.
+   ⚠ Yayın YOKSA denetim **atlanır**: post atmamış bir sistemde "insight alınmadı"
+   yanlış alarmdır ve yanlış alarm doğru alarmı da öldürür.
+💾 `feat(engine): insight defteri ve boşluk tespiti` · `Refs: FAZ-7.8 · §13`
+
+## 7.8b — Gerçek insight çekimi    [ ] BLOKE:insan (V-26)
+
+📖 §13 · §9.2
+🔗 7.8, 7.6b
+🛠 Meta insight uçlarından günlük çekim ve deftere yazım. Defter, yineleme koruması,
+   boşluk tespiti, ufuk ayrımı ve iki insan komutu yazıldı ve **ölçüldü**; kalan iş
+   gerçek token ve gerçek uç. Çekim `INGEST` fiiliyle koşar — kanal okuması da dış
+   kaynaktır ve maliyetlenmesi gerekir (R-04).
+✅ İki gün üst üste çekim → iki ayrı anlık görüntü, aynı gün ikinci çekim yazmıyor
+🧪 Çekim başarısız olduğunda gün **boşluk olarak** kalır, uydurma sıfır YAZILMAZ
+💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
 ## 7.9 — Performans panosu ve geri besleme    [ ]
 

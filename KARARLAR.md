@@ -513,3 +513,29 @@ ayırmanın tek yolu ihlali gerçekten diske yazıp kapının ne taradığını 
 
 **Geri alma maliyeti:** yok.
 
+
+## D-220 — Insight'ın doğruluğu NDJSON'da, SQLite'ta DEĞİL
+
+**2026-08-16 · FAZ-7.8**
+
+Faz dosyasının kabul kriteri "ilk satırlar SQLite'ta" diyordu. **Reddedildi ve kriter
+değiştirildi** (R-74: sessiz sapma yasak).
+
+**Gerekçe:** IG hesap insight'ları ~90 günde kayboluyor ve **backfill ucu YOK** — bugün
+alınmayan ölçüm hiçbir çağrıyla geri getirilemez. `derived/index/` ise tanım gereği
+**silinip yeniden kurulabilir** (11. yasa, D-38). Geri getirilemez veriyi yeniden
+kurulabilir bir yere koymak, `just reindex`i kalıcı veri kaybına çevirirdi — ve bunu
+fark edeceğin an, üç ay sonra boş bir panonun karşısıdır.
+
+**Karar:** doğruluk `derived/runs/insights.ndjson`'da (append-only, git'te, yedekli);
+SQLite yalnız **sorgu indeksi** ve bu dosyadan beslenir. Yayın defteriyle (D-38) birebir
+aynı gerekçe, aynı biçim.
+
+**Alternatif:** SQLite'ı doğruluk yapıp dosyayı yedek saymak — reddedildi: yedeğin ne
+zaman alındığını hatırlaman gereken bir sistem, bir ay ihmali kaldıramaz (§16).
+
+**Yan karar — boşluk bir OLGUDUR:** alınmayan gün sessizce atlanmaz, `bosluklar()`
+listeler ve 90 günü geçmişse **`kurtarilabilir: false`** işaretler. Kurtarılamayan bir
+kaybı bilmek, bilmemekten iyidir; bilinmezse pano onu "düşük performans" diye okur.
+
+**Geri alma maliyeti:** yok — indeks zaten türetilmiş.

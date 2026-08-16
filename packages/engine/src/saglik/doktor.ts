@@ -18,6 +18,8 @@ import { recordCount } from '@suite/corpus'
 import { loadDescriptors, yenilemeRaporu } from '@suite/providers'
 import { PLACEMENTS, specAgeDays, specStaleness } from '@suite/render'
 import { costVariance, readManifest, readRunStub } from '../manifest-writer.js'
+import { bosluklar, insightLedgerPath, insightTazeligi, readInsights } from '../insight-ledger.js'
+import { readLedger } from '../publish-ledger.js'
 import { stratejiSagligi } from './strateji.js'
 
 /** §8.7: fiyat anlık görüntüsü 60 günden eskiyse uyarı. */
@@ -28,7 +30,7 @@ const SPEC_UYARI_GUN = 90
 const SAPMA_ESIGI = 20
 
 export type DoktorAlani =
-  'fiyat' | 'spec' | 'maliyet' | 'kayit' | 'indeks' | 'defter' | 'surum' | 'token'
+  'fiyat' | 'spec' | 'maliyet' | 'kayit' | 'indeks' | 'defter' | 'surum' | 'token' | 'insight'
 
 export interface DoktorBulgusu {
   readonly alan: DoktorAlani
@@ -215,6 +217,63 @@ export const doktorRaporu = (g: DoktorGirdisi): DoktorRaporu => {
     }
   } else {
     atlanan.push({ ad: 'token', neden: 'secrets/token-durumu.json yok' })
+  }
+
+  // ── insight tazeliği (§13 · D-220 · FAZ-7.8) ──────────────────────────────
+  //
+  // **İlk YAYINDAN itibaren ölçülür.** Yayın yoksa ölçülecek bir şey de yoktur ve
+  // denetim ATLANIR — "insight alınmadı" demek, hiç post atmamış bir sistemde yanlış
+  // alarmdır ve yanlış alarm, doğru alarmı da öldürür.
+  const yayinlar = readLedger(g.repoRoot)
+  if (!yayinlar.ok || yayinlar.entries.length === 0) {
+    atlanan.push({
+      ad: 'insight',
+      // Üç ayrı sebep, üç ayrı cümle: defteri OLMAYAN sistem, yayını olmayan
+      // sistem ve defteri BOZUK sistem aynı şey değil.
+      neden: yayinlar.ok
+        ? 'henüz yayın yok — ölçülecek varlık yok'
+        : yayinlar.error.kind === 'ledger_missing'
+          ? 'yayın defteri yok — ilk yayın hiç yapılmamış olabilir'
+          : `yayın defteri ${yayinlar.error.line}. satırda bozuk`,
+    })
+  } else {
+    kosan.push('insight')
+    const ilkGun = [...yayinlar.entries].map((e) => e.publishedAt.slice(0, 10)).sort()[0]!
+    const olcumler = readInsights(g.repoRoot)
+    const gunler = olcumler.ok ? olcumler.satirlar.map((x) => x.gun) : []
+    if (!olcumler.ok && olcumler.error.kind === 'unreadable') {
+      bulgular.push({
+        alan: 'insight',
+        siddet: 'kritik',
+        mesaj: `insight defteri ${olcumler.error.line}. satırda bozuk: ${olcumler.error.reason}`,
+        hedef: insightLedgerPath(),
+      })
+    }
+    const tazelik = insightTazeligi(gunler, g.bugun)
+    if (tazelik.kritik) {
+      bulgular.push({
+        alan: 'insight',
+        siddet: 'kritik',
+        mesaj: tazelik.mesaj,
+        hedef: insightLedgerPath(),
+      })
+    }
+    // **Kurtarılamayan boşluk ayrı sayılır.** Kurtarılabilir bir boşluk bugün
+    // kapatılabilir; kapanmayanı "eksik veri" diye göstermek, onu bir gün
+    // doldurulacak sanmaktır.
+    const b = bosluklar(gunler, ilkGun, g.bugun)
+    const kalici = b.filter((x) => !x.kurtarilabilir).length
+    if (b.length > 0) {
+      bulgular.push({
+        alan: 'insight',
+        siddet: kalici > 0 ? 'kritik' : 'uyari',
+        mesaj:
+          kalici > 0
+            ? `${b.length} gün ölçüm eksik, ${kalici} günü KALICI olarak kayıp (90 gün ufkunu geçti) — geri getirilemez`
+            : `${b.length} gün ölçüm eksik — ufuk içinde, bugün kapatılabilir`,
+        hedef: insightLedgerPath(),
+      })
+    }
   }
 
   // ── maliyet sapması ve öksüz çalıştırmalar (§16, §13) ─────────────────────

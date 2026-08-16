@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { RUNS_DIR, manifestPath } from '@suite/kernel'
+import { RUNS_DIR, manifestPath, publishedLedgerPath } from '@suite/kernel'
 import { doktorMetni, doktorRaporu } from './doktor.js'
 
 const BUGUN = '2026-08-16'
@@ -64,6 +64,10 @@ describe('doctor', () => {
       'defter/git',
       'fiyat',
       'indeks',
+      // `insight` de atlanıyor: yayın defteri yok, yani ölçülecek varlık da yok.
+      // Post atmamış bir sistemde "insight alınmadı" demek yanlış alarmdır ve
+      // yanlış alarm doğru alarmı öldürür (FAZ-7.8).
+      'insight',
       'kayit',
       // `token` de atlanıyor: fikstür deposunda `secrets/token-durumu.json` yok ve
       // dosyanın YOKLUĞU "token sağlıklı" DEĞİL, "denetlenemedi" demek (FAZ-7.6).
@@ -135,5 +139,31 @@ describe('doctor', () => {
     doktorRaporu({ repoRoot: kok, bugun: BUGUN })
 
     expect(readdirSync(join(kok, RUNS_DIR, 'run_a')).sort()).toEqual(once)
+  })
+
+  // 🧪 FAZ-7.8 ihlal testi: ölçüm işini DURDUR → doctor susmamalı.
+  //
+  // Fikstür bir yayın taşıyor ve hiç ölçüm yok. İkisi birden gerekli: yayın olmadan
+  // denetim atlanır (doğru davranış), yayın varken susmak ise sessiz veri kaybıdır.
+  it('ölçüm işi durduğunda insight bulgusu KRİTİK olur ve kalıcı kaybı ayırır', () => {
+    const kok = kur()
+    mkdirSync(join(kok, RUNS_DIR), { recursive: true })
+    writeFileSync(
+      join(kok, publishedLedgerPath()),
+      `${JSON.stringify({
+        digest: 'sha256:a',
+        platform: 'instagram',
+        externalId: '179',
+        runId: 'run_x',
+        publishedAt: '2026-04-01T09:00:00.000Z',
+      })}\n`
+    )
+    const r = doktorRaporu({ repoRoot: kok, bugun: BUGUN })
+    const insight = r.bulgular.filter((b) => b.alan === 'insight')
+    expect(r.kosanDenetimler).toContain('insight')
+    expect(insight.some((b) => b.siddet === 'kritik' && b.mesaj.includes('backfill'))).toBe(true)
+    // **Kurtarılamayan kayıp ayrı sayılır.** "Eksik veri" demek, bir gün
+    // doldurulacağını ima ederdi; 90 günü geçen gün bitmiştir.
+    expect(insight.some((b) => b.mesaj.includes('KALICI'))).toBe(true)
   })
 })

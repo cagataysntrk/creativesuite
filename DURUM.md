@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.8
+siradaki_adim: 7.9
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.7 KAPANDI (kanal durumu ekrani). /api/kanallar GERCEK sunucudan olculdu: uc gun kalan token durum yenile kalanGun 3 · oran kapasite 5 yayinPuani 3 kalan null · surum 202508 yasGun 0 kalanGun 90 · gecmis null gecmisNeden yayin defteri yok. TASARIM: OLCULMEYEN UC SEY UC AYRI CUMLEYLE (D-175). (1) oran butcesi tuketimi null cunku kovalar CALISTIRMA surecinde yasiyor — sunucuda yeni limiter kurup available() sormak her seferinde kova dolu derdi, saglayici 429 donerken ekranda yesil cubuk; limiter verilirse gercek okuma giriyor (test). (2) yayin defteri yoksa gecmis OLCULEMEDI, sifir DEGIL (D-38 defter turetilemez). (3) zamanlayici YOK ve bu yaziyor — bos bir zamanlanmis listesi var olup is almadigini ima ederdi. Surum hatirlaticisi esikten ONCE konusuyor (yeni surumYasiGun): 90. gunde kirmizi yanan gosterge yeniden kontrol icin zaman birakmaz. LinkedIn surumu eskirse yayin BLOKLU (426), Meta etkilenmiyor. 10 + 1 test (uc testi ucun bagli oldugunu kanitliyor). ONCEKI: 7.6 token omru, son kullanma tarihi SIR DEGIL."
+son_kanit: "7.8 KAPANDI (insight defteri). D-220: DOGRULUK NDJSON DA, SQLite TA DEGIL — faz dosyasinin kriteri ilk satirlar SQLite ta diyordu ve DEGISTIRILDI (R-74). derived/index silinip yeniden kurulabilir (11. yasa); geri getirilemez veriyi oraya koymak just reindex i kalici veri kaybina cevirirdi. IHLAL TESTI OLCULDU: yayin var olcum yok → just doctor ve just insight-durum ikisi de kirmizi: hic insight alinmadi backfill ucu YOK + 137 gun eksik 47 gunu KALICI kayip (90 gun ufkunu gecti). Uc gun olcum yazinca tazelik ✓ ye dondu AMA 47 gunluk kalici kayip ✗ kaldi — olcum yeniden calisiyor, hicbir sey kaybolmadi DEMEK DEGILDIR. Yayin YOKSA denetim ATLANIR: post atmamis sistemde insight alinmadi yanlis alarmdir. Ayni gun ikinci yazim zaten_var, ilk olcum KORUNUR (append-only da uzerine yazmak duzeltmektir). Gercek cekim 7.8b (V-26). ONCEKI: 7.7 kanal durumu ekrani."
 ```
 
 ## Neredeyiz
@@ -30,9 +30,9 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 > FAZ 5'in `aac` maddesi de karşılanmadı ve tikle örtülmedi (D-206): ses akışı yok,
 > `5.4b`/`5.5b` insan girdisi bekliyor. Video ölçüldü: h264 · yuv420p · 1920×1080.
 
-> ⛔ **ON İKİ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on ikisi de plan
+> ⛔ **ON ÜÇ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on üçü de plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -50,6 +50,7 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 > | `7.2b` | V-26 | Meta uygulaması + sayfa bağlantısı + uzun ömürlü token |
 > | `7.5b` | V-27 | Meta ve LinkedIn uygulama kaydı → dört ortam değişkeni |
 > | `7.6b` | V-26 | gerçek token → yenileme çağrısı denenebilsin |
+> | `7.8b` | V-26 | gerçek token → günlük insight çekimi koşabilsin |
 
 ## Tamamlananlar
 
@@ -69,13 +70,15 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 | **7.5** · OAuth akışı, kapsam gerekçeleri, CSRF (D-218, D-219) | 2026-08-16 |
 | **7.6** · token ömrü; son kullanma SIR DEĞİL, doctor secret çözmüyor | 2026-08-16 |
 | **7.7** · kanal durumu ekranı; ölçülmeyen üç şey üç ayrı cümleyle | 2026-08-16 |
+| **7.8** · insight defteri; doğruluk NDJSON'da, kalıcı kayıp ayrı sayılıyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`7.8` — Günlük insight anlık görüntüleri** (§13). **İLK POSTLA BAŞLAR**: IG hesap
-insight'ları 90 günde kayboluyor ve **backfill endpoint'i YOK** — bugün alınmayan ölçüm
-yarın alınamaz, geriye dönük kurtarılamaz. Bu yüzden iş, ilk yayından önce kurulur;
-"yayın başlayınca ekleriz" demek, ilk üç ayın verisini kalıcı olarak kaybetmektir.
+**`7.9` — Performans panosu ve geri besleme** (§13, §11.2). Kazanan hook'lar `corpus/`a
+**geri akar**, yorum dili müşteri-sesi kaydı olur, lexicon her ıskalamada sıkışır. Veri
+tarafı hazır (`readInsights`, yayın defteri, manifest'ler); kalan iş pano ve **geri akış
+yolu** — ve o yol `corpus.propose()` üzerinden gitmek zorunda (R-14): ölçüm, insan onayı
+olmadan corpus'a yazamaz.
 
 ## Devreden borçlar
 
