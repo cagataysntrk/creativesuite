@@ -23,6 +23,7 @@ import {
   type VerbOutput,
 } from '@suite/kernel'
 import {
+  captureProductShot,
   deckPages,
   isLinkedinDocError,
   paginateDocument,
@@ -162,9 +163,19 @@ export const composeBody = (deps: ComposeDeps): Verb =>
 
     if (satirlar.length === 0) return err(hata('validation', 'NO_CONTENT', ctx))
 
+    // Önceki adımlardan gelen ürün ekranı çekimleri belgeye BLOK olarak giriyor.
+    // `role: 'product_screenshot'` bir İDDİADIR: "ürün gerçekten böyle görünüyor".
+    const cekimler = urunCekimleri(input.inputs)
     const blocks: Block[] = [
       { type: 'heading', text: satirlar[0] as string, level: 1 },
       ...satirlar.slice(1, 4).map((t): Block => ({ type: 'body', text: t })),
+      ...cekimler.map((c): Block => ({
+        type: 'image',
+        src: c.path,
+        alt: c.alt,
+        decorative: false,
+        role: 'product_screenshot',
+      })),
     ]
 
     const w = typeof input.constraints['width'] === 'number' ? input.constraints['width'] : 1080
@@ -185,7 +196,53 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       // sessiz bir hatadır ve kapıdan geçer görünür.
       return err(hata('validation', 'INVALID_DOCUMENT', ctx, { defects: gecerli.errors }))
     }
-    return ok({ costs: [], data: { document: doc } })
+    // ⚠ **`productShots` BURADA doğuyor** ve `role: 'product_screenshot'` bloklarının
+    // karşılığıdır (FAZ 6 denetimi, bulgu 8: alanın okuyanı yoktu). Manifest dedektörü
+    // (`fabricated_product_shot`) bu diziyi arıyor; blok ile defter kaydı aynı kaynaktan
+    // türediği için biri diğerinden ayrışamaz.
+    return ok({
+      costs: [],
+      data: {
+        document: doc,
+        ...(cekimler.length > 0
+          ? {
+              productShots: cekimler.map((c) => ({
+                captureRunId: c.captureRunId,
+                demoRef: c.demoRef,
+                aiGenerated: false,
+              })),
+            }
+          : {}),
+      },
+    })
+  })
+
+/**
+ * Önceki adımların ürettiği ürün ekranı çekimleri.
+ *
+ * Çekim yoksa boş döner ve belge ürün ekranı TAŞIMAZ — "ekran koyamadım" sessizce
+ * uydurma bir ekrana dönüşemez (R-32).
+ */
+const urunCekimleri = (
+  inputs: Readonly<Record<string, unknown>>
+): readonly { path: string; alt: string; captureRunId: string; demoRef: string }[] =>
+  Object.values(inputs).flatMap((v) => {
+    if (v === null || typeof v !== 'object') return []
+    const c = v as { capture?: unknown }
+    if (c.capture === null || typeof c.capture !== 'object') return []
+    const o = c.capture as Record<string, unknown>
+    return typeof o['path'] === 'string' &&
+      typeof o['captureRunId'] === 'string' &&
+      typeof o['demoRef'] === 'string'
+      ? [
+          {
+            path: o['path'],
+            alt: typeof o['alt'] === 'string' ? o['alt'] : 'Ürün ekran görüntüsü',
+            captureRunId: o['captureRunId'],
+            demoRef: o['demoRef'],
+          },
+        ]
+      : []
   })
 
 // ── RENDER: yalnız Chromium ─────────────────────────────────────────────────
@@ -206,6 +263,60 @@ export interface RenderDeps {
 
 export const renderBody = (deps: RenderDeps): Verb =>
   govde('RENDER', async (ctx, input) => {
+    // ── ürün ekranı çekimi (§10 · R-32 · FAZ-6.8, 6.10) ─────────────────────
+    //
+    // ⚠ `captureProductShot` yazılmış, test edilmiş ve **sıfır çağıranı** vardı (FAZ 6
+    // denetimi, bulgu 6). `prospect-deck` hattındaki `urun-ekrani` adımı bu dalı
+    // bekliyordu ve dal yoktu — yani hat koşsa bile ekran çekilmezdi.
+    //
+    // Çekim bir BELGE üretmez, bir GÖRÜNTÜ üretir; `COMPOSE` onu bloğa çevirir ve
+    // `productShots` kaydını doğurur. Ayrım bilinçli: çekimi yapan kod kendi iddiasını
+    // kurarsa, iddia kendi kendini onaylamış olur.
+    if (input.constraints['capture'] === 'product') {
+      const url = typeof input.constraints['url'] === 'string' ? input.constraints['url'] : ''
+      const demoRef =
+        typeof input.constraints['demo_ref'] === 'string' ? input.constraints['demo_ref'] : ''
+      const hazir =
+        typeof input.constraints['ready_selector'] === 'string'
+          ? input.constraints['ready_selector']
+          : 'body'
+      if (url === '' || demoRef === '') {
+        // Kaynaksız çekim iddiası denetlenemez; denetlenemeyen iddia beyandır (D-216).
+        return err(hata('validation', 'CAPTURE_SOURCE_MISSING', ctx, { url, demoRef }))
+      }
+      mkdirSync(deps.outDir, { recursive: true })
+      const yol = join(deps.outDir, 'urun-ekrani.png')
+      const c = await captureProductShot({
+        url,
+        demoRef,
+        captureRunId: String(ctx.runId),
+        outPath: yol,
+        width: typeof input.constraints['width'] === 'number' ? input.constraints['width'] : 1600,
+        height: typeof input.constraints['height'] === 'number' ? input.constraints['height'] : 900,
+        readySelector: hazir,
+      })
+      if (!c.ok) return err(hata('render_failed', 'CAPTURE_FAILED', ctx, { error: c.error }))
+      return ok({
+        costs: [
+          {
+            verb: 'RENDER' as VerbName,
+            capability: 'image.render',
+            providerId: 'local-chromium',
+            amount: ZERO_USD,
+            kind: 'actual' as const,
+          },
+        ],
+        data: {
+          capture: {
+            path: c.value.path,
+            captureRunId: c.value.captureRunId,
+            demoRef: c.value.demoRef,
+            alt: `Ürün ekran görüntüsü — ${demoRef}`,
+          },
+        },
+      })
+    }
+
     const belgeCiktisi = Object.values(input.inputs).find(
       (v): v is { readonly document: DocumentModel } =>
         v !== null && typeof v === 'object' && (v as { document?: unknown }).document !== undefined

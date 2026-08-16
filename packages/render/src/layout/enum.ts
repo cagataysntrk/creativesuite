@@ -58,6 +58,9 @@ const metinUzunlugu = (b: Block): number => {
     case 'heading':
     case 'body':
       return b.text.length
+    case 'diagram':
+      // Kutu etiketleri esnemez; bütçeye giren onlar.
+      return b.nodes.reduce((t, n) => t + n.label.length, b.title.length)
     case 'chart':
       // Grafiğin GEOMETRİSİ esner (yüzdeyle konumlanıyor), BAŞLIĞI esnemez. Bütçeye
       // giren şey bu yüzden yalnız başlık: grafiği "uzun" saymak, kısa başlıklı bir

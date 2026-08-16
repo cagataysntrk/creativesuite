@@ -117,7 +117,7 @@ Toplam **9** hat.
 | `cozumle` | `RESOLVE` | — | — | — | — |
 | `prospect-sec` | `SELECT` | — | cozumle | — | — |
 | `arastir` | `INGEST` | — | prospect-sec | — | — |
-| `urun-ekrani` | `RENDER` | — | cozumle | — | — |
+| `urun-ekrani` | `RENDER` | — | cozumle | — | ✓ |
 | `bilgi-sec` | `SELECT` | — | arastir | — | — |
 | `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
 | `kompozit` | `COMPOSE` | — | metin-uret, urun-ekrani | — | — |

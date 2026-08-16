@@ -14,7 +14,7 @@ import { statSync } from 'node:fs'
 import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
 import { withPage, type BrowserResult } from './browser.js'
 import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
-import { DIAGRAM_CSS } from './charts/diagram.js'
+import { DIAGRAM_CSS, diagramHtml, isDiagramError } from './charts/diagram.js'
 import { kacir } from './html.js'
 
 export { kacir } from './html.js'
@@ -25,6 +25,11 @@ const blokHtml = (b: Block): string => {
       return `<h${b.level}>${kacir(b.text)}</h${b.level}>`
     case 'body':
       return `<p>${kacir(b.text)}</p>`
+    case 'diagram': {
+      // Diyagram da VERİ olarak geliyor; çizim burada (D-209 ailesi).
+      const d = diagramHtml({ title: b.title, nodes: b.nodes })
+      return isDiagramError(d) ? '' : d
+    }
     case 'chart': {
       // Grafik VERİ olarak geldi, çizim burada oluyor (D-209). Bozuk grafik sessizce
       // boş kutu basmıyor — `validateDocument` zaten reddediyor, bu dal ikinci savunma.

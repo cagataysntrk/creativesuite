@@ -34,6 +34,10 @@ steps:
       capture: product
       width: 1600
       height: 900
+      # `url` ve `demo_ref` çalıştırma parametresiyle gelir; ikisi de yoksa adım HATA
+      # verir — "ekran çekemedim" sessizce uydurma bir ekrana dönüşemez.
+      ready_selector: '[data-hazir]'
+      optional: true
 
   - id: bilgi-sec
     verb: SELECT

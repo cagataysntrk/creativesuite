@@ -179,6 +179,8 @@ export {
   type Block,
   type BlockType,
   type ChartBlock,
+  type DiagramBlock,
+  type DiagramNodeBlock,
   type ChartPoint,
   type DocError,
   type DocResult,

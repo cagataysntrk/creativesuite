@@ -137,6 +137,10 @@ const metin = (b: Block): string => {
       return b.text
     case 'chart':
       return [b.title, b.unit ?? '', ...b.points.map((p) => p.label)].join(' ')
+    case 'diagram':
+      // Aynı ders (FAZ-6.9): blok tipi eklendi, okuyan yer güncellenmeli. Diyagram
+      // kutusundaki "%40 azalttık" da kaynaksız bir iddiadır.
+      return [b.title, ...b.nodes.flatMap((n) => [n.label, n.detail ?? ''])].join(' ')
     case 'image':
     case 'spacer':
       return ''

@@ -93,6 +93,11 @@ onay *args:
 onayla *yollar:
     @./node_modules/.bin/tsc -b && node scripts/onayla.mjs {{yollar}}
 
+# KVKK silme talebi — İNSAN çalıştırır (R-14 · D-212). Dosya silinmez, kişisel veri
+# silinir ve kişisel veri taşımayan bir mezar taşı kalır.
+kvkk-sil *args:
+    @./node_modules/.bin/tsc -b && node scripts/kvkk-sil.mjs {{args}}
+
 # Keşif planı — op listesi basar, HİÇBİR ŞEY yazmaz (§4.4)
 discovery alt='plan' *args:
     @./node_modules/.bin/tsc -b && node scripts/discovery.mjs '{{alt}}' {{args}}

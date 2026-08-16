@@ -5,21 +5,21 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 6
-siradaki_adim: 6.10
+aktif_faz: 7
+siradaki_adim: 7.2
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 6 KAPANMADI (D-216) — dogrulama agent i fazin cekirdek iddiasini curuttu. just verify YESIL, 1087 test geciyor, 12 kural kirmiziya donuyor VE sistem hicbir sirkete deck uretemiyor. Bulgular tek sinifta: kod yazildi, uretim yolunda cagirani yok. renderDeckPdf sifir cagiran (diskte 0 PDF) · deck/prospect-deck hatlari plan asamasinda saglayicisiz · prospectDeckZinciri sifir cagiran, chain: kisitini kimse okumuyor · INGEST fiil govdesi HIC YOK · uc yeni manifest dedektoru olu (hicbir kod fetchedAt/personalizationFields/productShots yazmiyor) · captureProductShot sifir cagiran · chart CSS i statik yolda gomulmuyordu, uretim PNG sinde grafik BOZUK ve hicbir kapi gormuyordu · runVerb atlaniyor, ingestGate uretimde hic kosmuyor. KOK NEDEN UCUNCU TEKRAR: D-182 (donmus plan), D-190 (dugme onClick) ve simdi BIR SEVIYE YUKARIDA — cagiran var mi sorusu tek adim icin degil ZINCIR icin sorulmali. BU TURDA KAPANAN IKI BULGU: hat kademesi (max_chars 4000 desteklenmiyor, 10000 a alindi, deck artik planlaniyor) ve grafik CSS i (toHtml e gomuldu + blok-css kapisi yazildi, UC bicimde ihlal edildi). KENDI KAPIM DA YAKALANDI: blok-css ilk surumu import satirini kullanim saniyordu, kullanimi silsen bile yesildi. BATARYA GENISLETILDI: yama modu eklendi, yoksa bu kapi sinifi bataryaya hic giremezdi. Ayrica kunye dosyasi eklendi — kosu BASINDA yaziliyor, boylece kesintiye ugramis kosu kunyesiz kosudan ayirt ediliyor."
+son_kanit: "FAZ 6 DENETIMININ 12 BULGUSU DA KAPANDI (D-216). Hepsi ayni siniftandi: kod yazilmis, uretim yolunda cagirani yok. RENDER govdesi artik format: pdf ve flatten okuyor (%PDF- olculdu, bayt tavani asiminda REDDEDIYOR) · INGEST fiil govdesi yazildi ve fiil haritasina girdi · zincir VALIDATE te kosuyor (bayat kaynak, uretilmis ekran, altinci alan hatti durduruyor) · runVerb uc cagri yerine de baglandi, ingestGate artik uretimde kosuyor · captureProductShot RENDER da, role: product_screenshot artik productShots in KAYNAGI · diagram blok tipi belge modeline girdi ve okuyan HER yer guncellendi · just kvkk-sil insan girisi acildi ve gercek bir kayit uzerinde ucdan uca kosturuldu. BULGU 5 IN ASIL SEBEBI ozetle() BEYAZ LISTESIYDI: govdeler anahtarlari uretse bile manifest ozeti onlari ELIYORDU. ARADA GERCEK BIR TASARIM CELISKISI CIKTI: writeManifest politika kusurlu manifesti HIC yazmiyordu, yani kurali cigneyen kosu defterden tamamen kayboluyordu — ihlalin kaydi olmamasi ihlalden kotudur; kusurlar bicim/politika diye ayrildi. Ayrica blok-css kapisi yazildi (kendi ilk surumu import satirini kullanim saniyordu) ve batarya YAMA moduyla genisletildi. 1113 test, 36 kapi, 12 ihlal kirmizi."
 ```
 
 ## Neredeyiz
 
-⛔ **FAZ 6 KAPANMADI** (D-216). Doğrulama agent'ı fazın çekirdek iddiasını çürüttü:
-`just verify` yeşil, 1087 test geçiyor, 12 kural kırmızıya dönüyor — **ve sistem hiçbir
-şirkete deck üretemiyor.** Dokuz adımın kodu gerçek ve testli; eksik olan **üretim
-yoluna bağlanma**. Tikler duruyor (iş yapıldı), faz açık (iş bitmedi).
-**36 kapı · 12 ihlal kırmızı.**
+**FAZ 6'nın 12 denetim bulgusu KAPANDI** (D-216). Doğrulama agent'ı fazın çekirdek
+iddiasını çürütmüştü: kod yazılmış, üretim yolunda çağıranı yoktu. Şimdi zincir
+kesintisiz — adım çıktısı → manifest → dedektör → yayın blokajı, uçtan uca ölçüldü.
+**İkinci doğrulama turu sırada** (D-79: üçüncü tur açılmaz). **36 kapı · 12 ihlal
+kırmızı · 1113 test.**
 
 > **Kök neden, üçüncü tekrar:** D-182 donmuş planı yazdı ama `uret.mjs` çağırmıyordu ·
 > D-190 düğmeyi çizdi ama `onClick` yoktu · şimdi aynı hata **bir seviye yukarıda**:
@@ -68,24 +68,18 @@ yoluna bağlanma**. Tikler duruyor (iş yapıldı), faz açık (iş bitmedi).
 | **6.7** · kişiselleştirme tavanı; sayı kural kitabından (D-214) | 2026-08-16 |
 | **6.8** · ürün ekranı dördüncü uyum dayanağı | 2026-08-16 |
 | **6.9** · `prospect-deck` zinciri; beş kapı sırayla | 2026-08-16 |
+| **6.10** · denetimin 12 bulgusu üretim yoluna bağlandı (D-216) | 2026-08-16 |
 | **7.1** · spec drift denetçisi; güvenli alan ayrı (D-215) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`6.10` — denetim bulgularını BAĞLA** (D-216). Sıra, engeli en çok kaldırandan:
+**İKİNCİ DOĞRULAMA TURU** (LOOP§D · D-79) — 12 bulgunun hepsi kapandı, agent yeniden
+koşacak. Temiz derse FAZ 6 kapanır; bulguları varsa kapatılır ve **üçüncü tur açılmaz**.
 
-| # | Bulgu | Durum |
-|---|---|---|
-| 2 | hat kademesi (`max_chars`) | ✅ kapandı |
-| 7 | grafik CSS'i statik yolda | ✅ kapandı + `blok-css` kapısı |
-| 1 | RENDER gövdesi `format: pdf` okumuyor | ⬜ sırada |
-| 5 | manifest dedektörlerini besleyen yok | ⬜ |
-| 3 | `prospectDeckZinciri` VALIDATE'te koşmuyor | ⬜ |
-| 9 | `runVerb` atlanıyor → `ingestGate` koşmuyor | ⬜ |
-| 4 | `INGEST` fiil gövdesi yok | ⬜ |
-| 6, 8, 10, 11, 12 | çekim · `role` okuyucusu · LinkedIn · diyagram bloğu · prospect girişi | ⬜ |
-
-**İkinci doğrulama turu bunlar kapanınca koşar — üçüncü tur açılmaz (D-79).**
+Ardından **`7.2` — Meta adaptörü** (§9.2 · R-46): IG feed/carousel/Reels/Stories +
+Threads. `content_publishing_limit` **her yayından önce** sorgulanır; token yenileme işi
+**ilk gün** kurulur — Meta uzun ömürlü token 60 günde ölür ve yenilemenin başarısızlığı
+sessiz değil **bloklayıcı** olmalıdır.
 
 ## Devreden borçlar
 

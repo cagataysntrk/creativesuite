@@ -13,7 +13,7 @@
 
 import type { AssetStamp } from '../era.js'
 
-export type BlockType = 'heading' | 'body' | 'image' | 'spacer' | 'chart'
+export type BlockType = 'heading' | 'body' | 'image' | 'spacer' | 'chart' | 'diagram'
 
 /**
  * Görsel blok. `alt` ZORUNLU: R-34 yayında alt-text'siz görseli bloklar ve alanı
@@ -68,12 +68,36 @@ export interface ChartBlock {
   readonly asOf: string
 }
 
+/**
+ * Akış diyagramı bloğu (FAZ-6.2 · FAZ-6.10).
+ *
+ * ⚠ `diagramHtml` 6.2'de yazıldı ve test edildi ama **belge modelinde karşılığı yoktu** —
+ * yani hiçbir deck diyagram taşıyamıyordu (FAZ 6 denetimi, bulgu 11). Çizen kod vardı,
+ * çizilecek veri yoktu.
+ *
+ * Yatay akış tavanı `MAX_DUGUM` (render katmanında): fazlası deck'te okunamaz ve
+ * sessizce daraltmak yerine reddedilir.
+ */
+export interface DiagramNodeBlock {
+  readonly label: string
+  /** Alt satır: adımın çıktısı ya da ölçüsü. */
+  readonly detail?: string
+  readonly tone?: SeriesTone
+}
+
+export interface DiagramBlock {
+  readonly type: 'diagram'
+  readonly title: string
+  readonly nodes: readonly DiagramNodeBlock[]
+}
+
 export type Block =
   | { readonly type: 'heading'; readonly text: string; readonly level: 1 | 2 }
   | { readonly type: 'body'; readonly text: string }
   | ImageBlock
   | { readonly type: 'spacer'; readonly size: 'sm' | 'md' | 'lg' }
   | ChartBlock
+  | DiagramBlock
 
 export type DocumentKind = 'post' | 'carousel-slide' | 'deck-page'
 
@@ -97,6 +121,8 @@ export type DocError =
   /** Noktasız ya da sonlu olmayan değerli grafik. Boş kutu, verinin yokluğunu DEĞİL
    *  render'ın bozulduğunu düşündürür — sessizce basılmaz. */
   | { readonly kind: 'invalid_chart'; readonly index: number }
+  /** İki kutudan az diyagram — okuyucuya hiçbir şey anlatmaz. */
+  | { readonly kind: 'invalid_diagram'; readonly index: number }
 
 export type DocResult =
   | { readonly ok: true; readonly value: DocumentModel }
@@ -127,6 +153,10 @@ export const validateDocument = (doc: DocumentModel): DocResult => {
       (b.points.length === 0 || b.points.some((p) => !Number.isFinite(p.value)))
     ) {
       errors.push({ kind: 'invalid_chart', index: i })
+    }
+    // Tek kutuluk "akış" akış değildir; boş diyagram da sessizce boş bir kutu basar.
+    if (b.type === 'diagram' && b.nodes.length < 2) {
+      errors.push({ kind: 'invalid_diagram', index: i })
     }
   })
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: doc }

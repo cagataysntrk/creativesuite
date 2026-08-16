@@ -99,3 +99,99 @@ describe('RENDER gövdesi · PDF yolu (bağlanma)', () => {
     expect(r.error.code).toBe('DOCUMENT_REJECTED')
   }, 120_000)
 })
+
+// ── ürün ekranı çekimi (bulgu 6 + 8) ────────────────────────────────────────
+import { createServer } from 'node:http'
+import { composeBody } from './bodies.js'
+
+const URUN_HTML =
+  '<!doctype html><meta charset="utf-8"><div data-hazir><h1>dima — fire paneli</h1></div>'
+
+describe('RENDER · ürün ekranı çekimi (bağlanma)', () => {
+  it('`capture: product` GERÇEK bir PNG çekiyor ve künyesini döndürüyor', async () => {
+    const srv = createServer((_, res) => {
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
+      res.end(URUN_HTML)
+    })
+    await new Promise<void>((r) => srv.listen(0, '127.0.0.1', () => r()))
+    const port = (srv.address() as { port: number }).port
+    const d = mkdtempSync(join(tmpdir(), 'capture-'))
+    try {
+      const r = await renderBody({ outDir: d, layout: 'statement' }).run(ctx(), {
+        constraints: {
+          capture: 'product',
+          url: `http://127.0.0.1:${port}/`,
+          demo_ref: 'demos/dima/demo-script.ts#fire',
+          ready_selector: '[data-hazir]',
+          width: 800,
+          height: 400,
+        },
+        inputs: {},
+      })
+      expect(r.ok).toBe(true)
+      if (!r.ok) return
+      const c = (r.value.data as { capture: Record<string, string> }).capture
+      expect(existsSync(c['path']!)).toBe(true)
+      expect(readFileSync(c['path']!).subarray(1, 4).toString('latin1')).toBe('PNG')
+      expect(c['demoRef']).toContain('demo-script')
+    } finally {
+      srv.close()
+    }
+  }, 60_000)
+
+  it('kaynaksız çekim REDDEDİLİYOR — denetlenemeyen iddia beyandır', async () => {
+    const d = mkdtempSync(join(tmpdir(), 'capture-'))
+    const r = await renderBody({ outDir: d, layout: 'statement' }).run(ctx(), {
+      constraints: { capture: 'product', url: 'http://127.0.0.1:1/' },
+      inputs: {},
+    })
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.code).toBe('CAPTURE_SOURCE_MISSING')
+  })
+
+  // 🧪 Bulgu 8: `role: 'product_screenshot'` alanının okuyanı yoktu. Artık COMPOSE onu
+  // ÜRETİYOR ve aynı kaynaktan `productShots` kaydını doğuruyor — blok ile defter
+  // kaydı ayrışamaz.
+  it('COMPOSE çekimi `role` bloğuna VE `productShots` kaydına çeviriyor', async () => {
+    const r = await composeBody({
+      tokenCss: ':root{--role-bg:#000}',
+      stamp: DAMGA,
+    }).run(ctx(), {
+      constraints: {},
+      inputs: {
+        metin: { lines: ['Ölçüm odaklı yaklaşım', 'Vardiya bazlı takip'] },
+        urun: {
+          capture: {
+            path: '/tmp/urun.png',
+            captureRunId: 'run_x',
+            demoRef: 'demos/dima#fire',
+            alt: 'dima paneli',
+          },
+        },
+      },
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const d = r.value.data as {
+      document: { blocks: readonly { type: string; role?: string }[] }
+      productShots: readonly { captureRunId: string; aiGenerated: boolean }[]
+    }
+    expect(
+      d.document.blocks.some((b) => b.type === 'image' && b.role === 'product_screenshot')
+    ).toBe(true)
+    expect(d.productShots).toHaveLength(1)
+    expect(d.productShots[0]?.aiGenerated).toBe(false)
+  })
+
+  it('çekim YOKSA belge ürün ekranı TAŞIMIYOR — uydurma ekrana dönüşmüyor', async () => {
+    const r = await composeBody({ tokenCss: ':root{}', stamp: DAMGA }).run(ctx(), {
+      constraints: {},
+      inputs: { metin: { lines: ['Tek satır'] } },
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const d = r.value.data as { productShots?: unknown }
+    expect(d.productShots).toBeUndefined()
+  })
+})
