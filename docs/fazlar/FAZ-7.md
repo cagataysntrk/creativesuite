@@ -138,7 +138,7 @@ token son kullanma tarihi ekranda görünüyor
 🧪 Token'ı düz metin bir dosyaya koy → `gitleaks` + `repo-hygiene` reddediyor
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
-## 7.6 — Token yenileme işi — ilk gün    [ ]
+## 7.6 — Token ömrü izleme — ilk gün    [x] 2026-08-16
 
 📖 §9.2, §16 · R-70
 🔗 7.5
@@ -146,10 +146,31 @@ token son kullanma tarihi ekranda görünüyor
    ve başarısızlığı **sessiz değil, bloklayıcıdır**. Sonraya bırakılan yenileme, ilk
    iki ay çalışan sonra sebepsiz duran bir sistem demektir — ve ilke 12 (bir ay ihmal
    edilse de çalışır) tam burada sınanır.
-📁 `packages/channels/src/oauth/refresh.ts` · `scripts/doctor.sh`
-✅ Yenileme işi elle tetiklendi → yeni token yazıldı, son kullanma tarihi güncellendi
-🧪 Sahte süresi dolmuş token ile yayın dene → **bloklanıyor**, sessizce geçmiyor
-💾 `feat(channels): token yenileme işi` · `Refs: FAZ-7.6 · §9.2`
+📁 `packages/providers/src/token-refresh.ts` · `secrets/token-durumu.json` ·
+   `scripts/token-durum.mjs` · `packages/engine/src/saglik/doktor.ts`
+✅ `just doctor` ve `just token-durum` üç durumu da doğru ayırıyor (ölçüldü):
+   ölmüş → **kritik** · pay içinde → **uyarı** · uzun ömürlü → sessiz
+🧪 Sahte süresi dolmuş token → `✗ token 76 gün önce ÖLDÜ — yayın BLOKLU` ·
+   kaydı sil → `BİLİNMİYOR, yayın BLOKLU` (bilinmeyen ömür uzun ömür değildir)
+   ⚠ **Son kullanma tarihi SIR DEĞİL** ve düz metin duruyor: `just doctor` bir ay sonra
+   açıldığında `sops` çözmeden "token 4 gün sonra ölüyor" diyebilmeli. Sırrı okumak
+   zorunda olan bir sağlık raporu, gözetimsiz bir kurulumda hiç koşmaz (§16).
+   ⚠ `expiresAt` sağlayıcının SÖYLEDİĞİNDEN hesaplanıyor, sabitten değil: Meta 60 gün
+   diyor ama bir gün 45 derse ve biz 60 yazarsak, token ölmüşken "15 gün var" deriz.
+   Sapma `beklenendenKisa` ile işaretleniyor.
+   ⚠ Gerçek yenileme ÇAĞRISI `7.6b`de (V-26/V-27): token olmadan yenilenecek şey yok.
+💾 `feat(providers): token ömrü izleme` · `Refs: FAZ-7.6 · §9.2`
+
+## 7.6b — Gerçek yenileme çağrısı    [ ] BLOKE:insan (V-26)
+
+📖 §9.2 · R-51
+🔗 7.6, 7.5b
+🛠 Uzun ömürlü token değişimi ve periyodik yenileme çağrısı. Ömür ölçümü, üç durum
+   ayrımı, `doctor` bağlantısı ve insan komutu yazıldı ve **ölçüldü**; kalan iş gerçek
+   token ve gerçek uç.
+✅ Yenileme elle tetiklendi → yeni token `sops`a yazıldı, `token-durumu.json` güncellendi
+🧪 Yenileme başarısız olduğunda `doctor` **kritik** veriyor, sessiz kalmıyor
+💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
 ## 7.7 — Publish Queue ve Channel Status ekranı    [ ]
 

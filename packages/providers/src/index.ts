@@ -146,3 +146,19 @@ export {
   type OAuthRefusal,
   type ScopeSpec,
 } from './oauth.js'
+
+// Token yenileme (FAZ-7.6). Son kullanma tarihi SIR DEĞİL: doctor onu secret çözmeden
+// raporlayabilmeli, yoksa gözetimsiz bir kurulumda hiç koşmaz.
+export {
+  META_TOKEN_OMRU_GUN,
+  YENILEME_PAYI_GUN as TOKEN_YENILEME_PAYI_GUN,
+  durumMesaji,
+  tokenDurumu,
+  yayinaUygun,
+  yeniKayit,
+  yenilemeGerekli,
+  yenilemeRaporu,
+  type TokenDurumu,
+  type TokenKaydi,
+  type YenilemeRaporu,
+} from './token-refresh.js'

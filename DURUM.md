@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.6
+siradaki_adim: 7.7
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.5 KAPANDI (OAuth akisi ve kapsam sozlesmesi). Kapsamlar GEREKCELERIYLE kodda: hangi izni neden istedigimizin alti ay sonraki tek cevabi o tablo. Modul AGA CIKMIYOR ve SECRET OKUMUYOR — URL kuruyor ve cevabi dogruluyor. state SABIT SUREDE karsilastiriliyor (duz === ilk farkli baytta doner ve sure farki saldirgana dogru on eki karakter karakter aratir). HTTP redirect_uri reddediliyor (localhost haric): duz HTTP bir yetkilendirme kodu tasimak kodu agdaki herkese vermektir. D-218: csrfToken SEED SIZ ve bu R-06 ya aykiri degil — seededRng KARARLARI uretir ve replay onlari tekrar eder, state bir karar degil tek kullanimlik bir SIRDIR ve hicbir replay onu tekrar etmez. D-219 GERCEK BULGU: adimin 🧪 si duz metin token ini reddetmeyi istiyordu ve KAPI YESIL KALDI — desen listemizde Meta ve LinkedIn YOKTU, gitleaks de yakalamadi. D-49 un birebir tekrari; EAA… ve WPL_AP1. eklendi. TESTIM UC KEZ YANILDI, KAPI DEGIL: (1) izlenmeyen dosya yazdim, kapi yalniz git in bildiklerini tariyor (2) batarya dosyasinin KENDISI deseni icerdi ve kapi onu yakaladi (3) yama hedefim henuz commit lenmemisti. Bir kapinin yesil kalmasi, kapinin degil TESTIN yanlis oldugu anlamina da gelebilir. Gercek token 7.5b (V-27). Batarya 14 kural kiriyor."
+son_kanit: "7.6 KAPANDI (token omru izleme). ANAHTAR TASARIM KARARI: son kullanma tarihi SIR DEGIL. Token in kendisi sops altinda ama omru secrets/token-durumu.json da DUZ METIN — cunku just doctor bir ay sonra acildiginda sops cozmeden token 4 gun sonra oluyor diyebilmeli; sirri okumak zorunda olan bir saglik raporu gozetimsiz bir kurulumda HIC KOSMAZ (§16). UC DURUM DA OLCULDU: olmus token → kritik (token 76 gun once OLDU, yayin BLOKLU) · pay icinde → uyari (4 gun sonra oluyor, YENILEME ZAMANI) · uzun omurlu → sessiz. KAYIT YOKSA yayin BLOKLU: bilinmeyen omur uzun omur degildir ve kaydi silmek kontrolu kapatmanin en kolay yolu OLMAMALI. expiresAt saglayicinin SOYLEDIGINDEN hesaplaniyor, sabitten degil — Meta 60 gun diyor ama bir gun 45 derse ve biz 60 yazarsak token olmusken 15 gun var deriz; sapma beklenendenKisa ile isaretleniyor. just token-durum insan komutu acildi ve o da secret cozmuyor. Gercek yenileme cagrisi 7.6b (V-26). ONCEKI: 7.5 OAuth (D-218 csrfToken seedsiz, D-219 secret deseni Meta/LinkedIn i kacirıyordu)."
 ```
 
 ## Neredeyiz
@@ -30,9 +30,9 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 > FAZ 5'in `aac` maddesi de karşılanmadı ve tikle örtülmedi (D-206): ses akışı yok,
 > `5.4b`/`5.5b` insan girdisi bekliyor. Video ölçüldü: h264 · yuv420p · 1920×1080.
 
-> ⛔ **ON BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on biri de plan
+> ⛔ **ON İKİ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on ikisi de plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -49,6 +49,7 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 > | `6.9b` | V-25 | gerçek bir prospect kaydı (+ `2.9` onayı) |
 > | `7.2b` | V-26 | Meta uygulaması + sayfa bağlantısı + uzun ömürlü token |
 > | `7.5b` | V-27 | Meta ve LinkedIn uygulama kaydı → dört ortam değişkeni |
+> | `7.6b` | V-26 | gerçek token → yenileme çağrısı denenebilsin |
 
 ## Tamamlananlar
 
@@ -66,14 +67,15 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 | **7.3** · LinkedIn adaptörü; V-23 kapandı (300 sayfa · 100 MB) | 2026-08-16 |
 | **7.4** · ağırlıklı limiter + yayın defteri; "yok" ≠ "boş" | 2026-08-16 |
 | **7.5** · OAuth akışı, kapsam gerekçeleri, CSRF (D-218, D-219) | 2026-08-16 |
+| **7.6** · token ömrü; son kullanma SIR DEĞİL, doctor secret çözmüyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`7.6` — Token yenileme işi, İLK GÜN** (§9.2). Meta uzun ömürlü token **60 günde
-ölür ve sessizce ölür**; yenileme işi yayın hattından ÖNCE kurulur ve başarısızlığı
-**bloklayıcıdır, uyarı değil**. `needsRefresh` ve yedi günlük pay `publish.ts`te HAZIR —
-kalan iş işin kendisi: ne zaman koşacak, başarısızlığı nereye yazacak, `doctor` onu
-nasıl gösterecek.
+**`7.7` — Publish Queue ve Channel Status ekranı** (§9.4, §12.9). Zamanlanan/giden
+içerik ve kanal başına **operasyonel durum**: Meta tier ve oran bütçesi, LinkedIn sürüm
+sabiti + üç aylık yeniden kontrol hatırlatıcısı, token son kullanma tarihi. Veri hazır —
+`yenilemeRaporu`, `versionStale`, `RateLimiter.available()` ve yayın defteri hepsi
+ölçülebilir; kalan iş ekran.
 
 ## Devreden borçlar
 

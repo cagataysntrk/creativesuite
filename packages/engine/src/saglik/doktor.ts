@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { RUNS_DIR, type Db } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
 import { recordCount } from '@suite/corpus'
-import { loadDescriptors } from '@suite/providers'
+import { loadDescriptors, yenilemeRaporu } from '@suite/providers'
 import { PLACEMENTS, specAgeDays, specStaleness } from '@suite/render'
 import { costVariance, readManifest, readRunStub } from '../manifest-writer.js'
 import { stratejiSagligi } from './strateji.js'
@@ -27,7 +27,8 @@ const SPEC_UYARI_GUN = 90
 /** §16: tahminin üst sınırından %20'yi aşan sapma fiyat modelini şüpheli yapar. */
 const SAPMA_ESIGI = 20
 
-export type DoktorAlani = 'fiyat' | 'spec' | 'maliyet' | 'kayit' | 'indeks' | 'defter' | 'surum'
+export type DoktorAlani =
+  'fiyat' | 'spec' | 'maliyet' | 'kayit' | 'indeks' | 'defter' | 'surum' | 'token'
 
 export interface DoktorBulgusu {
   readonly alan: DoktorAlani
@@ -180,6 +181,40 @@ export const doktorRaporu = (g: DoktorGirdisi): DoktorRaporu => {
         hedef: p.safeArea?.sourceUrl ?? null,
       })
     }
+  }
+
+  // ── token ömrü (§9.2 · §16 · FAZ-7.6) ─────────────────────────────────────
+  //
+  // **Secret ÇÖZÜLMEDEN okunuyor.** Son kullanma tarihi sır değil ve düz metin durduğu
+  // için bir ay sonra açılan `doctor` "token 4 gün sonra ölüyor" diyebiliyor. Sırrı
+  // okumak zorunda olan bir sağlık raporu, gözetimsiz bir kurulumda hiç koşmaz.
+  const tokenYolu = join(g.repoRoot, 'secrets/token-durumu.json')
+  if (existsSync(tokenYolu)) {
+    kosan.push('token')
+    let kayitlar: { provider: string; expiresAt: string; obtainedAt: string; scopes: string[] }[] =
+      []
+    try {
+      const ham = JSON.parse(readFileSync(tokenYolu, 'utf8')) as { kayitlar?: unknown }
+      kayitlar = Array.isArray(ham.kayitlar) ? (ham.kayitlar as typeof kayitlar) : []
+    } catch {
+      bulgular.push({
+        alan: 'token',
+        siddet: 'kritik',
+        mesaj: 'secrets/token-durumu.json okunamadı — token ömrü BİLİNMİYOR, yayın bloklu',
+        hedef: 'secrets/token-durumu.json',
+      })
+    }
+    for (const r of yenilemeRaporu(kayitlar, ['meta', 'linkedin'], `${g.bugun}T00:00:00.000Z`)) {
+      if (r.durum.kind === 'ok') continue
+      bulgular.push({
+        alan: 'token',
+        siddet: r.bloklu ? 'kritik' : 'uyari',
+        mesaj: r.mesaj,
+        hedef: 'secrets/token-durumu.json',
+      })
+    }
+  } else {
+    atlanan.push({ ad: 'token', neden: 'secrets/token-durumu.json yok' })
   }
 
   // ── maliyet sapması ve öksüz çalıştırmalar (§16, §13) ─────────────────────

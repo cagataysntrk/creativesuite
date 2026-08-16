@@ -65,6 +65,9 @@ describe('doctor', () => {
       'fiyat',
       'indeks',
       'kayit',
+      // `token` de atlanıyor: fikstür deposunda `secrets/token-durumu.json` yok ve
+      // dosyanın YOKLUĞU "token sağlıklı" DEĞİL, "denetlenemedi" demek (FAZ-7.6).
+      'token',
     ])
     expect(r.kosanDenetimler).toContain('spec')
   })

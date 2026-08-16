@@ -93,6 +93,10 @@ onay *args:
 onayla *yollar:
     @./node_modules/.bin/tsc -b && node scripts/onayla.mjs {{yollar}}
 
+# Token ömrü raporu — secret ÇÖZMEZ, bir ay sonra da koşar (§16 · FAZ-7.6)
+token-durum:
+    @./node_modules/.bin/tsc -b && node scripts/token-durum.mjs
+
 # KVKK silme talebi — İNSAN çalıştırır (R-14 · D-212). Dosya silinmez, kişisel veri
 # silinir ve kişisel veri taşımayan bir mezar taşı kalır.
 kvkk-sil *args:
