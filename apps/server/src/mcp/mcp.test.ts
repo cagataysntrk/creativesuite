@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { RUNS_DIR } from '@suite/kernel'
 import { kurSunucu } from '../sunucu.js'
-import { ARACLAR, ZORUNLU_DAMGA, mcpHataMesaji, oneriDogrula } from './araclar.js'
+import { ARACLAR, ZORUNLU_DAMGA, girdiDogrula, mcpHataMesaji, oneriDogrula } from './araclar.js'
 
 const SORGU = { brandId: 'brd_test', eraId: 'era_test', asOf: '2026-08-16T00:00:00.000Z' } as const
 
@@ -100,5 +100,44 @@ describe('MCP uçları', () => {
     } finally {
       s.kapat()
     }
+  })
+})
+
+// 🧪 D-234: şema bir belge değil, bir kapıdır.
+describe('girdi şeması ZORLANIYOR', () => {
+  const arama = ARACLAR.find((a) => a.ad === 'corpus_search')!
+  const oneri = ARACLAR.find((a) => a.ad === 'corpus_propose')!
+
+  it('zorunlu alan yoksa reddediliyor — boş liste "sonuç yok" DEMEK DEĞİL (D-175)', () => {
+    const r = girdiDogrula(arama, {})
+    expect(r).toMatchObject({ kind: 'girdi_gecersiz', alan: 'query' })
+  })
+
+  it('minLength zorlanıyor', () => {
+    expect(girdiDogrula(arama, { query: 'a' })).toMatchObject({ alan: 'query' })
+    expect(girdiDogrula(arama, { query: 'ölçüm' })).toBeNull()
+  })
+
+  it('maximum zorlanıyor — 100000 limitli bir sorgu sunucuyu boğardı', () => {
+    expect(girdiDogrula(arama, { query: 'ölçüm', limit: 100000 })).toMatchObject({
+      alan: 'limit',
+    })
+    expect(girdiDogrula(arama, { query: 'ölçüm', limit: 50 })).toBeNull()
+  })
+
+  it('tanımsız alan reddediliyor (additionalProperties: false)', () => {
+    expect(girdiDogrula(arama, { query: 'ölçüm', zone: 'human' })).toMatchObject({
+      alan: 'zone',
+    })
+  })
+
+  it('pattern zorlanıyor — slug biçimi', () => {
+    const temel = { entityType: 'fact', frontmatter: {}, body: 'x' }
+    expect(girdiDogrula(oneri, { ...temel, slug: 'Büyük Harf' })).toMatchObject({ alan: 'slug' })
+    expect(girdiDogrula(oneri, { ...temel, slug: 'olcum-pilotu' })).toBeNull()
+  })
+
+  it('tip uyuşmazlığı yakalanıyor', () => {
+    expect(girdiDogrula(arama, { query: 42 })).toMatchObject({ alan: 'query' })
   })
 })

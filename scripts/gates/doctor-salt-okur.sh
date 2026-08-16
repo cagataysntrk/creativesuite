@@ -17,7 +17,12 @@ export LC_ALL=C
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
+# ⚠ `scripts/doctor.sh` LİSTEDE YOKTU (2. doğrulama turu, M-2) — ve o, `just doctor`ın
+# GİRİŞİDİR. Kapı üç dosyayı denetleyip "doctor salt okur" diyordu; giriş betiğine
+# `echo … > dosya` eklemek kapıyı yeşil bırakıyordu. Bir kapının yeşili, baktığı yerin
+# doğru olduğunu göstermez — dördüncü kez aynı sınıf (D-232 ailesi).
 DOSYALAR=(
+  "scripts/doctor.sh"
   "packages/engine/src/saglik/doktor.ts"
   "apps/ui/src/Doktor.tsx"
   "scripts/doktor.mjs"
@@ -47,6 +52,25 @@ for f in "${DOSYALAR[@]}"; do
     echo "    Doctor rapor eder, değiştirmez: otomatik düzeltme ne olduğunu gizler (§16)."
     hata=1
   fi
+  # ── kabuk YAZMA biçimleri ────────────────────────────────────────────────
+  #
+  # ⚠ `YAZMA` deseni Node fiillerini arıyor ve `.sh` girişinde KÖR kalıyordu:
+  # `echo "kirlet" > dosya` eklemek kapıyı yeşil bırakıyordu. Yönlendirme ve
+  # dosya-değiştiren kabuk fiilleri de yazmadır.
+  #
+  # `/dev/null`, `>&1`, `>&2` HARİÇ: bunlar çıktı susturma, durum değiştirme değil.
+  # Yanlış pozitif de bir hatadır.
+  if [[ "$f" == *.sh ]]; then
+    KABUK_YAZMA='(^|[^0-9&])>>?[[:space:]]*("|'"'"')?[^&|>[:space:]]|\b(tee|touch|mkdir|cp|mv|sed -i|truncate)\b'
+    temiz=$(echo "$govde" | grep -vE '>[[:space:]]*(/dev/null|&[12])' || true)
+    if echo "$temiz" | grep -nE "$KABUK_YAZMA" >/dev/null 2>&1; then
+      echo "✗ $f: doctor girişinde KABUK YAZMASI —"
+      echo "$temiz" | grep -nE "$KABUK_YAZMA" | sed 's/^/    /'
+      echo "    Doctor rapor eder, değiştirmez (§16). Yönlendirme de yazmadır."
+      hata=1
+    fi
+  fi
+
   if echo "$govde" | grep -nE "$DEGISTIREN" >/dev/null 2>&1; then
     echo "✗ $f: doctor yolunda durum DEĞİŞTİREN çağrı —"
     echo "$govde" | grep -nE "$DEGISTIREN" | sed 's/^/    /'

@@ -97,6 +97,16 @@ export type McpRet =
    * `era_id`den beterdir.
    */
   | { readonly kind: 'damga_eksik'; readonly alanlar: readonly string[] }
+  /**
+   * Girdi, aracın kendi `girdi` şemasını karşılamıyor.
+   *
+   * ⚠ Şema baştan beri yazılıydı (`required`, `minLength`, `maximum`) ve **hiç
+   * zorlanmıyordu**: `POST /mcp/cagir/corpus_search -d '{}'` HTTP 200 ve
+   * `{"sonuclar":[]}` dönüyordu — yani arama hiç koşmadan "sonuç yok" cevabı. Bu,
+   * modülün kendi yorumunda yasakladığı şeyin ta kendisi (D-175). Şema bir belge
+   * değil, bir kapıdır (D-234).
+   */
+  | { readonly kind: 'girdi_gecersiz'; readonly alan: string; readonly neden: string }
   /** Yazma reddedildi; sebep corpus yazıcısından geliyor. */
   | { readonly kind: 'write_refused'; readonly neden: string }
 
@@ -136,7 +146,78 @@ export const mcpHataMesaji = (r: McpRet): string => {
         `zorunlu damga eksik: ${r.alanlar.join(', ')} — her kayıt ÜRETİM ANINDA marka ` +
         've dönem damgası alır (7. yasa, §4.3); sonradan retrofit imkânsız'
       )
+    case 'girdi_gecersiz':
+      return `'${r.alan}' geçersiz: ${r.neden} — şema bir belge değil, bir kapıdır`
     case 'write_refused':
       return `öneri yazılamadı: ${r.neden}`
   }
+}
+
+/**
+ * Girdiyi aracın KENDİ `girdi` şemasına göre doğrular.
+ *
+ * **Şemanın alt kümesi bilinçli olarak dar** (`registry/PROFILE.md` ile aynı ruh):
+ * `required` · `type` · `minLength` · `minimum` · `maximum` · `pattern` ·
+ * `additionalProperties: false`. Genel bir JSON Schema doğrulayıcı bağımlılığı
+ * eklemek 40 satırdan pahalıydı ve profil zaten bu alt kümeyi zorunlu kılıyor.
+ *
+ * İlk eşleşmeyen alanda döner: hata mesajı tek ve nettir; alan listesi kusmak,
+ * çağıranın ilkini düzeltip ikinciye takılmasından daha yardımcı değil.
+ */
+export const girdiDogrula = (
+  arac: McpArac,
+  govde: Readonly<Record<string, unknown>>
+): McpRet | null => {
+  const sema = arac.girdi as {
+    properties?: Record<string, Record<string, unknown>>
+    required?: readonly string[]
+    additionalProperties?: boolean
+  }
+  const ozellikler = sema.properties ?? {}
+
+  for (const alan of sema.required ?? []) {
+    if (!(alan in govde)) return { kind: 'girdi_gecersiz', alan, neden: 'zorunlu alan yok' }
+  }
+  if (sema.additionalProperties === false) {
+    for (const alan of Object.keys(govde)) {
+      if (!(alan in ozellikler)) {
+        return { kind: 'girdi_gecersiz', alan, neden: 'şemada tanımlı olmayan alan' }
+      }
+    }
+  }
+
+  for (const [alan, kural] of Object.entries(ozellikler)) {
+    if (!(alan in govde)) continue
+    const v = govde[alan]
+    const tip = kural['type']
+
+    if (tip === 'string') {
+      if (typeof v !== 'string') return { kind: 'girdi_gecersiz', alan, neden: 'metin bekleniyor' }
+      const min = kural['minLength']
+      if (typeof min === 'number' && v.trim().length < min) {
+        return { kind: 'girdi_gecersiz', alan, neden: `en az ${min} karakter` }
+      }
+      const desen = kural['pattern']
+      if (typeof desen === 'string' && !new RegExp(desen).test(v)) {
+        return { kind: 'girdi_gecersiz', alan, neden: `biçim uymuyor: ${desen}` }
+      }
+    } else if (tip === 'integer' || tip === 'number') {
+      if (typeof v !== 'number' || (tip === 'integer' && !Number.isInteger(v))) {
+        return { kind: 'girdi_gecersiz', alan, neden: 'sayı bekleniyor' }
+      }
+      const alt = kural['minimum']
+      if (typeof alt === 'number' && v < alt) {
+        return { kind: 'girdi_gecersiz', alan, neden: `en az ${alt}` }
+      }
+      const ust = kural['maximum']
+      if (typeof ust === 'number' && v > ust) {
+        return { kind: 'girdi_gecersiz', alan, neden: `en fazla ${ust}` }
+      }
+    } else if (tip === 'object') {
+      if (typeof v !== 'object' || v === null || Array.isArray(v)) {
+        return { kind: 'girdi_gecersiz', alan, neden: 'nesne bekleniyor' }
+      }
+    }
+  }
+  return null
 }

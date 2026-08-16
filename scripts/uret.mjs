@@ -30,6 +30,8 @@ const {
   storeBlob,
   knowledgeCommit,
   RateLimiter,
+  uyumKapsami,
+  taranacakPrompt,
 } = await import(join(REPO, 'packages/engine/dist/index.js'))
 const { candidatesFor, loadDescriptors, adapterById } = await import(
   join(REPO, 'packages/providers/dist/index.js')
@@ -745,15 +747,19 @@ const rapor = await runPipeline({
 const slaytlar = rapor.outputs['render']?.slides ?? []
 const depolanan = []
 if (slaytlar.length > 0) {
+  // ⚠ **`aiGenerated` eskiden SABİT `false` idi** ve yanındaki yorum "bu hatta görsel
+  // model çağrısı YOK" diyordu. FAZ 8'de eklenen `ad-creative-set` hattı
+  // `capability: image.generate` taşıyor — yorum yanlış oldu, kimse fark etmedi ve üç
+  // katman aşağıda EU AI Act Md. 50 ifşa kapısı sessizce kapandı (D-232). Karar artık
+  // hattan okunuyor ve `uyum-kapsami.test.ts` gerçek hat dosyalarına karşı ölçüyor.
+  const kapsam = uyumKapsami(cozum.value)
   const iddia = assertCompliance({
-    // Bu hatta görsel model çağrısı YOK; metin gerçek fontla kompozit ediliyor ve
-    // hiçbir insan üretilmiyor. Dayanak prompt taraması.
     // Özet `assertCompliance` tarafından TARANAN prompt'tan hesaplanır; buradaki
     // değer yok sayılır (D-143). Yer tutucu bırakmak, iddianın kendi dayanağını
     // yazdığı izlenimini verirdi.
     basis: { kind: 'prompt_forbids_people', promptDigest: '' },
-    aiGenerated: false,
-    prompt: konu,
+    aiGenerated: kapsam.aiGenerated,
+    prompt: taranacakPrompt(kapsam, konu),
     correlationId: `cor_${runId}`,
   })
   if (!iddia.ok) {

@@ -45,7 +45,7 @@ import { baglamOnizle } from './baglam.js'
 import { dunyaDurumu, launcherPlani } from './launcher.js'
 import { kanalPanosu } from './kanal-uc.js'
 import { uyumPanosu } from './uyum-uc.js'
-import { ARACLAR, mcpHataMesaji, oneriDogrula, type McpRet } from './mcp/araclar.js'
+import { ARACLAR, girdiDogrula, mcpHataMesaji, oneriDogrula, type McpRet } from './mcp/araclar.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
@@ -462,7 +462,8 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
 
   app.post('/mcp/cagir/:arac', async (c) => {
     const arac = c.req.param('arac')
-    if (!ARACLAR.some((a) => a.ad === arac)) {
+    const aracTanimi = ARACLAR.find((a) => a.ad === arac)
+    if (aracTanimi === undefined) {
       const r: McpRet = { kind: 'unknown_tool', ad: arac }
       return c.json({ hata: mcpHataMesaji(r) }, 404)
     }
@@ -472,6 +473,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       return c.json({ hata: mcpHataMesaji({ kind: 'index_missing' }) }, 503)
     }
     const govde = (await c.req.json().catch(() => ({}))) as Record<string, unknown>
+
+    // ⚠ **Şema baştan beri yazılıydı ve HİÇ zorlanmıyordu** (D-234): `-d '{}'`
+    // çağrısı HTTP 200 ve `{"sonuclar":[]}` dönüyordu — arama koşmadan "sonuç yok".
+    // Bu, birkaç satır yukarıdaki yorumun yasakladığı şeyin ta kendisiydi (D-175).
+    const semaRed = girdiDogrula(aracTanimi, govde)
+    if (semaRed !== null) return c.json({ hata: mcpHataMesaji(semaRed) }, 422)
 
     if (arac === 'corpus_search') {
       // `selectSearch` aramayı ve yüklemi BİRLİKTE uyguluyor — ikisini ayrı

@@ -46,7 +46,12 @@ const aktifEra = existsSync(eraYolu) ? readFileSync(eraYolu, 'utf8').trim() : nu
 // İndeks yolu `durum.ts` ile AYNI olmak zorunda: farklı bir yol yazmak, doctor'ın
 // hep "indeks yok" demesi ve ayrışmayı hiç görmemesi demekti.
 const indeksYolu = join(REPO, 'derived/index/suite.db')
-const db = existsSync(indeksYolu) ? openDb({ path: indeksYolu }) : null
+// **SALT OKUR** (D-233). Doctor rapor eder, değiştirmez (§16) — ve bu bir üslup
+// kuralı değil: `readonly` geçilmediğinde `openDb` dizini yaratıyor ve WAL pragmasını
+// yazıyordu. Salt-okur bir kurtarma diskinde `just doctor` ÇÖKÜYORDU; oysa o disk,
+// aracın en çok gerektiği yer. `doctor-salt-okur` kapısı çağrıları denetliyordu,
+// çağrının ALTINDAKİ yazmayı görmüyordu.
+const db = existsSync(indeksYolu) ? openDb({ path: indeksYolu, readonly: true }) : null
 
 const rapor = doktorRaporu({
   repoRoot: REPO,

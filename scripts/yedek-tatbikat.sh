@@ -40,11 +40,21 @@ echo "✓ clone tamam"
 # Asıl bulgu burası. "git clone yeter" varsayımı tam burada kırılır ve kırıldığını
 # ancak eski bir varlığı açmaya çalışırken fark edersin.
 eksik=0
-if [ -d "$ROOT/derived/blobs" ] && [ -n "$(ls -A "$ROOT/derived/blobs" 2>/dev/null)" ]; then
-  if [ ! -d "$HEDEF/repo/derived/blobs" ] || [ -z "$(ls -A "$HEDEF/repo/derived/blobs" 2>/dev/null)" ]; then
-    echo "⚠ derived/blobs GELMEDİ — gitignore'lu; ayrı yedekten gelmeli"
-    eksik=$((eksik + 1))
-  fi
+#
+# ⚠ **"Kaynakta yok" ile "hedefe gelmedi" AYRI şeylerdir ve ikisi de SÖYLENİR.**
+# Eski hâli yalnız kaynakta blob varsa konuşuyordu: `derived/blobs/` bu depoda hiç
+# oluşmadığı için tatbikat blob hakkında **tek satır basmıyordu** — ve dosyanın kendi
+# başlığı "neyi kanıtlamaz ve söyler: derived/blobs gelmedi" diyordu. Sessiz atlama,
+# çıkış kriterinin üçte birini sınanmamış bırakıp sınanmış gösteriyordu (2. doğrulama
+# turu, M-5). Ölçülmedi / yok / boş üç ayrı cevaptır (D-175 ailesi).
+if [ ! -d "$ROOT/derived/blobs" ] || [ -z "$(ls -A "$ROOT/derived/blobs" 2>/dev/null)" ]; then
+  echo "⊘ derived/blobs KAYNAKTA YOK — blob dalı SINANMADI (hiç varlık damgalanmamış)"
+  echo "   Bu bir başarı değil: gerçek blob'lar oluştuğunda tatbikat yeniden koşmalı."
+elif [ ! -d "$HEDEF/repo/derived/blobs" ] || [ -z "$(ls -A "$HEDEF/repo/derived/blobs" 2>/dev/null)" ]; then
+  echo "⚠ derived/blobs GELMEDİ — gitignore'lu; ayrı yedekten gelmeli"
+  eksik=$((eksik + 1))
+else
+  echo "✓ derived/blobs geldi"
 fi
 if [ -f "$ROOT/secrets/secrets.enc.yaml" ]; then
   echo "⚠ age anahtarı GELMEDİ — repoda değil, ayrı kasadan gelmeli (sops çözülemez)"

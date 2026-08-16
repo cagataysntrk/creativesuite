@@ -339,3 +339,11 @@ export {
   type OneriKanidi,
   type OneriSonucu,
 } from './proactive/oneri.js'
+
+// Uyum iddiasının kapsamı hattan okunur — sabit değil (§11.3 · D-232 · FAZ-8.3).
+export {
+  uyumKapsami,
+  taranacakPrompt,
+  GORSEL_YETENEK_ONEKLERI,
+  type UyumKapsami,
+} from './uyum-kapsami.js'

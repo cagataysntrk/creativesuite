@@ -128,7 +128,9 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    mevzuat değişiminden içerik fırsatı. **Öneri, üretim değildir** — hiçbir öneri
    metered fiil ateşlemez, hepsi onay kuyruğuna düşer (R-14).
 📁 `packages/engine/src/proactive/oneri.ts` · `scripts/oneri.mjs`
-✅ `just oneri` ölçüldü: `15 gündür yayın yok (son: 2026-08-01) — takvim boş` +
+✅ Ölçüm **yeniden üretilebilir** (2. doğrulama turu, m-3): boş depoda `just oneri` →
+   `⊘ yayın defteri okunamadı`, ki bu doğru cevap (D-38: yok ≠ boş). Fikstürle:
+   `node scripts/oneri.mjs --kok <fikstür>` → `13 gündür yayın yok (son: 2026-08-03)` +
    `→ just uret instagram-post`. Ağ yok, model yok, yazma yok.
 🧪 **Öneri ÇALIŞTIRILABİLİR bir şey taşımıyor** — tipte ne fonksiyon var ne handle;
    "öneriyi çalıştır" çağrısı YAZILAMAZ (test bunu alan alan doğruluyor). `--calistir`
@@ -164,15 +166,15 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    geri yüklenir ve orada `just verify` yeşil verir. `derived/runs/` türetilemez (D-38,
    R-52) — kurtarma senaryosunun asıl sınadığı şey odur; indeks zaten yeniden kurulur.
 📁 `scripts/yedek.mjs` · `scripts/yedek-tatbikat.sh` · `docs/RUNBOOK.md`
-✅ `just yedek-tatbikat` GERÇEKTEN clone ediyor ve klonda `just check` koşturuyor —
-   simülasyon değil, kurtarma yolunun kendisi.
-   ⚠ **TATBİKAT GERÇEK BİR KUSUR BULDU** ve ilk koşuda kırmızı döndü:
-   `✗ pnpm install BAŞARISIZ — klon kendi kendine ayakta duramıyor`
-   (`ERR_PNPM_IGNORED_BUILDS`). Build-script onayları **geliştirici makinesinde**
-   yaşıyordu, repoda değil — yani kurulum yalnız BU makinede çalışıyordu. Onaylar
-   `package.json` → `pnpm.onlyBuiltDependencies` altına yazıldı.
-   **Denenmemiş bir yedeğin gizlediği şey tam olarak budur:** her şey yolunda
-   görünür, ta ki gerçekten kurtarmaya çalışana kadar.
+✅ `just yedek-tatbikat` GERÇEKTEN clone ediyor ve klonda **`just verify`** koşturuyor —
+   simülasyon değil, kurtarma yolunun kendisi. (`just check` yazıyordu; B1'in
+   düzeltmesinden sonra belge güncellenmemişti — 2. doğrulama turu, m-1.)
+   ⚠ **Blob dalı SINANMADI ve tatbikat artık bunu SÖYLÜYOR** (m-5): `derived/blobs/`
+   hiç oluşmadı; eski hâli sessizce atlıyor, sınanmamışı sınanmış gösteriyordu.
+   ⚠ **TATBİKAT GERÇEK BİR KUSUR BULDU:** `✗ pnpm install BAŞARISIZ`
+   (`ERR_PNPM_IGNORED_BUILDS`) — build-script onayları geliştirici makinesinde
+   yaşıyordu, repoda değil. `pnpm.onlyBuiltDependencies`e yazıldı. Denenmemiş bir
+   yedeğin gizlediği şey budur: her şey yolunda görünür, kurtarmaya çalışana kadar.
 🧪 Tatbikat clone ile GELMEYENLERİ ayrı ayrı bildiriyor ve sessizce "tamam" demiyor:
    `⚠ age anahtarı GELMEDİ — repoda değil` · `✓ derived/runs geldi (türetilemez
    defter korundu)` · `derived/blobs` gitignore'lu, ayrı yedek şart.
@@ -188,9 +190,10 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
 📁 `docs/RUNBOOK.md` · `scripts/gates/secret-rotasyon.mjs`
 ✅ Rotasyon tablosu **kodla senkron** — `secret-rotasyon` kapısı zorluyor: kodda
    `readEnv`/`process.env` ile okunan her anahtar tabloda bir satır taşımak zorunda.
-   **17 anahtar** kapsandı ve kapı beş tanesini ben yazmadan buldu.
-   ⚠ **Sır olmayanlar da tabloda** (`CF_ACCOUNT_ID`, `SUITE_PORT`…): listede olmayan
-   bir anahtar, "unutulmuş" ile "sır değil" arasında ayırt edilemez.
+   **20 anahtar** kapsandı ve kapı sekiz tanesini ben yazmadan buldu (17 → 20: nokta
+   biçimi + sağlayıcı YAML `auth_env:` + `.sh`/`.tsx` kör noktaları, D-227 · m-3).
+   ⚠ **Sır olmayanlar da tabloda** (`CF_ACCOUNT_ID`…): listede olmayan bir anahtar,
+   "unutulmuş" ile "sır değil" arasında ayırt edilemez.
 🧪 Yeni bir `process.env` okuması ekle → kapı **kırmızı**, ölçüldü:
    `✗ YENI_GIZLI_ANAHTAR kodda okunuyor ama RUNBOOK rotasyon tablosunda YOK`
    ⚠ Kapı ilk sürümünde **kendi yorum satırındaki örneği** gerçek anahtar sandı —

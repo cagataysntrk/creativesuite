@@ -25,17 +25,26 @@ export interface OpenOptions {
  * farklı dayanıklılık garantisiyle yazılır — ve hangisinin kazandığı zamanlamaya kalır.
  */
 export const openDb = (opts: OpenOptions): Db => {
-  if (opts.path !== ':memory:') mkdirSync(dirname(opts.path), { recursive: true })
+  const saltOkur = opts.readonly === true
 
-  const db = new Database(opts.path, opts.readonly === true ? { readonly: true } : {})
+  // ⚠ **`readonly: true` gerçekten salt-okur olmalı.** Eski hâli `readonly` geçilse
+  // bile dizini yaratıyor ve `journal_mode`/`synchronous` yazıyordu — ikisi de yazma
+  // işlemi. `just doctor` bu yüzden salt-okur bir kurtarma diskinde
+  // `SQLITE_READONLY_DIRECTORY` ile ÇÖKÜYORDU (D-233): 12. yasanın tam hedefi olan
+  // senaryoda, "hiçbir şeyi değiştirmeyen" rapor aracı çalışmıyordu.
+  if (opts.path !== ':memory:' && !saltOkur) mkdirSync(dirname(opts.path), { recursive: true })
 
-  // WAL: okuyucular yazarı bloklamaz. Tek kullanıcılı yerel bir sistemde bile UI
-  // okurken worker yazar; rollback journal'da UI donar.
-  db.pragma('journal_mode = WAL')
-  // NORMAL: WAL ile birlikte güç kesintisinde son işlem kaybolabilir ama veritabanı
-  // BOZULMAZ. `FULL` her commit'te fsync eder; türetilmiş bir indeks için bu bedel
-  // gereksiz — kaybı `just reindex` geri getirir.
-  db.pragma('synchronous = NORMAL')
+  const db = new Database(opts.path, saltOkur ? { readonly: true } : {})
+
+  if (!saltOkur) {
+    // WAL: okuyucular yazarı bloklamaz. Tek kullanıcılı yerel bir sistemde bile UI
+    // okurken worker yazar; rollback journal'da UI donar.
+    db.pragma('journal_mode = WAL')
+    // NORMAL: WAL ile birlikte güç kesintisinde son işlem kaybolabilir ama veritabanı
+    // BOZULMAZ. `FULL` her commit'te fsync eder; türetilmiş bir indeks için bu bedel
+    // gereksiz — kaybı `just reindex` geri getirir.
+    db.pragma('synchronous = NORMAL')
+  }
   db.pragma('foreign_keys = ON')
   // Yazma çakışmasında hemen hata vermek yerine 5 sn bekle: süreç-içi worker ile UI
   // aynı anda yazabiliyor ve `SQLITE_BUSY` kullanıcıya gösterilecek bir şey değil.

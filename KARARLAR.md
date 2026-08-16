@@ -405,3 +405,89 @@ okuyan adımı `📖` satırına yazmaktır — kapı bir eksikliği bildirir, p
 bakmıyordu. Kapanış, denetimin BİTTİĞİ an değil, denetimin **kalıcılaştığı** an olmalı.
 
 **Geri alma maliyeti:** yok.
+
+## D-232 — `aiGenerated: false` SABİTTİ; Md. 50 ifşası sessizce kapalıydı
+
+**2026-08-16 · FAZ-8 doğrulama 2. tur, BLOKER**
+
+`scripts/uret.mjs` uyum iddiasını `aiGenerated: false` sabitiyle kuruyordu ve yanındaki
+yorum *"bu hatta görsel model çağrısı YOK"* diyordu. **FAZ 8'de eklenen
+`ad-creative-set` hattı `capability: image.generate` taşıyor** — yorum yanlış oldu,
+hiçbir şey kırmızıya dönmedi.
+
+**Zincir sonuna kadar:** `aiGenerated: false` → `disclosureRequired` daima `false` →
+IPTC'ye `Upcytech:AiGenerated=false` basılıyor (**yanlış beyan**) → `publish.ts`
+`if (!a.compliance.disclosureRequired) continue` → **EU AI Act Md. 50 ifşa kapısı model
+üretimi bir görselde atlanıyor.** Bir sabit, üç katman aşağıda yasal bir kapıyı
+kapatıyordu. Taranan prompt da yanlıştı: CLI konusu, modele giden prompt değil.
+
+**D-227'nin birebir tekrarı ve bu yüzden ayrı bir karar:** aldatan şey kod değil, kodun
+yanındaki iddiaydı. Fark şu — D-227'de yorumu ben yeni yazmıştım; burada yorum **yazıldığı
+gün doğruydu** ve altı hafta sonra bir hat eklenince yanlış oldu. **Doğru bir yorum
+eskiyebilir; bir ölçüm eskiyemez, kırmızıya döner.**
+
+**Kapatılanlar:** `uyumKapsami(pipeline)` kararı hattan okuyor · `taranacakPrompt` konu
+ve adım prompt'larını birlikte tarıyor (fail-safe yön) · `uyum-kapsami.test.ts` gerçek
+hat dosyalarına karşı ölçüyor ve görsel üreten hatları **tarayarak** buluyor (sabit liste
+olsaydı listeye eklemeyi unutmak sessiz olurdu) · `compliance` kapısı `aiGenerated`
+literalini **yazılamaz** kılıyor.
+
+**Kapsam kararı:** `audio.tts` görsel sayılmıyor. Ses ayrı bir varlık ve ayrı bir ifşa
+yüzeyi ister; ikisini tek bayrağa bağlamak birini diğerinin arkasına saklardı.
+
+**Geri alma maliyeti:** yok.
+
+## D-233 — `readonly: true` gerçekten salt-okur değildi; `just doctor` çöküyordu
+
+**2026-08-16 · FAZ-8 doğrulama 2. tur, MAJOR**
+
+`openDb`, `readonly` geçilse bile dizini yaratıyor (`mkdirSync`) ve `journal_mode` +
+`synchronous` pragmalarını yazıyordu — ikisi de yazma. Üstelik `scripts/doktor.mjs`
+`readonly`yi hiç geçmiyordu. Ölçüm:
+
+```
+$ chmod a-w derived/index derived/index/suite.db && just doctor
+SqliteError: attempt to write a readonly database (SQLITE_READONLY_DIRECTORY)
+```
+
+**12. yasanın tam hedefi olan senaryoda** — bir ay ihmalden sonra, salt-okur bir
+kurtarma diskinde — "hiçbir şeyi değiştirmeyen" rapor aracı **çalışmıyordu**.
+`doctor-salt-okur` kapısı çağrıları denetliyordu; çağrının ALTINDAKİ yazmayı görmüyordu.
+**Bir kapı, koruduğu ilkeyi bir katman aşağıda kaybedebilir.**
+
+**Kapatılanlar:** `openDb` salt-okur modda `mkdirSync` ve yazan pragmaları atlıyor ·
+`doktor.mjs` `readonly: true` geçiyor · `doctor-salt-okur` kapısı artık
+`scripts/doctor.sh`ı da denetliyor (**giriş betiği listede yoktu**) ve `.sh` için kabuk
+yazma biçimlerini (yönlendirme, `tee`, `touch`, `cp`, `mv`) arıyor — `echo x > dosya`
+eklemek kapıyı yeşil bırakıyordu. Üçü de kasten ihlal edilip kırmızıya döndürüldü.
+
+**Ölçüldü:** tüm indeks salt-okur → `just doctor` rc=0.
+
+**Geri alma maliyeti:** yok.
+
+## D-234 — MCP girdi şeması bir belgeydi, kapı değildi
+
+**2026-08-16 · FAZ-8 doğrulama 2. tur, MAJOR**
+
+`ARACLAR`ın `girdi` şeması `required`, `minLength`, `maximum`,
+`additionalProperties: false` yazıyordu ve **hiçbiri zorlanmıyordu**:
+
+```
+POST /mcp/cagir/corpus_search -d '{}'                     → {"sonuclar":[]} HTTP 200
+POST /mcp/cagir/corpus_search -d '{"query":"x","limit":100000}' → HTTP 200
+```
+
+Sorgusuz bir çağrı "sonuç yok" cevabı alıyordu — yani **arama hiç koşmadan boş liste**.
+Bu, `araclar.ts`in birkaç satır yukarısında bizzat yasakladığı şeydi (D-175: "boş liste
+dönmek corpus'un boş olduğunu söylerdi"). **Modül kendi ilkesini kendi yüzeyinde
+çiğniyordu.**
+
+**Karar: doğrulayıcı elde yazıldı, bağımlılık eklenmedi.** Desteklenen alt küme
+`registry/PROFILE.md` ile aynı ruhta dar: `required` · `type` · `minLength` · `minimum` ·
+`maximum` · `pattern` · `additionalProperties`. Genel bir JSON Schema doğrulayıcı 40
+satırdan pahalıydı ve profil zaten bu alt kümeyi zorunlu kılıyor.
+
+**İlk eşleşmeyen alanda dönüyor:** alan listesi kusmak, çağıranın ilkini düzeltip
+ikinciye takılmasından daha yardımcı değil.
+
+**Geri alma maliyeti:** yok.

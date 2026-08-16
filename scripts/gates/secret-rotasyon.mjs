@@ -27,7 +27,13 @@ const yur = (d) => {
     if (ad === 'node_modules' || ad === 'dist' || ad === '.git') continue
     const t = join(d, ad)
     if (statSync(t).isDirectory()) yur(t)
-    else if (/\.(ts|mjs)$/.test(t) && !t.includes('.test.')) kaynaklar.push(t)
+    // ⚠ **Üçüncü ve dördüncü kör nokta** (2. doğrulama turu, M-3): kapı yalnız
+    // `.ts`/`.mjs` tarıyordu. `scripts/dev.sh` içine `${YENI_ANAHTAR}` ve
+    // `UyumPanosu.tsx` içine `process.env.BASKA_ANAHTAR` eklemek kapıyı YEŞİL
+    // bırakıyordu. Kapının kendi yorumu zaten şunu söylüyordu ve kendine
+    // uygulamamıştı: *bir anahtar hangi dosya biçiminde tanımlandığına göre
+    // korunmuyorsa, korunmuyor demektir.*
+    else if (/\.(ts|tsx|mjs|sh)$/.test(t) && !t.includes('.test.')) kaynaklar.push(t)
   }
 }
 for (const k of ['packages', 'apps', 'scripts']) yur(join(REPO, k))
@@ -56,6 +62,10 @@ for (const dosya of kaynaklar) {
   // kapıdan geçiyordu ve o anahtar gerçekten tabloda yoktu. Bir kapının bir biçimi
   // görüp diğerini görmemesi, korumadığı bir şeyi koruduğunu sanmaktır.
   for (const m of metin.matchAll(/process\.env\.([A-Z][A-Z0-9_]{3,})/g)) kodAnahtarlari.add(m[1])
+  // Kabuk biçimleri: `${ANAHTAR}` · `${ANAHTAR:-}` · `$ANAHTAR` yalnız `.sh`te.
+  if (dosya.endsWith('.sh')) {
+    for (const m of metin.matchAll(/\$\{([A-Z][A-Z0-9_]{3,})[:}]/g)) kodAnahtarlari.add(m[1])
+  }
 }
 // ── sağlayıcı tanımlayıcıları: `auth_env:` ─────────────────────────────────
 //

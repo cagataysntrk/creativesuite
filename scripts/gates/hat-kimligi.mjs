@@ -82,6 +82,10 @@ for (const dosya of dosyalar) {
       const desen = new RegExp(
         `${KIMLIK}\\s*(?:===|!==|==|!=)\\s*${lit}|` +
           `${lit}\\s*(?:===|!==|==|!=)\\s*${KIMLIK}|` +
+          // ⚠ `id.startsWith('ad-creative-set')` ilk sürümde KAÇIYORDU (2. doğrulama
+          // turu, m-5): yalnız ters yön kontrolü kurtarıyordu ve ikinci bir reklam
+          // hattı eklendiğinde o da doyurulacağı için kurtarmayacaktı.
+          `${KIMLIK}\\s*\\.(?:startsWith|endsWith|includes|indexOf|match|localeCompare)\\(\\s*${lit}|` +
           `${lit}[^\\n]*\\.(?:includes|indexOf|has)\\(\\s*${KIMLIK}\\s*\\)`
       )
       if (!desen.test(satir)) continue
