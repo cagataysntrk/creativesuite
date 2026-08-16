@@ -1,0 +1,75 @@
+{
+  "runId": "run_01a00b1b-b8ea-7320-9fb0-2048f115244e",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "ad-creative-set",
+  "corpusCommit": "3e8d752b2acded7ac68743640e0879932bc857a4",
+  "registryCommit": "3e8d752b2acded7ac68743640e0879932bc857a4",
+  "createdAt": "2026-08-16T15:06:01.341Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "olcum altyapisi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T15:06:01.340Z",
+      "finishedAt": "2026-08-16T15:06:01.340Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "olcum altyapisi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-16T15:06:01.340Z",
+      "finishedAt": "2026-08-16T15:06:01.341Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "bilgi-sec"
+}
