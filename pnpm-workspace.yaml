@@ -35,7 +35,14 @@ allowBuilds:
   msw: false
   # Yerel derleme gerekebilir (prebuild yoksa node-gyp). Süre ve kırılganlık burada ölçülüyor.
   better-sqlite3: true
-  '@google/genai': set this to true or false
-  esbuild: set this to true or false
-  onnxruntime-node: set this to true or false
-  protobufjs: set this to true or false
+  # ⚠ Bu dördü `set this to true or false` yer tutucusuyla duruyordu ve pnpm temiz
+  # bir klonda kurulumu REDDEDİYORDU (`ERR_PNPM_IGNORED_BUILDS`). Geliştirme
+  # makinesinde fark edilmedi çünkü store zaten doluydu; **geri yükleme tatbikatı
+  # buldu** (FAZ-8.7). Karar verilmemiş bir ayar, karar verilmiş sayılmaz.
+  #
+  # Dördü de `false`: bu dört kurulum betiği 189 commit boyunca ATLANDI ve testler,
+  # kapılar, render hattı çalıştı. Kanıt bu — "belki gerekir" değil.
+  '@google/genai': false # REST istemcisi; postinstall'ı yalnız telemetri/binary indirir
+  esbuild: false # platform ikilisi optionalDependencies ile geliyor, betiğe gerek yok
+  onnxruntime-node: false # yerel ONNX çalıştırma hattı HİÇ kurulmadı (FAZ 5 yerel TTS ertelendi)
+  protobufjs: false # postinstall kod üretiyor; bizim çağırdığımız yüzeyde kullanılmıyor
