@@ -145,6 +145,27 @@ const IHLALLER = [
     imza: 'kanal-yayinci',
   },
   {
+    // ⚠ `repo-hygiene` yalnız **izlenen** dosyaları tarıyor, bu yüzden "yeni dosya yaz"
+    // biçimi bu kapıyı sınamıyor (ilk denemem yeşil kaldı ve kapı değil TESTİM yanlıştı).
+    // Yama modu izlenen bir dosyayı değiştiriyor.
+    kapi: 'repo-hygiene',
+    // ⚠ Hedef **İZLENEN** bir dosya olmak zorunda: kapı yalnız git'in bildiği dosyaları
+    // tarıyor ve yeni yazılmış (untracked) bir dosyaya konan token yakalanmıyor. İlk
+    // hedefim henüz commit'lenmemişti ve batarya "kapı korumuyor" dedi — kapı haklıydı,
+    // testin hedefi yanlıştı.
+    dosya: 'packages/providers/src/publish.ts',
+    yamalar: [
+      {
+        ara: 'export type PublishRefusal =',
+        // ⚠ Token PARÇALARDAN kuruluyor: tam dizeyi buraya yazmak, kapının BU DOSYAYI
+        // yakalamasına yol açıyordu (kendi ihlal testim kapıyı kendi üstüne çevirdi —
+        // `chart.js` darboğazının kendi modülünü yakalamasıyla aynı sınıf).
+        yaz: `// token: ${'EAA'}Jk3ZBmZC8gBO7ZCxZAqZAZBZCwZDZD1234567890abcdefghijklmnopqrstuvwxyzABCDEFGH\nexport type PublishRefusal =`,
+      },
+    ],
+    imza: 'secret deseni',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',

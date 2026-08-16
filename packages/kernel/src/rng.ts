@@ -18,6 +18,45 @@ export const systemRng: Rng = {
 }
 
 /**
+ * **CSRF token'ı — kriptografik rastgelelik, seed'siz** (§14 · FAZ-7.5).
+ *
+ * R-06 rastgeleliğin seed'li olmasını istiyor ve haklı: seed'siz bir çalıştırma
+ * replay edilemez. Ama OAuth `state` parametresi bir replay girdisi DEĞİL, bir
+ * **saldırı yüzeyi**: tahmin edilebilirse saldırgan kendi yetkilendirme cevabını
+ * kurbanın oturumuna bağlar (CSRF).
+ *
+ * Ayrım net ve kurala aykırı değil: `seededRng` **kararları** üretir (hangi kayıt,
+ * hangi sıra, hangi seed) ve replay onları tekrar eder. `csrfToken` bir karar
+ * üretmez — tek kullanımlık bir sırdır, hiçbir manifeste girmez ve **hiçbir replay
+ * onu tekrar etmez**. Tekrar etseydi zaten güvenliği ortadan kalkardı.
+ *
+ * Burada, `rng.ts`te duruyor çünkü `rng` darboğazı `crypto.randomBytes`ı bu dosyaya
+ * kilitliyor — ikinci bir rastgelelik kaynağı, hangisinin seed'li olduğunu belirsiz
+ * bırakırdı.
+ */
+export const csrfToken = (byteCount = 32): string =>
+  nodeRandomBytes(byteCount).toString('base64url')
+
+/**
+ * İki sırrı **sabit sürede** karşılaştırır.
+ *
+ * Düz `===` ilk farklı baytta döner ve karşılaştırma süresi sızıntı olur: saldırgan
+ * doğru ön eki karakter karakter arayabilir. Uzunluk farkı da erken dönmüyor —
+ * yalnız sonuç `false` oluyor.
+ */
+export const secretEquals = (a: string, b: string): boolean => {
+  const ab = Buffer.from(a, 'utf8')
+  const bb = Buffer.from(b, 'utf8')
+  // Uzunluklar farklıysa da TAM tarama yapılıyor: erken dönüş uzunluğu sızdırırdı.
+  const n = Math.max(ab.length, bb.length)
+  let fark = ab.length ^ bb.length
+  for (let i = 0; i < n; i++) {
+    fark |= (ab[i] ?? 0) ^ (bb[i] ?? 0)
+  }
+  return fark === 0
+}
+
+/**
  * Seed'li, deterministik RNG (xorshift128+ türevi). Testte ve idempotency anahtarında
  * kullanılır: aynı seed → aynı dizi, makineden ve tarihten bağımsız.
  */

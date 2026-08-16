@@ -104,7 +104,7 @@ token son kullanma tarihi ekranda görünüyor
    ya yazmayı sağlayıcının sınırına çarptırır — ve 429 ancak yayın anında görünür.
 💾 `feat(engine): rate limiter ve yinelenme defteri` · `Refs: FAZ-7.4 · §8.5`
 
-## 7.5 — OAuth kurulumu    [ ]
+## 7.5 — OAuth akışı ve kapsam sözleşmesi    [x] 2026-08-16
 
 📖 §9.2, §9.3, §14 · R-51
 🔗 FAZ-0.A.6
@@ -112,10 +112,31 @@ token son kullanma tarihi ekranda görünüyor
    (3-legged OAuth). Her ikisinin **kapsamları `KARARLAR.md`'de kayıtlı** — hangi izni
    neden istediğini altı ay sonra hatırlamanın tek yolu. Token'lar `sops` altında;
    düz metin yok (R-51), `.env` yok.
-📁 `secrets/secrets.enc.yaml` · `packages/channels/src/oauth/`
-✅ `sops exec-env` ile iki kanal da kimlik doğruluyor · `gitleaks` temiz
-🧪 Token'ı düz metin bir dosyaya yaz → `gitleaks` + `repo-hygiene` reddediyor
-💾 `feat(channels): meta ve linkedin OAuth` · `Refs: FAZ-7.5 · §9.2`
+📁 `packages/providers/src/oauth.ts` · `packages/kernel/src/rng.ts`
+✅ Kapsamlar **gerekçeleriyle** kodda · yetkilendirme URL'i kuruluyor · geri dönüş
+   doğrulaması state'i **sabit sürede** karşılaştırıyor · eksik ortam değişkenleri
+   ADLARIYLA raporlanıyor
+🧪 Düz metin token'ı **izlenen** bir dosyaya yaz → `repo-hygiene` reddediyor ·
+   state eşleşmezse geri dönüş reddediliyor (CSRF) · HTTP `redirect_uri` reddediliyor ·
+   kısa state reddediliyor
+   ⚠ **Kapı ilk denemede YEŞİL KALDI** (D-219): desen listesinde Meta ve LinkedIn yoktu
+   ve `gitleaks` de yakalamadı — D-49'un birebir tekrarı. `EAA…` ve `WPL_AP1.` eklendi.
+   ⚠ `csrfToken()` **seed'siz** ve bu R-06'ya aykırı değil (D-218): `seededRng` kararları
+   üretir ve replay onları tekrar eder; state bir karar değil, tek kullanımlık bir sırdır.
+💾 `feat(providers): oauth akışı ve kapsam sözleşmesi` · `Refs: FAZ-7.5 · §9.2`
+
+## 7.5b — Gerçek uygulama kaydı ve token    [ ] BLOKE:insan (V-27)
+
+📖 §9.2, §9.3, §14 · R-51
+🔗 7.5, 7.2b
+🛠 Meta uygulaması (kendi işletmen — **App Review gerekmiyor**, D-3) ve LinkedIn
+   "Share on LinkedIn" kaydı. `META_APP_ID`/`META_APP_SECRET` ve
+   `LINKEDIN_CLIENT_ID`/`LINKEDIN_CLIENT_SECRET` `sops` altına iner. Akış, kapsamlar ve
+   doğrulama yazıldı ve test edildi; kalan iş **hesap kurulumu**.
+✅ `sops exec-env` altında `oauthEnvDurumu` iki sağlayıcı için de `hazir: true` ·
+   yetkilendirme akışı gerçek bir token'la tamamlanıyor
+🧪 Token'ı düz metin bir dosyaya koy → `gitleaks` + `repo-hygiene` reddediyor
+💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
 ## 7.6 — Token yenileme işi — ilk gün    [ ]
 

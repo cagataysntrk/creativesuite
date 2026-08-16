@@ -39,7 +39,7 @@ export {
 export { chainOf, formatChain, rootCause, fromUnknown, type ChainLink } from './errors/chain.js'
 
 export { systemClock, fixedClock, manualClock, type Clock, type Millis } from './time/clock.js'
-export { systemRng, seededRng, type Rng } from './rng.js'
+export { systemRng, seededRng, csrfToken, secretEquals, type Rng } from './rng.js'
 export { uuidv7, newId, hasKind, stripPrefix } from './ids.js'
 export { openDb, migrate, schemaVersion, setSchemaVersion, type Db, type Migration } from './db.js'
 export {

@@ -77,6 +77,12 @@ runtime'ı çalıştırmıyor; `--player-ready-timeout 2000` ile **1 dk 34 sn �
 şerit gerçek para harcıyor. Sözleşme yazıldı ve test edildi (lisans kuralı iki ihlalle
 kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
 
+## V-27 — OAuth uygulama kaydı yok: gerçek token alınamadı
+Akış, kapsam sözleşmesi, CSRF doğrulaması ve ortam sözleşmesi yazıldı ve test edildi
+(`oauthEnvDurumu` eksik değişkenleri ADLARIYLA raporluyor). Kalan iş **hesap kurulumu**:
+Meta uygulaması (App Review gerekmiyor, D-3) ve LinkedIn "Share on LinkedIn" kaydı,
+ardından `sops` altına dört değişken. → FAZ-7.5b
+
 ## V-26 — Meta uygulaması ve token yok: gerçek yayın yapılmadı
 Yayın kapıları (token ömrü, alt-text, kota, defter mutabakatı) yazıldı ve **çağrı
 sırasıyla** doğrulandı; `kanal-yayinci` darboğazı mekanik kurala çevrildi. Ama gerçek bir
@@ -454,4 +460,56 @@ drift denetçisinde, çıktı anahtarları `ozetle()`de kaçtı. Derleyici üç�
 çünkü hiçbiri `switch` değildi.
 
 **Geri alma maliyeti:** yok — bu bir kapanış kaydı.
+
+## D-218 — CSRF token'ı SEED'SİZ: R-06'nın konusu karar, bunun konusu sır
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-7.5 · §14 · R-06
+
+R-06 rastgeleliğin seed'li olmasını istiyor ve haklı: seed'siz bir çalıştırma replay
+edilemez, idempotent atlama çöker. Ama OAuth `state` parametresi bir replay girdisi
+**değil**, bir saldırı yüzeyi: tahmin edilebilirse saldırgan kendi yetkilendirme cevabını
+kurbanın oturumuna bağlar (CSRF).
+
+**Karar:** `csrfToken()` `rng.ts`te ve `crypto.randomBytes` kullanıyor — kriptografik,
+seed'siz. Ayrım kuralı çiğnemiyor: `seededRng` **kararları** üretir (hangi kayıt, hangi
+sıra, hangi seed) ve replay onları tekrar eder; `csrfToken` bir karar üretmez, tek
+kullanımlık bir sırdır, hiçbir manifeste girmez ve **hiçbir replay onu tekrar etmez**.
+Tekrar etseydi zaten güvenliği ortadan kalkardı.
+
+**Yeri `rng.ts`:** `rng` darboğazı `crypto.randomBytes`ı bu dosyaya kilitliyor. İkinci bir
+rastgelelik kaynağı, hangisinin seed'li olduğunu belirsiz bırakırdı.
+
+**Yanına `secretEquals` kondu:** düz `===` ilk farklı baytta döner ve süre farkı
+saldırgana doğru ön eki karakter karakter aratır. Uzunluk farkında da erken dönmüyor.
+
+**Geri alma maliyeti:** düşük.
+
+## D-219 — Secret deseni, entegre edilen sağlayıcıyı içermiyordu (D-49 tekrarı)
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-7.5 · R-51
+
+7.5'in 🧪'sı basitti: düz metin token'ı repoya koy, kapı reddetsin. **Reddetmedi.**
+Sentetik bir Meta token'ı hem `repo-hygiene`den hem `gitleaks`ten geçti: bizim desen
+listemizde Meta ve LinkedIn yoktu ve gitleaks'in varsayılan kural seti de bu biçimi
+yakalamadı.
+
+Bu D-49'un birebir tekrarı — orada da liste, gerçek Anthropic anahtarının biçimini
+kaçırıyordu. **Desen eklemenin doğru anı, o sağlayıcıya dokunulan andır**; entegrasyondan
+sonra eklenen desen, arada geçen her commit için geç kalmıştır.
+
+**Eklendi:** `EAA…` (Meta erişim token'ı) · `WPL_AP1.` (LinkedIn istemci secret'ı).
+
+**Test üç kez yanıldı, kapı değil:**
+1. İlk denemem **izlenmeyen** bir dosya yazdı — kapı yalnız git'in bildiği dosyaları
+   tarıyor ve haklı olarak sessiz kaldı.
+2. Bataryaya eklediğimde **batarya dosyasının kendisi** deseni içerdi ve kapı onu
+   yakaladı (`chart.js` darboğazının kendi modülünü yakalamasıyla aynı sınıf). Token
+   parçalardan kuruldu.
+3. Yama hedefim henüz **commit'lenmemiş** bir dosyaydı; izlenen bir dosyaya çevrildi.
+
+Üçünde de "kapı korumuyor" görüntüsü vardı ve üçünde de sorun testteydi. **Bir kapının
+yeşil kalması, kapının değil testin yanlış olduğu anlamına da gelebilir** — ikisini
+ayırmanın tek yolu ihlali gerçekten diske yazıp kapının ne taradığını okumak.
+
+**Geri alma maliyeti:** yok.
 

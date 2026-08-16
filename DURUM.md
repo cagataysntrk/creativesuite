@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.5
+siradaki_adim: 7.6
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.4 KAPANDI. Limiter artik AGIRLIKLI (§9.2): okuma 1, YAZMA 3 — tek agirlik ya okumayi gereksiz yavaslatir ya yazmayi saglayicinin sinirina carptirir ve 429 ancak yayin aninda gorunur. Iki ardisik yazma kapasiteyi asiyor, ikincisi kuyrukta ve retryAfterMs bir TAHMIN degil HESAP. Yayin defteri (derived/runs/published.ndjson) yazildi ve publish.ts in DORDUNCU kapisina GERCEKTEN baglandi: ayni icerik ikinci kez yayinlanmiyor ve KANAL CAGRISI YAPILMIYOR (olculdu, yuklendi dizisi bos kaliyor). Meta yinelenmede mevcut id i donduruyor; cagri yapilsaydi basardim sanilirdi. YOK ile BOS AYRI: defter yoksa yayin DURUR, bos sayilmaz — bos saymak defteri silmenin yinelemeleri serbest birakmasi demekti ve defter TURETILEMEZ (D-38). Bozuk bir satir da sessizce atlanmiyor: atlansaydi bozulmus defter yayinlanmamis diye okunur ve icerik ikinci kez yayinlanirdi. Test ELLE FIKSTUR YAZMIYOR — gercek deftere gercek appendPublished ile yazip gercek publish cagrisina bagliyor (FAZ 6 dersi). ONCEKI: 7.3 kapandi ve V-23 gercek kaynakla kapandi (300 sayfa · 100 MB); dogrulama, dokuman icin GORSEL sinirinin kullanildigi hatasini ortaya cikardi."
+son_kanit: "7.5 KAPANDI (OAuth akisi ve kapsam sozlesmesi). Kapsamlar GEREKCELERIYLE kodda: hangi izni neden istedigimizin alti ay sonraki tek cevabi o tablo. Modul AGA CIKMIYOR ve SECRET OKUMUYOR — URL kuruyor ve cevabi dogruluyor. state SABIT SUREDE karsilastiriliyor (duz === ilk farkli baytta doner ve sure farki saldirgana dogru on eki karakter karakter aratir). HTTP redirect_uri reddediliyor (localhost haric): duz HTTP bir yetkilendirme kodu tasimak kodu agdaki herkese vermektir. D-218: csrfToken SEED SIZ ve bu R-06 ya aykiri degil — seededRng KARARLARI uretir ve replay onlari tekrar eder, state bir karar degil tek kullanimlik bir SIRDIR ve hicbir replay onu tekrar etmez. D-219 GERCEK BULGU: adimin 🧪 si duz metin token ini reddetmeyi istiyordu ve KAPI YESIL KALDI — desen listemizde Meta ve LinkedIn YOKTU, gitleaks de yakalamadi. D-49 un birebir tekrari; EAA… ve WPL_AP1. eklendi. TESTIM UC KEZ YANILDI, KAPI DEGIL: (1) izlenmeyen dosya yazdim, kapi yalniz git in bildiklerini tariyor (2) batarya dosyasinin KENDISI deseni icerdi ve kapi onu yakaladi (3) yama hedefim henuz commit lenmemisti. Bir kapinin yesil kalmasi, kapinin degil TESTIN yanlis oldugu anlamina da gelebilir. Gercek token 7.5b (V-27). Batarya 14 kural kiriyor."
 ```
 
 ## Neredeyiz
@@ -30,9 +30,9 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 > FAZ 5'in `aac` maddesi de karşılanmadı ve tikle örtülmedi (D-206): ses akışı yok,
 > `5.4b`/`5.5b` insan girdisi bekliyor. Video ölçüldü: h264 · yuv420p · 1920×1080.
 
-> ⛔ **ON ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: onu da plan
+> ⛔ **ON BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on biri de plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -48,6 +48,7 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 > | `6.5b` | V-24 | Bright Data · Tavily · ihale-mcp · borsa-mcp anahtarları |
 > | `6.9b` | V-25 | gerçek bir prospect kaydı (+ `2.9` onayı) |
 > | `7.2b` | V-26 | Meta uygulaması + sayfa bağlantısı + uzun ömürlü token |
+> | `7.5b` | V-27 | Meta ve LinkedIn uygulama kaydı → dört ortam değişkeni |
 
 ## Tamamlananlar
 
@@ -64,20 +65,21 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 | **7.2** · yayın kapıları; sıra tipe gömülü, tek yayıncı mekanik | 2026-08-16 |
 | **7.3** · LinkedIn adaptörü; V-23 kapandı (300 sayfa · 100 MB) | 2026-08-16 |
 | **7.4** · ağırlıklı limiter + yayın defteri; "yok" ≠ "boş" | 2026-08-16 |
+| **7.5** · OAuth akışı, kapsam gerekçeleri, CSRF (D-218, D-219) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`7.5` — OAuth kurulumu** (§9.2, §9.3 · D-3). Meta uygulaması (kendi işletmen, App
-Review gerekmiyor) + LinkedIn "Share on LinkedIn" 3-legged OAuth. Her ikisinin
-kapsamları `KARARLAR.md`'ye yazılır. **Büyük olasılıkla `7.5`/`7.5b` diye bölünecek:**
-akış ve kapsam doğrulaması kodla test edilebilir, gerçek uygulama kaydı insan girdisi
-(V-26 ailesi).
+**`7.6` — Token yenileme işi, İLK GÜN** (§9.2). Meta uzun ömürlü token **60 günde
+ölür ve sessizce ölür**; yenileme işi yayın hattından ÖNCE kurulur ve başarısızlığı
+**bloklayıcıdır, uyarı değil**. `needsRefresh` ve yedi günlük pay `publish.ts`te HAZIR —
+kalan iş işin kendisi: ne zaman koşacak, başarısızlığı nereye yazacak, `doctor` onu
+nasıl gösterecek.
 
 ## Devreden borçlar
 
 QA/bağlam girdisi 0/18 (`2.9` blokajı) · bileşen testi FAZ 9'a · V-19 +%30 görsel
 ölçüm · V-24 şelale anahtarları ve ADAPTÖRLERİ (→ 6.5b) ·
-V-25 gerçek prospect (→ 6.9b) · V-26 Meta token (→ 7.2b).
+V-25 gerçek prospect (→ 6.9b) · V-26 Meta token (→ 7.2b) · V-27 OAuth kaydı (→ 7.5b).
 
 ## Bloke adımlar
 

@@ -126,3 +126,23 @@ export {
   type LinkedinRefusal,
   type LinkedinRequestBody,
 } from './linkedin.js'
+
+// OAuth (FAZ-7.5). Ağa ÇIKMAZ, secret OKUMAZ — URL kurar ve cevabı doğrular.
+export {
+  ENV_KEYS,
+  LINKEDIN_SCOPES,
+  META_SCOPES,
+  SCOPES,
+  STATE_MIN,
+  authorizeUrl,
+  isOAuthRefusal,
+  oauthEnvDurumu,
+  oauthRefusalMessage,
+  verifyCallback,
+  type AuthorizeInput,
+  type CallbackInput,
+  type EnvDurumu,
+  type OAuthProvider,
+  type OAuthRefusal,
+  type ScopeSpec,
+} from './oauth.js'

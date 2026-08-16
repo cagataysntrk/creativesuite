@@ -45,7 +45,12 @@ fi
 # sk- ailesinde TİRE ve ALT ÇİZGİ olabilir: gerçek Anthropic anahtarı sk-ant-api03-...
 # İlk desen [A-Za-z0-9]{20,} idi ve tam da en muhtemel biçimi kaçırıyordu.
 # (İhlal testi 2026-08-14'te yakaladı — kapı yazıldığı gün kördü.)
-pat='(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AIza[0-9A-Za-z_-]{30,}|fal-[A-Za-z0-9-]{20,})'
+# ⚠ FAZ-7.5: Meta ve LinkedIn desenleri EKSİKTİ ve sentetik bir Meta token'ı hem bu
+# kapıdan hem `gitleaks`ten GEÇTİ. D-49'un tekrarı: liste, entegre edilmek üzere olan
+# sağlayıcıyı içermiyordu. Desen eklemenin doğru anı, o sağlayıcıya dokunulan andır.
+#   EAA…  Meta kullanıcı/sayfa erişim token'ı
+#   WPL_AP1.  LinkedIn istemci secret'ı — çok belirgin bir ön ek
+pat='(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AIza[0-9A-Za-z_-]{30,}|fal-[A-Za-z0-9-]{20,}|EAA[A-Za-z0-9]{40,}|WPL_AP1\.[A-Za-z0-9]{10,})'
 hits="$(git grep -InE "$pat" -- ':!docs/research' ':!scripts/gates/repo-hygiene.sh' 2>/dev/null | head -5)"
 if [ -n "$hits" ]; then
   say "izlenen dosyada secret deseni:"
