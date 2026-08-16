@@ -247,6 +247,69 @@ describe('HTTP uçları', () => {
     }
   })
 
+  // Uç bağlı mı — veri modülünün testi bunu kanıtlamaz.
+  it('/api/performans ölçülmemiş pencereyi sıralamaya SOKMAZ', async () => {
+    const kok = mkdtempSync(join(tmpdir(), 'perf-uc-'))
+    mkdirSync(join(kok, RUNS_DIR), { recursive: true })
+    const yaz = (dosya: string, satirlar: unknown[]): void =>
+      writeFileSync(
+        join(kok, RUNS_DIR, dosya),
+        satirlar.map((x) => `${JSON.stringify(x)}\n`).join('')
+      )
+    yaz('published.ndjson', [
+      {
+        digest: 'sha256:a',
+        platform: 'instagram',
+        externalId: 'a',
+        runId: 'r1',
+        publishedAt: '2026-08-05T09:00:00.000Z',
+      },
+      {
+        digest: 'sha256:b',
+        platform: 'instagram',
+        externalId: 'b',
+        runId: 'r2',
+        publishedAt: '2026-08-05T09:00:00.000Z',
+      },
+    ])
+    yaz('insights.ndjson', [
+      {
+        gun: '2026-08-11',
+        platform: 'instagram',
+        externalId: 'a',
+        runId: 'r1',
+        metrikler: { reach: 412 },
+        fetchedAt: 'F',
+      },
+      // `b` daha yüksek görünüyor ama PENCERE günü ölçülmemiş.
+      {
+        gun: '2026-08-06',
+        platform: 'instagram',
+        externalId: 'b',
+        runId: 'r2',
+        metrikler: { reach: 9999 },
+        fetchedAt: 'F',
+      },
+    ])
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => '2026-08-16T10:00:00.000Z',
+    })
+    try {
+      const j = (await (await s.app.request('/api/performans')).json()) as {
+        pano: { siralama: { externalId: string }[]; disarida: { externalId: string }[] }
+      }
+      expect(j.pano.siralama.map((x) => x.externalId)).toEqual(['a'])
+      expect(j.pano.disarida.map((x) => x.externalId)).toEqual(['b'])
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
   it('SSE ilk durumu ANINDA yollar ve nabız VERİ TAŞIMAZ', async () => {
     const kok = kurRepo([manifest({ runId: 'run_07', biten: true, gercekMikros: '42' })])
     const s = kurSunucu({

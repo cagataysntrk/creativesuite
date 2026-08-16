@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 7
-siradaki_adim: 7.9
+siradaki_adim: FAZ-7-KAPANIS
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
 deneme_sayaci: {}
-son_kanit: "7.8 KAPANDI (insight defteri). D-220: DOGRULUK NDJSON DA, SQLite TA DEGIL — faz dosyasinin kriteri ilk satirlar SQLite ta diyordu ve DEGISTIRILDI (R-74). derived/index silinip yeniden kurulabilir (11. yasa); geri getirilemez veriyi oraya koymak just reindex i kalici veri kaybina cevirirdi. IHLAL TESTI OLCULDU: yayin var olcum yok → just doctor ve just insight-durum ikisi de kirmizi: hic insight alinmadi backfill ucu YOK + 137 gun eksik 47 gunu KALICI kayip (90 gun ufkunu gecti). Uc gun olcum yazinca tazelik ✓ ye dondu AMA 47 gunluk kalici kayip ✗ kaldi — olcum yeniden calisiyor, hicbir sey kaybolmadi DEMEK DEGILDIR. Yayin YOKSA denetim ATLANIR: post atmamis sistemde insight alinmadi yanlis alarmdir. Ayni gun ikinci yazim zaten_var, ilk olcum KORUNUR (append-only da uzerine yazmak duzeltmektir). Gercek cekim 7.8b (V-26). ONCEKI: 7.7 kanal durumu ekrani."
+son_kanit: "7.9 KAPANDI — FAZ 7 IN DOKUZ ADIMI DA BITTI. ANAHTAR KARAR: KUMULATIF TOPLAM SIRALANAMAZ, YASLA KIRLENIR. Uc ay onceki postu dunku postla toplam erisime gore karsilastirmak eskiyi kazanan ilan etmektir; olctugun sey icerik degil TAKVIM. Siralama sabit pencerede: yayin + 7 gun (PENCERE_GUN). Olculmemis pencere siralamaya GIRMEZ ve bu OLCULDU: 9999 erisimle en yuksek gorunen post onerilemedi (180 siralanabilir degil, 2026-08-11 olculmemis; bu dusuk performans DEGIL). Siralanamayanlar GIZLENMIYOR — en iyi uc post listesi, olculemeyen on postu gorunmez kilarak yalan soyler. Ucdan uca olculdu: just hook-oner 179 < metin.txt → corpus/messaging/kazanan-hook-instagram-179.md, status draft + x_signature + claim_source (7 gunluk pencere, 1 gun olculdu). status active zorlamasi agent_must_propose ile reddediliyor (R-14). GERCEK CALISTIRMA GERCEK HATA BULDU: just *args tirnagi korumuyor, cumlenin bir kelimesi metrik parametresine dustu → metin artik STDIN den. R-76 UYGULANDI: ui-navigasyon kirmizi iken ternary yerine tablo refactor unu GERI ALDIM — kirmizi kapinin kuralini ayni turda degistirmek yasak; kapi+sekil degisimi ayri tura. KARARLAR.md 541 → 366 (D-207..D-213 arsive)."
 ```
 
 ## Neredeyiz
@@ -71,14 +71,14 @@ hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıka
 | **7.6** · token ömrü; son kullanma SIR DEĞİL, doctor secret çözmüyor | 2026-08-16 |
 | **7.7** · kanal durumu ekranı; ölçülmeyen üç şey üç ayrı cümleyle | 2026-08-16 |
 | **7.8** · insight defteri; doğruluk NDJSON'da, kalıcı kayıp ayrı sayılıyor | 2026-08-16 |
+| **7.9** · performans panosu; sabit pencere, ölçülmeyen sıralanmıyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`7.9` — Performans panosu ve geri besleme** (§13, §11.2). Kazanan hook'lar `corpus/`a
-**geri akar**, yorum dili müşteri-sesi kaydı olur, lexicon her ıskalamada sıkışır. Veri
-tarafı hazır (`readInsights`, yayın defteri, manifest'ler); kalan iş pano ve **geri akış
-yolu** — ve o yol `corpus.propose()` üzerinden gitmek zorunda (R-14): ölçüm, insan onayı
-olmadan corpus'a yazamaz.
+**FAZ 7 KAPANIŞI** (`LOOP§D`). Dokuz adımın da kabul kriteri karşılandı; sıradaki iş
+kapanış protokolü: her ✅ için somut kanıt üret, sonra **bağımsız doğrulama agent'ı**
+(`.claude/agents/faz-dogrulayici.md`) — **en fazla İKİ tur** (D-79). Üçüncü tur açılmaz;
+ikinci turda bulunmayan şey minor'dur ve FAZ 9 denetim turlarına düşer.
 
 ## Devreden borçlar
 

@@ -101,6 +101,10 @@ token-durum:
 insight-durum:
     @./node_modules/.bin/tsc -b && node scripts/insight-durum.mjs
 
+# Kazanan hook'u corpus'a ÖNER — metin STDIN'den, draft iner (R-14 · FAZ-7.9)
+hook-oner *args:
+    @./node_modules/.bin/tsc -b && node scripts/hook-oner.mjs {{args}}
+
 # KVKK silme talebi — İNSAN çalıştırır (R-14 · D-212). Dosya silinmez, kişisel veri
 # silinir ve kişisel veri taşımayan bir mezar taşı kalır.
 kvkk-sil *args:

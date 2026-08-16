@@ -2628,3 +2628,178 @@ ihlali kapının kaçırabileceği bir biçimde de denemek gerekiyor.
    test · 3/3 golden · 26 uç duman testi · 5 ihlal kırmızı**.
 **Karar:** FAZ 6'ya geçilir. Kalan iki madde dış bağımlılık — plan hatası değil, planın
 `V-nn` olarak zaten öngördüğü şeyler.
+
+## D-207 — "Düzleştirme" KANALA aittir, deck'e değil
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.1 · §7.6
+
+§7.6'yı bu oturumda yazarken "PDF DÜZLEŞTİRİLİR" diye **kayıtsız** bir kural koydum.
+FAZ-6.1'in kendi ✅ kriteri ise "düzleştirilmiş, **metin seçilebilir**" diyor — kendi
+anayasa maddem, uygulayacağı adımla çelişiyordu.
+
+**Karar:** prospect deck'i tek düz belge olarak üretilir ama **metin katmanını KORUR**.
+Rasterleştirme yalnız `linkedin-document` (6.3) için, çünkü LinkedIn'in görüntüleyicisi
+metin katmanlı PDF'lerde satır kırılmalarını bozuyor. Deck okunan, kopyalanan, alıntılanan
+bir belgedir; metnini kilitlemek okuyucuya zarar verir ve hiçbir şey kazandırmaz.
+
+**Alternatif (reddedildi):** her PDF'i rasterleştirmek. Tek kural olması basit görünüyor
+ama iki farklı kanalın iki farklı kısıtını tek doğruymuş gibi sunuyor.
+
+**Ders:** genelleme, bir maddeyi kapsadığı VAKALARDAN daha geniş yazmaktır. Kural yazarken
+"hangi kanal bunu istiyor" sorusu sorulmazsa, bir kanalın arızası tüm sistemin yasası olur.
+
+**Geri alma maliyeti:** düşük — `page.pdf()` çağrısında tek bayrak.
+
+## D-208 — `izinli: []` — "hiç olmasın" da bir darboğaz biçimidir
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.1 · D-21
+
+`chokepoints.json` bugüne kadar "tam olarak bir tane olmalı" listesiydi. D-21 ise
+Gamma/Presenton/Canva gibi hazır deck üreticilerinin **hiç** kullanılmamasını istiyor —
+tek yetkili yeri de yok.
+
+**Karar:** boş `izinli` listesi "yasak" anlamına gelir ve aynı lint bunu zorlar. Ayrı bir
+"yasaklı bağımlılıklar" mekanizması kurulmadı: ikinci bir liste, ikinci bir bakım yüzeyi
+ve kaçınılmaz olarak birinin unutulduğu gün demektir.
+
+**Kanıt:** `gamma.app/api/generate` yazan bir dosya → `hazir-deck-ureticisi` kırmızı;
+ihlal `scripts/ihlal-bataryasi.mjs`'e eklendi, geri alınca yeşile döndü.
+
+**Geri alma maliyeti:** düşük — `chokepoints.json`'dan bir kayıt.
+
+## D-209 — ECharts SSR ölçüldü ve reddedildi: Türkçe'de %83 sapıyor
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.2 · §7.6 · D-24
+
+FAZ-6.2 "ECharts SSR (SVG)" öngörüyordu. Kurdum ve **ölçtüm** — çünkü bir bağımlılığı
+gerekçeyle reddetmek, hakkında hüküm vermekten farklıdır:
+
+| etiket | echarts | chromium | sapma |
+|---|---|---|---|
+| Ağustos | 48,8 | 43,4 | +%12,6 |
+| İğne fire % | 71,5 | 57,4 | +%24,7 |
+| Çğüşiöı | 74,6 | 40,7 | **+%83,4** |
+
+SSR'da tuval yok, bu yüzden zrender metin genişliğini tahmin ediyor. Eksen payı, etiket
+döndürme ve "sığmayanı gizle" kararları bu sayılarla veriliyor: **sığan etiket gizlenir,
+sığmayan taşar.** Ayrıca varsayılan paletini (`#5070dd`) SVG'ye sızdırıyordu — adımın
+kendi ✅ kriteri tam da bunu yasaklıyor.
+
+**Karar:** `packages/render/src/charts/` — geometri SVG, **metnin tamamı HTML**. Ölçek
+matematiği (nice-tick, normalizasyon) ~60 satır; metin ölçümü hiç yok.
+
+**Alternatif (reddedildi):** ECharts'ı `--no-label-layout` benzeri bir kısıtla kullanmak.
+Böyle bir bayrak yok ve olsaydı bile kütüphanenin yarısını kullanmak için tamamını
+taşımak olurdu.
+
+**Ders:** bir bağımlılığı reddetmenin dürüst yolu onu KURMAK ve ölçmektir. "Muhtemelen
+Türkçe'de bozulur" bir tahmindi; %83,4 bir kanıt.
+
+**Geri alma maliyeti:** orta — `chartHtml` imzası korunarak içi değiştirilebilir.
+
+## D-210 — D2 diyagramı da reddedildi; ok bir karakter değil, geometridir
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.2 · §7.6
+
+D2 aynı hatayı yapıyor (kendi font metriğiyle kutu genişliği hesaplıyor) **ve** harici bir
+Go ikilisi: `alt-surec` darboğazından geçmesi, kurulum adımı eklemesi ve "bir ay ihmal
+edilse de çalışır" (§16) vaadini zayıflatması gerekirdi.
+
+**Karar:** `diagram.ts` — kutular HTML (`grid-auto-columns: 1fr`, sabit genişlik yok,
+R-23), oklar SVG geometrisi. Ok için `→` karakteri **kullanılmadı**: latin-ext bir font
+o glifi taşımayabilir ve yerine `notdef` kutusu basılırdı (§7.2). Yatay akış tavanı 5
+kutu; fazlası deck'te okunamıyor ve sessizce daraltmak yerine reddediliyor.
+
+**Kapı:** `metin-olcen-grafik-kutuphanesi` darboğazı (`izinli: []`) echarts · chart.js ·
+plotly · highcharts · vega · d2lang'i yasaklıyor. İlk deseni kendi `./charts/chart.js`
+modülümüzü yakalıyordu — **yanlış pozitif de bir hatadır**, desen paket adına daraltıldı
+ve iki biçim (düz ad · alt yol) ayrı ayrı ihlal edilerek doğrulandı.
+
+**Geri alma maliyeti:** düşük.
+
+## D-211 — Düzleştirme ikinci araç GEREKTİRMEDİ: aynı Chromium, iki geçiş
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.3 · §9.3 · R-30
+
+Düzleştirilmiş PDF üretmenin bilinen yolu bir PDF aracıdır (ghostscript, qpdf, pdftk).
+Hepsi ikinci bir renk profili ve ikinci bir font gömme yolu getirir — ve ikisi de
+sessizce bozar. Kurulum adımı da eklerler; "bir ay ihmal edilse de çalışır" (§16) her
+yeni ikilide biraz daha zayıflar.
+
+**Karar:** her sayfa aynı Chromium'da JPEG'e çevriliyor, görüntüler yine aynı Chromium'da
+tek PDF'e basılıyor. Tek motor korunuyor (R-30), kalite merdiveni (§9.3) bu döngünün
+içinde çalışıyor: 92 → 82 → 72 → 62, tavanın altına inene kadar.
+
+**Kanıt (ölçüldü):** deck → `pdftotext` Türkçe metni tam veriyor, `pdfimages` **sıfır**
+satır. LinkedIn dökümanı → `pdftotext` **boş**, `pdfimages` iki 1200×1500 JPEG. Aynı
+kaynak, aynı motor, iki farklı kanal sözleşmesi.
+
+**Ödenen bedel BEYAN EDİLDİ:** düzleştirilmiş sayfada ekran okuyucu hiçbir şey bulamaz.
+Her görüntü sayfanın kendi metninden türetilen bir `alt` taşıyor — kaybı telafi etmiyor
+ama gizlemiyor da.
+
+**Geri alma maliyeti:** düşük — `renderDeckPdf` zaten metin katmanlı yolu tutuyor.
+
+## D-212 — KVKK silmesi dosyayı silmez: kişisel veri silinir, mezar taşı kalır
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.4 · §5.1 · R-12
+
+FAZ-6.4 "silme talebi = dosya silme" diye yazıyordu. Uygularken iki yükümlülüğün
+çatıştığını gördüm; düz dosya silme ikisini birden kaybettiriyor:
+
+1. **Köken zinciri.** Silinen kayda atıf veren varlıkların kaynağı kopar; altı ay sonra
+   bir deck'teki iddianın nereden geldiği sorulduğunda cevap "dosya yoktu" olur — iddia
+   geriye dönük olarak kaynaksız hâle gelir (R-32'nin geçmişe bakan hâli).
+2. **Silmenin kanıtı.** KVKK'da yükümlülüğü yerine getirdiğini **gösteremiyorsan**
+   getirmemişsindir. Dosyayı yok etmek hiçbir iz bırakmaz.
+
+**Karar:** `kvkkErasure` kişisel alanları siler, gövdeyi sabit bir bildirimle değiştirir
+ve kaydı `retired` + `expired_at` + `kvkk_erased_at` + gerekçe ile bırakır. Kalan kayıt
+kişisel veri **taşımaz**: şirket unvanı bile silinir. Kalan tek şey "burada bir kayıt
+vardı ve silindi"dir.
+
+**Neden emeklilikten ayrı:** emeklilik bir GEÇERLİLİK kararıdır (bu bilgi artık doğru
+değil), silme bir YASAL yükümlülüktür. İkisi tek fonksiyona bağlansaydı ya her emeklilik
+veri silerdi ya hiçbir silme gerçekleşmezdi. Test ikisini karşı karşıya koyuyor:
+`retireRecord` sonrası kişisel veri **duruyor**, `kvkkErasure` sonrası **yok**.
+
+**Kapılar:** `corpus-silici` darboğazı (`izinli: []`) `packages/corpus/` altında her
+dosya silme çağrısını yasaklıyor. `prospect-kvkk` kapısı şemanın kuramadığı koşullu
+kuralı zorluyor — PROFILE `if/then`i yasaklıyor çünkü dört projeksiyonun hiçbiri
+çeviremiyor: kişisel veri varsa `kvkk_disclosure_sent`, silinmiş kayıtta kişisel alan
+kalmamış olmalı. Üçü de kasten ihlal edildi, üçü de kırmızı, ikisi bataryada.
+
+**`x_signature` siliniyor:** içerik kasten değişti; kalsaydı imza kontrolü bunu "elle
+düzenlenmiş" sayıp çalıştırmayı durdururdu (§4.6) — oysa bu meşru bir silme.
+
+**Sahte prospect YAZILMADI:** uydurulmuş bir şirket, doğruluk kaynağına giren bir
+kurgudur. Kaydın ŞEKLİ testte doğrulanıyor; gerçek kayıtlar insan girdisiyle gelir.
+
+**Geri alma maliyeti:** düşük — fonksiyon tek dosyada, çağıranı yok.
+
+## D-213 — `INGEST` tarayıcı AÇMAZ: plan "yerel Playwright" diyordu, olamaz
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.5 · §14 · R-04
+
+Plan araştırma şelalesinin ilk basamağını "kendi siteleri (yerel Playwright)" diye
+tarifliyordu. Uygularken iki yasayla çarpıştı: R-04 "yalnız `RENDER` Chromium'a dokunur"
+ve `chromium-baslatan` darboğazı tek başlatıcıya izin veriyor.
+
+**Ama asıl gerekçe mimari değil, güvenlik.** Tarayıcı açmak, prospect sitesinden gelen
+JavaScript'i **çalıştırmak** demektir — §14'ün enjeksiyon sınırının altını oyan tam olarak
+bu olurdu. Metni okumak için kod çalıştırmak gerekmiyor.
+
+**Karar:** `INGEST` tek HTTP istemcisini (`kernel/src/net/http.ts`) kullanır ve HTML'i
+~20 satırlık bir dönüştürücüyle metne çevirir (R-75: ayrıştırıcı bağımlılığı eklenmedi).
+`<script>` ve `<style>` gövdeleri tamamen atılır.
+
+**Ödenen bedel BEYAN EDİLİYOR:** yalnız JavaScript ile çizilen bir site bize boş görünür.
+Bu `bos_icerik` olarak raporlanır — sessizce boş metin dönmez, çünkü boş dönen bir çekim
+"site hakkında hiçbir şey yok" diye okunurdu.
+
+**Bataryanın bulduğu:** ilk sürümüm `slugFor`da çıplak `.toLowerCase()` çağırıyordu
+(R-21). URL slug'ında Türkçe metin olmadığı için zararsız görünüyordu — kuralın değeri
+tam olarak "istisna yok"tan geliyor: bir istisna açıldığı an sonraki çağrı Türkçe metinle
+gelir ve kimse fark etmez.
+
+**Geri alma maliyeti:** düşük.

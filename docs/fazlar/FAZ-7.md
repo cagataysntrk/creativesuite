@@ -35,18 +35,15 @@ token son kullanma tarihi ekranda görünüyor
    değil** — ramp hızlı (D-3). `content_publishing_limit` **her yayından önce** sorgulanır.
    Alt-text eksikse yayın bloklanır (R-34): erişilebilirlik sonradan eklenemez, çünkü
    yayınlanmış post düzenlenemiyor.
-📁 `packages/providers/src/publish.ts`
-   ⚠ Faz dosyası ayrı bir "channels" paketi öngörüyordu; öyle bir paket yok ve
-   `kanal-yayinci` darboğazı bu dosyayı zaten sahibi ilan etmişti.
+📁 `packages/providers/src/publish.ts` (ayrı "channels" paketi yok — `kanal-yayinci`
+   darboğazı bu dosyayı zaten sahibi ilan etmişti)
 ✅ Dört kapı SIRAYLA: token → alt-text → kota → defter mutabakatı → yayın. Sıra **tipe
    gömülü**: `publish()` dört yeteneği de zorunlu parametre alıyor, biri eksikse
    derlenmiyor — "kota sorgusunu unutmak" mümkün değil.
 🧪 Alt-text'siz varlık → reddediliyor · kota dolu → yükleme DENENMİYOR · daha önce
    yayınlanmış içerik → tekrar edilmiyor (R-46) · ölmüş token → BLOKLUYOR (uyarı değil)
-   ⚠ Kanıt **çağrı sırası**: sahte bağımlılıklar sırayı kaydediyor ve test
-   `kota` indeksinin `yukleme`den küçük olduğunu ölçüyor.
-   ⚠ `kanal-yayinci` darboğazı BEYANDAN mekanik kurala çevrildi: kanal uç noktası deseni
-   greplenip tek dosyaya kilitlendi, iki biçimde ihlal edildi.
+   ⚠ Kanıt **çağrı sırası**: sahte bağımlılıklar sırayı kaydediyor. `kanal-yayinci`
+   darboğazı beyandan mekanik kurala çevrildi ve iki biçimde ihlal edildi.
 💾 `feat(providers): yayın kapıları ve tek yayıncı` · `Refs: FAZ-7.2 · §9.2`
 
 ## 7.2b — Meta'ya gerçek yayın    [ ] BLOKE:insan (V-26)
@@ -142,10 +139,8 @@ token son kullanma tarihi ekranda görünüyor
 
 📖 §9.2, §16 · R-70
 🔗 7.5
-🛠 Meta uzun ömürlü token **60 günde ölür**. Yenileme işi yayın hattından **önce** kurulur
-   ve başarısızlığı **sessiz değil, bloklayıcıdır**. Sonraya bırakılan yenileme, ilk
-   iki ay çalışan sonra sebepsiz duran bir sistem demektir — ve ilke 12 (bir ay ihmal
-   edilse de çalışır) tam burada sınanır.
+🛠 Meta uzun ömürlü token **60 günde ölür**. Yenileme yayın hattından **önce** kurulur;
+   sonraya bırakılan yenileme, iki ay çalışıp sebepsiz duran bir sistem demektir.
 📁 `packages/providers/src/token-refresh.ts` · `secrets/token-durumu.json` ·
    `scripts/token-durum.mjs` · `packages/engine/src/saglik/doktor.ts`
 ✅ `just doctor` ve `just token-durum` üç durumu da doğru ayırıyor (ölçüldü):
@@ -155,10 +150,8 @@ token son kullanma tarihi ekranda görünüyor
    ⚠ **Son kullanma tarihi SIR DEĞİL** ve düz metin duruyor: `just doctor` bir ay sonra
    açıldığında `sops` çözmeden "token 4 gün sonra ölüyor" diyebilmeli. Sırrı okumak
    zorunda olan bir sağlık raporu, gözetimsiz bir kurulumda hiç koşmaz (§16).
-   ⚠ `expiresAt` sağlayıcının SÖYLEDİĞİNDEN hesaplanıyor, sabitten değil: Meta 60 gün
-   diyor ama bir gün 45 derse ve biz 60 yazarsak, token ölmüşken "15 gün var" deriz.
-   Sapma `beklenendenKisa` ile işaretleniyor.
-   ⚠ Gerçek yenileme ÇAĞRISI `7.6b`de (V-26/V-27): token olmadan yenilenecek şey yok.
+   ⚠ `expiresAt` sağlayıcının SÖYLEDİĞİNDEN hesaplanıyor, sabitten değil: 60 yazarken
+   sağlayıcı 45 derse, token ölmüşken "15 gün var" deriz (`beklenendenKisa`).
 💾 `feat(providers): token ömrü izleme` · `Refs: FAZ-7.6 · §9.2`
 
 ## 7.6b — Gerçek yenileme çağrısı    [ ] BLOKE:insan (V-26)
@@ -166,8 +159,7 @@ token son kullanma tarihi ekranda görünüyor
 📖 §9.2 · R-51
 🔗 7.6, 7.5b
 🛠 Uzun ömürlü token değişimi ve periyodik yenileme çağrısı. Ömür ölçümü, üç durum
-   ayrımı, `doctor` bağlantısı ve insan komutu yazıldı ve **ölçüldü**; kalan iş gerçek
-   token ve gerçek uç.
+   ayrımı ve komutlar yazıldı ve ölçüldü; kalan iş gerçek token ve gerçek uç.
 ✅ Yenileme elle tetiklendi → yeni token `sops`a yazıldı, `token-durumu.json` güncellendi
 🧪 Yenileme başarısız olduğunda `doctor` **kritik** veriyor, sessiz kalmıyor
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
@@ -176,10 +168,9 @@ token son kullanma tarihi ekranda görünüyor
 
 📖 §9.4, §12.9 · D-19
 🔗 FAZ-4.2, 7.6
-🛠 Zamanlanan/giden içerik + kanal başına **operasyonel durum**: Meta tier ve oran
-   bütçesi, LinkedIn sürüm sabiti ve üç aylık yeniden kontrol hatırlatıcısı, token son
-   kullanma tarihi. Bunlar log'da değil **ekranda** durur; log'a bakmayı hatırlaman
-   gereken bir sağlık göstergesi, olmayan bir sağlık göstergesidir.
+🛠 Kanal başına **operasyonel durum**: oran bütçesi, LinkedIn sürüm sabiti + üç aylık
+   hatırlatıcı, token son kullanma. Log'a bakmayı hatırlaman gereken bir sağlık
+   göstergesi, olmayan bir sağlık göstergesidir.
 📁 `apps/server/src/kanal-uc.ts` · `apps/ui/src/KanalDurumu.tsx` (kabuk düz dosya
    kullanıyor; `screens/` alt dizini repoda hiç var olmadı)
 ✅ `/api/kanallar` gerçek sunucudan ölçüldü — üç gün kalan token, oran bütçesi ve
@@ -188,12 +179,10 @@ token son kullanma tarihi ekranda görünüyor
    · `"surum":{"pinned":"202508","yasGun":0,"kalanGun":90}`
 🧪 Üç gün kalan token → **uyarı**, yayın hâlâ mümkün · kaydı sil → **BİLİNMİYOR, bloklu**
    · sürümü bir yıl eskit → LinkedIn **bloklu**, Meta etkilenmiyor (10 test)
-   ⚠ **Ölçülmeyen üç şey ÜÇ AYRI cümleyle söyleniyor** (D-175): oran bütçesi tüketimi
-   `null` çünkü kovalar ÇALIŞTIRMA sürecinde yaşıyor — sunucuda yeni limiter kurup
-   `available()` sormak her seferinde "kova dolu" derdi, sağlayıcı 429 dönerken ekranda
-   yeşil çubuk. Yayın defteri yoksa geçmiş **ÖLÇÜLEMEDİ**, sıfır değil (D-38).
-   Zamanlayıcı **yok** ve bu yazıyor: boş bir "zamanlanmış" listesi, var olup iş
-   almadığını ima ederdi.
+   ⚠ **Ölçülmeyen üç şey ÜÇ AYRI cümleyle** (D-175): oran bütçesi `null` — kovalar
+   ÇALIŞTIRMA sürecinde yaşıyor, sunucuda limiter kurmak her seferinde "dolu" derdi.
+   Defter yoksa geçmiş **ÖLÇÜLEMEDİ**, sıfır değil (D-38). Zamanlayıcı **yok** ve bu
+   yazıyor: boş liste, var olup iş almadığını ima ederdi.
    ⚠ Sürüm hatırlatıcısı eşikten ÖNCE konuşuyor (`surumYasiGun`): 90. günde kırmızı
    yanan bir gösterge, yeniden kontrol için zaman bırakmaz.
 💾 `feat(ui): publish queue ve kanal durumu` · `Refs: FAZ-7.7 · §9.4`
@@ -234,14 +223,27 @@ token son kullanma tarihi ekranda görünüyor
 🧪 Çekim başarısız olduğunda gün **boşluk olarak** kalır, uydurma sıfır YAZILMAZ
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
-## 7.9 — Performans panosu ve geri besleme    [ ]
+## 7.9 — Performans panosu ve geri besleme    [x] 2026-08-16
 
 📖 §13, §11.2 · R-35
 🔗 7.8
 🛠 Döngü kapanıyor: kazanan hook'lar `corpus/`a **geri akar**, yorum dili müşteri-sesi
    kaydı olur, lexicon her ıskalamada sıkışır. Geri besleme olmadan sistem bir yayın
    makinesi; onunla birlikte öğrenen bir sistem.
-📁 `apps/ui/src/screens/performance/`
-✅ Bir kazanan hook `corpus/`a öneri olarak düşüyor (draft, onay bekliyor — R-14)
-🧪 Geri beslemeyi doğrudan `status: active` yazmayı dene → yazma darboğazı reddediyor
+📁 `packages/engine/src/performans.ts` · `apps/ui/src/PerformansPanosu.tsx` ·
+   `scripts/hook-oner.mjs`
+✅ Uçtan uca ÖLÇÜLDÜ: `just hook-oner 179 < metin.txt` →
+   `corpus/messaging/kazanan-hook-instagram-179.md`, `status: draft`, `x_signature` ve
+   `claim_source: 7 günlük pencere · 1 gün ölçüldü` ile.
+🧪 `status: active` zorla → `agent_must_propose` ile reddediliyor (test).
+   🧪 Ölçülmemiş pencere → **9999 erişimle en yüksek görünen post ÖNERİLEMİYOR**:
+   `✗ 180 sıralanabilir değil — 2026-08-11 ölçülmemiş; bu düşük performans DEĞİL`
+   ⚠ **Kümülatif toplam SIRALANAMAZ — yaşla kirlenir.** Üç ay önceki postu dünkü postla
+   "toplam erişim"e göre karşılaştırmak, eskiyi kazanan ilan etmektir; ölçtüğün şey
+   içerik değil TAKVİM. Sıralama sabit pencerede: yayın + 7 gün (`PENCERE_GUN`).
+   ⚠ Sıralanamayanlar **gizlenmiyor** — "en iyi üç post" listesi, ölçülemeyen on postu
+   görünmez kılarak yalan söyler. Her satır neden dışarıda olduğunu söylüyor.
+   ⚠ **Gerçek çalıştırma gerçek bir hata buldu:** `just *args` tırnağı korumuyor ve
+   cümlenin bir kelimesi `metrik` parametresine düştü — ölçülmüş bir kayıt
+   "sıralanabilir değil" diye reddedildi. Metin artık STDIN'den (`just save -` deseni).
 💾 `feat(ui): performans panosu ve geri besleme` · `Refs: FAZ-7.9 · §13`

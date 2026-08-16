@@ -20,6 +20,7 @@ import { RunGecmisi } from './RunGecmisi.js'
 import { StratejiSagligi } from './StratejiSagligi.js'
 import { Doktor } from './Doktor.js'
 import { KanalDurumu } from './KanalDurumu.js'
+import { PerformansPanosu } from './PerformansPanosu.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -49,6 +50,12 @@ const KOMUTLAR: readonly Komut[] = [
     etiket: 'Yayın kuyruğu ve kanal durumu',
     grup: 'Yayın',
     anahtarlar: ['publish', 'queue', 'token', 'kota', 'oran'],
+  },
+  {
+    id: 'performans',
+    etiket: 'Performans panosu',
+    grup: 'Gözden geçir',
+    anahtarlar: ['performance', 'insight', 'hook', 'olcum'],
   },
   {
     id: 'saglik',
@@ -94,6 +101,7 @@ export const App = (): React.JSX.Element => {
     | 'saglik'
     | 'doktor'
     | 'kanallar'
+    | 'performans'
   >('giris')
   // Hangi hat çalıştırılacak. Palet komutu ekranı AÇMAKLA kalmaz, hattı da seçer —
   // yoksa "Instagram postu üret" komutu sabit bir hattın launcher'ını açardı ve
@@ -164,6 +172,8 @@ export const App = (): React.JSX.Element => {
           <Doktor />
         ) : ekran === 'kanallar' ? (
           <KanalDurumu />
+        ) : ekran === 'performans' ? (
+          <PerformansPanosu />
         ) : (
           <>
             <h1>Upcytech Creative Suite</h1>
@@ -209,7 +219,9 @@ export const App = (): React.JSX.Element => {
                                     ? 'doktor'
                                     : k.id === 'kanallar'
                                       ? 'kanallar'
-                                      : 'giris'
+                                      : k.id === 'performans'
+                                        ? 'performans'
+                                        : 'giris'
           )
         }}
       />

@@ -25,7 +25,15 @@ import {
 } from '@suite/corpus'
 import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
-import { COLUMN_LABELS, byColumn, doktorRaporu, readManifest } from '@suite/engine'
+import {
+  COLUMN_LABELS,
+  byColumn,
+  doktorRaporu,
+  performansPanosu,
+  readInsights,
+  readLedger,
+  readManifest,
+} from '@suite/engine'
 import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
@@ -422,6 +430,28 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // yeni bir limiter kurup sormak her seferinde "kova dolu" derdi — sağlayıcı 429
   // dönerken ekranda yeşil bir çubuk. Uç `kalan: null` döner, ekran "ölçülmedi" der.
   app.get('/api/kanallar', (c) => c.json(kanalPanosu({ repoRoot: o.repoRoot, simdi: o.simdi() })))
+
+  // ── performans panosu (§13, §11.2 · FAZ-7.9) ──────────────────────────────
+  //
+  // **GET ve yazmıyor.** Geri besleme önerisi bu uçtan geçmez: corpus'a yazan tek
+  // yol `corpus.propose()` ve onu İNSAN tetikler (R-14). Panoya bir "corpus'a yaz"
+  // düğmesi koymak, onayı bir tıklamaya indirmek olurdu.
+  app.get('/api/performans', (c) => {
+    const yayinlar = readLedger(o.repoRoot)
+    if (!yayinlar.ok) return c.json({ hata: yayinlar.error }, 422)
+    const olcumler = readInsights(o.repoRoot)
+    return c.json({
+      pano: performansPanosu({
+        yayinlar: yayinlar.entries,
+        olcumler: olcumler.ok ? olcumler.satirlar : [],
+        bugun: o.simdi().slice(0, 10),
+        metrik: c.req.query('metrik') ?? 'reach',
+      }),
+      // Ölçüm defteri okunamadıysa pano "hepsi eksik ölçüm" der; SEBEBİNİ de
+      // söylemezse operatör onu içerik sorunu sanar.
+      olcumHatasi: olcumler.ok ? null : olcumler.error,
+    })
+  })
 
   app.post('/api/kuyruk/:runId/:gate', async (c) => {
     const govde = (await c.req.json().catch(() => ({}))) as {

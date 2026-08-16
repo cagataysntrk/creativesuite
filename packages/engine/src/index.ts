@@ -297,3 +297,17 @@ export {
   type TazelikRaporu,
   type YazmaSonucu,
 } from './insight-ledger.js'
+
+// Performans panosu ve geri besleme (§13, §11.2 · FAZ-7.9).
+export {
+  PENCERE_GUN,
+  durumMesaji as performansDurumMesaji,
+  hookOnerisi,
+  pencereDurumu,
+  performansPanosu,
+  type HookOnerisi,
+  type PanoGirdisi,
+  type PerformansPanosu,
+  type PerformansSatiri,
+  type SiralamaDurumu,
+} from './performans.js'
