@@ -101,6 +101,10 @@ token-durum:
 defter-baslat:
     @./node_modules/.bin/tsc -b && node scripts/defter-baslat.mjs
 
+# Haftalık öneriler — HİÇBİR maliyet oluşturmaz, yalnız okur (D-10 · FAZ-8.5)
+oneri *hat:
+    @./node_modules/.bin/tsc -b && node scripts/oneri.mjs {{hat}}
+
 # Insight ölçüm raporu — AĞA ÇIKMAZ, iki defteri okur (§13 · FAZ-7.8)
 insight-durum:
     @./node_modules/.bin/tsc -b && node scripts/insight-durum.mjs

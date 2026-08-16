@@ -105,16 +105,27 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    (faz dosyası `scripts` kapsamı öneriyordu; `commit-msg` kapısının izinli listesinde
    yok ve kapı haklı — kapsam paket adıdır, dizin adı değil.)
 
-## 8.5 — Proaktif katman    [ ]
+## 8.5 — Proaktif katman    [x] 2026-08-16
 
 📖 §10 · D-10
 🔗 7.9, 8.4
 🛠 D-10'un ikinci kademesi açılıyor: haftalık içerik önerisi, boş takvim uyarısı,
    mevzuat değişiminden içerik fırsatı. **Öneri, üretim değildir** — hiçbir öneri
    metered fiil ateşlemez, hepsi onay kuyruğuna düşer (R-14).
-📁 `packages/engine/src/proactive/`
-✅ Haftalık öneri kuyruğa düşüyor, hiçbir maliyet oluşmadan
-🧪 Öneriyi doğrudan çalıştırmayı dene → insan kapısı olmadan `GENERATE` ateşlenmiyor
+📁 `packages/engine/src/proactive/oneri.ts` · `scripts/oneri.mjs`
+✅ `just oneri` ölçüldü: `15 gündür yayın yok (son: 2026-08-01) — takvim boş` +
+   `→ just uret instagram-post`. Ağ yok, model yok, yazma yok.
+🧪 **Öneri ÇALIŞTIRILABİLİR bir şey taşımıyor** — tipte ne fonksiyon var ne handle;
+   "öneriyi çalıştır" çağrısı YAZILAMAZ (test bunu alan alan doğruluyor). `--calistir`
+   bayrağı yok ve olmayacak: eklemek her zaman makul görünür, eklendiği gün sistem
+   kendi kendine para harcamaya başlar.
+   ⚠ **İki mekanik gürültü freni** (D-10 "kademeli"nin mekanik hâli): (1) **gözlemsiz
+   öneri kurulamıyor** — `kanit` zorunlu ve serbest metin değil, "şu konuda içerik
+   üret" tipi genel fikirler bu tipte İFADE EDİLEMİYOR; (2) **haftalık tavan 3** —
+   fazlası liste olur, liste okunmaz; düşenler sessizce kırpılmıyor, sayısı bildiriliyor.
+   ⚠ Defter okunamıyorsa öneri ÜRETİLMİYOR: bilinmeyen bir dünyaya tavsiye vermek,
+   tavsiye değil tahmindir. "Hiç yayın yok" ile "uzun süredir yayın yok" da AYRI
+   kanıt türleri — ilkinde ölçüm penceresi hiç açılmamıştır (D-220).
 💾 `feat(engine): proaktif haftalık öneri katmanı` · `Refs: FAZ-8.5 · §10`
 
 ## 8.6 — KVKK metinleri (hukukçu)    [ ]

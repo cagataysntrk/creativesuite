@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.5
+siradaki_adim: 8.6
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
 deneme_sayaci: {}
@@ -19,7 +19,7 @@ son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **39 kapı · 15 ihlal kırmızı · 1275 test.**
+**D-79: üçüncü tur AÇILMAZ.** **39 kapı · 15 ihlal kırmızı · 1284 test.**
 **FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
 ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
@@ -77,14 +77,15 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **8.1** · dik varyant matrisi; diklik OFAT'la ölçülüyor (D-225) | 2026-08-16 |
 | **8.2** · reklam linter'ı; ikinci şahıs × özellik kesişimi | 2026-08-16 |
 | **8.3** · uyum panosu; ifşa kapısı yayın hattına bağlandı | 2026-08-16 |
-| **8.4** · haftalık doctor; damga YOK — alarm saati, doğruluk kaynağı değil | 2026-08-16 |
+| **8.4** · haftalık doctor; damga YOK — alarm saati, doğruluk değil | 2026-08-16 |
+| **8.5** · proaktif katman; gözlemsiz öneri kurulamıyor, tavan 3 | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`8.5` — Proaktif katman** (§10 · D-10). Haftalık içerik önerisi, boş takvim uyarısı,
-mevzuat değişiminden içerik fırsatı. ⚠ **Kademeli olmasının sebebi var:** erken
-proaktiflik gürültüdür ve gürültü kapatılır. Öneri `corpus.propose()` üzerinden akmalı
-(R-14) — sistem kendi kendine içerik üretip yayınlamaz, **önerir**.
+**`8.6` — KVKK aydınlatma ve açık rıza metinleri** (§11.3). ⛔ **BLOKE:insan** — Türk
+hukukçu yazacak. **LLM'e yazdırılmayacak:** KVKK 2026/347 geri dönüştürülmüş şablonları
+açıkça cezalandırıyor ve bir uyum metninin yanlış olması, hiç olmamasından pahalıdır.
+Sıradaki teknik adım `8.7`: yedek ve geri yükleme tatbikatı.
 
 ## Devreden borçlar
 

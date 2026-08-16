@@ -327,3 +327,15 @@ export {
   type MatrisModu,
   type Varyant,
 } from './matris.js'
+
+// Proaktif katman — öneri, üretim değildir (§10 · D-10 · FAZ-8.5).
+export {
+  BOS_TAKVIM_GUN,
+  ONERI_TAVANI,
+  haftalikOneriler,
+  oneriMesaji,
+  type Oneri,
+  type OneriGirdisi,
+  type OneriKanidi,
+  type OneriSonucu,
+} from './proactive/oneri.js'
