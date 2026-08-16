@@ -26,6 +26,14 @@ export interface ImageBlock {
   readonly src: string
   readonly alt: string
   readonly decorative: boolean
+  /**
+   * Görüntünün NE İDDİA ETTİĞİ (FAZ-6.8).
+   *
+   * `product_screenshot` bir iddiadır: "ürün gerçekten böyle görünüyor". O yüzden
+   * gerçek çekime bağlanmak zorunda — `inspectManifest` bunu yayın yükleminde denetler.
+   * Verilmezse görüntü hiçbir şey iddia etmez ve serbesttir.
+   */
+  readonly role?: 'product_screenshot'
 }
 
 /**

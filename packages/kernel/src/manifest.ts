@@ -167,6 +167,17 @@ export type ManifestDefect =
    * izin verirdi.
    */
   | { readonly kind: 'personalization_cap'; readonly stepId: string; readonly count: number }
+  /**
+   * Ürün ekran görüntüsü gerçek çekime BAĞLANMIYOR (§10 · R-32 · FAZ-6.8).
+   *
+   * Uydurma bir dashboard olgusal bir iddiadır: ürünün yapmadığı bir şeyi yaptığını
+   * söyler ve ilk demoda çöker.
+   */
+  | {
+      readonly kind: 'fabricated_product_shot'
+      readonly stepId: string
+      readonly reason: string
+    }
 
 /** Ağ/model çağıran fiiller — bunların maliyeti yazılmadan çalıştırma kapanamaz (§8.3). */
 const METERED: ReadonlySet<VerbName> = new Set<VerbName>([
@@ -292,6 +303,40 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
     if (!Array.isArray(alanlar)) continue
     if (alanlar.length > KISISELLESTIRME_TAVANI) {
       defects.push({ kind: 'personalization_cap', stepId: s.stepId, count: alanlar.length })
+    }
+  }
+
+  // ── ürün ekran görüntüleri gerçek çekim mi (§10 · R-32 · FAZ-6.8) ─────────
+  // Tetikleyici yine ÜRÜN: çıktısında `productShots` taşıyan adım ürün ekranı
+  // koymuştur. Her biri bir çalıştırmaya ve bir demo adımına bağlanmak zorunda.
+  for (const s of steps) {
+    const cikti = s.output
+    if (cikti === null || cikti === undefined || !('productShots' in cikti)) continue
+    const gorseller = (cikti as { productShots?: unknown }).productShots
+    if (!Array.isArray(gorseller)) continue
+    for (const g of gorseller as readonly Record<string, unknown>[]) {
+      if (g['aiGenerated'] === true) {
+        defects.push({
+          kind: 'fabricated_product_shot',
+          stepId: s.stepId,
+          reason: 'üretilmiş görsel ürün ekranı olarak kullanılamaz',
+        })
+        continue
+      }
+      const ref = g['captureRunId']
+      const demo = g['demoRef']
+      if (
+        typeof ref !== 'string' ||
+        ref.trim() === '' ||
+        typeof demo !== 'string' ||
+        demo.trim() === ''
+      ) {
+        defects.push({
+          kind: 'fabricated_product_shot',
+          stepId: s.stepId,
+          reason: 'captureRunId ya da demoRef yok — çekim denetlenemez',
+        })
+      }
     }
   }
 

@@ -6,16 +6,16 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 6
-siradaki_adim: 6.8
+siradaki_adim: 6.9
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "6.7 KAPANDI ve KARARLAR.md ARSIVLENDI (591 → 306; FAZ 4-5 in 14 karari docs/kararlar/ARSIV-2026.md e devredildi, citations yesil). Tavan sayisi KODA YAZILMIYOR, KURALLAR.md R-36 dan OKUNUYOR (D-214): kisisellestirme kapisi iki degeri karsilastiriyor, ayrisirlarsa kirmizi. Yani tavani degistirmenin tek yolu once kural kitabidir (R-74). Iki ihlal bicimi de kirmizi dondu: sabiti 6 yap (AYRISMIS) · ikinci bir tanim ekle (tum kaynak taraniyor, sabit dosya listesi DEGIL — ilk surumum uc dosya adi sayiyordu ve biri ayni turda tasininca kapi ENOENT ile coktu). Kural once KURALLAR.md e yazildi ve AYRI docs(docs) commit i aldi (R-76). Kapi yayin yuklemine BAGLI: isPublishable alti alanda false. Siralama gerekceli — kaniti guclu olan kaliyor, zayif kanit gucluyu eleyemiyor. Batarya 11 kural kiriyor. ONCEKI: 6.6 KAPANDI. 14 gunluk tazelik kapisi YAYIN YUKLEMINE BAGLI — asil sinav buydu: fonksiyonun dogru cevap vermesi yetmez, cagiran olmasi gerekir (D-182 dersi). inspectManifest artik stale_source kusuru uretiyor ve isPublishable 15 gunluk kaynakta false donuyor. Karsilastirma SAAT OKUMADAN yapiliyor: olcu calistirmanin kendi createdAt i, yani replay yillar sonra da ayni cevabi veriyor. Gelecek tarihli kaynak da reddediliyor — saati bozuk bir makineden gelen sidecar her zaman taze bir kaynak yaratirdi. FIKSTUR DERSI TEKRARLANDI: ilk bagllanma testim kisa SHA ve maliyetsiz metered adim tasiyordu, iki alakasiz kusur uretti ve test bagllanmadi dedi — oysa bagllanmisti; yanlis fikstur yanlis teshis. Oncesi icin git log ve docs/fazlar/FAZ-6.md."
+son_kanit: "6.8 KAPANDI. Urun ekran goruntusu icin YENI BIR BAYRAK degil, DORDUNCU BIR DAYANAK eklendi: product_capture (captureRunId + demoRef ZORUNLU). aiGenerated: true ile birlikte iddia EDILEMIYOR — ikisi birden dogruysa biri yalandir ve sistem hangisi oldugunu bilemez, o yuzden iddia hic KURULMUYOR. Ayni kural iki anda uygulaniyor ama TEK: uretimde assertCompliance, yayinda inspectManifest → fabricated_product_shot. GERCEK CEKIM KANITI: yerel bir urun ayaga kaldirildi ve ayni Chromium ile cekildi — 1200x700 PNG, 13665 bayt, demoRef bagli; sabit bekleme YOK, hazir seciciyle beklendi. Yayin yuklemi testi: gercek cekim true, uretilmis false, kaynaksiz false. ONCEKI: 6.7 KAPANDI. Tavan sayisi KODA YAZILMIYOR, KURALLAR.md R-36 dan OKUNUYOR (D-214): kisisellestirme kapisi iki degeri karsilastiriyor, ayrisirlarsa kirmizi. Yani tavani degistirmenin tek yolu once kural kitabidir (R-74). Iki ihlal bicimi de kirmizi dondu: sabiti 6 yap (AYRISMIS) · ikinci bir tanim ekle (tum kaynak taraniyor, sabit dosya listesi DEGIL — ilk surumum uc dosya adi sayiyordu ve biri ayni turda tasininca kapi ENOENT ile coktu). Kural once KURALLAR.md e yazildi ve AYRI docs(docs) commit i aldi (R-76). Kapi yayin yuklemine BAGLI: isPublishable alti alanda false. Siralama gerekceli — kaniti guclu olan kaliyor, zayif kanit gucluyu eleyemiyor. Batarya 11 kural kiriyor. Oncesi icin git log ve docs/fazlar/FAZ-6.md."
 ```
 
 ## Neredeyiz
 
-**FAZ 6'DA 7/10 ADIM KAPALI** — deck PDF, grafik/diyagram, LinkedIn dökümanı, prospect
+**FAZ 6'DA 8/10 ADIM KAPALI** — deck PDF, grafik/diyagram, LinkedIn dökümanı, prospect
 kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses akışı yok,
 `5.4b`/`5.5b` blokajı, tikle örtülmedi). **36 kapı · 11 ihlal kırmızı.**
 
@@ -58,15 +58,15 @@ kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses ak
 | **6.5** · `INGEST` şelalesi; tarayıcı yok, karantina + sidecar (D-213) | 2026-08-16 |
 | **6.6** · 14 günlük tazelik; `isPublishable` bayat kaynağı bloklıyor | 2026-08-16 |
 | **6.7** · Kişiselleştirme tavanı; sayı `KURALLAR.md`'den okunuyor (D-214) | 2026-08-16 |
+| **6.8** · Ürün ekranı dördüncü uyum DAYANAĞI; çekim ≠ üretim | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`6.8` — Gerçek ürün ekran görüntüleri** (§10, §11.4 · R-32, R-33 · FAZ-5.6'ya bağlı).
-Ürün ekran görüntüleri **gerçek Playwright çekimi**, asla üretilmiş. Adı geçen bir
-prospect'e giden deck'te uydurma bir dashboard **olgusal bir iddiadır**: ürünün
-yapmadığı bir şeyi yaptığını söyler ve ilk demoda çöker. ✅ deck'teki her görüntü
-`source_run_id` taşıyıp gerçek bir çekime bağlanmalı. 🧪 üretilmiş bir görseli ürün
-ekranı olarak koy → uyum kapısı reddetmeli.
+**`6.9` — `prospect-deck` uçtan uca** — FAZ 6'nın KAPANIŞ adımı (§10, §11.4 · R-32 · D-4).
+Zincir: prospect kaydı → `INGEST` şelalesi → tazelik + kişiselleştirme kapıları →
+`COMPOSE` deck IR → `RENDER` PDF → **zorunlu olgu-doğrulama kapısı** → onay kuyruğu.
+Kapı atlanamaz: kaynaksız her sayısal iddia yayını bloklar (R-32). 6.1–6.8'in hepsi
+bu adımda tek hatta birleşiyor; parçalar ayrı ayrı doğrulandı, **zincir doğrulanmadı**.
 
 ## Devreden borçlar
 

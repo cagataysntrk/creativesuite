@@ -222,3 +222,11 @@ export {
   type DiagramNode,
   type DiagramSpec,
 } from './charts/diagram.js'
+export {
+  captureProductShot,
+  productCaptureBasis,
+  usableAsProductShot,
+  type ProductShot,
+  type ProductShotInput,
+  type ProductShotRefusal,
+} from './capture/product.js'

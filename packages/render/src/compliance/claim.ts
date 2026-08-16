@@ -39,6 +39,21 @@ export type PersonBasis =
   | { readonly kind: 'prompt_forbids_people'; readonly promptDigest: string }
   | { readonly kind: 'human_photograph'; readonly sourceRef: string }
   | { readonly kind: 'human_reviewed'; readonly reviewer: string; readonly reviewedAt: string }
+  /**
+   * **Ürün ekran görüntüsü — gerçek çekim** (§10 · R-32 · FAZ-6.8).
+   *
+   * Adı geçen bir prospect'e giden deck'te uydurma bir dashboard **olgusal bir
+   * iddiadır**: ürünün yapmadığı bir şeyi yaptığını söyler ve ilk demoda çöker. Bu
+   * dayanak, görüntünün bir modelden değil çalışan üründen geldiğini söyler.
+   *
+   * `demoRef` **zorunlu**: hangi demo script'inin hangi adımını çektiğimiz yazılı
+   * olmadan "gerçek çekim" iddiası denetlenemez — ve denetlenemeyen iddia beyandır.
+   */
+  | {
+      readonly kind: 'product_capture'
+      readonly captureRunId: string
+      readonly demoRef: string
+    }
 
 export interface ComplianceClaim {
   /**
@@ -63,6 +78,8 @@ export type ComplianceRefusal =
   | { readonly kind: 'prompt_requests_person'; readonly matched: string }
   | { readonly kind: 'basis_missing' }
   | { readonly kind: 'reviewer_unnamed' }
+  /** Çekim ile üretim aynı anda iddia edilemez — biri yalan (FAZ-6.8). */
+  | { readonly kind: 'capture_cannot_be_generated' }
 
 /**
  * İnsan isteyen ifadeler. R-20'deki gibi **gövde ön eki** — Türkçe eklemeli:
@@ -191,6 +208,18 @@ export const assertCompliance = (input: ClaimInput): Result<ComplianceClaim, App
 
   if (basis.kind === 'human_photograph' && basis.sourceRef.trim() === '') {
     return err(reddet({ kind: 'basis_missing' }, input.correlationId))
+  }
+
+  if (basis.kind === 'product_capture') {
+    if (basis.captureRunId.trim() === '' || basis.demoRef.trim() === '') {
+      return err(reddet({ kind: 'basis_missing' }, input.correlationId))
+    }
+    // **Çekim `aiGenerated: true` olamaz.** İkisi birden iddia edilirse biri yalandır ve
+    // hangisinin yalan olduğunu sistem bilemez — o yüzden iddia hiç KURULMAZ. Bu, 6.8'in
+    // 🧪 kriterinin kod seviyesindeki hâli: üretilmiş bir görsel ürün ekranı olamaz.
+    if (input.aiGenerated) {
+      return err(reddet({ kind: 'capture_cannot_be_generated' }, input.correlationId))
+    }
   }
 
   return ok({

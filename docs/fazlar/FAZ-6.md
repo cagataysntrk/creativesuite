@@ -131,7 +131,7 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    ⚠ İkinci bir tanım da yakalanıyor — kapı sabit dosya listesi değil, tüm kaynağı tarıyor.
 💾 `feat(engine): beş alanlık kişiselleştirme tavanı` · `Refs: FAZ-6.7 · §10`
 
-## 6.8 — Gerçek ürün ekran görüntüleri    [ ]
+## 6.8 — Gerçek ürün ekran görüntüleri    [x] 2026-08-16
 
 📖 §10, §11.4 · R-32, R-33
 🔗 FAZ-5.6
@@ -141,6 +141,12 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 📁 `packages/render/src/capture/product.ts` · `demos/<product>/`
 ✅ Deck'teki her ekran görüntüsü `source_run_id` taşıyor ve gerçek bir çekime bağlanıyor
 🧪 Üretilmiş bir görseli ürün ekranı olarak koy → uyum kapısı reddediyor
+   ⚠ Mekanizma yeni bir bayrak DEĞİL, dördüncü bir **dayanak**: `product_capture`
+   (`captureRunId` + `demoRef` zorunlu). `aiGenerated: true` ile birlikte iddia
+   edilemiyor — ikisi birden doğruysa biri yalandır ve sistem hangisi olduğunu bilemez,
+   o yüzden iddia hiç KURULMUYOR.
+   ⚠ Kural iki yerde uygulanıyor ama TEK: üretim anında `assertCompliance`, yayın anında
+   `inspectManifest` → `fabricated_product_shot`.
 💾 `feat(render): gerçek ürün ekran görüntüsü çekimi` · `Refs: FAZ-6.8 · §10`
 
 ## 6.9 — `prospect-deck` uçtan uca    [ ]
