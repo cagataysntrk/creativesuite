@@ -179,6 +179,7 @@ export {
   GIT_SIZE_LIMIT,
   type BlobRef,
   type BlobMeta,
+  type DeliverableRef,
   type BlobDefect,
   type StoreInput,
   type StoreResult,

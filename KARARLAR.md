@@ -394,3 +394,39 @@ sağlayıcıya SORMAZ ve tahmin yürütmez — karar insanın (R-14). Bir kapı,
 olmayan bir duvar olamaz.
 
 **Geri alma maliyeti:** yok.
+
+## D-248 — Varlık değil TESLİMAT: yüzlerce birikince sorun "yer" değil "hangisi"
+
+**2026-08-16 · ilk postlar üretildikten sonra**
+
+İlk post dört varlık üretti ve kütüphane **dört özdeş satır** gösterdi: hangisinin kapak
+olduğu, hangisinin son slayt olduğu belli değil. Yüz postta dört yüz satır ve hiçbiri
+diğerine bağlı değil. **Yüzlerce varlık biriktiğinde sorun "yer yok" değil, "hangisi
+neydi" olur.**
+
+**Neden ACİL:** damga üretim anında basılır ve **retrofit imkânsızdır** (7. yasa, R-11).
+Bu alan olmadan üretilen her varlık kalıcı olarak sırasız kalır. Bir gün beklemek, bir
+günlük varlığı kalıcı olarak kaybetmek demekti — nitekim ilk dört varlık öyle kaldı ve
+kütüphane onları **damgasız diye sayıyor, uydurma bir gruba KOYMUYOR**.
+
+**`DeliverableRef` damgaya girdi:** `deliverableId` · `kind` · `index` · `total` ·
+`role`. `deliverableId` çalıştırma id'sine EŞİT DEĞİL: tek koşu birden çok teslimat
+üretebilir (reklam matrisi yedi varyant) ve tek teslimat birden çok koşuya yayılabilir
+(yarıda kalan koşu devam ettirilir).
+
+**`total` alanı eksikliği görünür kılıyor:** yarıda kalmış bir koşu üç slayt bırakır ve
+liste bunu "3 parçalı post" diye göstermemeli. `eksikParca` ölçülüyor, varsayılmıyor.
+
+⚠ **Yol boyunca `BlobMeta`nın İKİNCİ BİR KOPYASI bulundu** (`kutuphane.ts`) ve yorumu
+*"biçim `blobs.ts`ten OKUNDU, uydurulmadı"* diyordu. Okunmuştu — ama kopyaydı ve
+`deliverable` eklenince sessizce ayrıştı. **Okunan bir kopya da bir kopyadır.** Tip
+artık kaynağından import ediliyor; ayrışma yapısal olarak imkânsız.
+
+**Kapanmayanlar, açıkça:**
+- Varlıklar **indekste değil**: `kutuphane()` her çağrıda tüm ağacı tarıyor. 400
+  varlıkta ~500 dosya okuması. Ölçülmeden optimize edilmeyecek.
+- `derived/blobs` **yalnız bu diskte** (`3.12b`, R2 senkronu yazılmadı). Yüzlerce
+  varlığın gerçek riski budur.
+- Önizleme/küçük resim yok: dijest'e bakarak 400 görsel taranamaz.
+
+**Geri alma maliyeti:** yok — alan opsiyonel, eski varlıklar okunmaya devam ediyor.

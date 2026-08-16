@@ -785,13 +785,32 @@ if (slaytlar.length > 0) {
     console.log(`✗ uyum iddiası kurulamadı: ${JSON.stringify(iddia.error.details)}`)
     process.exit(1)
   }
-  for (const yol of slaytlar) {
+  // ── teslimat kimliği (§3.5 · D-248) ──────────────────────────────────────
+  //
+  // **Sıra ve rol damgaya ÜRETİM ANINDA giriyor.** Onlarsız dört slaytlık bir postun
+  // hangisinin kapak olduğu bir daha bilinemez ve retrofit imkânsız (7. yasa, R-11).
+  // Yüzlerce varlık biriktiğinde sorun "yer yok" değil, **"hangisi neydi"** olur.
+  //
+  // `deliverableId` çalıştırma id'sinden TÜRETİLİYOR ama ona EŞİT değil: tek koşu
+  // birden çok teslimat üretebilir (reklam matrisi yedi varyant) ve o gün bu satır
+  // varyant koordinatını da taşıyacak.
+  const teslimatId = `dlv_${runId.slice(4)}`
+  const rol = (i, n) => (n === 1 ? 'tek' : i === 0 ? 'kapak' : i === n - 1 ? 'kapanis' : 'govde')
+
+  for (const [sira, yol] of slaytlar.entries()) {
     const d = stampPng(yol, { stamp: damga, claim: iddia.value })
     if (!d.ok) {
       console.log(`✗ damgalanamadı: ${yol} (${d.error})`)
       process.exit(1)
     }
     const b = storeBlob({
+      deliverable: {
+        deliverableId: teslimatId,
+        kind: cozum.value.ciktiSinifi === 'reklam' ? 'ad-variant' : 'post',
+        index: sira,
+        total: slaytlar.length,
+        role: rol(sira, slaytlar.length),
+      },
       sourcePath: yol,
       blobRoot: join(REPO, 'derived/blobs'),
       stamp: damga,

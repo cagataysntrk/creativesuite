@@ -24,12 +24,44 @@ export interface BlobRef {
   readonly bytes: number
 }
 
+/**
+ * Varlığın TESLİMAT içindeki yeri (§3.5 · D-248).
+ *
+ * ⚠ **Bu alanlar sonradan eklenemez.** Damga üretim anında basılır ve retrofit
+ * imkânsızdır (7. yasa, R-11). Onlarsız üretilen bir varlık kalıcı olarak sırasızdır:
+ * dört slaytlık bir postun hangisinin kapak olduğu bir daha bilinemez. Yüzlerce varlık
+ * biriktiğinde sorun "yer yok" değil, **"hangisi neydi"** olur.
+ *
+ * `deliverableId` bir ÇALIŞTIRMA id'si değil: tek koşu birden çok teslimat üretebilir
+ * (reklam matrisi yedi varyant) ve tek teslimat birden çok koşuya yayılabilir (yarıda
+ * kalan bir koşu devam ettirilir).
+ */
+export interface DeliverableRef {
+  /** Teslimatın kimliği — bir post, bir carousel, bir video. */
+  readonly deliverableId: string
+  /** Teslimat tipi: `post` · `carousel` · `video` · `deck` · `ad-variant`. */
+  readonly kind: string
+  /** Kaçıncı parça (0 tabanlı). Tek parçalı teslimatta `0`. */
+  readonly index: number
+  /** Toplam parça — `index/total` okunabilir olsun diye. */
+  readonly total: number
+  /** Parçanın rolü: `kapak` · `govde` · `kapanis` · `varyant` … */
+  readonly role: string
+}
+
 export interface BlobMeta {
   readonly digest: string
   readonly ext: string
   readonly bytes: number
   /** Üretim damgası — marka + dönem (R-11). Sonradan retrofit imkânsız. */
   readonly stamp: Readonly<Record<string, string>>
+  /**
+   * Teslimat konumu (D-248) — hangi teslimatın kaçıncı parçası.
+   *
+   * Eski varlıklarda YOK ve öyle kalacak: retrofit imkânsız (R-11). Kütüphane bunu
+   * "bilinmiyor" diye gösteriyor, sıfır diye DEĞİL — ölçülmemiş ile ölçülmüş ayrı.
+   */
+  readonly deliverable?: DeliverableRef
   /** Uyum iddiası (R-33). Damgasız varlık yayınlanamaz. */
   readonly compliance: Readonly<Record<string, unknown>>
   /** Bu byte'ı üreten çalıştırma. Blob kaybolursa yeniden üretimin adresi. */
@@ -57,6 +89,11 @@ export interface StoreInput {
   readonly compliance: Readonly<Record<string, unknown>>
   readonly sourceRunId: string
   readonly createdAt: string
+  /**
+   * Teslimat konumu. **İsteğe bağlı DEĞİL, geçici olarak opsiyonel**: eski çağıranlar
+   * derlensin diye. `varlik-duzeni` kapısı üretim yolunda verilmesini zorluyor.
+   */
+  readonly deliverable?: DeliverableRef
 }
 
 /**
@@ -95,6 +132,7 @@ export const storeBlob = (input: StoreInput): StoreResult => {
         ext,
         bytes: buf.length,
         stamp: input.stamp,
+        ...(input.deliverable === undefined ? {} : { deliverable: input.deliverable }),
         compliance: input.compliance,
         sourceRunId: input.sourceRunId,
         createdAt: input.createdAt,

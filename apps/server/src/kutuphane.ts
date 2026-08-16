@@ -19,16 +19,11 @@ import { RUNS_DIR, publishedLedgerPath, type RunManifest } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
 import { readManifest } from '@suite/engine'
 
-/** `.meta.json` sidecar — biçim `blobs.ts`ten OKUNDU, uydurulmadı (D-163). */
-interface BlobMeta {
-  readonly digest: string
-  readonly ext: string
-  readonly bytes: number
-  readonly sourceRunId: string
-  readonly createdAt: string
-  readonly stamp?: { readonly brandId?: string; readonly eraId?: string }
-  readonly compliance?: { readonly containsSyntheticPerson?: boolean }
-}
+// ⚠ **`BlobMeta`nın ikinci bir KOPYASI vardı** ve yorumu "biçim `blobs.ts`ten
+// OKUNDU, uydurulmadı" diyordu. Okunmuştu — ama kopyaydı ve `deliverable` alanı
+// eklenince sessizce ayrıştı (D-248). **Okunan bir kopya da bir kopyadır.** Tip artık
+// kaynağından geliyor; ayrışma yapısal olarak imkânsız.
+import type { BlobMeta, DeliverableRef } from '@suite/engine'
 
 export interface VarlikSatiri {
   readonly digest: string
@@ -50,10 +45,52 @@ export interface VarlikSatiri {
   readonly yayinlandi: boolean
   /** Manifest kusursuz mu (D-155). Kusurluysa varlık zaten yayınlanamaz. */
   readonly manifestSaglam: boolean
+  /**
+   * Teslimat konumu (D-248). **`null` = ÖLÇÜLMEDİ**, sıfır değil.
+   *
+   * Damga alanı üretim anında basılır ve retrofit imkânsızdır (R-11); bu alanlardan
+   * önce üretilen varlıklar kalıcı olarak sırasız kalacak ve kütüphane bunu
+   * gizlemiyor. "Bilinmiyor" ile "birinci slayt" ayrı şeyler.
+   */
+  readonly teslimat: DeliverableRef | null
+}
+
+/**
+ * Bir TESLİMAT — kullanıcının gerçekten aradığı birim.
+ *
+ * ⚠ Kütüphane varlık listeliyordu: dört slaytlık bir post **dört satır**. Yüz postta
+ * dört yüz satır ve hiçbiri diğerine bağlı değil. İnsan "şu postu bul" diye arıyor,
+ * "şu sha256'yı" diye değil. Gruplama bir kolaylık değil, **listenin kullanılabilir
+ * kalmasının şartı**.
+ */
+export interface TeslimatSatiri {
+  readonly id: string
+  readonly kind: string
+  readonly pipeline: string
+  readonly konu: string
+  readonly brandId: string
+  readonly eraId: string
+  readonly createdAt: string
+  readonly parcaSayisi: number
+  /** Beyan edilen toplam — eksik parça varsa `parcaSayisi` bundan küçüktür. */
+  readonly beklenenParca: number
+  readonly eksikParca: boolean
+  readonly yayinlandi: boolean
+  readonly harcananMikros: string
+  /** Kapak parçanın digest'i — önizleme buradan gelir. */
+  readonly kapakDigest: string | null
+  readonly parcalar: readonly string[]
 }
 
 export interface Kutuphane {
   readonly varliklar: readonly VarlikSatiri[]
+  /** Teslimat bazında gruplanmış görünüm — listenin asıl okunma birimi. */
+  readonly teslimatlar: readonly TeslimatSatiri[]
+  /**
+   * Teslimat damgası TAŞIMAYAN varlık sayısı. Bunlar gruplanamaz ve öyle kalacak
+   * (retrofit imkânsız). Sayılıyor ki eksiklik görünür olsun.
+   */
+  readonly damgasizVarlik: number
   /** Karantinadaki varlık sayısı — listeye GİRMEZ ama sayılır (D-155). */
   readonly karantina: number
   /**
@@ -153,22 +190,69 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
       bytes: meta.bytes,
       createdAt: meta.createdAt,
       sourceRunId: meta.sourceRunId,
-      brandId: meta.stamp?.brandId ?? '',
-      eraId: meta.stamp?.eraId ?? '',
+      brandId: meta.stamp?.['brandId'] ?? '',
+      eraId: meta.stamp?.['eraId'] ?? '',
       pipeline: m?.pipeline ?? '',
       konu,
       lane,
       harcananMikros: harcanan.toString(),
       yayinlandi,
       manifestSaglam: m === null ? false : /^[0-9a-f]{40}$/.test(m.corpusCommit),
+      teslimat: meta.deliverable ?? null,
     })
   }
 
   // En YENİ üstte: kütüphaneye "en son ne ürettim" diye bakılır.
   varliklar.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
+  // ── teslimat gruplaması (D-248) ────────────────────────────────────────────
+  //
+  // Damgasız varlıklar gruplanamaz ve **uydurulmuş bir gruba da konmaz**: her birini
+  // tek parçalık kendi teslimatı yapmak, sayıyı doğru ama anlamı yanlış gösterirdi.
+  // Sayılıyorlar, listeye girmiyorlar.
+  const damgasiz = varliklar.filter((v) => v.teslimat === null)
+  const gruplar = new Map<string, VarlikSatiri[]>()
+  for (const v of varliklar) {
+    if (v.teslimat === null) continue
+    const mevcut = gruplar.get(v.teslimat.deliverableId)
+    if (mevcut === undefined) gruplar.set(v.teslimat.deliverableId, [v])
+    else mevcut.push(v)
+  }
+
+  const teslimatlar: TeslimatSatiri[] = [...gruplar.entries()].map(([id, ps]) => {
+    const sirali = [...ps].sort((a, b) => (a.teslimat?.index ?? 0) - (b.teslimat?.index ?? 0))
+    const ilk = sirali[0]
+    const beklenen = ilk?.teslimat?.total ?? sirali.length
+    return {
+      id,
+      kind: ilk?.teslimat?.kind ?? '',
+      pipeline: ilk?.pipeline ?? '',
+      konu: ilk?.konu ?? '',
+      brandId: ilk?.brandId ?? '',
+      eraId: ilk?.eraId ?? '',
+      // Teslimatın tarihi EN ERKEN parçanınki: "ne zaman üretildi" sorusunun cevabı
+      // son parçanın yazıldığı an değil, işin başladığı andır.
+      createdAt: sirali.reduce((t, v) => (v.createdAt < t ? v.createdAt : t), ilk?.createdAt ?? ''),
+      parcaSayisi: sirali.length,
+      beklenenParca: beklenen,
+      // **Eksik parça SESSİZ kalmaz.** Yarıda kalmış bir koşu üç slayt bırakır ve
+      // dördüncüsü hiç üretilmez; liste bunu "3 parçalı post" diye göstermemeli.
+      eksikParca: sirali.length < beklenen,
+      yayinlandi: sirali.every((v) => v.yayinlandi),
+      harcananMikros: sirali.reduce((t, v) => t + BigInt(v.harcananMikros), 0n).toString(),
+      kapakDigest:
+        sirali.find((v) => v.teslimat?.role === 'kapak' || v.teslimat?.role === 'tek')?.digest ??
+        ilk?.digest ??
+        null,
+      parcalar: sirali.map((v) => v.digest),
+    }
+  })
+  teslimatlar.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+
   return {
     varliklar,
+    teslimatlar,
+    damgasizVarlik: damgasiz.length,
     karantina: dosyalariGez(join(repoRoot, 'derived/karantina')).length,
     yayinDefteriYok: yayin.yok,
     bosaHarcananMikros: bosa.toString(),
