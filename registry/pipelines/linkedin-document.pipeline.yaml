@@ -1,0 +1,51 @@
+# LinkedIn dökümanı — düzleştirilmiş PDF carousel (§9.3 · §10).
+#
+# **Düzleştirme yalnız BURADA.** Prospect deck'i metin katmanını korur (D-207);
+# LinkedIn'in görüntüleyicisi metin katmanlı PDF'te satır kırılmalarını bozuyor.
+#
+# **Veri ANLIK GÖRÜNTÜ.** IR (`*.ir.json`) corpus'a referans değil DEĞER taşır: Mart'ta
+# paylaşılan doküman Haziran'da hâlâ Mart rakamını gösterir (FAZ-6.3).
+id: linkedin-document
+title: LinkedIn dökümanı (düzleştirilmiş PDF)
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  - id: metin-uret
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec]
+    constraints:
+      locale: tr-TR
+      # Editoryal tavan 10 sayfa; modelden daha azını istemek, sayfalamayı metne
+      # gömmek olurdu — bölme `paginate`in işi.
+      max_chars: 3000
+
+  - id: kompozit
+    verb: COMPOSE
+    needs: [metin-uret]
+
+  - id: render
+    verb: RENDER
+    needs: [kompozit]
+    constraints:
+      width: 1200
+      height: 1500
+      format: pdf
+      flatten: true
+      max_pages: 10
+      max_bytes: 5242880
+
+  - id: kalite
+    verb: VALIDATE
+    needs: [render]
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi

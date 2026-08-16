@@ -18,6 +18,8 @@ import { validateDocument, type DocumentModel } from '@suite/kernel'
 import { withPage, type BrowserResult } from '../browser.js'
 import { toHtml } from '../static.js'
 import { paginate, type CharBudget, type LayoutName } from '../layout/enum.js'
+import { CHART_CSS } from '../charts/chart.js'
+import { DIAGRAM_CSS } from '../charts/diagram.js'
 
 export interface DeckPage {
   readonly doc: DocumentModel
@@ -50,6 +52,47 @@ export const deckPages = (
   }))
 
 /**
+ * Sayfaları TEK HTML belgesine çevirir.
+ *
+ * Dışa açık, çünkü LinkedIn dökümanı (6.3) aynı gövdeyi sayfa sayfa kullanıyor. İkinci
+ * bir HTML üreticisi yazmak, ikinci bir tipografi hata modu demekti (D-160 · R-30).
+ */
+export const deckHtml = (pages: readonly DeckPage[]): string => {
+  const ilk = pages[0]!.doc
+  const govde = pages
+    .map((p, i) => {
+      const html = toHtml(p.doc)
+      const icerik = html.slice(html.indexOf('</style>') + '</style>'.length)
+      return `<section class="deck-sayfa"${i === 0 ? '' : ' data-sonraki'}>${icerik}</section>`
+    })
+    .join('\n')
+
+  return [
+    '<!doctype html><meta charset="utf-8">',
+    '<style>',
+    ilk.tokenCss,
+    'html, body { margin: 0; padding: 0; }',
+    `.deck-sayfa { inline-size: ${ilk.width}px; block-size: ${ilk.height}px;`,
+    '  background: var(--role-bg); color: var(--role-text);',
+    '  font-family: "DejaVu Sans", system-ui, sans-serif;',
+    '  display: flex; flex-direction: column; justify-content: center;',
+    '  padding: 96px; box-sizing: border-box; }',
+    // Sayfa sonu: ilk sayfadan SONRAKİLERİN önüne. `page-break-before` yerine
+    // `break-before` — eski özellik Chromium'da `flex` içinde yok sayılıyor.
+    '.deck-sayfa[data-sonraki] { break-before: page; }',
+    'h1 { font-size: 72px; line-height: 1.12; margin: 0 0 24px; letter-spacing: -0.02em; }',
+    'h2 { font-size: 48px; line-height: 1.18; margin: 0 0 16px; }',
+    'p  { font-size: 34px; line-height: 1.45; margin: 0 0 16px; color: var(--role-text-muted); }',
+    'img { max-width: 100%; height: auto; }',
+    '.spacer.sm { height: 16px } .spacer.md { height: 40px } .spacer.lg { height: 88px }',
+    CHART_CSS,
+    DIAGRAM_CSS,
+    '</style>',
+    govde,
+  ].join('\n')
+}
+
+/**
  * PDF üretir. Çıktı **yola yazılır**, byte döndürülmez: bellekte dolaşan byte'ların
  * nereye yazıldığı manifestte kaybolur (§13).
  *
@@ -78,39 +121,9 @@ export const renderDeckPdf = async (
   }
 
   const ilk = pages[0]!.doc
+  const stil = deckHtml(pages)
+
   return withPage(async (page) => {
-    // Sayfalar tek belgede birleştiriliyor: her sayfa kendi `toHtml` gövdesini
-    // veriyor ve aralarına CSS sayfa sonu konuyor.
-    const govde = pages
-      .map((p, i) => {
-        const html = toHtml(p.doc)
-        const icerik = html.slice(html.indexOf('</style>') + '</style>'.length)
-        return `<section class="deck-sayfa"${i === 0 ? '' : ' data-sonraki'}>${icerik}</section>`
-      })
-      .join('\n')
-
-    const stil = [
-      '<!doctype html><meta charset="utf-8">',
-      '<style>',
-      ilk.tokenCss,
-      'html, body { margin: 0; padding: 0; }',
-      `.deck-sayfa { inline-size: ${ilk.width}px; block-size: ${ilk.height}px;`,
-      '  background: var(--role-bg); color: var(--role-text);',
-      '  font-family: "DejaVu Sans", system-ui, sans-serif;',
-      '  display: flex; flex-direction: column; justify-content: center;',
-      '  padding: 96px; box-sizing: border-box; }',
-      // Sayfa sonu: ilk sayfadan SONRAKİLERİN önüne. `page-break-before` yerine
-      // `break-before` — eski özellik Chromium'da `flex` içinde yok sayılıyor.
-      '.deck-sayfa[data-sonraki] { break-before: page; }',
-      'h1 { font-size: 72px; line-height: 1.12; margin: 0 0 24px; letter-spacing: -0.02em; }',
-      'h2 { font-size: 48px; line-height: 1.18; margin: 0 0 16px; }',
-      'p  { font-size: 34px; line-height: 1.45; margin: 0 0 16px; color: var(--role-text-muted); }',
-      'img { max-width: 100%; height: auto; }',
-      '.spacer.sm { height: 16px } .spacer.md { height: 40px } .spacer.lg { height: 88px }',
-      '</style>',
-      govde,
-    ].join('\n')
-
     await page.setViewportSize({ width: ilk.width, height: ilk.height })
     await page.setContent(stil, { waitUntil: 'load' })
     // Font yüklemesi tamamlanmadan PDF almak, glif fallback'iyle sessizce bozuk bir

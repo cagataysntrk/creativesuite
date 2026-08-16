@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 6
-siradaki_adim: 6.3
+siradaki_adim: 6.4
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "6.2 KAPANDI ama ONGORULDUGU GIBI DEGIL. FAZ-6.2 ECharts SSR + D2 diyor; ikisini de OLCUP reddettim (D-209, D-210). ECharts SSR de tuval yok, metni kendi tahmin ediyor: Agustos +%12,6 · Igne fire %% +%24,7 · Cgusioi +%83,4 (74,6 px tahmin, Chromium un gercegi 40,7). Bu sayilarla eksen payi ve sigmayani gizle karari veriliyor — yani SIGAN etiket gizleniyor. Satori yi reddettigimiz gerekcenin aynisi (D-24). Ustelik varsayilan paletini #5070dd SVG ye sizdiriyordu, oysa adimin kendi kriteri bunu yasakliyor. Yerine: geometri SVG, metnin TAMAMI HTML — hicbir yerde metin genisligi tahmin edilmiyor. KANIT: pdfimages sifir raster listeliyor, Do (goruntu XObject) 0, buna karsilik 8 re + 4 l + 36 Tj — grafik vektor, etiket secilebilir, sayilar tr-TR (15.000). metin-olcen-grafik-kutuphanesi darbogazi (izinli BOS) eklendi; ilk deseni kendi ./charts/chart.js modulumuzu yakaladi — yanlis pozitif de bir hatadir, daraltildi ve iki bicim ayri ayri ihlal edildi. 998 test, 35 kapi."
+son_kanit: "6.3 KAPANDI. Duzlestirme IKINCI ARAC GEREKTIRMEDI (D-211): ghostscript/qpdf yerine her sayfa ayni Chromium da JPEG e cevriliyor, goruntuler yine ayni Chromium da tek PDF e basiliyor; kalite merdiveni 92-82-72-62 tavanin altina inene kadar. OLCULDU, karsitlik net: deck te pdftotext Turkce metni TAM veriyor + pdfimages SIFIR satir; dokumanda pdftotext BOS + pdfimages iki 1200x1500 JPEG. 11 sayfa RENDER EDILMEDEN reddedildi. IR anlik goruntu testi gecti: kaynak 4,2 den 9,9 a degistirildi, dokuman yeniden acildi, ESKI deger duruyor — IR corpus a referans degil DEGER tasiyor. ONCEKI TUR 6.2: ECharts SSR olculup reddedildi (D-209), Turkce etiketlerde +%12,6 ile +%83,4 sapma. Sayfa tavani 10 ve 5 MB BIZIM editoryal kararimiz, platform sinirini dogrulamadim → V-23 (FAZ-7.3). 34 kapi, 8 hat."
 ```
 
 ## Neredeyiz
@@ -52,18 +52,19 @@ kırmızı.**
 |---|---|
 | **6.1** · Deck IR + `page.pdf()`; metin katmanı korunuyor (D-207) | 2026-08-16 |
 | **6.2** · Grafik + diyagram; ECharts ölçülüp reddedildi (D-209) | 2026-08-16 |
+| **6.3** · `linkedin-document`; düzleştirme tek motorla (D-211) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`6.3` — `linkedin-document` hattı** (§10, §9.3 · R-11). Düzleştirilmiş PDF, **≤10
-sayfa**. Deck'ten ayrılan tek nokta burası (D-207): LinkedIn'in görüntüleyicisi metin
-katmanlı PDF'te satır kırılmalarını bozuyor, o yüzden rasterleşiyor. Veri bağlama
-**anlık görüntülenir** — 🧪 kaynak kaydı değiştir, dokümanı yeniden aç, **eski değer**
-durmalı. Yayınlanmış bir iddiayı geriye dönük değiştirmek düzeltme değil tahrifattır.
+**`6.4` — Prospect dizini = CRM** (§10, §5.1 · R-12 · D-27). Ayrı bir CRM YOK:
+`corpus/prospect/<slug>.md`. Dosya silme talebi = KVKK silme talebi, `cat` = erişim
+talebi — yükümlülükler dosya sistemi işlemlerine iniyor. Emeklilik silme DEĞİLDİR
+(R-12); KVKK silme talebi **ayrı bir yoldur** ve gerekçesi kayda yazılır.
 
 ## Devreden borçlar
 
-QA/bağlam girdisi 0/18 (`2.9` blokajı) · bileşen testi FAZ 9'a · V-19 +%30 görsel ölçüm.
+QA/bağlam girdisi 0/18 (`2.9` blokajı) · bileşen testi FAZ 9'a · V-19 +%30 görsel
+ölçüm · V-23 LinkedIn döküman sınırı (→ 7.3).
 
 ## Bloke adımlar
 

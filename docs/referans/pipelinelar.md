@@ -3,7 +3,7 @@
 > ⚠ **ÜRETİLMİŞ DOSYA — elle düzenleme** (R-65). Üreteci: `just docs`.
 > Kaynak: `registry/pipelines/*.pipeline.yaml`. `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **7** hat.
+Toplam **8** hat.
 
 ## `deck` — Prospect deck'i (PDF)
 
@@ -76,6 +76,20 @@ Toplam **7** hat.
 | `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
 | `gorsel-uret` | `GENERATE` | `image.generate` | bilgi-sec | — | — |
 | `kompozit` | `COMPOSE` | — | metin-uret, gorsel-uret | — | — |
+| `render` | `RENDER` | — | kompozit | — | — |
+| `kalite` | `VALIDATE` | — | render | — | — |
+| `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
+
+## `linkedin-document` — LinkedIn dökümanı (düzleştirilmiş PDF)
+
+7 adım · 1 yetenek isteyen · 1 insan kapısı
+
+| adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
+|---|---|---|---|---|---|
+| `cozumle` | `RESOLVE` | — | — | — | — |
+| `bilgi-sec` | `SELECT` | — | cozumle | — | — |
+| `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
+| `kompozit` | `COMPOSE` | — | metin-uret | — | — |
 | `render` | `RENDER` | — | kompozit | — | — |
 | `kalite` | `VALIDATE` | — | render | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |

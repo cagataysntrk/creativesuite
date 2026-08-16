@@ -77,6 +77,13 @@ runtime'ı çalıştırmıyor; `--player-ready-timeout 2000` ile **1 dk 34 sn �
 şerit gerçek para harcıyor. Sözleşme yazıldı ve test edildi (lisans kuralı iki ihlalle
 kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
 
+## V-23 — LinkedIn dökümanının GERÇEK platform sınırı doğrulanmadı
+Sayfa tavanı 10 ve bayt tavanı 5 MB koda girdi ama ikisi de **bizim editoryal
+kararımız**; LinkedIn'in kendi belgelenmiş sınırı okunmadı. Uydurulmuş bir platform
+sayısı, `sourceUrl` + `verifiedAt` taşıyan spec tablosunun (§9.1) tamamını
+değersizleştirirdi — o yüzden kod bunu platform sınırı DİYE yazmıyor, ayrımı yorumda
+taşıyor. Adaptör yazılırken kaynağıyla doğrulanacak. → FAZ-7.3
+
 ## V-22 — ASR bağlantısı yok: gerçek ses transkript edilmedi
 Yerel `whisper.cpp` kurulu değil ve `GROQ_API_KEY` yer tutucu. `.ass` yazıcısı ve
 transkript kapısı ASR'siz yazıldı ve test edildi (ikisi de saf); kalan iş yalnız
@@ -488,4 +495,27 @@ modülümüzü yakalıyordu — **yanlış pozitif de bir hatadır**, desen pake
 ve iki biçim (düz ad · alt yol) ayrı ayrı ihlal edilerek doğrulandı.
 
 **Geri alma maliyeti:** düşük.
+
+## D-211 — Düzleştirme ikinci araç GEREKTİRMEDİ: aynı Chromium, iki geçiş
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.3 · §9.3 · R-30
+
+Düzleştirilmiş PDF üretmenin bilinen yolu bir PDF aracıdır (ghostscript, qpdf, pdftk).
+Hepsi ikinci bir renk profili ve ikinci bir font gömme yolu getirir — ve ikisi de
+sessizce bozar. Kurulum adımı da eklerler; "bir ay ihmal edilse de çalışır" (§16) her
+yeni ikilide biraz daha zayıflar.
+
+**Karar:** her sayfa aynı Chromium'da JPEG'e çevriliyor, görüntüler yine aynı Chromium'da
+tek PDF'e basılıyor. Tek motor korunuyor (R-30), kalite merdiveni (§9.3) bu döngünün
+içinde çalışıyor: 92 → 82 → 72 → 62, tavanın altına inene kadar.
+
+**Kanıt (ölçüldü):** deck → `pdftotext` Türkçe metni tam veriyor, `pdfimages` **sıfır**
+satır. LinkedIn dökümanı → `pdftotext` **boş**, `pdfimages` iki 1200×1500 JPEG. Aynı
+kaynak, aynı motor, iki farklı kanal sözleşmesi.
+
+**Ödenen bedel BEYAN EDİLDİ:** düzleştirilmiş sayfada ekran okuyucu hiçbir şey bulamaz.
+Her görüntü sayfanın kendi metninden türetilen bir `alt` taşıyor — kaybı telafi etmiyor
+ama gizlemiyor da.
+
+**Geri alma maliyeti:** düşük — `renderDeckPdf` zaten metin katmanlı yolu tutuyor.
 

@@ -331,6 +331,30 @@ arşiv kendi dönemine etiketli kalır.
 ## §5 Bilgi ve hafıza {#section-5}
 
 ### §5.1 Corpus {#section-5-1}
+
+**Ayrı bir hafıza altsistemi YOK.** "Hafıza kartı" `corpus/`ta bir kayıt, "agent'ların
+bildiği her şey" o dizin üzerinde filtreli bir tablodur; ikinci bir depo iki gerçek
+yaratır ve biri sessizce bayatlar.
+
+**Kayıt başına bir dosya:** `corpus/<entity_type>/<slug>.md` — YAML frontmatter + markdown
+gövde. Dosya olmasının üç sonucu var: satır bazlı `git diff`, `git log --follow` ile olgu
+geçmişi, ve kurtarmanın `git clone` + `cat` olması (§16).
+
+**Zarf sistemin, gövde kullanıcının.** Frontmatter alanları (`brand_id`, `era_id`,
+`status`, `zone`, geçerlilik tarihleri, `x_signature`…) **sabit sistem alanlarıdır**,
+kernel okur (§3.2 · D-41); kullanıcının tanımladığı her şey `attributes` altında ve
+kernel'e kapalı — tek yasal yol `SELECT` → `unsealAttributes` → `COMPOSE`'dur.
+
+**Yazma tek darboğazdan geçer** (§5.4 · R-14): agent `corpus.propose()` ile `status:
+draft` yazar, draft'lar retrieval'a **görünmez**, onay bir git commit'idir.
+
+**Emeklilik silme değildir** (R-12): `expired_at` + `superseded_by` yazılır, dosya kalır,
+`:as_of` geçmişe dönük denetimi bir sorgu parametresine indirir. **KVKK silme talebi AYRI
+bir yoldur** — dosya gerçekten silinir, gerekçesi kayda yazılır; ikisini karıştırmak ya
+yükümlülüğü ya denetlenebilirliği kaybettirir. **Prospect dizini bu yüzden bir CRM'dir**
+(FAZ-6.4): kayıt, geçmiş, kaynak alıntısı, erişim ve silme zaten burada. Gerçek prospect
+verisi **fixture'a asla girmez** (§15).
+
 ### §5.2 Retrieval yüklemi {#section-5-2}
 
 Kodda **tek** yerde. Bu sorgu, "agent'ların bildiği şey"in tanımıdır:
@@ -518,13 +542,11 @@ geri alınamaz bir yayındır.
 kullanmaz: ikinci bir CSS alt kümesi, ikinci bir Türkçe tipografi hata modudur. Statik
 görselle deck arasındaki tek fark çağrılan API — `screenshot()` yerine `pdf()`.
 
-**Deck IR bir KAYNAK, çıktı değil** (§4c). `deck.ir.json` git'te yaşar; PDF build
-çıktısıdır. Benzer bir deck geldiğinde LLM'i yeniden çalıştırmak yerine IR'ı kopyalayıp
-düzenlemek hem ucuz hem tutarlı.
-
-**Kapalı `LayoutEnum`.** Serbest düzen, her deck'te farklı bir tipografi demektir ve
-marka tutarlılığı kişisel hafızaya geri döner. Taşma **böler, küçültmez** (§7.1 · R-23);
-en-boy ekseninde de aynı kural (FAZ-5.9).
+**Deck IR bir KAYNAK, çıktı değil** (§4c). `deck.ir.json` git'te yaşar, PDF build
+çıktısıdır; benzer bir deck geldiğinde LLM'i yeniden çalıştırmak yerine IR kopyalanıp
+düzenlenir. **Kapalı `LayoutEnum`:** serbest düzen her deck'te farklı bir tipografi
+demektir ve marka tutarlılığı kişisel hafızaya geri döner. Taşma **böler, küçültmez**
+(§7.1 · R-23); en-boy ekseninde de aynı kural (FAZ-5.9).
 
 **Düzleştirme KANALA aittir, PDF'e değil.**
 
@@ -533,22 +555,25 @@ en-boy ekseninde de aynı kural (FAZ-5.9).
 | prospect deck'i (6.1) | **seçilebilir** | okunan, kopyalanan, alıntılanan bir belge; metni kilitlemek okuyucuya zarar verir |
 | LinkedIn dökümanı (6.3) | **düzleştirilmiş** | LinkedIn'in kendi görüntüleyicisi metin katmanlı PDF'lerde satır kırılmalarını bozuyor |
 
-İkisini tek kurala bağlamak — "PDF hep düzleştirilir" — deck'i gereksiz yere sakat
-bırakırdı. Düzleştirme bir maliyet ve yalnız onu gerektiren kanalda ödenir.
+"PDF hep düzleştirilir" deseydik deck'i gereksiz yere sakat bırakırdık: düzleştirme bir
+maliyettir ve yalnız onu gerektiren kanalda ödenir. **İkinci araç da gerektirmedi**
+(D-211): sayfalar aynı Chromium'da JPEG'e çevrilip yine aynı Chromium'da tek PDF'e
+basılıyor; ghostscript/qpdf ikinci bir renk profili ve font gömme yolu getirirdi.
+Ölçüldü: deck'te `pdftotext` metni tam veriyor, dökümanda boş. **Ödenen bedel beyan
+edilir** — ekran okuyucu düzleşmiş sayfada hiçbir şey bulamaz, o yüzden her görüntü sayfa
+metninden türetilen bir `alt` taşır.
 
-**Grafik ve diyagram: geometri SVG, metin HTML** (FAZ-6.2 · D-209, D-210). Hazır grafik
-kütüphaneleri sunucu tarafında tuval bulamadığı için metin genişliğini **kendi tahmin
-eder**; ECharts SSR ölçüldüğünde Türkçe etiketlerde %12,6–%83,4 sapıyordu (`Çğüşiöı`:
-74,6 px tahmin, gerçeği 40,7 px). Bu tahminle eksen payı ve "sığmayanı gizle" kararı
-verilir — yani sığan etiket gizlenir. **Satori'yi reddeden gerekçenin aynısı** (D-24):
-ikinci metin ölçüm motoru = ikinci Türkçe hata modu. Bizde SVG yalnız çubuk, çizgi ve ok
-taşır; her etiket bir HTML kutusudur ve Chromium yerleştirir. Grafik PDF'te **vektör**
-kalır (ölçüldü: sıfır raster XObject), renkleri yalnız rol token'ından alır ve
-`metin-olcen-grafik-kutuphanesi` darboğazı geri dönüşü mekanik olarak engeller.
+**Grafik ve diyagram: geometri SVG, metin HTML** (D-209, D-210). Hazır kütüphaneler
+sunucuda tuval bulamayınca metin genişliğini **kendi tahmin eder** — ECharts SSR
+Türkçe'de %83,4'e varan sapma veriyordu ve o tahminle "sığmayanı gizle" kararı alınıyor,
+yani sığan etiket gizleniyor (**Satori'yi reddeden gerekçe**, D-24). Bizde SVG yalnız
+geometri taşır, her etiketi Chromium yerleştirir; grafik PDF'te **vektör** kalır ve rengi
+yalnız rol token'ından gelir. `metin-olcen-grafik-kutuphanesi` darboğazı dönüşü engeller.
 
 **Veri bağlama ANLIK GÖRÜNTÜLENİR** (FAZ-6.3): Mart'ta paylaşılan bir döküman Haziran'da
-hâlâ Mart rakamını göstermelidir. Canlı bağlanan bir grafik, geçmişte paylaşılmış bir
-belgeyi sessizce değiştirir — ve o belge artık kimsenin onaylamadığı bir şeydir.
+hâlâ Mart rakamını gösterir; canlı bağlanan bir grafik geçmişte paylaşılmış bir belgeyi
+sessizce değiştirir ve o belge artık kimsenin onaylamadığı bir şeydir. IR bu yüzden
+corpus'a referans değil **değer** taşır.
 ### §7.7 Demo yakalama {#section-7-7}
 
 Xvfb + headed Chromium 1920×1080 (`--force-device-scale-factor=2`) +

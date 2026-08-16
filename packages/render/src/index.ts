@@ -183,7 +183,23 @@ export {
 } from './layout/coklu-enboy.js'
 
 // Deck PDF (§7.6 · FAZ-6.1). ÜÇÜNCÜ RENDERER YOK: aynı Chromium, aynı toHtml, page.pdf().
-export { deckPages, renderDeckPdf, type DeckPage, type DeckPdfResult } from './deck/pdf.js'
+export {
+  KALITE_MERDIVENI,
+  LINKEDIN_DOC_MAX_SAYFA,
+  VARSAYILAN_BAYT_TAVANI,
+  isLinkedinDocError,
+  renderLinkedinDocument,
+  type LinkedinDocError,
+  type LinkedinDocResult,
+} from './deck/linkedin.js'
+export { irJson, isIrError, parseIr, type IrError, type IrFile } from './deck/ir.js'
+export {
+  deckHtml,
+  deckPages,
+  renderDeckPdf,
+  type DeckPage,
+  type DeckPdfResult,
+} from './deck/pdf.js'
 
 // ── grafik katmanı (FAZ-6.2) ────────────────────────────────────────────────
 // Geometri SVG, metin HTML: hiçbir yerde metin genişliği tahmin edilmiyor (D-209).

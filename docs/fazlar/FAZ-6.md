@@ -38,7 +38,7 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 🧪 Palet dışı bir hex ver → `lexicon` linter'ı reddediyor (R-35)
 💾 `feat(render): ECharts SSR ve D2 diyagram` · `Refs: FAZ-6.2 · §7.6`
 
-## 6.3 — `linkedin-document` pipeline    [ ]
+## 6.3 — `linkedin-document` pipeline    [x] 2026-08-16
 
 📖 §10, §9.3 · R-11
 🔗 6.1
