@@ -995,9 +995,20 @@ matrisini ikiye katlar ve ikinci tema asla bakımlanmaz.
 Üç kademe token: ham OKLCH rampalar (bileşen dokunmaz) → anlamsal roller (yüzey bağlamına
 göre) → bileşen token'ları (yalnız 2. kademeye referans).
 
-**Chroma alana göre sınırlı** (ISA-101 yüksek performanslı HMI): %25'ten büyük dolgu
-C ≤ 0.02 · kenarlık ≤ 0.04 · metin ≤ 0.06 · yalnız %4'ten küçük sinyal alanları ≤ 0.16.
-**Renk anormallik demektir** — her yerde renk varsa hiçbir yerde uyarı yoktur.
+**Chroma alana göre sınırlı — ama YALNIZ KONSOL YÜZEYİNDE** (ISA-101 yüksek performanslı
+HMI): %25'ten büyük dolgu C ≤ 0.02 · kenarlık ≤ 0.04 · metin ≤ 0.06 · yalnız %4'ten küçük
+sinyal alanları ≤ 0.16. **Renk anormallik demektir** — her yerde renk varsa hiçbir yerde
+uyarı yoktur.
+
+**Kreatif yüzeyde tavan YOKTUR ve bu bir gevşetme değil, kapsam düzeltmesidir** (D-253).
+ISA-101 gerekçesi bir izleme kabini içindir; bir Instagram gönderisinde "renk = anormallik"
+kuralı ters yönde çalışır ve tavanı kreatife uygulamak **hedeflenen estetiği imkânsız
+kılar** — ölçüldü: tipik bir marka sarısı `oklch(0.804 0.156 87)`, dolgu tavanının 7,8 katı.
+
+Kreatif rengin kuralı **doygunluk değil KAYNAK**: renk ya dönemin kreatif paletinden gelir
+(varsayılan), ya da o çalıştırmaya özel AÇIK bir parametreyle gelir ve manifeste yazılır.
+Tutarlılık token seviyesinde tahminle değil, **basılmış pikselde ölçümle** korunuyor:
+§11.1'in ΔE ve palet-dışı oran kapıları zaten çıktının kendisine bakıyor.
 
 Gölge yok: yükseklik arka plan basamağı + pah çizgisiyle. Kontrast CI'da **hesaplanır**,
 göze bakılmaz — OKLCH L, WCAG luminance değildir.

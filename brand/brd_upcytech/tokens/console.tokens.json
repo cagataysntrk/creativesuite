@@ -50,6 +50,36 @@
         "$value": "oklch(0.65 0.120 150)",
         "$type": "color"
       }
+    },
+    "marka": {
+      "$description": "KREATİF rampa (§12.1 · D-253). Doygun ve bu KASITLI: kreatif yüzeyde chroma tavanı yok, renk kaynağı beyanlıdır. Konsolda KULLANILMAZ — orada ISA-101 geçerli ve `kreatif` dışındaki her yüzey tavana tabi.",
+      "amber-500": {
+        "$description": "Birincil marka vurgusu. Ölçüm/enstrüman dünyasının kehribarı; referans karosellerdeki sarının kardeşi.",
+        "$value": "oklch(0.80 0.156 87)",
+        "$type": "color"
+      },
+      "amber-600": {
+        "$value": "oklch(0.72 0.150 82)",
+        "$type": "color"
+      },
+      "amber-200": {
+        "$value": "oklch(0.92 0.070 90)",
+        "$type": "color"
+      },
+      "ink-950": {
+        "$description": "Kreatif siyah — konsol grisinden DAHA nötr, çünkü burada rengi kavga etmemeli.",
+        "$value": "oklch(0.15 0.006 250)",
+        "$type": "color"
+      },
+      "ink-800": {
+        "$value": "oklch(0.27 0.008 250)",
+        "$type": "color"
+      },
+      "kagit": {
+        "$description": "Kreatif beyaz — saf beyaz DEĞİL: baskıda ve ekranda saf beyaz parlar ve tipografiyi sertleştirir.",
+        "$value": "oklch(0.97 0.004 90)",
+        "$type": "color"
+      }
     }
   },
   "role": {

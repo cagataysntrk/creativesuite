@@ -551,3 +551,39 @@ Tip ölçeği kapalı kalmazsa "marka şablonu" bir öneriye dönüşür.
 hâlâ kullanıcının kararı. Değiştirmek iki dosya indirip `YUZLER` listesini güncellemek.
 
 **Geri alma maliyeti:** düşük — `fontCss` verilmezse eski davranış.
+
+## D-253 — Chroma tavanı yüzey kapsamlı: gevşetme değil, kapsam düzeltmesi
+
+**2026-08-17 · tasarım katmanı**
+
+`CHROMA_LIMITS.fill = 0.02` **her** marka yüzeyine uygulanıyordu ve hedeflenen estetiği
+imkânsız kılıyordu. Ölçüldü, tahmin edilmedi: referans karosellerin sarısı
+`oklch(0.804 0.156 87)` — **dolgu tavanının 7,8 katı.** Tavan bir ayar meselesi değil,
+kural meselesiydi.
+
+**§12.1'in ISA-101 gerekçesi doğru — ama bir İZLEME KABİNİ için.** "Renk anormallik
+demektir; her yerde renk varsa hiçbir yerde uyarı yoktur" bir kontrol odası cümlesidir.
+Bir Instagram gönderisinde aynı kural **ters yönde** çalışır: orada renk anormallik
+değil, markanın kendisidir.
+
+**Kullanıcının kararı kuralın metnini belirledi:** *"sarı kırmızı her renk olabilir o
+post için; özel bir talep yoksa markaya uygun klasik bir şablonu devam ettirmeli."*
+Mühendislik karşılığı: **kreatif rengin kuralı doygunluk değil KAYNAK.** Renk ya dönemin
+kreatif paletinden gelir (varsayılan), ya da o çalıştırmaya özel açık bir parametreyle
+gelir ve manifeste yazılır.
+
+**Tutarlılık kaybolmuyor, ölçüldüğü yere taşınıyor:** §11.1'in ΔE ve palet-dışı oran
+kapıları zaten **basılmış piksele** bakıyor. Token seviyesindeki chroma tavanı kreatif
+yüzey için ikinci ve daha kör bir mekanizmaydı — çıktıyı değil tanımı ölçüyordu.
+
+**Liste KAPALI ve varsayılan SINIRLI:** `TAVANSIZ_YUZEYLER = {'kreatif'}`; tanınmayan
+her yüzey tavana tabi. Ters varsayılan, yeni bir yüzey açan kişinin farkında olmadan
+konsolu renklendirmesi demekti — ve ISA-101 orada hâlâ geçerli.
+
+**Sıra korundu** (sessiz düzeltme yok): `ANAYASA §12.1` → `tokens.ts` → yeni yüzey.
+Koda istisna yazıp kuralı olduğu gibi bırakmak, kuralı bir öneriye çevirirdi.
+
+**Kreatif rampa eklendi:** kehribar (ölçüm/enstrüman dünyasının rengi), mürekkep ve
+kâğıt. **Saf beyaz KULLANILMADI** — baskıda ve ekranda parlar, tipografiyi sertleştirir.
+
+**Geri alma maliyeti:** yok — `kreatif` yüzeyini silmek eski davranışa döner.

@@ -1,0 +1,50 @@
+{
+  "$description": "KREATİF yüzey (§12.1 · D-253). Instagram/LinkedIn çıktısının rolleri. Chroma tavanı BURADA UYGULANMAZ: ISA-101 gerekçesi izleme kabini içindir ve bir gönderide ters yönde çalışır. Tutarlılık token seviyesinde değil, BASILMIŞ PİKSELDE ölçülüyor (§11.1 ΔE + palet-dışı oran). Yalnız 2. kademe rolleri yeniden tanımlar — rampalar ve yapı ortak.",
+  "role": {
+    "bg": {
+      "$description": "Kapak ve vurgu slaytlarının zemini. Referans karosellerdeki sarı alanın karşılığı.",
+      "$value": "{ramp.marka.amber-500}",
+      "$type": "color"
+    },
+    "surface": {
+      "$description": "Gövde slaytlarının zemini — ritim için zeminin dönüşmesi gerekiyor (§12.1).",
+      "$value": "{ramp.marka.kagit}",
+      "$type": "color"
+    },
+    "line-hair": {
+      "$value": "{ramp.marka.ink-800}",
+      "$type": "color"
+    },
+    "line-edge": {
+      "$value": "{ramp.marka.ink-950}",
+      "$type": "color"
+    },
+    "text": {
+      "$description": "Kehribar zemin üstünde mürekkep: kontrast hesaplanır, göze bakılmaz (§12.1).",
+      "$value": "{ramp.marka.ink-950}",
+      "$type": "color"
+    },
+    "text-muted": {
+      "$value": "{ramp.marka.ink-800}",
+      "$type": "color"
+    },
+    "accent": {
+      "$description": "Motif ve sayaç rengi — kapakta mürekkep, gövdede kehribar.",
+      "$value": "{ramp.marka.amber-600}",
+      "$type": "color"
+    },
+    "state-warn": {
+      "$description": "Sinyal renkleri yüzeyler arası AYNI rampadan gelir (ISA-101).",
+      "$value": "{ramp.signal.warn}",
+      "$type": "color"
+    },
+    "state-danger": {
+      "$value": "{ramp.signal.danger}",
+      "$type": "color"
+    },
+    "state-ok": {
+      "$value": "{ramp.signal.ok}",
+      "$type": "color"
+    }
+  }
+}

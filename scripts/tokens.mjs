@@ -183,7 +183,7 @@ for (const marka of MARKALAR) {
       for (const e of y.errors) console.log(`    ${e.kind}  ${e.path}`)
       process.exit(1)
     }
-    const yIhlal = checkChroma(y.value)
+    const yIhlal = checkChroma(y.value, ad)
     if (yIhlal.length > 0) {
       console.log(`✗ ${marka.id}: '${ad}' yüzeyinde chroma sınırı aşıldı:`)
       console.log(formatChroma(yIhlal))

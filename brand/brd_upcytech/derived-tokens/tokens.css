@@ -13,6 +13,12 @@
   --ramp-gray-800: oklch(0.28 0.010 250);
   --ramp-gray-900: oklch(0.21 0.010 250);
   --ramp-gray-950: oklch(0.16 0.010 250);
+  --ramp-marka-amber-200: oklch(0.92 0.070 90);
+  --ramp-marka-amber-500: oklch(0.80 0.156 87);
+  --ramp-marka-amber-600: oklch(0.72 0.150 82);
+  --ramp-marka-ink-800: oklch(0.27 0.008 250);
+  --ramp-marka-ink-950: oklch(0.15 0.006 250);
+  --ramp-marka-kagit: oklch(0.97 0.004 90);
   --ramp-signal-danger: oklch(0.58 0.160 25);
   --ramp-signal-ok: oklch(0.65 0.120 150);
   --ramp-signal-warn: oklch(0.72 0.150 75);
@@ -35,6 +41,19 @@
   --role-surface: var(--ramp-gray-900);
   --role-text: var(--ramp-gray-50);
   --role-text-muted: var(--ramp-gray-500);
+}
+
+[data-surface='kreatif'] {
+  --role-accent: var(--ramp-marka-amber-600);
+  --role-bg: var(--ramp-marka-amber-500);
+  --role-line-edge: var(--ramp-marka-ink-950);
+  --role-line-hair: var(--ramp-marka-ink-800);
+  --role-state-danger: var(--ramp-signal-danger);
+  --role-state-ok: var(--ramp-signal-ok);
+  --role-state-warn: var(--ramp-signal-warn);
+  --role-surface: var(--ramp-marka-kagit);
+  --role-text: var(--ramp-marka-ink-950);
+  --role-text-muted: var(--ramp-marka-ink-800);
 }
 
 [data-surface='studio'] {

@@ -324,7 +324,29 @@ export interface ChromaViolation {
  * sinyal rampasının yüksek chroma'ya sahip olması TASARIMDIR. Sınır, o rampayı KULLANAN
  * role/comp token'ına uygulanır — kullanım yeri, tanım yeri değil.
  */
-export const checkChroma = (tokens: readonly FlatToken[]): readonly ChromaViolation[] => {
+/**
+ * Chroma tavanının uygulandığı yüzeyler — **KAPALI liste** (§12.1 · D-253).
+ *
+ * ISA-101 gerekçesi ("renk anormallik demektir") bir İZLEME KABİNİ içindir. Bir
+ * Instagram gönderisinde aynı kural ters yönde çalışır ve hedeflenen estetiği
+ * imkânsız kılar: tipik bir marka sarısı `oklch(0.804 0.156 87)`, dolgu tavanının
+ * **7,8 katı**. Ölçüldü, tahmin edilmedi.
+ *
+ * **Liste kapalı ve varsayılan SINIRLI:** tanımadığı bir yüzey tavana tabi kalır.
+ * Ters varsayılan, yeni bir yüzey açan kişinin farkında olmadan konsolu renklendirmesi
+ * demekti — ve ISA-101 orada hâlâ geçerli.
+ */
+const TAVANSIZ_YUZEYLER: ReadonlySet<string> = new Set(['kreatif'])
+
+export const checkChroma = (
+  tokens: readonly FlatToken[],
+  yuzey = 'console'
+): readonly ChromaViolation[] => {
+  // Kreatif rengin kuralı doygunluk değil KAYNAK: renk dönemin paletinden ya da açık
+  // bir çalıştırma parametresinden gelir. Tutarlılık §11.1'in ΔE ve palet-dışı
+  // kapılarıyla, yani BASILMIŞ PİKSELDE ölçülüyor — token seviyesinde tahminle değil.
+  if (TAVANSIZ_YUZEYLER.has(yuzey)) return []
+
   const ihlaller: ChromaViolation[] = []
   for (const t of tokens) {
     if (t.tier === 'ramp') continue
