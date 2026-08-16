@@ -180,6 +180,8 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       doktorRaporu({
         repoRoot: o.repoRoot,
         bugun: o.simdi().slice(0, 10),
+        // Aynı an, aynı cevap: ekran ve CLI bir günü farklı sayamaz (m3).
+        simdi: o.simdi(),
         aktifEra: era,
         db,
         // Git olguları sunucuda toplanmıyor: `git-cagiran` darboğazı tek dosyaya kilitli
