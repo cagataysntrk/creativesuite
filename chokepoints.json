@@ -238,6 +238,15 @@
       "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"],
       "haric_neden": "Test ekin GERÇEKTEN eklendiğini iddia etmek için sabite bakmak zorunda; iddia etmek, ikinci bir kaynak kurmak değildir.",
       "faz": "FAZ-3.7"
+    },
+    {
+      "id": "ekran-kaydedici",
+      "ad": "Ekran kaydedici",
+      "neden": "Playwright `recordVideo` REDDEDİLDİ (§17 · §7.7): istenen çözünürlüğü karşılayamadığında SESSİZCE 800×800 WebM'e düşüyor. Sessizce düşen bir ayar en kötü ayardır — çıktı üretilir, kimse bakmaz, ve prospect'e giden demo videosu 800×800'dür. Yakalama x11grab ile yapılır ve çözünürlük İSTENİR: alınamadığında hata verir. `izinli` listesi BOŞ — bu bir 'tam olarak bir tane' değil, 'hiç olmasın' kuralı.",
+      "izinli": [],
+      "desen": "recordVideo|record_video",
+      "faz": "FAZ-5.6",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     }
   ],
   "kapsam_varsayilan_neden": "Son iki desen 2026-08-15'te eklendi. `scripts/uret.mjs` ve `scripts/plan.mjs` ÜRETİM YOLUDUR — `just uret` para harcayabilir — ama hiçbir darboğazın kapsamında değildiler. Doğrulama agent'ı orada dört ihlal buldu: ikinci retrieval yüklemi (R-13, BLOCKING), doğrudan `process.env`, doğrudan `openDb`, kendi maliyet defteri. Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) KAPSAM DIŞI: onlar araçtır, üretim yolu değil — bir kapının `git` çağırması kapının işidir. Bir darboğaz kapsamı, kuralın en çok çiğneneceği yeri dışarıda bırakıyorsa kapı değil."

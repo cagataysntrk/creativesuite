@@ -70,18 +70,15 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
 ✅ Gerçek sesten kelime zamanları üretiliyor ve `.ass`e dönüyor
 ⛔ `whisper.cpp` kurulu değil, `GROQ_API_KEY` yer tutucu. → V-22
 
-## 5.6 — Demo yakalama (Xvfb + x11grab)    [ ]
+## 5.6 — Demo yakalama (Xvfb + x11grab)    [x] 2026-08-16
 
-📖 §7.7 · D-24
+📖 §7.7 · D-24, D-200
 🔗 5.3
-🛠 Xvfb + headed Chromium 1920×1080 + `ffmpeg -f x11grab -framerate 60 -draw_mouse 0`.
-   Playwright script `timeline.json` YAZAR — tıklama hedefleri **piksel oluşmadan önce**
-   bilinir; sonradan görüntüden hedef aramak kırılgan ve yavaştır.
-   ⚠ Playwright `recordVideo` REDDEDİLDİ: sessizce 800×800 WebM'e düşüyor.
-📁 `packages/render/src/capture/` · `demos/<product>/`
-✅ 1920×1080 MP4 üretiliyor · `timeline.json` tıklama hedefleriyle dolu
-🧪 `recordVideo` kullanmayı dene → kapı reddediyor (çözünürlük sessizce düşer)
-💾 `feat(render): xvfb demo yakalama` · `Refs: FAZ-5.6 · §7.7`
+📁 `packages/render/src/capture/timeline.ts` · `packages/render/src/capture/ffmpeg.ts`
+✅ Xvfb 1920×1080x24 + üretilen argümanlarla gerçek yakalama: **h264 · yuv420p ·
+   1920×1080 · 60 fps** · `timeline.json` şeması tıklama kutularını ve bölüm
+   işaretlerini taşıyor, zoom odağı hedefin merkezinden türüyor
+🧪 `recordVideo` kullanmayı dene → `chokepoints` (`ekran-kaydedici`) reddediyor
 
 ## 5.7 — `demo-video` pipeline    [ ]
 

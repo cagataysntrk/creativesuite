@@ -448,3 +448,28 @@ edilebiliyor: Türkçe karakterler kaçışsız yazılıyor (Latin-1'e düşen b
 sessizce `g` yapar ve bu ancak video izlenirken görülür), `\\k` süresi kelimenin KENDİ
 süresi, ters ve çakışan zamanlar reddediliyor.
 **Adım bölündü:** `5.5` yazıcı + kapı bitti · `5.5b` gerçek ASR `bloke: insan` (V-22).
+
+## D-200 — Tıklama niyeti pikselden ÖNCE yazılır; `recordVideo` darboğazla yasaklandı
+2026-08-16 · `5.6`nın asıl fikri şu: her açık kaynak ekran kaydedici zoom ve kırpma
+hedeflerini **kaydedilmiş fare izinden ÇIKARMAK** zorunda — görüntüde imleci bul,
+hareketi izle, tıklamayı tahmin et. Kırılgan ve yavaş. Bizde Playwright script'i hedefi
+zaten BİLİYOR (`boundingBox()` tıklamadan önce çağrılıyor) ve onu `timeline.json`a veri
+olarak yazıyor. Zoom odağı, bölüm işaretleri ve `reels` klipleri (5.8) bundan
+**deterministik** türüyor — ses enerjisinden değil (sessiz ekran kaydında o yöntem
+çalışmaz, §17).
+**`recordVideo` `chokepoints.json`a `izinli: []` ile kondu** — "tam olarak bir tane"
+değil, "hiç olmasın" kuralı. Sebep: istenen çözünürlüğü karşılayamadığında SESSİZCE
+800×800 WebM'e düşüyor. Sessizce düşen bir ayar en kötü ayardır: çıktı üretilir, kimse
+bakmaz, ve prospect'e giden demo 800×800'dür.
+**Kendi ihlal testim ilk denemede yanlış kuralı sınadı** (D-186 tekrarı): ihlal dosyası
+playwright'ı da import ediyordu ve kırmızı `chromium-baslatan`dan geldi. Dosya yalnız
+`recordVideo` içerecek şekilde sadeleştirildi; kırmızı doğru kuraldan geldi.
+**Doğrulamalar sessiz bozulmayı hedefliyor:** sıfır alanlı kutu (`boundingBox()`
+görünmeyen öğe için bunu döndürür — zoom köşeye gider), ekran dışı hedef (siyah kare),
+geriye giden zaman, tek boyut (h264 çift ister; ffmpeg sessizce yuvarlar).
+Gerçek kanıt: Xvfb 1920×1080x24 + üretilen argümanlarla x11grab →
+**h264 · yuv420p · 1920×1080 · 60 fps · 3 sn**.
+**Koşum betiğim iki kez yalan söyledi:** `xterm` yokluğu ffmpeg hatası gibi göründü;
+sonra zsh unquoted değişkeni **kelime bölmediği** için tüm argüman dizisi tek argüman
+oldu ve "Unrecognized option" verdi. İkisi de koddaki değil harness'taki hataydı —
+D-170'in kabuk seviyesindeki hâli.

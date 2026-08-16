@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.6
+siradaki_adim: 5.7
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.5 BITTI (D-199). Transkript kapisi PUBLISH YUKLEMININ ICINE kondu, yanina degil — ikinci bir kontrol noktasi ATLANABILECEK bir kontrol noktasidir (bu projede tam bu siniftan uc hata cikti: D-173/D-182/D-190). inspectManifest icinde, isPublishable otomatik devraliyor. Tetikleyici FIIL degil URUN: output icinde captions tasiyan adim; fiil adina bakmak ucuncu bir fiilde sessizce kor kalirdi. Ihlal testi: kurali kaldir → 3 test kirmizi; altyazisiz calistirma kapiyi hic tetiklemiyor. .ass yazicisi SAF ve ASR den bagimsiz — Turkce kacissiz, \\k kelimenin KENDI suresi, ters/cakisan zamanlar reddediliyor. Adim bolundu: 5.5b gercek ASR BLOKE:insan (V-22). YEDI insan blokaji. 34 kapi, 944 test."
+son_kanit: "5.6 BITTI (D-200). Tiklama niyeti PIKSEL OLUSMADAN ONCE yaziliyor: boundingBox() tiklamadan once cagriliyor ve timeline.json a veri olarak dusuyor; zoom odagi, bolum isaretleri ve reels klipleri bundan DETERMINISTIK turuyor (ses enerjisinden degil). recordVideo chokepoints e izinli:[] ile kondu — istenen cozunurlugu karsilayamayinca SESSIZCE 800x800 WebM e dusuyor. Ihlal testim ilk denemede YANLIS kurali sindi; sadelestirilip dogru kuraldan kirmizi alindi (D-186). Gercek kanit: Xvfb 1920x1080x24 + uretilen argumanlarla x11grab → h264 yuv420p 1920x1080 60fps. Kosum betigim iki kez yalan soyledi (xterm yoklugu, zsh kelime bolmuyor). 35 kapi, 955 test."
 ```
 
 ## Neredeyiz
@@ -75,19 +75,19 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **5.3** · Hareket kütüphanesi; marka-bağımsız, düz renk yasak | 2026-08-16 |
 | **5.4** · `audio.tts` şerit sözleşmesi; lisans beyanı zorunlu | 2026-08-16 |
 | **5.5** · `.ass` yazıcısı + transkript kapısı (yayın yükleminde) | 2026-08-16 |
+| **5.6** · Demo yakalama; tıklama niyeti pikselden önce yazılıyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.6` — Demo yakalama** (§7.7). Xvfb + headed Chromium 1920×1080 +
-`ffmpeg -f x11grab -framerate 60 -draw_mouse 0`. Playwright script `timeline.json`
-yazar — **tıklama hedefleri piksel oluşmadan ÖNCE bilinir**; sahte imleç (`hf-cursor`,
-5.3) o hedeflere deterministik gider. `xvfb-run` kurulu ✓.
+**`5.7` — `demo-video` pipeline** (§10). Demo **sürümlü artefakt**, MP4 yalnız build
+çıktısı. Kalıcı üçlü `demos/<urun>/`: `demo-script.ts` · `timeline.json` (5.6 şeması) ·
+`narration.tr.json`. Sonraki video METNİ düzenleyip yeniden render ederek üretilir.
+⚠ V-20 burada çözülür.
 
-## Kapanış turu — kalan bulgular
+## FAZ 4 kalanı
 
-FAZ 4'ün altı bulgusu kapandı (D-188…D-192). **Kalan tek şey:** QA okumaları ve bağlam
-girdisi 0/18 — ikisi de `2.9` blokajı yüzünden; ölçüm `3.14` koştuğu gün gelir. Gerçek
-bileşen testi (DOM altyapısı) FAZ 9'a bırakıldı — D-192.
+QA okumaları ve bağlam girdisi 0/18 — `2.9` blokajı; ölçüm `3.14` koştuğu gün gelir.
+Gerçek bileşen testi (DOM altyapısı) FAZ 9'a bırakıldı — D-192.
 
 ## Bloke adımlar
 

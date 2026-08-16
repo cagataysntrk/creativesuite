@@ -135,3 +135,24 @@ export {
   type AssError,
   type AssResult,
 } from './captions/ass.js'
+
+// Demo yakalama (§7.7 · FAZ-5.6). Tarayıcıya ve sürece DOKUNMAZ: şema + argüman.
+export {
+  validateTimeline,
+  zoomOrigin,
+  chapters,
+  timelineHataMesaji,
+  type Box,
+  type ClickTarget,
+  type CaptureTimeline,
+  type TimelineError,
+  type TimelineResult,
+} from './capture/timeline.js'
+export {
+  captureArgs,
+  xvfbArgs,
+  captureHataMesaji,
+  type CaptureOptions,
+  type CaptureArgError,
+  type CaptureArgResult,
+} from './capture/ffmpeg.js'
