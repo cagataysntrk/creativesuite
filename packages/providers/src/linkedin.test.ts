@@ -20,6 +20,7 @@ const varlik = (path: string): PublishAsset => ({
   altTr: 'Fire ölçümü paneli',
   decorative: false,
   digest: 'sha256:a',
+  compliance: { disclosureRequired: false, stamped: false, visibleDisclosure: false },
 })
 
 const post = (over: Partial<LinkedinPost> = {}): LinkedinPost => ({

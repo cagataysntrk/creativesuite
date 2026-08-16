@@ -7,6 +7,7 @@ import {
   publish,
   refusalMessage,
   YENILEME_PAYI_GUN,
+  type PublishAsset,
   type PublishDeps,
   type PublishRequest,
 } from './publish.js'
@@ -17,7 +18,16 @@ const istek = (over: Partial<PublishRequest> = {}): PublishRequest => ({
   platform: 'instagram',
   placementId: 'instagram-feed-4x5',
   assets: [
-    { path: '/tmp/a.png', altTr: 'Fire ölçümü paneli', decorative: false, digest: 'sha256:a' },
+    {
+      path: '/tmp/a.png',
+      altTr: 'Fire ölçümü paneli',
+      decorative: false,
+      digest: 'sha256:a',
+      // İfşa gerekmiyor: muafiyet kapsamı (boyutlandırma/kırpma). Gerektiği durum
+      // ayrı testte ölçülüyor — varsayılan fikstürü "hep ifşalı" yapmak, kapıyı
+      // her testte çalıştırıp asıl testi görünmez kılardı.
+      compliance: { disclosureRequired: false, stamped: false, visibleDisclosure: false },
+    },
   ],
   caption: 'Ölçüm odaklı yaklaşım',
   runId: 'run_1',
@@ -119,7 +129,15 @@ describe('alt-text (R-34)', () => {
     const { d, sira } = deps()
     const r = await publish(
       istek({
-        assets: [{ path: '/tmp/a.png', altTr: '   ', decorative: false, digest: 'sha256:a' }],
+        assets: [
+          {
+            path: '/tmp/a.png',
+            altTr: '   ',
+            decorative: false,
+            digest: 'sha256:a',
+            compliance: { disclosureRequired: false, stamped: false, visibleDisclosure: false },
+          },
+        ],
       }),
       d
     )
@@ -130,7 +148,17 @@ describe('alt-text (R-34)', () => {
   it('dekoratif görsel alt-text’siz GEÇİYOR — ayrım bir iddiadır', async () => {
     const { d } = deps()
     const r = await publish(
-      istek({ assets: [{ path: '/tmp/a.png', altTr: '', decorative: true, digest: 'sha256:a' }] }),
+      istek({
+        assets: [
+          {
+            path: '/tmp/a.png',
+            altTr: '',
+            decorative: true,
+            digest: 'sha256:a',
+            compliance: { disclosureRequired: false, stamped: false, visibleDisclosure: false },
+          },
+        ],
+      }),
       d
     )
     expect(r.ok).toBe(true)
@@ -141,7 +169,13 @@ describe('alt-text (R-34)', () => {
     const r = await publish(
       istek({
         assets: [
-          { path: '/tmp/a.png', altTr: 'ö'.repeat(ALT_MAX + 1), decorative: false, digest: 'x' },
+          {
+            path: '/tmp/a.png',
+            altTr: 'ö'.repeat(ALT_MAX + 1),
+            decorative: false,
+            digest: 'x',
+            compliance: { disclosureRequired: false, stamped: false, visibleDisclosure: false },
+          },
         ],
       }),
       d
@@ -221,5 +255,57 @@ describe('yineleme mutabakatı (R-46)', () => {
     expect(r.error.kind).toBe('rate_limited')
     expect(refusalMessage(r.error)).toContain('KOTA değil')
     expect(sira).not.toContain('yukleme')
+  })
+})
+
+// 🧪 EU AI Act Md. 50 (§11.3 · FAZ-8.3) — **2 Ağu 2026'dan beri uygulanabilir**.
+// Alt-text ile aynı sınıf: yayınlanmış bir postun ifşası sonradan eklenemez.
+describe('AI ifşası', () => {
+  const ifsali = (c: Partial<PublishAsset['compliance']>) =>
+    istek({
+      assets: [
+        {
+          path: '/tmp/a.png',
+          altTr: 'Ölçüm paneli',
+          decorative: false,
+          digest: 'sha256:a',
+          compliance: {
+            disclosureRequired: true,
+            stamped: true,
+            visibleDisclosure: true,
+            ...c,
+          },
+        },
+      ],
+    })
+
+  it('ifşa gerekli ama makine-okunur damga yoksa yayın DURUYOR', async () => {
+    const { d, sira } = deps()
+    const r = await publish(ifsali({ stamped: false }), d)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind).toBe('disclosure_missing')
+    expect(refusalMessage(r.error)).toContain('Md. 50(2)')
+    expect(sira).not.toContain('yukleme')
+  })
+
+  it('görünür ifşa katmanı yoksa yayın DURUYOR', async () => {
+    const { d } = deps()
+    const r = await publish(ifsali({ visibleDisclosure: false }), d)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind === 'disclosure_missing' && r.error.eksik).toBe('visible')
+  })
+
+  // **Muafiyet gerçek ve dar okunmamalı:** yeniden boyutlandırma, kırpma, renk
+  // düzeltme ifşa tetiklemiyor. Her varlığa ifşa şeridi koymak, kuralı olmadığı
+  // yere taşımak olurdu.
+  it('ifşa gerekmiyorsa damga da katman da ARANMIYOR', async () => {
+    const { d } = deps()
+    const r = await publish(
+      ifsali({ disclosureRequired: false, stamped: false, visibleDisclosure: false }),
+      d
+    )
+    expect(r.ok).toBe(true)
   })
 })

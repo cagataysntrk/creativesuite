@@ -28,7 +28,15 @@ const DIGEST = 'sha256:deck'
 
 /** `RENDER` çıktısının GERÇEK şekli — gövde varlıkları buradan topluyor. */
 const renderCiktisi = {
-  assets: [{ path: '/tmp/a.png', altTr: 'Fire ölçümü paneli', decorative: false, digest: DIGEST }],
+  assets: [
+    {
+      path: '/tmp/a.png',
+      altTr: 'Fire ölçümü paneli',
+      decorative: false,
+      digest: DIGEST,
+      compliance: { disclosureRequired: false, stamped: true, visibleDisclosure: true },
+    },
+  ],
 }
 
 const govdeDeps = (yuklendi: string[], over: Partial<PublishBodyDeps> = {}): PublishBodyDeps => ({
@@ -196,5 +204,39 @@ describe('PUBLISH fiili ↔ defter', () => {
     })
     const r = lookupPublished(tmp.path, DIGEST, 'instagram')
     expect(r.ok && r.entry).toBeNull()
+  })
+})
+
+// 🧪 FAZ-8.3: uyum kaydı EKSİKSE ne olur? "İfşa gerekmiyor" varsayımı, alan eklemeyi
+// unutan bir üreticinin ifşa kapısını sessizce kapatması demekti — kapının en çok
+// gerektiği yerde kapanması. Bilinmeyen ifşa durumu, ifşa GEREKTİRİR (D-175).
+describe('uyum kaydı eksikse', () => {
+  it('ifşa GEREKLİ varsayılıyor ve yayın duruyor', async () => {
+    initLedgerFile(tmp.path)
+    const yuklendi: string[] = []
+    const fiil = publishBody(govdeDeps(yuklendi))
+    const r = await fiil.run(
+      ctx() as never,
+      {
+        constraints: { platform: 'instagram', placementId: 'instagram-feed-4x5', caption: 'Ölçüm' },
+        // `compliance` alanı YOK — eski bir üretici ya da eksik bir çıktı.
+        inputs: {
+          render: {
+            assets: [
+              {
+                path: '/tmp/a.png',
+                altTr: 'Fire ölçümü paneli',
+                decorative: false,
+                digest: DIGEST,
+              },
+            ],
+          },
+        },
+      } as never
+    )
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.details?.['kind']).toBe('disclosure_missing')
+    expect(yuklendi).toEqual([])
   })
 })

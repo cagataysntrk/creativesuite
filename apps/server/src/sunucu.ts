@@ -41,6 +41,7 @@ import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { baglamOnizle } from './baglam.js'
 import { dunyaDurumu, launcherPlani } from './launcher.js'
 import { kanalPanosu } from './kanal-uc.js'
+import { uyumPanosu } from './uyum-uc.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
@@ -438,6 +439,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // **GET ve yazmıyor.** Geri besleme önerisi bu uçtan geçmez: corpus'a yazan tek
   // yol `corpus.propose()` ve onu İNSAN tetikler (R-14). Panoya bir "corpus'a yaz"
   // düğmesi koymak, onayı bir tıklamaya indirmek olurdu.
+  // ── compliance panosu (§11.3 · FAZ-8.3) ──────────────────────────────────
+  //
+  // GET ve yazmıyor: uyum kaydı ÜRETİM anında basılır, panodan düzeltilmez. Bir
+  // "uyumlu işaretle" düğmesi, dayanaksız iddiayı bir tıklamaya indirirdi (D-23).
+  app.get('/api/uyum', (c) => c.json(uyumPanosu(o.repoRoot)))
+
   app.get('/api/performans', (c) => {
     const yayinlar = readLedger(o.repoRoot)
     if (!yayinlar.ok) return c.json({ hata: yayinlar.error }, 422)

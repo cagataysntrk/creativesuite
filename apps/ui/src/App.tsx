@@ -21,6 +21,7 @@ import { StratejiSagligi } from './StratejiSagligi.js'
 import { Doktor } from './Doktor.js'
 import { KanalDurumu } from './KanalDurumu.js'
 import { PerformansPanosu } from './PerformansPanosu.js'
+import { UyumPanosu } from './UyumPanosu.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -56,6 +57,12 @@ const KOMUTLAR: readonly Komut[] = [
     etiket: 'Performans panosu',
     grup: 'Gözden geçir',
     anahtarlar: ['performance', 'insight', 'hook', 'olcum'],
+  },
+  {
+    id: 'uyum',
+    etiket: 'Uyum panosu',
+    grup: 'Gözden geçir',
+    anahtarlar: ['compliance', 'ifsa', 'ai', 'yasal'],
   },
   {
     id: 'saglik',
@@ -94,6 +101,7 @@ const EKRAN: Readonly<Record<string, Ekran>> = {
   doktor: 'doktor',
   kanallar: 'kanallar',
   performans: 'performans',
+  uyum: 'uyum',
 }
 
 /** Bir hattı çalıştıran komutlar — ekran açmaz, launcher'ı O hatla açar. */
@@ -125,6 +133,7 @@ type Ekran =
   | 'doktor'
   | 'kanallar'
   | 'performans'
+  | 'uyum'
 
 export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
@@ -201,6 +210,8 @@ export const App = (): React.JSX.Element => {
           <KanalDurumu />
         ) : ekran === 'performans' ? (
           <PerformansPanosu />
+        ) : ekran === 'uyum' ? (
+          <UyumPanosu />
         ) : (
           <>
             <h1>Upcytech Creative Suite</h1>

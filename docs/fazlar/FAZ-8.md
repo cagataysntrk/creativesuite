@@ -59,7 +59,7 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    (D-175) — `undefined`ı "eşik altı" saymak temiz göstermek olurdu.
 💾 `feat(render): reklam metni linter'ı` · `Refs: FAZ-8.2 · §11.2`
 
-## 8.3 — Compliance Panel    [ ]
+## 8.3 — Compliance Panel    [x] 2026-08-16
 
 📖 §11.3 · R-33 · D-23
 🔗 FAZ-3.11
@@ -67,9 +67,20 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    27/12, 1 Ağu 2026'dan yürürlükte) + EU AI Act Md. 50 ifşası. **C2PA ertelendi**:
    imza zinciri kanal dönüşümlerinde kopuyor ve kopuk imza, imzasızdan kötü — doğrulama
    yapıldığını sandırıyor.
-📁 `packages/render/src/compliance/` · `apps/ui/src/screens/compliance/`
-✅ Panel her varlığın uyum durumunu limit karşısında gösteriyor (rozet değil)
-🧪 Onay ima eden yapay insan içeren varlık onaylamayı dene → **kod seviyesinde** bloklanıyor
+📁 `apps/server/src/uyum-uc.ts` · `apps/ui/src/UyumPanosu.tsx` (iddia tipi ve damga
+   FAZ-3.11'de kurulmuştu; bu adım **zinciri kapattı**)
+✅ Panel rozet değil okuma veriyor: dayanak adı · "beyan" · "ifşa eksik" · "ölçülemedi".
+   ⚠ **Zincir SON HALKADA kopuktu:** `disclosureRequired` hesaplanıyor ve IPTC'ye
+   damgalanıyordu ama **hiçbir yayın kapısı ona bakmıyordu**. Artık `publish()`in
+   2b. kapısı — alt-text'in yanında ve aynı sebeple: yayınlanmış bir postun ifşası
+   sonradan eklenemez.
+🧪 İfşa gerekli + damga yok → **yayın DURUYOR** · görünür katman yok → **DURUYOR** ·
+   uyum kaydı hiç yok → **ifşa GEREKLİ varsayılıyor ve duruyor** (alan eklemeyi unutan
+   bir üretici kapıyı sessizce kapatamaz) · muafiyet kapsamında → damga ARANMIYOR.
+   ⚠ **Muafiyet dar okunmamalı:** boyutlandırma, kırpma, renk düzeltme ve olay
+   değiştirmeyen arka plan düzenlemesi ifşa tetiklemiyor — her varlığa ifşa şeridi
+   koymak kuralı olmadığı yere taşımak olurdu.
+   ⚠ Panoda **"uyumlu işaretle" düğmesi yok**: dayanaksız iddia bir tıklamaya inerdi.
 💾 `feat(render): compliance panel ve AI ifşası` · `Refs: FAZ-8.3 · §11.3`
 
 ## 8.4 — Haftalık `just doctor`    [ ]

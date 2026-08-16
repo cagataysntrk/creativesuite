@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.3
+siradaki_adim: 8.4
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan"]
 deneme_sayaci: {}
@@ -19,7 +19,7 @@ son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **39 kapı · 15 ihlal kırmızı · 1266 test.**
+**D-79: üçüncü tur AÇILMAZ.** **39 kapı · 15 ihlal kırmızı · 1275 test.**
 **FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
 ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
@@ -76,15 +76,15 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **7.9** · performans panosu; sabit pencere, ölçülmeyen sıralanmıyor | 2026-08-16 |
 | **8.1** · dik varyant matrisi; diklik OFAT'la ölçülüyor (D-225) | 2026-08-16 |
 | **8.2** · reklam linter'ı; ikinci şahıs × özellik kesişimi | 2026-08-16 |
+| **8.3** · uyum panosu; ifşa kapısı yayın hattına bağlandı | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`8.3` — Compliance Panel + AI ifşası** (§11.3). **EU AI Act Md. 50 zaten yürürlükte**
-(2 Ağu 2026): gerçekçi AI insan benzerliği/sesi içeren ve AB kitlesine giden bir varlık
-görünür ifşa istiyor. Her üretilmiş varlığa `ai_generated` + `human_reviewed` +
-`ai_components[]` yazılacak; C2PA/IPTC damgası makine-okunur işaretleme beklentisini
-karşılıyor. ⚠ Muafiyet gerçek: yeniden boyutlandırma, kırpma, renk düzeltme ve kusur
-giderme ifşa **tetiklemiyor** — tüm reframe/rötuş hattımız kapsam dışı.
+**`8.4` — Haftalık `just doctor`** (§16). Sağlayıcı fiyat drift'i, `re_verify_by`
+geçmiş kayıtlar, bütçe sapması. **Rapor yazar, hiçbir şeyi değiştirmez** — bir ay
+ihmalden sonra otomatik düzeltme, kullanıcıya ne olduğunu gizler. Doctor'ın kendisi
+FAZ-4.17'de kuruldu ve sekiz denetim alanı koşuyor; bu adım onu **haftalık bir işe**
+bağlıyor ve raporun nereye yazıldığını belirliyor.
 
 ## Devreden borçlar
 

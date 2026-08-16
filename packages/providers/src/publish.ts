@@ -8,6 +8,7 @@
 // **Sıra bir tercih değil, sözleşmedir:**
 //   1. token yaşıyor mu         → ölmüşse DUR (uyarı değil, blokaj)
 //   2. alt-text var mı          → yoksa DUR (R-34; yayınlanmış post düzenlenemiyor)
+//  2b. AI ifşası gerekliyse var mı → yoksa DUR (Md. 50; aynı sebep)
 //   3. oran kovası (okuma)      → kota sorgusu da bir API çağrısıdır
 //   4. kota sorgusu             → yayından ÖNCE, her seferinde
 //   5. yerel defterle mutabakat → daha önce yayınlandıysa TEKRAR ETME
@@ -32,6 +33,37 @@ export interface PublishAsset {
   readonly decorative: boolean
   /** İçerik özeti — yerel defterde yineleme anahtarı. */
   readonly digest: string
+  /**
+   * Uyum kaydı — varlıkla BİRLİKTE gelir, ayrı bir bağımlılıktan sorulmaz (§11.3).
+   *
+   * `altTr` ile aynı gerekçe: yayınlanmış bir post düzenlenemiyor, o yüzden uyum
+   * kanıtı yayından ÖNCE ve varlığın kendisiyle taşınıyor. Ayrı bir servise sorulsaydı,
+   * o servis çağrılmadığında varlık sessizce "uyumlu" sayılırdı.
+   */
+  readonly compliance: AssetCompliance
+}
+
+/**
+ * Varlığın taşıdığı uyum kaydı.
+ *
+ * **Alanlar zorunlu, çünkü eksikliği "uyumlu" anlamına gelemez.** İsteğe bağlı bir
+ * `disclosureRequired`, verilmediğinde `false`a düşerdi — ve ifşa gereken bir varlık
+ * sessizce ifşasız yayınlanırdı. EU AI Act Md. 50 **2 Ağu 2026'dan beri uygulanabilir**;
+ * bu alan bir gelecek işi değil, bugünkü bir yükümlülük.
+ */
+export interface AssetCompliance {
+  /** Md. 50 ifşası gerekli mi (üretim hesaplıyor, çağıran BEYAN ETMİYOR). */
+  readonly disclosureRequired: boolean
+  /** Makine-okunur işaretleme (IPTC/XMP) varlığa BASILDI mı — Md. 50(2). */
+  readonly stamped: boolean
+  /**
+   * Kreatifin üstünde GÖRÜNÜR ifşa katmanı var mı.
+   *
+   * Yalnız `disclosureRequired` iken aranıyor: reframe/kırpma/renk düzeltme muafiyeti
+   * gerçek ve dar okunmamalı — her varlığa ifşa şeridi koymak, kuralı olmadığı yere
+   * taşımak olurdu.
+   */
+  readonly visibleDisclosure: boolean
 }
 
 export interface PublishRequest {
@@ -111,6 +143,16 @@ export type PublishRefusal =
    * (FAZ-7 denetimi, M1).
    */
   | { readonly kind: 'upload_failed'; readonly hata: string }
+  /**
+   * İfşa gerekli ama yok (§11.3 · EU AI Act Md. 50).
+   *
+   * `alt_text` ile aynı sınıf: yayınlanmış bir postun ifşa katmanı sonradan eklenemez.
+   */
+  | {
+      readonly kind: 'disclosure_missing'
+      readonly path: string
+      readonly eksik: 'stamp' | 'visible'
+    }
 
 export interface PublishSuccess {
   readonly externalId: string
@@ -204,6 +246,21 @@ export const publish = async (
     }
   }
 
+  // ── 2b. AI ifşası (§11.3 · Md. 50) ──────────────────────────────────────
+  //
+  // Alt-text'in hemen yanında ve aynı sebeple: yayınlanmış bir postun ifşası
+  // sonradan eklenemez. Kapı **yalnız ifşa gerektiğinde** çalışıyor — muafiyet
+  // (boyutlandırma, kırpma, renk düzeltme) gerçek ve dar okunmamalı.
+  for (const a of req.assets) {
+    if (!a.compliance.disclosureRequired) continue
+    if (!a.compliance.stamped) {
+      return err({ kind: 'disclosure_missing', path: a.path, eksik: 'stamp' })
+    }
+    if (!a.compliance.visibleDisclosure) {
+      return err({ kind: 'disclosure_missing', path: a.path, eksik: 'visible' })
+    }
+  }
+
   // ── 3. oran kovası: OKUMA (1 puan) ──────────────────────────────────────
   // Kota sorgusu da bir API çağrısıdır. Kovayı yalnız yüklemeden önce sormak, sınıra
   // sorgularla çarpmak demekti — ve o 429, yayın anında değil, ondan da önce gelirdi.
@@ -287,6 +344,10 @@ export const refusalMessage = (r: PublishRefusal): string => {
       return `oran kovası boş — ${r.retryAfterMs}ms sonra tekrar (bu KOTA değil, bizim sınırımız)`
     case 'upload_failed':
       return `yükleme başarısız: ${r.hata}`
+    case 'disclosure_missing':
+      return r.eksik === 'stamp'
+        ? `${r.path}: AI ifşası gerekli ama makine-okunur damga YOK (Md. 50(2)) — yayınlanmış post damgalanamaz`
+        : `${r.path}: AI ifşası gerekli ama görünür ifşa katmanı YOK (Md. 50) — yayınlanmış post düzenlenemiyor`
   }
 }
 

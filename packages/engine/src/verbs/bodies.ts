@@ -1123,11 +1123,22 @@ const yayinVarliklari = (inputs: Readonly<Record<string, unknown>>): PublishAsse
       if (ham === null || typeof ham !== 'object') continue
       const o = ham as Record<string, unknown>
       if (typeof o['path'] !== 'string' || typeof o['digest'] !== 'string') continue
+      // **Uyum kaydı ÜRETİMDEN gelir, burada uydurulmaz.** Eksikse `disclosureRequired`
+      // `true` varsayılıyor: bilinmeyen bir ifşa durumu, "ifşa gerekmiyor" DEĞİLDİR
+      // (D-175). Aksi hâlde alan eklemeyi unutan bir üretici, ifşa kapısını sessizce
+      // kapatırdı — ve bu, kapının en çok gerektiği yerde kapanması olurdu.
+      const u = o['compliance']
+      const uyum = u !== null && typeof u === 'object' ? (u as Record<string, unknown>) : {}
       sonuc.push({
         path: o['path'],
         altTr: typeof o['altTr'] === 'string' ? o['altTr'] : '',
         decorative: o['decorative'] === true,
         digest: o['digest'],
+        compliance: {
+          disclosureRequired: uyum['disclosureRequired'] !== false,
+          stamped: uyum['stamped'] === true,
+          visibleDisclosure: uyum['visibleDisclosure'] === true,
+        },
       })
     }
   }
