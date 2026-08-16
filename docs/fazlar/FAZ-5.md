@@ -17,17 +17,15 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
    İğne` metrikleri Playwright golden'ıyla eşleşiyor** (D-194: sınır ikili değil motor)
 🧪 İkinci bir render motoru ekle → `chokepoints` (`chromium-baslatan`) kırmızı
 
-## 5.2 — `motion/frame.md`    [ ]
+## 5.2 — `frame.md` token köprüsü    [x] 2026-08-16
 
-📖 §7.4, §4.1
+📖 §7.4, §4.1 · D-196
 🔗 5.1 · FAZ-2.10
-🛠 Marka token'ları **kamera bağlamına** çevrilir: renk rampası, tip ölçeği ve boşluk
-   birimleri hareket diline eşlenir. Tek kaynak yine `brand/<brand_id>/tokens/` —
-   hareket için ikinci bir palet tanımlamak, iki marka gerçeği demektir.
-📁 `motion/frame.md`
-✅ `frame.md` token'lardan ÜRETİLİYOR · `git diff --exit-code` boş
-🧪 Elle düzenle, üreteci çalıştır → değişiklik kayboluyor (R-65)
-💾 `feat(motion): frame.md token köprüsü` · `Refs: FAZ-5.2 · §7.4`
+📁 `brand/brd_upcytech/derived-tokens/frame.md` · `scripts/tokens.mjs`
+✅ `frame.md` token'lardan ÜRETİLİYOR — renk rolleri markadan, tip ölçeği/boşluk/
+   hareket süreleri `theme.css`ten · `just gate tokens` sürüklenmeyi yakalıyor
+🧪 Elle düzenle, üreteci çalıştır → değişiklik kayboluyor (R-65) · `theme.css` deseni
+   bayatlarsa üreteç SESSİZ geçmiyor, düşüyor
 
 ## 5.3 — Marka hareket kütüphanesi    [ ]
 

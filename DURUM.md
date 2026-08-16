@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.2
+siradaki_adim: 5.3
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.1 BITTI. D-194un borcu KAPANDI: Playwright Chromium 141.x ile HyperFrames Chrome 135.x ayni tipografiyi veriyor — OLCULDU, varsayilmadi. Ayni olcum kodu iki ikilide kostu (measureGolden bir executablePath aliyor, baslatma yine browser.ts te — darbogaz ikinci DOSYAYI yasakliyor, ikinci noktayi degil). golden-hareket kapisi iki ihlalle kirmiziya donduruldu: monospace e zorlayinca 68 eksik glyph (Turkce glyphleri marka fontu tasiyor), olmayan ikili yolu reddediliyor. Ornek kompozisyon: h264 yuv420p 1920x1080 30fps 10sn. hyperframes iskeleti kendi CLAUDE.md sini birakiyordu — talimatin ikinci kaynagi, silindi. 34 kapi, 926 test."
+son_kanit: "5.2 BITTI (D-196). frame.md markaya ait (brand/<id>/derived-tokens/), motion/e degil — iki marka var ve motion/ altinda tek dosya global aktif-marka durumuna baglanirdi (D-39). Dosya IKI kaynagi yan yana getiriyor: renk rolleri markadan, tip olcegi/bosluk/hareket sureleri theme.css ten (kabuk marka-notr). Uretecte iki hata bulundu: (1) sureler IKI KEZ cikiyordu — prefers-reduced-motion blogu 0ms yapiyor, ayni degisken hem 320ms hem 0ms gorunuyordu; ilk tanim kazaniyor ve ezme GIZLENMIYOR, ayri cumle olarak yaziliyor (2) regex bayatlarsa bos tablo uretilirdi; artik uretec DUSUYOR — --size-* yeniden adlandirilarak dogrulandi. 34 kapi, 926 test yesil."
 ```
 
 ## Neredeyiz
@@ -68,13 +68,14 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **4.16** · Strategy Health; kural kapı ile panoda TEK yerde | 2026-08-16 |
 | **4.17** · Doctor; rapor eder, `doctor-salt-okur` kapısı zorluyor | 2026-08-16 |
 | **5.1** · HyperFrames; iki Chromium aynı tipografiyi veriyor (ölçüldü) | 2026-08-16 |
+| **5.2** · `frame.md` token köprüsü; marka + sistem yan yana | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.2` — `motion/frame.md`** (§7.4, §4.1). Marka token'ları **kamera bağlamına**
-çevrilir. Tek kaynak yine `brand/<brand_id>/tokens/` — hareket için ikinci bir palet
-tanımlamak iki marka gerçeği demektir. ✅ `frame.md` token'lardan ÜRETİLİYOR ·
-`git diff --exit-code` boş. 🧪 elle düzenle, üreteci çalıştır → değişiklik kayboluyor.
+**`5.3` — Marka hareket kütüphanesi** (§7.4, §12.7). intro/outro · lower-third ·
+`ZoomToTarget` · `SyntheticCursor` · `ClickRipple` · `BrowserChrome`. **Hareket beyaz
+listesi:** süre 320 ms'yi geçmez; sayı animasyonu, liste yeniden sıralama, skeleton
+parıltısı ve grafik çizilme YASAK. `frame.md` bu tanımları zaten taşıyor (D-196).
 
 ## Kapanış turu — kalan bulgular
 

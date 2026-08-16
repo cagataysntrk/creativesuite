@@ -198,18 +198,89 @@ for (const marka of MARKALAR) {
   const MARKA = marka.id
   const CIKTI_DIR = join(REPO, `brand/${MARKA}/derived-tokens`)
   const eraSlug = readFileSync(join(REPO, `brand/${MARKA}/current`), 'utf8').trim()
-  // `frame.md` — marka token'larının KAMERA BAĞLAMINA çevrilmiş hâli (§7.4).
-  // Hareket için ikinci bir palet tanımlamak iki marka gerçeği demektir; bu dosya da
-  // üretilir ve elle düzenlenirse kapı yakalar (R-65). FAZ-5.2 onu tüketecek.
+  // ── `frame.md` — tasarım sistemini KAMERA BAĞLAMINA çeviren katman (§7.4) ──
+  //
+  // **İki kaynak, ikisi de tek:** renk rolleri MARKAYA ait (`brand/<id>/tokens/`),
+  // tip ölçeği · boşluk · hareket süreleri SİSTEME ait (`packages/ui/src/theme.css`).
+  // Ayrım keyfi değil: kabuk marka-NÖTR (§4b) ve her markanın kendi tip ölçeğini
+  // tanımlaması, "iki tasarım sistemi" demek olurdu. Hareket kompozisyonu ikisini de
+  // görmek zorunda — bu dosya onları YAN YANA getirir, KOPYALAMAZ.
+  const temaCss = readFileSync(join(REPO, 'packages/ui/src/theme.css'), 'utf8')
+  // ⚠ **İLK tanım kazanır.** `theme.css` süreleri `@media (prefers-reduced-motion)`
+  // altında `0ms`e çeviriyor ve ilk sürüm ikisini de tabloya yazdı: aynı değişken
+  // hem `320ms` hem `0ms` göründü. Kompozisyon yazarı için bu, cevabı olmayan bir
+  // soru — ve tablonun tamamına olan güveni siler.
+  const olcekCikar = (onEk) => {
+    const gorulen = new Set()
+    const out = []
+    for (const m of temaCss.matchAll(new RegExp(`--(${onEk}-[\\w-]+):\\s*([^;]+);`, 'g'))) {
+      if (gorulen.has(m[1])) continue
+      gorulen.add(m[1])
+      out.push({ ad: m[1], deger: m[2].trim() })
+    }
+    return out
+  }
+
+  const tipler = olcekCikar('size')
+  const bosluklar = olcekCikar('space')
+  const sureler = olcekCikar('dur')
+
+  // **Boş çıkarım SESSİZ geçmez.** Bir regex `theme.css` yeniden biçimlendiğinde
+  // sessizce hiçbir şey bulmaz ve `frame.md` boş bir tabloyla üretilir — hareket
+  // katmanı ölçüsüz kalır ve kimse fark etmez. Kapı burada, üretim anında.
+  for (const [ad, liste] of [
+    ['tip ölçeği', tipler],
+    ['boşluk', bosluklar],
+    ['hareket süresi', sureler],
+  ]) {
+    if (liste.length === 0) {
+      console.log(`✗ frame.md: ${ad} theme.css'ten çıkarılamadı — desen bayatlamış`)
+      process.exit(1)
+    }
+  }
+
   const roller = sonuc.value.filter((t) => t.tier === 'role')
+  const tablo = (basliklar, satirlar) =>
+    `| ${basliklar.join(' | ')} |\n|${basliklar.map(() => '---').join('|')}|\n${satirlar.join('\n')}\n`
+
   const frame =
-    '<!-- ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ -->\n' +
+    '<!-- ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ + theme.css -->\n' +
     `# frame.md — ${MARKA} · ${eraSlug}\n\n` +
-    'Hareket kompozisyonları bu rolleri kullanır. **İkinci bir palet YOK**: hareket için\n' +
-    'ayrı renk tanımlamak, iki marka gerçeği demektir (§7.4).\n\n' +
-    '| Rol | CSS değişkeni |\n|---|---|\n' +
-    roller.map((t) => `| \`${t.path}\` | \`var(--${t.path.replace(/\./g, '-')})\` |`).join('\n') +
-    '\n'
+    'Hareket kompozisyonları bu tanımları kullanır. **İkinci bir palet ve ikinci bir\n' +
+    'ölçek YOKTUR**: hareket için ayrı renk ya da ayrı tip ölçeği tanımlamak, iki marka\n' +
+    'gerçeği demektir (§7.4, §4.1).\n\n' +
+    '## Renk rolleri — MARKAYA ait\n\n' +
+    'Kaynak `brand/<id>/tokens/`. Ham rampaya (`ramp.*`) kompozisyon ASLA dokunmaz;\n' +
+    'yüzey değiştiğinde rol değişir, kompozisyon değişmez (§4.1).\n\n' +
+    tablo(
+      ['Rol', 'CSS değişkeni'],
+      roller.map((t) => `| \`${t.path}\` | \`var(--${t.path.replace(/\./g, '-')})\` |`)
+    ) +
+    '\n## Tip ölçeği — SİSTEME ait\n\n' +
+    'Dokuz boyut, kabuk marka-nötr olduğu için markadan bağımsız (§12.2). Ölçülen her\n' +
+    'sayı mono ve tabular; ağırlık 700 konsolda YASAK.\n\n' +
+    tablo(
+      ['Değişken', 'Değer'],
+      tipler.map((t) => `| \`--${t.ad}\` | ${t.deger} |`)
+    ) +
+    '\n## Boşluk — 4px temel birim\n\n' +
+    'Yalnız bu adımlar; 5 ve 7 YOKTUR. İçerik sığmıyorsa tip küçültülmez, satır\n' +
+    'gevşer (§12.3).\n\n' +
+    tablo(
+      ['Değişken', 'Değer'],
+      bosluklar.map((t) => `| \`--${t.ad}\` | ${t.deger} |`)
+    ) +
+    '\n## Hareket — beyaz liste\n\n' +
+    "**Hiçbiri 320ms'yi geçmez** (§12.7). Animasyonlanan altı şey: yüzey geçişi,\n" +
+    'dialog açılışı, satır vurgusu, durum noktası, ilerleme rayı, odak halkası.\n' +
+    'Sayı animasyonu, liste yeniden sıralama, skeleton parıltısı ve grafik çizilme\n' +
+    '**yasak** — hareket dikkat çeker ve dikkat sınırlı bir bütçedir.\n\n' +
+    '`prefers-reduced-motion: reduce` altında üçü de **0ms** olur. Tablo `:root`\n' +
+    'değerlerini gösterir; ezme gizlenmiyor, ayrı bir gerçek olarak burada yazıyor.\n\n' +
+    tablo(
+      ['Değişken', 'Değer'],
+      sureler.map((t) => `| \`--${t.ad}\` | ${t.deger} |`)
+    )
 
   const ciktilar = {
     'tokens.css': toCss(sonuc.value) + '\n' + yuzeyCss.join('\n'),

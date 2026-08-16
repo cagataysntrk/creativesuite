@@ -347,3 +347,22 @@ doğrulandı.
 **İki küçük düzeltme:** `hyperframes init` iskeleti kendi `CLAUDE.md` ve `AGENTS.md`
 dosyalarını bırakıyor — talimatın ikinci kaynağı olurdu, silindi. `motion/*/renders/`
 gitignore'landı: MP4 build çıktısıdır, kalıcı varlık `index.html`dir (§4c).
+
+## D-196 — `frame.md` markaya ait, `motion/`e değil; ve iki kaynağı yan yana getirir
+2026-08-16 · FAZ-5.2 dosyası `📁 motion/frame.md` diyordu. Gerçek yer
+`brand/<brand_id>/derived-tokens/frame.md` ve bu **daha doğru**: dosya renk rollerini
+taşıyor, renk rolleri markaya ait ve repoda iki marka var (`brd_upcytech`, `brd_dima`).
+`motion/` altında tek bir `frame.md`, "aktif marka" diye global bir duruma bağlanırdı —
+D-39'un tam olarak kapattığı delik.
+**Dosya İKİ kaynağı yan yana getiriyor, kopyalamıyor:** renk rolleri `brand/<id>/tokens/`
+(markaya ait), tip ölçeği · boşluk · hareket süreleri `packages/ui/src/theme.css`
+(sisteme ait). Ayrım keyfi değil — kabuk marka-NÖTR (§4b) ve her markanın kendi tip
+ölçeğini tanımlaması iki tasarım sistemi demek olurdu.
+**Üreteçte bulunan iki hata:**
+1. Süreler **iki kez** çıkıyordu: `@media (prefers-reduced-motion)` bloğu onları `0ms`e
+   çeviriyor ve regex ikisini de yakaladı. Tabloda aynı değişken hem `320ms` hem `0ms`
+   göründü — kompozisyon yazarı için cevabı olmayan bir soru. İlk tanım kazanıyor ve
+   **ezme gizlenmiyor**: ayrı bir cümle olarak dosyada yazıyor.
+2. Bir regex `theme.css` yeniden biçimlendiğinde sessizce hiçbir şey bulur ve `frame.md`
+   boş tabloyla üretilirdi. Artık boş çıkarım üreteci **düşürüyor** — ihlal testiyle
+   doğrulandı (`--size-*` → `--typescale-*` yeniden adlandırıldı, üreteç düştü).
