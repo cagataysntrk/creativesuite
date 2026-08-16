@@ -70,6 +70,7 @@ const hat = (steps: Pipeline['steps']): Pipeline => ({
   id: 'test-hat',
   title: 'Test',
   steps,
+  ciktiSinifi: 'organik',
   matris: null,
 })
 

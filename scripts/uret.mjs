@@ -322,8 +322,15 @@ const palet = { colors: colorsFromTokens(tokenCss) }
 
 const AGIRLIK = { in: 0, warn: 1, out: 2 }
 
-/** Reklam hattı mı — kişisel özellik kuralı yalnız burada koşar (§11.2). */
-const REKLAM_HATTI = id === 'ad-creative-set'
+/**
+ * Reklam hattı mı — kişisel özellik kuralı yalnız burada koşar (§11.2 · D-229).
+ *
+ * ⚠ Bu satır eskiden `id === 'ad-creative-set'` idi: **tek bir sabit dize**, ne testi
+ * ne kapısı vardı. Hattı yeniden adlandırmak linter'ı sessizce kapatırdı ve hiçbir şey
+ * kırmızıya dönmezdi. Artık karar hat dosyasının kendi beyanı; `hat-kimligi` kapısı
+ * hat id'siyle karşılaştırma yapılmasını YAZILAMAZ kılıyor.
+ */
+const REKLAM_HATTI = cozum.value.ciktiSinifi === 'reklam'
 
 /**
  * Lexicon denetimi — **çıktı biçiminden bağımsız** (§11.2 · R-32, R-35).

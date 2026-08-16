@@ -13,6 +13,7 @@ export {
   type Pipeline,
   type PipelineStep,
   type PipelineMatris,
+  type CiktiSinifi,
   type PipelineEksen,
   type ResolveError,
   type ResolveResult,

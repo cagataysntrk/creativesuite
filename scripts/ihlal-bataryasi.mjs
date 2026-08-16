@@ -188,6 +188,57 @@ const IHLALLER = [
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',
     imza: 'SABİT genişlik',
   },
+
+  // ── FAZ 8 kapıları (M5) ───────────────────────────────────────────────────
+  //
+  // ⚠ **Bu dördü listede YOKTU** ve doğrulama turu bunu buldu: 40 kapının 15'i
+  // sınanıyordu. R-71 "her BLOCKING kapı kasten ihlal edilir" diyor ve bir kapının
+  // batarya dışında kalması, tam olarak korumadığı şeyi korunuyor sanmaktır.
+  {
+    kapi: 'matris',
+    dosya: 'registry/pipelines/ad-creative-set.pipeline.yaml',
+    yamalar: [
+      // Tek düzeye indirilen bir eksen artık ölçülmüyor: sabitleniyor. Maliyet
+      // duruyor, bilgi kayboluyor — kapının yakalaması gereken tam olarak bu.
+      {
+        ara: 'duzeyler: [olcum-kaybi, vardiya-korlugu, fire-maliyeti]',
+        yaz: 'duzeyler: [olcum-kaybi]',
+      },
+    ],
+    imza: 'eksen değil sabit',
+  },
+  {
+    kapi: 'hat-kimligi',
+    dosya: 'scripts/uret.mjs',
+    yamalar: [
+      // Politikayı hat ADINA bağlamak: yeniden adlandırma linter'ı sessizce kapatır.
+      //
+      // ⚠ **Yük PARÇALANARAK yazılıyor.** İlk sürüm düz dize kullandı ve `hat-kimligi`
+      // bataryanın KENDİ satırını suçladı: ihlal dosyası da kaynaktır ve kapılar onu
+      // okur. Aynı numara `repo-hygiene` yükünde de var (`${'WPL_AP1'}`) — kapı
+      // yazılan dosyayı görmeli, yazan dosyayı değil.
+      { ara: "cozum.value.ciktiSinifi === 'reklam'", yaz: `id === '${'ad-creative'}-set'` },
+    ],
+    imza: "hat id'si",
+  },
+  {
+    kapi: 'secret-rotasyon',
+    dosya: 'scripts/ihlal-gecici.mjs',
+    // Rotasyon tablosunda karşılığı olmayan bir anahtar: sızdığında nasıl
+    // döndürüleceğini kimse bilmiyor demektir.
+    // Yük parçalı (yukarıdaki gerekçe): düz yazılsa kapı bataryanın kendisini suçlardı.
+    icerik: `export const t = readEnv('${'IHLAL_GECICI'}_TOKEN')\n`,
+    imza: 'rotasyon tablosunda YOK',
+  },
+  {
+    kapi: 'doctor-salt-okur',
+    dosya: 'scripts/doktor.mjs',
+    yamalar: [
+      // "Düzelt" düğmesi her zaman makul görünür — bu yüzden bir gün eklenir.
+      { ara: 'import { join', yaz: "import { writeFileSync } from 'node:fs'\nimport { join" },
+    ],
+    imza: 'YAZMA çağrısı',
+  },
 ]
 
 const sonuclar = []

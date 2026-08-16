@@ -508,3 +508,41 @@ Sırayı tersine çevirmek (önce üretim, sonra tahmin) daha kötü olurdu: yed
 üretip birini fiyatlandırmak, kullanıcıyı ödeyeceğinin yedide birine onaylatır.
 
 **Geri alma maliyeti:** yok.
+
+## D-229 — Politika kararı hat ADINDAN okunuyordu: beyan mekanizması
+
+**2026-08-16 · FAZ-8 doğrulama, M3 + M5**
+
+`scripts/uret.mjs` reklam metni linter'ını tek bir satırla açıyordu:
+`const REKLAM_HATTI = id === 'ad-creative-set'`. **Tek sabit dize, ne testi ne kapısı.**
+Hattı yeniden adlandırmak — ya da ikinci bir reklam hattı eklemek — Meta'nın kişisel
+özellik kuralını sessizce kapatırdı ve hiçbir şey kırmızıya dönmezdi. Yasak, yasağın
+yokluğuna dönüşürdü ve kimse fark etmezdi.
+
+**Karar: politika hat dosyasının kendi beyanıdır.** `cikti_sinifi: reklam` →
+`Pipeline.ciktiSinifi`. Varsayılan `organik`: reklam kuralları ancak AÇIKÇA beyan
+edilince koşar. Ters varsayılan (her şey reklam) linter'ı gürültüye çevirirdi ve
+**gürültülü şey kapatılır**.
+
+`hat-kimligi` kapısı mekanizmayı atlanamaz kılıyor — iki soru birden:
+1. Hat id'si ile karşılaştırma yapan satır var mı (üretim yollarında)
+2. Beyan GERÇEKTEN kullanılıyor mu — en az bir hat `cikti_sinifi: reklam` diyor ve
+   `uret.mjs` `ciktiSinifi` okuyor mu
+
+⚠ **Kapı ilk çalıştırmada yanlış pozitif verdi** ve bu düzeltildi: `bodies.ts`teki
+`zincirAdi === 'prospect-deck'` satırını suçladı — oysa orası **doğru** mekanizma
+(`chain:` hat dosyasında beyan edilen bir kısıt; değerin hat adıyla aynı olması
+tesadüf). Kapı beyan yolunu cezalandırsaydı, teşvik etmesi gereken şeyi yasaklardı.
+Karşılaştırmanın diğer ucu artık `id`/`.id` olmak zorunda.
+
+**M5 — batarya 15'ten 19 ihlale çıktı:** `matris` · `hat-kimligi` · `secret-rotasyon` ·
+`doctor-salt-okur`. R-71 "her BLOCKING kapı kasten ihlal edilir" diyor ve bir kapının
+batarya dışında kalması, korumadığı şeyi korunuyor sanmaktır.
+
+⚠ **Bataryanın kendi yükü de kaynaktır.** İlk sürümde `hat-kimligi` ve
+`secret-rotasyon` bataryanın KENDİ satırlarını suçladı: ihlal metni de bir `.mjs`
+dosyasında duruyor ve kapılar onu okuyor. Yük artık parçalanarak yazılıyor
+(`${'ad-creative'}-set`) — kapı yazılan dosyayı görmeli, yazan dosyayı değil.
+`repo-hygiene` yükünde aynı numara zaten vardı; genel kural olmamıştı.
+
+**Geri alma maliyeti:** yok.

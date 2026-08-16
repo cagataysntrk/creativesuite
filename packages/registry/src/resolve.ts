@@ -42,9 +42,23 @@ export interface PipelineMatris {
   readonly eksenler: readonly PipelineEksen[]
 }
 
+/**
+ * Çıktı sınıfı — **politika buradan okunur, hattın ADINDAN değil** (§11.2 · D-229).
+ *
+ * `reklam`: Meta'nın kişisel özellik kuralı geçerli; reklam metni linter'ı koşar.
+ * `organik`: geçerli değil — bir LinkedIn postuna reklam standardı uygulamak, kuralı
+ * olmadığı yere taşımak olurdu.
+ *
+ * ⚠ Bu alan bir hattın `id`siyle karşılaştırma yapılmasın diye var. `id === 'ad-...'`
+ * yazan bir satır, hat yeniden adlandırıldığı gün linter'ı **sessizce** kapatır ve
+ * hiçbir test kırmızıya dönmez: yasak, yasağın yokluğuna dönüşür.
+ */
+export type CiktiSinifi = 'reklam' | 'organik'
+
 export interface Pipeline {
   readonly id: string
   readonly title: string
+  readonly ciktiSinifi: CiktiSinifi
   readonly steps: readonly PipelineStep[]
   /**
    * `null` = bu hat tek varyant üretir.
@@ -68,6 +82,8 @@ export type ResolveError =
   | { readonly kind: 'cycle'; readonly steps: readonly string[] }
   /** `matris:` bloğu var ama şekli tutmuyor — sessizce yok saymak maliyeti gizlerdi. */
   | { readonly kind: 'bad_matris'; readonly reason: string }
+  /** `cikti_sinifi:` tanınmayan bir değer taşıyor — sessizce `organik`e düşmez. */
+  | { readonly kind: 'bad_cikti_sinifi'; readonly value: string }
 
 export type ResolveResult =
   | { readonly ok: true; readonly value: Pipeline }
@@ -201,8 +217,24 @@ export const parsePipeline = (text: string): ResolveResult => {
 
   const matris = parseMatris(map['matris'], errors)
 
+  // Varsayılan `organik`: reklam kuralları ancak AÇIKÇA beyan edilince koşar. Ters
+  // varsayılan (her şey reklam) linter'ı gürültüye çevirir ve gürültülü şey kapatılır.
+  const ciktiRaw = map['cikti_sinifi'] === undefined ? 'organik' : str(map['cikti_sinifi'])
+  if (ciktiRaw !== 'reklam' && ciktiRaw !== 'organik') {
+    errors.push({ kind: 'bad_cikti_sinifi', value: String(map['cikti_sinifi']) })
+  }
+
   if (errors.length > 0) return { ok: false, errors }
-  return { ok: true, value: { id: id as string, title: title as string, steps, matris } }
+  return {
+    ok: true,
+    value: {
+      id: id as string,
+      title: title as string,
+      ciktiSinifi: ciktiRaw as CiktiSinifi,
+      steps,
+      matris,
+    },
+  }
 }
 
 /** Kahn benzeri gezinti; döngüye giren adım zincirini döndürür. */

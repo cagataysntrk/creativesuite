@@ -15,6 +15,11 @@
 id: ad-creative-set
 title: Reklam varyant seti (hook × copy × visual)
 
+# **Reklam metni linter'ı bu satırdan koşar, hattın ADINDAN değil** (D-229). Üretim
+# betiği eskiden `id === 'ad-creative-set'` diye karşılaştırıyordu; hattı yeniden
+# adlandırmak Meta'nın kişisel özellik kuralını sessizce kapatırdı.
+cikti_sinifi: reklam
+
 matris:
   mod: ofat
   eksenler:
