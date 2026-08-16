@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 10
-siradaki_adim: 10.4
+siradaki_adim: 10.4b
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -63,6 +63,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **10.2** · referans ölçüldü; T9/T11 türetilemez, T10 görseli dışlamalı | 2026-08-17 |
 | **10.2b** · punto ölçüldü: sütun %62, h1 64 px; 3 kusur kapandı | 2026-08-17 |
 | **10.3** · `tasarim` kapısı: 23 okuma, 4 ihlal kırmızı, grameri denetliyor | 2026-08-17 |
+| **10.4** · düzen içerikten seçiliyor; liste 3 slayttan 2'ye indi | 2026-08-17 |
 
 ## Sıradaki adım
 
@@ -72,17 +73,18 @@ değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
 **10.1–10.3 KAPANDI.** Ayrıntı `docs/fazlar/FAZ-10.md` ve üretilmiş raporlarda
 (`docs/referans/tasarim-temeli.md`, `tip-olcegi.md`).
 · **10.1** tarayıcı oturumu: 4.9x, çıktı bayt bayt özdeş.
-· **10.2** referans ölçüldü: T9/T11 türetilemez, T10 görsel bloklarını dışlamalı.
-  Ölçüm aracının kendisi bozuktu (kova merkezi → ΔE 5.28 > eşik 5.0 → %97.8).
-· **10.2b** punto ölçüldü: %36 sütunda hiçbir punto sığmıyordu
-  (`taşıyabileceğimizin` 76 px'te 665 px). Bant %69–78, sütun %62, h1 64 px.
-  İki yan kusur aynı sınıf: renk zeminden seçiliyordu, öge DOLGUNUN üstündeydi.
+· **10.2** referans ölçüldü: T9/T11 türetilemez, T10 görseli dışlamalı. Ölçüm
+  aracının kendisi bozuktu (kova merkezi → ΔE 5.28 > eşik 5.0 → %97.8).
+· **10.2b** punto ölçüldü: %36 sütunda hiçbir punto sığmıyordu. Bant %69–78,
+  sütun %62, h1 64 px. İki yan kusur: renk zeminden, öge DOLGUNUN üstünde.
 · **10.3** `tasarim` kapısı: 23 okuma, 4 ihlal kırmızı, GRAMERİ denetliyor.
   T11 önce krom puntolarını sayıyordu (11) → yalnız `h1/h2/p` (3).
+· **10.4** düzen İÇERİKTEN seçiliyor, slayt başına: 6 maddelik liste 3 slayttan
+  **2'ye** indi. `rings` modül döngüsü yakaladı → adlar `adlar.ts`e ayrıldı. Test
+  Türkçe hatamı yakaladı: desen `4%` arıyordu, Türkçede `%4`.
 
-⚠ Bu fazın dersi: **1359 test geometri ve punto değişikliğini KAÇIRDI.**
-
-**SIRADAKİ 10.4** — düzen içerikten seçiliyor → 10.5 görsel yargı (sınırlayıcı
+**SIRADAKİ 10.4b** — düzen adları görsel vaat taşıyor, motor yalnız sayfalama
+bütçesi veriyor. → 10.5 görsel yargı (sınırlayıcı
 kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
 
 **FAZ 8 açık kalanı:** `8.3b` BLOKE:teknik (`7.2b` gerçek yayınına bağlı), `8.6`

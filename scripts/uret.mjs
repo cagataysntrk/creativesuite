@@ -708,7 +708,10 @@ const rapor = await runPipeline({
     }),
     RENDER: renderBody({
       outDir: cikti,
-      layout: 'statement',
+      // ⚠ `null` = düzeni İÇERİKTEN seç (FAZ-10.4). Önceden sabit `'statement'`ti ve
+      // dört düzenden üçü hiç kullanılmıyordu: altı maddelik bir liste, `statement`ın
+      // iki bloklu bütçesiyle üç slayda bölünüyordu — içerik bunu istemediği hâlde.
+      layout: null,
       kulp: '@upcytech',
       // Sınır YERLEŞİMDEN gelir (§9.1): LinkedIn 5MB, Instagram 8MB.
       maxBytes: (

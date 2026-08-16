@@ -11,17 +11,11 @@
 // içeriğin fazla olduğunu fark etmez.
 
 import type { Block, DocumentModel } from '@suite/kernel'
+import type { LayoutName } from './adlar.js'
+import { duzenSec } from './secim.js'
 
-/**
- * Dört başlangıç düzeni. Adlar İngilizce (D-37: tanımlayıcı), açıklamalar Türkçe.
- *
- * - `statement`  tek güçlü cümle, ortalanmış — hook slaytı
- * - `claim-proof` iddia + altında kanıt satırı
- * - `list`       2-4 maddelik sütun
- * - `quote`      alıntı + kaynak atfı
- */
-export const LAYOUTS = ['statement', 'claim-proof', 'list', 'quote'] as const
-export type LayoutName = (typeof LAYOUTS)[number]
+// Adlar `adlar.ts`te — `secim.ts` de onları okuyor ve döngü oluşmasın diye ayrıldı.
+export { LAYOUTS, type LayoutName } from './adlar.js'
 
 export interface LayoutSpec {
   readonly name: LayoutName
@@ -149,16 +143,26 @@ export interface Slide {
   readonly oversized: boolean
 }
 
+/**
+ * @param layout Sabit bir düzen, ya da **`null` = slayt başına İÇERİKTEN seç**
+ *   (`duzenSec`, FAZ-10.4). `null` bir düzen adı DEĞİL, bir seçim KİPİ; enum'a
+ *   `'auto'` eklemek onu kapalı olmaktan çıkarır ve `LAYOUT_SPECS` kaydında
+ *   karşılığı olmayan bir anahtar doğururdu.
+ */
 export const paginate = (
   blocks: readonly Block[],
-  layout: LayoutName,
+  layout: LayoutName | null,
   butce?: CharBudget
 ): readonly Slide[] => {
   const slides: Slide[] = []
   let kalan = blocks
 
   while (kalan.length > 0) {
-    const { fits, overflow } = splitForLayout(kalan, layout, butce)
+    // Seçim HER slayt için yeniden yapılıyor, bir kez değil: aynı karoselde kapak bir
+    // `statement`, üçüncü slayt bir `list` olabilir. Bir kez seçilseydi en baştaki
+    // bloklar tüm karoselin bütçesini belirlerdi.
+    const d = layout ?? duzenSec(kalan)
+    const { fits, overflow } = splitForLayout(kalan, d, butce)
     if (fits.length === 0) {
       // İlk blok tek başına sığmıyor: bölmek çözmez. Kendi slaydına konur ve
       // `oversized` ile İŞARETLENİR — çağıran metni kısaltmalı.
@@ -185,7 +189,7 @@ export const paginate = (
  */
 export const paginateDocument = (
   doc: DocumentModel,
-  layout: LayoutName,
+  layout: LayoutName | null,
   kulp?: string
 ): readonly DocumentModel[] => {
   const slaytlar = paginate(doc.blocks, layout)

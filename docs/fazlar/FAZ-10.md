@@ -26,10 +26,9 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    ömrü boyunca ayakta duran tarayıcı gözetimsiz koşuda sızıntı biriktirir; `browser.ts`
    içindeki `finally` yorumu tam bunu engellemek için yazılmış ve korunuyor.
 📁 `packages/render/src/browser.ts` · `packages/render/src/static.ts`
-✅ **ÖLÇÜLDÜ** (aynı belge, iki yol, sha256 karşılaştırmalı):
-   `oturumsuz 3795 ms` · `oturumlu 776 ms` · **4.9x** (kabul ≥3x) ·
-   `çıktı sha256 AYNI — bayt bayt özdeş`. Gerçek koşu 5 slayt üretti, beşinin de
-   tolerans okumaları limit içinde; `pgrep -fc chromium` 32 → 29, birikme yok.
+✅ **ÖLÇÜLDÜ** (aynı belge, iki yol, sha256 karşılaştırmalı): `oturumsuz 3795 ms` ·
+   `oturumlu 776 ms` · **4.9x** (kabul ≥3x) · çıktı **bayt bayt özdeş**. Gerçek koşu
+   5 slayt üretti, hepsi tolerans içi; `pgrep -fc chromium` 32 → 29, birikme yok.
 🧪 **KOŞULDU.** Oturumun içinde kasten `throw` → `ok: false · render_failed · kasten
    fırlatıldı`, `chromium önce=32 sonra=32` → sızıntı yok. `finally` başarı yolunda
    değil HER yolda kapatıyor; hata yutulmuyor, tipli dönüyor.
@@ -45,23 +44,16 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    oranı, palet dışı piksel payı, farklı tip boyutu sayısı, kenar payı, kontrast oranı.
    Çıktı `docs/referans/tasarim-temeli.md` — her sayı ölçüm komutuyla birlikte.
 📁 `scripts/tasarim-temeli.mjs` · `docs/referans/tasarim-temeli.md`
-✅ **ÖLÇÜLDÜ** — 3 bölge (sol çift · merkez kapak · sağ çift), palet dışı
-   `9.5% · 13.8% · 20.4%`, ortalama ΔE `2.5 · 3.3 · 2.7`. Ölçüm **kendi çıktımızı ölçen
-   fonksiyonla** (`pixelStats`, ΔE2000, `paletteMatch 5.0`) yapıldı; ayrı bir tanımla
-   ölçmek iki farklı büyüklüğü karşılaştırmak olurdu.
-   **Sonuç eşikten daha değerli çıktı — üç şey öğrenildi ve üçü de ret:**
-   1. **T9 ve T11 referanstan TÜRETİLEMEZ.** `textCoverage` pikselden değil BELGE
-      MODELİNDEN ölçüyor; referansın modeli yok. Tip ölçeği ise anti-aliasing yüzünden
-      pikselden sayılamaz. İkisi de dışsal/kendi kısıtımızdan geliyor ve raporda yazılı.
-   2. **T10 görsel bloklarını DIŞLAMALI** — ölçüldü: `04-kapanis` %24.8 verdi, bakıldı,
-      alanın %60'ı bir AI fotoğrafıydı. Fotoğraf tanımı gereği palet dışıdır.
-   3. **Metin sütununu daraltmak Türkçede metni daraltmıyor** → 10.2b.
-🧪 **Ölçüm aracının KENDİSİ ihlal edildi.** İlk sürüm renk kovasının MERKEZİNİ palet
-   girdisi yapıyordu; yuvarlama hatası amber için ΔE 5.28 = `paletteMatch` 5.0'ın üstünde,
-   yani her baskın renk pikseli "palet dışı" sayılıyordu. Ölçüm %97.8 veriyor ve **iki
-   farklı tasarım için aynı sayıyı** üretiyordu. Kova ortalamasına geçildi. Ayrıca betik
-   ikiden az bölgede artık DURUYOR — ilk sürüm sessizce 2 bölge bulup raporu yine
-   yazıyordu; eksik ölçüm, ölçüm gibi görünüyordu.
+✅ **ÖLÇÜLDÜ** — `docs/referans/tasarim-temeli.md`. 3 bölge, palet dışı
+   `9.5 · 13.8 · 20.4%`. Ölçüm **kendi çıktımızı ölçen fonksiyonla** (`pixelStats`).
+   **Sonuç eşikten değerli — üç ret:** T9/T11 referanstan TÜRETİLEMEZ (biri belge
+   modeli tabanlı, diğeri pikselden sayılamaz) · T10 görsel bloklarını DIŞLAMALI
+   (bir slayt %24.8 verdi, bakıldı, alanın %60'ı AI fotoğrafıydı) · metin sütununu
+   daraltmak Türkçede metni daraltmıyor → 10.2b.
+🧪 **Ölçüm aracının KENDİSİ ihlal edildi.** Kova MERKEZİ palet girdisi yapılınca
+   yuvarlama hatası ΔE 5.28 > `paletteMatch` 5.0 → her baskın renk "palet dışı", ölçüm
+   %97.8 ve **iki farklı tasarıma AYNI sayı**. Ortalamaya geçildi. Betik ayrıca ikiden
+   az bölgede DURUYOR: ilk sürüm sessizce 2 bölge bulup raporu yine yazıyordu.
 💾 `docs(docs): referans karosellerin tasarım temeli` · `Refs: FAZ-10.2 · §11.1`
 
 ---
@@ -153,7 +145,7 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 ---
 
-## 10.4 — İçerik-güdümlü düzen seçimi    [ ]
+## 10.4 — İçerik-güdümlü düzen seçimi    [x] 2026-08-17
 
 📖 §7.1 · R-30 · D-254
 🔗 10.3
@@ -162,11 +154,44 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    damgasında zaten var, `renderBody`ye taşınır. Seçim kuralları:
    sayı içeren cümle → istatistik · sıralı liste → adım · güçlü vurgu → çıkarım kutusu ·
    "önce/sonra" dili → karşılaştırma.
-📁 `packages/render/src/layout/secim.ts` · `packages/engine/src/verbs/bodies.ts`
-✅ Saf fonksiyon, girdi→çıktı tablosuyla test edilmiş. Aynı içerik her zaman aynı düzeni
-   veriyor (deterministik). Enum'a yeni değer EKLENMİYOR — kapı bunu doğruluyor.
-🧪 Enum dışı bir düzen adı döndür → derleme hatası.
+📁 `packages/render/src/layout/secim.ts` · `secim.test.ts` ·
+   `packages/render/src/layout/adlar.ts` ·
+   `packages/render/src/deck/pdf.ts` · `packages/engine/src/verbs/bodies.ts` · `scripts/uret.mjs`
+✅ **ÜRETİM YOLUNA BAĞLANDI** — `uret.mjs` artık `layout: null` geçiyor (`null` = bir
+   düzen adı değil, bir seçim KİPİ; enum'a `'auto'` eklemek onu kapalı olmaktan çıkarırdı).
+   Seçim HER slayt için yeniden yapılıyor, bir kez değil. Ölçülen etki: 6 maddelik bir
+   kontrol listesi **3 slayttan 2'ye** indi — sabit `'statement'` bütçesi içeriği
+   istemediği yerden bölüyordu. 16 test, girdi→çıktı tablosu biçiminde.
+   ⚠ **Planımdaki çelişki düzeltildi:** taslak "istatistik · adım · çıkarım kutusu ·
+   karşılaştırma" diyordu — dördü de enum'da YOK ve aynı adımın kabul ölçütü "enum'a
+   yeni değer eklenmiyor" diyordu. Doğru olan enum'u büyütmek değil, sinyalleri var olan
+   dört düzene EŞLEMEK: bir "istatistik slaydı" zaten `claim-proof`tur.
+🧪 **İKİ İHLAL KOŞULDU**, ikisi de kırmızı: öncelik sırası bozuldu → 2 test düştü ·
+   enum dışı değer döndürüldü → 4 test düştü.
+   ⚠ Testin kendisi **benim hatamı yakaladı**: `SAYISAL` deseni `4%` arıyordu, oysa
+   Türkçede işaret sayıdan ÖNCE gelir (`%4`) ve bir kanıt cümlesi `statement` sanılıyordu.
+   İngilizce sıradan devralınan her varsayım Türkçede bir kez daha sınanmalı.
 💾 `feat(render): düzen içerikten seçiliyor` · `Refs: FAZ-10.4 · §7.1`
+
+---
+
+## 10.4b — Düzen adları görsel vaat taşıyor, motor karşılamıyor    [ ]
+
+📖 §7.1 · R-30 · D-254
+🔗 10.4
+🛠 `LAYOUT_SPECS` üç alan taşıyor — `maxBlocks`, `headingBudget`, `bodyBudget` — ve üçü
+   de yalnız BÖLME kararına giriyor. `static.ts` `layout`u hiç görmüyor. Yani `quote`
+   seçmek bugün alıntı gibi GÖRÜNMÜYOR, sadece daha uzun bir başlığa izin veriyor.
+   Adlar (`statement`, `quote`, `list`) bir kompozisyon vaat ediyor; motor sayfalama
+   bütçesi veriyor. Yapılacak: her düzenin kendi kompozisyonu — alıntıda büyük tırnak ve
+   atıf satırı, listede madde ritmi, `claim-proof`ta kanıtın ayrı bir şerit olması.
+📁 `packages/render/src/static.ts` · `packages/render/src/sablon.ts`
+✅ Dört düzen dört farklı kompozisyon üretiyor ve fark GÖRÜLEBİLİR: aynı içerik dört
+   düzende render edilip yan yana konduğunda ayırt ediliyor.
+   ⚠ Gramer KAPALI kalıyor (D-254): düzen kompozisyonu SEÇER, çizim yeni bir dile
+   dönüşmez. Belge modeline işaretleme sokulmaz.
+🧪 Bir düzenin kompozisyonunu diğeriyle aynı yap → fark ölçümü kırmızı.
+💾 `feat(render): düzenler kendi kompozisyonunu alıyor` · `Refs: FAZ-10.4b · §7.1`
 
 ---
 

@@ -425,7 +425,11 @@ export interface RenderDeps {
   readonly kulp?: string
   readonly outDir: string
   /** Taşma bölme düzeni (§7.1). Küçültme YOK — bölme var. */
-  readonly layout: LayoutName
+  /**
+   * Sabit düzen, ya da **`null` = içerikten seç** (FAZ-10.4). `null` üretim
+   * varsayılanı: sabit `'statement'` altı maddelik bir listeyi üç slayda bölüyordu.
+   */
+  readonly layout: LayoutName | null
   /**
    * Platform boyut sınırı (§9.1). Verilirse **kalite merdiveni GERÇEKTEN uygulanır**:
    * her basamak render edilir, dosya ölçülür, sığan ilk basamak kazanır.

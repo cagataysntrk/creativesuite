@@ -43,7 +43,8 @@ export interface DeckPdfResult {
  */
 export const deckPages = (
   doc: DocumentModel,
-  layout: LayoutName,
+  /** `null` = sayfa başına içerikten seç (FAZ-10.4) — deck'te de aynı kip geçerli. */
+  layout: LayoutName | null,
   butce?: CharBudget
 ): readonly DeckPage[] =>
   paginate(doc.blocks, layout, butce).map((s) => ({
