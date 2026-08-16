@@ -475,3 +475,45 @@ bilemez — o bilgi yalnız metnin üretildiği yerde vardır.
 
 **Geri alma maliyeti:** düşük — `doc.slayt` yazılmazsa `sablonCss`/`sablonKatmanlari`
 boş döner ve eski tek sütun düzeni aynen çalışır. Testler bunu zaten kanıtlıyor.
+
+## D-255 — Onuncu faz: "üretebiliyor" ile "iyi" ayrı sorulardır
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10 · §11.1 · §7.1
+
+FAZ 3 görsel hattını kapattı ve kriteri şuydu: *"gerçek bir carousel üret."* Üretildi.
+Ama o kriter **kalite hakkında hiçbir şey söylemiyor** ve bu hafta üç kusur bunu kanıtladı:
+metin eğri sınırını kesiyordu, hayalet rakam navigasyon etiketiyle çakışıyordu, kapak
+on iki satırlık bir metin duvarıydı. **41 kapının hiçbiri kırmızıya dönmedi.** Üçünü de
+PNG'lere tek tek bakarak buldum.
+
+**Karar:** kalite kendi fazını alır (FAZ 10) ve kendi kapısını (`tasarim`).
+
+**Göz kapı değildir.** Yorulur, alışır, ve gözetimsiz koşuda hiç yoktur. Kullanıcı
+inceleme istedi ve isabetli — ama insan incelemesi ölçümün YERİNE değil, ÜSTÜNE gelir.
+Ölçüm ucuz ve tekrarlanabilir olanı yakalar; göz, ölçülemeyeni.
+
+**Eşikler ölçülmeden konmuyor** (10.2, 10.3'ten önce). D-253 dersi: chroma 0.156
+ölçüldüğü için savunulabildi. Eşiği önce koyup sonra ölçmek, eşiği kendi çıktımıza göre
+ayarlamak olurdu — kapı o an kendini onaylar.
+
+**Bloklayıcı / uyarı ayrımı gerekçeli.** T2 (metin↔eğri), T3 (rakam↔şerit), T8 (kelime
+tavanı) bloklayıcı çünkü **üçü de gerçekten oldu**; olmuş bir hatayı yakalamayan kapı
+temennidir. Kaplama, palet payı, ΔE uyarı çünkü estetik tercih payı var ve sıfır
+tolerans meşru bir tasarımı reddeder.
+
+**Kabul ölçütü ARDIŞIK, oransal değil.** Yirmi ardışık temiz koşu; biri düşerse sayaç
+sıfırlanır. *"20 üretildi, 17'si iyiydi"* geçmez — oran, düzeltilmemiş bir kusurun
+kuyruğunu gizler. Ardışıklık, düzeltmenin gerçekten kapandığını kanıtlayan tek ölçüdür.
+
+**Saha taraması bu fazı doğruladı** (`docs/research/8-karosel-oss--*.md`): sekiz agent
+destekli karosel aracının hepsi `LLM → HTML/CSS → headless Chromium → PNG` zincirini
+kuruyor — mimarimiz doğru. Ama hiçbirinde tasarım metriği YOK ve Türkçe için tek satır
+rehberlik yok. Fork edilecek bir şey çıkmadı; alınacak üç mekanizma çıktı ve üçü de bu
+fazın adımlarında (10.1 tarayıcı oturumu · 10.5 görsel yargı · 10.6 referans→parametre).
+
+**Ölçülen tek şey:** tarayıcı açma maliyeti. `5 slayt · ayrı tarayıcı 3656 ms` ·
+`tek oturum 704 ms` → **5.2x**. Slayt başına Chromium açmak gerçek bir kusurdu ve
+alandaki bir araç bunu bizden önce çözmüştü.
+
+**Geri alma maliyeti:** düşük — `tasarim` kapısı kaldırılabilir; ama o an kalite yine
+göze kalır ve bu fazın gerekçesi tam olarak budur.

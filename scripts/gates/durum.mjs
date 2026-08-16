@@ -61,9 +61,14 @@ if (siradaki === null || !/^(\d+\.[A-Za-z0-9.]+|FAZ-\d-KAPANIS)$/.test(siradaki)
 
 // ── faz dosyalarındaki tikler ────────────────────────────────────────────────
 const adimlar = new Map() // "1.11" -> true(tikli)/false
-for (let n = 0; n <= 9; n++) {
-  const f = `docs/fazlar/FAZ-${n}.md`
-  if (!existsSync(p(f))) continue
+// ⚠ **Dizin TARANIR, sayı sayılmaz.** İlk sürüm `for (n = 0; n <= 9; n++)` idi ve
+// FAZ 10 açıldığı gün `FAZ-10.md`yi HİÇ okumadı: kapı "adım hiçbir faz dosyasında yok"
+// diyordu, çünkü baktığı yerde gerçekten yoktu. Sabit üst sınır, dosya sisteminin
+// söyleyebileceği bir şeyi tahmin etmekti — `faz-yollari` kapısı bunu baştan
+// `readdirSync` ile yapıyordu ve doğru olan oydu.
+for (const dosya of readdirSync(p('docs/fazlar')).filter((f) => /^FAZ-\d+\.md$/.test(f))) {
+  const n = Number(/^FAZ-(\d+)\.md$/.exec(dosya)[1])
+  const f = `docs/fazlar/${dosya}`
   for (const m of readFileSync(p(f), 'utf8').matchAll(
     /^##+ +(\d+)\.([A-Za-z0-9.]+?) +—.*?\[( |x)\]/gm
   )) {
@@ -109,7 +114,13 @@ const blokeListesi = bloke.map((b) => b.ad)
 // Bu bir kaçış deliği DEĞİL — kontrol edilebilir bir koşulu var: o fazın BLOKE
 // OLMAYAN her adımı tikli olmalı. Aksi hâlde "kapanışa geçtim" demek, yarım kalmış
 // adımların üstünü örtmenin en kolay yolu olurdu.
-const KAPANIS = /^FAZ-(\d)-KAPANIS$/
+// ⚠ `\d+`, `\d` DEĞİL. İlk sürüm tek hane varsayıyordu ve **FAZ 10 açıldığı gün
+// `FAZ-10-KAPANIS` hiçbir zaman eşleşmeyecekti**: kapanış beyanı sessizce "biçimsiz"
+// sayılır, koşulu (bloke olmayan her adım tikli mi) HİÇ koşmazdı. Yani kapı, tam da
+// örtmek için var olduğu şeyi — yarım kalmış adımların üstünü örtmeyi — onuncu fazdan
+// itibaren serbest bırakırdı. Tek haneli varsayım, `siradaki_adim`in kendi
+// desenlerinde (`\d+\.`) zaten yoktu; yalnız burada kalmıştı.
+const KAPANIS = /^FAZ-(\d+)-KAPANIS$/
 const kapanisEslesme = siradaki === null ? null : KAPANIS.exec(siradaki)
 
 if (kapanisEslesme !== null) {

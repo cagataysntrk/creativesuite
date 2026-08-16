@@ -57,6 +57,26 @@ const IHLALLER = [
     imza: 'toUpperCase()',
   },
   {
+    // Onuncu faz açıldığında iki tek-haneli varsayım ortaya çıktı ve İKİSİ DE bu
+    // kapının kendi içindeydi: adım taraması `n <= 9`da duruyordu, kapanış regex'i
+    // `FAZ-(\d)` idi. Yani FAZ 10'dan itibaren kapı, tam olarak örtmek için var
+    // olduğu şeyi — yarım adımların üstünü örtmeyi — serbest bırakacaktı. Batarya
+    // artık bunu hatırlıyor; ben hatırlamayabilirim.
+    kapi: 'durum',
+    dosya: 'DURUM.md',
+    yamalar: [{ ara: 'siradaki_adim: 10.1', yaz: 'siradaki_adim: FAZ-10-KAPANIS' }],
+    imza: 'kapanış yarım adımların üstünü örtemez',
+  },
+  {
+    // İkinci yön: var OLMAYAN bir adıma işaret etmek. Bu, aktif faz dosyasının
+    // gerçekten OKUNDUĞUNU da kanıtlıyor — okunmasaydı hiçbir adım bulunmaz ve
+    // kapı her değere aynı hatayı verirdi, yani hiçbir şey ayırt etmezdi.
+    kapi: 'durum',
+    dosya: 'DURUM.md',
+    yamalar: [{ ara: 'siradaki_adim: 10.1', yaz: 'siradaki_adim: 10.99' }],
+    imza: 'hiçbir faz dosyasında yok',
+  },
+  {
     kapi: 'chokepoints',
     dosya: 'packages/render/src/capture/ihlal-gecici.ts',
     icerik: "export const kayit = { recordVideo: { dir: '/tmp/v' } }\n",

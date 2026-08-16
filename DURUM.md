@@ -5,32 +5,25 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 8
-siradaki_adim: FAZ-8-KAPANIS
-son_guncelleme: 2026-08-16
+aktif_faz: 10
+siradaki_adim: 10.1
+son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 1. TURUN KAPATMA IDDIASINI CURUTTU: PUBLISH fiil haritasindaydi ama grep -rn PUBLISH registry/ SIFIR satir veriyordu — hicbir hat cagirmiyordu. AYNI SINIF HATA UC KEZ ve her seferinde BIR SEVIYE YUKARI: D-216 gövde yok → D-222 govde yok → D-224 hat adimi yok. Insan hafizasi uc kez tutamadi; fiil-haritasi kapisi artik IKI soru soruyor (govde bagli mi + cagiran hat var mi), iki yonde ihlal edilip kirmiziya donduruldu, yorum satirlari sayilmiyor. KISIR DONGU KIRILDI: publish defter yoksa duruyordu, defter ancak basarili yayinla olusuyordu → ilk gercek yayin HICBIR ZAMAN mumkun degildi; just defter-baslat acildi (idempotent, bozuk defteri ONARMAZ). YANLIS POZITIF: yineleme anahtari yalniz assets[0].digest idi, ayni kapakla farkli metin ZATEN YAYINDA diye blokluyordu — artik platform+yerlesim+tum varliklar+metin (R-44). Desteklenmeyen platform ciplak TypeError veriyordu → tipli ret. Platform sayfa siniri editoryal tavandan ONCE (350 sayfa max:10 cevabi aliyordu). doktor simdi ZORUNLU (opsiyoneldi, testi yoktu). faz-yollari IKI KEZ kordu: sarilmis satir + 0.A.1 baslik bicimi. durum kapisi artik SAYAC TAZELIGI zorluyor (36/13 yaziyordu, gercek 38/15). SIRADA 8.1: matris modulu hazir, DIKLIK OLCUTU OFAT — tam izgara ogrenme tasarimi DEGIL (3x3x3te 27 render, OFAT 7; Meta kombinasyonu SUNUCUDA kuruyor)."
+son_kanit: "FAZ 10 ACILDI (D-255): 'uretebiliyor' ile 'iyi' ayri sorular; ikincisinin kapisi YOKTU. Bu hafta uc kusur bunu kanitladi — metin egri sinirini kesiyordu, hayalet rakam navigasyonla cakisiyordu, kapak 12 satirlik duvardi; 41 kapinin hicbiri kirmiziya donmedi, ucunu de PNG'ye tek tek bakarak buldum. Karosel gramerini yazdim (D-254): kompozisyon SlaytKimligi'nden TURETILIYOR, modelde rol var cizim yok — ornament alani bilerek EKLENMEDI, belge modeline isaretleme sokmak R-30'u bir sablon diline cevirirdi. Dort kusur olculerek duzeltildi: egri salinimi SINIR_MIN..SINIR_MAX dar bandina alindi ve metin guvenliMetinYuzdesi ile bandin disina kilitlendi (ikisi tek dosyada, ayri olsalar biri degisip digeri unutulurdu); hayalet rakam metnin karsi tarafina ve alt seridin ustune; kapak alta yasli, govde ortali; icerikPromptu artik slayt basina uzunluk disiplini istiyor (kapak 8/govde 30/kapanis 14 kelime) cunku sayfalayici tasmayi boler ama neyin BASLIK oldugunu bilemez. SAHA TARAMASI (docs/research/8-karosel-oss): sekiz agent destekli karosel aracinin sekizi de LLM->HTML/CSS->Chromium->PNG kuruyor — mimari dogrulandi, bagimsiz yakinsama. FORK YOK: Open Carrusel 423 yildiz ama created_at == pushed_at (15 Nis, dort aydir tek commit yok), Slide{html:string} yani kayit markup (golden metrik ve Turkce kapilari biter), agent'a --allowedTools Bash veriliyor, font Google'dan cekiliyor ve dususte SESSIZCE sistem fontuna iniyor. Hicbirinde Turkce icin tek satir rehberlik yok. OLCULDU: 5 slayt ayri tarayici 3656ms, tek oturum 704ms = 5.2x — slayt basina Chromium acmak gercek bir kusur ve alandaki arac bunu bizden once cozmus. SIRADA 10.1 tarayici oturumu (singleton DEGIL, kapsamli oturum: browser.ts'teki finally sizinti garantisi korunuyor)."
 ```
 
 ## Neredeyiz
 
-**FAZ 6 ŞARTLI KAPANDI** (D-217). **İki doğrulama turu koştu, 28 bulgunun hepsi kapandı.** Birinci tur 12, ikinci tur 16
-bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
-İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
-hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **42 kapı · 19 ihlal kırmızı · 1334 test.**
-**FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
-ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
+**FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
+**42 kapı · 21 ihlal kırmızı · 1359 test.**
+Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
-> **Kök neden, üçüncü tekrar:** D-182 donmuş planı yazdı ama `uret.mjs` çağırmıyordu ·
-> D-190 düğmeyi çizdi ama `onClick` yoktu · şimdi aynı hata **bir seviye yukarıda**:
-> `tazeMi`nin çağıranı var (`inspectManifest`) ama `inspectManifest` o veriyi hiç
-> görmüyor, çünkü yazan yok. **"Çağıran var mı" tek adım için değil, ZİNCİR için
-> sorulmalı:** üretim girişinden kurala kesintisiz yol var mı?
-
-> FAZ 5'in `aac` maddesi de karşılanmadı ve tikle örtülmedi (D-206): ses akışı yok,
-> `5.4b`/`5.5b` insan girdisi bekliyor. Video ölçüldü: h264 · yuv420p · 1920×1080.
+> **Kök neden, dört tekrar — bu fazın da mayını:** kod yazılır, üretim yolunda çağıranı
+> olmaz. D-182 (donmuş planı kimse çağırmıyordu) · D-190 (düğmenin `onClick`i yoktu) ·
+> D-224 (`PUBLISH` hiçbir hatta yoktu) · D-250 (üretilen görsel belgeye girmiyordu).
+> **"Çağıran var mı" tek adım için değil ZİNCİR için sorulur:** üretim girişinden
+> kurala kesintisiz yol var mı? FAZ 10'da bu soru her metrik için sorulacak.
 
 > ⛔ **ON DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
 > `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b` · `8.6`.
@@ -81,15 +74,19 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
 ## Sıradaki adım
 
-**FAZ 8 KAPANIŞI.** Tiksiz tek adım `8.3b` (damgalama sırası) ve o BLOKE:teknik —
-`7.2b` gerçek yayınına bağlı. Varyant genişletme kapandı (D-240): genişletme artık
-plan ve koşu için tek fonksiyon.
+**FAZ 10 — TASARIM KATMANI** (D-255). FAZ 3 "üretebiliyor mu"yu kapattı, "iyi mi"yi
+değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
 
-**İKİ DOĞRULAMA TURU DA BİTTİ** (D-79 tavanı; üçüncü tur AÇILMAZ).
-1. tur: B1 · B2 (D-227) · M1 (D-228) · M2 · M3+M5 (D-229) · M4.
-2. tur: BLOKER `aiGenerated` sabiti (D-232) · `openDb` salt-okur değildi (D-233) ·
-MCP şeması zorlanmıyordu (D-234) · üç kapı kör noktası · beş belge sapması.
-Kalan iki teknik adım bende: `8.1b` · `8.3b`. Gerisi insan kararı bekliyor.
+**10.1 tarayıcı oturumu** — ölçüldü: slayt başına Chromium açmak **5.2x** yavaş
+(3656 ms → 704 ms). Singleton DEĞİL, kapsamlı oturum: `browser.ts`teki `finally`
+sızıntı garantisi korunuyor.
+
+Sonra: 10.2 referansları ÖLÇ (eşikler tahmin edilmez) → 10.3 `tasarim` kapısı
+(8 bloklayıcı + 4 uyarı metriği) → 10.4 düzen seçimi → 10.5 görsel yargı
+(sınırlayıcı kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
+
+**FAZ 8 açık kalanı:** `8.3b` BLOKE:teknik (`7.2b` gerçek yayınına bağlı), `8.6`
+BLOKE:insan (V-10 hukukçu).
 
 ## Devreden borçlar
 
