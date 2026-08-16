@@ -1,0 +1,75 @@
+{
+  "runId": "run_01a00959-5f0c-7828-8e26-e4a6ba559965",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "deck",
+  "corpusCommit": "02321281f4a1744b2a8441f98fe26c0314ab42a3",
+  "registryCommit": "02321281f4a1744b2a8441f98fe26c0314ab42a3",
+  "createdAt": "2026-08-16T06:54:07.133Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalatta fire ölçümü"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-16T06:54:07.133Z",
+      "finishedAt": "2026-08-16T06:54:07.133Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "imalatta fire ölçümü"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-16T06:54:07.133Z",
+      "finishedAt": "2026-08-16T06:54:07.133Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "bilgi-sec"
+}
