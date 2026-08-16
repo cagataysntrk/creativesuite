@@ -43,3 +43,8 @@ Thumbs.db
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea/
+
+# Hareket katmanı render çıktısı — TÜRETİLMİŞ (§3.5). MP4 build çıktısıdır;
+# kalıcı varlık `motion/<kompozisyon>/index.html` ve `derived/blobs`tır (R-64).
+motion/*/renders/
+motion/*/node_modules/

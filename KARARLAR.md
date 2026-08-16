@@ -101,226 +101,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-171 — Bitmiş adımın TALİMATI faz dosyasında kalmaz
-2026-08-16 · FAZ-4.md 250 satır tavanına (R-63) beş kez dayandı ve her seferinde bir
-adımı sıkıştırarak yer açtım. Beşincide bunun bir sıkışıklık değil bir SİNYAL olduğunu
-kabul ettim: 17 adımlık bir faz, her adımın tam talimatıyla birlikte 250 satıra sığmaz —
-ve tavanı yükseltmek yanlış cevap olurdu (tavan, bir faz dosyasının tek oturuşta
-okunabilir kalması için var).
-Doğru cevap: **bir faz dosyası bir ÇALIŞMA TALİMATIDIR; bitmiş bir adımın talimatı
-arkeolojidir.** Tikli adımlarda `🛠` (ne yapılacak), `📁` (nereye) ve `💾` (commit
-mesajı) satırları siliniyor; `📖` (kaynaklar), `✅` (KANIT) ve `🧪` (ihlal testi)
-kalıyor. Silinen bilgi kaybolmuyor: kod, `git log` ve `KARARLAR.md` onu taşıyor —
-üçü de faz dosyasından daha güvenilir kaynaklar.
-Tikli altı adım sıkıştırıldı: 257 → 212 satır. Kalan on bir adım için yer açıldı ve
-her tikleme artık dosyayı KÜÇÜLTÜYOR.
-**Ders:** aynı sınıra beşinci kez çarpmak, sınırın yanlış olduğunu değil, dosyanın
-yanlış şey taşıdığını gösterir. Tavanı yükseltmek soruyu susturur.
-
-## D-172 — Koşucu donmuş planı KULLANIR, yeniden çözmez
-2026-08-16 · R-07'nin çalıştırma tarafı eksikti: `freezePlan` planı donduruyordu ama
-`runPipeline` her adımda yönlendiriciyi YENİDEN çağırıyordu. Yani onay bir plana
-veriliyor, koşan başka bir plan oluyordu — ve fark ancak fatura gelince görülürdü.
-`RunInput.frozen` eklendi. Donmuş adımın sağlayıcısı varsa `candidatesFor` HİÇ
-çağrılmıyor. "Çağır ve karşılaştır" alternatifi reddedildi: karşılaştırma "farklı çıktı,
-ne yapayım" sorusunu doğurur ve tek doğru cevap zaten donmuş olanı kullanmaktır.
-Kabul kriteri gerçek kodla doğrulandı: registry'yi değiştirdim (`p1` kalktı, `p2` $9.00
-ile geldi) ve çalıştırma **`p1` ile $0.025'e** koştu. Testi kaldırdığımda kırmızıya
-döndü — koruduğu doğrulandı.
-Üç ek dürüstlük: (1) launcher planı **gerçek HEAD commit'iyle** donduruyor, `worktree`
-ile değil — `worktree` yazan manifest KUSURLUDUR (D-155) ve o plandan çıkan varlık
-yayınlanamaz, yani sunucu commit'i okumazsa baştan yayınlanamaz planlar donardı;
-(2) tanımlayıcı özeti dosya İÇERİĞİNDEN hesaplanıyor, sürüm alanından değil — sürümü
-artırmadan fiyat değiştiren herkes görünmez kalırdı ve tam o düzenleme planı geçersiz
-kılan şey; (3) `unpriced` kilidi gerçek repoda hemen iş gördü: `gorsel-uret` adımı
-V-16 anahtarları olmadığı için fiyatlanamıyor ve **başlat kilitli** — eksik bir tahminle
-onay vermek, bilinmeyen bir tutara onay vermektir.
-**Ders:** bir kural iki uçlu olduğunda (dondur + donmuşu kullan) yalnız birini yazmak,
-kuralı yazılı ama işlemez bırakır. `freezePlan` tek başına bir belge parçasıydı.
-
-## D-173 — Red iki yere yazılır: manifest o çalıştırmanın kanıtı, defter markanın hafızası
-2026-08-16 · `just onay` reddi yalnız çalıştırmanın manifest'ine yazıyordu. Sonuç: red o
-çalıştırmayla birlikte ölüyordu. `brand/<id>/decisions.jsonl` **hiç oluşmamıştı** —
-sticky karar defteri (§4.5) kodu tamdı (`parseLedger`/`suppression`/`appendLine`),
-`discovery.mjs` onu okuyordu, ama **hiçbir yol ona yazmıyordu.** Yazılı, okunan ve hep
-boş kalan bir defter.
-Onay kuyruğu artık iki yere yazıyor: manifest (o çalıştırmanın kanıtı, §13) ve defter
-(markanın hafızası, §4.5). Onay yalnız manifeste gider — defter REDLERİN hafızasıdır,
-"evet" kendini açıklar ve tekrar sorulması zaten istenen şeydir.
-İki koruma daha: **gerekçesiz red reddedilir** (bilgi taşımayan bir "hayır" sonraki
-çalıştırmaya hiçbir şey söylemez) ve **karar EZİLMEZ** (aynı kapıya ikinci karar 409).
-Üçü de ihlal testiyle doğrulandı.
-Yol boyunca manifest'te gerçek bir eksik çıktı: `awaitingGate` yalnız çalıştırma anındaki
-RAPOR nesnesindeydi, diske yazılmıyordu. Yani manifest "bu çalıştırma beni mi bekliyor"
-sorusunu cevaplayamıyordu — ve onay kuyruğunun tek kaynağı manifest. Alan eklendi
-(isteğe bağlı, eski manifest'ler geçerli kalıyor).
-**Ders (yedinci kez):** bir mekanizmanın kodu, testi ve okuyucusu olabilir ve yine de
-hiç çalışmıyor olabilir — çünkü kimse ona YAZMIYOR. "Bu özellik var mı" sorusunun cevabı
-kodda değil, veri akışında.
-
-## D-174 — Fikstür yine kablo biçimini uydurdu: `ProviderCandidate`
-2026-08-16 · `sunucu.test.ts` fikstürü `candidates: [{ providerId, outcome: 'won',
-reason: null }]` yazıyordu. Gerçek `ProviderCandidate` şu: `{ providerId, capability,
-selected, rejectionReason, estimatedCost }`. `outcome` diye bir alan YOK.
-Yedi test bu fikstürle geçiyordu çünkü hiçbiri `writeManifest` çağırmıyordu. Onay kuyruğu
-çağırdığı an `no_selected_provider` kusuruyla düştü — yani manifest doğrulayıcısı doğru
-çalıştı ve fikstürün yalanını ilk fırsatta yakaladı.
-Bu D-163'ün birebir tekrarı ve aynı turda ikinci kez oldu. **Kural artık şu: bir fikstür
-yazmadan önce tipin tanımı OKUNUR.** Tip zaten repoda; onu okumamak, kendi varsayımını
-test etmektir.
-
-## D-175 — Tolerans okuması tipi Ring -1'e: ölçen ile gösteren ortak sözlüğü
-2026-08-16 · Sistemin imza öğesi (§11.1) tolerans okumasıdır ve iki halka onu paylaşmak
-zorunda: ölçüm `packages/render/src/qa/`de yapılır (Chromium, piksel, ΔE2000), gösterim
-tarayıcı halkasında. Ama `packages/ui` `render`ı import EDEMEZ — `render` Playwright çeker.
-D-165'in aynı sorusu, aynı cevabı: **tip Ring -1'e taşındı**, mantık yerinde kaldı.
-`ToleranceReading`/`ToleranceStatus`/`QaReport` artık `packages/contracts/src/tolerance.ts`te;
-`render` onları import edip yeniden dışa açıyor, yani mevcut hiçbir çağıran değişmedi.
-Tarayıcı tarafında ikinci bir arayüz tanımlasaydık, ölçüm alanı eklendiğinde ekran onu
-sessizce görmezden gelirdi — ve eksik bir ölçüm ekranı, yanlış bir ölçüm ekranıdır.
-Yol boyunca gerçek bir ölü uç çıktı: `validateBody`ın `check` sözleşmesi
-`{ blocked, report: string }` döndürüyordu — yani ölçüm **kaynağında yapılandırılmışken**
-(`measure()` `QaReport` döner) metne düzleştiriliyordu. Tolerans bileşeni bir dizenin
-içindeki sayının altına bant çizemez. Sözleşme `readings?` ile genişletildi (isteğe bağlı,
-eski çağıranlar çalışıyor) ve `uret.mjs` okumaları yapılandırılmış topluyor — aynı metrik
-birden çok slayttan gelirse **en KÖTÜ okuma** kalıyor, ortalama değil: ortalama, bir
-slaydın sınır dışı olduğunu diğerlerinin arkasına gizler.
-**Rozet yasağı kapıya bağlandı:** `ui-tema` artık `✓ uygun` / `uyumlu ✓` / `marka uyumu`
-ifadelerini reddediyor. Yorumlar soyuluyor — bir kuralı ihlal eden ifadeyi NEDEN yasak
-olduğunu anlatan yorumda alıntılamak meşrudur ve kapının ilk sürümü tam da bu dosyanın
-kendi gerekçe yorumunu yakaladı.
-**Ders:** "ölçülmedi" ile "geçti" iki farklı cümledir. Boş bir tolerans raporu gösterip
-sessiz kalmak, QA hiç koşmamış bir varlığı temiz göstermektir — `olculdu` bayrağı ayrı
-gidiyor ve kapı onun varlığını zorluyor.
-
-## D-176 — Güvenli alan kodda ve KENDİ kaynağıyla; `null` ile sıfır ayrı
-2026-08-16 · §9.1 Reels güvenli alanını sayıyla veriyordu (üst %14, alt %35, yan %6 →
-1080×1920'de 950×979) ama **kod bunu hiç bilmiyordu**. Placement Preview'ın tek işi o
-bandı çizmek; belgede duran bir sayı, çizilemeyen bir sayıdır.
-`Placement.safeArea` eklendi ve bir test §9.1'in sayısını kodla karşılaştırıyor: belge ile
-kod ayrışırsa hangisinin doğru olduğu anlaşılmaz, o yüzden ayrışma bir hatadır.
-**Güvenli alan KENDİ `sourceUrl`+`verifiedAt`ini taşıyor.** Yerleşim ölçüsü Meta'nın boyut
-dokümanından, güvenli alan Reels tasarım kılavuzundan geliyor — tek tarih paylaşsalardı
-biri güncellenince diğeri de "doğrulanmış" görünürdü.
-**`safeArea: null` ile `{0,0,0}` AYRI:** birincisi "bu yerleşimde chrome yok" (feed
-görselinde UI görselin üstüne binmez), ikincisi "ölçüldü ve sıfır çıktı" — ve ikincisi
-hiçbir platformda doğru değil. Kapı bu ayrımı zorluyor.
-Taşma **pikselle** raporlanıyor: "taşıyor" düzeltilebilir bir bilgi değil, "üstten 69px
-taşıyor" düzeltilebilir bir bilgidir. Her kenar ayrı.
-Tip yine Ring -1'e taşındı (D-165, D-175 ile aynı gerekçe; üçüncü kez): tarayıcı halkası
-`render`ı import edemez, ama VERİ de kopyalanmadı — `/api/yerlesimler` ile geliyor ve
-spec güncellendiğinde ekran otomatik doğru ölçüyü çiziyor.
-**Ders:** bir sayı belgede duruyorsa "tanımlı" değildir. Tanımlı olması, onu okuyan bir
-testin ve onu çizen bir kodun olması demektir.
-
-## D-177 — `kind: 'skip'` iki farklı şeyi birleştiriyordu; sütunlar BEŞ oldu
-2026-08-16 · Reconciliation ekranının tüm amacı "hiçbir şey değişmedi" ile "insan hayır
-dedi"yi AYIRMAK: birincisi kaydırıp geçtiğiniz gürültü, ikincisi dikkatinizin ait olduğu
-yer. Motor ikisini de `kind: 'skip'` diyordu ve fark yalnız `reason` METNİNDE vardı —
-bir cümleyi düzeltmek ekranın sütununu değiştirirdi.
-Op'a **ayrık `why` alanı** eklendi (`unchanged` · `previously_rejected` · `pinned` ·
-`human_zone` · `new_record` · `content_changed` · `absent_in_candidates`). Sütunlar
-ondan MEKANİK türüyor, prose ayrıştırılmıyor.
-**Sütun sayısı beş, dört değil.** Plan arşivi dört diyordu (DEĞİŞMEDİ / DEĞİŞTİ /
-ÇELİŞTİ / YENİ) ama `retire` hiçbirine düşmüyordu — ve emeklilik mirror modunun en
-sonuçlu op'u. Dördüncüye sıkıştırmak, silinen bir kaydı "değişti"nin arkasına gizlemek
-olurdu. Sessizce sıkıştırmak yerine faz dosyası düzeltildi.
-İkinci bulgu daha ağır: **plan yolu imza bütünlüğünü HİÇ doğrulamıyordu.** §4.4 "imza
-kırıksa çalıştırma durur" diyor ve `signatureIntact` yalnız YAZMA yolunda (`write.ts`)
-çağrılıyordu. Yani plan ekranı, insanın elle düzelttiği bir kayıt için "update" gösterip
-emeğini üzerine yazacakmış gibi görünüyordu. `ExistingRecord.signatureBroken` +
-`DiscoveryPlan.halted` eklendi; `just discovery plan` artık gerçekten DURUYOR.
-Kanıt: gerçek bir kaydın gövdesine bir cümle ekledim → `✗ PLAN DURDU — 1 kaydın imzası
-kırık`, çıkış kodu 1. Beş sütun gerçek planla doğrulandı: `pinned` ve `human_zone`
-ÇELİŞTİ'ye, `unchanged` ayrı sütuna düştü.
-**Ders:** bir enum iki farklı gerçeği tek değere sıkıştırıyorsa, ekran o ayrımı
-YAPAMAZ — ve ayrımı metinden geri kazanmaya çalışmak, veriyi ikinci kez ve daha kötü
-temsil etmektir.
-
-## D-178 — `ok: true` "analiz koştu" demek, "değişiklik güvenli" DEĞİL
-2026-08-16 · Şema kuru çalıştırma ucu reddedilen bir göçe **200** dönüyordu. Gövdede
-`✗ 5 yıkıcı değişiklik — kaydetme REDDEDİLDİ` yazıyordu ama durum kodu başarı diyordu:
-gövdeyi okumayan her istemci yıkıcı bir göçü uygulanmış sanardı. Kendi yorumumda bu
-tehlikeyi yazmıştım ve kodda yapmıştım — `r.ok` "analiz yapılabildi" demekti, ben onu
-"sonuç iyi" diye okudum.
-Üç durum kodu, üç farklı gerçek: **422** şema profil dışı (analiz HİÇ yapılamadı) ·
-**409** analiz koştu ama değişiklik güvenli değil · **200** güvenli. Gerçek corpus'a
-karşı dördü de doğrulandı.
-Alan silmek **kayıt sayısından bağımsız** reddediliyor: sıfır kayıt etkilense bile
-gelecekte yazılacak tarihsel okuyucular kırılır. Ret yetmez, yol gösterilir —
-`x-retired: true` (R-12'nin şema seviyesindeki karşılığı: emeklilik silme değildir).
-**Yol boyunca daha büyük bir bulgu:** hiçbir corpus kaydı `attributes` bloğu taşımıyor.
-Yedi varlık tipi tanımlı, projeksiyon derleyicisi dört hedefe derliyor (§3.4), `registry`
-kapısı şemaları doğruluyor — ama kayıtlar alanları NESİR GÖVDEDE taşıyor ve şemalara
-hiç bağlı değil. Yani form, katı LLM şeması ve SQLite DDL projeksiyonlarının bağlanacak
-verisi yok. Ekran bunu sessizce geçmiyor: her tip için `ozniteliktiKayit` gösteriliyor
-ve `0` ise "şema hiçbir kayda bağlı değil" yazıyor — yoksa kuru çalıştırmanın "her kayıt
-kırılacak" demesi açıklanamaz bir alarm olurdu.
-**Ders:** bir `Result` iki soruyu cevaplıyorsa ("işlem yapılabildi mi" ve "sonuç iyi mi")
-çağıran ikisini karıştırır. Ayrı alanlar, ayrı durum kodları.
-
-## D-179 — Bütçe tavanı env değişkeninden Ring 1'e taşındı
-2026-08-16 · Tavan `SUITE_RUN_CAP` ortam değişkenindeydi. Üç sorun: UI'dan
-değiştirilemez (D-17 "tavanlar UI'dan ayarlanır" diyor), git'te görünmez, iki makinede
-farklı olabilir — ve "bu çalıştırma hangi tavanla koştu" sorusu cevapsız kalır.
-**Tavan bir KARARDIR ve kararlar Ring 1'de, git'te yaşar** (D-11). `registry/butce.yaml`
-açıldı; `uret.mjs` onu okuyor, sunucu okuyup YAZIYOR, ekran düzenliyor.
-Kabul kriteri uçtan uca ölçüldü: `just uret` `100000` okuyordu → UI `250000` yazdı →
-sonraki `just uret` `250000` okudu.
-Dört dürüstlük kararı: (1) **`null` ile `0` karıştırılmaz** — biri tavansız, diğeri "hiç
-harcama yapma" ve ikincisi meşru bir tercih; (2) **çalıştırma tavanı aylıktan büyük
-olamaz** — ikisinden biri anlamsız olurdu (422); (3) **bozuk dosya sessizce varsayılana
-düşmez**, hata panoda görünür: kullanıcının koyduğunu sandığı tavanın yerine başka bir
-tavanla koşmak, tavan koymamaktan tehlikelidir; (4) **kota ÖLÇÜLMÜYOR ve bu yazılıyor** —
-sağlayıcı kota uçları FAZ-7.8'de gelecek, uydurulmuş bir "%80 dolu" göstergesi hiç
-göstergesi olmamaktan tehlikelidir (D-175).
-Yazma ucu var ama **commit yok**: dosya güncellenir, `git diff`te görünür ve commit
-insanın kararıdır (R-14). Sunucunun kendi kendine commit atması, "onay = git commit"
-yasasını sunucunun eline verirdi.
-**Ders:** bir yapılandırma değeri env'de yaşıyorsa, o değer hakkında hiçbir soru
-cevaplanamaz — ne "kim değiştirdi", ne "ne zaman", ne "hangi çalıştırma hangisini gördü".
-
-## D-180 — Yüzey sınırı token'a bağlı değil, sözleşmeye bağlı
-2026-08-16 · `4.13` Telegram botu istiyordu ama `TELEGRAM_BOT_TOKEN` yer tutucu
-(`doldurulacak`, 12 karakter — gerçek token ~46) ve `tailscale` kurulu değil. İki seçenek
-vardı: adımı tamamen bloke etmek ya da token gerektirmeyen kısmı yapmak.
-İkincisi seçildi çünkü botun ASIL işi bir sözleşmedir, bir ağ bağlantısı değil:
-**Telegram yalnız onay/red/gerekçedir** (§4c). O sınır saf bir fonksiyonda yaşıyor ve
-token olmadan test edilebiliyor — `/uret` `/plan` `/sema` `/butce` `/discovery` `/sil`
-hepsi **403 + gerekçe** ile geri çevriliyor.
-**403, 404 değil:** komut TANINIYOR ama bu yüzeyde yok. 404 "böyle bir komut yok" derdi
-ve kullanıcı başka yazımlar denerdi — sessiz yok sayma "belki ileride ekleriz"in kibar
-hâlidir.
-Üç ek karar: gerekçesiz red **bu yüzeyde de** reddediliyor (aynı kural iki yüzeyde farklı
-olamaz — D-173); bozuk inline callback `null` dönüyor, sessizce ONAYA dönüşmüyor; ve
-yer tutucu token ile bot **AÇILMIYOR ama bu SESSİZ kalmıyor** — sunucu açılışta
-`telegram botu: KAPALI` yazıyor. Sessiz kalsaydı "bot çalışıyor" sanılır ve masadan
-uzaktayken kuyruk sessizce tıkanırdı.
-Adım bölündü: `4.13` (sözleşme, bitti) · `4.13b` (gerçek token + Tailscale, `bloke: insan`,
-V-18). Beşinci insan blokajı — hepsi `insan` sınıfında ve LOOP§G üçlü kuralına saymıyor
-(D-157), ama DURUM.md ⛔ bloğunda adlarıyla ilan ediliyor.
-**Ders:** bir bileşenin "dış bağımlılığı var" olması, hiçbir parçasının yapılamayacağı
-anlamına gelmez. Sözleşmeyi bağlantıdan ayırmak, blokajın kapsamını daraltır.
-
-## D-181 — Karantina SAYILIR ama listelenmez; "defter yok" ile "yayınlanmadı" ayrıdır
-2026-08-16 · Varlık kütüphanesi gerçek repoda **0 varlık** gösteriyor — `derived/blobs`
-boş, çünkü 14 varlık D-155'te karantinaya alındı. Boş bir kütüphane açıklanamaz bir
-sonuçtur: operatör "hiç üretmemişim" sanar. Üç seçenek vardı: karantinayı listelemek
-(yayınlanamaz varlığı kullanılabilir göstermek), hiç saymamak (sessizlik), ya da
-**listeye almadan saymak**. Üçüncüsü seçildi ve ekran sebebini yazıyor.
-İkinci ayrım daha ince: **yayın defteri HİÇ YOK.** Bu durumda "yayınlanmadı" bir ölçüm
-değil bir varsayımdır ve fark söylenmeli — `yayinDefteriYok` ayrı bir alan olarak gidiyor.
-Aynı ilkenin üçüncü uygulaması (D-175 "ölçülmedi ≠ geçti", D-179 "kota null = ölçülmüyor").
-**Reuse varlığı değil KARARI kopyalar** (§4c): donmuş girdiler, konu, bağlam commit'i.
-Baytı kopyalamak yeni bir iş üretmez; kararı kopyalamak LLM'i yeniden çalıştırmadan
-benzer bir iş üretir. Manifest yoksa Reuse yapılamaz ve 404 döner — "kopyalandı" deyip
-boş bir form açmak, kullanıcının donmuş girdileri elle yeniden yazması demekti.
-**Kendi ihlal testim yine geçersizdi:** "bedava şerit boşa harcanana sayılmaz" testi
-`gercek: '0'` fikstürü kullanıyordu, yani kuralı değil rastlantıyı sınıyordu — bedava
-şeridi saysak da toplam 0 çıkıyordu. Fikstür `5000`e çevrildi ve ihlal kırmızıya döndü.
-**Ders:** bir kuralı sınayan fikstür, kural KALDIRILDIĞINDA sonucu değişecek biçimde
-seçilmelidir. Sıfır değerler her iki dalda da aynı sonucu verir ve testi süse çevirir.
-
 ## D-182 — Donmuş plan diske yazılmıyordu: `rerun` düğmesi sessizce `replay` olurdu
 2026-08-16 · `4.15`in ön koşulunu ararken veri akışı izlendi (D-173'ün dersi) ve şu
 çıktı: `freezePlan` üretiliyor, `launcherPlani` HTTP cevabında döndürüyor, `runPipeline`
@@ -546,3 +326,24 @@ tahminle değil.
 `hyperframes doctor` üç eksik bildiriyor, üçü de **optional** ve bu plana ait değil:
 whisper-cpp (FAZ-5.5 kendi çözümünü seçer), Kokoro TTS ve MusicGen (D-18 seslendirme
 şeritlerini sayıyor, ikisi de listede yok). Zorunlu kontrollerin hepsi yeşil.
+
+## D-195 — İki Chromium AYNI tipografiyi veriyor: ölçüldü, varsayılmadı
+2026-08-16 · D-194 hareket katmanını bir borca bağlamıştı: ikinci ikili ancak
+tipografik eşdeğerlik KANITLANIRSA kabul. Ölçüm yapıldı ve **eşdeğerlik doğrulandı** —
+Playwright Chromium 141.x ile HyperFrames Chrome 135.x, `ĞÜŞİÖÇ ğüşıöç Ağrı İğne`
+dizesinde aynı glyph kutularını, aynı ilerleme genişliklerini ve **her ikisinde de
+sıfır eksik glyph** veriyor.
+**Aynı ölçüm kodu iki ikilide koştu.** `measureGolden` bir `executablePath` alıyor ve
+başlatma yine `browser.ts`te — `chromium-baslatan` darboğazı ikinci bir başlatma
+NOKTASINI değil ikinci bir başlatma DOSYASINI yasaklıyor. İkinci bir ölçüm yazmak
+soruyu cevaplanamaz yapardı: farkın ölçümden mi motordan mı geldiği bilinemezdi.
+`golden-hareket` kapısı `GROUP: all` (iki tarayıcı başlatıyor, `just check`i
+yavaşlatmamalı) ve iki ihlalle kırmızıya döndürüldü: hareket ölçümünün fontunu
+monospace'e zorlamak **68 eksik glyph** verdi — yani Türkçe glyph'leri taşıyan şey
+marka fontu ve karşılaştırma gerçekten canlı; olmayan bir ikili yolu da reddediliyor.
+Örnek kompozisyon render edildi: **h264 · yuv420p · 1920×1080 · 30fps · 10 sn**,
+10,7 saniyede. §7.4'ün "build adımı yok, `index.html` olduğu gibi oynar" iddiası
+doğrulandı.
+**İki küçük düzeltme:** `hyperframes init` iskeleti kendi `CLAUDE.md` ve `AGENTS.md`
+dosyalarını bırakıyor — talimatın ikinci kaynağı olurdu, silindi. `motion/*/renders/`
+gitignore'landı: MP4 build çıktısıdır, kalıcı varlık `index.html`dir (§4c).

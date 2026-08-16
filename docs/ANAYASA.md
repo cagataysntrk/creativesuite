@@ -214,6 +214,39 @@ Yetenek adı ≠ fiil adı.
 ## §4 Marka sistemi {#section-4}
 
 ### §4.1 Token mimarisi {#section-4-1}
+
+**Üç kademe, tek yön.** Kaynak `brand/<brand_id>/tokens/*.tokens.json` (DTCG şekilli,
+kendi Zod şemamızla doğrulanır); derleyici `packages/registry/src/tokens.ts`.
+
+| Kademe | Ne | Kime referans verebilir |
+|---|---|---|
+| `ramp.*` | ham OKLCH rampalar | hiç kimseye — yaprak değerler |
+| `role.*` | anlamsal roller (`role.bg`, `role.text-muted`) | yalnız `ramp.*` |
+| `comp.*` | bileşen token'ları (`comp.status-bar-bg`) | yalnız `role.*` |
+
+Yön **zorlanır**: `comp` → `ramp` atlaması derleme hatasıdır (`tier_violation`).
+Atlamaya izin verseydik yüzey değiştirmek bileşenleri tek tek gezmek olurdu ve
+"iki yüzey" vaadi ilk düzenlemede çökerdi.
+
+**CSS `var()` basar, çözülmüş değeri DEĞİL** (D-160). İlk sürüm `comp` token'larını
+düz değere derliyordu (`--comp-status-bar-bg: oklch(0.21 …)`); o hâlde yüzey rolü
+değiştiğinde bileşen ESKİ rengi taşımaya devam ediyordu — iki yüzey yapısal olarak
+imkânsızdı. Artık `--comp-status-bar-bg: var(--role-surface)`.
+
+**İki yüzey, tema anahtarı YOK** (§12.4): `console.tokens.json` kalıcı koyu,
+`studio.surface.tokens.json` kalıcı açık. Stüdyo **yalnız 2. kademe rolleri** yeniden
+tanımlar; rampalar ve bileşen token'ları aynıdır. Yüzey rengi değiştirir, yapıyı değil —
+ikincisi iki tasarım sistemi demektir ve biri bakımsız kalır.
+
+**Türetilenler `brand/<brand_id>/derived-tokens/` altında ve ÜRETİLMİŞTİR** (R-65):
+`tokens.css` (kabuk), `tailwind-theme.ts`, `brand-facts.json` (prompt'a enjeksiyon),
+`frame.md` (hareket katmanının kamera bağlamı, §7.4). Elle düzenleme üreteç koşunca
+kaybolur; `docs-drift` kapısı sürüklenmeyi yakalar.
+
+**Token'lar çalışma anında servis edilir** (`/api/tokens.css`), derlemeye gömülmez:
+statik import tek markayı ikiliye kaynak yapardı ve D-39'un çok markalılık ekseni
+çökerdi.
+
 ### §4.2 Çok markalılık ve kalıtım {#section-4-2}
 
 `brand_id` zarfta birinci sınıf sistem alanıdır ve retrieval yükleminin **ilk**

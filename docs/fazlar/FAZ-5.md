@@ -8,18 +8,14 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
 
 ---
 
-## 5.1 — HyperFrames kurulumu ve Claude skill'leri    [ ]
+## 5.1 — HyperFrames kurulumu ve Claude skill'leri    [x] 2026-08-16
 
-📖 §7.4 · R-30 · D-25
-🛠 `npx hyperframes skills update`. **Remotion REDDEDİLDİ**: ücretsiz lisansı ≤3 çalışan,
-   şirket 6 kişi (D-25). HyperFrames Apache 2.0 ve headless Chrome + FFmpeg kullanıyor —
-   yani **tek render motoru** yasası (R-30) korunuyor, ikinci bir CSS alt kümesi girmiyor.
-📁 `motion/` · `packages/render/src/motion/`
+📖 §7.4 · R-30 · D-25, D-194
+📁 `motion/kanit/` · `scripts/golden-hareket.mjs`
 ✅ `npx hyperframes doctor` ZORUNLU kontrollerin hepsinde yeşil (optional olanlar
    D-194'te adıyla sayıldı) · örnek kompozisyon MP4 üretiyor · **`ĞÜŞİÖÇ ğüşıöç Ağrı
    İğne` metrikleri Playwright golden'ıyla eşleşiyor** (D-194: sınır ikili değil motor)
 🧪 İkinci bir render motoru ekle → `chokepoints` (`chromium-baslatan`) kırmızı
-💾 `feat(motion): hyperframes kurulumu` · `Refs: FAZ-5.1 · §7.4`
 
 ## 5.2 — `motion/frame.md`    [ ]
 

@@ -17,6 +17,12 @@ import { chromium, type Browser, type Page } from 'playwright'
 export interface BrowserOptions {
   /** Milisaniye. Sonsuza kadar bekleyen bir render, gözetimsiz bir gecede asılı kalır. */
   readonly timeoutMs?: number
+  /**
+   * Farklı bir Chromium ikilisi (D-194). Verilmezse Playwright'ın kendi sürümü —
+   * üretim yolu HER ZAMAN varsayılanı kullanır. Bu alan yalnız **ölçüm** içindir:
+   * hareket katmanının tarayıcısı bizimkiyle aynı tipografiyi üretiyor mu.
+   */
+  readonly executablePath?: string
 }
 
 export type BrowserFailure =
@@ -40,6 +46,18 @@ export const withPage = async <T>(
   let browser: Browser | null = null
   try {
     browser = await chromium.launch({
+      // **BAŞKA bir Chromium ikilisi verilebilir** (D-194 · FAZ-5.1).
+      //
+      // HyperFrames kendi Chrome'unu getiriyor (135.x) ve `PUPPETEER_EXECUTABLE_PATH`
+      // ile yönlendirilemiyor; bizimki Playwright'ın Chromium'u (141.x). R-30 artık
+      // "sınır ikili değil MOTOR" diyor ama eşdeğerlik KANITLANMAK zorunda — ve kanıt
+      // ancak O ikiliyi bu ölçüm koduyla koşturmakla üretilir.
+      //
+      // Başlatma yine BU dosyada: `chromium-baslatan` darboğazı ikinci bir başlatma
+      // noktasını değil, ikinci bir başlatma DOSYASINI yasaklıyor. Yol parametresi
+      // buraya gelirse font bayrakları da tek yerde kalır — asıl karşılaştırmayı
+      // anlamlı yapan şey bu.
+      ...(opts.executablePath === undefined ? {} : { executablePath: opts.executablePath }),
       // Sandbox devre dışı DEĞİL: kapatmak konteynerde kolaylık sağlar ama bu makinede
       // gerekmiyor ve güvenlik sınırını gereksiz yere gevşetmek, gerekmeden ödenen
       // bir borçtur (§14).

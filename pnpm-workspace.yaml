@@ -35,3 +35,7 @@ allowBuilds:
   msw: false
   # Yerel derleme gerekebilir (prebuild yoksa node-gyp). Süre ve kırılganlık burada ölçülüyor.
   better-sqlite3: true
+  '@google/genai': set this to true or false
+  esbuild: set this to true or false
+  onnxruntime-node: set this to true or false
+  protobufjs: set this to true or false

@@ -70,15 +70,26 @@ export interface GoldenMetrics {
  * genişliklerini verir. Node tarafında hesaplamak, tarayıcının gerçekte ne yaptığını
  * TAHMİN etmek olurdu — ve tam da tahmin edilemeyen şey (fallback) aranan hata.
  */
-export const measureGolden = async (doc: DocumentModel): Promise<BrowserResult<GoldenMetrics>> =>
-  withPage(async (page) => {
-    await page.setViewportSize({ width: doc.width, height: doc.height })
-    await page.setContent(toHtml(doc), { waitUntil: 'load' })
-    await page.evaluate('(async () => { await document.fonts.ready; return true })()')
+export const measureGolden = async (
+  doc: DocumentModel,
+  /**
+   * Ölçümün koşacağı Chromium ikilisi (D-194). Verilmezse Playwright'ınki.
+   *
+   * **Aynı ölçüm kodu iki ikilide koşar** — ikinci bir ölçüm yazmak, iki gerçek
+   * üretmek olurdu: "hareket katmanı bizimle aynı tipografiyi veriyor mu" sorusu
+   * ancak ÖLÇÜM aynıysa cevaplanabilir.
+   */
+  executablePath?: string
+): Promise<BrowserResult<GoldenMetrics>> =>
+  withPage(
+    async (page) => {
+      await page.setViewportSize({ width: doc.width, height: doc.height })
+      await page.setContent(toHtml(doc), { waitUntil: 'load' })
+      await page.evaluate('(async () => { await document.fonts.ready; return true })()')
 
-    // ⚠ Tarayıcı kodu DİZE olarak geçiyor: bu kod bu süreçte koşmuyor ve `document`i
-    // bu paketin tip evrenine sokmak, Node tarafındaki bir hatayı sessizleştirirdi.
-    const script = `(() => {
+      // ⚠ Tarayıcı kodu DİZE olarak geçiyor: bu kod bu süreçte koşmuyor ve `document`i
+      // bu paketin tip evrenine sokmak, Node tarafındaki bir hatayı sessizleştirirdi.
+      const script = `(() => {
       // U+E000 özel kullanım alanı: hiçbir fontta tanımlı DEĞİL. İlerleme genişliği,
       // "eksik glyph" imzasının referansıdır.
       const YOK = '\\uE000'
@@ -126,18 +137,20 @@ export const measureGolden = async (doc: DocumentModel): Promise<BrowserResult<G
       return { blocks, notdefCount: notdef }
     })()`
 
-    const olcum = (await page.evaluate(script)) as {
-      blocks: TextMetric[]
-      notdefCount: number
-    }
+      const olcum = (await page.evaluate(script)) as {
+        blocks: TextMetric[]
+        notdefCount: number
+      }
 
-    return {
-      proofText: PROOF_TEXT,
-      canvas: { width: doc.width, height: doc.height },
-      blocks: olcum.blocks,
-      notdefCount: olcum.notdefCount,
-    }
-  })
+      return {
+        proofText: PROOF_TEXT,
+        canvas: { width: doc.width, height: doc.height },
+        blocks: olcum.blocks,
+        notdefCount: olcum.notdefCount,
+      }
+    },
+    executablePath === undefined ? {} : { executablePath }
+  )
 
 export type MetricDiff =
   | { readonly kind: 'notdef'; readonly count: number }

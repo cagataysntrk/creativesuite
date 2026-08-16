@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.1
+siradaki_adim: 5.2
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 4 SARTLI KAPANDI (D-193): 20 adimin 19u tikli, 4.13b bilincli BLOKE:insan. Kapanis turunun alti bulgusu kapatildi (D-188…D-192). Cikis kriterinin ikisi KARSILANMADI ve tikle ortulmedi: (a) klavyeyle uctan uca zincirin ONAYLA halkasi hic yurutulmedi — hicbir calistirma insan kapisina ulasmadi, hepsi 2.9 blokaji yuzunden bilgi-sec te duruyor (b) Tailscale telefonda onay, V-18. Ucuncu kriter (+%30 sahte-yerellestirme) kuralin YAZILI hali olarak turkce-genisleme kapisiyla zorlaniyor (sabit genislik yok, ellipsis yok — ikisi de kirmiziya donduruldu), GORSEL olcum V-19 olarak acik. 33 kapi, 926 test yesil."
+son_kanit: "5.1 BITTI. D-194un borcu KAPANDI: Playwright Chromium 141.x ile HyperFrames Chrome 135.x ayni tipografiyi veriyor — OLCULDU, varsayilmadi. Ayni olcum kodu iki ikilide kostu (measureGolden bir executablePath aliyor, baslatma yine browser.ts te — darbogaz ikinci DOSYAYI yasakliyor, ikinci noktayi degil). golden-hareket kapisi iki ihlalle kirmiziya donduruldu: monospace e zorlayinca 68 eksik glyph (Turkce glyphleri marka fontu tasiyor), olmayan ikili yolu reddediliyor. Ornek kompozisyon: h264 yuv420p 1920x1080 30fps 10sn. hyperframes iskeleti kendi CLAUDE.md sini birakiyordu — talimatin ikinci kaynagi, silindi. 34 kapi, 926 test."
 ```
 
 ## Neredeyiz
@@ -67,25 +67,20 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **4.15** · Run History; donmuş plan diske yazılıyor, rerun ≠ replay | 2026-08-16 |
 | **4.16** · Strategy Health; kural kapı ile panoda TEK yerde | 2026-08-16 |
 | **4.17** · Doctor; rapor eder, `doctor-salt-okur` kapısı zorluyor | 2026-08-16 |
+| **5.1** · HyperFrames; iki Chromium aynı tipografiyi veriyor (ölçüldü) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.1` — HyperFrames kurulumu** (§7.4 · D-25). Önce FAZ 4 kapanış turunun kalan
-bulguları (aşağıda), sonra bu adım. `npm view hyperframes` → v0.7.109 · Apache-2.0 ·
-`heygen-com/hyperframes`. ffmpeg 6.1.1 ✓ · ffprobe ✓ · xvfb-run ✓ · node v22 ✓.
+**`5.2` — `motion/frame.md`** (§7.4, §4.1). Marka token'ları **kamera bağlamına**
+çevrilir. Tek kaynak yine `brand/<brand_id>/tokens/` — hareket için ikinci bir palet
+tanımlamak iki marka gerçeği demektir. ✅ `frame.md` token'lardan ÜRETİLİYOR ·
+`git diff --exit-code` boş. 🧪 elle düzenle, üreteci çalıştır → değişiklik kayboluyor.
 
 ## Kapanış turu — kalan bulgular
 
-Bağımsız doğrulama (LOOP§D, 1. tur) FAZ 4'ü kapanışa hazır bulmamıştı. **Kapatılanlar:**
-donmuş plan üretimde (D-188) · bütçe verisi kapıda (D-189) · Başlat + rerun/replay
-bağlı (D-190) · red gerekçesi okunuyor (D-191) · sabit kodlu ekran parametreleri ve
-bayat faz yolları (D-192) · V-18 ayrıldı. `awaitingGate` **bozuk değil**: diske
-yazıldığı testle kanıtlandı; 0/18 olmasının sebebi hiçbir çalıştırmanın kapıya
-ulaşmaması — hepsi `2.9` blokajı yüzünden `bilgi-sec`te duruyor.
-
-**Kalan tek şey:** QA okumaları ve bağlam girdisi 0/18 — ikisi de aynı sebeple
-(`2.9` onaylanana kadar hat `bilgi-sec`i geçemiyor). Ölçüm `3.14` koştuğu gün gelir.
-Gerçek bileşen testi (DOM altyapısı, iki bağımlılık) FAZ 9'a bırakıldı — D-192.
+FAZ 4'ün altı bulgusu kapandı (D-188…D-192). **Kalan tek şey:** QA okumaları ve bağlam
+girdisi 0/18 — ikisi de `2.9` blokajı yüzünden; ölçüm `3.14` koştuğu gün gelir. Gerçek
+bileşen testi (DOM altyapısı) FAZ 9'a bırakıldı — D-192.
 
 ## Bloke adımlar
 
