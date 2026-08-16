@@ -1,0 +1,32 @@
+# ElevenLabs — premium Türkçe seslendirme (D-18).
+#
+# ⚠⚠ **BEDAVA KATMANIN TİCARİ LİSANSI YOK** (§7.5, §17). Para almaması, ücretsiz
+# KULLANILABİLİR olması demek değil. Bu yüzden `free_tier_commercial: false` ve
+# `providers` kapısı bu sağlayıcıyı bedava şeride koymayı REDDEDER — kural genel,
+# ElevenLabs'a özel bir istisna değil.
+#
+# Lisansı olmayan bir sesle üretilmiş bir prospect videosu geri alınamaz bir yayındır;
+# bu yüzden sınır yorumda değil, tanımlayıcıda ve kapıda.
+#
+# ⚠ `enabled: false`: `ELEVENLABS_API_KEY` yok ve premium şerit gerçek para harcıyor. → V-21
+id: elevenlabs
+title: ElevenLabs (premium şerit)
+adapter: pending
+enabled: false
+
+# Karakter başına ücret; gerçek formül anahtar geldiğinde fiyat anlık görüntüsünden
+# türetilir (§8.3). Şimdilik BEYAN: sıfır DEĞİL, bilinmiyor.
+cost_formula: null
+pricing_snapshot: null
+
+auth_env: ELEVENLABS_API_KEY
+
+# Bedava katman ticari kullanıma KAPALI — premium şerit dışında kullanılamaz.
+free_tier_commercial: false
+
+capabilities:
+  - name: audio.tts
+    lanes: [premium]
+    supports:
+      locale: ['tr-TR']
+      clone: [true, false]

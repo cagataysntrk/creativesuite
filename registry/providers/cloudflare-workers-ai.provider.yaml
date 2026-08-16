@@ -16,6 +16,10 @@ enabled: false
 cost_formula: '0'
 pricing_snapshot: _pricing/cloudflare-2026-08-15.json
 
+# Bedava katman TİCARİ kullanıma açık (§7.5 · FAZ-5.4) — bu dosyanın başındaki
+# gerekçenin makine-okunur hâli. Beyan olmadan bedava şerit kullanılamaz.
+free_tier_commercial: true
+
 auth_env: CF_API_TOKEN
 
 capabilities:

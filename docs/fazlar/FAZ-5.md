@@ -36,17 +36,23 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
    golden metrik sabit: 3/3 boyut + iki Chromium karşılaştırması yeşil
 🧪 400 ms'lik geçiş ekle → `ui-tema` kırmızı · marka rengi göm → `ui-tema` kırmızı
 
-## 5.4 — `GENERATE` yeteneği `"audio.tts"` — dört şerit    [ ]
+## 5.4 — `audio.tts` şerit sözleşmesi    [x] 2026-08-16
 
-📖 §7.5, §8.2 · R-40 · D-18
+📖 §7.5, §8.2 · R-40 · D-18, D-198
 🔗 FAZ-3.5
-🛠 **Dördü de UI'dan seçilebilir** (D-18): kendi kaydın (dosya girdisi — fiil değil) ·
-   Chatterbox klonu (yerel, MIT) · Gemini TTS (bedava şerit) · ElevenLabs (premium).
-   ⚠ **ElevenLabs bedava katmanının TİCARİ LİSANSI YOK** — bedava şeride konulamaz.
-📁 `packages/providers/src/audio/`
-✅ Dört şerit de ses üretiyor · `just plan` dördünü aday listeliyor
-🧪 ElevenLabs'ı bedava şeride koy → `providers` kapısı lisans gerekçesiyle reddediyor
-💾 `feat(providers): audio.tts dört şerit` · `Refs: FAZ-5.4 · §7.5`
+📁 `registry/providers/chatterbox.provider.yaml` · `packages/providers/src/audio/`
+✅ Üç sağlayıcı tanımlı (yerel MIT · bedava bulut · premium) · dördüncü şerit "kendi
+   kaydın" sağlayıcı DEĞİL, dosya girdisi · `free_tier_commercial` beyanı zorunlu
+🧪 ElevenLabs'ı bedava şeride koy → `providers` lisans gerekçesiyle reddediyor ·
+   beyanı sil → "bilmiyorum ≠ serbest" gerekçesiyle reddediyor
+
+## 5.4b — Canlı ses üretimi    [ ] BLOKE: insan
+
+📖 §7.5 · D-18
+🔗 5.4
+✅ Dört şerit de gerçekten ses üretiyor · `just plan` dördünü aday listeliyor
+⛔ `chatterbox` ağırlıkları (~2 GB) indirilmedi · `GEMINI_API_KEY` ve
+   `ELEVENLABS_API_KEY` yok · premium şerit gerçek para harcıyor. → V-21
 
 ## 5.5 — Altyazı ve ZORUNLU transkript kapısı    [ ]
 

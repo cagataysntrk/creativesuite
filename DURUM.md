@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.4
+siradaki_adim: 5.5
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.3 BITTI (D-197). motion/components/marka.css alti bileseni tasiyor ve TEK BIR renk degeri ya da sure sayisi icermiyor — yalniz var(--role-*) ve var(--dur-*); marka kompozisyona tokens.css olarak GELIR, ayni kutuphane iki marka icin degismeden calisir. ui-tema artik motion/u de tariyor (yoksa 320ms tavani kabukta zorlanir VIDEODA zorlanmazdi) ve YENI KURAL: duz renk degeri yasak, tek istisna box-shadow. Uc ihlal de kirmizi. Iskeletin CDN GSAP i ve gomulu #000/Inter i atildi (12. yasa). Kanit: h264 yuv420p 1920x1080 30fps 6sn, golden metrikler DEGISMEDI. V-20: GSAP siz render 45sn bosuna bekliyor (6sn video 1dk34sn) — sozlesme paketten okundu, karsilandi, bekleme suruyor; FAZ-5.7 de cozulur. 34 kapi, 926 test."
+son_kanit: "5.4 BITTI (D-198). Asil kural: ucretsiz olmak ucretsiz KULLANILABILIR olmakla ayni sey degil. Tanimlayiciya free_tier_commercial eklendi; providers kapisi IKI AYRI hata veriyor — beyan false ise 'bedava seride konulamaz', beyan YOKSA 'beyan edilmemis'. Kural yazildigi anda mevcut IKI tanimlayiciyi (claude-code, cloudflare) beyansiz yakaladi; beyanlar dosyalarin KENDI metnine gore dolduruldu. Dorduncu serit (kendi kaydin) SAGLAYICI DEGIL, dosya girdisi — test bunu da denetliyor. Adim bolundu: 5.4 sozlesme bitti, 5.4b canli ses BLOKE:insan (V-21: agirliklar ve anahtarlar yok). ALTI insan blokaji oldu. 34 kapi, 932 test."
 ```
 
 ## Neredeyiz
@@ -24,8 +24,9 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 > V-18). Üçüncü kriter — +%30 sahte-yerelleştirme — kuralın yazılı hâli olarak
 > `turkce-genisleme` kapısıyla zorlanıyor; görsel ölçüm V-19.
 
-> ⛔ **BEŞ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: beşi de plan
+> ⛔ **ALTI ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: altısı da plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -36,6 +37,7 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 > | `3.8` | V-16 | aynı + ~$3 gerçek para |
 > | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |
 > | `4.13b` | V-18 | Tailscale kurulumu + gerçek Telegram token'ı |
+> | `5.4b` | V-21 | `chatterbox` ağırlıkları (~2 GB) + `GEMINI_API_KEY` + `ELEVENLABS_API_KEY` |
 
 ## Tamamlananlar
 
@@ -70,13 +72,14 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **5.1** · HyperFrames; iki Chromium aynı tipografiyi veriyor (ölçüldü) | 2026-08-16 |
 | **5.2** · `frame.md` token köprüsü; marka + sistem yan yana | 2026-08-16 |
 | **5.3** · Hareket kütüphanesi; marka-bağımsız, düz renk yasak | 2026-08-16 |
+| **5.4** · `audio.tts` şerit sözleşmesi; lisans beyanı zorunlu | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.4` — `GENERATE` yeteneği `"audio.tts"`, dört şerit** (§7.5 · D-18). Kendi kaydın
-(dosya girdisi, fiil değil) · Chatterbox klonu (yerel, MIT) · Gemini TTS (bedava şerit) ·
-ElevenLabs (premium şerit). **Dördü de UI'da seçilebilir.** ⚠ ElevenLabs bedava
-katmanının TİCARİ lisansı YOK (§17) — şerit seçimi bunu bilmeli.
+**`5.5` — Altyazı ve ZORUNLU transkript kapısı** (§7.5). Groq whisper-large-v3 ya da
+yerel whisper.cpp → kelime bazlı zamanlama → `.ass` karaoke altyazı. **İnsan transkript
+kapısı ATLANAMAZ**: Türkçe WER %10–25, on kelimede bir hata bir markanın kendi
+videosunda kabul edilemez. Otomatik kabul YOKTUR.
 
 ## Kapanış turu — kalan bulgular
 

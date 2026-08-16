@@ -1,0 +1,33 @@
+# Chatterbox Multilingual V3 — YEREL Türkçe seslendirme (bedava şerit · D-18).
+#
+# 500M parametre, MIT lisans, 6 GB VRAM'de koşuyor. Yerelde koştuğu için ses **makineden
+# çıkmıyor**: kendi sesinin klonu bir kimlik verisidir ve onu bir API'ye göndermek,
+# geri alınamaz bir paylaşımdır (§14).
+#
+# Reddedilen alternatifler ve sebepleri (§17): XTTS-v2 CPML lisanslı ve şirket dağıldı;
+# F5-TTS ağırlıkları CC BY-NC — ikisi de ticari kullanıma kapalı.
+#
+# ⚠ `enabled: false`: model ağırlıkları henüz indirilmedi (~2 GB). Adaptör sözleşmesi
+# yazıldı ve test edildi; kalan iş yalnız indirme. → V-21
+id: chatterbox
+title: Chatterbox Multilingual V3 (yerel, MIT)
+adapter: pending
+enabled: false
+
+# Yerel çalışıyor: ne API faturası ne kota. Sıfır bir BİLGİSİZLİK değil bir OLGU.
+cost_formula: '0'
+pricing_snapshot: null
+
+# Yerel model — kimlik gerekmiyor.
+auth_env: null
+
+# MIT: ticari kullanım serbest, atıf yeterli.
+free_tier_commercial: true
+
+capabilities:
+  - name: audio.tts
+    lanes: [free]
+    supports:
+      locale: ['tr-TR']
+      # Ses klonlama: referans kaydı girdi olarak alır.
+      clone: [true, false]

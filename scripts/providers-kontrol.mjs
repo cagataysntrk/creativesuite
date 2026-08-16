@@ -84,6 +84,34 @@ for (const d of descriptors) {
   }
 }
 
+// ── bedava şerit LİSANS gerektirir (§7.5, §17 · FAZ-5.4) ────────────────────
+//
+// Ücretsiz olmak, ücretsiz KULLANILABİLİR olmakla aynı şey değil. ElevenLabs bedava
+// katmanı somut örnek: para almıyor, ticari kullanıma izin vermiyor. Böyle bir
+// sağlayıcıyı `free` şeride koymak, lisansı olmayan bir sesle üretilmiş bir prospect
+// videosu demektir — ve o yayın geri alınamaz.
+//
+// Kural GENEL: ElevenLabs özel durumu değil. Bedava şerit isteyen her tanımlayıcı
+// `free_tier_commercial` beyan etmek zorunda; "bilmiyorum" ile "serbest" arasındaki
+// farkı sessiz bırakmak, en pahalı hatayı sessiz yapardı.
+for (const d of descriptors) {
+  const bedavaYetenekler = d.capabilities.filter((c) => c.lanes.includes('free'))
+  if (bedavaYetenekler.length === 0) continue
+  const adlar = bedavaYetenekler.map((c) => c.name).join(', ')
+
+  if (d.freeTierCommercial === false) {
+    hatalar.push(
+      `${d.id}: bedava şeritte (${adlar}) ama bedava katmanının TİCARİ lisansı YOK ` +
+        `— yalnız premium şeride konulabilir (§7.5)`
+    )
+  } else if (d.freeTierCommercial === null) {
+    hatalar.push(
+      `${d.id}: bedava şerit istiyor (${adlar}) ama 'free_tier_commercial' BEYAN EDİLMEMİŞ ` +
+        `— "bilmiyorum" ile "serbest" ayrı sonuçlardır`
+    )
+  }
+}
+
 if (hatalar.length > 0) {
   console.log(hatalar.map((h) => `  ✗ ${h}`).join('\n'))
   console.log(`\n${hatalar.length} sağlayıcı sözleşme ihlali`)

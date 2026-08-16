@@ -12,6 +12,11 @@ enabled: true
 cost_formula: '0'
 pricing_snapshot: null
 
+# Bedava katman lisansı (§7.5 · FAZ-5.4). Burada "bedava katman" YOK: kullanılan şey
+# ödenmiş bir abonelik ve ticari kullanım o aboneliğin şartlarından geliyor. Şerit adı
+# `free` çünkü ÇALIŞTIRMAYA ek fatura çıkarmıyor — lisans sorusu ayrı ve cevabı evet.
+free_tier_commercial: true
+
 # Kimlik ortamdan gelir; ADI yazılır, DEĞERİ asla (R-51).
 auth_env: null
 

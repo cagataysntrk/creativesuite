@@ -46,6 +46,18 @@ export interface ProviderDescriptor {
   readonly pricingVerified: boolean
   /** Maliyet formülü — QuickJS'te FAZ-3.5'te koşacak; burada BEYAN. */
   readonly costFormula: string | null
+  /**
+   * Bedava katmanın TİCARİ kullanımı serbest mi (§7.5, §17 · FAZ-5.4).
+   *
+   * `false` ise sağlayıcı **hiçbir yetenekte `free` şeride konulamaz** — ücretsiz
+   * olması ücretsiz KULLANILABİLİR olmasıyla aynı şey değil. ElevenLabs bedava
+   * katmanı somut örnek: para almıyor ama ticari kullanıma izin de vermiyor.
+   *
+   * `null` = beyan YOK. Bedava şerit isteyen bir tanımlayıcı bunu beyan etmek
+   * ZORUNDA; "bilmiyorum" ile "serbest" arasındaki farkı sessiz bırakmak, lisansı
+   * olmayan bir sesle üretilmiş bir prospect videosu demektir ve o yayın geri alınamaz.
+   */
+  readonly freeTierCommercial: boolean | null
 }
 
 export type DescriptorError =
@@ -142,6 +154,8 @@ export const parseDescriptor = (text: string): DescriptorResult => {
       pricingSnapshot: str(map['pricing_snapshot']),
       pricingVerified: false,
       costFormula: str(map['cost_formula']),
+      freeTierCommercial:
+        typeof map['free_tier_commercial'] === 'boolean' ? map['free_tier_commercial'] : null,
     },
   }
 }

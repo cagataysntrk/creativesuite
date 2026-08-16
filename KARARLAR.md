@@ -76,6 +76,12 @@ yani tetikleyen başka bir koşul var (mesaj "**sub**-composition" diyor ve bizi
 alt-kompozisyonumuz yok). Çıktı DOĞRU (h264/yuv420p/1920×1080/30fps); bedel yalnız
 süre. Hareket hattı gerçekten kullanılmaya başlayınca (FAZ-5.7) ölçülüp çözülür. → FAZ-5.7
 
+## V-21 — TTS anahtarları ve model ağırlıkları yok, ses ÜRETİLMEDİ
+Üç sağlayıcı da `enabled: false`: `chatterbox` model ağırlıkları indirilmedi (~2 GB),
+`gemini-tts` `GEMINI_API_KEY` yok, `elevenlabs` `ELEVENLABS_API_KEY` yok ve premium
+şerit gerçek para harcıyor. Sözleşme yazıldı ve test edildi (lisans kuralı iki ihlalle
+kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
+
 ## V-18 — Tailscale kurulu değil, Telegram token'ı yer tutucu
 `tailscale` binary yok (sudo kurulum + hesap girişi) ve `TELEGRAM_BOT_TOKEN`
 `doldurulacak`. Bot mantığı ve yüzey sınırı yazılmış, test edilmiş; kalan iş yalnız
@@ -397,3 +403,22 @@ zaten reddederdi.
 Kanıt: kompozisyon gerçek Chromium'da render edildi — **h264 · yuv420p · 1920×1080 ·
 30 fps · 6 sn** — ve golden metrikler DEĞİŞMEDİ (3/3 boyut + iki ikili karşılaştırması
 yeşil). GSAP'siz render'ın bedeli ölçüldü ve V-20 olarak açık duruyor.
+
+## D-198 — Bedava şerit LİSANS beyanı ister; "bilmiyorum" ile "serbest" ayrı sonuçlar
+2026-08-16 · `audio.tts` dört şeridini kurarken ortaya çıkan asıl kural şu: **ücretsiz
+olmak, ücretsiz KULLANILABİLİR olmakla aynı şey değil.** ElevenLabs bedava katmanı para
+almıyor ama ticari kullanıma izin vermiyor; onunla üretilmiş bir prospect videosu geri
+alınamaz bir yayındır.
+Tanımlayıcıya `free_tier_commercial` alanı eklendi ve `providers` kapısı iki AYRI hata
+üretiyor: beyan `false` ise "bedava şeride konulamaz", beyan YOKSA "beyan edilmemiş".
+İkisini tek hataya sıkıştırmak (D-177) "bilmiyorum"u "serbest" saymak olurdu.
+**Kural genel, ElevenLabs'a özel değil** — ve bunu yazıldığı anda kanıtladı: mevcut iki
+tanımlayıcıyı (`claude-code`, `cloudflare-workers-ai`) beyansız `free` şeritte yakaladı.
+İkisi de gerçekten ticari kullanıma açık; beyanlar dosyaların KENDİ metnine göre
+dolduruldu, varsayımla değil.
+**Dördüncü şerit bir sağlayıcı DEĞİL.** "Kendi kaydın" dosya girdisidir; sağlayıcı
+sayarsak "ses üret" adımı bazen ağ çağırır bazen çağırmaz olur ve çalıştırma öncesi
+maliyet tahmini yalan olurdu (§3.10). Test bunu da denetliyor: sağlayıcı listesinde
+"kendi/upload/dosya" adı geçen bir kayıt olmamalı.
+**Adım bölündü** (D-180 deseni): `5.4` sözleşme — bitti. `5.4b` canlı ses — üç
+sağlayıcı da `enabled: false`, anahtarlar ve ağırlıklar yok, `bloke: insan` (V-21).

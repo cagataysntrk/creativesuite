@@ -1,0 +1,26 @@
+# Gemini TTS — bulut Türkçe seslendirme (bedava şerit · D-18).
+#
+# Bedava katmanı ticari kullanıma açık ve kota günlük. Kota SAYACI ölçülmüyor
+# (FAZ-7.8'de sağlayıcı uçlarından gelecek); uydurulmuş bir doluluk göstergesi hiç
+# göstergesi olmamaktan tehlikelidir (D-175) — bu yüzden UI'da `null` gösterilir.
+#
+# ⚠ `enabled: false`: `GEMINI_API_KEY` henüz `secrets.enc.yaml`da yok. → V-21
+id: gemini-tts
+title: Gemini TTS (bedava şerit)
+adapter: pending
+enabled: false
+
+cost_formula: '0'
+pricing_snapshot: null
+
+auth_env: GEMINI_API_KEY
+
+# Bedava katman ticari kullanıma açık.
+free_tier_commercial: true
+
+capabilities:
+  - name: audio.tts
+    lanes: [free]
+    supports:
+      locale: ['tr-TR']
+      clone: [false]
