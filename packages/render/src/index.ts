@@ -125,3 +125,13 @@ export {
   type GlyphMetric,
   type MetricDiff,
 } from './golden/metrics.js'
+
+// Altyazı (§7.5 · FAZ-5.5). Yazıcı SAF: ASR bağlantısı ayrı bir adım (5.5b).
+export {
+  toAss,
+  assHataMesaji,
+  type WordTiming,
+  type CaptionLine,
+  type AssError,
+  type AssResult,
+} from './captions/ass.js'

@@ -82,6 +82,11 @@ süre. Hareket hattı gerçekten kullanılmaya başlayınca (FAZ-5.7) ölçülü
 şerit gerçek para harcıyor. Sözleşme yazıldı ve test edildi (lisans kuralı iki ihlalle
 kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
 
+## V-22 — ASR bağlantısı yok: gerçek ses transkript edilmedi
+Yerel `whisper.cpp` kurulu değil ve `GROQ_API_KEY` yer tutucu. `.ass` yazıcısı ve
+transkript kapısı ASR'siz yazıldı ve test edildi (ikisi de saf); kalan iş yalnız
+kelime zamanlarını üreten bağlantı. → FAZ-5.5b
+
 ## V-18 — Tailscale kurulu değil, Telegram token'ı yer tutucu
 `tailscale` binary yok (sudo kurulum + hesap girişi) ve `TELEGRAM_BOT_TOKEN`
 `doldurulacak`. Bot mantığı ve yüzey sınırı yazılmış, test edilmiş; kalan iş yalnız
@@ -422,3 +427,24 @@ maliyet tahmini yalan olurdu (§3.10). Test bunu da denetliyor: sağlayıcı lis
 "kendi/upload/dosya" adı geçen bir kayıt olmamalı.
 **Adım bölündü** (D-180 deseni): `5.4` sözleşme — bitti. `5.4b` canlı ses — üç
 sağlayıcı da `enabled: false`, anahtarlar ve ağırlıklar yok, `bloke: insan` (V-21).
+
+## D-199 — Transkript kapısı `PUBLISH` yükleminin İÇİNE kondu, yanına değil
+2026-08-16 · Türkçe WER %10–25: on kelimede bir hata. Yanlış bir altyazı, söylemediğin
+bir şeyi söylemiş gibi gösterir ve yayınlandıktan sonra düzeltilemez — video paylaşıldı,
+ekran görüntüsü alındı.
+Kapıyı ayrı bir kontrol olarak yazmak mümkündü; yazılmadı. **İkinci bir kontrol noktası,
+atlanabilecek bir kontrol noktasıdır** — bu projede tam olarak bu sınıftan üç hata çıktı
+(D-173 yazan var okuyan yok, D-182 yazıcı var çağıran yok, D-190 düğme var eylemi yok).
+Kural `inspectManifest`in içinde ve `isPublishable` onu otomatik devralıyor: yayın
+yüklemi TEK ve kural onun İÇİNDE.
+**Tetikleyici fiil değil ÜRÜN:** `output` içinde `captions` taşıyan bir adım altyazı
+üretmiştir; onu `RENDER` de `GENERATE` de üretebilir. Fiil adına bakmak, üçüncü bir
+fiil eklendiğinde sessizce kör kalırdı.
+İhlal testi: kuralı kaldır → **3 test kırmızı**. Yanlış pozitif de denetlendi —
+altyazısız bir çalıştırma kapıyı hiç tetiklemiyor.
+**`.ass` yazıcısı SAF ve ASR'den bağımsız.** Girdi kelime zamanlarıdır; nereden geldiği
+(Groq, yerel whisper, elle) yazıcıyı ilgilendirmez. Böylece bağlantı olmadan tam test
+edilebiliyor: Türkçe karakterler kaçışsız yazılıyor (Latin-1'e düşen bir yazıcı `ğ`yi
+sessizce `g` yapar ve bu ancak video izlenirken görülür), `\\k` süresi kelimenin KENDİ
+süresi, ters ve çakışan zamanlar reddediliyor.
+**Adım bölündü:** `5.5` yazıcı + kapı bitti · `5.5b` gerçek ASR `bloke: insan` (V-22).

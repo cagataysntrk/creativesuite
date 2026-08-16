@@ -54,17 +54,21 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
 ⛔ `chatterbox` ağırlıkları (~2 GB) indirilmedi · `GEMINI_API_KEY` ve
    `ELEVENLABS_API_KEY` yok · premium şerit gerçek para harcıyor. → V-21
 
-## 5.5 — Altyazı ve ZORUNLU transkript kapısı    [ ]
+## 5.5 — `.ass` yazıcısı ve transkript kapısı    [x] 2026-08-16
 
-📖 §7.5, §11.4 · R-32
+📖 §7.5, §11.4 · R-32 · D-199
 🔗 5.4
-🛠 Groq whisper-large-v3 / yerel whisper.cpp → kelime bazlı zamanlama → `.ass` karaoke.
-   **İnsan transkript kapısı ATLANAMAZ**: Türkçe WER %10-25 ve yanlış bir altyazı,
-   söylemediğin bir şeyi söylemiş gibi gösterir — düzeltilemez bir iddia.
-📁 `packages/render/src/captions/`
-✅ `.ass` altyazı üretiliyor · transkript kapısı olmadan yayın YOK
-🧪 Transkript kapısını atlamayı dene → `PUBLISH` reddediyor
-💾 `feat(render): altyazı ve transkript kapısı` · `Refs: FAZ-5.5 · §7.5`
+📁 `packages/render/src/captions/ass.ts` · `packages/kernel/src/manifest.ts`
+✅ `.ass` karaoke üretiliyor (Türkçe kaçışsız, `\k` kelime süresi) · transkript onayı
+   olmadan `isPublishable` FALSE — kural yayın yükleminin İÇİNDE
+🧪 Kuralı kaldır → 3 test kırmızı · altyazısız çalıştırma kapıyı tetiklemiyor
+
+## 5.5b — Gerçek ASR bağlantısı    [ ] BLOKE: insan
+
+📖 §7.5
+🔗 5.5
+✅ Gerçek sesten kelime zamanları üretiliyor ve `.ass`e dönüyor
+⛔ `whisper.cpp` kurulu değil, `GROQ_API_KEY` yer tutucu. → V-22
 
 ## 5.6 — Demo yakalama (Xvfb + x11grab)    [ ]
 

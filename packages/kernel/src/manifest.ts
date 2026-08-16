@@ -135,6 +135,15 @@ export type ManifestDefect =
   | { readonly kind: 'selected_with_rejection'; readonly stepId: string }
   | { readonly kind: 'no_selected_provider'; readonly stepId: string }
   | { readonly kind: 'invalid_sha'; readonly field: string; readonly value: string }
+  /**
+   * Altyazı üretilmiş ama insan transkripti ONAYLAMAMIŞ (§7.5 · FAZ-5.5).
+   *
+   * Türkçe WER %10–25: on kelimede bir hata. Yanlış bir altyazı, söylemediğin bir şeyi
+   * söylemiş gibi gösterir ve yayınlandıktan sonra düzeltilemez — video paylaşıldı,
+   * ekran görüntüsü alındı. Bu yüzden kapı otomatik geçilemez ve `PUBLISH` yükleminin
+   * İÇİNDE yaşıyor: ikinci bir kontrol noktası, atlanabilecek bir kontrol noktasıdır.
+   */
+  | { readonly kind: 'captions_without_transcript'; readonly stepId: string }
 
 /** Ağ/model çağıran fiiller — bunların maliyeti yazılmadan çalıştırma kapanamaz (§8.3). */
 const METERED: ReadonlySet<VerbName> = new Set<VerbName>([
@@ -213,6 +222,23 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
     // çağrısı yoktur. Başarısız adımda maliyet `null` meşru — çağrı hiç uçmamış olabilir.
     if (basarili && METERED.has(s.verb) && s.finishedAt !== null && s.actualCost === null) {
       defects.push({ kind: 'metered_step_without_cost', stepId: s.stepId })
+    }
+  }
+
+  // ── altyazı üretildiyse insan transkripti ONAYLAMALI (§7.5 · FAZ-5.5) ─────
+  //
+  // Tetikleyici adımın ÇIKTISI: `captions` taşıyan bir adım altyazı üretmiştir.
+  // Fiil adına bakmak yetmezdi — altyazıyı `RENDER` de `GENERATE` de üretebilir ve
+  // kural fiilin değil, ÜRÜNÜN kuralıdır.
+  const altyaziliAdim = steps.find(
+    (s) => s.output !== null && s.output !== undefined && 'captions' in s.output
+  )
+  if (altyaziliAdim !== undefined) {
+    const onay = (Array.isArray(m.decisions) ? m.decisions : []).find(
+      (d) => d.gate === 'transkript' && d.decision === 'approved'
+    )
+    if (onay === undefined) {
+      defects.push({ kind: 'captions_without_transcript', stepId: altyaziliAdim.stepId })
     }
   }
 

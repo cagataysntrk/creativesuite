@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 5
-siradaki_adim: 5.5
+siradaki_adim: 5.6
 son_guncelleme: 2026-08-16
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "5.4 BITTI (D-198). Asil kural: ucretsiz olmak ucretsiz KULLANILABILIR olmakla ayni sey degil. Tanimlayiciya free_tier_commercial eklendi; providers kapisi IKI AYRI hata veriyor — beyan false ise 'bedava seride konulamaz', beyan YOKSA 'beyan edilmemis'. Kural yazildigi anda mevcut IKI tanimlayiciyi (claude-code, cloudflare) beyansiz yakaladi; beyanlar dosyalarin KENDI metnine gore dolduruldu. Dorduncu serit (kendi kaydin) SAGLAYICI DEGIL, dosya girdisi — test bunu da denetliyor. Adim bolundu: 5.4 sozlesme bitti, 5.4b canli ses BLOKE:insan (V-21: agirliklar ve anahtarlar yok). ALTI insan blokaji oldu. 34 kapi, 932 test."
+son_kanit: "5.5 BITTI (D-199). Transkript kapisi PUBLISH YUKLEMININ ICINE kondu, yanina degil — ikinci bir kontrol noktasi ATLANABILECEK bir kontrol noktasidir (bu projede tam bu siniftan uc hata cikti: D-173/D-182/D-190). inspectManifest icinde, isPublishable otomatik devraliyor. Tetikleyici FIIL degil URUN: output icinde captions tasiyan adim; fiil adina bakmak ucuncu bir fiilde sessizce kor kalirdi. Ihlal testi: kurali kaldir → 3 test kirmizi; altyazisiz calistirma kapiyi hic tetiklemiyor. .ass yazicisi SAF ve ASR den bagimsiz — Turkce kacissiz, \\k kelimenin KENDI suresi, ters/cakisan zamanlar reddediliyor. Adim bolundu: 5.5b gercek ASR BLOKE:insan (V-22). YEDI insan blokaji. 34 kapi, 944 test."
 ```
 
 ## Neredeyiz
@@ -24,9 +24,9 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 > V-18). Üçüncü kriter — +%30 sahte-yerelleştirme — kuralın yazılı hâli olarak
 > `turkce-genisleme` kapısıyla zorlanıyor; görsel ölçüm V-19.
 
-> ⛔ **ALTI ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: altısı da plan
+> ⛔ **YEDİ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b` · `5.5b`.
+> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: yedisi de plan
 > hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
 > bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
 >
@@ -38,6 +38,7 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 > | `3.14` | `2.9` | onaylı corpus olmadan `NO_CONTEXT` |
 > | `4.13b` | V-18 | Tailscale kurulumu + gerçek Telegram token'ı |
 > | `5.4b` | V-21 | `chatterbox` ağırlıkları (~2 GB) + `GEMINI_API_KEY` + `ELEVENLABS_API_KEY` |
+> | `5.5b` | V-22 | `whisper.cpp` kurulumu ya da gerçek `GROQ_API_KEY` |
 
 ## Tamamlananlar
 
@@ -73,13 +74,14 @@ ayrı düğmeler ve aralarındaki sapma ölçülüyor. **33 kapı**, 926 test.
 | **5.2** · `frame.md` token köprüsü; marka + sistem yan yana | 2026-08-16 |
 | **5.3** · Hareket kütüphanesi; marka-bağımsız, düz renk yasak | 2026-08-16 |
 | **5.4** · `audio.tts` şerit sözleşmesi; lisans beyanı zorunlu | 2026-08-16 |
+| **5.5** · `.ass` yazıcısı + transkript kapısı (yayın yükleminde) | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`5.5` — Altyazı ve ZORUNLU transkript kapısı** (§7.5). Groq whisper-large-v3 ya da
-yerel whisper.cpp → kelime bazlı zamanlama → `.ass` karaoke altyazı. **İnsan transkript
-kapısı ATLANAMAZ**: Türkçe WER %10–25, on kelimede bir hata bir markanın kendi
-videosunda kabul edilemez. Otomatik kabul YOKTUR.
+**`5.6` — Demo yakalama** (§7.7). Xvfb + headed Chromium 1920×1080 +
+`ffmpeg -f x11grab -framerate 60 -draw_mouse 0`. Playwright script `timeline.json`
+yazar — **tıklama hedefleri piksel oluşmadan ÖNCE bilinir**; sahte imleç (`hf-cursor`,
+5.3) o hedeflere deterministik gider. `xvfb-run` kurulu ✓.
 
 ## Kapanış turu — kalan bulgular
 
