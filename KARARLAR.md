@@ -157,79 +157,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-228 — Matris hat dosyasında yazıyordu, çözücü onu DÜŞÜRÜYORDU
-
-**2026-08-16 · FAZ-8 doğrulama, M1**
-
-`registry/pipelines/ad-creative-set.pipeline.yaml` altı satırlık bir `matris:` bloğu
-taşıyor, `matris` kapısı onu okuyup doğruluyor, `matris.ts` 1291 testin bir kısmıyla
-kapalı — ve **`parsePipeline` bloğu tamamen düşürüyordu.** `Pipeline` arayüzünde
-`matris` alanı yoktu; `just plan ad-creative-set` yedi varyantı tek varyant gibi
-fiyatlıyordu. Kapının kendi ihlal mesajı *"maliyet tahmini bu sayıyı çarpan alıyor"*
-diyordu ve bu **bir iddiaydı, bir olgu değil**.
-
-**Altıncı tekrar** (D-216 · D-222 · D-224 · 8.3 · D-227 · bu). Yeni olan halka:
-**dosyada duran veri, çözücüde yoksa üretimde yoktur.** Kapı YAML'ı okur; üretim
-`parsePipeline`ın döndürdüğü nesneyi okur. İkisi aynı dosyaya bakıp farklı şey görür.
-
-**Kapatılanlar:**
-- `Pipeline.matris` — çözücü `mod` + `eksenler`i **şekil olarak** okuyor. Tasarım
-  yargısı (diklik) engine'de kalıyor: registry engine'i import edemez (§3.6) ve ayrım
-  keyfi değil — registry "dosyada ne yazıyor", engine "bu tasarım bilgi üretir mi".
-- `plan()` matrisi denetliyor ve **bozuksa plan ÜRETMİYOR**: tek düzeyli bir eksen
-  para harcar, ölçüm vermez. Kapı bunu commit anında, plan çalıştırma anında söylüyor.
-- Ücretli adımlar varyant başına, ücretsizler bir kez: `SELECT` bağlamı bir kez kurar,
-  yedi varyant paylaşır; ama her varyantın kendi modeli, kendi render'ı var.
-- `varyantSayisi` **donmuş plana ve özete** giriyor. Maliyet üzerinden dolaylı korunuyor
-  sanmak yanlış olurdu: fiyatlanamayan bir planda her adım $0 ve 7 varyantlık onayla 27
-  varyant koşmak özeti hiç değiştirmezdi.
-- `matris-uretim-yolu.test.ts` **gerçek hat dosyasını** okuyup çarpanı ölçüyor.
-
-**Kalan gerçek boşluk — `8.1b` olarak açıldı:** plan yedi varyant fiyatlıyor ama
-`runPipeline` hâlâ tek varyant koşuyor. Tahmin artık dürüst, üretim henüz değil.
-Sırayı tersine çevirmek (önce üretim, sonra tahmin) daha kötü olurdu: yedi varyant
-üretip birini fiyatlandırmak, kullanıcıyı ödeyeceğinin yedide birine onaylatır.
-
-**Geri alma maliyeti:** yok.
-
-## D-229 — Politika kararı hat ADINDAN okunuyordu: beyan mekanizması
-
-**2026-08-16 · FAZ-8 doğrulama, M3 + M5**
-
-`scripts/uret.mjs` reklam metni linter'ını tek bir satırla açıyordu:
-`const REKLAM_HATTI = id === 'ad-creative-set'`. **Tek sabit dize, ne testi ne kapısı.**
-Hattı yeniden adlandırmak — ya da ikinci bir reklam hattı eklemek — Meta'nın kişisel
-özellik kuralını sessizce kapatırdı ve hiçbir şey kırmızıya dönmezdi. Yasak, yasağın
-yokluğuna dönüşürdü ve kimse fark etmezdi.
-
-**Karar: politika hat dosyasının kendi beyanıdır.** `cikti_sinifi: reklam` →
-`Pipeline.ciktiSinifi`. Varsayılan `organik`: reklam kuralları ancak AÇIKÇA beyan
-edilince koşar. Ters varsayılan (her şey reklam) linter'ı gürültüye çevirirdi ve
-**gürültülü şey kapatılır**.
-
-`hat-kimligi` kapısı mekanizmayı atlanamaz kılıyor — iki soru birden:
-1. Hat id'si ile karşılaştırma yapan satır var mı (üretim yollarında)
-2. Beyan GERÇEKTEN kullanılıyor mu — en az bir hat `cikti_sinifi: reklam` diyor ve
-   `uret.mjs` `ciktiSinifi` okuyor mu
-
-⚠ **Kapı ilk çalıştırmada yanlış pozitif verdi** ve bu düzeltildi: `bodies.ts`teki
-`zincirAdi === 'prospect-deck'` satırını suçladı — oysa orası **doğru** mekanizma
-(`chain:` hat dosyasında beyan edilen bir kısıt; değerin hat adıyla aynı olması
-tesadüf). Kapı beyan yolunu cezalandırsaydı, teşvik etmesi gereken şeyi yasaklardı.
-Karşılaştırmanın diğer ucu artık `id`/`.id` olmak zorunda.
-
-**M5 — batarya 15'ten 19 ihlale çıktı:** `matris` · `hat-kimligi` · `secret-rotasyon` ·
-`doctor-salt-okur`. R-71 "her BLOCKING kapı kasten ihlal edilir" diyor ve bir kapının
-batarya dışında kalması, korumadığı şeyi korunuyor sanmaktır.
-
-⚠ **Bataryanın kendi yükü de kaynaktır.** İlk sürümde `hat-kimligi` ve
-`secret-rotasyon` bataryanın KENDİ satırlarını suçladı: ihlal metni de bir `.mjs`
-dosyasında duruyor ve kapılar onu okuyor. Yük artık parçalanarak yazılıyor
-(`${'ad-creative'}-set`) — kapı yazılan dosyayı görmeli, yazan dosyayı değil.
-`repo-hygiene` yükünde aynı numara zaten vardı; genel kural olmamıştı.
-
-**Geri alma maliyeti:** yok.
-
 ## D-230 — ANAYASA tavanı belgeyi TAMAMLANAMAZ yapıyordu: ölçüt değişti
 
 **2026-08-16 · FAZ-8 kapanışı**
@@ -565,3 +492,43 @@ geçiyor · `insansız` ✓ geçiyor · `engineers` ✓ yakalanıyor.
 hem uyumlu hem **daha iyi**; kısıt burada kaliteyi düşürmedi, yükseltti.
 
 **Geri alma maliyeti:** yok.
+
+## D-240 — Genişletme TEK yerde: plan ne sayıyorsa koşu onu koşar
+
+**2026-08-16 · FAZ-8.1b**
+
+`plan()` yedi varyantı fiyatlıyordu, `runPipeline` tek varyant koşuyordu. Tahmin
+dürüsttü, üretim değildi — ve iki ayrı hesap bir gün ayrışır. Ayrıştığı gün kullanıcı
+yedi varyantın parasını onaylayıp bir varyant alır, ya da tersi.
+
+**Karar: genişletme tek bir fonksiyon** (`varyantlaGenislet`) ve **plan da koşu da onu
+okuyor**. `plan()`in gösterdiği koşum sayısı ayrı bir formülden değil, genişletmenin
+kendi SAYIMINDAN geliyor (`kosumSayilari`). Ayrı formül yazmak, bu projenin en sık
+tekrarlayan hatasının (D-228 · D-229 · D-237) varyant tarafındaki kardeşi olurdu.
+
+**Üç kova, üç davranış — ve ayrım "ücretli mi" DEĞİL:**
+
+- **Paylaşılan önek** (ücretli hiçbir adıma bağlı olmayan): bir kez. `RESOLVE` tarifi
+  çözer, `SELECT` bağlamı seçer; yedi varyant aynı bağlamı paylaşır. Yedi kez seçmek
+  seçimin varyanttan varyanta kayma riskini doğurur — oysa OFAT'ın tek vaadi diğer her
+  şeyin SABİT kalmasıdır.
+- **Varyant gövdesi** (ücretli bir adıma transitif bağlı olan her adım): varyant başına.
+  ⚠ **İlk modelim eksikti:** "ücretli adımlar çoğalır" diyordum. `COMPOSE` ücretsizdir
+  ama her varyantın KENDİ belge modeli olmak zorunda — çoğaltılmazsa yedi render aynı
+  belgeyi basar ve matris bir ölçüm değil bir kopya üretir. Ücretsiz adımı çoğaltmak
+  maliyeti değiştirmiyor (sıfır × yedi = sıfır); çoğaltmamak ölçümü yok ediyor.
+- **Toplayıcı** (`PROPOSE`): bir kez, tüm varyant yapraklarına bağlı. Yedi varyantlık
+  bir set TEK öneridir; yedi ayrı öneri insan kuyruğunu aynı kararla yedi kez meşgul
+  eder ve "hangisi kazandı" sorusunu sorulamaz kılar.
+
+**Koordinat kısıtlara giriyor** (`constraints.varyant`), ayrı bir parametre kanalına
+değil: kısıtların "adımın tüm girdisi" olma vaadi bozulmamalı.
+
+**Varyant içi bağımlılık aynı varyanta bağlanıyor**, çapraz değil — `kompozit#3` yalnız
+`metin-uret#3` ve `gorsel-uret#3`e bakar. Çapraz bağlanma OFAT'ı sessizce bozardı.
+
+**Ekranda da görünüyor:** ücretsiz ama yedi kez koşan adımlar artık `×7` basıyor.
+Maliyeti yok diye görünmez olmaz — süresi ve çıktısı var.
+
+**Geri alma maliyeti:** yok — matrissiz hat aynı nesneyi geri alıyor, hiçbir davranış
+değişmiyor.

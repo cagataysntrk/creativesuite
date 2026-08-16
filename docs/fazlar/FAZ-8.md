@@ -33,17 +33,17 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    tanımı budur; OFAT kuralını oraya uygulamak geçerli bir seti reddederdi.
 💾 `feat(cli): ad-creative-set matrisi` · `Refs: FAZ-8.1 · §10`
 
-## 8.1b — Varyant genişletme çalışma zamanında    [ ]
+## 8.1b — Varyant genişletme çalışma zamanında    [x] 2026-08-16
 
 📖 §10, §13 · D-225, D-228
 🔗 8.1
-🛠 `plan()` yedi varyant fiyatlıyor, `runPipeline` tek varyant koşuyor. Ücretli adımlar
-   varyant başına, koordinat (`hook`/`copy`/`visual`) kısıtlara girmeli; manifest her
-   varyantı ayrı adım olarak taşımalı.
-📁 `packages/engine/src/run.ts` · `packages/engine/src/manifest-writer.ts`
-✅ `just uret ad-creative-set` yedi varlık üretiyor, manifest yedi koordinat taşıyor;
-   üretilen sayı `report.varyantSayisi` ile birebir
-🧪 Manifest'ten bir varyantı düş → koşu **eksik** raporluyor, "bitti" demiyor
+🛠 `plan()` yedi varyant fiyatlıyordu, koşu tek varyant üretiyordu. Koordinat kısıtlara girer.
+📁 `packages/engine/src/varyant-genislet.ts` · `packages/engine/src/run.ts`
+✅ Genişletme **plan ve koşu için TEK fonksiyon** (D-240): `just plan ad-creative-set`
+   → `metin-uret ü×7` · `kompozit ×7` · `onay —`. Sayım genişletmeden türetiliyor.
+   ⚠ **Model ilk hâlinde eksikti:** "ücretli adımlar çoğalır" diyordu; `COMPOSE`
+   ücretsiz ama çoğaltılmazsa yedi render aynı belgeyi basar — ayrım ücretliye bağlılık.
+🧪 Ölçüldü: önek 1 · gövde 7 · toplayıcı 1 · `kompozit#3 → metin-uret#3` (çapraz yok)
 💾 `feat(engine): varyant genişletme` · `Refs: FAZ-8.1b · §10`
 
 ## 8.2 — Reklam metni linter'ı    [x] 2026-08-16

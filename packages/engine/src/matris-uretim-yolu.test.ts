@@ -52,12 +52,21 @@ describe('hat dosyasındaki matris çalışma zamanına ULAŞIYOR mu', () => {
     expect(r.report.matrisModu).toBe('ofat')
   })
 
-  it('ÜCRETLİ adım 7 kez, ücretsiz adım 1 kez koşuyor', () => {
+  // ⚠ Bu testin ilk hâli "ücretsiz adım 1 kez" diyordu ve MODEL EKSİKTİ (D-240):
+  // `COMPOSE` ücretsizdir ama ücretli bir adıma bağlıdır — yedi kez koşmazsa yedi
+  // render aynı belgeyi basar. Ayrım ücret değil, ÜCRETLİYE BAĞLILIK.
+  it('paylaşılan önek 1 kez, varyant gövdesi 7 kez, toplayıcı 1 kez', () => {
     const r = planla(reklamHatti())
     if (!r.ok) return
-    for (const s of r.report.steps) {
-      expect(s.kosumSayisi, `${String(s.stepId)} (${s.verb})`).toBe(s.metered ? 7 : 1)
-    }
+    const say = (id: string) => r.report.steps.find((s) => String(s.stepId) === id)?.kosumSayisi
+    expect(say('cozumle')).toBe(1)
+    expect(say('bilgi-sec')).toBe(1)
+    expect(say('metin-uret')).toBe(7)
+    expect(say('gorsel-uret')).toBe(7)
+    expect(say('kompozit')).toBe(7)
+    expect(say('render')).toBe(7)
+    expect(say('kalite')).toBe(7)
+    expect(say('onay')).toBe(1)
   })
 })
 

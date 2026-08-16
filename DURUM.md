@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 8
-siradaki_adim: 8.1b
+siradaki_adim: FAZ-8-KAPANIS
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -19,7 +19,7 @@ son_kanit: "FAZ 7 KAPANDI — iki dogrulama turu, D-79 tavani uygulandi. 2. TUR 
 bulgu verdi — ikisi de aynı sınıftan: **kod yazılmış, üretim yolunda çağıranı yok.**
 İkinci tur ayrıca benim ilk turda açtığım bir gerilemeyi yakaladı (PDF yolunda lexicon
 hiç koşmuyordu) ve **kendi kendini onaylayan bir test çiftini** ortaya çıkardı.
-**D-79: üçüncü tur AÇILMAZ.** **42 kapı · 19 ihlal kırmızı · 1324 test.**
+**D-79: üçüncü tur AÇILMAZ.** **42 kapı · 19 ihlal kırmızı · 1334 test.**
 **FAZ 7 KAPANDI (2026-08-16).** İki tur, 2 blokaj + 8 major + 5 minor; hepsi kapandı
 ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
@@ -70,6 +70,7 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 | **FAZ 7 (9/9)** · yayın hattı; iki denetim turu (D-222·223·224) | 2026-08-16 |
 | **8.1** · dik varyant matrisi; diklik OFAT'la ölçülüyor (D-225) | 2026-08-16 |
 | **8.1** · matris ÇÖZÜCÜDE yoktu; `just plan` artık ×7 basıyor (D-228) | 2026-08-16 |
+| **8.1b** · genişletme tek fonksiyon; plan ne sayarsa koşu onu koşar (D-240) | 2026-08-16 |
 | **8.2** · reklam linter'ı; ikinci şahıs × özellik kesişimi | 2026-08-16 |
 | **8.3** · uyum panosu; ifşa kapısı yayın hattına bağlandı | 2026-08-16 |
 | **8.4** · haftalık doctor; damga YOK — alarm saati, doğruluk değil | 2026-08-16 |
@@ -80,8 +81,9 @@ ya da gerekçesiyle reddedildi (D-222 · D-223 · D-224).
 
 ## Sıradaki adım
 
-**`8.1b` — varyant genişletme.** Doğrulamanın açtığı adım: plan yedi varyant
-fiyatlıyor, koşu tek varyant üretiyor (D-228). Faz, bu adım tiklenmeden kapanamaz.
+**FAZ 8 KAPANIŞI.** Tiksiz tek adım `8.3b` (damgalama sırası) ve o BLOKE:teknik —
+`7.2b` gerçek yayınına bağlı. Varyant genişletme kapandı (D-240): genişletme artık
+plan ve koşu için tek fonksiyon.
 
 **İKİ DOĞRULAMA TURU DA BİTTİ** (D-79 tavanı; üçüncü tur AÇILMAZ).
 1. tur: B1 · B2 (D-227) · M1 (D-228) · M2 · M3+M5 (D-229) · M4.

@@ -41,6 +41,7 @@ import {
   type VerbOutput,
 } from '@suite/kernel'
 import { topoOrder, type Pipeline, type PipelineStep } from '@suite/registry'
+import { varyantlaGenislet } from './varyant-genislet.js'
 import { CircuitBreaker } from './breaker.js'
 import * as budget from './budget.js'
 import { RateLimiter } from './ratelimit.js'
@@ -265,8 +266,19 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
   const rng = input.rng ?? systemRng
   const signal = input.signal ?? new AbortController().signal
 
-  const sira = topoOrder(input.pipeline)
-  const adimlar = new Map(input.pipeline.steps.map((s) => [s.id, s]))
+  // ── varyant genişletmesi (§10 · D-240 · FAZ-8.1b) ─────────────────────────
+  //
+  // ⚠ **Koşu tek varyant üretiyordu** oysa `plan()` yedisini fiyatlıyordu: tahmin
+  // dürüsttü, üretim değildi. Genişletme `plan()` ile AYNI fonksiyondan geliyor —
+  // iki ayrı hesap bir gün ayrışır ve o gün kullanıcı yedinin parasını onaylayıp
+  // bir tane alır.
+  //
+  // Genişletme burada, `topoOrder`dan ÖNCE: sıra genişletilmiş DAG'a göre kurulmalı,
+  // yoksa varyant kopyaları hiç koşmaz.
+  const genisletme = varyantlaGenislet(input.pipeline)
+  const kosanHat = genisletme.pipeline
+  const sira = topoOrder(kosanHat)
+  const adimlar = new Map(kosanHat.steps.map((s) => [s.id, s]))
 
   // ⚠ Devre kesici çalıştırma başına BİR KEZ kurulur. İlk yazımda her adımda
   // `new CircuitBreaker()` çağrılıyordu: durum adım başına taze kalıyor, eşik 5 ardışık

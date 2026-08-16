@@ -347,3 +347,11 @@ export {
   GORSEL_YETENEK_ONEKLERI,
   type UyumKapsami,
 } from './uyum-kapsami.js'
+
+// Varyant genişletme — plan ve koşu AYNI genişletmeyi okur (§10 · D-240 · FAZ-8.1b).
+export {
+  varyantlaGenislet,
+  kosumSayilari,
+  VARYANT_AYRAC,
+  type GenisletmeSonucu,
+} from './varyant-genislet.js'

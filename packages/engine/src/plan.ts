@@ -14,7 +14,8 @@ import { topoOrder, type Pipeline } from '@suite/registry'
 import { candidatesFor } from '@suite/providers'
 import { route, type ProviderPricing, type RoutingDecision } from './router/route.js'
 import { rejectionMessage } from './router/reasons.js'
-import { matrisDenetle, matrisHataMesaji, varyantSayisi, varyantUret } from './matris.js'
+import { matrisDenetle, matrisHataMesaji, varyantUret } from './matris.js'
+import { kosumSayilari, varyantlaGenislet } from './varyant-genislet.js'
 
 export interface PlannedStep {
   readonly stepId: StepId
@@ -128,7 +129,12 @@ export const plan = (input: PlanInput): PlanResult => {
     for (const h of hatalar) errors.push({ kind: 'matris_gecersiz', message: matrisHataMesaji(h) })
     if (errors.length > 0) return { ok: false, errors }
   }
-  const varyant = mtr === null ? 1 : varyantSayisi(mtr.eksenler, mtr.mod)
+  // **Sayım GENİŞLETMEDEN türetiliyor, ayrı bir formülden değil** (D-240): plan ile
+  // koşu aynı fonksiyonu okuyor. İki hesap bir gün ayrışır ve o gün kullanıcı yedi
+  // varyantın parasını onaylayıp bir varyant alır — ya da tersi.
+  const genisletme = varyantlaGenislet(input.pipeline)
+  const kosumlar = kosumSayilari(genisletme)
+  const varyant = genisletme.varyantSayisi
 
   for (const s of input.pipeline.steps) {
     if (!VERB_SET.has(s.verb)) {
@@ -210,11 +216,10 @@ export const plan = (input: PlanInput): PlanResult => {
             input.pricing ?? {}
           )
 
-    // **Ücretli adımlar varyant başına koşar, ücretsizler bir kez.** `RESOLVE` ve
-    // `SELECT` bağlamı bir kez kurar ve yedi varyant onu paylaşır; ama her varyantın
-    // KENDİ metni, KENDİ görseli ve KENDİ render'ı var. Çarpanı ücretsiz adımlara da
-    // uygulamak sayıyı şişirir, hiçbirine uygulamamak yedide bir gösterir.
-    const kosum = verb.metered ? varyant : 1
+    // Kaç kez koşacağı genişletmenin SAYIMIDIR. Ücretsiz ama ücretliye bağlı adımlar
+    // (`COMPOSE`, `VALIDATE`) da varyant başına koşuyor — maliyeti değiştirmiyor
+    // (sıfır × yedi = sıfır) ama koşum sayısı dürüst oluyor.
+    const kosum = kosumlar.get(s.id) ?? 1
     const tekKosum = yonlendirme?.winner?.cost ?? vp.estimatedCost
     const adimMaliyet =
       kosum === 1
@@ -289,7 +294,10 @@ export const formatPlan = (r: PlanReport): string => {
     satirlar.push(
       `  ${String(i + 1).padStart(4)}  ${id.padEnd(16)}  ${s.verb.padEnd(8)}  ` +
         `${(s.capability ?? '—').padEnd(17)}  ` +
-        `${(s.metered ? (s.kosumSayisi > 1 ? `ü×${s.kosumSayisi}` : 'ücret') : '—').padEnd(5)}  ` +
+        // Koşum sayısı ÜCRETSİZ adımlarda da gösteriliyor: `kompozit` yedi kez
+        // koşuyor ve ekranda `—` görmek, yapılan işin altısını gizler. Maliyeti
+        // yok diye görünmez olmaz — süresi ve çıktısı var.
+        `${(s.kosumSayisi > 1 ? `${s.metered ? 'ü' : ''}×${s.kosumSayisi}` : s.metered ? 'ücret' : '—').padEnd(5)}  ` +
         `${s.needs.join(', ') || '—'}`
     )
     if (s.capability !== null) {
