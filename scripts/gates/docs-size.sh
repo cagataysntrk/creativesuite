@@ -21,7 +21,7 @@ CLAUDE.md:200
 KURALLAR.md:400
 KARARLAR.md:600
 DURUM.md:120
-docs/ANAYASA.md:1200
+docs/ANAYASA.md:1400
 docs/LOOP.md:300
 "
 
@@ -35,6 +35,36 @@ while IFS=: read -r f limit; do
     fail=1
   fi
 done <<< "$LIMITS"
+
+# ── ANAYASA ALT BÖLÜM tavanı (R-63 · D-230) ──────────────────────────────────
+#
+# **Okuma maliyeti alt bölümün boyudur, belgenin değil.** Atıflar `§3.4` biçiminde
+# veriliyor ve `just tur` o alt bölümü getiriyor; toplam satır sayısı yanlış birimi
+# ölçüyordu. Bugün en büyük alt bölüm 38 satır (§7.6) — 60 tavanı bugünkü gerçekliğe
+# yakın ve gelecek şişmeyi gerçekten sınırlıyor.
+#
+# ⚠ Sınır bir sonraki `###` VEYA `##` başlığıdır. Yalnız `###` sayılsaydı son alt
+# bölüm dosya sonuna kadar uzar ve §12.9 28 satır yerine 215 görünürdü — ölçüm
+# aracının kendisi yanlış alarm verirdi.
+ALT_TAVAN=60
+if [ -f docs/ANAYASA.md ]; then
+  awk -v tavan="$ALT_TAVAN" '
+    /^#{2,3} §/ {
+      if (bas ~ /^### /) {
+        boy = NR - bas_no
+        if (boy > tavan) { printf "docs/ANAYASA.md: %s — %d satir, alt bolum tavani %d\n", bas, boy, tavan; hata = 1 }
+      }
+      bas = $0; bas_no = NR
+    }
+    END {
+      if (bas ~ /^### /) {
+        boy = NR - bas_no + 1
+        if (boy > tavan) { printf "docs/ANAYASA.md: %s — %d satir, alt bolum tavani %d\n", bas, boy, tavan; hata = 1 }
+      }
+      exit hata
+    }
+  ' docs/ANAYASA.md || fail=1
+fi
 
 # Faz dosyaları ve yol-kapsamlı kurallar
 for f in docs/fazlar/FAZ-*.md; do

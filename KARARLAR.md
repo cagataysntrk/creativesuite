@@ -155,223 +155,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-218 — CSRF token'ı SEED'SİZ: R-06'nın konusu karar, bunun konusu sır
-
-**Tarih:** 2026-08-16 · **Bağlam:** FAZ-7.5 · §14 · R-06
-
-R-06 rastgeleliğin seed'li olmasını istiyor ve haklı: seed'siz bir çalıştırma replay
-edilemez, idempotent atlama çöker. Ama OAuth `state` parametresi bir replay girdisi
-**değil**, bir saldırı yüzeyi: tahmin edilebilirse saldırgan kendi yetkilendirme cevabını
-kurbanın oturumuna bağlar (CSRF).
-
-**Karar:** `csrfToken()` `rng.ts`te ve `crypto.randomBytes` kullanıyor — kriptografik,
-seed'siz. Ayrım kuralı çiğnemiyor: `seededRng` **kararları** üretir (hangi kayıt, hangi
-sıra, hangi seed) ve replay onları tekrar eder; `csrfToken` bir karar üretmez, tek
-kullanımlık bir sırdır, hiçbir manifeste girmez ve **hiçbir replay onu tekrar etmez**.
-Tekrar etseydi zaten güvenliği ortadan kalkardı.
-
-**Yeri `rng.ts`:** `rng` darboğazı `crypto.randomBytes`ı bu dosyaya kilitliyor. İkinci bir
-rastgelelik kaynağı, hangisinin seed'li olduğunu belirsiz bırakırdı.
-
-**Yanına `secretEquals` kondu:** düz `===` ilk farklı baytta döner ve süre farkı
-saldırgana doğru ön eki karakter karakter aratır. Uzunluk farkında da erken dönmüyor.
-
-**Geri alma maliyeti:** düşük.
-
-## D-219 — Secret deseni, entegre edilen sağlayıcıyı içermiyordu (D-49 tekrarı)
-
-**Tarih:** 2026-08-16 · **Bağlam:** FAZ-7.5 · R-51
-
-7.5'in 🧪'sı basitti: düz metin token'ı repoya koy, kapı reddetsin. **Reddetmedi.**
-Sentetik bir Meta token'ı hem `repo-hygiene`den hem `gitleaks`ten geçti: bizim desen
-listemizde Meta ve LinkedIn yoktu ve gitleaks'in varsayılan kural seti de bu biçimi
-yakalamadı.
-
-Bu D-49'un birebir tekrarı — orada da liste, gerçek Anthropic anahtarının biçimini
-kaçırıyordu. **Desen eklemenin doğru anı, o sağlayıcıya dokunulan andır**; entegrasyondan
-sonra eklenen desen, arada geçen her commit için geç kalmıştır.
-
-**Eklendi:** `EAA…` (Meta erişim token'ı) · `WPL_AP1.` (LinkedIn istemci secret'ı).
-
-**Test üç kez yanıldı, kapı değil:**
-1. İlk denemem **izlenmeyen** bir dosya yazdı — kapı yalnız git'in bildiği dosyaları
-   tarıyor ve haklı olarak sessiz kaldı.
-2. Bataryaya eklediğimde **batarya dosyasının kendisi** deseni içerdi ve kapı onu
-   yakaladı (`chart.js` darboğazının kendi modülünü yakalamasıyla aynı sınıf). Token
-   parçalardan kuruldu.
-3. Yama hedefim henüz **commit'lenmemiş** bir dosyaydı; izlenen bir dosyaya çevrildi.
-
-Üçünde de "kapı korumuyor" görüntüsü vardı ve üçünde de sorun testteydi. **Bir kapının
-yeşil kalması, kapının değil testin yanlış olduğu anlamına da gelebilir** — ikisini
-ayırmanın tek yolu ihlali gerçekten diske yazıp kapının ne taradığını okumak.
-
-**Geri alma maliyeti:** yok.
-
-
-## D-220 — Insight'ın doğruluğu NDJSON'da, SQLite'ta DEĞİL
-
-**2026-08-16 · FAZ-7.8**
-
-Faz dosyasının kabul kriteri "ilk satırlar SQLite'ta" diyordu. **Reddedildi ve kriter
-değiştirildi** (R-74: sessiz sapma yasak).
-
-**Gerekçe:** IG hesap insight'ları ~90 günde kayboluyor ve **backfill ucu YOK** — bugün
-alınmayan ölçüm hiçbir çağrıyla geri getirilemez. `derived/index/` ise tanım gereği
-**silinip yeniden kurulabilir** (11. yasa, D-38). Geri getirilemez veriyi yeniden
-kurulabilir bir yere koymak, `just reindex`i kalıcı veri kaybına çevirirdi — ve bunu
-fark edeceğin an, üç ay sonra boş bir panonun karşısıdır.
-
-**Karar:** doğruluk `derived/runs/insights.ndjson`'da (append-only, git'te, yedekli);
-SQLite yalnız **sorgu indeksi** ve bu dosyadan beslenir. Yayın defteriyle (D-38) birebir
-aynı gerekçe, aynı biçim.
-
-**Alternatif:** SQLite'ı doğruluk yapıp dosyayı yedek saymak — reddedildi: yedeğin ne
-zaman alındığını hatırlaman gereken bir sistem, bir ay ihmali kaldıramaz (§16).
-
-**Yan karar — boşluk bir OLGUDUR:** alınmayan gün sessizce atlanmaz, `bosluklar()`
-listeler ve 90 günü geçmişse **`kurtarilabilir: false`** işaretler. Kurtarılamayan bir
-kaybı bilmek, bilmemekten iyidir; bilinmezse pano onu "düşük performans" diye okur.
-
-**Geri alma maliyeti:** yok — indeks zaten türetilmiş.
-
-## D-221 — Kabuk yönlendirmesi tabloya çevrildi; kapı iki şekli de tanıyor
-
-**2026-08-16 · FAZ-7.9 sonrası**
-
-`App.tsx`'te palet komutu → ekran eşlemesi **on dört katmanlık iç içe ternary**'di ve her
-yeni ekranda AYNI hatayı üretti: ekran yönlendirmede vardı, hiçbir komut ona gitmiyordu.
-`ui-navigasyon` kapısı **üç kez** yakaladı — yani kural doğruydu, **kodun şekli** yanlıştı.
-
-**Karar:** eşleme bir `Readonly<Record<string, Ekran>>` tablosu. Tabloda unutmak zor:
-komut ya haritadadır ya değildir.
-
-**Kapı da genişletildi, ama GEVŞETİLMEDİ.** Artık iki şekli de ayrıştırıyor ve ikisinde
-de eksik eşleme hata. Kasten ihlal edilerek doğrulandı: satırı sil → *"ulaşılamaz"* ·
-hedefi `giris` yap → *"sessiz no-op"*.
-
-**Sıralama önemliydi (R-76).** Bu değişikliği ilk denediğimde kapı KIRMIZIYDI ve tabloyu
-tanımıyordu; **geri aldım**. Kırmızı bir kapının tanıma biçimini aynı turda değiştirmek,
-"kapıyı geçmek için kapıyı düzenlemek"le ayırt edilemez — niyet doğru olsa bile. Kapı
-yeşile döndükten sonra, ayrı bir turda yapıldı.
-
-**Geri alma maliyeti:** yok.
-
-## D-222 — `PUBLISH` gövdesi hiç yazılmamıştı: `INGEST` hatasının birebir tekrarı
-
-**2026-08-16 · FAZ-7 kapanış denetimi, 1. tur**
-
-Doğrulama agent'ı FAZ 7'nin yayın tarafının **üretimde erişilemez** olduğunu buldu:
-`publish()`, `buildLinkedinPost()`, `authorizeUrl()`, `appendPublished()` — dokuz
-fonksiyonun tek çağıranı test dosyalarıydı. Kesin kanıt: `verbs/bodies.ts` dokuz
-fiilden sekizini tanımlıyordu, **`publishBody` yoktu** ve `uret.mjs`in fiil haritasında
-`PUBLISH` anahtarı hiç geçmiyordu.
-
-**Bu D-216'nın (FAZ 6 · `INGEST`) birebir tekrarı** — ve o maddenin yorumu `bodies.ts`
-içinde, `ingestBody`nin hemen üstünde duruyordu. Aynı hatanın iki fazda tekrarlaması
-tesadüf değil: **bir yetenek "bitti" sanılıyor çünkü modülü ve testi var.** Eksik olan
-hep aynı yer — fiil haritası.
-
-**Kapatılanlar (hepsi tipe gömüldü):**
-- `publishBody` yazıldı; `PUBLISH` üretim haritasına bağlandı
-- **Defteri artık `publish()` yazıyor** (`recordPublished` zorunlu dep). Çağırana
-  bırakılsaydı yineleme koruması ancak herkes hatırladığı sürece çalışırdı
-- **Oran kovası fonksiyon olarak iniyor** (`rateGate`, zorunlu). Kova motorda yaşıyor,
-  `providers` onu import edemez (R-03) — "limiter uploader'dan önce oturur" artık
-  ölçülen bir sıra: `token → kova:1 → kota → defter → kova:3 → yükleme → kaydet`
-- **`lookupLedger` üç durumlu.** Eski tip `LedgerEntry | null` idi ve `null` hem
-  "yayınlanmamış" hem "defter okunamadı" demekti; ikincisini birincisi sanmak, defteri
-  bozulmuş bir sistemde HER ŞEYİ yeniden yayınlamaktı
-- **Yükleme hatası artık `upload_failed`.** Eski dal `quota_exhausted` döndürüyordu ve
-  operatöre "kota doldu (3/25) — kuyrukta bekliyor" diyordu; oysa ağ hatası ve
-  beklemekle geçmez. Yanlış teşhis, teşhissizlikten kötüdür
-- **Yükleyici yoksa AÇIK duruş:** `CHANNEL_NOT_CONNECTED`. Sahte bir yükleyici,
-  defterde olmayan bir yayın üretirdi
-
-**Testin kendi köprüsünü ölçmesi:** `yayin-baglanma.test.ts` defteri yayıncıya bağlayan
-adaptörü KENDİ kuruyordu ve üretimde eşi yoktu. Artık `publishBody`yi çağırıyor —
-köprü bozulursa kırmızıya döner. Önceki hâlinde köprü hiç olmasa bile yeşildi.
-
-**Kalan iş gerçekten insan girdisi:** `upload` ve `publishingLimit` verilmiyor çünkü
-gerçek kanal bağlantısı `7.2b` (V-26). Fark şu: **eskiden yol yoktu, şimdi yol var ve
-ucunda bir insan var.**
-
-**Geri alma maliyeti:** yok.
-
-## D-223 — Denetim 1. tur: altı bulgu kapandı, biri gerekçesiyle REDDEDİLDİ
-
-**2026-08-16 · FAZ-7 kapanış denetimi**
-
-D-222 kök blokajı kapattı; kalan bulgular:
-
-**Kapananlar:**
-- **`faz-yollari` kapısı KÖRDÜ:** yalnız `📁` ile *başlayan* satırı okuyordu; sarılmış
-  ikinci satır denetim dışıydı. Kapı `✓` derken **beş** yol bayattı — biri
-  `packages/kernel/src/proc/spawn.ts` yerine `kernel/src/proc/spawn.ts` yazılmıştı.
-  Denetlenen yol 90 → **95**. *Bir kapının yeşil olması, baktığı yerin doğru olduğunu
-  göstermez.*
-- **`just hook-oner` bozuk defteri BOŞ sayıyordu:** her yayın "pencere ölçülmemiş"
-  görünürdü ve operatör ölçüm sorununu içerik sorunu sanardı. Artık `unreadable`
-  ayrı ve komut duruyor. (`ledger_missing` ayrı kalıyor: ölçüm hiç başlamamış olabilir.)
-- **`doctor` ile `token-durum` bir günü farklı sayıyordu** (gece yarısı vs gerçek an).
-  Bugün 00:30'da ölen bir token'la ölçüldü: ikisi de `1 gün önce ÖLDÜ` diyor. Aynı
-  kayıt için iki farklı cevap veren iki rapor, ikisi de güvenilmez olur.
-- **LinkedIn secret deseni hiç ihlal edilmemişti:** `WPL_AP1.` listede vardı ama
-  bataryada yoktu — "korunuyor" iddiası ölçülmemişti (R-71). Batarya 14 → **15**.
-- **Platform sınırı okunamıyordu:** `LINKEDIN_PLATFORM_MAX_SAYFA` dışa açılmıyordu.
-  Artık ayrı bir ret tipi: 300+ sayfa `platform_limit` (**olgu**, tavan yükselterek
-  çözülemez), 11 sayfa `too_many_pages` (**karar**, bilerek aşılabilir). Tek mesaja
-  indirilseydi 300 sayfalık bir denemede "tavanı 400 yapayım" refleksi doğardı.
-- **Bloke adımların metni dürüstleştirildi:** "kalan iş bağlantı" diyordu; gerçekte
-  HTTP adaptörü ve insan komutu da yoktu. Artık ikisi de açıkça yazıyor.
-
-**Reddedilen bulgu — m1 (`VARSAYILAN_BAYT_TAVANI = 8 MB` "40 MB'lık meşru dökümanı
-reddediyor"):** bu bir hata değil, **bilinçli ayrım**. 8 MB bizim *editoryal*
-varsayılanımız; LinkedIn'in 100 MB'ı `placements.ts`te `sourceUrl` + `verifiedAt` ile
-duruyor. Olgu ile kararı ayrı tutmak bu repoda bir desen (D-220, D-215) — on sayfalık
-bir deck 8 MB'ı aşıyorsa sorun sıkıştırmada değil içeriktedir. Çağıran `maxBytes` ile
-ezebilir.
-
-**Geri alma maliyeti:** yok.
-
-## D-224 — Zincir bir seviye yukarıda da kopuktu: fiil haritası ≠ üretim yolu
-
-**2026-08-16 · FAZ-7 kapanış denetimi, 2. tur**
-
-D-222 `PUBLISH` gövdesini yazıp fiil haritasına bağladı ve *"eskiden yol yoktu, şimdi
-yol var"* dedi. **Yarım doğruydu:** `grep -rn "PUBLISH" registry/` → **0 satır**.
-Hiçbir hat onu çağırmıyordu; harita dolduruldu, hattı yazan olmadı.
-
-**Aynı sınıf hata üç kez:** D-216 (`INGEST` gövdesi yok) → D-222 (`PUBLISH` gövdesi yok)
-→ bu (hat adımı yok). Her seferinde bir seviye yukarı taşındı ve her seferinde bir
-denetim agent'ı buldu. **İnsan hafızası bunu üç kez tutamadı.**
-
-**Kapatılanlar:**
-- `PUBLISH` adımı üç hatta eklendi (`instagram-post`, `instagram-carousel`,
-  `linkedin-post`), `needs: [onay]` ile — yayın onaydan sonra; kapı geçilmediyse hiç
-  koşmaz
-- **`fiil-haritasi` kapısı açıldı ve İKİ soru soruyor:** gövde haritada bağlı mı ·
-  o fiili çağıran en az bir hat var mı. İkisi de kasten ihlal edilip kırmızıya
-  döndürüldü. Yorum satırları sayılmıyor — kapı kendi açıklamasıyla kandırılamaz
-- **`just defter-baslat`** (B2): `publish()` defteri okur ve yoksa DURUR; defter ise
-  ancak başarılı yayının sonunda yazılır. **Kısır döngü:** ilk gerçek yayın hiçbir
-  zaman başarılı olamazdı. Komut idempotent ve bozuk defteri ONARMAZ — var olanı asla
-  sıfırlamaz (D-38)
-- **Yineleme anahtarı düzeltildi** (M1): yalnız `assets[0].digest` idi ve aynı kapakla
-  farklı metin, ya da ikinci slaytı değişmiş bir karusel, "zaten yayında" diye
-  bloklanıyordu — **hiç yayınlanmamış** içerik. Anahtar artık platform + yerleşim +
-  tüm varlıklar + metin (R-44)
-- **Desteklenmeyen platform tipli ret veriyor** (M2): YAML'daki `facebook` yazımı
-  çıplak `TypeError` veriyordu. *"Sıra tipe gömülü"* garantisi **şekli** kapsıyor,
-  **değerleri** değil — değerler sınırda doğrulanmak zorunda
-- **Platform sınırı editoryal tavandan ÖNCE** (M3): 350 sayfalık belge `max: 10`
-  cevabı alıyordu ve "tavanı 400 yapayım" refleksi doğuyordu — D-223'ün tam olarak
-  önlemek istediği şey. Ayrım artık hattın geçtiği yerde
-- **Dürüstlük düzeltmesi dört yerin dördüne** (M4): D-223 yalnız `FAZ-7.md` 7.2b'yi
-  düzeltmişti; `KARARLAR.md` V-26/V-27, `DURUM.md` bloke tablosu ve 7.5b hâlâ "kalan iş
-  hesap kurulumu" diyordu. **D-217'nin kendi dersi kendi düzeltmesine uygulanmamıştı.**
-
-**Geri alma maliyeti:** yok.
-
 ## D-225 — Diklik ölçütü OFAT'tır; tam ızgara öğrenme tasarımı değildir
 
 **2026-08-16 · FAZ-8.1**
@@ -544,5 +327,81 @@ batarya dışında kalması, korumadığı şeyi korunuyor sanmaktır.
 dosyasında duruyor ve kapılar onu okuyor. Yük artık parçalanarak yazılıyor
 (`${'ad-creative'}-set`) — kapı yazılan dosyayı görmeli, yazan dosyayı değil.
 `repo-hygiene` yükünde aynı numara zaten vardı; genel kural olmamıştı.
+
+**Geri alma maliyeti:** yok.
+
+## D-230 — ANAYASA tavanı belgeyi TAMAMLANAMAZ yapıyordu: ölçüt değişti
+
+**2026-08-16 · FAZ-8 kapanışı**
+
+`docs/ANAYASA.md` tam **1200/1200** ve **sekiz alt bölüm boştu**: §3.4 · §3.6 · §3.9 ·
+§3.10 · §5.5 · §7.3 · §8.1 · §12.8. Yedisi **kapanmış** fazlara ait — yani D-159'un
+"sırası gelen adım kendi bölümünü doldurur" mekanizması çalışmadı: bir fazı kapatmak,
+o fazın ANAYASA bölümünü doldurmayı hiç gerektirmedi.
+
+**Ölçtüm, sonra karar verdim** (R-76). Belgede yağ yok: bölümler konularıyla orantılı
+ve 150 satır kırpmak gerçek içerik silmek olurdu. Yani tavan, sekiz bölümü doldurmanın
+önündeki tek engeldi.
+
+**Karar: ölçüt değişiyor, tavan gevşemiyor.** R-63'ün ANAYASA satırı 1200 → **1400**,
+ama tek başına değil: **alt bölüm (`### §N.M`) başına 60 satır** tavanı eklendi ve
+`docs-size` onu da zorluyor.
+
+⚠ **Ölçü birimi ikinci ölçümde düzeldi.** Önce "bölüm (`## §N`) başına 180" yazmıştım;
+iki kusuru vardı: (1) sekiz bölüm dolunca §3 ≈193 satıra çıkıyor ve kural **kendi
+doldurma işini** kırmızıya döndürüyordu, (2) daha önemlisi **yanlış birimi ölçüyordu** —
+atıflar `§3` değil `§3.4` biçiminde veriliyor ve `just tur` alt bölümü getiriyor.
+
+⚠ **Ölçüm aracı da yanlış ölçebilir.** İlk awk yalnız `###` sınırına bakıyordu ve son
+alt bölümü dosya sonuna kadar sayıyordu: §12.9 28 satır yerine **215** görünüyordu. Bir
+tavan, tavanı ölçen araç kadar doğrudur. Sınır artık `###` **veya** `##`.
+
+**Neden bu daha SIKI:** okuyucunun maliyeti belgenin değil, **atıf verilen bölümün**
+boyu. 1400 satırlık bir belgede 60 satırlık on bölüm, 1200 satırlık bir belgede 300
+satırlık tek bölümden ucuz okunur. Ve **boş bir bölüm uzun bir bölümden pahalıdır**:
+§12.8'e bakan biri erişilebilirlik kuralını bulamayınca kuralı yok sanmaz — **kendi
+uydurur**. Eksik belge, yanlış belgenin yavaş hâlidir.
+
+**Alternatif — reddedildi:** sekiz bölümü "bilinçli olarak boş" tombstone'larıyla
+kapatmak. Yedisi kapanmış fazlara ait ve içerikleri **var** — kodda, kararlarda, faz
+dosyalarında. Boş bırakmak bilgiyi yok etmiyor, yalnız **bulunamaz** kılıyor; ve
+ANAYASA'nın tek işi bulunabilir kılmak.
+
+**Sıra önemli:** önce doldur, sonra `citations`ı sık (D-231). Kırmızı bir kapıyla
+başlamak her commit'i bloke ederdi.
+
+**Geri alma maliyeti:** yok — tavan bir sayı.
+
+## D-231 — `citations` yalnız İLERİ bakıyordu: tikli adımın atfı da denetleniyor
+
+**2026-08-16 · FAZ-8 kapanışı, ANAYASA borcu**
+
+`citations` bugüne kadar **yalnız `siradaki_adim`ın** `📖` satırındaki atıfları
+denetliyordu: sıradaki adım gövdesiz bir bölümü okumak zorundaysa hata. Doğru ama eksik.
+
+**Bir faz kapandığında o bölüm bir daha hiç kontrol edilmiyordu.** §12.8 FAZ-4.1'e ait
+ve FAZ 4 kapandı; §8.1 FAZ-3.4'e ait ve FAZ 3 kapandı. İkisi de boş kaldı ve kapı yalnız
+"8 iskelet bölüm" diye **uyarıyordu** — o uyarı dokuz turdur okunup geçildi. **Gürültülü
+şey kapatılır; uyarı da bir kapatma biçimidir.**
+
+**Karar: tiklemek bir iddiadır.** `faz-yollari` bunu `📁` için zaten söylüyor ("tikli bir
+adımın yol satırı plan değil, iddiadır"); aynısı `📖` için de geçerli. Bir adımı
+tiklemek, okuduğu bölümün VAR olduğunu iddia etmektir. Kaynaksız yapılmış bir adım,
+yapılmamış bir adımdan kötüdür: yapıldığı sanılır ve kimse geri dönmez.
+
+**Sıra zorunluydu** (R-76): önce sekiz bölüm dolduruldu (D-230), sonra kapı sıkıldı.
+Ters sırada yedi kapanmış faz yüzünden kapı kırmızıya döner ve **her commit bloke
+olurdu** — ve o durumda tek makul çıkış kuralı gevşetmek olurdu.
+
+⚠ **İhlal testi kapının SINIRINI da ölçtü.** Önce §12.8'i boşalttım ve kapı kırmızıya
+dönmedi: **hiçbir adımın `📖` satırı §12.8'e atıf vermiyor.** Yani mekanizma çalıştı,
+kapsamı dışındaydı. §8.1 ile tekrarladım (FAZ-3.4 tikli ve ona atıf veriyor) ve kapı
+kırmızıya döndü. Kalan boşluk **bilinçli ve beyanlı**: hiç atıf almayan bir bölüm yalnız
+"iskelet" uyarısıyla korunuyor. Bunu kapatmanın yolu kapıyı büyütmek değil, o bölümü
+okuyan adımı `📖` satırına yazmaktır — kapı bir eksikliği bildirir, planı yazmaz.
+
+**Kalıcı ders:** *bir denetim yalnız ileri bakıyorsa, geçmiş sessizce birikir.* D-159
+"sırası gelen adım doldurur" diyordu ve bu doğruydu — ama sıra geçtikten sonra kimse
+bakmıyordu. Kapanış, denetimin BİTTİĞİ an değil, denetimin **kalıcılaştığı** an olmalı.
 
 **Geri alma maliyeti:** yok.

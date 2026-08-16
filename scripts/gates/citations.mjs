@@ -225,6 +225,39 @@ if (anayasa) {
     }
   }
 
+  // ── TİKLİ adımların `📖` atıfları da denetlenir (D-231) ───────────────────
+  //
+  // ⚠ Kapı yalnız `siradaki_adim`a bakıyordu ve bir faz kapandığında o fazın bölümleri
+  // bir daha hiç kontrol edilmiyordu: §12.8 (FAZ-4.1) ve §8.1 (FAZ-3.4) fazları
+  // kapandığı hâlde boş kaldı ve kapı dokuz turdur yalnız "8 iskelet bölüm" diye
+  // UYARIYORDU. D-159'un "sırası gelen adım kendi bölümünü doldurur" mekanizması
+  // **yalnız ileri bakıyordu** — ve yalnız ileri bakan bir denetimde geçmiş sessizce
+  // birikir.
+  //
+  // **Tiklemek bir İDDİADIR.** `faz-yollari` bunu `📁` için söylüyor: "tikli bir adımın
+  // yol satırı plan değil, iddiadır". Bu satır `📖` için söylüyor: bir adımı tiklemek,
+  // okuduğu bölümün VAR olduğunu iddia etmektir. Kaynaksız yapılmış bir adım,
+  // yapılmamış bir adımdan kötüdür — yapıldığı sanılır ve kimse geri dönmez.
+  const tikliAtiflar = new Map()
+  for (let n = 0; n <= 9; n++) {
+    const faz = read(`docs/fazlar/FAZ-${n}.md`)
+    if (faz === null) continue
+    let adim = null
+    for (const satir of faz.split('\n')) {
+      const bas = /^##+ +(\d+\.[A-Za-z0-9.]*) +—.*\[( |x)\]/.exec(satir)
+      if (bas !== null) {
+        adim = bas[2] === 'x' ? bas[1] : null
+        continue
+      }
+      if (adim === null) continue
+      const oku = /^📖\s+(.+)$/.exec(satir)
+      if (oku === null) continue
+      for (const m of oku[1].matchAll(/§([0-9.]+)/g)) {
+        if (!tikliAtiflar.has(m[1])) tikliAtiflar.set(m[1], adim)
+      }
+    }
+  }
+
   let iskelet = 0
   for (const [bolum, bilgi] of bolumler) {
     if (bilgi.ustBaslik || bilgi.satir >= 3) continue
@@ -233,6 +266,12 @@ if (anayasa) {
       errors.push(
         `docs/ANAYASA.md  §${bolum} GÖVDESİZ (${bilgi.satir} satır) ama SIRADAKİ ADIM ` +
           `'${siradaki}' onu okumak zorunda — adım kaynaksız yapılamaz`
+      )
+    } else if (tikliAtiflar.has(bolum)) {
+      errors.push(
+        `docs/ANAYASA.md  §${bolum} GÖVDESİZ (${bilgi.satir} satır) ama TİKLİ adım ` +
+          `'${tikliAtiflar.get(bolum)}' ona atıf veriyor — tiklemek, kaynağın VAR ` +
+          `olduğunu iddia etmektir (D-231)`
       )
     }
   }

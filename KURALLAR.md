@@ -255,7 +255,13 @@ Her `§N` / `R-nn` / `D-nn` / `V-nn` / `FAZ-N.x` / `LOOP§X` hedefte var olmalı
 
 ### R-63 · belge-tavanlari · BLOCKING · aktif
 `CLAUDE.md` 200 · `KURALLAR.md` 400 · `KARARLAR.md` 600 · `DURUM.md` 120 ·
-`ANAYASA.md` 1200 · `FAZ-N.md` 250 · `.claude/rules/*.md` 120 satır.
+`ANAYASA.md` 1400 · **ANAYASA alt bölümü (`### §N.M`) 60** · `FAZ-N.md` 250 ·
+`.claude/rules/*.md` 120 satır.
+ANAYASA'da asıl tavan **alt bölümdür**: belge hiçbir zaman baştan sona okunmaz, `just tur`
+yalnız atıf verilen bölümü getirir ve okuyucunun maliyeti **o bölümün** boyudur. 1400
+satırlık bir belgede 60 satırlık on bölüm, 1200 satırlık bir belgede 300 satırlık tek
+bölümden ucuzdur. **Boş bir bölüm uzun bir bölümden pahalıdır** — kuralı bulamayan
+kuralı yok sanmaz, kendi uydurur (D-230).
 **Zorlama:** `docs-size` kapısı.
 
 ### R-64 · buyuk-dosya-git-e-girmez · BLOCKING · aktif

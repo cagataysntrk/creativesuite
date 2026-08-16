@@ -150,6 +150,18 @@ SAYIYLA söyler ve codemod'suz yıkıcı değişikliği reddeder (§12.9).
 ### §3.4 Projeksiyon derleyicisi {#section-3-4}
 Tek şema → form + TS tipi + katı LLM şeması + SQLite DDL.
 
+Dört çıktının **tek kaynağı** vardır: varlık tipi şeması. Elle yazılan bir form ile elle
+yazılan bir SQLite DDL'i bir gün ayrışır ve ayrıştığı gün kayıt indekste geçerli,
+pipeline'da geçersiz olur (R-05).
+
+Katı LLM şeması ayrı bir üretimdir çünkü sağlayıcıların yapılandırılmış çıktı alt kümesi
+JSON Schema'nın tamamını kabul etmiyor; derleyici **daha katı olana** yazılmıştır (V-05).
+`registry/PROFILE.md` izin verilen alt kümeyi tanımlar ve profil dışına çıkan bir şema
+derlenmez — projeksiyonun çalışmadığını üretim anında öğrenmek yerine.
+
+Her tip için CI'da **snapshot testi** var: şema değişince dört projeksiyonun dördü de
+diff'te görünür. Üçünün değişip birinin unutulması, bu testin var olma sebebi.
+
 ### §3.5 Türetilmiş indeks {#section-3-5}
 
 Ring 3 üçe ayrılır ve **ikisi aynı şey değildir**:
@@ -168,6 +180,26 @@ kolay yapılan ve en pahalı hatadır.
 
 ### §3.6 Bağımlılık yönü ve modül sınırları {#section-3-6}
 Halka sınırlarının mekanik zorlaması: lint bölgeleri, dependency-cruiser, project references.
+
+```
+contracts ← kernel ← {registry, corpus, providers, render} ← engine ← {server, cli}
+ui → contracts (yalnız)
+```
+
+**Dört mekanizma, dördü de bağımsız:**
+1. ESLint `import-x/no-restricted-paths` — bölge tanımları
+2. `dependency-cruiser` — modül **ve** klasör kapsamında döngü yasağı
+3. TypeScript project references — derleme düzeyinde
+4. `pnpm hoist: false` — **dosya sistemi** düzeyinde phantom bağımlılık yok
+
+Dördüncüsü en sinsi vakayı yakalar: `package.json`ında yazmadığı bir paketi import eden
+bir modül, hoisting sayesinde geliştirme makinesinde çalışır ve temiz bir kurulumda düşer.
+**Yalnız bu makinede çalışan şey, çalışmıyor demektir** (FAZ-8.7).
+
+**Kardeş yasağı:** aynı katmandaki paketler birbirini import etmez. `corpus` ile
+`providers` kardeştir; birinin diğerine ihtiyacı varsa ya ortak parça `kernel`e iner ya da
+bağımlılık `engine`de kurulur. Bu yasak `matris:` bloğunda somutlaştı: şekil çözümü
+`registry`de, tasarım yargısı `engine`de kaldı (D-228).
 
 ### §3.7 Durum makineleri {#section-3-7}
 
@@ -207,9 +239,48 @@ yaramadı; darboğaz işe yaradı (R-70).
 ### §3.9 Kanonik adlar {#section-3-9}
 Aynı şeyin tek adı. Yanlış varyantlar `citations` kapısında hata verir.
 
+| Kavram | Kanonik | Yanlış varyant |
+|---|---|---|
+| Anayasa | `docs/ANAYASA.md` | ~~`docs/00-ANAYASA.md`~~ |
+| Yol haritası | `docs/fazlar/FAZ-N.md` | ~~tek dosyalık yol haritası~~ |
+| Türetilmiş indeks | `derived/index/` | ~~`.suite/index.db`~~ |
+| Çalıştırma defteri | `derived/runs/` | ~~kök `runs/`~~ |
+| Varlık byte'ları | `derived/blobs/` | ~~kök `assets/`~~ |
+| Yayın defteri | `derived/runs/published.ndjson` | ~~`ledger/published.jsonl`~~ |
+| Insight defteri | `derived/runs/insights.ndjson` | ~~SQLite tablosu~~ (D-220) |
+| Marka verisi | `brand/<brand_id>/…` | ~~tek marka kökü~~ |
+| CLI | `just <recipe>` | ~~`pnpm …`~~, ~~`suite …`~~ |
+| Kimlik | uuidv7, ön ekli (`run_`, `job_`) | ~~ULID~~ |
+
+**Ad değil, adres.** Bağlamsız bir agent yanlış varyantı arar ve bulamayınca işin
+yapılmadığını sanır; `citations` kapısı bu yüzden yanlış varyantı **hata** sayıyor.
+
 ### §3.10 Dokuz fiil ve yan etki sınıfları {#section-3-10}
 RESOLVE · SELECT · COMPOSE · GENERATE · RENDER · VALIDATE · PROPOSE · PUBLISH · INGEST.
 Yetenek adı ≠ fiil adı.
+
+| Fiil | Yan etki sınıfı | Metered | Tek yapabildiği |
+|---|---|---|---|
+| `RESOLVE` | read-registry | — | tarif + registry → adım DAG'ı |
+| `SELECT` | read-corpus | — | retrieval yüklemiyle kayıt seçer |
+| `COMPOSE` | **pure** | — | belge modeli üretir; **hiç I/O yok** |
+| `GENERATE` | network-model | ✓ | **model çağıran tek fiil** |
+| `RENDER` | browser | ✓ | **Chromium/FFmpeg'e dokunan tek fiil** |
+| `VALIDATE` | read-corpus | — | QA, lint, spec, uyum kapıları |
+| `PROPOSE` | write-tree | — | **çalışma ağacına yazan tek fiil** |
+| `PUBLISH` | network-channel | ✓ | **kanal API'si çağıran tek fiil** |
+| `INGEST` | network-source | ✓ | **dış kaynak çeken tek fiil** |
+
+Sözleşme `packages/kernel/verbs.json`'da **sabitlenmiştir**; sapma iki yönde de hata
+(R-02). Gövdeler sözleşmeyi **değiştiremez**: `resolveVerb` her çağrıda `effectClass` ve
+`metered` uyumunu doğrular. Gövdenin `metered: false` demesi bütçe kapısını atlatabilseydi,
+çalıştırma öncesi maliyet tahmini yalan olurdu.
+
+**Bir fiilin var olması, çalıştırılabilir olduğu anlamına gelmez.** Zincirin yedi halkası
+var — modül · gövde · fiil haritası · **hat adımı** · kapı · **şekil** · **çözücü** — ve
+altısı sırayla kaçtı (D-216 · D-222 · D-224 · D-227 · D-228). `fiil-haritasi` kapısı iki
+soruyu birden sorar: gövde üretim haritasında bağlı mı, ve o fiili çağıran en az bir hat
+var mı.
 
 ## §4 Marka sistemi {#section-4}
 
@@ -411,6 +482,21 @@ araması + ucuz bir LLM sınıflandırıcı (`entails | contradicts | unrelated`
 güveni yan yana koyan bir tahkim maddesi açar: eskiyi tut / yeniyi al / ikisini farklı
 kapsamlarda tut.
 ### §5.5 Çelişki tahkimi {#section-5-5}
+
+İki kayıt aynı şeyi farklı söylüyorsa sistem **ikisini de saklar ve çelişkiyi işaretler** —
+birini seçmez. Otomatik seçim, seçimin yapıldığını gizler.
+
+**Tespit iki aşamalı:** FTS5 yakın-kopya taraması aday çiftleri bulur (ucuz, deterministik),
+sonra bir sınıflandırıcı çifti üç kovadan birine koyar: **aynı şey** (yineleme, biri
+emekliye ayrılır) · **çelişki** (tahkim kuyruğuna) · **ilgisiz** (yanlış pozitif).
+
+Tahkimi **insan** yapar ve kararı bir kayıt olur: kazanan `active` kalır, kaybeden
+`superseded_by` ile bağlanır ve **silinmez** (10. yasa). Altı ay sonra "neden bu rakam
+değişti" sorusunun cevabı zincirin kendisidir.
+
+**Sessiz çelişki en pahalı hâlidir:** iki farklı deck'te iki farklı sayı, ikisi de "onaylı"
+görünür ve ilk fark ediliş yeri prospect'in sorusudur.
+
 ### §5.6 Türkçe arama {#section-5-6}
 
 FTS5'in Türkçe stemmer'ı **yok**. Tek indeksle "ölçüm" araması "ölçümlerinizi" bulamaz —
@@ -494,6 +580,23 @@ render edilir. **Konteyner içinde sessiz glyph fallback, bu sistemin bozuk varl
 `'i'.toUpperCase()` → `I`, olması gereken `İ`. Ekran görüntüsünde tipo gibi görünür,
 bug gibi değil — bu yüzden üretime kadar yaşar.
 ### §7.3 Görsel üretimi ve marka LoRA {#section-7-3}
+
+**Türkçe metin görsel modeline çizdirilmez** (3. yasa, R-20). Her prompt "no text, no
+lettering" taşır ve metin gerçek fontla kompozit edilir. Sebep tercih değil olgu: Ideogram
+kendi dokümanında aksanlı Latin'i "hiç render edemeyebileceğini" kabul ediyor ve `İ`/`ı`
+çifti en sık bozulan yer.
+
+**İki şerit, tek tipografi** (5. yasa): şeritler kelime ve resim satın alır, tasarım değil.
+Bedava şerit ucuz bir modelden görsel alır; kompozisyon, tipografi, güvenli alan ve QA
+**aynı** hattan geçer.
+
+**Marka LoRA** (~$3, fal krea-2-trainer): rapordaki en yüksek kaldıraçlı harcama. Bir LoRA
+marka görsel dilini modele öğretir ve her çağrıda prompt'a onlarca kelime yazmaktan ucuzdur.
+**Ama zorunlu değil:** LoRA'sız hat da çalışır ve LoRA'nın eskimesi bir bakım borcudur —
+marka dili değişince yeniden eğitilir.
+
+Model ID'si **pipeline'da yer almaz** (6. yasa): yetenek istenir, yönlendirici seçer.
+
 ### §7.4 Hareket katmanı {#section-7-4}
 
 **HyperFrames** (heygen-com/hyperframes, Apache 2.0). HTML yazılır, video render edilir.
@@ -597,6 +700,26 @@ hareket katmanında, float hassasiyetiyle yapılır.
 ## §8 Sağlayıcılar {#section-8}
 
 ### §8.1 Tanımlayıcı formatı {#section-8-1}
+
+Bir sağlayıcı, YAML bir tanımlayıcıdır: kimlik · yetenek etiketleri · maliyet formülü ·
+kısıt tipleri · uç nokta şekli · `enabled`. **Kod değil veri** — yeni sağlayıcı eklemek kod
+yazmayı gerektirmiyor; gerektirseydi yönlendirici (§8.2) bir kod tabanına bakardı, bir
+tabloya değil.
+
+**Secret'lar tanımlayıcıda YOK.** `auth_env:` yalnız değişkenin ADINI taşır ve değer
+`sops exec-env` üzerinden ortama iner (R-51). Tanımlayıcı git'te durur; anahtar durmaz.
+`secret-rotasyon` kapısı bu satırları da okuyor — bir anahtar hangi dosya biçiminde
+tanımlandığına göre korunmuyorsa, korunmuyor demektir (D-227 ailesi).
+
+**Maliyet formülü QuickJS'te, 10ms deadline ile** çalışır: sağlayıcı fiyatlaması keyfi bir
+ifade olabilir ama keyfi kod çalıştırmak bir güvenlik deliğidir. `estimate()` **senkron ve
+ağsız** (R-42) — dönüş tipi `async`'i derleme hatası yapar, çünkü çalıştırma öncesi maliyet
+ancak ağ gerektirmiyorsa dürüsttür.
+
+**Fiyat anlık görüntüleri değişmez ve commit'lidir** (`registry/providers/_pricing/`).
+Sağlayıcı fiyatı değiştirdiğinde eski çalıştırmanın maliyeti yeniden hesaplanmaz — geçmiş,
+bugünün fiyatıyla anlatılmaz.
+
 ### §8.2 Yetenek yönlendiricisi {#section-8-2}
 
 Pipeline adımı **yetenek + kısıt** ister, model adı değil:
@@ -983,6 +1106,28 @@ bir şey olduğunda o soru artık sorulmaz.
 `prefers-reduced-motion: reduce` altında altısı da süreyi 0'a çeker — kaldırılmaz,
 **anında** olur; kaybolan bir geçiş, olmayan bir geri bildirimdir.
 ### §12.8 Erişilebilirlik {#section-12-8}
+
+**Durum rengi tek başına anlam taşımaz.** Her durum göstergesi **glyph + renk + metin**
+taşır (alarm yönetimi kuralı). Renk körü bir operatör, soluk bir ekran ya da bir ekran
+görüntüsü — üçünde de renk kaybolur, metin kalmalı.
+
+**Kontrast:** normal metin 4.5:1, büyük metin (≥24px ya da ≥18.66px kalın) 3:1. Kreatif
+yüzeylerdeki koyu gradyanlarda APCA (Lc ≥60) daha iyi öngörüyor; ikisi birden ölçülür ve
+düşük olan kazanır.
+
+**Klavye birincil, fare ikincil.** ⌘K paleti navigasyonun kendisi; her ekran fareye
+dokunmadan açılabilir ve onay kuyruğu `j/k/a/e/r/p` ile sürülür. Bir eylem yalnız fareyle
+erişilebilirse, o eylem erişilebilir değildir.
+
+**Hareket beyaz listeli ve hiçbiri 320ms'yi geçmiyor** (§12.7); `prefers-reduced-motion`
+altında liste tamamen kapanır — azaltılmış hareket bir tercih değil, bir gerekliliktir.
+
+**Odak görünür ve asla kaldırılmaz:** `outline: none` yasak, odak halkası pah çizgisiyle
+çakışmayacak şekilde 2px offset alır.
+
+**Ekran okuyucu için tablo:** ölçüm tabloları `<th scope>` taşır ve tolerans okuması
+`aria-label` ile sayıyı **birimiyle** okur — "2.4" değil, "ΔE 2.4, limit 5.0".
+
 ### §12.9 Ekranlar {#section-12-9}
 
 Ekranlar bir menüde değil, **⌘K paletinde** yaşar (§12.5). Aşağıdaki liste bir navigasyon
