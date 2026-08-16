@@ -39,13 +39,22 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
   const KAGIT = 'var(--role-surface)'
   const MUREKKEP = 'var(--role-line-edge)'
 
+  // ⚠ **Motif `karsiAlan`dan TÜRETİLİYOR, elle yazılmıyor.** Hayalet rakam zeminin
+  // değil DOLGUNUN üstünde duruyor; rengi zemine göre seçilirse dolguyla aynı olabilir
+  // ve rakam görünmez olur. Tam bu oldu: dört rolün ÜÇÜNDE motif dolgu rengiyle
+  // aynıydı. Bant ortadayken (%44–56) kusur gizliydi — rakam iki alana birden taşıyor,
+  // yarısı görünüyordu. Bant kenara kayınca (%69–78) rakam tamamen dolgunun içinde
+  // kaldı ve tümüyle kayboldu. **Elle yazılan bir renk sütunu, komşu bir kararla
+  // sessizce tutarsızlaşır**; türetilmiş olan tutarsızlaşamaz.
+  const kontrast = (arka: string): string => (arka === MUREKKEP ? KEHRIBAR : MUREKKEP)
+
   if (k.role === 'kapak' || k.role === 'tek') {
     return {
       zemin: KEHRIBAR,
       karsiAlan: KAGIT,
       metin: 'var(--role-text)',
       metinSoluk: 'var(--role-text-muted)',
-      motif: 'var(--role-text)',
+      motif: kontrast(KAGIT),
     }
   }
   if (k.role === 'kapanis') {
@@ -55,7 +64,7 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
       karsiAlan: KEHRIBAR,
       metin: 'var(--role-surface)',
       metinSoluk: 'var(--role-surface)',
-      motif: 'var(--role-bg)',
+      motif: kontrast(KEHRIBAR),
     }
   }
   // Gövde: tek indeksler kâğıt, çiftler kehribar — komşu iki slayt asla aynı zemin.
@@ -66,14 +75,14 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
         karsiAlan: KEHRIBAR,
         metin: 'var(--role-line-edge)',
         metinSoluk: 'var(--role-text-muted)',
-        motif: 'var(--role-bg)',
+        motif: kontrast(KEHRIBAR),
       }
     : {
         zemin: KEHRIBAR,
         karsiAlan: KAGIT,
         metin: 'var(--role-text)',
         metinSoluk: 'var(--role-text-muted)',
-        motif: 'var(--role-surface)',
+        motif: kontrast(KAGIT),
       }
 }
 
@@ -104,12 +113,19 @@ export const akanEgri = (k: SlaytKimligi): string => {
   // İkisi tek yerde tanımlı — ayrı olsalardı biri değişip diğeri unutulurdu.
   const merkez = SINIR_MIN + ((SINIR_MAX - SINIR_MIN) * faz) / 4
   const genlik = 5
+
+  // ⚠ **Eğri, dolduracağı tarafa göre AYNALANIYOR.** Bant artık simetrik değil (%69–78):
+  // metin sütunu geniş tarafta duruyor ve o taraf %62. Yansıma olmasaydı `egriSagda`
+  // false olduğunda dolgu geniş tarafı kaplar, metne dar taraf kalır ve sütun %62
+  // olamazdı — yani dönüşümlü ritim ile geniş metin sütunu birbirini dışlardı.
+  const X = (v: number): number => (egriSagda(k) ? v : 100 - v)
+
   // Dikey S: üstten alta akan, iki kez bükülen tek eğri. Kontrol noktaları merkez
   // etrafında ±genlik — aile aynı, nefes farklı.
   return (
-    `M ${merkez} 0 ` +
-    `C ${merkez + genlik} 24, ${merkez - genlik} 42, ${merkez + genlik * 0.4} 60 ` +
-    `C ${merkez + genlik * 1.4} 78, ${merkez - genlik * 0.6} 90, ${merkez} 100`
+    `M ${X(merkez)} 0 ` +
+    `C ${X(merkez + genlik)} 24, ${X(merkez - genlik)} 42, ${X(merkez + genlik * 0.4)} 60 ` +
+    `C ${X(merkez + genlik * 1.4)} 78, ${X(merkez - genlik * 0.6)} 90, ${X(merkez)} 100`
   )
 }
 
@@ -119,17 +135,24 @@ export const akanEgri = (k: SlaytKimligi): string => {
  * Metin bu bandın DIŞINDA kalmak zorunda; iki sabit tek yerde durur ki biri değişince
  * diğeri unutulmasın.
  */
-export const SINIR_MIN = 44
-export const SINIR_MAX = 56
+export const SINIR_MIN = 69
+export const SINIR_MAX = 78
 
 /**
  * Metin sütununun güvenli genişliği, yüzde.
  *
- * Bandın en agresif ucundan pay bırakıyor: eğri en fazla `SINIR_MAX + genlik*1.4`
- * kadar içeri girebiliyor, metin oraya HİÇ girmemeli. Payı hesaplamak yerine tahmin
- * etmek, "çoğu slaytta çalışıyor" demekti — ve çoğu, tasarımda yeterli değil.
+ * Eğri bir kübik Bézier: kontrol noktalarının dışbükey zarfını AŞMAZ. En içerideki
+ * kontrol noktası `merkez - genlik`, yani eğrinin metne en çok yaklaştığı yer
+ * `SINIR_MIN - 5`. Sütun oradan 2 puan daha geride duruyor.
+ *
+ * ⚠ **Bu sayı ÖLÇÜLDÜ, seçilmedi** (`docs/referans/tip-olcegi.md`). Önceki değer 36 idi
+ * ve o ayarda **hiçbir punto sığmıyordu**: `taşıyabileceğimizin` h1'in 76 px'inde 665 px
+ * yer kaplıyor, sütunun içerik genişliği ise 301 px'ti — %120 taşma. Kutuyu daraltmak
+ * metni daraltmıyor çünkü **kelime bölünmez**; taşma yalnız yer değiştiriyordu (R-23).
+ * %62'de içerik 582 px ve ölçülen en büyük sığan punto 64 px — `static.ts` h1'i o.
+ * Referansın metin alanı da karenin ~%62'si; dar sütun bizim SAPMAMIZDI.
  */
-export const guvenliMetinYuzdesi = SINIR_MIN - 8
+export const guvenliMetinYuzdesi = SINIR_MIN - 7
 
 /** Eğri hangi tarafta — dönüşümlü. Sağ/sol dönüşü ritmin ikinci ayağı. */
 export const egriSagda = (k: SlaytKimligi): boolean => k.index % 2 === 0

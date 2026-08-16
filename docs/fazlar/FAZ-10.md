@@ -66,7 +66,7 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 ---
 
-## 10.2b — Tip ölçeği: en uzun Türkçe kelime güvenli sütuna SIĞMALI    [ ]
+## 10.2b — Tip ölçeği: en uzun Türkçe kelime güvenli sütuna SIĞMALI    [x] 2026-08-17
 
 📖 §7.2, §12.2 · R-23, R-30 · D-255
 🔗 10.2 (kusur orada ölçüldü)
@@ -77,12 +77,26 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    değiştiriyor. Bu, R-23'ün (Türkçe genişleme yapısaldır) tipografi tarafı.
    Yapılacak: temsili uzun Türkçe kelimeler render edilip ÖLÇÜLÜR, güvenli sütuna sığan
    en büyük punto seçilir ve tip ölçeği ona göre sabitlenir.
-📁 `packages/render/src/static.ts` · `packages/render/src/sablon.ts`
-✅ ⚠ **Otomatik küçültme YOK** (R-30): `fitText` benzeri hiçbir şey yazılmayacak — sığdırmak
-   için tipi küçültmek makine üretimi kreatifin bir numaralı görsel işareti. Punto
-   ÖNCEDEN, ölçülerek seçiliyor; bu bir tip ölçeği kararı, çalışma zamanı düzeltmesi değil.
-   Kabul: ölçülen kelime listesinin tamamı güvenli sütuna sığıyor, hiçbiri taşmıyor.
-🧪 Listeye sütuna sığmayan bir kelime ekle → ölçüm onu RAPORLUYOR, sessizce geçmiyor.
+📁 `packages/render/src/static.ts` · `packages/render/src/sablon.ts` ·
+   `packages/render/src/sablon.test.ts` · `scripts/tip-olcegi.mjs` ·
+   `docs/referans/tip-olcegi.md`
+✅ **ÖLÇÜLDÜ** — 14 gerçek kelime (corpus'tan, uydurulmadı) × 10 punto.
+   `%36 sütun → 301 px içerik → HİÇBİR punto sığmıyor` · `%62 → 582 px → 64 px`.
+   76 px'te en geniş kelime `taşıyabileceğimizin` **665 px**: eski ayarda %120 taşma vardı.
+   Uygulandı: bant %44–56 → **%69–78**, sütun **%62**, `h1` **64 px**. Otomatik küçültme
+   YAZILMADI (R-30). Dört rol de render edildi ve GÖZLE doğrulandı: metin dört slaytta
+   da tek alanın içinde.
+   **İki yan kusur daha çıktı ve ikisi de aynı sınıftan** — renk, altında durduğu alandan
+   değil zeminden seçiliyordu:
+   1. **Hayalet rakam görünmezdi**: dört rolün ÜÇÜNDE `motif` dolgu rengiyle aynıydı.
+      Bant ortadayken kusur gizliydi (rakam iki alana taşıyordu); bant kenara kayınca
+      tamamen kayboldu. `motif` artık `kontrast(karsiAlan)`den TÜRETİLİYOR.
+   2. **Kulp/sayaç/nav kontrastı çöküyordu**: kapanışta kâğıt kulp amber dolgu üstünde
+      ~1.9:1 veriyordu. Üçü de artık altındaki alana göre renkleniyor.
+🧪 **ÜÇ İHLAL KOŞULDU**, üçü de kırmızı: dar sütuna dönüş → 2 test düştü · motif = dolgu
+   rengi → `motif, üstünde durduğu alanla AYNI renk olamaz` düştü · aynalama kaldırıldı →
+   2 test düştü. ⚠ Bu test dosyası **1359 test hiçbir şey yakalamadığı için** yazıldı:
+   geometriyi ve puntoyu değiştirdim, tek bir test bile kırılmadı.
 💾 `fix(render): tip ölçeği en uzun Türkçe kelimeden türetiliyor` · `Refs: FAZ-10.2b · §7.2`
 
 ---

@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 10
-siradaki_adim: 10.2b
+siradaki_adim: 10.3
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -16,14 +16,12 @@ son_kanit: "FAZ 10 ACILDI (D-255): 'uretebiliyor' ile 'iyi' ayri sorular; ikinci
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**42 kapı · 21 ihlal kırmızı · 1359 test.**
+**42 kapı · 21 ihlal kırmızı · 1366 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
-> **Kök neden, dört tekrar — bu fazın da mayını:** kod yazılır, üretim yolunda çağıranı
-> olmaz. D-182 (donmuş planı kimse çağırmıyordu) · D-190 (düğmenin `onClick`i yoktu) ·
-> D-224 (`PUBLISH` hiçbir hatta yoktu) · D-250 (üretilen görsel belgeye girmiyordu).
-> **"Çağıran var mı" tek adım için değil ZİNCİR için sorulur:** üretim girişinden
-> kurala kesintisiz yol var mı? FAZ 10'da bu soru her metrik için sorulacak.
+> **Kök neden, dört tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 ·
+> D-190 · D-224 · D-250. **"Çağıran var mı" ZİNCİR için sorulur**, tek adım için değil.
+> FAZ 10'un mayını farklı: kod ÇAĞRILIYOR ama kimse doğruluğunu ölçmüyor.
 
 > ⛔ **ON DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
 > `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b` · `8.6`.
@@ -63,6 +61,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **8.9** · yerel MCP (D-226 kabul, dar); yükleme bağlı, tek yazma yolu | 2026-08-16 |
 | **10.1** · karosel başına tek tarayıcı; 4.9x, çıktı bayt bayt özdeş | 2026-08-17 |
 | **10.2** · referans ölçüldü; T9/T11 türetilemez, T10 görseli dışlamalı | 2026-08-17 |
+| **10.2b** · punto ölçüldü: sütun %62, h1 64 px; 3 kusur kapandı | 2026-08-17 |
 
 ## Sıradaki adım
 
@@ -78,9 +77,14 @@ kasten hata → tarayıcı yine kapanıyor, sızıntı yok. Singleton DEĞİL: �
 T10 **görsel bloklarını dışlamalı**. Ölçüm aracı da ihlal edildi (kova merkezi →
 ΔE 5.28 > eşik 5.0 → %97.8, iki tasarıma AYNI sayı; ortalamaya geçildi).
 
-**SIRADAKİ 10.2b** — kapak metni hâlâ eğriyi kesiyor, sebep kutu değil PUNTO:
-`iyileştiremezsiniz` 76 px'te ~690 px, güvenli sütun 389 px; kelime bölünmez.
-Otomatik küçültme YOK (R-30), punto ölçülerek seçilecek. Sonra: 10.3 `tasarim` kapısı
+**10.2b KAPANDI** — punto ÖLÇÜLDÜ (`docs/referans/tip-olcegi.md`): %36 sütunda hiçbir
+punto sığmıyordu (`taşıyabileceğimizin` 76 px'te 665 px). Bant %69–78, sütun %62,
+h1 64 px, eğri dolgu tarafına AYNALANIYOR. İki yan kusur aynı sınıftan: renk zeminden
+seçiliyordu ama öge DOLGUNUN üstündeydi → hayalet rakam üç rolde görünmez, kulp
+kontrastı 1.9:1. İkisi de `kontrast(karsiAlan)`den türetiliyor. ⚠ `sablon.test.ts`
+yazıldı: geometriyi ve puntoyu değiştirdim, **1359 testin hiçbiri kırılmadı**.
+
+**SIRADAKİ 10.3** — `tasarim` kapısı
 (8 bloklayıcı + 4 uyarı metriği) → 10.4 düzen seçimi → 10.5 görsel yargı
 (sınırlayıcı kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
 
@@ -89,9 +93,9 @@ BLOKE:insan (V-10 hukukçu).
 
 ## Devreden borçlar
 
-QA/bağlam girdisi 0/18 (`2.9` blokajı) · bileşen testi FAZ 9'a · V-19 +%30 görsel
-ölçüm · V-24 şelale anahtarları ve ADAPTÖRLERİ (→ 6.5b) ·
-V-25 gerçek prospect (→ 6.9b) · V-26 Meta token (→ 7.2b) · V-27 OAuth kaydı (→ 7.5b).
+QA/bağlam girdisi 0/18 (`2.9`) · bileşen testi FAZ 9'a · V-19 +%30 görsel ölçüm ·
+V-24 şelale adaptörleri (→6.5b) · V-25 prospect (→6.9b) · V-26 Meta (→7.2b) ·
+V-27 OAuth (→7.5b) · `3.12b` R2 senkronu · varlıklar indekste yok · önizleme yok.
 
 ## Bloke adımlar
 

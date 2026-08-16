@@ -96,7 +96,11 @@ export const toHtml = (doc: DocumentModel): string =>
     // Display yüzü YALNIZ başlıkta: iki yüz kuralı, üçüncü bir boyut yok (§12.2).
     // `font-stretch` değişken genişlik eksenini sürüyor — referanslardaki "Expanded".
     `  h1 { font-family: "Marka Display", "Marka Metin", system-ui, sans-serif;`,
-    `       font-size: 76px; line-height: 1.06; margin: 0 0 28px; letter-spacing: -0.03em;`,
+    // ⚠ **64 px ÖLÇÜLDÜ, seçilmedi** (`docs/referans/tip-olcegi.md`). 76 px'te en uzun
+    // Türkçe kelime 665 px yer kaplıyor ve güvenli sütuna (582 px) sığmıyordu. 64 px,
+    // ölçülen kelime listesinin tamamının sığdığı en büyük punto. Otomatik küçültme
+    // YOK (R-30) — bu bir tip ölçeği kararı, çalışma zamanı düzeltmesi değil.
+    `       font-size: 64px; line-height: 1.08; margin: 0 0 24px; letter-spacing: -0.03em;`,
     `       font-weight: 800; font-stretch: 112%; text-wrap: balance; }`,
     `  h2 { font-size: 48px; line-height: 1.18; margin: 0 0 16px; }`,
     `  p  { font-size: 34px; line-height: 1.45; margin: 0 0 16px; color: var(--role-text-muted); }`,
@@ -166,14 +170,25 @@ const sablonCss = (doc: DocumentModel): string => {
     `             font-size: 560px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
     `             color: transparent; -webkit-text-stroke: 3px ${r.motif}; opacity: 0.42;`,
     `             pointer-events: none; }`,
-    // ── katman 3: sayaç ve kulp ─────────────────────────────────────────────
+    // ── katman 3: sayaç, kulp, navigasyon ───────────────────────────────────
+    //
+    // ⚠ **Renk, ALTINDAKİ alana göre seçiliyor** — hayalet rakamdaki kusurun aynısı bu
+    // üç ögede de vardı. `metinSoluk` ZEMİN için seçilmiş bir renk; ama bu ögeler
+    // köşelerde duruyor ve köşelerin bir kısmı DOLGUNUN üstünde. Sağdaki ögeler
+    // (`sayac`, `nav`) dolgu sağdayken dolgunun üstünde; soldaki (`kulp`) dolgu
+    // soldayken. Yanlış tarafta `metinSoluk` kontrastı çökertiyor: kapanış slaytında
+    // kâğıt rengi kulp, amber dolgu üstünde ~1.9:1 veriyordu — WCAG AA'nın yarısı.
+    // `motif` zaten `kontrast(karsiAlan)`; dolgu üstündeki öge onu kullanıyor.
     `  .sayac { position: absolute; z-index: 4; top: ${pay}px; right: ${pay}px;`,
     `           font-size: 26px; font-weight: 600; letter-spacing: 0.06em;`,
-    `           font-variant-numeric: tabular-nums slashed-zero; color: ${r.metinSoluk}; }`,
+    `           font-variant-numeric: tabular-nums slashed-zero;`,
+    `           color: ${sagda ? r.motif : r.metinSoluk}; }`,
     `  .kulp { position: absolute; z-index: 4; left: ${pay}px; bottom: ${pay}px;`,
-    `          font-size: 24px; letter-spacing: 0.02em; color: ${r.metinSoluk}; }`,
+    `          font-size: 24px; letter-spacing: 0.02em;`,
+    `          color: ${sagda ? r.metinSoluk : r.motif}; }`,
     `  .nav { position: absolute; z-index: 4; right: ${pay}px; bottom: ${pay}px;`,
-    `         font-size: 24px; letter-spacing: 0.04em; color: ${r.metinSoluk}; }`,
+    `         font-size: 24px; letter-spacing: 0.04em;`,
+    `         color: ${sagda ? r.motif : r.metinSoluk}; }`,
     // Görsel tam alanı kaplıyor ve karşı alanın maskesine giriyor.
     `  .icerik img { width: 100%; border-radius: 2px; }`,
   ].join('\n')
