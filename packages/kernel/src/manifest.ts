@@ -11,6 +11,7 @@
 // `derived/runs/` TÜRETİLEMEZ (D-38): bu dosyanın yazdığı şey corpus'tan yeniden
 // üretilemez, çünkü hangi sağlayıcıya ne gönderildiği başka hiçbir yerde yazmıyor.
 
+import { tazeMi } from './freshness.js'
 import type { BrandId, EraId, Money, MoneyRange, RunId, StepId, VerbName } from '@suite/contracts'
 import { ZERO_USD, addMoney } from '@suite/contracts'
 import type { Timestamp } from '@suite/contracts'
@@ -144,6 +145,19 @@ export type ManifestDefect =
    * İÇİNDE yaşıyor: ikinci bir kontrol noktası, atlanabilecek bir kontrol noktasıdır.
    */
   | { readonly kind: 'captions_without_transcript'; readonly stepId: string }
+  /**
+   * Bir `INGEST` çıktısı çalıştırma anında zaten BAYATTI (§10 · FAZ-6.6).
+   *
+   * Karşılaştırma manifest'in KENDİ `createdAt`ine göre yapılıyor — saat okunmuyor
+   * (R-06) ve replay yıllar sonra da aynı sonucu veriyor. "Bugün taze miydi" sorusunun
+   * doğru cevabı, çalıştırma gününe göre olandır.
+   */
+  | {
+      readonly kind: 'stale_source'
+      readonly stepId: string
+      readonly sourceRef: string
+      readonly ageDays: number | null
+    }
 
 /** Ağ/model çağıran fiiller — bunların maliyeti yazılmadan çalıştırma kapanamaz (§8.3). */
 const METERED: ReadonlySet<VerbName> = new Set<VerbName>([
@@ -239,6 +253,23 @@ export const inspectManifest = (m: RunManifest | null | undefined): ManifestDefe
     )
     if (onay === undefined) {
       defects.push({ kind: 'captions_without_transcript', stepId: altyaziliAdim.stepId })
+    }
+  }
+
+  // ── `INGEST` kaynakları çalıştırma anında taze miydi (§10 · R-32 · FAZ-6.6) ──
+  //
+  // Tetikleyici yine ÜRÜN: çıktısında `fetchedAt` taşıyan adım bir kaynak çekmiştir.
+  // Eskimiş bir olguyla kişiselleştirme, dikkat ettiğini gösterip YANLIŞ şeye dikkat
+  // ettiğini kanıtlar — ve bunu görüşmede öğrenirsin.
+  for (const s of steps) {
+    const cikti = s.output
+    if (cikti === null || cikti === undefined || !('fetchedAt' in cikti)) continue
+    const fetchedAt = (cikti as { fetchedAt?: unknown }).fetchedAt
+    if (typeof fetchedAt !== 'string') continue
+    const sourceRef = ((cikti as { sourceRef?: unknown }).sourceRef ?? s.stepId) as string
+    const t = tazeMi({ sourceRef, fetchedAt }, m.createdAt)
+    if (!t.taze) {
+      defects.push({ kind: 'stale_source', stepId: s.stepId, sourceRef, ageDays: t.yasGun })
     }
   }
 

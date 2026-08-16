@@ -189,3 +189,14 @@ export {
 // Tek HTTP istemcisi (§3.8). Barrel'dan açılıyor ki Ring 1 sağlayıcıları kendi
 // `fetch`ini yazmak zorunda kalmasın — ikinci bir istemci çevrimdışı modu yalan yapar.
 export { httpFetch, type HttpRequest } from './net/http.js'
+
+// 14 günlük tazelik kapısı (FAZ-6.6). Saat OKUMAZ — karşılaştırma tarihi çağırandan
+// gelir; `inspectManifest` içinde çalıştırmanın KENDİ `createdAt`i kullanılıyor.
+export {
+  TAZELIK_GUN,
+  tazeMi,
+  tazelikRaporu,
+  type Kaynak,
+  type TazelikRaporu,
+  type TazelikSonucu,
+} from './freshness.js'

@@ -6,16 +6,16 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 6
-siradaki_adim: 6.6
+siradaki_adim: 6.7
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan"]
 deneme_sayaci: {}
-son_kanit: "6.5 KAPANDI. INGEST TARAYICI ACMIYOR (D-213): plan yerel Playwright diyordu ama R-04 yalniz RENDER Chromium a dokunur diyor — ve asil gerekce guvenlik: tarayici acmak prospect sitesinin JavaScript ini CALISTIRMAK demek, §14 sinirinin altini oyan tam olarak bu. Tek HTTP istemcisi + 20 satirlik HTML-metin donusturucu. DISKTE KANIT (yerel sunucuya gercek cekim): derived/ingest/<domain>/ altina metin + provenance sidecar yazildi, script/style sizmadi, sidecar metinle eslesti, enjeksiyon cumlesi UNTRUSTED sinirinin ICINDE veri olarak durdu, LinkedIn profili AGA CIKMADAN reddedildi. Selale 1 hazir 4 BLOKE gosterdi — sessizce atlamiyor. BATARYA GERCEK BULGU VERDI: kendi slugFor um ciplak toLowerCase cagiriyordu (R-21); URL de Turkce yok diye zararsiz gorunuyordu, oysa kuralin degeri istisna yok tan geliyor. Batarya artik 10 kural kiriyor. ONCEKI: 6.4 KAPANDI. Prospect ayri bir CRM DEGIL, corpus kaydi. KVKK silmesi DOSYAYI SILMIYOR (D-212): kisisel alanlar siliniyor, kisisel veri tasimayan mezar tasi kaliyor — cunku duz silme hem koken zincirini koparir hem de silmenin YAPILDIGINA dair kaniti yok eder; KVKK da gosteremedigin sey yapilmamistir. Test ikisini karsi karsiya koyuyor: retireRecord sonrasi kisisel veri DURUYOR, kvkkErasure sonrasi YOK. Uc yeni kapi/kural kasten ihlal edildi: corpus-silici (izinli BOS), gerekcesiz silme reddi, prospect-kvkk aydinlatma. Batarya artik 9 kural kiriyor. SAHTE PROSPECT YAZILMADI — uydurulmus sirket dogruluk kaynagina giren kurgudur; kaydin SEKLI testte dogrulandi, gercek kayitlar insan girdisiyle gelir. ONCEKI: 6.3 KAPANDI. Duzlestirme IKINCI ARAC GEREKTIRMEDI (D-211): ghostscript/qpdf yerine her sayfa ayni Chromium da JPEG e cevriliyor, goruntuler yine ayni Chromium da tek PDF e basiliyor; kalite merdiveni 92-82-72-62 tavanin altina inene kadar. OLCULDU, karsitlik net: deck te pdftotext Turkce metni TAM veriyor + pdfimages SIFIR satir; dokumanda pdftotext BOS + pdfimages iki 1200x1500 JPEG. 11 sayfa RENDER EDILMEDEN reddedildi. IR anlik goruntu testi gecti: kaynak 4,2 den 9,9 a degistirildi, dokuman yeniden acildi, ESKI deger duruyor — IR corpus a referans degil DEGER tasiyor. ONCEKI TUR 6.2: ECharts SSR olculup reddedildi (D-209), Turkce etiketlerde +%12,6 ile +%83,4 sapma. Sayfa tavani 10 ve 5 MB BIZIM editoryal kararimiz, platform sinirini dogrulamadim → V-23 (FAZ-7.3). 34 kapi, 8 hat."
+son_kanit: "6.6 KAPANDI. 14 gunluk tazelik kapisi YAYIN YUKLEMINE BAGLI — asil sinav buydu: fonksiyonun dogru cevap vermesi yetmez, cagiran olmasi gerekir (D-182 dersi). inspectManifest artik stale_source kusuru uretiyor ve isPublishable 15 gunluk kaynakta false donuyor. Karsilastirma SAAT OKUMADAN yapiliyor: olcu calistirmanin kendi createdAt i, yani replay yillar sonra da ayni cevabi veriyor. Gelecek tarihli kaynak da reddediliyor — saati bozuk bir makineden gelen sidecar her zaman taze bir kaynak yaratirdi. FIKSTUR DERSI TEKRARLANDI: ilk bagllanma testim kisa SHA ve maliyetsiz metered adim tasiyordu, iki alakasiz kusur uretti ve test bagllanmadi dedi — oysa bagllanmisti; yanlis fikstur yanlis teshis. ONCEKI: 6.5 KAPANDI. INGEST TARAYICI ACMIYOR (D-213): plan yerel Playwright diyordu ama R-04 yalniz RENDER Chromium a dokunur diyor — ve asil gerekce guvenlik: tarayici acmak prospect sitesinin JavaScript ini CALISTIRMAK demek, §14 sinirinin altini oyan tam olarak bu. Tek HTTP istemcisi + 20 satirlik HTML-metin donusturucu. DISKTE KANIT (yerel sunucuya gercek cekim): derived/ingest/<domain>/ altina metin + provenance sidecar yazildi, script/style sizmadi, sidecar metinle eslesti, enjeksiyon cumlesi UNTRUSTED sinirinin ICINDE veri olarak durdu, LinkedIn profili AGA CIKMADAN reddedildi. Selale 1 hazir 4 BLOKE gosterdi — sessizce atlamiyor. BATARYA GERCEK BULGU VERDI: kendi slugFor um ciplak toLowerCase cagiriyordu (R-21); URL de Turkce yok diye zararsiz gorunuyordu, oysa kuralin degeri istisna yok tan geliyor. Batarya artik 10 kural kiriyor. ONCEKI: 6.4 KAPANDI. Prospect ayri bir CRM DEGIL, corpus kaydi. KVKK silmesi DOSYAYI SILMIYOR (D-212): kisisel alanlar siliniyor, kisisel veri tasimayan mezar tasi kaliyor — cunku duz silme hem koken zincirini koparir hem de silmenin YAPILDIGINA dair kaniti yok eder; KVKK da gosteremedigin sey yapilmamistir. Test ikisini karsi karsiya koyuyor: retireRecord sonrasi kisisel veri DURUYOR, kvkkErasure sonrasi YOK. Uc yeni kapi/kural kasten ihlal edildi: corpus-silici (izinli BOS), gerekcesiz silme reddi, prospect-kvkk aydinlatma. Batarya artik 9 kural kiriyor. SAHTE PROSPECT YAZILMADI — uydurulmus sirket dogruluk kaynagina giren kurgudur; kaydin SEKLI testte dogrulandi, gercek kayitlar insan girdisiyle gelir. ONCEKI: 6.3 KAPANDI. Duzlestirme IKINCI ARAC GEREKTIRMEDI (D-211): ghostscript/qpdf yerine her sayfa ayni Chromium da JPEG e cevriliyor, goruntuler yine ayni Chromium da tek PDF e basiliyor; kalite merdiveni 92-82-72-62 tavanin altina inene kadar. OLCULDU, karsitlik net: deck te pdftotext Turkce metni TAM veriyor + pdfimages SIFIR satir; dokumanda pdftotext BOS + pdfimages iki 1200x1500 JPEG. 11 sayfa RENDER EDILMEDEN reddedildi. IR anlik goruntu testi gecti: kaynak 4,2 den 9,9 a degistirildi, dokuman yeniden acildi, ESKI deger duruyor — IR corpus a referans degil DEGER tasiyor. ONCEKI TUR 6.2: ECharts SSR olculup reddedildi (D-209), Turkce etiketlerde +%12,6 ile +%83,4 sapma. Sayfa tavani 10 ve 5 MB BIZIM editoryal kararimiz, platform sinirini dogrulamadim → V-23 (FAZ-7.3). 34 kapi, 8 hat."
 ```
 
 ## Neredeyiz
 
-**FAZ 6'DA 5/9 ADIM KAPALI** — deck PDF, grafik/diyagram, LinkedIn dökümanı, prospect
+**FAZ 6'DA 6/10 ADIM KAPALI** — deck PDF, grafik/diyagram, LinkedIn dökümanı, prospect
 kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses akışı yok,
 `5.4b`/`5.5b` blokajı, tikle örtülmedi). **35 kapı · 10 ihlal kırmızı.**
 
@@ -56,14 +56,15 @@ kaydı ve `INGEST` şelalesi ayakta. FAZ 5 şartlı kapalı (D-206; `aac` ses ak
 | **6.3** · `linkedin-document`; düzleştirme tek motorla (D-211) | 2026-08-16 |
 | **6.4** · Prospect = corpus; KVKK silmesi mezar taşı bırakıyor (D-212) | 2026-08-16 |
 | **6.5** · `INGEST` şelalesi; tarayıcı yok, karantina + sidecar (D-213) | 2026-08-16 |
+| **6.6** · 14 günlük tazelik; `isPublishable` bayat kaynağı bloklıyor | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`6.6` — 14 günlük tazelik kapısı** (§10, §11.4 · R-32). 14 günden eski bir `INGEST`
-çıktısı prospect deck'ine giremez: şirket haberleri ve ihale sonuçları iki haftada eskir
-ve eskimiş bir olguyla yapılan kişiselleştirme, hiç kişiselleştirmemekten kötüdür —
-dikkat ettiğini gösterip **yanlış şeye** dikkat ettiğini kanıtlar. 🧪 sistem saatini
-ileri al → aynı kaynak artık reddedilmeli (kapı gerçekten tarihe bakıyor mu).
+**`6.7` — Beş alanlık kişiselleştirme tavanı** (§10, §11.4). Bir deck'te en fazla **beş**
+prospect'e özgü alan. Türk B2B'sinde fazlası iltifat değil **şüphe** uyandırıyor:
+"bunları nereden biliyorsun" sorusu, satış görüşmesini veri kaynağı savunmasına çeviriyor.
+Tavan yapısaldır, öneri değil. 🧪 tavanı 6'ya çıkarmayı dene → `KURALLAR.md` değişmeden
+kod değişmemeli (R-74).
 
 ## Devreden borçlar
 

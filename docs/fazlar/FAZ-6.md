@@ -98,7 +98,7 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 🧪 Bir anahtarı `doldurulacak` yap → kaynak `bloke` düşüyor, sessizce atlanmıyor
 💾 `feat(providers): şelale kaynaklarını bağla` · `Refs: FAZ-6.5b · §10`
 
-## 6.6 — 14 günlük tazelik kapısı    [ ]
+## 6.6 — 14 günlük tazelik kapısı    [x] 2026-08-16
 
 📖 §10, §11.4 · R-32
 🔗 6.5
@@ -106,9 +106,14 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    ihale sonuçları ve yönetim değişiklikleri iki haftada eskir; eskimiş bir olguyla
    yapılan kişiselleştirme, hiç kişiselleştirmemekten kötüdür — dikkat ettiğini
    gösterip yanlış şeye dikkat ettiğini kanıtlar.
-📁 `packages/engine/src/freshness.ts`
+📁 `packages/kernel/src/freshness.ts` (kernel'de: `inspectManifest` onu çağırıyor)
 ✅ 15 günlük bir kaynakla pipeline **reddediyor**, gerekçe Türkçe ve tarihi gösteriyor
 🧪 Sistem saatini ileri al → aynı kaynak artık reddediliyor (kapı gerçekten tarihe bakıyor)
+   ⚠ Saat GERÇEKTEN ileri alınmıyor: karşılaştırma tarihi bir parametre ve kapı
+   çalıştırmanın kendi `createdAt`ine bakıyor (R-06). Hem deterministik hem daha güçlü —
+   replay yıllar sonra da aynı cevabı veriyor.
+   ⚠ Asıl sınav **bağlanma**: `isPublishable` bayat kaynakta `false` dönüyor. Fonksiyonun
+   doğru cevap vermesi yetmez, çağıran olması gerekir (D-182'nin dersi).
 💾 `feat(engine): 14 günlük tazelik kapısı` · `Refs: FAZ-6.6 · §10`
 
 ## 6.7 — Beş alanlık kişiselleştirme tavanı    [ ]
