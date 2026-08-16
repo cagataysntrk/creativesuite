@@ -473,3 +473,38 @@ BİTTİKTEN sonra çalışıyor (`uret.mjs`), `PUBLISH` ise koşunun İÇİNDE. 
 yapılamaz. **Bunu bilmek, bilmemekten iyidir.**
 
 **Geri alma maliyeti:** yok.
+
+## D-228 — Matris hat dosyasında yazıyordu, çözücü onu DÜŞÜRÜYORDU
+
+**2026-08-16 · FAZ-8 doğrulama, M1**
+
+`registry/pipelines/ad-creative-set.pipeline.yaml` altı satırlık bir `matris:` bloğu
+taşıyor, `matris` kapısı onu okuyup doğruluyor, `matris.ts` 1291 testin bir kısmıyla
+kapalı — ve **`parsePipeline` bloğu tamamen düşürüyordu.** `Pipeline` arayüzünde
+`matris` alanı yoktu; `just plan ad-creative-set` yedi varyantı tek varyant gibi
+fiyatlıyordu. Kapının kendi ihlal mesajı *"maliyet tahmini bu sayıyı çarpan alıyor"*
+diyordu ve bu **bir iddiaydı, bir olgu değil**.
+
+**Altıncı tekrar** (D-216 · D-222 · D-224 · 8.3 · D-227 · bu). Yeni olan halka:
+**dosyada duran veri, çözücüde yoksa üretimde yoktur.** Kapı YAML'ı okur; üretim
+`parsePipeline`ın döndürdüğü nesneyi okur. İkisi aynı dosyaya bakıp farklı şey görür.
+
+**Kapatılanlar:**
+- `Pipeline.matris` — çözücü `mod` + `eksenler`i **şekil olarak** okuyor. Tasarım
+  yargısı (diklik) engine'de kalıyor: registry engine'i import edemez (§3.6) ve ayrım
+  keyfi değil — registry "dosyada ne yazıyor", engine "bu tasarım bilgi üretir mi".
+- `plan()` matrisi denetliyor ve **bozuksa plan ÜRETMİYOR**: tek düzeyli bir eksen
+  para harcar, ölçüm vermez. Kapı bunu commit anında, plan çalıştırma anında söylüyor.
+- Ücretli adımlar varyant başına, ücretsizler bir kez: `SELECT` bağlamı bir kez kurar,
+  yedi varyant paylaşır; ama her varyantın kendi modeli, kendi render'ı var.
+- `varyantSayisi` **donmuş plana ve özete** giriyor. Maliyet üzerinden dolaylı korunuyor
+  sanmak yanlış olurdu: fiyatlanamayan bir planda her adım $0 ve 7 varyantlık onayla 27
+  varyant koşmak özeti hiç değiştirmezdi.
+- `matris-uretim-yolu.test.ts` **gerçek hat dosyasını** okuyup çarpanı ölçüyor.
+
+**Kalan gerçek boşluk — `8.1b` olarak açıldı:** plan yedi varyant fiyatlıyor ama
+`runPipeline` hâlâ tek varyant koşuyor. Tahmin artık dürüst, üretim henüz değil.
+Sırayı tersine çevirmek (önce üretim, sonra tahmin) daha kötü olurdu: yedi varyant
+üretip birini fiyatlandırmak, kullanıcıyı ödeyeceğinin yedide birine onaylatır.
+
+**Geri alma maliyeti:** yok.

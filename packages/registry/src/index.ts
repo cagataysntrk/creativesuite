@@ -12,6 +12,8 @@ export {
   topoOrder,
   type Pipeline,
   type PipelineStep,
+  type PipelineMatris,
+  type PipelineEksen,
   type ResolveError,
   type ResolveResult,
 } from './resolve.js'

@@ -61,6 +61,14 @@ export interface FrozenPlan {
   readonly totalLow: Money
   readonly totalHigh: Money
   /**
+   * Kaç varyant onaylandı (matrissiz hatlarda 1).
+   *
+   * **Özete GİRER.** Maliyet üzerinden dolaylı olarak korunuyor sanmak yanlış olurdu:
+   * fiyatlanamayan bir planda her adım $0 ve 7 varyantlık onayla 27 varyant koşmak
+   * özeti hiç değiştirmezdi.
+   */
+  readonly varyantSayisi: number
+  /**
    * Planın parmak izi. İçerik değişirse değişir; onay bu özete verilir.
    * Onaylanan özet ile koşan özet farklıysa çalıştırma DURUR.
    */
@@ -120,6 +128,7 @@ export const freezePlan = (input: FreezeInput): FrozenPlan => {
     corpusCommit: input.corpusCommit,
     registryCommit: input.registryCommit,
     order: input.report.order,
+    varyantSayisi: input.report.varyantSayisi,
     // `recordIds` SIRALANIR: seçim sırası bir karar değil, sorgu ayrıntısıdır ve
     // sıradaki bir kayma "plan değişti" demek olurdu.
     recordIds: [...input.recordIds].sort(),
@@ -147,6 +156,7 @@ export const freezePlan = (input: FreezeInput): FrozenPlan => {
     recordIds: [...input.recordIds].sort(),
     totalLow: input.report.totalLow,
     totalHigh: input.report.totalHigh,
+    varyantSayisi: input.report.varyantSayisi,
     digest,
   }
 }

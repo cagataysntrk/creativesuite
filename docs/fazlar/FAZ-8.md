@@ -20,6 +20,8 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    `scripts/gates/matris.mjs`
 ✅ Varyantlar **eksenlerden TÜRETİLİYOR**, elle yazılmıyor (`varyantUret`): iki eksenli
    bir sapma doğamıyor. 3 eksen × 3 düzey → **7 varyant** (ölçüldü), tam ızgara 27.
+   `just plan ad-creative-set` → `varyant matrisi: ofat · 7 varyant`, ücretli adımlar
+   `ü×7` (D-228 — çözücü bloğu düşürüyordu, çarpan üretimde YOKTU).
    ⚠ **Kriter değişti (D-225, R-74):** "3×3 matris" diyordu; araştırma tam çapraz
    çarpımı yalnız Meta `asset_feed_spec` için ayırıyor — orada H+C+V bileşenleri
    yüklenir ve kombinasyonu **sunucu** kurar, H×C×V kreatif render EDİLMEZ. Öğrenme
@@ -30,6 +32,19 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
    ⚠ `full` modda iki eksenli farklılık **hata değildir** — kombinatoryal tasarımın
    tanımı budur; OFAT kuralını oraya uygulamak geçerli bir seti reddederdi.
 💾 `feat(cli): ad-creative-set matrisi` · `Refs: FAZ-8.1 · §10`
+
+## 8.1b — Varyant genişletme çalışma zamanında    [ ]
+
+📖 §10, §13 · D-225, D-228
+🔗 8.1
+🛠 `plan()` yedi varyant fiyatlıyor, `runPipeline` tek varyant koşuyor. Ücretli adımlar
+   varyant başına, koordinat (`hook`/`copy`/`visual`) kısıtlara girmeli; manifest her
+   varyantı ayrı adım olarak taşımalı.
+📁 `packages/engine/src/run.ts` · `packages/engine/src/manifest-writer.ts`
+✅ `just uret ad-creative-set` yedi varlık üretiyor, manifest yedi koordinat taşıyor;
+   üretilen sayı `report.varyantSayisi` ile birebir
+🧪 Manifest'ten bir varyantı düş → koşu **eksik** raporluyor, "bitti" demiyor
+💾 `feat(engine): varyant genişletme` · `Refs: FAZ-8.1b · §10`
 
 ## 8.2 — Reklam metni linter'ı    [x] 2026-08-16
 

@@ -37,6 +37,20 @@ export const addMoney = (a: Money, b: Money): Money => ({
   currency: a.currency,
 })
 
+/**
+ * Tam sayı katı. **Varyant matrisi bunu kullanır**: yedi varyantlık bir reklam seti,
+ * ücretli her adımı yedi kez koşar ve tek koşumluk tahmin gösterilirse kullanıcı
+ * gerçekte ödeyeceğinin yedide birine onay verir (§10 · D-225).
+ *
+ * Katsayı `number` çünkü bir sayım (varyant adedi); `bigint`e burada çevriliyor ki
+ * çağıranların her biri aynı dönüşümü tekrar yazmasın. Negatif kat anlamsız olurdu
+ * ama `throw` burada yasak (§8.6) — çağıran zaten `varyantSayisi`den ≥1 alıyor.
+ */
+export const scaleMoney = (m: Money, kat: number): Money => ({
+  micros: m.micros * BigInt(Math.trunc(kat)),
+  currency: m.currency,
+})
+
 /** Bir aralık: maliyet TEK SAYI olarak gösterilmez (§4b — tahmin bir bant taşır). */
 export interface MoneyRange {
   readonly low: Money

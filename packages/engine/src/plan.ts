@@ -8,12 +8,13 @@
 // ödeyeceğinden az bir rakama onay verirdi.
 
 import type { BrandId, EraId, Money, MoneyRange, RunId, StepId, VerbName } from '@suite/contracts'
-import { VERBS, ZERO_USD, addMoney, usd } from '@suite/contracts'
+import { VERBS, ZERO_USD, addMoney, scaleMoney, usd } from '@suite/contracts'
 import { getVerb, seededRng, fixedClock, type VerbContext } from '@suite/kernel'
 import { topoOrder, type Pipeline } from '@suite/registry'
 import { candidatesFor } from '@suite/providers'
 import { route, type ProviderPricing, type RoutingDecision } from './router/route.js'
 import { rejectionMessage } from './router/reasons.js'
+import { matrisDenetle, matrisHataMesaji, varyantSayisi, varyantUret } from './matris.js'
 
 export interface PlannedStep {
   readonly stepId: StepId
@@ -24,7 +25,14 @@ export interface PlannedStep {
   readonly needs: readonly string[]
   readonly gate: string | null
   readonly constraints: Readonly<Record<string, unknown>>
+  /** **Varyant çarpanı UYGULANMIŞ** maliyet — toplama giren sayı budur. */
   readonly estimatedCost: MoneyRange
+  /**
+   * Bu adım kaç kez koşacak. Ücretsiz adımlarda 1: `SELECT` bağlamı bir kez seçer,
+   * yedi varyant onu paylaşır. Ücretli adımlarda varyant sayısı — her varyantın
+   * kendi model çağrısı ve kendi render'ı var.
+   */
+  readonly kosumSayisi: number
   readonly candidateProviders: readonly string[]
   /** Yeteneği yapabilen ama ŞU AN kullanılamayan sağlayıcılar — sessizce düşürülmez. */
   readonly unavailableProviders: readonly string[]
@@ -49,12 +57,28 @@ export interface PlanReport {
   readonly gates: readonly string[]
   /** Sağlayıcı henüz seçilmemiş metered adımlar — tahmin bu kadarıyla EKSİKTİR. */
   readonly unpricedSteps: readonly string[]
+  /**
+   * Varyant sayısı — matrissiz hatlarda 1.
+   *
+   * **Ekrana basılmak ZORUNDA.** Görünmeyen bir çarpan, olmayan bir çarpandan
+   * kötüdür: toplam maliyet yedi katına çıkar ve kullanıcı sebebini göremez.
+   */
+  readonly varyantSayisi: number
+  readonly matrisModu: 'ofat' | 'full' | null
 }
 
 export type PlanError =
   | { readonly kind: 'unknown_verb'; readonly step: string; readonly verb: string }
   | { readonly kind: 'no_dry_twin'; readonly step: string; readonly verb: string }
   | { readonly kind: 'plan_threw'; readonly step: string; readonly message: string }
+  /**
+   * Matris tasarımı bozuk — plan ÜRETİLMEZ.
+   *
+   * `matris` kapısı aynı şeyi commit anında söylüyor; bu, çalıştırma anında söylüyor.
+   * İkisi de gerekli: kapı yalnız `registry/pipelines/` altındaki dosyalara bakar,
+   * plan ise kendisine ne verilirse ona bakar.
+   */
+  | { readonly kind: 'matris_gecersiz'; readonly message: string }
 
 export type PlanResult =
   | { readonly ok: true; readonly report: PlanReport }
@@ -88,6 +112,23 @@ export const plan = (input: PlanInput): PlanResult => {
   // aynı çıktıyı vermeli, yoksa "plan değişti mi" sorusu cevaplanamaz.
   const clock = fixedClock('1970-01-01T00:00:00.000Z')
   const rng = seededRng(0)
+
+  // ── varyant matrisi (§10 · D-225 · D-228) ─────────────────────────────────
+  //
+  // Hat dosyasındaki `matris:` bloğu buradan üretim yoluna giriyor. Tasarım burada
+  // DENETLENİYOR çünkü matrisi bozuk bir hattın planı basılmamalı: tek düzeyli bir
+  // eksen para harcar ve karşılığında ölçüm vermez — eksen değil sabittir.
+  const mtr = input.pipeline.matris
+  if (mtr !== null) {
+    const hatalar = matrisDenetle({
+      eksenler: mtr.eksenler,
+      varyantlar: varyantUret(mtr.eksenler, mtr.mod),
+      mod: mtr.mod,
+    })
+    for (const h of hatalar) errors.push({ kind: 'matris_gecersiz', message: matrisHataMesaji(h) })
+    if (errors.length > 0) return { ok: false, errors }
+  }
+  const varyant = mtr === null ? 1 : varyantSayisi(mtr.eksenler, mtr.mod)
 
   for (const s of input.pipeline.steps) {
     if (!VERB_SET.has(s.verb)) {
@@ -169,7 +210,16 @@ export const plan = (input: PlanInput): PlanResult => {
             input.pricing ?? {}
           )
 
-    const adimMaliyet = yonlendirme?.winner?.cost ?? vp.estimatedCost
+    // **Ücretli adımlar varyant başına koşar, ücretsizler bir kez.** `RESOLVE` ve
+    // `SELECT` bağlamı bir kez kurar ve yedi varyant onu paylaşır; ama her varyantın
+    // KENDİ metni, KENDİ görseli ve KENDİ render'ı var. Çarpanı ücretsiz adımlara da
+    // uygulamak sayıyı şişirir, hiçbirine uygulamamak yedide bir gösterir.
+    const kosum = verb.metered ? varyant : 1
+    const tekKosum = yonlendirme?.winner?.cost ?? vp.estimatedCost
+    const adimMaliyet =
+      kosum === 1
+        ? tekKosum
+        : { low: scaleMoney(tekKosum.low, kosum), high: scaleMoney(tekKosum.high, kosum) }
     low = addMoney(low, adimMaliyet.low)
     high = addMoney(high, adimMaliyet.high)
     if (verb.metered && (kullanilabilir.length === 0 || yonlendirme?.winner == null)) {
@@ -186,6 +236,7 @@ export const plan = (input: PlanInput): PlanResult => {
       gate: s.gate,
       constraints: s.constraints,
       estimatedCost: adimMaliyet,
+      kosumSayisi: kosum,
       candidateProviders: kullanilabilir,
       unavailableProviders: adaylar.filter((a) => !a.available).map((a) => a.providerId),
       routing: yonlendirme,
@@ -208,6 +259,8 @@ export const plan = (input: PlanInput): PlanResult => {
       meteredSteps: steps.filter((s) => s.metered).length,
       gates: steps.filter((s) => s.gate !== null).map((s) => s.gate as string),
       unpricedSteps: unpriced,
+      varyantSayisi: varyant,
+      matrisModu: mtr?.mod ?? null,
     },
   }
 }
@@ -219,6 +272,12 @@ export const formatPlan = (r: PlanReport): string => {
   const satirlar: string[] = []
   satirlar.push(`  ${r.title}  (${r.pipeline})`)
   satirlar.push(`  marka ${r.brandId} · dönem ${r.eraId}`)
+  if (r.matrisModu !== null) {
+    satirlar.push(
+      `  varyant matrisi: ${r.matrisModu} · ${r.varyantSayisi} varyant — ` +
+        `ücretli her adım ${r.varyantSayisi} kez koşar`
+    )
+  }
   satirlar.push('')
   satirlar.push('  sıra  adım              fiil      yetenek            şerit  bağımlı')
   satirlar.push('  ────  ────────────────  ────────  ─────────────────  ─────  ────────')
@@ -229,7 +288,8 @@ export const formatPlan = (r: PlanReport): string => {
     if (s === undefined) return
     satirlar.push(
       `  ${String(i + 1).padStart(4)}  ${id.padEnd(16)}  ${s.verb.padEnd(8)}  ` +
-        `${(s.capability ?? '—').padEnd(17)}  ${(s.metered ? 'ücret' : '—').padEnd(5)}  ` +
+        `${(s.capability ?? '—').padEnd(17)}  ` +
+        `${(s.metered ? (s.kosumSayisi > 1 ? `ü×${s.kosumSayisi}` : 'ücret') : '—').padEnd(5)}  ` +
         `${s.needs.join(', ') || '—'}`
     )
     if (s.capability !== null) {
@@ -247,6 +307,14 @@ export const formatPlan = (r: PlanReport): string => {
           `           SEÇİLEN: ${y.winner.providerId} · ${usdStr(y.winner.cost.low)}` +
             `–${usdStr(y.winner.cost.high)} · güven ${y.winner.confidence} · skor ${y.winner.score}`
         )
+        // Yönlendirici fiyatı TEK çağrının fiyatı. Yanına adım toplamı yazılmazsa
+        // göz yukarıdaki küçük sayıyı okur ve çarpan görünmez kalır.
+        if (s.kosumSayisi > 1) {
+          satirlar.push(
+            `           ${s.kosumSayisi} varyant → adım toplamı ` +
+              `${usdStr(s.estimatedCost.low)}–${usdStr(s.estimatedCost.high)}`
+          )
+        }
         for (const f of y.fallbacks)
           satirlar.push(`           yedek: ${f.providerId} (skor ${f.score})`)
       }

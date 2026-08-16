@@ -23,7 +23,7 @@ export type {
 export { ID_PREFIXES } from './brand.js'
 
 export type { Currency, Money, MoneyRange } from './money.js'
-export { MICROS_PER_USD, usd, ZERO_USD, addMoney } from './money.js'
+export { MICROS_PER_USD, usd, ZERO_USD, addMoney, scaleMoney } from './money.js'
 
 export type { Ok, Err, Result } from './result.js'
 export { ok, err, isOk, isErr, mapOk } from './result.js'

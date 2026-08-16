@@ -66,7 +66,12 @@ const dusen = (name: VerbName): Verb =>
     })
   )
 
-const hat = (steps: Pipeline['steps']): Pipeline => ({ id: 'test-hat', title: 'Test', steps })
+const hat = (steps: Pipeline['steps']): Pipeline => ({
+  id: 'test-hat',
+  title: 'Test',
+  steps,
+  matris: null,
+})
 
 const aday = (id: string) => [
   {

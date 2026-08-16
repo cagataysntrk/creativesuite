@@ -20,6 +20,7 @@ const adim = (o: {
   gate: null,
   constraints: { aspect: '4:5' },
   estimatedCost: { low: usd(o.low ?? 1000n), high: usd(o.high ?? 3000n) },
+  kosumSayisi: 1,
   candidateProviders: o.provider === undefined ? [] : [o.provider],
   unavailableProviders: [],
   routing:
@@ -53,6 +54,8 @@ const rapor = (adimlar: ReturnType<typeof adim>[]): PlanReport =>
     meteredSteps: adimlar.filter((a) => a.metered).length,
     gates: [],
     unpricedSteps: [],
+    varyantSayisi: 1,
+    matrisModu: null,
   }) as unknown as PlanReport
 
 const dondur = (r: PlanReport, ek: Partial<Parameters<typeof freezePlan>[0]> = {}) =>

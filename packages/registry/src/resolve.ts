@@ -23,10 +23,38 @@ export interface PipelineStep {
   readonly gate: string | null
 }
 
+/** Matris ekseni — `ad` ölçülen değişken, `duzeyler` denenen değerler. */
+export interface PipelineEksen {
+  readonly ad: string
+  readonly duzeyler: readonly string[]
+}
+
+/**
+ * Varyant matrisi — hat dosyasındaki `matris:` bloğu (§10 · D-225 · FAZ-8.1).
+ *
+ * **Burası yalnız ŞEKLİ okur, tasarımı yargılamaz.** Eksenin diklikli olup olmadığı
+ * (`tek_duzeyli_eksen`, OFAT sapması) `packages/engine`'in işi — registry engine'i
+ * import edemez (halka yönü, §3.6). Ayrım keyfi değil: registry "dosyada ne yazıyor"
+ * sorusunu, engine "bu tasarım para karşılığında bilgi üretir mi" sorusunu cevaplar.
+ */
+export interface PipelineMatris {
+  readonly mod: 'ofat' | 'full'
+  readonly eksenler: readonly PipelineEksen[]
+}
+
 export interface Pipeline {
   readonly id: string
   readonly title: string
   readonly steps: readonly PipelineStep[]
+  /**
+   * `null` = bu hat tek varyant üretir.
+   *
+   * ⚠ Bu alan FAZ-8 doğrulamasında **eksikti**: `matris:` bloğu YAML'da duruyor,
+   * `matris` kapısı onu dosyadan okuyup doğruluyor, ama çözücü bloğu tamamen
+   * düşürüyordu — yani çalışma zamanında matris YOKTU. Kapının yeşili, üretim
+   * yolunun o veriyi gördüğünü göstermez (D-228).
+   */
+  readonly matris: PipelineMatris | null
 }
 
 export type ResolveError =
@@ -38,6 +66,8 @@ export type ResolveError =
   | { readonly kind: 'unknown_dependency'; readonly step: string; readonly needs: string }
   | { readonly kind: 'duplicate_step'; readonly step: string }
   | { readonly kind: 'cycle'; readonly steps: readonly string[] }
+  /** `matris:` bloğu var ama şekli tutmuyor — sessizce yok saymak maliyeti gizlerdi. */
+  | { readonly kind: 'bad_matris'; readonly reason: string }
 
 export type ResolveResult =
   | { readonly ok: true; readonly value: Pipeline }
@@ -51,6 +81,57 @@ export type ResolveResult =
 const YASAK_ANAHTARLAR = ['model', 'model_id', 'provider', 'provider_id', 'engine', 'endpoint']
 
 const str = (v: unknown): string | null => (typeof v === 'string' && v.trim() !== '' ? v : null)
+
+/**
+ * `matris:` bloğunu okur. **Yokluk hata değil** — hatların çoğu tek varyant üretir.
+ * Ama VARSA ve bozuksa hata: bozuk bir bloğu yok saymak, kullanıcının yazdığı maliyet
+ * çarpanının sessizce 1 olması demektir.
+ */
+const parseMatris = (
+  raw: unknown,
+  errors: ResolveError[]
+): { readonly mod: 'ofat' | 'full'; readonly eksenler: readonly PipelineEksen[] } | null => {
+  if (raw === undefined || raw === null) return null
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    errors.push({ kind: 'bad_matris', reason: 'matris bir eşleme değil' })
+    return null
+  }
+  const m = raw as Record<string, unknown>
+
+  // Varsayılan `ofat` bir maliyet kararıdır (D-225), sessiz bir kolaylık değil:
+  // 3×3×3'te OFAT 7 render, tam çapraz çarpım 27.
+  const modRaw = m['mod'] === undefined ? 'ofat' : str(m['mod'])
+  if (modRaw !== 'ofat' && modRaw !== 'full') {
+    errors.push({ kind: 'bad_matris', reason: `bilinmeyen mod: ${String(m['mod'])}` })
+    return null
+  }
+
+  const rawEksenler = Array.isArray(m['eksenler']) ? (m['eksenler'] as unknown[]) : null
+  if (rawEksenler === null || rawEksenler.length === 0) {
+    errors.push({ kind: 'bad_matris', reason: 'matris var ama eksen yok' })
+    return null
+  }
+
+  const eksenler: PipelineEksen[] = []
+  for (const e of rawEksenler) {
+    const eo = (typeof e === 'object' && e !== null ? e : {}) as Record<string, unknown>
+    const ad = str(eo['ad'])
+    if (ad === null) {
+      errors.push({ kind: 'bad_matris', reason: 'eksenin adı yok' })
+      continue
+    }
+    const duzeyler = Array.isArray(eo['duzeyler'])
+      ? (eo['duzeyler'] as unknown[]).filter((x): x is string => typeof x === 'string')
+      : []
+    if (duzeyler.length === 0) {
+      errors.push({ kind: 'bad_matris', reason: `'${ad}' ekseninin düzeyi yok` })
+      continue
+    }
+    eksenler.push({ ad, duzeyler })
+  }
+
+  return eksenler.length === 0 ? null : { mod: modRaw, eksenler }
+}
 
 export const parsePipeline = (text: string): ResolveResult => {
   const y = parseYaml(text)
@@ -118,8 +199,10 @@ export const parsePipeline = (text: string): ResolveResult => {
   const dongu = findCycle(steps)
   if (dongu !== null) errors.push({ kind: 'cycle', steps: dongu })
 
+  const matris = parseMatris(map['matris'], errors)
+
   if (errors.length > 0) return { ok: false, errors }
-  return { ok: true, value: { id: id as string, title: title as string, steps } }
+  return { ok: true, value: { id: id as string, title: title as string, steps, matris } }
 }
 
 /** Kahn benzeri gezinti; döngüye giren adım zincirini döndürür. */
