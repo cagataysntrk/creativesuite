@@ -58,6 +58,15 @@ export interface DoktorGirdisi {
   readonly repoRoot: string
   /** `YYYY-MM-DD`. Saat DIŞARIDAN gelir (R-06). */
   readonly bugun: string
+  /**
+   * Tam ISO an. **Ömür ölçen denetimler bunu kullanır**, `bugun`u değil.
+   *
+   * `bugun + T00:00` gece yarısını okur ve bugün 09:00'da ölmüş bir token'ı saat
+   * 15:00'te hâlâ "1 gün var" diye gösterebilir; `just token-durum` gerçek saatle
+   * "ÖLDÜ" der. Aynı kayıt için iki farklı cevap veren iki rapor, ikisi de
+   * güvenilmez olur (FAZ-7 denetimi, m3). Verilmezse gece yarısına düşer.
+   */
+  readonly simdi?: string
   /** Aktif dönem — verilmezse strateji denetimi ATLANIR ve bu raporlanır. */
   readonly aktifEra?: string | null
   /** Türetilmiş indeks. Verilmezse indeks/corpus karşılaştırması ATLANIR. */
@@ -206,7 +215,8 @@ export const doktorRaporu = (g: DoktorGirdisi): DoktorRaporu => {
         hedef: 'secrets/token-durumu.json',
       })
     }
-    for (const r of yenilemeRaporu(kayitlar, ['meta', 'linkedin'], `${g.bugun}T00:00:00.000Z`)) {
+    const an = g.simdi ?? `${g.bugun}T00:00:00.000Z`
+    for (const r of yenilemeRaporu(kayitlar, ['meta', 'linkedin'], an)) {
       if (r.durum.kind === 'ok') continue
       bulgular.push({
         alan: 'token',

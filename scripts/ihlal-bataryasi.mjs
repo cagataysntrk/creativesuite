@@ -166,6 +166,23 @@ const IHLALLER = [
     imza: 'secret deseni',
   },
   {
+    // ⚠ **İki sağlayıcı, iki desen, İKİ ihlal testi.** Batarya yalnız Meta token'ını
+    // (`EAA…`) sınıyordu; LinkedIn istemci secret'ı (`WPL_AP1.`) `repo-hygiene`de
+    // yazılıydı ama hiç ihlal edilmemişti — yani "korunuyor" iddiası ölçülmemişti
+    // (FAZ-7 denetimi, m4). Bir desenin listede olması, o desenin yakaladığını
+    // göstermez; yeşil kapı hiçbir şey kanıtlamaz (R-71).
+    kapi: 'repo-hygiene',
+    dosya: 'packages/providers/src/oauth.ts',
+    yamalar: [
+      {
+        ara: 'export const isOAuthRefusal',
+        // Token yine PARÇALARDAN: tam dize burada dursaydı kapı BU dosyayı yakalardı.
+        yaz: `// istemci secret: ${'WPL_AP1'}.abcdefghij1234567890\nexport const isOAuthRefusal`,
+      },
+    ],
+    imza: 'secret deseni',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',

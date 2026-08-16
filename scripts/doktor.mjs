@@ -51,6 +51,9 @@ const db = existsSync(indeksYolu) ? openDb({ path: indeksYolu }) : null
 const rapor = doktorRaporu({
   repoRoot: REPO,
   bugun: systemClock.nowIso().slice(0, 10),
+  // Tam an: token ömrü gün değil AN meselesi. `just token-durum` ile aynı cevabı
+  // vermek zorunda — iki rapor bir günü farklı sayarsa ikisi de güvenilmez olur.
+  simdi: systemClock.nowIso(),
   aktifEra,
   db,
   git: {

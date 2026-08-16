@@ -12,6 +12,11 @@
 // `apps/ui/src/*.tsx`. Yedi adım tikliydi, yedi yol da yanlıştı.
 //
 // **TİKSİZ adımlar denetlenmez** — onların yolu henüz bir plandır ve olmaması normal.
+//
+// ⚠ **Kapı bir kez KÖR kaldı** (FAZ-7 denetimi, M4): yalnız `📁` ile BAŞLAYAN satırı
+// okuyordu. Yol listesi iki satıra sarıldığında ikinci satır denetim dışı kalıyordu ve
+// dokuz yol hiç bakılmadan geçiyordu — kapı `✓` derken bir tanesi gerçekten yoktu.
+// **Bir kapının yeşil olması, baktığı yerin doğru olduğunu göstermez.**
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -26,10 +31,18 @@ let denetlenen = 0
 for (const dosya of readdirSync(FAZLAR).filter((f) => /^FAZ-\d+\.md$/.test(f))) {
   const satirlar = readFileSync(join(FAZLAR, dosya), 'utf8').split('\n')
   let tikli = false
+  // `📁` bloğu içinde miyiz: sarılmış (girintili) devam satırları da bloğa aittir.
+  let blokta = false
   satirlar.forEach((satir, i) => {
     // Adım başlığı: tik durumunu belirler ve sonraki `📁` satırları ona ait.
-    if (/^## \d+\.\w* —/.test(satir)) tikli = satir.includes('[x]')
-    if (!satir.startsWith('📁') || !tikli) return
+    if (/^## \d+\.\w* —/.test(satir)) {
+      tikli = satir.includes('[x]')
+      blokta = false
+    }
+    if (satir.startsWith('📁')) blokta = true
+    // Blok biter: başka bir alan işareti, boş satır ya da girintisiz metin.
+    else if (blokta && (satir.trim() === '' || !/^\s/.test(satir))) blokta = false
+    if (!blokta || !tikli) return
 
     for (const m of satir.matchAll(/`([^`]+)`/g)) {
       const ham = m[1].trim()

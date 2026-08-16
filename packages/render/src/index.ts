@@ -188,6 +188,7 @@ export {
 export {
   KALITE_MERDIVENI,
   LINKEDIN_DOC_MAX_SAYFA,
+  LINKEDIN_PLATFORM_MAX_SAYFA,
   VARSAYILAN_BAYT_TAVANI,
   isLinkedinDocError,
   renderLinkedinDocument,

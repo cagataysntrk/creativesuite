@@ -39,6 +39,17 @@ if (!yayinlar.ok) {
   process.exit(1)
 }
 const olcumler = readInsights(REPO)
+// **Bozuk defter BOŞ defter DEĞİLDİR** (FAZ-7 denetimi, M5). Sessizce boş saymak,
+// her yayını "pencere ölçülmemiş" gösterirdi ve operatör ölçüm sorununu içerik
+// sorunu sanardı — `insight-ledger.ts`in "yok ≠ boş" yasasının tam ihlali.
+// `ledger_missing` ayrı: ölçüm hiç başlamamış olabilir, o bir hata değil.
+if (!olcumler.ok && olcumler.error.kind === 'unreadable') {
+  console.log(`✗ insight defteri ${olcumler.error.line}. satırda bozuk: ${olcumler.error.reason}`)
+  console.log(
+    '  Öneri üretilmedi: bozuk bir defterde "ölçülmemiş" ile "ölçülemedi" ayırt edilemez.'
+  )
+  process.exit(1)
+}
 const pano = performansPanosu({
   yayinlar: yayinlar.entries,
   olcumler: olcumler.ok ? olcumler.satirlar : [],

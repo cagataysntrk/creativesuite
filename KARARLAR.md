@@ -427,3 +427,39 @@ gerçek kanal bağlantısı `7.2b` (V-26). Fark şu: **eskiden yol yoktu, şimdi
 ucunda bir insan var.**
 
 **Geri alma maliyeti:** yok.
+
+## D-223 — Denetim 1. tur: altı bulgu kapandı, biri gerekçesiyle REDDEDİLDİ
+
+**2026-08-16 · FAZ-7 kapanış denetimi**
+
+D-222 kök blokajı kapattı; kalan bulgular:
+
+**Kapananlar:**
+- **`faz-yollari` kapısı KÖRDÜ:** yalnız `📁` ile *başlayan* satırı okuyordu; sarılmış
+  ikinci satır denetim dışıydı. Kapı `✓` derken **beş** yol bayattı — biri
+  `packages/kernel/src/proc/spawn.ts` yerine `kernel/src/proc/spawn.ts` yazılmıştı.
+  Denetlenen yol 90 → **95**. *Bir kapının yeşil olması, baktığı yerin doğru olduğunu
+  göstermez.*
+- **`just hook-oner` bozuk defteri BOŞ sayıyordu:** her yayın "pencere ölçülmemiş"
+  görünürdü ve operatör ölçüm sorununu içerik sorunu sanardı. Artık `unreadable`
+  ayrı ve komut duruyor. (`ledger_missing` ayrı kalıyor: ölçüm hiç başlamamış olabilir.)
+- **`doctor` ile `token-durum` bir günü farklı sayıyordu** (gece yarısı vs gerçek an).
+  Bugün 00:30'da ölen bir token'la ölçüldü: ikisi de `1 gün önce ÖLDÜ` diyor. Aynı
+  kayıt için iki farklı cevap veren iki rapor, ikisi de güvenilmez olur.
+- **LinkedIn secret deseni hiç ihlal edilmemişti:** `WPL_AP1.` listede vardı ama
+  bataryada yoktu — "korunuyor" iddiası ölçülmemişti (R-71). Batarya 14 → **15**.
+- **Platform sınırı okunamıyordu:** `LINKEDIN_PLATFORM_MAX_SAYFA` dışa açılmıyordu.
+  Artık ayrı bir ret tipi: 300+ sayfa `platform_limit` (**olgu**, tavan yükselterek
+  çözülemez), 11 sayfa `too_many_pages` (**karar**, bilerek aşılabilir). Tek mesaja
+  indirilseydi 300 sayfalık bir denemede "tavanı 400 yapayım" refleksi doğardı.
+- **Bloke adımların metni dürüstleştirildi:** "kalan iş bağlantı" diyordu; gerçekte
+  HTTP adaptörü ve insan komutu da yoktu. Artık ikisi de açıkça yazıyor.
+
+**Reddedilen bulgu — m1 (`VARSAYILAN_BAYT_TAVANI = 8 MB` "40 MB'lık meşru dökümanı
+reddediyor"):** bu bir hata değil, **bilinçli ayrım**. 8 MB bizim *editoryal*
+varsayılanımız; LinkedIn'in 100 MB'ı `placements.ts`te `sourceUrl` + `verifiedAt` ile
+duruyor. Olgu ile kararı ayrı tutmak bu repoda bir desen (D-220, D-215) — on sayfalık
+bir deck 8 MB'ı aşıyorsa sorun sıkıştırmada değil içeriktedir. Çağıran `maxBytes` ile
+ezebilir.
+
+**Geri alma maliyeti:** yok.

@@ -71,7 +71,10 @@ export interface LinkedinDocResult {
 
 export type LinkedinDocError =
   | { readonly kind: 'empty' }
+  /** Bizim editoryal tavanımız aşıldı — bir KARAR çiğnendi. */
   | { readonly kind: 'too_many_pages'; readonly count: number; readonly max: number }
+  /** LinkedIn'in kendi sınırı aşıldı — bir OLGU. Tavan yükselterek çözülemez. */
+  | { readonly kind: 'platform_limit'; readonly count: number; readonly max: number }
   /** Merdivenin en alt basamağı bile tavanı geçmiyorsa: sessizce yayınlanmaz. */
   | { readonly kind: 'too_large'; readonly bytes: number; readonly max: number }
 
@@ -99,6 +102,21 @@ export const renderLinkedinDocument = async (
   opts: { readonly maxBytes?: number } = {}
 ): Promise<BrowserResult<LinkedinDocResult | LinkedinDocError>> => {
   if (pages.length === 0) return { ok: true, value: { kind: 'empty' } }
+  // **İki tavan, iki farklı cevap.** Platform sınırını aşan bir döküman LinkedIn
+  // tarafından reddedilir (olgu, tartışılmaz); editoryal tavanı aşan bir döküman
+  // BİZİM kararımızı çiğner (aşılabilir, ama bilerek). Tek mesaja indirilseydi,
+  // 300 sayfalık bir denemede "tavanı 10'dan 400'e çıkarayım" refleksi doğardı ve
+  // platform sınırı ancak yayın anında öğrenilirdi (FAZ-7 denetimi, m2).
+  if (pages.length > LINKEDIN_PLATFORM_MAX_SAYFA) {
+    return {
+      ok: true,
+      value: {
+        kind: 'platform_limit',
+        count: pages.length,
+        max: LINKEDIN_PLATFORM_MAX_SAYFA,
+      },
+    }
+  }
   if (pages.length > LINKEDIN_DOC_MAX_SAYFA) {
     return {
       ok: true,

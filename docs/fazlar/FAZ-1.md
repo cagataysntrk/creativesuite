@@ -221,7 +221,7 @@ ağ kablosu çekiliyken de çalışıyor
    çağıran adaptör. Mevcut abonelik kullanılır, ekstra API faturası yok (D-8).
    Aynı yetenek API şeridine de düşebilmeli — sağlayıcı seçimi yönlendiricinin işi.
 📁 `packages/providers/src/claude-code.ts` · sözleşme `types.ts` · katalog `registry.ts`
-   Yanında doğan darboğaz: `kernel/src/proc/spawn.ts` (tek alt süreç başlatıcı; öldürme
+   Yanında doğan darboğaz: `packages/kernel/src/proc/spawn.ts` (tek alt süreç başlatıcı; öldürme
    iki aşamalı — `SIGTERM`, sonra `graceMs`, sonra `SIGKILL`).
    `estimate()` sıfır aralık döndürür ve bu **"bilinmiyor" değil, gerçekten ücretsiz**:
    abonelik zaten ödenmiş (D-8). Ham `ADAPTERS` listesi paket dışına AÇILMAZ —

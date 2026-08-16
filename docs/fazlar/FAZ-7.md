@@ -17,7 +17,7 @@ token son kullanma tarihi ekranda görünüyor
    drift denetçisi `verifiedAt`i eskiyen satırı işaretler. Spec'i yorumda tutmak,
    altı ay sonra hangi ölçünün nereden geldiğini bilmemek demektir.
 📁 `packages/render/src/specs/placements.ts` · `packages/engine/src/saglik/doktor.ts`
-   ⚠ Faz dosyası `packages/channels/` diyordu; **öyle bir paket yok**. Tablo 3.15'te
+   ⚠ Faz dosyası ayrı bir channels paketi diyordu; **öyle bir paket yok**. Tablo 3.15'te
    `render` altında kuruldu ve denetçi 4.17'de doctor'a bağlandı — yeni bir paket açmak
    aynı veriyi ikinci bir yere koymak olurdu.
 ✅ `just doctor` üç aydan eski `verifiedAt` satırlarını listeliyor (90 gün)
@@ -32,18 +32,15 @@ token son kullanma tarihi ekranda görünüyor
 📖 §9.2, §11.1 · R-34, R-46 · D-3
 🔗 7.1, 7.5
 🛠 IG feed/carousel/Reels/Stories + Threads. **App Review kendi işletmen için gerekli
-   değil** — ramp hızlı (D-3). `content_publishing_limit` **her yayından önce** sorgulanır.
-   Alt-text eksikse yayın bloklanır (R-34): erişilebilirlik sonradan eklenemez, çünkü
-   yayınlanmış post düzenlenemiyor.
+   değil** (D-3). `content_publishing_limit` **her yayından önce** sorgulanır; alt-text
+   eksikse yayın bloklanır (R-34) — yayınlanmış post düzenlenemiyor.
 📁 `packages/providers/src/publish.ts` (ayrı "channels" paketi yok — `kanal-yayinci`
    darboğazı bu dosyayı zaten sahibi ilan etmişti)
-✅ Dört kapı SIRAYLA: token → alt-text → kota → defter mutabakatı → yayın. Sıra **tipe
-   gömülü**: `publish()` dört yeteneği de zorunlu parametre alıyor, biri eksikse
-   derlenmiyor — "kota sorgusunu unutmak" mümkün değil.
-🧪 Alt-text'siz varlık → reddediliyor · kota dolu → yükleme DENENMİYOR · daha önce
-   yayınlanmış içerik → tekrar edilmiyor (R-46) · ölmüş token → BLOKLUYOR (uyarı değil)
-   ⚠ Kanıt **çağrı sırası**: sahte bağımlılıklar sırayı kaydediyor. `kanal-yayinci`
-   darboğazı beyandan mekanik kurala çevrildi ve iki biçimde ihlal edildi.
+✅ Sıra **tipe gömülü** ve ölçüldü: `token → kova:1 → kota → defter → kova:3 →
+   yükleme → kaydet`. Her yetenek zorunlu parametre; biri eksikse derlenmiyor.
+🧪 Alt-text'siz → red · kota dolu → yükleme DENENMİYOR · yayınlanmış içerik → tekrar
+   YOK (R-46) · ölmüş token → BLOKLU · defter okunamıyor → DURUYOR · yükleme hatası
+   kotaya karışmıyor. `kanal-yayinci` darboğazı iki biçimde ihlal edildi.
 💾 `feat(providers): yayın kapıları ve tek yayıncı` · `Refs: FAZ-7.2 · §9.2`
 
 ## 7.2b — Meta'ya gerçek yayın    [ ] BLOKE:insan (V-26)
@@ -52,7 +49,11 @@ token son kullanma tarihi ekranda görünüyor
 🔗 7.2, 7.5
 🛠 Gerçek Meta uygulaması, uzun ömürlü token ve `instagram_content_publish` kapsamı.
    **App Review kendi işletmen için gerekmiyor** (D-3) ama uygulama, sayfa bağlantısı ve
-   token insan eylemidir. Kapılar ve sıra yazıldı ve test edildi; kalan iş bağlantı.
+   token insan eylemidir. Kapılar, sıra ve **`PUBLISH` gövdesi** yazıldı ve bağlandı
+   (D-222); gövde yükleyici olmadan `CHANNEL_NOT_CONNECTED` ile AÇIKÇA duruyor.
+   ⚠ **Kalan iş yalnız hesap değil:** `upload` + `publishingLimit` adaptörleri (HTTP
+   katmanı) ve bir insan komutu da bu adımda yazılacak. Önceki metin "kalan iş
+   bağlantı" diyordu ve bu eksikti (FAZ-7 denetimi, M2).
 ✅ Tek test postu yayınlandı · `content_publishing_limit` yayından ÖNCE sorgulandı
    (gerçek yanıt log'da) · yerel defter yayını kaydetti
 🧪 Aynı postu iki kez gönder → yerel defter yinelemeyi yakalıyor, Meta'nın döndürdüğü
@@ -88,8 +89,9 @@ token son kullanma tarihi ekranda görünüyor
    döndürür** — "başardım" sanmak, aynı postu iki kez yayınladığını fark etmemektir.
    Yerel yayın defteri (`derived/runs/published.ndjson`, D-38) idempotency anahtarıyla
    karşılaştırır (R-44).
-📁 `packages/engine/src/ratelimit.ts` · `packages/engine/src/publish-ledger.ts` ·
-   `derived/runs/published.ndjson`
+📁 `packages/engine/src/ratelimit.ts` · `packages/engine/src/publish-ledger.ts`
+   (yayın defteri dosyası **henüz yok**: ilk gerçek yayın onu yazar — 7.2b. Boş bir
+   defter oluşturmak "yayın başladı" derdi ve `ledger_missing` sinyalini yok ederdi.)
 ✅ Aynı postu iki kez gönder → ikincisi defterce yakalanıyor, kanal çağrısı YAPILMIYOR
    (ölçüldü: `yuklendi` dizisi boş kalıyor)
 🧪 Defteri sil → yayın **durur** (defter türetilemez, D-38) · iki ardışık YAZMA
@@ -172,17 +174,16 @@ token son kullanma tarihi ekranda görünüyor
    hatırlatıcı, token son kullanma. Log'a bakmayı hatırlaman gereken bir sağlık
    göstergesi, olmayan bir sağlık göstergesidir.
 📁 `apps/server/src/kanal-uc.ts` · `apps/ui/src/KanalDurumu.tsx` (kabuk düz dosya
-   kullanıyor; `screens/` alt dizini repoda hiç var olmadı)
+   kullanıyor; screens/ alt dizini repoda hiç var olmadı)
 ✅ `/api/kanallar` gerçek sunucudan ölçüldü — üç gün kalan token, oran bütçesi ve
    sürüm sabiti aynı cevapta:
    `"durum":{"kind":"yenile","kalanGun":3}` · `"oran":{"kapasite":5,"yayinPuani":3,"kalan":null}`
    · `"surum":{"pinned":"202508","yasGun":0,"kalanGun":90}`
 🧪 Üç gün kalan token → **uyarı**, yayın hâlâ mümkün · kaydı sil → **BİLİNMİYOR, bloklu**
    · sürümü bir yıl eskit → LinkedIn **bloklu**, Meta etkilenmiyor (10 test)
-   ⚠ **Ölçülmeyen üç şey ÜÇ AYRI cümleyle** (D-175): oran bütçesi `null` — kovalar
-   ÇALIŞTIRMA sürecinde yaşıyor, sunucuda limiter kurmak her seferinde "dolu" derdi.
-   Defter yoksa geçmiş **ÖLÇÜLEMEDİ**, sıfır değil (D-38). Zamanlayıcı **yok** ve bu
-   yazıyor: boş liste, var olup iş almadığını ima ederdi.
+   ⚠ **Ölçülmeyen üç şey ÜÇ AYRI cümleyle** (D-175): oran bütçesi `null` (kovalar
+   ÇALIŞTIRMA sürecinde) · defter yoksa geçmiş **ÖLÇÜLEMEDİ**, sıfır değil (D-38) ·
+   zamanlayıcı **yok** ve bu yazıyor — boş liste "var ama iş almadı" derdi.
    ⚠ Sürüm hatırlatıcısı eşikten ÖNCE konuşuyor (`surumYasiGun`): 90. günde kırmızı
    yanan bir gösterge, yeniden kontrol için zaman bırakmaz.
 💾 `feat(ui): publish queue ve kanal durumu` · `Refs: FAZ-7.7 · §9.4`
@@ -195,8 +196,8 @@ token son kullanma tarihi ekranda görünüyor
    **backfill endpoint'i yok** — bugün toplamadığın veri yarın satın alınamaz.
    Günlük snapshot `derived/index/` yerine kalıcı bir tabloya yazılır: türetilemez veri.
 📁 `packages/engine/src/insight-ledger.ts` · `scripts/insight-durum.mjs`
-   (`derived/runs/insights.ndjson` **henüz yok ve olmamalı**: ilk gerçek ölçüm onu
-   yazar — 7.8b. Boş bir defter oluşturmak "ölçüm başladı" derdi.)
+   (insight defteri dosyası **henüz yok ve olmamalı**: ilk gerçek ölçüm onu yazar —
+   7.8b. Boş bir defter oluşturmak "ölçüm başladı" derdi.)
 ✅ Aynı gün ikinci kez yazılmıyor (`zaten_var`), farklı gün ayrı satır — 10 test.
    ⚠ **Doğruluk NDJSON'da, SQLite'ta DEĞİL** (D-220): kriter "ilk satırlar SQLite'ta"
    diyordu ve **değiştirildi**. `derived/index/` silinip yeniden kurulabilir (11. yasa);

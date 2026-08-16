@@ -100,7 +100,11 @@ describe('IR anlık görüntüsü (🧪 FAZ-6.3)', () => {
 })
 
 // ── editoryal tavan ile platform sınırı AYRI (V-23) ────────────────────────
-import { LINKEDIN_PLATFORM_MAX_SAYFA, VARSAYILAN_BAYT_TAVANI } from './linkedin.js'
+import {
+  LINKEDIN_PLATFORM_MAX_SAYFA,
+  VARSAYILAN_BAYT_TAVANI,
+  renderLinkedinDocument,
+} from './linkedin.js'
 
 describe('tavan ile sınır ayrımı', () => {
   it('editoryal tavan platform sınırının ÇOK altında', () => {
@@ -113,5 +117,22 @@ describe('tavan ile sınır ayrımı', () => {
     // 5 MB LinkedIn'in görsel sınırıydı; döküman sınırı 100 MB.
     expect(VARSAYILAN_BAYT_TAVANI).not.toBe(5 * 1024 * 1024)
     expect(VARSAYILAN_BAYT_TAVANI).toBeLessThan(100 * 1024 * 1024)
+  })
+})
+
+// 🧪 İki tavan, iki farklı cevap (FAZ-7 denetimi, m2). Platform sınırı bir OLGU:
+// tavan yükselterek çözülemez ve bunu ancak ayrı bir hata tipi söyleyebilir.
+describe('platform sınırı ↔ editoryal tavan', () => {
+  const sayfalar = (n: number) =>
+    Array.from({ length: n }, () => ({ doc: { width: 1200, height: 1500, blocks: [] } })) as never
+
+  it('300 sayfayı aşan döküman PLATFORM sınırına takılıyor', async () => {
+    const r = await renderLinkedinDocument(sayfalar(LINKEDIN_PLATFORM_MAX_SAYFA + 1), '/tmp/x.pdf')
+    expect(r.ok && (r.value as { kind: string }).kind).toBe('platform_limit')
+  })
+
+  it('11 sayfa EDİTORYAL tavana takılıyor — ayrı sinyal', async () => {
+    const r = await renderLinkedinDocument(sayfalar(LINKEDIN_DOC_MAX_SAYFA + 1), '/tmp/x.pdf')
+    expect(r.ok && (r.value as { kind: string }).kind).toBe('too_many_pages')
   })
 })
