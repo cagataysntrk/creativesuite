@@ -12,7 +12,7 @@
 // Kapı iki yönde çalışır: kodda olup tabloda olmayan **hata**; tabloda olup kodda
 // olmayan **uyarı** (bir bağımlılık kaldırılmış ama satır kalmış olabilir).
 
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -52,7 +52,27 @@ for (const dosya of kaynaklar) {
   for (const m of metin.matchAll(/env\[\s*'([A-Z][A-Z0-9_]{3,})'\s*\]/g)) kodAnahtarlari.add(m[1])
   for (const m of metin.matchAll(/process\.env\[\s*'([A-Z][A-Z0-9_]{3,})'\s*\]/g))
     kodAnahtarlari.add(m[1])
+  // ⚠ **Nokta biçimi kör noktaydı** (FAZ-8 denetimi, M4): `process.env.RESEARCH_SRC`
+  // kapıdan geçiyordu ve o anahtar gerçekten tabloda yoktu. Bir kapının bir biçimi
+  // görüp diğerini görmemesi, korumadığı bir şeyi koruduğunu sanmaktır.
+  for (const m of metin.matchAll(/process\.env\.([A-Z][A-Z0-9_]{3,})/g)) kodAnahtarlari.add(m[1])
 }
+// ── sağlayıcı tanımlayıcıları: `auth_env:` ─────────────────────────────────
+//
+// ⚠ İkinci kör nokta (M4): kapı yalnız `.ts`/`.mjs` tarıyordu. Sağlayıcı YAML'ları
+// `auth_env:` ile anahtar ADI taşıyor ve `ELEVENLABS_API_KEY` ile `GEMINI_API_KEY`
+// tabloda yoktu — yani "17 anahtarın hepsi" iddiası eksikti. **Bir anahtar hangi
+// dosya biçiminde tanımlandığına göre korunmuyorsa, korunmuyor demektir.**
+const saglayiciDizini = join(REPO, 'registry/providers')
+if (existsSync(saglayiciDizini)) {
+  for (const dosya of readdirSync(saglayiciDizini).filter((f) => f.endsWith('.yaml'))) {
+    const metin = readFileSync(join(saglayiciDizini, dosya), 'utf8')
+    for (const m of metin.matchAll(/^\s*auth_env:\s*([A-Z][A-Z0-9_]{3,})/gm)) {
+      kodAnahtarlari.add(m[1])
+    }
+  }
+}
+
 for (const m of MUAF) kodAnahtarlari.delete(m)
 
 const runbook = readFileSync(join(REPO, 'docs/RUNBOOK.md'), 'utf8')

@@ -92,10 +92,14 @@ if ! just reindex >/dev/null 2>&1; then
 fi
 echo "✓ indeks sıfırdan kuruldu"
 
-if just check >/dev/null 2>&1; then
-  echo "✓ just check YEŞİL — klon kendi kendine doğrulanıyor"
+# ⚠ **`just verify`, `just check` DEĞİL** (FAZ-8 denetimi, B1). Tatbikat dar olanı
+# koşuyordu ve tam da bu, ihlal bataryasının temiz bir klonda çöktüğünü gizliyordu:
+# `just check` yeşil, `just verify` `ENOENT` ile kırmızı. **Faz çıkış kriteri
+# `just verify` diyor** — tatbikat kendi ölçütünü daraltamaz.
+if just verify >/dev/null 2>&1; then
+  echo "✓ just verify YEŞİL — klon kendi kendine doğrulanıyor"
 else
-  echo "✗ just check KIRMIZI — geri yüklenen ağaç doğrulanamıyor"
+  echo "✗ just verify KIRMIZI — geri yüklenen ağaç doğrulanamıyor"
   exit 1
 fi
 

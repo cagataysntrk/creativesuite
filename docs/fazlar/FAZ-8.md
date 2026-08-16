@@ -194,6 +194,17 @@ boş bir diske geri yüklendi ve orada `just verify` yeşil verdi
 🧪 Eski anahtarla çağrı dene → sağlayıcı reddediyor (iptal gerçekten işlemiş)
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
 
+## 8.3b — Damgalama sırası: yayın koşu İÇİNDE, damga SONRA    [ ] BLOKE:teknik
+
+📖 §11.3, §13 · D-227
+🔗 8.3, 7.2b
+🛠 `uret.mjs` damgayı ve blob'u tüm koşu bittikten SONRA basıyor; `PUBLISH` koşunun
+   İÇİNDE. Yani `stamped: true` yayın anında hiçbir zaman doğru olamaz ve ifşa kapısı
+   **fail-closed** davranıyor (doğru davranış, ama gerçek yayını engelliyor).
+✅ Damgalama `RENDER` sonrası, `PUBLISH` öncesi koşuyor — sıra manifest'te görünüyor
+🧪 Damgasız bir varlıkla yayın dene → **hâlâ** bloklanıyor (kapı gevşetilmedi)
+💾 `<tip>(engine): damgalama sırası` · `Refs: FAZ-8.3b · §11.3`
+
 ## 8.9 — Yerel MCP yüzeyi    [x] 2026-08-16
 
 📖 §3.8, §14 · D-33

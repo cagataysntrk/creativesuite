@@ -14,7 +14,7 @@
 // Geri alınmayan bir ihlal, bir sonraki turu yalancı kırmızıya boğar.
 
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -228,6 +228,11 @@ for (const ih of IHLALLER) {
       continue
     }
   }
+  // ⚠ **Dizin YOKSA yaratılır.** `corpus/prospect/` bu makinede duran İZLENMEYEN boş
+  // bir dizindi; temiz bir klonda yoktu ve batarya `ENOENT` ile çöküyordu — yani
+  // `just verify` **yalnız bu makinede** yeşildi (FAZ-8 denetimi, B1). Aynı sınıf:
+  // `pnpm.onlyBuiltDependencies` (FAZ-8.7) ve `core.hooksPath`.
+  mkdirSync(dirname(yol), { recursive: true })
   writeFileSync(yol, yeniIcerik)
   if (readFileSync(yol, 'utf8') !== yeniIcerik) {
     sonuclar.push(`?? ${ih.kapi} · ${ih.imza} — ihlal UYGULANAMADI, test geçersiz`)

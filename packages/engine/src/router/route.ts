@@ -96,10 +96,38 @@ const OLCU = 1_000_000
 /** Kısıt desteği: sağlayıcı bu kısıtı hiç bilmiyorsa serbesttir, biliyorsa değeri
  * listede OLMAK ZORUNDA. "Bilmiyorum" ile "desteklemiyorum" karıştırılmaz —
  * karıştırılsaydı, `supports` bloğu eksik yazılmış her sağlayıcı elenirdi. */
+/**
+ * **Tavan anlamı taşıyan kısıtlar** — bunlarda eşitlik değil `<=` sorulur.
+ *
+ * ⚠ `max_chars: 500` isteyen bir adım, "2200 karaktere kadar" diyen bir sağlayıcı
+ * tarafından **elbette** karşılanabilir; enum eşitliği burada bir kategori hatasıydı
+ * ve `ad-creative-set` hattını üçüncü adımda öldürüyordu (FAZ-8 denetimi, M2). Yani
+ * 8.2'nin reklam linter'ı üretimde hiç ateşlenemiyordu — hat oraya varamıyordu.
+ *
+ * Liste dar tutuluyor: yalnız adı `max_`/`min_` ile başlayan sayısal kısıtlar. Bir
+ * kısıtın tavan mı liste mi olduğunu tahmin etmek, sessizce yanlış sağlayıcı seçmektir.
+ */
+const TAVAN_ONEKI = /^max_/
+const TABAN_ONEKI = /^min_/
+
 const kisitUyuyor = (
   desteklenen: readonly (string | number | boolean)[] | undefined,
-  istenen: string | number | boolean
-): boolean => desteklenen === undefined || desteklenen.includes(istenen)
+  istenen: string | number | boolean,
+  ad = ''
+): boolean => {
+  if (desteklenen === undefined) return true
+  if (typeof istenen === 'number' && desteklenen.every((d) => typeof d === 'number')) {
+    const sayilar = desteklenen as readonly number[]
+    if (sayilar.length > 0 && TAVAN_ONEKI.test(ad)) {
+      // "En fazla N" isteniyor: sağlayıcının EN BÜYÜK kapasitesi N'i karşılıyorsa yeter.
+      return Math.max(...sayilar) >= istenen
+    }
+    if (sayilar.length > 0 && TABAN_ONEKI.test(ad)) {
+      return Math.min(...sayilar) <= istenen
+    }
+  }
+  return desteklenen.includes(istenen)
+}
 
 /**
  * Skor: 0-1 aralığında üç bileşen, `prefer` ile ağırlıklı.
@@ -163,7 +191,7 @@ export const route = (
 
     let kisitHatasi = false
     for (const [ad, deger] of Object.entries(req.constraints)) {
-      if (!kisitUyuyor(fiyat.supports[ad], deger)) {
+      if (!kisitUyuyor(fiyat.supports[ad], deger, ad)) {
         ele({
           kind: 'constraint_unsupported',
           constraint: ad,

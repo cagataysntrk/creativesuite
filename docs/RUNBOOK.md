@@ -9,8 +9,9 @@
 2. derived/blobs/ ayrı yedekten kopyala   # ⚠ clone GETİRMEZ (gitignore, R-64)
 3. age anahtarını ayrı kasadan getir      # ⚠ repoda DEĞİL (R-51)
 4. cd <hedef> && pnpm install --frozen-lockfile
-5. just check                             # yeşil olmalı
+5. just setup                             # git kancaları — YOKSA commit kapıları kapalı
 6. just reindex                           # derived/index sıfırdan kurulur
+7. just verify                            # TAM doğrulama (`just check` dar ve kusur gizler)
 ```
 
 **Tatbikatı komut yapar:** `just yedek-tatbikat` gerçekten clone eder ve klonda
@@ -79,6 +80,9 @@ bilinmeyen bir anahtar, sızdığında döndürülemez.
 | `LINKEDIN_CLIENT_SECRET` | LinkedIn | `linkedin.com/developers` → App → Auth | **V-27: henüz yok** |
 | `LINKEDIN_CLIENT_ID` | LinkedIn | aynı sayfa — **sır değil** | rotasyon yok |
 | `TELEGRAM_BOT_TOKEN` | Telegram | BotFather → `/revoke` | **V-18: yer tutucu** |
+| `ELEVENLABS_API_KEY` | ElevenLabs | `elevenlabs.io` → Profile → API Key | premium TTS şeridi |
+| `GEMINI_API_KEY` | Google AI Studio | `aistudio.google.com/apikey` | bedava TTS/metin şeridi |
+| `RESEARCH_SRC` | — | araştırma arşivi yolu, **sır değil** | rotasyon yok |
 | `SUITE_BRAND` | — | yapılandırma, sır değil | rotasyon yok |
 | `BRAND_ID` | — | çalıştırma parametresi, sır değil | rotasyon yok |
 | `ERA_ID` | — | çalıştırma parametresi, sır değil | rotasyon yok |

@@ -54,7 +54,8 @@ import { providerCall } from '../provider-call.js'
 import { prospectDeckZinciri } from '../prospect-deck.js'
 import type { Kaynak, KisiselAlan } from '@suite/kernel'
 import { dirname, join } from 'node:path'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 
 /** Gövdelere geçen girdi. `inputs` önceki adımların çıktıları — id ile anahtarlı. */
 export interface BodyInput {
@@ -541,6 +542,15 @@ export const renderBody = (deps: RenderDeps): Verb =>
       boyutlar.push(r.value.bytes)
     }
 
+    // Alt-text BELGEDEN okunuyor (R-34): görsel blokları sırayla slaytlara karşılık
+    // geliyor. Uydurulmuş bir alt-text, kapının kendi ürettiği veriyi denetlemesi olurdu.
+    const gorseller = slaytlar.flatMap((sayfa) =>
+      ((sayfa as { blocks?: readonly unknown[] }).blocks ?? []).filter(
+        (b): b is { readonly type: 'image'; readonly alt: string; readonly decorative?: boolean } =>
+          (b as { type?: string }).type === 'image'
+      )
+    )
+
     // `RENDER` metered: Chromium bir kaynak harcar ve süre de bir maliyettir (§8.3).
     // Tutar sıfır ama olayın KENDİSİ deftere yazılır — sıfır bir bilgisizlik değil,
     // burada bir olgu.
@@ -558,6 +568,26 @@ export const renderBody = (deps: RenderDeps): Verb =>
         slides: yollar,
         count: yollar.length,
         ...(basamaklar.length > 0 ? { rung: basamaklar, bytes: boyutlar } : {}),
+        // ⚠ **`assets` ÜRETİM tarafından basılıyor** (FAZ-8 denetimi, B2). `publishBody`
+        // bu anahtarı arıyordu ve **hiçbir gövde onu üretmiyordu**: `renderBody`
+        // `{slides, count}` veriyordu, yani `PUBLISH` her koşuda `NO_PUBLISHABLE_ASSET`
+        // ile dönerdi. Daha kötüsü, testteki "RENDER çıktısının GERÇEK şekli" yorumu
+        // bunu düzelttiğimi iddia ediyordu ve yanlıştı — aynı sınıfın BEŞİNCİ tekrarı
+        // (D-216·222·224·8.3), bu sefer kendi kanıt yorumumun içinde.
+        //
+        // `altTr` belge modelinden geliyor, uydurulmuyor: `alt` boşsa boş kalır ve
+        // yayın kapısı R-34 ile reddeder — doğru davranış. `digest` render edilen
+        // BAYTIN özeti; CAS damgası koşu sonrasında basılıyor ve `PUBLISH` koşunun
+        // İÇİNDE, o yüzden burada hesaplanıyor.
+        assets: yollar.map((yol, i) => {
+          const blok = gorseller[i]
+          return {
+            path: yol,
+            altTr: blok?.alt ?? '',
+            decorative: blok?.decorative === true,
+            digest: `sha256:${createHash('sha256').update(readFileSync(yol)).digest('hex')}`,
+          }
+        }),
       },
     })
   })
@@ -997,6 +1027,15 @@ export interface PublishBodyDeps {
  * patlıyor.
  */
 const DESTEKLENEN_PLATFORMLAR: readonly string[] = ['instagram', 'threads', 'linkedin']
+
+/**
+ * `PUBLISH`in bir varlıkta aradığı anahtarlar — **TEK tanım**.
+ *
+ * `renderBody` bunları basıyor, `yayinVarliklari` bunları okuyor. İki ayrı liste
+ * olsaydı biri güncellenir diğeri unutulurdu; bu bulgu (FAZ-8 denetimi, B2) tam
+ * olarak öyle doğdu: üretim `slides` basıyordu, tüketici `assets` arıyordu.
+ */
+export const PUBLISH_ARANAN_ANAHTARLAR = ['path', 'altTr', 'decorative', 'digest'] as const
 
 /** Yayın yeteneği — oran kovasının anahtarı. Kanal durumu ekranıyla AYNI dize. */
 export const YAYIN_YETENEGI = 'channel.publish'

@@ -441,3 +441,35 @@ tamamı gerektiğinde eklenir ve o iş bu kararın kapsamında değil.
 
 **Geri alma maliyeti:** düşük — iki uç kaldırılır, altındaki fonksiyonlar UI'ın zaten
 kullandığı fonksiyonlar.
+
+## D-227 — Beşinci tekrar: aldatan şey, düzeltmeyi kanıtlayan yorumun kendisiydi
+
+**2026-08-16 · FAZ-8 kapanış denetimi, 1. tur**
+
+`publishBody` girdilerde `assets` arıyordu; **hiçbir gövde onu üretmiyordu.**
+`renderBody` `{ slides, count }` basıyor — yani `PUBLISH` her koşuda
+`NO_PUBLISHABLE_ASSET` ile dönerdi ve 8.3'ün ifşa kapısı hiç çalışamazdı.
+
+**Aynı sınıfın beşinci tekrarı** (D-216 gövde · D-222 gövde · D-224 hat · 8.3 kapı ·
+bu: **şekil**). Ama bu sefer farklı bir şey oldu: aldatan şey kodun kendisi değil,
+**düzeltmeyi kanıtlamak için yazdığım yorumdu.** `yayin-baglanma.test.ts` şöyle
+diyordu: *"`RENDER` çıktısının GERÇEK şekli — gövde varlıkları buradan topluyor"* ve
+altındaki şekil hiç üretilmemişti. Test kendi köprüsünü kurup ölçüyordu; yorum ise
+tersini iddia ediyordu.
+
+**Kapatılanlar:**
+- `renderBody` artık `assets` basıyor: `path` · `altTr` (**belge modelinden**, R-34
+  boşsa kapı reddeder) · `decorative` · `digest` (render edilen **baytın** özeti;
+  CAS damgası koşu sonrası basılıyor, `PUBLISH` koşu içinde)
+- **`PUBLISH_ARANAN_ANAHTARLAR` tek tanım**: üretici ve tüketici aynı listeyi
+  kullanıyor. İki liste olsaydı biri güncellenir diğeri unutulurdu — bu bulgunun
+  doğuş sebebi tam olarak buydu.
+- `uretim-sekli-render.test.ts` şekli **ölçüyor**, anlatmıyor.
+
+**Kalan gerçek boşluk — `8.3b` olarak açıldı:** damgalama ve blob yazımı tüm koşu
+BİTTİKTEN sonra çalışıyor (`uret.mjs`), `PUBLISH` ise koşunun İÇİNDE. Yani
+`stamped: true` yayın anında hiçbir zaman doğru olamaz. İfşa kapısı bu yüzden
+**fail-closed** davranıyor ve bu doğru — ama sıralama düzeltilene kadar gerçek yayın
+yapılamaz. **Bunu bilmek, bilmemekten iyidir.**
+
+**Geri alma maliyeti:** yok.
