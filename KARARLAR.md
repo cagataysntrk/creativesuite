@@ -363,3 +363,46 @@ gerektirir. Bu turda aynı sınıftan iki hata bulundu — `chart` bloğu lexico
 
 **Geri alma maliyeti:** düşük.
 
+## D-216 — FAZ 6 KAPANMADI: mekanizma yazıldı, üretim yoluna bağlanmadı
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6 kapanış turu (LOOP§D) · D-182
+
+Bağımsız doğrulama agent'ı FAZ 6'nın **çekirdek iddiasını çürüttü**. `just verify` yeşil,
+1087 test geçiyor, 12 kural kırmızıya döndürülüyor — ve buna rağmen sistem **hiçbir**
+şirkete deck üretemiyor. Bulgular tek bir sınıfta toplanıyor: **kod yazıldı, üretim
+yolunda çağıranı yok.**
+
+| # | Ne | Kanıt |
+|---|---|---|
+| 1 | `renderDeckPdf` sıfır çağıran; RENDER gövdesi `format: pdf`i hiç okumuyor | diskte 0 PDF, 23 manifest'in hepsi post/carousel |
+| 2 | `deck`/`prospect-deck` hatları plan aşamasında sağlayıcısız | `max_chars: 4000` desteklenmeyen kademe |
+| 3 | `prospectDeckZinciri` sıfır çağıran; `chain:` kısıtını kimse okumuyor | VALIDATE gövdesi yalnız `kaliteKontrol` koşuyor |
+| 4 | `INGEST` fiil gövdesi HİÇ YOK | `uret.mjs` fiil haritasında INGEST ve PROPOSE yok |
+| 5 | Üç yeni manifest dedektörü ölü | hiçbir kod `fetchedAt`/`personalizationFields`/`productShots` yazmıyor |
+| 6 | `captureProductShot` sıfır çağıran | testte bile yok |
+| 7 | `chart` CSS'i statik yolda gömülmüyor | üretim PNG'sinde grafik bozuk, kapı görmüyor |
+| 9 | `runVerb` (→ `ingestGate`) üretimde koşmuyor | `runPipeline` `verb.run`u doğrudan çağırıyor |
+
+**Karar:** FAZ 6 **KAPANMADI**. Dokuz tik duruyor ama fazın kendisi açık; `DURUM.md`
+bunu ilan ediyor ve kapanış ancak bulgular kapandıktan sonra tekrar denenir. Tikleri
+silmiyorum — adımların ürettiği kod gerçek, testli ve doğru; eksik olan **bağlanma**.
+Silmek yapılan işi de silerdi; asıl dürüst hamle eksiğin ADINI koymak.
+
+**Kök neden — ve bu üçüncü tekrar:** D-182'de donmuş plan yazılmıştı, `uret.mjs`
+çağırmıyordu. D-190'da düğmenin `onClick`i yoktu. Şimdi aynı hata **bir seviye yukarıda**:
+`tazeMi`nin çağıranı var (`inspectManifest`), ama `inspectManifest` o veriyi hiç görmüyor
+çünkü onu yazan yok. **"Çağıran var mı" sorusu bir adım değil, ZİNCİR sorulmalı:** üretim
+girişinden kurala kadar kesintisiz bir yol var mı?
+
+**Bu turda kapatılanlar:** bulgu 2 (kademe düzeltildi, hatlar planlanıyor) · bulgu 7
+(CSS gömüldü + `blok-css` kapısı yazıldı, üç biçimde ihlal edildi).
+
+**Batarya genişletildi:** `blok-css` ihlali "yeni dosya yaz" biçimiyle ifade edilemiyordu;
+batarya artık **yama** modunu da destekliyor. Desteklemeseydi, bataryaya giremeyen bir
+kapı sınıfı kalırdı — yani her turda kanıtlanamayan kapılar.
+
+**Kendi kapımı da ihlal testi yakaladı:** `blok-css` ilk sürümü dosyada dizeyi arıyordu
+ve `import { CHART_CSS }` satırı onu sağlıyordu — kullanımı silsen bile kapı yeşildi.
+
+**Geri alma maliyeti:** yok — bu bir kayıt düzeltmesi.
+

@@ -47,7 +47,12 @@ import { runStep, type CallOutcome, type StepSpec } from './scheduler.js'
 import { resolveVerb, type VerbImplementations } from './verbs/registry.js'
 import { route, type ProviderPricing, type RoutingDecision } from './router/route.js'
 import { rejectionMessage } from './router/reasons.js'
-import { writeFrozenPlan, writeManifest, type WriteResult } from './manifest-writer.js'
+import {
+  writeFrozenPlan,
+  writeManifest,
+  writeRunStub,
+  type WriteResult,
+} from './manifest-writer.js'
 import { digest, idempotencyKey } from './idempotency.js'
 import type { FrozenPlan } from './plan/freeze.js'
 
@@ -217,6 +222,23 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
   // hata ve tek adımda en fazla 3 deneme olduğu için kesici **yapısal olarak hiç
   // açılamıyordu** (D-135). Enjekte edilebilir: çağıran çalıştırmalar arası paylaşabilir.
   const breaker = input.breaker ?? new CircuitBreaker()
+
+  // ── künye: koşunun DOĞUM kaydı, adımlardan ÖNCE ───────────────────────────
+  //
+  // Manifest en sonda yazılıyor ve bu doğru — maliyet ancak koşu bitince bilinir. Ama
+  // süreç ortada ölürse (SIGKILL, elektrik) diskte varlıklar kalır, manifest kalmaz ve
+  // `just doctor` haklı olarak "kimin ürettiği bilinmiyor" der. Künye o boşluğu
+  // kapatıyor: yalnız kimlik taşır, maliyet ya da adım kaydı TAŞIMAZ — henüz
+  // bilinmiyorlar ve bilinmeyeni yazmak uydurmaktır.
+  writeRunStub(input.repoRoot, {
+    runId: input.runId,
+    brandId: String(input.brandId),
+    eraId: String(input.eraId),
+    pipeline: input.pipeline.id,
+    createdAt: input.previous?.createdAt ?? clock.nowIso(),
+    corpusCommit: input.corpusCommit,
+    registryCommit: input.registryCommit,
+  })
 
   const kayitlar: StepRecord[] = []
   const hatalar: { stepId: StepId; error: AppError }[] = []

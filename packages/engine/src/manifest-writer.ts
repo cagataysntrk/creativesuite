@@ -84,6 +84,53 @@ export const writeManifest = (input: WriteInput): WriteResult => {
   return { ok: true, path: rel }
 }
 
+// ── künye: çalıştırmanın DOĞUM kaydı (§13 · FAZ-7.1 denetimi) ───────────────
+//
+// **Manifest en SONDA yazılıyor** ve bu doğru: ne kadar harcandığı ve nerede durulduğu
+// ancak koşu bittiğinde bilinir. Ama süreç ortada ölürse (SIGKILL, elektrik, çöken bir
+// sağlayıcı) diskte varlıklar kalır ve manifest kalmaz — `just doctor` bunu haklı olarak
+// **kritik** raporluyordu: "2 varlık VAR, manifest YOK; kimin ürettiği bilinmiyor".
+//
+// Künye o boşluğu kapatıyor: koşu BAŞLARKEN yazılır ve yalnız KİMLİK taşır. Maliyet ya
+// da adım kaydı YOK — onlar henüz bilinmiyor ve bilinmeyeni yazmak uydurmaktır.
+//
+// **Künye manifest DEĞİLDİR ve onun yerine geçmez.** `writeManifest` kusurlu manifest'i
+// reddediyor (adımsız bir manifest defter değildir); künye ayrı bir dosya olduğu için
+// o kuralı gevşetmeye gerek kalmıyor. Ayrım sayesinde doctor iki farklı şeyi
+// söyleyebiliyor: **kesintiye uğramış** koşu (künye var) ve **künyesiz** koşu.
+
+export interface RunStub {
+  readonly runId: RunId
+  readonly brandId: string
+  readonly eraId: string
+  readonly pipeline: string
+  /** ISO 8601 — çağıran verir (R-06). */
+  readonly createdAt: string
+  readonly corpusCommit: string
+  readonly registryCommit: string
+}
+
+/** `derived/runs/<id>/kunye.json`. Yol `runDir`den türer — darboğaz kernel'de. */
+export const stubPath = (runId: RunId): string => `${runDir(runId)}/kunye.json`
+
+export const writeRunStub = (repoRoot: string, stub: RunStub): string => {
+  const rel = stubPath(stub.runId)
+  const mutlak = join(repoRoot, rel)
+  mkdirSync(dirname(mutlak), { recursive: true })
+  writeFileSync(mutlak, `${JSON.stringify(stub, null, 2)}\n`)
+  return rel
+}
+
+export const readRunStub = (repoRoot: string, runId: RunId): RunStub | null => {
+  const mutlak = join(repoRoot, stubPath(runId))
+  if (!existsSync(mutlak)) return null
+  try {
+    return JSON.parse(readFileSync(mutlak, 'utf8')) as RunStub
+  } catch {
+    return null
+  }
+}
+
 export const readManifest = (repoRoot: string, runId: RunId): RunManifest | null => {
   const mutlak = join(repoRoot, manifestPath(runId))
   if (!existsSync(mutlak)) return null

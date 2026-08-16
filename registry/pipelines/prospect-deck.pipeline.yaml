@@ -45,7 +45,10 @@ steps:
     needs: [bilgi-sec]
     constraints:
       locale: tr-TR
-      max_chars: 4000
+      # ⚠ 4000 YAZILAMAZ: sağlayıcı kademeleri 2200 · 3000 · 10000 ve yönlendirici
+      # desteklenmeyen kısıtta adayı ELİYOR — hat plan aşamasında sağlayıcısız kalıyordu
+      # (FAZ-6 denetimi). Deck çok sayfalı: üst kademe doğru olan.
+      max_chars: 10000
       # Beş alanlık tavan R-36'da; hat onu istemez, kapı zorlar.
       personalization_fields: 5
 

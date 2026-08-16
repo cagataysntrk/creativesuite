@@ -116,6 +116,26 @@ const IHLALLER = [
     imza: 'ikinci kez tanımlanmış',
   },
   {
+    // ⚠ **YAMA modu.** Bu kapının ihlali yeni bir dosya yazmakla ifade EDİLEMEZ: kural
+    // mevcut bir render yolunun CSS'i gömmesi hakkında. Batarya ilk hâlinde yalnız
+    // "dosya yaz" biçimini destekliyordu ve bu kapı bataryaya giremiyordu — yani
+    // korunduğu her turda kanıtlanamayan bir kapı olurdu.
+    kapi: 'blok-css',
+    dosya: 'packages/render/src/static.ts',
+    // İki değişiklik BİRLİKTE: hem kullanım hem import. Yalnız kullanımı silmek
+    // derlemeyi düşürür (kullanılmayan import) ve D-170 gereği ihlal GEÇERSİZ sayılır —
+    // oysa gerçek hata tam olarak buydu: sabit hiç import edilmemişti.
+    yamalar: [
+      { ara: '    CHART_CSS,\n    DIAGRAM_CSS,\n', yaz: '' },
+      {
+        ara: "import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'",
+        yaz: "import { chartHtml, isChartError } from './charts/chart.js'",
+      },
+      { ara: "import { DIAGRAM_CSS } from './charts/diagram.js'\n", yaz: '' },
+    ],
+    imza: 'CHART_CSS) gömülmüyor',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',
@@ -132,8 +152,37 @@ for (const ih of IHLALLER) {
   const oncesi = vardi ? readFileSync(yol, 'utf8') : null
 
   // ── 1. ihlal UYGULANDI mı ────────────────────────────────────────────────
-  writeFileSync(yol, ih.icerik)
-  if (readFileSync(yol, 'utf8') !== ih.icerik) {
+  //
+  // İki biçim: `icerik` (dosyayı yaz) ve `ara`/`yaz` (mevcut dosyada değiştir). İkincisi
+  // olmadan "bu satır SİLİNİRSE kapı kırmızıya döner mi" sorusu sorulamıyordu.
+  let yeniIcerik
+  if (ih.icerik !== undefined) {
+    yeniIcerik = ih.icerik
+  } else {
+    if (oncesi === null) {
+      sonuclar.push(`?? ${ih.kapi} · ${ih.imza} — yama dosyası yok, test geçersiz`)
+      hata++
+      continue
+    }
+    yeniIcerik = oncesi
+    let bulunamayan = null
+    for (const y of ih.yamalar) {
+      if (!yeniIcerik.includes(y.ara)) {
+        bulunamayan = y.ara.slice(0, 40)
+        break
+      }
+      yeniIcerik = yeniIcerik.replace(y.ara, y.yaz)
+    }
+    if (bulunamayan !== null) {
+      sonuclar.push(
+        `?? ${ih.kapi} · ${ih.imza} — yama hedefi bulunamadı (${bulunamayan}…), test geçersiz`
+      )
+      hata++
+      continue
+    }
+  }
+  writeFileSync(yol, yeniIcerik)
+  if (readFileSync(yol, 'utf8') !== yeniIcerik) {
     sonuclar.push(`?? ${ih.kapi} · ${ih.imza} — ihlal UYGULANAMADI, test geçersiz`)
     hata++
     continue

@@ -259,3 +259,7 @@ export {
   type ProspectDeckInput,
   type ProspectDeckSonucu,
 } from './prospect-deck.js'
+
+// Koşu künyesi — manifest'ten ÖNCE yazılır; kesintiye uğramış koşu künyesiz koşudan
+// ayırt edilebilsin diye (FAZ-7.1 denetimi).
+export { readRunStub, stubPath, writeRunStub, type RunStub } from './manifest-writer.js'

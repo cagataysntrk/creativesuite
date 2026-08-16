@@ -177,3 +177,33 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 ✅ Gerçek bir prospect için deck üretildi, olgu kapısından geçti, görüşmeden önce gitti
 🧪 Aynı deck'i ikinci kez üret → aynı IR'dan aynı PDF çıkıyor (rerun ≠ replay)
 💾 `<özet>` + `Run:` / `Actor:` / `Kind:` (çalıştırma commit'i)
+
+## 6.10 — Denetim bulgularını ÜRETİM YOLUNA bağla    [ ]
+
+📖 §10, §13 · R-70 · D-216, D-182
+🔗 6.1–6.9
+🛠 Kapanış turunun bulgusu tek sınıfta: **kod yazıldı, üretim yolunda çağıranı yok.**
+   Dokuz adımın kodu gerçek ve testli; eksik olan bağlanma. Alt maddeler engeli en çok
+   kaldırandan sıralı ve her biri kendi kanıtını üretir.
+
+| # | Bulgu | Durum |
+|---|---|---|
+| 2 | `deck`/`prospect-deck` plan aşamasında sağlayıcısız (`max_chars` kademesi) | [x] 2026-08-16 |
+| 7 | `chart` CSS'i statik yolda gömülmüyor — üretim PNG'sinde bozuk | [x] 2026-08-16 |
+| 1 | RENDER gövdesi `format: pdf` kısıtını okumuyor | [ ] |
+| 5 | `fetchedAt`/`personalizationFields`/`productShots` yazan yok — dedektörler ölü | [ ] |
+| 3 | `prospectDeckZinciri` VALIDATE'te koşmuyor; `chain:` kısıtını kimse okumuyor | [ ] |
+| 9 | `runPipeline` `verb.run`u doğrudan çağırıyor → `ingestGate` atlanıyor | [ ] |
+| 4 | `INGEST` fiil gövdesi yok | [ ] |
+| 6 | `captureProductShot` sıfır çağıran | [ ] |
+| 8 | `role: 'product_screenshot'` okuyanı yok | [ ] |
+| 10 | `renderLinkedinDocument` sıfır çağıran | [ ] |
+| 11 | `diagram` blok tipi `DocumentModel`de yok | [ ] |
+| 12 | `corpus/prospect/` boş; `kvkkErasure`ın insan girişi yok | [ ] |
+
+📁 `packages/engine/src/verbs/bodies.ts` · `scripts/uret.mjs` · `packages/engine/src/run.ts`
+✅ `just uret deck` gerçek bir PDF üretiyor ve manifest onu gösteriyor · üç dedektör
+   gerçek bir manifest'te tetikleniyor · `prospectDeckZinciri`nin üretim çağıranı var
+🧪 Her bulgu için: bağlantıyı KALDIR → kapı ya da test kırmızıya dönüyor
+💾 `fix(engine): <bulgu> üretim yoluna bağlandı` · `Refs: FAZ-6.10 · §13`
+

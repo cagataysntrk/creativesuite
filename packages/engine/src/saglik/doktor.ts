@@ -17,7 +17,7 @@ import type { RunId } from '@suite/contracts'
 import { recordCount } from '@suite/corpus'
 import { loadDescriptors } from '@suite/providers'
 import { PLACEMENTS, specAgeDays, specStaleness } from '@suite/render'
-import { costVariance, readManifest } from '../manifest-writer.js'
+import { costVariance, readManifest, readRunStub } from '../manifest-writer.js'
 import { stratejiSagligi } from './strateji.js'
 
 /** §8.7: fiyat anlık görüntüsü 60 günden eskiyse uyarı. */
@@ -190,12 +190,25 @@ export const doktorRaporu = (g: DoktorGirdisi): DoktorRaporu => {
       // Manifest'siz çıktı bir HATADIR (§13) — ama yalnız gerçekten çıktı varsa.
       const n = varlikSayisi(join(g.repoRoot, RUNS_DIR, runId))
       if (n > 0) {
-        bulgular.push({
-          alan: 'defter',
-          siddet: 'kritik',
-          mesaj: `${runId}: ${n} varlık VAR, manifest YOK — kimin ürettiği ve neye mal olduğu bilinmiyor`,
-          hedef: runId,
-        })
+        // **Kesintiye uğramış koşu ile KÜNYESİZ koşu aynı şey değil.** Künye varsa
+        // hangi hat, hangi marka, hangi dönem biliniyor; eksik olan yalnız maliyet ve
+        // adım kaydı. Künye yoksa varlık gerçekten öksüzdür.
+        const kunye = readRunStub(g.repoRoot, runId as RunId)
+        bulgular.push(
+          kunye === null
+            ? {
+                alan: 'defter',
+                siddet: 'kritik',
+                mesaj: `${runId}: ${n} varlık VAR, manifest ve künye YOK — kimin ürettiği ve neye mal olduğu bilinmiyor`,
+                hedef: runId,
+              }
+            : {
+                alan: 'defter',
+                siddet: 'uyari',
+                mesaj: `${runId}: ${n} varlık VAR, koşu YARIDA kalmış (künye: ${kunye.pipeline}, ${kunye.createdAt}) — maliyet ve adım kaydı eksik`,
+                hedef: runId,
+              }
+        )
       }
       continue
     }

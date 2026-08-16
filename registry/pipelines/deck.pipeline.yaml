@@ -24,7 +24,10 @@ steps:
       locale: tr-TR
       # Deck IR sayfa başına başlık + gövde taşır; sayfalama `paginate`in işi,
       # modelin değil. Modele "10 slayt yaz" demek, tavanı metne gömmek olurdu.
-      max_chars: 4000
+      # ⚠ 4000 YAZILAMAZ: sağlayıcı kademeleri 2200 · 3000 · 10000 ve yönlendirici
+      # desteklenmeyen kısıtta adayı ELİYOR — hat plan aşamasında sağlayıcısız kalıyordu
+      # (FAZ-6 denetimi). Deck çok sayfalı: üst kademe doğru olan.
+      max_chars: 10000
 
   - id: kompozit
     verb: COMPOSE

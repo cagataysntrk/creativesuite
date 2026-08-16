@@ -13,7 +13,8 @@
 import { statSync } from 'node:fs'
 import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
 import { withPage, type BrowserResult } from './browser.js'
-import { chartHtml, isChartError } from './charts/chart.js'
+import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
+import { DIAGRAM_CSS } from './charts/diagram.js'
 import { kacir } from './html.js'
 
 export { kacir } from './html.js'
@@ -53,6 +54,13 @@ export const toHtml = (doc: DocumentModel): string =>
     '<!doctype html><meta charset="utf-8">',
     '<style>',
     doc.tokenCss,
+    // ⚠ **Grafik ve diyagram CSS'i BURADA olmak zorunda.** İlk sürüm `chartHtml`i
+    // çağırıyordu ama stilini koymuyordu: üretim PNG yolunda y-etiketleri üst üste
+    // yığılıyor, x-etiketleri birbirine giriyordu — deck PDF yolunda doğru çıkıyordu,
+    // çünkü orası CSS'i ekliyordu. Aynı belge iki yolda farklı görünüyordu ve HİÇBİR
+    // kapı bunu yakalamıyordu (FAZ-6 denetimi, bulgu 7).
+    CHART_CSS,
+    DIAGRAM_CSS,
     `  html, body { margin: 0; padding: 0; }`,
     `  body { width: ${doc.width}px; height: ${doc.height}px; background: var(--role-bg);`,
     `         color: var(--role-text); font-family: "DejaVu Sans", system-ui, sans-serif;`,
