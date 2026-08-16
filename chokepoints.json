@@ -275,6 +275,15 @@
       "faz": "FAZ-6.4",
       "kapsam": ["packages/corpus/src/**/*.ts"],
       "kapsam_haric": ["packages/*/src/**/*.test.ts"]
+    },
+    {
+      "id": "linkedin-kazima",
+      "ad": "LinkedIn kazıyan kaynak",
+      "neden": "LinkedIn profil/şirket/sales sayfaları HİÇBİR biçimde kazınmaz: ToS ihlali ve hesap kaybı riski — ve kaybedilen hesap yalnız araştırmayı değil, §9.3 yayın hattını da öldürür. Proxycurl bu yüzden kapandı. `izinli` BOŞ. **`api.linkedin.com` bu kuralın konusu DEĞİLDİR**: oraya PUBLISH resmî API ile dokunur; okuma ile yazma aynı platformda iki ayrı hukuki zemindir ve tek kelimelik bir 'linkedin' araması ikisini karıştırırdı. Tek yetkili yer, kuralı UYGULAYAN dosyadır: reddi yazan kodun deseni adlandırması gerekir.",
+      "izinli": ["packages/providers/src/ingest/waterfall.ts"],
+      "desen": "linkedin\\\\?\\.com\\\\?/\\(?(in|company|sales|jobs)|proxycurl|phantombuster|scrapin\\.io",
+      "faz": "FAZ-6.5",
+      "kapsam_haric": ["packages/*/src/**/*.test.ts", "apps/*/src/**/*.test.ts"]
     }
   ],
   "kapsam_varsayilan_neden": "Son iki desen 2026-08-15'te eklendi. `scripts/uret.mjs` ve `scripts/plan.mjs` ÜRETİM YOLUDUR — `just uret` para harcayabilir — ama hiçbir darboğazın kapsamında değildiler. Doğrulama agent'ı orada dört ihlal buldu: ikinci retrieval yüklemi (R-13, BLOCKING), doğrudan `process.env`, doğrudan `openDb`, kendi maliyet defteri. Kapı betikleri (`scripts/gates/**`, `*-kontrol.mjs`, üreteçler) KAPSAM DIŞI: onlar araçtır, üretim yolu değil — bir kapının `git` çağırması kapının işidir. Bir darboğaz kapsamı, kuralın en çok çiğneneceği yeri dışarıda bırakıyorsa kapı değil."

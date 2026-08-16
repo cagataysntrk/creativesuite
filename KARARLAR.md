@@ -77,6 +77,12 @@ runtime'ı çalıştırmıyor; `--player-ready-timeout 2000` ile **1 dk 34 sn �
 şerit gerçek para harcıyor. Sözleşme yazıldı ve test edildi (lisans kuralı iki ihlalle
 kırmızıya döndürüldü); kalan iş yalnız bağlantı. → FAZ-5.4b
 
+## V-24 — Araştırma şelalesinin dört kaynağı anahtarsız
+`BRIGHTDATA_API_KEY` · `TAVILY_API_KEY` · `IHALE_MCP_URL` · `BORSA_MCP_URL` yok. Şelale
+mantığı, karantina, köken sidecar'ı ve enjeksiyon sınırı yazıldı ve **gerçek HTTP
+çekimiyle** doğrulandı (yerel sunucu); kalan iş yalnız bağlantı. Anahtarsız kaynaklar
+sessizce atlanmıyor, `bloke` işaretleniyor. → FAZ-6.5b
+
 ## V-23 — LinkedIn dökümanının GERÇEK platform sınırı doğrulanmadı
 Sayfa tavanı 10 ve bayt tavanı 5 MB koda girdi ama ikisi de **bizim editoryal
 kararımız**; LinkedIn'in kendi belgelenmiş sınırı okunmadı. Uydurulmuş bir platform
@@ -555,4 +561,31 @@ düzenlenmiş" sayıp çalıştırmayı durdururdu (§4.6) — oysa bu meşru bi
 kurgudur. Kaydın ŞEKLİ testte doğrulanıyor; gerçek kayıtlar insan girdisiyle gelir.
 
 **Geri alma maliyeti:** düşük — fonksiyon tek dosyada, çağıranı yok.
+
+## D-213 — `INGEST` tarayıcı AÇMAZ: plan "yerel Playwright" diyordu, olamaz
+
+**Tarih:** 2026-08-16 · **Bağlam:** FAZ-6.5 · §14 · R-04
+
+Plan araştırma şelalesinin ilk basamağını "kendi siteleri (yerel Playwright)" diye
+tarifliyordu. Uygularken iki yasayla çarpıştı: R-04 "yalnız `RENDER` Chromium'a dokunur"
+ve `chromium-baslatan` darboğazı tek başlatıcıya izin veriyor.
+
+**Ama asıl gerekçe mimari değil, güvenlik.** Tarayıcı açmak, prospect sitesinden gelen
+JavaScript'i **çalıştırmak** demektir — §14'ün enjeksiyon sınırının altını oyan tam olarak
+bu olurdu. Metni okumak için kod çalıştırmak gerekmiyor.
+
+**Karar:** `INGEST` tek HTTP istemcisini (`kernel/src/net/http.ts`) kullanır ve HTML'i
+~20 satırlık bir dönüştürücüyle metne çevirir (R-75: ayrıştırıcı bağımlılığı eklenmedi).
+`<script>` ve `<style>` gövdeleri tamamen atılır.
+
+**Ödenen bedel BEYAN EDİLİYOR:** yalnız JavaScript ile çizilen bir site bize boş görünür.
+Bu `bos_icerik` olarak raporlanır — sessizce boş metin dönmez, çünkü boş dönen bir çekim
+"site hakkında hiçbir şey yok" diye okunurdu.
+
+**Bataryanın bulduğu:** ilk sürümüm `slugFor`da çıplak `.toLowerCase()` çağırıyordu
+(R-21). URL slug'ında Türkçe metin olmadığı için zararsız görünüyordu — kuralın değeri
+tam olarak "istisna yok"tan geliyor: bir istisna açıldığı an sonraki çağrı Türkçe metinle
+gelir ve kimse fark etmez.
+
+**Geri alma maliyeti:** düşük.
 

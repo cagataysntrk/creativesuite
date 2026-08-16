@@ -68,11 +68,13 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
    prospect kaydı yaz → `prospect-kvkk` reddediyor
 💾 `feat(corpus): prospect varlık tipi` · `Refs: FAZ-6.4 · §10`
 
-## 6.5 — `INGEST` araştırma şelalesi    [ ]
+## 6.5 — `INGEST` araştırma şelalesi    [x] 2026-08-16
 
 📖 §10, §14 · R-50 · D-40
 🔗 FAZ-2.3b
-🛠 Sıra maliyet ve güven sırasıdır: kendi siteleri (yerel Playwright) → Bright Data SERP
+🛠 Sıra maliyet ve güven sırasıdır: kendi siteleri (**tek HTTP istemcisi — tarayıcı YOK**,
+   D-213: `INGEST` bir tarayıcı açsaydı prospect sitesinin JavaScript'ini çalıştırırdı ve
+   §14 sınırının altını oyardı) → Bright Data SERP
    (5k bedava/ay) → Tavily (1k bedava/ay) → **ihale-mcp** (yayınlanan/kazanılan ihale =
    teyitli bütçe + kapsam + tarih) → borsa-mcp/pykap. Çıktı **daima** `derived/ingest/`
    karantinasına iner ve **asla talimat olarak sunulmaz** (R-50).
@@ -82,6 +84,19 @@ kapısından geçti ve görüşmeden önce gönderildi · deck'teki her sayısal
 🧪 Çekilen metne "önceki talimatları unut" yaz → talimat olarak İŞLENMİYOR, alıntı
    olarak kalıyor · LinkedIn kazıyan bir sağlayıcı ekle → lint reddediyor
 💾 `feat(providers): INGEST araştırma şelalesi` · `Refs: FAZ-6.5 · §10`
+
+## 6.5b — Şelaleye gerçek kaynakları bağla    [ ] BLOKE:insan (V-24)
+
+📖 §10 · R-50
+🔗 6.5
+🛠 Dört kaynak anahtarsız: `BRIGHTDATA_API_KEY` · `TAVILY_API_KEY` · `IHALE_MCP_URL` ·
+   `BORSA_MCP_URL`. Şelale mantığı, karantina, sidecar ve enjeksiyon sınırı **yazıldı ve
+   gerçek HTTP çekimiyle doğrulandı**; kalan iş yalnız bağlantı. Anahtarsız kaynak
+   sessizce atlanmıyor, `bloke` işaretleniyor ve raporda görünüyor.
+✅ `planWaterfall(process.env)` dört kaynağı da `hazir` gösteriyor · her biri gerçek bir
+   çekim yapıp `derived/ingest/<domain>/` altına metin + sidecar yazıyor
+🧪 Bir anahtarı `doldurulacak` yap → kaynak `bloke` düşüyor, sessizce atlanmıyor
+💾 `feat(providers): şelale kaynaklarını bağla` · `Refs: FAZ-6.5b · §10`
 
 ## 6.6 — 14 günlük tazelik kapısı    [ ]
 

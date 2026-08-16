@@ -58,3 +58,36 @@ export {
 } from './image/lanes.js'
 export { cloudflareImage } from './image/cloudflare.js'
 export { falImage, FAL_UNIT_MICROS, FAL_UNIT_USD } from './image/fal.js'
+
+// INGEST araştırma şelalesi (FAZ-6.5). Sınır `@suite/kernel/ingest/boundary`ta ve
+// ikinci bir sınır YAZILMADI — iki sınır, birinin bir gün gevşemesi demektir.
+export {
+  SELALE,
+  YASAKLI_KAYNAK,
+  canFetch,
+  planWaterfall,
+  type IngestSource,
+  type SourceKind,
+  type SourceRefusal,
+  type SourceState,
+  type WaterfallPlan,
+} from './ingest/waterfall.js'
+export {
+  buildProvenance,
+  isProvenanceError,
+  provenanceJson,
+  quarantinePaths,
+  verifyProvenance,
+  type Provenance,
+  type ProvenanceError,
+  type ProvenanceInput,
+} from './ingest/provenance.js'
+export {
+  fetchSource,
+  htmlToText,
+  isIngestFailure,
+  slugFor,
+  type FetchInput,
+  type IngestArtifact,
+  type IngestFailure,
+} from './ingest/fetch.js'

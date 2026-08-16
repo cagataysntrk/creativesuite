@@ -104,6 +104,12 @@ const IHLALLER = [
     imza: 'kvkk_disclosure_sent',
   },
   {
+    kapi: 'chokepoints',
+    dosya: 'packages/providers/src/ingest/ihlal-gecici.ts',
+    icerik: "export const u = 'https://www.linkedin.com/in/biri'\n",
+    imza: 'linkedin-kazima',
+  },
+  {
     kapi: 'turkce-genisleme',
     dosya: 'apps/ui/src/ihlal-gecici.css',
     icerik: 'button.ihlal {\n  inline-size: 96px;\n}\n',
