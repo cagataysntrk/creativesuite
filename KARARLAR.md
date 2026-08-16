@@ -430,3 +430,36 @@ artık kaynağından import ediliyor; ayrışma yapısal olarak imkânsız.
 - Önizleme/küçük resim yok: dijest'e bakarak 400 görsel taranamaz.
 
 **Geri alma maliyeti:** yok — alan opsiyonel, eski varlıklar okunmaya devam ediyor.
+
+## D-249 — İki katman: içerik-adresli DOĞRULUK, klasörlü GEZİNME
+
+**2026-08-16 · varlık düzeni**
+
+Soru haklıydı: `derived/blobs/9a/9abd32a7…png` insan için gezilemez. Ama cevap
+"klasörlere geç" değil — **ikisi ayrı iş ve karıştırılırsa ikisi de bozulur.**
+
+**`derived/blobs/<ab>/<sha256>.<ext>` DOĞRULUKTUR ve değişmiyor:**
+- Adres = içerik. Aynı görsel iki teslimatta kullanılırsa **tek kopya** durur.
+- Bir bayt bozulursa adres tutmaz; bozulma matematiksel olarak yakalanır.
+- `post-1/` klasörü bunların **ikisini de** kaybettirir: aynı görsel iki kez yazılır ve
+  bir klasör adı hiçbir şeyi doğrulamaz.
+
+**`content/<yyyy-mm>/<tip>-<konu>-<id8>/01-kapak.png` GEZİNMEDİR ve yeni:**
+İnsan "şu postu aç" diye bakar, "şu sha256'yı" diye değil. Sıralı, adlandırılmış,
+tıklanabilir. Planın §5'inde `content/` yıllardır yazılıydı ve **hiç yazılmamıştı**.
+
+**Projeksiyon, ikinci doğruluk kaynağı DEĞİL:** `content/` gitignore'lu ve
+`just teslimatlar` onu sıfırdan kurar. Ters kurulsaydı — klasörler doğruluk, blob'lar
+kopya — aynı görsel iki yerde durur ve hangisinin gerçek olduğu sorusu doğardı.
+
+**Sembolik bağ, kopya değil:** 400 varlık iki kez yer kaplamıyor ve "hangisi güncel"
+sorusu doğmuyor. Bağlar **göreli**: depo taşınırsa kırılmıyor — mutlak yol, yedeği
+başka bir dizine açan birinin karşısına kırık bir ağaç çıkarırdı (FAZ-8.7 dersi).
+
+**Slug `foldForSearch`ten:** çıplak `toLowerCase()` `İ`yi bozar (R-21) ve dosya adı bir
+daha eşleşmez.
+
+**Damgasız varlıklar sayılıyor ve söyleniyor** — sessizce atlanan bir varlık, olmayan
+bir varlıktan kötüdür: görünüm "hepsi burada" gibi durur.
+
+**Geri alma maliyeti:** yok — `content/` silinebilir, hiçbir şey kaybolmaz.

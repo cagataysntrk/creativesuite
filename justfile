@@ -98,6 +98,10 @@ token-durum:
     @./node_modules/.bin/tsc -b && node scripts/token-durum.mjs
 
 # Yayın defterini BAŞLAT — ilk yayından önce bir kez, insan çalıştırır (D-38 · FAZ-7.2)
+# Varlıkların insan okunur görünümü — türetilmiş, silinip yeniden kurulur (§3.5)
+teslimatlar:
+    @./node_modules/.bin/tsc -b && node scripts/teslimat-gorunumu.mjs
+
 defter-baslat:
     @./node_modules/.bin/tsc -b && node scripts/defter-baslat.mjs
 

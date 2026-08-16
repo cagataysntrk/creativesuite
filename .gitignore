@@ -17,6 +17,12 @@ derived/ingest/
 # byte'lar 3.12b'ye (R2 senkronu) kadar yalnız bu makinede.
 derived/bakeoff/
 
+# ── `content/` — varlıkların insan okunur GÖRÜNÜMÜ (D-249) ───────────────────
+# Sembolik bağlardan ibaret ve tamamen türetilmiş: doğruluk `derived/blobs` +
+# sidecar'lar. `just teslimatlar` sıfırdan kurar. Git'e girseydi aynı varlık iki
+# yerde tutulur ve hangisinin gerçek olduğu sorusu doğardı.
+content/
+
 # Node
 node_modules/
 .pnpm-store/
