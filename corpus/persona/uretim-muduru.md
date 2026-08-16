@@ -1,43 +1,48 @@
 ---
-id: rec_persona_uretim_muduru
 brand_id: brd_upcytech
-type: persona
 schema_version: 1
 kind: dna
 locale: tr-TR
 era_id: imalat-2026
-created_at: 2026-08-15T15:50:00.000Z
-confidence: 0.6
+created_at: 2026-08-16T18:45:00.000Z
 source:
-  kind: inference
-  ref: araştırma dalgası 2 — persona sentezi
+  kind: interview
+  ref: kurucu röportajı — 2026-08-16 (FAZ-2.9, D-5 ikinci yarı)
   quote: null
+tags: []
+context_weight: 1
+id: rec_persona_uretim_muduru
+type: persona
+confidence: 0.7
 scope:
   channels: []
   verticals:
     - imalat
   personas: []
-tags: []
-context_weight: 1
 title: Üretim müdürü
 status: draft
 zone: generated
-x_signature: sha256:2e6aa9d9fa389cfb396ad3d0d7c09bdbbd6f33a6624c4463b984cf5ff6590a7c
+x_signature: sha256:a95dbc4b238058c92994a2005d40d7ba0ad3c03865cfca57b81c890774e3d357
 ---
 
-**Rol:** Üretim müdürü — hattın günlük sorumlusu.
+**Rol:** Üretim/fabrika müdürü. Hattın çıktısından, duruşundan ve firesinden
+sorumlu. Teknik konuşur, somut ister.
 
-**Hedef:** Vardiya hedefini tutturmak ve fireyi açıklayabilmek. Başarı ölçütü
-şirketin değil KENDİSİNİN ölçütüdür: ay sonunda sorulan soruya cevabı olması.
+**Günlük gerçeklik:** Sabah raporu Excel'de birleştiriliyor ya da hiç yok. "Dün ne
+oldu" sorusunun cevabı vardiya amirinin hafızasında. Bir sorunun kök nedenini bulmak
+saatler alıyor ve çoğu zaman aranmıyor bile.
 
-**İtiraz:** "Hattı durdurmadan bunu nasıl kuracaksınız?" Bütçe nadiren gerçek
-itirazdır; gerçek itiraz üretimin kesilme riskidir.
+**Ne umursar:** duruş süresi · fire · vardiya karşılaştırması · "bu sefer neden oldu".
+**Ne umursamaz:** teknoloji yığını, model adı, "yapay zekâ" kelimesi.
 
-**Karar gücü:** technical_gatekeeper — satın almayı tek başına yapmaz ama
-tek başına ÖLDÜREBİLİR.
+**İtirazları**
+- "Bizde veri yok ki." → **Konumumuzun tam merkezi**: veri katmanını da biz kuruyoruz.
+- "Daha önce bir sistem aldık, kullanılmadı." → Hazır modül uydurma denemesiydi;
+  özelleştirme farkı burada anlatılır.
+- "Ekip zaten yetişemiyor." → Giriş engeli tam olarak bu; efor beklentisi dürüstçe
+  konuşulur, küçültülmez.
 
-**Bilgi kaynakları:** sektör dernekleri, tedarikçi temsilcileri, LinkedIn'de
-takip ettiği birkaç uygulama örneği. Blog okumaz, webinar'a nadiren katılır.
-
-**Dil notları:** "fire", "duruş", "çevrim süresi", "OEE" — bu kelimeleri kullanır.
-"Dijital dönüşüm" ve "inovasyon" kelimeleri güven KAYBETTİRİR.
+**İKİNCİ ALICI — sürdürülebilirlik/finans tarafı.** UpcyCarbon'un asıl talep sahibi
+üretim müdürü olmayabilir: karbon ve sürdürülebilirlik raporlaması genelde denetim
+ya da mevzuat baskısıyla finans/kalite tarafından gelir. ⚠ Bu persona **henüz
+yazılmadı** — kurucudan doğrulanmadan yazmak, ICP'yi tahminle doldurmak olurdu.

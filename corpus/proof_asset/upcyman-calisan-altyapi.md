@@ -1,44 +1,47 @@
 ---
-id: rec_proof_upcyman
 brand_id: brd_upcytech
-type: proof_asset
 schema_version: 1
 kind: dna
 locale: tr-TR
-era_id: "*"
-created_at: 2026-08-15T15:50:00.000Z
-confidence: 0.9
+era_id: imalat-2026
+created_at: 2026-08-16T18:45:00.000Z
 source:
-  kind: observation
-  ref: api.upcyman.com — canlı NestJS servisi (2026-08-14 doğrulaması)
+  kind: interview
+  ref: kurucu röportajı — 2026-08-16 (FAZ-2.9, D-5 ikinci yarı)
   quote: null
-scope:
-  channels: []
-  verticals: []
-  personas: []
 tags: []
 context_weight: 1
+id: rec_proof_upcyman
+type: proof_asset
+confidence: 0.9
+scope:
+  channels: []
+  verticals:
+    - imalat
+  personas: []
 title: "UpcyMan: çalışan üretim altyapısı"
+era_of_origin: geri-donusum
+generalisation_note: "UpcyMan geri dönüşüm tesisleri için yazıldı ve asıl odağı orası. İmalat bağlamında YETENEK kanıtı olarak sunulur: kantardan satışa uçtan uca bir süreci canlı taşıyabildiğimizi gösterir. Bir imalat müşterisinin sonucu DEĞİLDİR ve öyle sunulamaz."
+transfer_confidence: analogous
 status: draft
 zone: generated
-x_signature: sha256:56d90bdd26bed921aad0f3beba800fff200cac895fa2fb8ad5bd9ab8400d01ff
+x_signature: sha256:9c28e21eb7dfa9c17aea9ef189017a56fd2701b0b5da8110dfa609a955527032
 ---
 
-**İddia:** Şirketin canlı, üretimde çalışan bir servis altyapısı var —
-kurulmamış bir ekip değil, çalışan yazılım üreten bir ekip.
+**Ne kanıtlıyor:** Uçtan uca bir tesis sürecini — kantardan satışa — canlı
+taşıyan bir yazılımı yazdık ve çalışıyor. `upcyman.com` · `api.upcyman.com`.
 
-**Kaynak:** `api.upcyman.com` canlı NestJS servisi, 2026-08-14'te doğrulandı.
+**Neden bu kanıt önemli:** Konumumuz "veri katmanını da biz kurarız" diyor. Bu iddia
+ancak veri katmanı kurabildiğimizi gösteren çalışan bir sistem varsa inandırıcı.
+UpcyMan tam olarak o sistem ve **aynı zamanda kullandığımız araç**: verisi olmayan
+firmada genelleştirilip veri katmanı olarak kuruluyor.
 
-**Kaynak dönem:** geri-donusum-2024 (UpcyMan geri dönüşüm dönemi ürünüdür).
+**Aktarım argümanı:** Geri dönüşüm tesisi ile imalat tesisi aynı şey
+değil. Ortak olan şey **süreç bütünlüğü**: giriş ölçümü → işlem → stok → çıkış → satış.
+Bu zincirin tamamını taşıyan bir yazılım yazmış olmak, imalatta da taşıyabileceğimizin
+göstergesidir — **daha zor bir vaka olarak sunulur**, hazır bir referans olarak değil.
 
-**Genelleme notu:** Bu kanıt İMALAT sonucu değildir ve öyle sunulmaz. Aktarılabilir
-olan şey **teknik yürütme kapasitesidir**: servis tasarlayıp canlıya alan ve ayakta
-tutan bir ekip. Alan bilgisi aktarılmaz, mühendislik pratiği aktarılır. Bir imalat
-prospect'ine sunulurken tam bu cümleyle sunulur — "geri dönüşümde yaptık, imalatta
-da yaparız" DEĞİL.
-
-**Aktarım güveni:** analogous.
-
-⚠ Sayısal iddia YOK. Kullanıcı sayısı, işlem hacmi gibi rakamlar ancak
-`claim_source` ile eklenebilir (R-32). Eski sitedeki "1.247 İlan" ve "892 Satıcı"
-desenli yer tutuculardı ve TAŞINMIYOR.
+⚠ **Sayısal iddia YOK.** Kullanıcı sayısı, işlem hacmi, tasarruf iddiası — hiçbiri
+yazılmadı. Kurucu röportajına göre yayınlanabilir gerçek müşteri sonucu henüz yok.
+Kaynaksız bir sayı eklemek kaynaksız-iddia yasağını çiğner ve `lexicon` kapısı
+reddeder.
