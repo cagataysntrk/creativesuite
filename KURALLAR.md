@@ -130,9 +130,13 @@ alanına giremez. **Belge nesri Türkçe kalır.** → D-37
 ## Üretim ve kalite
 
 ### R-30 · tek-render-motoru · BLOCKING · FAZ-3.1
-Statik, döküman ve hareket aynı headless Chromium'u kullanır. İkinci bir render motoru
-eklenmez.
+Statik, döküman ve hareket **aynı CSS motorunu** (Chromium) kullanır. İkinci bir render
+motoru (Satori gibi ayrı bir CSS alt kümesi) eklenmez.
 **Neden:** ikinci CSS alt kümesi = ikinci Türkçe tipografi hata modu.
+**Sınır ikili değil MOTOR** (D-194): HyperFrames kendi Chrome'unu getiriyor
+(135.x) ve Playwright'ınki 141.x — aynı motor, farklı sürüm. Bu kabul edilir **ancak**
+tipografik eşdeğerlik golden metrikle KANITLANIRSA; metrikler ayrışırsa hareket katmanı
+kullanılamaz.
 
 ### R-31 · golden-json-metrik · BLOCKING · FAZ-3.2
 Commit edilen golden bir PNG değil, **JSON metriktir** (glyph kutuları, satır sayısı,

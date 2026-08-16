@@ -522,3 +522,27 @@ reddettiğimiz şeyin (D-158) tekrarı olurdu:
 altyapı olması — plan hatası değil, planın `V-nn` olarak zaten öngördüğü şeyler.
 İkinci doğrulama turu AÇILMAZ (D-79): 1. tur bulguları kapandı, kalan her şey FAZ 9
 denetim turlarının zaten aradığı sınıfta.
+
+## D-194 — HyperFrames kendi Chrome'unu getiriyor: R-30 mekanizması değil AMACI zorlanır
+2026-08-16 · `5.1`e başlarken ölçüldü: `hyperframes browser path` **puppeteer'ın**
+Chrome'unu gösteriyor (`chrome-headless-shell 135.0.7049.114`), oysa `packages/render`
+Playwright'ın **Chromium 141.0.7390.37**'sini kullanıyor. Altı ana sürüm fark.
+`PUPPETEER_EXECUTABLE_PATH` ile yönlendirme denendi — **yok sayılıyor**, HyperFrames
+kendi ikilisini çözüyor.
+R-30 *"statik, döküman ve hareket aynı headless Chromium'u kullanır"* diyor ve D-25
+HyperFrames'i tam da "Chrome + FFmpeg, yani tek motor korunuyor" diye seçmişti. Kural
+lafzen ihlal ediliyor.
+**Ama kuralın AMACI ikili sayısı değil:** gerekçesi *"ikinci CSS alt kümesi = ikinci
+Türkçe tipografi hata modu"* ve hedefi Satori'ydi — ayrı bir CSS motoru, ligature ve
+WOFF2 desteği olmayan. İki Chromium sürümü aynı CSS motorudur; risk farklı ve ölçülebilir:
+**altı sürümlük font shaping / metrik kayması.** D-86 bu riski zaten bir kez yaşattı
+(kendi kendine güncellenen snap Chromium golden metriği bozdu).
+**Karar:** ikinci ikili KABUL EDİLİR, ama tipografik eşdeğerlik **kanıtlanmak zorunda**.
+`ĞÜŞİÖÇ ğüşıöç Ağrı İğne` kanıt dizesi HyperFrames'te de render edilip metriklerinin
+(glyph kutuları, satır sayısı, ilerleme genişliği, `notdef` = 0) Playwright golden'ıyla
+karşılaştırılması `5.1`in kabul kriteri olur. Metrikler ayrışırsa hareket katmanı
+kullanılamaz ve Revideo yedeğine (D-25) geçilir — karar o gün ölçüyle verilir, bugün
+tahminle değil.
+`hyperframes doctor` üç eksik bildiriyor, üçü de **optional** ve bu plana ait değil:
+whisper-cpp (FAZ-5.5 kendi çözümünü seçer), Kokoro TTS ve MusicGen (D-18 seslendirme
+şeritlerini sayıyor, ikisi de listede yok). Zorunlu kontrollerin hepsi yeşil.

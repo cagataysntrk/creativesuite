@@ -15,7 +15,9 @@ doğruluyor · **tam kapsamlı test paketi burada çalıştırıldı** (LOOP§D.
    şirket 6 kişi (D-25). HyperFrames Apache 2.0 ve headless Chrome + FFmpeg kullanıyor —
    yani **tek render motoru** yasası (R-30) korunuyor, ikinci bir CSS alt kümesi girmiyor.
 📁 `motion/` · `packages/render/src/motion/`
-✅ `npx hyperframes doctor` eksik bildirmiyor · örnek kompozisyon MP4 üretiyor
+✅ `npx hyperframes doctor` ZORUNLU kontrollerin hepsinde yeşil (optional olanlar
+   D-194'te adıyla sayıldı) · örnek kompozisyon MP4 üretiyor · **`ĞÜŞİÖÇ ğüşıöç Ağrı
+   İğne` metrikleri Playwright golden'ıyla eşleşiyor** (D-194: sınır ikili değil motor)
 🧪 İkinci bir render motoru ekle → `chokepoints` (`chromium-baslatan`) kırmızı
 💾 `feat(motion): hyperframes kurulumu` · `Refs: FAZ-5.1 · §7.4`
 
