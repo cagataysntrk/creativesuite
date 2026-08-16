@@ -154,6 +154,15 @@ Sayısal iddia içeren hiçbir metin `claim_source` olmadan yayınlanamaz.
 Türkçe `alt_tr` (≤125 karakter) olmayan görsel yayınlanamaz; `decorative: true` açıkça
 işaretlenmelidir.
 
+### R-36 · kisisellestirme-tavani-5 · BLOCKING · FAZ-6.7
+Bir prospect çıktısında en fazla **5** prospect'e özgü alan bulunabilir.
+**Neden:** Türk B2B'sinde fazlası iltifat değil **şüphe** uyandırır; "bunları nereden
+biliyorsun" sorusu satış görüşmesini veri kaynağı savunmasına çevirir. Tavan yapısaldır,
+öneri değil.
+**Zorlama:** `kisisellestirme` kapısı sayıyı **bu satırdan okur** ve koddaki sabitle
+karşılaştırır; ikisi ayrışırsa kırmızı. Yani tavanı değiştirmenin tek yolu önce burayı
+değiştirmektir (R-74).
+
 ### R-35 · lexicon-linter-deterministik · BLOCKING · FAZ-3.10
 Marka uygunluğu modele sorulmaz, listeye bakılır: yasak terim, token dışı hex, eksik
 alt-text, locale-naif casing.
