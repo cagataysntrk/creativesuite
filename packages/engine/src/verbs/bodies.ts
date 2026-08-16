@@ -454,6 +454,48 @@ export const renderBody = (deps: RenderDeps): Verb =>
     })
   })
 
+// ── PROPOSE: çalışma ağacına yazan TEK fiil (§5.4 · R-14 · FAZ-6.10) ────────
+//
+// ⚠ **Gövdesi HİÇ YOKTU** (2. doğrulama turu, bulgu 9): `uret.mjs` fiil haritasında
+// `PROPOSE` anahtarı yoktu ve `deck`, `linkedin-document`, `prospect-deck` üçü de
+// `onay` adımıyla bitiyor. İnsan onaylayıp `--devam` dediğinde hat son adımda
+// `VERB_NOT_IMPLEMENTED` ile patlıyordu — hiçbir manifestte `onay` adımı yok, yani
+// bu yol hiç koşulmamıştı.
+//
+// **Bu gövde corpus'a YAZMAZ.** `PROPOSE`un yan etki sınıfı `write-tree` ama yazma
+// darboğazı `packages/corpus/src/write.ts`te ve onay kuyruğu (FAZ-4.7) oradan geçiyor.
+// Burada olan tek şey: onaylanmış çıktıyı ÖZETLEYİP deftere geçirmek. Yazmayı buraya
+// koymak, onay kuyruğunu ATLAYAN ikinci bir yazma yolu açardı (R-14).
+
+export const proposeBody = (): Verb =>
+  govde('PROPOSE', async (ctx, input) => {
+    // Kapı kararı motorda okunuyor (`run.ts`): buraya gelindiyse insan ONAYLADI.
+    // Gövdenin işi kararı değil, SONUCU kaydetmek.
+    const ciktilar = Object.values(input.inputs).filter(
+      (v): v is Record<string, unknown> => v !== null && typeof v === 'object'
+    )
+    const varliklar = ciktilar.flatMap((o) => {
+      const s = o['slides']
+      if (Array.isArray(s)) return s.filter((x): x is string => typeof x === 'string')
+      for (const anahtar of ['deck', 'document']) {
+        const y = o[anahtar]
+        if (typeof y === 'string') return [y]
+      }
+      return []
+    })
+    if (varliklar.length === 0) {
+      // Onaylanacak bir şey yoksa onay bir kayıt değil, bir yanılsamadır.
+      return err(hata('validation', 'NOTHING_TO_PROPOSE', ctx))
+    }
+    return ok({
+      costs: [],
+      data: {
+        proposed: varliklar,
+        proposedAt: ctx.clock.nowIso(),
+      },
+    })
+  })
+
 // ── INGEST: dış kaynak çeken TEK fiil (§14 · R-50 · D-40 · FAZ-6.10) ────────
 //
 // ⚠ **Bu gövde FAZ 6 denetiminde EKSİK bulundu** (D-216). Şelale, karantina, köken

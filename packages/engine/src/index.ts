@@ -225,6 +225,7 @@ export {
   selectBody,
   composeBody,
   ingestBody,
+  proposeBody,
   renderBody,
   validateBody,
   generateBody,

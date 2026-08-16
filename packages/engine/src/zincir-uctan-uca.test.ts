@@ -191,3 +191,98 @@ describe('zincir kesintisiz mi', () => {
     expect(r.stoppedAt).toBe('render')
   })
 })
+
+// ── çalıştırma parametreleri adım KISITLARINA ulaşıyor mu ───────────────────
+//
+// İkinci doğrulama turu: `prospect-deck`in `arastir` adımı `url` bekliyordu ve CLI
+// yalnız `topic` alıyordu — başka parametre YOLU YOKTU. Hat `NO_SOURCE_URL` ile
+// duruyordu ve bu bir "insan blokajı" gibi görünüyordu; teknik bir eksikti.
+describe('çalıştırma parametreleri', () => {
+  it('`params` adımın KISITLARINA ekleniyor', async () => {
+    let gorulenKisit: Record<string, unknown> = {}
+    const gozcu = {
+      ...sahte('INGEST', {}),
+      run: async (_c: unknown, i: { constraints: Record<string, unknown> }) => {
+        gorulenKisit = i.constraints
+        return ok({
+          costs: [
+            {
+              verb: 'INGEST' as VerbName,
+              capability: 'test',
+              providerId: 'p1',
+              amount: usd(1n),
+              kind: 'actual' as const,
+            },
+          ],
+          data: {},
+        })
+      },
+    }
+    await runPipeline({
+      repoRoot: tmp.path,
+      pipeline: { id: 'p', title: 'p', steps: [adim('arastir', 'INGEST')] },
+      runId: RUN,
+      brandId: 'brd_test' as BrandId,
+      eraId: 'era_test' as EraId,
+      corpusCommit: 'abc1234',
+      registryCommit: 'def5678',
+      verbs: { INGEST: gozcu as never },
+      pricing: {},
+      candidatesFor: () => [],
+      env: {},
+      params: { url: 'https://ornek.gecersiz/x', demo_ref: 'demos/dima#fire' },
+      caps: { perRun: null, perMonth: null },
+      db,
+      clock: manualClock(SIMDI),
+      rng: seededRng(1),
+      sleep: async () => undefined,
+    } as Parameters<typeof runPipeline>[0])
+    expect(gorulenKisit['url']).toBe('https://ornek.gecersiz/x')
+    expect(gorulenKisit['demo_ref']).toBe('demos/dima#fire')
+  })
+
+  it('pipeline kısıtı parametreyi EZİYOR — kısıt bir sözleşme, parametre bir örnek', async () => {
+    let gorulen: Record<string, unknown> = {}
+    const gozcu = {
+      ...sahte('COMPOSE', {}),
+      run: async (_c: unknown, i: { constraints: Record<string, unknown> }) => {
+        gorulen = i.constraints
+        return ok({ costs: [], data: {} })
+      },
+    }
+    await runPipeline({
+      repoRoot: tmp.path,
+      pipeline: {
+        id: 'p',
+        title: 'p',
+        steps: [
+          {
+            id: 'k',
+            verb: 'COMPOSE',
+            capability: null,
+            constraints: { url: 'SÖZLEŞME' },
+            needs: [],
+            gate: null,
+          },
+        ],
+      },
+      runId: RUN,
+      brandId: 'brd_test' as BrandId,
+      eraId: 'era_test' as EraId,
+      corpusCommit: 'abc1234',
+      registryCommit: 'def5678',
+      verbs: { COMPOSE: gozcu as never },
+      pricing: {},
+      candidatesFor: () => [],
+      env: {},
+      params: { url: 'PARAMETRE' },
+      caps: { perRun: null, perMonth: null },
+      db,
+      clock: manualClock(SIMDI),
+      rng: seededRng(1),
+      sleep: async () => undefined,
+    } as Parameters<typeof runPipeline>[0])
+    // R-20'nin genel hâli: bir çalıştırma parametresi yasayı ezemez.
+    expect(gorulen['url']).toBe('SÖZLEŞME')
+  })
+})

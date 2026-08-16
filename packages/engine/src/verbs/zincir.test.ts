@@ -161,3 +161,37 @@ describe('VALIDATE · lexicon (çıktı biçiminden bağımsız)', () => {
     expect(r.ok).toBe(true)
   })
 })
+
+// ── PROPOSE gövdesi (2. doğrulama turu, bulgu 9) ────────────────────────────
+import { proposeBody } from './bodies.js'
+
+describe('PROPOSE gövdesi (bağlanma)', () => {
+  // 🧪 Gövde HİÇ YOKTU: üç hattın üçü de `onay` adımıyla bitiyor ve insan onaylayıp
+  // `--devam` dediğinde hat son adımda `VERB_NOT_IMPLEMENTED` ile patlıyordu.
+  it('PNG çıktısını deftere geçiriyor', async () => {
+    const r = await proposeBody().run(ctx(), {
+      constraints: {},
+      inputs: { render: { slides: ['/tmp/a.png', '/tmp/b.png'] } },
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect((r.value.data as { proposed: string[] }).proposed).toHaveLength(2)
+  })
+
+  it('PDF çıktısını da geçiriyor — biçim ayrımı yok', async () => {
+    const r = await proposeBody().run(ctx(), {
+      constraints: {},
+      inputs: { render: { deck: '/tmp/deck.pdf', pages: 2 } },
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect((r.value.data as { proposed: string[] }).proposed).toEqual(['/tmp/deck.pdf'])
+  })
+
+  it('onaylanacak bir şey yoksa REDDEDİYOR — onay yanılsaması olmaz', async () => {
+    const r = await proposeBody().run(ctx(), { constraints: {}, inputs: {} })
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.code).toBe('NOTHING_TO_PROPOSE')
+  })
+})

@@ -20,6 +20,7 @@ const {
   selectBody,
   composeBody,
   ingestBody,
+  proposeBody,
   renderBody,
   validateBody,
   generateBody,
@@ -73,9 +74,35 @@ const verilenRunId = runIndeks > 0 ? process.argv[runIndeks + 1] : undefined
 const digestIndeks = process.argv.indexOf('--plan-digest')
 const beklenenDigest = digestIndeks > 0 ? process.argv[digestIndeks + 1] : undefined
 const BAYRAKLAR = new Set(['--devam', '--run', '--plan-digest', '--rerun', '--replay'])
+
+// ── serbest çalıştırma parametreleri ────────────────────────────────────────
+//
+// ⚠ **İkinci doğrulama turu bunu eksik buldu.** `prospect-deck` hattının `arastir`
+// adımı bir `url` bekliyor ve `urun-ekrani` adımı `demo_ref` bekliyor; CLI yalnız
+// `topic` alıyordu ve başka parametre YOLU YOKTU. Sonuç: hat `NO_SOURCE_URL` ile
+// duruyordu ve bu bir "insan blokajı" gibi görünüyordu — oysa teknik bir eksikti.
+//
+// `--<ad> <deger>` çiftleri `params`a giriyor ve motor onları her adımın kısıtlarına
+// EKLİYOR. **Pipeline kısıtı yine kazanır** (R-20 ezilemez): parametre bir örnek,
+// kısıt bir sözleşme.
+const serbestParam = {}
+for (let i = 3; i < process.argv.length - 1; i++) {
+  const a = process.argv[i]
+  if (!a.startsWith('--') || BAYRAKLAR.has(a)) continue
+  const deger = process.argv[i + 1]
+  if (deger === undefined || deger.startsWith('--')) continue
+  // `--demo-ref` → `demo_ref`: YAML kısıtları alt çizgi kullanıyor.
+  serbestParam[a.slice(2).replace(/-/g, '_')] = deger
+}
+const serbestAnahtarlar = new Set(Object.keys(serbestParam).map((k) => `--${k.replace(/_/g, '-')}`))
 const konu = process.argv
   .slice(3)
-  .filter((a, i, arr) => !BAYRAKLAR.has(a) && !BAYRAKLAR.has(arr[i - 1] ?? ''))
+  .filter((a, i, arr) => {
+    const onceki = arr[i - 1] ?? ''
+    if (BAYRAKLAR.has(a) || BAYRAKLAR.has(onceki)) return false
+    // Serbest parametrenin kendisi ve değeri konuya girmez.
+    return !serbestAnahtarlar.has(a) && !serbestAnahtarlar.has(onceki)
+  })
   .join(' ')
 if (
   id === undefined ||
@@ -83,6 +110,7 @@ if (
 ) {
   console.log(`  kullanım: just uret <pipeline> <konu>`)
   console.log(`  devam:    just uret <pipeline> --devam <run_id>   (konu manifest'ten okunur)`)
+  console.log(`  parametre: just uret prospect-deck <konu> --url <site> --demo-ref <yol>`)
   console.log(`  mevcut: ${listPipelines(PIPELINES).join(', ') || '(yok)'}`)
   process.exit(1)
 }
@@ -571,6 +599,9 @@ const rapor = await runPipeline({
     // olduğu gibi geçirmek, "hangi değişken gerekiyor" sorusunu grep'le
     // cevaplanamaz hâle getirirdi — ve bir ay ihmalden sonra sistemi başlatamamanın
     // en sık sebebi tam olarak budur.
+    // Onay adımı: insan kapıyı geçtiyse SONUCU deftere geçirir. Corpus'a YAZMAZ —
+    // yazma darboğazı ayrı ve onay kuyruğu oradan geçiyor (R-14).
+    PROPOSE: proposeBody(),
     INGEST: ingestBody({
       repoRoot: REPO,
       env: {
@@ -587,6 +618,7 @@ const rapor = await runPipeline({
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
   params: {
+    ...serbestParam,
     topic: devamKonu ?? kaynakKonu ?? konu,
     // Boşsa hiç geçilmez: boş bir `kacinilacak`, prompt'a anlamsız bir başlık eklerdi.
     ...(kacinilacak === '' ? {} : { kacinilacak }),
