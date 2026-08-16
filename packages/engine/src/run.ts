@@ -505,7 +505,11 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         },
         bState,
         async () => {
-          const o = await fiiliCagir(verb, { constraints: s.constraints, inputs: ciktilar })
+          const o = await fiiliCagir(verb, {
+            constraints: s.constraints,
+            inputs: ciktilar,
+            ...(s.capability === null ? {} : { capability: s.capability }),
+          })
           return o.ok
             ? {
                 ok: true as const,
@@ -583,6 +587,8 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
             const o = await fiiliCagir(verb, {
               constraints: s.constraints,
               inputs: ciktilar,
+              // Yetenek adımın verisi — gövde kurulumundan değil buradan gelir (D-241).
+              ...(s.capability === null ? {} : { capability: s.capability }),
               providerId: kazanan.providerId,
               noteHandle: (id: string) => {
                 tutamak = id
@@ -612,7 +618,11 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         sonuc = { ok: r.error === null, outcome: r.outcome, error: r.error }
       }
     } else {
-      const o = await fiiliCagir(verb, { constraints: s.constraints, inputs: ciktilar })
+      const o = await fiiliCagir(verb, {
+        constraints: s.constraints,
+        inputs: ciktilar,
+        ...(s.capability === null ? {} : { capability: s.capability }),
+      })
       sonuc = o.ok
         ? {
             ok: true,

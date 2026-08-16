@@ -69,6 +69,16 @@ export interface BodyInput {
    * `providerCall` üretimden hiç çağrılmıyordu (D-141).
    */
   readonly providerId?: string
+  /**
+   * **Adımın yeteneği** — `image.generate`, `text.generate`…
+   *
+   * ⚠ Eskiden yoktu ve `generateBody` yeteneği KURULUM anında alıyordu
+   * (`capability: 'image.generate'`). Tek bir gövde tüm `GENERATE` adımlarına
+   * hizmet ettiği için metin adımı da görsel yeteneğiyle koşuyor ve
+   * `CAPABILITY_UNSUPPORTED` alıyordu (D-241). Yetenek adımın VERİSİDİR, gövdenin
+   * yapılandırması değil.
+   */
+  readonly capability?: string
   /** Motorun tutamak köprüsü — sağlayıcı iş kimliğini verir vermez çağrılır (R-44). */
   readonly noteHandle?: (externalId: string) => void
   /** Önceki çalıştırmadan kalan tutamak. `null` değilse YENİ çağrı yapılmaz. */
@@ -923,6 +933,11 @@ export interface GenerateDeps {
  */
 export const generateBody = (deps: GenerateDeps): Verb =>
   govde('GENERATE', async (ctx, input) => {
+    // **Yetenek ADIMDAN gelir** (D-241); `deps.capability` yalnız geriye dönük
+    // varsayılan. Kurulumdan almak, tek bir gövdenin tüm `GENERATE` adımlarına
+    // hizmet ettiği yerde metin adımını görsel yeteneğiyle koşturuyordu.
+    const yetenek = input.capability ?? deps.capability
+
     // ── 9. yasa: SAĞLAYICI SEÇİLMEDEN ÖNCE (§11.3 · R-33 · D-239) ───────────
     //
     // ⚠ **Bu kapı bir adım GEÇ çalışıyordu.** `promptRequestsPerson` yalnız
@@ -941,7 +956,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // Kontrol burada, `providers`ta DEĞİL: `providers` ile `render` kardeştir (§3.6)
     // ve birbirini import edemez. Deseni ikinci kez yazmak, iki listeden birinin
     // güncellenmemesi demekti — bu projenin en sık tekrarlayan hatası.
-    if (deps.capability.startsWith('image.') || deps.capability.startsWith('video.')) {
+    if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
       const istenenPrompt =
         typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : ''
       const insan = promptRequestsPerson(istenenPrompt)
@@ -971,7 +986,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // gibi bir gerekçe R-20 kurucusunu tetikler ve çalıştırma reddedilir, (2) daha
     // kötüsü, metin İSTEYEN bir cümle görsel modeline gider. Görsel modeline Türkçe
     // metin çizdirilmez — on iki yasadan biri ve bir kolaylık için esnetilmez.
-    const metinYetenegi = !deps.capability.startsWith('image.')
+    const metinYetenegi = !yetenek.startsWith('image.')
     const kacinilacak =
       metinYetenegi && typeof input.constraints['kacinilacak'] === 'string'
         ? input.constraints['kacinilacak'].trim()
@@ -980,7 +995,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : ''
 
     const ham: ProviderInput = {
-      capability: deps.capability,
+      capability: yetenek,
       lane: serit,
       prompt: kacinilacak === '' ? temelPrompt : `${temelPrompt}\n\nKAÇIN: ${kacinilacak}`,
       constraints: input.constraints,
@@ -1010,7 +1025,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       costs: [
         {
           verb: 'GENERATE' as VerbName,
-          capability: deps.capability,
+          capability: yetenek,
           providerId,
           amount: sonuc.value.amount,
           kind: 'actual' as const,

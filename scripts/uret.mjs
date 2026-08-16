@@ -450,6 +450,14 @@ const kaliteKontrol = async (doc, slides) => {
 
 // ── sağlayıcı fiyatları ─────────────────────────────────────────────────────
 const { descriptors } = loadDescriptors(join(REPO, 'registry/providers'))
+
+/**
+ * Sağlayıcı ortamı — **TEK tanım, üç çağıran** (`plan`, `runPipeline`, `generateBody`).
+ *
+ * Üçü ayrı ayrı kurulduğunda ikisi `PATH`ten ibaret kalmıştı ve kasadaki anahtar
+ * hiçbirine ulaşmıyordu. Bir şeyi üç yerde kurmak, ikisini güncellemeyi unutmaktır.
+ */
+const SAGLAYICI_ORTAMI = saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID'])
 const pricing = Object.fromEntries(
   descriptors
     .filter((d) => d.enabled)
@@ -530,7 +538,7 @@ const generate = generateBody({
   // ⚠ Bu liste ELLE SAYILIYORDU (üç ad) ve dördüncü sağlayıcı eklendiği gün sessizce
   // unutulacaktı (D-237). Artık tanımlayıcıların `auth_env` beyanından türetiliyor —
   // hangi anahtarın gerektiği veridir, kod değil. Okuyucu TEK: `readEnv` (§14).
-  env: saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID']),
+  env: SAGLAYICI_ORTAMI,
   capability: 'image.generate',
 })
 
@@ -565,7 +573,10 @@ const planSonuc = planKur({
   runId,
   brandId: MARKA,
   eraId: AKTIF_DONEM,
-  env: { PATH: readEnv('PATH') ?? '' },
+  // ⚠ Yalnız `PATH` geçiliyordu ve `candidatesFor` anahtarları göremiyordu: kasada
+  // duran bir anahtarla bile her sağlayıcı "yerel önkoşul sağlanmadı" diye eleniyordu
+  // (D-237'nin `uret.mjs` tarafındaki ikizi).
+  env: SAGLAYICI_ORTAMI,
   pricing,
 })
 if (!planSonuc.ok) {
@@ -711,7 +722,7 @@ const rapor = await runPipeline({
   },
   pricing,
   candidatesFor,
-  env: { PATH: readEnv('PATH') ?? '' },
+  env: SAGLAYICI_ORTAMI,
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
   params: {

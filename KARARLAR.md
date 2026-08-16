@@ -532,3 +532,38 @@ Maliyeti yok diye görünmez olmaz — süresi ve çıktısı var.
 
 **Geri alma maliyeti:** yok — matrissiz hat aynı nesneyi geri alıyor, hiçbir davranış
 değişmiyor.
+
+## D-241 — Yetenek gövde kurulumundaydı; ortam üç yerde ayrı kuruluyordu
+
+**2026-08-16 · corpus onaylandıktan sonraki ilk gerçek koşu**
+
+Corpus `active` olunca hat ilk kez `bilgi-sec`i geçti ve arkasındaki üç kusur **sırayla**
+ortaya çıktı. Üçü de aynı sınıf: **adımın verisi olması gereken şey koda gömülmüştü.**
+
+**1 · Yetenek kurulumdaydı.** `uret.mjs` tek bir `generateBody({capability:
+'image.generate'})` kuruyor ve o gövde TÜM `GENERATE` adımlarına hizmet ediyordu. Metin
+adımı görsel yeteneğiyle koşup `CAPABILITY_UNSUPPORTED` alıyordu. `BodyInput` yeteneği
+hiç taşımıyordu. Artık taşıyor; `deps.capability` yalnız geriye dönük varsayılan.
+
+⚠ **Bu kusur bugüne kadar maskeliydi:** `image.generate` hiçbir sağlayıcıya
+çözülmediği için hat o adıma hiç varamıyordu. Bir anahtar eklemek, arkasındaki üç
+kusuru aynı anda görünür yaptı — **engeli kaldırmadan arkasını göremezsin.**
+
+**2 · Ortam üç yerde ayrı kuruluyordu.** `plan()`, `runPipeline()` ve `generateBody()`
+üç ayrı `env` alıyordu ve ikisi `{ PATH }`ten ibaretti. Kasada duran anahtar
+`candidatesFor`a hiç ulaşmıyor, her sağlayıcı "yerel önkoşul sağlanmadı" diye
+eleniyordu. Tek tanım (`SAGLAYICI_ORTAMI`), üç çağıran. D-237'nin `uret.mjs`
+tarafındaki ikizi — **bir şeyi üç yerde kurmak, ikisini güncellemeyi unutmaktır.**
+
+**3 · Görsel prompt'unun KAYNAĞI YOK** — `3.7b` olarak açıldı. Hiçbir hat `prompt`
+kısıtı beyan etmiyor ve hiçbir kod onu türetmiyor; `buildImagePrompt` boş dize alıp
+`{kind:'empty'}` ile reddediyor (doğru davranış). Mekanizma tam, besleyen yok.
+
+**Karar — nasıl doldurulacağı:** görsel brief'i **bir `text.generate` adımı üretecek**
+ve `gorsel-uret` ona bağlanacak. Alternatifler reddedildi: (a) hat dosyasına sabit
+prompt yazmak içeriğe kör bir görsel verir; (b) Türkçe konuyu doğrudan prompt yapmak
+görsel modellerinde belirgin biçimde kötü sonuç veriyor ve **6. yasayı da zorlar** —
+model seçimi yönlendiricinin işi ama prompt dili bizim kararımız. Brief'i model
+yazınca R-20 ve 9. yasa kapılarının ikisi de o metnin üzerinden geçiyor.
+
+**Geri alma maliyeti:** yok.

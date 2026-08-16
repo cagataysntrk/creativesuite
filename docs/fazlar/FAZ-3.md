@@ -9,7 +9,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 ---
 
 ## 3.1 — `COMPOSE` (saf) + `RENDER` mode:static    [x] 2026-08-15
-
 📖 §7.1 · R-30 · D-21, D-24
 🔗 FAZ-2.10
 🛠 `COMPOSE` saftır ve **belge modeli** üretir; `RENDER` Playwright + React şablon + token
@@ -30,7 +29,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(render): COMPOSE ve statik RENDER` · `Refs: FAZ-3.1 · §7.1`
 
 ## 3.2 — Golden-file tipografi testi (JSON metrik)    [x] 2026-08-15
-
 📖 §7.2, §15 · R-31 · 🔗 FAZ-1.10b
 🛠 `ĞÜŞİÖÇ ğüşıöç Ağrı İğne` her şablon boyutunda render edilir. **Commit edilen golden bir
    PNG DEĞİL, JSON metriktir**: glyph kutuları, satır sayısı, ilerleme genişliği, font
@@ -43,7 +41,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(render): golden tipografi metrikleri` · `Refs: FAZ-3.2 · §7.2`
 
 ## 3.3 — Kapalı `LayoutEnum`, taşma otomatik böler    [x] 2026-08-15
-
 📖 §7.1 · R-23
 🔗 3.1
 🛠 Dört başlangıç düzeni, kapalı birleşim. **Taşma otomatik BÖLER, asla küçültmez** —
@@ -60,7 +57,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(render): kapalı düzen kümesi ve taşma bölme` · `Refs: FAZ-3.3 · §7.1`
 
 ## 3.4 — Sağlayıcı tanımlayıcısı ve içe aktarıcı    [x] 2026-08-15
-
 📖 §8.1, §8.4 · R-42, R-43 · V-04
 🔗 FAZ-1.14
 🛠 `registry/providers/*.provider.yaml` tanımlayıcıları; adaptör sözleşmesi FAZ-1.14'te
@@ -74,7 +70,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(providers): tanımlayıcı formatı ve içe aktarıcı` · `Refs: FAZ-3.4 · §8.1`
 
 ## 3.5 — Yetenek yönlendiricisi ve bütçe kapıları    [x] 2026-08-15
-
 📖 §8.2, §8.3 · R-40 · D-2, D-17, D-32
 🔗 3.4
 🛠 ~300 satır, tablo tabanlı: **filtrele** (yetenek + tipli kısıt + enabled) → **fiyatla**
@@ -89,7 +84,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(engine): yetenek yönlendiricisi ve bütçe kapıları` · `Refs: FAZ-3.5 · §8.2`
 
 ## 3.6 — Retry, idempotency, rate limit bağlanması    [x] 2026-08-15
-
 📖 §8.5, §8.6 · R-44, R-45
 🔗 3.5
 🛠 FAZ-1.12'deki motor gerçek sağlayıcılara bağlanır: devre kesici `(providerId,
@@ -106,7 +100,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(engine): retry ve idempotency sağlayıcılara bağlandı` · `Refs: FAZ-3.6 · §8.5`
 
 ## 3.7 — `GENERATE` yeteneği `"image.generate"`    [ ] BLOKE: V-16
-
 📖 §7.3, §8.2 · R-20 · D-2
 🔗 3.5
 🛠 **İki şerit, sözleşmede donmuş** (`free` | `premium`); `free` içinde ucuz/orta model
@@ -120,8 +113,17 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    `lexicon` kapısı kırmızı.
 💾 `feat(providers): image.generate iki şeritli` · `Refs: FAZ-3.7 · §7.3`
 
-## 3.8 — Marka LoRA    [ ]
+## 3.7b — Görsel brief üreten adım    [ ]
+📖 §7.3 · R-20 · D-241 · 🔗 3.7
+🛠 Hiçbir hat görsel `prompt` beyan etmiyor; `buildImagePrompt` boş dize alıp
+   reddediyor. Bir `text.generate` adımı İngilizce görsel brief'i üretsin,
+   `gorsel-uret` ona bağlansın. Konu Türkçe kalır, brief modele gider.
+📁 `registry/pipelines/*.yaml` · `packages/engine/src/verbs/bodies.ts`
+✅ `just uret instagram-post "<konu>"` → `gorsel-uret` gerçek görsel üretiyor
+🧪 Brief'i metin isteyen bir cümleye çevir → R-20 sağlayıcıya HİÇ gitmeden reddediyor
+💾 `feat(engine): görsel brief adımı` · `Refs: FAZ-3.7b · §7.3`
 
+## 3.8 — Marka LoRA    [ ]
 📖 §7.3 · D-17
 🔗 3.7 · 🔴 ~$3 harcar
 🛠 fal krea-2-trainer ile marka LoRA'sı. Rapordaki en yüksek kaldıraçlı üç dolar.
@@ -132,7 +134,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(providers): marka LoRA eğitimi` · `Refs: FAZ-3.8 · §7.3`
 
 ## 3.9 — Marka QA: ΔE, palet, CLIP, güvenli alan    [x] 2026-08-15
-
 📖 §11.1, §12 · D-22
 🔗 3.7
 🛠 ΔE2000 (kendi implementasyonumuz, D-109) · palet payı · metin kaplama · en-boy sapması.
@@ -148,7 +149,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(render): marka QA tolerans okumaları` · `Refs: FAZ-3.9 · §11.1`
 
 ## 3.10 — Deterministik lexicon linter    [x] 2026-08-15
-
 📖 §11.2, §11.4 · R-32, R-35 · D-22
 🛠 Modele "bu marka uygun mu" **sorulmaz** — listeye bakılır: yasak terim, kaynaksız
    sayısal iddia, token dışı hex, eksik alt-text, locale-naif Türkçe casing.
@@ -159,7 +159,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(render): deterministik lexicon linter` · `Refs: FAZ-3.10 · §11.2`
 
 ## 3.11 — Uyum kapısı ve PNG damgası    [x] 2026-08-15
-
 📖 §11.3 · R-33 · D-23
 🛠 `containsSyntheticPerson=false` **kod seviyesinde iddia** (tip `false` literali:
    `true` yazan bir iddia DERLENMEZ) · `aiGenerated` işareti · **kendi PNG `iTXt`
@@ -174,9 +173,8 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(render): uyum kapısı ve IPTC damgası` · `Refs: FAZ-3.11 · §11.3`
 
 ## 3.12 — Varlık CAS (içerik-adresli depo)    [x] 2026-08-15
-📖 §3.5 · R-64 · D-38
-🛠 `derived/blobs/<ab>/<sha256>.<ext>` içerik-adresli + `<sha256>.meta.json` sidecar.
-   **512KB üstü dosya git'e girmez** (R-64); Git LFS kullanılmaz.
+📖 §3.5 · R-64 · D-38 · 🛠 `derived/blobs/<ab>/<sha256>.<ext>` + `.meta.json` sidecar;
+   512KB üstü dosya git'e girmez (R-64), Git LFS yok.
 📁 `packages/engine/src/blobs.ts` · `derived/blobs/<ab>/` (D-118)
 ✅ `just gate repo-hygiene` yeşil · varlık byte'ları git'te değil
 🧪 512KB üstü dosyayı commit'lemeyi dene → engelleniyor
@@ -193,7 +191,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(engine): R2 blob senkronu` · `Refs: FAZ-3.12b · §3.5`
 
 ## 3.13 — Run manifest yazıcı    [x] 2026-08-15
-
 📖 §13 · R-11 · D-38
 🔗 FAZ-1.9
 🛠 FAZ-1.9'daki sözleşme gerçek çalıştırmalara bağlanır: `knowledgeCommitSha`, dönem
@@ -204,7 +201,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(engine): run manifest yazıcı` · `Refs: FAZ-3.13 · §13`
 
 ## 3.14 — `instagram-post` + `instagram-carousel` uçtan uca ★    [ ] BLOKE: FAZ-2.9
-
 📖 §10 · D-13
 🔗 3.9, 3.13
 🛠 CLI'dan uçtan uca: bağlam → metin → görsel → kompozit → render → QA → onay kuyruğu.
@@ -215,7 +211,6 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
 💾 `feat(cli): instagram-post ve carousel uçtan uca` · `Refs: FAZ-3.14 · §10`
 
 ## 3.15 — `linkedin-post`    [x] 2026-08-15
-
 📖 §10, §9.1
 🔗 3.14
 🛠 Aynı motor, farklı spec: ≤5MB kalite merdiveni. Platform ölçüleri `sourceUrl` +
