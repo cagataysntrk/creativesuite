@@ -233,3 +233,6 @@ export {
   type ProductShotInput,
   type ProductShotRefusal,
 } from './capture/product.js'
+
+// Marka fontları — base64 gömülü, latin+latin-ext (§7.2 · D-252).
+export { fontCss, YUZLER, type FontYuzu, type FontSonucu } from './fonts.js'

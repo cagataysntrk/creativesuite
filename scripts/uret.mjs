@@ -37,6 +37,7 @@ const { candidatesFor, loadDescriptors, adapterById, saglayiciOrtami } = await i
   join(REPO, 'packages/providers/dist/index.js')
 )
 const {
+  fontCss,
   measure,
   formatReport,
   samplePng,
@@ -197,6 +198,18 @@ if (!existsSync(tokenYolu)) {
   process.exit(1)
 }
 const tokenCss = readFileSync(tokenYolu, 'utf8')
+
+// ── marka fontları (§7.2 · D-252) ───────────────────────────────────────────
+//
+// **Eksik font SESSİZCE geçilmez.** Geçilseydi çıktı sistem fontuyla üretilir,
+// `ĞÜŞİÖÇ` bozulur ve hiçbir hata görünmezdi — yanlış fontla üretilmiş bir varlık,
+// üretilmemiş bir varlıktan kötüdür.
+const fontSonucu = fontCss(join(REPO, `brand/${MARKA}/fonts`))
+if (!fontSonucu.ok) {
+  console.log(`✗ marka fontu eksik: ${fontSonucu.eksikler.map((e) => e.dosya).join(', ')}`)
+  process.exit(1)
+}
+const markaFontCss = fontSonucu.css
 
 // Ön ekli kimlik kernel'den (R-06 · `id-uretici` darboğazı): ikinci bir üreteç,
 // sıralanamayan ve tipi anlaşılmayan id üretir.
@@ -687,7 +700,12 @@ const rapor = await runPipeline({
     SELECT: selectBody({ select: secici }),
     // Deck IR'ı **CLI okur**, gövde değil: `COMPOSE` saf (§3.10). IR verilmediyse
     // metin üretiminden gelen satırlar kullanılır — eski davranış aynen duruyor.
-    COMPOSE: composeBody({ tokenCss, stamp: damga, ...(irBelge === null ? {} : { ir: irBelge }) }),
+    COMPOSE: composeBody({
+      tokenCss,
+      fontCss: markaFontCss,
+      stamp: damga,
+      ...(irBelge === null ? {} : { ir: irBelge }),
+    }),
     RENDER: renderBody({
       outDir: cikti,
       layout: 'statement',

@@ -58,6 +58,8 @@ export const toHtml = (doc: DocumentModel): string =>
   [
     '<!doctype html><meta charset="utf-8">',
     '<style>',
+    // Font bloğu EN ÖNDE: `@font-face` tanımı kullanımından önce gelmeli.
+    doc.fontCss ?? '',
     doc.tokenCss,
     // ⚠ **Grafik ve diyagram CSS'i BURADA olmak zorunda.** İlk sürüm `chartHtml`i
     // çağırıyordu ama stilini koymuyordu: üretim PNG yolunda y-etiketleri üst üste
@@ -68,11 +70,17 @@ export const toHtml = (doc: DocumentModel): string =>
     DIAGRAM_CSS,
     `  html, body { margin: 0; padding: 0; }`,
     `  body { width: ${doc.width}px; height: ${doc.height}px; background: var(--role-bg);`,
-    `         color: var(--role-text); font-family: "DejaVu Sans", system-ui, sans-serif;`,
+    // ⚠ Eskiden `"DejaVu Sans"` — SİSTEM fontu. Repoda tek bir font dosyası yoktu ve
+    // çıktının "amatör" görünmesinin en büyük tek sebebi buydu (D-252).
+    `         color: var(--role-text); font-family: "Marka Metin", system-ui, sans-serif;`,
     `         display: flex; flex-direction: column; justify-content: center;`,
     `         padding: 96px; box-sizing: border-box; }`,
     // Sabit genişlik YOK (R-23): Türkçe etiket İngilizcesinden ~%20 uzun.
-    `  h1 { font-size: 72px; line-height: 1.12; margin: 0 0 24px; letter-spacing: -0.02em; }`,
+    // Display yüzü YALNIZ başlıkta: iki yüz kuralı, üçüncü bir boyut yok (§12.2).
+    // `font-stretch` değişken genişlik eksenini sürüyor — referanslardaki "Expanded".
+    `  h1 { font-family: "Marka Display", "Marka Metin", system-ui, sans-serif;`,
+    `       font-size: 76px; line-height: 1.06; margin: 0 0 28px; letter-spacing: -0.03em;`,
+    `       font-weight: 800; font-stretch: 112%; text-wrap: balance; }`,
     `  h2 { font-size: 48px; line-height: 1.18; margin: 0 0 16px; }`,
     `  p  { font-size: 34px; line-height: 1.45; margin: 0 0 16px; color: var(--role-text-muted); }`,
     `  img { max-width: 100%; height: auto; }`,

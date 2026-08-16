@@ -518,3 +518,36 @@ reddediyordu. Yayın sınırı zaten AYRI ölçülüyor ve gerçek olan o: `✓ 
 gizlemek "her şey mükemmel" izlenimi verir.
 
 **Geri alma maliyeti:** yok.
+
+## D-252 — Marka fontu: gömülü, latin-ext, iki yüz
+
+**2026-08-17 · tasarım katmanı**
+
+Repoda **tek bir font dosyası yoktu** ve `static.ts` `"DejaVu Sans"` diyordu — sistem
+fontu. Çıktının "amatör" görünmesinin en büyük tek sebebi buydu.
+
+**Vendor edilenler (SIL OFL, ticari kullanım ve gömme serbest):**
+- **Inter** → metin. Geniş latin-ext kapsaması, değişken ağırlık 400–800.
+- **Archivo** → display. **Değişken genişlik 62–125%** — referanslardaki "Expanded"
+  kapak tipografisi bu eksenden geliyor, ikinci bir dosya indirmeye gerek yok.
+
+**latin ve latin-ext AYRI dosyalar, her biri kendi `unicode-range`i ile.** `ğ ş İ ı Ğ Ş`
+latin alt kümesinde YOK; tek dosyaya güvenmek `İstanbul`u `?stanbul` yapan sessiz bir
+düşüşe kapı açardı. Ölçüldü: gerçek koşuda `ı ş ğ ç ö ü İ` gliflerinin hepsi doğru.
+
+**Base64 GÖMÜLÜ, harici yükleme yok.** `static.ts`in kendi uyarısı bunu söylüyordu:
+harici dosya yüklenemezse Chromium **sessizce** sistem fontuna düşer ve kimseye
+söylemez. Gömülü font bu hata modunu ortadan kaldırıyor — font ya HTML'in içindedir ya
+da hiç yoktur.
+
+**Eksik font üretimi DURDURUYOR:** `fontCss` `Result` dönüyor ve `uret.mjs` hatada
+çıkıyor. Sessizce geçilseydi `ĞÜŞİÖÇ` bozulur ve hiçbir hata görünmezdi — **yanlış
+fontla üretilmiş bir varlık, üretilmemiş bir varlıktan kötüdür.**
+
+**Yüz listesi KAPALI:** üçüncü bir aile eklemek bir karar gerektirir, bir import değil.
+Tip ölçeği kapalı kalmazsa "marka şablonu" bir öneriye dönüşür.
+
+⚠ **V-02 KAPANMADI.** Bunlar çalışan, lisansı temiz varsayılanlar — nihai marka fontu
+hâlâ kullanıcının kararı. Değiştirmek iki dosya indirip `YUZLER` listesini güncellemek.
+
+**Geri alma maliyeti:** düşük — `fontCss` verilmezse eski davranış.

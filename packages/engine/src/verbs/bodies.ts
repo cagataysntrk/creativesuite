@@ -173,6 +173,8 @@ export const selectBody = (deps: SelectDeps): Verb =>
 // ── COMPOSE: SAF. Kayıtlar → belge modeli ───────────────────────────────────
 export interface ComposeDeps {
   readonly tokenCss: string
+  /** Marka fontları — base64 gömülü `@font-face` blokları (D-252). */
+  readonly fontCss?: string
   readonly stamp: AssetStamp
   /**
    * Deck IR'ı — **KAYNAK, çıktı değil** (§4c · FAZ-6.1).
@@ -215,6 +217,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
         // Damga ve token'lar ÇALIŞTIRMADAN gelir, IR'dan değil: bir varlık üretim anında
         // damgalanır (R-11) ve IR aylar önce yazılmış olabilir.
         tokenCss: deps.tokenCss,
+        ...(deps.fontCss === undefined ? {} : { fontCss: deps.fontCss }),
         stamp: deps.stamp,
       }
       const irGecerli = validateDocument(irBelge)
@@ -280,6 +283,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       width: w,
       height: h,
       tokenCss: deps.tokenCss,
+      ...(deps.fontCss === undefined ? {} : { fontCss: deps.fontCss }),
       stamp: deps.stamp,
       blocks,
     }

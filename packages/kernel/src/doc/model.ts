@@ -109,6 +109,14 @@ export interface DocumentModel {
   readonly blocks: readonly Block[]
   /** `brand/<id>/derived-tokens/tokens.css` içeriği (FAZ-2.10). Marka BURADAN gelir. */
   readonly tokenCss: string
+  /**
+   * Marka fontları — `@font-face` blokları, base64 GÖMÜLÜ (D-252).
+   *
+   * Boş bırakılırsa sistem fontuna düşülür ve `ĞÜŞİÖÇ` sessizce bozulabilir. Alan
+   * isteğe bağlı çünkü eski belgeler ve testler onsuz kuruluyor; üretim yolunda
+   * `golden` metrikleri `notdef = 0` arıyor ve boş font orada yakalanır.
+   */
+  readonly fontCss?: string
   /** Üretim damgası (R-11). Çıktı meta'sına basılır; retrofit imkânsız. */
   readonly stamp: AssetStamp
 }
