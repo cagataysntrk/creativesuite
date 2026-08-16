@@ -474,3 +474,26 @@ reddedilir; ya da daha kötüsü, metin İSTEYEN bir cümle görsel modeline gid
 modeline Türkçe metin çizdirilmez — on iki yasadan biri ve bir kolaylık için esnetilmez.
 Sınır `deps.capability.startsWith('image.')` ile çiziliyor ve ihlal testiyle kırmızıya
 döndürüldü: aynı gerekçe metin yeteneğinde prompt'a giriyor, görsel yeteneğinde girmiyor.
+
+## D-192 — Ekranların sabit kodlu parametreleri ve tikli adımların bayat yolları
+2026-08-16 · İki ayrı sessiz bozulma, aynı kök: **bir kez yazılıp bir daha
+doğrulanmayan iddia.**
+`DiscoveryEkrani` `runId="run_discovery_dry"` ile açılıyordu; o çalıştırma repoda hiç
+var olmadı ve ekran gerçek veride **kalıcı olarak 404** gösteriyordu — beş sütun hiç
+görülmedi. `BaglamOnizleme` `tarif="instagram-post"`a çivilenmişti; palet başka tarif
+seçtiremiyordu. İlki artık kimliği kullanıcıdan alıyor (plan kurmak insanın işidir,
+R-14 — bir sayfa yenilemesiyle tetiklenmez), ikincisi paletin seçtiği hattı izliyor.
+FAZ-4'ün yedi `📁` yolu planlama sırasında yazılmış ve hiç güncellenmemişti; gerçek
+yerleşim düz `apps/ui/src/*.tsx`. FAZ-3'te bir tane daha: `COMPOSE` gövdesi
+`packages/kernel/src/verbs/compose.ts` diye gösteriliyordu, gerçekte
+`packages/engine/src/verbs/bodies.ts`.
+`faz-yollari` kapısı eklendi: **tikli** bir adımın `📁` satırı artık plan değil,
+İDDİADIR ve dosya var olmak zorunda. Tiksiz adımlar denetlenmiyor — onların yolu hâlâ
+bir plan. Kapı ilk koşuşunda 13 yanlış pozitif verdi (glob, brace, yer tutucu) ve
+onlar elendi: sürekli alarm veren kapı, kapatılan kapıdır.
+**Bileşen testi kararı:** 13 ekranın sıfır testi olması gerçek bir boşluk ama DOM test
+altyapısı iki bağımlılık demek (R-75). Boşluğun SOMUT hâli — "kontrol hiçbir şey
+yapmıyor" — `ui-dugme` kapısıyla sıfır bağımlılıkla ve tüm ekranları birden kapsayarak
+kapatıldı; kapı düğmelere ek olarak `onChange`siz kontrollü girdileri de yakalıyor
+(ikisi de sessizdir: kullanıcı bir şey yapmaya çalışır, hiçbir şey olmaz, hata da yok).
+Render durumları ve hata dalları için gerçek bileşen testi FAZ 9'a kalıyor.

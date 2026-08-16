@@ -133,7 +133,7 @@ export const App = (): React.JSX.Element => {
         {ekran === 'corpus' ? (
           <CorpusTarayici />
         ) : ekran === 'baglam' ? (
-          <BaglamOnizleme tarif="instagram-post" />
+          <BaglamOnizleme tarif={pipeline} />
         ) : ekran === 'calistir' ? (
           <RunLauncher pipeline={pipeline} />
         ) : ekran === 'kuyruk' ? (
@@ -141,7 +141,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'yerlesim' ? (
           <YerlesimEkrani />
         ) : ekran === 'kesif' ? (
-          <DiscoveryEkrani runId="run_discovery_dry" />
+          <DiscoveryEkrani />
         ) : ekran === 'sema' ? (
           <SemaEkrani />
         ) : ekran === 'butce' ? (

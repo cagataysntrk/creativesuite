@@ -22,19 +22,67 @@ interface Yanit {
 
 const SIRA: readonly ReconcileColumn[] = ['conflicted', 'changed', 'new', 'retired', 'unchanged']
 
-export const DiscoveryEkrani = ({ runId }: { runId: string }): React.JSX.Element => {
+/**
+ * Keşif planı ekranı.
+ *
+ * **Çalıştırma kimliği SABİT KODLU DEĞİL.** Öyleydi (`run_discovery_dry`) ve o
+ * çalıştırma repoda hiç var olmadı: ekran gerçek veride kalıcı olarak 404 gösteriyordu
+ * ve beş sütun hiç görülmedi (2026-08-16 denetimi). Kimlik `just discovery plan
+ * --kaydet` çıktısından gelir ve buraya YAPIŞTIRILIR — plan kurmak insanın işidir
+ * (R-14), bir sayfa yenilemesiyle tetiklenmez.
+ */
+export const DiscoveryEkrani = ({ runId = '' }: { runId?: string }): React.JSX.Element => {
   const [y, setY] = useState<Yanit | null>(null)
   const [acik, setAcik] = useState(false)
+  const [id, setId] = useState(runId)
+  const [sorgulanan, setSorgulanan] = useState(runId)
 
   useEffect(() => {
-    void fetch(`/api/discovery?run=${encodeURIComponent(runId)}`)
+    if (sorgulanan.trim() === '') {
+      setY(null)
+      return
+    }
+    void fetch(`/api/discovery?run=${encodeURIComponent(sorgulanan)}`)
       .then((r) => r.json() as Promise<Yanit>)
       .then(setY)
       .catch(() => setY({ ok: false, hata: 'sunucuya ulaşılamıyor' }))
-  }, [runId])
+  }, [sorgulanan])
+
+  const secici = (
+    <p>
+      <label>
+        çalıştırma{' '}
+        <input type="text" value={id} onChange={(e) => setId(e.target.value)} placeholder="run_…" />
+      </label>{' '}
+      <button type="button" onClick={() => setSorgulanan(id.trim())}>
+        planı aç
+      </button>
+    </p>
+  )
+
+  if (sorgulanan.trim() === '') {
+    return (
+      <section>
+        <h2>Keşif planı — inceleme</h2>
+        {secici}
+        <p>
+          Plan kimliği gerekiyor. Plan kurmak insanın işidir (R-14):{' '}
+          <span className="mono">just discovery plan --kaydet</span> çıktısındaki çalıştırma
+          kimliğini yapıştırın.
+        </p>
+      </section>
+    )
+  }
 
   if (y === null) return <p>plan yükleniyor…</p>
-  if (!y.ok) return <div className="hata-kutusu">{y.hata ?? 'plan okunamadı'}</div>
+  if (!y.ok)
+    return (
+      <section>
+        <h2>Keşif planı — inceleme</h2>
+        {secici}
+        <div className="hata-kutusu">{y.hata ?? 'plan okunamadı'}</div>
+      </section>
+    )
 
   const sutunlar = y.sutunlar
   const etiketler = y.etiketler

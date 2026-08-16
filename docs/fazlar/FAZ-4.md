@@ -86,7 +86,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🛠 Klavye odaklı (`j/k/a/e/r/p`). **Red gerekçesi KALICI** ve sonraki çalıştırmaya
    negatif kısıt olarak enjekte edilir; son kabul edilen 5-10 varlık referans olarak geçer.
    Onay = git commit (çalıştırma commit'i, `Refs:` YASAK — R-60).
-📁 `apps/ui/src/screens/approval/`
+📁 `apps/ui/src/OnayKuyrugu.tsx` · `apps/server/src/kuyruk.ts`
 ✅ `j/k/a/r` klavye · red gerekçesi `brand/<id>/decisions.jsonl`'a DÜŞÜYOR · manifest
    `awaitingGate` yazıyor (önce yalnız rapor nesnesindeydi) · 7 test
 🧪 Gerekçesiz redi kabul et → kırmızı · defter yazımını kaldır → kırmızı ·
@@ -101,7 +101,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
    hepsi **limit karşısında ölçüm**, rozet değil. `ΔE 2.4 / limit 5.0` kenara ne kadar
    yakın olduğunu söyler; "✓ uygun" hiçbir şey söylemez.
    Ölçülen her sayı `tabular-nums slashed-zero` mono; birim kardeş `<span>`'de 0.85em.
-📁 `packages/ui/src/components/tolerance/`
+📁 `packages/ui/src/Tolerans.tsx`
 ✅ Sayı + limit + bant + glyph + metin · `ToleranceReading` Ring -1'de (D-175) ·
    VALIDATE artık YAPILANDIRILMIŞ okuma yazıyor, metin değil · 6 test
 🧪 `✓ uygun` rozeti ekle → `ui-tema` kırmızı · `marka uyumu` ekle → kırmızı ·
@@ -114,7 +114,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🔗 4.8
 🛠 Gerçek platform chrome simülasyonu; Reels güvenli alan overlay'i (%14 üst / %35 alt /
    %6 yan). Spec tablosu `sourceUrl` + `verifiedAt` taşır (§9.1).
-📁 `apps/ui/src/screens/placement/`
+📁 `apps/ui/src/YerlesimEkrani.tsx` · `packages/render/src/specs/placements.ts`
 ✅ Reels bandı §9.1 ile birebir: `950×979` · güvenli alan KENDİ `sourceUrl`+`verifiedAt`
    taşıyor · `safeArea: null` ("chrome yok") ile `{0,0,0}` ("ölçüldü sıfır") AYRI · 9 test
 🧪 `topPercent`i boz → kapı + 2 test kırmızı · feed'e sıfırlı güvenli alan ver → kırmızı
@@ -127,7 +127,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🛠 Dört sütun: **DEĞİŞMEDİ / DEĞİŞTİ / ÇELİŞTİ / YENİ**. Her op için `git diff` satır
    bazlı. İdempotent atlama sayesinde ikinci çalıştırma boş gelir — 900 opluk bir plan
    incelenmez, kabul edilir ve yönetişim tiyatroya döner.
-📁 `apps/ui/src/screens/discovery/`
+📁 `apps/ui/src/DiscoveryEkrani.tsx`
 ✅ **BEŞ sütun** (D-177): `retire` dördüncüye sıkışmıyor · `skip` ikiye ayrıldı —
    DEĞİŞMEDİ ile ÇELİŞTİ ayrı sütunlarda · 6 test
 🧪 Gerçek bir kaydın gövdesine elle dokun → `just discovery plan` **DURDU**, çıkış 1,
@@ -141,7 +141,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🛠 **Yasak anahtar fiziksel olarak yazılamaz** (profil dışı anahtar editörde yok).
    Kaydetmeden önce **tüm corpus'a karşı dry-run**: kaç kaydın kırılacağını SAYIYLA söyler
    ve codemod'suz yıkıcı değişikliği **reddeder**. Alan silmek yerine `x-retired: true`.
-📁 `apps/ui/src/screens/schema/` · `packages/registry/src/migrate.ts`
+📁 `apps/ui/src/SemaEkrani.tsx` · `packages/registry/src/migrate.ts`
 ✅ Gerçek corpus'a karşı: zorunlu yapma → **409** `1 kayıt kırılacak · rec_comp_excel ·
    evidence_url` · alan silme → **409** + `x-retired` önerisi · profil dışı → **422** ·
    güvenli ekleme → **200** · 10 test
@@ -155,7 +155,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🛠 Tahmin vs gerçek · canlı bedava kota sayaçları (**doluluk göstergesi**, "1000 kredi"
    yazısı değil) · fiyat anlık görüntüsü yaşı uyarısı · **UI'dan ayarlanabilir tavanlar**
    (aylık / çalıştırma / pipeline).
-📁 `apps/ui/src/screens/budget/`
+📁 `apps/ui/src/ButceEkrani.tsx` · `apps/server/src/butce-uc.ts`
 ✅ Tavan `registry/butce.yaml`de (env DEĞİL — D-179). UI yazdı → sonraki `just uret`
    `100000` yerine `250000` okudu. Çelişkili tavan **422**, sayı olmayan **400** · 10 test
 🧪 Çelişki denetimini etkisizleştir → kapı + test kırmızı · bozuk dosyayı sessizce
@@ -188,7 +188,7 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🛠 FTS5 arama · **"premium üretildi ama hiç yayınlanmadı"** filtresi (para harcanmış,
    değer alınmamış) · **Reuse birinci sınıf eylem** — benzer bir iş geldiğinde LLM'i
    yeniden çalıştırmak yerine IR'ı kopyalayıp düzenlemek hem ucuz hem tutarlı.
-📁 `apps/ui/src/screens/assets/`
+📁 `apps/ui/src/VarlikKutuphanesi.tsx` · `apps/server/src/kutuphane.ts`
 ✅ Gerçek repo: **0 varlık · 14 karantinada** (listeye girmiyor, sayılıyor) · yayın
    defteri yok → "yayınlanmadı" ölçüm DEĞİL varsayım, ayrıca bildiriliyor · Reuse
    manifest ister (404) · Türkçe arama `foldForSearch` ile · 9 test

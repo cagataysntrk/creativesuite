@@ -76,6 +76,41 @@ for (const f of dosyalar) {
   }
 }
 
+// ── kardeş hata: değeri olup `onChange`i olmayan girdi ──────────────────────
+//
+// Kontrollü bir `<input value={x}>` `onChange` almazsa **yazılamaz**: React değeri
+// her tuşta geri alır ve alan donmuş görünür. Düğmenin sessiz hâliyle aynı sınıf —
+// kullanıcı bir şey yapmaya çalışır, hiçbir şey olmaz, hata da yoktur.
+let girdiSayisi = 0
+for (const f of dosyalar) {
+  const src = readFileSync(f, 'utf8')
+  for (const etiketAdi of ['input', 'textarea', 'select']) {
+    let i = src.indexOf(`<${etiketAdi}`)
+    while (i !== -1) {
+      let derinlik = 0
+      let j = i
+      for (; j < src.length; j++) {
+        const ch = src[j]
+        if (ch === '{') derinlik++
+        else if (ch === '}') derinlik--
+        else if (ch === '>' && derinlik === 0) break
+      }
+      const etiket = src.slice(i, j + 1)
+      // Yalnız KONTROLLÜ alanlar: `value={...}` taşımayan bir input serbesttir.
+      if (/value\s*=\s*\{/.test(etiket) || /checked\s*=\s*\{/.test(etiket)) {
+        girdiSayisi++
+        if (!/onChange\s*=/.test(etiket) && !/readOnly/.test(etiket) && !/disabled/.test(etiket)) {
+          const satir = src.slice(0, i).split('\n').length
+          hatalar.push(
+            `${relative(REPO, f)}:${satir} — kontrollü <${etiketAdi}> onChange almıyor: alan yazılamaz`
+          )
+        }
+      }
+      i = src.indexOf(`<${etiketAdi}`, j)
+    }
+  }
+}
+
 if (hatalar.length > 0) {
   for (const h of hatalar) console.log(`  ✗ ${h}`)
   console.log(
@@ -85,5 +120,5 @@ if (hatalar.length > 0) {
 }
 
 console.log(
-  `✓ ui-dugme: ${dugmeSayisi} düğmenin hepsinin bir eylemi var (${dosyalar.length} dosya)`
+  `✓ ui-dugme: ${dugmeSayisi} düğme + ${girdiSayisi} kontrollü girdi, hepsinin bir eylemi var`
 )

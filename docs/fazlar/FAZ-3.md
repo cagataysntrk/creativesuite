@@ -16,7 +16,7 @@ dönem damgası manifest'te · golden tipografi testi yeşil ve **fontu bozunca 
    CSS + gömülü fontla PNG basar. **`RENDER` `RecordEnvelope` GÖRMEZ**, yalnız belge
    modelini — varlığa özgü veriye yasal yol `SELECT → unsealAttributes → COMPOSE` (§3.2).
    Chromium'u başlatan tek yer `packages/render/src/browser.ts` (§3.8).
-📁 `packages/render/src/browser.ts` · `packages/kernel/src/verbs/compose.ts`
+📁 `packages/render/src/browser.ts` · `packages/engine/src/verbs/bodies.ts`
 ✅ `just test static` → 8 test · gerçek Chromium **1080×1350 PNG** üretti (boyut PNG'nin
    IHDR başlığından okundu, Playwright'ın kendi iddiasından değil) · gerçek marka
    token'larıyla render edildi ve gözle doğrulandı: Türkçe glifler eksiksiz, başlık

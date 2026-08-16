@@ -10,7 +10,7 @@ siradaki_adim: 5.1
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "FAZ 4 kapanis turu 1: bagimsiz dogrulama FAZ 4'u KAPANISA HAZIR DEGIL buldu; en agir bulgu benim kendi duzeltmemdi. D-188: D-182 YARIM kapatilmisti — uret.mjs frozen gecmiyordu, disk 0/18 idi. Simdi donmus-plan.json diske dusuyor; kanit: rerun mumkun=true, sapma OLCULDU=true, liste dolu. D-189: registry/butce.yaml celiskili commit'lenmis, just uret HIC baslamiyordu — registry-veri kapisi. D-190: Baslat dugmesinin onClick'i yoktu ve calistirma baslatan uc yoktu; POST /api/calistir (digest ZORUNLU) + rerun/replay uclari eklendi, ui-dugme kapisi iki olu dugmemi daha buldu. V-18 acildi. 31 kapi, 923 test."
+son_kanit: "FAZ 4 kapanis turu bitti. D-188 donmus plan uretimde (disk kaniti: rerun mumkun=true, sapma olculdu=true) · D-189 butce verisi kapida (just uret HIC baslamiyordu) · D-190 Baslat/rerun/replay bagli (ui-dugme kapisi yazildiginda kendi iki olu dugmemi buldu) · D-191 red gerekcesi negatif kisit olarak okunuyor ve YALNIZ metin yetenegine giriyor, gorsele ASLA (R-20) · D-192 sabit kodlu ekran parametreleri kalkti, faz-yollari kapisi tikli adimlarin yollarini dogruluyor. awaitingGate BOZUK DEGIL: diske yazildigi testle kanitlandi, 0/18 olmasi 2.9 blokaji. 32 kapi, 926 test yesil."
 ```
 
 ## Neredeyiz
@@ -77,17 +77,16 @@ bulguları (aşağıda), sonra bu adım. `npm view hyperframes` → v0.7.109 · 
 
 ## Kapanış turu — kalan bulgular
 
-Bağımsız doğrulama (LOOP§D, 1. tur) FAZ 4'ü kapanışa hazır bulmadı. **Kapatılanlar:**
+Bağımsız doğrulama (LOOP§D, 1. tur) FAZ 4'ü kapanışa hazır bulmamıştı. **Kapatılanlar:**
 donmuş plan üretimde (D-188) · bütçe verisi kapıda (D-189) · Başlat + rerun/replay
-bağlı (D-190) · V-18 ayrıldı. **Kalanlar:**
+bağlı (D-190) · red gerekçesi okunuyor (D-191) · sabit kodlu ekran parametreleri ve
+bayat faz yolları (D-192) · V-18 ayrıldı. `awaitingGate` **bozuk değil**: diske
+yazıldığı testle kanıtlandı; 0/18 olmasının sebebi hiçbir çalıştırmanın kapıya
+ulaşmaması — hepsi `2.9` blokajı yüzünden `bilgi-sec`te duruyor.
 
-- `awaitingGate` hiçbir manifeste yazılmıyor (0/18) → onay kuyruğu gerçek veriyle hiç
-  çalışmadı; duman testi boş diziyi geçirdiği için bunu örtüyordu
-- `brand/*/decisions.jsonl` yazılıyor ama **hiç okunmuyor**; dosya hiç oluşmamış
-- QA okumaları 0/18 · bağlam girdisi 0/18 manifeste düşmüş
-- 13 ekran bileşeninin **sıfır testi** var — Başlat düğmesi tam bu boşluktan geçti
-- Bağlam önizleme ve keşif ekranları sabit kodlu parametreyle açılıyor
-- `docs/fazlar/FAZ-4.md`nin yedi `📁` yolu mevcut değil (belge sapması)
+**Kalan tek şey:** QA okumaları ve bağlam girdisi 0/18 — ikisi de aynı sebeple
+(`2.9` onaylanana kadar hat `bilgi-sec`i geçemiyor). Ölçüm `3.14` koştuğu gün gelir.
+Gerçek bileşen testi (DOM altyapısı, iki bağımlılık) FAZ 9'a bırakıldı — D-192.
 
 ## Bloke adımlar
 
