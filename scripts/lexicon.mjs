@@ -11,10 +11,6 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const { checkTransfer, formatViolations } = await import(
-  join(REPO, 'packages/render/dist/index.js')
-)
-const { parseFrontmatter } = await import(join(REPO, 'packages/corpus/dist/index.js'))
 
 const KANIT_DIR = join(REPO, 'corpus/proof_asset')
 if (!existsSync(KANIT_DIR)) {
@@ -32,129 +28,49 @@ if (dosyalar.length === 0) {
   process.exit(1)
 }
 
-const kanitlar = []
-for (const f of dosyalar) {
-  const p = parseFrontmatter(readFileSync(join(KANIT_DIR, f), 'utf8'))
-  if (!p.ok || p.value.frontmatter === null) {
-    console.log(`✗ ${f}: frontmatter okunamadı`)
-    process.exit(1)
-  }
-  const fm = p.value.frontmatter
-  const govde = p.value.body
-  // Alanlar gövdede prose olarak da yazılabiliyor (FAZ-2.9 kayıtları böyle);
-  // frontmatter öncelikli, yoksa gövdeden çıkarılır.
-  // YALNIZ ilk satır. Çok satır yutan ilk sürüm "analogous" yerine
-  // "analogous.\n\n⚠ Sayısal iddia YOK..." çıkarıyordu ve o değer ne null ne geçerli
-  // enum olduğu için HER kontrolden geçiyordu — kapı yeşil, koruma sıfır (2026-08-15).
-  const gvd = (etiket) => {
-    const m = govde.match(new RegExp(`\\*\\*${etiket}:?\\*\\*[ \\t]*([^\\n]*)`))
-    if (m === null) return null
-    const v = m[1].trim().replace(/\.$/, '')
-    return v === '' ? null : v
-  }
-  kanitlar.push({
-    id: typeof fm['id'] === 'string' ? fm['id'] : f,
-    eraOfOrigin:
-      typeof fm['era_of_origin'] === 'string'
-        ? fm['era_of_origin']
-        : ((gvd('Kaynak dönem') ?? '').split(' ')[0] ?? ''),
-    generalisationNote:
-      typeof fm['generalisation_note'] === 'string'
-        ? fm['generalisation_note']
-        : gvd('Genelleme notu'),
-    transferConfidence:
-      typeof fm['transfer_confidence'] === 'string'
-        ? fm['transfer_confidence']
-        : gvd('Aktarım güveni'),
-    claimSource: typeof fm['claim_source'] === 'string' ? fm['claim_source'] : gvd('Kaynak'),
-    // Sayısal iddia: rakamla YA DA kelimeyle. İkinci grup kritik — doğrulama agent'ı
-    // "yüzde 40", "3 kat", "1/3 oranında", "yarım milyon" ifadelerinin kaynaksız
-    // geçtiğini gösterdi. Türkçe'de nicelik çoğu zaman rakamsız yazılır ve rakam
-    // arayan bir desen, dilin yarısını görmez.
-    //
-    // Yıl (1900-2100 arası çıplak dört hane) iddia DEĞİLDİR: "2024'te kurulduk" bir
-    // tarihtir. Binlik ayraçlı olan (1.247) iddiadır.
-    hasNumericClaim: (() => {
-      const KELIME = /\b(yüzde|kat\b|misli|oran(ında|ı)?|çeyrek|yarım|milyon|milyar|bin\b)/i
-      if (KELIME.test(govde)) return true
-      // Kesir: 1/3, 2/5
-      if (/\b\d+\s*\/\s*\d+\b/.test(govde)) return true
-      const adaylar = govde.match(/%\s?\d[\d.,]*|\b\d[\d.,]*\b/g) ?? []
-      return adaylar.some((a) => {
-        if (a.startsWith('%')) return true
-        const sade = a.replace(/[.,]/g, '')
-        const n = Number(sade)
-        if (/^\d{4}$/.test(a) && n >= 1900 && n <= 2100) return false
-        return sade.length >= 3 || a.includes('.') || a.includes(',')
-      })
-    })(),
-  })
-}
-
-// ── R-32/R-35: TÜM corpus metinleri deterministik linter'dan geçiyor ────────
-// `proof_asset` denetimi (yukarısı) aktarım argümanını sorar; bu blok metnin KENDİSİNİ
-// sorar. İkisi ayrı sorular: doğru aktarım argümanı taşıyan bir kanıt yine de kaynaksız
-// bir sayı ya da yasak bir terim içerebilir.
-const { lintDocument, formatLexicon, hexFromTokens } = await import(
-  join(REPO, 'packages/render/dist/index.js')
-)
+// ── denetimin TAMAMI `stratejiSagligi`den gelir (FAZ-4.16) ──────────────────
+//
+// Yasak terim listesi, sayısal iddia tespiti, gövdeden alan çıkarma ve çürüme
+// kontrolleri eskiden BU DOSYADA yaşıyordu. Strategy Health panosu aynı kuralları
+// göstermek zorunda; ikinci bir kopya yazmak D-160'ın tekrarı olurdu — iki gerçek,
+// ikisi de "doğru", bir gün sessizce ayrışırlar. Artık kapı ile pano aynı fonksiyonu
+// çağırıyor ve ayrışmaları YAPISAL olarak imkânsız.
+const { stratejiSagligi } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const { hexFromTokens } = await import(join(REPO, 'packages/render/dist/index.js'))
+const { systemClock } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 
 // İzinli hex üç durumlu (D-113):
 //   `null` → hiç token dosyası yok, palet TANIMSIZ → denetim atlanır
 //   `[]`   → token var ama hex içermiyor (OKLCH, §12.1) → HER hex token dışıdır
-//   dolu   → yalnız listedekiler geçer
 const tokenDosyalari = globSync('brand/*/derived-tokens/*.css', { cwd: REPO })
 let izinliHex = tokenDosyalari.length === 0 ? null : []
 for (const tokenYolu of tokenDosyalari) {
   izinliHex = izinliHex.concat(hexFromTokens(readFileSync(join(REPO, tokenYolu), 'utf8')))
 }
 
-const YASAK_TERIMLER = [
-  'devrim niteliğinde',
-  'çığır açan',
-  'dünyanın en iyisi',
-  'sektör lideri',
-  'benzersiz',
-  'kusursuz',
-]
+const saglik = stratejiSagligi({
+  repoRoot: REPO,
+  aktifEra,
+  // Saat kernel'den (R-06 · `saat` darboğazı): ikinci bir saat replay'i bozar.
+  simdi: systemClock.nowIso(),
+  izinliHex,
+})
 
-const lexIhlaller = []
-let denetlenenKayit = 0
-for (const rel of globSync('corpus/*/*.md', { cwd: REPO })) {
-  const ham = readFileSync(join(REPO, rel), 'utf8')
-  const fm = parseFrontmatter(ham)
-  if (!fm.ok) continue
-  denetlenenKayit++
-  // Kayıt gövdesi tek bir `body` bloğu gibi denetleniyor: linter belge modeli bekliyor
-  // ve corpus kaydının metni de bir belgedir — sadece henüz render edilmemiş hâli.
-  const sahteBelge = {
-    kind: 'post',
-    width: 1080,
-    height: 1350,
-    tokenCss: '',
-    stamp: {},
-    blocks: [{ type: 'body', text: fm.value.body }],
-  }
-  const kaynak =
-    typeof fm.value.frontmatter['claim_source'] === 'string'
-      ? fm.value.frontmatter['claim_source']
-      : null
-  for (const v of lintDocument(sahteBelge, {
-    forbidden: YASAK_TERIMLER,
-    allowedHex: izinliHex,
-    claimSource: kaynak,
-  })) {
-    lexIhlaller.push({ rel, v })
-  }
+// Okunamayan kayıt sessizce atlanmaz: taranmayan kayıt, temiz kayıt DEĞİLDİR.
+if (saglik.okunamayan.length > 0) {
+  for (const o of saglik.okunamayan) console.log(`✗ ${o.yol}: ${o.neden}`)
+  process.exit(1)
 }
 
-if (lexIhlaller.length > 0) {
-  for (const { rel, v } of lexIhlaller) {
-    console.log(`  ${rel}`)
-    console.log(formatLexicon([v]))
-  }
-  console.log(`\n${lexIhlaller.length} lexicon ihlali`)
+const blocking = saglik.bulgular.filter((b) => b.siddet === 'blocking')
+if (blocking.length > 0) {
+  for (const b of blocking) console.log(`  ${b.yol}\n    ${b.mesaj}`)
+  console.log(`\n${blocking.length} blocking bulgu`)
   process.exit(1)
+}
+// Uyarılar kapıyı KIRMIYOR ama gizlenmiyor: gizlenen uyarı, olmayan uyarıdır.
+for (const b of saglik.bulgular.filter((x) => x.siddet === 'uyari')) {
+  console.log(`  ⚠ ${b.yol}: ${b.mesaj}`)
 }
 
 // ── R-20: pipeline'da görsel adımı metin isteyemez ──────────────────────────
@@ -212,19 +128,8 @@ if (r20.length > 0) {
   process.exit(1)
 }
 
-const ihlaller = kanitlar.flatMap((k) =>
-  checkTransfer([k], { currentEra: aktifEra, outboundToProspect: true })
-)
-
-if (ihlaller.length > 0) {
-  console.log(formatViolations(ihlaller))
-  console.log(`\n${ihlaller.length} aktarım ihlali`)
-  process.exit(1)
-}
-
 console.log(
-  `  ${kanitlar.length} proof_asset denetlendi · aktif dönem ${aktifEra} · aktarım argümanları tam · ` +
-    `R-20 pipeline taraması temiz · ${denetlenenKayit} kayıt lexicon'dan geçti ` +
-    `(${izinliHex === null ? 'palet tanımsız' : `${izinliHex.length} izinli hex`}, ` +
-    `${YASAK_TERIMLER.length} yasak terim)`
+  `  ${saglik.taranan} kayıt denetlendi · aktif dönem ${aktifEra} · ` +
+    `${dosyalar.length} proof_asset · aktarım argümanları tam · R-20 pipeline taraması temiz · ` +
+    `${saglik.uyari} uyarı (${izinliHex === null ? 'palet tanımsız' : `${izinliHex.length} izinli hex`})`
 )

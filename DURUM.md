@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 4
-siradaki_adim: 4.16
+siradaki_adim: 4.17
 son_guncelleme: 2026-08-16
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan"]
 deneme_sayaci: {}
-son_kanit: "4.15 Run History BITTI. Uc bulgu, ucu de 'kod var ama akis yok' sinifindan. (1) D-182: donmus plan HIC diske yazilmiyordu — freezePlan uretiyor, HTTP cevabinda donuyor, surec bitince kayboluyordu. Gercek repoda olculdu: 18 calistirmanin 0'inda plan var. rerun dugmesi koysaydik sessizce replay yapardi. Artik derived/runs/<id>/plan.json yaziliyor; plan yoksa rerun MUMKUN DEGIL, gerekcesiyle. (2) D-183: kesif/sema/butce/varliklar dort ekran yonlendirmede vardi, palette YOKTU — menu olmadigi icin ulasilamazdilar; dordu de tikli. ui-navigasyon kapisi eklendi, kasten ihlal edilip kirmizi goruldu. (3) D-184: kabuk Node 20'ye dusmustu, better-sqlite3 SIGSEGV veriyordu ve 8 test dosyasi (144 test) HIC kosmuyordu — cikti yesile benziyordu. .nvmrc + engines + node-surum kapisi. Node 22'de 64 dosya 902 test yesil, 28 kapi yesil."
+son_kanit: "4.15 + 4.16 BITTI. Tema yine ayni: kural VAR ama tek yerde degil / akis yok. D-182 donmus plan hic diske yazilmiyordu (18 calistirmanin 0'inda) — rerun sessizce replay olurdu; artik plan.json yaziliyor, plan yoksa rerun MUMKUN DEGIL ve gerekcesi yaziliyor. D-183 dort ekran palette yoktu, ulasilamazdilar — ui-navigasyon kapisi. D-184 kabuk Node 20'ye dusmustu, better-sqlite3 SIGSEGV, 144 test HIC kosmuyordu — node-surum kapisi. D-185 strateji lint kurallari yalniz kapi betiginde yasiyordu; panoya kopyalamak D-160'in tekrari olurdu, kurallar engine'e cikarildi ve KAPI ILE PANO ayni fonksiyonu cagiriyor. D-186 kendi ihlal testim SAYI dogruluyordu, ICERIK degil — yasak terim listesini bosaltinca test yesil kaliyordu. Gercek corpus: 7 kayit, 0 blocking, 1 uyari (aktarim alanlari nesirde). 65 dosya 912 test, 28 kapi yesil."
 ```
 
 ## Neredeyiz
@@ -66,14 +66,15 @@ kanıtlıyor. **Çıkış kriteri (gerçek carousel) karşılanmadı ve tikle ö
 | **4.13** · Telegram yüzey sınırı; bot üretim başlatamaz (§4c) | 2026-08-16 |
 | **4.14** · Asset Library; karantina sayılıyor ama listelenmiyor | 2026-08-16 |
 | **4.15** · Run History; donmuş plan diske yazılıyor, rerun ≠ replay | 2026-08-16 |
+| **4.16** · Strategy Health; kural kapı ile panoda TEK yerde | 2026-08-16 |
 
 ## Sıradaki adım
 
-**`4.16` — Strategy Health** (§11, §12.9 · R-32). Aktif dönemin lint panosu: kaynaksız
-iddia · birimsiz değer teması · süresi geçmiş kanıt · `generalisation_note`'suz
-dönem-aşırı kanıt · `re_verify_by` geçmiş mevzuat kaydı · yasak sözlük terimi. Her bulgu
-ilgili kayda **tıklanabilir** bağlantı taşımalı. Hazır: `lexiconLint`, corpus zarf
-alanları (`re_verify_by`, `expired_at`, `transfer_confidence`), `browseRecords`.
+**`4.17` — Doctor ekranı** (§13, §12.9). Bir ay ihmalden sonra açılacak İLK ekran:
+sağlayıcı fiyat/şema sürüklenmesi · emekliye ayrılacak modeller · süresi geçmiş kayıtlar ·
+%20 üstü maliyet sapması · indeks/corpus ayrışması. **Rapor yazar, hiçbir şeyi
+değiştirmez.** Hazır: `costVariance`/`butcePanosu`, `stratejiSagligi`, `specAgeDays`,
+`reindexChecked`, `calistirmalar`. Sonra FAZ 4 kapanış turu (LOOP§D, EN FAZLA İKİ tur).
 
 ## Bloke adımlar
 

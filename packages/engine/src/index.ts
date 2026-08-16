@@ -198,6 +198,19 @@ export {
 export { runPipeline, formatRun, type RunInput, type RunReport } from './run.js'
 export { toManifestEntries } from './context/assemble.js'
 
+// Strateji sağlığı — kapı ile pano AYNI kuralları çağırır (FAZ-4.16).
+export {
+  stratejiSagligi,
+  kanitReferansi,
+  sayisalIddiaVar,
+  govdedenAlan,
+  YASAK_TERIMLER,
+  type Bulgu,
+  type BulguTuru,
+  type SaglikGirdisi,
+  type StratejiSagligi,
+} from './saglik/strateji.js'
+
 export {
   resolveBody,
   selectBody,

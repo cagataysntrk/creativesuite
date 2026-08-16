@@ -17,6 +17,7 @@ import { SemaEkrani } from './SemaEkrani.js'
 import { ButceEkrani } from './ButceEkrani.js'
 import { VarlikKutuphanesi } from './VarlikKutuphanesi.js'
 import { RunGecmisi } from './RunGecmisi.js'
+import { StratejiSagligi } from './StratejiSagligi.js'
 import type { Komut } from './palet.js'
 
 // Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
@@ -40,6 +41,12 @@ const KOMUTLAR: readonly Komut[] = [
   { id: 'sema', etiket: 'Şema editörü', grup: 'Bilgi', anahtarlar: ['schema', 'tip', 'alan'] },
   { id: 'butce', etiket: 'Maliyet ve bütçe', grup: 'Gözden geçir', anahtarlar: ['cost', 'tavan'] },
   { id: 'varliklar', etiket: 'Varlık kütüphanesi', grup: 'Gözden geçir', anahtarlar: ['asset'] },
+  {
+    id: 'saglik',
+    etiket: 'Strateji sağlığı',
+    grup: 'Gözden geçir',
+    anahtarlar: ['health', 'lint', 'curume', 'iddia'],
+  },
   {
     id: 'gecmis',
     etiket: 'Çalıştırma geçmişi',
@@ -75,6 +82,7 @@ export const App = (): React.JSX.Element => {
     | 'butce'
     | 'varliklar'
     | 'gecmis'
+    | 'saglik'
   >('giris')
   // Hangi hat çalıştırılacak. Palet komutu ekranı AÇMAKLA kalmaz, hattı da seçer —
   // yoksa "Instagram postu üret" komutu sabit bir hattın launcher'ını açardı ve
@@ -139,6 +147,8 @@ export const App = (): React.JSX.Element => {
           <VarlikKutuphanesi />
         ) : ekran === 'gecmis' ? (
           <RunGecmisi />
+        ) : ekran === 'saglik' ? (
+          <StratejiSagligi />
         ) : (
           <>
             <h1>Upcytech Creative Suite</h1>
@@ -178,7 +188,9 @@ export const App = (): React.JSX.Element => {
                               ? 'varliklar'
                               : k.id === 'gecmis'
                                 ? 'gecmis'
-                                : 'giris'
+                                : k.id === 'saglik'
+                                  ? 'saglik'
+                                  : 'giris'
           )
         }}
       />

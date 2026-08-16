@@ -38,6 +38,7 @@ import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 import { calistirmaDetayi, calistirmalar } from './gecmis.js'
+import { stratejiPanosu } from './strateji-uc.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -158,6 +159,15 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // yayınlanmamış" bir SORU, bir sorgu parametresi değil — operatör onu açıp kapatarak
   // karşılaştırma yapar. Sunucuda filtrelemek, toplam harcamayı da filtrelerdi.
   app.get('/api/varliklar', (c) => c.json(kutuphane(o.repoRoot)))
+
+  // ── strateji sağlığı: aktif dönemin lint panosu (§11, §12.9 · FAZ-4.16) ──
+  //
+  // Kurallar burada değil `@suite/engine`de; `just gate lexicon` AYNI fonksiyonu
+  // çağırıyor. İki kopya olsaydı pano "temiz" derken kapı kırmızı olabilirdi.
+  app.get('/api/strateji-sagligi', (c) => {
+    const r = stratejiPanosu(o.repoRoot, o.query.brandId, o.simdi())
+    return c.json(r, r.ok ? 200 : 422)
+  })
 
   // ── çalıştırma geçmişi / köken tarayıcısı (§13, §12.9 · FAZ-4.15) ─────────
   //

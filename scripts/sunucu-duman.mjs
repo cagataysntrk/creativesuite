@@ -76,6 +76,20 @@ try {
   const reuseYok = await fetch(`${U}/api/varliklar/run_olmayan/yeniden-kullan`)
   bekle(reuseYok.status === 404, `manifetsiz Reuse ${reuseYok.status} döndü, 404 olmalı`)
 
+  // FAZ-4.16: strateji sağlığı — kapı ile pano AYNI kuralları çağırıyor.
+  const sg = await fetch(`${U}/api/strateji-sagligi`)
+  const sgj = await sg.json()
+  bekle(sg.status === 200, `/api/strateji-sagligi ${sg.status} döndü`)
+  bekle(Array.isArray(sgj.bulgular), 'strateji sağlığı bulgu listesi dönmüyor')
+  // "0 bulgu" ancak kaç kaydın tarandığı yazılıysa bir şey söyler (D-175 ailesi).
+  bekle(typeof sgj.taranan === 'number' && sgj.taranan > 0, 'taranan kayıt sayısı yok/sıfır')
+  bekle(typeof sgj.aktifEra === 'string' && sgj.aktifEra !== '', 'aktif dönem bildirilmiyor')
+  // Her bulgu kaydın YOLUNU taşımalı — tıklanabilirliğin ön koşulu.
+  bekle(
+    sgj.bulgular.every((b) => typeof b.yol === 'string' && b.yol.startsWith('corpus/')),
+    'bulgu kaydın yolunu taşımıyor — tıklanabilir bağlantı kurulamaz'
+  )
+
   // FAZ-4.15: çalıştırma geçmişi — `rerun` ile `replay` AYRI ve fark GÖSTERİLİYOR.
   const calGecmis = await (await fetch(`${U}/api/calistirmalar`)).json()
   bekle(Array.isArray(calGecmis.calistirmalar), '/api/calistirmalar liste dönmüyor')
@@ -295,5 +309,5 @@ if (hatalar.length > 0) {
   process.exit(1)
 }
 console.log(
-  `    sunucu ayağa kalktı · 22 uç · geçmiş · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
+  `    sunucu ayağa kalktı · 23 uç · geçmiş · sağlık · kütüphane · telegram · bütçe · şema · keşif · qa · SSE`
 )

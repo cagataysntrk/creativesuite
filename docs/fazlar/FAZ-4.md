@@ -203,17 +203,12 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 ✅ Bir çalıştırmanın girdileri, commit SHA'sı, şerit/model/seed, tahmini vs gerçek görünüyor
 🧪 `rerun` ile `replay`i karşılaştır → sapma **açıkça** gösteriliyor
 
-## 4.16 — Strategy Health    [ ]
+## 4.16 — Strategy Health    [x] 2026-08-16
 
 📖 §11, §12.9 · R-32
 🔗 4.3
-🛠 Aktif dönemin lint panosu: kaynaksız iddia · birimsiz değer teması · süresi geçmiş
-   kanıt · `generalisation_note`'suz dönem-aşırı kanıt · `re_verify_by` geçmiş mevzuat
-   kaydı · yasak sözlük terimi.
-📁 `apps/ui/src/screens/health/`
 ✅ Her bulgu ilgili kayda tıklanabilir bağlantı taşıyor
 🧪 `re_verify_by` geçmiş bir kayıt ekle → panoda **çürümüş** olarak beliriyor
-💾 `feat(ui): strategy health panosu` · `Refs: FAZ-4.16 · §11`
 
 ## 4.17 — Doctor ekranı    [ ]
 

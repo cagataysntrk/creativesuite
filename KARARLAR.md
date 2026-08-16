@@ -88,209 +88,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-160 — Bileşen token'ı düz değere derleniyordu: iki yüzey imkânsızdı
-2026-08-15 · `toCss` her token'ın **çözülmüş** değerini basıyordu:
-`--comp-status-bar-bg: oklch(0.21 …)`. Kademe denetimi kusursuz çalışıyordu, çıktı
-doğru görünüyordu ve `[data-surface="studio"]` içinde `--role-surface`ı yeniden
-tanımlamak **hiçbir şey yapmazdı** — bileşen token'ı çoktan pişmişti. Yani §12.4'ün iki
-yüzey bağlamı yapısal olarak imkânsızdı ve bunu ancak yüzeyi yazmaya kalkınca gördük.
-Takma ad artık `var(--role-x)`e derleniyor: üç kademe CSS'te de kademe olarak duruyor ve
-kaskad onu taşıyor. Ham rampalar düz değer kalır — zincirin bir yerde gerçek bir renge
-bağlanması gerekiyor.
-Yüzey dosyaları (`<ad>.surface.tokens.json`) AYRI derlenir, temel ağacın rampalarını
-ödünç alır ve **yalnız `role.*` tanımlayabilir**. Rampa tanımlasa kabuk iki farklı gri
-olurdu — "marka-nötr izleme kabini" tezinin (§12.1) tam tersi. Bileşen tanımlasa iki
-tasarım sistemi olurdu ve biri bakımsız kalırdı. Yüzey RENGİ değiştirir, YAPIYI değil.
-Yüzey tanımları kalıtılır: `brd_dima` stüdyo yüzeyini `brd_upcytech`ten aldı, tek satır
-yazmadan. Kalıtılmasaydı ana markanın yüzeyini güncellemek her alt markada elle tekrar
-gerektirirdi ve biri unutulurdu.
-Üç ihlalle doğrulandı: yüzeye `ramp` → kırmızı · `comp` → kırmızı · rol chroma'sı
-C=0.12 → kırmızı.
-**Ders:** "çıktı doğru görünüyor" bir doğrulama değil. Bu token derleyicisi iki fazdır
-doğru CSS üretiyordu ve üzerine inşa edilemeyecek bir CSS'ti.
-
-## D-161 — `ui-tema` kapısının iki denetimi hiçbir şey yapmıyordu
-2026-08-15 · Tema katmanı (`theme.css`) elle yazılır, yani kuralları yorumda kalırsa
-kural değil temennidir. Kapı beş şey arıyor; yazdıktan sonra beşini de kasten ihlal
-ettim ve **ikisi sessizce yeşil geçti**:
-1. **Boşluk deseni satır BAŞINA bağlıydı** (`^[[:space:]]*padding`). `.x { padding: 5px }`
-   tek satırlık bir kuraldır ve kaçtı. Bir CSS özelliği satırın herhangi bir yerinde
-   başlayabilir; anchor `^` değil, sınır karakteridir.
-2. **Süre denetimi `bc` kullanıyordu ve HER ZAMAN 0 hesaplıyordu.** `printf '%s'` sondaki
-   satır sonunu basmıyor, `bc` ise ifadeyi sonlandırmak için onu istiyor; sonuç sessiz
-   bir "syntax error" ve `|| echo 0` ile yutulan bir hata. 500ms'lik geçiş yeşil geçti.
-   Aritmetik kabuğa taşındı — bir bağımlılık, yanlış kullanıldığında 40 satır koddan
-   daha kırılgandır (R-75), ve `|| echo 0` kalıbı hatayı VARSAYILANA çevirdiği için
-   yanlış kullanımı görünmez yapar.
-Yedi ihlal + üç meşru durum doğrulandı: `box-shadow` · 700 ağırlık · 5px · 18px ·
-`prefers-color-scheme` · 500ms · 0.5s kırmızı; `gap: 4px` · 300ms · `border: 1px` yeşil.
-Gölge muafiyeti DOSYAYA değil KURAL BLOĞUNA bağlı (`[data-elevation='overlay']`'den ilk
-`}`e kadar) — "bu dosyada gölge serbest" demek, yasağı ilk ihtiyaçta esnetmek olurdu.
-**Ders (bu turda ikinci kez):** bir kapıyı yazmak onu test etmek değildir. Beş denetimden
-ikisi doğdukları anda ölüydü ve tek fark, ihlali gerçekten denemekti.
-
-## D-162 — `chokidar` eklenmedi: `fs.watch` özyineli çalışıyor
-2026-08-15 · FAZ-4.2 açıkça `chokidar` diyordu (plandan gelen bir alışkanlık). Node 20'den
-beri `fs.watch(dir, { recursive: true })` Linux ve macOS'ta çalışıyor ve bu ortamda
-doğrulandı: `/tmp` altında iki seviye derinde açılan bir dosya olay üretti.
-chokidar'ın asıl değeri **platformlar arası tutarsızlığı gizlemesi** — Windows'ta farklı,
-BSD'de farklı davranan `fs.watch`ı tek bir arayüzün arkasına almak. Bizim tek bir yerel
-platformumuz var (§3'ün "yerel komuta merkezi" tezi) ve onu doğrudan test edebiliyoruz;
-gizlenecek bir tutarsızlık yok. 40 satır bir bağımlılıktan iyidir (R-75).
-Yerine yazılan şey debounce'tur ve o gerçekten gerekli: tek bir dosya kaydetme `rename` +
-`change` olarak iki kez gelir, editörün atomik yazması (geçici dosya + rename) üçe çıkarır.
-Debounce olmadan her kaydetme üç SSE mesajı ve üç disk taraması demekti.
-İzleyici kurulamazsa sunucu YİNE ayağa kalkar ama **sessizce "izliyorum" demez**:
-`/api/saglik` gerçekten izlenen dizinleri listeler ve `cli-duman` kapısı o listenin boş
-olmamasını doğruluyor — ihlal testinde listeyi boşalttığımda kapı kırmızıya döndü.
-**Ders:** faz dosyasındaki bir araç adı bir karar değil, bir varsayımdır. Varsayımı
-sorgulamak bir turluk iş; bağımlılığı sökmek bir yıllık.
-
-## D-163 — Kablo biçimi UYDURULDU ve testler onu doğruladı
-2026-08-15 · `apps/server/src/durum.ts` manifest'i okumak için KENDİ `JSON.parse`
-reviver'ını taşıyordu ve `Money`nin diskteki biçimini `{micros: {__bigint: "…"}}`
-sanıyordu. Gerçek biçim `{micros: "0", currency: "USD"}` ve kanonik okuyucu
-(`readManifest`) zaten vardı.
-Hata **sessizdi**: JS'te `bigint + string` bir dize BİRLEŞTİRMESİDİR, istisna atmaz.
-Gerçek repoya karşı ilk istek `maliyetMikros: "000000000000000…"` döndürdü — 69 haneli
-bir sıfır dizisi, `bandDisinda: true` ve tamamen anlamsız bir maliyet göstergesi.
-**Dokuz birim testi bunu geçirdi** çünkü fikstürleri ben yazdım ve fikstür de aynı
-uydurma biçimi kullanıyordu: test kodu değil, kendi varsayımını doğruladı. Bu, "yeşil test
-bir şey kanıtlamaz"ın (R-71) en saf hâli — kapı yok, kandırılan bir ayna var.
-İki düzeltme: (1) kendi okuyucum silindi, `readManifest`e devredildi — ikinci bir
-ayrıştırıcı zaten `chokepoints`in yasakladığı şeydi; (2) fikstürler gerçek biçime
-çevrildi ve regresyonu doğrulandı: maliyeti kasten dize birleştirdiğimde üç test kırmızı.
-**Ders:** bir serileştirme biçimini kod yazarak öğrenemezsin, sadece OKUYARAK.
-Fikstürünü yazan el, kodu yazan elle aynıysa test bir doğrulama değil, bir yankıdır.
-
-## D-164 — Sunucu duman testi: `node --check` yetmez
-2026-08-15 · D-153'te iki üretim CLI'ı import eksikliğinden kırıldı ve hiçbir kapı
-görmedi; çözüm `cli-duman` kapısıydı ama sunucu betiği için yalnız `node --check`
-yapıyordu — ki bu tam olarak D-153'ün yakalayamadığı hata sınıfıdır (dosya
-ayrıştırılabilir, import'u eksik).
-Nitekim ilk sürüm tam bu şekilde düştü: `scripts/sunucu.mjs` `@hono/node-server`ı
-import ediyordu ama o paket pnpm workspace'te `apps/server/node_modules` altında, kökte
-DEĞİL. Sözdizimi kusursuzdu; süreç `ERR_MODULE_NOT_FOUND` ile açılmadı.
-`scripts/sunucu-duman.mjs` sunucuyu GERÇEKTEN kaldırıyor (port 0 — paralel koşuda
-çakışmasın), üç ucu çağırıyor, bir dosya değişiminin SSE'ye yansıdığını doğruluyor ve
-temiz kapatıyor. Hiçbir şey harcamaz: bu yalnız okuyan bir API (R-47 ruhu).
-Ayrıca doğru mimari de ortaya çıktı: dinleyiciyi açan kod artık `apps/server/src/baslat.ts`
-içinde, betikte değil — **bağımlılığın nerede yaşadığı, onu kimin çağırabileceğini
-belirler** ve mantığın tip denetimli pakette durması D-153'ün asıl dersiydi.
-**Ders:** bir dosyanın ayrıştırılabilmesi, çalışabildiğini göstermez. Aradaki farkı
-yalnız çalıştırmak kapatır.
-
-## D-165 — Türkçe katlama Ring -1'e taşındı: iki halkanın da ihtiyacı var
-2026-08-15 · Komut paleti Türkçe arama yapmak zorunda (kullanıcı `icerik` yazıp `İçerik`
-bulmalı) ve ilk sürümde kendi `.replace` zincirini taşıyordu. `turkish-case` kapısı onu
-yakaladı (R-21: case dönüştüren tek yer). Kanonik `foldForSearch`e geçtiğimde bu kez
-`rings` kapısı kırmızıya döndü: `apps/ui` **tarayıcı halkasıdır** ve kernel'i import
-edemez — kernel `better-sqlite3` taşır.
-Üç seçenek vardı: (a) `mayImport`u genişletmek — kırmızı kapının kuralını aynı turda
-gevşetmek, R-76 açıkça yasaklıyor; (b) tarayıcıda ikinci bir katlama yazmak — o zaman
-paletin bulduğu ile FTS5 indeksinin bulduğu ayrışır ve kullanıcı iki farklı sonuç görüp
-hangisinin doğru olduğunu asla anlayamaz (§5.6 katlamanın `unicode61 remove_diacritics 2`
-ile AYNI olmasını şart koşuyor); (c) primitifi doğru halkaya taşımak.
-(c) seçildi: `packages/contracts/src/text-tr.ts`. Ring -1 hiçbir şey import etmez ve
-herkes onu import eder — `Money` neyse Türkçe katlama da odur: **herkesin aynı biçimde
-konuşmak zorunda olduğu bir ilkel.** Kernel onu yeniden dışa açıyor, o yüzden mevcut
-`@suite/kernel` tüketicilerinin hiçbiri değişmedi. Yetkili yer hâlâ TEK, sadece doğru
-halkada; `turkish-case` kapısının `KUTSANMIS` sabiti yeni yolu gösteriyor.
-Tarayıcı paketi doğrulandı: `better-sqlite3` sızıntısı 0.
-**Ders:** bir halka ihlali çoğu zaman "kural fazla katı" demek değil, "kod yanlış yerde"
-demektir. Kuralı gevşetmek soruyu susturur; taşımak cevaplar.
-
-## D-166 — Nabız aralığı UI'a gömülüydü: ölçüm aracı ölçümü bozar
-2026-08-15 · Makine durumu şeridi "bağlantı yok"u nabız aralığının katıyla ölçüyor
-(1,5 kat bayat, 3 kat kopuk) ve o aralık `App.tsx`te `NABIZ_MS = 5000` olarak GÖMÜLÜYDÜ.
-Sunucu nabzını 30 sn'ye çıkardığı gün UI her nabızda "bağlantı yok" derdi — yani bağlantı
-sağlıklıyken sürekli alarm veren bir gösterge, ki o gösterge bir hafta içinde yok sayılır.
-İki gerçek deseninin bu turdaki üçüncü örneği (D-160 kaskad, D-163 kablo biçimi).
-Aralık artık `/api/saglik`ta İLAN EDİLİYOR ve UI onu okuyor; gömülü sabit yalnız
-öğrenene kadarki başlangıç değeri. Kapı ilanı zorunlu tutuyor — ilanı kaldırınca kırmızı.
-Kabul kriteri gerçek bir SIGKILL ile doğrulandı: `canli` → sunucu ölür → `kopuk`,
-"bağlantı yok" ve **son maliyet değeri gösterilmiyor**. Kalıcı bir göstergenin
-yapabileceği en kötü şey, sustuğunu söylemeden son gördüğü değeri sonsuza kadar canlı
-göstermesidir; toast'ın böyle bir sorunu yoktur çünkü zaten kaybolur.
-**Ders:** iki tarafın paylaştığı her sayı, taraflardan birinde SABİT olduğu an bir
-zaman bombasıdır. Sözleşmeyi taşıyan taraf onu ilan etmeli.
-
-## D-167 — Dönem adı İKİ FARKLI dizeydi: corpus retrieval'a görünmezdi
-2026-08-15 · Corpus Browser'ı gerçek veriye bağladığımda tarayıcı 7 kayıt yerine **1**
-gösterdi. Sebep: `brand/brd_upcytech/current`, `era.yaml` `slug`ı ve `git tag era/…`
-üçü de **`imalat-2026`** diyor; altı corpus kaydı ise `era_id: era_imalat_2026` taşıyordu.
-İki farklı dize, hiçbir yerde karşılaştırılmıyor.
-**Sonuç:** retrieval yüklemi (`era_id = :era OR era_id = '*'`) o altı kaydı ASLA
-döndürmezdi. Ve bu **maskeliydi**: hepsi `draft` olduğu için zaten görünmüyorlardı.
-`2.9` onaylandığı gün hepsi `active` olacak, kullanıcı onayladığını görecek ve `3.14`
-yine `NO_CONTEXT` ile duracaktı — onayın işe yaramadığı sanılırdı.
-Gerçek kodla ölçüldü: onaylanmış bir corpus kopyasında retrieval **7 kayıt** döndürüyor;
-eski dizeyle **1**. Yani bu düzeltme olmadan `3.14` insan onayından sonra da bloke kalırdı.
-Üç parça düzeltildi: (1) altı kaydın `era_id`si düzeltildi ve `x_signature` yeniden
-hesaplandı — imzaya dokunmamak motoru "insan bu dosyaya dokundu" diye durdururdu ve bu
-bir içerik yazarlığı değil, sistem seviyesinde veri düzeltmesi; (2) `uret.mjs` ve
-`golden.mjs` dönemi GÖMÜYORDU, artık `brand/<id>/current`tan okuyorlar — kök neden buydu;
-(3) `era` kapısı artık her corpus `era_id`sinin var olan bir döneme çözüldüğünü denetliyor.
-Kapı yazıldığı anda altısını da kırmızıya çevirdi.
-**Ders:** dönem modeli üç parçadır dedik (§4.3) ve kapı o üçünü denetliyordu. **Dördüncü
-bir yer vardı** — kayıtların kendisi. Bir tutarlılık kapısı, kontrol ettiği kümenin TAM
-olduğunu varsayar; o küme eksikse kapı yeşil yanar ve hiçbir şey korumaz.
-
-## D-168 — Ters indeks manifest'ten TÜRETİLİR, saklanmaz
-2026-08-15 · "Bu kaydı hangi çalıştırma kullandı" sorusunun cevabı manifest'lerin
-`context` alanında zaten yazıyordu — yalnız ters yönde okunmuyordu. İki seçenek vardı:
-ayrı bir tablo tutmak ya da her istekte manifest'leri taramak.
-Tarama seçildi. Saklanan bir ters indeks **ikinci bir gerçek** olurdu ve manifest'le
-ayrıştığı gün hangisinin doğru olduğu anlaşılmazdı; §13 açık: manifest bir çalıştırmanın
-TEK kanıtıdır. Bu turda aynı deseni üç kez yaşadık (D-160, D-163, D-166) ve dördüncüsünü
-bilerek yaratmanın gerekçesi yok — 16 çalıştırma için tarama 10 ms sürüyor, binler
-olduğunda `derived/index` zaten var ve kaynağı yine manifest olur.
-Üç dürüstlük kararı: (1) **"etkisi yok" AÇIKÇA yazılır** — sessiz bir boş liste "henüz
-yüklenmedi" ile "hiç kullanılmadı"yı aynı şeye çevirir ve biri beklemek, diğeri kaydı
-gözden geçirmek demektir; (2) "hiç çalıştırma yok" ayrı bir cümledir, "0 kullanım"
-değil; (3) kusurlu manifest'le üretilmiş kullanımlar İŞARETLENİR — o varlık zaten
-yayınlanamaz (D-155) ve bunu söylememek yarım cevaptır.
-Git zaman çizgisi de ayrı bir günlükte tutulmuyor: `fileHistory` zaten vardı ve hiç
-çağrılmıyordu. İkinci bir değişiklik günlüğü, git ile ayrışabilen bir gerçek olurdu
-(12. yasa: kurtarma `git clone` + `cat`).
-`git` alt sürecine **yalnız `PATH`** geçiyor (§14): tüm ortamı vermek, `sops exec-env`
-ile enjekte edilen sağlayıcı anahtarlarını da alt sürece taşımak olurdu.
-**Ders:** bir soruyu cevaplamanın en ucuz yolu genelde yeni veri üretmek değil, var olan
-veriyi ters yönde okumaktır.
-
-## D-169 — Elle bağlam daraltma manifest'e yazılır; boş bölüm nedenini söyler
-2026-08-16 · Context Preview'ın iki kararı motorda, UI'da değil.
-**Kapatma bir FİLTRE değil, bir KARAR.** `assembleContext` artık `excluded` alıyor ve
-kapatılan kayıt listeden silinmiyor — `dropped`a `insan kapattı (Context Preview)`
-gerekçesiyle giriyor ve `toManifestEntries` onu defter satırına çeviriyor. UI'da
-filtreleseydik aynı girdi iki farklı çıktı üretir, farkın sebebi hiçbir yerde durmaz ve
-replay (§13) o an yalan söylerdi. Ekranda da silinmiyor: üstü çizili durup "geri aç"
-düğmesi taşıyor.
-**Boş bölüm SESSİZ KALMAZ.** Önizleme gerçek corpus'ta sıfır kayıt gösterdi ve bu doğru
-davranıştı (kayıtlar `draft`), ama ekran NEDENİNİ söylemiyordu — operatörün "bu pipeline
-bağlam kullanmıyor" sanmasının kısa yolu. Üç ayrı sebep var ve üçü farklı iş gerektirir:
-o tipte hiç kayıt yok · kayıt var ama onay bekliyor · kayıt var ama dönem dışı. Sebep
-`browseRecords` ile ÖLÇÜLÜYOR (R-13: ikinci yüklem yok, görünürlük türetiliyor).
-Adaylar `selectRecords`ten geliyor — `uret.mjs` ile AYNI yol. İki ayrı seçim yolu,
-ekranda görülenle çalışanın ayrışması demekti.
-
-## D-170 — İhlal testim BAYAT `dist` koşturuyordu: `2>/dev/null` derleme hatasını yuttu
-2026-08-16 · `ui-tema` ve bağlam ucunun ihlal testlerini koşarken iki ihlal de YEŞİL
-geçti. Kapı bozuk değildi: `./node_modules/.bin/tsc -b 2>/dev/null` derleme hatasını
-yutuyordu, `dist` güncellenmiyordu ve duman testi **eski kodu** koşuyordu. Yani ihlali
-hiç uygulamamıştım ve "kapı yakalamadı" diye okuyordum.
-Aynı turda ikinci bir sessiz başarısızlık: duman testine bağlam denetimlerini ekleyen
-`python str.replace` hedefi bulamadı ve sessizce hiçbir şey yapmadı — ama aynı betikteki
-ikinci replace (özet satırı) tuttu. Sonuç en kötü biçim: kapı `7 uç · bağlam` diye
-**ilan ediyordu** ve bağlam ucuna hiç bakmıyordu. Korumadığı şeyi duyuran bir kapı,
-hiç olmayandan kötüdür.
-İki kural: (1) ihlal testinde derlemenin BAŞARILI olduğu doğrulanmadan sonuç okunmaz —
-`if tsc -b; then koş; else "test geçersiz"; fi`; (2) her `str.replace` sonrası dizenin
-gerçekten değiştiği `assert` edilir. İkisi de düzeltildikten sonra iki ihlal de kırmızıya
-döndü.
-**Ders:** "kapı yakalamadı" sonucunun iki açıklaması var ve ikincisi daha olası —
-ihlal hiç uygulanmamıştır. Yeşil bir ihlal testi, kapıdan çok TESTİ şüpheli kılar.
-
 ## D-171 — Bitmiş adımın TALİMATI faz dosyasında kalmaz
 2026-08-16 · FAZ-4.md 250 satır tavanına (R-63) beş kez dayandı ve her seferinde bir
 adımı sıkıştırarak yer açtım. Beşincide bunun bir sıkışıklık değil bir SİNYAL olduğunu
@@ -552,3 +349,39 @@ Karar: `.nvmrc` (22) + `engines.node >=22` + `node-surum` kapısı. Kapı sürü
 bakıp geçmiyor, `better-sqlite3`ü GERÇEKTEN yüklemeyi deniyor: doğru sürümde yeniden
 derlenmemiş bir bağımlılık da aynı sessiz kaybı verir.
 Node 22'de: **64 dosya, 902 test, hepsi yeşil.**
+
+## D-185 — Strateji lint kuralları yalnız kapı betiğinde yaşıyordu
+2026-08-16 · `4.16` panosunu yazarken kuralların nerede olduğu arandı: yasak terim
+listesi, sayısal iddia tespiti, gövdeden alan çıkarma — hepsi `scripts/lexicon.mjs`
+içinde, kapı betiğinin gövdesinde, test edilemez JavaScript olarak. Pano aynı kuralları
+göstermek zorunda. İkinci bir kopya yazmak D-160'ın birebir tekrarı olurdu: iki gerçek,
+ikisi de "doğru", bir gün sessizce ayrışırlar — ve o gün pano "temiz" derken kapı
+kırmızı olur, hangisinin haklı olduğu belirsiz kalır.
+Kurallar `packages/engine/src/saglik/strateji.ts`e çıkarıldı; kapı da pano da **aynı
+fonksiyonu** çağırıyor. Halka gerekçesi: corpus okumak `@suite/corpus`, lexicon
+`@suite/render` — kardeşler, birbirini import edemez; ikisini birleştiren en alçak
+halka `engine`.
+**Ayrıştırmadan sonra kapı yeniden ihlal edildi** (D-153: bir düzeltme commit'i iki CLI'ı
+kırmıştı ve 24 kapı görmedi): gerçek bir corpus kaydına yasak terim + kaynaksız `%47`
+eklendi, kapı ikisini de yakalayıp kırmızıya döndü.
+**Yeni ayrım — `alanlar_nesirde`.** Gerçek `proof_asset` kaydında `generalisation_note`,
+`era_of_origin` ve `transfer_confidence` **nesirde** yazılı, frontmatter'da değil.
+"Alan eksik" demek haksız bir suçlama olurdu — argüman orada. Ayrı bir tür açıldı
+(D-177: enum iki gerçeği sıkıştırmasın) ve `uyari` şiddetinde: denetim bugün gövde
+başlıklarını okuyarak çalışıyor, başlıklar değişirse sessizce kör kalır.
+Gerçek repoda ölçüldü: **7 kayıt, 0 blocking, 1 uyarı.**
+
+## D-186 — İhlal testi SAYI doğruluyordu, İÇERİK değil
+2026-08-16 · `4.16`nın ilk ihlal testi yasak terim listesini boşalttı ve **testler yeşil
+kaldı**. Sebep: test `bulgular.map(b => b.kayitId)`in `['rec_kirli','rec_kirli']` olmasını
+bekliyordu — yani iki bulgu olmasını, hangisi olduğunu değil. Yasak terim kuralı
+kalktığında başka bir bulgu sayıyı doldurabilirdi.
+D-181 fikstürün değerini düzeltmişti; bu onun bir üst katmanı: **fikstür doğru olsa da
+İDDİA yanlış yerde durabilir.** Sayı, iki kuralı birbirinin yerine geçirir. Test bulgu
+MESAJLARINI doğrulayacak biçimde yeniden yazıldı ve ihlal kırmızıya döndü.
+İkinci ders aynı turdan: ihlali uygulayan betiğin kendisi de hatalıydı —
+`s.index("]")` `readonly string[]` içindeki köşeli ayraca takıldı ve üretilen kod
+`= [] = [...]` oldu; bu **geçerli JavaScript** (boş dizi destructuring) olduğu için
+derleme geçti ve liste hiç boşalmadı. `assert` vardı ama fazla gevşekti.
+**Ders:** ihlal testinde üç şey ayrı ayrı doğrulanmalı — ihlal UYGULANDI mı, kod
+DERLENİYOR mu, ve iddia ihlal edilen KURALA mı bakıyor.
