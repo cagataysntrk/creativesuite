@@ -59,3 +59,7 @@ Thumbs.db
 # kalıcı varlık `motion/<kompozisyon>/index.html` ve `derived/blobs`tır (R-64).
 motion/*/renders/
 motion/*/node_modules/
+
+# Kullanıcının ham referans bırakma klasörü. Küratörlü kopyalar
+# docs/referans/ornekler/ altında ve klonla geliyor.
+examples/
