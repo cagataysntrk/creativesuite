@@ -40,8 +40,32 @@ export type {
 } from './tasarim-plani.js'
 export { OGE_POLITIKALARI, planGecerli, planKusurlari } from './tasarim-plani.js'
 
-export type { AileKimligi, AileProfili, AileKusuru } from './aile.js'
-export { AILELER, TEMEL_AILE, AKICI_AILE, aileBul, aileKusurlari } from './aile.js'
+export type { Bolge, CizgiDili, Iskelet, IskeletKusuru, TipoIliskisi } from './iskelet.js'
+export { iskeletKusurlari } from './iskelet.js'
+export type {
+  AileKimligi,
+  AileProfili,
+  AileKusuru,
+  Yerlesim,
+  AlanSemasi,
+  SinirBicimi,
+  HayaletBicimi,
+} from './aile.js'
+export {
+  AILELER,
+  TEMEL_AILE,
+  AKICI_AILE,
+  MEMPHIS_AILE,
+  GECE_AILE,
+  DONEN_AILE,
+  EDITORYAL_AILE,
+  KESIT_AILE,
+  IZGARA_AILE,
+  SINIR_BICIMLERI,
+  HAYALET_BICIMLERI,
+  aileBul,
+  aileKusurlari,
+} from './aile.js'
 export {
   ISLEVLER,
   VARSAYILAN_RITIM,

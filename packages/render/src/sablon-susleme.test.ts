@@ -47,8 +47,24 @@ describe('süsleme dağarcığı', () => {
     expect(suslemeler(k(0, 'tek'), true)).toHaveLength(0)
   })
 
-  it('slayt başına EN FAZLA iki öge', () => {
-    for (let i = 0; i < 12; i += 1) expect(suslemeler(k(i), true).length).toBeLessThanOrEqual(2)
+  it('SAYI yoğunluktan türüyor — parametre adı yalan olmamalı', () => {
+    // ⚠ Eskiden sayı SABİTTİ ve `yogunluk` yalnız opaklığa giriyordu: %25 ile %85 arasında
+    // hiçbir fark yoktu ve `memphis` ailesi %85'te iki öge basıyordu.
+    const seyrek = suslemeler(k(3), true, 0.2).length
+    const yogun = suslemeler(k(3), true, 0.85).length
+    expect(yogun).toBeGreaterThan(seyrek)
+  })
+
+  it('sayı TAVANLI — süsleme bir zemin, bir kalabalık değil', () => {
+    for (let i = 0; i < 12; i += 1) expect(suslemeler(k(i), true, 1).length).toBeLessThanOrEqual(7)
+  })
+
+  it('ÜRETİM ailenin dağarcığından — süzme değil', () => {
+    // ⚠ Süzme dar dağarcıklı ailelerde ögelerin çoğunu çöpe atıyor ve tuvali boş
+    // bırakıyordu: `izgara` yalnız `cizgi`+`kare`ye izin veriyor.
+    const yalniz = suslemeler(k(3), true, 0.8, false, true, ['cizgi'])
+    expect(yalniz.length).toBeGreaterThan(1)
+    for (const s of yalniz) expect(s.tip).toBe('cizgi')
   })
 
   it('DETERMİNİSTİK — aynı slayt hep aynı süsleme', () => {

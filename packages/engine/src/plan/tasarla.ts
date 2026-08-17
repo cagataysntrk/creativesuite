@@ -12,6 +12,7 @@
 
 import {
   AKICI_AILE,
+  aileBul,
   TEMEL_AILE,
   yay,
   type AileProfili,
@@ -41,6 +42,8 @@ export interface TasarlaGirdisi {
   readonly yuvaIstendi: boolean
   /** Yuvanın biçimi — hat/aile söylüyor. Varsayılan `alan`. */
   readonly yuvaBicimi?: 'alan' | 'maske'
+  /** Hattın açıkça istediği aile adı — verilmezse içerikten seçiliyor. */
+  readonly aileAdi?: string
   /**
    * Kompozisyon ailesi (FAZ-12.7). Verilmezse `temel`.
    *
@@ -128,6 +131,14 @@ const ogeSecimi = (
  */
 export const aileSec = (g: TasarlaGirdisi): AileProfili => {
   if (g.aile !== undefined) return g.aile
+  // ⚠ Hat AÇIKÇA bir aile isteyebilir: aynı metni farklı tasarımlarda üretmek (şablon
+  // karşılaştırması) ancak böyle mümkün. İsim tanınmazsa içerikten seçime düşüyor —
+  // yazım hatası yüzünden koşunun düşmesi, sessizce yanlış aile seçmekten iyi ama
+  // burada ikisi de değil: bilinmeyen ad yok sayılıyor ve karar içeriğe kalıyor.
+  if (g.aileAdi !== undefined) {
+    const bulunan = aileBul(g.aileAdi)
+    if (bulunan !== null) return bulunan
+  }
   // ⚠ ⚠ **YALNIZ `akisVar` — `yuvaIstendi` ÖLÇÜT DEĞİL, ve bunu 2. doğrulama turu
   // gösterdi.** İlk sürüm `akisVar || yuvaIstendi` diyordu; hat dosyası `gorsel_yuvasi:
   // true` sabitini yazıyor, yani `yuvaIstendi` HER KOŞUDA true ve her konu `temel`

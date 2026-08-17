@@ -12,7 +12,7 @@
 
 import { statSync } from 'node:fs'
 import { softHyphenate } from '@suite/contracts'
-import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
+import { validateDocument, type Block, type DocumentModel, type SlaytKimligi } from '@suite/kernel'
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
 import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
 import { COMPARE_CSS, compareHtml, isCompareError } from './charts/karsilastirma.js'
@@ -42,6 +42,7 @@ import {
 import { markaCss, markaKilidi } from './marka-isareti.js'
 import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { z } from './kompozit.js'
+import { type AlanSemasi, type SinirBicimi, TEMEL_AILE } from '@suite/contracts'
 import { degradeDefSvg } from './sablon-degrade.js'
 
 /** Alan degradesinin belge içi kimliği. */
@@ -68,6 +69,54 @@ const gorselIslemleri = (doc: DocumentModel): readonly GorselIslem[] =>
  * ⚠ Varsayılan `['vurgu','kontur']`: ailesiz bir belgede efektleri düşürmek, sessizce
  * hiyerarşisiz ve konturSuz hâle dönmek olurdu (duotone varsayılanıyla aynı gerekçe).
  */
+/**
+ * Metin bölgesi — İSKELETTEN, ama eğrili dilde genişlik EĞRİDEN.
+ *
+ * ⚠ ⚠ **İki kaynak var ve ikisi de doğru.** İskelet kompozisyonu tarif ediyor; ama `egri`
+ * ve `kosegen` dillerinde metnin genişliği bir TERCİH değil bir GARANTİ —
+ * `guvenliKolonYuzdesi` onu çizginin zarfından türetiyor ve `column_in_band` değişmezi
+ * onu ölçüyor. İskelet o genişliği yazsaydı bir aile bandı delebilirdi.
+ * Bölmesiz dillerde (`yok`, `izgara`) böyle bir zarf yok; orada bölge doğrudan iskeletten.
+ */
+const metinBolgesi = (
+  doc: DocumentModel,
+  k: SlaytKimligi
+): { readonly x: number; readonly y: number; readonly g: number; readonly h: number } => {
+  const isk = doc.aile?.iskelet
+  const cizgili = isk === undefined || isk.cizgi.tip === 'egri' || isk.cizgi.tip === 'kosegen'
+  if (cizgili) {
+    const g = guvenliKolonYuzdesi(k, siniri(doc))
+    // ⚠ Köşegen dilinde iskelet metnin YERİNİ söylüyor, eğri dilinde gramer söylüyor:
+    // ikisinde de GENİŞLİK zarftan, ama köşegende bölge tuvalin bir köşesinde durabilir.
+    if (isk !== undefined && isk.cizgi.tip === 'kosegen')
+      return {
+        x: isk.metin.x,
+        y: isk.metin.y,
+        g: Math.min(g, isk.metin.genislik),
+        h: isk.metin.yukseklik,
+      }
+    return { x: egriSagda(k) ? 0 : 100 - g, y: 0, g, h: 100 }
+  }
+  const m = isk.metin
+  return { x: m.x, y: m.y, g: m.genislik, h: m.yukseklik }
+}
+
+/** Dikey hiza — aile söylüyor, düzen yalnız varsayılanı veriyor. */
+const dikeyHiza = (dikey: 'orta' | 'alt' | 'ust', duzenin: string): string =>
+  dikey === 'ust'
+    ? 'flex-start'
+    : dikey === 'alt'
+      ? 'flex-end'
+      : dikey === 'orta'
+        ? 'center'
+        : duzenin
+
+/** Belgenin alan şeması — aile söylemediyse `temel`inki. */
+const semasi = (doc: DocumentModel): AlanSemasi => doc.aile?.alan ?? TEMEL_AILE.alan
+
+/** Belgenin sınır biçimi. Tek alanlı ailede `yok`. */
+const siniri = (doc: DocumentModel): SinirBicimi => doc.aile?.sinir ?? TEMEL_AILE.sinir
+
 const efektAcik = (doc: DocumentModel, efekt: TipoEfekti): boolean =>
   (doc.aile?.tipoEfektleri ?? ['vurgu', 'kontur']).includes(efekt)
 /** Grain filtresinin belge içi kimliği. */
@@ -245,7 +294,10 @@ export const toHtml = (doc: DocumentModel): string =>
     // hiyerarşisiz hâle dönmek olurdu (duotone varsayılanıyla aynı gerekçe).
     doc.slayt === undefined || !efektAcik(doc, 'vurgu')
       ? ''
-      : vurguCss(alanRolleri(doc.slayt).karsiAlan, alanRolleri(doc.slayt).motif),
+      : vurguCss(
+          alanRolleri(doc.slayt, semasi(doc)).karsiAlan,
+          alanRolleri(doc.slayt, semasi(doc)).motif
+        ),
     '</style>',
     sablonKatmanlari(doc),
     // ── RASTER İŞLEMLER: tanımlar AİLEDEN (FAZ-12.2) ────────────────────────
@@ -275,7 +327,9 @@ export const toHtml = (doc: DocumentModel): string =>
     // işaret ikisinden de kötüdür.**
     ikonlarHepsiEslesiyorMu(doc)
       ? doc.blocks
-          .map((b) => blokHtml(b, alanRolleri(doc.slayt!).metin, efektAcik(doc, 'vurgu')))
+          .map((b) =>
+            blokHtml(b, alanRolleri(doc.slayt!, semasi(doc)).metin, efektAcik(doc, 'vurgu'))
+          )
           .join('\n')
       : doc.blocks.map((b) => blokHtml(b, null)).join('\n'),
     '</main>',
@@ -288,7 +342,7 @@ export const toHtml = (doc: DocumentModel): string =>
 const sablonCss = (doc: DocumentModel): string => {
   const k = doc.slayt
   if (k === undefined) return ''
-  const r = alanRolleri(k)
+  const r = alanRolleri(k, semasi(doc))
   // Metin sütunu eğrinin KARŞI tarafında: eğri sağı dolduruyorsa metin solda.
   const sagda = egriSagda(k)
   // Düzen artık GÖRSEL bir fark yaratıyor (FAZ-10.4b): punto, dikey yaslama, tırnak,
@@ -304,7 +358,49 @@ const sablonCss = (doc: DocumentModel): string => {
   // ⚠ Küresel `guvenliMetinYuzdesi` beş slaytın EN KÖTÜSÜ; eğri uzaklaştığı slaytlarda
   // 97 px'e varan bant boşa gidiyordu. Değer artık o slaytın eğrisinin zarfından.
   // ⚠ Maske çapı da bundan türüyor: geniş slaytta daire de büyüyor, oran korunuyor.
-  const kolonYuzde = doc.slayt === undefined ? guvenliMetinYuzdesi : guvenliKolonYuzdesi(doc.slayt)
+  const mb =
+    doc.slayt === undefined
+      ? { x: 0, y: 0, g: guvenliMetinYuzdesi, h: 100 }
+      : metinBolgesi(doc, doc.slayt)
+  const kolonYuzde = mb.g
+  // ⚠ Gövde puntosu başlıktan DAHA AZ küçülüyor (0,72 + 0,28·pay): editoryal ailede
+  // başlık 0,38'e inerken gövde 0,83'te kalıyor. Gövdeyi de 0,38'e indirmek metni
+  // okunmaz yapardı — ölçek bir estetik seçim, okunabilirlik değil.
+  // ⚠ ⚠ **PUNTO BÖLGE GENİŞLİĞİNDEN TÜRÜYOR — bu bir garanti, bir tercih değil.**
+  // `baslikTavaniPx` en uzun Türkçe kelimenin %62'lik sütuna sığdığı en büyük değerdi
+  // (R-23). İskelet bölgeyi %30'a indirebiliyor; aynı puntoyu basmak kelime başına bir
+  // satır demekti ve ilk render'da tam bu oldu (`izgara` ve `donen`de metin dikey bir
+  // şerite döndü). Ölçek bölgeyle orantılı küçülüyor: dar bölge küçük punto.
+  // ⚠ Aile payı bunun ÜSTÜNE çarpım olarak biniyor, yerine değil — aile daha da
+  // küçültebilir (editoryal), ama bölgenin izin verdiğinden büyütemez.
+  // ⚠ Bölge payı bir TAVAN, bir çarpan DEĞİL. Çarpım olarak uygulandığında editoryal
+  // ailenin 0,38'i bölgenin 0,53'üyle çarpılıp 0,20'ye düştü ve başlık okunmaz bir
+  // lekeye döndü — aile zaten küçük seçmişken bölge onu bir kez daha küçültüyordu.
+  // Tavan doğru ilişki: aile istediği kadar küçültebilir, bölgenin izin verdiğinden
+  // büyütemez.
+  const bolgeTavani = Math.min(1, mb.g / guvenliMetinYuzdesi)
+  const tipoPayi = Math.max(0.14, Math.min(doc.aile?.tipoPayi ?? 1, bolgeTavani))
+  const yerlesim = doc.aile?.yerlesim ?? TEMEL_AILE.yerlesim
+  // ⚠ Pay çarpanı 0,6–2,5 arasında kelepçeli: 0'a inen bir pay metni kenara yapıştırır,
+  // 5'e çıkan bir pay sütunu yok eder. Aile estetik seçer, tuvali yok edemez.
+  const ailePay = Math.min(2.5, Math.max(0.6, yerlesim.payPayi))
+  const ustPay = Math.round(pay * ailePay)
+  // Sayaç bandı ~%10,4, kulp şeridi ~%91,3'te (tuval yüzdesi). Bölge onlara değmiyorsa
+  // dolguya gerek yok.
+  const bolgeDolgusu = {
+    ust:
+      mb.y < 11 ? ustPay + (b.yaslama === 'flex-start' ? SAYAC_BANDI : 0) : Math.round(pay * 0.3),
+    alt: mb.y + mb.h > 89 ? ustPay + 64 : Math.round(pay * 0.3),
+    sol: mb.x < 2 ? Math.round(pay * ailePay) : 0,
+    sag: mb.x + mb.g > 98 ? Math.round(pay * ailePay) : 0,
+  }
+  // ⚠ Rakam bölgesi varsa punto ondan TÜRÜYOR: bölge %50 ise rakam tuvalin yarısı kadar.
+  // Sabit `hayaletPx` her ailede aynı dev rakamı basıyordu — ölçek de kimliğin parçası.
+  const rakamB = doc.aile?.iskelet?.rakam ?? null
+  const rakamPx =
+    rakamB === null
+      ? VARSAYILAN.hayaletPx
+      : Math.round((rakamB.yukseklik / 100) * doc.height * 1.28)
   /** Maske dairesinin çapı — güvenli sütunun içerik genişliğinin %62'si (FAZ-11.4). */
   const capPx = Math.round(((kolonYuzde / 100) * doc.width - pay) * 0.62)
   return [
@@ -321,27 +417,64 @@ const sablonCss = (doc: DocumentModel): string => {
     // Sütun eğrinin karşı tarafına yerleşiyor ve genişliği `guvenliMetinYuzdesi`
     // (şablon gramerinden) ile sınırlı. Taraf `egriSagda` ile dönüyor, yani metin de
     // slayttan slayta yer değiştiriyor — ritim buradan da besleniyor.
-    `  .icerik { position: relative; z-index: ${z('icerik')}; box-sizing: border-box;`,
-    `            width: ${kolonYuzde}%; ${sagda ? '' : 'margin-left: auto;'}`,
+    // ── YERLEŞİM: kimliğin ÜÇÜNCÜ ayağı (FAZ-13 şablon genelleştirme) ───────
+    //
+    // ⚠ ⚠ **Bu eksen olmadan yedi aile yedi VARYANT çıktı.** İlk render'da renk ve süsleme
+    // ayrıldı ama metin sütunu yedisinde de aynı yerde, aynı payla, aynı hizada duruyordu.
+    // Bir aileyi aileden ayıran şey rengi değil, NEREYE NE KOYDUĞU.
+    // ⚠ ⚠ **BÖLGE TABANLI YERLEŞİM — akış CSS'i DEĞİL.** Sütun artık iskeletin `metin`
+    // bölgesinden mutlak konumlanıyor. Akış CSS'i (genişlik + kenar boşluğu) tuvalin
+    // dikey bölünmesini ifade EDEMİYORDU: her aile tam yükseklikte bir sütun almak
+    // zorundaydı ve yedi aile yedi boya çıkıyordu. Kompozisyon veri olunca metin üst
+    // banda, alt bloğa ya da ikinci ızgara sütununa oturabiliyor.
+    `  .icerik { position: absolute; z-index: ${z('icerik')}; box-sizing: border-box;`,
+    `            left: ${mb.x}%; top: ${mb.y}%; width: ${mb.g}%; height: ${mb.h}%;`,
     // ⚠ **Üste yaslı içerik sayaç bandını AŞMAK zorunda.** Sayaç `top: pay`de duruyor ve
     // 26 px punto ile ~52 px'lik bir bant kaplıyor. `flex-start` yaslamada içerik de
     // `pay`de başlıyordu, yani ikisi aynı satırda: bu içerikte çakışmıyorlardı ama
     // başlığın ilk satırı bir kelime daha uzun olsaydı üst üste bineceklerdi.
     // Çakışmayan bir çakışma, henüz görülmemiş bir çakışmadır.
-    `            padding: ${pay + (b.yaslama === 'flex-start' ? SAYAC_BANDI : 0)}px ${sagda ? 0 : pay}px ${pay + 64}px ${sagda ? pay : 0}px;`,
+    // ⚠ Kenar payı AİLENİN çarpanıyla: editoryal 2,2 ile nefes alır, poster 0,85 ile
+    // sıkışır. Çarpan payı büyütüyor, sütunu daraltmıyor — okuma genişliği garantisi
+    // `guvenliKolonYuzdesi`de ve aile ona dokunamıyor.
+    // ⚠ ⚠ **DOLGU BÖLGENİN KONUMUNA BAKIYOR.** Üst dolgu sayaç bandını, alt dolgu kulp
+    // şeridini temizlemek için var — ikisi de TUVALİN kenarında, bölgenin değil. Bölge
+    // zaten tuvalin ortasındaysa o dolgular gereksiz yer kaplıyordu ve kısa bölgelerde
+    // metni tümüyle dışarı itiyordu.
+    `            padding: ${bolgeDolgusu.ust}px ${bolgeDolgusu.sag}px ${bolgeDolgusu.alt}px ${bolgeDolgusu.sol}px;`,
     `            display: flex; flex-direction: column;`,
     // Dikey yerleşim ROLE göre. Kapak alta yaslı: referansta kapak başlığı optik
     // merkezin ALTINDA durur ve üstteki boşluk nefes olur. Gövde ortalı: kısa bir
     // paragrafı tepeye yaslamak, altında 900 piksel boşluk bırakıyordu.
     // Yaslama artık DÜZENDEN geliyor; rol yalnız kapakta baskın. Kapak her zaman alta
     // yaslı kalıyor çünkü ızgarada ilk kare bir açılış cümlesidir, bir liste değil.
-    `            justify-content: ${k.role === 'kapak' || k.role === 'tek' ? 'flex-end' : b.yaslama};`,
-    `            min-height: 100%; }`,
+    // ⚠ Kapak HER AİLEDE alta yaslı: ızgarada ilk kare bir açılış cümlesidir ve referansın
+    // beşinde de başlık optik merkezin altında durur — bu gramerin kuralı, ailenin değil.
+    // Gövdede dikey hiza aileden: editoryal üste yaslıyor (boşluk aşağıda birikiyor),
+    // poster alta (ağırlık aşağıda), ötekiler ortalıyor.
+    // ⚠ ⚠ **KAPAK ALTA YASLI — AMA YALNIZ TAM YÜKSEKLİKTE BİR BÖLGEDE.** Kural "ızgarada
+    // ilk kare bir açılış cümlesidir" gözleminden geliyor ve tam yükseklikte bir sütun
+    // varsayıyor. İskelet metni %26'lık bir üst banda koyduğunda o bandın da altına
+    // yaslamak, başlığı bandın dibine sıkıştırıp üstünü boş bırakıyordu — kuralın amacı
+    // değil harfi uygulanmış olurdu. Kısa bölgede aile hizası geçerli.
+    `            justify-content: ${(k.role === 'kapak' || k.role === 'tek') && mb.h > 70 ? 'flex-end' : dikeyHiza(yerlesim.dikey, b.yaslama)};`,
+    // ⚠ ⚠ **`min-height: 100%` KALDIRILDI — akış düzeninden kalan bir kalıntıydı.**
+    // Bölge %38 yüksekliğinde olduğunda kutu yine de %100'e zorlanıyor, `top: 52%` ile
+    // birlikte tuvalin %152'sine uzanıyor ve `flex-end` hizalı metin EKRANIN DIŞINA
+    // düşüyordu: `gece` ailesinde başlık hiç görünmedi. Metrik göremezdi; bakınca çıktı.
+    `            }`,
     // ── düzenin tipografisi ─────────────────────────────────────────────────
     // Punto DÜZENDEN geliyor ama tavan `docs/referans/tip-olcegi.md`ten: 64 px, en uzun
     // Türkçe kelimenin güvenli sütuna sığdığı en büyük değer. Hiçbir düzen onu aşamaz.
-    `  h1 { color: ${r.metin}; font-size: ${b.baslikPx}px; line-height: ${b.baslikYukseklik} }`,
-    `  p  { color: ${r.metinSoluk}; font-size: ${b.govdePx}px }`,
+    // ⚠ ⚠ **AİLE TAVANI AŞAMAZ, ALTINDA KALMAYI SEÇEBİLİR.** `baslikPx` düzenden gelen
+    // tavan; `tipoPayi` onu ÇARPIYOR ve çarpan (0,1] aralığında. Editoryal aile 0,38 ile
+    // fısıldıyor, poster ailesi 1,0 ile bağırıyor — ikisi arasındaki fark bir renk farkı
+    // değil bir SES farkı, ve yedi ailenin dağılımı bir yelpaze.
+    // ⚠ Tavanın kendisi ailenin DEĞİL: en uzun Türkçe kelimenin sütuna sığdığı en büyük
+    // değer (R-23) ve bir garanti. Aşmak temsil edilemez çünkü çarpan 1'i geçemiyor.
+    `  h1 { color: ${r.metin}; font-size: ${Math.round(b.baslikPx * tipoPayi)}px;`,
+    `       line-height: ${b.baslikYukseklik} }`,
+    `  p  { color: ${r.metinSoluk}; font-size: ${Math.round(b.govdePx * (0.72 + 0.28 * tipoPayi))}px }`,
     ...(b.tirnak
       ? [
           // Dev açılış tırnağı — bir süs değil, "bu cümle bana ait değil" işareti.
@@ -408,6 +541,7 @@ const sablonCss = (doc: DocumentModel): string => {
     // Süsleme katmanı alanın ÜSTÜNDE, hayalet rakamın ALTINDA: rakam imzadır, süsleme
     // dokudur — sıra tersine dönerse doku imzayı bastırır.
     `  .susleme { position: absolute; inset: 0; z-index: ${z('susleme')}; pointer-events: none; }`,
+    `  .izgara { position: absolute; inset: 0; z-index: ${z('susleme')}; pointer-events: none; }`,
     `  .susleme svg { width: 100%; height: 100%; display: block; }`,
     // ── katman 2: hayalet rakam ─────────────────────────────────────────────
     // Kontur-only tipografi: dolgu yok, `-webkit-text-stroke` var. DIŞ kenardan taşıyor
@@ -419,10 +553,17 @@ const sablonCss = (doc: DocumentModel): string => {
     //   2. **Alt şeridin ÜSTÜNDE bitiyor.** Öncesinde `bottom` negatifti ve rakam
     //      `kaydır ››` ile üst üste biniyordu — z-index onu arkada tutuyordu ama
     //      çakışma yine de kazara duruyordu. Nefes payı bırakmak yeterli.
+    // ⚠ ⚠ **RAKAM DA BÖLGEDEN.** Eskiden her ailede aynı köşede, aynı payla duruyordu;
+    // `gece` ailesinde tuvalin yarısını tutması, `kesit`te köşegenin karşı ucunda denge
+    // ağırlığı olması ancak konumu VERİ olunca mümkün.
     `  .hayalet { position: absolute; z-index: ${z('hayalet')};`,
-    `             ${sagda ? 'right' : 'left'}: -${Math.round(pay * 0.7)}px; bottom: ${pay + 62}px;`,
+    ...(rakamB === null
+      ? [
+          `             ${sagda ? 'right' : 'left'}: -${Math.round(pay * 0.7)}px; bottom: ${pay + 62}px;`,
+        ]
+      : [`             left: ${rakamB.x}%; top: ${rakamB.y}%;`]),
     `             font-family: "Marka Display", sans-serif;`,
-    `             font-size: ${VARSAYILAN.hayaletPx}px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
+    `             font-size: ${rakamPx}px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
     // ⚠ ⚠ **HAYALET RAKAM `kontur` EFEKTİNİN KENDİSİ.** `tipoEfektleri` listesinde
     // `kontur` vardı ama render onu hiç okumuyordu; kontur `VARSAYILAN.hayaletKonturPx`
     // ile SABİT basılıyordu ve `konturCss` üreteci sıfır çağıranlıydı — aile "kapalı"
@@ -515,30 +656,81 @@ const sablonCss = (doc: DocumentModel): string => {
   ].join('\n')
 }
 
+/**
+ * `izgara` çizgi dilinin SVG'si — kılcal, tam kat eden kurallar.
+ *
+ * ⚠ Boş dizi döndürüyor (dize değil): çağıran spread ediyor ve boş dil hiç katman
+ * basmıyor. Boş bir `<svg>` basmak, DOM'da anlamsız bir düğüm bırakırdı.
+ */
+const izgaraCizgileri = (doc: DocumentModel, renk: string): readonly string[] => {
+  const c = doc.aile?.iskelet?.cizgi
+  if (c === undefined || c.tip !== 'izgara') return []
+  const cizgi = (x1: number, y1: number, x2: number, y2: number): string =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${renk}" ` +
+    `stroke-width="0.18" opacity="0.42" vector-effect="non-scaling-stroke"/>`
+  return [
+    `<div class="izgara"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
+    ...c.yatay.map((y) => cizgi(0, y, 100, y)),
+    ...c.dikey.map((x) => cizgi(x, 0, x, 100)),
+    `</svg></div>`,
+  ]
+}
+
 /** Katmanların HTML'i — sıra z-index'i izliyor. */
 const sablonKatmanlari = (doc: DocumentModel): string => {
   const k = doc.slayt
   if (k === undefined) return ''
-  const r = alanRolleri(k)
+  const r = alanRolleri(k, semasi(doc))
   const sagda = egriSagda(k)
-  const d = akanEgri(k)
+  const sinir = siniri(doc)
+  const d = akanEgri(k, sinir)
   // Eğrinin bir TARAFI dolduruluyor: path'i kutunun kenarlarıyla kapatıp alan yapıyoruz.
-  const kapali = sagda ? `${d} L 100 100 L 100 0 Z` : `${d} L 0 100 L 0 0 Z`
-  const rakam = hayaletRakam(k)
+  // ⚠ Sınır yoksa dolgu da YOK: tuval tek renk ve `.alan` katmanı hiç basılmıyor.
+  // Boş bir path basmak, tarayıcıya geçersiz bir `d` vermek olurdu.
+  const kapali = d === '' ? '' : sagda ? `${d} L 100 100 L 100 0 Z` : `${d} L 0 100 L 0 0 Z`
+  // ⚠ Hayalet rakam AİLENİN: referansların dördünde dev rakam YOK. `temel`in imzasını
+  // gramerin zorunluluğu sanmak, yedi aileden yedi varyant çıkarırdı.
+  const rakam = (doc.aile?.hayalet?.bicim ?? 'kontur') === 'yok' ? null : hayaletRakam(k)
   const sayac = sayacEtiketi(k)
   const nav = navIsareti(k)
   // Süslemeler AYRI bir SVG katmanında ve `preserveAspectRatio` YOK: alan katmanı
   // `none` ile geriliyor (dolgu tuvali kaplamalı), ama gerilmiş bir daire elips olur.
   // Aynı viewBox'a koymak, beş ögenin de ezilmesi demekti.
   const degradeli = doc.aile?.degrade === true ? r.karsiAlanRampa : null
-  const sus = suslemeler(k, sagda, doc.aile?.suslemeYogunlugu, doc.aile?.panorama)
+  // ⚠ Dağarcık alt kümesi AİLENİN: Memphis beş ögeyi birden kullanıyor, `kesit` yalnız
+  // kareyi, editoryal hiçbirini. Filtreleme burada çünkü `suslemeler` yerleşimi biliyor,
+  // aileyi değil — iki bilgi iki katmanda kalıyor.
+  const izinli = doc.aile?.suslemeTipleri
+  // ⚠ İzinli tipler ÜRETİME giriyor, sonrasında süzülmüyor: süzme, dar dağarcıklı
+  // ailelerde ögelerin çoğunu çöpe atıyor ve tuvali boş bırakıyordu.
+  const sus = suslemeler(
+    k,
+    sagda,
+    doc.aile?.suslemeYogunlugu,
+    doc.aile?.panorama,
+    sinir === 'yok',
+    izinli
+  )
   return [
-    `<div class="alan"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
+    ...(kapali === ''
+      ? []
+      : [
+          `<div class="alan"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
+        ]),
     // ⚠ Degrade AİLE isterse VE o alanın rampada iki durağı varsa (FAZ-12.9). İki koşul
     // birden: `temel` ailede düz alan tasarımın kendisi, kâğıt alanda ise ikinci durak
     // rampada YOK — ikisi de sessizce düz kalıyor, sessizce amber olmuyor.
     ...(degradeli === null ? [] : [degradeDefSvg(DEGRADE_ID, degradeli[0], degradeli[1])]),
-    `<path d="${kapali}" fill="${degradeli === null ? r.karsiAlan : `url(#${DEGRADE_ID})`}"/></svg></div>`,
+    ...(kapali === ''
+      ? []
+      : [
+          `<path d="${kapali}" fill="${degradeli === null ? r.karsiAlan : `url(#${DEGRADE_ID})`}"/></svg></div>`,
+        ]),
+    // ── ÇİZGİ DİLİ: `izgara` — görünür kılcal kurallar ──────────────────────
+    //
+    // ⚠ Bu bir SÜSLEME değil bir YAPI: tuvali bölüyor ve metin ona oturuyor. Süsleme
+    // katmanına konsaydı yoğunluk parametresiyle seyrelir ve ızgara olmaktan çıkardı.
+    ...izgaraCizgileri(doc, r.motif),
     ...(sus.length === 0
       ? []
       : [

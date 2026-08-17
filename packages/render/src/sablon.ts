@@ -17,14 +17,26 @@
 // şablonunun içinde kaybolurdu.
 
 import type { SlaytKimligi } from '@suite/kernel'
+import { type AlanSemasi, type SinirBicimi, TEMEL_AILE } from '@suite/contracts'
 import type { LayoutName } from './layout/adlar.js'
 import { NEFES_YUZDESI, VARSAYILAN, guvenliYuzde } from './sablon-parametre.js'
 import { egriZarfi } from './sekil-cebri.js'
 import type { RampaTokeni } from './sablon-degrade.js'
 
-const KEHRIBAR = 'var(--role-bg)'
+const AMBER = 'var(--role-bg)'
 const KAGIT = 'var(--role-surface)'
 const MUREKKEP = 'var(--role-line-edge)'
+
+/**
+ * Bir zemin token'ı KOYU mu — metin ve motif rengi buradan türüyor.
+ *
+ * ⚠ Kapalı bir liste, bir hesap değil: token'lar OKLCH ve burada çözülmüyorlar (çözüm
+ * `tasarim-olcum.ts`te ve o ayrı bir katman). Yeni bir koyu zemin eklenirse buraya da
+ * yazılmalı — ve yazılmazsa metin koyu-üstü-koyu çıkar, kontrast metriği YAKALAR.
+ * Yani unutmanın bedeli sessiz değil: kapı kırmızı yanar.
+ */
+const KOYULAR = new Set([MUREKKEP, 'var(--ramp-marka-ink-800)', 'var(--ramp-marka-ink-950)'])
+const koyuMu = (token: string): boolean => KOYULAR.has(token)
 
 /**
  * Bir alan renginin RAMPA KARŞILIĞI — degrade açıksa hangi iki durak (FAZ-12.9).
@@ -40,7 +52,7 @@ const MUREKKEP = 'var(--role-line-edge)'
  * yazıyordu — kâğıt alan render'da amber çıktı. Bakınca görüldü, metrik göremezdi.
  */
 const ALAN_RAMPASI: Record<string, readonly [RampaTokeni, RampaTokeni] | null> = {
-  [KEHRIBAR]: ['--ramp-marka-amber-500', '--ramp-marka-amber-600'],
+  [AMBER]: ['--ramp-marka-amber-500', '--ramp-marka-amber-600'],
   [MUREKKEP]: ['--ramp-marka-ink-950', '--ramp-marka-ink-800'],
   [KAGIT]: null,
 }
@@ -63,56 +75,43 @@ export interface AlanRolleri {
  * `index % 2` yerine açık bir tablo: modül aritmetiği "neden bu slayt siyah" sorusunu
  * cevaplayamaz, tablo cevaplar.
  */
-export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
-  // ⚠ **Motif `karsiAlan`dan TÜRETİLİYOR, elle yazılmıyor.** Hayalet rakam zeminin
-  // değil DOLGUNUN üstünde duruyor; rengi zemine göre seçilirse dolguyla aynı olabilir
-  // ve rakam görünmez olur. Tam bu oldu: dört rolün ÜÇÜNDE motif dolgu rengiyle
-  // aynıydı. Bant ortadayken (%44–56) kusur gizliydi — rakam iki alana birden taşıyor,
-  // yarısı görünüyordu. Bant kenara kayınca (%69–78) rakam tamamen dolgunun içinde
-  // kaldı ve tümüyle kayboldu. **Elle yazılan bir renk sütunu, komşu bir kararla
-  // sessizce tutarsızlaşır**; türetilmiş olan tutarsızlaşamaz.
-  const kontrast = (arka: string): string => (arka === MUREKKEP ? KEHRIBAR : MUREKKEP)
+export const alanRolleri = (k: SlaytKimligi, sema: AlanSemasi = TEMEL_AILE.alan): AlanRolleri => {
+  // ⚠ **Zemin AİLEDEN, metin TÜRETİLİYOR.** Aile hangi rengin zemin olacağını seçebilir;
+  // hangi rengin ONUN ÜSTÜNE yazılacağını seçemez. Seçebilseydi bir aile okunmaz bir çift
+  // yazar ve garanti katmanı estetik katmana inerdi (FAZ-12.7).
+  const zemin =
+    k.role === 'kapanis' && sema.kapanisZemini !== null
+      ? sema.kapanisZemini
+      : (sema.zeminler[k.index % sema.zeminler.length] ?? KAGIT)
 
-  if (k.role === 'kapak' || k.role === 'tek') {
-    return {
-      zemin: KEHRIBAR,
-      karsiAlan: KAGIT,
-      metin: 'var(--role-text)',
-      metinSoluk: 'var(--role-text-muted)',
-      motif: kontrast(KAGIT),
-      karsiAlanRampa: ALAN_RAMPASI[KAGIT] ?? null,
-    }
+  // ⚠ **Tek alanlı ailede dolgu = zemin.** Beş referansın ÜÇÜNDE renk sınırı yok;
+  // `sablon.ts` iki alanı varsayıyordu ve bu varsayım bir gramer kuralı sanılıyordu.
+  // ⚠ Kapanışta dolgu döngünün BİR SONRAKİSİ değil BAŞI: kapanış zemini döngü dışında
+  // (açıkça verilmiş) ve "bir sonraki" onun için tanımsız. İlk sürüm `index+1` kullanıyordu
+  // ve kapanışın dolgusunu kâğıt yapıyordu — kehribar olmalıydı; testler yakaladı.
+  const kapanisAyri = k.role === 'kapanis' && sema.kapanisZemini !== null
+  const karsiAlan = !sema.ikiAlan
+    ? zemin
+    : kapanisAyri
+      ? (sema.zeminler[0] ?? KAGIT)
+      : (sema.zeminler[(k.index + 1) % sema.zeminler.length] ?? KAGIT)
+
+  // ⚠ **Motif `karsiAlan`dan TÜRETİLİYOR, elle yazılmıyor.** Hayalet rakam zeminin değil
+  // DOLGUNUN üstünde duruyor; rengi zemine göre seçilirse dolguyla aynı olabilir ve rakam
+  // görünmez olur. Tam bu oldu: dört rolün ÜÇÜNDE motif dolgu rengiyle aynıydı ve bant
+  // kenara kayınca rakam tümüyle kayboldu. **Elle yazılan bir renk sütunu, komşu bir
+  // kararla sessizce tutarsızlaşır**; türetilmiş olan tutarsızlaşamaz.
+  return {
+    zemin,
+    karsiAlan,
+    // ⚠ ANLAMSAL token: metin `--role-text`, çizgi değil. İlk sürüm `--role-line-edge`
+    // yazıyordu; ikisi bu markada aynı renge çözülüyor ama rol farklı ve token çözümü
+    // testi bunu yakaladı — aynı renge çözülen iki token AYNI ŞEY DEĞİLDİR.
+    metin: koyuMu(zemin) ? 'var(--role-surface)' : 'var(--role-text)',
+    metinSoluk: koyuMu(zemin) ? 'var(--role-surface)' : 'var(--role-text-muted)',
+    motif: koyuMu(karsiAlan) ? AMBER : MUREKKEP,
+    karsiAlanRampa: ALAN_RAMPASI[karsiAlan] ?? null,
   }
-  if (k.role === 'kapanis') {
-    // Kapanış mürekkep: ızgarada dizinin bittiği yer görsel olarak da bitmeli.
-    return {
-      zemin: MUREKKEP,
-      karsiAlan: KEHRIBAR,
-      metin: 'var(--role-surface)',
-      metinSoluk: 'var(--role-surface)',
-      motif: kontrast(KEHRIBAR),
-      karsiAlanRampa: ALAN_RAMPASI[KEHRIBAR] ?? null,
-    }
-  }
-  // Gövde: tek indeksler kâğıt, çiftler kehribar — komşu iki slayt asla aynı zemin.
-  const kagitMi = k.index % 2 === 1
-  return kagitMi
-    ? {
-        zemin: KAGIT,
-        karsiAlan: KEHRIBAR,
-        metin: 'var(--role-line-edge)',
-        metinSoluk: 'var(--role-text-muted)',
-        motif: kontrast(KEHRIBAR),
-        karsiAlanRampa: ALAN_RAMPASI[KEHRIBAR] ?? null,
-      }
-    : {
-        zemin: KEHRIBAR,
-        karsiAlan: KAGIT,
-        metin: 'var(--role-text)',
-        metinSoluk: 'var(--role-text-muted)',
-        motif: kontrast(KAGIT),
-        karsiAlanRampa: ALAN_RAMPASI[KAGIT] ?? null,
-      }
 }
 
 /**
@@ -128,7 +127,14 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
  *
  * Genişlik/yükseklik 100 birimlik bir kutuda; `preserveAspectRatio="none"` ile geriliyor.
  */
-export const akanEgri = (k: SlaytKimligi): string => {
+export const akanEgri = (k: SlaytKimligi, sinir: SinirBicimi = 'egri'): string => {
+  // ⚠ ⚠ **SINIR BİÇİMİ AİLENİN.** `akanEgri` her zaman bir eğri çiziyordu ve bu bir gramer
+  // kuralı sanılıyordu; oysa beş referansın üçünde sınır YOK, birinde de sert bir kesik
+  // olabilirdi. Eğri `temel`in imzası, gramerin zorunluluğu değil.
+  // ⚠ `yok` boş dize döndürüyor: çağıran path'i hiç basmıyor. `none` gibi bir değer
+  // döndürseydi geçersiz bir `d` niteliği basılır ve tarayıcı sessizce boş çizerdi.
+  if (sinir === 'yok') return ''
+  if (sinir === 'kosegen') return kosegenSinir(k)
   // Faz indeksle kayıyor — aynı aile, farklı nefes. `% 5`: beş slaytlık bir karoselde
   // her slayt farklı, altıncıda aile başa dönüyor.
   const faz = k.index % 5
@@ -156,6 +162,23 @@ export const akanEgri = (k: SlaytKimligi): string => {
     `C ${X(merkez + genlik)} 24, ${X(merkez - genlik)} 42, ${X(merkez + genlik * 0.4)} 60 ` +
     `C ${X(merkez + genlik * 1.4)} 78, ${X(merkez - genlik * 0.6)} 90, ${X(merkez)} 100`
   )
+}
+
+/**
+ * Sert köşegen sınır — poster dili (FAZ-13 şablon genelleştirme).
+ *
+ * ⚠ **Eğrinin ZIT kutbu.** Eğri yumuşak ve organik; köşegen keskin ve yönlü. İkisi aynı
+ * bandı (`SINIR_MIN..SINIR_MAX`) kullanıyor, yani `guvenliKolonYuzdesi` ve `column_in_band`
+ * değişmezi ikisinde de aynı biçimde çalışıyor — **yeni bir sınır biçimi yeni bir güvenlik
+ * hikâyesi getirmiyor.** Zarf hesabı (`egriZarfi`) path'ten okuduğu için otomatik uyuyor.
+ * ⚠ Eğim slayt indeksiyle DÖNÜYOR ama bant içinde kalıyor: ritim var, taşma yok.
+ */
+const kosegenSinir = (k: SlaytKimligi): string => {
+  const faz = k.index % 5
+  const merkez = SINIR_MIN + ((SINIR_MAX - SINIR_MIN) * faz) / 4
+  const egim = VARSAYILAN.genlik * (k.index % 2 === 0 ? 1 : -1)
+  const X = (v: number): number => (egriSagda(k) ? v : 100 - v)
+  return `M ${X(merkez - egim)} 0 L ${X(merkez + egim)} 100`
 }
 
 /**
@@ -200,8 +223,11 @@ export const guvenliMetinYuzdesi = guvenliYuzde(VARSAYILAN)
  * `X(v) = 100 - v` ile zarf de aynalanıyor, o yüzden sütun soldan değil sağdan başlıyor
  * ama GENİŞLİĞİ aynı. İki dal ayrı hesaplansaydı biri güncellenip öteki unutulurdu.
  */
-export const guvenliKolonYuzdesi = (k: SlaytKimligi): number => {
-  const z = egriZarfi(akanEgri(k))
+export const guvenliKolonYuzdesi = (k: SlaytKimligi, sinir: SinirBicimi = 'egri'): number => {
+  // ⚠ Sınır yoksa sütun küresel güvenli değeri alıyor: tek alanlı ailede metnin kaçınacağı
+  // bir eğri yok, ama kenar payı ve okuma genişliği hâlâ geçerli.
+  if (sinir === 'yok') return guvenliMetinYuzdesi
+  const z = egriZarfi(akanEgri(k, sinir))
   const icKenar = egriSagda(k) ? z.min : 100 - z.max
   return icKenar - NEFES_YUZDESI
 }

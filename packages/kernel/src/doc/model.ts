@@ -113,6 +113,14 @@ export interface ChartBlock {
  *
  * ⚠ Yalnız ESTETİK alanlar: güvenli alan, kontrast eşiği ve chroma tavanı burada YOK.
  */
+/** Normalize dikdörtgen — tuval yüzdesi (0–100). */
+export interface Bolge {
+  readonly x: number
+  readonly y: number
+  readonly genislik: number
+  readonly yukseklik: number
+}
+
 export interface AileParametreleri {
   readonly suslemeYogunlugu: number
   readonly vinyetGucu: number
@@ -134,6 +142,60 @@ export interface AileParametreleri {
    * Parmak izi ölçülemeyen bir alanı sabit yazmak zorunda kalınca zincir görüldü.
    */
   readonly tipoEfektleri?: readonly ('vurgu' | 'kontur' | 'degrade' | 'golge' | 'knockout')[]
+  /**
+   * Kimlik parametreleri (FAZ-13 şablon genelleştirme).
+   *
+   * ⚠ ⚠ **Bunlar `sablon.ts`te SABİTTİ ve o yüzden `akici` `temel`in süslü hâliydi.**
+   * Aile ancak süsleme yoğunluğu ve vinyet diyebiliyordu; renk şeması, sınır biçimi,
+   * hayalet rakam ve tipografi ölçeği gramerin içine gömülüydü. Yedi ayrı tasarım
+   * üretmek istendiğinde satırın **yeterince şey söyleyemediği** görüldü.
+   * ⚠ Garanti katmanı yine YOK: kontrast eşiği, güvenli alan, chroma tavanı, kelime
+   * bütçesi burada da bulunmuyor. Aile zemin SEÇER; metin rengi zeminden TÜRETİLİR.
+   */
+  readonly alan?: {
+    readonly zeminler: readonly string[]
+    readonly kapanisZemini: string | null
+    readonly ikiAlan: boolean
+  }
+  readonly sinir?: 'egri' | 'kosegen' | 'yok'
+  readonly hayalet?: { readonly bicim: 'kontur' | 'yok'; readonly olcekYuzde: number }
+  readonly tipoPayi?: number
+  readonly suslemeTipleri?: readonly (
+    'blob' | 'nokta' | 'tarama' | 'halka' | 'kare' | 'yay' | 'cizgi'
+  )[]
+  /**
+   * Kompozisyon iskeleti — bölgeler, çizgi dili, tipografi ilişkisi.
+   *
+   * ⚠ Şekil `@suite/contracts`taki `Iskelet` ile aynı; kernel ring 0 ve contracts'tan
+   * TİP import edemediği için burada yeniden yazılı. İki şeklin ayrışması derleme
+   * hatası vermez — `bodies.ts` ikisini birden gördüğü için orada yakalanır.
+   */
+  readonly iskelet?: {
+    readonly metin: Bolge
+    readonly rakam: Bolge | null
+    readonly gorsel: Bolge | null
+    readonly susleme: Bolge
+    readonly cizgi:
+      | { readonly tip: 'egri'; readonly merkez: number; readonly genlik: number }
+      | { readonly tip: 'kosegen'; readonly merkez: number; readonly egim: number }
+      | {
+          readonly tip: 'izgara'
+          readonly yatay: readonly number[]
+          readonly dikey: readonly number[]
+        }
+      | { readonly tip: 'yok' }
+    readonly tipo: {
+      readonly baslikPayi: number
+      readonly govdeOrani: number
+      readonly satirAraligi: number
+    }
+  }
+  /** Yerleşim — metin sütununun yeri, payı ve dikey hizası. */
+  readonly yerlesim?: {
+    readonly kolon: 'sinir' | 'orta' | 'kenar'
+    readonly payPayi: number
+    readonly dikey: 'orta' | 'alt' | 'ust'
+  }
 }
 
 export interface CompareBlock {

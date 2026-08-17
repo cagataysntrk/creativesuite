@@ -314,6 +314,11 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       // yazmak döngüseldi: plan görselin varlığını arıyordu, görsel ise plandan sonra
       // üretiliyor. Hat neyi istediğini söylüyor; plan da gerekçesini yazıyor.
       yuvaIstendi: input.constraints['gorsel_yuvasi'] === true,
+      // ⚠ Aile adı bir KISIT: `just uret ... --aile kesit`. Aynı metni yedi tasarımda
+      // üretmek (şablon karşılaştırması) bunsuz mümkün değil.
+      ...(typeof input.constraints['aile'] === 'string'
+        ? { aileAdi: input.constraints['aile'] }
+        : {}),
       ...(input.constraints['yuva_bicimi'] === 'maske' ? { yuvaBicimi: 'maske' as const } : {}),
     }
     const aileProfili = aileSec(planGirdisi)
@@ -414,6 +419,13 @@ export const composeBody = (deps: ComposeDeps): Verb =>
         panorama: plan.panorama.deger,
         gorselIslemleri: aileProfili.gorselIslemleri,
         tipoEfektleri: aileProfili.tipoEfektleri,
+        alan: aileProfili.alan,
+        sinir: aileProfili.sinir,
+        hayalet: aileProfili.hayalet,
+        tipoPayi: aileProfili.tipoPayi,
+        suslemeTipleri: aileProfili.suslemeTipleri,
+        yerlesim: aileProfili.yerlesim,
+        iskelet: aileProfili.iskelet,
       },
       blocks,
     }
@@ -1486,6 +1498,35 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // `StepStatus` kernel'de zaten `'skipped'` taşıyor (§13); eksik olan onu üreten
     // yoldu. Sağlayıcı ÇAĞRILMIYOR: maliyet sıfır, çıktı `atlandi` ile işaretli ve
     // aşağı akış (brief yoksa görsel de yok) kendiliğinden boşa düşüyor.
+    // ── VERİLEN METİN: sağlayıcı çağrılmıyor (şablon karşılaştırması) ───────
+    //
+    // ⚠ ⚠ **Aynı metni farklı tasarımlarda üretmek bunsuz İMKÂNSIZ.** Yedi aileyi
+    // karşılaştırmak için yedi koşu gerekiyor ve her koşu kendi metnini üretirse
+    // karşılaştırılan şey tasarım değil METİN olur — deney baştan geçersiz.
+    // ⚠ Sağlayıcı ÇAĞRILMIYOR: maliyet sıfır ve defterde `verilen-metin` olarak duruyor.
+    // Sessizce üretilmiş gibi yazmak, defteri yalancı yapardı.
+    // ⚠ Yalnız `text.` yeteneklerinde: görsel üretimi için "verilen görsel" ayrı bir
+    // karardır ve yuva mekanizması (FAZ-11.4) zaten o işi yapıyor.
+    const verilenMetin = input.constraints['metin']
+    if (
+      yetenek.startsWith('text.') &&
+      typeof verilenMetin === 'string' &&
+      verilenMetin.trim() !== ''
+    ) {
+      return ok({
+        costs: [
+          {
+            verb: 'GENERATE' as const,
+            capability: yetenek,
+            providerId,
+            amount: ZERO_USD,
+            kind: 'actual' as const,
+          },
+        ],
+        data: { text: verilenMetin, kaynak: 'verilen-metin' },
+      })
+    }
+
     if (temelPrompt.trim() === '') {
       // ⚠ **SIFIR maliyet olayı yazılıyor, boş dizi DEĞİL.** İkinci gerçek koşu bunu
       // gösterdi: `VERB_OUTPUT_CONTRACT_VIOLATION — metered fiil hiç CostEvent

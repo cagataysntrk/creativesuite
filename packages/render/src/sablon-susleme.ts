@@ -27,7 +27,14 @@ import { SINIR_MAX } from './sablon.js'
  * ⚠ Yan etki bilinçli: `faz = index % 6` olduğu için süsleme dönüşümü de değişti —
  * altı ögelik bir dizide altı slayt sonra başa dönüyor.
  */
-export const SUSLEME_TIPLERI = ['blob', 'nokta', 'tarama', 'halka', 'kare', 'yay'] as const
+// ⚠ ⚠ **`cizgi` YEDİNCİ ÖGE ve bir KARAR (D-254).** Dağarcık kapalıydı; yedinciyi eklemenin
+// gerekçesi "biraz daha çeşitlilik" DEĞİL: `izgara` ailesinin kimliğini taşıyan tek öge bu.
+// Öteki altı öge birer LEKE (blob, nokta, tarama, halka, kare, yay); kılcal çizgi bir
+// YAPIdır — tuvali bölüyor ve metin ona oturuyor. Leke ile yapı ayrı sınıflar, ve bir aile
+// yapıyı gösterip konuşmak isterse dağarcıkta karşılığı olmalı.
+// ⚠ Eklemenin bedeli ölçülü: `izgara` olmadan yedi aile altı aile olurdu ve altıncısı
+// beşinin varyantı kalırdı — çeşitlilik parmak izinin (FAZ-13.4) yakaladığı tam bu.
+export const SUSLEME_TIPLERI = ['blob', 'nokta', 'tarama', 'halka', 'kare', 'yay', 'cizgi'] as const
 export type SuslemeTipi = (typeof SUSLEME_TIPLERI)[number]
 
 export interface Susleme {
@@ -80,43 +87,67 @@ export const suslemeler = (
   k: SlaytKimligi,
   sagda: boolean,
   yogunluk: number = YOGUNLUK_SEYREK,
-  panorama = false
+  panorama = false,
+  tekAlan = false,
+  /**
+   * Ailenin izin verdiği tipler.
+   *
+   * ⚠ ⚠ **ÜRETİM buradan besleniyor, SÜZME değil.** İlk sürüm tüm dağarcıktan üretip
+   * çağıranda süzüyordu: `izgara` ailesi yalnız `cizgi` ve `kare`ye izin verdiğinde altı
+   * ögenin dördü çöpe gidiyor, tuval boş kalıyordu. Süzmek bir dağarcık seçimi değil,
+   * bir kayıptır — üretim neyin isteneceğini baştan bilmeli.
+   */
+  tipler: readonly SuslemeTipi[] = SUSLEME_TIPLERI
 ): readonly Susleme[] => {
   // Kapak SÜSSÜZ: ızgarada ilk kare bir cümledir, bir desen değil. Referansların
   // hepsinde kapak en sade karedir.
   if (k.role === 'kapak' || k.role === 'tek') return []
 
-  const faz = k.index % SUSLEME_TIPLERI.length
-  const ikinci = (faz + 2) % SUSLEME_TIPLERI.length
-  const tip = SUSLEME_TIPLERI[faz] as SuslemeTipi
-  const tip2 = SUSLEME_TIPLERI[ikinci] as SuslemeTipi
+  // ⚠ Dağarcığın tamamı burada; ailenin alt kümesi ÇAĞIRANDA süzülüyor. Süzme burada
+  // olsaydı `suslemeler` aileyi bilmek zorunda kalırdı ve iki bilgi tek katmana yığılırdı.
+  const kullanilabilir = tipler.length > 0 ? tipler : SUSLEME_TIPLERI
 
   // Dolgu tarafının ORTASI: metin karşı tarafta, hayalet rakam altta. Üst-orta bandı
   // boş kalan tek bölge ve süsleme oraya oturuyor.
-  const merkez = sagda ? (100 + SINIR_MAX) / 2 : (100 - SINIR_MAX) / 2
+  // ⚠ ⚠ **TEK ALANLI AİLEDE SÜSLEME DAĞILIR, KÜMELENMEZ.** Merkez "dolgu tarafının
+  // ortası"; dolgu yoksa o nokta anlamsız ve bütün ögeler tek bir yere yığılıyordu —
+  // `memphis` ailesinin ilk render'ı %85 yoğunlukla TEK bir leke gösterdi. Süslemenin
+  // yeri dolguya bağlıydı ve bu bağ bir gramer kuralı sanılmıştı.
+  // ⚠ Dağılım DETERMİNİSTİK: slayt indeksinden asal çarpanla türüyor, rastgele değil
+  // (R-06). Aynı slayt her koşuda aynı deseni verir.
+  const merkez = tekAlan
+    ? 18 + ((k.index * 37) % 64)
+    : sagda
+      ? (100 + SINIR_MAX) / 2
+      : (100 - SINIR_MAX) / 2
 
+  // ⚠ ⚠ **SAYI YOĞUNLUKTAN TÜRÜYOR — eskiden sabitti.** `yogunluk` yalnız opaklığa
+  // giriyordu; %25 ile %85 arasında hiçbir fark yoktu ve `memphis` ailesi %85'te İKİ öge
+  // basıyordu. "Yoğunluk" bir parametre adıysa sayıyı belirlemeli, yoksa adı yalan olur.
+  // ⚠ Tavan altı: yedi ögeden fazlası tuvali desene çevirir ve metin okunmaz olur —
+  // süsleme bir zemin, bir kalabalık değil.
+  const sayi = Math.max(1, Math.min(6, Math.round(1 + yogunluk * 6)))
   return [
-    {
-      tip,
-      x: merkez,
-      y: 22 + (k.index % 3) * 6,
-      boyut: 13 + (k.index % 2) * 4,
-      opaklik: 0.5,
-      yogunluk,
-    },
-    // İkinci öge yalnız TEK indekslerde: her slaytta iki öge, ritmi düzleştirir.
-    ...(k.index % 2 === 1
-      ? [
-          {
-            tip: tip2,
-            x: merkez + (sagda ? -7 : 7),
-            y: 44,
-            boyut: 7,
-            opaklik: 0.38,
-            yogunluk,
-          },
-        ]
-      : []),
+    ...Array.from({ length: sayi }, (_, n) => {
+      // Deterministik dağılım: asal çarpanlar, `Math.random` yasak (R-06).
+      const t = kullanilabilir[(k.index + n * 3) % kullanilabilir.length] as SuslemeTipi
+      const boyut = 7 + ((n * 5 + k.index) % 12)
+      const yay = tekAlan ? 78 : 26
+      const hamX = tekAlan ? 11 + ((n * 29 + k.index * 17) % yay) : merkez + (((n * 13) % 18) - 9)
+      // ⚠ **KELEPÇE: öge tuvalin İÇİNDE kalmalı** — testin yakaladığı gerçek hata.
+      // Dağılım formülü kenara yakın bir merkezde yarıçapı hesaba katmıyordu ve şekil
+      // kırpılıyordu. Kırpılan bir süsleme bir tasarım değil bir kaza görünür (hayalet
+      // rakam hariç: o KASTEN taşıyor ve ayrı bir katman).
+      const r = boyut / 2
+      return {
+        tip: t,
+        x: Math.max(r, Math.min(100 - r, hamX)),
+        y: 12 + ((n * 23 + k.index * 11) % 72),
+        boyut,
+        opaklik: 0.3 + (n % 3) * 0.09,
+        yogunluk,
+      }
+    }),
     // ── panoramik geçiş: kenardan çıkan, sonrakinde devam eden yarım öge ─────
     //
     // ⚠ Kapak ve kapanış ÇAPA olduğu için buraya hiç gelmiyor (yukarıda dönülüyor):
@@ -189,6 +220,14 @@ export const suslemeSvg = (s: Susleme, renk: string): string => {
     }
     case 'halka':
       return `<circle ${o} cx="${s.x}" cy="${s.y}" r="${r}" fill="none" stroke="${renk}" stroke-width="${s.boyut / 14}"/>`
+    case 'cizgi':
+      // ⚠ Kılcal ve TAM GENİŞLİK: bir leke değil bir bölme. `x` yok sayılıyor çünkü çizgi
+      // tuvali kat ediyor; yerini belirleyen tek şey `y`. Kalınlık 1 birim = ~0.9 px:
+      // görünür ama vurgusuz — İsviçre ızgarası kendini gösterir, bağırmaz.
+      return (
+        `<line x1="2" y1="${s.y}" x2="98" y2="${s.y}" ` +
+        `stroke="${renk}" stroke-width="0.35" ${o}/>`
+      )
     case 'kare':
       return `<rect ${o} x="${s.x - r}" y="${s.y - r}" width="${s.boyut}" height="${s.boyut}" fill="${renk}"/>`
     case 'yay':
