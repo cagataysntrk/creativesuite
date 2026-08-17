@@ -1,0 +1,461 @@
+{
+  "runId": "run_01a00d49-c2c5-7082-a9a0-5bee08baf232",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "dfad50bfabcf48013565ff069b7432b098c012c6",
+  "registryCommit": "dfad50bfabcf48013565ff069b7432b098c012c6",
+  "createdAt": "2026-08-17T01:21:25.993Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T01:15:32.957Z",
+      "finishedAt": "2026-08-17T01:15:32.958Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T01:15:32.958Z",
+      "finishedAt": "2026-08-17T01:15:32.964Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T01:15:32.964Z",
+      "finishedAt": "2026-08-17T01:16:55.820Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini",
+        "gorsel_brief": true,
+        "max_chars": 600
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T01:16:55.820Z",
+      "finishedAt": "2026-08-17T01:17:19.764Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini",
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T01:17:19.764Z",
+      "finishedAt": "2026-08-17T01:17:25.901Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T01:17:25.901Z",
+      "finishedAt": "2026-08-17T01:17:25.902Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-amber-200: oklch(0.92 0.070 90);\n  --ramp-marka-amber-500: oklch(0.80 0.156 87);\n  --ramp-marka-amber-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.27 0.008 250);\n  --ramp-marka-ink-950: oklch(0.15 0.006 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-amber-600);\n  --role-bg: var(--ramp-marka-amber-500);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:e81e2f2b5746dcd713793eacc49f2734a525a46b977b66d5a2c9002d65c7af72 414369B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a00d49-c2c5-7082-a9a0-5bee08baf232",
+            "sourceRunId": "run_01a00d49-c2c5-7082-a9a0-5bee08baf232"
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Vardiya biterken veri de bitiyor",
+              "level": 1
+            },
+            {
+              "type": "body",
+              "text": "Vardiya amiri defteri kapatıp evine gidiyor, bilgi de onunla gidiyor. \"Dün ne oldu\" sorusunun cevabı ertesi sabah tek bir hafızada aranıyor."
+            },
+            {
+              "type": "body",
+              "text": "Excel ve vardiya defteri bedava görünür. Bedeli, kök neden aranırken harcanan zamanda ve aynı duruşun tekrar etmesinde ortaya çıkar."
+            },
+            {
+              "type": "body",
+              "text": "Ölçüm disiplini devir anında başlar: ne kaydedilecek, kimin girmesi gerekiyor, kayıt hangi anda kapanıyor. Tanımsız bırakılan alan boş kalır."
+            },
+            {
+              "type": "image",
+              "src": "«elenmis sha256:39ec9b94b7d822027db874e00b53be9feaad36da1420a684907ca346649f1ed5 282259B»",
+              "alt": "vardiya devrinde olcum disiplini",
+              "decorative": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T01:17:25.902Z",
+      "finishedAt": "2026-08-17T01:17:26.613Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00d49-c2c5-7082-a9a0-5bee08baf232/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00d49-c2c5-7082-a9a0-5bee08baf232/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00d49-c2c5-7082-a9a0-5bee08baf232/slayt-03.png"
+        ],
+        "count": 3,
+        "rung": [
+          1,
+          1,
+          1
+        ],
+        "bytes": [
+          99660,
+          69838,
+          672944
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T01:17:26.613Z",
+      "finishedAt": "2026-08-17T01:21:25.275Z",
+      "output": null
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devrinde olcum disiplini"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T01:21:25.275Z",
+      "finishedAt": "2026-08-17T01:21:25.993Z",
+      "output": {
+        "qa": "  yerleşim instagram-feed-4x5 · 1080×1350 · tolerans ±%1 · sınır 8MB (doğrulandı 2026-08-15)\n  slayt 1 boyut: ✓ 97KB / 8192KB · png\n  slayt 2 boyut: ✓ 68KB / 8192KB · png\n  slayt 3 boyut: ✓ 657KB / 8192KB · png\n  slayt 1:\n  metin kaplama         9,2% │───────●──────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 2:\n  metin kaplama         9,2% │───────●──────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 3:\n  metin kaplama         9,2% │───────●──────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}
