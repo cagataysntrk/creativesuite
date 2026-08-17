@@ -300,6 +300,8 @@ export { ALAN_KAYNAGI, dagilim, PARMAK_IZI_ALANLARI, parmakIzi, uzaklik } from '
 export type { ParmakIzi, ParmakIziAlani } from './cesitlilik.js'
 export { KATMAN_SIRASI, ustunde, z } from './kompozit.js'
 export type { Katman } from './kompozit.js'
+export { panoramaHtml, renderPanorama } from './panorama.js'
+export type { Bant, Kart, Panel, PanoramaBelgesi } from './panorama.js'
 export { egriZarfi } from './sekil-cebri.js'
 export type { Zarf } from './sekil-cebri.js'
 export {
