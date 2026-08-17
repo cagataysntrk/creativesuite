@@ -3819,3 +3819,88 @@ R-20 ve 9. yasa kapılarının ikisinden de geçiyor. Bir kapıya çarpmadan ge�
 geri dönmekten ucuz — ama kapı kaldırılmıyor.
 
 **Geri alma maliyeti:** yok.
+
+## D-244 — PATH'te bulunan ikili, DOĞRU ikili demek değil
+
+**2026-08-16 · ilk gerçek metin üretimi**
+
+Prompt kurulduktan sonra `claude` çağrıldı ve `CLAUDE_CODE_EXIT: {code:1, stderr:""}`
+döndü. Kazınca: bu makinede **iki Claude Code kurulumu** var —
+
+- `/usr/bin/claude` → global npm paketi, **emekli bir modele ayarlı**, her çağrıda
+  `API Error: 404 {"type":"not_found_error","message":"model: claude-opus-4-1-…"}`
+- `~/.claude/local/claude` → çalışan kurulum
+
+PATH eskisini önce buluyor. `available()` "var" diyordu ve **kapı yeşildi, çağrı ölü.**
+
+**Ders:** bir ikilinin PATH'te BULUNMASI, doğru ikili olduğunu göstermez. Sürüm sormak
+da yetmezdi — kırık olan sürüm değil yapılandırmaydı. Tek dürüst çözüm operatörün
+sabitleyebilmesi: `CLAUDE_CODE_BIN` ortam değişkeni, `ctx.env` üzerinden okunuyor
+(`secret-okuyucu` darboğazı korunuyor; adaptör `process.env`e dokunmuyor).
+
+Bu, "yalnız bu makinede çalışan şey çalışmıyor demektir" kuralının aynadaki hâli:
+**bu makinede çalışmayan şey, başka makinede çalışıyor olabilir** — ve ikisini ayırt
+etmenin yolu ikiliyi tahmin etmek değil, sabitlemek.
+
+**Geri alma maliyeti:** yok — değişken verilmezse davranış eskisi gibi.
+
+## D-245 — Arama SIRALAR, yüklem İÇERİK verir
+
+**2026-08-16 · ilk uçtan uca koşu**
+
+`selectSearch` bir **sıralama** şekli döndürüyor — `{id, path, title, score, sources}` —
+ve **gövdesi yok**. `uret.mjs` `k.body ?? k.snippet ?? ''` okuyordu: arama isabet
+ettiği an üç kaydın üçü de boş metinle geliyor, prompt kurulamıyor ve hat
+`EMPTY_PROMPT` ile duruyordu.
+
+**Kusur yalnız arama TUTTUĞUNDA görünüyordu** — ıskaladığında yedek yol
+(`selectRecords`) gövdeyi getiriyordu. En sinsi hâli: yeni onaylanmış, konuya değen bir
+corpus tam olarak aramanın tuttuğu durumdur.
+
+**Karar:** arama sırayı belirler, içerik **retrieval yükleminden** gelir (R-13). İkinci
+bir içerik okuyucu açmak yüklemi ikiye bölerdi.
+
+**Geri alma maliyeti:** yok.
+
+## D-246 — Bir adım, bağlanmadığı adımın çıktısını okuyordu
+
+**2026-08-16 · ilk uçtan uca koşu**
+
+Görsel adımı brief'i `Object.values(inputs)` içinde **arıyordu** ve ilk metin çıktısını
+alıyordu. `metin-uret`in TÜRKÇE gönderi metni `gorsel-brief`ten önce geliyor: görsel
+prompt'u Türkçe oluyor ve R-20 haklı olarak reddediyordu (`matched: "cümle"`).
+
+**DAG zaten doğru şeyi söylüyordu, gövde onu duymuyordu.** `needs` artık `BodyInput`ta
+ve adım yalnız bağlandığı adımların çıktısını okuyor. Şekle bakmak adım adına bakmaktan
+sağlamdı (D-229) — ama **bağımlılığa bakmak ikisinden de sağlam**.
+
+**Geri alma maliyeti:** yok.
+
+## D-247 — Defter maliyeti saklıyor, çıktıyı saklamıyor
+
+**2026-08-16 · ilk uçtan uca koşu**
+
+D-242'yi düzelttikten sonra yeni bir kusur çıktı: kapanmış bir kaydı atlayınca
+`data: null` dönüyor ve **aşağı akış boş girdiyle kalıyor**. Ölçüldü: `gorsel-brief` ✓
+göründü, `gorsel-uret` brief'i `null` aldı, R-20 boş prompt'u reddetti.
+
+**Karar: tutarı SIFIR olan kayıt atlanmaz.** Defterin işi çift ÖDEMEYİ önlemek; sıfır
+tutarlı bir kayıtta önlenecek ödeme yok (abonelik çağrısı ya da bedava katman).
+Atlamak hiçbir şey kazandırmıyor, çıktıyı kaybettiriyor.
+
+⚠ **Ücretli kayıtlarda sınır DURUYOR ve bu bir eksikliktir:** çıktı deftere yazılmadığı
+için ücretli bir adım tekrar oynatıldığında aşağı akış boş kalır. Doğru çözüm çıktıyı
+`derived/runs/<run>/steps/` altına yazmak — bugün yok. **Olmadığını söylemek, varmış
+gibi davranmaktan iyi.**
+
+⚠ **İlk düzeltmemde kendi açtığım kapıyı iki satır aşağıda kapatmışım:** `reopen`
+kaydı `possibly-charged` yapıyor, akış da (c) dalına düşüp `NEEDS_RECONCILIATION`
+veriyordu. Bir dal eklerken diğer dalların koşullarını güncellememek, düzeltmeyi
+düzeltmenin yokluğuna çevirir.
+
+**`just defter-mutabakat` açıldı:** yarıda kalmış kayıtları listeler ve insan
+"ödenmedi" beyan edince `not-charged` yazar; motor onu görünce yeniden dener. Komut
+sağlayıcıya SORMAZ ve tahmin yürütmez — karar insanın (R-14). Bir kapı, arkasında kapı
+olmayan bir duvar olamaz.
+
+**Geri alma maliyeti:** yok.

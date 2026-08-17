@@ -1,0 +1,25 @@
+{
+  "kaynak": "karosel-sablon.png",
+  "bolgeler": {
+    "sol çift": {
+      "gecis": 66,
+      "min": 27.4,
+      "ortanca": 43.6,
+      "max": 78
+    },
+    "merkez": {
+      "gecis": 73,
+      "min": 1.7,
+      "ortanca": 97.2,
+      "max": 97.2
+    },
+    "sağ çift": {
+      "gecis": 57,
+      "min": 12.6,
+      "ortanca": 71.3,
+      "max": 82.6
+    }
+  },
+  "bantMin": null,
+  "bantMax": null
+}

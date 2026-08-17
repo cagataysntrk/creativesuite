@@ -18,6 +18,7 @@
 
 import type { SlaytKimligi } from '@suite/kernel'
 import type { LayoutName } from './layout/adlar.js'
+import { VARSAYILAN, guvenliYuzde } from './sablon-parametre.js'
 
 /** Renk rolü — hangi token'ın zemin, hangisinin metin olacağı. */
 export interface AlanRolleri {
@@ -113,7 +114,7 @@ export const akanEgri = (k: SlaytKimligi): string => {
   // Bant `SINIR_MIN..SINIR_MAX`; `guvenliMetinYuzdesi` bu bandın dışını hesaplıyor.
   // İkisi tek yerde tanımlı — ayrı olsalardı biri değişip diğeri unutulurdu.
   const merkez = SINIR_MIN + ((SINIR_MAX - SINIR_MIN) * faz) / 4
-  const genlik = 5
+  const genlik = VARSAYILAN.genlik
 
   // ⚠ **Eğri, dolduracağı tarafa göre AYNALANIYOR.** Bant artık simetrik değil (%69–78):
   // metin sütunu geniş tarafta duruyor ve o taraf %62. Yansıma olmasaydı `egriSagda`
@@ -136,8 +137,8 @@ export const akanEgri = (k: SlaytKimligi): string => {
  * Metin bu bandın DIŞINDA kalmak zorunda; iki sabit tek yerde durur ki biri değişince
  * diğeri unutulmasın.
  */
-export const SINIR_MIN = 69
-export const SINIR_MAX = 78
+export const SINIR_MIN = VARSAYILAN.bantMin
+export const SINIR_MAX = VARSAYILAN.bantMax
 
 /**
  * Metin sütununun güvenli genişliği, yüzde.
@@ -153,7 +154,7 @@ export const SINIR_MAX = 78
  * %62'de içerik 582 px ve ölçülen en büyük sığan punto 64 px — `static.ts` h1'i o.
  * Referansın metin alanı da karenin ~%62'si; dar sütun bizim SAPMAMIZDI.
  */
-export const guvenliMetinYuzdesi = SINIR_MIN - 7
+export const guvenliMetinYuzdesi = guvenliYuzde(VARSAYILAN)
 
 /** Eğri hangi tarafta — dönüşümlü. Sağ/sol dönüşü ritmin ikinci ayağı. */
 export const egriSagda = (k: SlaytKimligi): boolean => k.index % 2 === 0
@@ -209,7 +210,7 @@ export interface DuzenBicimi {
   readonly kanitSeridi: boolean
 }
 
-const TAVAN_PX = 64
+const TAVAN_PX = VARSAYILAN.baslikTavaniPx
 
 export const duzenBicimi = (d: LayoutName | undefined): DuzenBicimi => {
   switch (d) {

@@ -16,6 +16,7 @@ import { withPage, type BrowserResult, type Oturum, type Page } from './browser.
 import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
 import { DIAGRAM_CSS, diagramHtml, isDiagramError } from './charts/diagram.js'
 import { kacir } from './html.js'
+import { VARSAYILAN } from './sablon-parametre.js'
 import {
   akanEgri,
   alanRolleri,
@@ -130,9 +131,9 @@ const sablonCss = (doc: DocumentModel): string => {
   // `quote` seçmek alıntı gibi görünmüyordu.
   const b = duzenBicimi(k.duzen)
   // Güvenli alan: 4px tabanın katı (§12.3) ve platform kenar payından geniş.
-  const pay = 88
+  const pay = VARSAYILAN.kenarPayi
   /** Sayacın kapladığı üst bant (26 px punto + nefes). Üste yaslı içerik bunu aşar. */
-  const SAYAC_BANDI = 52
+  const SAYAC_BANDI = VARSAYILAN.sayacBandi
   return [
     // Zemin ve metin rolleri KİMLİKTEN geliyor; `body`nin varsayılanını eziyor.
     `  body { background: ${r.zemin}; color: ${r.metin};`,
@@ -225,8 +226,8 @@ const sablonCss = (doc: DocumentModel): string => {
     `  .hayalet { position: absolute; z-index: 2;`,
     `             ${sagda ? 'right' : 'left'}: -${Math.round(pay * 0.7)}px; bottom: ${pay + 62}px;`,
     `             font-family: "Marka Display", sans-serif;`,
-    `             font-size: 560px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
-    `             color: transparent; -webkit-text-stroke: 3px ${r.motif}; opacity: 0.42;`,
+    `             font-size: ${VARSAYILAN.hayaletPx}px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
+    `             color: transparent; -webkit-text-stroke: ${VARSAYILAN.hayaletKonturPx}px ${r.motif}; opacity: 0.42;`,
     `             pointer-events: none; }`,
     // ── katman 3: sayaç, kulp, navigasyon ───────────────────────────────────
     //

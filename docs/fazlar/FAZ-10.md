@@ -173,21 +173,14 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    ediyor, motor sayfalama bütçesi veriyor. Her düzen kendi kompozisyonunu alacak.
 📁 `packages/render/src/sablon.ts` · `packages/render/src/static.ts` ·
    `packages/contracts/src/layout.ts` · `packages/kernel/src/doc/model.ts`
-✅ **DÖRT DÜZEN RENDER EDİLDİ VE TEK TEK BAKILDI**, fark görsel: `statement` 64 px alta
-   yaslı · `quote` 64 px ortalı + dev açılış tırnağı · `list` 46 px üste yaslı + madde
-   ritmi · `claim-proof` 56 px + ilk gövde bloğu KANIT ŞERİDİ (sol kenar çizgisi).
-   Düzen `SlaytKimligi.duzen`de taşınıyor: **rol, çizim değil** — model `quote` diyor,
-   tırnağı `sablon.ts` çiziyor (D-254). Adlar `@suite/contracts`a taşındı çünkü kernel
-   (ring 0) render'dan (ring 2) import edemez; tipi `string` yapmak halka kuralını
-   çözmek değil DELMEK olurdu.
-🧪 **İKİ İHLAL KOŞULDU**, ikisi de kırmızı: bir düzen punto tavanını (64) aştı →
-   `hiçbir düzen ölçülen punto TAVANINI aşamaz` düştü · iki düzen aynı kompozisyonu
-   verdi → `dört düzen BİRBİRİNDEN ayırt edilebilir` düştü.
-   ⚠ **İki kusur render edilip GÖRÜLEREK bulundu:** (1) dev tırnak `.icerik::before` ile
-   mutlak konumdaydı ve `.icerik` tam yükseklikte olduğu için çerçevenin tepesine düşüp
-   KIRPILIYORDU → başlığın kendi `::before`ı olarak akışa alındı. (2) üste yaslı içerik
-   sayaçla aynı bantta başlıyordu; bu metinde çakışmıyordu ama bir kelime daha uzun
-   olsaydı binerdi — **çakışmayan bir çakışma, henüz görülmemiş bir çakışmadır**.
+✅ **DÖRT DÜZEN RENDER EDİLİP TEK TEK BAKILDI**, fark görsel: `statement` 64 px alta
+   yaslı · `quote` dev açılış tırnağı · `list` 46 px + madde ritmi · `claim-proof`
+   kanıt şeridi. Düzen `SlaytKimligi.duzen`de: **rol, çizim değil** (D-254). Adlar
+   contracts'a taşındı — kernel (ring 0) render'dan (ring 2) import edemez.
+🧪 **İKİ İHLAL**, ikisi de kırmızı: punto tavanı aşıldı · iki düzen aynı kompozisyonu
+   verdi. ⚠ **İki kusur GÖRÜLEREK bulundu:** dev tırnak mutlak konumda olduğu için
+   çerçeve tepesinde KIRPILIYORDU → akışa alındı; üste yaslı içerik sayaçla aynı bantta
+   başlıyordu — **çakışmayan bir çakışma, henüz görülmemiş bir çakışmadır**.
 💾 `feat(render): düzenler kendi kompozisyonunu alıyor` · `Refs: FAZ-10.4b · §7.1`
 
 ---
@@ -202,33 +195,37 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 📁 `packages/engine/src/gorsel-yargi.ts` · `packages/engine/src/verbs/bodies.ts` ·
    `packages/providers/src/claude-code.ts` · `packages/render/src/browser.ts` ·
    `registry/pipelines/instagram-post.pipeline.yaml`
-✅ **GERÇEK KOŞU YAPILDI** — `3 bulgu · 0 reddedildi`, üçü de sınırlayıcı kutulu, üçü de
-   DOĞRU ve üçü de düzeltildi. En önemlisi **hiçbir metriğin görmediği** ve HER varlığı
-   etkileyen bir kusurdu: Chromium alt-piksel yumuşatması harf kenarlarına renk saçağı
-   bırakıyordu. Ölçüldü: **%6,6 → %0,0** (`--disable-lcd-text`).
-   Hat adımı bağlı (`render` → `gorsel-yargi` → `kalite`), `fiil-haritasi` yeşil.
-   ⚠ **`Read` aracı ÖLÇÜLEREK gerekti:** araçsız çağrı 5 dk'da dönmedi (etkileşimsiz
-   kipte izin istemi asılıyor), `--allowedTools Read` ile 18 sn. Yalnız `Read`, yalnız
-   BU yetenek — metin üretimi aracı almıyor.
-🧪 **22 test, çoğu RED disiplini**: kutusuz · üç elemanlı · metin içeren · sıfır genişlik ·
-   tuval dışı · negatif konum · liste dışı kategori/şiddet · boş açıklama · nesne olmayan
-   → hepsi reddediliyor ve SEBEBİYLE sayılıyor. Karışık girdide geçerli bulgu korunuyor.
+✅ **GERÇEK KOŞU** — `3 bulgu · 0 reddedildi`, üçü de kutulu, doğru ve düzeltildi. En
+   önemlisi **hiçbir metriğin görmediği**, HER varlığı etkileyen bir kusurdu: Chromium
+   alt-piksel yumuşatması renk saçağı bırakıyordu, **%6,6 → %0,0**. Hat bağlı
+   (`render` → `gorsel-yargi` → `kalite`). `Read` aracı ÖLÇÜLEREK gerekti: araçsız
+   5 dk'da düştü, araçla 18 sn — yalnız `Read`, yalnız bu yetenek (D-256).
+🧪 **22 test, çoğu RED disiplini**: kutusuz · bozuk kutu · tuval dışı · liste dışı
+   kategori/şiddet · boş açıklama → hepsi reddediliyor ve SEBEBİYLE sayılıyor.
 💾 `feat(engine): görsel yargı yeteneği` · `Refs: FAZ-10.5 · §11.1`
 
 ---
 
-## 10.6 — Referans görselden şablon parametresi    [ ]
+## 10.6 — Referans görselden şablon parametresi    [x] 2026-08-17
 
 📖 §7.1, §4.1 · R-30 · D-254
 🔗 10.5 (yargı olmadan türetilenin iyi olduğu ölçülemez)
 🛠 Girdi bir referans karosel görseli; çıktı `sablon.ts`in okuduğu **parametre kümesi**:
    renk rolleri, eğri bandı, tip ölçeği, ızgara ölçüleri.
-📁 `packages/render/src/sablon-turet.ts` · `brand/brd_upcytech/sablonlar/`
-✅ ⚠ **Çıktı HTML OLAMAZ.** Alandaki sekiz projenin hepsi referanstan HTML üretiyor ve o
-   an golden tipografi metriği ölçülemez, Türkçe kapıları delinir, `COMPOSE`/`RENDER`
-   sınırı silinir. Çıktı VERİ olursa aynı referans her zaman aynı grameri verir.
-   Kabul: aynı referans iki kez verildiğinde bayt bayt aynı parametre kümesi.
-🧪 HTML döndüren bir sürüm yaz → kapı kırmızı.
+📁 `packages/render/src/sablon-parametre.ts` · `scripts/sablon-turet.mjs` ·
+   `docs/referans/sablon-turetme.md`
+✅ **`SablonParametreleri` kuruldu ve ÜRETİM YOLUNA bağlandı** — `sablon.ts` ve
+   `static.ts` sayıları oradan okuyor (bant, kenar payı, sayaç bandı, punto tavanı,
+   hayalet ölçüleri). Her sayının kaynağı yazılı: ya ölçüm, ya kısıt. Türetme ÖNERİR,
+   uygulamaz (R-14): JSON yazıyor, taşımak bir commit.
+   ⚠ **BANT REFERANSTAN TÜRETİLEMEDİ ve betik bunu SÖYLÜYOR.** Ham aralık %2–97 (95
+   puan), makullük tavanı 40. Sebep 10.2'de ölçülmüştü: yan slaytlar piksel piksel
+   bitişik (0/800 boş sütun), bölge ≠ slayt. **Sayı yazılmadı** — yazılsaydı kaynağı
+   unutulduğunda ölçüm sanılırdı.
+   Yürürlükteki %69–78'in kaynağı bir KISIT: metin sütunu %62 olmak zorunda çünkü
+   `taşıyabileceğimizin` 582 px istiyor. Referans İngilizce, dar sütunla idare ediyor.
+🧪 **Makullük kapısı ihlal edildi:** tavan 95'e çıkarılınca betik %2–97'yi geçerli sayıp
+   rapora yazıyor — yani kapı olmasa uydurma bir bant yürürlüğe girecekti.
 💾 `feat(render): referanstan şablon parametresi` · `Refs: FAZ-10.6 · §7.1`
 
 ---

@@ -157,91 +157,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-244 — PATH'te bulunan ikili, DOĞRU ikili demek değil
-
-**2026-08-16 · ilk gerçek metin üretimi**
-
-Prompt kurulduktan sonra `claude` çağrıldı ve `CLAUDE_CODE_EXIT: {code:1, stderr:""}`
-döndü. Kazınca: bu makinede **iki Claude Code kurulumu** var —
-
-- `/usr/bin/claude` → global npm paketi, **emekli bir modele ayarlı**, her çağrıda
-  `API Error: 404 {"type":"not_found_error","message":"model: claude-opus-4-1-…"}`
-- `~/.claude/local/claude` → çalışan kurulum
-
-PATH eskisini önce buluyor. `available()` "var" diyordu ve **kapı yeşildi, çağrı ölü.**
-
-**Ders:** bir ikilinin PATH'te BULUNMASI, doğru ikili olduğunu göstermez. Sürüm sormak
-da yetmezdi — kırık olan sürüm değil yapılandırmaydı. Tek dürüst çözüm operatörün
-sabitleyebilmesi: `CLAUDE_CODE_BIN` ortam değişkeni, `ctx.env` üzerinden okunuyor
-(`secret-okuyucu` darboğazı korunuyor; adaptör `process.env`e dokunmuyor).
-
-Bu, "yalnız bu makinede çalışan şey çalışmıyor demektir" kuralının aynadaki hâli:
-**bu makinede çalışmayan şey, başka makinede çalışıyor olabilir** — ve ikisini ayırt
-etmenin yolu ikiliyi tahmin etmek değil, sabitlemek.
-
-**Geri alma maliyeti:** yok — değişken verilmezse davranış eskisi gibi.
-
-## D-245 — Arama SIRALAR, yüklem İÇERİK verir
-
-**2026-08-16 · ilk uçtan uca koşu**
-
-`selectSearch` bir **sıralama** şekli döndürüyor — `{id, path, title, score, sources}` —
-ve **gövdesi yok**. `uret.mjs` `k.body ?? k.snippet ?? ''` okuyordu: arama isabet
-ettiği an üç kaydın üçü de boş metinle geliyor, prompt kurulamıyor ve hat
-`EMPTY_PROMPT` ile duruyordu.
-
-**Kusur yalnız arama TUTTUĞUNDA görünüyordu** — ıskaladığında yedek yol
-(`selectRecords`) gövdeyi getiriyordu. En sinsi hâli: yeni onaylanmış, konuya değen bir
-corpus tam olarak aramanın tuttuğu durumdur.
-
-**Karar:** arama sırayı belirler, içerik **retrieval yükleminden** gelir (R-13). İkinci
-bir içerik okuyucu açmak yüklemi ikiye bölerdi.
-
-**Geri alma maliyeti:** yok.
-
-## D-246 — Bir adım, bağlanmadığı adımın çıktısını okuyordu
-
-**2026-08-16 · ilk uçtan uca koşu**
-
-Görsel adımı brief'i `Object.values(inputs)` içinde **arıyordu** ve ilk metin çıktısını
-alıyordu. `metin-uret`in TÜRKÇE gönderi metni `gorsel-brief`ten önce geliyor: görsel
-prompt'u Türkçe oluyor ve R-20 haklı olarak reddediyordu (`matched: "cümle"`).
-
-**DAG zaten doğru şeyi söylüyordu, gövde onu duymuyordu.** `needs` artık `BodyInput`ta
-ve adım yalnız bağlandığı adımların çıktısını okuyor. Şekle bakmak adım adına bakmaktan
-sağlamdı (D-229) — ama **bağımlılığa bakmak ikisinden de sağlam**.
-
-**Geri alma maliyeti:** yok.
-
-## D-247 — Defter maliyeti saklıyor, çıktıyı saklamıyor
-
-**2026-08-16 · ilk uçtan uca koşu**
-
-D-242'yi düzelttikten sonra yeni bir kusur çıktı: kapanmış bir kaydı atlayınca
-`data: null` dönüyor ve **aşağı akış boş girdiyle kalıyor**. Ölçüldü: `gorsel-brief` ✓
-göründü, `gorsel-uret` brief'i `null` aldı, R-20 boş prompt'u reddetti.
-
-**Karar: tutarı SIFIR olan kayıt atlanmaz.** Defterin işi çift ÖDEMEYİ önlemek; sıfır
-tutarlı bir kayıtta önlenecek ödeme yok (abonelik çağrısı ya da bedava katman).
-Atlamak hiçbir şey kazandırmıyor, çıktıyı kaybettiriyor.
-
-⚠ **Ücretli kayıtlarda sınır DURUYOR ve bu bir eksikliktir:** çıktı deftere yazılmadığı
-için ücretli bir adım tekrar oynatıldığında aşağı akış boş kalır. Doğru çözüm çıktıyı
-`derived/runs/<run>/steps/` altına yazmak — bugün yok. **Olmadığını söylemek, varmış
-gibi davranmaktan iyi.**
-
-⚠ **İlk düzeltmemde kendi açtığım kapıyı iki satır aşağıda kapatmışım:** `reopen`
-kaydı `possibly-charged` yapıyor, akış da (c) dalına düşüp `NEEDS_RECONCILIATION`
-veriyordu. Bir dal eklerken diğer dalların koşullarını güncellememek, düzeltmeyi
-düzeltmenin yokluğuna çevirir.
-
-**`just defter-mutabakat` açıldı:** yarıda kalmış kayıtları listeler ve insan
-"ödenmedi" beyan edince `not-charged` yazar; motor onu görünce yeniden dener. Komut
-sağlayıcıya SORMAZ ve tahmin yürütmez — karar insanın (R-14). Bir kapı, arkasında kapı
-olmayan bir duvar olamaz.
-
-**Geri alma maliyeti:** yok.
-
 ## D-248 — Varlık değil TESLİMAT: yüzlerce birikince sorun "yer" değil "hangisi"
 
 **2026-08-16 · ilk postlar üretildikten sonra**
@@ -561,3 +476,44 @@ maliyetine yaklaştırırdı; abonelik zaten var.
 
 **Geri alma maliyeti:** düşük — hat adımı kaldırılırsa yargı koşmaz; ama o an kalite
 yine yalnız ölçülebilene ve göze kalır.
+
+## D-257 — Şablon parametreleri: gramer kapalı, sayılar türetilebilir
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.6 · §7.1
+
+D-254 grameri kapattı: kaç kural olduğu, hangi ögelerin bulunduğu bir KARAR. Ama o
+kuralların **sayısal ayarları** — eğrinin nerede aktığı, kenar payı, hayalet rakamın
+büyüklüğü — elle çözümleniyordu ve bu tekrar edilebilir değildi: ikinci bir referans
+geldiğinde aynı el işi baştan yapılacaktı.
+
+**Karar:** `SablonParametreleri` — kapalı alan listesi, tek yerde tanımlı, `sablon.ts` ve
+`static.ts` oradan okuyor. Her sayının kaynağı yazılı: ya bir ölçüm, ya bir kısıt.
+*"Güzel duruyor"* diye seçilmiş sayı yok.
+
+**Türetme ÖNERİR, uygulamaz** (R-14 · D-31). `scripts/sablon-turet.mjs` bir JSON yazıyor;
+onu `sablon-parametre.ts`e taşımak bir commit. Otomatik uygulansaydı bir referans görseli,
+hiçbir insan bakmadan tüm markanın tipografisini değiştirebilirdi.
+
+**ÇIKTI HTML DEĞİL, VERİ** — bu adımın tek gerçek kısıtı. Saha taramasındaki sekiz aracın
+hepsi referanstan HTML üretiyor ve o an üç şey ölür: golden tipografi metriği bir belge
+modeline karşı ölçülüyor (serbest HTML'e karşı değil), `COMPOSE`/`RENDER` sınırı silinir,
+ve Türkçe garantisi font yükleme yolunun TEK olmasından geliyor.
+
+**BANT REFERANSTAN TÜRETİLEMEDİ — ve betik bunu SÖYLÜYOR.** Ham aralık **%2–97**, yani
+95 puan; makullük tavanı 40. Bir eğri bandının anlamı sınırın DAR bir aralıkta salınması,
+%2–97 "her yerde" demek. Sebep 10.2'de zaten ölçülmüştü: yan slaytlar piksel piksel
+bitişik (tam zemin renginde **0/800** sütun), yani bölge ≠ slayt ve ölçüm iki slaydın
+eğrilerini slayt kenarlarıyla karıştırıyor.
+
+**Sayı YAZILMADI.** Yazılsaydı kaynağı unutulduğunda ölçüm sanılırdı. Bu fazda aynı sınıf
+hata altı kez tekrarladı — palet yuvarlaması %97,8 · T11 krom puntolarını saydı · batarya
+çapaları her tur kırıldı · `SAYISAL` deseni `%4`ü kaçırdı · tırnak mutlak konumdaydı ·
+bölge sayısı sessizce 2 çıkıyordu. **Sayı üretiyor olmak, ölçüyor olmak değildir** ve
+makullük kapısı bu cümlenin koda dökülmüş hâli.
+
+**Bant yürürlükte %69–78 ve kaynağı bir KISIT, referans değil:** metin sütunu %62 olmak
+zorunda çünkü `taşıyabileceğimizin` 64 px'te 582 px içerik genişliği istiyor. Referans
+İngilizce ve daha dar sütunla idare ediyor. Referansı birebir kopyalamak Türkçe metni
+eğrinin içine sokardı — **uyarlama sapma değildir.**
+
+**Geri alma maliyeti:** yok — `VARSAYILAN` bugünkü değerleri taşıyor, davranış değişmedi.
