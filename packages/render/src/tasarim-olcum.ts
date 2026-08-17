@@ -97,27 +97,44 @@ export const kontrastOrani = (a: Rgb, b: Rgb): number => {
   return (x + 0.05) / (y + 0.05)
 }
 
-const metinBloklari = (doc: DocumentModel): readonly string[] =>
+/**
+ * Metin bloklarını TÜRÜYLE birlikte döndürür.
+ *
+ * ⚠ **Tür şart, çünkü bütçe bloğa göre değişiyor.** Kapak slaydında bir BAŞLIK ≤8 kelime
+ * olmalı; ama aynı slayttaki destekleyici bir GÖVDE satırı ≤30 kelimedir ve bu meşrudur.
+ */
+const metinBloklari = (doc: DocumentModel): readonly { tur: 'heading' | 'body'; metin: string }[] =>
   doc.blocks.flatMap((b) =>
-    b.type === 'heading' || b.type === 'body' ? [(b as { text: string }).text] : []
+    b.type === 'heading' || b.type === 'body'
+      ? [{ tur: b.type, metin: (b as { text: string }).text }]
+      : []
   )
 
+const kelimeSayisi = (t: string): number => t.split(/\s+/).filter((w) => w !== '').length
+
 /**
- * Slayttaki EN UZUN metin bloğunun kelime sayısı.
+ * Bütçeyi EN ÇOK aşan bloğun aşım oranı — 1.0 = tam sınırda, >1 = aşmış.
  *
- * ⚠ **Toplam DEĞİL, en uzun blok** — ve bu bir düzeltme. İlk sürüm slayttaki tüm
- * metni topluyordu; ama `icerikPromptu`un bütçesi SATIR başına ("her gövde satırı en
- * fazla 30 kelime") ve bir slayt iki satır taşıyabiliyor. Yani her satır kurala UYSA
- * bile toplam 41 çıkıyor ve metrik varlığı reddediyordu.
+ * ⚠ **Bu, aynı metrikteki ÜÇÜNCÜ birim düzeltmesi ve üçü de aynı hatanın çeşitlemesiydi:**
+ *   1. Slayttaki tüm metni TOPLUYORDU — bütçe satır başınayken.
+ *   2. En uzun bloğu ölçüyordu ama slaytın ROL bütçesiyle — kapak slaydındaki 21 kelimelik
+ *      destekleyici GÖVDE satırı, kapak başlığının 8 kelimelik bütçesine karşı ölçülüyordu.
+ *      Gerçek koşuda kabul sayacını sıfırlattı; oysa başlık 5 kelimeydi ve kapak GÜZELDİ.
+ *   3. Şimdi: her blok KENDİ türünün bütçesine karşı ölçülüyor.
  *
- * **Birim uyuşmazlığı benim hatamdı, modelin değil.** Ölçen ile ölçülen aynı birimi
- * konuşmuyorsa sayı doğru hesaplanır ve yanlış şeyi söyler — bu fazda dokuzuncu kez.
+ * **Ölçenin hatası, ölçülenin hatası gibi görünür** — ve görsele bakılmasaydı burada
+ * içeriği "kurala uymuyor" diye suçlayacaktım.
  */
-const kelimeSay = (doc: DocumentModel): number =>
-  metinBloklari(doc).reduce((en, t) => {
-    const n = t.split(/\s+/).filter((w) => w !== '').length
-    return n > en ? n : en
-  }, 0)
+const asimOrani = (doc: DocumentModel, rol: keyof typeof KELIME_TAVANI): number => {
+  let en = 0
+  for (const b of metinBloklari(doc)) {
+    // Başlık slaydın rolüne göre, gövde her zaman gövde bütçesine göre.
+    const tavan = b.tur === 'heading' ? KELIME_TAVANI[rol] : KELIME_TAVANI.govde
+    const oran = kelimeSayisi(b.metin) / tavan
+    if (oran > en) en = oran
+  }
+  return en
+}
 
 /**
  * Tasarım metriklerini ölçer.
@@ -137,16 +154,18 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
     // ── T8 kelime tavanı ────────────────────────────────────────────────────
     // Sayfalayıcı taşmayı böler ama neyin BAŞLIK olduğunu bilemez; disiplin metnin
     // üretildiği yerde konuluyor ve burada DOĞRULANIYOR.
-    const tavan = KELIME_TAVANI[k.role]
+    // Değer YÜZDE olarak: farklı bütçeli bloklar tek okumada karşılaştırılabilsin.
+    // Ham kelime sayısı yazılsaydı "21 / limit 8" görünür ve o 21'in bir GÖVDE satırı
+    // olduğu kaybolurdu — tam olarak beni yanıltan şey buydu.
     okumalar.push(
       reading({
         metric: 'word_budget',
-        label: `slayt ${i + 1} en uzun satır (${k.role})`,
-        value: kelimeSay(doc),
-        warn: Math.max(1, tavan - 2),
-        limit: tavan,
+        label: `slayt ${i + 1} kelime bütçesi (${k.role})`,
+        value: Math.round(asimOrani(doc, k.role) * 100),
+        warn: 85,
+        limit: 100,
         direction: 'lower',
-        unit: '',
+        unit: '%',
       })
     )
 
