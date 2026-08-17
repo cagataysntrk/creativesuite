@@ -63,7 +63,7 @@ import {
 import { RateLimiter } from '../ratelimit.js'
 import { appendPublished, lookupPublished } from '../publish-ledger.js'
 import { tasarla } from '../plan/tasarla.js'
-import { yay } from '@suite/contracts'
+import { TEMEL_AILE, yay } from '@suite/contracts'
 import { planDenetle, uyumsuzlukOzeti } from '@suite/render'
 import type { Islev } from '@suite/kernel'
 import type { TasarimPlani } from '@suite/contracts'
@@ -295,6 +295,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     //
     // ⚠ Plan ~2 KB; defterin 8 KB eleme eşiğinin (D-263) altında kalıyor, yani
     // gerekçeler AYNEN okunabilir durumda saklanıyor.
+    const aileProfili = TEMEL_AILE
     const plan = tasarla({
       konu: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
       satirlar: metinSatirlari,
@@ -392,6 +393,13 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       tokenCss: deps.tokenCss,
       ...(deps.fontCss === undefined ? {} : { fontCss: deps.fontCss }),
       stamp: deps.stamp,
+      // ⚠ Aile parametreleri BELGEYE giriyor: render onları plandan okuyor, kendi
+      // sabitinden değil. İkisi ayrı yaşarsa biri değişince öbürü sessizce eski kalır.
+      aile: {
+        suslemeYogunlugu: plan.suslemeYogunlugu.deger,
+        vinyetGucu: aileProfili.vinyetGucu,
+        degrade: aileProfili.degrade,
+      },
       blocks,
     }
 

@@ -39,12 +39,12 @@ GL="$(command -v gitleaks || echo "$HOME/.local/bin/gitleaks")"
 fail=0
 
 # 1) Çalışma ağacı — henüz commit'lenmemiş sızıntı
-if ! out="$("$GL" dir . --redact --no-banner --exit-code 1 2>&1)"; then
+if ! out="$("$GL" dir . -c .gitleaks.toml --redact --no-banner --exit-code 1 2>&1)"; then
   echo "── çalışma ağacı ──"; printf '%s\n' "$out"; fail=1
 fi
 
 # 2) Git geçmişi — bir kez commit'lenmiş secret, sonradan silinse bile oradadır
-if ! out="$("$GL" git . --redact --no-banner --exit-code 1 2>&1)"; then
+if ! out="$("$GL" git . -c .gitleaks.toml --redact --no-banner --exit-code 1 2>&1)"; then
   echo "── git geçmişi ──"; printf '%s\n' "$out"; fail=1
 fi
 

@@ -26,19 +26,10 @@ bu dille geçiyor.
 🔗 —
 🛠 Photoshop katman stillerinin tamamının CSS/SVG karşılığı, **kapalı bir dağarcık** olarak:
 
-| Photoshop | Karşılığı | Durum |
-|---|---|---|
-| Stroke | `-webkit-text-stroke` | ✅ hayalet rakam |
-| Drop / Inner Shadow | `text-shadow` · `drop-shadow()` | yeni |
-| Outer / Inner Glow | çok katmanlı bulanık gölge | yeni |
-| Gradient Overlay | `background-clip: text` + degrade | yeni |
-| Pattern / Image Overlay | `background-clip: text` + görsel | yeni |
-| Bevel & Emboss | iki yönlü gölge çifti | yeni |
-| Knockout | `mix-blend-mode: difference` | yeni |
-| Warp Text | SVG `textPath` | yeni |
-| Değişken eksenler | `font-variation-settings` | ✅ Archivo |
-| OpenType (ligatür, alternatif) | `font-feature-settings` | yeni |
-| Vurgu şeridi | eğik `background` | yeni |
+**Karşılıklar:** Stroke→`-webkit-text-stroke` · Shadow/Glow→`text-shadow` ·
+Gradient/Pattern Overlay→`background-clip: text` · Bevel→çift gölge · Knockout→
+`mix-blend-mode: difference` · Warp→SVG `textPath` · Değişken eksen→`font-variation-settings` ·
+OpenType→`font-feature-settings` · Vurgu şeridi→eğik `background`.
 
 📁 `packages/render/src/sablon-tipo.ts` + `sablon-tipo.test.ts` · `static.ts` ·
    `packages/engine/src/metin-akisi.ts`
@@ -60,12 +51,9 @@ bu dille geçiyor.
    ⚠ **AÇIK OLAN İKİSİ ve neden onlar:** OpenType (`kern`/`liga`/`calt`; `dlig` kapalı —
    Türkçe'de `fi` bağı `fı` ile karışır) ve **vurgu şeridi**.
    ⚠ **Vurgu, karoselin en büyük tipografik eksiğiydi:** her satır aynı ağırlıkta
-   okunuyordu. Hiyerarşi slaytın İÇİNDE de gerekiyor. Prompt her satırda EN FAZLA bir
-   ifade istiyor — her şeyin vurgulandığı bir metinde hiçbir şey vurgulanmamıştır.
-   ⚠ **İlk sürüm BAKINCA yetersiz çıktı:** yalnız renk değiştiriyordu ve fark
-   `--role-text-muted` ile `--role-text` arasında ayırt edilemiyordu. Üstelik dosyanın
-   yorumu "şerit" diyor, kod renk yazıyordu — yorum ile kodun ayrışması. Fosforlu kalem
-   deseni (degrade %58'den dolu) glifin ALT yarısında duruyor, kontrastı düşürmüyor.
+   okunuyordu. Prompt satır başına EN FAZLA bir ifade istiyor.
+   ⚠ **İlk sürüm BAKINCA yetersiz çıktı:** yalnız renk değiştiriyordu, fark ayırt
+   edilemiyordu. Fosforlu kalem deseni glifin ALT yarısında, kontrastı düşürmüyor.
 🧪 6 test: `**x**` → `<strong>` ve metin GÖRSELE DÖNMÜYOR · kaçırma önce işaretleme sonra
    (enjeksiyon yok) · açgözlü değil · şerit gerçekten şerit · `dlig` kapalı.
 💾 `feat(render): tipografi efekt dagarcigi` · `Refs: FAZ-12.1 · §7.2`
@@ -110,10 +98,8 @@ bu dille geçiyor.
    ⚠ **Yalnız GÖVDE, başlık DEĞİL.** Başlık 64 px display yüzüyle çiziliyor; bölünen bir
    kelime kompozisyonu bozar ve referansların hiçbirinde bölünmüş başlık yok. Başlık zaten
    8 kelimeyle sınırlı ve ölçülmüş bir puntoda sığıyor.
-   ⚠ **Belge modeli DEĞİŞMİYOR:** tire yalnız render anında giriyor. Aksi hâlde alt metin,
-   lexicon ve defter görünmez karakterler taşırdı — içerik ile sunum sınırı korunuyor.
-   ⚠ Eşik 12 harf: `kalibrasyon` (11) bölünmüyor, `taşıyabileceğimizin` (19) bölünüyor.
-   Editöryel bir parametre, ölçüm değil (D-262).
+   ⚠ **Belge modeli DEĞİŞMİYOR:** tire yalnız render anında. Eşik 12 harf — editöryel
+   parametre, ölçüm değil (D-262).
    ⚠ **Temel ızgara bu adımda YAPILMADI** — dikey ritim FAZ-13.1'in (optik merkez, boşluk
    ölçeği) parçası ve orada bir arada ele alınması doğru. Burada iddia edilmiyor.
 🧪 5 test: uzun kelime tire alıyor · kısa kelime almıyor · BAŞLIK bölünmüyor · `lang="tr"`
@@ -161,9 +147,8 @@ bu dille geçiyor.
    tek taraflı bir karşılaştırma karşılaştırma değil bir listedir.
    ⚠ Metin SVG/DOM'da; canvas yasak. Lexicon karşılaştırmanın HER metnini tarıyor — R-32
    buradan da geçiyor.
-   ⚠ **TEK SOL KENAR — bakınca bulundu.** İkon oluğu yalnız paragrafa veriliyordu; diyagram
-   ve karşılaştırma 54 px solda başlıyordu. Oluk artık `.icerik`in tüm çocuklarına ve TEK
-   bir değerden geliyor (iki kural aynı oluğu ayrı yazarsa biri unutulur).
+   ⚠ **TEK SOL KENAR — bakınca bulundu.** Oluk yalnız paragrafa veriliyordu; bloklar 54 px
+   solda başlıyordu. Artık tüm içeriğe ve TEK bir değerden geliyor.
 🧪 4 test: iki taraf çiziliyor · tek taraflı reddediliyor · SONRA marka aksanlı · kaçırma.
 💾 `feat(render): veri ogeleri dagarcigi` · `Refs: FAZ-12.5 · §7.1`
 
@@ -180,7 +165,7 @@ bu dille geçiyor.
 🧪 Boşluk kuralını ihlal eden yerleşim → `tasarim` kırmızı.
 💾 `feat(render): marka isareti yerlesimi` · `Refs: FAZ-12.6 · §4.3`
 
-## 12.7 — Kompozisyon ailesi: kapalı garanti, AÇIK aile    [ ]
+## 12.7 — Kompozisyon ailesi: kapalı garanti, AÇIK aile    [x] 2026-08-17
 
 📖 §7.1 · D-254, D-261
 🔗 12.1, 12.2, 12.4
@@ -188,13 +173,28 @@ bu dille geçiyor.
    ama kapalı olan **garanti katmanı** (okunabilirlik, kontrast, güvenli alan, marka), açık
    olan **kompozisyon ailesi**. Bir aile = düzen + efekt profili + doku + süsleme yoğunluğu +
    panorama fazı. Aileler veriyle tanımlanır, kodla değil; garanti katmanı hepsini süzer.
-📁 `packages/render/src/kompozisyon-ailesi.ts` · `brand/` altında aile tanımları
+📁 `packages/contracts/src/aile.ts` + testi · `packages/kernel/src/doc/model.ts` ·
+   `packages/engine/src/plan/tasarla.ts` · `packages/render/src/sablon-susleme.ts`
 ✅ ⚠ **Aile ESTETİK seçer, GÜVENLİK değil.** Bir aile güvenli alanı, kontrast eşiğini ya da
    chroma tavanını gevşetemez — bunlar ailenin dışında ve üstünde kalır. Aksi hâlde "yeni
    aile" her kısıtı delmenin yolu olur.
    ⚠ Aile seçimi İÇERİKTEN: veri yoğun konu → veri ailesi; anlatı → tipografik aile.
    Rastgele seçilirse golden test kurulamaz.
-🧪 Güvenli alanı gevşeten bir aile tanımla → derleme hatası (garanti alanları ailede yok).
+   ⚠ ⚠ **ZORLAMA BİR DENETİM DEĞİL, YOKLUK.** `AileProfili`de `guvenliAlan`,
+   `kontrastEsigi`, `chromaTavani`, `kelimeButcesi` ALANLARI YOK. Denetlenecek alan yoksa
+   gevşetilecek kural da yok — en ucuz zorlama budur ve testi bunu doğruluyor.
+   ⚠ **Aile parametreleri BELGEYE giriyor ve render onları PLANDAN okuyor.** Süsleme
+   yoğunluğu bugüne kadar `sablon-susleme.ts`te SABİTTİ ve plan da 0.25 diyordu: ikisi
+   TESADÜFEN aynıydı. Kelime tavanının prompt ile ölçümde ayrı yaşamasıyla aynı hata —
+   biri değişse öbürü sessizce eski kalırdı. Artık tek kaynak.
+   ⚠ **Değerler uydurulmadı:** vinyet 0 (0.1'de amber alan 215→229 arası değişiyordu),
+   degrade kapalı (aynı ölçüm), süsleme 0.25 (yoğun tarama kâğıt alanda kalabalıktı),
+   tipo efektleri yalnız `vurgu`+`kontur` (referansların dördü de düz tipografi).
+   ⚠ **Kayıtta TEK aile var ve bu dürüst hâl:** ikinci aileyi bir referans talep etmeden
+   yazmak, kullanıcısı olmayan çeşitlilik üretmek olurdu. `docs/referans/ornekler/` beş
+   ayrı aile gösteriyor; ikincisi FAZ-13'ten sonra ölçülerek açılır.
+🧪 6 test: garanti alanları ailede YOK · yalnız estetik alanlar · ölçülen değerler ·
+   kapalı efektler açık değil · geçersiz aralık yakalanıyor · aile VERİ.
 💾 `feat(render): kompozisyon ailesi` · `Refs: FAZ-12.7 · §7.1`
 
 ## 12.8 — Piksel boru hattı: `sharp` ve yerel raster işlemleri    [ ] BLOKE:karar

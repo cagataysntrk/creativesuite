@@ -103,6 +103,22 @@ export interface ChartBlock {
  * ⚠ Akış diyagramından FARKLI: akış bir SIRA anlatır (adım → adım), karşılaştırma bir
  * KARŞITLIK kurar (şimdi → olması gereken). Aynı şekli iki kez çizmek olmuyor.
  */
+/**
+ * Belgeye eşlik eden AİLE parametreleri (FAZ-12.7).
+ *
+ * ⚠ **Render bunları PLANDAN almak zorunda, kendi sabitinden değil.** Süsleme yoğunluğu
+ * bugüne kadar `sablon-susleme.ts`te sabitti ve plan da 0.25 diyordu: ikisi TESADÜFEN
+ * aynıydı. Kelime tavanının prompt ile ölçümde ayrı ayrı yazılmasıyla aynı hata — biri
+ * değişse öbürü sessizce eski kalırdı.
+ *
+ * ⚠ Yalnız ESTETİK alanlar: güvenli alan, kontrast eşiği ve chroma tavanı burada YOK.
+ */
+export interface AileParametreleri {
+  readonly suslemeYogunlugu: number
+  readonly vinyetGucu: number
+  readonly degrade: boolean
+}
+
 export interface CompareBlock {
   readonly type: 'compare'
   readonly title: string
@@ -179,6 +195,8 @@ export interface DocumentModel {
    * kompozisyonu verir (deterministik) ama slayttan slayta değişir (generative).
    */
   readonly slayt?: SlaytKimligi
+  /** Ailenin estetik parametreleri (FAZ-12.7). Yoksa render varsayılanı kullanır. */
+  readonly aile?: AileParametreleri
   /** Üretim damgası (R-11). Çıktı meta'sına basılır; retrofit imkânsız. */
   readonly stamp: AssetStamp
 }

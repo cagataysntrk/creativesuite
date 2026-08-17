@@ -191,6 +191,7 @@ export {
   type SeriesTone,
   type Islev,
   type CompareBlock,
+  type AileParametreleri,
 } from './doc/model.js'
 
 // Tek HTTP istemcisi (§3.8). Barrel'dan açılıyor ki Ring 1 sağlayıcıları kendi

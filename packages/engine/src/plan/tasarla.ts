@@ -11,7 +11,9 @@
 // orası (bkz. `packages/contracts/src/tasarim-plani.ts` dosya başı).
 
 import {
+  TEMEL_AILE,
   yay,
+  type AileProfili,
   type Islev,
   type OgePolitikasi,
   type SlaytPolitikasi,
@@ -38,10 +40,18 @@ export interface TasarlaGirdisi {
   readonly yuvaIstendi: boolean
   /** Yuvanın biçimi — hat/aile söylüyor. Varsayılan `alan`. */
   readonly yuvaBicimi?: 'alan' | 'maske'
+  /**
+   * Kompozisyon ailesi (FAZ-12.7). Verilmezse `temel`.
+   *
+   * ⚠ **Aile ESTETİK seçer, GÜVENLİK değil.** Süsleme yoğunluğu, vinyet, degrade, ritim
+   * ve tipografi efektleri buradan geliyor; güvenli alan, kontrast eşiği ve chroma tavanı
+   * `AileProfili`de YOK ve olamaz — alan yoksa gevşetilecek kural da yok.
+   */
+  readonly aile?: AileProfili
 }
 
 /** Bugünkü tek aile — amber/mürekkep, akan eğri, dev hayalet rakam. */
-export const VARSAYILAN_AILE = 'temel'
+export const VARSAYILAN_AILE = TEMEL_AILE.id
 
 /**
  * Bir slaydın görsel öge politikası.
@@ -98,6 +108,7 @@ const ogeSecimi = (
  * slaydına taşıyor ve kapanış cümlesi altına sıkışıyordu (FAZ-10.7'de ölçüldü).
  */
 export const tasarla = (g: TasarlaGirdisi): TasarimPlani => {
+  const aile = g.aile ?? TEMEL_AILE
   const toplam = g.satirlar.length
   const y = yay(toplam)
   const ortaIndex = Math.max(1, Math.ceil(toplam / 2) - 1)
@@ -116,25 +127,25 @@ export const tasarla = (g: TasarlaGirdisi): TasarimPlani => {
     surum: 1,
     konu: g.konu,
     aile: {
-      deger: VARSAYILAN_AILE,
-      gerekce: 'Tek aile tanımlı: amber/mürekkep iki alan, akan eğri, dev hayalet rakam.',
+      deger: aile.id,
+      gerekce: `${aile.ad}. Estetik parametreler buradan; garanti katmanı ailenin DIŞINDA.`,
     },
     yay: y,
     suslemeYogunlugu: {
-      deger: 0.25,
+      deger: aile.suslemeYogunlugu,
       gerekce:
-        'Açık kâğıt alanda ince kontur okunur; yoğun tarama koyu bir ailede doğru olurdu (D-262).',
+        'Aileden geliyor: açık kâğıt alanda ince kontur okunur, yoğun tarama koyu bir ailede doğru olurdu (D-262).',
     },
     yuvaBicimi: {
-      deger: g.yuvaBicimi ?? 'alan',
+      deger: g.yuvaBicimi ?? aile.yuvaBicimi,
       gerekce:
         (g.yuvaBicimi ?? 'alan') === 'alan'
           ? 'Uçtan uca alan: fotoğraf kutu değil zemin olur, kompozisyon çerçeveyi kullanır.'
           : 'Daire maske: özne arka planından ayrılmış olmalı, yoksa daire rastgele kırpar.',
     },
     panorama: {
-      deger: false,
-      gerekce: 'Panoramik süreklilik henüz bağlı değil (FAZ-12.4); açık demek yalan olurdu.',
+      deger: aile.panorama,
+      gerekce: 'Aileden geliyor; panoramik süreklilik henüz bağlı değil (FAZ-12.4).',
     },
     slaytlar,
   }

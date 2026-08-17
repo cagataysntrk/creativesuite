@@ -49,7 +49,11 @@ export const YOGUNLUK_YOGUN = 0.9
  * Seçim ve konum indeksten TÜRETİLİYOR. Rastgele olsaydı iki koşu iki farklı çıktı verir
  * ve golden test kurulamazdı; sabit olsaydı beş kare beş kopya olurdu.
  */
-export const suslemeler = (k: SlaytKimligi, sagda: boolean): readonly Susleme[] => {
+export const suslemeler = (
+  k: SlaytKimligi,
+  sagda: boolean,
+  yogunluk: number = YOGUNLUK_SEYREK
+): readonly Susleme[] => {
   // Kapak SÜSSÜZ: ızgarada ilk kare bir cümledir, bir desen değil. Referansların
   // hepsinde kapak en sade karedir.
   if (k.role === 'kapak' || k.role === 'tek') return []
@@ -70,7 +74,7 @@ export const suslemeler = (k: SlaytKimligi, sagda: boolean): readonly Susleme[] 
       y: 22 + (k.index % 3) * 6,
       boyut: 13 + (k.index % 2) * 4,
       opaklik: 0.5,
-      yogunluk: YOGUNLUK_SEYREK,
+      yogunluk,
     },
     // İkinci öge yalnız TEK indekslerde: her slaytta iki öge, ritmi düzleştirir.
     ...(k.index % 2 === 1
@@ -81,7 +85,7 @@ export const suslemeler = (k: SlaytKimligi, sagda: boolean): readonly Susleme[] 
             y: 44,
             boyut: 7,
             opaklik: 0.38,
-            yogunluk: YOGUNLUK_SEYREK,
+            yogunluk,
           },
         ]
       : []),

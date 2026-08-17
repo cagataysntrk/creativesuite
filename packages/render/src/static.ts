@@ -411,7 +411,7 @@ const sablonCss = (doc: DocumentModel): string => {
     // ⚠ Ürün ekran çekimi HARİÇ: o bir KANITTIR, rengini değiştirmek iddiayı bozar.
     `  .icerik img.yuva-alan, .icerik img.yuva-maske { filter: url(#${DUOTONE_ID}); }`,
     dokuCss(),
-    vinyetCss(),
+    vinyetCss(doc.aile?.vinyetGucu),
     // ── YUVA: alan (FAZ-11.4) — bugünkü davranışın adı konmuş hâli ─────────
     `  .icerik img.yuva-alan { width: calc(100% + ${pay}px); border-radius: 0; display: block;`,
     `                margin-${sagda ? 'left' : 'right'}: -${pay}px;`,
@@ -462,7 +462,7 @@ const sablonKatmanlari = (doc: DocumentModel): string => {
   // Süslemeler AYRI bir SVG katmanında ve `preserveAspectRatio` YOK: alan katmanı
   // `none` ile geriliyor (dolgu tuvali kaplamalı), ama gerilmiş bir daire elips olur.
   // Aynı viewBox'a koymak, beş ögenin de ezilmesi demekti.
-  const sus = suslemeler(k, sagda)
+  const sus = suslemeler(k, sagda, doc.aile?.suslemeYogunlugu)
   return [
     `<div class="alan"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
     `<path d="${kapali}" fill="${r.karsiAlan}"/></svg></div>`,

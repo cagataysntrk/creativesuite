@@ -1,0 +1,16 @@
+# gitleaks yapılandırması — varsayılan ~150 kural KORUNUYOR, yalnız kapsam daraltılıyor.
+#
+# ⚠ `useDefault = true` ŞART: kendi kural listemizi yazsaydık `repo-hygiene` ile aynı
+# şeyi iki kez yapmış olurduk. Bu kapının varlık sebebi AKLIMIZA GELMEYEN anahtar
+# biçimlerini yakalamak (D-49); varsayılanları atmak onu kendi listemizin kopyasına
+# çevirirdi.
+[extend]
+useDefault = true
+
+# ⚠ Türetilmiş ve gitignore'lu çıktı taranmıyor: o byte'lar git'e HİÇ girmiyor, yani
+# bu kapının koruduğu şeyin dışındalar. `graphify-out/cache/` içindeki içerik hash'leri
+# `generic-api-key` kuralına yakalanıp kapıyı iki kez kırmızıya düşürdü — yanlış pozitif
+# de bir hatadır ve sürekli alarm veren kapı, kapatılan kapıdır.
+[[allowlists]]
+description = "türetilmiş, gitignore'lu eklenti çıktısı"
+paths = ['''^graphify-out/''', '''^derived/index/''', '''^derived/blobs/''']
