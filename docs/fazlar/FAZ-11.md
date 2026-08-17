@@ -68,7 +68,7 @@ bu dille geçiyor.
 
 ---
 
-## 11.3 — İkon dağarcığı: gömülü SVG, kapalı liste    [ ]
+## 11.3 — İkon dağarcığı: gömülü SVG, kapalı liste    [x] 2026-08-17
 
 📖 §7.1 · R-20 · D-261
 🔗 11.2
@@ -76,12 +76,27 @@ bu dille geçiyor.
    seti (Lucide ISC · Phosphor MIT · Tabler MIT · Iconoir MIT — dördü de atıfsız ticari
    kullanıma açık). Fontlar gibi **GÖMÜLÜ**: seçilen ikonlar `brand/<id>/ikonlar/`
    altına alınır, çalışma anında ağdan çekilmez.
-📁 `brand/brd_upcytech/ikonlar/` · `packages/render/src/sablon-ikon.ts`
-✅ ⚠ **Kapalı set, tüm kütüphane DEĞİL.** 1500 ikonluk bir seti bağlamak, "marka
-   şablonu"nu bir öneriye çevirir; ~20 ikonluk bir alt küme seçilir ve o küme bir karardır.
-   İkon seçimi içerikten TÜRETİLİR (anahtar kelime → ikon), elle yazılmaz.
-   Lisans metni izlenen dosyada durur (fontlarda olduğu gibi).
-🧪 Sette olmayan bir ikon adı iste → derleme hatası (kapalı birleşim tipi).
+📁 `packages/render/src/sablon-ikon.ts` · `sablon-ikon.test.ts` · `static.ts`
+✅ **RENDER EDİLDİ VE BAKILDI** — üç madde, üç doğru ikon: takvim/ekip/belge ve
+   kutu/düşüş/enerji. Metin sütununu bozmuyor, madde çizgisinin yerine geçiyor.
+   ⚠ **PLANDAN SAPMA:** kaynak bir MIT/ISC seti değil, **kendi çizimimiz**. Üç sebep
+   `sablon-ikon.ts` başında yazılı — 40 satır kuralı, denetlenecek lisans olmaması, ve
+   kontur kalınlığının setin değil MARKANIN ölçüsünden gelmesi. Yalnız tam kurulabilir
+   ilkeller kullanıldı (çizgi, çember, dikdörtgen, yay); ezberden `path` verisi yazılsaydı
+   bozuk çizilir ve ancak bakınca görülürdü.
+   ⚠ **Kazananı KELİME sırası belirliyor, ikon listesi değil.** *"Üretim hattı iki saat
+   durdu"* iki kök içeriyor; ilk sürümde kazananı `IKONLAR` dizisindeki konum seçiyordu —
+   keyfî. Türkçe cümle KONUYU başa koyar, o yüzden ilk eşleşen KELİME kazanıyor.
+   ⚠ **Eşleşme kelime BAŞINDA aranıyor.** `includes` ile `ara`→"p**ara**metre",
+   `kaza`→"**kaza**nç", `süre`→"**süre**ç" çarpışıyordu. Türkçe sonek dilidir: kök başta
+   durur, ek öne gelmez.
+   ⚠ **Eşleşme yoksa ikon YOK** — indekse göre zorla atamak, takvimden bahseden satırın
+   yanına fabrika koyardı. Anlamsız ikon, ikonsuzluktan kötüdür.
+   ⚠ **34 px BAKINCA düzeltildi:** 28 px'te ikon 34 px metnin yanında cılız kalıyordu;
+   24 birimlik ızgarada şekiller ~19 birim doldurduğu için kutu boyutu görünen boyut değil.
+🧪 **9 test + ihlal:** `ikonSvg('kahve', …)` → `error TS2345` (kapalı birleşim).
+   Ayrıca gerçek Türkçe satır tablosu · kelime-içi eşleşmeme · Türkçe küçük harf
+   (`ISRAF` noktasız I ile eşleşMEZ ve bu DOĞRU) · determinizm · 24×24 ızgara taşması.
 💾 `feat(render): gomulu ikon dagarcigi` · `Refs: FAZ-11.3 · §7.1`
 
 ---

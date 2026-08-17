@@ -65,7 +65,7 @@
 | OpenType özellikleri (ligatür, alternatif) | `font-feature-settings` | 🟡 |
 | Tabular / slashed-zero rakam | `font-variant-numeric` | ✅ sayaç |
 | Harf/kelime aralığı, satır yüksekliği | CSS | ✅ |
-| **Türkçe heceleme ve iki yana yaslama** | `hyphens` + `lang="tr"` | ⛔ **EKSİK** |
+| **Türkçe heceleme** | `softHyphenate`/`syllables` **KOD VAR** — render'a bağlı DEĞİL | ⛔ → FAZ-12.3 |
 | Optik kenar hizalama | negatif kenar boşluğu | 🟡 → FAZ-12.3 |
 | **Şekil etrafında metin akışı** | `shape-outside` | ⛔ → FAZ-12.10 |
 | Vurgu şeridi (marker) | eğik `background` | 🟡 |

@@ -28,15 +28,37 @@ import {
   navIsareti,
   sayacEtiketi,
 } from './sablon.js'
+import { ikonSec, ikonSvg } from './sablon-ikon.js'
+
+/**
+ * İkon kenarı, px.
+ *
+ * ⚠ **28 px ölçülmeden seçilmişti ve BAKINCA yanlış çıktı:** 34 px gövde metninin yanında
+ * ikon cılız duruyordu. Sebep, kutu boyutu ile GÖRÜNEN boyutun aynı olmaması — 24 birimlik
+ * ızgarada şekiller ~19 birim dolduruyor, yani 28 px kutu ~22 px şekil demek. Gövde
+ * puntosuna eşitlendi: 34 px kutu → ~27 px şekil, satırla aynı optik ağırlıkta.
+ */
+const IKON_PX = 34
 
 export { kacir } from './html.js'
 
-const blokHtml = (b: Block): string => {
+/**
+ * ⚠ İkon **blok başına** karar — paylaşılan bir CSS kuralı olamaz. Madde ritmi bugüne
+ * kadar `.icerik p::before` ile çiziliyordu ve bu, satırın NE dediğini bilmiyor. İkon
+ * içerikten seçildiği için işaretin markup'a girmesi şart.
+ */
+const blokHtml = (b: Block, ikonRengi: string | null): string => {
   switch (b.type) {
     case 'heading':
       return `<h${b.level}>${kacir(b.text)}</h${b.level}>`
-    case 'body':
-      return `<p>${kacir(b.text)}</p>`
+    case 'body': {
+      const ad = ikonRengi === null ? null : ikonSec(b.text)
+      // Eşleşme yoksa sınıf da yok: mevcut madde çizgisi çizilmeye devam eder. Zorla ikon
+      // atamak, takvimden bahseden satırın yanına fabrika koymak demekti.
+      return ad === null
+        ? `<p>${kacir(b.text)}</p>`
+        : `<p class="ikonlu">${ikonSvg(ad, ikonRengi as string, IKON_PX)}${kacir(b.text)}</p>`
+    }
     case 'diagram': {
       // Diyagram da VERİ olarak geliyor; çizim burada (D-209 ailesi).
       const d = diagramHtml({ title: b.title, nodes: b.nodes })
@@ -113,7 +135,19 @@ export const toHtml = (doc: DocumentModel): string =>
     '</style>',
     sablonKatmanlari(doc),
     `<main class="icerik">`,
-    doc.blocks.map(blokHtml).join('\n'),
+    // İkon YALNIZ madde ritmi olan düzenlerde: `list` bir dizi madde demektir ve ikon o
+    // dizinin işaretidir. `quote` ya da `hero` düzeninde tek bir cümlenin yanında ikon,
+    // vurguyu cümleden çalar.
+    doc.blocks
+      .map((b) =>
+        blokHtml(
+          b,
+          doc.slayt !== undefined && duzenBicimi(doc.slayt.duzen).maddeRitmi
+            ? alanRolleri(doc.slayt).metin
+            : null
+        )
+      )
+      .join('\n'),
     '</main>',
   ].join('\n')
 
@@ -201,6 +235,15 @@ const sablonCss = (doc: DocumentModel): string => {
           // ⚠ Opaklık 0.55 → 0.85: ölçülen kontrast 3,71:1 idi, yanındaki gövde metni
           // 7,99:1. Bir ritim ögesi metinden silik olabilir ama okunamayacak kadar değil.
           `      background: ${r.metin}; opacity: 0.85 }`,
+          // ── ikonlu madde (FAZ-11.3) ────────────────────────────────────────
+          // İkon çizginin YERİNE geçiyor, yanına değil: iki işaret üst üste binerdi ve
+          // madde çizgisinin varlık sebebi zaten "burada yeni bir madde başlıyor" demekti.
+          `  .icerik p.ikonlu { padding-left: ${IKON_PX + 20}px }`,
+          `  .icerik p.ikonlu::before { display: none }`,
+          // Dikey hiza: ikonun ORTASI ilk satırın ortasına gelir. Üste yaslamak, 34 px
+          // gövdede ikonu satırdan 8 px yukarıda bırakıyordu.
+          `  .icerik p.ikonlu .ikon { position: absolute; left: 0;`,
+          `      top: ${Math.round(b.govdePx * 0.72 - IKON_PX / 2)}px; opacity: 0.85 }`,
         ]
       : []),
     ...(b.kanitSeridi

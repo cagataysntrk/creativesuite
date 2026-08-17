@@ -79,10 +79,13 @@ bu dille geçiyor.
 
 📖 §7.2 · R-21, R-23, R-30
 🔗 —
-🛠 Türkçe eklemeli bir dil: `taşıyabileceğimizin` 19 karakter ve **bölünemiyor**. Şu an
-   satır sonları göz kararı; `hyphens: auto` + `lang="tr"` Chromium'un Türkçe heceleme
-   sözlüğünü açar. Ayrıca **temel ızgara**: dikey ritim şu an rastgele, `line-height`
-   katları bir ızgaraya oturtulur.
+🛠 Türkçe eklemeli bir dil: `taşıyabileceğimizin` 19 karakter ve **bölünemiyor**.
+   ⚠ ⚠ **ZİNCİR KOPUK — kod ZATEN VAR:** `packages/contracts/src/text-tr.ts` içinde
+   `syllables()` ve `softHyphenate()` yazılı ve testli. Render katmanı bunları **hiç
+   çağırmıyor.** Bu, `chart`/`diagram` ve `tasarimOlc` ile aynı sınıf: modül var, test
+   yeşil, kapı yeşil, üretim yolu sıfır kullanıyor (D-261). Bu adımın işi yeni kod yazmak
+   değil, **var olanı bağlamak** ve `hyphens: auto` + `lang="tr"` ile birleştirmek.
+   Ayrıca **temel ızgara**: dikey ritim şu an rastgele, `line-height` katları oturtulur.
 📁 `packages/render/src/sablon-parametre.ts` · `static.ts`
 ✅ ⚠ **`hyphens: auto` TEK BAŞINA yetmez** — `lang="tr"` olmadan Chromium İngilizce
    kurallarıyla böler ve `ta-şıyabileceğimizin` yerine yanlış yerden keser. İkisi birlikte.
