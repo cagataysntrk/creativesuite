@@ -36,6 +36,9 @@ Bunlar tartışılmaz. Değişecekse önce `KURALLAR.md`'de değişir, sonra kod
     DEĞİLDİR ve silinmez. → §3.5
 12. **Bir ay ihmal edilse de çalışır.** Hiçbir daemon doğruluk tutmaz; kurtarma
     `git clone` + `cat`. → §16
+13. **Serbest üretim yok — KATALOG merkezli.** Hat düzen icat etmez; kataloğdan şablon
+    seçer, içeriği ve görselleri onun yuvalarına üretir. Üretkenlik kompozisyonda değil,
+    içerikte ve görsellikte. → D-268
 
 ## Atıf sözlüğü
 
@@ -61,6 +64,8 @@ Tek anlamlı. `citations` kapısı her atıfın hedefte var olduğunu doğrular.
 | Bu adımda ne yapılacak | `docs/fazlar/FAZ-N.md` |
 | Döngü nasıl işliyor | `docs/LOOP.md` |
 | Ham araştırma | `docs/research/` — `ctx_search` ile sorgula |
+| **Şablon kataloğu** | `packages/contracts/src/katalog.ts` — üretim buradan başlar |
+| Kesintisiz render | `packages/render/src/panorama.ts` — tek tuval, sonra dilimleme |
 
 ## Komutlar
 
@@ -112,6 +117,10 @@ hiçbiri. Kapı reddeder. → D-34
   farklı yazma.
 - **Bağımlılık eklemeden önce dur.** 40 satır yazmak bir bağımlılıktan iyidir.
 - **Üretilmiş dosyayı elle düzenleme.** Üretecini düzelt.
+- **Süreklilik ima edilmez, KURULUR.** Kesintisiz karosel tek geniş tuvalde tasarlanıp
+  dilimlenir; kesimi aşan öge içerikten türer, süsten değil. → D-268
+- **Görsel üreten koşu `sops exec-env` ile başlar.** Anahtarsız koşuda hat *"yerel önkoşul
+  sağlanmadı"* der — bu sağlayıcı yokluğu DEĞİLDİR.
 
 ## graphify
 

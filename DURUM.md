@@ -10,7 +10,7 @@ siradaki_adim: 9.1
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "SAHNE SABLONU GERCEK AI GORSELLERIYLE UCTAN UCA CALISIYOR. BENIM OKUMA HATAM: kosu ciktisi bedava seritte saglayici yok demiyordu, YEREL ONKOSUL SAGLANMADI diyordu — cloudflare-workers-ai kayitli, enabled ve gercek cagriyla dogrulanmis; eksik olan yalnizca ortamdaki anahtardi. Hatti sops exec-env olmadan kosturup kendi hatami saglayici yoklugu sandim ve dort sablonu yanlislikla kullanilamaz isaretledim. Duzeltildi: ALTI SABLONUN ALTISI da kullanilabilir. ARKA PLAN SILME MODELI GEREKMEDI: brief duz siyah zemin istiyor, alfa render da o zeminin parlakligindan turetiliyor (yeni matlama islemi, luma anahtarlama) — BiRefNet (~1 GB) hala ertelenmis ve gerekmedi. Prompt a guvenme cikti yi donustur dersinin (duotone) ucuncu uygulamasi. R-20 MUHAFIZI IKI KEZ REDDETTI ve ikisi de ogreticiydi: (a) brief Turkce ve BUYUK HARF vurgulu yazilmisti, muhafiz bunu metin cizdirme istegi saydi — gorsel prompt u nesir degil teknik dizedir; (b) no texture icinde no text alt dizesi var, suffix_hand_written ile reddedildi — bu kapinin kendisinde bir yanlis pozitif ama kirmizi kapinin kurali ayni turda gevsetilmez (R-76), brief yeniden yazildi. FILTRE HATASI BAKARAK BULUNDU: object-fit contain letterbox alani BEYAZ cikiyordu cunku tamamen seffaf piksellerde carpimsiz RGB tanimsiz ve Chromium beyaz veriyor; alfayi o beyazin parlakligindan turetince serit opaklasiyordu. feComposite operator=in ile kaynagin alfasiyla kesistirildi — filtresiz 0 beyaz satir, filtreli 27, duzeltme sonrasi 0. 42 kapi · 1615 test."
+son_kanit: "MIMARI DEGISIM KAYIT ALTINA ALINDI (D-268): KATALOG MERKEZLI URETIM, SERBEST URETIM YOK. Tek gramer + parametre yaklasimi yedi aile verdi ve izgaraya bakinca TEK TASARIMIN YEDI BOYASI gorundu; kompozisyon (bolme, aci, akis, oge yerlesimi) sablon.ts e gomuluydu ve aile yalniz renk/susleme diyebiliyordu. Ayrica sureklilik IMA EDILIYORDU — her slayt ayri render edilirken surekli gorunmek imkansiz. YENI MODEL: panorama.ts, N x 1080 TEK TUVAL sonra dilimleme (translateX + N ekran goruntusu, goruntu kutuphanesi bagimliligi yok); kesimi asan oge ICERIKTEN turer (veri egrisi, kemer, kesik oznenin kolu, akan oklar). katalog.ts alti sablon (bes referanstan olculdu), hedef 20-30; her kayit gorsel ihtiyacini ILAN EDIYOR ve kullanilabilir bayragi tasiyor. GORSEL URETIMI CALISIYOR: cloudflare-workers-ai bedava serit, sops exec-env ile. Kesik ozne icin arka plan silme modeli GEREKMEDI — brief duz siyah zemin istiyor, alfa matlama luma anahtariyla turetiliyor. GARANTI KATMANI DEGISMEDI: kontrast, Turkce tasma, chroma tavani, R-20 hala olcum olarak ustte; kartRenkleri metin rengini zeminden TURETIYOR. Eski yol (sablon.ts + AileProfili + slayt basina render) yasiyor, tasarim kapisi ve goldenlar ona bagli; yeni sablonlar KATALOGA yaziliyor, birlestirme ayri adim. KARARLAR 595/600 idi — D-255..D-258 arsive tasindi (442 -> D-268 ile 491), atif butunlugu korundu. CLAUDE.md ye 13. yasa ve katalog yolu eklendi."
 ```
 
 ## Neredeyiz
@@ -21,76 +21,75 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, beş tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
 > D-224 · D-250 · D-261. **"Çağıran var mı" ZİNCİR için sorulur**, tek adım için değil.
-
 > ⛔ **ON DOKUZ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
 > `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b` · `8.6` · `8.8b` ·
 > `11.5` · `11.6` · `11.9` · `12.8` · `13.3`.
 > Sınıfları `insan` (D-157): plan hatası değil, dış bağımlılık. Son beşi D-266/D-267'de
-> **tetikleyiciye** bağlandı — blokaj artık "bir gün bakarız" değil, gözlenebilir koşul.
->
-> | Adım | Bekleyen | | Adım | Bekleyen |
-> |---|---|---|---|---|
-> | `2.9` | `just onayla corpus/*/*.md` | | `7.2b` `7.6b` `7.8b` | V-26 Meta token |
-> | `3.7` `3.8` | V-16 anahtar (+~$3) | | `7.5b` `8.8b` | V-27 OAuth kaydı |
-> | `3.14` | `2.9`'a bağlı | | `8.6` | V-10 hukukçu |
-> | `4.13b` | V-18 Tailscale+Telegram | | `11.5` `11.9` | BiRefNet ~1 GB (D-266) |
-> | `5.4b` `5.5b` | V-21/V-22 ses+altyazı | | `11.6` `13.3` | ücretli görsel şeridi |
-> | `6.5b` `6.9b` | V-24 / V-25 | | `12.8` | Lanczos+EXIF (D-267) |
+> **tetikleyiciye** bağlandı. Bekleyenler: `2.9` corpus onayı · `3.7` `3.8` V-16 ·
+> `4.13b` V-18 · `5.4b` `5.5b` V-21/22 · `6.5b` `6.9b` V-24/25 · `7.2b` `7.6b` `7.8b`
+> V-26 · `7.5b` `8.8b` V-27 · `8.6` V-10 · `11.5` `11.9` BiRefNet · `11.6` `13.3` ücretli
+> görsel · `12.8` Lanczos+EXIF. ⚠ `3.14` `2.9`'a bağlı.
 
 ## Tamamlananlar
 
-> **Bu tablo yalnız AKTİF fazı gösterir** (D-85). Önceki fazlar faz dosyalarındaki
-> tiklerdedir ve `git log` tek başına yol haritasıdır.
->
-> FAZ 0+1: 51 · **FAZ 2: 12/13** · **FAZ 3: 12/15** (şartlı, D-158) · **FAZ 4: 17/17** ·
-> **FAZ 5: 8/10** (şartlı, D-206) · **FAZ 6: 10/12** (şartlı, D-217; `6.5b` V-24,
-> `6.9b` V-25). Tikler faz dosyalarında.
+> **Yalnız AKTİF faz** (D-85); öncekiler faz dosyalarındaki tiklerde. FAZ 0+1: 51 ·
+> FAZ 2: 12/13 · FAZ 3: 12/15 (D-158) · FAZ 4: 17/17 · FAZ 5: 8/10 (D-206) ·
+> FAZ 6: 10/12 (D-217).
 
 | Adım | Tarih |
 |---|---|
-| **13.6** · kör kabul; AYNI SINIF ama yargıcın gürültüsü ölçülen farkla aynı boyda | 2026-08-17 |
-| **11.10** · illüstrasyon kütüphanesi KAPATILDI; 11.5/11.6/11.9 tetikleyicili (D-266) | 2026-08-17 |
-| **13.5** · `design.critique` estetik eksen; ölçüm ve yargı aynı kusuru buldu | 2026-08-17 |
-| **13.4** · çeşitlilik parmak izi; iki aile 6 alanın YALNIZ 2'sinde ayrışıyor | 2026-08-17 |
-| **13.2** · katman yığını VERİ; üç z-index beraberliği kazaydı, çıktı piksel-özdeş | 2026-08-17 |
 | **13.1** · kompozisyon ölçümü RAPOR; ilk metrik gramerin ritmini kusur sanıyordu | 2026-08-17 |
-| **12.2** · raster dağarcığı; palet garantisini duotone tutuyor, ikiz küme sınavı | 2026-08-17 |
-| **12.10** · sütun o slaytın eğrisinden; `column_in_band` kendini ölçüyordu | 2026-08-17 |
-| **12.9** · degrade rampadan; asıl kusur durakların YERİNDEYDİ | 2026-08-17 |
-| **11.1 11.2 11.3** · diyagram · süsleme dağarcığı · 20 ikon | 2026-08-17 |
-| **14.1–14.4** · yay halka 0'da · gerekçeli plan · koşullu görsel · plan↔çıktı | 2026-08-17 |
-| **12.6** · marka işareti: harf formu, üçüncü yaklaşımda öncül değişti | 2026-08-17 |
-| **12.4** · panorama: akan şey zemin değil süsleme; İKİNCİ aile doğdu | 2026-08-17 |
-| **12.7** · kompozisyon ailesi; garanti ailede YOK, zorlama yoklukla | 2026-08-17 |
-| **12.5** · karşılaştırma bloğu; halka/KPI/ilerleme R-32 arkasında | 2026-08-17 |
-| **12.1** · tipografi efektleri; vurgu şeridi — slayt içi hiyerarşi | 2026-08-17 |
-| **12.3** · Türkçe heceleme bağlandı; kod vardı, üretim hiç çağırmıyordu | 2026-08-17 |
-| **11.7** · duotone: renk tutarlılığı yapısal, prompt'a yalvarma bitti | 2026-08-17 |
-| **11.4** · fotoğraf yuvaları; yuvasız görsel reddediliyor | 2026-08-17 |
-| **11.8** · grain tavanlı; vinyet ölçülerek kapalı bırakıldı | 2026-08-17 |
-| **14.5** · görsel adımları opsiyonel; atlanan adım `skipped`, ret defterde | 2026-08-17 |
+| **13.2** · katman yığını VERİ; üç z-index beraberliği kazaydı, çıktı piksel-özdeş | 2026-08-17 |
+| **13.4** · çeşitlilik parmak izi; iki aile 6 alanın YALNIZ 2'sinde ayrışıyor | 2026-08-17 |
+| **13.5** · `design.critique` estetik eksen; ölçüm ve yargı aynı kusuru buldu | 2026-08-17 |
+| **13.6** · kör kabul; AYNI SINIF ama yargıcın gürültüsü ölçülen farkla aynı boyda | 2026-08-17 |
 
 ## Sıradaki adım
 
-**FAZ-13 KAPANDI** (13.3 `bloke: karar`, tetikleyicili — D-267). Üç çıkış kriteri de
-gösterildi. **FAZ-12'nin adımları bitti ama ÇIKIŞ KRİTERİ AÇIK: kabul sayacı 0/20.**
-"Adımlar tikli" ile "faz kapandı" ayrı şeyler.
+## ⚠ MİMARİ DEĞİŞTİ: KATALOG MERKEZLİ ÜRETİM (D-268)
 
-**LOOP§D iki tur da koşuldu (tavan doldu, D-79).** Toplam dokuz blokaj + on beş ikincil
-bulgu kapatıldı. İkinci turun en ağırı: blokaj 3'ü kod katmanında kapatmıştım, **hat
-yapılandırmasında açık kalmıştı** — `gorsel_yuvasi: true` sabiti ölçütü boğuyor, her konu
-`temel` çıkıyordu. Ölçüt artık NE ÇİZİLDİĞİNE bakıyor, ne istendiğine değil.
+**Serbest üretim YOK.** Hat bir düzen icat etmiyor; **kataloğdan bir şablon seçiyor**,
+içeriği ve görselleri onun yuvalarına üretiyor. Üretkenlik kompozisyonda değil,
+**içerikte ve görsellikte.**
 
-**Kanıt koşusu:** `plan.aile=akici` · `panorama=true` · `degrade=true` — **12.4 ve 12.9
-ilk kez gerçek bir koşuda basıldı.** `tasarim-yargi` puanları deftere girdi (3,67/5).
+**Neden değişti:** tek gramer + parametre yaklaşımı yedi "aile" verdi ve ızgaraya bakınca
+**tek tasarımın yedi boyası** göründü. Kompozisyon (bölme, açı, akış, öge yerleşimi)
+`sablon.ts`'e gömülüydü; aile yalnız renk ve süsleme diyebiliyordu. Ayrıca süreklilik
+**ima ediliyordu** — her slayt ayrı render edilirken sürekli görünmek imkânsız.
 
-**Ders değişmedi:** ölçüm aracı ölçtüğü şeyden daha sık bozuk (bu oturumda yedi kez).
-Ve **metrik yeşilken çıktı kırık olabilir**: son iki kusuru 42 kapı + 1613 test yeşilken
-yalnız çıktıya BAKMAK yakaladı — hayalet rakamın konturu ve vurgu şeridi.
+**Yeni model — kesintisiz (seamless) karosel:**
+- `packages/render/src/panorama.ts` — `N × 1080` **tek tuval**, sonra dilimleme
+  (`translateX` + N ekran görüntüsü; görüntü kütüphanesi bağımlılığı yok)
+- **Kesimi aşan öge İÇERİKTEN türer**: veri eğrisi · kemer dizisi · kesik öznenin kolu ·
+  akan oklar. Süs olsaydı silinebilirdi.
+- `packages/contracts/src/katalog.ts` — **altı şablon**, hedef 20–30. Beşi referans
+  örneklerden ölçüldü, biri panorama referansından.
 
-⚠ **SIRADAKİ: FAZ 9 denetim turları** (`9.1`). `docs/fazlar/FAZ-9.md`.
-⚠ **Kabul sayacı 0/20** — FAZ-12'nin kapanması buna bağlı (`docs/referans/kabul-20.md`).
-⚠ KARARLAR.md 595/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
+| Şablon | Kaynak | Taşıyıcı | Görsel |
+|---|---|---|---|
+| `veri-hikayesi` | panorama ref. | veri eğrisi | — |
+| `akan-alan` | ornek-5 | yatay eğri sınır | — |
+| `sahne` | ornek-1 | kesik özne + oklar | `kesik` |
+| `memphis` | ornek-3 | leke dili | `kesik` |
+| `donen` | ornek-2 | renk rotasyonu | `daire` |
+| `editoryal` | ornek-4 | tam kaplama fotoğraf | `tam` |
+
+**Görsel üretimi ÇALIŞIYOR:** `cloudflare-workers-ai`, bedava şerit. Koşular
+`sops exec-env secrets/secrets.enc.yaml "..."` ile başlatılır — anahtarsız koşuda hat
+*"yerel önkoşul sağlanmadı"* der ve bu **sağlayıcı yokluğu DEĞİLDİR** (bir tur bu
+karıştırıldı). Kesik özne için arka plan silme modeli gerekmiyor: brief düz siyah zemin
+istiyor, alfa `matlama` işlemiyle o zeminin parlaklığından türetiliyor.
+
+⚠ **Görsel brief'i İNGİLİZCE ve BÜYÜK HARFSİZ** — R-20 muhafızı büyük harfli öbeği
+"metin çizdirme isteği" sayıyor ve `no texture` içindeki `no text` alt dizesini yakalıyor.
+
+**Sıradaki iş:** katalog 6 → 20-30. Her yeni şablon: referans oku → panorama modeline
+kur → gerçek içerik+görselle render et → **BAK** → `kullanilabilir` bayrağını ölçümle koy.
+Çıktılar `content/katalog/` (türetilmiş, gitignore'lu).
+
+⚠ Eski yol (`sablon.ts` + `AileProfili` + slayt başına render) YAŞIYOR: `tasarim` kapısı
+ve golden'lar ona bağlı. **Yeni şablonlar kataloğa yazılır**; ikisini birleştirmek ayrı adım.
+⚠ FAZ-12 çıkış kriteri hâlâ açık: kabul sayacı 0/20.
 
 ## Devreden borçlar
 

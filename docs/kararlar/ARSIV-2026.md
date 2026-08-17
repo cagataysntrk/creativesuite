@@ -4138,3 +4138,159 @@ bilemez — o bilgi yalnız metnin üretildiği yerde vardır.
 
 **Geri alma maliyeti:** düşük — `doc.slayt` yazılmazsa `sablonCss`/`sablonKatmanlari`
 boş döner ve eski tek sütun düzeni aynen çalışır. Testler bunu zaten kanıtlıyor.
+
+## D-255 — Onuncu faz: "üretebiliyor" ile "iyi" ayrı sorulardır
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10 · §11.1 · §7.1
+
+FAZ 3 görsel hattını kapattı ve kriteri şuydu: *"gerçek bir carousel üret."* Üretildi.
+Ama o kriter **kalite hakkında hiçbir şey söylemiyor** ve bu hafta üç kusur bunu kanıtladı:
+metin eğri sınırını kesiyordu, hayalet rakam navigasyon etiketiyle çakışıyordu, kapak
+on iki satırlık bir metin duvarıydı. **41 kapının hiçbiri kırmızıya dönmedi.** Üçünü de
+PNG'lere tek tek bakarak buldum.
+
+**Karar:** kalite kendi fazını alır (FAZ 10) ve kendi kapısını (`tasarim`).
+
+**Göz kapı değildir.** Yorulur, alışır, ve gözetimsiz koşuda hiç yoktur. Kullanıcı
+inceleme istedi ve isabetli — ama insan incelemesi ölçümün YERİNE değil, ÜSTÜNE gelir.
+Ölçüm ucuz ve tekrarlanabilir olanı yakalar; göz, ölçülemeyeni.
+
+**Eşikler ölçülmeden konmuyor** (10.2, 10.3'ten önce). D-253 dersi: chroma 0.156
+ölçüldüğü için savunulabildi. Eşiği önce koyup sonra ölçmek, eşiği kendi çıktımıza göre
+ayarlamak olurdu — kapı o an kendini onaylar.
+
+**Bloklayıcı / uyarı ayrımı gerekçeli.** T2 (metin↔eğri), T3 (rakam↔şerit), T8 (kelime
+tavanı) bloklayıcı çünkü **üçü de gerçekten oldu**; olmuş bir hatayı yakalamayan kapı
+temennidir. Kaplama, palet payı, ΔE uyarı çünkü estetik tercih payı var ve sıfır
+tolerans meşru bir tasarımı reddeder.
+
+**Kabul ölçütü ARDIŞIK, oransal değil.** Yirmi ardışık temiz koşu; biri düşerse sayaç
+sıfırlanır. *"20 üretildi, 17'si iyiydi"* geçmez — oran, düzeltilmemiş bir kusurun
+kuyruğunu gizler. Ardışıklık, düzeltmenin gerçekten kapandığını kanıtlayan tek ölçüdür.
+
+**Saha taraması bu fazı doğruladı** (`docs/research/8-karosel-oss--*.md`): sekiz agent
+destekli karosel aracının hepsi `LLM → HTML/CSS → headless Chromium → PNG` zincirini
+kuruyor — mimarimiz doğru. Ama hiçbirinde tasarım metriği YOK ve Türkçe için tek satır
+rehberlik yok. Fork edilecek bir şey çıkmadı; alınacak üç mekanizma çıktı ve üçü de bu
+fazın adımlarında (10.1 tarayıcı oturumu · 10.5 görsel yargı · 10.6 referans→parametre).
+
+**Ölçülen tek şey:** tarayıcı açma maliyeti. `5 slayt · ayrı tarayıcı 3656 ms` ·
+`tek oturum 704 ms` → **5.2x**. Slayt başına Chromium açmak gerçek bir kusurdu ve
+alandaki bir araç bunu bizden önce çözmüştü.
+
+**Geri alma maliyeti:** düşük — `tasarim` kapısı kaldırılabilir; ama o an kalite yine
+göze kalır ve bu fazın gerekçesi tam olarak budur.
+
+## D-256 — Görsel yargı: yeni yetenek, yeni fiil değil
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.5 · §11.1 · §8.2
+
+`tasarim` kapısı (D-255) ölçülebileni ölçüyor. Ama bu fazda bulduğum kusurların yarısını
+hiçbir metrik görmedi ve ancak PNG'ye **bakınca** çıktılar: dev tırnak çerçevenin
+tepesinde kırpılıyordu, üste yaslı içerik sayaç bandıyla çakışmaya bir kelime uzaktaydı.
+İkisi de "sayıya dökülemez ama bakınca apaçık" sınıfındandı.
+
+**Karar:** `image.critique` bir **YETENEK**, dokuzuncu bir fiil değil. `GENERATE` altında
+koşuyor — ölçülüyor, maliyeti önden görünüyor, deftere yazılıyor. Yeni bir fiil, aynı işi
+yapan ikinci bir zamanlama/retry/maliyet yolu açardı (R-02).
+
+**SINIRLAYICI KUTU ZORUNLU.** Kutusuz bulgu reddediliyor ve bu tercih değil, ampirik
+sonuç: *"kompozisyon dengesiz"* eyleme çevrilemez, *"kapakta 120–460 px bandında metin
+eğri sınırını geçiyor"* çevrilebilir. Kategori ve şiddet de **kapalı liste** — serbest
+kategori toplanamaz, sayılamaz, izlenemez.
+
+**Reddedilen bulgular SAYILIYOR.** Sessizce atılsalardı model kutusuz bulgu üretmeye
+devam eder ve biz "temiz" raporunu gerçek sanardık — kapıyı kör etmenin en sessiz yolu.
+
+**`Read` aracı yeteneğe BAĞLI verildi ve bu ölçülerek bulundu.** Araçsız çağrı 5 dakikada
+dönmedi ve SIGTERM ile öldü: Claude Code etkileşimsiz kipte izin istemi çıkarıp asılıyor.
+`--allowedTools Read` ile aynı çağrı **18 saniyede** doğru sonucu verdi. Yalnız `Read`:
+alandaki araçlar agent'a `Bash WebFetch` verip kendi API'sini curl ile çağırtıyor — o,
+kapatılamayan bir delik. Okuma kategorik olarak farklı: yan etkisi yok, kabuk açmıyor,
+ağa çıkmıyor. Yine de bir yetki genişlemesi, o yüzden metin üretimi bu aracı ALMIYOR.
+
+**Şerit `free`, her koşuda çalışıyor.** Premium bir yargı, kapının maliyetini üretimin
+maliyetine yaklaştırırdı; abonelik zaten var.
+
+**İlk gerçek koşu üç bulgu verdi, üçü de doğruydu ve üçü de düzeltildi:**
+1. **Alt-piksel yumuşatma renk saçaklanması** — Chromium varsayılan LCD yumuşatması harf
+   kenarlarına mavi–turuncu saçak bırakıyordu. Ekranda görünmez ama PNG bir VARLIK:
+   farklı piksel dizilimli ekranda, baskıda ve ölçeklemede görünür oluyor. **Ölçüldü:
+   %6,6 → `--disable-lcd-text` ile %0,0.** Hiçbir metrik bunu görmedi ve HER varlığı
+   etkiliyordu.
+2. **Boşluk hiyerarşisi**: başlık↔ilk madde 37 px, maddeler arası 33 px — fark ayırt
+   edilemeyince dört satır tek blok gibi okunuyordu.
+3. **Madde çizgisi kontrastı 3,71:1** iken yanındaki gövde metni 7,99:1.
+
+**Geri alma maliyeti:** düşük — hat adımı kaldırılırsa yargı koşmaz; ama o an kalite
+yine yalnız ölçülebilene ve göze kalır.
+
+## D-257 — Şablon parametreleri: gramer kapalı, sayılar türetilebilir
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.6 · §7.1
+
+D-254 grameri kapattı: kaç kural olduğu, hangi ögelerin bulunduğu bir KARAR. Ama o
+kuralların **sayısal ayarları** — eğrinin nerede aktığı, kenar payı, hayalet rakamın
+büyüklüğü — elle çözümleniyordu ve bu tekrar edilebilir değildi: ikinci bir referans
+geldiğinde aynı el işi baştan yapılacaktı.
+
+**Karar:** `SablonParametreleri` — kapalı alan listesi, tek yerde tanımlı, `sablon.ts` ve
+`static.ts` oradan okuyor. Her sayının kaynağı yazılı: ya bir ölçüm, ya bir kısıt.
+*"Güzel duruyor"* diye seçilmiş sayı yok.
+
+**Türetme ÖNERİR, uygulamaz** (R-14 · D-31). `scripts/sablon-turet.mjs` bir JSON yazıyor;
+onu `sablon-parametre.ts`e taşımak bir commit. Otomatik uygulansaydı bir referans görseli,
+hiçbir insan bakmadan tüm markanın tipografisini değiştirebilirdi.
+
+**ÇIKTI HTML DEĞİL, VERİ** — bu adımın tek gerçek kısıtı. Saha taramasındaki sekiz aracın
+hepsi referanstan HTML üretiyor ve o an üç şey ölür: golden tipografi metriği bir belge
+modeline karşı ölçülüyor (serbest HTML'e karşı değil), `COMPOSE`/`RENDER` sınırı silinir,
+ve Türkçe garantisi font yükleme yolunun TEK olmasından geliyor.
+
+**BANT REFERANSTAN TÜRETİLEMEDİ — ve betik bunu SÖYLÜYOR.** Ham aralık **%2–97**, yani
+95 puan; makullük tavanı 40. Bir eğri bandının anlamı sınırın DAR bir aralıkta salınması,
+%2–97 "her yerde" demek. Sebep 10.2'de zaten ölçülmüştü: yan slaytlar piksel piksel
+bitişik (tam zemin renginde **0/800** sütun), yani bölge ≠ slayt ve ölçüm iki slaydın
+eğrilerini slayt kenarlarıyla karıştırıyor.
+
+**Sayı YAZILMADI.** Yazılsaydı kaynağı unutulduğunda ölçüm sanılırdı. Bu fazda aynı sınıf
+hata altı kez tekrarladı — palet yuvarlaması %97,8 · T11 krom puntolarını saydı · batarya
+çapaları her tur kırıldı · `SAYISAL` deseni `%4`ü kaçırdı · tırnak mutlak konumdaydı ·
+bölge sayısı sessizce 2 çıkıyordu. **Sayı üretiyor olmak, ölçüyor olmak değildir** ve
+makullük kapısı bu cümlenin koda dökülmüş hâli.
+
+**Bant yürürlükte %69–78 ve kaynağı bir KISIT, referans değil:** metin sütunu %62 olmak
+zorunda çünkü `taşıyabileceğimizin` 64 px'te 582 px içerik genişliği istiyor. Referans
+İngilizce ve daha dar sütunla idare ediyor. Referansı birebir kopyalamak Türkçe metni
+eğrinin içine sokardı — **uyarlama sapma değildir.**
+
+**Geri alma maliyeti:** yok — `VARSAYILAN` bugünkü değerleri taşıyor, davranış değişmedi.
+
+## D-258 — Görsel içeren slaytta renk metriği ölçülmez
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.7 · §11.1
+
+Kabul koşusunun ilk denemesi `kalite` adımında **durdu**: slayt 2 palet dışı %17,7 verdi,
+limit %15. O slaytta bir AI fotoğrafı vardı. **Fotoğraf tanımı gereği palet dışıdır** —
+o sayı fotoğraf hakkında bir olgu, tasarım hakkında bir kusur değil. Kapı, sistemin
+üretmesi gereken şeyi reddediyordu (D-251'in birebir tekrarı).
+
+**Karar:** görsel bloğu taşıyan slaytta ΔE ve palet dışı okumaları **ÜRETİLMİYOR**.
+Sıfır yazılmıyor: `measure.ts`in kendi kuralı, ölçülemeyen metriği sıfır yazmanın hiçbir
+şey ölçülmediği anda yeşil yakmak olduğunu söylüyor. Kaplama ve en-boy etkilenmiyor —
+ikisi belge modelinden hesaplanıyor, pikselden değil.
+
+**İlk düzeltmem FAZLA GENİŞTİ ve bunu ancak koşuyu tekrarlayınca gördüm.** `doc.blocks`a
+bakıyordum; ama `uret.mjs` her slayt için AYNI belgeyi geçiyor, yani karoselde tek bir
+görsel olsa bile ÜÇ slaytın üçünde de renk QA'sı kapandı. Kapı yeşile döndü ve *doğru
+sebepten değil*. **Sessiz kapanma, kırmızı bir kapıdan tehlikelidir: kimse fark etmez.**
+
+**Otorite ÜRETİCİDE.** `renderBody` artık `gorselliSlaytlar` indeks listesi yayınlıyor —
+hangi bloğun hangi slayta düştüğünü bilen tek yer sayfalayıcı. Tüketicinin tüm belgeye
+bakıp tahmin etmesi, bu deponun en sık tekrarlayan hatasının bir başka yüzüydü.
+
+**Doğrulandı:** slayt 1 (görselsiz) dört okuma alıyor, slayt 2 (fotoğraflı) yalnız
+kaplama ve en-boy; `kalite` geçiyor ve hat uçtan uca yeşil koşuyor — `gorsel-yargi`
+adımı dahil.
+
+**Geri alma maliyeti:** yok — bayrak verilmezse eski davranışa düşüyor.
