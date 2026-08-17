@@ -106,17 +106,31 @@ bu dille geçiyor.
 
 ---
 
-## 11.4 — Fotoğraf yuvaları: maske ve alan    [ ]
+## 11.4 — Fotoğraf yuvaları: maske ve alan    [x] 2026-08-17
 
 📖 §7.1 · D-261
 🔗 11.2
 🛠 Fotoğraf kalırsa **işlenmiş** kalır. İki yuva: `maske` (daire ya da eğri şekliyle
    `clip-path`) ve `alan` (yarım kareyi uçtan uca dolduran). Referans örnek 5'in dili.
    Dikdörtgen serbest fotoğraf ARTIK YOK.
-📁 `packages/render/src/static.ts` · `packages/kernel/src/doc/model.ts`
-✅ Yuva belge modelinde ROL olarak durur (`gorselYuvasi: 'maske' | 'alan'`), çizim
-   `sablon.ts`te (D-254). Fotoğraf hiçbir yuvada serbest dikdörtgen olamaz.
-🧪 Yuvasız bir görsel bloğu → kapı reddediyor.
+📁 `packages/kernel/src/doc/model.ts` · `packages/render/src/static.ts` ·
+   `packages/contracts/src/tasarim-plani.ts` · `packages/engine/src/plan/tasarla.ts`
+✅ Yuva belge modelinde ROL olarak duruyor (`yuva: 'alan' | 'maske'`), çizim render'da.
+   **Yuvasız görsel `validateDocument` tarafından REDDEDİLİYOR** — serbest dikdörtgen
+   fotoğraf artık temsil EDİLEMİYOR. Ürün ekran çekimi hariç: o bir kanıttır.
+   ⚠ **Biçim bir POLİTİKA** (D-264 deseni): görselin ne olduğuna bakıp seçilemez, çünkü
+   görsel plandan SONRA üretiliyor. Hat/aile söylüyor, plan gerekçesini yazıyor.
+   ⚠ ⚠ **DİYAGRAM İLE FOTOĞRAF AYRI SLAYTLARA AYRILDI — bağımsız doğrulama bulgusu.**
+   İkisi aynı indeks için (`ortaIndex`) yarışıyordu ve `icerikPromptu` her konuda AKIŞ
+   istediği için diyagram neredeyse her zaman kazanıyordu: `gorsel_yuvasi: true` fiilen
+   **ölü bir kısıttı** ve altı gerçek koşuda `yuva-doldur` bir kez bile yuva doldurmadı.
+   *"Aynı slaytta iki görsel öge olmaz"* kuralı SLAYT başınadır, karosel başına değil.
+   Yuva artık `gerilim` slaydında (kancadan hemen sonra — referans örnek 2'nin dili).
+   ⚠ **`maske` çapı PİKSEL, yüzde değil.** İki deneme `aspect-ratio` ve `flex: none` ile
+   denendi, ikisinde de daire kenarından DÜZ KESİLDİ: kutu kare olmuyordu ve
+   `clip-path: circle(50%)` kare olmayan kutuda yarıçapı KÖŞEGENDEN hesaplıyor. Çap
+   güvenli sütunun içerik genişliğinden türetiliyor — yeni sayı değil.
+🧪 Yuvasız görsel bloğu → `validateDocument` `image_without_slot`; testler kırmızı.
 💾 `feat(render): fotograf yuvalari maske ve alan` · `Refs: FAZ-11.4 · §7.1`
 
 ---

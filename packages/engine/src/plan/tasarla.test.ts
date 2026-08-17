@@ -52,13 +52,28 @@ describe('tasarım planı', () => {
     }
   })
 
-  it('AKIŞ varsa diyagram, yoksa görsel yuvası — İKİSİ BİRDEN değil', () => {
+  it('diyagram ve yuva AYRI slaytlarda — ikisi birden olabilir', () => {
+    // ⚠ Eskiden ikisi AYNI indeks için yarışıyordu ve `icerikPromptu` her konuda AKIŞ
+    // istediği için diyagram hep kazanıyordu: `gorsel_yuvasi` fiilen ÖLÜ bir kısıttı ve
+    // altı gerçek koşuda `yuva-doldur` bir kez bile yuva doldurmadı. Bağımsız doğrulama
+    // yakaladı. "Aynı slaytta iki görsel öge olmaz" kuralı SLAYT başınadır.
     const ikisi = tasarla(g({ akisVar: true, yuvaIstendi: true }))
     const ogeler = ikisi.slaytlar.map((s) => s.oge.deger)
     expect(ogeler.filter((o) => o === 'diyagram')).toHaveLength(1)
-    expect(ogeler.filter((o) => o === 'gorsel-yuvasi')).toHaveLength(0)
-    const yalnizGorsel = tasarla(g({ yuvaIstendi: true }))
-    expect(yalnizGorsel.slaytlar.map((s) => s.oge.deger)).toContain('gorsel-yuvasi')
+    expect(ogeler.filter((o) => o === 'gorsel-yuvasi')).toHaveLength(1)
+    // Aynı slaytta değiller.
+    expect(ogeler.indexOf('diyagram')).not.toBe(ogeler.indexOf('gorsel-yuvasi'))
+  })
+
+  it('yuva İSTENMEZSE açılmıyor', () => {
+    const o = tasarla(g({ akisVar: true })).slaytlar.map((s) => s.oge.deger)
+    expect(o).not.toContain('gorsel-yuvasi')
+  })
+
+  it('kısa karoselde iki görsel ögeye yer YOK', () => {
+    const p = tasarla(g({ satirlar: ['a', 'b', 'c', 'd'], akisVar: true, yuvaIstendi: true }))
+    const o = p.slaytlar.map((s) => s.oge.deger)
+    expect(o.filter((x) => x === 'gorsel-yuvasi')).toHaveLength(0)
   })
 
   it('görsel öge GÖVDENİN ORTASINDA — sonda değil', () => {

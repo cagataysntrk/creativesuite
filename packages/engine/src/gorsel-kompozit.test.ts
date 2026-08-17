@@ -176,7 +176,9 @@ describe('plan kompozitten brief`e ULAŞIYOR', () => {
     if (!r.ok) return
     const brief = briefKur(r.value.data, SATIRLAR)
     // Görselin desteklemesi gereken şey KONU değil, yanında duracağı O CÜMLE.
-    expect(brief).toContain('Kanıt satırı burada')
+    // ⚠ Yuva artık `gerilim` slaydında (indeks 1): diyagram ile aynı indeks için
+    // yarışmasın diye ayrıldı — yoksa akış her konuda bulunduğu için yuva hiç açılmıyordu.
+    expect(brief).toContain('Gerilim satırı')
     expect(brief).toContain('SLOT (where this image will be placed')
   })
 

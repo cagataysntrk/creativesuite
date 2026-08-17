@@ -83,12 +83,16 @@ const blokHtml = (b: Block, ikonRengi: string | null): string => {
       const g = chartHtml(b)
       return isChartError(g) ? '' : g.html
     }
-    case 'image':
-      // `alt` her zaman yazılır; dekoratif görselde BOŞ alt + `aria-hidden` doğru
-      // biçimdir (ekran okuyucu atlar), alt'ı hiç yazmamak değil.
+    case 'image': {
+      // biçimdir (ekran okuyucu atlar), alt'ı hiç yazmamak değil. // `alt` her zaman yazılır; dekoratif görselde BOŞ alt + `aria-hidden` doğru
+      // Yuva sınıfı ZORUNLU alandan geliyor: `validateDocument` yuvasız görseli
+      // reddediyor, yani buraya yuvasız bir blok ulaşamaz. `alan` yalnız ürün ekran
+      // çekimi için varsayılan — o bir kanıttır ve yuvaya tabi değildir.
+      const yuva = `yuva-${b.yuva ?? 'alan'}`
       return b.decorative
-        ? `<img src="${kacir(b.src)}" alt="" aria-hidden="true">`
-        : `<img src="${kacir(b.src)}" alt="${kacir(b.alt)}">`
+        ? `<img class="${yuva}" src="${kacir(b.src)}" alt="" aria-hidden="true">`
+        : `<img class="${yuva}" src="${kacir(b.src)}" alt="${kacir(b.alt)}">`
+    }
     case 'spacer':
       return `<div class="spacer ${b.size}"></div>`
   }
@@ -182,6 +186,8 @@ const sablonCss = (doc: DocumentModel): string => {
   const pay = VARSAYILAN.kenarPayi
   /** Sayacın kapladığı üst bant (26 px punto + nefes). Üste yaslı içerik bunu aşar. */
   const SAYAC_BANDI = VARSAYILAN.sayacBandi
+  /** Maske dairesinin çapı — güvenli sütunun içerik genişliğinin %62'si (FAZ-11.4). */
+  const capPx = Math.round(((guvenliMetinYuzdesi / 100) * doc.width - pay) * 0.62)
   return [
     // Zemin ve metin rolleri KİMLİKTEN geliyor; `body`nin varsayılanını eziyor.
     `  body { background: ${r.zemin}; color: ${r.metin};`,
@@ -324,9 +330,38 @@ const sablonCss = (doc: DocumentModel): string => {
     // başına bir slayta düşüyor — altında büyük bir boşluk kalıyordu: alan değil, hâlâ
     // kutu. `object-fit: cover` oranı bozmadan kırpıyor; `min-height: 0` flex öğesinin
     // içeriğinden küçülebilmesi için şart (varsayılan `auto` taşmayı engelliyor).
-    `  .icerik img { width: calc(100% + ${pay}px); border-radius: 0; display: block;`,
+    // ── YUVA: alan (FAZ-11.4) — bugünkü davranışın adı konmuş hâli ─────────
+    `  .icerik img.yuva-alan { width: calc(100% + ${pay}px); border-radius: 0; display: block;`,
     `                margin-${sagda ? 'left' : 'right'}: -${pay}px;`,
     `                flex: 1 1 auto; min-height: 0; object-fit: cover; }`,
+    // ── YUVA: maske — daire kırpma, referans örnek 2'nin dili ──────────────
+    //
+    // ⚠ **`aspect-ratio: 1` ŞART.** `clip-path: circle(50%)` dikdörtgen bir kutuda
+    // ELİPS değil, kutunun kısa kenarına göre daire çizer ve fotoğrafın kenarlarını
+    // keser — ama kutu kare değilse daire kutunun ortasında durmaz, `object-fit`
+    // olmadan da özne kaymış görünür. Üçü birlikte: kare kutu, cover, merkez daire.
+    // ⚠ Genişlik %78: sütunun tamamını kaplayan bir daire, çevresinde nefes bırakmıyor
+    // ve maske olmaktan çıkıp yine bir alan oluyor.
+    // ⚠ **`flex: none` + `height: auto` ŞART, `aspect-ratio` tek başına YETMİYOR.**
+    // İlk sürüm `flex: 0 0 auto` ile bırakıyordu ve daire SOL KENARINDAN DÜZ KESİLMİŞ
+    // çıktı: flex öğesi görüntünün intrinsic boyutunu (1080×1350) taban alıyor,
+    // `aspect-ratio` devreye girmiyor ve kutu kare olmuyordu. `clip-path: circle(50%)`
+    // kare olmayan bir kutuda yarıçapı köşegenden hesaplar; yarıçap yarım genişliği
+    // aşınca daire kutunun kenarlarında kesiliyor. Bakmadan görülmezdi.
+    // ⚠ **ÇAP PİKSEL, yüzde DEĞİL — iki deneme sonra öncül sorgulandı.** Önce
+    // `aspect-ratio: 1`, sonra `flex: none; height: auto` denendi; ikisinde de daire
+    // kenarından DÜZ KESİLDİ. Sebep: kutu kare olmuyordu ve `clip-path: circle(50%)`
+    // kare olmayan bir kutuda yarıçapı KÖŞEGENDEN hesaplıyor — yarıçap yarım genişliği
+    // aşınca daire kutunun kenarlarında kesiliyor. Yüzde tabanlı bir kare, flex
+    // bağlamında güvenilir değil; çap doğrudan hesaplanıyor.
+    //
+    // Çap mevcut ölçülerden TÜRETİLİYOR, yeni bir sayı değil: güvenli sütunun içerik
+    // genişliği (`guvenliMetinYuzdesi` × tuval − kenar payı), onun %62'si. Çevresinde
+    // nefes kalıyor — sütunu tamamen kaplayan bir daire maske olmaktan çıkıp alan olur.
+    `  .icerik img.yuva-maske { width: ${capPx}px; height: ${capPx}px;`,
+    `                flex: none; align-self: center; margin: 24px auto;`,
+    `                object-fit: cover; clip-path: circle(50%);`,
+    `                border-radius: 0; display: block; }`,
   ].join('\n')
 }
 

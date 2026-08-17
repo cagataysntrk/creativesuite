@@ -36,6 +36,8 @@ export interface TasarlaGirdisi {
    * olmaktan çıktı (D-261); yuva açılacaksa bunu hat ya da kompozisyon ailesi söyler.
    */
   readonly yuvaIstendi: boolean
+  /** Yuvanın biçimi — hat/aile söylüyor. Varsayılan `alan`. */
+  readonly yuvaBicimi?: 'alan' | 'maske'
 }
 
 /** Bugünkü tek aile — amber/mürekkep, akan eğri, dev hayalet rakam. */
@@ -52,6 +54,7 @@ const ogeSecimi = (
   islev: Islev,
   index: number,
   ortaIndex: number,
+  fotoIndex: number | null,
   g: TasarlaGirdisi
 ): { deger: OgePolitikasi; gerekce: string } => {
   if (islev === 'kanca')
@@ -69,10 +72,18 @@ const ogeSecimi = (
       deger: 'diyagram',
       gerekce: 'İçerikte adımlı bir akış geçiyor; diyagram fotoğrafın yerine geçiyor.',
     }
-  if (index === ortaIndex && g.yuvaIstendi)
+  // ⚠ **AYRI SLAYT — bağımsız doğrulama bulgusu.** Diyagram ve fotoğraf yuvası AYNI
+  // indeks için yarışıyordu (`ortaIndex`), ve `icerikPromptu` her konuda AKIŞ istediği
+  // için diyagram neredeyse her zaman kazanıyordu: `gorsel_yuvasi: true` fiilen ÖLÜ bir
+  // kısıttı ve `yuva-doldur` altı gerçek koşuda bir kez bile yuva doldurmadı. Yani
+  // 14.3/11.4'ün asıl yolu üretimde HİÇ koşmamıştı — zincir kopukluğunun altıncı biçimi.
+  //
+  // İkisi farklı slaytlara düşünce çakışma da yok: *"aynı slaytta iki görsel öge"*
+  // kuralı slayt başınadır, karosel başına değil.
+  if (index === fotoIndex && g.yuvaIstendi)
     return {
       deger: 'gorsel-yuvasi',
-      gerekce: 'Akış yok ve hat fotoğraf yuvası istiyor; gövdenin ortasında yuva açılıyor.',
+      gerekce: 'Hat fotoğraf yuvası istiyor; diyagramdan AYRI bir gövde slaydında açılıyor.',
     }
   return {
     deger: 'ikon',
@@ -90,11 +101,15 @@ export const tasarla = (g: TasarlaGirdisi): TasarimPlani => {
   const toplam = g.satirlar.length
   const y = yay(toplam)
   const ortaIndex = Math.max(1, Math.ceil(toplam / 2) - 1)
+  // Fotoğraf yuvası diyagramdan AYRI bir gövde slaydında: `gerilim` (indeks 1) —
+  // kancadan hemen sonra, referans örnek 2'nin dili. Orta ile çakışırsa yuva açılmaz:
+  // dört slaytlık bir karoselde iki görsel ögeye yer yok.
+  const fotoIndex = toplam >= 5 && ortaIndex !== 1 ? 1 : null
 
   const slaytlar: readonly SlaytPolitikasi[] = y.map((islev, index) => ({
     index,
     islev,
-    oge: ogeSecimi(islev, index, ortaIndex, g),
+    oge: ogeSecimi(islev, index, ortaIndex, fotoIndex, g),
   }))
 
   return {
@@ -109,6 +124,13 @@ export const tasarla = (g: TasarlaGirdisi): TasarimPlani => {
       deger: 0.25,
       gerekce:
         'Açık kâğıt alanda ince kontur okunur; yoğun tarama koyu bir ailede doğru olurdu (D-262).',
+    },
+    yuvaBicimi: {
+      deger: g.yuvaBicimi ?? 'alan',
+      gerekce:
+        (g.yuvaBicimi ?? 'alan') === 'alan'
+          ? 'Uçtan uca alan: fotoğraf kutu değil zemin olur, kompozisyon çerçeveyi kullanır.'
+          : 'Daire maske: özne arka planından ayrılmış olmalı, yoksa daire rastgele kırpar.',
     },
     panorama: {
       deger: false,

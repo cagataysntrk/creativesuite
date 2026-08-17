@@ -35,6 +35,18 @@ export interface ImageBlock {
    * Verilmezse görüntü hiçbir şey iddia etmez ve serbesttir.
    */
   readonly role?: 'product_screenshot'
+  /**
+   * Fotoğrafın YUVASI — dikdörtgen serbest fotoğraf ARTIK YOK (FAZ-11.4 · D-261).
+   *
+   * `alan`  — metin sütununu uçtan uca doldurur, dış çerçeve kenarına taşar. Bir KUTU
+   *           değil bir ALAN: kompozisyon çerçeveyi kendine güvenerek kullanır.
+   * `maske` — daire kırpma. Referans örnek 2'nin dili: özne beyaz bir dairenin üstünde
+   *           durur. Kesik özne (11.5) geldiğinde asıl yerini bulur.
+   *
+   * ⚠ `product_screenshot` yuvasız kalabilir: o bir tasarım ögesi değil, bir KANITTIR
+   * ve kırpılması iddiayı bozar.
+   */
+  readonly yuva?: 'alan' | 'maske'
 }
 
 /**
@@ -178,6 +190,7 @@ export type DocError =
   | { readonly kind: 'missing_alt'; readonly index: number }
   | { readonly kind: 'invalid_size'; readonly width: number; readonly height: number }
   | { readonly kind: 'empty_text'; readonly index: number }
+  | { readonly kind: 'image_without_slot'; readonly index: number }
   /** Noktasız ya da sonlu olmayan değerli grafik. Boş kutu, verinin yokluğunu DEĞİL
    *  render'ın bozulduğunu düşündürür — sessizce basılmaz. */
   | { readonly kind: 'invalid_chart'; readonly index: number }
@@ -199,6 +212,14 @@ export const validateDocument = (doc: DocumentModel): DocResult => {
     errors.push({ kind: 'invalid_size', width: doc.width, height: doc.height })
   }
   doc.blocks.forEach((b, i) => {
+    // ⚠ **YUVASIZ FOTOĞRAF REDDEDİLİYOR** (FAZ-11.4). FAZ-10.7'de dört kez yamadığım
+    // kusur sınıfının kökü, fotoğrafın serbest bir dikdörtgen olarak konabilmesiydi:
+    // her yanında eşit boşlukla duran bir kutu, kompozisyonun parçası değil üstüne
+    // yapıştırılmış bir nesne. Yuva zorunlu olunca o hâl temsil EDİLEMEZ hâle geliyor.
+    // Ürün ekran çekimi hariç: o bir kanıttır, kırpılması iddiayı bozar.
+    if (b.type === 'image' && b.role !== 'product_screenshot' && b.yuva === undefined) {
+      errors.push({ kind: 'image_without_slot', index: i })
+    }
     if (b.type === 'image' && !b.decorative && b.alt.trim() === '') {
       errors.push({ kind: 'missing_alt', index: i })
     }

@@ -58,6 +58,13 @@ export interface TasarimPlani {
   readonly suslemeYogunlugu: Secim<number>
   /** Panoramik süreklilik açık mı (FAZ-12.4). */
   readonly panorama: Secim<boolean>
+  /**
+   * Fotoğraf yuvasının BİÇİMİ (FAZ-11.4) — `alan` uçtan uca, `maske` daire kırpma.
+   *
+   * ⚠ Biçim de yuvanın kendisi gibi bir POLİTİKA (D-264): görselin ne olduğuna bakıp
+   * karar verilemez, çünkü görsel plandan SONRA üretiliyor.
+   */
+  readonly yuvaBicimi: Secim<'alan' | 'maske'>
   readonly slaytlar: readonly SlaytPolitikasi[]
 }
 
@@ -83,6 +90,7 @@ export const planKusurlari = (p: TasarimPlani): readonly PlanKusuru[] => {
   if (bos(p.aile.gerekce)) k.push({ alan: 'aile', sebep: 'gerekce-bos' })
   if (bos(p.suslemeYogunlugu.gerekce)) k.push({ alan: 'suslemeYogunlugu', sebep: 'gerekce-bos' })
   if (bos(p.panorama.gerekce)) k.push({ alan: 'panorama', sebep: 'gerekce-bos' })
+  if (bos(p.yuvaBicimi.gerekce)) k.push({ alan: 'yuvaBicimi', sebep: 'gerekce-bos' })
   if (p.yay.length !== p.slaytlar.length) k.push({ alan: 'yay', sebep: 'yay-uyusmuyor' })
   p.slaytlar.forEach((s, i) => {
     if (bos(s.oge.gerekce)) k.push({ alan: `slaytlar[${i}].oge`, sebep: 'gerekce-bos' })

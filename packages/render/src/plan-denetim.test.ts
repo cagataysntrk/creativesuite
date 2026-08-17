@@ -12,6 +12,7 @@ const plan = (ogeler: readonly string[]): TasarimPlani => ({
   yay: ['kanca', 'gerilim', 'kanit', 'donus', 'davet'],
   suslemeYogunlugu: { deger: 0.25, gerekce: 'g' },
   panorama: { deger: false, gerekce: 'g' },
+  yuvaBicimi: { deger: 'alan', gerekce: 'g' },
   slaytlar: ogeler.map((o, i) => ({
     index: i,
     islev: (['kanca', 'gerilim', 'kanit', 'donus', 'davet'] as const)[i]!,
