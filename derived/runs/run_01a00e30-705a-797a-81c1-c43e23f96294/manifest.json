@@ -1,0 +1,491 @@
+{
+  "runId": "run_01a00e30-705a-797a-81c1-c43e23f96294",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "a2eaa70784ede141721c6f3db70acd88e504e7a1",
+  "registryCommit": "a2eaa70784ede141721c6f3db70acd88e504e7a1",
+  "createdAt": "2026-08-17T05:32:46.254Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T05:27:30.671Z",
+      "finishedAt": "2026-08-17T05:27:30.671Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T05:27:30.671Z",
+      "finishedAt": "2026-08-17T05:27:30.673Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T05:27:30.673Z",
+      "finishedAt": "2026-08-17T05:28:03.564Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur",
+        "gorsel_brief": true,
+        "max_chars": 600
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T05:28:03.564Z",
+      "finishedAt": "2026-08-17T05:28:15.512Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur",
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T05:28:15.512Z",
+      "finishedAt": "2026-08-17T05:28:24.086Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T05:28:24.086Z",
+      "finishedAt": "2026-08-17T05:28:24.087Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-amber-200: oklch(0.92 0.070 90);\n  --ramp-marka-amber-500: oklch(0.80 0.156 87);\n  --ramp-marka-amber-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.27 0.008 250);\n  --ramp-marka-ink-950: oklch(0.15 0.006 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-amber-600);\n  --role-bg: var(--ramp-marka-amber-500);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:e81e2f2b5746dcd713793eacc49f2734a525a46b977b66d5a2c9002d65c7af72 414369B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a00e30-705a-797a-81c1-c43e23f96294",
+            "sourceRunId": "run_01a00e30-705a-797a-81c1-c43e23f96294"
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Vardiya devri hafızada değil, kayıtta olmalı",
+              "level": 1
+            },
+            {
+              "type": "body",
+              "text": "Vardiya devri çoğu fabrikada sözlü yapılır; giden amir gelene anlatır, gelen hatırladığı kadarını uygular. Aradaki fark kimsenin göremediği yerde kalır."
+            },
+            {
+              "type": "body",
+              "text": "Devri kurmanın ilk adımı yazılım değil, sabit bir soru listesi. Hangi makine durdu, ne kadar sürdü, ne yapıldı, sıradaki vardiya neye dikkat etmeli."
+            },
+            {
+              "type": "diagram",
+              "title": "Vardiya devrini kurmanın adımları",
+              "nodes": [
+                {
+                  "label": "Soruları sabitle",
+                  "detail": "Her vardiya aynı soruları cevaplar"
+                },
+                {
+                  "label": "Devri yaz",
+                  "detail": "Sözlü anlatım yerine kayıt kalır"
+                },
+                {
+                  "label": "Sabah oku",
+                  "detail": "Gece kaydı raporun girdisi olur"
+                },
+                {
+                  "label": "Tekrarı ara",
+                  "detail": "Aynı arıza geçmişte görünür hale gelir"
+                }
+              ]
+            },
+            {
+              "type": "body",
+              "text": "Aynı sorular her vardiyada aynı sırayla sorulursa cevaplar karşılaştırılabilir hale gelir. Karşılaştırılamayan kayıt, kayıt değildir; sadece nottur."
+            },
+            {
+              "type": "body",
+              "text": "Excel ile başlanabilir; sorun Excel'in kötü olması değil, kimsenin geçmişe dönüp bakmaması. Devir kaydı okunmuyorsa süreç kurulmuş sayılmaz."
+            },
+            {
+              "type": "body",
+              "text": "Veriniz yoksa önce veriyi kuruyoruz; vardiya devri başlamak için iyi bir yer."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T05:28:24.087Z",
+      "finishedAt": "2026-08-17T05:28:24.932Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00e30-705a-797a-81c1-c43e23f96294/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00e30-705a-797a-81c1-c43e23f96294/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00e30-705a-797a-81c1-c43e23f96294/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00e30-705a-797a-81c1-c43e23f96294/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00e30-705a-797a-81c1-c43e23f96294/slayt-05.png"
+        ],
+        "count": 5,
+        "rung": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "bytes": [
+          47284,
+          105111,
+          101987,
+          67880,
+          55099
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T05:28:24.933Z",
+      "finishedAt": "2026-08-17T05:32:45.152Z",
+      "output": null
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri sureci nasil kurulur"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T05:32:45.152Z",
+      "finishedAt": "2026-08-17T05:32:46.254Z",
+      "output": {
+        "qa": "  yerleşim instagram-feed-4x5 · 1080×1350 · tolerans ±%1 · sınır 8MB (doğrulandı 2026-08-15)\n  slayt 1 boyut: ✓ 46KB / 8192KB · png\n  slayt 2 boyut: ✓ 103KB / 8192KB · png\n  slayt 3 boyut: ✓ 100KB / 8192KB · png\n  slayt 4 boyut: ✓ 66KB / 8192KB · png\n  slayt 5 boyut: ✓ 54KB / 8192KB · png\n  tasarım metrikleri:\n  slayt 1 kelime bütçesi (kapak)   75,0% │───────────●─┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 1 metin kontrastı   10,5:1 │───────╎──┊────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 1 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 2 kelime bütçesi (govde)   77,0% │────────────●┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 2 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 2 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 3 kelime bütçesi (govde)   57,0% │─────────●───┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 3 metin kontrastı   10,5:1 │───────╎──┊────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 3 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 4 kelime bütçesi (govde)   60,0% │─────────●───┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 4 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 4 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 5 kelime bütçesi (kapanis)   40,0% │──────●──────┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 5 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 5 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  komşu slaytta aynı zemin    0,0 çift │●───────────────────│ limit 0,0 çift  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 1:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,7% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,4% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 2:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,9% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,4% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 3:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,7% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,4% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 4:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,3% │●─────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,4% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 5:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,3% │●─────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,4% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}
