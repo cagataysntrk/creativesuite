@@ -13,7 +13,7 @@ görüldü; oranla ölçseydik o kusurlar "kabul edilebilir gürültü" sayılı
 
 ---
 
-## Sayaç: 1/20 — ÇAKIŞMA nedeniyle SIFIRLANDI
+## Sayaç: 1/20 — render değiştiği için YENİDEN başladı
 
 | # | Konu | Slayt | Metrikler | Görsel inceleme | Sonuç |
 |---|---|---|---|---|---|
@@ -23,7 +23,8 @@ görüldü; oranla ölçseydik o kusurlar "kabul edilebilir gürültü" sayılı
 | 4 | kalite sapması kimin sorumluluğunda | 5 | kapak 5 · gövde 22/19/18 · kapanış 6 | gövde 4 (görselli): fotoğraf metinsiz/insansız ✓, ama **her yanında eşit boşlukla duran bir kutu** | ✓ |
 | 5 | makine duruşları nasıl sınıflandırılır | 4 | bütçe %63 / %77 / %67 / %63 / %30 | kapak: başlık 5 kelime, destek paragrafı, kompozisyon temiz | ✓ |
 | — | *(sayaç burada sıfırlandı — aşağıya bak)* | | | | ✗ |
-| 1 | kompresör kaçakları nasıl bulunur | 5 | bütçe %75 / %67 / %63 / %53 / %23 | gövde 3 (görselli): görsel çerçeve kenarına taşıyor, çakışma YOK, tek gövde bloğu | ✓ |
+| — | kompresör kaçakları · sevkiyat gecikmesi | | | *render değişti, sayılmadı — aşağıya bak* | — |
+| 1 | paletleme hataları nasıl azalır | 6 | bütçe hepsi limit altı · kaplama %16,2 · palet dışı %0,3–2,1 | gövde 4 (görselli): görsel dikey alanı DOLDURUYOR, çerçeve kenarına taşıyor, çakışma yok | ✓ |
 
 ## Sıfırlanan koşular
 
@@ -51,6 +52,20 @@ geçti.
 idi — yalnız yanlış DÜŞÜŞ üretebilirdi, yanlış GEÇİŞ değil. Dolayısıyla 1–4 arası
 koşuların geçişi yeni metrikte de geçerli. Bu muhakeme burada yazılı olmasaydı sayaç
 kendi lehime yorumlanmış olurdu.
+
+## ⚠ Sayaç ikinci kez sıfırlandı — render değişti
+
+Sevkiyat koşusunda görsel TEK BAŞINA bir slayta düştü (180 karakterlik yeni bütçe
+yüzünden) ve **altında büyük bir boşluk bıraktı**: alan değil, hâlâ kutu. Bu, aynı turda
+verdiğim bütçe değişikliğinin yarattığı bir GERİLEMEYDİ — üç tekrar beklemek gerekmez,
+kendi eksik düzeltmemdi. `flex: 1 + object-fit: cover` ile görsel kalan dikey alanı
+dolduruyor.
+
+**Sayaç 1'e çekildi, korunmadı.** Gerekçe: render davranışı değişti, önceki koşuların
+çıktısı artık güncel kodu temsil etmiyor. Bir öncekinde (kelime bütçesi düzeltmesi)
+sayacı korumuştum çünkü değişiklik yalnız ÖLÇÜMÜ etkiliyordu ve daha sıkı yöndeydi;
+burada değişen ÇIKTININ KENDİSİ. Ayrım korunmazsa sayaç her düzeltmede kendi lehime
+yorumlanır.
 
 ## İzlenen zayıflıklar — kusur değil, örüntü adayı
 

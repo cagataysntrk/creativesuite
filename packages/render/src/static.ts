@@ -258,8 +258,14 @@ const sablonCss = (doc: DocumentModel): string => {
     // Düzeltme: görsel DIŞ kenara taşıyor (metin sütunu hangi taraftaysa onun dış
     // kenarına). Böylece çerçeveye bağlanıyor ve bir ALAN oluyor — eğri nasıl bir alan
     // sınırıysa, görsel de öyle. İç kenarda padding korunuyor: metin hizası bozulmuyor.
-    `  .icerik img { width: calc(100% + ${pay}px); border-radius: 0;`,
-    `                margin-${sagda ? 'left' : 'right'}: -${pay}px; display: block; }`,
+    // ⚠ **Görsel kalan dikey alanı DOLDURUYOR** (`flex: 1`). Sabit oranda bırakıldığında
+    // — ki 180 karakterlik sayfalama bütçesi verildikten sonra görsel çoğu zaman tek
+    // başına bir slayta düşüyor — altında büyük bir boşluk kalıyordu: alan değil, hâlâ
+    // kutu. `object-fit: cover` oranı bozmadan kırpıyor; `min-height: 0` flex öğesinin
+    // içeriğinden küçülebilmesi için şart (varsayılan `auto` taşmayı engelliyor).
+    `  .icerik img { width: calc(100% + ${pay}px); border-radius: 0; display: block;`,
+    `                margin-${sagda ? 'left' : 'right'}: -${pay}px;`,
+    `                flex: 1 1 auto; min-height: 0; object-fit: cover; }`,
   ].join('\n')
 }
 
