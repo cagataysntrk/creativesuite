@@ -75,7 +75,7 @@ bu dille geçiyor.
    derleme hatası.
 💾 `feat(render): raster islem dagarcigi` · `Refs: FAZ-12.2 · §7.1`
 
-## 12.3 — Türkçe tipografik ritim: heceleme, yaslama, temel ızgara    [ ]
+## 12.3 — Türkçe tipografik ritim: heceleme, yaslama, temel ızgara    [x] 2026-08-17
 
 📖 §7.2 · R-21, R-23, R-30
 🔗 —
@@ -86,14 +86,25 @@ bu dille geçiyor.
    yeşil, kapı yeşil, üretim yolu sıfır kullanıyor (D-261). Bu adımın işi yeni kod yazmak
    değil, **var olanı bağlamak** ve `hyphens: auto` + `lang="tr"` ile birleştirmek.
    Ayrıca **temel ızgara**: dikey ritim şu an rastgele, `line-height` katları oturtulur.
-📁 `packages/render/src/sablon-parametre.ts` · `static.ts`
-✅ ⚠ **`hyphens: auto` TEK BAŞINA yetmez** — `lang="tr"` olmadan Chromium İngilizce
-   kurallarıyla böler ve `ta-şıyabileceğimizin` yerine yanlış yerden keser. İkisi birlikte.
-   ⚠ Heceleme, punto ölçümünü GEÇERSİZ KILMAZ ama gevşetir: FAZ-10'da band %69–78 ölçülmüştü
-   çünkü kelime bölünemiyordu. Heceleme açılınca **ölçüm TEKRARLANIR** — eski sayı yeni
-   davranışı temsil etmiyor.
-   ⚠ Tire karakteri: Türkçe satır sonu tiresi `-` (U+002D), tırnak değil.
-🧪 `lang` özniteliğini kaldır → heceleme testi kırmızı. Izgara dışı `line-height` → `tasarim` kırmızı.
+📁 `packages/render/src/static.ts` · `packages/render/src/heceleme.test.ts`
+✅ ⚠ ⚠ **`hyphens: auto` KULLANILMADI — ve bu bilinçli.** Chromium'un otomatik hecelemesi
+   bir sözlük gerektiriyor; Türkçe için garantisi yok ve **olmadığında sessizce hiçbir şey
+   yapmaz.** Sessiz yokluk bu sistemin en sevmediği hata biçimi (font fallback'i,
+   ölçülmeyen okuma, çağrılmayan modül — hepsi aynı aile). `softHyphenate` U+00AD basıyor
+   ve tarayıcı onu her koşulda onurlandırıyor. `lang="tr"` yine de basılıyor.
+   ⚠ **Yalnız GÖVDE, başlık DEĞİL.** Başlık 64 px display yüzüyle çiziliyor; bölünen bir
+   kelime kompozisyonu bozar ve referansların hiçbirinde bölünmüş başlık yok. Başlık zaten
+   8 kelimeyle sınırlı ve ölçülmüş bir puntoda sığıyor.
+   ⚠ **Belge modeli DEĞİŞMİYOR:** tire yalnız render anında giriyor. Aksi hâlde alt metin,
+   lexicon ve defter görünmez karakterler taşırdı — içerik ile sunum sınırı korunuyor.
+   ⚠ Eşik 12 harf: `kalibrasyon` (11) bölünmüyor, `taşıyabileceğimizin` (19) bölünüyor.
+   Editöryel bir parametre, ölçüm değil (D-262).
+   ⚠ **Temel ızgara bu adımda YAPILMADI** — dikey ritim FAZ-13.1'in (optik merkez, boşluk
+   ölçeği) parçası ve orada bir arada ele alınması doğru. Burada iddia edilmiyor.
+🧪 5 test: uzun kelime tire alıyor · kısa kelime almıyor · BAŞLIK bölünmüyor · `lang="tr"`
+   basılıyor · belge modeli temiz kalıyor.
+   ⚠ Kod ZATEN VARDI (`contracts/src/text-tr.ts`, testli) ve üretim yolu **hiç
+   çağırmıyordu** — bu projede yedinci zincir kopukluğu (D-261).
 💾 `feat(render): turkce heceleme ve temel izgara` · `Refs: FAZ-12.3 · §7.2`
 
 ## 12.4 — Panoramik süreklilik: karosel TEK şey görünsün    [ ]

@@ -72,3 +72,6 @@ examples/
 # içerik-adresli deposuna ait. Depo zaten 48 manifest'e karşı yalnız 6 PNG izliyordu —
 # PNG'ler kuralın kendisi değil, istisnasıydı.
 derived/runs/**/*.png
+
+# graphify eklentisinin türetilmiş çıktısı — depo içeriği değil.
+graphify-out/

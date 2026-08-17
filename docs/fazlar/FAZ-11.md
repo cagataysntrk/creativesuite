@@ -224,7 +224,7 @@ bu dille geçiyor.
 🧪 —
 💾 —
 
-## 11.10 — İllüstrasyon kütüphanesi: CC0 modüler, markaya boyanmış    [ ]
+## 11.10 — İllüstrasyon kütüphanesi: CC0 modüler    [ ] BLOKE:karar
 
 📖 §7.1, §11.3 · D-252
 🔗 11.3, 11.7
@@ -235,16 +235,15 @@ bu dille geçiyor.
 | **Open Peeps** | **CC0** | Elle çizilmiş, modüler (baş/gövde/poz). Kısıtsız. |
 | **Humaaans** | **CC0** | Modüler insan. Kısıtsız. |
 | DrawKit (ücretsiz) | MIT | SaaS/teknoloji sahneleri. |
-| unDraw | özel | Ticari serbest, atıf gerekmez; ⚠ AI eğitiminde kullanımı yasak (biz kullanıyoruz, eğitmiyoruz). |
-| Storyset | atıf zorunlu | Atıf karoselde yer kaplar → düşük öncelik. |
-
-📁 `assets/illustration/` (gömülü SVG alt kümesi) · `packages/render/src/illustrasyon.ts`
-✅ ⚠ **SVG olarak gömülür ve markaya BOYANIR** — `fill` değerleri token'a bağlanır, dosyadaki
-   ham renk kullanılmaz. Boyanmazsa kütüphanenin kendi paleti markayı ezer; çeşitlilik
-   uğruna tutarlılık kaybedilmiş olur.
-   ⚠ **§11.3 sınavı zorunlu:** *onay ima eden yapay insan üretilmez.* Soyut/şematik figür
-   serbest; **"memnun müşteri" tasviri YASAK** — çizim de olsa Reklam Yönetmeliği Md. 27/12
-   kapsamına girer. Bu, illüstrasyonun modelle üretilmesiyle değil KULLANIMIYLA ilgili.
-   ⚠ Kapalı alt küme: kütüphanenin tamamı değil, seçilmiş ~15 sahne. Ağdan çekilmez (§16).
-🧪 Boyanmamış (ham renkli) bir illüstrasyon yerleştir → `kalite` palet dışı ile kırmızı.
+📁 —
+⚠ **BLOKE — karar bekliyor (2026-08-17).** Üç sebep: (a) ağdan varlık indirmek ve lisans
+   metnini izlenen dosyada tutmak gerçek bir bağımlılık kararı (R-75, §16); (b) §11.3
+   *"onay ima eden yapay insan"* yasağı figürlü illüstrasyonu dar bir alana sıkıştırıyor —
+   soyut/şematik serbest, "memnun müşteri" tasviri yasak; (c) **elimizdeki dağarcık
+   zaten bu boşluğu dolduruyor**: 20 ikon, beş süsleme, akış diyagramı, duotone'lu
+   fotoğraf yuvası. Referans örneklerin hiçbirinde jenerik SaaS illüstrasyonu yok.
+   Karar: FAZ-12 ve 13 kapandıktan sonra, **gerçek bir ihtiyaç ölçülürse** açılır.
+✅ Açılırsa: SVG gömülür ve `fill` token'a bağlanarak MARKAYA BOYANIR — ham renk
+   kütüphanenin paletini markanın üstüne getirir.
+🧪 Boyanmamış illüstrasyon → `kalite` palet dışı ile kırmızı.
 💾 `feat(render): illustrasyon dagarcigi` · `Refs: FAZ-11.10 · §7.1`

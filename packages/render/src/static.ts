@@ -11,6 +11,7 @@
 // gevşiyor. "Onayla" sığar ama gerçek etiket "Onayla ve depoya işle" olur.
 
 import { statSync } from 'node:fs'
+import { softHyphenate } from '@suite/contracts'
 import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
 import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
@@ -73,6 +74,31 @@ const ikonlarHepsiEslesiyorMu = (doc: DocumentModel): boolean => {
   )
 }
 
+/**
+ * Türkçe yumuşak tireleme — uzun kelimeler satır sonunda BÖLÜNEBİLSİN (FAZ-12.3).
+ *
+ * ⚠ **Kod ZATEN VARDI ve hiç çağrılmıyordu.** `softHyphenate`/`syllables`
+ * `packages/contracts/src/text-tr.ts` içinde yazılı ve testliydi; render katmanı onu
+ * hiç çağırmıyordu ve `static.ts`te ne `hyphens` ne `lang` vardı. Bu projede yedinci
+ * kez aynı sınıf: modül var, test yeşil, üretim yolu sıfır kullanıyor (D-261).
+ *
+ * ⚠ **`hyphens: auto` DEĞİL, yumuşak tire.** Chromium'un otomatik hecelemesi bir
+ * sözlük gerektiriyor ve Türkçe için garantisi yok; olmadığında sessizce hiçbir şey
+ * yapmaz — sessiz yokluk, bu sistemin en sevmediği hata biçimi. `softHyphenate` U+00AD
+ * basıyor ve tarayıcı onu her koşulda onurlandırıyor.
+ *
+ * ⚠ **Yalnız GÖVDE metni, başlık DEĞİL.** Başlık 64 px display yüzüyle çiziliyor;
+ * orada bölünen bir kelime kompozisyonu bozar. Referansların hiçbirinde bölünmüş başlık
+ * yok. Ayrıca başlık zaten 8 kelimeyle sınırlı (yay tavanı) ve ölçülerek seçilmiş bir
+ * puntoda sığıyor (`docs/referans/tip-olcegi.md`).
+ *
+ * ⚠ **Belge modeli DEĞİŞMİYOR.** Tire yalnız render anında giriyor; `doc.blocks[].text`
+ * temiz kalıyor. Aksi hâlde alt metin, lexicon ve defter görünmez karakterler taşırdı.
+ */
+const HECE_ESIGI = 12
+
+const hecele = (t: string): string => softHyphenate(t, HECE_ESIGI, 3)
+
 const blokHtml = (b: Block, ikonRengi: string | null): string => {
   switch (b.type) {
     case 'heading':
@@ -81,9 +107,10 @@ const blokHtml = (b: Block, ikonRengi: string | null): string => {
       const ad = ikonRengi === null ? null : ikonSec(b.text)
       // Eşleşme yoksa sınıf da yok: mevcut madde çizgisi çizilmeye devam eder. Zorla ikon
       // atamak, takvimden bahseden satırın yanına fabrika koymak demekti.
+      const metin = kacir(hecele(b.text))
       return ad === null
-        ? `<p>${kacir(b.text)}</p>`
-        : `<p class="ikonlu">${ikonSvg(ad, ikonRengi as string, IKON_PX)}${kacir(b.text)}</p>`
+        ? `<p>${metin}</p>`
+        : `<p class="ikonlu">${ikonSvg(ad, ikonRengi as string, IKON_PX)}${metin}</p>`
     }
     case 'diagram': {
       // Diyagram da VERİ olarak geliyor; çizim burada (D-209 ailesi).
@@ -128,7 +155,7 @@ export const toHtml = (doc: DocumentModel): string =>
     // yüzeyde sessizce varsayılana düşer (D-254).
     ...(doc.slayt === undefined
       ? []
-      : ['<html data-surface="kreatif"><body data-surface="kreatif">']),
+      : ['<html lang="tr" data-surface="kreatif"><body data-surface="kreatif">']),
     '<style>',
     // Font bloğu EN ÖNDE: `@font-face` tanımı kullanımından önce gelmeli.
     doc.fontCss ?? '',
