@@ -25,6 +25,7 @@
 
 import type { AssetStamp } from '@suite/kernel'
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
+import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { kacir } from './html.js'
 import { vurguyuIsaretle } from './sablon-tipo.js'
 
@@ -172,6 +173,15 @@ export interface PanoramaBelgesi {
   readonly bant: Bant
   /** Panoramaya serpilen görseller — kesimleri aşabilirler. */
   readonly gorseller: readonly PanoramaGorseli[]
+  /**
+   * Görsellere uygulanan işlem zinciri (FAZ-12.2 dağarcığı).
+   *
+   * ⚠ ⚠ **`matlama` OLMADAN kesik özne YOK.** Model şeffaflık üretmiyor; brief düz siyah
+   * zemin istiyor ve alfa o zeminin parlaklığından türetiliyor. Zincirde matlama yoksa
+   * ekrana siyah bir DİKDÖRTGEN yapışıyor ve tasarım bozuluyor — yani bu alan bir süs
+   * ayarı değil, `kesik` kırpmanın ön şartı.
+   */
+  readonly gorselIslemleri?: readonly GorselIslem[]
   /** Belgenin varsayılan zemini — kart kendi zeminini vermezse bu geçerli. */
   readonly zemin: string
   /** İki alanlı zemin — verilirse kartlar kendi zeminlerini BOYAMIYOR. */
@@ -441,9 +451,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           `<div class="gorsel-yer ${g.kirpma}" style="${stil}" aria-hidden="true">` +
           `<span>${kacir(g.alt)}</span></div>`
         )
+      const zincir = islemZinciri(doc.gorselIslemleri ?? [])
       return (
-        `<img class="gorsel ${g.kirpma}" style="${stil}" src="${kacir(g.src)}" ` +
-        `alt="${kacir(g.alt)}">`
+        `<img class="gorsel ${g.kirpma}" style="${stil}${zincir === '' ? '' : `;filter:${zincir}`}" ` +
+        `src="${kacir(g.src)}" alt="${kacir(g.alt)}">`
       )
     })
     .join('')
@@ -635,7 +646,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                font-weight: 700; padding: 20px; background: rgba(127,127,127,0.14) }`,
     `  .gorsel-yer.daire { border-radius: 50% }`,
     '</style>',
-    `<body data-surface="kreatif"><div id="sahne">`,
+    `<body data-surface="kreatif">`,
+    // ⚠ Yalnız KULLANILAN işlemin tanımı basılıyor: kullanılmayan bir `<filter>` ölü
+    // biçimlendirme (FAZ-12.2 ile aynı gerekçe).
+    (doc.gorselIslemleri ?? []).map((i) => islemTanimi(i)).join(''),
+    `<div id="sahne">`,
     alanKatmani,
     lekeKatmani,
     bantSvg(doc.bant, toplam, doc.yukseklik),

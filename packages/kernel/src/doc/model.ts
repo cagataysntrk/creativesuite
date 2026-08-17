@@ -133,7 +133,7 @@ export interface AileParametreleri {
    * ⚠ Serbest CSS dizesi DEĞİL: sağlayıcı çıktısının stile sızmasının önü tip düzeyinde
    * kapalı. Sıra bu listeden okunmuyor, dağarcıktan geliyor (`islemZinciri`).
    */
-  readonly gorselIslemleri?: readonly ('keskinlik' | 'duotone')[]
+  readonly gorselIslemleri?: readonly ('matlama' | 'keskinlik' | 'duotone')[]
   /**
    * Açık tipografi efektleri — kapalı dağarcıktan alt küme (FAZ-12.1).
    *

@@ -133,7 +133,7 @@ export interface AileProfili {
    * iki kümenin karşılıklı atanabilirliğini tip düzeyinde sınıyor. `tipoEfektleri`de bu
    * sınav YOKTU ve iki liste sessizce ayrışabilirdi — aynı hata iki kez yapılmadı.
    */
-  readonly gorselIslemleri: readonly ('keskinlik' | 'duotone')[]
+  readonly gorselIslemleri: readonly ('matlama' | 'keskinlik' | 'duotone')[]
 }
 
 // ── Rampa kısayolları ────────────────────────────────────────────────────────

@@ -12,15 +12,16 @@
 // hepsi Chromium'da bedava ve hiçbirinin BUGÜN çağıranı yok. Çağıranı olmayan üreteç bu
 // projede yedi kez tekrarlayan hata (D-261); bu turda bir tanesi daha silindi.
 //
-// ⚠ **Sıra anlamlı:** keskinlik parlaklık üstünde çalışıyor, duotone parlaklığı marka
-// eksenine eşliyor. Ters sırada keskinlik iki renkli bir görüntüyü keskinleştirir ve
-// kenarlarda hale bırakır. CSS `filter` soldan sağa uygulanıyor; zincir bunu koruyor.
+// ⚠ **Sıra anlamlı:** matlama ÖNCE (arka plan hâlâ düz siyahken; duotone sonrası zemin
+// amberleşir ve luma anahtarı çalışmaz), sonra keskinlik parlaklık üstünde, en son duotone
+// parlaklığı marka eksenine eşliyor. CSS `filter` soldan sağa uygulanıyor; zincir bunu
+// dağarcık SIRASINDAN kuruyor, çağıranın listesinden değil.
 
 import type { AileProfili } from '@suite/contracts'
 import { duotoneSvg, type DuotoneUclari, VARSAYILAN_UCLAR } from './sablon-filtre.js'
 
 /** Kapalı işlem dağarcığı. Dördüncüsü bir KARAR ister. */
-export const GORSEL_ISLEMLERI = ['keskinlik', 'duotone'] as const
+export const GORSEL_ISLEMLERI = ['matlama', 'keskinlik', 'duotone'] as const
 export type GorselIslem = (typeof GORSEL_ISLEMLERI)[number]
 
 // ⚠ ⚠ **İKİZ KÜME SINAVI.** `AileProfili` ring 0'da ve render'a bağımlı olamaz, o yüzden
@@ -34,6 +35,45 @@ const _kumelerAyni: AileIslemi extends GorselIslem
     : never
   : never = true
 void _kumelerAyni
+
+/**
+ * Matlama — düz koyu arka planı ŞEFFAFA çevirir (luma anahtarlama).
+ *
+ * ⚠ ⚠ **ARKA PLAN SİLME İÇİN 1 GB'LIK MODEL ŞART DEĞİL.** FAZ-11.5 BiRefNet'i bekliyor
+ * (~1 GB ağırlık, D-266 tetikleyicisi). Ama kesik özne için gereken şey genel bir
+ * segmentasyon değil: brief zaten *"tamamen düz siyah arka plan"* istiyor ve o kısıt
+ * altında alfa, görüntünün KENDİ parlaklığından türetilebiliyor.
+ *
+ * ⚠ **Bu, prompt'a güvenmek DEĞİL.** Duotone'un dersi (FAZ-11.7) buydu: modelin uymasına
+ * bağlı bir garanti kırılgandır. Burada da model "siyah zemin" sözünü tutmasa bile filtre
+ * KOYU olanı siliyor — sözün tutulmadığı yerde çıktı bozulmuyor, yalnız daha çok şey
+ * siliniyor ve bu BAKINCA görülüyor.
+ *
+ * ⚠ İki adım: `feColorMatrix` parlaklığı ALFA kanalına yazıyor (0.2126/0.7152/0.0722 —
+ * insan gözünün yeşile duyarlılığı), sonra `feComponentTransfer` o alfayı sert bir
+ * rampadan geçiriyor. Rampa yumuşak bırakılırsa özne kenarında koyu bir hale kalıyor;
+ * çok sert olursa saç ve parmak uçları kesiliyor. Tablo ikisinin arasında.
+ * ⚠ `color-interpolation-filters="sRGB"`: linearRGB'de parlaklık eşiği kayıyor ve
+ * aynı tablo başka bir yerde kesiyor.
+ */
+export const matlamaSvg = (id: string): string =>
+  `<svg class="filtre-tanim" width="0" height="0" aria-hidden="true">` +
+  `<filter id="${id}" color-interpolation-filters="sRGB">` +
+  `<feColorMatrix type="matrix" values="` +
+  `1 0 0 0 0 ` +
+  `0 1 0 0 0 ` +
+  `0 0 1 0 0 ` +
+  `0.2126 0.7152 0.0722 0 0"/>` +
+  `<feComponentTransfer><feFuncA type="table" tableValues="0 0 0.06 0.55 0.92 1 1"/>` +
+  `</feComponentTransfer>` +
+  // ⚠ ⚠ **KAYNAĞIN ALFASIYLA KESİŞTİRME — bu satır olmadan letterbox BEYAZ oluyor.**
+  // `object-fit: contain` görselin kutusunda boş bir şerit bırakıyor ve o şerit tamamen
+  // şeffaf. Tamamen şeffaf piksellerde çarpımsız RGB TANIMSIZ; Chromium (1,1,1) veriyor
+  // ve alfayı o beyazın parlaklığından türetince şerit OPAK BEYAZ çıkıyor.
+  // `in` operatörü sonucu kaynağın alfasıyla kesiştiriyor: şeffaf olan şeffaf kalıyor.
+  // Filtresiz render'da beyaz satır 0, filtreliyken 27 — deneyle ölçüldü.
+  `<feComposite operator="in" in2="SourceGraphic"/>` +
+  `</filter></svg>`
 
 /** İşlemin belge içi filtre kimliği — çağıran ile tanım tek yerden eşleşiyor. */
 export const islemKimligi = (islem: GorselIslem): string => `islem-${islem}`
@@ -65,7 +105,11 @@ export const keskinlikSvg = (id: string): string =>
 
 /** Bir işlemin SVG tanımı. */
 export const islemTanimi = (islem: GorselIslem, u: DuotoneUclari = VARSAYILAN_UCLAR): string =>
-  islem === 'keskinlik' ? keskinlikSvg(islemKimligi(islem)) : duotoneSvg(islemKimligi(islem), u)
+  islem === 'matlama'
+    ? matlamaSvg(islemKimligi(islem))
+    : islem === 'keskinlik'
+      ? keskinlikSvg(islemKimligi(islem))
+      : duotoneSvg(islemKimligi(islem), u)
 
 /**
  * İşlem zincirinin CSS `filter` değeri.

@@ -12,6 +12,12 @@
 // öge onlar. Görsel üretilemezse şablon YER TUTUCU ile çiziliyor ve eksiklik görünür
 // kalıyor — sessizce metin-only bir sürüme düşmek, tasarımı tanınmaz hâle getirirdi.
 //
+// ⚠ ⚠ **BRIEF İNGİLİZCE ve BÜYÜK HARFSİZ OLMAK ZORUNDA — iki kez reddedildi.** R-20
+// muhafızı (a) büyük harfli öbekleri "metin çizdirme isteği" sayıyor, (b) `no text` alt
+// dizesini arıyor ve `no texture` içinde onu buluyor. İkincisi kapının kendisinde bir
+// yanlış pozitif (alt dize eşleşmesi); kırmızı bir kapının kuralı aynı turda gevşetilmez
+// (R-76), o yüzden brief yeniden yazıldı ve kayıt buraya düşüldü.
+//
 // ⚠ Renkler TOKEN. Referanstaki turuncu/kırmızı/yeşil rotasyonu birebir kopyalanmadı:
 // marka rampasının dışına çıkmak §12.1 chroma tavanını delerdi. Kimliği taşıyan şey
 // renklerin kendisi değil, DÖNMESİ.
@@ -67,12 +73,24 @@ const MUREKKEP = 'var(--role-line-edge)'
 const AMBER_ACIK = 'var(--ramp-marka-amber-200)'
 const AMBER_KOYU = 'var(--ramp-marka-amber-600)'
 
-/** Görsel şeridi bugün kapalı: bedava şeritte `image.generate` sağlayıcısı yok. */
-const GORSEL_KAPALI = {
-  durum: false,
+/**
+ * Görsel taşıyan şablonlar — ÇALIŞIYOR.
+ *
+ * ⚠ ⚠ **İLK SÜRÜM BUNLARI "KAPALI" İŞARETLEMİŞTİ ve bu bir OKUMA HATASIYDI.** Koşu
+ * çıktısı *"bedava şeritte sağlayıcı yok"* demiyordu; **"yerel önkoşul sağlanmadı"**
+ * diyordu. İkisi ayrı şey: `cloudflare-workers-ai` kayıtlı, `enabled: true` ve gerçek
+ * çağrıyla doğrulanmış — eksik olan yalnız ortamdaki anahtardı. Hattı `sops exec-env`
+ * olmadan koşturdum ve kendi hatamı sağlayıcı yokluğu sandım.
+ *
+ * ⚠ **Kesik özne için arka plan silme modeli de gerekmedi:** brief düz siyah zemin
+ * istiyor, alfa render'da o zeminin parlaklığından türetiliyor (`matlama`). BiRefNet
+ * (~1 GB, D-266) hâlâ ertelenmiş durumda ve gerekmedi.
+ */
+const GORSEL_CALISIYOR = {
+  durum: true,
   sebep:
-    'Taşıyıcı görsel üretilemiyor: bedava şeritte `image.generate` sağlayıcısı yok ' +
-    '(FAZ-11.6 / 13.3 tetikleyicisi). Yer tutucuyla çiziliyor, kompozisyon görünüyor.',
+    'Taşıyıcı görsel `cloudflare-workers-ai` ile üretiliyor (bedava şerit, `sops exec-env` ' +
+    'ile anahtar); kesik özne düz siyah brief + `matlama` luma anahtarıyla kuruluyor.',
 } as const
 
 /**
@@ -125,11 +143,27 @@ export const SAHNE: KatalogSablonu = {
     adet: 'slayt-basina',
     kirpma: 'kesik',
     briefTemeli:
-      'arka planı tamamen şeffaf, tek özne, boydan çekim, dramatik yan ışık, ' +
-      'kollar gövdeden AÇIK (kadraj dışına uzanacak), koyu zemine oturacak',
+      // ⚠ ⚠ **"ŞEFFAF ARKA PLAN" İSTEMİYORUZ — DÜZ SİYAH İSTİYORUZ.** Görsel modelleri
+      // şeffaflık üretmiyor; şeffaflık isteyen bir brief modelin uymasına bağlı, kırılgan
+      // bir garanti olurdu. Düz siyah zemin isteniyor ve alfa render'da o zeminin
+      // parlaklığından TÜRETİLİYOR (`matlama`). Garantiyi rica etme, yapıya göm.
+      //
+      // ⚠ ⚠ **BRIEF İNGİLİZCE ve BÜYÜK HARFSİZ — ikisi de zorunlu.** İlk sürüm Türkçe
+      // yazılmış ve vurgu için büyük harf kullanmıştı; R-20 muhafızı büyük harfli bir
+      // öbeği "metin çizdirme isteği" sayıp beş brief'i birden REDDETTİ. Kapı haklıydı:
+      // bir görsel prompt'u nesir değil teknik bir dizedir (D-37 ailesi) ve içindeki her
+      // büyük harf, modele yazı çizdirme riski taşır.
+      // ⚠ **"no texture" YAZILAMAZ:** R-20 muhafızı `no text` alt dizesini arıyor ve
+      // `no texture` içinde onu buluyor — brief `suffix_hand_written` ile reddediliyor.
+      // Yanlış pozitif kapının kendisinde (alt dize eşleşmesi), ama kuralı gevşetmek
+      // yerine brief yeniden yazıldı: kırmızı bir kapının kuralı aynı turda gevşetilmez
+      // (R-76). Kapı kaydı `KARARLAR.md`ye düşecek.
+      'single subject, full body, plain solid black background free of gradient or ' +
+      'surface detail, strong rim light on the subject only, arms held away from ' +
+      'the torso and extending beyond the frame, body fully in frame',
   },
   baslikPayi: 1,
-  kullanilabilir: GORSEL_KAPALI,
+  kullanilabilir: GORSEL_CALISIYOR,
 }
 
 /**
@@ -156,11 +190,11 @@ export const MEMPHIS: KatalogSablonu = {
     adet: 'slayt-basina',
     kirpma: 'kesik',
     briefTemeli:
-      'arka planı tamamen şeffaf, tek kişi, bel üstü, düz aydınlatma, ' +
-      'beyaz zemine oturacak, canlı duruş',
+      'single person, waist up, plain solid black background free of surface detail, ' +
+      'even lighting on the subject, lively posture',
   },
   baslikPayi: 0.82,
-  kullanilabilir: GORSEL_KAPALI,
+  kullanilabilir: GORSEL_CALISIYOR,
 }
 
 /**
@@ -184,11 +218,11 @@ export const DONEN: KatalogSablonu = {
     adet: 'slayt-basina',
     kirpma: 'daire',
     briefTemeli:
-      'arka planı tamamen şeffaf, tek ürün, merkezde, yumuşak stüdyo ışığı, ' +
-      'daire maskeye oturacak',
+      'single product, centred, plain seamless backdrop, soft studio lighting, ' +
+      'composed for a circular crop',
   },
   baslikPayi: 0.86,
-  kullanilabilir: GORSEL_KAPALI,
+  kullanilabilir: GORSEL_CALISIYOR,
 }
 
 /**
@@ -214,11 +248,11 @@ export const EDITORYAL: KatalogSablonu = {
     adet: 2,
     kirpma: 'tam',
     briefTemeli:
-      'geniş kadraj, tek konu, sakin doğal ışık, sağ yarısı boş kompozisyon ' +
-      '(metin oraya oturacak), soğuk ton',
+      'wide shot, single subject, calm natural light, right half of the frame left ' +
+      'empty for typography, cool muted tones',
   },
   baslikPayi: 0.38,
-  kullanilabilir: GORSEL_KAPALI,
+  kullanilabilir: GORSEL_CALISIYOR,
 }
 
 /**
