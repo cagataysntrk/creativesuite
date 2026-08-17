@@ -4,7 +4,9 @@
 değil. `instagram-post` hattı bugün on bir adımlı, DAG'lı, yetenek tabanlı ve çalışıyor.
 Eksik olan üç şey var ve üçü de sıraya dair.
 **Yöneten kararlar:** D-241, D-243, D-254, D-256, D-261
-**Ön koşul:** FAZ-11 dağarcığı (en az 11.1–11.3)
+**Ön koşul:** FAZ-11 dağarcığı (11.1–11.3 ✓ — düzen · süsleme · ikon · diyagram yeter)
+**Sıra:** ⚠ **FAZ-12 ve 13'ten ÖNCE.** Zengin bir dağarcığın seçicisi yoksa zenginlik
+gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana geri takılır.
 **Çıkış kriteri:** Tasarım kararları `derived/runs/` altında **gerekçesiyle yazılı**; görsel
 üretimi tabandan SONRA koşuyor ve yalnız planın işaretlediği yuvaları dolduruyor.
 

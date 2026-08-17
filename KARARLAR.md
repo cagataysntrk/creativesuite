@@ -532,3 +532,30 @@ kapalıdır, kaç aile olduğu açıktır. Bugüne kadarki hatam tek aileyi tüm
 harcadım ve dördü de yanlış katmandaydı.
 
 **Geri alma maliyeti:** düşük — akış yoksa fotoğraf yolu aynen çalışıyor.
+
+## D-262 — Bir bağlamda ölçülen değer SABİT değil PARAMETREdir
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-11.2 · §7.1
+
+Taralı daireyi tek bir slaytta gördüm — kâğıt alanda, mürekkep renginde, hayalet rakamın
+üstünde — ve **kalabalık** buldum. Sonra `sablon-susleme.ts`'teki çizgi sayısını 17'den
+11'e, kalınlığı `boyut/16`'dan `boyut/26`'ya çektim. Yani **tek bir bağlamdaki tek bir
+gözlemi, tüm tasarımlar için geçerli bir sabite dönüştürdüm.**
+
+Bu yanlış. Aynı yoğun tarama koyu zeminli, yüksek enerjili bir kompozisyonda **doğru**
+olurdu; referans örnek 3'te ince, örnek 1'in koyu dilinde kalın doğru olur. Kararın kendisi
+(seyrek) bu ailede doğruydu; **kararı sabitlemek** yanlıştı.
+
+**Kural:** dağarcık KAPALI, parametreleri AÇIK.
+- *Hangi şekiller var* → kapalı birleşim, altıncısı bir karar ister.
+- *O şekil ne kadar yoğun / kalın / opak çizilir* → bağlamdan gelen bir parametre.
+
+Ayırt edici soru: **"bu sayı her tasarımda aynı mı olmalı?"** Cevap hayırsa sabit değildir.
+`SINIR_MAX` bir sabittir (metnin taşmaması bir garanti). Tarama yoğunluğu değildir (estetik
+bir tercih). Garanti katmanı kapalı, estetik katmanı parametrik — FAZ-12.7'nin (kompozisyon
+ailesi) mikro ölçekteki hâli.
+
+⚠ **Bu D-260'ın kardeşi.** Orada ölçen ile ölçülen farklı birim konuşuyordu; burada bir
+bağlamın ölçüsü tüm bağlamlara uygulandı. İkisi de "yerelde doğru olanı global sanmak".
+
+**Geri alma maliyeti:** düşük — parametre varsayılanı bugünkü değer, davranış değişmiyor.

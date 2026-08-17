@@ -28,7 +28,20 @@ export interface Susleme {
   /** Yüzde, tuval genişliğine göre. */
   readonly boyut: number
   readonly opaklik: number
+  /**
+   * Çizgisel şekillerin (şimdilik `tarama`) SIKLIĞI — 0 seyrek, 1 yoğun (D-262).
+   *
+   * ⚠ **Bu bir SABİT değil.** Aynı yoğun tarama kâğıt alanda kalabalık, koyu zeminli
+   * yüksek enerjili bir kompozisyonda doğrudur. Dağarcık kapalı (beş şekil), parametreleri
+   * açık. Ayırt edici soru: *"bu sayı her tasarımda aynı mı olmalı?"* — hayırsa sabit değil.
+   */
+  readonly yogunluk: number
 }
+
+/** Bugünkü ailenin yoğunluğu: açık kâğıt alan, ince kontur, havadar. */
+export const YOGUNLUK_SEYREK = 0.25
+/** Koyu zeminli, yüksek kontrastlı aileler için — henüz kullanılmıyor, ama ölçek burada. */
+export const YOGUNLUK_YOGUN = 0.9
 
 /**
  * Bir slaytın süslemeleri — bir ya da iki öge.
@@ -51,10 +64,26 @@ export const suslemeler = (k: SlaytKimligi, sagda: boolean): readonly Susleme[] 
   const merkez = sagda ? (100 + SINIR_MAX) / 2 : (100 - SINIR_MAX) / 2
 
   return [
-    { tip, x: merkez, y: 22 + (k.index % 3) * 6, boyut: 13 + (k.index % 2) * 4, opaklik: 0.5 },
+    {
+      tip,
+      x: merkez,
+      y: 22 + (k.index % 3) * 6,
+      boyut: 13 + (k.index % 2) * 4,
+      opaklik: 0.5,
+      yogunluk: YOGUNLUK_SEYREK,
+    },
     // İkinci öge yalnız TEK indekslerde: her slaytta iki öge, ritmi düzleştirir.
     ...(k.index % 2 === 1
-      ? [{ tip: tip2, x: merkez + (sagda ? -7 : 7), y: 44, boyut: 7, opaklik: 0.38 }]
+      ? [
+          {
+            tip: tip2,
+            x: merkez + (sagda ? -7 : 7),
+            y: 44,
+            boyut: 7,
+            opaklik: 0.38,
+            yogunluk: YOGUNLUK_SEYREK,
+          },
+        ]
       : []),
   ]
 }
@@ -85,9 +114,12 @@ export const suslemeSvg = (s: Susleme, renk: string): string => {
     case 'tarama': {
       // Taralı daire: eğik çizgiler, daire içine kırpılmış.
       const id = `t${s.tip}${Math.round(s.x)}${Math.round(s.y)}`
+      const adet = Math.round(6 + 16 * s.yogunluk)
       return (
         `<defs><clipPath id="${id}"><circle cx="${s.x}" cy="${s.y}" r="${r}"/></clipPath></defs>` +
-        `<g ${o} clip-path="url(#${id})" stroke="${renk}" stroke-width="${s.boyut / 26}">` +
+        // Kalınlık ve çizgi sayısı YOĞUNLUKTAN türer: seyrekte ince ve az, yoğunda kalın
+        // ve çok. Ölçek 6→22 çizgi ve boyut/34→boyut/12 kalınlık arasında.
+        `<g ${o} clip-path="url(#${id})" stroke="${renk}" stroke-width="${s.boyut / (34 - 22 * s.yogunluk)}">` +
         // ⚠ Çizgiler daireyi TAM kaplamak zorunda: 45° eğimde bir çizgi kutunun bir
         // köşesinden diğerine gider, yani tarama `x-2r`den `x+2r`ye uzamalı. İlk sürüm
         // `x-r`den başlıyordu ve dairenin sol alt yarısı boş kalıyordu — sonuç daire
@@ -96,8 +128,8 @@ export const suslemeSvg = (s: Susleme, renk: string): string => {
         // kalınlıkta çiziyordu: çizgiler birbirine değiyor ve daire TARALI değil DOLU
         // görünüyordu — kâğıt alanda koyu bir leke, hayalet rakamın üstünde. Referans
         // örnek 3'te aynı şekil ince çizgili ve havadar. On bir çizgi, `boyut/26`.
-        Array.from({ length: 11 }, (_, i) => {
-          const d = s.x - 2 * r + (i * s.boyut) / 5
+        Array.from({ length: adet }, (_, i) => {
+          const d = s.x - 2 * r + (i * 4 * r) / (adet - 1)
           return `<line x1="${d}" y1="${s.y + r}" x2="${d + 2 * r}" y2="${s.y - r}"/>`
         }).join('') +
         `</g>`

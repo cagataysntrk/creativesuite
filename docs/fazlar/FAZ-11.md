@@ -58,6 +58,11 @@ bu dille geçiyor.
    BEYAZ ve başka hiçbir şey yok; bizde iki renk alanı, akan eğri ve dev hayalet rakam
    zaten var. Beşini birden koymak "zengin" değil KALABALIK olurdu.
    **Kapak SÜSSÜZ:** ızgarada ilk kare bir cümledir, bir desen değil.
+   ⚠ **Yoğunluk bir PARAMETRE, sabit değil (D-262):** taralı daireyi tek bir slaytta
+   kalabalık buldum ve çizgi sayısını global olarak düşürdüm — tek bağlamın ölçüsünü tüm
+   tasarımlara uygulamak. Aynı yoğun tarama koyu zeminli bir ailede DOĞRU olurdu. Dağarcık
+   kapalı (beş şekil), parametreleri açık. Ayırt edici soru: *"bu sayı her tasarımda aynı mı
+   olmalı?"*
    Süsleme katmanı ayrı bir SVG: alan katmanı `preserveAspectRatio="none"` ile geriliyor
    ve aynı viewBox'a konsaydı her daire ELİPS olurdu.
 🧪 **8 test + ihlal:** süslemeyi metin sütununa taşı → `METİN SÜTUNUNA girmiyor` kırmızı.
