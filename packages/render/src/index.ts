@@ -289,6 +289,8 @@ export {
 export { fontCss, YUZLER, type FontYuzu, type FontSonucu } from './fonts.js'
 
 // Karosel şablon grameri — slayt kimliğinden kompozisyon (§7.1 · D-254).
+export { GORSEL_ISLEMLERI, islemKimligi, islemTanimi, islemZinciri } from './gorsel-islem.js'
+export type { GorselIslem } from './gorsel-islem.js'
 export { egriZarfi } from './sekil-cebri.js'
 export type { Zarf } from './sekil-cebri.js'
 export {

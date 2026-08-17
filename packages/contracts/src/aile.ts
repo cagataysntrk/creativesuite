@@ -41,6 +41,15 @@ export interface AileProfili {
   readonly ritim: { readonly gerilim: number; readonly donus: number }
   /** Açık tipografi efektleri — kapalı dağarcıktan alt küme (FAZ-12.1). */
   readonly tipoEfektleri: readonly ('vurgu' | 'kontur' | 'degrade' | 'golge' | 'knockout')[]
+  /**
+   * Fotoğraf yuvasına uygulanan raster işlemler — kapalı dağarcık (FAZ-12.2).
+   *
+   * ⚠ Dağarcığın kendisi `packages/render`de; burada kümenin İKİZİ duruyor çünkü ring 0
+   * render'a bağımlı olamaz. İkizin ayrışması DERLEME hatası veriyor: `gorsel-islem.ts`
+   * iki kümenin karşılıklı atanabilirliğini tip düzeyinde sınıyor. `tipoEfektleri`de bu
+   * sınav YOKTU ve iki liste sessizce ayrışabilirdi — aynı hata iki kez yapılmadı.
+   */
+  readonly gorselIslemleri: readonly ('keskinlik' | 'duotone')[]
 }
 
 /**
@@ -62,6 +71,9 @@ export const TEMEL_AILE: AileProfili = {
   panorama: false,
   ritim: { gerilim: 0.7, donus: 0.6 },
   tipoEfektleri: ['vurgu', 'kontur'],
+  // ⚠ Keskinlik SÜS DEĞİL DÜZELTME: model 1024² üretiyor, karosel 1080² istiyor ve
+  // `cover` büyütürken yumuşatıyor. Duotone renk tutarlılığını YAPISAL kılıyor.
+  gorselIslemleri: ['keskinlik', 'duotone'],
 }
 
 /**
@@ -95,6 +107,7 @@ export const AKICI_AILE: AileProfili = {
   panorama: true,
   ritim: { gerilim: 0.75, donus: 0.55 },
   tipoEfektleri: ['vurgu', 'kontur'],
+  gorselIslemleri: ['keskinlik', 'duotone'],
 }
 
 export const AILELER: readonly AileProfili[] = [TEMEL_AILE, AKICI_AILE]

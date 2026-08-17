@@ -34,21 +34,23 @@ import {
 import { ikonSec, ikonSvg } from './sablon-ikon.js'
 import { OPENTYPE_CSS, vurguCss, vurguyuIsaretle } from './sablon-tipo.js'
 import { markaCss, markaKilidi } from './marka-isareti.js'
+import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { degradeDefSvg } from './sablon-degrade.js'
 
 /** Alan degradesinin belge içi kimliği. */
 const DEGRADE_ID = 'marka-alan-degrade'
-import {
-  dokuCss,
-  duotoneSvg,
-  grainKatmani,
-  grainSvg,
-  vinyetCss,
-  vinyetKatmani,
-} from './sablon-filtre.js'
+import { dokuCss, grainKatmani, grainSvg, vinyetCss, vinyetKatmani } from './sablon-filtre.js'
 
 /** Duotone filtresinin belge içi kimliği — tek yerde, iki tüketici (svg + css). */
-const DUOTONE_ID = 'marka-duotone'
+/**
+ * Belgenin raster işlemleri — aile söylemediyse bugünkü davranış.
+ *
+ * ⚠ Varsayılan BOŞ DEĞİL: `duotone` FAZ-11.7'de renk tutarlılığını yapısal kılmak için
+ * kondu ve ailesiz bir belgede onu düşürmek, sessizce eski kırılgan davranışa dönmek
+ * olurdu. Varsayılanı zayıflatmak bir gerileme sınıfıdır.
+ */
+const gorselIslemleri = (doc: DocumentModel): readonly GorselIslem[] =>
+  doc.aile?.gorselIslemleri ?? ['duotone']
 /** Grain filtresinin belge içi kimliği. */
 const GRAIN_ID = 'marka-grain'
 
@@ -216,7 +218,15 @@ export const toHtml = (doc: DocumentModel): string =>
       : vurguCss(alanRolleri(doc.slayt).karsiAlan, alanRolleri(doc.slayt).metin),
     '</style>',
     sablonKatmanlari(doc),
-    doc.slayt === undefined ? '' : duotoneSvg(DUOTONE_ID),
+    // ── RASTER İŞLEMLER: tanımlar AİLEDEN (FAZ-12.2) ────────────────────────
+    //
+    // ⚠ Yalnız KULLANILAN işlemin tanımı basılıyor: kullanılmayan bir `<filter>` ölü
+    // biçimlendirme ve `filtre-tanim` sayımını yanıltır.
+    doc.slayt === undefined
+      ? ''
+      : gorselIslemleri(doc)
+          .map((i) => islemTanimi(i))
+          .join(''),
     // Doku ve vinyet: kreatif yüzeyde derinlik MEŞRU (§12.1 gölge yasağı konsola ait).
     // Metnin ALTINDA (z-index 2, `.icerik` 3) — bir his, bir perde değil.
     doc.slayt === undefined ? '' : grainSvg(GRAIN_ID),
@@ -426,7 +436,12 @@ const sablonCss = (doc: DocumentModel): string => {
     // marka içinde. FAZ-10.7'de mavi/turuncu bir fotoğraf amber alanla çarpıştı ve
     // brief'e "monokrom yaz" diye yalvarmıştım — modelin uymasına bağlı, kırılgan.
     // ⚠ Ürün ekran çekimi HARİÇ: o bir KANITTIR, rengini değiştirmek iddiayı bozar.
-    `  .icerik img.yuva-alan, .icerik img.yuva-maske { filter: url(#${DUOTONE_ID}); }`,
+    // ⚠ Zincir AİLEDEN ve sırası dağarcıktan: keskinlik parlaklık üstünde çalışıyor,
+    // duotone parlaklığı marka eksenine eşliyor. Ters sırada keskinlik iki renkli bir
+    // görüntüyü keskinleştirir ve kenarlarda hale bırakır.
+    islemZinciri(gorselIslemleri(doc)) === ''
+      ? ''
+      : `  .icerik img.yuva-alan, .icerik img.yuva-maske { filter: ${islemZinciri(gorselIslemleri(doc))}; }`,
     dokuCss(),
     vinyetCss(doc.aile?.vinyetGucu),
     // ── YUVA: alan (FAZ-11.4) — bugünkü davranışın adı konmuş hâli ─────────

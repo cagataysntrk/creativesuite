@@ -119,6 +119,13 @@ export interface AileParametreleri {
   readonly degrade: boolean
   /** Panoramik süreklilik açık mı (FAZ-12.4). */
   readonly panorama: boolean
+  /**
+   * Fotoğraf yuvasına uygulanan raster işlemler — KAPALI dağarcık (FAZ-12.2).
+   *
+   * ⚠ Serbest CSS dizesi DEĞİL: sağlayıcı çıktısının stile sızmasının önü tip düzeyinde
+   * kapalı. Sıra bu listeden okunmuyor, dağarcıktan geliyor (`islemZinciri`).
+   */
+  readonly gorselIslemleri?: readonly ('keskinlik' | 'duotone')[]
 }
 
 export interface CompareBlock {

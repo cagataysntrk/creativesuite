@@ -8,12 +8,10 @@
 veri ögesiyle **profesyonel ajans işi** görünümünde çıkabiliyor; 20 ardışık kabul koşusu
 bu dille geçiyor.
 
-> **Tam envanter:** `docs/referans/yetenek-envanteri.md` ·
-> `docs/research/10-arac-envanteri...`. Bu faz o envanterin ⛔/🟡 satırlarını kapatıyor.
->
-> ⚠ **İki lisans tuzağı:** BRIA RMBG **CC BY-NC**, Potrace **GPL** — ikisi de giremez.
+> **Tam envanter:** `docs/referans/yetenek-envanteri.md`. Bu faz o envanterin ⛔/🟡
+> satırlarını kapatıyor. ⚠ **İki lisans tuzağı:** BRIA RMBG **CC BY-NC**, Potrace **GPL**.
 > ⚠ **Canvas'a metin çizilmez:** metin raster olduğu an `notdef` sayımı ve Türkçe kapıları
-> KÖR olur — R-20'nin veri görselleştirmedeki karşılığı (ECharts/Chart.js bu yüzden elendi).
+> KÖR olur — R-20'nin veri görselleştirmedeki karşılığı (ECharts/Chart.js elendi).
 
 ---
 
@@ -21,45 +19,50 @@ bu dille geçiyor.
 
 📖 §7.2, §12.2 · R-20, R-30
 🔗 —
-🛠 Photoshop katman stillerinin tamamının CSS/SVG karşılığı, **kapalı bir dağarcık** olarak:
-
-**Karşılıklar:** Stroke→`-webkit-text-stroke` · Shadow/Glow→`text-shadow` · Overlay→
-`background-clip: text` · Knockout→`mix-blend-mode: difference` · Warp→SVG `textPath` ·
-OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
-
-📁 `packages/render/src/sablon-tipo.ts` + `sablon-tipo.test.ts` · `static.ts` ·
-   `packages/engine/src/metin-akisi.ts`
+🛠 Photoshop katman stillerinin CSS/SVG karşılığı, **kapalı dağarcık**: Stroke→
+   `-webkit-text-stroke` · Shadow→`text-shadow` · Overlay→`background-clip: text` ·
+   Knockout→`mix-blend-mode` · Warp→`textPath` · OpenType→`font-feature-settings`.
+📁 `packages/render/src/sablon-tipo.ts` + testi · `packages/engine/src/metin-akisi.ts`
 ✅ ⚠ **Efekt SLAYT ROLÜNE göre seçiliyor, serbestçe değil.** Photoshop'ta her efekt her
    metne uygulanabilir; bir MARKA sisteminde uygulanamaz. "Hepsi mümkün" ile "hepsi aynı
    anda" arasındaki fark, tasarım ile şablon arasındaki farktır.
-   ⚠ **R-20 KORUNUYOR:** hiçbir efekt metni görsele çevirmiyor; `background-clip: text`
-   bile canlı metin bırakır. Kontrast (T4) her efektten SONRA ölçülür.
-   ⚠ ⚠ **BU AİLEDE ÜÇÜ KAPALI, sebepleri ayrı:** **degrade** — kontrast metriği tek renk
-   ölçüyor, en açık durak kontrastını kaybedebilir ve ölçüm göremez (açmak ölçümün EN KÖTÜ
-   durağı bulmasını ister). **gölge** — referansların dördü de düz. **knockout** — çözdüğü
-   sorun bu ailede YOK, metin eğri sınırını hiç geçmiyor (`column_in_band`).
+   ⚠ **R-20 KORUNUYOR:** hiçbir efekt metni görsele çevirmiyor. Kontrast (T4) SONRA ölçülür.
+   ⚠ ⚠ **ÜÇÜ KAPALI, sebepleri ayrı:** **degrade** — kontrast metriği tek renk ölçüyor, en
+   açık durak kaybını göremez. **gölge** — referansların dördü de düz. **knockout** —
+   çözdüğü sorun yok, metin eğri sınırını hiç geçmiyor (`column_in_band`).
    ⚠ **AÇIK İKİSİ:** OpenType (`dlig` kapalı — `fi` bağı `fı` ile karışır) ve vurgu şeridi.
    ⚠ **İlk sürüm BAKINCA yetersiz çıktı:** yalnız renk değiştiriyordu. Fosforlu kalem
    deseni glifin ALT yarısında — vurgu, karoselin en büyük tipografik eksiğiydi.
-🧪 6 test: `**x**` → `<strong>` ve metin GÖRSELE DÖNMÜYOR · kaçırma önce işaretleme sonra
-   (enjeksiyon yok) · açgözlü değil · şerit gerçekten şerit · `dlig` kapalı.
+🧪 6 test: `**x**` → `<strong>`, metin görsele dönmüyor · kaçırma önce · açgözlü değil ·
+   şerit gerçekten şerit · `dlig` kapalı.
 💾 `feat(render): tipografi efekt dagarcigi` · `Refs: FAZ-12.1 · §7.2`
 
-## 12.2 — Raster işleme ilkelleri: filtre, karışım, maske    [ ]
+## 12.2 — Raster işleme ilkelleri: filtre, karışım, maske    [x] 2026-08-17
 
 📖 §7.1, §12.1 · R-30
 🔗 12.1
-🛠 Kapalı işlem dağarcığı, hepsi Chromium: `filter` · `feColorMatrix` (duotone ✓) ·
-   `feTurbulence` (grain ✓) · `feConvolveMatrix` · `feComponentTransfer` ·
-   `mix-blend-mode` · `mask-image` · `clip-path` (✓) · `backdrop-filter` · 3B `transform`.
-📁 `packages/render/src/gorsel-islem.ts`
-✅ ⚠ **İşlemler ADLANDIRILMIŞ ve KAPALI** — `filter: <serbest string>` değil.
-   `duotone` · `yumusat` · `grenli` · `derinlik` · `cam` gibi ROL adları. Serbest CSS
-   dizesi kabul edilirse sağlayıcı çıktısı doğrudan stile sızar ve marka garantisi biter.
-   ⚠ Her işlem sonrası kontrast ve palet METRİKLERİ yeniden ölçülür (D-258 istisnası
-   dışında): `saturate(2)` chroma tavanını (§12.1) delebilir.
-🧪 Chroma tavanını aşan bir filtre uygula → `kalite` kırmızı. Serbest CSS dizesi geçir →
-   derleme hatası.
+🛠 Kapalı işlem dağarcığı, hepsi Chromium: `feColorMatrix` (duotone ✓) · `feTurbulence`
+   (grain ✓) · `feConvolveMatrix` · `mix-blend-mode` · `clip-path` (✓) · `backdrop-filter`.
+📁 `packages/render/src/gorsel-islem.ts` + testi · `packages/contracts/src/aile.ts` ·
+   `packages/kernel/src/doc/model.ts` · `packages/engine/src/verbs/bodies.ts`
+✅ ⚠ **Dağarcık İKİ öge — `yumusat`/`derinlik`/`cam`/kabartma/3B YAZILMADI.** Hepsi
+   Chromium'da bedava ve hiçbirinin BUGÜN çağıranı yok; çağıranı olmayan üreteç bu
+   projenin yedi kez tekrarladığı hatası (D-261). Bu turda bir tanesi daha silinmişti.
+   ⚠ **Tüketici AİLE:** `gorselIslemleri` aileden belgeye, belgeden render'a — zincir kapalı.
+   ⚠ ⚠ **İKİZ KÜME SINAVI (tipoEfektleri'nde YOKTU).** Ring 0 render'a bağımlı olamaz, ad
+   listesi iki yerde; karşılıklı atanabilirlik tip düzeyinde sınanıyor. İhlal turu: ailede
+   üçüncü ad açıldı → İKİ derleme hatası, geri alındı → yeşil.
+   ⚠ **SIRA dağarcıktan, çağırandan değil:** aile ters sıralasa bile zincir düzeltiyor.
+   ⚠ **`keskinlik` süs değil DÜZELTME:** model 1024² üretiyor, karosel 1080² istiyor.
+   Kenar enerjisi 2,04 → 2,36 ölçüldü, hale YOK; çekirdek toplamı 1, parlaklık korunuyor.
+   FAZ-12.8'in Lanczos bağımlılığının çözdüğü kaybın büyük kısmı bedava geliyor.
+   ⚠ ⚠ **PALET GARANTİSİNİ DUOTONE TUTUYOR ve ölçüldü:** doygun bir test görselinde
+   ortalama ΔE 12,79 → 8,19 (−%36). Kasten `saturate(3.5)` zincire sokuldu ve duotone
+   ARDINDAN geldiği için çıktı DEĞİŞMEDİ — ihlal temsil edilemez oldu.
+   ⚠ **`off_palette` YANLIŞ ENSTRÜMAN:** ΔE>5 sayan ayrık metrik, sürekli duotone
+   rampasının ara tonlarını hep "dışarıda" sayıyor (%46 ↔ %45); yanıt veren `delta_e_2000`.
+   ⚠ **`duotone`dan SONRA öge eklemek palet ölçümü ister** — garantiyi sıranın kendisi tutuyor.
+🧪 8 test + iki ihlal turu. Serbest CSS dizesi: tip enum, temsil edilemez.
 💾 `feat(render): raster islem dagarcigi` · `Refs: FAZ-12.2 · §7.1`
 
 ## 12.3 — Türkçe tipografik ritim: heceleme, yaslama, temel ızgara    [x] 2026-08-17
@@ -98,16 +101,15 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    piksel-mükemmel devam DEĞİL, **ima edilen devam** hedefleniyor: eğrinin çıkış açısı
    sonrakinin giriş açısıyla uyumlu. Gerçek bitişiklik varsayımı yanlış çıktı verir.
    ⚠ Kapak ve kapanış **çapa**: ikisi de tam kompozisyon, akışın ucu değil.
-   ⚠ ⚠ **AKAN ŞEY ZEMİN DEĞİL SÜSLEME.** Eğrinin dolgu tarafı her slaytta yer değiştiriyor
-   (ritim bilerek böyle); zeminin monoton akması bu aileyle ÇELİŞİR.
+   ⚠ ⚠ **AKAN ŞEY ZEMİN DEĞİL SÜSLEME:** dolgu tarafı her slaytta yer değiştiriyor
+   (ritim bilerek böyle), zeminin monoton akması bu aileyle ÇELİŞİR.
    ⚠ **İki deneme tutmayınca öncül sorgulandı.** Kenarda yarım halka: matematik doğruydu
    (y=45 iki yanda) ama BAKINCA birleşmiyordu — boşlukta bölünen daire iki yarım daire gibi
    duruyor. Göz devamı **şekli tamamlayarak değil YÖNÜ izleyerek** kuruyor; `yay` eklendi.
    ⚠ **Kapanış da çapa:** yay alıyordu, yani olmayan bir sonrakine işaret ediyordu.
-   ⚠ ⚠ **ÜÇÜNCÜ KAPALI YETENEK İKİNCİ AİLEYİ DOĞURDU.** Panorama `temel`de kapalı (o
-   ailenin dili düz), tıpkı vinyet ve degrade gibi. Üç kapalı yetenek biriktiğinde ortaya
-   çıkan şey eksik bir aile değil, İKİNCİ bir ailedir: `AKICI_AILE` (referans örnek 1'in
-   karşılığı) panoramayı, yoğun süslemeyi ve farklı ritmi birlikte kullanıyor.
+   ⚠ ⚠ **ÜÇÜNCÜ KAPALI YETENEK İKİNCİ AİLEYİ DOĞURDU.** Panorama `temel`de kapalı, tıpkı
+   vinyet ve degrade gibi. Üç kapalı yetenek biriktiğinde çıkan şey eksik bir aile değil
+   İKİNCİ bir ailedir: `AKICI_AILE` panorama + yoğun süsleme + farklı ritim.
 🧪 6 test: yön ögesi · kapanış çapa · `temel`de kapalı · `akici`de açık · garanti katmanı
    iki ailede de YOK · geçiş yüksekliği deterministik.
 💾 `feat(render): panoramik sureklilik` · `Refs: FAZ-12.4 · §7.1`
@@ -230,18 +232,16 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    belirli — gramerdeki dört düzenin **hiçbiri** `flex-start` değil. Yazılsaydı:
    tüketicisi olmayan yetenek + zayıflamış garanti. Şart bir CSS numarası değil, dikey
    yerleşimin yeniden tasarımı. Boole dağarcığının kalanı da aynı sebeple yok.
-   ⚠ ⚠ **AMA ADIMIN AMACI TESLİM EDİLDİ — "sınır içinde daha iyi yerleşmek".** Sütun
-   artık O SLAYTIN eğrisinden türüyor: küresel %62 beş slaytın EN KÖTÜSÜYDÜ ve dördünde
-   yer israf ediyordu. İçerik genişliği 582 → 606 → 630 → 655 → 679 px; ilk slayt
-   değişmiyor (en kötü olan oydu). Punto tavanı ve maske çapı da bundan türüyor.
+   ⚠ ⚠ **AMA ADIMIN AMACI TESLİM EDİLDİ — "sınır içinde daha iyi yerleşmek".** Sütun artık
+   O SLAYTIN eğrisinden türüyor: küresel %62 beş slaytın EN KÖTÜSÜYDÜ. İçerik genişliği
+   582 → 606 → 630 → 655 → 679 px; ilk slayt değişmiyor. Maske çapı da bundan türüyor.
    ⚠ **Zarf PATH'TEN okunuyor, formülden değil.** `merkez - genlik` yazsaydım eğriye
    daha içeride bir kontrol noktası eklendiğinde sayı sessizce yalan olurdu — bir yorum
    bir zorlama değildir. Zarf eğriyi girdi alıyor. Kübik Bézier dışbükey zarfını aşmaz;
    zarf gerçek eğriden GENİŞ, yani yanılma yönü güvenli.
-   ⚠ ⚠ **`column_in_band` KENDİ KENDİNİ ölçüyordu.** Sütun da eğri de aynı sabitlerden
-   geliyordu; işaret hep aynıydı, okuma hiçbir girdide kırmızıya DÖNEMEZDİ. Şimdi ikisi
-   de artefakttan: `kolonPx` DOM'daki `.icerik` kutusu, `egriPx` aynı HTML'e basılmış
-   `<path>`ın zarfı — ayrı kod yolları, ayrışma görünür.
+   ⚠ ⚠ **`column_in_band` KENDİ KENDİNİ ölçüyordu:** sütun da eğri de aynı sabitlerden,
+   işaret hep aynı, hiçbir girdide kırmızıya DÖNEMEZDİ. Şimdi ikisi de artefakttan —
+   `kolonPx` DOM'daki `.icerik` kutusu, `egriPx` basılmış `<path>`ın zarfı.
    ⚠ `floor` kullanılıyor (`round` değil): sütun tam nefes kadar geride TÜRETİLDİĞİ için
    doğru değer tam 0 ve okuma sınırın üstünde oturuyor; 0.3 px'lik `getBoundingClientRect`
    gürültüsü kapıyı kırmızıya çevirirdi. **Flaky kapı kırmızıdır** (R-80).

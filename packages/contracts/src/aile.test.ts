@@ -30,6 +30,7 @@ describe('kompozisyon ailesi', () => {
       [
         'ad',
         'degrade',
+        'gorselIslemleri',
         'id',
         'panorama',
         'ritim',

@@ -41,8 +41,9 @@ describe('duotone', () => {
       blocks: [{ type: 'image', src: 'x.png', alt: 'a', decorative: false, yuva: 'alan' }],
     } as never
     const h = toHtml(doc)
-    expect(h).toContain('<filter id="marka-duotone"')
-    expect(h).toContain('filter: url(#marka-duotone)')
+    // ⚠ Kimlik FAZ-12.2'de dağarcığa taşındı: `islem-<ad>`. Tek yerden üretiliyor.
+    expect(h).toContain('<filter id="islem-duotone"')
+    expect(h).toContain('filter: url(#islem-duotone)')
   })
 
   it('slayt kimliği YOKSA filtre basılmıyor — eski belgeler bozulmuyor', () => {
@@ -53,7 +54,7 @@ describe('duotone', () => {
       tokenCss: ':root{--role-bg:#000}',
       blocks: [{ type: 'body', text: 'x' }],
     } as never
-    expect(toHtml(doc)).not.toContain('marka-duotone')
+    expect(toHtml(doc)).not.toContain('islem-duotone')
   })
 })
 
