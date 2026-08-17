@@ -5,12 +5,12 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 11
-siradaki_adim: 13.1
+aktif_faz: 13
+siradaki_adim: 13.2
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-12.2 KAPANDI — raster islem dagarcigi ve FAZ-12 BITTI (12.8 haric, BLOKE:karar). Dagarcik IKI oge: keskinlik + duotone. yumusat/derinlik/cam/kabartma/3B YAZILMADI, hicbirinin bugun cagirani yok (D-261). Tuketici AILE: gorselIslemleri AileProfili de, oradan belgeye, oradan render a — zincir kapali. IKIZ KUME SINAVI: ring 0 render a bagimli olamadigi icin ad listesi iki yerde; karsilikli atanabilirlik TIP duzeyinde sinaniyor, ihlal turunda ailede ucuncu ad acildi -> iki ayri derleme hatasi. tipoEfektleri nde bu sinav YOK, borc kayitli. SIRA dagarcik tan cagirandan degil: keskinlik parlaklik ustunde, duotone parlaligi marka eksenine esliyor. Keskinlik SUS DEGIL DUZELTME: model 1024 uretiyor karosel 1080 istiyor; kenar enerjisi 2.04 -> 2.36, hale YOK, cekirdek toplami 1. FAZ-12.8 in Lanczos bagimliliginin cozdugu kaybin buyuk kismi bedava. PALET GARANTISINI DUOTONE TUTUYOR: doygun test gorselinde ortalama dE 12.79 -> 8.19 (-%36); kasten saturate(3.5) zincire sokuldu, duotone ardindan geldigi icin cikti DEGISMEDI. off_palette bu iste YANLIS ENSTRUMAN — dE>5 sayan ayrik metrik surekli duotone rampasinin ara tonlarini hep disarida sayiyor (%46 <-> %45); yanit veren okuma delta_e_2000. 8 test. FAZ-12 de tek acik: 12.8 BLOKE:karar (model agirligi indirme, S16 sinavi)."
+son_kanit: "FAZ-13.1 KAPANDI — kompozisyon olcumu, KAPI DEGIL RAPOR. limit bir esik degil TANIM ARALIGININ ucu: okuma yapisal olarak out olamiyor, uyari esigi gercek. Kapi 35 okuma yesil + 6 uyari. AGIRLIK PIKSELDEN DEGIL GRAMERDEN: ekran goruntusunu cozmek PNG cozucu bagimliligi isterdi, dahasi piksel bir ORNEKLEM, gramer tasarimin kendisi. Egri integralle ornekleniyor; FAZ-12.10 un ZARFI burada YANLIS alet olurdu cunku zarf alani ustten sinirlar (metni uzak tutmak icin genis yanilmak guvenli) ama denge hesabi gercek alani ister — ayni sekil, farkli soru, farkli yaklasim. ILK METRIK GRAMERIN KENDISINI KUSUR RAPORLUYORDU: zikzak sayisi bes slaytta 3/3 dondu cunku dolgu tarafi her slaytta yer degistiriyor ve ritim tam olarak budur (D-254); yerine yolSapmasi (kutle dolgunun tarafinda mi, bugun 0/5). OLCULDU: kompozisyon optik merkezin 10-15 PUAN ALTINDA. Hipotezim hayalet rakamdi, YANLIS cikti — rakamsiz hesap yalniz 1.7 puan dusuruyor; sebep akanEgri nin kendi asimetrisi, alt lob dolguyu asagida genisletiyor. Egriyi degistirmek butun goldenlari yeniler ve BAKMAYI gerektirir, bu adim rapor adimi. Bosluk olcegi Fibonacci ve KAPALI; bugunku alti degerin hicbiri oturmuyor (kenar payi 88, olcekte 89) ve 1 px icin golden yenilemek riskli. KAYITLI BORC: bosluk listesi tasarim-olcum.ts te ELLE yazili, static.ts ten turemiyor. 9 test + ihlal turu (limit 5 e cekildi -> dort slayt SINIR DISI, geri alindi -> yesil)."
 ```
 
 ## Neredeyiz
@@ -48,13 +48,12 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 | Adım | Tarih |
 |---|---|
-| **11.1** · akış diyagramı fotoğrafın yerine | 2026-08-17 |
-| **11.2** · geometrik süsleme dağarcığı, yoğunluk parametre | 2026-08-17 |
-| **11.3** · 20 ikonluk kapalı dağarcık, içerikten seçilen | 2026-08-17 |
-| **14.1** · hikâye yayı halka 0'da; kelime tavanı artık TEK kaynak | 2026-08-17 |
-| **14.2** · tasarım planı gerekçeli, deftere adım çıktısı olarak giriyor | 2026-08-17 |
-| **14.3** · taban önce model sonra; görsel üretimi KOŞULLU (D-264) | 2026-08-17 |
-| **14.4** · plan↔çıktı uyumu; üç katman ayrı, slayt digest'i defterde | 2026-08-17 |
+| **13.1** · kompozisyon ölçümü RAPOR; ilk metrik gramerin ritmini kusur sanıyordu | 2026-08-17 |
+| **12.2** · raster dağarcığı; palet garantisini duotone tutuyor, ikiz küme sınavı | 2026-08-17 |
+| **12.10** · sütun o slaytın eğrisinden; `column_in_band` kendini ölçüyordu | 2026-08-17 |
+| **12.9** · degrade rampadan; asıl kusur durakların YERİNDEYDİ | 2026-08-17 |
+| **11.1 11.2 11.3** · diyagram · süsleme dağarcığı · 20 ikon | 2026-08-17 |
+| **14.1–14.4** · yay halka 0'da · gerekçeli plan · koşullu görsel · plan↔çıktı | 2026-08-17 |
 | **12.6** · marka işareti: harf formu, üçüncü yaklaşımda öncül değişti | 2026-08-17 |
 | **12.4** · panorama: akan şey zemin değil süsleme; İKİNCİ aile doğdu | 2026-08-17 |
 | **12.7** · kompozisyon ailesi; garanti ailede YOK, zorlama yoklukla | 2026-08-17 |
@@ -68,26 +67,18 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 ## Sıradaki adım
 
-**FAZ 11 — GÖRSELLİK DİLİ** (D-261) ve **FAZ 14 — OMURGA** birlikte yürüdü. FAZ-10.7'de
-bulduğum görsel kusurların çoğu tek kökten geliyordu: **oraya ait olmayan bir öge.**
-Fotoğrafı dört kez yamadım, dördü de belirtiye yamaydı; doğru soru *"bu fotoğraf neden
-burada?"* idi ve cevabı: bağlı olan tek görsel yol oydu.
+**FAZ 12 KAPANDI** (12.8 hariç, `bloke: karar` — model ağırlığı indirme, §16 sınavı).
+FAZ 11'de 11.5/11.6/11.9/11.10 `bloke: karar`. **FAZ 13 açık: 13.2'den devam.**
 
-**FAZ-14 kapandı** (beş adım, bağımsız doğrulama 1. turu koşuldu ve bulguları kapatıldı):
-metin → kompozit (taban + tasarım planı) → brief (yuvayı görerek) → görsel (koşullu) →
-yuva-doldur → render. Görsel artık gireceği slaydı **görerek** üretiliyor.
+**Bu turun tekrar eden dersi:** ölçüm aracı, ölçtüğü şeyden daha sık bozuk çıkıyor.
+`column_in_band` kendi kendini ölçüyordu (hiçbir girdide kırmızıya dönemezdi), ilk göz
+yolu metriği gramerin KASITLI ritmini kusur raporluyordu, `off_palette` sürekli bir
+duotone rampasına yanlış enstrümandı. Üçü de yeşildi ve üçü de hiçbir şey söylemiyordu.
 
-**SIRADAKİ 11.4** — fotoğraf yuvaları (maske/alan). Sonra 11.5–11.10 → 12 → 13.
-⚠ **Kabul sayacı 0/20.** Yeni hat dört gerçek koşuda doğrulandı: 3 kusur bulundu ve
-kapatıldı (boş prompt atlama sayılmıyordu · atlanan adım maliyet yazmıyordu · yay işlevi
-slayt sırasından türetiliyordu). Dördüncü koşu tüm metrikleri geçti ama **bakınca diyagram
-çerçeveden taşıyordu** — akış dikeye çevrildi, `list` düzeni ortalandı. Render değişti,
-sayaç yine 0.
-
+⚠ **Kabul sayacı 0/20.** FAZ 11–13 render'ı değiştirdi; eski koşular güncel çıktıyı
+temsil etmiyor. FAZ-10.7 kabul koşusu yeni dilin üstünde tekrarlanacak.
+⚠ **FAZ-12/13 kapanışında bağımsız doğrulama** (LOOP§D, en fazla İKİ tur).
 ⚠ KARARLAR.md 561/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
-
-⚠ **FAZ-10.7 kabul koşusu FAZ 11 dilinin üstünde tekrarlanacak** — görsellik değişti,
-eski koşular güncel çıktıyı temsil etmiyor.
 
 ## Devreden borçlar
 

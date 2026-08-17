@@ -20,7 +20,7 @@ ailesiyle aynı sınıfta duruyor.
 
 ---
 
-## 13.1 — Kompozisyon ilkeleri: görsel ağırlık, optik merkez, boşluk ölçeği    [ ]
+## 13.1 — Kompozisyon ilkeleri: görsel ağırlık, optik merkez, boşluk ölçeği    [x] 2026-08-17
 
 📖 §7.1 · D-254, D-255
 🔗 —
@@ -35,14 +35,30 @@ ailesiyle aynı sınıfta duruyor.
      seçilir. Şu an her boşluk ayrı sayı.
    - **Göz yolu:** kapak → gövde → kapanış boyunca ağırlık merkezinin izlediği yol; zikzak
      değil, tutarlı bir yön olmalı.
-📁 `packages/render/src/kompozisyon-olcum.ts` · `tasarim-olcum.ts`
-✅ ⚠ **Bunlar KAPI değil, RAPOR.** Denge eşiği aşılırsa uyarı üretilir, koşu düşmez.
-   Estetiği zorunlu kılmak "kabul edilemez" ile "tercih edilmeyen"i karıştırmaktır ve
-   sistem kendi zevkini dayatmaya başlar.
-   ⚠ **Optik merkez FAZ-10 ölçümlerini geçersiz kılmaz** ama dikey hizayı kaydırır —
-   `hayaletPx` ve `sayacBandi` yeniden ölçülür (D-261: değişen çıktıysa sayaç sıfırlanır).
-   ⚠ Boşluk ölçeği KAPALI; beşinci bir değer bir karar ister.
-🧪 Ağırlık momenti eşiği aşan bir kompozisyon → raporda uyarı; kapı YEŞİL kalır (kasıtlı).
+📁 `packages/render/src/kompozisyon-olcum.ts` + testi · `packages/render/src/tasarim-olcum.ts`
+✅ ⚠ **Bunlar KAPI değil, RAPOR — ve `limit` bir eşik değil TANIM ARALIĞININ ucu.** Okuma
+   yapısal olarak `out` olamıyor; uyarı eşiği gerçek. Kapı 35 okuma yeşil + 6 uyarı verdi.
+   ⚠ ⚠ **AĞIRLIK PİKSELDEN DEĞİL GRAMERDEN.** Ekran görüntüsünü çözmek bir PNG çözücü
+   bağımlılığı isterdi; dahası piksel bir ÖRNEKLEM, gramer tasarımın kendisi. Eğri
+   integralle örnekleniyor — FAZ-12.10'un ZARFI burada YANLIŞ alet olurdu: zarf alanı
+   üstten sınırlar (metni uzak tutmak için geniş yanılmak güvenli), denge hesabı ise
+   gerçek alanı ister. *Aynı şekil, farklı soru, farklı yaklaşım.*
+   ⚠ ⚠ **İLK METRİK GRAMERİN KENDİSİNİ KUSUR RAPORLUYORDU.** "Zikzak sayısı" beş slaytta
+   3/3 döndü — çünkü dolgu tarafı her slaytta yer değiştiriyor ve ritim tam olarak budur
+   (D-254). Ölçtüğü doğruydu, ölçmesi gereken değildi. Yerine `yolSapmasi`: kütle, o
+   slaytta dolgunun bulunduğu tarafta mı (bugün 0/5). **Ölçüm aracının tasarımla
+   çatışması** bu projede tekrarlayan sınıf.
+   ⚠ ⚠ **ÖLÇÜLDÜ: kompozisyon optik merkezin 10–15 PUAN ALTINDA.** Hipotezim hayalet
+   rakamdı — YANLIŞ çıktı: rakamsız hesap yalnız 1,7 puan düşürüyor. Sebep `akanEgri`nin
+   kendi asimetrisi; alt lob dolguyu aşağıda genişletiyor. Eğriyi değiştirmek bütün
+   golden'ları yeniler ve BAKMAYI gerektirir — bu adım rapor adımı, düzeltme bir karar.
+   ⚠ **Boşluk ölçeği Fibonacci ve KAPALI** (8·13·21·34·55·89). Bugünkü altı değerin
+   hiçbiri oturmuyor (kenar payı 88, ölçekte 89); 1 px için golden yenilemek kazandığından
+   fazlasını riske atardı. Ölçüm sapmayı raporluyor.
+   ⚠ **Kayıtlı borç:** boşluk listesi `tasarim-olcum.ts`te ELLE yazılı, `static.ts`ten
+   türemiyor — yeni bir boşluk eklenince ölçüm onu görmez.
+🧪 9 test + ihlal turu: `optical_offset` limiti 5'e çekildi → dört slayt SINIR DIŞI
+   (okuma gerçek, totoloji değil), geri alındı → kapı yeşil, uyarılar duruyor.
 💾 `feat(render): kompozisyon olcumu` · `Refs: FAZ-13.1 · §7.1`
 
 ## 13.2 — Kompozit: çok katmanlı montaj    [ ]
@@ -131,3 +147,42 @@ ailesiyle aynı sınıfta duruyor.
    hem yargılarsa sınav kendi kendini onaylar.
 🧪 Referans karoselleri yargıca ters etiketle ver → sıralama değişmemeli (etiket körlüğü).
 💾 `feat(engine): kor kabul` · `Refs: FAZ-13.6 · §7.1`
+
+---
+
+## ⏸ FAZ 13 KAPANINCA DEĞERLENDİRİLECEK — şablon genelleştirme
+
+**Kullanıcı kararı (2026-08-17):** *"Şablonu atayım, aynısını 1-2 denemede mükemmelce
+yapan esnek estetik bir tasarım sistemi olsun; hatta çoğu kez şablon bile atmayayım —
+içeriğe göre kendisi seçsin ya da yeni tasarlasın."* **Fazlar bitince** değerlendirilecek.
+⛔ Bu bir adım DEĞİL: tiklenmez, şimdi başlanmaz.
+
+**Neden bugün yapılamıyor:** `akici` ailesi bir veri satırı oldu ama `temel`in süslü hâli
+çıktı — çünkü kimliği taşıyan şeyler (akan eğri, hayalet rakam, iki alanlı bölünme, tip
+eşleşmesi) `sablon.ts`'te SABİT. Aile ancak süsleme yoğunluğu, vinyet, degrade, panorama,
+yuva biçimi, ritim ve tipo efektleri diyebiliyor. **Satır yeterince şey söyleyemiyor.**
+
+**Sıra — ilki olmadan diğer üçü havada kalır:**
+
+1. **Kimlik parametrelerini `sablon.ts`'ten `AileProfili`ye taşı.** Alan bölünmesi biçimi,
+   hayalet rakam var/yok + ölçeği, eğri tipi, tip ölçeği/ağırlık kontrastı. Asıl iş bu.
+2. **Aile seçicisini `tasarla.ts`'e bağla.** Bugün `const aile = g.aile ?? TEMEL_AILE` —
+   bir varsayılan, bir karar değil. Girdi: veri var mı · fotoğraf var mı · yayın · ton.
+   Plan zaten her seçime `gerekce` yazıyor (FAZ-14.2); aile seçimi de öyle olmalı.
+3. **Ölçüm aletini referansa çevir.** `tasarim` kapısının aleti (band % · sütun % ·
+   kontrast · chroma · kenar payı · tip ölçeği) bugün BİZİM çıktımıza bakıyor. Aynı aleti
+   referans görsele çevirince çıkan şey bir `AileProfili`dir — yeni icat değil, ters yön.
+4. **Eleştirmen döngüsü** = 13.5 + 13.1 + 13.4. "1-2 denemede mükemmel"i sağlayan şey
+   üretmek değil, **ikinci denemenin birinciden iyi olması**. Eleştirmen yoksa ikinci
+   deneme daha iyi değil, sadece farklıdır. 13.4 olmadan da yirmi aile üretilir ve
+   yirmisi aynı çıkar.
+
+⚠ **Üretken aile güvenli — bedeli çoktan ödendi.** `AileProfili`de `kontrastEsigi`,
+`guvenliAlan`, `chromaTavani`, `kelimeButcesi` alanları YOK; parametre uzayından rastgele
+örneklenmiş bir aile bile ihlal edecek alan bulamıyor (FAZ-12.7 · D-254). Yeni kimlik
+alanları eklenirken bu YOKLUK korunur — garanti katmanı aileye sızarsa üretkenlik biter.
+
+⚠ **Dürüst sınır: "aynısı" değil, "aynı dili konuşan".** Referansın YAPISI yakalanabilir
+(alan bölünmesi, ölçek, ağırlık kontrastı, satır uzunluğu, boşluk ritmi, palet ilişkisi).
+HARF FORMU yakalanamaz: sahip olmadığımız bir yazı yüzü sahip olmadığımız bir yazı yüzüdür
+ve R-20 gereği metni rasterleştirerek kopyalamak yasak. Bu beklenti önden söylenir.

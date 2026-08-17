@@ -21,6 +21,13 @@ import { parseColor, type Rgb } from './qa/deltae.js'
 import { reading, report } from './qa/tolerance.js'
 import { NEFES_YUZDESI } from './sablon-parametre.js'
 import { alanRolleri, guvenliKolonYuzdesi } from './sablon.js'
+import {
+  BOSLUK_OLCEGI,
+  kompozisyonMerkezi,
+  OPTIK_MERKEZ,
+  olcekDisiBosluklar,
+  yolSapmasi,
+} from './kompozisyon-olcum.js'
 
 /**
  * Slayt rolü başına kelime tavanı — **artık `@suite/contracts`ten TÜRETİLİYOR** (FAZ-14.1).
@@ -39,6 +46,15 @@ export const KELIME_TAVANI = {
 
 /** İçerik kenar payı, px — `static.ts`teki `pay` ile aynı olmak zorunda. */
 export const KENAR_PAYI = 88
+
+/**
+ * Şablonun bugün kullandığı boşluk değerleri — ölçek denetimi için.
+ *
+ * ⚠ Elle yazılmış bir liste ve bu bir borç: `static.ts` bu sayıları kendi içinde
+ * üretiyor. Türetilmiş olsaydı yeni bir boşluk eklendiğinde ölçüm onu kendiliğinden
+ * görürdü. Bugün görmüyor — ve bunu bilmek, bilmemekten iyidir.
+ */
+const VARSAYILAN_BOSLUKLAR: readonly number[] = [88, 62, 24, 54, 26, 64]
 
 export interface TasarimGirdisi {
   readonly slaytlar: readonly DocumentModel[]
@@ -217,6 +233,59 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
   //
   // Değişmez slayttan bağımsız (gramerin kendisi), o yüzden döngünün DIŞINDA ve bir kez:
   // güvenli sütun, eğri bandının yakın kenarından `genlik` kadar UZAKTA kalmalı.
+  // ── T9 KOMPOZİSYON: denge, RAPOR (FAZ-13.1) ─────────────────────────────────
+  //
+  // ⚠ ⚠ **BU OKUMALAR DÜŞÜRMEZ.** `limit` bir eşik değil, metriğin TANIM ARALIĞININ ucu:
+  // okuma yapısal olarak onu aşamaz, yani `out` olamaz. Uyarı eşiği gerçek ve anlamlı.
+  // Estetiği zorunlu kılmak *kabul edilemez* ile *tercih edilmeyen*i karıştırmaktır.
+  if (s.length > 0) {
+    const merkezler = s
+      .map((doc) => ({ doc, k: doc.slayt }))
+      .filter((x): x is { doc: DocumentModel; k: SlaytKimligi } => x.k !== undefined)
+      .map(({ doc, k }) => ({ k, ...kompozisyonMerkezi(doc) }))
+    for (const [i, m] of merkezler.entries()) {
+      okumalar.push(
+        reading({
+          metric: 'optical_offset',
+          label: `slayt ${i + 1} optik merkezden sapma`,
+          value: Math.round(Math.abs(m.y - OPTIK_MERKEZ * 100) * 10) / 10,
+          warn: 8,
+          // Merkez [0,100] aralığında; hedeften uzaklık 55'i geçemez.
+          limit: 55,
+          direction: 'lower',
+          unit: ' puan',
+        })
+      )
+    }
+    okumalar.push(
+      reading({
+        metric: 'path_deviation',
+        label: 'kütle, dolgunun tarafında değil',
+        // ⚠ İlk sürüm ZİKZAK sayıyordu ve gramerin kendi ritmini kusur raporluyordu
+        // (5 slaytta 3/3). Ölçtüğü doğruydu, ölçmesi gereken değildi.
+        value: yolSapmasi(merkezler),
+        warn: 0,
+        limit: merkezler.length,
+        direction: 'lower',
+        unit: ' slayt',
+      })
+    )
+    okumalar.push(
+      reading({
+        metric: 'spacing_offscale',
+        label: 'boşluk ölçeğine oturmayan değer',
+        // ⚠ Bugünkü değerler ölçeğe oturmuyor (kenar payı 88, ölçekte 89) ve bu
+        // DÜZELTİLMEDİ: 1 px için bütün golden'ları yenilemek kazandığından fazlasını
+        // riske atardı. Ölçüm sapmayı raporluyor; düzeltme bir karar.
+        value: olcekDisiBosluklar([VARSAYILAN_BOSLUKLAR].flat()).length,
+        warn: 0,
+        limit: BOSLUK_OLCEGI.length + VARSAYILAN_BOSLUKLAR.length,
+        direction: 'lower',
+        unit: ' değer',
+      })
+    )
+  }
+
   for (const [i, kenar] of (g.kolonKenarlari ?? []).entries()) {
     const nefesPx = (NEFES_YUZDESI / 100) * (s[i]?.width ?? 1080)
     okumalar.push(
