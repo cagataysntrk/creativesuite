@@ -259,9 +259,14 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // DAVETTİR; görsel ondan önce, gövdenin sonunda duruyor.
     const govde = satirlar.slice(1, -1)
     const kapanisSatiri = satirlar.length > 1 ? (satirlar[satirlar.length - 1] ?? null) : null
+    // ⚠ **Görsel gövdenin ORTASINA giriyor, sonuna değil** (FAZ-10.7). Sona konduğunda
+    // sayfalayıcı onu kapanış slaydına taşıyordu ve kapanış cümlesi fotoğrafın altına
+    // sıkışıyordu — kapanış bir DAVETTİR, bir resim altyazısı değil. Ortada duran görsel
+    // bir GÖVDE slaydına düşüyor ve kapanış temiz kalıyor.
+    const orta = Math.max(1, Math.ceil(govde.length / 2))
     const blocks: Block[] = [
       { type: 'heading', text: satirlar[0] as string, level: 1 },
-      ...govde.map((t): Block => ({ type: 'body', text: t })),
+      ...govde.slice(0, orta).map((t): Block => ({ type: 'body', text: t })),
       // Üretilen görsel `role` TAŞIMIYOR: `product_screenshot` bir iddiadır ("ürün
       // gerçekten böyle görünüyor") ve model üretimi bir görsel onu iddia edemez.
       // Rolsüz görüntü hiçbir şey iddia etmez ve serbesttir (§7.1).
@@ -280,6 +285,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
               decorative: false,
             },
           ]),
+      ...govde.slice(orta).map((t): Block => ({ type: 'body', text: t })),
       // Kapanış EN SONDA: sayfalayıcı son slaydı `kapanis` rolüyle damgalıyor ve o
       // slaydın metni bu satır olmalı.
       ...(kapanisSatiri === null ? [] : [{ type: 'body' as const, text: kapanisSatiri }]),

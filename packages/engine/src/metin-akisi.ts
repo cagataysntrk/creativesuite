@@ -128,12 +128,20 @@ export const gorselBriefPromptu = (g: PromptGirdisi): string | null => {
     '',
     'HARD RULES:',
     '- The scene must contain NO PEOPLE. No person, worker, engineer, face or crowd.',
-    '- The scene must contain NO TEXT: no signage, no labels, no screens showing text,',
-    '  no dashboards, no weighbridge displays, no shelf labels. Pick a subject that',
-    '  naturally has no lettering in it.',
+    '- Every surface must be BARE and UNMARKED. Choose a subject whose surfaces carry',
+    '  nothing printed, painted or engraved: raw metal, concrete, cable, pipe, machined',
+    '  part. Avoid control panels, screens, packaging and shelving — they always carry',
+    '  markings even when you do not intend it.',
     '- Industrial, documentary, photographic. Muted neutral palette, calm lighting.',
-    '- Do not write the words "no text" or "without people" — describe a scene that',
-    '  simply has neither.',
+    '',
+    // ⚠ **Yasak kelimeler prompt'un KENDİSİNDE geçmemeli.** R-20 kapısı görsel
+    // prompt'unda `text`, `lettering`, `sign` gibi sözcükleri arıyor; brief'i yazan model
+    // bu kelimeleri talimattan YANKILIYOR ve kapı kendi talimatımızı reddediyordu.
+    // Gerçek koşuda oldu: `IMAGE_PROMPT_REJECTED · matched: "lettering"`. Kapı haklıydı —
+    // hatalı olan, yasakladığı kelimeyi kullanan talimattı.
+    '⚠ NEVER use these words in your output: text, lettering, sign, signage, label,',
+    '  writing, word, letter, caption, watermark, logo. Do not negate them either —',
+    '  describe a scene that simply has none, using only positive description.',
     '',
     'Return only the prompt, one paragraph, no quotes and no explanation.',
   ].join('\n')

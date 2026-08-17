@@ -248,8 +248,18 @@ const sablonCss = (doc: DocumentModel): string => {
     `  .nav { position: absolute; z-index: 4; right: ${pay}px; bottom: ${pay}px;`,
     `         font-size: 24px; letter-spacing: 0.04em;`,
     `         color: ${sagda ? r.motif : r.metinSoluk}; }`,
-    // Görsel tam alanı kaplıyor ve karşı alanın maskesine giriyor.
-    `  .icerik img { width: 100%; border-radius: 2px; }`,
+    // ── görsel: KUTU DEĞİL ALAN (FAZ-10.7) ──────────────────────────────────
+    //
+    // ⚠ Önceki hâlde `width: 100%` idi ve padding'li sütunun içinde her yanı eşit
+    // boşluklu bir dikdörtgen olarak duruyordu: **kompozisyon değil, yapıştırılmış
+    // resim.** Kabul koşularında ÜÇ KEZ görüldü (4, 6 ve öncesi) ve her seferinde aynı
+    // izlenim: fotoğraf slaydın parçası değil, üstüne konmuş bir nesne.
+    //
+    // Düzeltme: görsel DIŞ kenara taşıyor (metin sütunu hangi taraftaysa onun dış
+    // kenarına). Böylece çerçeveye bağlanıyor ve bir ALAN oluyor — eğri nasıl bir alan
+    // sınırıysa, görsel de öyle. İç kenarda padding korunuyor: metin hizası bozulmuyor.
+    `  .icerik img { width: calc(100% + ${pay}px); border-radius: 0;`,
+    `                margin-${sagda ? 'left' : 'right'}: -${pay}px; display: block; }`,
   ].join('\n')
 }
 

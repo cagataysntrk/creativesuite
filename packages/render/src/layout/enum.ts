@@ -61,6 +61,21 @@ const metinUzunlugu = (b: Block): number => {
       // grafiği sığmıyor diye ikinci sayfaya atardı.
       return b.title.length
     case 'image':
+      // ⚠ **Görsel SIFIR bütçe harcıyordu ve bu gerçek bir ÇAKIŞMA üretti.**
+      //
+      // Kabul koşusunda görüldü: görsel + iki gövde bloğu aynı slayta sığıyor sanıldı,
+      // metin alt şeride taştı ve son satır `kaydır ››` ile ÜST ÜSTE BİNDİ. Sayfalayıcı
+      // yalnız KARAKTER sayıyordu; bir fotoğraf hiç karakter içermediği için "bedava"
+      // görünüyordu. Oysa dikey alanı en çok tüketen şey oydu.
+      //
+      // 180 karakter ≈ `statement` gövde bütçesinin (140) tamamından biraz fazla,
+      // `list` bütçesinin (320) yarısından biraz çoğu. Ölçüm: görsel sütun genişliğinde
+      // render ediliyor ve gözlenen slaytta kullanılabilir yüksekliğin ~%55'ini
+      // kaplıyordu; 180 o payı bütçe diliyle ifade ediyor.
+      //
+      // **Tam sayı değil, bir SINIF meselesi:** görsel bir metin bloğundan pahalıdır ve
+      // sayfalayıcı bunu bilmek zorunda. Sıfır yazmak, bilmediğini sıfır sanmaktı.
+      return 180
     case 'spacer':
       return 0
   }

@@ -84,7 +84,7 @@ otorite üreticiye verildi. Kapak `statement`, tasarım metrikleri üretimde (D-
 3. **Birim uyuşmazlığı**: T8 slayt toplamını ölçüyordu, bütçe SATIR başına. Modelin
    hatası sanılan şey ölçenin hatasıydı; artık en uzun BLOK ölçülüyor.
 
-**KABUL SAYACI: 5/20** () — metrikler bu turda bağlandı, sayaç buradan başlıyor
+**KABUL SAYACI: 1/20** (çakışma nedeniyle sıfırlandı) () — metrikler bu turda bağlandı, sayaç buradan başlıyor
 (~354 sn/koşu, 20 ardışık ≈ 2 saat).
 
 Sonra: 20 ARDIŞIK kabul koşusu (sınırlayıcı

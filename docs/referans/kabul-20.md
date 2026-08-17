@@ -13,7 +13,7 @@ görüldü; oranla ölçseydik o kusurlar "kabul edilebilir gürültü" sayılı
 
 ---
 
-## Sayaç: 5/20
+## Sayaç: 1/20 — ÇAKIŞMA nedeniyle SIFIRLANDI
 
 | # | Konu | Slayt | Metrikler | Görsel inceleme | Sonuç |
 |---|---|---|---|---|---|
@@ -22,11 +22,15 @@ görüldü; oranla ölçseydik o kusurlar "kabul edilebilir gürültü" sayılı
 | 3 | stok sayımı neden tutmuyor | 5 | kapak 7 · gövde 21/24/20 · kapanış 7 | gövde 3: liste ritmi doğru, sayaç bandı açık; **alt yarı boş** | ✓ |
 | 4 | kalite sapması kimin sorumluluğunda | 5 | kapak 5 · gövde 22/19/18 · kapanış 6 | gövde 4 (görselli): fotoğraf metinsiz/insansız ✓, ama **her yanında eşit boşlukla duran bir kutu** | ✓ |
 | 5 | makine duruşları nasıl sınıflandırılır | 4 | bütçe %63 / %77 / %67 / %63 / %30 | kapak: başlık 5 kelime, destek paragrafı, kompozisyon temiz | ✓ |
+| — | *(sayaç burada sıfırlandı — aşağıya bak)* | | | | ✗ |
+| 1 | kompresör kaçakları nasıl bulunur | 5 | bütçe %75 / %67 / %63 / %53 / %23 | gövde 3 (görselli): görsel çerçeve kenarına taşıyor, çakışma YOK, tek gövde bloğu | ✓ |
 
 ## Sıfırlanan koşular
 
 | Konu | Düşme sebebi | Düzeltme |
 |---|---|---|
+| enerji tüketimi (2. deneme) | **ÇAKIŞMA — kritik.** Son gövde satırı `kaydır ››` ile üst üste bindi | Görsel sayfalamada **SIFIR bütçe** harcıyordu; 180 karakter verildi |
+| kompresör kaçakları (1. deneme) | `IMAGE_PROMPT_REJECTED · matched: "lettering"` (R-20) | Yasak kelime **kendi prompt'umda** geçiyordu ve model yankılıyordu; kaldırıldı |
 | vardiya devri (ilk deneme) | `kalite`: fotoğraflı slayt palet dışı %17,7 | D-258 — görsel içeren slaytta renk metriği ölçülmez |
 | fire kayıtları (2. deneme) | kapak 21 kelime (limit 8), gövde 40 (limit 30) | prompt'a örnek biçim + sayım talimatı |
 | fire kayıtları (3. deneme) | gövde 41 kelime — **birim uyuşmazlığı, ölçenin hatası** | T8 artık en uzun BLOĞU ölçüyor (D-260) |
@@ -56,7 +60,8 @@ ederlerse kural olurlar. **Tek bir koşudan kural çıkarmak, gürültüyü tasa
 | Gözlem | İlk görüldüğü koşu | Tekrar |
 |---|---|---|
 | İki maddelik gövde slaytında alt yarı boş kalıyor (`list` düzeni `flex-start`) | 3 | — |
-| Görsel, kâğıt alanın ortasında eşit boşluklu bir KUTU olarak duruyor — kompozisyon değil, yapıştırılmış resim. `.icerik img { width: 100% }` padding'li sütunun içinde. **Yapısal: kesin tekrar edecek.** | 4 | — |
+| ~~Görsel eşit boşluklu bir KUTU olarak duruyor~~ | 4 | **3. tekrarda KURAL YAZILDI ve düzeltildi:** görsel dış çerçeve kenarına taşıyor, artık bir ALAN. Ayrıca gövdenin ORTASINA taşındı — sonda olduğunda kapanış slaydını kapatıyor, kapanış cümlesini altına sıkıştırıyordu. |
 
-**Örüntü adayı:** ikisi de aynı şeyi söylüyor olabilir — *kompozisyon çerçeveyi kendine
-güvenerek kullanmıyor*. İki gözlem bir örüntü değil; üçüncüde kural yazılır.
+**Örüntü doğrulandı ve kapandı.** Üç gözlem aynı şeyi söylüyordu: *kompozisyon çerçeveyi
+kendine güvenerek kullanmıyor.* Kural üçüncüde yazıldı — tek gözlemden kural çıkarmak
+gürültüyü tasarım sanmaktı, ama üç gözlemi beklemek de kusuru üç kez üretmek demekti.

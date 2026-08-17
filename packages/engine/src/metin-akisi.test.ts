@@ -42,17 +42,38 @@ describe('içerik prompt`u', () => {
 describe('görsel brief prompt`u', () => {
   const p = gorselBriefPromptu({ konu: 'veri yoksa', kayitlar: KAYITLAR }) ?? ''
 
-  it('İngilizce brief istiyor ve insansız/metinsiz şart koşuyor', () => {
+  it('İngilizce brief istiyor ve insansız/yazısız şart koşuyor', () => {
     expect(p).toContain('ENGLISH')
     expect(p).toContain('NO PEOPLE')
-    expect(p).toContain('NO TEXT')
+    expect(p).toContain('BARE and UNMARKED')
   })
 
-  // ⚠ Bake-off ölçtü: metin, sahnenin KENDİSİ tabela içerdiğinde sızıyor. Kantar
+  // ⚠ Bake-off ölçtü: yazı, sahnenin KENDİSİ tabela içerdiğinde sızıyor. Kantar
   // görselinde "FONTER" yazıyordu. Bu yüzden konu seçimi de kısıtlanıyor.
-  it('tabela içeren konuları açıkça eliyor', () => {
-    expect(p).toContain('weighbridge displays')
-    expect(p).toContain('shelf labels')
+  it('yazı taşıyan konuları açıkça eliyor', () => {
+    // ⚠ Eleme OLUMLU dille yapılıyor: "kontrol paneli, ekran, ambalaj, raf" — bunlar
+    // istemsen de üzerinde işaret taşır. Yasak kelimeyi kullanmadan aynı işi görüyor.
+    expect(p).toContain('control panels')
+    expect(p).toContain('packaging and shelving')
+  })
+
+  it('modelin YANKILAMAMASI gereken kelimeleri açıkça sayıyor', () => {
+    // ⚠ Bu test gerçek bir düşüşten sonra yazıldı: R-20 kapısı brief'i
+    // `matched: "lettering"` diye reddetti. Kelime MODELİN uydurması değildi — bizim
+    // talimatımızda geçiyordu ("naturally has no lettering in it") ve model onu
+    // yankılamıştı. **Kapı haklıydı; hatalı olan, yasakladığı kelimeyi kullanan
+    // talimattı.** Artık yasak liste açıkça veriliyor.
+    expect(p).toContain('NEVER use these words')
+    expect(p).toContain('lettering')
+  })
+
+  it('prompt yasak kelimeleri YALNIZ yasak listesinde kullanıyor', () => {
+    // Talimatın gövdesi (yasak listesi hariç) tetikleyici kelimeleri içermemeli;
+    // içerirse model onları yankılar ve kapı kendi talimatımızı reddeder.
+    const govde = p.split('NEVER use these words')[0] ?? ''
+    for (const k of ['lettering', 'signage', 'watermark', 'caption']) {
+      expect(govde.toLowerCase()).not.toContain(k)
+    }
   })
 })
 
