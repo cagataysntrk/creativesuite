@@ -19,6 +19,30 @@
 import type { SlaytKimligi } from '@suite/kernel'
 import type { LayoutName } from './layout/adlar.js'
 import { VARSAYILAN, guvenliYuzde } from './sablon-parametre.js'
+import type { RampaTokeni } from './sablon-degrade.js'
+
+const KEHRIBAR = 'var(--role-bg)'
+const KAGIT = 'var(--role-surface)'
+const MUREKKEP = 'var(--role-line-edge)'
+
+/**
+ * Bir alan renginin RAMPA KARŞILIĞI — degrade açıksa hangi iki durak (FAZ-12.9).
+ *
+ * ⚠ ⚠ **`null` bir eksiklik değil, bir KARAR — ve kararı marka rampası veriyor.**
+ * Kâğıdın rampada TEK durağı var (`--ramp-marka-kagit`); ikinci bir açık ton icat etmek,
+ * bir render modülünün markaya renk eklemesi olurdu. Kâğıt alan düz kalıyor çünkü rampa
+ * öyle diyor — benim öyle seçmemle değil. En ucuz zorlama, ihlalin ifade edilemez olması.
+ *
+ * ⚠ **Tablo `karsiAlan` ile AYNI yerde duruyor ve sebebi yukarıdaki `motif` dersiyle
+ * birebir aynı:** elle yazılan ikinci bir renk sütunu, komşu bir kararla sessizce
+ * tutarsızlaşır. İlk sürümde duraklar `static.ts`te SABİTTİ ve üç rolün üçüne de amber
+ * yazıyordu — kâğıt alan render'da amber çıktı. Bakınca görüldü, metrik göremezdi.
+ */
+const ALAN_RAMPASI: Record<string, readonly [RampaTokeni, RampaTokeni] | null> = {
+  [KEHRIBAR]: ['--ramp-marka-amber-500', '--ramp-marka-amber-600'],
+  [MUREKKEP]: ['--ramp-marka-ink-950', '--ramp-marka-ink-800'],
+  [KAGIT]: null,
+}
 
 /** Renk rolü — hangi token'ın zemin, hangisinin metin olacağı. */
 export interface AlanRolleri {
@@ -27,6 +51,8 @@ export interface AlanRolleri {
   readonly metin: string
   readonly metinSoluk: string
   readonly motif: string
+  /** Dolgunun degrade durakları — `null` ise o alan düz kalır (rampada tek durak var). */
+  readonly karsiAlanRampa: readonly [RampaTokeni, RampaTokeni] | null
 }
 
 /**
@@ -37,10 +63,6 @@ export interface AlanRolleri {
  * cevaplayamaz, tablo cevaplar.
  */
 export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
-  const KEHRIBAR = 'var(--role-bg)'
-  const KAGIT = 'var(--role-surface)'
-  const MUREKKEP = 'var(--role-line-edge)'
-
   // ⚠ **Motif `karsiAlan`dan TÜRETİLİYOR, elle yazılmıyor.** Hayalet rakam zeminin
   // değil DOLGUNUN üstünde duruyor; rengi zemine göre seçilirse dolguyla aynı olabilir
   // ve rakam görünmez olur. Tam bu oldu: dört rolün ÜÇÜNDE motif dolgu rengiyle
@@ -57,6 +79,7 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
       metin: 'var(--role-text)',
       metinSoluk: 'var(--role-text-muted)',
       motif: kontrast(KAGIT),
+      karsiAlanRampa: ALAN_RAMPASI[KAGIT] ?? null,
     }
   }
   if (k.role === 'kapanis') {
@@ -67,6 +90,7 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
       metin: 'var(--role-surface)',
       metinSoluk: 'var(--role-surface)',
       motif: kontrast(KEHRIBAR),
+      karsiAlanRampa: ALAN_RAMPASI[KEHRIBAR] ?? null,
     }
   }
   // Gövde: tek indeksler kâğıt, çiftler kehribar — komşu iki slayt asla aynı zemin.
@@ -78,6 +102,7 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
         metin: 'var(--role-line-edge)',
         metinSoluk: 'var(--role-text-muted)',
         motif: kontrast(KEHRIBAR),
+        karsiAlanRampa: ALAN_RAMPASI[KEHRIBAR] ?? null,
       }
     : {
         zemin: KEHRIBAR,
@@ -85,6 +110,7 @@ export const alanRolleri = (k: SlaytKimligi): AlanRolleri => {
         metin: 'var(--role-text)',
         metinSoluk: 'var(--role-text-muted)',
         motif: kontrast(KAGIT),
+        karsiAlanRampa: ALAN_RAMPASI[KAGIT] ?? null,
       }
 }
 

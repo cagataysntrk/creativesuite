@@ -40,12 +40,9 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    ölçüyor, en açık durak kontrastını kaybedebilir ve ölçüm göremez (açmak ölçümün EN KÖTÜ
    durağı bulmasını ister). **gölge** — referansların dördü de düz. **knockout** — çözdüğü
    sorun bu ailede YOK, metin eğri sınırını hiç geçmiyor (`column_in_band`).
-   ⚠ **AÇIK OLAN İKİSİ:** OpenType (`dlig` kapalı — Türkçe'de `fi` bağı `fı` ile karışır)
-   ve vurgu şeridi.
-   ⚠ **Vurgu, karoselin en büyük tipografik eksiğiydi:** her satır aynı ağırlıkta
-   okunuyordu. Prompt satır başına EN FAZLA bir ifade istiyor.
-   ⚠ **İlk sürüm BAKINCA yetersiz çıktı:** yalnız renk değiştiriyordu, fark ayırt
-   edilemiyordu. Fosforlu kalem deseni glifin ALT yarısında, kontrastı düşürmüyor.
+   ⚠ **AÇIK İKİSİ:** OpenType (`dlig` kapalı — `fi` bağı `fı` ile karışır) ve vurgu şeridi.
+   ⚠ **İlk sürüm BAKINCA yetersiz çıktı:** yalnız renk değiştiriyordu. Fosforlu kalem
+   deseni glifin ALT yarısında — vurgu, karoselin en büyük tipografik eksiğiydi.
 🧪 6 test: `**x**` → `<strong>` ve metin GÖRSELE DÖNMÜYOR · kaçırma önce işaretleme sonra
    (enjeksiyon yok) · açgözlü değil · şerit gerçekten şerit · `dlig` kapalı.
 💾 `feat(render): tipografi efekt dagarcigi` · `Refs: FAZ-12.1 · §7.2`
@@ -101,9 +98,8 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 
 📖 §7.1 · D-254
 🔗 12.2
-🛠 Referans örnek 2'nin taşıyıcı dili: bir öge slaytlar arasında **akıyor** — eğri devam
-   ediyor, renk alanı kayıyor, bir şekil kareyi terk edip diğerinde beliriyor. Karoselin
-   "tek şey" görünmesini sağlayan en güçlü teknik. Şu an her slayt bağımsız çiziliyor.
+🛠 Referans örnek 2'nin taşıyıcı dili: bir öge slaytlar arasında **akıyor**. Karoselin
+   "tek şey" görünmesini sağlayan en güçlü teknik.
 📁 `packages/render/src/sablon-susleme.ts` · `packages/contracts/src/aile.ts`
 ✅ ⚠ **Süreklilik SLAYT SIRASINA bağlı, içeriğe değil.** `k.index / k.total` ile faz
    hesaplanır; içerikten türerse bir cümle değiştiğinde tüm karosel kayar.
@@ -113,12 +109,10 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    ⚠ Kapak ve kapanış **çapa**: ikisi de tam kompozisyon, akışın ucu değil.
    ⚠ ⚠ **AKAN ŞEY ZEMİN DEĞİL SÜSLEME.** Eğrinin dolgu tarafı her slaytta yer değiştiriyor
    (ritim bilerek böyle); zeminin monoton akması bu aileyle ÇELİŞİR.
-   ⚠ **İlk deneme okumadı, ikincide öncül sorgulandı.** Kenarda yarım halka: matematik
-   doğruydu (N'nin sağı y=45, N+1'in solu y=45) ama BAKINCA birleşmiyordu — aradaki boşlukta
-   ikiye bölünen daire iki yarım daire gibi duruyor. Göz devamı **şekli tamamlayarak değil
-   YÖNÜ izleyerek** kuruyor; yön veren `yay` eklendi (dağarcığın altıncısı — bir karar).
-   ⚠ **Kapak VE kapanış çapa:** kapanış yay alıyordu, yani olmayan bir sonrakine işaret
-   ediyordu; navigasyon orada zaten `‹‹ başa` diyor.
+   ⚠ **İki deneme tutmayınca öncül sorgulandı.** Kenarda yarım halka: matematik doğruydu
+   (y=45 iki yanda) ama BAKINCA birleşmiyordu — boşlukta bölünen daire iki yarım daire gibi
+   duruyor. Göz devamı **şekli tamamlayarak değil YÖNÜ izleyerek** kuruyor; `yay` eklendi.
+   ⚠ **Kapanış da çapa:** yay alıyordu, yani olmayan bir sonrakine işaret ediyordu.
    ⚠ ⚠ **ÜÇÜNCÜ KAPALI YETENEK İKİNCİ AİLEYİ DOĞURDU.** Panorama `temel`de kapalı (o
    ailenin dili düz), tıpkı vinyet ve degrade gibi. Üç kapalı yetenek biriktiğinde ortaya
    çıkan şey eksik bir aile değil, İKİNCİ bir ailedir: `AKICI_AILE` (referans örnek 1'in
@@ -154,8 +148,7 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 
 📖 §4.3 · D-252
 🔗 —
-🛠 Marka işareti şu an **hiç yok** — yalnız metin kulbu var. Logo, boşluk kuralı
-   (clearspace), en küçük boy ve izinli yerleşimler kapalı bir kural kümesi olarak.
+🛠 Marka işareti **hiç yok** — yalnız metin kulbu. Logo, boşluk kuralı, en küçük boy.
 📁 `packages/render/src/marka-isareti.ts` + testi · `static.ts`
 ✅ ⚠ Boşluk kuralı işaretin KENDİ ölçüsünden türetilir (klasik: harf yüksekliği kadar),
    sabit piksel değil — 1:1 ve 9:16'da sabit piksel farklı görünür.
@@ -164,10 +157,8 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    *"imza eğridir, öyleyse işaret de eğri olmalı."* Yanlış olan **"öyleyse"** — eğri
    1080 px'te imza, 30 px'te çizgi; iki büküm o karede ayırt edilemiyor ve işaret dilim
    gibi duruyordu. Bu ölçekte okuyan tek şey harf formu: mürekkep kare, oyulmuş "U".
-   ⚠ **Yeni varlık YOK:** marka fontu zaten gömülü (D-252); SVG eklemek ağdan indirme +
-   lisans + §16 sınavı demekti.
-   ⚠ **Harf `text` olarak duruyor, `path`e çevrilmiyor:** canlı metin kalınca glif ölçümü
-   ve `notdef` sayımı işareti de kapsıyor — font düşerse kapı görür (R-20 ailesi).
+   ⚠ **Yeni varlık YOK:** font zaten gömülü (D-252); SVG = indirme + lisans + §16 sınavı.
+   ⚠ **Harf `text`, `path` değil:** canlı metinde glif ölçümü işareti de kapsıyor (R-20).
 🧪 6 test: boşluk işaretin kendi ölçüsünden · en küçük boy · harf canlı metin · erişilebilir
    ad · yalnız kapak/kapanışta · kilit birlikte.
 💾 `feat(render): marka isareti yerlesimi` · `Refs: FAZ-12.6 · §4.3`
@@ -214,7 +205,7 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    MIT/BSD karşılıkları var, onlar kullanılacak.
 💾 —
 
-## 12.9 — Degrade ve renk geçişi yüzeyleri    [ ]
+## 12.9 — Degrade ve renk geçişi yüzeyleri    [x] 2026-08-17
 
 📖 §12.1, §7.1 · D-253
 🔗 12.2
@@ -222,13 +213,22 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    grenli degrade (üstüne `feTurbulence` — bantlaşmayı gizler).
    ⚠ `temel` ailede kapalı; `akici` ailesi isteyebilir.
 📁 `packages/render/src/sablon-degrade.ts`
-✅ ⚠ **Degrade CHROMA TAVANINA tabidir (§12.1, D-253).** Ölçüm yüzey kapsamlı: bir degrade
-   ortalamada tavanı geçmese de tek bir durağı geçebilir — **her durak ayrı ölçülür.**
-   ⚠ Degrade rampadan türer, serbest renk çifti değil: `--ramp-amber-40 → --ramp-amber-70`.
-   İki serbest renk arası geçiş marka dışına çıkar ve palet metriği bunu ancak sonradan görür.
-   ⚠ **8-bit bantlaşma gerçek bir kusurdur** — 1080px'de düşük kontrastlı degrade şeritlenir.
-   Gren katmanı süs değil, düzeltmedir.
-🧪 Rampa dışı bir durak tanımla → derleme hatası. Tavanı aşan durak → `kalite` kırmızı.
+✅ ⚠ ⚠ **TAVAN AYRI ÖLÇÜMLE DEĞİL KURGUYLA korunuyor — plandaki "her durak ölçülür"
+   maddesi gereksiz çıktı.** Tavanı `ui-tema` kapısı zaten RAMPA üstünden zorluyor; durak
+   tipi `RampaTokeni` olunca tavanı aşan durak TEMSİL EDİLEMEZ. İkinci ölçüm, ikinci
+   doğruluk kaynağı olurdu (aile garantisi ve yuvasız görselle aynı ilke).
+   ⚠ ⚠ **ASIL KUSUR duraklarda değil, durakların YERİNDEYDİ:** ilk sürüm `static.ts`te
+   SABİT amber çifti yazıyordu ve dolgu rengi slayta göre dönüyor — kâğıt alan render'da
+   AMBER çıktı. Metrik göremezdi; **bakınca görüldü.** Çift artık `alanRolleri`de,
+   `karsiAlan`ın yanında: `motif`in türetilme dersi (aynı dosya) degradede tekrarlandı.
+   ⚠ **Kâğıt alan DÜZ ve kararı RAMPA veriyor:** rampada tek kâğıt durağı var, ikincisini
+   icat etmek bir render modülünün markaya renk eklemesi olurdu. `null` eksiklik değil karar.
+   ⚠ Ölçüldü: dolgu 233,182,36 → 220,167,16 (derinlik okunuyor, alan çamurlaşmıyor);
+   kâğıt ve mürekkep zemin bit-bit aynı kaldı. `akici` ailede AÇIK, `temel`de kapalı.
+   ⚠ CSS üreteci YAZILMADI: dolgu bir `<div>` değil SVG `<path>`, ve kullanıcısı olmayan
+   ikinci bir üretici sessizce eskir.
+🧪 5 test + ihlal turu: `[KAGIT]` çiftine bir amber rampası verildi → kırmızı, geri alındı
+   → yeşil. Testler üretilen dizgeyi değil ROLDEN TÜREMEYİ zorluyor.
 💾 `feat(render): degrade yuzeyleri` · `Refs: FAZ-12.9 · §12.1`
 
 ## 12.10 — Şekil cebri ve şekilli metin akışı    [ ]

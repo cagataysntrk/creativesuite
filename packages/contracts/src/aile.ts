@@ -87,7 +87,10 @@ export const AKICI_AILE: AileProfili = {
   ad: 'Akıcı — yön veren çizim slaytlar arasında akıyor',
   suslemeYogunlugu: 0.55,
   vinyetGucu: 0,
-  degrade: false,
+  // ⚠ **AÇIK — ve açılma sebebi ölçüm, tercih değil.** Dolgu alanı 233,182,36'dan
+  // 220,167,16'ya iniyor: derinlik okunuyor, alan çamurlaşmıyor. Kâğıt alan bu
+  // ailede de DÜZ kalıyor çünkü rampada ikinci bir kâğıt durağı yok — karar rampanın.
+  degrade: true,
   yuvaBicimi: 'alan',
   panorama: true,
   ritim: { gerilim: 0.75, donus: 0.55 },

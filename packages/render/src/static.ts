@@ -33,6 +33,10 @@ import {
 import { ikonSec, ikonSvg } from './sablon-ikon.js'
 import { OPENTYPE_CSS, vurguCss, vurguyuIsaretle } from './sablon-tipo.js'
 import { markaCss, markaKilidi } from './marka-isareti.js'
+import { degradeDefSvg } from './sablon-degrade.js'
+
+/** Alan degradesinin belge içi kimliği. */
+const DEGRADE_ID = 'marka-alan-degrade'
 import {
   dokuCss,
   duotoneSvg,
@@ -468,10 +472,15 @@ const sablonKatmanlari = (doc: DocumentModel): string => {
   // Süslemeler AYRI bir SVG katmanında ve `preserveAspectRatio` YOK: alan katmanı
   // `none` ile geriliyor (dolgu tuvali kaplamalı), ama gerilmiş bir daire elips olur.
   // Aynı viewBox'a koymak, beş ögenin de ezilmesi demekti.
+  const degradeli = doc.aile?.degrade === true ? r.karsiAlanRampa : null
   const sus = suslemeler(k, sagda, doc.aile?.suslemeYogunlugu, doc.aile?.panorama)
   return [
     `<div class="alan"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
-    `<path d="${kapali}" fill="${r.karsiAlan}"/></svg></div>`,
+    // ⚠ Degrade AİLE isterse VE o alanın rampada iki durağı varsa (FAZ-12.9). İki koşul
+    // birden: `temel` ailede düz alan tasarımın kendisi, kâğıt alanda ise ikinci durak
+    // rampada YOK — ikisi de sessizce düz kalıyor, sessizce amber olmuyor.
+    ...(degradeli === null ? [] : [degradeDefSvg(DEGRADE_ID, degradeli[0], degradeli[1])]),
+    `<path d="${kapali}" fill="${degradeli === null ? r.karsiAlan : `url(#${DEGRADE_ID})`}"/></svg></div>`,
     ...(sus.length === 0
       ? []
       : [
