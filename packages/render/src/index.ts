@@ -299,6 +299,8 @@ export {
   yolSapmasi,
 } from './kompozisyon-olcum.js'
 export type { Kutle } from './kompozisyon-olcum.js'
+export { ALAN_KAYNAGI, dagilim, PARMAK_IZI_ALANLARI, parmakIzi, uzaklik } from './cesitlilik.js'
+export type { ParmakIzi, ParmakIziAlani } from './cesitlilik.js'
 export { KATMAN_SIRASI, ustunde, z } from './kompozit.js'
 export type { Katman } from './kompozit.js'
 export { egriZarfi } from './sekil-cebri.js'

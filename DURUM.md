@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 13
-siradaki_adim: 13.4
+siradaki_adim: 13.5
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-13.2 KAPANDI — katman yigini artik VERI. Yigin zaten vardi ama SEKIZ AYRI SABIT halinde ve UCU BERABERDI: .alan/.susleme ikisi de 1, .hayalet/.doku/.vinyet ucu de 2. Beraberlikte sirayi CSS degil DOM sirasi belirler. .doku mix-blend-mode overlay tasiyor ve rakamin USTUNDE metnin ALTINDA olmak ZORUNDA — bugun dogru yerdeydi ama bunu saglayan bir karar degil, iki div in yazilma sirasiydi; bir satir tasinsa sessizce bozulurdu. Simdi yedi adli katman, z-index indeksten turuyor, beraberlik URETILEMEZ. CIKTI DEGISMEDI ve bu OLCULDU: yedi render (5 slaytlik serit + iki yuva bicimi) once/sonra PIKSEL-OZDES (ImageChops bbox None). Oge-ici cok kaynakli montaj YAZILMADI, bugun cagirani yok (D-261). Ayrica sablon-filtre testi z-index 2 SABITINI ariyordu — testin kendisi kaldirilan sabite bagliydi; iliskiye cevrildi (ustunde(icerik, doku)). 6 test + ihlal turu: katman yeniden adlandirildi -> tuketicide DERLEME hatasi, sekizinci katman eklendi -> iki test kirmizi. FAZ-13 te kalan: 13.4 cesitlilik, 13.5 design.critique, 13.6 kor kabul; 13.3 BLOKE:karar."
+son_kanit: "FAZ-13.4 KAPANDI — cesitlilik parmak izi. Alti alan OLCUMDEN ONCE sabitlendi; yedincisinin gerekcesi cesitlilik dusuk cikti OLAMAZ (ihlal turu: sahte alan eklendi -> iki test kirmizi). DEFTER RAHATSIZ EDICI GERCEGI SOYLUYOR: iki aile alti alanin YALNIZ IKISINDE ayrisiyor, uzaklik 0.33; tipoEfektleri ve gorselIslemleri ikisinde de ayni. Metrik kusuru degil — akici nin bugun temel in suslu hali oldugunun SAYISI. OLCUM BOSLUGU BIR ZINCIR KOPUKLUGUNU ACTI (sekizinci, D-261): tipoEfektleri AileProfili de VARDI, belgeye hic girmiyordu, render hic okumuyordu, vurgu seridi kosulsuz basiliyordu. Parmak izi o alani olcemeyip sabit yazmak zorunda kalinca gorundu; alan belgeye eklendi, render aileden okuyor. Olcemedigin sey baglanmamis olabilir. ALAN_KAYNAGI kayitli: ilk defter duzenler ve veriOgesi ni de suclu yaziyordu ama ikisini aile SECMIYOR, sabit icerikte zorunlu olarak ayni cikar. Dagilim tek puan DEGIL (benzersiz + ortalamaUzaklik). docs/referans/cesitlilik-defteri.md URETILMIS (R-65, docs-drift kapisi). 7 test. FAZ-13 te kalan: 13.5 design.critique, 13.6 kor kabul; 13.3 BLOKE:karar."
 ```
 
 ## Neredeyiz
@@ -48,6 +48,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 | Adım | Tarih |
 |---|---|
+| **13.4** · çeşitlilik parmak izi; iki aile 6 alanın YALNIZ 2'sinde ayrışıyor | 2026-08-17 |
 | **13.2** · katman yığını VERİ; üç z-index beraberliği kazaydı, çıktı piksel-özdeş | 2026-08-17 |
 | **13.1** · kompozisyon ölçümü RAPOR; ilk metrik gramerin ritmini kusur sanıyordu | 2026-08-17 |
 | **12.2** · raster dağarcığı; palet garantisini duotone tutuyor, ikiz küme sınavı | 2026-08-17 |

@@ -214,7 +214,13 @@ export const toHtml = (doc: DocumentModel): string =>
     `  img { max-width: 100%; height: auto; }`,
     `  .spacer.sm { height: 16px } .spacer.md { height: 40px } .spacer.lg { height: 88px }`,
     sablonCss(doc),
-    doc.slayt === undefined
+    // ⚠ **Vurgu şeridi KOŞULSUZ basılıyordu ve aile onu seçebiliyor sanılıyordu.**
+    // `tipoEfektleri` `AileProfili`de vardı, belgeye hiç girmiyordu, render hiç okumuyordu
+    // — modül var, alan var, üretim yolu sıfır (D-261, sekizinci tekrar). FAZ-13.4'te
+    // parmak izi o alanı ÖLÇEMEYİNCE görüldü: ölçüm boşluğu bir zincir kopukluğunu açtı.
+    // ⚠ Varsayılan `vurgu` AÇIK: ailesiz bir belgede efekti düşürmek, sessizce eski
+    // hiyerarşisiz hâle dönmek olurdu (duotone varsayılanıyla aynı gerekçe).
+    doc.slayt === undefined || !(doc.aile?.tipoEfektleri ?? ['vurgu']).includes('vurgu')
       ? ''
       : vurguCss(alanRolleri(doc.slayt).karsiAlan, alanRolleri(doc.slayt).metin),
     '</style>',

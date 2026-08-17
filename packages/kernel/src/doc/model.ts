@@ -126,6 +126,14 @@ export interface AileParametreleri {
    * kapalı. Sıra bu listeden okunmuyor, dağarcıktan geliyor (`islemZinciri`).
    */
   readonly gorselIslemleri?: readonly ('keskinlik' | 'duotone')[]
+  /**
+   * Açık tipografi efektleri — kapalı dağarcıktan alt küme (FAZ-12.1).
+   *
+   * ⚠ Alan FAZ-13.4'te eklendi ve sebebi bir ölçüm boşluğuydu: aile bu listeyi
+   * TAŞIYORDU ama render'a hiç ulaşmıyordu, vurgu şeridi koşulsuz basılıyordu.
+   * Parmak izi ölçülemeyen bir alanı sabit yazmak zorunda kalınca zincir görüldü.
+   */
+  readonly tipoEfektleri?: readonly ('vurgu' | 'kontur' | 'degrade' | 'golge' | 'knockout')[]
 }
 
 export interface CompareBlock {

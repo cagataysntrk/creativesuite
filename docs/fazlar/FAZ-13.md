@@ -103,7 +103,7 @@ ailesiyle aynı sınıfta duruyor.
    grafik/illüstratif çıktılar için.
 💾 —
 
-## 13.4 — Çeşitlilik ölçümü: "binlerce çeşit" doğrulanabilir mi    [ ]
+## 13.4 — Çeşitlilik ölçümü: "binlerce çeşit" doğrulanabilir mi    [x] 2026-08-17
 
 📖 §7.1 · D-254, D-255
 🔗 12.7
@@ -112,14 +112,28 @@ ailesiyle aynı sınıfta duruyor.
    karoselin gerçekten farklı olduğunu ölçen bir imza: kullanılan düzen · efekt profili ·
    süsleme tipleri · degrade varlığı · veri ögesi tipi · panorama fazı → **kompozisyon
    parmak izi**. Farklı konulardan üretilen N karoselin parmak izi dağılımı raporlanır.
-📁 `packages/render/src/cesitlilik.ts` · `docs/referans/cesitlilik-defteri.md`
-✅ ⚠ **Piksel benzerliği DEĞİL, KARAR benzerliği ölçülür.** İki karosel farklı renkte olup
-   aynı kararları vermiş olabilir — bu çeşitlilik değil, boyamadır.
-   ⚠ ⚠ **Bu metrik kendi kendini kandırmaya EN AÇIK olanı.** Parmak izine ne kadar çok alan
-   koyarsam çeşitlilik o kadar yüksek çıkar. Alanlar ÖNCE sabitlenir, ölçüm SONRA yapılır;
-   sonuç beğenilmediği için alan eklenmez. Bu cümle buraya bu yüzden yazıldı.
-   ⚠ Çeşitlilik hedefi bir KAPI değil: aynı konudan iki kez üretmek benzer sonuç vermeli.
-🧪 Aynı konuyu iki kez üret → parmak izleri AYNI (determinizm). Farklı konu → farklı.
+📁 `packages/render/src/cesitlilik.ts` + testi · `scripts/docs-uret.mjs` ·
+   `docs/referans/cesitlilik-defteri.md` (üretilmiş) · `packages/kernel/src/doc/model.ts`
+✅ ⚠ **KARAR benzerliği, piksel değil.** Altı alan, ölçümden ÖNCE sabitlendi; yedincisinin
+   gerekçesi "çeşitlilik düşük çıktı" olamaz. İhlal turunda sahte bir alan eklendi → iki
+   test kırmızı, geri alındı → yeşil.
+   ⚠ ⚠ **DEFTER RAHATSIZ EDİCİ GERÇEĞİ SÖYLÜYOR: iki aile altı alanın YALNIZ İKİSİNDE
+   ayrışıyor (uzaklık 0,33).** `tipoEfektleri` ve `gorselIslemleri` ikisinde de aynı.
+   Metrik kusuru değil — `akici`nin bugün `temel`in süslü hâli olduğunun SAYISI. Şablon
+   genelleştirme notu (bu dosyanın sonu) bunu niteliksel olarak söylüyordu; artık ölçülü.
+   ⚠ ⚠ **ÖLÇÜM BOŞLUĞU BİR ZİNCİR KOPUKLUĞUNU AÇTI (sekizinci, D-261).** `tipoEfektleri`
+   `AileProfili`de VARDI, belgeye hiç girmiyordu, render hiç okumuyordu — vurgu şeridi
+   koşulsuz basılıyordu. Parmak izi o alanı ölçemeyip sabit yazmak zorunda kalınca görüldü;
+   alan belgeye eklendi, render aileden okuyor. *Ölçemediğin şey, bağlanmamış olabilir.*
+   ⚠ **Alanın KAYNAĞI kayıtlı (`ALAN_KAYNAGI`).** İlk defter `duzenler` ve `veriOgesi`ni de
+   "farklılaşmıyor" diye suçluyordu; ikisini aile SEÇMİYOR (plandan/içerikten gelir) ve
+   sabit içerikte zorunlu olarak aynı çıkar. Ölçümün kime ne sorduğunu bilmemek ölçümü
+   yanlış yapar.
+   ⚠ **Dağılım tek puan DEĞİL:** `benzersiz` + `ortalamaUzaklik`. Tek puan, "hepsi aynı" ile
+   "hepsi biraz farklı"yı aynı sayıya indirebilirdi.
+   ⚠ Çeşitlilik bir KAPI değil: aynı girdi aynı izi vermeli (R-06).
+🧪 7 test: determinizm · farklı aile+içerik uzaklık > 0,5 · SLAYT SIRASI çeşitlilik değil
+   (alanlar sıralı) · alan listesi kapalı · her alanın kaynağı belli · boş küme çökmüyor.
 💾 `feat(render): cesitlilik parmak izi` · `Refs: FAZ-13.4 · §7.1`
 
 ## 13.5 — `design.critique`: makinenin estetik yargısı    [ ]

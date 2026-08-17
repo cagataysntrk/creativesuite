@@ -401,6 +401,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
         degrade: aileProfili.degrade,
         panorama: plan.panorama.deger,
         gorselIslemleri: aileProfili.gorselIslemleri,
+        tipoEfektleri: aileProfili.tipoEfektleri,
       },
       blocks,
     }

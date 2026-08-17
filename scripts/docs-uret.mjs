@@ -129,7 +129,70 @@ if (cozulemeyen.length > 0) {
 
 const s2 = yaz('docs/referans/pipelinelar.md', pl.join('\n'))
 
+// ── FAZ-13.4 çeşitlilik defteri ─────────────────────────────────────────────
+//
+// ⚠ ⚠ **Bu defter "binlerce çeşit" iddiasını SAYIYA çeviriyor.** İddiayı ölçmeden
+// bırakmak, onu kendi lehimize yorumlamak demekti (FAZ-10.7'nin kabul sayacı dersi).
+// ⚠ Üretilmiş dosya (R-65): elle düzenleme `docs-drift` kapısında geri gelir. Sayı
+// beğenilmediğinde metni düzeltmek değil, AİLEYİ değiştirmek gerekiyor.
+const R = await import(join(REPO, 'packages/render/dist/index.js'))
+const C = await import(join(REPO, 'packages/contracts/dist/index.js'))
+
+const temsili = (aile) =>
+  ['statement', 'list', 'claim-proof', 'list', 'statement'].map((duzen, i) => ({
+    width: 1080,
+    height: 1350,
+    slayt: { role: i === 0 ? 'kapak' : 'govde', index: i, total: 5, duzen },
+    aile: {
+      suslemeYogunlugu: aile.suslemeYogunlugu,
+      vinyetGucu: aile.vinyetGucu,
+      degrade: aile.degrade,
+      panorama: aile.panorama,
+      gorselIslemleri: aile.gorselIslemleri,
+      tipoEfektleri: aile.tipoEfektleri,
+    },
+    blocks: [{ type: 'body', text: 'metin' }],
+  }))
+
+const izler = C.AILELER.map((a) => ({ aile: a, iz: R.parmakIzi(temsili(a)) }))
+const cd = [
+  '# Çeşitlilik defteri',
+  '',
+  '<!-- ÜRETİLMİŞ — `just docs`. Elle düzenleme kaybolur (R-65). -->',
+  '',
+]
+cd.push('Karar parmak izi: piksel benzerliği değil, **karar** benzerliği. Alanlar ölçümden')
+cd.push('ÖNCE sabitlendi (FAZ-13.4) — sonuç beğenilmediği için alan eklenmez.')
+cd.push('')
+cd.push(`| Aile | ${R.PARMAK_IZI_ALANLARI.join(' | ')} |`)
+cd.push(`|---|${R.PARMAK_IZI_ALANLARI.map(() => '---').join('|')}|`)
+for (const { aile, iz } of izler) {
+  cd.push(`| \`${aile.id}\` | ${R.PARMAK_IZI_ALANLARI.map((k) => iz[k]).join(' | ')} |`)
+}
+cd.push('')
+const dg = R.dagilim(izler.map((x) => x.iz))
+cd.push(`**Dağılım:** ${dg.benzersiz} benzersiz karar kümesi / ${izler.length} aile ·`)
+cd.push(`ortalama uzaklık **${dg.ortalamaUzaklik}** (0 = aynı kararlar, 1 = her alanda farklı).`)
+cd.push('')
+// ⚠ Yalnız AİLENİN seçtiği alanlar suçlanabilir: `duzenler` plandan, `veriOgesi`
+// içerikten geliyor ve sabit içerikte zorunlu olarak aynı çıkar.
+const olu = R.PARMAK_IZI_ALANLARI.filter(
+  (k) => R.ALAN_KAYNAGI[k] === 'aile' && new Set(izler.map((x) => x.iz[k])).size === 1
+)
+cd.push('Tablo AİLELERİ sabit içerikte karşılaştırıyor; `duzenler` ve `veriOgesi` aileden')
+cd.push('değil plandan/içerikten gelir, o yüzden burada zorunlu olarak aynıdır.')
+cd.push('')
+if (olu.length > 0) {
+  cd.push(
+    `⚠ **Ailenin seçtiği hâlde hiç farklılaşmayan alan:** ${olu.map((k) => `\`${k}\``).join(' · ')}.`
+  )
+  cd.push('Metrik kusuru değil: ailelerin gerçekten ne kadar az ayrıştığının ölçüsü.')
+  cd.push('')
+}
+const s3 = yaz('docs/referans/cesitlilik-defteri.md', cd.join('\n'))
+
 console.log(
   `  saglayicilar.md ${s1} (${descriptors.length} tanımlayıcı) · ` +
-    `pipelinelar.md ${s2} (${hatlar.length} hat)`
+    `pipelinelar.md ${s2} (${hatlar.length} hat) · ` +
+    `cesitlilik-defteri.md ${s3} (${izler.length} aile)`
 )
