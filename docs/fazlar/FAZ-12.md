@@ -23,7 +23,7 @@ bu dille geçiyor.
 
 ---
 
-## 12.1 — Tipografi katman stilleri: Photoshop'un tamamı, canlı metinle    [ ]
+## 12.1 — Tipografi katman stilleri: Photoshop'un tamamı, canlı metinle    [x] 2026-08-17
 
 📖 §7.2, §12.2 · R-20, R-30
 🔗 —
@@ -43,7 +43,8 @@ bu dille geçiyor.
 | OpenType (ligatür, alternatif) | `font-feature-settings` | yeni |
 | Vurgu şeridi | eğik `background` | yeni |
 
-📁 `packages/render/src/sablon-tipo.ts` · `static.ts`
+📁 `packages/render/src/sablon-tipo.ts` + `sablon-tipo.test.ts` · `static.ts` ·
+   `packages/engine/src/metin-akisi.ts`
 ✅ ⚠ **Efekt SLAYT ROLÜNE göre seçiliyor, serbestçe değil.** Photoshop'ta her efekt her
    metne uygulanabilir; bir MARKA sisteminde uygulanamaz. "Hepsi mümkün" ile "hepsi aynı
    anda" arasındaki fark, tasarım ile şablon arasındaki farktır.
@@ -51,8 +52,25 @@ bu dille geçiyor.
    bile canlı metin bırakır — glif ölçümü ve Türkçe kapıları çalışmaya devam eder.
    ⚠ Kontrast (T4) her efektten SONRA ölçülür: degradeyle dolan başlık zeminle kontrastını
    kaybedebilir ve o an okunmaz olur.
-🧪 Kontrastı düşüren efekt uygula → `tasarim` kırmızı. `background-clip: text` uygulanmış
-   başlıkta glif ölçümü hâlâ çalışıyor (metin görsele dönmedi).
+   ⚠ ⚠ **BU AİLEDE ÜÇÜ KAPALI ve her birinin sebebi ayrı yazılı** — vinyette olduğu gibi
+   (D-262 ailesi), yetenek duruyor ve parametrik:
+   **degrade** kontrast metriği tek renk üstünden ölçüyor, en açık durak zeminle
+   kontrastını kaybedebilir ve ölçüm göremez; açılması ölçümün EN KÖTÜ durağı bulmasını
+   gerektirir — bir adım, bir CSS satırı değil.
+   **gölge** referans örneklerin dördünde de yok, bu ailenin dili düz.
+   **knockout** ise çözdüğü sorun bu ailede YOK: metin hiçbir zaman eğri sınırını geçmiyor
+   (`column_in_band` değişmezi zorluyor).
+   ⚠ **AÇIK OLAN İKİSİ ve neden onlar:** OpenType (`kern`/`liga`/`calt`; `dlig` kapalı —
+   Türkçe'de `fi` bağı `fı` ile karışır) ve **vurgu şeridi**.
+   ⚠ **Vurgu, karoselin en büyük tipografik eksiğiydi:** her satır aynı ağırlıkta
+   okunuyordu. Hiyerarşi slaytın İÇİNDE de gerekiyor. Prompt her satırda EN FAZLA bir
+   ifade istiyor — her şeyin vurgulandığı bir metinde hiçbir şey vurgulanmamıştır.
+   ⚠ **İlk sürüm BAKINCA yetersiz çıktı:** yalnız renk değiştiriyordu ve fark
+   `--role-text-muted` ile `--role-text` arasında ayırt edilemiyordu. Üstelik dosyanın
+   yorumu "şerit" diyor, kod renk yazıyordu — yorum ile kodun ayrışması. Fosforlu kalem
+   deseni (degrade %58'den dolu) glifin ALT yarısında duruyor, kontrastı düşürmüyor.
+🧪 6 test: `**x**` → `<strong>` ve metin GÖRSELE DÖNMÜYOR · kaçırma önce işaretleme sonra
+   (enjeksiyon yok) · açgözlü değil · şerit gerçekten şerit · `dlig` kapalı.
 💾 `feat(render): tipografi efekt dagarcigi` · `Refs: FAZ-12.1 · §7.2`
 
 ## 12.2 — Raster işleme ilkelleri: filtre, karışım, maske    [ ]

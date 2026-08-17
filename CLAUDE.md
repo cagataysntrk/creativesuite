@@ -112,3 +112,15 @@ hiçbiri. Kapı reddeder. → D-34
   farklı yazma.
 - **Bağımlılık eklemeden önce dur.** 40 satır yazmak bir bağımlılıktan iyidir.
 - **Üretilmiş dosyayı elle düzenleme.** Üretecini düzelt.
+
+## graphify
+
+Bilgi grafiği **`packages/` `apps/` `docs/` kapsamında** kurulur.
+
+- ⛔ **`corpus/` ve `brand/` kapsam DIŞI.** Kod yerel kalıyor ama `.md`/`.pdf`/görseller
+  LLM'e gidiyor; `corpus/` KVKK kapsamında prospect verisi, `brand/` marka sırrı taşıyor.
+  Depo kökünde çalıştırmak ikisini de kapsama sokar.
+- Kod soruları için `graphify query "<soru>"`, ilişki için `path`, odak için `explain`.
+  Kod değişince `graphify update` (AST-only, API maliyeti yok).
+- `graphify-out/` gitignore'lu ve türetilmiştir (Yasa 11). `gitleaks` onun `cache/`
+  dosyalarında iki yanlış pozitif üretiyordu — dizin silinebilir, yeniden kurulur.

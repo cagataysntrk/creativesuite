@@ -30,6 +30,7 @@ import {
   sayacEtiketi,
 } from './sablon.js'
 import { ikonSec, ikonSvg } from './sablon-ikon.js'
+import { OPENTYPE_CSS, vurguCss, vurguyuIsaretle } from './sablon-tipo.js'
 import {
   dokuCss,
   duotoneSvg,
@@ -102,12 +103,12 @@ const hecele = (t: string): string => softHyphenate(t, HECE_ESIGI, 3)
 const blokHtml = (b: Block, ikonRengi: string | null): string => {
   switch (b.type) {
     case 'heading':
-      return `<h${b.level}>${kacir(b.text)}</h${b.level}>`
+      return `<h${b.level}>${vurguyuIsaretle(kacir(b.text))}</h${b.level}>`
     case 'body': {
       const ad = ikonRengi === null ? null : ikonSec(b.text)
       // Eşleşme yoksa sınıf da yok: mevcut madde çizgisi çizilmeye devam eder. Zorla ikon
       // atamak, takvimden bahseden satırın yanına fabrika koymak demekti.
-      const metin = kacir(hecele(b.text))
+      const metin = vurguyuIsaretle(kacir(hecele(b.text)))
       return ad === null
         ? `<p>${metin}</p>`
         : `<p class="ikonlu">${ikonSvg(ad, ikonRengi as string, IKON_PX)}${metin}</p>`
@@ -186,9 +187,15 @@ export const toHtml = (doc: DocumentModel): string =>
     `       font-weight: 800; font-stretch: 112%; text-wrap: balance; }`,
     `  h2 { font-size: 48px; line-height: 1.18; margin: 0 0 16px; }`,
     `  p  { font-size: 34px; line-height: 1.45; margin: 0 0 16px; color: var(--role-text-muted); }`,
+    // OpenType: görünmez ama gerçek kalite farkı. `dlig` KAPALI — dekoratif bağlar
+    // Türkçe'de okunabilirliği düşürür (FAZ-12.1).
+    `  h1, h2, p { font-feature-settings: ${OPENTYPE_CSS}; }`,
     `  img { max-width: 100%; height: auto; }`,
     `  .spacer.sm { height: 16px } .spacer.md { height: 40px } .spacer.lg { height: 88px }`,
     sablonCss(doc),
+    doc.slayt === undefined
+      ? ''
+      : vurguCss(alanRolleri(doc.slayt).karsiAlan, alanRolleri(doc.slayt).metin),
     '</style>',
     sablonKatmanlari(doc),
     doc.slayt === undefined ? '' : duotoneSvg(DUOTONE_ID),

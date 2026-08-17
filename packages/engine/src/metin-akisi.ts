@@ -117,6 +117,11 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // temenni olarak kalırdı.
     ...yayTalimati(HEDEF_SATIR),
     '- Satırları numaralama, madde işareti koyma.',
+    // ⚠ **VURGU — karoselin en büyük tipografik eksiği** (FAZ-12.1). Bugüne kadar her
+    // satır aynı ağırlıkta okunuyordu; referanslarda bir ifade her zaman öne çıkar.
+    // Sınır dar: her şeyin vurgulandığı bir metinde hiçbir şey vurgulanmamıştır.
+    '- Her satırda EN FAZLA bir ifadeyi `**iki üç kelime**` ile işaretle. Satırın',
+    '  taşıdığı fikir orada olsun. Bazı satırlarda hiç işaretleme olmayabilir.',
     `- Toplam ${HEDEF_SATIR} satır. Bir KANIT satırını atlayıp ${HEDEF_SATIR - 1} satır da yazabilirsin.`,
     '',
     // ⚠ **Örnek ve sayım talimatı ÖLÇÜLEREK eklendi.** Yalnız "en fazla 8 kelime"
