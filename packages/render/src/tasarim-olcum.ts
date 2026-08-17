@@ -14,14 +14,27 @@
 // Paralel bir rapor biçimi icat etmek, aynı bilgiyi iki yerde iki farklı görünümle
 // göstermek olurdu ve biri kaçınılmaz olarak bayatlardı.
 
-import type { DocumentModel } from '@suite/kernel'
+import type { DocumentModel, SlaytKimligi } from '@suite/kernel'
 import type { QaReport, ToleranceReading } from '@suite/contracts'
+import { GOVDE_TAVANI, islevTavanlari, slaytIslevi } from '@suite/contracts'
 import { parseColor, type Rgb } from './qa/deltae.js'
 import { reading, report } from './qa/tolerance.js'
 import { alanRolleri, guvenliMetinYuzdesi } from './sablon.js'
 
-/** Slayt rolü başına kelime tavanı — `icerikPromptu` ile AYNI sayılar (D-254). */
-export const KELIME_TAVANI = { kapak: 8, govde: 30, kapanis: 14, tek: 14 } as const
+/**
+ * Slayt rolü başına kelime tavanı — **artık `@suite/contracts`ten TÜRETİLİYOR** (FAZ-14.1).
+ *
+ * ⚠ Eskiden burada elle yazılıydı ve yorumu *"`icerikPromptu` ile AYNI sayılar"* diyordu.
+ * **Bir yorum bir zorlama değildir:** prompt'taki sayı değişse bu sabit sessizce eski
+ * kalır ve ölçüm, üretimin uymaya çalıştığından başka bir şeyi ölçmeye başlardı. Tek
+ * kaynak `packages/contracts/src/senaryo.ts`; prompt da ölçüm de oradan okuyor.
+ */
+export const KELIME_TAVANI = {
+  kapak: islevTavanlari().kanca,
+  govde: GOVDE_TAVANI,
+  kapanis: islevTavanlari().davet,
+  tek: islevTavanlari().davet,
+} as const
 
 /** İçerik kenar payı, px — `static.ts`teki `pay` ile aynı olmak zorunda. */
 export const KENAR_PAYI = 88
@@ -125,11 +138,28 @@ const kelimeSayisi = (t: string): number => t.split(/\s+/).filter((w) => w !== '
  * **Ölçenin hatası, ölçülenin hatası gibi görünür** — ve görsele bakılmasaydı burada
  * içeriği "kurala uymuyor" diye suçlayacaktım.
  */
-const asimOrani = (doc: DocumentModel, rol: keyof typeof KELIME_TAVANI): number => {
+const asimOrani = (doc: DocumentModel, k: SlaytKimligi): number => {
+  // ⚠ **DÖRDÜNCÜ düzeltme değil, bir GENİŞLETME.** Üçü de "hangi bütçe" sorusuydu; bu,
+  // bütçenin nereden geldiğini değiştiriyor: slaytın YAY İŞLEVİ (kanca/gerilim/kanit/
+  // dönüş/davet) varsa onun tavanı geçerli. Böylece dört gövde satırı dört EŞİT paragraf
+  // olmaktan çıkıyor — ritim ölçüme giriyor, temenniye değil.
+  //
+  // ⚠ İşlev yoksa (yay dışı bir slayt sayısı) eski rol davranışı aynen sürüyor: yeni
+  // ölçüm, ölçemediği yerde eskisini bozmuyor.
+  const islev = slaytIslevi(k.index, k.total)
   let en = 0
   for (const b of metinBloklari(doc)) {
-    // Başlık slaydın rolüne göre, gövde her zaman gövde bütçesine göre.
-    const tavan = b.tur === 'heading' ? KELIME_TAVANI[rol] : KELIME_TAVANI.govde
+    const tavan =
+      b.tur === 'heading'
+        ? islev === null
+          ? KELIME_TAVANI[k.role]
+          : islevTavanlari()[islev]
+        : // Gövde bloğu: slaydın işlevi bir GÖVDE işleviyse onun tavanı, değilse (kapak
+          // slaydındaki destekleyici satır gibi) en geniş gövde tavanı. D-260'ın dersi
+          // korunuyor: kapaktaki 21 kelimelik destek satırı 8'e karşı ölçülmez.
+          islev === null || islev === 'kanca'
+          ? KELIME_TAVANI.govde
+          : islevTavanlari()[islev]
     const oran = kelimeSayisi(b.metin) / tavan
     if (oran > en) en = oran
   }
@@ -161,7 +191,7 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
       reading({
         metric: 'word_budget',
         label: `slayt ${i + 1} kelime bütçesi (${k.role})`,
-        value: Math.round(asimOrani(doc, k.role) * 100),
+        value: Math.round(asimOrani(doc, k) * 100),
         warn: 85,
         limit: 100,
         direction: 'lower',

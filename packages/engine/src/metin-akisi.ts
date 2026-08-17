@@ -22,6 +22,7 @@
 // tutmak, birini değiştirip diğerini unutmanın en kısa yolu. Çizici 5'ten fazlasını
 // `too_many` ile reddediyor; ayrıştırıcı da aynı sınırı uyguluyor ki geçersiz bir blok
 // hiç kurulmasın.
+import { yayTalimati } from '@suite/contracts'
 import { MAX_DUGUM } from '@suite/render'
 
 /** Prompt'a giren kayıt — `SELECT` çıktısının şekli. */
@@ -56,6 +57,15 @@ const baglamBloku = (kayitlar: readonly PromptKaydi[]): string =>
  * uydurmasını beklemek yerine baştan söylemek, bir turu ve bir insan bakışını
  * kurtarıyor.
  */
+/**
+ * Hedef slayt sayısı. Altı satır: kanca · gerilim · kanıt · kanıt · dönüş · davet.
+ *
+ * ⚠ Yayın ORTASI esnek (kanıt tekrarlanır), UÇLARI sabit — beş de altı da aynı hikâyeyi
+ * taşır. Sayı burada duruyor çünkü prompt bir hedef vermek zorunda; yayın kendisi
+ * `@suite/contracts`te ve her uzunlukta çalışıyor.
+ */
+const HEDEF_SATIR = 6
+
 export const icerikPromptu = (g: PromptGirdisi): string | null => {
   const baglam = baglamBloku(g.kayitlar)
   if (g.konu.trim() === '' || baglam === '') return null
@@ -74,10 +84,18 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // koyuyordu: kapak bir başlık değil, bir paragraf oluyordu. Sayfalayıcı taşmayı
     // böler (R-30: küçültmez) ama neyin BAŞLIK olduğunu bilemez — o bilgi ancak
     // metnin üretildiği yerde vardır.
-    '- 1. satır = KAPAK: **EN FAZLA 8 KELİME.** Nokta koyma. İddia ya da soru.',
-    '- 2.–5. satır = GÖVDE: her biri tek fikir, **EN FAZLA 30 KELİME.**',
-    '- Son satır = KAPANIŞ: tek cümle, **EN FAZLA 14 KELİME.** Davet ya da sonuç.',
-    '- Toplam 5 ya da 6 satır. Satırları numaralama, madde işareti koyma.',
+    // ⚠ **YAY — dört eşit paragraf yerine bir HİKÂYE** (FAZ-14.1). Eskiden 2.–5. satırın
+    // dördü de aynı 30 kelimelik bütçeyi paylaşıyordu; sonuç, her satırı aynı ağırlıkta
+    // dört paragraftı. Referans örneklerin hiçbirinde olmayan tek şey buydu — hepsinde
+    // satır uzunlukları hikâyenin evresine göre değişiyor.
+    //
+    // ⚠ Bütçeler BURADA YAZILI DEĞİL: `yayTalimati` onları `@suite/contracts`ten basıyor.
+    // Elle yazılsaydı ölçüm ile prompt yeniden iki ayrı yerde tanımlanmış olurdu ve
+    // `tasarim-olcum.ts`in eski yorumu (*"icerikPromptu ile AYNI sayılar"*) yine bir
+    // temenni olarak kalırdı.
+    ...yayTalimati(HEDEF_SATIR),
+    '- Satırları numaralama, madde işareti koyma.',
+    `- Toplam ${HEDEF_SATIR} satır. Bir KANIT satırını atlayıp ${HEDEF_SATIR - 1} satır da yazabilirsin.`,
     '',
     // ⚠ **Örnek ve sayım talimatı ÖLÇÜLEREK eklendi.** Yalnız "en fazla 8 kelime"
     // yazmak yetmedi: gerçek koşuda kapak 21, gövde 40 kelime geldi ve tasarım kapısı

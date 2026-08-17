@@ -35,7 +35,7 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
 
 ---
 
-## 14.1 — Senaryo: hikâye yayı, karosel kurallarına göre    [ ]
+## 14.1 — Senaryo: hikâye yayı, karosel kurallarına göre    [x] 2026-08-17
 
 📖 §7.2, §11.4 · R-32
 🔗 —
@@ -43,13 +43,27 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
    kanca (durdurur) → gerilim (sorunu büyütür) → çözüm (bizim payımız) → davet.
    Yay, `metin-uret` çıktısına eklenen bir yapı olarak tanımlanır; slayt rolleri
    (`kapak/govde/kapanis`) ona bağlanır.
-📁 `packages/engine/src/senaryo.ts` · `metin-akisi.ts`
-✅ ⚠ **Yay ROL üstüne kurulur, rol yayın üstüne değil** — roller zaten var ve ölçülü;
-   senaryo onlara *işlev* verir, yeni bir taksonomi getirmez.
-   ⚠ Kelime bütçeleri (D-260) geçerli ve **blok TÜRÜNE göre** ölçülür — bu metrikte üç kez
-   birim hatası yapıldı, dördüncüsü yapılmasın.
-   ⚠ **R-32:** senaryo, kaynaksız sayı üretmenin yolu değil.
-🧪 Kancasız senaryo (doğrudan çözümle başlayan) → `kalite` uyarısı.
+📁 `packages/contracts/src/senaryo.ts` · `senaryo.test.ts` ·
+   `packages/engine/src/metin-akisi.ts` · `packages/render/src/tasarim-olcum.ts`
+✅ ⚠ **HALKA 0'a kondu, engine'e değil — ve asıl kazanç bu.** Kelime tavanları BUGÜNE
+   KADAR İKİ YERDE yazılıydı: `icerikPromptu` modele söylüyordu, `tasarim-olcum.ts`
+   `KELIME_TAVANI` sabitinde tekrarlıyor ve yorumunda *"`icerikPromptu` ile AYNI sayılar"*
+   diyordu. **Bir yorum bir zorlama değildir** — biri değişse öbürü sessizce ayrışırdı.
+   Artık tek tanım var; prompt da ölçüm de oradan okuyor.
+   ⚠ **Ritim YAPISAL, temenni değil.** Eskiden dört gövde satırının dördü de 30 kelimelik
+   aynı bütçeyi paylaşıyordu — sonuç dört EŞİT paragraf, referans örneklerin hiçbirinde
+   olmayan tek şey. Yay her işleve kendi bütçesini veriyor: kanca 8 · gerilim 21 · kanıt 30 ·
+   dönüş 18 · davet 14.
+   ⚠ **Taban ÖLÇÜLDÜ, oranlar EDİTÖRYEL (D-262).** 8/30/14 zaten ölçülmüş değerler; gerilim
+   ve dönüş, ölçülen 30'un oranı olarak türetildi ve `RitimOranlari` ile parametrik —
+   bir kompozisyon ailesi kendi ritmini kurabilir.
+   ⚠ **UÇLAR sabit, ORTA esnek:** kanca ilk, davet son; ara `kanit` tekrarıyla doluyor.
+   Dört slaytlık da dokuz slaytlık da karosel aynı hikâyeyi taşıyor.
+   ⚠ **D-260 KORUNDU:** kapak slaydındaki 21 kelimelik destek satırı hâlâ başlık bütçesine
+   karşı ölçülmüyor; yay dışı slayt sayısında eski rol davranışı aynen sürüyor.
+🧪 **11 + 4 test + ihlal:** `slaytIslevi` çağrısını `null`a sabitle → *"AYNI metin, FARKLI
+   slayt"* ve *"DÖNÜŞ en sıkı"* kırmızı. Ayrıca: talimat bütçeleri kendi yazmıyor ·
+   ritim parametrik · ölçülen tabanlar korundu · kanca nokta ile bitmiyor.
 💾 `feat(engine): senaryo yayi` · `Refs: FAZ-14.1 · §7.2`
 
 ## 14.2 — `tasarla` adımı: kararlar GEREKÇESİYLE yazılı    [ ]
