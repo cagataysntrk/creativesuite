@@ -91,8 +91,8 @@ Toplam **10** hat.
 | `bilgi-sec` | `SELECT` | — | cozumle | — | — |
 | `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
 | `kompozit` | `COMPOSE` | — | metin-uret | — | — |
-| `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | — |
-| `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief | — | — |
+| `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
+| `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief | — | ✓ |
 | `yuva-doldur` | `COMPOSE` | — | metin-uret, kompozit, gorsel-uret | — | — |
 | `render` | `RENDER` | — | yuva-doldur | — | — |
 | `gorsel-yargi` | `GENERATE` | `image.critique` | render | — | — |

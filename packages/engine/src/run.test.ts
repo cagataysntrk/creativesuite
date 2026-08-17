@@ -204,6 +204,37 @@ describe('hat uçtan uca', () => {
     expect(r.manifest.steps[2]?.status).toBe('ok')
   })
 
+  it('ATLANAN adım `skipped` — `ok` değil (FAZ-14.5)', async () => {
+    // ⚠ **Üç durum, üç anlam.** `ok` işini yaptı, `failed` denedi olmadı, `skipped`
+    // koştu ama yapılacak iş yoktu. Plan görsel yuvası açmadıysa brief üretilmez ve
+    // bu bir başarı da değildir hata da: `ok` demek defterde "brief üretildi" yalanı
+    // bırakırdı, `failed` demek DOĞRU bir kararı hata gibi gösterirdi.
+    const r = await kos(
+      [
+        { id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null },
+        { id: 'b', verb: 'COMPOSE', capability: null, constraints: {}, needs: ['a'], gate: null },
+      ],
+      {
+        verbs: {
+          RESOLVE: basarili('RESOLVE', {}),
+          COMPOSE: basarili('COMPOSE', { atlandi: true, sebep: 'prompt-yok' }),
+        },
+      }
+    )
+    expect(r.stoppedAt).toBeNull()
+    expect(r.manifest.steps[1]?.status).toBe('skipped')
+    // Gerekçe deftere GİRİYOR: sessizce atlanan bir adım, atlanmamış bir adımdır.
+    expect((r.manifest.steps[1]?.output as { sebep?: string })?.sebep).toBe('prompt-yok')
+  })
+
+  it('normal çıktı hâlâ `ok` — atlama işareti YOKKEN', async () => {
+    const r = await kos(
+      [{ id: 'a', verb: 'RESOLVE', capability: null, constraints: {}, needs: [], gate: null }],
+      { verbs: { RESOLVE: basarili('RESOLVE', { qa: 'x' }) } }
+    )
+    expect(r.manifest.steps[0]?.status).toBe('ok')
+  })
+
   it('İNSAN KAPISI hattı durduruyor — otomatik geçilmiyor', async () => {
     // Kapıyı otomatik geçmek, "agent önerir insan uygular" (§5.4) yasasının tek
     // mekanik karşılığını silmek olurdu.

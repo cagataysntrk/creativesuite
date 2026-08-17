@@ -674,7 +674,17 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     kayitlar.push({
       stepId,
       verb: verbAdi,
-      status: sonuc.ok ? 'ok' : 'failed',
+      // ⚠ **ÜÇ durum, üç anlam** (FAZ-14.5). `atlandi` taşıyan bir çıktı, adımın
+      // KOŞTUĞUNU ama işini YAPMADIĞINI söylüyor — plan yuva açmadıysa görsel brief'i
+      // üretilmez ve bu bir başarı da değildir, bir hata da. `ok` demek defterde
+      // "brief üretildi" yalanı bırakırdı; `failed` demek doğru bir kararı hata
+      // gibi gösterirdi. `StepStatus` bu üçlüyü kernel'de zaten taşıyordu (§13);
+      // eksik olan onu ÜRETEN yoldu.
+      status: sonuc.ok
+        ? (sonuc.outcome?.data as { atlandi?: unknown } | null)?.atlandi === true
+          ? 'skipped'
+          : 'ok'
+        : 'failed',
       lane: s.constraints['lane'] === 'premium' ? 'premium' : 'free',
       capability: s.capability,
       providerId: kazanan?.providerId ?? null,

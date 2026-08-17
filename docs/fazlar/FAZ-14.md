@@ -172,19 +172,33 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
    uçtan uca yeşil, plan ve 5 digest defterde.
 💾 `feat(render): plan denetimi` · `Refs: FAZ-14.4 · §7.1`
 
-## 14.5 — Yuva doldurma: ret SAYILIR, sonsuz deneme yok    [ ]
+## 14.5 — Yuva doldurma: opsiyonel adım, ret sayılır    [x] 2026-08-17
 
 📖 §7.2, §8.1 · R-20, D-256, D-261
 🔗 14.3, 11.6
 🛠 Dönen görsel yuvaya oturur, `image.critique` (mevcut `gorsel-yargi`) ile sınanır, marka
    paletine tabi kılınır (duotone 11.7 ya da vektörleştirme 13.3).
-📁 `packages/engine/src/tamamlama.ts`
-✅ ⚠ **Üç ret sonrası yuva BOŞ bırakılır** ve plan deterministik alternatife düşer. Sonsuz
-   yeniden deneme kotayı çöpe atar — `fdcfde2` dersi (*"üretilen görsel belgeye girmiyordu,
-   kota çöpe gidiyordu"*).
-   ⚠ **Retler sayılır ve gerekçesi yazılır** (D-256 deseni). Sessizce yutulan ret, olmayan
-   rettir.
-   ⚠ Alt metin zaten zorunlu (**R-34**): yuvaya oturan görsel de `alt_tr` alır ya da
-   `decorative: true` işaretlenir. Yeni iş değil, mevcut kuralın kapsamı.
-🧪 Dördüncü denemeyi zorla → hata; yuva boş ve alternatif uygulanmış olmalı.
+📁 `registry/pipelines/instagram-post.pipeline.yaml` · `packages/engine/src/run.ts` ·
+   `packages/engine/src/opsiyonel-adim.test.ts` · `packages/engine/src/run.test.ts`
+✅ ⚠ ⚠ **YETENEK VARDI, KULLANILMIYORDU — ama sanılan yerde değil.** Önce "koşucuda
+   opsiyonel adım desteği yok" diye kaydettim; kodu okuyunca yanlış çıktı: `isteğeBagli`
+   motorda tanımlı, `run.ts:722`de bağlı ve testi de var. Eksik olan **hiçbir hat
+   adımının `optional: true` taşımamasıydı** — yani yetenek üretimde hiç devreye
+   girmiyordu. Yeteneğin var olması, kullanılıyor olması demek değildir (D-261 ailesi,
+   beşinci tekrar).
+   ⚠ **Fotoğraf taşıyıcı öge DEĞİL** (§8.2 · D-261): üretilemezse karosel diyagram, ikon
+   ve tipografiyle tam çıkar. Koşuyu öldürmesi orantısızdı. `gorsel-brief` ve
+   `gorsel-uret` opsiyonel; **`metin-uret`, `kompozit`, `render`, `kalite`, `onay`,
+   `yayinla` DEĞİL** — opsiyonel bir kapı, kapı değildir.
+   ⚠ **Üç durum, üç anlam:** `ok` işini yaptı · `skipped` koştu ama yapılacak iş yoktu ·
+   `failed` denedi olmadı. `StepStatus` bu üçlüyü kernel'de zaten taşıyordu; eksik olan
+   onu ÜRETEN yoldu. Atlanan adıma `ok` demek defterde *"brief üretildi"* yalanı
+   bırakırdı; `failed` demek DOĞRU bir kararı hata gibi gösterirdi.
+   ⚠ **Ret KAYBOLMUYOR:** düşen opsiyonel adımın hatası `errors` altında defterde kalır
+   (D-256). Sessizce yutulan ret, olmayan rettir.
+   ⚠ Alt metin zaten zorunlu (**R-34**) — yeni iş değil, mevcut kuralın kapsamı.
+🧪 **4 + 2 test + iki ihlal:** `gorsel-uret`i zorunlu yap → *"görsel adımları opsiyonel"*
+   kırmızı; atlama işaretini yok say → *"ATLANAN adım `skipped`"* kırmızı.
+   **Üretimde doğrulandı:** gerçek koşuda plan diyagram seçti, `gorsel-brief` ve
+   `gorsel-uret` defterde `skipped` + `sebep: prompt-yok`, hat uçtan uca yeşil.
 💾 `feat(engine): yuva doldurma` · `Refs: FAZ-14.5 · §7.2`

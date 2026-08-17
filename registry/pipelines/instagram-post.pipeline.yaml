@@ -55,6 +55,12 @@ steps:
     constraints:
       gorsel_brief: true
       max_chars: 600
+      # ⚠ **OPSİYONEL: düşmesi hattı DURDURMAZ** (FAZ-14.5). Fotoğraf varsayılan
+      # olmaktan çıktı (D-261) ve taşıyıcı öge değil — *"bedava ve premium çıktı
+      # tipografide aynıdır"* (§8.2). Bir görsel üretilemezse slayt diyagram, ikon ve
+      # tipografiyle tam bir çıktı verir; koşuyu öldürmesi orantısız olurdu.
+      # Motor tahmin etmiyor: isteğe bağlılık burada AÇIKÇA yazılı.
+      optional: true
 
   # ⚠ **KOŞULLU: plan yuva işaretlemediyse bu adım model ÇAĞIRMAZ.** Koşucuya "adım
   # atla" yeteneği eklenmedi; `gorselBriefPromptu` yuva yokken `null` dönüyor, brief
@@ -65,6 +71,10 @@ steps:
     capability: image.generate
     needs: [gorsel-brief]
     constraints:
+      # Brief gibi opsiyonel: sağlayıcı düşerse, kota biterse ya da çıktı R-20'ye
+      # takılırsa karosel yine tam çıkar. Ret defterde `errors` altında KALIR —
+      # sessizce yutulan ret, olmayan rettir (D-256).
+      optional: true
       aspect: '4:5'
       # Görsel modeline Türkçe metin çizdirilmez (R-20) — metin kompozitte gelir.
       no_text: true

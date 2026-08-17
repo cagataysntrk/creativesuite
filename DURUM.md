@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 11
-siradaki_adim: 14.5
+siradaki_adim: 11.4
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -55,6 +55,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **14.2** · tasarım planı gerekçeli, deftere adım çıktısı olarak giriyor | 2026-08-17 |
 | **14.3** · taban önce model sonra; görsel üretimi KOŞULLU (D-264) | 2026-08-17 |
 | **14.4** · plan↔çıktı uyumu; üç katman ayrı, slayt digest'i defterde | 2026-08-17 |
+| **14.5** · görsel adımları opsiyonel; atlanan adım `skipped`, ret defterde | 2026-08-17 |
 
 ## Sıradaki adım
 
@@ -78,8 +79,10 @@ plan yalnız `deterministik: false` işaretli yuvaları modele verir.
 
 **Sıra:** 14 (omurga) → 11.4–11.10 → 12 → 13. Plan kapsamı: `docs/referans/yetenek-envanteri.md`.
 
-**SIRADAKİ 14.5** — yuva doldurma: üç ret sonrası yuva BOŞ bırakılır, plan deterministik
-alternatife düşer. Sonsuz yeniden deneme kotayı çöpe atar.
+**FAZ-14 BEŞ ADIMI DA KAPANDI.** Kapanış protokolü (LOOP§D) koşulacak: bağımsız
+doğrulama agent'ı, en fazla İKİ tur.
+
+**SIRADAKİ 11.4** — fotoğraf yuvaları (maske/alan). Sonra 11.5–11.10 → 12 → 13.
 ⚠ **Kabul sayacı 0/20.** Yeni hat dört gerçek koşuda doğrulandı: 3 kusur bulundu ve
 kapatıldı (boş prompt atlama sayılmıyordu · atlanan adım maliyet yazmıyordu · yay işlevi
 slayt sırasından türetiliyordu). Dördüncü koşu tüm metrikleri geçti ama **bakınca diyagram
