@@ -1,0 +1,754 @@
+{
+  "runId": "run_01a00f0b-932a-712a-a75d-fc338d63cb82",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "99f190a9ea44b87b8f460558c52ba80699a4c82b",
+  "registryCommit": "99f190a9ea44b87b8f460558c52ba80699a4c82b",
+  "createdAt": "2026-08-17T09:34:16.475Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T09:26:51.978Z",
+      "finishedAt": "2026-08-17T09:26:51.978Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T09:26:51.978Z",
+      "finishedAt": "2026-08-17T09:26:51.980Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T09:26:51.980Z",
+      "finishedAt": "2026-08-17T09:27:49.152Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor",
+        "gorsel_yuvasi": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T09:27:49.152Z",
+      "finishedAt": "2026-08-17T09:27:49.153Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-amber-200: oklch(0.92 0.070 90);\n  --ramp-marka-amber-500: oklch(0.80 0.156 87);\n  --ramp-marka-amber-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.27 0.008 250);\n  --ramp-marka-ink-950: oklch(0.15 0.006 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-amber-600);\n  --role-bg: var(--ramp-marka-amber-500);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:e81e2f2b5746dcd713793eacc49f2734a525a46b977b66d5a2c9002d65c7af72 414369B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a00f0b-932a-712a-a75d-fc338d63cb82",
+            "sourceRunId": "run_01a00f0b-932a-712a-a75d-fc338d63cb82"
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Vardiya devri kayda değil hafızaya yazılıyor",
+              "level": 1,
+              "islev": "kanca"
+            },
+            {
+              "type": "body",
+              "text": "Devir teslim ayaküstü yapılır; yazmak zaman ister ve o zamanı kimse vermez, kimse de sormaz.",
+              "islev": "gerilim"
+            },
+            {
+              "type": "body",
+              "text": "Gece hattı durduran ayar sabah gelen ekibe anlatılır; anlatan kişi izne çıktığında o ayar da onunla birlikte fabrikadan çıkar.",
+              "islev": "kanit"
+            },
+            {
+              "type": "diagram",
+              "title": "Sözlü devri kayda çevirme",
+              "nodes": [
+                {
+                  "label": "Devir anını yakala",
+                  "detail": "Vardiya kapanışında konuşulan her şey kaydedilir."
+                },
+                {
+                  "label": "Alanları sabitle",
+                  "detail": "Duruş, ayar ve devredilen iş ayrı ayrı."
+                },
+                {
+                  "label": "Kaydı bağla",
+                  "detail": "Her not vardiyaya ve hatta bağlanır."
+                },
+                {
+                  "label": "Geçmişi sorgula",
+                  "detail": "Aynı arıza tekrar edince geçmiş açılır."
+                }
+              ]
+            },
+            {
+              "type": "body",
+              "text": "Aynı arıza haftalar sonra tekrarladığında kimse ilkiyle bağını kuramaz; vardiyalar arasındaki tek kayıt, kimsenin geri dönüp açmadığı bir defterdir.",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "Sözlü devir bir disiplin sorunu değil; kaydın yazılacağı yer hiç kurulmamıştır.",
+              "islev": "donus"
+            },
+            {
+              "type": "body",
+              "text": "Vardiya devrinin nerede kayıt olacağını konuşalım; hazır veri şartı yok.",
+              "islev": "davet"
+            }
+          ]
+        },
+        "tasarimPlani": {
+          "surum": 1,
+          "konu": "vardiya devri neden sozlu kaliyor",
+          "aile": {
+            "deger": "temel",
+            "gerekce": "Tek aile tanımlı: amber/mürekkep iki alan, akan eğri, dev hayalet rakam."
+          },
+          "yay": [
+            "kanca",
+            "gerilim",
+            "kanit",
+            "kanit",
+            "donus",
+            "davet"
+          ],
+          "suslemeYogunlugu": {
+            "deger": 0.25,
+            "gerekce": "Açık kâğıt alanda ince kontur okunur; yoğun tarama koyu bir ailede doğru olurdu (D-262)."
+          },
+          "panorama": {
+            "deger": false,
+            "gerekce": "Panoramik süreklilik henüz bağlı değil (FAZ-12.4); açık demek yalan olurdu."
+          },
+          "slaytlar": [
+            {
+              "index": 0,
+              "islev": "kanca",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapak süssüz: ızgarada ilk kare bir cümledir, bir desen değil."
+              }
+            },
+            {
+              "index": 1,
+              "islev": "gerilim",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 2,
+              "islev": "kanit",
+              "oge": {
+                "deger": "diyagram",
+                "gerekce": "İçerikte adımlı bir akış geçiyor; diyagram fotoğrafın yerine geçiyor."
+              }
+            },
+            {
+              "index": 3,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 4,
+              "islev": "donus",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 5,
+              "islev": "davet",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapanış bir davettir; görsel öge daveti bir resim altyazısına çevirir."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor",
+        "gorsel_brief": true,
+        "max_chars": 600
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T09:27:49.153Z",
+      "finishedAt": "2026-08-17T09:27:49.154Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor",
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T09:27:49.154Z",
+      "finishedAt": "2026-08-17T09:27:49.155Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor",
+        "gorsel_yuvasi": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T09:27:49.155Z",
+      "finishedAt": "2026-08-17T09:27:49.155Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-amber-200: oklch(0.92 0.070 90);\n  --ramp-marka-amber-500: oklch(0.80 0.156 87);\n  --ramp-marka-amber-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.27 0.008 250);\n  --ramp-marka-ink-950: oklch(0.15 0.006 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-amber-600);\n  --role-bg: var(--ramp-marka-amber-500);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:e81e2f2b5746dcd713793eacc49f2734a525a46b977b66d5a2c9002d65c7af72 414369B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a00f0b-932a-712a-a75d-fc338d63cb82",
+            "sourceRunId": "run_01a00f0b-932a-712a-a75d-fc338d63cb82"
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Vardiya devri kayda değil hafızaya yazılıyor",
+              "level": 1,
+              "islev": "kanca"
+            },
+            {
+              "type": "body",
+              "text": "Devir teslim ayaküstü yapılır; yazmak zaman ister ve o zamanı kimse vermez, kimse de sormaz.",
+              "islev": "gerilim"
+            },
+            {
+              "type": "body",
+              "text": "Gece hattı durduran ayar sabah gelen ekibe anlatılır; anlatan kişi izne çıktığında o ayar da onunla birlikte fabrikadan çıkar.",
+              "islev": "kanit"
+            },
+            {
+              "type": "diagram",
+              "title": "Sözlü devri kayda çevirme",
+              "nodes": [
+                {
+                  "label": "Devir anını yakala",
+                  "detail": "Vardiya kapanışında konuşulan her şey kaydedilir."
+                },
+                {
+                  "label": "Alanları sabitle",
+                  "detail": "Duruş, ayar ve devredilen iş ayrı ayrı."
+                },
+                {
+                  "label": "Kaydı bağla",
+                  "detail": "Her not vardiyaya ve hatta bağlanır."
+                },
+                {
+                  "label": "Geçmişi sorgula",
+                  "detail": "Aynı arıza tekrar edince geçmiş açılır."
+                }
+              ]
+            },
+            {
+              "type": "body",
+              "text": "Aynı arıza haftalar sonra tekrarladığında kimse ilkiyle bağını kuramaz; vardiyalar arasındaki tek kayıt, kimsenin geri dönüp açmadığı bir defterdir.",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "Sözlü devir bir disiplin sorunu değil; kaydın yazılacağı yer hiç kurulmamıştır.",
+              "islev": "donus"
+            },
+            {
+              "type": "body",
+              "text": "Vardiya devrinin nerede kayıt olacağını konuşalım; hazır veri şartı yok.",
+              "islev": "davet"
+            }
+          ]
+        },
+        "tasarimPlani": {
+          "surum": 1,
+          "konu": "vardiya devri neden sozlu kaliyor",
+          "aile": {
+            "deger": "temel",
+            "gerekce": "Tek aile tanımlı: amber/mürekkep iki alan, akan eğri, dev hayalet rakam."
+          },
+          "yay": [
+            "kanca",
+            "gerilim",
+            "kanit",
+            "kanit",
+            "donus",
+            "davet"
+          ],
+          "suslemeYogunlugu": {
+            "deger": 0.25,
+            "gerekce": "Açık kâğıt alanda ince kontur okunur; yoğun tarama koyu bir ailede doğru olurdu (D-262)."
+          },
+          "panorama": {
+            "deger": false,
+            "gerekce": "Panoramik süreklilik henüz bağlı değil (FAZ-12.4); açık demek yalan olurdu."
+          },
+          "slaytlar": [
+            {
+              "index": 0,
+              "islev": "kanca",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapak süssüz: ızgarada ilk kare bir cümledir, bir desen değil."
+              }
+            },
+            {
+              "index": 1,
+              "islev": "gerilim",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 2,
+              "islev": "kanit",
+              "oge": {
+                "deger": "diyagram",
+                "gerekce": "İçerikte adımlı bir akış geçiyor; diyagram fotoğrafın yerine geçiyor."
+              }
+            },
+            {
+              "index": 3,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 4,
+              "islev": "donus",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 5,
+              "islev": "davet",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapanış bir davettir; görsel öge daveti bir resim altyazısına çevirir."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T09:27:49.155Z",
+      "finishedAt": "2026-08-17T09:27:49.823Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00f0b-932a-712a-a75d-fc338d63cb82/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00f0b-932a-712a-a75d-fc338d63cb82/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00f0b-932a-712a-a75d-fc338d63cb82/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00f0b-932a-712a-a75d-fc338d63cb82/slayt-04.png"
+        ],
+        "count": 4,
+        "rung": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "bytes": [
+          74336,
+          71681,
+          128162,
+          56512
+        ],
+        "digests": [
+          "sha256:d7b2922fd600823d2e0b0593252375fd6d5c016100521a9ff95c83916683c5c9",
+          "sha256:c2bcc92ceb4b97b866dfc9b3c4b27b3a20c3683cce0b118fcaf659dd9729b885",
+          "sha256:bb4b560c2bd0665ccabc9a7b2fc0b28b1f485ef9299735934b750ed08347d6fb",
+          "sha256:af85625d111c96e32e339ab4f19b8a9066a8272cdc1e331580a91b578fdc466a"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T09:27:49.824Z",
+      "finishedAt": "2026-08-17T09:34:15.619Z",
+      "output": null
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "vardiya devri neden sozlu kaliyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T09:34:15.619Z",
+      "finishedAt": "2026-08-17T09:34:16.474Z",
+      "output": {
+        "qa": "  yerleşim instagram-feed-4x5 · 1080×1350 · tolerans ±%1 · sınır 8MB (doğrulandı 2026-08-15)\n  slayt 1 boyut: ✓ 73KB / 8192KB · png\n  slayt 2 boyut: ✓ 70KB / 8192KB · png\n  slayt 3 boyut: ✓ 125KB / 8192KB · png\n  slayt 4 boyut: ✓ 55KB / 8192KB · png\n  tasarım metrikleri:\n  slayt 1 kelime bütçesi (kapak)   75,0% │───────────●─┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 1 metin kontrastı   10,5:1 │───────╎──┊────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 1 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 2 kelime bütçesi (govde)   63,0% │──────────●──┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 2 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 2 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 3 kelime bütçesi (govde)   63,0% │──────────●──┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 3 metin kontrastı   10,5:1 │───────╎──┊────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 3 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 4 kelime bütçesi (kapanis)   71,0% │───────────●─┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 4 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 4 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  komşu slaytta aynı zemin    0,0 çift │●───────────────────│ limit 0,0 çift  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 1:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,9% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        11,9% │─────────●────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 2:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,3% │●─────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        11,9% │─────────●────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 3:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,7% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        11,9% │─────────●────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 4:\n  ΔE 2000               0,3 │─●───────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       1,6% │──●───────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        11,9% │─────────●────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}
