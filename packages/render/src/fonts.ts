@@ -75,6 +75,40 @@ export const YUZLER: readonly FontYuzu[] = [
   },
 ]
 
+/**
+ * Yüzlerin BEYAN ETTİĞİ Unicode kapsamı dışında kalan karakterler.
+ *
+ * ⚠ ⚠ **BU FONKSİYON `document.fonts.check`İN YERİNE GEÇTİ ve sebebi ölçüldü.** Denetim
+ * ilk sürümde tarayıcıya soruyordu; cevaplar TERSİNE çıktı: kapsanan `A` ve `ğ` için
+ * `false`, kapsanmayan `д` ve `漢` için `true`. `fonts.check` "bu yüz yüklendi mi" diye
+ * cevaplıyor, "bu glif çizilebilir mi" diye değil — yanlış alet, üstelik sessizce yanlış.
+ *
+ * ⚠ Doğru alet elimizdeydi: kapsamı belirleyen şey `@font-face`in `unicode-range`i ve o
+ * beyan BU dosyada. Tarayıcıya sormak, kendi beyanımızı üçüncü bir tarafa doğrulatmaktı.
+ * Burada beyan doğrudan sınanıyor: deterministik, tarayıcısız, `LC_ALL` bağımsız.
+ *
+ * ⚠ Boşluk ve satır sonu atlanıyor: hiçbir aralıkta olmasalar da render sorunu değiller.
+ */
+export const kapsamDisiKarakterler = (metin: string): readonly string[] => {
+  const araliklar: { readonly bas: number; readonly son: number }[] = []
+  for (const y of YUZLER)
+    for (const parca of y.unicodeRange.split(',')) {
+      const t = parca.trim().replace(/^U\+/i, '')
+      const [a, b] = t.split('-')
+      const bas = Number.parseInt(a ?? '', 16)
+      if (Number.isNaN(bas)) continue
+      araliklar.push({ bas, son: b === undefined ? bas : Number.parseInt(b, 16) })
+    }
+  const disarida = new Set<string>()
+  for (const c of metin) {
+    if (c === ' ' || c === '\n' || c === '\t') continue
+    const k = c.codePointAt(0)
+    if (k === undefined) continue
+    if (!araliklar.some((r) => k >= r.bas && k <= r.son)) disarida.add(c)
+  }
+  return [...disarida]
+}
+
 export type FontHatasi = { readonly kind: 'eksik_dosya'; readonly dosya: string }
 
 export type FontSonucu =

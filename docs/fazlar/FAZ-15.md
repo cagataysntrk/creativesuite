@@ -114,7 +114,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 Uyarlama çıktısına bant noktası ekletmeyi dene → şema reddediyor
 💾 `feat(engine): sablon uyarlama adimi` · `Refs: FAZ-15.7 · §5.4`
 
-## 15.8 — Son kontrol ve düzeltme turu    [ ]
+## 15.8 — Son kontrol ve düzeltme turu    [x]
 
 📖 §11, §13 · R-71
 🔗 FAZ-15.7

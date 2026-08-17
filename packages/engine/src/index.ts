@@ -291,6 +291,16 @@ export {
   type UyarlamaKarti,
   type UyarlamaSonucu,
 } from './plan/sablon-uyarla.js'
+export {
+  denetimTuru,
+  duzeltmeIstemi,
+  TUR_TAVANI,
+  type DenetimKusuru,
+  type DenetimSonucu,
+  type Denetleyici,
+  type Duzeltici,
+  type TurKaydi,
+} from './plan/denetim-turu.js'
 export { readRunStub, stubPath, writeRunStub, type RunStub } from './manifest-writer.js'
 
 // Yayın defteri (FAZ-7.4). TÜRETİLEMEZ (D-38): silinirse yayın durur, boş sayılmaz.

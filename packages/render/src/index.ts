@@ -317,6 +317,8 @@ export type { Durak, ZeminKatmani, ZeminResetesi } from './zemin.js'
 // taslağı buradan alıyor. Kapalı kalsalardı motor onları göremez ve katalog merkezli
 // üretim (D-268) yalnız kâğıt üstünde kalırdı.
 export { ORNEKLER, ornekBul } from './katalog-ornek.js'
+export { kusurMetni, panoramaDenetle, type Kusur, type KusurTuru } from './panorama-denetim.js'
+export { kapsamDisiKarakterler } from './fonts.js'
 export type { KatalogOrnegi } from './katalog-ornek.js'
 export { egriZarfi } from './sekil-cebri.js'
 export type { Zarf } from './sekil-cebri.js'
