@@ -40,6 +40,18 @@ export type {
 } from './tasarim-plani.js'
 export { OGE_POLITIKALARI, planGecerli, planKusurlari } from './tasarim-plani.js'
 
+export type { BantTarifi, GorselIhtiyaci, KatalogSablonu } from './katalog.js'
+export {
+  KATALOG,
+  VERI_HIKAYESI,
+  AKAN_ALAN,
+  SAHNE,
+  MEMPHIS,
+  DONEN,
+  EDITORYAL,
+  kullanilabilirSablonlar,
+  sablonBul,
+} from './katalog.js'
 export type { Bolge, CizgiDili, Iskelet, IskeletKusuru, TipoIliskisi } from './iskelet.js'
 export { iskeletKusurlari } from './iskelet.js'
 export type {

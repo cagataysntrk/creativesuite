@@ -49,7 +49,48 @@ export type Bant =
       readonly sayi: number
       readonly madalyon: readonly { readonly x: number; readonly no: string; readonly ad: string }[]
     }
+  | {
+      /**
+       * El çizimi akış okları — bir kartta başlayıp SONRAKİNDE biten yaylar.
+       *
+       * ⚠ ⚠ **Referansın (`ornek-1`) ikinci süreklilik ögesi.** Kesik özne kesimi
+       * aşıyor, oklar da kesimi aşıyor: göz devamı iki ayrı kanaldan kuruyor.
+       * ⚠ Oklar KART ARALARINDA duruyor, kartların içinde değil: metnin üstünden geçen
+       * bir ok okunabilirliği düşürür (nüfus karoselinde tam bu oldu ve oklar silindi).
+       * Burada kalmalarının sebebi, kartların metin bloklarının dar olması.
+       */
+      readonly tip: 'ok'
+      /** Her ok: başlangıç ve bitiş kartı arasında, 0–100 panorama x'i. */
+      readonly oklar: readonly {
+        readonly x1: number
+        readonly y1: number
+        readonly x2: number
+        readonly y2: number
+        readonly bukum: number
+      }[]
+    }
   | { readonly tip: 'yok' }
+
+/**
+ * Panoramaya yerleşen görsel — kesim çizgilerini AŞABİLİR.
+ *
+ * ⚠ ⚠ **Bu tipin varlık sebebi katalogdaki üç şablon.** Kesik özne (`ornek-1`, `ornek-3`),
+ * daire maskeli ürün (`ornek-2`) ve tam kaplama fotoğraf (`ornek-4`) — üçünde de görsel
+ * dekor değil, kompozisyonun taşıyıcısı. Konum PANORAMA koordinatında (0–100), slayt
+ * koordinatında değil: bir öznenin kolu ancak böyle bir sonraki slayda uzanabilir.
+ *
+ * ⚠ `src` boşsa YER TUTUCU çiziliyor — görsel sağlayıcısı yokken şablonun kompozisyonu
+ * yine de görülebilsin. Sessizce boş bırakmak, eksik bir tasarımı tam sanmaya yol açardı.
+ */
+export interface PanoramaGorseli {
+  readonly src: string
+  readonly alt: string
+  readonly x: number
+  readonly y: number
+  readonly genislik: number
+  readonly yukseklik: number
+  readonly kirpma: 'kesik' | 'daire' | 'tam'
+}
 
 /** Bir kartın veri paneli — slayda özgü görsel biçim. */
 export type Panel =
@@ -97,6 +138,14 @@ export interface Kart {
   /** Alt ray: sol (dönem/bölüm) ve orta (kaynak). */
   readonly rayaSol: string
   readonly rayaOrta: string
+  /**
+   * Bu kartın kendi zemini — verilmezse belgenin zemini.
+   *
+   * ⚠ `ornek-2`'nin kimliği tam olarak bu: aynı düzen, her slaytta başka zemin. Kartın
+   * kendi zemini olmadan o şablon ifade edilemiyor ve "renk rotasyonu" bir tema değil
+   * bir kart özelliği.
+   */
+  readonly zemin?: string
 }
 
 export interface PanoramaBelgesi {
@@ -104,6 +153,10 @@ export interface PanoramaBelgesi {
   readonly yukseklik: number
   readonly kartlar: readonly Kart[]
   readonly bant: Bant
+  /** Panoramaya serpilen görseller — kesimleri aşabilirler. */
+  readonly gorseller: readonly PanoramaGorseli[]
+  /** Belgenin varsayılan zemini — kart kendi zeminini vermezse bu geçerli. */
+  readonly zemin: string
   readonly tokenCss: string
   readonly fontCss?: string
   readonly stamp: AssetStamp
@@ -112,6 +165,29 @@ export interface PanoramaBelgesi {
 const AKSAN = 'var(--role-bg)'
 const ZEMIN = 'var(--role-line-edge)'
 const METIN = 'var(--role-surface)'
+
+/**
+ * Bir zeminin KOYU olup olmadığı — metin ve aksan rengi buradan türüyor.
+ *
+ * ⚠ ⚠ **İlk sürümde metin ve aksan SABİTTİ ve `akan-alan` şablonu okunmaz çıktı:**
+ * kart zemini amber olduğunda başlığın aksan kelimesi amber-üstüne-amber düşüyordu,
+ * yani vurgulanan kelime GÖRÜNMÜYORDU. Kart kendi zeminini seçebiliyorsa metin rengi
+ * o zeminden TÜREMEK zorunda — aksi hâlde şablon kendi kimliğini okunmaz yapıyor.
+ * Bu, `sablon.ts`te bir kez öğrenilen dersin panorama yolunda tekrarı.
+ */
+const koyuMu = (zemin: string): boolean => zemin.includes('line-edge') || zemin.includes('ink')
+
+/** Kartın metin/aksan/soluk üçlüsü — zeminden türetiliyor, seçilmiyor. */
+const kartRenkleri = (
+  zemin: string
+): { readonly metin: string; readonly aksan: string; readonly soluk: string } =>
+  koyuMu(zemin)
+    ? { metin: METIN, aksan: AKSAN, soluk: 'rgba(255,255,255,0.72)' }
+    : // ⚠ Açık zeminde aksan MÜREKKEP: amber üstüne amber görünmez, kâğıt üstüne amber
+      // ise 1,9:1 kontrast veriyor (FAZ-12.6'da ölçüldü) — WCAG AA'nın yarısı.
+      { metin: MUREKKEP_T, aksan: MUREKKEP_T, soluk: 'rgba(0,0,0,0.62)' }
+
+const MUREKKEP_T = 'var(--role-line-edge)'
 
 /**
  * Panelin HTML'i.
@@ -211,6 +287,31 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
         .join('')
     )
   }
+  if (b.tip === 'ok') {
+    // ⚠ Yay tek bir kübik Bézier: iki uç ve bir büküm. El çizimi hissi `stroke-linecap`
+    // ve hafif asimetriden geliyor, rastgelelikten değil (R-06).
+    const oklar = b.oklar
+      .map((o) => {
+        const x1 = (o.x1 / 100) * toplamGenislik
+        const x2 = (o.x2 / 100) * toplamGenislik
+        const y1 = (o.y1 / 100) * yukseklik
+        const y2 = (o.y2 / 100) * yukseklik
+        const kx = (x1 + x2) / 2
+        const ky = (y1 + y2) / 2 - o.bukum
+        return (
+          `<path d="M ${x1} ${y1} Q ${kx} ${ky} ${x2} ${y2}" fill="none" ` +
+          `stroke="${AKSAN}" stroke-width="9" stroke-linecap="round" marker-end="url(#uc)"/>`
+        )
+      })
+      .join('')
+    return (
+      `<svg class="bant-ok" viewBox="0 0 ${toplamGenislik} ${yukseklik}" ` +
+      `preserveAspectRatio="none" aria-hidden="true">` +
+      `<defs><marker id="uc" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="6" ` +
+      `markerHeight="6" orient="auto"><path d="M 0 0 L 12 6 L 0 12 z" fill="${AKSAN}"/>` +
+      `</marker></defs>${oklar}</svg>`
+    )
+  }
   // Kemer dizisi: yatayda tekrarlayan yay, aralar eşit.
   const adim = toplamGenislik / b.sayi
   const kemerler = Array.from({ length: b.sayi }, (_, i) => {
@@ -243,7 +344,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const kartlar = doc.kartlar
     .map(
       (k, i) =>
-        `<section class="kart" style="left:${i * G}px;width:${G}px">` +
+        ((): string => {
+          const r = kartRenkleri(k.zemin ?? doc.zemin)
+          return (
+            `<section class="kart${koyuMu(k.zemin ?? doc.zemin) ? '' : ' acik'}" ` +
+            `style="left:${i * G}px;width:${G}px;` +
+            `background:${k.zemin ?? doc.zemin};--kart-metin:${r.metin};` +
+            `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk}">`
+          )
+        })() +
         `<div class="hayalet" aria-hidden="true">${kacir(k.hayalet)}</div>` +
         `<div class="ust-baslik">${kacir(k.ustBaslik)}</div>` +
         `<h2 class="baslik">${vurguyuIsaretle(kacir(k.baslik))}</h2>` +
@@ -254,6 +363,28 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         `<span class="ray-sayac">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</span></div>` +
         `</section>`
     )
+    .join('')
+
+  // ⚠ ⚠ **GÖRSELLER KARTLARIN ÜSTÜNDE, AYRI BİR KATMANDA.** Kartın içine konsaydı
+  // `overflow` ve `left` kart koordinatına bağlanır, öznenin kolu bir sonraki slayda
+  // UZANAMAZDI — kesintisizliğin taşıyıcısı tam olarak o uzanma.
+  // ⚠ `src` boşsa yer tutucu: görsel sağlayıcısı yokken kompozisyon yine görülebilir
+  // olmalı, yoksa eksik bir tasarım tam sanılır.
+  const gorseller = doc.gorseller
+    .map((g) => {
+      const stil =
+        `left:${(g.x / 100) * toplam}px;top:${g.y}%;` +
+        `width:${(g.genislik / 100) * toplam}px;height:${g.yukseklik}%`
+      if (g.src === '')
+        return (
+          `<div class="gorsel-yer ${g.kirpma}" style="${stil}" aria-hidden="true">` +
+          `<span>${kacir(g.alt)}</span></div>`
+        )
+      return (
+        `<img class="gorsel ${g.kirpma}" style="${stil}" src="${kacir(g.src)}" ` +
+        `alt="${kacir(g.alt)}">`
+      )
+    })
     .join('')
 
   return [
@@ -268,7 +399,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     doc.fontCss ?? '',
     `  * { margin: 0; padding: 0; box-sizing: border-box }`,
     `  body { width: ${toplam}px; height: ${doc.yukseklik}px; overflow: hidden;`,
-    `         background: ${ZEMIN}; color: ${METIN};`,
+    `         background: ${doc.zemin}; color: ${METIN};`,
     `         font-family: "Marka Metin", system-ui, sans-serif; }`,
     // ⚠ Sahne kaydırılıyor, gövde değil: `translateX` bileşik katmanda çalışıyor ve
     // ekran görüntüsü her karede tutarlı çıkıyor.
@@ -277,23 +408,32 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Kart bir FLEX SÜTUNU: panel `margin-top:auto` ile aşağı itiliyor ve kartın alt
     // yarısı boş kalmıyor. İlk render'da her şey üste yığılmış, alt %60 bomboştu.
     `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px; padding: 68px 64px 190px;`,
+    `          color: var(--kart-metin);`,
     `          display: flex; flex-direction: column; align-items: flex-start }`,
     // ── kesim çizgisi: hiçbir ögeyi kırpmıyor, yalnız ince bir ayraç ─────────
     `  .kesik { position: absolute; top: 0; bottom: 0; width: 1px;`,
     `           background: rgba(255,255,255,0.06); z-index: 9 }`,
     `  .ust-baslik { font-size: 19px; letter-spacing: 0.22em; text-transform: none;`,
-    `                color: ${AKSAN}; font-weight: 700; margin-bottom: 26px;`,
+    `                color: var(--kart-aksan); font-weight: 700; margin-bottom: 26px;`,
     `                display: flex; align-items: center; gap: 14px }`,
-    `  .ust-baslik::before { content: ""; width: 30px; height: 2px; background: ${AKSAN} }`,
+    `  .ust-baslik::before { content: ""; width: 30px; height: 2px; background: var(--kart-aksan) }`,
     // ⚠ Başlık SIKIŞIK ve İRİ; `line-height` 1,04 — 0,90'da Türkçe `Ş` kuyruğu alt satıra
     // giriyor ve "HEB" gibi okunuyor. Aksan kırpılması bu ailenin bilinen tuzağı.
     `  .baslik { font-family: "Marka Display", "Marka Metin", sans-serif;`,
     `            font-size: 82px; line-height: 1.04; font-weight: 800; font-stretch: 88%;`,
     `            letter-spacing: -0.02em; max-width: 15ch }`,
-    `  .baslik strong { color: ${AKSAN}; font-weight: inherit }`,
+    `  .baslik strong { color: var(--kart-aksan); font-weight: inherit }`,
+    // ⚠ ⚠ **AÇIK ZEMİNDE VURGU BİR ÇİP, RENK DEĞİL.** Aksanı mürekkebe çevirmek kontrastı
+    // kurtardı ama vurguyu ÖLDÜRDÜ: başlıklar düzleşti, vurgulanan kelime gövdeden
+    // ayrışmaz oldu. Amber üstüne amber görünmüyordu, kâğıt üstüne amber 1,9:1 veriyordu
+    // (ölçüldü) — üçüncü yol: amber ZEMİN, mürekkep metin. Hem kontrast hem vurgu.
+    // Aynı çözüm slayt render'ında da bulunmuştu; iki yol aynı dersi ayrı ayrı öğrendi.
+    `  .kart.acik .baslik strong { background: ${AKSAN}; color: ${MUREKKEP_T};`,
+    `                              padding: 0.02em 0.14em; box-decoration-break: clone;`,
+    `                              -webkit-box-decoration-break: clone }`,
     `  .govde { margin-top: 24px; font-size: 27px; line-height: 1.5; max-width: 34ch;`,
-    `           color: rgba(255,255,255,0.72) }`,
-    `  .govde strong { color: ${METIN}; font-weight: 700 }`,
+    `           color: var(--kart-soluk) }`,
+    `  .govde strong { color: var(--kart-metin); font-weight: 700 }`,
     // ⚠ Dev soluk metin kesim çizgilerini KASTEN aşıyor: kesintisizliğin en görünür işareti.
     // ⚠ Dev soluk metin: BÜYÜK ve kesim çizgilerini aşacak kadar aşağıda. İlk sürümde
     // 300 px ve %4,5 opaklıkla başlığın arkasında kalıyor, hiç okunmuyordu — referansta
@@ -336,6 +476,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ── bant ────────────────────────────────────────────────────────────────
     // ⚠ Bant 560 px: 300 px'te eğri dibe yapışıyor ve "hikâye" okunmuyordu. Yükseklik
     // eğrinin anlatabileceği fark kadar olmalı.
+    // ⚠ `.bant-ok` İLK SÜRÜMDE LİSTEDE YOKTU: SVG basılıyor ama boyutsuz kalıyor ve
+    // hiç çizilmiyordu. Oklar `sahne` şablonunun iki süreklilik ögesinden biri — yokluğu
+    // şablonu yarıya indiriyordu ve ancak render'a bakınca görüldü.
+    `  .bant-ok { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
+    `             height: ${doc.yukseklik}px; z-index: 5; pointer-events: none }`,
     `  .bant, .bant-kemer { position: absolute; left: 0; bottom: 120px;`,
     `                       width: ${toplam}px; height: 560px; z-index: 1 }`,
     `  .kilometre { position: absolute; bottom: 120px; z-index: 3; transform: translateX(-50%);`,
@@ -356,11 +501,26 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `         display: flex; gap: 40px; align-items: center;`,
     `         border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;`,
     `         font-size: 15px; letter-spacing: 0.14em; color: rgba(255,255,255,0.42) }`,
-    `  .ray-sayac { margin-left: auto; color: ${AKSAN}; font-weight: 700 }`,
+    `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700 }`,
+    // ── görsel katmanı ──────────────────────────────────────────────────────
+    `  .gorsel, .gorsel-yer { position: absolute; z-index: 4; object-fit: cover }`,
+    `  .gorsel.kesik, .gorsel-yer.kesik { object-fit: contain; object-position: bottom }`,
+    `  .gorsel.daire, .gorsel-yer.daire { border-radius: 50%; object-fit: cover }`,
+    // ⚠ ⚠ **YER TUTUCU HER ZEMİNDE GÖRÜNMEK ZORUNDA.** İlk sürüm beyaz-şeffaf çizgi
+    // kullanıyordu ve açık zeminli şablonlarda (`memphis`, `editoryal`) tamamen
+    // kayboluyordu — kimliği görsel olan iki şablon BOŞ görünüyordu. Eksik bir taşıyıcı,
+    // görünmezse eksik sayılmaz ve tasarım tam sanılır.
+    // Aksan rengi iki zeminde de okunuyor; yer tutucu bir uyarıdır, bir süs değil.
+    `  .gorsel-yer { border: 3px dashed ${AKSAN}; display: flex;`,
+    `                align-items: center; justify-content: center; text-align: center;`,
+    `                color: ${AKSAN}; font-size: 22px; letter-spacing: 0.14em;`,
+    `                font-weight: 700; padding: 20px; background: rgba(127,127,127,0.14) }`,
+    `  .gorsel-yer.daire { border-radius: 50% }`,
     '</style>',
     `<body data-surface="kreatif"><div id="sahne">`,
     bantSvg(doc.bant, toplam, doc.yukseklik),
     kartlar,
+    gorseller,
     Array.from(
       { length: n - 1 },
       (_, i) => `<div class="kesik" style="left:${(i + 1) * G}px"></div>`
