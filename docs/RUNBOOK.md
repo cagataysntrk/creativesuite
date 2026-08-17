@@ -71,6 +71,7 @@ bilinmeyen bir anahtar, sızdığında döndürülemez.
 | `FAL_KEY` | fal.ai | `fal.ai/dashboard/keys` | eskiyi sil, yenisini üret |
 | `CF_API_TOKEN` | Cloudflare | `dash.cloudflare.com` → API Tokens | token bazlı, kapsam daralt |
 | `CF_ACCOUNT_ID` | Cloudflare | hesap kimliği — **sır değil**, rotasyon yok | döndürülemez, gizli de değil |
+| `SUITE_CLAUDE_BIN` | — | `claude` ikilisinin yolu — **sır değil**, rotasyon yok | PATH'te bulunamadığında betiklerin çıkış yolu |
 | `SUITE_CLAUDE_MODEL` | — | model adı — **sır değil**, rotasyon yok | adaptörün varsayılanını ezer; bir model kaldırılırsa düzeltme dağıtım değil bir env satırıdır (§16) |
 | `BRIGHTDATA_API_KEY` | Bright Data | müşteri paneli → API | SERP şelalesi (FAZ-6.5) |
 | `TAVILY_API_KEY` | Tavily | `app.tavily.com` → API Keys | ücretsiz katman 1k/ay |

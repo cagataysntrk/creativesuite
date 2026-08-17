@@ -122,23 +122,24 @@ bu dille geçiyor.
 
 ---
 
-## 11.5 — Kesik özne: arka plan silme    [ ] BLOKE:karar
+## 11.5 — Kesik özne: arka plan silme    [ ] BLOKE:karar — tetikleyicili (D-266)
 
 📖 §7.3 · §17 · D-261
 🔗 11.4
 🛠 Referans örnek 2 ve 3'ün dili: arka planı silinmiş özne, şeffaf PNG. Yerel yol
    **BiRefNet (MIT)** — planda "yerelde bedava çalışacaklar" listesinde zaten adı geçiyor.
 📁 —
-✅ ⚠ **Lisans tuzağı belgeli:** Bria RMBG **CC BY-NC** ve MIT `rembg` paketinin içinde
-   geliyor — yanlışlıkla seçilmesi kolay (§17). Seçilen model ve lisansı `KARARLAR.md`ye
-   yazılmadan bağlanmaz.
-   ⚠ Yeni bir bağımlılık ve ~1 GB ağırlık; bir KARAR ister, bir import değil.
+✅ ⚠ **Lisans tuzağı belgeli:** Bria RMBG **CC BY-NC**, MIT `rembg` içinde paketli (§17).
+   ⚠ Yeni bağımlılık + ~1 GB ağırlık; bir KARAR ister, bir import değil.
+   ⚠ **TETİKLEYİCİ (D-266):** gerçek bir koşuda fotoğrafın arka planı alanla çarpışsın
+   **ve** duotone (11.7) bunu çözemesin. Bugüne kadar olmadı — "bir gün bakarız" değil,
+   gözlenebilir bir koşul.
 🧪 —
 💾 —
 
 ---
 
-## 11.6 — Taban → model: kompozisyonu GÖREN üretim    [ ] BLOKE:karar
+## 11.6 — Taban → model: kompozisyonu GÖREN üretim    [ ] BLOKE:karar — tetikleyicili (D-266)
 
 📖 §7.3, §8.2 · R-20 · D-261
 🔗 11.4
@@ -147,11 +148,14 @@ bu dille geçiyor.
    biz sonucu bir kutuya sıkıştırıyoruz; FAZ-10.7'deki bütün görsel kusurlar buradan.
    Modelin kompozisyonu görmesi, nereye ne sığacağını bilmesi demek.
 📁 —
-✅ ⚠ **Metin katmanı modele GİTMEZ.** Dönen görselin ÜSTÜNE yeniden basılır — böylece
-   tipografi hiçbir zaman modelden geçmez ve `ğ ş İ ı` garantisi (R-20) korunur. Tasarım
-   metrikleri dönen varlığa da koşar.
-   ⚠ Yeni yetenek: görselden görsele (img2img/inpaint), yeni sağlayıcı yolu. `GENERATE`
-   fiili altında kalır — dokuzuncu fiil eklenmez.
+✅ ⚠ **Metin katmanı modele GİTMEZ.** Dönen görselin ÜSTÜNE basılır; tipografi modelden
+   geçmez, `ğ ş İ ı` garantisi (R-20) korunur.
+   ⚠ Yeni yetenek: img2img/inpaint — yeni ücretli sağlayıcı yolu. `GENERATE` altında kalır.
+   ⚠ **SIRALAMA YARISI FAZ-14.3'TE TESLİM EDİLDİ** (taban önce, model sonra, görsel
+   KOŞULLU). Kalan yarı img2img.
+   ⚠ **TETİKLEYİCİ (D-266):** 20 kabul koşusunda kompozisyon körlüğü baskın kusur kaynağı
+   çıksın. Görsel üretimi artık koşullu (D-264) ve çoğu koşuda hiç çalışmıyor — adımın
+   yazıldığı andaki öncül zayıfladı.
 🧪 —
 💾 —
 
@@ -210,7 +214,7 @@ bu dille geçiyor.
 
 ---
 
-## 11.9 — Yerel raster işlemleri: ölçek, kırpma, arka plan    [ ] BLOKE:karar
+## 11.9 — Yerel raster işlemleri: ölçek, kırpma, arka plan    [ ] BLOKE:karar — tetikleyicili (D-266)
 
 📖 §7.3 · §17 · D-261
 🔗 11.5
@@ -218,32 +222,29 @@ bu dille geçiyor.
    haritası), **arka plan silme** (BiRefNet). Üçü de planın "yerelde bedava çalışacaklar"
    listesinde ve üçü de ikili çalıştırmak demek.
 📁 —
-✅ ⚠ Her biri AYRI bir karar ve ayrı bir bağımlılık; toplu "görsel işleme paketi" diye
-   bağlanmaz. Lisans tuzağı belgeli: Bria RMBG **CC BY-NC**, MIT `rembg` içinde paketli.
+✅ ⚠ Her biri AYRI karar, ayrı bağımlılık; toplu "görsel işleme paketi" diye bağlanmaz.
    ⚠ Alt süreç çalıştırma tek darboğazdan geçmek zorunda (`chokepoints.json`).
+   ⚠ ⚠ **UPSCALE YARISI BAĞIMLILIKSIZ ÇÖZÜLDÜ (D-266):** model 1024² üretiyor, karosel
+   1080² istiyor ve `cover` büyütürken yumuşatıyordu; `feConvolveMatrix` keskinliği
+   (FAZ-12.2) kaybın büyük kısmını geri veriyor — kenar enerjisi 2,04 → 2,36, hale yok.
+   *40 satır yazmak bir bağımlılıktan iyidir.* Kalan: akıllı kırpma + arka plan silme,
+   tetikleyicisi 11.5 ile aynı.
 🧪 —
 💾 —
 
-## 11.10 — İllüstrasyon kütüphanesi: CC0 modüler    [ ] BLOKE:karar
+## 11.10 — İllüstrasyon kütüphanesi: CC0 modüler    [x] 2026-08-17 KAPATILDI — yapılmayacak (D-266)
 
 📖 §7.1, §11.3 · D-252
 🔗 11.3, 11.7
-🛠 *"Çok fazla görsel kütüphane var."* Doğru — ve lisansları ayrıştırıldı:
-
-| Kütüphane | Lisans | Not |
-|---|---|---|
-| **Open Peeps** | **CC0** | Elle çizilmiş, modüler (baş/gövde/poz). Kısıtsız. |
-| **Humaaans** | **CC0** | Modüler insan. Kısıtsız. |
-| DrawKit (ücretsiz) | MIT | SaaS/teknoloji sahneleri. |
+🛠 Adaylar: Open Peeps **CC0** · Humaaans **CC0** · DrawKit MIT.
 📁 —
-⚠ **BLOKE — karar bekliyor (2026-08-17).** Üç sebep: (a) ağdan varlık indirmek ve lisans
-   metnini izlenen dosyada tutmak gerçek bir bağımlılık kararı (R-75, §16); (b) §11.3
-   *"onay ima eden yapay insan"* yasağı figürlü illüstrasyonu dar bir alana sıkıştırıyor —
-   soyut/şematik serbest, "memnun müşteri" tasviri yasak; (c) **elimizdeki dağarcık
-   zaten bu boşluğu dolduruyor**: 20 ikon, beş süsleme, akış diyagramı, duotone'lu
-   fotoğraf yuvası. Referans örneklerin hiçbirinde jenerik SaaS illüstrasyonu yok.
-   Karar: FAZ-12 ve 13 kapandıktan sonra, **gerçek bir ihtiyaç ölçülürse** açılır.
-✅ Açılırsa: SVG gömülür ve `fill` token'a bağlanarak MARKAYA BOYANIR — ham renk
-   kütüphanenin paletini markanın üstüne getirir.
-🧪 Boyanmamış illüstrasyon → `kalite` palet dışı ile kırmızı.
-💾 `feat(render): illustrasyon dagarcigi` · `Refs: FAZ-11.10 · §7.1`
+✅ ⚠ ⚠ **KAPATILDI — YAPILMAYACAK (D-266), üç gerekçe.** (a) §11.3 *"onay ima eden yapay
+   insan"* yasağı figürlü illüstrasyonu dar bir alana sıkıştırıyor: soyut/şematik serbest,
+   "memnun müşteri" tasviri yasak. (b) Kalan o dar alanı **elimizdeki dağarcık zaten
+   dolduruyor** — 20 ikon, beş süsleme, akış diyagramı, duotone'lu fotoğraf yuvası;
+   referans örneklerin hiçbirinde jenerik SaaS illüstrasyonu yok. (c) Ağdan varlık +
+   lisans metni indirmek §16 kurtarma yükü ekler (R-75).
+   ⚠ **Geri açılabilir** — ama talep bir sezgi değil, bir referans örnek ya da bir kabul
+   koşusu bulgusu olmalı. Açılırsa SVG gömülür ve `fill` token'a bağlanarak markaya boyanır.
+🧪 — (kod yazılmadı)
+💾 — (karar commit'i: D-266)

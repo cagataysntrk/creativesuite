@@ -545,3 +545,28 @@ raporlayabiliyor — hem yeniden koşum (hız) hem yalan yeşil (güvenlik). →
 düşünmek. R-78…R-80 tekrarı kesiyor, düşünmeyi değil.
 
 **Geri alma maliyeti:** sıfır — hiçbir kapı gevşetilmedi, hiçbir test silinmedi.
+
+## D-266 — Dört bloke adım karara bağlandı: biri kapandı, üçü TETİKLEYİCİ aldı
+
+**2026-08-17.** FAZ-11'in dört adımı (`11.5` `11.6` `11.9` `11.10`) günlerdir
+`bloke: karar` duruyordu ve hiçbiri karara bağlanmamıştı. **Kararsız bir blokaj bir karar
+değil, bir erteleme borcudur:** her turda okunur, her turda atlanır ve planı yavaşça
+gerçeklikten koparır. LOOP§A tam yetki veriyor; kullanılmayan yetki de bir seçimdir.
+
+| Adım | Karar | Gerekçe |
+|---|---|---|
+| `11.10` illüstrasyon kütüphanesi | **KAPATILDI — yapılmayacak** | §11.3 onay ima eden yapay insanı yasaklıyor; kalan (soyut/şematik) alt kümeyi 20 ikon + 5 süsleme + akış diyagramı zaten dolduruyor. Dışarıdan varlık + lisans metni indirmek §16 kurtarma yükü ekler (R-75). |
+| `11.9` yerel raster | **YARISI ÇÖZÜLDÜ, yarısı ertelendi** | Upscale yumuşaması `feConvolveMatrix` keskinliğiyle **bağımlılıksız** çözüldü (FAZ-12.2, kenar enerjisi 2,04 → 2,36). Akıllı kırpma ve arka plan silme ertelendi. |
+| `11.5` arka plan silme | **ERTELENDİ, tetikleyicili** | ~1 GB ağırlık + §16 sınavı. Tetikleyici: gerçek bir koşuda fotoğrafın arka planı alanla çarpışsın **ve** duotone (FAZ-11.7) bunu çözemesin. Bugüne kadar olmadı. |
+| `11.6` taban → model (img2img) | **ERTELENDİ, tetikleyicili** | Sıralama yarısı FAZ-14.3'te zaten teslim edildi (taban önce, model sonra). Kalan yarı yeni bir ücretli sağlayıcı yolu. Tetikleyici: 20 kabul koşusunda kompozisyon körlüğü baskın kusur kaynağı çıksın. Görsel üretimi artık **koşullu** (D-264) ve çoğu koşuda hiç çalışmıyor — adımın yazıldığı andaki öncül zayıfladı. |
+
+**Ortak ilke:** üçü de dış kaynak (ağırlık indirme, ücretli yol, varlık + lisans) istiyor;
+D-157 bunları `insan` sınıfı sayıyor ve LOOP§G üçlü kuralına saymıyor — **plan hatası
+değiller.** Ama sınıflandırmak karara bağlamak değildir. Her birine bir tetikleyici
+yazıldı: blokaj artık "bir gün bakarız" değil, **gözlenebilir bir koşul**.
+
+⚠ **Erteleme geri alınabilir, kapatma da.** `11.10` bir talep gelirse yeniden açılır —
+ama talep bir sezgi değil, bir referans örnek ya da bir kabul koşusu bulgusu olmalı.
+
+**Geri alma maliyeti:** sıfır — hiçbir kod yazılmadı, hiçbir bağımlılık eklenmedi.
+
