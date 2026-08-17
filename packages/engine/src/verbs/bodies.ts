@@ -678,6 +678,19 @@ export const renderBody = (deps: RenderDeps): Verb =>
       data: {
         slides: yollar,
         count: yollar.length,
+        // Hangi slaytlarda görsel bloğu var — QA renk metriklerini o slaytlarda
+        // düşürüyor (D-258). **Üretici söylüyor**: sayfalayıcı hangi bloğun hangi
+        // slayta düştüğünü bilen tek yer; tüketicinin tüm belgeye bakması, tek bir
+        // görsel yüzünden bütün karoselin renk QA'sını kapatıyordu.
+        gorselliSlaytlar: slaytlar
+          .map((sy, i) =>
+            ((sy as { blocks?: readonly unknown[] }).blocks ?? []).some(
+              (b) => (b as { type?: string }).type === 'image'
+            )
+              ? i
+              : -1
+          )
+          .filter((i) => i >= 0),
         ...(basamaklar.length > 0 ? { rung: basamaklar, bytes: boyutlar } : {}),
         // ⚠ **`assets` ÜRETİM tarafından basılıyor** (FAZ-8 denetimi, B2). `publishBody`
         // bu anahtarı arıyordu ve **hiçbir gövde onu üretmiyordu**: `renderBody`
@@ -840,7 +853,9 @@ export interface ValidateDeps {
   readonly lint: (doc: DocumentModel) => readonly { readonly kind: string }[]
   readonly check: (
     doc: DocumentModel,
-    slides: readonly string[]
+    slides: readonly string[],
+    /** Görsel bloğu TAŞIYAN slayt indeksleri — renk metrikleri orada düşüyor (D-258). */
+    gorselliSlaytlar?: readonly number[]
   ) => Promise<{
     readonly blocked: boolean
     /** İnsan okunur rapor — CLI çıktısı ve hata gövdesi için. */
@@ -866,8 +881,12 @@ export const validateBody = (deps: ValidateDeps): Verb =>
         v !== null && typeof v === 'object' && (v as { document?: unknown }).document !== undefined
     )
     const render = Object.values(input.inputs).find(
-      (v): v is { readonly slides: readonly string[] } =>
-        v !== null && typeof v === 'object' && Array.isArray((v as { slides?: unknown }).slides)
+      (
+        v
+      ): v is {
+        readonly slides: readonly string[]
+        readonly gorselliSlaytlar?: readonly number[]
+      } => v !== null && typeof v === 'object' && Array.isArray((v as { slides?: unknown }).slides)
     )
     // PDF çıktısı `slides` TAŞIMAZ (`deck` ya da `document` taşır). İlk sürüm yalnız
     // `slides` arıyordu ve PDF hattı `NOTHING_TO_VALIDATE` ile duruyordu — PDF yolunu
@@ -904,7 +923,11 @@ export const validateBody = (deps: ValidateDeps): Verb =>
     const sonuc =
       render === undefined
         ? { blocked: false, report: 'piksel QA ATLANDI: çıktı PDF, raster ölçüm yok' }
-        : await deps.check(belge.document, render.slides)
+        : // ⚠ Üçüncü argüman: hangi slaytlarda GÖRSEL var (D-258). Denetleyici bunu
+          // tahmin edemez — `belge.document` TÜM belgedir ve ona bakmak tek bir görsel
+          // yüzünden bütün karoselin renk QA'sını kapatıyordu. Bilgi RENDER çıktısından
+          // geliyor: hangi bloğun hangi slayta düştüğünü sayfalayıcı bilir.
+          await deps.check(belge.document, render.slides, render.gorselliSlaytlar ?? [])
     if (sonuc.blocked) {
       // QA sınır dışıysa hat DURUR. "Uyarı verip devam etmek", tolerans okumasını
       // bir süse çevirirdi (§11.1).

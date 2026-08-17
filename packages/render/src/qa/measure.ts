@@ -132,6 +132,20 @@ export const aspectDeviation = (w: number, h: number, hedef: number): number => 
 
 export interface QaInput {
   readonly doc: DocumentModel
+  /**
+   * BU SLAYT bir görsel bloğu taşıyor mu (FAZ-10.7 · D-258).
+   *
+   * ⚠ **Ayrı bir alan, çünkü `doc` TÜM belgedir.** `uret.mjs` her slayt için aynı
+   * belgeyi geçiyor; `doc.blocks`a bakarak karar vermek, karoselde tek bir görsel olsa
+   * bile TÜM slaytların renk okumasını düşürüyordu — ilk düzeltmem tam bunu yaptı ve
+   * üç slaytın üçünde de renk QA'sı sessizce kapandı. Sessiz kapanma, kırmızı bir
+   * kapıdan daha tehlikeli: kimse fark etmez.
+   *
+   * Otorite ÜRETİCİDİR: sayfalayıcı hangi slayta hangi bloğun düştüğünü bilen tek yer.
+   * Verilmezse `doc.blocks`a düşülüyor — eski çağıranlar kırılmıyor, ama o yol artık
+   * yalnız tek slaytlık belgeler için doğru.
+   */
+  readonly gorselliSlayt?: boolean
   readonly palette: BrandPalette
   readonly pixels: readonly Rgb[]
   readonly targetAspect: number
@@ -151,7 +165,24 @@ export const measure = (input: QaInput): QaReport => {
 
   const palet = paletteToLab(input.palette)
   const stats = pixelStats(input.pixels, palet, l.paletteMatch)
-  if (stats !== null) {
+
+  // ⚠ **GÖRSEL İÇEREN SLAYTTA renk metrikleri ÖLÇÜLMÜYOR** (FAZ-10.7 · D-258).
+  //
+  // Bir fotoğraf tanımı gereği palet dışıdır: marka paletiyle ölçülen "palet dışı %17,7"
+  // fotoğrafın kendisi hakkında bir olgu, tasarım hakkında bir kusur değil. FAZ-10.2'de
+  // referans ölçülürken görülmüştü ve şimdi gerçek bir koşuyu DURDURDU: hat `kalite`
+  // adımında `QA_OUT_OF_TOLERANCE` verdi ve karosel yayınlanamaz oldu.
+  //
+  // **Sıfır yazılmıyor, okuma HİÇ ÜRETİLMİYOR** — bu dosyanın kendi kuralı (`measure`
+  // başlığındaki not): ölçülemeyen metriği sıfır yazmak, hiçbir şey ölçülmediği anda
+  // yeşil yakmaktır. Aynı gerekçe tersi için de geçerli: ölçülemeyeni kırmızı yazmak,
+  // sistemin üretmesi gereken şeyi reddetmektir (D-251'in birebir tekrarı).
+  //
+  // Kaplama ve en-boy ETKİLENMİYOR: ikisi de belge modelinden hesaplanıyor, pikselden
+  // değil. Yalnız renk okumaları düşüyor.
+  const gorselVar = input.gorselliSlayt ?? input.doc.blocks.some((b) => b.type === 'image')
+
+  if (stats !== null && !gorselVar) {
     okumalar.push(
       reading({
         metric: 'delta_e_2000',

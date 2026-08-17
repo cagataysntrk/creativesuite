@@ -517,3 +517,32 @@ zorunda çünkü `taşıyabileceğimizin` 64 px'te 582 px içerik genişliği is
 eğrinin içine sokardı — **uyarlama sapma değildir.**
 
 **Geri alma maliyeti:** yok — `VARSAYILAN` bugünkü değerleri taşıyor, davranış değişmedi.
+
+## D-258 — Görsel içeren slaytta renk metriği ölçülmez
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.7 · §11.1
+
+Kabul koşusunun ilk denemesi `kalite` adımında **durdu**: slayt 2 palet dışı %17,7 verdi,
+limit %15. O slaytta bir AI fotoğrafı vardı. **Fotoğraf tanımı gereği palet dışıdır** —
+o sayı fotoğraf hakkında bir olgu, tasarım hakkında bir kusur değil. Kapı, sistemin
+üretmesi gereken şeyi reddediyordu (D-251'in birebir tekrarı).
+
+**Karar:** görsel bloğu taşıyan slaytta ΔE ve palet dışı okumaları **ÜRETİLMİYOR**.
+Sıfır yazılmıyor: `measure.ts`in kendi kuralı, ölçülemeyen metriği sıfır yazmanın hiçbir
+şey ölçülmediği anda yeşil yakmak olduğunu söylüyor. Kaplama ve en-boy etkilenmiyor —
+ikisi belge modelinden hesaplanıyor, pikselden değil.
+
+**İlk düzeltmem FAZLA GENİŞTİ ve bunu ancak koşuyu tekrarlayınca gördüm.** `doc.blocks`a
+bakıyordum; ama `uret.mjs` her slayt için AYNI belgeyi geçiyor, yani karoselde tek bir
+görsel olsa bile ÜÇ slaytın üçünde de renk QA'sı kapandı. Kapı yeşile döndü ve *doğru
+sebepten değil*. **Sessiz kapanma, kırmızı bir kapıdan tehlikelidir: kimse fark etmez.**
+
+**Otorite ÜRETİCİDE.** `renderBody` artık `gorselliSlaytlar` indeks listesi yayınlıyor —
+hangi bloğun hangi slayta düştüğünü bilen tek yer sayfalayıcı. Tüketicinin tüm belgeye
+bakıp tahmin etmesi, bu deponun en sık tekrarlayan hatasının bir başka yüzüydü.
+
+**Doğrulandı:** slayt 1 (görselsiz) dört okuma alıyor, slayt 2 (fotoğraflı) yalnız
+kaplama ve en-boy; `kalite` geçiyor ve hat uçtan uca yeşil koşuyor — `gorsel-yargi`
+adımı dahil.
+
+**Geri alma maliyeti:** yok — bayrak verilmezse eski davranışa düşüyor.

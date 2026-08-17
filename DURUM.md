@@ -59,15 +59,10 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 ## Sıradaki adım
 
-**FAZ 10 — TASARIM KATMANI** (D-255). FAZ 3 "üretebiliyor mu"yu kapattı, "iyi mi"yi
-değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
-
-**10.1–10.3 KAPANDI.** Ayrıntı `docs/fazlar/FAZ-10.md` ve üretilmiş raporlarda
-(`docs/referans/tasarim-temeli.md`, `tip-olcegi.md`).
-· **10.1** oturum 4.9x. · **10.2** referans ölçüldü: T9/T11 türetilemez, T10 görseli
-  dışlamalı; ölçüm aracının kendisi bozuktu (%97.8). · **10.3** `tasarim` kapısı
-  23 okuma, 4 ihlal kırmızı.
-· **10.2b** punto: %36'da hiçbiri sığmıyordu → bant %69–78, sütun %62, h1 64px.
+**FAZ 10 — TASARIM KATMANI** (D-255). 10.1–10.6 KAPANDI; ayrıntı
+`docs/fazlar/FAZ-10.md` ve `docs/referans/*.md`.
+· **10.1** oturum 4.9x · **10.2** T9/T11 türetilemez, ölçüm aracı bozuktu (%97.8)
+  · **10.2b** bant %69–78, sütun %62, h1 64px · **10.3** kapı 23 okuma, 4 ihlal.
 · **10.4** düzen İÇERİKTEN: liste 3→2 slayt. Test Türkçe hatamı buldu (`4%` vs `%4`).
 · **10.4b** dört düzen dört KOMPOZİSYON; düzen `SlaytKimligi.duzen`de (rol, çizim
   değil). İki kusur GÖRÜLEREK bulundu.
@@ -80,7 +75,19 @@ değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
   **Bant referanstan TÜRETİLEMEDİ**: ham aralık %2–97, tavan 40 → sayı YAZILMADI.
   Yürürlükteki %69–78 bir KISIT: Türkçe sütun %62 olmak zorunda (D-257).
 
-**SIRADAKİ 10.7** — 20 ARDIŞIK kabul koşusu (sınırlayıcı
+**10.7 BAŞLADI — hat uçtan uca YEŞİL koşuyor** (`gorsel-yargi` dahil, 354 sn/koşu).
+İlk koşu `kalite`de DURDU: fotoğraflı slayt palet dışı %17,7 verdi. Düzeltildi (D-258)
+ve ilk düzeltmem fazla genişti — üç slaytın üçünde de renk QA'sı sessizce kapanmıştı;
+otorite üreticiye verildi (`renderBody.gorselliSlaytlar`).
+
+⛔ **KABUL SAYACI 0 — iki kusur açık:**
+1. **Kapak `list` düzeni alıyor** (madde ritmiyle). Kapak bir kancadır, liste değil;
+   `duzenSec` içerik sinyaline bakıyor ama ROL onu yenmeli.
+2. **`tasarimOlc` ÜRETİM yolunda koşmuyor** — yalnız depo kapısı olarak koşuyor. Bu
+   yüzden T8 (kapak ≤8 kelime) gerçek çıktıda hiç denetlenmedi ve kapak 3 satır başlık +
+   iki uzun paragrafla çıktı. **Kapı depoyu koruyor, çıktıyı korumuyor.**
+
+Sonra: 20 ARDIŞIK kabul koşusu (sınırlayıcı
 kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
 
 **FAZ 8 açık kalanı:** `8.3b` BLOKE:teknik (`7.2b` gerçek yayınına bağlı), `8.6`

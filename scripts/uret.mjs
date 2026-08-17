@@ -398,7 +398,9 @@ const lexiconDenetimi = (doc) => {
   return ihlaller
 }
 
-const kaliteKontrol = async (doc, slides) => {
+// `gorselli` — hangi slayt indekslerinde görsel bloğu var. RENDER çıktısından geliyor:
+// üretici bilir, tüketici tahmin etmez (D-258).
+const kaliteKontrol = async (doc, slides, gorselli = []) => {
   const satirlar = []
   let bloke = false
 
@@ -453,6 +455,9 @@ const kaliteKontrol = async (doc, slides) => {
     }
     const rapor = measure({
       doc,
+      // Slayt bazlı: tüm belgeye bakmak, tek görsel yüzünden bütün karoselin renk
+      // QA'sını kapatıyordu (D-258). Liste RENDER çıktısından geliyor.
+      gorselliSlayt: gorselli.includes(i),
       palette: palet,
       pixels: ornek.value,
       targetAspect: yerlesim.width / yerlesim.height,
