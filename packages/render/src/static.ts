@@ -20,6 +20,7 @@ import {
   akanEgri,
   alanRolleri,
   egriSagda,
+  duzenBicimi,
   guvenliMetinYuzdesi,
   hayaletRakam,
   navIsareti,
@@ -124,8 +125,14 @@ const sablonCss = (doc: DocumentModel): string => {
   const r = alanRolleri(k)
   // Metin sütunu eğrinin KARŞI tarafında: eğri sağı dolduruyorsa metin solda.
   const sagda = egriSagda(k)
+  // Düzen artık GÖRSEL bir fark yaratıyor (FAZ-10.4b): punto, dikey yaslama, tırnak,
+  // madde ritmi, kanıt şeridi. Öncesinde `layout` yalnız sayfalama bütçesiydi ve
+  // `quote` seçmek alıntı gibi görünmüyordu.
+  const b = duzenBicimi(k.duzen)
   // Güvenli alan: 4px tabanın katı (§12.3) ve platform kenar payından geniş.
   const pay = 88
+  /** Sayacın kapladığı üst bant (26 px punto + nefes). Üste yaslı içerik bunu aşar. */
+  const SAYAC_BANDI = 52
   return [
     // Zemin ve metin rolleri KİMLİKTEN geliyor; `body`nin varsayılanını eziyor.
     `  body { background: ${r.zemin}; color: ${r.metin};`,
@@ -142,15 +149,60 @@ const sablonCss = (doc: DocumentModel): string => {
     // slayttan slayta yer değiştiriyor — ritim buradan da besleniyor.
     `  .icerik { position: relative; z-index: 3; box-sizing: border-box;`,
     `            width: ${guvenliMetinYuzdesi}%; ${sagda ? '' : 'margin-left: auto;'}`,
-    `            padding: ${pay}px ${sagda ? 0 : pay}px ${pay + 64}px ${sagda ? pay : 0}px;`,
+    // ⚠ **Üste yaslı içerik sayaç bandını AŞMAK zorunda.** Sayaç `top: pay`de duruyor ve
+    // 26 px punto ile ~52 px'lik bir bant kaplıyor. `flex-start` yaslamada içerik de
+    // `pay`de başlıyordu, yani ikisi aynı satırda: bu içerikte çakışmıyorlardı ama
+    // başlığın ilk satırı bir kelime daha uzun olsaydı üst üste bineceklerdi.
+    // Çakışmayan bir çakışma, henüz görülmemiş bir çakışmadır.
+    `            padding: ${pay + (b.yaslama === 'flex-start' ? SAYAC_BANDI : 0)}px ${sagda ? 0 : pay}px ${pay + 64}px ${sagda ? pay : 0}px;`,
     `            display: flex; flex-direction: column;`,
     // Dikey yerleşim ROLE göre. Kapak alta yaslı: referansta kapak başlığı optik
     // merkezin ALTINDA durur ve üstteki boşluk nefes olur. Gövde ortalı: kısa bir
     // paragrafı tepeye yaslamak, altında 900 piksel boşluk bırakıyordu.
-    `            justify-content: ${k.role === 'kapak' || k.role === 'tek' ? 'flex-end' : 'center'};`,
+    // Yaslama artık DÜZENDEN geliyor; rol yalnız kapakta baskın. Kapak her zaman alta
+    // yaslı kalıyor çünkü ızgarada ilk kare bir açılış cümlesidir, bir liste değil.
+    `            justify-content: ${k.role === 'kapak' || k.role === 'tek' ? 'flex-end' : b.yaslama};`,
     `            min-height: 100%; }`,
-    `  h1 { color: ${r.metin} }`,
-    `  p  { color: ${r.metinSoluk} }`,
+    // ── düzenin tipografisi ─────────────────────────────────────────────────
+    // Punto DÜZENDEN geliyor ama tavan `docs/referans/tip-olcegi.md`ten: 64 px, en uzun
+    // Türkçe kelimenin güvenli sütuna sığdığı en büyük değer. Hiçbir düzen onu aşamaz.
+    `  h1 { color: ${r.metin}; font-size: ${b.baslikPx}px; line-height: ${b.baslikYukseklik} }`,
+    `  p  { color: ${r.metinSoluk}; font-size: ${b.govdePx}px }`,
+    ...(b.tirnak
+      ? [
+          // Dev açılış tırnağı — bir süs değil, "bu cümle bana ait değil" işareti.
+          // `::before` kullanılıyor: seçilemiyor, ekran okuyucuya okunmuyor ve belge
+          // modeline bir tırnak BLOĞU eklemek gerekmiyor (D-254).
+          //
+          // ⚠ **AKIŞTA, mutlak konumda DEĞİL.** İlk sürüm `.icerik::before` idi ve
+          // `position: absolute; top: -70px` ile kabın üstüne çıkıyordu — ama `.icerik`
+          // tam yükseklikte ve içerik dikey ORTALI, yani tırnak metnin değil ÇERÇEVENİN
+          // tepesine düşüyor ve kırpılıyordu. Başlığın kendi `::before`ı olarak akışa
+          // girince tırnak her zaman cümlenin hemen üstünde duruyor ve puntoyla birlikte
+          // ölçekleniyor. Mutlak konum, hizalanacak şeyin nerede olduğunu bilmiyordu.
+          `  .icerik h1::before { content: "\\201C"; display: block;`,
+          `      font-family: "Marka Display", serif; font-size: ${Math.round(b.baslikPx * 2.2)}px;`,
+          `      line-height: 0.66; margin-bottom: 6px; color: ${r.metin}; opacity: 0.22 }`,
+        ]
+      : []),
+    ...(b.maddeRitmi
+      ? [
+          // Madde ritmi: her gövde bloğunun önünde kısa bir çizgi. Madde İŞARETİ değil —
+          // metin zaten "-" ile gelebiliyor ve iki işaret üst üste binerdi.
+          `  .icerik p { position: relative; padding-left: 34px; margin-bottom: 10px }`,
+          `  .icerik p::before { content: ""; position: absolute; left: 0;`,
+          `      top: ${Math.round(b.govdePx * 0.62)}px; width: 20px; height: 3px;`,
+          `      background: ${r.metin}; opacity: 0.55 }`,
+        ]
+      : []),
+    ...(b.kanitSeridi
+      ? [
+          // Kanıt şeridi: İLK gövde bloğu kenardan bir çizgiyle ayrılıyor. Ayrım görsel
+          // olmazsa iddia ile kanıt aynı sesle okunur ve kanıt kanıt olmaktan çıkar.
+          `  .icerik p:first-of-type { border-left: 4px solid ${r.metin};`,
+          `      padding-left: 22px; margin-top: 8px }`,
+        ]
+      : []),
     // ── katman 1: karşı alan + akan eğri ────────────────────────────────────
     `  .alan { position: absolute; inset: 0; z-index: 1; }`,
     `  .alan svg { width: 100%; height: 100%; display: block; }`,

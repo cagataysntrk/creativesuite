@@ -11,6 +11,7 @@
 // (koşullu yerleşim, hesaplanan alanlar) `RENDER` bir şablon motoruna dönerdi ve
 // "tek render motoru" yasası şablon diline kaçardı.
 
+import type { LayoutName } from '@suite/contracts'
 import type { AssetStamp } from '../era.js'
 
 export type BlockType = 'heading' | 'body' | 'image' | 'spacer' | 'chart' | 'diagram'
@@ -144,6 +145,15 @@ export interface SlaytKimligi {
    * ögesidir**: ızgaraya bakan göz onu tanır ve postu markaya bağlar.
    */
   readonly kulp?: string
+  /**
+   * Seçilen düzen (FAZ-10.4b). **Rol taşır, çizim taşımaz** — `quote` yazması slaytın
+   * NE OLDUĞUNU söylüyor, nasıl çizileceğini değil; tırnak işaretini `sablon.ts`
+   * çiziyor. `ornament: '<svg>…'` gibi bir alan burada YOK ve olmayacak (D-254).
+   *
+   * Sayfalayıcı seçiyor (`duzenSec`), çünkü kaç bloğun sığdığını bilen tek yer orası.
+   * Verilmezse kompozisyon `statement` gibi davranıyor — eski belgeler kırılmıyor.
+   */
+  readonly duzen?: LayoutName
 }
 
 export type DocError =

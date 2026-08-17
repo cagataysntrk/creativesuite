@@ -141,6 +141,11 @@ export interface Slide {
   readonly blocks: readonly Block[]
   /** Bu slayt tek başına sığmayan bir blok mu taşıyor. */
   readonly oversized: boolean
+  /**
+   * Bu slayt için SEÇİLEN düzen (FAZ-10.4b). Sayfalayıcı biliyor, render bilmiyordu:
+   * seçim yapılıp atılıyordu ve `quote` seçmek görsel olarak hiçbir şey değiştirmiyordu.
+   */
+  readonly duzen: LayoutName
 }
 
 /**
@@ -166,11 +171,11 @@ export const paginate = (
     if (fits.length === 0) {
       // İlk blok tek başına sığmıyor: bölmek çözmez. Kendi slaydına konur ve
       // `oversized` ile İŞARETLENİR — çağıran metni kısaltmalı.
-      slides.push({ blocks: [kalan[0] as Block], oversized: true })
+      slides.push({ blocks: [kalan[0] as Block], oversized: true, duzen: d })
       kalan = kalan.slice(1)
       continue
     }
-    slides.push({ blocks: fits, oversized: false })
+    slides.push({ blocks: fits, oversized: false, duzen: d })
     kalan = overflow
   }
   return slides
@@ -208,6 +213,9 @@ export const paginateDocument = (
               : ('govde' as const),
       index: i,
       total: n,
+      // Düzen KİMLİĞE giriyor: `renderStatic(doc)` yalnız belgeyi görüyor, ayrı bir
+      // parametre eklemek imzayı ikiye bölerdi ve biri unutulurdu.
+      duzen: s.duzen,
       ...(kulp === undefined ? {} : { kulp }),
     },
   }))

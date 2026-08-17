@@ -17,6 +17,7 @@
 // şablonunun içinde kaybolurdu.
 
 import type { SlaytKimligi } from '@suite/kernel'
+import type { LayoutName } from './layout/adlar.js'
 
 /** Renk rolü — hangi token'ın zemin, hangisinin metin olacağı. */
 export interface AlanRolleri {
@@ -177,4 +178,88 @@ export const sayacEtiketi = (k: SlaytKimligi): string | null =>
 export const navIsareti = (k: SlaytKimligi): string | null => {
   if (k.total <= 1) return null
   return k.index === k.total - 1 ? '‹‹ başa' : 'kaydır ››'
+}
+
+/**
+ * Düzenin GÖRSEL kompozisyonu (FAZ-10.4b).
+ *
+ * **Neden gerekiyordu:** `LAYOUT_SPECS` üç alan taşıyordu — `maxBlocks`,
+ * `headingBudget`, `bodyBudget` — ve üçü de yalnız BÖLME kararına giriyordu. `static.ts`
+ * `layout`u hiç görmüyordu. Yani `quote` seçmek alıntı gibi GÖRÜNMÜYOR, sadece daha uzun
+ * bir başlığa izin veriyordu. Adlar bir kompozisyon vaat ediyor, motor sayfalama bütçesi
+ * veriyordu — ve iki farklı şeyin aynı adı taşıması, ikisini de yanlış anlatır.
+ *
+ * **Gramer KAPALI kalıyor** (D-254): burada dört düzenin dört biçimi var, beşincisi bir
+ * KARAR ister. Belge modeline işaretleme sokulmadı — model `duzen: 'quote'` taşıyor,
+ * tırnağı bu tablo çiziyor.
+ */
+export interface DuzenBicimi {
+  /** Başlık puntosu, px. Ölçülen tavan 64 (`docs/referans/tip-olcegi.md`) — AŞILAMAZ. */
+  readonly baslikPx: number
+  readonly baslikYukseklik: number
+  /** Gövde puntosu, px. */
+  readonly govdePx: number
+  /** İçeriğin dikey yaslanması. */
+  readonly yaslama: 'flex-start' | 'center' | 'flex-end'
+  /** Dev açılış tırnağı — yalnız `quote`. */
+  readonly tirnak: boolean
+  /** Her gövde bloğunun önünde ritim çizgisi — yalnız `list`. */
+  readonly maddeRitmi: boolean
+  /** İlk gövde bloğu bir KANIT şeridi olarak ayrılıyor — yalnız `claim-proof`. */
+  readonly kanitSeridi: boolean
+}
+
+const TAVAN_PX = 64
+
+export const duzenBicimi = (d: LayoutName | undefined): DuzenBicimi => {
+  switch (d) {
+    case 'quote':
+      // Alıntı nefes ister: az kelime, büyük punto, ortada. Tırnak bir süs değil,
+      // "bu cümle bana ait değil" işareti — atıf satırı onunla birlikte okunuyor.
+      return {
+        baslikPx: TAVAN_PX,
+        baslikYukseklik: 1.16,
+        govdePx: 30,
+        yaslama: 'center',
+        tirnak: true,
+        maddeRitmi: false,
+        kanitSeridi: false,
+      }
+    case 'list':
+      // Liste çok satır taşıyor: başlık küçülür, gövde ritim kazanır. Başlığı büyük
+      // tutmak listeyi ikinci slayda iterdi — sayfalama zaten `list` bütçesini seçti.
+      return {
+        baslikPx: 46,
+        baslikYukseklik: 1.1,
+        govdePx: 32,
+        yaslama: 'flex-start',
+        tirnak: false,
+        maddeRitmi: true,
+        kanitSeridi: false,
+      }
+    case 'claim-proof':
+      // İddia üstte büyük, kanıt altında AYRI bir şeritte. Ayrım görsel olmazsa iddia
+      // ile kanıt aynı sesle okunur ve kanıt kanıt olmaktan çıkar.
+      return {
+        baslikPx: 56,
+        baslikYukseklik: 1.08,
+        govdePx: 32,
+        yaslama: 'center',
+        tirnak: false,
+        maddeRitmi: false,
+        kanitSeridi: true,
+      }
+    default:
+      // `statement` ve tanımsız: tek büyük cümle, alta yaslı. Tanımsızın buraya düşmesi
+      // bilinçli — eski belgeler (düzen damgası taşımayanlar) aynen çalışmaya devam eder.
+      return {
+        baslikPx: TAVAN_PX,
+        baslikYukseklik: 1.08,
+        govdePx: 34,
+        yaslama: 'flex-end',
+        tirnak: false,
+        maddeRitmi: false,
+        kanitSeridi: false,
+      }
+  }
 }

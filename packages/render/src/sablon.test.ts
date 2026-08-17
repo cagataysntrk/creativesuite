@@ -10,6 +10,7 @@
 
 import { describe, expect, it } from 'vitest'
 import type { SlaytKimligi } from '@suite/kernel'
+import { LAYOUTS } from './layout/adlar.js'
 import {
   SINIR_MIN,
   SINIR_MAX,
@@ -19,6 +20,7 @@ import {
   guvenliMetinYuzdesi,
   hayaletRakam,
   navIsareti,
+  duzenBicimi,
 } from './sablon.js'
 
 const k = (index: number, total = 5, role: SlaytKimligi['role'] = 'govde'): SlaytKimligi => ({
@@ -88,6 +90,34 @@ describe('şablon grameri — değişmez ilişkiler', () => {
     // Tek karede "1" basmak bir dizi olduğunu ima eder; olmayan slayta işaret etmek de.
     expect(hayaletRakam(k(0, 1, 'tek'))).toBeNull()
     expect(navIsareti(k(0, 1, 'tek'))).toBeNull()
+  })
+
+  it('hiçbir düzen ölçülen punto TAVANINI aşamaz', () => {
+    // 64 px, en uzun Türkçe kelimenin güvenli sütuna sığdığı en büyük değer
+    // (`docs/referans/tip-olcegi.md`). Bir düzenin "daha çarpıcı" olsun diye 72'ye
+    // çıkması, metni doğrudan eğrinin içine sokar — ölçüm bir tercih değil, sınır.
+    for (const d of LAYOUTS) expect(duzenBicimi(d).baslikPx).toBeLessThanOrEqual(64)
+    expect(duzenBicimi(undefined).baslikPx).toBeLessThanOrEqual(64)
+  })
+
+  it('dört düzen BİRBİRİNDEN ayırt edilebilir', () => {
+    // Aynı kompozisyonu veren iki düzen, seçim mantığını anlamsız yapar: `duzenSec`
+    // doğru seçse bile çıktı aynı görünür ve fark ölçülemez.
+    const bicimler = LAYOUTS.map((d) => JSON.stringify(duzenBicimi(d)))
+    expect(new Set(bicimler).size).toBe(LAYOUTS.length)
+  })
+
+  it('tanımsız düzen `statement` gibi davranır — eski belgeler kırılmaz', () => {
+    expect(duzenBicimi(undefined)).toEqual(duzenBicimi('statement'))
+  })
+
+  it('her düzenin gövde puntosu başlıktan KÜÇÜK', () => {
+    // Hiyerarşi tersine dönerse gövde başlık gibi okunur ve slayt bir metin duvarına
+    // dönüşür — kapak slaytında tam bu olmuştu.
+    for (const d of LAYOUTS) {
+      const b = duzenBicimi(d)
+      expect(b.govdePx).toBeLessThan(b.baslikPx)
+    }
   })
 
   it('son slaytta navigasyon YÖN DEĞİŞTİRİR', () => {

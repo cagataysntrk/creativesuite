@@ -20,11 +20,9 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 📖 §7.1 · R-30 · D-24
 🔗 —
-🛠 `withPage` her çağrıda Chromium açıp kapatıyor; `renderStatic` bunu **slayt başına ve
-   kalite basamağı başına** çağırıyor. Kapsamlı bir oturum eklenir: bir karosel için bir
-   kez açılır, tüm slaytlar basılır, `finally` ile kapanır. **Singleton DEĞİL** — süreç
-   ömrü boyunca ayakta duran tarayıcı gözetimsiz koşuda sızıntı biriktirir; `browser.ts`
-   içindeki `finally` yorumu tam bunu engellemek için yazılmış ve korunuyor.
+🛠 `renderStatic` slayt başına VE kalite basamağı başına Chromium açıyordu. Kapsamlı
+   oturum: karosel başına bir kez açılır, `finally` ile kapanır. **Singleton DEĞİL** —
+   süreç ömrü boyunca yaşayan tarayıcı gözetimsiz koşuda sızıntı biriktirir.
 📁 `packages/render/src/browser.ts` · `packages/render/src/static.ts`
 ✅ **ÖLÇÜLDÜ** (aynı belge, iki yol, sha256 karşılaştırmalı): `oturumsuz 3795 ms` ·
    `oturumlu 776 ms` · **4.9x** (kabul ≥3x) · çıktı **bayt bayt özdeş**. Gerçek koşu
@@ -40,9 +38,8 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 📖 §11.1, §12.1 · R-74 · D-253
 🔗 —
-🛠 İki referans karosel (`docs/research/referans/*.png`) **ölçülür**: metin kaplama
-   oranı, palet dışı piksel payı, farklı tip boyutu sayısı, kenar payı, kontrast oranı.
-   Çıktı `docs/referans/tasarim-temeli.md` — her sayı ölçüm komutuyla birlikte.
+🛠 Referans karoseller **ölçülür**; çıktı `docs/referans/tasarim-temeli.md`, her sayı
+   ölçüm komutuyla birlikte.
 📁 `scripts/tasarim-temeli.mjs` · `docs/referans/tasarim-temeli.md`
 ✅ **ÖLÇÜLDÜ** — `docs/referans/tasarim-temeli.md`. 3 bölge, palet dışı
    `9.5 · 13.8 · 20.4%`. Ölçüm **kendi çıktımızı ölçen fonksiyonla** (`pixelStats`).
@@ -62,13 +59,9 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 📖 §7.2, §12.2 · R-23, R-30 · D-255
 🔗 10.2 (kusur orada ölçüldü)
-🛠 Kapak metni hâlâ eğri sınırını kesiyor ve sebebi **kutu değil PUNTO**:
-   `guvenliMetinYuzdesi` kutuyu %36'ya (389 px) kilitliyor ama `iyileştiremezsiniz`
-   kelimesi `h1`in 76 px puntosunda ~690 px yer kaplıyor. **Kelime bölünmez, kutudan
-   taşar** — kutuyu daraltmak taşmayı yok etmiyor, yalnız hangi kenardan taştığını
-   değiştiriyor. Bu, R-23'ün (Türkçe genişleme yapısaldır) tipografi tarafı.
-   Yapılacak: temsili uzun Türkçe kelimeler render edilip ÖLÇÜLÜR, güvenli sütuna sığan
-   en büyük punto seçilir ve tip ölçeği ona göre sabitlenir.
+🛠 Kapak metni hâlâ eğriyi kesiyor ve sebep **kutu değil PUNTO**: kelime bölünmez,
+   kutudan taşar (R-23). Temsili uzun Türkçe kelimeler render edilip ÖLÇÜLÜR, güvenli
+   sütuna sığan en büyük punto seçilir.
 📁 `packages/render/src/static.ts` · `packages/render/src/sablon.ts` ·
    `packages/render/src/sablon.test.ts` · `scripts/tip-olcegi.mjs` ·
    `docs/referans/tip-olcegi.md`
@@ -101,14 +94,12 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
    `SlaytKimligi`den hesaplanır. **Piksel katmanı** (render sonrası): mevcut
    `qa/pixels.ts` üstüne. Kapı ikisini de okur; **bloklayıcı** olanlar aşağıda.
 📁 `packages/render/src/tasarim-olcum.ts` · `scripts/gates/tasarim.mjs`
-✅ **KOŞUYOR** — `✓ tasarim: 23 okuma tolerans içi`. Çıktı `QaReport`, yani komuta
-   merkezindeki tolerans okuması yüzeyiyle AYNI şekil; paralel bir rapor biçimi icat
-   etmek aynı bilgiyi iki yerde bayatlatırdı. Kapı bir ÇALIŞTIRMAYI değil GRAMERİ
-   denetliyor: üretim hiç yapılmasa bile gramerdeki gerilemeyi yakalıyor.
+✅ **KOŞUYOR** — `✓ tasarim: 23 okuma tolerans içi`. Çıktı `QaReport`, komuta
+   merkezindeki tolerans yüzeyiyle AYNI şekil. Kapı ÇALIŞTIRMAYI değil GRAMERİ
+   denetliyor: üretim hiç yapılmasa bile gerilemeyi yakalıyor.
    ⚠ **T11 ilk sürümde YANLIŞ ŞEYİ ölçtü** — HTML'deki her `font-size`ı sayıp 11
-   buluyordu: sayaç (26), kulp (24), nav (24), hayalet rakam (560) da sayıya giriyordu.
-   Onlar krom, tip ölçeği değil. Artık yalnız `h1/h2/p` sayılıyor → 3.
-   Tablodaki her metrik hesaplanıyor ve kapı eşiği aşanı REDDEDİYOR:
+   buluyordu (sayaç 26, kulp 24, nav 24, hayalet 560). Onlar krom; yalnız `h1/h2/p` → 3.
+   Tablodaki her metrik hesaplanıyor, eşiği aşan REDDEDİLİYOR:
 
 | # | Metrik | Eşik | Katman | Sınıf |
 |---|---|---|---|---|
@@ -125,14 +116,12 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 | T11 | Farklı tip boyutu sayısı | **≤ 3** | model | uyarı |
 | T12 | ΔE2000, marka kehribarına | **≤ 5.0** | piksel | uyarı |
 
-   **Neden T2–T3–T8 bloklayıcı:** üçü de bu hafta GERÇEKTEN oldu. Bir kapı, olmuş bir
-   hatayı yakalamıyorsa kapı değil, temennidir.
-   **Neden T9–T12 uyarı:** estetik tercih payı var; sıfır tolerans, meşru bir tasarımı
-   reddeder. Uyarılar sayılır ve teslimat görünümünde raporlanır.
-   ⚠ **Eşikler 10.2'den GELMEDİ ve bu bir başarısızlık değil, ölçümün sonucu:** T9 model
-   tabanlı (kaynağı Meta reklam kuralı), T11 kendi gramerimizin kısıtı, T10 zaten
-   yürürlükteki marka paleti limiti. Referans hiçbirini iyileştiremiyor; iyileştirdiğini
-   iddia eden bir sayı yazmak, kaynağı unutulduğunda ölçüm sanılırdı.
+   **T2–T3–T8 bloklayıcı çünkü üçü de bu hafta GERÇEKTEN oldu**; olmuş bir hatayı
+   yakalamayan kapı, temennidir. **T9–T12 uyarı** çünkü estetik tercih payı var ve sıfır
+   tolerans meşru bir tasarımı reddeder.
+   ⚠ **Eşikler 10.2'den GELMEDİ — bu ölçümün sonucu, başarısızlık değil:** T9 model
+   tabanlı (Meta reklam kuralı), T11 kendi gramerimizin kısıtı, T10 yürürlükteki palet
+   limiti. İyileştirdiğini iddia eden bir sayı, kaynağı unutulduğunda ölçüm sanılırdı.
 🧪 **DÖRT İHLAL KOŞULDU**, dördü de kırmızı ve okuma eyleme çevrilebilir:
    `slayt 1 metin taşması 191,0 px │ limit 0,0` · `komşu slaytta aynı zemin 2,0 çift` ·
    `slayt 1 kelime (kapak) 16,0 │ limit 8,0` · `slayt 1 metin kontrastı 1,1:1 │ limit 4,5`.
@@ -175,22 +164,30 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 ---
 
-## 10.4b — Düzen adları görsel vaat taşıyor, motor karşılamıyor    [ ]
+## 10.4b — Düzen adları görsel vaat taşıyor, motor karşılamıyor    [x] 2026-08-17
 
 📖 §7.1 · R-30 · D-254
 🔗 10.4
-🛠 `LAYOUT_SPECS` üç alan taşıyor — `maxBlocks`, `headingBudget`, `bodyBudget` — ve üçü
-   de yalnız BÖLME kararına giriyor. `static.ts` `layout`u hiç görmüyor. Yani `quote`
-   seçmek bugün alıntı gibi GÖRÜNMÜYOR, sadece daha uzun bir başlığa izin veriyor.
-   Adlar (`statement`, `quote`, `list`) bir kompozisyon vaat ediyor; motor sayfalama
-   bütçesi veriyor. Yapılacak: her düzenin kendi kompozisyonu — alıntıda büyük tırnak ve
-   atıf satırı, listede madde ritmi, `claim-proof`ta kanıtın ayrı bir şerit olması.
-📁 `packages/render/src/static.ts` · `packages/render/src/sablon.ts`
-✅ Dört düzen dört farklı kompozisyon üretiyor ve fark GÖRÜLEBİLİR: aynı içerik dört
-   düzende render edilip yan yana konduğunda ayırt ediliyor.
-   ⚠ Gramer KAPALI kalıyor (D-254): düzen kompozisyonu SEÇER, çizim yeni bir dile
-   dönüşmez. Belge modeline işaretleme sokulmaz.
-🧪 Bir düzenin kompozisyonunu diğeriyle aynı yap → fark ölçümü kırmızı.
+🛠 `LAYOUT_SPECS`in üç alanı da yalnız BÖLME kararına giriyor; `static.ts` `layout`u
+   hiç görmüyor — `quote` seçmek alıntı gibi GÖRÜNMÜYOR. Adlar bir kompozisyon vaat
+   ediyor, motor sayfalama bütçesi veriyor. Her düzen kendi kompozisyonunu alacak.
+📁 `packages/render/src/sablon.ts` · `packages/render/src/static.ts` ·
+   `packages/contracts/src/layout.ts` · `packages/kernel/src/doc/model.ts`
+✅ **DÖRT DÜZEN RENDER EDİLDİ VE TEK TEK BAKILDI**, fark görsel: `statement` 64 px alta
+   yaslı · `quote` 64 px ortalı + dev açılış tırnağı · `list` 46 px üste yaslı + madde
+   ritmi · `claim-proof` 56 px + ilk gövde bloğu KANIT ŞERİDİ (sol kenar çizgisi).
+   Düzen `SlaytKimligi.duzen`de taşınıyor: **rol, çizim değil** — model `quote` diyor,
+   tırnağı `sablon.ts` çiziyor (D-254). Adlar `@suite/contracts`a taşındı çünkü kernel
+   (ring 0) render'dan (ring 2) import edemez; tipi `string` yapmak halka kuralını
+   çözmek değil DELMEK olurdu.
+🧪 **İKİ İHLAL KOŞULDU**, ikisi de kırmızı: bir düzen punto tavanını (64) aştı →
+   `hiçbir düzen ölçülen punto TAVANINI aşamaz` düştü · iki düzen aynı kompozisyonu
+   verdi → `dört düzen BİRBİRİNDEN ayırt edilebilir` düştü.
+   ⚠ **İki kusur render edilip GÖRÜLEREK bulundu:** (1) dev tırnak `.icerik::before` ile
+   mutlak konumdaydı ve `.icerik` tam yükseklikte olduğu için çerçevenin tepesine düşüp
+   KIRPILIYORDU → başlığın kendi `::before`ı olarak akışa alındı. (2) üste yaslı içerik
+   sayaçla aynı bantta başlıyordu; bu metinde çakışmıyordu ama bir kelime daha uzun
+   olsaydı binerdi — **çakışmayan bir çakışma, henüz görülmemiş bir çakışmadır**.
 💾 `feat(render): düzenler kendi kompozisyonunu alıyor` · `Refs: FAZ-10.4b · §7.1`
 
 ---

@@ -74,3 +74,4 @@ export type {
   DiscoveryOpView,
   HaltedRecord,
 } from './discovery.js'
+export { LAYOUTS, type LayoutName } from './layout.js'
