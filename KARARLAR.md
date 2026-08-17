@@ -517,3 +517,47 @@ alandaki bir araç bunu bizden önce çözmüştü.
 
 **Geri alma maliyeti:** düşük — `tasarim` kapısı kaldırılabilir; ama o an kalite yine
 göze kalır ve bu fazın gerekçesi tam olarak budur.
+
+## D-256 — Görsel yargı: yeni yetenek, yeni fiil değil
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.5 · §11.1 · §8.2
+
+`tasarim` kapısı (D-255) ölçülebileni ölçüyor. Ama bu fazda bulduğum kusurların yarısını
+hiçbir metrik görmedi ve ancak PNG'ye **bakınca** çıktılar: dev tırnak çerçevenin
+tepesinde kırpılıyordu, üste yaslı içerik sayaç bandıyla çakışmaya bir kelime uzaktaydı.
+İkisi de "sayıya dökülemez ama bakınca apaçık" sınıfındandı.
+
+**Karar:** `image.critique` bir **YETENEK**, dokuzuncu bir fiil değil. `GENERATE` altında
+koşuyor — ölçülüyor, maliyeti önden görünüyor, deftere yazılıyor. Yeni bir fiil, aynı işi
+yapan ikinci bir zamanlama/retry/maliyet yolu açardı (R-02).
+
+**SINIRLAYICI KUTU ZORUNLU.** Kutusuz bulgu reddediliyor ve bu tercih değil, ampirik
+sonuç: *"kompozisyon dengesiz"* eyleme çevrilemez, *"kapakta 120–460 px bandında metin
+eğri sınırını geçiyor"* çevrilebilir. Kategori ve şiddet de **kapalı liste** — serbest
+kategori toplanamaz, sayılamaz, izlenemez.
+
+**Reddedilen bulgular SAYILIYOR.** Sessizce atılsalardı model kutusuz bulgu üretmeye
+devam eder ve biz "temiz" raporunu gerçek sanardık — kapıyı kör etmenin en sessiz yolu.
+
+**`Read` aracı yeteneğe BAĞLI verildi ve bu ölçülerek bulundu.** Araçsız çağrı 5 dakikada
+dönmedi ve SIGTERM ile öldü: Claude Code etkileşimsiz kipte izin istemi çıkarıp asılıyor.
+`--allowedTools Read` ile aynı çağrı **18 saniyede** doğru sonucu verdi. Yalnız `Read`:
+alandaki araçlar agent'a `Bash WebFetch` verip kendi API'sini curl ile çağırtıyor — o,
+kapatılamayan bir delik. Okuma kategorik olarak farklı: yan etkisi yok, kabuk açmıyor,
+ağa çıkmıyor. Yine de bir yetki genişlemesi, o yüzden metin üretimi bu aracı ALMIYOR.
+
+**Şerit `free`, her koşuda çalışıyor.** Premium bir yargı, kapının maliyetini üretimin
+maliyetine yaklaştırırdı; abonelik zaten var.
+
+**İlk gerçek koşu üç bulgu verdi, üçü de doğruydu ve üçü de düzeltildi:**
+1. **Alt-piksel yumuşatma renk saçaklanması** — Chromium varsayılan LCD yumuşatması harf
+   kenarlarına mavi–turuncu saçak bırakıyordu. Ekranda görünmez ama PNG bir VARLIK:
+   farklı piksel dizilimli ekranda, baskıda ve ölçeklemede görünür oluyor. **Ölçüldü:
+   %6,6 → `--disable-lcd-text` ile %0,0.** Hiçbir metrik bunu görmedi ve HER varlığı
+   etkiliyordu.
+2. **Boşluk hiyerarşisi**: başlık↔ilk madde 37 px, maddeler arası 33 px — fark ayırt
+   edilemeyince dört satır tek blok gibi okunuyordu.
+3. **Madde çizgisi kontrastı 3,71:1** iken yanındaki gövde metni 7,99:1.
+
+**Geri alma maliyeti:** düşük — hat adımı kaldırılırsa yargı koşmaz; ama o an kalite
+yine yalnız ölçülebilene ve göze kalır.

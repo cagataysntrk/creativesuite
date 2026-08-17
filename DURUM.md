@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 10
-siradaki_adim: 10.5
+siradaki_adim: 10.6
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -65,6 +65,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **10.3** · `tasarim` kapısı: 23 okuma, 4 ihlal kırmızı, grameri denetliyor | 2026-08-17 |
 | **10.4** · düzen içerikten seçiliyor; liste 3 slayttan 2'ye indi | 2026-08-17 |
 | **10.4b** · dört düzen dört kompozisyon; tırnak, madde ritmi, kanıt şeridi | 2026-08-17 |
+| **10.5** · `image.critique`: 3 bulgu, 0 red; saçaklanma %6.6→%0 (D-256) | 2026-08-17 |
 
 ## Sıradaki adım
 
@@ -73,19 +74,21 @@ değil; ikincisinin kapısı yoktu ve bu hafta üç kusur bunu kanıtladı.
 
 **10.1–10.3 KAPANDI.** Ayrıntı `docs/fazlar/FAZ-10.md` ve üretilmiş raporlarda
 (`docs/referans/tasarim-temeli.md`, `tip-olcegi.md`).
-· **10.1** oturum 4.9x, çıktı bayt bayt özdeş. · **10.2** referans ölçüldü:
-  T9/T11 türetilemez, T10 görseli dışlamalı; ölçüm aracı bozuktu (%97.8).
-· **10.2b** punto: %36'da hiçbir punto sığmıyordu → bant %69–78, sütun %62, h1 64px.
-· **10.3** `tasarim` kapısı 23 okuma, 4 ihlal kırmızı; T11 krom saymıyor artık.
-· **10.4** düzen İÇERİKTEN seçiliyor: liste 3 slayttan **2'ye** indi. `rings` modül
-  döngüsü yakaladı. Test Türkçe hatamı buldu: desen `4%` arıyordu, Türkçede `%4`.
-· **10.4b** dört düzen dört KOMPOZİSYON: `statement` 64px alta yaslı · `quote` dev
-  tırnak · `list` 46px madde ritmi · `claim-proof` kanıt şeridi. Düzen artık
-  `SlaytKimligi.duzen`de (rol, çizim değil); adlar contracts'a taşındı çünkü kernel
-  render'dan import edemez. İki kusur GÖRÜLEREK bulundu: tırnak çerçeve tepesinde
-  kırpılıyordu, üste yaslı içerik sayaç bandıyla çakışmaya bir kelime uzaktaydı.
+· **10.1** oturum 4.9x. · **10.2** referans ölçüldü: T9/T11 türetilemez, T10 görseli
+  dışlamalı; ölçüm aracının kendisi bozuktu (%97.8).
+· **10.2b** punto: %36'da hiçbiri sığmıyordu → bant %69–78, sütun %62, h1 64px.
+· **10.3** `tasarim` kapısı 23 okuma, 4 ihlal kırmızı.
+· **10.4** düzen İÇERİKTEN: liste 3→2 slayt. `rings` modül döngüsü yakaladı; test
+  Türkçe hatamı buldu (desen `4%` arıyordu, Türkçede `%4`).
+· **10.4b** dört düzen dört KOMPOZİSYON. Düzen `SlaytKimligi.duzen`de: rol, çizim
+  değil; adlar contracts'a taşındı. İki kusur GÖRÜLEREK bulundu.
 
-**SIRADAKİ 10.5** — görsel yargı (sınırlayıcı
+· **10.5** `image.critique` YETENEK (fiil değil), kutu ZORUNLU, red sayılıyor. Gerçek
+  koşu 3 bulgu, üçü de doğru: **saçaklanma %6,6→%0,0** (hiçbir metrik görmemişti, HER
+  varlığı etkiliyordu) · boşluk hiyerarşisi · çizgi kontrastı. `Read` aracı ölçülerek
+  gerekti: araçsız 5 dk'da düştü, araçla 18 sn (D-256).
+
+**SIRADAKİ 10.6** — referans görselden şablon PARAMETRESİ (sınırlayıcı
 kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
 
 **FAZ 8 açık kalanı:** `8.3b` BLOKE:teknik (`7.2b` gerçek yayınına bağlı), `8.6`
@@ -93,28 +96,25 @@ BLOKE:insan (V-10 hukukçu).
 
 ## Devreden borçlar
 
-QA/bağlam girdisi 0/18 (`2.9`) · bileşen testi FAZ 9'a · V-19 +%30 görsel ölçüm ·
-V-24 şelale adaptörleri (→6.5b) · V-25 prospect (→6.9b) · V-26 Meta (→7.2b) ·
-V-27 OAuth (→7.5b) · `3.12b` R2 senkronu · varlıklar indekste yok · önizleme yok.
+QA/bağlam 0/18 (`2.9`) · bileşen testi FAZ 9'a · V-19 · V-24 (→6.5b) · V-25 (→6.9b) ·
+V-26 (→7.2b) · V-27 (→7.5b) · `3.12b` R2 · varlıklar indekste yok · önizleme yok.
 
 ## Bloke adımlar
 
-> Not: golden metrikler bugün SİSTEM fontuyla donduruldu; marka fontu geldiğinde
-> (V-02) temel yeniden alınır — bu bir düzeltme, bir blokaj değil (D-144).
+> Not: golden metrikler SİSTEM fontuyla donduruldu; marka fontu gelince (V-02) temel
+> yeniden alınır — düzeltme, blokaj değil (D-144).
 
 **`2.9` — insan onayı bekliyor (D-83).** Yedi kayıt `draft` indi, retrieval'a görünmüyor.
 `active` yapmak agent'ın işi değil (R-14): `just onayla corpus/*/*.md` → `just reindex`.
 
-**Okurken dikkat:** `positioning`, `icp`, `offer` kayıtları HİPOTEZ (V-07) — dikey
-seçimi üçüncü taraf verisinden çıkarım.
+**Dikkat:** `positioning`/`icp`/`offer` HİPOTEZ (V-07) — dikey seçimi çıkarım.
 
-✅ **Sessiz bir engel kaldırıldı (D-167):** altı kaydın `era_id`si yanlıştı; onay işe
-yaramamış görünecekti. Ölçüldü: düzeltmeyle 7 kayıt geliyor, düzeltmesiz 1.
+✅ **Sessiz bir engel kaldırıldı (D-167):** altı kaydın `era_id`si yanlıştı; ölçüldü,
+düzeltmeyle 7 kayıt geliyor, düzeltmesiz 1.
 
-**`3.7` · `3.8` — V-16.** `CF_ACCOUNT_ID`+`CF_API_TOKEN` ya da `FAL_KEY`; `3.8` ayrıca
-~$3 gerçek para. Anahtarsız `image.generate` hiçbir sağlayıcıya çözülmüyor.
+**`3.7` · `3.8` — V-16.** `CF_ACCOUNT_ID`+`CF_API_TOKEN` ya da `FAL_KEY` (+~$3).
+Anahtarsız `image.generate` hiçbir sağlayıcıya çözülmüyor.
 
-**`4.13b` — V-18.** `tailscale` yok, `TELEGRAM_BOT_TOKEN` yer tutucu; mantık test edilmiş.
-
-**`3.14` — `2.9`'a bağlı.** Onaylı corpus olmadan hat `bilgi-sec`te `NO_CONTEXT` ile
-duruyor; doğru davranış (R-13), atlatılmıyor. `2.9` açıldığı gün FAZ 3 TAM kapanır.
+**`4.13b` — V-18.** `tailscale` yok, token yer tutucu; mantık test edilmiş.
+**`3.14` — `2.9`'a bağlı.** Onaylı corpus olmadan `bilgi-sec` `NO_CONTEXT` ile duruyor
+(R-13, atlatılmıyor). `2.9` açıldığı gün FAZ 3 TAM kapanır.

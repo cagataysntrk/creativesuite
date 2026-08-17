@@ -83,7 +83,7 @@ Toplam **10** hat.
 
 ## `instagram-post` — Instagram tek görsel postu
 
-10 adım · 3 yetenek isteyen · 1 insan kapısı
+11 adım · 4 yetenek isteyen · 1 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -94,7 +94,8 @@ Toplam **10** hat.
 | `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief | — | — |
 | `kompozit` | `COMPOSE` | — | metin-uret, gorsel-uret | — | — |
 | `render` | `RENDER` | — | kompozit | — | — |
-| `kalite` | `VALIDATE` | — | render | — | — |
+| `gorsel-yargi` | `GENERATE` | `image.critique` | render | — | — |
+| `kalite` | `VALIDATE` | — | render, gorsel-yargi | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
 | `yayinla` | `PUBLISH` | — | onay | — | — |
 

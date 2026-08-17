@@ -64,6 +64,18 @@ const CAPS: readonly CapabilityDecl[] = [
     lanes: ['free'],
     supports: { locale: ['tr-TR', 'en-US'] },
   },
+  {
+    // Görsel yargı (FAZ-10.5 · D-256). Model görseli KENDİ okuyor — adaptör ikili veri
+    // taşımıyor, prompt mutlak yolu taşıyor ve çağrıya `--allowedTools Read` ekleniyor.
+    //
+    // ⚠ Bu girdi olmadan `providers` kapısı haklı olarak kırmızı verdi: yetenek
+    // tanımlayıcıda ilan edilmiş ama adaptör onu UYGULADIĞINI beyan etmiyordu. Tam da bu
+    // deponun tekrar eden hatası — bir yetenek "bitti" sanılır çünkü kodu vardır; ama
+    // ilan ile uygulama arasındaki bağ kurulmamıştır. Kapı bunu bir turda yakaladı.
+    name: 'image.critique',
+    lanes: ['free'],
+    supports: { locale: ['tr-TR'], output_format: ['json'] },
+  },
 ]
 
 const hata = (
@@ -125,12 +137,27 @@ export const claudeCode: ProviderAdapter = {
       )
     }
 
-    const sonuc = await spawnProcess(ikili(ctx.env), ['-p', vi.prompt, '--output-format', 'json'], {
-      env: ctx.env,
-      signal: ctx.signal,
-      timeoutMs: 10 * 60_000,
-      // Alt süreç ortamı devralmaz: yalnız açıkça verilen anahtarlar geçer (§14).
-    })
+    // ⚠ **`image.critique` görseli KENDİ okuyor ve bunun için `Read` aracı gerekiyor.**
+    //
+    // Ölçüldü: araç verilmeden çağrı 5 dakikada dönmedi ve SIGTERM ile öldü — Claude Code
+    // etkileşimsiz kipte izin istemi çıkarıyor ve cevap gelmeyince asılıyor. `Read`
+    // verilince aynı çağrı 18 saniyede doğru sonucu verdi.
+    //
+    // **YALNIZ `Read`.** Alandaki araçlar (Open Carrusel) agent'a `Bash WebFetch` veriyor
+    // ve kendi API'sini curl ile çağırtıyor; o, kapatılamayan bir delik. Okuma yetkisi
+    // kategorik olarak farklı: yan etkisi yok, kabuk açmıyor, ağa çıkmıyor. Yine de bir
+    // yetki genişlemesi ve o yüzden yeteneğe BAĞLI — metin üretimi bu aracı almıyor.
+    const araclar = vi.capability === 'image.critique' ? ['--allowedTools', 'Read'] : []
+    const sonuc = await spawnProcess(
+      ikili(ctx.env),
+      ['-p', vi.prompt, ...araclar, '--output-format', 'json'],
+      {
+        env: ctx.env,
+        signal: ctx.signal,
+        timeoutMs: 10 * 60_000,
+        // Alt süreç ortamı devralmaz: yalnız açıkça verilen anahtarlar geçer (§14).
+      }
+    )
 
     const handle: JobHandle = {
       providerId: ID,

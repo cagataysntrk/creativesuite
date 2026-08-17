@@ -19,6 +19,13 @@ import { chromium, type Browser, type Page } from 'playwright'
 // değil, motorun yüzeyini de tek dosyada tutuyor.
 export type { Page }
 
+/**
+ * Chromium bayrakları — **tek tanım**. İki başlatma noktası (`withPage`, `withOturum`)
+ * aynı listeyi kullanmak zorunda; ayrı yazılsalardı biri güncellenir, diğeri unutulur ve
+ * iki yol farklı tipografi üretirdi.
+ */
+const CHROMIUM_BAYRAKLARI = ['--font-render-hinting=none', '--disable-lcd-text']
+
 export interface BrowserOptions {
   /** Milisaniye. Sonsuza kadar bekleyen bir render, gözetimsiz bir gecede asılı kalır. */
   readonly timeoutMs?: number
@@ -66,7 +73,15 @@ export const withPage = async <T>(
       // Sandbox devre dışı DEĞİL: kapatmak konteynerde kolaylık sağlar ama bu makinede
       // gerekmiyor ve güvenlik sınırını gereksiz yere gevşetmek, gerekmeden ödenen
       // bir borçtur (§14).
-      args: ['--font-render-hinting=none'],
+      //
+      // ⚠ `--disable-lcd-text` — **görsel yargı adımının bulduğu kusur** (FAZ-10.5).
+      // Chromium varsayılan olarak alt-piksel (LCD) yumuşatma yapıyor ve harf kenarlarına
+      // mavi–turuncu saçaklar bırakıyor. Ekranda görünmez, ama PNG bir VARLIK: farklı
+      // piksel dizilimli ekranlarda, baskıda ve ölçekleme sonrasında saçak görünür hâle
+      // geliyor. Ölçüldü: metin bölgesinde kanal farkı >18 olan piksel oranı **%6,6** →
+      // düzeltmeyle **%0,0**. Nötr mürekkep/krem bir tasarımda o oran sıfır olmalıydı.
+      // Bu kusuru hiçbir metrik görmedi; görsel yargı buldu ve ölçüm doğruladı.
+      args: CHROMIUM_BAYRAKLARI,
     })
   } catch (e) {
     return {
@@ -121,7 +136,10 @@ export const withOturum = async <T>(
   try {
     browser = await chromium.launch({
       ...(opts.executablePath === undefined ? {} : { executablePath: opts.executablePath }),
-      args: ['--font-render-hinting=none'],
+      // Bayraklar `withPage` ile AYNI olmak zorunda: farklı olsalardı oturumlu ve
+      // oturumsuz yol farklı tipografi üretir ve 10.1'in "bayt bayt özdeş" kanıtı
+      // sessizce yalan olurdu.
+      args: CHROMIUM_BAYRAKLARI,
     })
   } catch (e) {
     return {

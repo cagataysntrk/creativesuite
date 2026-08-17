@@ -21,6 +21,14 @@ free_tier_commercial: true
 auth_env: null
 
 capabilities:
+  # Görsel yargı (FAZ-10.5 · D-256). Claude Code görseli KENDİ okuyor: prompt mutlak
+  # yolu taşıyor, adaptörün ikili veri taşımasına gerek yok. Ücretsiz şerit — abonelik
+  # zaten var ve yargı her koşuda çalışacak; premium bir yargı, kapanın maliyetini
+  # üretimin maliyetine yaklaştırırdı.
+  - name: image.critique
+    lanes: [free]
+    supports:
+      locale: ['tr-TR']
   - name: text.generate
     lanes: [free]
     supports:

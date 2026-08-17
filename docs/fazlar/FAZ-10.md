@@ -192,24 +192,27 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 
 ---
 
-## 10.5 — Görsel yargı: `image.critique` yeteneği    [ ]
+## 10.5 — Görsel yargı: `image.critique` yeteneği    [x] 2026-08-17
 
 📖 §8.2, §11.1 · R-14 · D-255
 🔗 10.3 (metrikler önce; yargı, ölçülemeyeni ölçer)
-🛠 **Yeni bir YETENEK, yeni bir fiil DEĞİL** — `GENERATE` altında çalışır, ölçülür,
-   maliyeti önden görünür, defter yazar. Girdi: render edilmiş slayt PNG'si + tasarım
-   kuralları. Çıktı: **yapılandırılmış** bulgu listesi, serbest metin değil:
-   `{ slayt, bolge: [x, y, w, h], kategori, siddet }`.
-📁 `registry/providers/*.provider.yaml` · `packages/engine/src/verbs/bodies.ts` ·
-   `packages/engine/src/gorsel-yargi.ts`
-✅ **Sınırlayıcı kutu ZORUNLU.** Kutusuz bulgu reddediliyor — akademik taraf bu konuda
-   net (UICrit, ReLook) ve bu turda ampirik olarak doğrulandı: bulduğum dört kusurun
-   dördü de bölgeye bağlıydı ve o yüzden düzeltilebildiler. *"Kompozisyon dengesiz"*
-   eyleme çevrilemez; *"kapakta 120–460 px bandında metin eğri sınırını geçiyor"*
-   çevrilebilir.
-   Bulgular teslimat görünümüne ve tolerans okuması panosuna düşüyor.
-🧪 Kutusuz bir bulgu enjekte et → reddediliyor. Bilerek kusurlu bir slayt (metin sınırı
-   kesen) verilince kritik bulgu ÜRETİYOR — sessizce "temiz" demiyor.
+🛠 **Yeni YETENEK, yeni fiil DEĞİL** — `GENERATE` altında koşar, ölçülür, defter yazar.
+   Girdi: slayt PNG'si + gramer kuralları. Çıktı **yapılandırılmış**:
+   `{ slayt, bolge: [x,y,w,h], kategori, siddet }` — serbest metin değil.
+📁 `packages/engine/src/gorsel-yargi.ts` · `packages/engine/src/verbs/bodies.ts` ·
+   `packages/providers/src/claude-code.ts` · `packages/render/src/browser.ts` ·
+   `registry/pipelines/instagram-post.pipeline.yaml`
+✅ **GERÇEK KOŞU YAPILDI** — `3 bulgu · 0 reddedildi`, üçü de sınırlayıcı kutulu, üçü de
+   DOĞRU ve üçü de düzeltildi. En önemlisi **hiçbir metriğin görmediği** ve HER varlığı
+   etkileyen bir kusurdu: Chromium alt-piksel yumuşatması harf kenarlarına renk saçağı
+   bırakıyordu. Ölçüldü: **%6,6 → %0,0** (`--disable-lcd-text`).
+   Hat adımı bağlı (`render` → `gorsel-yargi` → `kalite`), `fiil-haritasi` yeşil.
+   ⚠ **`Read` aracı ÖLÇÜLEREK gerekti:** araçsız çağrı 5 dk'da dönmedi (etkileşimsiz
+   kipte izin istemi asılıyor), `--allowedTools Read` ile 18 sn. Yalnız `Read`, yalnız
+   BU yetenek — metin üretimi aracı almıyor.
+🧪 **22 test, çoğu RED disiplini**: kutusuz · üç elemanlı · metin içeren · sıfır genişlik ·
+   tuval dışı · negatif konum · liste dışı kategori/şiddet · boş açıklama · nesne olmayan
+   → hepsi reddediliyor ve SEBEBİYLE sayılıyor. Karışık girdide geçerli bulgu korunuyor.
 💾 `feat(engine): görsel yargı yeteneği` · `Refs: FAZ-10.5 · §11.1`
 
 ---
@@ -219,7 +222,7 @@ görsel yargı adımı sıfır kritik bulgu üretiyor — üst üste, düzeltme 
 📖 §7.1, §4.1 · R-30 · D-254
 🔗 10.5 (yargı olmadan türetilenin iyi olduğu ölçülemez)
 🛠 Girdi bir referans karosel görseli; çıktı `sablon.ts`in okuduğu **parametre kümesi**:
-   renk rolleri, eğri bandı, tip ölçeği, ızgara ölçüleri, mikro öge yerleşimi.
+   renk rolleri, eğri bandı, tip ölçeği, ızgara ölçüleri.
 📁 `packages/render/src/sablon-turet.ts` · `brand/brd_upcytech/sablonlar/`
 ✅ ⚠ **Çıktı HTML OLAMAZ.** Alandaki sekiz projenin hepsi referanstan HTML üretiyor ve o
    an golden tipografi metriği ölçülemez, Türkçe kapıları delinir, `COMPOSE`/`RENDER`

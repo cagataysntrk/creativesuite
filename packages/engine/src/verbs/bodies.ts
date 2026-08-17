@@ -43,6 +43,7 @@ import {
   metneCevir,
   type PromptKaydi,
 } from '../metin-akisi.js'
+import { yargiPromptu, yargiyaCevir, type YargiBulgusu } from '../gorsel-yargi.js'
 import {
   fetchSource,
   isIngestFailure,
@@ -1037,12 +1038,59 @@ export interface GenerateDeps {
  * (D-241). Türkçe konuyu doğrudan görsel modeline vermek ölçülerek elendi; brief'i
  * bir metin modeli yazınca R-20 ve 9. yasa kapıları o metnin üzerinden geçiyor.
  */
+interface YargiHedefi {
+  readonly yol: string
+  readonly slayt: number
+  readonly toplam: number
+  readonly genislik: number
+  readonly yukseklik: number
+}
+
+/**
+ * Yargılanacak slaytları RENDER çıktısından okur.
+ *
+ * **`slides` anahtarı `renderBody`nin ürettiği şekilden geliyor** — varsayılmıyor,
+ * okunuyor. Bu deponun en sık tekrarlayan hatası üretici ile tüketicinin farklı şekil
+ * beklemesiydi (D-227, D-246); burada üretici tarafı aynı dosyada ve iki uç birbirini
+ * görüyor.
+ */
+const yargilanacakSlaytlar = (input: BodyInput): readonly YargiHedefi[] => {
+  for (const ad of input.needs ?? Object.keys(input.inputs)) {
+    const v = input.inputs[ad] as
+      { slides?: unknown; width?: unknown; height?: unknown } | undefined
+    if (v === undefined || !Array.isArray(v.slides)) continue
+    const yollar = v.slides.filter((x): x is string => typeof x === 'string')
+    if (yollar.length === 0) continue
+    const g = typeof v.width === 'number' ? v.width : 1080
+    const y = typeof v.height === 'number' ? v.height : 1350
+    return yollar.map((yol, i) => ({
+      yol,
+      slayt: i + 1,
+      toplam: yollar.length,
+      genislik: g,
+      yukseklik: y,
+    }))
+  }
+  return []
+}
+
 const promptTuret = (yetenek: string, input: BodyInput): string => {
   const konu = typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : ''
   const kacinilacak =
     typeof input.constraints['kacinilacak'] === 'string'
       ? input.constraints['kacinilacak']
       : undefined
+
+  // ⚠ `image.critique` `image.` ile BAŞLIYOR ama görsel ÜRETMİYOR — yargılıyor. Bu dal
+  // aşağıdaki `image.*` dalından ÖNCE gelmek zorunda; sonra gelseydi yargı adımı bir
+  // görsel brief'i arar, bulamaz ve boş prompt'la düşerdi. Ön ek eşleşmesiyle kurulan
+  // her dal, ön eki paylaşan ikinci bir yeteneğin geleceğini varsaymalı.
+  if (yetenek === 'image.critique') {
+    const slaytlar = yargilanacakSlaytlar(input)
+    if (slaytlar.length === 0) return ''
+    const ilk = slaytlar[0] as YargiHedefi
+    return yargiPromptu(ilk)
+  }
 
   if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
     // **Yalnız BAĞLANDIĞI adımların çıktısı okunuyor.** Adım id'sine göre değil,
@@ -1190,6 +1238,27 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // değil. Manifest ve replay ham olanı görmeli.
     const metin = yetenek.startsWith('text.') ? metneCevir(sonuc.value.data) : null
 
+    // ── görsel yargı: bulgular ÇIKTIYA giriyor (FAZ-10.5) ───────────────────
+    //
+    // ⚠ Ayrıştırmadan bırakılsaydı `kalite` adımı ham JSON metni görürdü ve bulguları
+    // okuyamazdı — "kod var, çağıran yok"un bir adım ilerisi: çağıran VAR ama şekil
+    // tutmuyor (D-227, D-246). İki uç `gorsel-yargi.ts`te birlikte duruyor.
+    //
+    // **Reddedilen bulgular SAYILIYOR ve taşınıyor.** Sessizce atılsalardı model her
+    // turda kutusuz bulgu üretmeye devam eder ve biz "temiz" raporunu gerçek sanardık.
+    let yargi: {
+      readonly bulgular: readonly YargiBulgusu[]
+      readonly reddedilen: readonly string[]
+    } | null = null
+    if (yetenek === 'image.critique') {
+      const hedefler = yargilanacakSlaytlar(input)
+      const ilk = hedefler[0]
+      yargi = yargiyaCevir(sonuc.value.data, ilk?.slayt ?? 1, {
+        genislik: ilk?.genislik ?? 1080,
+        yukseklik: ilk?.yukseklik ?? 1350,
+      })
+    }
+
     return ok({
       costs: [
         {
@@ -1200,7 +1269,12 @@ export const generateBody = (deps: GenerateDeps): Verb =>
           kind: 'actual' as const,
         },
       ],
-      data: metin === null ? sonuc.value.data : { ...metin, raw: sonuc.value.data },
+      data:
+        yargi !== null
+          ? { ...yargi, raw: sonuc.value.data }
+          : metin === null
+            ? sonuc.value.data
+            : { ...metin, raw: sonuc.value.data },
     })
   })
 

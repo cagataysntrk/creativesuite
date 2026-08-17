@@ -56,9 +56,17 @@ steps:
       width: 1080
       height: 1350
 
+  # Görsel yargı ölçülemeyeni ölçüyor: `tasarim` kapısı taşmayı ve kontrastı sayıyor,
+  # ama "tırnak çerçeve tepesinde kırpılmış" gibi kusurlar ancak BAKINCA görülüyor.
+  # `kalite`den ÖNCE koşuyor ki bulgular tolerans raporuna girebilsin.
+  - id: gorsel-yargi
+    verb: GENERATE
+    capability: image.critique
+    needs: [render]
+
   - id: kalite
     verb: VALIDATE
-    needs: [render]
+    needs: [render, gorsel-yargi]
 
   - id: onay
     verb: PROPOSE

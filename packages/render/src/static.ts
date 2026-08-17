@@ -189,10 +189,16 @@ const sablonCss = (doc: DocumentModel): string => {
       ? [
           // Madde ritmi: her gövde bloğunun önünde kısa bir çizgi. Madde İŞARETİ değil —
           // metin zaten "-" ile gelebiliyor ve iki işaret üst üste binerdi.
+          // ⚠ Boşluk HİYERARŞİSİ — görsel yargının bulgusu: başlık↔ilk madde arası 37 px,
+          // maddeler arası 33 px idi; fark ayırt edilemeyince dört satır tek blok gibi
+          // okunuyordu. Başlık boşluğu iki katına çıkarıldı.
           `  .icerik p { position: relative; padding-left: 34px; margin-bottom: 10px }`,
+          `  .icerik h1 { margin-bottom: ${Math.round(b.govdePx * 1.4)}px }`,
           `  .icerik p::before { content: ""; position: absolute; left: 0;`,
           `      top: ${Math.round(b.govdePx * 0.62)}px; width: 20px; height: 3px;`,
-          `      background: ${r.metin}; opacity: 0.55 }`,
+          // ⚠ Opaklık 0.55 → 0.85: ölçülen kontrast 3,71:1 idi, yanındaki gövde metni
+          // 7,99:1. Bir ritim ögesi metinden silik olabilir ama okunamayacak kadar değil.
+          `      background: ${r.metin}; opacity: 0.85 }`,
         ]
       : []),
     ...(b.kanitSeridi

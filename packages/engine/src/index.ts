@@ -367,3 +367,16 @@ export {
   type PromptGirdisi,
   type PromptKaydi,
 } from './metin-akisi.js'
+// Görsel yargı — `image.critique` (FAZ-10.5 · D-256)
+export {
+  yargiPromptu,
+  yargiyaCevir,
+  bulguSatiri,
+  YARGI_KATEGORILERI,
+  YARGI_SIDDETLERI,
+  type YargiBulgusu,
+  type YargiSonucu,
+  type YargiGirdisi,
+  type YargiKategorisi,
+  type YargiSiddeti,
+} from './gorsel-yargi.js'
