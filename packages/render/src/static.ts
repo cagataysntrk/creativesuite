@@ -47,6 +47,19 @@ export { kacir } from './html.js'
  * kadar `.icerik p::before` ile çiziliyordu ve bu, satırın NE dediğini bilmiyor. İkon
  * içerikten seçildiği için işaretin markup'a girmesi şart.
  */
+/**
+ * Slayttaki gövde satırlarının HEPSİ bir ikonla eşleşiyor mu.
+ *
+ * Kısmi eşleşme, aynı slaytta iki farklı madde işareti demek — ritim yerine gürültü.
+ */
+const ikonlarHepsiEslesiyorMu = (doc: DocumentModel): boolean => {
+  if (doc.slayt === undefined || !duzenBicimi(doc.slayt.duzen).maddeRitmi) return false
+  const govdeler = doc.blocks.filter((b) => b.type === 'body')
+  return (
+    govdeler.length > 0 && govdeler.every((b) => ikonSec((b as { text: string }).text) !== null)
+  )
+}
+
 const blokHtml = (b: Block, ikonRengi: string | null): string => {
   switch (b.type) {
     case 'heading':
@@ -138,16 +151,16 @@ export const toHtml = (doc: DocumentModel): string =>
     // İkon YALNIZ madde ritmi olan düzenlerde: `list` bir dizi madde demektir ve ikon o
     // dizinin işaretidir. `quote` ya da `hero` düzeninde tek bir cümlenin yanında ikon,
     // vurguyu cümleden çalar.
-    doc.blocks
-      .map((b) =>
-        blokHtml(
-          b,
-          doc.slayt !== undefined && duzenBicimi(doc.slayt.duzen).maddeRitmi
-            ? alanRolleri(doc.slayt).metin
-            : null
-        )
-      )
-      .join('\n'),
+    //
+    // ⚠ **HEPSİ ya da HİÇBİRİ — üçüncü gözlemde kural yazıldı.** Gerçek bir koşuda aynı
+    // slaytta bir madde ikonlu, diğeri düz çizgiliydi: iki farklı işaret yan yana, ritim
+    // yerine gürültü. Sebep ikon seçiminin BLOK BAŞINA yapılmasıydı — eşleşen satır ikon
+    // alıyor, eşleşmeyen çizgi alıyordu. Karar slaytın TAMAMINA ait: bir madde bile
+    // eşleşmiyorsa hiçbiri ikon almıyor. Anlamsız ikon ikonsuzluktan kötüdür, **karışık
+    // işaret ikisinden de kötüdür.**
+    ikonlarHepsiEslesiyorMu(doc)
+      ? doc.blocks.map((b) => blokHtml(b, alanRolleri(doc.slayt!).metin)).join('\n')
+      : doc.blocks.map((b) => blokHtml(b, null)).join('\n'),
     '</main>',
   ].join('\n')
 

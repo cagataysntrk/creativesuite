@@ -29,6 +29,7 @@ export { SINIR_MIN, SINIR_MAX, guvenliMetinYuzdesi } from './sablon.js'
 export { suslemeler, suslemeSvg, SUSLEME_TIPLERI, type Susleme } from './sablon-susleme.js'
 export { VARSAYILAN, guvenliYuzde, type SablonParametreleri } from './sablon-parametre.js'
 export { ikonSec, ikonSvg, IKONLAR, type IkonAdi } from './sablon-ikon.js'
+export { planDenetle, uyumsuzlukOzeti, type Uyumsuzluk } from './plan-denetim.js'
 export { duzenSec } from './layout/secim.js'
 export { renderStatic, toHtml } from './static.js'
 // Tasarım metrikleri — saf katman (FAZ-10.3 · D-255)

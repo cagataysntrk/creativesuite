@@ -240,6 +240,8 @@ const ozetle = (data: unknown): Readonly<Record<string, unknown>> | null => {
     // `composeBody`nin dönüş değerini sınıyordu, defteri değil: modülü test edip
     // zinciri test etmemenin (D-261) bu fazdaki dördüncü tekrarı.
     'tasarimPlani',
+    // Slayt digest'leri: defterdeki işaretçiyi doğrulanabilir yapan tek alan (D-263).
+    'digests',
     'atlandi',
     'sebep',
   ]) {

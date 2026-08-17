@@ -63,6 +63,7 @@ import { RateLimiter } from '../ratelimit.js'
 import { appendPublished, lookupPublished } from '../publish-ledger.js'
 import { tasarla } from '../plan/tasarla.js'
 import { yay } from '@suite/contracts'
+import { planDenetle, uyumsuzlukOzeti } from '@suite/render'
 import type { Islev } from '@suite/kernel'
 import type { TasarimPlani } from '@suite/contracts'
 import type { Yuva } from '../metin-akisi.js'
@@ -763,6 +764,15 @@ export const renderBody = (deps: RenderDeps): Verb =>
       data: {
         slides: yollar,
         count: yollar.length,
+        // ⚠ **DIGEST — defterdeki işaretçi DOĞRULANABİLİR olmalı (FAZ-14.4 · D-263).**
+        // Defter bugüne kadar slaytların YOLUNU ve BOYUTUNU yazıyordu ama içeriğini
+        // kanıtlayan hiçbir şey yazmıyordu: dosya değişse defter aynı kalırdı. D-263
+        // teslimat byte'ını defterden çıkarırken bu boşluğu AÇMIŞTI ve orada borç
+        // olarak kayıtlıydı; burada kapanıyor. Yol nereye bakılacağını, digest NEYİN
+        // bulunması gerektiğini söylüyor.
+        digests: yollar.map(
+          (y) => `sha256:${createHash('sha256').update(readFileSync(y)).digest('hex')}`
+        ),
         // Hangi slaytlarda görsel bloğu var — QA renk metriklerini o slaytlarda
         // düşürüyor (D-258). **Üretici söylüyor**: sayfalayıcı hangi bloğun hangi
         // slayta düştüğünü bilen tek yer; tüketicinin tüm belgeye bakması, tek bir
@@ -985,6 +995,34 @@ export const validateBody = (deps: ValidateDeps): Verb =>
     )
     if (belge === undefined || (render === undefined && pdf === undefined)) {
       return err(hata('validation', 'NOTHING_TO_VALIDATE', ctx))
+    }
+
+    // ── UYUM: çıktı planı uyguladı mı (FAZ-14.4) ────────────────────────────
+    //
+    // ⚠ **En başta ve AYRI bir hata sınıfıyla.** Uyumsuzluk `internal`: render planı
+    // uygulamadı, yani KOD bozuk. Metrik ihlali ise `policy_blocked`: kod doğru
+    // çalışıyor olabilir ama çıktı yayınlanamaz. Aynı kovaya konsalardı bir render
+    // hatası "tolerans dışı" diye görülür ve içerik suçlanırdı — FAZ-10'da ölçenin
+    // hatası tam olarak böyle ölçülenin hatası sanılmıştı.
+    //
+    // Plan yoksa denetim ATLANIYOR: eski belgeler ve PDF yolu plansız geliyor ve
+    // "plan yok" bir uyumsuzluk değil, denetim yokluğudur.
+    const planli = Object.values(input.inputs).find(
+      (v): v is { readonly tasarimPlani: TasarimPlani } =>
+        v !== null &&
+        typeof v === 'object' &&
+        (v as { tasarimPlani?: unknown }).tasarimPlani !== undefined
+    )
+    if (planli !== undefined) {
+      const uyumsuz = planDenetle(planli.tasarimPlani, belge.document)
+      if (uyumsuz.length > 0) {
+        return err(
+          hata('internal', 'PLAN_MISMATCH', ctx, {
+            count: uyumsuz.length,
+            detail: uyumsuzlukOzeti(uyumsuz),
+          })
+        )
+      }
     }
 
     // ── lexicon: HER çıktı biçiminde (§11.2 · R-32) ─────────────────────────

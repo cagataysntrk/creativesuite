@@ -141,19 +141,35 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
    sürümü haklı olarak reddetti (R-05, yapılandırma çözücü tek yerde).
 💾 `feat(engine): taban once model sonra` · `Refs: FAZ-14.3 · §7.1`
 
-## 14.4 — Denetim: plan ile çıktı uyuşuyor mu    [ ]
+## 14.4 — Denetim: plan ile çıktı uyuşuyor mu    [x] 2026-08-17
 
 📖 §7.1 · D-255, D-256, D-259
 🔗 14.3, 13.5
 🛠 Üç ayrı katman: (a) **uyum** — çıktı planı uyguladı mı; (b) **metrik** — mevcut `kalite`
    ve `tasarim`; (c) **yargı** — `gorsel-yargi` (var) + `design.critique` (13.5).
-📁 `packages/render/src/plan-denetim.ts`
+📁 `packages/render/src/plan-denetim.ts` + `plan-denetim.test.ts` ·
+   `packages/engine/src/verbs/bodies.ts` · `packages/engine/src/plan-uyum.test.ts`
 ✅ ⚠ **Üç katman AYRI kalır.** Uyumsuzluk bir HATA (render bozuk), metrik ihlali bir RET
    (çıktı kabul edilemez), estetik bulgu bir ÖNERİ. Aynı kovaya konursa ya estetik zorunlu
    olur ya hata görmezden gelinir.
    ⚠ ⚠ **Denetim ÜRETİLEN dosyaya bakar, kapının kendi kurgusuna değil** (D-259):
    *"kapı repoyu korur, çıktıyı değil."* `tasarimOlc` yalnız kapıda koşuyordu.
-🧪 Planı uygulamayan render → uyum kırmızı, estetik yargı YEŞİL kalabilir (ayrılığın kanıtı).
+   ⚠ **Ayrımın yeri hata TAKSONOMİSİ:** uyumsuzluk `internal`/`PLAN_MISMATCH`, metrik
+   `policy_blocked`/`QA_OUT_OF_TOLERANCE`. Uyum ÖNCE koşuyor — ikisi de bozukken uyum
+   kazanmalı, yoksa bir render hatası "tolerans dışı" diye raporlanır ve içerik suçlanır.
+   ⚠ **İNDEKS eşleştirmesi YAPILMIYOR.** Plan SATIR sırasına göre yazılıyor, sayfalayıcı
+   satırları slaytlara bölüyor (6 satır → 5 slayt). İndeks indekse bakmak, bu fazda dört
+   kez tekrarlanan birim uyuşmazlığının (D-260 ailesi) beşinci biçimi olurdu. Onun yerine
+   **konumdan bağımsız** şeyler karşılaştırılıyor: kaç görsel öge, hangi türden, damgalar
+   yerinde mi, yayın uçları doğru mu.
+   ⚠ **Fotoğrafın sessizce geri gelmesini yakalayan tek yer burası** (D-261).
+   ⚠ Plan yoksa denetim ATLANIYOR — eski belgeler ve PDF yolu plansız geliyor.
+   ⚠ **BORÇ KAPANDI:** render artık slayt `digests`ini de yazıyor. Defter yolu ve boyutu
+   yazıyordu ama içeriği kanıtlayan hiçbir şey yazmıyordu; dosya değişse defter aynı
+   kalırdı. Yol nereye bakılacağını, digest NEYİN bulunması gerektiğini söylüyor (D-263).
+🧪 **8 + 5 test + ihlal:** uyum denetimini `if (false && …)` ile kapat → *"UYUMSUZLUK bir
+   HATADIR"* ve *"uyumsuzluk metrikten ÖNCE"* kırmızı. Gerçek koşuda doğrulandı: hat
+   uçtan uca yeşil, plan ve 5 digest defterde.
 💾 `feat(render): plan denetimi` · `Refs: FAZ-14.4 · §7.1`
 
 ## 14.5 — Yuva doldurma: ret SAYILIR, sonsuz deneme yok    [ ]

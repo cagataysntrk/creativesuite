@@ -86,3 +86,43 @@ describe('ikon dağarcığı', () => {
     }
   })
 })
+
+// ── Slayt bütünlüğü: HEPSİ ya da HİÇBİRİ (FAZ-14.4) ─────────────────────────
+//
+// ⚠ Üçüncü gözlemde yazıldı: gerçek bir koşuda aynı slaytta bir madde ikonlu, diğeri
+// düz çizgiliydi. İki farklı işaret yan yana ritim değil gürültü üretiyor.
+
+describe('ikon kararı SLAYTIN tamamına ait', () => {
+  it('bir madde bile eşleşmiyorsa HİÇBİRİ ikon almıyor', async () => {
+    const { toHtml } = await import('./static.js')
+    const doc = {
+      kind: 'post',
+      width: 1080,
+      height: 1350,
+      tokenCss: ':root{--role-bg:#000;--role-text:#fff}',
+      slayt: { role: 'govde', index: 1, total: 5, duzen: 'list' },
+      blocks: [
+        { type: 'body', text: 'Planlı bakım ertelendi', islev: 'gerilim' },
+        { type: 'body', text: 'Bugün hava çok güzeldi', islev: 'kanit' },
+      ],
+    } as never
+    expect(toHtml(doc)).not.toContain('class="ikonlu"')
+  })
+
+  it('hepsi eşleşiyorsa HEPSİ ikon alıyor', async () => {
+    const { toHtml } = await import('./static.js')
+    const doc = {
+      kind: 'post',
+      width: 1080,
+      height: 1350,
+      tokenCss: ':root{--role-bg:#000;--role-text:#fff}',
+      slayt: { role: 'govde', index: 1, total: 5, duzen: 'list' },
+      blocks: [
+        { type: 'body', text: 'Planlı bakım ertelendi', islev: 'gerilim' },
+        { type: 'body', text: 'Stok sayımı tutmuyor', islev: 'kanit' },
+      ],
+    } as never
+    const h = toHtml(doc)
+    expect((h.match(/class="ikonlu"/g) ?? []).length).toBe(2)
+  })
+})
