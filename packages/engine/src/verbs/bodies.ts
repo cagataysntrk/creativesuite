@@ -62,6 +62,8 @@ import {
 import { RateLimiter } from '../ratelimit.js'
 import { appendPublished, lookupPublished } from '../publish-ledger.js'
 import { tasarla } from '../plan/tasarla.js'
+import type { TasarimPlani } from '@suite/contracts'
+import type { Yuva } from '../metin-akisi.js'
 import { providerCall } from '../provider-call.js'
 import { prospectDeckZinciri } from '../prospect-deck.js'
 import type { Kaynak, KisiselAlan } from '@suite/kernel'
@@ -353,7 +355,10 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       konu: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
       satirlar: metinSatirlari,
       akisVar: akis !== null,
-      gorselVar: gorsel !== null,
+      // ⚠ Yuva bir POLİTİKA, bir gözlem değil (bkz. `tasarla.ts`). `gorsel !== null`
+      // yazmak döngüseldi: plan görselin varlığını arıyordu, görsel ise plandan sonra
+      // üretiliyor. Hat neyi istediğini söylüyor; plan da gerekçesini yazıyor.
+      yuvaIstendi: input.constraints['gorsel_yuvasi'] === true,
     })
 
     return ok({
@@ -1154,7 +1159,16 @@ const yargilanacakSlaytlar = (input: BodyInput): readonly YargiHedefi[] => {
   return []
 }
 
-const promptTuret = (yetenek: string, input: BodyInput): string => {
+/**
+ * Yetenek + adım girdisinden prompt kurar — **hattın dikişi.**
+ *
+ * ⚠ Dışa açık olması test içindir ve bilinçli: bu fonksiyon `kompozit` çıktısındaki
+ * tasarım planını okuyup brief'e yuvayı taşıyor. Zincirin koptuğu yer tam burası olurdu
+ * ve kopuş SESSİZ olurdu — brief yine üretilir, yalnız yuvayı bilmezdi. Bu projede aynı
+ * sınıf hata (`chart`, `diagram`, `tasarimOlc`) üç kez yaşandı; dikişi test etmeden
+ * bağlandığını iddia etmek dördüncüsü olurdu.
+ */
+export const promptTuret = (yetenek: string, input: BodyInput): string => {
   const konu = typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : ''
   const kacinilacak =
     typeof input.constraints['kacinilacak'] === 'string'
@@ -1196,7 +1210,50 @@ const promptTuret = (yetenek: string, input: BodyInput): string => {
     ...(kacinilacak === undefined ? {} : { kacinilacak }),
   }
   const gorselBriefMi = input.constraints['gorsel_brief'] === true
-  return (gorselBriefMi ? gorselBriefPromptu(girdi) : icerikPromptu(girdi)) ?? ''
+  // ⚠ **YUVA yalnız brief için aranıyor** ve `kompozit` çıktısından geliyor — yani bu
+  // adım artık `kompozit`e BAĞLI (hat dosyasında `needs: [bilgi-sec, kompozit]`).
+  // Bağlı olmasaydı `inputs`ta plan bulunmaz, `yuva` `undefined` kalır ve brief hiç
+  // üretilmezdi: zincir sessizce kopardı. Bunun testi var.
+  const yuva = gorselBriefMi ? yuvaBul(input.inputs) : undefined
+  return (
+    (gorselBriefMi
+      ? gorselBriefPromptu(yuva === undefined ? girdi : { ...girdi, yuva })
+      : icerikPromptu(girdi)) ?? ''
+  )
+}
+
+/**
+ * Tasarım planındaki görsel yuvasını bulur — şekle bakarak, adım adına değil.
+ *
+ * ⚠ Adım ADINA bakmak kırılgan olurdu: aynı gövde birden çok hatta koşuyor ve adım
+ * adları hattan hatta değişebilir. Şekil (`tasarimPlani.slaytlar[].oge.deger`) ise
+ * sözleşmenin kendisi.
+ */
+const yuvaBul = (inputs: Readonly<Record<string, unknown>>): Yuva | undefined => {
+  for (const v of Object.values(inputs)) {
+    if (v === null || typeof v !== 'object') continue
+    const plan = (v as { tasarimPlani?: TasarimPlani }).tasarimPlani
+    if (plan === undefined) continue
+    const i = plan.slaytlar.findIndex((s) => s.oge.deger === 'gorsel-yuvasi')
+    if (i === -1) return undefined
+    const s = plan.slaytlar[i] as (typeof plan.slaytlar)[number]
+    return {
+      slaytIndex: s.index,
+      toplam: plan.slaytlar.length,
+      islev: s.islev,
+      satir: satirBul(inputs, s.index),
+    }
+  }
+  return undefined
+}
+
+/** Yuvanın yanında duran satır — plan indeksi metin satırlarına karşılık geliyor. */
+const satirBul = (inputs: Readonly<Record<string, unknown>>, index: number): string => {
+  for (const v of Object.values(inputs)) {
+    const m = metneCevir(v)
+    if (m !== null) return m.lines[index] ?? ''
+  }
+  return ''
 }
 
 /** `SELECT` çıktısındaki kayıtları toplar — şekle bakarak, adım adına değil. */

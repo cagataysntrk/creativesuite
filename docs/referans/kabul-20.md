@@ -13,7 +13,7 @@ görüldü; oranla ölçseydik o kusurlar "kabul edilebilir gürültü" sayılı
 
 ---
 
-## Sayaç: 1/20 — render değiştiği için YENİDEN başladı
+## Sayaç: 0/20 — hat SIRASI değişti (FAZ-14.3), yeniden başlıyor
 
 | # | Konu | Slayt | Metrikler | Görsel inceleme | Sonuç |
 |---|---|---|---|---|---|
@@ -25,6 +25,16 @@ görüldü; oranla ölçseydik o kusurlar "kabul edilebilir gürültü" sayılı
 | — | *(sayaç burada sıfırlandı — aşağıya bak)* | | | | ✗ |
 | — | kompresör kaçakları · sevkiyat gecikmesi | | | *render değişti, sayılmadı — aşağıya bak* | — |
 | 1 | paletleme hataları nasıl azalır | 6 | bütçe hepsi limit altı · kaplama %16,2 · palet dışı %0,3–2,1 | gövde 4 (görselli): görsel dikey alanı DOLDURUYOR, çerçeve kenarına taşıyor, çakışma yok | ✓ |
+
+## ⚠ Sayaç üçüncü kez sıfırlandı — hattın SIRASI değişti
+
+FAZ-14.3 `kompozit`i `gorsel-uret`ten öne aldı: görsel artık gireceği slaydı görerek
+üretiliyor ve plan yuva işaretlemezse hiç üretilmiyor. Bu, kural (c)'nin tam tanımı —
+**çıktının kendisi değişti**, önceki koşular güncel hattı temsil etmiyor.
+
+⚠ Sayaç 0'da, 1'de değil: 14.3'ten sonra **henüz tek bir gerçek koşu yapılmadı.** Yeni
+sıra testlerde yeşil ama üretimde doğrulanmadı; "1/20" yazmak yapılmamış bir koşuyu
+sayardı.
 
 ## Sıfırlanan koşular
 

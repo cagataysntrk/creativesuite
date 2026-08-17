@@ -102,25 +102,43 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
    İKİSİ BİRDEN konmuyor · öge gövdenin ORTASINDA · düzen planda YOK.
 💾 `feat(engine): tasarim plani adimi` · `Refs: FAZ-14.2 · §7.1`
 
-## 14.3 — Sıra düzeltmesi: TABAN önce, model sonra    [ ]
+## 14.3 — Sıra düzeltmesi: TABAN önce, model sonra    [x] 2026-08-17
 
 📖 §7.1, §7.2 · R-20, D-241, D-243, D-261
 🔗 14.2
 🛠 **Hattın en önemli değişikliği.** Bugün: `gorsel-brief` → `gorsel-uret` → `kompozit` →
    `render`. Görsel, gireceği slaydı görmeden doğuyor.
-   Yenisi: `tasarla` → `kompozit` → **`taban-render`** → `gorsel-brief` → `gorsel-uret` →
-   `yuva-doldur` → `render`. Brief artık **tabanı ve yuvayı görerek** yazılıyor: hangi
-   biçim, hangi boyut, hangi renk komşuluğu, çevresinde ne var.
-📁 `registry/pipelines/instagram-post.pipeline.yaml` · `packages/engine/src/verbs/bodies.ts`
-✅ ⚠ **Görsel üretimi KOŞULLU olur:** plan hiçbir yuvayı `deterministik: false` işaretlemediyse
-   `gorsel-uret` HİÇ koşmaz. Bugün her koşuda koşuyor ve çoğu zaman gereksiz — hem kota hem
-   tutarlılık kaybı. *"Her ihtimale karşı bir görsel üret"* tam olarak D-261'in kusuruydu.
+   Yenisi: `kompozit` → `gorsel-brief` → `gorsel-uret` → `yuva-doldur` → `render`.
+   Brief artık **yuvayı görerek** yazılıyor: kaçıncı slayt, yayda hangi işlev, ve
+   **yanında duracak SATIR** — görselin desteklemesi gereken şey konu değil o cümle.
+   ⚠ **`taban-render` bu adımdan ÇIKARILDI, FAZ-11.6'ya taşındı.** Taban PNG'sini
+   tüketen tek şey görselden-görsele üretim; o gelmeden her koşuda ikinci bir render
+   koşturmak, tüketicisi olmayan makine kurmaktır — bu fazın kapatmaya çalıştığı zincir
+   kopukluğunun tam tersi biçimi.
+📁 `registry/pipelines/instagram-post.pipeline.yaml` · `packages/engine/src/verbs/bodies.ts` ·
+   `packages/engine/src/metin-akisi.ts` · `packages/engine/src/plan/tasarla.ts` ·
+   `packages/engine/src/hat-sirasi.test.ts`
+✅ ⚠ **Görsel üretimi KOŞULLU oldu.** Plan yuva işaretlemezse `gorselBriefPromptu` `null`
+   dönüyor, brief üretilmiyor, `gorsel-uret` besinsiz kalıyor. **Koşucuya "adım atla"
+   yeteneği EKLENMEDİ** — zincir kendiliğinden sönüyor.
+   ⚠ ⚠ **DÖNGÜSEL BAĞIMLILIK bulundu ve kırıldı (D-264):** sıra çevrilince plan kendi
+   kuyruğunu ısırdı — yuvayı `gorselVar` ile açıyordu, ama görsel artık plandan SONRA
+   üretiliyor. Yuva bir **politika kararıdır**, bir gözlem değil. `yuvaIstendi` hattan
+   geliyor; ileride kompozisyon ailesi verecek (FAZ-12.7).
+   ⚠ **`yuva-doldur` yeni bir gövde GEREKTİRMEDİ:** aynı `composeBody`, görsel artık
+   girdide. `metin-uret`/`gorsel-brief` ikilisinin `text.generate`i paylaşması gibi.
    ⚠ **R-20 mutlak:** modele giden taban METİN İÇERMEZ. Taban render'da metin varsa
    maskelenir; model metnin üstüne çizerse çıktı REDDEDİLİR, yamanmaz.
    ⚠ **Bu bir RENDER DEĞİŞİKLİĞİDİR** → kabul sayacı 1'e çekilir (kabul-20 kuralı (c)).
    ⚠ İki render adımı iki motor DEĞİLDİR (R-30): aynı Chromium, aynı CSS, iki geçiş.
-🧪 Plan hiçbir yuvayı işaretlemesin → `gorsel-uret` atlanır ve koşu yine de tam çıktı verir.
-   Metin içeren taban modele gönder → reddedilir.
+🧪 **5 hat testi + 5 zincir testi + iki ihlal:** `gorsel-brief`in `kompozit` bağını kopar →
+   *"brief KOMPOZİTTEN besleniyor"* kırmızı; `kompozit`i yine `gorsel-uret`ten beslet →
+   *"kompozit görselden ÖNCE"* kırmızı. Bu bağlar koparsa **hiçbir kapı kırmızıya
+   dönmezdi**: brief yine üretilir, koşu yine geçerdi — yalnız görsel gireceği slaydı
+   görmezdi. `verbs` kapısı *"bu fiili çağıran hat var mı"* diye sorar; bu testler bir
+   adım ötesini sorar: *"bu adım DOĞRU adımdan besleniyor mu"*.
+   ⚠ Hat YAML'ı doğrudan okunmuyor — `loadPipeline` üstünden; `chokepoints` kapısı ilk
+   sürümü haklı olarak reddetti (R-05, yapılandırma çözücü tek yerde).
 💾 `feat(engine): taban once model sonra` · `Refs: FAZ-14.3 · §7.1`
 
 ## 14.4 — Denetim: plan ile çıktı uyuşuyor mu    [ ]

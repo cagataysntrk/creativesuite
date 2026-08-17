@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import type { BrandId, EraId, RunId, StepId } from '@suite/contracts'
 import { fixedClock, seededRng } from '@suite/kernel'
 import { planGecerli, type TasarimPlani } from '@suite/contracts'
-import { composeBody } from './verbs/bodies.js'
+import { composeBody, promptTuret } from './verbs/bodies.js'
 
 const ctx = {
   runId: 'run_t' as RunId,
@@ -34,7 +34,12 @@ const kos = async (inputs: Record<string, unknown>) => {
   return body.run(
     ctx as never,
     {
-      constraints: { topic: 'veri yoksa önce veriyi kuruyoruz', width: 1080, height: 1350 },
+      constraints: {
+        topic: 'veri yoksa önce veriyi kuruyoruz',
+        width: 1080,
+        height: 1350,
+        gorsel_yuvasi: true,
+      },
       inputs,
     } as never
   )
@@ -140,5 +145,63 @@ describe('tasarım planı compose ÇIKTISINDA', () => {
     if (!r.ok) return
     const plan = (r.value.data as { tasarimPlani: TasarimPlani }).tasarimPlani
     for (const v of Object.values(plan)) expect(JSON.stringify(v).length).toBeLessThan(8192)
+  })
+})
+
+// ── Zincir: kompozit → brief (FAZ-14.3) ─────────────────────────────────────
+//
+// ⚠ Hattın en eski kusurunun kökü: `gorsel-brief` `bilgi-sec`ten besleniyordu ve görsel,
+// gireceği slaydı GÖRMEDEN üretiliyordu. Bu blok, planın gerçekten brief'e ulaştığını
+// sınıyor — kopuş sessiz olurdu: brief yine üretilir, yalnız yuvayı bilmezdi.
+
+const briefKur = (composeCiktisi: unknown, satirlar: readonly string[]): string =>
+  promptTuret('text.generate', {
+    constraints: { topic: 'veri yoksa önce veriyi kuruyoruz', gorsel_brief: true },
+    inputs: {
+      'bilgi-sec': { records: [{ id: 'r1', text: 'Ölçüm olmadan iyileştirme olmaz.' }] },
+      'metin-uret': { lines: satirlar },
+      kompozit: composeCiktisi,
+    },
+  } as never)
+
+describe('plan kompozitten brief`e ULAŞIYOR', () => {
+  const SATIRLAR = ['Kanca', 'Gerilim satırı', 'Kanıt satırı burada', 'Dört', 'Beş', 'Davet']
+
+  it('YUVA varsa brief o SATIRI taşıyor', async () => {
+    const r = await kos({
+      'metin-uret': { lines: SATIRLAR },
+      'gorsel-uret': { data: 'AAAA', mimeType: 'image/png' },
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const brief = briefKur(r.value.data, SATIRLAR)
+    // Görselin desteklemesi gereken şey KONU değil, yanında duracağı O CÜMLE.
+    expect(brief).toContain('Kanıt satırı burada')
+    expect(brief).toContain('SLOT (where this image will be placed')
+  })
+
+  it('YUVA yoksa brief hiç kurulmuyor — model çağrılmaz', async () => {
+    // `gorsel_yuvasi` İSTENMİYOR: fotoğraf varsayılan olmaktan çıktı (D-261). Plan yuva
+    // açmayınca brief boş dönüyor ve `gorsel-uret` besinsiz kalıyor — koşucuya "adım
+    // atla" yeteneği eklemeye gerek kalmadan zincir sönüyor.
+    const body = composeBody({ tokenCss: ':root{--role-bg:#000}', stamp: damga as never })
+    const r = await body.run(
+      ctx as never,
+      {
+        constraints: { topic: 'veri yoksa önce veriyi kuruyoruz', width: 1080, height: 1350 },
+        inputs: { 'metin-uret': { lines: SATIRLAR } },
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const plan = (r.value.data as { tasarimPlani: TasarimPlani }).tasarimPlani
+    expect(plan.slaytlar.some((s) => s.oge.deger === 'gorsel-yuvasi')).toBe(false)
+    expect(briefKur(r.value.data, SATIRLAR)).toBe('')
+  })
+
+  it('plan BAĞLI DEĞİLSE brief yuvayı bilmez — zincir kopuşu görünür', () => {
+    // `needs: [bilgi-sec, kompozit]` bağı koparsa `inputs`ta plan bulunmaz. Kopuş
+    // sessizdir: brief yine üretilirdi, yalnız yuvasız. Burada BOŞ dönerek görünür oluyor.
+    expect(briefKur({ document: {} }, SATIRLAR)).toBe('')
   })
 })

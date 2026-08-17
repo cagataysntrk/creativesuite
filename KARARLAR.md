@@ -157,115 +157,11 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-252 — Marka fontu: gömülü, latin-ext, iki yüz
-
-**2026-08-17 · tasarım katmanı**
-
-Repoda **tek bir font dosyası yoktu** ve `static.ts` `"DejaVu Sans"` diyordu — sistem
-fontu. Çıktının "amatör" görünmesinin en büyük tek sebebi buydu.
-
-**Vendor edilenler (SIL OFL, ticari kullanım ve gömme serbest):**
-- **Inter** → metin. Geniş latin-ext kapsaması, değişken ağırlık 400–800.
-- **Archivo** → display. **Değişken genişlik 62–125%** — referanslardaki "Expanded"
-  kapak tipografisi bu eksenden geliyor, ikinci bir dosya indirmeye gerek yok.
-
-**latin ve latin-ext AYRI dosyalar, her biri kendi `unicode-range`i ile.** `ğ ş İ ı Ğ Ş`
-latin alt kümesinde YOK; tek dosyaya güvenmek `İstanbul`u `?stanbul` yapan sessiz bir
-düşüşe kapı açardı. Ölçüldü: gerçek koşuda `ı ş ğ ç ö ü İ` gliflerinin hepsi doğru.
-
-**Base64 GÖMÜLÜ, harici yükleme yok.** `static.ts`in kendi uyarısı bunu söylüyordu:
-harici dosya yüklenemezse Chromium **sessizce** sistem fontuna düşer ve kimseye
-söylemez. Gömülü font bu hata modunu ortadan kaldırıyor — font ya HTML'in içindedir ya
-da hiç yoktur.
-
-**Eksik font üretimi DURDURUYOR:** `fontCss` `Result` dönüyor ve `uret.mjs` hatada
-çıkıyor. Sessizce geçilseydi `ĞÜŞİÖÇ` bozulur ve hiçbir hata görünmezdi — **yanlış
-fontla üretilmiş bir varlık, üretilmemiş bir varlıktan kötüdür.**
-
-**Yüz listesi KAPALI:** üçüncü bir aile eklemek bir karar gerektirir, bir import değil.
-Tip ölçeği kapalı kalmazsa "marka şablonu" bir öneriye dönüşür.
-
-⚠ **V-02 KAPANMADI.** Bunlar çalışan, lisansı temiz varsayılanlar — nihai marka fontu
-hâlâ kullanıcının kararı. Değiştirmek iki dosya indirip `YUZLER` listesini güncellemek.
-
-**Geri alma maliyeti:** düşük — `fontCss` verilmezse eski davranış.
-
-## D-253 — Chroma tavanı yüzey kapsamlı: gevşetme değil, kapsam düzeltmesi
-
-**2026-08-17 · tasarım katmanı**
-
-`CHROMA_LIMITS.fill = 0.02` **her** marka yüzeyine uygulanıyordu ve hedeflenen estetiği
-imkânsız kılıyordu. Ölçüldü, tahmin edilmedi: referans karosellerin sarısı
-`oklch(0.804 0.156 87)` — **dolgu tavanının 7,8 katı.** Tavan bir ayar meselesi değil,
-kural meselesiydi.
-
-**§12.1'in ISA-101 gerekçesi doğru — ama bir İZLEME KABİNİ için.** "Renk anormallik
-demektir; her yerde renk varsa hiçbir yerde uyarı yoktur" bir kontrol odası cümlesidir.
-Bir Instagram gönderisinde aynı kural **ters yönde** çalışır: orada renk anormallik
-değil, markanın kendisidir.
-
-**Kullanıcının kararı kuralın metnini belirledi:** *"sarı kırmızı her renk olabilir o
-post için; özel bir talep yoksa markaya uygun klasik bir şablonu devam ettirmeli."*
-Mühendislik karşılığı: **kreatif rengin kuralı doygunluk değil KAYNAK.** Renk ya dönemin
-kreatif paletinden gelir (varsayılan), ya da o çalıştırmaya özel açık bir parametreyle
-gelir ve manifeste yazılır.
-
-**Tutarlılık kaybolmuyor, ölçüldüğü yere taşınıyor:** §11.1'in ΔE ve palet-dışı oran
-kapıları zaten **basılmış piksele** bakıyor. Token seviyesindeki chroma tavanı kreatif
-yüzey için ikinci ve daha kör bir mekanizmaydı — çıktıyı değil tanımı ölçüyordu.
-
-**Liste KAPALI ve varsayılan SINIRLI:** `TAVANSIZ_YUZEYLER = {'kreatif'}`; tanınmayan
-her yüzey tavana tabi. Ters varsayılan, yeni bir yüzey açan kişinin farkında olmadan
-konsolu renklendirmesi demekti — ve ISA-101 orada hâlâ geçerli.
-
-**Sıra korundu** (sessiz düzeltme yok): `ANAYASA §12.1` → `tokens.ts` → yeni yüzey.
-Koda istisna yazıp kuralı olduğu gibi bırakmak, kuralı bir öneriye çevirirdi.
-
-**Kreatif rampa eklendi:** kehribar (ölçüm/enstrüman dünyasının rengi), mürekkep ve
-kâğıt. **Saf beyaz KULLANILMADI** — baskıda ve ekranda parlar, tipografiyi sertleştirir.
-
-**Geri alma maliyeti:** yok — `kreatif` yüzeyini silmek eski davranışa döner.
-
-## D-254 — Karosel grameri: modelde ROL var, çizim yok
-
-**Tarih:** 2026-08-17 · **Bağlam:** FAZ-8.6 · §7.1 · R-30
-
-Referans karoseller yan yana konduğunda "tek şey" görünüyor. Bizim çıktımız görünmüyordu:
-tek sütun flex, `padding: 96px`, katman yok. Eksik olan altı öge sayıldı — sayaç,
-navigasyon işareti, hayalet rakam, akan şekil ayırıcı, renk rolü rotasyonu, asimetrik
-alan — ve hepsinin **CSS + SVG** ile, sıfır bağımlılıkla yapılabildiği görüldü.
-
-**Karar:** kompozisyon `SlaytKimligi`den (`role`, `index`, `total`, `kulp`) TÜRETİLİR;
-gramer `packages/render/src/sablon.ts` içinde ve **kapalıdır**.
-
-**Belge modeline işaretleme SOKULMADI.** `ornament: '<svg>…'` gibi bir alan cazipti ve
-reddedildi: belge modeli bir şablon diline dönüşürdü ve "tek render motoru" yasası
-(R-30) fiilen ikinci bir motora bölünürdü. Model **rol** taşır, `sablon.ts` çizer.
-
-**Neden `static.ts`te değil:** `static.ts` belge → HTML çevirisi yapar; `sablon.ts`
-tasarım kararı verir. Karışsalardı "bu rengi kim seçti" sorusu bir HTML şablonunun
-içinde kaybolurdu.
-
-**Deterministik, rastgele değil.** Her parametre indeksten hesaplanıyor: aynı slayt her
-koşuda aynı kompozisyonu verir (golden test çalışır) ama slayttan slayta değişir (ritim
-doğar). Rastgelelik ikisini birden kaybettirirdi.
-
-**Ölçülen üç kusur ve düzeltmeleri** — ilk koşunun çıktısına tek tek bakılarak bulundu:
-1. **Yüzey beyan edilmemişti.** `kreatif` rolleri `[data-surface='kreatif']` ile
-   kapsanmış; öznitelik yokken `:root` (konsol grisi) devreye giriyordu ve ilk karo
-   siyah üstüne siyah çıktı. Kapsanmış token, beyan edilmeyen yüzeyde SESSİZCE düşer.
-2. **Metin eğri sınırını kesiyordu.** Bir cümlenin yarısı kehribar, yarısı kâğıt
-   üstündeydi. Eğri salınımı `SINIR_MIN..SINIR_MAX` dar bandına alındı ve metin sütunu
-   `guvenliMetinYuzdesi` ile bandın dışına kilitlendi — ikisi tek dosyada tanımlı.
-3. **Hayalet rakam alt şeritle çakışıyordu.** Metnin karşı tarafına alındı ve alt
-   şeridin üstünde bitiriliyor.
-
-**Uzunluk disiplini prompt'a yazıldı** (`icerikPromptu`): 1. satır kapak ≤8 kelime,
-gövde ≤30, kapanış ≤14. Sayfalayıcı taşmayı böler (R-30) ama neyin BAŞLIK olduğunu
-bilemez — o bilgi yalnız metnin üretildiği yerde vardır.
-
-**Geri alma maliyeti:** düşük — `doc.slayt` yazılmazsa `sablonCss`/`sablonKatmanlari`
-boş döner ve eski tek sütun düzeni aynen çalışır. Testler bunu zaten kanıtlıyor.
+> **D-252 · D-253 · D-254 arşive devredildi** → `docs/kararlar/ARSIV-2026.md`.
+> Üçü de kapandı ve kodda yaşıyor: gömülü marka fontu (`brand/*/fonts`), yüzey kapsamlı
+> chroma tavanı (`tasarim-olcum.ts`), karosel grameri (`sablon.ts`). R-63 gereği tavan
+> dolmadan devredildi — bir kararı arşive taşımak onu iptal etmez, atıfları çalışmaya
+> devam eder.
 
 ## D-255 — Onuncu faz: "üretebiliyor" ile "iyi" ayrı sorulardır
 
@@ -589,3 +485,30 @@ yani işaretçi doğrulanabilir değil. Bu, bu kararın kapattığı değil AÇT
 
 **Geri alma maliyeti:** düşük — eleme yalnız yazma anında, okuyan hiçbir tüketici elenen
 alanlara bakmıyor (`captions`, `fetchedAt`, `sourceRef`, `personalizationFields`).
+
+## D-264 — Yuva bir POLİTİKA kararıdır, bir gözlem değil
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-14.3 · §7.1
+
+Hattın sırasını çevirdim — `kompozit` artık `gorsel-uret`ten ÖNCE koşuyor, böylece brief
+gireceği yuvayı görerek yazılıyor. Sıra değişince plan **kendi kuyruğunu ısırdı**:
+`tasarla` yuvayı `gorselVar: gorsel !== null` ile açıyordu, yani *"ortada üretilmiş bir
+görsel var mı"* diye soruyordu. Ama görsel artık plandan SONRA üretiliyor. Plan, kendi
+tetiklediği şeyin varlığını ön koşul sayıyordu: yuva hiç açılmaz, brief hiç yazılmaz,
+görsel hiç üretilmezdi. Test bunu ilk koşuda yakaladı — `expected '' to contain …`.
+
+**Yanlış olan sıra değil ÖNCÜLDÜ.** Yuvanın var olup olmayacağı bir gözlem değil bir
+karardır: *"bu karosel bir fotoğraf taşımalı mı?"* Bunu görselin kendisi cevaplayamaz.
+`yuvaIstendi` artık hattın (ileride kompozisyon ailesinin, FAZ-12.7) verdiği bir politika
+ve plan yalnız gerekçesini yazıyor.
+
+⚠ **Bu D-261'in kardeşi ve aynı sınıf.** Orada fotoğraf "bağlı olan tek görsel yol"
+olduğu için kullanılıyordu; burada plan, görselin varlığını kendi kararının girdisi
+sanıyordu. İkisi de *"neden bu öge burada?"* sorusunun cevabının bir tesadüf olmasıydı.
+
+**Yan kazanç — üretim artık KOŞULLU.** Plan yuva işaretlemezse `gorselBriefPromptu` `null`
+dönüyor, brief üretilmiyor, `gorsel-uret` besinsiz kalıyor. Koşucuya "adım atla" yeteneği
+EKLENMEDİ; zincir kendiliğinden sönüyor. *"Her ihtimale karşı bir görsel üret"* hem kota
+hem marka tutarlılığı kaybıydı.
+
+**Geri alma maliyeti:** düşük — `gorsel_yuvasi: true` hat kısıtı bugünkü davranışı koruyor.

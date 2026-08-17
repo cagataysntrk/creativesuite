@@ -8,7 +8,7 @@ const g = (over: Partial<TasarlaGirdisi> = {}): TasarlaGirdisi => ({
   konu: 'fire kayıtları nerede tutuluyor',
   satirlar: ['a', 'b', 'c', 'd', 'e', 'f'],
   akisVar: false,
-  gorselVar: false,
+  yuvaIstendi: false,
   ...over,
 })
 
@@ -45,7 +45,7 @@ describe('tasarım planı', () => {
   })
 
   it('KAPAK ve KAPANIŞ görsel öge ALMIYOR', () => {
-    for (const gi of [g({ akisVar: true }), g({ gorselVar: true }), g()]) {
+    for (const gi of [g({ akisVar: true }), g({ yuvaIstendi: true }), g()]) {
       const p = tasarla(gi)
       expect(p.slaytlar[0]!.oge.deger).toBe('yok')
       expect(p.slaytlar[p.slaytlar.length - 1]!.oge.deger).toBe('yok')
@@ -53,11 +53,11 @@ describe('tasarım planı', () => {
   })
 
   it('AKIŞ varsa diyagram, yoksa görsel yuvası — İKİSİ BİRDEN değil', () => {
-    const ikisi = tasarla(g({ akisVar: true, gorselVar: true }))
+    const ikisi = tasarla(g({ akisVar: true, yuvaIstendi: true }))
     const ogeler = ikisi.slaytlar.map((s) => s.oge.deger)
     expect(ogeler.filter((o) => o === 'diyagram')).toHaveLength(1)
     expect(ogeler.filter((o) => o === 'gorsel-yuvasi')).toHaveLength(0)
-    const yalnizGorsel = tasarla(g({ gorselVar: true }))
+    const yalnizGorsel = tasarla(g({ yuvaIstendi: true }))
     expect(yalnizGorsel.slaytlar.map((s) => s.oge.deger)).toContain('gorsel-yuvasi')
   })
 
@@ -71,7 +71,7 @@ describe('tasarım planı', () => {
   })
 
   it('öge politikaları KAPALI dağarcıktan', () => {
-    for (const gi of [g(), g({ akisVar: true }), g({ gorselVar: true })])
+    for (const gi of [g(), g({ akisVar: true }), g({ yuvaIstendi: true })])
       for (const s of tasarla(gi).slaytlar) expect(OGE_POLITIKALARI).toContain(s.oge.deger)
   })
 

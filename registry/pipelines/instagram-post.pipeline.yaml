@@ -25,14 +25,41 @@ steps:
   # içeriğe kör bir görsel verir; Türkçe konuyu doğrudan görsel modeline vermek ise
   # ölçülerek elendi. Brief İngilizce, insansız ve metinsiz isteniyor — R-20 ve 9. yasa
   # kapıları yine de bu metnin üzerinden geçiyor.
+
+  # ⚠ **KOMPOZİT ARTIK GÖRSELDEN ÖNCE — hattın en önemli sıra değişikliği (FAZ-14.3).**
+  # Eskiden `gorsel-brief` `bilgi-sec`ten besleniyor ve `gorsel-uret` `kompozit`ten ÖNCE
+  # koşuyordu. Yani görsel, gireceği slaydı GÖRMEDEN doğuyordu: hangi satırın yanında
+  # duracağını, yayda hangi işlevi taşıdığını, hatta gerçekten gerekip gerekmediğini
+  # bilmiyordu. Brief KONUDAN yazılıyordu — oysa bir görselin desteklemesi gereken şey
+  # konu değil, yanında duracağı O CÜMLE. FAZ-10.7'de "dikdörtgen fotoğraf" diye
+  # yamadığım kusur sınıfının kökü buydu (D-261).
+  #
+  # Yeni sıra: metin → **kompozit (taban + tasarım planı)** → brief (yuvayı görerek) →
+  # görsel (yalnız yuva varsa) → **yuva-doldur** → render.
+  - id: kompozit
+    verb: COMPOSE
+    needs: [metin-uret]
+    constraints:
+      # Yuva bir POLİTİKA kararı: fotoğraf varsayılan olmaktan çıktı (D-261), ama bu
+      # hat hâlâ akışsız konularda bir fotoğraf yuvası istiyor. Kompozisyon aileleri
+      # geldiğinde (FAZ-12.7) bu kararı aile verecek.
+      gorsel_yuvasi: true
+
   - id: gorsel-brief
     verb: GENERATE
     capability: text.generate
-    needs: [bilgi-sec]
+    # `kompozit`e bağlı: tasarım planı olmadan yuva bilinmez, yuva bilinmeden brief
+    # yazılmaz. Bağ koparsa `gorselBriefPromptu` `null` döner ve zincir SESSİZCE sönerdi
+    # — bu yüzden testi var.
+    needs: [bilgi-sec, kompozit]
     constraints:
       gorsel_brief: true
       max_chars: 600
 
+  # ⚠ **KOŞULLU: plan yuva işaretlemediyse bu adım model ÇAĞIRMAZ.** Koşucuya "adım
+  # atla" yeteneği eklenmedi; `gorselBriefPromptu` yuva yokken `null` dönüyor, brief
+  # üretilmiyor ve bu adım besinsiz kalıyor. *"Her ihtimale karşı bir görsel üret"*
+  # tam olarak D-261'in kusuruydu: hem kota hem marka tutarlılığı kaybı.
   - id: gorsel-uret
     verb: GENERATE
     capability: image.generate
@@ -43,15 +70,22 @@ steps:
       no_text: true
       max_cost_usd_micros: 20000
 
-  - id: kompozit
+  # Yuvaya oturtma AYNI `composeBody` ile yapılıyor: görsel artık girdide olduğu için
+  # aynı gövde onu yerleştiriyor. Yeni bir fiil de yeni bir gövde de gerekmedi —
+  # `metin-uret`/`gorsel-brief` ikilisinin `text.generate`i paylaşması gibi.
+  - id: yuva-doldur
     verb: COMPOSE
-    needs: [metin-uret, gorsel-uret]
+    needs: [metin-uret, kompozit, gorsel-uret]
+    constraints:
+      # Aynı politika: iki compose adımı AYNI planı üretmeli, yoksa denetim (14.4)
+      # her koşuda sapma raporlar.
+      gorsel_yuvasi: true
 
   - id: render
     verb: RENDER
     # Yetenek YOK: render YÖNLENDİRİLMEZ. R-30 tek motor diyor ve bir motoru "seçmek",
     # ikinci bir motorun var olabileceğini varsayar (D-122).
-    needs: [kompozit]
+    needs: [yuva-doldur]
     constraints:
       width: 1080
       height: 1350

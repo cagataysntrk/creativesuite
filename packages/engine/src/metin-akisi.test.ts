@@ -46,7 +46,29 @@ describe('içerik prompt`u', () => {
 })
 
 describe('görsel brief prompt`u', () => {
-  const p = gorselBriefPromptu({ konu: 'veri yoksa', kayitlar: KAYITLAR }) ?? ''
+  // ⚠ Yuva ARTIK ZORUNLU (FAZ-14.3): yuvasız brief üretilmiyor, çünkü plan hiçbir
+  // slaytta görsel işaretlemediyse görsel üretmek "her ihtimale karşı üret" demektir.
+  const YUVA = {
+    slaytIndex: 2,
+    toplam: 6,
+    islev: 'kanit',
+    satir: 'Aynı arıza üç hafta sonra tekrarladı ve kimse bağlantısını kuramadı',
+  }
+  const p = gorselBriefPromptu({ konu: 'veri yoksa', kayitlar: KAYITLAR, yuva: YUVA }) ?? ''
+
+  it('YUVA YOKSA brief de YOK — model boşuna çağrılmıyor', () => {
+    // Zincirin sönme mekanizması bu: koşucuya "adım atla" yeteneği eklenmedi, brief
+    // `null` dönünce `gorsel-uret` besinsiz kalıyor.
+    expect(gorselBriefPromptu({ konu: 'veri yoksa', kayitlar: KAYITLAR })).toBeNull()
+  })
+
+  it('brief YUVAYI görüyor — konuyu değil O SATIRI destekliyor', () => {
+    // Kusurun kökü: brief `bilgi-sec`ten besleniyordu ve görsel, altı slaytlık bir
+    // karoselin hangi cümlesinin yanında duracağını bilmeden üretiliyordu.
+    expect(p).toContain(YUVA.satir)
+    expect(p).toContain('slide 3 of 6')
+    expect(p).toContain('kanit')
+  })
 
   it('İngilizce brief istiyor ve insansız/yazısız şart koşuyor', () => {
     expect(p).toContain('ENGLISH')

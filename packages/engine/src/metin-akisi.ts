@@ -38,6 +38,28 @@ export interface PromptGirdisi {
   readonly maxChars?: number
   /** Geçmiş redlerin gerekçesi — negatif kısıt (D-191). */
   readonly kacinilacak?: string
+  /**
+   * Görselin gireceği YUVA (FAZ-14.3). `undefined` ise plan hiçbir yuva işaretlememiş
+   * demektir ve `gorselBriefPromptu` `null` döner — yani model HİÇ çağrılmaz.
+   *
+   * ⚠ Bu alanın varlık sebebi hattın en eski kusuru: `gorsel-uret` bugün `render`'dan
+   * ÖNCE koşuyor ve brief'i `bilgi-sec`ten alıyor. Yani görsel, gireceği slaydı
+   * GÖRMEDEN doğuyor — hangi satırın yanında duracağını, hangi alanın üstüne
+   * oturacağını bilmiyor. Brief KONUDAN yazılıyor, oysa görselin desteklemesi gereken
+   * şey konu değil O SATIR.
+   */
+  readonly yuva?: Yuva
+}
+
+/** Görselin gireceği yuvanın tarifi — brief bunu görerek yazılıyor. */
+export interface Yuva {
+  /** Yuvanın bulunduğu slaydın 0 tabanlı sırası. */
+  readonly slaytIndex: number
+  readonly toplam: number
+  /** Yayda o slaydın işlevi (`kanit` gibi) — görselin ne yapması gerektiğini söyler. */
+  readonly islev: string
+  /** Yuvanın yanında duran satır. Görsel KONUYU değil BU CÜMLEYİ desteklemeli. */
+  readonly satir: string
 }
 
 const baglamBloku = (kayitlar: readonly PromptKaydi[]): string =>
@@ -204,11 +226,26 @@ export const akisiAyir = (
 export const gorselBriefPromptu = (g: PromptGirdisi): string | null => {
   const baglam = baglamBloku(g.kayitlar)
   if (g.konu.trim() === '' || baglam === '') return null
+  // ⚠ **YUVA YOKSA BRIEF DE YOK — ve bu bir maliyet kararı kadar bir tasarım kararı.**
+  // Plan hiçbir slaytta `gorsel-yuvasi` işaretlememişse görsel üretmek, "her ihtimale
+  // karşı bir görsel üret" demektir; D-261'in kusuru tam olarak buydu. `null` dönünce
+  // `gorsel-uret` de brief bulamıyor ve zincir kendiliğinden sönüyor — koşucuya
+  // "adım atla" yeteneği eklemeye gerek yok.
+  if (g.yuva === undefined) return null
 
   return [
     'Write a single-paragraph ENGLISH prompt for a text-to-image model.',
     '',
     `TOPIC (Turkish): ${g.konu.trim()}`,
+    '',
+    // ⚠ **YUVA TARİFİ — brief artık nereye gireceğini biliyor.** Eskiden yalnız KONU
+    // vardı ve görsel, altı slaytlık bir karoselin hangi cümlesinin yanında duracağını
+    // bilmeden üretiliyordu. Görselin desteklemesi gereken şey konu değil O SATIR.
+    'SLOT (where this image will be placed — support THIS line, not the topic in general):',
+    `- It goes on slide ${g.yuva.slaytIndex + 1} of ${g.yuva.toplam}, whose role in the story is "${g.yuva.islev}".`,
+    `- The line it sits beside (Turkish): ${g.yuva.satir.trim()}`,
+    '- It fills the width of the text column and is cropped to fill; assume a portrait-ish',
+    '  area and keep the subject centred with calm negative space around it.',
     '',
     'BRAND CONTEXT (Turkish, for understanding only — do not translate into the prompt):',
     baglam,
