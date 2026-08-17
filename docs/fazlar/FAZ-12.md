@@ -1,9 +1,7 @@
 # FAZ 12 — Photoshop'suz kudret: efektler, ritim, süreklilik
 
 **Amaç:** Chromium'un zaten sahip olduğu ama **hiç bağlanmamış** tasarım kudretini bağlamak.
-Ölçüldü ve utandırıcı: render katmanında `object-fit` DIŞINDA hiçbir görsel işleme çağrısı
-yoktu. Photoshop'un katman stillerinin ve filtrelerinin neredeyse tamamı standart, bedava
-ve kurulumsuz duruyor.
+Ölçüldü: render katmanında `object-fit` DIŞINDA hiçbir görsel işleme çağrısı yoktu.
 **Yöneten kararlar:** D-252, D-254, D-261
 **Ön koşul:** FAZ-11 görsel dili (dağarcık, yuva, ikon) yerinde
 **Çıkış kriteri:** Bir karosel, kaynak fotoğraf olmadan, yalnız tipografi · efekt · doku ·
@@ -68,13 +66,10 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 
 📖 §7.2 · R-21, R-23, R-30
 🔗 —
-🛠 Türkçe eklemeli bir dil: `taşıyabileceğimizin` 19 karakter ve **bölünemiyor**.
-   ⚠ ⚠ **ZİNCİR KOPUK — kod ZATEN VAR:** `packages/contracts/src/text-tr.ts` içinde
-   `syllables()` ve `softHyphenate()` yazılı ve testli. Render katmanı bunları **hiç
-   çağırmıyor.** Bu, `chart`/`diagram` ve `tasarimOlc` ile aynı sınıf: modül var, test
-   yeşil, kapı yeşil, üretim yolu sıfır kullanıyor (D-261). Bu adımın işi yeni kod yazmak
-   değil, **var olanı bağlamak** ve `hyphens: auto` + `lang="tr"` ile birleştirmek.
-   Ayrıca **temel ızgara**: dikey ritim şu an rastgele, `line-height` katları oturtulur.
+🛠 Türkçe eklemeli: `taşıyabileceğimizin` 19 karakter ve **bölünemiyor**.
+   ⚠ ⚠ **ZİNCİR KOPUK — kod ZATEN VAR:** `contracts/src/text-tr.ts` (`syllables`,
+   `softHyphenate`) yazılı ve testli, render **hiç çağırmıyor** (D-261). İş yeni kod
+   yazmak değil, var olanı bağlamak.
 📁 `packages/render/src/static.ts` · `packages/render/src/heceleme.test.ts`
 ✅ ⚠ ⚠ **`hyphens: auto` KULLANILMADI — ve bu bilinçli.** Chromium'un otomatik hecelemesi
    bir sözlük gerektiriyor; Türkçe için garantisi yok ve **olmadığında sessizce hiçbir şey
@@ -84,14 +79,10 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    ⚠ **Yalnız GÖVDE, başlık DEĞİL.** Başlık 64 px display yüzüyle çiziliyor; bölünen bir
    kelime kompozisyonu bozar ve referansların hiçbirinde bölünmüş başlık yok. Başlık zaten
    8 kelimeyle sınırlı ve ölçülmüş bir puntoda sığıyor.
-   ⚠ **Belge modeli DEĞİŞMİYOR:** tire yalnız render anında. Eşik 12 harf — editöryel
-   parametre, ölçüm değil (D-262).
-   ⚠ **Temel ızgara bu adımda YAPILMADI** — dikey ritim FAZ-13.1'in (optik merkez, boşluk
-   ölçeği) parçası ve orada bir arada ele alınması doğru. Burada iddia edilmiyor.
-🧪 5 test: uzun kelime tire alıyor · kısa kelime almıyor · BAŞLIK bölünmüyor · `lang="tr"`
-   basılıyor · belge modeli temiz kalıyor.
-   ⚠ Kod ZATEN VARDI (`contracts/src/text-tr.ts`, testli) ve üretim yolu **hiç
-   çağırmıyordu** — bu projede yedinci zincir kopukluğu (D-261).
+   ⚠ **Belge modeli DEĞİŞMİYOR:** tire yalnız render anında. Eşik 12 harf (D-262).
+   ⚠ **Temel ızgara YAPILMADI** — dikey ritim FAZ-13.1'in parçası, orada ele alınacak.
+🧪 5 test: uzun kelime tire alıyor · kısa almıyor · BAŞLIK bölünmüyor · `lang="tr"`
+   basılıyor · belge modeli temiz kalıyor. Yedinci zincir kopukluğuydu (D-261).
 💾 `feat(render): turkce heceleme ve temel izgara` · `Refs: FAZ-12.3 · §7.2`
 
 ## 12.4 — Panoramik süreklilik: karosel TEK şey görünsün    [x] 2026-08-17
@@ -128,17 +119,14 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 🛠 Beş öge planlanmıştı; **biri yapıldı, üçü R-32 arkasında bekliyor, biri elendi.**
 📁 `packages/render/src/charts/karsilastirma.ts` + testi · `packages/kernel/src/doc/model.ts` ·
    `packages/engine/src/metin-akisi.ts` · `packages/engine/src/verbs/bodies.ts`
-✅ ⚠ ⚠ **HALKA, KPI ve İLERLEME YAZILMADI — ve bu bir eksiklik değil, bir karar.** Üçü de
-   bir orana ya da sayıya dayanıyor; R-32 kaynaksız sayısal iddiayı yasaklıyor ve
-   `icerikPromptu` zaten *"hiçbir sayısal iddia yazma"* diyor. Yani üretim yolları BUGÜN
-   KAPALI. Onları yazmak, çağıranı olmayan makine kurmak olurdu — bu projede yedi kez
-   tekrarlayan hata (D-261). Corpus'a `claim_source`lu sayı geldiği gün açılırlar.
+✅ ⚠ ⚠ **HALKA, KPI ve İLERLEME YAZILMADI — eksiklik değil, karar.** Üçü de sayıya
+   dayanıyor; R-32 kaynaksız sayıyı yasaklıyor ve prompt zaten yazdırmıyor, yani üretim
+   yolları KAPALI. Yazmak çağıranı olmayan makine kurmak olurdu (D-261). Corpus'a
+   `claim_source`lu sayı geldiği gün açılırlar.
    ⚠ **ZAMAN ÇİZELGESİ ELENDİ:** akış diyagramı zaten dikey, sıralı, etiket+ayrıntılı bir
    dizi çiziyor. İkincisi aynı şeklin ikinci uygulaması olurdu (R-05'in çizim karşılığı).
-   ⚠ **KARŞILAŞTIRMA yapıldı:** sayı istemiyor ve gerçekten farklı — akış bir SIRA, bu bir
-   KARŞITLIK. Üretim yolu bağlı: prompt → `karsilastirmayiAyir` → `compare` → `compareHtml`.
-   Akış varsa konmuyor. Tek taraflı olan REDDEDİLİYOR (iki savunma): o bir listedir.
-   Lexicon her metnini tarıyor — R-32 buradan da geçiyor.
+   ⚠ **KARŞILAŞTIRMA yapıldı:** akış bir SIRA, bu bir KARŞITLIK. Yol bağlı: prompt →
+   `karsilastirmayiAyir` → `compare` → `compareHtml`. Tek taraflı olan REDDEDİLİYOR.
    ⚠ **TEK SOL KENAR — bakınca bulundu.** Oluk yalnız paragrafa veriliyordu; bloklar 54 px
    solda başlıyordu. Artık tüm içeriğe ve TEK bir değerden geliyor.
 🧪 4 test: iki taraf çiziliyor · tek taraflı reddediliyor · SONRA marka aksanlı · kaçırma.
@@ -153,10 +141,9 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 ✅ ⚠ Boşluk kuralı işaretin KENDİ ölçüsünden türetilir (klasik: harf yüksekliği kadar),
    sabit piksel değil — 1:1 ve 9:16'da sabit piksel farklı görünür.
    ⚠ Logo süsleme DEĞİLDİR: her slayta değil, kapak ve kapanışa.
-   ⚠ ⚠ **ÜÇÜNCÜ YAKLAŞIMDA ÖNCÜL DEĞİŞTİ.** İlk iki deneme akan eğrinin minyatürüydü:
-   *"imza eğridir, öyleyse işaret de eğri olmalı."* Yanlış olan **"öyleyse"** — eğri
-   1080 px'te imza, 30 px'te çizgi; iki büküm o karede ayırt edilemiyor ve işaret dilim
-   gibi duruyordu. Bu ölçekte okuyan tek şey harf formu: mürekkep kare, oyulmuş "U".
+   ⚠ ⚠ **ÜÇÜNCÜ YAKLAŞIMDA ÖNCÜL DEĞİŞTİ.** İlk iki deneme eğrinin minyatürüydü: *"imza
+   eğridir, öyleyse işaret de eğri"* — yanlış olan **"öyleyse"**. Eğri 1080 px'te imza,
+   30 px'te çizgi. O ölçekte okuyan tek şey harf formu: mürekkep kare, oyulmuş "U".
    ⚠ **Yeni varlık YOK:** font zaten gömülü (D-252); SVG = indirme + lisans + §16 sınavı.
    ⚠ **Harf `text`, `path` değil:** canlı metinde glif ölçümü işareti de kapsıyor (R-20).
 🧪 6 test: boşluk işaretin kendi ölçüsünden · en küçük boy · harf canlı metin · erişilebilir
@@ -166,17 +153,13 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 ## 12.7 — Kompozisyon ailesi: kapalı garanti, AÇIK aile    [x] 2026-08-17
 
 📖 §7.1 · D-254, D-261
-🛠 *"Tek çeşidi yok, binlerce çeşidi var."* D-254 kapalı bir düzen enum'u kurdu ve bu doğru;
-   ama kapalı olan **garanti katmanı** (okunabilirlik, kontrast, güvenli alan, marka), açık
-   olan **kompozisyon ailesi**. Bir aile = düzen + efekt profili + doku + süsleme yoğunluğu +
-   panorama fazı. Aileler veriyle tanımlanır, kodla değil; garanti katmanı hepsini süzer.
+🛠 *"Tek çeşidi yok, binlerce çeşidi var."* Kapalı olan **garanti katmanı**, açık olan
+   **kompozisyon ailesi**: düzen + efekt profili + doku + süsleme + panorama. Aileler
+   veriyle tanımlanır, kodla değil; garanti katmanı hepsini süzer.
 📁 `packages/contracts/src/aile.ts` + testi · `packages/kernel/src/doc/model.ts` ·
    `packages/engine/src/plan/tasarla.ts` · `packages/render/src/sablon-susleme.ts`
-✅ ⚠ **Aile ESTETİK seçer, GÜVENLİK değil.** Bir aile güvenli alanı, kontrast eşiğini ya da
-   chroma tavanını gevşetemez — bunlar ailenin dışında ve üstünde kalır. Aksi hâlde "yeni
-   aile" her kısıtı delmenin yolu olur.
-   ⚠ Aile seçimi İÇERİKTEN: veri yoğun konu → veri ailesi; anlatı → tipografik aile.
-   Rastgele seçilirse golden test kurulamaz.
+✅ ⚠ **Aile ESTETİK seçer, GÜVENLİK değil** — yoksa "yeni aile" her kısıtı delmenin yolu
+   olur. Seçim İÇERİKTEN; rastgele olsaydı golden test kurulamazdı.
    ⚠ ⚠ **ZORLAMA BİR DENETİM DEĞİL, YOKLUK.** `AileProfili`de `guvenliAlan`,
    `kontrastEsigi`, `chromaTavani`, `kelimeButcesi` ALANLARI YOK — denetlenecek alan yoksa
    gevşetilecek kural da yok. En ucuz zorlama budur.
@@ -193,10 +176,9 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 
 📖 §7.1, §16
 🔗 12.2
-🛠 Chromium'un yapamadığı üç şey: gerçek yeniden örnekleme (Lanczos), format/EXIF
-   temizliği, ve **model çıktısını büyütme** (üretim 1024², karosel 1080²).
-   Adaylar: `sharp` (Apache-2.0, libvips LGPL — değiştirilmemiş sunucu kullanımı uygun) ·
-   Real-ESRGAN (BSD-3) · BiRefNet (MIT) · VTracer (MIT).
+🛠 Chromium'un yapamadığı üç şey: Lanczos yeniden örnekleme, format/EXIF temizliği,
+   **model çıktısını büyütme** (üretim 1024², karosel 1080²). Adaylar: `sharp`
+   (Apache-2.0) · Real-ESRGAN (BSD-3) · BiRefNet (MIT) · VTracer (MIT).
 📁 —
 ✅ ⚠ **KARAR GEREKİYOR:** bu adım ilk kez model ağırlığı indirmeyi getiriyor. §16 ile
    sınanmalı — *bir ay ihmal edilse de çalışır, kurtarma `git clone` + `cat`*. Ağırlık
@@ -231,7 +213,7 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    → yeşil. Testler üretilen dizgeyi değil ROLDEN TÜREMEYİ zorluyor.
 💾 `feat(render): degrade yuzeyleri` · `Refs: FAZ-12.9 · §12.1`
 
-## 12.10 — Şekil cebri ve şekilli metin akışı    [ ]
+## 12.10 — Şekil cebri ve şekilli metin akışı    [x] 2026-08-17
 
 📖 §7.1, §7.2 · R-30
 🔗 12.2
@@ -239,12 +221,30 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    `feComposite` ile; kontur dağarcığı (`stroke-dasharray/linecap/linejoin`, değişken
    kalınlık). (b) **`shape-outside`** — metin bir şeklin ETRAFINDA akar. InDesign sınıfı bir
    yetenek, Chromium'da standart, bizde hiç kullanılmıyor: metin hep dikdörtgen kutuda.
-📁 `packages/render/src/sekil-cebri.ts` · `static.ts`
-✅ ⚠ **`shape-outside` güvenli alanı GENİŞLETMEZ.** Metin eğrinin etrafından akabilir ama
-   band sınırı (%69–78) hâlâ geçerli — akış, sınırı delmenin yolu değil, sınır içinde daha
-   iyi kullanmanın yolu. Aksi hâlde FAZ-10'da üç kez düzelttiğim taşma sınıfı geri gelir.
-   ⚠ **Türkçe kelime bölünemiyor** (§7.2): dar bir akış koridoru `taşıyabileceğimizin`i
-   sığdıramaz. Koridor genişliği en uzun kelimenin ölçülen genişliğinden KÜÇÜK olamaz —
-   bu bir tercih değil, ölçülmüş bir alt sınır.
-🧪 En uzun kelimeden dar bir akış koridoru tanımla → `tasarim` kırmızı (taşma).
+📁 `packages/render/src/sekil-cebri.ts` + testi · `sablon.ts` · `static.ts` ·
+   `tasarim-olcum.ts` · `scripts/gates/tasarim.mjs`
+✅ ⚠ ⚠ **`shape-outside` YAZILMADI — yapısal, tercih değil.** (1) `float` bir flex
+   ögesinde YOK SAYILIR ve `.icerik` bir flex sütunu. (2) `polygon()` float'ın kendi
+   kutusuna göre; kutu eğriyle aynı y-aralığını kaplamazsa poligon EZİLİR ve garanti
+   geometrik kurgudan bir ARGÜMANA döner. (3) Y-aralığı ancak `flex-start` yaslamada
+   belirli — gramerdeki dört düzenin **hiçbiri** `flex-start` değil. Yazılsaydı:
+   tüketicisi olmayan yetenek + zayıflamış garanti. Şart bir CSS numarası değil, dikey
+   yerleşimin yeniden tasarımı. Boole dağarcığının kalanı da aynı sebeple yok.
+   ⚠ ⚠ **AMA ADIMIN AMACI TESLİM EDİLDİ — "sınır içinde daha iyi yerleşmek".** Sütun
+   artık O SLAYTIN eğrisinden türüyor: küresel %62 beş slaytın EN KÖTÜSÜYDÜ ve dördünde
+   yer israf ediyordu. İçerik genişliği 582 → 606 → 630 → 655 → 679 px; ilk slayt
+   değişmiyor (en kötü olan oydu). Punto tavanı ve maske çapı da bundan türüyor.
+   ⚠ **Zarf PATH'TEN okunuyor, formülden değil.** `merkez - genlik` yazsaydım eğriye
+   daha içeride bir kontrol noktası eklendiğinde sayı sessizce yalan olurdu — bir yorum
+   bir zorlama değildir. Zarf eğriyi girdi alıyor. Kübik Bézier dışbükey zarfını aşmaz;
+   zarf gerçek eğriden GENİŞ, yani yanılma yönü güvenli.
+   ⚠ ⚠ **`column_in_band` KENDİ KENDİNİ ölçüyordu.** Sütun da eğri de aynı sabitlerden
+   geliyordu; işaret hep aynıydı, okuma hiçbir girdide kırmızıya DÖNEMEZDİ. Şimdi ikisi
+   de artefakttan: `kolonPx` DOM'daki `.icerik` kutusu, `egriPx` aynı HTML'e basılmış
+   `<path>`ın zarfı — ayrı kod yolları, ayrışma görünür.
+   ⚠ `floor` kullanılıyor (`round` değil): sütun tam nefes kadar geride TÜRETİLDİĞİ için
+   doğru değer tam 0 ve okuma sınırın üstünde oturuyor; 0.3 px'lik `getBoundingClientRect`
+   gürültüsü kapıyı kırmızıya çevirirdi. **Flaky kapı kırmızıdır** (R-80).
+🧪 6 test + ihlal turu: sütun 6 puan genişletildi → beş slaytta da `column_in_band`
+   64 px ile SINIR DIŞI (eski sürüm bu ihlalde YEŞİL kalıyordu), geri alındı → yeşil.
 💾 `feat(render): sekil cebri ve akis` · `Refs: FAZ-12.10 · §7.1`

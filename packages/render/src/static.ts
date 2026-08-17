@@ -23,6 +23,7 @@ import { suslemeler, suslemeSvg } from './sablon-susleme.js'
 import {
   akanEgri,
   alanRolleri,
+  guvenliKolonYuzdesi,
   egriSagda,
   duzenBicimi,
   guvenliMetinYuzdesi,
@@ -256,8 +257,14 @@ const sablonCss = (doc: DocumentModel): string => {
   const pay = VARSAYILAN.kenarPayi
   /** Sayacın kapladığı üst bant (26 px punto + nefes). Üste yaslı içerik bunu aşar. */
   const SAYAC_BANDI = VARSAYILAN.sayacBandi
+  // ── SÜTUN O SLAYTIN EĞRİSİNDEN (FAZ-12.10) ────────────────────────────────
+  //
+  // ⚠ Küresel `guvenliMetinYuzdesi` beş slaytın EN KÖTÜSÜ; eğri uzaklaştığı slaytlarda
+  // 97 px'e varan bant boşa gidiyordu. Değer artık o slaytın eğrisinin zarfından.
+  // ⚠ Maske çapı da bundan türüyor: geniş slaytta daire de büyüyor, oran korunuyor.
+  const kolonYuzde = doc.slayt === undefined ? guvenliMetinYuzdesi : guvenliKolonYuzdesi(doc.slayt)
   /** Maske dairesinin çapı — güvenli sütunun içerik genişliğinin %62'si (FAZ-11.4). */
-  const capPx = Math.round(((guvenliMetinYuzdesi / 100) * doc.width - pay) * 0.62)
+  const capPx = Math.round(((kolonYuzde / 100) * doc.width - pay) * 0.62)
   return [
     // Zemin ve metin rolleri KİMLİKTEN geliyor; `body`nin varsayılanını eziyor.
     `  body { background: ${r.zemin}; color: ${r.metin};`,
@@ -273,7 +280,7 @@ const sablonCss = (doc: DocumentModel): string => {
     // (şablon gramerinden) ile sınırlı. Taraf `egriSagda` ile dönüyor, yani metin de
     // slayttan slayta yer değiştiriyor — ritim buradan da besleniyor.
     `  .icerik { position: relative; z-index: 3; box-sizing: border-box;`,
-    `            width: ${guvenliMetinYuzdesi}%; ${sagda ? '' : 'margin-left: auto;'}`,
+    `            width: ${kolonYuzde}%; ${sagda ? '' : 'margin-left: auto;'}`,
     // ⚠ **Üste yaslı içerik sayaç bandını AŞMAK zorunda.** Sayaç `top: pay`de duruyor ve
     // 26 px punto ile ~52 px'lik bir bant kaplıyor. `flex-start` yaslamada içerik de
     // `pay`de başlıyordu, yani ikisi aynı satırda: bu içerikte çakışmıyorlardı ama

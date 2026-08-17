@@ -18,7 +18,8 @@
 
 import type { SlaytKimligi } from '@suite/kernel'
 import type { LayoutName } from './layout/adlar.js'
-import { VARSAYILAN, guvenliYuzde } from './sablon-parametre.js'
+import { NEFES_YUZDESI, VARSAYILAN, guvenliYuzde } from './sablon-parametre.js'
+import { egriZarfi } from './sekil-cebri.js'
 import type { RampaTokeni } from './sablon-degrade.js'
 
 const KEHRIBAR = 'var(--role-bg)'
@@ -181,6 +182,29 @@ export const SINIR_MAX = VARSAYILAN.bantMax
  * Referansın metin alanı da karenin ~%62'si; dar sütun bizim SAPMAMIZDI.
  */
 export const guvenliMetinYuzdesi = guvenliYuzde(VARSAYILAN)
+
+/**
+ * O SLAYTIN güvenli sütun genişliği, yüzde — eğrinin KENDİSİNDEN (FAZ-12.10).
+ *
+ * ⚠ ⚠ **Küresel sabit beş slaytın EN KÖTÜSÜNE göre ölçülmüştü ve dördünde 9 puana kadar
+ * yer israf ediyordu.** `merkez` indeksle %69'dan %78'e kayıyor; sütun %62'de sabit
+ * kalınca eğrinin uzaklaştığı slaytlarda arada 97 px'e varan boş bant kalıyordu. Metin
+ * dar kaldığı için satır daha erken kırılıyor ve punto tavanı gereksiz alçak duruyordu.
+ * *Sınırı delmek değil, sınır içinde daha iyi yerleşmek* — adımın kendi ifadesiyle.
+ *
+ * ⚠ **Zarf path'ten OKUNUYOR, formülden değil.** `merkez - genlik` diye yazsaydım
+ * `akanEgri`'ye daha içeride bir kontrol noktası eklendiğinde sayı sessizce yalan olurdu.
+ * Zarf eğriyi girdi alıyor: eğri değişirse sütun değişir, kapı ölçer.
+ *
+ * ⚠ **Aynalama simetrik ve bu ÖLÇÜLDÜ, varsayılmadı:** `egriSagda` false olduğunda
+ * `X(v) = 100 - v` ile zarf de aynalanıyor, o yüzden sütun soldan değil sağdan başlıyor
+ * ama GENİŞLİĞİ aynı. İki dal ayrı hesaplansaydı biri güncellenip öteki unutulurdu.
+ */
+export const guvenliKolonYuzdesi = (k: SlaytKimligi): number => {
+  const z = egriZarfi(akanEgri(k))
+  const icKenar = egriSagda(k) ? z.min : 100 - z.max
+  return icKenar - NEFES_YUZDESI
+}
 
 /** Eğri hangi tarafta — dönüşümlü. Sağ/sol dönüşü ritmin ikinci ayağı. */
 export const egriSagda = (k: SlaytKimligi): boolean => k.index % 2 === 0

@@ -19,8 +19,8 @@ import type { QaReport, ToleranceReading } from '@suite/contracts'
 import { GOVDE_TAVANI, islevTavanlari, slaytIslevi } from '@suite/contracts'
 import { parseColor, type Rgb } from './qa/deltae.js'
 import { reading, report } from './qa/tolerance.js'
-import { VARSAYILAN } from './sablon-parametre.js'
-import { alanRolleri, guvenliMetinYuzdesi, SINIR_MIN } from './sablon.js'
+import { NEFES_YUZDESI } from './sablon-parametre.js'
+import { alanRolleri, guvenliKolonYuzdesi } from './sablon.js'
 
 /**
  * Slayt rolü başına kelime tavanı — **artık `@suite/contracts`ten TÜRETİLİYOR** (FAZ-14.1).
@@ -50,6 +50,19 @@ export interface TasarimGirdisi {
    * yazmak, hiçbir şey ölçülmediği anda yeşil yakmaktır.
    */
   readonly enGenisKelimePx?: readonly number[]
+  /**
+   * Slayt başına, RENDER EDİLMİŞ sayfadan okunan iki kenar (px, tuval solundan).
+   *
+   * ⚠ ⚠ **Bu alan var çünkü değişmez kendi kendini ölçüyordu.** İlk sürüm sütunu da
+   * eğriyi de AYNI sabitlerden hesaplıyordu; sonuç her zaman aynı işaretliydi ve okuma
+   * hiçbir girdide kırmızıya dönemezdi. Kırmızıya dönemeyen bir okuma bir ölçüm değil,
+   * bir tekrardır — ve bu projede tam olarak bu sınıf bir kez daha yakalandı (D-257).
+   *
+   * Şimdi ikisi de ARTEFAKTTAN geliyor: `kolonPx` DOM'daki `.icerik` kutusunun eğriye
+   * bakan kenarı, `egriPx` aynı HTML'e basılmış `<path>`ın zarfı. İkisi ayrı kod
+   * yollarından üretiliyor; biri ötekinden ayrışırsa okuma bunu görür.
+   */
+  readonly kolonKenarlari?: readonly { readonly kolonPx: number; readonly egriPx: number }[]
 }
 
 /**
@@ -204,16 +217,23 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
   //
   // Değişmez slayttan bağımsız (gramerin kendisi), o yüzden döngünün DIŞINDA ve bir kez:
   // güvenli sütun, eğri bandının yakın kenarından `genlik` kadar UZAKTA kalmalı.
-  if (s.length > 0) {
+  for (const [i, kenar] of (g.kolonKenarlari ?? []).entries()) {
+    const nefesPx = (NEFES_YUZDESI / 100) * (s[i]?.width ?? 1080)
     okumalar.push(
       reading({
         metric: 'column_in_band',
-        label: 'metin sütunu eğri bandının dışında',
-        value: Math.max(0, guvenliMetinYuzdesi - (SINIR_MIN - VARSAYILAN.genlik)),
+        label: `slayt ${i + 1} sütunu eğri bandının dışında`,
+        // Sütunun eğriye bakan kenarı + nefes, eğrinin zarfını GEÇMEMELİ.
+        // ⚠ `floor`, `round` DEĞİL: sütun tam nefes kadar geride TÜRETİLİYOR, yani
+        // doğru değer tam olarak 0 ve okuma sınırın üstünde oturuyor.
+        // `getBoundingClientRect` bir kayan sayı; +0.3 px'lik bir gürültü `round` ile
+        // kapıyı kırmızıya çevirirdi. **Flaky bir kapı kırmızıdır** (R-80) — o yüzden
+        // gürültü aşağı yuvarlanıyor; 1 px'lik gerçek bir ihlal hâlâ görünüyor.
+        value: Math.floor(kenar.kolonPx + nefesPx - kenar.egriPx),
         warn: 0,
         limit: 0,
         direction: 'lower',
-        unit: ' %',
+        unit: ' px',
       })
     )
   }
@@ -264,7 +284,9 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
     // ilk iki denemede kutu daraltıldı, ama kelime bölünmediği için taşma sürdü (R-23).
     const en = g.enGenisKelimePx?.[i]
     if (en !== undefined) {
-      const guvenliPx = Math.round((doc.width * guvenliMetinYuzdesi) / 100) - KENAR_PAYI
+      // ⚠ Sütun artık SLAYTA özgü (FAZ-12.10): küresel sabit dört slaytta gereksiz dar
+      // bir eşik koyuyordu ve taşma olmayan yerde taşma raporlanabilirdi.
+      const guvenliPx = Math.round((doc.width * guvenliKolonYuzdesi(k)) / 100) - KENAR_PAYI
       okumalar.push(
         reading({
           metric: 'text_overflow',

@@ -92,7 +92,46 @@ if (!olcum.ok) {
   process.exit(1)
 }
 
-const rapor = tasarimOlc({ slaytlar, enGenisKelimePx: olcum.value })
+// ── SÜTUN ↔ EĞRİ: iki ayrı kod yolundan, ARTEFAKTTAN (FAZ-12.10) ────────────
+//
+// ⚠ ⚠ **Değişmez daha önce kendi kendini ölçüyordu:** sütun da eğri de aynı sabitlerden
+// hesaplanıyordu, işaret hep aynıydı ve okuma hiçbir girdide kırmızıya dönemezdi. Şimdi
+// `kolonPx` DOM'daki `.icerik` kutusundan, `egriPx` aynı HTML'e basılmış `<path>`ın
+// zarfından geliyor. Biri ötekinden ayrışırsa (CSS genişliği ile path birbirini takip
+// etmezse) okuma bunu görür — tam da yakalanamayan gerileme sınıfı buydu.
+const kenarOlcum = await withPage(async (page) => {
+  const sonuc = []
+  for (const d of slaytlar) {
+    await page.setContent(toHtml(d), { waitUntil: 'load' })
+    const kutu = await page.evaluate(
+      `(() => { const e = document.querySelector(".icerik"); if (!e) return null;
+        const r = e.getBoundingClientRect(); return { sol: r.left, sag: r.right } })()`
+    )
+    const html = await page.content()
+    // Alan katmanının path'i: `viewBox="0 0 100 100"` kutusunda, tuvale gerilmiş.
+    const eslesme = /<path d="([^"]+)"/.exec(html)
+    if (kutu === null || eslesme === null) return null
+    const zarf = R.egriZarfi(eslesme[1])
+    // Eğri sağdaysa sütun solda: bakan kenar `sag`, eğrinin iç kenarı `zarf.min`.
+    const sagda = d.slayt.index % 2 === 0
+    sonuc.push(
+      sagda
+        ? { kolonPx: kutu.sag, egriPx: (zarf.min / 100) * d.width }
+        : { kolonPx: d.width - kutu.sol, egriPx: d.width - (zarf.max / 100) * d.width }
+    )
+  }
+  return sonuc
+})
+if (!kenarOlcum.ok || kenarOlcum.value === null) {
+  console.log('✗ tasarim: sütun/eğri kenarları ölçülemedi')
+  process.exit(1)
+}
+
+const rapor = tasarimOlc({
+  slaytlar,
+  enGenisKelimePx: olcum.value,
+  kolonKenarlari: kenarOlcum.value,
+})
 const tip = tipografiSay(toHtml(slaytlar[1]))
 const okumalar = [...rapor.readings, ...tip.readings]
 

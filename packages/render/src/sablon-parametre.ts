@@ -65,10 +65,20 @@ export const VARSAYILAN: SablonParametreleri = {
 }
 
 /**
+ * Sütun ile eğri arasındaki NEFES, yüzde puanı.
+ *
+ * ⚠ Tek yerde duruyor çünkü iki tüketicisi var: en kötü slayt için küresel sabit
+ * (`guvenliYuzde`) ve slayt başına hesap (`guvenliKolonYuzdesi`). İki kopya olsaydı
+ * biri değişip diğeri unutulurdu — bu dosyanın zaten üç kez aldığı ders.
+ */
+export const NEFES_YUZDESI = 2
+
+/**
  * Metin sütununun güvenli genişliği, yüzde — parametrelerden TÜRETİLİYOR.
  *
- * Eğri bir kübik Bézier: kontrol noktalarının dışbükey zarfını aşmaz, en içerideki
- * `bantMin - genlik`. Sütun oradan 2 puan geride duruyor. Ayrı bir sabit olsaydı biri
- * değişip diğeri unutulurdu.
+ * ⚠ **Bu, EN KÖTÜ slaytın değeri**: `bantMin` bandın metne en çok yaklaştığı ucu, yani
+ * bu sayı beş slaytın hepsinde geçerli ama dördünde GEREKSİZ dar. Slayt başına hesap
+ * `guvenliKolonYuzdesi`de (FAZ-12.10); bu sabit slayttan bağımsız tüketiciler için
+ * (gramer değişmezi, tip ölçeği) duruyor.
  */
-export const guvenliYuzde = (p: SablonParametreleri): number => p.bantMin - p.genlik - 2
+export const guvenliYuzde = (p: SablonParametreleri): number => p.bantMin - p.genlik - NEFES_YUZDESI
