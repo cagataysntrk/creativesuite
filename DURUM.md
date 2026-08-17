@@ -74,8 +74,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 **10.7** — ilk koşu `kalite`de durdu (fotoğraflı slayt %17,7); D-258 ile düzeltildi,
 otorite üreticiye verildi. Kapak `statement`, tasarım metrikleri üretimde (D-259).
 
-✅ **HAT UÇTAN UCA YEŞİL** — `✓ kalite`, tüm tasarım metrikleri tolerans içi:
-kapak 6 · gövde 21/19/21 · kapanış 8 kelime · kontrast 10,5:1 ve 18,1:1.
+✅ **HAT UÇTAN UCA YEŞİL** — `✓ kalite`, tüm tasarım metrikleri tolerans içi.
 
 **Üç kusur daha kapandı ve üçü de ÖLÇÜM tarafındaydı** (D-260):
 1. **Kontrast hiç ÜRETİLMİYORDU** — `tokenCoz` tek adım çözüyordu (token mimarisi üç
@@ -85,7 +84,7 @@ kapak 6 · gövde 21/19/21 · kapanış 8 kelime · kontrast 10,5:1 ve 18,1:1.
 3. **Birim uyuşmazlığı**: T8 slayt toplamını ölçüyordu, bütçe SATIR başına. Modelin
    hatası sanılan şey ölçenin hatasıydı; artık en uzun BLOK ölçülüyor.
 
-**KABUL SAYACI: 1/20** — metrikler bu turda bağlandı, sayaç buradan başlıyor
+**KABUL SAYACI: 3/20** () — metrikler bu turda bağlandı, sayaç buradan başlıyor
 (~354 sn/koşu, 20 ardışık ≈ 2 saat).
 
 Sonra: 20 ARDIŞIK kabul koşusu (sınırlayıcı
