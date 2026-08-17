@@ -177,7 +177,7 @@ bu dille geçiyor.
    kapalı efektler açık değil · geçersiz aralık yakalanıyor · aile VERİ.
 💾 `feat(render): kompozisyon ailesi` · `Refs: FAZ-12.7 · §7.1`
 
-## 12.8 — Piksel boru hattı: `sharp` ve yerel raster işlemleri    [ ] BLOKE:karar
+## 12.8 — Piksel boru hattı: `sharp` ve yerel raster işlemleri    [ ] BLOKE:karar — tetikleyicili (D-267)
 
 📖 §7.1, §16
 🔗 12.2

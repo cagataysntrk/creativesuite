@@ -128,8 +128,18 @@ const ogeSecimi = (
  */
 export const aileSec = (g: TasarlaGirdisi): AileProfili => {
   if (g.aile !== undefined) return g.aile
-  const kanitVar = g.akisVar || g.yuvaIstendi === true
-  return kanitVar ? TEMEL_AILE : AKICI_AILE
+  // ⚠ ⚠ **YALNIZ `akisVar` — `yuvaIstendi` ÖLÇÜT DEĞİL, ve bunu 2. doğrulama turu
+  // gösterdi.** İlk sürüm `akisVar || yuvaIstendi` diyordu; hat dosyası `gorsel_yuvasi:
+  // true` sabitini yazıyor, yani `yuvaIstendi` HER KOŞUDA true ve her konu `temel`
+  // çıkıyordu. `akici` kodda seçilebilir hâle geldi ama üretimde hâlâ ulaşılamazdı —
+  // aynı blokaj, bir katman aşağıda.
+  //
+  // ⚠ **Ayrım ölçülebilir:** diyagram DETERMİNİSTİK çiziliyor, her koşuda gerçekten
+  // sayfaya iniyor ve süslemeyle aynı mürekkebi paylaşıyor. Fotoğraf yuvası ise bir
+  // İSTEK; bedava şeritte sağlayıcı yok ve iki gerçek koşuda da boş kaldı. Üstelik dolsa
+  // bile duotone onu marka eksenine indiriyor — sessiz bir öge, süslemeyle yarışmıyor.
+  // **Ne çizildiğine bakılır, ne istendiğine değil.**
+  return g.akisVar ? TEMEL_AILE : AKICI_AILE
 }
 
 export const tasarla = (g: TasarlaGirdisi): TasarimPlani => {
@@ -170,7 +180,8 @@ export const tasarla = (g: TasarlaGirdisi): TasarimPlani => {
     },
     panorama: {
       deger: aile.panorama,
-      gerekce: 'Aileden geliyor; panoramik süreklilik henüz bağlı değil (FAZ-12.4).',
+      gerekce:
+        'Aileden geliyor: yön veren süsleme slaytlar arasında akıyor (FAZ-12.4, render bağlı).',
     },
     slaytlar,
   }

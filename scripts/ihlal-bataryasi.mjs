@@ -127,6 +127,19 @@ const IHLALLER = [
     imza: 'sütunu eğri bandının dışında',
   },
   {
+    // ⚠ ⚠ **`ghost_overlap` YAPISAL OLARAK DÜZELDİ AMA HİÇ HAREKET ETMİYOR.** İki terim
+    // de artık ayrı DOM ögelerinden okunuyor (totoloji bitti), ama ölçülen fark bütün
+    // gerçek girdilerde −33 px: tasarım uzayında hiçbir konu, hiçbir oran, hiçbir aile
+    // onu kımıldatmıyor. Böyle bir okuma bir ÖLÇÜM değil bir BEKÇİdir — ve bir bekçinin
+    // hâlâ nöbet tuttuğunu ancak kasten ihlal göstermek kanıtlar (R-71).
+    // Bataryada girişi olmasaydı, yarın rakamın konumu değişip okuma ölü hâle gelse
+    // hiçbir şey görmezdi: 2. doğrulama turunun tam olarak sorduğu soru buydu.
+    kapi: 'tasarim',
+    dosya: 'packages/render/src/static.ts',
+    yamalar: [{ ara: 'bottom: ${pay + 62}px;', yaz: 'bottom: ${pay - 40}px;' }],
+    imza: 'rakam ↔ şerit',
+  },
+  {
     // Izgaraya bakınca iki komşu kare ayırt edilebilmeli; aynı zemin onları tek bloğa
     // çeviriyor. Renk rotasyonu grameri taşıyan üç kuraldan biri (D-254).
     kapi: 'tasarim',

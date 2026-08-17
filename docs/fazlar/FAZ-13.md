@@ -90,7 +90,7 @@ uzaklığı **0,5** (altı alanın üçü farklı). Kör kabul: medyan aralıkla
    sekizinci katman eklendi → iki test kırmızı; geri alındı → altısı da yeşil.
 💾 `feat(render): kompozit katmanlar` · `Refs: FAZ-13.2 · §7.1`
 
-## 13.3 — Vektörleştirme ve markaya yeniden boyama    [ ] BLOKE:karar
+## 13.3 — Vektörleştirme ve markaya yeniden boyama    [ ] BLOKE:karar — tetikleyicili (D-267)
 
 📖 §7.1, §12.1 · D-253
 🔗 11.6, 12.9
@@ -228,9 +228,9 @@ yuva biçimi, ritim ve tipo efektleri diyebiliyor. **Satır yeterince şey söyl
 
 1. **Kimlik parametrelerini `sablon.ts`'ten `AileProfili`ye taşı.** Alan bölünmesi biçimi,
    hayalet rakam var/yok + ölçeği, eğri tipi, tip ölçeği/ağırlık kontrastı. Asıl iş bu.
-2. **Aile seçicisini `tasarla.ts`'e bağla.** Bugün `const aile = g.aile ?? TEMEL_AILE` —
-   bir varsayılan, bir karar değil. Girdi: veri var mı · fotoğraf var mı · yayın · ton.
-   Plan zaten her seçime `gerekce` yazıyor (FAZ-14.2); aile seçimi de öyle olmalı.
+2. ✅ **YAPILDI:** `aileSec` içerikten seçiyor, gerekçesi plana yazılıyor. İki kez yanlış
+   bağlandı (önce `bodies.ts` sabiti, sonra hattın `gorsel_yuvasi: true` sabiti); ölçüt
+   artık NE ÇİZİLDİĞİ, ne istendiği değil.
 3. **Ölçüm aletini referansa çevir.** `tasarim` kapısının aleti (band % · sütun % ·
    kontrast · chroma · kenar payı · tip ölçeği) bugün BİZİM çıktımıza bakıyor. Aynı aleti
    referans görsele çevirince çıkan şey bir `AileProfili`dir — yeni icat değil, ters yön.

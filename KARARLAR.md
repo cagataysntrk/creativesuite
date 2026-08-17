@@ -570,3 +570,26 @@ ama talep bir sezgi değil, bir referans örnek ya da bir kabul koşusu bulgusu 
 
 **Geri alma maliyeti:** sıfır — hiçbir kod yazılmadı, hiçbir bağımlılık eklenmedi.
 
+## D-267 — Kalan iki bloke adım da tetikleyici aldı; kararsız blokajla faz kapanmaz
+
+**2026-08-17.** D-266 FAZ-11'in dört adımını karara bağladı ama `12.8` ve `13.3` aynı
+durumda bırakıldı — ve 2. doğrulama turu haklı olarak bunu yakaladı: **kendi yazdığım
+ilkeyi bir sonraki dosyada uygulamamıştım.** Bir kuralı bir yerde uygulayıp komşusunda
+uygulamamak, kuralı olmamasından kötüdür (bu turda üçüncü kez).
+
+| Adım | Karar | Tetikleyici |
+|---|---|---|
+| `12.8` `sharp`/Lanczos | **ERTELENDİ** | Upscale yumuşaması FAZ-12.2'de `feConvolveMatrix` ile **bağımlılıksız** çözüldü (kenar enerjisi 2,04 → 2,36). Kalan: gerçek yeniden örnekleme + EXIF temizliği. Tetikleyici: `keskinlik` sonrası bir koşuda örnekleme kaybı GÖRÜNÜR olsun, ya da EXIF taşıyan bir kaynak fotoğraf hatta girsin. Bugün model çıktısı PNG ve EXIF yok. |
+| `13.3` vektörleştirme | **ERTELENDİ** | Gerekçesi renk sapmasıydı; duotone (11.7) sapmayı YAPISAL olarak kapatıyor ve ölçüldü: doygun bir test görselinde ortalama ΔE **12,79 → 8,19**. Üstelik bugün bedava şeritte görsel sağlayıcı YOK — vektörleştirilecek model çıktısı da yok. Tetikleyici: ücretli görsel şeridi açılsın **ve** duotone'un yetmediği ölçülsün. |
+
+⚠ **Blokajı sınıflandırmak karara bağlamak değildir.** `bloke: karar` bir etiket; karar,
+adımın hangi gözlenebilir koşulda yeniden açılacağını yazmaktır. Etiket kalırsa plan her
+turda okunur, her turda atlanır ve sessizce gerçeklikten kopar.
+
+⚠ **`durum` kapısı bunu göremiyor** ve görmesi de beklenmemeli: yalnız DURUM→FAZ yönünü
+doğruluyor, `bloke` sınıfları `insan|teknik`. `karar` üçüncü bir sınıf değil — D-157'nin
+`insan` sınıfının alt kümesi (dış girdi: para, ağırlık, lisans). İkisi de artık
+DURUM.md'nin `bloke` dizisinde `insan` olarak duruyor.
+
+**Geri alma maliyeti:** sıfır — hiçbir kod yazılmadı, hiçbir bağımlılık eklenmedi.
+

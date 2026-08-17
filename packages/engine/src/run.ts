@@ -184,67 +184,80 @@ const isteğeBagli = (s: PipelineStep): boolean => s.constraints['optional'] ===
 export const UNTRUSTED_GATE = 'untrusted-input'
 
 /**
- * Adım çıktısının manifest'e girecek ÖZETİ.
+ * Defterin taşıdığı adım-çıktısı anahtarları — **BEYAZ LİSTE ve dışa açık.**
  *
- * Ölçülebilir ve kısa olanı taşır: QA raporu, üretilen slayt sayısı ve yolları, seçilen
- * kalite basamağı. Belge modelini ya da byte'ları taşımaz — manifest bir defterdir,
- * bir depo değil (byte'lar `derived/blobs`ta, §3.5).
+ * ⚠ **Dışa açık olması bir testin şartı, bir kolaylık değil.** Bu liste beş kez eksik
+ * kaldı ve her seferinde belirti aynıydı: üretilen veri deftere hiç girmiyor, kimse fark
+ * etmiyor, ancak GERÇEK bir koşunun manifest'ine bakınca çıkıyor (D-216 · D-261 ailesi).
+ * Liste sınanabilir olmazsa altıncı kez eksik kalır.
+ */
+export const DEFTER_ANAHTARLARI: readonly string[] = [
+  'qa',
+  'slides',
+  'count',
+  'rung',
+  'bytes',
+  'format',
+  'width',
+  'height',
+  // PDF yolu (FAZ-6.1, 6.3)
+  'deck',
+  'document',
+  'pages',
+  'flattened',
+  'quality',
+  'oversizedPages',
+  // dedektörlerin OKUDUĞU anahtarlar (FAZ-6.6, 6.7, 6.8) — bu üçü manifest'e
+  // girmezse üç kural sonsuza kadar sessiz kalır
+  'fetchedAt',
+  'sourceRef',
+  // ⚠ `capture` eksikti: RENDER'ın çekim dalı `{capture:{...}}` döndürüyor ve manifest
+  // özeti onu eliyordu — yani "her ekran görüntüsü gerçek bir çekime bağlanıyor"
+  // iddiasının defterde karşılığı yoktu (2. doğrulama turu, bulgu 8).
+  'capture',
+  'personalizationFields',
+  'productShots',
+  // INGEST raporu (FAZ-6.5): kaç kaynak hazır, kaçı bloke
+  'sourcesReady',
+  'sourcesBlocked',
+  'quarantinePath',
+  // zincir (FAZ-6.9)
+  'chain',
+  'chainGates',
+  // ⚠ **TASARIM PLANI (FAZ-14.2) ve ATLAMA (FAZ-14.3).** Plan bu listede olmadığı
+  // sürece deftere HİÇ girmiyordu — yani "kararlar gerekçesiyle yazılı" iddiası
+  // yanlıştı ve bunu ancak GERÇEK bir koşunun manifest'ine bakınca gördüm. Testim
+  // `composeBody`nin dönüş değerini sınıyordu, defteri değil: modülü test edip
+  // zinciri test etmemenin (D-261) bu fazdaki dördüncü tekrarı.
+  'tasarimPlani',
+  // Slayt digest'leri: defterdeki işaretçiyi doğrulanabilir yapan tek alan (D-263).
+  'digests',
+  'atlandi',
+  // ⚠ ⚠ **YARGI ÇIKTILARI (FAZ-10.5 · 13.5) — beşinci tekrar.** Gerçek bir koşunun
+  // manifest'ine bakınca çıktı: `gorsel-yargi` ve `tasarim-yargi` adımları `ok`
+  // dönüyordu ama `output: null` yazıyordu. Yani kusur bulguları da estetik puanlar da
+  // deftere HİÇ girmiyordu — her koşuda üretiliyor, her koşuda kayboluyordu.
+  // 13.5'in bütün amacı çıktının zaman içinde KARŞILAŞTIRILABİLİR olması; kaydedilmeyen
+  // bir puan bir ölçüm değil, bir anlık histir. Bu listenin kendi yorumu zaten
+  // *"eksik bir beyaz liste sessiz bir körlüktür"* diyordu ve aynı hata tekrarladı.
+  'puanlar',
+  'toplam',
+  'bulgular',
+  'reddedilen',
+  'sebep',
+] as const
+
+/**
+ * Adım çıktısının manifest'e girecek ÖZETİ — beyaz listeye göre.
+ *
+ * Ölçülebilir ve kısa olanı taşır. Belge modelini ya da byte'ları taşımaz: manifest bir
+ * defterdir, bir depo değil (byte'lar `derived/blobs`ta, §3.5).
  */
 const ozetle = (data: unknown): Readonly<Record<string, unknown>> | null => {
   if (data === null || typeof data !== 'object') return null
   const o = data as Record<string, unknown>
   const cikti: Record<string, unknown> = {}
-  // ⚠ **BEYAZ LİSTE, ve bu listenin eksik olması FAZ 6'nın en sessiz hatasıydı.**
-  // `inspectManifest`in üç yeni dedektörü (`stale_source`, `personalization_cap`,
-  // `fabricated_product_shot`) adım çıktısında `fetchedAt` / `personalizationFields` /
-  // `productShots` arıyor. Gövdeler onları üretse bile bu liste onları ELİYORDU —
-  // dedektörler yazılmış, test edilmiş ve manifest'te aradıkları veriyi hiç
-  // görmemişlerdi. Beyaz liste bir güvenlik önlemi (manifest bir defter, bir depo
-  // değil) ama eksik bir beyaz liste sessiz bir körlüktür (D-216).
-  for (const anahtar of [
-    'qa',
-    'slides',
-    'count',
-    'rung',
-    'bytes',
-    'format',
-    'width',
-    'height',
-    // PDF yolu (FAZ-6.1, 6.3)
-    'deck',
-    'document',
-    'pages',
-    'flattened',
-    'quality',
-    'oversizedPages',
-    // dedektörlerin OKUDUĞU anahtarlar (FAZ-6.6, 6.7, 6.8) — bu üçü manifest'e
-    // girmezse üç kural sonsuza kadar sessiz kalır
-    'fetchedAt',
-    'sourceRef',
-    // ⚠ `capture` eksikti: RENDER'ın çekim dalı `{capture:{...}}` döndürüyor ve manifest
-    // özeti onu eliyordu — yani "her ekran görüntüsü gerçek bir çekime bağlanıyor"
-    // iddiasının defterde karşılığı yoktu (2. doğrulama turu, bulgu 8).
-    'capture',
-    'personalizationFields',
-    'productShots',
-    // INGEST raporu (FAZ-6.5): kaç kaynak hazır, kaçı bloke
-    'sourcesReady',
-    'sourcesBlocked',
-    'quarantinePath',
-    // zincir (FAZ-6.9)
-    'chain',
-    'chainGates',
-    // ⚠ **TASARIM PLANI (FAZ-14.2) ve ATLAMA (FAZ-14.3).** Plan bu listede olmadığı
-    // sürece deftere HİÇ girmiyordu — yani "kararlar gerekçesiyle yazılı" iddiası
-    // yanlıştı ve bunu ancak GERÇEK bir koşunun manifest'ine bakınca gördüm. Testim
-    // `composeBody`nin dönüş değerini sınıyordu, defteri değil: modülü test edip
-    // zinciri test etmemenin (D-261) bu fazdaki dördüncü tekrarı.
-    'tasarimPlani',
-    // Slayt digest'leri: defterdeki işaretçiyi doğrulanabilir yapan tek alan (D-263).
-    'digests',
-    'atlandi',
-    'sebep',
-  ]) {
+  for (const anahtar of DEFTER_ANAHTARLARI) {
     if (o[anahtar] !== undefined) cikti[anahtar] = o[anahtar]
   }
   return Object.keys(cikti).length > 0 ? cikti : null

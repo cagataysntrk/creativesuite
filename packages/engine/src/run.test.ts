@@ -15,7 +15,7 @@ import {
 import type { Pipeline } from '@suite/registry'
 import { initLedger } from './cost/ledger.js'
 import { readFrozenPlan } from './manifest-writer.js'
-import { runPipeline } from './run.js'
+import { runPipeline, DEFTER_ANAHTARLARI } from './run.js'
 import { readManifest } from './manifest-writer.js'
 import type { ProviderPricing } from './router/route.js'
 
@@ -511,5 +511,27 @@ describe('insan kapısı kararı (§4c · D-145)', () => {
     ]
     await kos(kapiliHat, { verbs, decisions: kararlar })
     expect(readManifest(tmp.path, RUN)?.decisions).toEqual(kararlar)
+  })
+})
+
+describe('defter beyaz listesi', () => {
+  // ⚠ ⚠ Bu liste BEŞ KEZ eksik kaldı ve belirtisi her seferinde aynıydı: veri üretiliyor,
+  // deftere hiç girmiyor, kimse fark etmiyor. Ancak gerçek bir koşunun manifest'ine
+  // bakınca çıkıyor (D-216 · D-261). Bekçisi olmayan bir düzeltme altıncı kez eksilir.
+  it('yargı çıktıları defterde — puan ve bulgu kaybolmuyor', () => {
+    for (const k of ['puanlar', 'toplam', 'bulgular', 'reddedilen'])
+      expect(DEFTER_ANAHTARLARI).toContain(k)
+  })
+
+  it('dedektörlerin okuduğu alanlar ve tasarım planı da listede', () => {
+    for (const k of ['fetchedAt', 'personalizationFields', 'productShots', 'tasarimPlani'])
+      expect(DEFTER_ANAHTARLARI).toContain(k)
+  })
+
+  it('belge ve byte taşıyan alanlar liste DIŞINDA kalmıyor ama elenmiş geliyor', () => {
+    // `document` bilerek listede: `manifest-writer` 8 KB üstü dizeleri digest'e çeviriyor
+    // (D-263), yani defter kanıtı tutuyor yükü değil.
+    expect(DEFTER_ANAHTARLARI).toContain('document')
+    expect(DEFTER_ANAHTARLARI).not.toContain('fontCss')
   })
 })

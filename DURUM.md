@@ -8,34 +8,34 @@
 aktif_faz: 13
 siradaki_adim: 9.1
 son_guncelleme: 2026-08-17
-bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
+bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "LOOP§D 1. TUR: alti blokaj + on bir ikincil bulgu, HEPSI KAPATILDI. (1) just verify KIRMIZIYDI — 12.10 ihlal bataryasinin capasini kendi kirmisti, ucuncu kez; capa yalniz bayatlamamis YANLIS SEYI isaret eder olmustu cunku sutun o dosyadan cikmisti. Capa davranisa baglandi, 22 ihlal kirmizi, verify rc=0. (2) AKICI_AILE URETIMDE ERISILEMEZDI: bodies.ts TEMEL_AILE sabitini yaziyordu, g.aile yi kimse doldurmuyordu — panorama (12.4) ve degrade (12.9) hicbir kosuda basilmadi, teslimatin TAMAMI olu koddu (D-261 in dokuzuncu tekrari). aileSec icerikten seciyor: kanit varsa temel, saf anlatiysa akici. Iki konu -> parmak izi uzakligi 0.5, FAZ-13 cikis kriteri sayiyla gosterildi. (3) IKI METRIK KENDI KENDINI OLCUYORDU: ghost_overlap her girdide 0 (iki terim de KENAR_PAYI den), spacing_offscale her girdide 6 (elle yazilmis liste). Ikisi de artefakttan; ghost_overlap ihlal turunda 69 px SINIR DISI verdi. BOSLUK OLCUTU DE YANLISTI: Fibonacci olcegini BEN uydurdum ve sablonun urettigi on bes deger hicbiri o olcekte degildi — tasarim S12.3 un 4 px tabanini kullaniyor; olcut tabana baglandi, alti gercek sapma cikti. (4) tipo zinciri yarimdi: strong kosulsuz basiliyordu ama CSS aileye bagliydi, yani kapali ailede tarayici kendi kalinini ciziyordu; kontur listede vardi ama render okumuyordu. efektAcik tek kaynak. Uc olu ureteç silindi, gerekceleri yorumda kaldi. docs-drift ucuncu belgeyi kapsamiyordu, tasarim kapisi egriSagda yi yeniden yaziyordu. FAZ-12 CIKIS KRITERI ACIK: kabul sayaci 0/20 — adimlar tikli ile faz kapandi ayri seyler."
+son_kanit: "LOOP§D 2. TUR (son tur, D-79): alti iddiadan ucu DOGRULANDI, ucu ACIK cikti ve kapatildi. (3) BLOKAJ 3 KOD KATMANINDA KAPANMIS AMA YAPILANDIRMA KATMANINDA ACIK KALMIS: hat dosyasi gorsel_yuvasi: true sabitini yaziyor, aileSec te yuvaIstendi olcut oldugu icin HER KONU temel cikiyordu — akici uretimde hala ulasilamazdi. Ustelik bedava seritte gorsel saglayici YOK, yani hat hic dolduramayacagi bir yuva istiyordu. Olcut NE CIZILDIGI ne (diyagram, deterministik ve her kosuda sayfaya iniyor), ne istendigi degil: yuvaIstendi kaldirildi. (5) design.critique HATTA KOSTU (iki kosu status=ok) ama PUANLAR DEFTERE GIRMIYORDU: ozetle beyaz listesi puanlar/toplam/bulgular/reddedilen tasimiyordu, gorsel-yargi ve tasarim-yargi output=null yaziyordu — her kosuda uretilip her kosuda kayboluyordu. Listenin KENDI yorumu eksik bir beyaz liste sessiz bir korluktur diyordu; besinci tekrar. Liste DEFTER_ANAHTARLARI olarak disa acildi ve bekcisi yazildi. (N1) 12.8 ve 13.3 kararsiz blokeydi ve DURUM da gorunmuyordu — D-267 ikisine de tetikleyici verdi; D-266 nin ilkesini bir sonraki dosyada uygulamamistim. (I8) ghost_overlap yapisal olarak duzeldi ama tasarim uzayinda hic kimildamiyor (-33 px sabit); bir olcum degil bir BEKCI oldugu icin ihlal bataryasina girdi, 23 kural. Ayrica plan her kosuda deftere bayat gerekce yaziyordu (panorama henuz bagli degil), duzeltildi. HAT UCTAN UCA KOSTU ve insan onay kapisinda durdu; kalite yesil, dort slaytta da butun okumalar tolerans ici."
 ```
 
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**43 kapı · 22 ihlal kırmızı · 1366 test.**
+**43 kapı · 23 ihlal kırmızı · 1613 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
-> **Kök neden, dört tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 ·
-> D-190 · D-224 · D-250. **"Çağıran var mı" ZİNCİR için sorulur**, tek adım için değil.
-> FAZ 10'un mayını farklı: kod ÇAĞRILIYOR ama kimse doğruluğunu ölçmüyor.
+> **Kök neden, beş tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
+> D-224 · D-250 · D-261. **"Çağıran var mı" ZİNCİR için sorulur**, tek adım için değil.
 
-> ⛔ **ON DÖRT ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b` · `8.6`.
-> Sınıfları `insan` (D-157), o yüzden LOOP§G üçlü kuralına saymazlar: on dördü de plan
-> hatası değil, planın `V-nn` olarak önceden kaydettiği dış bağımlılıklar. Döngü
-> bağımsız adımlarla devam ediyor, ama bu ilan her turda burada durur.
+> ⛔ **ON DOKUZ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
+> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b` · `8.6` · `8.8b` ·
+> `11.5` · `11.6` · `11.9` · `12.8` · `13.3`.
+> Sınıfları `insan` (D-157): plan hatası değil, dış bağımlılık. Son beşi D-266/D-267'de
+> **tetikleyiciye** bağlandı — blokaj artık "bir gün bakarız" değil, gözlenebilir koşul.
 >
 > | Adım | Bekleyen | | Adım | Bekleyen |
 > |---|---|---|---|---|
-> | `2.9` | `just onayla corpus/*/*.md` | | `6.5b` | V-24 şelale anahtarları |
-> | `3.7` `3.8` | V-16 anahtar (+~$3) | | `6.9b` | V-25 gerçek prospect |
-> | `3.14` | `2.9`'a bağlı | | `7.2b` `7.6b` `7.8b` | V-26 Meta token |
-> | `4.13b` | V-18 Tailscale+Telegram | | `7.5b` `8.8b` | V-27 OAuth kaydı |
-> | `5.4b` `5.5b` | V-21/V-22 ses+altyazı | | `8.6` | V-10 hukukçu |
+> | `2.9` | `just onayla corpus/*/*.md` | | `7.2b` `7.6b` `7.8b` | V-26 Meta token |
+> | `3.7` `3.8` | V-16 anahtar (+~$3) | | `7.5b` `8.8b` | V-27 OAuth kaydı |
+> | `3.14` | `2.9`'a bağlı | | `8.6` | V-10 hukukçu |
+> | `4.13b` | V-18 Tailscale+Telegram | | `11.5` `11.9` | BiRefNet ~1 GB (D-266) |
+> | `5.4b` `5.5b` | V-21/V-22 ses+altyazı | | `11.6` `13.3` | ücretli görsel şeridi |
+> | `6.5b` `6.9b` | V-24 / V-25 | | `12.8` | Lanczos+EXIF (D-267) |
 
 ## Tamamlananlar
 
@@ -78,20 +78,20 @@ olarak buldu ve haklıydı. FAZ-13'ün üç çıkış kriteri gösterildi.
 
 **LOOP§D 1. TUR: altı blokaj + on bir ikincil bulgu, hepsi kapatıldı.** En ağır üçü:
 1. **`just verify` KIRMIZIYDI** — 12.10 ihlal bataryasının çapasını kendi kırmıştı
-   (üçüncü kez). Çapa artık davranışa bağlı; 22 ihlal kırmızı, `verify` rc=0.
+   (üçüncü kez). Çapa artık davranışa bağlı; 23 ihlal kırmızı, `verify` rc=0.
 2. **`AKICI_AILE` üretimde ERİŞİLEMEZDİ** — `bodies.ts` `TEMEL_AILE` sabitini yazıyordu,
    `g.aile`'yi kimse doldurmuyordu. Yani panorama (12.4) ve degrade (12.9) hiçbir koşuda
    basılmadı: teslimatın tamamı ölü koddu. `aileSec` içerikten seçiyor — kanıt varsa
    `temel`, saf anlatıysa `akici`.
 3. **İki metrik kendi kendini ölçüyordu** — `ghost_overlap` her girdide 0, `spacing_offscale`
-   her girdide 6. İkisi de artefakttan ölçülüyor. Boşluk ölçütü de yanlıştı: Fibonacci
+   her girdide sabit. İkisi de artefakttan ölçülüyor. Boşluk ölçütü de yanlıştı: Fibonacci
    ölçeğini BEN uydurdum, tasarım §12.3'ün 4 px tabanını kullanıyor.
 
 **Ders değişmedi:** ölçüm aracı ölçtüğü şeyden daha sık bozuk — bu turda dört kez daha
 (batarya çapası · `ghost_overlap` · `spacing_offscale` · uydurma Fibonacci ölçeği).
 
 ⚠ **LOOP§D 2. TUR kaldı** (tavan iki, D-79). Sonra FAZ 9 denetim turları.
-⚠ **`design.critique` HAT KOŞUSUNDA doğrulanmadı** — doğrudan model çağrısıyla çalıştı.
+⚠ **`design.critique` HATTA KOŞTU** (iki koşu, `status=ok`); hat insan onay kapısında durdu.
 ⚠ KARARLAR.md 572/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
 
 ## Devreden borçlar
