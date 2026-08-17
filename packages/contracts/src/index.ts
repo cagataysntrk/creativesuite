@@ -29,6 +29,16 @@ export type { Ok, Err, Result } from './result.js'
 export { ok, err, isOk, isErr, mapOk } from './result.js'
 
 export type { Islev, RitimOranlari, YayBulgusu } from './senaryo.js'
+
+export type {
+  AileAdi,
+  OgePolitikasi,
+  PlanKusuru,
+  Secim,
+  SlaytPolitikasi,
+  TasarimPlani,
+} from './tasarim-plani.js'
+export { OGE_POLITIKALARI, planGecerli, planKusurlari } from './tasarim-plani.js'
 export {
   ISLEVLER,
   VARSAYILAN_RITIM,

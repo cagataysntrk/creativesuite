@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest'
 import type { BrandId, EraId, RunId, StepId } from '@suite/contracts'
 import { fixedClock, seededRng } from '@suite/kernel'
+import { planGecerli, type TasarimPlani } from '@suite/contracts'
 import { composeBody } from './verbs/bodies.js'
 
 const ctx = {
@@ -94,5 +95,50 @@ describe('üretilen görsel belgeye giriyor', () => {
     const doc = (r.value.data as { document: { blocks: { type: string; alt?: string }[] } })
       .document
     expect(doc.blocks.find((b) => b.type === 'image')?.alt).not.toBe('')
+  })
+})
+
+// ── Tasarım planı ÜRETİM YOLUNDA (FAZ-14.2) ─────────────────────────────────
+//
+// ⚠ Bu blok D-261 yüzünden var: `chart`, `diagram` ve `tasarimOlc` üçü de yazılmış,
+// testli ve kapıları yeşildi — ve üretim hattı sıfır tane üretiyordu. Bir planın var
+// olması, koşunun onu ÜRETMESİ demek değildir. Burada `composeBody`nin gerçek çıktısı
+// sınanıyor; defteri yazan `manifest-writer` bu çıktıyı olduğu gibi kaydediyor.
+
+describe('tasarım planı compose ÇIKTISINDA', () => {
+  it('plan üretiliyor ve GEÇERLİ', async () => {
+    const r = await kos(METIN)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const plan = (r.value.data as { tasarimPlani?: TasarimPlani }).tasarimPlani
+    expect(plan).toBeDefined()
+    expect(planGecerli(plan!)).toBe(true)
+  })
+
+  it('her slaydın GEREKÇESİ dolu — plan denetlenebilir', async () => {
+    const r = await kos(METIN)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const plan = (r.value.data as { tasarimPlani: TasarimPlani }).tasarimPlani
+    for (const s of plan.slaytlar) expect(s.oge.gerekce.trim().length).toBeGreaterThan(10)
+    expect(plan.aile.gerekce.trim().length).toBeGreaterThan(10)
+  })
+
+  it('KONU plana geçiyor — hangi koşunun planı olduğu belli', async () => {
+    const r = await kos(METIN)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const plan = (r.value.data as { tasarimPlani: TasarimPlani }).tasarimPlani
+    expect(plan.konu).toBe('veri yoksa önce veriyi kuruyoruz')
+  })
+
+  it('plan defterin ELEME EŞİĞİNİN altında — gerekçeler aynen saklanıyor', async () => {
+    // D-263: 8 KB üstü dizeler digest'e çevriliyor. Plan küçük kalmalı ki gerekçeler
+    // defterde okunabilir dursun; okunamayan bir gerekçe, olmayan bir gerekçedir.
+    const r = await kos(METIN)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const plan = (r.value.data as { tasarimPlani: TasarimPlani }).tasarimPlani
+    for (const v of Object.values(plan)) expect(JSON.stringify(v).length).toBeLessThan(8192)
   })
 })

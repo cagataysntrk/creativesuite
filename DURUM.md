@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 11
-siradaki_adim: 14.2
+siradaki_adim: 14.3
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -52,6 +52,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **11.2** · geometrik süsleme dağarcığı; kapak süssüz, slayt başına ≤2 öge | 2026-08-17 |
 | **11.3** · 20 ikonluk kapalı dağarcık, içerikten seçilen, kendi çizimimiz | 2026-08-17 |
 | **14.1** · hikâye yayı halka 0'da; kelime tavanı artık TEK kaynak | 2026-08-17 |
+| **14.2** · tasarım planı gerekçeli, deftere adım çıktısı olarak giriyor | 2026-08-17 |
 
 ## Sıradaki adım
 
@@ -82,8 +83,9 @@ diyagram) plan artefaktını kurmaya YETİYOR. 14 sonraya bırakılsaydı 11.4�
 eklediği her yetenek sonradan plana geri takılmak zorunda kalırdı. **Önce omurga, sonra kas.**
 Sıra: **14** → 11.4–11.10 → 12 → 13.
 
-**SIRADAKİ 14.2** — `tasarla` adımı: `tasarim-plani.json`, gerekçe alanı ZORUNLU,
-`COMPOSE` fiili (yeni fiil YOK). Sonra 14.3 taban-önce sıra düzeltmesi.
+**SIRADAKİ 14.3** — sıra düzeltmesi: `taban-render` ÖNCE, `gorsel-uret` SONRA ve KOŞULLU.
+Hattın en önemli değişikliği; görsel bugün gireceği slaydı görmeden üretiliyor.
+⚠ Bu bir RENDER değişikliğidir → kabul sayacı 1'e çekilir.
 
 ⚠ KARARLAR.md 561/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
 

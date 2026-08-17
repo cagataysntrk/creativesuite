@@ -273,6 +273,7 @@ export {
 
 // Koşu künyesi — manifest'ten ÖNCE yazılır; kesintiye uğramış koşu künyesiz koşudan
 // ayırt edilebilsin diye (FAZ-7.1 denetimi).
+export { tasarla, VARSAYILAN_AILE, type TasarlaGirdisi } from './plan/tasarla.js'
 export { readRunStub, stubPath, writeRunStub, type RunStub } from './manifest-writer.js'
 
 // Yayın defteri (FAZ-7.4). TÜRETİLEMEZ (D-38): silinirse yayın durur, boş sayılmaz.

@@ -66,25 +66,40 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
    ritim parametrik · ölçülen tabanlar korundu · kanca nokta ile bitmiyor.
 💾 `feat(engine): senaryo yayi` · `Refs: FAZ-14.1 · §7.2`
 
-## 14.2 — `tasarla` adımı: kararlar GEREKÇESİYLE yazılı    [ ]
+## 14.2 — `tasarla` adımı: kararlar GEREKÇESİYLE yazılı    [x] 2026-08-17
 
 📖 §3.5, §7.1 · D-254, D-255
 🔗 14.1, 12.7
 🛠 Hatta yeni bir adım: `tasarla`, **verb `COMPOSE`** (yeni fiil YOK — `kompozit` ile aynı
-   etki sınıfı, iki adım bir fiili paylaşabilir; `metin-uret`/`gorsel-brief` zaten
-   `text.generate`'i paylaşıyor). Çıktısı `tasarim-plani.json`: slayt başına **düzen ·
-   kompozisyon ailesi · görsel öge tipi · efekt profili · panorama fazı · vurgu**, ve her
-   seçim için tek satırlık **gerekçe**.
-📁 `packages/contracts/src/tasarim-plani.ts` · `packages/engine/src/verbs/bodies.ts` ·
-   `registry/pipelines/instagram-post.pipeline.yaml`
-✅ ⚠ **Plan bir SÖZLEŞME, öneri değil.** `render` plandan sapamaz; saparsa 14.4 yakalar.
+   etki sınıfı; `metin-uret`/`gorsel-brief` zaten `text.generate`'i paylaşıyor).
+   Çıktısı `tasarim-plani.json`.
+   ⚠ ⚠ **NİYET planlanır, ÖLÇÜM planlanamaz.** İlk taslak "plan düzeni de seçer" diyordu;
+   kod okununca yanlış çıktı: `duzenSec` sayfalayıcının İÇİNDE (`layout/enum.ts`), sayfa
+   başına koşuyor, çünkü **kaç bloğun sığdığını bilen tek yer orası.** Düzeni önden seçmek
+   ya sayfalamayı ya düzeni yalan yapardı.
+   Bu yüzden plan iki katmanlı: **politika** (aile · süsleme yoğunluğu · görsel öge kuralı ·
+   panorama · yay) önden ve gerekçeli; **gerçekleşme** (kaç slayt, hangi düzen, hangi blok
+   nerede) koşuda kaydedilir. 14.4 gerçekleşmeyi politikaya karşı denetler.
+📁 `packages/contracts/src/tasarim-plani.ts` · `packages/engine/src/plan/tasarla.ts` +
+   `tasarla.test.ts` · `packages/engine/src/verbs/bodies.ts` · `gorsel-kompozit.test.ts`
+✅ ⚠ **Plan POLİTİKA üstünde bir sözleşme.** Render politikadan sapamaz; saparsa 14.4
+   yakalar. Ölçümden çıkan düzen bir sapma DEĞİL, plana geri yazılan bir gerçekleşmedir.
    ⚠ **Gerekçe alanı ZORUNLU.** *"Bu slaytta diyagram var çünkü içerikte üç adımlı bir akış
    geçiyor."* — bu cümle olmadan seçim denetlenemez.
-   ⚠ **DETERMİNİSTİK** (model çağırmaz): aynı senaryo → aynı plan. Golden test bunun üstünde
-   durur. Model danışmanlığı ayrı bir karar; buraya karıştırılmaz.
-   ⚠ `donmus-plan.json` ile KARIŞTIRILMAZ: o *yürütme* planı (sıra, sağlayıcı, maliyet),
-   bu *tasarım* planı. İkisi `derived/runs/` altında yan yana durur ve silinmez (§3.5).
-🧪 Gerekçesiz plan → derleme hatası. Aynı senaryoyu iki kez planla → aynı çıktı.
+   ⚠ **DETERMİNİSTİK** (model çağırmaz): aynı senaryo → aynı plan. Model danışmanlığı ayrı
+   bir karar; buraya karıştırılmaz.
+   ⚠ ⚠ **AYRI DOSYA YAZILMADI — ve bu R-04.** Taslak `tasarim-plani.json` diyordu; yazılsaydı
+   `COMPOSE` çalışma ağacına yazan bir fiil olurdu, oysa yasa yalnız `PROPOSE`un yazmasına
+   izin veriyor. Plan adım ÇIKTISI olarak dönüyor ve defteri yazan `manifest-writer` onu
+   `manifest.json`a koyuyor: planın yaşadığı yer yine `derived/runs/<id>/` (§3.5), ama onu
+   oraya koyan fiil değil KOŞUCU. Yeni bir yan etki sınıfı açılmadı.
+   ⚠ Plan ~2 KB → D-263'ün 8 KB eleme eşiğinin altında; **gerekçeler defterde aynen
+   okunabilir.** Okunamayan bir gerekçe, olmayan bir gerekçedir.
+   ⚠ **Gerekçeyi tip sistemi zorlayamıyor** (boş dize de `string`) — `planKusurlari` zorluyor.
+🧪 **10 + 4 test + ihlal:** `tasarimPlani`yi compose çıktısından çıkar → dört üretim-yolu
+   testi kırmızı (zincir kopukluğu D-261'in tam biçimi). Ayrıca: gerekçesiz plan geçersiz ·
+   determinizm · yay↔işlev tutarlılığı · kapak/kapanış öge almıyor · diyagram ile görsel
+   İKİSİ BİRDEN konmuyor · öge gövdenin ORTASINDA · düzen planda YOK.
 💾 `feat(engine): tasarim plani adimi` · `Refs: FAZ-14.2 · §7.1`
 
 ## 14.3 — Sıra düzeltmesi: TABAN önce, model sonra    [ ]

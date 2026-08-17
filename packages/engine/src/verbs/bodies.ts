@@ -61,6 +61,7 @@ import {
 } from '@suite/providers'
 import { RateLimiter } from '../ratelimit.js'
 import { appendPublished, lookupPublished } from '../publish-ledger.js'
+import { tasarla } from '../plan/tasarla.js'
 import { providerCall } from '../provider-call.js'
 import { prospectDeckZinciri } from '../prospect-deck.js'
 import type { Kaynak, KisiselAlan } from '@suite/kernel'
@@ -337,10 +338,29 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // karşılığıdır (FAZ 6 denetimi, bulgu 8: alanın okuyanı yoktu). Manifest dedektörü
     // (`fabricated_product_shot`) bu diziyi arıyor; blok ile defter kaydı aynı kaynaktan
     // türediği için biri diğerinden ayrışamaz.
+    // ── TASARIM PLANI: kararlar GEREKÇESİYLE deftere giriyor (FAZ-14.2) ──────
+    //
+    // ⚠ **Ayrı bir `tasarim-plani.json` YAZILMIYOR ve bu bir eksiklik değil, R-04.**
+    // Plan bir dosya olarak yazılsaydı `COMPOSE` çalışma ağacına yazan bir fiil olurdu;
+    // yasa yalnız `PROPOSE`un yazmasına izin veriyor. Plan adım ÇIKTISI olarak dönüyor
+    // ve defteri yazan `manifest-writer` onu `manifest.json`a koyuyor — yani planın
+    // yaşadığı yer `derived/runs/<id>/`, tıpkı `donmus-plan.json` gibi, ama onu oraya
+    // koyan fiil değil koşucu.
+    //
+    // ⚠ Plan ~2 KB; defterin 8 KB eleme eşiğinin (D-263) altında kalıyor, yani
+    // gerekçeler AYNEN okunabilir durumda saklanıyor.
+    const plan = tasarla({
+      konu: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
+      satirlar: metinSatirlari,
+      akisVar: akis !== null,
+      gorselVar: gorsel !== null,
+    })
+
     return ok({
       costs: [],
       data: {
         document: doc,
+        tasarimPlani: plan,
         ...kisisellestirmeCiktisi(input.constraints),
         ...(cekimler.length > 0
           ? {
