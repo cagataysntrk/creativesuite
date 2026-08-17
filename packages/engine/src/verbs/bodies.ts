@@ -42,6 +42,7 @@ import {
   icerikPromptu,
   metneCevir,
   type PromptKaydi,
+  akisiAyir,
 } from '../metin-akisi.js'
 import { yargiPromptu, yargiyaCevir, type YargiBulgusu } from '../gorsel-yargi.js'
 import {
@@ -257,20 +258,35 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // ⚠ **Görsel ARTIK SONDA DEĞİL.** En sona eklendiğinde sayfalayıcı onu tek başına
     // son slayda koyuyordu: kapanış slaydı 0 kelimeyle çıkıyordu (ölçüldü). Kapanış bir
     // DAVETTİR; görsel ondan önce, gövdenin sonunda duruyor.
-    const govde = satirlar.slice(1, -1)
-    const kapanisSatiri = satirlar.length > 1 ? (satirlar[satirlar.length - 1] ?? null) : null
+    // ── AKIŞ: fotoğrafın YERİNE geçen görsellik (FAZ-11.1) ───────────────────
+    //
+    // Dört referans örneğin hiçbirinde dikdörtgen fotoğraf yok; görsellik veri, şema ve
+    // geometriyle kuruluyor. `diagramHtml` repoda yazılı ve test edilmişti ama üretim
+    // hattı hiç çağırmıyordu — fotoğraf, BAĞLI OLAN TEK görsel yol olduğu için
+    // kullanılıyordu. Kusur fotoğrafta değil, o yolun tekliğindeydi.
+    const { satirlar: metinSatirlari, akis } = akisiAyir(satirlar)
+
+    const govde = metinSatirlari.slice(1, -1)
+    const kapanisSatiri =
+      metinSatirlari.length > 1 ? (metinSatirlari[metinSatirlari.length - 1] ?? null) : null
     // ⚠ **Görsel gövdenin ORTASINA giriyor, sonuna değil** (FAZ-10.7). Sona konduğunda
     // sayfalayıcı onu kapanış slaydına taşıyordu ve kapanış cümlesi fotoğrafın altına
     // sıkışıyordu — kapanış bir DAVETTİR, bir resim altyazısı değil. Ortada duran görsel
     // bir GÖVDE slaydına düşüyor ve kapanış temiz kalıyor.
     const orta = Math.max(1, Math.ceil(govde.length / 2))
     const blocks: Block[] = [
-      { type: 'heading', text: satirlar[0] as string, level: 1 },
+      { type: 'heading', text: metinSatirlari[0] as string, level: 1 },
       ...govde.slice(0, orta).map((t): Block => ({ type: 'body', text: t })),
       // Üretilen görsel `role` TAŞIMIYOR: `product_screenshot` bir iddiadır ("ürün
       // gerçekten böyle görünüyor") ve model üretimi bir görsel onu iddia edemez.
       // Rolsüz görüntü hiçbir şey iddia etmez ve serbesttir (§7.1).
-      ...(gorsel === null
+      // Akış varsa diyagram bloğu giriyor; YOKSA görsel yolu korunuyor. İkisi birden
+      // konmuyor: aynı slaytta iki görsel öge, kompozisyonu kalabalıklaştırır ve
+      // referans ailesinde örneği yok.
+      ...(akis === null
+        ? []
+        : [{ type: 'diagram' as const, title: akis.title, nodes: akis.nodes }]),
+      ...(gorsel === null || akis !== null
         ? []
         : [
             {

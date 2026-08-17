@@ -493,3 +493,42 @@ istenmediği sürece bir temennidir.**
 kapanış slaydı gerçek bir davet taşıyor.
 
 **Geri alma maliyeti:** yok — üçü de düzeltme, davranış genişlemesi değil.
+
+## D-261 — Fotoğraf varsayılan olmaktan çıktı; öncül sorgulanır
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-11 · §7.1
+
+FAZ-10.7'de bulduğum görsel kusurların çoğu tek kökten geliyordu: **oraya ait olmayan bir
+öge.** Fotoğraf kutu gibi duruyordu → kenara taşırdım. Altında boşluk kaldı → doldurdum.
+`kaydır ››` ile çakıştı → sayfalama bütçesi verdim. Mavi/turuncu makineler amber alanla
+çarpıştı → brief'e monokrom yazdım. **Dört yama, hepsi belirtiye.**
+
+Doğru soru *"bu fotoğraf neden burada?"* idi ve cevabı: **bağlı olan tek görsel yol oydu.**
+`chart` ve `diagram` çizicileri repoda yazılı ve test edilmişti; üretim hattı sıfır tane
+üretiyordu (`grep -c` → 0). Aynı zincir kırılması sınıfı, bu kez benim onu fark edememem
+biçiminde.
+
+**Kanıt — kendi referanslarımızda fotoğraf YOK, ölçüldü:** `karosel-sablon` doku payı
+**%6,8** (düz renk + tipografi). `karosel-mockup` %18,7 ama o doku slaytlardan değil,
+mockup'ın DUVAR fotoğrafından. Kullanıcının dört yeni örneğinde de dikdörtgen serbest
+fotoğraf yok: kesilmiş özne · daire arkalıklı ürün · geometrik süsleme dağarcığı ·
+yarım kareyi uçtan uca dolduran alan.
+
+**Karar:** fotoğraf varsayılan olmaktan çıkıyor. Görsellik kapalı bir öge dağarcığıyla
+kuruluyor: akış diyagramı · geometrik süsleme · gömülü ikon · maskeli/alan fotoğraf.
+
+**`chart` DEĞİL `diagram`:** grafik veri noktası ister, R-32 kaynaksız sayıyı yasaklar ve
+corpus'ta sayı yok — grafik yolu kaynak gelene kadar kapalı. Akış diyagramı sayısızdır.
+
+**⚠ TEK ÇEŞİT YOK — kullanıcının düzeltmesi ve D-254'le görünürdeki çelişkinin çözümü.**
+*"binlerce çeşidi var; mühim mesele estetik olması, hikayesinin olması, akması."*
+Ayrım: **garanti katmanı** kapalıdır (Türkçe tipografi, güvenli alan, kontrast, kelime
+bütçesi) — orada çeşitlilik özgürlük değil hata modudur. **Kompozisyon ailesi** ise çok
+olabilir ve post bazında seçilir. "Kapalı gramer" bir ŞABLON demek değil: bir aile
+kapalıdır, kaç aile olduğu açıktır. Bugüne kadarki hatam tek aileyi tüm sistem sanmaktı.
+
+**Yeni çalışma kuralı:** bir düzeltme **iki denemede** tutmuyorsa yamaya devam edilmez,
+öncül sorgulanır. Ölçüt tek soru: *bu öge oraya ait mi?* Fotoğraf yamalarında dört deneme
+harcadım ve dördü de yanlış katmandaydı.
+
+**Geri alma maliyeti:** düşük — akış yoksa fotoğraf yolu aynen çalışıyor.

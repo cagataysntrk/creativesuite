@@ -1,0 +1,123 @@
+# FAZ 11 — Görsellik dili: yuvalar, süslemeler, ikonlar
+
+**Amaç:** Karosel görselliği stok fotoğrafla değil, **kapalı bir öge dağarcığıyla** kurulsun;
+her slaytta görsel öge tipi içerikten seçilsin ve marka tutarlılığı bozulmasın.
+**Yöneten kararlar:** D-254, D-255, D-261
+**Ön koşul:** FAZ-10 gramer ve ölçüm katmanı yerinde
+**Çıkış kriteri:** Fotoğraf **varsayılan olmaktan çıkmış**; bir karoselin görselliği
+diyagram, süsleme ve ikon dağarcığıyla kurulabiliyor ve 20 ardışık kabul koşusu (FAZ-10.7)
+bu dille geçiyor.
+
+> **Bu faz neden var:** FAZ-10.7'de bulduğum görsel kusurların çoğu tek kökten geliyordu —
+> **oraya ait olmayan bir öge.** Fotoğraf kutu gibi duruyordu, altında boşluk kalıyordu,
+> `kaydır ››` ile çakışıyordu, mavi/turuncu makineler amber alanla çarpışıyordu. Her
+> seferinde belirtiyi yamadım. Doğru soru *"bu fotoğraf neden burada?"* idi ve cevabı
+> utandırıcı: **bağlı olan tek görsel yol oydu.** `chart` ve `diagram` çizicileri repoda
+> yazılı ve test edilmişti; üretim hattı sıfır tane üretiyordu.
+>
+> ⚠ **Kural (D-261):** bir düzeltme iki denemede tutmuyorsa yamaya devam edilmez, ÖNCÜL
+> sorgulanır. Ölçüt: *bu öge oraya ait mi?*
+
+---
+
+## 11.1 — `AKIŞ` yuvası: diyagram fotoğrafın yerine    [x] 2026-08-17
+
+📖 §7.1, §7.6 · R-32 · D-261
+🔗 —
+🛠 Metin adımı isteğe bağlı bir `AKIŞ:` bölümü döndürür (3–5 adım, `ad | çıktı`);
+   `akisiAyir` onu ayırır ve satırlardan ÇIKARIR, `COMPOSE` `diagram` bloğuna çevirir.
+   Akış varsa fotoğraf EKLENMEZ — aynı slaytta iki görsel öge referans ailesinde yok.
+📁 `packages/engine/src/metin-akisi.ts` · `packages/engine/src/verbs/bodies.ts` ·
+   `packages/engine/src/metin-akisi.test.ts`
+✅ **`chart` DEĞİL `diagram` seçildi ve sebebi kural:** `chart` veri noktası ister, R-32
+   kaynaksız sayıyı yasaklar ve corpus'ta sayı yok — grafik yolu kaynak gelene kadar
+   kapalı. Akış diyagramı sayısızdır, engelsizdir.
+   Düğüm tavanı ÇİZİCİDEN geliyor (`MAX_DUGUM`), ayrıştırıcıda tekrar yazılmıyor.
+🧪 20 test: akış ayrılıyor ve satırlardan çıkıyor · `|` ayrımı · ayrıntısız düğüm ·
+   AKIŞ yoksa satırlar dokunulmadan dönüyor · tek düğüm ve tavan üstü GEÇERSİZ ama
+   satırlar yine temizleniyor (yarım akış metne düşerse çöp görünür).
+💾 `feat(engine): akis diyagrami fotografin yerine` · `Refs: FAZ-11.1 · §7.6`
+
+---
+
+## 11.2 — Süsleme dağarcığı: geometrik, kapalı, deterministik    [ ]
+
+📖 §7.1, §12.1 · D-254
+🔗 11.1
+🛠 Referans örnek 4'ün dili: **blob · nokta ızgarası · taralı daire · kontur halka ·
+   küçük kare.** Hepsi SVG/CSS, sıfır bağımlılık, `SlaytKimligi`den türetilmiş konum ve
+   ölçek — yani deterministik ve slayttan slayta değişen.
+📁 `packages/render/src/sablon-susleme.ts` · `packages/render/src/static.ts`
+✅ Dağarcık KAPALI (beş öge); altıncısı bir karar ister. Süslemeler metin sütununa ve
+   güvenli alana GİRMEZ — `tasarim` kapısı bunu ölçer.
+   ⚠ Chroma tavanı geçerli (§12.1): süsleme aksan rengidir, alan değil.
+🧪 Bir süslemeyi metin sütununa taşır → `tasarim` kapısı kırmızı.
+💾 `feat(render): geometrik susleme dagarcigi` · `Refs: FAZ-11.2 · §7.1`
+
+---
+
+## 11.3 — İkon dağarcığı: gömülü SVG, kapalı liste    [ ]
+
+📖 §7.1 · R-20 · D-261
+🔗 11.2
+🛠 Liste slaytlarında madde çizgisi yerine **ikon**. Kaynak: MIT/ISC lisanslı bir SVG
+   seti (Lucide ISC · Phosphor MIT · Tabler MIT · Iconoir MIT — dördü de atıfsız ticari
+   kullanıma açık). Fontlar gibi **GÖMÜLÜ**: seçilen ikonlar `brand/<id>/ikonlar/`
+   altına alınır, çalışma anında ağdan çekilmez.
+📁 `brand/brd_upcytech/ikonlar/` · `packages/render/src/sablon-ikon.ts`
+✅ ⚠ **Kapalı set, tüm kütüphane DEĞİL.** 1500 ikonluk bir seti bağlamak, "marka
+   şablonu"nu bir öneriye çevirir; ~20 ikonluk bir alt küme seçilir ve o küme bir karardır.
+   İkon seçimi içerikten TÜRETİLİR (anahtar kelime → ikon), elle yazılmaz.
+   Lisans metni izlenen dosyada durur (fontlarda olduğu gibi).
+🧪 Sette olmayan bir ikon adı iste → derleme hatası (kapalı birleşim tipi).
+💾 `feat(render): gomulu ikon dagarcigi` · `Refs: FAZ-11.3 · §7.1`
+
+---
+
+## 11.4 — Fotoğraf yuvaları: maske ve alan    [ ]
+
+📖 §7.1 · D-261
+🔗 11.2
+🛠 Fotoğraf kalırsa **işlenmiş** kalır. İki yuva: `maske` (daire ya da eğri şekliyle
+   `clip-path`) ve `alan` (yarım kareyi uçtan uca dolduran). Referans örnek 5'in dili.
+   Dikdörtgen serbest fotoğraf ARTIK YOK.
+📁 `packages/render/src/static.ts` · `packages/kernel/src/doc/model.ts`
+✅ Yuva belge modelinde ROL olarak durur (`gorselYuvasi: 'maske' | 'alan'`), çizim
+   `sablon.ts`te (D-254). Fotoğraf hiçbir yuvada serbest dikdörtgen olamaz.
+🧪 Yuvasız bir görsel bloğu → kapı reddediyor.
+💾 `feat(render): fotograf yuvalari maske ve alan` · `Refs: FAZ-11.4 · §7.1`
+
+---
+
+## 11.5 — Kesik özne: arka plan silme    [ ] BLOKE:karar
+
+📖 §7.3 · §17 · D-261
+🔗 11.4
+🛠 Referans örnek 2 ve 3'ün dili: arka planı silinmiş özne, şeffaf PNG. Yerel yol
+   **BiRefNet (MIT)** — planda "yerelde bedava çalışacaklar" listesinde zaten adı geçiyor.
+📁 —
+✅ ⚠ **Lisans tuzağı belgeli:** Bria RMBG **CC BY-NC** ve MIT `rembg` paketinin içinde
+   geliyor — yanlışlıkla seçilmesi kolay (§17). Seçilen model ve lisansı `KARARLAR.md`ye
+   yazılmadan bağlanmaz.
+   ⚠ Yeni bir bağımlılık ve ~1 GB ağırlık; bir KARAR ister, bir import değil.
+🧪 —
+💾 —
+
+---
+
+## 11.6 — Taban → model: kompozisyonu GÖREN üretim    [ ] BLOKE:karar
+
+📖 §7.3, §8.2 · R-20 · D-261
+🔗 11.4
+🛠 Kullanıcının tarif ettiği sektör pratiği: **taban deterministik render edilir, modele
+   gönderilir, model ögeleri ekler.** Bugünkü akışın tersi — bugün model KÖR üretiyor ve
+   biz sonucu bir kutuya sıkıştırıyoruz; FAZ-10.7'deki bütün görsel kusurlar buradan.
+   Modelin kompozisyonu görmesi, nereye ne sığacağını bilmesi demek.
+📁 —
+✅ ⚠ **Metin katmanı modele GİTMEZ.** Dönen görselin ÜSTÜNE yeniden basılır — böylece
+   tipografi hiçbir zaman modelden geçmez ve `ğ ş İ ı` garantisi (R-20) korunur. Tasarım
+   metrikleri dönen varlığa da koşar.
+   ⚠ Yeni yetenek: görselden görsele (img2img/inpaint), yeni sağlayıcı yolu. `GENERATE`
+   fiili altında kalır — dokuzuncu fiil eklenmez.
+🧪 —
+💾 —

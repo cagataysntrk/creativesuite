@@ -1,7 +1,13 @@
 // Prompt kaynağı ve çıktı normalizasyonu ÖLÇÜLÜYOR (D-243).
 
 import { describe, expect, it } from 'vitest'
-import { duzMetin, gorselBriefPromptu, icerikPromptu, metneCevir } from './metin-akisi.js'
+import {
+  duzMetin,
+  gorselBriefPromptu,
+  icerikPromptu,
+  metneCevir,
+  akisiAyir,
+} from './metin-akisi.js'
 
 const KAYITLAR = [
   { id: 'rec_pos', text: 'Veriyi karara çeviren ürünler üretiyoruz.' },
@@ -103,5 +109,58 @@ describe('çıktı normalizasyonu', () => {
     expect(metneCevir({ lines: ['a', 'b'] })).toEqual({ lines: ['a', 'b'] })
     expect(duzMetin({ lines: ['a', 'b'], raw: { result: 'a\nb' } })).toBe('a b')
     expect(metneCevir({ lines: [] })).toBeNull()
+  })
+})
+
+describe('akış ayrıştırıcısı — fotoğrafın yerine geçen görsellik', () => {
+  const G = [
+    'Başlık',
+    'gövde bir',
+    'AKIŞ: Vardiya devri',
+    '- Sayım | kayıtlar karşılaştırılır',
+    '- Devir | açık işler aktarılır',
+    'kapanış',
+  ]
+
+  it('akışı ayırıyor ve satırlardan ÇIKARIYOR', () => {
+    // Çıkarılmazsa aynı bilgi hem diyagramda hem metinde görünür.
+    const r = akisiAyir(G)
+    expect(r.akis?.title).toBe('Vardiya devri')
+    expect(r.akis?.nodes).toHaveLength(2)
+    expect(r.satirlar).toEqual(['Başlık', 'gövde bir', 'kapanış'])
+  })
+
+  it('düğüm adını ve ayrıntısını `|` ile ayırıyor', () => {
+    expect(akisiAyir(G).akis?.nodes[0]).toEqual({
+      label: 'Sayım',
+      detail: 'kayıtlar karşılaştırılır',
+    })
+  })
+
+  it('ayrıntısız düğüm kabul ediliyor', () => {
+    const r = akisiAyir(['B', 'AKIŞ: X', '- bir', '- iki'])
+    expect(r.akis?.nodes[1]).toEqual({ label: 'iki' })
+  })
+
+  it('AKIŞ yoksa satırlar DOKUNULMADAN dönüyor', () => {
+    const d = ['a', 'b']
+    const r = akisiAyir(d)
+    expect(r.akis).toBeNull()
+    expect(r.satirlar).toBe(d)
+  })
+
+  it('TEK düğüm geçersiz — çizici de reddediyor', () => {
+    // Sınır çiziciden (`MAX_DUGUM`) geliyor; iki yerde iki sayı tutulmuyor.
+    const r = akisiAyir(['a', 'AKIŞ: X', '- tek'])
+    expect(r.akis).toBeNull()
+    // ⚠ Satırlar YİNE temizleniyor: yarım bir akış metne geri düşerse çöp görünür.
+    expect(r.satirlar).toEqual(['a'])
+  })
+
+  it('ALTIDAN fazla düğüm geçersiz ve satırlar yine temizleniyor', () => {
+    const cok = ['a', 'AKIŞ: X', ...Array.from({ length: 7 }, (_, i) => `- adım ${i}`)]
+    const r = akisiAyir(cok)
+    expect(r.akis).toBeNull()
+    expect(r.satirlar).toEqual(['a'])
   })
 })

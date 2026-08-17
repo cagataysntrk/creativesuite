@@ -5,8 +5,8 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 10
-siradaki_adim: 10.7
+aktif_faz: 11
+siradaki_adim: 11.2
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -48,50 +48,29 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 | Adım | Tarih |
 |---|---|
-| **10.1** · karosel başına tek tarayıcı; 4.9x, çıktı bayt bayt özdeş | 2026-08-17 |
-| **10.2** · referans ölçüldü; T9/T11 türetilemez, T10 görseli dışlamalı | 2026-08-17 |
-| **10.2b** · punto ölçüldü: sütun %62, h1 64 px; 3 kusur kapandı | 2026-08-17 |
-| **10.3** · `tasarim` kapısı: 23 okuma, 4 ihlal kırmızı, grameri denetliyor | 2026-08-17 |
-| **10.4** · düzen içerikten seçiliyor; liste 3 slayttan 2'ye indi | 2026-08-17 |
-| **10.4b** · dört düzen dört kompozisyon; tırnak, madde ritmi, kanıt şeridi | 2026-08-17 |
-| **10.5** · `image.critique`: 3 bulgu, 0 red; saçaklanma %6.6→%0 (D-256) | 2026-08-17 |
-| **10.6** · şablon parametreleri; bant türetilemedi, betik SÖYLÜYOR (D-257) | 2026-08-17 |
+| **11.1** · akış diyagramı fotoğrafın yerine; `chart` değil `diagram` | 2026-08-17 |
 
 ## Sıradaki adım
 
-**FAZ 10** (D-255). 10.1–10.6 KAPANDI; ayrıntı `docs/fazlar/FAZ-10.md`.
-· **10.1** oturum 4.9x · **10.2** T9/T11 türetilemez, ölçüm aracı bozuktu (%97.8)
-  · **10.2b** bant %69–78, sütun %62, h1 64px · **10.3** kapı 23 okuma, 4 ihlal.
-· **10.4** düzen İÇERİKTEN · **10.4b** dört düzen dört KOMPOZİSYON; düzen
-  `SlaytKimligi.duzen`de (rol, çizim değil).
+**FAZ 11 — GÖRSELLİK DİLİ** (D-261). FAZ-10.7'de bulduğum görsel kusurların çoğu tek
+kökten geliyordu: **oraya ait olmayan bir öge**. Fotoğrafı dört kez yamadım (kenara
+taşırma · boşluk doldurma · sayfalama bütçesi · monokrom brief) ve dördü de belirtiye
+yamaydı. Doğru soru "bu fotoğraf neden burada?" idi; cevabı: **bağlı olan tek görsel yol
+oydu.** `chart`/`diagram` çizicileri yazılıydı, üretim hattı sıfır tane üretiyordu.
 
-· **10.5** `image.critique` YETENEK, kutu ZORUNLU. **Saçaklanma %6,6→%0,0** —
-  hiçbir metrik görmemişti. `Read` aracı ölçülerek gerekti (D-256).
+ÖLÇÜLDÜ: kendi referanslarımızda fotoğraf yok (doku payı %6,8). Kullanıcının dört yeni
+örneğinde de dikdörtgen serbest fotoğraf yok.
 
-· **10.6** `SablonParametreleri` bağlı; türetme ÖNERİR (R-14). **Bant TÜRETİLEMEDİ**
-  (%2–97, tavan 40) → sayı YAZILMADI. %69–78 bir KISIT: Türkçe sütun %62 (D-257).
+**11.1 KAPANDI** — akış diyagramı fotoğrafın yerine geçiyor. `chart` değil `diagram`,
+çünkü grafik sayı ister ve R-32 kaynaksız sayıyı yasaklıyor. 20 test.
 
-**10.7** — ilk koşu `kalite`de durdu (fotoğraflı slayt %17,7); D-258 ile düzeltildi,
-otorite üreticiye verildi. Kapak `statement`, tasarım metrikleri üretimde (D-259).
+**SIRADAKİ 11.2** — geometrik süsleme dağarcığı (blob · nokta ızgarası · taralı daire ·
+halka · kare), SVG/CSS, sıfır bağımlılık. Sonra 11.3 gömülü ikon seti (MIT/ISC) →
+11.4 fotoğraf yuvaları (maske/alan) → 11.5 kesik özne (BLOKE:karar) → 11.6 taban→model
+(BLOKE:karar).
 
-✅ **HAT UÇTAN UCA YEŞİL** — `✓ kalite`, tüm tasarım metrikleri tolerans içi.
-
-**Üç kusur daha kapandı ve üçü de ÖLÇÜM tarafındaydı** (D-260):
-1. **Kontrast hiç ÜRETİLMİYORDU** — `tokenCoz` tek adım çözüyordu (token mimarisi üç
-   kademeli) ve "son tanım" yanlış yüzeyi seçiyordu. Özyinelemeli + yüzey kapsamlı.
-2. **Kapanış cümlesi belgeye HİÇ girmiyordu** — `slice(1,4)` son satırı atıyor, görsel
-   kapanış slaydını kapatıyordu.
-3. **Birim uyuşmazlığı**: T8 slayt toplamını ölçüyordu, bütçe SATIR başına. Modelin
-   hatası sanılan şey ölçenin hatasıydı; artık en uzun BLOK ölçülüyor.
-
-**KABUL SAYACI: 1/20** (render değişti, yeniden başladı) () — metrikler bu turda bağlandı, sayaç buradan başlıyor
-(~354 sn/koşu, 20 ardışık ≈ 2 saat).
-
-Sonra: 20 ARDIŞIK kabul koşusu (sınırlayıcı
-kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.
-
-**FAZ 8 açık kalanı:** `8.3b` BLOKE:teknik (`7.2b` gerçek yayınına bağlı), `8.6`
-BLOKE:insan (V-10 hukukçu).
+⚠ **FAZ-10.7 kabul koşusu FAZ 11 dilinin üstünde tekrarlanacak** — görsellik değişti,
+eski koşular güncel çıktıyı temsil etmiyor.
 
 ## Devreden borçlar
 

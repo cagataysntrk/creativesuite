@@ -18,6 +18,12 @@
 // hesaplıyor (köken ve planlama). Metni birleştirmek ayrı bir iş ve karıştırılırsa
 // "bu kayıt neden düştü" ile "bu prompt neden böyle" tek cevaba sıkışır.
 
+// ⚠ Düğüm tavanı ÇİZİCİDEN geliyor, burada tekrar YAZILMIYOR: iki yerde iki sayı
+// tutmak, birini değiştirip diğerini unutmanın en kısa yolu. Çizici 5'ten fazlasını
+// `too_many` ile reddediyor; ayrıştırıcı da aynı sınırı uyguluyor ki geçersiz bir blok
+// hiç kurulmasın.
+import { MAX_DUGUM } from '@suite/render'
+
 /** Prompt'a giren kayıt — `SELECT` çıktısının şekli. */
 export interface PromptKaydi {
   readonly id: string
@@ -97,9 +103,72 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
       ? []
       : ['', `KAÇIN (geçmiş redlerin gerekçesi): ${g.kacinilacak.trim()}`]),
     '',
+    // ⚠ **AKIŞ, fotoğrafın yerini alıyor** (FAZ-11.1). Karosel görselliği stok fotoğrafla
+    // değil VERİ ve ŞEMAYLA kuruluyor: dört referans örneğin hiçbirinde dikdörtgen
+    // fotoğraf yok. `diagram` çizicisi repoda yazılı ve test edilmişti ama üretim hattı
+    // hiç çağırmıyordu — fotoğraf, bağlı olan tek görsel yol olduğu için kullanılıyordu.
+    //
+    // Sayı İSTENMİYOR: `chart` bloğu veri noktası ister, R-32 kaynaksız sayıyı yasaklar
+    // ve corpus'ta sayı yok. Akış diyagramı sayısızdır — engelsiz ve konuya uygun.
+    'AKIŞ (ayrı bir bölüm, metinden SONRA yaz):',
+    `Konu bir süreç, sıra ya da karşılaştırma içeriyorsa 3–${MAX_DUGUM} adımlık bir akış ver.`,
+    'Biçim — her satır bir adım, `AKIŞ:` satırından sonra:',
+    'AKIŞ: <başlık>',
+    '- <adım adı> | <tek cümlelik çıktısı>',
+    'Adım adı en fazla 3 kelime; çıktı en fazla 8 kelime. Sayı YAZMA.',
+    'Konu akış içermiyorsa `AKIŞ:` bölümünü hiç yazma — zorlama.',
+    '',
     'Yalnız metni döndür; açıklama, başlık ya da biçimlendirme ekleme.',
   ]
   return satirlar.join('\n')
+}
+
+/** Akış bölümünün ayrıştırılmış hâli — `COMPOSE` bunu `diagram` bloğuna çeviriyor. */
+export interface AkisDugumu {
+  readonly label: string
+  readonly detail?: string
+}
+export interface Akis {
+  readonly title: string
+  readonly nodes: readonly AkisDugumu[]
+}
+
+/**
+ * Metin çıktısından `AKIŞ:` bölümünü ayırır.
+ *
+ * **Satırlar KALDIRILIYOR**: akış satırları slayt metni olarak da basılırsa aynı bilgi
+ * iki kez görünür. Ayrıştırıcı hem akışı hem TEMİZLENMİŞ satırları döndürüyor — iki uç
+ * aynı yerde (D-243 gerekçesi).
+ *
+ * Diyagram çizicisi 2 düğümden az ve 6'dan fazlasını reddediyor; burada da aynı sınır
+ * uygulanıyor ki geçersiz bir blok hiç kurulmasın.
+ */
+export const akisiAyir = (
+  satirlar: readonly string[]
+): { readonly satirlar: readonly string[]; readonly akis: Akis | null } => {
+  const bas = satirlar.findIndex((l) => /^AKIŞ\s*:/i.test(l.trim()))
+  if (bas === -1) return { satirlar, akis: null }
+
+  const baslik = (satirlar[bas] ?? '').replace(/^AKIŞ\s*:/i, '').trim()
+  const dugumler: AkisDugumu[] = []
+  let son = bas
+  for (let i = bas + 1; i < satirlar.length; i += 1) {
+    const l = (satirlar[i] ?? '').trim()
+    const m = /^[-•*]\s*(.+)$/.exec(l)
+    if (m === null) break
+    son = i
+    const [ad, ayrinti] = (m[1] ?? '').split('|').map((x) => x.trim())
+    if (ad === undefined || ad === '') continue
+    dugumler.push(
+      ayrinti === undefined || ayrinti === '' ? { label: ad } : { label: ad, detail: ayrinti }
+    )
+  }
+
+  const temiz = [...satirlar.slice(0, bas), ...satirlar.slice(son + 1)]
+  // Çizicinin sınırları: <2 tek düğüm sayılır, >6 taşar. Geçersizse akış YOK sayılıyor
+  // ama satırlar yine temizleniyor — yarım bir akış metne geri düşerse çöp görünür.
+  if (dugumler.length < 2 || dugumler.length > MAX_DUGUM) return { satirlar: temiz, akis: null }
+  return { satirlar: temiz, akis: { title: baslik === '' ? 'Akış' : baslik, nodes: dugumler } }
 }
 
 /**
@@ -132,7 +201,19 @@ export const gorselBriefPromptu = (g: PromptGirdisi): string | null => {
     '  nothing printed, painted or engraved: raw metal, concrete, cable, pipe, machined',
     '  part. Avoid control panels, screens, packaging and shelving — they always carry',
     '  markings even when you do not intend it.',
-    '- Industrial, documentary, photographic. Muted neutral palette, calm lighting.',
+    // ⚠ **MONOKROM AÇIKÇA isteniyor, "muted" YETMİYOR.** Kabul koşusunda ölçüldü: bir
+    // fotoğraf mavi/turuncu makinelerle geldi ve amber marka alanının yanında çarpıştı.
+    // Kullanıcının açık şartı "marka şablonunu korumalı, tutarlı olmalı hem kendi içinde
+    // hem birbirleriyle" — doygun renkli bir fotoğraf bunu bozuyor.
+    //
+    // Ham doygunluk ÖLÇÜMÜ ayırt etmedi (iki geçerli örnek %34 ve %30, ikisi de yakın),
+    // çünkü fotoğrafların büyük kısmı zaten gri. Ayırt eden şey markanın hue'sundan UZAK
+    // doygun piksellerin payı olurdu — ama yarım tasarlanmış bir metrik yazmak yerine
+    // KAYNAĞA gidildi: brief zaten renk isteyebiliyordu, istemiyordu.
+    '- BLACK AND WHITE or near-monochrome. Desaturated, documentary, photographic.',
+    '  No strong colour anywhere: no blue, orange, green or red equipment in view.',
+    '  The image sits next to a warm amber brand field — saturated colour fights it.',
+    '- Industrial subject, calm even lighting, matte surfaces.',
     '',
     // ⚠ **Yasak kelimeler prompt'un KENDİSİNDE geçmemeli.** R-20 kapısı görsel
     // prompt'unda `text`, `lettering`, `sign` gibi sözcükleri arıyor; brief'i yazan model
