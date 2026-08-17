@@ -44,24 +44,36 @@ const TONE_TOKEN: Record<SeriesTone, string> = {
   error: 'var(--role-state-error)',
 }
 
+// ⚠ **AKIŞ DİKEY — ve bu ölçülerek karar verildi (FAZ-14.3).** İlk sürüm yataydı
+// (`grid-auto-flow: column`) ve gerçek bir koşuda ÜÇÜNCÜ DÜĞÜM ÇERÇEVEDEN TAŞTI.
+// Hiçbir metrik yakalamadı: `text_overflow` metin sütununu ölçüyor, diyagramı değil.
+// Yalnız BAKINCA görüldü.
+//
+// Aritmetik yatay düzeni imkânsız kılıyor: güvenli metin sütunu 582 px; üç kutu
+// (3 × 140 min + 3 × 40 padding = 540) artı iki ok (2 × 48 = 96) = **636 px**. Dört
+// düğümde 830 px. `min-inline-size`i düşürmek taşmayı bir düğüm ötelerdi, çözmezdi —
+// ve kutu 122 px içerik genişliğinde 22 px fontla satır başına beş harf alırdı.
+//
+// Dikey akışta kutu sütunun TAMAMINI kaplıyor: taşma **yapısal olarak imkânsız**,
+// düğüm sayısından bağımsız. Referans örnek 3'ün adım listeleri de dikey.
 export const DIAGRAM_CSS = `
 .akis { display: grid; gap: 16px; }
 .akis-baslik { font-size: 28px; color: var(--role-text); margin: 0; }
-.akis-sira { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
-  align-items: stretch; gap: 0; }
-/* Sabit genişlik YOK (R-23): kutu içeriğe göre büyür, metin kırpılmaz. */
-.akis-kutu { min-inline-size: 140px; padding: 20px; border: 1px solid var(--role-line-hair);
+.akis-sira { display: grid; grid-auto-flow: row; align-items: stretch; gap: 0;
+  justify-items: stretch; }
+/* Sabit genişlik YOK (R-23): kutu sütunu doldurur, metin kırpılmaz. */
+.akis-kutu { padding: 16px 20px; border: 1px solid var(--role-line-hair);
   border-inline-start: 4px solid var(--akis-ton, var(--role-line-hair));
-  background: var(--role-surface); display: grid; align-content: center; gap: 6px; }
+  background: var(--role-surface); display: grid; align-content: center; gap: 4px; }
 .akis-etiket { font-size: 22px; color: var(--role-text); }
 .akis-detay { font-size: 16px; color: var(--role-text-muted);
   font-variant-numeric: tabular-nums slashed-zero; }
-/* Ok: kutular arası boşlukta, fonttan bağımsız geometri. */
-.akis-ok { inline-size: 48px; display: grid; place-items: center; }
-.akis-ok svg { inline-size: 32px; block-size: 16px; }
+/* Ok kutular ARASINDA, aşağı bakıyor: dikey akışta yön aşağıdır. */
+.akis-ok { block-size: 28px; display: grid; place-items: center; }
+.akis-ok svg { inline-size: 16px; block-size: 24px; }
 `
 
-const okSvg = `<svg viewBox="0 0 32 16" role="presentation" aria-hidden="true"><line x1="0" y1="8" x2="24" y2="8" stroke="var(--role-text-muted)" stroke-width="2"/><polygon points="24,3 32,8 24,13" fill="var(--role-text-muted)"/></svg>`
+const okSvg = `<svg viewBox="0 0 16 32" role="presentation" aria-hidden="true"><line x1="8" y1="0" x2="8" y2="24" stroke="var(--role-text-muted)" stroke-width="2"/><polygon points="3,24 8,32 13,24" fill="var(--role-text-muted)"/></svg>`
 
 export const diagramHtml = (spec: DiagramSpec): string | DiagramError => {
   if (spec.nodes.length === 0) return { kind: 'empty' }

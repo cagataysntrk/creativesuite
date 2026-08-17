@@ -62,6 +62,8 @@ import {
 import { RateLimiter } from '../ratelimit.js'
 import { appendPublished, lookupPublished } from '../publish-ledger.js'
 import { tasarla } from '../plan/tasarla.js'
+import { yay } from '@suite/contracts'
+import type { Islev } from '@suite/kernel'
 import type { TasarimPlani } from '@suite/contracts'
 import type { Yuva } from '../metin-akisi.js'
 import { providerCall } from '../provider-call.js'
@@ -277,9 +279,20 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // sıkışıyordu — kapanış bir DAVETTİR, bir resim altyazısı değil. Ortada duran görsel
     // bir GÖVDE slaydına düşüyor ve kapanış temiz kalıyor.
     const orta = Math.max(1, Math.ceil(govde.length / 2))
+    // ⚠ **İŞLEV BLOĞA DAMGALANIYOR** (FAZ-14.1 · gerçek koşuda bulundu). Yay satır
+    // sırasına göre atanıyor; ölçüm ise SLAYT sırasına bakıyordu. Sayfalayıcı 6 satırı
+    // 5 slayda bölünce üçüncü satır (bir `kanit`, 22 kelime) ikinci slaytta ölçüldü ve
+    // `gerilim`in 21 kelimelik bütçesine çarptı — oysa altı satırın HEPSİ bütçe içindeydi.
+    // Bir özelliği taşıyıcısından ayırıp konumdan yeniden türetmek, bu metrikteki
+    // DÖRDÜNCÜ birim uyuşmazlığıydı (D-260 ailesi). İşlev artık satırla birlikte gidiyor.
+    const yayIslevleri = yay(metinSatirlari.length)
+    const islevi = (satirIndex: number): { islev?: Islev } => {
+      const i = yayIslevleri[satirIndex]
+      return i === undefined ? {} : { islev: i as Islev }
+    }
     const blocks: Block[] = [
-      { type: 'heading', text: metinSatirlari[0] as string, level: 1 },
-      ...govde.slice(0, orta).map((t): Block => ({ type: 'body', text: t })),
+      { type: 'heading', text: metinSatirlari[0] as string, level: 1, ...islevi(0) },
+      ...govde.slice(0, orta).map((t, j): Block => ({ type: 'body', text: t, ...islevi(j + 1) })),
       // Üretilen görsel `role` TAŞIMIYOR: `product_screenshot` bir iddiadır ("ürün
       // gerçekten böyle görünüyor") ve model üretimi bir görsel onu iddia edemez.
       // Rolsüz görüntü hiçbir şey iddia etmez ve serbesttir (§7.1).
@@ -304,10 +317,20 @@ export const composeBody = (deps: ComposeDeps): Verb =>
               decorative: false,
             },
           ]),
-      ...govde.slice(orta).map((t): Block => ({ type: 'body', text: t })),
+      ...govde
+        .slice(orta)
+        .map((t, j): Block => ({ type: 'body', text: t, ...islevi(orta + j + 1) })),
       // Kapanış EN SONDA: sayfalayıcı son slaydı `kapanis` rolüyle damgalıyor ve o
       // slaydın metni bu satır olmalı.
-      ...(kapanisSatiri === null ? [] : [{ type: 'body' as const, text: kapanisSatiri }]),
+      ...(kapanisSatiri === null
+        ? []
+        : [
+            {
+              type: 'body' as const,
+              text: kapanisSatiri,
+              ...islevi(metinSatirlari.length - 1),
+            },
+          ]),
       ...cekimler.map((c): Block => ({
         type: 'image',
         src: c.path,
@@ -1337,6 +1360,37 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     const beyanEdilen =
       typeof input.constraints['prompt'] === 'string' ? input.constraints['prompt'] : ''
     const temelPrompt = beyanEdilen !== '' ? beyanEdilen : promptTuret(yetenek, input)
+
+    // ── PROMPT YOKSA ADIM ATLANIR — hata DEĞİL (FAZ-14.3 · D-264) ───────────
+    //
+    // ⚠ **Gerçek koşu bu kusuru gösterdi.** "Yuva yoksa brief `null` döner ve zincir
+    // kendiliğinden söner" diye varsaymıştım; sönmedi, KOPTU: boş prompt sağlayıcıya
+    // gidiyor ve `EMPTY_PROMPT` ile tüm koşuyu durduruyordu. Konuda bir AKIŞ olduğu
+    // için plan doğru biçimde diyagram seçmiş, yuva açmamıştı — yani hattı düşüren şey
+    // bir hata değil, DOĞRU bir karardı.
+    //
+    // `StepStatus` kernel'de zaten `'skipped'` taşıyor (§13); eksik olan onu üreten
+    // yoldu. Sağlayıcı ÇAĞRILMIYOR: maliyet sıfır, çıktı `atlandi` ile işaretli ve
+    // aşağı akış (brief yoksa görsel de yok) kendiliğinden boşa düşüyor.
+    if (temelPrompt.trim() === '') {
+      // ⚠ **SIFIR maliyet olayı yazılıyor, boş dizi DEĞİL.** İkinci gerçek koşu bunu
+      // gösterdi: `VERB_OUTPUT_CONTRACT_VIOLATION — metered fiil hiç CostEvent
+      // döndürmedi`. Sözleşme haklı; ücretli bir fiilin sessizce hiçbir şey yazmaması,
+      // maliyet defterini eksik bırakır (§8.3). Atlanan adım da bir olaydır ve
+      // defterdeki dürüst karşılığı **sıfır**: "koştu, para harcamadı, çünkü atlandı".
+      return ok({
+        costs: [
+          {
+            verb: 'GENERATE' as const,
+            capability: yetenek,
+            providerId,
+            amount: ZERO_USD,
+            kind: 'actual' as const,
+          },
+        ],
+        data: { atlandi: true, sebep: 'prompt-yok', yetenek },
+      })
+    }
 
     const ham: ProviderInput = {
       capability: yetenek,

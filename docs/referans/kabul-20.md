@@ -36,6 +36,25 @@ FAZ-14.3 `kompozit`i `gorsel-uret`ten öne aldı: görsel artık gireceği slayd
 sıra testlerde yeşil ama üretimde doğrulanmadı; "1/20" yazmak yapılmamış bir koşuyu
 sayardı.
 
+## Koşu günlüğü — FAZ-14.3 sonrası
+
+| # | Konu | Sonuç | Ne oldu |
+|---|---|---|---|
+| — | kalibrasyon kayıtları (1) | ✗ | `EMPTY_PROMPT`. Plan doğru biçimde diyagram seçip yuva açmamıştı; **boş prompt bir ATLAMA değil HATA sayılıyordu.** Zincir sönmüyor, kopuyordu. |
+| — | kalibrasyon kayıtları (2) | ✗ | `VERB_OUTPUT_CONTRACT_VIOLATION`. Atlanan adım `costs: []` döndürüyordu; ücretli fiil maliyet olayı yazmalı (§8.3). Sıfır maliyet olayı eklendi. |
+| — | kalibrasyon kayıtları (3) | ✗ | `kalite`: slayt 2 kelime bütçesi %105. **Ölçenin hatası:** yay SATIR sırasına göre atanıyor, ölçüm SLAYT sırasına bakıyordu; sayfalayıcı 6 satırı 5 slayda bölünce üçüncü satır (`kanit`, 22 kelime) `gerilim`in 21'lik bütçesine çarptı. Altı satırın hepsi bütçe içindeydi. |
+| — | kalibrasyon kayıtları (4) | ✓ metrik / ✗ **göz** | Tüm hat yeşil, `kalite` dahil. **Ama bakınca DİYAGRAM ÇERÇEVEDEN TAŞIYORDU** — üçüncü düğüm kesikti. Hiçbir metrik yakalamadı: `text_overflow` metin sütununu ölçüyor, diyagramı değil. |
+
+⚠ **Dördüncü koşu bu fazın en önemli dersi.** Her metrik yeşildi ve çıktı kırıktı.
+Aritmetik yatay akışı zaten imkânsız kılıyordu: 3 kutu + 2 ok = 636 px, güvenli sütun
+582 px. Akış dikeye çevrildi — kutu sütunun tamamını kaplıyor, **taşma yapısal olarak
+imkânsız**, düğüm sayısından bağımsız.
+
+⚠ **`list` düzeni ORTALANDI — üçüncü gözlemde kural yazıldı.** *"Alt yarı boş kalıyor"*
+gözlemi bu defterde koşu 3'te açılmıştı; ikon turunda iki kez, dikey diyagramla üçüncü kez
+görüldü. Sebep listenin uzun olacağı VARSAYIMIYDI; gerçek liste 2–4 madde ve sayfalayıcı
+zaten taşanı bölüyor. Bir gözlem gürültü, üç gözlem örüntüdür.
+
 ## Sıfırlanan koşular
 
 | Konu | Düşme sebebi | Düzeltme |

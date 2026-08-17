@@ -229,11 +229,23 @@ export const duzenBicimi = (d: LayoutName | undefined): DuzenBicimi => {
     case 'list':
       // Liste çok satır taşıyor: başlık küçülür, gövde ritim kazanır. Başlığı büyük
       // tutmak listeyi ikinci slayda iterdi — sayfalama zaten `list` bütçesini seçti.
+      //
+      // ⚠ **`flex-start` → `center`: ÜÇÜNCÜ gözlemde kural yazıldı.** Defterin
+      // "izlenen zayıflıklar" tablosuna koşu 3'te girmişti: *iki maddelik gövde
+      // slaytında alt yarı boş kalıyor.* Sonra ikon turunda iki kez daha görüldü, ve
+      // dikey akış diyagramıyla birlikte üçüncü kez: içerik üstte, altında ~600 px
+      // boşluk. Bir gözlem gürültüdür, üç gözlem örüntüdür.
+      //
+      // Sebep listenin uzun olacağı VARSAYIMIYDI. Gerçek liste 2–4 madde ve sayfalayıcı
+      // zaten taşanı bölüyor (R-30) — yani "yukarıdan başlasın ki aşağı doğru büyüsün"
+      // varsayımı hiçbir zaman gerçekleşmiyor. Kapak ve kapanış zaten yaslı; gövdenin
+      // ortalanması karoseli tek bir kompozisyon ailesi hâline getiriyor.
+      // ⚠ Optik merkez (geometrik merkezin ~%5 üstü) ayrı bir adım: FAZ-13.1.
       return {
         baslikPx: 46,
         baslikYukseklik: 1.1,
         govdePx: 32,
-        yaslama: 'flex-start',
+        yaslama: 'center',
         tirnak: false,
         maddeRitmi: true,
         kanitSeridi: false,

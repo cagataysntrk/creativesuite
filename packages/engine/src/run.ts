@@ -234,6 +234,14 @@ const ozetle = (data: unknown): Readonly<Record<string, unknown>> | null => {
     // zincir (FAZ-6.9)
     'chain',
     'chainGates',
+    // ⚠ **TASARIM PLANI (FAZ-14.2) ve ATLAMA (FAZ-14.3).** Plan bu listede olmadığı
+    // sürece deftere HİÇ girmiyordu — yani "kararlar gerekçesiyle yazılı" iddiası
+    // yanlıştı ve bunu ancak GERÇEK bir koşunun manifest'ine bakınca gördüm. Testim
+    // `composeBody`nin dönüş değerini sınıyordu, defteri değil: modülü test edip
+    // zinciri test etmemenin (D-261) bu fazdaki dördüncü tekrarı.
+    'tasarimPlani',
+    'atlandi',
+    'sebep',
   ]) {
     if (o[anahtar] !== undefined) cikti[anahtar] = o[anahtar]
   }

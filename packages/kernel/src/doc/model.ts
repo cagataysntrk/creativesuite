@@ -92,9 +92,26 @@ export interface DiagramBlock {
   readonly nodes: readonly DiagramNodeBlock[]
 }
 
+/**
+ * Metin bloğunun HİKÂYE İŞLEVİ — kanca · gerilim · kanıt · dönüş · davet (FAZ-14.1).
+ *
+ * ⚠ **Bloğun üstünde duruyor, slaydın değil — ve bu bir birim düzeltmesi.** Yay satır
+ * sırasına göre atanıyor ama ölçüm SLAYT sırasına bakıyordu; sayfalayıcı 6 satırı 5
+ * slayda bölünce üçüncü satır (bir `kanit`, 22 kelime) ikinci slaytta ölçüldü ve
+ * `gerilim`in 21 kelimelik bütçesine çarptı. Altı satırın **hepsi** bütçe içindeydi;
+ * hatalı olan ölçendi. Bu, aynı metrikteki DÖRDÜNCÜ birim uyuşmazlığı (D-260) ve
+ * kökü hep aynı: bir özelliği taşıyıcısından ayırıp konumdan yeniden türetmek.
+ */
+export type Islev = 'kanca' | 'gerilim' | 'kanit' | 'donus' | 'davet'
+
 export type Block =
-  | { readonly type: 'heading'; readonly text: string; readonly level: 1 | 2 }
-  | { readonly type: 'body'; readonly text: string }
+  | {
+      readonly type: 'heading'
+      readonly text: string
+      readonly level: 1 | 2
+      readonly islev?: Islev
+    }
+  | { readonly type: 'body'; readonly text: string; readonly islev?: Islev }
   | ImageBlock
   | { readonly type: 'spacer'; readonly size: 'sm' | 'md' | 'lg' }
   | ChartBlock

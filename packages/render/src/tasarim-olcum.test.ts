@@ -135,3 +135,44 @@ describe('yay bütçesi — ritim ölçüme giriyor', () => {
     expect(butce(disarida)!.value).toBeLessThanOrEqual(100)
   })
 })
+
+// ── İşlev BLOKTAN okunuyor, slayt sırasından türetilmiyor (FAZ-14.1 düzeltmesi) ──
+//
+// ⚠ Bu blok GERÇEK bir koşudan doğdu: sayfalayıcı 6 satırı 5 slayda bölünce üçüncü
+// satır (bir `kanit`, 22 kelime) ikinci slaytta ölçüldü ve `gerilim`in 21 kelimelik
+// bütçesine çarptı. Altı satırın HEPSİ bütçe içindeydi; hatalı olan ölçendi.
+
+describe('yay işlevi bloğun üstünde taşınıyor', () => {
+  const kelimeler2 = (n: number): string => Array.from({ length: n }, () => 'kelime').join(' ')
+
+  it('BLOKTAKİ işlev, slayt sırasından TÜRETİLENİ eziyor', () => {
+    // Slayt 2/5 → `yay(5)[1]` = gerilim (21). Ama blok bir `kanit` (30) taşıyor.
+    const doc: DocumentModel = {
+      ...belge(),
+      slayt: { role: 'govde', index: 1, total: 5 },
+      blocks: [{ type: 'body', text: kelimeler2(22), islev: 'kanit' }],
+    }
+    const r = tasarimOlc({ slaytlar: [doc] }).readings.find((x) => x.metric === 'word_budget')
+    expect(r!.value).toBeLessThanOrEqual(100)
+  })
+
+  it('blokta işlev YOKSA eski davranış sürüyor — ölçüm ölçemediğini bozmuyor', () => {
+    const doc: DocumentModel = {
+      ...belge(),
+      slayt: { role: 'govde', index: 1, total: 5 },
+      blocks: [{ type: 'body', text: kelimeler2(22) }],
+    }
+    const r = tasarimOlc({ slaytlar: [doc] }).readings.find((x) => x.metric === 'word_budget')
+    expect(r!.value).toBeGreaterThan(100)
+  })
+
+  it('bloktaki işlev bütçeyi SIKILAŞTIRIYORSA da geçerli', () => {
+    const doc: DocumentModel = {
+      ...belge(),
+      slayt: { role: 'govde', index: 2, total: 5 },
+      blocks: [{ type: 'body', text: kelimeler2(20), islev: 'donus' }],
+    }
+    const r = tasarimOlc({ slaytlar: [doc] }).readings.find((x) => x.metric === 'word_budget')
+    expect(r!.value).toBeGreaterThan(100) // donus = 18
+  })
+})

@@ -14,7 +14,7 @@
 // Paralel bir rapor biçimi icat etmek, aynı bilgiyi iki yerde iki farklı görünümle
 // göstermek olurdu ve biri kaçınılmaz olarak bayatlardı.
 
-import type { DocumentModel, SlaytKimligi } from '@suite/kernel'
+import type { DocumentModel, Islev, SlaytKimligi } from '@suite/kernel'
 import type { QaReport, ToleranceReading } from '@suite/contracts'
 import { GOVDE_TAVANI, islevTavanlari, slaytIslevi } from '@suite/contracts'
 import { parseColor, type Rgb } from './qa/deltae.js'
@@ -116,10 +116,20 @@ export const kontrastOrani = (a: Rgb, b: Rgb): number => {
  * ⚠ **Tür şart, çünkü bütçe bloğa göre değişiyor.** Kapak slaydında bir BAŞLIK ≤8 kelime
  * olmalı; ama aynı slayttaki destekleyici bir GÖVDE satırı ≤30 kelimedir ve bu meşrudur.
  */
-const metinBloklari = (doc: DocumentModel): readonly { tur: 'heading' | 'body'; metin: string }[] =>
+const metinBloklari = (
+  doc: DocumentModel
+): readonly { tur: 'heading' | 'body'; metin: string; islev?: Islev }[] =>
   doc.blocks.flatMap((b) =>
     b.type === 'heading' || b.type === 'body'
-      ? [{ tur: b.type, metin: (b as { text: string }).text }]
+      ? [
+          {
+            tur: b.type,
+            metin: (b as { text: string }).text,
+            ...((b as { islev?: Islev }).islev === undefined
+              ? {}
+              : { islev: (b as { islev?: Islev }).islev }),
+          },
+        ]
       : []
   )
 
@@ -146,15 +156,23 @@ const asimOrani = (doc: DocumentModel, k: SlaytKimligi): number => {
   //
   // ⚠ İşlev yoksa (yay dışı bir slayt sayısı) eski rol davranışı aynen sürüyor: yeni
   // ölçüm, ölçemediği yerde eskisini bozmuyor.
-  const islev = slaytIslevi(k.index, k.total)
+  // ⚠ **İşlev BLOĞUN üstünden okunuyor; slayt sırasından TÜRETİLMİYOR.** Türetiliyordu
+  // ve gerçek bir koşuda düştü: sayfalayıcı 6 satırı 5 slayda bölünce üçüncü satır
+  // (bir `kanit`) ikinci slaytta ölçüldü ve `gerilim`in bütçesine çarptı. Satırların
+  // hepsi bütçe içindeydi; hatalı olan ölçendi (D-260 ailesinin dördüncüsü).
+  //
+  // Blokta işlev yoksa (eski belgeler, testler) slayt sırasından türetme SÜRÜYOR —
+  // yeni ölçüm, ölçemediği yerde eskisini bozmuyor.
+  const slaytIslev = slaytIslevi(k.index, k.total)
   let en = 0
   for (const b of metinBloklari(doc)) {
+    const islev = b.islev ?? slaytIslev
     const tavan =
       b.tur === 'heading'
         ? islev === null
           ? KELIME_TAVANI[k.role]
           : islevTavanlari()[islev]
-        : // Gövde bloğu: slaydın işlevi bir GÖVDE işleviyse onun tavanı, değilse (kapak
+        : // Gövde bloğu: işlev bir GÖVDE işleviyse onun tavanı, değilse (kapak
           // slaydındaki destekleyici satır gibi) en geniş gövde tavanı. D-260'ın dersi
           // korunuyor: kapaktaki 21 kelimelik destek satırı 8'e karşı ölçülmez.
           islev === null || islev === 'kanca'

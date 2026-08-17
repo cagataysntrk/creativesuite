@@ -69,25 +69,21 @@ oydu.** `chart`/`diagram` çizicileri yazılıydı, üretim hattı sıfır tane 
 **11.1 KAPANDI** — akış diyagramı fotoğrafın yerine geçiyor. `chart` değil `diagram`,
 çünkü grafik sayı ister ve R-32 kaynaksız sayıyı yasaklıyor. 20 test.
 
-**PLAN GENİŞLEDİ — FAZ-12/13/14.** Yetenek ve araç envanteri çıkarıldı
-(`docs/referans/yetenek-envanteri.md` · `docs/research/10-arac-envanteri...`), her ⛔ bir
-adıma bağlandı. Lisans tuzakları ve kapsam haritası orada.
-
 **FAZ-14 = OMURGA, ve ERKEN yapılmalı:** metin → tasarım planı → icra → denetim → tamamlama.
 Şu an metinle yerleşim aynı adımda kararlaşıyor ve arada **denetlenebilir bir artefakt yok**;
 *"bu slayt neden böyle tasarlandı?"* sorusunun cevabı hiçbir yerde yazılı değil.
 Zengin bir dağarcığın seçicisi yoksa zenginlik gürültüdür. Modele gönderme SON çare:
 plan yalnız `deterministik: false` işaretli yuvaları modele verir.
 
-⚠ **SIRA DEĞİŞTİ — FAZ-14 öne alındı.** 11.1–11.3 dağarcığı (düzen · süsleme · ikon ·
-diyagram) plan artefaktını kurmaya YETİYOR. 14 sonraya bırakılsaydı 11.4–11.10, 12 ve 13'ün
-eklediği her yetenek sonradan plana geri takılmak zorunda kalırdı. **Önce omurga, sonra kas.**
-Sıra: **14** → 11.4–11.10 → 12 → 13.
+**Sıra:** 14 (omurga) → 11.4–11.10 → 12 → 13. Plan kapsamı: `docs/referans/yetenek-envanteri.md`.
 
 **SIRADAKİ 14.4** — denetim: çıktı planı uyguladı mı. Üç katman AYRI kalmalı —
 uyumsuzluk HATA, metrik ihlali RET, estetik bulgu ÖNERİ.
-⚠ **Kabul sayacı SIFIRLANDI** (14.3 bir hat/render değişikliği). Gerçek koşu henüz
-yapılmadı: yeni sıra üretimde DOĞRULANMADI.
+⚠ **Kabul sayacı 0/20.** Yeni hat dört gerçek koşuda doğrulandı: 3 kusur bulundu ve
+kapatıldı (boş prompt atlama sayılmıyordu · atlanan adım maliyet yazmıyordu · yay işlevi
+slayt sırasından türetiliyordu). Dördüncü koşu tüm metrikleri geçti ama **bakınca diyagram
+çerçeveden taşıyordu** — akış dikeye çevrildi, `list` düzeni ortalandı. Render değişti,
+sayaç yine 0.
 
 ⚠ KARARLAR.md 561/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
 
