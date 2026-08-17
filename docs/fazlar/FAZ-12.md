@@ -40,8 +40,8 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    ölçüyor, en açık durak kontrastını kaybedebilir ve ölçüm göremez (açmak ölçümün EN KÖTÜ
    durağı bulmasını ister). **gölge** — referansların dördü de düz. **knockout** — çözdüğü
    sorun bu ailede YOK, metin eğri sınırını hiç geçmiyor (`column_in_band`).
-   ⚠ **AÇIK OLAN İKİSİ ve neden onlar:** OpenType (`kern`/`liga`/`calt`; `dlig` kapalı —
-   Türkçe'de `fi` bağı `fı` ile karışır) ve **vurgu şeridi**.
+   ⚠ **AÇIK OLAN İKİSİ:** OpenType (`dlig` kapalı — Türkçe'de `fi` bağı `fı` ile karışır)
+   ve vurgu şeridi.
    ⚠ **Vurgu, karoselin en büyük tipografik eksiğiydi:** her satır aynı ağırlıkta
    okunuyordu. Prompt satır başına EN FAZLA bir ifade istiyor.
    ⚠ **İlk sürüm BAKINCA yetersiz çıktı:** yalnız renk değiştiriyordu, fark ayırt
@@ -54,12 +54,9 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 
 📖 §7.1, §12.1 · R-30
 🔗 12.1
-🛠 Görsel ve alanlara uygulanan kapalı işlem dağarcığı — hepsi Chromium, sıfır kurulum:
-   `filter` (blur · brightness · contrast · saturate · hue-rotate · sepia) ·
-   `feColorMatrix` (duotone) · `feTurbulence` (grain) · `feConvolveMatrix` (keskinleştirme) ·
-   `feComponentTransfer` (posterize/halftone) · `mix-blend-mode` (16 kip) ·
-   `mask-image` (alfa/degrade maskesi) · `clip-path` (şekil maskesi) ·
-   `backdrop-filter` (cam etkisi) · 3B `transform` (perspektif).
+🛠 Kapalı işlem dağarcığı, hepsi Chromium: `filter` · `feColorMatrix` (duotone ✓) ·
+   `feTurbulence` (grain ✓) · `feConvolveMatrix` · `feComponentTransfer` ·
+   `mix-blend-mode` · `mask-image` · `clip-path` (✓) · `backdrop-filter` · 3B `transform`.
 📁 `packages/render/src/gorsel-islem.ts`
 ✅ ⚠ **İşlemler ADLANDIRILMIŞ ve KAPALI** — `filter: <serbest string>` değil.
    `duotone` · `yumusat` · `grenli` · `derinlik` · `cam` gibi ROL adları. Serbest CSS
@@ -120,8 +117,8 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    doğruydu (N'nin sağı y=45, N+1'in solu y=45) ama BAKINCA birleşmiyordu — aradaki boşlukta
    ikiye bölünen daire iki yarım daire gibi duruyor. Göz devamı **şekli tamamlayarak değil
    YÖNÜ izleyerek** kuruyor; yön veren `yay` eklendi (dağarcığın altıncısı — bir karar).
-   ⚠ **Kapak VE kapanış çapa:** ilk sürümde kapanış yay alıyordu, yani son slayt olmayan
-   bir sonrakine işaret ediyordu. Navigasyon orada zaten `‹‹ başa` diyor.
+   ⚠ **Kapak VE kapanış çapa:** kapanış yay alıyordu, yani olmayan bir sonrakine işaret
+   ediyordu; navigasyon orada zaten `‹‹ başa` diyor.
    ⚠ ⚠ **ÜÇÜNCÜ KAPALI YETENEK İKİNCİ AİLEYİ DOĞURDU.** Panorama `temel`de kapalı (o
    ailenin dili düz), tıpkı vinyet ve degrade gibi. Üç kapalı yetenek biriktiğinde ortaya
    çıkan şey eksik bir aile değil, İKİNCİ bir ailedir: `AKICI_AILE` (referans örnek 1'in
@@ -144,36 +141,40 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
    tekrarlayan hata (D-261). Corpus'a `claim_source`lu sayı geldiği gün açılırlar.
    ⚠ **ZAMAN ÇİZELGESİ ELENDİ:** akış diyagramı zaten dikey, sıralı, etiket+ayrıntılı bir
    dizi çiziyor. İkincisi aynı şeklin ikinci uygulaması olurdu (R-05'in çizim karşılığı).
-   ⚠ **KARŞILAŞTIRMA yapıldı çünkü hem sayı istemiyor hem GERÇEKTEN farklı:** akış bir
-   SIRA anlatır (adım → adım), karşılaştırma bir KARŞITLIK kurar (bugün → olması gereken).
-   ⚠ **ÜRETİM YOLU BAĞLI:** prompt bölümü → `karsilastirmayiAyir` → `compare` bloğu →
-   `compareHtml`. Akış varsa karşılaştırma konmuyor: aynı slaytta iki veri ögesi kalabalık.
-   ⚠ Tek taraflı karşılaştırma REDDEDİLİYOR (`validateDocument` + çizici, iki savunma):
-   tek taraflı bir karşılaştırma karşılaştırma değil bir listedir.
-   ⚠ Metin SVG/DOM'da; canvas yasak. Lexicon karşılaştırmanın HER metnini tarıyor — R-32
-   buradan da geçiyor.
+   ⚠ **KARŞILAŞTIRMA yapıldı:** sayı istemiyor ve gerçekten farklı — akış bir SIRA, bu bir
+   KARŞITLIK. Üretim yolu bağlı: prompt → `karsilastirmayiAyir` → `compare` → `compareHtml`.
+   Akış varsa konmuyor. Tek taraflı olan REDDEDİLİYOR (iki savunma): o bir listedir.
+   Lexicon her metnini tarıyor — R-32 buradan da geçiyor.
    ⚠ **TEK SOL KENAR — bakınca bulundu.** Oluk yalnız paragrafa veriliyordu; bloklar 54 px
    solda başlıyordu. Artık tüm içeriğe ve TEK bir değerden geliyor.
 🧪 4 test: iki taraf çiziliyor · tek taraflı reddediliyor · SONRA marka aksanlı · kaçırma.
 💾 `feat(render): veri ogeleri dagarcigi` · `Refs: FAZ-12.5 · §7.1`
 
-## 12.6 — Marka işareti: yerleşim, boşluk kuralı, filigran    [ ]
+## 12.6 — Marka işareti: yerleşim, boşluk kuralı, filigran    [x] 2026-08-17
 
 📖 §4.3 · D-252
 🔗 —
 🛠 Marka işareti şu an **hiç yok** — yalnız metin kulbu var. Logo, boşluk kuralı
    (clearspace), en küçük boy ve izinli yerleşimler kapalı bir kural kümesi olarak.
-📁 `packages/render/src/marka-isareti.ts`
+📁 `packages/render/src/marka-isareti.ts` + testi · `static.ts`
 ✅ ⚠ Boşluk kuralı işaretin KENDİ ölçüsünden türetilir (klasik: harf yüksekliği kadar),
    sabit piksel değil — 1:1 ve 9:16'da sabit piksel farklı görünür.
    ⚠ Logo süsleme DEĞİLDİR: her slayta değil, kapak ve kapanışa.
-🧪 Boşluk kuralını ihlal eden yerleşim → `tasarim` kırmızı.
+   ⚠ ⚠ **ÜÇÜNCÜ YAKLAŞIMDA ÖNCÜL DEĞİŞTİ.** İlk iki deneme akan eğrinin minyatürüydü:
+   *"imza eğridir, öyleyse işaret de eğri olmalı."* Yanlış olan **"öyleyse"** — eğri
+   1080 px'te imza, 30 px'te çizgi; iki büküm o karede ayırt edilemiyor ve işaret dilim
+   gibi duruyordu. Bu ölçekte okuyan tek şey harf formu: mürekkep kare, oyulmuş "U".
+   ⚠ **Yeni varlık YOK:** marka fontu zaten gömülü (D-252); SVG eklemek ağdan indirme +
+   lisans + §16 sınavı demekti.
+   ⚠ **Harf `text` olarak duruyor, `path`e çevrilmiyor:** canlı metin kalınca glif ölçümü
+   ve `notdef` sayımı işareti de kapsıyor — font düşerse kapı görür (R-20 ailesi).
+🧪 6 test: boşluk işaretin kendi ölçüsünden · en küçük boy · harf canlı metin · erişilebilir
+   ad · yalnız kapak/kapanışta · kilit birlikte.
 💾 `feat(render): marka isareti yerlesimi` · `Refs: FAZ-12.6 · §4.3`
 
 ## 12.7 — Kompozisyon ailesi: kapalı garanti, AÇIK aile    [x] 2026-08-17
 
 📖 §7.1 · D-254, D-261
-🔗 12.1, 12.2, 12.4
 🛠 *"Tek çeşidi yok, binlerce çeşidi var."* D-254 kapalı bir düzen enum'u kurdu ve bu doğru;
    ama kapalı olan **garanti katmanı** (okunabilirlik, kontrast, güvenli alan, marka), açık
    olan **kompozisyon ailesi**. Bir aile = düzen + efekt profili + doku + süsleme yoğunluğu +
@@ -217,10 +218,9 @@ OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 
 📖 §12.1, §7.1 · D-253
 🔗 12.2
-🛠 Şu an her alan DÜZ renk. Degrade, çağdaş karosel dilinin en görünür estetik kaldıracı ve
-   Chromium'da bedava: `linear-gradient` · `radial-gradient` · `conic-gradient` ·
-   **mesh degrade** (üst üste bindirilmiş yumuşak radyal katmanlar) · **grenli degrade**
-   (degradenin üstüne `feTurbulence` — bantlaşmayı gizler ve pahalı görünür).
+🛠 Şu an her alan DÜZ renk. `linear/radial/conic-gradient` · mesh (katmanlı radyal) ·
+   grenli degrade (üstüne `feTurbulence` — bantlaşmayı gizler).
+   ⚠ `temel` ailede kapalı; `akici` ailesi isteyebilir.
 📁 `packages/render/src/sablon-degrade.ts`
 ✅ ⚠ **Degrade CHROMA TAVANINA tabidir (§12.1, D-253).** Ölçüm yüzey kapsamlı: bir degrade
    ortalamada tavanı geçmese de tek bir durağı geçebilir — **her durak ayrı ölçülür.**

@@ -31,6 +31,14 @@ export { VARSAYILAN, guvenliYuzde, type SablonParametreleri } from './sablon-par
 export { ikonSec, ikonSvg, IKONLAR, type IkonAdi } from './sablon-ikon.js'
 export { planDenetle, uyumsuzlukOzeti, type Uyumsuzluk } from './plan-denetim.js'
 export {
+  markaIsaretiSvg,
+  markaKilidi,
+  markaCss,
+  bosluk,
+  BOSLUK_ORANI,
+  EN_KUCUK_PX,
+} from './marka-isareti.js'
+export {
   TIPO_EFEKTLERI,
   OPENTYPE_CSS,
   vurguCss,

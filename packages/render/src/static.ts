@@ -32,6 +32,7 @@ import {
 } from './sablon.js'
 import { ikonSec, ikonSvg } from './sablon-ikon.js'
 import { OPENTYPE_CSS, vurguCss, vurguyuIsaretle } from './sablon-tipo.js'
+import { markaCss, markaKilidi } from './marka-isareti.js'
 import {
   dokuCss,
   duotoneSvg,
@@ -57,6 +58,8 @@ const GRAIN_ID = 'marka-grain'
 const IKON_PX = 34
 /** İçerik oluğu — ikon burada durur ve TÜM içerik bu kenardan hizalanır. */
 const IKON_OLUK = IKON_PX + 20
+/** Marka işaretinin kenarı — kulp puntosuyla (24 px) aynı optik ağırlıkta. */
+const MARKA_PX = 30
 
 export { kacir } from './html.js'
 
@@ -382,6 +385,9 @@ const sablonCss = (doc: DocumentModel): string => {
     `           font-size: 26px; font-weight: 600; letter-spacing: 0.06em;`,
     `           font-variant-numeric: tabular-nums slashed-zero;`,
     `           color: ${sagda ? r.motif : r.metinSoluk}; }`,
+    // ⚠ Marka işareti YALNIZ kapak ve kapanışta (FAZ-12.6): süsleme değil, imza.
+    // Ortadaki slaytlarda kulp zaten markayı taşıyor; ikisi birden gürültü olurdu.
+    markaCss(MARKA_PX, sagda ? r.metinSoluk : r.motif, pay),
     `  .kulp { position: absolute; z-index: 4; left: ${pay}px; bottom: ${pay}px;`,
     `          font-size: 24px; letter-spacing: 0.02em;`,
     `          color: ${sagda ? r.metinSoluk : r.motif}; }`,
@@ -475,7 +481,12 @@ const sablonKatmanlari = (doc: DocumentModel): string => {
         ]),
     ...(rakam === null ? [] : [`<div class="hayalet" aria-hidden="true">${kacir(rakam)}</div>`]),
     ...(sayac === null ? [] : [`<div class="sayac">${kacir(sayac)}</div>`]),
-    ...(k.kulp === undefined ? [] : [`<div class="kulp">${kacir(k.kulp)}</div>`]),
+    // Kapak ve kapanış: işaret + kelime işareti. Gövde: yalnız kulp.
+    ...(k.kulp === undefined
+      ? []
+      : k.role === 'kapak' || k.role === 'kapanis' || k.role === 'tek'
+        ? [markaKilidi(MARKA_PX, r.zemin, r.motif, kacir(k.kulp))]
+        : [`<div class="kulp">${kacir(k.kulp)}</div>`]),
     ...(nav === null ? [] : [`<div class="nav">${kacir(nav)}</div>`]),
   ].join('\n')
 }
