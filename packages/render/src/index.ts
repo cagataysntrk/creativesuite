@@ -300,8 +300,24 @@ export { ALAN_KAYNAGI, dagilim, PARMAK_IZI_ALANLARI, parmakIzi, uzaklik } from '
 export type { ParmakIzi, ParmakIziAlani } from './cesitlilik.js'
 export { KATMAN_SIRASI, ustunde, z } from './kompozit.js'
 export type { Katman } from './kompozit.js'
-export { panoramaHtml, renderPanorama } from './panorama.js'
-export type { Bant, Kart, Panel, PanoramaBelgesi } from './panorama.js'
+export { panoramaHtml, puntoOlcumu, renderPanorama, VARSAYILAN_TIPO } from './panorama.js'
+export type {
+  AlanSiniri,
+  Bant,
+  Kart,
+  Panel,
+  PanoramaBelgesi,
+  PanoramaGorseli,
+  TipoResetesi,
+  Yerlesim,
+} from './panorama.js'
+export { zeminCss, zeminKarisimi, zeminTabani } from './zemin.js'
+export type { Durak, ZeminKatmani, ZeminResetesi } from './zemin.js'
+// ⚠ Katalog örnekleri dışa açılıyor: hattın `sablon-uyarla` adımı (FAZ-15.7) çoğaltacağı
+// taslağı buradan alıyor. Kapalı kalsalardı motor onları göremez ve katalog merkezli
+// üretim (D-268) yalnız kâğıt üstünde kalırdı.
+export { ORNEKLER, ornekBul } from './katalog-ornek.js'
+export type { KatalogOrnegi } from './katalog-ornek.js'
 export { egriZarfi } from './sekil-cebri.js'
 export type { Zarf } from './sekil-cebri.js'
 export {

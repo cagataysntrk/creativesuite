@@ -54,7 +54,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 Rampa dışı bir durak yaz → chroma kapısı kırmızı
 💾 `feat(render): zemin recetesi — degrade doku gren` · `Refs: FAZ-15.3 · §12.1`
 
-## 15.4 — Katalog dolu taslağa dönüyor — `ornek: PanoramaBelgesi`    [ ]
+## 15.4 — Katalog dolu taslağa dönüyor — `ornek: PanoramaBelgesi`    [x]
 
 📖 §7.1 · D-268 · Yasa 13
 🔗 FAZ-15.3
@@ -65,12 +65,14 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
    iskelet her koşuda yeniden icat demektir ve icat, kalitenin en oynak yeridir.
    ⚠ Örnek içerik **kaynağını beyan eder** (`kaynak` + panel başına `rayaOrta`) — R-32:
    kaynaksız sayı örnekte de yayınlanamaz.
-📁 `packages/contracts/src/katalog.ts` · `packages/contracts/src/katalog-ornek.ts`
+📁 `packages/contracts/src/katalog.ts` · `packages/render/src/katalog-ornek.ts`
+   ⚠ Örnek `render`da, kayıt `contracts`ta: `PanoramaBelgesi` render'ın tipi ve contracts
+   onu göremez (halka sırası). Bağ, aynı `id` ve iki yönlü bir eşleşme testi.
 ✅ Altı girişin altısında `ornek` dolu · her biri tek başına render edilip BAKILDI
 🧪 Örneği R-32 ihlal edecek şekilde kaynaksız bırak → `iddia` kapısı kırmızı
 💾 `feat(contracts): katalog dolu taslak — ornek belgeler` · `Refs: FAZ-15.4 · §7.1`
 
-## 15.5 — Altı şablon tek tek mükemmelleştiriliyor    [ ]
+## 15.5 — Altı şablon tek tek mükemmelleştiriliyor    [x]
 
 📖 §7.1, §12
 🔗 FAZ-15.4
@@ -79,7 +81,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
    `editoryal` boşluğu taşımıyor · `sahne` okları zayıf · `akan-alan` hayalet rakamı düz.
    Ölçüt tek: **ikon, tablo, panel, süsleme — hiçbiri jenerik durmayacak.** Her öge ya
    içerikten türeyecek ya silinecek.
-📁 `packages/render/src/panorama.ts` · `packages/contracts/src/katalog-ornek.ts`
+📁 `packages/render/src/panorama.ts` · `packages/render/src/katalog-ornek.ts`
 ✅ Altı şerit yan yana konuldu; hiçbiri diğerinin boyanmış hâli değil (çeşitlilik ≥ 0,6)
 🧪 Bir şablonun taşıyıcı ögesini sil → kesintisizlik ölçümü o şablonu kırmızıya çeviriyor
 💾 `feat(render): alti sablon — tasarim kalitesi` · `Refs: FAZ-15.5 · §7.1`

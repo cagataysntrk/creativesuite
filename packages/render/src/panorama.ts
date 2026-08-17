@@ -231,8 +231,18 @@ export const VARSAYILAN_TIPO: TipoResetesi = {
  * aynı iskeletin boyaları hâline getirir — kullanıcının "rezalet" dediği tam bu.
  */
 export type Yerlesim =
-  /** Başlık üstte, panel dibe yaslı — veri anlatısı (bugünkü davranış). */
+  /** Her şey üste yığılı — panel gövdenin hemen altında. */
   | 'ust'
+  /**
+   * Başlık üstte, panel DİBE yaslı — arada kasıtlı boşluk.
+   *
+   * ⚠ ⚠ **`ust`TAN AYRILDI, çünkü tek isim İKİ KARARI birden veriyordu.** "İçerik üstte"
+   * ile "panel dibe" bağımsız tercihler; birleşik oldukları sürece `memphis` üstte
+   * hizalanmak isteyip panelini de dibe göndermek zorunda kalıyor ve panel, kesimi aşan
+   * öznenin arkasına düşüyordu. Bir enum değeri iki şey söylüyorsa, ikisinden birini
+   * isteyen şablon ifade edilemez hâle gelir.
+   */
+  | 'ayrik'
   /** Blok dikey ortada — boşluk üstte ve altta eşit; sakin, editoryal. */
   | 'orta'
   /** Her şey dibe yaslı — boşluk ÜSTTE; poster/afiş dili. */
@@ -242,6 +252,7 @@ export type Yerlesim =
 
 const YERLESIM_CSS: Record<Yerlesim, string> = {
   ust: 'flex-start',
+  ayrik: 'flex-start',
   orta: 'center',
   alt: 'flex-end',
   yayik: 'space-between',
@@ -297,6 +308,30 @@ export interface PanoramaBelgesi {
   readonly tipografi?: TipoResetesi
   /** Kartın dikey yerleşimi — verilmezse `'ust'`. */
   readonly yerlesim?: Yerlesim
+  /**
+   * Dev soluk rakamın yeri ve ölçüsü — **kompozisyonun parçası, süs değil.**
+   *
+   * ⚠ ⚠ **BU ALAN `akan-alan`IN BOŞ ALT ALANINDAN DOĞDU.** Hayalet sabit `top: 300px` ile
+   * çiziliyordu; iki alanlı şablonda bu, rakamı ÜST (amber) alanda tutuyor ve tuvalin alt
+   * %40'ı bomboş siyah kalıyordu. Referansta (`ornek-5`) dev rakam tam olarak alt alanda
+   * duruyor ve sınırı aşıyor — yani boşluğu dolduran şey o. Sabit konum, bir şablonun
+   * kimliğini onun elinden alıyordu.
+   * ⚠ Ölçü de parametre: `editoryal` fısıldayan bir şablon, 470 px'lik bir rakam orada
+   * bağırmak olurdu.
+   */
+  readonly hayaletKonumu?: {
+    readonly ust: number
+    readonly olcek: number
+    /**
+     * Opaklık yüzdesi. Varsayılan 7.
+     *
+     * ⚠ ⚠ **TEK BİR DEĞER İKİ FARKLI İŞE YETMİYOR.** Hayalet METNİN ARKASINDAYSA (çoğu
+     * şablon) %7 doğru: daha fazlası başlığı okunmaz yapıyor. Ama `akan-alan`da rakam
+     * kendi BOŞ alanında duruyor ve orada %7 hiç görünmüyor — referansta o rakam
+     * kompozisyonun yarısı. Aynı sabit, bir yerde fazla bir yerde az. Güç de parametre.
+     */
+    readonly guc?: number
+  }
   readonly tokenCss: string
   readonly fontCss?: string
   readonly stamp: AssetStamp
@@ -329,17 +364,55 @@ const koyuMu = (zemin: string): boolean => zemin.includes('line-edge') || zemin.
 const sol = (degisken: string, yuzde: number): string =>
   `color-mix(in oklab, var(${degisken}) ${yuzde}%, transparent)`
 
-/** Kartın metin/aksan/soluk üçlüsü — zeminden türetiliyor, seçilmiyor. */
+/**
+ * Zemin AKSANIN KENDİSİ mi — vurgu çipinin rengi buna bağlı.
+ *
+ * ⚠ ⚠ **BU AYRIM BİR RENDER'A BAKMADAN ÇIKMADI.** Açık zeminde vurgu bir ÇİP: amber
+ * zemin, mürekkep metin (FAZ-12.6'da bulunmuştu). Ama `akan-alan` ve `donen`in ilk
+ * kartında kartın KENDİ zemini zaten amber — yani çip amber-üstüne-amber düşüyor ve
+ * **vurgulanan kelime tamamen kayboluyor.** "Açık zemin" tek bir şey değil: kâğıt açık,
+ * amber de açık, ama çip ikisinde aynı renk olamaz. Kâğıtta çip amber, amberde çip
+ * mürekkep. Kural tek cümle: **çip zeminle aynı renk olamaz.**
+ */
+const aksanZeminiMi = (zemin: string): boolean =>
+  zemin.includes('role-bg') || zemin.includes('amber') || zemin.includes('role-accent')
+
+/** Kartın renk seti — zeminden türetiliyor, seçilmiyor. */
 const kartRenkleri = (
   zemin: string
-): { readonly metin: string; readonly aksan: string; readonly soluk: string } =>
+): {
+  readonly metin: string
+  readonly aksan: string
+  readonly soluk: string
+  readonly cip: string
+  readonly cipMetin: string
+} =>
   koyuMu(zemin)
-    ? { metin: METIN, aksan: AKSAN, soluk: 'rgba(255,255,255,0.72)' }
+    ? {
+        metin: METIN,
+        aksan: AKSAN,
+        soluk: sol('--role-surface', 72),
+        // Koyu zeminde çip kullanılmıyor; aksan rengi zaten ayrışıyor. Yine de tanımlı:
+        // tanımsız bir değişken CSS'te sessizce miras alınır ve yanlış renk verir.
+        cip: AKSAN,
+        cipMetin: MUREKKEP_T,
+      }
     : // ⚠ Açık zeminde aksan MÜREKKEP: amber üstüne amber görünmez, kâğıt üstüne amber
       // ise 1,9:1 kontrast veriyor (FAZ-12.6'da ölçüldü) — WCAG AA'nın yarısı.
-      { metin: MUREKKEP_T, aksan: MUREKKEP_T, soluk: 'rgba(0,0,0,0.62)' }
+      {
+        metin: MUREKKEP_T,
+        aksan: MUREKKEP_T,
+        soluk: sol('--role-line-edge', 62),
+        cip: aksanZeminiMi(zemin) ? MUREKKEP_T : AKSAN,
+        cipMetin: aksanZeminiMi(zemin) ? METIN : MUREKKEP_T,
+      }
 
 const MUREKKEP_T = 'var(--role-line-edge)'
+
+/** Hayaletin satır yüksekliği — `ust` alanını glif tepesine yaklaştırıyor. Ölçüm bu
+ * sabiti PAYLAŞMAK zorunda: CSS'te başka, hesapta başka bir değer olsaydı rakamın hangi
+ * alanda olduğu yanlış bulunurdu. */
+const HAYALET_SATIRI = 0.76
 
 /**
  * Panelin HTML'i.
@@ -533,6 +606,30 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           const kartZemini =
             doc.alanSiniri === undefined ? (k.zemin ?? doc.zemin) : doc.alanSiniri.ust
           const r = kartRenkleri(kartZemini)
+          // ⚠ ⚠ **HAYALET RENGİNİ DURDUĞU ALAN BELİRLER, KARTIN METNİ DEĞİL.** İki alanlı
+          // şablonda kart amber alanın üstünde (metni mürekkep) ama dev rakam sınırın
+          // ALTINDA, mürekkep alanda duruyor. Kart renginden türetilince mürekkep-üstüne-
+          // mürekkep düşüyor ve rakam GÖRÜNMÜYOR — hayalet konumu parametre olur olmaz
+          // ortaya çıkan ikinci kusur. Kural, `sol()`ünkiyle aynı: renk, ögenin oturduğu
+          // yüzeyden türer; başka bir ögenin yüzeyinden değil.
+          // ⚠ ⚠ **KARŞILAŞTIRMA ORTA NOKTAYLA, TEPEYLE DEĞİL — ilk sürüm tepeyi kullandı
+          // ve rakam GÖRÜNMEDİ.** `akan-alan`da hayalet %48'den başlıyor, sınır ortalama
+          // %61'de: tepe sınırın ÜSTÜNDE kalıyor ve renk amber alandan (mürekkep)
+          // türüyordu — 578 px'lik gövdesinin neredeyse tamamı mürekkep alanda olmasına
+          // rağmen. Mürekkep üstüne mürekkep, yani hiçbir şey. Ögenin hangi yüzeye ait
+          // olduğunu tepesi değil KÜTLESİ söyler.
+          const hayaletYuksekligi = 470 * (doc.hayaletKonumu?.olcek ?? 1) * HAYALET_SATIRI
+          const hayaletOrtasi =
+            (doc.hayaletKonumu?.ust ?? 22) + (hayaletYuksekligi / 2 / doc.yukseklik) * 100
+          const hayaletZemini =
+            doc.alanSiniri === undefined
+              ? kartZemini
+              : hayaletOrtasi >=
+                  doc.alanSiniri.noktalar.reduce((a, n) => a + n.y, 0) /
+                    Math.max(1, doc.alanSiniri.noktalar.length)
+                ? doc.alanSiniri.alt
+                : doc.alanSiniri.ust
+          const hr = kartRenkleri(hayaletZemini)
           return (
             `<section class="kart${koyuMu(kartZemini) ? '' : ' acik'}" ` +
             `style="left:${i * G}px;width:${G}px;` +
@@ -547,7 +644,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
                 : 'transparent'
             };` +
             `--kart-metin:${r.metin};` +
-            `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk}">`
+            `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk};` +
+            `--kart-cip:${r.cip};--kart-cip-metin:${r.cipMetin};` +
+            `--hayalet-renk:${hr.metin}">`
           )
         })() +
         `<div class="hayalet" aria-hidden="true">${kacir(k.hayalet)}</div>` +
@@ -687,7 +786,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `          justify-content: ${YERLESIM_CSS[doc.yerlesim ?? 'ust']} }`,
     // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).
-    ...(doc.yerlesim === undefined || doc.yerlesim === 'ust'
+    ...(doc.yerlesim === undefined || doc.yerlesim === 'ayrik'
       ? [`  .panel, .sayilar, .etiketler { margin-top: auto }`]
       : [`  .panel, .sayilar, .etiketler { margin-top: 34px }`]),
     // ── kesim çizgisi: hiçbir ögeyi kırpmıyor, yalnız ince bir ayraç ─────────
@@ -709,14 +808,22 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `            font-weight: var(--baslik-wght);`,
     `            font-stretch: calc(var(--baslik-wdth) * 1%);`,
     `            font-feature-settings: ${OPENTYPE_CSS};`,
-    `            letter-spacing: var(--baslik-ls); max-width: ${Math.round(G * t.baslikSutunu) - 128}px }`,
+    `            letter-spacing: var(--baslik-ls);`,
+    // ⚠ ⚠ **DARALTMANIN BEDELİ: BOŞLUK DA DARALIYOR.** `wdth` ekseni glifleri yatayda
+    // sıkıştırırken BOŞLUK glifini de sıkıştırıyor. `wdth 66`'da `sahne` şablonunun
+    // başlıkları `Sonraelle tutulurbir ölçü` gibi okundu — kelimeler birbirine yapıştı ve
+    // bu ancak render'a bakınca görüldü. Telafi genişlikle TERS orantılı: dar yüzde çok,
+    // geniş yüzde hiç. Sabit bir `word-spacing` yazmak `editoryal`in geniş yüzünde
+    // kelimeleri dağıtırdı — telafi de bir parametre, bir sabit değil.
+    `            word-spacing: calc((100 - var(--baslik-wdth)) * 0.0030em);`,
+    `            max-width: ${Math.round(G * t.baslikSutunu) - 128}px }`,
     `  .baslik strong { color: var(--kart-aksan); font-weight: inherit }`,
     // ⚠ ⚠ **AÇIK ZEMİNDE VURGU BİR ÇİP, RENK DEĞİL.** Aksanı mürekkebe çevirmek kontrastı
     // kurtardı ama vurguyu ÖLDÜRDÜ: başlıklar düzleşti, vurgulanan kelime gövdeden
     // ayrışmaz oldu. Amber üstüne amber görünmüyordu, kâğıt üstüne amber 1,9:1 veriyordu
     // (ölçüldü) — üçüncü yol: amber ZEMİN, mürekkep metin. Hem kontrast hem vurgu.
     // Aynı çözüm slayt render'ında da bulunmuştu; iki yol aynı dersi ayrı ayrı öğrendi.
-    `  .kart.acik .baslik strong { background: ${AKSAN}; color: ${MUREKKEP_T};`,
+    `  .kart.acik .baslik strong { background: var(--kart-cip); color: var(--kart-cip-metin);`,
     `                              padding: 0.02em 0.14em; box-decoration-break: clone;`,
     `                              -webkit-box-decoration-break: clone }`,
     `  .govde { margin-top: 24px; font-size: calc(var(--baslik-punto) * var(--govde-orani));`,
@@ -727,10 +834,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // 300 px ve %4,5 opaklıkla başlığın arkasında kalıyor, hiç okunmuyordu — referansta
     // ghost'lar kesintisizliğin en görünür işareti.
     // ⚠ Hayalet rengi de zeminden türüyor: kâğıt zeminde beyaz bir hayalet YOK demektir.
-    `  .hayalet { position: absolute; left: 30px; top: 300px; font-size: 470px;`,
+    `  .hayalet { position: absolute; left: 30px;`,
+    `             top: ${Math.round((doc.hayaletKonumu?.ust ?? 22) * 0.01 * doc.yukseklik)}px;`,
+    `             font-size: ${Math.round(470 * (doc.hayaletKonumu?.olcek ?? 1))}px;`,
     `             font-family: "Marka Display", sans-serif; font-weight: 900;`,
     `             font-stretch: calc(var(--baslik-wdth) * 1%);`,
-    `             color: ${sol('--kart-metin', 5.5)}; letter-spacing: -0.05em;`,
+    `             color: ${sol('--hayalet-renk', doc.hayaletKonumu?.guc ?? 7)}; letter-spacing: -0.05em;`,
+    // ⚠ ⚠ **`line-height: 0.76` KEYFİ DEĞİL, `ust`U ANLAMLI KILAN ŞEY.** Varsayılan satır
+    // yüksekliğinde kutunun tepesi ile glifin tepesi arasında ~0,25em boşluk var; 893 px'lik
+    // bir rakamda bu 223 px demek. `akan-alan`da `ust: 56` verildiğinde rakam tuvalin ALTINA
+    // taşıp tamamen kayboldu ve "hayalet yok" sanıldı. Satır yüksekliği sabitlenince `ust`
+    // yaklaşık olarak GLİFİN tepesini gösteriyor — yani şablon yazarının kastettiği şeyi.
+    `             line-height: ${HAYALET_SATIRI};`,
     `             pointer-events: none; white-space: nowrap; z-index: 0 }`,
     // ⚠ ⚠ **`.ray` HARİÇ.** İlk sürüm `:not(.hayalet)` diyordu ve `.ray`in
     // `position: absolute`ını EZİYORDU: alt ray akışa girip gövde metninin hemen altına

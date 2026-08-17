@@ -106,6 +106,7 @@ describe('çubuk paneli', () => {
 describe('yerleşim', () => {
   const bekleme: readonly (readonly [Yerlesim, string])[] = [
     ['ust', 'flex-start'],
+    ['ayrik', 'flex-start'],
     ['orta', 'center'],
     ['alt', 'flex-end'],
     ['yayik', 'space-between'],
@@ -115,13 +116,14 @@ describe('yerleşim', () => {
       expect(panoramaHtml(belge({ yerlesim: y }))).toContain(`justify-content: ${css}`)
     })
 
-  it('`ust` DIŞINDA panel dibe itilmiyor — yoksa yerleşim anlamsız kalırdı', () => {
-    expect(panoramaHtml(belge({ yerlesim: 'orta' }))).not.toContain(
-      '.panel, .sayilar, .etiketler { margin-top: auto }'
-    )
-    expect(panoramaHtml(belge({ yerlesim: 'ust' }))).toContain(
-      '.panel, .sayilar, .etiketler { margin-top: auto }'
-    )
+  // ⚠ `ust` ile `ayrik` aynı `justify-content`i veriyor ama panelde AYRIŞIYOR: ikisini
+  // tek değerde tutmak, üstte hizalanıp panelini dipte istemeyen şablonu ifade edilemez
+  // yapıyordu (`memphis`in paneli kesik öznenin arkasına düşüyordu).
+  it('panel yalnız `ayrik`ta dibe itiliyor', () => {
+    const dibe = '.panel, .sayilar, .etiketler { margin-top: auto }'
+    expect(panoramaHtml(belge({ yerlesim: 'ayrik' }))).toContain(dibe)
+    for (const y of ['ust', 'orta', 'alt', 'yayik'] as const)
+      expect(panoramaHtml(belge({ yerlesim: y })), y).not.toContain(dibe)
   })
 })
 

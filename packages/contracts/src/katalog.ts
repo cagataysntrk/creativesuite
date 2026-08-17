@@ -41,11 +41,22 @@ export interface GorselIhtiyaci {
   readonly briefTemeli: string
 }
 
-/** Kesimi aşan süreklilik ögesinin tarifi. */
+/**
+ * Kesimi aşan süreklilik ögesinin tarifi.
+ *
+ * ⚠ ⚠ **`alan` VARYANTI BİR EŞLEŞME TESTİNDEN DOĞDU.** Katalog `akan-alan` için
+ * `bant: 'egri'` diyordu ama örnek belgede `bant.tip === 'yok'` çıktı ve test kırmızıya
+ * döndü. İkisi de kendi içinde doğruydu: kaydın kastettiği eğri BİR BANT DEĞİL, iki renk
+ * alanını ayıran SINIR — panoramada `alanSiniri` ile ifade ediliyor. Yani kayıt yalan
+ * söylemiyordu, sözlükte o durumun adı YOKTU. Eksik bir sözcük, kaydı yanlış bir
+ * sözcüğe zorluyor; test o zorlamayı yakaladı.
+ */
 export type BantTarifi =
   | { readonly tip: 'egri'; readonly aciklama: string }
   | { readonly tip: 'kemer'; readonly aciklama: string }
   | { readonly tip: 'ok'; readonly aciklama: string }
+  /** Süreklilik iki renk alanını ayıran eğri SINIRDA — ayrı bir bant ögesi yok. */
+  | { readonly tip: 'alan'; readonly aciklama: string }
   | { readonly tip: 'yok'; readonly aciklama: string }
 
 export interface KatalogSablonu {
@@ -270,10 +281,11 @@ export const AKAN_ALAN: KatalogSablonu = {
   zemin: AMBER,
   rotasyon: [AMBER, KAGIT],
   bant: {
-    tip: 'egri',
+    tip: 'alan',
     aciklama:
       'Eğri sınır TÜM panoramada tek bir yol: slayt başına çizildiğinde kesim ' +
-      'çizgisinde kırılıyordu ve süreklilik ima edilmekten öteye geçmiyordu.',
+      'çizgisinde kırılıyordu ve süreklilik ima edilmekten öteye geçmiyordu. ' +
+      'Taşıyıcı ayrı bir bant değil, iki renk alanını ayıran sınırın kendisi.',
   },
   gorsel: null,
   baslikPayi: 1,
