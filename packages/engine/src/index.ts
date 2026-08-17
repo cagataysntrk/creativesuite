@@ -284,6 +284,13 @@ export {
   type SablonSecimi,
   type SecimKosullari,
 } from './plan/sablon-sec.js'
+export {
+  uyarla,
+  uyarlamaIstemi,
+  type Uyarlama,
+  type UyarlamaKarti,
+  type UyarlamaSonucu,
+} from './plan/sablon-uyarla.js'
 export { readRunStub, stubPath, writeRunStub, type RunStub } from './manifest-writer.js'
 
 // Yayın defteri (FAZ-7.4). TÜRETİLEMEZ (D-38): silinirse yayın durur, boş sayılmaz.

@@ -100,7 +100,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 Katalog dışı bir şablon id'si zorla → hat reddediyor, sessizce varsayılana düşmüyor
 💾 `feat(engine): sablon secimi — katalog merkezli` · `Refs: FAZ-15.6 · §6`
 
-## 15.7 — Uyarlama: agent örneği çoğaltıp konuya göre düzenliyor    [ ]
+## 15.7 — Uyarlama: agent örneği çoğaltıp konuya göre düzenliyor    [x]
 
 📖 §5.4, §7.1 · R-01
 🔗 FAZ-15.6
@@ -109,7 +109,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
    değiştirir: başlıklar, gövde, panel verisi, hayalet, brief'in konuya özgü kısmı.
    ⚠ Yapısal alanlar (bant noktaları, görsel konumları, `slaytGenisligi`) uyarlamada
    **kilitli** — agent onları yazamasın diye şemadan çıkarılır (yoklukla zorlama).
-📁 `packages/engine/src/steps/` · `packages/contracts/src/`
+📁 `packages/engine/src/plan/sablon-uyarla.ts` · `packages/engine/src/index.ts`
 ✅ Aynı şablon iki ayrı konuyla uyarlandı; kompozisyon aynı, içerik tamamen farklı
 🧪 Uyarlama çıktısına bant noktası ekletmeyi dene → şema reddediyor
 💾 `feat(engine): sablon uyarlama adimi` · `Refs: FAZ-15.7 · §5.4`
@@ -122,7 +122,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
    kesintisizlik, kaynak), bulduğu kusuru `duzelt` adımına verir, bir kez daha render eder.
    ⚠ **Tavan İKİ tur** — "sorun bul" diyen agent her turda sorun bulur (kayıtlı ders).
    ⚠ Düzeltme yalnız İÇERİK alanlarına dokunabilir; kompozisyonu değiştiremez.
-📁 `packages/engine/src/steps/` · `packages/render/src/qa/`
+📁 `packages/engine/src/plan/` · `packages/render/src/qa/`
 ✅ Kasten bozuk bir örnek (taşan başlık) hatta verildi → tur onu buldu ve düzeltti
 🧪 Üçüncü tur iste → hat reddediyor, ikide duruyor
 💾 `feat(engine): son kontrol ve duzeltme turu` · `Refs: FAZ-15.8 · §11`
