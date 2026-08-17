@@ -274,6 +274,16 @@ export {
 // Koşu künyesi — manifest'ten ÖNCE yazılır; kesintiye uğramış koşu künyesiz koşudan
 // ayırt edilebilsin diye (FAZ-7.1 denetimi).
 export { tasarla, VARSAYILAN_AILE, type TasarlaGirdisi } from './plan/tasarla.js'
+// ⚠ Katalog merkezli seçim (D-268). `tasarla` hâlâ burada çünkü slayt-başına yol henüz
+// emekli değil (FAZ-15.9); iki seçici bir arada duruyor ve bu GEÇİCİ bir durum.
+export {
+  icerikSekli,
+  sablonSec,
+  type IcerikSekli,
+  type SablonPuani,
+  type SablonSecimi,
+  type SecimKosullari,
+} from './plan/sablon-sec.js'
 export { readRunStub, stubPath, writeRunStub, type RunStub } from './manifest-writer.js'
 
 // Yayın defteri (FAZ-7.4). TÜRETİLEMEZ (D-38): silinirse yayın durur, boş sayılmaz.

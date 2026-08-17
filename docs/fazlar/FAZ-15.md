@@ -86,7 +86,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 Bir şablonun taşıyıcı ögesini sil → kesintisizlik ölçümü o şablonu kırmızıya çeviriyor
 💾 `feat(render): alti sablon — tasarim kalitesi` · `Refs: FAZ-15.5 · §7.1`
 
-## 15.6 — Şablon seçimi hattın merkezine giriyor    [ ]
+## 15.6 — Şablon seçimi hattın merkezine giriyor    [x]
 
 📖 §6, §7.1 · D-268
 🔗 FAZ-15.5
