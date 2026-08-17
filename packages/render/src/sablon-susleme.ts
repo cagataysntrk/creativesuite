@@ -87,13 +87,17 @@ export const suslemeSvg = (s: Susleme, renk: string): string => {
       const id = `t${s.tip}${Math.round(s.x)}${Math.round(s.y)}`
       return (
         `<defs><clipPath id="${id}"><circle cx="${s.x}" cy="${s.y}" r="${r}"/></clipPath></defs>` +
-        `<g ${o} clip-path="url(#${id})" stroke="${renk}" stroke-width="${s.boyut / 16}">` +
+        `<g ${o} clip-path="url(#${id})" stroke="${renk}" stroke-width="${s.boyut / 26}">` +
         // ⚠ Çizgiler daireyi TAM kaplamak zorunda: 45° eğimde bir çizgi kutunun bir
         // köşesinden diğerine gider, yani tarama `x-2r`den `x+2r`ye uzamalı. İlk sürüm
         // `x-r`den başlıyordu ve dairenin sol alt yarısı boş kalıyordu — sonuç daire
         // değil KAMA gibi görünüyordu. Kırpma doğruydu, tarama eksikti.
-        Array.from({ length: 17 }, (_, i) => {
-          const d = s.x - 2 * r + (i * s.boyut) / 8
+        // ⚠ **Aralık ve kalınlık BAKINCA düzeltildi.** İlk sürüm 17 çizgiyi `boyut/16`
+        // kalınlıkta çiziyordu: çizgiler birbirine değiyor ve daire TARALI değil DOLU
+        // görünüyordu — kâğıt alanda koyu bir leke, hayalet rakamın üstünde. Referans
+        // örnek 3'te aynı şekil ince çizgili ve havadar. On bir çizgi, `boyut/26`.
+        Array.from({ length: 11 }, (_, i) => {
+          const d = s.x - 2 * r + (i * s.boyut) / 5
           return `<line x1="${d}" y1="${s.y + r}" x2="${d + 2 * r}" y2="${s.y - r}"/>`
         }).join('') +
         `</g>`
