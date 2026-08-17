@@ -17,6 +17,7 @@ import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
 import { DIAGRAM_CSS, diagramHtml, isDiagramError } from './charts/diagram.js'
 import { kacir } from './html.js'
 import { VARSAYILAN } from './sablon-parametre.js'
+import { suslemeler, suslemeSvg } from './sablon-susleme.js'
 import {
   akanEgri,
   alanRolleri,
@@ -213,6 +214,10 @@ const sablonCss = (doc: DocumentModel): string => {
     // ── katman 1: karşı alan + akan eğri ────────────────────────────────────
     `  .alan { position: absolute; inset: 0; z-index: 1; }`,
     `  .alan svg { width: 100%; height: 100%; display: block; }`,
+    // Süsleme katmanı alanın ÜSTÜNDE, hayalet rakamın ALTINDA: rakam imzadır, süsleme
+    // dokudur — sıra tersine dönerse doku imzayı bastırır.
+    `  .susleme { position: absolute; inset: 0; z-index: 1; pointer-events: none; }`,
+    `  .susleme svg { width: 100%; height: 100%; display: block; }`,
     // ── katman 2: hayalet rakam ─────────────────────────────────────────────
     // Kontur-only tipografi: dolgu yok, `-webkit-text-stroke` var. DIŞ kenardan taşıyor
     // ve `overflow: hidden` onu kırpıyor — referanstaki "yarım rakam" bundan.
@@ -281,9 +286,20 @@ const sablonKatmanlari = (doc: DocumentModel): string => {
   const rakam = hayaletRakam(k)
   const sayac = sayacEtiketi(k)
   const nav = navIsareti(k)
+  // Süslemeler AYRI bir SVG katmanında ve `preserveAspectRatio` YOK: alan katmanı
+  // `none` ile geriliyor (dolgu tuvali kaplamalı), ama gerilmiş bir daire elips olur.
+  // Aynı viewBox'a koymak, beş ögenin de ezilmesi demekti.
+  const sus = suslemeler(k, sagda)
   return [
     `<div class="alan"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
     `<path d="${kapali}" fill="${r.karsiAlan}"/></svg></div>`,
+    ...(sus.length === 0
+      ? []
+      : [
+          `<div class="susleme"><svg viewBox="0 0 100 ${Math.round((doc.height / doc.width) * 100)}" aria-hidden="true">`,
+          ...sus.map((x) => suslemeSvg(x, r.motif)),
+          `</svg></div>`,
+        ]),
     ...(rakam === null ? [] : [`<div class="hayalet" aria-hidden="true">${kacir(rakam)}</div>`]),
     ...(sayac === null ? [] : [`<div class="sayac">${kacir(sayac)}</div>`]),
     ...(k.kulp === undefined ? [] : [`<div class="kulp">${kacir(k.kulp)}</div>`]),

@@ -26,6 +26,7 @@ export { renderWithinLimit, type LadderRender } from './static.js'
 // Karosel şablon grameri (D-254) — sabitler de dışa aktarılıyor: kapı ve ölçüm
 // betikleri bunları OKUMAK zorunda; ayrı kopya tutmak iki gerçek üretirdi.
 export { SINIR_MIN, SINIR_MAX, guvenliMetinYuzdesi } from './sablon.js'
+export { suslemeler, suslemeSvg, SUSLEME_TIPLERI, type Susleme } from './sablon-susleme.js'
 export { VARSAYILAN, guvenliYuzde, type SablonParametreleri } from './sablon-parametre.js'
 export { duzenSec } from './layout/secim.js'
 export { renderStatic, toHtml } from './static.js'
