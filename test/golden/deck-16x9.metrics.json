@@ -7,117 +7,117 @@
   "blocks": [
     {
       "text": "ĞÜŞİÖÇ ğüşıöç Ağrı İğne",
-      "fontFamily": "\"DejaVu Sans\", system-ui, sans-serif",
-      "fontSize": 72,
+      "fontFamily": "\"Marka Display\", \"Marka Metin\", system-ui, sans-serif",
+      "fontSize": 64,
       "lineCount": 1,
       "width": 1408,
-      "height": 80.63,
+      "height": 69.11,
       "glyphs": [
         {
           "char": "Ğ",
-          "advance": 59.1,
+          "advance": 46.59,
           "missing": false
         },
         {
           "char": "Ü",
-          "advance": 58.46,
+          "advance": 46.78,
           "missing": false
         },
         {
           "char": "Ş",
-          "advance": 51.86,
+          "advance": 35.14,
           "missing": false
         },
         {
           "char": "İ",
-          "advance": 26.79,
+          "advance": 21.7,
           "missing": false
         },
         {
           "char": "Ö",
-          "advance": 61.21,
+          "advance": 49.98,
           "missing": false
         },
         {
           "char": "Ç",
-          "advance": 52.84,
+          "advance": 40.45,
           "missing": false
         },
         {
           "char": "ğ",
-          "advance": 51.54,
+          "advance": 39.36,
           "missing": false
         },
         {
           "char": "ü",
-          "advance": 51.26,
+          "advance": 39.55,
           "missing": false
         },
         {
           "char": "ş",
-          "advance": 42.86,
+          "advance": 30.66,
           "missing": false
         },
         {
           "char": "ı",
-          "advance": 24.68,
+          "advance": 16.51,
           "missing": false
         },
         {
           "char": "ö",
-          "advance": 49.46,
+          "advance": 38.72,
           "missing": false
         },
         {
           "char": "ç",
-          "advance": 42.68,
+          "advance": 30.72,
           "missing": false
         },
         {
           "char": "A",
-          "advance": 55.72,
+          "advance": 40.9,
           "missing": false
         },
         {
           "char": "ğ",
-          "advance": 51.54,
+          "advance": 39.36,
           "missing": false
         },
         {
           "char": "r",
-          "advance": 35.51,
+          "advance": 26.43,
           "missing": false
         },
         {
           "char": "ı",
-          "advance": 24.68,
+          "advance": 16.51,
           "missing": false
         },
         {
           "char": "İ",
-          "advance": 26.79,
+          "advance": 21.7,
           "missing": false
         },
         {
           "char": "ğ",
-          "advance": 51.54,
+          "advance": 39.36,
           "missing": false
         },
         {
           "char": "n",
-          "advance": 51.26,
+          "advance": 39.55,
           "missing": false
         },
         {
           "char": "e",
-          "advance": 48.83,
+          "advance": 36.1,
           "missing": false
         }
       ]
     },
     {
       "text": "ĞÜŞİÖÇ ğüşıöç Ağrı İğne · İstanbul'da yazılım çözümleri",
-      "fontFamily": "\"DejaVu Sans\", system-ui, sans-serif",
+      "fontFamily": "\"Marka Metin\", system-ui, sans-serif",
       "fontSize": 34,
       "lineCount": 1,
       "width": 1408,
@@ -125,242 +125,242 @@
       "glyphs": [
         {
           "char": "Ğ",
-          "advance": 26.35,
+          "advance": 24.75,
           "missing": false
         },
         {
           "char": "Ü",
-          "advance": 24.89,
+          "advance": 24.85,
           "missing": false
         },
         {
           "char": "Ş",
-          "advance": 21.58,
+          "advance": 18.67,
           "missing": false
         },
         {
           "char": "İ",
-          "advance": 10.03,
+          "advance": 11.53,
           "missing": false
         },
         {
           "char": "Ö",
-          "advance": 26.76,
+          "advance": 26.55,
           "missing": false
         },
         {
           "char": "Ç",
-          "advance": 23.74,
+          "advance": 21.49,
           "missing": false
         },
         {
           "char": "ğ",
-          "advance": 21.58,
+          "advance": 20.91,
           "missing": false
         },
         {
           "char": "ü",
-          "advance": 21.55,
+          "advance": 21.01,
           "missing": false
         },
         {
           "char": "ş",
-          "advance": 17.71,
+          "advance": 16.29,
           "missing": false
         },
         {
           "char": "ı",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         },
         {
           "char": "ö",
-          "advance": 20.8,
+          "advance": 20.57,
           "missing": false
         },
         {
           "char": "ç",
-          "advance": 18.69,
+          "advance": 16.32,
           "missing": false
         },
         {
           "char": "A",
-          "advance": 23.26,
+          "advance": 21.73,
           "missing": false
         },
         {
           "char": "ğ",
-          "advance": 21.58,
+          "advance": 20.91,
           "missing": false
         },
         {
           "char": "r",
-          "advance": 13.98,
+          "advance": 14.04,
           "missing": false
         },
         {
           "char": "ı",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         },
         {
           "char": "İ",
-          "advance": 10.03,
+          "advance": 11.53,
           "missing": false
         },
         {
           "char": "ğ",
-          "advance": 21.58,
+          "advance": 20.91,
           "missing": false
         },
         {
           "char": "n",
-          "advance": 21.55,
+          "advance": 21.01,
           "missing": false
         },
         {
           "char": "e",
-          "advance": 20.92,
+          "advance": 19.18,
           "missing": false
         },
         {
           "char": "·",
-          "advance": 10.81,
+          "advance": 9.11,
           "missing": false
         },
         {
           "char": "İ",
-          "advance": 10.03,
+          "advance": 11.53,
           "missing": false
         },
         {
           "char": "s",
-          "advance": 17.71,
+          "advance": 16.29,
           "missing": false
         },
         {
           "char": "t",
-          "advance": 13.33,
+          "advance": 12.27,
           "missing": false
         },
         {
           "char": "a",
-          "advance": 20.83,
+          "advance": 19.07,
           "missing": false
         },
         {
           "char": "n",
-          "advance": 21.55,
+          "advance": 21.01,
           "missing": false
         },
         {
           "char": "b",
-          "advance": 21.58,
+          "advance": 20.91,
           "missing": false
         },
         {
           "char": "u",
-          "advance": 21.55,
+          "advance": 21.01,
           "missing": false
         },
         {
           "char": "l",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         },
         {
           "char": "'",
-          "advance": 9.35,
+          "advance": 7.65,
           "missing": false
         },
         {
           "char": "d",
-          "advance": 21.58,
+          "advance": 20.91,
           "missing": false
         },
         {
           "char": "a",
-          "advance": 20.83,
+          "advance": 19.07,
           "missing": false
         },
         {
           "char": "y",
-          "advance": 20.12,
+          "advance": 17.34,
           "missing": false
         },
         {
           "char": "a",
-          "advance": 20.83,
+          "advance": 19.07,
           "missing": false
         },
         {
           "char": "z",
-          "advance": 17.85,
+          "advance": 15.98,
           "missing": false
         },
         {
           "char": "ı",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         },
         {
           "char": "l",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         },
         {
           "char": "ı",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         },
         {
           "char": "m",
-          "advance": 33.12,
+          "advance": 31.79,
           "missing": false
         },
         {
           "char": "ç",
-          "advance": 18.69,
+          "advance": 16.32,
           "missing": false
         },
         {
           "char": "ö",
-          "advance": 20.8,
+          "advance": 20.57,
           "missing": false
         },
         {
           "char": "z",
-          "advance": 17.85,
+          "advance": 15.98,
           "missing": false
         },
         {
           "char": "ü",
-          "advance": 21.55,
+          "advance": 21.01,
           "missing": false
         },
         {
           "char": "m",
-          "advance": 33.12,
+          "advance": 31.79,
           "missing": false
         },
         {
           "char": "l",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         },
         {
           "char": "e",
-          "advance": 20.92,
+          "advance": 19.18,
           "missing": false
         },
         {
           "char": "r",
-          "advance": 13.98,
+          "advance": 14.04,
           "missing": false
         },
         {
           "char": "i",
-          "advance": 9.45,
+          "advance": 8.77,
           "missing": false
         }
       ]

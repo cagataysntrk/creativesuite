@@ -279,6 +279,28 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // sayfalayıcı onu kapanış slaydına taşıyordu ve kapanış cümlesi fotoğrafın altına
     // sıkışıyordu — kapanış bir DAVETTİR, bir resim altyazısı değil. Ortada duran görsel
     // bir GÖVDE slaydına düşüyor ve kapanış temiz kalıyor.
+    // ── TASARIM PLANI: kararlar GEREKÇESİYLE deftere giriyor (FAZ-14.2) ──────
+    //
+    // ⚠ **Ayrı bir `tasarim-plani.json` YAZILMIYOR ve bu bir eksiklik değil, R-04.**
+    // Plan bir dosya olarak yazılsaydı `COMPOSE` çalışma ağacına yazan bir fiil olurdu;
+    // yasa yalnız `PROPOSE`un yazmasına izin veriyor. Plan adım ÇIKTISI olarak dönüyor
+    // ve defteri yazan `manifest-writer` onu `manifest.json`a koyuyor — yani planın
+    // yaşadığı yer `derived/runs/<id>/`, tıpkı `donmus-plan.json` gibi, ama onu oraya
+    // koyan fiil değil koşucu.
+    //
+    // ⚠ Plan ~2 KB; defterin 8 KB eleme eşiğinin (D-263) altında kalıyor, yani
+    // gerekçeler AYNEN okunabilir durumda saklanıyor.
+    const plan = tasarla({
+      konu: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
+      satirlar: metinSatirlari,
+      akisVar: akis !== null,
+      // ⚠ Yuva bir POLİTİKA, bir gözlem değil (bkz. `tasarla.ts`). `gorsel !== null`
+      // yazmak döngüseldi: plan görselin varlığını arıyordu, görsel ise plandan sonra
+      // üretiliyor. Hat neyi istediğini söylüyor; plan da gerekçesini yazıyor.
+      yuvaIstendi: input.constraints['gorsel_yuvasi'] === true,
+      ...(input.constraints['yuva_bicimi'] === 'maske' ? { yuvaBicimi: 'maske' as const } : {}),
+    })
+
     const orta = Math.max(1, Math.ceil(govde.length / 2))
     // ⚠ **İŞLEV BLOĞA DAMGALANIYOR** (FAZ-14.1 · gerçek koşuda bulundu). Yay satır
     // sırasına göre atanıyor; ölçüm ise SLAYT sırasına bakıyordu. Sayfalayıcı 6 satırı
@@ -316,6 +338,9 @@ export const composeBody = (deps: ComposeDeps): Verb =>
               // duruyor ve anlam taşıyor.
               alt: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
               decorative: false,
+              // ⚠ Yuva ZORUNLU (FAZ-11.4): yuvasız bir görsel `validateDocument` tarafından
+              // reddediliyor. Serbest dikdörtgen fotoğraf artık temsil EDİLEMİYOR.
+              yuva: plan.yuvaBicimi.deger,
             },
           ]),
       ...govde
@@ -364,27 +389,6 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // karşılığıdır (FAZ 6 denetimi, bulgu 8: alanın okuyanı yoktu). Manifest dedektörü
     // (`fabricated_product_shot`) bu diziyi arıyor; blok ile defter kaydı aynı kaynaktan
     // türediği için biri diğerinden ayrışamaz.
-    // ── TASARIM PLANI: kararlar GEREKÇESİYLE deftere giriyor (FAZ-14.2) ──────
-    //
-    // ⚠ **Ayrı bir `tasarim-plani.json` YAZILMIYOR ve bu bir eksiklik değil, R-04.**
-    // Plan bir dosya olarak yazılsaydı `COMPOSE` çalışma ağacına yazan bir fiil olurdu;
-    // yasa yalnız `PROPOSE`un yazmasına izin veriyor. Plan adım ÇIKTISI olarak dönüyor
-    // ve defteri yazan `manifest-writer` onu `manifest.json`a koyuyor — yani planın
-    // yaşadığı yer `derived/runs/<id>/`, tıpkı `donmus-plan.json` gibi, ama onu oraya
-    // koyan fiil değil koşucu.
-    //
-    // ⚠ Plan ~2 KB; defterin 8 KB eleme eşiğinin (D-263) altında kalıyor, yani
-    // gerekçeler AYNEN okunabilir durumda saklanıyor.
-    const plan = tasarla({
-      konu: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
-      satirlar: metinSatirlari,
-      akisVar: akis !== null,
-      // ⚠ Yuva bir POLİTİKA, bir gözlem değil (bkz. `tasarla.ts`). `gorsel !== null`
-      // yazmak döngüseldi: plan görselin varlığını arıyordu, görsel ise plandan sonra
-      // üretiliyor. Hat neyi istediğini söylüyor; plan da gerekçesini yazıyor.
-      yuvaIstendi: input.constraints['gorsel_yuvasi'] === true,
-    })
-
     return ok({
       costs: [],
       data: {
@@ -971,10 +975,21 @@ export interface ValidateDeps {
 
 export const validateBody = (deps: ValidateDeps): Verb =>
   govde('VALIDATE', async (ctx, input) => {
-    const belge = Object.values(input.inputs).find(
+    // ⚠ ⚠ **EN SON belge alınıyor, ilki DEĞİL — bağımsız doğrulama bunu yakaladı.**
+    // `inputs` bütün üst akış çıktılarını taşıyor ve `ciktilar` topolojik sırada
+    // dolduğu için anahtar sırası = üretim sırası. `.find()` İLK eşleşeni alıyordu:
+    // yani `kompozit`in belgesini — `render`ın gerçekten tükettiği `yuva-doldur`
+    // belgesini değil. Sonuç: yuva bir gün dolduğunda plan 1 görsel bekler, denetlenen
+    // belgede 0 vardır ve **yanlış `PLAN_MISMATCH`** doğar; aynı yanlış belge QA'ya da
+    // gider. Denetim ÜRETİLEN dosyaya bakar (D-259) — en aşağıdaki üreticiye.
+    //
+    // Adım ADINA bakılmıyor: aynı gövde birden çok hatta koşuyor. Sıra ise sözleşmenin
+    // kendisi — en son yazan, `render`a giden.
+    const belgeler = Object.values(input.inputs).filter(
       (v): v is { readonly document: DocumentModel } =>
         v !== null && typeof v === 'object' && (v as { document?: unknown }).document !== undefined
     )
+    const belge = belgeler[belgeler.length - 1]
     const render = Object.values(input.inputs).find(
       (
         v
@@ -1007,12 +1022,16 @@ export const validateBody = (deps: ValidateDeps): Verb =>
     //
     // Plan yoksa denetim ATLANIYOR: eski belgeler ve PDF yolu plansız geliyor ve
     // "plan yok" bir uyumsuzluk değil, denetim yokluğudur.
-    const planli = Object.values(input.inputs).find(
+    // Plan da EN SON yazandan: iki compose adımı da plan üretiyor ve ikisi deterministik
+    // olarak aynı planı veriyor, ama tutarlı olmak için denetlenen belgeyle aynı adımdan
+    // okumak gerekiyor — biri değişirse sapma sessizce gizlenmesin.
+    const planlilar = Object.values(input.inputs).filter(
       (v): v is { readonly tasarimPlani: TasarimPlani } =>
         v !== null &&
         typeof v === 'object' &&
         (v as { tasarimPlani?: unknown }).tasarimPlani !== undefined
     )
+    const planli = planlilar[planlilar.length - 1]
     if (planli !== undefined) {
       const uyumsuz = planDenetle(planli.tasarimPlani, belge.document)
       if (uyumsuz.length > 0) {

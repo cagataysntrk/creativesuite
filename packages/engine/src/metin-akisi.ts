@@ -22,7 +22,7 @@
 // tutmak, birini değiştirip diğerini unutmanın en kısa yolu. Çizici 5'ten fazlasını
 // `too_many` ile reddediyor; ayrıştırıcı da aynı sınırı uyguluyor ki geçersiz bir blok
 // hiç kurulmasın.
-import { yayTalimati } from '@suite/contracts'
+import { islevTavanlari, yayTalimati } from '@suite/contracts'
 import { MAX_DUGUM } from '@suite/render'
 
 /** Prompt'a giren kayıt — `SELECT` çıktısının şekli. */
@@ -130,7 +130,11 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     'Kaydı olmayan bir duruş, olmamış bir duruştur.',
     '',
     '⚠ Yazmadan önce HER SATIRIN kelimesini say. Sınırı aşan satırı KISALT, bölme.',
-    '⚠ İlk satır bir başlıktır, bir paragraf değil: 8 kelimeyi geçerse yeniden yaz.',
+    // ⚠ Sayı BURADA DA basılıyor, elle yazılmıyor — bağımsız doğrulama yakaladı:
+    // `yayTalimati` tek kaynaktan basıyordu ama bu hatırlatmada `8` elle duruyordu.
+    // `KANCA` 10'a çekilseydi prompt kendi kendisiyle çelişir ve hiçbir test kırmızıya
+    // dönmezdi — bu adımın önlemeye çalıştığı ayrışmanın aynısı.
+    `⚠ İlk satır bir başlıktır, bir paragraf değil: ${islevTavanlari().kanca} kelimeyi geçerse yeniden yaz.`,
     '',
     'KURALLAR:',
     `- Dil: ${g.locale ?? 'tr-TR'}. Doğal, abartısız, teknik ve somut.`,

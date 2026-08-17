@@ -19,7 +19,8 @@ import type { QaReport, ToleranceReading } from '@suite/contracts'
 import { GOVDE_TAVANI, islevTavanlari, slaytIslevi } from '@suite/contracts'
 import { parseColor, type Rgb } from './qa/deltae.js'
 import { reading, report } from './qa/tolerance.js'
-import { alanRolleri, guvenliMetinYuzdesi } from './sablon.js'
+import { VARSAYILAN } from './sablon-parametre.js'
+import { alanRolleri, guvenliMetinYuzdesi, SINIR_MIN } from './sablon.js'
 
 /**
  * Slayt rolü başına kelime tavanı — **artık `@suite/contracts`ten TÜRETİLİYOR** (FAZ-14.1).
@@ -193,6 +194,29 @@ const asimOrani = (doc: DocumentModel, k: SlaytKimligi): number => {
 export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
   const okumalar: ToleranceReading[] = []
   const s = g.slaytlar
+
+  // ── T0 gramer değişmezi: metin sütunu BANDIN DIŞINDA ────────────────────────
+  //
+  // ⚠ **İhlal bataryası bu boşluğu ortaya çıkardı.** `text_overflow` en geniş kelimeyi
+  // SÜTUNA karşı ölçüyor; sütun genişletilirse eşik de genişliyor ve kapı YEŞİL kalıyordu.
+  // Yani "metin eğriye girmesin" garantisini hiçbir şey korumuyordu — yalnız kelimenin
+  // kendi kutusuna sığması korunuyordu. Ölçen ile korunması gereken şey ayrışmıştı.
+  //
+  // Değişmez slayttan bağımsız (gramerin kendisi), o yüzden döngünün DIŞINDA ve bir kez:
+  // güvenli sütun, eğri bandının yakın kenarından `genlik` kadar UZAKTA kalmalı.
+  if (s.length > 0) {
+    okumalar.push(
+      reading({
+        metric: 'column_in_band',
+        label: 'metin sütunu eğri bandının dışında',
+        value: Math.max(0, guvenliMetinYuzdesi - (SINIR_MIN - VARSAYILAN.genlik)),
+        warn: 0,
+        limit: 0,
+        direction: 'lower',
+        unit: ' %',
+      })
+    )
+  }
 
   for (const [i, doc] of s.entries()) {
     const k = doc.slayt

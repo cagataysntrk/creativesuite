@@ -4,6 +4,9 @@
 değil. `instagram-post` hattı bugün on bir adımlı, DAG'lı, yetenek tabanlı ve çalışıyor.
 Eksik olan üç şey var ve üçü de sıraya dair.
 **Yöneten kararlar:** D-241, D-243, D-254, D-256, D-261
+**Kapanış:** LOOP§D 1. tur koşuldu; bulgular aşağıda tek tek kapatıldı. `just verify`
+**ilk kez yeşil** (golden font değişikliğinden beri bayattı, yenilendi ve yeni temelin
+marka fontu + `notdef=0` olduğu doğrulandı).
 **Ön koşul:** FAZ-11 dağarcığı (11.1–11.3 ✓ — düzen · süsleme · ikon · diyagram yeter)
 **Sıra:** ⚠ **FAZ-12 ve 13'ten ÖNCE.** Zengin bir dağarcığın seçicisi yoksa zenginlik
 gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana geri takılır.
@@ -164,6 +167,12 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
    yerinde mi, yayın uçları doğru mu.
    ⚠ **Fotoğrafın sessizce geri gelmesini yakalayan tek yer burası** (D-261).
    ⚠ Plan yoksa denetim ATLANIYOR — eski belgeler ve PDF yolu plansız geliyor.
+   ⚠ ⚠ **DOĞRULAMA BULGUSU — denetim YANLIŞ belgeye bakıyordu.** `Object.values(inputs)
+   .find(…)` İLK eşleşeni alıyordu: `kompozit`in belgesini, `render`ın gerçekten
+   tükettiği `yuva-doldur` belgesini değil. Yuva dolduğu gün plan 1 görsel bekler,
+   denetlenen belgede 0 vardır → **yanlış `PLAN_MISMATCH`**; aynı yanlış belge QA'ya da
+   gidiyordu. `inputs` topolojik sırada dolduğu için artık EN SON belge alınıyor.
+   Testi var, ihlali kanıtlandı.
    ⚠ **BORÇ KAPANDI:** render artık slayt `digests`ini de yazıyor. Defter yolu ve boyutu
    yazıyordu ama içeriği kanıtlayan hiçbir şey yazmıyordu; dosya değişse defter aynı
    kalırdı. Yol nereye bakılacağını, digest NEYİN bulunması gerektiğini söylüyor (D-263).
@@ -200,5 +209,10 @@ gürültüdür; ve 14 sonraya kalırsa 12/13'ün eklediği her yetenek plana ger
 🧪 **4 + 2 test + iki ihlal:** `gorsel-uret`i zorunlu yap → *"görsel adımları opsiyonel"*
    kırmızı; atlama işaretini yok say → *"ATLANAN adım `skipped`"* kırmızı.
    **Üretimde doğrulandı:** gerçek koşuda plan diyagram seçti, `gorsel-brief` ve
-   `gorsel-uret` defterde `skipped` + `sebep: prompt-yok`, hat uçtan uca yeşil.
+   `gorsel-uret` defterde `skipped` + `sebep: prompt-yok`.
+   ⚠ **DÜZELTME (bağımsız doğrulama):** "hat uçtan uca yeşil" demiştim — DEĞİL. Koşu
+   `onay` adımında insan kapısında duruyor (`awaitingGate: insan-onayi`) ve bu DOĞRU
+   davranış (§5.4). Doğrusu: `kalite`ye kadar yeşil. Ayrıca `skipped` yalnız EN YENİ
+   koşuda; ondan önceki üç defter aynı durumu `status: ok` + `atlandi: true` diye
+   yazmış — o defterler değişiklikten ÖNCEKİ koşulardır ve düzeltilmez (append-only).
 💾 `feat(engine): yuva doldurma` · `Refs: FAZ-14.5 · §7.2`

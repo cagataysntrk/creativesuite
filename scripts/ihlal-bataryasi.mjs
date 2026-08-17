@@ -84,12 +84,23 @@ const IHLALLER = [
     // Metin eğri sınırını kesiyordu ve İKİ KEZ düzeltilip iki kez geri geldi: ilk iki
     // denemede kutu daraltıldı, ama Türkçede kelime bölünmediği için taşma sürdü
     // (R-23). Kapı artık metnin GERÇEK render genişliğini tarayıcıdan ölçüyor.
+    // ⚠ **ÇAPA HESABIN KENDİ DOSYASINDA.** Eski çapa `sablon.ts`teki
+    // `guvenliMetinYuzdesi = SINIR_MIN - 7` idi; D-257 hesabı `sablon-parametre.ts`e
+    // taşıyınca yama hedefi kayboldu ve ihlal testi SESSİZCE geçersizleşti — batarya
+    // "?? yama hedefi bulunamadı" diyordu ama `verify` dışında kimse bakmıyordu.
+    // Bu, bu oturumda çapaların ikinci kez kırılması. Kural: çapa, ölçülen değerin
+    // TANIMLANDIĞI dosyada durur; başka bir dosyadaki türevine değil.
     kapi: 'tasarim',
-    dosya: 'packages/render/src/sablon.ts',
-    yamalar: [
-      { ara: 'guvenliMetinYuzdesi = SINIR_MIN - 7', yaz: 'guvenliMetinYuzdesi = SINIR_MIN - 33' },
-    ],
-    imza: 'metin taşması',
+    dosya: 'packages/render/src/sablon-parametre.ts',
+    yamalar: [{ ara: 'p.bantMin - p.genlik - 2', yaz: 'p.bantMin + p.genlik + 24' }],
+    // ⚠ **İMZA DEĞİŞTİ ÇÜNKÜ SINANAN DEĞİŞMEZ DEĞİŞTİ.** Eski giriş "en geniş kelime
+    // sütuna sığmıyor" (`text_overflow`) diyordu; ama o metrik kelimeyi SÜTUNA karşı
+    // ölçüyor ve sütun genişletilince eşik de genişliyordu — kapı YEŞİL kalıyordu.
+    // Yani "metin eğriye girmesin" garantisini hiçbir şey korumuyordu; yalnız kelimenin
+    // kendi kutusuna sığması korunuyordu. Yeni değişmez `column_in_band`: güvenli sütun,
+    // eğri bandının yakın kenarından `genlik` kadar uzakta kalmalı. Boşluğu bataryanın
+    // KENDİSİ ortaya çıkardı — çapası bayatladığı için sessizce geçersizleşmişti.
+    imza: 'metin sütunu eğri bandının dışında',
   },
   {
     // Izgaraya bakınca iki komşu kare ayırt edilebilmeli; aynı zemin onları tek bloğa

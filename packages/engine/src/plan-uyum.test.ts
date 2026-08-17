@@ -30,6 +30,7 @@ const PLAN = (diyagram: number): TasarimPlani => ({
   yay: ['kanca', 'gerilim', 'kanit', 'donus', 'davet'],
   suslemeYogunlugu: { deger: 0.25, gerekce: 'g' },
   panorama: { deger: false, gerekce: 'g' },
+  yuvaBicimi: { deger: 'alan', gerekce: 'g' },
   slaytlar: (['kanca', 'gerilim', 'kanit', 'donus', 'davet'] as const).map((islev, i) => ({
     index: i,
     islev,
@@ -109,6 +110,44 @@ describe('üç katman ayrı kalıyor', () => {
       ctx as never,
       { constraints: {}, inputs: { k: { document: BELGE }, render: { slides: ['a'] } } } as never
     )
+    expect(r.ok).toBe(true)
+  })
+
+  it('EN SON belge denetleniyor — ilki değil (bağımsız doğrulama bulgusu)', async () => {
+    // ⚠ `inputs` bütün üst akış çıktılarını taşır ve topolojik sırada dolar. `.find()`
+    // ilk eşleşeni alıyordu: `kompozit`in belgesini, `render`ın tükettiği
+    // `yuva-doldur` belgesini değil. Yuva dolduğunda plan 1 görsel bekler, denetlenen
+    // belgede 0 vardır → yanlış `PLAN_MISMATCH`.
+    const gorselli = {
+      ...BELGE,
+      blocks: [
+        ...BELGE.blocks,
+        { type: 'image', src: 'x', alt: 'a', decorative: false, yuva: 'alan' },
+      ],
+    }
+    const planYuvali: TasarimPlani = {
+      ...PLAN(0),
+      slaytlar: PLAN(0).slaytlar.map((s, i) =>
+        i === 2 ? { ...s, oge: { deger: 'gorsel-yuvasi' as const, gerekce: 'g' } } : s
+      ),
+    }
+    const body = validateBody({
+      lint: () => [],
+      check: async () => ({ blocked: false, report: 'r' }),
+    } as never)
+    const r = await body.run(
+      ctx as never,
+      {
+        constraints: {},
+        inputs: {
+          // Sıra ÖNEMLİ: kompozit önce (görselsiz), yuva-doldur sonra (görselli).
+          kompozit: { document: BELGE, tasarimPlani: planYuvali },
+          'yuva-doldur': { document: gorselli, tasarimPlani: planYuvali },
+          render: { slides: ['a.png'] },
+        },
+      } as never
+    )
+    // İlk belge alınsaydı "görsel yuvası sayısı: beklenen 1, bulunan 0" ile düşerdi.
     expect(r.ok).toBe(true)
   })
 })

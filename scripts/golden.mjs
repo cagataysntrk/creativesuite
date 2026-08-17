@@ -115,6 +115,8 @@ if (hata) {
 if (yeniTemel > 0) {
   console.log('')
   console.log(`  ⚠ ${yeniTemel} temel YENİ yazıldı — sonraki koşu onlara karşı doğrular.`)
-  console.log('  Metrikler SİSTEM fontuyla alındı; marka fontu gelince (V-02) yeniden alınır.')
+  console.log('  Temel MARKA fontuyla alındı (D-252). Font değişirse temel yenilenir —')
+  console.log('  ama önce yeni temelin gerçekten marka fontu olduğu ve notdef=0 olduğu')
+  console.log('  DOĞRULANIR: körlemesine yenilenen bir golden, sessiz fallback mühürler.')
 }
 console.log(`  ${dogrulanan}/${BOYUTLAR.length} boyut doğrulandı · kanıt dizesi: ${PROOF_TEXT}`)
