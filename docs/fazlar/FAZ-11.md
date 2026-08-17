@@ -2,6 +2,9 @@
 
 **Amaç:** Karosel görselliği stok fotoğrafla değil, **kapalı bir öge dağarcığıyla** kurulsun;
 her slaytta görsel öge tipi içerikten seçilsin ve marka tutarlılığı bozulmasın.
+Ayrıca: **Photoshop sınıfı işleme, Photoshop olmadan** — maskeleme, duotone, karışım kipi,
+bulanıklık, doku, degrade, kırpma **ve tipografi efektleri**. Chromium bunların hepsini
+standart olarak veriyor; tek render motoru yasası (R-30) sayesinde hepsi TEK yerde.
 **Yöneten kararlar:** D-254, D-255, D-261
 **Ön koşul:** FAZ-10 gramer ve ölçüm katmanı yerinde
 **Çıkış kriteri:** Fotoğraf **varsayılan olmaktan çıkmış**; bir karoselin görselliği
@@ -40,18 +43,27 @@ bu dille geçiyor.
 
 ---
 
-## 11.2 — Süsleme dağarcığı: geometrik, kapalı, deterministik    [ ]
+## 11.2 — Süsleme dağarcığı: geometrik, kapalı, deterministik    [x] 2026-08-17
 
 📖 §7.1, §12.1 · D-254
 🔗 11.1
 🛠 Referans örnek 4'ün dili: **blob · nokta ızgarası · taralı daire · kontur halka ·
    küçük kare.** Hepsi SVG/CSS, sıfır bağımlılık, `SlaytKimligi`den türetilmiş konum ve
    ölçek — yani deterministik ve slayttan slayta değişen.
-📁 `packages/render/src/sablon-susleme.ts` · `packages/render/src/static.ts`
-✅ Dağarcık KAPALI (beş öge); altıncısı bir karar ister. Süslemeler metin sütununa ve
-   güvenli alana GİRMEZ — `tasarim` kapısı bunu ölçer.
-   ⚠ Chroma tavanı geçerli (§12.1): süsleme aksan rengidir, alan değil.
-🧪 Bir süslemeyi metin sütununa taşır → `tasarim` kapısı kırmızı.
+📁 `packages/render/src/sablon-susleme.ts` · `sablon-susleme.test.ts` ·
+   `packages/render/src/static.ts`
+✅ **RENDER EDİLDİ VE BAKILDI** — nokta ızgarası + halka (çift indeks) ve taralı daire
+   (tek indeks) dolgu tarafında, hayalet rakamın üstünde, metin sütununa girmeden.
+   ⚠ **Slayt başına EN FAZLA İKİ öge.** Referansta bol süsleme var ama o tasarımın zemini
+   BEYAZ ve başka hiçbir şey yok; bizde iki renk alanı, akan eğri ve dev hayalet rakam
+   zaten var. Beşini birden koymak "zengin" değil KALABALIK olurdu.
+   **Kapak SÜSSÜZ:** ızgarada ilk kare bir cümledir, bir desen değil.
+   Süsleme katmanı ayrı bir SVG: alan katmanı `preserveAspectRatio="none"` ile geriliyor
+   ve aynı viewBox'a konsaydı her daire ELİPS olurdu.
+🧪 **8 test + ihlal:** süslemeyi metin sütununa taşı → `METİN SÜTUNUNA girmiyor` kırmızı.
+   Ayrıca: tuval dışına taşmıyor · kapak süssüz · en fazla iki öge · deterministik ·
+   yalnız kapalı dağarcık · her tip geçerli SVG · **tarama daireyi TAM kaplıyor** (ilk
+   sürüm `x-r`den başlıyordu, sol alt yarı boş kalıyor ve daire KAMA gibi görünüyordu).
 💾 `feat(render): geometrik susleme dagarcigi` · `Refs: FAZ-11.2 · §7.1`
 
 ---
@@ -121,3 +133,82 @@ bu dille geçiyor.
    fiili altında kalır — dokuzuncu fiil eklenmez.
 🧪 —
 💾 —
+
+---
+
+## 11.7 — Renk işleme: duotone ve marka tonlaması    [ ]
+
+📖 §7.1, §12.1 · D-261
+🔗 11.4
+🛠 **Envanter ölçüldü ve utandırıcı:** render katmanında `object-fit` dışında HİÇBİR
+   görsel işleme kullanılmıyor. `filter`, `mix-blend-mode`, `clip-path`, `feColorMatrix`
+   — hepsi Chromium'da standart, hepsi bedava, hiçbiri kullanılmamış.
+   Yapılacak: `feColorMatrix` ile **duotone** — fotoğrafın parlaklığı marka amber↔mürekkep
+   ekseni üstüne eşlenir. Ek olarak doygunluk düşürme ve `mix-blend-mode: multiply`
+   ile alan üstüne bindirme.
+📁 `packages/render/src/sablon-filtre.ts` · `packages/render/src/static.ts`
+✅ ⚠ **Bu, marka tutarlılığı sorununu YAPISAL çözüyor.** FAZ-10.7'de mavi/turuncu bir
+   fotoğraf amber alanla çarpıştı ve ben brief'e "monokrom yaz" diye YALVARDIM — modelin
+   uymasına bağlı, kırılgan bir çözüm. Duotone ise girdiden bağımsız: HANGİ fotoğraf
+   gelirse gelsin marka ekseninde çıkar. Prompt'a güvenmek yerine çıktıyı dönüştürmek.
+   Kabul: doygun bir test görseli duotone'dan geçince palet dışı payı ölçülür ve düşer.
+🧪 Duotone kapalıyken ve açıkken aynı görsel ölçülür; fark ölçüyle gösterilir.
+💾 `feat(render): duotone ve marka tonlamasi` · `Refs: FAZ-11.7 · §12.1`
+
+---
+
+## 11.8 — Doku ve derinlik: grain, bulanıklık, degrade, vinyet    [ ]
+
+📖 §7.1 · R-30 · D-261
+🔗 11.7
+🛠 `feTurbulence` ile ince grain (baskı hissi), `filter: blur()` ile arka katman
+   derinliği, `linear/radial-gradient` ile alan geçişleri, kenar vinyeti. Hepsi CSS/SVG,
+   sıfır bağımlılık, deterministik.
+📁 `packages/render/src/sablon-filtre.ts`
+✅ ⚠ **Gölge YASAĞI konsol yüzeyine aittir (§12.1), kreatif yüzeye değil.** İkisini
+   karıştırmak, bir enstrüman kuralını bir kreatif kurala çevirmek olurdu. Kreatif
+   yüzeyde derinlik meşru; ölçü chroma tavanı ve kontrast metriğiyle korunuyor.
+   Grain opaklığı tavanlı: doku bir his, bir gürültü değil.
+🧪 Grain opaklığını tavana çıkar → metin kontrastı metriği kırmızı.
+💾 `feat(render): doku, bulaniklik ve degrade` · `Refs: FAZ-11.8 · §7.1`
+
+---
+
+## 11.9 — Yerel raster işlemleri: ölçek, kırpma, arka plan    [ ] BLOKE:karar
+
+📖 §7.3 · §17 · D-261
+🔗 11.5
+🛠 CSS/SVG'nin yapamadıkları: **upscale** (Real-ESRGAN), **akıllı kırpma** (belirginlik
+   haritası), **arka plan silme** (BiRefNet). Üçü de planın "yerelde bedava çalışacaklar"
+   listesinde ve üçü de ikili çalıştırmak demek.
+📁 —
+✅ ⚠ Her biri AYRI bir karar ve ayrı bir bağımlılık; toplu "görsel işleme paketi" diye
+   bağlanmaz. Lisans tuzağı belgeli: Bria RMBG **CC BY-NC**, MIT `rembg` içinde paketli.
+   ⚠ Alt süreç çalıştırma tek darboğazdan geçmek zorunda (`chokepoints.json`).
+🧪 —
+💾 —
+
+## 11.10 — İllüstrasyon kütüphanesi: CC0 modüler, markaya boyanmış    [ ]
+
+📖 §7.1, §11.3 · D-252
+🔗 11.3, 11.7
+🛠 *"Çok fazla görsel kütüphane var."* Doğru — ve lisansları ayrıştırıldı:
+
+| Kütüphane | Lisans | Not |
+|---|---|---|
+| **Open Peeps** | **CC0** | Elle çizilmiş, modüler (baş/gövde/poz). Kısıtsız. |
+| **Humaaans** | **CC0** | Modüler insan. Kısıtsız. |
+| DrawKit (ücretsiz) | MIT | SaaS/teknoloji sahneleri. |
+| unDraw | özel | Ticari serbest, atıf gerekmez; ⚠ AI eğitiminde kullanımı yasak (biz kullanıyoruz, eğitmiyoruz). |
+| Storyset | atıf zorunlu | Atıf karoselde yer kaplar → düşük öncelik. |
+
+📁 `assets/illustration/` (gömülü SVG alt kümesi) · `packages/render/src/illustrasyon.ts`
+✅ ⚠ **SVG olarak gömülür ve markaya BOYANIR** — `fill` değerleri token'a bağlanır, dosyadaki
+   ham renk kullanılmaz. Boyanmazsa kütüphanenin kendi paleti markayı ezer; çeşitlilik
+   uğruna tutarlılık kaybedilmiş olur.
+   ⚠ **§11.3 sınavı zorunlu:** *onay ima eden yapay insan üretilmez.* Soyut/şematik figür
+   serbest; **"memnun müşteri" tasviri YASAK** — çizim de olsa Reklam Yönetmeliği Md. 27/12
+   kapsamına girer. Bu, illüstrasyonun modelle üretilmesiyle değil KULLANIMIYLA ilgili.
+   ⚠ Kapalı alt küme: kütüphanenin tamamı değil, seçilmiş ~15 sahne. Ağdan çekilmez (§16).
+🧪 Boyanmamış (ham renkli) bir illüstrasyon yerleştir → `kalite` palet dışı ile kırmızı.
+💾 `feat(render): illustrasyon dagarcigi` · `Refs: FAZ-11.10 · §7.1`

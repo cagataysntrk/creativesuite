@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 11
-siradaki_adim: 11.2
+siradaki_adim: 11.7
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -49,6 +49,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | Adım | Tarih |
 |---|---|
 | **11.1** · akış diyagramı fotoğrafın yerine; `chart` değil `diagram` | 2026-08-17 |
+| **11.2** · geometrik süsleme dağarcığı; kapak süssüz, slayt başına ≤2 öge | 2026-08-17 |
 
 ## Sıradaki adım
 
@@ -64,10 +65,28 @@ oydu.** `chart`/`diagram` çizicileri yazılıydı, üretim hattı sıfır tane 
 **11.1 KAPANDI** — akış diyagramı fotoğrafın yerine geçiyor. `chart` değil `diagram`,
 çünkü grafik sayı ister ve R-32 kaynaksız sayıyı yasaklıyor. 20 test.
 
-**SIRADAKİ 11.2** — geometrik süsleme dağarcığı (blob · nokta ızgarası · taralı daire ·
-halka · kare), SVG/CSS, sıfır bağımlılık. Sonra 11.3 gömülü ikon seti (MIT/ISC) →
-11.4 fotoğraf yuvaları (maske/alan) → 11.5 kesik özne (BLOKE:karar) → 11.6 taban→model
-(BLOKE:karar).
+**PLAN GENİŞLEDİ — FAZ-12 ve FAZ-13 yazıldı.** Yetenek envanteri (`docs/referans/`) ve
+araç envanteri (`docs/research/10-...`) çıkarıldı, her ⛔ satırı bir adıma bağlandı.
+⚠ İki lisans tuzağı: **BRIA RMBG CC BY-NC** (ticari yasak, MIT olan BiRefNet kullanılacak),
+**Potrace GPL** (VTracer MIT kullanılacak).
+⚠ Denetimde çıkan asıl boşluk envanterde hiç yoktu: **estetiği kim yargılıyor?** → FAZ-13.
+
+**FAZ-14 = OMURGA, ve ERKEN yapılmalı:** metin → tasarım planı → icra → denetim → tamamlama.
+Şu an metinle yerleşim aynı adımda kararlaşıyor ve arada **denetlenebilir bir artefakt yok**;
+*"bu slayt neden böyle tasarlandı?"* sorusunun cevabı hiçbir yerde yazılı değil.
+Zengin bir dağarcığın seçicisi yoksa zenginlik gürültüdür. Modele gönderme SON çare:
+plan yalnız `deterministik: false` işaretli yuvaları modele verir.
+
+**11.2 KAPANDI** — süsleme dağarcığı (nokta ızgarası · halka · taralı daire · blob ·
+kare), SVG, sıfır bağımlılık, kapak süssüz, slayt başına ≤2 öge. 8 test + ihlal.
+
+⚠ **ENVANTER:** render katmanında `object-fit` DIŞINDA hiçbir görsel işleme
+kullanılmıyordu — `filter`, `mix-blend-mode`, `clip-path`, `feColorMatrix` hepsi
+Chromium'da standart ve bedava. Plana eklendi (11.7–11.9).
+
+**SIRADAKİ 11.7** — duotone: fotoğrafın parlaklığı marka amber↔mürekkep eksenine
+eşlenir. Marka tutarlılığını YAPISAL çözüyor; brief'e "monokrom yaz" diye yalvarmak
+yerine çıktıyı dönüştürüyor. Sonra 11.8 doku/derinlik → 11.3 ikon → 11.4 yuvalar.
 
 ⚠ **FAZ-10.7 kabul koşusu FAZ 11 dilinin üstünde tekrarlanacak** — görsellik değişti,
 eski koşular güncel çıktıyı temsil etmiyor.
