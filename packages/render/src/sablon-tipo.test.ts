@@ -38,9 +38,14 @@ describe('tipografi efektleri', () => {
     expect(h).toBe('<strong>bir</strong> arada <strong>iki</strong>')
   })
 
-  it('vurgu ŞERİT, yalnız renk değil — ilk sürüm bakınca yetersizdi', () => {
+  it('vurgu TAM KAPLAYAN çip — yarım kaplama koyu alanda altı çizili gibi okundu', () => {
+    // ⚠ İki kez bakarak düzeltildi: (1) yalnız renk değiştirmek ayırt edilemiyordu,
+    // (2) glifin alt yarısını boyayan fosforlu kalem koyu alanda beyaz metni ikiye
+    // bölüyordu. Yarım kaplamada metin rengi hem zemine hem banda göre doğru olamaz.
     const c = vurguCss('#e9b724', '#111')
-    expect(c).toContain('linear-gradient(transparent 58%')
+    expect(c).toContain('background: #e9b724')
+    expect(c).not.toContain('linear-gradient')
+    expect(c).toContain('color: #111') // bandın KARŞITI, slaydın metin rengi değil
     expect(c).toContain('box-decoration-break: clone') // satır kırılmasında da doğru
   })
 

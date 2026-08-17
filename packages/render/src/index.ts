@@ -42,7 +42,7 @@ export {
   TIPO_EFEKTLERI,
   OPENTYPE_CSS,
   vurguCss,
-  konturCss,
+  konturBildirimi,
   vurguyuIsaretle,
   type TipoEfekti,
 } from './sablon-tipo.js'

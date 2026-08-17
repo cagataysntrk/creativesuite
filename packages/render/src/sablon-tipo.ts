@@ -45,28 +45,43 @@ export const OPENTYPE_CSS = `"kern" 1, "liga" 1, "calt" 1`
  * varsayım Türkçe'de tutmaz.
  * ⚠ Eğim 0: eğik bir şerit el yazısı hissi verir, bu aile geometrik.
  */
-export const vurguCss = (serit: string, metin: string): string =>
-  // ⚠ **ŞERİT, yalnız renk DEĞİL — ilk sürüm bakınca yetersiz çıktı.** Sadece rengi
-  // değiştirmek `--role-text-muted` ile `--role-text` arasında ayırt edilemeyecek kadar
-  // küçük bir fark bırakıyordu: efekt vardı, işini yapmıyordu (ikon boyutuyla aynı sınıf).
-  // Üstelik bu dosyanın yorumu "şerit" diyordu ve kod yalnız renk yazıyordu — yorum ile
-  // kodun ayrışması, bu projenin defalarca yakaladığı hata biçimi.
+export const vurguCss = (serit: string, motif: string): string =>
+  // ⚠ ⚠ **FOSFORLU KALEM DENENDİ ve KOYU ALANDA ALTI ÇİZİLİ GİBİ OKUNDU.** İlk sürüm
+  // `linear-gradient(transparent 58%, serit 58%)` ile glifin ALT yarısını boyuyordu.
+  // Açık kâğıt alanda çalışıyordu; koyu mürekkep alanda metin `--role-surface` (beyaz),
+  // şerit amber oldu ve glifin üst yarısı beyaz-siyah, alt yarısı beyaz-amber kaldı:
+  // düşük kontrast + ikiye bölünmüş glif = altı çizili görüntüsü. Gerçek koşu çıktısına
+  // BAKINCA görüldü; hiçbir metrik göremezdi.
   //
-  // ⚠ **Fosforlu kalem deseni:** degrade %58'e kadar şeffaf, sonra dolu. Şerit glifin
-  // ALT yarısında duruyor; üstünü kaplasaydı kontrastı düşürür ve okumayı zorlaştırırdı.
-  // Metin tam güçte (`${metin}`), soluk değil: vurgulanan ifade en okunaklı olan olmalı.
-  `  .icerik strong { font-weight: inherit; color: ${metin};` +
-  ` background: linear-gradient(transparent 58%, ${serit} 58%);` +
-  ` box-decoration-break: clone; -webkit-box-decoration-break: clone; }`
+  // ⚠ **Kök sebep yarım kaplamaydı, renk değil.** Bant glifi kısmen örtüyorsa metin
+  // rengi hem zemine hem banda göre doğru olmak zorunda ve bu imkânsız. Bant TAM
+  // kaplayınca tek bir karşıt renk yetiyor: `motif` zaten `kontrast(karsiAlan)` ve
+  // `karsiAlan` şeridin kendisi — yani renk TÜRETİLMİŞ, seçilmiş değil.
+  //
+  // ⚠ Köşe yuvarlatma YOK: bu aile geometrik (eğik şerit el yazısı hissi verirdi, aynı
+  // gerekçe). Yatay pay `em` cinsinden — punto değişince çip de ölçekleniyor.
+  // ⚠ `box-decoration-break: clone`: satır kırılmasında her parça kendi çipini alıyor;
+  // tek satırlık varsayım Türkçe'de tutmaz.
+  `  .icerik strong { font-weight: inherit; color: ${motif}; background: ${serit};` +
+  ` padding: 0.06em 0.14em; box-decoration-break: clone;` +
+  ` -webkit-box-decoration-break: clone; }`
 
 /**
- * Kontur — hayalet rakamın zaten kullandığı efekt, burada ADLANDIRILDI.
+ * Kontur — BİLDİRİM olarak, seçicisiz.
  *
- * Dağarcığın parçası olması kasıtlı: bir efekt kodda varsa ama dağarcıkta yoksa,
- * ikinci bir kullanım ikinci bir uygulama yazar (R-05'in tipografi karşılığı).
+ * ⚠ ⚠ **Seçicili sürüm bir REGRESYON üretti ve ancak BAKINCA görüldü.** `konturCss`
+ * tam bir kural (`.hayalet { … }`) döndürüyordu ve `static.ts` onu **kapanmamış bir
+ * `.hayalet {` bloğunun ORTASINA** basıyordu: CSS bozuldu, tarayıcı hata kurtarmaya
+ * girdi, `color: transparent` düştü ve dev rakam KONTUR yerine DOLU çıktı.
+ * 42 kapı ve 1613 test yeşildi; kusuru yalnız gerçek çıktıya bakmak yakaladı.
+ *
+ * Bildirim biçimi bu hatayı temsil edilemez kılıyor: çağıran onu ancak bir bloğun
+ * İÇİNE koyabilir.
+ * ⚠ `kalinlik: 0` → görünmez rakam. "Kontur kapalı" bu ailede tam olarak bunu demek:
+ * dolu bir dev rakam bu gramerde hiç yok.
  */
-export const konturCss = (secici: string, renk: string, kalinlik: number): string =>
-  `  ${secici} { -webkit-text-stroke: ${kalinlik}px ${renk}; color: transparent; }`
+export const konturBildirimi = (renk: string, kalinlik: number): string =>
+  `-webkit-text-stroke: ${kalinlik}px ${renk}; color: transparent;`
 
 // ── YAZILMAYAN ÜÇ EFEKT: degrade · gölge · knockout ─────────────────────────
 //

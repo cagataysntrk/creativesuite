@@ -33,7 +33,7 @@ import {
 } from './sablon.js'
 import { ikonSec, ikonSvg } from './sablon-ikon.js'
 import {
-  konturCss,
+  konturBildirimi,
   OPENTYPE_CSS,
   type TipoEfekti,
   vurguCss,
@@ -245,7 +245,7 @@ export const toHtml = (doc: DocumentModel): string =>
     // hiyerarşisiz hâle dönmek olurdu (duotone varsayılanıyla aynı gerekçe).
     doc.slayt === undefined || !efektAcik(doc, 'vurgu')
       ? ''
-      : vurguCss(alanRolleri(doc.slayt).karsiAlan, alanRolleri(doc.slayt).metin),
+      : vurguCss(alanRolleri(doc.slayt).karsiAlan, alanRolleri(doc.slayt).motif),
     '</style>',
     sablonKatmanlari(doc),
     // ── RASTER İŞLEMLER: tanımlar AİLEDEN (FAZ-12.2) ────────────────────────
@@ -427,8 +427,7 @@ const sablonCss = (doc: DocumentModel): string => {
     // `kontur` vardı ama render onu hiç okumuyordu; kontur `VARSAYILAN.hayaletKonturPx`
     // ile SABİT basılıyordu ve `konturCss` üreteci sıfır çağıranlıydı — aile "kapalı"
     // dese bile çizilirdi. Artık listeden geliyor ve üreteç tek kaynak.
-    konturCss('.hayalet', r.motif, efektAcik(doc, 'kontur') ? VARSAYILAN.hayaletKonturPx : 0),
-    `             opacity: 0.42;`,
+    `             ${konturBildirimi(r.motif, efektAcik(doc, 'kontur') ? VARSAYILAN.hayaletKonturPx : 0)} opacity: 0.42;`,
     `             pointer-events: none; }`,
     // ── katman 3: sayaç, kulp, navigasyon ───────────────────────────────────
     //
