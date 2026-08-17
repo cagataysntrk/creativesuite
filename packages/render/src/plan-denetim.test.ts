@@ -99,3 +99,45 @@ describe('plan ↔ çıktı uyumu', () => {
     expect(uyumsuzlukOzeti(k)).toContain('beklenen 1, bulunan 0')
   })
 })
+
+describe('açıklanmış eksik', () => {
+  // ⚠ Gerçek bir koşuda doğdu: `gorsel-uret` bedava şeritte sağlayıcı bulamadı, hat doğru
+  // davranıp DEVAM etti, denetim yuvanın boşluğunu uyuşmazlık saydı ve `kalite` düştü.
+  // Sağlayıcı yokluğu bir çalıştırma olgusudur, bir plan hatası değil.
+  const planla = (yuva: boolean): TasarimPlani =>
+    ({
+      slaytlar: [{ oge: { deger: yuva ? 'gorsel-yuvasi' : 'yok', gerekce: 'g' }, islev: 'kanit' }],
+      aile: { deger: 'temel', gerekce: 'g' },
+    }) as unknown as TasarimPlani
+
+  const belge = (gorselSayisi: number): DocumentModel =>
+    ({
+      width: 1080,
+      height: 1350,
+      blocks: Array.from({ length: gorselSayisi }, () => ({
+        type: 'image',
+        src: 'x',
+        alt: 'a',
+        yuva: 'alan',
+      })),
+    }) as unknown as DocumentModel
+
+  it('üretici adım atlandıysa EKSİK yuva uyuşmazlık değil', () => {
+    expect(planDenetle(planla(true), belge(0), { gorsel: true })).toEqual([])
+  })
+
+  it('atlanmadıysa EKSİK yuva hâlâ uyuşmazlık — garanti gevşemiyor', () => {
+    expect(planDenetle(planla(true), belge(0)).some((u) => u.alan === 'görsel yuvası sayısı')).toBe(
+      true
+    )
+  })
+
+  it('FAZLA görsel her koşulda uyuşmazlık — fotoğraf sessizce geri gelemez', () => {
+    // ⚠ Tek bir `!==` iki yönü aynı sayıyordu; atlama bahanesi fazlalığı da örterdi.
+    expect(
+      planDenetle(planla(false), belge(1), { gorsel: true }).some(
+        (u) => u.alan === 'görsel yuvası sayısı'
+      )
+    ).toBe(true)
+  })
+})

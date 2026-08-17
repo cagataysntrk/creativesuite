@@ -97,7 +97,7 @@ Toplam **10** hat.
 | `render` | `RENDER` | — | yuva-doldur | — | — |
 | `gorsel-yargi` | `GENERATE` | `image.critique` | render | — | — |
 | `tasarim-yargi` | `GENERATE` | `design.critique` | render | — | — |
-| `kalite` | `VALIDATE` | — | render, gorsel-yargi, tasarim-yargi | — | — |
+| `kalite` | `VALIDATE` | — | render, gorsel-yargi, tasarim-yargi, gorsel-uret | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
 | `yayinla` | `PUBLISH` | — | onay | — | — |
 

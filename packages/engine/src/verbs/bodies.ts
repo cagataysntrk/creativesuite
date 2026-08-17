@@ -1072,7 +1072,15 @@ export const validateBody = (deps: ValidateDeps): Verb =>
     )
     const planli = planlilar[planlilar.length - 1]
     if (planli !== undefined) {
-      const uyumsuz = planDenetle(planli.tasarimPlani, belge.document)
+      // ⚠ Görsel üretimi ATLANDI mı: adım çıktısı `null` (isteğe bağlı adım düştü) ya da
+      // `atlandi: true` (prompt yoktu). İkisi de "yuva meşru sebeple boş" demek.
+      const gorselAtlandi =
+        'gorsel-uret' in input.inputs &&
+        (input.inputs['gorsel-uret'] === null ||
+          (input.inputs['gorsel-uret'] as { atlandi?: unknown } | undefined)?.atlandi === true)
+      const uyumsuz = planDenetle(planli.tasarimPlani, belge.document, {
+        gorsel: gorselAtlandi,
+      })
       if (uyumsuz.length > 0) {
         return err(
           hata('internal', 'PLAN_MISMATCH', ctx, {

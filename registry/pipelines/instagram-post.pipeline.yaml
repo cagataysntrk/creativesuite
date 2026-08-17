@@ -117,7 +117,10 @@ steps:
 
   - id: kalite
     verb: VALIDATE
-    needs: [render, gorsel-yargi, tasarim-yargi]
+    # ⚠ `gorsel-uret` de `needs`te: `kalite` planı belgeye karşı denetliyor ve görsel
+    # yuvasının boş kalması MEŞRU olabilir (isteğe bağlı adım sağlayıcı bulamadı).
+    # Adımın akıbetini görmeden, sağlayıcı yokluğunu plan hatası sanıyordu.
+    needs: [render, gorsel-yargi, tasarim-yargi, gorsel-uret]
 
   - id: onay
     verb: PROPOSE

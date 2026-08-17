@@ -53,7 +53,23 @@ const metinIslevleri = (doc: DocumentModel): readonly (Islev | undefined)[] =>
  * beşinci biçimi olurdu. Onun yerine **sayılabilir ve konumdan bağımsız** şeyler
  * karşılaştırılıyor: kaç görsel öge var, hangi türden, işlev damgaları yerinde mi.
  */
-export const planDenetle = (plan: TasarimPlani, doc: DocumentModel): readonly Uyumsuzluk[] => {
+export const planDenetle = (
+  plan: TasarimPlani,
+  doc: DocumentModel,
+  /**
+   * Üretimi ATLANMIŞ ya da MEŞRU sebeple düşmüş ögeler.
+   *
+   * ⚠ ⚠ **Bu parametre gerçek bir koşuda doğdu.** `gorsel-uret` isteğe bağlı bir adım ve
+   * `NO_PROVIDER` ile düştü (bedava şeritte görsel sağlayıcı yok); hat doğru davranıp
+   * DEVAM etti, ama denetim yuvanın boş kalmasını uyuşmazlık saydı ve `kalite` düştü.
+   * Yani **sağlayıcı yokluğu, bir plan hatası gibi raporlanıyordu.**
+   *
+   * ⚠ **Garanti GEVŞEMİYOR:** açıklanmayan bir eksik hâlâ uyuşmazlık. Yalnız üretici adımı
+   * atlanmış bir yuva "açıklanmış eksik" sayılıyor ve nedeni defterde duruyor. Sessizce
+   * hoş görmek, fotoğrafın geri gelmesini yakalayan denetimi kör ederdi (D-261).
+   */
+  atlanan: { readonly gorsel?: boolean } = {}
+): readonly Uyumsuzluk[] => {
   const k: Uyumsuzluk[] = []
   const beklenenDiyagram = plan.slaytlar.filter((s) => s.oge.deger === 'diyagram').length
   const beklenenGorsel = plan.slaytlar.filter((s) => s.oge.deger === 'gorsel-yuvasi').length
@@ -68,7 +84,13 @@ export const planDenetle = (plan: TasarimPlani, doc: DocumentModel): readonly Uy
 
   // ⚠ Bu, fotoğrafın sessizce geri gelmesini yakalayan denetim. Fotoğraf varsayılan
   // olmaktan çıktı (D-261); plan yuva açmadıysa belgede görsel BULUNMAMALI.
-  if (bulunan.gorsel !== beklenenGorsel)
+  //
+  // ⚠ **İki yön AYRI ele alınıyor ve bu şart.** FAZLA görsel her zaman uyuşmazlık:
+  // fotoğraf sessizce geri gelmiş demektir. EKSİK görsel ise üretici adım atlandıysa
+  // açıklanmıştır — sağlayıcı yokluğu bir plan hatası değil, bir çalıştırma olgusudur.
+  // Tek bir `!==` karşılaştırması ikisini aynı şey sayıyordu.
+  const eksikAciklandi = bulunan.gorsel < beklenenGorsel && atlanan.gorsel === true
+  if (bulunan.gorsel !== beklenenGorsel && !eksikAciklandi)
     k.push({
       alan: 'görsel yuvası sayısı',
       beklenen: String(beklenenGorsel),
