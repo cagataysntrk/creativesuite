@@ -66,6 +66,16 @@ export interface TasarimYargiGirdisi {
   readonly toplam: number
   readonly genislik: number
   readonly yukseklik: number
+  /**
+   * Kendi gramerimiz prompt'a yazılsın mı (varsayılan: evet).
+   *
+   * ⚠ ⚠ **KÖR KABULDE (FAZ-13.6) KAPALI OLMAK ZORUNDA.** Prompt bizim gramerimizi
+   * anlatıyor (*"kırpılmış dev rakam bir tasarım ögesidir"*); referans bir karoseli o
+   * bağlamla yargılatmak, yargıcı bizim şablonumuza göre ayarlamak olurdu ve sınav kendi
+   * kendini onaylardı. Kör kabulde İKİ taraf da gramersiz yargılanıyor — aynı sorunun
+   * aynı biçimde sorulması, körlüğün kendisi.
+   */
+  readonly gramer?: boolean
 }
 
 /**
@@ -86,12 +96,16 @@ export const tasarimYargiPromptu = (g: TasarimYargiGirdisi): string =>
     `Bağlam: ${g.toplam} slaytlık bir Instagram karoselinin ${g.slayt}. slaydı.`,
     `Tuval ${g.genislik}×${g.yukseklik} piksel.`,
     '',
-    'TASARIM GRAMERİ — bunlar KASITLIDIR:',
-    '- İki renk alanı ve aralarında akan bir eğri; eğri slayttan slayta taraf değiştirir.',
-    '- Dev, yalnız konturlu bir rakam kenardan KIRPILMIŞ durur; bir tasarım ögesidir.',
-    '- Sağ üstte `#00N` sayacı, sol altta profil kulpu, sağ altta kaydırma işareti.',
-    '- Geniş boşluk kasıtlıdır. Az metin kasıtlıdır.',
-    '',
+    ...(g.gramer === false
+      ? []
+      : [
+          'TASARIM GRAMERİ — bunlar KASITLIDIR:',
+          '- İki renk alanı ve aralarında akan bir eğri; eğri slayttan slayta taraf değiştirir.',
+          '- Dev, yalnız konturlu bir rakam kenardan KIRPILMIŞ durur; bir tasarım ögesidir.',
+          '- Sağ üstte `#00N` sayacı, sol altta profil kulpu, sağ altta kaydırma işareti.',
+          '- Geniş boşluk kasıtlıdır. Az metin kasıtlıdır.',
+          '',
+        ]),
     '⚠ KUSUR ARAMA. Kırpma, çakışma, kontrast ihlali gibi kusurları BAŞKA bir denetim',
     'zaten arıyor. Senin işin kusurun yokluğu değil, TASARIMIN İYİLİĞİ.',
     '',
@@ -206,6 +220,31 @@ export const toplamPuan = (y: TasarimYargisi): number | null => {
   return Math.round((t / TASARIM_KATEGORILERI.length) * 100) / 100
 }
 
-/** İnsan okunur tek satır. */
-export const puanSatiri = (p: TasarimPuani): string =>
-  `${p.kategori.padEnd(14)} ${p.puan}/${PUAN_TAVANI} · ${p.gerekce}`
+/**
+ * İki puan kümesi AYNI ARALIKTA mı — kör kabulün kararı (FAZ-13.6).
+ *
+ * ⚠ ⚠ **"Bizimki KAZANDI" bir başarı DEĞİLDİR.** Referanslardan yüksek puan almak,
+ * yargıcın bizim şablonumuza aşırı uyduğunun işareti olabilir; o durumda sınanacak şey
+ * çıktı değil YARGIÇTIR. Beklenen şey aynı aralık, o yüzden fonksiyon üstünlük değil
+ * ÖRTÜŞME döndürüyor.
+ * ⚠ Aralık min–max: ortalama karşılaştırmak, iki kötü ve iki iyi referansın ortalamasını
+ * bizim tek tip çıktımızla eşitleyip örtüşme yanılsaması verirdi.
+ */
+export const ayniAralikta = (
+  bizim: readonly number[],
+  referans: readonly number[]
+): {
+  readonly ayni: boolean
+  readonly bizimAralik: readonly [number, number]
+  readonly referansAralik: readonly [number, number]
+} | null => {
+  if (bizim.length === 0 || referans.length === 0) return null
+  const a: [number, number] = [Math.min(...bizim), Math.max(...bizim)]
+  const b: [number, number] = [Math.min(...referans), Math.max(...referans)]
+  // Örtüşme: iki aralık kesişiyorsa aynı sınıftayız.
+  return { ayni: a[0] <= b[1] && b[0] <= a[1], bizimAralik: a, referansAralik: b }
+}
+
+// ⚠ `puanSatiri` SİLİNDİ: dışa açıktı, üretimde çağıranı yoktu. Bu turda aynı ölçüt
+// üç kez uygulandı (`degradeYuzeyi`, üç tipo üreteci, bu) — bir kuralı bir dosyada
+// uygulayıp komşusunda uygulamamak, kuralı olmamasından kötüdür.

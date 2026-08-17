@@ -71,7 +71,17 @@ const IHLALLER = [
     yamalar: [
       {
         ara: "for (const dosya of readdirSync(p('docs/fazlar')).filter((f) => /^FAZ-\\d+\\.md$/.test(f))) {",
-        yaz: 'for (let n = 0; n <= 9; n++) {',
+        // ⚠ ⚠ **`0..8`, ESKİDEN `0..9` İDİ — ve sebebi bu bataryanın kendi kırılganlığı.**
+        // Eski yama FAZ-0..9'u tarıyordu; `siradaki_adim` 10'un altına düştüğü an (bu
+        // turda `9.1` oldu) adım BULUNUYOR ve ihlal tetiklenmiyordu — ihlal testi
+        // DURUM.md'nin o anki içeriğine bağlıymış.
+        // ⚠ **Boş aralık da ÇALIŞMIYOR:** kapının kendi savunması var — hiç adım
+        // okunamazsa *"kapı boş geçiyor"* diyip başka bir gerekçeyle düşüyor ve imza
+        // tutmuyor. Yani doğru ihlal "hiç okuma" değil, "eksik okuma".
+        // ⚠ **KALAN BAĞ, bilerek yazılı:** `siradaki_adim` bir gün FAZ-8 ya da altına
+        // dönerse bu giriş yine sessizce geçersizleşir. Fazlar 0–8 kapalı olduğu için
+        // dönmeyecek; dönerse burası da güncellenmeli.
+        yaz: 'for (let n = 0; n <= 8; n++) {',
       },
       {
         ara: '  const n = Number(/^FAZ-(\\d+)\\.md$/.exec(dosya)[1])\n  const f = `docs/fazlar/${dosya}`',
@@ -90,9 +100,20 @@ const IHLALLER = [
     // "?? yama hedefi bulunamadı" diyordu ama `verify` dışında kimse bakmıyordu.
     // Bu, bu oturumda çapaların ikinci kez kırılması. Kural: çapa, ölçülen değerin
     // TANIMLANDIĞI dosyada durur; başka bir dosyadaki türevine değil.
+    //
+    // ⚠ ⚠ **ÜÇÜNCÜ KEZ KIRILDI (FAZ-12.10) — ve bu sefer sebebi daha derin.** Çapa
+    // `sablon-parametre.ts`teki `p.bantMin - p.genlik - 2` idi; 12.10 iki şey birden
+    // yaptı: sabiti `NEFES_YUZDESI` diye adlandırdı (dize eşleşmesi bozuldu) **ve daha
+    // önemlisi sütunu o dosyadan ÇIKARDI** — sütun artık slayta özgü ve `sablon.ts`teki
+    // `guvenliKolonYuzdesi`nde, eğrinin zarfından türetiliyor. Yani eski çapa yalnız
+    // bayatlamadı, **yanlış şeyi işaret eder hâle geldi**: orayı yamalamak render edilen
+    // sütunu artık hiç genişletmiyor. Çapa, değişmezi GERÇEKTEN ihlal eden yere taşındı.
+    //
+    // **Ders (üçüncü tekrar):** bir hesabı taşımak, o hesabı sınayan ihlal testini de
+    // taşımayı gerektirir. Yeniden adlandırma yetmez — çapa DAVRANIŞA bağlanmalı.
     kapi: 'tasarim',
-    dosya: 'packages/render/src/sablon-parametre.ts',
-    yamalar: [{ ara: 'p.bantMin - p.genlik - 2', yaz: 'p.bantMin + p.genlik + 24' }],
+    dosya: 'packages/render/src/sablon.ts',
+    yamalar: [{ ara: 'return icKenar - NEFES_YUZDESI', yaz: 'return icKenar - NEFES_YUZDESI + 6' }],
     // ⚠ **İMZA DEĞİŞTİ ÇÜNKÜ SINANAN DEĞİŞMEZ DEĞİŞTİ.** Eski giriş "en geniş kelime
     // sütuna sığmıyor" (`text_overflow`) diyordu; ama o metrik kelimeyi SÜTUNA karşı
     // ölçüyor ve sütun genişletilince eşik de genişliyordu — kapı YEŞİL kalıyordu.
@@ -100,7 +121,10 @@ const IHLALLER = [
     // kendi kutusuna sığması korunuyordu. Yeni değişmez `column_in_band`: güvenli sütun,
     // eğri bandının yakın kenarından `genlik` kadar uzakta kalmalı. Boşluğu bataryanın
     // KENDİSİ ortaya çıkardı — çapası bayatladığı için sessizce geçersizleşmişti.
-    imza: 'metin sütunu eğri bandının dışında',
+    // ⚠ İmza SLAYT NUMARASI TAŞIMIYOR: 12.10 okumayı slayt başına böldü ve etiket
+    // `slayt 1 sütunu …` oldu. Numarayı imzaya koymak, slayt sayısı değişince imzayı
+    // bir kez daha kırardı — imza etikette DEĞİŞMEYEN parçaya bağlanıyor.
+    imza: 'sütunu eğri bandının dışında',
   },
   {
     // Izgaraya bakınca iki komşu kare ayırt edilebilmeli; aynı zemin onları tek bloğa

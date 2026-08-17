@@ -22,7 +22,6 @@ import { reading, report } from './qa/tolerance.js'
 import { NEFES_YUZDESI } from './sablon-parametre.js'
 import { alanRolleri, guvenliKolonYuzdesi } from './sablon.js'
 import {
-  BOSLUK_OLCEGI,
   kompozisyonMerkezi,
   OPTIK_MERKEZ,
   olcekDisiBosluklar,
@@ -47,15 +46,6 @@ export const KELIME_TAVANI = {
 /** İçerik kenar payı, px — `static.ts`teki `pay` ile aynı olmak zorunda. */
 export const KENAR_PAYI = 88
 
-/**
- * Şablonun bugün kullandığı boşluk değerleri — ölçek denetimi için.
- *
- * ⚠ Elle yazılmış bir liste ve bu bir borç: `static.ts` bu sayıları kendi içinde
- * üretiyor. Türetilmiş olsaydı yeni bir boşluk eklendiğinde ölçüm onu kendiliğinden
- * görürdü. Bugün görmüyor — ve bunu bilmek, bilmemekten iyidir.
- */
-const VARSAYILAN_BOSLUKLAR: readonly number[] = [88, 62, 24, 54, 26, 64]
-
 export interface TasarimGirdisi {
   readonly slaytlar: readonly DocumentModel[]
   /**
@@ -79,6 +69,23 @@ export interface TasarimGirdisi {
    * yollarından üretiliyor; biri ötekinden ayrışırsa okuma bunu görür.
    */
   readonly kolonKenarlari?: readonly { readonly kolonPx: number; readonly egriPx: number }[]
+  /**
+   * Slayt başına, RENDER EDİLMİŞ sayfadan okunan iki dikey kenar (px, tuval üstünden).
+   *
+   * ⚠ ⚠ **`ghost_overlap` de kendi kendini ölçüyordu.** İki terim de aynı sabitten
+   * (`KENAR_PAYI`) türüyordu: `max(0, (88+30) - (88+62))` her girdide **0**. Kırmızıya
+   * dönemeyen bir okuma bir ölçüm değil, bir tekrardır — bataryanın `column_in_band`de
+   * yakaladığı hatanın ikizi, bir adım ötede.
+   */
+  readonly dikeyKenarlar?: readonly { readonly rakamAltPx: number; readonly seritUstPx: number }[]
+  /**
+   * Render edilmiş CSS'ten toplanan boşluk değerleri (px).
+   *
+   * ⚠ ⚠ **`spacing_offscale` de sabitti:** `tasarim-olcum.ts` içinde ELLE yazılmış altı
+   * sayıyı ölçüyordu ve değer her girdide **6** çıkıyordu. Şablonun boşlukları değişse
+   * ölçüm görmezdi. Artık üretilen stilden geliyor.
+   */
+  readonly bosluklar?: readonly number[]
 }
 
 /**
@@ -273,13 +280,14 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
     okumalar.push(
       reading({
         metric: 'spacing_offscale',
-        label: 'boşluk ölçeğine oturmayan değer',
-        // ⚠ Bugünkü değerler ölçeğe oturmuyor (kenar payı 88, ölçekte 89) ve bu
-        // DÜZELTİLMEDİ: 1 px için bütün golden'ları yenilemek kazandığından fazlasını
-        // riske atardı. Ölçüm sapmayı raporluyor; düzeltme bir karar.
-        value: olcekDisiBosluklar([VARSAYILAN_BOSLUKLAR].flat()).length,
+        label: 'boşluk tabanına oturmayan değer',
+        // ⚠ Değerler ÜRETİLEN STİLDEN geliyor; elle yazılmış bir liste şablon değişince
+        // sessizce eski kalırdı (bağımsız doğrulama, bulgu 7).
+        // ⚠ Ölçüt tasarımın KENDİ 4 px tabanı (§12.3), uydurulmuş bir Fibonacci ölçeği
+        // değil — ilk sürüm öyleydi ve on beş değerin on beşini "dışarıda" sayıyordu.
+        value: olcekDisiBosluklar(g.bosluklar ?? []).length,
         warn: 0,
-        limit: BOSLUK_OLCEGI.length + VARSAYILAN_BOSLUKLAR.length,
+        limit: Math.max(1, (g.bosluklar ?? []).length),
         direction: 'lower',
         unit: ' değer',
       })
@@ -370,21 +378,25 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
     }
 
     // ── T3 hayalet rakam ↔ alt şerit ────────────────────────────────────────
-    // Rakamın alt kenarı `KENAR_PAYI + 62`; alt şerit `KENAR_PAYI`de başlayıp ~30 px
-    // yükseliyor. İkisi çakışırsa kompozisyon kazara duruyor — bu da gerçekten oldu.
-    const rakamAlt = KENAR_PAYI + 62
-    const seritUst = KENAR_PAYI + 30
-    okumalar.push(
-      reading({
-        metric: 'ghost_overlap',
-        label: `slayt ${i + 1} rakam ↔ şerit`,
-        value: Math.max(0, seritUst - rakamAlt),
-        warn: 0,
-        limit: 0,
-        direction: 'lower',
-        unit: ' px',
-      })
-    )
+    //
+    // ⚠ ⚠ **ARTEFAKTTAN.** İlk sürüm iki terimi de `KENAR_PAYI`den türetiyordu ve değer
+    // her girdide 0'dı — kırmızıya dönemeyen bir okuma. Şimdi ikisi de DOM'dan: rakamın
+    // alt kenarı ve alt şeridin üst kenarı, ayrı ögelerden ayrı kod yollarıyla.
+    const dk = g.dikeyKenarlar?.[i]
+    if (dk !== undefined) {
+      okumalar.push(
+        reading({
+          metric: 'ghost_overlap',
+          label: `slayt ${i + 1} rakam ↔ şerit`,
+          // Rakamın altı şeridin üstünü GEÇMEMELİ; geçerse çakışma başlıyor.
+          value: Math.max(0, Math.round(dk.rakamAltPx - dk.seritUstPx)),
+          warn: 0,
+          limit: 0,
+          direction: 'lower',
+          unit: ' px',
+        })
+      )
+    }
   }
 
   // ── T7 komşu slaytlarda aynı zemin ────────────────────────────────────────

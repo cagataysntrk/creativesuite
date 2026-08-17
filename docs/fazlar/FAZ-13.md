@@ -9,6 +9,10 @@ yargısı** (her çıktıya insan bakmadan kalite nasıl bilinir).
 **Çıkış kriteri:** Sistem, kendi çıktısını estetik olarak **puanlayabiliyor**; iki farklı
 konudan iki **ölçülebilir biçimde farklı** karosel çıkıyor; kör karşılaştırmada referans
 ailesiyle aynı sınıfta duruyor.
+✅ **Üçü de gösterildi (2026-08-17).** Puanlama: `design.critique` gerçek modelle koştu.
+Çeşitlilik: anlatı konusu → `akici` (panorama açık), kanıtlı konu → `temel` — parmak izi
+uzaklığı **0,5** (altı alanın üçü farklı). Kör kabul: medyan aralıkları örtüşüyor.
+⚠ Kabul sayacı (0/20) FAZ-12'nin kriteri; bu fazınki değil.
 
 > **Bu faz neden var:** FAZ-10'da ölçüm aracının kendisi ON KEZ bozuk çıktı ve her seferinde
 > ancak *koşup bakınca* görüldü. Göz tek yargıçtı. Bir karosel `kalite` kapısının her
@@ -38,11 +42,9 @@ ailesiyle aynı sınıfta duruyor.
 📁 `packages/render/src/kompozisyon-olcum.ts` + testi · `packages/render/src/tasarim-olcum.ts`
 ✅ ⚠ **Bunlar KAPI değil, RAPOR — ve `limit` bir eşik değil TANIM ARALIĞININ ucu.** Okuma
    yapısal olarak `out` olamıyor; uyarı eşiği gerçek. Kapı 35 okuma yeşil + 6 uyarı verdi.
-   ⚠ ⚠ **AĞIRLIK PİKSELDEN DEĞİL GRAMERDEN.** Ekran görüntüsünü çözmek bir PNG çözücü
-   bağımlılığı isterdi; dahası piksel bir ÖRNEKLEM, gramer tasarımın kendisi. Eğri
-   integralle örnekleniyor — FAZ-12.10'un ZARFI burada YANLIŞ alet olurdu: zarf alanı
-   üstten sınırlar (metni uzak tutmak için geniş yanılmak güvenli), denge hesabı ise
-   gerçek alanı ister. *Aynı şekil, farklı soru, farklı yaklaşım.*
+   ⚠ ⚠ **AĞIRLIK PİKSELDEN DEĞİL GRAMERDEN:** PNG çözücü bağımlılığı gerekirdi ve piksel
+   bir ÖRNEKLEM, gramer tasarımın kendisi. FAZ-12.10'un ZARFI burada YANLIŞ alet olurdu —
+   zarf alanı üstten sınırlar, denge hesabı gerçek alanı ister. *Aynı şekil, farklı soru.*
    ⚠ ⚠ **İLK METRİK GRAMERİN KENDİSİNİ KUSUR RAPORLUYORDU.** "Zikzak sayısı" beş slaytta
    3/3 döndü — çünkü dolgu tarafı her slaytta yer değiştiriyor ve ritim tam olarak budur
    (D-254). Ölçtüğü doğruydu, ölçmesi gereken değildi. Yerine `yolSapmasi`: kütle, o
@@ -181,20 +183,31 @@ ailesiyle aynı sınıfta duruyor.
    yollarını görüyor) · slayt yoksa prompt boş.
 💾 `feat(engine): tasarim yargisi` · `Refs: FAZ-13.5 · §8.1`
 
-## 13.6 — Kör kabul: referansla aynı sınıfta mıyız    [ ]
+## 13.6 — Kör kabul: referansla aynı sınıfta mıyız    [x] 2026-08-17
 
 📖 §7.1 · D-255
 🔗 13.1, 13.4, 13.5
-🛠 Nihai sınav. `examples/` altındaki dört referans karosel ile bizim çıktımız **etiketsiz**
-   karıştırılır ve `design.critique` ikisini de puanlar. Bizimki referansların puan
-   aralığına düşüyorsa faz kapanır; düşmüyorsa fark **hangi kategoride** açık, oraya dönülür.
-📁 `docs/referans/kor-kabul.md`
-✅ ⚠ **Referanslar KAZANMALI diye beklenmiyor** — beklenen AYNI ARALIK. Bizim çıktı daha
-   yüksek puan alırsa bu iyi haber değil, **yargıcın bizim şablonumuza aşırı uyduğunun**
-   işareti olabilir; o durumda yargıç sınanır.
-   ⚠ Yargıç bizim çıktımızı üreten hattan bağımsız olmalı; aynı prompt ailesi hem üretip
-   hem yargılarsa sınav kendi kendini onaylar.
-🧪 Referans karoselleri yargıca ters etiketle ver → sıralama değişmemeli (etiket körlüğü).
+🛠 Nihai sınav. Beş referans karosel ile bizim çıktımız **etiketsiz** karıştırılıp
+   `design.critique` ile puanlanır. Aynı aralıksa faz kapanır.
+📁 `scripts/kor-kabul.mjs` · `docs/referans/kor-kabul.md` (üretilmiş) ·
+   `packages/engine/src/tasarim-yargi.ts`
+✅ ⚠ **Körlük ÜÇ katmanlı:** gramersiz prompt (referansı bizim bağlamımızla yargılatmak
+   yargıcı şablonumuza ayarlardı) · deterministik karıştırma · etiketsiz dosya adı.
+   ⚠ ⚠ **ASIL BULGU YARGICIN KENDİSİYDİ: tek koşu bir ölçüm DEĞİL.** Üçlü tekrarla
+   **aynı görselde 1,5 puana varan yayılım** çıktı (`ornek-4`: 1,83 · 3,33 · 3,00).
+   R-80: aynı girdiye iki farklı cevap veren ölçüm yeşil değildir. Betik `--tekrar K` ile
+   **medyan** ve **yayılım** raporluyor. **Adımın "yargıcı sına" şartı böyle karşılandı.**
+   ⚠ ⚠ **SONUÇ: AYNI SINIF — ama "daha iyiyiz" ÖLÇÜLMÜŞ DEĞİL.** Medyan aralıkları
+   örtüşüyor (bizim 3,5–4,0 · referans 2,33–3,83); medyanımız ~1 puan yukarıda ama
+   referans yayılımının ortalaması ~1,1, yani **fark gürültüyle aynı büyüklükte.**
+   ⚠ **İkinci sinyal:** yayılımımız (ort. 0,53) referansınkinin (ort. 1,10) yarısı — bu
+   iyi olduğumuzu değil, **yargıcın şablonumuza alışık olduğunu** da gösterebilir.
+   ⚠ **Yöntem kusuru ölçülerek bulundu:** yer tutucu metinli slaytlarla bizimkiler
+   2,5–3,5 çıktı, gerçek Türkçe başlıklarla 3,5–4,33'e. **Kör kabulün girdisi temsili
+   OLMAK ZORUNDA** — yoksa ölçülen şey tasarım değil, test verisi.
+🧪 10 görsel × 3 tekrar = 30 puanlama; etiket körlüğü kopyalamayla, gramer körlüğü
+   `gramer: false` ile sağlandı. Zincir kopukluğu koşuda yakalandı: `ayniAralikta`
+   `index.ts`ten dışa açılmamıştı ve betik `is not a function` ile düştü.
 💾 `feat(engine): kor kabul` · `Refs: FAZ-13.6 · §7.1`
 
 ---

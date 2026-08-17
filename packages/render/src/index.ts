@@ -43,9 +43,6 @@ export {
   OPENTYPE_CSS,
   vurguCss,
   konturCss,
-  degradeCss,
-  golgeCss,
-  knockoutCss,
   vurguyuIsaretle,
   type TipoEfekti,
 } from './sablon-tipo.js'
@@ -292,7 +289,7 @@ export { fontCss, YUZLER, type FontYuzu, type FontSonucu } from './fonts.js'
 export { GORSEL_ISLEMLERI, islemKimligi, islemTanimi, islemZinciri } from './gorsel-islem.js'
 export type { GorselIslem } from './gorsel-islem.js'
 export {
-  BOSLUK_OLCEGI,
+  BOSLUK_TABANI,
   kompozisyonMerkezi,
   OPTIK_MERKEZ,
   olcekDisiBosluklar,

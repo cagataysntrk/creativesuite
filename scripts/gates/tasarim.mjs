@@ -103,22 +103,36 @@ const kenarOlcum = await withPage(async (page) => {
   const sonuc = []
   for (const d of slaytlar) {
     await page.setContent(toHtml(d), { waitUntil: 'load' })
+    // ⚠ Üç ölçüm de AYNI sayfadan ve ayrı ögelerden: sütun kutusu, hayalet rakamın alt
+    // kenarı, alt şeridin üst kenarı. İkisi tek sabitten türeseydi okuma kırmızıya
+    // dönemezdi — `ghost_overlap` tam olarak öyleydi (bağımsız doğrulama, bulgu 8).
     const kutu = await page.evaluate(
-      `(() => { const e = document.querySelector(".icerik"); if (!e) return null;
-        const r = e.getBoundingClientRect(); return { sol: r.left, sag: r.right } })()`
+      `(() => {
+        const e = document.querySelector(".icerik"); if (!e) return null
+        const r = e.getBoundingClientRect()
+        const h = document.querySelector(".hayalet")
+        const serit = [...document.querySelectorAll(".kulp, .nav")]
+          .map((x) => x.getBoundingClientRect().top)
+        return {
+          sol: r.left, sag: r.right,
+          rakamAlt: h ? h.getBoundingClientRect().bottom : null,
+          seritUst: serit.length ? Math.min(...serit) : null,
+        } })()`
     )
     const html = await page.content()
     // Alan katmanının path'i: `viewBox="0 0 100 100"` kutusunda, tuvale gerilmiş.
     const eslesme = /<path d="([^"]+)"/.exec(html)
     if (kutu === null || eslesme === null) return null
     const zarf = R.egriZarfi(eslesme[1])
+    // ⚠ `egriSagda` İMPORT EDİLİYOR, yeniden yazılmıyor: kopya bir ikinci doğruluk
+    // kaynağıdır ve gramer değişirse kapı sessizce YANLIŞ kenarı ölçer (R-05'in kapı
+    // katmanındaki karşılığı; bağımsız doğrulama bulgu 15).
     // Eğri sağdaysa sütun solda: bakan kenar `sag`, eğrinin iç kenarı `zarf.min`.
-    const sagda = d.slayt.index % 2 === 0
-    sonuc.push(
-      sagda
-        ? { kolonPx: kutu.sag, egriPx: (zarf.min / 100) * d.width }
-        : { kolonPx: d.width - kutu.sol, egriPx: d.width - (zarf.max / 100) * d.width }
-    )
+    const sagda = R.egriSagda(d.slayt)
+    const yatay = sagda
+      ? { kolonPx: kutu.sag, egriPx: (zarf.min / 100) * d.width }
+      : { kolonPx: d.width - kutu.sol, egriPx: d.width - (zarf.max / 100) * d.width }
+    sonuc.push({ ...yatay, rakamAltPx: kutu.rakamAlt, seritUstPx: kutu.seritUst })
   }
   return sonuc
 })
@@ -127,10 +141,33 @@ if (!kenarOlcum.ok || kenarOlcum.value === null) {
   process.exit(1)
 }
 
+// ⚠ Boşluklar ÜRETİLEN STİLDEN toplanıyor, elle yazılmış bir listeden değil: şablonun
+// boşluğu değişince ölçüm bunu görmek zorunda (bağımsız doğrulama, bulgu 7).
+//
+// ⚠ ⚠ **YALNIZ `padding` · `margin` · `gap` ve `.spacer` yüksekliği.** İlk sürüm `height`
+// de topluyordu ve tuval yüksekliğini (1350), maske çapını (376), kontur kalınlığını (3)
+// "boşluk" sayıyordu: 16 sayı sayan bir metrik ölçüm değil GÜRÜLTÜdür ve gürültü hep
+// kırmızı yanar, yani hiç okunmaz. Ölçülen şey DİKEY RİTİM, ögelerin boyu değil.
+const boslukKaynagi = toHtml(slaytlar[1])
+const bosluklar = [
+  ...new Set([
+    ...[...boslukKaynagi.matchAll(/(?:padding|margin|gap)(?:-[a-z]+)?:([^;{}]+)/g)].flatMap((m) =>
+      [...m[1].matchAll(/(\d+)px/g)].map((x) => Number(x[1]))
+    ),
+    ...[...boslukKaynagi.matchAll(/\.spacer\.[a-z]+ \{ height: (\d+)px/g)].map((m) => Number(m[1])),
+  ]),
+]
+  .filter((v) => v > 0)
+  .sort((a, b) => a - b)
+
 const rapor = tasarimOlc({
   slaytlar,
   enGenisKelimePx: olcum.value,
-  kolonKenarlari: kenarOlcum.value,
+  kolonKenarlari: kenarOlcum.value.map((k) => ({ kolonPx: k.kolonPx, egriPx: k.egriPx })),
+  dikeyKenarlar: kenarOlcum.value
+    .filter((k) => k.rakamAltPx !== null && k.seritUstPx !== null)
+    .map((k) => ({ rakamAltPx: k.rakamAltPx, seritUstPx: k.seritUstPx })),
+  bosluklar,
 })
 const tip = tipografiSay(toHtml(slaytlar[1]))
 const okumalar = [...rapor.readings, ...tip.readings]

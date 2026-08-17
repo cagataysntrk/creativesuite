@@ -32,7 +32,13 @@ import {
   sayacEtiketi,
 } from './sablon.js'
 import { ikonSec, ikonSvg } from './sablon-ikon.js'
-import { OPENTYPE_CSS, vurguCss, vurguyuIsaretle } from './sablon-tipo.js'
+import {
+  konturCss,
+  OPENTYPE_CSS,
+  type TipoEfekti,
+  vurguCss,
+  vurguyuIsaretle,
+} from './sablon-tipo.js'
 import { markaCss, markaKilidi } from './marka-isareti.js'
 import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { z } from './kompozit.js'
@@ -52,6 +58,18 @@ import { dokuCss, grainKatmani, grainSvg, vinyetCss, vinyetKatmani } from './sab
  */
 const gorselIslemleri = (doc: DocumentModel): readonly GorselIslem[] =>
   doc.aile?.gorselIslemleri ?? ['duotone']
+
+/**
+ * Bir tipografi efekti bu belgede açık mı — TEK kaynak.
+ *
+ * ⚠ ⚠ **Üç ayrı yerde ayrı ayrı sorulsaydı biri unutulurdu ve tam bu oldu:** vurgu
+ * ŞERİDİ aileye bağlıydı ama vurgu İŞARETİ (`<strong>`) koşulsuz basılıyordu; kapalı bir
+ * ailede etiket var, stil yok, tarayıcı kendi kalınını çiziyordu.
+ * ⚠ Varsayılan `['vurgu','kontur']`: ailesiz bir belgede efektleri düşürmek, sessizce
+ * hiyerarşisiz ve konturSuz hâle dönmek olurdu (duotone varsayılanıyla aynı gerekçe).
+ */
+const efektAcik = (doc: DocumentModel, efekt: TipoEfekti): boolean =>
+  (doc.aile?.tipoEfektleri ?? ['vurgu', 'kontur']).includes(efekt)
 /** Grain filtresinin belge içi kimliği. */
 const GRAIN_ID = 'marka-grain'
 
@@ -114,15 +132,20 @@ const HECE_ESIGI = 12
 
 const hecele = (t: string): string => softHyphenate(t, HECE_ESIGI, 3)
 
-const blokHtml = (b: Block, ikonRengi: string | null): string => {
+const blokHtml = (b: Block, ikonRengi: string | null, vurguAcik = true): string => {
+  // ⚠ ⚠ **İŞARET DE AİLEYE BAĞLI OLMAK ZORUNDA.** `<strong>` koşulsuz basılıyordu ama
+  // `vurguCss` aileye bağlıydı: `vurgu` kapalı bir ailede etiket var, stil yok ve tarayıcı
+  // KENDİ varsayılan kalınını çiziyordu — yani "kapalı" efekt görünmeye devam ediyordu.
+  // Yarım bağlanmış bir anahtar, hiç bağlanmamıştan kötüdür: kapalı sanılır, açıktır.
+  const vurgula = (t: string): string => (vurguAcik ? vurguyuIsaretle(t) : t)
   switch (b.type) {
     case 'heading':
-      return `<h${b.level}>${vurguyuIsaretle(kacir(b.text))}</h${b.level}>`
+      return `<h${b.level}>${vurgula(kacir(b.text))}</h${b.level}>`
     case 'body': {
       const ad = ikonRengi === null ? null : ikonSec(b.text)
       // Eşleşme yoksa sınıf da yok: mevcut madde çizgisi çizilmeye devam eder. Zorla ikon
       // atamak, takvimden bahseden satırın yanına fabrika koymak demekti.
-      const metin = vurguyuIsaretle(kacir(hecele(b.text)))
+      const metin = vurgula(kacir(hecele(b.text)))
       return ad === null
         ? `<p>${metin}</p>`
         : `<p class="ikonlu">${ikonSvg(ad, ikonRengi as string, IKON_PX)}${metin}</p>`
@@ -220,7 +243,7 @@ export const toHtml = (doc: DocumentModel): string =>
     // parmak izi o alanı ÖLÇEMEYİNCE görüldü: ölçüm boşluğu bir zincir kopukluğunu açtı.
     // ⚠ Varsayılan `vurgu` AÇIK: ailesiz bir belgede efekti düşürmek, sessizce eski
     // hiyerarşisiz hâle dönmek olurdu (duotone varsayılanıyla aynı gerekçe).
-    doc.slayt === undefined || !(doc.aile?.tipoEfektleri ?? ['vurgu']).includes('vurgu')
+    doc.slayt === undefined || !efektAcik(doc, 'vurgu')
       ? ''
       : vurguCss(alanRolleri(doc.slayt).karsiAlan, alanRolleri(doc.slayt).metin),
     '</style>',
@@ -251,7 +274,9 @@ export const toHtml = (doc: DocumentModel): string =>
     // eşleşmiyorsa hiçbiri ikon almıyor. Anlamsız ikon ikonsuzluktan kötüdür, **karışık
     // işaret ikisinden de kötüdür.**
     ikonlarHepsiEslesiyorMu(doc)
-      ? doc.blocks.map((b) => blokHtml(b, alanRolleri(doc.slayt!).metin)).join('\n')
+      ? doc.blocks
+          .map((b) => blokHtml(b, alanRolleri(doc.slayt!).metin, efektAcik(doc, 'vurgu')))
+          .join('\n')
       : doc.blocks.map((b) => blokHtml(b, null)).join('\n'),
     '</main>',
   ].join('\n')
@@ -398,7 +423,12 @@ const sablonCss = (doc: DocumentModel): string => {
     `             ${sagda ? 'right' : 'left'}: -${Math.round(pay * 0.7)}px; bottom: ${pay + 62}px;`,
     `             font-family: "Marka Display", sans-serif;`,
     `             font-size: ${VARSAYILAN.hayaletPx}px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
-    `             color: transparent; -webkit-text-stroke: ${VARSAYILAN.hayaletKonturPx}px ${r.motif}; opacity: 0.42;`,
+    // ⚠ ⚠ **HAYALET RAKAM `kontur` EFEKTİNİN KENDİSİ.** `tipoEfektleri` listesinde
+    // `kontur` vardı ama render onu hiç okumuyordu; kontur `VARSAYILAN.hayaletKonturPx`
+    // ile SABİT basılıyordu ve `konturCss` üreteci sıfır çağıranlıydı — aile "kapalı"
+    // dese bile çizilirdi. Artık listeden geliyor ve üreteç tek kaynak.
+    konturCss('.hayalet', r.motif, efektAcik(doc, 'kontur') ? VARSAYILAN.hayaletKonturPx : 0),
+    `             opacity: 0.42;`,
     `             pointer-events: none; }`,
     // ── katman 3: sayaç, kulp, navigasyon ───────────────────────────────────
     //

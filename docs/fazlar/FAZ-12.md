@@ -7,6 +7,9 @@
 **Çıkış kriteri:** Bir karosel, kaynak fotoğraf olmadan, yalnız tipografi · efekt · doku ·
 veri ögesiyle **profesyonel ajans işi** görünümünde çıkabiliyor; 20 ardışık kabul koşusu
 bu dille geçiyor.
+⚠ **ADIMLAR BİTTİ, ÇIKIŞ KRİTERİ AÇIK (2026-08-17).** Kabul sayacı **0/20**
+(`docs/referans/kabul-20.md`). Bağımsız doğrulama bunu blokaj olarak buldu ve haklıydı:
+"adımlar tikli" ile "faz kapandı" ayrı şeyler. Faz, sayaç dolana kadar KAPANMAZ.
 
 > **Tam envanter:** `docs/referans/yetenek-envanteri.md`. Bu faz o envanterin ⛔/🟡
 > satırlarını kapatıyor. ⚠ **İki lisans tuzağı:** BRIA RMBG **CC BY-NC**, Potrace **GPL**.
@@ -232,13 +235,10 @@ bu dille geçiyor.
    belirli — gramerdeki dört düzenin **hiçbiri** `flex-start` değil. Yazılsaydı:
    tüketicisi olmayan yetenek + zayıflamış garanti. Şart bir CSS numarası değil, dikey
    yerleşimin yeniden tasarımı. Boole dağarcığının kalanı da aynı sebeple yok.
-   ⚠ ⚠ **AMA ADIMIN AMACI TESLİM EDİLDİ — "sınır içinde daha iyi yerleşmek".** Sütun artık
-   O SLAYTIN eğrisinden türüyor: küresel %62 beş slaytın EN KÖTÜSÜYDÜ. İçerik genişliği
-   582 → 606 → 630 → 655 → 679 px; ilk slayt değişmiyor. Maske çapı da bundan türüyor.
-   ⚠ **Zarf PATH'TEN okunuyor, formülden değil.** `merkez - genlik` yazsaydım eğriye
-   daha içeride bir kontrol noktası eklendiğinde sayı sessizce yalan olurdu — bir yorum
-   bir zorlama değildir. Zarf eğriyi girdi alıyor. Kübik Bézier dışbükey zarfını aşmaz;
-   zarf gerçek eğriden GENİŞ, yani yanılma yönü güvenli.
+   ⚠ ⚠ **AMA ADIMIN AMACI TESLİM EDİLDİ:** sütun artık O SLAYTIN eğrisinden türüyor;
+   içerik genişliği 582 → 606 → 630 → 655 → 679 px. Maske çapı da bundan türüyor.
+   ⚠ **Zarf PATH'TEN okunuyor, formülden değil** — `merkez - genlik` yazsaydım eğriye daha
+   içeride bir nokta eklenince sayı sessizce yalan olurdu. Zarf gerçek eğriden GENİŞ.
    ⚠ ⚠ **`column_in_band` KENDİ KENDİNİ ölçüyordu:** sütun da eğri de aynı sabitlerden,
    işaret hep aynı, hiçbir girdide kırmızıya DÖNEMEZDİ. Şimdi ikisi de artefakttan —
    `kolonPx` DOM'daki `.icerik` kutusu, `egriPx` basılmış `<path>`ın zarfı.

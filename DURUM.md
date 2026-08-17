@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 13
-siradaki_adim: 13.6
+siradaki_adim: 9.1
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-13.5 KAPANDI — design.critique. PLANIN ONCULU ESKIMISTI: image.critique zaten RENDER EDILMIS slaydi yargiliyor; eksik olan yuzey degil EKSEN — var olan alti kategori kusurun YOKLUGUNU, bu adimin altisi iyinin VARLIGINI ariyor. sikicilik DEGIL carpicilik: yonu kardeslerine ters tek alan ortalamayi sessizce bozar, alti alanda da yuksek = iyi. Dogrulayici YENIDEN YAZILMADI (R-05): bulguyuDogrula kategori dagarcigini parametre aliyor. Eksik kategori sessizce 0 sayilmiyor, atlanmiyor da; toplamPuan eksikte null cunku bes kategoriden ortalama altidan ortalamayla karsilastirilamaz (13.6 tam bunu yapacak). GERCEK MODELLE KOSULDU: alti kategori puanlandi, sifir reddedilen, toplam 3.67/5. denge 4/5 gerekcesi dev rakamin sag-alt kosede yigilmasi kompozisyonu asagi-saga cekiyor — 13.1 in optik merkez olcumu de 10-15 puan ASAGIDA demisti; IKI AYRI YONTEM AYNI BULGU. HAT KOSUSU BIR S16 IHLALI ORTAYA CIKARDI: adaptor --model gecmiyordu, CLI varsayilanina bagliydi, o varsayilan kaldirilan bir modele sabitliydi ve her cagri 404 verdi; hat ilk GENERATE adiminda durdu ve STDERR BOSTU cunku hata metni stdout JSON inde. Model adaptore sabitlendi (env ezebiliyor), hata metni stdout tan okunuyor, cikis kodu 0 iken is_error true hali de yakalaniyor. 12 test. Tam hat kosusu 28 dk da bitmedi (her claude cagrisi yavas) — devam ediyor."
+son_kanit: "LOOP§D 1. TUR: alti blokaj + on bir ikincil bulgu, HEPSI KAPATILDI. (1) just verify KIRMIZIYDI — 12.10 ihlal bataryasinin capasini kendi kirmisti, ucuncu kez; capa yalniz bayatlamamis YANLIS SEYI isaret eder olmustu cunku sutun o dosyadan cikmisti. Capa davranisa baglandi, 22 ihlal kirmizi, verify rc=0. (2) AKICI_AILE URETIMDE ERISILEMEZDI: bodies.ts TEMEL_AILE sabitini yaziyordu, g.aile yi kimse doldurmuyordu — panorama (12.4) ve degrade (12.9) hicbir kosuda basilmadi, teslimatin TAMAMI olu koddu (D-261 in dokuzuncu tekrari). aileSec icerikten seciyor: kanit varsa temel, saf anlatiysa akici. Iki konu -> parmak izi uzakligi 0.5, FAZ-13 cikis kriteri sayiyla gosterildi. (3) IKI METRIK KENDI KENDINI OLCUYORDU: ghost_overlap her girdide 0 (iki terim de KENAR_PAYI den), spacing_offscale her girdide 6 (elle yazilmis liste). Ikisi de artefakttan; ghost_overlap ihlal turunda 69 px SINIR DISI verdi. BOSLUK OLCUTU DE YANLISTI: Fibonacci olcegini BEN uydurdum ve sablonun urettigi on bes deger hicbiri o olcekte degildi — tasarim S12.3 un 4 px tabanini kullaniyor; olcut tabana baglandi, alti gercek sapma cikti. (4) tipo zinciri yarimdi: strong kosulsuz basiliyordu ama CSS aileye bagliydi, yani kapali ailede tarayici kendi kalinini ciziyordu; kontur listede vardi ama render okumuyordu. efektAcik tek kaynak. Uc olu ureteç silindi, gerekceleri yorumda kaldi. docs-drift ucuncu belgeyi kapsamiyordu, tasarim kapisi egriSagda yi yeniden yaziyordu. FAZ-12 CIKIS KRITERI ACIK: kabul sayaci 0/20 — adimlar tikli ile faz kapandi ayri seyler."
 ```
 
 ## Neredeyiz
@@ -48,6 +48,8 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 | Adım | Tarih |
 |---|---|
+| **13.6** · kör kabul; AYNI SINIF ama yargıcın gürültüsü ölçülen farkla aynı boyda | 2026-08-17 |
+| **11.10** · illüstrasyon kütüphanesi KAPATILDI; 11.5/11.6/11.9 tetikleyicili (D-266) | 2026-08-17 |
 | **13.5** · `design.critique` estetik eksen; ölçüm ve yargı aynı kusuru buldu | 2026-08-17 |
 | **13.4** · çeşitlilik parmak izi; iki aile 6 alanın YALNIZ 2'sinde ayrışıyor | 2026-08-17 |
 | **13.2** · katman yığını VERİ; üç z-index beraberliği kazaydı, çıktı piksel-özdeş | 2026-08-17 |
@@ -70,18 +72,27 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 ## Sıradaki adım
 
-**FAZ 12 KAPANDI** (12.8 hariç, `bloke: karar` — model ağırlığı indirme, §16 sınavı).
-FAZ 11'de 11.5/11.6/11.9/11.10 `bloke: karar`. **FAZ 13 açık: 13.2'den devam.**
+**FAZ-12 ve FAZ-13'ün ADIMLARI bitti — ama FAZ-12'nin ÇIKIŞ KRİTERİ açık.** Kabul sayacı
+**0/20**. "Adımlar tikli" ile "faz kapandı" ayrı şeyler; bağımsız doğrulama bunu blokaj
+olarak buldu ve haklıydı. FAZ-13'ün üç çıkış kriteri gösterildi.
 
-**Bu turun tekrar eden dersi:** ölçüm aracı, ölçtüğü şeyden daha sık bozuk çıkıyor.
-`column_in_band` kendi kendini ölçüyordu (hiçbir girdide kırmızıya dönemezdi), ilk göz
-yolu metriği gramerin KASITLI ritmini kusur raporluyordu, `off_palette` sürekli bir
-duotone rampasına yanlış enstrümandı. Üçü de yeşildi ve üçü de hiçbir şey söylemiyordu.
+**LOOP§D 1. TUR: altı blokaj + on bir ikincil bulgu, hepsi kapatıldı.** En ağır üçü:
+1. **`just verify` KIRMIZIYDI** — 12.10 ihlal bataryasının çapasını kendi kırmıştı
+   (üçüncü kez). Çapa artık davranışa bağlı; 22 ihlal kırmızı, `verify` rc=0.
+2. **`AKICI_AILE` üretimde ERİŞİLEMEZDİ** — `bodies.ts` `TEMEL_AILE` sabitini yazıyordu,
+   `g.aile`'yi kimse doldurmuyordu. Yani panorama (12.4) ve degrade (12.9) hiçbir koşuda
+   basılmadı: teslimatın tamamı ölü koddu. `aileSec` içerikten seçiyor — kanıt varsa
+   `temel`, saf anlatıysa `akici`.
+3. **İki metrik kendi kendini ölçüyordu** — `ghost_overlap` her girdide 0, `spacing_offscale`
+   her girdide 6. İkisi de artefakttan ölçülüyor. Boşluk ölçütü de yanlıştı: Fibonacci
+   ölçeğini BEN uydurdum, tasarım §12.3'ün 4 px tabanını kullanıyor.
 
-⚠ **Kabul sayacı 0/20.** FAZ 11–13 render'ı değiştirdi; eski koşular güncel çıktıyı
-temsil etmiyor. FAZ-10.7 kabul koşusu yeni dilin üstünde tekrarlanacak.
-⚠ **FAZ-12/13 kapanışında bağımsız doğrulama** (LOOP§D, en fazla İKİ tur).
-⚠ KARARLAR.md 561/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
+**Ders değişmedi:** ölçüm aracı ölçtüğü şeyden daha sık bozuk — bu turda dört kez daha
+(batarya çapası · `ghost_overlap` · `spacing_offscale` · uydurma Fibonacci ölçeği).
+
+⚠ **LOOP§D 2. TUR kaldı** (tavan iki, D-79). Sonra FAZ 9 denetim turları.
+⚠ **`design.critique` HAT KOŞUSUNDA doğrulanmadı** — doğrudan model çağrısıyla çalıştı.
+⚠ KARARLAR.md 572/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
 
 ## Devreden borçlar
 

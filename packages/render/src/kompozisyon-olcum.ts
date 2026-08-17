@@ -33,15 +33,20 @@ import { VARSAYILAN } from './sablon-parametre.js'
 export const OPTIK_MERKEZ = 0.45
 
 /**
- * Boşluk ölçeği — Fibonacci, KAPALI.
+ * Boşluk tabanı — 4 px, §12.3'ün kendi ilanı.
  *
- * ⚠ Boşluklar keyfî piksel olmamalı; tek bir ölçekten seçilirse dikey ritim kendiliğinden
- * tutarlı olur. Ölçek kapalı: yedinci bir değer bir karar ister.
- * ⚠ **Bugünkü değerler ölçeğe TAM oturmuyor** (kenar payı 88, ölçekte 89) ve bu bilinçli
- * olarak DÜZELTİLMEDİ: 1 px'lik bir kayma için bütün golden'ları yenilemek, kazandığından
- * fazlasını riske atardı. Ölçüm sapmayı RAPORLUYOR; düzeltme bir karar.
+ * ⚠ ⚠ **İLK SÜRÜM FİBONACCİ (8·13·21·34·55·89) YAZIYORDU ve o ölçeği BEN UYDURDUM.**
+ * Artefakttan ölçünce çıktı: şablonun ürettiği on beş boşluk değerinin **hiçbiri** o
+ * ölçekte değildi. Bir tasarımı, hiç kullanmadığı bir standarda göre ölçmek, ölçümü
+ * gürültüye çevirir — gürültü hep kırmızı yanar ve hiç okunmaz.
+ * Oysa `static.ts` zaten *"güvenli alan: 4 px tabanın katı (§12.3)"* diyor: sistem
+ * VARDI, ölçüm başka bir sisteme bakıyordu. Bu oturumun tekrarlayan hatası — enstrüman,
+ * ölçtüğü şeyden daha sık bozuk çıkıyor.
+ *
+ * ⚠ Şimdi ölçülen şey tasarımın KENDİ tabanı: 4'ün katı olmayan boşluk raporlanıyor.
+ * Bu bir KAPI değil rapor (FAZ-13.1); düzeltme bir karar, bir zorlama değil.
  */
-export const BOSLUK_OLCEGI: readonly number[] = [8, 13, 21, 34, 55, 89]
+export const BOSLUK_TABANI = 4
 
 /** Bir kütle: normalize edilmiş merkez ve ağırlık. */
 export interface Kutle {
@@ -169,6 +174,6 @@ export const yolSapmasi = (
   slaytlar: readonly { readonly k: SlaytKimligi; readonly x: number }[]
 ): number => slaytlar.filter((s) => egriSagda(s.k) !== s.x > 50).length
 
-/** Ölçeğe oturmayan boşluklar. */
+/** Tabanın katı OLMAYAN boşluklar — dikey ritmi bozanlar. */
 export const olcekDisiBosluklar = (degerler: readonly number[]): readonly number[] =>
-  degerler.filter((d) => !BOSLUK_OLCEGI.includes(d))
+  degerler.filter((d) => d % BOSLUK_TABANI !== 0)

@@ -38,8 +38,11 @@ export const OPENTYPE_CSS = `"kern" 1, "liga" 1, "calt" 1`
  * Referanslarda bir ifade her zaman öne çıkar — renkle, ağırlıkla ya da şeritle.
  * Hiyerarşi bir slaytın İÇİNDE de gerekiyor, yalnız slaytlar arasında değil.
  *
- * ⚠ Şerit metnin ALTINDA (`z-index: -1`) ve `box-decoration-break: clone` ile satır
- * kırılmasında da doğru çiziliyor — tek satırlık varsayım Türkçe'de tutmaz.
+ * ⚠ Şerit metnin ALTINDA — ama `z-index` ile DEĞİL, `background` degradesiyle: şerit
+ * glifin arkasında bir arka plan katmanı, ayrı bir öge değil. (İlk sürümün yorumu
+ * `z-index: -1` diyordu ve kod onu hiç basmıyordu — yorum ile kodun ayrışması.)
+ * ⚠ `box-decoration-break: clone` satır kırılmasında da doğru çiziyor; tek satırlık
+ * varsayım Türkçe'de tutmaz.
  * ⚠ Eğim 0: eğik bir şerit el yazısı hissi verir, bu aile geometrik.
  */
 export const vurguCss = (serit: string, metin: string): string =>
@@ -65,36 +68,26 @@ export const vurguCss = (serit: string, metin: string): string =>
 export const konturCss = (secici: string, renk: string, kalinlik: number): string =>
   `  ${secici} { -webkit-text-stroke: ${kalinlik}px ${renk}; color: transparent; }`
 
-/**
- * Degrade dolgu — metin bir renk geçişiyle dolar, CANLI metin kalarak.
- *
- * ⚠ **BU AİLEDE KAPALI.** Kontrast metriği (T4) tek bir renk üstünden ölçüyor; degradeyle
- * dolan bir başlığın en açık durağı zeminle kontrastını kaybedebilir ve ölçüm bunu
- * göremez. Açılması için önce ölçümün en KÖTÜ durağı bulması gerekiyor — o bir adım,
- * bir CSS satırı değil.
- */
-export const degradeCss = (secici: string, bas: string, son: string): string =>
-  `  ${secici} { background: linear-gradient(90deg, ${bas}, ${son});` +
-  ` -webkit-background-clip: text; background-clip: text; color: transparent; }`
-
-/**
- * Gölge — derinlik.
- *
- * ⚠ **BU AİLEDE KAPALI.** Referans örneklerin dördünde de gölgesiz düz tipografi var;
- * §12.1'in gölge yasağı konsola ait ama bu ailenin dili de düz. Koyu zeminli bir aile açar.
- */
-export const golgeCss = (secici: string, renk: string, bulanik: number): string =>
-  `  ${secici} { text-shadow: 0 2px ${bulanik}px ${renk}; }`
-
-/**
- * Knockout — metin zemine göre TERS döner, iki alanda da okunur.
- *
- * ⚠ **BU AİLEDE KAPALI ve sebebi yapısal:** metin hiçbir zaman eğri sınırını geçmiyor
- * (`column_in_band` değişmezi bunu zorluyor), yani iki zemin üstünde duran bir metin
- * hiç oluşmuyor. Knockout'un çözdüğü sorun bu ailede YOK.
- */
-export const knockoutCss = (secici: string): string =>
-  `  ${secici} { mix-blend-mode: difference; color: #fff; }`
+// ── YAZILMAYAN ÜÇ EFEKT: degrade · gölge · knockout ─────────────────────────
+//
+// ⚠ ⚠ **ÜRETEÇLERİ SİLİNDİ, GEREKÇELERİ KALDI.** Üçü de yazılmıştı, üçünün de çağıranı
+// YOKTU ve dağarcıkta durmaları "yakında lazım olur" varsayımına dayanıyordu. Aynı turda
+// FAZ-12.2 tam bu sebeple bir üreteci silmişti (`degradeYuzeyi`); bağımsız doğrulama
+// tutarsızlığı yakaladı — bir kuralı bir dosyada uygulayıp komşusunda uygulamamak,
+// kuralı olmamasından kötüdür. Bilgi değerlidir, ölü kod değil:
+//
+// • **degrade dolgu** — kontrast metriği (T4) TEK renk üstünden ölçüyor; degradeyle dolan
+//   bir başlığın en açık durağı zeminle kontrastını kaybedebilir ve ölçüm bunu göremez.
+//   Açılması için önce ölçümün EN KÖTÜ durağı bulması gerekiyor: bu bir adım, bir CSS
+//   satırı değil. (`background-clip: text` R-20'yi bozmaz — metin canlı kalır.)
+// • **gölge** — referans örneklerin dördünde de gölgesiz düz tipografi var. §12.1'in gölge
+//   yasağı KONSOL yüzeyine ait ama bu ailenin dili de düz. Koyu zeminli bir aile açar.
+// • **knockout** (`mix-blend-mode: difference`) — çözdüğü sorun bu ailede YOK: metin
+//   `column_in_band` değişmezi gereği eğri sınırını hiç geçmiyor, yani iki zemin üstünde
+//   duran bir metin hiç oluşmuyor.
+//
+// Üçü de bir gün gerekirse yazılır; o gün yeniden yazmanın maliyeti, bugün ölü durmanın
+// maliyetinden düşük.
 
 /**
  * `**vurgu**` işaretini `<strong>`a çevirir — KAÇIRILMIŞ metin üstünde.

@@ -11,6 +11,7 @@
 // orası (bkz. `packages/contracts/src/tasarim-plani.ts` dosya başı).
 
 import {
+  AKICI_AILE,
   TEMEL_AILE,
   yay,
   type AileProfili,
@@ -107,8 +108,32 @@ const ogeSecimi = (
  * ⚠ `ortaIndex` gövdenin ortası: görsel öge sona konduğunda sayfalayıcı onu kapanış
  * slaydına taşıyor ve kapanış cümlesi altına sıkışıyordu (FAZ-10.7'de ölçüldü).
  */
+/**
+ * Aileyi İÇERİKTEN seçer — bir varsayılan değil, bir KARAR.
+ *
+ * ⚠ ⚠ **Bağımsız doğrulama bu boşluğu blokaj olarak buldu ve haklıydı.** `AKICI_AILE`
+ * `aile.ts`te tanımlıydı, testi vardı, kapılar yeşildi — ve HİÇBİR üretim yolu onu
+ * seçmiyordu (`const aile = g.aile ?? TEMEL_AILE`, `g.aile`'yi kimse doldurmuyor).
+ * Sonuç: `panorama` ve `degrade` hiçbir koşuda basılmadı, yani FAZ-12.4 ve 12.9'un
+ * teslimatının TAMAMI ölü koddu. **Ölü kod bir seviye yukarı taşınmıştı:** modül değil,
+ * ailenin kendisi çağrılmıyordu (D-261'in dokuzuncu tekrarı).
+ *
+ * ⚠ **Kural ölçülebilir bir gerilimden geliyor, zevkten değil:** yoğun süsleme ve
+ * panorama dikkati ÇEKER; veri ögesi ve fotoğraf da dikkat ister. İkisi aynı karede
+ * yarışırsa kanıt okunmaz olur. Kanıt varsa zemin düz kalır (`temel`); karosel saf
+ * tipografik bir anlatıysa akış onu taşır (`akici`).
+ *
+ * ⚠ **Deterministik** (R-06): aynı girdi aynı aile. Rastgele olsaydı golden test kurulamaz
+ * ve çeşitlilik parmak izi (FAZ-13.4) anlamını yitirirdi.
+ */
+export const aileSec = (g: TasarlaGirdisi): AileProfili => {
+  if (g.aile !== undefined) return g.aile
+  const kanitVar = g.akisVar || g.yuvaIstendi === true
+  return kanitVar ? TEMEL_AILE : AKICI_AILE
+}
+
 export const tasarla = (g: TasarlaGirdisi): TasarimPlani => {
-  const aile = g.aile ?? TEMEL_AILE
+  const aile = aileSec(g)
   const toplam = g.satirlar.length
   const y = yay(toplam)
   const ortaIndex = Math.max(1, Math.ceil(toplam / 2) - 1)

@@ -388,6 +388,6 @@ export {
   tasarimYargiPromptu,
   tasarimYargisinaCevir,
   toplamPuan,
-  puanSatiri,
+  ayniAralikta,
 } from './tasarim-yargi.js'
 export type { TasarimKategorisi, TasarimPuani, TasarimYargisi } from './tasarim-yargi.js'

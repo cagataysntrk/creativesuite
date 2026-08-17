@@ -3,7 +3,7 @@ import type { DocumentModel, SlaytKimligi } from '@suite/kernel'
 import {
   alanKutlesi,
   bileske,
-  BOSLUK_OLCEGI,
+  BOSLUK_TABANI,
   kompozisyonMerkezi,
   metinKutlesi,
   olcekDisiBosluklar,
@@ -66,14 +66,22 @@ describe('yolSapmasi', () => {
   })
 })
 
-describe('boşluk ölçeği', () => {
-  it('ölçek Fibonacci ve kapalı', () => {
-    expect(BOSLUK_OLCEGI).toEqual([8, 13, 21, 34, 55, 89])
+describe('boşluk tabanı', () => {
+  it('taban 4 px — tasarımın KENDİ ilanı (§12.3), uydurulmuş bir ölçek değil', () => {
+    // ⚠ İlk sürüm Fibonacci (8·13·21·34·55·89) yazıyordu ve şablonun ürettiği on beş
+    // boşluğun HİÇBİRİ o ölçekte değildi: bir tasarımı hiç kullanmadığı bir standarda
+    // göre ölçmek, ölçümü gürültüye çevirir.
+    expect(BOSLUK_TABANI).toBe(4)
   })
 
-  it('bugünkü kenar payı ölçeğe OTURMUYOR ve ölçüm bunu görüyor', () => {
-    // 88 ≈ 89: bir piksellik sapma. Düzeltmek bütün golden'ları yenilerdi — kayıtlı borç.
-    expect(olcekDisiBosluklar([88, 55])).toEqual([88])
+  it('tabanın katı olmayan değerleri ayırıyor', () => {
+    expect(olcekDisiBosluklar([4, 6, 88, 15, 96])).toEqual([6, 15])
+  })
+
+  it('gerçek şablon değerlerinde ALTI sapma var — ölçüm bir şey söylüyor', () => {
+    // Üretilen stilden okunan gerçek küme; hepsi geçseydi metrik hiçbir şey söylemezdi.
+    const gercek = [4, 6, 10, 12, 14, 15, 16, 20, 24, 40, 45, 54, 88, 96, 152]
+    expect(olcekDisiBosluklar(gercek)).toEqual([6, 10, 14, 15, 45, 54])
   })
 })
 

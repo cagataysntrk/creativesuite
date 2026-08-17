@@ -13,7 +13,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 bash "$ROOT/scripts/ensure-build.sh" || exit 1
 
-HEDEFLER="docs/referans/saglayicilar.md docs/referans/pipelinelar.md"
+# ⚠ `cesitlilik-defteri.md` FAZ-13.4'te eklendi ama listeye yazılmamıştı: üreteç ÜÇ
+# dosya yazıyordu, kapı İKİSİNİ denetliyordu — dosyanın kendi başlığındaki "elle düzenleme
+# kaybolur (R-65)" iddiasını zorlayan hiçbir şey yoktu (bağımsız doğrulama, bulgu 12).
+HEDEFLER="docs/referans/saglayicilar.md docs/referans/pipelinelar.md docs/referans/cesitlilik-defteri.md"
 
 # ⚠ ÖNCE yedekle. İlk sürüm doğrudan `just docs` koşuyordu ve elle yapılmış bir
 # düzenlemeyi SESSİZCE siliyordu: sonra `git diff` boş çıkıyor ve kapı yeşil raporluyordu.

@@ -68,8 +68,8 @@ import {
 } from '@suite/providers'
 import { RateLimiter } from '../ratelimit.js'
 import { appendPublished, lookupPublished } from '../publish-ledger.js'
-import { tasarla } from '../plan/tasarla.js'
-import { TEMEL_AILE, yay } from '@suite/contracts'
+import { aileSec, tasarla } from '../plan/tasarla.js'
+import { yay } from '@suite/contracts'
 import { planDenetle, uyumsuzlukOzeti } from '@suite/render'
 import type { Islev } from '@suite/kernel'
 import type { TasarimPlani } from '@suite/contracts'
@@ -301,8 +301,12 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     //
     // ⚠ Plan ~2 KB; defterin 8 KB eleme eşiğinin (D-263) altında kalıyor, yani
     // gerekçeler AYNEN okunabilir durumda saklanıyor.
-    const aileProfili = TEMEL_AILE
-    const plan = tasarla({
+    // ⚠ ⚠ **AİLE ARTIK SABİT DEĞİL, PLANIN KARARI.** Burada `const aileProfili =
+    // TEMEL_AILE` yazıyordu ve `AKICI_AILE`yi hiçbir üretim yolu seçmiyordu: panorama ve
+    // degrade hiçbir koşuda basılmadı, FAZ-12.4 ile 12.9'un teslimatı ölü koddu.
+    // Bağımsız doğrulama bunu blokaj olarak buldu (D-261'in dokuzuncu tekrarı).
+    // Seçim `aileSec`te ve gerekçesi plana yazılıyor.
+    const planGirdisi = {
       konu: typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : '',
       satirlar: metinSatirlari,
       akisVar: akis !== null,
@@ -311,7 +315,9 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       // üretiliyor. Hat neyi istediğini söylüyor; plan da gerekçesini yazıyor.
       yuvaIstendi: input.constraints['gorsel_yuvasi'] === true,
       ...(input.constraints['yuva_bicimi'] === 'maske' ? { yuvaBicimi: 'maske' as const } : {}),
-    })
+    }
+    const aileProfili = aileSec(planGirdisi)
+    const plan = tasarla(planGirdisi)
 
     const orta = Math.max(1, Math.ceil(govde.length / 2))
     // ⚠ **İŞLEV BLOĞA DAMGALANIYOR** (FAZ-14.1 · gerçek koşuda bulundu). Yay satır
