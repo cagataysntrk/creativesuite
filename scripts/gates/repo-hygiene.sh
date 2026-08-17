@@ -50,7 +50,20 @@ fi
 # sağlayıcıyı içermiyordu. Desen eklemenin doğru anı, o sağlayıcıya dokunulan andır.
 #   EAA…  Meta kullanıcı/sayfa erişim token'ı
 #   WPL_AP1.  LinkedIn istemci secret'ı — çok belirgin bir ön ek
-pat='(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AIza[0-9A-Za-z_-]{30,}|fal-[A-Za-z0-9-]{20,}|EAA[A-Za-z0-9]{40,}|WPL_AP1\.[A-Za-z0-9]{10,})'
+#
+# ⚠ **SINIR ŞART — 2026-08-17.** Desenler `EAA…`, `AIza…` ve `AKIA…` yalnız harf ve
+# rakamdan oluşuyor, yani **base64 gövdesinin İÇİNDE tesadüfen oluşabiliyorlar.** Bir
+# çalıştırma defterindeki gömülü JPEG (`data:image/jpeg;base64,…`) tam olarak böyle
+# yakalandı: kapı kırmızı, ortada secret yok. Yanlış pozitif de bir hatadır — sürekli
+# alarm veren kapı, kapatılan kapıdır.
+#
+# Çözüm: secret'ın **başlaması** gereken yeri şart koş. Gerçek bir token her zaman bir
+# sınırdan sonra gelir (satır başı, tırnak, boşluk, iki nokta); base64 gövdesinin
+# ortasında ise önündeki karakter DAİMA base64 alfabesindendir. Bu ayrım yanlış
+# pozitifi kesiyor ama yanlış NEGATİF üretmiyor — hiçbir gerçek anahtar base64
+# gövdesinin ortasından başlamaz.
+b64='[^A-Za-z0-9+/=]'
+pat="(^|$b64)(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AIza[0-9A-Za-z_-]{30,}|fal-[A-Za-z0-9-]{20,}|EAA[A-Za-z0-9]{40,}|WPL_AP1\.[A-Za-z0-9]{10,})"
 hits="$(git grep -InE "$pat" -- ':!docs/research' ':!scripts/gates/repo-hygiene.sh' 2>/dev/null | head -5)"
 if [ -n "$hits" ]; then
   say "izlenen dosyada secret deseni:"
