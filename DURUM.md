@@ -63,29 +63,30 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 `docs/fazlar/FAZ-10.md` ve `docs/referans/*.md`.
 · **10.1** oturum 4.9x · **10.2** T9/T11 türetilemez, ölçüm aracı bozuktu (%97.8)
   · **10.2b** bant %69–78, sütun %62, h1 64px · **10.3** kapı 23 okuma, 4 ihlal.
-· **10.4** düzen İÇERİKTEN: liste 3→2 slayt. Test Türkçe hatamı buldu (`4%` vs `%4`).
-· **10.4b** dört düzen dört KOMPOZİSYON; düzen `SlaytKimligi.duzen`de (rol, çizim
-  değil). İki kusur GÖRÜLEREK bulundu.
+· **10.4** düzen İÇERİKTEN · **10.4b** dört düzen dört KOMPOZİSYON; düzen
+  `SlaytKimligi.duzen`de (rol, çizim değil).
 
-· **10.5** `image.critique` YETENEK, kutu ZORUNLU, red sayılıyor. 3 bulgu, üçü doğru:
-  **saçaklanma %6,6→%0,0** (hiçbir metrik görmemişti, HER varlığı etkiliyordu).
-  `Read` aracı ölçülerek gerekti: araçsız 5 dk'da düştü, araçla 18 sn (D-256).
+· **10.5** `image.critique` YETENEK, kutu ZORUNLU. 3 bulgu, üçü doğru: **saçaklanma
+  %6,6→%0,0** (hiçbir metrik görmemişti). `Read` aracı ölçülerek gerekti (D-256).
 
 · **10.6** `SablonParametreleri` üretim yoluna bağlı; türetme ÖNERİR, uygulamaz (R-14).
   **Bant referanstan TÜRETİLEMEDİ**: ham aralık %2–97, tavan 40 → sayı YAZILMADI.
   Yürürlükteki %69–78 bir KISIT: Türkçe sütun %62 olmak zorunda (D-257).
 
-**10.7 BAŞLADI — hat uçtan uca YEŞİL koşuyor** (`gorsel-yargi` dahil, 354 sn/koşu).
-İlk koşu `kalite`de DURDU: fotoğraflı slayt palet dışı %17,7 verdi. Düzeltildi (D-258)
-ve ilk düzeltmem fazla genişti — üç slaytın üçünde de renk QA'sı sessizce kapanmıştı;
-otorite üreticiye verildi (`renderBody.gorselliSlaytlar`).
+**10.7 — hat uçtan uca YEŞİL** (`gorsel-yargi` dahil, ~354 sn/koşu). İlk koşu
+`kalite`de durdu (fotoğraflı slayt %17,7); D-258 ile düzeltildi ve ilk düzeltmem fazla
+genişti — otorite üreticiye verildi (`renderBody.gorselliSlaytlar`).
 
-⛔ **KABUL SAYACI 0 — iki kusur açık:**
-1. **Kapak `list` düzeni alıyor** (madde ritmiyle). Kapak bir kancadır, liste değil;
-   `duzenSec` içerik sinyaline bakıyor ama ROL onu yenmeli.
-2. **`tasarimOlc` ÜRETİM yolunda koşmuyor** — yalnız depo kapısı olarak koşuyor. Bu
-   yüzden T8 (kapak ≤8 kelime) gerçek çıktıda hiç denetlenmedi ve kapak 3 satır başlık +
-   iki uzun paragrafla çıktı. **Kapı depoyu koruyor, çıktıyı korumuyor.**
+✅ **İKİ BLOKER KAPANDI** (D-259), gerçek koşuda doğrulandı:
+1. **Kapak artık `statement`** — rol kısıtı SAYFALAMAYA girdi (iki geçişli: rol
+   `total`e bağlı). Ölçüldü: kapak **5 kelime** (limit 8), metin tek alanda.
+2. **`tasarimOlc` ÜRETİM yolunda koşuyor** — 12 metrik gerçek çıktıya uygulanıyor.
+   Öncesinde kapı yalnız DEPOYU koruyordu.
+3. **`citations` kapısında da tek-haneli faz varsayımı** vardı — `durum`dakinin
+   kopyası; FAZ-10 atıfları doğrulanmıyordu. Dizin taramasına çevrildi.
+
+**KABUL SAYACI: 1/20.** Açık: T4 kontrast okuması üretimde ÜRETİLMİYOR · kapanış
+slaydı 0 kelime çıktı (yalnız görsel).
 
 Sonra: 20 ARDIŞIK kabul koşusu (sınırlayıcı
 kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.

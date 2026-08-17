@@ -41,6 +41,8 @@ const {
   measure,
   formatReport,
   samplePng,
+  tasarimOlc,
+  paginateDocument,
   lintDocument,
   parseIr,
   isIrError,
@@ -445,6 +447,30 @@ const kaliteKontrol = async (doc, slides, gorselli = []) => {
   // Okumalar YAPILANDIRILMIŞ toplanır ve manifeste öyle gider (FAZ-4.8): tolerans
   // bileşeni sayının altına bant çizebilsin diye. Metin rapor insan için kalıyor.
   const okumalar = []
+
+  // ── TASARIM METRİKLERİ — ÜRETİM YOLUNDA (FAZ-10.7 · D-259) ────────────────
+  //
+  // ⚠ **FAZ 10 boyunca on iki metrik yazıldı ve hiçbiri üretilen varlığa uygulanmıyordu.**
+  // `scripts/gates/tasarim.mjs` onları TEMSİLİ belgelerle ölçüyordu: kapı depoyu koruyor,
+  // çıktıyı korumuyordu. Sonuç ölçüldü — kapak "≤8 kelime" kuralına rağmen üç satır
+  // başlık ve iki uzun paragrafla çıktı ve hiçbir şey kırmızıya dönmedi.
+  //
+  // Bu, bu deponun en sık tekrarlayan hatasının (kod var, üretim yolunda çağıranı yok)
+  // **bu fazın kendi içindeki tekrarı** — üstelik o hatayı kapatmak için kurulmuş bir
+  // fazda. Kapı yazmak, kapıyı bağlamak değildir.
+  //
+  // Slayt belgeleri BURADA yeniden sayfalanıyor: `kaliteKontrol` yalnız PNG yollarını
+  // alıyor, blokları değil. Sayfalama saf ve deterministik (aynı belge → aynı bölme),
+  // o yüzden ikinci çağrı üretimdekiyle aynı sonucu veriyor.
+  const slaytBelgeleri = paginateDocument(doc, null, '@upcytech')
+  const tasarim = tasarimOlc({ slaytlar: slaytBelgeleri })
+  if (tasarim.readings.length > 0) {
+    satirlar.push('  tasarım metrikleri:')
+    satirlar.push(formatReport(tasarim))
+    for (const o of tasarim.readings) okumalar.push(o)
+    // Bloklayıcı tasarım metriği varlığı DURDURUR — tolerans okuması bir süs değil.
+    if (tasarim.blocked) bloke = true
+  }
 
   for (const [i, yol] of slides.entries()) {
     const ornek = await samplePng(yol, { grid: 24 })

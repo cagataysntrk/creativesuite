@@ -546,3 +546,39 @@ kaplama ve en-boy; `kalite` geçiyor ve hat uçtan uca yeşil koşuyor — `gors
 adımı dahil.
 
 **Geri alma maliyeti:** yok — bayrak verilmezse eski davranışa düşüyor.
+
+## D-259 — Kapı depoyu koruyordu, çıktıyı korumuyordu
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.7 · §11.1
+
+FAZ 10 boyunca on iki tasarım metriği yazıldı ve `scripts/gates/tasarim.mjs` onları
+**temsili belgelerle** ölçüyordu. Gerçek çıktıya hiçbiri uygulanmıyordu. Sonuç ölçüldü:
+kapak, "≤8 kelime" kuralına rağmen üç satır başlık ve iki uzun paragrafla çıktı ve
+**hiçbir şey kırmızıya dönmedi**.
+
+Bu, bu deponun en sık tekrarlayan hatasının — *kod var, üretim yolunda çağıranı yok* —
+**bu fazın kendi içindeki tekrarı**; üstelik tam o hatayı kapatmak için kurulmuş bir
+fazda. **Kapı yazmak, kapıyı bağlamak değildir.**
+
+**Karar:** `kaliteKontrol` (üretim yolu) `tasarimOlc` okumalarını da topluyor ve
+bloklayıcı bir okuma varlığı DURDURUYOR. Slayt belgeleri orada yeniden sayfalanıyor:
+sayfalama saf ve deterministik, o yüzden ikinci çağrı üretimdekiyle aynı sonucu veriyor.
+
+**İkinci kusur — kapak `list` düzeni alıyordu.** Kapak bir KANCADIR, madde listesi değil.
+Düzeltme yalnız çizime uygulanamazdı: düzen sayfalama BÜTÇESİNİ de belirliyor, yani kapak
+`list` bütçesiyle (6 blok, 320 karakter) bölünüp `statement` gibi çizilseydi tam olarak
+gördüğümüz metin duvarı çıkardı. Kısıt **sayfalamaya** girdi.
+
+**İki geçişli sayfalama.** Rol `total`e bağlı (son slayt kapanıştır) ama `total` sayfalama
+bitmeden bilinmiyor. İki geçiş saf ve ucuz: birincisi kaç slayt olacağını öğreniyor,
+ikincisi rolü bilerek bölüyor. İlk geçişin sonucu ATILIYOR — kısıtlı bölme farklı sayıda
+slayt üretebilir ve sayıyı dayatmak `total`i yalan yapardı.
+
+**Üçüncü bulgu: `citations` kapısında da tek-haneli faz varsayımı vardı.** `for (n = 0;
+n <= 9; n++)` — `durum` kapısındakinin birebir kopyası. FAZ 10'dan itibaren `FAZ-10.x`
+atıfları "doğrulanmadı" uyarısına düşüyordu, yani kırık bir faz atfı sessizce geçerdi.
+Dizin taramasına çevrildi. **İki ayrı kapıda aynı hata**, çünkü ikisi de dosya sisteminin
+söyleyebileceği bir şeyi tahmin ediyordu.
+
+**Geri alma maliyeti:** düşük — üretim yolundaki ölçüm çağrısı kaldırılabilir; ama o an
+metrikler yine yalnız depoyu korur.

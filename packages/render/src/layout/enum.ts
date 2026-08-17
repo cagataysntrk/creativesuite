@@ -157,7 +157,15 @@ export interface Slide {
 export const paginate = (
   blocks: readonly Block[],
   layout: LayoutName | null,
-  butce?: CharBudget
+  butce?: CharBudget,
+  /**
+   * Slayt indeksine göre düzeni ZORLAYAN kısıt (FAZ-10.7). `null` dönerse seçim
+   * içerikten yapılır. Rol tabanlı kısıt buradan geliyor: kapak bir KANCADIR, madde
+   * listesi değil — ve bu kısıt sayfalamaya da girmek zorunda, yalnız çizime değil.
+   * Yalnız çizime uygulansaydı kapak `list` bütçesiyle bölünür (6 blok, 320 karakter)
+   * ama `statement` gibi çizilirdi: tam olarak gördüğümüz metin duvarı.
+   */
+  rolKisiti?: (index: number) => LayoutName | null
 ): readonly Slide[] => {
   const slides: Slide[] = []
   let kalan = blocks
@@ -166,7 +174,7 @@ export const paginate = (
     // Seçim HER slayt için yeniden yapılıyor, bir kez değil: aynı karoselde kapak bir
     // `statement`, üçüncü slayt bir `list` olabilir. Bir kez seçilseydi en baştaki
     // bloklar tüm karoselin bütçesini belirlerdi.
-    const d = layout ?? duzenSec(kalan)
+    const d = rolKisiti?.(slides.length) ?? layout ?? duzenSec(kalan)
     const { fits, overflow } = splitForLayout(kalan, d, butce)
     if (fits.length === 0) {
       // İlk blok tek başına sığmıyor: bölmek çözmez. Kendi slaydına konur ve
@@ -197,7 +205,25 @@ export const paginateDocument = (
   layout: LayoutName | null,
   kulp?: string
 ): readonly DocumentModel[] => {
-  const slaytlar = paginate(doc.blocks, layout)
+  // ── İKİ GEÇİŞ ────────────────────────────────────────────────────────────
+  //
+  // Rol `total`e bağlı (son slayt kapanıştır) ama `total` sayfalama bitmeden bilinmiyor.
+  // Tek geçişte rol kısıtı uygulanamaz. İki geçiş SAF ve UCUZ: birinci geçiş kaç slayt
+  // olacağını öğreniyor, ikincisi rolü bilerek bölüyor.
+  //
+  // İlk geçişin sonucu ATILIYOR ve bu kasıtlı: kısıtlı bölme farklı sayıda slayt
+  // üretebilir. Sayıyı ilk geçişten alıp ikincisine dayatmak, `total`i yalan yapardı.
+  const onGecis = paginate(doc.blocks, layout)
+  const tahminiN = onGecis.length
+  const slaytlar =
+    tahminiN <= 1
+      ? onGecis
+      : paginate(doc.blocks, layout, undefined, (i) =>
+          // Kapak ve kapanış her zaman TEK GÜÇLÜ İFADE. Referansta da öyle: ilk kare bir
+          // kanca, son kare bir davet — ikisi de madde listesi değil. Aradaki gövde
+          // slaytları içerikten seçiliyor.
+          i === 0 || i === tahminiN - 1 ? 'statement' : null
+        )
   const n = slaytlar.length
   return slaytlar.map((s, i) => ({
     ...doc,

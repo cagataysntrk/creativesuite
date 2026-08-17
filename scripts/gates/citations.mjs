@@ -6,7 +6,7 @@
 // var olmayan bir bölümü "okudum" sanmasına ve yanlış varsayımla kod yazmasına yol açar.
 // Sessiz çürüme burada başlar.
 
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -70,8 +70,15 @@ const loopSections = new Set(
 )
 
 const phaseSteps = new Map() // "0" -> Set("A.1","B.2a",…)
-for (let n = 0; n <= 9; n++) {
-  const t = read(`docs/fazlar/FAZ-${n}.md`)
+// ⚠ **Dizin TARANIR, sayı sayılmaz.** İlk sürüm `for (n = 0; n <= 9; n++)` idi ve FAZ 10
+// açıldığı gün `FAZ-10.md`yi hiç okumadı: kapı `FAZ-10.x` atıflarını "doğrulanmadı" diye
+// UYARIYA çeviriyordu, yani onuncu fazdan itibaren kırık bir faz atıfı sessizce geçerdi.
+// **Aynı tek-haneli varsayım `durum` kapısında da vardı ve orada da düzeltildi** — iki
+// ayrı kapıda aynı hata, çünkü ikisi de dosya sisteminin söyleyebileceği bir şeyi tahmin
+// ediyordu.
+for (const dosya of readdirSync(p('docs/fazlar')).filter((f) => /^FAZ-\d+\.md$/.test(f))) {
+  const n = Number(/^FAZ-(\d+)\.md$/.exec(dosya)[1])
+  const t = read(`docs/fazlar/${dosya}`)
   if (t === null) continue
   const s = new Set()
   for (const m of t.matchAll(/^##+ +(\d+)\.([A-Za-z0-9.]+?) +—/gm))
