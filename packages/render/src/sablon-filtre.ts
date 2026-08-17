@@ -13,6 +13,8 @@
 //
 // ⚠ Chromium'da bedava: `feColorMatrix` + `feComponentTransfer`. Yeni bağımlılık yok.
 
+import { z } from './kompozit.js'
+
 /** Duotone uçları — mürekkep (koyu uç) ve kehribar (açık uç). */
 export interface DuotoneUclari {
   readonly koyu: readonly [number, number, number]
@@ -107,7 +109,7 @@ export const grainKatmani = (id: string): string =>
   `<div class="doku" aria-hidden="true" style="filter:url(#${id})"></div>`
 
 export const dokuCss = (): string =>
-  `  .doku { position: absolute; inset: 0; z-index: 2; pointer-events: none;` +
+  `  .doku { position: absolute; inset: 0; z-index: ${z('doku')}; pointer-events: none;` +
   ` mix-blend-mode: overlay; }`
 
 /**
@@ -124,7 +126,7 @@ export const dokuCss = (): string =>
  * *"Mümkün olan" ile "bu ailede doğru olan" ayrı sorulardır.*
  */
 export const vinyetCss = (guc = 0): string =>
-  `  .vinyet { position: absolute; inset: 0; z-index: 2; pointer-events: none;` +
+  `  .vinyet { position: absolute; inset: 0; z-index: ${z('vinyet')}; pointer-events: none;` +
   ` background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,${guc}) 100%); }`
 
 export const vinyetKatmani = (): string => `<div class="vinyet" aria-hidden="true"></div>`

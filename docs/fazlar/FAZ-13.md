@@ -61,21 +61,31 @@ ailesiyle aynı sınıfta duruyor.
    (okuma gerçek, totoloji değil), geri alındı → kapı yeşil, uyarılar duruyor.
 💾 `feat(render): kompozisyon olcumu` · `Refs: FAZ-13.1 · §7.1`
 
-## 13.2 — Kompozit: çok katmanlı montaj    [ ]
+## 13.2 — Kompozit: çok katmanlı montaj    [x] 2026-08-17
 
 📖 §7.1 · R-30
 🔗 12.2, 12.9
 🛠 *"Montajlama"* — tek görsel yerleştirmek değil, birden çok katmanı maske, karışım kipi
    ve degrade ile birleştirmek. Bir katman = kaynak (görsel · şekil · degrade · doku) +
    maske + karışım kipi + opaklık + dönüşüm. Photoshop'un katman panelinin karşılığı.
-📁 `packages/render/src/kompozit.ts`
-✅ ⚠ **Katman sayısı SINIRLI (≤4).** Sınırsız katman, Photoshop'un özgürlüğünü ve
-   tutarsızlığını birlikte getirir; şablon olmaktan çıkar.
-   ⚠ **Katman sırası ANLAMLIDIR ve deterministik olmalı** — sıra içerikten türerse aynı
-   konu iki koşuda iki farklı kompozit verir ve golden test kurulamaz.
-   ⚠ Kompozit sonrası metrikler TEK SEFER, birleşmiş yüzey üzerinde ölçülür: katman katman
-   ölçmek D-258'in tersi hatadır (bkz. `uret.mjs` olayı — yanlış kapsamda ölçüm QA'yı öldürür).
-🧪 Beşinci katman ekle → derleme hatası. Katman sırasını içerikten türet → determinizm testi kırmızı.
+📁 `packages/render/src/kompozit.ts` + testi · `static.ts` · `sablon-filtre.ts` ·
+   `marka-isareti.ts`
+✅ ⚠ ⚠ **YIĞIN ZATEN VARDI — SEKİZ AYRI SABİT HÂLİNDE, VE ÜÇÜ BERABERDİ.** `.alan`/
+   `.susleme` ikisi de 1; `.hayalet`/`.doku`/`.vinyet` üçü de 2. Beraberlikte sırayı CSS
+   değil DOM sırası belirler. `.doku` `mix-blend-mode: overlay` taşıyor ve rakamın ÜSTÜNDE,
+   metnin ALTINDA olmak ZORUNDA — bugün doğru yerdeydi ama bunu sağlayan şey bir karar
+   değil, iki `<div>`in yazılma sırasıydı. Sessiz kusur sınıfı: bir satır taşınsa bozulur.
+   ⚠ **Sıra artık VERİ:** yedi adlı katman, `z-index` indeksten türüyor. Beraberlik
+   ÜRETİLEMEZ. Sekizinci katman bir karar ister.
+   ⚠ ⚠ **ÇIKTI DEĞİŞMEDİ ve bu ÖLÇÜLDÜ, varsayılmadı:** yedi render (5 slaytlık şerit +
+   iki yuva biçimi) önce/sonra **piksel-özdeş** (`ImageChops.difference` → bbox `None`).
+   Kaza kaldırıldı, görüntü korundu.
+   ⚠ **Sıra İÇERİKTEN türemez** — türeseydi aynı konu iki koşuda iki kompozit verirdi.
+   ⚠ **Öge-içi çok kaynaklı montaj (görsel + degrade + doku tek maskede) YAZILMADI:**
+   bugün çağıranı yok, yuva tek kaynak alıp üstüne işlem zinciri uyguluyor (FAZ-12.2).
+   Çağıranı olmayan üreteç bu projenin yedi kez tekrarladığı hatası (D-261).
+🧪 6 test + ihlal turu: bir katman yeniden adlandırıldı → tüketicide DERLEME hatası;
+   sekizinci katman eklendi → iki test kırmızı; geri alındı → altısı da yeşil.
 💾 `feat(render): kompozit katmanlar` · `Refs: FAZ-13.2 · §7.1`
 
 ## 13.3 — Vektörleştirme ve markaya yeniden boyama    [ ] BLOKE:karar

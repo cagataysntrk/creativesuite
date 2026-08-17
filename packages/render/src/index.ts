@@ -299,6 +299,8 @@ export {
   yolSapmasi,
 } from './kompozisyon-olcum.js'
 export type { Kutle } from './kompozisyon-olcum.js'
+export { KATMAN_SIRASI, ustunde, z } from './kompozit.js'
+export type { Katman } from './kompozit.js'
 export { egriZarfi } from './sekil-cebri.js'
 export type { Zarf } from './sekil-cebri.js'
 export {

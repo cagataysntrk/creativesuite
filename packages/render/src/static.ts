@@ -35,6 +35,7 @@ import { ikonSec, ikonSvg } from './sablon-ikon.js'
 import { OPENTYPE_CSS, vurguCss, vurguyuIsaretle } from './sablon-tipo.js'
 import { markaCss, markaKilidi } from './marka-isareti.js'
 import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
+import { z } from './kompozit.js'
 import { degradeDefSvg } from './sablon-degrade.js'
 
 /** Alan degradesinin belge içi kimliği. */
@@ -289,7 +290,7 @@ const sablonCss = (doc: DocumentModel): string => {
     // Sütun eğrinin karşı tarafına yerleşiyor ve genişliği `guvenliMetinYuzdesi`
     // (şablon gramerinden) ile sınırlı. Taraf `egriSagda` ile dönüyor, yani metin de
     // slayttan slayta yer değiştiriyor — ritim buradan da besleniyor.
-    `  .icerik { position: relative; z-index: 3; box-sizing: border-box;`,
+    `  .icerik { position: relative; z-index: ${z('icerik')}; box-sizing: border-box;`,
     `            width: ${kolonYuzde}%; ${sagda ? '' : 'margin-left: auto;'}`,
     // ⚠ **Üste yaslı içerik sayaç bandını AŞMAK zorunda.** Sayaç `top: pay`de duruyor ve
     // 26 px punto ile ~52 px'lik bir bant kaplıyor. `flex-start` yaslamada içerik de
@@ -371,11 +372,11 @@ const sablonCss = (doc: DocumentModel): string => {
         ]
       : []),
     // ── katman 1: karşı alan + akan eğri ────────────────────────────────────
-    `  .alan { position: absolute; inset: 0; z-index: 1; }`,
+    `  .alan { position: absolute; inset: 0; z-index: ${z('alan')}; }`,
     `  .alan svg { width: 100%; height: 100%; display: block; }`,
     // Süsleme katmanı alanın ÜSTÜNDE, hayalet rakamın ALTINDA: rakam imzadır, süsleme
     // dokudur — sıra tersine dönerse doku imzayı bastırır.
-    `  .susleme { position: absolute; inset: 0; z-index: 1; pointer-events: none; }`,
+    `  .susleme { position: absolute; inset: 0; z-index: ${z('susleme')}; pointer-events: none; }`,
     `  .susleme svg { width: 100%; height: 100%; display: block; }`,
     // ── katman 2: hayalet rakam ─────────────────────────────────────────────
     // Kontur-only tipografi: dolgu yok, `-webkit-text-stroke` var. DIŞ kenardan taşıyor
@@ -387,7 +388,7 @@ const sablonCss = (doc: DocumentModel): string => {
     //   2. **Alt şeridin ÜSTÜNDE bitiyor.** Öncesinde `bottom` negatifti ve rakam
     //      `kaydır ››` ile üst üste biniyordu — z-index onu arkada tutuyordu ama
     //      çakışma yine de kazara duruyordu. Nefes payı bırakmak yeterli.
-    `  .hayalet { position: absolute; z-index: 2;`,
+    `  .hayalet { position: absolute; z-index: ${z('hayalet')};`,
     `             ${sagda ? 'right' : 'left'}: -${Math.round(pay * 0.7)}px; bottom: ${pay + 62}px;`,
     `             font-family: "Marka Display", sans-serif;`,
     `             font-size: ${VARSAYILAN.hayaletPx}px; font-weight: 700; font-stretch: 88%; line-height: 0.78;`,
@@ -402,17 +403,17 @@ const sablonCss = (doc: DocumentModel): string => {
     // soldayken. Yanlış tarafta `metinSoluk` kontrastı çökertiyor: kapanış slaytında
     // kâğıt rengi kulp, amber dolgu üstünde ~1.9:1 veriyordu — WCAG AA'nın yarısı.
     // `motif` zaten `kontrast(karsiAlan)`; dolgu üstündeki öge onu kullanıyor.
-    `  .sayac { position: absolute; z-index: 4; top: ${pay}px; right: ${pay}px;`,
+    `  .sayac { position: absolute; z-index: ${z('kimlik')}; top: ${pay}px; right: ${pay}px;`,
     `           font-size: 26px; font-weight: 600; letter-spacing: 0.06em;`,
     `           font-variant-numeric: tabular-nums slashed-zero;`,
     `           color: ${sagda ? r.motif : r.metinSoluk}; }`,
     // ⚠ Marka işareti YALNIZ kapak ve kapanışta (FAZ-12.6): süsleme değil, imza.
     // Ortadaki slaytlarda kulp zaten markayı taşıyor; ikisi birden gürültü olurdu.
     markaCss(MARKA_PX, sagda ? r.metinSoluk : r.motif, pay),
-    `  .kulp { position: absolute; z-index: 4; left: ${pay}px; bottom: ${pay}px;`,
+    `  .kulp { position: absolute; z-index: ${z('kimlik')}; left: ${pay}px; bottom: ${pay}px;`,
     `          font-size: 24px; letter-spacing: 0.02em;`,
     `          color: ${sagda ? r.metinSoluk : r.motif}; }`,
-    `  .nav { position: absolute; z-index: 4; right: ${pay}px; bottom: ${pay}px;`,
+    `  .nav { position: absolute; z-index: ${z('kimlik')}; right: ${pay}px; bottom: ${pay}px;`,
     `         font-size: 24px; letter-spacing: 0.04em;`,
     `         color: ${sagda ? r.motif : r.metinSoluk}; }`,
     // ── görsel: KUTU DEĞİL ALAN (FAZ-10.7) ──────────────────────────────────

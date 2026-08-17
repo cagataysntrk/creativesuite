@@ -15,6 +15,8 @@
 // kulp (`@upcytech`) zaten markayı taşıyor; ikisi birden gürültü olurdu.
 
 /** İşaretin çevresindeki dokunulmaz boşluk — işaretin KENDİ boyutunun oranı. */
+import { z } from './kompozit.js'
+
 export const BOSLUK_ORANI = 0.5
 
 /** Boşluk kuralı: işaret ne kadar büyükse çevresi o kadar geniş. */
@@ -62,7 +64,7 @@ export const markaKilidi = (boyutPx: number, dolgu: string, zemin: string, ad: s
   `<span class="marka-ad">${ad}</span></div>`
 
 export const markaCss = (boyutPx: number, renk: string, payPx: number): string =>
-  `  .marka { position: absolute; z-index: 4; left: ${payPx}px; bottom: ${payPx}px;` +
+  `  .marka { position: absolute; z-index: ${z('kimlik')}; left: ${payPx}px; bottom: ${payPx}px;` +
   ` display: flex; align-items: center; gap: ${bosluk(boyutPx)}px; }` +
   `  .marka-ad { font-size: ${Math.round(boyutPx * 0.72)}px; letter-spacing: 0.04em;` +
   ` color: ${renk}; }`

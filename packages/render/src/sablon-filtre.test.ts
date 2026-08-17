@@ -1,6 +1,7 @@
 // Duotone: renk tutarlılığı YAPISAL (§12.1 · FAZ-11.7).
 
 import { describe, expect, it } from 'vitest'
+import { ustunde, z } from './kompozit.js'
 import {
   dokuCss,
   duotoneSvg,
@@ -81,9 +82,14 @@ describe('doku ve derinlik', () => {
     expect(vinyetCss(0.1)).toContain('rgba(0,0,0,0.1) 100%')
   })
 
-  it('doku ve vinyet METNİN ALTINDA — z-index 2, içerik 3', () => {
-    expect(dokuCss()).toContain('z-index: 2')
-    expect(vinyetCss()).toContain('z-index: 2')
+  it('doku ve vinyet METNİN ALTINDA — sayı değil İLİŞKİ sınanıyor', () => {
+    // ⚠ İlk sürüm `z-index: 2` sabitini arıyordu; yani testin kendisi, FAZ-13.2'nin
+    // kaldırdığı elle yazılmış sayıya bağlıydı. Sabiti sınamak yığın değişince testi
+    // kırar ama YANLIŞ yığını yakalamaz — sınanması gereken şey sıra.
+    expect(dokuCss()).toContain(`z-index: ${z('doku')}`)
+    expect(vinyetCss()).toContain(`z-index: ${z('vinyet')}`)
+    expect(ustunde('icerik', 'doku')).toBe(true)
+    expect(ustunde('icerik', 'vinyet')).toBe(true)
     expect(dokuCss()).toContain('pointer-events: none')
   })
 })
