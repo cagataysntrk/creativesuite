@@ -137,6 +137,9 @@ const metin = (b: Block): string => {
       return b.text
     case 'chart':
       return [b.title, b.unit ?? '', ...b.points.map((p) => p.label)].join(' ')
+    case 'compare':
+      // Karşılaştırmadaki HER metin bir iddia taşıyabilir — R-32 buradan da geçiyor.
+      return [b.title, b.once.label, b.sonra.label, ...b.once.items, ...b.sonra.items].join(' ')
     case 'diagram':
       // Aynı ders (FAZ-6.9): blok tipi eklendi, okuyan yer güncellenmeli. Diyagram
       // kutusundaki "%40 azalttık" da kaynaksız bir iddiadır.

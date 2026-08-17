@@ -167,6 +167,18 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     'Adım adı en fazla 3 kelime; çıktı en fazla 8 kelime. Sayı YAZMA.',
     'Konu akış içermiyorsa `AKIŞ:` bölümünü hiç yazma — zorlama.',
     '',
+    // ⚠ **KARŞILAŞTIRMA — sayı İSTEMEYEN veri ögesi** (FAZ-12.5). Halka, KPI ve ilerleme
+    // bir orana dayanıyor; R-32 kaynaksız sayıyı yasaklıyor ve yukarıda zaten "sayı yazma"
+    // deniyor. Karşılaştırma yapısal: iki durum, sayı yok. Akıştan farkı da bu — akış bir
+    // SIRA anlatır, karşılaştırma bir KARŞITLIK kurar.
+    'KARŞILAŞTIRMA (akış YOKSA ve konu bir karşıtlık taşıyorsa; ikisi birden YAZMA):',
+    'KARŞILAŞTIRMA: <başlık>',
+    'ÖNCE: <durum adı>',
+    '- <madde>',
+    'SONRA: <durum adı>',
+    '- <madde>',
+    'Her tarafta 2–3 madde, madde en fazla 6 kelime. Sayı YAZMA.',
+    '',
     'Yalnız metni döndür; açıklama, başlık ya da biçimlendirme ekleme.',
   ]
   return satirlar.join('\n')
@@ -192,6 +204,62 @@ export interface Akis {
  * Diyagram çizicisi 2 düğümden az ve 6'dan fazlasını reddediyor; burada da aynı sınır
  * uygulanıyor ki geçersiz bir blok hiç kurulmasın.
  */
+/** Karşılaştırma — `CompareBlock`in prompt karşılığı. */
+export interface Karsilastirma {
+  readonly title: string
+  readonly once: { readonly label: string; readonly items: readonly string[] }
+  readonly sonra: { readonly label: string; readonly items: readonly string[] }
+}
+
+/**
+ * `KARŞILAŞTIRMA:` bölümünü ayırır — `akisiAyir` ile AYNI seam, aynı dosya.
+ *
+ * ⚠ Prompt ile ayrıştırıcı bir dikişin iki ucudur ve ayrı dosyalara konulmaz: biri
+ * değişip diğeri unutulursa bölüm sessizce metne geri düşer ve çöp görünür.
+ */
+export const karsilastirmayiAyir = (
+  satirlar: readonly string[]
+): { readonly satirlar: readonly string[]; readonly karsilastirma: Karsilastirma | null } => {
+  const bas = satirlar.findIndex((l) => /^KARŞILAŞTIRMA\s*:/i.test(l.trim()))
+  if (bas === -1) return { satirlar, karsilastirma: null }
+  const baslik = (satirlar[bas] ?? '').replace(/^KARŞILAŞTIRMA\s*:/i, '').trim()
+
+  const taraf = (etiket: string): { label: string; items: string[]; son: number } | null => {
+    const i = satirlar.findIndex(
+      (l, n) => n > bas && new RegExp(`^${etiket}\\s*:`, 'i').test(l.trim())
+    )
+    if (i === -1) return null
+    const label = (satirlar[i] ?? '').replace(new RegExp(`^${etiket}\\s*:`, 'i'), '').trim()
+    const items: string[] = []
+    let son = i
+    for (let n = i + 1; n < satirlar.length; n += 1) {
+      const m = /^[-•*]\s*(.+)$/.exec((satirlar[n] ?? '').trim())
+      if (m === null) break
+      son = n
+      items.push((m[1] ?? '').trim())
+    }
+    return { label: label === '' ? etiket : label, items, son }
+  }
+
+  const a = taraf('ÖNCE')
+  const b = taraf('SONRA')
+  const bitis = Math.max(bas, a?.son ?? bas, b?.son ?? bas)
+  const temiz = [...satirlar.slice(0, bas), ...satirlar.slice(bitis + 1)]
+  // Tek taraflı bir karşılaştırma karşılaştırma değil bir listedir — YOK sayılıyor ama
+  // satırlar yine temizleniyor, yarım bir bölüm metne geri düşerse çöp görünür.
+  if (a === null || b === null || a.items.length === 0 || b.items.length === 0) {
+    return { satirlar: temiz, karsilastirma: null }
+  }
+  return {
+    satirlar: temiz,
+    karsilastirma: {
+      title: baslik === '' ? 'Karşılaştırma' : baslik,
+      once: { label: a.label, items: a.items },
+      sonra: { label: b.label, items: b.items },
+    },
+  }
+}
+
 export const akisiAyir = (
   satirlar: readonly string[]
 ): { readonly satirlar: readonly string[]; readonly akis: Akis | null } => {

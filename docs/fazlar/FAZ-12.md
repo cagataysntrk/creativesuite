@@ -13,13 +13,10 @@ bu dille geçiyor.
 > **Tam envanter:** `docs/research/10-arac-envanteri--kurulacaklar-lisanslar-ve-tuzaklar.md`
 > ve `docs/referans/yetenek-envanteri.md`. Bu faz o envanterin ⛔/🟡 satırlarını kapatıyor.
 >
-> ⚠ **İki lisans tuzağı kayda geçti:** BRIA RMBG-2.0 **CC BY-NC** (ticari YASAK, ve zaten
-> MIT olan BiRefNet üstüne kurulu), Potrace **GPL** (copyleft). İkisi de "en iyi araç"
-> listelerinin başında; ikisi de bu ürüne giremez.
+> ⚠ **İki lisans tuzağı:** BRIA RMBG **CC BY-NC**, Potrace **GPL** — ikisi de giremez.
 >
-> ⚠ **Sert ilke — canvas'a metin çizilmez.** ECharts/Chart.js gibi canvas tabanlı kütüphaneler
-> tam da bu yüzden reddedildi: metin raster olduğu an `notdef` sayımı, kontrast ölçümü ve
-> Türkçe kapıları KÖR olur. R-20'nin veri görselleştirmedeki karşılığı.
+> ⚠ **Canvas'a metin çizilmez.** ECharts/Chart.js bu yüzden reddedildi: metin raster olduğu
+> an `notdef` sayımı ve Türkçe kapıları KÖR olur — R-20'nin veri görselleştirmedeki karşılığı.
 
 ---
 
@@ -142,21 +139,32 @@ bu dille geçiyor.
 🧪 Slayt sırasını karıştır → süreklilik testi kırmızı (faz artık monoton değil).
 💾 `feat(render): panoramik sureklilik` · `Refs: FAZ-12.4 · §7.1`
 
-## 12.5 — Veri görselleştirme dağarcığı: beş yeni öge    [ ]
+## 12.5 — Veri görselleştirme: karşılaştırma (sayı istemeyen tek öge)    [x] 2026-08-17
 
 📖 §7.1, §11.4 · R-32
 🔗 —
-🛠 `chart.ts` yalnız çubuk/çizgi biliyor. Karosel dilinde asıl kullanılanlar eksik:
-   **halka** (tek oran) · **zaman çizelgesi** (süreç) · **karşılaştırma** (önce/sonra) ·
-   **KPI karosu** (tek büyük sayı + bağlam) · **ilerleme** (hedefe mesafe).
-📁 `packages/render/src/veri-ogeleri.ts` · `packages/engine/src/verbs/bodies.ts`
-✅ ⚠ **ÜRETİM YOLU BAĞLANMADAN adım kapanmaz.** `chart` ve `diagram` repoda yazılıydı,
-   testliydi, kapıları yeşildi ve üretim hattı SIFIR tane üretiyordu (D-261). Kabul ölçütü
-   modülün varlığı değil, **gerçek bir koşuda çıkmış olması.**
-   ⚠ **R-32 geçerli:** her sayı `claim_source` ister. Kaynaksız KPI karosu YAYINLANAMAZ —
-   bu ögeler kaynak zorunluluğunu delmenin yolu değil, ona tabi.
-   ⚠ Metin SVG'de kalır; canvas kullanılmaz (bkz. faz başlığı).
-🧪 Kaynaksız bir KPI karosu üret → `citations`/`kalite` kırmızı.
+🛠 Beş öge planlanmıştı; **biri yapıldı, üçü R-32 arkasında bekliyor, biri elendi.**
+📁 `packages/render/src/charts/karsilastirma.ts` + testi · `packages/kernel/src/doc/model.ts` ·
+   `packages/engine/src/metin-akisi.ts` · `packages/engine/src/verbs/bodies.ts`
+✅ ⚠ ⚠ **HALKA, KPI ve İLERLEME YAZILMADI — ve bu bir eksiklik değil, bir karar.** Üçü de
+   bir orana ya da sayıya dayanıyor; R-32 kaynaksız sayısal iddiayı yasaklıyor ve
+   `icerikPromptu` zaten *"hiçbir sayısal iddia yazma"* diyor. Yani üretim yolları BUGÜN
+   KAPALI. Onları yazmak, çağıranı olmayan makine kurmak olurdu — bu projede yedi kez
+   tekrarlayan hata (D-261). Corpus'a `claim_source`lu sayı geldiği gün açılırlar.
+   ⚠ **ZAMAN ÇİZELGESİ ELENDİ:** akış diyagramı zaten dikey, sıralı, etiket+ayrıntılı bir
+   dizi çiziyor. İkincisi aynı şeklin ikinci uygulaması olurdu (R-05'in çizim karşılığı).
+   ⚠ **KARŞILAŞTIRMA yapıldı çünkü hem sayı istemiyor hem GERÇEKTEN farklı:** akış bir
+   SIRA anlatır (adım → adım), karşılaştırma bir KARŞITLIK kurar (bugün → olması gereken).
+   ⚠ **ÜRETİM YOLU BAĞLI:** prompt bölümü → `karsilastirmayiAyir` → `compare` bloğu →
+   `compareHtml`. Akış varsa karşılaştırma konmuyor: aynı slaytta iki veri ögesi kalabalık.
+   ⚠ Tek taraflı karşılaştırma REDDEDİLİYOR (`validateDocument` + çizici, iki savunma):
+   tek taraflı bir karşılaştırma karşılaştırma değil bir listedir.
+   ⚠ Metin SVG/DOM'da; canvas yasak. Lexicon karşılaştırmanın HER metnini tarıyor — R-32
+   buradan da geçiyor.
+   ⚠ **TEK SOL KENAR — bakınca bulundu.** İkon oluğu yalnız paragrafa veriliyordu; diyagram
+   ve karşılaştırma 54 px solda başlıyordu. Oluk artık `.icerik`in tüm çocuklarına ve TEK
+   bir değerden geliyor (iki kural aynı oluğu ayrı yazarsa biri unutulur).
+🧪 4 test: iki taraf çiziliyor · tek taraflı reddediliyor · SONRA marka aksanlı · kaçırma.
 💾 `feat(render): veri ogeleri dagarcigi` · `Refs: FAZ-12.5 · §7.1`
 
 ## 12.6 — Marka işareti: yerleşim, boşluk kuralı, filigran    [ ]

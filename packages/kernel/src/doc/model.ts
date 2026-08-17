@@ -91,6 +91,25 @@ export interface ChartBlock {
  * Yatay akış tavanı `MAX_DUGUM` (render katmanında): fazlası deck'te okunamaz ve
  * sessizce daraltmak yerine reddedilir.
  */
+/**
+ * Karşılaştırma bloğu — ÖNCE ve SONRA (FAZ-12.5).
+ *
+ * ⚠ **Sayı İSTEMEYEN tek veri ögesi ve varlık sebebi bu.** Halka, KPI karosu ve ilerleme
+ * göstergesi hepsi bir orana ya da bir sayıya dayanıyor; R-32 kaynaksız sayısal iddiayı
+ * yasaklıyor ve `icerikPromptu` zaten *"hiçbir sayısal iddia yazma"* diyor. Onları yazmak,
+ * üretim yolu kapalı bir makine kurmak olurdu — bu projede yedi kez tekrarlayan hata
+ * (D-261). Karşılaştırma ise yapısal: iki durum, sayı yok.
+ *
+ * ⚠ Akış diyagramından FARKLI: akış bir SIRA anlatır (adım → adım), karşılaştırma bir
+ * KARŞITLIK kurar (şimdi → olması gereken). Aynı şekli iki kez çizmek olmuyor.
+ */
+export interface CompareBlock {
+  readonly type: 'compare'
+  readonly title: string
+  readonly once: { readonly label: string; readonly items: readonly string[] }
+  readonly sonra: { readonly label: string; readonly items: readonly string[] }
+}
+
 export interface DiagramNodeBlock {
   readonly label: string
   /** Alt satır: adımın çıktısı ya da ölçüsü. */
@@ -127,6 +146,7 @@ export type Block =
   | ImageBlock
   | { readonly type: 'spacer'; readonly size: 'sm' | 'md' | 'lg' }
   | ChartBlock
+  | CompareBlock
   | DiagramBlock
 
 export type DocumentKind = 'post' | 'carousel-slide' | 'deck-page'
@@ -196,6 +216,7 @@ export type DocError =
   | { readonly kind: 'invalid_chart'; readonly index: number }
   /** İki kutudan az diyagram — okuyucuya hiçbir şey anlatmaz. */
   | { readonly kind: 'invalid_diagram'; readonly index: number }
+  | { readonly kind: 'invalid_compare'; readonly index: number }
 
 export type DocResult =
   | { readonly ok: true; readonly value: DocumentModel }
@@ -238,6 +259,14 @@ export const validateDocument = (doc: DocumentModel): DocResult => {
     // Tek kutuluk "akış" akış değildir; boş diyagram da sessizce boş bir kutu basar.
     if (b.type === 'diagram' && b.nodes.length < 2) {
       errors.push({ kind: 'invalid_diagram', index: i })
+    }
+    // İki taraf da EN AZ bir madde taşımalı: tek taraflı bir karşılaştırma, karşılaştırma
+    // değil bir listedir ve zaten `list` düzeni onu daha iyi çiziyor.
+    if (
+      b.type === 'compare' &&
+      (b.title.trim() === '' || b.once.items.length === 0 || b.sonra.items.length === 0)
+    ) {
+      errors.push({ kind: 'invalid_compare', index: i })
     }
   })
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: doc }

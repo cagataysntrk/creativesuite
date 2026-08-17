@@ -52,6 +52,14 @@ const metinUzunlugu = (b: Block): number => {
     case 'heading':
     case 'body':
       return b.text.length
+    case 'compare':
+      // İki sütun da bütçeye giriyor: karşılaştırma tek bir kutu değil, iki liste.
+      return (
+        b.title.length +
+        b.once.label.length +
+        b.sonra.label.length +
+        [...b.once.items, ...b.sonra.items].reduce((t, x) => t + x.length, 0)
+      )
     case 'diagram':
       // Kutu etiketleri esnemez; bütçeye giren onlar.
       return b.nodes.reduce((t, n) => t + n.label.length, b.title.length)

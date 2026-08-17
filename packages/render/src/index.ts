@@ -252,6 +252,12 @@ export {
   type ChartSpec,
 } from './charts/chart.js'
 export { kacir } from './html.js'
+export {
+  COMPARE_CSS,
+  compareHtml,
+  isCompareError,
+  type CompareError,
+} from './charts/karsilastirma.js'
 export { niceAxis, norm, sayiTr, type Axis } from './charts/scale.js'
 export {
   DIAGRAM_CSS,

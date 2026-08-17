@@ -43,6 +43,7 @@ import {
   metneCevir,
   type PromptKaydi,
   akisiAyir,
+  karsilastirmayiAyir,
 } from '../metin-akisi.js'
 import { yargiPromptu, yargiyaCevir, type YargiBulgusu } from '../gorsel-yargi.js'
 import {
@@ -270,7 +271,11 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // geometriyle kuruluyor. `diagramHtml` repoda yazılı ve test edilmişti ama üretim
     // hattı hiç çağırmıyordu — fotoğraf, BAĞLI OLAN TEK görsel yol olduğu için
     // kullanılıyordu. Kusur fotoğrafta değil, o yolun tekliğindeydi.
-    const { satirlar: metinSatirlari, akis } = akisiAyir(satirlar)
+    const { satirlar: akisSonrasi, akis } = akisiAyir(satirlar)
+    // ⚠ İkisi birden konmuyor: akış bir SIRA, karşılaştırma bir KARŞITLIK anlatıyor ve
+    // aynı slaytta ikisi de kompozisyonu kalabalıklaştırır. Akış varsa karşılaştırma
+    // metne geri düşmüyor — ayrıştırılıp atılıyor ki yarım bölüm çöp olarak görünmesin.
+    const { satirlar: metinSatirlari, karsilastirma } = karsilastirmayiAyir(akisSonrasi)
 
     const govde = metinSatirlari.slice(1, -1)
     const kapanisSatiri =
@@ -325,6 +330,17 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       ...(akis === null
         ? []
         : [{ type: 'diagram' as const, title: akis.title, nodes: akis.nodes }]),
+      // Karşılaştırma yalnız akış YOKKEN: sayı istemeyen ikinci veri ögesi (FAZ-12.5).
+      ...(akis !== null || karsilastirma === null
+        ? []
+        : [
+            {
+              type: 'compare' as const,
+              title: karsilastirma.title,
+              once: karsilastirma.once,
+              sonra: karsilastirma.sonra,
+            },
+          ]),
       ...(gorsel === null || akis !== null
         ? []
         : [

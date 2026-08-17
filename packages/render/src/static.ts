@@ -15,6 +15,7 @@ import { softHyphenate } from '@suite/contracts'
 import { validateDocument, type Block, type DocumentModel } from '@suite/kernel'
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
 import { CHART_CSS, chartHtml, isChartError } from './charts/chart.js'
+import { COMPARE_CSS, compareHtml, isCompareError } from './charts/karsilastirma.js'
 import { DIAGRAM_CSS, diagramHtml, isDiagramError } from './charts/diagram.js'
 import { kacir } from './html.js'
 import { VARSAYILAN } from './sablon-parametre.js'
@@ -54,6 +55,8 @@ const GRAIN_ID = 'marka-grain'
  * puntosuna eşitlendi: 34 px kutu → ~27 px şekil, satırla aynı optik ağırlıkta.
  */
 const IKON_PX = 34
+/** İçerik oluğu — ikon burada durur ve TÜM içerik bu kenardan hizalanır. */
+const IKON_OLUK = IKON_PX + 20
 
 export { kacir } from './html.js'
 
@@ -118,6 +121,12 @@ const blokHtml = (b: Block, ikonRengi: string | null): string => {
       const d = diagramHtml({ title: b.title, nodes: b.nodes })
       return isDiagramError(d) ? '' : d
     }
+    case 'compare': {
+      // Veri OLARAK geliyor, çizim burada (D-209 ailesi). Bozuk karşılaştırma sessizce
+      // boş kutu basmıyor — `validateDocument` zaten reddediyor, bu ikinci savunma.
+      const k = compareHtml(b)
+      return isCompareError(k) ? '' : k
+    }
     case 'chart': {
       // Grafik VERİ olarak geldi, çizim burada oluyor (D-209). Bozuk grafik sessizce
       // boş kutu basmıyor — `validateDocument` zaten reddediyor, bu dal ikinci savunma.
@@ -168,6 +177,7 @@ export const toHtml = (doc: DocumentModel): string =>
     // kapı bunu yakalamıyordu (FAZ-6 denetimi, bulgu 7).
     CHART_CSS,
     DIAGRAM_CSS,
+    COMPARE_CSS,
     `  html, body { margin: 0; padding: 0; }`,
     `  body { width: ${doc.width}px; height: ${doc.height}px; background: var(--role-bg);`,
     // ⚠ Eskiden `"DejaVu Sans"` — SİSTEM fontu. Repoda tek bir font dosyası yoktu ve
@@ -300,7 +310,11 @@ const sablonCss = (doc: DocumentModel): string => {
           // ⚠ Boşluk HİYERARŞİSİ — görsel yargının bulgusu: başlık↔ilk madde arası 37 px,
           // maddeler arası 33 px idi; fark ayırt edilemeyince dört satır tek blok gibi
           // okunuyordu. Başlık boşluğu iki katına çıkarıldı.
-          `  .icerik p { position: relative; padding-left: 34px; margin-bottom: 10px }`,
+          // ⚠ **OLUK TEK DEĞER.** İlk denemede `.icerik > *` ile verdim ama `.icerik p`
+          // kuralının özgüllüğü onu eziyordu: paragraf 34 px, blok 54 px alıyordu ve ikon
+          // metne yapışıyordu. İki kural aynı oluğu ayrı ayrı yazarsa biri değişince
+          // öbürü unutulur — bu projede defalarca görülen ayrışma biçimi.
+          `  .icerik p { position: relative; padding-left: ${IKON_OLUK}px; margin-bottom: 10px }`,
           `  .icerik h1 { margin-bottom: ${Math.round(b.govdePx * 1.4)}px }`,
           `  .icerik p::before { content: ""; position: absolute; left: 0;`,
           `      top: ${Math.round(b.govdePx * 0.62)}px; width: 20px; height: 3px;`,
@@ -310,7 +324,13 @@ const sablonCss = (doc: DocumentModel): string => {
           // ── ikonlu madde (FAZ-11.3) ────────────────────────────────────────
           // İkon çizginin YERİNE geçiyor, yanına değil: iki işaret üst üste binerdi ve
           // madde çizgisinin varlık sebebi zaten "burada yeni bir madde başlıyor" demekti.
-          `  .icerik p.ikonlu { padding-left: ${IKON_PX + 20}px }`,
+          // ⚠ **TEK SOL KENAR — bakınca bulundu.** Oluk yalnız `p.ikonlu`ya veriliyordu;
+          // diyagram ve karşılaştırma blokları 54 px solda başlıyor, gövde metni sağda
+          // duruyordu. Referans örneklerin hepsinde tüm içerik TEK bir sol kenardan
+          // hizalanır — iki kenar, kompozisyonu iki ayrı sütuna böler.
+          // Oluk artık `.icerik`in TÜM çocuklarına: ikon mutlak konumda `left: 0`da,
+          // yani oluğun içinde kalıyor ve hiçbir şeyi itmiyor.
+          `  .icerik > * { padding-left: ${IKON_OLUK}px }`,
           `  .icerik p.ikonlu::before { display: none }`,
           // Dikey hiza: ikonun ORTASI ilk satırın ortasına gelir. Üste yaslamak, 34 px
           // gövdede ikonu satırdan 8 px yukarıda bırakıyordu.
