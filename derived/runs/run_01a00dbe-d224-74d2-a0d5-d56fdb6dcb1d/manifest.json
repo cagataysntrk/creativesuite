@@ -1,0 +1,475 @@
+{
+  "runId": "run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "4b352511549708bcf3e906aa15397b298df0e1f0",
+  "registryCommit": "4b352511549708bcf3e906aa15397b298df0e1f0",
+  "createdAt": "2026-08-17T03:30:45.944Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T03:23:24.601Z",
+      "finishedAt": "2026-08-17T03:23:24.601Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T03:23:24.601Z",
+      "finishedAt": "2026-08-17T03:23:24.602Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T03:23:24.602Z",
+      "finishedAt": "2026-08-17T03:24:01.327Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir",
+        "gorsel_brief": true,
+        "max_chars": 600
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T03:24:01.327Z",
+      "finishedAt": "2026-08-17T03:24:20.955Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir",
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T03:24:20.955Z",
+      "finishedAt": "2026-08-17T03:24:26.400Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T03:24:26.400Z",
+      "finishedAt": "2026-08-17T03:24:26.400Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-amber-200: oklch(0.92 0.070 90);\n  --ramp-marka-amber-500: oklch(0.80 0.156 87);\n  --ramp-marka-amber-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.27 0.008 250);\n  --ramp-marka-ink-950: oklch(0.15 0.006 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-amber-600);\n  --role-bg: var(--ramp-marka-amber-500);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:e81e2f2b5746dcd713793eacc49f2734a525a46b977b66d5a2c9002d65c7af72 414369B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d",
+            "sourceRunId": "run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d"
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Duruşu saymak yetmez, sınıflandırmak gerekir",
+              "level": 1
+            },
+            {
+              "type": "body",
+              "text": "En temel ayrım şu: duruş planlı mıydı, değil miydi. Bakım, vardiya geçişi ve ayar planlıdır; arıza, malzeme beklemesi ve enerji kesintisi değildir."
+            },
+            {
+              "type": "body",
+              "text": "Sonraki ayrım kaynağa göre yapılır: makineden mi, malzemeden mi, süreçten mi, dışarıdan mı. Aynı süre farklı kaynaktan geldiğinde çözümü de farklı yerde aranır."
+            },
+            {
+              "type": "body",
+              "text": "Sınıf listesi sabit olmalı. Herkes kendi cümlesini yazarsa arıza, bozuldu ve çalışmadı ayrı kayıtlara dönüşür ve hiçbiri bir araya toplanamaz."
+            },
+            {
+              "type": "body",
+              "text": "Sınıflandırma bir veri işidir; vardiya defteri bunu taşımaz. Verisi olmayan fabrikada önce bu kaydı kuruyoruz, sonra duruşları karara çeviriyoruz."
+            },
+            {
+              "type": "image",
+              "src": "«elenmis sha256:4187fd5390ef61c8f1bb96bc1f032b172d1637a877d970a1ee1e20874134e3e4 361647B»",
+              "alt": "makine duruslari nasil siniflandirilir",
+              "decorative": false
+            },
+            {
+              "type": "body",
+              "text": "Sınıfı olmayan duruş, tekrarladığında da yeni bir duruş sayılır."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T03:24:26.400Z",
+      "finishedAt": "2026-08-17T03:24:27.432Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a00dbe-d224-74d2-a0d5-d56fdb6dcb1d/slayt-05.png"
+        ],
+        "count": 5,
+        "rung": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "bytes": [
+          48029,
+          109137,
+          70188,
+          66871,
+          799614
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T03:24:27.432Z",
+      "finishedAt": "2026-08-17T03:30:44.839Z",
+      "output": null
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "makine duruslari nasil siniflandirilir"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T03:30:44.839Z",
+      "finishedAt": "2026-08-17T03:30:45.944Z",
+      "output": {
+        "qa": "  yerleşim instagram-feed-4x5 · 1080×1350 · tolerans ±%1 · sınır 8MB (doğrulandı 2026-08-15)\n  slayt 1 boyut: ✓ 47KB / 8192KB · png\n  slayt 2 boyut: ✓ 107KB / 8192KB · png\n  slayt 3 boyut: ✓ 69KB / 8192KB · png\n  slayt 4 boyut: ✓ 65KB / 8192KB · png\n  slayt 5 boyut: ✓ 781KB / 8192KB · png\n  tasarım metrikleri:\n  slayt 1 kelime bütçesi (kapak)   63,0% │──────────●──┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 1 metin kontrastı   10,5:1 │───────╎──┊────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 1 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 2 kelime bütçesi (govde)   77,0% │────────────●┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 2 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 2 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 3 kelime bütçesi (govde)   67,0% │──────────●──┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 3 metin kontrastı   10,5:1 │───────╎──┊────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 3 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 4 kelime bütçesi (govde)   63,0% │──────────●──┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 4 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 4 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  slayt 5 kelime bütçesi (kapanis)   30,0% │─────●───────┊─╎────│ limit 100,0%  ✓ tolerans içi\n  slayt 5 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 5 rakam ↔ şerit    0,0 px │●───────────────────│ limit 0,0 px  ✓ tolerans içi\n  komşu slaytta aynı zemin    0,0 çift │●───────────────────│ limit 0,0 çift  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 1:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,9% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,3% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 2:\n  ΔE 2000               0,2 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       1,0% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,3% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 3:\n  ΔE 2000               0,0 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,5% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,3% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 4:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,3% │●─────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        14,3% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 5:\n  metin kaplama        14,3% │───────────●──┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}
