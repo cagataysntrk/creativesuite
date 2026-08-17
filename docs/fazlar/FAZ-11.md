@@ -58,12 +58,7 @@ bu dille geçiyor.
    BEYAZ ve başka hiçbir şey yok; bizde iki renk alanı, akan eğri ve dev hayalet rakam
    zaten var. Beşini birden koymak "zengin" değil KALABALIK olurdu.
    **Kapak SÜSSÜZ:** ızgarada ilk kare bir cümledir, bir desen değil.
-   ⚠ **Yoğunluk bir PARAMETRE, sabit değil (D-262):** taralı daireyi tek bir slaytta
-   kalabalık buldum ve çizgi sayısını global olarak düşürdüm — tek bağlamın ölçüsünü tüm
-   tasarımlara uygulamak. Aynı yoğun tarama koyu zeminli bir ailede DOĞRU olurdu. Dağarcık
-   kapalı (beş şekil), parametreleri açık. Ayırt edici soru: *"bu sayı her tasarımda aynı mı
-   olmalı?"*
-   Süsleme katmanı ayrı bir SVG: alan katmanı `preserveAspectRatio="none"` ile geriliyor
+   ⚠ **Yoğunluk bir PARAMETRE, sabit değil (D-262).** Süsleme katmanı ayrı bir SVG: alan katmanı `preserveAspectRatio="none"` ile geriliyor
    ve aynı viewBox'a konsaydı her daire ELİPS olurdu.
 🧪 **8 test + ihlal:** süslemeyi metin sütununa taşı → `METİN SÜTUNUNA girmiyor` kırmızı.
    Ayrıca: tuval dışına taşmıyor · kapak süssüz · en fazla iki öge · deterministik ·
@@ -89,16 +84,10 @@ bu dille geçiyor.
    kontur kalınlığının setin değil MARKANIN ölçüsünden gelmesi. Yalnız tam kurulabilir
    ilkeller kullanıldı (çizgi, çember, dikdörtgen, yay); ezberden `path` verisi yazılsaydı
    bozuk çizilir ve ancak bakınca görülürdü.
-   ⚠ **Kazananı KELİME sırası belirliyor, ikon listesi değil.** *"Üretim hattı iki saat
-   durdu"* iki kök içeriyor; ilk sürümde kazananı `IKONLAR` dizisindeki konum seçiyordu —
-   keyfî. Türkçe cümle KONUYU başa koyar, o yüzden ilk eşleşen KELİME kazanıyor.
-   ⚠ **Eşleşme kelime BAŞINDA aranıyor.** `includes` ile `ara`→"p**ara**metre",
-   `kaza`→"**kaza**nç", `süre`→"**süre**ç" çarpışıyordu. Türkçe sonek dilidir: kök başta
-   durur, ek öne gelmez.
+   ⚠ **Kazananı KELİME sırası belirliyor** (Türkçe konuyu başa koyar), ve eşleşme kelime
+   BAŞINDA aranıyor — `includes` ile `ara`→"p**ara**metre", `kaza`→"**kaza**nç" çarpışıyordu.
    ⚠ **Eşleşme yoksa ikon YOK** — indekse göre zorla atamak, takvimden bahseden satırın
    yanına fabrika koyardı. Anlamsız ikon, ikonsuzluktan kötüdür.
-   ⚠ **34 px BAKINCA düzeltildi:** 28 px'te ikon 34 px metnin yanında cılız kalıyordu;
-   24 birimlik ızgarada şekiller ~19 birim doldurduğu için kutu boyutu görünen boyut değil.
 🧪 **9 test + ihlal:** `ikonSvg('kahve', …)` → `error TS2345` (kapalı birleşim).
    Ayrıca gerçek Türkçe satır tablosu · kelime-içi eşleşmeme · Türkçe küçük harf
    (`ISRAF` noktasız I ile eşleşMEZ ve bu DOĞRU) · determinizm · 24×24 ızgara taşması.
@@ -126,10 +115,8 @@ bu dille geçiyor.
    **ölü bir kısıttı** ve altı gerçek koşuda `yuva-doldur` bir kez bile yuva doldurmadı.
    *"Aynı slaytta iki görsel öge olmaz"* kuralı SLAYT başınadır, karosel başına değil.
    Yuva artık `gerilim` slaydında (kancadan hemen sonra — referans örnek 2'nin dili).
-   ⚠ **`maske` çapı PİKSEL, yüzde değil.** İki deneme `aspect-ratio` ve `flex: none` ile
-   denendi, ikisinde de daire kenarından DÜZ KESİLDİ: kutu kare olmuyordu ve
-   `clip-path: circle(50%)` kare olmayan kutuda yarıçapı KÖŞEGENDEN hesaplıyor. Çap
-   güvenli sütunun içerik genişliğinden türetiliyor — yeni sayı değil.
+   ⚠ **`maske` çapı PİKSEL, yüzde değil:** iki deneme daire kenarından DÜZ KESİLDİ, çünkü
+   `clip-path: circle(50%)` kare olmayan kutuda yarıçapı KÖŞEGENDEN hesaplıyor.
 🧪 Yuvasız görsel bloğu → `validateDocument` `image_without_slot`; testler kırmızı.
 💾 `feat(render): fotograf yuvalari maske ve alan` · `Refs: FAZ-11.4 · §7.1`
 
@@ -170,7 +157,7 @@ bu dille geçiyor.
 
 ---
 
-## 11.7 — Renk işleme: duotone ve marka tonlaması    [ ]
+## 11.7 — Renk işleme: duotone ve marka tonlaması    [x] 2026-08-17
 
 📖 §7.1, §12.1 · D-261
 🔗 11.4
@@ -186,12 +173,18 @@ bu dille geçiyor.
    uymasına bağlı, kırılgan bir çözüm. Duotone ise girdiden bağımsız: HANGİ fotoğraf
    gelirse gelsin marka ekseninde çıkar. Prompt'a güvenmek yerine çıktıyı dönüştürmek.
    Kabul: doygun bir test görseli duotone'dan geçince palet dışı payı ölçülür ve düşer.
-🧪 Duotone kapalıyken ve açıkken aynı görsel ölçülür; fark ölçüyle gösterilir.
+   ⚠ **İKİ ADIM ve sırası şart:** önce `feColorMatrix` ile griye (luminance 0.2126/
+   0.7152/0.0722), sonra `feComponentTransfer type="table"` ile iki uç arasına yayma.
+   Tek adımda yapılsaydı girdinin kendi hue'su matrise sızardı ve mavi bir makine mavi
+   kalırdı. `color-interpolation-filters="sRGB"` — linearRGB hue kaydırır.
+   ⚠ **Ürün ekran çekimi HARİÇ:** o bir KANITTIR, rengini değiştirmek iddiayı bozar.
+🧪 5 test; **üretim yolu** dahil: `toHtml` filtreyi gerçekten bağlıyor mu (D-261).
+   Slayt kimliği yoksa filtre basılmıyor — eski belgeler bozulmuyor.
 💾 `feat(render): duotone ve marka tonlamasi` · `Refs: FAZ-11.7 · §12.1`
 
 ---
 
-## 11.8 — Doku ve derinlik: grain, bulanıklık, degrade, vinyet    [ ]
+## 11.8 — Doku ve derinlik: grain, bulanıklık, degrade, vinyet    [x] 2026-08-17
 
 📖 §7.1 · R-30 · D-261
 🔗 11.7
@@ -202,8 +195,17 @@ bu dille geçiyor.
 ✅ ⚠ **Gölge YASAĞI konsol yüzeyine aittir (§12.1), kreatif yüzeye değil.** İkisini
    karıştırmak, bir enstrüman kuralını bir kreatif kurala çevirmek olurdu. Kreatif
    yüzeyde derinlik meşru; ölçü chroma tavanı ve kontrast metriğiyle korunuyor.
-   Grain opaklığı tavanlı: doku bir his, bir gürültü değil.
-🧪 Grain opaklığını tavana çıkar → metin kontrastı metriği kırmızı.
+   Grain opaklığı TAVANLI (0.06): tavan olmadan "biraz daha doku" her turda biraz daha
+   eklenir ve okunabilirlik sessizce erir.
+   ⚠ `fractalNoise` seçildi, `turbulence` değil: ikincisi kâğıt değil MERMER gibi görünür.
+   `overlay` seçildi, `multiply` değil: multiply yalnız koyulaştırır ve kâğıt alanı kirletir.
+   ⚠ ⚠ **VİNYET BU AİLEDE VARSAYILAN KAPALI — karar BAKARAK ve ÖLÇEREK verildi.**
+   0.1 ile render edildi: amber alan boyunca 215 → 229 → 215 arası değişti, yani düz
+   olması gereken alan çamurlu bir degradeye döndü. Kapalıyken 233/233/233 — düz.
+   Referans örnek 5'te o alan DÜZ ve düzlüğü tasarımın kendisi. Yetenek duruyor ve
+   parametrik (D-262); koyu zeminli bir aile onu açacak. **"Mümkün olan" ile "bu ailede
+   doğru olan" ayrı sorulardır** — bu, eklediğim bir şeyi bakarak geri almanın kaydı.
+🧪 5 test: determinizm · opaklık tavanı · fractalNoise · vinyet kapalı · z-index 2.
 💾 `feat(render): doku, bulaniklik ve degrade` · `Refs: FAZ-11.8 · §7.1`
 
 ---

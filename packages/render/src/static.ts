@@ -29,6 +29,19 @@ import {
   sayacEtiketi,
 } from './sablon.js'
 import { ikonSec, ikonSvg } from './sablon-ikon.js'
+import {
+  dokuCss,
+  duotoneSvg,
+  grainKatmani,
+  grainSvg,
+  vinyetCss,
+  vinyetKatmani,
+} from './sablon-filtre.js'
+
+/** Duotone filtresinin belge içi kimliği — tek yerde, iki tüketici (svg + css). */
+const DUOTONE_ID = 'marka-duotone'
+/** Grain filtresinin belge içi kimliği. */
+const GRAIN_ID = 'marka-grain'
 
 /**
  * İkon kenarı, px.
@@ -151,6 +164,12 @@ export const toHtml = (doc: DocumentModel): string =>
     sablonCss(doc),
     '</style>',
     sablonKatmanlari(doc),
+    doc.slayt === undefined ? '' : duotoneSvg(DUOTONE_ID),
+    // Doku ve vinyet: kreatif yüzeyde derinlik MEŞRU (§12.1 gölge yasağı konsola ait).
+    // Metnin ALTINDA (z-index 2, `.icerik` 3) — bir his, bir perde değil.
+    doc.slayt === undefined ? '' : grainSvg(GRAIN_ID),
+    doc.slayt === undefined ? '' : grainKatmani(GRAIN_ID),
+    doc.slayt === undefined ? '' : vinyetKatmani(),
     `<main class="icerik">`,
     // İkon YALNIZ madde ritmi olan düzenlerde: `list` bir dizi madde demektir ve ikon o
     // dizinin işaretidir. `quote` ya da `hero` düzeninde tek bir cümlenin yanında ikon,
@@ -330,6 +349,15 @@ const sablonCss = (doc: DocumentModel): string => {
     // başına bir slayta düşüyor — altında büyük bir boşluk kalıyordu: alan değil, hâlâ
     // kutu. `object-fit: cover` oranı bozmadan kırpıyor; `min-height: 0` flex öğesinin
     // içeriğinden küçülebilmesi için şart (varsayılan `auto` taşmayı engelliyor).
+    // ── DUOTONE (FAZ-11.7): renk tutarlılığı YAPISAL ────────────────────────
+    //
+    // ⚠ Fotoğrafın parlaklığı marka eksenine eşleniyor; girdi ne olursa olsun çıktı
+    // marka içinde. FAZ-10.7'de mavi/turuncu bir fotoğraf amber alanla çarpıştı ve
+    // brief'e "monokrom yaz" diye yalvarmıştım — modelin uymasına bağlı, kırılgan.
+    // ⚠ Ürün ekran çekimi HARİÇ: o bir KANITTIR, rengini değiştirmek iddiayı bozar.
+    `  .icerik img.yuva-alan, .icerik img.yuva-maske { filter: url(#${DUOTONE_ID}); }`,
+    dokuCss(),
+    vinyetCss(),
     // ── YUVA: alan (FAZ-11.4) — bugünkü davranışın adı konmuş hâli ─────────
     `  .icerik img.yuva-alan { width: calc(100% + ${pay}px); border-radius: 0; display: block;`,
     `                margin-${sagda ? 'left' : 'right'}: -${pay}px;`,
