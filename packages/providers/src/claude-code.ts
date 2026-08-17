@@ -76,7 +76,38 @@ const CAPS: readonly CapabilityDecl[] = [
     lanes: ['free'],
     supports: { locale: ['tr-TR'], output_format: ['json'] },
   },
+  {
+    // ⚠ `design.critique` (FAZ-13.5) — ESTETİK eksen. `image.critique` kusur arıyor,
+    // bu iyi arıyor; ikisi ayrı yetenek çünkü ayrı sorular. Aynı taşıma (dosyayı model
+    // kendi okuyor, `Read` aracı gerekiyor) ama ayrı ilan: tek bir yetenek adı altında
+    // iki soru sormak, hangi raporun hangi sorunun cevabı olduğunu belirsizleştirirdi.
+    name: 'design.critique',
+    lanes: ['free'],
+    supports: { locale: ['tr-TR'], output_format: ['json'] },
+  },
 ]
+
+/**
+ * Çağrılan model — ADAPTÖRDE, tanımlayıcıda değil.
+ *
+ * ⚠ ⚠ **Bu sabit bir ARIZADAN doğdu.** Adaptör `--model` geçmiyordu, yani CLI'ın kendi
+ * VARSAYILANINA bağlıydı. O varsayılan yukarı akışta `claude-opus-4-1-20250805`e
+ * sabitliydi; model kaldırılınca her çağrı `404 not_found_error` verdi ve hat İLK
+ * `GENERATE` adımında durdu. §16 ile açıkça çelişiyor: *"bir ay ihmal edilse de çalışır"*
+ * bir üst akış varsayılanına bağlanamaz — o varsayılan bizim kontrolümüzde değil.
+ *
+ * ⚠ **Tanımlayıcıya değil buraya yazıldı** ve gerekçesi tanımlayıcının kendi başlığında:
+ * *"Tanımlayıcı veridir: fiyat, yetenek ve kısıtlar burada; ONUNLA KONUŞMA BİÇİMİ
+ * `claude-code.ts`te."* Bayrak bir konuşma detayıdır. R-40 model kimliğini HATTA
+ * yasaklıyor (yetenek iste, yönlendirici seçsin); adaptör çözümün bittiği yerdir.
+ *
+ * ⚠ Ortam değişkeni ezebiliyor: bir model kaldırıldığında düzeltme bir dağıtım değil,
+ * bir env satırı olmalı — §16'nın kurtarma şartı.
+ */
+const VARSAYILAN_MODEL = 'claude-sonnet-5'
+
+const modelAdi = (env: Readonly<Record<string, string>>): string =>
+  env['SUITE_CLAUDE_MODEL'] ?? VARSAYILAN_MODEL
 
 const hata = (
   kind: AppError['kind'],
@@ -147,10 +178,14 @@ export const claudeCode: ProviderAdapter = {
     // ve kendi API'sini curl ile çağırtıyor; o, kapatılamayan bir delik. Okuma yetkisi
     // kategorik olarak farklı: yan etkisi yok, kabuk açmıyor, ağa çıkmıyor. Yine de bir
     // yetki genişlemesi ve o yüzden yeteneğe BAĞLI — metin üretimi bu aracı almıyor.
-    const araclar = vi.capability === 'image.critique' ? ['--allowedTools', 'Read'] : []
+    // ⚠ İki yargı yeteneği de dosyayı KENDİ okuyor; ikisi de `Read` alıyor. Liste
+    // olarak yazıldı çünkü üçüncüsü eklendiğinde `||` zinciri sessizce unutulurdu —
+    // ve unutulduğunda belirti "çağrı 5 dakikada dönmedi ve öldü" olurdu, apaçık değil.
+    const okuyanYetenekler = ['image.critique', 'design.critique']
+    const araclar = okuyanYetenekler.includes(vi.capability) ? ['--allowedTools', 'Read'] : []
     const sonuc = await spawnProcess(
       ikili(ctx.env),
-      ['-p', vi.prompt, ...araclar, '--output-format', 'json'],
+      ['-p', vi.prompt, '--model', modelAdi(ctx.env), ...araclar, '--output-format', 'json'],
       {
         env: ctx.env,
         signal: ctx.signal,
@@ -177,13 +212,49 @@ export const claudeCode: ProviderAdapter = {
       return ok(handle)
     }
     if (sonuc.code !== 0) {
+      // ⚠ ⚠ **HATA METNİ STDOUT'TA, STDERR'DE DEĞİL.** Claude Code `--output-format json`
+      // ile başarısızlığı da JSON olarak yazıyor: `{"is_error":true,"result":"API Error:
+      // 404 ..."}`. İlk sürüm yalnız `stderr`i taşıyordu ve o BOŞ geliyordu; hat
+      // `{"code":1,"stderr":""}` diye durdu ve sebep görünmedi. Teşhis edilemeyen bir
+      // hata, olmayan bir hata kadar kötüdür — asıl sebebi bulmak elle çağrı gerektirdi.
+      // ⚠ Kırpma korunuyor: sağlayıcı çıktısı prompt'u yankılayabilir, prompt secret
+      // taşıyabilir (§14).
+      const govde = ((): string => {
+        try {
+          const o: unknown = JSON.parse(sonuc.stdout)
+          const r = (o as { result?: unknown } | null)?.result
+          return typeof r === 'string' ? r : sonuc.stdout
+        } catch {
+          return sonuc.stdout
+        }
+      })()
       sonuclar.set(handle.externalId, {
         state: 'failed',
         error: hata('provider_bad_response', 'CLAUDE_CODE_EXIT', ctx.correlationId, {
           code: sonuc.code,
-          // stderr KIRPILIR: sağlayıcı çıktısı bazen prompt'u yankılar ve prompt
-          // secret içerebilir. Tam metin log'a girmez (§14).
           stderr: sonuc.stderr.slice(0, 500),
+          cikti: govde.slice(0, 500),
+        }),
+      })
+      return ok(handle)
+    }
+
+    // ⚠ **Çıkış kodu 0 ama `is_error: true` OLABİLİR** — CLI hatayı JSON'a yazıp sıfırla
+    // dönebiliyor (elle denendi: 404 model hatası `RC=0` verdi). Kodu tek gerçek saymak,
+    // bir hata metnini geçerli çıktı sanmaktı; ayrıştırıcı onu "JSON bulunamadı" diye
+    // reddederdi ve sebep yine görünmezdi.
+    let hamCikti: unknown
+    try {
+      hamCikti = JSON.parse(sonuc.stdout)
+    } catch {
+      hamCikti = null
+    }
+    if ((hamCikti as { is_error?: unknown } | null)?.is_error === true) {
+      const r = (hamCikti as { result?: unknown }).result
+      sonuclar.set(handle.externalId, {
+        state: 'failed',
+        error: hata('provider_bad_response', 'CLAUDE_CODE_ERROR', ctx.correlationId, {
+          cikti: (typeof r === 'string' ? r : sonuc.stdout).slice(0, 500),
         }),
       })
       return ok(handle)

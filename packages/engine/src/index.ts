@@ -382,3 +382,12 @@ export {
   type YargiKategorisi,
   type YargiSiddeti,
 } from './gorsel-yargi.js'
+export {
+  PUAN_TAVANI,
+  TASARIM_KATEGORILERI,
+  tasarimYargiPromptu,
+  tasarimYargisinaCevir,
+  toplamPuan,
+  puanSatiri,
+} from './tasarim-yargi.js'
+export type { TasarimKategorisi, TasarimPuani, TasarimYargisi } from './tasarim-yargi.js'

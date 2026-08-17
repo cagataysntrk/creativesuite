@@ -136,7 +136,7 @@ ailesiyle aynı sınıfta duruyor.
    (alanlar sıralı) · alan listesi kapalı · her alanın kaynağı belli · boş küme çökmüyor.
 💾 `feat(render): cesitlilik parmak izi` · `Refs: FAZ-13.4 · §7.1`
 
-## 13.5 — `design.critique`: makinenin estetik yargısı    [ ]
+## 13.5 — `design.critique`: makinenin estetik yargısı    [x] 2026-08-17
 
 📖 §8.1, §7.1 · D-256, D-261
 🔗 13.1
@@ -144,16 +144,41 @@ ailesiyle aynı sınıfta duruyor.
    yargılayan bir yetenek. Kapalı kategoriler — `denge` · `hiyerarsi` · `bosluk` ·
    `tutarlilik` · `okunabilirlik` · `sikicilik`. Her bulgu sınırlayıcı kutu + şiddet + gerekçe.
    Yeni bir fiil DEĞİL: `image.critique` gibi GENERATE altında bir yetenek (D-256 deseni).
-📁 `packages/engine/src/tasarim-yargi.ts`
-✅ ⚠ **Ölçüm ile yargı BİRBİRİNİ DOĞRULAR.** 13.1 sayı üretir, bu adım cümle. İkisi
-   çelişirse önce ÖLÇENİN doğruluğu sınanır — FAZ-10'da ölçüm aracı ölçülen şeyden daha
-   sık bozuktu (on kez).
-   ⚠ **Reddedilenler SAYILIR ve gerekçesi yazılır** (D-256 deseni). Sessizce yutulan bir
-   eleştiri, olmayan bir eleştiridir.
-   ⚠ Yargı ÖNERİR, uygulamaz (§5.4). Çıktısı bir rapor; düzeltmeyi insan onaylar.
-   ⚠ **Doğrulama turu tavanı: İKİ.** "Sorun bul" denen bir model her turda sorun bulur;
-   iki tur sonra kapatılır, yoksa sonsuz cila döngüsü olur.
-🧪 Kusursuz bir referans slaydı ver → kritik bulgu ÜRETMEMELİ (yanlış pozitif sınavı).
+📁 `packages/engine/src/tasarim-yargi.ts` + testi · `gorsel-yargi.ts` · `packages/engine/src/verbs/bodies.ts` ·
+   `packages/providers/src/claude-code.ts` · `registry/providers/claude-code.provider.yaml` ·
+   `registry/pipelines/instagram-post.pipeline.yaml`
+✅ ⚠ ⚠ **PLANIN ÖNCÜLÜ ESKİMİŞTİ.** Adım *"`image.critique` üretilen görseli yargılıyor,
+   eksik olan bitmiş slaydı yargılayan yetenek"* diyordu. `gorsel-yargi.ts` okundu:
+   prompt zaten *"N slaytlık karoselin M. slaydı, tuval 1080×1350"* diyor ve RENDER
+   EDİLMİŞ slaydı yargılıyor. Eksik olan yüzey değil **EKSEN**: var olan altı kategori
+   kusurun YOKLUĞUNU arıyor, bu adımın altısı iyinin VARLIĞINI.
+   ⚠ ⚠ **`sikicilik` DEĞİL `carpicilik` — ölçüm hatasından kaçınma.** Öteki beşinde yüksek
+   puan iyi, `sikicilik`te kötü olurdu; yönü kardeşlerine ters tek bir alan ortalamayı
+   sessizce bozar. Altı alanın altısında da yüksek = iyi.
+   ⚠ **Doğrulayıcı YENİDEN YAZILMADI (R-05):** `bulguyuDogrula` kategori dağarcığını
+   parametre alıyor, iki yetenek de onu çağırıyor. İkinci bir kopya biri sıkılaşıp öbürü
+   gevşediğinde hangisinin gerçek olduğunu belirsizleştirirdi.
+   ⚠ **Eksik kategori sessizce 0 SAYILMIYOR, sessizce ATLANMIYOR da:** sıfır saymak
+   ölçülmemişi kötü ilan eder, atlamak eksikliği gizler. `toplamPuan` eksikte `null` —
+   beş kategoriden ortalama, altıdan ortalamayla karşılaştırılamaz (13.6 tam bunu yapacak).
+   ⚠ Ondalık puan reddediliyor: `3.7` olmayan bir hassasiyet iddia eder.
+   ⚠ ⚠ **HAT KOŞUSU BİR §16 İHLALİ ORTAYA ÇIKARDI ve düzeltildi.** Adaptör `--model`
+   geçmiyordu, yani CLI'ın VARSAYILANINA bağlıydı; o varsayılan yukarı akışta kaldırılan
+   bir modele sabitliydi ve her çağrı `404` verdi — hat ilk `GENERATE` adımında durdu.
+   Üstelik **stderr BOŞTU**: hata metni stdout'taki JSON'da (`is_error`) duruyordu ve
+   `{"code":1,"stderr":""}` hiçbir şey söylemiyordu. İkisi de kapatıldı; ayrıca çıkış
+   kodu 0 iken `is_error: true` gelen hâl de artık yakalanıyor.
+   ⚠ ⚠ **GERÇEK MODELLE KOŞULDU ve ÖLÇÜM ile YARGI BAĞIMSIZ OLARAK AYNI ŞEYİ SÖYLEDİ.**
+   Altı kategori de puanlandı, sıfır reddedilen, toplam 3,67/5. `denge` 4/5'in gerekçesi:
+   *"dev rakamın sağ-alt köşede yığılması kompozisyonu hafifçe aşağı-sağa çekiyor"* —
+   13.1'in optik merkez ölçümü de kompozisyonun 10–15 puan AŞAĞIDA olduğunu söylüyordu.
+   İki ayrı yöntem, aynı bulgu; adımın *"ölçüm ile yargı birbirini doğrular"* kriteri
+   kanıtla karşılandı. En düşük ikisi `hiyerarsi` ve `tutarlilik` 3/5 — ikisi de yeni
+   bilgi (rakam metni bastırıyor; süslemelerin çizgi kalınlıkları aynı aileden değil).
+   ⚠ Yargı ÖNERİR, uygulamaz (§5.4). Doğrulama turu tavanı İKİ.
+🧪 12 test: eksik/tekrar/ondalık/gerekçesiz puan · kutusuz ve tuval dışı bulgu · kusur
+   kategorisi sızmıyor · bozuk çıktı çökmüyor · **üretim yolu** (`promptTuret` slayt
+   yollarını görüyor) · slayt yoksa prompt boş.
 💾 `feat(engine): tasarim yargisi` · `Refs: FAZ-13.5 · §8.1`
 
 ## 13.6 — Kör kabul: referansla aynı sınıfta mıyız    [ ]

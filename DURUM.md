@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 13
-siradaki_adim: 13.5
+siradaki_adim: 13.6
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-13.4 KAPANDI — cesitlilik parmak izi. Alti alan OLCUMDEN ONCE sabitlendi; yedincisinin gerekcesi cesitlilik dusuk cikti OLAMAZ (ihlal turu: sahte alan eklendi -> iki test kirmizi). DEFTER RAHATSIZ EDICI GERCEGI SOYLUYOR: iki aile alti alanin YALNIZ IKISINDE ayrisiyor, uzaklik 0.33; tipoEfektleri ve gorselIslemleri ikisinde de ayni. Metrik kusuru degil — akici nin bugun temel in suslu hali oldugunun SAYISI. OLCUM BOSLUGU BIR ZINCIR KOPUKLUGUNU ACTI (sekizinci, D-261): tipoEfektleri AileProfili de VARDI, belgeye hic girmiyordu, render hic okumuyordu, vurgu seridi kosulsuz basiliyordu. Parmak izi o alani olcemeyip sabit yazmak zorunda kalinca gorundu; alan belgeye eklendi, render aileden okuyor. Olcemedigin sey baglanmamis olabilir. ALAN_KAYNAGI kayitli: ilk defter duzenler ve veriOgesi ni de suclu yaziyordu ama ikisini aile SECMIYOR, sabit icerikte zorunlu olarak ayni cikar. Dagilim tek puan DEGIL (benzersiz + ortalamaUzaklik). docs/referans/cesitlilik-defteri.md URETILMIS (R-65, docs-drift kapisi). 7 test. FAZ-13 te kalan: 13.5 design.critique, 13.6 kor kabul; 13.3 BLOKE:karar."
+son_kanit: "FAZ-13.5 KAPANDI — design.critique. PLANIN ONCULU ESKIMISTI: image.critique zaten RENDER EDILMIS slaydi yargiliyor; eksik olan yuzey degil EKSEN — var olan alti kategori kusurun YOKLUGUNU, bu adimin altisi iyinin VARLIGINI ariyor. sikicilik DEGIL carpicilik: yonu kardeslerine ters tek alan ortalamayi sessizce bozar, alti alanda da yuksek = iyi. Dogrulayici YENIDEN YAZILMADI (R-05): bulguyuDogrula kategori dagarcigini parametre aliyor. Eksik kategori sessizce 0 sayilmiyor, atlanmiyor da; toplamPuan eksikte null cunku bes kategoriden ortalama altidan ortalamayla karsilastirilamaz (13.6 tam bunu yapacak). GERCEK MODELLE KOSULDU: alti kategori puanlandi, sifir reddedilen, toplam 3.67/5. denge 4/5 gerekcesi dev rakamin sag-alt kosede yigilmasi kompozisyonu asagi-saga cekiyor — 13.1 in optik merkez olcumu de 10-15 puan ASAGIDA demisti; IKI AYRI YONTEM AYNI BULGU. HAT KOSUSU BIR S16 IHLALI ORTAYA CIKARDI: adaptor --model gecmiyordu, CLI varsayilanina bagliydi, o varsayilan kaldirilan bir modele sabitliydi ve her cagri 404 verdi; hat ilk GENERATE adiminda durdu ve STDERR BOSTU cunku hata metni stdout JSON inde. Model adaptore sabitlendi (env ezebiliyor), hata metni stdout tan okunuyor, cikis kodu 0 iken is_error true hali de yakalaniyor. 12 test. Tam hat kosusu 28 dk da bitmedi (her claude cagrisi yavas) — devam ediyor."
 ```
 
 ## Neredeyiz
@@ -48,6 +48,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 | Adım | Tarih |
 |---|---|
+| **13.5** · `design.critique` estetik eksen; ölçüm ve yargı aynı kusuru buldu | 2026-08-17 |
 | **13.4** · çeşitlilik parmak izi; iki aile 6 alanın YALNIZ 2'sinde ayrışıyor | 2026-08-17 |
 | **13.2** · katman yığını VERİ; üç z-index beraberliği kazaydı, çıktı piksel-özdeş | 2026-08-17 |
 | **13.1** · kompozisyon ölçümü RAPOR; ilk metrik gramerin ritmini kusur sanıyordu | 2026-08-17 |

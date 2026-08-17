@@ -29,6 +29,13 @@ capabilities:
     lanes: [free]
     supports:
       locale: ['tr-TR']
+  # Estetik yargı (FAZ-13.5). `image.critique` KUSUR arar, bu yetenek İYİ arar; ikisi
+  # ayrı çünkü `kalite` kapısı kabul edilemezi eler, estetik yargı tercih edileni sorar.
+  # Karışsalardı ya kapı öznelleşirdi ya estetik zorunlu olurdu.
+  - name: design.critique
+    lanes: [free]
+    supports:
+      locale: ['tr-TR']
   - name: text.generate
     lanes: [free]
     supports:

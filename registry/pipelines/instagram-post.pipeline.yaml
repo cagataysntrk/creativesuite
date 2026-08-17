@@ -108,9 +108,16 @@ steps:
     capability: image.critique
     needs: [render]
 
+  # Estetik yargı — KUSUR değil İYİ arıyor (FAZ-13.5). `gorsel-yargi` ile aynı slayta
+  # bakıyor ama başka bir soru soruyor; ikisi ayrı adım çünkü ayrı eksenler.
+  - id: tasarim-yargi
+    verb: GENERATE
+    capability: design.critique
+    needs: [render]
+
   - id: kalite
     verb: VALIDATE
-    needs: [render, gorsel-yargi]
+    needs: [render, gorsel-yargi, tasarim-yargi]
 
   - id: onay
     verb: PROPOSE

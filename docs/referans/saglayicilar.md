@@ -9,7 +9,7 @@ Toplam **6** tanımlayıcı.
 | id | başlık | adaptör | durum | yetenek | şerit | fiyat anlık görüntüsü |
 |---|---|---|---|---|---|---|
 | `chatterbox` | Chatterbox Multilingual V3 (yerel, MIT) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
-| `claude-code` | Claude Code (headless) | `claude-code` | ✅ aktif | `image.critique`<br>`text.generate` | free | — |
+| `claude-code` | Claude Code (headless) | `claude-code` | ✅ aktif | `image.critique`<br>`design.critique`<br>`text.generate` | free | — |
 | `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ✅ aktif | `image.generate` | free | `_pricing/cloudflare-2026-08-16.json` |
 | `elevenlabs` | ElevenLabs (premium şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | premium | — |
 | `fal-flux` | FLUX (fal) | `fal-flux` | ⏸ kapalı | `image.generate` | premium | `_pricing/fal-2026-08-15.json` ⚠ doğrulanmamış |
@@ -26,6 +26,8 @@ Toplam **6** tanımlayıcı.
 ### `claude-code`
 
 - **image.critique** — şerit: free
+  - `locale`: `tr-TR`
+- **design.critique** — şerit: free
   - `locale`: `tr-TR`
 - **text.generate** — şerit: free
   - `locale`: `tr-TR` · `en-US`

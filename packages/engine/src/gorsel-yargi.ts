@@ -110,6 +110,65 @@ export const yargiPromptu = (g: YargiGirdisi): string =>
 
 const sayiMi = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
 
+/** Sağlayıcı çıktısındaki metin alanı — şekiller ÖLÇÜLEREK tanınıyor (D-227 ailesi). */
+export const cikan = (output: unknown): string | null => {
+  if (typeof output === 'string') return output
+  if (output === null || typeof output !== 'object') return null
+  const o = output as Record<string, unknown>
+  for (const k of ['result', 'text', 'content']) {
+    const v = o[k]
+    if (typeof v === 'string') return v
+  }
+  return null
+}
+
+/**
+ * TEK bulgu doğrulayıcı — iki yargı yeteneği de bunu çağırıyor (R-05).
+ *
+ * ⚠ **İkinci bir kopyası yazılmadı ve bu bilinçli.** `design.critique` (FAZ-13.5) aynı
+ * kutu/kategori/şiddet disiplinini istiyor; ikinci bir doğrulayıcı yazsaydım biri
+ * sıkılaşıp öbürü gevşerdi ve hangisinin gerçek olduğu belirsizleşirdi — `chokepoints`
+ * kuralının yargı katmanındaki karşılığı.
+ * ⚠ Kategori dağarcığı PARAMETRE: kusur kategorileriyle estetik kategorileri ayrı kalmalı
+ * (`kalite` kapısı kabul edilemezi eler, estetik yargı iyiyi arar; karışırlarsa ya kapı
+ * öznel olur ya estetik zorunlu).
+ */
+export const bulguyuDogrula = (
+  x: unknown,
+  i: number,
+  slayt: number,
+  boyut: { readonly genislik: number; readonly yukseklik: number },
+  kategoriler: readonly string[]
+): { readonly bulgu: YargiBulgusu } | { readonly ret: string } => {
+  if (x === null || typeof x !== 'object') return { ret: `#${i}: nesne değil` }
+  const o = x as Record<string, unknown>
+  const b = o['bolge']
+  // ⚠ Kutu kontrolü ÖNCE ve TAVİZSİZ. Kutusuz bulgu, eyleme çevrilemeyen bir yorumdur.
+  if (!Array.isArray(b) || b.length !== 4 || !b.every(sayiMi))
+    return { ret: `#${i}: sınırlayıcı kutu yok ya da bozuk` }
+  const [bx, by, bw, bh] = b as [number, number, number, number]
+  if (bw <= 0 || bh <= 0) return { ret: `#${i}: kutu genişliği/yüksekliği sıfır ya da negatif` }
+  if (bx < 0 || by < 0 || bx + bw > boyut.genislik || by + bh > boyut.yukseklik)
+    return { ret: `#${i}: kutu tuval dışına taşıyor (${bx},${by},${bw},${bh})` }
+  const kategori = o['kategori']
+  if (typeof kategori !== 'string' || !kategoriler.includes(kategori))
+    return { ret: `#${i}: kategori kapalı listede yok: ${String(kategori)}` }
+  const siddet = o['siddet']
+  if (typeof siddet !== 'string' || !YARGI_SIDDETLERI.includes(siddet as YargiSiddeti))
+    return { ret: `#${i}: şiddet kapalı listede yok: ${String(siddet)}` }
+  const aciklama = o['aciklama']
+  if (typeof aciklama !== 'string' || aciklama.trim() === '') return { ret: `#${i}: açıklama boş` }
+  return {
+    bulgu: {
+      slayt,
+      bolge: [bx, by, bw, bh],
+      kategori: kategori as YargiKategorisi,
+      siddet: siddet as YargiSiddeti,
+      aciklama: aciklama.trim(),
+    },
+  }
+}
+
 /**
  * Sağlayıcı çıktısını bulgulara çevirir.
  *
@@ -124,19 +183,7 @@ export const yargiyaCevir = (
 ): YargiSonucu => {
   const reddedilen: string[] = []
 
-  const ham =
-    typeof output === 'string'
-      ? output
-      : output !== null && typeof output === 'object'
-        ? ((): string | null => {
-            const o = output as Record<string, unknown>
-            for (const k of ['result', 'text', 'content']) {
-              const v = o[k]
-              if (typeof v === 'string') return v
-            }
-            return null
-          })()
-        : null
+  const ham = cikan(output)
 
   if (ham === null) return { bulgular: [], reddedilen: ['çıktıda metin alanı yok'] }
 
@@ -157,53 +204,9 @@ export const yargiyaCevir = (
 
   const bulgular: YargiBulgusu[] = []
   for (const [i, x] of ayrisan.entries()) {
-    if (x === null || typeof x !== 'object') {
-      reddedilen.push(`#${i}: nesne değil`)
-      continue
-    }
-    const o = x as Record<string, unknown>
-    const b = o['bolge']
-
-    // ⚠ Kutu kontrolü ÖNCE ve TAVİZSİZ. Kutusuz bulgu, eyleme çevrilemeyen bir yorumdur.
-    if (!Array.isArray(b) || b.length !== 4 || !b.every(sayiMi)) {
-      reddedilen.push(`#${i}: sınırlayıcı kutu yok ya da bozuk`)
-      continue
-    }
-    const [bx, by, bw, bh] = b as [number, number, number, number]
-    if (bw <= 0 || bh <= 0) {
-      reddedilen.push(`#${i}: kutu genişliği/yüksekliği sıfır ya da negatif`)
-      continue
-    }
-    // Tuval dışı bir kutu, modelin ölçeği kaçırdığını gösterir; kabul etmek o bulguyu
-    // yanlış bir yere işaret eden bir ok yapardı.
-    if (bx < 0 || by < 0 || bx + bw > boyut.genislik || by + bh > boyut.yukseklik) {
-      reddedilen.push(`#${i}: kutu tuval dışına taşıyor (${bx},${by},${bw},${bh})`)
-      continue
-    }
-
-    const kategori = o['kategori']
-    if (typeof kategori !== 'string' || !YARGI_KATEGORILERI.includes(kategori as YargiKategorisi)) {
-      reddedilen.push(`#${i}: kategori kapalı listede yok: ${String(kategori)}`)
-      continue
-    }
-    const siddet = o['siddet']
-    if (typeof siddet !== 'string' || !YARGI_SIDDETLERI.includes(siddet as YargiSiddeti)) {
-      reddedilen.push(`#${i}: şiddet kapalı listede yok: ${String(siddet)}`)
-      continue
-    }
-    const aciklama = o['aciklama']
-    if (typeof aciklama !== 'string' || aciklama.trim() === '') {
-      reddedilen.push(`#${i}: açıklama boş`)
-      continue
-    }
-
-    bulgular.push({
-      slayt,
-      bolge: [bx, by, bw, bh],
-      kategori: kategori as YargiKategorisi,
-      siddet: siddet as YargiSiddeti,
-      aciklama: aciklama.trim(),
-    })
+    const r = bulguyuDogrula(x, i, slayt, boyut, YARGI_KATEGORILERI)
+    if ('ret' in r) reddedilen.push(r.ret)
+    else bulgular.push(r.bulgu)
   }
 
   return { bulgular, reddedilen }

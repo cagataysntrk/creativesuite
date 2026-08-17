@@ -47,6 +47,12 @@ import {
 } from '../metin-akisi.js'
 import { yargiPromptu, yargiyaCevir, type YargiBulgusu } from '../gorsel-yargi.js'
 import {
+  tasarimYargiPromptu,
+  tasarimYargisinaCevir,
+  toplamPuan,
+  type TasarimYargisi,
+} from '../tasarim-yargi.js'
+import {
   fetchSource,
   isIngestFailure,
   planWaterfall,
@@ -1293,6 +1299,16 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     return yargiPromptu(ilk)
   }
 
+  // ⚠ `design.` ön eki `image.`/`video.` dallarından ÖNCE: yeni bir ön ek eklemek,
+  // aşağıdaki dalın "geri kalan her şey görsel brief'idir" varsayımını bozar. Aynı tuzak
+  // `image.critique`te bir kez yaşandı — ön ekle kurulan her dal komşusunu varsaymalı.
+  if (yetenek === 'design.critique') {
+    const slaytlar = yargilanacakSlaytlar(input)
+    if (slaytlar.length === 0) return ''
+    const ilk = slaytlar[0] as YargiHedefi
+    return tasarimYargiPromptu(ilk)
+  }
+
   if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
     // **Yalnız BAĞLANDIĞI adımların çıktısı okunuyor.** Adım id'sine göre değil,
     // DAG'a göre: hangi adımın brief üreteceğini hat dosyası `needs` ile söylüyor.
@@ -1534,6 +1550,23 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       })
     }
 
+    // ── estetik yargı: PUANLAR da çıktıya giriyor (FAZ-13.5) ────────────────
+    //
+    // ⚠ Puanlar çıktıya girmezse FAZ-13.6 kör kabulü karşılaştıracak bir sayı bulamaz —
+    // "modül var, üretim yolu yok"un yargı katmanındaki hâli olurdu.
+    // ⚠ `toplam` EKSİK kategoride `null`: beş kategoriden hesaplanan ortalama altıdan
+    // hesaplananla karşılaştırılamaz ve kör kabul tam bunu yapacak.
+    let tasarim: (TasarimYargisi & { readonly toplam: number | null }) | null = null
+    if (yetenek === 'design.critique') {
+      const hedefler = yargilanacakSlaytlar(input)
+      const ilk = hedefler[0]
+      const y = tasarimYargisinaCevir(sonuc.value.data, ilk?.slayt ?? 1, {
+        genislik: ilk?.genislik ?? 1080,
+        yukseklik: ilk?.yukseklik ?? 1350,
+      })
+      tasarim = { ...y, toplam: toplamPuan(y) }
+    }
+
     return ok({
       costs: [
         {
@@ -1545,11 +1578,13 @@ export const generateBody = (deps: GenerateDeps): Verb =>
         },
       ],
       data:
-        yargi !== null
-          ? { ...yargi, raw: sonuc.value.data }
-          : metin === null
-            ? sonuc.value.data
-            : { ...metin, raw: sonuc.value.data },
+        tasarim !== null
+          ? { ...tasarim, raw: sonuc.value.data }
+          : yargi !== null
+            ? { ...yargi, raw: sonuc.value.data }
+            : metin === null
+              ? sonuc.value.data
+              : { ...metin, raw: sonuc.value.data },
     })
   })
 
