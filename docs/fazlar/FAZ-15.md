@@ -41,7 +41,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 `wdth 125` iste ve en uzun Türkçe kelimeyi ver → sütun taşmıyor, punto düşüyor
 💾 `feat(render): degisken eksen tipografi` · `Refs: FAZ-15.2 · §12.3`
 
-## 15.3 — Zemin dili: degrade, doku, gren, karışım    [ ]
+## 15.3 — Zemin dili: degrade, doku, gren, karışım    [x]
 
 📖 §12.1, §12.4
 🔗 FAZ-15.2

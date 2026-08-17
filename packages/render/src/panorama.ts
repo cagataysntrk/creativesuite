@@ -28,6 +28,7 @@ import { withPage, type BrowserResult, type Oturum, type Page } from './browser.
 import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { kacir } from './html.js'
 import { OPENTYPE_CSS, vurguyuIsaretle } from './sablon-tipo.js'
+import { zeminCss, zeminKarisimi, type ZeminResetesi } from './zemin.js'
 
 /** Kesimi aşan sürekli bant — kimliğin taşıyıcısı. */
 export type Bant =
@@ -264,6 +265,17 @@ export interface PanoramaBelgesi {
   readonly gorselIslemleri?: readonly GorselIslem[]
   /** Belgenin varsayılan zemini — kart kendi zeminini vermezse bu geçerli. */
   readonly zemin: string
+  /**
+   * Zemin DOKUSU — degrade, ışık odağı, tarama, vinyet, gren (FAZ-15.3).
+   *
+   * ⚠ ⚠ **`zemin` ALANI KALIYOR ve iki alan aynı şeyi söylemiyor.** `zemin` semantik
+   * bir token: metin ve aksan rengi ondan türüyor (`koyuMu`). `zeminDokusu` görsel
+   * katman: nasıl BOYANDIĞI. Dokuyu tek alana sıkıştırsaydık `koyuMu` bir degrade
+   * dizesini okumak zorunda kalır ve `linear-gradient(...ink-950...)` içinde `ink`
+   * geçtiği için "koyu" derdi — doğru cevabı yanlış sebeple. Ayrı tutmak, renk
+   * türetimini dokudan bağımsız bırakıyor.
+   */
+  readonly zeminDokusu?: ZeminResetesi
   /** İki alanlı zemin — verilirse kartlar kendi zeminlerini BOYAMIYOR. */
   readonly alanSiniri?: AlanSiniri
   /**
@@ -526,7 +538,14 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `style="left:${i * G}px;width:${G}px;` +
             // ⚠ Lekeler ya da alan sınırı varsa kart ŞEFFAF: opak bir kart arkasındaki
             // desen katmanını tamamen örtüyordu ve `memphis`in kimliği görünmüyordu.
-            `background:${doc.alanSiniri === undefined && (doc.lekeler ?? []).length === 0 ? kartZemini : 'transparent'};` +
+            `background:${
+              k.zemin !== undefined ||
+              (doc.alanSiniri === undefined &&
+                (doc.lekeler ?? []).length === 0 &&
+                doc.zeminDokusu === undefined)
+                ? kartZemini
+                : 'transparent'
+            };` +
             `--kart-metin:${r.metin};` +
             `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk}">`
           )
@@ -640,8 +659,19 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // sürümde bunlar `rgba(255,255,255,…)` yazıyordu ve `memphis`/`editoryal` gibi KÂĞIT
     // zeminli şablonlarda beyaz-üstüne-beyaz düşüyordu — yani görünmüyorlardı. Bir öge
     // görünmezse eksikliği fark edilmez ve tasarım tam sanılır.
+    // ⚠ ⚠ **DOKU `body`DE DEĞİL `#sahne`DE — yoksa zemin KAYMAZDI.** Dilimleme sahneyi
+    // `translateX` ile kaydırıyor; `body` yerinde duruyor. Doku gövdeye yazılsaydı altı
+    // slaydın altısı degradenin AYNI parçasını gösterir, panoramayı kat eden bir ışık
+    // odağı diye bir şey olmazdı — yani kesintisizliğin zemin ayağı sessizce çökerdi.
+    // Doku kayan katmana ait: panorama koordinatında tek bir yüzey.
     `  #sahne { position: relative; width: ${toplam}px; height: ${doc.yukseklik}px;`,
     `           transform: translateX(0px);`,
+    ...(doc.zeminDokusu === undefined
+      ? []
+      : [
+          `           background: ${zeminCss(doc.zeminDokusu)};`,
+          `           background-blend-mode: ${zeminKarisimi(doc.zeminDokusu)};`,
+        ]),
     `           --pano-metin: ${panoRenkleri.metin}; --pano-aksan: ${panoRenkleri.aksan}; }`,
     // ── tipografi reçetesi: değişkenler ÖNCE, kullanımlar sonra ───────────────
     `  #sahne { --baslik-wdth: ${t.baslikGenislik}; --baslik-wght: ${t.baslikAgirlik};`,
