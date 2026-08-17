@@ -104,6 +104,9 @@ hiçbiri. Kapı reddeder. → D-34
 - **Kanıtsız "bitti" yok.** Doğrulama komutunu çalıştır, gerçek çıktıyı göster.
 - **Yeşil test bir şey kanıtlamaz.** Bir kapının çalıştığını görmek için onu
   **kasten ihlal et** ve kırmızıya döndüğünü gör.
+- **Tur içinde nokta atışı test, kapanışta tam paket.** Adım boyunca yalnız o adımın
+  test dosyası; tam paket + `just check` kapanışta bir kez. → R-79
+- **Ölçmeden hızlandırma yok.** "Şu yavaş" demeden önce süre al. → R-78
 - **Bir turda bir adım.** Bitmiyorsa adım değil, alt-fazdır — böl.
 - **Sessiz düzeltme yok.** Bir kural yanlışsa `KURALLAR.md`'de değiştir, koda
   farklı yazma.

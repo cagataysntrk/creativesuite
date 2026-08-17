@@ -512,3 +512,36 @@ EKLENMEDİ; zincir kendiliğinden sönüyor. *"Her ihtimale karşı bir görsel 
 hem marka tutarlılığı kaybıydı.
 
 **Geri alma maliyeti:** düşük — `gorsel_yuvasi: true` hat kısıtı bugünkü davranışı koruyor.
+
+## D-265 — Yavaşlığın nedeni tahmin edildi; ölçüm tahmini çürüttü
+
+**Tarih:** 2026-08-17 · **Bağlam:** R-78 · R-79 · R-80
+
+Önce tahminle cevap verildi: *"her adım 1500 testi birkaç kez koşuyor, kazanç testleri
+daraltmakta."* Ölçüldü, tahmin çürüdü:
+
+| Ölçülen | Sonuç |
+|---|---|
+| `vitest run` (1511 test) | **11.0 sn** — darboğaz değil |
+| `just check` | **40 sn** duvar / 115 sn CPU · 43 kapının 42'si `fast` |
+| En pahalı beş kapı | tests 11.5 · format 8.7 · lint 7.0 · cli-duman 5.2 · types 4.3 |
+| Commit başına üretim kodu | 310 → 266 → **86** satır (15 → 16 → 17 Ağustos) |
+
+Tahmin uygulansaydı en ucuz koruma (11 sn) kesilir, gerçek maliyet yerinde kalırdı.
+Tur sayısı düşmemişti (101 · 107 · 70 commit) — düşen **turun kod içeriğiydi**.
+Zaman adım başına ~6 tam doğrulama turuna gidiyordu; R-79 bunu ~1.5'e indiriyor.
+
+**Ölçümün yan bulgusu:** `vitest run` tek başına çıkış kodu 1 verdi ("Worker exited
+unexpectedly", 1511 testin 161'i hiç koşmadı), aynı paket `just check` içinde yeşil
+geçti. Test kapısı bugün bazen 1350 bazen 1511 test koşuyor ve ikisinde de yeşil
+raporlayabiliyor — hem yeniden koşum (hız) hem yalan yeşil (güvenlik). → R-80
+
+**Kesilmeyecekler — bilerek.** Gerçek uçtan uca koşular (~300 sn), ihlal turu (R-71) ve
+çıktıya gözle bakmak. FAZ-14'ün dört kusurundan üçü metrikler yeşilken, yalnız gerçek
+çıktıya bakınca çıktı.
+
+⚠ **Asıl gecikme kurallar değildi.** Bu turdaki üç büyük kayıp, üç kez öncülün yanlış
+çıkmasıydı (D-264 · D-259 · D-260). Çaresi daha az doğrulama değil, baştan daha dikkatli
+düşünmek. R-78…R-80 tekrarı kesiyor, düşünmeyi değil.
+
+**Geri alma maliyeti:** sıfır — hiçbir kapı gevşetilmedi, hiçbir test silinmedi.

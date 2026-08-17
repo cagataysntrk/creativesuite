@@ -25,9 +25,11 @@ Her adım **kendi commit'ini** alır — ama commit turu bitirmez (D-52).
              KURALLAR.md'de ilgili R kuralını doğrula
 2. KOD OKU   İlgili mevcut kodu oku — tekrar yazma, yeniden kullan
 3. GELİŞTİR  Kurallara uyarak. Küçük, tam, test edilebilir parça
-4. DOĞRULA   Nokta atışı test. ⛔ Uzun/kapsamlı test turda YAPILMAZ
+4. DOĞRULA   `just test <o adımın dosyası>` — saniyeler. Ara turlarda `tsc -b` yeter.
+             ⛔ Tam paket ve `just check` adım İÇİNDE koşmaz (R-79)
+             İhlal turu (R-71) kalır — ama yalnız o kapının testi koşar
 5. KABUL     Faz dosyasındaki ✅ kriterini kontrol et. Karşılanmadıysa adım BİTMEZ
-6. KAYDET    Faz dosyasında tikle + tarih → DURUM.md güncelle → commit
+6. KAYDET    Kapanışta BİR KEZ tam paket + `just check` → tikle → DURUM.md → commit
 6b. DEVAM   Doğal durak gelmediyse bir sonraki adıma geç — commit'te durma
 7. PLANLA    ScheduleWakeup(≤70s) + kaldığın yeri ilan et
 ```

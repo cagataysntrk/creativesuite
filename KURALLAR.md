@@ -324,3 +324,23 @@ kabuk seviyesindeki kardeşidir. → D-58
 ### R-75 · bagimlilik-son-care · CONVENTION · aktif
 40 satır yazmak bir bağımlılıktan iyidir. Bağımlılıklar tam sürüme sabitlenir
 (`save-exact`), lisansı kontrol edilir.
+
+### R-78 · olcmeden-hizlandirma-yok · CONVENTION · aktif
+"Yavaş" denen hiçbir şey ölçülmeden kısaltılmaz. Önce süre alınır, **en pahalı** kalem
+kesilir — akla ilk gelen değil.
+**Neden:** yavaşlığın kaynağı "1511 test" sanıldı; ölçüldü, tüm paket **11 sn**.
+Tahminle kesmek en ucuz korumayı keser, pahalısı yerinde kalır. → D-265
+
+### R-79 · tur-ici-test-nokta-atisi · CONVENTION · aktif
+Adım boyunca yalnız o adımın test dosyası koşar (`just test <yol>`, saniyeler). Tam
+paket ve `just check` **adım kapanışında bir kez**. İhlal turu (R-71) kalır ama kanıt
+için yalnız o kapının testi koşar.
+**Neden:** adım başına ~6 tam turdan ~1.5'e. Kaybedilen tek şey başka bir yeri kırdığını
+geç öğrenmek; kapanış turu onu yine yakalar. → D-265
+
+### R-80 · kirilgan-kapi-yesil-sayilmaz · CONVENTION · aktif
+Aynı girdiye iki farklı cevap veren kapı yeşil değil **kırmızıdır**. Yeniden koşturup
+yeşilini beklemek yasak.
+**Neden:** `vitest run` tek başına çıkış kodu 1 verdi ("Worker exited unexpectedly",
+1511 testin **161'i hiç koşmadı**), aynı paket `just check` içinde yeşil geçti. R-71'in
+ikizi: yeşil kapı hiçbir şey kanıtlamaz, **kararsız** kapı daha azını. → D-265
