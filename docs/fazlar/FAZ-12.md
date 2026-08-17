@@ -10,13 +10,12 @@ ve kurulumsuz duruyor.
 veri ögesiyle **profesyonel ajans işi** görünümünde çıkabiliyor; 20 ardışık kabul koşusu
 bu dille geçiyor.
 
-> **Tam envanter:** `docs/research/10-arac-envanteri--kurulacaklar-lisanslar-ve-tuzaklar.md`
-> ve `docs/referans/yetenek-envanteri.md`. Bu faz o envanterin ⛔/🟡 satırlarını kapatıyor.
+> **Tam envanter:** `docs/referans/yetenek-envanteri.md` ·
+> `docs/research/10-arac-envanteri...`. Bu faz o envanterin ⛔/🟡 satırlarını kapatıyor.
 >
 > ⚠ **İki lisans tuzağı:** BRIA RMBG **CC BY-NC**, Potrace **GPL** — ikisi de giremez.
->
-> ⚠ **Canvas'a metin çizilmez.** ECharts/Chart.js bu yüzden reddedildi: metin raster olduğu
-> an `notdef` sayımı ve Türkçe kapıları KÖR olur — R-20'nin veri görselleştirmedeki karşılığı.
+> ⚠ **Canvas'a metin çizilmez:** metin raster olduğu an `notdef` sayımı ve Türkçe kapıları
+> KÖR olur — R-20'nin veri görselleştirmedeki karşılığı (ECharts/Chart.js bu yüzden elendi).
 
 ---
 
@@ -26,28 +25,21 @@ bu dille geçiyor.
 🔗 —
 🛠 Photoshop katman stillerinin tamamının CSS/SVG karşılığı, **kapalı bir dağarcık** olarak:
 
-**Karşılıklar:** Stroke→`-webkit-text-stroke` · Shadow/Glow→`text-shadow` ·
-Gradient/Pattern Overlay→`background-clip: text` · Bevel→çift gölge · Knockout→
-`mix-blend-mode: difference` · Warp→SVG `textPath` · Değişken eksen→`font-variation-settings` ·
-OpenType→`font-feature-settings` · Vurgu şeridi→eğik `background`.
+**Karşılıklar:** Stroke→`-webkit-text-stroke` · Shadow/Glow→`text-shadow` · Overlay→
+`background-clip: text` · Knockout→`mix-blend-mode: difference` · Warp→SVG `textPath` ·
+OpenType→`font-feature-settings` · Vurgu şeridi→`background` degrade.
 
 📁 `packages/render/src/sablon-tipo.ts` + `sablon-tipo.test.ts` · `static.ts` ·
    `packages/engine/src/metin-akisi.ts`
 ✅ ⚠ **Efekt SLAYT ROLÜNE göre seçiliyor, serbestçe değil.** Photoshop'ta her efekt her
    metne uygulanabilir; bir MARKA sisteminde uygulanamaz. "Hepsi mümkün" ile "hepsi aynı
    anda" arasındaki fark, tasarım ile şablon arasındaki farktır.
-   ⚠ **R-20 KORUNUYOR:** hiçbir efekt metni görsele çevirmiyor. `background-clip: text`
-   bile canlı metin bırakır — glif ölçümü ve Türkçe kapıları çalışmaya devam eder.
-   ⚠ Kontrast (T4) her efektten SONRA ölçülür: degradeyle dolan başlık zeminle kontrastını
-   kaybedebilir ve o an okunmaz olur.
-   ⚠ ⚠ **BU AİLEDE ÜÇÜ KAPALI ve her birinin sebebi ayrı yazılı** — vinyette olduğu gibi
-   (D-262 ailesi), yetenek duruyor ve parametrik:
-   **degrade** kontrast metriği tek renk üstünden ölçüyor, en açık durak zeminle
-   kontrastını kaybedebilir ve ölçüm göremez; açılması ölçümün EN KÖTÜ durağı bulmasını
-   gerektirir — bir adım, bir CSS satırı değil.
-   **gölge** referans örneklerin dördünde de yok, bu ailenin dili düz.
-   **knockout** ise çözdüğü sorun bu ailede YOK: metin hiçbir zaman eğri sınırını geçmiyor
-   (`column_in_band` değişmezi zorluyor).
+   ⚠ **R-20 KORUNUYOR:** hiçbir efekt metni görsele çevirmiyor; `background-clip: text`
+   bile canlı metin bırakır. Kontrast (T4) her efektten SONRA ölçülür.
+   ⚠ ⚠ **BU AİLEDE ÜÇÜ KAPALI, sebepleri ayrı:** **degrade** — kontrast metriği tek renk
+   ölçüyor, en açık durak kontrastını kaybedebilir ve ölçüm göremez (açmak ölçümün EN KÖTÜ
+   durağı bulmasını ister). **gölge** — referansların dördü de düz. **knockout** — çözdüğü
+   sorun bu ailede YOK, metin eğri sınırını hiç geçmiyor (`column_in_band`).
    ⚠ **AÇIK OLAN İKİSİ ve neden onlar:** OpenType (`kern`/`liga`/`calt`; `dlig` kapalı —
    Türkçe'de `fi` bağı `fı` ile karışır) ve **vurgu şeridi**.
    ⚠ **Vurgu, karoselin en büyük tipografik eksiğiydi:** her satır aynı ağırlıkta
@@ -108,21 +100,34 @@ OpenType→`font-feature-settings` · Vurgu şeridi→eğik `background`.
    çağırmıyordu** — bu projede yedinci zincir kopukluğu (D-261).
 💾 `feat(render): turkce heceleme ve temel izgara` · `Refs: FAZ-12.3 · §7.2`
 
-## 12.4 — Panoramik süreklilik: karosel TEK şey görünsün    [ ]
+## 12.4 — Panoramik süreklilik: karosel TEK şey görünsün    [x] 2026-08-17
 
 📖 §7.1 · D-254
 🔗 12.2
 🛠 Referans örnek 2'nin taşıyıcı dili: bir öge slaytlar arasında **akıyor** — eğri devam
    ediyor, renk alanı kayıyor, bir şekil kareyi terk edip diğerinde beliriyor. Karoselin
    "tek şey" görünmesini sağlayan en güçlü teknik. Şu an her slayt bağımsız çiziliyor.
-📁 `packages/render/src/sablon-panorama.ts`
+📁 `packages/render/src/sablon-susleme.ts` · `packages/contracts/src/aile.ts`
 ✅ ⚠ **Süreklilik SLAYT SIRASINA bağlı, içeriğe değil.** `k.index / k.total` ile faz
    hesaplanır; içerikten türerse bir cümle değiştiğinde tüm karosel kayar.
    ⚠ **Instagram slaytları BİTİŞİK GÖRÜNMEZ** — aralarında boşluk ve kaydırma var. Yani
    piksel-mükemmel devam DEĞİL, **ima edilen devam** hedefleniyor: eğrinin çıkış açısı
    sonrakinin giriş açısıyla uyumlu. Gerçek bitişiklik varsayımı yanlış çıktı verir.
    ⚠ Kapak ve kapanış **çapa**: ikisi de tam kompozisyon, akışın ucu değil.
-🧪 Slayt sırasını karıştır → süreklilik testi kırmızı (faz artık monoton değil).
+   ⚠ ⚠ **AKAN ŞEY ZEMİN DEĞİL SÜSLEME.** Eğrinin dolgu tarafı her slaytta yer değiştiriyor
+   (ritim bilerek böyle); zeminin monoton akması bu aileyle ÇELİŞİR.
+   ⚠ **İlk deneme okumadı, ikincide öncül sorgulandı.** Kenarda yarım halka: matematik
+   doğruydu (N'nin sağı y=45, N+1'in solu y=45) ama BAKINCA birleşmiyordu — aradaki boşlukta
+   ikiye bölünen daire iki yarım daire gibi duruyor. Göz devamı **şekli tamamlayarak değil
+   YÖNÜ izleyerek** kuruyor; yön veren `yay` eklendi (dağarcığın altıncısı — bir karar).
+   ⚠ **Kapak VE kapanış çapa:** ilk sürümde kapanış yay alıyordu, yani son slayt olmayan
+   bir sonrakine işaret ediyordu. Navigasyon orada zaten `‹‹ başa` diyor.
+   ⚠ ⚠ **ÜÇÜNCÜ KAPALI YETENEK İKİNCİ AİLEYİ DOĞURDU.** Panorama `temel`de kapalı (o
+   ailenin dili düz), tıpkı vinyet ve degrade gibi. Üç kapalı yetenek biriktiğinde ortaya
+   çıkan şey eksik bir aile değil, İKİNCİ bir ailedir: `AKICI_AILE` (referans örnek 1'in
+   karşılığı) panoramayı, yoğun süslemeyi ve farklı ritmi birlikte kullanıyor.
+🧪 6 test: yön ögesi · kapanış çapa · `temel`de kapalı · `akici`de açık · garanti katmanı
+   iki ailede de YOK · geçiş yüksekliği deterministik.
 💾 `feat(render): panoramik sureklilik` · `Refs: FAZ-12.4 · §7.1`
 
 ## 12.5 — Veri görselleştirme: karşılaştırma (sayı istemeyen tek öge)    [x] 2026-08-17
@@ -181,18 +186,13 @@ OpenType→`font-feature-settings` · Vurgu şeridi→eğik `background`.
    ⚠ Aile seçimi İÇERİKTEN: veri yoğun konu → veri ailesi; anlatı → tipografik aile.
    Rastgele seçilirse golden test kurulamaz.
    ⚠ ⚠ **ZORLAMA BİR DENETİM DEĞİL, YOKLUK.** `AileProfili`de `guvenliAlan`,
-   `kontrastEsigi`, `chromaTavani`, `kelimeButcesi` ALANLARI YOK. Denetlenecek alan yoksa
-   gevşetilecek kural da yok — en ucuz zorlama budur ve testi bunu doğruluyor.
-   ⚠ **Aile parametreleri BELGEYE giriyor ve render onları PLANDAN okuyor.** Süsleme
-   yoğunluğu bugüne kadar `sablon-susleme.ts`te SABİTTİ ve plan da 0.25 diyordu: ikisi
-   TESADÜFEN aynıydı. Kelime tavanının prompt ile ölçümde ayrı yaşamasıyla aynı hata —
-   biri değişse öbürü sessizce eski kalırdı. Artık tek kaynak.
+   `kontrastEsigi`, `chromaTavani`, `kelimeButcesi` ALANLARI YOK — denetlenecek alan yoksa
+   gevşetilecek kural da yok. En ucuz zorlama budur.
+   ⚠ **Parametreler BELGEYE giriyor, render PLANDAN okuyor.** Süsleme yoğunluğu render'da
+   SABİTTİ ve plan da 0.25 diyordu: ikisi TESADÜFEN aynıydı — kelime tavanıyla aynı hata.
    ⚠ **Değerler uydurulmadı:** vinyet 0 (0.1'de amber alan 215→229 arası değişiyordu),
    degrade kapalı (aynı ölçüm), süsleme 0.25 (yoğun tarama kâğıt alanda kalabalıktı),
    tipo efektleri yalnız `vurgu`+`kontur` (referansların dördü de düz tipografi).
-   ⚠ **Kayıtta TEK aile var ve bu dürüst hâl:** ikinci aileyi bir referans talep etmeden
-   yazmak, kullanıcısı olmayan çeşitlilik üretmek olurdu. `docs/referans/ornekler/` beş
-   ayrı aile gösteriyor; ikincisi FAZ-13'ten sonra ölçülerek açılır.
 🧪 6 test: garanti alanları ailede YOK · yalnız estetik alanlar · ölçülen değerler ·
    kapalı efektler açık değil · geçersiz aralık yakalanıyor · aile VERİ.
 💾 `feat(render): kompozisyon ailesi` · `Refs: FAZ-12.7 · §7.1`

@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 11
-siradaki_adim: 12.4
+siradaki_adim: 12.6
 son_guncelleme: 2026-08-17
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -55,6 +55,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **14.2** · tasarım planı gerekçeli, deftere adım çıktısı olarak giriyor | 2026-08-17 |
 | **14.3** · taban önce model sonra; görsel üretimi KOŞULLU (D-264) | 2026-08-17 |
 | **14.4** · plan↔çıktı uyumu; üç katman ayrı, slayt digest'i defterde | 2026-08-17 |
+| **12.4** · panorama: akan şey zemin değil süsleme; İKİNCİ aile doğdu | 2026-08-17 |
 | **12.7** · kompozisyon ailesi; garanti ailede YOK, zorlama yoklukla | 2026-08-17 |
 | **12.5** · karşılaştırma bloğu; halka/KPI/ilerleme R-32 arkasında | 2026-08-17 |
 | **12.1** · tipografi efektleri; vurgu şeridi — slayt içi hiyerarşi | 2026-08-17 |

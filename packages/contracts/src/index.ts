@@ -41,7 +41,7 @@ export type {
 export { OGE_POLITIKALARI, planGecerli, planKusurlari } from './tasarim-plani.js'
 
 export type { AileKimligi, AileProfili, AileKusuru } from './aile.js'
-export { AILELER, TEMEL_AILE, aileBul, aileKusurlari } from './aile.js'
+export { AILELER, TEMEL_AILE, AKICI_AILE, aileBul, aileKusurlari } from './aile.js'
 export {
   ISLEVLER,
   VARSAYILAN_RITIM,

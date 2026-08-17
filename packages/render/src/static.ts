@@ -462,7 +462,7 @@ const sablonKatmanlari = (doc: DocumentModel): string => {
   // Süslemeler AYRI bir SVG katmanında ve `preserveAspectRatio` YOK: alan katmanı
   // `none` ile geriliyor (dolgu tuvali kaplamalı), ama gerilmiş bir daire elips olur.
   // Aynı viewBox'a koymak, beş ögenin de ezilmesi demekti.
-  const sus = suslemeler(k, sagda, doc.aile?.suslemeYogunlugu)
+  const sus = suslemeler(k, sagda, doc.aile?.suslemeYogunlugu, doc.aile?.panorama)
   return [
     `<div class="alan"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">`,
     `<path d="${kapali}" fill="${r.karsiAlan}"/></svg></div>`,

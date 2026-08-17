@@ -117,6 +117,8 @@ export interface AileParametreleri {
   readonly suslemeYogunlugu: number
   readonly vinyetGucu: number
   readonly degrade: boolean
+  /** Panoramik süreklilik açık mı (FAZ-12.4). */
+  readonly panorama: boolean
 }
 
 export interface CompareBlock {

@@ -399,6 +399,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
         suslemeYogunlugu: plan.suslemeYogunlugu.deger,
         vinyetGucu: aileProfili.vinyetGucu,
         degrade: aileProfili.degrade,
+        panorama: plan.panorama.deger,
       },
       blocks,
     }

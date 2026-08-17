@@ -16,8 +16,18 @@
 import type { SlaytKimligi } from '@suite/kernel'
 import { SINIR_MAX } from './sablon.js'
 
-/** Kapalı dağarcık. Altıncı öge bir KARAR ister, bir `case` değil. */
-export const SUSLEME_TIPLERI = ['blob', 'nokta', 'tarama', 'halka', 'kare'] as const
+/**
+ * Kapalı dağarcık. Altıncı öge bir KARAR ister, bir `case` değil — ve `yay` o karardır.
+ *
+ * ⚠ **Neden gerekti:** panoramik geçiş YÖN isteyen bir şekle ihtiyaç duyuyor. İlk beş
+ * ögenin hiçbiri yön taşımıyor (blob, nokta ızgarası, taralı daire, halka, kare — hepsi
+ * simetrik). İlk deneme kenarda YARIM bir halkaydı ve bakınca okumadı: slaytlar arasında
+ * boşluk var, ikiye bölünen daire tek şekil olarak birleşmiyor. Yön, gözün devamı
+ * ŞEKLİ TAMAMLAYARAK değil YÖNÜ İZLEYEREK kurmasını sağlıyor.
+ * ⚠ Yan etki bilinçli: `faz = index % 6` olduğu için süsleme dönüşümü de değişti —
+ * altı ögelik bir dizide altı slayt sonra başa dönüyor.
+ */
+export const SUSLEME_TIPLERI = ['blob', 'nokta', 'tarama', 'halka', 'kare', 'yay'] as const
 export type SuslemeTipi = (typeof SUSLEME_TIPLERI)[number]
 
 export interface Susleme {
@@ -49,10 +59,28 @@ export const YOGUNLUK_YOGUN = 0.9
  * Seçim ve konum indeksten TÜRETİLİYOR. Rastgele olsaydı iki koşu iki farklı çıktı verir
  * ve golden test kurulamazdı; sabit olsaydı beş kare beş kopya olurdu.
  */
+/**
+ * Panoramik geçiş yüksekliği — slaytlar arası SÜREKLİLİĞİN taşıyıcısı (FAZ-12.4).
+ *
+ * ⚠ **Akan şey ZEMİN değil SÜSLEME.** Eğrinin dolgu tarafı her slaytta yer değiştiriyor
+ * (`egriSagda`, ritim bilerek böyle) — yani zeminin monoton akması bu aileyle ÇELİŞİR.
+ * Referans örnek 1'de de akan şey zemin değil, kareler arasında devam eden bir çizim.
+ *
+ * ⚠ **Kurgu yan yana duran slaytlara göre:** slayt N'nin SAĞ kenarında `h(N)` yüksekliğinde
+ * yarım bir öge, slayt N+1'in SOL kenarında AYNI `h(N)` yüksekliğinde diğer yarısı. Göz
+ * ikisini tek şekil olarak birleştiriyor.
+ *
+ * ⚠ **İma edilen devam, piksel-mükemmel devam DEĞİL:** Instagram slaytları bitişik
+ * görünmez, aralarında boşluk ve kaydırma var. Gerçek bitişiklik varsayımı yanlış çıktı
+ * verirdi; eşleşen YÜKSEKLİK yeter.
+ */
+export const gecisYuksekligi = (index: number): number => 28 + ((index * 17) % 44)
+
 export const suslemeler = (
   k: SlaytKimligi,
   sagda: boolean,
-  yogunluk: number = YOGUNLUK_SEYREK
+  yogunluk: number = YOGUNLUK_SEYREK,
+  panorama = false
 ): readonly Susleme[] => {
   // Kapak SÜSSÜZ: ızgarada ilk kare bir cümledir, bir desen değil. Referansların
   // hepsinde kapak en sade karedir.
@@ -85,6 +113,26 @@ export const suslemeler = (
             y: 44,
             boyut: 7,
             opaklik: 0.38,
+            yogunluk,
+          },
+        ]
+      : []),
+    // ── panoramik geçiş: kenardan çıkan, sonrakinde devam eden yarım öge ─────
+    //
+    // ⚠ Kapak ve kapanış ÇAPA olduğu için buraya hiç gelmiyor (yukarıda dönülüyor):
+    // ikisi de tam kompozisyon, akışın ucu değil.
+    // ⚠ Merkez tam `100` / `0`: ögenin yarısı tuvalin dışında kalıp kırpılıyor —
+    // yarım görünen bir şekil, gözün tamamlamaya çalıştığı şeydir.
+    // ⚠ **KAPANIŞ da ÇAPA:** ilk sürümde yay alıyordu ve son slayt bir sonrakine işaret
+    // ediyordu — olmayan bir slayta. Navigasyon işareti orada zaten `‹‹ başa` diyor.
+    ...(panorama && k.role === 'govde'
+      ? [
+          {
+            tip: 'yay' as const,
+            x: 94,
+            y: gecisYuksekligi(k.index),
+            boyut: 18,
+            opaklik: 0.42,
             yogunluk,
           },
         ]
@@ -143,5 +191,15 @@ export const suslemeSvg = (s: Susleme, renk: string): string => {
       return `<circle ${o} cx="${s.x}" cy="${s.y}" r="${r}" fill="none" stroke="${renk}" stroke-width="${s.boyut / 14}"/>`
     case 'kare':
       return `<rect ${o} x="${s.x - r}" y="${s.y - r}" width="${s.boyut}" height="${s.boyut}" fill="${renk}"/>`
+    case 'yay':
+      // ⚠ **YÖN gösteren yay — panoramanın taşıyıcısı.** İlk deneme kenarda YARIM bir
+      // halkaydı; bakınca okumadı: slaytlar arasında boşluk var ve ikiye bölünen bir
+      // daire tek şekil olarak birleşmiyor, iki yarım daire gibi duruyor. Referans
+      // örnek 1'de akan şey bölünmüş bir şekil DEĞİL, yön gösteren bir çizim — göz
+      // devamı şekli tamamlayarak değil, YÖNÜ izleyerek kuruyor.
+      return (
+        `<path ${o} d="M ${s.x - r} ${s.y - r} Q ${s.x + r} ${s.y}, ${s.x - r} ${s.y + r}" ` +
+        `fill="none" stroke="${renk}" stroke-width="${s.boyut / 9}" stroke-linecap="round"/>`
+      )
   }
 }

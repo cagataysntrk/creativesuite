@@ -71,7 +71,30 @@ export const TEMEL_AILE: AileProfili = {
  * yazmak, kullanıcısı olmayan çeşitlilik üretmek olurdu. `docs/referans/ornekler/`
  * beş ayrı aile gösteriyor; ikincisi (editoryal, örnek 4) FAZ-13'ten sonra ölçülerek açılır.
  */
-export const AILELER: readonly AileProfili[] = [TEMEL_AILE]
+/**
+ * Akıcı aile — referans örnek 1'in dili: yön veren çizim slaytlar arasında akıyor.
+ *
+ * ⚠ **Bu aile bir KANITTAN doğdu, bir istekten değil.** Panorama, degrade ve yoğun
+ * süsleme üç ayrı adımda uygulandı ve üçü de `temel` ailede BAKARAK kapatıldı — çünkü
+ * o ailenin alanı düz ve düzlüğü tasarımın kendisi. Üç "kapalı yetenek" biriktiğinde
+ * ortaya çıkan şey eksik bir aile değil, İKİNCİ bir ailedir. `docs/referans/ornekler/`
+ * beşini birden gösteriyor; bu, ornek-1'in karşılığı.
+ *
+ * ⚠ Garanti katmanı burada da yok: aile yalnız estetik seçiyor.
+ */
+export const AKICI_AILE: AileProfili = {
+  id: 'akici',
+  ad: 'Akıcı — yön veren çizim slaytlar arasında akıyor',
+  suslemeYogunlugu: 0.55,
+  vinyetGucu: 0,
+  degrade: false,
+  yuvaBicimi: 'alan',
+  panorama: true,
+  ritim: { gerilim: 0.75, donus: 0.55 },
+  tipoEfektleri: ['vurgu', 'kontur'],
+}
+
+export const AILELER: readonly AileProfili[] = [TEMEL_AILE, AKICI_AILE]
 
 export const aileBul = (id: AileKimligi): AileProfili | null =>
   AILELER.find((a) => a.id === id) ?? null

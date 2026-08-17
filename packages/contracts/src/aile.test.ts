@@ -1,7 +1,14 @@
 // Kompozisyon ailesi: kapalı GARANTİ, açık AİLE (§7.1 · FAZ-12.7).
 
 import { describe, expect, it } from 'vitest'
-import { AILELER, TEMEL_AILE, aileBul, aileKusurlari, type AileProfili } from './aile.js'
+import {
+  AILELER,
+  AKICI_AILE,
+  TEMEL_AILE,
+  aileBul,
+  aileKusurlari,
+  type AileProfili,
+} from './aile.js'
 
 describe('kompozisyon ailesi', () => {
   it('GARANTİ alanları ailede YOK — gevşetilecek şey yok', () => {
@@ -57,6 +64,26 @@ describe('kompozisyon ailesi', () => {
   it('aile VERİ — kayıttan bulunuyor', () => {
     expect(aileBul('temel')).toBe(TEMEL_AILE)
     expect(aileBul('yok')).toBeNull()
-    expect(AILELER).toHaveLength(1) // ikinci aile bir referans talep edince açılır
+    expect(AILELER.length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+describe('akıcı aile — ikinci aile', () => {
+  it('KANITTAN doğdu: `temel`de kapatılan üç yeteneği kullanıyor', () => {
+    // Panorama, yoğun süsleme ve farklı ritim `temel`de bakarak kapatılmıştı. Üç kapalı
+    // yetenek biriktiğinde ortaya çıkan şey eksik bir aile değil, İKİNCİ bir ailedir.
+    expect(AKICI_AILE.panorama).toBe(true)
+    expect(TEMEL_AILE.panorama).toBe(false)
+    expect(AKICI_AILE.suslemeYogunlugu).toBeGreaterThan(TEMEL_AILE.suslemeYogunlugu)
+  })
+
+  it('garanti katmanı burada da YOK', () => {
+    expect(Object.keys(AKICI_AILE).sort()).toEqual(Object.keys(TEMEL_AILE).sort())
+  })
+
+  it('iki aile de geçerli ve kayıtta', () => {
+    expect(aileKusurlari(AKICI_AILE)).toEqual([])
+    expect(AILELER).toHaveLength(2)
+    expect(aileBul('akici')).toBe(AKICI_AILE)
   })
 })
