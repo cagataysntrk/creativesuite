@@ -72,27 +72,25 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 ## Sıradaki adım
 
-**FAZ-12 ve FAZ-13'ün ADIMLARI bitti — ama FAZ-12'nin ÇIKIŞ KRİTERİ açık.** Kabul sayacı
-**0/20**. "Adımlar tikli" ile "faz kapandı" ayrı şeyler; bağımsız doğrulama bunu blokaj
-olarak buldu ve haklıydı. FAZ-13'ün üç çıkış kriteri gösterildi.
+**FAZ-13 KAPANDI** (13.3 `bloke: karar`, tetikleyicili — D-267). Üç çıkış kriteri de
+gösterildi. **FAZ-12'nin adımları bitti ama ÇIKIŞ KRİTERİ AÇIK: kabul sayacı 0/20.**
+"Adımlar tikli" ile "faz kapandı" ayrı şeyler.
 
-**LOOP§D 1. TUR: altı blokaj + on bir ikincil bulgu, hepsi kapatıldı.** En ağır üçü:
-1. **`just verify` KIRMIZIYDI** — 12.10 ihlal bataryasının çapasını kendi kırmıştı
-   (üçüncü kez). Çapa artık davranışa bağlı; 23 ihlal kırmızı, `verify` rc=0.
-2. **`AKICI_AILE` üretimde ERİŞİLEMEZDİ** — `bodies.ts` `TEMEL_AILE` sabitini yazıyordu,
-   `g.aile`'yi kimse doldurmuyordu. Yani panorama (12.4) ve degrade (12.9) hiçbir koşuda
-   basılmadı: teslimatın tamamı ölü koddu. `aileSec` içerikten seçiyor — kanıt varsa
-   `temel`, saf anlatıysa `akici`.
-3. **İki metrik kendi kendini ölçüyordu** — `ghost_overlap` her girdide 0, `spacing_offscale`
-   her girdide sabit. İkisi de artefakttan ölçülüyor. Boşluk ölçütü de yanlıştı: Fibonacci
-   ölçeğini BEN uydurdum, tasarım §12.3'ün 4 px tabanını kullanıyor.
+**LOOP§D iki tur da koşuldu (tavan doldu, D-79).** Toplam dokuz blokaj + on beş ikincil
+bulgu kapatıldı. İkinci turun en ağırı: blokaj 3'ü kod katmanında kapatmıştım, **hat
+yapılandırmasında açık kalmıştı** — `gorsel_yuvasi: true` sabiti ölçütü boğuyor, her konu
+`temel` çıkıyordu. Ölçüt artık NE ÇİZİLDİĞİNE bakıyor, ne istendiğine değil.
 
-**Ders değişmedi:** ölçüm aracı ölçtüğü şeyden daha sık bozuk — bu turda dört kez daha
-(batarya çapası · `ghost_overlap` · `spacing_offscale` · uydurma Fibonacci ölçeği).
+**Kanıt koşusu:** `plan.aile=akici` · `panorama=true` · `degrade=true` — **12.4 ve 12.9
+ilk kez gerçek bir koşuda basıldı.** `tasarim-yargi` puanları deftere girdi (3,67/5).
 
-⚠ **LOOP§D 2. TUR kaldı** (tavan iki, D-79). Sonra FAZ 9 denetim turları.
-⚠ **`design.critique` HATTA KOŞTU** (iki koşu, `status=ok`); hat insan onay kapısında durdu.
-⚠ KARARLAR.md 572/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
+**Ders değişmedi:** ölçüm aracı ölçtüğü şeyden daha sık bozuk (bu oturumda yedi kez).
+Ve **metrik yeşilken çıktı kırık olabilir**: son iki kusuru 42 kapı + 1613 test yeşilken
+yalnız çıktıya BAKMAK yakaladı — hayalet rakamın konturu ve vurgu şeridi.
+
+⚠ **SIRADAKİ: FAZ 9 denetim turları** (`9.1`). `docs/fazlar/FAZ-9.md`.
+⚠ **Kabul sayacı 0/20** — FAZ-12'nin kapanması buna bağlı (`docs/referans/kabul-20.md`).
+⚠ KARARLAR.md 595/600 — kapanmış kararlar `docs/kararlar/ARSIV-2026.md`'ye devredilmeli.
 
 ## Devreden borçlar
 
