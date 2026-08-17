@@ -559,3 +559,33 @@ ailesi) mikro ölçekteki hâli.
 bağlamın ölçüsü tüm bağlamlara uygulandı. İkisi de "yerelde doğru olanı global sanmak".
 
 **Geri alma maliyeti:** düşük — parametre varsayılanı bugünkü değer, davranış değişmiyor.
+
+## D-263 — Defter KANIT tutar, yük değil; JSON kanıttır, PNG teslimattır
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-14.1 · §3.5 · R-52 ↔ R-64
+
+Bekleyen çalıştırma defterlerini commit'lerken `repo-hygiene` kırmızıya döndü: bir
+`manifest.json` **580 KB** çıkmıştı. İki kural çakışıyor göründü — R-52 defterin
+commit'lenmesini, R-64 512 KB üstü izlenen dosya olmamasını zorunlu kılıyor.
+
+**Çakışma sahteydi, iki ayrı kökü vardı.**
+
+**(a) Manifest gömülü YÜK taşıyordu.** Ölçüldü: `output.document.fontCss` **414 KB** —
+gömülü marka fontu, her koşuda AYNI ve zaten `brand/<id>/fonts` altında izleniyor — ve bir
+görselin `src` data URI'si **385 KB**. Defterin işi byte'ı saklamak değil, *hangi byte
+olduğunu kanıtlamak*; digest bunu 64 karakterde yapıyor. `defterReplacer` 8 KB üstü her
+dizeyi `«elenmis sha256:… <n>B»` ile değiştiriyor. Eşik ölçülerek seçildi: en büyük gerçek
+kanıt alanı QA raporu 3,4 KB, `tokenCss` 2,6 KB — ikisi de korunuyor. Kazanç: 16 MB.
+
+**(b) Teslimat PNG'leri deftere karışmıştı.** Fotoğraflı bir slayt 792 KB. R-52'nin kendi
+gerekçesi *"maliyet ve sağlayıcı geçmişi başka hiçbir yerde yazmıyor"* diyor — yani defter
+PARA ve SAĞLAYICI geçmişidir, teslimat deposu değil. Teslimat byte'ı D-248'in içerik-adresli
+deposuna ait. Depo zaten 48 manifest'e karşı **yalnız 6** PNG izliyordu: PNG kuralın kendisi
+değil istisnasıydı; tutarsızlık lehine değil aleyhine karar verildi.
+
+⚠ **Kalan borç:** manifest slaytların YOLUNU ve boyutunu yazıyor ama **digest'ini yazmıyor**,
+yani işaretçi doğrulanabilir değil. Bu, bu kararın kapattığı değil AÇTIĞI bir eksiktir ve
+öyle kayda geçiyor. → FAZ-14.2 plan artefaktıyla birlikte kapanır.
+
+**Geri alma maliyeti:** düşük — eleme yalnız yazma anında, okuyan hiçbir tüketici elenen
+alanlara bakmıyor (`captions`, `fetchedAt`, `sourceRef`, `personalizationFields`).

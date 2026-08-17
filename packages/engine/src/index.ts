@@ -197,6 +197,7 @@ export {
   type WriteInput,
   type WriteResult,
   type CostVariance,
+  defterReplacer,
 } from './manifest-writer.js'
 
 export { runPipeline, formatRun, type RunInput, type RunReport } from './run.js'

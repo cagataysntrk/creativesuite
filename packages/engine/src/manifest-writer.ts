@@ -12,6 +12,7 @@
 // **Tahmini vs gerçek maliyet ikisi de yazılır.** Tahmin gerçekten KOPYALANMAZ (§8.3):
 // kopyalasaydık sapma raporu yapısal olarak sıfır çıkardı — yani hiç ölçmemekle aynı şey.
 
+import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import type { Money, RunId } from '@suite/contracts'
@@ -39,7 +40,44 @@ import {
 // değerler sessizce yuvarlanır ve maliyet defteri yanlış toplar; dize hiçbir şey
 // kaybetmez ve `git diff`te okunabilir kalır.
 
-const bigintDizeye = (_k: string, v: unknown): unknown => (typeof v === 'bigint' ? v.toString() : v)
+// ── gömülü yük elemesi ───────────────────────────────────────────────────────
+//
+// **Defter KANIT tutar, YÜK değil.** Ölçüldü: bir manifest içinde `output.document`
+// altında `fontCss` 414 KB (gömülü marka fontu, HER koşuda aynı ve zaten
+// `brand/<id>/fonts` altında izleniyor) ve bir görselin `src` data URI'si 385 KB.
+// Sonuç 580 KB'lık bir manifest — R-64'ün 512 KB tavanını aşıyor, yani **R-52
+// (defter commit'lenir) ile R-64 (büyük dosya git'e girmez) çakışıyordu.**
+//
+// Çakışma sahte: D-248 varlık byte'ının içerik-adresli depoya ait olduğunu zaten
+// söylüyor. Defterin işi byte'ı saklamak değil, **hangi byte olduğunu kanıtlamak.**
+// Digest bunu yapar ve 64 karakter tutar.
+//
+// ⚠ Eşik 8 KB: ölçülen gerçek alanların en büyüğü olan QA raporu 3,4 KB ve `tokenCss`
+// 2,6 KB — ikisi de KANIT ve korunuyor. Font ve görsel iki kat büyüklük ötede.
+// ⚠ Elenen alanları HİÇBİR tüketici okumuyor: manifest'i okuyan kod yalnız `captions`,
+// `fetchedAt`, `sourceRef`, `personalizationFields`, `productShots` gibi küçük skaler
+// alanlara bakıyor; `--devam` de konu kaydını okuyor. Canlı hattaki `rapor.outputs`
+// ayrı bir yol ve etkilenmiyor.
+/** Defterin taşıyabileceği en uzun tek dize. Üstü kanıt değil yüktür. */
+const EN_UZUN_DIZE = 8192
+
+const elenmis = (v: string): string =>
+  `«elenmis sha256:${createHash('sha256').update(v).digest('hex')} ${v.length}B»`
+
+/**
+ * Defterin `JSON.stringify` replacer'ı — `bigint` dizeye, gömülü yük digest'e.
+ *
+ * ⚠ **Dışa açık olması KASITLI.** Kural yazıldığında diskte zaten kuralsız yazılmış
+ * defterler vardı ve onlara aynı elemeyi uygulamak gerekti. Göç betiği kuralı yeniden
+ * yazsaydı iki uygulama olurdu ve biri değişince öbürü sessizce ayrışırdı — bu fazda
+ * tam olarak bu hatayla (kelime tavanının iki yerde yazılı olmasıyla) uğraşıldı.
+ */
+export const defterReplacer = (_k: string, v: unknown): unknown =>
+  typeof v === 'bigint'
+    ? v.toString()
+    : typeof v === 'string' && v.length > EN_UZUN_DIZE
+      ? elenmis(v)
+      : v
 
 /**
  * Okurken geri çevirir. Şekil tabanlı: `{ micros: <dize>, currency: <dize> }` bir
@@ -86,7 +124,7 @@ export const writeManifest = (input: WriteInput): WriteResult => {
   const rel = manifestPath(input.manifest.runId)
   const mutlak = join(input.repoRoot, rel)
   mkdirSync(dirname(mutlak), { recursive: true })
-  writeFileSync(mutlak, `${JSON.stringify(input.manifest, bigintDizeye, 2)}\n`)
+  writeFileSync(mutlak, `${JSON.stringify(input.manifest, defterReplacer, 2)}\n`)
   return { ok: true, path: rel }
 }
 
@@ -175,7 +213,7 @@ export const writeFrozenPlan = (
   const rel = frozenPlanPath(plan.runId)
   const mutlak = join(repoRoot, rel)
   mkdirSync(dirname(mutlak), { recursive: true })
-  writeFileSync(mutlak, `${JSON.stringify(plan, bigintDizeye, 2)}\n`)
+  writeFileSync(mutlak, `${JSON.stringify(plan, defterReplacer, 2)}\n`)
   return { ok: true, path: rel }
 }
 

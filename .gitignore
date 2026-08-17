@@ -63,3 +63,12 @@ motion/*/node_modules/
 # Kullanıcının ham referans bırakma klasörü. Küratörlü kopyalar
 # docs/referans/ornekler/ altında ve klonla geliyor.
 examples/
+
+# Defter JSON KANITIDIR, PNG TESLİMATTIR (D-263).
+# R-52 `derived/runs/` silinmesin diyor ve gerekçesi açık: *"maliyet ve sağlayıcı geçmişi
+# başka hiçbir yerde yazmıyor"* — yani defterin işi PARA ve SAĞLAYICI geçmişi, teslimat
+# byte'ı değil. Fotoğraflı bir slayt 792 KB çıkıyor ve R-64'ün 512 KB tavanını aşıyor;
+# iki kural çakışıyormuş gibi görünüyordu. Çakışma sahte: teslimat byte'ı D-248'in
+# içerik-adresli deposuna ait. Depo zaten 48 manifest'e karşı yalnız 6 PNG izliyordu —
+# PNG'ler kuralın kendisi değil, istisnasıydı.
+derived/runs/**/*.png

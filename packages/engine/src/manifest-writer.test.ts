@@ -215,3 +215,74 @@ describe('tahmini vs gerçek maliyet sapması', () => {
     expect(v.estimatedHigh.micros).toBe(100_000n)
   })
 })
+
+// ── Gömülü yük elemesi: R-52 ile R-64 çakışması (FAZ-14.1) ──────────────────
+//
+// Gerçek koşuda ölçüldü: manifest 580 KB çıktı ve R-64'ün 512 KB tavanını aştı — yani
+// defteri commit'lemek (R-52) ile büyük dosyayı git'e sokmamak (R-64) çakıştı.
+// Şişiren iki alan: `fontCss` 414 KB (her koşuda AYNI, zaten `brand/` altında izlenen
+// marka fontu) ve bir görselin `src` data URI'si 385 KB.
+//
+// ⚠ Test MODÜLÜ değil ÜRETİM YOLUNU sınıyor: `writeManifest` çağrılıyor ve dosya
+// diskten geri okunuyor. Bu fazda tam tersi hata üç kez yaşandı — modül yeşil, üretim
+// yolu hiç çağırmıyor (D-261).
+
+describe('defter KANIT tutar, yük değil', () => {
+  // Gerçek koşuda ölçülen iki alan: gömülü font 414 KB, görsel data URI 385 KB.
+  const FONT = `@font-face{src:url(data:font/woff2;base64,${'A'.repeat(414_000)})}`
+  const GORSEL = `data:image/jpeg;base64,${'C'.repeat(385_000)}`
+  const QA = 'B'.repeat(3_000)
+
+  const yukluManifest = (): RunManifest =>
+    manifest({
+      steps: [
+        adim({
+          output: {
+            document: { fontCss: FONT, tokenCss: QA, blocks: [{ type: 'image', src: GORSEL }] },
+          },
+        }),
+      ],
+    })
+
+  it('8 KB üstü dize DIGEST ile eleniyor, altı AYNEN kalıyor', () => {
+    const r = writeManifest({ repoRoot: tmp.path, manifest: yukluManifest() })
+    expect(r.ok).toBe(true)
+    const ham = readFileSync(join(tmp.path, manifestPath(RUN)), 'utf8')
+    // 400 KB'lık font gitmiş, yerinde digest var.
+    expect(ham).not.toContain('A'.repeat(200))
+    expect(ham).not.toContain('C'.repeat(200))
+    expect(ham).toContain('«elenmis sha256:')
+    expect(ham).toContain(`${FONT.length}B`)
+    // 3 KB'lık `tokenCss` KANIT ve korunuyor — eşik kanıtı yükten ayırıyor.
+    expect(ham).toContain('B'.repeat(200))
+  })
+
+  it('manifest R-64 tavanının ALTINDA kalıyor', () => {
+    // Elemesiz hâlde bu manifest ~800 KB olurdu — gerçek koşuda 580 KB ölçüldü ve
+    // `repo-hygiene` kapısını kırmızıya düşürdü. Eleme kaldırılırsa bu test kırmızı.
+    writeManifest({ repoRoot: tmp.path, manifest: yukluManifest() })
+    const boyut = readFileSync(join(tmp.path, manifestPath(RUN))).length
+    expect(boyut).toBeLessThan(512 * 1024)
+    expect(FONT.length + GORSEL.length).toBeGreaterThan(512 * 1024)
+  })
+
+  it('DIGEST içeriğe bağlı — hangi byte olduğu KANITLANABİLİYOR', () => {
+    const oku = (dolgu: string): string => {
+      writeManifest({
+        repoRoot: tmp.path,
+        manifest: manifest({ steps: [adim({ output: { x: dolgu.repeat(9_000) } })] }),
+      })
+      return readFileSync(join(tmp.path, manifestPath(RUN)), 'utf8')
+    }
+    const a = oku('A')
+    const b = oku('B')
+    expect(a).not.toBe(b)
+    expect(oku('A')).toBe(a) // deterministik
+  })
+
+  it('para HÂLÂ ondalık dize — bigint davranışı bozulmadı', () => {
+    writeManifest({ repoRoot: tmp.path, manifest: yukluManifest() })
+    const geri = readManifest(tmp.path, RUN)
+    expect(geri?.steps[0]?.estimatedCost.low.micros).toBe(25_000n)
+  })
+})
