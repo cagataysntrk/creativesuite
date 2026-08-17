@@ -148,6 +148,23 @@ export interface Kart {
   readonly zemin?: string
 }
 
+/**
+ * İki renk alanı, aralarında panoramayı kat eden eğri sınır.
+ *
+ * ⚠ ⚠ **REFERANSTA SINIR DİKEY, BURADA YATAY — ve bu bir öncül düzeltmesi.** `ornek-5`te
+ * her slaydın kendi dikey eğri sınırı var ve taraf slayttan slayta dönüyor: yani o tasarım
+ * SEAMLESS DEĞİL, slayt başına kurulmuş. Dikey sınırı panoramaya taşımak beş ayrı eğri
+ * demek olurdu ve kesim çizgisinde yine kırılırdı — "sürekliliği ima etme" hatasının aynısı.
+ * Sınır yataya çevrilince eğri gerçekten tek bir yol oluyor ve altı slaydı kat ediyor.
+ * Kimlik korunuyor (iki renk alanı + akan eğri), taşıyıcı geometri değişiyor.
+ */
+export interface AlanSiniri {
+  readonly ust: string
+  readonly alt: string
+  /** Sınır noktaları; x panorama yüzdesi, y tuval yüzdesi. */
+  readonly noktalar: readonly { readonly x: number; readonly y: number }[]
+}
+
 export interface PanoramaBelgesi {
   readonly slaytGenisligi: number
   readonly yukseklik: number
@@ -157,6 +174,23 @@ export interface PanoramaBelgesi {
   readonly gorseller: readonly PanoramaGorseli[]
   /** Belgenin varsayılan zemini — kart kendi zeminini vermezse bu geçerli. */
   readonly zemin: string
+  /** İki alanlı zemin — verilirse kartlar kendi zeminlerini BOYAMIYOR. */
+  readonly alanSiniri?: AlanSiniri
+  /**
+   * Panoramaya serpilen geometrik lekeler — `memphis` şablonunun KİMLİĞİ.
+   *
+   * ⚠ ⚠ **Slayt render'ındaki süsleme dağarcığı buraya taşınamadı ve sebebi yapısal:**
+   * orada konum "dolgu tarafının ortası"na göre hesaplanıyor ve panoramada dolgu tarafı
+   * diye bir şey yok. Burada konum doğrudan PANORAMA yüzdesi — bir leke kesim çizgisinin
+   * üstüne oturabiliyor, ki `ornek-3`ün ritmini kuran şey tam olarak bu serpilme.
+   */
+  readonly lekeler?: readonly {
+    readonly tip: 'daire' | 'halka' | 'kare' | 'nokta' | 'tarama'
+    readonly x: number
+    readonly y: number
+    readonly boyut: number
+    readonly renk: string
+  }[]
   readonly tokenCss: string
   readonly fontCss?: string
   readonly stamp: AssetStamp
@@ -336,6 +370,26 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
   )
 }
 
+/**
+ * Noktalardan yumuşak yol — kuadratik zincir.
+ *
+ * ⚠ Eğri veri noktalarının TAM ÜSTÜNDEN geçmiyor; komşu orta noktalardan geçiyor ve veri
+ * noktaları kontrol noktası oluyor. Bu, uydurma yapmadan yumuşatmanın standart yolu:
+ * şekil noktaların tarif ettiği yönü izliyor, aralarına nokta EKLENMİYOR.
+ */
+const yumusakYol = (n: readonly { readonly x: number; readonly y: number }[]): string => {
+  if (n.length < 2) return ''
+  const ilk = n[0] as { x: number; y: number }
+  let d = `M ${ilk.x} ${ilk.y}`
+  for (let i = 1; i < n.length - 1; i += 1) {
+    const p = n[i] as { x: number; y: number }
+    const s2 = n[i + 1] as { x: number; y: number }
+    d += ` Q ${p.x} ${p.y} ${(p.x + s2.x) / 2} ${(p.y + s2.y) / 2}`
+  }
+  const son = n[n.length - 1] as { x: number; y: number }
+  return `${d} T ${son.x} ${son.y}`
+}
+
 /** Panoramanın tam HTML'i — tek sayfa, `slaytSayisi × slaytGenisligi` genişlikte. */
 export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const n = doc.kartlar.length
@@ -345,11 +399,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     .map(
       (k, i) =>
         ((): string => {
-          const r = kartRenkleri(k.zemin ?? doc.zemin)
+          // ⚠ İki alanlı zeminde metin ÜST alanın üstünde duruyor (kartlar üste yaslı),
+          // o yüzden renkler üst alandan türüyor. Alt alan bandın ve rakamın bölgesi.
+          const kartZemini =
+            doc.alanSiniri === undefined ? (k.zemin ?? doc.zemin) : doc.alanSiniri.ust
+          const r = kartRenkleri(kartZemini)
           return (
-            `<section class="kart${koyuMu(k.zemin ?? doc.zemin) ? '' : ' acik'}" ` +
+            `<section class="kart${koyuMu(kartZemini) ? '' : ' acik'}" ` +
             `style="left:${i * G}px;width:${G}px;` +
-            `background:${k.zemin ?? doc.zemin};--kart-metin:${r.metin};` +
+            // ⚠ Lekeler ya da alan sınırı varsa kart ŞEFFAF: opak bir kart arkasındaki
+            // desen katmanını tamamen örtüyordu ve `memphis`in kimliği görünmüyordu.
+            `background:${doc.alanSiniri === undefined && (doc.lekeler ?? []).length === 0 ? kartZemini : 'transparent'};` +
+            `--kart-metin:${r.metin};` +
             `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk}">`
           )
         })() +
@@ -386,6 +447,59 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
       )
     })
     .join('')
+
+  // Geometrik lekeler: tek SVG, panorama koordinatında. Kartların ALTINDA (z-index 0)
+  // duruyorlar — metnin üstüne çıkan bir leke okunabilirliği düşürür.
+  const lekeKatmani =
+    doc.lekeler === undefined || doc.lekeler.length === 0
+      ? ''
+      : `<svg class="lekeler" viewBox="0 0 ${toplam} ${doc.yukseklik}" aria-hidden="true">` +
+        doc.lekeler
+          .map((l) => {
+            const cx = (l.x / 100) * toplam
+            const cy = (l.y / 100) * doc.yukseklik
+            const r = l.boyut / 2
+            if (l.tip === 'daire')
+              return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${l.renk}"/>`
+            if (l.tip === 'halka')
+              return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${l.renk}" stroke-width="7"/>`
+            if (l.tip === 'kare')
+              return `<rect x="${cx - r}" y="${cy - r}" width="${l.boyut}" height="${l.boyut}" fill="${l.renk}" transform="rotate(12 ${cx} ${cy})"/>`
+            if (l.tip === 'nokta') {
+              const n = 5
+              const adim = l.boyut / (n - 1)
+              return Array.from({ length: n * n }, (_, i) => {
+                const px = cx - r + (i % n) * adim
+                const py = cy - r + Math.floor(i / n) * adim
+                return `<circle cx="${px}" cy="${py}" r="4.5" fill="${l.renk}"/>`
+              }).join('')
+            }
+            const cizgi = 7
+            return Array.from({ length: Math.floor(l.boyut / cizgi) }, (_, i) => {
+              const o = i * cizgi
+              return `<line x1="${cx - r + o}" y1="${cy + r}" x2="${cx - r + o + r}" y2="${cy - r}" stroke="${l.renk}" stroke-width="3"/>`
+            }).join('')
+          })
+          .join('') +
+        `</svg>`
+
+  // İki alanlı zemin: tek SVG, tüm panorama. Kartlar bunun üstünde şeffaf duruyor.
+  const alanKatmani =
+    doc.alanSiniri === undefined
+      ? ''
+      : ((): string => {
+          const a = doc.alanSiniri
+          // ⚠ ⚠ **DÜZ PARÇALAR ZİKZAK ÜRETTİ.** `L` ile birleştirilen noktalar keskin
+          // köşeler veriyordu ve "akan eğri" kimliği kayboluyordu — referansın sınırı
+          // YUMUŞAK. Kuadratik zincir: kontrol noktası veri noktası, eğri komşu orta
+          // noktalardan geçiyor. Veri noktaları KORUNUYOR, aralar yumuşuyor.
+          const d = yumusakYol(a.noktalar)
+          return (
+            `<svg class="alan-siniri" viewBox="0 0 100 100" preserveAspectRatio="none" ` +
+            `aria-hidden="true"><rect x="0" y="0" width="100" height="100" fill="${a.ust}"/>` +
+            `<path d="${d} L 100 100 L 0 100 Z" fill="${a.alt}"/></svg>`
+          )
+        })()
 
   return [
     // ⚠ ⚠ **YÜZEY BEYAN EDİLMEK ZORUNDA.** `kreatif` rolleri `[data-surface='kreatif']`
@@ -479,6 +593,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ `.bant-ok` İLK SÜRÜMDE LİSTEDE YOKTU: SVG basılıyor ama boyutsuz kalıyor ve
     // hiç çizilmiyordu. Oklar `sahne` şablonunun iki süreklilik ögesinden biri — yokluğu
     // şablonu yarıya indiriyordu ve ancak render'a bakınca görüldü.
+    `  .lekeler { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
+    `             height: ${doc.yukseklik}px; z-index: 0; pointer-events: none }`,
+    `  .alan-siniri { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
+    `                 height: ${doc.yukseklik}px; z-index: 0 }`,
     `  .bant-ok { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
     `             height: ${doc.yukseklik}px; z-index: 5; pointer-events: none }`,
     `  .bant, .bant-kemer { position: absolute; left: 0; bottom: 120px;`,
@@ -518,6 +636,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .gorsel-yer.daire { border-radius: 50% }`,
     '</style>',
     `<body data-surface="kreatif"><div id="sahne">`,
+    alanKatmani,
+    lekeKatmani,
     bantSvg(doc.bant, toplam, doc.yukseklik),
     kartlar,
     gorseller,
