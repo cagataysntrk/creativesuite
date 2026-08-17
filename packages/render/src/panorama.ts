@@ -27,7 +27,7 @@ import type { AssetStamp } from '@suite/kernel'
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
 import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { kacir } from './html.js'
-import { vurguyuIsaretle } from './sablon-tipo.js'
+import { OPENTYPE_CSS, vurguyuIsaretle } from './sablon-tipo.js'
 
 /** Kesimi aşan sürekli bant — kimliğin taşıyıcısı. */
 export type Bant =
@@ -166,6 +166,86 @@ export interface AlanSiniri {
   readonly noktalar: readonly { readonly x: number; readonly y: number }[]
 }
 
+/**
+ * Tipografi reçetesi — şablonun SESİ (FAZ-15.2 · §12.3).
+ *
+ * ⚠ ⚠ **BU TİP BİR ZİNCİR KOPUKLUĞUNDAN DOĞDU.** `Archivo` depoda DEĞİŞKEN GENİŞLİK
+ * ekseniyle duruyor (`fonts.ts`: `font-stretch: 62% 125%`) ve ölçüldü: aynı kelime
+ * `wdth 62`'de 580 px, `wdth 125`'te 1001 px — **1,73 kat.** Panorama bu ekseni hiç
+ * kullanmıyordu; altı şablonun altısı `font-stretch: 88%` ile çiziliyordu. Yani elimizde
+ * duran en güçlü tipografik ayrım aracı kullanılmıyordu. "Ne kurmalı" sorusunun cevabı
+ * yeni bir font değil, **açılmamış eksen**.
+ *
+ * ⚠ ⚠ **PUNTO BURADA PİKSEL DEĞİL, PAY.** Mutlak punto yazılabilseydi bir şablon R-23'ü
+ * delerdi: `taşıyabileceğimizin` gibi 19 harfli bir kelime sütuna sığmadan taşardı ve
+ * bunu ancak render'a bakınca görürdük. Pay, **ölçülen** tavanın oranı; tavan render
+ * anında gerçek kelimeyle, gerçek genişlik ekseniyle hesaplanıyor (`puntoTavani`).
+ * Aşmak temsil edilemiyor — garanti yoklukla zorlanıyor.
+ */
+export interface TipoResetesi {
+  /** Başlık puntosunun ÖLÇÜLEN tavana oranı (0–1]. */
+  readonly baslikPayi: number
+  /** Başlık genişlik ekseni — `Archivo` `wdth`, 62–125. */
+  readonly baslikGenislik: number
+  /** Başlık ağırlığı 400–900. */
+  readonly baslikAgirlik: number
+  /** Satır aralığı çarpanı — sıkı 0,98 · havadar 1,3. */
+  readonly satirAraligi: number
+  /** Harf arası, em. Negatif = sıkı poster; pozitif = seyrek editoryal. */
+  readonly harfArasi: number
+  /** Üst başlık genişlik ekseni — başlıkla ZIT olması ayrımı keskinleştiriyor. */
+  readonly ustGenislik: number
+  /** Gövde/başlık punto oranı. Küçük = sert hiyerarşi. */
+  readonly govdeOrani: number
+  /** Başlık sütununun kart genişliğine oranı (0–1]. */
+  readonly baslikSutunu: number
+}
+
+/**
+ * ⚠ ⚠ **GENİŞLİK EKSENİ SÜS DEĞİL, PUNTO SATIN ALIYOR — Türkçe'de özellikle.** Ölçüm:
+ * `Taşıyabileceğimizin` `wdth 100`'de 800 px'lik sütuna ancak 88 px puntoyla sığıyor;
+ * `wdth 62`'de aynı kelime %67 genişlikte, yani tavan **1,49 kat** yükseliyor ve aynı
+ * sütuna 131 px puntoyla giriyor. Eklemeli bir dilde poster tipografisinin yolu daraltmak.
+ * ⚠ Başlığı HECELEMEK bir seçenek değil: `static.ts` bunu gerekçesiyle reddediyor
+ * (bölünmüş başlık kompozisyonu bozar) ve o karar burada sessizce delinmiyor.
+ */
+export const VARSAYILAN_TIPO: TipoResetesi = {
+  baslikPayi: 0.92,
+  baslikGenislik: 78,
+  baslikAgirlik: 800,
+  satirAraligi: 1.02,
+  harfArasi: -0.02,
+  ustGenislik: 112,
+  govdeOrani: 0.3,
+  baslikSutunu: 0.86,
+}
+
+/**
+ * Kartın dikey yerleşimi — **boşluğun nerede duracağı bir tasarım kararıdır.**
+ *
+ * ⚠ ⚠ **BU TİP BİR RENDER'A BAKMADAN DOĞDU.** Kart sabit olarak "başlık üstte, panel
+ * `margin-top:auto` ile altta" çiziliyordu ve aradaki %55 boşluk hiçbir şablonun tercihi
+ * değildi — tek düzenin artığıydı. Referanslarda boşluk KASITLI: editoryal olanda üstte
+ * toplanıyor, poster olanda alta. Boşluğun yerini seçemeyen bir şablon dili, altı şablonu
+ * aynı iskeletin boyaları hâline getirir — kullanıcının "rezalet" dediği tam bu.
+ */
+export type Yerlesim =
+  /** Başlık üstte, panel dibe yaslı — veri anlatısı (bugünkü davranış). */
+  | 'ust'
+  /** Blok dikey ortada — boşluk üstte ve altta eşit; sakin, editoryal. */
+  | 'orta'
+  /** Her şey dibe yaslı — boşluk ÜSTTE; poster/afiş dili. */
+  | 'alt'
+  /** Eşit dağılım — üst başlık, başlık, gövde, panel arası boşluk eşitlenir. */
+  | 'yayik'
+
+const YERLESIM_CSS: Record<Yerlesim, string> = {
+  ust: 'flex-start',
+  orta: 'center',
+  alt: 'flex-end',
+  yayik: 'space-between',
+}
+
 export interface PanoramaBelgesi {
   readonly slaytGenisligi: number
   readonly yukseklik: number
@@ -201,13 +281,16 @@ export interface PanoramaBelgesi {
     readonly boyut: number
     readonly renk: string
   }[]
+  /** Tipografi reçetesi — verilmezse `VARSAYILAN_TIPO`. */
+  readonly tipografi?: TipoResetesi
+  /** Kartın dikey yerleşimi — verilmezse `'ust'`. */
+  readonly yerlesim?: Yerlesim
   readonly tokenCss: string
   readonly fontCss?: string
   readonly stamp: AssetStamp
 }
 
 const AKSAN = 'var(--role-bg)'
-const ZEMIN = 'var(--role-line-edge)'
 const METIN = 'var(--role-surface)'
 
 /**
@@ -220,6 +303,19 @@ const METIN = 'var(--role-surface)'
  * Bu, `sablon.ts`te bir kez öğrenilen dersin panorama yolunda tekrarı.
  */
 const koyuMu = (zemin: string): boolean => zemin.includes('line-edge') || zemin.includes('ink')
+
+/**
+ * Soluk bir ton — bir CSS değişkeninin `yuzde` kadarı, gerisi şeffaf.
+ *
+ * ⚠ ⚠ **`rgba(255,255,255,x)` YERİNE BUNUN GELMESİNİN SEBEBİ ÖLÇÜLEBİLİR BİR KUSURDU.**
+ * Sabit beyaz koyu zeminde doğru görünüyor, kâğıt zeminde HİÇ görünmüyor. Panel gövdesi,
+ * çubuk etiketi, alt ray ve etiket çipi bu yüzden `memphis` ve `editoryal` şablonlarında
+ * yok gibiydi. `color-mix` opaklığı zeminin kendi metin renginden türetiyor: koyu zeminde
+ * çıktı birebir aynı, açık zeminde ilk kez görünüyor.
+ * ⚠ `oklab` karışım uzayı: `srgb`de %50 gri gözle %50 değil, koyulaşıyor.
+ */
+const sol = (degisken: string, yuzde: number): string =>
+  `color-mix(in oklab, var(${degisken}) ${yuzde}%, transparent)`
 
 /** Kartın metin/aksan/soluk üçlüsü — zeminden türetiliyor, seçilmiyor. */
 const kartRenkleri = (
@@ -248,8 +344,15 @@ const panelHtml = (p: Panel): string => {
       p.satirlar
         .map(
           (s) =>
+            // ⚠ ⚠ **ÇUBUK BİR YUVANIN İÇİNDE — yoksa yüzde hiçbir şeye oranlanmıyordu.**
+            // İlk sürümde `.cubuk` doğrudan flex ögesiydi ve `width: %` esnek kapsayıcıda
+            // çözülemiyordu: `flex-shrink` devreye girip çubuğu birkaç piksellik bir kareye
+            // indiriyordu. Render'a bakınca görüldü — üç satırın üçü de aynı boyda küçük
+            // kare çiziyordu, yani GRAFİK HİÇBİR ŞEY ANLATMIYORDU. Yuva sabit bir raydır;
+            // çubuk onun yüzdesidir ve ray boş kalan kısmı da göstererek oranı okutur.
             `<div class="cubuk-satir"><span class="cubuk-etiket">${kacir(s.etiket)}</span>` +
-            `<span class="cubuk${s.tahmin ? ' tahmin' : ''}" style="width:${Math.round((s.deger / enBuyuk) * 100)}%"></span>` +
+            `<span class="cubuk-yuva"><span class="cubuk${s.tahmin ? ' tahmin' : ''}" ` +
+            `style="width:${Math.round((s.deger / enBuyuk) * 100)}%"></span></span>` +
             `<span class="cubuk-not">${kacir(s.not)}</span></div>`
         )
         .join('') +
@@ -405,6 +508,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const n = doc.kartlar.length
   const G = doc.slaytGenisligi
   const toplam = n * G
+  const t = doc.tipografi ?? VARSAYILAN_TIPO
+  // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
+  // türüyor; kartın kendi zemininden değil — onlar hiçbir kartın içinde durmuyor.
+  const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin)
   const kartlar = doc.kartlar
     .map(
       (k, i) =>
@@ -528,25 +635,51 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `         font-family: "Marka Metin", system-ui, sans-serif; }`,
     // ⚠ Sahne kaydırılıyor, gövde değil: `translateX` bileşik katmanda çalışıyor ve
     // ekran görüntüsü her karede tutarlı çıkıyor.
+    // ⚠ ⚠ **`--pano-metin` KART DIŞI ÖGELERİN RENK KÖKÜ.** Kilometre etiketi, madalyon adı
+    // ve kesim ayracı kartların DIŞINDA duruyor; `--kart-metin`i miras alamıyorlar. İlk
+    // sürümde bunlar `rgba(255,255,255,…)` yazıyordu ve `memphis`/`editoryal` gibi KÂĞIT
+    // zeminli şablonlarda beyaz-üstüne-beyaz düşüyordu — yani görünmüyorlardı. Bir öge
+    // görünmezse eksikliği fark edilmez ve tasarım tam sanılır.
     `  #sahne { position: relative; width: ${toplam}px; height: ${doc.yukseklik}px;`,
-    `           transform: translateX(0px); }`,
+    `           transform: translateX(0px);`,
+    `           --pano-metin: ${panoRenkleri.metin}; --pano-aksan: ${panoRenkleri.aksan}; }`,
+    // ── tipografi reçetesi: değişkenler ÖNCE, kullanımlar sonra ───────────────
+    `  #sahne { --baslik-wdth: ${t.baslikGenislik}; --baslik-wght: ${t.baslikAgirlik};`,
+    `           --baslik-lh: ${t.satirAraligi}; --baslik-ls: ${t.harfArasi}em;`,
+    `           --ust-wdth: ${t.ustGenislik}; --govde-orani: ${t.govdeOrani};`,
+    // ⚠ Başlangıç değeri; gerçek punto render sonrası ÖLÇÜLEREK yazılıyor (`puntoTavani`).
+    `           --baslik-punto: ${Math.round(96 * t.baslikPayi)}px; }`,
     // ⚠ Kart bir FLEX SÜTUNU: panel `margin-top:auto` ile aşağı itiliyor ve kartın alt
     // yarısı boş kalmıyor. İlk render'da her şey üste yığılmış, alt %60 bomboştu.
     `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px; padding: 68px 64px 190px;`,
     `          color: var(--kart-metin);`,
-    `          display: flex; flex-direction: column; align-items: flex-start }`,
+    `          display: flex; flex-direction: column; align-items: flex-start;`,
+    `          justify-content: ${YERLESIM_CSS[doc.yerlesim ?? 'ust']} }`,
+    // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
+    // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).
+    ...(doc.yerlesim === undefined || doc.yerlesim === 'ust'
+      ? [`  .panel, .sayilar, .etiketler { margin-top: auto }`]
+      : [`  .panel, .sayilar, .etiketler { margin-top: 34px }`]),
     // ── kesim çizgisi: hiçbir ögeyi kırpmıyor, yalnız ince bir ayraç ─────────
     `  .kesik { position: absolute; top: 0; bottom: 0; width: 1px;`,
-    `           background: rgba(255,255,255,0.06); z-index: 9 }`,
+    `           background: ${sol('--pano-metin', 6)}; z-index: 9 }`,
+    // ⚠ Üst başlık başlıkla ZIT eksende: başlık genişse üst başlık dar, tersi de doğru.
+    // Aynı genişlikte iki tipografik ses, bir hiyerarşi değil bir yankı üretiyor.
     `  .ust-baslik { font-size: 19px; letter-spacing: 0.22em; text-transform: none;`,
+    `                font-stretch: calc(var(--ust-wdth) * 1%);`,
+    `                font-feature-settings: ${OPENTYPE_CSS};`,
     `                color: var(--kart-aksan); font-weight: 700; margin-bottom: 26px;`,
     `                display: flex; align-items: center; gap: 14px }`,
     `  .ust-baslik::before { content: ""; width: 30px; height: 2px; background: var(--kart-aksan) }`,
     // ⚠ Başlık SIKIŞIK ve İRİ; `line-height` 1,04 — 0,90'da Türkçe `Ş` kuyruğu alt satıra
     // giriyor ve "HEB" gibi okunuyor. Aksan kırpılması bu ailenin bilinen tuzağı.
+    // ⚠ Punto artık sabit 82 px DEĞİL: reçetenin payı × render anında ölçülen tavan.
     `  .baslik { font-family: "Marka Display", "Marka Metin", sans-serif;`,
-    `            font-size: 82px; line-height: 1.04; font-weight: 800; font-stretch: 88%;`,
-    `            letter-spacing: -0.02em; max-width: 15ch }`,
+    `            font-size: var(--baslik-punto); line-height: var(--baslik-lh);`,
+    `            font-weight: var(--baslik-wght);`,
+    `            font-stretch: calc(var(--baslik-wdth) * 1%);`,
+    `            font-feature-settings: ${OPENTYPE_CSS};`,
+    `            letter-spacing: var(--baslik-ls); max-width: ${Math.round(G * t.baslikSutunu) - 128}px }`,
     `  .baslik strong { color: var(--kart-aksan); font-weight: inherit }`,
     // ⚠ ⚠ **AÇIK ZEMİNDE VURGU BİR ÇİP, RENK DEĞİL.** Aksanı mürekkebe çevirmek kontrastı
     // kurtardı ama vurguyu ÖLDÜRDÜ: başlıklar düzleşti, vurgulanan kelime gövdeden
@@ -556,48 +689,69 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kart.acik .baslik strong { background: ${AKSAN}; color: ${MUREKKEP_T};`,
     `                              padding: 0.02em 0.14em; box-decoration-break: clone;`,
     `                              -webkit-box-decoration-break: clone }`,
-    `  .govde { margin-top: 24px; font-size: 27px; line-height: 1.5; max-width: 34ch;`,
-    `           color: var(--kart-soluk) }`,
+    `  .govde { margin-top: 24px; font-size: calc(var(--baslik-punto) * var(--govde-orani));`,
+    `           line-height: 1.5; max-width: 34ch; color: var(--kart-soluk) }`,
     `  .govde strong { color: var(--kart-metin); font-weight: 700 }`,
     // ⚠ Dev soluk metin kesim çizgilerini KASTEN aşıyor: kesintisizliğin en görünür işareti.
     // ⚠ Dev soluk metin: BÜYÜK ve kesim çizgilerini aşacak kadar aşağıda. İlk sürümde
     // 300 px ve %4,5 opaklıkla başlığın arkasında kalıyor, hiç okunmuyordu — referansta
     // ghost'lar kesintisizliğin en görünür işareti.
+    // ⚠ Hayalet rengi de zeminden türüyor: kâğıt zeminde beyaz bir hayalet YOK demektir.
     `  .hayalet { position: absolute; left: 30px; top: 300px; font-size: 470px;`,
-    `             font-family: "Marka Display", sans-serif; font-weight: 800;`,
-    `             color: rgba(255,255,255,0.055); letter-spacing: -0.05em;`,
+    `             font-family: "Marka Display", sans-serif; font-weight: 900;`,
+    `             font-stretch: calc(var(--baslik-wdth) * 1%);`,
+    `             color: ${sol('--kart-metin', 5.5)}; letter-spacing: -0.05em;`,
     `             pointer-events: none; white-space: nowrap; z-index: 0 }`,
     // ⚠ ⚠ **`.ray` HARİÇ.** İlk sürüm `:not(.hayalet)` diyordu ve `.ray`in
     // `position: absolute`ını EZİYORDU: alt ray akışa girip gövde metninin hemen altına
     // düşüyor, künye kartın ortasında duruyordu. Bakınca görüldü.
     `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: 2 }`,
     // ── paneller ────────────────────────────────────────────────────────────
-    `  .panel { margin-top: auto; background: rgba(255,255,255,0.045); border-radius: 14px;`,
-    `           padding: 26px 28px; max-width: 640px }`,
-    `  .panel-baslik { font-size: 16px; letter-spacing: 0.16em; color: rgba(255,255,255,0.5);`,
+    // ⚠ ⚠ **PANEL RENKLERİ ZEMİNDEN TÜRÜYOR — ONALTI SABİT BEYAZ SİLİNDİ.** Panel gövdesi,
+    // panel başlığı, çubuk etiketi, sayı birimi, vafel karesi, etiket çipi ve alt ray
+    // `rgba(255,255,255,…)` yazıyordu. Koyu zeminde doğru, KÂĞIT zeminde görünmez: iki
+    // şablonun (`memphis`, `editoryal`) tüm veri panelleri beyaz-üstüne-beyazdı ve metrik
+    // yeşildi — çünkü ölçülen şey varlıktı, görünürlük değil. `color-mix` ile aynı oranlar
+    // kartın KENDİ metin renginden türetiliyor; koyu zeminde çıktı birebir aynı kalıyor.
+    `  .panel { background: ${sol('--kart-metin', 4.5)}; border-radius: 14px;`,
+    `           padding: 26px 28px; max-width: 640px;`,
+    `           border: 1px solid ${sol('--kart-metin', 8)} }`,
+    `  .panel-baslik { font-size: 16px; letter-spacing: 0.16em; color: ${sol('--kart-metin', 50)};`,
     `                  margin-bottom: 18px; font-weight: 600 }`,
     `  .cubuk-satir { display: flex; align-items: center; gap: 12px; margin-bottom: 11px }`,
-    `  .cubuk-etiket { width: 64px; font-size: 18px; color: rgba(255,255,255,0.6) }`,
-    `  .cubuk { height: 20px; background: ${AKSAN}; border-radius: 3px; min-width: 6px }`,
-    `  .cubuk.tahmin { background: none; border: 2px dashed ${AKSAN}; opacity: 0.75 }`,
-    `  .cubuk-not { font-size: 17px; color: rgba(255,255,255,0.75); white-space: nowrap }`,
-    `  .sayilar { display: flex; gap: 18px; margin-top: auto; flex-wrap: wrap }`,
-    `  .sayi-kart { background: rgba(255,255,255,0.045); border-radius: 14px; padding: 22px 26px }`,
-    `  .sayi { font-family: "Marka Display", sans-serif; font-size: 74px; font-weight: 800;`,
-    `          color: ${AKSAN}; line-height: 1 }`,
-    `  .birim { font-size: 26px; margin-left: 8px; color: rgba(255,255,255,0.7) }`,
-    `  .sayi-alt { font-size: 18px; color: rgba(255,255,255,0.6); margin-top: 8px }`,
+    `  .cubuk-etiket { width: 64px; font-size: 18px; color: ${sol('--kart-metin', 60)};`,
+    `                  font-variant-numeric: tabular-nums }`,
+    `  .cubuk-yuva { flex: 1; height: 22px; background: ${sol('--kart-metin', 8)};`,
+    `                border-radius: 3px; overflow: hidden; display: block }`,
+    `  .cubuk { display: block; height: 100%; background: var(--kart-aksan);`,
+    `           border-radius: 3px; min-width: 6px }`,
+    `  .cubuk.tahmin { background: repeating-linear-gradient(115deg,`,
+    `                  var(--kart-aksan) 0 7px, transparent 7px 14px);`,
+    `                  box-shadow: inset 0 0 0 2px var(--kart-aksan) }`,
+    `  .cubuk-not { font-size: 17px; color: ${sol('--kart-metin', 75)}; white-space: nowrap;`,
+    // ⚠ `tnum` ölçüldü: `1111 8888` orantılıda 464 px, tabularda 543 px. Sayı sütunu ancak
+    // tabularda hizalanıyor — orantılı rakamla çubuk notları birbirini tutmuyordu.
+    `                font-variant-numeric: tabular-nums }`,
+    `  .sayilar { display: flex; gap: 18px; flex-wrap: wrap }`,
+    `  .sayi-kart { background: ${sol('--kart-metin', 4.5)}; border-radius: 14px;`,
+    `               padding: 22px 26px; border: 1px solid ${sol('--kart-metin', 8)} }`,
+    `  .sayi { font-family: "Marka Display", sans-serif; font-size: 74px; font-weight: 900;`,
+    `          font-stretch: calc(var(--baslik-wdth) * 1%); font-variant-numeric: tabular-nums;`,
+    `          color: var(--kart-aksan); line-height: 1 }`,
+    `  .birim { font-size: 26px; margin-left: 8px; color: ${sol('--kart-metin', 70)} }`,
+    `  .sayi-alt { font-size: 18px; color: ${sol('--kart-metin', 60)}; margin-top: 8px }`,
     `  .vafel { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; width: 300px }`,
-    `  .vafel-kare { width: 100%; aspect-ratio: 1; background: rgba(255,255,255,0.09);`,
+    `  .vafel-kare { width: 100%; aspect-ratio: 1; background: ${sol('--kart-metin', 9)};`,
     `                border-radius: 2px }`,
-    `  .vafel-kare.dolu { background: ${AKSAN} }`,
+    `  .vafel-kare.dolu { background: var(--kart-aksan) }`,
     `  .liste-satir { display: flex; gap: 14px; align-items: baseline; margin-bottom: 10px }`,
-    `  .liste-no { font-family: "Marka Display", sans-serif; font-size: 22px; color: ${AKSAN};`,
+    `  .liste-no { font-family: "Marka Display", sans-serif; font-size: 22px;`,
+    `              color: var(--kart-aksan); font-variant-numeric: tabular-nums;`,
     `              font-weight: 800; min-width: 32px }`,
     `  .liste-ad { font-size: 22px }`,
-    `  .etiketler { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; max-width: 620px }`,
-    `  .etiket { border: 1px solid rgba(255,255,255,0.16); border-radius: 999px;`,
-    `            padding: 8px 16px; font-size: 18px; color: rgba(255,255,255,0.8) }`,
+    `  .etiketler { display: flex; flex-wrap: wrap; gap: 10px; max-width: 620px }`,
+    `  .etiket { border: 1px solid ${sol('--kart-metin', 16)}; border-radius: 999px;`,
+    `            padding: 8px 16px; font-size: 18px; color: ${sol('--kart-metin', 80)} }`,
     // ── bant ────────────────────────────────────────────────────────────────
     // ⚠ Bant 560 px: 300 px'te eğri dibe yapışıyor ve "hikâye" okunmuyordu. Yükseklik
     // eğrinin anlatabileceği fark kadar olmalı.
@@ -615,21 +769,23 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kilometre { position: absolute; bottom: 120px; z-index: 3; transform: translateX(-50%);`,
     `               text-align: center }`,
     `  .kilometre-nokta { display: block; width: 13px; height: 13px; border-radius: 50%;`,
-    `                     background: ${AKSAN}; margin: 0 auto 8px }`,
-    `  .kilometre-etiket { font-size: 16px; letter-spacing: 0.1em; color: ${METIN};`,
-    `                      white-space: nowrap; font-weight: 600 }`,
+    `                     background: var(--pano-aksan); margin: 0 auto 8px }`,
+    `  .kilometre-etiket { font-size: 16px; letter-spacing: 0.1em; color: var(--pano-metin);`,
+    `                      white-space: nowrap; font-weight: 600;`,
+    `                      font-variant-numeric: tabular-nums }`,
     `  .madalyon { position: absolute; bottom: 128px; z-index: 3; transform: translateX(-50%);`,
     `              text-align: center }`,
     `  .madalyon-no { display: flex; width: 46px; height: 46px; border-radius: 50%;`,
-    `                 border: 2px solid ${AKSAN}; color: ${AKSAN}; align-items: center;`,
+    `                 border: 2px solid var(--pano-aksan); color: var(--pano-aksan);`,
+    `                 align-items: center; font-variant-numeric: tabular-nums;`,
     `                 justify-content: center; font-weight: 800; margin: 0 auto 7px;`,
-    `                 background: ${ZEMIN} }`,
-    `  .madalyon-ad { font-size: 15px; letter-spacing: 0.14em; color: rgba(255,255,255,0.75) }`,
+    `                 background: ${doc.zemin} }`,
+    `  .madalyon-ad { font-size: 15px; letter-spacing: 0.14em; color: ${sol('--pano-metin', 75)} }`,
     // ── alt ray: her slaytta aynı yerde, ritmi taşıyan tekrar ────────────────
     `  .ray { position: absolute; left: 64px; right: 64px; bottom: 46px;`,
     `         display: flex; gap: 40px; align-items: center;`,
-    `         border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;`,
-    `         font-size: 15px; letter-spacing: 0.14em; color: rgba(255,255,255,0.42) }`,
+    `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: 20px;`,
+    `         font-size: 15px; letter-spacing: 0.14em; color: ${sol('--kart-metin', 42)} }`,
     `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700 }`,
     // ── görsel katmanı ──────────────────────────────────────────────────────
     `  .gorsel, .gorsel-yer { position: absolute; z-index: 4; object-fit: cover }`,
@@ -665,6 +821,61 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
 }
 
 /**
+ * Başlık puntosunun ÖLÇÜLEN tavanı — R-23'ün panorama karşılığı.
+ *
+ * ⚠ ⚠ **BU BİR TAHMİN DEĞİL, İKİLİ ARAMA.** Önceki sürüm `font-size: 82px` yazıyordu ve
+ * bu sayı hiçbir şeyden türemiyordu. Türkçe eklemeli: `taşıyabileceğimizin` 19 harf ve
+ * 64 px'te 582 px yer istiyor — bir sütuna sığıp sığmadığı ancak ÖLÇÜLEBİLİR. Burada
+ * her kart için en büyük "sığan" punto aranıyor: kelime sütunu taşmayacak (`scrollWidth`)
+ * ve başlık bloğu kendine ayrılan yüksekliği aşmayacak (`scrollHeight`).
+ *
+ * ⚠ ⚠ **TAVAN EN DAR KARTTAN GELİYOR ve bu bir tasarım kararı.** Kart başına punto
+ * hesaplansaydı uzun başlıklı slayt küçük, kısa başlıklı slayt dev olurdu; kaydıran göz
+ * altı ayrı poster görürdü. Karosel TEK tasarım — ölçek ritmi slaytlar arasında sabit.
+ *
+ * ⚠ `baslikPayi` bu tavanın oranı: bir şablon (`editoryal`, payı 0,38) kasten fısıldar.
+ * Tavanı AŞMAK temsil edilemiyor — çarpan 0–1 arası, garanti yapıdan geliyor.
+ */
+export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
+  const t = doc.tipografi ?? VARSAYILAN_TIPO
+  // Kart iç yüksekliği: üst/alt dolgu (68 + 190) düşülüyor. Başlık bloğunun payı %44 —
+  // gerisi üst başlık, gövde ve panel için. Aşarsa punto düşüyor, panel ezilmiyor.
+  const blokYuksekligi = Math.round((doc.yukseklik - 258) * 0.44)
+  // ⚠ ⚠ **SÜTUN SINIRI ÖLÇÜLMÜYOR, VERİLİYOR — yoksa ölçüm KENDİNİ ölçerdi.** `.baslik`
+  // bir flex sütununda `align-items: flex-start` ile duruyor: genişliği İÇERİĞİNE göre
+  // daralıyor. `getBoundingClientRect().width` o yüzden sütun sınırını değil, o anki
+  // punto ile oluşan metin genişliğini verirdi ve "sığıyor mu" sorusu her puntoda evet
+  // cevabı alırdı. Bu oturumda aynı sınıf hata (`column_in_band`, `ghost_overlap`,
+  // `spacing_offscale`) üç ayrı yerde çıktı: **iki tarafı aynı kaynaktan gelen bir ölçüm
+  // asla kırmızıya dönmez.** Sınır CSS'e yazılan sayının ta kendisi.
+  const sutunSiniri =
+    Math.round(doc.slaytGenisligi * (doc.tipografi ?? VARSAYILAN_TIPO).baslikSutunu) - 128
+  return `(() => {
+    const sahne = document.getElementById('sahne')
+    const basliklar = Array.from(document.querySelectorAll('.baslik'))
+    if (basliklar.length === 0) return 0
+    let tavan = 168
+    for (const b of basliklar) {
+      const sinir = ${sutunSiniri}
+      let alt = 20, ust = 168
+      // 18 tur ikili arama: 148 px aralıkta 0,001 px çözünürlük — fazlası gereksiz.
+      for (let k = 0; k < 18; k += 1) {
+        const orta = (alt + ust) / 2
+        b.style.fontSize = orta + 'px'
+        const sigiyor = b.scrollWidth <= sinir + 1 &&
+                        b.scrollHeight <= ${blokYuksekligi}
+        if (sigiyor) alt = orta; else ust = orta
+      }
+      b.style.fontSize = ''
+      if (alt < tavan) tavan = alt
+    }
+    const punto = tavan * ${t.baslikPayi}
+    sahne.style.setProperty('--baslik-punto', punto.toFixed(1) + 'px')
+    return punto
+  })()`
+}
+
+/**
  * Panoramayı render eder ve dilimler.
  *
  * ⚠ ⚠ **TEK SAYFA, N EKRAN GÖRÜNTÜSÜ.** Sayfa bir kez kuruluyor ve fontlar bir kez
@@ -697,6 +908,11 @@ export const renderPanorama = async (
     await page.setViewportSize({ width: doc.slaytGenisligi, height: doc.yukseklik })
     await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
     await page.evaluate('(async () => { await document.fonts.ready; return true })()')
+    // ⚠ ⚠ **PUNTO FONTLAR YÜKLENDİKTEN SONRA ÖLÇÜLÜYOR — ÖNCE DEĞİL.** Yedek fontla
+    // ölçülen bir tavan yanlış olurdu ve `Ğ Ş İ` gliflerinin gerçek genişliğini hiç
+    // görmezdi. Tavan tüm kartların EN DARINDAN geliyor: karosel tek bir tasarım,
+    // slayttan slayda değişen bir başlık puntosu ritmi kırar.
+    await page.evaluate(puntoOlcumu(doc))
     for (const [i, yol] of ciktiYollari.entries()) {
       await page.evaluate(
         `document.getElementById('sahne').style.transform = 'translateX(${-i * doc.slaytGenisligi}px)'`

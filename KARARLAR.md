@@ -489,3 +489,38 @@ render yolu ve `tasarim` kapısı onlara bağlı), ama **yeni şablonlar katalo�
 
 **Geri alma maliyeti:** düşük — panorama ayrı bir modül, mevcut render yolu bozulmadı.
 
+
+## D-269 — "Ne kurmalı" sorusunun cevabı ÖLÇÜLDÜ: hiçbir şey; üç eksen kullanılmıyordu
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.1 · §17 · R-75
+
+"Muazzam tasarımlar için ne yüklemek, hangi kütüphaneyi eklemek lazım" sorusu bir
+envanterle değil bir **ölçümle** cevaplandı. Tarayıcıda gerçek fontla ölçülen değerler:
+
+| Yetenek | Durum | Ölçüm |
+|---|---|---|
+| Display genişlik ekseni | **VAR, kullanılmıyordu** | `Sürdürülebilirlik` `wdth 62`→580 px, `wdth 125`→1001 px (1,73×) |
+| Metin ağırlık ekseni | **VAR, kullanılmıyordu** | 400→735 px, 800→798 px |
+| Tabular rakam | **VAR, kullanılmıyordu** | `1111 8888` orantılı 464 px, tabular 543 px |
+| İkon seti | **VAR, panorama çağırmıyordu** | 20 ikon `sablon-ikon.ts`te çizili |
+| Doku/gren, degrade, maske | VAR — SVG `feTurbulence`/`linearGradient` yerel | — |
+| Renk uzayı | VAR — OKLCH token'ları + `color-mix(in oklab)` | — |
+
+**Karar: yeni bağımlılık YOK, yeni font YOK.** Eksik olan araç değil, **bağlanmamış
+zincir**. Bir kütüphane kurmak eksik olanı vermezdi; kurulmuş olsaydı aynı eksenler yine
+kullanılmadan duracak, üstüne bir lisans denetimi borcu doğacaktı (R-75).
+
+⚠ **Bu, D-261 ailesinin sekizinci ve dokuzuncu üyesi.** `softHyphenate` için yedincisi
+yazılmıştı; şimdi aynı sınıf iki kez daha çıktı — modül var, test yeşil, üretim yolu
+sıfır. Sorunun tekrar etmesi tesadüf değil: **yeni bir yol açıldığında (panorama) eski
+yolun bağladığı zincirler otomatik gelmiyor.** FAZ-15.9 eski yolu emekliye ayırırken
+kontrol listesi bu tablodur.
+
+⚠ **Başlık heceleme REDDEDİLDİ, gerekçesi korunarak.** Uzun Türkçe kelime punto tavanını
+düşürüyor ve heceleme onu kurtarırdı; ama `static.ts` başlık hecelemeyi kompozisyon
+gerekçesiyle reddediyor ve kırmızı bir kuralın gerekçesi başka bir dosyada sessizce
+delinmez. Doğru kaldıraç genişlik ekseni çıktı: `wdth 62`'de aynı kelime %67 genişlikte,
+punto tavanı **1,49 kat** yükseliyor. Eklemeli bir dilde poster tipografisinin yolu
+daraltmaktan geçiyor — ölçülmeden bilinemeyecek bir sonuç.
+
+**Geri alma maliyeti:** yok — hiçbir şey kurulmadı.
