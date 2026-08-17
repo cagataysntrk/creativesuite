@@ -68,10 +68,23 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // koyuyordu: kapak bir başlık değil, bir paragraf oluyordu. Sayfalayıcı taşmayı
     // böler (R-30: küçültmez) ama neyin BAŞLIK olduğunu bilemez — o bilgi ancak
     // metnin üretildiği yerde vardır.
-    '- 1. satır = KAPAK: en fazla 8 kelime. Nokta koyma. İddia ya da soru.',
-    '- 2.–5. satır = GÖVDE: her biri tek fikir, en fazla 30 kelime.',
-    '- Son satır = KAPANIŞ: tek cümle, en fazla 14 kelime. Davet ya da sonuç.',
+    '- 1. satır = KAPAK: **EN FAZLA 8 KELİME.** Nokta koyma. İddia ya da soru.',
+    '- 2.–5. satır = GÖVDE: her biri tek fikir, **EN FAZLA 30 KELİME.**',
+    '- Son satır = KAPANIŞ: tek cümle, **EN FAZLA 14 KELİME.** Davet ya da sonuç.',
     '- Toplam 5 ya da 6 satır. Satırları numaralama, madde işareti koyma.',
+    '',
+    // ⚠ **Örnek ve sayım talimatı ÖLÇÜLEREK eklendi.** Yalnız "en fazla 8 kelime"
+    // yazmak yetmedi: gerçek koşuda kapak 21, gövde 40 kelime geldi ve tasarım kapısı
+    // varlığı reddetti. Kural prompt'ta vardı ama SAYILMASI istenmiyordu; bir üst sınır,
+    // sayılmadığı sürece bir temennidir.
+    'ÖRNEK BİÇİM (kelime sayıları buna benzemeli):',
+    'Duruşun nedeni vardiya amirinin hafızasında',
+    'Bir duruş yaşandı ve nedeni soruldu; cevap bir kayıtta değil, dün geceyi kapatan kişinin hatırladığı kadarıyla verildi.',
+    'Aynı arıza üç hafta sonra tekrarladığında kimse ilkiyle bağlantısını kuramadı, çünkü ikisi de hiçbir yere yazılmamıştı.',
+    'Kaydı olmayan bir duruş, olmamış bir duruştur.',
+    '',
+    '⚠ Yazmadan önce HER SATIRIN kelimesini say. Sınırı aşan satırı KISALT, bölme.',
+    '⚠ İlk satır bir başlıktır, bir paragraf değil: 8 kelimeyi geçerse yeniden yaz.',
     '',
     'KURALLAR:',
     `- Dil: ${g.locale ?? 'tr-TR'}. Doğal, abartısız, teknik ve somut.`,

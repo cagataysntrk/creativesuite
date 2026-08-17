@@ -38,17 +38,48 @@ export interface TasarimGirdisi {
   readonly enGenisKelimePx?: readonly number[]
 }
 
-/** CSS değişkenlerini `tokenCss`ten çözer — `var(--x)` → gerçek renk. */
-const tokenCoz = (tokenCss: string, deger: string): Rgb | null => {
+/**
+ * CSS değişkenlerini çözer — **YÜZEY KAPSAMLI ve ÖZYİNELEMELİ**.
+ *
+ * ⚠ İlk sürüm iki ayrı sebepten hiçbir zaman renk döndürmüyordu ve bu ancak üretim
+ * `tokenCss`i üstünde ÖLÇÜLEREK çıktı (kapı yeşildi, okuma hiç üretilmiyordu):
+ *
+ *   1. **Tek adım çözüyordu.** Token mimarisi ÜÇ KADEMELİ (§12.1): rampa → rol →
+ *      bileşen. `--role-bg` bir renge değil `var(--ramp-gray-950)`e çözülüyor ve
+ *      `parseColor('var(--ramp-…)')` null veriyordu. Bir kademeyi atlamak, mimarinin
+ *      kendisini görmezden gelmekti.
+ *   2. **"Son tanım kazanır" YANLIŞ yüzeyi seçiyordu.** Aynı rol dört blokta tanımlı
+ *      (`:root`, `console`, `kreatif`, `studio`) ve sonuncusu `studio`. Karosel
+ *      `kreatif` yüzeyinde çiziliyor; son tanımı almak, ölçülen rengin RENDER EDİLEN
+ *      renk olmamasına yol açardı — yani ölçüm doğru sayı üretip yanlış şeyi ölçerdi.
+ *
+ * Yüzey verilmezse `:root` kullanılıyor; verilirse o bloğun tanımı önceliklidir.
+ */
+const YUZEY = 'kreatif'
+const COZUM_DERINLIGI = 5
+
+/** Bir bloktaki (`:root` ya da `[data-surface='x']`) tanımı bulur. */
+const bloktanOku = (tokenCss: string, ad: string, yuzey: string | null): string | null => {
+  const bas =
+    yuzey === null ? tokenCss.indexOf(':root') : tokenCss.indexOf(`[data-surface='${yuzey}']`)
+  if (bas === -1) return null
+  const acilis = tokenCss.indexOf('{', bas)
+  const kapanis = tokenCss.indexOf('}', acilis)
+  if (acilis === -1 || kapanis === -1) return null
+  const govde = tokenCss.slice(acilis, kapanis)
+  const m = new RegExp(`${ad}\\s*:\\s*([^;}]+)`).exec(govde)
+  return m === null ? null : (m[1]?.trim() ?? null)
+}
+
+const tokenCoz = (tokenCss: string, deger: string, derinlik = 0): Rgb | null => {
+  if (derinlik > COZUM_DERINLIGI) return null // döngüsel tanım — sessizce dönmez, null verir
   const m = /^var\(\s*(--[\w-]+)\s*\)$/.exec(deger.trim())
   if (m === null) return parseColor(deger)
   const ad = m[1]
-  // Son tanım kazanır — CSS kaskadı böyle çalışıyor ve `[data-surface]` blokları
-  // `:root`u eziyor. İlk eşleşmeyi almak, yüzey ezmesini görmezden gelmek olurdu.
-  const re = new RegExp(`${ad}\\s*:\\s*([^;}]+)`, 'g')
-  let son: string | null = null
-  for (const x of tokenCss.matchAll(re)) son = x[1] ?? null
-  return son === null ? null : parseColor(son.trim())
+  if (ad === undefined) return null
+  // Önce kreatif yüzeyi (karosel orada çiziliyor), sonra `:root` (rampalar orada).
+  const sonraki = bloktanOku(tokenCss, ad, YUZEY) ?? bloktanOku(tokenCss, ad, null)
+  return sonraki === null ? null : tokenCoz(tokenCss, sonraki, derinlik + 1)
 }
 
 /** sRGB bağıl parlaklık (WCAG 2.2). */
@@ -71,11 +102,22 @@ const metinBloklari = (doc: DocumentModel): readonly string[] =>
     b.type === 'heading' || b.type === 'body' ? [(b as { text: string }).text] : []
   )
 
+/**
+ * Slayttaki EN UZUN metin bloğunun kelime sayısı.
+ *
+ * ⚠ **Toplam DEĞİL, en uzun blok** — ve bu bir düzeltme. İlk sürüm slayttaki tüm
+ * metni topluyordu; ama `icerikPromptu`un bütçesi SATIR başına ("her gövde satırı en
+ * fazla 30 kelime") ve bir slayt iki satır taşıyabiliyor. Yani her satır kurala UYSA
+ * bile toplam 41 çıkıyor ve metrik varlığı reddediyordu.
+ *
+ * **Birim uyuşmazlığı benim hatamdı, modelin değil.** Ölçen ile ölçülen aynı birimi
+ * konuşmuyorsa sayı doğru hesaplanır ve yanlış şeyi söyler — bu fazda dokuzuncu kez.
+ */
 const kelimeSay = (doc: DocumentModel): number =>
-  metinBloklari(doc)
-    .join(' ')
-    .split(/\s+/)
-    .filter((w) => w !== '').length
+  metinBloklari(doc).reduce((en, t) => {
+    const n = t.split(/\s+/).filter((w) => w !== '').length
+    return n > en ? n : en
+  }, 0)
 
 /**
  * Tasarım metriklerini ölçer.
@@ -99,7 +141,7 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
     okumalar.push(
       reading({
         metric: 'word_budget',
-        label: `slayt ${i + 1} kelime (${k.role})`,
+        label: `slayt ${i + 1} en uzun satır (${k.role})`,
         value: kelimeSay(doc),
         warn: Math.max(1, tavan - 2),
         limit: tavan,

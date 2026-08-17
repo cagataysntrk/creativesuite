@@ -157,130 +157,6 @@ ama gösterilen sayı yanlış olabilir ve `doğrulanmamış kur` etiketi bunu s
 `brand/probes/` ile birden fazla aday dönemin yan yana karşılaştırılması. §12'nin sert
 kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → FAZ-2.8
 
-## D-248 — Varlık değil TESLİMAT: yüzlerce birikince sorun "yer" değil "hangisi"
-
-**2026-08-16 · ilk postlar üretildikten sonra**
-
-İlk post dört varlık üretti ve kütüphane **dört özdeş satır** gösterdi: hangisinin kapak
-olduğu, hangisinin son slayt olduğu belli değil. Yüz postta dört yüz satır ve hiçbiri
-diğerine bağlı değil. **Yüzlerce varlık biriktiğinde sorun "yer yok" değil, "hangisi
-neydi" olur.**
-
-**Neden ACİL:** damga üretim anında basılır ve **retrofit imkânsızdır** (7. yasa, R-11).
-Bu alan olmadan üretilen her varlık kalıcı olarak sırasız kalır. Bir gün beklemek, bir
-günlük varlığı kalıcı olarak kaybetmek demekti — nitekim ilk dört varlık öyle kaldı ve
-kütüphane onları **damgasız diye sayıyor, uydurma bir gruba KOYMUYOR**.
-
-**`DeliverableRef` damgaya girdi:** `deliverableId` · `kind` · `index` · `total` ·
-`role`. `deliverableId` çalıştırma id'sine EŞİT DEĞİL: tek koşu birden çok teslimat
-üretebilir (reklam matrisi yedi varyant) ve tek teslimat birden çok koşuya yayılabilir
-(yarıda kalan koşu devam ettirilir).
-
-**`total` alanı eksikliği görünür kılıyor:** yarıda kalmış bir koşu üç slayt bırakır ve
-liste bunu "3 parçalı post" diye göstermemeli. `eksikParca` ölçülüyor, varsayılmıyor.
-
-⚠ **Yol boyunca `BlobMeta`nın İKİNCİ BİR KOPYASI bulundu** (`kutuphane.ts`) ve yorumu
-*"biçim `blobs.ts`ten OKUNDU, uydurulmadı"* diyordu. Okunmuştu — ama kopyaydı ve
-`deliverable` eklenince sessizce ayrıştı. **Okunan bir kopya da bir kopyadır.** Tip
-artık kaynağından import ediliyor; ayrışma yapısal olarak imkânsız.
-
-**Kapanmayanlar, açıkça:**
-- Varlıklar **indekste değil**: `kutuphane()` her çağrıda tüm ağacı tarıyor. 400
-  varlıkta ~500 dosya okuması. Ölçülmeden optimize edilmeyecek.
-- `derived/blobs` **yalnız bu diskte** (`3.12b`, R2 senkronu yazılmadı). Yüzlerce
-  varlığın gerçek riski budur.
-- Önizleme/küçük resim yok: dijest'e bakarak 400 görsel taranamaz.
-
-**Geri alma maliyeti:** yok — alan opsiyonel, eski varlıklar okunmaya devam ediyor.
-
-## D-249 — İki katman: içerik-adresli DOĞRULUK, klasörlü GEZİNME
-
-**2026-08-16 · varlık düzeni**
-
-Soru haklıydı: `derived/blobs/9a/9abd32a7…png` insan için gezilemez. Ama cevap
-"klasörlere geç" değil — **ikisi ayrı iş ve karıştırılırsa ikisi de bozulur.**
-
-**`derived/blobs/<ab>/<sha256>.<ext>` DOĞRULUKTUR ve değişmiyor:**
-- Adres = içerik. Aynı görsel iki teslimatta kullanılırsa **tek kopya** durur.
-- Bir bayt bozulursa adres tutmaz; bozulma matematiksel olarak yakalanır.
-- `post-1/` klasörü bunların **ikisini de** kaybettirir: aynı görsel iki kez yazılır ve
-  bir klasör adı hiçbir şeyi doğrulamaz.
-
-**`content/<yyyy-mm>/<tip>-<konu>-<id8>/01-kapak.png` GEZİNMEDİR ve yeni:**
-İnsan "şu postu aç" diye bakar, "şu sha256'yı" diye değil. Sıralı, adlandırılmış,
-tıklanabilir. Planın §5'inde `content/` yıllardır yazılıydı ve **hiç yazılmamıştı**.
-
-**Projeksiyon, ikinci doğruluk kaynağı DEĞİL:** `content/` gitignore'lu ve
-`just teslimatlar` onu sıfırdan kurar. Ters kurulsaydı — klasörler doğruluk, blob'lar
-kopya — aynı görsel iki yerde durur ve hangisinin gerçek olduğu sorusu doğardı.
-
-**Sembolik bağ, kopya değil:** 400 varlık iki kez yer kaplamıyor ve "hangisi güncel"
-sorusu doğmuyor. Bağlar **göreli**: depo taşınırsa kırılmıyor — mutlak yol, yedeği
-başka bir dizine açan birinin karşısına kırık bir ağaç çıkarırdı (FAZ-8.7 dersi).
-
-**Slug `foldForSearch`ten:** çıplak `toLowerCase()` `İ`yi bozar (R-21) ve dosya adı bir
-daha eşleşmez.
-
-**Damgasız varlıklar sayılıyor ve söyleniyor** — sessizce atlanan bir varlık, olmayan
-bir varlıktan kötüdür: görünüm "hepsi burada" gibi durur.
-
-**Geri alma maliyeti:** yok — `content/` silinebilir, hiçbir şey kaybolmaz.
-
-## D-250 — Üretilen görsel belgeye hiç girmiyordu: kota çöpe gidiyordu
-
-**2026-08-16 · tasarım katmanı, 1. bulgu**
-
-`composeBody` yalnız `capture` (ürün ekran çekimi) arıyordu. `image.generate`
-çıktısı `input.inputs`ta duruyor ve **hiçbir bloğa dönüşmüyordu**: Cloudflare'e çağrı
-gidiyor, kota harcanıyor, görsel damgalanıp içerik-adresli depoya alınıyor — ve belgeye
-hiç konmuyordu. **Siyah slayt + beyaz metin bundan.**
-
-Zincir kopukluğunun **yedinci** tekrarı: modül var, çağrı var, çıktı var, tüketen yok.
-Öncekilerden farkı, bu sefer harcanan şeyin **para/kota** olması — sessiz bir kayıp
-değil, ölçülebilir bir israf.
-
-**`data:` URI, dosya DEĞİL.** `COMPOSE`un yan etki sınıfı `pure` (§3.10): saf bir fiil
-diske yazamaz. Base64 zaten `inputs`ta ve Chromium `data:` URI'yi doğrudan çözüyor —
-tek motor yasası (R-30) korunuyor, ikinci bir yazma yolu açılmıyor.
-
-**MIME tipi imzadan okunuyor, varsayılmıyor:** Cloudflare `sdxl-lightning` yolunda JPEG
-döndürüyor; `image/png` yazmak tarayıcıyı yanıltmazdı ama **yalan olurdu**.
-
-**`role` verilmiyor:** `product_screenshot` bir iddiadır ("ürün gerçekten böyle
-görünüyor") ve model üretimi bir görsel onu iddia edemez (FAZ-6.8).
-
-⚠ **Kalan borç — `alt` metni:** bugün KONUDAN geliyor, yani görselin ne İÇİN
-üretildiğini söylüyor, ne GÖSTERDİĞİNİ değil. `decorative: true` yazmak yalan olurdu —
-görsel akışta duruyor ve anlam taşıyor. Doğru çözüm görsel brief'ini Türkçe bir
-betimlemeyle birlikte istemek. Bugün yok ve olmadığını söylüyorum.
-
-**Ölçüldü:** `olcum olmadan iyilestirme olmaz` konusuyla koşu → metroloji atölyesi
-görseli belgeye girdi, 5 slayt üretildi (önceki koşularda 4).
-
-**Geri alma maliyeti:** yok.
-
-## D-251 — Kapı, sistemin üretmesi gereken şeyi reddediyordu
-
-**2026-08-16 · tasarım katmanı**
-
-Görsel belgeye girer girmez slayt boyutu 713KB'a çıktı ve `compliance` kapısı reddetti:
-*"713KB — git sınırı aşıldı (R-64)"*. Ama `derived/blobs` **gitignore'lu** ve
-`blobs.ts`in kendi yorumu bunu zaten söylüyordu:
-
-> *"R-64: 512KB. Blob deposu git'te değil ama sınır burada da **raporlanır**."*
-
-**Niyet "raporla", uygulama "engelle" idi.** Sonuç: gerçek fotoğraf taşıyan bir
-Instagram slaytı 512KB'ı rutin olarak aşıyor ve kapı sistemin üretmesi gereken şeyi
-reddediyordu. Yayın sınırı zaten AYRI ölçülüyor ve gerçek olan o: `✓ 156KB / 8192KB`.
-
-`oversize_for_git` artık uyarı. **Bozulma** (`digest_mismatch`) ve **damgasızlık**
-(`meta_missing`) hata olarak kalıyor — ikisi de deponun vaadini çiğniyor.
-
-**Uyarılar HER ZAMAN basılıyor**, yalnız hata varken değil: temiz koşuda bilgiyi
-gizlemek "her şey mükemmel" izlenimi verir.
-
-**Geri alma maliyeti:** yok.
-
 ## D-252 — Marka fontu: gömülü, latin-ext, iki yüz
 
 **2026-08-17 · tasarım katmanı**
@@ -582,3 +458,38 @@ söyleyebileceği bir şeyi tahmin ediyordu.
 
 **Geri alma maliyeti:** düşük — üretim yolundaki ölçüm çağrısı kaldırılabilir; ama o an
 metrikler yine yalnız depoyu korur.
+
+## D-260 — Ölçen ile ölçülen aynı birimi konuşmalı
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.7 · §11.1
+
+Kabul koşusu üç kez düştü ve üçünde de sebep **benim ölçüm tarafımdaydı**:
+
+**1. Kontrast okuması hiç ÜRETİLMİYORDU.** `tokenCoz` tek adım çözüyordu, oysa token
+mimarisi üç kademeli (§12.1): `--role-bg` bir renge değil `var(--ramp-gray-950)`e
+çözülüyor. Ayrıca "son tanım kazanır" kuralı `studio` yüzeyini seçiyordu — karosel
+`kreatif` yüzeyinde çiziliyor. İkisi birlikte: ölçüm doğru sayı üretip **yanlış şeyi**
+ölçecekti. Çözüm özyinelemeli ve yüzey kapsamlı; döngüsel tanımda derinlik sınırıyla
+`null` dönüyor, sıfır DEĞİL.
+
+**2. Kapanış cümlesi belgeye hiç girmiyordu.** `satirlar.slice(1, 4)` yalnız üç gövde
+satırı alıyordu; son satır — yani DAVET — atılıyordu. Kesme, uzunluk disiplini prompt'a
+yazılmadan önceki bir kalıntıydı ve disiplin gelince fazlalık değil **kayıp** oldu.
+Ayrıca görsel en sona ekleniyordu ve sayfalayıcı onu tek başına son slayda koyuyordu:
+kapanış 0 kelimeyle çıkıyordu (ölçüldü). Görsel gövdenin sonuna alındı, kapanış en sona.
+
+**3. Birim uyuşmazlığı — ve bu en sinsisiydi.** T8 slayttaki TÜM metni topluyordu ama
+`icerikPromptu`un bütçesi SATIR başına. Bir slayt iki satır taşıyabildiği için her satır
+kurala uysa bile toplam 41 çıkıyor ve metrik varlığı reddediyordu. **Modelin hatası
+sanılan şey ölçenin hatasıydı.** Metrik artık en uzun BLOĞU ölçüyor — prompt'un
+sözleşmesiyle aynı birim.
+
+**Prompt'a örnek ve sayım talimatı eklendi ve bu da ölçülerek yapıldı:** yalnız "en fazla
+8 kelime" yazmak yetmedi (kapak 21 geldi); örnek biçim ve "yazmadan önce her satırın
+kelimesini say" eklendikten sonra kapak 5–6 kelimeye indi. **Bir üst sınır, sayılması
+istenmediği sürece bir temennidir.**
+
+**Sonuç:** hat uçtan uca yeşil koşuyor, tasarım metriklerinin hepsi tolerans içinde,
+kapanış slaydı gerçek bir davet taşıyor.
+
+**Geri alma maliyeti:** yok — üçü de düzeltme, davranış genişlemesi değil.

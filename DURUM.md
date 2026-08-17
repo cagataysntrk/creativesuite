@@ -59,34 +59,34 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 ## Sıradaki adım
 
-**FAZ 10 — TASARIM KATMANI** (D-255). 10.1–10.6 KAPANDI; ayrıntı
-`docs/fazlar/FAZ-10.md` ve `docs/referans/*.md`.
+**FAZ 10** (D-255). 10.1–10.6 KAPANDI; ayrıntı `docs/fazlar/FAZ-10.md`.
 · **10.1** oturum 4.9x · **10.2** T9/T11 türetilemez, ölçüm aracı bozuktu (%97.8)
   · **10.2b** bant %69–78, sütun %62, h1 64px · **10.3** kapı 23 okuma, 4 ihlal.
 · **10.4** düzen İÇERİKTEN · **10.4b** dört düzen dört KOMPOZİSYON; düzen
   `SlaytKimligi.duzen`de (rol, çizim değil).
 
-· **10.5** `image.critique` YETENEK, kutu ZORUNLU. 3 bulgu, üçü doğru: **saçaklanma
-  %6,6→%0,0** (hiçbir metrik görmemişti). `Read` aracı ölçülerek gerekti (D-256).
+· **10.5** `image.critique` YETENEK, kutu ZORUNLU. **Saçaklanma %6,6→%0,0** —
+  hiçbir metrik görmemişti. `Read` aracı ölçülerek gerekti (D-256).
 
-· **10.6** `SablonParametreleri` üretim yoluna bağlı; türetme ÖNERİR, uygulamaz (R-14).
-  **Bant referanstan TÜRETİLEMEDİ**: ham aralık %2–97, tavan 40 → sayı YAZILMADI.
-  Yürürlükteki %69–78 bir KISIT: Türkçe sütun %62 olmak zorunda (D-257).
+· **10.6** `SablonParametreleri` bağlı; türetme ÖNERİR (R-14). **Bant TÜRETİLEMEDİ**
+  (%2–97, tavan 40) → sayı YAZILMADI. %69–78 bir KISIT: Türkçe sütun %62 (D-257).
 
-**10.7 — hat uçtan uca YEŞİL** (`gorsel-yargi` dahil, ~354 sn/koşu). İlk koşu
-`kalite`de durdu (fotoğraflı slayt %17,7); D-258 ile düzeltildi ve ilk düzeltmem fazla
-genişti — otorite üreticiye verildi (`renderBody.gorselliSlaytlar`).
+**10.7** — ilk koşu `kalite`de durdu (fotoğraflı slayt %17,7); D-258 ile düzeltildi,
+otorite üreticiye verildi. Kapak `statement`, tasarım metrikleri üretimde (D-259).
 
-✅ **İKİ BLOKER KAPANDI** (D-259), gerçek koşuda doğrulandı:
-1. **Kapak artık `statement`** — rol kısıtı SAYFALAMAYA girdi (iki geçişli: rol
-   `total`e bağlı). Ölçüldü: kapak **5 kelime** (limit 8), metin tek alanda.
-2. **`tasarimOlc` ÜRETİM yolunda koşuyor** — 12 metrik gerçek çıktıya uygulanıyor.
-   Öncesinde kapı yalnız DEPOYU koruyordu.
-3. **`citations` kapısında da tek-haneli faz varsayımı** vardı — `durum`dakinin
-   kopyası; FAZ-10 atıfları doğrulanmıyordu. Dizin taramasına çevrildi.
+✅ **HAT UÇTAN UCA YEŞİL** — `✓ kalite`, tüm tasarım metrikleri tolerans içi:
+kapak 6 · gövde 21/19/21 · kapanış 8 kelime · kontrast 10,5:1 ve 18,1:1.
 
-**KABUL SAYACI: 1/20.** Açık: T4 kontrast okuması üretimde ÜRETİLMİYOR · kapanış
-slaydı 0 kelime çıktı (yalnız görsel).
+**Üç kusur daha kapandı ve üçü de ÖLÇÜM tarafındaydı** (D-260):
+1. **Kontrast hiç ÜRETİLMİYORDU** — `tokenCoz` tek adım çözüyordu (token mimarisi üç
+   kademeli) ve "son tanım" yanlış yüzeyi seçiyordu. Özyinelemeli + yüzey kapsamlı.
+2. **Kapanış cümlesi belgeye HİÇ girmiyordu** — `slice(1,4)` son satırı atıyor, görsel
+   kapanış slaydını kapatıyordu.
+3. **Birim uyuşmazlığı**: T8 slayt toplamını ölçüyordu, bütçe SATIR başına. Modelin
+   hatası sanılan şey ölçenin hatasıydı; artık en uzun BLOK ölçülüyor.
+
+**KABUL SAYACI: 1/20** — metrikler bu turda bağlandı, sayaç buradan başlıyor
+(~354 sn/koşu, 20 ardışık ≈ 2 saat).
 
 Sonra: 20 ARDIŞIK kabul koşusu (sınırlayıcı
 kutulu) → 10.6 referans→parametre → 10.7 **20 ardışık kabul koşusu**.

@@ -247,9 +247,21 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // `role: 'product_screenshot'` bir İDDİADIR: "ürün gerçekten böyle görünüyor".
     const cekimler = urunCekimleri(input.inputs)
     const gorsel = uretilenGorsel(input.inputs)
+    // ── satır → blok ─────────────────────────────────────────────────────────
+    //
+    // ⚠ **`slice(1, 4)` KAPANIŞ CÜMLESİNİ ATIYORDU.** `icerikPromptu` altı satır istiyor
+    // (kapak · dört gövde · kapanış) ama yalnız üç gövde satırı alınıyordu; son satır —
+    // yani DAVET — belgeye hiç girmiyordu. Kesme, uzunluk disiplini prompt'a yazılmadan
+    // önceki bir kalıntıydı ve disiplin gelince fazlalık değil KAYIP oldu.
+    //
+    // ⚠ **Görsel ARTIK SONDA DEĞİL.** En sona eklendiğinde sayfalayıcı onu tek başına
+    // son slayda koyuyordu: kapanış slaydı 0 kelimeyle çıkıyordu (ölçüldü). Kapanış bir
+    // DAVETTİR; görsel ondan önce, gövdenin sonunda duruyor.
+    const govde = satirlar.slice(1, -1)
+    const kapanisSatiri = satirlar.length > 1 ? (satirlar[satirlar.length - 1] ?? null) : null
     const blocks: Block[] = [
       { type: 'heading', text: satirlar[0] as string, level: 1 },
-      ...satirlar.slice(1, 4).map((t): Block => ({ type: 'body', text: t })),
+      ...govde.map((t): Block => ({ type: 'body', text: t })),
       // Üretilen görsel `role` TAŞIMIYOR: `product_screenshot` bir iddiadır ("ürün
       // gerçekten böyle görünüyor") ve model üretimi bir görsel onu iddia edemez.
       // Rolsüz görüntü hiçbir şey iddia etmez ve serbesttir (§7.1).
@@ -268,6 +280,9 @@ export const composeBody = (deps: ComposeDeps): Verb =>
               decorative: false,
             },
           ]),
+      // Kapanış EN SONDA: sayfalayıcı son slaydı `kapanis` rolüyle damgalıyor ve o
+      // slaydın metni bu satır olmalı.
+      ...(kapanisSatiri === null ? [] : [{ type: 'body' as const, text: kapanisSatiri }]),
       ...cekimler.map((c): Block => ({
         type: 'image',
         src: c.path,
