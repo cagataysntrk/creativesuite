@@ -11,6 +11,7 @@ import { CorpusTarayici } from './CorpusTarayici.js'
 import { BaglamOnizleme } from './BaglamOnizleme.js'
 import { RunLauncher } from './RunLauncher.js'
 import { OnayKuyrugu } from './OnayKuyrugu.js'
+import { OnayBolumleri } from './OnayBolumleri.js'
 import { Giris } from './Giris.js'
 import { KosuDetay } from './KosuDetay.js'
 import { YerlesimEkrani } from './YerlesimEkrani.js'
@@ -243,7 +244,11 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'calistir' ? (
           <RunLauncher pipeline={pipeline} />
         ) : ekran === 'kuyruk' ? (
-          <OnayKuyrugu ac={kosuAc} />
+          <OnayBolumleri
+            ac={kosuAc}
+            bekleyenSayisi={durum?.bekleyenKapi ?? 0}
+            bekleyenIcerik={<OnayKuyrugu ac={kosuAc} />}
+          />
         ) : ekran === 'yerlesim' ? (
           <YerlesimEkrani />
         ) : ekran === 'kesif' ? (
@@ -253,7 +258,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'butce' ? (
           <ButceEkrani />
         ) : ekran === 'varliklar' ? (
-          <VarlikKutuphanesi />
+          <VarlikKutuphanesi ac={kosuAc} />
         ) : ekran === 'gecmis' ? (
           <RunGecmisi />
         ) : ekran === 'saglik' ? (

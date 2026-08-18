@@ -820,3 +820,64 @@ tr[data-tiklanir] {
 .is-uyari {
   color: var(--role-state-danger);
 }
+
+/* ── varlık grupları: bir karosel BİR gönderi ─────────────────────────────
+ * 305 satırlık düz liste içindekini gizliyordu: dört slayt tek bir gönderidir
+ * ve tek başına bir slaytın anlamı yok.
+ */
+.grup-listesi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.grup {
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  padding: var(--space-3);
+}
+
+.grup-basi {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-block-end: var(--space-2);
+  color: var(--role-text-muted);
+}
+
+.grup-basi strong {
+  color: var(--role-text);
+}
+
+/* ── onay bölümleri: bekleyen · onaylanan · yayınlanan · planlanan ───────── */
+.bolum-sekmeler {
+  display: flex;
+  gap: var(--space-1);
+  margin-block-end: var(--space-3);
+}
+
+.bolum-sekmeler button {
+  background: none;
+  border: 1px solid transparent;
+  border-block-end: 2px solid transparent;
+  color: var(--role-text-muted);
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+}
+
+.bolum-sekmeler button.etkin {
+  color: var(--role-text);
+  border-block-end-color: var(--role-accent);
+}
+
+.yakinda {
+  color: var(--role-text-muted);
+  border: 1px dashed var(--role-line-hair);
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
+}

@@ -12,7 +12,7 @@
 // anlamalı. Yalnız veri gönderirsek, hiçbir şey değişmediğinde sessizlik ile ölüm
 // birbirinden ayırt edilemez — ve kalıcı bir gösterge bayat değeri canlı gibi gösterir.
 
-import { existsSync, readFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync } from 'node:fs'
 import { join } from 'node:path'
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
@@ -285,6 +285,46 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     })
   })
 
+  // ── varlık "silme" = KARANTİNA (FAZ-17.2) ────────────────────────────────
+  //
+  // ⚠ ⚠ **BYTE SİLİNMİYOR, TAŞINIYOR — ve bu senkron kalmanın tek yolu.** Manifest
+  // varlığın digest'ini KANIT olarak taşıyor (§13); byte'ı yok etmek defteri
+  // sarkan bir işaretçiyle bırakırdı ve panel kırık bir görsel gösterirdi. Karantina
+  // zaten "yayınlanamaz ama korunur" demek (D-155) ve tam olarak aranan anlam bu.
+  //
+  // ⚠ Sebep ZORUNLU: gerekçesiz karantina, altı ay sonra "bu neden burada" sorusunu
+  // cevapsız bırakır ve kimse geri almaya cesaret edemez.
+  app.post('/api/varliklar/karantina', async (c) => {
+    const g = (await c.req.json().catch(() => ({}))) as {
+      digests?: readonly string[]
+      sebep?: string
+    }
+    const sebep = (g.sebep ?? '').trim()
+    if (sebep === '') return c.json({ ok: false, hata: 'sebep zorunlu' }, 400)
+    const hedefler = (g.digests ?? []).map((d) => d.replace(/^sha256:/, ''))
+    if (hedefler.length === 0) return c.json({ ok: false, hata: 'digest yok' }, 400)
+    const tasinan: string[] = []
+    for (const d of hedefler) {
+      if (!/^[0-9a-f]{64}$/.test(d)) continue
+      const kaynak = join(o.repoRoot, 'derived/blobs', d.slice(0, 2), `${d}.png`)
+      if (!existsSync(kaynak)) continue
+      const hedefDizin = join(o.repoRoot, 'derived/karantina', d.slice(0, 2))
+      mkdirSync(hedefDizin, { recursive: true })
+      renameSync(kaynak, join(hedefDizin, `${d}.png`))
+      const meta = `${kaynak}.meta.json`
+      if (existsSync(meta)) renameSync(meta, join(hedefDizin, `${d}.png.meta.json`))
+      tasinan.push(d)
+    }
+    // ⚠ Gerekçe DEFTERE yazılıyor, bir alan güncellenmiyor: karantina bir OLAY ve
+    // olaylar append-only kayıt ister (§13).
+    appendFileSync(
+      join(o.repoRoot, 'derived/karantina/defter.ndjson'),
+      `${tasinan.map((d) => JSON.stringify({ digest: d, sebep, at: o.simdi() })).join('\n')}\n`
+    )
+    yayinla('degisim')
+    return c.json({ ok: true, tasinan: tasinan.length })
+  })
+
   // Reuse: varlığı DEĞİL, onu üreten çalıştırmayı açar — kopyalanacak olan bayt değil,
   // KARARDIR (donmuş girdiler, konu, bağlam).
   app.get('/api/varliklar/:runId/yeniden-kullan', (c) => {
@@ -488,6 +528,26 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
 
   // ── onay kuyruğu (§12.5, §12.9 · R-14 · FAZ-4.7) ──────────────────────────
   app.get('/api/kuyruk', (c) => c.json({ bekleyenler: bekleyenler(o.repoRoot) }))
+
+  // ⚠ ⚠ **ONAYLANANLAR GÖRÜNMÜYORDU.** Kuyruk yalnız bekleyeni gösteriyor; onaylanan
+  // bir gönderi listeden düşüyor ve bir daha görünmüyordu — "onayladım da ne oldu"
+  // sorusunun cevabı hiçbir yerde yoktu. Kararlar zaten manifestte; eksik olan tek
+  // şey onları okuyan bir uçtu.
+  app.get('/api/kararlar', (c) => {
+    const satirlar = calistirmalar(o.repoRoot).flatMap((r) => {
+      const m = readManifest(o.repoRoot, r.runId as never)
+      return (m?.decisions ?? []).map((d) => ({
+        runId: r.runId,
+        pipeline: m?.pipeline ?? '',
+        gate: d.gate,
+        decision: d.decision,
+        at: d.at,
+        note: d.note ?? null,
+      }))
+    })
+    // En yeni önce: bir kararın ne zaman verildiği, verildiği sırayla okunur.
+    return c.json({ kararlar: satirlar.sort((a, b) => b.at.localeCompare(a.at)) })
+  })
 
   // ── kanal durumu: token ömrü · oran bütçesi · sürüm sabiti (§9.4 · FAZ-7.7) ─
   //
