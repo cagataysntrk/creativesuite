@@ -226,6 +226,16 @@ export interface TipoResetesi {
   readonly govdeOrani: number
   /** Başlık sütununun kart genişliğine oranı (0–1]. */
   readonly baslikSutunu: number
+  /**
+   * Panel ögelerinin ölçek çarpanı — 1 = eski web ölçüsü.
+   *
+   * ⚠ ⚠ **VERİ ŞABLONUNDA VERİ KADRAJIN %2'SİYDİ.** Ölçüldü: `veri-hikayesi` kartlarında
+   * panel %0,9–4,9, hayalet %22–26. Süs, verinin beş ilâ yirmi beş katı. Panel sabitleri
+   * (22px liste, 18px etiket, 300px vafel) WEB ölçüsünden geliyordu; bir gönderi tuvali
+   * ekran değil ve ekran ölçüsü orada "bilgisayar işi" gibi duruyor.
+   * ⚠ `panorama-denetim` bunu artık `sus-baskin` diye ÖLÇÜYOR: süs içerikten büyükse kusur.
+   */
+  readonly panelPayi?: number
 }
 
 /**
@@ -1006,7 +1016,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `           --baslik-lh: ${t.satirAraligi}; --baslik-ls: ${t.harfArasi}em;`,
     `           --ust-wdth: ${t.ustGenislik}; --govde-orani: ${t.govdeOrani};`,
     // ⚠ Başlangıç değeri; gerçek punto render sonrası ÖLÇÜLEREK yazılıyor (`puntoTavani`).
-    `           --baslik-punto: ${Math.round(96 * t.baslikPayi)}px; }`,
+    `           --baslik-punto: ${Math.round(96 * t.baslikPayi)}px;`,
+    `           --panel-olcek: ${t.panelPayi ?? 1}; }`,
     // ⚠ Kart bir FLEX SÜTUNU: panel `margin-top:auto` ile aşağı itiliyor ve kartın alt
     // yarısı boş kalmıyor. İlk render'da her şey üste yığılmış, alt %60 bomboştu.
     `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px; padding: 68px 64px 190px;`,
@@ -1141,46 +1152,55 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // Çizgi bir anlam taşıyor (panel buradan başlıyor), süs değil.
     // ⚠ Zemin farkı da kaldırıldı: panel artık kartın zemininde YÜZÜYOR, kendi kutusunda
     // oturmuyor — katmanlanma rehber §3'ün istediği şey.
-    `  .panel { padding: 4px 0 4px 26px; max-width: 640px;`,
+    // ⚠ ⚠ **PANEL ÖLÇEĞİ REÇETEYE BAĞLANDI (D-292) — ve sebebi bir ÖLÇÜM.** Buradaki
+    // sabitler WEB ölçüsündeydi: `.liste-ad` 22px, `.etiket` 18px, vafel 300px. 1350px'lik
+    // bir tuvalde 22px, yüksekliğin %1,6'sı. Ölçüldü: `veri-hikayesi` — adı üstünde VERİ
+    // şablonu — kartlarında panel kadrajın %0,9–4,9'unu tutuyordu, hayalet ise %22–26'sını.
+    // **Ekrandaki en büyük şey dekoratif bir rakamdı, şablonun tüm amacı olan veri bir
+    // kırıntıydı.** Depo sahibinin "web tasarımı gibi duruyor" tespitinin sayısal karşılığı.
+    //
+    // ⚠ Tek çarpan, tüm panel: ayrı ayrı büyütmek oranları bozardı ve panelin kendi iç
+    // ritmi (rehber §3, 1:3 boşluk) referansın değil bizim tercihimiz olurdu.
+    `  .panel { padding: calc(4px * var(--panel-olcek)) 0 calc(4px * var(--panel-olcek)) calc(26px * var(--panel-olcek)); max-width: calc(640px * var(--panel-olcek));`,
     `           border-left: 3px solid var(--kart-aksan) }`,
-    `  .panel-baslik { font-size: 16px; letter-spacing: 0.16em; color: ${sol('--kart-metin', 50)};`,
-    `                  margin-bottom: 18px; font-weight: 600 }`,
-    `  .cubuk-satir { display: flex; align-items: center; gap: 12px; margin-bottom: 11px }`,
-    `  .cubuk-etiket { width: 64px; font-size: 18px; color: ${sol('--kart-metin', 60)};`,
+    `  .panel-baslik { font-size: calc(16px * var(--panel-olcek)); letter-spacing: 0.16em; color: ${sol('--kart-metin', 50)};`,
+    `                  margin-bottom: calc(18px * var(--panel-olcek)); font-weight: 600 }`,
+    `  .cubuk-satir { display: flex; align-items: center; gap: calc(12px * var(--panel-olcek)); margin-bottom: calc(11px * var(--panel-olcek)) }`,
+    `  .cubuk-etiket { width: calc(64px * var(--panel-olcek)); font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 60)};`,
     `                  font-variant-numeric: tabular-nums }`,
-    `  .cubuk-yuva { flex: 1; height: 22px; background: ${sol('--kart-metin', 8)};`,
+    `  .cubuk-yuva { flex: 1; height: calc(22px * var(--panel-olcek)); background: ${sol('--kart-metin', 8)};`,
     `                border-radius: 3px; overflow: hidden; display: block }`,
     `  .cubuk { display: block; height: 100%; background: var(--kart-aksan);`,
-    `           border-radius: 3px; min-width: 6px }`,
+    `           border-radius: 3px; min-width: calc(6px * var(--panel-olcek)) }`,
     `  .cubuk.tahmin { background: repeating-linear-gradient(115deg,`,
     `                  var(--kart-aksan) 0 7px, transparent 7px 14px);`,
     `                  box-shadow: inset 0 0 0 2px var(--kart-aksan) }`,
-    `  .cubuk-not { font-size: 17px; color: ${sol('--kart-metin', 75)}; white-space: nowrap;`,
+    `  .cubuk-not { font-size: calc(17px * var(--panel-olcek)); color: ${sol('--kart-metin', 75)}; white-space: nowrap;`,
     // ⚠ `tnum` ölçüldü: `1111 8888` orantılıda 464 px, tabularda 543 px. Sayı sütunu ancak
     // tabularda hizalanıyor — orantılı rakamla çubuk notları birbirini tutmuyordu.
     `                font-variant-numeric: tabular-nums }`,
-    `  .sayilar { display: flex; gap: 18px; flex-wrap: wrap }`,
+    `  .sayilar { display: flex; gap: calc(18px * var(--panel-olcek)); flex-wrap: wrap }`,
     // ⚠ Sayı kartı da kutusundan çıktı: dev rakam ZATEN kendi ağırlığıyla ayrışıyor,
     // etrafına çerçeve çizmek onu küçültüyordu (rehber §6, §7).
-    `  .sayi-kart { padding: 0 44px 0 0 }`,
-    `  .sayi { font-family: "Marka Display", sans-serif; font-size: 74px; font-weight: 900;`,
+    `  .sayi-kart { padding: 0 calc(44px * var(--panel-olcek)) 0 0 }`,
+    `  .sayi { font-family: "Marka Display", sans-serif; font-size: calc(74px * var(--panel-olcek)); font-weight: 900;`,
     `          font-stretch: calc(var(--baslik-wdth) * 1%); font-variant-numeric: tabular-nums;`,
     `          color: var(--kart-aksan); line-height: 1 }`,
-    `  .birim { font-size: 26px; margin-left: 8px; color: ${sol('--kart-metin', 70)} }`,
-    `  .sayi-alt { font-size: 18px; color: ${sol('--kart-metin', 60)}; margin-top: 8px }`,
-    `  .vafel { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; width: 300px }`,
+    `  .birim { font-size: calc(26px * var(--panel-olcek)); margin-left: calc(8px * var(--panel-olcek)); color: ${sol('--kart-metin', 70)} }`,
+    `  .sayi-alt { font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 60)}; margin-top: calc(8px * var(--panel-olcek)) }`,
+    `  .vafel { display: grid; grid-template-columns: repeat(10, 1fr); gap: calc(5px * var(--panel-olcek)); width: calc(300px * var(--panel-olcek)) }`,
     `  .vafel-kare { width: 100%; aspect-ratio: 1; background: ${sol('--kart-metin', 9)};`,
     `                border-radius: 2px }`,
     `  .vafel-kare.dolu { background: var(--kart-aksan) }`,
-    `  .liste-satir { display: flex; gap: 14px; align-items: baseline; margin-bottom: 10px }`,
-    `  .liste-no { font-family: "Marka Display", sans-serif; font-size: 22px;`,
+    `  .liste-satir { display: flex; gap: calc(14px * var(--panel-olcek)); align-items: baseline; margin-bottom: calc(10px * var(--panel-olcek)) }`,
+    `  .liste-no { font-family: "Marka Display", sans-serif; font-size: calc(22px * var(--panel-olcek));`,
     `              color: var(--kart-aksan); font-variant-numeric: tabular-nums;`,
-    `              font-weight: 800; min-width: 32px }`,
-    `  .liste-ad { font-size: 22px }`,
-    `  .liste-ikon { display: flex; align-items: center; width: 21px; flex: none }`,
-    `  .etiketler { display: flex; flex-wrap: wrap; gap: 10px; max-width: 620px }`,
+    `              font-weight: 800; min-width: calc(32px * var(--panel-olcek)) }`,
+    `  .liste-ad { font-size: calc(22px * var(--panel-olcek)) }`,
+    `  .liste-ikon { display: flex; align-items: center; width: calc(21px * var(--panel-olcek)); flex: none }`,
+    `  .etiketler { display: flex; flex-wrap: wrap; gap: calc(10px * var(--panel-olcek)); max-width: calc(620px * var(--panel-olcek)) }`,
     `  .etiket { border: 1px solid ${sol('--kart-metin', 16)}; border-radius: 999px;`,
-    `            padding: 8px 16px; font-size: 18px; color: ${sol('--kart-metin', 80)} }`,
+    `            padding: calc(8px * var(--panel-olcek)) calc(16px * var(--panel-olcek)); font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 80)} }`,
     // ── bant ────────────────────────────────────────────────────────────────
     // ⚠ Bant 560 px: 300 px'te eğri dibe yapışıyor ve "hikâye" okunmuyordu. Yükseklik
     // eğrinin anlatabileceği fark kadar olmalı.

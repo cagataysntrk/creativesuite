@@ -533,3 +533,50 @@ belirtisini alıyor.
 sembollerin gerçekten gerektiği ölçülmeden yapılmamalı (yirmi ikonun kaçı 3B olmalı?).
 
 **Geri alma maliyeti:** yok — bu tur yalnız ölçüm ve karar; kod değişmedi.
+
+## D-292
+
+**Karar:** Panel ölçeği reçeteye bağlandı (`panelPayi`) ve yeni bir denetim kusuru geldi:
+**`sus-baskin`** — hayalet, içeriğin (başlık + gövde + panel + GÖRSEL) toplamını aşarsa
+kusur. `veri-hikayesi` 2,1 · `memphis` 1,7 aldı; `akan-alan` hayaleti 1,62 → 1,34 indi.
+
+**Neden — ve bu turun en önemli ölçümü bu.** "Hangi ikon kütüphanesi" sorusunu
+kovalarken önce ikonların NEREDE kullanıldığı ölçüldü: yalnız `liste` panelinde, yani
+katalogun **30 slaydından 2'sinde**. Yatırım oraya değildi. Asıl soru "paneller nasıl
+duruyor" idi ve cevap ezici:
+
+| | kart alanı |
+|---|---|
+| Panel (verinin kendisi) | **%0,9 – 4,9** |
+| Başlık | %3 – 10 |
+| Hayalet (süs) | **%22 – 26** |
+
+**Süs, verinin beş ilâ yirmi beş katıydı.** `veri-hikayesi` — adı üstünde VERİ şablonu —
+kartlarında ekrandaki en büyük şey dekoratif bir gri rakamdı. Depo sahibinin *"web
+tasarımı gibi duruyor, aşırı bilgisayar işi"* tespitinin sayısal karşılığı tam olarak bu:
+hiyerarşi ters.
+
+⚠ **Panel sabitleri WEB ölçüsündeydi:** `.liste-ad` 22px, `.etiket` 18px, vafel 300px.
+1350px'lik bir tuvalde 22px, yüksekliğin %1,6'sı. Bir gönderi tuvali ekran değildir ve
+ekran ölçüsü orada "bilgisayar işi" gibi durur. Tek çarpan tüm paneli büyütüyor; ayrı
+ayrı büyütmek panelin iç ritmini (rehber §3, 1:3) bozardı.
+
+**Ölçülen sonuç:** panel %0,9–4,9 → **%3,9–25**. Altı şablonun altısında `sus-baskin`
+temiz. `48%` / `23%` gibi sayılar artık kahraman.
+
+⚠ ⚠ **KURALIN İLK SÜRÜMÜ GÖRSELİ İÇERİK SAYMIYORDU** ve tam olarak görsel sürücü
+şablonlarda (`sahne`, `donen`, `editoryal`) yanlış çalışıyordu: orada asıl içerik
+fotoğraf, metin ona eşlik ediyor. Görseli dışarıda bırakan bir "içerik" tanımı fotoğrafı
+SÜS sayar. Görseller kartın dışında ayrı katmanda (kesimi aşabilsinler diye), o yüzden
+kesişim hesaplanıyor. Düzeltmeden sonra 18 kusur → 1.
+
+⚠ **Aynı ölçek her şablonda aynı anlama gelmiyor:** `akan-alan`ın ne paneli var ne
+görseli, içerik yalnız iki metin bloğu; orada 1,62'lik hayalet baskın, ötekilerde değil.
+
+⚠ Ölçüm aracı bir kez daha ters tırnak tuzağına düştü: denetim kodu bir JS şablon dizesi
+İÇİNDE yaşıyor ve yorumdaki `` ` `` diziyi kapatıyor. Bu turda iki ayrı dosyada oldu.
+
+⚠ **Bu kez gözüm yanıldı, araç değil:** `memphis` listesi taşıyor sandım, ölçüm taşma
+yok dedi ve haklıydı — montajın kendi kırpmasıydı.
+
+**Geri alma maliyeti:** düşük — bir CSS değişkeni, bir reçete alanı, bir denetim bloğu.

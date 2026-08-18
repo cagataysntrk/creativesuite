@@ -56,6 +56,20 @@ export type KusurTuru =
    * siyah olması hâlâ modelin uymasına bağlı ve o yüzden ÖLÇÜLMESİ gerekiyor.
    */
   | 'matlama-tutmuyor'
+  /**
+   * **Süs, içerikten büyük.** Hayalet rakam kartın en büyük ögesi ve başlık + gövde +
+   * panel toplamını aşıyor.
+   *
+   * ⚠ ⚠ **BU KUSUR BİR ÖLÇÜMDEN DOĞDU ve sayılar ezici.** `veri-hikayesi` — adı üstünde
+   * VERİ şablonu — kartlarında panel kadrajın %0,9–4,9'unu tutuyordu, hayalet ise
+   * %22–26'sını. Yani ekrandaki en büyük şey dekoratif bir gri rakamdı ve şablonun tüm
+   * amacı olan veri bir kırıntıydı. Depo sahibinin *"aşırı bilgisayar işi duruyor"*
+   * tespitinin sayısal karşılığı tam olarak bu: hiyerarşi ters.
+   *
+   * ⚠ Hayaleti YASAKLAMIYOR — gerçek koşularda çıktının en tasarımsal ögesiydi. Ölçtüğü
+   * tek şey ORAN: süs içerikten büyükse kompozisyon süsün etrafında kurulmuş demektir.
+   */
+  | 'sus-baskin'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -166,6 +180,36 @@ const OLCUM = (kesimler: readonly number[], iddia: boolean): string => `(() => {
         aciklama: 'kesik görselin köşe parlaklığı ' + Math.round(ort) +
           '/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak' })
   }
+
+  // ── süs baskınlığı: hayalet, içerik toplamını aşmamalı ───────────────────
+  //
+  // ⚠ Alan ölçülüyor, punto değil: bir rakam dar ama çok uzun olabilir. Göz alanı görüyor.
+  kartlar.forEach((k, i) => {
+    const kr = k.getBoundingClientRect()
+    const alan = (e) => { if (!e) return 0
+      const r = e.getBoundingClientRect(); return (r.width * r.height) / (kr.width * kr.height) }
+    const hayalet = alan(k.querySelector('.hayalet'))
+    if (hayalet === 0) return
+    let icerik = ['.baslik', '.govde', '.panel', '.sayilar', '.etiketler', '.vafel']
+      .reduce((t, sec) => t + alan(k.querySelector(sec)), 0)
+    // ⚠ ⚠ **GÖRSEL DE İÇERİKTİR — ilk sürüm onu SAYMIYORDU ve bu, kuralı tam olarak
+    // görsel sürücülü şablonlarda (sahne, donen, editoryal) yanlış yapıyordu.**
+    // O şablonlarda asıl içerik fotoğraf; metin yalnız ona eşlik ediyor. Görselleri
+    // dışarıda bırakan bir "içerik" tanımı, fotoğrafı süs sayar.
+    // ⚠ Görseller kartın DIŞINDA, ayrı bir katmanda (kesimi aşabilmeleri için): kesişim
+    // hesaplanıyor, querySelector işe yaramaz.
+    for (const g of document.querySelectorAll('.gorsel, .gorsel-yer')) {
+      const gr = g.getBoundingClientRect()
+      const en = Math.max(0, Math.min(kr.right, gr.right) - Math.max(kr.left, gr.left))
+      const boy = Math.max(0, Math.min(kr.bottom, gr.bottom) - Math.max(kr.top, gr.top))
+      icerik += (en * boy) / (kr.width * kr.height)
+    }
+    if (hayalet > icerik) {
+      kusurlar.push({ tur:'sus-baskin', kart:i+1, alan:'hayalet',
+        aciklama: 'hayalet kartın %' + Math.round(hayalet*100) + "'ini tutuyor, içerik (başlık+gövde+panel) %"
+          + Math.round(icerik*100) + " — süs içerikten büyük" })
+    }
+  })
 
   // ── kesintisizlik: iddia varsa BİR ÖGE kesimi aşmalı ─────────────────────
   if (${iddia ? 'true' : 'false'}) {

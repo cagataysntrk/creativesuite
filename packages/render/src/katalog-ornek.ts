@@ -67,6 +67,11 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     ustGenislik: 112,
     govdeOrani: 0.27,
     baslikSutunu: 0.88,
+    // ⚠ ⚠ **2,1 — VERİ ŞABLONUNDA VERİ %2'YDİ.** Ölçüldü: panel kadrajın %0,9–4,9'unu,
+    // hayalet %22–26'sını tutuyordu. Bu şablonun ADI veri hikâyesi; en büyük ögesi
+    // dekoratif bir rakam olamaz. Çarpan panelin TAMAMINI büyütüyor, tek tek ögeleri
+    // değil: iç oranlar (rehber §3) korunuyor.
+    panelPayi: 2.1,
   },
   zemin: 'var(--role-line-edge)',
   zeminDokusu: {
@@ -234,7 +239,15 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   zemin: 'var(--role-bg)',
   // ⚠ Hayalet ALT alanda: sınır ~%60'ta, rakam %52'den başlayıp mürekkep alana taşıyor.
   // İlk sürümde üst alanda kalıyordu ve tuvalin alt %40'ı bomboş siyahtı.
-  hayaletKonumu: { ust: 48, olcek: 1.62, guc: 16 },
+  hayaletKonumu: {
+    ust: 48, // ⚠ ⚠ **1,62 → 1,34: bu şablonun ne paneli var ne görseli.** İçerik yalnız başlık ve
+    // gövde; hayalet 1,62'de kartın %19'unu tutup içeriğin (%15) önüne geçiyordu ve
+    // `sus-baskin` bunu ölçtü. Ötekilerde hayalet aynı boyutta kalabiliyor çünkü orada
+    // fotoğraf ya da panel ağırlığı dengeliyor — **aynı ölçek her şablonda aynı anlama
+    // gelmiyor.**
+    olcek: 1.34,
+    guc: 16,
+  },
   alanSiniri: {
     ust: 'var(--role-bg)',
     alt: 'var(--role-line-edge)',
@@ -542,6 +555,9 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     ustGenislik: 84,
     govdeOrani: 0.34,
     baslikSutunu: 0.8,
+    // ⚠ 1,7: `memphis` panelleri veri değil RİTİM taşıyor (etiket, liste); veri
+    // şablonu kadar büyümeleri gerekmiyor ama web ölçüsünde de kalamazlar.
+    panelPayi: 1.7,
   },
   zemin: 'var(--role-surface)',
   // ⚠ Kâğıt zeminde koyu bir hayalet aynı opaklıkta DAHA GÜÇLÜ okunur (koyu üstüne
