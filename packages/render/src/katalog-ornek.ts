@@ -335,30 +335,35 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     ],
   },
   gorselIslemleri: ['matlama', 'keskinlik'],
-  // ⚠ ⚠ **BU ŞABLONUN KURALI: BAŞLIK EN FAZLA İKİ SATIR.** Oklar metin bloğu ile kesik
+  // ⚠ ⚠ **BU ŞABLONUN KURALI: BAŞLIK İKİ SATIR, GÖVDE TEK SATIR.** Gövde iki satıra
+  // çıkınca okların şeridine giriyor ve yay metnin üstünden geçiyor — render'a bakınca
+  // görüldü. Örnek içerik kasten kısa: uyarlama adımı sınırı buradan öğreniyor. Oklar metin bloğu ile kesik
   // özne arasındaki dar şeritte duruyor; üç satırlık bir başlık o şeridi yutuyor ve ok
   // metnin üstünden geçiyor — nüfus karoselinde aynı şey olmuş ve oklar SİLİNMİŞTİ.
   // Örnek başlıklar kasten kısa: uyarlama adımı çoğaltacağı şeyin sınırını buradan görür.
   bant: {
     tip: 'ok',
     oklar: [
-      { x1: 21, y1: 33, x2: 29, y2: 33, bukum: -13 },
-      { x1: 46, y1: 30, x2: 54, y2: 30, bukum: 15 },
-      { x1: 71, y1: 34, x2: 79, y2: 34, bukum: -11 },
+      // ⚠ Oklar metin bloğu ile kesik özne ARASINDAKİ şeritte: y 42–45. Daha yukarısı
+      // gövde satırına giriyor (33'te girdi ve render'a bakınca görüldü), daha aşağısı
+      // öznenin üstünden geçiyor. Şerit dar; şablonun kısa metin kuralı bu yüzden var.
+      { x1: 21, y1: 44, x2: 29, y2: 44, bukum: -13 },
+      { x1: 46, y1: 41, x2: 54, y2: 41, bukum: 15 },
+      { x1: 71, y1: 45, x2: 79, y2: 45, bukum: -11 },
     ],
   },
   gorseller: [
     // ⚠ x KESİM ÇİZGİSİNİN ÜSTÜNE denk geliyor (4 slaytta kesimler %25/%50/%75): özne
     // gövdesi bir slayttan diğerine geçiyor — bu şablonun birinci süreklilik kanalı.
-    { src: '', alt: 'kesik özne — 1', x: 19, y: 40, genislik: 13, yukseklik: 60, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 2', x: 44, y: 36, genislik: 13, yukseklik: 64, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 3', x: 69, y: 42, genislik: 13, yukseklik: 58, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 1', x: 19, y: 51, genislik: 13, yukseklik: 49, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 2', x: 44, y: 48, genislik: 13, yukseklik: 52, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 3', x: 69, y: 52, genislik: 13, yukseklik: 48, kirpma: 'kesik' },
   ],
   kartlar: [
     {
       ustBaslik: 'SAHNE',
       baslik: 'Anlatmak **göstermekle** başlar',
-      govde: 'Dört karede tek bir hareket; kaydırdıkça devam ediyor.',
+      govde: 'Dört karede tek bir hareket.',
       panel: null,
       hayalet: '',
       rayaSol: 'UPCYTECH',
@@ -367,7 +372,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     {
       ustBaslik: 'ADIM 01',
       baslik: 'Önce **sorun** duruyor',
-      govde: 'Adı konmamış bir sorun, çözülemeyen bir sorundur.',
+      govde: 'Adı konmamış sorun çözülemez.',
       panel: null,
       hayalet: '',
       rayaSol: 'UPCYTECH',
@@ -376,7 +381,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     {
       ustBaslik: 'ADIM 02',
       baslik: 'Sonra **bir ölçü** koyuluyor',
-      govde: 'Ölçü koyduğunuz an tartışma tercih olmaktan çıkıyor.',
+      govde: 'Ölçü, tartışmayı tercihe çevirir.',
       panel: null,
       hayalet: '',
       rayaSol: 'UPCYTECH',
@@ -385,7 +390,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     {
       ustBaslik: 'ADIM 03',
       baslik: 'En sonda **karar** var',
-      govde: 'Kararı veren ölçü değil insan; ölçü sadece bahaneleri bitiriyor.',
+      govde: 'Kararı ölçü değil insan verir.',
       panel: null,
       hayalet: '',
       rayaSol: 'UPCYTECH',
