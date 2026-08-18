@@ -50,3 +50,21 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   kararı, eksiklik değil (`sablon-sec.ts`).
 - `sahne` şablonunda başlık iki, gövde tek satır: oklar dar şeritte duruyor.
 - Yirmi adım insan girdisi bekliyor (`DURUM.md` ⛔ satırı).
+
+## FAZ-15.13 turundan kalanlar
+
+- **D1 · `donen` briefi soyut konuda DİKDÖRTGEN fotoğraf üretiyor.** Gerçek koşu
+  (`Geri kazanilmis elyaftan dort urun`): dört görselin üçü tam kadraj kumaş dokusuydu,
+  tek bir NESNE değil. Arka plan silme kesecek bir özne bulamıyor ve beyaz daire
+  fotoğrafın altında kalıyor. Brief "single product... full object in frame" diyor ama
+  konu soyutken model dokuya kaçıyor. Şablon seçicisi `donen`i yalnız açıkça istendiğinde
+  seçiyor; yine de brief nesne zorlamalı ya da denetim "kesik değil" diye ölçmeli.
+- **D2 · Görsel adımlarının bir koşuda topluca düşmesi AÇIKLANMADI.** `editoryal`
+  koşusunda üç `gorsel-uret` adımı da `failed` döndü; sağlayıcı hemen sonra doğrudan
+  sınandığında tohumlu ve tohumsuz iki istek de başarılıydı. Hata kaydı yolu bu turda
+  açıldı (D-287) ama sebep bir sonraki tekrarda okunacak.
+- **D3 · `donen` podyumu yok.** Referansta (`image copy 3`) ürün küçük eliptik bir
+  platformun üstünde duruyor; bizde `temas-golgesi` var, podyum yok (TODO 2.6).
+- **D4 · 3B/izometrik ve botanik varlık seti yok.** Referansın köşe ögeleri (palmiye
+  yaprakları) R-81 gereği kodlanamaz; kütüphane şart (TODO 2.3).
+

@@ -691,7 +691,11 @@ export const ORNEK_DONEN: KatalogOrnegi = {
     govdeOrani: 0.31,
     // ⚠ 0,7'de üç satırlık başlık daireye giriyordu (1. kartta "tek" çipi dairenin
     // altında kaldı). Sütun daralınca metin ve daire ayrı dikey şeritlerde kalıyor.
-    baslikSutunu: 0.6,
+    // ⚠ ⚠ **0,40: GERÇEK KOŞUDA METİN FOTOĞRAFA GİRDİ.** Ürün kutusu slaydın %42'sinde
+    // başlıyor; %46'lık bir metin kolonu onunla 4 puan çakışıyor ve başlık fotoğrafın
+    // altından okunuyordu ("Kağıttaki ka|ğıt"). Yan yana kompozisyonun bedeli bu: iki
+    // ögenin sınırı ÖLÇÜLMELİ, göz kararı bırakılmamalı.
+    baslikSutunu: 0.4,
   },
   // ⚠ ⚠ **KARTLARIN ÜSTÜNDE DOKU — `donen`in zemini tek katmanlıydı.** Bu şablonun
   // kimliği kart renklerinin DÖNMESİ; kartlar opak olmak zorunda ve panorama zemini

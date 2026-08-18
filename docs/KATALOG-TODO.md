@@ -41,8 +41,9 @@
 | 2.1 | Kütüphane araştırması | 🟡 | D-275 reddetti; yeniden arandı ve **`perfect-freehand` KURULDU** — kontur matematiği 40 satır değil, R-75 eşiğinin üstünde |
 | 2.2 | El çizimi ok/fırça | ✅ | `perfect-freehand` · `roughjs` (MIT, tohumlanabilir) sonraki aday |
 | 2.3 | 3B/izometrik varlık seti | 🔴 | GLB ikinci motor ister (Yasa 4); PNG/SVG set aranmalı. **Ölçülen ihtiyaç:** `image copy 3` (donen referansı) köşelerde botanik ögeler taşıyor — R-81 onları kodlamayı yasaklıyor, yani kütüphane ŞART |
-| 2.5 | `donen`: daire KIRPMA değil ARKA FON olmalı | 🔴 | Referansta beyaz daire ürünün ARKASINDA duruyor ve ürün onu taşıyor; bizde fotoğraf daireye KIRPILIYOR. Kart zemini opak olduğu için `lekeler` (z-index 0) görünmüyor — `ustDoku` gibi kart ÜSTÜ bir katman gerekiyor |
+| 2.5 | `donen`: daire KIRPMA değil ARKA FON olmalı | ✅ | `lekeler[].ust` ile kart üstü katman (D-288); ürün `kesik` ve daireyi taşıyor. ⚠ Bu iş denetimin ÖLÜ BİR KOLUNU açığa çıkardı: `.leke` sınıfı hiç yazılmıyordu, kesintisizlik ölçümünün o kolu hiçbir şey saymıyordu |
 | 2.6 | `donen`: podyum + temas gölgesi | 🔴 | Referansta ürün küçük eliptik bir platformun üstünde duruyor; `temas-golgesi` var ama podyum yok |
+| 2.7 | Uyarlama örneği KOPYALIYOR | ✅ | İki koşuda model dört başlığı da aynen döndürdü ve hat `kompozit`te öldü. İsteme artık başlığın METNİ değil ŞEKLİ giriyor (uzunluk · vurgu yeri · panel tipi) — D-288 |
 | 2.4 | Kural: yeni jenerik öge KODLANMAZ | ✅ | **R-81 + `kodlanmis-oge` kapısı** (D-279). Sayım dondu; kasten yeni rozet eklendi → kırmızı. Kırpma kapsam dışı: fotoğrafın kadrajı, çizilmiş şekil değil |
 
 ## 3 — Zemin, tipografi, kutular
@@ -69,7 +70,7 @@
 
 ## Sıra (bağımlılığa göre)
 
-**Kapananlar:** 0.1–0.5 · 1.1 · 1.2 · 1.3 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
+**Kapananlar:** 0.1–0.5 · 1.1 · 1.2 · 1.3 · 2.5 · 2.7 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
 
 **Kalan sıra:**
 1. **2.3** — 3B/izometrik varlık seti. GLB ikinci motor ister (Yasa 4); PNG/SVG set aranacak.
