@@ -356,7 +356,14 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
           { renk: '--ramp-marka-ink-950', konum: 74 },
         ],
       },
-      { tip: 'isik', x: 50, y: 12, capX: 84, capY: 46, renk: '--ramp-marka-amber-500', guc: 13 },
+      // ⚠ ⚠ **IŞIK ORTADAN KAÇIRILDI — merkezî havuz ŞERİT gibi okunuyordu.** `x: 50`
+      // ile havuz panoramanın tam ortasına düşüyor ve 2.–3. slaytlar ötekilerden gözle
+      // görülür biçimde açık kalıyor: göz bunu "ışık" değil "kutu" diye okuyor. Rehber
+      // §5 zaten söylüyordu: merkezi ortada olan bir odak fark edilmiyor, asimetri
+      // gerekiyor. ⚠ Düşüş de yumuşatıldı (`capX` 84 → 62): geniş ve sert kenarlı bir
+      // havuz, dar ve yumuşak olandan daha çok "kutu" üretiyor.
+      { tip: 'isik', x: 22, y: 16, capX: 62, capY: 52, renk: '--ramp-marka-mavi-500', guc: 15 },
+      { tip: 'isik', x: 88, y: 74, capX: 46, capY: 44, renk: '--ramp-marka-amber-500', guc: 9 },
       { tip: 'vinyet', guc: 42 },
     ],
   },
@@ -400,7 +407,14 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     // ⚠ Referansın (`ornek-1`) yaptığı şey de zaten bu değil: TEK bir özne kesimi aşarak
     // devam ediyor. Tek geniş yuva hem dürüst hem referansa sadık: figür 2. ve 3. slaydı
     // kat ediyor ve süreklilik gerçekten kuruluyor.
-    { src: '', alt: 'kesik özne', x: 38, y: 44, genislik: 26, yukseklik: 56, kirpma: 'kesik' },
+    // ⚠ ⚠ **KAHRAMAN ÖLÇEĞİ: %26 → %40 (rehber §7, referans ölçümü).** `image copy 2`de
+    // pandomimci kadrajın ~%40'ını tutuyor ve karenin KAHRAMANI; bizimki %13'ten %26'ya
+    // çıkmıştı ve hâlâ bir dipnot gibi duruyordu. Rehber §7 tek cümle: "her karede tek
+    // bir kahraman vardır ve karenin en az %40'ını tutar; üç öge de orta boyda ise
+    // kompozisyon yoktur, yalnız yerleşim vardır."
+    // ⚠ Yukarı da çekildi (y 44 → 30): alt kenara yapışmış bir figür "eklenmiş" durur;
+    // referansta özne kadrajın ortasından yükseliyor ve metinle aynı hizada yaşıyor.
+    { src: '', alt: 'kesik özne', x: 34, y: 30, genislik: 40, yukseklik: 70, kirpma: 'kesik' },
   ],
   kartlar: [
     {

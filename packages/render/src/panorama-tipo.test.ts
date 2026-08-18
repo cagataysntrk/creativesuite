@@ -93,6 +93,24 @@ describe('zeminden türeyen renk', () => {
   })
 })
 
+// ⚠ ⚠ **SINIF ADI ÇAKIŞMASI — gerçek bir görsel kusurun kaynağıydı.** Kesim ayracı
+// `.kesik` sınıfını kullanıyordu ve kırpma biçimi de görsele `class="gorsel kesik"`
+// yazıyor; ayracın %6 beyaz zemini görselin TÜM kutusuna uygulanıp kesik öznenin
+// arkasında dev bir dikdörtgen bırakıyordu. Ölçüldü: yuva içi/dışı farkı +9,9 → −1,2.
+describe('kesim ayracı ile kırpma biçimi ÇAKIŞMIYOR', () => {
+  it('ayraç `kesim`, kırpma `kesik` — aynı seçiciye düşmüyorlar', () => {
+    // ⚠ Ayraç N−1 tane basılıyor: TEK kartlı bir belgede hiç yok ve test onu arayamaz.
+    const iki = belge()
+    const html = panoramaHtml({ ...iki, kartlar: [...iki.kartlar, ...iki.kartlar] })
+    expect(html).toContain('class="kesim"')
+    expect(html).toMatch(/\.kesim \{/)
+    // ⚠ İşaret KABA olmamalı: `.gorsel-yer.kesik {` de `.kesik {` içeriyor ve ilk
+    // sürüm ona takıldı — ölçüm aracı yine kendi hatasıyla kırmızı verdi. Aranan şey
+    // TEK BAŞINA bir `.kesik` kuralı: önünde boşluk ya da virgül olan.
+    expect(html).not.toMatch(/[\s,]\.kesik \{/)
+  })
+})
+
 describe('çubuk paneli', () => {
   // ⚠ Yuva olmadan `width: %` esnek kapsayıcıda çözülmüyordu ve üç satır da aynı boyda
   // küçük kare çiziyordu: grafik hiçbir şey anlatmıyordu.

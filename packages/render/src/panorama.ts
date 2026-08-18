@@ -903,7 +903,16 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
       ? [`  .panel, .sayilar, .etiketler { margin-top: auto }`]
       : [`  .panel, .sayilar, .etiketler { margin-top: 132px }`]),
     // ── kesim çizgisi: hiçbir ögeyi kırpmıyor, yalnız ince bir ayraç ─────────
-    `  .kesik { position: absolute; top: 0; bottom: 0; width: 1px;`,
+    // ⚠ ⚠ **SINIF ADI `kesim`, `kesik` DEĞİL — ve bu bir ÇAKIŞMA DÜZELTMESİ.** Kesim
+    // ayracı `.kesik` sınıfını kullanıyordu; kırpma biçimi de `kirpma: 'kesik'` üzerinden
+    // görsele `class="gorsel kesik"` yazıyor. İkisi AYNI seçiciye düşüyordu ve ayracın
+    // `background`'ı (%6 beyaz) görselin TÜM KUTUSUNA uygulanıyordu: çıktıda kesik
+    // öznenin arkasında dev bir açık dikdörtgen duruyordu.
+    // ⚠ Teşhis üç yanlış hipotez sonrası geldi: önce `temas-golgesi` sanıldı (izole test
+    // temiz çıktı), sonra zemin ışık havuzu (görselsiz render temiz çıktı), sonra
+    // tarayıcıya `getComputedStyle` soruldu ve `backgroundColor: oklab(0.97 … / 0.06)`
+    // göründü. **Ölçüm üç kez hipotezi çürüttü; dördüncüde DOM cevabı verdi.**
+    `  .kesim { position: absolute; top: 0; bottom: 0; width: 1px;`,
     `           background: ${sol('--pano-metin', 6)}; z-index: 9 }`,
     // ⚠ Üst başlık başlıkla ZIT eksende: başlık genişse üst başlık dar, tersi de doğru.
     // Aynı genişlikte iki tipografik ses, bir hiyerarşi değil bir yankı üretiyor.
@@ -1084,7 +1093,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     gorseller,
     Array.from(
       { length: n - 1 },
-      (_, i) => `<div class="kesik" style="left:${(i + 1) * G}px"></div>`
+      (_, i) => `<div class="kesim" style="left:${(i + 1) * G}px"></div>`
     ).join(''),
     `</div></body></html>`,
   ].join('\n')
