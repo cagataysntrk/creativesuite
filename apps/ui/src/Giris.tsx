@@ -10,7 +10,13 @@
 
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
-import { OnayKuyrugu } from './OnayKuyrugu.js'
+
+interface Bekleyen {
+  readonly runId: string
+  readonly pipeline: string
+  readonly gate: string
+  readonly createdAt: string
+}
 
 interface Varlik {
   readonly digest: string
@@ -23,11 +29,18 @@ interface Varlik {
 /** Editörün adresi — aynı makinede ayrı bir süreç (`just duzenle`). */
 const EDITOR = 'http://localhost:4321'
 
-export function Giris(): React.JSX.Element {
+export function Giris({ ac }: { readonly ac: (runId: string) => void }): React.JSX.Element {
   const [varliklar, setVarliklar] = useState<readonly Varlik[]>([])
+  const [ozet, setOzet] = useState<readonly Bekleyen[] | null>(null)
   const [editorAcik, setEditorAcik] = useState<boolean | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
+    try {
+      const k = (await (await fetch('/api/kuyruk')).json()) as { bekleyenler?: Bekleyen[] }
+      setOzet([...(k.bekleyenler ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
+    } catch {
+      setOzet([])
+    }
     try {
       const r = (await (await fetch('/api/varliklar')).json()) as { varliklar?: Varlik[] }
       setVarliklar((r.varliklar ?? []).slice(0, 6))
@@ -51,12 +64,34 @@ export function Giris(): React.JSX.Element {
   return (
     <div className="giris">
       <section className="giris-blok">
-        <h2>Bekleyen onaylar</h2>
-        <p className="giris-not">
-          Hat burada DURUR — onay bir kapıdır. <kbd>a</kbd> onaylar, <kbd>r</kbd> reddeder (gerekçe
-          zorunlu).
-        </p>
-        <OnayKuyrugu sira="yeni" />
+        {/* ⚠ ⚠ **KOMUTA ≠ ONAYLAR.** İlk sürümde ikisi de kuyruğun TAMAMINI gösteriyordu;
+            iki sekme, tek ekran. Komuta bir ÖZETTİR: kaç iş bekliyor, en yenisi hangisi,
+            hemen ne yapabilirim. Tam liste `Onaylar` sekmesinde. */}
+        <h2>Şu an bekleyen</h2>
+        {ozet === null ? (
+          <p className="giris-not">yükleniyor…</p>
+        ) : ozet.length === 0 ? (
+          <p className="giris-not">Bekleyen kapı yok — hat boşta.</p>
+        ) : (
+          <>
+            <p className="giris-not">
+              <strong>{ozet.length}</strong> kapı bekliyor. En yeni üçü — tıkla, metni ve slaytları
+              gör, orada onayla.
+            </p>
+            <ul className="giris-varlik">
+              {ozet.slice(0, 3).map((b) => (
+                <li key={b.runId}>
+                  <button type="button" className="satir-ac" onClick={() => ac(b.runId)}>
+                    <code>{b.runId.slice(0, 16)}</code>
+                    <span>{b.pipeline}</span>
+                    <span>{b.gate}</span>
+                    <span>{b.createdAt.slice(0, 16).replace('T', ' ')}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
 
       <section className="giris-blok">

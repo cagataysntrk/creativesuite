@@ -4,7 +4,7 @@
 // izleme kabinidir (ISO 3664) ve çok markalı bir sistemde aracın kendi rengi işin
 // rengiyle kavga ederse hiçbir marka dürüst görünmez (§12.1).
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { DurumSeridi, type MakineDurumu } from './DurumSeridi.js'
 import { Palet } from './Palet.js'
 import { CorpusTarayici } from './CorpusTarayici.js'
@@ -12,6 +12,7 @@ import { BaglamOnizleme } from './BaglamOnizleme.js'
 import { RunLauncher } from './RunLauncher.js'
 import { OnayKuyrugu } from './OnayKuyrugu.js'
 import { Giris } from './Giris.js'
+import { KosuDetay } from './KosuDetay.js'
 import { YerlesimEkrani } from './YerlesimEkrani.js'
 import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
@@ -151,6 +152,8 @@ type Ekran =
   | 'kanallar'
   | 'performans'
   | 'uyum'
+  // Tek bir koşunun içeriği — kuyruktan tıklanınca açılır.
+  | 'kosu'
 
 export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
@@ -161,6 +164,14 @@ export const App = (): React.JSX.Element => {
   // komutun adı ile açtığı şey ayrışırdı.
   const [pipeline, setPipeline] = useState('instagram-post')
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
+  // ⚠ Açık koşu AYRI bir durum: ekran adı tek başına hangi koşunun açıldığını
+  // taşımıyor ve tarayıcı geri tuşu bu panelde yok — kaybolan bir seçim, kullanıcıyı
+  // listeye geri döndürüp aramaya zorlar.
+  const [acikKosu, setAcikKosu] = useState<string | null>(null)
+  const kosuAc = useCallback((runId: string): void => {
+    setAcikKosu(runId)
+    setEkran('kosu')
+  }, [])
 
   useEffect(() => {
     let iptal = false
@@ -232,7 +243,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'calistir' ? (
           <RunLauncher pipeline={pipeline} />
         ) : ekran === 'kuyruk' ? (
-          <OnayKuyrugu />
+          <OnayKuyrugu ac={kosuAc} />
         ) : ekran === 'yerlesim' ? (
           <YerlesimEkrani />
         ) : ekran === 'kesif' ? (
@@ -255,8 +266,10 @@ export const App = (): React.JSX.Element => {
           <PerformansPanosu />
         ) : ekran === 'uyum' ? (
           <UyumPanosu />
+        ) : ekran === 'kosu' && acikKosu !== null ? (
+          <KosuDetay runId={acikKosu} geri={() => setEkran('giris')} />
         ) : (
-          <Giris />
+          <Giris ac={kosuAc} />
         )}
       </main>
 

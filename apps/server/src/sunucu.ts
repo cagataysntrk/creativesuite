@@ -227,6 +227,64 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     return c.json(d)
   })
 
+  // ── koşunun İÇERİĞİ: metin, şablon, kusurlar, slayt digest'leri ──────────
+  //
+  // ⚠ ⚠ **PANEL BİR ID LİSTESİYDİ.** Onay kuyruğu `run_01a0160e · instagram-karosel ·
+  // metin-onayi` gösteriyordu ve insan bunu onaylayacaktı — NEYİ onayladığını
+  // görmeden. Ölçüldü: ekranda `img` sayısı SIFIR, metin yok. Bir kapı, kararın
+  // dayanağını göstermiyorsa kapı değil bir gecikmedir (D-310 ailesi).
+  app.get('/api/kosu/:runId/icerik', (c) => {
+    const runId = c.req.param('runId')
+    const m = readManifest(o.repoRoot, runId as never)
+    if (m === null) return c.json({ ok: false, hata: `manifest yok: ${runId}` }, 404)
+    const adimlar = m.steps ?? []
+    const bul = (ad: string): Record<string, unknown> =>
+      (adimlar.find((s) => s.stepId === ad)?.output ?? {}) as Record<string, unknown>
+    const sonSablon = [...adimlar]
+      .reverse()
+      .map((s) => (s.output as Record<string, unknown> | null)?.['sablonId'])
+      .find((v): v is string => typeof v === 'string')
+    const render = [...adimlar].reverse().find((s) => s.stepId.startsWith('render'))
+    const rOut = (render?.output ?? {}) as Record<string, unknown>
+    return c.json({
+      runId,
+      pipeline: m.pipeline,
+      createdAt: m.createdAt,
+      bekleyenKapi: m.awaitingGate ?? null,
+      duraklananAdim: adimlar.find((s) => s.status !== 'ok')?.stepId ?? null,
+      satirlar: (bul('metin-uret')['lines'] as string[] | undefined) ?? [],
+      sablonId: sonSablon ?? null,
+      ritimHedefi: bul('kompozit')['ritimHedefi'] ?? null,
+      ritimTuttu: bul('kompozit')['ritimTuttu'] ?? null,
+      kusurlar: (rOut['kusurlar'] as unknown[] | undefined) ?? [],
+      kalite: bul('kalite'),
+      // ⚠ Digest'ler; BYTE değil. Görseli `/api/varlik/:digest` veriyor ve defter
+      // yalnız hangi byte olduğunu kanıtlıyor (D-248).
+      // ⚠ ⚠ **SLAYT SIRASI: ÜRETİM SIRASI.** Kütüphane en yeniyi önce veriyor (varlık
+      // tarayıcısı için doğru) ama bir KAROSEL sıralı okunur: panelde 04 · 03 · 02 · 01
+      // görünüyordu ve "seri bütünlüğü var mı" sorusu ters sırada cevaplanamaz.
+      // `createdAt` artan: slaytlar zaten sırayla yazılıyor.
+      varliklar: [...kutuphane(o.repoRoot).varliklar]
+        .filter((v) => v.sourceRunId === runId)
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+        .map((v) => ({ digest: v.digest, bytes: v.bytes })),
+      adimlar: adimlar.map((s) => ({ id: s.stepId, verb: s.verb, durum: s.status })),
+    })
+  })
+
+  // ⚠ Varlık BYTE'ı: panelde slaytı görebilmek için. İçerik-adresli depodan okunuyor;
+  // `digest` dışında hiçbir yol kabul edilmiyor — serbest bir dosya yolu, panelin
+  // depo dışını okumasına açık kapı bırakırdı.
+  app.get('/api/varlik/:digest', (c) => {
+    const d = c.req.param('digest').replace(/^sha256:/, '')
+    if (!/^[0-9a-f]{64}$/.test(d)) return c.json({ ok: false, hata: 'gecersiz digest' }, 400)
+    const yol = join(o.repoRoot, 'derived/blobs', d.slice(0, 2), `${d}.png`)
+    if (!existsSync(yol)) return c.json({ ok: false, hata: 'varlik yok' }, 404)
+    return new Response(new Uint8Array(readFileSync(yol)), {
+      headers: { 'content-type': 'image/png', 'cache-control': 'no-store' },
+    })
+  })
+
   // Reuse: varlığı DEĞİL, onu üreten çalıştırmayı açar — kopyalanacak olan bayt değil,
   // KARARDIR (donmuş girdiler, konu, bağlam).
   app.get('/api/varliklar/:runId/yeniden-kullan', (c) => {

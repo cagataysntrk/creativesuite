@@ -29,9 +29,17 @@ interface Satir {
  */
 export interface OnayKuyruguOzellik {
   readonly sira?: 'eski' | 'yeni'
+  /**
+   * Satıra tıklanınca çağrılır — koşunun İÇERİĞİNİ açmak için.
+   *
+   * ⚠ ⚠ **TIKLAMA ÖLÜYDÜ ve bu ölçüldü.** Satıra tıklamak hiçbir şey yapmıyordu;
+   * insan `run_01a0160e · metin-onayi` satırına bakıp onaylayacaktı, NEYİ
+   * onayladığını görmeden. Bir liste bir komuta merkezi değildir.
+   */
+  readonly ac?: (runId: string) => void
 }
 
-export const OnayKuyrugu = ({ sira = 'eski' }: OnayKuyruguOzellik = {}): React.JSX.Element => {
+export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): React.JSX.Element => {
   const [satirlar, setSatirlar] = useState<readonly Satir[] | null>(null)
   const [secili, setSecili] = useState(0)
   const [gerekce, setGerekce] = useState<string | null>(null)
@@ -134,7 +142,15 @@ export const OnayKuyrugu = ({ sira = 'eski' }: OnayKuyruguOzellik = {}): React.J
           </thead>
           <tbody>
             {satirlar.map((r, i) => (
-              <tr key={r.runId} data-secili={i === secili}>
+              <tr
+                key={r.runId}
+                data-secili={i === secili}
+                data-tiklanir={ac === undefined ? undefined : true}
+                onClick={() => {
+                  setSecili(i)
+                  ac?.(r.runId)
+                }}
+              >
                 <td className="olcum">{r.runId.slice(0, 12)}</td>
                 <td>{r.pipeline}</td>
                 <td>{r.gate}</td>
