@@ -501,3 +501,22 @@ düştü. Eşiği düşürmek yanlış cevap olurdu — ölçüt kırılmadı, h
 Başlık payları yükseltildi (94–119 px), sonra üç taşma çıktı ve paylar geri dengelendi.
 
 **Geri alma maliyeti:** düşük — hayalet alanları, bir koruma satırı, bir denetim bloğu.
+
+## D-300
+
+**Karar:** Kesim ayracı kaldırıldı; alt ray görsel katmanının üstüne alındı.
+
+**Neden — ayraç:** panoramayı bütün hâlde incelerken kesim yerini göstersin diye vardı.
+Ama dilimleme `translateX(-i × G)` ile yapılıyor ve `left: i × G` konumundaki 1 px'lik
+çizgi **tam olarak (i+1). slaydın sıfırıncı sütununa** düşüyor. Ölçüldü: `derived/blobs`
+altındaki gerçek bir üretim slaydında sütun 0, sütun 2'den **+11,3** daha parlak — her
+slaydın sol kenarında hayalet bir hairline YAYINLANMIŞ.
+**Görüntüleme yardımcısı çıktıya sızarsa yardımcı değil, kusurdur.**
+
+⚠ Eski test ayracın VARLIĞINI doğruluyordu (bir sınıf adı çakışmasından sonra yazılmıştı);
+artık YOKLUĞUNU doğruluyor. Bir testin var olması, doğru şeyi savunduğu anlamına gelmiyor.
+
+**Neden — ray:** `.ray` z-index 2'de, `.gorsel` 4'te. Alt kenardan taşan kesik özne rayı
+örtüyor ve marka imzası ile kaynak satırı görünmez oluyordu. Ray 6'ya çıktı.
+
+**Geri alma maliyeti:** düşük — bir CSS kuralı, bir emisyon satırı.

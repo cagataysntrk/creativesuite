@@ -1132,8 +1132,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // farklı oranlar verir ve zemin değişince logo bir slayttan ötekine ZIPLAR.
     `  .ray-logo { height: 24px; width: 104px; object-fit: contain; object-position: left;`,
     `              flex: none; opacity: 0.92 }`,
-    `  .kesim { position: absolute; top: 0; bottom: 0; width: 1px;`,
-    `           background: ${sol('--pano-metin', 6)}; z-index: 9 }`,
+    // ⚠ ⚠ **KESİM AYRACI KALDIRILDI — ÜRETİM DİLİMLERİNE SIZIYORDU (D-300).** Ayraç
+    // panoramayı bütün hâlde incelerken kesim yerini göstersin diye vardı. Ama dilimleme
+    // `translateX(-i × G)` ile yapılıyor ve `left: i × G` konumundaki 1 px'lik çizgi
+    // TAM OLARAK (i+1). slaydın SIFIRINCI sütununa düşüyor. Ölçüldü: `derived/blobs`
+    // altındaki gerçek bir üretim slaydında sütun 0, sütun 2'den **+11,3** daha parlak —
+    // her slaydın sol kenarında hayalet bir hairline yayınlanmış.
+    // **Görüntüleme yardımcısı çıktıya sızarsa yardımcı değil, kusurdur.**
     // ⚠ Üst başlık başlıkla ZIT eksende: başlık genişse üst başlık dar, tersi de doğru.
     // Aynı genişlikte iki tipografik ses, bir hiyerarşi değil bir yankı üretiyor.
     // ⚠ ⚠ **PUNTO BAŞLIĞA GÖRE, SABİT DEĞİL.** El yazısı başlıktan çok küçük kalırsa
@@ -1320,7 +1325,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                 background: ${doc.zemin} }`,
     `  .madalyon-ad { font-size: 15px; letter-spacing: 0.14em; color: ${sol('--pano-metin', 75)} }`,
     // ── alt ray: her slaytta aynı yerde, ritmi taşıyan tekrar ────────────────
-    `  .ray { position: absolute; left: 64px; right: 64px; bottom: 46px;`,
+    // ⚠ Ray `.gorsel`in (z-index 4) ÜSTÜNDE: alt kenardan taşan kesik özne rayı örtüyordu
+    // ve marka imzası ile kaynak satırı görünmez oluyordu. Ölçüldü, D-300.
+    `  .ray { position: absolute; left: 64px; right: 64px; bottom: 46px; z-index: 6;`,
     `         display: flex; gap: 40px; align-items: center;`,
     `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: 20px;`,
     `         font-size: 18px; letter-spacing: 0.13em; color: ${sol('--kart-metin', 48)} }`,
@@ -1356,10 +1363,6 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Görsellerden SONRA, kesim ayracından ÖNCE: doku fotoğrafı da kapsıyor (yoksa
     // kesik özne tasarımın üstünde ayrı bir dünya gibi durur), ayraç ise en üstte kalıyor.
     ustDoku,
-    Array.from(
-      { length: n - 1 },
-      (_, i) => `<div class="kesim" style="left:${(i + 1) * G}px"></div>`
-    ).join(''),
     `</div></body></html>`,
   ].join('\n')
 }

@@ -98,17 +98,16 @@ describe('zeminden türeyen renk', () => {
 // `.kesik` sınıfını kullanıyordu ve kırpma biçimi de görsele `class="gorsel kesik"`
 // yazıyor; ayracın %6 beyaz zemini görselin TÜM kutusuna uygulanıp kesik öznenin
 // arkasında dev bir dikdörtgen bırakıyordu. Ölçüldü: yuva içi/dışı farkı +9,9 → −1,2.
-describe('kesim ayracı ile kırpma biçimi ÇAKIŞMIYOR', () => {
-  it('ayraç `kesim`, kırpma `kesik` — aynı seçiciye düşmüyorlar', () => {
-    // ⚠ Ayraç N−1 tane basılıyor: TEK kartlı bir belgede hiç yok ve test onu arayamaz.
+// ⚠ ⚠ **KESİM AYRACI KALDIRILDI (D-300)** — üretim dilimlerine sızıyordu: `left: i × G`
+// konumundaki 1 px'lik çizgi, dilimlemeden sonra (i+1). slaydın sıfırıncı sütunu oluyor
+// ve gerçek üretim slaytlarında +11,3 parlaklık farkı ölçüldü. Eski test ayracın VARLIĞINI
+// doğruluyordu; artık YOKLUĞUNU doğruluyor.
+describe('kesim ayracı üretim çıktısına SIZMIYOR', () => {
+  it('panorama HTML hiçbir ayraç düğümü basmıyor', () => {
     const iki = belge()
     const html = panoramaHtml({ ...iki, kartlar: [...iki.kartlar, ...iki.kartlar] })
-    expect(html).toContain('class="kesim"')
-    expect(html).toMatch(/\.kesim \{/)
-    // ⚠ İşaret KABA olmamalı: `.gorsel-yer.kesik {` de `.kesik {` içeriyor ve ilk
-    // sürüm ona takıldı — ölçüm aracı yine kendi hatasıyla kırmızı verdi. Aranan şey
-    // TEK BAŞINA bir `.kesik` kuralı: önünde boşluk ya da virgül olan.
-    expect(html).not.toMatch(/[\s,]\.kesik \{/)
+    expect(html).not.toContain('class="kesim"')
+    expect(html).not.toMatch(/[\s,]\.kesim \{/)
   })
 })
 
