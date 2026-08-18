@@ -55,11 +55,21 @@ export const islenmisKonular = (repoRoot: string): ReadonlySet<string> => {
     if (!existsSync(yol)) continue
     try {
       const m = JSON.parse(readFileSync(yol, 'utf8')) as {
-        steps?: readonly { params?: Record<string, unknown> }[]
+        steps?: readonly {
+          params?: Record<string, unknown>
+          output?: Record<string, unknown> | null
+        }[]
       }
       for (const s of m.steps ?? []) {
         const t = s.params?.['topic']
         if (typeof t === 'string' && t.trim() !== '') konular.add(t)
+        // ⚠ ⚠ **AGENT'IN SEÇTİĞİ KONU `params`TA DEĞİL, ÇIKTIDA.** Konusuz başlatmada
+        // `params.topic` boş kalıyor ve gerçek konu `konu-sec` adımının çıktısında
+        // yaşıyor. Yalnız `params`a bakan bir eleme, agent seçtiği konuyu HİÇ
+        // işlenmiş saymaz ve aynı konu sonsuza kadar yeniden seçilebilirdi —
+        // çeşitlilik için kurulan mekanizmanın kendi kör noktası.
+        const secilen = s.output?.['konu']
+        if (typeof secilen === 'string' && secilen.trim() !== '') konular.add(secilen)
       }
     } catch {
       // Bozuk manifest bir konuyu gizler, sonucu bozmaz: en kötü ihtimalle aynı konu

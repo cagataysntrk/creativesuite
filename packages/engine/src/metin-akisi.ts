@@ -148,7 +148,25 @@ const BICIM: Readonly<Record<string, readonly string[]>> = {
   sahne: ['- Rakam ve numara KULLANMA; satırlar bir hikâyenin evreleri olacak.'],
 }
 
-const ritimTalimati = (sonSablonlar: readonly string[]): readonly string[] => {
+/**
+ * Kaynakta SAYI isteyen ritimler.
+ *
+ * ⚠ ⚠ **BU KONTROL YORUMDA VARDI, KODDA YOKTU.** Hemen aşağıdaki not *"kaçış kapısı
+ * daraltıldı: yalnız sayısal ritim için ve yalnız kaynakta sayı yoksa"* diyor — ama
+ * `ritimTalimati` kayıtları hiç görmüyordu, yani kaynakta sayı olup olmadığını
+ * ÖLÇEMİYORDU. Gerçek koşuda sonuç şu oldu: hat sayısız bir kaydı (`proof_asset`)
+ * konu seçti, ritim "her satırda rakam" dedi ve model — haklı olarak — REDDETTİ:
+ * *"MARKA BİLGİSİ'nde hiç sayı yok."* Yasa 8 gereği uydurması da yasaktı.
+ *
+ * Ölçülmeyen bir kural bir temennidir; bu dosya bunu iki kez öğrendi.
+ */
+const SAYI_ISTEYEN: ReadonlySet<string> = new Set(['veri-hikayesi'])
+
+/** Kaynakta gerçekten rakam var mı — ritim hedefi buna bağlı. */
+export const kaynaktaSayiVar = (kayitlar: readonly PromptKaydi[]): boolean =>
+  kayitlar.some((k) => /\d/.test(k.text))
+
+const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): readonly string[] => {
   const kullanilan = sonSablonlar.map((s) => RITIM[s]).filter((r): r is string => r !== undefined)
   if (kullanilan.length === 0) return []
   const oneri = Object.entries(RITIM)
@@ -163,7 +181,12 @@ const ritimTalimati = (sonSablonlar: readonly string[]): readonly string[] => {
   //
   // ⚠ Kaçış kapısı KALDIRILMADI, DARALTILDI: yalnız sayısal ritim için ve yalnız
   // kaynakta sayı yoksa. Kaynakta olmayan bir sayıyı uydurmak Yasa 8 ihlali olurdu.
-  const hedefId = Object.keys(RITIM).find((id) => !sonSablonlar.includes(id))
+  // Kaynakta sayı yoksa sayısal ritim ELENİR — sırayla bir sonraki aday alınır.
+  // Elenmesi gereken şey talimat değil HEDEF: "sayı iste ama zorlama" demek,
+  // ölçülemeyen bir kurala geri dönmek olurdu.
+  const hedefId = Object.keys(RITIM).find(
+    (id) => !sonSablonlar.includes(id) && (sayiVar || !SAYI_ISTEYEN.has(id))
+  )
   if (hedefId === undefined) return []
   const bicim = BICIM[hedefId] ?? []
   return [
@@ -204,7 +227,7 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // `tasarim-olcum.ts`in eski yorumu (*"icerikPromptu ile AYNI sayılar"*) yine bir
     // temenni olarak kalırdı.
     ...yayTalimati(HEDEF_SATIR),
-    ...ritimTalimati(g.sonSablonlar ?? []),
+    ...ritimTalimati(g.sonSablonlar ?? [], kaynaktaSayiVar(g.kayitlar)),
     '- Satırları numaralama, madde işareti koyma.',
     // ⚠ **VURGU — karoselin en büyük tipografik eksiği** (FAZ-12.1). Bugüne kadar her
     // satır aynı ağırlıkta okunuyordu; referanslarda bir ifade her zaman öne çıkar.

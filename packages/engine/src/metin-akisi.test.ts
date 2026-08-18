@@ -186,3 +186,33 @@ describe('akış ayrıştırıcısı — fotoğrafın yerine geçen görsellik',
     expect(r.satirlar).toEqual(['a'])
   })
 })
+
+// ⚠ ⚠ **RİTİM KAYNAĞA BAKAR — ve bakmadığı için gerçek bir koşu REDDEDİLDİ.**
+// Hat sayısız bir kayıt seçti, ritim "her satırda rakam" dedi ve model haklı olarak
+// *"MARKA BİLGİSİ'nde hiç sayı yok"* deyip yazmayı reddetti. Uydurması Yasa 8 ihlali
+// olurdu; yani sistem doğru davranıp KULLANILAMAZ bir çıktı üretti. Kural yorumda
+// yazıyordu, kodda yoktu.
+describe('ritim hedefi kaynağa bağlı', () => {
+  const kayitSayili = [{ id: 'r1', text: '2026 yılında 12 tesis ölçüldü' }]
+  const kayitSayisiz = [{ id: 'r2', text: 'Ölçüm altyapısı kurulmuş durumda' }]
+
+  it('kaynakta sayı VARSA sayısal ritim hedeflenebiliyor', () => {
+    const p = icerikPromptu({
+      konu: 'ölçüm',
+      kayitlar: kayitSayili,
+      sonSablonlar: ['sahne', 'memphis', 'akan-alan'],
+    })
+    expect(p).not.toBeNull()
+    expect(p).toContain('en az bir SAYI')
+  })
+
+  it('kaynakta sayı YOKSA sayısal ritim İSTENMİYOR — uydurma yasak', () => {
+    const p = icerikPromptu({
+      konu: 'ölçüm',
+      kayitlar: kayitSayisiz,
+      sonSablonlar: ['sahne', 'memphis', 'akan-alan'],
+    })
+    expect(p).not.toBeNull()
+    expect(p).not.toContain('en az bir SAYI')
+  })
+})
