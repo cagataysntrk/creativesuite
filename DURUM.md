@@ -19,16 +19,12 @@ son_kanit: "KATALOG SISTEMIN MERKEZINE BAGLANDI (FAZ-15.1-15.8 kapali, 15.9 deva
 **43 kapı · 23 ihlal kırmızı · 1613 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
-> **Kök neden, beş tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
-> D-224 · D-250 · D-261. **"Çağıran var mı" ZİNCİR için sorulur**, tek adım için değil.
-> ⛔ **ON DOKUZ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` · `3.7` · `3.8` · `3.14` · `4.13b` ·
-> `5.4b` · `5.5b` · `6.5b` · `6.9b` · `7.2b` · `7.5b` · `7.6b` · `7.8b` · `8.6` · `8.8b` ·
-> `11.5` · `11.6` · `11.9` · `12.8` · `13.3`.
-> Sınıfları `insan` (D-157): plan hatası değil, dış bağımlılık. Son beşi D-266/D-267'de
-> **tetikleyiciye** bağlandı. Bekleyenler: `2.9` corpus onayı · `3.7` `3.8` V-16 ·
-> `4.13b` V-18 · `5.4b` `5.5b` V-21/22 · `6.5b` `6.9b` V-24/25 · `7.2b` `7.6b` `7.8b`
-> V-26 · `7.5b` `8.8b` V-27 · `8.6` V-10 · `11.5` `11.9` BiRefNet · `11.6` `13.3` ücretli
-> görsel · `12.8` Lanczos+EXIF. ⚠ `3.14` `2.9`'a bağlı.
+> **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
+> D-224 · D-250 · D-261 · **D-270 (mimarinin tamamı)**. Zincir için sorulur, adım için değil.
+> ⛔ **YİRMİ ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` `3.7` `3.8` `3.14` `4.13b` `5.4b`
+> `5.5b` `6.5b` `6.9b` `7.2b` `7.5b` `7.6b` `7.8b` `8.6` `8.8b` `11.5` `11.6` `11.9`
+> `12.8` `13.3`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık. ⚠ `3.14`
+> `2.9`'a bağlı; `11.5`/`11.9` BiRefNet, `11.6`/`13.3` ücretli görsel bekliyor.
 
 ## Tamamlananlar
 
@@ -52,45 +48,50 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 ## FAZ 15 — KATALOG MERKEZLİ ÜRETİM (D-268 · D-269 · D-270)
 
-**Serbest üretim YOK.** Hat düzen icat etmiyor: katalogdan şablon SEÇİYOR, agent onun
-**dolu taslağını** konuya uyarlıyor. Üretkenlik kompozisyonda değil içerikte.
-
-**15.1–15.8 KAPALI · 15.9 DEVAM · 15.10 belge yazıldı.**
+**Serbest üretim YOK.** Katalogdan şablon SEÇİLİR, agent onun **dolu taslağını** uyarlar.
+**15.1–15.8 + 15.10 KAPALI · 15.9 DEVAM.** Belge: `docs/referans/katalog-merkezli-hat.md`
 
 | Adım | Ne yapıldı | Ölçüm |
 |---|---|---|
-| **15.1** | "Ne kurmalı" ÖLÇÜLDÜ → hiçbir şey (D-269) | üç eksen vardı, kullanılmıyordu |
-| **15.2** | `Archivo` genişlik ekseni açıldı; punto ölçülen tavandan | `wdth 62`→580px, `125`→1001px |
-| **15.3** | Zemin reçetesi: degrade·ışık·tarama·vinyet·gren | bant 36px → 8px |
-| **15.4** | Katalog DOLU taslak: altı `KatalogOrnegi` | her kart kaynak beyan ediyor |
-| **15.5** | Altı şablon render edilip BAKILDI | 5 kusur bulundu ve kapatıldı |
-| **15.6** | `sablonSec` — içeriğin ölçülen şeklinden | 5 sinyal, gerekçeli |
-| **15.7** | `uyarla` — kompozisyon KİLİTLİ, içerik serbest | yapısal alan şemada yok |
-| **15.8** | DOM denetimi + düzeltme turu (tavan 2) | 4 ihlal denendi, 4'ü kırmızı |
+| **15.1** | ne kurmalı → HİÇBİR ŞEY (D-269) | üç eksen vardı, kullanılmıyordu |
+| **15.2** | genişlik ekseni; punto ölçülen tavandan | `wdth 62`→580px, `125`→1001px |
+| **15.3** | zemin reçetesi | bant 36px → 8px |
+| **15.4** | katalog DOLU taslak, altı örnek | her kart kaynak beyan ediyor |
+| **15.5** | altı şablon render edilip BAKILDI | 5 kusur kapatıldı |
+| **15.6** | `sablonSec` içerik şeklinden | 5 sinyal, gerekçeli |
+| **15.7** | `uyarla` — kompozisyon KİLİTLİ | yapısal alan şemada yok |
+| **15.8** | DOM denetimi + düzeltme turu | 4 ihlal denendi, 4'ü kırmızı |
 
-⚠ **15.9 — ONUNCU ZİNCİR KOPUKLUĞU (D-270).** `renderPanorama`nın üretim yolunda SIFIR
-çağıranı vardı: mimarinin tamamı `just uret`ten erişilemezdi. `instagram-karosel` hattı
-yazıldı, `bodies.ts`e üç dal bağlandı (`GENERATE` uyarlama · `COMPOSE` katalog ·
-`RENDER` panorama), `katalog-dikis.test.ts` çağıranı SAYIYOR.
+### 15.9 — HAT UÇTAN UCA KOŞUYOR ✓
 
-**Gerçek koşu üç kusur öğretti** (hiçbiri testle bulunamazdı):
-1. Zorunlu adım sessizce atlandı (boş istem → `atlandi`) → artık `TEMPLATE_SELECTION_FAILED`
-2. Eleme iki yönlüydü; 11 satır ALTI şablonu birden eledi → kural asimetrik
-3. Sağlayıcı `{result}` döndürüyor, ayrıştırıcı `{text}` biliyordu → üç ad da tanınıyor
+`sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "<konu>"'`
+→ 12 adım yeşil · görsel `cloudflare-workers-ai`ten · 4 varlık damgalandı ·
+insan onay kapısında durdu. Defterde `sablonId: 'sahne'`, `kalite` bir kusur buldu
+(`marka fontunun kapsamı dışında: ✓`) ve onu insana taşıdı.
 
-**15.9 KALANI:** eski slayt-başına yolu (`instagram-post` · `sablon.ts` · `AileProfili` ·
-`aileSec`) `docs/arsiv/` altına emekliye ayır; `tasarim`/`cesitlilik` kapılarını ve
-goldenları panoramaya yönlendir (kapı sayısı DÜŞMEYECEK).
+⚠ **ONUNCU ZİNCİR KOPUKLUĞU (D-270):** `renderPanorama`nın üretim yolunda SIFIR çağıranı
+vardı — mimarinin tamamı `just uret`ten erişilemezdi.
 
-**Koşu:** `sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "<konu>"'`
-**Belge:** `docs/referans/katalog-merkezli-hat.md` — akış, seçim tablosu, dosya yapısı.
+**Bağlarken çıkan ALTI kopuk halka** — hiçbiri testle, hepsi GERÇEK KOŞUYLA bulundu:
+zorunlu adım sessizce atlandı · eleme iki yönlüydü ve 11 satır altı şablonu birden eledi ·
+istem JSON şemasını hiç söylemiyordu · sağlayıcı `{result}` döndürüyordu · brief kurucusu
+eski `tasarimPlani`ni arıyordu · `.find()` ilk (boş) panoramayı alıyordu.
 
-⚠ FAZ-12 çıkış kriteri hâlâ açık: kabul sayacı 0/20.
+⚠ **Hat iki kez 21 dakika ASILDI (D-272):** `claude` CLI daemon'u stdout borusunu tutuyor,
+Node `close` yaymıyor ve 10 dakikalık zaman aşımı da AYNI olaya bağlıydı. `spawn.ts`
+artık `exit`i de dinliyor; ihlal testi asılmayı yeniden üretiyor.
+
+**Eski yol emekli (D-271), ÖLÇÜLEREK:** `sablon-turu.mjs` arşivde, `instagram-carousel`
+emekli işaretli. ⚠ `static.ts`/`AileProfili` KALDI: `doc.aile` orada on altı yerde ve
+**sekiz hat** ondan besleniyor. Emekli olan karosel için AİLE SEÇİMİ, render değil.
+
+**15.9 KALANI:** `denetimTuru` yazıldı, test edildi, hatta BAĞLI DEĞİL — kusurlar
+rapor ediliyor, otomatik düzeltilmiyor. ⚠ FAZ-12 kabul sayacı hâlâ 0/20.
 
 ## Devreden borçlar
 
-QA/bağlam 0/18 (`2.9`) · bileşen testi FAZ 9'a · V-19 · V-24 (→6.5b) · V-25 (→6.9b) ·
-V-26 (→7.2b) · V-27 (→7.5b) · `3.12b` R2 · varlıklar indekste yok · önizleme yok.
+QA/bağlam 0/18 (`2.9`) · bileşen testi FAZ 9'a · V-19 · V-24/25/26/27 · `3.12b` R2 ·
+varlıklar indekste yok · önizleme yok.
 
 ## Bloke adımlar
 
