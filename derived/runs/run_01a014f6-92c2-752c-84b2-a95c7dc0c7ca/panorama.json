@@ -1,0 +1,180 @@
+{
+  "slaytGenisligi": 1080,
+  "yukseklik": 1350,
+  "ustDoku": {
+    "gren": 22,
+    "vinyet": 34
+  },
+  "yerlesim": "orta",
+  "tipografi": {
+    "baslikPayi": 0.98,
+    "baslikGenislik": 76,
+    "baslikAgirlik": 800,
+    "satirAraligi": 0.96,
+    "harfArasi": -0.03,
+    "ustGenislik": 100,
+    "govdeOrani": 0.32,
+    "baslikSutunu": 0.46
+  },
+  "zemin": "var(--role-line-edge)",
+  "zeminDokusu": {
+    "taban": "--ramp-marka-ink-950",
+    "katmanlar": [
+      {
+        "tip": "dogrusal",
+        "aci": 90,
+        "duraklar": [
+          {
+            "renk": "--ramp-marka-ink-800",
+            "konum": 0
+          },
+          {
+            "renk": "--ramp-marka-ink-950",
+            "konum": 74
+          }
+        ]
+      },
+      {
+        "tip": "isik",
+        "x": 22,
+        "y": 16,
+        "capX": 62,
+        "capY": 52,
+        "renk": "--ramp-marka-mavi-300",
+        "guc": 34
+      },
+      {
+        "tip": "isik",
+        "x": 88,
+        "y": 74,
+        "capX": 46,
+        "capY": 44,
+        "renk": "--ramp-marka-bakir-500",
+        "guc": 9
+      },
+      {
+        "tip": "vinyet",
+        "guc": 42
+      }
+    ]
+  },
+  "gorselIslemleri": [
+    "keskinlik",
+    "tema-uyum",
+    "temas-golgesi"
+  ],
+  "bant": {
+    "tip": "ok",
+    "oklar": [
+      {
+        "x1": 17,
+        "y1": 74,
+        "x2": 34,
+        "y2": 68,
+        "bukum": -52
+      },
+      {
+        "x1": 42,
+        "y1": 67,
+        "x2": 59,
+        "y2": 74,
+        "bukum": 58
+      },
+      {
+        "x1": 67,
+        "y1": 75,
+        "x2": 84,
+        "y2": 69,
+        "bukum": -48
+      }
+    ]
+  },
+  "gorseller": [
+    {
+      "src": "gorsel-01.png",
+      "alt": "kesik özne",
+      "x": 9,
+      "y": 20,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-02.png",
+      "alt": "kesik özne",
+      "x": 25,
+      "y": 22,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-03.png",
+      "alt": "kesik özne",
+      "x": 59,
+      "y": 21,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-04.png",
+      "alt": "kesik özne",
+      "x": 75,
+      "y": 23,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    }
+  ],
+  "kartlar": [
+    {
+      "ustBaslik": "BÖLÜM 01",
+      "baslik": "Oranınız **Nasıl** Değişti",
+      "govde": "Geri kazanım oranınız 2019'dan bugüne nasıl değişti?",
+      "hayalet": "",
+      "rayaSol": "GERİ KAZANIM",
+      "rayaOrta": "2019'dan bugüne performans sorusu",
+      "panel": null,
+      "elYazisi": "Bir bakışta"
+    },
+    {
+      "ustBaslik": "BÖLÜM 02",
+      "baslik": "Veri **Dağınık** Kalmış",
+      "govde": "Çoğu firma bu soruyu cevaplayamaz; veri vardiya defterine ve dağınık Excel'lere yayılmıştır.",
+      "hayalet": "",
+      "rayaSol": "SORUN",
+      "rayaOrta": "Vardiya defteri, ayrı Excel dosyaları",
+      "panel": null,
+      "kolon": "sag"
+    },
+    {
+      "ustBaslik": "BÖLÜM 03",
+      "baslik": "Kayıt **Sürekli** Değil Henüz",
+      "govde": "2019'un kaydı bir çekmecede, 2025'in kaydı başka bir dosyada; ikisini yan yana koyacak tek bir yer yok.",
+      "hayalet": "",
+      "rayaSol": "KARŞILAŞTIRMA",
+      "rayaOrta": "Önce dağınık kayıt, sonra tek veri katmanı",
+      "panel": null
+    },
+    {
+      "ustBaslik": "BÖLÜM 04",
+      "baslik": "Önce Veri, **Sonra** Karşılaştırma",
+      "govde": "Veri yoksa önce veriyi kuruyoruz, sonra yıllar arasında karşılaştırma mümkün olur.",
+      "hayalet": "",
+      "rayaSol": "SONRAKI ADIM",
+      "rayaOrta": "Verinizin nerede olduğunu birlikte görelim",
+      "panel": null,
+      "kolon": "sag"
+    }
+  ],
+  "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-bakir-200: oklch(0.92 0.070 90);\n  --ramp-marka-bakir-500: oklch(0.700 0.132 52);\n  --ramp-marka-bakir-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.225 0.008 250);\n  --ramp-marka-ink-950: oklch(0.055 0.004 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-marka-mavi-200: oklch(0.900 0.030 248);\n  --ramp-marka-mavi-300: oklch(0.720 0.098 236);\n  --ramp-marka-mavi-500: oklch(0.620 0.132 242);\n  --ramp-marka-mavi-600: oklch(0.512 0.112 246);\n  --ramp-marka-mavi-700: oklch(0.408 0.092 252);\n  --ramp-marka-mavi-800: oklch(0.330 0.078 255);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-bakir-500);\n  --role-bg: var(--ramp-marka-mavi-700);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n  --role-vurgu: var(--ramp-marka-mavi-300);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+  "stamp": {
+    "brandId": "brd_upcytech",
+    "eraId": "imalat-2026",
+    "kitVersion": "kit-1",
+    "definitionDigest": "sha256:faz3",
+    "contextManifest": "ctx_run_01a014f6-92c2-752c-84b2-a95c7dc0c7ca",
+    "sourceRunId": "run_01a014f6-92c2-752c-84b2-a95c7dc0c7ca"
+  }
+}
