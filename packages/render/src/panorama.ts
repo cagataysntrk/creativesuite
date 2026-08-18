@@ -488,9 +488,17 @@ const METIN = 'var(--role-surface)'
 const koyuMu = (zemin: string, tokenCss = ''): boolean => {
   const ad = /var\(\s*(--[\w-]+)/.exec(zemin)?.[1]
   if (ad !== undefined && tokenCss !== '') {
+    // ⚠ ⚠ **KASKAT OKUNMALI, DOSYA DEĞİL.** `tokens.css` dört yüzey bloğu taşıyor
+    // (`:root`, `console`, `kreatif`, `studio`) ve aynı değişken hepsinde YENİDEN
+    // tanımlı. İlk sürüm ilk eşleşmeyi alıyordu: `--role-surface` için KONSOL değerini
+    // (oklch 0.21, koyu) okuyup `donen`in kâğıt kartını "koyu" sandı, metni beyaz yaptı
+    // ve başlık beyaz zeminde KAYBOLDU. Render `data-surface="kreatif"` ile çiziliyor;
+    // ölçüm de o bloğu okumak zorunda. **Doğru dosyayı okumak, doğru yeri okumak değildir.**
+    const kreatif = /\[data-surface='kreatif'\]\s*\{([^}]*)\}/.exec(tokenCss)?.[1] ?? ''
     const cozum = (isim: string, derinlik = 0): string | null => {
       if (derinlik > 2) return null
-      const m = new RegExp(`${isim}\\s*:\\s*([^;]+);`).exec(tokenCss)
+      const kural = new RegExp(`${isim}\\s*:\\s*([^;]+);`)
+      const m = kural.exec(kreatif) ?? kural.exec(tokenCss)
       if (m === null) return null
       const deger = (m[1] ?? '').trim()
       const ic = /var\(\s*(--[\w-]+)/.exec(deger)?.[1]

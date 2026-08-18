@@ -76,3 +76,10 @@ derived/runs/**/*.png
 graphify-out/
 
 .venv-gorsel/
+
+# Katalog önizlemesi — TÜRETİLMİŞ ve BÜYÜK (panorama başına 3–10 MB).
+# `just` ile değil, `panorama-tam` sondasıyla üretiliyor; kaynağı `katalog-ornek.ts`.
+# Depo hijyeni kapısı 512 KB üstü izlenen dosyayı reddediyor ve haklı: varlık byte'ı
+# git'e değil `derived/blobs`a gider (§3.5). Bakmak için diskte duruyor.
+derived/katalog-onizleme/
+

@@ -526,6 +526,13 @@ izleniyor, eşik 0,55). **Adı ölçmek, şeyi ölçmek değildir** — bu depod
 
 **Kanıt:** eski ada dayalı sürüm geri kondu → lacivert kart testi kırmızı; kaldırıldı → yeşil.
 
+⚠ ⚠ **İLK DÜZELTME DE YANLIŞTI: DOSYAYI OKUDU, KASKADI OKUMADI.** `tokens.css` dört yüzey
+bloğu taşıyor (`:root` · `console` · `kreatif` · `studio`) ve aynı değişken hepsinde
+YENİDEN tanımlı. Çözücü ilk eşleşmeyi alıyordu: `--role-surface` için KONSOL değerini
+(oklch 0,21 — koyu) okuyup `donen`in kâğıt kartını "koyu" sandı, metni beyaz yaptı ve
+başlık beyaz zeminde KAYBOLDU. Render `data-surface="kreatif"` ile çiziliyor; ölçüm de o
+bloğu okumak zorunda. **Doğru dosyayı okumak, doğru yeri okumak değildir.**
+
 ⚠ **`texture` kelimesi brief'lerde KULLANILAMAZ:** içinde `text` geçiyor ve R-20 muhafızı
 alt dize eşleştiriyor. Yeni varyantlar ilk yazımda "fabric texture" diyordu; test yakaladı,
 koşuda görsel adımını reddettirecekti. Yerine `weave`, `grain`, `creases`.

@@ -165,6 +165,25 @@ describe('kart metni zeminin AÇIKLIĞINA göre seçiliyor', () => {
   it('kâğıt kart AÇIK sayılıyor', () => {
     expect(kur('var(--ramp-marka-kagit)')).toContain('class="kart acik')
   })
+
+  // ⚠ ⚠ **KASKAT OKUNMALI, DOSYA DEĞİL.** `tokens.css` dört yüzey bloğu taşıyor ve aynı
+  // değişken hepsinde yeniden tanımlı. İlk sürüm ilk eşleşmeyi alıyordu: `--role-surface`
+  // için KONSOL değerini (koyu) okuyup `donen`in kâğıt kartını "koyu" sandı, metni beyaz
+  // yaptı ve başlık beyaz zeminde KAYBOLDU. Render `data-surface="kreatif"` ile çiziliyor.
+  it('kreatif bloğu okunuyor — konsol bloğu DEĞİL', () => {
+    const ikiBlok =
+      ':root{--role-surface: oklch(0.21 0.010 250)}' +
+      "[data-surface='console']{--role-surface: oklch(0.21 0.010 250);}" +
+      "[data-surface='kreatif']{--role-surface: oklch(0.97 0.004 90);}"
+    const b = belge()
+    const html = panoramaHtml({
+      ...b,
+      tokenCss: ikiBlok,
+      kartlar: b.kartlar.map((k) => ({ ...k, zemin: 'var(--role-surface)' })),
+    })
+    // Kreatif değeri 0,97 → AÇIK. Konsolunki 0,21 okunsaydı koyu sayılırdı.
+    expect(html).toContain('class="kart acik')
+  })
 })
 
 describe('çubuk paneli', () => {
