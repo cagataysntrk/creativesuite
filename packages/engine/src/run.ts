@@ -269,6 +269,19 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   'ritimHedefi',
   'ritimTuttu',
   'ritimOlculemedi',
+  // ⚠ ⚠ **BUNLARI `defter-anahtarlari` KAPISI BULDU — altı tekrarın yedinci, sekizinci…
+  // tarafı.** Kapı yazılır yazılmaz on tane daha sessizce elenen alan çıktı ve
+  // içlerinde YAYIN KANITI vardı: `published` (kanal id'si), `proposedAt`,
+  // `quotaBefore`. Yayınlanmış bir varlığın kanal id'sinin defterde olmaması,
+  // R-46'nın (körlemesine tekrar yok, önce mutabakat) dayanacağı kaydın hiç
+  // yazılmaması demekti.
+  'published',
+  'proposed',
+  'proposedAt',
+  'quotaBefore',
+  'irKullanildi',
+  'brandId',
+  'domain',
 ] as const
 
 /**

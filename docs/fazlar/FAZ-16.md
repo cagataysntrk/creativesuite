@@ -135,7 +135,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Numaralı ritim iste, numarasız metin ver → defterde uyuşmazlık görünüyor
 💾 `feat(engine): ritim uyumu olculuyor` · `Refs: FAZ-16.8 · §11.4`
 
-## 16.9 — Defter alanı eklemek TEK adım olmalı    [ ]
+## 16.9 — Defter alanı eklemek TEK adım olmalı    [x]
 
 📖 §13 · D-261
 🔗 FAZ-16.8
@@ -153,3 +153,18 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 ✅ Gövdede yeni bir çıktı anahtarı, beyaz listede yoksa kapı kırmızı ve anahtarı yazıyor
 🧪 Bir gövdeye listede olmayan bir anahtar ekle → kapı kırmızı
 💾 `feat(gates): defter beyaz listesi kapisi` · `Refs: FAZ-16.9 · §13`
+
+## 16.10 — Editör: geri al gerçekten geri alsın    [ ]
+
+📖 §7.1 · D-301
+🔗 FAZ-16.2
+🛠 `↶ geri al` düğmesi TEK adım geri alıyor (`yedek[id]`) ve o da yalnız son
+   `/degistir` çağrısını. Müfettişte bir kaydırağı sürüklemek onlarca çağrı üretiyor;
+   kullanıcı "geri al"a bastığında bir kaydırak adımı geri geliyor, yaptığı düzenleme
+   değil.
+   ⚠ Kök: geçmiş bir YIĞIN değil tek slot. Yığın + kaydırak sürüklemesini tek işleme
+   toplamak (debounce) gerekiyor.
+📁 `scripts/duzenleyici.mjs` · `scripts/duzenleyici-istemci.js`
+✅ Onlarca kaydırak hareketinden sonra tek `geri al` o düzenlemeyi tümüyle geri alıyor
+🧪 Üç ayrı düzenleme yap, üç kez geri al → üçü de sırayla geri geliyor
+💾 `feat(cli): geri al yigini` · `Refs: FAZ-16.10 · §7.1`

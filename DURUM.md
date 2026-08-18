@@ -6,17 +6,17 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 16
-siradaki_adim: 16.9
+siradaki_adim: 16.10
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "16.8 KAPANDI VE BEYAZ LISTE ALTINCI KEZ SESSIZCE ALAN ELEDI. Ritim uyumu artik olculuyor (ritimTuttuMu, esikler sablonSec ile AYNI kaynaktan - iki farkli 'tuttu' tanimi alanin sessizce yalan soylemesi olurdu) ve kompozit ciktisina yaziliyor. Olculemeyen durum da ADIYLA yaziliyor (ritimOlculemedi: 'hedef-yok' / 'satir-yok'): bir olcumun YAPILAMADIGI, yapilmadigi kadar onemli bir bilgi ve sessiz bosluk bu deponun yasagi. ⚠ KOK BULGU: olcum yazildi, birim testi ve dikis testi yesildi, gercek kosuda alanlar defterde HIC gorunmedi - run.ts'teki DEFTER_ANAHTARLARI beyaz listesi onlari eliyordu. O listenin kendi yorumu ayni hatanin BESINCI tekrarini anlatiyor ve 'eksik bir beyaz liste sessiz bir korluktur' diyor; o cumle yazilirken bile liste bir sonraki alani elemeye haziroydu. Bir cikti alani eklemek, o alani beyaz listeye eklemeyi ICERIR. CESITLILIK URETIMDE CALISIYOR: uc ardisik kosuda uc FARKLI sablon secildi - sahne, akan-alan, memphis. Ihlal turlari: beyaz listeden cikarinca kirmizi, ritim esigini gevsetince kirmizi."
+son_kanit: "16.9 KAPANDI: BEYAZ LISTEYI ARTIK YORUM DEGIL KAPI KORUYOR (R-82 · D-310). Alti tekrarin ardindan yapisal cozum: gövde ciktisindaki her anahtar YA DEFTER_ANAHTARLARI'nda olur YA kapinin envanterinde GEREKCESIYLE disarida birakilir; ikisi de degilse kapi kirmizi ve anahtari ADIYLA soyluyor. Beyaz listeyi kaldirmak cozum degildi - defterin kucuk kalmasi olculmus bir gereklilik (gomulu font + gorsel data URI ile bir manifest 580 KB'a cikip R-64'un 512 KB tavanini asmisti); sorun listenin varligi degil SESSIZLIGI. ⚠ KAPI YAZILIR YAZILMAZ ON ALAN DAHA CIKTI ve iclerinde YAYIN KANITI vardi: published (kanal id'si), proposedAt, quotaBefore. Yayinlanmis bir varligin kanal id'sinin defterde olmamasi, R-46'nin (korlemesine tekrar yok, once mutabakat) dayanacagi kaydin hic yazilmamasi demekti. Yedisi deftere alindi; records, assets ve gorselliSlaytlar yuk olduklari icin gerekceyle disarida. Kapinin kendi SINIRI da yazili: dinamik anahtar goremez - gorulmeyen bir sinir, olmayan bir sinir sanilir. Ihlal turu: govdeye kayitsiz bir anahtar eklenince kirmizi, geri alininca yesil."
 ```
 
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**44 kapı · 23 ihlal kırmızı · 1789 test.**
+**45 kapı · 24 ihlal kırmızı · 1836 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
@@ -42,6 +42,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **16.6** · şablon çeşitliliği: son üç koşuda kullanılan eleniyor, geçmiş PLANA donuyor | 2026-08-18 |
 | **16.7** · ritim MEKANİK kural oldu; gerçek koşuda ilk kez `akan-alan` seçildi | 2026-08-18 |
 | **16.8** · ritim uyumu ölçülüp DEFTERE yazılıyor; beyaz liste altıncı kez alan eledi | 2026-08-18 |
+| **16.9** · `defter-anahtarlari` kapısı; on alan daha sessizce eleniyormuş, yedisi kurtarıldı | 2026-08-18 |
 
 ## Sıradaki adım
 

@@ -144,8 +144,28 @@ const IHLALLER = [
     // çeviriyor. Renk rotasyonu grameri taşıyan üç kuraldan biri (D-254).
     kapi: 'tasarim',
     dosya: 'packages/render/src/sablon.ts',
-    yamalar: [{ ara: 'const kagitMi = k.index % 2 === 1', yaz: 'const kagitMi = true' }],
+    // ⚠ ⚠ **BU GİRİŞ BAYATLAMIŞTI ve batarya onu SESSİZ DEĞİL, ADIYLA bildirdi.**
+    // Eski yama `const kagitMi = k.index % 2 === 1` arıyordu; `sablon.ts` o satırı
+    // bırakıp zemini şema tablosundan seçmeye geçti (D-254 sonrası). Yama hedefi
+    // bulunamayınca test GEÇERSİZ oldu — yani kapı bir süredir kanıtsızdı ve bunu
+    // yalnız batarya söyledi. Bir ihlal testinin kendisi de bakım ister.
+    yamalar: [
+      {
+        ara: 'sema.zeminler[k.index % sema.zeminler.length]',
+        yaz: 'sema.zeminler[0]',
+      },
+    ],
     imza: 'aynı zemin',
+  },
+  {
+    // ⚠ Gövde çıktısına kayıtsız bir anahtar: defter onu SESSİZCE atardı ve bu altı
+    // kez oldu (D-310). Kapı artık anahtarı adıyla söylüyor.
+    kapi: 'defter-anahtarlari',
+    dosya: 'packages/engine/src/verbs/bodies.ts',
+    yamalar: [
+      { ara: '          sablonId,\n', yaz: '          sablonId,\n          sahteAlan: 1,\n' },
+    ],
+    imza: 'sahteAlan',
   },
   {
     kapi: 'chokepoints',

@@ -356,3 +356,14 @@ değil, verinin kendisi).
 bizimkiler yan yana konduğunda fark renkte ya da düzende değil, ÖGELERDEydi. Elle
 kodlanmış bir ikon "bilgisayar işi" gibi duruyor çünkü öyle; bir tasarımcının çizdiği
 öge, ölçülemeyen binlerce kararı taşıyor. → D-279 · `docs/referans/tasarim-rehberi.md`
+
+### R-82 · defter-anahtari-sessizce-elenmez · GATE · aktif
+Bir gövdenin `data` çıktısındaki her anahtar YA `DEFTER_ANAHTARLARI` beyaz listesinde
+olur YA `defter-anahtarlari` kapısının envanterinde **gerekçesiyle** dışarıda bırakılır.
+**Neden:** beyaz liste, listede olmayan alanı sessizce atıyor. Aynı hata **altı kez**
+tekrarladı — `tasarimPlani`, `digests`, yargı çıktıları, ritim ölçümü; her seferinde kod
+doğru, test yeşil, defter boştu. Listenin kendi yorumu *"eksik bir beyaz liste sessiz
+bir körlüktür"* diyordu ve altıncısı yine oldu: **yorum yetmedi.** Kapı yazılır yazılmaz
+on alan daha çıktı ve içlerinde YAYIN KANITI vardı (`published` kanal id'si) — R-46'nın
+dayanacağı kayıt hiç yazılmıyordu.
+**Zorlama:** `defter-anahtarlari` kapısı (fast grubu). → D-310
