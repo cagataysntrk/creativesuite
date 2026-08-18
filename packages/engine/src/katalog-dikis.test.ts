@@ -7,12 +7,13 @@
 // Buradaki testler modülleri değil, ARALARINDAKİ GEÇİŞLERİ sınıyor.
 
 import { describe, expect, it } from 'vitest'
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { loadPipeline } from '@suite/registry'
 import { join } from 'node:path'
 import { ORNEKLER, ornekBul, type KatalogOrnegi } from '@suite/render'
 import { fixedClock, seededRng } from '@suite/kernel'
-import { composeBody, promptTuret, uyarlamayaCevir } from './verbs/bodies.js'
+import { composeBody, promptTuret, renderBody, uyarlamayaCevir } from './verbs/bodies.js'
 
 const CTX = {
   runId: 'run_t',
@@ -84,6 +85,31 @@ describe('dikiş 1: hat dosyası → üretim yolu', () => {
     )
     expect(cagiranlar.length).toBeGreaterThan(0)
   })
+
+  // ⚠ ⚠ **ON BİRİNCİ KOPUKLUK: PNG vardı, onu üreten VERİ yoktu.** Koşu defteri
+  // `slides`, `sablonId` ve `kusurlar` yazıyordu ama kompozisyon belgesinin kendisi
+  // hiçbir yere düşmüyordu. Sonucu: üretilmiş bir karosel bir daha AÇILAMIYOR, elle
+  // düzeltilemiyor (D-301) ve aynı belgeyle yeniden render edilemiyordu. Test
+  // BELGENİN DİSKTE OLDUĞUNU ve geri okununca aynı kartları verdiğini sınıyor.
+  it('render belgeyi koşu dizinine YAZIYOR — çıktı geri açılabilir', async () => {
+    const ornek = ORNEKLER['sahne']
+    expect(ornek).toBeDefined()
+    if (ornek === undefined) return
+    const d = mkdtempSync(join(tmpdir(), 'panorama-belge-'))
+    const r = await renderBody({ outDir: d, layout: null }).run(
+      CTX as never,
+      {
+        constraints: {},
+        inputs: { kompozit: { panorama: { ...ornek, tokenCss: '', stamp: DAMGA } } },
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    const yol = join(d, 'panorama.json')
+    expect(existsSync(yol)).toBe(true)
+    const geri = JSON.parse(readFileSync(yol, 'utf8')) as KatalogOrnegi
+    expect(geri.kartlar.length).toBe(ornek.kartlar.length)
+    expect(geri.kartlar[0]?.baslik).toBe(ornek.kartlar[0]?.baslik)
+  }, 120_000)
 })
 
 describe('dikiş 2: metin → şablon seçimi → uyarlama istemi', () => {
@@ -117,6 +143,42 @@ describe('dikiş 2: metin → şablon seçimi → uyarlama istemi', () => {
 // defterde `gorsel-brief` `{atlandi: true, sebep: 'prompt-yok'}` yazıyordu: brief
 // kurucusu slayt-başına yolun `tasarimPlani`ni arıyordu, katalog yolunda o yok. Yeşil
 // bir koşu, bağlı bir zincir demek değil.
+// ⚠ Bu blok bir ÜRETİM ÇIKTISINDAN doğdu: gerçek bir koşuda dört kartın dördü de
+// "BÖLÜM 01…04" ile çıktı. Sayaçlar katalogdan silinmişti ama istemin JSON örneği
+// hâlâ onları gösteriyordu. Test iki tarafı da tutuyor: istem sayaç ÖĞRETMESİN,
+// uyarlama sayaç KABUL ETMESİN.
+describe('dikiş 2d: sayaç etiketi ne öğretiliyor ne kabul ediliyor', () => {
+  it('istem sayaç örneği VERMİYOR ve yasağı açıkça yazıyor', () => {
+    const istem = promptTuret(
+      'text.generate',
+      girdi({ sablon_uyarla: true, topic: 'Tekstil atığı' }, { m: { lines: liste } })
+    )
+    expect(istem).not.toContain('"ustBaslik": "BÖLÜM 01"')
+    expect(istem).toContain('SAYAÇ OLAMAZ')
+  })
+
+  it('model sayaç yazarsa uyarlama REDDEDİYOR', () => {
+    const ornek = ORNEKLER['sahne']
+    expect(ornek).toBeDefined()
+    if (ornek === undefined) return
+    const kart = (ustBaslik: string) => ({
+      ustBaslik,
+      baslik: 'Bir **başlık** burada',
+      govde: 'Tek cümle.',
+      hayalet: '',
+      rayaSol: 'ETİKET',
+      rayaOrta: 'Kaynak, 2026',
+    })
+    const dene = (ustBaslik: string) =>
+      uyarla(ornek, { sablonId: 'sahne', kartlar: ornek.kartlar.map(() => kart(ustBaslik)) })
+    expect(dene('BÖLÜM 01').ok).toBe(false)
+    expect(dene('Seri 3').ok).toBe(false)
+    expect(dene('SORU 2').ok).toBe(false)
+    // Sayısız etiket geçmeli: yasak sayaçlara, rakamlara değil.
+    expect(dene('MALİYET').ok).toBe(true)
+  })
+})
+
 describe('dikiş 2b: şablonun görsel ihtiyacı → brief istemi', () => {
   it('görsel ilan eden şablonda brief KURULUYOR', () => {
     const p = promptTuret(
@@ -172,7 +234,7 @@ describe('dikiş 3: model çıktısı → uyarlama nesnesi', () => {
   const gecerli = JSON.stringify({
     sablonId: 'akan-alan',
     kartlar: Array.from({ length: 6 }, (_, i) => ({
-      ustBaslik: `ŞART ${i}`,
+      ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
       baslik: `Başlık **${i}**`,
       govde: 'Gövde.',
       hayalet: String(i),
@@ -354,7 +416,7 @@ describe('dikiş 3j: hayalet kullanmayan şablonda model onu dolduramıyor', () 
       const r = uyarla(ornek, {
         sablonId: id,
         kartlar: ornek.kartlar.map((_, i) => ({
-          ustBaslik: `ADIM ${i}`,
+          ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
           baslik: 'Başlık **bir**',
           govde: 'Gövde.',
           hayalet: 'FİLİGRAN',
@@ -401,7 +463,7 @@ describe('dikiş 3f: kompozisyon alanları uyarlamadan sağ çıkıyor', () => {
       const r = uyarla(ornek, {
         sablonId: id,
         kartlar: ornek.kartlar.map((_, i) => ({
-          ustBaslik: `ADIM ${i}`,
+          ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
           baslik: 'Başlık **bir**',
           govde: 'Gövde.',
           hayalet: '',
@@ -434,7 +496,7 @@ describe('dikiş 3f: `kolon` uyarlamadan sağ çıkıyor', () => {
     const r = uyarla(ornek, {
       sablonId: 'sahne',
       kartlar: ornek.kartlar.map((_, i) => ({
-        ustBaslik: `ADIM ${i}`,
+        ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
         baslik: 'Başlık **bir**',
         govde: 'Gövde.',
         hayalet: '',
@@ -529,7 +591,7 @@ describe('dikiş 3c: denetim kusurları → düzeltme istemi', () => {
   const uyarlama = {
     sablonId: 'sahne',
     kartlar: Array.from({ length: 4 }, (_, i) => ({
-      ustBaslik: `ADIM ${i}`,
+      ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
       baslik: `Başlık **${i}**`,
       govde: 'Gövde.',
       hayalet: '',
@@ -616,7 +678,7 @@ describe('dikiş 4: uyarlama → panorama belgesi', () => {
       JSON.stringify({
         sablonId: 'akan-alan',
         kartlar: Array.from({ length: 6 }, (_, i) => ({
-          ustBaslik: `ŞART ${i}`,
+          ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
           baslik: `Başlık **${i}**`,
           govde: 'Gövde.',
           hayalet: String(i),

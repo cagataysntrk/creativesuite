@@ -106,12 +106,12 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   Referansta kıvrım figürün önünden geçip arkasından çıkıyor; bunun için okların iki
   katmana bölünmesi gerek.
 
-- **D15 · Düzenleyicinin kaydetme yolu bağlı değil.** `just duzenle` değişikliği
-  `derived/duzenleyici-<id>.json` dosyasına basıyor; `katalog-ornek.ts`'e de tek koşu
-  defterine de yazmıyor. İki mod kararı verildi (şablon düzenleme → katalog dosyası,
-  tek karosel düzenleme → koşuya özel bindirme) ama yazma tarafı yazılmadı. Prototip
-  bilerek okuma-yazma değil OKUMA + ÖNİZLEME; yazma yolu şablonu bozarsa altı tasarım
-  birden gider, o yüzden ayrı bir turda ve kendi testiyle bağlanmalı.
+- **D15 · ŞABLON modunun kaydetme yolu hâlâ bağlı değil.** Koşu modu bağlandı: düzenleme
+  `derived/runs/<id>/panorama-elle.json` olarak iniyor ve dört slayt `-elle.png` adıyla
+  yeniden çiziliyor (ölçüldü: 1080×1350). Şablon modu ise `derived/duzenleyici-<ad>.json`
+  öneri dosyası basıyor; `katalog-ornek.ts` değişmiyor. Yorumlarıyla birlikte TypeScript
+  kaynağına cerrahi yazmak gerekiyor — yanlış bir yazma altı tasarımı birden bozar, o
+  yüzden ayrı turda ve kendi testiyle.
 - **D16 · Düzenleyici görselin EN/BOY oranını serbest bırakıyor.** Shift+sürükle yalnız
   `genislik` yazıyor, `yukseklik` şablondan geliyor; kutu oranı elle bozulabiliyor.
   D12 ile aynı kök: oran kaynaktan türemiyor. İkisi birlikte çözülmeli.

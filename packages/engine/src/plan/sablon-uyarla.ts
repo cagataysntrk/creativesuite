@@ -84,6 +84,21 @@ const ORNEK_ISARETI = 'ÖRNEK'
  * eder. Tipler derleme zamanında korur, çalışma zamanında gelen JSON'u korumaz — ve bu
  * veri bir model çıktısından geliyor. Alanlar tek tek yazılıyor.
  */
+/**
+ * Sayaç etiketi: `BÖLÜM 01`, `Seri 3`, `SORU 2`…
+ *
+ * ⚠ ⚠ **BU KURAL BİR ÜRETİM ÇIKTISINDAN GELDİ, bir tasarım toplantısından değil.**
+ * Depo sahibi sayaçları açıkça kaldırttı ve katalogdaki altı taslaktan silindiler —
+ * ama İSTEMİN JSON ÖRNEĞİ hâlâ `"ustBaslik": "BÖLÜM 01"` diyordu. Model örneği
+ * kopyaladı ve gerçek bir koşuda dört kartın DÖRDÜ de sayaçla çıktı. Bir dosyada
+ * silinen şey, başka bir dosyadaki örnekte yaşamaya devam etti.
+ *
+ * ⚠ `i` bayrağı YOK: JavaScript'in case-folding'i `İ`/`i` çiftini Türkçe'nin
+ * beklediği gibi eşlemiyor (R-21 ile aynı kök). Biçimler açıkça sayılıyor.
+ */
+const SAYAC_ETIKETI =
+  /(?:BÖLÜM|Bölüm|bölüm|BOLUM|Bolum|bolum|SERİ|Seri|seri|SERI|SORU|Soru|soru|ADIM|Adım|adım|KISIM|Kısım|kısım|SAYFA|Sayfa|sayfa|PART|Part|part|STEP|Step|step)\s*[-–—.:]?\s*\d+/u
+
 export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
   const kusurlar: string[] = []
 
@@ -104,6 +119,10 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
     if ((y.baslik.match(/\*\*/g) ?? []).length % 2 !== 0)
       kusurlar.push(`${yer}: yarım kalan \`**\` vurgu işareti`)
     if (y.ustBaslik.trim() === '') kusurlar.push(`${yer}: üst başlık boş`)
+    if (SAYAC_ETIKETI.test(y.ustBaslik))
+      kusurlar.push(
+        `${yer}: üst başlık bir SAYAÇ ("${y.ustBaslik}") — numaralı etiket yasak, kartın konusunu adlandır`
+      )
     // ⚠ Örnek işareti kalmışsa kaynak GİRİLMEMİŞ demektir (Yasa 8).
     if (y.rayaOrta.includes(ORNEK_ISARETI))
       kusurlar.push(`${yer}: kaynak hâlâ "${y.rayaOrta}" — şablonun örnek işareti değiştirilmeli`)
@@ -264,12 +283,18 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     // söylemiyordu; model doğal olarak nesir döndürdü. Ayrıştırıcıyı gevşetmek yanlış
     // cevap olurdu — sözleşmeyi yazmayıp uyulmasını beklemek, kuralı koymadan ihlali
     // cezalandırmaktır. Şema burada, örnekle birlikte.
+    // ⚠ ⚠ **SAYAÇ YASAĞI İSTEMDE DE YAZILI OLMAK ZORUNDA.** Yalnız reddetmek, modeli
+    // her koşuda aynı duvara çarptırıp bir tur daha yakmak olurdu; kuralı önce SÖYLE,
+    // sonra zorla.
+    'ÜST BAŞLIK SAYAÇ OLAMAZ: "BÖLÜM 01", "SERİ 2", "SORU 3", "ADIM 4" gibi numaralı',
+    'etiketler YASAK. Slayt numarası zaten alt rayda basılıyor; üst başlık o kartın',
+    'KONUSUNU adlandırır (örn. "MALİYET", "AYRIŞTIRMA", "DÖNGÜ").',
     'ÇIKTI BİÇİMİ — yalnız JSON döndür, önünde ve arkasında hiçbir açıklama olmasın:',
     '{',
     `  "sablonId": "${sablonId}",`,
     '  "kartlar": [',
     '    {',
-    '      "ustBaslik": "BÖLÜM 01",',
+    '      "ustBaslik": "KISA KONU ETİKETİ",',
     '      "baslik": "Kısa başlık, **vurgulu** kelimeyle",',
     '      "govde": "Tek cümlelik gövde.",',
     '      "hayalet": "1",',

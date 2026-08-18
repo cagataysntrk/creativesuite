@@ -548,3 +548,47 @@ kendi testiyle bağlanacak (BORÇLAR D15).
 
 **Bağımlılık eklenmedi.** `node:http` + tarayıcı. Bir editör çatısı, düzenlediğimiz
 şeyden büyük olurdu.
+
+## D-302
+
+**Koşu defteri kompozisyonu REFERANS biçiminde saklıyor: metin izlenir, piksel izlenmez.**
+
+`render` artık panorama belgesini `derived/runs/<id>/panorama.json` olarak yazıyor.
+Sebep bir zincir kopukluğu: defterde yalnız ÖZET vardı (`sablonId`, `slides`,
+`kusurlar`) ve **kompozisyonun kendisi hiçbir yere düşmüyordu**. PNG'ler duruyordu,
+onları üreten VERİ yoktu; üretilmiş bir karosel bir daha açılamıyor, elle
+düzeltilemiyor (D-301) ve aynı belgeyle yeniden render edilemiyordu.
+
+**Belgeyi olduğu gibi yazmak yanlış cevaptı.** Ölçüldü: 3.299 KB — `gorseller`
+2.741 KB (data URI'ler), `fontCss` 552 KB (base64 gömülü yüzler), `tokenCss` 2 KB.
+`derived/runs` git'te İZLENİYOR (Yasa 11) ve `repo-hygiene` 512 KB'ı reddediyor;
+koşu başına 3 MB ikili veri commit'lemek defteri okunamaz hâle getirirdi.
+
+**Ayrım tekrar üretilebilirlik.** `fontCss` markanın font dizininden deterministik
+kuruluyor → yazılmıyor, açan taraf yeniden üretiyor. Görseller ise ÜRETİLDİ — para ve
+rastgelelik harcandı, geri getirilemezler → yan dosyaya PNG olarak düşüyor, belge
+onların ADINI taşıyor, byte'lar `.gitignore`da. Sonuç: 3.299 KB → 7 KB.
+
+Bu, slaytların `derived/blobs`ta durmasıyla aynı model: **kompozisyon izlenir,
+pikselleri izlenmez.** Yazma ve okuma tek fonksiyondan geçiyor
+(`panoramaBelgesiniYaz`) — editör kendi serileştiricisini yazsaydı iki biçim doğar
+ve biri gün gelip ötekinden ayrışırdı.
+
+## D-303
+
+**Sayaç etiketi yasağı İSTEMDE de yazılı, `uyarla`da da zorunlu.**
+
+Depo sahibi `BÖLÜM 1` / `SERİ 1` / `SORU 1` sayaçlarını açıkça kaldırttı ve altı
+katalog taslağından silindiler. Buna rağmen gerçek bir koşuda dört kartın DÖRDÜ de
+`BÖLÜM 01…04` ile çıktı. Kök neden: **uyarlama isteminin JSON örneği hâlâ
+`"ustBaslik": "BÖLÜM 01"` diyordu** ve model örneği kopyaladı. Bir dosyada silinen
+şey, başka bir dosyadaki örnekte yaşamaya devam etti — aynı sınıf hata bu depoda
+daha önce de oldu (D-259 → D-283: bir dosyaya yazılan ders, o dosyaya sonradan
+eklenen dala kendiliğinden geçmiyor).
+
+İki taraf birden: istem sayacı ÖĞRETMİYOR ve yasağı açıkça yazıyor; `uyarla` sayaç
+gelirse REDDEDİYOR. Yalnız reddetmek modeli her koşuda aynı duvara çarptırıp bir tur
+daha yakardı; kuralı önce söyle, sonra zorla.
+
+⚠ Kalıp `i` bayrağı KULLANMIYOR: JavaScript'in case-folding'i `İ`/`i` çiftini
+Türkçe'nin beklediği gibi eşlemiyor (R-21 ile aynı kök). Biçimler açıkça sayılıyor.

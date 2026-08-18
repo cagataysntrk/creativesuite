@@ -83,3 +83,12 @@ graphify-out/
 # git'e değil `derived/blobs`a gider (§3.5). Bakmak için diskte duruyor.
 derived/katalog-onizleme/
 
+
+# Koşu defterindeki İKİLİ yan dosyalar (D-302). `panorama.json` bunların ADINI taşıyor;
+# byte'ları git'e girmiyor — koşu başına 3 MB, `repo-hygiene`in 512 KB sınırının çok
+# üstünde. Kompozisyon (okunur JSON) İZLENİYOR, pikselleri izlenmiyor; bu, slaytların
+# `derived/blobs`ta durmasıyla aynı model.
+derived/runs/*/gorsel-*.png
+derived/runs/*/gorsel-*.jpg
+derived/runs/*/gorsel-*.webp
+derived/runs/*/slayt-*.png

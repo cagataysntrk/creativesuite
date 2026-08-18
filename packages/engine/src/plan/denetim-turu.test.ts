@@ -16,7 +16,8 @@ import type { Uyarlama, UyarlamaKarti } from './sablon-uyarla.js'
 const ornek = ornekBul('veri-hikayesi') as KatalogOrnegi
 
 const kart = (i: number, ek: Partial<UyarlamaKarti> = {}): UyarlamaKarti => ({
-  ustBaslik: `BÖLÜM ${i}`,
+  // Sayaç etiketi yasak (D-303); etiket konuya ad veriyor, sıra saymıyor.
+  ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
   baslik: `Başlık **${i}** burada`,
   govde: 'Gövde metni.',
   hayalet: String(i),

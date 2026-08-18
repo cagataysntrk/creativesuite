@@ -735,6 +735,45 @@ export interface RenderDeps {
   readonly maxBytes?: number
 }
 
+/**
+ * Panorama belgesini koşu defterine REFERANS BİÇİMİNDE yazar.
+ *
+ * ⚠ ⚠ **Belgeyi olduğu gibi yazmak 3,3 MB'lık bir dosya üretiyordu ve `derived/runs`
+ * git'te İZLENİYOR.** Ölçüldü: `gorseller` 2741 KB (data URI'ler), `fontCss` 552 KB
+ * (base64 gömülü yüzler), `tokenCss` 2 KB. Koşu başına 3 MB'lık ikili veri commit'lemek
+ * defteri kullanılamaz hâle getirirdi ve `repo-hygiene` 512 KB'ı zaten reddediyor.
+ *
+ * Ayrım TEKRAR ÜRETİLEBİLİRLİK: `fontCss` markanın font dizininden deterministik olarak
+ * yeniden kuruluyor, o yüzden yazılmıyor. Görseller ise ÜRETİLDİ — para ve rastgelelik
+ * harcandı, geri getirilemezler — bu yüzden yan dosyaya PNG olarak düşüyor ve belge
+ * onların ADINI taşıyor. Böylece defter ~15 KB'lık okunur bir JSON olarak kalıyor.
+ *
+ * Okuyan taraf (`just duzenle`) iki alanı geri dolduruyor: fontu markadan, görseli
+ * yanındaki dosyadan.
+ */
+export const panoramaBelgesiniYaz = (
+  dizin: string,
+  doc: PanoramaBelgesi,
+  ad = 'panorama.json'
+): void => {
+  const uzanti = (mime: string): string =>
+    mime.includes('jpeg') || mime.includes('jpg') ? 'jpg' : mime.includes('webp') ? 'webp' : 'png'
+  const gorseller = doc.gorseller.map((g, i) => {
+    const src = (g as { readonly src?: unknown }).src
+    if (typeof src !== 'string' || !src.startsWith('data:')) return g
+    const virgul = src.indexOf(',')
+    const ad = `gorsel-${String(i + 1).padStart(2, '0')}.${uzanti(src.slice(5, virgul))}`
+    writeFileSync(join(dizin, ad), Buffer.from(src.slice(virgul + 1), 'base64'))
+    return { ...g, src: ad }
+  })
+  const kalan: Record<string, unknown> = { ...doc, gorseller }
+  delete kalan['fontCss']
+  // ⚠ Yan dosya adları BELGE ADINDAN bağımsız: düzenlenmiş sürüm (`panorama-elle.json`)
+  // aynı görselleri gösteriyor ve ikinci bir kopya çıkarmak defteri iki katına çıkarırdı.
+  // Editör görselin BYTE'ını değiştirmiyor — yerini ve boyutunu değiştiriyor.
+  writeFileSync(join(dizin, ad), JSON.stringify(kalan, null, 2))
+}
+
 export const renderBody = (deps: RenderDeps): Verb =>
   govde('RENDER', async (ctx, input) => {
     // ── ürün ekranı çekimi (§10 · R-32 · FAZ-6.8, 6.10) ─────────────────────
@@ -821,6 +860,13 @@ export const renderBody = (deps: RenderDeps): Verb =>
       const yollar = doc.kartlar.map((_, i) =>
         join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
       )
+      // ⚠ ⚠ **BELGE DİSKE YAZILIYOR — ve bu bir kolaylık değil, bir ZİNCİR ONARIMI.**
+      // Koşu defterinde bugüne kadar yalnız ÖZET vardı (`sablonId`, `slides`, `kusurlar`);
+      // kompozisyonun KENDİSİ hiçbir yere düşmüyordu. Sonucu: üretilmiş bir karosel bir
+      // daha açılamıyor, elle düzeltilemiyor (D-301) ve aynı belgeyle yeniden render
+      // edilemiyordu — PNG'ler vardı, onları üreten veri yoktu. Render'DAN ÖNCE yazılıyor
+      // ki render patladığında da elde patlayan belge kalsın.
+      panoramaBelgesiniYaz(deps.outDir, doc)
       const r = await renderPanorama(doc, yollar)
       if (!r.ok) return err(hata('render_failed', 'PANORAMA_FAILED', ctx, { error: r.error }))
       // ⚠ ⚠ **DENETİM RENDER'DAN SONRA, AYNI ADIMDA.** Ayrı bir fiil açmak dokuz fiil

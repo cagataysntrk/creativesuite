@@ -13,14 +13,20 @@
 // tasarımdan büyük bir bağımlılık olurdu.
 
 import { createServer } from 'node:http'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const { panoramaHtml } = await import(join(REPO, 'packages/render/dist/panorama.js'))
+const { panoramaHtml, renderPanorama } = await import(
+  join(REPO, 'packages/render/dist/panorama.js')
+)
 const { ORNEKLER } = await import(join(REPO, 'packages/render/dist/katalog-ornek.js'))
 const { fontCss } = await import(join(REPO, 'packages/render/dist/fonts.js'))
+// ⚠ Yazma AYNI fonksiyondan geliyor. Editör kendi serileştiricisini yazsaydı iki biçim
+// olurdu ve biri gün gelip ötekinden ayrışırdı — hattın yazdığı defteri editör
+// okuyamaz hâle gelirdi.
+const { panoramaBelgesiniYaz } = await import(join(REPO, 'packages/engine/dist/verbs/bodies.js'))
 const { logoVarliklari } = await import(join(REPO, 'packages/render/dist/logo.js'))
 
 const f = fontCss(join(REPO, 'brand/brd_upcytech/fonts'))
@@ -35,17 +41,73 @@ const stamp = {
   sourceRunId: 'run_duzenleyici',
 }
 
-/** Çalışan kopya — sunucu belleğinde. Kaydetmeden dosyaya DOKUNULMUYOR. */
-const calisan = Object.fromEntries(
-  Object.entries(ORNEKLER).map(([k, o]) => [k, structuredClone(o)])
-)
+/**
+ * İKİ MOD, tek tezgâh (D-301 · depo sahibinin kararı).
+ *
+ * `sablon:*` katalog taslakları — düzenlenirse altı tasarımın kendisi değişir.
+ * `kosu:*`   üretilmiş karoseller — düzenlenirse yalnız O koşu değişir.
+ *
+ * ⚠ Koşu kaydı ancak `render` adımı belgeyi diske yazdığı için mümkün. Önceden
+ * defterde yalnız ÖZET vardı ve üretilmiş bir karosel bir daha AÇILAMIYORDU.
+ */
+const KOSU_DIZINI = join(REPO, 'derived/runs')
+const kosulariTara = () => {
+  if (!existsSync(KOSU_DIZINI)) return []
+  return readdirSync(KOSU_DIZINI)
+    .map((ad) => ({ ad, yol: join(KOSU_DIZINI, ad, 'panorama.json') }))
+    .filter((k) => existsSync(k.yol))
+    .map((k) => ({ ...k, zaman: statSync(k.yol).mtimeMs }))
+    .sort((a, b) => b.zaman - a.zaman)
+    .slice(0, 12)
+}
 
+/**
+ * Defterdeki REFERANS biçimini geri dolduruyor: `fontCss` markadan (belge() yapıyor),
+ * görsel ise yanındaki PNG'den. Dosya silinmişse görsel BOŞ geçiliyor — kompozisyon
+ * yine açılıyor. Sessizce yer tutucu çizmektense boş kutu göstermek dürüst: eksik olan
+ * şey görülsün.
+ */
+const MIME = { jpg: 'image/jpeg', webp: 'image/webp', png: 'image/png' }
+const kosuBelgesi = (dizin, jsonYolu) => {
+  const doc = JSON.parse(readFileSync(jsonYolu, 'utf8'))
+  const gorseller = (doc.gorseller ?? []).map((g) => {
+    if (typeof g.src !== 'string' || g.src === '' || g.src.startsWith('data:')) return g
+    const yol = join(dizin, g.src)
+    if (!existsSync(yol)) return { ...g, src: '' }
+    const uz = g.src.split('.').pop()
+    return {
+      ...g,
+      src: 'data:' + (MIME[uz] ?? 'image/png') + ';base64,' + readFileSync(yol).toString('base64'),
+    }
+  })
+  return { ...doc, gorseller }
+}
+
+/** Çalışan kopya — sunucu belleğinde. Kaydetmeden dosyaya DOKUNULMUYOR. */
+const calisan = {}
+const kaynak = {}
+for (const [k, o] of Object.entries(ORNEKLER)) {
+  calisan['sablon:' + k] = structuredClone(o)
+  kaynak['sablon:' + k] = { tur: 'sablon', ad: k }
+}
+for (const k of kosulariTara()) {
+  try {
+    calisan['kosu:' + k.ad] = kosuBelgesi(join(KOSU_DIZINI, k.ad), k.yol)
+    kaynak['kosu:' + k.ad] = { tur: 'kosu', ad: k.ad, dizin: join(KOSU_DIZINI, k.ad) }
+  } catch {
+    // Bozuk defter tezgâhı indirmesin; o koşu listede çıkmaz.
+  }
+}
+
+// ⚠ `calisan[id]` EN SONA yayılıyor: koşu belgesi kendi `tokenCss`ini ve damgasını
+// TAŞIYOR ve o koşunun dönemine ait. Varsayılanı üstüne yazmak, geçmiş bir koşuyu
+// bugünkü paletle göstermek olurdu — düzenlediğin şey artık üretilen şey olmazdı.
 const belge = (id) => ({
-  ...calisan[id],
   tokenCss,
   fontCss: f.ok ? f.css : '',
   stamp,
   ...(lg.ok ? { logo: lg.varliklar } : {}),
+  ...calisan[id],
 })
 
 const KABUK = (
@@ -75,9 +137,19 @@ const KABUK = (
     font:12.5px/1.5 ui-monospace,monospace;white-space:pre-wrap;max-height:26vh;overflow:auto}
 </style>
 <header>
-  <select id="sablon">${Object.keys(calisan)
-    .map((k) => `<option${k === id ? ' selected' : ''}>${k}</option>`)
-    .join('')}</select>
+  <select id="sablon">
+    <optgroup label="ŞABLON — düzenlersen altı tasarımın kendisi değişir">${Object.keys(kaynak)
+      .filter((k) => kaynak[k].tur === 'sablon')
+      .map((k) => `<option value="${k}"${k === id ? ' selected' : ''}>${kaynak[k].ad}</option>`)
+      .join('')}</optgroup>
+    <optgroup label="KOŞU — düzenlersen yalnız o karosel değişir">${Object.keys(kaynak)
+      .filter((k) => kaynak[k].tur === 'kosu')
+      .map(
+        (k) =>
+          `<option value="${k}"${k === id ? ' selected' : ''}>${kaynak[k].ad.slice(4, 17)}</option>`
+      )
+      .join('')}</optgroup>
+  </select>
   <button id="kucult">−</button><button id="buyut">+</button>
   <button id="geri">↶ geri al</button>
   <button class="birincil" id="kaydet">JSON'u yaz</button>
@@ -202,7 +274,7 @@ const govde = (req) =>
 const yedek = {}
 const sunucu = createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x')
-  const id = u.searchParams.get('id') ?? 'sahne'
+  const id = u.searchParams.get('id') ?? Object.keys(calisan)[0]
   const json = (v) => {
     res.writeHead(200, { 'content-type': 'application/json' })
     res.end(JSON.stringify(v))
@@ -238,13 +310,43 @@ const sunucu = createServer(async (req, res) => {
       return json({ ok: true })
     }
     if (u.pathname === '/kaydet') {
-      // ⚠ PROTOTİP: dosyaya YAZMIYOR. Değişikliği JSON olarak basıyor ki tur içinde
-      // gözle doğrulanabilsin. Yazma yolu (şablon mu, tek koşu mu) ayrı bir karar.
-      const yol = join(REPO, 'derived/duzenleyici-' + id + '.json')
-      const { writeFileSync } = await import('node:fs')
-      writeFileSync(yol, JSON.stringify(calisan[id], null, 2))
+      const k = kaynak[id]
       res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
-      return res.end('✓ yazıldı: ' + yol + '\n⚠ Bu bir ÖNİZLEME dosyası; katalog değişmedi.')
+
+      // ── KOŞU modu: düzenleme O koşunun defterine iner ve SLAYTLAR YENİDEN ÇİZİLİR.
+      // Yalnız JSON yazmak ölü bir varlık üretirdi: dosya var, kimse okumuyor. Elle
+      // düzenlemenin karşılığı elle düzenlenmiş PNG'dir; ayrı dosya adıyla (`-elle`)
+      // yazılıyor ki hattın ürettiği asıl çıktı yerinde kalsın ve fark görülebilsin.
+      if (k?.tur === 'kosu') {
+        const jsonYolu = join(k.dizin, 'panorama-elle.json')
+        const d = belge(id)
+        panoramaBelgesiniYaz(k.dizin, d, 'panorama-elle.json')
+        const yollar = d.kartlar.map((_, n) =>
+          join(k.dizin, 'slayt-' + String(n + 1).padStart(2, '0') + '-elle.png')
+        )
+        const r = await renderPanorama(d, yollar)
+        if (!r.ok) return res.end('✗ render başarısız: ' + JSON.stringify(r.error))
+        return res.end(
+          '✓ ' +
+            yollar.length +
+            ' slayt yeniden çizildi → ' +
+            k.dizin +
+            '\n' +
+            '  ' +
+            yollar.map((y) => y.split('/').pop()).join(' · ') +
+            '\n' +
+            '✓ belge: ' +
+            jsonYolu
+        )
+      }
+
+      // ── ŞABLON modu: HENÜZ katalog dosyasına yazmıyor (BORÇLAR D15). Yanlış bir
+      // yazma altı tasarımı birden bozar; öneri olarak basılıyor (Yasa 2: agent önerir).
+      const yol = join(REPO, 'derived/duzenleyici-' + k.ad + '.json')
+      writeFileSync(yol, JSON.stringify(calisan[id], null, 2))
+      return res.end(
+        '✓ yazıldı: ' + yol + '\n⚠ Bu bir ÖNERİ dosyası; katalog-ornek.ts değişmedi (D15).'
+      )
     }
     res.writeHead(404)
     res.end('yok')

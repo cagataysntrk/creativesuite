@@ -7,7 +7,10 @@ import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from './sab
 const ornek = ornekBul('veri-hikayesi') as KatalogOrnegi
 
 const kart = (i: number, ek: Partial<UyarlamaKarti> = {}): UyarlamaKarti => ({
-  ustBaslik: `BÖLÜM ${i}`,
+  // ⚠ Fixture eskiden `BÖLÜM ${i}` idi ve sayaç yasağı (D-303) konunca yedi test birden
+  // kırmızıya döndü — kapı işini yaptı: fixture, artık yasak olan biçimi KODLUYORDU.
+  // Etiketler konuya ad veriyor, sıra saymıyor.
+  ustBaslik: ['MALİYET', 'AYRIŞTIRMA', 'DÖNGÜ', 'ÖLÇÜ', 'KARAR', 'SONUÇ'][i % 6] ?? 'KONU',
   baslik: `Yeni konu **başlığı** ${i}`,
   govde: 'Konuya özgü gövde metni.',
   hayalet: String(i),
@@ -36,7 +39,7 @@ describe('uyarlama kompozisyona DOKUNAMIYOR', () => {
   it('içerik GERÇEKTEN değişiyor — kopya değil uyarlama', () => {
     const r = uyarla(ornek, uyarlama())
     expect(r.ok && r.belge.kartlar[0]?.baslik).not.toBe(ornek.kartlar[0]?.baslik)
-    expect(r.ok && r.belge.kartlar[0]?.ustBaslik).toBe('BÖLÜM 1')
+    expect(r.ok && r.belge.kartlar[0]?.ustBaslik).toBe('AYRIŞTIRMA')
   })
 
   // ⚠ ⚠ Model çıktısı JSON; tip koruması çalışma zamanında yok. Yayılma operatörüyle
