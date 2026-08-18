@@ -83,7 +83,24 @@ steps:
       no_text: true
       max_cost_usd_micros: 20000
 
-  # 5) GÖRSEL YUVAYA GİRİYOR — aynı `COMPOSE` gövdesi, bu kez girdisinde görselle.
+  # 5) ARKA PLAN SİLİNİYOR — kesik özne artık RİCA değil, İŞLEM (D-274 · FAZ-15.11).
+  #
+  # ⚠ ⚠ **BU ADIM ÜÇ GERÇEK KOŞUNUN ÖLÇÜMÜNDEN DOĞDU.** `matlama` (luma anahtarı)
+  # brief'in "düz siyah zemin" ricasına dayanıyordu; model üç koşuda da açık gri stüdyo
+  # zemini üretti (köşe parlaklığı 59–101/255) ve çıktıda kesik özne yerine DİKDÖRTGEN
+  # fotoğraf kaldı. Denetim kusuru görüyor ama düzeltemiyordu: metin değiştirerek bir
+  # görselin zemini siyahlaşmaz.
+  #
+  # ⚠ Yerel model (BRIA RMBG 2.0), ağa çıkmıyor, maliyet ölçülmüş sıfır. `optional`:
+  # sanal ortam kurulmamışsa hat durmuyor — yer tutucu görünür kalıyor.
+  - id: gorsel-kirp
+    verb: GENERATE
+    capability: image.matte
+    needs: [gorsel-uret]
+    constraints:
+      optional: true
+
+  # 6) GÖRSEL YUVAYA GİRİYOR — aynı `COMPOSE` gövdesi, bu kez girdisinde görselle.
   #
   # ⚠ ⚠ **BU ADIM GERÇEK BİR KOŞUDAN SONRA EKLENDİ.** İlk sürümde `render` doğrudan
   # `kompozit`e bağlıydı; hat on adımı geçti, görsel ÜRETİLDİ ve çıktıda kesik özne
@@ -92,11 +109,11 @@ steps:
   # şekilde çözüyor — yeni bir fiil de yeni bir gövde de gerekmedi.
   - id: yuva-doldur
     verb: COMPOSE
-    needs: [metin-uret, sablon-uyarla, gorsel-uret]
+    needs: [metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp]
     constraints:
       katalog: true
 
-  # 6) RENDER — TEK GENİŞ TUVAL, sonra dilimleme. Denetim aynı adımda koşuyor: ayrı bir
+  # 7) RENDER — TEK GENİŞ TUVAL, sonra dilimleme. Denetim aynı adımda koşuyor: ayrı bir
   # fiil dokuz fiil yasasını delerdi, ayrı bir adım render'ı iki kez koştururdu.
   - id: render
     verb: RENDER
@@ -105,7 +122,7 @@ steps:
       width: 1080
       height: 1350
 
-  # 7) AGENT ÇIKTIYA BAKIYOR. `render`ın ölçtüğü şey kutular; bu adımın gördüğü şey
+  # 8) AGENT ÇIKTIYA BAKIYOR. `render`ın ölçtüğü şey kutular; bu adımın gördüğü şey
   # kompozisyon. İkisi ayrı sorular.
   - id: gorsel-yargi
     verb: GENERATE
@@ -117,7 +134,7 @@ steps:
     capability: design.critique
     needs: [render]
 
-  # 8) DÜZELTME TURU — denetimin ölçtüğü kusurları METİNLE kapat.
+  # 9) DÜZELTME TURU — denetimin ölçtüğü kusurları METİNLE kapat.
   #
   # ⚠ ⚠ **DAG DÖNGÜ TAŞIMIYOR, o yüzden tur AÇILARAK yazıldı.** `denetimTuru` kütüphane
   # düzeyinde iki tur destekliyor; hatta bir tur açıldı çünkü ikincisi altı adım daha
@@ -135,12 +152,12 @@ steps:
       max_chars: 4000
       optional: true
 
-  # 9) DÜZELTİLMİŞ BELGE ve SON RENDER. `duzelt` atlandıysa girdilerdeki en son uyarlama
+  # 10) DÜZELTİLMİŞ BELGE ve SON RENDER. `duzelt` atlandıysa girdilerdeki en son uyarlama
   # hâlâ ilk yazımdır: aynı belge yeniden kuruluyor ve render birebir aynı çıkıyor.
   # Bedeli yerel bir render (bedava, saniyeler); kazancı tek bir çıkış noktası.
   - id: kompozit-son
     verb: COMPOSE
-    needs: [metin-uret, sablon-uyarla, gorsel-uret, duzelt]
+    needs: [metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, duzelt]
     constraints:
       katalog: true
 

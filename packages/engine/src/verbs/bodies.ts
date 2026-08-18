@@ -276,12 +276,21 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       // kalmalı; sessizce metin-only bir karosel, tasarımı tanınmaz yapar.
       const uretilen = uretilenGorsel(input.inputs)
       const kartlar = birlesik.belge
+      // ⚠ ⚠ **ARKA PLANI SİLİNMİŞ GÖRSELDE `matlama` KAPANMAK ZORUNDA.** `matlama` alfayı
+      // PARLAKLIKTAN türetiyor: zaten şeffaf zeminli bir PNG'ye uygulanınca öznenin
+      // koyu bölgeleri de saydamlaşır ve figür delik deşik olur. İki teknik aynı işi
+      // yapıyor ve üst üste binmeleri, tek başına her birinden kötü.
       const gorsellikli =
         uretilen === null
           ? kartlar
           : {
               ...kartlar,
               gorseller: kartlar.gorseller.map((g) => ({ ...g, src: uretilen.src })),
+              ...(uretilen.matlandi
+                ? {
+                    gorselIslemleri: (kartlar.gorselIslemleri ?? []).filter((i) => i !== 'matlama'),
+                  }
+                : {}),
             }
       // ⚠ Damga, token ve font ÇALIŞTIRMADAN geliyor; şablon onları taşıyamıyor (Yasa 7).
       return ok({
@@ -1530,6 +1539,24 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     return tasarimYargiPromptu(ilk)
   }
 
+  // ── ARKA PLAN SİLME: girdi METİN DEĞİL, GÖRSEL ─────────────────────────
+  //
+  // ⚠ ⚠ **BU DAL `image.*` DALINDAN ÖNCE OLMAK ZORUNDA ve ilk sürüm SONRAYA KOYDU.**
+  // Bir üstteki `image.critique` notu bu tuzağı KELİMESİ KELİMESİNE uyarıyordu:
+  // *"ön ek eşleşmesiyle kurulan her dal, ön eki paylaşan ikinci bir yeteneğin
+  // geleceğini varsaymalı."* `image.matte` de `image.` ile başlıyor ve aşağıdaki
+  // görsel-üretim dalı onu yakalayıp erken dönüyordu; gerçek koşuda `gorsel-kirp`
+  // `{atlandi: true, sebep: 'prompt-yok'}` yazdı ve arka plan silme HİÇ koşmadı.
+  // Yazılı bir ders, aynı dosyaya eklenen yeni dala kendiliğinden geçmiyor.
+  //
+  // ⚠ İstem bir YER TUTUCU: bu yetenekte metin bir şey ifade etmiyor ama boş bırakmak
+  // adımı sessizce düşürür. Gerçek girdi `image_base64` kısıtında.
+  // ⚠ Silinecek görsel yoksa istem BOŞ: silinecek bir şey olmadan model çağırmak,
+  // bir önceki adımın düşmesini gizlemek olurdu.
+  if (yetenek === 'image.matte') {
+    return uretilenGorsel(input.inputs) === null ? '' : 'arka plan silme'
+  }
+
   if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
     // **Yalnız BAĞLANDIĞI adımların çıktısı okunuyor.** Adım id'sine göre değil,
     // DAG'a göre: hangi adımın brief üreteceğini hat dosyası `needs` ile söylüyor.
@@ -2012,11 +2039,26 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       })
     }
 
+    // ⚠ ⚠ **`image.matte` GİRDİSİNİ BURADA ALIYOR.** Kısıtlar normalde yalnız adımın
+    // YAML'ından gelir; bu yetenekte taşınan şey bir önceki adımın ÜRETTİĞİ görsel.
+    // Sağlayıcıya ayrı bir kanal açmak (ör. `ProviderInput.payload`) sözleşmeyi tek bir
+    // yetenek için genişletirdi; kısıt zaten `Record<string, unknown>` ve yük oraya
+    // sığıyor. Sınır korunuyor: adaptör hâlâ yalnız `ProviderInput` görüyor.
+    const matlanacak = yetenek === 'image.matte' ? uretilenGorsel(input.inputs) : null
+    const kisitlar =
+      matlanacak === null
+        ? input.constraints
+        : {
+            ...input.constraints,
+            // `src` bir veri URI'si; sağlayıcı ham base64 bekliyor.
+            image_base64: matlanacak.src.replace(/^data:[^;]+;base64,/, ''),
+          }
+
     const ham: ProviderInput = {
       capability: yetenek,
       lane: serit,
       prompt: kacinilacak === '' ? temelPrompt : `${temelPrompt}\n\nKAÇIN: ${kacinilacak}`,
-      constraints: input.constraints,
+      constraints: kisitlar,
       idempotencyKey: `${ctx.runId}:${ctx.stepId}`,
     }
 

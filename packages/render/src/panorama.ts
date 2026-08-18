@@ -807,7 +807,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).
     ...(doc.yerlesim === undefined || doc.yerlesim === 'ayrik'
       ? [`  .panel, .sayilar, .etiketler { margin-top: auto }`]
-      : [`  .panel, .sayilar, .etiketler { margin-top: 34px }`]),
+      : [`  .panel, .sayilar, .etiketler { margin-top: 132px }`]),
     // ── kesim çizgisi: hiçbir ögeyi kırpmıyor, yalnız ince bir ayraç ─────────
     `  .kesik { position: absolute; top: 0; bottom: 0; width: 1px;`,
     `           background: ${sol('--pano-metin', 6)}; z-index: 9 }`,
@@ -816,7 +816,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .ust-baslik { font-size: 19px; letter-spacing: 0.22em; text-transform: none;`,
     `                font-stretch: calc(var(--ust-wdth) * 1%);`,
     `                font-feature-settings: ${OPENTYPE_CSS};`,
-    `                color: var(--kart-aksan); font-weight: 700; margin-bottom: 26px;`,
+    // ⚠ ⚠ **BOŞLUK RİTMİ 1:3 — eşit boşluk, boşluk YOKLUĞUDUR (tasarım rehberi §2).**
+    // Önceki değerler 26 / 24 / 34 px idi: üçü de birbirine denk ve göz hiçbir grup
+    // göremiyordu. Bu, çıktının "web sayfası gibi" durmasının en büyük tek sebebiydi —
+    // renk eklemek çözmüyor çünkü sorun renkte değil ritimde. Üst başlık başlığa YAPIŞIK
+    // (14 px, aynı grup), başlık gövdeden AYRIK (44 px), panel çok daha uzak (§2).
+    `                color: var(--kart-aksan); font-weight: 700; margin-bottom: 14px;`,
     `                display: flex; align-items: center; gap: 14px }`,
     `  .ust-baslik::before { content: ""; width: 30px; height: 2px; background: var(--kart-aksan) }`,
     // ⚠ Başlık SIKIŞIK ve İRİ; `line-height` 1,04 — 0,90'da Türkçe `Ş` kuyruğu alt satıra
@@ -845,7 +850,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kart.acik .baslik strong { background: var(--kart-cip); color: var(--kart-cip-metin);`,
     `                              padding: 0.02em 0.14em; box-decoration-break: clone;`,
     `                              -webkit-box-decoration-break: clone }`,
-    `  .govde { margin-top: 24px; font-size: calc(var(--baslik-punto) * var(--govde-orani));`,
+    `  .govde { margin-top: 44px; font-size: calc(var(--baslik-punto) * var(--govde-orani));`,
     `           line-height: 1.5; max-width: 34ch; color: var(--kart-soluk) }`,
     `  .govde strong { color: var(--kart-metin); font-weight: 700 }`,
     // ⚠ Dev soluk metin kesim çizgilerini KASTEN aşıyor: kesintisizliğin en görünür işareti.
@@ -877,9 +882,14 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // şablonun (`memphis`, `editoryal`) tüm veri panelleri beyaz-üstüne-beyazdı ve metrik
     // yeşildi — çünkü ölçülen şey varlıktı, görünürlük değil. `color-mix` ile aynı oranlar
     // kartın KENDİ metin renginden türetiliyor; koyu zeminde çıktı birebir aynı kalıyor.
-    `  .panel { background: ${sol('--kart-metin', 4.5)}; border-radius: 14px;`,
-    `           padding: 26px 28px; max-width: 640px;`,
-    `           border: 1px solid ${sol('--kart-metin', 8)} }`,
+    // ⚠ ⚠ **TEK AYIRAÇ, ÜÇ DEĞİL (tasarım rehberi §6).** Panel aynı anda zemin farkı +
+    // çerçeve + köşe yarıçapı taşıyordu; üçü birden kullanılınca ortaya çıkan şey bir
+    // HTML tablosudur. Ayrım için biri seçiliyor: sol kenarda tek bir AKSAN çizgisi.
+    // Çizgi bir anlam taşıyor (panel buradan başlıyor), süs değil.
+    // ⚠ Zemin farkı da kaldırıldı: panel artık kartın zemininde YÜZÜYOR, kendi kutusunda
+    // oturmuyor — katmanlanma rehber §3'ün istediği şey.
+    `  .panel { padding: 4px 0 4px 26px; max-width: 640px;`,
+    `           border-left: 3px solid var(--kart-aksan) }`,
     `  .panel-baslik { font-size: 16px; letter-spacing: 0.16em; color: ${sol('--kart-metin', 50)};`,
     `                  margin-bottom: 18px; font-weight: 600 }`,
     `  .cubuk-satir { display: flex; align-items: center; gap: 12px; margin-bottom: 11px }`,
@@ -897,8 +907,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // tabularda hizalanıyor — orantılı rakamla çubuk notları birbirini tutmuyordu.
     `                font-variant-numeric: tabular-nums }`,
     `  .sayilar { display: flex; gap: 18px; flex-wrap: wrap }`,
-    `  .sayi-kart { background: ${sol('--kart-metin', 4.5)}; border-radius: 14px;`,
-    `               padding: 22px 26px; border: 1px solid ${sol('--kart-metin', 8)} }`,
+    // ⚠ Sayı kartı da kutusundan çıktı: dev rakam ZATEN kendi ağırlığıyla ayrışıyor,
+    // etrafına çerçeve çizmek onu küçültüyordu (rehber §6, §7).
+    `  .sayi-kart { padding: 0 44px 0 0 }`,
     `  .sayi { font-family: "Marka Display", sans-serif; font-size: 74px; font-weight: 900;`,
     `          font-stretch: calc(var(--baslik-wdth) * 1%); font-variant-numeric: tabular-nums;`,
     `          color: var(--kart-aksan); line-height: 1 }`,

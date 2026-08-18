@@ -130,6 +130,25 @@ describe('dikiş 2b: şablonun görsel ihtiyacı → brief istemi', () => {
   })
 })
 
+// ⚠ ⚠ **ÖN EK TUZAĞI — bu dosyada uyarısı YAZILI olduğu hâlde tekrarlandı.**
+// `bodies.ts`teki `image.critique` notu aynen şunu söylüyordu: *"ön ek eşleşmesiyle
+// kurulan her dal, ön eki paylaşan ikinci bir yeteneğin geleceğini varsaymalı."*
+// `image.matte` dalı yine de genel `image.*` dalından SONRA konuldu; gerçek koşuda
+// `gorsel-kirp` atlandı ve arka plan silme hiç koşmadı.
+describe('dikiş 2c: `image.matte` ön ek tuzağına düşmüyor', () => {
+  it('görsel varsa istem KURULUYOR — genel `image.*` dalı yutmuyor', () => {
+    const p = promptTuret(
+      'image.matte',
+      girdi({}, { g: { format: 'base64', data: 'AAAA', width: 8, height: 8 } })
+    )
+    expect(p).not.toBe('')
+  })
+
+  it('silinecek görsel yoksa istem BOŞ — bir önceki adımın düşmesi gizlenmiyor', () => {
+    expect(promptTuret('image.matte', girdi({}, {}))).toBe('')
+  })
+})
+
 describe('dikiş 3: model çıktısı → uyarlama nesnesi', () => {
   const gecerli = JSON.stringify({
     sablonId: 'akan-alan',

@@ -52,6 +52,12 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   // ⚠ `ayrik`: paneller DİBE, eğrinin üstüne oturuyor. Aradaki boşluk kusur değil,
   // eğrinin hikâyeyi anlattığı alan.
   yerlesim: 'ayrik',
+  // ⚠ ⚠ **HAYALET BİR KATMAN, BİR FİLİGRAN DEĞİL (tasarım rehberi §3).** Varsayılan
+  // (%7 opaklık, 1× ölçek) rakamı fark edilmez yapıyordu ve kart yüzeyinde HİÇBİR
+  // katmanlanma kalmıyordu: her öge kendi kutusunda, hiçbiri diğerine girmiyor — yani
+  // "web işi". Rakam büyütülüp metnin arkasından geçirildi ve kesim çizgisini aşıyor.
+  // ⚠ %9'u geçmiyor: gövde metni onun üstünde ve okunaklılık kaybı kabul edilemez.
+  hayaletKonumu: { ust: 26, olcek: 1.55, guc: 9 },
   tipografi: {
     baslikPayi: 0.95,
     baslikGenislik: 70,
@@ -433,6 +439,9 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     baslikSutunu: 0.8,
   },
   zemin: 'var(--role-surface)',
+  // ⚠ Kâğıt zeminde koyu bir hayalet aynı opaklıkta DAHA GÜÇLÜ okunur (koyu üstüne
+  // açık ile açık üstüne koyu simetrik değil): %7 burada yeterli, ölçek büyütülüyor.
+  hayaletKonumu: { ust: 30, olcek: 1.4, guc: 7 },
   zeminDokusu: {
     taban: '--ramp-marka-kagit',
     katmanlar: [
