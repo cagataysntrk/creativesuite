@@ -162,5 +162,27 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     '- Başlıkta vurgulanacak kelimeyi `**böyle**` işaretle; işaretler çift olmalı.',
     '- `hayalet` alanı kısa olmalı: bir rakam, bir sembol ya da tek kelime.',
     '- Panel tipini değiştirme, yalnız içindeki veriyi değiştir.',
+    '',
+    // ⚠ ⚠ **ÇIKTI SÖZLEŞMESİ İLK SÜRÜMDE HİÇ YAZILMAMIŞTI ve gerçek koşu iki kez
+    // `ADAPTATION_UNPARSEABLE` ile durdu.** İstem alanları ANLATIYORDU ama biçimi
+    // söylemiyordu; model doğal olarak nesir döndürdü. Ayrıştırıcıyı gevşetmek yanlış
+    // cevap olurdu — sözleşmeyi yazmayıp uyulmasını beklemek, kuralı koymadan ihlali
+    // cezalandırmaktır. Şema burada, örnekle birlikte.
+    'ÇIKTI BİÇİMİ — yalnız JSON döndür, önünde ve arkasında hiçbir açıklama olmasın:',
+    '{',
+    `  "sablonId": "${sablonId}",`,
+    '  "kartlar": [',
+    '    {',
+    '      "ustBaslik": "BÖLÜM 01",',
+    '      "baslik": "Kısa başlık, **vurgulu** kelimeyle",',
+    '      "govde": "Tek cümlelik gövde.",',
+    '      "hayalet": "1",',
+    '      "rayaSol": "KONU ETİKETİ",',
+    '      "rayaOrta": "Gerçek kaynak, tarih"',
+    '    }',
+    `    // … toplam ${ornek.kartlar.length} kart`,
+    '  ]',
+    '}',
+    'Panel taşıyan kartlarda `panel` alanını da yaz; tipi ŞABLONDAKİYLE aynı olsun.',
   ].join('\n')
 }

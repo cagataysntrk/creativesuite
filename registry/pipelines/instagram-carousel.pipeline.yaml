@@ -1,3 +1,14 @@
+# ⚠ ⚠ EMEKLİ (2026-08-18) — yerine `instagram-karosel` (D-268 · FAZ-15.9).
+#
+# Bu hat karoseli SLAYT BAŞINA render ediyor ve tasarımı `AileProfili` seçiyor. Deney
+# gösterdi ki o yaklaşım yedi TASARIM değil tek tasarımın yedi BOYASI üretiyor; ayrıca
+# süreklilik ima edilmekten öteye geçemiyor (her slayt ayrı tuval). Gerekçe ve ölçümler:
+# `docs/arsiv/aile-tabanli-karosel/README.md`.
+#
+# ⚠ SİLİNMEDİ, çünkü emeklilik silme değildir (Yasa 10): `apps/ui` bu id'ye bağlı ve
+# FAZ-3.14 (bloke, `2.9` bekliyor) onu hedefliyor. Yeni karosel işleri
+# `instagram-karosel` hattına gider.
+#
 # Instagram carousel (§10 · FAZ-3.14).
 #
 # MODEL ADI YOK (R-40): adımlar YETENEK ister. Taşan içerik otomatik BÖLÜNÜR ve her

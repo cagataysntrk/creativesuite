@@ -44,13 +44,19 @@ const kok = join(REPO, 'content', slug)
 mkdirSync(kok, { recursive: true })
 writeFileSync(join(kok, 'metin.md'), `# ${konu}\n\n${metin}\n`)
 
-const oncekiKosular = new Set(readdirSync(join(REPO, 'derived/runs')))
+// ⚠ `--topla`: hattı KOŞMADAN son koşuları toplar. Tur yarıda kalırsa ya da toplama
+// kodu düzeltilirse yedi koşuyu yeniden koşmak (ve yedi kez ödeme yapmak) gerekmesin.
+const yalnizTopla = process.argv.includes('--topla')
+const oncekiKosular = yalnizTopla
+  ? new Set(readdirSync(join(REPO, 'derived/runs')).sort().slice(0, -AILELER.length))
+  : new Set(readdirSync(join(REPO, 'derived/runs')))
 const ozet = [`# ${konu}`, '', 'Aynı metin, yedi tasarım. Hat her aile için uçtan uca koştu.', '']
 
 for (const aile of AILELER) {
   const profil = C.AILELER.find((a) => a.id === aile)
   console.log(`\n── ${aile} ─────────────────────────────`)
   try {
+    if (yalnizTopla) throw new Error('toplama modu')
     execFileSync('just', ['uret', 'instagram-post', konu, '--aile', aile, '--metin', metin], {
       cwd: REPO,
       stdio: 'inherit',
@@ -70,14 +76,25 @@ for (const aile of AILELER) {
   const dizin = join(kok, aile)
   mkdirSync(dizin, { recursive: true })
   const kaynak = join(REPO, 'derived/runs', kosu)
+  const m = JSON.parse(readFileSync(join(kaynak, 'manifest.json'), 'utf8'))
+  // ⚠ ⚠ **SLAYTLAR KOŞU DİZİNİNDE DEĞİL, BLOB'LARDA.** Damgalama (R-11) varlığı
+  // içerik-adresli depoya taşıyor ve koşu dizininde yalnız JSON kalıyor; ilk sürüm
+  // koşu dizininden kopyalamaya çalıştı ve "0 slayt" yazdı. Defter işaretçiyi tutuyor,
+  // byte'ı değil (D-248) — kopyalanacak yer işaretçinin gösterdiği yer.
+  const damgali = readdirSync(join(REPO, 'derived/blobs'))
+    .flatMap((on) =>
+      readdirSync(join(REPO, 'derived/blobs', on))
+        .filter((f) => f.endsWith('.meta.json'))
+        .map((f) => join(REPO, 'derived/blobs', on, f))
+    )
+    .filter((f) => readFileSync(f, 'utf8').includes(kosu.replace('run_', '')))
+    .sort()
   let sayi = 0
-  for (const f of readdirSync(kaynak)
-    .filter((x) => x.endsWith('.png'))
-    .sort()) {
-    copyFileSync(join(kaynak, f), join(dizin, f))
+  for (const meta of damgali) {
+    const png = meta.replace('.meta.json', '')
+    copyFileSync(png, join(dizin, `slayt-${String(sayi + 1).padStart(2, '0')}.png`))
     sayi += 1
   }
-  const m = JSON.parse(readFileSync(join(kaynak, 'manifest.json'), 'utf8'))
   const adim = (id) => (m.steps ?? []).find((s) => s.stepId === id)
   const plan = (adim('kompozit')?.output ?? {}).tasarimPlani ?? {}
   const yargi = adim('tasarim-yargi')?.output ?? {}

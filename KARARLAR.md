@@ -563,3 +563,26 @@ sağlamken zincir kopuk olabilir.
 
 **Geri alma maliyeti:** düşük — katalog dalları kısıtla açılıyor (`katalog: true`,
 `sablon_uyarla: true`); kısıt yoksa eski yol aynen koşuyor.
+
+## D-271 — Eski karosel yolu emekli; "öldür" TAM silme demek değil, ÖLÇÜLDÜ
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · Yasa 10 · R-12 · §3.5
+
+Katalog merkezli üretim (D-268) devreye girince eski karosel tasarım yolunun emekliye
+ayrılması gerekti. **Kapsam ölçülerek belirlendi, varsayılarak değil.**
+
+| Öge | Karar | Gerekçe |
+|---|---|---|
+| `scripts/sablon-turu.mjs` (yedi-aile tezgâhı) | **arşive taşındı** | Terk edilen yaklaşımın deney tezgâhı; kalması onu diriltmeye davet |
+| `instagram-carousel` hattı | **emekli işaretlendi, dosya kaldı** | `apps/ui` id'ye bağlı · FAZ-3.14 onu hedefliyor (bloke) |
+| `aileSec` karosel seçimi | **emekli** | Karosel artık katalogdan geçiyor |
+| `sablon.ts` · `AileProfili` · `static.ts` | **KALDI** | ⚠ ölçüm: `static.ts`te `doc.aile` **on altı yerde**; LinkedIn dökümanı, deck PDF, prospect-deck, reels, explainer, ad-creative ve tek görsel postu dahil **sekiz hat** ondan besleniyor |
+
+⚠ ⚠ **"Eski sistemi öldür" isteği, sekiz hattı kırmadan tam olarak karşılanamıyor ve bu
+rapor edilmesi gereken bir sonuç, sessizce daraltılacak bir kapsam değil.** Emekli olan
+şey **karosel için aile seçimi**dir; slayt-başına render'ın kendisi değil — o, karoselin
+değil BELGE ve DECK'in motoru ve karoselle birlikte ölmesi için hiçbir sebep yok.
+Yasa 4 (tek render motoru) da bozulmuyor: panorama ile `static.ts` aynı Chromium'u, aynı
+gömülü fontu ve aynı token CSS'ini kullanıyor — ikinci bir CSS alt kümesi yok.
+
+**Geri alma maliyeti:** yok — hiçbir dosya silinmedi, biri taşındı.

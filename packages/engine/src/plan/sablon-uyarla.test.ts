@@ -142,4 +142,15 @@ describe('uyarlama istemi', () => {
   it('kaynak zorunluluğunu istemde de söylüyor — kural iki yerde değil, aynı yerde', () => {
     expect(uyarlamaIstemi(ornek, 'veri-hikayesi', 'x')).toContain('ÖRNEK VERİ')
   })
+
+  // ⚠ ⚠ **ÇIKTI SÖZLEŞMESİ İSTEMDE OLMAK ZORUNDA.** İlk sürümde yoktu ve gerçek koşu
+  // iki kez `ADAPTATION_UNPARSEABLE` ile durdu: alanlar anlatılıyordu ama biçim
+  // söylenmiyordu, model nesir döndürüyordu. Ayrıştırıcıyı gevşetmek yanlış cevap.
+  it('istem JSON şemasını ve kart sayısını AÇIKÇA veriyor', () => {
+    const i = uyarlamaIstemi(ornek, 'veri-hikayesi', 'x')
+    expect(i).toContain('yalnız JSON döndür')
+    expect(i).toContain('"sablonId": "veri-hikayesi"')
+    expect(i).toContain('"kartlar"')
+    expect(i).toContain(`toplam ${ornek.kartlar.length} kart`)
+  })
 })
