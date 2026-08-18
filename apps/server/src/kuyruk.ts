@@ -73,6 +73,12 @@ export const bekleyenler = (repoRoot: string): readonly KuyrukSatiri[] => {
       manifestSaglam: /^[0-9a-f]{40}$/.test(m.corpusCommit),
     })
   }
+  // ⚠ ⚠ **SUNUCU EN ESKİYİ ÖNCE VERİR ve bu bir kuyruk sözleşmesidir:** bekleyen iş
+  // dipte unutulmaz. Bir kez tersine çevirmeyi denedim çünkü panelde az önce başlatılan
+  // koşu 62 bekleyenin altında kalıyordu — ama testin gerekçesi de doğruydu ve iki
+  // doğru arasında seçim yapmak yerine İKİSİ birden karşılanmalı: sunucu kuyruk
+  // sırasını korur, EKRAN kendi sırasını seçer (`OnayKuyrugu` `sira` alıyor).
+  // Sıralamayı sunucuda çevirmek, "unutulmasın" garantisini API'den silmek olurdu.
   return satirlar.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 }
 

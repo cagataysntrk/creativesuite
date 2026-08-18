@@ -11,6 +11,7 @@ import { CorpusTarayici } from './CorpusTarayici.js'
 import { BaglamOnizleme } from './BaglamOnizleme.js'
 import { RunLauncher } from './RunLauncher.js'
 import { OnayKuyrugu } from './OnayKuyrugu.js'
+import { Giris } from './Giris.js'
 import { YerlesimEkrani } from './YerlesimEkrani.js'
 import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
@@ -104,6 +105,22 @@ const EKRAN: Readonly<Record<string, Ekran>> = {
   uyum: 'uyum',
 }
 
+/**
+ * Üst navigasyonda GÖRÜNEN ekranlar — hepsi değil, sık kullanılanlar.
+ *
+ * ⚠ Tam liste palette; buradaki sıra günlük akışı izliyor: onay → üret → geçmiş →
+ * varlık → bütçe → sağlık. Alfabetik bir liste, işin sırasını gizlerdi.
+ */
+const NAV: readonly (readonly [Ekran, string])[] = [
+  ['kuyruk', 'Onaylar'],
+  ['calistir', 'Üret'],
+  ['gecmis', 'Koşular'],
+  ['varliklar', 'Varlıklar'],
+  ['butce', 'Bütçe'],
+  ['uyum', 'Uyum'],
+  ['doktor', 'Doktor'],
+]
+
 /** Bir hattı çalıştıran komutlar — ekran açmaz, launcher'ı O hatla açar. */
 const URETIM_KOMUTLARI: ReadonlySet<string> = new Set([
   'instagram-post',
@@ -181,6 +198,32 @@ export const App = (): React.JSX.Element => {
 
   return (
     <div className="kabuk" data-surface="console">
+      {/* ⚠ ⚠ **GÖRÜNÜR NAVİGASYON — palet TEK yol olmaktan çıktı.** On dokuz ekran
+          vardı ve hepsi `⌘K` arkasındaydı; paneli ilk açan kişi boş bir sayfa görüp
+          *"tek ekran var"* dedi. Keşfedilemeyen bir ekran, olmayan bir ekrandır.
+          Palet duruyor ve hâlâ hızlı yol; artık tek yol değil. */}
+      <nav className="ust-nav" aria-label="Ekranlar">
+        <button
+          type="button"
+          className={ekran === 'giris' ? 'etkin' : ''}
+          onClick={() => setEkran('giris')}
+        >
+          Komuta
+        </button>
+        {NAV.map(([id, ad]) => (
+          <button
+            key={id}
+            type="button"
+            className={ekran === id ? 'etkin' : ''}
+            onClick={() => setEkran(id)}
+          >
+            {ad}
+          </button>
+        ))}
+        <span className="ust-nav-ipucu">
+          <kbd>⌘K</kbd> palet
+        </span>
+      </nav>
       <main className="govde">
         {ekran === 'corpus' ? (
           <CorpusTarayici />
@@ -213,12 +256,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'uyum' ? (
           <UyumPanosu />
         ) : (
-          <>
-            <h1>Upcytech Creative Suite</h1>
-            <p>
-              Komut paletini açmak için <kbd>⌘K</kbd> — menü yok, palet birincil navigasyondur.
-            </p>
-          </>
+          <Giris />
         )}
       </main>
 

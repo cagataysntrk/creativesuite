@@ -7,7 +7,9 @@
 
 .kabuk {
   display: grid;
-  grid-template-rows: 1fr auto;
+  /* ⚠ Üç satır: NAVİGASYON · gövde · durum şeridi. Nav gövdenin İÇİNDE olsaydı
+     ekran değiştikçe kaybolur ve kullanıcı geri dönüş yolunu yitirirdi. */
+  grid-template-rows: auto 1fr auto;
   min-block-size: 100vh;
   background: var(--role-bg);
   color: var(--role-text);
@@ -467,4 +469,77 @@ kbd {
 .op-listesi li {
   padding-block: var(--space-2);
   border-block-end: 1px solid var(--role-line-hair);
+}
+
+/* ── üst navigasyon (FAZ-17.2) ─────────────────────────────────────────────
+ * Palet birincil navigasyondu ve on dokuz ekranın hiçbiri görünmüyordu.
+ * Keşfedilemeyen bir ekran, olmayan bir ekrandır.
+ */
+.ust-nav {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+  padding: var(--space-2) var(--space-6);
+  border-block-end: 1px solid var(--role-line-hair);
+  background: var(--role-surface);
+}
+
+.ust-nav button {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-2);
+  color: var(--role-text-muted);
+  padding: var(--space-1) var(--space-3);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ust-nav button:hover {
+  color: var(--role-text);
+  border-color: var(--role-line-hair);
+}
+
+.ust-nav button.etkin {
+  color: var(--role-text);
+  border-color: var(--role-accent);
+}
+
+.ust-nav-ipucu {
+  margin-inline-start: auto;
+  color: var(--role-text-muted);
+}
+
+/* ── komuta ana ekranı ─────────────────────────────────────────────────── */
+.giris {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.giris-blok h2 {
+  font-size: var(--size-4);
+  font-weight: var(--weight-strong);
+  margin: 0 0 var(--space-1);
+}
+
+.giris-not {
+  color: var(--role-text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.giris-varlik {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.giris-varlik li {
+  display: flex;
+  gap: var(--space-4);
+  color: var(--role-text-muted);
+  border-block-end: 1px solid var(--role-line-hair);
+  padding-block-end: var(--space-1);
 }

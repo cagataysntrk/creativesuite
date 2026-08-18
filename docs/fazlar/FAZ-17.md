@@ -28,13 +28,17 @@ planlanır — o da bir karardır, otomatik değil.
 🧪 Onaysız `--devam` → hat aynı kapıda duruyor, sessizce geçmiyor
 💾 `feat(registry): adim kapilari` · `Refs: FAZ-17.1 · §4c`
 
-## 17.2 — Kapının YÜZÜ: editörde koşu paneli    [ ]
+## 17.2 — Kapının YÜZÜ: komuta merkezi ana ekranı    [x]
 
 📖 §4c · D-301
 🔗 FAZ-17.1
-🛠 `just duzenle` bugün yalnız BİTMİŞ koşuları açıyor. Bekleyen kapıyı da göstermeli:
-   hangi adımda durdu, o adım ne üretti, ✓ onayla / ✗ başka üret. Onay defterdeki
-   karara yazılır ve koşu sürer.
+🛠 ⚠ ⚠ **TEŞHİS YANLIŞTI VE KULLANIM DÜZELTTİ.** Bu adım "editöre koşu paneli ekle"
+   diye yazılmıştı; oysa komuta merkezi (`just dev`, `apps/ui`) ZATEN vardı ve içinde
+   `OnayKuyrugu` dahil on dokuz ekran duruyordu. Kusur eksiklik değil GÖRÜNMEZLİKTİ:
+   açılış ekranı yalnız *"komut paletini açmak için ⌘K — menü yok"* diyordu ve paneli
+   ilk açan kişi *"tek ekran var, onay ekranını göremedim"* dedi. Keşfedilemeyen bir
+   ekran, olmayan bir ekrandır.
+   ⚠ Palet KALDIRILMADI — hızlı yol o. Kaldırılan şey, paletin TEK yol olmasıydı.
    ⚠ *"Başka üret"* bir REDDİR ve gerekçesi negatif kısıt olarak sonraki denemeye
    girer (D-191) — gerekçesiz ret, aynı çıktıyı ikinci kez üretir.
 📁 `scripts/duzenleyici.mjs` · `scripts/duzenleyici-istemci.js`

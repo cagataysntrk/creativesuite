@@ -20,7 +20,18 @@ interface Satir {
   readonly manifestSaglam: boolean
 }
 
-export const OnayKuyrugu = (): React.JSX.Element => {
+/**
+ * ⚠ ⚠ **SIRA EKRANIN KARARI, SUNUCUNUN DEĞİL.** API en ESKİYİ önce veriyor ve bu bir
+ * kuyruk sözleşmesi: bekleyen iş dipte unutulmaz. Ama komuta ekranında insanın
+ * beklediği şey az önce başlattığı iştir; 62 bekleyenin altında kalan bir satır,
+ * doğru veriyle yanlış işi öne koymaktır. İki doğru arasında seçim yapmak yerine
+ * ikisi birden: sunucu sırasını korur, ekran kendi sırasını seçer.
+ */
+export interface OnayKuyruguOzellik {
+  readonly sira?: 'eski' | 'yeni'
+}
+
+export const OnayKuyrugu = ({ sira = 'eski' }: OnayKuyruguOzellik = {}): React.JSX.Element => {
   const [satirlar, setSatirlar] = useState<readonly Satir[] | null>(null)
   const [secili, setSecili] = useState(0)
   const [gerekce, setGerekce] = useState<string | null>(null)
@@ -30,7 +41,11 @@ export const OnayKuyrugu = (): React.JSX.Element => {
     try {
       const r = await fetch('/api/kuyruk')
       const j = (await r.json()) as { bekleyenler: Satir[] }
-      setSatirlar(j.bekleyenler)
+      setSatirlar(
+        sira === 'yeni'
+          ? [...j.bekleyenler].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+          : j.bekleyenler
+      )
       setSecili((s) => Math.min(s, Math.max(0, j.bekleyenler.length - 1)))
     } catch {
       setMesaj('sunucuya ulaşılamıyor')
