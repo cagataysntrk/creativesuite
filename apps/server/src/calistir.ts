@@ -15,8 +15,59 @@
 // gördüysem onu onayladım" iddiasını ispatlanamaz yapar; CLI özeti karşılaştırır ve
 // dünya değiştiyse durur.
 
-import { spawnProcess, newId } from '@suite/kernel'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { spawnProcess, newId, RUNS_DIR } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
+
+/**
+ * Başlatma başarısızlığını **deftere yazar** (§13 · Yasa 11).
+ *
+ * ⚠ ⚠ **BU YOKTU ve panel yalan söylüyordu.** `spawnProcess` reddetmez, SONUÇ döner
+ * (§8.6) — kod ise yalnız `.catch()` bağlayıp sonucu çöpe atıyordu. Yorum "âkıbet
+ * manifeste yazılır" diyordu ama manifest ancak süreç YAŞARSA yazılıyor: `just uret`
+ * ilk satırda ölünce `derived/runs` altında hiçbir dizin açılmıyor, ekranda
+ * "başlatıldı: run_…" kalıyordu. Gerçek koşuda tam bu oldu: ortamda `HOME` yoktu.
+ *
+ * Dizin YİNE `derived/runs` altında: başarısız bir başlatma da bir olaydır ve
+ * defterden silinmez. `doctor` "manifestsiz dizin" derken artık sebebi de okuyabilir.
+ */
+const baslatmaHatasiniYaz = (
+  repoRoot: string,
+  runId: string,
+  kayit: Readonly<Record<string, unknown>>
+): void => {
+  try {
+    const dizin = join(repoRoot, RUNS_DIR, runId)
+    mkdirSync(dizin, { recursive: true })
+    writeFileSync(join(dizin, 'baslatilamadi.json'), `${JSON.stringify(kayit, null, 2)}\n`, 'utf8')
+  } catch {
+    // Deftere yazamıyorsak yapılacak bir şey yok; süreç zaten ölmüş. Sessiz kalan
+    // tek şey dosya sistemi hatası — başlatma hatasının kendisi değil.
+  }
+}
+
+/** Alt süreç sonucunu izler; yalnız BAŞARISIZLIK deftere düşer. */
+const akibetiIzle = (
+  repoRoot: string,
+  runId: string,
+  komut: readonly string[],
+  p: ReturnType<typeof spawnProcess>
+): void => {
+  void p.then((r) => {
+    if (r.code === 0 && !r.timedOut && !r.aborted) return
+    baslatmaHatasiniYaz(repoRoot, runId, {
+      komut: komut.join(' '),
+      code: r.code,
+      signal: r.signal,
+      timedOut: r.timedOut,
+      aborted: r.aborted,
+      // Kuyruk: hata SON satırlardadır ve tamamı deftere gerekmiyor.
+      stderr: r.stderr.slice(-4000),
+      stdout: r.stdout.slice(-2000),
+    })
+  })
+}
 
 export type BaslatSonuc =
   { readonly ok: true; readonly runId: string } | { readonly ok: false; readonly hata: string }
@@ -51,15 +102,17 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
   // Kabuk enjeksiyonu yok: argümanlar DİZİ olarak geçiyor, kabuk yorumlaması hiç yok.
   const runId = newId('RunId') as RunId
 
-  void spawnProcess(
-    g.komut ?? 'just',
-    ['uret', g.pipelineId, g.konu, '--run', runId, '--plan-digest', g.planDigest],
-    { cwd: g.repoRoot, env: g.env, maxOutputBytes: 1_000_000 }
-  ).catch(() => {
-    // Alt sürecin âkıbeti manifeste yazılır; burada yutulan tek şey promise reddi.
-    // Sessiz değil: manifest yoksa `doctor` "varlık var manifest yok" der, varsa
-    // `stoppedAt` nerede durduğunu söyler.
-  })
+  const argv = ['uret', g.pipelineId, g.konu, '--run', runId, '--plan-digest', g.planDigest]
+  akibetiIzle(
+    g.repoRoot,
+    runId,
+    [g.komut ?? 'just', ...argv],
+    spawnProcess(g.komut ?? 'just', argv, {
+      cwd: g.repoRoot,
+      env: g.env,
+      maxOutputBytes: 1_000_000,
+    })
+  )
 
   return { ok: true, runId }
 }
@@ -88,13 +141,17 @@ export const calistirmaSurdur = (g: {
 }): BaslatSonuc => {
   if (g.pipelineId.trim() === '') return { ok: false, hata: 'pipeline seçilmedi' }
   if (g.runId.trim() === '') return { ok: false, hata: 'çalıştırma id yok' }
-  void spawnProcess(g.komut ?? 'just', ['uret', g.pipelineId, '--devam', g.runId], {
-    cwd: g.repoRoot,
-    ...(g.env === undefined ? {} : { env: g.env }),
-    maxOutputBytes: 1_000_000,
-  }).catch(() => {
-    // Âkıbet manifeste yazılır; burada yutulan tek şey promise reddi.
-  })
+  const argv = ['uret', g.pipelineId, '--devam', g.runId]
+  akibetiIzle(
+    g.repoRoot,
+    g.runId,
+    [g.komut ?? 'just', ...argv],
+    spawnProcess(g.komut ?? 'just', argv, {
+      cwd: g.repoRoot,
+      ...(g.env === undefined ? {} : { env: g.env }),
+      maxOutputBytes: 1_000_000,
+    })
+  )
   return { ok: true, runId: g.runId as RunId }
 }
 
@@ -120,13 +177,17 @@ export const tekrarBaslat = (g: {
   if (g.kaynakRunId.trim() === '') return { ok: false, hata: 'kaynak çalıştırma yok' }
   const runId = newId('RunId') as RunId
 
-  void spawnProcess(
-    g.komut ?? 'just',
-    ['uret', g.pipelineId, `--${g.kind}`, g.kaynakRunId, '--run', runId],
-    { cwd: g.repoRoot, env: g.env, maxOutputBytes: 1_000_000 }
-  ).catch(() => {
-    // Âkıbet manifeste yazılır (bkz. `calistirmaBaslat`).
-  })
+  const argv = ['uret', g.pipelineId, `--${g.kind}`, g.kaynakRunId, '--run', runId]
+  akibetiIzle(
+    g.repoRoot,
+    runId,
+    [g.komut ?? 'just', ...argv],
+    spawnProcess(g.komut ?? 'just', argv, {
+      cwd: g.repoRoot,
+      env: g.env,
+      maxOutputBytes: 1_000_000,
+    })
+  )
 
   return { ok: true, runId }
 }

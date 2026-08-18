@@ -63,7 +63,14 @@ const sahte = (name: VerbName, veri: unknown): Verb => {
 const kos = (verbs: Record<string, Verb>, steps: Pipeline['steps']) =>
   runPipeline({
     repoRoot: tmp.path,
-    pipeline: { id: 'zincir-hat', title: 'Zincir', ciktiSinifi: 'organik', steps, matris: null },
+    pipeline: {
+      id: 'zincir-hat',
+      title: 'Zincir',
+      ciktiSinifi: 'organik',
+      steps,
+      matris: null,
+      retired: false,
+    },
     runId: RUN,
     brandId: 'brd_test' as BrandId,
     eraId: 'era_test' as EraId,
@@ -237,6 +244,7 @@ describe('çalıştırma parametreleri', () => {
         ciktiSinifi: 'organik',
         steps: [adim('arastir', 'INGEST')],
         matris: null,
+        retired: false,
       },
       runId: RUN,
       brandId: 'brd_test' as BrandId,
@@ -284,6 +292,7 @@ describe('çalıştırma parametreleri', () => {
         ],
         ciktiSinifi: 'organik',
         matris: null,
+        retired: false,
       },
       runId: RUN,
       brandId: 'brd_test' as BrandId,
@@ -316,7 +325,14 @@ describe('dış metin sınırının kapısı', () => {
   const kararla = (gate: string) =>
     runPipeline({
       repoRoot: tmp.path,
-      pipeline: { id: 'p', title: 'p', ciktiSinifi: 'organik', steps: hat, matris: null },
+      pipeline: {
+        id: 'p',
+        title: 'p',
+        ciktiSinifi: 'organik',
+        steps: hat,
+        matris: null,
+        retired: false,
+      },
       runId: RUN,
       brandId: 'brd_test' as BrandId,
       eraId: 'era_test' as EraId,

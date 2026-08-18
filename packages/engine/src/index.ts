@@ -127,6 +127,19 @@ export {
 } from './discovery/index.js'
 
 // Fiil gövdelerinin motora bağlandığı yer (§3.10 · FAZ-3.1)
+export {
+  konuAdaylari,
+  konuSecPromptu,
+  konuSecimiCozumle,
+  islenmisKonular,
+  type KonuSecimi,
+} from './plan/konu-sec.js'
+export { baglamKayitlari, type BaglamKaydiGirdisi } from './plan/baglam-kaydi.js'
+export {
+  kosuParametreleri,
+  kacinilacakGerekceler,
+  type KosuParamGirdisi,
+} from './plan/kosu-parametreleri.js'
 export { resolveVerb, type VerbImplementations } from './verbs/registry.js'
 
 export { evaluateFormula, type FormulaError, type FormulaResult } from './router/formula.js'

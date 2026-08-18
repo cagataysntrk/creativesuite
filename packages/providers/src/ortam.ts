@@ -37,7 +37,17 @@ export const authEnvNames = (descriptors: readonly ProviderDescriptor[]): readon
 /**
  * Sağlayıcı kullanılabilirliği için gereken ortam.
  *
- * `PATH` her zaman var: bazı sağlayıcılar yerel bir ikili arıyor (`claude-code`).
+ * `PATH` ve `HOME` her zaman var: bazı sağlayıcılar yerel bir ikili arıyor
+ * (`claude-code`) ve o ikililer ev dizinini okur.
+ *
+ * ⚠ ⚠ **`HOME` EKSİKTİ ve panelden başlatılan koşu SESSİZCE ÖLÜYORDU.** Sunucu
+ * `just uret`i bu ortamla başlatıyor; `scripts/sh.sh` `set -u` altında koşuyor ve
+ * ilk satırında `HOME: unbound variable` ile düşüyordu. Panel "başlatıldı: run_…"
+ * yazıyor, `derived/runs` altında hiçbir dizin açılmıyordu. Kabuktan koşarken
+ * `HOME` zaten mevcut olduğu için hata YALNIZ sunucu yolunda görünüyordu — bu
+ * yüzden testler de yeşildi.
+ *
+ * `HOME` bir sır değil; en az yetki ilkesi "çalıştırmayı imkânsız kıl" demek değil.
  * Değeri `undefined` olan anahtar **hiç eklenmez** — boş dize ile "var ama boş"
  * arasındaki farkı sağlayıcıya taşımak, yanlış pozitif bir kullanılabilirlik verir.
  *
@@ -50,7 +60,7 @@ export const saglayiciOrtami = (
   oku: (ad: string) => string | undefined,
   ek: readonly string[] = []
 ): Readonly<Record<string, string>> => {
-  const sonuc: Record<string, string> = { PATH: oku('PATH') ?? '' }
+  const sonuc: Record<string, string> = { PATH: oku('PATH') ?? '', HOME: oku('HOME') ?? '' }
   for (const ad of [...authEnvNames(descriptors), ...ek]) {
     const v = oku(ad)
     if (v !== undefined && v !== '') sonuc[ad] = v

@@ -10,10 +10,12 @@ const adim = (o: {
   metered?: boolean
   low?: bigint
   high?: bigint
+  /** `null` = hat dosyasında `capability:` yok — yerel adım, yönlendirilmez. */
+  capability?: string | null
 }) => ({
   stepId: o.id,
   verb: 'GENERATE',
-  capability: 'image.generate',
+  capability: o.capability === undefined ? 'image.generate' : o.capability,
   effectClass: 'network-model',
   metered: o.metered ?? true,
   needs: [],
@@ -166,5 +168,21 @@ describe('başlat kilidi (§8.3)', () => {
     const b = launchBlocks(p, null)
     expect(b[0]?.kind).toBe('unpriced')
     expect(blockMessage(b[0]!)).toContain('EKSİK')
+  })
+
+  // ⚠ Bu iki test BİRLİKTE anlam taşıyor: biri olmadan diğeri yanlış bir kuralı
+  // korur. Yalnız ilki olsaydı panel her hatta kilitli kalırdı; yalnız ikincisi
+  // olsaydı anahtarsız bir koşu bilinmeyen tutara onay alırdı.
+  it('yeteneksiz ücretli adım KİLİTLEMEZ — yerel, sağlayıcı çağırmaz', () => {
+    const p = dondur(rapor([adim({ id: 'render', capability: null })]))
+    expect(launchBlocks(p, null)).toEqual([])
+  })
+
+  it('yeteneği OLAN ama sağlayıcısı çözülmemiş adım hâlâ kilitler', () => {
+    const p = dondur(rapor([adim({ id: 'render', capability: null }), adim({ id: 'gorsel-uret' })]))
+    const b = launchBlocks(p, null)
+    expect(b[0]?.kind).toBe('unpriced')
+    expect(blockMessage(b[0]!)).toContain('gorsel-uret')
+    expect(blockMessage(b[0]!)).not.toContain('render')
   })
 })

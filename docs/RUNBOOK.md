@@ -92,6 +92,7 @@ bilinmeyen bir anahtar, sızdığında döndürülemez.
 | `ERA_ID` | — | çalıştırma parametresi, sır değil | rotasyon yok |
 | `SUITE_PORT` | — | yerel sunucu portu, sır değil | rotasyon yok |
 | `SUITE_NABIZ` | — | SSE kalp atışı ms, sır değil | rotasyon yok |
+| `SUITE_SIRLAR` | — | `dev.sh`in kendini sops altında bir kez çağırdığını gösteren işaret, sır değil | rotasyon yok; değeri taşımaz, VARLIĞI sonsuz döngüyü keser |
 
 **Sır olmayanlar da tabloda:** "bu neden burada yok" sorusunun cevabı bir satır
 olmalı; listede olmayan bir anahtar, unutulmuş bir anahtardan ayırt edilemez.

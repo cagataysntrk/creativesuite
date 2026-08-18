@@ -35,6 +35,15 @@ export interface LauncherGirdisi {
   /** Bütçe tavanı — **UI'dan ayarlanır** (D-17). `null` = tavan yok. */
   readonly cap: Money | null
   readonly env: Readonly<Record<string, string>>
+  /**
+   * Çalıştırma parametreleri — **CLI ile BİREBİR aynı** olmak zorunda (R-07).
+   *
+   * ⚠ ⚠ Eskiden hiç geçilmiyordu ve panelden başlatma HİÇ çalışmıyordu: özet adım
+   * `constraints`larını kapsıyor, `uret.mjs` oraya `topic`/`son_kullanilan` ekliyor,
+   * launcher eklemiyordu. Panel bir özete onay alıyor, CLI başkasını hesaplıyordu.
+   * Hesap artık tek yerde: `kosuParametreleri`.
+   */
+  readonly params?: Readonly<Record<string, string>>
 }
 
 export interface LauncherSonuc {
@@ -71,6 +80,7 @@ export const launcherPlani = (g: LauncherGirdisi): LauncherSonuc => {
     brandId: g.brandId,
     eraId: g.eraId,
     env: g.env,
+    ...(g.params === undefined ? {} : { params: g.params }),
     pricing: Object.fromEntries(
       aktif.flatMap((d: ProviderDescriptor) =>
         d.capabilities.map((c) => [d.id, pricingFromDescriptor(d, c.name)])

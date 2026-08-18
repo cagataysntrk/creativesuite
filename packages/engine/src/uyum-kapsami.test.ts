@@ -38,6 +38,7 @@ describe('kapsam hattan okunuyor, sabitten değil', () => {
       title: 't',
       ciktiSinifi: 'organik',
       matris: null,
+      retired: false,
       steps: [
         {
           id: 'metin',
@@ -59,6 +60,7 @@ describe('kapsam hattan okunuyor, sabitten değil', () => {
       title: 't',
       ciktiSinifi: 'organik',
       matris: null,
+      retired: false,
       steps: [
         {
           id: 'ses',

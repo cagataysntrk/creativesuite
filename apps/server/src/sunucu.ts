@@ -38,6 +38,8 @@ import {
   readManifest,
 } from '@suite/engine'
 import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
+import { hatDurumlari } from '@suite/registry'
+import { baglamKayitlari, kosuParametreleri } from '@suite/engine'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
@@ -70,6 +72,23 @@ export interface SunucuSecenekleri {
    * En azı `PATH` — onsuz `git` bulunamaz.
    */
   readonly env?: Readonly<Record<string, string>>
+  /**
+   * **Sağlayıcı** ortamı — plan ve çalıştırma için (§14 · D-237).
+   *
+   * ⚠ ⚠ **BU AYRIM EKSİKTİ VE PANELDEKİ "Başlat" HİÇ AÇILMIYORDU.** Tek bir `env`
+   * vardı, `git` için doğru biçimde `{PATH}`e indirilmişti ve aynı daraltılmış ortam
+   * plan hesabına da gidiyordu: `candidatesFor` her ücretli adımda "yerel önkoşul
+   * sağlanmadı" diyor, `providerId` null kalıyor, `launchBlocks` tahmini EKSİK sayıp
+   * kilitliyordu. Sunucu anahtarlarla kalksa bile sonuç değişmiyordu.
+   *
+   * Aynı hatanın üçüncü yüzü: `plan.mjs` ve `uret.mjs` D-237'de düzeltilmişti, sunucu
+   * hiç bağlanmamıştı. Liste yine ELLE YAZILMIYOR — `saglayiciOrtami` onu
+   * tanımlayıcıların `auth_env` beyanından türetiyor.
+   *
+   * Verilmezse `env`e düşer: eski davranış, yani kilit. Sessiz bir tam-ortam
+   * devralması olmaz.
+   */
+  readonly saglayiciEnv?: Readonly<Record<string, string>>
   /**
    * Planın dondurulacağı dünya: bilgi ve registry commit'i (§13).
    * Verilmezse `worktree` — ve `inspectManifest` onu KUSURLU sayar (D-155), yani
@@ -527,6 +546,67 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   })
 
   // ── onay kuyruğu (§12.5, §12.9 · R-14 · FAZ-4.7) ──────────────────────────
+  // ⚠ ⚠ **HAT LİSTESİ EKRANDA YOKTU.** Üret ekranı komut paletinden gelen tek bir
+  // hatta kilitliydi (`instagram-post`) ve on bir hat varken kullanıcı tür
+  // seçemiyordu. Liste DİZİNDEN okunuyor: elle yazılmış bir menü, yeni bir hat
+  // eklendiği gün sessizce eskirdi.
+  // ⚠ ⚠ **EMEKLİ HAT MENÜDE OLGUN BİR SEÇENEK GİBİ DURUYORDU.** Uç yalnız dosya adı
+  // listeliyordu; `instagram-carousel` (D-268'de emekli, yerine `instagram-karosel`)
+  // listede yan yana görünüyor ve hangisinin güncel olduğu ekrandan anlaşılmıyordu.
+  // Emeklilik dosyanın BAŞINDA yorum olarak yazıyordu — makine yorumu okumaz.
+  // Emekliler gizleniyor ama SAYISI dönüyor: sessizce kısalan bir liste, silinmiş
+  // gibi okunur (Yasa 10).
+  app.get('/api/hatlar', (c) => {
+    const d = hatDurumlari(join(o.repoRoot, 'registry/pipelines'))
+    return c.json({ hatlar: d.aktif, emekli: d.emekli })
+  })
+
+  // ⚠ ⚠ **KONUSUZ ÜRETİM: konu UYDURULMAZ, corpus'tan SEÇİLİR.** Depo sahibi
+  // "gerekçesiz başlatma da olmalı" dedi; doğru okuma "konuyu ben yazmayayım",
+  // "konu olmasın" değil — konusuz bir hat neyi üreteceğini bilemez. Aday konular
+  // markanın kendi kayıtlarının başlıkları; geçmişte işlenenler ELENİYOR.
+  // ⚠ Öneri EKRANDA gösteriliyor, doğrudan koşturulmuyor: insan neyin üretileceğini
+  // görmeden başlatmamalı (Yasa 2).
+  app.get('/api/konu-oner', (c) => {
+    // ⚠ İNDEKSTEN okunuyor, dosya taramasından değil: indeks retrieval yüklemini
+    // uygulayan TEK yer (R-13) ve taslak (`draft`) kayıtlar oraya girmiyor.
+    // Dosyaları elle taramak, onaylanmamış bir kaydı konu olarak önermek olurdu (R-14).
+    if (db === null) return c.json({ ok: false, hata: 'indeks yok — `just reindex` çalıştır' })
+    const kayitlar = browseRecords(db, {
+      brandId: o.query.brandId,
+      eraId: o.query.eraId,
+      asOf: o.query.asOf,
+      type: '',
+      status: '',
+    })
+    const gecmisKonular = new Set(
+      calistirmalar(o.repoRoot).flatMap((r) => {
+        const m = readManifest(o.repoRoot, r.runId as never)
+        return (m?.steps ?? [])
+          .map((s) => (s.params as Record<string, unknown> | undefined)?.['topic'])
+          .filter((t): t is string => typeof t === 'string')
+      })
+    )
+    const adaylar = kayitlar
+      .map((r: { readonly title?: string }) => r.title)
+      .filter((t: unknown): t is string => typeof t === 'string' && t.trim() !== '')
+      .filter((t: string) => !gecmisKonular.has(t))
+    if (adaylar.length === 0) {
+      return c.json({
+        ok: false,
+        hata:
+          'önerilecek konu kalmadı — corpus başlıklarının hepsi işlendi. ' +
+          'Yeni bir kayıt ekle ya da konuyu elle yaz.',
+      })
+    }
+    return c.json({
+      ok: true,
+      konu: adaylar[0],
+      gerekce: `corpus başlığı · geçmişte ${String(gecmisKonular.size)} konu işlenmiş, bu onlarda yok`,
+      kalan: adaylar.length,
+    })
+  })
+
   app.get('/api/kuyruk', (c) => c.json({ bekleyenler: bekleyenler(o.repoRoot) }))
 
   // ⚠ ⚠ **ONAYLANANLAR GÖRÜNMÜYORDU.** Kuyruk yalnız bekleyeni gösteriyor; onaylanan
@@ -661,7 +741,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       repoRoot: o.repoRoot,
       pipelineId: m.pipeline,
       runId,
-      env: o.env ?? {},
+      env: o.saglayiciEnv ?? o.env ?? {},
     })
     if (r.ok) yayinla('degisim')
     return c.json(r, r.ok ? 202 : 400)
@@ -692,7 +772,14 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // motora GERİ VERİLİR (`runPipeline({ frozen })`).
   app.get('/api/plan', (c) => {
     const tavanMikros = c.req.query('tavan_mikros')
+    // ⚠ Konu PLANA girer, çünkü özet adım kısıtlarını kapsar. Konusuz dondurulmuş
+    // bir özet, konuyla koşan CLI'nin özetiyle asla eşleşmez (R-07).
     const r = launcherPlani({
+      params: kosuParametreleri({
+        repoRoot: o.repoRoot,
+        brandId: String(o.query.brandId),
+        konu: c.req.query('konu') ?? '',
+      }),
       repoRoot: o.repoRoot,
       pipelineId: c.req.query('pipeline') ?? '',
       runId: (c.req.query('run') ?? 'run_onizleme') as never,
@@ -701,12 +788,23 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       corpusCommit: o.corpusCommit ?? 'worktree',
       registryCommit: o.registryCommit ?? 'worktree',
       frozenAt: o.simdi(),
-      recordIds: [],
+      // ⚠ ⚠ `[]` idi ve panelden başlatma bu yüzden HİÇ çalışmıyordu: özet
+      // `recordIds`i kapsıyor, CLI gerçek kayıtları donduruyor, özetler ayrışıyor
+      // ve R-07 kapısı koşuyu reddediyordu. Seçim artık CLI ile AYNI fonksiyondan.
+      recordIds:
+        db === null
+          ? []
+          : baglamKayitlari({
+              db,
+              recipesDir: join(o.repoRoot, 'registry/recipes'),
+              recipeId: c.req.query('pipeline') ?? '',
+              query: o.query,
+            }).map((e) => e.recordId),
       cap:
         tavanMikros === undefined || tavanMikros === ''
           ? null
           : { micros: BigInt(tavanMikros), currency: 'USD' },
-      env: o.env ?? {},
+      env: o.saglayiciEnv ?? o.env ?? {},
     })
     // `bigint` JSON'a girmez (D-119): para alanları dize olarak yayılır.
     return c.json(
@@ -731,7 +829,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       pipelineId: govde.pipeline ?? '',
       konu: govde.konu ?? '',
       planDigest: govde.planDigest ?? '',
-      env: o.env ?? {},
+      env: o.saglayiciEnv ?? o.env ?? {},
     })
     if (r.ok) yayinla('degisim')
     // 202: kabul edildi ama BİTMEDİ. 200 dönmek "çalıştırma tamam" okunurdu.
@@ -754,7 +852,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       pipelineId: m.pipeline,
       kaynakRunId: kaynak,
       kind,
-      env: o.env ?? {},
+      env: o.saglayiciEnv ?? o.env ?? {},
     })
     if (r.ok) yayinla('degisim')
     return c.json(r, r.ok ? 202 : 400)

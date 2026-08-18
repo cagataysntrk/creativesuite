@@ -253,7 +253,22 @@ export const launchBlocks = (plan: FrozenPlan, cap: Money | null): readonly Laun
   if (cap !== null && plan.totalHigh.micros > cap.micros) {
     blocks.push({ kind: 'over_cap', high: plan.totalHigh, cap })
   }
-  const fiyatsiz = plan.steps.filter((s) => s.metered && s.providerId === null).map((s) => s.stepId)
+  // ⚠ ⚠ **YETENEK BEYAN ETMEYEN ÜCRETLİ ADIM FİYATSIZ SAYILMAZ — ve bu ayrım
+  // yokken panel HER HAT İÇİN kalıcı kilitliydi.**
+  //
+  // `RENDER` ve `PUBLISH` fiil tablosunda `metered: true` (table.ts): bulut render
+  // şeridi faturalanır, yayın kota harcar. Ama hat dosyasında `capability:` YOK —
+  // yerel Chromium ve kanal çağrısı bir sağlayıcıya yönlendirilmez. Yönlendirilmeyen
+  // bir adımın `providerId`si HİÇBİR ZAMAN dolmaz, yani eski koşul "bir gün çözülür"
+  // değil "asla çözülmez" bir kilitti. `just uret` bu kilidi uygulamadığı için CLI
+  // koşuyor, panel koşmuyordu — ölçülmüş kopuk halka.
+  //
+  // ⚠ Kural GEVŞETİLMİYOR, DOĞRU ÇİZİLİYOR: yeteneği OLAN ve sağlayıcısı çözülmemiş
+  // adım hâlâ kilitler (anahtar yoksa görsel üretimi tam olarak budur). Bilinmeyen
+  // tutar ile sağlayıcı çağırmayan yerel adım aynı şey değil.
+  const fiyatsiz = plan.steps
+    .filter((s) => s.metered && s.capability !== null && s.providerId === null)
+    .map((s) => s.stepId)
   if (fiyatsiz.length > 0) blocks.push({ kind: 'unpriced', steps: fiyatsiz })
   return blocks
 }

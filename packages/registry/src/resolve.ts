@@ -69,6 +69,17 @@ export interface Pipeline {
    * yolunun o veriyi gördüğünü göstermez (D-228).
    */
   readonly matris: PipelineMatris | null
+  /**
+   * Emekli hat — **listelenmez ama ÇALIŞTIRILABİLİR** (Yasa 10: emeklilik silme
+   * değildir).
+   *
+   * ⚠ ⚠ Emeklilik yalnız YORUM SATIRINDA yazıyordu. `instagram-carousel` dosyasının
+   * başında büyük harflerle "EMEKLİ" yazmasına rağmen panelin tür listesi onu
+   * olgun bir seçenek gibi gösteriyordu: insan iki karosel hattı görüp hangisinin
+   * güncel olduğunu bilemiyordu. Yorum bir NİYET, alan bir OLGU — makinenin
+   * okuyabildiği tek şey ikincisidir.
+   */
+  readonly retired: boolean
 }
 
 export type ResolveError =
@@ -233,6 +244,7 @@ export const parsePipeline = (text: string): ResolveResult => {
       ciktiSinifi: ciktiRaw as CiktiSinifi,
       steps,
       matris,
+      retired: map['retired'] === true,
     },
   }
 }
@@ -292,4 +304,23 @@ export const listPipelines = (root: string): readonly string[] => {
   } catch {
     return []
   }
+}
+
+/**
+ * Hatlar iki kümeye ayrılır: seçilebilir olanlar ve emekliler.
+ *
+ * Emekli olan GİZLENİR, silinmez — sayısı söylenir ki liste sessizce kısalmasın.
+ * Çözümlenemeyen bir dosya `aktif`e girmez: bozuk bir hattı menüde göstermek,
+ * seçildiği an patlayan bir seçenek sunmaktır.
+ */
+export const hatDurumlari = (root: string): { aktif: string[]; emekli: string[] } => {
+  const aktif: string[] = []
+  const emekli: string[] = []
+  for (const id of listPipelines(root)) {
+    const r = loadPipeline(root, id)
+    if (!r.ok) continue
+    if (r.value.retired) emekli.push(id)
+    else aktif.push(id)
+  }
+  return { aktif, emekli }
 }

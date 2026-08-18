@@ -11,6 +11,10 @@
 #
 # Instagram carousel (§10 · FAZ-3.14).
 #
+# ⚠ `retired: true` — emekliliğin MAKİNE OKUR hâli. Yalnız yorumda yazdığı sürece
+# panel bu hattı güncel bir seçenek gibi listeliyordu. Çalıştırılabilir kalıyor.
+retired: true
+#
 # MODEL ADI YOK (R-40): adımlar YETENEK ister. Taşan içerik otomatik BÖLÜNÜR ve her
 # slayt kendi PNG'si olur — küçültme yok (§7.1), çünkü Türkçe'de tipi küçültmek
 # okunabilirliği İngilizce'dekinden hızlı bitirir.

@@ -46,6 +46,13 @@ const guvenIsareti = (c: FrozenStep['confidence']): { glyph: string; metin: stri
 }
 
 export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Element => {
+  // ⚠ ⚠ **TÜR SEÇİMİ EKRANDA YOKTU.** Hat yalnız komut paletinden geliyordu ve ekran
+  // `instagram-post`a kilitliydi; on bir hat varken kullanıcı karosel bile
+  // seçemiyordu. Liste SUNUCUDAN, dizinden okunuyor — elle yazılmış bir menü, yeni
+  // bir hat eklendiği gün sessizce eskirdi.
+  const [hat, setHat] = useState(pipeline)
+  const [hatlar, setHatlar] = useState<readonly string[]>([])
+  const [oneri, setOneri] = useState<string | null>(null)
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
   const [tavan, setTavan] = useState('')
   const [konu, setKonu] = useState('')
@@ -54,7 +61,7 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
   const [baslatma, setBaslatma] = useState<{ ok: boolean; mesaj: string } | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
-    const q = new URLSearchParams({ pipeline })
+    const q = new URLSearchParams({ pipeline: hat })
     if (tavan.trim() !== '') q.set('tavan_mikros', String(Math.round(Number(tavan) * 1_000_000)))
     try {
       const r = await fetch(`/api/plan?${q.toString()}`)
@@ -62,7 +69,22 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
     } catch {
       setSonuc({ ok: false, hata: 'sunucuya ulaşılamıyor' })
     }
-  }, [pipeline, tavan])
+  }, [hat, tavan])
+
+  useEffect(() => {
+    setHat(pipeline)
+  }, [pipeline])
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const r = (await (await fetch('/api/hatlar')).json()) as { hatlar?: string[] }
+        setHatlar(r.hatlar ?? [])
+      } catch {
+        setHatlar([])
+      }
+    })()
+  }, [])
 
   useEffect(() => {
     void yukle()
@@ -82,7 +104,7 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
         const r = await fetch('/api/calistir', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ pipeline, konu, planDigest: digest }),
+          body: JSON.stringify({ pipeline: hat, konu, planDigest: digest }),
         })
         const j = (await r.json()) as { ok: boolean; runId?: string; hata?: string }
         setBaslatma(
@@ -94,7 +116,7 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
         setBaslatma({ ok: false, mesaj: 'sunucuya ulaşılamıyor' })
       }
     },
-    [pipeline, konu]
+    [hat, konu]
   )
 
   if (sonuc === null) return <p>plan kuruluyor…</p>
@@ -109,7 +131,7 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
   return (
     <section className="launcher">
       <header className="detay-baslik">
-        <h2>Çalıştır — {pipeline}</h2>
+        <h2>Çalıştır — {hat}</h2>
         {/* Aralık, tek sayı DEĞİL. Güven noktası adım tablosunda. */}
         <span className="olcum">
           {usdBicimle(f.totalLow.micros)} – {usdBicimle(f.totalHigh.micros)}
@@ -136,6 +158,16 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
           {bloklar.map((b) => (
             <li key={b.kind} className="ret-mesaji">
               ⊘ {b.mesaj}
+              {/* ⚠ Sebep DOĞRU ama çare değildi: "sağlayıcısı çözülmemiş" cümlesi
+                  panelin başındaki insana ne yapacağını söylemiyor. Kilidin tek
+                  gerçek sebebi sunucunun anahtarsız kalkmış olması. */}
+              {b.kind === 'unpriced' ? (
+                <div className="olcum">
+                  çare: sunucuyu anahtarlarla kaldır —{' '}
+                  <code>sops exec-env secrets/secrets.enc.yaml &apos;just dev&apos;</code> (ya da
+                  yalnızca <code>just dev</code>; kabuk sops&apos;u kendisi çağırır)
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -182,6 +214,17 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
       </p>
 
       <label>
+        tür{' '}
+        <select value={hat} onChange={(e) => setHat(e.target.value)}>
+          {(hatlar.length === 0 ? [hat] : hatlar).map((h) => (
+            <option key={h} value={h}>
+              {h}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label>
         konu{' '}
         <input
           type="text"
@@ -190,6 +233,37 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
           placeholder="ör. imalatta fire ölçümü"
         />
       </label>
+
+      {/* ⚠ ⚠ **KONU UYDURULMAZ, SEÇİLİR.** "Konuyu ben yazmayayım" ile "konu olmasın"
+          ayrı şeyler: konusuz bir hat neyi üreteceğini bilemez. Aday konular markanın
+          kendi kayıtlarının başlıkları ve geçmişte işlenenler eleniyor.
+          ⚠ Öneri ALANA yazılıyor, doğrudan koşturulmuyor: insan neyin üretileceğini
+          görmeden başlatmamalı (Yasa 2). */}
+      <p className="olcum">
+        <button
+          type="button"
+          onClick={() => {
+            void (async () => {
+              const r = (await (await fetch('/api/konu-oner')).json()) as {
+                ok?: boolean
+                konu?: string
+                gerekce?: string
+                kalan?: number
+                hata?: string
+              }
+              if (r.ok === true && r.konu !== undefined) {
+                setKonu(r.konu)
+                setOneri(`${r.gerekce ?? ''} · ${String(r.kalan ?? 0)} aday kaldı`)
+              } else {
+                setOneri(r.hata ?? 'öneri alınamadı')
+              }
+            })()
+          }}
+        >
+          ✨ konuyu sistem seçsin
+        </button>
+        {oneri === null ? null : <span> {oneri}</span>}
+      </p>
 
       {/* Konu boşken de KİLİTLİ: hat neyi üreteceğini bilmeden koşarsa para harcar
           ve çıktı kullanılamaz. Sebep düğmenin metninde yazıyor, gizlenmiyor. */}

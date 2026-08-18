@@ -72,6 +72,7 @@ const hat = (steps: Pipeline['steps']): Pipeline => ({
   steps,
   ciktiSinifi: 'organik',
   matris: null,
+  retired: false,
 })
 
 const aday = (id: string) => [

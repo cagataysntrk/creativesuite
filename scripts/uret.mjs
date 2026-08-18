@@ -98,11 +98,12 @@ const BAYRAKLAR = new Set(['--devam', '--run', '--plan-digest', '--rerun', '--re
 // kısıt bir sözleşme.
 // ⚠ Koşu geçmişi: "yeni bir tane üret" gerçekten yeni olsun diye (D-308).
 // Ölçüldü: son ÜÇ karosel koşusunun üçü de `sahne` seçmişti ve konular kopyaydı.
-const { gecmisiOku } = await import(join(REPO, 'packages/engine/dist/plan/gecmis.js'))
-// ⚠ Yol `RUNS_DIR`den geliyor, elle yazılmıyor: `chokepoints` kapısı defterin yerini
-// bilen ikinci bir yer istemiyor (§13 · D-38) ve haklı — iki yer, bir gün ayrışır.
-const { RUNS_DIR } = await import(join(REPO, 'packages/kernel/dist/manifest.js'))
-const sonKullanilan = gecmisiOku(join(REPO, RUNS_DIR), 3).sablonlar.slice(0, 3)
+// ⚠ ⚠ **HESAP BURADAN ALINDI.** `son_kullanilan` ve `kacinilacak` burada
+// hesaplanıyordu; sunucunun launcher'ı hesaplamıyordu ve panelden başlatılan her
+// koşu R-07 kapısında "plan DEĞİŞTİ" ile ölüyordu. İki yerde hesaplanan bir şey
+// iki farklı sonuç verir — hesap `kosuParametreleri`ne taşındı, iki çağıran da
+// oradan okuyor.
+const { kosuParametreleri } = await import(join(REPO, 'packages/engine/dist/index.js'))
 
 const serbestParam = {}
 for (let i = 3; i < process.argv.length - 1; i++) {
@@ -527,39 +528,18 @@ const pricing = Object.fromEntries(
     .flatMap((d) => d.capabilities.map((c) => [d.id, pricingFromDescriptor(d, c.name)]))
 )
 
-// ── bağlam manifesti (§5.3) ─────────────────────────────────────────────────
-// Tarif varsa gerçek bir manifest üretilir; yoksa BOŞ kalır ve bu dürüsttür —
-// uydurma bir bağlam kaydı, olmayan bir denetim izidir.
-let bagamManifesti = []
-{
-  const { loadRecipe, listRecipes } = await import(join(REPO, 'packages/registry/dist/index.js'))
-  const { assembleContext, toManifestEntries } = await import(
-    join(REPO, 'packages/engine/dist/index.js')
-  )
-  const RECIPES = join(REPO, 'registry/recipes')
-  if (listRecipes(RECIPES).includes(id)) {
-    const tarif = loadRecipe(RECIPES, id)
-    if (tarif.ok) {
-      // Adaylar retrieval yükleminden gelir — ikinci bir yol YOK (R-13).
-      const adaylar = {}
-      for (const b of tarif.value.sections) {
-        adaylar[b.entityType] = selectRecords(corpusDb, {
-          brandId: MARKA,
-          eraId: AKTIF_DONEM,
-          asOf: clock.nowIso(),
-          type: b.entityType,
-          limit: 20,
-        }).map((k) => ({
-          id: k.id,
-          title: k.title ?? k.id,
-          type: k.type,
-          body: k.body ?? '',
-        }))
-      }
-      bagamManifesti = toManifestEntries(assembleContext(tarif.value, adaylar))
-    }
-  }
-}
+// ── bağlam manifesti (§5.3 · R-07 · R-13) ──────────────────────────────────
+//
+// ⚠ ⚠ Bu blok kayıtları BURADA seçiyordu; sunucunun launcher'ı hiç seçmiyordu ve
+// `recordIds` özete girdiği için panelden başlatılan her koşu "plan DEĞİŞTİ" ile
+// ölüyordu. Seçim `baglamKayitlari`na taşındı; iki çağıran da oradan okuyor.
+const { baglamKayitlari } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const bagamManifesti = baglamKayitlari({
+  db: corpusDb,
+  recipesDir: join(REPO, 'registry/recipes'),
+  recipeId: id,
+  query: { brandId: MARKA, eraId: AKTIF_DONEM, asOf: clock.nowIso() },
+})
 
 const cikti = runOutputDir(REPO, runId)
 
@@ -690,33 +670,20 @@ if (beklenenDigest !== undefined && beklenenDigest !== donmusPlan.digest) {
   process.exit(1)
 }
 
-// ── geçmiş redler NEGATİF KISIT olarak okunur (§12.9 · D-191) ───────────────
+// ── çalıştırma parametreleri: TEK kaynaktan (R-07 · D-191 · D-308) ─────────
 //
-// Defter yazılıyordu (`kuyruk.ts`) ama HİÇ okunmuyordu — `DecisionEntry.reason`ın
-// kendi dokümanı "sonraki çalıştırmaya negatif kısıt olarak enjekte edilir" derken
-// (2026-08-16 denetimi). Yazan var okuyan yok, D-173'ün tam kendisi.
-//
-// Yalnız KAPI redleri (`/gate/…`) alınır: keşif redleri corpus kayıtlarına ait ve
-// kreatif prompt'a girmeleri anlamsız olurdu.
-const { parseLedger } = await import(join(REPO, 'packages/engine/dist/index.js'))
-let kacinilacak = ''
-{
-  const defterYolu = join(REPO, `brand/${MARKA}/decisions.jsonl`)
-  if (existsSync(defterYolu)) {
-    const d = parseLedger(readFileSync(defterYolu, 'utf8'))
-    const gerekceler = d.ledger.entries
-      .filter((e) => e.kind === 'rejected' && e.pointer.startsWith('/gate/') && e.reason !== '')
-      // En YENİ beş gerekçe: hepsini eklemek prompt'u geçmişin çöplüğüne çevirir ve
-      // altı ay önceki bir red bugünkü işi kısıtlamaya devam ederdi.
-      .slice(-5)
-      .map((e) => e.reason)
-    kacinilacak = [...new Set(gerekceler)].join(' · ')
-    if (kacinilacak !== '') {
-      console.log(
-        `  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor (${gerekceler.length})`
-      )
-    }
-  }
+// ⚠ ⚠ `son_kullanilan` ve `kacinilacak` burada hesaplanıyordu; sunucunun launcher'ı
+// hesaplamıyordu ve panelden başlatılan HER koşu R-07 kapısında "plan DEĞİŞTİ" ile
+// ölüyordu — panel bir özete onay alıyor, CLI başkasını hesaplıyordu. Hesap
+// `kosuParametreleri`ne taşındı; iki çağıran da oradan okuyor.
+const KOSU_PARAMLARI = kosuParametreleri({
+  repoRoot: REPO,
+  brandId: MARKA,
+  konu: devamKonu ?? kaynakKonu ?? konu,
+  serbest: serbestParam,
+})
+if (KOSU_PARAMLARI.kacinilacak !== undefined) {
+  console.log(`  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor`)
 }
 
 const rapor = await runPipeline({
@@ -797,17 +764,11 @@ const rapor = await runPipeline({
   env: SAGLAYICI_ORTAMI,
   // Konu bir ÇALIŞTIRMA parametresi, pipeline kısıtı değil: her konu için ayrı bir
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
-  params: {
-    ...serbestParam,
-    // ⚠ ⚠ **GEÇMİŞ PLANA DONUYOR, çalışma anında okunmuyor.** Şablon çeşitliliği
-    // (D-308) son koşularda kullanılanları eliyor; o listeyi seçim anında diskten
-    // okumak, aynı planın iki farklı zamanda FARKLI şablon seçmesi demekti ve
-    // replay'i (R-07) bozardı. Plan neyi gördüyse onu saklıyor.
-    son_kullanilan: sonKullanilan.join(','),
-    topic: devamKonu ?? kaynakKonu ?? konu,
-    // Boşsa hiç geçilmez: boş bir `kacinilacak`, prompt'a anlamsız bir başlık eklerdi.
-    ...(kacinilacak === '' ? {} : { kacinilacak }),
-  },
+  // ⚠ ⚠ **GEÇMİŞ PLANA DONUYOR, çalışma anında okunmuyor.** Şablon çeşitliliği
+  // (D-308) son koşularda kullanılanları eliyor; o listeyi seçim anında diskten
+  // okumak, aynı planın iki farklı zamanda FARKLI şablon seçmesi demekti ve
+  // replay'i (R-07) bozardı. Plan neyi gördüyse onu saklıyor.
+  params: KOSU_PARAMLARI,
   // Kararlar manifest'ten OKUNUR; motor yalnız yazılmış olanı görür.
   decisions: kararlar,
   // **Bağlam manifesti** (§5.3): hangi kayıt enjekte edildi, hangisi bütçeye sığmadı.
