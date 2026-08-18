@@ -260,6 +260,15 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   'bulgular',
   'reddedilen',
   'sebep',
+  // ⚠ ⚠ **RİTİM ÖLÇÜMÜ (FAZ-16.8) — ALTINCI TEKRAR.** Ölçüm yazıldı, birim testi ve
+  // dikiş testi yeşildi, gerçek koşuda alanlar defterde HİÇ görünmedi: bu beyaz liste
+  // onları sessizce atıyordu. Yukarıdaki blok aynı hatanın beşinci tekrarını anlatıyor
+  // ve *"eksik bir beyaz liste sessiz bir körlüktür"* diyor — o cümle yazılıyken bile
+  // liste bir sonraki alanı elemeye hazırdı. Bir çıktı alanı eklerken bu listeye de
+  // eklemek, o alanın var olmasının PARÇASIDIR.
+  'ritimHedefi',
+  'ritimTuttu',
+  'ritimOlculemedi',
 ] as const
 
 /**

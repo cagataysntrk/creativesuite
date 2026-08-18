@@ -41,7 +41,7 @@ import {
   type PanoramaBelgesi,
 } from '@suite/render'
 import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../plan/sablon-uyarla.js'
-import { sablonSec } from '../plan/sablon-sec.js'
+import { ritimTuttuMu, sablonSec } from '../plan/sablon-sec.js'
 import { duzeltilebilir, duzeltmeIstemi, type DenetimKusuru } from '../plan/denetim-turu.js'
 import { sablonBul } from '@suite/contracts'
 import type { KatalogOrnegi } from '@suite/render'
@@ -312,6 +312,14 @@ export const composeBody = (deps: ComposeDeps): Verb =>
             stamp: deps.stamp,
           },
           sablonId,
+          // ⚠ ⚠ **İSTENEN RİTİM TUTTU MU — DEFTERE YAZILIYOR** (FAZ-16.8 · D-309).
+          // Biçim kuralı sayılabilir hâle getirildi ve gerçek koşuda tuttu; ama
+          // uyulup uyulmadığı ÖLÇÜLMÜYORDU. Model sözleşmeyi görmezden gelirse hat
+          // sessizce eski şekle döner ve bunu ancak defteri elle okuyan fark eder.
+          // Bu deponun kendi kuralı: ölçülmeyen bir kural bir temennidir.
+          // ⚠ Ret değil KAYIT: metin adımı bir model çağrısı ve reddetmek bir tur daha
+          // yakar. Önce sayı biriksin, tur harcamaya değip değmediği ölçüyle konuşulsun.
+          ...ritimOlcumu(input),
           // ⚠ Uyarılar SUSTURULMUYOR: koşuyu durdurmuyorlar ama deftere ve insan onay
           // kapısına gidiyorlar. Görünmeyen bir uyarı, olmayan bir uyarıdır.
           ...(birlesik.uyarilar.length === 0 ? {} : { uyarilar: birlesik.uyarilar }),
@@ -1833,6 +1841,43 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
  * adımın sessizce atlanması, bu depoda yasak olan hata biçiminin ta kendisi.** Seçim
  * artık ayrı: istem onu kullanıyor, hata yolu da aynı gerekçeyi okuyup deftere yazıyor.
  */
+/**
+ * İstenen ritim ile gelen şekli karşılaştırır — çıktı deftere giriyor.
+ *
+ * ⚠ Hedef yoksa (geçmiş boş ya da hepsi kullanılmış) hiçbir alan yazılmıyor: boş bir
+ * `ritimTuttu: true`, ölçüm yapılmadığı hâlde yapılmış gibi görünürdü.
+ */
+const ritimOlcumu = (
+  input: BodyInput
+): {
+  readonly ritimHedefi?: string
+  readonly ritimTuttu?: boolean
+  readonly ritimOlculemedi?: string
+} => {
+  const ham = input.constraints['son_kullanilan']
+  if (typeof ham !== 'string' || ham === '') return {}
+  const son = ham.split(',')
+  const hedef = RITIM_SIRASI.find((id) => !son.includes(id))
+  // ⚠ ⚠ **ÖLÇÜLEMEYEN DURUM SUSMUYOR, ADIYLA YAZILIYOR.** İlk sürüm boş nesne
+  // döndürüyordu ve gerçek koşuda alan hiç görünmedi: ölçüm var mıydı, yok muydu,
+  // yoksa yapıldı da mı tuttu — defterden anlaşılmıyordu. Bir ölçümün YAPILAMADIĞI,
+  // yapılmadığı kadar önemli bir bilgidir; sessiz boşluk bu deponun yasağı.
+  if (hedef === undefined) return { ritimOlculemedi: 'hedef-yok (tum ritimler yakin gecmiste)' }
+  const satirlar = metinSatirlari(input.inputs)
+  if (satirlar.length === 0)
+    return { ritimHedefi: hedef, ritimOlculemedi: 'satir-yok (metin girdisi ulasmadi)' }
+  return { ritimHedefi: hedef, ritimTuttu: ritimTuttuMu(hedef, satirlar) }
+}
+
+/**
+ * İçerikten seçilebilen şablonlar, ritim hedefi sırasıyla.
+ *
+ * ⚠ Sıra `metin-akisi.ts`teki `RITIM` nesnesinin anahtar sırasıyla AYNI olmak zorunda:
+ * istem oradan hedef seçiyor, ölçüm buradan. Ayrışırlarsa "istenen ritim" ile "ölçülen
+ * ritim" iki farklı şey olur ve `ritimTuttu` sessizce yalan söyler.
+ */
+const RITIM_SIRASI = ['veri-hikayesi', 'akan-alan', 'memphis', 'sahne'] as const
+
 export const sablonSecimiIcin = (
   input: BodyInput
 ):
@@ -1842,6 +1887,15 @@ export const sablonSecimiIcin = (
       readonly ornek: KatalogOrnegi
       readonly neden: string
       readonly satirlar: readonly string[]
+      /**
+       * İstenen ritim ve TUTUP TUTMADIĞI — defterde görünsün diye.
+       *
+       * ⚠ Ret DEĞİL, ölçüm + kayıt: metin adımı bir model çağrısı ve reddetmek bir tur
+       * daha yakar. Önce defterde `ritimTuttu: false` görünsün; tur harcamaya değip
+       * değmediği sayılarla konuşulsun, tahminle değil.
+       */
+      readonly ritimHedefi: string | null
+      readonly ritimTuttu: boolean
     }
   | { readonly ok: false; readonly sebep: string } => {
   const istenen =
@@ -1869,7 +1923,18 @@ export const sablonSecimiIcin = (
     }
   const ornek = ornekBul(secim.sablon.id)
   if (ornek === null) return { ok: false, sebep: `katalog tutarsız: ${secim.sablon.id} örneği yok` }
-  return { ok: true, sablonId: secim.sablon.id, ornek, neden: secim.neden, satirlar }
+  // Hedef ritim: geçmişte kullanılmayan İLK içerik-seçilebilir şablon — `metin-akisi`
+  // istemi de aynı kuralla kuruyor. İki yerde iki farklı hedef, ölçümü anlamsız kılardı.
+  const hedef = RITIM_SIRASI.find((id) => !sonKullanilan.includes(id)) ?? null
+  return {
+    ok: true,
+    sablonId: secim.sablon.id,
+    ornek,
+    neden: secim.neden,
+    satirlar,
+    ritimHedefi: hedef,
+    ritimTuttu: hedef === null ? true : ritimTuttuMu(hedef, satirlar),
+  }
 }
 
 /**

@@ -816,3 +816,106 @@ describe('dikiş 4: uyarlama → panorama belgesi', () => {
     expect(r.belge.kartlar[0]?.baslik).toBe('Başlık **0**')
   })
 })
+
+// ⚠ ⚠ **DİKİŞ: ritim ölçümü DEFTERE giriyor mu** (FAZ-16.8 · D-309). `ritimTuttuMu`
+// birim testleriyle yeşildi ve gerçek koşuda alan BOŞ çıktı — yani ölçüm vardı, kaydı
+// yoktu. Bu deponun tekrar eden sınıfı; bu test tam o boşluğu tutuyor.
+describe('dikiş 4b: ritim ölçümü kompozit çıktısına yazılıyor', () => {
+  const SABLON = 'editoryal'
+  const o = ornekBul(SABLON) as KatalogOrnegi
+  const kos = async (
+    satirlar: readonly string[],
+    sonKullanilan: string
+  ): Promise<Record<string, unknown>> => {
+    const body = composeBody({ tokenCss: ':root{--role-bg:#000}', stamp: DAMGA as never })
+    const r = await body.run(
+      CTX as never,
+      {
+        constraints: {
+          topic: 'konu',
+          width: 1080,
+          height: 1350,
+          katalog: true,
+          son_kullanilan: sonKullanilan,
+        },
+        inputs: {
+          'metin-uret': { lines: satirlar },
+          'sablon-uyarla': {
+            uyarlama: {
+              sablonId: SABLON,
+              kartlar: o.kartlar.map(() => ({
+                ustBaslik: 'X',
+                baslik: 'Başlık **bir**',
+                govde: 'Gövde.',
+                hayalet: '',
+                rayaSol: 'X',
+                rayaOrta: 'Kaynak 2026',
+              })),
+            },
+          },
+        },
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    if (!r.ok) return {}
+    return r.value.data as Record<string, unknown>
+  }
+
+  it('hedef ritim TUTTUYSA deftere `true` yazılıyor', async () => {
+    const d = await kos(['Giriş', '1. Topla', '2. Ölç', '3. Karar ver'], 'veri-hikayesi')
+    expect(d['ritimHedefi']).toBe('akan-alan')
+    expect(d['ritimTuttu']).toBe(true)
+  })
+
+  it('hedef ritim TUTMADIYSA deftere `false` yazılıyor — susmuyor', async () => {
+    const d = await kos(
+      ['Bir hat vardı', 'Kayıt kişide kaldı', 'Sonra ekran geldi'],
+      'veri-hikayesi'
+    )
+    expect(d['ritimHedefi']).toBe('akan-alan')
+    expect(d['ritimTuttu']).toBe(false)
+  })
+
+  it('geçmiş yoksa alan HİÇ yazılmıyor — ölçülmeyen şey ölçülmüş gibi görünmez', async () => {
+    const d = await kos(['Bir hat vardı'], '')
+    expect(d).not.toHaveProperty('ritimHedefi')
+    expect(d).not.toHaveProperty('ritimTuttu')
+  })
+
+  // ⚠ Gerçek koşuda alan BOŞ çıktı ve sebebi defterden anlaşılmadı: ölçüm mü yoktu,
+  // yapılamadı mı? Ölçülemeyen durum artık ADIYLA yazılıyor.
+  it('satır ulaşmazsa SEBEP yazılıyor — sessiz boşluk yok', async () => {
+    const body = composeBody({ tokenCss: ':root{--role-bg:#000}', stamp: DAMGA as never })
+    const r = await body.run(
+      CTX as never,
+      {
+        constraints: {
+          topic: 'k',
+          width: 1080,
+          height: 1350,
+          katalog: true,
+          son_kullanilan: 'veri-hikayesi',
+        },
+        inputs: {
+          'sablon-uyarla': {
+            uyarlama: {
+              sablonId: SABLON,
+              kartlar: o.kartlar.map(() => ({
+                ustBaslik: 'X',
+                baslik: 'Başlık **bir**',
+                govde: 'Gövde.',
+                hayalet: '',
+                rayaSol: 'X',
+                rayaOrta: 'Kaynak 2026',
+              })),
+            },
+          },
+        },
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const d = r.value.data as Record<string, unknown>
+    expect(d['ritimOlculemedi']).toContain('satir-yok')
+  })
+})

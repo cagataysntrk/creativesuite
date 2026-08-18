@@ -117,7 +117,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Şekil ipucunu kaldır → aynı konuda yine anlatı çıkıyor
 💾 `feat(engine): metin sekli gecmisten kaciniyor` · `Refs: FAZ-16.7 · §11.4`
 
-## 16.8 — Biçim kuralı ÖLÇÜLÜYOR: istenen ritim geldi mi    [ ]
+## 16.8 — Biçim kuralı ÖLÇÜLÜYOR: istenen ritim geldi mi    [x]
 
 📖 §11.4 · D-309 · R-70
 🔗 FAZ-16.7
@@ -134,3 +134,22 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 ✅ İstenen ritim ile üretilen şekil karşılaştırılıyor ve uyuşmazlık deftere yazılıyor
 🧪 Numaralı ritim iste, numarasız metin ver → defterde uyuşmazlık görünüyor
 💾 `feat(engine): ritim uyumu olculuyor` · `Refs: FAZ-16.8 · §11.4`
+
+## 16.9 — Defter alanı eklemek TEK adım olmalı    [ ]
+
+📖 §13 · D-261
+🔗 FAZ-16.8
+🛠 `run.ts`teki `DEFTER_ANAHTARLARI` beyaz listesi **altı kez** sessizce alan eledi:
+   `tasarimPlani`, `digests`, yargı çıktıları (`puanlar` `toplam` `bulgular`
+   `reddedilen`) ve şimdi ritim ölçümü. Her seferinde kod doğruydu, test yeşildi ve
+   defter boştu.
+   ⚠ Yorum yazmak ALTI KEZ yetmedi — listenin kendi açıklaması *"eksik bir beyaz liste
+   sessiz bir körlüktür"* diyor ve altıncısı yine oldu. Politika değil YAPI gerekiyor:
+   bir kapı, gövdelerin döndürdüğü çıktı anahtarlarını listeyle karşılaştırsın ve
+   listede olmayanı ADIYLA bildirsin.
+   ⚠ Beyaz listeyi kaldırmak çözüm DEĞİL: defterin küçük kalması bir gereklilik (R-64,
+   ölçüldü — 580 KB'lık manifest). Sorun listenin varlığı değil, sessizliği.
+📁 `scripts/gates/` · `packages/engine/src/run.ts`
+✅ Gövdede yeni bir çıktı anahtarı, beyaz listede yoksa kapı kırmızı ve anahtarı yazıyor
+🧪 Bir gövdeye listede olmayan bir anahtar ekle → kapı kırmızı
+💾 `feat(gates): defter beyaz listesi kapisi` · `Refs: FAZ-16.9 · §13`

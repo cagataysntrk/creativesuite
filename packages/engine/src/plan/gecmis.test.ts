@@ -8,7 +8,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { gecmisiOku } from './gecmis.js'
-import { sablonSec } from './sablon-sec.js'
+import { ritimTuttuMu, sablonSec } from './sablon-sec.js'
 
 const defter = (kok: string, ad: string, sablon: string, konu: string): void => {
   mkdirSync(join(kok, ad), { recursive: true })
@@ -91,5 +91,38 @@ describe('çeşitlilik: son koşularda kullanılan şablon eleniyor', () => {
     const hepsi = ilk.puanlar.filter((p) => p.puan > 0).map((p) => p.id)
     const r = sablonSec(COKLU, { gorselUretilebilir: true, sonKullanilan: hepsi })
     expect(r.ok).toBe(true)
+  })
+})
+
+// ⚠ Ölçüm, seçimle AYNI eşikleri kullanmak zorunda: iki farklı "tuttu" tanımı,
+// `ritimTuttu` alanının sessizce yalan söylemesi demekti.
+describe('ritim uyumu ölçülüyor', () => {
+  const SAYISAL = ['2019 yüzde 12', '2021 yüzde 18', '2023 yüzde 24', '2025 yüzde 31']
+  const NUMARALI = ['Giriş', '1. Topla', '2. Ölç', '3. Karar ver']
+  const SORULU = ['Giriş', 'Ölçülüyor mu?', 'Kaydediliyor mu?', 'Kim bakıyor?']
+  const ANLATI = ['Bir hat vardı', 'Kayıt kişide kalıyordu', 'Sonra ortak ekran geldi']
+
+  it('sayısal ritim TUTTU', () => {
+    expect(ritimTuttuMu('veri-hikayesi', SAYISAL)).toBe(true)
+    expect(ritimTuttuMu('veri-hikayesi', ANLATI)).toBe(false)
+  })
+
+  it('numaralı ritim TUTTU', () => {
+    expect(ritimTuttuMu('akan-alan', NUMARALI)).toBe(true)
+    expect(ritimTuttuMu('akan-alan', ANLATI)).toBe(false)
+  })
+
+  it('soru ritmi TUTTU', () => {
+    expect(ritimTuttuMu('memphis', SORULU)).toBe(true)
+    expect(ritimTuttuMu('memphis', ANLATI)).toBe(false)
+  })
+
+  it('anlatı ritmi: ötekilerin hiçbiri tutmuyorsa tutmuş sayılır', () => {
+    expect(ritimTuttuMu('sahne', ANLATI)).toBe(true)
+    expect(ritimTuttuMu('sahne', NUMARALI)).toBe(false)
+  })
+
+  it('içerikten seçilemeyen şablonun ritmi yok — uyum varsayılıyor', () => {
+    expect(ritimTuttuMu('donen', ANLATI)).toBe(true)
   })
 })

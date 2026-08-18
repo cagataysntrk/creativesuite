@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 16
-siradaki_adim: 16.8
+siradaki_adim: 16.9
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "16.7 KAPANDI VE UC DENEMEDE COZULDU (D-309 · LOOP§G). D-308 sablon secimini gecmise duyarli yapmisti ama uretimde tekrar surdu: kisit govdeye ulasti, kural dogru davrandi, ama o iceriklerde baska uygun aday YOKTU cunku metin-uret konudan bagimsiz hep ayni sekli uretiyordu. YAKLASIM 1 (ritim menusu: 'bu sefer baska bir ritim kur, ornegin sunlar') → model her kosuda en kolayini, zaten bildigi duz anlatiyi secti; bir secenek listesi bir talimat degildir. YAKLASIM 2 (tek hedef + 'bu bir oneri degil', kacis kapisi daraltildi) → cikti yine anlati oldu. ORTAK SEBEP: ikisi de USLUP tarif ediyordu ve uslup olculemez; model kendi urettiginin o usluba uydugunu sanabilir. YAKLASIM 3 (tuttu): ritmin MEKANIK karsiligi — '2. satirdan itibaren her satir 1. 2. 3. ile BASLAYACAK' bir uslup degil sayilabilir bir sozlesme ve sablonSec zaten tam bunu olcuyor. GERCEK KOSU KANITI: bu turda ilk kez sahne DISINDA bir sablon secildi — akan-alan, ustelik alti kart (oncekiler hep dort kartli sahne). Sayisal ritim icin kaynak kisitli: sayilar yalniz MARKA BILGISI'nde gecenlerden alinabilir, cesitlilik ugruna Yasa 8 cignenmez."
+son_kanit: "16.8 KAPANDI VE BEYAZ LISTE ALTINCI KEZ SESSIZCE ALAN ELEDI. Ritim uyumu artik olculuyor (ritimTuttuMu, esikler sablonSec ile AYNI kaynaktan - iki farkli 'tuttu' tanimi alanin sessizce yalan soylemesi olurdu) ve kompozit ciktisina yaziliyor. Olculemeyen durum da ADIYLA yaziliyor (ritimOlculemedi: 'hedef-yok' / 'satir-yok'): bir olcumun YAPILAMADIGI, yapilmadigi kadar onemli bir bilgi ve sessiz bosluk bu deponun yasagi. ⚠ KOK BULGU: olcum yazildi, birim testi ve dikis testi yesildi, gercek kosuda alanlar defterde HIC gorunmedi - run.ts'teki DEFTER_ANAHTARLARI beyaz listesi onlari eliyordu. O listenin kendi yorumu ayni hatanin BESINCI tekrarini anlatiyor ve 'eksik bir beyaz liste sessiz bir korluktur' diyor; o cumle yazilirken bile liste bir sonraki alani elemeye haziroydu. Bir cikti alani eklemek, o alani beyaz listeye eklemeyi ICERIR. CESITLILIK URETIMDE CALISIYOR: uc ardisik kosuda uc FARKLI sablon secildi - sahne, akan-alan, memphis. Ihlal turlari: beyaz listeden cikarinca kirmizi, ritim esigini gevsetince kirmizi."
 ```
 
 ## Neredeyiz
@@ -41,6 +41,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **16.3** · kendi görselini koy; şablona sabit fotoğraf REDDEDİLİYOR, üretilen ezilmiyor | 2026-08-18 |
 | **16.6** · şablon çeşitliliği: son üç koşuda kullanılan eleniyor, geçmiş PLANA donuyor | 2026-08-18 |
 | **16.7** · ritim MEKANİK kural oldu; gerçek koşuda ilk kez `akan-alan` seçildi | 2026-08-18 |
+| **16.8** · ritim uyumu ölçülüp DEFTERE yazılıyor; beyaz liste altıncı kez alan eledi | 2026-08-18 |
 
 ## Sıradaki adım
 

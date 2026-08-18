@@ -52,6 +52,30 @@ export const icerikSekli = (satirlar: readonly string[]): IcerikSekli => {
   }
 }
 
+/**
+ * İstenen ritim GERÇEKTEN geldi mi — ölçüm, tahmin değil.
+ *
+ * ⚠ ⚠ **BU FONKSİYON OLMADAN BİÇİM KURALI BİR TEMENNİYDİ.** D-309 ritmi sayılabilir
+ * bir sözleşmeye çevirdi ve gerçek koşuda tuttu; ama uyulup uyulmadığı ölçülmüyordu.
+ * Model sözleşmeyi görmezden gelirse hat sessizce eski şekle döner ve bunu ancak
+ * defteri elle okuyan biri fark eder. Bu deponun kendi kuralı: **ölçülmeyen bir kural
+ * bir temennidir.**
+ *
+ * ⚠ Eşikler `puanla` ile AYNI kaynaktan: seçim neyi ölçüyorsa uyum da onu ölçüyor.
+ * İkinci bir eşik takımı, iki farklı "tuttu" tanımı demekti.
+ */
+export const ritimTuttuMu = (sablonId: string, satirlar: readonly string[]): boolean => {
+  const i = icerikSekli(satirlar)
+  if (sablonId === 'veri-hikayesi') return i.yilSayisi >= 3 || i.sayiYogunlugu >= 0.5
+  if (sablonId === 'akan-alan') return i.numaraliSatir >= 3
+  if (sablonId === 'memphis') return i.soruOrani >= 0.4
+  // `sahne` anlatı: ötekilerin HİÇBİRİ tutmuyorsa tutmuş sayılır.
+  if (sablonId === 'sahne')
+    return i.yilSayisi < 3 && i.sayiYogunlugu < 0.5 && i.numaraliSatir < 3 && i.soruOrani < 0.4
+  // İçerikten seçilemeyen şablonların ritmi yok; ölçüm anlamsız, uyum varsayılır.
+  return true
+}
+
 /** Bir şablonun aldığı puan ve GEREKÇESİ — gerekçesiz seçim denetlenemez. */
 export interface SablonPuani {
   readonly id: string

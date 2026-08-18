@@ -100,6 +100,17 @@ describe('zincir kesintisiz mi', () => {
     expect(m?.steps[0]?.output).toMatchObject({ fetchedAt: '2026-08-14T00:00:00.000Z' })
   })
 
+  // 🧪 Denetimin 6. bulgusu (FAZ-16.8): ritim ölçümü hesaplanıyordu ama beyaz liste
+  // onu eliyordu — defterde hiç görünmedi. Ölçülüp kaydedilmeyen bir sayı, ölçülmemiş
+  // bir sayıdır.
+  it('ritim ölçümü adım çıktısından MANİFESTE geçiyor', async () => {
+    await kos({ COMPOSE: sahte('COMPOSE', { ritimHedefi: 'akan-alan', ritimTuttu: false }) }, [
+      adim('kompozit', 'COMPOSE'),
+    ])
+    const m = readManifest(tmp.path, RUN)
+    expect(m?.steps[0]?.output).toMatchObject({ ritimHedefi: 'akan-alan', ritimTuttu: false })
+  })
+
   it('BAYAT kaynak manifest üzerinden yayını BLOKLUYOR', async () => {
     await kos(
       // Çalıştırma 2026-08-16, kaynak 2026-06-01 → 76 gün. Ölçü çalıştırmanın kendi
