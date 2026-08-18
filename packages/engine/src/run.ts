@@ -192,6 +192,16 @@ export const UNTRUSTED_GATE = 'untrusted-input'
  * Liste sınanabilir olmazsa altıncı kez eksik kalır.
  */
 export const DEFTER_ANAHTARLARI: readonly string[] = [
+  // ⚠ ⚠ Katalog merkezli yol (FAZ-15.9): bu anahtarlar deftere girmezse hangi şablonun
+  // seçildiği ve render'ın ölçtüğü kusurların ne olduğu KAYBOLUR — koşu sonradan
+  // denetlenemez hâle gelir. `sablonId` özellikle kritik: "bu karosel neden böyle"
+  // sorusunun tek cevabı o.
+  'sablonId',
+  'kusurSayisi',
+  'bulgular',
+  'gecti',
+  'slaytSayisi',
+  'panoramaGenisligi',
   'qa',
   'slides',
   'count',

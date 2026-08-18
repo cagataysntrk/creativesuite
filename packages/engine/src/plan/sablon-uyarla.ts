@@ -124,6 +124,19 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
     })
   }
 
+  // ⚠ ⚠ **ÖRNEK BAŞLIKLARIN AYNEN KALMASI DA BİR KUSUR — gerçek koşu bunu öğretti.**
+  // `ÖRNEK VERİ` işareti kaynağı koruyordu ama METNİ korumuyordu: model gövdeleri konuya
+  // uyarladı ve dört başlığın dördünü de şablondan aynen kopyaladı. Sonuç konuya değil
+  // ŞABLONA ait bir karoseldi ve hiçbir kapı itiraz etmedi. Tek tek başlık eşleşmesi
+  // meşru olabilir (kısa, jenerik bir kapanış); HEPSİNİN eşleşmesi uyarlamanın hiç
+  // yapılmadığı anlamına gelir.
+  const aynen = u.kartlar.filter((y, i) => y.baslik.trim() === ornek.kartlar[i]?.baslik.trim())
+  if (aynen.length === u.kartlar.length)
+    kusurlar.push(
+      `başlıkların TAMAMI şablonun örneğiyle aynı (${aynen.length}/${u.kartlar.length}) — ` +
+        'uyarlama yapılmamış; başlıklar konuya göre yeniden yazılmalı'
+    )
+
   if (kusurlar.length > 0) return { ok: false, kusurlar }
   // ⚠ Şablonun geri kalanı DOKUNULMADAN geçiyor: bant, görseller, lekeler, alan sınırı,
   // tipografi, yerleşim, zemin dokusu, hayalet konumu, görsel işlemleri.
@@ -149,7 +162,9 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     `Konu: ${konu}`,
     `Şablon: ${sablonId} · ${ornek.kartlar.length} kart`,
     '',
-    'Aşağıdaki DOLU taslağı bu konuya uyarla. Kompozisyonu değiştirme; yalnız metni ve',
+    'Aşağıdaki DOLU taslağı bu konuya uyarla. BAŞLIKLARI DA konuya göre yeniden yaz —',
+    'örnekteki başlıkları aynen bırakmak uyarlama sayılmaz ve reddedilir.',
+    'Kompozisyonu değiştirme; yalnız metni ve',
     `panel verisini değiştir. Kart sayısı SABİT: tam ${ornek.kartlar.length} kart üret.`,
     'Kaynak metinde daha fazla madde varsa BİRLEŞTİR; daha az varsa madde UYDURMA —',
     'içeriği kartlara dağıtmak senin işin.',

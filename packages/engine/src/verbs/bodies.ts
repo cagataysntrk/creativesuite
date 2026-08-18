@@ -42,6 +42,7 @@ import {
 } from '@suite/render'
 import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../plan/sablon-uyarla.js'
 import { sablonSec } from '../plan/sablon-sec.js'
+import { sablonBul } from '@suite/contracts'
 import type { KatalogOrnegi } from '@suite/render'
 import {
   duzMetin,
@@ -256,12 +257,30 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       const birlesik = uyarla(ornek, uyarlamaCiktisi.uyarlama)
       if (!birlesik.ok)
         return err(hata('validation', 'ADAPTATION_REJECTED', ctx, { defects: birlesik.kusurlar }))
+
+      // ⚠ ⚠ **GÖRSEL YUVAYA BURADA GİRİYOR ve ilk sürümde HİÇ GİRMİYORDU.** Gerçek koşu
+      // on adımı geçti, `cloudflare-workers-ai` görseli ÜRETTİ, render dört slaydı
+      // damgaladı — ve çıktıda kesik özne yerine YER TUTUCU duruyordu. Sebep sıralamaydı:
+      // panorama belgesi `kompozit`te kuruluyor, görsel ondan SONRA doğuyor ve belgeye
+      // geri dönecek bir yol yoktu. `instagram-post` bunu `yuva-doldur` adımıyla çözmüştü;
+      // aynı gövde ikinci kez koşuyor, bu kez girdisinde görselle.
+      // ⚠ Görsel yoksa `src` boş kalıyor ve yer tutucu ÇİZİLİYOR — eksiklik görünür
+      // kalmalı; sessizce metin-only bir karosel, tasarımı tanınmaz yapar.
+      const uretilen = uretilenGorsel(input.inputs)
+      const kartlar = birlesik.belge
+      const gorsellikli =
+        uretilen === null
+          ? kartlar
+          : {
+              ...kartlar,
+              gorseller: kartlar.gorseller.map((g) => ({ ...g, src: uretilen.src })),
+            }
       // ⚠ Damga, token ve font ÇALIŞTIRMADAN geliyor; şablon onları taşıyamıyor (Yasa 7).
       return ok({
         costs: [],
         data: {
           panorama: {
-            ...birlesik.belge,
+            ...gorsellikli,
             tokenCss: deps.tokenCss,
             ...(deps.fontCss === undefined ? {} : { fontCss: deps.fontCss }),
             stamp: deps.stamp,
@@ -1155,6 +1174,41 @@ export const validateBody = (deps: ValidateDeps): Verb =>
         (typeof (v as { deck?: unknown }).deck === 'string' ||
           typeof (v as { document?: unknown }).document === 'string')
     )
+    // ── PANORAMA YOLU: belge `document` değil `panorama` (FAZ-15.9 · D-268) ──
+    //
+    // ⚠ ⚠ **BU DAL GERÇEK BİR KOŞUDAN SONRA AÇILDI.** Katalog hattı on adımı geçti,
+    // dört slayt damgalandı ve `kalite` `NOTHING_TO_VALIDATE` ile durdu: doğrulama
+    // `document` arıyordu, panorama yolu `panorama` üretiyor. Kusur PDF yolunda birebir
+    // aynı sebeple yaşanmıştı (bir üstteki not) — yeni bir çıktı şekli açan her yol,
+    // doğrulamaya kendini TANITMAK zorunda.
+    //
+    // ⚠ Panorama belgesi `DocumentModel` DEĞİL: blok listesi değil kart listesi taşıyor
+    // ve blok tabanlı denetimler (`planDenetle`, lexicon) ona uygulanamaz. Uygulanan
+    // denetim render'ın kendi ölçtüğü kusur listesi; ikinci bir ölçüm ikinci bir
+    // doğruluk kaynağı olurdu.
+    const panorama = Object.values(input.inputs).find(
+      (v): v is { readonly panorama: unknown } =>
+        v !== null && typeof v === 'object' && (v as { panorama?: unknown }).panorama !== undefined
+    )
+    if (belge === undefined && panorama !== undefined && render !== undefined) {
+      const kusurlar = ((): readonly { readonly aciklama?: string }[] => {
+        const r = render as { kusurlar?: unknown }
+        return Array.isArray(r.kusurlar) ? (r.kusurlar as { aciklama?: string }[]) : []
+      })()
+      return ok({
+        costs: [],
+        data: {
+          gecti: kusurlar.length === 0,
+          slaytSayisi: render.slides.length,
+          // ⚠ Kusurlar SUSTURULMUYOR: sayı da metin de çıktıya giriyor ve insan onay
+          // kapısı onları görüyor. "Geçti" demek, kusur olmadığını göstermekle aynı şey
+          // değildir; ikisi ayrı alan.
+          kusurSayisi: kusurlar.length,
+          bulgular: kusurlar.map((k) => k.aciklama ?? '').filter((t) => t !== ''),
+        },
+      })
+    }
+
     if (belge === undefined || (render === undefined && pdf === undefined)) {
       return err(hata('validation', 'NOTHING_TO_VALIDATE', ctx))
     }
@@ -1478,6 +1532,34 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     ].join('\n')
   }
 
+  // ── KATALOG YOLUNDA BRIEF, ŞABLONUN KENDİ İLANINDAN ─────────────────────
+  //
+  // ⚠ ⚠ **BU DAL GERÇEK BİR KOŞUDAN SONRA AÇILDI ve eksikliği SESSİZDİ.** Hat uçtan uca
+  // yeşil koştu; defterde `gorsel-brief` ve `gorsel-uret` `{atlandi: true, sebep:
+  // 'prompt-yok'}` yazıyordu ve çıktıda kesik özne yerine yer tutucu duruyordu. Sebep:
+  // brief kurucusu `tasarimPlani.slaytlar[].oge` arıyor — o, SLAYT-BAŞINA yolun şekli.
+  // Katalog yolunda tasarım planı yok; ihtiyacı ŞABLON KAYDI ilan ediyor (`briefTemeli`).
+  //
+  // ⚠ **İhtiyaç ilan edilmemişse brief de YOK.** `veri-hikayesi` ve `akan-alan` görsel
+  // istemiyor; onlara brief yazmak, kullanılmayacak bir görsel için kota harcamaktı
+  // (D-261'in birebir tekrarı).
+  if (input.constraints['gorsel_brief'] === true) {
+    const sablonId = katalogSablonuId(input.inputs)
+    if (sablonId !== null) {
+      const kayit = sablonBul(sablonId)
+      if (kayit?.gorsel === undefined || kayit.gorsel === null) return ''
+      // ⚠ Brief İNGİLİZCE ve BÜYÜK HARFSİZ: R-20 muhafızı büyük harfli öbeği "metin
+      // çizdirme isteği" sayıyor ve iki kez reddetti (katalog.ts kaydı).
+      return [
+        'write a short image generation brief in english, lowercase, no capital letters.',
+        `the brief must keep this base description and add topic-specific detail: ${kayit.gorsel.briefTemeli}`,
+        `topic: ${konu}`,
+        'do not ask for any lettering, wording, caption or written sign in the image.',
+        'answer with the brief only, no explanation.',
+      ].join('\n')
+    }
+  }
+
   const gorselBriefMi = input.constraints['gorsel_brief'] === true
   // ⚠ **YUVA yalnız brief için aranıyor** ve `kompozit` çıktısından geliyor — yani bu
   // adım artık `kompozit`e BAĞLI (hat dosyasında `needs: [bilgi-sec, kompozit]`).
@@ -1607,6 +1689,21 @@ export const uyarlamayaCevir = (ham: unknown): Uyarlama | null => {
     })
   }
   return { sablonId: n.sablonId, kartlar }
+}
+
+/**
+ * Kompozit adımının seçtiği şablon id'si — katalog yolunun imzası.
+ *
+ * ⚠ Adım ADINA bakılmıyor (aynı gövde birden çok hatta koşuyor); `sablonId` alanının
+ * varlığı katalog yolunda olduğumuzun kendisi.
+ */
+const katalogSablonuId = (inputs: Readonly<Record<string, unknown>>): string | null => {
+  for (const v of Object.values(inputs)) {
+    if (v === null || typeof v !== 'object') continue
+    const id = (v as { sablonId?: unknown }).sablonId
+    if (typeof id === 'string' && id !== '') return id
+  }
+  return null
 }
 
 /**

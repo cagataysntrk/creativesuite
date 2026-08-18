@@ -83,16 +83,29 @@ steps:
       no_text: true
       max_cost_usd_micros: 20000
 
-  # 5) RENDER — TEK GENİŞ TUVAL, sonra dilimleme. Denetim aynı adımda koşuyor: ayrı bir
+  # 5) GÖRSEL YUVAYA GİRİYOR — aynı `COMPOSE` gövdesi, bu kez girdisinde görselle.
+  #
+  # ⚠ ⚠ **BU ADIM GERÇEK BİR KOŞUDAN SONRA EKLENDİ.** İlk sürümde `render` doğrudan
+  # `kompozit`e bağlıydı; hat on adımı geçti, görsel ÜRETİLDİ ve çıktıda kesik özne
+  # yerine YER TUTUCU çıktı. Sebep sıralamaydı: panorama belgesi görselden ÖNCE
+  # kuruluyor ve görselin belgeye dönecek yolu yoktu. `instagram-post` bunu aynı
+  # şekilde çözüyor — yeni bir fiil de yeni bir gövde de gerekmedi.
+  - id: yuva-doldur
+    verb: COMPOSE
+    needs: [metin-uret, sablon-uyarla, gorsel-uret]
+    constraints:
+      katalog: true
+
+  # 6) RENDER — TEK GENİŞ TUVAL, sonra dilimleme. Denetim aynı adımda koşuyor: ayrı bir
   # fiil dokuz fiil yasasını delerdi, ayrı bir adım render'ı iki kez koştururdu.
   - id: render
     verb: RENDER
-    needs: [kompozit, gorsel-uret]
+    needs: [yuva-doldur]
     constraints:
       width: 1080
       height: 1350
 
-  # 6) AGENT ÇIKTIYA BAKIYOR. `render`ın ölçtüğü şey kutular; bu adımın gördüğü şey
+  # 7) AGENT ÇIKTIYA BAKIYOR. `render`ın ölçtüğü şey kutular; bu adımın gördüğü şey
   # kompozisyon. İkisi ayrı sorular.
   - id: gorsel-yargi
     verb: GENERATE

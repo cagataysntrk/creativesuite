@@ -94,6 +94,38 @@ describe('dikiş 2: metin → şablon seçimi → uyarlama istemi', () => {
   })
 })
 
+// ⚠ ⚠ **BU DİKİŞ GERÇEK BİR KOŞUDA SESSİZCE KOPUKTU.** Hat uçtan uca YEŞİL koştu ve
+// defterde `gorsel-brief` `{atlandi: true, sebep: 'prompt-yok'}` yazıyordu: brief
+// kurucusu slayt-başına yolun `tasarimPlani`ni arıyordu, katalog yolunda o yok. Yeşil
+// bir koşu, bağlı bir zincir demek değil.
+describe('dikiş 2b: şablonun görsel ihtiyacı → brief istemi', () => {
+  it('görsel ilan eden şablonda brief KURULUYOR', () => {
+    const p = promptTuret(
+      'text.generate',
+      girdi(
+        { gorsel_brief: true, topic: 'Geri kazanım' },
+        { k: { sablonId: 'sahne' }, m: { lines: liste } }
+      )
+    )
+    expect(p).not.toBe('')
+    expect(p).toContain('plain solid black background')
+    expect(p).toContain('Geri kazanım')
+    // ⚠ R-20: brief hiçbir yerde yazı istemiyor ve büyük harf kullanmıyor.
+    expect(p).toContain('do not ask for any lettering')
+  })
+
+  it('görsel istemeyen şablonda brief YOK — kullanılmayacak görsele kota harcanmıyor', () => {
+    for (const id of ['veri-hikayesi', 'akan-alan'])
+      expect(
+        promptTuret(
+          'text.generate',
+          girdi({ gorsel_brief: true, topic: 'x' }, { k: { sablonId: id } })
+        ),
+        id
+      ).toBe('')
+  })
+})
+
 describe('dikiş 3: model çıktısı → uyarlama nesnesi', () => {
   const gecerli = JSON.stringify({
     sablonId: 'akan-alan',

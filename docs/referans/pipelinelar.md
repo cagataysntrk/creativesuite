@@ -83,7 +83,7 @@ Toplam **11** hat.
 
 ## `instagram-karosel` — Instagram karoseli — katalog merkezli
 
-13 adım · 6 yetenek isteyen · 1 insan kapısı
+14 adım · 6 yetenek isteyen · 1 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -94,7 +94,8 @@ Toplam **11** hat.
 | `kompozit` | `COMPOSE` | — | metin-uret, sablon-uyarla | — | — |
 | `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
 | `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief | — | ✓ |
-| `render` | `RENDER` | — | kompozit, gorsel-uret | — | — |
+| `yuva-doldur` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret | — | — |
+| `render` | `RENDER` | — | yuva-doldur | — | — |
 | `gorsel-yargi` | `GENERATE` | `image.critique` | render | — | — |
 | `tasarim-yargi` | `GENERATE` | `design.critique` | render | — | — |
 | `kalite` | `VALIDATE` | — | render, gorsel-yargi, tasarim-yargi, gorsel-uret | — | — |
