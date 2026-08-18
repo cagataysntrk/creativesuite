@@ -5419,3 +5419,94 @@ görseli, içerik yalnız iki metin bloğu; orada 1,62'lik hayalet baskın, öte
 yok dedi ve haklıydı — montajın kendi kırpmasıydı.
 
 **Geri alma maliyeti:** düşük — bir CSS değişkeni, bir reçete alanı, bir denetim bloğu.
+
+## D-293
+
+**Karar:** Uyarlama isteminin çıktı sözleşmesi artık HER panel tipini tarif ediyor.
+Katalogdaki her tip istemde geçmek zorunda; test bunu VERİDEN türeterek zorluyor.
+
+**Neden:** Gerçek koşu `sablon-uyarla` adımında `ADAPTATION_UNPARSEABLE` ile durdu.
+İstem *"panel taşıyan kartlarda `panel` alanını da yaz; tipi ŞABLONDAKİYLE aynı olsun"*
+diyordu ama **panelin ŞEKLİNİ hiç söylemiyordu.** `veri-hikayesi`nin altı kartında BEŞ
+farklı panel tipi var (`etiketler`, `cubuklar`, `sayilar`, `vafel`, `liste`) ve model
+şekli uydurmak zorunda kalıyordu.
+
+⚠ ⚠ **BU, AYNI HATANIN İKİNCİ YARISIYDI.** Çıktı sözleşmesi ilk sürümde HİÇ yazılmamıştı
+ve iki koşu `ADAPTATION_UNPARSEABLE` ile durmuştu; o zaman kart alanları için şema
+yazıldı ve dosyaya *"şema burada, örnekle birlikte"* diye not düşüldü. Panel için
+yazılmadı. **Sözleşmenin bir yarısını yazıp öteki yarısını unutmak, hiç yazmamaktan daha
+sinsi:** ilk yarı çalıştığı için sözleşme "var" sanılıyor.
+
+⚠ **Şekil veriliyor, DEĞER verilmiyor.** Örnek panelin gerçek sayılarını basmak, başlıkta
+olduğu gibi (D-288) kopyalamaya davet ederdi. Sayılar Kaynak metinden gelmeli.
+
+⚠ Hata benim istem değişikliğimden (D-288) DEĞİL: şema eksikliği baştan vardı. Ama örnek
+başlık metnini kaldırmak modelin tek yapısal çıpasını da aldığı için boşluk ölümcül hâle
+geldi — **bir eksik, başka bir doğru değişiklik onu açığa çıkarana kadar sessiz kalabilir.**
+
+**Kanıt:** `vafel` satırı şemadan silindi → test kırmızı ("panel tipi 'vafel' çıktı
+şemasında tarif edilmemiş"); geri kondu → yeşil. Liste veriden türüyor, yeni bir panel
+tipi kendiliğinden kapsanıyor.
+
+**Geri alma maliyeti:** düşük — istemde on satır, bir test.
+
+## D-294
+
+**Karar:** Hayalet puntosu karakter SAYISINA değil çizilen GENİŞLİĞE bağlandı. Rakamlar
+dar (0,58em), büyük harfler geniş (0,72em); hayalet bir slaydın en çok %86'sını kaplıyor.
+
+**Neden:** Önceki kural (D-284) "üç karaktere kadar tam punto" diyordu ve `01` için
+doğruydu — bir rakam DEV kalmalı, kompozisyonun parçası o. Ama model hayalete KELİME
+yazınca `TEK` de üç karakter oldu ve **729 px**'e çıktı: bir slaydın tamamını kaplayıp
+başlığın üstüne bindi. **Üç karakterlik bir kelime, üç karakterlik bir sayı değildir.**
+
+⚠ ⚠ **BU TURDA EKLENEN DENETİM (D-292) KUSURU ÜRETİMDE YAKALADI.** Gerçek koşu
+(`veri-hikayesi`, altı slayt): `sus-baskin` kart 4'te süs %41 · içerik %27 dedi ve
+`kalite` `gecti: false` verdi. Kural, eklendiği turda kendi işini yaptı — bir denetim
+kuralının değeri tam olarak bu: kimse bakmadan önce yakalaması.
+
+**Ölçülen sonuç:** `01` 729px (değişmedi) · `TEK` 729 → 430 · `BAŞLA` 437 → 258 ·
+`KARMAŞIK` 273 → 161.
+
+⚠ Kesin font metriği KULLANILMADI ve gerekmiyor: aranan tek ayrım rakam ile harf.
+Yaklaşık em genişliği bunu veriyor, ölçüm zinciri kısa kalıyor.
+
+**Geri alma maliyeti:** düşük — tek fonksiyon.
+
+## D-295
+
+**Karar:** Marka paleti yeniden kuruldu — vurgu mavisi sakinleşti, zemin **eskitmeli
+lacivert** oldu, amber yerini **bakır**a bıraktı. Sayaç etiketleri kaldırıldı, altı
+şablona gren/vinyet ve kartlara inset ışık geldi, dev sayılarda tracking negatifleşti.
+
+**Neden:** depo sahibinin tespiti — *"mavi çok cıvık ve palete uymuyor"*, *"arkaplanlar
+aşırı düz ve tasarımı kötü, sade olsa da bir derinliği olmalı"*, *"bölüm 1 seri 1 soru 1
+gibi sayaçlar hangi örnekte var?"*.
+
+**Renk — logonun birebir rengi ŞART DEĞİLMİŞ.** `mavi-500` logodan birebir alınmıştı
+(#0091ff, chroma 0,192). Büyük alanda cıvık duruyor ve paletin geri kalanını eziyordu:
+**bir aksan rengi kadraj boyunca yayılınca aksan olmaktan çıkıyor.** Yeni değer
+oklch(0.620 0.132 242) — aynı aile, doygunluk düşük. Siyah-beyaz logo her zeminle
+uyduğu için birebir eşleşme bir zorunluluk değildi; adaylar RENDER EDİLİP karşılaştırıldı.
+
+⚠ **Zemin ile vurgu artık AYRI basamaklar.** `--role-bg` vurgu rengini gösteriyordu;
+şimdi `mavi-700` (eskitmeli lacivert). Derinlik tek renkle kurulamıyor — iki komşu tonun
+farkından doğuyor. Ara basamaklar eklendi (`mavi-700`, `mavi-300`).
+
+⚠ **Amber → bakır ve bu bir renk tercihi değil, bir DÜZELTME.** Token açıklaması amberi
+zaten *"referans karosellerdeki sarının kardeşi"* diye tanımlıyordu: aksanımız markadan
+değil STOK ŞABLONDAN gelmişti. Bakır, eskitmeli lacivertin sıcak karşıtı.
+
+⚠ **Sayaç etiketleri (`BÖLÜM I`, `SERİ 02`, `SORU 03`) hiçbir referansta yok** — bir
+sunum şablonunun dili, bir tasarımın değil. Sayfa numarasını alt ray zaten veriyor ve
+aynı bilgiyi iki kez basmak imzayı zayıflatıyor. Üst başlık artık kartın KONUSUNU
+söylüyor.
+
+⚠ **Gren aynı güçte olamaz:** koyu zeminde 18–22, açık zeminde 12–16. Düz bir dijital
+alan her zaman dijital görünüyor; doku gözün "bu bir yüzey" demesi için gereken tek şey.
+
+⚠ **Inset ışık renkleri karttan TÜRÜYOR** (`--kart-metin`), sabit beyaz değil: kâğıt
+zeminde beyaz ışık görünmez. Aynı hata sınıfı on altı sabit `rgba(255,255,255)` ile
+yaşanmıştı.
+
+**Geri alma maliyeti:** orta — token değerleri, bir yeniden adlandırma, altı şablon alanı.

@@ -81,7 +81,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Bir önkoşulu kaldır → `just setup` onu ADIYLA bildiriyor
 💾 `feat(repo): tek komut kurulum denetimi` · `Refs: FAZ-16.5 · §16`
 
-## 16.6 — "Yeni bir karosel üret" tekrar etmiyor    [ ]
+## 16.6 — "Yeni bir karosel üret" tekrar etmiyor    [x]
 
 📖 §11.4 · D-268
 🔗 FAZ-16.4
@@ -95,3 +95,24 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 ✅ Konusuz çağrı geçmişte olmayan bir konu + son üç koşuda kullanılmayan bir şablon seçiyor
 🧪 Aynı konuyu iki kez iste → ikincisi farklı şablon seçiyor ya da gerekçeyle duruyor
 💾 `feat(engine): tekrar etmeyen konu secimi` · `Refs: FAZ-16.6 · §11.4`
+
+## 16.7 — Çeşitlilik metinde başlıyor: `metin-uret` şekil değiştirmiyor    [ ]
+
+📖 §11.4 · D-308 · D-268
+🔗 FAZ-16.6
+🛠 ⚠ ⚠ **16.6 BAĞLANDI VE ÇALIŞTI, AMA ÜRETİMDE TEKRAR SÜRDÜ — ve sebebi ölçüldü.**
+   Şablon çeşitlilik kuralı son kullanılanları eliyor; iki gerçek koşuda kısıt gövdeye
+   ulaştı (`son_kullanilan = 'sahne,veri-hikayesi,donen'`) ve yine `sahne` seçildi.
+   Kural doğru davrandı: eleme yalnız BAŞKA UYGUN ADAY varsa uygulanıyor ve o
+   içeriklerde yoktu.
+   ⚠ Kök daha derinde: `metin-uret` konudan bağımsız olarak **aynı şekli** üretiyor.
+   Açıkça "2019 2021 2023 2025 rakamlarla" denen bir konuda bile çıktı anlatı oldu,
+   sayısal ritim taşımadı — ve sayısal ritim olmadan `veri-hikayesi` puan alamıyor.
+   **Şablon çeşitliliği içerik çeşitliliğinin sonucudur, sebebi değil.**
+   ⚠ Çözüm sırayı ters çevirmek DEĞİL (şablon önce seçilirse içerik ona uydurulur ve
+   Yasa 13 tersine döner). Çözüm `metin-uret` istemine geçmişin ŞEKLİNİ söylemek:
+   "son üç karosel anlatı biçimindeydi" → model başka bir ritim kurar.
+📁 `packages/engine/src/verbs/bodies.ts` · `packages/engine/src/plan/gecmis.ts`
+✅ Zaman serisi konusunda üretilen satırlar sayısal ritim taşıyor ve şablon değişiyor
+🧪 Şekil ipucunu kaldır → aynı konuda yine anlatı çıkıyor
+💾 `feat(engine): metin sekli gecmisten kaciniyor` · `Refs: FAZ-16.7 · §11.4`

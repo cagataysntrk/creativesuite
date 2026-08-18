@@ -167,6 +167,20 @@ export interface SecimKosullari {
    * Görsel üretilemiyorsa katalog iki kayda iniyor ve bu bir eksiklik değil, doğru cevap.
    */
   readonly gorselUretilebilir: boolean
+  /**
+   * Son koşularda kullanılmış şablonlar — EN YENİDEN eskiye.
+   *
+   * ⚠ ⚠ **TEKRAR, SEÇİMİN KUSURU DEĞİL TASARIM SONUCUYDU.** Defterde son üç karosel
+   * koşusunun ÜÇÜ de `sahne` seçti: seçim içeriğin ölçülen şeklinden deterministik
+   * çıkıyor, benzer konu benzer şekil verir, benzer şekil aynı şablonu seçer. Doğru
+   * çalışan bir seçici, tek başına, aynı tasarımı sonsuz kez üretir.
+   *
+   * ⚠ Rastgelelik EKLENMEDİ (R-06). Kural kayıttan: son koşularda kullanılmış bir
+   * şablon, BAŞKA UYGUN ADAY VARSA eleniyor. Uygun demek `puan > 0`, yani eleme
+   * zaten geçilmiş — "çeşitlilik için kötü bir şablon seçmek" mümkün değil. Aynı
+   * içerik + aynı geçmiş = aynı seçim; replay bozulmuyor.
+   */
+  readonly sonKullanilan?: readonly string[]
 }
 
 export const sablonSec = (
@@ -197,7 +211,12 @@ export const sablonSec = (
   }
 
   const uygun = puanlar.filter((p) => p.puan > 0).sort((a, b) => b.puan - a.puan)
-  const enIyi = uygun[0]
+  // ⚠ Yakın geçmişte kullanılanlar ELENİYOR — ama yalnız geriye uygun aday kalıyorsa.
+  // Kalmıyorsa tekrar meşrudur: içerik gerçekten tek bir şablona uyuyor demektir.
+  const yakin = new Set(kosullar.sonKullanilan ?? [])
+  const taze = uygun.filter((p) => !yakin.has(p.id))
+  const enIyi = taze[0] ?? uygun[0]
+  const tazeSecildi = taze[0] !== undefined && uygun[0] !== undefined && taze[0].id !== uygun[0].id
   if (enIyi === undefined)
     return {
       ok: false,
@@ -208,5 +227,8 @@ export const sablonSec = (
     }
   const sablon = sablonBul(enIyi.id)
   if (sablon === null) return { ok: false, sebep: `katalog tutarsız: ${enIyi.id}`, puanlar }
-  return { ok: true, sablon, neden: enIyi.neden, puanlar }
+  const neden = tazeSecildi
+    ? `${enIyi.neden} · son koşularda kullanılan ${[...yakin].join(', ')} elendi`
+    : enIyi.neden
+  return { ok: true, sablon, neden, puanlar }
 }

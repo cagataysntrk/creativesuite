@@ -96,6 +96,14 @@ const BAYRAKLAR = new Set(['--devam', '--run', '--plan-digest', '--rerun', '--re
 // `--<ad> <deger>` çiftleri `params`a giriyor ve motor onları her adımın kısıtlarına
 // EKLİYOR. **Pipeline kısıtı yine kazanır** (R-20 ezilemez): parametre bir örnek,
 // kısıt bir sözleşme.
+// ⚠ Koşu geçmişi: "yeni bir tane üret" gerçekten yeni olsun diye (D-308).
+// Ölçüldü: son ÜÇ karosel koşusunun üçü de `sahne` seçmişti ve konular kopyaydı.
+const { gecmisiOku } = await import(join(REPO, 'packages/engine/dist/plan/gecmis.js'))
+// ⚠ Yol `RUNS_DIR`den geliyor, elle yazılmıyor: `chokepoints` kapısı defterin yerini
+// bilen ikinci bir yer istemiyor (§13 · D-38) ve haklı — iki yer, bir gün ayrışır.
+const { RUNS_DIR } = await import(join(REPO, 'packages/kernel/dist/manifest.js'))
+const sonKullanilan = gecmisiOku(join(REPO, RUNS_DIR), 3).sablonlar.slice(0, 3)
+
 const serbestParam = {}
 for (let i = 3; i < process.argv.length - 1; i++) {
   const a = process.argv[i]
@@ -791,6 +799,11 @@ const rapor = await runPipeline({
   // YAML yazmak saçma olurdu. Pipeline kısıtı her zaman kazanır (R-20 ezilemez).
   params: {
     ...serbestParam,
+    // ⚠ ⚠ **GEÇMİŞ PLANA DONUYOR, çalışma anında okunmuyor.** Şablon çeşitliliği
+    // (D-308) son koşularda kullanılanları eliyor; o listeyi seçim anında diskten
+    // okumak, aynı planın iki farklı zamanda FARKLI şablon seçmesi demekti ve
+    // replay'i (R-07) bozardı. Plan neyi gördüyse onu saklıyor.
+    son_kullanilan: sonKullanilan.join(','),
     topic: devamKonu ?? kaynakKonu ?? konu,
     // Boşsa hiç geçilmez: boş bir `kacinilacak`, prompt'a anlamsız bir başlık eklerdi.
     ...(kacinilacak === '' ? {} : { kacinilacak }),

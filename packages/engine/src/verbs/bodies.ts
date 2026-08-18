@@ -1842,9 +1842,16 @@ export const sablonSecimiIcin = (
   const satirlar = metinSatirlari(input.inputs)
   if (satirlar.length === 0)
     return { ok: false, sebep: 'önceki adımdan metin satırı gelmedi (`lines` yok)' }
+  // ⚠ Geçmiş KISITTAN geliyor, diskten değil: plan onu donduruyor (R-07) ve replay
+  // aynı seçimi veriyor. Seçim anında dosya okumak, aynı planı iki farklı zamanda
+  // iki farklı tasarıma çevirirdi.
+  const gecmisMetni = input.constraints['son_kullanilan']
+  const sonKullanilan =
+    typeof gecmisMetni === 'string' && gecmisMetni !== '' ? gecmisMetni.split(',') : []
   const secim = sablonSec(satirlar, {
     gorselUretilebilir: input.constraints['gorsel_uretilebilir'] !== false,
     ...(istenen === undefined ? {} : { istenen }),
+    ...(sonKullanilan.length === 0 ? {} : { sonKullanilan }),
   })
   if (!secim.ok)
     return {

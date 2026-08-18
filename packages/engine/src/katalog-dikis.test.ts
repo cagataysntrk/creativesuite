@@ -13,7 +13,13 @@ import { loadPipeline } from '@suite/registry'
 import { join } from 'node:path'
 import { ORNEKLER, ornekBul, type KatalogOrnegi } from '@suite/render'
 import { fixedClock, seededRng } from '@suite/kernel'
-import { composeBody, promptTuret, renderBody, uyarlamayaCevir } from './verbs/bodies.js'
+import {
+  composeBody,
+  promptTuret,
+  renderBody,
+  sablonSecimiIcin,
+  uyarlamayaCevir,
+} from './verbs/bodies.js'
 
 const CTX = {
   runId: 'run_t',
@@ -212,6 +218,37 @@ describe('dikiş 2e: uzun kelime karoselin puntosunu çökertmiyor', () => {
       girdi({ sablon_uyarla: true, topic: 'Tekstil atığı' }, { m: { lines: liste } })
     )
     expect(istem).toContain('EN UZUN KELİME')
+  })
+})
+
+// ⚠ ⚠ **DİKİŞ TESTİ: çeşitlilik kuralı ÜRETİM YOLUNDAN geçiyor mu.** `gecmis.ts` ve
+// `sablonSec` ayrı ayrı yeşildi; asıl soru kısıtın gövdeye ULAŞIP ulaşmadığı. Bu
+// depoda "modül var, test yeşil, üretim yolu yok" sınıfı on birden fazla kez oldu.
+describe('dikiş 2f: son kullanılan şablon kısıttan gövdeye geçiyor', () => {
+  const COKLU = [
+    '2019 yılında oran yüzde 12 idi',
+    '1. 2021 yılında yüzde 18 oldu',
+    '2. 2023 yılında yüzde 24 oldu',
+    '3. 2025 yılında yüzde 31 oldu',
+    '4. Artış ayrıştırmadan geldi',
+  ]
+
+  it('kısıt YOKKEN en yüksek puanlı seçiliyor', () => {
+    const r = sablonSecimiIcin(girdi({}, { m: { lines: COKLU } }))
+    expect(r.ok).toBe(true)
+  })
+
+  it('kısıt VARKEN o şablon eleniyor ve gerekçe SEBEBİ yazıyor', () => {
+    const ilk = sablonSecimiIcin(girdi({}, { m: { lines: COKLU } }))
+    expect(ilk.ok).toBe(true)
+    if (!ilk.ok) return
+    const ikinci = sablonSecimiIcin(
+      girdi({ son_kullanilan: ilk.sablonId }, { m: { lines: COKLU } })
+    )
+    expect(ikinci.ok).toBe(true)
+    if (!ikinci.ok) return
+    expect(ikinci.sablonId).not.toBe(ilk.sablonId)
+    expect(ikinci.neden).toContain('elendi')
   })
 })
 

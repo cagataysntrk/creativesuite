@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 16
-siradaki_adim: 16.6
+siradaki_adim: 16.7
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "16.3 KAPANDI: kendi gorselini yuvaya koyma. Iki kok karar. (1) SABLONA SABIT FOTOGRAF KONMUYOR - katalog taslagi bir DUZEN, yuvasi bos cunku her kosuda o konunun gorseli dolduruyor; taslaga fotograf gommek o sablondan uretilecek BUTUN gelecek karosellerin ayni fotografi tasimasi demekti (Yasa 13). Editor bunu acik metinle reddediyor, kosuda kabul ediyor. (2) URETILMIS GORSELIN USTUNE YAZILMIYOR: bir testte gercek bir kosunun 1,1 MB'lik kesik oznesini 209 baytlik bir kareye cevirdim ve geri getirilemedi - o gorsel para ve rastgelelikle uretilmisti. Artik elle konan varlik '-elle' ekiyle yaninda yasiyor; koruma hem editorde hem panoramaBelgesiniYaz'da, cunku kaydetme yolu adi yeniden uretiyordu. AYRICA UI KOK ONARIMI: eylem mesaji ile olcum paneli AYRI satirlara alindi - ayni yuzeyi paylasiyorlardi ve her duzenlemeden sonra kosan olcum mesaji siliyordu; sablona gorsel koyma reddi ekranda HIC gorunmedi ve islem basarili sanildi. Sureğen bir olcumle gecici bir sonuc ayni yuzeyi paylasamaz. Mufettiste GORSEL bolumu: sol/ust/genislik/yukseklik kaydiraklari, kirpma secimi, alt metin (R-34) ve dosya secici."
+son_kanit: "16.6 KAPANDI (D-308) VE ONU KAPATIRKEN DAHA DERIN BIR KOK OLCULDU (16.7 acildi). Olcum once: defterdeki son UC karosel kosusunun ucu de 'sahne' secmisti ve konular kopyaydi. Bu bir hata DEGILDI - secim icerigin olculen seklinden deterministik cikiyor, benzer konu benzer sekil verir, benzer sekil ayni sablonu secer; dogru calisan bir secici tek basina ayni tasarimi sonsuz kez uretir. Kusur secimde degil, secimin GECMISI GORMEMESINDEYDI. Rastgelelik EKLENMEDI (R-06): son uc kosuda kullanilan sablon, BASKA UYGUN ADAY VARSA eleniyor; aday yoksa tekrar mesru. Gecmis PLANA DONUYOR - secim aninda diskten okumak ayni plani iki farkli zamanda iki farkli tasarima cevirirdi (R-07). Siralama dosya ADINA gore (uuidv7 zaman sirali), mtime'a gore degil. Dikis testi yazildi cunku bu depoda 'modul var, test yesil, uretim yolu yok' sinifi on birden fazla kez oldu; filtre kaldirilinca hem birim hem dikis testi kirmizi donuyor. AMA IKI GERCEK KOSUDA TEKRAR SURDU: kisit govdeye ULASTI (son_kullanilan='sahne,veri-hikayesi,donen') ve yine sahne secildi - kural dogru davrandi, o iceriklerde baska uygun aday yoktu. KOK DAHA DERINDE: metin-uret konudan bagimsiz AYNI SEKLI uretiyor; acikca '2019 2021 2023 2025 rakamlarla' denen konuda bile cikti anlati oldu (dort karttan UCU rakamsiz) ve sayisal ritim olmadan veri-hikayesi puan alamiyor. Sablon cesitliligi icerik cesitliliginin SONUCU, sebebi degil. 16.7 bunu hedefliyor."
 ```
 
 ## Neredeyiz
@@ -39,6 +39,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **16.5** · `just setup` üretim önkoşullarını da sayıyor; eksik ADIYLA, çıkış kodu 1 | 2026-08-18 |
 | **16.2** · müfettiş paneli: tipografi, kart, belge, seçili öge — hepsi canlı ve dosyaya yazıyor | 2026-08-18 |
 | **16.3** · kendi görselini koy; şablona sabit fotoğraf REDDEDİLİYOR, üretilen ezilmiyor | 2026-08-18 |
+| **16.6** · şablon çeşitliliği: son üç koşuda kullanılan eleniyor, geçmiş PLANA donuyor | 2026-08-18 |
 
 ## Sıradaki adım
 
