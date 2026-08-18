@@ -686,3 +686,137 @@ tr[data-tiklanir] {
   border-radius: var(--radius-2);
   display: block;
 }
+
+/* ── aşama göstergesi ─────────────────────────────────────────────────────
+ * "run_01a0160e · metin-onayi" bir KOD, bir durum değil. Üç durum gösteriliyor:
+ * geçildi · burada · henüz — ikisiyle "şu an nerede" sorusu cevapsız kalıyordu.
+ */
+.asama {
+  display: inline-flex;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.asama-adim {
+  color: var(--role-text-muted);
+}
+
+.asama-adim[data-durum='gecti'] {
+  color: var(--role-state-ok);
+}
+
+.asama-adim[data-durum='burada'] {
+  color: var(--role-accent);
+  font-weight: var(--weight-strong);
+}
+
+/* ── filtre çubuğu ────────────────────────────────────────────────────────
+ * 62 satırlık bir liste filtresiz okunamaz: "hangi karosel metin onayında"
+ * sorusu göz taramasıyla cevaplanıyordu.
+ */
+.filtre-cubuk {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-2) 0;
+  color: var(--role-text-muted);
+  border-block-end: 1px solid var(--role-line-hair);
+}
+
+.filtre-cubuk select {
+  background: var(--role-surface);
+  color: var(--role-text);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  font: inherit;
+  padding: var(--space-1) var(--space-2);
+}
+
+.hizli {
+  background: none;
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  color: var(--role-state-ok);
+  font: inherit;
+  padding: 0 var(--space-2);
+  cursor: pointer;
+}
+
+/* ── sayaç şeridi: her rakam TIKLANIR ────────────────────────────────────
+ * Tıklanamayan bir gösterge bir rapordur; komuta merkezi rapor değildir.
+ */
+.sayac-serit {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sayac-serit button {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: flex-start;
+  min-inline-size: 176px;
+  background: var(--role-surface);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  color: var(--role-text-muted);
+  font: inherit;
+  padding: var(--space-3);
+  cursor: pointer;
+}
+
+.sayac-serit button:hover {
+  border-color: var(--role-accent);
+}
+
+.sayac-serit strong {
+  font-size: var(--size-6);
+  font-weight: var(--weight-strong);
+  color: var(--role-text);
+}
+
+/* Aşama dağılımı: hangi aşamada kaç iş sıkıştı — darboğaz bir bakışta görünsün. */
+.asama-dagilim {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.asama-kutu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 128px;
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  padding: var(--space-3);
+  color: var(--role-text-muted);
+}
+
+.asama-kutu strong {
+  font-size: var(--size-5);
+  color: var(--role-text);
+}
+
+.asama-kutu[data-bos='1'] strong {
+  color: var(--role-text-muted);
+}
+
+.is-listesi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.is-listesi li {
+  border-block-end: 1px solid var(--role-line-hair);
+}
+
+.is-hat {
+  color: var(--role-text);
+}
+
+.is-uyari {
+  color: var(--role-state-danger);
+}

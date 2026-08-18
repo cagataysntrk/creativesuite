@@ -59,7 +59,10 @@ try {
     `maliyetMikros ondalık dize değil: ${durum.maliyetMikros}`
   )
   bekle(durum.kota === null, 'kota ölçülmüyorken null olmalı')
-  bekle('bekleyenOnay' in durum, 'bekleyenOnay alanı yok')
+  // ⚠ İki ayrı "onay" tek alandaydı ve şerit bayat sanılıyordu: biri corpus
+  // taslağı (R-14), öteki çalıştırma kapısı. İkisi de aranıyor.
+  bekle('bekleyenTaslak' in durum, 'bekleyenTaslak alanı yok')
+  bekle('bekleyenKapi' in durum, 'bekleyenKapi alanı yok')
 
   // FAZ-4.14: kütüphane karantinayı SAYAR ama listelemez; Reuse manifest ister.
   const kut = await (await fetch(`${U}/api/varliklar`)).json()

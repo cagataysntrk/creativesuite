@@ -11,6 +11,7 @@
 
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { bekleyenler } from './kuyruk.js'
 import { RUNS_DIR, costSummary, inspectManifest, type RunManifest } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
 import { openDb, type Db } from '@suite/kernel'
@@ -39,7 +40,17 @@ export interface MakineDurumu {
   /** Gerçek, tahmin bandının dışında mı — %20 sapma denetiminin görsel karşılığı. */
   readonly bandDisinda: boolean
   /** İnsan onayı bekleyen kayıt sayısı (R-14). */
-  readonly bekleyenOnay: number
+  /**
+   * Bekleyen CORPUS taslağı — retrieval'a görünmeyen kayıt (R-14).
+   *
+   * ⚠ ⚠ **ADI "bekleyen onay"DI ve iki farklı şeyi anlatıyordu.** Alt şerit "bekleyen
+   * onay 5" yazarken onay kuyruğunda 61 kapı vardı; kullanıcı şeridin bayat olduğunu
+   * düşündü. Bayat değildi — BAŞKA bir şeyi sayıyordu. Tek kelimenin iki anlamı,
+   * ölçümün kendisinden daha çok yanlış anlaşılma üretir.
+   */
+  readonly bekleyenTaslak: number
+  /** Bekleyen çalıştırma KAPISI — insanın kararını bekleyen hat. */
+  readonly bekleyenKapi: number
   /** Manifest'i KUSURLU olduğu için yayınlanamayan çalıştırma sayısı. */
   readonly kusurluCalistirma: number
   /**
@@ -129,7 +140,8 @@ export const makineDurumu = (g: DurumGirdisi): MakineDurumu => {
     tahminAltMikros: String(altMikros),
     tahminUstMikros: String(ustMikros),
     bandDisinda,
-    bekleyenOnay: bekleyenOnaySayisi(g),
+    bekleyenTaslak: bekleyenOnaySayisi(g),
+    bekleyenKapi: bekleyenKapiSayisi(g),
     kusurluCalistirma: kusurlu,
     kota: null,
     olcumAni: g.simdi,
@@ -154,6 +166,9 @@ const bekleyenOnaySayisi = (g: DurumGirdisi): number => {
   const gorunen = visibleIds(g.db, g.query)
   return tarama.records.filter((r) => !gorunen.has(r.id)).length
 }
+
+/** Kaç çalıştırma insanın kararını bekliyor — kuyruk sayfasıyla AYNI kaynak. */
+const bekleyenKapiSayisi = (g: DurumGirdisi): number => bekleyenler(g.repoRoot).length
 
 /** Salt-okunur indeks bağlantısı. Yoksa `null` — sunucu yine ayağa kalkar. */
 export const indeksAc = (repoRoot: string): Db | null => {

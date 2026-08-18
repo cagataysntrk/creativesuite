@@ -8,7 +8,7 @@
 // aynı öneriyi tekrar getirir (§4.5).
 
 import { useCallback, useEffect, useState } from 'react'
-import { usdBicimle } from './baglanti.js'
+import { Asama, ASAMALAR } from './Asama.js'
 
 interface Satir {
   readonly runId: string
@@ -50,6 +50,13 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
   const [secilenler, setSecilenler] = useState<ReadonlySet<string>>(new Set())
   const [topluGerekce, setTopluGerekce] = useState<string | null>(null)
   const [ilerleme, setIlerleme] = useState<string | null>(null)
+  // ⚠ ⚠ **FİLTRE YOKTU ve 62 satırlık bir liste filtresiz okunamaz.** Kullanıcı
+  // "hangi karosel metin onayında" sorusunu ancak göz taramasıyla cevaplayabiliyordu.
+  // Üç eksen yeter: HAT (hangi ürün), AŞAMA (nerede takıldı), TAZELİK (bugünkü iş mi
+  // yoksa günler önce bırakılmış mı) — dördüncüsü filtreyi kendisi bir yük yapardı.
+  const [fHat, setFHat] = useState('')
+  const [fKapi, setFKapi] = useState('')
+  const [fBayat, setFBayat] = useState(false)
   const [mesaj, setMesaj] = useState<string | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
@@ -138,6 +145,26 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
 
   if (satirlar === null) return <p>kuyruk yükleniyor…</p>
 
+  // ⚠ Süzme EKRANDA, sunucuda değil: kuyruk sözleşmesi (en eski önce, hiçbiri
+  // gizlenmez) korunuyor; gizleme kullanıcının GÖRÜŞ tercihi.
+  // ⚠ "Bayat" ölçüsü 24 saat: bir koşu bir günden uzun bekliyorsa o gün bırakılmış
+  // demektir ve bugünkü işi gizliyordur.
+  const BIR_GUN = 24 * 60 * 60 * 1000
+  /** "3 sa" · "2 gün" — bir işin ne kadar süredir beklediği. */
+  const bekleme = (iso: string): string => {
+    const dk = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000))
+    if (dk < 60) return `${String(dk)} dk`
+    if (dk < 1440) return `${String(Math.round(dk / 60))} sa`
+    return `${String(Math.round(dk / 1440))} gün`
+  }
+  const suzulmus = (satirlar ?? []).filter((r) => {
+    if (fHat !== '' && r.pipeline !== fHat) return false
+    if (fKapi !== '' && r.gate !== fKapi) return false
+    if (fBayat && Date.now() - new Date(r.createdAt).getTime() > BIR_GUN) return false
+    return true
+  })
+  const hatlar = [...new Set((satirlar ?? []).map((r) => r.pipeline))].sort()
+
   const s = satirlar[secili]
 
   return (
@@ -157,18 +184,50 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
 
       {mesaj === null ? null : <p className="ret-mesaji">{mesaj}</p>}
 
+      <div className="filtre-cubuk">
+        <label>
+          hat{' '}
+          <select value={fHat} onChange={(e) => setFHat(e.target.value)}>
+            <option value="">hepsi</option>
+            {hatlar.map((h) => (
+              <option key={h} value={h}>
+                {h}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          aşama{' '}
+          <select value={fKapi} onChange={(e) => setFKapi(e.target.value)}>
+            <option value="">hepsi</option>
+            {ASAMALAR.map((a) => (
+              <option key={a.kapi} value={a.kapi}>
+                {a.ad}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <input type="checkbox" checked={fBayat} onChange={(e) => setFBayat(e.target.checked)} />{' '}
+          yalnız bugünkü iş
+        </label>
+        <span className="olcum">
+          {suzulmus.length}/{satirlar.length}
+        </span>
+      </div>
+
       {/* ⚠ Toplu çubuk yalnız SEÇİM VARKEN görünüyor: boşta duran bir "hepsini reddet"
           düğmesi, yanlışlıkla basılacak en tehlikeli düğmedir. */}
       <div className="toplu-cubuk">
         <label>
           <input
             type="checkbox"
-            checked={satirlar.length > 0 && secilenler.size === satirlar.length}
+            checked={suzulmus.length > 0 && secilenler.size === suzulmus.length}
             onChange={(e) =>
-              setSecilenler(e.target.checked ? new Set(satirlar.map((r) => r.runId)) : new Set())
+              setSecilenler(e.target.checked ? new Set(suzulmus.map((r) => r.runId)) : new Set())
             }
           />{' '}
-          tümünü seç
+          süzülenlerin tümü
         </label>
         {secilenler.size === 0 ? (
           <span className="bos">satır seçilmedi</span>
@@ -215,14 +274,15 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
             <tr>
               <th aria-label="seçim" />
               <th>çalıştırma</th>
-              <th>pipeline</th>
-              <th>kapı</th>
-              <th>harcanan</th>
+              <th>hat</th>
+              <th>aşama</th>
+              <th>bekleme</th>
               <th>manifest</th>
+              <th>hızlı</th>
             </tr>
           </thead>
           <tbody>
-            {satirlar.map((r, i) => (
+            {suzulmus.map((r, i) => (
               <tr
                 key={r.runId}
                 data-secili={i === secili}
@@ -248,8 +308,12 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
                 </td>
                 <td className="olcum">{r.runId.slice(0, 12)}</td>
                 <td>{r.pipeline}</td>
-                <td>{r.gate}</td>
-                <td className="olcum">{usdBicimle(r.harcananMikros)}</td>
+                <td>
+                  <Asama kapi={r.gate} />
+                </td>
+                {/* ⚠ "harcanan $0.00" hiçbir şey söylemiyordu (bedava şerit); BEKLEME
+                    SÜRESİ söylüyor: bir iş ne kadar süredir insanı bekliyor. */}
+                <td className="olcum">{bekleme(r.createdAt)}</td>
                 <td>
                   {r.manifestSaglam ? (
                     '✓'
@@ -258,6 +322,20 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
                     // verirken bunu bilmek şart, yoksa yayınlanamaz bir şey onaylanır.
                     <span style={{ color: 'var(--role-state-error)' }}>⊘ kusurlu</span>
                   )}
+                </td>
+                <td>
+                  {/* ⚠ Hızlı işlem SATIRDA: en sık yapılan şey için ekran değiştirmek
+                      gereksiz bir adım. Detay yine bir tık ötede. */}
+                  <button
+                    type="button"
+                    className="hizli"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void kararGonder(r, 'approved', '')
+                    }}
+                  >
+                    ✓
+                  </button>
                 </td>
               </tr>
             ))}

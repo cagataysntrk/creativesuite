@@ -269,7 +269,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'kosu' && acikKosu !== null ? (
           <KosuDetay runId={acikKosu} geri={() => setEkran('giris')} />
         ) : (
-          <Giris ac={kosuAc} />
+          <Giris ac={kosuAc} ekranaGit={(e) => setEkran(e)} />
         )}
       </main>
 

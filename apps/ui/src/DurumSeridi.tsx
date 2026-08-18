@@ -25,7 +25,10 @@ export interface MakineDurumu {
     readonly toplamAdim: number
   } | null
   readonly maliyetMikros: string
-  readonly bekleyenOnay: number
+  /** Bekleyen corpus taslağı (R-14) — çalıştırma kapısı DEĞİL. */
+  readonly bekleyenTaslak: number
+  /** İnsanın kararını bekleyen çalıştırma kapısı. */
+  readonly bekleyenKapi: number
   readonly kusurluCalistirma: number
   readonly kota: null
 }
@@ -88,9 +91,16 @@ export const DurumSeridi = ({
         deger={d === null || d.aktif === null ? null : `${d.aktif.adim}/${d.aktif.toplamAdim}`}
       />
       <Olcum etiket="maliyet" deger={d === null ? null : usdBicimle(d.maliyetMikros)} />
+      {/* ⚠ ⚠ **İKİ AYRI "ONAY" TEK ETİKETTEYDİ.** Şerit "bekleyen onay 5" yazarken
+          kuyrukta 61 kapı vardı ve kullanıcı şeridin bayat olduğunu düşündü. Bayat
+          değildi — corpus taslaklarını sayıyordu. Tek kelimenin iki anlamı, ölçümün
+          kendisinden daha çok yanlış anlaşılma üretir. */}
+      <Olcum etiket="bekleyen kapı" deger={d === null ? null : sayiBicimle(d.bekleyenKapi)} />
       <Olcum
-        etiket="bekleyen onay"
-        deger={d === null ? null : d.bekleyenOnay < 0 ? 'sayılamadı' : sayiBicimle(d.bekleyenOnay)}
+        etiket="taslak kayıt"
+        deger={
+          d === null ? null : d.bekleyenTaslak < 0 ? 'sayılamadı' : sayiBicimle(d.bekleyenTaslak)
+        }
       />
       <Olcum etiket="kusurlu" deger={d === null ? null : sayiBicimle(d.kusurluCalistirma)} />
       {/* Kota ölçülmüyor (FAZ-4.12). Uydurulmuş bir doluluk göstergesi, hiç gösterge

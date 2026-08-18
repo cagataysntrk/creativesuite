@@ -141,7 +141,10 @@ describe('makine durumu', () => {
       const d = makineDurumu({ repoRoot: kok, db: null, query: SORGU, simdi: 'S' })
       expect(d.kota).toBeNull()
       // 0 olsaydı "bekleyen yok" ile "sayamadım" aynı şeye çevrilirdi.
-      expect(d.bekleyenOnay).toBe(-1)
+      // ⚠ Alan ADI değişti (bekleyenOnay → bekleyenTaslak): tek kelime iki farklı
+      // "onay"ı anlatıyordu ve şerit bayat sanılıyordu. Ölçülemeyen alan hâlâ SIFIR
+      // değil -1; değişen tek şey adın ne anlattığı.
+      expect(d.bekleyenTaslak).toBe(-1)
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }
