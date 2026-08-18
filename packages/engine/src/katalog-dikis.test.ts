@@ -293,6 +293,34 @@ describe('dikiş 3e: kadraj varyantı GÖRSEL istemine doğrudan giriyor', () =>
   })
 })
 
+// ⚠ ⚠ **ÇIKTI SÖZLEŞMESİ PANELİ TARİF ETMELİ.** İstem "panel alanını da yaz, tipi aynı
+// olsun" diyordu ama panelin ŞEKLİNİ hiç söylemiyordu; `veri-hikayesi`nin altı kartında
+// BEŞ farklı panel tipi var ve gerçek koşu `ADAPTATION_UNPARSEABLE` ile durdu. Sözleşmenin
+// bir yarısı (kart alanları) yazılmış, öteki yarısı (panel) unutulmuştu.
+//
+// ⚠ Liste VERİDEN türüyor: katalogda geçen her panel tipi istemde tarif edilmiş olmalı.
+// Yeni bir panel tipi eklendiğinde bu test onu kendiliğinden kapsıyor.
+describe('dikiş 3i: uyarlama istemi HER panel tipini tarif ediyor', () => {
+  it('katalogdaki her panel tipi çıktı şemasında geçiyor', () => {
+    const tipler = new Set<string>()
+    for (const o of Object.values(ORNEKLER)) {
+      for (const k of o.kartlar) if (k.panel !== null) tipler.add(k.panel.tip)
+    }
+    expect(tipler.size, 'katalogda hiç panel yok — test anlamsız').toBeGreaterThan(0)
+    // Panel taşıyan HERHANGİ bir şablonun istemi tüm şemayı basıyor (şema sabit kısım).
+    const istem = uyarlamaIstemi(
+      ornekBul('veri-hikayesi') as KatalogOrnegi,
+      'veri-hikayesi',
+      'konu'
+    )
+    for (const tip of tipler) {
+      expect(istem, `panel tipi '${tip}' çıktı şemasında tarif edilmemiş`).toContain(
+        `"tip": "${tip}"`
+      )
+    }
+  })
+})
+
 // ⚠ ⚠ **ÖRNEK BAŞLIĞIN METNİ İSTEME GİRMEZ — YALNIZ ŞEKLİ.** İstem "başlıkları konuya
 // göre yeniden yaz, aynen bırakmak reddedilir" diyordu ve model İKİ AYRI GERÇEK KOŞUDA
 // dördü de aynen döndürdü; `uyarla` reddetti, hat `kompozit`te öldü. Talimatı yükseltmek

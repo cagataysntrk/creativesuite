@@ -273,6 +273,24 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     `    // … toplam ${ornek.kartlar.length} kart`,
     '  ]',
     '}',
-    'Panel taşıyan kartlarda `panel` alanını da yaz; tipi ŞABLONDAKİYLE aynı olsun.',
+    // ⚠ ⚠ **PANEL ŞEMASI HİÇ YAZILMAMIŞTI ve gerçek koşu `ADAPTATION_UNPARSEABLE` ile
+    // durdu.** İstem "panel alanını da yaz, tipi aynı olsun" diyordu ama panelin ŞEKLİNİ
+    // hiç söylemiyordu; `veri-hikayesi`nin altı kartında BEŞ farklı panel tipi var ve
+    // model şekli uydurmak zorunda kalıyordu. Bu, çıktı sözleşmesinin ilk sürümünde
+    // yaşanan hatanın (D-268 notu: "şema burada, örnekle birlikte") panel için
+    // TEKRARIYDI — sözleşmenin bir yarısı yazılmış, öteki yarısı unutulmuştu.
+    //
+    // ⚠ Şekil veriliyor, DEĞER verilmiyor: örnek panelin gerçek sayılarını basmak
+    // başlıkta olduğu gibi kopyalamaya davet ederdi (D-288). Sayılar Kaynak metinden gelmeli.
+    'PANEL ŞEKİLLERİ — kartın taşıdığı tipe göre, tip DEĞİŞTİRİLEMEZ:',
+    '  "panel": { "tip": "cubuklar", "baslik": "PANEL BAŞLIĞI", "satirlar": [',
+    '      { "etiket": "2019", "deger": 34, "not": "kısa not", "tahmin": false } ] }',
+    '  "panel": { "tip": "sayilar", "ogeler": [',
+    '      { "deger": "48", "birim": "%", "alt": "neyin oranı" } ] }',
+    '  "panel": { "tip": "vafel", "baslik": "PANEL BAŞLIĞI", "dolu": 7, "toplam": 10 }',
+    '  "panel": { "tip": "liste", "baslik": "PANEL BAŞLIĞI", "ogeler": [',
+    '      { "no": "01", "ad": "madde metni" } ] }',
+    '  "panel": { "tip": "etiketler", "ogeler": ["2019", "2021", "2023"] }',
+    '`deger` SAYI, `no` ve `deger` (sayilar tipinde) METİN — tırnakları örnekteki gibi bırak.',
   ].join('\n')
 }

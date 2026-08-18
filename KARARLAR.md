@@ -166,105 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-281
-
-**Karar:** Görsel çağrısı yuva sırasından türeyen bir `seed` taşıyor (`7919 × sıra`,
-yalnız `raw` telli modelde). Rehber §10 ölçütleri `katalog-kabul.test.ts` ile bağlandı;
-`sahne`/`donen`/`editoryal` hayaletleri dolduruldu, `donen` daireleri kesimi artık
-gerçekten aşıyor ve kartlarının üstüne doku (`ustDoku`) geldi.
-
-**Neden — tohum:** İKİ gerçek koşuda da dört ayrı görsel çağrısı BİREBİR AYNI kadrajı
-döndürdü. Önce kadraj tarifi brief istemine kondu (D-280), yetmedi; sonra doğrudan
-görsel istemine eklendi, yine yetmedi. Sebep sağlayıcıda: tohum gönderilmediğinde
-Cloudflare sabit bir varsayılan kullanıyor ve yakın istemler aynı görüntüye çöküyor.
-**İstemi güçlendirmek bir rica, tohum bir garanti** — bu deponun tekrar eden dersi.
-Determinizm bozulmuyor (R-06): tohum yuva sırasının saf fonksiyonu.
-
-⚠ `seed` YALNIZ `stable-diffusion-xl-lightning` (`raw` tel) gövdesine giriyor;
-`flux-1-schnell` fazladan alan görünce isteği tümden reddediyor — ölçülmüş davranış.
-
-**Neden — kabul testi:** rehber §10'un altı ölçütü yazılıydı ama hiçbir şeye bağlı
-değildi, yani bir NİYET beyanıydı. Bağlanır bağlanmaz kataloğda **beş gerçek boşluk**
-buldu: üç şablonda hayalet boştu (dolu taslak kuralının ihlali), `donen`in daireleri
-kesime değiyor ama geçmiyordu (süreklilik taklidi) ve `donen`in zemini tek katmanlıydı.
-
-⚠ ⚠ **REHBERİN ATIF YAPTIĞI ÜÇ FONKSİYON BU BELGEYE UYMUYOR.** `tasarimOlc`,
-`olcekDisiBosluklar`, `kompozisyonMerkezi` — üçü de `DocumentModel` alıyor, yani
-slayt-başına yolun araçları. Ölçütler panorama VERİSİNDEN yeniden hesaplandı.
-
-⚠ ⚠ **ÖLÇÜM ARACI ÜÇ KEZ BOZUK ÇIKTI:** (1) hayalet puntosunu `baslikPayi` ile çarpan
-uydurma formül `donen`i 5,9'da gösterip gerçek eksiği (hayaletin HİÇ olmaması)
-maskeledi; (2) zemin ölçümü yalnız `zeminDokusu`ya bakıp `alanSiniri` ve tam kaplama
-fotoğrafı görmedi, üç şablonu haksız kırmızıya düşürdü; (3) sağlayıcı testi kaynağı
-iki kez geçen bir dizeden dilimledi. Ayrıca `URL.pathname` "İndirilenler"i yüzde-kodladı
-— Türkçe yol bu depoda kenar durum değil, VARSAYILAN durum.
-
-⚠ `ustDoku` gerekliydi çünkü `donen`in opak kart renkleri panorama zeminini tamamen
-örtüyor. Gren fiziksel olarak da üstte olmalı: film greni sahnenin değil filmin özelliği.
-
-**Geri alma maliyeti:** düşük — bir kısıt, bir opsiyonel alan, bir test dosyası.
-
-## D-282
-
-**Karar:** Üçüncü yüz ailesi (**Caveat**, OFL, el yazısı) kataloğa GİRECEK ama bu turda
-GİRMEDİ: `tasarim` kapısının "en çok 2 font ailesi" sınırını deliyor ve **R-76 kırmızı
-bir kapının kuralını aynı turda gevşetmeyi yasaklıyor.** Sınır 2 → 3'e ayrı bir turda,
-`refactor(gates)` tipli ayrı bir commit'le çıkarılacak; ardından yüz geri eklenecek.
-
-**Neden gerekli:** Referansta (`image copy 2`) kapağın kontrastı punto farkından değil
-**YÜZ FARKINDAN** geliyor — ilk kelime el yazısı, kalanı ağır condensed. Tek display
-ailesiyle bu kurulamıyor ve elle taklidi yasak (R-81: jenerik öge kodlanmaz; bir yazı
-karakteri bunun en uç örneği).
-
-**Bu turda ölçülenler (iş boşa gitmedi):**
-- Caveat'in Türkçe kapsaması **çizdirilerek** doğrulandı: `ı İ ğ ö ü ş` render edildi ve
-  BAKILDI. Bir fontun "latin-ext" demesi Türkçe'nin tamamını taşıdığı anlamına gelmiyor.
-- Altı şablonun kapağında denendi ve çalıştı; dosyalar `brand/brd_upcytech/fonts/`
-  altında duruyor (kullanılmıyor, bir sonraki turda bağlanacak).
-- ⚠ İlk örnek metinler başlığı TEKRAR ediyordu ("Altı yılda" / "Altı yılda iki katına…")
-  ve render'a bakınca tek cümlenin iki kez yazılması gibi okundu. Referansta iki satır
-  AYRI şey söylüyor: el yazısı kim konuşuyor, condensed ne söylüyor.
-
-⚠ ⚠ **`YUZLER` kapalı bir liste ve "üçüncü aile bir KARAR gerektirir, bir import değil"
-diye yazıyordu — doğruydu, ama kararın BEDELİ bir kapıymış.** Kapalı listeyi okumak
-kapıyı okumak değil; iki yerde yaşayan bir sınır, bir yerde görülüp öteki yerde
-görülmeyebiliyor.
-
-**Bedel:** +104 KB font (base64 gömülü, iki alt küme). Ağ çağrısı yok.
-
-## D-283
-
-**Karar:** `image.matte` girdilerini `needs` ile daraltıyor. Dört özdeş fotoğrafın kök
-sebebi buydu — üç gerçek koşu boyunca görünen kusur, üç yanlış teşhisten sonra bulundu.
-
-**Kök sebep:** `run.ts` her adıma `inputs: ciktilar` geçiyor — o ana kadarki BÜTÜN
-çıktıları. Daraltmayı `needs`i okuyan gövde yapmak zorunda. `uretilenGorseller(...)[0]`
-ise listenin ilkini alıyordu: dört kırpma adımının DÖRDÜ DE 1. görseli kırptı. Kırpılmış
-olan öbek içinde hamı EZDİĞİ için dört yuvanın dördüne aynı figür girdi. Şablon dört
-görsel sipariş etti, sağlayıcı dördünü de üretti, üçü çöpe gitti.
-
-⚠ ⚠ **HATA BİR YORUM SATIRIYDI.** Kodun yanında *"İLKİNİ almak doğru, çünkü `needs`
-girdiyi zaten DARALTIYOR (D-246)"* yazıyordu. D-246 gerçekten böyle bir ders içeriyor —
-ama o ders İSTEM KURUCUSU için: `promptTuret` `input.needs` üzerinde döner, `inputs`
-üzerinde değil. Doğru bir dersin YANLIŞ yere uygulanması, dersin hiç olmamasından daha
-tehlikeli: yorum, doğrulamayı gereksiz gösteriyor.
-
-**Üç yanlış teşhis, sırayla:**
-1. *"Kadraj tarifi brief isteminde eksik"* → eklendi (D-280), değişmedi.
-2. *"Metin modeli tarifi düzlüyor"* → tarif doğrudan görsel istemine kondu, değişmedi.
-3. *"Sağlayıcı tohumsuz çağrıda sabit varsayılan kullanıyor"* → tohum eklendi (D-281),
-   değişmedi.
-
-**Teşhisi getiren şey sağlayıcıyı DOĞRUDAN sınamak oldu:** aynı isteme üç çağrı —
-`seed 7919`, `seed 15838`, tohumsuz — ÜÇ FARKLI görsel döndürdü (98.633 · 84.896 ·
-94.379 bayt, üç ayrı özet). Sağlayıcı suçsuzdu, dolayısıyla çökme bizdeydi. **Zincirin
-bir ucunu sabitlemeden ortasını tahmin etmek üç turumu aldı.**
-
-⚠ D-280 ve D-281 geçersiz DEĞİL: varyant kadrajı ayrıştırıyor, tohum tekrarlanabilirliği
-garantiliyor. Ama ikisi de kusuru gideremezdi — hepsi kırpma adımında birleşiyordu.
-
-**Geri alma maliyeti:** düşük — bir opsiyonel parametre, iki çağrı yeri.
-
 ## D-284
 
 **Karar:** Marka işareti karosele girdi (alt rayın solunda, sürümü ZEMİN seçiyor);
@@ -580,3 +481,33 @@ görseli, içerik yalnız iki metin bloğu; orada 1,62'lik hayalet baskın, öte
 yok dedi ve haklıydı — montajın kendi kırpmasıydı.
 
 **Geri alma maliyeti:** düşük — bir CSS değişkeni, bir reçete alanı, bir denetim bloğu.
+
+## D-293
+
+**Karar:** Uyarlama isteminin çıktı sözleşmesi artık HER panel tipini tarif ediyor.
+Katalogdaki her tip istemde geçmek zorunda; test bunu VERİDEN türeterek zorluyor.
+
+**Neden:** Gerçek koşu `sablon-uyarla` adımında `ADAPTATION_UNPARSEABLE` ile durdu.
+İstem *"panel taşıyan kartlarda `panel` alanını da yaz; tipi ŞABLONDAKİYLE aynı olsun"*
+diyordu ama **panelin ŞEKLİNİ hiç söylemiyordu.** `veri-hikayesi`nin altı kartında BEŞ
+farklı panel tipi var (`etiketler`, `cubuklar`, `sayilar`, `vafel`, `liste`) ve model
+şekli uydurmak zorunda kalıyordu.
+
+⚠ ⚠ **BU, AYNI HATANIN İKİNCİ YARISIYDI.** Çıktı sözleşmesi ilk sürümde HİÇ yazılmamıştı
+ve iki koşu `ADAPTATION_UNPARSEABLE` ile durmuştu; o zaman kart alanları için şema
+yazıldı ve dosyaya *"şema burada, örnekle birlikte"* diye not düşüldü. Panel için
+yazılmadı. **Sözleşmenin bir yarısını yazıp öteki yarısını unutmak, hiç yazmamaktan daha
+sinsi:** ilk yarı çalıştığı için sözleşme "var" sanılıyor.
+
+⚠ **Şekil veriliyor, DEĞER verilmiyor.** Örnek panelin gerçek sayılarını basmak, başlıkta
+olduğu gibi (D-288) kopyalamaya davet ederdi. Sayılar Kaynak metinden gelmeli.
+
+⚠ Hata benim istem değişikliğimden (D-288) DEĞİL: şema eksikliği baştan vardı. Ama örnek
+başlık metnini kaldırmak modelin tek yapısal çıpasını da aldığı için boşluk ölümcül hâle
+geldi — **bir eksik, başka bir doğru değişiklik onu açığa çıkarana kadar sessiz kalabilir.**
+
+**Kanıt:** `vafel` satırı şemadan silindi → test kırmızı ("panel tipi 'vafel' çıktı
+şemasında tarif edilmemiş"); geri kondu → yeşil. Liste veriden türüyor, yeni bir panel
+tipi kendiliğinden kapsanıyor.
+
+**Geri alma maliyeti:** düşük — istemde on satır, bir test.
