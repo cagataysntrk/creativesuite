@@ -92,4 +92,17 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   siyah kare döndürmüştü). Eşik ölçülebilir: yuva içi std belirgin biçimde düşükse görsel
   yok demektir. `matlama-tutmuyor` köşe parlaklığına bakıyor, bu ayrı bir kusur.
   ⚠ Kontrol tarayıcıda yapılmalı (görsel bir veri URI'si; motorda PNG çözücü yok).
+- **D11 · 2× render kaliteyi yükseltiyor ama sözleşme engelliyor.** `deviceScaleFactor: 2`
+  harf kenarlarını gözle görülür temizliyor (bakıldı). Çıktı 2160×2700 oluyor; üç test
+  1080×1350'yi doğruluyor ve haklılar. Doğru yol "2× çiz, 1×'e küçült" — küçültücü
+  (`sharp`) kurulu değil, bir bağımlılık kararı gerekiyor.
+- **D12 · Görsel kutusunun en/boyu kaynaktan türemiyor.** `genislik` ve `yukseklik` iki
+  BAĞIMSIZ yüzde; `object-fit: contain` oranı koruduğu için kutunun bir kısmı sessizce
+  boş kalıyor. `sahne`de ölçüldü: 518×1053 kutuya 0,80 oranlı görsel → 405 px boş.
+  Katalog beklenen oranı bildirmeli ya da genişlik yükseklikten hesaplanmalı.
+- **D13 · `sahne` oklarının bükümü 4320 px tuvalde düz kalıyor** (48–58 px). Kesimi
+  aşıyorlar ama geçiş okunmuyor; ~300 px ölçüldü ve doğru görünüyor.
+- **D14 · Oklar tek SVG katmanında (z-index 5), yani HER ZAMAN figürün önünde.**
+  Referansta kıvrım figürün önünden geçip arkasından çıkıyor; bunun için okların iki
+  katmana bölünmesi gerek.
 
