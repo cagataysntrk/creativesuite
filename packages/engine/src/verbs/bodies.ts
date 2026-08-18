@@ -274,19 +274,28 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       // aynı gövde ikinci kez koşuyor, bu kez girdisinde görselle.
       // ⚠ Görsel yoksa `src` boş kalıyor ve yer tutucu ÇİZİLİYOR — eksiklik görünür
       // kalmalı; sessizce metin-only bir karosel, tasarımı tanınmaz yapar.
-      const uretilen = uretilenGorsel(input.inputs)
+      const uretilenler = uretilenGorseller(input.inputs)
       const kartlar = birlesik.belge
       // ⚠ ⚠ **ARKA PLANI SİLİNMİŞ GÖRSELDE `matlama` KAPANMAK ZORUNDA.** `matlama` alfayı
       // PARLAKLIKTAN türetiyor: zaten şeffaf zeminli bir PNG'ye uygulanınca öznenin
       // koyu bölgeleri de saydamlaşır ve figür delik deşik olur. İki teknik aynı işi
       // yapıyor ve üst üste binmeleri, tek başına her birinden kötü.
+      // ⚠ ⚠ **SIRAYA GÖRE EŞLEŞTİRME, YAYMA DEĞİL.** `gorseller.map(g => src)` her yuvaya
+      // AYNI görseli koyuyordu; iki yuvalı bir şablon aynı figürü iki kez çiziyordu.
+      // Yuva `i` görsel `i`yi alır. Görsel yetmezse kalan yuvanın `src`i BOŞ kalır ve
+      // yer tutucu çizilir — eksiklik görünür kalmalı, klonla örtülmemeli.
       const gorsellikli =
-        uretilen === null
+        uretilenler.length === 0
           ? kartlar
           : {
               ...kartlar,
-              gorseller: kartlar.gorseller.map((g) => ({ ...g, src: uretilen.src })),
-              ...(uretilen.matlandi
+              gorseller: kartlar.gorseller.map((g, i) => {
+                const u = uretilenler[i]
+                return u === undefined ? g : { ...g, src: u.src }
+              }),
+              // ⚠ `matlama` yalnız KULLANILAN görsellerin hepsi kırpılmışsa düşüyor:
+              // biri hamsa luma anahtarı ona hâlâ gerekli ve liste belge düzeyinde.
+              ...(uretilenler.slice(0, kartlar.gorseller.length).every((u) => u.matlandi)
                 ? {
                     gorselIslemleri: (kartlar.gorselIslemleri ?? []).filter((i) => i !== 'matlama'),
                   }
@@ -347,7 +356,8 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // Önceki adımlardan gelen ürün ekranı çekimleri belgeye BLOK olarak giriyor.
     // `role: 'product_screenshot'` bir İDDİADIR: "ürün gerçekten böyle görünüyor".
     const cekimler = urunCekimleri(input.inputs)
-    const gorsel = uretilenGorsel(input.inputs)
+    // ⚠ Slayt-başına yol (`instagram-post`) TEK görsel kullanıyor: listenin ilki.
+    const gorsel = uretilenGorseller(input.inputs)[0] ?? null
     // ── satır → blok ─────────────────────────────────────────────────────────
     //
     // ⚠ **`slice(1, 4)` KAPANIŞ CÜMLESİNİ ATIYORDU.** `icerikPromptu` altı satır istiyor
@@ -608,26 +618,35 @@ const kisisellestirmeCiktisi = (
  * fiil diske yazamaz. Base64 zaten `inputs`ta ve Chromium `data:` URI'yi doğrudan
  * çözüyor — tek motor yasası (R-30) korunuyor, ikinci bir yazma yolu açılmıyor.
  */
-const uretilenGorsel = (
-  inputs: Readonly<Record<string, unknown>>
-): {
+interface UretilenGorsel {
   readonly src: string
   readonly width: number
   readonly height: number
   readonly matlandi: boolean
-} | null => {
-  // ⚠ ⚠ **SONUNCU, İLK DEĞİL — aynı tuzak bu dosyada DÖRDÜNCÜ kez.** İki adım base64
-  // görsel üretiyor: `gorsel-uret` (ham, arka planı duran) ve `gorsel-kirp` (arka planı
-  // silinmiş). İlkini almak, arka plan silmeyi koşturup çöpe atmak olurdu — tam olarak
-  // `document`, `panorama` ve `uyarlama` yollarında yaşanan şey. Bu dosyada "en son
-  // üreticiye bak" artık bir DESEN ve dördüncü tekrarı tesadüf değil.
-  let son: {
-    readonly src: string
-    readonly width: number
-    readonly height: number
-    readonly matlandi: boolean
-  } | null = null
-  for (const v of Object.values(inputs)) {
+}
+
+/**
+ * Üretilen görsellerin TAMAMI, adım sırasına göre (§7.1 · D-250 · borç A8).
+ *
+ * ⚠ **Bu fonksiyon tek görsel döndürüyordu ve `composeBody` onu HER yuvaya yayıyordu.**
+ * Şablon `adet: 'slayt-basina'` ilan ediyor, DAG çoğaltmıyor, çıktıda aynı figür yan
+ * yana üç kez duruyordu — tasarım değil, hata gibi okunuyordu. Tek görsele inmek o günün
+ * doğru kararıydı ama şablonu asıllından uzaklaştırdı: referansta her slaytta ayrı bir
+ * fotoğraf var ve kadrajı dolduruyor. Ölçüldü: dört slayttan üçünde doluluk %3–7.
+ *
+ * ⚠ ⚠ **HAM ile KIRPILMIŞ, ADIM SONEKİYLE EŞLEŞTİRİLİYOR — "sonuncuyu al" ARTIK YETMEZ.**
+ * Tek görselken iki üretici vardı (`gorsel-uret` ham, `gorsel-kirp` arka planı silinmiş)
+ * ve sonuncuyu almak doğru cevabı veriyordu. N görselde bu bozulur: `gorsel-kirp-2`,
+ * `gorsel-uret-3`ten ÖNCE gelebilir ve "sonuncu" 3'ün hamını seçip 2'nin kırpılmışını
+ * çöpe atardı. Eşleştirme artık anahtarın sayısal sonekinden: `-2` soneki olan her şey
+ * aynı öbekte, öbek içinde kırpılmış olan hamı EZER.
+ */
+const uretilenGorseller = (
+  inputs: Readonly<Record<string, unknown>>
+): readonly UretilenGorsel[] => {
+  const obekler = new Map<string, UretilenGorsel>()
+  const sira: string[] = []
+  for (const [anahtar, v] of Object.entries(inputs)) {
     if (v === null || typeof v !== 'object') continue
     const o = v as {
       format?: unknown
@@ -637,7 +656,10 @@ const uretilenGorsel = (
       matlandi?: unknown
     }
     if (o.format !== 'base64' || typeof o.data !== 'string' || o.data === '') continue
-    son = {
+    // Sonek yoksa öbek `1`: tek görselli eski hatlar (`instagram-post`) değişmeden çalışır.
+    const eslesme = /-(\d+)$/.exec(anahtar)
+    const obek = eslesme?.[1] ?? '1'
+    const gorsel: UretilenGorsel = {
       // PNG varsayımı YOK: Cloudflare JPEG döndürüyor ve `image/png` yazmak tarayıcıyı
       // yanıltmazdı ama yalan olurdu. Base64 imzasından okunuyor.
       src: `data:${o.data.startsWith('/9j/') ? 'image/jpeg' : 'image/png'};base64,${o.data}`,
@@ -645,8 +667,18 @@ const uretilenGorsel = (
       height: typeof o.height === 'number' ? o.height : 0,
       matlandi: o.matlandi === true,
     }
+    const mevcut = obekler.get(obek)
+    if (mevcut === undefined) sira.push(obek)
+    // ⚠ Kırpılmış olan hamı EZER; ham olan kırpılmışı EZMEZ. Arka plan silmeyi koşturup
+    // sonucunu çöpe atmak, bu dosyada dört kez tekrarlanan hatanın tam kendisiydi.
+    if (mevcut === undefined || (gorsel.matlandi && !mevcut.matlandi)) obekler.set(obek, gorsel)
   }
-  return son
+  return sira
+    .sort((a, b) => Number(a) - Number(b))
+    .flatMap((k) => {
+      const g = obekler.get(k)
+      return g === undefined ? [] : [g]
+    })
 }
 
 const urunCekimleri = (
@@ -1554,7 +1586,10 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
   // ⚠ Silinecek görsel yoksa istem BOŞ: silinecek bir şey olmadan model çağırmak,
   // bir önceki adımın düşmesini gizlemek olurdu.
   if (yetenek === 'image.matte') {
-    return uretilenGorsel(input.inputs) === null ? '' : 'arka plan silme'
+    // ⚠ **İLKİNİ almak doğru, çünkü `needs` girdiyi zaten DARALTIYOR** (D-246): bir kırpma
+    // adımı yalnız kendi `gorsel-uret-K` adımına bağlı ve başkasının çıktısını görmüyor.
+    // Bağ koparsa burası sessizce yanlış görseli kırpar — kısıt DAG'da, kodda değil.
+    return uretilenGorseller(input.inputs).length === 0 ? '' : 'arka plan silme'
   }
 
   if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
@@ -1631,9 +1666,23 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       //
       // ⚠ Çözüm yapısal: brief yalnız KADRAJDA NE OLDUĞUNU söylüyor. İstenmeyen şeyi
       // adıyla anmayan bir istem, o adı çıktıya sızdıramaz.
+      // ⚠ ⚠ **SIRA: KAÇINCI GÖRSEL.** Hat görsel adımlarını AÇARAK çoğaltıyor (`duzelt`
+      // ile aynı gerekçe: DAG döngü taşımıyor) ve her adım kendi sırasını kısıtta taşıyor.
+      // Sıra yoksa 1: tek görselli eski hatlar değişmeden çalışıyor.
+      const sira =
+        typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : 1
+      const varyantlar = kayit.gorsel.varyantlar ?? []
+      // ⚠ ⚠ **FAZLALIK SIRA BOŞ İSTEM DÖNDÜRÜR ve adım ATLANIR.** Şablonun iki yuvası
+      // varsa üçüncü görsel adımı koşmamalı: koşarsa para harcanır, görsel üretilir ve
+      // hiçbir yuvaya girmez — bu deponun "modül var, çıktı var, tüketen yok" sınıfının
+      // ta kendisi. Atlama makinesi zaten var; yeni bir kaçış yolu açmaya gerek yok.
+      if (sira > 1 && sira > varyantlar.length) return ''
+      const varyant = varyantlar[sira - 1]
       return [
         'write one short image generation brief in english, lowercase only.',
         `keep this base description and add detail from the topic: ${kayit.gorsel.briefTemeli}`,
+        // ⚠ Varyant KADRAJI söylüyor, konuyu değil: aynı konudan N özdeş görsel çıkmasın.
+        ...(varyant === undefined ? [] : [`frame the subject like this: ${varyant}`]),
         `topic: ${konu}`,
         'describe only the subject, the lighting and the background surface.',
         'answer with the brief sentence alone.',
@@ -2044,7 +2093,8 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // Sağlayıcıya ayrı bir kanal açmak (ör. `ProviderInput.payload`) sözleşmeyi tek bir
     // yetenek için genişletirdi; kısıt zaten `Record<string, unknown>` ve yük oraya
     // sığıyor. Sınır korunuyor: adaptör hâlâ yalnız `ProviderInput` görüyor.
-    const matlanacak = yetenek === 'image.matte' ? uretilenGorsel(input.inputs) : null
+    const matlanacak =
+      yetenek === 'image.matte' ? (uretilenGorseller(input.inputs)[0] ?? null) : null
     const kisitlar =
       matlanacak === null
         ? input.constraints

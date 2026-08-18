@@ -83,7 +83,7 @@ Toplam **11** hat.
 
 ## `instagram-karosel` — Instagram karoseli — katalog merkezli
 
-18 adım · 8 yetenek isteyen · 1 insan kapısı
+27 adım · 17 yetenek isteyen · 1 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -95,12 +95,21 @@ Toplam **11** hat.
 | `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
 | `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief | — | ✓ |
 | `gorsel-kirp` | `GENERATE` | `image.matte` | gorsel-uret | — | ✓ |
-| `yuva-doldur` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp | — | — |
+| `gorsel-brief-2` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
+| `gorsel-uret-2` | `GENERATE` | `image.generate` | gorsel-brief-2 | — | ✓ |
+| `gorsel-kirp-2` | `GENERATE` | `image.matte` | gorsel-uret-2 | — | ✓ |
+| `gorsel-brief-3` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
+| `gorsel-uret-3` | `GENERATE` | `image.generate` | gorsel-brief-3 | — | ✓ |
+| `gorsel-kirp-3` | `GENERATE` | `image.matte` | gorsel-uret-3 | — | ✓ |
+| `gorsel-brief-4` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
+| `gorsel-uret-4` | `GENERATE` | `image.generate` | gorsel-brief-4 | — | ✓ |
+| `gorsel-kirp-4` | `GENERATE` | `image.matte` | gorsel-uret-4 | — | ✓ |
+| `yuva-doldur` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4 | — | — |
 | `render` | `RENDER` | — | yuva-doldur | — | — |
 | `gorsel-yargi` | `GENERATE` | `image.critique` | render | — | — |
 | `tasarim-yargi` | `GENERATE` | `design.critique` | render | — | — |
 | `duzelt` | `GENERATE` | `text.generate` | render, sablon-uyarla | — | ✓ |
-| `kompozit-son` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, duzelt | — | — |
+| `kompozit-son` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4, duzelt | — | — |
 | `render-son` | `RENDER` | — | kompozit-son | — | — |
 | `kalite` | `VALIDATE` | — | render-son, gorsel-yargi, tasarim-yargi, gorsel-uret | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |

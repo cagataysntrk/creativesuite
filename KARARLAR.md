@@ -523,3 +523,41 @@ Referansta her slaytta bir fotoğraf var ve kadrajı boydan boya dolduruyor; biz
 görsel dört slayda düşüyor ve kalan üçü metinle doluyor. Toplam doluluk hâlâ %3–8.
 **Kök engel borç A8'dir** (`GorselIhtiyaci.adet: 'slayt-basina'` ilan ediliyor, DAG
 çoğaltmıyor) ve bu artık iddia değil, ölçülmüş.
+
+## D-278
+
+**Karar:** Borç A8 kapandı. Hat slayt başına görsel üretiyor: `composeBody` yayma
+yerine SIRAYA göre eşleştiriyor, hat görsel adımlarını dörde açıyor ve katalog yuva
+başına `varyantlar` (kadraj tarifi) taşıyor. `sahne` tek yuvadan dört yuvaya geçti.
+
+**Neden:** Katalog `adet: 'slayt-basina'` ilan ediyordu, DAG çoğaltmıyordu ve
+`composeBody` tek görseli HER yuvaya yayıyordu — çıktıda aynı figür yan yana. O gün
+tek yuvaya inildi; doğru karardı ama şablonu asıllından uzaklaştırdı. Ölçüldü:
+`sahne`nin dört slaydından üçünde doluluk %3–7, kadraj boştu.
+
+**Ölçülen sonuç:** slayt doluluğu %5–9 → %10,6–14,1; dört slaydın dördünde de her iki
+yarı dolu. 1052 test yeşil, altı şablon denetimi 0 kusur.
+
+**Üç parça:**
+1. `uretilenGorseller()` — yuva `i` görsel `i`yi alır. Görsel yetmezse yuva BOŞ kalır
+   ve yer tutucu çizilir; klonla örtülmez.
+2. Hat `gorsel-brief/uret/kirp` üçlüsünü **açarak** dörde çıkardı — `duzelt` ile aynı
+   gerekçe (DAG döngü taşımıyor). Tavan 4: `donen` dört yuva istiyor.
+3. `GorselIhtiyaci.varyantlar` — yuva başına kadraj tarifi. Olmadan N üretim N ÖZDEŞ
+   görsel demekti: aynı brief, aynı model, aynı kadraj.
+
+⚠ ⚠ **"SONUNCUYU AL" ARTIK YETMİYOR ve bu, o desenin sınırının bulunduğu yer.** Tek
+görselken iki üretici vardı (`gorsel-uret` ham · `gorsel-kirp` kırpılmış) ve sonuncuyu
+almak doğruydu. N görselde `gorsel-kirp-2`, `gorsel-uret-3`ten ÖNCE gelebilir ve
+"sonuncu" 3'ün HAMINI seçip 2'nin kırpılmışını çöpe atardı. Eşleştirme artık anahtarın
+sayısal sonekinden; sonek yoksa öbek 1, yani `instagram-post` değişmeden çalışıyor.
+
+⚠ **Fazlalık adım para HARCAMIYOR:** sıra varyant sayısını aşınca brief BOŞ dönüyor ve
+görsel adımı atlanıyor. `editoryal` (2 yuva) koşarken 3. ve 4. adım model çağırmıyor.
+
+⚠ ⚠ **TESTİN KENDİSİ ÖNCE ANLAMSIZDI.** İlk sürüm `sahne` (o an TEK yuva) kullanıyor ve
+`if (s.length < 2) return` ile kendini koruyordu: koruma her koşuda devreye giriyor,
+hiçbir iddia çalışmıyor, test YEŞİL kalıyordu. Şablon `editoryal` (2 yuva) ile
+değiştirildi ve yayma kasten geri konarak kırmızıya döndüğü GÖRÜLDÜ.
+
+**Geri alma maliyeti:** orta — bir motor fonksiyonu, dokuz hat adımı, bir sözleşme alanı.

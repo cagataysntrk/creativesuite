@@ -100,6 +100,106 @@ steps:
     constraints:
       optional: true
 
+  # 5b) SLAYT BAŞINA GÖRSEL — üç adım daha, AÇILARAK (borç A8 · D-278).
+  #
+  # ⚠ ⚠ **BU ÜÇLÜ, ŞABLONU ASLINA BENZETMENİN ÖNÜNDEKİ KÖK ENGELDİ.** Katalog
+  # `adet: 'slayt-basina'` ilan ediyordu, hat TEK görsel üretiyordu ve `composeBody` onu
+  # her yuvaya YAYIYORDU: çıktıda aynı figür yan yana duruyor, tasarım değil hata gibi
+  # okunuyordu. Yayma kaldırıldığında da sorun bitmedi — üretilecek ikinci görsel yoktu.
+  # Ölçüldü: `sahne`nin dört slaydından üçünde doluluk %3–7, yani kadraj boştu.
+  #
+  # ⚠ **DAG DÖNGÜ TAŞIMIYOR, o yüzden AÇILDI** — `duzelt` ile birebir aynı gerekçe.
+  # Tavan 4: kataloğun en çok yuva isteyen şablonu (`donen`) dört istiyor.
+  #
+  # ⚠ ⚠ **FAZLALIK ADIM PARA HARCAMIYOR.** Şablonun yuvası kadar varyant var; sıra
+  # varyant sayısını aşınca brief BOŞ dönüyor ve `gorsel-uret-K` atlanıyor. Yani
+  # `editoryal` (2 yuva) koşarken 3. ve 4. görsel adımı hiç model çağırmıyor. Bedel
+  # üç boş metin istemi; kazanç, her şablonun kendi yuva sayısınca görsel alması.
+  #
+  # ⚠ Varyantlar KADRAJI söylüyor (poz, açı, mesafe), konuyu değil: aynı konu + aynı
+  # brief + aynı model = aynı kadraj, yani N özdeş görsel.
+
+  - id: gorsel-brief-2
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec, kompozit]
+    constraints:
+      gorsel_brief: true
+      gorsel_sira: 2
+      max_chars: 600
+      optional: true
+
+  - id: gorsel-uret-2
+    verb: GENERATE
+    capability: image.generate
+    needs: [gorsel-brief-2]
+    constraints:
+      optional: true
+      aspect: '4:5'
+      no_text: true
+      max_cost_usd_micros: 20000
+
+  - id: gorsel-kirp-2
+    verb: GENERATE
+    capability: image.matte
+    needs: [gorsel-uret-2]
+    constraints:
+      optional: true
+
+  - id: gorsel-brief-3
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec, kompozit]
+    constraints:
+      gorsel_brief: true
+      gorsel_sira: 3
+      max_chars: 600
+      optional: true
+
+  - id: gorsel-uret-3
+    verb: GENERATE
+    capability: image.generate
+    needs: [gorsel-brief-3]
+    constraints:
+      optional: true
+      aspect: '4:5'
+      no_text: true
+      max_cost_usd_micros: 20000
+
+  - id: gorsel-kirp-3
+    verb: GENERATE
+    capability: image.matte
+    needs: [gorsel-uret-3]
+    constraints:
+      optional: true
+
+  - id: gorsel-brief-4
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec, kompozit]
+    constraints:
+      gorsel_brief: true
+      gorsel_sira: 4
+      max_chars: 600
+      optional: true
+
+  - id: gorsel-uret-4
+    verb: GENERATE
+    capability: image.generate
+    needs: [gorsel-brief-4]
+    constraints:
+      optional: true
+      aspect: '4:5'
+      no_text: true
+      max_cost_usd_micros: 20000
+
+  - id: gorsel-kirp-4
+    verb: GENERATE
+    capability: image.matte
+    needs: [gorsel-uret-4]
+    constraints:
+      optional: true
+
   # 6) GÖRSEL YUVAYA GİRİYOR — aynı `COMPOSE` gövdesi, bu kez girdisinde görselle.
   #
   # ⚠ ⚠ **BU ADIM GERÇEK BİR KOŞUDAN SONRA EKLENDİ.** İlk sürümde `render` doğrudan
@@ -109,7 +209,19 @@ steps:
   # şekilde çözüyor — yeni bir fiil de yeni bir gövde de gerekmedi.
   - id: yuva-doldur
     verb: COMPOSE
-    needs: [metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp]
+    needs:
+      [
+        metin-uret,
+        sablon-uyarla,
+        gorsel-uret,
+        gorsel-kirp,
+        gorsel-uret-2,
+        gorsel-kirp-2,
+        gorsel-uret-3,
+        gorsel-kirp-3,
+        gorsel-uret-4,
+        gorsel-kirp-4,
+      ]
     constraints:
       katalog: true
 
@@ -157,7 +269,20 @@ steps:
   # Bedeli yerel bir render (bedava, saniyeler); kazancı tek bir çıkış noktası.
   - id: kompozit-son
     verb: COMPOSE
-    needs: [metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, duzelt]
+    needs:
+      [
+        metin-uret,
+        sablon-uyarla,
+        gorsel-uret,
+        gorsel-kirp,
+        gorsel-uret-2,
+        gorsel-kirp-2,
+        gorsel-uret-3,
+        gorsel-kirp-3,
+        gorsel-uret-4,
+        gorsel-kirp-4,
+        duzelt,
+      ]
     constraints:
       katalog: true
 

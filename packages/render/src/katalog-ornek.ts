@@ -428,7 +428,26 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     // kompozisyon yoktur, yalnız yerleşim vardır."
     // ⚠ Yukarı da çekildi (y 44 → 30): alt kenara yapışmış bir figür "eklenmiş" durur;
     // referansta özne kadrajın ortasından yükseliyor ve metinle aynı hizada yaşıyor.
-    { src: '', alt: 'kesik özne', x: 34, y: 30, genislik: 40, yukseklik: 70, kirpma: 'kesik' },
+    // ⚠ ⚠ **TEK YUVADAN DÖRDE — borç A8 kapandığı için mümkün oldu.** Tek özne kararı
+    // (yukarıdaki not) doğruydu AMA sebebi tasarım değil, kısıttı: hat tek görsel
+    // üretiyor ve `composeBody` onu her yuvaya YAYIYORDU. Yayma kaldırıldı, hat
+    // slayt başına üretiyor; referansın (`image copy 2`) yaptığı şey artık kurulabilir:
+    // her karede AYRI bir poz ve figür kadrajın altından KESİLİYOR.
+    //
+    // ⚠ Geometri referanstan ölçüldü: özne y%22'den ALT KENARA kadar (h 78) ve slaydın
+    // ~%52'si kadar geniş. Alt kenardan kesilmek "eklenmiş" hissini bitiren şey; boşlukta
+    // yüzen bir figür her zaman yapıştırılmış durur.
+    //
+    // ⚠ ⚠ **İKİ YUVA KESİMİ AŞIYOR (x 24 ve 74) ve bu şablonun süreklilik İDDİASIDIR.**
+    // Dördü de slayt ortasına otursaydı `kesintisizlik-yok` kusuru haklı olarak düşerdi:
+    // oklar tek başına süreklilik kurmuyor, gövde de kesimi geçmeli.
+    //
+    // ⚠ Metin kolonu her karede öznenin KARŞI yanında (`kolon`): 12/24/62/74 sırasıyla
+    // sağ · sol · sağ · sol kadrajı tutuyor, metin de sol · sağ · sol · sağ.
+    { src: '', alt: 'kesik özne', x: 12, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 24, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 62, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 74, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
   ],
   kartlar: [
     {
@@ -448,6 +467,8 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
+      // Özne bu karede SOLDA; metin karşı yana geçiyor.
+      kolon: 'sag',
     },
     {
       ustBaslik: 'ADIM 02',
@@ -457,9 +478,6 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
-      // ⚠ Figür bu slaydın SOL yarısını dolduruyor (contain kutusu panorama %46–62);
-      // metin sağa geçmezse ikisi üst üste biner.
-      kolon: 'sag',
     },
     {
       ustBaslik: 'ADIM 03',
@@ -469,6 +487,8 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
+      // Özne bu karede SOLDA; metin karşı yana geçiyor.
+      kolon: 'sag',
     },
   ],
 }

@@ -11,7 +11,26 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { loadPipeline } from '@suite/registry'
 import { join } from 'node:path'
 import { ornekBul, type KatalogOrnegi } from '@suite/render'
-import { promptTuret, uyarlamayaCevir } from './verbs/bodies.js'
+import { fixedClock, seededRng } from '@suite/kernel'
+import { composeBody, promptTuret, uyarlamayaCevir } from './verbs/bodies.js'
+
+const CTX = {
+  runId: 'run_t',
+  stepId: 'kompozit',
+  brandId: 'brd_t',
+  eraId: 'era_t',
+  correlationId: 'cor_t',
+  clock: fixedClock('2026-08-18T00:00:00.000Z'),
+  rng: seededRng(1),
+}
+const DAMGA = {
+  brandId: 'brd_t',
+  eraId: 'era_t',
+  kitVersion: 'kit-1',
+  definitionDigest: 'sha256:x',
+  contextManifest: 'ctx_1',
+  sourceRunId: 'run_t',
+}
 import { uyarla } from './plan/sablon-uyarla.js'
 
 const REPO = join(import.meta.dirname, '../../..')
@@ -210,6 +229,81 @@ describe('dikiş 3b: iki panorama arasından SONUNCUSU seçiliyor', () => {
     // ⚠ Uyarlamada da aynı desen: `duzelt` ikinci bir uyarlama üretiyor ve ilkini almak,
     // düzeltme turunun işini sessizce çöpe atmak olurdu.
     expect(kaynak).toContain('uyarlamalar[uyarlamalar.length - 1]')
+  })
+})
+
+// ⚠ ⚠ **N GÖRSEL → N YUVA, SIRAYA GÖRE (borç A8).** `composeBody` tek görseli HER yuvaya
+// yayıyordu: iki yuvalı bir şablon aynı figürü iki kez çiziyordu ve çıktı tasarım değil
+// hata gibi okunuyordu. Bu testin sorduğu şey davranışın kendisi, kaynak metni değil.
+describe('dikiş 3d: üretilen görseller yuvalara SIRAYLA dağılıyor', () => {
+  // İki farklı base64: aynı olsalardı "yayma" ile "eşleştirme" ayırt EDİLEMEZDİ.
+  const A = 'iVBORw0KGgoAAAA='
+  const B = 'iVBORw0KGgoBBBB='
+
+  // ⚠ ⚠ **ŞABLON, YUVA SAYISI ≥2 OLDUĞU İÇİN SEÇİLİYOR — `sahne` DEĞİL.** İlk sürüm
+  // `sahne` kullanıyordu (TEK yuva) ve testi `if (s.length < 2) return` ile koruyordu:
+  // koruma her koşuda devreye giriyor, hiçbir iddia çalışmıyor ve test YEŞİL kalıyordu.
+  // Kendi kendini boşa düşüren bir ölçüm, ölçüm değildir. Kart sayısı da şablondan
+  // türüyor: `uyarla` sayı uyuşmazlığını reddediyor ve sabit 4 yazmak testi kırılgan yapar.
+  const SABLON = 'editoryal'
+  const ornek = ornekBul(SABLON) as KatalogOrnegi
+  const belge = (): Record<string, unknown> => ({
+    'metin-uret': { lines: ['Bir', 'İki', 'Üç'] },
+    'sablon-uyarla': {
+      uyarlama: {
+        sablonId: SABLON,
+        kartlar: ornek.kartlar.map(() => ({
+          ustBaslik: 'X',
+          baslik: 'Başlık **bir**',
+          govde: 'Gövde.',
+          hayalet: '',
+          rayaSol: 'X',
+          rayaOrta: 'Kaynak 2026',
+        })),
+      },
+    },
+  })
+
+  const srcler = async (inputs: Record<string, unknown>): Promise<readonly string[]> => {
+    const body = composeBody({ tokenCss: ':root{--role-bg:#000}', stamp: DAMGA as never })
+    const r = await body.run(
+      CTX as never,
+      {
+        constraints: { topic: 'konu', width: 1080, height: 1350, katalog: true },
+        inputs,
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    if (!r.ok) return []
+    const pano = (r.value.data as { panorama: { gorseller: { src: string }[] } }).panorama
+    return pano.gorseller.map((g) => g.src)
+  }
+
+  it('iki yuva, iki görsel → İKİSİ FARKLI (klon değil)', async () => {
+    const s = await srcler({
+      ...belge(),
+      'gorsel-uret': { format: 'base64', data: A, width: 8, height: 8 },
+      'gorsel-uret-2': { format: 'base64', data: B, width: 8, height: 8 },
+    })
+    // İDDİA, koruma değil: yuva sayısı 2'nin altına düşerse test KIRILMALI.
+    expect(s.length).toBeGreaterThanOrEqual(2)
+    expect(s[0]).toContain(A)
+    expect(s[1]).toContain(B)
+    expect(s[0]).not.toBe(s[1])
+  })
+
+  it('öbek içinde KIRPILMIŞ olan hamı eziyor — sonek eşleştirmesiyle', async () => {
+    // ⚠ Kırpılmış `-2`, ham `-3`ten ÖNCE geliyor. "Sonuncuyu al" burada 3'ün hamını seçip
+    // 2'nin kırpılmışını çöpe atardı: arka plan silme koşar, sonucu kullanılmazdı.
+    const s = await srcler({
+      ...belge(),
+      'gorsel-uret': { format: 'base64', data: A, width: 8, height: 8 },
+      'gorsel-kirp': { format: 'base64', data: B, width: 8, height: 8, matlandi: true },
+    })
+    expect(s.length).toBeGreaterThanOrEqual(2)
+    expect(s[0]).toContain(B)
+    // İkinci yuvaya görsel gelmedi: BOŞ kalmalı, birincinin KLONU değil.
+    expect(s[1]).toBe('')
   })
 })
 

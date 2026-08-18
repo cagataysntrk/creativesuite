@@ -39,6 +39,19 @@ export interface GorselIhtiyaci {
    * unutulur.
    */
   readonly briefTemeli: string
+  /**
+   * Yuva başına AYIRT EDİCİ ek — N görsel üretilirken briefleri farklılaştıran şey.
+   *
+   * ⚠ ⚠ **BU OLMADAN N ÜRETİM N ÖZDEŞ GÖRSEL DEMEK.** Hat artık slayt başına görsel
+   * üretebiliyor (borç A8 kapandı) ama `briefTemeli` + konu her çağrıda AYNI; aynı istem
+   * aynı modele gidince çıkan şey de aynı kadraj oluyor ve çıktı "aynı figür yan yana"
+   * kusuruna geri dönüyordu — tek görsele inmemizin sebebi tam olarak buydu.
+   * Ayırt edici şey konu değil KADRAJ: poz, açı, mesafe. O yüzden burada, şablonda.
+   *
+   * ⚠ Dizi yuva sayısından KISAysa fazlalık yuvalar brief üretmez ve adım atlanır —
+   * uydurulmuş bir varyant, sipariş edilmemiş bir kadraj demektir.
+   */
+  readonly varyantlar?: readonly string[]
 }
 
 /**
@@ -172,6 +185,12 @@ export const SAHNE: KatalogSablonu = {
       'single subject, full body, plain solid black background free of gradient or ' +
       'surface detail, strong rim light on the subject only, arms held away from ' +
       'the torso and extending beyond the frame, body fully in frame',
+    varyantlar: [
+      'arms open wide, presenting toward the right, full body',
+      'one arm raised high, the other extended sideways, three quarter view',
+      'pointing forward with a straight arm, side profile, full body',
+      'both palms open at chest height, facing the camera, full body',
+    ],
   },
   baslikPayi: 1,
   kullanilabilir: GORSEL_CALISIYOR,
@@ -203,6 +222,11 @@ export const MEMPHIS: KatalogSablonu = {
     briefTemeli:
       'single person, waist up, plain solid black background free of surface detail, ' +
       'even lighting on the subject, lively posture',
+    varyantlar: [
+      'seated on a low stool, leaning forward, full body',
+      'standing with hands on the hips, three quarter view',
+      'walking stride caught mid step, side profile',
+    ],
   },
   baslikPayi: 0.82,
   kullanilabilir: GORSEL_CALISIYOR,
@@ -231,6 +255,12 @@ export const DONEN: KatalogSablonu = {
     briefTemeli:
       'single product, centred, plain seamless backdrop, soft studio lighting, ' +
       'composed for a circular crop',
+    varyantlar: [
+      'front elevation, centred in frame',
+      'three quarter angle from the upper left',
+      'close macro of the surface detail',
+      'top down flat view from directly above',
+    ],
   },
   baslikPayi: 0.86,
   kullanilabilir: GORSEL_CALISIYOR,
@@ -261,6 +291,7 @@ export const EDITORYAL: KatalogSablonu = {
     briefTemeli:
       'wide shot, single subject, calm natural light, right half of the frame left ' +
       'empty for typography, cool muted tones',
+    varyantlar: ['wide establishing view of the workspace', 'tight detail of two hands at work'],
   },
   baslikPayi: 0.38,
   kullanilabilir: GORSEL_CALISIYOR,
