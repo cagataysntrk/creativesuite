@@ -122,7 +122,25 @@ const KABUK = (
   select,button{background:#1b1f26;color:var(--metin);border:1px solid var(--kenar);
     border-radius:7px;padding:7px 12px;font:inherit;cursor:pointer}
   button.birincil{background:var(--vurgu);color:#06202f;border-color:transparent;font-weight:650}
-  #tuval{padding:18px;overflow:auto}
+  #govde{display:flex;align-items:flex-start;gap:0}
+  #tuval{padding:18px;overflow:auto;flex:1;min-width:0}
+  /* ⚠ Müfettiş SAĞDA ve SABİT genişlikte: tuval yatay kayıyor (panorama 4320 px) ve
+     panelin onunla birlikte kayması, düzenlerken sürekli geri kaydırmak demekti. */
+  #mufettis{width:288px;flex:none;align-self:stretch;background:var(--ui);
+    border-left:1px solid var(--kenar);padding:12px 14px 40px;overflow:auto;
+    max-height:calc(100vh - 58px)}
+  #mufettis h3{font-size:11px;letter-spacing:.14em;opacity:.55;margin:16px 0 8px;
+    font-weight:700}
+  #mufettis h3:first-child{margin-top:0}
+  #mufettis label{display:block;font-size:12px;margin:0 0 9px}
+  #mufettis label span{display:flex;justify-content:space-between;opacity:.72;
+    margin-bottom:3px}
+  #mufettis input[type=range]{width:100%;accent-color:var(--vurgu)}
+  #mufettis select,#mufettis input[type=text],#mufettis input[type=number]{
+    width:100%;background:#1b1f26;color:var(--metin);border:1px solid var(--kenar);
+    border-radius:6px;padding:5px 8px;font:inherit;font-size:12px}
+  #mufettis .bos{opacity:.45;font-size:12px;line-height:1.5}
+  #mufettis .sil{width:100%;margin-top:6px;border-color:#7a3030;color:#ff9b9b}
   #sahne-sarmal{position:relative}
   iframe{border:0;display:block;transform-origin:0 0;background:#000}
   /* Kesim kilavuzu PARENT'ta duruyor, iframe'in icinde DEGIL: render'a tek piksel
@@ -157,7 +175,10 @@ const KABUK = (
   <button class="birincil" id="kaydet">JSON'u yaz</button>
   <span id="ipucu">metne tıkla → düzenle · görseli sürükle → taşı · Shift+sürükle → ölçekle</span>
 </header>
-<div id="tuval"><div id="sahne-sarmal"><iframe id="pano"></iframe><div id="kilavuz"></div></div></div>
+<div id="govde">
+  <div id="tuval"><div id="sahne-sarmal"><iframe id="pano"></iframe><div id="kilavuz"></div></div></div>
+  <aside id="mufettis"></aside>
+</div>
 <div id="kusur">ölçüm bekleniyor…</div>
 <script type="module" src="/istemci.js"></script>`
 
@@ -206,12 +227,33 @@ const kataloguYaz = (id) => {
   const yeni = calisan[id]
   const eski = diskteki[id]
   const degisiklikler = []
+  const yeniAlanlar = []
+  // ⚠ ⚠ **ALAN LİSTESİ TEK YERDE.** Editör bir alanı düzenleyebiliyor ama yazıcı onu
+  // tanımıyorsa değişiklik SESSİZCE kayboluyor — kullanıcı kaydetti sanır, dosyada iz
+  // yoktur. Editörün düzenlediği her metin alanı buraya da girmek zorunda.
+  const METIN_ALANLARI = [
+    'baslik',
+    'govde',
+    'ustBaslik',
+    'elYazisi',
+    'hayalet',
+    'rayaSol',
+    'rayaOrta',
+    'kolon',
+    'zemin',
+  ]
 
   for (let i = 0; i < yeni.kartlar.length; i++) {
-    for (const alan of ['baslik', 'govde', 'ustBaslik', 'elYazisi']) {
+    for (const alan of METIN_ALANLARI) {
       const a = eski.kartlar[i]?.[alan]
       const b = yeni.kartlar[i]?.[alan]
-      if (a === undefined || a === b) continue
+      if (a === b) continue
+      if (a === undefined) {
+        // Alan kaynakta YOK: yeni satır ekleniyor (çapa `baslik:`), değiştirilmiyor.
+        yeniAlanlar.push({ i, satir: '\n      ' + alan + ': ' + tsKacir(b) + ',' })
+        degisiklikler.push('kart ' + (i + 1) + ' · ' + alan + ' (yeni)')
+        continue
+      }
       const arama = alan + ': ' + tsKacir(a)
       const adet = blok.split(arama).length - 1
       if (adet !== 1)
@@ -251,6 +293,22 @@ const kataloguYaz = (id) => {
         yeni.kartlar.length +
         ') — hicbir sey yazilmadi',
     }
+
+  // Kaynakta olmayan alanlar `baslik:` çapasının önüne ekleniyor. Sondan başa,
+  // çünkü bir ekleme sonraki çapaların konumunu kaydırır.
+  for (const { i, satir } of [...yeniAlanlar].sort((a, b) => b.i - a.i)) {
+    const bas = baslikYerleri[i]
+    if (bas === undefined)
+      return { ok: false, sebep: 'kart ' + (i + 1) + ' capasi yok — hicbir sey yazilmadi' }
+    blok = blok.slice(0, bas) + satir + blok.slice(bas)
+  }
+  // Çapa konumları ekleme sonrası TAZELENİYOR: `ayar` döngüsü bayat konum kullanırsa
+  // satırı yanlış karta yazar.
+  baslikYerleri.length = 0
+  {
+    let k = -1
+    while ((k = blok.indexOf('\n      baslik:', k + 1)) >= 0) baslikYerleri.push(k)
+  }
 
   // Sondan başa: bir eklemenin sonraki kartların konumunu kaydırmaması için.
   for (let i = yeni.kartlar.length - 1; i >= 0; i--) {
@@ -340,6 +398,36 @@ const kataloguYaz = (id) => {
     degisiklikler.push('gorsel yuvalari (' + yeni.gorseller.length + ')')
   }
 
+  // ── belge düzeyi: yerleşim, belge zemini, tipografi reçetesi ─────────────
+  //
+  // ⚠ Tipografi sayıları `alan: 0.98,` biçiminde tek satırda; ondalık gösterimi
+  // KAYNAKTAKİYLE aynı olmalı, yoksa eşleşme tutmaz. Bu yüzden eski değer sayı
+  // olarak değil, kaynaktaki YAZILIŞIYLA aranıyor.
+  for (const alan of ['yerlesim', 'zemin', 'baslikSutunu']) {
+    const a = eski[alan],
+      b = yeni[alan]
+    if (a === b || b === undefined) continue
+    if (a === undefined)
+      return {
+        ok: false,
+        sebep: alan + ' kaynakta yok, eklenmesi elle yapilmali — hicbir sey yazilmadi',
+      }
+    const arama = '\n  ' + alan + ': ' + tsKacir(a)
+    if (blok.split(arama).length - 1 !== 1)
+      return { ok: false, sebep: alan + ': eski deger belirsiz — hicbir sey yazilmadi' }
+    blok = blok.replace(arama, '\n  ' + alan + ': ' + tsKacir(b))
+    degisiklikler.push('belge · ' + alan)
+  }
+  for (const [alan, b] of Object.entries(yeni.tipografi ?? {})) {
+    const a = (eski.tipografi ?? {})[alan]
+    if (a === b || a === undefined) continue
+    const kural = new RegExp('(\\n    ' + alan + ': )(-?[0-9.]+)')
+    if (!kural.test(blok))
+      return { ok: false, sebep: 'tipografi.' + alan + ' bulunamadi — hicbir sey yazilmadi' }
+    blok = blok.replace(kural, '$1' + b)
+    degisiklikler.push('tipografi · ' + alan)
+  }
+
   if (degisiklikler.length === 0) return { ok: false, sebep: 'degisiklik yok' }
   writeFileSync(KATALOG_YOLU, kaynakKod.slice(0, bas) + blok + kaynakKod.slice(son))
   diskteki[id] = structuredClone(yeni)
@@ -397,6 +485,16 @@ const sunucu = createServer(async (req, res) => {
       res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' })
       return res.end(readFileSync(join(REPO, 'scripts/duzenleyici-istemci.js'), 'utf8'))
     }
+    // ⚠ ⚠ **RENK SERBEST SEÇİLMİYOR, RAMPADAN SEÇİLİYOR.** Serbest bir hex girişi
+    // marka ihlalidir (R-35) ve `tokens` kapısı onu zaten reddeder — ama kapıya
+    // çarpmadan ÖNCE engellemek daha iyi: editör yalnız var olan rolleri sunuyor.
+    // Liste türetilmiş token dosyasından OKUNUYOR, elle yazılmıyor; marka paleti
+    // değişince editör kendiliğinden güncelleniyor.
+    if (u.pathname === '/rampa') {
+      const kreatif = /\[data-surface='kreatif'\]\s*\{([^}]*)\}/.exec(tokenCss)?.[1] ?? ''
+      const roller = [...kreatif.matchAll(/(--role-[\w-]+)\s*:/g)].map((m) => m[1])
+      return json(roller.map((r) => 'var(' + r + ')'))
+    }
     if (u.pathname === '/pano') return json({ html: panoramaHtml(belge(id)), doc: calisan[id] })
     if (u.pathname === '/olc') return json(await olcum(id))
     if (u.pathname === '/degistir') {
@@ -420,6 +518,26 @@ const sunucu = createServer(async (req, res) => {
           const kalan = { ...k }
           delete kalan.ayar
           calisan[id].kartlar[d.i] = Object.keys(ayar).length === 0 ? kalan : { ...kalan, ayar }
+        }
+      } else if (d.tur === 'belge-alan') {
+        // Belge kökündeki alan: `yerlesim`, `zemin`, `baslikSutunu`…
+        calisan[id] = { ...calisan[id], [d.alan]: d.deger }
+      } else if (d.tur === 'tipo') {
+        // ⚠ Tipografi reçetesi TEK NESNE: alanı tek tek yazmak, verilmeyenleri
+        // silerdi. Var olanın üstüne biniyor.
+        calisan[id] = {
+          ...calisan[id],
+          tipografi: { ...(calisan[id].tipografi ?? {}), [d.alan]: d.deger },
+        }
+      } else if (d.tur === 'kart-alan') {
+        const k = calisan[id].kartlar[d.i]
+        if (k) {
+          // ⚠ `undefined` yazmak yerine alanı KALDIRIYORUz: `zemin: undefined` taşıyan
+          // bir kart, zemini olan bir karttan farklı davranıyor (JSON'a da giriyor).
+          const yeniKart = { ...k }
+          if (d.deger === null || d.deger === '') delete yeniKart[d.alan]
+          else yeniKart[d.alan] = d.deger
+          calisan[id].kartlar[d.i] = yeniKart
         }
       } else if (d.tur === 'sil') {
         // Boş değer alana göre: metin '' olur, panel null.

@@ -27,7 +27,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Kayma aralığını aş → denetim `kart-disi` veriyor
 💾 `feat(render): metin kaymasi ve punto carpani` · `Refs: FAZ-16.1 · §7.1`
 
-## 16.2 — Editörde tipografi ve renk paneli    [ ]
+## 16.2 — Editörde tipografi ve renk paneli    [x]
 
 📖 §7.1 · §12.1
 🔗 FAZ-16.1

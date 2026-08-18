@@ -19,10 +19,16 @@ let id = $('#sablon').value,
 // metni SEÇER, taşımaz. Tek modda denendi ve yazı düzenlemek imkânsızlaştı.
 let duzenMod = 'yaz' // 'yaz' → metne yaz · 'tasi' → metni taşı/ölçekle/sil
 let secili = null // 'tasi' modunda seçili öge (silme hedefi)
+let seciliKart = 0 // müfettişin gösterdiği kart
+let rampa = [] // marka rampasındaki roller — serbest hex YOK (R-35)
+// ⚠ Son belge saklanıyor: klavye kısayolu `bagla` kapsamı dışında çalışıyor ve
+// mevcut kaydırmayı bilmeden üstüne ekleyemez.
+let sonDoc = null
 
 async function cek() {
   const r = await fetch('/pano?id=' + id)
   const { html, doc } = await r.json()
+  sonDoc = doc
   const fr = $('#pano')
   fr.srcdoc = html
   fr.style.width = doc.slaytGenisligi * doc.kartlar.length + 'px'
@@ -49,7 +55,205 @@ async function cek() {
   }
   fr.onload = () => {
     bagla(fr.contentDocument, doc)
+    mufettisiKur(doc)
     olc()
+  }
+}
+
+// ── müfettiş paneli ─────────────────────────────────────────────────────────
+//
+// ⚠ ⚠ **PANEL VERİDEN TÜRÜYOR, ELLE YAZILMIYOR.** Alan listesi `TIPO_ALANLARI` ve
+// `KART_ALANLARI` tablolarından geliyor; belgeye yeni bir alan eklenince panele de
+// bir satır eklemek yeterli. Elle kurulmuş bir form, veri modeli her büyüdüğünde
+// sessizce eksik kalırdı — ve editörün eksik olduğu hiçbir yerde görünmezdi.
+//
+// ⚠ Her denetim ANINDA yazıyor ve render yeniden koşuyor: "uygula" düğmesi yok.
+// Tasarım kararı gözle verilir; kaydetmeye basmadan sonucu görememek, kararı
+// tahmine çevirir.
+
+const TIPO_ALANLARI = [
+  { ad: 'baslikPayi', etiket: 'başlık payı', min: 0.3, max: 1, adim: 0.01 },
+  { ad: 'baslikGenislik', etiket: 'başlık genişlik', min: 62, max: 125, adim: 1 },
+  { ad: 'baslikAgirlik', etiket: 'başlık ağırlık', min: 400, max: 900, adim: 10 },
+  { ad: 'satirAraligi', etiket: 'satır aralığı', min: 0.9, max: 1.4, adim: 0.01 },
+  { ad: 'harfArasi', etiket: 'harf arası (em)', min: -0.08, max: 0.12, adim: 0.005 },
+  { ad: 'ustGenislik', etiket: 'üst başlık genişlik', min: 62, max: 125, adim: 1 },
+  { ad: 'govdeOrani', etiket: 'gövde/başlık oranı', min: 0.18, max: 0.55, adim: 0.01 },
+  { ad: 'baslikSutunu', etiket: 'başlık sütunu', min: 0.3, max: 1, adim: 0.01 },
+  { ad: 'panelPayi', etiket: 'panel ölçeği', min: 0.6, max: 1.8, adim: 0.05 },
+]
+
+const YERLESIMLER = ['ust', 'orta', 'alt', 'yay']
+
+const el = (etiket, icerik) => {
+  const l = document.createElement('label')
+  const b = document.createElement('span')
+  b.textContent = etiket
+  l.appendChild(b)
+  l.appendChild(icerik)
+  return l
+}
+
+const kaydirak = (deger, alan, uygula) => {
+  const i = document.createElement('input')
+  i.type = 'range'
+  i.min = alan.min
+  i.max = alan.max
+  i.step = alan.adim
+  i.value = deger
+  const l = el(alan.etiket, i)
+  const sayi = l.querySelector('span')
+  const yaz2 = document.createElement('b')
+  yaz2.textContent = Number(deger).toFixed(alan.adim < 0.1 ? 3 : 0)
+  sayi.appendChild(yaz2)
+  i.oninput = () => {
+    yaz2.textContent = Number(i.value).toFixed(alan.adim < 0.1 ? 3 : 0)
+  }
+  i.onchange = () => uygula(Number(i.value))
+  return l
+}
+
+const secim = (etiket, deger, secenekler, uygula) => {
+  const sl = document.createElement('select')
+  for (const o of secenekler) {
+    const op = document.createElement('option')
+    op.value = o
+    op.textContent = o === '' ? '— yok —' : o
+    if (o === deger) op.selected = true
+    sl.appendChild(op)
+  }
+  sl.onchange = () => uygula(sl.value)
+  return el(etiket, sl)
+}
+
+const metinKutusu = (etiket, deger, uygula) => {
+  const i = document.createElement('input')
+  i.type = 'text'
+  i.value = deger ?? ''
+  i.onchange = () => uygula(i.value)
+  return el(etiket, i)
+}
+
+const baslikEkle = (kok, metin) => {
+  const h = document.createElement('h3')
+  h.textContent = metin
+  kok.appendChild(h)
+}
+
+function mufettisiKur(doc) {
+  const kok = $('#mufettis')
+  kok.innerHTML = ''
+  const t = doc.tipografi ?? {}
+
+  // ── seçili öge ──
+  baslikEkle(kok, 'SEÇİLİ ÖGE')
+  if (secili === null) {
+    const p = document.createElement('div')
+    p.className = 'bos'
+    p.textContent =
+      duzenMod === 'tasi' ? 'Tuvalde bir metne tıkla.' : '✥ taşı moduna geçip bir ögeye tıkla.'
+    kok.appendChild(p)
+  } else {
+    const a = (doc.kartlar[secili.i]?.ayar ?? {})[secili.alan] ?? {}
+    const yazAyar = (k, v) =>
+      yaz({
+        tur: 'ayar',
+        i: secili.i,
+        alan: secili.alan,
+        dx: k === 'dx' ? v : (a.dx ?? 0),
+        dy: k === 'dy' ? v : (a.dy ?? 0),
+        olcek: k === 'olcek' ? v : (a.olcek ?? 1),
+      })
+    const p = document.createElement('div')
+    p.className = 'bos'
+    p.textContent = 'kart ' + (secili.i + 1) + ' · ' + secili.alan
+    kok.appendChild(p)
+    kok.appendChild(
+      kaydirak(a.dx ?? 0, { etiket: 'yatay kaydırma', min: -260, max: 260, adim: 1 }, (v) =>
+        yazAyar('dx', v)
+      )
+    )
+    kok.appendChild(
+      kaydirak(a.dy ?? 0, { etiket: 'dikey kaydırma', min: -260, max: 260, adim: 1 }, (v) =>
+        yazAyar('dy', v)
+      )
+    )
+    kok.appendChild(
+      kaydirak(a.olcek ?? 1, { etiket: 'punto çarpanı', min: 0.5, max: 2, adim: 0.01 }, (v) =>
+        yazAyar('olcek', v)
+      )
+    )
+    const b = document.createElement('button')
+    b.className = 'sil'
+    b.textContent = '⌫ bu ögeyi sil'
+    b.onclick = () => {
+      const s = secili
+      secili = null
+      void yaz({ tur: 'sil', i: s.i, alan: s.alan })
+    }
+    kok.appendChild(b)
+  }
+
+  // ── kart ──
+  baslikEkle(kok, 'KART')
+  const kartNo = Math.min(seciliKart, doc.kartlar.length - 1)
+  kok.appendChild(
+    secim(
+      'kart',
+      String(kartNo + 1),
+      doc.kartlar.map((_, i) => String(i + 1)),
+      (v) => {
+        seciliKart = Number(v) - 1
+        mufettisiKur(doc)
+      }
+    )
+  )
+  const k = doc.kartlar[kartNo] ?? {}
+  kok.appendChild(
+    secim('metin kolonu', k.kolon ?? 'sol', ['sol', 'sag'], (v) =>
+      yaz({ tur: 'kart-alan', i: kartNo, alan: 'kolon', deger: v })
+    )
+  )
+  kok.appendChild(
+    secim('kart zemini', k.zemin ?? '', ['', ...rampa], (v) =>
+      yaz({ tur: 'kart-alan', i: kartNo, alan: 'zemin', deger: v })
+    )
+  )
+  kok.appendChild(
+    metinKutusu('hayalet (dev rakam)', k.hayalet, (v) =>
+      yaz({ tur: 'kart-alan', i: kartNo, alan: 'hayalet', deger: v })
+    )
+  )
+  kok.appendChild(
+    metinKutusu('alt ray — sol', k.rayaSol, (v) =>
+      yaz({ tur: 'kart-alan', i: kartNo, alan: 'rayaSol', deger: v })
+    )
+  )
+  kok.appendChild(
+    metinKutusu('alt ray — kaynak', k.rayaOrta, (v) =>
+      yaz({ tur: 'kart-alan', i: kartNo, alan: 'rayaOrta', deger: v })
+    )
+  )
+
+  // ── belge ──
+  baslikEkle(kok, 'BELGE')
+  kok.appendChild(
+    secim('dikey yerleşim', doc.yerlesim ?? 'ust', YERLESIMLER, (v) =>
+      yaz({ tur: 'belge-alan', alan: 'yerlesim', deger: v })
+    )
+  )
+  kok.appendChild(
+    secim('belge zemini', doc.zemin ?? '', ['', ...rampa], (v) =>
+      yaz({ tur: 'belge-alan', alan: 'zemin', deger: v })
+    )
+  )
+
+  // ── tipografi ──
+  baslikEkle(kok, 'TİPOGRAFİ')
+  for (const alan of TIPO_ALANLARI) {
+    const d = t[alan.ad]
+    if (d === undefined) continue
+    kok.appendChild(kaydirak(d, alan, (v) => yaz({ tur: 'tipo', alan: alan.ad, deger: v })))
   }
 }
 
@@ -121,6 +325,8 @@ function bagla(d, doc) {
         }
         e.setAttribute('data-secili', '1')
         e.style.outline = '2px solid rgba(90,169,230,.9)'
+        seciliKart = i
+        mufettisiKur(doc)
         const x0 = ev.clientX,
           y0 = ev.clientY
         const dx0 = mevcut.dx || 0,
@@ -207,7 +413,9 @@ function bagla(d, doc) {
 async function yaz(d) {
   gecmis.push(1)
   await fetch('/degistir?id=' + id, { method: 'POST', body: JSON.stringify(d) })
-  cek()
+  // ⚠ Yazdıktan sonra HEMEN yeniden çiziliyor: "uygula" düğmesi yok, karar gözle
+  // veriliyor. Bu satır bir kez kazara silindi ve düzenleme sessizce görünmez oldu.
+  await cek()
 }
 async function olc() {
   const r = await fetch('/olc?id=' + id)
@@ -253,7 +461,25 @@ const sil = async () => {
   await yaz({ tur: 'sil', i, alan })
 }
 $('#sil').onclick = sil
+// ⚠ ⚠ **KLAVYE İNCE AYAR İÇİN ŞART.** Fareyle 1 px kaydırmak elle yapılamaz;
+// tasarımın son %5'i tam olarak o 1 px'lerde. Ok = 1 px, Shift+ok = 10 px.
+const OKLAR = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 document.addEventListener('keydown', (ev) => {
+  if (duzenMod === 'tasi' && secili !== null && OKLAR[ev.key] !== undefined) {
+    ev.preventDefault()
+    const [ax, ay] = OKLAR[ev.key]
+    const adim = ev.shiftKey ? 10 : 1
+    const a = (sonDoc?.kartlar[secili.i]?.ayar ?? {})[secili.alan] ?? {}
+    void yaz({
+      tur: 'ayar',
+      i: secili.i,
+      alan: secili.alan,
+      dx: (a.dx ?? 0) + ax * adim,
+      dy: (a.dy ?? 0) + ay * adim,
+      olcek: a.olcek ?? 1,
+    })
+    return
+  }
   if (duzenMod === 'tasi' && (ev.key === 'Delete' || ev.key === 'Backspace')) {
     ev.preventDefault()
     void sil()
@@ -268,4 +494,16 @@ $('#kaydet').onclick = async () => {
   const r = await fetch('/kaydet?id=' + id, { method: 'POST' })
   $('#kusur').textContent = await r.text()
 }
-cek()
+// ⚠ Rampa ÖNCE okunuyor, sonra ilk çizim: panel açıldığı anda renk seçenekleri
+// dolu olmalı. Sonradan yüklemek, ilk açılışta boş bir renk listesi gösterirdi.
+fetch('/rampa')
+  .then((r) => r.json())
+  .then((v) => {
+    rampa = v
+  })
+  .catch(() => {
+    rampa = []
+  })
+  .finally(() => {
+    void cek()
+  })

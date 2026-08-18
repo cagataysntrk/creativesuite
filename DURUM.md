@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 16
-siradaki_adim: 16.2
+siradaki_adim: 16.3
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-16 ACILDI (tam editor + tak-calistir depo) VE 16.1 KAPANDI; FAZ-15'te 15.11 15.12 15.14 tiklendi. D-307: hazir tasarim editoru (Canva/Polotno/tldraw/Penpot) ana duzenleme donguSUNE GIRMIYOR - ortak sorun lisans degil VERI MODELI: hepsi sekil duzenliyor, bizimki KatalogOrnegi alanlarini; bir slaydi orada guzellestirmek o guzelligi bir sonraki konuya TASIMAZ ve Yasa 11/13 birden coker. Penpot tek yonlu disa aktarim hedefi olarak acik. 16.1: metin de gorsel gibi tasinabiliyor, olceklenebiliyor ve SILINEBILIYOR. Kok karar: metne mutlak x/y verilmedi - kompozisyonu yok ederdi (Yasa 13); verilen sey izgaranin USTUNDE sinirli bir pay (kayma +-260 px, punto carpani 0,5-2). Editorde IKI MOD var cunku ikisi ayni anda olamaz: contenteditable bir ogede suruklemek metni SECER. Olculdu: kaydirma dx=120 dy=64 tam isabet, Shift 150 px -> olcek 1.5 tam isabet, silinen ust baslik DOM'dan gercekten dustu (4 -> 3) ve katalog dosyasina da yazildi (ayar satiri EKLENDI, ustBaslik '' oldu, dosya derleniyor ve ayni veri geri okunuyor). AYRICA IKI KOK ONARIM: (1) istemci kodu sablon dizesinden CIKARILDI - yorumdaki tek bir backtick dizeyi kapatiyordu ve bu tuzak depoda ALTI kez isirdi; politika alti kez tutmadi, YAPI tutuyor. (2) 'ayar' uyarlamada korunanlar listesine ISIRMADAN once eklendi - zemin, kolon ve elYazisi ayni tuzaga gercek kosuda dustuler; test kaldirilinca kirmizi donuyor."
+son_kanit: "MUFETTIS PANELI GELDI (16.2) + 16.5 KAPANDI. Editor artik veri modelinde ne varsa onu duzenliyor: SECILI OGE (yatay/dikey kaydirma, punto carpani, sil), KART (kolon, zemin, hayalet, alt ray sol/kaynak), BELGE (dikey yerlesim, belge zemini), TIPOGRAFI (dokuz kaydirak: baslik payi, genislik, agirlik, satir araligi, harf arasi, ust genislik, govde orani, baslik sutunu, panel olcegi). Panel VERIDEN turuyor - alan tablosuna bir satir eklemek yetiyor, elle form yazilmiyor. Renk SERBEST DEGIL: marka rampasindan (12 rol) okunuyor, turetilmis token dosyasindan; serbest hex R-35 ihlali. Her denetim ANINDA yaziyor ve render yeniden kosuyor - 'uygula' dugmesi yok, cunku tasarim karari gozle verilir. Klavye: ok 1 px, Shift+ok 10 px. Olculdu: tipografi 800->500, kart kolonu sag, kart zemini var(--role-surface) - ucu de canli uygulandi VE katalog dosyasina yazildi (yeni alanlar EKLENDI, var olan sayi degistirildi, dosya derlendi, ayni veri geri okundu). 16.5: just setup artik uretim onkosullarini da sayiyor ve ucuz olanlari kuruyor; brd_dima token'i kaldirilinca cikis kodu 1 ve eksik ADIYLA bildirildi."
 ```
 
 ## Neredeyiz
@@ -30,25 +30,14 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Yalnız AKTİF faz** (D-85); öncekiler faz dosyalarındaki tiklerde. FAZ 0+1: 51 ·
 > FAZ 2: 12/13 · FAZ 3: 12/15 (D-158) · FAZ 4: 17/17 · FAZ 5: 8/10 (D-206) ·
-> FAZ 6: 10/12 (D-217).
+> FAZ 6: 10/12 (D-217) · FAZ 15: 12/14 (katalog merkezli üretim kapandı).
 
 | Adım | Tarih |
 |---|---|
-| **15.1** · "ne kurmalı" ÖLÇÜLDÜ → hiçbir şey; üç eksen vardı ve kullanılmıyordu | 2026-08-18 |
-| **15.2** · genişlik ekseni açıldı; punto sabit 82px değil ÖLÇÜLEN tavandan | 2026-08-18 |
-| **15.3** · zemin reçetesi; gren bantlaşmayı 36px→8px indiriyor (ölçüldü) | 2026-08-18 |
-| **15.4** · katalog DOLU taslak; altı örnek belge, hepsi kaynak beyan ediyor | 2026-08-18 |
-| **15.5** · altı şablon render edilip BAKILDI; beş kusur bulundu ve kapatıldı | 2026-08-18 |
-| **15.6** · `sablonSec` içeriğin ölçülen şeklinden; gerekçesiz seçim yok | 2026-08-18 |
-| **15.7** · `uyarla`; kompozisyon KİLİTLİ, yapısal alan şemada YOK | 2026-08-18 |
-| **15.8** · DOM denetimi + düzeltme turu; 4 ihlal denendi, 4'ü kırmızıya döndü | 2026-08-18 |
-| **15.10** · kullanım belgesi + mimari denetimi; hat gerçek koşu defterine dayanıyor | 2026-08-18 |
-| **15.11** · yerel arka plan silici; gerçek koşuda RGBA, `matlama` kusuru kalmadı | 2026-08-18 |
-| **15.12** · kreatif zemin stok sarısından markanın kendi lacivertine geçti | 2026-08-18 |
-| **15.14** · görsel düzenleyici iki modda; şablon modu katalog dosyasına yazıyor | 2026-08-18 |
 | **16.1** · metin de taşınıyor, ölçekleniyor, siliniyor — sınırlı pay, mutlak konum DEĞİL | 2026-08-18 |
 | **16.4** · `SKILLS.md` + iki beceri dosyası; sıfır bağlamla tek komut | 2026-08-18 |
 | **16.5** · `just setup` üretim önkoşullarını da sayıyor; eksik ADIYLA, çıkış kodu 1 | 2026-08-18 |
+| **16.2** · müfettiş paneli: tipografi, kart, belge, seçili öge — hepsi canlı ve dosyaya yazıyor | 2026-08-18 |
 
 ## Sıradaki adım
 
