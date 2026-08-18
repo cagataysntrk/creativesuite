@@ -1,0 +1,129 @@
+{
+  "slaytGenisligi": 1080,
+  "yukseklik": 1350,
+  "ustDoku": {
+    "gren": 18,
+    "vinyet": 26
+  },
+  "yerlesim": "ust",
+  "tipografi": {
+    "baslikPayi": 1.18,
+    "baslikGenislik": 100,
+    "baslikAgirlik": 800,
+    "satirAraligi": 1.06,
+    "harfArasi": -0.015,
+    "ustGenislik": 80,
+    "govdeOrani": 0.3,
+    "baslikSutunu": 0.82
+  },
+  "zemin": "var(--role-bg)",
+  "hayaletKonumu": {
+    "ust": 48,
+    "olcek": 1.34,
+    "guc": 16
+  },
+  "alanSiniri": {
+    "ust": "var(--role-bg)",
+    "alt": "var(--role-line-edge)",
+    "noktalar": [
+      {
+        "x": 0,
+        "y": 86
+      },
+      {
+        "x": 18,
+        "y": 46
+      },
+      {
+        "x": 36,
+        "y": 80
+      },
+      {
+        "x": 54,
+        "y": 44
+      },
+      {
+        "x": 72,
+        "y": 78
+      },
+      {
+        "x": 88,
+        "y": 45
+      },
+      {
+        "x": 100,
+        "y": 72
+      }
+    ]
+  },
+  "bant": {
+    "tip": "yok"
+  },
+  "gorseller": [],
+  "kartlar": [
+    {
+      "ustBaslik": "DÖNGÜSELLİK",
+      "baslik": "Topla, gör, **bul**, hattı karara çevir",
+      "govde": "Veri toplamaktan karara varmaya kadar her adım aynı döngüde tekrar eder.",
+      "hayalet": "",
+      "rayaSol": "DÖNGÜSELLİK",
+      "rayaOrta": "Saha gözlemi, hat operasyonları",
+      "panel": null,
+      "elYazisi": "Adım adım"
+    },
+    {
+      "ustBaslik": "İZLENEBİLİRLİK",
+      "baslik": "Neden **hafızada** kalmasın",
+      "govde": "Duruşun nedenini kimse yazmıyor, vardiya amirinin hafızasında kalıyor ve her seferinde yeniden aranıyor.",
+      "hayalet": "",
+      "rayaSol": "İZLENEBİLİRLİK",
+      "rayaOrta": "Saha gözlemi, hat operasyonları",
+      "panel": null
+    },
+    {
+      "ustBaslik": "AYRIŞTIRMA",
+      "baslik": "Tekrarı **kayda** geçir",
+      "govde": "Bir arıza tekrarladığında ilk kaydı bulunamıyor, çünkü not bir kağıtta ya da kimsenin hatırlamadığı bir mesajda kalmış.",
+      "hayalet": "",
+      "rayaSol": "AYRIŞTIRMA",
+      "rayaOrta": "Saha gözlemi, hat operasyonları",
+      "panel": null
+    },
+    {
+      "ustBaslik": "ÖLÇÜM",
+      "baslik": "**Elle** birleşen rapor yanıltır",
+      "govde": "Sabah raporu Excel'de elle birleştiriliyor, herkes farklı bir sekmeye bakıyor ve toplantıya kadar kimse aynı tabloyu görmüyor.",
+      "hayalet": "",
+      "rayaSol": "ÖLÇÜM",
+      "rayaOrta": "Saha gözlemi, hat operasyonları",
+      "panel": null
+    },
+    {
+      "ustBaslik": "ALICI",
+      "baslik": "Herkes aynı **ekranı** görsün",
+      "govde": "Veri toplanınca duruş ve fire artık hafızada değil, tek ekranda birikiyor.",
+      "hayalet": "",
+      "rayaSol": "ALICI",
+      "rayaOrta": "Saha gözlemi, hat operasyonları",
+      "panel": null
+    },
+    {
+      "ustBaslik": "FİNANS",
+      "baslik": "Verinle **özel** çözüm kurgula",
+      "govde": "Verinle gel, sana özel uygulamayı demoda birlikte kurgulayalım.",
+      "hayalet": "",
+      "rayaSol": "FİNANS",
+      "rayaOrta": "Saha gözlemi, hat operasyonları",
+      "panel": null
+    }
+  ],
+  "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-bakir-200: oklch(0.92 0.070 90);\n  --ramp-marka-bakir-500: oklch(0.700 0.132 52);\n  --ramp-marka-bakir-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.225 0.008 250);\n  --ramp-marka-ink-950: oklch(0.055 0.004 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-marka-mavi-200: oklch(0.900 0.030 248);\n  --ramp-marka-mavi-300: oklch(0.720 0.098 236);\n  --ramp-marka-mavi-500: oklch(0.620 0.132 242);\n  --ramp-marka-mavi-600: oklch(0.512 0.112 246);\n  --ramp-marka-mavi-700: oklch(0.408 0.092 252);\n  --ramp-marka-mavi-800: oklch(0.330 0.078 255);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-bakir-500);\n  --role-bg: var(--ramp-marka-mavi-700);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n  --role-vurgu: var(--ramp-marka-mavi-300);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+  "stamp": {
+    "brandId": "brd_upcytech",
+    "eraId": "imalat-2026",
+    "kitVersion": "kit-1",
+    "definitionDigest": "sha256:faz3",
+    "contextManifest": "ctx_run_01a015b0-6251-71f8-abee-d0cc6df78cee",
+    "sourceRunId": "run_01a015b0-6251-71f8-abee-d0cc6df78cee"
+  }
+}
