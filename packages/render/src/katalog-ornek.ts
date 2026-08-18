@@ -370,11 +370,16 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     ],
   },
   gorseller: [
-    // ⚠ x KESİM ÇİZGİSİNİN ÜSTÜNE denk geliyor (4 slaytta kesimler %25/%50/%75): özne
-    // gövdesi bir slayttan diğerine geçiyor — bu şablonun birinci süreklilik kanalı.
-    { src: '', alt: 'kesik özne — 1', x: 19, y: 51, genislik: 13, yukseklik: 49, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 2', x: 44, y: 48, genislik: 13, yukseklik: 52, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 3', x: 69, y: 52, genislik: 13, yukseklik: 48, kirpma: 'kesik' },
+    // ⚠ ⚠ **TEK ÖZNE, ÜÇ KOPYA DEĞİL — ve bunu gerçek bir koşu gösterdi.** Şablon üç
+    // yuva ilan ediyordu; hat TEK görsel üretiyor ve `composeBody` onu üç yuvaya birden
+    // koyuyordu. Çıktıda aynı figür üç kez yan yana duruyordu: tasarım değil, hata gibi
+    // okunuyor. Katalog `adet: 'slayt-basina'` diyor ama hattın DAG'ı dinamik çoğaltma
+    // yapmıyor (borç A8) — ilan ile gerçek ayrışıyordu.
+    //
+    // ⚠ Referansın (`ornek-1`) yaptığı şey de zaten bu değil: TEK bir özne kesimi aşarak
+    // devam ediyor. Tek geniş yuva hem dürüst hem referansa sadık: figür 2. ve 3. slaydı
+    // kat ediyor ve süreklilik gerçekten kuruluyor.
+    { src: '', alt: 'kesik özne', x: 38, y: 44, genislik: 26, yukseklik: 56, kirpma: 'kesik' },
   ],
   kartlar: [
     {
@@ -479,12 +484,17 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     { src: '', alt: 'kesik özne — 3', x: 80, y: 50, genislik: 8, yukseklik: 50, kirpma: 'kesik' },
   ],
   lekeler: [
-    { tip: 'daire', x: 7, y: 76, boyut: 190, renk: 'var(--ramp-marka-amber-500)' },
+    // ⚠ ⚠ **İKİSİ HACİMLİ, DÖRDÜ DÜZ — hepsi blob olsaydı Memphis olmaktan çıkardı.**
+    // Bu şablonun kimliği GEOMETRİK desen dili: halka, kare, tarama, nokta ızgarası.
+    // Hacimli organik şekil o dile bir KARŞITLIK katıyor (rehber §3: katmanlanma ve
+    // kontrast), yerine geçmiyor. Kullanıcının şartı buydu: zenginleştir ama aslına
+    // sadık kal.
+    { tip: 'blob', x: 7, y: 76, boyut: 210, renk: 'var(--ramp-marka-amber-500)' },
     { tip: 'halka', x: 31, y: 18, boyut: 150, renk: 'var(--ramp-marka-ink-800)' },
     { tip: 'tarama', x: 49, y: 80, boyut: 210, renk: 'var(--ramp-marka-ink-800)' },
     { tip: 'kare', x: 66, y: 16, boyut: 130, renk: 'var(--ramp-marka-amber-600)' },
     { tip: 'nokta', x: 84, y: 76, boyut: 170, renk: 'var(--ramp-marka-ink-800)' },
-    { tip: 'daire', x: 96, y: 22, boyut: 120, renk: 'var(--ramp-marka-amber-200)' },
+    { tip: 'blob', x: 96, y: 22, boyut: 145, renk: 'var(--ramp-marka-amber-200)' },
   ],
   kartlar: [
     {

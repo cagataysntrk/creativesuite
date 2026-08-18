@@ -53,8 +53,29 @@
     },
     "marka": {
       "$description": "KREATİF rampa (§12.1 · D-253). Doygun ve bu KASITLI: kreatif yüzeyde chroma tavanı yok, renk kaynağı beyanlıdır. Konsolda KULLANILMAZ — orada ISA-101 geçerli ve `kreatif` dışındaki her yüzey tavana tabi.",
+      "$mavi": "MARKANIN KENDİ RENGİ — logodan ÖLÇÜLDÜ (D-276). `upcytech mavi beyaz.png` içindeki tek renk #0090fc = oklch(0.647 0.189 251.2). Amber ise logodan gelmiyordu: token açıklaması onu açıkça 'referans karosellerdeki sarının kardeşi' diye tanımlıyordu, yani aksanımız MARKADAN DEĞİL STOK ŞABLONDAN gelmişti. Konsol gri rampası zaten 250 tonunda; marka mavisi 251 ve ikisi kendiliğinden uyumlu.",
+      "mavi-500": {
+        "$description": "Logodaki renk, BİREBİR. Ölçüldü: #0090fc.",
+        "$value": "oklch(0.647 0.189 251)",
+        "$type": "color"
+      },
+      "mavi-600": {
+        "$description": "Koyu kademe — mavi zemin üstünde ayrım için.",
+        "$value": "oklch(0.575 0.176 251)",
+        "$type": "color"
+      },
+      "mavi-800": {
+        "$description": "Derin mavi — mürekkebe yakın ama tonu koruyor.",
+        "$value": "oklch(0.400 0.120 251)",
+        "$type": "color"
+      },
+      "mavi-200": {
+        "$description": "Açık ton — kâğıt üstünde alan ve leke için.",
+        "$value": "oklch(0.880 0.062 251)",
+        "$type": "color"
+      },
       "amber-500": {
-        "$description": "Birincil marka vurgusu. Ölçüm/enstrüman dünyasının kehribarı; referans karosellerdeki sarının kardeşi.",
+        "$description": "KARŞI aksan (D-276). Artık birincil DEĞİL: logoda sarı yok. Referans tasarımlar iki aksanlı (turuncu+lacivert) ve sıcak bir karşıt, mavi alanı canlandırıyor — tek renkli bir palet cansız kalıyordu.",
         "$value": "oklch(0.80 0.156 87)",
         "$type": "color"
       },

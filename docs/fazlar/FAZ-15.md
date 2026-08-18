@@ -174,3 +174,37 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 ✅ Gerçek koşuda `kesik` görselin arka planı silindi ve `matlama-tutmuyor` kusuru KALMADI
 🧪 `noncommercial_ack` beyanını kaldır → `providers` kapısı kırmızı (denendi, döndü)
 💾 `feat(providers): yerel arka plan silici` · `Refs: FAZ-15.11 · §8.4`
+
+## 15.12 — Katalog markanın kendi paletine taşınıyor    [ ]
+
+📖 §12.1 · D-276 · D-253
+🔗 FAZ-15.11
+🛠 Depo sahibi iki logo bıraktı ve *"katalog bizim markamızın katalogu"* dedi. Logolar
+   ölçüldü: tek renk `#0090fc` = `oklch(0.647 0.189 251.2)`.
+   ⚠ ⚠ **Asıl bulgu token açıklamasındaydı:** `role.bg` *"referans karosellerdeki sarı
+   alanın karşılığı"* diye tanımlıydı — kreatif zeminimiz markadan değil STOK ŞABLONDAN
+   geliyordu ve logoda sarı yok. Hiçbir kapı "bu renk nereden geliyor" diye sormuyor.
+   ⚠ Amber silinmiyor, KARŞI aksan oluyor: referans tasarımların hepsi iki aksanlı.
+📁 `brand/brd_upcytech/tokens/` · `brand/brd_upcytech/derived-tokens/`
+✅ `role.bg` logodan ölçülen mavi · katalog render edilip BAKILDI · kapılar yeşil
+🧪 Rampa dışı bir renk yaz → `tokens` kapısı kırmızı
+💾 `feat(brand): marka rengi logodan olculdu` · `Refs: FAZ-15.12 · §12.1`
+
+## 15.13 — Şablonlar asıllarına benzetiliyor: kodlanmış öge YASAK    [ ]
+
+📖 §7.1 · §17 · D-275
+🔗 FAZ-15.12
+🛠 ⚠ ⚠ **DEPO SAHİBİNİN EN SERT KURALI: "kendin element oluşturma."** `examples/`
+   altındaki referanslar profesyonel tasarımlar; bizimkiler CSS/HTML ile kodlandığı için
+   "bilgisayar işi" duruyor. Ölçülen somut farklar: (a) referansta kesik özne kadrajın
+   ~%40'ı ve KAHRAMAN, bizde %13; (b) oklar el çizimi fırça şeritleri, bizde jenerik
+   `<path>`; (c) organik lekeler dev ve kesim aşıyor, bizde küçük ve seyrek;
+   (d) referans iki aksanlı çalışıyor.
+   ⚠ Kütüphane araştırması D-275'te: hazır setler ölçüldü, üçü reddedildi. Bu adım o
+   kararı YENİDEN AÇIYOR — sahibi açıkça "araştır ve ekle" dedi ve ret gerekçelerinden
+   biri (jenerik ikon seti) hâlâ geçerli, ötekiler (fırça/doodle varlıkları) YENİDEN
+   değerlendirilmeli.
+📁 `packages/render/src/katalog-ornek.ts` · `packages/render/src/panorama.ts`
+✅ Altı şablon referansların yanına konup karşılaştırıldı; kodlanmış jenerik öge kalmadı
+🧪 Bir şablona düz `<path>` ok koy → tasarım kapısı ya da denetim kırmızı
+💾 `feat(render): sablonlar asillarina benzetildi` · `Refs: FAZ-15.13 · §7.1`

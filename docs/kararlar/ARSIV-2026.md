@@ -4432,3 +4432,117 @@ bağlamın ölçüsü tüm bağlamlara uygulandı. İkisi de "yerelde doğru ola
 
 **Geri alma maliyeti:** düşük — parametre varsayılanı bugünkü değer, davranış değişmiyor.
 
+## D-263 — Defter KANIT tutar, yük değil; JSON kanıttır, PNG teslimattır
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-14.1 · §3.5 · R-52 ↔ R-64
+
+Bekleyen çalıştırma defterlerini commit'lerken `repo-hygiene` kırmızıya döndü: bir
+`manifest.json` **580 KB** çıkmıştı. İki kural çakışıyor göründü — R-52 defterin
+commit'lenmesini, R-64 512 KB üstü izlenen dosya olmamasını zorunlu kılıyor.
+
+**Çakışma sahteydi, iki ayrı kökü vardı.**
+
+**(a) Manifest gömülü YÜK taşıyordu.** Ölçüldü: `output.document.fontCss` **414 KB** —
+gömülü marka fontu, her koşuda AYNI ve zaten `brand/<id>/fonts` altında izleniyor — ve bir
+görselin `src` data URI'si **385 KB**. Defterin işi byte'ı saklamak değil, *hangi byte
+olduğunu kanıtlamak*; digest bunu 64 karakterde yapıyor. `defterReplacer` 8 KB üstü her
+dizeyi `«elenmis sha256:… <n>B»` ile değiştiriyor. Eşik ölçülerek seçildi: en büyük gerçek
+kanıt alanı QA raporu 3,4 KB, `tokenCss` 2,6 KB — ikisi de korunuyor. Kazanç: 16 MB.
+
+**(b) Teslimat PNG'leri deftere karışmıştı.** Fotoğraflı bir slayt 792 KB. R-52'nin kendi
+gerekçesi *"maliyet ve sağlayıcı geçmişi başka hiçbir yerde yazmıyor"* diyor — yani defter
+PARA ve SAĞLAYICI geçmişidir, teslimat deposu değil. Teslimat byte'ı D-248'in içerik-adresli
+deposuna ait. Depo zaten 48 manifest'e karşı **yalnız 6** PNG izliyordu: PNG kuralın kendisi
+değil istisnasıydı; tutarsızlık lehine değil aleyhine karar verildi.
+
+⚠ **Kalan borç:** manifest slaytların YOLUNU ve boyutunu yazıyor ama **digest'ini yazmıyor**,
+yani işaretçi doğrulanabilir değil. Bu, bu kararın kapattığı değil AÇTIĞI bir eksiktir ve
+öyle kayda geçiyor. → FAZ-14.2 plan artefaktıyla birlikte kapanır.
+
+**Geri alma maliyeti:** düşük — eleme yalnız yazma anında, okuyan hiçbir tüketici elenen
+alanlara bakmıyor (`captions`, `fetchedAt`, `sourceRef`, `personalizationFields`).
+
+## D-264 — Yuva bir POLİTİKA kararıdır, bir gözlem değil
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-14.3 · §7.1
+
+Hattın sırasını çevirdim — `kompozit` artık `gorsel-uret`ten ÖNCE koşuyor, böylece brief
+gireceği yuvayı görerek yazılıyor. Sıra değişince plan **kendi kuyruğunu ısırdı**:
+`tasarla` yuvayı `gorselVar: gorsel !== null` ile açıyordu, yani *"ortada üretilmiş bir
+görsel var mı"* diye soruyordu. Ama görsel artık plandan SONRA üretiliyor. Plan, kendi
+tetiklediği şeyin varlığını ön koşul sayıyordu: yuva hiç açılmaz, brief hiç yazılmaz,
+görsel hiç üretilmezdi. Test bunu ilk koşuda yakaladı — `expected '' to contain …`.
+
+**Yanlış olan sıra değil ÖNCÜLDÜ.** Yuvanın var olup olmayacağı bir gözlem değil bir
+karardır: *"bu karosel bir fotoğraf taşımalı mı?"* Bunu görselin kendisi cevaplayamaz.
+`yuvaIstendi` artık hattın (ileride kompozisyon ailesinin, FAZ-12.7) verdiği bir politika
+ve plan yalnız gerekçesini yazıyor.
+
+⚠ **Bu D-261'in kardeşi ve aynı sınıf.** Orada fotoğraf "bağlı olan tek görsel yol"
+olduğu için kullanılıyordu; burada plan, görselin varlığını kendi kararının girdisi
+sanıyordu. İkisi de *"neden bu öge burada?"* sorusunun cevabının bir tesadüf olmasıydı.
+
+**Yan kazanç — üretim artık KOŞULLU.** Plan yuva işaretlemezse `gorselBriefPromptu` `null`
+dönüyor, brief üretilmiyor, `gorsel-uret` besinsiz kalıyor. Koşucuya "adım atla" yeteneği
+EKLENMEDİ; zincir kendiliğinden sönüyor. *"Her ihtimale karşı bir görsel üret"* hem kota
+hem marka tutarlılığı kaybıydı.
+
+**Geri alma maliyeti:** düşük — `gorsel_yuvasi: true` hat kısıtı bugünkü davranışı koruyor.
+
+## D-265 — Yavaşlığın nedeni tahmin edildi; ölçüm tahmini çürüttü
+
+**Tarih:** 2026-08-17 · **Bağlam:** R-78 · R-79 · R-80
+
+Önce tahminle cevap verildi: *"her adım 1500 testi birkaç kez koşuyor, kazanç testleri
+daraltmakta."* Ölçüldü, tahmin çürüdü:
+
+| Ölçülen | Sonuç |
+|---|---|
+| `vitest run` (1511 test) | **11.0 sn** — darboğaz değil |
+| `just check` | **40 sn** duvar / 115 sn CPU · 43 kapının 42'si `fast` |
+| En pahalı beş kapı | tests 11.5 · format 8.7 · lint 7.0 · cli-duman 5.2 · types 4.3 |
+| Commit başına üretim kodu | 310 → 266 → **86** satır (15 → 16 → 17 Ağustos) |
+
+Tahmin uygulansaydı en ucuz koruma (11 sn) kesilir, gerçek maliyet yerinde kalırdı.
+Tur sayısı düşmemişti (101 · 107 · 70 commit) — düşen **turun kod içeriğiydi**.
+Zaman adım başına ~6 tam doğrulama turuna gidiyordu; R-79 bunu ~1.5'e indiriyor.
+
+**Ölçümün yan bulgusu:** `vitest run` tek başına çıkış kodu 1 verdi ("Worker exited
+unexpectedly", 1511 testin 161'i hiç koşmadı), aynı paket `just check` içinde yeşil
+geçti. Test kapısı bugün bazen 1350 bazen 1511 test koşuyor ve ikisinde de yeşil
+raporlayabiliyor — hem yeniden koşum (hız) hem yalan yeşil (güvenlik). → R-80
+
+**Kesilmeyecekler — bilerek.** Gerçek uçtan uca koşular (~300 sn), ihlal turu (R-71) ve
+çıktıya gözle bakmak. FAZ-14'ün dört kusurundan üçü metrikler yeşilken, yalnız gerçek
+çıktıya bakınca çıktı.
+
+⚠ **Asıl gecikme kurallar değildi.** Bu turdaki üç büyük kayıp, üç kez öncülün yanlış
+çıkmasıydı (D-264 · D-259 · D-260). Çaresi daha az doğrulama değil, baştan daha dikkatli
+düşünmek. R-78…R-80 tekrarı kesiyor, düşünmeyi değil.
+
+**Geri alma maliyeti:** sıfır — hiçbir kapı gevşetilmedi, hiçbir test silinmedi.
+
+## D-266 — Dört bloke adım karara bağlandı: biri kapandı, üçü TETİKLEYİCİ aldı
+
+**2026-08-17.** FAZ-11'in dört adımı (`11.5` `11.6` `11.9` `11.10`) günlerdir
+`bloke: karar` duruyordu ve hiçbiri karara bağlanmamıştı. **Kararsız bir blokaj bir karar
+değil, bir erteleme borcudur:** her turda okunur, her turda atlanır ve planı yavaşça
+gerçeklikten koparır. LOOP§A tam yetki veriyor; kullanılmayan yetki de bir seçimdir.
+
+| Adım | Karar | Gerekçe |
+|---|---|---|
+| `11.10` illüstrasyon kütüphanesi | **KAPATILDI — yapılmayacak** | §11.3 onay ima eden yapay insanı yasaklıyor; kalan (soyut/şematik) alt kümeyi 20 ikon + 5 süsleme + akış diyagramı zaten dolduruyor. Dışarıdan varlık + lisans metni indirmek §16 kurtarma yükü ekler (R-75). |
+| `11.9` yerel raster | **YARISI ÇÖZÜLDÜ, yarısı ertelendi** | Upscale yumuşaması `feConvolveMatrix` keskinliğiyle **bağımlılıksız** çözüldü (FAZ-12.2, kenar enerjisi 2,04 → 2,36). Akıllı kırpma ve arka plan silme ertelendi. |
+| `11.5` arka plan silme | **ERTELENDİ, tetikleyicili** | ~1 GB ağırlık + §16 sınavı. Tetikleyici: gerçek bir koşuda fotoğrafın arka planı alanla çarpışsın **ve** duotone (FAZ-11.7) bunu çözemesin. Bugüne kadar olmadı. |
+| `11.6` taban → model (img2img) | **ERTELENDİ, tetikleyicili** | Sıralama yarısı FAZ-14.3'te zaten teslim edildi (taban önce, model sonra). Kalan yarı yeni bir ücretli sağlayıcı yolu. Tetikleyici: 20 kabul koşusunda kompozisyon körlüğü baskın kusur kaynağı çıksın. Görsel üretimi artık **koşullu** (D-264) ve çoğu koşuda hiç çalışmıyor — adımın yazıldığı andaki öncül zayıfladı. |
+
+**Ortak ilke:** üçü de dış kaynak (ağırlık indirme, ücretli yol, varlık + lisans) istiyor;
+D-157 bunları `insan` sınıfı sayıyor ve LOOP§G üçlü kuralına saymıyor — **plan hatası
+değiller.** Ama sınıflandırmak karara bağlamak değildir. Her birine bir tetikleyici
+yazıldı: blokaj artık "bir gün bakarız" değil, **gözlenebilir bir koşul**.
+
+⚠ **Erteleme geri alınabilir, kapatma da.** `11.10` bir talep gelirse yeniden açılır —
+ama talep bir sezgi değil, bir referans örnek ya da bir kabul koşusu bulgusu olmalı.
+
+**Geri alma maliyeti:** sıfır — hiçbir kod yazılmadı, hiçbir bağımlılık eklenmedi.
+

@@ -299,7 +299,15 @@ export interface PanoramaBelgesi {
    * üstüne oturabiliyor, ki `ornek-3`ün ritmini kuran şey tam olarak bu serpilme.
    */
   readonly lekeler?: readonly {
-    readonly tip: 'daire' | 'halka' | 'kare' | 'nokta' | 'tarama'
+    /**
+     * ⚠ ⚠ **`blob` HACİMLİ: düz dolgu değil, DEGRADE + gölge.** Kullanıcının istediği
+     * "3D element" görünümünün büyük kısmı bu: uzatılmış/hacimli organik bir şekil.
+     * Hazır bir kütüphane arandı ve REDDEDİLDİ — `blobshape` (MIT) `Math.random`
+     * kullanıyor ve R-06 determinizmi yasaklıyor; üç boyutlu varlık kütüphaneleri ise
+     * Chromium'da render için ikinci bir motor ister (Yasa 4). Şekil burada ÜRETİLİYOR
+     * ve tohumu içerikten geliyor: aynı belge her koşuda aynı blob'u veriyor.
+     */
+    readonly tip: 'daire' | 'halka' | 'kare' | 'nokta' | 'tarama' | 'blob'
     readonly x: number
     readonly y: number
     readonly boyut: number
@@ -705,10 +713,34 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
 
   // Geometrik lekeler: tek SVG, panorama koordinatında. Kartların ALTINDA (z-index 0)
   // duruyorlar — metnin üstüne çıkan bir leke okunabilirliği düşürür.
+  // ⚠ ⚠ **HACİM İÇİN GEREKEN ŞEY DEGRADE + GÖLGE, ÜÇÜNCÜ BİR BOYUT DEĞİL.** Bu
+  // karosellerde "3D element" denen şeyin görsel imzası: yumuşak bir degrade, tek yönlü
+  // bir ışık ve zemine düşen bir gölge. Üçü de SVG'de var; bir 3B motor (three.js +
+  // GLB) ikinci bir render motoru demek olurdu (Yasa 4) ve tek bir öge için orantısız.
+  const blobDegradeleri =
+    doc.lekeler === undefined
+      ? ''
+      : doc.lekeler
+          .map((l, i) =>
+            l.tip !== 'blob'
+              ? ''
+              : `<radialGradient id="blob-${i}" cx="34%" cy="28%" r="78%">` +
+                `<stop offset="0" stop-color="${l.renk}" stop-opacity="1"/>` +
+                `<stop offset="1" stop-color="${l.renk}" stop-opacity="0.55"/>` +
+                `</radialGradient>`
+          )
+          .join('')
+
   const lekeKatmani =
     doc.lekeler === undefined || doc.lekeler.length === 0
       ? ''
       : `<svg class="lekeler" viewBox="0 0 ${toplam} ${doc.yukseklik}" aria-hidden="true">` +
+        `<defs>${blobDegradeleri}` +
+        // ⚠ Gölge tek tanım, her blob onu paylaşıyor: filtre başına bir SVG filtresi
+        // kurmak aynı görüntüyü N kez tarif etmek olurdu.
+        `<filter id="blob-golge" x="-30%" y="-30%" width="170%" height="170%">` +
+        `<feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.28"/>` +
+        `</filter></defs>` +
         doc.lekeler
           .map((l) => {
             const cx = (l.x / 100) * toplam
@@ -720,6 +752,30 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
               return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${l.renk}" stroke-width="7"/>`
             if (l.tip === 'kare')
               return `<rect x="${cx - r}" y="${cy - r}" width="${l.boyut}" height="${l.boyut}" fill="${l.renk}" transform="rotate(12 ${cx} ${cy})"/>`
+            if (l.tip === 'blob') {
+              // ⚠ ⚠ **TOHUM KONUMDAN, RASTGELELİKTEN DEĞİL (R-06).** Yarıçaplar `l.x`
+              // ve `l.y`den türeyen deterministik bir diziyle salınıyor: aynı belge her
+              // koşuda AYNI blob'u veriyor ve golden test kurulabiliyor. `Math.random`
+              // burada bir satırla girebilirdi ve replay'i sessizce bozardı.
+              const n = 7
+              const tohum = Math.round(l.x * 37 + l.y * 11 + l.boyut)
+              const nokta = Array.from({ length: n }, (_, k) => {
+                const aci = (k / n) * Math.PI * 2 - Math.PI / 2
+                // Salınım ±%18: daha azı daireye benziyor, daha fazlası yıldıza.
+                const sapma = 1 + 0.18 * Math.sin(tohum * 0.37 + k * 2.399)
+                return [cx + Math.cos(aci) * r * sapma, cy + Math.sin(aci) * r * sapma] as const
+              })
+              // Kuadratik zincir: eğri komşu orta noktalardan geçiyor, köşe kalmıyor.
+              const orta = (a: readonly number[], b: readonly number[]): string =>
+                `${((a[0] as number) + (b[0] as number)) / 2} ${((a[1] as number) + (b[1] as number)) / 2}`
+              let d = `M ${orta(nokta[n - 1] as readonly number[], nokta[0] as readonly number[])}`
+              for (let k = 0; k < n; k += 1) {
+                const p = nokta[k] as readonly number[]
+                const q = nokta[(k + 1) % n] as readonly number[]
+                d += ` Q ${p[0]} ${p[1]} ${orta(p, q)}`
+              }
+              return `<path d="${d} Z" fill="url(#blob-${doc.lekeler?.indexOf(l) ?? 0})" filter="url(#blob-golge)"/>`
+            }
             if (l.tip === 'nokta') {
               const n = 5
               const adim = l.boyut / (n - 1)

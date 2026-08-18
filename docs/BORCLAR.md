@@ -12,11 +12,12 @@
 | # | Borç | Durum | Not |
 |---|---|---|---|
 | A1 | **Arka plan silme** | ✅ **ÖDENDİ** | `rembg` + BRIA RMBG 2.0 kuruldu, `local-rembg` sağlayıcısı yazıldı, `image.matte` yeteneği |
-| A2 | Arka plan silme **hatta bağlanması** | 🔴 AÇIK | Adaptör hazır; `gorsel-kirp` adımı ve `composeBody` bağı yazılıyor |
-| A3 | **3D element kütüphanesi** | 🔴 AÇIK | Aday araştırılmadı. Lisans + boyut + Chromium'da render edilebilirlik ölçülmeli |
-| A4 | **Doodle/illüstrasyon kütüphanesi** | 🔴 AÇIK | Aynı ölçüm gerekiyor; SVG seti tercih (raster değil) |
-| A5 | **Foto manipülasyon** (görseli temaya uydurma) | 🟡 KISMİ | `duotone` + `keskinlik` var; renk sıcaklığı eşitleme, gölge ekleme, perspektif YOK |
-| A6 | Şablonların **zenginleştirilmesi** (tasarım rehberine göre) | 🔴 AÇIK | Rehber yazıldı (`docs/referans/tasarim-rehberi.md`); şablonlara henüz uygulanmadı |
+| A2 | Arka plan silme **hatta bağlanması** | ✅ **ÖDENDİ** | `gorsel-kirp` adımı; base64 boru (ikili veri utf8'de bozuluyordu) |
+| A3 | **3D element kütüphanesi** | ✅ **KARARA BAĞLANDI (D-275)** | Hazır kütüphane REDDEDİLDİ (ikinci render motoru / `Math.random`); imza degrade+ışık+gölge ve `blob` leke tipiyle kendimiz veriyoruz |
+| A4 | **Doodle/illüstrasyon kütüphanesi** | ✅ **KARARA BAĞLANDI (D-275)** | `humaaans` CC BY atıf + fotoğrafik öznelerle çakışıyor; ikon setleri çıktıyı DAHA jenerik yapar |
+| A5 | **Foto manipülasyon** | 🟡 KISMİ | `tema-uyum` (renk derecelendirme) + `temas-golgesi` eklendi. **Perspektif ve ışık yönü eşleme YOK** |
+| A6 | Şablonların **zenginleştirilmesi** | 🟡 KISMİ | Boşluk ritmi 1:3, panel tek ayıraç, hayalet katman, hacimli blob **uygulandı**. §7 (tek kahraman) ve §9 (hikâye) HENÜZ değil |
+| A8 | `GorselIhtiyaci.adet` ilan ediliyor, **hat dinlemiyor** | 🔴 AÇIK | Katalog `slayt-basina` diyor; DAG dinamik çoğaltma yapmıyor ve tek görsel üretiliyor. `sahne` tek geniş yuvaya çevrildi (referansa sadık), ama İLAN ile GERÇEK hâlâ ayrı |
 | A7 | `content/` çıktılarının tazelenmesi | 🔴 AÇIK | Eski render'lar duruyor; katalog merkezli hatla yeniden üretilmeli |
 
 ⚠ **A3/A4 için ölçüt (rehber §4, §6):** kütüphane "ikon seti" değil **kompozisyon ögesi**

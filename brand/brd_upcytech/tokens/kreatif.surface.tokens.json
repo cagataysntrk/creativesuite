@@ -2,8 +2,8 @@
   "$description": "KREATİF yüzey (§12.1 · D-253). Instagram/LinkedIn çıktısının rolleri. Chroma tavanı BURADA UYGULANMAZ: ISA-101 gerekçesi izleme kabini içindir ve bir gönderide ters yönde çalışır. Tutarlılık token seviyesinde değil, BASILMIŞ PİKSELDE ölçülüyor (§11.1 ΔE + palet-dışı oran). Yalnız 2. kademe rolleri yeniden tanımlar — rampalar ve yapı ortak.",
   "role": {
     "bg": {
-      "$description": "Kapak ve vurgu slaytlarının zemini. Referans karosellerdeki sarı alanın karşılığı.",
-      "$value": "{ramp.marka.amber-500}",
+      "$description": "Kapak ve vurgu slaytlarının zemini — MARKANIN MAVİSİ (D-276). Önceki değer amber'di ve açıklaması 'referans karosellerdeki sarı alanın karşılığı' diyordu: yani zeminimiz markadan değil STOK ŞABLONDAN geliyordu. Logodan ölçülen #0090fc bu rolün sahibi.",
+      "$value": "{ramp.marka.mavi-500}",
       "$type": "color"
     },
     "surface": {
@@ -29,8 +29,8 @@
       "$type": "color"
     },
     "accent": {
-      "$description": "Motif ve sayaç rengi — kapakta mürekkep, gövdede kehribar.",
-      "$value": "{ramp.marka.amber-600}",
+      "$description": "KARŞI aksan: mavi zemin üstünde sıcak vurgu (D-276). Referans tasarımlar iki aksanlı çalışıyor (turuncu+lacivert); tek renkli bir palet cansız kalıyor. Amber birincil olmaktan çıktı ama SİLİNMEDİ — mavinin karşıtı olarak işi var.",
+      "$value": "{ramp.marka.amber-500}",
       "$type": "color"
     },
     "state-warn": {
