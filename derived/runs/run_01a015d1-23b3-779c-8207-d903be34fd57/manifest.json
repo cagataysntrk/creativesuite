@@ -1,0 +1,1340 @@
+{
+  "runId": "run_01a015d1-23b3-779c-8207-d903be34fd57",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "5f9add9717671849fb6081200b87a8ae113b3210",
+  "registryCommit": "5f9add9717671849fb6081200b87a8ae113b3210",
+  "createdAt": "2026-08-18T17:05:28.655Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:00:22.863Z",
+      "finishedAt": "2026-08-18T17:00:22.863Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:00:22.863Z",
+      "finishedAt": "2026-08-18T17:00:22.864Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:00:22.864Z",
+      "finishedAt": "2026-08-18T17:00:33.598Z",
+      "output": null
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:00:33.598Z",
+      "finishedAt": "2026-08-18T17:01:40.246Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:01:40.246Z",
+      "finishedAt": "2026-08-18T17:01:40.248Z",
+      "output": {
+        "sablonId": "memphis"
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:01:40.248Z",
+      "finishedAt": "2026-08-18T17:01:46.052Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true,
+        "gorsel_sira": 1,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:01:46.052Z",
+      "finishedAt": "2026-08-18T17:01:51.425Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:01:51.425Z",
+      "finishedAt": "2026-08-18T17:02:07.877Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "gorsel_brief": true,
+        "gorsel_sira": 2,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:02:07.877Z",
+      "finishedAt": "2026-08-18T17:02:13.013Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true,
+        "gorsel_sira": 2,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:02:13.014Z",
+      "finishedAt": "2026-08-18T17:02:20.726Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:02:20.726Z",
+      "finishedAt": "2026-08-18T17:02:37.642Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "gorsel_brief": true,
+        "gorsel_sira": 3,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:02:37.642Z",
+      "finishedAt": "2026-08-18T17:02:45.471Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true,
+        "gorsel_sira": 3,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:02:45.472Z",
+      "finishedAt": "2026-08-18T17:02:50.049Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:02:50.049Z",
+      "finishedAt": "2026-08-18T17:03:06.585Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-4",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "gorsel_brief": true,
+        "gorsel_sira": 4,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:03:06.585Z",
+      "finishedAt": "2026-08-18T17:03:06.586Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-uret-4",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true,
+        "gorsel_sira": 4,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:03:06.586Z",
+      "finishedAt": "2026-08-18T17:03:06.586Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-4",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:03:06.586Z",
+      "finishedAt": "2026-08-18T17:03:06.587Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:03:06.587Z",
+      "finishedAt": "2026-08-18T17:03:06.588Z",
+      "output": {
+        "sablonId": "memphis"
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:03:06.588Z",
+      "finishedAt": "2026-08-18T17:03:09.130Z",
+      "output": {
+        "kusurlar": [
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşesi OPAK (alfa 254/255) ve parlaklık 123/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek"
+          }
+        ],
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-05.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-06.png"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:03:09.130Z",
+      "finishedAt": "2026-08-18T17:04:44.201Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              32,
+              328,
+              248,
+              96
+            ],
+            "kategori": "hizalama",
+            "siddet": "uyari",
+            "aciklama": "Mavi vurgu kutusunun sol kenarı, başlık bloğundaki diğer iki satırın (\"Duruşun nedeni\", \"biliniyor mu?\") sol hizasından daha sola taşıyor."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              236,
+              1288,
+              230,
+              32
+            ],
+            "kategori": "kontrast",
+            "siddet": "uyari",
+            "aciklama": "Alt bilgi çubuğundaki \"Saha vardiya gözlemi\" yazısı açık gri renkte olduğu için zemine göre düşük kontrastlı ve okunması güç."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:04:44.201Z",
+      "finishedAt": "2026-08-18T17:05:26.126Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              790,
+              780,
+              290,
+              460
+            ],
+            "kategori": "carpicilik",
+            "siddet": "uyari",
+            "aciklama": "Slaydın tek görsel ögesi olan figür küçük boyutu ve soluk tonuyla dikkat çekme görevini zayıf yerine getiriyor."
+          }
+        ],
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 3,
+            "gerekce": "Üst-sol metin bloğu ile alt-sağ figür köşegen bir denge kurar ama orta-alt bölgede kalan geniş boşluk kompozisyonu sağa kaydırılmış hissettirir."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 4,
+            "gerekce": "Etiket, vurgulu başlık ve alt metin sırası göz akışını net şekilde yönlendiriyor, mavi vurgu kelimesi ilk durak noktası oluyor."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 3,
+            "gerekce": "Üst blok sıkı yerleşmişken alt yarı büyük ölçüde boş kalmış, bu boşluk bir ritim kurmaktan çok kullanılmamış alan izlenimi veriyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 4,
+            "gerekce": "Tipografi, tek vurgu rengi, monokrom figür ve alt bilgi şeridi aynı görsel sistemden geliyormuş gibi hissettiriyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 4,
+            "gerekce": "Başlık, vurgu bloğu ve gövde metni arka planla yeterli karşıtlıkta ve rahat okunuyor."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 2,
+            "gerekce": "Sağ alttaki figür küçük, düşük kontrastlı ve pasif bir duruşta olduğu için akışı durduracak güçlü bir görsel çekim yaratmıyor."
+          }
+        ],
+        "toplam": 3.33,
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T17:05:26.126Z",
+      "finishedAt": "2026-08-18T17:05:26.128Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:05:26.128Z",
+      "finishedAt": "2026-08-18T17:05:26.129Z",
+      "output": {
+        "sablonId": "memphis"
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:05:26.129Z",
+      "finishedAt": "2026-08-18T17:05:28.654Z",
+      "output": {
+        "kusurlar": [
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşesi OPAK (alfa 254/255) ve parlaklık 123/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek"
+          }
+        ],
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-05.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a015d1-23b3-779c-8207-d903be34fd57/slayt-06.png"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,veri-hikayesi",
+        "topic": "Duruslarin kok nedenini bulmak"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T17:05:28.654Z",
+      "finishedAt": "2026-08-18T17:05:28.655Z",
+      "output": {
+        "kusurSayisi": 1,
+        "bulgular": [
+          "kesik görselin köşesi OPAK (alfa 254/255) ve parlaklık 123/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek"
+        ],
+        "gecti": false,
+        "slaytSayisi": 6
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}

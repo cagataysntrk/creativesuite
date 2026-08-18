@@ -1,0 +1,203 @@
+{
+  "slaytGenisligi": 1080,
+  "yukseklik": 1350,
+  "ustDoku": {
+    "gren": 13,
+    "vinyet": 18
+  },
+  "yerlesim": "ust",
+  "tipografi": {
+    "baslikPayi": 0.98,
+    "baslikGenislik": 92,
+    "baslikAgirlik": 800,
+    "satirAraligi": 1.08,
+    "harfArasi": -0.01,
+    "ustGenislik": 84,
+    "govdeOrani": 0.34,
+    "baslikSutunu": 0.8,
+    "panelPayi": 1.7
+  },
+  "zemin": "var(--role-surface)",
+  "hayaletKonumu": {
+    "ust": 30,
+    "olcek": 1.4,
+    "guc": 7
+  },
+  "zeminDokusu": {
+    "taban": "--ramp-marka-kagit",
+    "katmanlar": [
+      {
+        "tip": "dogrusal",
+        "aci": 160,
+        "duraklar": [
+          {
+            "renk": "--ramp-marka-kagit",
+            "konum": 0
+          },
+          {
+            "renk": "--ramp-gray-100",
+            "konum": 100
+          }
+        ]
+      },
+      {
+        "tip": "isik",
+        "x": 78,
+        "y": 18,
+        "capX": 44,
+        "capY": 52,
+        "renk": "--ramp-marka-bakir-200",
+        "guc": 40
+      }
+    ]
+  },
+  "bant": {
+    "tip": "yok"
+  },
+  "gorselIslemleri": [
+    "tema-uyum",
+    "temas-golgesi"
+  ],
+  "gorseller": [
+    {
+      "src": "gorsel-01.png",
+      "alt": "kesik özne — 1",
+      "x": 13,
+      "y": 52,
+      "genislik": 8,
+      "yukseklik": 48,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-02.png",
+      "alt": "kesik özne — 2",
+      "x": 46,
+      "y": 54,
+      "genislik": 8,
+      "yukseklik": 46,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-03.png",
+      "alt": "kesik özne — 3",
+      "x": 80,
+      "y": 50,
+      "genislik": 8,
+      "yukseklik": 50,
+      "kirpma": "kesik"
+    }
+  ],
+  "kartlar": [
+    {
+      "ustBaslik": "VARSAYIM",
+      "baslik": "Duruşun nedeni **gerçekten** biliniyor mu?",
+      "govde": "Vardiyalar aynı duruşa farklı nedenler yazıyor, hiçbiri doğrulanmıyor.",
+      "hayalet": "",
+      "rayaSol": "KÖK NEDEN",
+      "rayaOrta": "Saha vardiya gözlemi",
+      "panel": null,
+      "zemin": "var(--ramp-marka-kagit)",
+      "elYazisi": "Kendine sor"
+    },
+    {
+      "ustBaslik": "MALİYET",
+      "baslik": "Kayıtsız duruş **pahalı** çıkıyor",
+      "govde": "Bir hat üç saat durdu, kimse aynı nedeni söylemedi çünkü kayıt yoktu.",
+      "hayalet": "",
+      "rayaSol": "KÖK NEDEN",
+      "rayaOrta": "Saha vardiya gözlemi, 3 saatlik duruş",
+      "panel": {
+        "tip": "etiketler",
+        "ogeler": [
+          "Vardiya amiri",
+          "Formen",
+          "Kayıt yok"
+        ]
+      },
+      "zemin": "var(--ramp-marka-mavi-200)"
+    },
+    {
+      "ustBaslik": "AYRIŞTIRMA",
+      "baslik": "İki cevap **birbirini** tutmuyor",
+      "govde": "Vardiya amiri hatırladığını anlattı, formen başka bir şey işaretledi.",
+      "hayalet": "",
+      "rayaSol": "KÖK NEDEN",
+      "rayaOrta": "Saha vardiya gözlemi, çelişen ifadeler",
+      "panel": {
+        "tip": "liste",
+        "baslik": "KİM NE DEDİ",
+        "ogeler": [
+          {
+            "no": "01",
+            "ad": "Vardiya amiri hatırladığını anlattı"
+          },
+          {
+            "no": "02",
+            "ad": "Formen başka bir neden işaretledi"
+          }
+        ]
+      },
+      "zemin": "var(--ramp-marka-kagit)"
+    },
+    {
+      "ustBaslik": "DÖNGÜ",
+      "baslik": "Bağlantı **kurulmadı**, tekrarladı",
+      "govde": "Aynı duruş bir ay sonra tekrarladı, ilkiyle bağını kimse kurmadı.",
+      "hayalet": "",
+      "rayaSol": "KÖK NEDEN",
+      "rayaOrta": "Saha vardiya gözlemi, 1 aylık tekrar",
+      "panel": null,
+      "zemin": "var(--ramp-marka-bakir-200)"
+    },
+    {
+      "ustBaslik": "ÖMÜR",
+      "baslik": "Bilgi hafızada **kısa** ömürlü",
+      "govde": "Kök neden hafızada kaldığı sürece her duruş sıfırdan başlıyor.",
+      "hayalet": "",
+      "rayaSol": "KÖK NEDEN",
+      "rayaOrta": "Saha vardiya gözlemi, hafızaya dayalı kayıt",
+      "panel": {
+        "tip": "sayilar",
+        "ogeler": [
+          {
+            "deger": "3",
+            "birim": "saat",
+            "alt": "duruşun süresi"
+          },
+          {
+            "deger": "1",
+            "birim": "ay",
+            "alt": "tekrara kadar geçen süre"
+          }
+        ]
+      },
+      "zemin": "var(--ramp-marka-kagit)"
+    },
+    {
+      "ustBaslik": "YAPILACAK",
+      "baslik": "Vardiyanı **veriye** çevir",
+      "govde": "Kayıt tutmanın, kök nedeni bağlamanın zamanı geldi.",
+      "hayalet": "",
+      "rayaSol": "KÖK NEDEN",
+      "rayaOrta": "Saha vardiya gözlemi, aksiyon çağrısı",
+      "panel": {
+        "tip": "etiketler",
+        "ogeler": [
+          "Kayıt tut",
+          "Kök nedeni bağla",
+          "Tekrarı önle"
+        ]
+      },
+      "zemin": "var(--ramp-marka-mavi-700)"
+    }
+  ],
+  "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-bakir-200: oklch(0.92 0.070 90);\n  --ramp-marka-bakir-500: oklch(0.700 0.132 52);\n  --ramp-marka-bakir-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.225 0.008 250);\n  --ramp-marka-ink-950: oklch(0.055 0.004 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-marka-mavi-200: oklch(0.900 0.030 248);\n  --ramp-marka-mavi-300: oklch(0.720 0.098 236);\n  --ramp-marka-mavi-500: oklch(0.620 0.132 242);\n  --ramp-marka-mavi-600: oklch(0.512 0.112 246);\n  --ramp-marka-mavi-700: oklch(0.408 0.092 252);\n  --ramp-marka-mavi-800: oklch(0.330 0.078 255);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-bakir-500);\n  --role-bg: var(--ramp-marka-mavi-700);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n  --role-vurgu: var(--ramp-marka-mavi-300);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+  "stamp": {
+    "brandId": "brd_upcytech",
+    "eraId": "imalat-2026",
+    "kitVersion": "kit-1",
+    "definitionDigest": "sha256:faz3",
+    "contextManifest": "ctx_run_01a015d1-23b3-779c-8207-d903be34fd57",
+    "sourceRunId": "run_01a015d1-23b3-779c-8207-d903be34fd57"
+  }
+}
