@@ -228,13 +228,30 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   alanSiniri: {
     ust: 'var(--role-bg)',
     alt: 'var(--role-line-edge)',
+    // ⚠ ⚠ **GENLİK %9'DAN %58'E — referansla farkın kaynağı EKSEN DEĞİL, GENLİKTİ.**
+    // `image.png`de amber alan slayttan slayta yer değiştiriyor: bir karede neredeyse
+    // tamamı kaplıyor, ötekinde alt köşeye çekiliyor. Bizim sınır 57–66 arası
+    // salınıyordu, yani her slaytta AYNI yükseklikte düz bir şerit — göz bir bölme
+    // değil bir çizgi görüyordu.
+    //
+    // ⚠ Ekseni dikeye çevirmek denenmedi ve çevrilmeyecek: kayıtlı gerekçe duruyor
+    // (`panorama.ts`) — slayt başına dikey sınır kesimde KIRILIR ve süreklilik ima
+    // edilmekten öteye geçmez. Tek yol genliği büyütmek: aynı sürekli eğri, her karede
+    // başka bir yükseklikte kesiyor ve slayt slayt bakınca DİKEY bir bölme gibi
+    // okunuyor. Süreklilik korunuyor, referansın etkisi geliyor.
+    // ⚠ ⚠ **TEPE NOKTALARI METNİN ALTINDA KALMAK ZORUNDA — ilk deneme %26'ya çıktı ve
+    // BAŞLIĞI KESTİ.** Metin bloğu (üst başlık + başlık + gövde) tuvalin ilk %32'sini
+    // kaplıyor; dalga oraya girince "Ölçülmeyen kalite" başlığının yarısı mürekkep
+    // alanda kaldı. Genlik hâlâ büyük (%42 salınım) ama tavan %44'te: referansın etkisi
+    // duruyor, okunabilirlik kaybı yok.
     noktalar: [
-      { x: 0, y: 62 },
-      { x: 22, y: 57 },
-      { x: 44, y: 66 },
-      { x: 66, y: 58 },
-      { x: 84, y: 64 },
-      { x: 100, y: 60 },
+      { x: 0, y: 86 },
+      { x: 18, y: 46 },
+      { x: 36, y: 80 },
+      { x: 54, y: 44 },
+      { x: 72, y: 78 },
+      { x: 88, y: 45 },
+      { x: 100, y: 72 },
     ],
   },
   bant: { tip: 'yok' },
@@ -493,12 +510,20 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     // Hacimli organik şekil o dile bir KARŞITLIK katıyor (rehber §3: katmanlanma ve
     // kontrast), yerine geçmiyor. Kullanıcının şartı buydu: zenginleştir ama aslına
     // sadık kal.
-    { tip: 'blob', x: 7, y: 76, boyut: 210, renk: 'var(--ramp-marka-amber-500)' },
-    { tip: 'halka', x: 31, y: 18, boyut: 150, renk: 'var(--ramp-marka-ink-800)' },
-    { tip: 'tarama', x: 49, y: 80, boyut: 210, renk: 'var(--ramp-marka-ink-800)' },
-    { tip: 'kare', x: 66, y: 16, boyut: 130, renk: 'var(--ramp-marka-amber-600)' },
-    { tip: 'nokta', x: 84, y: 76, boyut: 170, renk: 'var(--ramp-marka-ink-800)' },
-    { tip: 'blob', x: 96, y: 22, boyut: 145, renk: 'var(--ramp-marka-amber-200)' },
+    // ⚠ ⚠ **ÖLÇEK REFERANSTAN ÖLÇÜLDÜ: leke slaytın ~%35'i, bizimki %12–19'du.**
+    // `image copy 4`te organik lekeler dev ve KESİM ÇİZGİLERİNİ AŞIYOR; küçük ve seyrek
+    // şekiller "dekoratif nokta" gibi okunuyordu, desen dili kurmuyordu. Altı slaytta
+    // kesimler %16,7 · %33,3 · %50 · %66,7 · %83,3 — üç leke kasten oraya oturtuldu.
+    // ⚠ İki aksan (mavi + amber): referans da iki aksanlı çalışıyor (turuncu+lacivert).
+    { tip: 'blob', x: 8, y: 74, boyut: 430, renk: 'var(--ramp-marka-mavi-500)' },
+    { tip: 'halka', x: 17, y: 20, boyut: 260, renk: 'var(--ramp-marka-ink-800)' },
+    { tip: 'blob', x: 33, y: 26, boyut: 380, renk: 'var(--ramp-marka-amber-500)' },
+    { tip: 'tarama', x: 44, y: 78, boyut: 300, renk: 'var(--ramp-marka-ink-800)' },
+    { tip: 'nokta', x: 58, y: 22, boyut: 230, renk: 'var(--ramp-marka-mavi-600)' },
+    { tip: 'blob', x: 67, y: 76, boyut: 400, renk: 'var(--ramp-marka-mavi-200)' },
+    { tip: 'kare', x: 78, y: 20, boyut: 170, renk: 'var(--ramp-marka-amber-500)' },
+    { tip: 'blob', x: 88, y: 70, boyut: 360, renk: 'var(--ramp-marka-amber-500)' },
+    { tip: 'nokta', x: 96, y: 26, boyut: 210, renk: 'var(--ramp-marka-ink-800)' },
   ],
   kartlar: [
     {

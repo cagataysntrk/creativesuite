@@ -29,9 +29,9 @@
 | 1.1 | `image copy 2` (sahne) — kesik özne kadrajın **~%40'ı**, KAHRAMAN | Bizde %26 (13'ten çıkarıldı), hâlâ küçük | 🟡 |
 | 1.2 | `image copy 2` — oklar **el çizimi fırça şeridi** | ✅ `perfect-freehand` (MIT, 31KB, sıfır bağımlılık, determinist); açıklık 8→17, büküm 13→52 | ✅ |
 | 1.3 | `image copy 2` — **el yazısı ikinci yüz** ("Instagram" kelimesi) | Bizde tek tipografik aile | 🔴 |
-| 1.4 | `image copy 4` (memphis) — organik lekeler **dev**, slaytın ~%30'u, kesim aşıyor | Bizde küçük ve seyrek | 🔴 |
+| 1.4 | `image copy 4` (memphis) — lekeler **dev**, kesim aşıyor | ✅ 6→9 leke, boyut 130–210 → 170–430 px (slaytın ~%35'i), üçü kesim üstünde, iki aksan | ✅ |
 | 1.5 | `image copy 4` — **iki aksan** (turuncu + lacivert) | ✅ mavi + amber (D-276) | ✅ |
-| 1.6 | `image.png` (akan-alan) — bölme **dikey eğri**, alan köşeleri yuvarlatılmış | Bizde yatay eğri | 🔴 |
+| 1.6 | `image.png` (akan-alan) — bölme güçlü eğri | ✅ Fark eksende değil **GENLİKTEydi**: %9 → %42 salınım. Eksen yatay kaldı (dikey sınır kesimde kırılır — kayıtlı gerekçe); tepe %44'te tutuldu, metne girmiyor | ✅ |
 | 1.7 | `image.png` — `#003` indeks etiketi + alt "swipe" göstergesi | Bizde `01 / 06` sayaç | 🟡 |
 
 ## 2 — Kodlanmış öge YASAĞI (sahibin en sert kuralı)
