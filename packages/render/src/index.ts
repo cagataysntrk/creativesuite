@@ -332,3 +332,4 @@ export {
   navIsareti,
   type AlanRolleri,
 } from './sablon.js'
+export { logoVarliklari, type LogoSonucu, type LogoVarliklari } from './logo.js'

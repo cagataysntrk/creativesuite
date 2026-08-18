@@ -166,75 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-273 — Reddetmek ile uyarmak: farkı YAZARIN kim olduğu belirliyor
-
-**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · §5.4 · Yasa 8
-
-Bu depoda ilke net: **garantiyi yoklukla zorla.** Rampa dışı bir degrade durağı temsil
-edilemiyor, aile garanti alanı taşımıyor, uyarlama kompozisyon alanı görmüyor. Model
-metne `✓` koyunca aynı sertliği uygulamak istedim: `uyarla` marka fontunun çizemeyeceği
-karakteri REDDETSİN. Yazdım, testi geçti — sonra bedeli hesapladım.
-
-⚠ ⚠ **Ret, ücretli bir koşuyu tek bir karakter yüzünden tamamen durdurur.** Tasarım
-sağlam, seçim doğru, görsel üretilmiş, altı kart yazılmış — ve elde hiçbir çıktı kalmaz.
-
-**Ayrımın kaynağı: yoklukla zorlama YAZARI İNSAN OLAN kodda bedavadır.** Geliştirici
-düzeltir, yeniden derler, kayıp sıfırdır. Yazarı MODEL olan bir koşuda aynı sertliğin
-bedeli bir koşunun tamamıdır ve model o kuralı okuyup ikinci denemede uyacak bir yerde
-durmuyor — hat çoktan durmuş oluyor.
-
-**Karar — ölçüt "ne kadar yanlış" değil, "tasarımı tanınmaz yapıyor mu":**
-
-| Sınıf | Örnek | Davranış |
-|---|---|---|
-| Kompozisyonu bozan | panel tipi, kart sayısı, kaynağın silinmesi, örnek işaretinin kalması | **RET** |
-| Kozmetik | marka fontunun kapsamadığı karakter | **UYARI** + render sonrası ölçüm + düzeltme turu |
-
-Uyarılar susturulmuyor: `UyarlamaSonucu.uyarilar` → adım çıktısı → koşu defteri → insan
-onay kapısı. Ayrıca `eksik-glif` render sonrası ölçülmeye devam ediyor, çünkü sözleşme
-yalnız uyarlama yolunu görüyor.
-
-⚠ **İlkenin kendisi değişmedi, KAPSAMI netleşti.** "Yoklukla zorla" hâlâ doğru; sorulacak
-soru şu: *bu kuralı ihlal eden kim ve ihlali düzeltmesinin bedeli ne?*
-
-**Geri alma maliyeti:** düşük — `uyarilar` alanı ek, hiçbir ret kaldırılmadı.
-
-## D-274 — Kapı yanlıştı ve kaliteyi düşürttü: ticari lisans şartının öncülü hatalı
-
-**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.11 · §7.5 · R-76
-
-Arka plan silme için `rembg` kuruldu ve varsayılan model BRIA RMBG 2.0 indi.
-`providers` kapısı reddetti: *"bedava şeritte ama bedava katmanının TİCARİ lisansı YOK
-— yalnız premium şeride konulabilir."* Kural kırmızıydı; R-76 uyarınca kuralı
-gevşetmedim, **modeli düşürdüm** (`u2net`, Apache-2.0) ve kapı yeşile döndü.
-
-⚠ ⚠ **BU YANLIŞTI ve depo sahibi düzeltti.** Kuralın öncülü şuydu: *bu deponun
-çıktıları ticari olarak yayınlanıyor.* Öncül hatalı — burası **yerel, ticari olmayan
-bir komuta merkezi**. Yanlış öncüle dayanan bir kapı, korumadığı bir risk için gerçek
-bir kaliteyi feda ettirdi: en iyi modeli reddedip yerine daha zayıfını seçtirdi.
-
-**R-76'nın sınırı burada görünüyor:** *"kırmızı bir kapının kuralı aynı turda
-gevşetilmez"* doğru bir refleks ama **kuralın kendisi yanlışsa uyulacak şey kural değil,
-düzeltme yoludur** — CLAUDE.md zaten bunu söylüyor: *"bir kural yanlışsa KURALLAR.md'de
-değiştir, koda farklı yazma."* Ben üçüncü yolu seçtim: kuralı da kodu da değiştirmeden
-GİRDİYİ bozdum. En sessiz hata biçimi buydu; kapı yeşildi ve kimse kalitenin
-düşürüldüğünü göremezdi.
-
-**Düzeltme — koruma kaldırılmadı, DOĞRU YERE taşındı:**
-
-| Önce | Sonra |
-|---|---|
-| Ticari olmayan lisans → bedava şerit YASAK | Ticari olmayan lisans → **açık beyan** (`noncommercial_ack`) şartıyla serbest |
-| Beyansız `false` → hata | Beyansız `false` → **hâlâ hata** (kasten ihlal edilip doğrulandı) |
-| Asıl risk (lisanssız varlığın YAYINLANMASI) sağlayıcı kapısında | Asıl risk `PUBLISH` kapısında, insan onayından sonra (§4.1b) |
-
-**Ölçüm (aynı görsel, 600×750):** `bria-rmbg` 9,7 sn · şeffaf %90,9 · opak %8,1 —
-`u2net` 0,2 sn · %89,9 · %7,7. ⚠ **Bu vaka KOLAYDI** (düz zeminde tek özne) ve ikisi
-denk çıktı; BRIA'nın üstünlüğü saç/ince kenar/karışık zemin gibi zor vakalarda ve
-burada ÖLÇÜLMEDİ. `REMBG_MODEL` ile değiştirilebilir bırakıldı.
-
-**Geri alma maliyeti:** düşük — tek alan (`noncommercial_ack`) ve tek kapı satırı.
-
 ## D-275 — Görsel kütüphaneleri ARAŞTIRILDI: ikisi reddedildi, biri kendimiz yazıldı
 
 **Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.11 · §17 · R-75 · R-06
@@ -523,3 +454,41 @@ bir ucunu sabitlemeden ortasını tahmin etmek üç turumu aldı.**
 garantiliyor. Ama ikisi de kusuru gideremezdi — hepsi kırpma adımında birleşiyordu.
 
 **Geri alma maliyeti:** düşük — bir opsiyonel parametre, iki çağrı yeri.
+
+## D-284
+
+**Karar:** Marka işareti karosele girdi (alt rayın solunda, sürümü ZEMİN seçiyor);
+logo dosyaları `brand/brd_upcytech/logo/` altında ve alfa kutusundan kırpıldı; marka
+mavisi tokeni logodan YENİDEN ölçülüp düzeltildi; hayalet puntosu uzunluğa göre
+ölçekleniyor.
+
+**Kanıt — A8 zinciri gerçekten çalışıyor:** dördüncü koşu (`Uretim hattinda kalite
+kontrol duraklari`) dört FARKLI figür üretti: koyu tulum + tablet · turuncu yelek +
+rulo çizim · beyaz önlük + pano · beyaz önlük, ayrı poz. Üç koşu boyunca dört özdeş
+fotoğraf veren kusur (D-283) kapandı ve şablon referansın yapısına oturdu.
+
+**Logo — sürümü zemin seçiyor, şablon değil.** Mavi sürüm mavi işaret + BEYAZ kelime
+taşıyor: açık zeminde kelime kaybolur. Siyah sürüm koyu zeminde kaybolur. `koyuMu()`
+zaten kartın zeminini ölçüyor; ikinci bir karar noktası açmak o ölçümü yok saymak olurdu.
+
+⚠ ⚠ **KAYNAK PNG'LER 500×500'DÜ ve işaret yalnız %2,4'ünü kaplıyordu.** Rayda 24px'e
+sığdırılınca işaret ~4px kalıyor ve OKUNMUYORDU — render'a bakınca görüldü. Dosyalar
+alfa kutusundan kırpıldı (338×78); kaynaklar `*-kaynak.png` olarak duruyor (Yasa 10).
+⚠ İki sürüm **ORTAK** kutuyla kırpıldı: ayrı kutular farklı oran verir ve zemin
+değişince logo bir slayttan ötekine ZIPLAR.
+
+⚠ `sahne`nin `rayaSol` metni 'UPCYTECH'ti; logo zaten onu söylüyor. Aynı bilgiyi iki kez
+basmak imzayı zayıflatıyor — 'SAHA' oldu.
+
+⚠ ⚠ **TOKEN "BİREBİR" DİYORDU AMA DEĞİLDİ.** `mavi-500` `#0090fc`ten türetilmişti; asıl
+dosyanın alfası >40 olan tek mavisi **`#0091ff`** = `oklch(0.6515 0.192 251.5)`. İlk
+ölçüm kenar yumuşatmalı bir pikselden alınmış. Rampanın 200/600/800 kademeleri aynı
+oranla taşındı. "Birebir" iddiası taşıyan bir değer yaklaşık olamaz.
+
+⚠ **Hayalet puntosu artık uzunluğa göre.** Sözleşme "kısa: rakam/sembol" diyor ama bu
+bir RİCA; gerçek koşuda model "Hafıza", "Kopukluk", "Tekrar" yazdı ve 470px sabit
+puntoda tek kelime ÜÇ SLAYDI kat edip başlıkla yarıştı. Reddetmek yanlış olurdu
+(D-273: yazar bir model, ret koşunun tamamına mal olur) — ölçek uyarlanıyor. Üç
+karaktere kadar tam punto, sonrası orantılı, taban 0,34.
+
+**Geri alma maliyeti:** düşük — bir opsiyonel alan, bir yükleyici, bir formül.

@@ -268,6 +268,21 @@ export type Yerlesim =
   /** Eşit dağılım — üst başlık, başlık, gövde, panel arası boşluk eşitlenir. */
   | 'yayik'
 
+/**
+ * Hayalet rakamın puntosu — UZUNLUĞA göre.
+ *
+ * ⚠ ⚠ **SABİT 470px, model kelime yazdığında ÜÇ SLAYDI kat ediyordu.** Sözleşme hayaleti
+ * "kısa: rakam/sembol" diye tarif ediyor; gerçek koşuda model "Hafıza", "Kopukluk",
+ * "Tekrar" yazdı ve dev harfler başlıkla yarıştı. Üç karaktere kadar tam punto (bir
+ * rakam DEV kalmalı, kompozisyonun parçası o), sonrası orantılı: uzun bir kelime bir
+ * slayda sığıyor. Taban 0,34 — altında hayalet "soluk metin" olmaktan çıkıp süse dönüyor.
+ */
+export const hayaletPuntosu = (metin: string, olcek: number): number => {
+  const n = [...metin.trim()].length
+  const oran = n <= 3 ? 1 : Math.max(0.34, 3 / n)
+  return 470 * olcek * oran
+}
+
 const YERLESIM_CSS: Record<Yerlesim, string> = {
   ust: 'flex-start',
   ayrik: 'flex-start',
@@ -320,6 +335,15 @@ export interface PanoramaBelgesi {
    * hiçbiri bunu istememişti. Kimin istediği açıkça yazılı olmalı.
    */
   readonly ustDoku?: { readonly gren: number; readonly vinyet: number }
+  /**
+   * Marka işareti — alt rayın SOLUNDA, `rayaSol` metninden önce.
+   *
+   * ⚠ ⚠ **SÜRÜMÜ ZEMİN SEÇİYOR, ŞABLON DEĞİL.** Mavi sürüm beyaz kelime taşıyor ve açık
+   * zeminde kayboluyor; siyah sürüm koyu zeminde kayboluyor. `koyuMu()` zaten kartın
+   * zeminini ölçüyor — ikinci bir karar noktası açmak, o ölçümü yok saymak olurdu.
+   * ⚠ Verilmezse imza BASILMIYOR: logosuz üretim mümkün, sahte logo değil.
+   */
+  readonly logo?: { readonly koyu: string; readonly acik: string }
   /** İki alanlı zemin — verilirse kartlar kendi zeminlerini BOYAMIYOR. */
   readonly alanSiniri?: AlanSiniri
   /**
@@ -693,14 +717,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
   // türüyor; kartın kendi zemininden değil — onlar hiçbir kartın içinde durmuyor.
   const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin)
+  // ⚠ İki alanlı zeminde metin ÜST alanın üstünde duruyor (kartlar üste yaslı), o yüzden
+  // renkler üst alandan türüyor. Alt alan bandın ve rakamın bölgesi.
+  // ⚠ ⚠ **IIFE'DEN DIŞARI ALINDI:** `<section>` etiketini kuran IIFE kapanınca `kartZemini`
+  // kapsam dışında kalıyordu ve alt raydaki marka imzası hangi logo sürümünü seçeceğini
+  // soramıyordu. Değer aynı, kapsamı geniş — hesap kartın tamamına ait, açılış etiketine değil.
+  const kartinZemini = (k: Kart): string =>
+    doc.alanSiniri === undefined ? (k.zemin ?? doc.zemin) : doc.alanSiniri.ust
   const kartlar = doc.kartlar
     .map(
       (k, i) =>
         ((): string => {
-          // ⚠ İki alanlı zeminde metin ÜST alanın üstünde duruyor (kartlar üste yaslı),
-          // o yüzden renkler üst alandan türüyor. Alt alan bandın ve rakamın bölgesi.
-          const kartZemini =
-            doc.alanSiniri === undefined ? (k.zemin ?? doc.zemin) : doc.alanSiniri.ust
+          const kartZemini = kartinZemini(k)
           const r = kartRenkleri(kartZemini)
           // ⚠ ⚠ **HAYALET RENGİNİ DURDUĞU ALAN BELİRLER, KARTIN METNİ DEĞİL.** İki alanlı
           // şablonda kart amber alanın üstünde (metni mürekkep) ama dev rakam sınırın
@@ -714,7 +742,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           // türüyordu — 578 px'lik gövdesinin neredeyse tamamı mürekkep alanda olmasına
           // rağmen. Mürekkep üstüne mürekkep, yani hiçbir şey. Ögenin hangi yüzeye ait
           // olduğunu tepesi değil KÜTLESİ söyler.
-          const hayaletYuksekligi = 470 * (doc.hayaletKonumu?.olcek ?? 1) * HAYALET_SATIRI
+          // ⚠ Aynı formül iki yerde: burada kutunun yüksekliği, CSS'te punto. Ayrışırlarsa
+          // hayaletin durduğu alan yanlış hesaplanır ve rengi yanlış alandan türer.
+          const hayaletPunto = hayaletPuntosu(k.hayalet, doc.hayaletKonumu?.olcek ?? 1)
+          const hayaletYuksekligi = hayaletPunto * HAYALET_SATIRI
           const hayaletOrtasi =
             (doc.hayaletKonumu?.ust ?? 22) + (hayaletYuksekligi / 2 / doc.yukseklik) * 100
           const hayaletZemini =
@@ -746,12 +777,20 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `--hayalet-renk:${hr.metin}">`
           )
         })() +
-        `<div class="hayalet" aria-hidden="true">${kacir(k.hayalet)}</div>` +
+        `<div class="hayalet" aria-hidden="true" ` +
+        `style="--hayalet-punto:${Math.round(hayaletPuntosu(k.hayalet, doc.hayaletKonumu?.olcek ?? 1))}">` +
+        `${kacir(k.hayalet)}</div>` +
         `<div class="ust-baslik">${kacir(k.ustBaslik)}</div>` +
         `<h2 class="baslik">${vurguyuIsaretle(kacir(k.baslik))}</h2>` +
         (k.govde === '' ? '' : `<p class="govde">${vurguyuIsaretle(kacir(k.govde))}</p>`) +
         (k.panel === null ? '' : panelHtml(k.panel)) +
-        `<div class="ray"><span>${kacir(k.rayaSol)}</span>` +
+        `<div class="ray">` +
+        (doc.logo === undefined
+          ? ''
+          : `<img class="ray-logo" src="${kacir(
+              koyuMu(kartinZemini(k)) ? doc.logo.koyu : doc.logo.acik
+            )}" alt="Upcytech">`) +
+        `<span>${kacir(k.rayaSol)}</span>` +
         `<span>${kacir(k.rayaOrta)}</span>` +
         `<span class="ray-sayac">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</span></div>` +
         `</section>`
@@ -961,6 +1000,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           `                radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
             ` rgba(0,0,0,${(doc.ustDoku.vinyet / 100).toFixed(2)}) 100%) }`,
         ]),
+    // ⚠ ⚠ **KAYNAK PNG'LER 500x500'DÜ ve işaret onun yalnız %2,4'ünü kaplıyordu.** Rayda
+    // 26px yüksekliğe sığdırılınca işaret ~4px kalıyor ve okunmuyordu — render'a bakınca
+    // görüldü. Dosyalar ALFA KUTUSUNDAN kırpıldı (338x78, oran 4,33); kaynaklar
+    // `*-kaynak.png` olarak duruyor. ⚠ İki sürüm ORTAK kutuyla kırpıldı: ayrı kutular
+    // farklı oranlar verir ve zemin değişince logo bir slayttan ötekine ZIPLAR.
+    `  .ray-logo { height: 24px; width: 104px; object-fit: contain; object-position: left;`,
+    `              flex: none; opacity: 0.92 }`,
     `  .kesim { position: absolute; top: 0; bottom: 0; width: 1px;`,
     `           background: ${sol('--pano-metin', 6)}; z-index: 9 }`,
     // ⚠ Üst başlık başlıkla ZIT eksende: başlık genişse üst başlık dar, tersi de doğru.
@@ -1012,7 +1058,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Hayalet rengi de zeminden türüyor: kâğıt zeminde beyaz bir hayalet YOK demektir.
     `  .hayalet { position: absolute; left: 30px;`,
     `             top: ${Math.round((doc.hayaletKonumu?.ust ?? 22) * 0.01 * doc.yukseklik)}px;`,
-    `             font-size: ${Math.round(470 * (doc.hayaletKonumu?.olcek ?? 1))}px;`,
+    // ⚠ ⚠ **PUNTO UZUNLUĞA GÖRE — ve bunu GERÇEK KOŞU dayattı.** Sözleşme hayaleti
+    // "kısa: rakam/sembol" diye tarif ediyor ama model kelimeler yazdı ("Hafıza",
+    // "Kopukluk") ve 470px'te tek kelime ÜÇ SLAYDI kat edip başlıkla yarıştı. Reddetmek
+    // yanlış olurdu (D-273: yazar bir model, ret koşunun tamamına mal olur); ölçek
+    // uyarlanıyor. Üç karaktere kadar tam punto, sonrası orantılı küçülüyor — yani bir
+    // rakam DEV kalıyor, bir kelime bir slayda sığıyor.
+    `             font-size: calc(var(--hayalet-punto) * 1px);`,
     `             font-family: "Marka Display", sans-serif; font-weight: 900;`,
     `             font-stretch: calc(var(--baslik-wdth) * 1%);`,
     `             color: ${sol('--hayalet-renk', doc.hayaletKonumu?.guc ?? 7)}; letter-spacing: -0.05em;`,

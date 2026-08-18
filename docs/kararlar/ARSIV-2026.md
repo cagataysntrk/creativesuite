@@ -4745,3 +4745,72 @@ ama asılan bir darboğaz, sabit değil bozuktur. Değişiklik davranış-koruyu
 olay dinleniyor, hiçbir yol kaldırılmıyor.
 
 **Geri alma maliyeti:** yok — tek dosya, tek olay dinleyicisi.
+
+## D-273 — Reddetmek ile uyarmak: farkı YAZARIN kim olduğu belirliyor
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · §5.4 · Yasa 8
+
+Bu depoda ilke net: **garantiyi yoklukla zorla.** Rampa dışı bir degrade durağı temsil
+edilemiyor, aile garanti alanı taşımıyor, uyarlama kompozisyon alanı görmüyor. Model
+metne `✓` koyunca aynı sertliği uygulamak istedim: `uyarla` marka fontunun çizemeyeceği
+karakteri REDDETSİN. Yazdım, testi geçti — sonra bedeli hesapladım.
+
+⚠ ⚠ **Ret, ücretli bir koşuyu tek bir karakter yüzünden tamamen durdurur.** Tasarım
+sağlam, seçim doğru, görsel üretilmiş, altı kart yazılmış — ve elde hiçbir çıktı kalmaz.
+
+**Ayrımın kaynağı: yoklukla zorlama YAZARI İNSAN OLAN kodda bedavadır.** Geliştirici
+düzeltir, yeniden derler, kayıp sıfırdır. Yazarı MODEL olan bir koşuda aynı sertliğin
+bedeli bir koşunun tamamıdır ve model o kuralı okuyup ikinci denemede uyacak bir yerde
+durmuyor — hat çoktan durmuş oluyor.
+
+**Karar — ölçüt "ne kadar yanlış" değil, "tasarımı tanınmaz yapıyor mu":**
+
+| Sınıf | Örnek | Davranış |
+|---|---|---|
+| Kompozisyonu bozan | panel tipi, kart sayısı, kaynağın silinmesi, örnek işaretinin kalması | **RET** |
+| Kozmetik | marka fontunun kapsamadığı karakter | **UYARI** + render sonrası ölçüm + düzeltme turu |
+
+Uyarılar susturulmuyor: `UyarlamaSonucu.uyarilar` → adım çıktısı → koşu defteri → insan
+onay kapısı. Ayrıca `eksik-glif` render sonrası ölçülmeye devam ediyor, çünkü sözleşme
+yalnız uyarlama yolunu görüyor.
+
+⚠ **İlkenin kendisi değişmedi, KAPSAMI netleşti.** "Yoklukla zorla" hâlâ doğru; sorulacak
+soru şu: *bu kuralı ihlal eden kim ve ihlali düzeltmesinin bedeli ne?*
+
+**Geri alma maliyeti:** düşük — `uyarilar` alanı ek, hiçbir ret kaldırılmadı.
+
+## D-274 — Kapı yanlıştı ve kaliteyi düşürttü: ticari lisans şartının öncülü hatalı
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.11 · §7.5 · R-76
+
+Arka plan silme için `rembg` kuruldu ve varsayılan model BRIA RMBG 2.0 indi.
+`providers` kapısı reddetti: *"bedava şeritte ama bedava katmanının TİCARİ lisansı YOK
+— yalnız premium şeride konulabilir."* Kural kırmızıydı; R-76 uyarınca kuralı
+gevşetmedim, **modeli düşürdüm** (`u2net`, Apache-2.0) ve kapı yeşile döndü.
+
+⚠ ⚠ **BU YANLIŞTI ve depo sahibi düzeltti.** Kuralın öncülü şuydu: *bu deponun
+çıktıları ticari olarak yayınlanıyor.* Öncül hatalı — burası **yerel, ticari olmayan
+bir komuta merkezi**. Yanlış öncüle dayanan bir kapı, korumadığı bir risk için gerçek
+bir kaliteyi feda ettirdi: en iyi modeli reddedip yerine daha zayıfını seçtirdi.
+
+**R-76'nın sınırı burada görünüyor:** *"kırmızı bir kapının kuralı aynı turda
+gevşetilmez"* doğru bir refleks ama **kuralın kendisi yanlışsa uyulacak şey kural değil,
+düzeltme yoludur** — CLAUDE.md zaten bunu söylüyor: *"bir kural yanlışsa KURALLAR.md'de
+değiştir, koda farklı yazma."* Ben üçüncü yolu seçtim: kuralı da kodu da değiştirmeden
+GİRDİYİ bozdum. En sessiz hata biçimi buydu; kapı yeşildi ve kimse kalitenin
+düşürüldüğünü göremezdi.
+
+**Düzeltme — koruma kaldırılmadı, DOĞRU YERE taşındı:**
+
+| Önce | Sonra |
+|---|---|
+| Ticari olmayan lisans → bedava şerit YASAK | Ticari olmayan lisans → **açık beyan** (`noncommercial_ack`) şartıyla serbest |
+| Beyansız `false` → hata | Beyansız `false` → **hâlâ hata** (kasten ihlal edilip doğrulandı) |
+| Asıl risk (lisanssız varlığın YAYINLANMASI) sağlayıcı kapısında | Asıl risk `PUBLISH` kapısında, insan onayından sonra (§4.1b) |
+
+**Ölçüm (aynı görsel, 600×750):** `bria-rmbg` 9,7 sn · şeffaf %90,9 · opak %8,1 —
+`u2net` 0,2 sn · %89,9 · %7,7. ⚠ **Bu vaka KOLAYDI** (düz zeminde tek özne) ve ikisi
+denk çıktı; BRIA'nın üstünlüğü saç/ince kenar/karışık zemin gibi zor vakalarda ve
+burada ÖLÇÜLMEDİ. `REMBG_MODEL` ile değiştirilebilir bırakıldı.
+
+**Geri alma maliyeti:** düşük — tek alan (`noncommercial_ack`) ve tek kapı satırı.

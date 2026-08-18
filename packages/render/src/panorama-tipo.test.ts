@@ -14,6 +14,7 @@ import {
   VARSAYILAN_TIPO,
   type PanoramaBelgesi,
   type Yerlesim,
+  hayaletPuntosu,
 } from './panorama.js'
 
 const stamp: AssetStamp = {
@@ -108,6 +109,24 @@ describe('kesim ayracı ile kırpma biçimi ÇAKIŞMIYOR', () => {
     // sürüm ona takıldı — ölçüm aracı yine kendi hatasıyla kırmızı verdi. Aranan şey
     // TEK BAŞINA bir `.kesik` kuralı: önünde boşluk ya da virgül olan.
     expect(html).not.toMatch(/[\s,]\.kesik \{/)
+  })
+})
+
+// ⚠ ⚠ **GERÇEK KOŞUDAN: model hayalete KELİME yazıyor.** Sözleşme "kısa: rakam/sembol"
+// diyor ama bu bir RİCA; 470px sabit puntoda "Kopukluk" üç slaydı kat edip başlıkla
+// yarıştı. Ölçek uyarlanıyor, uyarlama reddedilmiyor (D-273).
+describe('hayalet puntosu uzunluğa göre küçülüyor', () => {
+  it('rakam DEV kalıyor, kelime bir slayda iniyor', () => {
+    expect(hayaletPuntosu('2×', 1)).toBe(470)
+    expect(hayaletPuntosu('01', 1)).toBe(470)
+    // Altı harfli bir kelime yarıdan aza inmeli, yoksa kesimleri kat eder.
+    expect(hayaletPuntosu('Hafıza', 1)).toBeLessThan(470 * 0.55)
+    // Taban var: sonsuza kadar küçülüp süse dönüşmemeli.
+    expect(hayaletPuntosu('çokçokçokuzunbirkelime', 1)).toBeGreaterThanOrEqual(470 * 0.34)
+  })
+
+  it('ölçek çarpanı korunuyor', () => {
+    expect(hayaletPuntosu('01', 0.5)).toBe(235)
   })
 })
 

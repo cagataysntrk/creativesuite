@@ -466,7 +466,9 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       govde: 'Dört karede tek bir hareket.',
       panel: null,
       hayalet: '01',
-      rayaSol: 'UPCYTECH',
+      // ⚠ 'UPCYTECH' DEĞİL: alt rayda artık marka işareti duruyor ve kelimeyi zaten
+      // söylüyor. Aynı bilgiyi iki kez basmak imzayı zayıflatıyor, güçlendirmiyor.
+      rayaSol: 'SAHA',
       rayaOrta: ORNEK,
     },
     {
@@ -475,7 +477,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       govde: 'Adı konmamış sorun çözülemez.',
       panel: null,
       hayalet: '02',
-      rayaSol: 'UPCYTECH',
+      rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       // Özne bu karede SOLDA; metin karşı yana geçiyor.
       kolon: 'sag',
@@ -486,7 +488,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       govde: 'Ölçü, tartışmayı tercihe çevirir.',
       panel: null,
       hayalet: '03',
-      rayaSol: 'UPCYTECH',
+      rayaSol: 'SAHA',
       rayaOrta: ORNEK,
     },
     {
@@ -495,7 +497,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       govde: 'Kararı ölçü değil insan verir.',
       panel: null,
       hayalet: '04',
-      rayaSol: 'UPCYTECH',
+      rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       // Özne bu karede SOLDA; metin karşı yana geçiyor.
       kolon: 'sag',
