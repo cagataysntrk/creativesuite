@@ -112,6 +112,41 @@ describe('uyarlama REDDEDİLEBİLİR', () => {
     expect(!r.ok && r.kusurlar.join(' ')).toContain('panel eklemeye')
   })
 
+  // ⚠ ⚠ **GERÇEK KOŞUDA İKİ KEZ OLDU:** model metne `✓` ve `→` koydu, marka fontu onları
+  // kapsamıyor ve tarayıcı sistem fontuna düştü. Kusur yalnız render SONRASI ölçülüyordu:
+  // bir render + bir model çağrısı + bir düzeltme turu harcanıyordu. Cevap üretim anında
+  // biliniyor — ama UYARI olarak, ret olarak değil.
+  //
+  // ⚠ ⚠ **REDDETMEK İLE UYARMAK ARASINDAKİ FARK, BEDELİ KİMİN ÖDEDİĞİDİR.** Bu depoda
+  // ilke "garantiyi yoklukla zorla" ve yazarı İNSAN olan kodda bedava: geliştirici
+  // düzeltip yeniden derler. Yazarı MODEL olan bir koşuda aynı sertlik, tek bir `✓`
+  // yüzünden ücretli koşuyu durdurur ve elde hiçbir çıktı kalmaz. Tasarım sağlamken bir
+  // karakter için her şeyi atmak orantısız. Kompozisyonu bozan REDDEDİLİR, kozmetik olan
+  // UYARILIR.
+  it('marka fontunun çizemeyeceği karakter UYARI üretiyor, koşuyu durdurmuyor', () => {
+    for (const sembol of ['✓', '→', '□']) {
+      const r = uyarla(ornek, uyarlama([{ govde: `Sonuç ${sembol} tamam` }]))
+      expect(r.ok, sembol).toBe(true)
+      if (!r.ok) continue
+      expect(r.uyarilar.join(' '), sembol).toContain('çizemiyor')
+    }
+  })
+
+  // ⚠ Ayrım keskin tutuluyor: kompozisyonu bozan kusur hâlâ ÖLDÜRÜCÜ.
+  it('kompozisyon kusuru hâlâ REDDEDİLİYOR', () => {
+    expect(uyarla(ornek, uyarlama([{ rayaOrta: 'ÖRNEK VERİ' }])).ok).toBe(false)
+  })
+
+  it('Türkçe harfler ve normal noktalama GEÇİYOR', () => {
+    const r = uyarla(ornek, uyarlama([{ govde: 'Ğ Ü Ş İ Ö Ç ğ ü ş ı ö ç — "tırnak" %38.' }]))
+    expect(r.ok).toBe(true)
+    expect(r.ok && r.uyarilar).toEqual([])
+  })
+
+  it('istem sembol yasağını da söylüyor', () => {
+    expect(uyarlamaIstemi(ornek, 'veri-hikayesi', 'x')).toContain('marka fontunda YOK')
+  })
+
   it('panel verisi AYNI tiple değiştirilebiliyor', () => {
     const r = uyarla(
       ornek,

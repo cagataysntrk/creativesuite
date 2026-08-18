@@ -294,6 +294,9 @@ export const composeBody = (deps: ComposeDeps): Verb =>
             stamp: deps.stamp,
           },
           sablonId,
+          // ⚠ Uyarılar SUSTURULMUYOR: koşuyu durdurmuyorlar ama deftere ve insan onay
+          // kapısına gidiyorlar. Görünmeyen bir uyarı, olmayan bir uyarıdır.
+          ...(birlesik.uyarilar.length === 0 ? {} : { uyarilar: birlesik.uyarilar }),
           ...kisisellestirmeCiktisi(input.constraints),
         },
       })

@@ -479,3 +479,36 @@ ama asılan bir darboğaz, sabit değil bozuktur. Değişiklik davranış-koruyu
 olay dinleniyor, hiçbir yol kaldırılmıyor.
 
 **Geri alma maliyeti:** yok — tek dosya, tek olay dinleyicisi.
+
+## D-273 — Reddetmek ile uyarmak: farkı YAZARIN kim olduğu belirliyor
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · §5.4 · Yasa 8
+
+Bu depoda ilke net: **garantiyi yoklukla zorla.** Rampa dışı bir degrade durağı temsil
+edilemiyor, aile garanti alanı taşımıyor, uyarlama kompozisyon alanı görmüyor. Model
+metne `✓` koyunca aynı sertliği uygulamak istedim: `uyarla` marka fontunun çizemeyeceği
+karakteri REDDETSİN. Yazdım, testi geçti — sonra bedeli hesapladım.
+
+⚠ ⚠ **Ret, ücretli bir koşuyu tek bir karakter yüzünden tamamen durdurur.** Tasarım
+sağlam, seçim doğru, görsel üretilmiş, altı kart yazılmış — ve elde hiçbir çıktı kalmaz.
+
+**Ayrımın kaynağı: yoklukla zorlama YAZARI İNSAN OLAN kodda bedavadır.** Geliştirici
+düzeltir, yeniden derler, kayıp sıfırdır. Yazarı MODEL olan bir koşuda aynı sertliğin
+bedeli bir koşunun tamamıdır ve model o kuralı okuyup ikinci denemede uyacak bir yerde
+durmuyor — hat çoktan durmuş oluyor.
+
+**Karar — ölçüt "ne kadar yanlış" değil, "tasarımı tanınmaz yapıyor mu":**
+
+| Sınıf | Örnek | Davranış |
+|---|---|---|
+| Kompozisyonu bozan | panel tipi, kart sayısı, kaynağın silinmesi, örnek işaretinin kalması | **RET** |
+| Kozmetik | marka fontunun kapsamadığı karakter | **UYARI** + render sonrası ölçüm + düzeltme turu |
+
+Uyarılar susturulmuyor: `UyarlamaSonucu.uyarilar` → adım çıktısı → koşu defteri → insan
+onay kapısı. Ayrıca `eksik-glif` render sonrası ölçülmeye devam ediyor, çünkü sözleşme
+yalnız uyarlama yolunu görüyor.
+
+⚠ **İlkenin kendisi değişmedi, KAPSAMI netleşti.** "Yoklukla zorla" hâlâ doğru; sorulacak
+soru şu: *bu kuralı ihlal eden kim ve ihlali düzeltmesinin bedeli ne?*
+
+**Geri alma maliyeti:** düşük — `uyarilar` alanı ek, hiçbir ret kaldırılmadı.

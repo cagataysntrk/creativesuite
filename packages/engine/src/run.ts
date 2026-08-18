@@ -197,6 +197,11 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   // denetlenemez hâle gelir. `sablonId` özellikle kritik: "bu karosel neden böyle"
   // sorusunun tek cevabı o.
   'sablonId',
+  // ⚠ Kusur LİSTESİ de deftere giriyor: sayı "kaç" der, liste "hangi" der. Düzeltme
+  // turunun işe yarayıp yaramadığı ancak iki render'ın listeleri karşılaştırılarak
+  // görülüyor — sayı tek başına bunu söyleyemez.
+  'kusurlar',
+  'uyarilar',
   'kusurSayisi',
   'bulgular',
   'gecti',

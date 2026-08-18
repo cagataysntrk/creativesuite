@@ -20,7 +20,7 @@
 // oraya "20 hattan 13'ü" anlatısı için konuldu; bir etiket bulutuna dönüşürse şablon
 // artık o şablon değil.
 
-import type { KatalogOrnegi } from '@suite/render'
+import { kapsamDisiKarakterler, type KatalogOrnegi } from '@suite/render'
 import type { Kart, Panel } from '@suite/render'
 
 /** Uyarlamanın yazabildiği TEK şey — kompozisyon alanı yok. */
@@ -51,7 +51,26 @@ export interface Uyarlama {
 }
 
 export type UyarlamaSonucu =
-  | { readonly ok: true; readonly belge: KatalogOrnegi }
+  | {
+      readonly ok: true
+      readonly belge: KatalogOrnegi
+      /**
+       * Öldürücü OLMAYAN bulgular — koşu devam ediyor, insan görüyor.
+       *
+       * ⚠ ⚠ **REDDETMEK İLE UYARMAK ARASINDAKİ FARK, BEDELİ KİMİN ÖDEDİĞİDİR.** Bu depoda
+       * ilke *"garantiyi yoklukla zorla"*: rampa dışı bir degrade durağı temsil bile
+       * edilemiyor. O ilke YAZARI İNSAN OLAN kodda bedava — geliştirici düzeltip yeniden
+       * derler. Ama yazarı MODEL olan bir koşuda aynı sertlik, tek bir `✓` karakteri
+       * yüzünden ücretli bir koşuyu tamamen durdurur ve elde hiçbir çıktı kalmaz.
+       * Tasarımın kendisi sağlamken bir karakter için her şeyi atmak orantısız.
+       *
+       * ⚠ Ayrım keskin: **kompozisyonu bozan şey REDDEDİLİR** (panel tipi, kart sayısı,
+       * kaynağın silinmesi) çünkü onlar tasarımı tanınmaz yapar. **Kozmetik olan
+       * UYARILIR** ve zaten render sonrası ölçülüyor (`eksik-glif`), düzeltme turuna
+       * giriyor ve insan onay kapısında görünüyor.
+       */
+      readonly uyarilar: readonly string[]
+    }
   | { readonly ok: false; readonly kusurlar: readonly string[] }
 
 const ORNEK_ISARETI = 'ÖRNEK'
@@ -124,6 +143,28 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
     })
   }
 
+  // ⚠ ⚠ **MARKA FONTUNUN ÇİZEMEYECEĞİ KARAKTER SÖZLEŞMEDE YAKALANIYOR — gerçek koşu
+  // bunu iki kez gösterdi.** Model metne `✓` ve `→` koydu; `@font-face`in `unicode-range`i
+  // onları kapsamıyor ve tarayıcı sistem fontuna düşüyor. Kusur render sonrası
+  // ölçülüyordu (`eksik-glif`) ve düzeltme turuna gidiyordu — yani bir render, bir model
+  // çağrısı ve bir tur daha harcanıyordu. Oysa cevap ÜRETİM ANINDA biliniyor: karakterin
+  // kapsamda olup olmadığı metne bakmakla belli. **Sonradan ölçmek yerine baştan
+  // reddetmek**, bu depoda tekrar eden ilke (garanti yoklukla zorlanır).
+  // ⚠ **REDDETMİYOR, UYARIYOR** — gerekçe `UyarlamaSonucu.uyarilar` üstünde. Denetimdeki
+  // `eksik-glif` ölçümü de KALIYOR: sözleşme yalnız uyarlama yolunu görüyor.
+  const kapsamDisi = kapsamDisiKarakterler(
+    u.kartlar
+      .map((k) => `${k.ustBaslik}${k.baslik}${k.govde}${k.hayalet}${k.rayaSol}${k.rayaOrta}`)
+      .join('')
+  )
+  const uyarilar: string[] =
+    kapsamDisi.length === 0
+      ? []
+      : [
+          `marka fontu şu karakterleri çizemiyor: ${kapsamDisi.join(' ')} — ` +
+            'metinden çıkar ya da yazıyla ifade et',
+        ]
+
   // ⚠ ⚠ **ÖRNEK BAŞLIKLARIN AYNEN KALMASI DA BİR KUSUR — gerçek koşu bunu öğretti.**
   // `ÖRNEK VERİ` işareti kaynağı koruyordu ama METNİ korumuyordu: model gövdeleri konuya
   // uyarladı ve dört başlığın dördünü de şablondan aynen kopyaladı. Sonuç konuya değil
@@ -140,7 +181,7 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
   if (kusurlar.length > 0) return { ok: false, kusurlar }
   // ⚠ Şablonun geri kalanı DOKUNULMADAN geçiyor: bant, görseller, lekeler, alan sınırı,
   // tipografi, yerleşim, zemin dokusu, hayalet konumu, görsel işlemleri.
-  return { ok: true, belge: { ...ornek, kartlar } }
+  return { ok: true, belge: { ...ornek, kartlar }, uyarilar }
 }
 
 /**
@@ -175,7 +216,9 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     '- Her kartın `rayaOrta` alanına GERÇEK kaynağı yaz. Şablondaki "ÖRNEK VERİ" ifadesi',
     '  kalırsa uyarlama reddedilir; kaynağı olmayan sayısal iddia kullanma.',
     '- Başlıkta vurgulanacak kelimeyi `**böyle**` işaretle; işaretler çift olmalı.',
-    '- `hayalet` alanı kısa olmalı: bir rakam, bir sembol ya da tek kelime.',
+    '- `hayalet` alanı kısa olmalı: bir rakam ya da tek kelime.',
+    '- Yalnız Latin harfleri, Türkçe harfler, rakam ve normal noktalama kullan.',
+    '  Ok, tik, kutucuk gibi semboller marka fontunda YOK ve uyarlama reddedilir.',
     '- Panel tipini değiştirme, yalnız içindeki veriyi değiştir.',
     '',
     // ⚠ ⚠ **ÇIKTI SÖZLEŞMESİ İLK SÜRÜMDE HİÇ YAZILMAMIŞTI ve gerçek koşu iki kez
