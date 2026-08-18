@@ -554,3 +554,31 @@ iki kez geçen bir dizeden dilimledi. Ayrıca `URL.pathname` "İndirilenler"i y�
 örtüyor. Gren fiziksel olarak da üstte olmalı: film greni sahnenin değil filmin özelliği.
 
 **Geri alma maliyeti:** düşük — bir kısıt, bir opsiyonel alan, bir test dosyası.
+
+## D-282
+
+**Karar:** Üçüncü yüz ailesi (**Caveat**, OFL, el yazısı) kataloğa GİRECEK ama bu turda
+GİRMEDİ: `tasarim` kapısının "en çok 2 font ailesi" sınırını deliyor ve **R-76 kırmızı
+bir kapının kuralını aynı turda gevşetmeyi yasaklıyor.** Sınır 2 → 3'e ayrı bir turda,
+`refactor(gates)` tipli ayrı bir commit'le çıkarılacak; ardından yüz geri eklenecek.
+
+**Neden gerekli:** Referansta (`image copy 2`) kapağın kontrastı punto farkından değil
+**YÜZ FARKINDAN** geliyor — ilk kelime el yazısı, kalanı ağır condensed. Tek display
+ailesiyle bu kurulamıyor ve elle taklidi yasak (R-81: jenerik öge kodlanmaz; bir yazı
+karakteri bunun en uç örneği).
+
+**Bu turda ölçülenler (iş boşa gitmedi):**
+- Caveat'in Türkçe kapsaması **çizdirilerek** doğrulandı: `ı İ ğ ö ü ş` render edildi ve
+  BAKILDI. Bir fontun "latin-ext" demesi Türkçe'nin tamamını taşıdığı anlamına gelmiyor.
+- Altı şablonun kapağında denendi ve çalıştı; dosyalar `brand/brd_upcytech/fonts/`
+  altında duruyor (kullanılmıyor, bir sonraki turda bağlanacak).
+- ⚠ İlk örnek metinler başlığı TEKRAR ediyordu ("Altı yılda" / "Altı yılda iki katına…")
+  ve render'a bakınca tek cümlenin iki kez yazılması gibi okundu. Referansta iki satır
+  AYRI şey söylüyor: el yazısı kim konuşuyor, condensed ne söylüyor.
+
+⚠ ⚠ **`YUZLER` kapalı bir liste ve "üçüncü aile bir KARAR gerektirir, bir import değil"
+diye yazıyordu — doğruydu, ama kararın BEDELİ bir kapıymış.** Kapalı listeyi okumak
+kapıyı okumak değil; iki yerde yaşayan bir sınır, bir yerde görülüp öteki yerde
+görülmeyebiliyor.
+
+**Bedel:** +104 KB font (base64 gömülü, iki alt küme). Ağ çağrısı yok.

@@ -6,7 +6,7 @@
 > ⚠ **Bu listenin kendisi bir sınav:** referanslar `examples/` altında duruyor. Bir
 > madde ancak çıktı referansın YANINA konup karşılaştırıldığında kapanır.
 
-**Son güncelleme:** 2026-08-18 (A8 kapandı · yan yana kompozisyon)
+**Son güncelleme:** 2026-08-18 (A8 kapandı · yan yana kompozisyon · kabul testi bağlandı · yuva tohumu)
 
 ---
 
@@ -32,7 +32,7 @@
 | 1.4 | `image copy 4` (memphis) — lekeler **dev**, kesim aşıyor | ✅ 6→9 leke, boyut 130–210 → 170–430 px (slaytın ~%35'i), üçü kesim üstünde, iki aksan | ✅ |
 | 1.5 | `image copy 4` — **iki aksan** (turuncu + lacivert) | ✅ mavi + amber (D-276) | ✅ |
 | 1.6 | `image.png` (akan-alan) — bölme güçlü eğri | ✅ Fark eksende değil **GENLİKTEydi**: %9 → %42 salınım. Eksen yatay kaldı (dikey sınır kesimde kırılır — kayıtlı gerekçe); tepe %44'te tutuldu, metne girmiyor | ✅ |
-| 1.7 | `image.png` — `#003` indeks etiketi + alt "swipe" göstergesi | Bizde `01 / 06` sayaç | 🟡 |
+| 1.7 | `image.png` — `#003` indeks etiketi + alt "swipe" göstergesi | ✅ Hayaletler dolduruldu: `sahne`/`donen`/`editoryal` artık `01`–`04` dev indeks taşıyor (D-281); alt sayaç da duruyor | ✅ |
 
 ## 2 — Kodlanmış öge YASAĞI (sahibin en sert kuralı)
 
@@ -51,8 +51,8 @@
 | 3.2 | Panel tek ayıraç | ✅ | Zemin+çerçeve+yarıçap → tek aksan çizgisi |
 | 3.3 | Hacimli organik leke | ✅ | Degrade + ışık + gölge (`blob`) |
 | 3.4 | Zemin reçetesi | ✅ | Bant 36px→8px ölçüldü |
-| 3.5 | Tasarım rehberi | 🟡 | `docs/referans/tasarim-rehberi.md` yazıldı; **kapıya bağlı değil** |
-| 3.6 | §7 tek kahraman kuralı | 🔴 | Hiçbir şablonda kahraman ≥%40 değil |
+| 3.5 | Tasarım rehberi | ✅ | §10'un ölçütleri `katalog-kabul.test.ts` ile bağlandı (D-281). Bağlanır bağlanmaz **beş gerçek boşluk** buldu. Rehberin atıf yaptığı üç fonksiyon panorama belgesine uymuyordu; ölçütler veriden yeniden hesaplandı |
+| 3.6 | §7 tek kahraman kuralı | ✅ | `sahne`de dört özne, her biri kadrajın ~%52'si ve y%22'den alt kenara kesik (D-278). Ölçülen doluluk %5–9 → %10,6–14,1 |
 
 ## 4 — Hat ve çıktı
 
@@ -61,14 +61,17 @@
 | 4.1 | Arka plan silme hatta bağlı | ✅ `gorsel-kirp` · `kusurSayisi: 0` ölçüldü |
 | 4.2 | Foto tema uyumu + temas gölgesi | ✅ `tema-uyum`, `temas-golgesi` |
 | 4.3 | `content/` çıktıları tazelenecek | 🔴 Eski render'lar duruyor |
-| 4.4 | `GorselIhtiyaci.adet` hat tarafından dinlenmiyor | 🔴 Borç A8 |
+| 4.4 | `GorselIhtiyaci.adet` hat tarafından dinlenmiyor | ✅ Borç A8 kapandı (D-278): hat görsel üçlüsünü **açarak** dörde çıkardı, dağıtım sıraya göre, varyant + tohum kadrajı ayrıştırıyor |
 
 ---
 
 ## Sıra (bağımlılığa göre)
 
-1. **2.2 + 2.3** — varlık setleri bulunmadan 1.2/1.4 yapılamaz
-2. **1.4 + 1.6** — geometri düzeltmeleri, varlık gerektirmiyor
-3. **1.1 + 3.6** — kahraman ölçeği
-4. **0.4 + 0.5** — marka imzası
-5. **4.3** — en son: katalog bitince çıktılar yeniden üretilir
+**Kapananlar:** 1.1 · 1.2 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
+
+**Kalan sıra:**
+1. **1.3** — el yazısı ikinci yüz (`image copy 2`deki "Instagram" kelimesi). Lisanslı bir
+   yüz gerektiriyor; marka font kitine eklenmeli, kodla taklit edilemez (R-81).
+2. **2.3** — 3B/izometrik varlık seti. GLB ikinci motor ister (Yasa 4); PNG/SVG set aranacak.
+3. **0.4 + 0.5** — siyah logo paleti ve karoselde marka imzası.
+4. **4.3** — EN SON: katalog bitince `content/` çıktıları yeniden üretilir.
