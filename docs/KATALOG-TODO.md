@@ -40,7 +40,7 @@
 |---|---|---|---|
 | 2.1 | Kütüphane araştırması | 🟡 | D-275 reddetti; yeniden arandı ve **`perfect-freehand` KURULDU** — kontur matematiği 40 satır değil, R-75 eşiğinin üstünde |
 | 2.2 | El çizimi ok/fırça | ✅ | `perfect-freehand` · `roughjs` (MIT, tohumlanabilir) sonraki aday |
-| 2.3 | 3B/izometrik varlık seti | 🔴 | GLB ikinci motor ister (Yasa 4); PNG/SVG set aranmalı. **Ölçülen ihtiyaç:** `image copy 3` (donen referansı) köşelerde botanik ögeler taşıyor — R-81 onları kodlamayı yasaklıyor, yani kütüphane ŞART |
+| 2.3 | 3B/izometrik varlık seti | 🟡 | GLB ikinci motor ister (Yasa 4); PNG/SVG set aranmalı. **Ölçülen ihtiyaç:** `image copy 3` (donen referansı) köşelerde botanik ögeler taşıyor — R-81 onları kodlamayı yasaklıyor, yani kütüphane ŞART |
 | 2.5 | `donen`: daire KIRPMA değil ARKA FON olmalı | ✅ | `lekeler[].ust` ile kart üstü katman (D-288); ürün `kesik` ve daireyi taşıyor. ⚠ Bu iş denetimin ÖLÜ BİR KOLUNU açığa çıkardı: `.leke` sınıfı hiç yazılmıyordu, kesintisizlik ölçümünün o kolu hiçbir şey saymıyordu |
 | 2.6 | `donen`: podyum + temas gölgesi | 🔴 | Referansta ürün küçük eliptik bir platformun üstünde duruyor; `temas-golgesi` var ama podyum yok |
 | 2.7 | Uyarlama örneği KOPYALIYOR | ✅ | İki koşuda model dört başlığı da aynen döndürdü ve hat `kompozit`te öldü. İsteme artık başlığın METNİ değil ŞEKLİ giriyor (uzunluk · vurgu yeri · panel tipi) — D-288 |
@@ -71,6 +71,15 @@
 ## Sıra (bağımlılığa göre)
 
 **Kapananlar:** 0.1–0.5 · 1.1 · 1.2 · 1.3 · 2.5 · 2.7 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
+
+### Bu turda ölçülen ve DEĞİŞEN öncelik
+
+⚠ ⚠ **"Hangi ikon kütüphanesi" YANLIŞ SORUYDU.** İkonlar yalnız `liste` panelinde
+kullanılıyor: katalogun **30 slaydından 2'sinde**. Doğru soru "paneller nasıl duruyor"
+idi ve cevap ezici: panel kart alanının %0,9–4,9'u, hayalet %22–26'sı — **süs, verinin
+5–25 katı** (D-292). Panel ölçeği reçeteye bağlandı, `sus-baskin` denetimi geldi, panel
+%3,9–25'e çıktı. 3B sembol seti buna göre ERTELENDİ: iki slayt için kütüphane kurmak,
+otuz slaytlık hiyerarşi sorununu çözmez.
 
 **Kalan sıra:**
 1. **2.3** — 3B/izometrik varlık seti. GLB ikinci motor ister (Yasa 4); PNG/SVG set aranacak.

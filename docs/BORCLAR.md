@@ -78,4 +78,10 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
 - **D7 · `sablon-al` düz görselde metin kutusu çıkarmıyor.** PSD'de katman kutuları
   okunuyor; düz görselde yalnız palet. Kutu tahmini kasten yapılmadı (yanlış kutu,
   kutu olmamasından kötü) — istenirse OCR/bağlantılı-bileşen ile ölçülebilir hâle gelir.
+- **D8 · Panel ölçeği yalnız İKİ şablonda ayarlandı.** `veri-hikayesi` 2,1 · `memphis` 1,7.
+  Öteki dördünde panel yok; panel eklenirse ölçek de kararlaştırılmalı — varsayılan 1
+  (web ölçüsü) ve o değer artık bilinçli bir seçim olmalı, miras değil.
+- **D9 · `sus-baskin` alanı ölçüyor, KONTRASTı değil.** Soluk bir hayalet ile opak bir
+  blok aynı sayılıyor. Bugün yetiyor (hiyerarşi tersliği alanla görünüyordu) ama bir
+  şablon hayaleti çok soluk yapıp büyütürse kural haksız kırmızı verir.
 
