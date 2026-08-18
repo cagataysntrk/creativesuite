@@ -51,6 +51,7 @@ import {
   gorselBriefPromptu,
   icerikPromptu,
   metneCevir,
+  istemSizintisi,
   type PromptKaydi,
   akisiAyir,
   karsilastirmayiAyir,
@@ -2355,6 +2356,30 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // Ham çıktı da taşınıyor (`raw`): normalize edilmiş şekil bir KOLAYLIK, kanıt
     // değil. Manifest ve replay ham olanı görmeli.
     const metin = yetenek.startsWith('text.') ? metneCevir(sonuc.value.data) : null
+
+    // ⚠ ⚠ **RET, METİN DEĞİLDİR.** Model bazen işi yapmayı reddediyor ve gerekçesini
+    // yazıyor ("MARKA BİLGİSİ'nde hiç sayı yok"). Eski kod bunu geçerli metin sayıyor,
+    // kapı insana ÜRETİLEN METİN diye gösteriyor ve zincir iki adım sonra
+    // `ADAPTATION_UNPARSEABLE` ile — sebebinden uzakta ve tanınmaz bir isimle —
+    // çöküyordu. Reddin kendisi bilgi: erken ve ADIYLA durmalı.
+    //
+    // ⚠ Yalnız İÇERİK adımında: uyarlama ve yargı adımları istem sözlüğünü meşru
+    // biçimde tekrar edebilir.
+    if (
+      metin !== null &&
+      input.constraints['sablon_uyarla'] !== true &&
+      input.constraints['konu_sec'] !== true
+    ) {
+      const sizinti = istemSizintisi(metin.lines)
+      if (sizinti !== null) {
+        return err(
+          hata('validation', 'TEXT_REFUSED', ctx, {
+            sizanBaslik: sizinti,
+            ilkSatir: metin.lines[0]?.slice(0, 200) ?? '',
+          })
+        )
+      }
+    }
 
     // ── görsel yargı: bulgular ÇIKTIYA giriyor (FAZ-10.5) ───────────────────
     //

@@ -2,6 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
+  istemSizintisi,
   duzMetin,
   gorselBriefPromptu,
   icerikPromptu,
@@ -214,5 +215,28 @@ describe('ritim hedefi kaynağa bağlı', () => {
     })
     expect(p).not.toBeNull()
     expect(p).not.toContain('en az bir SAYI')
+  })
+})
+
+// ⚠ ⚠ **RET, METİN SANILDI — gerçek koşuda ölçüldü.** `metin-uret` işi reddedip
+// gerekçesini yazdı, adım `ok` oldu, kapı bunu ÜRETİLEN METİN diye insana gösterdi,
+// onaylandı ve `sablon-uyarla` iki adım sonra `ADAPTATION_UNPARSEABLE` ile düştü.
+// Hata sebebinden uzakta ve tanınmaz bir isimle göründü.
+describe('istem sızıntısı', () => {
+  it('istemin kendi başlığı çıktıdaysa YAKALANIYOR', () => {
+    const ret = [
+      "Bu format çalışmıyor: MARKA BİLGİSİ'nde hiç sayı yok (ne yıl, ne oran).",
+      'İki seçenek var:',
+    ]
+    expect(istemSizintisi(ret)).toBe('MARKA BİLGİSİ')
+  })
+
+  it('gerçek gönderi metni temiz sayılıyor', () => {
+    const metin = [
+      'Çoğu araç veriyi **hazır varsayar**',
+      'İmalat firmalarının çoğunda **veri hazır değildir**.',
+      'Veri katmanınız hazır değilse bile konuşalım.',
+    ]
+    expect(istemSizintisi(metin)).toBeNull()
   })
 })

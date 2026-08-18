@@ -513,6 +513,36 @@ export const metneCevir = (output: unknown): { readonly lines: readonly string[]
   return lines.length === 0 ? null : { lines }
 }
 
+/**
+ * İSTEMİN KENDİ SÖZLÜĞÜ — çıktıda görünürse model işi YAPMIYOR, TARTIŞIYOR.
+ *
+ * ⚠ ⚠ **BİR RET, METİN SANILDI ve zincir iki adım sonra anlamsız bir yerde çöktü.**
+ * Gerçek koşu: `metin-uret` *"Bu format çalışmıyor: MARKA BİLGİSİ'nde hiç sayı yok…
+ * İki seçenek var:"* yazdı. Adım `status: ok` oldu, kapı bunu ÜRETİLEN METİN diye
+ * insana gösterdi, onaylandı, ve `sablon-uyarla` `ADAPTATION_UNPARSEABLE` ile düştü —
+ * yani hata, sebebinden iki adım UZAKTA ve tanınmaz bir isimle göründü.
+ *
+ * Tespit bir kelime avı DEĞİL: bunlar istemin KENDİ bölüm başlıkları. Gerçek bir
+ * gönderi metni "MARKA BİLGİSİ" ya da "BİÇİM KURALI" yazmaz; yazıyorsa model
+ * talimatı konuşuyordur. Yanlış pozitif olasılığı, ret'i sessizce geçirmenin
+ * bedelinin yanında ihmal edilebilir.
+ */
+const ISTEM_SOZLUGU: readonly string[] = ['MARKA BİLGİSİ', 'BİÇİM KURALI', 'ÖRNEK BİÇİM', 'KONU:']
+
+/**
+ * Model istemi yapmak yerine istem HAKKINDA mı konuştu?
+ *
+ * `null` = metin temiz. Dize = sızan başlık; çağıran onu hataya koyar ki teşhis
+ * çıktının kendisinden okunabilsin.
+ */
+export const istemSizintisi = (lines: readonly string[]): string | null => {
+  for (const l of lines) {
+    const bulunan = ISTEM_SOZLUGU.find((k) => l.includes(k))
+    if (bulunan !== undefined) return bulunan
+  }
+  return null
+}
+
 /** `metneCevir` sonucundan tek satırlık düz metin — görsel brief'i böyle okunuyor. */
 export const duzMetin = (output: unknown): string | null => {
   const m = metneCevir(output)
