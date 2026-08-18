@@ -79,6 +79,25 @@ export interface ProviderAdapter {
    */
   available: (env: Readonly<Record<string, string>>) => boolean
 
+  /**
+   * İşler SÜRECİ AŞAR MI — yani bu süreç ölse bile iş sağlayıcıda devam eder mi?
+   *
+   * ⚠ ⚠ **BU BEYAN YOKTU ve hattı sonsuz beklemeye soktu.** Zamanlayıcı, yarıda
+   * kalmış bir kaydın tutamağı varsa (doğru biçimde) "yeniden çağırma, SOR" diyor —
+   * çift ödemeyi önlemenin tek yolu bu. Ama `claude-code` işleri bellekte bir
+   * `Map`te tutuyor: süreç ölünce tutamak ÖLÜ. Sorulan şey bir daha asla
+   * cevaplanmayacak ve `status` sonsuza kadar "koşuyor" diyordu.
+   *
+   * Ölçülen zincir: adım bir kez hata verdi → defterde tutamaklı `possibly-charged`
+   * kayıt kaldı → sonraki her koşuda `claude` HİÇ başlatılmadan on beş dakika
+   * asıldı. Hiçbir bileşen yanlış davranmıyordu; eksik olan tek şey bu beyandı.
+   *
+   * `false` = iş devralınamaz; yarıda kalmışsa YENİDEN çağrılmalı. Bu güvenli,
+   * çünkü devralınamayan iş zaten tamamlanmamıştır ve ücret de tahakkuk etmemiştir.
+   * `true` = kuyruk API'si (fal gibi); tutamakla sorulur, asla yeniden çağrılmaz.
+   */
+  readonly islerKalici: boolean
+
   start: (vi: ValidatedInput, ctx: ProviderContext) => Promise<Result<JobHandle, AppError>>
   status: (h: JobHandle) => Promise<Result<JobStatus, AppError>>
   cancel: (h: JobHandle) => Promise<void>

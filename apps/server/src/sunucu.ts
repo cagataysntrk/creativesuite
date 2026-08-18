@@ -38,8 +38,8 @@ import {
   readManifest,
 } from '@suite/engine'
 import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
-import { hatDurumlari } from '@suite/registry'
-import { baglamKayitlari, kosuParametreleri } from '@suite/engine'
+import { hatDurumlari, loadPipeline } from '@suite/registry'
+import { baglamKayitlari, islenmisKonular, konuAdaylari, kosuParametreleri } from '@suite/engine'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
@@ -104,6 +104,66 @@ export interface Sunucu {
   readonly kapat: () => void
   /** Test için: bir olayı elle tetikle. */
   readonly yayinla: (tip: string) => void
+}
+
+/**
+ * Koşunun CANLI durumu — manifestten türetilir, ayrıca tutulmaz.
+ *
+ * ⚠ Dört durum ve dördü de farklı bir eylem gerektiriyor; tek bir "çalışıyor/çalışmıyor"
+ * ikilisi yetmezdi:
+ *   · `kapida`      → insan bekleniyor, düğmeler anlamlı
+ *   · `calisiyor`   → beklemek doğru, tazeleme sürüyor
+ *   · `durdu`       → hata var, manifest `stoppedAt` diyor ve kapı beklemiyor
+ *   · `bitti`       → planlanan adımların hepsi tamam
+ */
+const kosuDurumu = (
+  m: {
+    readonly awaitingGate?: string | null
+    readonly steps?: readonly { readonly status?: string }[]
+  },
+  planlanan: number
+): 'kapida' | 'calisiyor' | 'durdu' | 'bitti' => {
+  if (m.awaitingGate !== null && m.awaitingGate !== undefined) return 'kapida'
+  const adimlar = m.steps ?? []
+  const bitmis = adimlar.filter((s) => s.status === 'ok' || s.status === 'skipped').length
+  if (adimlar.some((s) => s.status !== undefined && s.status !== 'ok' && s.status !== 'skipped')) {
+    return 'durdu'
+  }
+  if (planlanan > 0 && bitmis >= planlanan) return 'bitti'
+  return 'calisiyor'
+}
+
+/** Hattın planladığı adım sayısı — ilerleme çubuğunun paydası. */
+const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
+  const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+  return r.ok ? r.value.steps.length : 0
+}
+
+/**
+ * Başlatma hatası kaydı — `calistir.ts` yazıyor, burası okuyor.
+ *
+ * ⚠ Yazan var okuyan yok, bu depoda en sık tekrarlayan hata sınıfı (D-173). Kayıt
+ * yazılıp hiçbir ekranda gösterilmeseydi, panelin "başlatıldı" yalanı devam ederdi.
+ */
+const baslatmaHatasi = (repoRoot: string, runId: string): Record<string, unknown> | null => {
+  const yol = join(repoRoot, RUNS_DIR, runId, 'baslatilamadi.json')
+  if (!existsSync(yol)) return null
+  try {
+    return JSON.parse(readFileSync(yol, 'utf8')) as Record<string, unknown>
+  } catch {
+    return { hata: 'baslatilamadi.json okunamadı' }
+  }
+}
+
+/** Konu, `konu-sec` koşmadıysa çalıştırma parametresinden okunur. */
+const konuParametresi = (
+  adimlar: readonly { readonly params?: Record<string, unknown> }[]
+): string | null => {
+  for (const a of adimlar) {
+    const t = a.params?.['topic']
+    if (typeof t === 'string' && t.trim() !== '') return t
+  }
+  return null
 }
 
 export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
@@ -255,7 +315,34 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   app.get('/api/kosu/:runId/icerik', (c) => {
     const runId = c.req.param('runId')
     const m = readManifest(o.repoRoot, runId as never)
-    if (m === null) return c.json({ ok: false, hata: `manifest yok: ${runId}` }, 404)
+    if (m === null) {
+      // ⚠ Manifest YOKKEN de cevap veriliyor: başlatma hiç tutmadıysa dizinde yalnız
+      // `baslatilamadi.json` olur ve 404 dönmek, sebebi olan tek dosyayı gizlemek olurdu.
+      const hataKaydi = baslatmaHatasi(o.repoRoot, runId)
+      if (hataKaydi === null) return c.json({ ok: false, hata: `manifest yok: ${runId}` }, 404)
+      return c.json({
+        runId,
+        pipeline: '',
+        createdAt: '',
+        bekleyenKapi: null,
+        duraklananAdim: null,
+        satirlar: [],
+        sablonId: null,
+        ritimHedefi: null,
+        ritimTuttu: null,
+        kusurlar: [],
+        kalite: {},
+        varliklar: [],
+        konu: null,
+        konuGerekcesi: null,
+        durum: 'baslatilamadi',
+        toplamAdim: 0,
+        bitenAdim: 0,
+        baslatilamadi: hataKaydi,
+        adimlar: [],
+      })
+    }
+    const planlananAdim = hatAdimSayisi(o.repoRoot, m.pipeline)
     const adimlar = m.steps ?? []
     const bul = (ad: string): Record<string, unknown> =>
       (adimlar.find((s) => s.stepId === ad)?.output ?? {}) as Record<string, unknown>
@@ -287,7 +374,38 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         .filter((v) => v.sourceRunId === runId)
         .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
         .map((v) => ({ digest: v.digest, bytes: v.bytes })),
-      adimlar: adimlar.map((s) => ({ id: s.stepId, verb: s.verb, durum: s.status })),
+      // ── canlı takip (FAZ-17.3) ──────────────────────────────────────────
+      //
+      // ⚠ ⚠ **BAŞLATTIKTAN SONRA HİÇBİR ŞEY GÖRÜNMÜYORDU.** Ekran "başlatıldı: run_…"
+      // yazıyor ve orada kalıyordu; hattın nerede olduğunu öğrenmenin tek yolu
+      // manifesti elle açmaktı. Bir süreç başlatıp durumunu göstermemek, kullanıcıyı
+      // "bir şey oldu mu" diye beklemeye bırakmaktır.
+      //
+      // Durum manifestten TÜRETİLİYOR, ayrı bir yerde tutulmuyor: ikinci bir durum
+      // deposu, sunucu yeniden başlayınca yalan söylerdi.
+      konu: bul('konu-sec')['konu'] ?? konuParametresi(adimlar),
+      konuGerekcesi: bul('konu-sec')['gerekce'] ?? null,
+      durum: kosuDurumu(m, planlananAdim),
+      toplamAdim: planlananAdim,
+      bitenAdim: adimlar.filter((s) => s.status === 'ok').length,
+      // Başlatma hiç tutmadıysa sebebi BURADA: `derived/runs/<id>/baslatilamadi.json`.
+      // Ekranın "yükleniyor" diye sonsuza kadar dönmesindense hatayı göstermesi gerek.
+      baslatilamadi: baslatmaHatasi(o.repoRoot, runId),
+      adimlar: adimlar.map((s) => ({
+        id: s.stepId,
+        verb: s.verb,
+        durum: s.status,
+        saglayici: s.providerId ?? null,
+        basladi: s.startedAt ?? null,
+        bitti: s.finishedAt ?? null,
+        saniye:
+          typeof s.startedAt === 'string' && typeof s.finishedAt === 'string'
+            ? Math.round(
+                (new Date(s.finishedAt).getTime() - new Date(s.startedAt).getTime()) / 1000
+              )
+            : null,
+        maliyetMikros: String(s.actualCost?.micros ?? '0'),
+      })),
     })
   })
 
@@ -561,50 +679,27 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     return c.json({ hatlar: d.aktif, emekli: d.emekli })
   })
 
-  // ⚠ ⚠ **KONUSUZ ÜRETİM: konu UYDURULMAZ, corpus'tan SEÇİLİR.** Depo sahibi
-  // "gerekçesiz başlatma da olmalı" dedi; doğru okuma "konuyu ben yazmayayım",
-  // "konu olmasın" değil — konusuz bir hat neyi üreteceğini bilemez. Aday konular
-  // markanın kendi kayıtlarının başlıkları; geçmişte işlenenler ELENİYOR.
-  // ⚠ Öneri EKRANDA gösteriliyor, doğrudan koşturulmuyor: insan neyin üretileceğini
-  // görmeden başlatmamalı (Yasa 2).
-  app.get('/api/konu-oner', (c) => {
-    // ⚠ İNDEKSTEN okunuyor, dosya taramasından değil: indeks retrieval yüklemini
-    // uygulayan TEK yer (R-13) ve taslak (`draft`) kayıtlar oraya girmiyor.
-    // Dosyaları elle taramak, onaylanmamış bir kaydı konu olarak önermek olurdu (R-14).
+  // ⚠ ⚠ **KONUYU SİSTEM SEÇERKEN SEÇEN ŞEY MODEL, UÇ DEĞİL.**
+  //
+  // İlk sürüm burada deterministik seçim yapıyordu: aday listesinin İLK başlığı. Depo
+  // sahibi ilk denemede yakaladı — her öneri aynı konuydu ("Excel ve vardiya defteri")
+  // çünkü bir listenin ilk elemanı "en uygun" değil yalnız "ilk"tir. Seçim artık
+  // hattın `konu-sec` adımında, markanın kayıtlarına bakan agent tarafından yapılıyor.
+  //
+  // Bu uç yalnız **adayları gösteriyor**: insan neyin arasından seçileceğini
+  // başlatmadan önce görsün (Yasa 2). Karar vermiyor.
+  app.get('/api/konu-adaylari', (c) => {
     if (db === null) return c.json({ ok: false, hata: 'indeks yok — `just reindex` çalıştır' })
-    const kayitlar = browseRecords(db, {
-      brandId: o.query.brandId,
-      eraId: o.query.eraId,
-      asOf: o.query.asOf,
-      type: '',
-      status: '',
-    })
-    const gecmisKonular = new Set(
-      calistirmalar(o.repoRoot).flatMap((r) => {
-        const m = readManifest(o.repoRoot, r.runId as never)
-        return (m?.steps ?? [])
-          .map((s) => (s.params as Record<string, unknown> | undefined)?.['topic'])
-          .filter((t): t is string => typeof t === 'string')
-      })
-    )
-    const adaylar = kayitlar
-      .map((r: { readonly title?: string }) => r.title)
-      .filter((t: unknown): t is string => typeof t === 'string' && t.trim() !== '')
-      .filter((t: string) => !gecmisKonular.has(t))
+    const adaylar = konuAdaylari({ db, query: o.query, repoRoot: o.repoRoot })
     if (adaylar.length === 0) {
       return c.json({
         ok: false,
         hata:
-          'önerilecek konu kalmadı — corpus başlıklarının hepsi işlendi. ' +
+          'aday konu kalmadı — corpus başlıklarının hepsi işlenmiş. ' +
           'Yeni bir kayıt ekle ya da konuyu elle yaz.',
       })
     }
-    return c.json({
-      ok: true,
-      konu: adaylar[0],
-      gerekce: `corpus başlığı · geçmişte ${String(gecmisKonular.size)} konu işlenmiş, bu onlarda yok`,
-      kalan: adaylar.length,
-    })
+    return c.json({ ok: true, adaylar, islenmis: islenmisKonular(o.repoRoot).size })
   })
 
   app.get('/api/kuyruk', (c) => c.json({ bekleyenler: bekleyenler(o.repoRoot) }))
@@ -823,11 +918,15 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       pipeline?: string
       konu?: string
       planDigest?: string
+      konuyuSistemSecsin?: boolean
     }
     const r = calistirmaBaslat({
       repoRoot: o.repoRoot,
       pipelineId: govde.pipeline ?? '',
       konu: govde.konu ?? '',
+      // ⚠ Konusuz başlatma AÇIKÇA istenir. Boş konuyu sessizce "sistem seçsin" saymak,
+      // yanlışlıkla boş bırakılan bir alanı onay yerine koymak olurdu.
+      konuyuSistemSecsin: govde.konuyuSistemSecsin === true,
       planDigest: govde.planDigest ?? '',
       env: o.saglayiciEnv ?? o.env ?? {},
     })

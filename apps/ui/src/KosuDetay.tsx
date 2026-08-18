@@ -20,7 +20,36 @@ interface Icerik {
   readonly ritimTuttu: boolean | null
   readonly kusurlar: readonly { readonly tur?: string; readonly aciklama?: string }[]
   readonly varliklar: readonly { readonly digest: string; readonly bytes: number }[]
-  readonly adimlar: readonly { readonly id: string; readonly durum: string }[]
+  readonly adimlar: readonly {
+    readonly id: string
+    readonly verb: string
+    readonly durum: string | null
+    readonly saglayici: string | null
+    readonly basladi: string | null
+    readonly bitti: string | null
+    readonly saniye: number | null
+    readonly maliyetMikros: string
+  }[]
+  readonly konu: string | null
+  readonly konuGerekcesi: string | null
+  readonly durum: 'kapida' | 'calisiyor' | 'durdu' | 'bitti' | 'baslatilamadi'
+  readonly toplamAdim: number
+  readonly bitenAdim: number
+  readonly baslatilamadi: {
+    readonly komut?: string
+    readonly code?: number | null
+    readonly stderr?: string
+    readonly stdout?: string
+  } | null
+}
+
+/** Durum → okunur etiket. Renk TEK BAŞINA anlam taşımaz (§12.6): glyph + metin. */
+const DURUM_ETIKET: Record<Icerik['durum'], string> = {
+  kapida: '⏸ insan kapısında',
+  calisiyor: '● çalışıyor',
+  durdu: '✗ durdu',
+  bitti: '✓ bitti',
+  baslatilamadi: '✗ başlatılamadı',
 }
 
 const EDITOR = 'http://localhost:4321'
@@ -102,6 +131,46 @@ export const KosuDetay = ({
       <h2>
         {d.pipeline} · <code>{d.runId.slice(0, 16)}</code>
       </h2>
+      {/* ⚠ ⚠ **BAŞLATTIKTAN SONRA DURUM GÖRÜNMÜYORDU.** Ekran metni ve slaytları
+          gösteriyordu ama hattın nerede olduğunu değil: kullanıcı "bir şey oluyor mu"
+          diye bekliyordu. Çubuk ilerlemeyi, etiket ne beklendiğini söylüyor. */}
+      <p className={`kosu-durum kosu-durum-${d.durum}`}>
+        <strong>{DURUM_ETIKET[d.durum]}</strong>
+        {d.toplamAdim === 0 ? null : (
+          <>
+            {' '}
+            · {d.bitenAdim}/{d.toplamAdim} adım
+            <span className="ilerleme">
+              <span
+                className="ilerleme-dolu"
+                style={{ width: `${String(Math.round((d.bitenAdim / d.toplamAdim) * 100))}%` }}
+              />
+            </span>
+          </>
+        )}
+      </p>
+
+      {d.konu === null ? null : (
+        <p className="giris-not">
+          konu: <strong>{d.konu}</strong>
+          {d.konuGerekcesi === null || d.konuGerekcesi === '' ? null : (
+            <> — hat şu gerekçeyle seçti: {d.konuGerekcesi}</>
+          )}
+        </p>
+      )}
+
+      {d.baslatilamadi === null ? null : (
+        <div className="kapi-kutusu">
+          <strong>✗ süreç hiç başlamadı.</strong>
+          <p className="giris-not">
+            <code>{d.baslatilamadi.komut ?? ''}</code> · çıkış {String(d.baslatilamadi.code ?? '?')}
+          </p>
+          <pre className="kosu-gunluk">
+            {(d.baslatilamadi.stdout ?? '') + (d.baslatilamadi.stderr ?? '')}
+          </pre>
+        </div>
+      )}
+
       <p className="giris-not">
         {d.createdAt.slice(0, 16).replace('T', ' ')} · şablon <strong>{d.sablonId ?? '—'}</strong>
         {d.ritimHedefi === null ? null : (
@@ -179,6 +248,44 @@ export const KosuDetay = ({
               </a>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* ⚠ Adım defteri: "ne oldu" sorusunun tek dürüst cevabı. Süre ve sağlayıcı da
+          burada — hangi adımın pahalı ve yavaş olduğu ancak ölçülünce bilinir. */}
+      <section className="giris-blok">
+        <h3>Adım defteri</h3>
+        {d.adimlar.length === 0 ? (
+          <p className="giris-not">Henüz adım yazılmadı.</p>
+        ) : (
+          <table className="kayit-tablosu">
+            <thead>
+              <tr>
+                <th>adım</th>
+                <th>fiil</th>
+                <th>durum</th>
+                <th>sağlayıcı</th>
+                <th>süre</th>
+              </tr>
+            </thead>
+            <tbody>
+              {d.adimlar.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.id}</td>
+                  <td>{a.verb}</td>
+                  <td>
+                    {a.durum === 'ok'
+                      ? '✓'
+                      : a.durum === 'skipped'
+                        ? '· atlandı'
+                        : `✗ ${a.durum ?? ''}`}
+                  </td>
+                  <td>{a.saglayici ?? '—'}</td>
+                  <td>{a.saniye === null ? '—' : `${String(a.saniye)} sn`}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </section>
 

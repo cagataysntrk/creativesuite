@@ -83,12 +83,13 @@ Toplam **11** hat.
 
 ## `instagram-karosel` — Instagram karoseli — katalog merkezli
 
-27 adım · 17 yetenek isteyen · 3 insan kapısı
+28 adım · 18 yetenek isteyen · 3 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
 | `cozumle` | `RESOLVE` | — | — | — | — |
-| `bilgi-sec` | `SELECT` | — | cozumle | — | — |
+| `konu-sec` | `GENERATE` | `text.generate` | cozumle | — | — |
+| `bilgi-sec` | `SELECT` | — | cozumle, konu-sec | — | — |
 | `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
 | `sablon-uyarla` | `GENERATE` | `text.generate` | bilgi-sec, metin-uret | metin-onayi | — |
 | `kompozit` | `COMPOSE` | — | metin-uret, sablon-uyarla | — | — |

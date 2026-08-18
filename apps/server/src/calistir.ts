@@ -15,7 +15,7 @@
 // gördüysem onu onayladım" iddiasını ispatlanamaz yapar; CLI özeti karşılaştırır ve
 // dünya değiştiyse durur.
 
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnProcess, newId, RUNS_DIR } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
@@ -44,6 +44,27 @@ const baslatmaHatasiniYaz = (
   } catch {
     // Deftere yazamıyorsak yapılacak bir şey yok; süreç zaten ölmüş. Sessiz kalan
     // tek şey dosya sistemi hatası — başlatma hatasının kendisi değil.
+  }
+}
+
+/**
+ * Canlı günlük — alt sürecin çıktısı GELDİĞİ ANDA deftere yazılır.
+ *
+ * ⚠ ⚠ **BAŞLATTIKTAN SONRA HİÇBİR İZ YOKTU.** Çıktı `spawnProcess` içinde birikiyor
+ * ve yalnız süreç bitince dönüyordu; on dakikalık bir çalıştırma boyunca panelde
+ * gösterilecek tek şey "başlatıldı" satırıydı. Dosyaya akıtmak, hem insanın
+ * izlemesini hem de asılan bir koşunun NEREDE asıldığının görülmesini sağlıyor.
+ *
+ * Dosya `derived/runs/<id>/` altında: çalıştırmaya ait her kayıt aynı yerde durur
+ * ve defter silinmez (Yasa 11).
+ */
+const gunlugeYaz = (repoRoot: string, runId: string, parca: string): void => {
+  try {
+    const dizin = join(repoRoot, RUNS_DIR, runId)
+    mkdirSync(dizin, { recursive: true })
+    appendFileSync(join(dizin, 'calistirma.log'), parca, 'utf8')
+  } catch {
+    // Günlük yazılamıyorsa çalıştırma yine sürer: kayıt tutamamak, işi durdurmaz.
   }
 }
 
@@ -78,6 +99,8 @@ export interface BaslatGirdisi {
   readonly konu: string
   /** Ekranda gösterilen donmuş planın özeti — onay buna verildi. */
   readonly planDigest: string
+  /** `true` = konu boş gider, hat `konu-sec` adımında kendi seçer (FAZ-17.3). */
+  readonly konuyuSistemSecsin?: boolean
   readonly env: Readonly<Record<string, string>>
   /** Test bunu değiştirir; üretimde gerçekten `just` koşar. */
   readonly komut?: string
@@ -92,7 +115,11 @@ export interface BaslatGirdisi {
  */
 export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
   if (g.pipelineId.trim() === '') return { ok: false, hata: 'pipeline seçilmedi' }
-  if (g.konu.trim() === '') return { ok: false, hata: 'konu boş — hat neyi üreteceğini bilemez' }
+  // ⚠ Konusuz koşu yalnız AÇIKÇA istendiğinde: boş bir alanı "sistem seçsin" saymak,
+  // unutulmuş bir girdiyi karar yerine koymaktır.
+  if (g.konu.trim() === '' && g.konuyuSistemSecsin !== true) {
+    return { ok: false, hata: 'konu boş — ya konu yaz ya "konuyu sistem seçsin" işaretle' }
+  }
   if (g.planDigest.trim() === '') {
     return {
       ok: false,
@@ -102,7 +129,10 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
   // Kabuk enjeksiyonu yok: argümanlar DİZİ olarak geçiyor, kabuk yorumlaması hiç yok.
   const runId = newId('RunId') as RunId
 
-  const argv = ['uret', g.pipelineId, g.konu, '--run', runId, '--plan-digest', g.planDigest]
+  const argv =
+    g.konu.trim() === ''
+      ? ['uret', g.pipelineId, '--konu-sec', '--run', runId, '--plan-digest', g.planDigest]
+      : ['uret', g.pipelineId, g.konu, '--run', runId, '--plan-digest', g.planDigest]
   akibetiIzle(
     g.repoRoot,
     runId,
@@ -111,6 +141,7 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
       cwd: g.repoRoot,
       env: g.env,
       maxOutputBytes: 1_000_000,
+      onData: (parca) => gunlugeYaz(g.repoRoot, runId, parca),
     })
   )
 
@@ -150,6 +181,7 @@ export const calistirmaSurdur = (g: {
       cwd: g.repoRoot,
       ...(g.env === undefined ? {} : { env: g.env }),
       maxOutputBytes: 1_000_000,
+      onData: (parca) => gunlugeYaz(g.repoRoot, g.runId, parca),
     })
   )
   return { ok: true, runId: g.runId as RunId }
@@ -186,6 +218,7 @@ export const tekrarBaslat = (g: {
       cwd: g.repoRoot,
       env: g.env,
       maxOutputBytes: 1_000_000,
+      onData: (parca) => gunlugeYaz(g.repoRoot, runId, parca),
     })
   )
 

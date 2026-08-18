@@ -195,3 +195,44 @@ describe('boruyu devralan torun süreç', () => {
     expect(r.timedOut).toBe(false)
   }, 8_000)
 })
+
+// ⚠ ⚠ **ZAMAN AŞIMI GARANTİ Mİ, RİCA MI — ölçülmüş cevap: eskiden RİCAYDI.**
+//
+// `just uret` gerçek bir koşuda on beş dakika asıldı: `ps` hiçbir çocuk göstermiyordu,
+// süreç `ep_poll`de boştaydı ve **on dakikalık zaman aşımı da kurtarmadı**. Sebep bir
+// üstteki D-272 notunun birebir tekrarı: zaman aşımı öldürüp YİNE bir olay bekliyordu.
+// Ders yazılmıştı ama yalnız `exit` yoluna uygulanmıştı, zaman aşımı yoluna değil.
+describe('SIGTERM yutan + boruyu devreden süreç', () => {
+  it('zaman aşımından sonra ASILMADAN dönüyor', async () => {
+    const fixture = join(import.meta.dirname, 'fixtures/olmez-boru.mjs')
+    const r = await spawnProcess(process.execPath, [fixture], {
+      env: {},
+      timeoutMs: 300,
+      graceMs: 200,
+    })
+    expect(r.timedOut).toBe(true)
+    // Eldeki çıktı KAYBOLMUYOR: süreç ölmeden önce yazdığı şey sonuçta.
+    expect(r.stdout).toContain('basladi')
+  }, 8_000)
+
+  // ⚠ ⚠ **BU TEST, YUKARIDAKİNİN ÖLÇEMEDİĞİ ŞEYİ ÖLÇÜYOR.** Üstteki test son çare
+  // ağını kasten bozunca da YEŞİL kaldı: `SIGKILL` alan süreç ölüyor, `exit` geliyor
+  // ve ağ hiç devreye girmiyordu. Gerçek arıza ise sinyalin hiçbir şey YAPMADIĞI
+  // durumdu. Sinyal gönderimi dikiş olduğu için o durum artık kurulabiliyor.
+  it('sinyal hiçbir şey yapmasa BİLE dönüyor — zaman aşımı bir garantidir', async () => {
+    const fixture = join(import.meta.dirname, 'fixtures/olmez-boru.mjs')
+    const cocuklar: NodeJS.Signals[] = []
+    const r = await spawnProcess(process.execPath, [fixture], {
+      env: {},
+      timeoutMs: 300,
+      graceMs: 200,
+      // Sinyal YUTULUYOR: süreç ölmez, hiçbir olay gelmez.
+      sinyalGonder: (s) => {
+        cocuklar.push(s)
+      },
+    })
+    expect(r.timedOut).toBe(true)
+    expect(cocuklar).toEqual(['SIGTERM', 'SIGKILL'])
+    expect(r.stdout).toContain('basladi')
+  }, 8_000)
+})

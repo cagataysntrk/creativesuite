@@ -28,7 +28,17 @@ export interface KonuAdayGirdisi {
 }
 
 /** Prompt'a giren aday sayısı: hepsi girseydi seçim bir listeyi okumaya dönerdi. */
-const ADAY_TAVANI = 12
+const ADAY_TAVANI = 18
+
+/**
+ * TÜR başına tavan — çeşitliliğin tek gerçek garantisi.
+ *
+ * ⚠ ⚠ İlk sürüm başlıkları sırayla alıyordu ve corpus'ta hangi tür önce
+ * indekslendiyse aday listesi ondan doluyordu: her öneri "Excel ve vardiya defteri"
+ * çıkıyordu. Depo sahibi bunu ilk denemede yakaladı. Bir listenin ilk N elemanı
+ * "en iyi N" değildir; yalnız "ilk N"dir.
+ */
+const TUR_BASINA = 4
 
 /**
  * Geçmişte işlenmiş konular — manifestlerdeki `topic` parametreleri.
@@ -66,7 +76,13 @@ export const islenmisKonular = (repoRoot: string): ReadonlySet<string> => {
  * Dosyaları taramak `draft` bir kaydı konu olarak önermek olurdu (R-14); indeks
  * retrieval yüklemini uygulayan tek yer.
  */
-export const konuAdaylari = (g: KonuAdayGirdisi): readonly string[] => {
+export interface KonuAdayi {
+  readonly baslik: string
+  /** Kayıt türü — ürün mü, strateji mi, kanıt mı; seçimin anlamı buna bağlı. */
+  readonly tur: string
+}
+
+export const konuAdaylari = (g: KonuAdayGirdisi): readonly KonuAdayi[] => {
   const islenmis = islenmisKonular(g.repoRoot)
   const kayitlar = browseRecords(g.db, {
     brandId: g.query.brandId,
@@ -74,15 +90,32 @@ export const konuAdaylari = (g: KonuAdayGirdisi): readonly string[] => {
     asOf: g.query.asOf,
     type: '',
     status: '',
-  }) as readonly { readonly title?: string }[]
-  return [
-    ...new Set(
-      kayitlar
-        .map((r) => r.title)
-        .filter((t): t is string => typeof t === 'string' && t.trim() !== '')
-        .filter((t) => !islenmis.has(t))
-    ),
-  ].slice(0, ADAY_TAVANI)
+  }) as readonly { readonly title?: string; readonly type?: string }[]
+
+  const turBasina = new Map<string, KonuAdayi[]>()
+  const gorulen = new Set<string>()
+  for (const k of kayitlar) {
+    const baslik = k.title
+    if (typeof baslik !== 'string' || baslik.trim() === '') continue
+    if (islenmis.has(baslik) || gorulen.has(baslik)) continue
+    const tur = typeof k.type === 'string' && k.type !== '' ? k.type : 'kayıt'
+    const kova = turBasina.get(tur) ?? []
+    if (kova.length >= TUR_BASINA) continue
+    gorulen.add(baslik)
+    kova.push({ baslik, tur })
+    turBasina.set(tur, kova)
+  }
+
+  // Türler arasında SIRAYLA geziliyor: tek türün kovası listenin başını yemesin.
+  const siralar = [...turBasina.values()]
+  const sonuc: KonuAdayi[] = []
+  for (let i = 0; i < TUR_BASINA; i++) {
+    for (const kova of siralar) {
+      const a = kova[i]
+      if (a !== undefined) sonuc.push(a)
+    }
+  }
+  return sonuc.slice(0, ADAY_TAVANI)
 }
 
 /**
@@ -90,24 +123,26 @@ export const konuAdaylari = (g: KonuAdayGirdisi): readonly string[] => {
  * hattı durdurur: konusuz koşan bir hat, markadan gelmeyen bir metin üretir.
  */
 export const konuSecPromptu = (g: {
-  readonly adaylar: readonly string[]
+  readonly adaylar: readonly KonuAdayi[]
   readonly islenmisSayisi: number
 }): string | null => {
   if (g.adaylar.length === 0) return null
   return [
     'Bir Instagram karoseli için KONU seçeceksin.',
     '',
-    'Aşağıdakiler markanın kendi kayıtlarının başlıkları. BİRİNİ seç — yeni bir konu',
-    'UYDURMA, listede olmayan bir şey yazma.',
+    'Aşağıdakiler markanın KENDİ kayıtlarının başlıkları — ürünler, strateji notları,',
+    'kanıtlar. BİRİNİ seç: yeni bir konu UYDURMA, listede olmayan bir şey yazma.',
     '',
-    ...g.adaylar.map((a, i) => `${String(i + 1)}. ${a}`),
+    ...g.adaylar.map((a, i) => `${String(i + 1)}. [${a.tur}] ${a.baslik}`),
     '',
     `Geçmişte ${String(g.islenmisSayisi)} konu işlendi ve onlar bu listede YOK.`,
-    'Seçerken şunu sor: hangisi bugün en çok işe yarar ve hangisinden gerçekten',
-    'gösterilecek bir şey çıkar?',
+    'Seçerken sırayla şunu sor:',
+    '  · bundan gösterilecek somut bir şey çıkar mı, yoksa yalnız laf mı olur?',
+    '  · marka bunu söylemeye yetkili mi — elinde kaydı var mı?',
+    '  · bugünün gündemine bu liste içinde en yakın duran hangisi?',
     '',
     'YALNIZ şu JSON ile cevapla, başka hiçbir şey yazma:',
-    '{"konu": "<listeden birebir kopyala>", "gerekce": "<tek cümle, neden bu>"}',
+    '{"konu": "<listeden başlığı birebir kopyala>", "gerekce": "<tek cümle, neden bu>"}',
   ].join('\n')
 }
 
@@ -122,14 +157,18 @@ export interface KonuSecimi {
  * ⚠ Doğrulama şart: model listede olmayan bir konu yazarsa o konu bir KAYNAKTAN
  * gelmiyor demektir ve `SELECT` onunla hiçbir şey bulamaz. "Yakın olanı kabul et"
  * demek, sessizce uydurulmuş bir konuyla koşmaktır.
+ *
+ * ⚠ ⚠ **GİRDİ DÜZ METİN — sağlayıcı çıktısını burada ÇÖZMÜYORUZ.** İlk sürüm kendi
+ * şekil tahminini yapıyordu (`.text`, sonra `JSON.stringify`) ve gerçek koşuda
+ * `TOPIC_NOT_IN_CANDIDATES` ile düştü: claude-code çıktısı `{result: "..."}` şeklinde
+ * geliyor. Sağlayıcı yanıt şekli TEK geçitten okunur (`metneCevir`/`duzMetin`);
+ * ikinci bir çözücü, ikinci bir şekil varsayımı demektir (D-227).
  */
-export const konuSecimiCozumle = (ham: unknown, adaylar: readonly string[]): KonuSecimi | null => {
-  const metin =
-    typeof ham === 'string'
-      ? ham
-      : typeof (ham as { text?: unknown })?.text === 'string'
-        ? (ham as { text: string }).text
-        : JSON.stringify(ham ?? '')
+export const konuSecimiCozumle = (
+  metin: string,
+  adaylar: readonly (string | KonuAdayi)[]
+): KonuSecimi | null => {
+  const basliklar = adaylar.map((a) => (typeof a === 'string' ? a : a.baslik))
   const eslesme = /\{[\s\S]*\}/.exec(metin)
   if (eslesme === null) return null
   let veri: unknown
@@ -141,6 +180,6 @@ export const konuSecimiCozumle = (ham: unknown, adaylar: readonly string[]): Kon
   const o = veri as { konu?: unknown; gerekce?: unknown }
   if (typeof o.konu !== 'string') return null
   const konu = o.konu.trim()
-  if (!adaylar.includes(konu)) return null
+  if (!basliklar.includes(konu)) return null
   return { konu, gerekce: typeof o.gerekce === 'string' ? o.gerekce.trim() : '' }
 }

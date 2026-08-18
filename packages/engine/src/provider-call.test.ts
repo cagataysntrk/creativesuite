@@ -24,6 +24,8 @@ const sahteAdaptor = (
   over: {
     durumlar?: JobStatus[]
     maliyet?: bigint | null
+    /** Kuyruk sağlayıcısı mı (fal gibi) yoksa süreçle ölen mi (claude-code gibi). */
+    islerKalici?: boolean
   } = {}
 ) => {
   const sayac = { start: 0, status: 0, cancel: 0 }
@@ -32,6 +34,9 @@ const sahteAdaptor = (
   const adapter: ProviderAdapter = {
     id: 'prv_sahte',
     title: 'Sahte',
+    // ⚠ Varsayılan `true`: bu dosyadaki testlerin çoğu ÇİFT ÖDEMEYİ sınıyor ve o
+    // tehlike yalnız işleri süreci aşan sağlayıcılarda var.
+    islerKalici: over.islerKalici ?? true,
     capabilities: () => [{ name: 'image.generate', lanes: ['premium'], supports: {} }],
     validate: (input) => ok({ ...input, _validated: true }),
     estimate: () => ({ low: ZERO_USD, high: usd(50_000n) }),
@@ -262,5 +267,36 @@ describe('iptal ve hata', () => {
     const r = await runStep(deps(), spec(), b, c, CID, new AbortController().signal)
     expect(r.error?.code).toBe('PROVIDER_POLL_TIMEOUT')
     expect(r.error?.details?.['externalId']).toBe('ext_1')
+  })
+})
+
+// ⚠ ⚠ **DEVRALINAMAYAN İŞ: YENİDEN ÇAĞRILIR.** Üstteki test bunun tersini koruyor ve
+// ikisi birlikte anlam taşıyor — biri olmadan diğeri yanlış bir kuralı korur:
+//   · kuyruk sağlayıcısında tutamakla devam → çift ödeme yok
+//   · süreçle ölen sağlayıcıda yeniden çağrı → sonsuz bekleme yok
+// İkincisi olmadığı için gerçek koşuda `claude` hiç başlatılmadan on beş dakika
+// beklendi: ölü bir tutamağa sorulan soru bir daha asla cevaplanmıyordu.
+describe('devralınamayan sağlayıcı', () => {
+  it('ölü tutamak yok sayılıyor — `start()` YENİDEN çağrılıyor', async () => {
+    const { adapter, sayac } = sahteAdaptor({ islerKalici: false })
+    const c = cagri(adapter)
+    const sonuc = await c({
+      signal: new AbortController().signal,
+      noteHandle: () => undefined,
+      resumeExternalId: 'ext_olu',
+    })
+    expect(sonuc.ok).toBe(true)
+    expect(sayac.start).toBe(1)
+  })
+
+  it('kuyruk sağlayıcısında tutamak KORUNUYOR — `start()` çağrılmıyor', async () => {
+    const { adapter, sayac } = sahteAdaptor({ islerKalici: true })
+    const c = cagri(adapter)
+    await c({
+      signal: new AbortController().signal,
+      noteHandle: () => undefined,
+      resumeExternalId: 'ext_canli',
+    })
+    expect(sayac.start).toBe(0)
   })
 })

@@ -19,9 +19,26 @@ steps:
   - id: cozumle
     verb: RESOLVE
 
+  # 0) KONU SEÇİMİ — yalnız konu VERİLMEDİĞİNDE koşar.
+  #
+  # ⚠ ⚠ **KONU UYDURULMAZ, SEÇİLİR.** Adaylar markanın kendi kayıtlarının başlıkları
+  # (ürün, strateji, kanıt) ve geçmişte işlenenler eleniyor. Model listede olmayan bir
+  # şey yazarsa adım HATA verir — kaynaksız bir konu, kaynaksız bir iddianın
+  # başlangıcıdır (Yasa 8).
+  #
+  # ⚠ İnsan konu yazdıysa istem BOŞ döner ve adım atlanır: ücretsiz bir adım bile olsa
+  # gereksiz bir model çağrısı, çıktının nereden geldiğini bulanıklaştırır.
+  - id: konu-sec
+    verb: GENERATE
+    capability: text.generate
+    needs: [cozumle]
+    constraints:
+      konu_sec: true
+      max_chars: 400
+
   - id: bilgi-sec
     verb: SELECT
-    needs: [cozumle]
+    needs: [cozumle, konu-sec]
 
   # 1) KONU → İÇERİK. Şablon henüz seçilmedi: seçim içeriğin ŞEKLİNE bakıyor ve şekil
   # ancak metin yazıldıktan sonra ölçülebilir. Ters sıra, şablonu konuya göre tahmin

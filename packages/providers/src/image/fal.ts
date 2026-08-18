@@ -97,6 +97,10 @@ export const falImage: ProviderAdapter = {
   id: ID,
   title: 'fal.ai FLUX (premium şerit)',
 
+  // Kuyruk API'si: iş fal tarafında yaşıyor ve bu süreç ölse de devam eder —
+  // tutamakla SORULUR, asla yeniden çağrılmaz (çift ödeme).
+  islerKalici: true,
+
   capabilities: () => CAPS,
 
   validate: (input: ProviderInput): Result<ValidatedInput, AppError> =>

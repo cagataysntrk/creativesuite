@@ -881,3 +881,55 @@ tr[data-tiklanir] {
   border-radius: var(--radius-2);
   padding: var(--space-4);
 }
+
+/* Aday konu listesi — başlatmadan önce "neyin arasından seçilecek" görünsün.
+   Katlanır: on sekiz satır ekranı yemesin ama saklanmasın da. */
+.aday-listesi {
+  margin: var(--space-1) 0 var(--space-2);
+  color: var(--role-text-muted);
+}
+.aday-listesi ul {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-3);
+  max-height: 12rem;
+  overflow-y: auto;
+}
+.aday-listesi .rozet {
+  display: inline-block;
+  min-width: 6rem;
+  color: var(--role-text-muted);
+}
+
+/* Koşu durumu + ilerleme çubuğu — "başlattım da ne oldu" sorusunun cevabı.
+   Renk tek başına anlam taşımıyor: etiket zaten glyph + metin. */
+.kosu-durum {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  color: var(--role-text);
+}
+.ilerleme {
+  display: inline-block;
+  flex: 1;
+  max-width: 18rem;
+  height: 4px;
+  background: var(--role-line-hair);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.ilerleme-dolu {
+  display: block;
+  height: 100%;
+  background: var(--role-text-muted);
+}
+/* Başlatma günlüğü: satır sonları korunur, uzun çıktı kendi içinde kayar. */
+.kosu-gunluk {
+  max-height: 12rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: var(--role-text-muted);
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}

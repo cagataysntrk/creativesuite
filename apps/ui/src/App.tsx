@@ -242,7 +242,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'baglam' ? (
           <BaglamOnizleme tarif={pipeline} />
         ) : ekran === 'calistir' ? (
-          <RunLauncher pipeline={pipeline} />
+          <RunLauncher pipeline={pipeline} baslayinca={kosuAc} />
         ) : ekran === 'kuyruk' ? (
           <OnayBolumleri
             ac={kosuAc}

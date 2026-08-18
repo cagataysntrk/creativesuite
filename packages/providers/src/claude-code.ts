@@ -127,6 +127,10 @@ export const claudeCode: ProviderAdapter = {
   id: ID,
   title: 'Claude Code (headless, abonelik)',
 
+  // Yerel CLI: iş bu süreçte senkron biter, `sonuclar` bellekte. Süreç ölünce
+  // tutamak da ölür — devralınamaz.
+  islerKalici: false,
+
   capabilities: () => CAPS,
 
   validate: (input: ProviderInput): Result<ValidatedInput, AppError> => {
@@ -271,8 +275,31 @@ export const claudeCode: ProviderAdapter = {
     return ok(handle)
   },
 
-  status: async (h): Promise<Result<JobStatus, AppError>> =>
-    ok(sonuclar.get(h.externalId) ?? { state: 'running' }),
+  // ⚠ ⚠ **BİLİNMEYEN TUTAMAK "KOŞUYOR" DEĞİLDİR — ve öyle demek hattı ASTI.**
+  //
+  // Bu sağlayıcının işleri SÜREÇLE BİRLİKTE ölür: `sonuclar` bellekte bir `Map` ve
+  // `start()` çağrısı işi zaten senkron bitirir. Yani bu süreçte bilinmeyen bir
+  // tutamak, "henüz bitmemiş bir iş" değil, "bir daha asla bitmeyecek bir iş"tir.
+  //
+  // Ölçülen zincir: `konu-sec` bir kez hata verdi → defterde `possibly-charged` bir
+  // kayıt ve bir tutamak kaldı → sonraki HER koşuda zamanlayıcı (doğru biçimde)
+  // "yeniden çağırma, SOR" dedi → `status` sonsuza kadar `running` dedi → `claude`
+  // hiç başlatılmadı ve `just uret` on beş dakika asılı kaldı. Hiçbir yerde hata
+  // yoktu çünkü herkes kendi işini doğru yapıyordu; yalan tek bir satırdaydı.
+  //
+  // Doğru cevap `failed`: iş devralınamaz. Mutabakat bunu görür, hat da durur —
+  // sessizce beklemek yerine sebebini söyleyerek.
+  status: async (h): Promise<Result<JobStatus, AppError>> => {
+    const bilinen = sonuclar.get(h.externalId)
+    if (bilinen !== undefined) return ok(bilinen)
+    return ok({
+      state: 'failed',
+      error: hata('internal', 'JOB_NOT_RESUMABLE', h.idempotencyKey, {
+        externalId: h.externalId,
+        sebep: 'claude-code işleri süreçle birlikte ölür — devralınamaz; adım yeniden çağrılmalı',
+      }),
+    })
+  },
 
   cancel: async (h): Promise<void> => {
     sonuclar.set(h.externalId, { state: 'cancelled' })

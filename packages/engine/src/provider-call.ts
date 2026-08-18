@@ -101,8 +101,21 @@ export const providerCall = (deps: ProviderCallDeps): StepCall => {
     const { adapter, input, ctx } = deps
     const pctx: ProviderContext = { ...ctx, signal: c.signal }
 
+    // ⚠ ⚠ **DEVRALINAMAYAN İŞ DEVRALINMAZ — ve bu ayrım yokken hat ASILDI.**
+    //
+    // Zamanlayıcı yarıda kalmış bir kaydın tutamağını buluyor ve (doğru biçimde)
+    // "yeniden çağırma, SOR" diyor: çift ödemeyi önlemenin tek yolu bu. Ama işleri
+    // bellekte tutan bir sağlayıcıda (yerel CLI, senkron HTTP) o tutamak süreç
+    // ölünce ÖLÜ oluyor ve sorulan soru bir daha asla cevaplanmıyor. Gerçek koşuda
+    // `claude` hiç başlatılmadan on beş dakika beklendi.
+    //
+    // Yeniden çağırmak burada GÜVENLİ: devralınamayan bir iş tamamlanmamıştır ve
+    // ücret tahakkuk etmemiştir. Kuyruk sağlayıcılarında (`islerKalici: true`)
+    // davranış birebir aynı kalıyor.
+    const devralinabilir = c.resumeExternalId !== null && adapter.islerKalici
+
     let handle: JobHandle
-    if (c.resumeExternalId !== null) {
+    if (devralinabilir && c.resumeExternalId !== null) {
       // Önceki çalıştırmadan devam. `start()` ÇAĞRILMAZ — çağrılsaydı sağlayıcı ikinci
       // bir iş açar ve ikisi de faturalanır.
       handle = {

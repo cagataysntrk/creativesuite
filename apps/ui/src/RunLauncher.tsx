@@ -45,14 +45,33 @@ const guvenIsareti = (c: FrozenStep['confidence']): { glyph: string; metin: stri
   return { glyph: '·', metin: 'ücretsiz adım' }
 }
 
-export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Element => {
+export const RunLauncher = ({
+  pipeline,
+  baslayinca,
+}: {
+  readonly pipeline: string
+  /**
+   * Başlatma tuttuğunda koşu ekranına geç.
+   *
+   * ⚠ ⚠ **BAŞLATTIKTAN SONRA EKRAN AYNI KALIYORDU:** tek işaret "başlatıldı: run_…"
+   * satırıydı ve o satır bir kimlikten ibaretti. Kullanıcı süreci başlatıp nereye
+   * bakacağını bilmiyordu. Başlatan ekran, başlattığı şeyi göstermek zorunda.
+   */
+  readonly baslayinca?: (runId: string) => void
+}): React.JSX.Element => {
   // ⚠ ⚠ **TÜR SEÇİMİ EKRANDA YOKTU.** Hat yalnız komut paletinden geliyordu ve ekran
   // `instagram-post`a kilitliydi; on bir hat varken kullanıcı karosel bile
   // seçemiyordu. Liste SUNUCUDAN, dizinden okunuyor — elle yazılmış bir menü, yeni
   // bir hat eklendiği gün sessizce eskirdi.
   const [hat, setHat] = useState(pipeline)
   const [hatlar, setHatlar] = useState<readonly string[]>([])
-  const [oneri, setOneri] = useState<string | null>(null)
+  // ⚠ ⚠ **KUTU BOŞ GİDER, KONUYU AGENT SEÇER.** Önceki sürüm kutuyu bir corpus
+  // başlığıyla dolduruyordu ve o seçim deterministikti: her koşuda aynı konu.
+  // Doğru okuma "insan konu yazmasın", "konu olmasın" değil — hat `konu-sec`
+  // adımında markanın kayıtlarına bakıp seçiyor ve gerekçesini deftere yazıyor.
+  const [sistemSecsin, setSistemSecsin] = useState(false)
+  const [adaylar, setAdaylar] = useState<readonly { baslik: string; tur: string }[]>([])
+  const [adayHata, setAdayHata] = useState<string | null>(null)
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
   const [tavan, setTavan] = useState('')
   const [konu, setKonu] = useState('')
@@ -90,6 +109,19 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
     void yukle()
   }, [yukle])
 
+  useEffect(() => {
+    if (!sistemSecsin) return
+    void (async () => {
+      const r = (await (await fetch('/api/konu-adaylari')).json()) as {
+        ok?: boolean
+        adaylar?: { baslik: string; tur: string }[]
+        hata?: string
+      }
+      setAdaylar(r.adaylar ?? [])
+      setAdayHata(r.ok === true ? null : (r.hata ?? 'adaylar okunamadı'))
+    })()
+  }, [sistemSecsin])
+
   /**
    * Başlat — **ekranda gösterilen planın ÖZETİYLE** (R-07).
    *
@@ -104,19 +136,25 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
         const r = await fetch('/api/calistir', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ pipeline: hat, konu, planDigest: digest }),
+          body: JSON.stringify({
+            pipeline: hat,
+            konu: sistemSecsin ? '' : konu,
+            konuyuSistemSecsin: sistemSecsin,
+            planDigest: digest,
+          }),
         })
         const j = (await r.json()) as { ok: boolean; runId?: string; hata?: string }
         setBaslatma(
           j.ok
-            ? { ok: true, mesaj: `başlatıldı: ${j.runId ?? ''}` }
+            ? { ok: true, mesaj: `başlatıldı: ${j.runId ?? ''} — koşu ekranı açılıyor` }
             : { ok: false, mesaj: j.hata ?? 'başlatılamadı' }
         )
+        if (j.ok && j.runId !== undefined && baslayinca !== undefined) baslayinca(j.runId)
       } catch {
         setBaslatma({ ok: false, mesaj: 'sunucuya ulaşılamıyor' })
       }
     },
-    [hat, konu]
+    [hat, konu, sistemSecsin, baslayinca]
   )
 
   if (sonuc === null) return <p>plan kuruluyor…</p>
@@ -228,52 +266,56 @@ export const RunLauncher = ({ pipeline }: { pipeline: string }): React.JSX.Eleme
         konu{' '}
         <input
           type="text"
-          value={konu}
+          value={sistemSecsin ? '' : konu}
+          disabled={sistemSecsin}
           onChange={(e) => setKonu(e.target.value)}
-          placeholder="ör. imalatta fire ölçümü"
+          placeholder={sistemSecsin ? 'hat seçecek' : 'ör. imalatta fire ölçümü'}
         />
       </label>
 
-      {/* ⚠ ⚠ **KONU UYDURULMAZ, SEÇİLİR.** "Konuyu ben yazmayayım" ile "konu olmasın"
-          ayrı şeyler: konusuz bir hat neyi üreteceğini bilemez. Aday konular markanın
-          kendi kayıtlarının başlıkları ve geçmişte işlenenler eleniyor.
-          ⚠ Öneri ALANA yazılıyor, doğrudan koşturulmuyor: insan neyin üretileceğini
-          görmeden başlatmamalı (Yasa 2). */}
-      <p className="olcum">
-        <button
-          type="button"
-          onClick={() => {
-            void (async () => {
-              const r = (await (await fetch('/api/konu-oner')).json()) as {
-                ok?: boolean
-                konu?: string
-                gerekce?: string
-                kalan?: number
-                hata?: string
-              }
-              if (r.ok === true && r.konu !== undefined) {
-                setKonu(r.konu)
-                setOneri(`${r.gerekce ?? ''} · ${String(r.kalan ?? 0)} aday kaldı`)
-              } else {
-                setOneri(r.hata ?? 'öneri alınamadı')
-              }
-            })()
-          }}
-        >
-          ✨ konuyu sistem seçsin
-        </button>
-        {oneri === null ? null : <span> {oneri}</span>}
-      </p>
+      {/* ⚠ Adaylar başlatmadan ÖNCE gösteriliyor: insan neyin arasından seçileceğini
+          görmeden onay vermemeli (Yasa 2). Seçimi uç değil, hattın agent'ı yapıyor. */}
+      <label>
+        <input
+          type="checkbox"
+          checked={sistemSecsin}
+          onChange={(e) => setSistemSecsin(e.target.checked)}
+        />{' '}
+        ✨ konuyu sistem seçsin — kutu boş gider, hat markanın kayıtlarından seçer
+      </label>
+
+      {!sistemSecsin ? null : adayHata !== null ? (
+        <p className="ret-mesaji">⊘ {adayHata}</p>
+      ) : (
+        <details className="aday-listesi">
+          <summary>
+            {adaylar.length} aday · seçimi `konu-sec` adımı yapacak, gerekçesi deftere yazılacak
+          </summary>
+          <ul>
+            {adaylar.map((a) => (
+              <li key={a.baslik}>
+                <span className="rozet">{a.tur}</span> {a.baslik}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       {/* Konu boşken de KİLİTLİ: hat neyi üreteceğini bilmeden koşarsa para harcar
           ve çıktı kullanılamaz. Sebep düğmenin metninde yazıyor, gizlenmiyor. */}
       <button
         type="button"
-        disabled={kilitli || konu.trim() === ''}
+        disabled={kilitli || (konu.trim() === '' && !sistemSecsin)}
         className="baslat"
         onClick={() => void baslat(f.digest)}
       >
-        {kilitli ? 'Başlat — KİLİTLİ' : konu.trim() === '' ? 'Başlat — konu gerek' : 'Başlat'}
+        {kilitli
+          ? 'Başlat — KİLİTLİ'
+          : sistemSecsin
+            ? 'Başlat — konuyu hat seçecek'
+            : konu.trim() === ''
+              ? 'Başlat — konu gerek'
+              : 'Başlat'}
       </button>
 
       {baslatma === null ? null : (

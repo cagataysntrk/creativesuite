@@ -147,6 +147,13 @@ export interface RunInput {
   readonly signal?: AbortSignal
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
   readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
+  /**
+   * Canlı iz — adım başlarken/biterken çağrılır.
+   *
+   * ⚠ Motor `console`a DOKUNMAZ: kütüphane kodu nereye yazacağına karar veremez
+   * (CLI stdout'a, sunucu dosyaya, test hiçbir yere). Çağıran verir.
+   */
+  readonly iz?: (satir: string) => void
 }
 
 export interface RunReport {
@@ -197,6 +204,11 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   // denetlenemez hâle gelir. `sablonId` özellikle kritik: "bu karosel neden böyle"
   // sorusunun tek cevabı o.
   'sablonId',
+  // ⚠ Konusuz başlatmada konuyu AGENT seçiyor (`konu-sec`). Seçilen konu ve gerekçesi
+  // deftere girmezse "bu karosel neden bu konuda" sorusunun cevabı hiçbir yerde
+  // yazmaz — ve `islenmisKonular` bir daha aynı konuyu eleyemez.
+  'konu',
+  'gerekce',
   // ⚠ Kusur LİSTESİ de deftere giriyor: sayı "kaç" der, liste "hangi" der. Düzeltme
   // turunun işe yarayıp yaramadığı ancak iki render'ın listeleri karşılaştırılarak
   // görülüyor — sayı tek başına bunu söyleyemez.
@@ -403,6 +415,14 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     }
     const stepId = id as StepId
     const correlationId = `cor_${input.runId}_${id}` as CorrelationId
+
+    // ⚠ ⚠ **ADIM BAŞLARKEN KONUŞUYOR — sonunda değil.** Özet tablo yalnız çalıştırma
+    // BİTİNCE basılıyordu; dakikalarca süren bir koşuda hattın nerede olduğunu
+    // öğrenmenin hiçbir yolu yoktu ve asılan bir adım "sistem donmuş" gibi
+    // görünüyordu. Gerçek bir asılma bu satır olmadığı için on beş dakika teşhis
+    // edilemedi. Satır alt sürecin stdout'una gidiyor; sunucu onu canlı olarak
+    // `derived/runs/<id>/calistirma.log` dosyasına akıtıyor.
+    input.iz?.(`▶ ${id}`)
 
     // ── insan kapısı: onay bir yan etki değil, bir KAPIDIR (§4c) ───────────
     if (s.gate !== null) {

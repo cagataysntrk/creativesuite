@@ -23,6 +23,26 @@ export interface SpawnOptions {
   /** `SIGTERM` ile `SIGKILL` arası. Süreç kendini toparlasın diye. */
   readonly graceMs?: number
   readonly maxOutputBytes?: number
+  /**
+   * Sinyal gönderimi — **dikiş, süs değil.**
+   *
+   * ⚠ ⚠ Son çare zamanlayıcısı (aşağıda) gerçek bir süreçle SINANAMAZ: `SIGKILL`
+   * alan her süreç ölür ve `exit` yayar, yani ağ hiç devreye girmez. İlk yazılan
+   * test tam bu yüzden ağı ölçmüyordu — kasten bozuldu ve YEŞİL kaldı.
+   *
+   * Alan "sinyal iletilmedi" durumunu modelliyor ve o durum uydurma değil: gerçek
+   * koşuda çocuk çoktan ölmüştü, `kill` hiçbir şey yapmadı ve hiçbir olay gelmedi.
+   */
+  readonly sinyalGonder?: (sinyal: NodeJS.Signals) => void
+  /**
+   * Çıktı GELDİĞİ ANDA haber verir — biriktirip sonunda vermek değil.
+   *
+   * ⚠ ⚠ Sonuç yalnız süreç BİTİNCE dönüyor; dakikalarca süren bir çalıştırmada bu,
+   * "başlattım ama ne oluyor bilmiyorum" demektir. Panelde canlı günlük tam olarak
+   * bu yüzden yoktu. Kesme (`truncated`) sayacı yine uygulanıyor: dinleyiciye giden
+   * parça, sonuca giren parçadır.
+   */
+  readonly onData?: (parca: string, hedef: 'out' | 'err') => void
 }
 
 export interface SpawnResult {
@@ -91,22 +111,51 @@ export const spawnProcess = (
       if (parca.length < metin.length) truncated = true
       if (hedef === 'out') stdout += parca
       else stderr += parca
+      // Dinleyici hata fırlatırsa süreç ölmemeli: günlük yazımı, çalıştırmayı
+      // durdurmaya yetkili değil.
+      try {
+        opts.onData?.(parca, hedef)
+      } catch {
+        // yutuluyor — bilerek
+      }
     }
 
     child.stdout.on('data', (c: Buffer) => ekle('out', c))
     child.stderr.on('data', (c: Buffer) => ekle('err', c))
 
+    // `bitir` AŞAĞIDA tanımlı ama `oldur` onu ancak zamanlayıcı ateşlendiğinde
+    // çağırıyor — o an tanım çoktan yapılmış olur. Sıra bilinçli: ikisini de yukarı
+    // taşımak `child.on('close')` kaydını geciktirirdi.
     let killTimer: NodeJS.Timeout | null = null
+    let sonTimer: NodeJS.Timeout | null = null
     let drainTimer: NodeJS.Timeout | null = null
+    const gonder = opts.sinyalGonder ?? ((sinyal: NodeJS.Signals) => void child.kill(sinyal))
     const oldur = (): void => {
       if (bitti) return
-      child.kill('SIGTERM')
+      gonder('SIGTERM')
       killTimer = setTimeout(() => {
-        if (!bitti) child.kill('SIGKILL')
+        if (!bitti) gonder('SIGKILL')
       }, grace)
       // Bu zamanlayıcı süreci canlı tutmasın: kapanışta bekleyen bir timer,
       // "bir ay ihmal edilse de çalışır" için gereksiz bir kilit noktasıdır.
       killTimer.unref?.()
+
+      // ⚠ ⚠ **ZAMAN AŞIMI BİR GARANTİDİR, BİR RİCA DEĞİL — ve değildi.**
+      //
+      // Eski kod öldürüyor ve sonra YİNE bir olay bekliyordu: `close` ya da `exit`.
+      // Olay hiç gelmezse promise sonsuza kadar bekler ve zaman aşımı hiçbir şey
+      // başarmaz. Gerçek koşuda tam bu oldu: `just uret` on beş dakika asılı kaldı,
+      // `ps` hiçbir çocuk süreç göstermedi (yani çocuk çoktan ölmüştü), `ep_poll`de
+      // boşta bekliyordu ve on dakikalık zaman aşımı da onu KURTARMADI.
+      //
+      // Bu, dosyanın kendi uyarısının birebir tekrarı: *"hem asıl yol hem kurtarma
+      // yolu AYNI olaya bağlıydı."* Ders bir kez yazılmış ama zaman aşımı yoluna
+      // uygulanmamıştı. Artık son bir zamanlayıcı, olay gelsin gelmesin ELDEKİ
+      // çıktıyla bitiriyor: `SIGKILL`den sonra hâlâ yaşayan bir çocuk yok sayılır.
+      sonTimer = setTimeout(() => {
+        if (!bitti) bitir(null, 'SIGKILL')
+      }, grace * 2)
+      sonTimer.unref?.()
     }
 
     const timeoutTimer =
@@ -149,6 +198,7 @@ export const spawnProcess = (
       bitti = true
       if (timeoutTimer !== null) clearTimeout(timeoutTimer)
       if (killTimer !== null) clearTimeout(killTimer)
+      if (sonTimer !== null) clearTimeout(sonTimer)
       if (drainTimer !== null) clearTimeout(drainTimer)
       opts.signal?.removeEventListener('abort', onAbort)
       resolve({ code, signal, stdout, stderr, timedOut, aborted, truncated })

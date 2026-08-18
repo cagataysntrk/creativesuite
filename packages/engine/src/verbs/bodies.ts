@@ -42,6 +42,7 @@ import {
 } from '@suite/render'
 import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../plan/sablon-uyarla.js'
 import { ritimTuttuMu, sablonSec } from '../plan/sablon-sec.js'
+import { konuSecPromptu, konuSecimiCozumle, type KonuAdayi } from '../plan/konu-sec.js'
 import { duzeltilebilir, duzeltmeIstemi, type DenetimKusuru } from '../plan/denetim-turu.js'
 import { sablonBul } from '@suite/contracts'
 import type { KatalogOrnegi } from '@suite/render'
@@ -182,9 +183,32 @@ export interface SelectDeps {
   ) => readonly { readonly id: string; readonly text: string }[]
 }
 
+/**
+ * Adımın KONUSU — kısıttan, yoksa `konu-sec` adımının çıktısından (FAZ-17.3).
+ *
+ * ⚠ ⚠ **İKİ KAYNAK VAR ve tek yerden okunmak zorunda.** Konusuz başlatmada `topic`
+ * boştur ve gerçek konu `konu-sec` adımının çıktısında yaşar. Her okuyucu kendi
+ * `input.constraints['topic']` satırını yazsaydı — ki dosyada beş tane vardı —
+ * biri unutulurdu ve o adım konuyu BOŞ görürdü. Sessizce boş konu, markadan
+ * gelmeyen bir metin demektir.
+ */
+export const konuAl = (input: BodyInput): string => {
+  const k = typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : ''
+  if (k.trim() !== '') return k
+  for (const deger of Object.values(input.inputs)) {
+    const o = deger as { konu?: unknown } | null
+    if (o !== null && typeof o === 'object' && typeof o.konu === 'string' && o.konu.trim() !== '') {
+      return o.konu
+    }
+  }
+  return ''
+}
+
 export const selectBody = (deps: SelectDeps): Verb =>
   govde('SELECT', async (ctx, input) => {
-    const q = typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : ''
+    // ⚠ Konu `konu-sec` çıktısından da gelebilir: konusuz başlatmada `topic` boştur.
+    // Yine de BOŞSA hata veriliyor — konusuz bir SELECT, bağlamsız bir metin demek.
+    const q = konuAl(input)
     if (q === '') return err(hata('validation', 'MISSING_TOPIC', ctx))
     const kayitlar = deps.select(q, 8)
     if (kayitlar.length === 0) {
@@ -1619,7 +1643,24 @@ const yargilanacakSlaytlar = (input: BodyInput): readonly YargiHedefi[] => {
  * bağlandığını iddia etmek dördüncüsü olurdu.
  */
 export const promptTuret = (yetenek: string, input: BodyInput): string => {
-  const konu = typeof input.constraints['topic'] === 'string' ? input.constraints['topic'] : ''
+  const konu = konuAl(input)
+
+  // ── KONU SEÇİMİ: hattın ilk adımı, yalnız konu VERİLMEDİĞİNDE koşar ──────
+  //
+  // ⚠ İnsan konu yazdıysa istem BOŞ ve adım atlanıyor. `konu_sec` dalı diğer tüm
+  // dallardan ÖNCE: yetenek `text.generate` ve aşağıdaki metin dalı onu yakalayıp
+  // içerik istemi kurardı — aynı ön-ek tuzağının (`image.critique`, `image.matte`)
+  // üçüncü tekrarı olurdu.
+  if (input.constraints['konu_sec'] === true) {
+    if (konu.trim() !== '') return ''
+    const ham = input.constraints['konu_adaylari']
+    const adaylar = typeof ham === 'string' && ham !== '' ? (JSON.parse(ham) as KonuAdayi[]) : []
+    const islenmis =
+      typeof input.constraints['islenmis_konu_sayisi'] === 'number'
+        ? input.constraints['islenmis_konu_sayisi']
+        : 0
+    return konuSecPromptu({ adaylar, islenmisSayisi: islenmis }) ?? ''
+  }
   const kacinilacak =
     typeof input.constraints['kacinilacak'] === 'string'
       ? input.constraints['kacinilacak']
@@ -2363,6 +2404,32 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     //
     // ⚠ Ayrıştırma BAŞARISIZ olursa hata veriliyor, boş bir uyarlama değil: yarım bir
     // uyarlama, örnek metinle gerçek metnin karıştığı bir karosel üretirdi.
+    // ── konu seçimi: model çıktısı ADAYLARA karşı doğrulanıyor ─────────────
+    //
+    // ⚠ Doğrulanmadan kabul etmek, listede olmayan — yani bir kayda dayanmayan —
+    // bir konuyla koşmak olurdu; `SELECT` onunla hiçbir şey bulamaz ve hata iki
+    // adım sonra anlamsız bir yerde görünürdü.
+    let konuCiktisi: { readonly konu: string; readonly gerekce: string } | null = null
+    if (input.constraints['konu_sec'] === true) {
+      const ham = input.constraints['konu_adaylari']
+      const adaylar = typeof ham === 'string' && ham !== '' ? (JSON.parse(ham) as KonuAdayi[]) : []
+      // Sağlayıcı yanıt şekli TEK geçitten (`duzMetin`) okunuyor — `{result}`,
+      // `{text}`, `{content}` ve normalize `{lines}` biçimlerinin hepsi orada tanınır.
+      const ciktiMetni = duzMetin(sonuc.value.data) ?? ''
+      const secim = konuSecimiCozumle(ciktiMetni, adaylar)
+      if (secim === null) {
+        // ⚠ Ham çıktının başı hataya giriyor: "ayrıştıramadım" tek başına teşhis
+        // ettirmez ve bu adım tam olarak bu yüzden bir kez körlemesine hata verdi.
+        return err(
+          hata('validation', 'TOPIC_NOT_IN_CANDIDATES', ctx, {
+            ham: ciktiMetni.slice(0, 240),
+            adaySayisi: adaylar.length,
+          })
+        )
+      }
+      konuCiktisi = secim
+    }
+
     let uyarlamaCiktisi: { readonly uyarlama: Uyarlama } | null = null
     if (input.constraints['sablon_uyarla'] === true) {
       const c = uyarlamayaCevir(sonuc.value.data)
@@ -2381,15 +2448,17 @@ export const generateBody = (deps: GenerateDeps): Verb =>
         },
       ],
       data:
-        uyarlamaCiktisi !== null
-          ? { ...uyarlamaCiktisi, raw: sonuc.value.data }
-          : tasarim !== null
-            ? { ...tasarim, raw: sonuc.value.data }
-            : yargi !== null
-              ? { ...yargi, raw: sonuc.value.data }
-              : metin === null
-                ? sonuc.value.data
-                : { ...metin, raw: sonuc.value.data },
+        konuCiktisi !== null
+          ? { ...konuCiktisi, raw: sonuc.value.data }
+          : uyarlamaCiktisi !== null
+            ? { ...uyarlamaCiktisi, raw: sonuc.value.data }
+            : tasarim !== null
+              ? { ...tasarim, raw: sonuc.value.data }
+              : yargi !== null
+                ? { ...yargi, raw: sonuc.value.data }
+                : metin === null
+                  ? sonuc.value.data
+                  : { ...metin, raw: sonuc.value.data },
     })
   })
 

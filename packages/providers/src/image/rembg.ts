@@ -71,6 +71,9 @@ export const localRembg: ProviderAdapter = {
   id: ID,
   title: 'Yerel arka plan silici (BRIA RMBG, CPU)',
 
+  // Yerel süreç: iş bu makinede ve bu süreçte koşuyor.
+  islerKalici: false,
+
   capabilities: () => CAPS,
 
   validate: (input: ProviderInput): Result<ValidatedInput, AppError> => {

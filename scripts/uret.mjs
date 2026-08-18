@@ -85,6 +85,9 @@ const verilenRunId = runIndeks > 0 ? process.argv[runIndeks + 1] : undefined
 const digestIndeks = process.argv.indexOf('--plan-digest')
 const beklenenDigest = digestIndeks > 0 ? process.argv[digestIndeks + 1] : undefined
 const BAYRAKLAR = new Set(['--devam', '--run', '--plan-digest', '--rerun', '--replay'])
+// ⚠ Değer ALMAYAN bayrak: `BAYRAKLAR` üyeleri bir sonraki argümanı değer sayıyor ve
+// `--konu-sec` sonrası gelen kelimeyi yutardı.
+const KONU_SEC = process.argv.includes('--konu-sec')
 
 // ── serbest çalıştırma parametreleri ────────────────────────────────────────
 //
@@ -103,7 +106,9 @@ const BAYRAKLAR = new Set(['--devam', '--run', '--plan-digest', '--rerun', '--re
 // koşu R-07 kapısında "plan DEĞİŞTİ" ile ölüyordu. İki yerde hesaplanan bir şey
 // iki farklı sonuç verir — hesap `kosuParametreleri`ne taşındı, iki çağıran da
 // oradan okuyor.
-const { kosuParametreleri } = await import(join(REPO, 'packages/engine/dist/index.js'))
+const { kosuParametreleri, konuAdaylari, islenmisKonular } = await import(
+  join(REPO, 'packages/engine/dist/index.js')
+)
 
 const serbestParam = {}
 for (let i = 3; i < process.argv.length - 1; i++) {
@@ -119,6 +124,7 @@ const konu = process.argv
   .slice(3)
   .filter((a, i, arr) => {
     const onceki = arr[i - 1] ?? ''
+    if (a === '--konu-sec') return false
     if (BAYRAKLAR.has(a) || BAYRAKLAR.has(onceki)) return false
     // Serbest parametrenin kendisi ve değeri konuya girmez.
     return !serbestAnahtarlar.has(a) && !serbestAnahtarlar.has(onceki)
@@ -126,9 +132,14 @@ const konu = process.argv
   .join(' ')
 if (
   id === undefined ||
-  (konu === '' && devamRunId === undefined && rerunRunId === undefined && replayRunId === undefined)
+  (konu === '' &&
+    !KONU_SEC &&
+    devamRunId === undefined &&
+    rerunRunId === undefined &&
+    replayRunId === undefined)
 ) {
   console.log(`  kullanım: just uret <pipeline> <konu>`)
+  console.log(`  konusuz:  just uret <pipeline> --konu-sec   (konuyu hattın agent'ı seçer)`)
   console.log(`  devam:    just uret <pipeline> --devam <run_id>   (konu manifest'ten okunur)`)
   console.log(`  parametre: just uret prospect-deck <konu> --url <site> --demo-ref <yol>`)
   console.log(`  mevcut: ${listPipelines(PIPELINES).join(', ') || '(yok)'}`)
@@ -680,7 +691,31 @@ const KOSU_PARAMLARI = kosuParametreleri({
   repoRoot: REPO,
   brandId: MARKA,
   konu: devamKonu ?? kaynakKonu ?? konu,
-  serbest: serbestParam,
+  serbest: {
+    ...serbestParam,
+    // ⚠ ⚠ **KONUSUZ BAŞLATMA: adaylar burada hesaplanır, konu HATTIN İÇİNDE seçilir.**
+    // Deterministik "ilk başlık" yaklaşımı denendi ve her koşuda aynı konuyu verdi
+    // (depo sahibi ilk denemede yakaladı). Seçim modele ait; liste kayıtlara ait.
+    ...(KONU_SEC && (devamKonu ?? kaynakKonu) === null
+      ? (() => {
+          const adaylar = konuAdaylari({
+            db: corpusDb,
+            query: { brandId: MARKA, eraId: AKTIF_DONEM, asOf: clock.nowIso() },
+            repoRoot: REPO,
+          })
+          if (adaylar.length === 0) {
+            console.log('✗ konu seçilemez: geçmişte işlenmemiş aday kayıt kalmadı.')
+            console.log('    Yeni bir corpus kaydı ekle ya da konuyu elle yaz.')
+            process.exit(1)
+          }
+          console.log(`  konu seçimi hatta bırakıldı — ${adaylar.length} aday`)
+          return {
+            konu_adaylari: JSON.stringify(adaylar),
+            islenmis_konu_sayisi: String(islenmisKonular(REPO).size),
+          }
+        })()
+      : {}),
+  },
 })
 if (KOSU_PARAMLARI.kacinilacak !== undefined) {
   console.log(`  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor`)
@@ -784,6 +819,9 @@ const rapor = await runPipeline({
   rng: seededRng(1),
   limiter: oranKovasi,
   sleep: async () => undefined,
+  // ⚠ İz stdout'a: sunucu alt sürecin stdout'unu canlı olarak koşu günlüğüne
+  // akıtıyor, yani panelde de görünüyor. Tek satır, tek yön.
+  iz: (satir) => console.log(`  ${satir}`),
 })
 
 // ── damga + CAS: zincirin son halkası ───────────────────────────────────────

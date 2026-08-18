@@ -133,6 +133,7 @@ export {
   konuSecimiCozumle,
   islenmisKonular,
   type KonuSecimi,
+  type KonuAdayi,
 } from './plan/konu-sec.js'
 export { baglamKayitlari, type BaglamKaydiGirdisi } from './plan/baglam-kaydi.js'
 export {

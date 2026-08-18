@@ -87,6 +87,9 @@ export const cloudflareImage: ProviderAdapter = {
   id: ID,
   title: 'Cloudflare Workers AI (bedava şerit)',
 
+  // Senkron HTTP ucu: cevap çağrının içinde geliyor, kuyruk yok.
+  islerKalici: false,
+
   capabilities: () => CAPS,
 
   validate: (input: ProviderInput): Result<ValidatedInput, AppError> =>
