@@ -492,3 +492,30 @@ puntoda tek kelime ÜÇ SLAYDI kat edip başlıkla yarıştı. Reddetmek yanlı�
 karaktere kadar tam punto, sonrası orantılı, taban 0,34.
 
 **Geri alma maliyeti:** düşük — bir opsiyonel alan, bir yükleyici, bir formül.
+
+## D-285
+
+**Karar:** `tasarim` kapısının `font_family_count` sınırı 2 → 3; karşılığında yeni bir
+ölçüm geldi: `font_family_unknown`, tavan **0**. Kullanılan her aile `fonts.ts`in kapalı
+`YUZLER` listesinde beyan edilmiş olmalı.
+
+**Neden gerekli:** Referansta (`image copy 2`) kapağın kontrastı punto farkından değil
+**YÜZ FARKINDAN** geliyor — el yazısı vurgu + ağır condensed. Tek display ailesiyle o
+kontrast kurulamıyor ve R-81 elle taklidi yasaklıyor (bir yazı karakteri, "jenerik ögeyi
+kodlama" yasağının en uç örneği). Üçüncü aile keyfî bir ekleme değil, ayrı bir ROL:
+metin · display · vurgu. Dördüncüsü hâlâ kırmızı.
+
+⚠ ⚠ **BU BİR GEVŞETME DEĞİL, BİR TAKAS — ve net sonuç DAHA SIKI bir kapı.** Eski kural
+kaba bir sayımdı: üç aile kullanan her belge kırmızıydı ama ÜÇÜNCÜNÜN NE OLDUĞU
+sorulmuyordu. `font-family: Georgia` yazan bir belge iki aileyle YEŞİL geçiyordu. Artık
+meşruiyet sayıdan değil KAPALI LİSTEDEN geliyor.
+
+⚠ **Liste ikinci kez yazılmadı:** `BEYAN_EDILEN_AILELER` doğrudan `YUZLER`den türüyor.
+Bu depoda ikiz sözlük hatası üç kez tekrarlandı; dördüncüsü burada olmayacak.
+
+⚠ ⚠ **AYRI TURDA VE AYRI COMMIT'TE — R-76.** Sınır bir önceki turda üçüncü yüz eklenince
+kırmızıya döndü; kural o turda DEĞİŞTİRİLMEDİ, yüz geri alındı (D-282). Kapı yeşile
+döndükten sonra, ayrı bir turda ve `refactor(gates)` tipli ayrı bir commit'le
+değiştiriliyor. Kuralı kırmızıyken değiştirmek, kapıyı geçmek için kuralı yazmaktır.
+
+**Geri alma maliyeti:** düşük — iki sayı ve bir ölçüm satırı.

@@ -18,6 +18,7 @@ import type { DocumentModel, Islev, SlaytKimligi } from '@suite/kernel'
 import type { QaReport, ToleranceReading } from '@suite/contracts'
 import { GOVDE_TAVANI, islevTavanlari, slaytIslevi } from '@suite/contracts'
 import { parseColor, type Rgb } from './qa/deltae.js'
+import { YUZLER } from './fonts.js'
 import { reading, report } from './qa/tolerance.js'
 import { NEFES_YUZDESI } from './sablon-parametre.js'
 import { alanRolleri, guvenliKolonYuzdesi } from './sablon.js'
@@ -433,6 +434,15 @@ export const tasarimOlc = (g: TasarimGirdisi): QaReport => {
  * `fonts.ts`teki `YUZLER` listesini saymak ilkini cevaplar ve yanlış soruyu ölçmek,
  * ölçmemekten daha ikna edici bir yanlıştır.
  */
+/**
+ * `fonts.ts`in beyan ettiği aile adları.
+ *
+ * ⚠ Tek kaynak: liste orada kapalı ve "üçüncü aile bir KARAR gerektirir" diye yazılı.
+ * Burada ikinci bir liste tutmak, iki yerde yaşayan ve bir yerde unutulan bir kural
+ * üretirdi — bu depoda o hata (ikiz sözlük) üç kez tekrarlandı.
+ */
+const BEYAN_EDILEN_AILELER = new Set(YUZLER.map((y) => y.aile))
+
 export const tipografiSay = (html: string): QaReport => {
   const aileler = new Set<string>()
   for (const m of html.matchAll(/font-family:\s*([^;}]+)/g)) {
@@ -458,12 +468,34 @@ export const tipografiSay = (html: string): QaReport => {
   }
 
   return report([
+    // ⚠ ⚠ **SINIR 2 → 3 (D-285) ve bu bir GEVŞETME DEĞİL, bir TAKAS.** Eski kural kaba
+    // bir sayımdı: üç aile kullanan her belge kırmızıydı ama ÜÇÜNCÜNÜN NE OLDUĞU
+    // sorulmuyordu — `font-family: Georgia` yazan bir belge iki aileyle yeşil geçiyordu.
+    // Yeni kural iki parça: sayı ≤ 3 VE kullanılan her aile `YUZLER`de BEYAN EDİLMİŞ
+    // olmalı (aşağıdaki `font_family_unknown`, tavan 0). Toplamda gate DAHA SIKI.
+    //
+    // ⚠ Üçüncü aile keyfî bir ekleme değil, ayrı bir ROL: referansta (`image copy 2`)
+    // kapağın kontrastı punto farkından değil YÜZ FARKINDAN geliyor — el yazısı vurgu +
+    // ağır condensed. Tek display ailesiyle o kontrast kurulamıyor ve R-81 elle taklidi
+    // yasaklıyor. Dördüncü bir aile hâlâ kırmızı: rol sayısı üç (metin · display · vurgu).
     reading({
       metric: 'font_family_count',
       label: 'kullanılan font ailesi',
       value: aileler.size,
-      warn: 2,
-      limit: 2,
+      warn: 3,
+      limit: 3,
+      direction: 'lower',
+      unit: '',
+    }),
+    // ⚠ **BEYAN EDİLMEMİŞ aile = 0.** Sayıyı yükseltmenin bedeli bu: hangi ailelerin
+    // meşru olduğu artık `fonts.ts`in kapalı listesinden geliyor, çağıranın insafından
+    // değil. `@font-face` bildirimleri de aynı listeden üretildiği için kendiliğinden geçer.
+    reading({
+      metric: 'font_family_unknown',
+      label: 'beyan edilmemiş font ailesi',
+      value: [...aileler].filter((a) => !BEYAN_EDILEN_AILELER.has(a)).length,
+      warn: 0,
+      limit: 0,
       direction: 'lower',
       unit: '',
     }),
