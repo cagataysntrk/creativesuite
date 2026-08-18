@@ -61,7 +61,9 @@ describe('panorama tipografi ekseni', () => {
 
   it('punto CSS`te sabit değil, değişkenden geliyor', () => {
     const html = panoramaHtml(belge())
-    expect(html).toContain('font-size: var(--baslik-punto)')
+    // ⚠ Punto artık elle ayar çarpanıyla sarılı (FAZ-16.1). Değişmez aynı — punto
+    // SABİT değil, değişkenden geliyor — sadece formül bir çarpan kazandı.
+    expect(html).toContain('font-size: calc(var(--baslik-punto) * var(--ayar-olcek, 1))')
     // 82 px'lik eski sabit hiçbir yerde kalmadı.
     expect(html).not.toContain('font-size: 82px')
   })

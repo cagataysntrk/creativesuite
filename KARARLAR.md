@@ -561,3 +561,29 @@ fotoğrafla dolu), biri bu nokta.
 
 Kapı tavanı 4'ten **3'e indirildi** — gevşetme değil sıkma; sahte bir rozet eklenince
 kırmızıya dönüyor (denendi).
+
+## D-307
+
+**Hazır tasarım editörü ana düzenleme döngüsüne girmiyor; Penpot tek yönlü rötuş
+kulvarı olarak açık kalıyor.**
+
+Depo sahibi Canva'yı ve genel olarak hazır bir açık kaynak editörü sordu. Adaylar
+ölçüldü: **Polotno** (SDK ticari lisans), **tldraw** (özel lisans, filigran/ücret),
+**Fabric.js / Konva** (MIT ama editör değil, kütüphane — editörü yine biz yazarız),
+**Penpot** (MPL-2.0, self-host, gerçek özgür yazılım).
+
+**Ortak ve belirleyici sorun lisans değil, VERİ MODELİ.** Hepsi şekil/piksel düzenliyor;
+bizim editör `KatalogOrnegi` ALANLARINI düzenliyor. Bir slaydı Canva'da ya da Penpot'ta
+güzelleştirmek o güzelliği **bir sonraki konuya taşımaz** — şablon mantığı (Yasa 13)
+çöker, çıktı veriden yeniden üretilemez olur (Yasa 11) ve ikinci bir render motoru
+doğar (Yasa 4). Katalog merkezli üretimin tamamı "bir kez mükemmelleştir, sonsuz kez
+uygula" öncülüne dayanıyor; serbest tuval tam olarak bunu bozar.
+
+**Maliyet karşılaştırması da aynı yöne bakıyor.** Depo sahibinin istediği yetenekler —
+yazıyı taşı, ölçekle, tipografi, öge sil — bizim editörde birkaç yüz satır ve hepsi
+veri modelinde kalıyor. Hazır bir editörü bağlamak bundan pahalı ve tekrar
+kullanılabilirliği öldürüyor.
+
+**Açık kalan kapı:** Penpot **tek yönlü dışa aktarım** hedefi olarak meşru. Tek bir
+yayın için son rötuş isteniyorsa SVG verilir ve orada açılır; şablon döngüsü bizde
+kalır ve geri okuma YOKTUR. Geri okuma eklenirse bu karar yeniden açılır.

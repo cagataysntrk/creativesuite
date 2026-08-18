@@ -155,7 +155,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 Belgede olmayan bir adım ekle → belge ile defter uyuşmuyor, denetim yakalıyor
 💾 `docs(docs): katalog merkezli hat — kullanim belgesi` · `Refs: FAZ-15.10 · §7.1`
 
-## 15.11 — Arka plan silme: kesik özne artık RİCA değil, İŞLEM    [ ]
+## 15.11 — Arka plan silme: kesik özne artık RİCA değil, İŞLEM    [x]
 
 📖 §8.4, §7.1 · D-274 · R-04
 🔗 FAZ-15.9
@@ -175,7 +175,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 `noncommercial_ack` beyanını kaldır → `providers` kapısı kırmızı (denendi, döndü)
 💾 `feat(providers): yerel arka plan silici` · `Refs: FAZ-15.11 · §8.4`
 
-## 15.12 — Katalog markanın kendi paletine taşınıyor    [ ]
+## 15.12 — Katalog markanın kendi paletine taşınıyor    [x]
 
 📖 §12.1 · D-276 · D-253
 🔗 FAZ-15.11
@@ -209,7 +209,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 Bir şablona düz `<path>` ok koy → tasarım kapısı ya da denetim kırmızı
 💾 `feat(render): sablonlar asillarina benzetildi` · `Refs: FAZ-15.13 · §7.1`
 
-## 15.14 — Görsel düzenleyici: elle müdahale, veri üstünden    [ ]
+## 15.14 — Görsel düzenleyici: elle müdahale, veri üstünden    [x]
 
 📖 §7.1 · D-301
 🔗 FAZ-15.13

@@ -222,6 +222,13 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       // şablonun taşıdığı KOMPOZİSYON alanlarının hepsinin uyarlanmış belgede
       // durduğunu alan alan değil, ALAN LİSTESİ üzerinden ölçüyor.
       ...(o.elYazisi === undefined ? {} : { elYazisi: o.elYazisi }),
+      // ⚠ ⚠ **`ayar` ÜÇÜNCÜ ADAY ve ISIRMADAN önce yakalandı.** Elle yapılmış ince ayar
+      // (kaydırma + punto çarpanı) da kompozisyondur: depo sahibi bir başlığı elle
+      // yerine oturttuysa o karar şablonun parçasıdır ve uyarlama onu düşüremez.
+      // Yukarıdaki iki blok aynı hatayı iki kez anlatıyor; bu satır o dersin ilk kez
+      // ÖNCEDEN uygulanmış hâli — alan eklenirken listeye de eklendi, koşu gösterdikten
+      // sonra değil.
+      ...(o.ayar === undefined ? {} : { ayar: o.ayar }),
     })
   }
 

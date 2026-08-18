@@ -61,6 +61,28 @@ describe('uyarlama kompozisyona DOKUNAMIYOR', () => {
     expect(r.belge.kartlar[0]).not.toHaveProperty('zemin')
   })
 
+  // ⚠ ⚠ **BU TEST BİR ISIRIĞI ÖNLEDİ.** `zemin`, `kolon` ve `elYazisi` üçü de
+  // uyarlamada taşınmayı UNUTTU ve üçü de gerçek koşuda görüldü. `ayar` dördüncü
+  // adaydı; alan eklenirken listeye de eklendi ve bu test onu kilitliyor. Şablonun
+  // TAŞIDIĞI her kompozisyon alanı uyarlanmış belgede de durmak zorunda.
+  it('şablonun taşıdığı kompozisyon alanları uyarlamadan sağ çıkıyor', () => {
+    const ozel = {
+      ...ornek,
+      kartlar: ornek.kartlar.map((k, i) =>
+        i === 0 ? { ...k, ayar: { baslik: { dx: 24, dy: -12, olcek: 1.3 } } } : k
+      ),
+    } as KatalogOrnegi
+    const r = uyarla(ozel, {
+      sablonId: 'veri-hikayesi',
+      kartlar: ozel.kartlar.map((_, i) => kart(i + 1)),
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.belge.kartlar[0]?.ayar).toEqual({ baslik: { dx: 24, dy: -12, olcek: 1.3 } })
+    // Ayarı olmayan kart ayar KAZANMIYOR.
+    expect(r.belge.kartlar[1]).not.toHaveProperty('ayar')
+  })
+
   it('`donen`in kart zemini şablondan geliyor, uyarlamadan değil', () => {
     const d = ornekBul('donen') as KatalogOrnegi
     const r = uyarla(d, { sablonId: 'donen', kartlar: d.kartlar.map((_, i) => kart(i + 1)) })

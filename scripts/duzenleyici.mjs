@@ -151,105 +151,15 @@ const KABUK = (
       .join('')}</optgroup>
   </select>
   <button id="kucult">−</button><button id="buyut">+</button>
+  <button id="mod">✎ yaz</button>
+  <button id="sil">⌫ sil</button>
   <button id="geri">↶ geri al</button>
   <button class="birincil" id="kaydet">JSON'u yaz</button>
   <span id="ipucu">metne tıkla → düzenle · görseli sürükle → taşı · Shift+sürükle → ölçekle</span>
 </header>
 <div id="tuval"><div id="sahne-sarmal"><iframe id="pano"></iframe><div id="kilavuz"></div></div></div>
 <div id="kusur">ölçüm bekleniyor…</div>
-<script type="module">
-const $ = (s) => document.querySelector(s)
-let id = $('#sablon').value, olcek = 0.34, gecmis = []
-
-async function cek() {
-  const r = await fetch('/pano?id=' + id); const { html, doc } = await r.json()
-  const fr = $('#pano'); fr.srcdoc = html
-  fr.style.width = (doc.slaytGenisligi * doc.kartlar.length) + 'px'
-  fr.style.height = doc.yukseklik + 'px'
-  fr.style.transform = 'scale(' + olcek + ')'
-  const gen = doc.slaytGenisligi * doc.kartlar.length * olcek, yuk = doc.yukseklik * olcek
-  $('#sahne-sarmal').style.width = gen + 'px'
-  $('#sahne-sarmal').style.height = yuk + 'px'
-  $('#tuval').style.height = (yuk + 36) + 'px'
-  const kl = $('#kilavuz'); kl.innerHTML = ''
-  for (let n = 0; n < doc.kartlar.length; n++) {
-    const sol = n * doc.slaytGenisligi * olcek
-    if (n > 0) { const c = document.createElement('i'); c.style.left = sol + 'px'; kl.appendChild(c) }
-    const e = document.createElement('b'); e.style.left = sol + 'px'
-    e.textContent = String(n + 1).padStart(2, '0'); kl.appendChild(e)
-  }
-  fr.onload = () => { bagla(fr.contentDocument, doc); olc() }
-}
-
-// ⚠ Düzenleme katmanı iframe'in İÇİNE giriyor ama render'ı DEĞİŞTİRMİYOR: yalnız
-// olay dinleyicisi ve contenteditable. Kaydedilen şey DOM değil, VERİ.
-function bagla(d, doc) {
-  // ⚠ Kart indeksi DOM'dan cikariliyor, forEach sayacindan DEGIL. Sayac dort seciciyi
-  // birden duz sayiyordu: kart 0'in basligi i=1 aliyor ve duzenleme kartlar[1]'e
-  // yaziliyordu — degisiklik "kayboluyor" gibi gorunuyordu, oysa yanlis karta gidiyordu.
-  const kartlar = [...d.querySelectorAll('section.kart')]
-  // innerText yildiz vurgu isaretini siler; vurgu <strong> olarak render edildigi icin
-  // (ISTEMCI KODU BIR SABLON DIZESI ICINDE: buraya backtick yazilamaz, dizeyi kapatir)
-  // geri kuruluyor. Kurulmasaydi bir kez duzenlenen her baslik vurgusunu kaybederdi.
-  const metinAl = (e) => [...e.childNodes].map((n) =>
-    n.nodeType === 3 ? n.nodeValue
-      : n.tagName === 'BR' ? '\\n'
-      : n.tagName === 'STRONG' ? '**' + n.textContent + '**'
-      : n.textContent).join('')
-  d.querySelectorAll('.baslik,.govde,.ust-baslik,.el-yazisi').forEach((e) => {
-    const i = kartlar.indexOf(e.closest('section.kart'))
-    if (i < 0) return
-    e.contentEditable = 'true'; e.style.outline = '1px dashed rgba(90,169,230,.35)'
-    e.addEventListener('blur', () => yaz({ tur: 'metin', sec: e.className, i, deger: metinAl(e) }))
-  })
-  d.querySelectorAll('.gorsel,.gorsel-yer').forEach((e, i) => {
-    e.style.cursor = 'move'; e.style.outline = '1px dashed rgba(90,169,230,.5)'
-    e.addEventListener('pointerdown', (ev) => {
-      ev.preventDefault(); const b0 = e.getBoundingClientRect()
-      // style.left/top KONUMLANMIS ATAYA gore, getBoundingClientRect ise goruntu
-      // alanina gore olculuyor. Ata sifirda degilse (burada 40px asagida) fark her
-      // surukleyisde birikir: y %40 yerine %42.96 yaziyordu.
-      const a0 = (e.offsetParent || d.documentElement).getBoundingClientRect()
-      const x0 = ev.clientX, y0 = ev.clientY, olcekli = doc.slaytGenisligi * doc.kartlar.length
-      // olcek'e BOLUNMEZ. Olcek iframe ELEMENTine (parent'ta) uygulaniyor; iframe'in
-      // kendi goruntu alani olceksiz kaliyor. Tarayici imlec konumunu iframe'e girerken
-      // zaten donusturuyor, yani clientX ve getBoundingClientRect ayni olceksiz uzayda.
-      // Bolmek donusumu IKI KEZ sayiyordu: shift basili degilken bile genislik
-      // 16% -> 47.06% oluyordu (691px / 0.34 = 2033px).
-      const surukle = (m) => {
-        const dx = m.clientX - x0, dy = m.clientY - y0
-        if (m.shiftKey) { e.style.width = Math.max(40, b0.width + dx) + 'px' }
-        else { e.style.left = (b0.left - a0.left + dx) + 'px'; e.style.top = (b0.top - a0.top + dy) + 'px' }
-      }
-      const birak = (m) => {
-        d.removeEventListener('pointermove', surukle); d.removeEventListener('pointerup', birak)
-        const b = e.getBoundingClientRect()
-        yaz({ tur: 'gorsel', i,
-          x: +((b.left - a0.left) / olcekli * 100).toFixed(2),
-          y: +((b.top - a0.top) / doc.yukseklik * 100).toFixed(2),
-          genislik: +(b.width / olcekli * 100).toFixed(2) })
-      }
-      d.addEventListener('pointermove', surukle); d.addEventListener('pointerup', birak)
-    })
-  })
-}
-
-async function yaz(d) { gecmis.push(1); await fetch('/degistir?id=' + id, { method: 'POST', body: JSON.stringify(d) }); cek() }
-async function olc() {
-  const r = await fetch('/olc?id=' + id); const k = await r.json()
-  $('#kusur').textContent = k.length === 0 ? '✓ kusur yok'
-    : k.map((x) => '✗ kart ' + (x.kart ?? '–') + ' · ' + x.tur + ' · ' + x.aciklama).join('\\n')
-}
-$('#sablon').onchange = (e) => { id = e.target.value; cek() }
-$('#buyut').onclick = () => { olcek = Math.min(1, olcek * 1.25); cek() }
-$('#kucult').onclick = () => { olcek = Math.max(.08, olcek / 1.25); cek() }
-$('#geri').onclick = async () => { await fetch('/geri?id=' + id, { method: 'POST' }); cek() }
-$('#kaydet').onclick = async () => {
-  const r = await fetch('/kaydet?id=' + id, { method: 'POST' })
-  $('#kusur').textContent = await r.text()
-}
-cek()
-</script>`
+<script type="module" src="/istemci.js"></script>`
 
 // ── ölçüm: denetim tarayıcıda koşuyor, ayrı bir motor yok ────────────────────
 const KATALOG_YOLU = join(REPO, 'packages/render/src/katalog-ornek.ts')
@@ -319,6 +229,73 @@ const kataloguYaz = (id) => {
       blok = blok.replace(arama, alan + ': ' + tsKacir(b))
       degisiklikler.push('kart ' + (i + 1) + ' · ' + alan)
     }
+  }
+
+  // ── ayar (kaydırma + punto) ve panel silme ──────────────────────────────
+  //
+  // ⚠ `ayar` alanı kaynakta ÇOĞUNLUKLA YOK: var olan bir literali değiştirmek yerine
+  // yeni bir satır EKLEMEK gerekiyor. Çapa `baslik:` — her kartta var ve boş olamaz.
+  // Kart sınırı da ondan çıkıyor: i'inci kart, i'inci `baslik:` satırının etrafı.
+  const baslikYerleri = []
+  {
+    let k = -1
+    while ((k = blok.indexOf('\n      baslik:', k + 1)) >= 0) baslikYerleri.push(k)
+  }
+  if (baslikYerleri.length !== yeni.kartlar.length)
+    return {
+      ok: false,
+      sebep:
+        'kart sayisi tutmuyor (' +
+        baslikYerleri.length +
+        ' vs ' +
+        yeni.kartlar.length +
+        ') — hicbir sey yazilmadi',
+    }
+
+  // Sondan başa: bir eklemenin sonraki kartların konumunu kaydırmaması için.
+  for (let i = yeni.kartlar.length - 1; i >= 0; i--) {
+    const a = eski.kartlar[i],
+      b = yeni.kartlar[i]
+    if (JSON.stringify(a?.ayar ?? null) === JSON.stringify(b?.ayar ?? null)) continue
+    const bas = baslikYerleri[i]
+    const kartSonu = i + 1 < baslikYerleri.length ? baslikYerleri[i + 1] : blok.length
+    const govde = blok.slice(bas, kartSonu)
+    const mevcut = /\n      ayar: \{[^\n]*\},/.exec(govde)
+    const satir =
+      b.ayar === undefined || Object.keys(b.ayar).length === 0
+        ? ''
+        : '\n      ayar: ' +
+          JSON.stringify(b.ayar)
+            .replace(/"([A-Za-z]+)":/g, '$1: ')
+            .replace(/[{]/g, '{ ')
+            .replace(/[}]/g, ' }')
+            .replace(/,/g, ', ') +
+          ','
+    const yeniGovde = mevcut === null ? satir + govde : govde.replace(mevcut[0], satir)
+    blok = blok.slice(0, bas) + yeniGovde + blok.slice(kartSonu)
+    degisiklikler.push('kart ' + (i + 1) + ' · ayar')
+  }
+
+  // Panel silme: `panel: { … }` bloğu parantez eşleyerek `panel: null` oluyor.
+  for (let i = 0; i < yeni.kartlar.length; i++) {
+    if (eski.kartlar[i]?.panel == null || yeni.kartlar[i]?.panel != null) continue
+    const bas = blok.indexOf('\n      panel: {', baslikYerleri[i] ?? 0)
+    if (bas < 0)
+      return {
+        ok: false,
+        sebep: 'kart ' + (i + 1) + ' panel blogu bulunamadi — hicbir sey yazilmadi',
+      }
+    let derinlik = 0,
+      j = blok.indexOf('{', bas)
+    for (; j < blok.length; j++) {
+      if (blok[j] === '{') derinlik++
+      else if (blok[j] === '}') {
+        derinlik--
+        if (derinlik === 0) break
+      }
+    }
+    blok = blok.slice(0, bas) + '\n      panel: null' + blok.slice(j + 1)
+    degisiklikler.push('kart ' + (i + 1) + ' · panel silindi')
   }
 
   // Görsel yuvaları: dizi YENİDEN KURULMUYOR, satırdaki SAYILAR değiştiriliyor.
@@ -416,6 +393,10 @@ const sunucu = createServer(async (req, res) => {
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
       return res.end(KABUK(id))
     }
+    if (u.pathname === '/istemci.js') {
+      res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' })
+      return res.end(readFileSync(join(REPO, 'scripts/duzenleyici-istemci.js'), 'utf8'))
+    }
     if (u.pathname === '/pano') return json({ html: panoramaHtml(belge(id)), doc: calisan[id] })
     if (u.pathname === '/olc') return json(await olcum(id))
     if (u.pathname === '/degistir') {
@@ -424,6 +405,27 @@ const sunucu = createServer(async (req, res) => {
       if (d.tur === 'gorsel') {
         const g = calisan[id].gorseller[d.i]
         if (g) Object.assign(g, { x: d.x, y: d.y, genislik: d.genislik })
+      } else if (d.tur === 'ayar') {
+        // ⚠ Nötr ayar SİLİNİYOR, sıfır olarak yazılmıyor: `{dx:0,dy:0,olcek:1}` kataloga
+        // gürültü olarak düşerdi ve şablonun "hiç ayar yok" hâli okunmaz olurdu.
+        const k = calisan[id].kartlar[d.i]
+        if (k) {
+          const ayar = { ...(k.ayar ?? {}) }
+          const yeni = {}
+          if (d.dx) yeni.dx = d.dx
+          if (d.dy) yeni.dy = d.dy
+          if (d.olcek !== undefined && d.olcek !== 1) yeni.olcek = d.olcek
+          if (Object.keys(yeni).length === 0) delete ayar[d.alan]
+          else ayar[d.alan] = yeni
+          const kalan = { ...k }
+          delete kalan.ayar
+          calisan[id].kartlar[d.i] = Object.keys(ayar).length === 0 ? kalan : { ...kalan, ayar }
+        }
+      } else if (d.tur === 'sil') {
+        // Boş değer alana göre: metin '' olur, panel null.
+        const bos = { baslik: '', govde: '', ustBaslik: '', elYazisi: '', panel: null }
+        const k = calisan[id].kartlar[d.i]
+        if (k && d.alan in bos) calisan[id].kartlar[d.i] = { ...k, [d.alan]: bos[d.alan] }
       } else {
         const alan = d.sec.split(' ')[0]
         const harita = {
@@ -498,7 +500,23 @@ const sunucu = createServer(async (req, res) => {
 })
 
 // Tek bir istek hatasi tezgahi indirmesin: duzenleyici acik kalir, hata log'a duser.
-process.on('uncaughtException', (e) => console.error('[yakalanmadi]', e?.stack ?? e))
+process.on('uncaughtException', (e) => {
+  // ⚠ Port çakışması SESSİZ ÖLÜM üretiyordu: eski bir tezgâh 4321'i tutuyorsa yeni
+  // süreç EADDRINUSE ile düşüyor, log'a bir yığın izi yazıyor ve kullanıcı ESKİ
+  // sunucuyu görmeye devam ediyordu — üstelik onun BELLEĞİNDEKİ eski kopyayı.
+  // Bir kez yaşandı: katalogda geri alınmış bir düzenleme ekranda duruyordu.
+  if (e?.code === 'EADDRINUSE') {
+    console.error(
+      '\n  ✗ ' +
+        PORT +
+        ' portu DOLU — büyük olasılıkla eski bir düzenleyici çalışıyor.\n' +
+        '    Onu kapat:  pkill -f scripts/duzenleyici.mjs\n' +
+        '    ⚠ Eski tezgâh belleğindeki kopyayı gösterir; dosyadaki hâli DEĞİL.\n'
+    )
+    process.exit(1)
+  }
+  console.error('[yakalanmadi]', e?.stack ?? e)
+})
 process.on('unhandledRejection', (e) => console.error('[reddedildi]', e?.stack ?? e))
 
 // Sabit. Ortamdan okunmuyor: `secret-rotasyon` kapisi kodda okunan her ortam

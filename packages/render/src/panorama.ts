@@ -131,8 +131,34 @@ export type Panel =
     }
   | { readonly tip: 'etiketler'; readonly ogeler: readonly string[] }
 
+/**
+ * Bir metin alanının ELLE ince ayarı — kaydırma ve punto çarpanı.
+ *
+ * ⚠ ⚠ **SERBEST KONUM DEĞİL, KAYDIRMA.** Depo sahibi yazıyı da görsel gibi taşımak
+ * istedi. Metne mutlak `x/y` vermek kompozisyonu yok ederdi: hat düzen icat etmez
+ * (Yasa 13), kartın ızgarası şablonun kimliğidir. Verilen şey o ızgaranın ÜSTÜNDE
+ * sınırlı bir pay — ince ayar yapılabilir, düzen bozulamaz.
+ *
+ * ⚠ Birim PİKSEL, yüzde değil: tuval sabit (N × 1080 × 1350), yani piksel kesin ve
+ * editörün sürükleme deltası zaten o uzayda. Yüzde, ögenin KENDİ boyuna göre
+ * çözüleceği için küçük ögede küçük, büyükte büyük kayma verirdi.
+ */
+export interface MetinAyari {
+  /** Yatay kaydırma, px. Sınır ±260. */
+  readonly dx?: number
+  /** Dikey kaydırma, px. */
+  readonly dy?: number
+  /** Punto çarpanı. Sınır 0,5–2. */
+  readonly olcek?: number
+}
+
 /** Bir slaydın içeriği. */
 export interface Kart {
+  /**
+   * Alan başına elle ince ayar. Anahtar: `elYazisi` · `ustBaslik` · `baslik` ·
+   * `govde` · `panel`. Verilmezse şablonun ızgarası aynen geçerli.
+   */
+  readonly ayar?: Readonly<Record<string, MetinAyari>>
   /**
    * El yazısı vurgu satırı — başlığın ÜSTÜNDE, kısa.
    *
@@ -297,6 +323,31 @@ export type Yerlesim =
  * rakam DEV kalmalı, kompozisyonun parçası o), sonrası orantılı: uzun bir kelime bir
  * slayda sığıyor. Taban 0,34 — altında hayalet "soluk metin" olmaktan çıkıp süse dönüyor.
  */
+/**
+ * Elle ayar → satır içi stil. SINIRLI: kayma ±260 px, punto çarpanı 0,5–2.
+ *
+ * ⚠ ⚠ **SINIR KOZMETİK DEĞİL, SÖZLEŞME.** Sınırsız kayma metni karttan çıkarır ve
+ * kesim çizgisini geçirir; o an şablon şablon olmaktan çıkar. Denetim (`kart-disi`,
+ * `kesim-uzeri-metin`) taşmayı zaten yakalıyor ama YAKALAMAK ÖNLEMEK DEĞİLDİR —
+ * kusur raporlanmış bir karosel yine de yanlış karoseldir.
+ *
+ * ⚠ Punto CSS değişkeniyle çarpılıyor, satır içi `font-size` yazılmıyor: her alanın
+ * kendi formülü var (gövde `max()` taşıyor, panel `--panel-olcek` ile ölçekleniyor).
+ * Sabit bir punto yazmak o formülleri ezerdi.
+ */
+const kis = (v: number, alt: number, ust: number): number => Math.min(ust, Math.max(alt, v))
+
+export const ayarStili = (ayar: MetinAyari | undefined): string => {
+  if (ayar === undefined) return ''
+  const dx = kis(ayar.dx ?? 0, -260, 260)
+  const dy = kis(ayar.dy ?? 0, -260, 260)
+  const olcek = kis(ayar.olcek ?? 1, 0.5, 2)
+  const parcalar: string[] = []
+  if (dx !== 0 || dy !== 0) parcalar.push(`transform:translate(${dx}px,${dy}px)`)
+  if (olcek !== 1) parcalar.push(`--ayar-olcek:${olcek}`)
+  return parcalar.length === 0 ? '' : ` style="${parcalar.join(';')}"`
+}
+
 export const hayaletPuntosu = (metin: string, olcek: number, slaytGenisligi = 1080): number => {
   const t = metin.trim()
   if (t === '') return 0
@@ -584,11 +635,13 @@ const HAYALET_SATIRI = 0.76
  * üretir. Ayrım gerektiğinde opaklık ve kesikli kenarla yapılıyor — tahmin edilen değer
  * kesikli çerçeve alıyor, ölçülen değer dolu.
  */
-const panelHtml = (p: Panel): string => {
+// ⚠ `stil` DIŞARIDAN geliyor: panelin kök ögesi beş ayrı dalda kuruluyor (çubuk,
+// sayı, vafel, liste, etiket) ve ayarın hepsine tek noktadan girmesi gerekiyor.
+const panelHtml = (p: Panel, stil = ''): string => {
   if (p.tip === 'cubuklar') {
     const enBuyuk = Math.max(...p.satirlar.map((s) => s.deger), 1)
     return (
-      `<div class="panel"><div class="panel-baslik">${kacir(p.baslik)}</div>` +
+      `<div class="panel"${stil}><div class="panel-baslik">${kacir(p.baslik)}</div>` +
       p.satirlar
         .map(
           (s) =>
@@ -609,7 +662,7 @@ const panelHtml = (p: Panel): string => {
   }
   if (p.tip === 'sayilar')
     return (
-      `<div class="sayilar">` +
+      `<div class="sayilar"${stil}>` +
       p.ogeler
         .map(
           (o) =>
@@ -626,7 +679,7 @@ const panelHtml = (p: Panel): string => {
       (_, i) => `<span class="vafel-kare${i < p.dolu ? ' dolu' : ''}"></span>`
     ).join('')
     return (
-      `<div class="panel"><div class="panel-baslik">${kacir(p.baslik)}</div>` +
+      `<div class="panel"${stil}><div class="panel-baslik">${kacir(p.baslik)}</div>` +
       `<div class="vafel">${kareler}</div></div>`
     )
   }
@@ -645,7 +698,7 @@ const panelHtml = (p: Panel): string => {
     const ikonlar = p.ogeler.map((o) => ikonSec(o.ad))
     const hepsiVar = ikonlar.length > 0 && ikonlar.every((i) => i !== null)
     return (
-      `<div class="panel"><div class="panel-baslik">${kacir(p.baslik)}</div>` +
+      `<div class="panel"${stil}><div class="panel-baslik">${kacir(p.baslik)}</div>` +
       p.ogeler
         .map((o, i) => {
           const ikon = hepsiVar
@@ -661,7 +714,7 @@ const panelHtml = (p: Panel): string => {
     )
   }
   return (
-    `<div class="etiketler">` +
+    `<div class="etiketler"${stil}>` +
     p.ogeler.map((o) => `<span class="etiket">${kacir(o)}</span>`).join('') +
     `</div>`
   )
@@ -874,11 +927,20 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         // sonra başlığı okuyor — referanstaki sıra.
         (k.elYazisi === undefined || k.elYazisi.trim() === ''
           ? ''
-          : `<div class="el-yazisi">${kacir(k.elYazisi)}</div>`) +
-        `<div class="ust-baslik">${kacir(k.ustBaslik)}</div>` +
-        `<h2 class="baslik">${vurguyuIsaretle(kacir(k.baslik))}</h2>` +
-        (k.govde === '' ? '' : `<p class="govde">${vurguyuIsaretle(kacir(k.govde))}</p>`) +
-        (k.panel === null ? '' : panelHtml(k.panel)) +
+          : `<div class="el-yazisi"${ayarStili(k.ayar?.['elYazisi'])}>${kacir(k.elYazisi)}</div>`) +
+        // ⚠ Üst başlık BOŞSA hiç çizilmiyor: editörde öge SİLİNEBİLMELİ ve silmenin
+        // karşılığı boş bir etiket değil, ögenin yokluğudur. Boş bir `.ust-baslik`
+        // 14 px alt boşluk ve 2 px'lik bir çizgi bırakıyordu — silinmiş görünmüyordu.
+        (k.ustBaslik.trim() === ''
+          ? ''
+          : `<div class="ust-baslik"${ayarStili(k.ayar?.['ustBaslik'])}>${kacir(k.ustBaslik)}</div>`) +
+        `<h2 class="baslik"${ayarStili(k.ayar?.['baslik'])}>` +
+        `${vurguyuIsaretle(kacir(k.baslik))}</h2>` +
+        (k.govde === ''
+          ? ''
+          : `<p class="govde"${ayarStili(k.ayar?.['govde'])}>` +
+            `${vurguyuIsaretle(kacir(k.govde))}</p>`) +
+        (k.panel === null ? '' : panelHtml(k.panel, ayarStili(k.ayar?.['panel']))) +
         `<div class="ray">` +
         (doc.logo === undefined
           ? ''
@@ -1077,7 +1139,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `           --ust-wdth: ${t.ustGenislik}; --govde-orani: ${t.govdeOrani};`,
     // ⚠ Başlangıç değeri; gerçek punto render sonrası ÖLÇÜLEREK yazılıyor (`puntoTavani`).
     `           --baslik-punto: ${Math.round(96 * t.baslikPayi)}px;`,
-    `           --panel-olcek: ${t.panelPayi ?? 1}; }`,
+    `           --panel-kok: ${t.panelPayi ?? 1};`,
+    // ⚠ ⚠ **`--panel-olcek` KÖKTEN TÜREYEN bir çarpım oldu.** Eskiden doğrudan
+    // şablonun payıydı; elle ayar onu EZECEKti ve şablonun kendi payı kaybolurdu.
+    // Şimdi taban `--panel-kok`ta duruyor, elle ayar `--ayar-olcek` ile ÇARPIYOR.
+    `           --panel-olcek: var(--panel-kok); }`,
     // ⚠ Kart bir FLEX SÜTUNU: panel `margin-top:auto` ile aşağı itiliyor ve kartın alt
     // yarısı boş kalmıyor. İlk render'da her şey üste yığılmış, alt %60 bomboştu.
     `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px; padding: 68px 64px 190px;`,
@@ -1140,9 +1206,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // oran ~0,52. Hafif SOLA taşıyor: ilk harfin süslemesi metin kolonunun dışına çıkınca
     // blok "yazılmış" gibi duruyor, "yerleştirilmiş" gibi değil.
     `  .el-yazisi { font-family: "Marka El Yazisi", cursive; font-weight: 600;`,
-    `               font-size: calc(var(--baslik-punto) * 0.52); line-height: 0.92;`,
+    `               font-size: calc(var(--baslik-punto) * 0.52 * var(--ayar-olcek, 1));`,
+    `               line-height: 0.92;`,
     `               color: var(--kart-aksan); margin: 0 0 6px -0.06em }`,
-    `  .ust-baslik { font-size: 24px; letter-spacing: 0.2em; text-transform: none;`,
+    `  .ust-baslik { font-size: calc(24px * var(--ayar-olcek, 1));`,
+    `                letter-spacing: 0.2em; text-transform: none;`,
     `                font-stretch: calc(var(--ust-wdth) * 1%);`,
     `                font-feature-settings: ${OPENTYPE_CSS};`,
     // ⚠ ⚠ **BOŞLUK RİTMİ 1:3 — eşit boşluk, boşluk YOKLUĞUDUR (tasarım rehberi §2).**
@@ -1157,7 +1225,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // giriyor ve "HEB" gibi okunuyor. Aksan kırpılması bu ailenin bilinen tuzağı.
     // ⚠ Punto artık sabit 82 px DEĞİL: reçetenin payı × render anında ölçülen tavan.
     `  .baslik { font-family: "Marka Display", "Marka Metin", sans-serif;`,
-    `            font-size: var(--baslik-punto); line-height: var(--baslik-lh);`,
+    `            font-size: calc(var(--baslik-punto) * var(--ayar-olcek, 1));`,
+    `            line-height: var(--baslik-lh);`,
     `            font-weight: var(--baslik-wght);`,
     `            font-stretch: calc(var(--baslik-wdth) * 1%);`,
     `            font-feature-settings: ${OPENTYPE_CSS};`,
@@ -1182,7 +1251,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Taban 34 px: ölçüldü, gövde 23–27 px'e düşüyordu ve 1080 px telefonda ~390 pt'ye
     // indiği için 25 px ≈ 9 pt oluyordu. Oran şablonun sesi, taban okunabilirlik şartı.
     `  .govde { margin-top: 44px;`,
-    `           font-size: max(34px, calc(var(--baslik-punto) * var(--govde-orani)));`,
+    `           font-size: calc(max(34px, calc(var(--baslik-punto) * var(--govde-orani)))`,
+    `                       * var(--ayar-olcek, 1));`,
     // ⚠ ⚠ **GENİŞLİK KOLONDAN BAĞIMSIZDI ve gövde büyüyünce TAŞTI.** `34ch` sabitti;
     // 34 px puntoda ~580 px eder, `editoryal`in metin kolonu ise 0,46 × 1080 − 128 = 369 px.
     // Gövde kolonu 200 px aşıp fotoğrafın altına giriyordu — punto tabanı (34 px) bunu
@@ -1228,6 +1298,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Sıra şimdi: kart zemini → lekeler(2) → GÖRSEL(4) → oklar(5) → METİN(6).
     // Referans tasarımlarda da başlık figürün önünden geçiyor; istenen katmanlanma bu.
     `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: 6 }`,
+    `  .panel, .sayilar, .etiketler { --panel-olcek: calc(var(--panel-kok) * var(--ayar-olcek, 1)) }`,
     // ── paneller ────────────────────────────────────────────────────────────
     // ⚠ ⚠ **PANEL RENKLERİ ZEMİNDEN TÜRÜYOR — ONALTI SABİT BEYAZ SİLİNDİ.** Panel gövdesi,
     // panel başlığı, çubuk etiketi, sayı birimi, vafel karesi, etiket çipi ve alt ray

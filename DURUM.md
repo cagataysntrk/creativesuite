@@ -5,12 +5,12 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 15
-siradaki_adim: 15.14
+aktif_faz: 16
+siradaki_adim: 16.2
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "D-305: IKI KALITE OLCUSU KOKUNDEN DUZELTILDI + BORC D15 KAPANDI. (1) matlama-tutmuyor YANLIS SEYI OLCUYORDU: kural luma-anahtari doneminde yazildi, sonra hatta gercek arka plan silme (rembg) girdi ve gorseller RGBA geliyor, koseler SEFFAF - ama olcum alfa kanalini hic okumuyordu (d[i+3] yok) ve seffaf pikselin ALTINDAKI RGB copunu parlaklik sayiyordu; gercek kosuda 38/255 olculup kusur bildirildi, oysa kesim zaten tutmustu. Teknigi degistirdik, olcusunu degistirmedik. Artik once alfa: kose seffafsa (alfa<16) is bitmis, opaksa luma esigi devreye giriyor. (2) punto-cokmesi bir BUTCE eksikligiydi: model 'Karsilastirma' (13 harf) yazdi, o kartin basligi 88 px'e sigdi, oteki uc kart 149 px'deydi - punto TUM panorama icin tek, bir kelime dort slaydin tipografisini dusuruyor. Butce elle SECILMEDI, sablondan OKUNDU: taslaklarin en uzun baslik kelimesi 7-11 harf, yani sinir zaten tasarimin icinde yazili (+1 Turkce eki tolerans). Istem butceyi yaziyor, uyarla asani reddediyor. Ikisi de kasten ihlalle kirmizi gorulup dogrulandi. (3) BORC D15 KAPANDI: sablon modu katalog-ornek.ts'e cerrahi yaziyor - 999 satirin 2'si degisti, yorumlar yerinde; belirsizlikte hicbir sey yazmiyor ve sebebini soyluyor. ACIK: BORCLAR D16-D17 (gorsel en/boy orani serbest; paneller, lekeler, oklar duzenlenemiyor)."
+son_kanit: "FAZ-16 ACILDI (tam editor + tak-calistir depo) VE 16.1 KAPANDI; FAZ-15'te 15.11 15.12 15.14 tiklendi. D-307: hazir tasarim editoru (Canva/Polotno/tldraw/Penpot) ana duzenleme donguSUNE GIRMIYOR - ortak sorun lisans degil VERI MODELI: hepsi sekil duzenliyor, bizimki KatalogOrnegi alanlarini; bir slaydi orada guzellestirmek o guzelligi bir sonraki konuya TASIMAZ ve Yasa 11/13 birden coker. Penpot tek yonlu disa aktarim hedefi olarak acik. 16.1: metin de gorsel gibi tasinabiliyor, olceklenebiliyor ve SILINEBILIYOR. Kok karar: metne mutlak x/y verilmedi - kompozisyonu yok ederdi (Yasa 13); verilen sey izgaranin USTUNDE sinirli bir pay (kayma +-260 px, punto carpani 0,5-2). Editorde IKI MOD var cunku ikisi ayni anda olamaz: contenteditable bir ogede suruklemek metni SECER. Olculdu: kaydirma dx=120 dy=64 tam isabet, Shift 150 px -> olcek 1.5 tam isabet, silinen ust baslik DOM'dan gercekten dustu (4 -> 3) ve katalog dosyasina da yazildi (ayar satiri EKLENDI, ustBaslik '' oldu, dosya derleniyor ve ayni veri geri okunuyor). AYRICA IKI KOK ONARIM: (1) istemci kodu sablon dizesinden CIKARILDI - yorumdaki tek bir backtick dizeyi kapatiyordu ve bu tuzak depoda ALTI kez isirdi; politika alti kez tutmadi, YAPI tutuyor. (2) 'ayar' uyarlamada korunanlar listesine ISIRMADAN once eklendi - zemin, kolon ve elYazisi ayni tuzaga gercek kosuda dustuler; test kaldirilinca kirmizi donuyor."
 ```
 
 ## Neredeyiz
@@ -43,6 +43,10 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **15.7** · `uyarla`; kompozisyon KİLİTLİ, yapısal alan şemada YOK | 2026-08-18 |
 | **15.8** · DOM denetimi + düzeltme turu; 4 ihlal denendi, 4'ü kırmızıya döndü | 2026-08-18 |
 | **15.10** · kullanım belgesi + mimari denetimi; hat gerçek koşu defterine dayanıyor | 2026-08-18 |
+| **15.11** · yerel arka plan silici; gerçek koşuda RGBA, `matlama` kusuru kalmadı | 2026-08-18 |
+| **15.12** · kreatif zemin stok sarısından markanın kendi lacivertine geçti | 2026-08-18 |
+| **15.14** · görsel düzenleyici iki modda; şablon modu katalog dosyasına yazıyor | 2026-08-18 |
+| **16.1** · metin de taşınıyor, ölçekleniyor, siliniyor — sınırlı pay, mutlak konum DEĞİL | 2026-08-18 |
 
 ## Sıradaki adım
 
