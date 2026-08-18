@@ -252,6 +252,50 @@ describe('dikiş 2f: son kullanılan şablon kısıttan gövdeye geçiyor', () =
   })
 })
 
+// ⚠ ⚠ **16.7 DİKİŞİ: geçmiş şablonlar METİN istemine ulaşıyor mu.** 16.6'da kural
+// bağlandı ve dikişi test edildi; yine de üretimde tekrar sürdü çünkü içerik hep aynı
+// şekildeydi. Aynı kısıt artık iki farklı yerde iki farklı iş yapıyor ve bu test
+// ikincisini tutuyor — biri çalışıp öteki çalışmazsa tekrar geri gelir.
+describe('dikiş 2g: geçmiş ritim METİN istemine giriyor', () => {
+  // ⚠ Anahtar `records` — `kayitlar` DEĞİL. İlk yazımda `kayitlar` yazdım, istem BOŞ
+  // döndü ve "ritim yok" testi YALANCI YEŞİL geçti: boş bir dize her şeyi içermez.
+  // Bu yüzden aşağıdaki ilk test artık istemin gerçekten KURULDUĞUNU da doğruluyor.
+  const kayitli = (kisit: Record<string, unknown>) =>
+    promptTuret(
+      'text.generate',
+      girdi(kisit, { bilgi: { records: [{ id: 'r1', text: liste.join('\n') }] } })
+    )
+
+  it('geçmiş yokken ritim talimatı YOK — ilk koşu serbest', () => {
+    const p = kayitli({ topic: 'Tekstil atığı' })
+    expect(p).not.toBe('')
+    expect(p).toContain('KONU: Tekstil atığı')
+    expect(p).not.toContain('BİÇİM KURALI')
+  })
+
+  it('geçmiş varken kullanılan ritim SAYILIYOR ve başkası ÖNERİLİYOR', () => {
+    const p = kayitli({ topic: 'Tekstil atığı', son_kullanilan: 'sahne' })
+    expect(p).toContain('BİÇİM KURALI')
+    expect(p).toContain('düz anlatı')
+    // Öneri, kullanılanı TEKRAR etmemeli.
+    // ⚠ TEK hedef veriliyor, menü değil: seçenek listesi bir talimat değildir ve
+    // gerçek koşuda model her seferinde en kolayını (bildiği anlatıyı) seçiyordu.
+    // ⚠ Ritim ÜSLUP olarak değil, SAYILABİLİR bir biçim kuralı olarak veriliyor:
+    // iki üslup denemesi de gerçek koşuda tutmadı (D-309).
+    const hedefSatiri = p.split('\n').find((s) => s.startsWith('BU SEFER:')) ?? ''
+    expect(hedefSatiri).not.toContain('düz anlatı')
+    expect(hedefSatiri).toContain('yıl yıl sayısal seyir')
+    expect(p).toContain('HER satır en az bir SAYI içerecek')
+    expect(p).toContain('yalnız MARKA BİLGİSİ içinde geçenlerden')
+  })
+
+  it('içerikten seçilemeyen şablon ritim önermiyor', () => {
+    const p = kayitli({ topic: 'Tekstil atığı', son_kullanilan: 'donen,editoryal' })
+    expect(p).not.toBe('')
+    expect(p).not.toContain('BİÇİM KURALI')
+  })
+})
+
 describe('dikiş 2b: şablonun görsel ihtiyacı → brief istemi', () => {
   it('görsel ilan eden şablonda brief KURULUYOR', () => {
     const p = promptTuret(

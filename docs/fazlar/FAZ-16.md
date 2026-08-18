@@ -96,7 +96,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Aynı konuyu iki kez iste → ikincisi farklı şablon seçiyor ya da gerekçeyle duruyor
 💾 `feat(engine): tekrar etmeyen konu secimi` · `Refs: FAZ-16.6 · §11.4`
 
-## 16.7 — Çeşitlilik metinde başlıyor: `metin-uret` şekil değiştirmiyor    [ ]
+## 16.7 — Çeşitlilik metinde başlıyor: `metin-uret` şekil değiştirmiyor    [x]
 
 📖 §11.4 · D-308 · D-268
 🔗 FAZ-16.6
@@ -116,3 +116,21 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 ✅ Zaman serisi konusunda üretilen satırlar sayısal ritim taşıyor ve şablon değişiyor
 🧪 Şekil ipucunu kaldır → aynı konuda yine anlatı çıkıyor
 💾 `feat(engine): metin sekli gecmisten kaciniyor` · `Refs: FAZ-16.7 · §11.4`
+
+## 16.8 — Biçim kuralı ÖLÇÜLÜYOR: istenen ritim geldi mi    [ ]
+
+📖 §11.4 · D-309 · R-70
+🔗 FAZ-16.7
+🛠 16.7 ritmi sayılabilir bir sözleşmeye çevirdi ve gerçek koşuda tuttu (`akan-alan`
+   seçildi). Ama **uyulup uyulmadığı ölçülmüyor**: model sözleşmeyi görmezden gelirse
+   hat sessizce eski şekle döner ve bunu ancak defteri elle okuyan biri fark eder.
+   ⚠ Bu deponun kendi kuralı: ölçülmeyen bir kural bir temennidir. Aynı ders başlık
+   kelime bütçesinde (D-305) ve sayaç yasağında (D-303) çıktı — ikisinde de istem
+   söylüyor VE `uyarla` reddediyor.
+   ⚠ Ret değil ÖLÇÜM + kayıt: metin adımı bir model çağrısı, reddetmek bir tur daha
+   yakar. Önce defterde `ritim_tutmadi` görünsün; tur harcamaya değip değmediği
+   sayılarla konuşulsun.
+📁 `packages/engine/src/metin-akisi.ts` · `packages/engine/src/verbs/bodies.ts`
+✅ İstenen ritim ile üretilen şekil karşılaştırılıyor ve uyuşmazlık deftere yazılıyor
+🧪 Numaralı ritim iste, numarasız metin ver → defterde uyuşmazlık görünüyor
+💾 `feat(engine): ritim uyumu olculuyor` · `Refs: FAZ-16.8 · §11.4`

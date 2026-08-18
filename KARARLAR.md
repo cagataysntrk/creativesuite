@@ -524,3 +524,32 @@ yazıyor; defter neyi gördüyse onu saklıyor ve replay aynı sonucu veriyor.
 ⚠ Sıralama dosya ADINA göre, `mtime`a göre değil: `run_<uuidv7>` zaman-sıralı bir id
 taşıyor. Bir defterin kopyalanması ya da dokunulması `mtime` sırasını bozar ve
 "son üç koşu" başka bir şey olurdu.
+
+## D-309
+
+**İçerik çeşitliliği ÜSLUPLA istenmiyor, sayılabilir bir biçim kuralıyla isteniyor.**
+
+D-308 şablon seçimini geçmişe duyarlı yaptı ve dikişi test edildi — ama üretimde
+tekrar sürdü. Sebep ölçüldü: kısıt gövdeye ULAŞTI, kural doğru davrandı (eleme
+yalnız başka uygun aday varsa uygulanır) ve o içeriklerde başka aday YOKTU, çünkü
+`metin-uret` konudan bağımsız hep aynı şekli üretiyordu.
+
+**İki yaklaşım denendi, ikisi de gerçek koşuda tutmadı** (LOOP§G):
+
+1. **Ritim menüsü** — "son karoseller şu biçimlerdeydi, bu sefer başka bir ritim kur,
+   örneğin şunlar". Model her koşuda en kolayını, yani zaten bildiği düz anlatıyı
+   seçti. Bir seçenek listesi bir talimat değildir.
+2. **Tek hedef + "bu bir öneri değil"** — kaçış kapısı ("konu izin vermiyorsa
+   zorlama") daraltıldı ama çıktı yine anlatı oldu.
+
+**Ortak sebep: ikisi de ÜSLUP tarif ediyordu.** Üslup ölçülemez; model kendi
+ürettiğinin o üsluba uyduğunu sanabilir ve kimse aksini söyleyemez.
+
+**Üçüncü yaklaşım — ritmin MEKANİK karşılığı.** "2. satırdan itibaren her satır
+`1.` `2.` `3.` ile BAŞLAYACAK" bir üslup değil, sayılabilir bir sözleşme; `sablonSec`
+zaten tam bunu ölçüyor. Aynı ders bu depoda uyarlama isteminde de çıkmıştı: şemayı
+yazmadan uyulmasını beklemek, kuralı koymadan ihlali cezalandırmaktır.
+
+⚠ Sayısal ritmin kaynağı kısıtlı: sayılar yalnız MARKA BİLGİSİ'nde geçenlerden
+alınabilir. Kaynakta olmayan bir sayıyı uydurmak Yasa 8 ihlalidir ve çeşitlilik
+uğruna bir yasa çiğnenmez.

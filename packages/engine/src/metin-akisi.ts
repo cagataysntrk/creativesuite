@@ -39,6 +39,22 @@ export interface PromptGirdisi {
   /** Geçmiş redlerin gerekçesi — negatif kısıt (D-191). */
   readonly kacinilacak?: string
   /**
+   * Son koşularda kullanılmış ŞABLONLAR — metnin şeklini çeşitlendirmek için.
+   *
+   * ⚠ ⚠ **BU ALAN, 16.6'NIN ÜRETİMDE YETMEDİĞİ ÖLÇÜLDÜĞÜ İÇİN VAR.** Şablon
+   * çeşitlilik kuralı bağlandı ve dikişi test edildi; iki gerçek koşuda kısıt gövdeye
+   * ULAŞTI ve yine aynı şablon seçildi. Kural doğru davranmıştı: eleme yalnız BAŞKA
+   * UYGUN ADAY varsa uygulanıyor ve o içeriklerde yoktu — çünkü `metin-uret` konudan
+   * bağımsız hep aynı şekli üretiyordu. Açıkça "2019 2021 2023 2025 rakamlarla" denen
+   * bir konuda bile dört karttan ÜÇÜ rakamsız çıktı.
+   *
+   * ⚠ **Şablon çeşitliliği içerik çeşitliliğinin SONUCU, sebebi değil.** Sırayı ters
+   * çevirmek (önce şablon seç, sonra ona uygun metin yaz) yanlış cevap olurdu: o an
+   * içerik kompozisyona uydurulur ve Yasa 13 tersine döner. Doğru müdahale burada —
+   * metne hangi ritimlerin YAKIN GEÇMİŞTE kullanıldığını söylemek.
+   */
+  readonly sonSablonlar?: readonly string[]
+  /**
    * Görselin gireceği YUVA (FAZ-14.3). `undefined` ise plan hiçbir yuva işaretlememiş
    * demektir ve `gorselBriefPromptu` `null` döner — yani model HİÇ çağrılmaz.
    *
@@ -88,6 +104,78 @@ const baglamBloku = (kayitlar: readonly PromptKaydi[]): string =>
  */
 const HEDEF_SATIR = 6
 
+/**
+ * Şablon → içerik RİTMİ. Seçim bu ritimleri ölçüyor (`sablonSec`), yani model onları
+ * kurduğunda seçim de değişiyor.
+ *
+ * ⚠ `donen` ve `editoryal` YOK: onlar içerikten seçilemiyor (açıkça istenir), bu
+ * yüzden metne bir ritim önermeleri anlamsız olurdu.
+ */
+const RITIM: Readonly<Record<string, string>> = {
+  'veri-hikayesi': 'yıl yıl sayısal seyir (her satırda rakam)',
+  'akan-alan': 'numaralı adım ritmi (1. 2. 3. …)',
+  memphis: 'soru ritmi (satırların çoğu soruyla biter)',
+  sahne: 'düz anlatı (rakamsız, hikâye)',
+}
+
+/**
+ * Ritmin MEKANİK karşılığı — üslup tarifi değil, sayılabilir bir kural.
+ *
+ * ⚠ ⚠ **İKİ YAKLAŞIM DENENDİ VE İKİSİ DE TUTMADI** (LOOP§G · D-309). (1) Üç ritim
+ * SEÇENEK olarak sunuldu → model her koşuda en kolayını, zaten bildiği düz anlatıyı
+ * seçti. (2) Tek hedef verildi ve "bu bir öneri değil" dendi → çıktı yine anlatı oldu.
+ * Ortak sebep: ikisi de ÜSLUP tarif ediyordu ve üslup, ölçülemeyen bir şeydir; model
+ * kendi ürettiğinin o üsluba uyduğunu sanabilir ve kimse aksini söyleyemez.
+ *
+ * ⚠ Üçüncü yaklaşım: ritmi SAYILABİLİR bir biçim kuralına çevirmek. "Satır 2'den
+ * itibaren her satır `1.` `2.` `3.` ile BAŞLAYACAK" bir üslup değil, bir sözleşme —
+ * ve `sablonSec` zaten tam bunu ölçüyor. Aynı depoda uyarlama isteminde de aynı ders
+ * çıkmıştı: şema yazılmadan uyulmasını beklemek, kuralı koymadan ihlali cezalandırmaktır.
+ */
+const BICIM: Readonly<Record<string, readonly string[]>> = {
+  'veri-hikayesi': [
+    '- 2. satırdan itibaren HER satır en az bir SAYI içerecek (yıl, oran, adet).',
+    '- Sayılar yalnız MARKA BİLGİSİ içinde geçenlerden alınacak.',
+  ],
+  'akan-alan': [
+    '- 2. satırdan itibaren her satır `1.` `2.` `3.` `4.` ile BAŞLAYACAK.',
+    '- Numara satırın ilk karakteri olacak; başka bir şey yazma.',
+  ],
+  memphis: [
+    '- 2. satırdan itibaren satırların EN AZ YARISI soru işaretiyle BİTECEK.',
+    '- Sorular retorik değil, okurun kendine soracağı türden olacak.',
+  ],
+  sahne: ['- Rakam ve numara KULLANMA; satırlar bir hikâyenin evreleri olacak.'],
+}
+
+const ritimTalimati = (sonSablonlar: readonly string[]): readonly string[] => {
+  const kullanilan = sonSablonlar.map((s) => RITIM[s]).filter((r): r is string => r !== undefined)
+  if (kullanilan.length === 0) return []
+  const oneri = Object.entries(RITIM)
+    .filter(([id]) => !sonSablonlar.includes(id))
+    .map(([, r]) => r)
+  if (oneri.length === 0) return []
+  // ⚠ ⚠ **MENÜ DEĞİL, TEK HEDEF — ve bu fark ÖLÇÜLEREK anlaşıldı.** İlk sürüm üç
+  // ritmi seçenek olarak sunuyor ve "konu izin vermiyorsa zorlama" diyordu. Gerçek
+  // koşuda model her seferinde en kolayını, yani zaten bildiği düz anlatıyı seçti;
+  // kaçış kapısı her konuda açıktı çünkü hemen her konu anlatıyla anlatılabilir.
+  // Bir seçenek listesi bir talimat değildir.
+  //
+  // ⚠ Kaçış kapısı KALDIRILMADI, DARALTILDI: yalnız sayısal ritim için ve yalnız
+  // kaynakta sayı yoksa. Kaynakta olmayan bir sayıyı uydurmak Yasa 8 ihlali olurdu.
+  const hedefId = Object.keys(RITIM).find((id) => !sonSablonlar.includes(id))
+  if (hedefId === undefined) return []
+  const bicim = BICIM[hedefId] ?? []
+  return [
+    '',
+    `BİÇİM KURALI — son karoseller ${kullanilan.join(', ')} biçimindeydi.`,
+    `BU SEFER: ${RITIM[hedefId] ?? ''}`,
+    ...bicim,
+    'Bu bir üslup tercihi değil, sayılabilir bir kural: metnin şekli hangi tasarımın',
+    'seçileceğini belirliyor ve aynı şekil her seferinde aynı tasarımı üretiyor.',
+  ]
+}
+
 export const icerikPromptu = (g: PromptGirdisi): string | null => {
   const baglam = baglamBloku(g.kayitlar)
   if (g.konu.trim() === '' || baglam === '') return null
@@ -116,6 +204,7 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // `tasarim-olcum.ts`in eski yorumu (*"icerikPromptu ile AYNI sayılar"*) yine bir
     // temenni olarak kalırdı.
     ...yayTalimati(HEDEF_SATIR),
+    ...ritimTalimati(g.sonSablonlar ?? []),
     '- Satırları numaralama, madde işareti koyma.',
     // ⚠ **VURGU — karoselin en büyük tipografik eksiği** (FAZ-12.1). Bugüne kadar her
     // satır aynı ağırlıkta okunuyordu; referanslarda bir ifade her zaman öne çıkar.

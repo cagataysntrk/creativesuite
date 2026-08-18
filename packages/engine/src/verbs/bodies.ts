@@ -1698,6 +1698,13 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       ? { maxChars: input.constraints['max_chars'] }
       : {}),
     ...(kacinilacak === undefined ? {} : { kacinilacak }),
+    // ⚠ Geçmiş ŞABLONLAR metin istemine de giriyor: 16.6 yalnız seçimi çeşitlendirdi
+    // ve üretimde yetmedi — içerik hep aynı şekildeyse seçilebilecek başka şablon
+    // kalmıyor. Aynı kısıt, iki farklı yerde iki farklı işi yapıyor.
+    ...(typeof input.constraints['son_kullanilan'] === 'string' &&
+    input.constraints['son_kullanilan'] !== ''
+      ? { sonSablonlar: input.constraints['son_kullanilan'].split(',') }
+      : {}),
   }
   // ── ŞABLON UYARLAMA İSTEMİ (FAZ-15.7/15.9 · D-268) ───────────────────────
   //
