@@ -133,7 +133,13 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       ustBaslik: y.ustBaslik,
       baslik: y.baslik,
       govde: y.govde,
-      hayalet: y.hayalet,
+      // ⚠ ⚠ **HAYALETİ ŞABLON KARAR VERİR, MODEL DEĞİL (D-299).** Örnekteki hayalet BOŞSA
+      // o şablon bu ögeyi KULLANMIYOR demektir ve model doldurursa metnin arkasına dev
+      // soluk bir filigran düşüyor. Depo sahibi altı şablonun altısında bunu gördü ve
+      // haklıydı: dev rakam yalnız ona YER olan kompozisyonda bir öge, ötekilerde gürültü.
+      // ⚠ Ters yönde serbest: şablon kullanıyorsa modelin YAZDIĞI değer geçerli — içerik
+      // onun işi, kompozisyon bizim.
+      hayalet: (o.hayalet ?? '').trim() === '' ? '' : y.hayalet,
       rayaSol: y.rayaSol,
       rayaOrta: y.rayaOrta,
       panel,

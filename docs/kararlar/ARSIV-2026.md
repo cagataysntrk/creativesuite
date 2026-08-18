@@ -5199,3 +5199,112 @@ bırakıyor. `editoryal` üç yuvaya geçtiğinde tam bu oldu. Değişmez artık
 varyant eksiltildi → kırmızı, geri kondu → yeşil.
 
 **Geri alma maliyeti:** orta — bir şablon örneği yeniden yazıldı; kayıt ve testler durdu.
+
+## D-287
+
+**Karar:** Kompozisyon alanlarının uyarlamadan sağ çıkması artık ALAN LİSTESİYLE
+ölçülüyor, alan alan değil; başarısız adımın SEBEBİ manifest'e giriyor.
+
+**Neden — alan listesi:** aynı sınıf hata İKİ KEZ tekrarlandı. `kolon` taşınmadı (dört
+slaytta metin sola düşüp figürün üstüne bindi, D-280); dersin HEMEN YANINA eklenen
+`elYazisi` de taşınmadı (`editoryal` koşusunda kapak slaydının el yazısı vurgusu
+kayboldu). **Üçüncüsünü bir yorum engellemez.** Test artık listeyi VERİDEN türetiyor:
+bir kartın içerik alanları sabit ve bilinen (`ustBaslik`, `baslik`, `govde`, `panel`,
+`hayalet`, `rayaSol`, `rayaOrta`); geri kalan HER alan kompozisyondur ve uyarlanmış
+belgede aynı değerle durmalı. Yeni bir opsiyonel alan kendiliğinden kapsanıyor —
+bakım isteyen bir beyaz liste, unutulacak ikinci bir yerdir.
+**Kanıt:** `elYazisi` taşıması kaldırıldı → altı şablonun ALTISI birden kırmızı.
+
+**Neden — hata kaydı:** `editoryal` koşusunda üç görsel adımı da `failed` döndü.
+Manifest yalnız `"status": "failed"` diyordu; sağlayıcı sonradan doğrudan sınandığında
+iki biçimde de SAĞLAM çıktı. Teşhis koyacak hiçbir veri yoktu — **defter olayı
+kaydetmiş, sebebini atmıştı.** `status`ün üç anlamını özenle ayıran yorum bu dosyada
+duruyordu; hata sebebinin hiç kaydedilmediği fark edilmemişti.
+
+⚠ **Özet, tam hata DEĞİL:** `kind` · `code` · `userMessageKey`. `details` sağlayıcı
+gövdesi, prompt parçası ya da secret taşıyabilir ve defter git'e giriyor (§3.5 · §14).
+
+⚠ **Görsel adımlarının neden düştüğü HÂLÂ BİLİNMİYOR** — bu turda kayıt yolu açıldı,
+teşhis bir sonraki koşuya kaldı. Borç olarak yazıldı: sağlayıcı ayrı ayrı çağrıldığında
+tohumlu ve tohumsuz iki istek de başarılı döndü, yani neden koşuya özgü.
+
+**Geri alma maliyeti:** düşük — bir opsiyonel alan, bir test bloğu.
+
+## D-288
+
+**Karar:** `donen`de daire artık KIRPMA değil ARKA FON; ürün kesik ve daireyi taşıyor.
+Lekeler kartların üstünde çizilebiliyor (`ust`) ve her şekil `leke` sınıfı taşıyor.
+Uyarlama istemi örnek başlığın METNİNİ değil ŞEKLİNİ veriyor.
+
+**Neden — daire:** Referansta (`image copy 3`) beyaz daire ürünün ARKASINDA duruyor ve
+ürün onu taşıyor: sap, yaprak, omuz dairenin dışına çıkıyor. Bizde fotoğraf daireye
+KIRPILIYORDU — aynı görüntü değil, daha az tasarım. Hat zaten arka planı siliyor
+(`gorsel-kirp`), yani kesik ürün elimizdeydi; eksik olan tek şey dairenin GÖRÜNÜR bir
+katmanda durmasıydı. Kart zemini opak olduğu için `lekeler` (z-index 0) hiç görünmüyordu;
+`ust: true` onları kartlarla görseller ARASINA koyuyor.
+
+⚠ **Süreklilik ÜRÜNDE değil ZEMİNDE.** İlk kurulumda ürünler kesimi aşıyordu ve her
+slaytta İKİ yarım figür beliriyordu (kendi ürünü + öncekinin kuyruğu); metin ikisinin
+arasında sıkışıp üstlerine bindi. **Ürün bir slaydın konusudur, iki slaydın ortak ögesi
+değil.** Kesimi aşan şey artık soluk büyük daireler.
+
+⚠ ⚠ **DENETİMİN BİR KOLU ÖLÜYDÜ.** Kesintisizlik ölçümü `.hayalet, .gorsel, .gorsel-yer,
+.leke` seçicisini kullanıyor ve `.leke` sınıfı HİÇBİR ZAMAN yazılmamıştı. Yıllardır o kol
+hiçbir şey saymıyordu; `donen`in kesimi aşan daireleri sayılmayınca kusur "haklı görünen
+bir yanlış" verdi. Ölçüm aracının sessizce ölü bir kolu, yanlış ölçenden daha tehlikeli:
+yeşil kalırken hiçbir şey ölçmüyor.
+
+**Neden — istem:** Uyarlama istemi "başlıkları konuya göre yeniden yaz, aynen bırakmak
+reddedilir" diyordu ve model İKİ AYRI GERÇEK KOŞUDA dördü de aynen döndürdü; `uyarla`
+reddetti, hat `kompozit`te öldü. Talimatı yükseltmek üçüncüsü olurdu. **Kopyalanmasını
+istemediğimiz metni modelin önüne koyduğumuz sürece kopyalanıyor** — model bir örneği
+"doldurulacak yer tutucu" değil "verilmiş içerik" sayıyor. İsteme artık başlığın
+uzunluğu, vurgunun kaçıncı kelimede olduğu ve panel tipi giriyor; metni girmiyor.
+Kaybedilen bilgi yok: konuya özgü malzeme zaten "Kaynak metin" bölümünde.
+
+**Geri alma maliyeti:** orta — bir şablon örneği, bir kayıt alanı, bir istem kurucusu.
+
+## D-289
+
+**Karar:** Yirmi ikon artık **Lucide**'den (lucide-static 1.31.0, ISC) geliyor; elle
+çizim bitti. `kodlanmis-oge` kapısı SVG ilkellerini de sayıyor ve `sablon-ikon.ts`
+tavanı **sıfırda dondu**.
+
+**Neden:** `sablon-ikon.ts` yirmi ikonu 57 SVG ilkeliyle (`<line>`, `<circle>`, `<rect>`,
+`<polyline>`, `<path>`) ELLE çiziyordu. Dosyanın kendi yorumu gerekçeyi yazıyordu:
+FAZ-11.3 planı bir MIT/ISC seti öngörüyordu, onun yerine burada çizildi çünkü
+(1) *"40 satır yazmak bir bağımlılıktan iyidir"* (R-75), (2) lisans denetimi istemesin,
+(3) kontur markanın ölçüsünden gelsin. **Üçü de makuldü ve üçü de yanlış soruya cevaptı.**
+
+R-75 bir BAĞIMLILIK ekonomisi kuralı; R-81 bir TASARIM kuralı. Çatıştıklarında ikincisi
+kazanıyor: elle çizilmiş bir ikon ÇALIŞIYOR ama **tasarım gibi durmuyor**, ve ölçülemeyen
+o fark depo sahibinin *"aşırı bilgisayar işi duruyor"* tespitinin kendisi.
+
+⚠ **İkinci ve üçüncü gerekçe kayıp DEĞİL.** Kontur kalınlığı hâlâ `ikonSvg`de, markanın
+ölçüsünden: Lucide `stroke-width`i `<svg>` üstünde taşıyor, `path`ler miras alıyor,
+sarmalayıcı eziyor. Lisans da denetlenebilir: ISC metni bağımlılıkla geliyor, sürüm
+`package.json`da sabit — "denetlenecek lisans yok" değil, "TEK ve izlenebilir".
+
+⚠ Gövdeler ÜRETİLMİŞ bir modülde (`ikon-govde.ts`, üreteci `scripts/ikon-govde.mjs`):
+render saf kalıyor, kaynak denetlenebilir kalıyor. Sözlük (`IKONLAR`) KAPALI kaldı —
+değişen tek şey çizimin kaynağı. `dongu` için `recycle` seçildi: marka geri kazanım işi
+yapıyor ve genel bir yenileme oku yerine döngüsellik simgesi markanın kendi dili.
+
+⚠ ⚠ **KAPININ EN BÜYÜK KÖR NOKTASI BUYDU.** `kodlanmis-oge` yalnız CSS şekillerini
+sayıyordu; R-81'in tarif ettiği ihlalin EN BÜYÜĞÜ kendi kapısından görünmüyordu ve kapı
+yeşil diyordu. **Bir kural, ölçmediği şeyi yasaklayamaz.** Kanıt: ikon dosyasına elle bir
+çember + çizgi eklendi → kırmızı; geri alındı → yeşil.
+
+⚠ `ikon-govde.ts` kapsam dışı: içindeki `path`ler KÜTÜPHANENİN çizimi. Onu saymak,
+kuralın istediği şeyi cezalandırmak olurdu.
+
+⚠ ⚠ **YANLIŞ TEŞHİSTEN DÖNÜLDÜ:** `marka-isareti.ts` (markanın imzasını KODLA çizen
+modül) "üretimde sıfır çağıranı var" diye emekliye ayrılmaya başlandı ve arşive taşındı.
+Yanlıştı: `static.ts` ondan `markaCss` ve `markaKilidi` alıyor ve o yol SEKİZ hattı
+besliyor. Yalnız `markaIsaretiSvg` aranmıştı. Taşıma geri alındı. **Gerekçesi ("brand/
+altında logo dosyası yok") artık geçersiz** — gerçek logolar D-284'te geldi; göçü ayrı
+bir karar, borç olarak yazıldı.
+
+**Bedel:** bir dev bağımlılık (2025 ikon, yalnız 20'si gömülüyor), ISC.
+
+**Geri alma maliyeti:** düşük — üreteç + eşleme tablosu; sözlük değişmedi.

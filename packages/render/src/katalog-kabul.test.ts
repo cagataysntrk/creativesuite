@@ -63,8 +63,18 @@ describe('tasarım rehberi §10 — katalog kabul ölçütleri', () => {
 
       // ── Ölçüt 4: en az bir öge başka bir ögeyle KATMANLANIYOR ────────────
       it('ölçüt 4 · katmanlanma var', () => {
+        // ⚠ ⚠ **HAYALET KATMANLANMANIN TEK YOLU DEĞİL — ölçüt onu SANIYORDU.** Hayalet
+        // altı şablondan da kaldırılınca (D-299) bu ölçüt kırıldı ve bir an "eşik yanlış"
+        // gibi göründü. Yanlış olan eşik değil, LİSTEYDİ: `ustDoku` kartların ÜSTÜNDE
+        // gren+vinyet çiziyor, `alanSiniri` tuvali iki alana bölüyor — ikisi de gerçek
+        // katmanlanma ve ikisi de sayılmıyordu.
         const hayaletVar = o.kartlar.some((k) => k.hayalet.trim() !== '')
-        const katman = hayaletVar || o.gorseller.length > 0 || (o.lekeler ?? []).length > 0
+        const katman =
+          hayaletVar ||
+          o.gorseller.length > 0 ||
+          (o.lekeler ?? []).length > 0 ||
+          o.ustDoku !== undefined ||
+          o.alanSiniri !== undefined
         expect(katman, `${id}: hiçbir öge katmanlanmıyor — düz bir yerleşim`).toBe(true)
       })
 

@@ -54,6 +54,11 @@ const ORNEK = 'ÖRNEK VERİ'
 // 62–125%, Bricolage'ınki 75–100%. Aralık dışı bir değer tarayıcıda SESSİZCE kırpılıyor:
 // `ustGenislik: 118` yazan bir reçete 100 çiziyor ve reçete yalan söylemeye başlıyor.
 // Değerler oranla taşındı, gözle değil. Ağırlık tavanı da 900 → 800.
+// ⚠ ⚠ **HAYALET GİDİNCE HİYERARŞİ AÇIĞA ÇIKTI (D-299).** Dev soluk rakam kaldırılınca
+// kabul ölçütü 1 (en büyük/en küçük punto oranı ≥ 6) kırıldı: başlık 69–91 px, alt ray
+// 18 px → oran 3,8–5,1. **Eşiği düşürmek yanlış cevap olurdu** — ölçüt kırılmadı, hayalet
+// onu SAKLIYORDU. Referansta kadrajın en büyük ögesi başlığın kendisi; bizimki
+// tuvalin %5–6,7'siydi. Paylar ~%30 yükseltildi.
 export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
@@ -74,7 +79,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   // ⚠ %9'u geçmiyor: gövde metni onun üstünde ve okunaklılık kaybı kabul edilemez.
   hayaletKonumu: { ust: 26, olcek: 1.55, guc: 9 },
   tipografi: {
-    baslikPayi: 0.95,
+    baslikPayi: 1.16,
     baslikGenislik: 78,
     baslikAgirlik: 800,
     satirAraligi: 0.98,
@@ -86,7 +91,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     // hayalet %22–26'sını tutuyordu. Bu şablonun ADI veri hikâyesi; en büyük ögesi
     // dekoratif bir rakam olamaz. Çarpan panelin TAMAMINI büyütüyor, tek tek ögeleri
     // değil: iç oranlar (rehber §3) korunuyor.
-    panelPayi: 2.1,
+    panelPayi: 1.7,
   },
   zemin: 'var(--role-line-edge)',
   zeminDokusu: {
@@ -140,7 +145,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       baslik: 'Altı yılda **iki katına** çıkan bir eğri',
       govde: 'Kaydırın: eğri altı slaydı kat ediyor ve her durakta bir karar var.',
       panel: { tip: 'etiketler', ogeler: ['2019', '2021', '2023', '2025'] },
-      hayalet: '2×',
+      hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
     },
@@ -157,7 +162,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
           { etiket: '2023', deger: 68, not: '%68 temiz akış', tahmin: false },
         ],
       },
-      hayalet: '01',
+      hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
     },
@@ -172,7 +177,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
           { deger: '23', birim: '%', alt: 'kayıp oranı, sonra' },
         ],
       },
-      hayalet: '02',
+      hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
     },
@@ -186,7 +191,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
         toplam: 20,
         dolu: 13,
       },
-      hayalet: '03',
+      hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
     },
@@ -203,7 +208,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
           { etiket: '2025', deger: 77, not: '77,4 bin ton', tahmin: true },
         ],
       },
-      hayalet: '04',
+      hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
     },
@@ -223,7 +228,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
           { no: '03', ad: 'Alıcıyı üretimden önce bağla' },
         ],
       },
-      hayalet: '05',
+      hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
     },
@@ -237,13 +242,27 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
  * ⚠ Kartlar üst alanda duruyor, hayalet rakamlar sınırı aşıyor: kesintisizliğin ikinci
  * kanalı. Tipografi GENİŞ (`wdth 104`) — `veri-hikayesi`nin dar sesinin karşıtı.
  */
+// ⚠ ⚠ **HAYALET BURADAN DA KALKTI — SIĞACAK YER YOK, ÖLÇÜLDÜ (D-299).** Önce "boş alt
+// alanda çakışmıyor" diye burada bırakılmıştı; depo sahibi 3. slaytta çakışmayı gördü ve
+// ölçüm onu doğruladı: alan sınırı y%44–86 arasında SALINIYOR, hayalet ise %35 boyunda.
+// Tek bir alana sığması için ya sınırın en alçak noktasının (%86) altına inmesi gerekir
+// (%86+35 = kadraj dışı) ya da en yüksek noktasının (%44) üstüne çıkması (orada başlık var).
+// **Salınan bir sınırla sabit bir dev rakam yan yana yaşayamaz** — geometri, tercih değil.
+// Böylece hayalet altı şablonun altısında da kapalı; yetenek duruyor, kullanan yok.
+// ESKİ NOT (neden burada tutulmuştu): Depo sahibi: *"hepsine arkaya filigran
+// gibi sayı eklemişsin, çoğunda yazılarla çakışıyor, neden hepsinde var?"* — haklıydı.
+// Dev soluk rakam bir KOMPOZİSYON ögesi ve yalnız ona YER olan yerde işe yarıyor:
+// `akan-alan`ın alt yarısı boş bir mürekkep alanı ve rakamlar oraya oturuyor, hiçbir
+// şeyle çakışmıyor. Öteki beş şablonda metnin, panelin ya da fotoğrafın ARKASINA düşüyordu
+// ve orada bir tasarım ögesi değil, bir FİLİGRAN gibi okunuyor.
+// **Aynı öge her şablonda aynı anlama gelmiyor** — tekrar eden ders.
 export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
   ustDoku: { gren: 18, vinyet: 26 },
   yerlesim: 'ust',
   tipografi: {
-    baslikPayi: 0.9,
+    baslikPayi: 1.18,
     baslikGenislik: 100,
     baslikAgirlik: 800,
     satirAraligi: 1.06,
@@ -302,7 +321,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       baslik: 'Bir hattı **döngüsel** yapan beş şart',
       govde: 'Beşi de olmadan döngü kapanmıyor; biri eksikse sistem doğrusal kalıyor.',
       panel: null,
-      hayalet: '5',
+      hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
     },
@@ -311,7 +330,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       baslik: 'Girdi **izlenebilir** olacak',
       govde: 'Nereden geldiği bilinmeyen malzeme, nereye gittiği bilinmeyen atıktır.',
       panel: null,
-      hayalet: '1',
+      hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
     },
@@ -320,7 +339,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       baslik: 'Ayrıştırma **kaynakta** başlayacak',
       govde: 'Sonradan ayrıştırma her adımda pahalılaşıyor ve saflığı düşürüyor.',
       panel: null,
-      hayalet: '2',
+      hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
     },
@@ -329,7 +348,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       baslik: '**Ölçülmeyen** kalite, varsayılan kalitedir',
       govde: 'Ölçülmeyen saflık, satışta değil üretimde ortaya çıkıyor.',
       panel: null,
-      hayalet: '3',
+      hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
     },
@@ -338,7 +357,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       baslik: 'Çıktının bir **alıcısı** olacak',
       govde: 'Alıcısı olmayan geri kazanım, ertelenmiş bir depolama.',
       panel: null,
-      hayalet: '4',
+      hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
     },
@@ -347,7 +366,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       baslik: 'Döngü **kendini finanse** edecek',
       govde: 'Sübvansiyonla dönen bir döngü, sübvansiyon bitince duruyor.',
       panel: null,
-      hayalet: '5',
+      hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
     },
@@ -378,7 +397,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   // yığılmıyor. Çakışmayı `kolon` çözüyor: metin, figürün olmadığı yana geçiyor.
   yerlesim: 'orta',
   tipografi: {
-    baslikPayi: 0.86,
+    baslikPayi: 0.98,
     baslikGenislik: 76,
     baslikAgirlik: 800,
     satirAraligi: 0.96,
@@ -460,6 +479,16 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   // birkaç slaytta kasıtlı dengesizlik elle yapılmış hissi verir"*. Eşit aralıklı
   // yerleşim bir ızgaranın imzasıdır, bir tasarımcının değil: göz düzenliliği hemen
   // tanıyor ve "hesaplanmış" diyor. Kaymalar küçük (2–4 puan) ama ritmi kırmaya yetiyor.
+  // ⚠ ⚠ **KUTU EN/BOYU KAYNAKLA UYUŞMUYORDU — özne kartın %20'siydi, referansta %76.**
+  // Ölçüldü: kutu %12 genişlik × %78 yükseklik = 518 × 1053 px, yani oran 0,49. Sağlayıcı
+  // 4:5 üretiyor (1024×1280, oran 0,80) ve `object-fit: contain` onu 518 px genişliğe
+  // sığdırınca yükseklik 648 px'te kalıyor: **kutunun 405 px'i BOŞ.** Kadrajın ortasında
+  // gördüğümüz boşluğun sebebi buydu; figürü büyütmek değil, kutuyu kaynağın oranına
+  // getirmek gerekiyordu. 1053 × 0,80 = 842 px → panorama genişliğinin %19,5'i.
+  //
+  // ⚠ **Metin figürün ÜSTÜNE binebilir ve referansta da biniyor.** Daha önce çakışmayı
+  // sıfıra indirmiştim; o, iki ögeyi de küçülten yanlış bir hedefti. Kesik öznenin
+  // etrafındaki boşluk metnin yeri değil, öznenin nefesi.
   gorseller: [
     // ⚠ ⚠ **TEK ÖZNE, ÜÇ KOPYA DEĞİL — ve bunu gerçek bir koşu gösterdi.** Şablon üç
     // yuva ilan ediyordu; hat TEK görsel üretiyor ve `composeBody` onu üç yuvaya birden
@@ -493,10 +522,10 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     //
     // ⚠ Metin kolonu her karede öznenin KARŞI yanında (`kolon`): 12/24/62/74 sırasıyla
     // sağ · sol · sağ · sol kadrajı tutuyor, metin de sol · sağ · sol · sağ.
-    { src: '', alt: 'kesik özne', x: 12, y: 21, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 26, y: 23, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 61, y: 20, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 76, y: 24, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 9, y: 20, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 25, y: 22, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 59, y: 21, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 75, y: 23, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
   ],
   // ⚠ ⚠ **HAYALETLER BOŞTU ve bu "dolu taslak" kuralını deliyordu.** Şablon taslak
   // demek BOŞ demek değil; agent çoğaltıp düzenleyeceği şeyi göremezse alanı ya
@@ -511,7 +540,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       baslik: 'Anlatmak **göstermekle** başlar',
       govde: 'Dört karede tek bir hareket.',
       panel: null,
-      hayalet: '01',
+      hayalet: '',
       // ⚠ 'UPCYTECH' DEĞİL: alt rayda artık marka işareti duruyor ve kelimeyi zaten
       // söylüyor. Aynı bilgiyi iki kez basmak imzayı zayıflatıyor, güçlendirmiyor.
       rayaSol: 'SAHA',
@@ -522,7 +551,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       baslik: 'Önce **sorun** duruyor',
       govde: 'Adı konmamış sorun çözülemez.',
       panel: null,
-      hayalet: '02',
+      hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       // Özne bu karede SOLDA; metin karşı yana geçiyor.
@@ -533,7 +562,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       baslik: 'Sonra **bir ölçü** koyuluyor',
       govde: 'Ölçü, tartışmayı tercihe çevirir.',
       panel: null,
-      hayalet: '03',
+      hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
     },
@@ -542,7 +571,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       baslik: 'En sonda **karar** var',
       govde: 'Kararı ölçü değil insan verir.',
       panel: null,
-      hayalet: '04',
+      hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       kolon: 'sag',
@@ -572,7 +601,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // zeminde (kâğıt), lekelerde ve `wdth 92`lik geniş seste.
   yerlesim: 'ust',
   tipografi: {
-    baslikPayi: 0.78,
+    baslikPayi: 0.98,
     baslikGenislik: 92,
     baslikAgirlik: 800,
     satirAraligi: 1.08,
@@ -632,7 +661,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       baslik: 'Altı soru, **altı** yanlış varsayım',
       govde: 'Her kare bir varsayımı yıkıyor.',
       panel: null,
-      hayalet: '?',
+      hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-kagit)',
@@ -642,7 +671,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       baslik: 'Geri dönüşüm **ücretsiz** mi?',
       govde: 'Toplama, taşıma ve ayrıştırma bir maliyet kalemi; bedava olan yalnız atmak.',
       panel: { tip: 'etiketler', ogeler: ['toplama', 'taşıma', 'ayrıştırma'] },
-      hayalet: '01',
+      hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-mavi-200)',
@@ -660,7 +689,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
           { no: '07', ad: 'Diğer — karışık, ayrıştırma hatası' },
         ],
       },
-      hayalet: '02',
+      hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-kagit)',
@@ -670,7 +699,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       baslik: 'Temizlemek **şart** mı?',
       govde: 'Kalıntı, bir sonraki döngüde kokuya ve renk kaybına dönüşüyor.',
       panel: null,
-      hayalet: '03',
+      hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-bakir-200)',
@@ -686,7 +715,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
           { deger: '1', birim: 'döngü', alt: 'kirli akışta' },
         ],
       },
-      hayalet: '04',
+      hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-kagit)',
@@ -696,7 +725,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       baslik: 'Peki **ne** yapmalı?',
       govde: 'Önce ayrıştır, sonra temizle, sonra ölç. Sıra değişince üçü de boşa gidiyor.',
       panel: { tip: 'etiketler', ogeler: ['ayrıştır', 'temizle', 'ölç'] },
-      hayalet: '05',
+      hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-mavi-700)',
@@ -717,7 +746,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   yukseklik: 1350,
   yerlesim: 'yayik',
   tipografi: {
-    baslikPayi: 0.8,
+    baslikPayi: 0.98,
     baslikGenislik: 88,
     baslikAgirlik: 800,
     satirAraligi: 1.0,
@@ -781,7 +810,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       baslik: 'Dört malzeme, **tek** hat',
       govde: 'Aynı hat, dört farklı beslemeyle çalışıyor.',
       panel: null,
-      hayalet: '01',
+      hayalet: '',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-bg)',
@@ -791,7 +820,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       baslik: 'Aynı düzen, **başka** zemin',
       govde: 'Süreklilik rengin dönmesinden geliyor; düzen hiç değişmiyor.',
       panel: null,
-      hayalet: '02',
+      hayalet: '',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-bakir-200)',
@@ -801,7 +830,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       baslik: 'Ritmi kuran **tekrar**',
       govde: 'Göz üçüncü karede düzeni öğreniyor ve dördüncüyü bekliyor.',
       panel: null,
-      hayalet: '03',
+      hayalet: '',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-surface)',
@@ -811,7 +840,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       baslik: 'Kapanış **koyu** gelir',
       govde: 'Son kare diziyi kapatıyor: aynı düzen, en yüksek kontrast.',
       panel: null,
-      hayalet: '04',
+      hayalet: '',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-line-edge)',
@@ -852,7 +881,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   tipografi: {
     // ⚠ 0,4 → 0,72 ve ağırlık 500 → 400: referansın "sessiz" tonu İNCE ve BÜYÜK bir
     // başlıktan geliyor. Küçük ve yarı kalın bir başlık sessiz değil, çekingen duruyor.
-    baslikPayi: 0.72,
+    baslikPayi: 0.98,
     baslikGenislik: 100,
     baslikAgirlik: 400,
     satirAraligi: 1.12,
@@ -917,7 +946,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       baslik: 'Sessiz bir **dönüşüm**',
       govde: 'Bir hattın değişimi gürültüyle değil, ölçüyle başlıyor.',
       panel: null,
-      hayalet: '01',
+      hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-kagit)',
@@ -929,7 +958,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       baslik: 'Boşluk da bir **karar**',
       govde: 'Doldurulmayan alan, gözün dinlendiği yerdir.',
       panel: null,
-      hayalet: '02',
+      hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-mavi-200)',
@@ -939,7 +968,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       baslik: 'Küçük punto **güven** ister',
       govde: 'Bağırmayan bir başlık, okunacağını varsayıyor.',
       panel: null,
-      hayalet: '03',
+      hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-gray-100)',
@@ -950,7 +979,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       baslik: 'Ve **kapanış**',
       govde: 'Dört karede tek bir bakış; imza altta duruyor.',
       panel: null,
-      hayalet: '04',
+      hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-ink-950)',

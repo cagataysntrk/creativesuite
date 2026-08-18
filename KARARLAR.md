@@ -166,115 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-287
-
-**Karar:** Kompozisyon alanlarının uyarlamadan sağ çıkması artık ALAN LİSTESİYLE
-ölçülüyor, alan alan değil; başarısız adımın SEBEBİ manifest'e giriyor.
-
-**Neden — alan listesi:** aynı sınıf hata İKİ KEZ tekrarlandı. `kolon` taşınmadı (dört
-slaytta metin sola düşüp figürün üstüne bindi, D-280); dersin HEMEN YANINA eklenen
-`elYazisi` de taşınmadı (`editoryal` koşusunda kapak slaydının el yazısı vurgusu
-kayboldu). **Üçüncüsünü bir yorum engellemez.** Test artık listeyi VERİDEN türetiyor:
-bir kartın içerik alanları sabit ve bilinen (`ustBaslik`, `baslik`, `govde`, `panel`,
-`hayalet`, `rayaSol`, `rayaOrta`); geri kalan HER alan kompozisyondur ve uyarlanmış
-belgede aynı değerle durmalı. Yeni bir opsiyonel alan kendiliğinden kapsanıyor —
-bakım isteyen bir beyaz liste, unutulacak ikinci bir yerdir.
-**Kanıt:** `elYazisi` taşıması kaldırıldı → altı şablonun ALTISI birden kırmızı.
-
-**Neden — hata kaydı:** `editoryal` koşusunda üç görsel adımı da `failed` döndü.
-Manifest yalnız `"status": "failed"` diyordu; sağlayıcı sonradan doğrudan sınandığında
-iki biçimde de SAĞLAM çıktı. Teşhis koyacak hiçbir veri yoktu — **defter olayı
-kaydetmiş, sebebini atmıştı.** `status`ün üç anlamını özenle ayıran yorum bu dosyada
-duruyordu; hata sebebinin hiç kaydedilmediği fark edilmemişti.
-
-⚠ **Özet, tam hata DEĞİL:** `kind` · `code` · `userMessageKey`. `details` sağlayıcı
-gövdesi, prompt parçası ya da secret taşıyabilir ve defter git'e giriyor (§3.5 · §14).
-
-⚠ **Görsel adımlarının neden düştüğü HÂLÂ BİLİNMİYOR** — bu turda kayıt yolu açıldı,
-teşhis bir sonraki koşuya kaldı. Borç olarak yazıldı: sağlayıcı ayrı ayrı çağrıldığında
-tohumlu ve tohumsuz iki istek de başarılı döndü, yani neden koşuya özgü.
-
-**Geri alma maliyeti:** düşük — bir opsiyonel alan, bir test bloğu.
-
-## D-288
-
-**Karar:** `donen`de daire artık KIRPMA değil ARKA FON; ürün kesik ve daireyi taşıyor.
-Lekeler kartların üstünde çizilebiliyor (`ust`) ve her şekil `leke` sınıfı taşıyor.
-Uyarlama istemi örnek başlığın METNİNİ değil ŞEKLİNİ veriyor.
-
-**Neden — daire:** Referansta (`image copy 3`) beyaz daire ürünün ARKASINDA duruyor ve
-ürün onu taşıyor: sap, yaprak, omuz dairenin dışına çıkıyor. Bizde fotoğraf daireye
-KIRPILIYORDU — aynı görüntü değil, daha az tasarım. Hat zaten arka planı siliyor
-(`gorsel-kirp`), yani kesik ürün elimizdeydi; eksik olan tek şey dairenin GÖRÜNÜR bir
-katmanda durmasıydı. Kart zemini opak olduğu için `lekeler` (z-index 0) hiç görünmüyordu;
-`ust: true` onları kartlarla görseller ARASINA koyuyor.
-
-⚠ **Süreklilik ÜRÜNDE değil ZEMİNDE.** İlk kurulumda ürünler kesimi aşıyordu ve her
-slaytta İKİ yarım figür beliriyordu (kendi ürünü + öncekinin kuyruğu); metin ikisinin
-arasında sıkışıp üstlerine bindi. **Ürün bir slaydın konusudur, iki slaydın ortak ögesi
-değil.** Kesimi aşan şey artık soluk büyük daireler.
-
-⚠ ⚠ **DENETİMİN BİR KOLU ÖLÜYDÜ.** Kesintisizlik ölçümü `.hayalet, .gorsel, .gorsel-yer,
-.leke` seçicisini kullanıyor ve `.leke` sınıfı HİÇBİR ZAMAN yazılmamıştı. Yıllardır o kol
-hiçbir şey saymıyordu; `donen`in kesimi aşan daireleri sayılmayınca kusur "haklı görünen
-bir yanlış" verdi. Ölçüm aracının sessizce ölü bir kolu, yanlış ölçenden daha tehlikeli:
-yeşil kalırken hiçbir şey ölçmüyor.
-
-**Neden — istem:** Uyarlama istemi "başlıkları konuya göre yeniden yaz, aynen bırakmak
-reddedilir" diyordu ve model İKİ AYRI GERÇEK KOŞUDA dördü de aynen döndürdü; `uyarla`
-reddetti, hat `kompozit`te öldü. Talimatı yükseltmek üçüncüsü olurdu. **Kopyalanmasını
-istemediğimiz metni modelin önüne koyduğumuz sürece kopyalanıyor** — model bir örneği
-"doldurulacak yer tutucu" değil "verilmiş içerik" sayıyor. İsteme artık başlığın
-uzunluğu, vurgunun kaçıncı kelimede olduğu ve panel tipi giriyor; metni girmiyor.
-Kaybedilen bilgi yok: konuya özgü malzeme zaten "Kaynak metin" bölümünde.
-
-**Geri alma maliyeti:** orta — bir şablon örneği, bir kayıt alanı, bir istem kurucusu.
-
-## D-289
-
-**Karar:** Yirmi ikon artık **Lucide**'den (lucide-static 1.31.0, ISC) geliyor; elle
-çizim bitti. `kodlanmis-oge` kapısı SVG ilkellerini de sayıyor ve `sablon-ikon.ts`
-tavanı **sıfırda dondu**.
-
-**Neden:** `sablon-ikon.ts` yirmi ikonu 57 SVG ilkeliyle (`<line>`, `<circle>`, `<rect>`,
-`<polyline>`, `<path>`) ELLE çiziyordu. Dosyanın kendi yorumu gerekçeyi yazıyordu:
-FAZ-11.3 planı bir MIT/ISC seti öngörüyordu, onun yerine burada çizildi çünkü
-(1) *"40 satır yazmak bir bağımlılıktan iyidir"* (R-75), (2) lisans denetimi istemesin,
-(3) kontur markanın ölçüsünden gelsin. **Üçü de makuldü ve üçü de yanlış soruya cevaptı.**
-
-R-75 bir BAĞIMLILIK ekonomisi kuralı; R-81 bir TASARIM kuralı. Çatıştıklarında ikincisi
-kazanıyor: elle çizilmiş bir ikon ÇALIŞIYOR ama **tasarım gibi durmuyor**, ve ölçülemeyen
-o fark depo sahibinin *"aşırı bilgisayar işi duruyor"* tespitinin kendisi.
-
-⚠ **İkinci ve üçüncü gerekçe kayıp DEĞİL.** Kontur kalınlığı hâlâ `ikonSvg`de, markanın
-ölçüsünden: Lucide `stroke-width`i `<svg>` üstünde taşıyor, `path`ler miras alıyor,
-sarmalayıcı eziyor. Lisans da denetlenebilir: ISC metni bağımlılıkla geliyor, sürüm
-`package.json`da sabit — "denetlenecek lisans yok" değil, "TEK ve izlenebilir".
-
-⚠ Gövdeler ÜRETİLMİŞ bir modülde (`ikon-govde.ts`, üreteci `scripts/ikon-govde.mjs`):
-render saf kalıyor, kaynak denetlenebilir kalıyor. Sözlük (`IKONLAR`) KAPALI kaldı —
-değişen tek şey çizimin kaynağı. `dongu` için `recycle` seçildi: marka geri kazanım işi
-yapıyor ve genel bir yenileme oku yerine döngüsellik simgesi markanın kendi dili.
-
-⚠ ⚠ **KAPININ EN BÜYÜK KÖR NOKTASI BUYDU.** `kodlanmis-oge` yalnız CSS şekillerini
-sayıyordu; R-81'in tarif ettiği ihlalin EN BÜYÜĞÜ kendi kapısından görünmüyordu ve kapı
-yeşil diyordu. **Bir kural, ölçmediği şeyi yasaklayamaz.** Kanıt: ikon dosyasına elle bir
-çember + çizgi eklendi → kırmızı; geri alındı → yeşil.
-
-⚠ `ikon-govde.ts` kapsam dışı: içindeki `path`ler KÜTÜPHANENİN çizimi. Onu saymak,
-kuralın istediği şeyi cezalandırmak olurdu.
-
-⚠ ⚠ **YANLIŞ TEŞHİSTEN DÖNÜLDÜ:** `marka-isareti.ts` (markanın imzasını KODLA çizen
-modül) "üretimde sıfır çağıranı var" diye emekliye ayrılmaya başlandı ve arşive taşındı.
-Yanlıştı: `static.ts` ondan `markaCss` ve `markaKilidi` alıyor ve o yol SEKİZ hattı
-besliyor. Yalnız `markaIsaretiSvg` aranmıştı. Taşıma geri alındı. **Gerekçesi ("brand/
-altında logo dosyası yok") artık geçersiz** — gerçek logolar D-284'te geldi; göçü ayrı
-bir karar, borç olarak yazıldı.
-
-**Bedel:** bir dev bağımlılık (2025 ikon, yalnız 20'si gömülüyor), ISC.
-
-**Geri alma maliyeti:** düşük — üreteç + eşleme tablosu; sözlük değişmedi.
-
 ## D-290
 
 **Karar:** `just sablon-al <dosya>` — Photoshop tasarımını ÖLÇEN araç. PSD'de katman
@@ -578,3 +469,35 @@ SÖZLEŞMESİ: üç test PNG'nin 1080×1350 olduğunu doğruluyor ve haklılar. 
 araç gözdü. **Bir metriğin sayı üretmesi, doğru şeyi ölçtüğü anlamına gelmiyor.**
 
 **Geri alma maliyeti:** orta — iki token değeri, bir CSS tabanı, bir kart rotasyonu.
+
+## D-299
+
+**Karar:** Hayalet (dev soluk rakam) altı şablonun ALTISINDAN da kaldırıldı; hangi
+şablonun kullanacağına artık ŞABLON karar veriyor, model değil; denetime
+`hayalet-carpisma` kusuru eklendi. Başlıklar büyütüldü.
+
+**Neden:** depo sahibi: *"hepsine arkaya filigran gibi sayı eklemişsin, çoğunda yazılarla
+çakışıyor, neden hepsinde var?"* Dev rakam bir kompozisyon ögesi ve yalnız ona YER olan
+yerde işe yarıyor; ötekilerde metnin, panelin ya da fotoğrafın arkasına düşüp filigran
+gibi okunuyordu.
+
+⚠ Önce yalnız `akan-alan`da bırakıldı ("alt yarısı boş, çakışmıyor"). **Yanlıştı ve depo
+sahibi 4. slaytta gösterdi.** Ölçüm doğruladı: alan sınırı y%44–86 arasında SALINIYOR,
+hayalet %35 boyunda. Tek alana sığması için ya %86'nın altına inmeli (kadraj dışı) ya
+%44'ün üstüne çıkmalı (orada başlık var). **Salınan bir sınırla sabit bir dev rakam yan
+yana yaşayamaz** — geometri, tercih değil.
+
+⚠ ⚠ **`uyarla` ARTIK MODELİN HAYALET YAZMASINI ENGELLİYOR.** Örnekteki hayalet boşsa o
+şablon ögeyi kullanmıyor demektir; içerik modelin işi, kompozisyon bizim. Aksi hâlde
+şablondan silmek yetmiyordu — koşuda model yeniden dolduruyordu.
+
+⚠ ⚠ **DENETİM ALANI ÖLÇÜYORDU, ÇARPIŞMAYI DEĞİL.** `sus-baskin` hayaletin ne kadar YER
+tuttuğunu ölçüyor; bir öge küçük olup yine de yanlış yerde durabilir. `hayalet-carpisma`
+metin kutularıyla örtüşmeyi ölçüyor (eşik %12: kenarın bir harfe değmesi kasıtlı
+katmanlanmadır, gövdenin sekizde biri değil).
+
+⚠ **Hayalet gidince hiyerarşi açığa çıktı:** en büyük/en küçük punto oranı 3,8–5,1'e
+düştü. Eşiği düşürmek yanlış cevap olurdu — ölçüt kırılmadı, hayalet onu SAKLIYORDU.
+Başlık payları yükseltildi (94–119 px), sonra üç taşma çıktı ve paylar geri dengelendi.
+
+**Geri alma maliyeti:** düşük — hayalet alanları, bir koruma satırı, bir denetim bloğu.

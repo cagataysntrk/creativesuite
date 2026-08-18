@@ -1143,7 +1143,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .el-yazisi { font-family: "Marka El Yazisi", cursive; font-weight: 600;`,
     `               font-size: calc(var(--baslik-punto) * 0.52); line-height: 0.92;`,
     `               color: var(--kart-aksan); margin: 0 0 6px -0.06em }`,
-    `  .ust-baslik { font-size: 19px; letter-spacing: 0.22em; text-transform: none;`,
+    `  .ust-baslik { font-size: 24px; letter-spacing: 0.2em; text-transform: none;`,
     `                font-stretch: calc(var(--ust-wdth) * 1%);`,
     `                font-feature-settings: ${OPENTYPE_CSS};`,
     // ⚠ ⚠ **BOŞLUK RİTMİ 1:3 — eşit boşluk, boşluk YOKLUĞUDUR (tasarım rehberi §2).**
@@ -1180,7 +1180,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kart.acik .baslik strong { background: var(--kart-cip); color: var(--kart-cip-metin);`,
     `                              padding: 0.02em 0.14em; box-decoration-break: clone;`,
     `                              -webkit-box-decoration-break: clone }`,
-    `  .govde { margin-top: 44px; font-size: calc(var(--baslik-punto) * var(--govde-orani));`,
+    // ⚠ Taban 34 px: ölçüldü, gövde 23–27 px'e düşüyordu ve 1080 px telefonda ~390 pt'ye
+    // indiği için 25 px ≈ 9 pt oluyordu. Oran şablonun sesi, taban okunabilirlik şartı.
+    `  .govde { margin-top: 44px;`,
+    `           font-size: max(34px, calc(var(--baslik-punto) * var(--govde-orani)));`,
     // ⚠ ⚠ **GENİŞLİK KOLONDAN BAĞIMSIZDI ve gövde büyüyünce TAŞTI.** `34ch` sabitti;
     // 34 px puntoda ~580 px eder, `editoryal`in metin kolonu ise 0,46 × 1080 − 128 = 369 px.
     // Gövde kolonu 200 px aşıp fotoğrafın altına giriyordu — punto tabanı (34 px) bunu
@@ -1320,7 +1323,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .ray { position: absolute; left: 64px; right: 64px; bottom: 46px;`,
     `         display: flex; gap: 40px; align-items: center;`,
     `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: 20px;`,
-    `         font-size: 15px; letter-spacing: 0.14em; color: ${sol('--kart-metin', 42)} }`,
+    `         font-size: 18px; letter-spacing: 0.13em; color: ${sol('--kart-metin', 48)} }`,
     `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700 }`,
     // ── görsel katmanı ──────────────────────────────────────────────────────
     `  .gorsel, .gorsel-yer { position: absolute; z-index: 4; object-fit: cover }`,

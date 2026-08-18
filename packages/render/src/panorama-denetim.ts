@@ -70,6 +70,17 @@ export type KusurTuru =
    * tek şey ORAN: süs içerikten büyükse kompozisyon süsün etrafında kurulmuş demektir.
    */
   | 'sus-baskin'
+  /**
+   * **Hayalet bir metnin ya da alan sınırının üstüne düşüyor.**
+   *
+   * ⚠ ⚠ **DEPO SAHİBİ ÜRETİMDE GÖRDÜ, DENETİM GÖRMEDİ.** `akan-alan`ın 3. slaydında dev
+   * rakam alan sınırının tam üstüne düşüyor ve yarısı mavi yarısı siyah kalıyordu: kesik,
+   * bozuk bir şekil. `sus-baskin` yalnız ALANI ölçüyor, ÇARPIŞMAYI değil — bir öge küçük
+   * olup yine de yanlış yerde durabilir.
+   * ⚠ Eşik %12: hayaletin kenarı bir harfe değebilir (bu kasıtlı katmanlanmadır); ama
+   * gövdesinin sekizde birinden fazlası metnin üstündeyse artık okuma bozuluyor.
+   */
+  | 'hayalet-carpisma'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -180,6 +191,28 @@ const OLCUM = (kesimler: readonly number[], iddia: boolean): string => `(() => {
         aciklama: 'kesik görselin köşe parlaklığı ' + Math.round(ort) +
           '/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak' })
   }
+
+  // ── hayalet çarpışması: metnin ya da alan sınırının üstüne düşmemeli ─────
+  kartlar.forEach((k, i) => {
+    const h = k.querySelector('.hayalet')
+    if (!h) return
+    const hr = h.getBoundingClientRect()
+    const alan = hr.width * hr.height
+    if (alan === 0) return
+    for (const sec of ['.baslik', '.govde', '.panel', '.sayilar', '.etiketler']) {
+      const e = k.querySelector(sec)
+      if (!e) continue
+      const r = e.getBoundingClientRect()
+      const en = Math.max(0, Math.min(hr.right, r.right) - Math.max(hr.left, r.left))
+      const boy = Math.max(0, Math.min(hr.bottom, r.bottom) - Math.max(hr.top, r.top))
+      const oran = (en * boy) / alan
+      if (oran > 0.12) {
+        kusurlar.push({ tur:'hayalet-carpisma', kart:i+1, alan:sec.slice(1),
+          aciklama: 'hayalet ' + sec + ' ile %' + Math.round(oran*100) + ' çakışıyor' })
+        break
+      }
+    }
+  })
 
   // ── süs baskınlığı: hayalet, içerik toplamını aşmamalı ───────────────────
   //

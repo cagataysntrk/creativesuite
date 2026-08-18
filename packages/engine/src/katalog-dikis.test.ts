@@ -342,6 +342,39 @@ describe('dikiş 3h: uyarlama istemi örnek başlığı SIZDIRMIYOR', () => {
   }
 })
 
+// ⚠ ⚠ **HAYALETİ ŞABLON KARAR VERİR.** Örnekteki hayalet boşsa o şablon ögeyi
+// kullanmıyor demektir; model doldurursa metnin arkasına dev soluk bir filigran düşüyor.
+// Altı şablonun altısında öyleydi ve depo sahibi haklı olarak "neden hepsinde var,
+// çoğunda yazıyla çakışıyor" dedi.
+describe('dikiş 3j: hayalet kullanmayan şablonda model onu dolduramıyor', () => {
+  for (const id of Object.keys(ORNEKLER)) {
+    const ornek = ornekBul(id) as KatalogOrnegi
+    const kullaniyor = ornek.kartlar.some((k) => k.hayalet.trim() !== '')
+    it(`${id} · hayalet ${kullaniyor ? 'kullanıyor' : 'KULLANMIYOR'}`, () => {
+      const r = uyarla(ornek, {
+        sablonId: id,
+        kartlar: ornek.kartlar.map((_, i) => ({
+          ustBaslik: `ADIM ${i}`,
+          baslik: 'Başlık **bir**',
+          govde: 'Gövde.',
+          hayalet: 'FİLİGRAN',
+          rayaSol: 'X',
+          rayaOrta: 'Gerçek kaynak, 2026',
+        })),
+      })
+      expect(r.ok).toBe(true)
+      if (!r.ok) return
+      for (const [i, kart] of r.belge.kartlar.entries()) {
+        if ((ornek.kartlar[i]?.hayalet ?? '').trim() === '') {
+          expect(kart.hayalet, `${id} kart ${i + 1}: model hayalet SIZDIRDI`).toBe('')
+        } else {
+          expect(kart.hayalet).toBe('FİLİGRAN')
+        }
+      }
+    })
+  }
+})
+
 // ⚠ ⚠ **KOMPOZİSYON ALANLARI UYARLAMADAN SAĞ ÇIKMALI — ALAN ALAN DEĞİL, LİSTEYLE.**
 // Bu sınıf hata İKİ KEZ tekrarlandı: `kolon` taşınmadı (dört slaytta metin sola düşüp
 // figürün üstüne bindi), sonra dersin HEMEN YANINA eklenen `elYazisi` de taşınmadı
