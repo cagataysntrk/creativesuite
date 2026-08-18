@@ -106,3 +106,15 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   Referansta kıvrım figürün önünden geçip arkasından çıkıyor; bunun için okların iki
   katmana bölünmesi gerek.
 
+- **D15 · Düzenleyicinin kaydetme yolu bağlı değil.** `just duzenle` değişikliği
+  `derived/duzenleyici-<id>.json` dosyasına basıyor; `katalog-ornek.ts`'e de tek koşu
+  defterine de yazmıyor. İki mod kararı verildi (şablon düzenleme → katalog dosyası,
+  tek karosel düzenleme → koşuya özel bindirme) ama yazma tarafı yazılmadı. Prototip
+  bilerek okuma-yazma değil OKUMA + ÖNİZLEME; yazma yolu şablonu bozarsa altı tasarım
+  birden gider, o yüzden ayrı bir turda ve kendi testiyle bağlanmalı.
+- **D16 · Düzenleyici görselin EN/BOY oranını serbest bırakıyor.** Shift+sürükle yalnız
+  `genislik` yazıyor, `yukseklik` şablondan geliyor; kutu oranı elle bozulabiliyor.
+  D12 ile aynı kök: oran kaynaktan türemiyor. İkisi birlikte çözülmeli.
+- **D17 · Düzenleyici yalnız metne ve görsel kutusuna dokunuyor.** Paneller, lekeler,
+  oklar, kart zemini ve tipografi ölçeği düzenlenemiyor — bunlar `KatalogOrnegi`nin
+  alanları ama editörde tutamağı yok. Photoshop benzeri hissin eksik yarısı burası.

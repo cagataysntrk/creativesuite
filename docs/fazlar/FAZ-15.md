@@ -208,3 +208,22 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 ✅ Altı şablon referansların yanına konup karşılaştırıldı; kodlanmış jenerik öge kalmadı
 🧪 Bir şablona düz `<path>` ok koy → tasarım kapısı ya da denetim kırmızı
 💾 `feat(render): sablonlar asillarina benzetildi` · `Refs: FAZ-15.13 · §7.1`
+
+## 15.14 — Görsel düzenleyici: elle müdahale, veri üstünden    [ ]
+
+📖 §7.1 · D-301
+🔗 FAZ-15.13
+🛠 Depo sahibi Photoshop benzeri bir ortam istedi ve **iki modu birden** seçti: şablonun
+   kendisi düzenlenebilmeli, üretilmiş tek bir karosel de. Prototip çalışıyor
+   (`just duzenle`): aynı render motoru iframe'de, metin `contenteditable`, görsel kutusu
+   sürüklenebilir, Shift ile ölçeklenir, kesim çizgileri parent katmanında, panorama
+   denetimi canlı. Düzenlenen şey DOM değil **veri** — çıktı ile önizleme aynı
+   fonksiyondan geliyor (Yasa 4: ikinci render motoru yok).
+   ⚠ Kalan iş yazma yolunda: şablon modu `katalog-ornek.ts`'e, koşu modu defterdeki
+   bindirmeye yazmalı. Prototip bilerek yazmıyor; yanlış bir yazma altı tasarımı birden
+   bozar (BORÇLAR D15-D17).
+📁 `scripts/duzenleyici.mjs` · `packages/render/src/panorama.ts`
+✅ Sürükleme ve metin düzenleme VERİYE yazıyor, kayma birikmiyor, `**vurgu**` korunuyor,
+   altı şablon arasında geçiş çalışıyor, sayfa hatası yok — tarayıcıyla ölçüldü
+🧪 Sürükleme matematiğini bilerek boz (ölçeğe böl) → yazılan yüzde ~3 kat şişer
+💾 `feat(cli): gorsel sablon duzenleyici prototipi` · `Refs: FAZ-15.14 · §7.1`

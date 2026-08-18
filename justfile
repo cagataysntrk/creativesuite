@@ -18,6 +18,11 @@ default:
 uret *args:
     @./node_modules/.bin/tsc -b && node scripts/uret.mjs {{args}}
 
+# Görsel şablon düzenleyici (D-301). Tarayıcıda aç: metne tıkla, görseli sürükle.
+# Aynı render motoru — gördüğün şey ihraç edilen şeydir. Prototip: katalog dosyasına yazmaz.
+duzenle:
+    @./node_modules/.bin/tsc -b && node scripts/duzenleyici.mjs
+
 # Photoshop tasarımı → ölçülmüş şablon iskeleti (D-290).
 # PSD katman adlarını/kutularını/metnini okur; düz görselde yalnız palet çıkarır.
 sablon-al dosya:

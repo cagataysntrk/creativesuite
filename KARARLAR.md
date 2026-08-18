@@ -520,3 +520,31 @@ artık YOKLUĞUNU doğruluyor. Bir testin var olması, doğru şeyi savunduğu a
 örtüyor ve marka imzası ile kaynak satırı görünmez oluyordu. Ray 6'ya çıktı.
 
 **Geri alma maliyeti:** düşük — bir CSS kuralı, bir emisyon satırı.
+
+## D-301
+
+**Şablon ve karosel elle düzenlenebilir — ama piksel değil, VERİ düzenlenir.**
+
+Depo sahibi Photoshop benzeri bir ortam istedi: görseli hareket ettirmek, yazıyı
+değiştirmek, renklerle oynamak. İki yol vardı.
+
+**Reddedilen yol — serbest piksel tuvali.** Bir tuval editörü (fabric.js, tldraw)
+kurup çıktıyı oradan almak. Reddedildi: o an ikinci bir render motoru doğar ve
+Yasa 4 tam bunu yasaklıyor — ikinci CSS alt kümesi ikinci Türkçe hata modudur.
+Ayrıca elle boyanmış bir tuval **şablon değildir**; bir sonraki konuya uyarlanamaz
+ve katalog mantığının (Yasa 13) tamamı çöker.
+
+**Seçilen yol — aynı motor, düzenlenen şey veri.** `just duzenle` `panoramaHtml(doc)`
+çıktısını bir iframe'de gösteriyor; tıklanan metin ve sürüklenen görsel kutusu
+`KatalogOrnegi` **alanlarına** yazıyor, DOM'a değil. Gördüğün şey ihraç edilen şeydir
+çünkü ikisi aynı fonksiyondan geliyor. Panorama denetimi düzenlemenin yanında canlı
+koşuyor: kusur düzenlerken görünüyor, render'dan sonra değil.
+
+**İki mod, seçilebilir** (depo sahibinin kararı): şablon düzenleme katalog dosyasına
+yazar ve altı tasarımı kalıcı değiştirir; tek karosel düzenleme yalnız o koşunun
+defterine bindirme yazar. Prototip **hiçbirine yazmıyor** — `derived/` altına JSON
+önizlemesi basıyor. Yazma yolu şablonu bozarsa altı tasarım birden gider; ayrı turda,
+kendi testiyle bağlanacak (BORÇLAR D15).
+
+**Bağımlılık eklenmedi.** `node:http` + tarayıcı. Bir editör çatısı, düzenlediğimiz
+şeyden büyük olurdu.
