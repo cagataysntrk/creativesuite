@@ -60,6 +60,7 @@
   --role-surface: var(--ramp-marka-kagit);
   --role-text: var(--ramp-marka-ink-950);
   --role-text-muted: var(--ramp-marka-ink-800);
+  --role-vurgu: var(--ramp-marka-mavi-300);
 }
 
 [data-surface='studio'] {

@@ -6,6 +6,11 @@
       "$value": "{ramp.marka.mavi-700}",
       "$type": "color"
     },
+    "vurgu": {
+      "$description": "KOYU ZEMİNDE vurgu (D-296). Ayrı bir rol OLMAK ZORUNDA: vurgu eskiden `role.bg`in kendisiydi ve zemin eskitmeli lacivere inince (D-295) vurgu da onunla indi — mürekkep zemin üstünde 0,408 açıklıkta bir mavi GRİYE kaçıyor ve render'a bakınca 'iki katına', 'sorun', 'koyu' kelimeleri okunmuyordu. Zemin büyük alan içindir, vurgu okunmak içindir; ikisi aynı değer olamaz.",
+      "$value": "{ramp.marka.mavi-300}",
+      "$type": "color"
+    },
     "surface": {
       "$description": "Gövde slaytlarının zemini — ritim için zeminin dönüşmesi gerekiyor (§12.1).",
       "$value": "{ramp.marka.kagit}",

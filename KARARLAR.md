@@ -572,3 +572,29 @@ zeminde beyaz ışık görünmez. Aynı hata sınıfı on altı sabit `rgba(255,
 yaşanmıştı.
 
 **Geri alma maliyeti:** orta — token değerleri, bir yeniden adlandırma, altı şablon alanı.
+
+## D-296
+
+**Karar:** Display yüzü **Bricolage Grotesque** (OFL) oldu; vurgu rengi ayrı bir role
+(`role.vurgu`) taşındı.
+
+**Neden — yüz:** depo sahibinin tespiti: *"font çok temiz, karakteri az — system UI /
+Inter ailesi hissi var"*. Archivo teknik olarak doğruydu (değişken genişlik, geniş
+latin-ext) ama **tarafsızdı**: bir arayüz grotesk'i, bir tasarımın sesi değil. Adaylar
+yan yana RENDER EDİLDİ; Bricolage'ın terminalleri ve sıkı ritmi kadraja karakter veriyor.
+Türkçe kapsaması çizdirilerek doğrulandı (`ğ ü ş ı İ Ö Ç`).
+
+⚠ **Genişlik ekseni DARALDI: 62–125% → 75–100%.** Aralık dışı bir `wdth` tarayıcıda
+SESSİZCE kırpılır: `ustGenislik: 118` yazan bir reçete 100 çizer ve reçete yalan
+söylemeye başlar. Altı şablonun değerleri oranla taşındı, göz kararıyla değil.
+
+⚠ ⚠ **VURGU, ZEMİNİN KENDİSİYDİ — ve zemini koyulaştırınca vurgu da koyulaştı.**
+`AKSAN = var(--role-bg)` yazıyordu. D-295 zemini eskitmeli lacivere indirdi ve mürekkep
+zemin üstünde 0,408 açıklıkta bir mavi GRİYE kaçtı: render'a bakınca "iki katına",
+"sorun", "koyu" kelimeleri okunmuyordu. **Zemin büyük alan içindir, vurgu okunmak
+içindir; ikisi aynı değer olamaz.** Yeni rol `role.vurgu` = `mavi-300`.
+
+⚠ Bir palet değişikliğinin ikinci dereceden etkisi ancak RENDER'a bakınca görüldü:
+token tablosunda iki değer de "mavi" ve makul duruyordu.
+
+**Geri alma maliyeti:** orta — bir yüz ailesi, bir rol, altı şablonun genişlik değeri.

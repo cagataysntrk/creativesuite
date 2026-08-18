@@ -252,7 +252,7 @@ export const VARSAYILAN_TIPO: TipoResetesi = {
   baslikAgirlik: 800,
   satirAraligi: 1.02,
   harfArasi: -0.02,
-  ustGenislik: 112,
+  ustGenislik: 96,
   govdeOrani: 0.3,
   baslikSutunu: 0.86,
 }
@@ -454,7 +454,11 @@ export interface PanoramaBelgesi {
   readonly stamp: AssetStamp
 }
 
-const AKSAN = 'var(--role-bg)'
+// ⚠ ⚠ **VURGU ARTIK ZEMİNİN KENDİSİ DEĞİL (D-296).** `AKSAN` `--role-bg`ti; zemin
+// eskitmeli lacivere inince (D-295) vurgu da onunla indi ve mürekkep zemin üstünde
+// GRİYE kaçtı — render'a bakınca "iki katına", "sorun", "koyu" okunmuyordu.
+// **Zemin büyük alan içindir, vurgu okunmak içindir.**
+const AKSAN = 'var(--role-vurgu, var(--role-bg))'
 const METIN = 'var(--role-surface)'
 
 /**

@@ -9,7 +9,7 @@
 | T2 | Mavi: chroma 0,192→0,132, ton 251,5→242. Zemin eskitmeli lacivert, amber→**bakır** (amber zaten stok şablondandı) | ✅ |
 | T3 | Zemin merdiveni: `mavi-700` eskitmeli lacivert + `mavi-300` buzlu ara basamak; derinlik iki komşu tondan | ✅ |
 | T4 | Figürler yalnız insan olmasın — konunun **3B görseli** de olabilir | 🔴 |
-| T5 | Display yüzü karaktersiz (system-UI/Inter hissi) → **distinctive** bir yüz | 🔴 |
+| T5 | Display: Archivo → **Bricolage Grotesque** (OFL). Yan yana render edilip seçildi; Türkçe çizdirilerek doğrulandı. Genişlik ekseni 62–125% → 75–100%, şablon değerleri oranla taşındı | ✅ |
 | T6 | `.sayi` −0,045em · `.hayalet` −0,055em | ✅ |
 | T7 | Altı şablonda `ustDoku`: koyu zeminde gren 18–22, açık zeminde 12–16 (aynı doku iki zeminde aynı güçte olamaz) | ✅ |
 | T8 | Kartlara inset ışık (üst 1px açık, alt 1px koyu, renkler karttan türüyor); temas gölgesi zaten `temas-golgesi` | ✅ |

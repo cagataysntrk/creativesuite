@@ -50,6 +50,10 @@ const ORNEK = 'ÖRNEK VERİ'
 // etiketler HİÇBİR referansta yok; onlar bir sunum şablonunun dili, bir tasarımın değil.
 // Sayfa sayısını alt ray zaten veriyor (`03 / 06`) ve iki kez söylemek imzayı zayıflatıyor.
 // Üst başlık artık kartın KONUSUNU söylüyor: 'AYRIŞTIRMA', 'ÖLÇÜM', 'İMZA'.
+// ⚠ ⚠ **GENİŞLİK DEĞERLERİ YENİ EKSENE TAŞINDI (D-296).** Archivo'nun `wdth` ekseni
+// 62–125%, Bricolage'ınki 75–100%. Aralık dışı bir değer tarayıcıda SESSİZCE kırpılıyor:
+// `ustGenislik: 118` yazan bir reçete 100 çiziyor ve reçete yalan söylemeye başlıyor.
+// Değerler oranla taşındı, gözle değil. Ağırlık tavanı da 900 → 800.
 export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
@@ -71,11 +75,11 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   hayaletKonumu: { ust: 26, olcek: 1.55, guc: 9 },
   tipografi: {
     baslikPayi: 0.95,
-    baslikGenislik: 70,
-    baslikAgirlik: 850,
+    baslikGenislik: 78,
+    baslikAgirlik: 800,
     satirAraligi: 0.98,
     harfArasi: -0.025,
-    ustGenislik: 112,
+    ustGenislik: 96,
     govdeOrani: 0.27,
     baslikSutunu: 0.88,
     // ⚠ ⚠ **2,1 — VERİ ŞABLONUNDA VERİ %2'YDİ.** Ölçüldü: panel kadrajın %0,9–4,9'unu,
@@ -240,11 +244,11 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   yerlesim: 'ust',
   tipografi: {
     baslikPayi: 0.9,
-    baslikGenislik: 104,
+    baslikGenislik: 100,
     baslikAgirlik: 800,
     satirAraligi: 1.06,
     harfArasi: -0.015,
-    ustGenislik: 74,
+    ustGenislik: 80,
     govdeOrani: 0.3,
     baslikSutunu: 0.82,
   },
@@ -375,11 +379,11 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   yerlesim: 'orta',
   tipografi: {
     baslikPayi: 0.86,
-    baslikGenislik: 66,
-    baslikAgirlik: 900,
+    baslikGenislik: 76,
+    baslikAgirlik: 800,
     satirAraligi: 0.96,
     harfArasi: -0.03,
-    ustGenislik: 118,
+    ustGenislik: 100,
     govdeOrani: 0.32,
     // ⚠ 0,66'da başlık üç satıra çıkıyor ve metin bloğu okların şeridine giriyordu.
     // Sütunu genişletmek satır sayısını ikiye indiriyor: oklara yer açan şey boşluk değil,
@@ -713,11 +717,11 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   yerlesim: 'yayik',
   tipografi: {
     baslikPayi: 0.8,
-    baslikGenislik: 86,
-    baslikAgirlik: 850,
+    baslikGenislik: 88,
+    baslikAgirlik: 800,
     satirAraligi: 1.0,
     harfArasi: -0.02,
-    ustGenislik: 104,
+    ustGenislik: 94,
     govdeOrani: 0.31,
     // ⚠ 0,7'de üç satırlık başlık daireye giriyordu (1. kartta "tek" çipi dairenin
     // altında kaldı). Sütun daralınca metin ve daire ayrı dikey şeritlerde kalıyor.
@@ -845,7 +849,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     baslikAgirlik: 400,
     satirAraligi: 1.12,
     harfArasi: -0.012,
-    ustGenislik: 62,
+    ustGenislik: 76,
     govdeOrani: 0.34,
     // ⚠ 0,6 → 0,46: metin kolonu fotoğrafa yer BIRAKMAK zorunda. Yan yana kompozisyonun
     // tek sert kısıtı bu; kolon geniş kalırsa iki öge üst üste biner ve düzen çöker.

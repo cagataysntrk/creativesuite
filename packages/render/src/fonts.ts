@@ -57,21 +57,29 @@ export const YUZLER: readonly FontYuzu[] = [
     agirlik: '400 800',
     genislik: null,
   },
-  // Display: Archivo — DEĞİŞKEN GENİŞLİK (62–125%). Referanslardaki "Expanded" kapak
-  // tipografisi bu eksenden geliyor; ikinci bir dosya indirmeye gerek yok.
+  // ⚠ ⚠ **DISPLAY: ARCHIVO → BRICOLAGE GROTESQUE (T5 · D-296).** Depo sahibinin tespiti:
+  // *"font çok temiz, karakteri az — system UI / Inter ailesi hissi var"*. Archivo teknik
+  // olarak doğru bir seçimdi (değişken genişlik 62–125%, geniş latin-ext) ama tarafsız:
+  // bir arayüz grotesk'i, bir tasarımın sesi değil. Yan yana render edilip bakıldı;
+  // Bricolage'ın terminalleri, `a`/`ş`/`y` çizimi ve sıkı ritmi kadraja karakter veriyor.
+  //
+  // ⚠ **Genişlik ekseni DARALDI: 62–125% → 75–100%.** Şablonların `baslikGenislik` ve
+  // `ustGenislik` değerleri bu aralığa taşındı; aralık dışı bir değer sessizce kırpılır
+  // ve tipografi reçetesi yalan söylemeye başlar.
+  // ⚠ Türkçe kapsaması ÇİZDİREREK doğrulandı: `ğ ü ş ı İ Ö Ç` render edilip bakıldı.
   {
     aile: 'Marka Display',
-    dosya: 'Archivo-latin.woff2',
+    dosya: 'Bricolage-latin.woff2',
     unicodeRange: LATIN,
-    agirlik: '400 900',
-    genislik: '62% 125%',
+    agirlik: '400 800',
+    genislik: '75% 100%',
   },
   {
     aile: 'Marka Display',
-    dosya: 'Archivo-latin-ext.woff2',
+    dosya: 'Bricolage-latin-ext.woff2',
     unicodeRange: LATIN_EXT,
-    agirlik: '400 900',
-    genislik: '62% 125%',
+    agirlik: '400 800',
+    genislik: '75% 100%',
   },
   // ⚠ ⚠ **ÜÇÜNCÜ AİLE — bir KARAR (D-282 · D-285), bir import değil.** Referansta
   // (`image copy 2`) kapak başlığının ilk kelimesi el yazısı, kalanı ağır condensed;

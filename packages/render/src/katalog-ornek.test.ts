@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import { KATALOG } from '@suite/contracts'
 import { ORNEKLER, ornekBul, type KatalogOrnegi } from './katalog-ornek.js'
 import { panoramaHtml, VARSAYILAN_TIPO } from './panorama.js'
+import { YUZLER } from './fonts.js'
 import { ikonSec } from './sablon-ikon.js'
 
 const ornekler = Object.entries(ORNEKLER)
@@ -165,7 +166,16 @@ describe('şablonlar birbirinin boyası DEĞİL', () => {
 
   it('genişlik ekseni gerçekten AÇILMIŞ — hepsi aynı yerde değil', () => {
     const g = ornekler.map(([, o]) => (o.tipografi ?? VARSAYILAN_TIPO).baslikGenislik)
-    expect(Math.max(...g) - Math.min(...g)).toBeGreaterThanOrEqual(25)
+    // ⚠ ⚠ **EŞİK EKSENE ORANLI, SABİT DEĞİL — ve bunu bir yüz değişikliği gösterdi.**
+    // Sabit 25, Archivo'nun 62–125 ekseninde (63 birim) makul bir yayılımdı; Bricolage'ın
+    // 75–100 ekseninde (25 birim) aynı sayı TÜM EKSENİ zorunlu kılıyor ve şablonlara
+    // hareket alanı bırakmıyor. Ölçülen şey "yayılım var mı", "kaç birim" değil.
+    // Eksen `YUZLER`den okunuyor: ikinci bir yerde yazılan bir sınır, bir yerde unutulur.
+    const eksen = YUZLER.find((y) => y.aile === 'Marka Display' && y.genislik !== null)?.genislik
+    const [alt, ust] = (eksen ?? '75% 100%').split(' ').map((x) => Number.parseFloat(x))
+    expect(Math.max(...g) - Math.min(...g)).toBeGreaterThanOrEqual(
+      ((ust ?? 100) - (alt ?? 75)) * 0.6
+    )
   })
 
   it('yerleşim tek bir değerde toplanmamış', () => {
