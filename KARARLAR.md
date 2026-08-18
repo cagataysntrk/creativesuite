@@ -519,3 +519,34 @@ döndükten sonra, ayrı bir turda ve `refactor(gates)` tipli ayrı bir commit'l
 değiştiriliyor. Kuralı kırmızıyken değiştirmek, kapıyı geçmek için kuralı yazmaktır.
 
 **Geri alma maliyeti:** düşük — iki sayı ve bir ölçüm satırı.
+
+## D-286
+
+**Karar:** `editoryal` referansına (`image copy 5`) göre YENİDEN KURULDU; `briefTemeli`
+düzeltildi ve "yuva sayısı = varyant sayısı" değişmezi teste bağlandı.
+
+**Neden:** Altı kapağı ızgaraya koyunca `editoryal` açık ara en zayıfıydı. Referansla
+karşılaştırınca üç temel kararın da TERS olduğu görüldü:
+1. **Zemin koyuydu** — referans açık, havadar, neredeyse kâğıt.
+2. **Fotoğraflar panoramanın TAMAMINI kaplıyordu** (0–56 ve 56–100), yani metin hep
+   fotoğrafın üstündeydi. Referansta fotoğraf ve metin YAN YANA, her biri kadrajın
+   yarısı, ve taraflar slayttan slayta değişiyor.
+3. **Başlık 38px'ti.** Referansın "sessiz" tonu küçük puntodan değil AZ AĞIRLIKTAN
+   geliyor: başlık kadrajın en büyük ögesi ama ince. Küçük ve yarı kalın bir başlık
+   sessiz değil, çekingen duruyor.
+
+Yeni hâli: üç yarım kadraj fotoğraf, dönüşümlü yanlarda, üst-alt kenara taşan; ikincisi
+50 kesimini aşıyor (bu şablonun tek süreklilik iddiası); metin kolonu 0,46 ve `kolon`
+ile karşı yana geçiyor; başlık 0,72 payda ve 400 ağırlıkta.
+
+⚠ **`briefTemeli` hâlâ "sağ yarıyı boş bırak" diyordu** — o talimat fotoğrafın tuvali
+kapladığı ESKİ düzene aitti. Boş yarı isteyen bir brief, yeni düzende o yarıyı İKİ KEZ
+boşaltır. Kaldırıldı.
+
+⚠ ⚠ **ÜÇ YUVA, İKİ VARYANT — "ilan ile gerçek" ayrışmasının yeni yüzü.** Sıra varyant
+sayısını aşınca brief boş dönüp adım atlanıyor (kasıtlı: fazlalık adım para harcamasın).
+Ama şablon yuvadan AZ varyant taşırsa aynı mekanizma sessizce bir yuvayı yer tutucu
+bırakıyor. `editoryal` üç yuvaya geçtiğinde tam bu oldu. Değişmez artık test ediliyor:
+varyant eksiltildi → kırmızı, geri kondu → yeşil.
+
+**Geri alma maliyeti:** orta — bir şablon örneği yeniden yazıldı; kayıt ve testler durdu.

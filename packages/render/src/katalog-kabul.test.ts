@@ -12,6 +12,7 @@
 // gerçek bir fotoğraf gerektiriyor ve koşuda `matlama-tutmuyor` denetimi ölçüyor.
 
 import { describe, expect, it } from 'vitest'
+import { sablonBul } from '@suite/contracts'
 import { ORNEKLER } from './katalog-ornek.js'
 import type { KatalogOrnegi } from './katalog-ornek.js'
 
@@ -116,4 +117,23 @@ describe('tasarım rehberi §10 — katalog kabul ölçütleri', () => {
       ).toBeGreaterThanOrEqual(6)
     }
   })
+})
+
+// ⚠ ⚠ **YUVA SAYISI = VARYANT SAYISI — "ilan ile gerçek" ayrışmasının yeni yüzü.**
+// Varyant, yuva başına kadraj tarifi; sıra varyant sayısını aşınca brief BOŞ dönüyor ve
+// görsel adımı atlanıyor (kasıtlı: fazlalık adım para harcamasın). Ama şablon yuvadan az
+// varyant taşırsa aynı mekanizma sessizce bir yuvayı YER TUTUCU bırakıyor. `editoryal`
+// üç yuvaya geçtiğinde tam bu oldu: iki varyantla kaldı ve kimse fark etmedi.
+describe('katalog değişmezi: yuva sayısı = varyant sayısı', () => {
+  for (const [id, o] of Object.entries(ORNEKLER)) {
+    it(`${id} · ${o.gorseller.length} yuva`, () => {
+      const kayit = sablonBul(id)
+      const varyantlar = kayit?.gorsel?.varyantlar ?? []
+      // Görselsiz şablonun varyantı da olmamalı: kullanılmayan bir tarif, ölü sözleşme.
+      expect(
+        varyantlar.length,
+        `${id}: ${o.gorseller.length} yuva, ${varyantlar.length} varyant`
+      ).toBe(o.gorseller.length)
+    })
+  }
 })

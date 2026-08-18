@@ -772,45 +772,94 @@ export const ORNEK_DONEN: KatalogOrnegi = {
 export const ORNEK_EDITORYAL: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
-  yerlesim: 'alt',
+  // ⚠ ⚠ **BU ŞABLON REFERANSA GÖRE YENİDEN KURULDU (D-286).** Önceki hâli referansın
+  // (`image copy 5`) ÜÇ temel kararını da ters yapıyordu:
+  //   1. Zemin KOYUYDU — referans açık, havadar, neredeyse kâğıt.
+  //   2. Fotoğraflar panoramanın TAMAMINI kaplıyordu (0–56 ve 56–100), yani metin hep
+  //      fotoğrafın ÜSTÜNDEydi. Referansta fotoğraf ve metin YAN YANA duruyor, her biri
+  //      kadrajın yarısı, ve taraflar slayttan slayta DEĞİŞİYOR.
+  //   3. Başlık 38px'ti (`baslikPayi: 0.4`) — referansta başlık kadrajın en büyük ögesi
+  //      ve İNCE; sessizliği punto küçüklüğü değil AĞIRLIK azlığı kuruyor.
+  // Kapaklar ızgarasına bakınca bu şablon altısının açık ara en zayıfıydı.
+  yerlesim: 'orta',
   tipografi: {
-    baslikPayi: 0.4,
-    baslikGenislik: 96,
-    baslikAgirlik: 500,
-    satirAraligi: 1.3,
-    harfArasi: 0.01,
+    // ⚠ 0,4 → 0,72 ve ağırlık 500 → 400: referansın "sessiz" tonu İNCE ve BÜYÜK bir
+    // başlıktan geliyor. Küçük ve yarı kalın bir başlık sessiz değil, çekingen duruyor.
+    baslikPayi: 0.72,
+    baslikGenislik: 100,
+    baslikAgirlik: 400,
+    satirAraligi: 1.12,
+    harfArasi: -0.012,
     ustGenislik: 62,
-    govdeOrani: 0.42,
-    baslikSutunu: 0.6,
+    govdeOrani: 0.34,
+    // ⚠ 0,6 → 0,46: metin kolonu fotoğrafa yer BIRAKMAK zorunda. Yan yana kompozisyonun
+    // tek sert kısıtı bu; kolon geniş kalırsa iki öge üst üste biner ve düzen çöker.
+    baslikSutunu: 0.46,
   },
-  zemin: 'var(--role-line-edge)',
-  hayaletKonumu: { ust: 14, olcek: 0.42, guc: 9 },
+  // ⚠ Açık zemin: kart metni `kartRenkleri` ile zeminden TÜRÜYOR, sabit beyaz değil —
+  // bu yüzden zemini açığa çevirmek metni okunmaz yapmıyor (FAZ-15.2 dersi).
+  zemin: 'var(--ramp-marka-mavi-200)',
+  zeminDokusu: {
+    taban: '--ramp-marka-mavi-200',
+    katmanlar: [
+      // ⚠ Referansın zemini düz değil: soluk bir sıcaklık farkı var. İki katman —
+      // dikey bir açılma ve tek bir yumuşak ışık havuzu — onu kuruyor.
+      {
+        tip: 'dogrusal',
+        aci: 168,
+        duraklar: [
+          { renk: '--ramp-marka-kagit', konum: 0 },
+          { renk: '--ramp-marka-mavi-200', konum: 82 },
+        ],
+      },
+      { tip: 'isik', x: 74, y: 24, capX: 58, capY: 46, renk: '--ramp-marka-kagit', guc: 30 },
+    ],
+  },
+  gorselIslemleri: [],
   bant: { tip: 'yok' },
-  // ⚠ Gölge YOK ve olamaz: fotoğraf kenardan kenara, gölge düşeceği bir zemin yok.
-  // `tema-uyum` duotone'dan ÖNCE koşuyor (dağarcık sırası): önce fotoğraf rampaya
-  // çekiliyor, sonra tam renk dönüşümü uygulanıyor.
-  gorselIslemleri: ['tema-uyum', 'duotone'],
   gorseller: [
-    { src: '', alt: 'geniş plan — sol', x: 0, y: 0, genislik: 56, yukseklik: 100, kirpma: 'tam' },
-    { src: '', alt: 'geniş plan — sağ', x: 56, y: 0, genislik: 44, yukseklik: 100, kirpma: 'tam' },
+    // ⚠ ⚠ **ÜÇ YARIM KADRAJ, DÖNÜŞÜMLÜ YANLARDA — referansın ritmi bu.** Her fotoğraf
+    // slaydın ~%52'si ve üst-alt kenara TAŞIYOR (`y: 0, yukseklik: 100`); referansta da
+    // fotoğraflar kadrajı boydan boya kesiyor, içinde yüzen bir kutu değiller.
+    // ⚠ İkincisi 50 kesimini AŞIYOR: bu şablonun tek süreklilik iddiası o. Üçü de slayt
+    // ortasına otursaydı `kesintisizlik-yok` kusuru haklı olarak düşerdi.
+    {
+      src: '',
+      alt: 'geniş plan — açılış',
+      x: 0,
+      y: 0,
+      genislik: 13,
+      yukseklik: 100,
+      kirpma: 'tam',
+    },
+    {
+      src: '',
+      alt: 'yakın plan — kesim üstü',
+      x: 44,
+      y: 0,
+      genislik: 13,
+      yukseklik: 100,
+      kirpma: 'tam',
+    },
+    { src: '', alt: 'kapanış karesi', x: 87, y: 0, genislik: 13, yukseklik: 100, kirpma: 'tam' },
   ],
-  // ⚠ Tam kaplama fotoğrafın üstünde hayalet: kontrast fotoğrafa bağlı, o yüzden ölçek
-  // küçük tutuldu ve render'a BAKILARAK doğrulandı.
   kartlar: [
     {
       elYazisi: 'Sahadan',
       ustBaslik: 'BÖLÜM I',
       baslik: 'Sessiz bir **dönüşüm**',
-      govde: 'Fotoğraf kesimi aşıyor; metin kenarda duruyor ve yer istemiyor.',
+      govde: 'Bir hattın değişimi gürültüyle değil, ölçüyle başlıyor.',
       panel: null,
       hayalet: '01',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
+      // Fotoğraf bu karede SOLDA; metin karşı yana geçiyor.
+      kolon: 'sag',
     },
     {
       ustBaslik: 'BÖLÜM II',
       baslik: 'Boşluk da bir **karar**',
-      govde: 'Doldurulmayan alan, gösterilen şeyi büyütüyor.',
+      govde: 'Doldurulmayan alan, gözün dinlendiği yerdir.',
       panel: null,
       hayalet: '02',
       rayaSol: 'SAHA',
@@ -824,11 +873,12 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       hayalet: '03',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
+      kolon: 'sag',
     },
     {
       ustBaslik: 'BÖLÜM IV',
       baslik: 'Ve **kapanış**',
-      govde: 'Aynı fotoğraf, dört karede tek bir bakış.',
+      govde: 'Dört karede tek bir bakış; imza altta duruyor.',
       panel: null,
       hayalet: '04',
       rayaSol: 'SAHA',
@@ -837,13 +887,6 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   ],
 }
 
-/**
- * Katalog id'si → dolu taslak.
- *
- * ⚠ ⚠ **ANAHTAR KATALOG ID'SİYLE AYNI ve testi bunu zorluyor.** Ayrı bir `ornekId` alanı
- * açılsaydı iki liste birbirinden bağımsız kayabilir, bir şablon örneksiz kalır ve bunu
- * ancak koşu anında — yani parayı harcadıktan sonra — fark ederdik.
- */
 export const ORNEKLER: Readonly<Record<string, KatalogOrnegi>> = {
   'veri-hikayesi': ORNEK_VERI_HIKAYESI,
   'akan-alan': ORNEK_AKAN_ALAN,

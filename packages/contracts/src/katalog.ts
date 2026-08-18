@@ -291,7 +291,14 @@ export const EDITORYAL: KatalogSablonu = {
     briefTemeli:
       'wide shot, single subject, calm natural light, right half of the frame left ' +
       'empty for typography, cool muted tones',
-    varyantlar: ['wide establishing view of the workspace', 'tight detail of two hands at work'],
+    // ⚠ ⚠ **ÜÇ YUVA, ÜÇ VARYANT.** İki varyant kalsaydı üçüncü görsel adımının brief'i
+    // BOŞ döner, adım atlanır ve üçüncü yuva yer tutucu kalırdı — ilan ile gerçek yine
+    // ayrışırdı. `katalog-ornek.test.ts` artık eşitliği zorluyor.
+    varyantlar: [
+      'wide establishing view of the workspace',
+      'tight detail of two hands at work',
+      'the subject turning away, seen from behind at shoulder height',
+    ],
   },
   baslikPayi: 0.38,
   kullanilabilir: GORSEL_CALISIYOR,
