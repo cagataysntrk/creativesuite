@@ -4903,3 +4903,104 @@ Referansta her slaytta bir fotoğraf var ve kadrajı boydan boya dolduruyor; biz
 görsel dört slayda düşüyor ve kalan üçü metinle doluyor. Toplam doluluk hâlâ %3–8.
 **Kök engel borç A8'dir** (`GorselIhtiyaci.adet: 'slayt-basina'` ilan ediliyor, DAG
 çoğaltmıyor) ve bu artık iddia değil, ölçülmüş.
+
+## D-278
+
+**Karar:** Borç A8 kapandı. Hat slayt başına görsel üretiyor: `composeBody` yayma
+yerine SIRAYA göre eşleştiriyor, hat görsel adımlarını dörde açıyor ve katalog yuva
+başına `varyantlar` (kadraj tarifi) taşıyor. `sahne` tek yuvadan dört yuvaya geçti.
+
+**Neden:** Katalog `adet: 'slayt-basina'` ilan ediyordu, DAG çoğaltmıyordu ve
+`composeBody` tek görseli HER yuvaya yayıyordu — çıktıda aynı figür yan yana. O gün
+tek yuvaya inildi; doğru karardı ama şablonu asıllından uzaklaştırdı. Ölçüldü:
+`sahne`nin dört slaydından üçünde doluluk %3–7, kadraj boştu.
+
+**Ölçülen sonuç:** slayt doluluğu %5–9 → %10,6–14,1; dört slaydın dördünde de her iki
+yarı dolu. 1052 test yeşil, altı şablon denetimi 0 kusur.
+
+**Üç parça:**
+1. `uretilenGorseller()` — yuva `i` görsel `i`yi alır. Görsel yetmezse yuva BOŞ kalır
+   ve yer tutucu çizilir; klonla örtülmez.
+2. Hat `gorsel-brief/uret/kirp` üçlüsünü **açarak** dörde çıkardı — `duzelt` ile aynı
+   gerekçe (DAG döngü taşımıyor). Tavan 4: `donen` dört yuva istiyor.
+3. `GorselIhtiyaci.varyantlar` — yuva başına kadraj tarifi. Olmadan N üretim N ÖZDEŞ
+   görsel demekti: aynı brief, aynı model, aynı kadraj.
+
+⚠ ⚠ **"SONUNCUYU AL" ARTIK YETMİYOR ve bu, o desenin sınırının bulunduğu yer.** Tek
+görselken iki üretici vardı (`gorsel-uret` ham · `gorsel-kirp` kırpılmış) ve sonuncuyu
+almak doğruydu. N görselde `gorsel-kirp-2`, `gorsel-uret-3`ten ÖNCE gelebilir ve
+"sonuncu" 3'ün HAMINI seçip 2'nin kırpılmışını çöpe atardı. Eşleştirme artık anahtarın
+sayısal sonekinden; sonek yoksa öbek 1, yani `instagram-post` değişmeden çalışıyor.
+
+⚠ **Fazlalık adım para HARCAMIYOR:** sıra varyant sayısını aşınca brief BOŞ dönüyor ve
+görsel adımı atlanıyor. `editoryal` (2 yuva) koşarken 3. ve 4. adım model çağırmıyor.
+
+⚠ ⚠ **TESTİN KENDİSİ ÖNCE ANLAMSIZDI.** İlk sürüm `sahne` (o an TEK yuva) kullanıyor ve
+`if (s.length < 2) return` ile kendini koruyordu: koruma her koşuda devreye giriyor,
+hiçbir iddia çalışmıyor, test YEŞİL kalıyordu. Şablon `editoryal` (2 yuva) ile
+değiştirildi ve yayma kasten geri konarak kırmızıya döndüğü GÖRÜLDÜ.
+
+**Geri alma maliyeti:** orta — bir motor fonksiyonu, dokuz hat adımı, bir sözleşme alanı.
+
+## D-279
+
+**Karar:** R-81 — yeni jenerik grafik öge (ikon, ok, rozet, çerçeve, çizgi süsü, 3B
+şekil) CSS/HTML ile KODLANMAZ. `kodlanmis-oge` kapısı sayıyı donduruyor.
+
+**Neden:** depo sahibinin ölçümü. `examples/` altındaki profesyonel tasarımlarla bizim
+çıktılar yan yana konduğunda fark renkte ya da düzende değil, ÖGELERDEydi. Elle
+kodlanmış bir ikon "bilgisayar işi" gibi duruyor çünkü öyle: bir tasarımcının çizdiği
+öge ölçülemeyen binlerce kararı taşır, `border-radius: 50%` taşımaz.
+
+**Kapsam dışı — ve sınır burada:** YERLEŞİM, TİPOGRAFİ, ZEMİN reçetesi ve VERİ
+görselleştirmesi. Çubuk bir süs değil, verinin kendisi; onu kütüphaneye devretmek
+veriyi bir üçüncü tarafın estetiğine teslim etmek olurdu.
+
+⚠ ⚠ **KIRPMA BİR ÖGE DEĞİLDİR.** `clip-path: circle(50%)` bir FOTOĞRAFI daire yapıyor —
+kadraj kararı, çizilmiş şekil değil. Aynı satırı yasaklamak `donen` şablonunun daire
+maskesini imkânsız kılardı. Ayrım: şeklin içi fotoğrafla doluysa kırpma, boşsa öge.
+
+⚠ **Kural YENİ öge için, mevcutlar dondurulmuş.** `.kilometre-nokta` (13px) ve
+`.madalyon-no` (46px) tam olarak R-81'in yasakladığı şey ama silmek kompozisyonu bozardı
+ve emeklilik silme değildir (Yasa 10). Ölçülen şey sayının ARTMAMASI. Tavanı düşüren
+değişiklik de kırmızı: bir öge silindiyse tavan onunla inmeli, yoksa kapı sessizce
+gevşer ve yerine yenisi konabilir.
+
+⚠ ⚠ **KAPININ İLK SÜRÜMÜ YORUMLARI SAYIYORDU.** İlk koşuda `sekil-cebri.ts` yanlış
+pozitif verdi: `polygon()` orada geçiyor ama bir AÇIKLAMA cümlesinde — hem de o tekniğin
+neden KULLANILMADIĞINI anlatarak. `static.ts`in tavanı da 4 sanılmıştı, kodda 1.
+Bu depoda ölçüm aracı, ölçtüğü şeyden daha sık bozuk çıkıyor.
+
+**Kanıt:** yeni bir `border-radius: 50%` rozeti eklendi → kapı KIRMIZI (4 → 5); geri
+alındı → yeşil.
+
+**Geri alma maliyeti:** düşük — bir kapı dosyası, bir kural.
+
+## D-280
+
+**Karar:** Kadraj varyantı GÖRSEL isteminin kendisine ekleniyor (`gorsel-uret-K` artık
+`kompozit`e de bağlı) ve `kolon` uyarlamada korunuyor. İkisini de **gerçek koşu** buldu.
+
+**Koşu:** `instagram-karosel` "Tekstil hattinda geri kazanim adimlari" — 25 adım yeşil,
+dört görsel üretimi + dört arka plan silme, insan kapısında durdu. A8 üretimde çalıştı.
+Çıktıya BAKILDI ve iki kusur göründü.
+
+**Kusur 1 — dört fotoğraf BİREBİR AYNI.** Dört ayrı brief adımı koştu, dördünün
+isteminde farklı bir kadraj cümlesi vardı (ölçüldü: sıra 1–4 farklı, sıra 5 boş) ve
+çıkan dört fotoğraf piksel piksel aynıydı. Sebep yapısal: kadraj tarifi METİN
+MODELİNDEN GEÇEREK gidiyordu ve model onu düzledi. **Bir modele "şunu koru" demek bir
+rica; garanti yapıya gömülmeli** — aynı ders `matlama` → `gorsel-kirp` geçişinde de
+öğrenilmişti. Varyant artık brief metnine doğrudan ekleniyor.
+
+⚠ **Yanlış teşhisten dönüldü:** önce idempotency çökmesi sanıldı (anahtar `stepId`
+içermiyor, kasten). Ama `inputDigest` adım kimliğini İÇERİYOR; dört çağrı gerçekten
+ayrı ayrı yapılmıştı. Ölçüm teşhisi düzeltti.
+
+**Kusur 2 — `kolon` uyarlamada düşüyordu.** Dört slaytta da metin sola indi ve figürün
+üstüne bindi. `zemin` bir satır YUKARIDA şablondan korunuyordu; yeni alan o dersi
+kendiliğinden almadı. Bu deponun tekrar eden sınıfı: **bir dosyaya yazılmış ders, o
+dosyaya sonradan eklenen alana geçmiyor.**
+
+**Kanıt:** iki düzeltme de kasten geri alındı → üç test kırmızı; geri konuldu → yeşil.
+
+**Geri alma maliyeti:** düşük — bir `needs` bağı, iki kısıt, iki satır.

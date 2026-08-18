@@ -18,6 +18,11 @@ default:
 uret *args:
     @./node_modules/.bin/tsc -b && node scripts/uret.mjs {{args}}
 
+# Photoshop tasarımı → ölçülmüş şablon iskeleti (D-290).
+# PSD katman adlarını/kutularını/metnini okur; düz görselde yalnız palet çıkarır.
+sablon-al dosya:
+    @node scripts/sablon-al.mjs {{dosya}}
+
 # Kuru çalıştırma planı: DAG + maliyet aralığı. HİÇBİR ŞEY HARCAMAZ (R-47)
 plan *args:
     @./node_modules/.bin/tsc -b && node scripts/plan.mjs {{args}}
