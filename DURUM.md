@@ -6,17 +6,17 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 15
-siradaki_adim: 15.9
+siradaki_adim: 15.13
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "KATALOG SISTEMIN MERKEZINE BAGLANDI (FAZ-15.1-15.8 kapali, 15.9 devam). ONUNCU ZINCIR KOPUKLUGU BULUNDU (D-270): panorama render, alti sablonluk katalog, dolu ornek belgeler, secici, uyarlayici ve DOM denetimi yazilmis ve renderPanorama nin URETIM YOLUNDA SIFIR CAGIRANI vardi — mimarinin tamami just uret ten erisilemezdi. Yeni hat instagram-karosel: metin -> sablon secimi (deterministik, icerigin olculen seklinden) -> agent DOLU taslagi uyarliyor -> COMPOSE birlestiriyor -> RENDER tek genis tuval + dilimleme + DOM denetimi -> agent bakiyor -> insan kapisi. GERCEK KOSU UC KUSUR OGRETTI: (1) zorunlu adim sessizce atlandi (prompt bos -> atlandi), (2) eleme kurali iki yonluydu ve 11 satirlik metin ALTI SABLONU birden eledi — kural asimetrik oldu: fazla birlestirilir eksik uydurulamaz, (3) saglayici cikti sekli result/text/content ve ayristirici yalniz text biliyordu. OLCULEN KAZANIMLAR: Archivo genislik ekseni acildi (ayni kelime wdth 62 de 580px, 125 te 1001px = 1.73x) ve punto sabit 82px yerine OLCULEN tavandan turiyor; on alti sabit rgba(255,255,255) silindi (kagit zeminli iki sablonun tum panelleri gorunmezdi); zemin recetesi degrade+isik+tarama+vinyet+gren, gren bantlasmayi 36px ten 8px e indiriyor (olculdu). ESKI YOL HALA YASIYOR: instagram-post + sablon.ts + AileProfili, emeklilik FAZ-15.9 un kalanı."
+son_kanit: "KATALOG REFERANSLARINA BENZEDI (FAZ-15.13). BORC A8 KAPANDI: hat artik SLAYT BASINA gorsel uretiyor. DORT KOSU, DORT DERS. (1) sahne dort slayttan ucunde alt yari BOSTU (%0,3-1,2 doluluk) cunku her kart sola yapisikti ve kurulabilen tek duzen UST USTE BANTLAMAKti; kolon alani eklendi, yan yana kompozisyon kuruldu, doluluk %10,6-14,1 (D-277). (2) A8: composeBody tek gorseli HER yuvaya yayiyordu; siraya gore eslestirme + hattin gorsel ucluyu ACARAK dorde cikarmasi + yuva basina kadraj varyanti (D-278). (3) UC KOSU BOYUNCA DORT OZDES FOTOGRAF ve UC YANLIS TESHIS: varyant brief e kondu, gorsel istemine kondu, tohum eklendi — hicbiri degistirmedi. Teshis SAGLAYICIYI DOGRUDAN sinayinca geldi (ayni isteme uc cagri, uc FARKLI gorsel): cokme bizdeydi. run.ts her adima TUM ciktilari geciyor ve image.matte needs ile daraltmiyordu, dolayisiyla dort kirpma adiminin dordu de 1. gorseli kirpiyor, kirpilmis olan hami eziyordu (D-283). Dorduncu kosu DORT FARKLI figur uretti. (4) Rehber §10 un alti olcutu kabul testine baglandi ve BAGLANIR BAGLANMAZ bes gercek bosluk buldu: uc sablonda hayalet bostu, donen daireleri kesime deger ama gecmezdi, donen zemini tek katmanliydi (D-281). MARKA IMZASI karosele girdi, surumu ZEMIN seciyor; mavi-500 tokeni logodan yeniden olculdu (#0090fc degil #0091ff, D-284). R-81 + kodlanmis-oge kapisi: yeni jenerik oge KODLANAMAZ, sayim donduruldu (D-279). ACIK: el yazisi ucuncu yuz hazir ama tasarim kapisinin 2-aile siniri R-76 geregi AYRI turda kaldirilacak (D-282)."
 ```
 
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**44 kapı · 23 ihlal kırmızı · 1731 test.**
+**44 kapı · 23 ihlal kırmızı · 1757 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·

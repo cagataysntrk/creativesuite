@@ -17,8 +17,8 @@
 | 0.1 | Logolardan renk ölçümü | ✅ | `#0090fc` = `oklch(0.647 0.189 251.2)` ölçüldü |
 | 0.2 | Mavi rampa (200/500/600/800) | ✅ | `ramp.marka.mavi-*` üretildi |
 | 0.3 | `role.bg` → marka mavisi | ✅ | Kreatif zemin artık markanın; amber KARŞI aksan (D-276) |
-| 0.4 | Siyah logo için ikinci palet varyantı | 🔴 | Mavi-üstü-beyaz ve siyah-üstü-beyaz iki kullanım; ikincisinin rolleri henüz yok |
-| 0.5 | Logonun kendisi karosele giriyor mu | 🔴 | Referanslarda alt köşede marka imzası var; bizde `rayaSol` metin |
+| 0.4 | Siyah logo için ikinci palet varyantı | ✅ | **Ölçüldü: ikinci palet YOK, olmamalı.** Siyah sürüm tamamen `#000000` — yeni bir renk getirmiyor. Gerçek ihtiyaç bir SEÇİM kuralıydı: koyu zemin → mavi sürüm, açık zemin → siyah. `koyuMu()` zaten ölçüyor (D-284) |
+| 0.5 | Logonun kendisi karosele giriyor mu | ✅ | Alt rayın solunda, zemine göre sürüm seçerek (D-284). Kaynak PNG'ler 500×500'dü ve işaret %2,4'ünü kaplıyordu: alfa kutusundan **ortak** kutuyla kırpıldı (338×78), yoksa zemin değişince logo zıplıyordu |
 
 ## 1 — Şablonlar asıllarına benzeyecek (EN ÖNEMLİ)
 
@@ -28,7 +28,7 @@
 |---|---|---|---|
 | 1.1 | `image copy 2` (sahne) — kesik özne kadrajın **~%40'ı**, KAHRAMAN | ✅ Sorun ölçek değil YERLEŞİMdi: tek yuva dört slayda düşüyordu. A8 kapandı (D-278), `sahne` DÖRT yuva; her karede bir özne, y%22'den alt kenara kesik. Doluluk %5–9 → %10,6–14,1 | ✅ |
 | 1.2 | `image copy 2` — oklar **el çizimi fırça şeridi** | ✅ `perfect-freehand` (MIT, 31KB, sıfır bağımlılık, determinist); açıklık 8→17, büküm 13→52 | ✅ |
-| 1.3 | `image copy 2` — **el yazısı ikinci yüz** ("Instagram" kelimesi) | Bizde tek tipografik aile | 🔴 |
+| 1.3 | `image copy 2` — **el yazısı ikinci yüz** ("Instagram" kelimesi) | 🟡 Caveat (OFL) indirildi, Türkçe kapsaması çizdirilerek doğrulandı, altı kapakta denendi ve ÇALIŞTI — ama `tasarim` kapısının "en çok 2 aile" sınırını deliyor. R-76 gereği kural değişikliği AYRI turda (D-282) | 🟡 |
 | 1.4 | `image copy 4` (memphis) — lekeler **dev**, kesim aşıyor | ✅ 6→9 leke, boyut 130–210 → 170–430 px (slaytın ~%35'i), üçü kesim üstünde, iki aksan | ✅ |
 | 1.5 | `image copy 4` — **iki aksan** (turuncu + lacivert) | ✅ mavi + amber (D-276) | ✅ |
 | 1.6 | `image.png` (akan-alan) — bölme güçlü eğri | ✅ Fark eksende değil **GENLİKTEydi**: %9 → %42 salınım. Eksen yatay kaldı (dikey sınır kesimde kırılır — kayıtlı gerekçe); tepe %44'te tutuldu, metne girmiyor | ✅ |
@@ -67,11 +67,11 @@
 
 ## Sıra (bağımlılığa göre)
 
-**Kapananlar:** 1.1 · 1.2 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
+**Kapananlar:** 0.1–0.5 · 1.1 · 1.2 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
 
 **Kalan sıra:**
-1. **1.3** — el yazısı ikinci yüz (`image copy 2`deki "Instagram" kelimesi). Lisanslı bir
-   yüz gerektiriyor; marka font kitine eklenmeli, kodla taklit edilemez (R-81).
+1. **1.3 (yarım)** — `tasarim` kapısının font ailesi sınırı 2 → 3. **Ayrı turda,
+   `refactor(gates)` tipli commit'le** (R-76: kırmızı kapının kuralı aynı turda
+   gevşetilmez). Sonra Caveat geri bağlanır; dosyalar ve ölçümler hazır (D-282).
 2. **2.3** — 3B/izometrik varlık seti. GLB ikinci motor ister (Yasa 4); PNG/SVG set aranacak.
-3. **0.4 + 0.5** — siyah logo paleti ve karoselde marka imzası.
-4. **4.3** — EN SON: katalog bitince `content/` çıktıları yeniden üretilir.
+3. **4.3** — EN SON: katalog bitince `content/` çıktıları yeniden üretilir.
