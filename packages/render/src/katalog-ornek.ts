@@ -330,7 +330,12 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   // bir insan gövdesinin arkasından okunuyordu. Süreklilik ögesi kesimi aşmak ZORUNDA,
   // dolayısıyla bir sonraki kartın soluna girecek; çözüm onu kısaltmak değil, metni
   // dikeyde ondan uzaklaştırmak. Referansta (`ornek-1`) da özne alt yarıda duruyor.
-  yerlesim: 'ust',
+  // ⚠ ⚠ **`ust` → `orta`: BANT DÜZENİNDEN YAN YANA KOMPOZİSYONA.** Ölçüldü — `ust` ile
+  // dört slayttan üçünde alt yarı doluluğu %0,3–%1,2 idi, yani kadrajın yarısı boştu ve
+  // çıktı bir web "hero" bölümü gibi okunuyordu. Referansta metin dikey ORTADA ve öznenin
+  // YANINDA yaşıyor; boşluk üstte ve altta paylaşılıyor, tek bir dev boşluk hâlinde dibe
+  // yığılmıyor. Çakışmayı `kolon` çözüyor: metin, figürün olmadığı yana geçiyor.
+  yerlesim: 'orta',
   tipografi: {
     baslikPayi: 0.86,
     baslikGenislik: 66,
@@ -342,7 +347,9 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     // ⚠ 0,66'da başlık üç satıra çıkıyor ve metin bloğu okların şeridine giriyordu.
     // Sütunu genişletmek satır sayısını ikiye indiriyor: oklara yer açan şey boşluk değil,
     // metnin daha az dikey yer kaplaması.
-    baslikSutunu: 0.8,
+    // ⚠ 0,8 → 0,56: yan yana kompozisyonda metin kolonu figüre yer BIRAKMAK zorunda.
+    // Genişken blok kadrajı boydan boya kesiyor ve "yan yana" iddiası çöküyor.
+    baslikSutunu: 0.56,
   },
   zemin: 'var(--role-line-edge)',
   zeminDokusu: {
@@ -392,9 +399,16 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       // sürüm 8 panorama yüzdesi kadar bir yay çiziyordu ve 34 px'lik fırça o mesafede
       // incelmeye vakit bulamıyordu: çıktı bir badem şekliydi. Referansta (`image copy 2`)
       // oklar geniş süpürme hareketleri ve büküm belirgin. Açıklık 8 → 17, büküm 13 → 52.
-      { x1: 17, y1: 46, x2: 34, y2: 40, bukum: -52 },
-      { x1: 42, y1: 39, x2: 59, y2: 46, bukum: 58 },
-      { x1: 67, y1: 47, x2: 84, y2: 41, bukum: -48 },
+      // ⚠ ⚠ **ŞERİT y 39–47'DEN 68–80'E TAŞINDI — yerleşim değişince ESKİ ŞERİT METNİN
+      // İÇİNE DÜŞTÜ.** `ust`ta metin y%8–35 arasındaydı ve 39–47 onun hemen altındaki boş
+      // banttı. `orta`ya geçince blok y%30–62'ye indi ve oklar başlıkların ÜSTÜNÜ ÇİZDİ:
+      // "Önce sorun duruyor" ve "En sonda karar var" okunamaz hâle geldi (render'a bakıldı).
+      // İki sayı birbirine bağlıydı ve bağ yazılı değildi; şimdi yazılı.
+      // ⚠ Alt yarı zaten ölçülmüş biçimde boştu (%0,3–%1,2 doluluk); şerit oraya inince
+      // hem çakışma bitiyor hem boşluk hareket kazanıyor — tek taşla iki kusur.
+      { x1: 17, y1: 74, x2: 34, y2: 68, bukum: -52 },
+      { x1: 42, y1: 67, x2: 59, y2: 74, bukum: 58 },
+      { x1: 67, y1: 75, x2: 84, y2: 69, bukum: -48 },
     ],
   },
   gorseller: [
@@ -443,6 +457,9 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
+      // ⚠ Figür bu slaydın SOL yarısını dolduruyor (contain kutusu panorama %46–62);
+      // metin sağa geçmezse ikisi üst üste biner.
+      kolon: 'sag',
     },
     {
       ustBaslik: 'ADIM 03',

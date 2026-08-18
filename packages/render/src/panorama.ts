@@ -143,6 +143,22 @@ export interface Kart {
   readonly rayaSol: string
   readonly rayaOrta: string
   /**
+   * Metin bloğunun YATAY yeri — `sol` (varsayılan) ya da `sag`.
+   *
+   * ⚠ ⚠ **BU, "WEB GİBİ DURUYOR"UN ÖLÇÜLEN SEBEBİYDİ.** Referans (`image copy 2`)
+   * kompozisyonu YAN YANA kuruyor: özne kadrajın bir yanını doldururken metin ötekinde
+   * yaşıyor. Bizim sistemde her kart `align-items: flex-start` ile SOLA yapışıktı, yani
+   * tek kurulabilen düzen ÜST ÜSTE BANTLAMAKtı — metin bandı, ok bandı, özne bandı.
+   * Ölçüldü: dört slayttan üçünde alt yarı doluluğu %0,3–%1,2 idi. Bant düzeni bir
+   * tasarım tercihi değil, ifade edememenin sonucuydu.
+   *
+   * ⚠ **`sag` blok SAĞA konumlanır ama metin SOLA hizalı kalır.** Referansta da böyle:
+   * sağdaki "use this size for square images" bloğu sağda duruyor, satırları solda
+   * başlıyor. `text-align: right` Türkçe gövde metninde tırtıklı bir sol kenar üretir
+   * ve okunurluğu düşürür — hizalama ile KONUMLANDIRMA ayrı kararlardır.
+   */
+  readonly kolon?: 'sol' | 'sag'
+  /**
    * Bu kartın kendi zemini — verilmezse belgenin zemini.
    *
    * ⚠ `ornek-2`'nin kimliği tam olarak bu: aynı düzen, her slaytta başka zemin. Kartın
@@ -696,7 +712,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
                 : doc.alanSiniri.ust
           const hr = kartRenkleri(hayaletZemini)
           return (
-            `<section class="kart${koyuMu(kartZemini) ? '' : ' acik'}" ` +
+            `<section class="kart${koyuMu(kartZemini) ? '' : ' acik'}` +
+            `${k.kolon === 'sag' ? ' sag' : ''}" ` +
             `style="left:${i * G}px;width:${G}px;` +
             // ⚠ Lekeler ya da alan sınırı varsa kart ŞEFFAF: opak bir kart arkasındaki
             // desen katmanını tamamen örtüyordu ve `memphis`in kimliği görünmüyordu.
@@ -897,6 +914,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `          color: var(--kart-metin);`,
     `          display: flex; flex-direction: column; align-items: flex-start;`,
     `          justify-content: ${YERLESIM_CSS[doc.yerlesim ?? 'ust']} }`,
+    // ⚠ Yalnız KONUM değişiyor: `align-items` bloğu sağa iter, `text-align` dokunulmadan
+    // sola kalır. Kartın alt rayı bundan etkilenmemeli — o mutlak konumlu.
+    `  .kart.sag { align-items: flex-end }`,
+    `  .kart.sag > * { text-align: left }`,
     // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).
     ...(doc.yerlesim === undefined || doc.yerlesim === 'ayrik'

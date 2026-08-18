@@ -490,3 +490,36 @@ mavi alanı canlandırıyor. Amber artık birincil değil, KARŞITI.
 251. Enstrüman grisi ile marka mavisi aynı tonda — bu tasarlanmamıştı ama tutuyor.
 
 **Geri alma maliyeti:** düşük — iki token değeri; rampa eklendi, hiçbiri silinmedi.
+
+## D-277
+
+**Karar:** Kart metni yatayda konumlanabilir (`kolon: 'sol' | 'sag'`) ve `sahne`
+dikey ortaya (`yerlesim: 'orta'`) geçti. Referansın kompozisyonu YAN YANA, bizimki
+ÜST ÜSTE BANTLIydı.
+
+**Neden:** Ölçüm: `sahne`nin dört slaydından üçünde alt yarı doluluğu %0,3–%1,2 idi.
+Kadrajın yarısı boştu ve çıktı bir web "hero" bölümü gibi okunuyordu — kullanıcının
+"web tasarımı gibi duruyor" tespiti tam olarak buydu. Sebep tercih değil, **ifade
+edememekti**: her kart `align-items: flex-start` ile sola yapışıktı, dolayısıyla tek
+kurulabilen düzen bantlamaktı (metin bandı · ok bandı · özne bandı). Referansta
+(`image copy 2`) özne kadrajın bir yanını doldururken metin ötekinde yaşıyor.
+
+**Ölçülen sonuç:** üst/alt doluluk 18,7/0,3 → 7,6/4,1 · 16,6/1,2 → 6,4/6,6 ·
+10,6/0,3 → 3,1/3,4. Ölü alt yarı bitti.
+
+⚠ **`sag` blok sağa KONUMLANIR, metin SOLA hizalı kalır.** Referansta da böyle.
+`text-align: right` Türkçe gövdede tırtıklı sol kenar üretir; hizalama ile
+konumlandırma ayrı kararlardır.
+
+⚠ ⚠ **BAĞLI OLDUĞU YAZILMAYAN İKİNCİ SAYI ok şeridiydi.** Oklar y%39–47'deydi ve bu
+sayı `ust` yerleşimindeki metnin ALTINDA olmak üzere seçilmişti. Yerleşim `orta`
+olunca metin y%30–62'ye indi ve oklar başlıkların üstünü çizdi — "Önce sorun duruyor"
+okunamaz oldu. Şerit y%68–80'e taşındı; bağ artık kodda yazılı.
+
+**Geri alma maliyeti:** düşük — bir opsiyonel alan, iki CSS kuralı, üç sayı.
+
+⚠ **Bu değişiklik `sahne`yi asıllına BENZETMEDİ, yalnız bant düzenini kaldırdı.**
+Referansta her slaytta bir fotoğraf var ve kadrajı boydan boya dolduruyor; bizde tek
+görsel dört slayda düşüyor ve kalan üçü metinle doluyor. Toplam doluluk hâlâ %3–8.
+**Kök engel borç A8'dir** (`GorselIhtiyaci.adet: 'slayt-basina'` ilan ediliyor, DAG
+çoğaltmıyor) ve bu artık iddia değil, ölçülmüş.
