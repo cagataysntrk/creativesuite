@@ -117,7 +117,7 @@ const renk = (t: RampaTokeni, opaklik?: number): string =>
  *
  * ⚠ Bağımlılık yok: bir doku kütüphanesi ya da PNG varlığı yerine 300 baytlık bir SVG.
  */
-const grenKatmani = (guc: number): string => {
+export const grenKatmani = (guc: number): string => {
   const svg =
     `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>` +
     `<filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.82' ` +

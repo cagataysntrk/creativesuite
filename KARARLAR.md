@@ -516,3 +516,41 @@ dosyaya sonradan eklenen alana geçmiyor.**
 **Kanıt:** iki düzeltme de kasten geri alındı → üç test kırmızı; geri konuldu → yeşil.
 
 **Geri alma maliyeti:** düşük — bir `needs` bağı, iki kısıt, iki satır.
+
+## D-281
+
+**Karar:** Görsel çağrısı yuva sırasından türeyen bir `seed` taşıyor (`7919 × sıra`,
+yalnız `raw` telli modelde). Rehber §10 ölçütleri `katalog-kabul.test.ts` ile bağlandı;
+`sahne`/`donen`/`editoryal` hayaletleri dolduruldu, `donen` daireleri kesimi artık
+gerçekten aşıyor ve kartlarının üstüne doku (`ustDoku`) geldi.
+
+**Neden — tohum:** İKİ gerçek koşuda da dört ayrı görsel çağrısı BİREBİR AYNI kadrajı
+döndürdü. Önce kadraj tarifi brief istemine kondu (D-280), yetmedi; sonra doğrudan
+görsel istemine eklendi, yine yetmedi. Sebep sağlayıcıda: tohum gönderilmediğinde
+Cloudflare sabit bir varsayılan kullanıyor ve yakın istemler aynı görüntüye çöküyor.
+**İstemi güçlendirmek bir rica, tohum bir garanti** — bu deponun tekrar eden dersi.
+Determinizm bozulmuyor (R-06): tohum yuva sırasının saf fonksiyonu.
+
+⚠ `seed` YALNIZ `stable-diffusion-xl-lightning` (`raw` tel) gövdesine giriyor;
+`flux-1-schnell` fazladan alan görünce isteği tümden reddediyor — ölçülmüş davranış.
+
+**Neden — kabul testi:** rehber §10'un altı ölçütü yazılıydı ama hiçbir şeye bağlı
+değildi, yani bir NİYET beyanıydı. Bağlanır bağlanmaz kataloğda **beş gerçek boşluk**
+buldu: üç şablonda hayalet boştu (dolu taslak kuralının ihlali), `donen`in daireleri
+kesime değiyor ama geçmiyordu (süreklilik taklidi) ve `donen`in zemini tek katmanlıydı.
+
+⚠ ⚠ **REHBERİN ATIF YAPTIĞI ÜÇ FONKSİYON BU BELGEYE UYMUYOR.** `tasarimOlc`,
+`olcekDisiBosluklar`, `kompozisyonMerkezi` — üçü de `DocumentModel` alıyor, yani
+slayt-başına yolun araçları. Ölçütler panorama VERİSİNDEN yeniden hesaplandı.
+
+⚠ ⚠ **ÖLÇÜM ARACI ÜÇ KEZ BOZUK ÇIKTI:** (1) hayalet puntosunu `baslikPayi` ile çarpan
+uydurma formül `donen`i 5,9'da gösterip gerçek eksiği (hayaletin HİÇ olmaması)
+maskeledi; (2) zemin ölçümü yalnız `zeminDokusu`ya bakıp `alanSiniri` ve tam kaplama
+fotoğrafı görmedi, üç şablonu haksız kırmızıya düşürdü; (3) sağlayıcı testi kaynağı
+iki kez geçen bir dizeden dilimledi. Ayrıca `URL.pathname` "İndirilenler"i yüzde-kodladı
+— Türkçe yol bu depoda kenar durum değil, VARSAYILAN durum.
+
+⚠ `ustDoku` gerekliydi çünkü `donen`in opak kart renkleri panorama zeminini tamamen
+örtüyor. Gren fiziksel olarak da üstte olmalı: film greni sahnenin değil filmin özelliği.
+
+**Geri alma maliyeti:** düşük — bir kısıt, bir opsiyonel alan, bir test dosyası.

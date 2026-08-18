@@ -103,6 +103,10 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       { x: 88, etiket: '2025' },
     ],
   },
+  // ⚠ ⚠ **DAİRELER KESİME DEĞİYORDU, GEÇMİYORDU (16..25, 41..50, 66..75).** Karoselin
+  // tek yapısal iddiası süreklilik; kesime teğet geçen bir öge onu KURMUYOR, taklit
+  // ediyor. x 4 birim kaydırıldı: ilk üç daire artık 25/50/75 kesimlerini gerçekten
+  // aşıyor. Dördüncü slaydın sağında kesim yok, o yerinde kaldı.
   gorseller: [],
   kartlar: [
     {
@@ -449,13 +453,19 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     { src: '', alt: 'kesik özne', x: 62, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
     { src: '', alt: 'kesik özne', x: 74, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
   ],
+  // ⚠ ⚠ **HAYALETLER BOŞTU ve bu "dolu taslak" kuralını deliyordu.** Şablon taslak
+  // demek BOŞ demek değil; agent çoğaltıp düzenleyeceği şeyi göremezse alanı ya
+  // atlıyor ya da uyduruyor. Gerçek koşuda model bu alanı kendiliğinden doldurdu
+  // (HAT · KAYIP · KAYIT · SÜREÇ) ve çıktının EN tasarımsal ögesi o oldu — örnek
+  // onu göstermiyordu, yani şans eseri iyi çıktı.
+  // ⚠ Rakamlar aynı zamanda referanstaki `#003` tipi indeks etiketinin karşılığı.
   kartlar: [
     {
       ustBaslik: 'SAHNE',
       baslik: 'Anlatmak **göstermekle** başlar',
       govde: 'Dört karede tek bir hareket.',
       panel: null,
-      hayalet: '',
+      hayalet: '01',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
     },
@@ -464,7 +474,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       baslik: 'Önce **sorun** duruyor',
       govde: 'Adı konmamış sorun çözülemez.',
       panel: null,
-      hayalet: '',
+      hayalet: '02',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
       // Özne bu karede SOLDA; metin karşı yana geçiyor.
@@ -475,7 +485,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       baslik: 'Sonra **bir ölçü** koyuluyor',
       govde: 'Ölçü, tartışmayı tercihe çevirir.',
       panel: null,
-      hayalet: '',
+      hayalet: '03',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
     },
@@ -484,7 +494,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       baslik: 'En sonda **karar** var',
       govde: 'Kararı ölçü değil insan verir.',
       panel: null,
-      hayalet: '',
+      hayalet: '04',
       rayaSol: 'UPCYTECH',
       rayaOrta: ORNEK,
       // Özne bu karede SOLDA; metin karşı yana geçiyor.
@@ -672,6 +682,12 @@ export const ORNEK_DONEN: KatalogOrnegi = {
     // altında kaldı). Sütun daralınca metin ve daire ayrı dikey şeritlerde kalıyor.
     baslikSutunu: 0.6,
   },
+  // ⚠ ⚠ **KARTLARIN ÜSTÜNDE DOKU — `donen`in zemini tek katmanlıydı.** Bu şablonun
+  // kimliği kart renklerinin DÖNMESİ; kartlar opak olmak zorunda ve panorama zemini
+  // onların altında hiç görünmüyor. Sonuç her kartta düz bir renk, yani rehber §10
+  // ölçüt 5'in tarif ettiği "web arka planı" — kabul testi bunu kırmızı verdi.
+  // Gren + yumuşak vinyet üstte duruyor ve düz rengi yüzeye çeviriyor.
+  ustDoku: { gren: 22, vinyet: 34 },
   zemin: 'var(--role-bg)',
   bant: { tip: 'yok' },
   // ⚠ Gölge YOK: daire maske ögeyi zaten ayırıyor ve maskeli bir ögeye gölge eklemek
@@ -681,18 +697,20 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   gorseller: [
     // ⚠ y 34: daire başlığın ALTINDA, gövde metninin ÜSTÜNDE. y 46'da gövdeyi örtüyordu
     // ve metin dairenin içinden okunuyordu — render'a bakınca görüldü.
-    { src: '', alt: 'ürün — 1', x: 16, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
-    { src: '', alt: 'ürün — 2', x: 41, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
-    { src: '', alt: 'ürün — 3', x: 66, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
+    { src: '', alt: 'ürün — 1', x: 20, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
+    { src: '', alt: 'ürün — 2', x: 45, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
+    { src: '', alt: 'ürün — 3', x: 70, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
     { src: '', alt: 'ürün — 4', x: 91, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
   ],
+  // ⚠ Hayalet rakam bu şablonda hiyerarşiyi de kuruyor: hayaletsiz hâlde en büyük punto
+  // başlıktı ve en büyük/en küçük oranı 5,9'da kalıyordu (rehber §10 ölçüt 1: ≥6).
   kartlar: [
     {
       ustBaslik: 'SERİ 01',
       baslik: 'Dört malzeme, **tek** hat',
       govde: 'Aynı hat, dört farklı beslemeyle çalışıyor.',
       panel: null,
-      hayalet: '',
+      hayalet: '01',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-bg)',
@@ -702,7 +720,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       baslik: 'Aynı düzen, **başka** zemin',
       govde: 'Süreklilik rengin dönmesinden geliyor; düzen hiç değişmiyor.',
       panel: null,
-      hayalet: '',
+      hayalet: '02',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-amber-200)',
@@ -712,7 +730,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       baslik: 'Ritmi kuran **tekrar**',
       govde: 'Göz üçüncü karede düzeni öğreniyor ve dördüncüyü bekliyor.',
       panel: null,
-      hayalet: '',
+      hayalet: '03',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-surface)',
@@ -722,7 +740,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       baslik: 'Kapanış **koyu** gelir',
       govde: 'Son kare diziyi kapatıyor: aynı düzen, en yüksek kontrast.',
       panel: null,
-      hayalet: '',
+      hayalet: '04',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-line-edge)',
@@ -764,13 +782,15 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     { src: '', alt: 'geniş plan — sol', x: 0, y: 0, genislik: 56, yukseklik: 100, kirpma: 'tam' },
     { src: '', alt: 'geniş plan — sağ', x: 56, y: 0, genislik: 44, yukseklik: 100, kirpma: 'tam' },
   ],
+  // ⚠ Tam kaplama fotoğrafın üstünde hayalet: kontrast fotoğrafa bağlı, o yüzden ölçek
+  // küçük tutuldu ve render'a BAKILARAK doğrulandı.
   kartlar: [
     {
       ustBaslik: 'BÖLÜM I',
       baslik: 'Sessiz bir **dönüşüm**',
       govde: 'Fotoğraf kesimi aşıyor; metin kenarda duruyor ve yer istemiyor.',
       panel: null,
-      hayalet: '',
+      hayalet: '01',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
     },
@@ -779,7 +799,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       baslik: 'Boşluk da bir **karar**',
       govde: 'Doldurulmayan alan, gösterilen şeyi büyütüyor.',
       panel: null,
-      hayalet: '',
+      hayalet: '02',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
     },
@@ -788,7 +808,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       baslik: 'Küçük punto **güven** ister',
       govde: 'Bağırmayan bir başlık, okunacağını varsayıyor.',
       panel: null,
-      hayalet: '',
+      hayalet: '03',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
     },
@@ -797,7 +817,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       baslik: 'Ve **kapanış**',
       govde: 'Aynı fotoğraf, dört karede tek bir bakış.',
       panel: null,
-      hayalet: '',
+      hayalet: '04',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
     },

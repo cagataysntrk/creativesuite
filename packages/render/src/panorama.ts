@@ -29,7 +29,7 @@ import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { kacir } from './html.js'
 import { OPENTYPE_CSS, vurguyuIsaretle } from './sablon-tipo.js'
 import { ikonSec, ikonSvg, type IkonAdi } from './sablon-ikon.js'
-import { zeminCss, zeminKarisimi, type ZeminResetesi } from './zemin.js'
+import { grenKatmani, zeminCss, zeminKarisimi, type ZeminResetesi } from './zemin.js'
 import { getStroke } from 'perfect-freehand'
 
 /** Kesimi aşan sürekli bant — kimliğin taşıyıcısı. */
@@ -305,6 +305,21 @@ export interface PanoramaBelgesi {
    * türetimini dokudan bağımsız bırakıyor.
    */
   readonly zeminDokusu?: ZeminResetesi
+  /**
+   * Kartların ÜSTÜNDE duran bitiş dokusu — gren + vinyet.
+   *
+   * ⚠ ⚠ **`zeminDokusu` OPAK KARTIN ALTINDA KALIYOR ve `donen` bu yüzden tek katmanlıydı.**
+   * `donen`in kimliği kart renklerinin DÖNMESİ; kartlar opak olmak zorunda ve panorama
+   * zemini onların altında görünmüyor. Sonuç: her kart düz bir renk, yani rehber §10
+   * ölçüt 5'in tarif ettiği "web arka planı". Ölçüldü ve kabul testi kırmızı verdi.
+   *
+   * ⚠ Gren FİZİKSEL OLARAK da üstte olmalı: film greni sahnenin değil, filmin özelliği.
+   * Altta duran bir gren, üstünü kapatan her opak yüzeyde yok oluyor.
+   *
+   * ⚠ Varsayılan KAPALI: açık olsaydı beş şablonun görünümü tek satırla değişirdi ve
+   * hiçbiri bunu istememişti. Kimin istediği açıkça yazılı olmalı.
+   */
+  readonly ustDoku?: { readonly gren: number; readonly vinyet: number }
   /** İki alanlı zemin — verilirse kartlar kendi zeminlerini BOYAMIYOR. */
   readonly alanSiniri?: AlanSiniri
   /**
@@ -766,6 +781,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     })
     .join('')
 
+  // Bitiş dokusu: kartların ÜSTÜNDE, tıklamayı ve metni ETKİLEMEDEN.
+  const ustDoku = doc.ustDoku === undefined ? '' : `<div class="ust-doku" aria-hidden="true"></div>`
+
   // Geometrik lekeler: tek SVG, panorama koordinatında. Kartların ALTINDA (z-index 0)
   // duruyorlar — metnin üstüne çıkan bir leke okunabilirliği düşürür.
   // ⚠ ⚠ **HACİM İÇİN GEREKEN ŞEY DEGRADE + GÖLGE, ÜÇÜNCÜ BİR BOYUT DEĞİL.** Bu
@@ -933,6 +951,16 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // temiz çıktı), sonra zemin ışık havuzu (görselsiz render temiz çıktı), sonra
     // tarayıcıya `getComputedStyle` soruldu ve `backgroundColor: oklab(0.97 … / 0.06)`
     // göründü. **Ölçüm üç kez hipotezi çürüttü; dördüncüde DOM cevabı verdi.**
+    ...(doc.ustDoku === undefined
+      ? []
+      : [
+          `  .ust-doku { position: absolute; inset: 0; pointer-events: none; z-index: 3;`,
+          `              background: ${grenKatmani(doc.ustDoku.gren)},`,
+          // Vinyet: kenarları toplayan tek radyal. Merkez ŞEFFAF — ortadaki içeriği
+          // karartmayan bir vinyet, kadrajı daraltır ama okunurluğu düşürmez.
+          `                radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
+            ` rgba(0,0,0,${(doc.ustDoku.vinyet / 100).toFixed(2)}) 100%) }`,
+        ]),
     `  .kesim { position: absolute; top: 0; bottom: 0; width: 1px;`,
     `           background: ${sol('--pano-metin', 6)}; z-index: 9 }`,
     // ⚠ Üst başlık başlıkla ZIT eksende: başlık genişse üst başlık dar, tersi de doğru.
@@ -1112,6 +1140,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     bantSvg(doc.bant, toplam, doc.yukseklik),
     kartlar,
     gorseller,
+    // ⚠ Görsellerden SONRA, kesim ayracından ÖNCE: doku fotoğrafı da kapsıyor (yoksa
+    // kesik özne tasarımın üstünde ayrı bir dünya gibi durur), ayraç ise en üstte kalıyor.
+    ustDoku,
     Array.from(
       { length: n - 1 },
       (_, i) => `<div class="kesim" style="left:${(i + 1) * G}px"></div>`

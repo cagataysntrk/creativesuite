@@ -2111,9 +2111,20 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // sığıyor. Sınır korunuyor: adaptör hâlâ yalnız `ProviderInput` görüyor.
     const matlanacak =
       yetenek === 'image.matte' ? (uretilenGorseller(input.inputs)[0] ?? null) : null
+    // ⚠ ⚠ **TOHUM YUVA SIRASINDAN TÜRÜYOR — dört özdeş fotoğrafın yapısal ilacı.**
+    // İki gerçek koşuda da dört ayrı çağrı aynı kadrajı döndürdü; kadraj tarifini
+    // istemde güçlendirmek yetmedi çünkü sağlayıcı tohum verilmediğinde SABİT bir
+    // varsayılan kullanıyor. Sabit çarpan: aynı yuva her koşuda aynı tohumu alır (R-06),
+    // ama farklı yuvalar birbirinden uzak tohumlar alır.
+    const gorselSirasi =
+      typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : null
+    const tohumlu =
+      gorselSirasi === null || yetenek !== 'image.generate'
+        ? input.constraints
+        : { ...input.constraints, seed: 7919 * gorselSirasi }
     const kisitlar =
       matlanacak === null
-        ? input.constraints
+        ? tohumlu
         : {
             ...input.constraints,
             // `src` bir veri URI'si; sağlayıcı ham base64 bekliyor.

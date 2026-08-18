@@ -133,9 +133,28 @@ export const cloudflareImage: ProviderAdapter = {
         // **Boyut yalnız KABUL EDEN modele gönderilir.** flux-1-schnell fazladan
         // alan görünce isteği tümden reddediyor — "göndersek de yok sayar" varsayımı
         // ölçüldü ve yanlış çıktı.
+        // ⚠ ⚠ **`seed` YALNIZ `raw` TELİNDE ve bu bir ÖLÇÜM sonucu.** `flux-1-schnell`
+        // fazladan alan görünce isteği tümden reddediyor (width/height'ta ölçüldü);
+        // `stable-diffusion-xl-lightning` zaten boyut alıyor ve `seed`i de kabul ediyor.
+        //
+        // ⚠ ⚠ **TOHUM BURADA BİR SÜS DEĞİL, DÖRT ÖZDEŞ FOTOĞRAFIN İLACI.** Slayt başına
+        // görsele geçtikten sonra iki gerçek koşuda da dört çağrı BİREBİR AYNI kadrajı
+        // döndürdü. Sağlayıcı tohum göndermediğimizde kendi varsayılanını kullanıyor ve
+        // o varsayılan sabit: aynı ya da yakın istemler aynı görüntüye çöküyor. Kadraj
+        // tarifini güçlendirmek bir RİCA; tohum bir GARANTİ.
+        //
+        // ⚠ Determinizm bozulmuyor (R-06): tohum çağıranın kısıtından geliyor, yani
+        // yuva sırasının saf bir fonksiyonu. Aynı koşu her tekrarda aynı dört görseli verir.
         body: JSON.stringify(
           model.tel === 'raw'
-            ? { prompt: vi.prompt, width: boyut.w, height: boyut.h }
+            ? {
+                prompt: vi.prompt,
+                width: boyut.w,
+                height: boyut.h,
+                ...(typeof vi.constraints['seed'] === 'number'
+                  ? { seed: vi.constraints['seed'] }
+                  : {}),
+              }
             : { prompt: vi.prompt }
         ),
         signal: ctx.signal,
