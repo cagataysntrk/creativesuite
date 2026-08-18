@@ -39,6 +39,15 @@ export interface SpawnResult {
 const DEFAULT_MAX_OUTPUT = 8 * 1024 * 1024
 
 /**
+ * `exit` ile `close` arası boşalma penceresi.
+ *
+ * ⚠ Kısa tutuluyor: süreç ZATEN öldü, bu pencere yalnız yoldaki byte'lar için. Uzun bir
+ * pencere her çağrıya gecikme eklerdi; kısa bir pencere yalnız boru devredilmiş
+ * durumlarda görünür hâle geliyor.
+ */
+const DRAIN_MS = 250
+
+/**
  * Alt süreç çalıştırır. `throw` ETMEZ: bir sürecin başarısız olması bir istisna değil,
  * bir sonuçtur — çıkış kodu ve stderr çağıranın okuması gereken VERİDİR (§8.6).
  */
@@ -88,6 +97,7 @@ export const spawnProcess = (
     child.stderr.on('data', (c: Buffer) => ekle('err', c))
 
     let killTimer: NodeJS.Timeout | null = null
+    let drainTimer: NodeJS.Timeout | null = null
     const oldur = (): void => {
       if (bitti) return
       child.kill('SIGTERM')
@@ -134,13 +144,37 @@ export const spawnProcess = (
       })
     })
 
-    child.on('close', (code, signal) => {
+    const bitir = (code: number | null, signal: NodeJS.Signals | null): void => {
       if (bitti) return
       bitti = true
       if (timeoutTimer !== null) clearTimeout(timeoutTimer)
       if (killTimer !== null) clearTimeout(killTimer)
+      if (drainTimer !== null) clearTimeout(drainTimer)
       opts.signal?.removeEventListener('abort', onAbort)
       resolve({ code, signal, stdout, stderr, timedOut, aborted, truncated })
+    }
+
+    child.on('close', (code, signal) => bitir(code, signal))
+
+    // ⚠ ⚠ **`exit` DE DİNLENİYOR ve bu bir ASILMA DÜZELTMESİDİR, bir kemer-askı değil.**
+    // Node `close`u yalnız TÜM stdio akışları kapandığında yayıyor; `exit` süreç bittiğinde.
+    // İkisi normalde art arda gelir — **alt süreç kendi çocuğunu doğurup boruları ona
+    // devretmediği sürece.** `claude` CLI tam bunu yapıyor: kalıcı bir `claude daemon run`
+    // süreci başlatıyor ve o daemon stdout borusunu açık tutuyor. CLI ölse bile `close`
+    // hiç gelmiyor ve promise sonsuza kadar bekliyor.
+    //
+    // ⚠ Belirti aldatıcıydı: hat `sablon-uyarla` adımında 21 dakika asıldı, `ps` hiçbir
+    // çocuk süreç göstermedi ve **10 dakikalık zaman aşımı da kurtarmadı** — çünkü zaman
+    // aşımı `SIGTERM` gönderiyor, süreç ölüyor, ama `close` yine gelmiyordu. Yani hem asıl
+    // yol hem kurtarma yolu AYNI olaya bağlıydı; iki kere denendi, ikisinde de asıldı.
+    //
+    // Çözüm: `exit` geldiğinde kısa bir boşalma penceresi açılıyor. Normal durumda `close`
+    // o pencere dolmadan gelir ve davranış birebir aynı kalır; boru devredilmişse pencere
+    // dolar ve sonuç ELDEKİ çıktıyla döner. Süreç bittikten sonra gelecek yeni byte yok.
+    child.on('exit', (code, signal) => {
+      if (bitti || drainTimer !== null) return
+      drainTimer = setTimeout(() => bitir(code, signal), DRAIN_MS)
+      drainTimer.unref?.()
     })
 
     if (opts.input !== undefined) child.stdin.end(opts.input)

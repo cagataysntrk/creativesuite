@@ -176,3 +176,22 @@ describe('commandExists — senkron, ağsız (R-42)', () => {
     expect(commandExists('/yok/boyle/bir/dosya', readEnv('PATH'))).toBe(false)
   })
 })
+
+// ⚠ ⚠ **BORUYU DEVRALAN TORUN — GERÇEK BİR ASILMANIN TESTİ (D-272).** `claude` CLI
+// kalıcı bir daemon doğurup stdout borusunu ona devrediyor; CLI ölse bile Node `close`
+// yaymıyor (`close` TÜM stdio kapanmasını bekler) ve promise sonsuza kadar bekliyor.
+// Hat bu yüzden `sablon-uyarla` adımında iki ayrı koşuda 21'er dakika asıldı ve
+// **10 dakikalık zaman aşımı da kurtarmadı**: o da `SIGTERM` gönderip aynı `close`
+// olayını bekliyordu — kurtarma yolu asıl yolla aynı olaya bağlıydı.
+describe('boruyu devralan torun süreç', () => {
+  // ⚠ Süre ÖLÇÜLMÜYOR: saat darboğazı (§13) testte de geçerli ve gerek de yok —
+  // asılma zaten testin kendi zaman aşımıyla kırmızıya döner. `exit` dinleyicisi
+  // kaldırılıp denendi: test 20 sn tavana dayanıp ASILDI, dinleyiciyle 388 ms'de döndü.
+  it('süreç ölünce ASILMADAN sonuç dönüyor', async () => {
+    const fixture = join(import.meta.dirname, 'fixtures/boru-devreden.mjs')
+    const r = await spawnProcess(process.execPath, [fixture], { env: {}, timeoutMs: 15_000 })
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('merhaba')
+    expect(r.timedOut).toBe(false)
+  }, 8_000)
+})

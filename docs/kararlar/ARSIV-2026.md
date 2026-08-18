@@ -4294,3 +4294,141 @@ kaplama ve en-boy; `kalite` geçiyor ve hat uçtan uca yeşil koşuyor — `gors
 adımı dahil.
 
 **Geri alma maliyeti:** yok — bayrak verilmezse eski davranışa düşüyor.
+
+## D-259 — Kapı depoyu koruyordu, çıktıyı korumuyordu
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.7 · §11.1
+
+FAZ 10 boyunca on iki tasarım metriği yazıldı ve `scripts/gates/tasarim.mjs` onları
+**temsili belgelerle** ölçüyordu. Gerçek çıktıya hiçbiri uygulanmıyordu. Sonuç ölçüldü:
+kapak, "≤8 kelime" kuralına rağmen üç satır başlık ve iki uzun paragrafla çıktı ve
+**hiçbir şey kırmızıya dönmedi**.
+
+Bu, bu deponun en sık tekrarlayan hatasının — *kod var, üretim yolunda çağıranı yok* —
+**bu fazın kendi içindeki tekrarı**; üstelik tam o hatayı kapatmak için kurulmuş bir
+fazda. **Kapı yazmak, kapıyı bağlamak değildir.**
+
+**Karar:** `kaliteKontrol` (üretim yolu) `tasarimOlc` okumalarını da topluyor ve
+bloklayıcı bir okuma varlığı DURDURUYOR. Slayt belgeleri orada yeniden sayfalanıyor:
+sayfalama saf ve deterministik, o yüzden ikinci çağrı üretimdekiyle aynı sonucu veriyor.
+
+**İkinci kusur — kapak `list` düzeni alıyordu.** Kapak bir KANCADIR, madde listesi değil.
+Düzeltme yalnız çizime uygulanamazdı: düzen sayfalama BÜTÇESİNİ de belirliyor, yani kapak
+`list` bütçesiyle (6 blok, 320 karakter) bölünüp `statement` gibi çizilseydi tam olarak
+gördüğümüz metin duvarı çıkardı. Kısıt **sayfalamaya** girdi.
+
+**İki geçişli sayfalama.** Rol `total`e bağlı (son slayt kapanıştır) ama `total` sayfalama
+bitmeden bilinmiyor. İki geçiş saf ve ucuz: birincisi kaç slayt olacağını öğreniyor,
+ikincisi rolü bilerek bölüyor. İlk geçişin sonucu ATILIYOR — kısıtlı bölme farklı sayıda
+slayt üretebilir ve sayıyı dayatmak `total`i yalan yapardı.
+
+**Üçüncü bulgu: `citations` kapısında da tek-haneli faz varsayımı vardı.** `for (n = 0;
+n <= 9; n++)` — `durum` kapısındakinin birebir kopyası. FAZ 10'dan itibaren `FAZ-10.x`
+atıfları "doğrulanmadı" uyarısına düşüyordu, yani kırık bir faz atfı sessizce geçerdi.
+Dizin taramasına çevrildi. **İki ayrı kapıda aynı hata**, çünkü ikisi de dosya sisteminin
+söyleyebileceği bir şeyi tahmin ediyordu.
+
+**Geri alma maliyeti:** düşük — üretim yolundaki ölçüm çağrısı kaldırılabilir; ama o an
+metrikler yine yalnız depoyu korur.
+
+## D-260 — Ölçen ile ölçülen aynı birimi konuşmalı
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-10.7 · §11.1
+
+Kabul koşusu üç kez düştü ve üçünde de sebep **benim ölçüm tarafımdaydı**:
+
+**1. Kontrast okuması hiç ÜRETİLMİYORDU.** `tokenCoz` tek adım çözüyordu, oysa token
+mimarisi üç kademeli (§12.1): `--role-bg` bir renge değil `var(--ramp-gray-950)`e
+çözülüyor. Ayrıca "son tanım kazanır" kuralı `studio` yüzeyini seçiyordu — karosel
+`kreatif` yüzeyinde çiziliyor. İkisi birlikte: ölçüm doğru sayı üretip **yanlış şeyi**
+ölçecekti. Çözüm özyinelemeli ve yüzey kapsamlı; döngüsel tanımda derinlik sınırıyla
+`null` dönüyor, sıfır DEĞİL.
+
+**2. Kapanış cümlesi belgeye hiç girmiyordu.** `satirlar.slice(1, 4)` yalnız üç gövde
+satırı alıyordu; son satır — yani DAVET — atılıyordu. Kesme, uzunluk disiplini prompt'a
+yazılmadan önceki bir kalıntıydı ve disiplin gelince fazlalık değil **kayıp** oldu.
+Ayrıca görsel en sona ekleniyordu ve sayfalayıcı onu tek başına son slayda koyuyordu:
+kapanış 0 kelimeyle çıkıyordu (ölçüldü). Görsel gövdenin sonuna alındı, kapanış en sona.
+
+**3. Birim uyuşmazlığı — ve bu en sinsisiydi.** T8 slayttaki TÜM metni topluyordu ama
+`icerikPromptu`un bütçesi SATIR başına. Bir slayt iki satır taşıyabildiği için her satır
+kurala uysa bile toplam 41 çıkıyor ve metrik varlığı reddediyordu. **Modelin hatası
+sanılan şey ölçenin hatasıydı.** Metrik artık en uzun BLOĞU ölçüyor — prompt'un
+sözleşmesiyle aynı birim.
+
+**Prompt'a örnek ve sayım talimatı eklendi ve bu da ölçülerek yapıldı:** yalnız "en fazla
+8 kelime" yazmak yetmedi (kapak 21 geldi); örnek biçim ve "yazmadan önce her satırın
+kelimesini say" eklendikten sonra kapak 5–6 kelimeye indi. **Bir üst sınır, sayılması
+istenmediği sürece bir temennidir.**
+
+**Sonuç:** hat uçtan uca yeşil koşuyor, tasarım metriklerinin hepsi tolerans içinde,
+kapanış slaydı gerçek bir davet taşıyor.
+
+**Geri alma maliyeti:** yok — üçü de düzeltme, davranış genişlemesi değil.
+
+## D-261 — Fotoğraf varsayılan olmaktan çıktı; öncül sorgulanır
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-11 · §7.1
+
+FAZ-10.7'de bulduğum görsel kusurların çoğu tek kökten geliyordu: **oraya ait olmayan bir
+öge.** Fotoğraf kutu gibi duruyordu → kenara taşırdım. Altında boşluk kaldı → doldurdum.
+`kaydır ››` ile çakıştı → sayfalama bütçesi verdim. Mavi/turuncu makineler amber alanla
+çarpıştı → brief'e monokrom yazdım. **Dört yama, hepsi belirtiye.**
+
+Doğru soru *"bu fotoğraf neden burada?"* idi ve cevabı: **bağlı olan tek görsel yol oydu.**
+`chart` ve `diagram` çizicileri repoda yazılı ve test edilmişti; üretim hattı sıfır tane
+üretiyordu (`grep -c` → 0). Aynı zincir kırılması sınıfı, bu kez benim onu fark edememem
+biçiminde.
+
+**Kanıt — kendi referanslarımızda fotoğraf YOK, ölçüldü:** `karosel-sablon` doku payı
+**%6,8** (düz renk + tipografi). `karosel-mockup` %18,7 ama o doku slaytlardan değil,
+mockup'ın DUVAR fotoğrafından. Kullanıcının dört yeni örneğinde de dikdörtgen serbest
+fotoğraf yok: kesilmiş özne · daire arkalıklı ürün · geometrik süsleme dağarcığı ·
+yarım kareyi uçtan uca dolduran alan.
+
+**Karar:** fotoğraf varsayılan olmaktan çıkıyor. Görsellik kapalı bir öge dağarcığıyla
+kuruluyor: akış diyagramı · geometrik süsleme · gömülü ikon · maskeli/alan fotoğraf.
+
+**`chart` DEĞİL `diagram`:** grafik veri noktası ister, R-32 kaynaksız sayıyı yasaklar ve
+corpus'ta sayı yok — grafik yolu kaynak gelene kadar kapalı. Akış diyagramı sayısızdır.
+
+**⚠ TEK ÇEŞİT YOK — kullanıcının düzeltmesi ve D-254'le görünürdeki çelişkinin çözümü.**
+*"binlerce çeşidi var; mühim mesele estetik olması, hikayesinin olması, akması."*
+Ayrım: **garanti katmanı** kapalıdır (Türkçe tipografi, güvenli alan, kontrast, kelime
+bütçesi) — orada çeşitlilik özgürlük değil hata modudur. **Kompozisyon ailesi** ise çok
+olabilir ve post bazında seçilir. "Kapalı gramer" bir ŞABLON demek değil: bir aile
+kapalıdır, kaç aile olduğu açıktır. Bugüne kadarki hatam tek aileyi tüm sistem sanmaktı.
+
+**Yeni çalışma kuralı:** bir düzeltme **iki denemede** tutmuyorsa yamaya devam edilmez,
+öncül sorgulanır. Ölçüt tek soru: *bu öge oraya ait mi?* Fotoğraf yamalarında dört deneme
+harcadım ve dördü de yanlış katmandaydı.
+
+**Geri alma maliyeti:** düşük — akış yoksa fotoğraf yolu aynen çalışıyor.
+
+## D-262 — Bir bağlamda ölçülen değer SABİT değil PARAMETREdir
+
+**Tarih:** 2026-08-17 · **Bağlam:** FAZ-11.2 · §7.1
+
+Taralı daireyi tek bir slaytta gördüm — kâğıt alanda, mürekkep renginde, hayalet rakamın
+üstünde — ve **kalabalık** buldum. Sonra `sablon-susleme.ts`'teki çizgi sayısını 17'den
+11'e, kalınlığı `boyut/16`'dan `boyut/26`'ya çektim. Yani **tek bir bağlamdaki tek bir
+gözlemi, tüm tasarımlar için geçerli bir sabite dönüştürdüm.**
+
+Bu yanlış. Aynı yoğun tarama koyu zeminli, yüksek enerjili bir kompozisyonda **doğru**
+olurdu; referans örnek 3'te ince, örnek 1'in koyu dilinde kalın doğru olur. Kararın kendisi
+(seyrek) bu ailede doğruydu; **kararı sabitlemek** yanlıştı.
+
+**Kural:** dağarcık KAPALI, parametreleri AÇIK.
+- *Hangi şekiller var* → kapalı birleşim, altıncısı bir karar ister.
+- *O şekil ne kadar yoğun / kalın / opak çizilir* → bağlamdan gelen bir parametre.
+
+Ayırt edici soru: **"bu sayı her tasarımda aynı mı olmalı?"** Cevap hayırsa sabit değildir.
+`SINIR_MAX` bir sabittir (metnin taşmaması bir garanti). Tarama yoğunluğu değildir (estetik
+bir tercih). Garanti katmanı kapalı, estetik katmanı parametrik — FAZ-12.7'nin (kompozisyon
+ailesi) mikro ölçekteki hâli.
+
+⚠ **Bu D-260'ın kardeşi.** Orada ölçen ile ölçülen farklı birim konuşuyordu; burada bir
+bağlamın ölçüsü tüm bağlamlara uygulandı. İkisi de "yerelde doğru olanı global sanmak".
+
+**Geri alma maliyeti:** düşük — parametre varsayılanı bugünkü değer, davranış değişmiyor.
+
