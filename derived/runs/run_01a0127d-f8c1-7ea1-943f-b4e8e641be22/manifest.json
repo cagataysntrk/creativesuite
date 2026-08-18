@@ -1,0 +1,564 @@
+{
+  "runId": "run_01a0127d-f8c1-7ea1-943f-b4e8e641be22",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "fc7f83c973b6c49552f1827cc1e52bb63e079940",
+  "registryCommit": "fc7f83c973b6c49552f1827cc1e52bb63e079940",
+  "createdAt": "2026-08-18T01:36:40.761Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T01:30:40.730Z",
+      "finishedAt": "2026-08-18T01:30:40.730Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T01:30:40.730Z",
+      "finishedAt": "2026-08-18T01:30:40.732Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T01:30:40.732Z",
+      "finishedAt": "2026-08-18T01:31:19.979Z",
+      "output": null
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T01:31:19.979Z",
+      "finishedAt": "2026-08-18T01:32:17.324Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T01:32:17.324Z",
+      "finishedAt": "2026-08-18T01:32:17.325Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi",
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T01:32:17.325Z",
+      "finishedAt": "2026-08-18T01:32:17.326Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi",
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T01:32:17.326Z",
+      "finishedAt": "2026-08-18T01:32:17.327Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T01:32:17.327Z",
+      "finishedAt": "2026-08-18T01:32:19.814Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a0127d-f8c1-7ea1-943f-b4e8e641be22/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a0127d-f8c1-7ea1-943f-b4e8e641be22/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a0127d-f8c1-7ea1-943f-b4e8e641be22/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a0127d-f8c1-7ea1-943f-b4e8e641be22/slayt-04.png"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T01:32:19.814Z",
+      "finishedAt": "2026-08-18T01:35:52.415Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              790,
+              1190,
+              290,
+              130
+            ],
+            "kategori": "cakisma",
+            "siddet": "uyari",
+            "aciklama": "Alt bilgi satırının sonu ile sağ alttaki '01/04' sayfa sayacı neredeyse birbirine değecek kadar yakın duruyor."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T01:35:52.415Z",
+      "finishedAt": "2026-08-18T01:36:40.761Z",
+      "output": {
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 3,
+            "gerekce": "Üst yarı başlık ve gövde metniyle dolu, alt yarı büyük ölçüde boş ve sağ altta yalnız küçük bir kesikli kutu asılı kalmış, ağırlık merkezi sol üste kaymış."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 4,
+            "gerekce": "Sarı vurgulu 'göstermekle' kelimesi göz akışını net biçimde ilk yakalıyor, ardından gövde metni ikinci planda okunuyor."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 2,
+            "gerekce": "Gövde metni ile alt satır arasındaki devasa boşluk bir ritim hissi vermiyor, kesikli kutu da boşluğun içinde amaçsız bir kalıntı gibi duruyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 2,
+            "gerekce": "Kesikli çerçeveli 'kesik' etiketli kutu, sahnenin geri kalanındaki temiz tipografik sistemden kopuk, bir hata ayıklama işaretçisi gibi görünüyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 4,
+            "gerekce": "Beyaz ve sarı metin koyu zemin üzerinde rahat okunuyor, satır uzunluğu ve satır arası konforlu."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 3,
+            "gerekce": "Kalın sarı başlık kelimesi dikkat çekse de sağ taraftaki boş alan ve ince çapraz sarı çizgi kompozisyonu yumuşatıp etkiyi dağıtıyor."
+          }
+        ],
+        "toplam": 3,
+        "bulgular": [],
+        "reddedilen": [
+          "#0: kutu tuval dışına taşıyor (820,1080,1060,1220)",
+          "#1: kutu tuval dışına taşıyor (0,620,1080,1080)"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Geri kazanim kapasitesi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-18T01:36:40.761Z",
+      "finishedAt": "2026-08-18T01:36:40.761Z",
+      "output": null
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "kalite"
+}

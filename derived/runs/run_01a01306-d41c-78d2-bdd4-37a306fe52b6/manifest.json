@@ -1,0 +1,835 @@
+{
+  "runId": "run_01a01306-d41c-78d2-bdd4-37a306fe52b6",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "3eabf438ef055950a47d3e39278fb54e08086b66",
+  "registryCommit": "3eabf438ef055950a47d3e39278fb54e08086b66",
+  "createdAt": "2026-08-18T04:04:17.121Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:00:09.781Z",
+      "finishedAt": "2026-08-18T04:00:09.781Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:00:09.781Z",
+      "finishedAt": "2026-08-18T04:00:09.783Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:00:09.783Z",
+      "finishedAt": "2026-08-18T04:00:41.411Z",
+      "output": null
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:00:41.411Z",
+      "finishedAt": "2026-08-18T04:00:53.979Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:00:53.979Z",
+      "finishedAt": "2026-08-18T04:00:53.980Z",
+      "output": {
+        "sablonId": "sahne"
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:00:53.980Z",
+      "finishedAt": "2026-08-18T04:01:06.432Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:01:06.432Z",
+      "finishedAt": "2026-08-18T04:01:11.225Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp",
+      "verb": "GENERATE",
+      "status": "failed",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:01:11.225Z",
+      "finishedAt": "2026-08-18T04:01:17.726Z",
+      "output": null
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:01:17.726Z",
+      "finishedAt": "2026-08-18T04:01:17.726Z",
+      "output": {
+        "sablonId": "sahne"
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:01:17.726Z",
+      "finishedAt": "2026-08-18T04:01:21.012Z",
+      "output": {
+        "kusurlar": [
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak"
+          },
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak"
+          },
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak"
+          }
+        ],
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-04.png"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:01:21.012Z",
+      "finishedAt": "2026-08-18T04:03:42.214Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              750,
+              930,
+              330,
+              420
+            ],
+            "kategori": "kirpma",
+            "siddet": "uyari",
+            "aciklama": "Baskı makinesi illüstrasyonu hem sağ hem alt kenardan aynı anda kırpılmış, bu tasarım grameri yalnız dev bir rakam için tanımlanmıştı."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              700,
+              1220,
+              380,
+              90
+            ],
+            "kategori": "cakisma",
+            "siddet": "uyari",
+            "aciklama": "Sağ alttaki küçük açıklama metni makine illüstrasyonunun sol kenarına çok yakın durup zeminle karışıyor, okunurluğu düşürüyor."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:03:42.214Z",
+      "finishedAt": "2026-08-18T04:04:14.139Z",
+      "output": {
+        "bulgular": [],
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 4,
+            "gerekce": "Sol üstteki metin bloğu ile sağ alttaki teknik illüstrasyon köşegen bir denge kuruyor."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 5,
+            "gerekce": "Turuncu vurgulu başlık göz akışını anında yakalıyor ve gövde metni ikinci planda net kalıyor."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 4,
+            "gerekce": "Başlık ile alt kompozisyon arasındaki geniş boşluk nefes alanı olarak işliyor, artık alan hissi vermiyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 4,
+            "gerekce": "Tipografi, ince sarı çizgi ve teknik çizim aynı endüstriyel-editoryal sistemden geliyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 4,
+            "gerekce": "Koyu zemin üzerinde beyaz ve turuncu metin rahat okunuyor, yalnız alt köşe etiketleri küçük kalıyor."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 3,
+            "gerekce": "Turuncu vurgu dikkat çekse de genel kompozisyon akışta durduracak kadar riskli bir jest içermiyor."
+          }
+        ],
+        "toplam": 4,
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-18T04:04:14.140Z",
+      "finishedAt": "2026-08-18T04:04:14.140Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:04:14.140Z",
+      "finishedAt": "2026-08-18T04:04:14.141Z",
+      "output": {
+        "sablonId": "sahne"
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:04:14.141Z",
+      "finishedAt": "2026-08-18T04:04:17.120Z",
+      "output": {
+        "kusurlar": [
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak"
+          },
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak"
+          },
+          {
+            "tur": "matlama-tutmuyor",
+            "kart": null,
+            "alan": null,
+            "aciklama": "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak"
+          }
+        ],
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01306-d41c-78d2-bdd4-37a306fe52b6/slayt-04.png"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "topic": "Kalip degisim suresi"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-18T04:04:17.120Z",
+      "finishedAt": "2026-08-18T04:04:17.121Z",
+      "output": {
+        "kusurSayisi": 3,
+        "bulgular": [
+          "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak",
+          "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak",
+          "kesik görselin köşe parlaklığı 252/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak"
+        ],
+        "gecti": false,
+        "slaytSayisi": 4
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}

@@ -1,0 +1,1006 @@
+{
+  "runId": "run_01a0115c-ba53-7c54-bb8d-1a76ec7d61cb",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "9bf2dfafce51901308ab08f6eb1b24c5b5a67743",
+  "registryCommit": "9bf2dfafce51901308ab08f6eb1b24c5b5a67743",
+  "createdAt": "2026-08-17T20:15:50.706Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T20:14:44.861Z",
+      "finishedAt": "2026-08-17T20:14:44.862Z",
+      "output": null
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T20:14:44.862Z",
+      "finishedAt": "2026-08-17T20:14:44.865Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T20:14:44.865Z",
+      "finishedAt": "2026-08-17T20:14:44.868Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+        "gorsel_yuvasi": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T20:14:44.868Z",
+      "finishedAt": "2026-08-17T20:14:44.870Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-amber-200: oklch(0.92 0.070 90);\n  --ramp-marka-amber-500: oklch(0.80 0.156 87);\n  --ramp-marka-amber-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.27 0.008 250);\n  --ramp-marka-ink-950: oklch(0.15 0.006 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-amber-600);\n  --role-bg: var(--ramp-marka-amber-500);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:e81e2f2b5746dcd713793eacc49f2734a525a46b977b66d5a2c9002d65c7af72 414369B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a0115c-ba53-7c54-bb8d-1a76ec7d61cb",
+            "sourceRunId": "run_01a0115c-ba53-7c54-bb8d-1a76ec7d61cb"
+          },
+          "aile": {
+            "suslemeYogunlugu": 0,
+            "vinyetGucu": 0,
+            "degrade": false,
+            "panorama": false,
+            "gorselIslemleri": [
+              "keskinlik",
+              "duotone"
+            ],
+            "tipoEfektleri": [],
+            "alan": {
+              "zeminler": [
+                "var(--role-surface)"
+              ],
+              "kapanisZemini": null,
+              "ikiAlan": false
+            },
+            "sinir": "yok",
+            "hayalet": {
+              "bicim": "yok",
+              "olcekYuzde": 0
+            },
+            "tipoPayi": 0.38,
+            "suslemeTipleri": [],
+            "yerlesim": {
+              "kolon": "kenar",
+              "payPayi": 2.2,
+              "dikey": "ust"
+            },
+            "iskelet": {
+              "metin": {
+                "x": 9,
+                "y": 13,
+                "genislik": 33,
+                "yukseklik": 34
+              },
+              "rakam": null,
+              "gorsel": {
+                "x": 52,
+                "y": 0,
+                "genislik": 48,
+                "yukseklik": 100
+              },
+              "susleme": {
+                "x": 0,
+                "y": 0,
+                "genislik": 1,
+                "yukseklik": 1
+              },
+              "cizgi": {
+                "tip": "yok"
+              },
+              "tipo": {
+                "baslikPayi": 0.38,
+                "govdeOrani": 0.86,
+                "satirAraligi": 1.55
+              }
+            }
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Gerçek rakip bir firma değil, üç alternatif davranış.",
+              "level": 1,
+              "islev": "kanca"
+            },
+            {
+              "type": "body",
+              "text": "Ayrım ekseni SEKTÖR DEĞİL, VERİ OLGUNLUĞU. Önceki taslak dikeyi (otomotiv",
+              "islev": "gerilim"
+            },
+            {
+              "type": "body",
+              "text": "Ana mesaj: Veriniz yoksa önce veriyi kuruyoruz, varsa karara çeviriyoruz.",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "Tür: demo → özelleştirme.",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "Rol: Üretim/fabrika müdürü. Hattın çıktısından, duruşundan ve firesinden",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "İmalat firmalarına, veriyi karara çeviren ürünler ve o ürünlerin firmaya",
+              "islev": "donus"
+            },
+            {
+              "type": "body",
+              "text": "Ne kanıtlıyor: Uçtan uca bir tesis sürecini — kantardan satışa — canlı",
+              "islev": "davet"
+            }
+          ]
+        },
+        "tasarimPlani": {
+          "surum": 1,
+          "konu": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+          "aile": {
+            "deger": "editoryal",
+            "gerekce": "Editoryal — devasa boşluk, minik zarif tipografi. Estetik parametreler buradan; garanti katmanı ailenin DIŞINDA."
+          },
+          "yay": [
+            "kanca",
+            "gerilim",
+            "kanit",
+            "kanit",
+            "kanit",
+            "donus",
+            "davet"
+          ],
+          "suslemeYogunlugu": {
+            "deger": 0,
+            "gerekce": "Aileden geliyor: açık kâğıt alanda ince kontur okunur, yoğun tarama koyu bir ailede doğru olurdu (D-262)."
+          },
+          "yuvaBicimi": {
+            "deger": "alan",
+            "gerekce": "Uçtan uca alan: fotoğraf kutu değil zemin olur, kompozisyon çerçeveyi kullanır."
+          },
+          "panorama": {
+            "deger": false,
+            "gerekce": "Aileden geliyor: yön veren süsleme slaytlar arasında akıyor (FAZ-12.4, render bağlı)."
+          },
+          "slaytlar": [
+            {
+              "index": 0,
+              "islev": "kanca",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapak süssüz: ızgarada ilk kare bir cümledir, bir desen değil."
+              }
+            },
+            {
+              "index": 1,
+              "islev": "gerilim",
+              "oge": {
+                "deger": "gorsel-yuvasi",
+                "gerekce": "Hat fotoğraf yuvası istiyor; diyagramdan AYRI bir gövde slaydında açılıyor."
+              }
+            },
+            {
+              "index": 2,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 3,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 4,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 5,
+              "islev": "donus",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 6,
+              "islev": "davet",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapanış bir davettir; görsel öge daveti bir resim altyazısına çevirir."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T20:14:44.870Z",
+      "finishedAt": "2026-08-17T20:14:44.871Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "failed",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "şu an kullanılamıyor — cloudflare-workers-ai: yerel önkoşul sağlanmadı",
+          "estimatedCost": null
+        },
+        {
+          "providerId": "fal-flux",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "free şeridinde değil (desteklediği: premium)",
+          "estimatedCost": null
+        }
+      ],
+      "startedAt": "2026-08-17T20:14:44.871Z",
+      "finishedAt": "2026-08-17T20:14:44.871Z",
+      "output": null
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+        "gorsel_yuvasi": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T20:14:44.871Z",
+      "finishedAt": "2026-08-17T20:14:44.872Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-amber-200: oklch(0.92 0.070 90);\n  --ramp-marka-amber-500: oklch(0.80 0.156 87);\n  --ramp-marka-amber-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.27 0.008 250);\n  --ramp-marka-ink-950: oklch(0.15 0.006 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-amber-600);\n  --role-bg: var(--ramp-marka-amber-500);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:e81e2f2b5746dcd713793eacc49f2734a525a46b977b66d5a2c9002d65c7af72 414369B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a0115c-ba53-7c54-bb8d-1a76ec7d61cb",
+            "sourceRunId": "run_01a0115c-ba53-7c54-bb8d-1a76ec7d61cb"
+          },
+          "aile": {
+            "suslemeYogunlugu": 0,
+            "vinyetGucu": 0,
+            "degrade": false,
+            "panorama": false,
+            "gorselIslemleri": [
+              "keskinlik",
+              "duotone"
+            ],
+            "tipoEfektleri": [],
+            "alan": {
+              "zeminler": [
+                "var(--role-surface)"
+              ],
+              "kapanisZemini": null,
+              "ikiAlan": false
+            },
+            "sinir": "yok",
+            "hayalet": {
+              "bicim": "yok",
+              "olcekYuzde": 0
+            },
+            "tipoPayi": 0.38,
+            "suslemeTipleri": [],
+            "yerlesim": {
+              "kolon": "kenar",
+              "payPayi": 2.2,
+              "dikey": "ust"
+            },
+            "iskelet": {
+              "metin": {
+                "x": 9,
+                "y": 13,
+                "genislik": 33,
+                "yukseklik": 34
+              },
+              "rakam": null,
+              "gorsel": {
+                "x": 52,
+                "y": 0,
+                "genislik": 48,
+                "yukseklik": 100
+              },
+              "susleme": {
+                "x": 0,
+                "y": 0,
+                "genislik": 1,
+                "yukseklik": 1
+              },
+              "cizgi": {
+                "tip": "yok"
+              },
+              "tipo": {
+                "baslikPayi": 0.38,
+                "govdeOrani": 0.86,
+                "satirAraligi": 1.55
+              }
+            }
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Gerçek rakip bir firma değil, üç alternatif davranış.",
+              "level": 1,
+              "islev": "kanca"
+            },
+            {
+              "type": "body",
+              "text": "Ayrım ekseni SEKTÖR DEĞİL, VERİ OLGUNLUĞU. Önceki taslak dikeyi (otomotiv",
+              "islev": "gerilim"
+            },
+            {
+              "type": "body",
+              "text": "Ana mesaj: Veriniz yoksa önce veriyi kuruyoruz, varsa karara çeviriyoruz.",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "Tür: demo → özelleştirme.",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "Rol: Üretim/fabrika müdürü. Hattın çıktısından, duruşundan ve firesinden",
+              "islev": "kanit"
+            },
+            {
+              "type": "body",
+              "text": "İmalat firmalarına, veriyi karara çeviren ürünler ve o ürünlerin firmaya",
+              "islev": "donus"
+            },
+            {
+              "type": "body",
+              "text": "Ne kanıtlıyor: Uçtan uca bir tesis sürecini — kantardan satışa — canlı",
+              "islev": "davet"
+            }
+          ]
+        },
+        "tasarimPlani": {
+          "surum": 1,
+          "konu": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+          "aile": {
+            "deger": "editoryal",
+            "gerekce": "Editoryal — devasa boşluk, minik zarif tipografi. Estetik parametreler buradan; garanti katmanı ailenin DIŞINDA."
+          },
+          "yay": [
+            "kanca",
+            "gerilim",
+            "kanit",
+            "kanit",
+            "kanit",
+            "donus",
+            "davet"
+          ],
+          "suslemeYogunlugu": {
+            "deger": 0,
+            "gerekce": "Aileden geliyor: açık kâğıt alanda ince kontur okunur, yoğun tarama koyu bir ailede doğru olurdu (D-262)."
+          },
+          "yuvaBicimi": {
+            "deger": "alan",
+            "gerekce": "Uçtan uca alan: fotoğraf kutu değil zemin olur, kompozisyon çerçeveyi kullanır."
+          },
+          "panorama": {
+            "deger": false,
+            "gerekce": "Aileden geliyor: yön veren süsleme slaytlar arasında akıyor (FAZ-12.4, render bağlı)."
+          },
+          "slaytlar": [
+            {
+              "index": 0,
+              "islev": "kanca",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapak süssüz: ızgarada ilk kare bir cümledir, bir desen değil."
+              }
+            },
+            {
+              "index": 1,
+              "islev": "gerilim",
+              "oge": {
+                "deger": "gorsel-yuvasi",
+                "gerekce": "Hat fotoğraf yuvası istiyor; diyagramdan AYRI bir gövde slaydında açılıyor."
+              }
+            },
+            {
+              "index": 2,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 3,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 4,
+              "islev": "kanit",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 5,
+              "islev": "donus",
+              "oge": {
+                "deger": "ikon",
+                "gerekce": "Madde ritmi taşıyan gövde satırı; ikon içerikten seçiliyor, madde çizgisi yerine."
+              }
+            },
+            {
+              "index": 6,
+              "islev": "davet",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapanış bir davettir; görsel öge daveti bir resim altyazısına çevirir."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T20:14:44.872Z",
+      "finishedAt": "2026-08-17T20:14:45.694Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a0115c-ba53-7c54-bb8d-1a76ec7d61cb/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a0115c-ba53-7c54-bb8d-1a76ec7d61cb/slayt-02.png"
+        ],
+        "count": 2,
+        "rung": [
+          1,
+          1
+        ],
+        "bytes": [
+          46958,
+          81404
+        ],
+        "digests": [
+          "sha256:506e4b7da33bcef8122644d524f27b550f94898aadaa3f898a0736cbbfda44e5",
+          "sha256:07462b5c9995b9498bb0779f915ad95e7116043de13645faa935d7599bbf57bc"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T20:14:45.694Z",
+      "finishedAt": "2026-08-17T20:15:04.727Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              98,
+              376,
+              300,
+              50
+            ],
+            "kategori": "tipografi",
+            "siddet": "kritik",
+            "aciklama": "Gövde metni açık parantezle ve yarım bir kelimeyle aniden kesiliyor, cümle tamamlanmamış görünüyor."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-17T20:15:04.727Z",
+      "finishedAt": "2026-08-17T20:15:47.999Z",
+      "output": {
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 2,
+            "gerekce": "Tüm içerik tuvalin üst beşte birinde toplanmış, alt dörtte üçlük alan tamamen boş kalarak dikey ağırlık şiddetle yukarı çekilmiş."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 2,
+            "gerekce": "Kalın başlık, normal gövde ve büyük harfli vurgu satırı aynı anda göz önüne konmuş, hangisinin birincil mesaj olduğu net değil."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 2,
+            "gerekce": "Alt yarım tuvaldeki boşluk bir nefes alanı ritmi kurmuyor, içeriğin bittiği yerde kalan kullanılmamış artık alan izlenimi veriyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 3,
+            "gerekce": "Tipografi ailesi ve renk paleti tek sistemden geliyor, kulp ve sayaç aynı görsel dilde ama büyük harf bloğu ile başlık farklı ağırlık sistemleri gibi çalışıyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 3,
+            "gerekce": "Kontrast ve satır aralığı rahat okunuyor ancak metnin bir kelimenin ortasında kesilmesi okuma akışını böl üyor."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 1,
+            "gerekce": "İki renk alanı, akan eğri ve kırpılmış dev rakam gibi bu ailenin ayırt edici görsel imzası burada yok, tuval düz bir metin kartı gibi duruyor."
+          }
+        ],
+        "toplam": 2.17,
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              98,
+              190,
+              352,
+              250
+            ],
+            "kategori": "denge",
+            "siddet": "uyari",
+            "aciklama": "İçerik bloğu tuvalin üst çeyreğinde sıkışmış."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              0,
+              460,
+              1080,
+              860
+            ],
+            "kategori": "bosluk",
+            "siddet": "uyari",
+            "aciklama": "Tuvalin alt üçte ikisi hiçbir görsel öge taşımıyor."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              0,
+              0,
+              1080,
+              1350
+            ],
+            "kategori": "carpicilik",
+            "siddet": "uyari",
+            "aciklama": "Serinin karakteristik eğri-renk alanı-dev rakam üçlüsü bu karede yok."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "aile": "editoryal",
+        "metin": "Sürdürülebilirlik",
+        "topic": "Surdurulebilirlik bir slogan degil bir sayi olmali slogan değil, **bir sayı olmalı**"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-17T20:15:47.999Z",
+      "finishedAt": "2026-08-17T20:15:50.706Z",
+      "output": {
+        "qa": "  yerleşim instagram-feed-4x5 · 1080×1350 · tolerans ±%1 · sınır 8MB (doğrulandı 2026-08-15)\n  slayt 1 boyut: ✓ 46KB / 8192KB · png\n  slayt 2 boyut: ✓ 79KB / 8192KB · png\n  tasarım metrikleri:\n  slayt 1 optik merkezden sapma   20,1 puan │──┊───●────────╎────│ limit 55,0 puan  ! uyarı bandında\n  slayt 2 optik merkezden sapma    7,9 puan │──●────────────╎────│ limit 55,0 puan  ✓ tolerans içi\n  kütle, dolgunun tarafında değil    1,0 slayt │┊───────●──────╎────│ limit 2,0 slayt  ! uyarı bandında\n  boşluk tabanına oturmayan değer    0,0 değer │●──────────────╎────│ limit 1,0 değer  ✓ tolerans içi\n  slayt 1 kelime bütçesi (kapak)  100,0% │─────────────┊─●────│ limit 100,0%  ! uyarı bandında\n  slayt 1 metin kontrastı   10,5:1 │───────╎──┊────●────│ limit 4,5:1  ✓ tolerans içi\n  slayt 2 kelime bütçesi (kapanis)   86,0% │─────────────●─╎────│ limit 100,0%  ! uyarı bandında\n  slayt 2 metin kontrastı   18,1:1 │────╎─┊────────●────│ limit 4,5:1  ✓ tolerans içi\n  komşu slaytta aynı zemin    0,0 çift │●───────────────────│ limit 0,0 çift  ✓ tolerans içi\n\n  ! 4 okuma uyarı bandında — limite sürükleniyor\n  slayt 1:\n  ΔE 2000               0,0 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,5% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        10,2% │────────●─────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi\n  slayt 2:\n  ΔE 2000               0,1 │●────────┊─────╎────│ limit 5,0  ✓ tolerans içi\n  palet dışı renk       0,5% │─●────────┊────╎────│ limit 15,0%  ✓ tolerans içi\n  metin kaplama        10,2% │────────●─────┊╎────│ limit 20,0%  ✓ tolerans içi\n  en-boy sapması        0,0% │●───────┊──────╎────│ limit 1,0%  ✓ tolerans içi\n\n  ✓ bütün okumalar tolerans içi"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}

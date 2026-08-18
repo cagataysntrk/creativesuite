@@ -1,0 +1,695 @@
+{
+  "runId": "run_01a01362-d349-71c6-a44d-6180c4a4c38a",
+  "pipeline": "instagram-karosel",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "corpusCommit": "4478f9258a1f38b3a159b5a82e5e9c4fca28f8a9",
+  "registryCommit": "4478f9258a1f38b3a159b5a82e5e9c4fca28f8a9",
+  "frozenAt": "2026-08-18T05:40:38.879Z",
+  "order": [
+    "cozumle",
+    "bilgi-sec",
+    "metin-uret",
+    "sablon-uyarla",
+    "kompozit",
+    "gorsel-brief",
+    "gorsel-uret",
+    "gorsel-kirp",
+    "gorsel-brief-2",
+    "gorsel-uret-2",
+    "gorsel-kirp-2",
+    "gorsel-brief-3",
+    "gorsel-uret-3",
+    "gorsel-kirp-3",
+    "gorsel-brief-4",
+    "gorsel-uret-4",
+    "gorsel-kirp-4",
+    "yuva-doldur",
+    "render",
+    "gorsel-yargi",
+    "tasarim-yargi",
+    "duzelt",
+    "kompozit-son",
+    "render-son",
+    "kalite",
+    "onay",
+    "yayinla"
+  ],
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "katalog": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "capability": "image.generate",
+      "metered": true,
+      "providerId": "cloudflare-workers-ai",
+      "confidence": "green",
+      "descriptorDigest": "d3c341f84",
+      "params": {
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-kirp",
+      "verb": "GENERATE",
+      "capability": "image.matte",
+      "metered": true,
+      "providerId": "local-rembg",
+      "confidence": "amber",
+      "descriptorDigest": "d40b6d403",
+      "params": {
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-brief-2",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "gorsel_brief": true,
+        "gorsel_sira": 2,
+        "max_chars": 600,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-uret-2",
+      "verb": "GENERATE",
+      "capability": "image.generate",
+      "metered": true,
+      "providerId": "cloudflare-workers-ai",
+      "confidence": "green",
+      "descriptorDigest": "d3c341f84",
+      "params": {
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-2",
+      "verb": "GENERATE",
+      "capability": "image.matte",
+      "metered": true,
+      "providerId": "local-rembg",
+      "confidence": "amber",
+      "descriptorDigest": "d40b6d403",
+      "params": {
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-brief-3",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "gorsel_brief": true,
+        "gorsel_sira": 3,
+        "max_chars": 600,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-uret-3",
+      "verb": "GENERATE",
+      "capability": "image.generate",
+      "metered": true,
+      "providerId": "cloudflare-workers-ai",
+      "confidence": "green",
+      "descriptorDigest": "d3c341f84",
+      "params": {
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-3",
+      "verb": "GENERATE",
+      "capability": "image.matte",
+      "metered": true,
+      "providerId": "local-rembg",
+      "confidence": "amber",
+      "descriptorDigest": "d40b6d403",
+      "params": {
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-brief-4",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "gorsel_brief": true,
+        "gorsel_sira": 4,
+        "max_chars": 600,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-uret-4",
+      "verb": "GENERATE",
+      "capability": "image.generate",
+      "metered": true,
+      "providerId": "cloudflare-workers-ai",
+      "confidence": "green",
+      "descriptorDigest": "d3c341f84",
+      "params": {
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-4",
+      "verb": "GENERATE",
+      "capability": "image.matte",
+      "metered": true,
+      "providerId": "local-rembg",
+      "confidence": "amber",
+      "descriptorDigest": "d40b6d403",
+      "params": {
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "katalog": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "width": 1080,
+        "height": 1350
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "capability": "image.critique",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "capability": "design.critique",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "katalog": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "width": 1080,
+        "height": 1350
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "onay",
+      "verb": "PROPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "yayinla",
+      "verb": "PUBLISH",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "platform": "instagram"
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    }
+  ],
+  "recordIds": [
+    "rec_msg_veri_karar_2026",
+    "rec_persona_uretim_muduru",
+    "rec_pos_veri_karar_2026",
+    "rec_proof_upcyman"
+  ],
+  "totalLow": {
+    "micros": "0",
+    "currency": "USD"
+  },
+  "totalHigh": {
+    "micros": "0",
+    "currency": "USD"
+  },
+  "varyantSayisi": 1,
+  "digest": "sha256:fab47021724b769d7a32191ce6a3ccfaca59ed1c6b7264ba51d8ba5836f008f2"
+}

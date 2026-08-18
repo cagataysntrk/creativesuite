@@ -1,0 +1,461 @@
+{
+  "runId": "run_01a01311-d8f8-77f7-beb8-2d0514605c24",
+  "pipeline": "instagram-karosel",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "corpusCommit": "4d58b50ad84c751b255987a829ad4db9804eb58d",
+  "registryCommit": "4d58b50ad84c751b255987a829ad4db9804eb58d",
+  "frozenAt": "2026-08-18T04:12:11.917Z",
+  "order": [
+    "cozumle",
+    "bilgi-sec",
+    "metin-uret",
+    "sablon-uyarla",
+    "kompozit",
+    "gorsel-brief",
+    "gorsel-uret",
+    "gorsel-kirp",
+    "yuva-doldur",
+    "render",
+    "gorsel-yargi",
+    "tasarim-yargi",
+    "duzelt",
+    "kompozit-son",
+    "render-son",
+    "kalite",
+    "onay",
+    "yayinla"
+  ],
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "katalog": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "capability": "image.generate",
+      "metered": true,
+      "providerId": "cloudflare-workers-ai",
+      "confidence": "green",
+      "descriptorDigest": "d3c341f84",
+      "params": {
+        "optional": true,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-kirp",
+      "verb": "GENERATE",
+      "capability": "image.matte",
+      "metered": true,
+      "providerId": "local-rembg",
+      "confidence": "amber",
+      "descriptorDigest": "d40b6d403",
+      "params": {
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "katalog": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "width": 1080,
+        "height": 1350
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "capability": "image.critique",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "capability": "design.critique",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "amber",
+      "descriptorDigest": "d12cd5528",
+      "params": {
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "katalog": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "width": 1080,
+        "height": 1350
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "onay",
+      "verb": "PROPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "yayinla",
+      "verb": "PUBLISH",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "platform": "instagram"
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    }
+  ],
+  "recordIds": [
+    "rec_msg_veri_karar_2026",
+    "rec_persona_uretim_muduru",
+    "rec_pos_veri_karar_2026",
+    "rec_proof_upcyman"
+  ],
+  "totalLow": {
+    "micros": "0",
+    "currency": "USD"
+  },
+  "totalHigh": {
+    "micros": "0",
+    "currency": "USD"
+  },
+  "varyantSayisi": 1,
+  "digest": "sha256:443f1f1211e4a4fafca76b6c8eb25964cec011d5d9c83731e897de67dcf771df"
+}
