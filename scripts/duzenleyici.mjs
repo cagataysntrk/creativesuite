@@ -252,6 +252,123 @@ cek()
 </script>`
 
 // ── ölçüm: denetim tarayıcıda koşuyor, ayrı bir motor yok ────────────────────
+const KATALOG_YOLU = join(REPO, 'packages/render/src/katalog-ornek.ts')
+
+/** Diskte NE OLDUĞUNUN bilgisi. İkinci kaydetmede aranan eski değer, birincinin
+ *  yazdığı yeni değerdir — ORNEKLER bellekte hep ilk hâlini tutar. */
+const diskteki = Object.fromEntries(
+  Object.entries(ORNEKLER).map(([k, o]) => ['sablon:' + k, structuredClone(o)])
+)
+
+const tsKacir = (v) => "'" + String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'"
+
+/**
+ * Şablon düzenlemesini `katalog-ornek.ts`e CERRAHİ olarak yazar.
+ *
+ * ⚠ ⚠ **DOSYA YENİDEN ÜRETİLMİYOR, YAMANIYOR.** `katalog-ornek.ts` 999 satır ve
+ * ağırlığının çoğu YORUM: her sayı bir ölçümün, her seçim bir kararın izini taşıyor.
+ * Veriden yeniden üretmek o yorumların hepsini silerdi — dosyanın asıl değeri
+ * silinmiş olurdu. Bu yüzden yalnız DEĞİŞEN alanın literali değiştiriliyor.
+ *
+ * ⚠ **Belirsizlikte HİÇBİR ŞEY yazılmıyor.** Eski değer blokta bir kez geçmiyorsa
+ * (sıfır ya da birden çok) işlem tümüyle iptal ediliyor ve sebebi bildiriliyor.
+ * Yarım yazılmış bir katalog, yazılmamış olandan kötüdür.
+ *
+ * ⚠ Yasa 2: bu bir ÖNERİdir. Dosya çalışma ağacında değişir, onay insanın commit'idir.
+ */
+const kataloguYaz = (id) => {
+  const ad = kaynak[id].ad
+  let kaynakKod = readFileSync(KATALOG_YOLU, 'utf8')
+  // id → const adı eşlemesi DOSYADAN okunuyor: elle yazılmış bir tablo, dosya
+  // yeniden adlandırıldığı gün sessizce yanlış bloğa yazardı.
+  const harita = /export const ORNEKLER[^{]*\{([^}]*)\}/.exec(kaynakKod)?.[1] ?? ''
+  // ⚠ Anahtar TIRNAKLI da olabilir TIRNAKSIZ da: `'akan-alan':` ve `sahne:` aynı
+  // dosyada yan yana duruyor (tireli olan tanımlayıcı değil). İlk sürüm yalnız
+  // tırnaklıyı arıyordu ve tam da tırnaksız olanlarda "sabit adı bulunamadı" diyordu.
+  const sabit = new RegExp("(?:'" + ad + "'|" + ad + ')\\s*:\\s*([A-Z_0-9]+)').exec(harita)?.[1]
+  if (sabit === undefined) return { ok: false, sebep: ad + ' icin sabit adi bulunamadi' }
+  const bas = kaynakKod.indexOf('export const ' + sabit)
+  if (bas < 0) return { ok: false, sebep: sabit + ' blogu bulunamadi' }
+  const sonrakiler = [...kaynakKod.slice(bas + 10).matchAll(/\nexport const /g)]
+  const son = sonrakiler.length === 0 ? kaynakKod.length : bas + 10 + sonrakiler[0].index
+
+  let blok = kaynakKod.slice(bas, son)
+  const yeni = calisan[id]
+  const eski = diskteki[id]
+  const degisiklikler = []
+
+  for (let i = 0; i < yeni.kartlar.length; i++) {
+    for (const alan of ['baslik', 'govde', 'ustBaslik', 'elYazisi']) {
+      const a = eski.kartlar[i]?.[alan]
+      const b = yeni.kartlar[i]?.[alan]
+      if (a === undefined || a === b) continue
+      const arama = alan + ': ' + tsKacir(a)
+      const adet = blok.split(arama).length - 1
+      if (adet !== 1)
+        return {
+          ok: false,
+          sebep:
+            'kart ' +
+            (i + 1) +
+            ' ' +
+            alan +
+            ': eski deger blokta ' +
+            adet +
+            ' kez geciyor — belirsiz, hicbir sey yazilmadi',
+        }
+      blok = blok.replace(arama, alan + ': ' + tsKacir(b))
+      degisiklikler.push('kart ' + (i + 1) + ' · ' + alan)
+    }
+  }
+
+  // Görsel yuvaları: dizi YENİDEN KURULMUYOR, satırdaki SAYILAR değiştiriliyor.
+  //
+  // ⚠ ⚠ İlk sürüm diziyi veriden yeniden kuruyor ve içinde yorum görünce tüm işlemi
+  // reddediyordu — alakasız bir metin düzenlemesi bile bir yorum yüzünden yazılamıyordu.
+  // Yorumlar bu dosyanın asıl değeri; onları engel saymak yanlış soruydu. Doğru soru:
+  // yorumu hiç okumadan yalnız değişen sayıya dokunmak.
+  const gorselDegisti = JSON.stringify(eski.gorseller) !== JSON.stringify(yeni.gorseller)
+  if (gorselDegisti) {
+    const m = /(\n  gorseller: \[\n)([\s\S]*?)(\n  \],)/.exec(blok)
+    if (m === null)
+      return { ok: false, sebep: 'gorseller dizisi bulunamadi — hicbir sey yazilmadi' }
+    const satirlar = m[2].split('\n')
+    let sira = -1
+    const yeniSatirlar = satirlar.map((satir) => {
+      if (!/\{\s*src:/.test(satir)) return satir
+      sira++
+      const a = eski.gorseller[sira]
+      const b = yeni.gorseller[sira]
+      if (a === undefined || b === undefined) return satir
+      let cikti = satir
+      for (const alan of ['x', 'y', 'genislik', 'yukseklik']) {
+        if (a[alan] === undefined || a[alan] === b[alan]) continue
+        const kural = new RegExp('(\\b' + alan + ': )' + a[alan] + '(?=[,}\\s])')
+        if (!kural.test(cikti)) return satir
+        cikti = cikti.replace(kural, '$1' + b[alan])
+      }
+      return cikti
+    })
+    if (sira + 1 !== yeni.gorseller.length)
+      return {
+        ok: false,
+        sebep:
+          'gorsel satiri sayisi tutmuyor (' +
+          (sira + 1) +
+          ' vs ' +
+          yeni.gorseller.length +
+          ') — hicbir sey yazilmadi',
+      }
+    blok = blok.replace(m[0], m[1] + yeniSatirlar.join('\n') + m[3])
+    degisiklikler.push('gorsel yuvalari (' + yeni.gorseller.length + ')')
+  }
+
+  if (degisiklikler.length === 0) return { ok: false, sebep: 'degisiklik yok' }
+  writeFileSync(KATALOG_YOLU, kaynakKod.slice(0, bas) + blok + kaynakKod.slice(son))
+  diskteki[id] = structuredClone(yeni)
+  return { ok: true, degisiklikler }
+}
+
 /**
  * ⚠ ⚠ **BU FONKSİYONUN İLK SÜRÜMÜ HİÇ ÇALIŞMADI ve bunu SÖYLEMEDİ.**
  *
@@ -355,12 +472,17 @@ const sunucu = createServer(async (req, res) => {
         )
       }
 
-      // ── ŞABLON modu: HENÜZ katalog dosyasına yazmıyor (BORÇLAR D15). Yanlış bir
-      // yazma altı tasarımı birden bozar; öneri olarak basılıyor (Yasa 2: agent önerir).
-      const yol = join(REPO, 'derived/duzenleyici-' + k.ad + '.json')
-      writeFileSync(yol, JSON.stringify(calisan[id], null, 2))
+      // ── ŞABLON modu: katalog dosyasına CERRAHİ yazıyor. Yorumlar korunuyor.
+      const y = kataloguYaz(id)
+      const yedekYol = join(REPO, 'derived/duzenleyici-' + k.ad + '.json')
+      writeFileSync(yedekYol, JSON.stringify(calisan[id], null, 2))
+      if (!y.ok)
+        return res.end('✗ katalog YAZILMADI: ' + y.sebep + '\n  anlık görüntü: ' + yedekYol)
       return res.end(
-        '✓ yazıldı: ' + yol + '\n⚠ Bu bir ÖNERİ dosyası; katalog-ornek.ts değişmedi (D15).'
+        '✓ katalog-ornek.ts güncellendi — ' +
+          y.degisiklikler.join(' · ') +
+          "\n⚠ Bu bir ÖNERİ (Yasa 2): `git diff` ile bak, onay senin commit'in." +
+          '\n  yeniden derle: just duzenle'
       )
     }
     res.writeHead(404)

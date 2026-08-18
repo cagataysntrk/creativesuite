@@ -96,6 +96,39 @@ const ORNEK_ISARETI = 'ÖRNEK'
  * ⚠ `i` bayrağı YOK: JavaScript'in case-folding'i `İ`/`i` çiftini Türkçe'nin
  * beklediği gibi eşlemiyor (R-21 ile aynı kök). Biçimler açıkça sayılıyor.
  */
+/**
+ * Başlığın en uzun kelime bütçesi — ŞABLONUN KENDİ TASLAĞINDAN türetiliyor.
+ *
+ * ⚠ ⚠ **BU SAYI ELLE SEÇİLMEDİ ve seçilmemeli.** Taslaklar elle kuruldu ve sığdığı
+ * görüldü; en uzun başlık kelimesi altı şablonda 7–11 harf arasında. Yani bütçe zaten
+ * tasarımın içinde yazılı — okumak yeterli. Sabit bir sayı yazmak, altı farklı kolon
+ * genişliğine tek bir cevap vermek olurdu.
+ *
+ * ⚠ ⚠ **NEDEN GEREKLİ: Türkçe eklemeli ve tek kelime tüm karoseli çökertiyor.** Gerçek
+ * bir koşuda model "Karşılaştırma" (13 harf) yazdı; başlık 88 px'e sığdı, öteki üç kart
+ * 149 px'deydi. Punto TÜM panorama için tek — bir kelime dört slaydın tipografisini
+ * birden düşürüyor (`punto-cokmesi`).
+ *
+ * ⚠ +1 tolerans: bir Türkçe eki kelimeyi bir harf uzatabilir ve bu meşru.
+ */
+const kelimeButcesi = (ornek: KatalogOrnegi): number =>
+  Math.max(
+    ...ornek.kartlar.flatMap((k) =>
+      k.baslik
+        .replace(/\*\*/g, '')
+        .split(/\s+/)
+        .filter((w) => w !== '')
+        .map((w) => [...w].length)
+    )
+  ) + 1
+
+const enUzunKelime = (metin: string): string =>
+  metin
+    .replace(/\*\*/g, '')
+    .split(/\s+/)
+    .filter((w) => w !== '')
+    .reduce((a, b) => ([...b].length > [...a].length ? b : a), '')
+
 const SAYAC_ETIKETI =
   /(?:BÖLÜM|Bölüm|bölüm|BOLUM|Bolum|bolum|SERİ|Seri|seri|SERI|SORU|Soru|soru|ADIM|Adım|adım|KISIM|Kısım|kısım|SAYFA|Sayfa|sayfa|PART|Part|part|STEP|Step|step)\s*[-–—.:]?\s*\d+/u
 
@@ -119,6 +152,13 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
     if ((y.baslik.match(/\*\*/g) ?? []).length % 2 !== 0)
       kusurlar.push(`${yer}: yarım kalan \`**\` vurgu işareti`)
     if (y.ustBaslik.trim() === '') kusurlar.push(`${yer}: üst başlık boş`)
+    const butce = kelimeButcesi(ornek)
+    const uzun = enUzunKelime(y.baslik)
+    if ([...uzun].length > butce)
+      kusurlar.push(
+        `${yer}: başlıktaki "${uzun}" ${[...uzun].length} harf, şablonun bütçesi ${butce} — ` +
+          `tek uzun kelime TÜM karoselin puntosunu düşürür, daha kısa bir kelime seç`
+      )
     if (SAYAC_ETIKETI.test(y.ustBaslik))
       kusurlar.push(
         `${yer}: üst başlık bir SAYAÇ ("${y.ustBaslik}") — numaralı etiket yasak, kartın konusunu adlandır`
@@ -286,6 +326,10 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     // ⚠ ⚠ **SAYAÇ YASAĞI İSTEMDE DE YAZILI OLMAK ZORUNDA.** Yalnız reddetmek, modeli
     // her koşuda aynı duvara çarptırıp bir tur daha yakmak olurdu; kuralı önce SÖYLE,
     // sonra zorla.
+    // ⚠ Bütçe İSTEMDE de yazılı: yalnız reddetmek modeli aynı duvara çarptırır.
+    `BAŞLIKTA EN UZUN KELİME ${kelimeButcesi(ornek)} HARFİ GEÇEMEZ. Türkçe eklemeli;` +
+      ' tek uzun kelime tüm karoselin puntosunu düşürür. Uzun bir kavramı ikiye böl' +
+      ' ya da daha kısa bir eşanlamlı kullan.',
     'ÜST BAŞLIK SAYAÇ OLAMAZ: "BÖLÜM 01", "SERİ 2", "SORU 3", "ADIM 4" gibi numaralı',
     'etiketler YASAK. Slayt numarası zaten alt rayda basılıyor; üst başlık o kartın',
     'KONUSUNU adlandırır (örn. "MALİYET", "AYRIŞTIRMA", "DÖNGÜ").',

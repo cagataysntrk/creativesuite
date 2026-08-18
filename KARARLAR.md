@@ -510,3 +510,31 @@ oklar(5) → METİN(6).
 **Kanıt kırmızıdan geliyor.** Düzeltmeden önce ölçüm altı şablonun ÜÇÜNDE (`sahne`
 %13, `memphis` %20, `donen` %6) ve iki gerçek koşunun İKİSİNDE de örtülme buldu;
 sonra hepsi temiz. Katmanlanma kasten bozulunca dört test birden kırmızıya dönüyor.
+
+## D-305
+
+**İki kalite ölçüsü de kökünden düzeltildi: biri eskimişti, öteki bütçesizdi.**
+
+**`matlama-tutmuyor` yanlış şeyi ölçüyordu.** Kural luma-anahtarı döneminde yazıldı:
+o zaman arka planı kesmenin tek yolu koyu zemini CSS filtresiyle şeffaflaştırmaktı ve
+"köşe parlaklığı" doğru vekildi. Sonra hatta gerçek arka plan silme (rembg) girdi;
+görseller artık RGBA geliyor, köşeler ŞEFFAF. Ama ölçüm alfa kanalını hiç okumuyordu
+(`d[i+3]` yok) ve şeffaf pikselin ALTINDAKİ RGB çöp değerini parlaklık sayıyordu.
+Gerçek bir koşuda köşe parlaklığı 38/255 ölçüldü ve kusur bildirildi — oysa kesim
+zaten tutmuştu. **Tekniği değiştirdik, ölçüsünü değiştirmedik.** Artık önce alfa
+bakılıyor: köşe şeffafsa (alfa < 16/255) iş bitmiş demektir; opaksa luma eşiği devreye
+giriyor.
+
+**`punto-cokmesi` bir bütçe eksikliğiydi.** Gerçek bir koşuda model "Karşılaştırma"
+(13 harf) yazdı; o kartın başlığı 88 px'e sığdı, öteki üç kart 149 px'deydi. Punto TÜM
+panorama için tek — **bir kelime dört slaydın tipografisini birden düşürüyor.** Sebep
+yapısal: Türkçe eklemeli, uzun kavramlar tek kelimede toplanıyor.
+
+**Bütçe elle SEÇİLMEDİ, şablondan OKUNDU.** Taslaklar elle kuruldu ve sığdığı görüldü;
+en uzun başlık kelimesi altı şablonda 7–11 harf. Yani sınır zaten tasarımın içinde
+yazılı. Sabit bir sayı yazmak altı farklı kolon genişliğine tek cevap vermek olurdu;
+`sahne` 12'ye izin verirken `editoryal` 8'de kalıyor ve ikisi de kendi tasarımının
+söylediği şey. +1 tolerans bir Türkçe ekine pay bırakıyor.
+
+İstem bütçeyi açıkça yazıyor, `uyarla` aşanı reddediyor — yalnız reddetmek modeli her
+koşuda aynı duvara çarptırıp bir tur yakardı.

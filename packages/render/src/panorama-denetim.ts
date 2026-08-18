@@ -197,18 +197,36 @@ const OLCUM = (kesimler: readonly number[], iddia: boolean): string => `(() => {
     const n = Math.max(1, Math.min(12, Math.floor(Math.min(c.width, c.height) / 3)))
     const noktalar = [[0,0],[c.width-n,0],[0,c.height-n],[c.width-n,c.height-n]]
     let toplam = 0
+    // ⚠ ⚠ **ÖNCE ALFA, SONRA PARLAKLIK — ve ilk sürüm alfayı HİÇ OKUMUYORDU.**
+    // Bu ölçüm luma-anahtarı döneminde yazıldı: o zaman arka planı kesmenin tek yolu
+    // koyu zemini CSS filtresiyle şeffaflaştırmaktı, yani "köşe parlaklığı" doğru
+    // vekildi. Sonra hatta gerçek arka plan silme (rembg) girdi ve görseller ALFALI
+    // geliyor — köşeler şeffaf, ama şeffaf pikselin ALTINDAKİ RGB çöp değeri hâlâ
+    // parlaklık olarak sayılıyordu. Gerçek bir koşuda köşe parlaklığı 38/255 ölçüldü
+    // ve kusur bildirildi; oysa görsel RGBA'ydı ve kesim ZATEN tutmuştu.
+    // ⚠ Ölçüm aletinin kendisi eskimişti: tekniği değiştirdik, ölçüsünü değiştirmedik.
+    let alfaToplam = 0
     for (const [x,y] of noktalar) {
       const d = g.getImageData(Math.max(0,x), Math.max(0,y), n, n).data
       let s = 0
-      for (let i = 0; i < d.length; i += 4) s += 0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2]
+      let a = 0
+      for (let i = 0; i < d.length; i += 4) {
+        s += 0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2]
+        a += d[i+3]
+      }
       toplam += s / (d.length / 4)
+      alfaToplam += a / (d.length / 4)
     }
     const ort = toplam / noktalar.length
+    const alfa = alfaToplam / noktalar.length
+    // Köşeler şeffafsa arka plan GERÇEKTEN silinmiş: luma anahtarına hiç iş kalmıyor.
+    // 16/255 eşiği kenar yumuşatmasının bıraktığı kalıntıya pay bırakıyor.
+    if (alfa < 16) continue
     // 34/255: luma anahtarı bu eşiğin altında güvenilir kesiyor; üstünde zemin kalıyor.
     if (ort > 34)
       kusurlar.push({ tur:'matlama-tutmuyor', kart:null, alan:null,
-        aciklama: 'kesik görselin köşe parlaklığı ' + Math.round(ort) +
-          '/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak' })
+        aciklama: 'kesik görselin köşesi OPAK (alfa ' + Math.round(alfa) + '/255) ve parlaklık ' +
+          Math.round(ort) + '/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek' })
   }
 
   // ── hayalet çarpışması: metnin ya da alan sınırının üstüne düşmemeli ─────

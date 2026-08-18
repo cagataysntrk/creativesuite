@@ -179,6 +179,42 @@ describe('dikiş 2d: sayaç etiketi ne öğretiliyor ne kabul ediliyor', () => {
   })
 })
 
+// ⚠ Gerçek koşudan: model "Karşılaştırma" (13 harf) yazdı ve başlık 88 px'e sıkıştı,
+// öteki üç kart 149 px'deydi. Punto TÜM panorama için tek — bir kelime dört slaydın
+// tipografisini birden düşürüyor. Bütçe şablonun KENDİ taslağından türüyor (D-305).
+describe('dikiş 2e: uzun kelime karoselin puntosunu çökertmiyor', () => {
+  const ornek = ORNEKLER['sahne']
+  const kart = (baslik: string) => ({
+    ustBaslik: 'MALİYET',
+    baslik,
+    govde: 'Tek cümle.',
+    hayalet: '',
+    rayaSol: 'ETİKET',
+    rayaOrta: 'Kaynak, 2026',
+  })
+  const dene = (baslik: string) =>
+    ornek === undefined
+      ? { ok: false as const }
+      : uyarla(ornek, { sablonId: 'sahne', kartlar: ornek.kartlar.map(() => kart(baslik)) })
+
+  it('bütçeyi aşan kelime REDDEDİLİYOR', () => {
+    // sahne taslağının en uzunu 11 harf ("göstermekle") → bütçe 12.
+    expect(dene('Önce Veri, **Sonra** Karşılaştırma').ok).toBe(false)
+  })
+
+  it('bütçe içindeki kelime GEÇİYOR', () => {
+    expect(dene('Veri **Dağınık** Kalmış').ok).toBe(true)
+  })
+
+  it('istem bütçeyi açıkça yazıyor', () => {
+    const istem = promptTuret(
+      'text.generate',
+      girdi({ sablon_uyarla: true, topic: 'Tekstil atığı' }, { m: { lines: liste } })
+    )
+    expect(istem).toContain('EN UZUN KELİME')
+  })
+})
+
 describe('dikiş 2b: şablonun görsel ihtiyacı → brief istemi', () => {
   it('görsel ilan eden şablonda brief KURULUYOR', () => {
     const p = promptTuret(
