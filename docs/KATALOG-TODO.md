@@ -28,7 +28,7 @@
 |---|---|---|---|
 | 1.1 | `image copy 2` (sahne) — kesik özne kadrajın **~%40'ı**, KAHRAMAN | ✅ Sorun ölçek değil YERLEŞİMdi: tek yuva dört slayda düşüyordu. A8 kapandı (D-278), `sahne` DÖRT yuva; her karede bir özne, y%22'den alt kenara kesik. Doluluk %5–9 → %10,6–14,1 | ✅ |
 | 1.2 | `image copy 2` — oklar **el çizimi fırça şeridi** | ✅ `perfect-freehand` (MIT, 31KB, sıfır bağımlılık, determinist); açıklık 8→17, büküm 13→52 | ✅ |
-| 1.3 | `image copy 2` — **el yazısı ikinci yüz** ("Instagram" kelimesi) | 🟡 Caveat (OFL) indirildi, Türkçe kapsaması çizdirilerek doğrulandı, altı kapakta denendi ve ÇALIŞTI — ama `tasarim` kapısının "en çok 2 aile" sınırını deliyor. R-76 gereği kural değişikliği AYRI turda (D-282) | 🟡 |
+| 1.3 | `image copy 2` — **el yazısı ikinci yüz** ("Instagram" kelimesi) | ✅ Caveat (OFL) bağlandı, altı kapakta `elYazisi` vurgu satırı. Sınır R-76 uyarınca ayrı turda 2→3 oldu ve karşılığında **beyan edilmemiş aile tavanı 0** geldi — net sonuç daha sıkı kapı (D-285) | ✅ |
 | 1.4 | `image copy 4` (memphis) — lekeler **dev**, kesim aşıyor | ✅ 6→9 leke, boyut 130–210 → 170–430 px (slaytın ~%35'i), üçü kesim üstünde, iki aksan | ✅ |
 | 1.5 | `image copy 4` — **iki aksan** (turuncu + lacivert) | ✅ mavi + amber (D-276) | ✅ |
 | 1.6 | `image.png` (akan-alan) — bölme güçlü eğri | ✅ Fark eksende değil **GENLİKTEydi**: %9 → %42 salınım. Eksen yatay kaldı (dikey sınır kesimde kırılır — kayıtlı gerekçe); tepe %44'te tutuldu, metne girmiyor | ✅ |
@@ -67,11 +67,8 @@
 
 ## Sıra (bağımlılığa göre)
 
-**Kapananlar:** 0.1–0.5 · 1.1 · 1.2 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
+**Kapananlar:** 0.1–0.5 · 1.1 · 1.2 · 1.3 · 1.4 · 1.5 · 1.6 · 1.7 · 2.1 · 2.2 · 2.4 · 3.1–3.6 · 4.1 · 4.2 · 4.4
 
 **Kalan sıra:**
-1. **1.3 (yarım)** — `tasarim` kapısının font ailesi sınırı 2 → 3. **Ayrı turda,
-   `refactor(gates)` tipli commit'le** (R-76: kırmızı kapının kuralı aynı turda
-   gevşetilmez). Sonra Caveat geri bağlanır; dosyalar ve ölçümler hazır (D-282).
-2. **2.3** — 3B/izometrik varlık seti. GLB ikinci motor ister (Yasa 4); PNG/SVG set aranacak.
+1. **2.3** — 3B/izometrik varlık seti. GLB ikinci motor ister (Yasa 4); PNG/SVG set aranacak.
 3. **4.3** — EN SON: katalog bitince `content/` çıktıları yeniden üretilir.

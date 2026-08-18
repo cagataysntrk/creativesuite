@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 import type { DocumentModel } from '@suite/kernel'
-import { tasarimOlc } from './tasarim-olcum.js'
+import { tasarimOlc, tipografiSay } from './tasarim-olcum.js'
 
 // Gerçek token dosyasının yapısı: rampalar `:root`ta, roller yüzey bloklarında ve
 // roller RAMPAYA işaret ediyor — yani çözüm iki adım.
@@ -174,5 +174,37 @@ describe('yay işlevi bloğun üstünde taşınıyor', () => {
     }
     const r = tasarimOlc({ slaytlar: [doc] }).readings.find((x) => x.metric === 'word_budget')
     expect(r!.value).toBeGreaterThan(100) // donus = 18
+  })
+})
+
+// ⚠ ⚠ **SINIR 2 → 3 BİR TAKASTI (D-285): sayı gevşedi, MEŞRUİYET SIKILAŞTI.** Eski kural
+// üçüncü ailenin NE OLDUĞUNU sormuyordu; `font-family: Georgia` yazan bir belge iki
+// aileyle yeşil geçiyordu. Bu blok takasın iki yarısını da ölçüyor.
+describe('font ailesi: üç ROL serbest, beyan edilmemiş aile YASAK', () => {
+  // ⚠ Alan `status` ('in' | 'out'); ilk sürüm `withinTolerance` uydurmuştu ve üç iddia
+  // birden `undefined`a çarptı. Ölçüm aracına bakmadan onun şeklini varsaymak bu depoda
+  // tekrar eden hata.
+  const durum = (html: string, metric: string): string | undefined =>
+    tipografiSay(html).readings.find((r) => r.metric === metric)?.status
+
+  it('üç beyan edilmiş aile GEÇİYOR', () => {
+    const html =
+      'a{font-family:"Marka Metin"}b{font-family:"Marka Display"}c{font-family:"Marka El Yazisi"}'
+    expect(durum(html, 'font_family_count')).toBe('in')
+    expect(durum(html, 'font_family_unknown')).toBe('in')
+  })
+
+  it('DÖRDÜNCÜ aile kırmızı — rol sayısı üç', () => {
+    const html =
+      'a{font-family:"Marka Metin"}b{font-family:"Marka Display"}' +
+      'c{font-family:"Marka El Yazisi"}d{font-family:"Marka Dorduncu"}'
+    expect(durum(html, 'font_family_count')).toBe('out')
+  })
+
+  it('BEYAN EDİLMEMİŞ aile kırmızı — sayı iki olsa bile', () => {
+    // ⚠ Eski kuralın kör noktası tam olarak buydu: iki aile, ikisi de yabancı, yeşil.
+    const html = 'a{font-family:Georgia}b{font-family:Helvetica}'
+    expect(durum(html, 'font_family_count')).toBe('in')
+    expect(durum(html, 'font_family_unknown')).toBe('out')
   })
 })

@@ -110,6 +110,12 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
+      // ⚠ ⚠ **EL YAZISI BAŞLIĞI TEKRAR ETMEZ, ONA GİRİŞ YAPAR.** İlk deneme başlığın ilk
+      // kelimesini kopyalıyordu ("Altı yılda" / "Altı yılda iki katına…") ve render'a
+      // bakınca ikisi tek bir cümlenin iki kez yazılması gibi okundu. Referansta iki satır
+      // AYRI şey söylüyor: el yazısı kim konuşuyor, ağır condensed ne söylüyor. Uyarlama
+      // bu ayrımı örnekten öğreniyor.
+      elYazisi: 'Rakamlarla',
       ustBaslik: 'AÇILIŞ',
       baslik: 'Altı yılda **iki katına** çıkan bir eğri',
       govde: 'Kaydırın: eğri altı slaydı kat ediyor ve her durakta bir karar var.',
@@ -262,6 +268,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
+      elYazisi: 'Adım adım',
       ustBaslik: 'BEŞ ŞART',
       baslik: 'Bir hattı **döngüsel** yapan beş şart',
       govde: 'Beşi de olmadan döngü kapanmıyor; biri eksikse sistem doğrusal kalıyor.',
@@ -461,6 +468,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   // ⚠ Rakamlar aynı zamanda referanstaki `#003` tipi indeks etiketinin karşılığı.
   kartlar: [
     {
+      elYazisi: 'Bir bakışta',
       ustBaslik: 'SAHNE',
       baslik: 'Anlatmak **göstermekle** başlar',
       govde: 'Dört karede tek bir hareket.',
@@ -590,6 +598,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   ],
   kartlar: [
     {
+      elYazisi: 'Kendine sor',
       ustBaslik: 'SORU 00',
       baslik: 'Altı soru, **altı** yanlış varsayım',
       govde: 'Her kare bir varsayımı yıkıyor.',
@@ -708,6 +717,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   // başlıktı ve en büyük/en küçük oranı 5,9'da kalıyordu (rehber §10 ölçüt 1: ≥6).
   kartlar: [
     {
+      elYazisi: 'Seride',
       ustBaslik: 'SERİ 01',
       baslik: 'Dört malzeme, **tek** hat',
       govde: 'Aynı hat, dört farklı beslemeyle çalışıyor.',
@@ -788,6 +798,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   // küçük tutuldu ve render'a BAKILARAK doğrulandı.
   kartlar: [
     {
+      elYazisi: 'Sahadan',
       ustBaslik: 'BÖLÜM I',
       baslik: 'Sessiz bir **dönüşüm**',
       govde: 'Fotoğraf kesimi aşıyor; metin kenarda duruyor ve yer istemiyor.',

@@ -73,6 +73,36 @@ export const YUZLER: readonly FontYuzu[] = [
     agirlik: '400 900',
     genislik: '62% 125%',
   },
+  // ⚠ ⚠ **ÜÇÜNCÜ AİLE — bir KARAR (D-282 · D-285), bir import değil.** Referansta
+  // (`image copy 2`) kapak başlığının ilk kelimesi el yazısı, kalanı ağır condensed;
+  // kontrastı kuran şey punto değil YÜZ FARKI. Tek display ailesiyle kurulamıyordu ve
+  // R-81 elle taklidi yasaklıyor — bir yazı karakteri o yasağın en uç örneği.
+  //
+  // ⚠ **Bu yüz bir turda EKLENİP GERİ ALINDI.** `tasarim` kapısının 2-aile sınırını
+  // deliyordu ve R-76 kırmızı kapının kuralını aynı turda gevşetmeyi yasaklıyor. Sınır
+  // ayrı bir turda, ayrı bir `refactor(gates)` commit'iyle 3'e çıkarıldı (D-285) ve
+  // karşılığında "beyan edilmemiş aile" tavanı 0 oldu; sonra yüz geri bağlandı.
+  //
+  // ⚠ **Caveat, OFL** — mevcut iki aileyle aynı lisans ailesi. Türkçe kapsaması
+  // ÇİZDİREREK doğrulandı (`ı İ ğ ö ü ş` render edilip bakıldı), beyan edilen
+  // `unicode-range`e güvenilmedi: bir fontun "latin-ext" demesi Türkçe'nin tamamını
+  // taşıdığı anlamına gelmiyor.
+  // ⚠ **YALNIZ VURGU İÇİN.** Gövde metninde el yazısı okunurluğu düşürür; şablon onu
+  // tek kısa satırda kullanıyor.
+  {
+    aile: 'Marka El Yazisi',
+    dosya: 'Caveat-latin.woff2',
+    unicodeRange: LATIN,
+    agirlik: '400 700',
+    genislik: null,
+  },
+  {
+    aile: 'Marka El Yazisi',
+    dosya: 'Caveat-latin-ext.woff2',
+    unicodeRange: LATIN_EXT,
+    agirlik: '400 700',
+    genislik: null,
+  },
 ]
 
 /**

@@ -131,6 +131,14 @@ export type Panel =
 
 /** Bir slaydın içeriği. */
 export interface Kart {
+  /**
+   * El yazısı vurgu satırı — başlığın ÜSTÜNDE, kısa.
+   *
+   * ⚠ Referansta kapak başlığının ilk kelimesi el yazısı, kalanı ağır condensed;
+   * kontrastı kuran şey punto değil YÜZ FARKI (D-282 · D-285).
+   * ⚠ Kısa tutuluyor: el yazısı satır uzadıkça okunurluğu düşüyor.
+   */
+  readonly elYazisi?: string
   /** Küçük büyük harf üst başlık — bölüm adı. */
   readonly ustBaslik: string
   /** Başlık; `**vurgu**` işareti aksan rengine dönüşüyor. */
@@ -780,6 +788,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         `<div class="hayalet" aria-hidden="true" ` +
         `style="--hayalet-punto:${Math.round(hayaletPuntosu(k.hayalet, doc.hayaletKonumu?.olcek ?? 1))}">` +
         `${kacir(k.hayalet)}</div>` +
+        // ⚠ El yazısı satırı üst başlığın ÜSTÜNDE: göz önce onu, sonra bölüm etiketini,
+        // sonra başlığı okuyor — referanstaki sıra.
+        (k.elYazisi === undefined || k.elYazisi.trim() === ''
+          ? ''
+          : `<div class="el-yazisi">${kacir(k.elYazisi)}</div>`) +
         `<div class="ust-baslik">${kacir(k.ustBaslik)}</div>` +
         `<h2 class="baslik">${vurguyuIsaretle(kacir(k.baslik))}</h2>` +
         (k.govde === '' ? '' : `<p class="govde">${vurguyuIsaretle(kacir(k.govde))}</p>`) +
@@ -1011,6 +1024,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `           background: ${sol('--pano-metin', 6)}; z-index: 9 }`,
     // ⚠ Üst başlık başlıkla ZIT eksende: başlık genişse üst başlık dar, tersi de doğru.
     // Aynı genişlikte iki tipografik ses, bir hiyerarşi değil bir yankı üretiyor.
+    // ⚠ ⚠ **PUNTO BAŞLIĞA GÖRE, SABİT DEĞİL.** El yazısı başlıktan çok küçük kalırsa
+    // "dipnot" gibi okunuyor; büyük kalırsa başlığı ezip iki ana ses üretiyor. Referansta
+    // oran ~0,52. Hafif SOLA taşıyor: ilk harfin süslemesi metin kolonunun dışına çıkınca
+    // blok "yazılmış" gibi duruyor, "yerleştirilmiş" gibi değil.
+    `  .el-yazisi { font-family: "Marka El Yazisi", cursive; font-weight: 600;`,
+    `               font-size: calc(var(--baslik-punto) * 0.52); line-height: 0.92;`,
+    `               color: var(--kart-aksan); margin: 0 0 6px -0.06em }`,
     `  .ust-baslik { font-size: 19px; letter-spacing: 0.22em; text-transform: none;`,
     `                font-stretch: calc(var(--ust-wdth) * 1%);`,
     `                font-feature-settings: ${OPENTYPE_CSS};`,
