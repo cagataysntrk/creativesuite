@@ -525,3 +525,48 @@ uzunluğu, vurgunun kaçıncı kelimede olduğu ve panel tipi giriyor; metni gir
 Kaybedilen bilgi yok: konuya özgü malzeme zaten "Kaynak metin" bölümünde.
 
 **Geri alma maliyeti:** orta — bir şablon örneği, bir kayıt alanı, bir istem kurucusu.
+
+## D-289
+
+**Karar:** Yirmi ikon artık **Lucide**'den (lucide-static 1.31.0, ISC) geliyor; elle
+çizim bitti. `kodlanmis-oge` kapısı SVG ilkellerini de sayıyor ve `sablon-ikon.ts`
+tavanı **sıfırda dondu**.
+
+**Neden:** `sablon-ikon.ts` yirmi ikonu 57 SVG ilkeliyle (`<line>`, `<circle>`, `<rect>`,
+`<polyline>`, `<path>`) ELLE çiziyordu. Dosyanın kendi yorumu gerekçeyi yazıyordu:
+FAZ-11.3 planı bir MIT/ISC seti öngörüyordu, onun yerine burada çizildi çünkü
+(1) *"40 satır yazmak bir bağımlılıktan iyidir"* (R-75), (2) lisans denetimi istemesin,
+(3) kontur markanın ölçüsünden gelsin. **Üçü de makuldü ve üçü de yanlış soruya cevaptı.**
+
+R-75 bir BAĞIMLILIK ekonomisi kuralı; R-81 bir TASARIM kuralı. Çatıştıklarında ikincisi
+kazanıyor: elle çizilmiş bir ikon ÇALIŞIYOR ama **tasarım gibi durmuyor**, ve ölçülemeyen
+o fark depo sahibinin *"aşırı bilgisayar işi duruyor"* tespitinin kendisi.
+
+⚠ **İkinci ve üçüncü gerekçe kayıp DEĞİL.** Kontur kalınlığı hâlâ `ikonSvg`de, markanın
+ölçüsünden: Lucide `stroke-width`i `<svg>` üstünde taşıyor, `path`ler miras alıyor,
+sarmalayıcı eziyor. Lisans da denetlenebilir: ISC metni bağımlılıkla geliyor, sürüm
+`package.json`da sabit — "denetlenecek lisans yok" değil, "TEK ve izlenebilir".
+
+⚠ Gövdeler ÜRETİLMİŞ bir modülde (`ikon-govde.ts`, üreteci `scripts/ikon-govde.mjs`):
+render saf kalıyor, kaynak denetlenebilir kalıyor. Sözlük (`IKONLAR`) KAPALI kaldı —
+değişen tek şey çizimin kaynağı. `dongu` için `recycle` seçildi: marka geri kazanım işi
+yapıyor ve genel bir yenileme oku yerine döngüsellik simgesi markanın kendi dili.
+
+⚠ ⚠ **KAPININ EN BÜYÜK KÖR NOKTASI BUYDU.** `kodlanmis-oge` yalnız CSS şekillerini
+sayıyordu; R-81'in tarif ettiği ihlalin EN BÜYÜĞÜ kendi kapısından görünmüyordu ve kapı
+yeşil diyordu. **Bir kural, ölçmediği şeyi yasaklayamaz.** Kanıt: ikon dosyasına elle bir
+çember + çizgi eklendi → kırmızı; geri alındı → yeşil.
+
+⚠ `ikon-govde.ts` kapsam dışı: içindeki `path`ler KÜTÜPHANENİN çizimi. Onu saymak,
+kuralın istediği şeyi cezalandırmak olurdu.
+
+⚠ ⚠ **YANLIŞ TEŞHİSTEN DÖNÜLDÜ:** `marka-isareti.ts` (markanın imzasını KODLA çizen
+modül) "üretimde sıfır çağıranı var" diye emekliye ayrılmaya başlandı ve arşive taşındı.
+Yanlıştı: `static.ts` ondan `markaCss` ve `markaKilidi` alıyor ve o yol SEKİZ hattı
+besliyor. Yalnız `markaIsaretiSvg` aranmıştı. Taşıma geri alındı. **Gerekçesi ("brand/
+altında logo dosyası yok") artık geçersiz** — gerçek logolar D-284'te geldi; göçü ayrı
+bir karar, borç olarak yazıldı.
+
+**Bedel:** bir dev bağımlılık (2025 ikon, yalnız 20'si gömülüyor), ISC.
+
+**Geri alma maliyeti:** düşük — üreteç + eşleme tablosu; sözlük değişmedi.
