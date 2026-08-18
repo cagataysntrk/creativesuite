@@ -110,8 +110,12 @@ describe('dikiş 2b: şablonun görsel ihtiyacı → brief istemi', () => {
     expect(p).not.toBe('')
     expect(p).toContain('plain solid black background')
     expect(p).toContain('Geri kazanım')
-    // ⚠ R-20: brief hiçbir yerde yazı istemiyor ve büyük harf kullanmıyor.
-    expect(p).toContain('do not ask for any lettering')
+    // ⚠ ⚠ **R-20 İHLAL TESTİ: istemin KENDİSİ yasaklı sözcük taşımamalı.** İlk sürüm
+    // *"do not ask for any lettering…"* yazıyordu; model bunu brief'e kopyaladı ve
+    // muhafız `lettering` alt dizesini yakalayıp görsel adımını reddetti. Muhafız
+    // olumsuzlamayı anlamıyor — istem de anmamalı.
+    for (const yasak of ['lettering', 'caption', 'text', 'wording', 'sign'])
+      expect(p.toLowerCase(), yasak).not.toContain(yasak)
   })
 
   it('görsel istemeyen şablonda brief YOK — kullanılmayacak görsele kota harcanmıyor', () => {
@@ -170,6 +174,20 @@ describe('dikiş 3: model çıktısı → uyarlama nesnesi', () => {
 
   it('JSON olmayan çıktı REDDEDİLİYOR', () => {
     expect(uyarlamayaCevir('Tabii, işte uyarlama:')).toBeNull()
+  })
+})
+
+// ⚠ ⚠ **İKİ PANORAMA VAR ve render DOĞRU OLANI almak zorunda.** `inputs` tüm önceki
+// adımların çıktısını taşıyor; `kompozit` görselsiz, `yuva-doldur` görselli panorama
+// üretiyor. `.find()` ilkini alıyordu ve gerçek koşuda görsel üretildiği hâlde YER
+// TUTUCU render edildi. Aynı tuzak `document` yolunda kayıtlıydı (D-259) — yeni dal
+// o dersi kendiliğinden almadı.
+describe('dikiş 3b: iki panorama arasından SONUNCUSU seçiliyor', () => {
+  it('render gövdesi son üreticiye bakıyor', () => {
+    const kaynak = readFileSync(join(REPO, 'packages/engine/src/verbs/bodies.ts'), 'utf8')
+    // İlk eşleşeni alan bir `find` panorama dalında kalmamalı.
+    expect(kaynak).toContain('panoramalar[panoramalar.length - 1]')
+    expect(kaynak).toContain('panoramaListesi[panoramaListesi.length - 1]')
   })
 })
 

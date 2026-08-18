@@ -717,10 +717,19 @@ export const renderBody = (deps: RenderDeps): Verb =>
     // ⚠ **Tek render motoru bozulmuyor (Yasa 4):** ikisi de aynı Chromium, aynı gömülü
     // font, aynı token CSS. İkinci bir CSS alt kümesi değil, aynı motorda ikinci bir
     // sayfa düzeni.
-    const panoramaCiktisi = Object.values(input.inputs).find(
+    // ⚠ ⚠ **`.find()` DEĞİL SONUNCU — ve bu hata bu dosyada İKİNCİ KEZ yapıldı.**
+    // `inputs` TÜM önceki adımların çıktısını taşıyor ve iki adım panorama üretiyor:
+    // `kompozit` (görsel yuvası BOŞ) ve `yuva-doldur` (görsel yerleşmiş). `.find()` ilk
+    // eşleşeni alıyordu, yani `kompozit`inkini — ve gerçek koşuda `cloudflare-workers-ai`
+    // görseli üretti, `yuva-doldur` onu yerleştirdi, render YER TUTUCU çizdi.
+    // ⚠ Aynı tuzak `document` yolunda zaten yaşanmış ve oraya "en aşağıdaki üreticiye
+    // bak" diye not düşülmüştü (D-259); panorama dalı o dersi tekrarladı. Bir dosyada
+    // yazılı bir ders, o dosyaya eklenen yeni dala kendiliğinden geçmiyor.
+    const panoramalar = Object.values(input.inputs).filter(
       (v): v is { readonly panorama: PanoramaBelgesi } =>
         v !== null && typeof v === 'object' && (v as { panorama?: unknown }).panorama !== undefined
     )
+    const panoramaCiktisi = panoramalar[panoramalar.length - 1]
     if (panoramaCiktisi !== undefined) {
       mkdirSync(deps.outDir, { recursive: true })
       const doc = panoramaCiktisi.panorama
@@ -1186,10 +1195,12 @@ export const validateBody = (deps: ValidateDeps): Verb =>
     // ve blok tabanlı denetimler (`planDenetle`, lexicon) ona uygulanamaz. Uygulanan
     // denetim render'ın kendi ölçtüğü kusur listesi; ikinci bir ölçüm ikinci bir
     // doğruluk kaynağı olurdu.
-    const panorama = Object.values(input.inputs).find(
+    // ⚠ Aynı sebep: doğrulama da EN SON üretilen belgeye bakar (bkz. yukarıdaki not).
+    const panoramaListesi = Object.values(input.inputs).filter(
       (v): v is { readonly panorama: unknown } =>
         v !== null && typeof v === 'object' && (v as { panorama?: unknown }).panorama !== undefined
     )
+    const panorama = panoramaListesi[panoramaListesi.length - 1]
     if (belge === undefined && panorama !== undefined && render !== undefined) {
       const kusurlar = ((): readonly { readonly aciklama?: string }[] => {
         const r = render as { kusurlar?: unknown }
@@ -1550,12 +1561,21 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       if (kayit?.gorsel === undefined || kayit.gorsel === null) return ''
       // ⚠ Brief İNGİLİZCE ve BÜYÜK HARFSİZ: R-20 muhafızı büyük harfli öbeği "metin
       // çizdirme isteği" sayıyor ve iki kez reddetti (katalog.ts kaydı).
+      // ⚠ ⚠ **OLUMSUZLAMA YASAK — ve bunu GERÇEK BİR KOŞU öğretti.** İlk sürüm brief'e
+      // *"do not ask for any lettering…"* diye bir talimat koyuyordu; model bunu
+      // brief'in içine kopyaladı ve R-20 muhafızı `lettering` alt dizesini yakalayıp
+      // görsel adımını REDDETTİ. Muhafız olumsuzlamayı anlamıyor: `no texture` içindeki
+      // `no text` için de aynı yanlış pozitif kayıtlı (katalog.ts). Kırmızı bir kapının
+      // kuralı aynı turda gevşetilmez (R-76) — brief YENİDEN YAZILDI.
+      //
+      // ⚠ Çözüm yapısal: brief yalnız KADRAJDA NE OLDUĞUNU söylüyor. İstenmeyen şeyi
+      // adıyla anmayan bir istem, o adı çıktıya sızdıramaz.
       return [
-        'write a short image generation brief in english, lowercase, no capital letters.',
-        `the brief must keep this base description and add topic-specific detail: ${kayit.gorsel.briefTemeli}`,
+        'write one short image generation brief in english, lowercase only.',
+        `keep this base description and add detail from the topic: ${kayit.gorsel.briefTemeli}`,
         `topic: ${konu}`,
-        'do not ask for any lettering, wording, caption or written sign in the image.',
-        'answer with the brief only, no explanation.',
+        'describe only the subject, the lighting and the background surface.',
+        'answer with the brief sentence alone.',
       ].join('\n')
     }
   }

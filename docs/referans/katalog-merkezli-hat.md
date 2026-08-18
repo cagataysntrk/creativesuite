@@ -79,6 +79,7 @@ kalması** (Yasa 8: kaynaksız sayısal iddia yayınlanamaz).
 | `kesintisizlik-yok` | şablon süreklilik iddia ediyor ama hiçbir öge kesimi **aşmıyor** |
 | `kart-disi` | metin tuvalin dışına taşıyor mu |
 | `eksik-glif` | marka fontunun `unicode-range` kapsamı dışında karakter var mı |
+| `matlama-tutmuyor` | `kesik` görselin köşe parlaklığı; zemin siyah değilse kesim tutmaz |
 
 Kusurlar susturulmuyor: çıktıya giriyor, `kalite` ve insan onay kapısı görüyor.
 Düzeltme turu `denetimTuru` ile en fazla **iki** tur; yalnız **kesin iyileşme** kabul
@@ -102,10 +103,51 @@ ediliyor ve düzeltme yine `uyarla`dan geçtiği için kompozisyonu bozamıyor.
 ve hiçbir derleme hatası onları birbirine bağlamıyor — `katalog-ornek.test.ts` iki yönlü
 eşleşmeyi zorluyor (her kaydın örneği, her örneğin kaydı var).
 
-## 6. Bilinen sınırlar
+## 6. Gerçek koşu — kanıt
+
+`sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "Geri kazanim kapasitesi"'`
+
+```
+✓ cozumle · bilgi-sec · metin-uret · sablon-uyarla · kompozit · gorsel-brief
+✓ gorsel-uret (cloudflare-workers-ai) · yuva-doldur · render
+✓ gorsel-yargi · tasarim-yargi · kalite
+⏸ insan kapısında durdu: insan-onayi
+4 varlık damgalandı ve depoya alındı
+```
+
+Defterden: `kompozit {sablonId: 'sahne'}` · `render {panoramaGenisligi: 1080}` ·
+`kalite {kusurSayisi: 1, bulgular: ['marka fontunun kapsamı dışında: ✓'], gecti: false}`.
+
+⚠ **Denetim gerçek bir kusur yakaladı:** model metne `✓` karakteri koydu ve marka fontu
+onu kapsamıyor. Koşu durmadı; kusur `kalite` çıktısına ve insan onay kapısına gitti.
+
+## 6b. Bağlanırken çıkan ALTI kopuk halka
+
+Zincir kurulurken hiçbiri testle değil, **gerçek koşuyla** bulundu:
+
+| # | Belirti | Kök neden |
+|---|---|---|
+| 1 | `renderPanorama` sıfır çağıran | mimari `just uret`ten erişilemezdi (D-270) |
+| 2 | adım sessizce atlandı | zorunlu adımda boş istem "atlandı" sayılıyordu |
+| 3 | altı şablon birden elendi | eleme iki yönlüydü; 11 satır > 8 kart |
+| 4 | `ADAPTATION_UNPARSEABLE` | istem JSON şemasını hiç söylemiyordu |
+| 5 | `gorsel-brief` atlandı | brief kurucusu eski `tasarimPlani`ni arıyordu |
+| 6 | görsel üretildi, YER TUTUCU çizildi | `.find()` ilk panoramayı (boş olanı) alıyordu |
+
+⚠ Ayrıca hat iki kez **21 dakika asıldı**: `claude` CLI daemon'u stdout borusunu tutuyor,
+Node `close` yaymıyordu ve 10 dakikalık zaman aşımı da aynı olaya bağlıydı (D-272).
+
+## 7. Bilinen sınırlar
 
 - `donen` ve `editoryal` **yalnız açıkça istenerek** seçilebiliyor.
 - `sahne` şablonunda başlık en fazla iki satır olmalı: oklar metin ile kesik özne
   arasındaki dar şeritte duruyor.
-- Slayt-başına eski render yolu (`instagram-post`) **hâlâ duruyor**; emekliliği ayrı
-  bir adım (FAZ-15.9 devam).
+- Slayt-başına render yolu (`static.ts` · `AileProfili`) **kaldı ve kalmalı**: sekiz hat
+  ondan besleniyor (deck, LinkedIn dökümanı, prospect-deck, reels, explainer…). Emekli
+  olan şey **karosel için aile seçimi** (D-271); `docs/arsiv/aile-tabanli-karosel/`.
+- ⚠ **`matlama` modelin uymasına bağlı.** Brief düz siyah zemin istiyor ama bu bir RİCA:
+  model açık zemin üretirse luma anahtarı kesmiyor ve fotoğraf dikdörtgen kalıyor.
+  Artık ÖLÇÜLÜYOR (`matlama-tutmuyor`) ama otomatik düzeltilmiyor — yeniden üretim
+  ya da arka plan silme modeli (BiRefNet, ertelendi) ayrı bir karar.
+- Düzeltme turu (`denetimTuru`) yazıldı ve test edildi ama **hatta bağlı değil**: kusurlar
+  bugün rapor ediliyor, otomatik düzeltilmiyor. Bağlanması FAZ-15.9'un kalanı.

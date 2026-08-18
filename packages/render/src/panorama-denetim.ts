@@ -44,6 +44,18 @@ export type KusurTuru =
   | 'punto-cokmesi'
   /** Bir kartın metni tuvalin dışına taşıyor. */
   | 'kart-disi'
+  /**
+   * `matlama` bekleniyor ama görselin zemini siyah DEĞİL — kesim tutmayacak.
+   *
+   * ⚠ ⚠ **BU KUSUR TÜRÜ GERÇEK BİR ÇIKTIYA BAKARAK DOĞDU.** `kesik` kırpma, brief'in
+   * *"plain solid black background"* istemesine ve alfanın o zeminin parlaklığından
+   * türetilmesine dayanıyor. Katalog kaydı bunu *"garantiyi rica etme, yapıya göm"*
+   * diye anlatıyor — ama brief bir RİCA'dır: hat koştu, model açık gri bir stüdyo
+   * zemini üretti, luma anahtarı hiçbir şeyi kesmedi ve çıktıda kesik özne yerine
+   * DİKDÖRTGEN bir fotoğraf durdu. Yapıya gömülmüş olan alfa türetimiydi; zeminin
+   * siyah olması hâlâ modelin uymasına bağlı ve o yüzden ÖLÇÜLMESİ gerekiyor.
+   */
+  | 'matlama-tutmuyor'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -127,6 +139,34 @@ const OLCUM = (kesimler: readonly number[], iddia: boolean): string => `(() => {
     }
   })
 
+  // ── matlama: kesik kırpmada görselin zemini gerçekten siyah mı ───────────
+  // ⚠ Ölçüm HAM görselden: CSS filtresi uygulanmış hâlden değil. Filtrelenmiş pikseli
+  // ölçmek, filtrenin kendi çıktısını kendine sormak olurdu.
+  for (const img of document.querySelectorAll('img.gorsel.kesik')) {
+    const c = document.createElement('canvas')
+    const g = c.getContext('2d')
+    if (g === null || img.naturalWidth === 0) continue
+    c.width = img.naturalWidth; c.height = img.naturalHeight
+    g.drawImage(img, 0, 0)
+    // ⚠ Pencere görsele göre: sabit 12 px, 8 px'lik bir test görselinde sınır dışına
+    // taşıyor ve getImageData boş dönüyordu — ölçüm SESSİZCE hiçbir şey ölçmüyordu.
+    const n = Math.max(1, Math.min(12, Math.floor(Math.min(c.width, c.height) / 3)))
+    const noktalar = [[0,0],[c.width-n,0],[0,c.height-n],[c.width-n,c.height-n]]
+    let toplam = 0
+    for (const [x,y] of noktalar) {
+      const d = g.getImageData(Math.max(0,x), Math.max(0,y), n, n).data
+      let s = 0
+      for (let i = 0; i < d.length; i += 4) s += 0.2126*d[i] + 0.7152*d[i+1] + 0.0722*d[i+2]
+      toplam += s / (d.length / 4)
+    }
+    const ort = toplam / noktalar.length
+    // 34/255: luma anahtarı bu eşiğin altında güvenilir kesiyor; üstünde zemin kalıyor.
+    if (ort > 34)
+      kusurlar.push({ tur:'matlama-tutmuyor', kart:null, alan:null,
+        aciklama: 'kesik görselin köşe parlaklığı ' + Math.round(ort) +
+          '/255 — zemin siyah değil, luma anahtarı kesmeyecek ve fotoğraf DİKDÖRTGEN kalacak' })
+  }
+
   // ── kesintisizlik: iddia varsa BİR ÖGE kesimi aşmalı ─────────────────────
   if (${iddia ? 'true' : 'false'}) {
     const asanlar = Array.from(document.querySelectorAll('.hayalet, .gorsel, .gorsel-yer, .leke'))
@@ -200,6 +240,14 @@ export const panoramaDenetle = async (
     await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
     await page.evaluate('(async () => { await document.fonts.ready; return true })()')
     await page.evaluate(puntoOlcumu(doc))
+    // ⚠ ⚠ **GÖRSELLERİN ÇÖZÜLMESİ BEKLENİYOR — beklenmediğinde ölçüm SESSİZCE boş
+    // dönüyordu.** `naturalWidth` yüklenmemiş bir `<img>`de 0 ve döngü `continue` ile
+    // atlıyordu: matlama denetimi hem siyah hem açık zeminli görselde "kusur yok" dedi.
+    // Yeşil bir ölçüm, ölçüm yapıldığı anlamına gelmiyor.
+    await page.evaluate(
+      `(async () => { await Promise.all(Array.from(document.images).map(
+        (i) => i.decode().catch(() => undefined))); return true })()`
+    )
     const ham = (await page.evaluate(
       OLCUM(kesimler, kesintisizlikIddiasi(doc))
     )) as readonly Kusur[]
