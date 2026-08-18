@@ -133,7 +133,15 @@ export interface AileParametreleri {
    * ⚠ Serbest CSS dizesi DEĞİL: sağlayıcı çıktısının stile sızmasının önü tip düzeyinde
    * kapalı. Sıra bu listeden okunmuyor, dağarcıktan geliyor (`islemZinciri`).
    */
-  readonly gorselIslemleri?: readonly ('matlama' | 'keskinlik' | 'duotone')[]
+  // ⚠ ⚠ **BU LİSTENİN ÜÇÜNCÜ KOPYASI ve ilk ikisi bir DERLEME SINAVIYLA bağlıydı.**
+  // `gorsel-islem.ts` (render) ile `aile.ts` (contracts) arasında `_kumelerAyni` sınavı
+  // var; bu üçüncüsü hiçbir sınava bağlı değildi ve iki yeni işlem eklenince SESSİZCE
+  // ayrıştı — derleme onu ancak `bodies.ts` üstünden, dolaylı olarak yakaladı.
+  // ⚠ Ring 0 render'ı göremiyor, o yüzden liste burada yaşamak zorunda; ama ayrışması
+  // bir sınava bağlanmalı. Borç kaydı: `docs/BORCLAR.md` C6.
+  readonly gorselIslemleri?: readonly (
+    'matlama' | 'keskinlik' | 'tema-uyum' | 'duotone' | 'temas-golgesi'
+  )[]
   /**
    * Açık tipografi efektleri — kapalı dağarcıktan alt küme (FAZ-12.1).
    *

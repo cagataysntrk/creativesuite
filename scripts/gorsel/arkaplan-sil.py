@@ -6,13 +6,18 @@ istemesine dayanıyordu ve bu bir RİCA'ydı: gerçek koşularda model açık gr
 kaldı. Denetim bunu ölçtü (`matlama-tutmuyor`, köşe parlaklığı 59–101/255) ama
 düzeltemedi — metin değiştirerek bir görselin zemini siyahlaşmıyor.
 
-⚠ stdin'den PNG/JPEG baytı okur, stdout'a RGBA PNG yazar. Dosya yolu ALMIYOR: alt süreç
-sınırından geçen tek şey bayt, böylece çağıran tarafın dosya sistemi varsayımı yok.
+⚠ ⚠ **SINIR METİN: base64 girer, base64 çıkar — ve bu bir ÖLÇÜMDEN geldi.** İlk sürüm
+ham bayt okuyup ham bayt yazıyordu; `spawnProcess` sözleşmesi ise stdin'i `string`
+alıyor ve stdout'u `chunk.toString('utf8')` ile topluyor. İkili veri o kanaldan geçince
+BOZULUYOR: gerçek koşuda Python `cannot identify image file` dedi. Kernel'in boru
+sözleşmesini tek bir yetenek için genişletmek yerine (ring 0 sabittir) sınır metin
+tutuldu — base64 tam olarak bunun için var.
 
-⚠ İlerleme çubuğu stderr'e bile yazılmıyor (`tqdm` kapalı): stdout ikili veri taşıyor ve
-oraya sızan tek bir karakter PNG'yi bozar.
+⚠ İlerleme çubuğu stderr'e bile yazılmıyor (`tqdm` kapalı): stdout tek satır base64
+taşıyor ve oraya sızan tek bir karakter çıktıyı bozar.
 """
 
+import base64
 import os
 import sys
 
@@ -36,16 +41,21 @@ _OTURUM = new_session(os.environ.get("REMBG_MODEL", "bria-rmbg"))
 
 
 def main() -> int:
-    ham = sys.stdin.buffer.read()
-    if not ham:
+    metin = sys.stdin.read().strip()
+    if not metin:
         sys.stderr.write("bos girdi\n")
         return 2
+    try:
+        ham = base64.b64decode(metin, validate=True)
+    except Exception as e:  # noqa: BLE001
+        sys.stderr.write(f"base64 cozulemedi: {e}\n")
+        return 4
     try:
         cikti = remove(ham, session=_OTURUM)
     except Exception as e:  # noqa: BLE001 — sınır: hata METİN olarak dışarı çıkar
         sys.stderr.write(f"rembg hatasi: {e}\n")
         return 3
-    sys.stdout.buffer.write(cikti)
+    sys.stdout.write(base64.b64encode(cikti).decode("ascii"))
     return 0
 
 

@@ -123,7 +123,11 @@ export const localRembg: ProviderAdapter = {
       })
       return ok(handle)
     }
-    const girdi = Buffer.from(b64, 'base64')
+    // ⚠ ⚠ **BORU METİN TAŞIYOR, İKİLİ VERİ DEĞİL — ve bunu gerçek bir koşu öğretti.**
+    // İlk sürüm `Buffer.from(b64,'base64').toString('binary')` gönderiyordu; `spawnProcess`
+    // stdin'i `string` alıp varsayılan utf8 ile yazıyor ve latin1 baytlar BOZULUYOR.
+    // Python `cannot identify image file` dedi. Ring 0'ın boru sözleşmesini tek bir
+    // yetenek için genişletmek yerine sınır metin tutuldu: base64 girer, base64 çıkar.
     // ⚠ ⚠ **GÖRSEL stdin/stdout ÜZERİNDEN, DOSYA ÜZERİNDEN DEĞİL.** Geçici dosya
     // kullansaydık iki taraf da bir dizin varsayardı, temizlik borcu doğardı ve paralel
     // koşular birbirinin dosyasını ezebilirdi. Boru sınırı zaten var: `spawnProcess`.
@@ -132,7 +136,7 @@ export const localRembg: ProviderAdapter = {
     const sonuc = await spawnProcess(pythonYolu(ctx.env), [betikYolu(ctx.env)], {
       env: ctx.env as Record<string, string>,
       signal: ctx.signal,
-      input: girdi.toString('binary'),
+      input: b64,
       timeoutMs: 150_000,
       maxOutputBytes: 32 * 1024 * 1024,
     })
@@ -158,10 +162,11 @@ export const localRembg: ProviderAdapter = {
     // ⚠ Çıktı RGBA PNG; motorun beklediği şekil `{format:'base64', data}` — `image.generate`
     // ile AYNI şekil, çünkü tüketici (`uretilenGorsel`) tek bir şekil biliyor. İkinci bir
     // şekil, üreticiyle tüketici arasında sessiz uyuşmazlık demekti (D-227).
-    const png = Buffer.from(sonuc.stdout, 'binary')
+    // ⚠ Çıktı zaten base64: yeniden kodlanmıyor, yalnız boşluklardan arındırılıyor.
+    const b64Cikti = sonuc.stdout.trim()
     sonuclar.set(handle.externalId, {
       state: 'succeeded',
-      output: { format: 'base64', data: png.toString('base64'), matlandi: true },
+      output: { format: 'base64', data: b64Cikti, matlandi: true },
     })
     return ok(handle)
   },

@@ -343,7 +343,15 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       { tip: 'vinyet', guc: 42 },
     ],
   },
-  gorselIslemleri: ['matlama', 'keskinlik'],
+  // ⚠ ⚠ **`matlama` LİSTEDE KALDI ama artık YEDEK.** Arka plan silme hatta bağlandı
+  // (`gorsel-kirp`); silme koştuğunda `composeBody` `matlama`yı listeden ÇIKARIYOR —
+  // şeffaf zeminli bir PNG'ye luma anahtarı uygulanınca öznenin koyu bölgeleri de
+  // saydamlaşıyor ve figür delik deşik oluyor. Silme koşamazsa (sanal ortam yoksa)
+  // eski yol devrede kalıyor: iki teknik ARDIŞIK, üst üste değil.
+  // ⚠ `tema-uyum` + `temas-golgesi`: arka planı silmek "yapıştırılmış" hissini tek
+  // başına bitirmiyor. Renk sıcaklığı zemine çekilmezse figür tasarımın ÜSTÜNDE durur;
+  // gölge olmadan da havada durur.
+  gorselIslemleri: ['matlama', 'keskinlik', 'tema-uyum', 'temas-golgesi'],
   // ⚠ ⚠ **BU ŞABLONUN KURALI: BAŞLIK İKİ SATIR, GÖVDE TEK SATIR.** Gövde iki satıra
   // çıkınca okların şeridine giriyor ve yay metnin üstünden geçiyor — render'a bakınca
   // görüldü. Örnek içerik kasten kısa: uyarlama adımı sınırı buradan öğreniyor. Oklar metin bloğu ile kesik
@@ -457,7 +465,9 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     ],
   },
   bant: { tip: 'yok' },
-  gorselIslemleri: ['matlama'],
+  // ⚠ Kâğıt zeminde gölge DAHA gerekli: açık zeminde kesik bir figürün kenarı zeminle
+  // aynı parlaklıkta olabiliyor ve figür "kesilmiş kâğıt" gibi görünüyor.
+  gorselIslemleri: ['matlama', 'tema-uyum', 'temas-golgesi'],
   // ⚠ ⚠ **BU YUVALAR BİR EŞLEŞME TESTİNDEN GELDİ.** Katalog `memphis` için slayt başına
   // kesik özne ilan ediyordu; ilk örnek hiç görsel taşımıyordu ve kimse fark etmezdi —
   // koşu görselleri üretir, yerleştirecek yuva bulamaz, sessizce metin-only bir memphis
@@ -574,7 +584,10 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   },
   zemin: 'var(--role-bg)',
   bant: { tip: 'yok' },
-  gorselIslemleri: ['keskinlik'],
+  // ⚠ Gölge YOK: daire maske ögeyi zaten ayırıyor ve maskeli bir ögeye gölge eklemek
+  // onu zeminden koparıp rozet gibi gösteriyor. Renk uyumu var — ürün her kartta BAŞKA
+  // bir zemine düşüyor ve kendi sıcaklığıyla gelirse dördü de yamalı görünür.
+  gorselIslemleri: ['keskinlik', 'tema-uyum'],
   gorseller: [
     // ⚠ y 34: daire başlığın ALTINDA, gövde metninin ÜSTÜNDE. y 46'da gövdeyi örtüyordu
     // ve metin dairenin içinden okunuyordu — render'a bakınca görüldü.
@@ -653,7 +666,10 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   zemin: 'var(--role-line-edge)',
   hayaletKonumu: { ust: 14, olcek: 0.42, guc: 9 },
   bant: { tip: 'yok' },
-  gorselIslemleri: ['duotone'],
+  // ⚠ Gölge YOK ve olamaz: fotoğraf kenardan kenara, gölge düşeceği bir zemin yok.
+  // `tema-uyum` duotone'dan ÖNCE koşuyor (dağarcık sırası): önce fotoğraf rampaya
+  // çekiliyor, sonra tam renk dönüşümü uygulanıyor.
+  gorselIslemleri: ['tema-uyum', 'duotone'],
   gorseller: [
     { src: '', alt: 'geniş plan — sol', x: 0, y: 0, genislik: 56, yukseklik: 100, kirpma: 'tam' },
     { src: '', alt: 'geniş plan — sağ', x: 56, y: 0, genislik: 44, yukseklik: 100, kirpma: 'tam' },

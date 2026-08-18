@@ -21,7 +21,17 @@ import type { AileProfili } from '@suite/contracts'
 import { duotoneSvg, type DuotoneUclari, VARSAYILAN_UCLAR } from './sablon-filtre.js'
 
 /** Kapalı işlem dağarcığı. Dördüncüsü bir KARAR ister. */
-export const GORSEL_ISLEMLERI = ['matlama', 'keskinlik', 'duotone'] as const
+// ⚠ ⚠ **SIRA ANLAMLI: kesme → keskinlik → renk uyumu → duotone → gölge.** Önce alfa
+// kuruluyor (`matlama`), sonra detay (`keskinlik`), sonra renk zemine uyduruluyor
+// (`tema-uyum`), sonra tam renk dönüşümü (`duotone`), en sonda gölge — gölge alfadan
+// türediği için ondan ÖNCE gelen her şeyi görmüş olmalı.
+export const GORSEL_ISLEMLERI = [
+  'matlama',
+  'keskinlik',
+  'tema-uyum',
+  'duotone',
+  'temas-golgesi',
+] as const
 export type GorselIslem = (typeof GORSEL_ISLEMLERI)[number]
 
 // ⚠ ⚠ **İKİZ KÜME SINAVI.** `AileProfili` ring 0'da ve render'a bağımlı olamaz, o yüzden
@@ -103,13 +113,67 @@ export const keskinlikSvg = (id: string): string =>
   `kernelMatrix="0 -0.6 0 -0.6 3.4 -0.6 0 -0.6 0"/>` +
   `</filter></svg>`
 
+/**
+ * **Tema uyumu** — fotoğrafı zeminin rengine ve ışığına oturtur.
+ *
+ * ⚠ ⚠ **BU İŞLEM "YAPIŞTIRILMIŞ FOTOĞRAF" HİSSİNE KARŞI.** Arka planı silinmiş bir özne
+ * bile, kendi renk sıcaklığı ve kontrastıyla geldiğinde tasarımın İÇİNDE değil ÜSTÜNDE
+ * durur. Photoshop'ta bunun adı renk derecelendirmedir ve iki hamlesi vardır: (a) ton
+ * eğrisini zemine yaklaştırmak, (b) gölgelere zeminin rengini karıştırmak.
+ *
+ * ⚠ **Doygunluk DÜŞÜRÜLÜYOR, artırılmıyor.** Model çıktıları tipik olarak fazla doygun
+ * gelir ve marka rampasının chroma tavanının dışına düşer (§12.1). %78 doygunluk,
+ * fotoğrafı rampanın içine çekiyor.
+ * ⚠ **Gölgelere sıcaklık:** `feColorMatrix` kırmızı-yeşil kanallarını gölgelerde hafif
+ * yükseltiyor; amber zeminde bu, öznenin gölgesinin zeminden ışık ALMASI demek.
+ * Simetrik bir "soğutma" yazılmadı: rampa sıcak, ikinci bir yön ikinci bir karar ister.
+ */
+const temaUyumSvg = (id: string): string =>
+  `<svg class="filtre-tanim" width="0" height="0" aria-hidden="true">` +
+  `<filter id="${id}" color-interpolation-filters="sRGB">` +
+  // Doygunluk %78 — rampa içine çekiyor.
+  `<feColorMatrix type="saturate" values="0.78"/>` +
+  // Gölgelere sıcaklık: kırmızı ve yeşile küçük bir taban ekleniyor, maviye eklenmiyor.
+  `<feColorMatrix type="matrix" values="` +
+  `1 0 0 0 0.045  0 1 0 0 0.028  0 0 1 0 0  0 0 0 1 0"/>` +
+  // Kontrastı hafif topluyor: uçlar kırpılmadan orta ton zemine yaklaşıyor.
+  `<feComponentTransfer><feFuncR type="linear" slope="0.94" intercept="0.03"/>` +
+  `<feFuncG type="linear" slope="0.94" intercept="0.03"/>` +
+  `<feFuncB type="linear" slope="0.94" intercept="0.03"/></feComponentTransfer>` +
+  `</filter></svg>`
+
+/**
+ * **Temas gölgesi** — kesik özneyi zemine OTURTUR.
+ *
+ * ⚠ ⚠ **GÖLGESİZ BİR KESİK ÖZNE HAVADA DURUR.** Arka planı silmek yetmiyor: gölge
+ * olmadan figür zeminin üstünde yüzüyor gibi görünür ve bu, "yapıştırılmış" hissinin
+ * ikinci kaynağıdır. Photoshop'ta buna temas gölgesi denir — dar, koyu ve öznenin
+ * ALFASINDAN türer, ayrı çizilmez.
+ *
+ * ⚠ **Yumuşaklık ölçülü:** 18 px bulanıklık figürü kirletmeden ayırıyor; 40 px'te gölge
+ * bir haleye dönüşüp öznenin kendisini soluklaştırıyordu.
+ * ⚠ Kaydırma AŞAĞI ve hafif SAĞA: ışık sol üstten geliyor (zemin reçetelerinde ışık
+ * odağı orada) ve gölge ışığın tersine düşmek zorunda. İkisi ayrışırsa göz sahte olduğunu
+ * anlar — sebebini söyleyemeden.
+ */
+const temasGolgesiSvg = (id: string): string =>
+  `<svg class="filtre-tanim" width="0" height="0" aria-hidden="true">` +
+  `<filter id="${id}" x="-20%" y="-20%" width="150%" height="150%" ` +
+  `color-interpolation-filters="sRGB">` +
+  `<feDropShadow dx="14" dy="26" stdDeviation="18" flood-color="#000" flood-opacity="0.45"/>` +
+  `</filter></svg>`
+
 /** Bir işlemin SVG tanımı. */
 export const islemTanimi = (islem: GorselIslem, u: DuotoneUclari = VARSAYILAN_UCLAR): string =>
   islem === 'matlama'
     ? matlamaSvg(islemKimligi(islem))
     : islem === 'keskinlik'
       ? keskinlikSvg(islemKimligi(islem))
-      : duotoneSvg(islemKimligi(islem), u)
+      : islem === 'tema-uyum'
+        ? temaUyumSvg(islemKimligi(islem))
+        : islem === 'temas-golgesi'
+          ? temasGolgesiSvg(islemKimligi(islem))
+          : duotoneSvg(islemKimligi(islem), u)
 
 /**
  * İşlem zincirinin CSS `filter` değeri.

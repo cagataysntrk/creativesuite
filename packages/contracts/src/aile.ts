@@ -133,7 +133,15 @@ export interface AileProfili {
    * iki kümenin karşılıklı atanabilirliğini tip düzeyinde sınıyor. `tipoEfektleri`de bu
    * sınav YOKTU ve iki liste sessizce ayrışabilirdi — aynı hata iki kez yapılmadı.
    */
-  readonly gorselIslemleri: readonly ('matlama' | 'keskinlik' | 'duotone')[]
+  // ⚠ ⚠ **İKİZ KÜME:** `gorsel-islem.ts`teki `GORSEL_ISLEMLERI` ile AYNI olmak zorunda
+  // ve derleme zamanında sınanıyor (`_kumelerAyni`). Ring 0 render'ı göremediği için
+  // liste iki yerde yaşıyor; sınav ayrışmayı derleme hatasına çeviriyor.
+  // ⚠ `tema-uyum` ve `temas-golgesi` fotoğrafı zemine OTURTAN işlemler: renk
+  // derecelendirme ve temas gölgesi. Arka planı silmek yetmiyordu — kesik özne kendi
+  // renk sıcaklığıyla gelince tasarımın İÇİNDE değil ÜSTÜNDE duruyordu.
+  readonly gorselIslemleri: readonly (
+    'matlama' | 'keskinlik' | 'tema-uyum' | 'duotone' | 'temas-golgesi'
+  )[]
 }
 
 // ── Rampa kısayolları ────────────────────────────────────────────────────────

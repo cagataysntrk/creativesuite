@@ -40,6 +40,7 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
 | C2 | `matlama` işleminin emekliliği | 🔴 AÇIK | `rembg` bağlanınca luma anahtarı gereksizleşiyor; iki teknik bir arada durmamalı |
 | C3 | FAZ-12 çıkış kriteri | 🔴 AÇIK | Kabul sayacı 0/20 |
 | C4 | FAZ 9 denetim turları | 🔴 AÇIK | 9.1–9.6 hiç koşmadı |
+| C6 | Görsel işlem sözlüğünün **üçüncü kopyası** sınavsız | 🔴 AÇIK | `kernel/doc/model.ts` · `gorsel-islem.ts` ↔ `aile.ts` arasında `_kumelerAyni` var, üçüncüsü yok; iki yeni işlem eklenince sessizce ayrıştı |
 | C5 | Slayt-başına yolun tam emekliliği | 🟡 KISMİ | Karosel için emekli (D-271); `static.ts` sekiz hattı beslediği için KALDI |
 
 ## D — Bilinen sınırlar (borç değil, kayıt)
