@@ -67,7 +67,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Komutu bozuk yaz → doğrulama agent'ı üretemiyor
 💾 `docs(docs): sifir baglam giris belgesi` · `Refs: FAZ-16.4 · §16`
 
-## 16.5 — Tak-çalıştır: klonla, tek komut, üretime devam    [ ]
+## 16.5 — Tak-çalıştır: klonla, tek komut, üretime devam    [x]
 
 📖 §16 · Yasa 12
 🔗 FAZ-16.4
@@ -76,7 +76,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
    ve önkoşul denetimi (Node sürümü, Chromium, `sops` anahtarı, rembg).
    ⚠ Büyük ikili varlıklar dışarıda kalır (R-64) — onlar `derived/blobs`ta ve
    yeniden üretilebilir; kompozisyon (`panorama.json`) depoda (D-302).
-📁 `justfile` · `README.md` · `scripts/setup.mjs`
+📁 `justfile` · `README.md` · `scripts/setup.sh`
 ✅ Temiz klonda `just setup` eksikleri sayıyla söylüyor, `just uret` koşuyor
 🧪 Bir önkoşulu kaldır → `just setup` onu ADIYLA bildiriyor
 💾 `feat(repo): tek komut kurulum denetimi` · `Refs: FAZ-16.5 · §16`

@@ -19,14 +19,38 @@ sağlayıcı yapılandırması taşır.
 | Geliştirme döngüsü nasıl işliyor | `docs/LOOP.md` |
 | Agent olarak ne bilmeliyim | `CLAUDE.md` |
 
-## Kurulum
+## Klonladın, ne yapacaksın
 
 ```
-just setup     # araç zinciri kontrolü + bağımlılıklar
-just check     # biçim, tip, lint, kapılar
+just setup     # araç zinciri + ÜRETİM ÖNKOŞULLARI; eksiği ADIYLA söyler ve kurar
+```
+
+`just setup` yeşilse üretebilirsin:
+
+```
+sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "<konu>"'
+just duzenle   # çıktıyı ya da şablonu elle düzelt (http://localhost:4321)
+```
+
+Tek ekranlık kullanım kılavuzu: **`SKILLS.md`**. Ayrıntı istemiyorsan başka bir şey
+okumana gerek yok.
+
+## Geliştirirken
+
+```
+just check     # biçim, tip, lint, kapılar — commit öncesi
 just verify    # tam doğrulama: kapılar + testler + golden
+just tur       # döngünün sıradaki adımını ve okunacakları getirir
 ```
 
-## Durum
+## Ne depoda, ne değil
 
-FAZ 0 — ön hazırlık. Henüz üretim yapmıyor.
+| Depoda | Depo dışında |
+|---|---|
+| `corpus/` bilgi kayıtları, `brand/` marka kiti | üretilmiş PNG'ler (`derived/blobs`, içerik adresli) |
+| Şablon kataloğu (`packages/render/src/katalog-ornek.ts`) | koşu görselleri (`derived/runs/*/gorsel-*.png`) |
+| Koşu defterleri ve **kompozisyonlar** (`panorama.json`) | 1 GB'lık arka plan silme modeli (ilk koşuda iner) |
+
+Ayrım tekrar üretilebilirlik: metin ve kompozisyon izlenir, pikseller izlenmez (D-302).
+Bu yüzden takım arkadaşın klonladığında **geçmişi tam** alır — hangi koşuda ne
+üretildiği, hangi şablonun seçildiği ve neden, hepsi defterde.
