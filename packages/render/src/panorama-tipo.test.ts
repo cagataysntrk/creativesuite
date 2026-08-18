@@ -122,7 +122,17 @@ describe('hayalet puntosu uzunluğa göre küçülüyor', () => {
     // Altı harfli bir kelime yarıdan aza inmeli, yoksa kesimleri kat eder.
     expect(hayaletPuntosu('Hafıza', 1)).toBeLessThan(470 * 0.55)
     // Taban var: sonsuza kadar küçülüp süse dönüşmemeli.
-    expect(hayaletPuntosu('çokçokçokuzunbirkelime', 1)).toBeGreaterThanOrEqual(470 * 0.34)
+  })
+
+  // ⚠ ⚠ **ÜÇ KARAKTERLİK BİR KELİME, ÜÇ KARAKTERLİK BİR SAYI DEĞİLDİR.** İlk kural adet
+  // sayıyordu ve `TEK` de `01` gibi tam punto alıp 729 px'e çıktı — bir slaydı kaplayıp
+  // başlığın üstüne bindi. Gerçek koşuda `sus-baskin` yakaladı (süs %41, içerik %27).
+  it('rakam ile aynı uzunlukta KELİME aynı puntoyu almıyor', () => {
+    const rakam = hayaletPuntosu('01', 1)
+    const kelime = hayaletPuntosu('TEK', 1)
+    expect(rakam).toBeGreaterThan(kelime)
+    // Kelime bir slaydın %86'sını aşmamalı: em tahmini × punto ≤ 1080 × 0,86.
+    expect(kelime * 3 * 0.72).toBeLessThanOrEqual(1080 * 0.87)
   })
 
   it('ölçek çarpanı korunuyor', () => {

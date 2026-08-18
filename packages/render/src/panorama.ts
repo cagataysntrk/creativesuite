@@ -295,10 +295,32 @@ export type Yerlesim =
  * rakam DEV kalmalı, kompozisyonun parçası o), sonrası orantılı: uzun bir kelime bir
  * slayda sığıyor. Taban 0,34 — altında hayalet "soluk metin" olmaktan çıkıp süse dönüyor.
  */
-export const hayaletPuntosu = (metin: string, olcek: number): number => {
-  const n = [...metin.trim()].length
-  const oran = n <= 3 ? 1 : Math.max(0.34, 3 / n)
-  return 470 * olcek * oran
+export const hayaletPuntosu = (metin: string, olcek: number, slaytGenisligi = 1080): number => {
+  const t = metin.trim()
+  if (t === '') return 0
+  // ⚠ ⚠ **KARAKTER SAYISI YANLIŞ ÖLÇÜYDÜ ve gerçek koşu bunu gösterdi.** Kural "üç
+  // karaktere kadar tam punto" diyordu ve `01` için doğruydu; ama model hayalete KELİME
+  // yazınca `TEK` de üç karakter oldu ve 729 px'e çıktı — bir slaydın tamamını kaplayıp
+  // başlığın üstüne bindi. Bu turda eklenen `sus-baskin` denetimi onu üretimde yakaladı
+  // (kart 4: süs %41, içerik %27) ve `kalite` haklı olarak geçirmedi.
+  //
+  // ⚠ SayılmaSı gereken şey ADET değil GENİŞLİK: rakamlar dar, büyük harfler geniş.
+  // Yaklaşık em genişlikleri condensed display yüzü için ölçüldü; kesin metrik gerekmiyor,
+  // gereken tek şey rakam ile harfi AYIRMAK.
+  const em = [...t].reduce((toplam, ch) => {
+    if (/[0-9×+%.,]/.test(ch)) return toplam + 0.58
+    if (ch === ' ') return toplam + 0.3
+    // ⚠ ⚠ **BÜYÜK HARF SINAMASI CASE DÖNÜŞÜMÜYLE YAPILMAZ (R-21).** İlk sürüm
+    // `ch.toLocaleUpperCase('tr')` yazdı ve `turkish-case` kapısı haklı olarak reddetti:
+    // case dönüştüren tek yetkili yer `kernel/src/text/case.ts`. Zaten dönüşüme ihtiyaç
+    // YOK — sorulan şey "bu harf büyük mü", Unicode özelliği onu doğrudan söylüyor ve
+    // Türkçe'nin `i/İ` tuzağına hiç girmiyor.
+    return toplam + (/\p{Lu}/u.test(ch) ? 0.72 : 0.6)
+  }, 0)
+  // Hayalet bir slaydın en çok %86'sını kaplasın: daha genişi kesimi aşıp komşu slaydın
+  // metnine giriyor, daha darı arka plan olmaktan çıkıp bir etikete dönüyor.
+  const tavan = (slaytGenisligi * 0.86) / Math.max(em, 0.1)
+  return Math.min(470 * olcek, tavan)
 }
 
 const YERLESIM_CSS: Record<Yerlesim, string> = {

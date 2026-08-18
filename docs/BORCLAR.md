@@ -84,4 +84,12 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
 - **D9 · `sus-baskin` alanı ölçüyor, KONTRASTı değil.** Soluk bir hayalet ile opak bir
   blok aynı sayılıyor. Bugün yetiyor (hiyerarşi tersliği alanla görünüyordu) ama bir
   şablon hayaleti çok soluk yapıp büyütürse kural haksız kırmızı verir.
+- **D10 · BOŞ GÖRSEL "başarı" sayılıyor — denetimde deliği var.** Gerçek koşuda
+  (`run_01a0143d`) 3. slaydın yuvasında figür yerine düz siyah bir dikdörtgen çıktı:
+  sağlayıcı boş/karanlık bir görsel döndürdü, adım `ok` oldu, `kalite` 0 kusur dedi.
+  **Ölçüldü:** yuva içi standart sapma 16,1 · ötekiler 39,2 / 45,1 / 51,1 — üçte biri.
+  Aynı imza daha önce doğrudan sağlayıcı denemesinde de görüldü (dişli brief'i 17 KB
+  siyah kare döndürmüştü). Eşik ölçülebilir: yuva içi std belirgin biçimde düşükse görsel
+  yok demektir. `matlama-tutmuyor` köşe parlaklığına bakıyor, bu ayrı bir kusur.
+  ⚠ Kontrol tarayıcıda yapılmalı (görsel bir veri URI'si; motorda PNG çözücü yok).
 

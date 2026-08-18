@@ -511,3 +511,26 @@ geldi — **bir eksik, başka bir doğru değişiklik onu açığa çıkarana ka
 tipi kendiliğinden kapsanıyor.
 
 **Geri alma maliyeti:** düşük — istemde on satır, bir test.
+
+## D-294
+
+**Karar:** Hayalet puntosu karakter SAYISINA değil çizilen GENİŞLİĞE bağlandı. Rakamlar
+dar (0,58em), büyük harfler geniş (0,72em); hayalet bir slaydın en çok %86'sını kaplıyor.
+
+**Neden:** Önceki kural (D-284) "üç karaktere kadar tam punto" diyordu ve `01` için
+doğruydu — bir rakam DEV kalmalı, kompozisyonun parçası o. Ama model hayalete KELİME
+yazınca `TEK` de üç karakter oldu ve **729 px**'e çıktı: bir slaydın tamamını kaplayıp
+başlığın üstüne bindi. **Üç karakterlik bir kelime, üç karakterlik bir sayı değildir.**
+
+⚠ ⚠ **BU TURDA EKLENEN DENETİM (D-292) KUSURU ÜRETİMDE YAKALADI.** Gerçek koşu
+(`veri-hikayesi`, altı slayt): `sus-baskin` kart 4'te süs %41 · içerik %27 dedi ve
+`kalite` `gecti: false` verdi. Kural, eklendiği turda kendi işini yaptı — bir denetim
+kuralının değeri tam olarak bu: kimse bakmadan önce yakalaması.
+
+**Ölçülen sonuç:** `01` 729px (değişmedi) · `TEK` 729 → 430 · `BAŞLA` 437 → 258 ·
+`KARMAŞIK` 273 → 161.
+
+⚠ Kesin font metriği KULLANILMADI ve gerekmiyor: aranan tek ayrım rakam ile harf.
+Yaklaşık em genişliği bunu veriyor, ölçüm zinciri kısa kalıyor.
+
+**Geri alma maliyeti:** düşük — tek fonksiyon.
