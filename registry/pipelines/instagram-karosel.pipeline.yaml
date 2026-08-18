@@ -41,9 +41,15 @@ steps:
   # çağırmıyor, dosyaya dokunmuyor; `GENERATE`in yan etki sınıfı bozulmuyor.
   # ⚠ Agent SIFIRDAN yazmıyor: katalogdaki dolu taslağı alıp konuya göre düzenliyor.
   # Kompozisyon alanları şemada YOK — değiştiremediği için "değiştirme" demeye gerek yok.
+  # ⚠ ⚠ **METİN KAPISI — MALİYETİN ÖNÜNDE.** Kapı `metin-uret`ten SONRA, görsel
+  # üretiminden ÖNCE duruyor: metin yanlışsa dört görsel üretmenin anlamı yok ve parası
+  # geri gelmiyor. Onay üretimin sonunda değil, harcamanın önünde olmalı (Yasa 2).
+  # ⚠ Kapı `sablon-uyarla`da çünkü koşu bir kapıyı GÖRÜNCE DURUR, geçtikten sonra değil:
+  # burada durmak, `metin-uret` bitmiş ve okunabilir demektir.
   - id: sablon-uyarla
     verb: GENERATE
     capability: text.generate
+    gate: metin-onayi
     needs: [bilgi-sec, metin-uret]
     constraints:
       sablon_uyarla: true
@@ -248,7 +254,11 @@ steps:
 
   # 8) AGENT ÇIKTIYA BAKIYOR. `render`ın ölçtüğü şey kutular; bu adımın gördüğü şey
   # kompozisyon. İkisi ayrı sorular.
+  # ⚠ **TASARIM KAPISI — slaytlar çizildi, yargı ve düzeltme turu HENÜZ koşmadı.**
+  # Burada durmak, insanın tasarımı kendi gözüyle görüp devam demesini sağlıyor;
+  # makinenin estetik puanı insanın bakışının yerine geçmiyor (D-279).
   - id: gorsel-yargi
+    gate: tasarim-onayi
     verb: GENERATE
     capability: image.critique
     needs: [render]

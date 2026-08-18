@@ -154,7 +154,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Bir gövdeye listede olmayan bir anahtar ekle → kapı kırmızı
 💾 `feat(gates): defter beyaz listesi kapisi` · `Refs: FAZ-16.9 · §13`
 
-## 16.10 — Editör: geri al gerçekten geri alsın    [ ]
+## 16.10 — Editör: geri al gerçekten geri alsın    [x]
 
 📖 §7.1 · D-301
 🔗 FAZ-16.2
@@ -162,8 +162,10 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
    `/degistir` çağrısını. Müfettişte bir kaydırağı sürüklemek onlarca çağrı üretiyor;
    kullanıcı "geri al"a bastığında bir kaydırak adımı geri geliyor, yaptığı düzenleme
    değil.
-   ⚠ Kök: geçmiş bir YIĞIN değil tek slot. Yığın + kaydırak sürüklemesini tek işleme
-   toplamak (debounce) gerekiyor.
+   ⚠ Faz notunun ilk hâli *"kaydırak onlarca çağrı üretiyor"* diyordu; ÖLÇÜLDÜ ve
+   yanlıştı — kaydıraklar `onchange` kullanıyor, yani bırakışta TEK çağrı. Gerçek
+   kusur yalnız tek slotluk yedekti. Yanlış teşhisi düzeltmek, doğru olanı yazmak
+   kadar önemli.
 📁 `scripts/duzenleyici.mjs` · `scripts/duzenleyici-istemci.js`
 ✅ Onlarca kaydırak hareketinden sonra tek `geri al` o düzenlemeyi tümüyle geri alıyor
 🧪 Üç ayrı düzenleme yap, üç kez geri al → üçü de sırayla geri geliyor

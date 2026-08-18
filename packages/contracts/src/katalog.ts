@@ -197,11 +197,20 @@ export const SAHNE: KatalogSablonu = {
     // DİZE eşleştiriyor ve `no texture` içindeki `text` için yanlış pozitif zaten kayıtlı.
     // Bu varyantlar ilk yazımda "fabric texture" diyordu ve testi kırdı; koşuda görsel
     // adımını REDDETTİRECEKTİ. Yerine `weave`, `grain`, `creases` kullanılıyor.
+    // ⚠ ⚠ **DÖRT VARYANT TEK GÖRSEL DİLİ KONUŞUR — ve bu bir ÖLÇÜMDEN geldi.**
+    // İlk sürüm bilerek dönüşümlüydü: işçi · 3B kil render · işçi · 3B render. Gerçek
+    // bir postta sonuç DÖRT AYRI TASARIM DİLİ oldu — kesik illüstrasyon figür, CAD
+    // render, foto-illüstrasyon ve krom bir robot yan yana. Karoselin en temel şartı
+    // seri bütünlüğü ve çeşitlilik onu bozacaksa çeşitlilik değil dağınıklıktır.
+    // ⚠ Özne ÇEŞİTLİLİĞİ kaldı (insan/nesne, duruş, açı); değişmeyen şey İŞLEM.
+    // ⚠ **`humanoid`, `robot`, `android` ve `chrome` AÇIKÇA yasak:** soyut bir konuda
+    // ("veri katmanı") modelden "konudan bir nesne" istemek insansı krom bir robot
+    // getiriyor — ölçüldü. Geri kazanım hattı anlatan bir markada bu konu dışıdır.
     varyantlar: [
-      'a worker with arms open wide, presenting toward the right, full body, worn work clothes with visible weave and creases',
-      'a large 3d clay render of the subject matter itself, isometric, matte material, soft contact shadow, no person',
-      'a worker pointing forward with a straight arm, side profile, low camera angle, visible material grain',
-      'a close 3d render of a single object from the topic, three quarter angle, glossy and matte surfaces mixed, strong single light',
+      'a worker with arms open wide presenting toward the right, full body, worn work clothes with visible weave and creases, high contrast monochrome illustration with visible ink hatching, matte surfaces only',
+      'a single piece of industrial equipment from the topic, three quarter angle, no person, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection',
+      'two workers at a control cabinet, one pointing forward with a straight arm, side profile, low camera angle, high contrast monochrome illustration with visible ink hatching, matte surfaces only',
+      'a worker looking toward the right with folded arms, waist up, full frame, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection',
     ],
   },
   baslikPayi: 1,

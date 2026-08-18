@@ -20,7 +20,17 @@ const { systemClock } = await import(join(REPO, 'packages/kernel/dist/index.js')
 
 const runId = process.argv[2]
 const karar = process.argv[3]
-const gerekce = process.argv.slice(4).join(' ').trim()
+// ⚠ ⚠ **TEK KAPI SEÇİLEBİLİR: `--kapi <ad>`.** İlk sürüm BEKLEYEN TÜM kapıları birden
+// onaylıyordu ve bu, adım adım onayı imkânsız kılıyordu: hat metin kapısında dursun
+// diye kapı eklemek, sonra hepsini tek komutla açmak, kapıları hiç koymamakla aynı şey.
+// Argüman verilmezse davranış eskisi gibi (hepsi) — geriye dönük uyumlu.
+const kapiIndeks = process.argv.indexOf('--kapi')
+const secilenKapi = kapiIndeks > 0 ? process.argv[kapiIndeks + 1] : undefined
+const gerekce = process.argv
+  .slice(4)
+  .filter((a, i, arr) => a !== '--kapi' && arr[i - 1] !== '--kapi')
+  .join(' ')
+  .trim()
 
 if (runId === undefined || (karar !== 'onayla' && karar !== 'reddet')) {
   console.log('  kullanım: just onay <run_id> onayla|reddet [gerekçe]')
@@ -59,7 +69,12 @@ if (hatKapilari.length === 0) {
 }
 
 const mevcut = manifest.decisions ?? []
+if (secilenKapi !== undefined && !hatKapilari.includes(secilenKapi)) {
+  console.log(`✗ '${secilenKapi}' bu hatta yok. Kapılar: ${hatKapilari.join(', ')}`)
+  process.exit(1)
+}
 const yeni = hatKapilari
+  .filter((g) => secilenKapi === undefined || g === secilenKapi)
   .filter((g) => !mevcut.some((d) => d.gate === g))
   .map((g) => ({
     gate: g,

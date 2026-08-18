@@ -36,8 +36,9 @@ let sonDoc = null
 
 async function cek() {
   const r = await fetch('/pano?id=' + id)
-  const { html, doc } = await r.json()
+  const { html, doc, geri, ileri } = await r.json()
   sonDoc = doc
+  yiginiGoster(geri ?? 0, ileri ?? 0)
   const fr = $('#pano')
   fr.srcdoc = html
   fr.style.width = doc.slaytGenisligi * doc.kartlar.length + 'px'
@@ -550,9 +551,29 @@ document.addEventListener('keydown', (ev) => {
   }
 })
 
+// ⚠ Düğme etiketi DERİNLİĞİ gösteriyor: tıklanabilir görünüp hiçbir şey yapmayan bir
+// "geri al", kullanıcıya düzenlemenin kaydedildiğini düşündürür.
+const yiginiGoster = (geri, ileri) => {
+  $('#geri').textContent = geri > 0 ? '↶ geri al (' + geri + ')' : '↶ geri al'
+  $('#geri').disabled = geri === 0
+  $('#ileri').textContent = ileri > 0 ? '↷ ileri (' + ileri + ')' : '↷ ileri'
+  $('#ileri').disabled = ileri === 0
+}
+
+$('#ileri').onclick = async () => {
+  await fetch('/ileri?id=' + id, { method: 'POST' })
+  await cek()
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (!(ev.ctrlKey || ev.metaKey) || ev.key.toLowerCase() !== 'z') return
+  ev.preventDefault()
+  void (ev.shiftKey ? $('#ileri').onclick() : $('#geri').onclick())
+})
+
 $('#geri').onclick = async () => {
   await fetch('/geri?id=' + id, { method: 'POST' })
-  cek()
+  await cek()
 }
 $('#kaydet').onclick = async () => {
   const r = await fetch('/kaydet?id=' + id, { method: 'POST' })

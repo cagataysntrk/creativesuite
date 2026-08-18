@@ -5,12 +5,12 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 16
-siradaki_adim: 16.10
+aktif_faz: 17
+siradaki_adim: 17.2
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "16.9 KAPANDI: BEYAZ LISTEYI ARTIK YORUM DEGIL KAPI KORUYOR (R-82 · D-310). Alti tekrarin ardindan yapisal cozum: gövde ciktisindaki her anahtar YA DEFTER_ANAHTARLARI'nda olur YA kapinin envanterinde GEREKCESIYLE disarida birakilir; ikisi de degilse kapi kirmizi ve anahtari ADIYLA soyluyor. Beyaz listeyi kaldirmak cozum degildi - defterin kucuk kalmasi olculmus bir gereklilik (gomulu font + gorsel data URI ile bir manifest 580 KB'a cikip R-64'un 512 KB tavanini asmisti); sorun listenin varligi degil SESSIZLIGI. ⚠ KAPI YAZILIR YAZILMAZ ON ALAN DAHA CIKTI ve iclerinde YAYIN KANITI vardi: published (kanal id'si), proposedAt, quotaBefore. Yayinlanmis bir varligin kanal id'sinin defterde olmamasi, R-46'nin (korlemesine tekrar yok, once mutabakat) dayanacagi kaydin hic yazilmamasi demekti. Yedisi deftere alindi; records, assets ve gorselliSlaytlar yuk olduklari icin gerekceyle disarida. Kapinin kendi SINIRI da yazili: dinamik anahtar goremez - gorulmeyen bir sinir, olmayan bir sinir sanilir. Ihlal turu: govdeye kayitsiz bir anahtar eklenince kirmizi, geri alininca yesil."
+son_kanit: "ILK POST URETILDI VE YENI ADIM KAPISI GERCEK KOSUDA CALISTI. FAZ-17 acildi: uretim bir sohbet degil bir HAT - depo sahibi her adimi onaylayacak. 17.1 kapandi: metin-onayi (maliyetin ONUNDE, gorsel uretilmeden) ve tasarim-onayi (slaytlar cizildikten sonra) kapilari hatta; just onay --kapi <ad> ile TEK kapi onaylanabiliyor (eskiden hepsi birden aciliyordu, bu adim adim onayi imkansiz kiliyordu). 16.10 kapandi: geri/ileri yigini, Ctrl+Z, dugmede derinlik. ⚠ ILK POST DENEMESI STIL KOPUKLUGU GOSTERDI: dort slayt dort ayri gorsel dili (kesik illustrasyon figur, CAD render, foto-illustrasyon, KROM ROBOT). Kok sebep katalogda: sahne'nin varyantlari BILEREK donusumluydu. Cesitlilik seri butunlugunu bozuyorsa cesitlilik degil daginikliktir; varyantlar tek gorsel diline getirildi (ozne cesitliligi kaldi, ISLEM sabitlendi) ve humanoid/robot/chrome acikca yasaklandi - soyut konuda 'konudan bir nesne' istemek krom robot getiriyordu. ⚠ IKINCI BULGU: metin kapisi calisti ama ONAYLANACAK METIN DEFTERDE YOKTU - lines beyaz listede degildi. Kapi karar dayanagini tasimiyorsa kapi degil gecikmedir; lines deftere alindi. Bu ayni zamanda defter-anahtarlari kapisinin IKINCI kor noktasini gosterdi: data bir YARDIMCININ dondugu nesneyse anahtarlar gorunmuyor. Kapi bir sinifi kapatti, hepsini degil - ve bunu yazmak, kapatmis gibi davranmaktan iyidir."
 ```
 
 ## Neredeyiz
@@ -43,6 +43,8 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **16.7** · ritim MEKANİK kural oldu; gerçek koşuda ilk kez `akan-alan` seçildi | 2026-08-18 |
 | **16.8** · ritim uyumu ölçülüp DEFTERE yazılıyor; beyaz liste altıncı kez alan eledi | 2026-08-18 |
 | **16.9** · `defter-anahtarlari` kapısı; on alan daha sessizce eleniyormuş, yedisi kurtarıldı | 2026-08-18 |
+| **16.10** · geri/ileri YIĞINI (tavan 50) + Ctrl+Z; düğme derinliği gösteriyor | 2026-08-18 |
+| **17.1** · metin ve tasarım kapıları hatta; `just onay --kapi` ile tek kapı onaylanıyor | 2026-08-18 |
 
 ## Sıradaki adım
 

@@ -282,6 +282,11 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   'irKullanildi',
   'brandId',
   'domain',
+  // ⚠ ⚠ **`lines` OLMADAN METİN KAPISI ANLAMSIZ — ve bunu ilk gerçek kapı koşusu
+  // gösterdi.** Hat `metin-onayi`nda durdu, insan "onayla" diyecekti ve ONAYLAYACAĞI
+  // METİN DEFTERDE YOKTU. Bir kapı, kararın dayanağını taşımıyorsa kapı değil bir
+  // gecikmedir. Satırlar kısa ve sayılı; yük değil kanıt.
+  'lines',
 ] as const
 
 /**

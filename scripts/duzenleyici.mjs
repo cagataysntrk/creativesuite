@@ -181,6 +181,7 @@ const KABUK = (
   <button id="mod">✎ yaz</button>
   <button id="sil">⌫ sil</button>
   <button id="geri">↶ geri al</button>
+  <button id="ileri">↷ ileri</button>
   <button class="birincil" id="kaydet">JSON'u yaz</button>
   <span id="ipucu">metne tıkla → düzenle · görseli sürükle → taşı · Shift+sürükle → ölçekle</span>
 </header>
@@ -478,7 +479,29 @@ const govde = (req) =>
     req.on('end', () => c(s))
   })
 
-const yedek = {}
+/**
+ * Geri/ileri YIĞINLARI — id başına.
+ *
+ * ⚠ ⚠ **İLK SÜRÜM TEK SLOTTU ve bu bir kolaylık eksiği değil, bir GÜVEN eksiğiydi.**
+ * `yedek[id]` yalnız SON değişikliği tutuyordu: üç düzenleme yapıp iki kez geri almak
+ * imkânsızdı ve ikinci "geri al" hiçbir şey yapmadan sessizce geçiyordu. Elle düzeltme
+ * yapan biri denemekten çekinir — geri alınamayan bir deneme, denenmemiş demektir.
+ *
+ * ⚠ Tavan 50: bellek sınırsız büyümesin. Aşınca EN ESKİ atılıyor; kullanıcı elli adım
+ * geri gitmek isterse zaten `git diff` var (şablon modu) ya da koşu defteri (koşu modu).
+ */
+const TAVAN = 50
+const geriYigin = {}
+const ileriYigin = {}
+
+const anlikGoruntuAl = (id) => {
+  const y = (geriYigin[id] ??= [])
+  y.push(structuredClone(calisan[id]))
+  if (y.length > TAVAN) y.shift()
+  // Yeni bir düzenleme ileri geçmişi geçersiz kılar: dallanmış bir geçmiş,
+  // "ileri" düğmesine basınca beklenmedik bir duruma atlamak demekti.
+  ileriYigin[id] = []
+}
 const sunucu = createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x')
   const id = u.searchParams.get('id') ?? Object.keys(calisan)[0]
@@ -505,11 +528,19 @@ const sunucu = createServer(async (req, res) => {
       const roller = [...kreatif.matchAll(/(--role-[\w-]+)\s*:/g)].map((m) => m[1])
       return json(roller.map((r) => 'var(' + r + ')'))
     }
-    if (u.pathname === '/pano') return json({ html: panoramaHtml(belge(id)), doc: calisan[id] })
+    if (u.pathname === '/pano')
+      return json({
+        html: panoramaHtml(belge(id)),
+        doc: calisan[id],
+        // ⚠ Derinlik İSTEMCİYE bildiriliyor: "geri al" düğmesi tıklanabilir görünüp
+        // hiçbir şey yapmıyorsa kullanıcı düzenlemenin kaydedildiğini sanır.
+        geri: (geriYigin[id] ?? []).length,
+        ileri: (ileriYigin[id] ?? []).length,
+      })
     if (u.pathname === '/olc') return json(await olcum(id))
     if (u.pathname === '/degistir') {
       const d = JSON.parse(await govde(req))
-      yedek[id] = structuredClone(calisan[id])
+      anlikGoruntuAl(id)
       if (d.tur === 'gorsel') {
         const g = calisan[id].gorseller[d.i]
         if (g) Object.assign(g, { x: d.x, y: d.y, genislik: d.genislik })
@@ -612,7 +643,19 @@ const sunucu = createServer(async (req, res) => {
       )
     }
     if (u.pathname === '/geri') {
-      if (yedek[id]) calisan[id] = structuredClone(yedek[id])
+      const y = geriYigin[id] ?? []
+      if (y.length > 0) {
+        ;(ileriYigin[id] ??= []).push(structuredClone(calisan[id]))
+        calisan[id] = y.pop()
+      }
+      return json({ ok: true })
+    }
+    if (u.pathname === '/ileri') {
+      const y = ileriYigin[id] ?? []
+      if (y.length > 0) {
+        ;(geriYigin[id] ??= []).push(structuredClone(calisan[id]))
+        calisan[id] = y.pop()
+      }
       return json({ ok: true })
     }
     if (u.pathname === '/kaydet') {

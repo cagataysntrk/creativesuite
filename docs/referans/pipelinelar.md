@@ -83,14 +83,14 @@ Toplam **11** hat.
 
 ## `instagram-karosel` — Instagram karoseli — katalog merkezli
 
-27 adım · 17 yetenek isteyen · 1 insan kapısı
+27 adım · 17 yetenek isteyen · 3 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
 | `cozumle` | `RESOLVE` | — | — | — | — |
 | `bilgi-sec` | `SELECT` | — | cozumle | — | — |
 | `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
-| `sablon-uyarla` | `GENERATE` | `text.generate` | bilgi-sec, metin-uret | — | — |
+| `sablon-uyarla` | `GENERATE` | `text.generate` | bilgi-sec, metin-uret | metin-onayi | — |
 | `kompozit` | `COMPOSE` | — | metin-uret, sablon-uyarla | — | — |
 | `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
 | `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief, kompozit | — | ✓ |
@@ -106,7 +106,7 @@ Toplam **11** hat.
 | `gorsel-kirp-4` | `GENERATE` | `image.matte` | gorsel-uret-4 | — | ✓ |
 | `yuva-doldur` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4 | — | — |
 | `render` | `RENDER` | — | yuva-doldur | — | — |
-| `gorsel-yargi` | `GENERATE` | `image.critique` | render | — | — |
+| `gorsel-yargi` | `GENERATE` | `image.critique` | render | tasarim-onayi | — |
 | `tasarim-yargi` | `GENERATE` | `design.critique` | render | — | — |
 | `duzelt` | `GENERATE` | `text.generate` | render, sablon-uyarla | — | ✓ |
 | `kompozit-son` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4, duzelt | — | — |

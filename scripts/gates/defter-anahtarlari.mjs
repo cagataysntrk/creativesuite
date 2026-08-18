@@ -20,6 +20,13 @@
 // içindeki `...yardimci(…)` yayılmalarının DÖNÜŞ TİPİ anahtarlarını görüyor. Dinamik
 // anahtar (`[degisken]:`) göremez. Bu sınır burada yazılı çünkü görülmeyen bir sınır,
 // olmayan bir sınır sanılır.
+//
+// ⚠ ⚠ **İKİNCİ KÖR NOKTA, İLK GERÇEK KAPI KOŞUSUNDA GÖRÜLDÜ:** `data` bir YARDIMCININ
+// döndürdüğü nesne ise (`data: metneCevir(...)`) anahtarlar sözlük literalinde
+// olmadığı için görünmüyor. `metin-uret`in `lines` alanı tam böyleydi: kapı yeşildi,
+// alan yine de eleniyordu ve hat metin onayında dururken ONAYLANACAK METİN defterde
+// yoktu. Kapı bir sınıfı kapattı, hepsini değil — ve bunu yazmak, kapatmış gibi
+// davranmaktan iyidir.
 
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
