@@ -52,7 +52,7 @@ const koyuMu = (token: string): boolean => KOYULAR.has(token)
  * yazıyordu — kâğıt alan render'da amber çıktı. Bakınca görüldü, metrik göremezdi.
  */
 const ALAN_RAMPASI: Record<string, readonly [RampaTokeni, RampaTokeni] | null> = {
-  [AMBER]: ['--ramp-marka-amber-500', '--ramp-marka-amber-600'],
+  [AMBER]: ['--ramp-marka-bakir-500', '--ramp-marka-bakir-600'],
   [MUREKKEP]: ['--ramp-marka-ink-950', '--ramp-marka-ink-800'],
   [KAGIT]: null,
 }

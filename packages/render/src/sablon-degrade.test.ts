@@ -12,9 +12,9 @@ const k = (index: number, total: number, role: SlaytKimligi['role']): SlaytKimli
 
 describe('degradeDefSvg', () => {
   it('durakları var() ile rampadan okur — serbest renk yazmaz', () => {
-    const svg = degradeDefSvg('x', '--ramp-marka-amber-500', '--ramp-marka-amber-600')
-    expect(svg).toContain('stop-color="var(--ramp-marka-amber-500)"')
-    expect(svg).toContain('stop-color="var(--ramp-marka-amber-600)"')
+    const svg = degradeDefSvg('x', '--ramp-marka-bakir-500', '--ramp-marka-bakir-600')
+    expect(svg).toContain('stop-color="var(--ramp-marka-bakir-500)"')
+    expect(svg).toContain('stop-color="var(--ramp-marka-bakir-600)"')
     // Chroma tavanı kurguyla korunuyor: token dışı bir renk buraya YAZILAMAZ.
     expect(svg).not.toMatch(/stop-color="(#|oklch|rgb)/)
   })
@@ -46,6 +46,8 @@ describe('alan rampası', () => {
   it('duraklar dolgu rengiyle aynı aileden — komşu kararla ayrışamaz', () => {
     const g = alanRolleri(k(1, 5, 'govde'))
     expect(g.karsiAlan).toBe('var(--role-bg)')
-    expect(g.karsiAlanRampa?.[0]).toContain('amber')
+    // ⚠ Aksan ailesi amber DEĞİL bakır (D-295): amber markadan gelmiyordu, stok şablon
+    // mirasıydı ve token açıklaması bunu zaten yazıyordu.
+    expect(g.karsiAlanRampa?.[0]).toContain('bakir')
   })
 })

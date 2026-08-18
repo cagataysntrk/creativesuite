@@ -12,13 +12,13 @@ import { tasarimOlc, tipografiSay } from './tasarim-olcum.js'
 const CSS = `
 :root {
   --ramp-gray-950: oklch(0.16 0.010 250);
-  --ramp-marka-amber-500: oklch(0.80 0.156 87);
+  --ramp-marka-bakir-500: oklch(0.80 0.156 87);
   --ramp-marka-ink-950: oklch(0.18 0.012 60);
   --role-bg: var(--ramp-gray-950);
   --role-text: var(--ramp-gray-50);
 }
 [data-surface='kreatif'] {
-  --role-bg: var(--ramp-marka-amber-500);
+  --role-bg: var(--ramp-marka-bakir-500);
   --role-text: var(--ramp-marka-ink-950);
 }
 [data-surface='studio'] {

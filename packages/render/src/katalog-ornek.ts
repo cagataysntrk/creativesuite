@@ -46,9 +46,20 @@ const ORNEK = 'ÖRNEK VERİ'
  * ⚠ Tipografi DAR (`wdth 70`) ve İRİ (`payi 0,95`): eklemeli Türkçe'de poster puntosunun
  * tek yolu daraltmak (D-269). Üst başlık GENİŞ (`112`) — zıtlık hiyerarşiyi keskinleştirir.
  */
+// ⚠ ⚠ **SAYAÇ ETİKETLERİ KALDIRILDI (T1).** `BÖLÜM I` · `SERİ 02` · `SORU 03` gibi
+// etiketler HİÇBİR referansta yok; onlar bir sunum şablonunun dili, bir tasarımın değil.
+// Sayfa sayısını alt ray zaten veriyor (`03 / 06`) ve iki kez söylemek imzayı zayıflatıyor.
+// Üst başlık artık kartın KONUSUNU söylüyor: 'AYRIŞTIRMA', 'ÖLÇÜM', 'İMZA'.
 export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
+  // ⚠ ⚠ **GREN HER ŞABLONDA (T7).** Depo sahibi: *"illüstrasyon stili çok pürüzsüz,
+  // gölgesiz, texture'sız"*. Düz bir dijital alan her zaman dijital görünüyor; film greni
+  // ve kâğıt paraziti, gözün "bu bir yüzey" demesi için gereken tek şey. Koyu zeminde
+  // film greni (daha görünür), açık zeminde kâğıt paraziti (daha ince) — aynı doku iki
+  // zeminde aynı güçte olamaz.
+  // ⚠ Vinyet kadrajı topluyor: kenarları hafif düşürmek merkezi kendiliğinden öne çıkarıyor.
+  ustDoku: { gren: 20, vinyet: 30 },
   // ⚠ `ayrik`: paneller DİBE, eğrinin üstüne oturuyor. Aradaki boşluk kusur değil,
   // eğrinin hikâyeyi anlattığı alan.
   yerlesim: 'ayrik',
@@ -86,8 +97,8 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
           { renk: '--ramp-marka-ink-950', konum: 100 },
         ],
       },
-      { tip: 'isik', x: 12, y: 22, capX: 46, capY: 74, renk: '--ramp-marka-amber-500', guc: 16 },
-      { tip: 'isik', x: 86, y: 78, capX: 40, capY: 58, renk: '--ramp-marka-amber-600', guc: 12 },
+      { tip: 'isik', x: 12, y: 22, capX: 46, capY: 74, renk: '--ramp-marka-bakir-500', guc: 16 },
+      { tip: 'isik', x: 86, y: 78, capX: 40, capY: 58, renk: '--ramp-marka-bakir-600', guc: 12 },
       { tip: 'vinyet', guc: 30 },
     ],
   },
@@ -225,6 +236,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
 export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
+  ustDoku: { gren: 18, vinyet: 26 },
   yerlesim: 'ust',
   tipografi: {
     baslikPayi: 0.9,
@@ -282,7 +294,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   kartlar: [
     {
       elYazisi: 'Adım adım',
-      ustBaslik: 'BEŞ ŞART',
+      ustBaslik: 'DÖNGÜSELLİK',
       baslik: 'Bir hattı **döngüsel** yapan beş şart',
       govde: 'Beşi de olmadan döngü kapanmıyor; biri eksikse sistem doğrusal kalıyor.',
       panel: null,
@@ -291,7 +303,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ŞART 01',
+      ustBaslik: 'İZLENEBİLİRLİK',
       baslik: 'Girdi **izlenebilir** olacak',
       govde: 'Nereden geldiği bilinmeyen malzeme, nereye gittiği bilinmeyen atıktır.',
       panel: null,
@@ -300,7 +312,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ŞART 02',
+      ustBaslik: 'AYRIŞTIRMA',
       baslik: 'Ayrıştırma **kaynakta** başlayacak',
       govde: 'Sonradan ayrıştırma her adımda pahalılaşıyor ve saflığı düşürüyor.',
       panel: null,
@@ -309,7 +321,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ŞART 03',
+      ustBaslik: 'ÖLÇÜM',
       baslik: '**Ölçülmeyen** kalite, varsayılan kalitedir',
       govde: 'Ölçülmeyen saflık, satışta değil üretimde ortaya çıkıyor.',
       panel: null,
@@ -318,7 +330,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ŞART 04',
+      ustBaslik: 'ALICI',
       baslik: 'Çıktının bir **alıcısı** olacak',
       govde: 'Alıcısı olmayan geri kazanım, ertelenmiş bir depolama.',
       panel: null,
@@ -327,7 +339,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ŞART 05',
+      ustBaslik: 'FİNANS',
       baslik: 'Döngü **kendini finanse** edecek',
       govde: 'Sübvansiyonla dönen bir döngü, sübvansiyon bitince duruyor.',
       panel: null,
@@ -349,6 +361,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
 export const ORNEK_SAHNE: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
+  ustDoku: { gren: 22, vinyet: 34 },
   // ⚠ ⚠ **METİN ÜSTTE, ÖZNE ALTTA — ikisi de altta olamaz.** İlk sürüm `yerlesim: 'alt'`
   // idi ve kesik özne kutuları başlıkların ÜSTÜNE bindi: "Sonra elle tutulur bir ölçü"
   // bir insan gövdesinin arkasından okunuyordu. Süreklilik ögesi kesimi aşmak ZORUNDA,
@@ -394,7 +407,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       // gerekiyor. ⚠ Düşüş de yumuşatıldı (`capX` 84 → 62): geniş ve sert kenarlı bir
       // havuz, dar ve yumuşak olandan daha çok "kutu" üretiyor.
       { tip: 'isik', x: 22, y: 16, capX: 62, capY: 52, renk: '--ramp-marka-mavi-500', guc: 15 },
-      { tip: 'isik', x: 88, y: 74, capX: 46, capY: 44, renk: '--ramp-marka-amber-500', guc: 9 },
+      { tip: 'isik', x: 88, y: 74, capX: 46, capY: 44, renk: '--ramp-marka-bakir-500', guc: 9 },
       { tip: 'vinyet', guc: 42 },
     ],
   },
@@ -493,7 +506,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ADIM 01',
+      ustBaslik: 'SORUN',
       baslik: 'Önce **sorun** duruyor',
       govde: 'Adı konmamış sorun çözülemez.',
       panel: null,
@@ -504,7 +517,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       kolon: 'sag',
     },
     {
-      ustBaslik: 'ADIM 02',
+      ustBaslik: 'ÖLÇÜ',
       baslik: 'Sonra **bir ölçü** koyuluyor',
       govde: 'Ölçü, tartışmayı tercihe çevirir.',
       panel: null,
@@ -513,7 +526,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ADIM 03',
+      ustBaslik: 'KARAR',
       baslik: 'En sonda **karar** var',
       govde: 'Kararı ölçü değil insan verir.',
       panel: null,
@@ -539,6 +552,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
 export const ORNEK_MEMPHIS: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
+  ustDoku: { gren: 13, vinyet: 18 },
   // ⚠ ⚠ **`orta` DENENDİ ve BIRAKILDI.** Dikeyde ortalanan metin, kesimi aşan özneyle
   // aynı bandı istiyor: liste paneli bir insan gövdesinin arkasında kalıyordu. Süreklilik
   // ögesi kesimi aşmak ZORUNDA olduğuna göre çakışmayı yatayda çözmek imkânsız — her
@@ -574,7 +588,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
           { renk: '--ramp-gray-100', konum: 100 },
         ],
       },
-      { tip: 'isik', x: 78, y: 18, capX: 44, capY: 52, renk: '--ramp-marka-amber-200', guc: 40 },
+      { tip: 'isik', x: 78, y: 18, capX: 44, capY: 52, renk: '--ramp-marka-bakir-200', guc: 40 },
     ],
   },
   bant: { tip: 'yok' },
@@ -604,18 +618,18 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     // ⚠ İki aksan (mavi + amber): referans da iki aksanlı çalışıyor (turuncu+lacivert).
     { tip: 'blob', x: 8, y: 74, boyut: 430, renk: 'var(--ramp-marka-mavi-500)' },
     { tip: 'halka', x: 17, y: 20, boyut: 260, renk: 'var(--ramp-marka-ink-800)' },
-    { tip: 'blob', x: 33, y: 26, boyut: 380, renk: 'var(--ramp-marka-amber-500)' },
+    { tip: 'blob', x: 33, y: 26, boyut: 380, renk: 'var(--ramp-marka-bakir-500)' },
     { tip: 'tarama', x: 44, y: 78, boyut: 300, renk: 'var(--ramp-marka-ink-800)' },
     { tip: 'nokta', x: 58, y: 22, boyut: 230, renk: 'var(--ramp-marka-mavi-600)' },
     { tip: 'blob', x: 67, y: 76, boyut: 400, renk: 'var(--ramp-marka-mavi-200)' },
-    { tip: 'kare', x: 78, y: 20, boyut: 170, renk: 'var(--ramp-marka-amber-500)' },
-    { tip: 'blob', x: 88, y: 70, boyut: 360, renk: 'var(--ramp-marka-amber-500)' },
+    { tip: 'kare', x: 78, y: 20, boyut: 170, renk: 'var(--ramp-marka-bakir-500)' },
+    { tip: 'blob', x: 88, y: 70, boyut: 360, renk: 'var(--ramp-marka-bakir-500)' },
     { tip: 'nokta', x: 96, y: 26, boyut: 210, renk: 'var(--ramp-marka-ink-800)' },
   ],
   kartlar: [
     {
       elYazisi: 'Kendine sor',
-      ustBaslik: 'SORU 00',
+      ustBaslik: 'VARSAYIM',
       baslik: 'Altı soru, **altı** yanlış varsayım',
       govde: 'Her kare bir varsayımı yıkıyor.',
       panel: null,
@@ -624,7 +638,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'SORU 01',
+      ustBaslik: 'MALİYET',
       baslik: 'Geri dönüşüm **ücretsiz** mi?',
       govde: 'Toplama, taşıma ve ayrıştırma bir maliyet kalemi; bedava olan yalnız atmak.',
       panel: { tip: 'etiketler', ogeler: ['toplama', 'taşıma', 'ayrıştırma'] },
@@ -633,7 +647,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'SORU 02',
+      ustBaslik: 'AYRIŞTIRMA',
       baslik: 'Her plastik **aynı** mı?',
       govde: 'Yedi kod, yedi ayrı akış. Karıştıkları an yedisi birden değersizleşiyor.',
       panel: {
@@ -650,7 +664,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'SORU 03',
+      ustBaslik: 'DÖNGÜ',
       baslik: 'Temizlemek **şart** mı?',
       govde: 'Kalıntı, bir sonraki döngüde kokuya ve renk kaybına dönüşüyor.',
       panel: null,
@@ -659,7 +673,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'SORU 04',
+      ustBaslik: 'ÖMÜR',
       baslik: 'Sonsuz kez **dönebilir** mi?',
       govde: 'Her döngüde zincir kısalıyor; sınırsız değil, sayılı.',
       panel: {
@@ -674,7 +688,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'SORU 05',
+      ustBaslik: 'YAPILACAK',
       baslik: 'Peki **ne** yapmalı?',
       govde: 'Önce ayrıştır, sonra temizle, sonra ölç. Sıra değişince üçü de boşa gidiyor.',
       panel: { tip: 'etiketler', ogeler: ['ayrıştır', 'temizle', 'ölç'] },
@@ -718,7 +732,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   // onların altında hiç görünmüyor. Sonuç her kartta düz bir renk, yani rehber §10
   // ölçüt 5'in tarif ettiği "web arka planı" — kabul testi bunu kırmızı verdi.
   // Gren + yumuşak vinyet üstte duruyor ve düz rengi yüzeye çeviriyor.
-  ustDoku: { gren: 22, vinyet: 34 },
+  ustDoku: { gren: 16, vinyet: 24 },
   zemin: 'var(--role-bg)',
   bant: { tip: 'yok' },
   // ⚠ Gölge YOK: daire maske ögeyi zaten ayırıyor ve maskeli bir ögeye gölge eklemek
@@ -758,7 +772,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   kartlar: [
     {
       elYazisi: 'Seride',
-      ustBaslik: 'SERİ 01',
+      ustBaslik: 'MALZEME',
       baslik: 'Dört malzeme, **tek** hat',
       govde: 'Aynı hat, dört farklı beslemeyle çalışıyor.',
       panel: null,
@@ -768,17 +782,17 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       zemin: 'var(--role-bg)',
     },
     {
-      ustBaslik: 'SERİ 02',
+      ustBaslik: 'ZEMİN',
       baslik: 'Aynı düzen, **başka** zemin',
       govde: 'Süreklilik rengin dönmesinden geliyor; düzen hiç değişmiyor.',
       panel: null,
       hayalet: '02',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
-      zemin: 'var(--ramp-marka-amber-200)',
+      zemin: 'var(--ramp-marka-bakir-200)',
     },
     {
-      ustBaslik: 'SERİ 03',
+      ustBaslik: 'RİTİM',
       baslik: 'Ritmi kuran **tekrar**',
       govde: 'Göz üçüncü karede düzeni öğreniyor ve dördüncüyü bekliyor.',
       panel: null,
@@ -788,7 +802,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       zemin: 'var(--role-surface)',
     },
     {
-      ustBaslik: 'SERİ 04',
+      ustBaslik: 'KAPANIŞ',
       baslik: 'Kapanış **koyu** gelir',
       govde: 'Son kare diziyi kapatıyor: aynı düzen, en yüksek kontrast.',
       panel: null,
@@ -812,6 +826,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
 export const ORNEK_EDITORYAL: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
+  ustDoku: { gren: 12, vinyet: 20 },
   // ⚠ ⚠ **BU ŞABLON REFERANSA GÖRE YENİDEN KURULDU (D-286).** Önceki hâli referansın
   // (`image copy 5`) ÜÇ temel kararını da ters yapıyordu:
   //   1. Zemin KOYUYDU — referans açık, havadar, neredeyse kâğıt.
@@ -886,7 +901,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   kartlar: [
     {
       elYazisi: 'Sahadan',
-      ustBaslik: 'BÖLÜM I',
+      ustBaslik: 'SAHADAN',
       baslik: 'Sessiz bir **dönüşüm**',
       govde: 'Bir hattın değişimi gürültüyle değil, ölçüyle başlıyor.',
       panel: null,
@@ -897,7 +912,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       kolon: 'sag',
     },
     {
-      ustBaslik: 'BÖLÜM II',
+      ustBaslik: 'BOŞLUK',
       baslik: 'Boşluk da bir **karar**',
       govde: 'Doldurulmayan alan, gözün dinlendiği yerdir.',
       panel: null,
@@ -906,7 +921,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'BÖLÜM III',
+      ustBaslik: 'PUNTO',
       baslik: 'Küçük punto **güven** ister',
       govde: 'Bağırmayan bir başlık, okunacağını varsayıyor.',
       panel: null,
@@ -916,7 +931,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       kolon: 'sag',
     },
     {
-      ustBaslik: 'BÖLÜM IV',
+      ustBaslik: 'İMZA',
       baslik: 'Ve **kapanış**',
       govde: 'Dört karede tek bir bakış; imza altta duruyor.',
       panel: null,

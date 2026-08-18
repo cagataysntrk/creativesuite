@@ -1048,6 +1048,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `          justify-content: ${YERLESIM_CSS[doc.yerlesim ?? 'ust']} }`,
     // ⚠ Yalnız KONUM değişiyor: `align-items` bloğu sağa iter, `text-align` dokunulmadan
     // sola kalır. Kartın alt rayı bundan etkilenmemeli — o mutlak konumlu.
+    // ⚠ ⚠ **INSET IŞIK (T8).** Kartın üst kenarında 1 px ışık, altında ince bir koyu
+    // ayrım. Photoshop'ta elle konan bu iki çizgi, düz bir alanı YÜZEYE çeviriyor: göz
+    // kenarda bir ışık görünce yüzeyin bir kalınlığı olduğunu varsayıyor. Renkler karttan
+    // TÜRÜYOR (`--kart-metin`), sabit beyaz değil — kâğıt zeminde beyaz ışık görünmez.
+    `  .kart { box-shadow: inset 0 1px 0 ${sol('--kart-metin', 9)},`,
+    `          inset 0 -1px 0 ${sol('--kart-metin', 5)} }`,
     `  .kart.sag { align-items: flex-end }`,
     `  .kart.sag > * { text-align: left }`,
     // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
@@ -1148,6 +1154,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // rakam DEV kalıyor, bir kelime bir slayda sığıyor.
     `             font-size: calc(var(--hayalet-punto) * 1px);`,
     `             font-family: "Marka Display", sans-serif; font-weight: 900;`,
+    `             letter-spacing: -0.055em;`,
     `             font-stretch: calc(var(--baslik-wdth) * 1%);`,
     `             color: ${sol('--hayalet-renk', doc.hayaletKonumu?.guc ?? 7)}; letter-spacing: -0.05em;`,
     // ⚠ ⚠ **`line-height: 0.76` KEYFİ DEĞİL, `ust`U ANLAMLI KILAN ŞEY.** Varsayılan satır
@@ -1205,7 +1212,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Sayı kartı da kutusundan çıktı: dev rakam ZATEN kendi ağırlığıyla ayrışıyor,
     // etrafına çerçeve çizmek onu küçültüyordu (rehber §6, §7).
     `  .sayi-kart { padding: 0 calc(44px * var(--panel-olcek)) 0 0 }`,
+    // ⚠ ⚠ **DEV SAYIDA TRACKING AGRESİF NEGATİF (T6).** Varsayılan harf aralığı gövde
+    // metni için ayarlıdır; 150 px'lik bir rakamda aynı aralık ögeleri BİRBİRİNDEN KOPARIR
+    // ve sayı tek bir kütle olmaktan çıkar. Photoshop'ta bu elle sıkıştırılır.
     `  .sayi { font-family: "Marka Display", sans-serif; font-size: calc(74px * var(--panel-olcek)); font-weight: 900;`,
+    `          letter-spacing: -0.045em;`,
     `          font-stretch: calc(var(--baslik-wdth) * 1%); font-variant-numeric: tabular-nums;`,
     `          color: var(--kart-aksan); line-height: 1 }`,
     `  .birim { font-size: calc(26px * var(--panel-olcek)); margin-left: calc(8px * var(--panel-olcek)); color: ${sol('--kart-metin', 70)} }`,

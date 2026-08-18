@@ -14,7 +14,7 @@ const recete = (ek: Partial<ZeminResetesi> = {}): ZeminResetesi => ({
         { renk: '--ramp-marka-ink-800', konum: 46 },
       ],
     },
-    { tip: 'isik', x: 16, y: 24, capX: 52, capY: 78, renk: '--ramp-marka-amber-500', guc: 17 },
+    { tip: 'isik', x: 16, y: 24, capX: 52, capY: 78, renk: '--ramp-marka-bakir-500', guc: 17 },
     { tip: 'vinyet', guc: 34 },
   ],
   ...ek,

@@ -13,16 +13,18 @@
   --ramp-gray-800: oklch(0.28 0.010 250);
   --ramp-gray-900: oklch(0.21 0.010 250);
   --ramp-gray-950: oklch(0.16 0.010 250);
-  --ramp-marka-amber-200: oklch(0.92 0.070 90);
-  --ramp-marka-amber-500: oklch(0.80 0.156 87);
-  --ramp-marka-amber-600: oklch(0.72 0.150 82);
+  --ramp-marka-bakir-200: oklch(0.92 0.070 90);
+  --ramp-marka-bakir-500: oklch(0.700 0.132 52);
+  --ramp-marka-bakir-600: oklch(0.72 0.150 82);
   --ramp-marka-ink-800: oklch(0.27 0.008 250);
   --ramp-marka-ink-950: oklch(0.15 0.006 250);
   --ramp-marka-kagit: oklch(0.97 0.004 90);
-  --ramp-marka-mavi-200: oklch(0.886 0.063 251.5);
-  --ramp-marka-mavi-500: oklch(0.6515 0.192 251.5);
-  --ramp-marka-mavi-600: oklch(0.579 0.179 251.5);
-  --ramp-marka-mavi-800: oklch(0.403 0.122 251.5);
+  --ramp-marka-mavi-200: oklch(0.900 0.030 248);
+  --ramp-marka-mavi-300: oklch(0.720 0.098 236);
+  --ramp-marka-mavi-500: oklch(0.620 0.132 242);
+  --ramp-marka-mavi-600: oklch(0.512 0.112 246);
+  --ramp-marka-mavi-700: oklch(0.408 0.092 252);
+  --ramp-marka-mavi-800: oklch(0.330 0.078 255);
   --ramp-signal-danger: oklch(0.58 0.160 25);
   --ramp-signal-ok: oklch(0.65 0.120 150);
   --ramp-signal-warn: oklch(0.72 0.150 75);
@@ -48,8 +50,8 @@
 }
 
 [data-surface='kreatif'] {
-  --role-accent: var(--ramp-marka-amber-500);
-  --role-bg: var(--ramp-marka-mavi-500);
+  --role-accent: var(--ramp-marka-bakir-500);
+  --role-bg: var(--ramp-marka-mavi-700);
   --role-line-edge: var(--ramp-marka-ink-950);
   --role-line-hair: var(--ramp-marka-ink-800);
   --role-state-danger: var(--ramp-signal-danger);

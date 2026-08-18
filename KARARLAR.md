@@ -534,3 +534,41 @@ kuralının değeri tam olarak bu: kimse bakmadan önce yakalaması.
 Yaklaşık em genişliği bunu veriyor, ölçüm zinciri kısa kalıyor.
 
 **Geri alma maliyeti:** düşük — tek fonksiyon.
+
+## D-295
+
+**Karar:** Marka paleti yeniden kuruldu — vurgu mavisi sakinleşti, zemin **eskitmeli
+lacivert** oldu, amber yerini **bakır**a bıraktı. Sayaç etiketleri kaldırıldı, altı
+şablona gren/vinyet ve kartlara inset ışık geldi, dev sayılarda tracking negatifleşti.
+
+**Neden:** depo sahibinin tespiti — *"mavi çok cıvık ve palete uymuyor"*, *"arkaplanlar
+aşırı düz ve tasarımı kötü, sade olsa da bir derinliği olmalı"*, *"bölüm 1 seri 1 soru 1
+gibi sayaçlar hangi örnekte var?"*.
+
+**Renk — logonun birebir rengi ŞART DEĞİLMİŞ.** `mavi-500` logodan birebir alınmıştı
+(#0091ff, chroma 0,192). Büyük alanda cıvık duruyor ve paletin geri kalanını eziyordu:
+**bir aksan rengi kadraj boyunca yayılınca aksan olmaktan çıkıyor.** Yeni değer
+oklch(0.620 0.132 242) — aynı aile, doygunluk düşük. Siyah-beyaz logo her zeminle
+uyduğu için birebir eşleşme bir zorunluluk değildi; adaylar RENDER EDİLİP karşılaştırıldı.
+
+⚠ **Zemin ile vurgu artık AYRI basamaklar.** `--role-bg` vurgu rengini gösteriyordu;
+şimdi `mavi-700` (eskitmeli lacivert). Derinlik tek renkle kurulamıyor — iki komşu tonun
+farkından doğuyor. Ara basamaklar eklendi (`mavi-700`, `mavi-300`).
+
+⚠ **Amber → bakır ve bu bir renk tercihi değil, bir DÜZELTME.** Token açıklaması amberi
+zaten *"referans karosellerdeki sarının kardeşi"* diye tanımlıyordu: aksanımız markadan
+değil STOK ŞABLONDAN gelmişti. Bakır, eskitmeli lacivertin sıcak karşıtı.
+
+⚠ **Sayaç etiketleri (`BÖLÜM I`, `SERİ 02`, `SORU 03`) hiçbir referansta yok** — bir
+sunum şablonunun dili, bir tasarımın değil. Sayfa numarasını alt ray zaten veriyor ve
+aynı bilgiyi iki kez basmak imzayı zayıflatıyor. Üst başlık artık kartın KONUSUNU
+söylüyor.
+
+⚠ **Gren aynı güçte olamaz:** koyu zeminde 18–22, açık zeminde 12–16. Düz bir dijital
+alan her zaman dijital görünüyor; doku gözün "bu bir yüzey" demesi için gereken tek şey.
+
+⚠ **Inset ışık renkleri karttan TÜRÜYOR** (`--kart-metin`), sabit beyaz değil: kâğıt
+zeminde beyaz ışık görünmez. Aynı hata sınıfı on altı sabit `rgba(255,255,255)` ile
+yaşanmıştı.
+
+**Geri alma maliyeti:** orta — token değerleri, bir yeniden adlandırma, altı şablon alanı.
