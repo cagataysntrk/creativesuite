@@ -252,16 +252,31 @@ cek()
 </script>`
 
 // ── ölçüm: denetim tarayıcıda koşuyor, ayrı bir motor yok ────────────────────
+/**
+ * ⚠ ⚠ **BU FONKSİYONUN İLK SÜRÜMÜ HİÇ ÇALIŞMADI ve bunu SÖYLEMEDİ.**
+ *
+ * `panoramaDenetle` kendi sayfasını kuran bir async fonksiyon — döndürdüğü şey bir
+ * Promise. İlk sürüm onu `page.evaluate()`e veriyordu; tarayıcı "Unexpected identifier
+ * 'Promise'" diye patlıyor, hata `r.ok` false'a düşüyor ve fonksiyon BOŞ LİSTE
+ * döndürüyordu. Panelde "✓ kusur yok" yazıyordu — ölçüm yapılmadığı için.
+ *
+ * ⚠ Bu, bu turda ölçüm aletinin kendisinin bozuk çıktığı KAÇINCI kez olduğu artık
+ * sayılmıyor. Kural netleşti: **başarısız bir ölçüm "temiz" değildir.** Artık hata
+ * yutulmuyor, panele yazılıyor.
+ */
 const olcum = async (id) => {
   const { panoramaDenetle } = await import(join(REPO, 'packages/render/dist/panorama-denetim.js'))
-  const { withPage } = await import(join(REPO, 'packages/render/dist/browser.js'))
-  const d = belge(id)
-  const r = await withPage(async (page) => {
-    await page.setViewportSize({ width: d.slaytGenisligi * d.kartlar.length, height: d.yukseklik })
-    await page.setContent(panoramaHtml(d))
-    return page.evaluate(panoramaDenetle(d))
-  }, {})
-  return r.ok ? r.value : []
+  const r = await panoramaDenetle(belge(id))
+  if (!r.ok)
+    return [
+      {
+        tur: 'ÖLÇÜM BAŞARISIZ',
+        kart: null,
+        alan: null,
+        aciklama: String(r.error?.message ?? r.error),
+      },
+    ]
+  return r.value
 }
 
 const govde = (req) =>

@@ -1225,7 +1225,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ ⚠ **`.ray` HARİÇ.** İlk sürüm `:not(.hayalet)` diyordu ve `.ray`in
     // `position: absolute`ını EZİYORDU: alt ray akışa girip gövde metninin hemen altına
     // düşüyor, künye kartın ortasında duruyordu. Bakınca görüldü.
-    `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: 2 }`,
+    // ⚠ ⚠ **z-index 2 DEĞİL 6: metin görselin ÜSTÜNDE.** Eskiden 2'ydi, görseller ise
+    // 4'te — yani kesik özne metnin üstüne biniyordu ve gerçek üretimde iki kartın
+    // gövdesi okunmaz hâle geliyordu. Ölçüldü (`metin-ortuluyor`): altı şablonun ÜÇÜNDE
+    // ve iki gerçek koşunun İKİSİNDE de gövdenin %6–20'si örtülüydü.
+    // ⚠ Kart YIĞIN BAĞLAMI KURMUYOR (`position: absolute`, z-index yok), bu yüzden
+    // çocukların z-index'i doğrudan görsellerle yarışıyor — düzeltme tek sayı.
+    // ⚠ Sıra şimdi: kart zemini → lekeler(2) → GÖRSEL(4) → oklar(5) → METİN(6).
+    // Referans tasarımlarda da başlık figürün önünden geçiyor; istenen katmanlanma bu.
+    `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: 6 }`,
     // ── paneller ────────────────────────────────────────────────────────────
     // ⚠ ⚠ **PANEL RENKLERİ ZEMİNDEN TÜRÜYOR — ONALTI SABİT BEYAZ SİLİNDİ.** Panel gövdesi,
     // panel başlığı, çubuk etiketi, sayı birimi, vafel karesi, etiket çipi ve alt ray

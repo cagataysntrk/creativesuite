@@ -166,117 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-290
-
-**Karar:** `just sablon-al <dosya>` — Photoshop tasarımını ÖLÇEN araç. PSD'de katman
-adları, kutular, metin içeriği ve punto doğrudan okunuyor (`ag-psd`, MIT); düz görselde
-yalnız palet kümeleniyor. Çıktı bir şablon DEĞİL, bir ölçüm.
-
-**Neden:** depo sahibinin isteği: *"sana Photoshop'ta yaptığımız bir tasarımı atınca çok
-hızlı şekilde mükemmelce onu burada şablona aktarabilmelisin."* Bugüne kadar her şablon
-bir referans GÖRSELİNE bakılarak elle ölçüldü; kadraj bölünmesi, kutular ve tip ölçeği
-göz kararıydı ve her turda birkaç yanlış tahminle düzeltildi (`editoryal`in üç temel
-kararı da tersti). Tasarım bir PSD ise bu bilgilerin hepsi zaten DOSYADA yazılı.
-
-⚠ ⚠ **İKİ GİRDİ, İKİ GÜVEN SEVİYESİ ve araç bunu SÖYLÜYOR.** PSD'de okunanlar
-tasarımcının kendi kararları; düz görselde yalnız palet çıkarılabiliyor ve metin kutusu
-tahmini KASTEN yapılmıyor — yanlış bir kutu, kutu olmamasından kötü. "Ölçüldü" ile
-"tahmin edildi" karışırsa araç zararlı olur.
-
-⚠ ⚠ **SIFIR BOYUTLU KATMAN SESSİZCE ATILMIYOR, SAYILIYOR.** İlk sürüm `continue` diyordu
-ve test PSD'sinde HİÇBİR ÖGE listelenmedi; araç "0 öge" deyip geçti. Gerçek bir dosyada
-ayar katmanları ve maskeler de böyle kaybolurdu. **Bir ölçüm aracının en kötü davranışı,
-ölçemediğini ölçtü sanmaktır.** Metin katmanı boyutsuz olsa bile listeleniyor: içeriği ve
-puntosu tasarımın kararı.
-
-⚠ Palet KÜMELENİYOR (medyan-kesme, 8 küme). Ham sayım referansın neredeyse aynı sekiz
-nane tonunu SEKİZ AYRI renk sayıyor ve palet hiçbir şey söylemiyordu: tasarımın gerçek
-rengi bir DEĞER değil bir KÜME.
-
-⚠ Gömülü Python bir JS şablon dizesinin içinde: **ters tırnak kullanılamaz**, dizeyi
-kapatıyor. İlk sürüm bir yorumdaki `` `quantize` `` yüzünden derlenmedi.
-
-**Kanıt:** sentetik bir PSD yazılıp okundu — 4320×1350'den 4 slayt çıkarıldı, katman
-grupları (`metin / baslik`), metin içeriği, punto (96/34) ve tip ölçeği oranı (2,8)
-raporlandı; ölçülemeyen iki katman ayrıca bildirildi.
-
-**Geri alma maliyeti:** düşük — bir script, bir `just` girişi, bir dev bağımlılık.
-
-## D-291
-
-**Karar:** 3B öge kaynağı TÜRE GÖRE ikiye ayrılıyor — **NESNE** ise hattın kendi görsel
-modeli üretir (bedava, markaya özgü, sonsuz çeşit); **SOYUT SEMBOL** ise küratörlü bir
-setten gelir. Aday setler ölçüldü: **3dicons** (CC0, 100+ 3B ikon) ve **Fluent Emoji**
-(MIT, Microsoft) — ikisi de gerçek 3B render, kod değil.
-
-**Neden — ve bu bir tercih değil, bir ÖLÇÜM sonucu.** Üç 3B brief'i gerçek sağlayıcıya
-gönderildi (clay render · izometrik · yumuşak gölge · düz siyah zemin):
-- **kutu** → mükemmel: doğru malzeme, doğru temas gölgesi, referanstaki "3d element"
-  görünümünün ta kendisi.
-- **geri kazanım döngüsü** → yakın ama geometrisi kusurlu; model soyut sembolü tam kuramıyor.
-- **dişli** → tamamen başarısız (17 KB siyah kare).
-Yani model NESNEDE güçlü, SEMBOLDE zayıf. Tek kaynağa bağlanmak ikisinden birini bozardı.
-
-⚠ ⚠ **LUCIDE BU BOŞLUĞU KAPATMIYOR ve depo sahibi bunu doğru gördü.** Lucide bir ARAYÜZ
-ikon seti: ince, tek kalınlıkta kontur, ekran için tasarlanmış. Liste satırlarında doğru
-(onlar zaten arayüz ritmi) ama referanslardaki dil o değil — 3B render ürün, el çizimi
-fırça, botanik illüstrasyon. **Elle çizimden kurtulmak (D-289) gerekliydi ama yeterli
-değil:** ikon seti değiştirmek "web gibi durma" sorununu çözmüyor, yalnız en kaba
-belirtisini alıyor.
-
-⚠ Model üretimi hattın MEVCUT yeteneği: `gorsel-uret` + `gorsel-kirp` zaten var, yani
-3B nesne için yeni bağımlılık YOK. Küratörlü set ise ayrı bir kurulum kararı — hangi
-sembollerin gerçekten gerektiği ölçülmeden yapılmamalı (yirmi ikonun kaçı 3B olmalı?).
-
-**Geri alma maliyeti:** yok — bu tur yalnız ölçüm ve karar; kod değişmedi.
-
-## D-292
-
-**Karar:** Panel ölçeği reçeteye bağlandı (`panelPayi`) ve yeni bir denetim kusuru geldi:
-**`sus-baskin`** — hayalet, içeriğin (başlık + gövde + panel + GÖRSEL) toplamını aşarsa
-kusur. `veri-hikayesi` 2,1 · `memphis` 1,7 aldı; `akan-alan` hayaleti 1,62 → 1,34 indi.
-
-**Neden — ve bu turun en önemli ölçümü bu.** "Hangi ikon kütüphanesi" sorusunu
-kovalarken önce ikonların NEREDE kullanıldığı ölçüldü: yalnız `liste` panelinde, yani
-katalogun **30 slaydından 2'sinde**. Yatırım oraya değildi. Asıl soru "paneller nasıl
-duruyor" idi ve cevap ezici:
-
-| | kart alanı |
-|---|---|
-| Panel (verinin kendisi) | **%0,9 – 4,9** |
-| Başlık | %3 – 10 |
-| Hayalet (süs) | **%22 – 26** |
-
-**Süs, verinin beş ilâ yirmi beş katıydı.** `veri-hikayesi` — adı üstünde VERİ şablonu —
-kartlarında ekrandaki en büyük şey dekoratif bir gri rakamdı. Depo sahibinin *"web
-tasarımı gibi duruyor, aşırı bilgisayar işi"* tespitinin sayısal karşılığı tam olarak bu:
-hiyerarşi ters.
-
-⚠ **Panel sabitleri WEB ölçüsündeydi:** `.liste-ad` 22px, `.etiket` 18px, vafel 300px.
-1350px'lik bir tuvalde 22px, yüksekliğin %1,6'sı. Bir gönderi tuvali ekran değildir ve
-ekran ölçüsü orada "bilgisayar işi" gibi durur. Tek çarpan tüm paneli büyütüyor; ayrı
-ayrı büyütmek panelin iç ritmini (rehber §3, 1:3) bozardı.
-
-**Ölçülen sonuç:** panel %0,9–4,9 → **%3,9–25**. Altı şablonun altısında `sus-baskin`
-temiz. `48%` / `23%` gibi sayılar artık kahraman.
-
-⚠ ⚠ **KURALIN İLK SÜRÜMÜ GÖRSELİ İÇERİK SAYMIYORDU** ve tam olarak görsel sürücü
-şablonlarda (`sahne`, `donen`, `editoryal`) yanlış çalışıyordu: orada asıl içerik
-fotoğraf, metin ona eşlik ediyor. Görseli dışarıda bırakan bir "içerik" tanımı fotoğrafı
-SÜS sayar. Görseller kartın dışında ayrı katmanda (kesimi aşabilsinler diye), o yüzden
-kesişim hesaplanıyor. Düzeltmeden sonra 18 kusur → 1.
-
-⚠ **Aynı ölçek her şablonda aynı anlama gelmiyor:** `akan-alan`ın ne paneli var ne
-görseli, içerik yalnız iki metin bloğu; orada 1,62'lik hayalet baskın, ötekilerde değil.
-
-⚠ Ölçüm aracı bir kez daha ters tırnak tuzağına düştü: denetim kodu bir JS şablon dizesi
-İÇİNDE yaşıyor ve yorumdaki `` ` `` diziyi kapatıyor. Bu turda iki ayrı dosyada oldu.
-
-⚠ **Bu kez gözüm yanıldı, araç değil:** `memphis` listesi taşıyor sandım, ölçüm taşma
-yok dedi ve haklıydı — montajın kendi kırpmasıydı.
-
-**Geri alma maliyeti:** düşük — bir CSS değişkeni, bir reçete alanı, bir denetim bloğu.
-
 ## D-293
 
 **Karar:** Uyarlama isteminin çıktı sözleşmesi artık HER panel tipini tarif ediyor.
@@ -592,3 +481,32 @@ daha yakardı; kuralı önce söyle, sonra zorla.
 
 ⚠ Kalıp `i` bayrağı KULLANMIYOR: JavaScript'in case-folding'i `İ`/`i` çiftini
 Türkçe'nin beklediği gibi eşlemiyor (R-21 ile aynı kök). Biçimler açıkça sayılıyor.
+
+## D-304
+
+**Metin görsellerin ÜSTÜNDE çiziliyor — ve örtülme artık ÖLÇÜLÜYOR.**
+
+Gerçek bir üretim karoselinde iki kartın gövdesi kesik öznenin arkasında kaldı, bir
+üçüncüsü yarıdan kırpıldı. **Denetim "kusur yok" dedi.** Var olan hiçbir ölçüm bunu
+göremiyordu: `tasma` kutu İÇİNDEKİ kırpılmayı ölçüyor, `kart-disi` tuvalden taşmayı,
+`sus-baskin` yalnız alan oranını. Örtülmek bunların hiçbiri değil.
+
+**İki ayrı sessiz hata üst üste binmişti.** Düzenleyicinin kusur paneli de
+`panoramaDenetle`yi yanlış çağırıyordu — o bir async fonksiyon, `page.evaluate`e
+verilince tarayıcı patlıyor, hata yutuluyor ve panel "✓ kusur yok" yazıyordu. Yani
+bozuk bir alet, ölçmediği şeye temiz diyordu. **Başarısız bir ölçüm "temiz" değildir**;
+panel artık hatayı yazıyor. ⚠ `panoramaDenetle`nin o güne dek HİÇ TESTİ YOKTU.
+
+**Ölçü çakışma değil ÖRTÜLME.** Metnin bir figürün üstünden geçmesi referans
+tasarımlarda İSTENEN şey; kusur olan metnin ALTTA kalması. Bu yüzden kutu kesişimi
+değil `elementFromPoint` ile gerçek boyama sırası örnekleniyor — gözün gördüğü şey
+ölçülüyor, bir vekil değil.
+
+**Düzeltme tek sayı.** `.kart` yığın bağlamı kurmuyor (`position: absolute`, z-index
+yok), yani kart çocuklarının z-index'i doğrudan görsellerle yarışıyordu: metin 2,
+görseller 4. Metin 6'ya çıktı. Sıra artık: kart zemini → lekeler(2) → GÖRSEL(4) →
+oklar(5) → METİN(6).
+
+**Kanıt kırmızıdan geliyor.** Düzeltmeden önce ölçüm altı şablonun ÜÇÜNDE (`sahne`
+%13, `memphis` %20, `donen` %6) ve iki gerçek koşunun İKİSİNDE de örtülme buldu;
+sonra hepsi temiz. Katmanlanma kasten bozulunca dört test birden kırmızıya dönüyor.

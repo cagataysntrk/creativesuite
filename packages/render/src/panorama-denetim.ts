@@ -81,6 +81,25 @@ export type KusurTuru =
    * gövdesinin sekizde birinden fazlası metnin üstündeyse artık okuma bozuluyor.
    */
   | 'hayalet-carpisma'
+  /**
+   * **Metin bir görselin ALTINDA kalıyor — okunmuyor.**
+   *
+   * ⚠ ⚠ **YİNE ÜRETİMDE GÖRÜLDÜ, DENETİM "kusur yok" DEDİ.** Gerçek bir koşuda iki
+   * kartın gövdesi kesik öznenin arkasında kaldı, bir üçüncüsü yarıdan kırpıldı — ve
+   * denetim temiz rapor verdi. Var olan hiçbir ölçüm bunu göremiyordu: `tasma` kutunun
+   * İÇİNDEKİ kırpılmayı ölçüyor, `kart-disi` tuvalden taşmayı, `sus-baskin` yalnız alan
+   * oranını. Örtülmek bunların hiçbiri değil.
+   *
+   * ⚠ ⚠ **Ölçü ÇAKIŞMA değil, ÖRTÜLME.** Metnin bir figürün üstünden geçmesi referans
+   * tasarımlarda İSTENEN şey; kusur olan, metnin ALTTA kalması. Bu yüzden kutu kesişimi
+   * değil `elementFromPoint` ile gerçek boyama sırası örnekleniyor: gözün gördüğü şey
+   * ölçülüyor, bir vekil değil. Yerleşim bir gün metni üste alacak şekilde düzeltilirse
+   * (BORÇLAR D14) aynı ölçüm kendiliğinden yeşile döner — eşiği kovalamak gerekmez.
+   *
+   * ⚠ Eşik %6: bir iki harfin kenarı örtülebilir, ama gövdenin on altıda birinden
+   * fazlası kaybolduysa cümle artık okunmuyor.
+   */
+  | 'metin-ortuluyor'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -241,6 +260,39 @@ const OLCUM = (kesimler: readonly number[], iddia: boolean): string => `(() => {
       kusurlar.push({ tur:'sus-baskin', kart:i+1, alan:'hayalet',
         aciklama: 'hayalet kartın %' + Math.round(hayalet*100) + "'ini tutuyor, içerik (başlık+gövde+panel) %"
           + Math.round(icerik*100) + " — süs içerikten büyük" })
+    }
+  })
+
+  // ── metin örtülüyor mu: boyama sırası ÖRNEKLENİYOR ──────────────────────
+  //
+  // ⚠ Kutu kesişimi yeterli DEĞİL: metnin figürün üstünden geçmesi istenen bir şey.
+  // Kusur, metnin ALTTA kalması. elementFromPoint gerçek boyama sırasını veriyor.
+  // (BU GÖVDE BİR ŞABLON DİZESİ: buraya backtick yazılamaz, dizeyi kapatır — beşinci kez.)
+  kartlar.forEach((k, i) => {
+    for (const sec of ['.baslik', '.govde', '.panel', '.sayilar', '.etiketler']) {
+      const e = k.querySelector(sec)
+      if (!e) continue
+      const r = e.getBoundingClientRect()
+      if (r.width < 4 || r.height < 4) continue
+      let toplam = 0
+      let ortulu = 0
+      for (let sx = 0; sx < 16; sx++) {
+        for (let sy = 0; sy < 8; sy++) {
+          const x = r.left + ((sx + 0.5) * r.width) / 16
+          const y = r.top + ((sy + 0.5) * r.height) / 8
+          const ust = document.elementFromPoint(x, y)
+          if (!ust) continue
+          toplam++
+          if (ust !== e && !e.contains(ust) && ust.closest('.gorsel, .gorsel-yer')) ortulu++
+        }
+      }
+      if (toplam === 0) continue
+      const oran = ortulu / toplam
+      if (oran > 0.06) {
+        kusurlar.push({ tur:'metin-ortuluyor', kart:i+1, alan:sec.slice(1),
+          aciklama: sec + ' görselin ALTINDA kalıyor: yüzeyinin %' + Math.round(oran*100) +
+            "'i örtülü — okunmuyor" })
+      }
     }
   })
 
