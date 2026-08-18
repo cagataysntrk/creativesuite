@@ -67,4 +67,15 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   platformun üstünde duruyor; bizde `temas-golgesi` var, podyum yok (TODO 2.6).
 - **D4 · 3B/izometrik ve botanik varlık seti yok.** Referansın köşe ögeleri (palmiye
   yaprakları) R-81 gereği kodlanamaz; kütüphane şart (TODO 2.3).
+- **D5 · 3B sembol seti kurulmadı.** D-291 kaynağı ikiye ayırdı: nesne modelden, sembol
+  küratörlü setten. Nesne yolu hazır (`gorsel-uret` + `gorsel-kirp`); sembol yolu için
+  **3dicons** (CC0) ya da **Fluent Emoji** (MIT) kurulacak. Önce ÖLÇÜLMELİ: yirmi ikonun
+  kaçı gerçekten 3B olmalı? Hepsini 3B yapmak, hepsini çizgi yapmak kadar tek sesli.
+- **D6 · `marka-isareti.ts` markanın imzasını KODLA çiziyor.** Gerekçesi ("brand/ altında
+  logo dosyası yok") D-284'te geçersizleşti; gerçek logolar geldi. Modül canlı —
+  `static.ts` ondan `markaCss`/`markaKilidi` alıyor ve o yol SEKİZ hattı besliyor, o
+  yüzden göç ayrı bir karar. R-81 kapsamında.
+- **D7 · `sablon-al` düz görselde metin kutusu çıkarmıyor.** PSD'de katman kutuları
+  okunuyor; düz görselde yalnız palet. Kutu tahmini kasten yapılmadı (yanlış kutu,
+  kutu olmamasından kötü) — istenirse OCR/bağlantılı-bileşen ile ölçülebilir hâle gelir.
 

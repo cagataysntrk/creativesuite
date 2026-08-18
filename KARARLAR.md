@@ -505,3 +505,31 @@ grupları (`metin / baslik`), metin içeriği, punto (96/34) ve tip ölçeği or
 raporlandı; ölçülemeyen iki katman ayrıca bildirildi.
 
 **Geri alma maliyeti:** düşük — bir script, bir `just` girişi, bir dev bağımlılık.
+
+## D-291
+
+**Karar:** 3B öge kaynağı TÜRE GÖRE ikiye ayrılıyor — **NESNE** ise hattın kendi görsel
+modeli üretir (bedava, markaya özgü, sonsuz çeşit); **SOYUT SEMBOL** ise küratörlü bir
+setten gelir. Aday setler ölçüldü: **3dicons** (CC0, 100+ 3B ikon) ve **Fluent Emoji**
+(MIT, Microsoft) — ikisi de gerçek 3B render, kod değil.
+
+**Neden — ve bu bir tercih değil, bir ÖLÇÜM sonucu.** Üç 3B brief'i gerçek sağlayıcıya
+gönderildi (clay render · izometrik · yumuşak gölge · düz siyah zemin):
+- **kutu** → mükemmel: doğru malzeme, doğru temas gölgesi, referanstaki "3d element"
+  görünümünün ta kendisi.
+- **geri kazanım döngüsü** → yakın ama geometrisi kusurlu; model soyut sembolü tam kuramıyor.
+- **dişli** → tamamen başarısız (17 KB siyah kare).
+Yani model NESNEDE güçlü, SEMBOLDE zayıf. Tek kaynağa bağlanmak ikisinden birini bozardı.
+
+⚠ ⚠ **LUCIDE BU BOŞLUĞU KAPATMIYOR ve depo sahibi bunu doğru gördü.** Lucide bir ARAYÜZ
+ikon seti: ince, tek kalınlıkta kontur, ekran için tasarlanmış. Liste satırlarında doğru
+(onlar zaten arayüz ritmi) ama referanslardaki dil o değil — 3B render ürün, el çizimi
+fırça, botanik illüstrasyon. **Elle çizimden kurtulmak (D-289) gerekliydi ama yeterli
+değil:** ikon seti değiştirmek "web gibi durma" sorununu çözmüyor, yalnız en kaba
+belirtisini alıyor.
+
+⚠ Model üretimi hattın MEVCUT yeteneği: `gorsel-uret` + `gorsel-kirp` zaten var, yani
+3B nesne için yeni bağımlılık YOK. Küratörlü set ise ayrı bir kurulum kararı — hangi
+sembollerin gerçekten gerektiği ölçülmeden yapılmamalı (yirmi ikonun kaçı 3B olmalı?).
+
+**Geri alma maliyeti:** yok — bu tur yalnız ölçüm ve karar; kod değişmedi.
