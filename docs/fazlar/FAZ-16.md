@@ -51,7 +51,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 `alt_tr` olmadan koy → yayın kapısı kırmızı
 💾 `feat(cli): elle gorsel yerlestirme` · `Refs: FAZ-16.3 · §7.2`
 
-## 16.4 — `SKILLS.md`: bağlamsız agent tek komutla üretiyor    [ ]
+## 16.4 — `SKILLS.md`: bağlamsız agent tek komutla üretiyor    [x]
 
 📖 §16 · Yasa 12
 🔗 —

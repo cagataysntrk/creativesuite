@@ -10,6 +10,7 @@ sağlayıcı yapılandırması taşır.
 
 | Ne arıyorsan | Dosya |
 |---|---|
+| **Sadece iş üretmek istiyorum (sıfır bağlam)** | **`SKILLS.md`** |
 | Şu an neredeyiz, sıradaki adım ne | `DURUM.md` |
 | Neden böyle yapıyoruz | `KARARLAR.md` |
 | Neye uymak zorundayım | `KURALLAR.md` |
