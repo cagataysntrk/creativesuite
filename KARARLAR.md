@@ -166,108 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-296
-
-**Karar:** Display yüzü **Bricolage Grotesque** (OFL) oldu; vurgu rengi ayrı bir role
-(`role.vurgu`) taşındı.
-
-**Neden — yüz:** depo sahibinin tespiti: *"font çok temiz, karakteri az — system UI /
-Inter ailesi hissi var"*. Archivo teknik olarak doğruydu (değişken genişlik, geniş
-latin-ext) ama **tarafsızdı**: bir arayüz grotesk'i, bir tasarımın sesi değil. Adaylar
-yan yana RENDER EDİLDİ; Bricolage'ın terminalleri ve sıkı ritmi kadraja karakter veriyor.
-Türkçe kapsaması çizdirilerek doğrulandı (`ğ ü ş ı İ Ö Ç`).
-
-⚠ **Genişlik ekseni DARALDI: 62–125% → 75–100%.** Aralık dışı bir `wdth` tarayıcıda
-SESSİZCE kırpılır: `ustGenislik: 118` yazan bir reçete 100 çizer ve reçete yalan
-söylemeye başlar. Altı şablonun değerleri oranla taşındı, göz kararıyla değil.
-
-⚠ ⚠ **VURGU, ZEMİNİN KENDİSİYDİ — ve zemini koyulaştırınca vurgu da koyulaştı.**
-`AKSAN = var(--role-bg)` yazıyordu. D-295 zemini eskitmeli lacivere indirdi ve mürekkep
-zemin üstünde 0,408 açıklıkta bir mavi GRİYE kaçtı: render'a bakınca "iki katına",
-"sorun", "koyu" kelimeleri okunmuyordu. **Zemin büyük alan içindir, vurgu okunmak
-içindir; ikisi aynı değer olamaz.** Yeni rol `role.vurgu` = `mavi-300`.
-
-⚠ Bir palet değişikliğinin ikinci dereceden etkisi ancak RENDER'a bakınca görüldü:
-token tablosunda iki değer de "mavi" ve makul duruyordu.
-
-**Geri alma maliyeti:** orta — bir yüz ailesi, bir rol, altı şablonun genişlik değeri.
-
-## D-297
-
-**Karar:** `memphis`in renkli lekeleri kaldırıldı, kimliği kart zeminlerinin renk
-rotasyonuna taşındı; `koyuMu()` artık token ADINA değil ÇÖZÜLMÜŞ AÇIKLIĞA bakıyor.
-
-**Neden — lekeler:** depo sahibi: *"şu aptal dairemsi renkli topları kaldır, bunlar web
-tasarım duruyor"*. Referansta (`image copy 4`) gerçekten leke var — ama orada DEV,
-kenardan TAŞIYOR ve fotoğrafın ARKASINDA renk alanı kuruyor. Bizimkiler kadrajın
-ortasında yüzen küçük konfetiydi: **aynı öge, ters iş.** Ayrıca hepsi elle kodlanmış
-şekillerdi (blob · halka · nokta · tarama), yani R-81'in tam tarifi.
-**Kimlik silinmedi, yer değiştirdi:** renk alanı bir kompozisyon kararıdır (alan, sınır,
-ritim); daire bir süstür.
-
-⚠ ⚠ **`koyuMu()` ADI ÖLÇÜYORDU, ŞEYİ DEĞİL.** `zemin.includes('ink') || includes(
-'line-edge')` yazıyordu. `memphis`e lacivert bir kart zemini (`--ramp-marka-mavi-700`)
-eklenince sessizce "açık" dedi: koyu mavi üstüne koyu mürekkep metin çizildi ve slayt
-okunmaz oldu. Açıklık artık `tokenCss`ten okunuyor (tek düzey `var()` dolaylaması
-izleniyor, eşik 0,55). **Adı ölçmek, şeyi ölçmek değildir** — bu depoda tekrar eden sınıf.
-
-⚠ Bulunamazsa eski ada dayalı sezgiye düşülüyor ama bunun bir TAHMİN olduğu kodda yazılı.
-
-**Kanıt:** eski ada dayalı sürüm geri kondu → lacivert kart testi kırmızı; kaldırıldı → yeşil.
-
-⚠ ⚠ **İLK DÜZELTME DE YANLIŞTI: DOSYAYI OKUDU, KASKADI OKUMADI.** `tokens.css` dört yüzey
-bloğu taşıyor (`:root` · `console` · `kreatif` · `studio`) ve aynı değişken hepsinde
-YENİDEN tanımlı. Çözücü ilk eşleşmeyi alıyordu: `--role-surface` için KONSOL değerini
-(oklch 0,21 — koyu) okuyup `donen`in kâğıt kartını "koyu" sandı, metni beyaz yaptı ve
-başlık beyaz zeminde KAYBOLDU. Render `data-surface="kreatif"` ile çiziliyor; ölçüm de o
-bloğu okumak zorunda. **Doğru dosyayı okumak, doğru yeri okumak değildir.**
-
-⚠ **`texture` kelimesi brief'lerde KULLANILAMAZ:** içinde `text` geçiyor ve R-20 muhafızı
-alt dize eşleştiriyor. Yeni varyantlar ilk yazımda "fabric texture" diyordu; test yakaladı,
-koşuda görsel adımını reddettirecekti. Yerine `weave`, `grain`, `creases`.
-
-**Geri alma maliyeti:** düşük — bir leke dizisi, bir fonksiyon, altı kart zemini.
-
-## D-298
-
-**Karar:** Gövde puntosuna 34 px TABAN, üst başlık 19→24, alt ray 15→18; gövde genişliği
-metin kolonuna bağlandı; `ink-950` gerçekten siyaha indi (0,15 → 0,055) ve `editoryal`
-kart zeminleri kâğıt → soluk mavi → açık gri → MÜREKKEP rotasyonuna geçti.
-
-**Neden — punto:** ölçüldü, gövde **23–27 px**, tuvalin %1,7–2'si. 1080 px telefonda
-~390 pt'ye iniyor, yani 25 px ≈ 9 pt. Karşılaştırılan dört açık kaynak karosel
-üreticisinin hepsi 32–38 px kullanıyor, ikisi bunu mobil için BİLEREK yükseltmiş.
-⚠ Taban tek başına bırakılınca ALTI ŞABLON DA aynı puntoya çakıldı: **emniyet, tasarım
-kararının yerine geçemez.** Oranlar yükseltildi, taban sigorta olarak kaldı (34–40 px).
-
-⚠ **Gövde genişliği kolondan BAĞIMSIZDI ve punto büyüyünce taştı.** `max-width: 34ch`
-sabitti; 34 px puntoda ~580 px eder, `editoryal`in kolonu 369 px. Gövde 200 px aşıp
-fotoğrafın altına giriyordu. **Punto tabanı bunu görünür yaptı, sebep olmadı** — hata
-baştan oradaydı ve küçük puntoda saklanıyordu.
-
-**Neden — ton:** referans (`image copy 2`) p1=0 · p99=255 · std 79,4. Bizimkiler
-ölçüldü: `editoryal` **157–235, aralık 78, std 19** (altısının en düzü), `sahne` 11–161.
-**Bir tasarımın "derin" durması ton aralığından geliyor; tek tonda yıkanmış bir kadraj
-sade değil, SİSLİ.** `ink-950` 0,15'ti — RGB ~30, yani siyah değil koyu gri.
-
-**Ölçülen sonuç:** `editoryal` std 19,8 → **87,8** · `donen` 27,9 → **89,1** ·
-`memphis` 37,8 → 64,8 · `akan-alan` 34,7 → 41,0. İkisi referansın 79'unu geçti.
-
-⚠ `sahne` p99'u 163'te kaldı: kadrajın en parlak şeyi turuncu YER TUTUCU çöp adam.
-Gerçek koşuda oraya rim ışıklı fotoğraf giriyor — bu bir şablon kusuru değil, sondanın
-sınırı. **Yer tutucuyla ölçülen her metrik bu sınırı taşıyor.**
-
-⚠ ⚠ **2× RENDER DENENDİ, GERİ ALINDI.** `deviceScaleFactor` hiç ayarlanmamış; 2× harf
-kenarlarını gözle görülür biçimde temizliyor. Geri alınma sebebi kalite değil ÇIKTI
-SÖZLEŞMESİ: üç test PNG'nin 1080×1350 olduğunu doğruluyor ve haklılar. 2×, çıktıyı
-2160×2700 yapıyor ve depoda küçültücü yok. Borç yazıldı.
-
-⚠ ⚠ **İLK ÖLÇÜM ARACI 2×'i KÖTÜ GÖSTERDİ:** `FIND_EDGES` enerjisi 1×'te 22,7 · 2×'te
-18,3. Filtre TIRTIKLI kenarı da "enerji" sayıyor, yani aliasing'i ödüllendiriyor. Doğru
-araç gözdü. **Bir metriğin sayı üretmesi, doğru şeyi ölçtüğü anlamına gelmiyor.**
-
-**Geri alma maliyeti:** orta — iki token değeri, bir CSS tabanı, bir kart rotasyonu.
-
 ## D-299
 
 **Karar:** Hayalet (dev soluk rakam) altı şablonun ALTISINDAN da kaldırıldı; hangi
@@ -583,3 +481,34 @@ dayanacağı kaydın hiç yazılmaması demekti. Yedisi deftere alındı; üçü
 ⚠ Kapının kendi sınırı yazılı: yalnız `data: { … }` sözlük anahtarlarını ve o bloktaki
 `...yardimci(…)` yayılmalarının dönüş tipi anahtarlarını görüyor; dinamik anahtar
 göremez. Görülmeyen bir sınır, olmayan bir sınır sanılır.
+
+## D-311
+
+**Görünür AI ifşası her slaytta ve ÖLÇÜLEREK.**
+
+`publish.ts` ifşa gereken bir varlıkta iki kanıt arıyor: makine-okunur damga
+(`stamped`) ve kreatifin üstünde görünür ifşa (`visibleDisclosure`). İkincisini
+üreten hiçbir kod yoktu. Sonuç panelde ölçüldü: **130 varlığın 130'u
+"yayınlanamaz"**, sebep `ifsa_eksik`. Kapı doğru çalışıyordu; üretim eksikti.
+
+**Her slaytta.** Bir karoselin tek slaytı paylaşılabiliyor ve izleyici hangi slaytta
+model görseli olduğunu bilemez; ifşayı yalnız kapağa koymak, paylaşılan slaytı
+ifşasız bırakırdı. Şerit künye bandında (`.ray`), fotoğraf kredisi gibi — görünür
+olmak zorunda, tasarımı bozmak zorunda değil.
+
+**Bayrak belgeye `yuva-doldur`da giriyor**, hat düzeyinde bir parametreden değil:
+hat görsel üretebilir ama o koşuda anahtar yoksa hiç üretmemiş olabilir. Doğru
+kaynak, belgeye gerçekten görsel GİRMESİ.
+
+**İfşa iddia edilmiyor, ölçülüyor.** `visibleDisclosure: true` yazan bir sidecar,
+kimsenin bakmadığı bir kutucuğun işaretlenmesidir — bu deponun `dayanaksiz` dediği
+şeyin ta kendisi (D-23). Denetim DOM'da bakıyor: şerit her slaytta var mı, boyutu
+sıfır mı, gizli ya da saydam mı. Üç ölçüt birden; biri düşerse `ifsa-gorunmuyor`
+kusuru doğuyor ve sidecar `false` yazıyor.
+
+⚠ **Panel "gerekli" ile "eksik"i karıştırıyordu:** `disclosureRequired === true`
+görünce doğrudan `ifsa_eksik` diyordu, yani ifşanın yapılıp yapılmadığına hiç
+bakmıyordu — çünkü o veri hiç yoktu. Artık iki kanıt aranıyor.
+
+⚠ Kalan sıra sorunu D18 olarak `docs/BORCLAR.md`'de: damga koşudan sonra basılıyor,
+`PUBLISH` ise koşunun içinde.

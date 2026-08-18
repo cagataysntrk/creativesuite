@@ -117,3 +117,12 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
 - **D17 · Düzenleyici yalnız metne ve görsel kutusuna dokunuyor.** Paneller, lekeler,
   oklar, kart zemini ve tipografi ölçeği düzenlenemiyor — bunlar `KatalogOrnegi`nin
   alanları ama editörde tutamağı yok. Photoshop benzeri hissin eksik yarısı burası.
+- **D18 · Damga koşudan SONRA basılıyor, `PUBLISH` ise koşunun İÇİNDE.** `stampPng`
+  `scripts/uret.mjs`te, `runPipeline` döndükten sonra çalışıyor; `yayinla` adımı ise
+  hattın son adımı. Yani bir koşu gerçekten yayına gitseydi `publish.ts` damgasız
+  varlık görür ve `disclosure_missing: stamp` ile dururdu. Bugün görünmüyor çünkü
+  kanal sağlayıcısı hiç bağlı değil (V-16, `insan` blokajı) — yani kapı zaten
+  önce duruyor. Doğru çözüm damgayı `RENDER`ın içine almak: render kendi yazdığı
+  PNG'yi damgalar, `assets` çıktısı `stamped: true` taşır ve sıra sorunu kalkar.
+  Bunun için uyum iddiasının koşu ÖNCESİNDE hesaplanması gerekiyor (bugün sonra
+  hesaplanıyor) — küçük ama gerçek bir yeniden sıralama.

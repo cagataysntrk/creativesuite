@@ -879,7 +879,16 @@ if (slaytlar.length > 0) {
       sourcePath: yol,
       blobRoot: join(REPO, 'derived/blobs'),
       stamp: damga,
-      compliance: iddia.value,
+      // ⚠ ⚠ **İFŞA KANITI SIDECAR'A GİRİYOR ve girmediği için 130 varlığın 130'u
+      // "yayınlanamaz" görünüyordu.** `publish.ts` iki şey arıyor: makine-okunur
+      // damga (`stamped` — `stampPng` az önce bastı, bu bir OLGU) ve kreatifin
+      // üstünde görünür ifşa (`visibleDisclosure` — render DOM'da ÖLÇTÜ).
+      // İkisi de burada iddia edilmiyor, kaydediliyor.
+      compliance: {
+        ...iddia.value,
+        stamped: true,
+        visibleDisclosure: rapor.outputs['render']?.ifsaGorunur === true,
+      },
       sourceRunId: runId,
       createdAt: clock.nowIso(),
     })

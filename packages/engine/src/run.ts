@@ -213,6 +213,9 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   // turunun işe yarayıp yaramadığı ancak iki render'ın listeleri karşılaştırılarak
   // görülüyor — sayı tek başına bunu söyleyemez.
   'kusurlar',
+  // İfşa ÖLÇÜMÜ deftere giriyor: yayın kapısı buna dayanıyor ve "ölçüldü mü" sorusu
+  // sonradan sorulamaz hâle gelmemeli (§11.3).
+  'ifsaGorunur',
   'uyarilar',
   'kusurSayisi',
   'bulgular',

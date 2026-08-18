@@ -309,11 +309,18 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       // AYNI görseli koyuyordu; iki yuvalı bir şablon aynı figürü iki kez çiziyordu.
       // Yuva `i` görsel `i`yi alır. Görsel yetmezse kalan yuvanın `src`i BOŞ kalır ve
       // yer tutucu çizilir — eksiklik görünür kalmalı, klonla örtülmemeli.
+      // ⚠ ⚠ **GÖRÜNÜR AI İFŞASI BURADA DOĞUYOR — çünkü karar ancak burada bilinebilir.**
+      // `publish.ts` ifşa gereken varlıkta görünür bir katman arıyor ve üreten kod
+      // YOKTU: 130 varlığın 130'u "yayınlanamaz" durumdaydı. Bayrağı hat düzeyinde bir
+      // parametreden okumak yanlış olurdu — hat görsel ÜRETEBİLİR ama o koşuda anahtar
+      // yoksa hiç üretmemiş olabilir. Doğru kaynak, belgeye gerçekten görsel GİRMESİ.
+      // ⚠ Her slaytta: tek slayt paylaşılabiliyor (§11.3 · D-311).
       const gorsellikli =
         uretilenler.length === 0
           ? kartlar
           : {
               ...kartlar,
+              aiIfsasi: true,
               gorseller: kartlar.gorseller.map((g, i) => {
                 const u = uretilenler[i]
                 return u === undefined ? g : { ...g, src: u.src }
@@ -933,6 +940,12 @@ export const renderBody = (deps: RenderDeps): Verb =>
           panoramaGenisligi: r.value.genislik,
           // ⚠ Kusurlar SUSTURULMUYOR: `kalite` adımı ve insan onay kapısı bunları görüyor.
           kusurlar,
+          // ⚠ ⚠ **İFŞA BİR OLGU OLARAK YAZILIYOR — beyan olarak değil** (§11.3 · D-311).
+          // `visibleDisclosure: true` yazan bir sidecar, kimsenin bakmadığı bir
+          // kutucuğun işaretlenmesidir (D-23). Bu değer ÖLÇÜMDEN geliyor: belge ifşa
+          // taşıdığını söylüyor VE denetim her slaytta onu görünür buldu. Biri bile
+          // eksikse `false` — ve o hâlde yayın kapısı doğru biçimde durduruyor.
+          ifsaGorunur: doc.aiIfsasi === true && kusurlar.every((k) => k.tur !== 'ifsa-gorunmuyor'),
           images: doc.gorseller.map((g) => ({ alt: g.alt })),
         },
       })

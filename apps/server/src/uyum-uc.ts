@@ -67,6 +67,10 @@ interface Sidecar {
     readonly basis?: { readonly kind?: string }
     readonly aiGenerated?: boolean
     readonly disclosureRequired?: boolean
+    /** Makine-okunur damga PNG'ye BASILDI mı — Md. 50(2). */
+    readonly stamped?: boolean
+    /** Kreatifin üstünde görünür ifşa katmanı ÖLÇÜLDÜ mü — Md. 50. */
+    readonly visibleDisclosure?: boolean
   }
 }
 
@@ -76,7 +80,17 @@ const durumla = (s: Sidecar): UyumDurumu => {
   // Dayanaksız iddia BEYANDIR: `containsSyntheticPerson: false` tek başına, kimsenin
   // bakmadığı bir kutucuğun işaretlenmesidir (D-23).
   if (typeof c.basis?.kind !== 'string') return { kind: 'dayanaksiz' }
-  if (c.disclosureRequired === true) return { kind: 'ifsa_eksik' }
+  // ⚠ ⚠ **"GEREKLİ" İLE "EKSİK" AYNI ŞEY DEĞİL — ve bu ekran ikisini birbirine
+  // karıştırıyordu.** Eski satır `disclosureRequired === true` görünce doğrudan
+  // `ifsa_eksik` diyordu: ifşanın YAPILIP yapılmadığına hiç bakmıyordu, çünkü o
+  // veri hiç üretilmiyordu. Panel "130 varlık · 130 yayınlanamaz" diyor, sebebi
+  // "ifşa eksik" olarak okunuyor ve gerçekte ölçülmemiş bir şey eksik sanılıyordu.
+  //
+  // Artık iki kanıt aranıyor ve ikisi de üretimden geliyor: damga basıldı mı,
+  // görünür şerit ÖLÇÜLDÜ mü. Biri bile yoksa `ifsa_eksik` — doğru cevap.
+  if (c.disclosureRequired === true && (c.stamped !== true || c.visibleDisclosure !== true)) {
+    return { kind: 'ifsa_eksik' }
+  }
   return { kind: 'tam', dayanak: c.basis.kind }
 }
 

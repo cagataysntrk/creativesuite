@@ -395,6 +395,18 @@ const YERLESIM_CSS: Record<Yerlesim, string> = {
   yayik: 'space-between',
 }
 
+/**
+ * Görünür AI ifşası metni — **tek yerde**.
+ *
+ * ⚠ Kısa ve iddiasız: "yapay zekâ görseli" bir uyarı değil bir künye. Uzun bir cümle
+ * şeritte kırılır, kırıldığında tasarım bozulur ve bozulan bir ifşayı kimse koymak
+ * istemez — yani uzunluk, uyumun düşmanıdır.
+ *
+ * ⚠ Türkçe ve küçük harf: `text-transform` YOK (R-22). "İ" sorununun render
+ * tarafındaki kardeşi bu satırda başlardı.
+ */
+export const AI_IFSA_METNI = 'yapay zekâ görseli'
+
 export interface PanoramaBelgesi {
   readonly slaytGenisligi: number
   readonly yukseklik: number
@@ -411,6 +423,21 @@ export interface PanoramaBelgesi {
    * ayarı değil, `kesik` kırpmanın ön şartı.
    */
   readonly gorselIslemleri?: readonly GorselIslem[]
+  /**
+   * Görünür AI ifşası — **yayının ön şartı, bir süs değil** (§11.3 · Md. 50).
+   *
+   * ⚠ ⚠ **BU KATMAN HİÇ YOKTU ve 130 varlığın 130'u bu yüzden YAYINLANAMAZ durumdaydı.**
+   * `publish.ts` ifşa gerektiren bir varlıkta iki şey arıyor: makine-okunur damga
+   * (`stamped`, PNG'ye basılıyor) ve kreatifin üstünde GÖRÜNÜR ifşa
+   * (`visibleDisclosure`). İkincisini üreten hiçbir kod yoktu; kapı doğru çalışıyor,
+   * üretim eksik davranıyordu — ve panel bunu "130 yayınlanamaz" diye sessizce
+   * gösteriyordu.
+   *
+   * ⚠ **Her slaytta.** Bir karoselin tek slaytı paylaşılabiliyor ve izleyici hangi
+   * slaytta model görseli olduğunu bilemez; ifşayı yalnız kapağa koymak, paylaşılan
+   * slaytı ifşasız bırakırdı. → D-311
+   */
+  readonly aiIfsasi?: boolean
   /** Belgenin varsayılan zemini — kart kendi zeminini vermezse bu geçerli. */
   readonly zemin: string
   /**
@@ -960,6 +987,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             )}" alt="Upcytech">`) +
         `<span>${kacir(k.rayaSol)}</span>` +
         `<span>${kacir(k.rayaOrta)}</span>` +
+        (doc.aiIfsasi === true ? `<span class="ray-ifsa">${kacir(AI_IFSA_METNI)}</span>` : '') +
         `<span class="ray-sayac">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</span></div>` +
         `</section>`
     )
@@ -1414,6 +1442,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: 20px;`,
     `         font-size: 18px; letter-spacing: 0.13em; color: ${sol('--kart-metin', 48)} }`,
     `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700 }`,
+    // ⚠ İfşa şeritte, künyenin yanında: bir uyarı kutusu değil bir KÜNYE satırı —
+    // fotoğraf kredisi gibi okunur. Görünür olmak zorunda ama tasarımı bozmak
+    // zorunda değil; `ray-sayac`tan ÖNCE, sağa yaslanmadan duruyor.
+    `  .ray-ifsa { margin-left: auto; opacity: 0.85 }`,
+    `  .ray-ifsa + .ray-sayac { margin-left: 40px }`,
     // ── görsel katmanı ──────────────────────────────────────────────────────
     `  .gorsel, .gorsel-yer { position: absolute; z-index: 4; object-fit: cover }`,
     `  .gorsel.kesik, .gorsel-yer.kesik { object-fit: contain; object-position: bottom }`,

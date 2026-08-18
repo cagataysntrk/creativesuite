@@ -45,6 +45,15 @@ export type KusurTuru =
   /** Bir kartın metni tuvalin dışına taşıyor. */
   | 'kart-disi'
   /**
+   * Belge AI ifşası taşıdığını söylüyor ama slaytta GÖRÜNMÜYOR (§11.3 · Md. 50).
+   *
+   * ⚠ ⚠ **İFŞA İDDİA EDİLMEZ, ÖLÇÜLÜR.** `visibleDisclosure: true` yazan bir sidecar,
+   * kimsenin bakmadığı bir kutucuğun işaretlenmesidir — bu deponun `dayanaksiz`
+   * dediği şeyin ta kendisi (D-23). Ölçüm DOM'da: şerit her slaytta var mı, boyutu
+   * sıfır mı, üstü örtülü mü. Yayın kapısı buna dayanacak.
+   */
+  | 'ifsa-gorunmuyor'
+  /**
    * `matlama` bekleniyor ama görselin zemini siyah DEĞİL — kesim tutmayacak.
    *
    * ⚠ ⚠ **BU KUSUR TÜRÜ GERÇEK BİR ÇIKTIYA BAKARAK DOĞDU.** `kesik` kırpma, brief'in
@@ -107,7 +116,7 @@ export interface Kusur {
   readonly kart: number | null
   readonly aciklama: string
   /** Uyarlamanın hangi alanını değiştirmesi gerektiği; yoksa `null`. */
-  readonly alan: 'baslik' | 'govde' | 'ustBaslik' | 'panel' | 'hayalet' | null
+  readonly alan: 'baslik' | 'govde' | 'ustBaslik' | 'panel' | 'hayalet' | 'raya' | null
 }
 
 /**
@@ -128,10 +137,39 @@ const kesintisizlikIddiasi = (doc: PanoramaBelgesi): boolean =>
   // görsellerin varlığından çıkarım yaptığı için yanıldı.
   doc.gorseller.some((g) => g.kirpma !== 'daire')
 
-const OLCUM = (kesimler: readonly number[], iddia: boolean): string => `(() => {
+const OLCUM = (
+  kesimler: readonly number[],
+  iddia: boolean,
+  ifsaBekleniyor: boolean
+): string => `(() => {
   const kusurlar = []
   const kesimler = ${JSON.stringify(kesimler)}
   const kartlar = Array.from(document.querySelectorAll('.kart'))
+
+  // ── AI ifşası: her slaytta GÖRÜNÜR mü ─────────────────────────────────────
+  // ⚠ Varlık kontrolü YETMEZ: sıfır boyutlu, gizlenmiş ya da opaklığı sıfır bir
+  // etiket DOM'da vardır ama ifşa değildir. Üç ölçüt birden aranıyor.
+  if (${JSON.stringify(ifsaBekleniyor)}) {
+    kartlar.forEach((kart, i) => {
+      const e = kart.querySelector('.ray-ifsa')
+      const r = e === null ? null : e.getBoundingClientRect()
+      const st = e === null ? null : getComputedStyle(e)
+      const gorunur =
+        e !== null && r !== null && st !== null &&
+        r.width > 1 && r.height > 1 &&
+        st.visibility !== 'hidden' && st.display !== 'none' && Number(st.opacity) > 0.05
+      if (!gorunur) {
+        kusurlar.push({
+          tur: 'ifsa-gorunmuyor',
+          kart: i + 1,
+          alan: 'raya',
+          aciklama: e === null
+            ? 'bu slaytta AI ifşa şeridi HİÇ yok — Md. 50 görünür ifşa istiyor'
+            : 'AI ifşa şeridi var ama görünmüyor (sıfır boyut, gizli ya da saydam)',
+        })
+      }
+    })
+  }
 
   // ── taşma: kutu içeriğini kırpıyor mu ────────────────────────────────────
   // ⚠ 1 px tolerans: alt piksel yuvarlaması gerçek bir taşma değil.
@@ -396,7 +434,7 @@ export const panoramaDenetle = async (
         (i) => i.decode().catch(() => undefined))); return true })()`
     )
     const ham = (await page.evaluate(
-      OLCUM(kesimler, kesintisizlikIddiasi(doc))
+      OLCUM(kesimler, kesintisizlikIddiasi(doc), doc.aiIfsasi === true)
     )) as readonly Kusur[]
     // ── punto çökmesi: hangi KART tavanı aşağı çekiyor ──────────────────────
     // ⚠ ⚠ **İKİ TARAF AYRI KAYNAKTAN.** Ölçüm bir sabitle değil, KARTLARIN KENDİ
