@@ -98,12 +98,12 @@
         "$type": "color"
       },
       "ink-950": {
-        "$description": "Kreatif siyah — konsol grisinden DAHA nötr, çünkü burada rengi kavga etmemeli.",
-        "$value": "oklch(0.15 0.006 250)",
+        "$description": "EN KOYU — ve artık GERÇEKTEN koyu (D-298). 0,15 idi, yani RGB ~30: siyah değil koyu gri. Referans karoselin (image copy 2) ton aralığı 0–255 ve std 79; bizimki 11–161 ve std 27 ölçüldü. Bir tasarimin DERIN durmasi siyahin gercekten siyah olmasina bagli — kırpılmış bir taban tüm kadrajı sisli yapıyor",
+        "$value": "oklch(0.055 0.004 250)",
         "$type": "color"
       },
       "ink-800": {
-        "$value": "oklch(0.27 0.008 250)",
+        "$value": "oklch(0.225 0.008 250)",
         "$type": "color"
       },
       "kagit": {

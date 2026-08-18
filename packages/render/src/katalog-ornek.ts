@@ -414,7 +414,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       // §5 zaten söylüyordu: merkezi ortada olan bir odak fark edilmiyor, asimetri
       // gerekiyor. ⚠ Düşüş de yumuşatıldı (`capX` 84 → 62): geniş ve sert kenarlı bir
       // havuz, dar ve yumuşak olandan daha çok "kutu" üretiyor.
-      { tip: 'isik', x: 22, y: 16, capX: 62, capY: 52, renk: '--ramp-marka-mavi-500', guc: 15 },
+      { tip: 'isik', x: 22, y: 16, capX: 62, capY: 52, renk: '--ramp-marka-mavi-300', guc: 34 },
       { tip: 'isik', x: 88, y: 74, capX: 46, capY: 44, renk: '--ramp-marka-bakir-500', guc: 9 },
       { tip: 'vinyet', guc: 42 },
     ],
@@ -828,6 +828,13 @@ export const ORNEK_DONEN: KatalogOrnegi = {
  * katalog, tek şablonun altı varyasyonudur.
  * ⚠ Süreklilik ögesi fotoğrafın KENDİSİ: tam kaplama görsel kesimi aşarak devam ediyor.
  */
+// ⚠ ⚠ **TON ARALIĞI ÖLÇÜLDÜ ve altı şablonun EN DÜZÜ buydu: p1=157 · p99=235, aralık 78.**
+// Referans (`image copy 2`) 0–255 arası gidiyor ve std'si 79; bunun 19. Sebep: kartlar
+// OPAK ve hepsi aynı açık tonda, yani panorama dokusu hiç görünmüyor ve kadrajda ne
+// gerçek siyah var ne gerçek beyaz. **Bir tasarımın "derin" durması ton aralığından
+// geliyor; tek tonda yıkanmış bir kadraj sade değil, SİSLİ.**
+// Kart zeminleri artık kâğıt → soluk mavi → açık gri → MÜREKKEP: kapanış kartı gerçek
+// siyaha iniyor ve şerit boyunca bir ton yolculuğu kuruluyor.
 export const ORNEK_EDITORYAL: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
@@ -869,7 +876,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
         aci: 168,
         duraklar: [
           { renk: '--ramp-marka-kagit', konum: 0 },
-          { renk: '--ramp-marka-mavi-200', konum: 82 },
+          { renk: '--ramp-gray-200', konum: 88 },
         ],
       },
       { tip: 'isik', x: 74, y: 24, capX: 58, capY: 46, renk: '--ramp-marka-kagit', guc: 30 },
@@ -913,6 +920,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       hayalet: '01',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-kagit)',
       // Fotoğraf bu karede SOLDA; metin karşı yana geçiyor.
       kolon: 'sag',
     },
@@ -924,6 +932,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       hayalet: '02',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-mavi-200)',
     },
     {
       ustBaslik: 'PUNTO',
@@ -933,6 +942,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       hayalet: '03',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-gray-100)',
       kolon: 'sag',
     },
     {
@@ -943,6 +953,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       hayalet: '04',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-ink-950)',
     },
   ],
 }

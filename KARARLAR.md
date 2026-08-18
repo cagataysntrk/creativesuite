@@ -538,3 +538,43 @@ alt dize eşleştiriyor. Yeni varyantlar ilk yazımda "fabric texture" diyordu; 
 koşuda görsel adımını reddettirecekti. Yerine `weave`, `grain`, `creases`.
 
 **Geri alma maliyeti:** düşük — bir leke dizisi, bir fonksiyon, altı kart zemini.
+
+## D-298
+
+**Karar:** Gövde puntosuna 34 px TABAN, üst başlık 19→24, alt ray 15→18; gövde genişliği
+metin kolonuna bağlandı; `ink-950` gerçekten siyaha indi (0,15 → 0,055) ve `editoryal`
+kart zeminleri kâğıt → soluk mavi → açık gri → MÜREKKEP rotasyonuna geçti.
+
+**Neden — punto:** ölçüldü, gövde **23–27 px**, tuvalin %1,7–2'si. 1080 px telefonda
+~390 pt'ye iniyor, yani 25 px ≈ 9 pt. Karşılaştırılan dört açık kaynak karosel
+üreticisinin hepsi 32–38 px kullanıyor, ikisi bunu mobil için BİLEREK yükseltmiş.
+⚠ Taban tek başına bırakılınca ALTI ŞABLON DA aynı puntoya çakıldı: **emniyet, tasarım
+kararının yerine geçemez.** Oranlar yükseltildi, taban sigorta olarak kaldı (34–40 px).
+
+⚠ **Gövde genişliği kolondan BAĞIMSIZDI ve punto büyüyünce taştı.** `max-width: 34ch`
+sabitti; 34 px puntoda ~580 px eder, `editoryal`in kolonu 369 px. Gövde 200 px aşıp
+fotoğrafın altına giriyordu. **Punto tabanı bunu görünür yaptı, sebep olmadı** — hata
+baştan oradaydı ve küçük puntoda saklanıyordu.
+
+**Neden — ton:** referans (`image copy 2`) p1=0 · p99=255 · std 79,4. Bizimkiler
+ölçüldü: `editoryal` **157–235, aralık 78, std 19** (altısının en düzü), `sahne` 11–161.
+**Bir tasarımın "derin" durması ton aralığından geliyor; tek tonda yıkanmış bir kadraj
+sade değil, SİSLİ.** `ink-950` 0,15'ti — RGB ~30, yani siyah değil koyu gri.
+
+**Ölçülen sonuç:** `editoryal` std 19,8 → **87,8** · `donen` 27,9 → **89,1** ·
+`memphis` 37,8 → 64,8 · `akan-alan` 34,7 → 41,0. İkisi referansın 79'unu geçti.
+
+⚠ `sahne` p99'u 163'te kaldı: kadrajın en parlak şeyi turuncu YER TUTUCU çöp adam.
+Gerçek koşuda oraya rim ışıklı fotoğraf giriyor — bu bir şablon kusuru değil, sondanın
+sınırı. **Yer tutucuyla ölçülen her metrik bu sınırı taşıyor.**
+
+⚠ ⚠ **2× RENDER DENENDİ, GERİ ALINDI.** `deviceScaleFactor` hiç ayarlanmamış; 2× harf
+kenarlarını gözle görülür biçimde temizliyor. Geri alınma sebebi kalite değil ÇIKTI
+SÖZLEŞMESİ: üç test PNG'nin 1080×1350 olduğunu doğruluyor ve haklılar. 2×, çıktıyı
+2160×2700 yapıyor ve depoda küçültücü yok. Borç yazıldı.
+
+⚠ ⚠ **İLK ÖLÇÜM ARACI 2×'i KÖTÜ GÖSTERDİ:** `FIND_EDGES` enerjisi 1×'te 22,7 · 2×'te
+18,3. Filtre TIRTIKLI kenarı da "enerji" sayıyor, yani aliasing'i ödüllendiriyor. Doğru
+araç gözdü. **Bir metriğin sayı üretmesi, doğru şeyi ölçtüğü anlamına gelmiyor.**
+
+**Geri alma maliyeti:** orta — iki token değeri, bir CSS tabanı, bir kart rotasyonu.

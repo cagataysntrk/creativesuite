@@ -91,6 +91,20 @@ export const withPage = async <T>(
   }
 
   try {
+    // ⚠ ⚠ **2× RENDER DENENDİ, ÖLÇÜLDÜ, GERİ ALINDI — kazanç GERÇEK ama sözleşme YOK.**
+    // `deviceScaleFactor` hiç ayarlanmamış, yani üretim 1×'te çıkıyor. 2× denendiğinde
+    // aynı başlık yakınlaştırılıp yan yana konunca fark gözle görüldü: 2×'in harf
+    // kenarları temiz, greni ince; 1×'inki basamaklı.
+    //
+    // ⚠ Geri alınmasının sebebi kalite değil ÇIKTI SÖZLEŞMESİ: üç test PNG'nin
+    // 1080×1350 olduğunu doğruluyor ve haklılar — boyut bir sözleşmedir. 2× çıktıyı
+    // 2160×2700 yapıyor ve depoda küçültücü YOK (`sharp` kurulu değil). Sözleşmeyi
+    // bozmadan kazanmanın yolu "2× çiz, 1×'e küçült"; küçültücü bir karar gerektiriyor.
+    // Borç olarak yazıldı.
+    //
+    // ⚠ ⚠ **İLK ÖLÇÜM ARACI 2×'i KÖTÜ GÖSTERDİ.** `FIND_EDGES` kenar enerjisi 1×'te 22,7 ·
+    // 2×'te 18,3 verdi; filtre TIRTIKLI kenarı da "enerji" sayıyor, yani aliasing'i
+    // ödüllendiriyor. **Bir metriğin sayı üretmesi, doğru şeyi ölçtüğü anlamına gelmiyor.**
     const page = await browser.newPage()
     page.setDefaultTimeout(opts.timeoutMs ?? 30_000)
     return { ok: true, value: await fn(page) }

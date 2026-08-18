@@ -1181,7 +1181,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                              padding: 0.02em 0.14em; box-decoration-break: clone;`,
     `                              -webkit-box-decoration-break: clone }`,
     `  .govde { margin-top: 44px; font-size: calc(var(--baslik-punto) * var(--govde-orani));`,
-    `           line-height: 1.5; max-width: 34ch; color: var(--kart-soluk) }`,
+    // ⚠ ⚠ **GENİŞLİK KOLONDAN BAĞIMSIZDI ve gövde büyüyünce TAŞTI.** `34ch` sabitti;
+    // 34 px puntoda ~580 px eder, `editoryal`in metin kolonu ise 0,46 × 1080 − 128 = 369 px.
+    // Gövde kolonu 200 px aşıp fotoğrafın altına giriyordu — punto tabanı (34 px) bunu
+    // görünür yaptı, sebep olmadı; hata baştan oradaydı ve küçük puntoda saklanıyordu.
+    // ⚠ `min()`: satır uzunluğu okunabilirlik için 34ch'i AŞMAMALI, kolonu da aşmamalı.
+    `           line-height: 1.5; color: var(--kart-soluk);`,
+    `           max-width: min(34ch, ${Math.round(G * t.baslikSutunu) - 128}px) }`,
     `  .govde strong { color: var(--kart-metin); font-weight: 700 }`,
     // ⚠ Dev soluk metin kesim çizgilerini KASTEN aşıyor: kesintisizliğin en görünür işareti.
     // ⚠ Dev soluk metin: BÜYÜK ve kesim çizgilerini aşacak kadar aşağıda. İlk sürümde
