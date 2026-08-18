@@ -113,18 +113,28 @@ describe('seçim REDDEDEBİLİR — sessizce varsayılana düşmüyor', () => {
     expect(!s.ok && s.sebep).toContain('katalogda yok')
   })
 
-  it('slayt sayısı aralık dışındaysa o şablon elenıyor', () => {
-    // `editoryal` en fazla 6 slayt; 9 satır hiçbir şablona sığmıyor.
-    const cok = Array.from({ length: 12 }, (_, i) => `Satır ${i + 1} — düz anlatı cümlesi.`)
+  // ⚠ ⚠ **ASİMETRİ: az satır eler, çok satır elemez.** Gerçek bir koşuda `metin-uret`
+  // 11 satır üretti ve iki yönlü eleme altı şablonun altısını birden düşürdü; hat
+  // hiçbir şey seçemeden durdu. Yazar CÜMLE üretiyor, karosel KART taşıyor: fazlayı
+  // uyarlama birleştirebilir, eksiği uyduramaz.
+  it('satır sayısı şablonun kart sayısını AŞSA da eleme yok', () => {
+    const cok = Array.from({ length: 12 }, (_, i) => `${i + 1}. Madde ${i + 1} burada.`)
     const s = sablonSec(cok)
+    expect(s.ok).toBe(true)
+    expect(s.ok && s.sablon.id).toBe('akan-alan')
+  })
+
+  it('satır sayısı şablonun ALT sınırının altındaysa eleniyor', () => {
+    const az = ['Tek satır', 'İki satır']
+    const s = sablonSec(az)
     expect(s.ok).toBe(false)
     expect(!s.ok && s.sebep).toContain('uymadı')
   })
 
-  it('açıkça istenen şablon slayt aralığına uymuyorsa reddediliyor', () => {
-    const s = sablonSec(kisa, { gorselUretilebilir: true, istenen: 'veri-hikayesi' })
+  it('açıkça istenen şablon için YETERSİZ satır varsa reddediliyor', () => {
+    const s = sablonSec(['Tek satır'], { gorselUretilebilir: true, istenen: 'veri-hikayesi' })
     expect(s.ok).toBe(false)
-    expect(!s.ok && s.sebep).toContain('şablon aralığı')
+    expect(!s.ok && s.sebep).toContain('en az')
   })
 
   // ⚠ `donen` içerikten ÇIKARILAMAZ (ürün fotoğrafı gerektiriyor) ama istenebilir.

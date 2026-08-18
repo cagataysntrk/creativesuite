@@ -1,0 +1,120 @@
+# Instagram karoseli — KATALOG MERKEZLİ (§7.1 · D-268 · FAZ-15).
+#
+# ⚠ ⚠ **BU HAT, MİMARİNİN ÜRETİM YOLUNA BAĞLANDIĞI YER.** Panorama render'ı, altı
+# şablonluk katalog, seçici, uyarlayıcı ve denetim yazıldı ve `renderPanorama`nın
+# üretimde TEK BİR ÇAĞIRANI YOKTU: `grep -rn renderPanorama packages/engine` sıfır
+# satır veriyordu. Bu depoda aynı sınıf hatanın onuncu tekrarıydı (D-261 ailesi) ve
+# en büyüğü — mimarinin tamamı `just uret`ten erişilemez duruyordu. Hat bu dosyayla
+# erişilebilir oluyor.
+#
+# ⚠ **SERBEST ÜRETİM YOK (D-268).** Hat kompozisyon icat etmiyor; katalogdan bir
+# şablon SEÇİYOR ve onun DOLU taslağını konuya uyarlıyor. Slayt-başına render yolu
+# (`instagram-post`) hâlâ duruyor ve emekliliği ayrı bir adım.
+#
+# ⚠ MODEL ADI YOK (R-40): adımlar YETENEK ister.
+id: instagram-karosel
+title: Instagram karoseli — katalog merkezli
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+
+  # 1) KONU → İÇERİK. Şablon henüz seçilmedi: seçim içeriğin ŞEKLİNE bakıyor ve şekil
+  # ancak metin yazıldıktan sonra ölçülebilir. Ters sıra, şablonu konuya göre tahmin
+  # etmek olurdu — tahmin edilen bir şablon, içeriğe uymayan bir kompozisyon demek.
+  - id: metin-uret
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec]
+    constraints:
+      locale: tr-TR
+      max_chars: 2200
+
+  # 2) İÇERİK → ŞABLON SEÇİMİ + UYARLAMA.
+  #
+  # ⚠ ⚠ **SEÇİM BU ADIMIN İSTEM KURUCUSUNDA, DETERMİNİSTİK KOŞUYOR.** Ayrı bir adıma
+  # çıkarmak onuncu bir fiil isterdi (R-02, dokuz fiil kapalı liste). `sablonSec` model
+  # çağırmıyor, dosyaya dokunmuyor; `GENERATE`in yan etki sınıfı bozulmuyor.
+  # ⚠ Agent SIFIRDAN yazmıyor: katalogdaki dolu taslağı alıp konuya göre düzenliyor.
+  # Kompozisyon alanları şemada YOK — değiştiremediği için "değiştirme" demeye gerek yok.
+  - id: sablon-uyarla
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec, metin-uret]
+    constraints:
+      sablon_uyarla: true
+      max_chars: 4000
+      # ⚠ Görsel üretilemeyen bir koşuda katalog İKİ kayda iniyor (görselsiz şablonlar).
+      # Bunu hattın bilmesi gerek: `sops exec-env` olmadan koşulduğunda kimliği yer
+      # tutucudan ibaret bir karosel üretmek yerine seçim daralıyor.
+      gorsel_uretilebilir: true
+
+  # 3) UYARLAMA → PANORAMA BELGESİ. Deterministik birleştirme: şablonun kompozisyonu +
+  # agentın içeriği. `uyarla` kaynağı boş, örnek işareti kalmış ya da panel tipi
+  # değişmiş bir uyarlamayı REDDEDİYOR — reddedilen uyarlama yarı uygulanmıyor.
+  - id: kompozit
+    verb: COMPOSE
+    needs: [metin-uret, sablon-uyarla]
+    constraints:
+      katalog: true
+
+  # 4) ŞABLONUN İHTİYAÇ DUYDUĞU GÖRSEL. Brief'in sabit kısmı katalog kaydından
+  # (`briefTemeli`), konuya özgü kısmı modelden geliyor.
+  - id: gorsel-brief
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec, kompozit]
+    constraints:
+      gorsel_brief: true
+      max_chars: 600
+      optional: true
+
+  - id: gorsel-uret
+    verb: GENERATE
+    capability: image.generate
+    needs: [gorsel-brief]
+    constraints:
+      optional: true
+      aspect: '4:5'
+      no_text: true
+      max_cost_usd_micros: 20000
+
+  # 5) RENDER — TEK GENİŞ TUVAL, sonra dilimleme. Denetim aynı adımda koşuyor: ayrı bir
+  # fiil dokuz fiil yasasını delerdi, ayrı bir adım render'ı iki kez koştururdu.
+  - id: render
+    verb: RENDER
+    needs: [kompozit, gorsel-uret]
+    constraints:
+      width: 1080
+      height: 1350
+
+  # 6) AGENT ÇIKTIYA BAKIYOR. `render`ın ölçtüğü şey kutular; bu adımın gördüğü şey
+  # kompozisyon. İkisi ayrı sorular.
+  - id: gorsel-yargi
+    verb: GENERATE
+    capability: image.critique
+    needs: [render]
+
+  - id: tasarim-yargi
+    verb: GENERATE
+    capability: design.critique
+    needs: [render]
+
+  - id: kalite
+    verb: VALIDATE
+    needs: [render, gorsel-yargi, tasarim-yargi, gorsel-uret]
+
+  - id: onay
+    verb: PROPOSE
+    needs: [kalite]
+    gate: insan-onayi
+
+  - id: yayinla
+    verb: PUBLISH
+    needs: [onay]
+    constraints:
+      platform: instagram

@@ -141,7 +141,7 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 🧪 Arşivden bir modülü import etmeye çalış → `dependency-cruiser` reddediyor
 💾 `refactor(render): slayt-basina yol emekli — panorama tek motor` · `Refs: FAZ-15.9 · §16`
 
-## 15.10 — Mimari denetimi ve kullanım belgesi    [ ]
+## 15.10 — Mimari denetimi ve kullanım belgesi    [x]
 
 📖 §3, §7.1
 🔗 FAZ-15.9

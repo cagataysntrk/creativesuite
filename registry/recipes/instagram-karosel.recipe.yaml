@@ -1,0 +1,34 @@
+# Instagram karoseli için bağlam tarifi (§5.3 · FAZ-15.9).
+#
+# ⚠ Tarif `instagram-post` ile AYNI bölümleri taşıyor ve bu bilinçli: değişen şey
+# kompozisyonun nasıl kurulduğu (serbest üretim → katalog), markanın ne söylediği değil.
+# Bağlam bütçesi de aynı; katalog merkezli hat modele DAHA AZ iş veriyor (kompozisyon
+# icat etmiyor), daha fazla bağlam değil.
+#
+# SIRA BELİRLEYİCİDİR: toplam bütçe dolduğunda SONDAKİ bölüm kesilir. Konumlandırma
+# ilk sırada çünkü o olmadan üretilen metin markaya ait olmaz; kanıt son sırada çünkü
+# kesilirse iddia zayıflar ama YANLIŞ olmaz.
+id: instagram-karosel
+title: Instagram karoseli bağlamı (katalog merkezli)
+total_budget: 2400
+
+sections:
+  - id: konum
+    entity_type: positioning
+    max_records: 2
+    token_budget: 600
+
+  - id: mesaj
+    entity_type: messaging
+    max_records: 2
+    token_budget: 700
+
+  - id: persona
+    entity_type: persona
+    max_records: 2
+    token_budget: 500
+
+  - id: kanit
+    entity_type: proof_asset
+    max_records: 3
+    token_budget: 600

@@ -81,13 +81,17 @@ const puanla = (s: KatalogSablonu, i: IcerikSekli): SablonPuani => {
   const gerekce: string[] = []
   let puan = 0
 
-  // Slayt sayısı uymuyorsa şablon ELENİR: 8 satırlık metin 6 slaytlık bir şablona
-  // sığdırılırsa iki satır sessizce düşer.
-  if (i.satirSayisi < s.slayt.min || i.satirSayisi > s.slayt.max)
+  // ⚠ ⚠ **KURAL ASİMETRİK: AZ SATIR ELER, ÇOK SATIR ELEMEZ — ve bunu gerçek bir koşu
+  // öğretti.** İlk sürüm iki yönlü eliyordu; `metin-uret` 11 satır üretti ve ALTI
+  // ŞABLONUN ALTISI birden elendi, hat hiçbir şey seçemeden durdu. Yanlış olan metin
+  // değil kuraldı: yazar cümle üretiyor, karosel KART taşıyor ve ikisi aynı birim
+  // değil. Uyarlama adımının işi tam olarak dağıtmak — **fazlayı birleştirebilir,
+  // eksiği UYDURAMAZ.** O yüzden alt sınır sert, üst sınır serbest.
+  if (i.satirSayisi < s.slayt.min)
     return {
       id: s.id,
       puan: -1,
-      neden: `${i.satirSayisi} slayt, şablon aralığı ${s.slayt.min}–${s.slayt.max}`,
+      neden: `${i.satirSayisi} satır, şablon en az ${s.slayt.min} kart istiyor`,
     }
 
   switch (s.id) {

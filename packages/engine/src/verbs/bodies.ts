@@ -35,7 +35,14 @@ import {
   withOturum,
   renderWithinLimit,
   type LayoutName,
+  ornekBul,
+  panoramaDenetle,
+  renderPanorama,
+  type PanoramaBelgesi,
 } from '@suite/render'
+import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../plan/sablon-uyarla.js'
+import { sablonSec } from '../plan/sablon-sec.js'
+import type { KatalogOrnegi } from '@suite/render'
 import {
   duzMetin,
   gorselBriefPromptu,
@@ -223,6 +230,47 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       (v): v is { readonly records: readonly { readonly text: string }[] } =>
         v !== null && typeof v === 'object' && Array.isArray((v as { records?: unknown }).records)
     )
+
+    // ── KATALOG DALI: şablon uyarlaması → panorama belgesi (FAZ-15.9 · D-268) ──
+    //
+    // ⚠ ⚠ **BU DAL, FAZIN EN ÖNEMLİ BULGUSUNU KAPATIYOR.** Altı şablon, katalog, seçici,
+    // uyarlayıcı ve denetim yazıldı, test edildi, kapılar yeşildi — ve `renderPanorama`nın
+    // ÜRETİM YOLUNDA TEK BİR ÇAĞIRANI YOKTU. `grep -rn renderPanorama packages/engine`
+    // sıfır satır veriyordu. Bu projede aynı sınıf hatanın onuncu tekrarı (D-261 ailesi)
+    // ve en büyüğü: mimarinin tamamı `just uret`ten erişilemez duruyordu.
+    //
+    // ⚠ **Seçim burada, uyarlama ÖNCEKİ adımda.** Şablon seçimi deterministik ve model
+    // çağırmıyor — `COMPOSE`un yan etki sınıfı `pure` (R-04) ve öyle kalıyor. Metni
+    // konuya çeviren yaratıcılık `GENERATE` adımında; burada yalnız birleştirme var.
+    if (input.constraints['katalog'] === true) {
+      const uyarlamaCiktisi = Object.values(input.inputs).find(
+        (v): v is { readonly uyarlama: Uyarlama } =>
+          v !== null &&
+          typeof v === 'object' &&
+          (v as { uyarlama?: unknown }).uyarlama !== undefined
+      )
+      if (uyarlamaCiktisi === undefined) return err(hata('validation', 'NO_ADAPTATION', ctx))
+      const sablonId = uyarlamaCiktisi.uyarlama.sablonId
+      const ornek = ornekBul(sablonId)
+      if (ornek === null) return err(hata('validation', 'TEMPLATE_NOT_FOUND', ctx, { sablonId }))
+      const birlesik = uyarla(ornek, uyarlamaCiktisi.uyarlama)
+      if (!birlesik.ok)
+        return err(hata('validation', 'ADAPTATION_REJECTED', ctx, { defects: birlesik.kusurlar }))
+      // ⚠ Damga, token ve font ÇALIŞTIRMADAN geliyor; şablon onları taşıyamıyor (Yasa 7).
+      return ok({
+        costs: [],
+        data: {
+          panorama: {
+            ...birlesik.belge,
+            tokenCss: deps.tokenCss,
+            ...(deps.fontCss === undefined ? {} : { fontCss: deps.fontCss }),
+            stamp: deps.stamp,
+          },
+          sablonId,
+          ...kisisellestirmeCiktisi(input.constraints),
+        },
+      })
+    }
 
     // ── IR verildiyse blokların KAYNAĞI odur ────────────────────────────────
     // Metin üretimi atlanır: IR zaten insan tarafından düzenlenmiş bir belgedir ve
@@ -635,6 +683,54 @@ export const renderBody = (deps: RenderDeps): Verb =>
             demoRef: c.value.demoRef,
             alt: `Ürün ekran görüntüsü — ${demoRef}`,
           },
+        },
+      })
+    }
+
+    // ── PANORAMA DALI: tek geniş tuval, sonra dilimleme (§7.1 · R-30 · D-268) ──
+    //
+    // ⚠ ⚠ **`.document` YERİNE `.panorama` ARANIYOR ve bu ayrım kasıtlı.** İki belge
+    // modeli birbirine dönüştürülmüyor: `DocumentModel` blok listesi, `PanoramaBelgesi`
+    // kart listesi + kesimi aşan katmanlar. Birini ötekine çevirmeye çalışmak, kesimi
+    // aşan ögeyi (kesintisizliğin taşıyıcısı) blok modeline sığdırmak demekti — o model
+    // slayt sınırını aşan bir şey ifade edemiyor. Ayrı kanal, ayrı dal.
+    //
+    // ⚠ **Tek render motoru bozulmuyor (Yasa 4):** ikisi de aynı Chromium, aynı gömülü
+    // font, aynı token CSS. İkinci bir CSS alt kümesi değil, aynı motorda ikinci bir
+    // sayfa düzeni.
+    const panoramaCiktisi = Object.values(input.inputs).find(
+      (v): v is { readonly panorama: PanoramaBelgesi } =>
+        v !== null && typeof v === 'object' && (v as { panorama?: unknown }).panorama !== undefined
+    )
+    if (panoramaCiktisi !== undefined) {
+      mkdirSync(deps.outDir, { recursive: true })
+      const doc = panoramaCiktisi.panorama
+      const yollar = doc.kartlar.map((_, i) =>
+        join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
+      )
+      const r = await renderPanorama(doc, yollar)
+      if (!r.ok) return err(hata('render_failed', 'PANORAMA_FAILED', ctx, { error: r.error }))
+      // ⚠ ⚠ **DENETİM RENDER'DAN SONRA, AYNI ADIMDA.** Ayrı bir fiil açmak dokuz fiil
+      // yasasını (R-02) delerdi; ayrı bir adım açmak render'ı iki kez koştururdu. Denetim
+      // bir yan etki değil bir ÖLÇÜM: aynı tarayıcıda, aynı belgeyle, ek maliyetsiz.
+      const denetim = await panoramaDenetle(doc)
+      const kusurlar = denetim.ok ? denetim.value : []
+      return ok({
+        costs: [
+          {
+            verb: 'RENDER' as VerbName,
+            capability: 'image.render',
+            providerId: 'local-chromium',
+            amount: ZERO_USD,
+            kind: 'actual' as const,
+          },
+        ],
+        data: {
+          slides: r.value.yollar,
+          panoramaGenisligi: r.value.genislik,
+          // ⚠ Kusurlar SUSTURULMUYOR: `kalite` adımı ve insan onay kapısı bunları görüyor.
+          kusurlar,
+          images: doc.gorseller.map((g) => ({ alt: g.alt })),
         },
       })
     }
@@ -1358,6 +1454,30 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       : {}),
     ...(kacinilacak === undefined ? {} : { kacinilacak }),
   }
+  // ── ŞABLON UYARLAMA İSTEMİ (FAZ-15.7/15.9 · D-268) ───────────────────────
+  //
+  // ⚠ ⚠ **ŞABLON SEÇİMİ BURADA KOŞUYOR ve bu bir katman ihlali DEĞİL.** `sablonSec`
+  // deterministik, model çağırmıyor, dosyaya dokunmuyor — bir istem kurucusu içinde
+  // koşması `GENERATE`in yan etki sınıfını (`model çağırır`) değiştirmiyor. Seçimi ayrı
+  // bir adıma çıkarmak onuncu bir fiil isterdi (R-02) ve dokuz fiil kapalı bir liste.
+  //
+  // ⚠ ⚠ **HAT ŞABLONU ZORLAYABİLİR ama SEÇEMEDİĞİNİ ZORLAYAMAZ.** `sablon` kısıtı
+  // verilmişse doğrulanıyor; verilmemişse içeriğin şeklinden seçiliyor. Seçim başarısız
+  // olursa istem BOŞ dönüyor ve adım çıktısız kalıyor — sessizce bir varsayılan şablona
+  // düşmek, istenmeyen bir tasarımı istenmiş gibi teslim etmek olurdu (D-268).
+  if (input.constraints['sablon_uyarla'] === true) {
+    const s = sablonSecimiIcin(input)
+    if (!s.ok) return ''
+    return [
+      uyarlamaIstemi(s.ornek, s.sablonId, konu),
+      '',
+      'Kaynak metin:',
+      ...s.satirlar.map((t) => `- ${t}`),
+      '',
+      `Seçim gerekçesi (bilgi): ${s.neden}`,
+    ].join('\n')
+  }
+
   const gorselBriefMi = input.constraints['gorsel_brief'] === true
   // ⚠ **YUVA yalnız brief için aranıyor** ve `kompozit` çıktısından geliyor — yani bu
   // adım artık `kompozit`e BAĞLI (hat dosyasında `needs: [bilgi-sec, kompozit]`).
@@ -1369,6 +1489,140 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       ? gorselBriefPromptu(yuva === undefined ? girdi : { ...girdi, yuva })
       : icerikPromptu(girdi)) ?? ''
   )
+}
+
+/**
+ * Şablon seçimini bir kez yapar — **istem kurucusu ve hata yolu AYNI cevabı görsün.**
+ *
+ * ⚠ ⚠ **BU AYRIM GERÇEK BİR KOŞUDAN DOĞDU.** İlk sürümde seçim yalnız istem kurucusunun
+ * içindeydi ve başarısız olunca boş bir dize dönüyordu. Koşucu boş istemi "adım atlandı"
+ * sayıp `{atlandi: true, sebep: 'prompt-yok'}` yazdı; hat iki adım sonra `NO_ADAPTATION`
+ * ile durdu ve defterde şablonun NEDEN seçilemediğine dair tek satır yoktu. **Zorunlu bir
+ * adımın sessizce atlanması, bu depoda yasak olan hata biçiminin ta kendisi.** Seçim
+ * artık ayrı: istem onu kullanıyor, hata yolu da aynı gerekçeyi okuyup deftere yazıyor.
+ */
+export const sablonSecimiIcin = (
+  input: BodyInput
+):
+  | {
+      readonly ok: true
+      readonly sablonId: string
+      readonly ornek: KatalogOrnegi
+      readonly neden: string
+      readonly satirlar: readonly string[]
+    }
+  | { readonly ok: false; readonly sebep: string } => {
+  const istenen =
+    typeof input.constraints['sablon'] === 'string' ? input.constraints['sablon'] : undefined
+  const satirlar = metinSatirlari(input.inputs)
+  if (satirlar.length === 0)
+    return { ok: false, sebep: 'önceki adımdan metin satırı gelmedi (`lines` yok)' }
+  const secim = sablonSec(satirlar, {
+    gorselUretilebilir: input.constraints['gorsel_uretilebilir'] !== false,
+    ...(istenen === undefined ? {} : { istenen }),
+  })
+  if (!secim.ok)
+    return {
+      ok: false,
+      sebep: `${secim.sebep} · ${satirlar.length} satır · puanlar: ${secim.puanlar
+        .map((p) => `${p.id}=${p.puan}`)
+        .join(' ')}`,
+    }
+  const ornek = ornekBul(secim.sablon.id)
+  if (ornek === null) return { ok: false, sebep: `katalog tutarsız: ${secim.sablon.id} örneği yok` }
+  return { ok: true, sablonId: secim.sablon.id, ornek, neden: secim.neden, satirlar }
+}
+
+/**
+ * Model çıktısını `Uyarlama`ya çevirir — **şekli DOĞRULAYARAK.**
+ *
+ * ⚠ ⚠ **`JSON.parse` + `as Uyarlama` YETMEZ ve tam olarak bu yüzden yazıldı.** Bir tip
+ * iddiası çalışma zamanında hiçbir şey kontrol etmiyor; model `kartlar` yerine `cards`
+ * yazarsa nesne yine "geçerli" görünür ve `uyarla` boş bir kart dizisiyle çağrılır.
+ * Alanlar tek tek sınanıyor ve eksik olan bir alan `null` döndürüyor — yarım bir
+ * uyarlamayı kabul etmek, örnek içerikle gerçek içeriğin karıştığı bir karosel demek.
+ *
+ * ⚠ Model çıktısı bir kod bloğu içinde gelebiliyor; ilk `{` ile son `}` arası alınıyor.
+ *
+ * ⚠ ⚠ **SAĞLAYICI ŞEKLİ ÜÇ ADLA GELİYOR ve bunu GERÇEK BİR KOŞU öğretti.** İlk sürüm
+ * yalnız `string` ve `{text}` biliyordu; `claude-code` adaptörü `{result}` döndürüyor.
+ * Sonuç: nesne `JSON.stringify` ile sarmalanıp ayrıştırılıyor, içinde `sablonId`
+ * bulunamıyor ve hat `ADAPTATION_UNPARSEABLE` ile duruyordu. `metneCevir` bu üç adı
+ * (`result`/`text`/`content`) zaten biliyordu — ikinci bir liste yazmak D-227'nin
+ * (üreticiyle tüketici arasında şekil uyuşmazlığı) tekrarıydı.
+ */
+const alan = (ham: unknown, ad: string): string | null =>
+  ham !== null &&
+  typeof ham === 'object' &&
+  typeof (ham as Record<string, unknown>)[ad] === 'string'
+    ? ((ham as Record<string, string>)[ad] as string)
+    : null
+
+export const uyarlamayaCevir = (ham: unknown): Uyarlama | null => {
+  const metin =
+    typeof ham === 'string'
+      ? ham
+      : (alan(ham, 'result') ?? alan(ham, 'text') ?? alan(ham, 'content') ?? JSON.stringify(ham))
+  const bas = metin.indexOf('{')
+  const son = metin.lastIndexOf('}')
+  if (bas < 0 || son <= bas) return null
+  let o: unknown
+  try {
+    o = JSON.parse(metin.slice(bas, son + 1))
+  } catch {
+    return null
+  }
+  const n = o as { sablonId?: unknown; kartlar?: unknown }
+  if (typeof n.sablonId !== 'string' || !Array.isArray(n.kartlar)) return null
+  const kartlar: UyarlamaKarti[] = []
+  for (const k of n.kartlar) {
+    if (k === null || typeof k !== 'object') return null
+    const y = k as Record<string, unknown>
+    const dize = (a: string): string | null => (typeof y[a] === 'string' ? (y[a] as string) : null)
+    const ustBaslik = dize('ustBaslik')
+    const baslik = dize('baslik')
+    const govde = dize('govde')
+    const hayalet = dize('hayalet')
+    const rayaSol = dize('rayaSol')
+    const rayaOrta = dize('rayaOrta')
+    if (
+      ustBaslik === null ||
+      baslik === null ||
+      govde === null ||
+      hayalet === null ||
+      rayaSol === null ||
+      rayaOrta === null
+    )
+      return null
+    kartlar.push({
+      ustBaslik,
+      baslik,
+      govde,
+      hayalet,
+      rayaSol,
+      rayaOrta,
+      ...(y['panel'] === undefined
+        ? {}
+        : { panel: y['panel'] as NonNullable<UyarlamaKarti['panel']> }),
+    })
+  }
+  return { sablonId: n.sablonId, kartlar }
+}
+
+/**
+ * Önceki adımların ürettiği metin satırları — şekle bakarak bulunuyor.
+ *
+ * ⚠ Adım ADINA bakmak kırılgan: aynı gövde birden çok hatta koşuyor. `lines` alanı
+ * `metin-uret`in sözleşmesi ve `composeBody` de onu böyle buluyor — iki yer aynı
+ * şekli arıyor, iki ayrı ad değil.
+ */
+const metinSatirlari = (inputs: Readonly<Record<string, unknown>>): readonly string[] => {
+  for (const v of Object.values(inputs)) {
+    if (v === null || typeof v !== 'object') continue
+    const l = (v as { lines?: unknown }).lines
+    if (Array.isArray(l) && l.every((x) => typeof x === 'string')) return l as readonly string[]
+  }
+  return []
 }
 
 /**
@@ -1450,6 +1704,16 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       if (insan !== null) {
         return err(hata('policy_blocked', 'PROMPT_REQUESTS_PERSON', ctx, { matched: insan }))
       }
+    }
+
+    // ⚠ ⚠ **ZORUNLU ADIM SESSİZCE ATLANMIYOR.** Boş istem koşucu tarafından "atlandı"
+    // sayılıyor ve bu, `optional: true` adımlar için doğru. `sablon-uyarla` opsiyonel
+    // DEĞİL: atlanırsa katalog merkezli hattın tamamı devre dışı kalır ve hata iki adım
+    // sonra, anlamsız bir yerde (`NO_ADAPTATION`) görünür. Gerçek koşuda tam bu oldu.
+    if (input.constraints['sablon_uyarla'] === true) {
+      const s = sablonSecimiIcin(input)
+      if (!s.ok)
+        return err(hata('validation', 'TEMPLATE_SELECTION_FAILED', ctx, { sebep: s.sebep }))
     }
 
     const providerId = input.providerId
@@ -1622,6 +1886,23 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       tasarim = { ...y, toplam: toplamPuan(y) }
     }
 
+    // ── uyarlama: model çıktısı `COMPOSE`un beklediği şekle çevriliyor ──────
+    //
+    // ⚠ ⚠ **BU DÖNÜŞÜM OLMADAN ZİNCİR SESSİZCE KOPAR.** `composeBody`nin katalog dalı
+    // girdilerde `{uyarlama}` arıyor; sağlayıcı çıktısı serbest metin. Çevrilmezse
+    // `NO_ADAPTATION` ile durur — ki bu iyi haber: `metin`e düşseydi hat koşar,
+    // uyarlama yok sayılır ve şablonun ÖRNEK içeriği yayına giderdi. D-243'ün birebir
+    // tekrarı; orada `{lines}` bulunamayınca ham kayıtlara sessizce düşülüyordu.
+    //
+    // ⚠ Ayrıştırma BAŞARISIZ olursa hata veriliyor, boş bir uyarlama değil: yarım bir
+    // uyarlama, örnek metinle gerçek metnin karıştığı bir karosel üretirdi.
+    let uyarlamaCiktisi: { readonly uyarlama: Uyarlama } | null = null
+    if (input.constraints['sablon_uyarla'] === true) {
+      const c = uyarlamayaCevir(sonuc.value.data)
+      if (c === null) return err(hata('validation', 'ADAPTATION_UNPARSEABLE', ctx))
+      uyarlamaCiktisi = { uyarlama: c }
+    }
+
     return ok({
       costs: [
         {
@@ -1633,13 +1914,15 @@ export const generateBody = (deps: GenerateDeps): Verb =>
         },
       ],
       data:
-        tasarim !== null
-          ? { ...tasarim, raw: sonuc.value.data }
-          : yargi !== null
-            ? { ...yargi, raw: sonuc.value.data }
-            : metin === null
-              ? sonuc.value.data
-              : { ...metin, raw: sonuc.value.data },
+        uyarlamaCiktisi !== null
+          ? { ...uyarlamaCiktisi, raw: sonuc.value.data }
+          : tasarim !== null
+            ? { ...tasarim, raw: sonuc.value.data }
+            : yargi !== null
+              ? { ...yargi, raw: sonuc.value.data }
+              : metin === null
+                ? sonuc.value.data
+                : { ...metin, raw: sonuc.value.data },
     })
   })
 

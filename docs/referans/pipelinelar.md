@@ -3,7 +3,7 @@
 > ⚠ **ÜRETİLMİŞ DOSYA — elle düzenleme** (R-65). Üreteci: `just docs`.
 > Kaynak: `registry/pipelines/*.pipeline.yaml`. `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **10** hat.
+Toplam **11** hat.
 
 ## `ad-creative-set` — Reklam varyant seti (hook × copy × visual)
 
@@ -78,6 +78,26 @@ Toplam **10** hat.
 | `kompozit` | `COMPOSE` | — | bilgi-sec, gorsel-uret | — | — |
 | `render` | `RENDER` | — | kompozit | — | — |
 | `kalite` | `VALIDATE` | — | render | — | — |
+| `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
+| `yayinla` | `PUBLISH` | — | onay | — | — |
+
+## `instagram-karosel` — Instagram karoseli — katalog merkezli
+
+13 adım · 6 yetenek isteyen · 1 insan kapısı
+
+| adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
+|---|---|---|---|---|---|
+| `cozumle` | `RESOLVE` | — | — | — | — |
+| `bilgi-sec` | `SELECT` | — | cozumle | — | — |
+| `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
+| `sablon-uyarla` | `GENERATE` | `text.generate` | bilgi-sec, metin-uret | — | — |
+| `kompozit` | `COMPOSE` | — | metin-uret, sablon-uyarla | — | — |
+| `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
+| `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief | — | ✓ |
+| `render` | `RENDER` | — | kompozit, gorsel-uret | — | — |
+| `gorsel-yargi` | `GENERATE` | `image.critique` | render | — | — |
+| `tasarim-yargi` | `GENERATE` | `design.critique` | render | — | — |
+| `kalite` | `VALIDATE` | — | render, gorsel-yargi, tasarim-yargi, gorsel-uret | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
 | `yayinla` | `PUBLISH` | — | onay | — | — |
 

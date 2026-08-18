@@ -524,3 +524,42 @@ punto tavanı **1,49 kat** yükseliyor. Eklemeli bir dilde poster tipografisinin
 daraltmaktan geçiyor — ölçülmeden bilinemeyecek bir sonuç.
 
 **Geri alma maliyeti:** yok — hiçbir şey kurulmadı.
+
+## D-270 — Mimarinin tamamı üretim yolundan KOPUKTU: onuncu ve en büyüğü
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · D-261 ailesi · §3.10
+
+Panorama render'ı, altı şablonluk katalog, dolu örnek belgeler, deterministik seçici,
+uyarlama sözleşmesi ve DOM denetimi yazıldı. Her birinin testi yeşildi, 42 kapı yeşildi.
+Ve `grep -rn "renderPanorama(" packages/engine` **sıfır satır** veriyordu: mimarinin
+tamamı `just uret`ten erişilemez duruyordu.
+
+⚠ **Bu, aynı sınıf hatanın onuncu tekrarı** (`validateVerbOutput`, `chart`, `diagram`,
+`tasarimOlc`, `captureProductShot`, `renderDeckPdf`, `PUBLISH` gövdesi, `softHyphenate`,
+`Archivo` genişlik ekseni, ikon dağarcığı) — ve en büyüğü, çünkü kaçırılan şey bir
+fonksiyon değil bir MİMARİ idi. Sebep tekrar ettiği için artık tesadüf sayılamaz:
+**yeni bir yol açıldığında eski yolun bağladığı zincirler otomatik gelmiyor** ve
+"modülün testi var" duygusu, "üretim yolu var" duygusuyla karışıyor.
+
+**Karar:** bir yetenek ancak **hattan çağrıldığı gösterilebiliyorsa** bitmiş sayılır.
+`katalog-dikis.test.ts` bunu bir teste çeviriyor: üretim kaynağında `renderPanorama(`
+çağıranlarını SAYIYOR ve sıfırsa kırmızı. Modül testi zinciri test etmez; her halka
+sağlamken zincir kopuk olabilir.
+
+**Bağlama sırasında GERÇEK KOŞUNUN öğrettiği üç kusur** (hiçbiri testle bulunamazdı):
+
+1. **Zorunlu adım sessizce atlandı.** Şablon seçilemeyince istem boş döndü, koşucu
+   `{atlandi: true, sebep: 'prompt-yok'}` yazdı ve hat iki adım sonra anlamsız bir
+   `NO_ADAPTATION` ile durdu. Seçim artık istem kurucusundan AYRI: başarısızlık
+   `TEMPLATE_SELECTION_FAILED` ile, puanlarıyla birlikte deftere giriyor.
+2. **Eleme kuralı iki yönlüydü.** `metin-uret` 11 satır üretti; şablonlar 3–8 kart
+   istiyordu ve **altı şablonun altısı birden elendi.** Yanlış olan metin değil kuraldı:
+   yazar CÜMLE üretiyor, karosel KART taşıyor. Kural asimetrik oldu — fazlayı uyarlama
+   birleştirir, eksiği uyduramaz.
+3. **Sağlayıcı çıktı şekli üç adla geliyor.** Ayrıştırıcı yalnız `{text}` biliyordu;
+   `claude-code` `{result}` döndürüyor ve hat `ADAPTATION_UNPARSEABLE` ile durdu.
+   `metneCevir` üç adı da (`result`/`text`/`content`) zaten biliyordu — ikinci bir liste
+   yazmak D-227'nin birebir tekrarıydı.
+
+**Geri alma maliyeti:** düşük — katalog dalları kısıtla açılıyor (`katalog: true`,
+`sablon_uyarla: true`); kısıt yoksa eski yol aynen koşuyor.

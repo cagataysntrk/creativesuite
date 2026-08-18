@@ -5,12 +5,12 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 13
-siradaki_adim: 9.1
-son_guncelleme: 2026-08-17
+aktif_faz: 15
+siradaki_adim: 15.9
+son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "MIMARI DEGISIM KAYIT ALTINA ALINDI (D-268): KATALOG MERKEZLI URETIM, SERBEST URETIM YOK. Tek gramer + parametre yaklasimi yedi aile verdi ve izgaraya bakinca TEK TASARIMIN YEDI BOYASI gorundu; kompozisyon (bolme, aci, akis, oge yerlesimi) sablon.ts e gomuluydu ve aile yalniz renk/susleme diyebiliyordu. Ayrica sureklilik IMA EDILIYORDU — her slayt ayri render edilirken surekli gorunmek imkansiz. YENI MODEL: panorama.ts, N x 1080 TEK TUVAL sonra dilimleme (translateX + N ekran goruntusu, goruntu kutuphanesi bagimliligi yok); kesimi asan oge ICERIKTEN turer (veri egrisi, kemer, kesik oznenin kolu, akan oklar). katalog.ts alti sablon (bes referanstan olculdu), hedef 20-30; her kayit gorsel ihtiyacini ILAN EDIYOR ve kullanilabilir bayragi tasiyor. GORSEL URETIMI CALISIYOR: cloudflare-workers-ai bedava serit, sops exec-env ile. Kesik ozne icin arka plan silme modeli GEREKMEDI — brief duz siyah zemin istiyor, alfa matlama luma anahtariyla turetiliyor. GARANTI KATMANI DEGISMEDI: kontrast, Turkce tasma, chroma tavani, R-20 hala olcum olarak ustte; kartRenkleri metin rengini zeminden TURETIYOR. Eski yol (sablon.ts + AileProfili + slayt basina render) yasiyor, tasarim kapisi ve goldenlar ona bagli; yeni sablonlar KATALOGA yaziliyor, birlestirme ayri adim. KARARLAR 595/600 idi — D-255..D-258 arsive tasindi (442 -> D-268 ile 491), atif butunlugu korundu. CLAUDE.md ye 13. yasa ve katalog yolu eklendi."
+son_kanit: "KATALOG SISTEMIN MERKEZINE BAGLANDI (FAZ-15.1-15.8 kapali, 15.9 devam). ONUNCU ZINCIR KOPUKLUGU BULUNDU (D-270): panorama render, alti sablonluk katalog, dolu ornek belgeler, secici, uyarlayici ve DOM denetimi yazilmis ve renderPanorama nin URETIM YOLUNDA SIFIR CAGIRANI vardi — mimarinin tamami just uret ten erisilemezdi. Yeni hat instagram-karosel: metin -> sablon secimi (deterministik, icerigin olculen seklinden) -> agent DOLU taslagi uyarliyor -> COMPOSE birlestiriyor -> RENDER tek genis tuval + dilimleme + DOM denetimi -> agent bakiyor -> insan kapisi. GERCEK KOSU UC KUSUR OGRETTI: (1) zorunlu adim sessizce atlandi (prompt bos -> atlandi), (2) eleme kurali iki yonluydu ve 11 satirlik metin ALTI SABLONU birden eledi — kural asimetrik oldu: fazla birlestirilir eksik uydurulamaz, (3) saglayici cikti sekli result/text/content ve ayristirici yalniz text biliyordu. OLCULEN KAZANIMLAR: Archivo genislik ekseni acildi (ayni kelime wdth 62 de 580px, 125 te 1001px = 1.73x) ve punto sabit 82px yerine OLCULEN tavandan turiyor; on alti sabit rgba(255,255,255) silindi (kagit zeminli iki sablonun tum panelleri gorunmezdi); zemin recetesi degrade+isik+tarama+vinyet+gren, gren bantlasmayi 36px ten 8px e indiriyor (olculdu). ESKI YOL HALA YASIYOR: instagram-post + sablon.ts + AileProfili, emeklilik FAZ-15.9 un kalanı."
 ```
 
 ## Neredeyiz
@@ -38,57 +38,53 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 | Adım | Tarih |
 |---|---|
-| **13.1** · kompozisyon ölçümü RAPOR; ilk metrik gramerin ritmini kusur sanıyordu | 2026-08-17 |
-| **13.2** · katman yığını VERİ; üç z-index beraberliği kazaydı, çıktı piksel-özdeş | 2026-08-17 |
-| **13.4** · çeşitlilik parmak izi; iki aile 6 alanın YALNIZ 2'sinde ayrışıyor | 2026-08-17 |
-| **13.5** · `design.critique` estetik eksen; ölçüm ve yargı aynı kusuru buldu | 2026-08-17 |
-| **13.6** · kör kabul; AYNI SINIF ama yargıcın gürültüsü ölçülen farkla aynı boyda | 2026-08-17 |
+| **15.1** · "ne kurmalı" ÖLÇÜLDÜ → hiçbir şey; üç eksen vardı ve kullanılmıyordu | 2026-08-18 |
+| **15.2** · genişlik ekseni açıldı; punto sabit 82px değil ÖLÇÜLEN tavandan | 2026-08-18 |
+| **15.3** · zemin reçetesi; gren bantlaşmayı 36px→8px indiriyor (ölçüldü) | 2026-08-18 |
+| **15.4** · katalog DOLU taslak; altı örnek belge, hepsi kaynak beyan ediyor | 2026-08-18 |
+| **15.5** · altı şablon render edilip BAKILDI; beş kusur bulundu ve kapatıldı | 2026-08-18 |
+| **15.6** · `sablonSec` içeriğin ölçülen şeklinden; gerekçesiz seçim yok | 2026-08-18 |
+| **15.7** · `uyarla`; kompozisyon KİLİTLİ, yapısal alan şemada YOK | 2026-08-18 |
+| **15.8** · DOM denetimi + düzeltme turu; 4 ihlal denendi, 4'ü kırmızıya döndü | 2026-08-18 |
+| **15.10** · kullanım belgesi + mimari denetimi; hat gerçek koşu defterine dayanıyor | 2026-08-18 |
 
 ## Sıradaki adım
 
-## ⚠ MİMARİ DEĞİŞTİ: KATALOG MERKEZLİ ÜRETİM (D-268)
+## FAZ 15 — KATALOG MERKEZLİ ÜRETİM (D-268 · D-269 · D-270)
 
-**Serbest üretim YOK.** Hat bir düzen icat etmiyor; **kataloğdan bir şablon seçiyor**,
-içeriği ve görselleri onun yuvalarına üretiyor. Üretkenlik kompozisyonda değil,
-**içerikte ve görsellikte.**
+**Serbest üretim YOK.** Hat düzen icat etmiyor: katalogdan şablon SEÇİYOR, agent onun
+**dolu taslağını** konuya uyarlıyor. Üretkenlik kompozisyonda değil içerikte.
 
-**Neden değişti:** tek gramer + parametre yaklaşımı yedi "aile" verdi ve ızgaraya bakınca
-**tek tasarımın yedi boyası** göründü. Kompozisyon (bölme, açı, akış, öge yerleşimi)
-`sablon.ts`'e gömülüydü; aile yalnız renk ve süsleme diyebiliyordu. Ayrıca süreklilik
-**ima ediliyordu** — her slayt ayrı render edilirken sürekli görünmek imkânsız.
+**15.1–15.8 KAPALI · 15.9 DEVAM · 15.10 belge yazıldı.**
 
-**Yeni model — kesintisiz (seamless) karosel:**
-- `packages/render/src/panorama.ts` — `N × 1080` **tek tuval**, sonra dilimleme
-  (`translateX` + N ekran görüntüsü; görüntü kütüphanesi bağımlılığı yok)
-- **Kesimi aşan öge İÇERİKTEN türer**: veri eğrisi · kemer dizisi · kesik öznenin kolu ·
-  akan oklar. Süs olsaydı silinebilirdi.
-- `packages/contracts/src/katalog.ts` — **altı şablon**, hedef 20–30. Beşi referans
-  örneklerden ölçüldü, biri panorama referansından.
+| Adım | Ne yapıldı | Ölçüm |
+|---|---|---|
+| **15.1** | "Ne kurmalı" ÖLÇÜLDÜ → hiçbir şey (D-269) | üç eksen vardı, kullanılmıyordu |
+| **15.2** | `Archivo` genişlik ekseni açıldı; punto ölçülen tavandan | `wdth 62`→580px, `125`→1001px |
+| **15.3** | Zemin reçetesi: degrade·ışık·tarama·vinyet·gren | bant 36px → 8px |
+| **15.4** | Katalog DOLU taslak: altı `KatalogOrnegi` | her kart kaynak beyan ediyor |
+| **15.5** | Altı şablon render edilip BAKILDI | 5 kusur bulundu ve kapatıldı |
+| **15.6** | `sablonSec` — içeriğin ölçülen şeklinden | 5 sinyal, gerekçeli |
+| **15.7** | `uyarla` — kompozisyon KİLİTLİ, içerik serbest | yapısal alan şemada yok |
+| **15.8** | DOM denetimi + düzeltme turu (tavan 2) | 4 ihlal denendi, 4'ü kırmızı |
 
-| Şablon | Kaynak | Taşıyıcı | Görsel |
-|---|---|---|---|
-| `veri-hikayesi` | panorama ref. | veri eğrisi | — |
-| `akan-alan` | ornek-5 | yatay eğri sınır | — |
-| `sahne` | ornek-1 | kesik özne + oklar | `kesik` |
-| `memphis` | ornek-3 | leke dili | `kesik` |
-| `donen` | ornek-2 | renk rotasyonu | `daire` |
-| `editoryal` | ornek-4 | tam kaplama fotoğraf | `tam` |
+⚠ **15.9 — ONUNCU ZİNCİR KOPUKLUĞU (D-270).** `renderPanorama`nın üretim yolunda SIFIR
+çağıranı vardı: mimarinin tamamı `just uret`ten erişilemezdi. `instagram-karosel` hattı
+yazıldı, `bodies.ts`e üç dal bağlandı (`GENERATE` uyarlama · `COMPOSE` katalog ·
+`RENDER` panorama), `katalog-dikis.test.ts` çağıranı SAYIYOR.
 
-**Görsel üretimi ÇALIŞIYOR:** `cloudflare-workers-ai`, bedava şerit. Koşular
-`sops exec-env secrets/secrets.enc.yaml "..."` ile başlatılır — anahtarsız koşuda hat
-*"yerel önkoşul sağlanmadı"* der ve bu **sağlayıcı yokluğu DEĞİLDİR** (bir tur bu
-karıştırıldı). Kesik özne için arka plan silme modeli gerekmiyor: brief düz siyah zemin
-istiyor, alfa `matlama` işlemiyle o zeminin parlaklığından türetiliyor.
+**Gerçek koşu üç kusur öğretti** (hiçbiri testle bulunamazdı):
+1. Zorunlu adım sessizce atlandı (boş istem → `atlandi`) → artık `TEMPLATE_SELECTION_FAILED`
+2. Eleme iki yönlüydü; 11 satır ALTI şablonu birden eledi → kural asimetrik
+3. Sağlayıcı `{result}` döndürüyor, ayrıştırıcı `{text}` biliyordu → üç ad da tanınıyor
 
-⚠ **Görsel brief'i İNGİLİZCE ve BÜYÜK HARFSİZ** — R-20 muhafızı büyük harfli öbeği
-"metin çizdirme isteği" sayıyor ve `no texture` içindeki `no text` alt dizesini yakalıyor.
+**15.9 KALANI:** eski slayt-başına yolu (`instagram-post` · `sablon.ts` · `AileProfili` ·
+`aileSec`) `docs/arsiv/` altına emekliye ayır; `tasarim`/`cesitlilik` kapılarını ve
+goldenları panoramaya yönlendir (kapı sayısı DÜŞMEYECEK).
 
-**Sıradaki iş:** katalog 6 → 20-30. Her yeni şablon: referans oku → panorama modeline
-kur → gerçek içerik+görselle render et → **BAK** → `kullanilabilir` bayrağını ölçümle koy.
-Çıktılar `content/katalog/` (türetilmiş, gitignore'lu).
+**Koşu:** `sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "<konu>"'`
+**Belge:** `docs/referans/katalog-merkezli-hat.md` — akış, seçim tablosu, dosya yapısı.
 
-⚠ Eski yol (`sablon.ts` + `AileProfili` + slayt başına render) YAŞIYOR: `tasarim` kapısı
-ve golden'lar ona bağlı. **Yeni şablonlar kataloğa yazılır**; ikisini birleştirmek ayrı adım.
 ⚠ FAZ-12 çıkış kriteri hâlâ açık: kabul sayacı 0/20.
 
 ## Devreden borçlar

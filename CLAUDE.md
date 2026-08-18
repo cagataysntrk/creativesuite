@@ -64,6 +64,7 @@ Tek anlamlı. `citations` kapısı her atıfın hedefte var olduğunu doğrular.
 | Bu adımda ne yapılacak | `docs/fazlar/FAZ-N.md` |
 | Döngü nasıl işliyor | `docs/LOOP.md` |
 | Ham araştırma | `docs/research/` — `ctx_search` ile sorgula |
+| **Karosel nasıl üretiliyor** | `docs/referans/katalog-merkezli-hat.md` |
 | **Şablon kataloğu** | `packages/contracts/src/katalog.ts` — üretim buradan başlar |
 | Kesintisiz render | `packages/render/src/panorama.ts` — tek tuval, sonra dilimleme |
 
