@@ -51,7 +51,9 @@ export type Bant =
       /** Kemer dizisi — mimari/ritmik konularda eğrinin karşılığı. */
       readonly tip: 'kemer'
       readonly sayi: number
-      readonly madalyon: readonly { readonly x: number; readonly no: string; readonly ad: string }[]
+      // ⚠ `madalyon` KALDIRILDI (D-306): numaralı daire bir ROZETti — elle çizilmiş
+      // jenerik öge, R-81'in tam hedefi — ve altı şablonun HİÇBİRİ kullanmıyordu.
+      // Kemerin kendisi kompozisyon (yay), rozet süstü.
     }
   | {
       /**
@@ -772,15 +774,7 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
   }).join('')
   return (
     `<svg class="bant-kemer" viewBox="0 0 ${toplamGenislik} ${yukseklik}" ` +
-    `preserveAspectRatio="none" aria-hidden="true">${kemerler}</svg>` +
-    b.madalyon
-      .map(
-        (m) =>
-          `<div class="madalyon" style="left:${(m.x / 100) * toplamGenislik}px">` +
-          `<span class="madalyon-no">${kacir(m.no)}</span>` +
-          `<span class="madalyon-ad">${kacir(m.ad)}</span></div>`
-      )
-      .join('')
+    `preserveAspectRatio="none" aria-hidden="true">${kemerler}</svg>`
   )
 }
 
@@ -1324,14 +1318,6 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kilometre-etiket { font-size: 16px; letter-spacing: 0.1em; color: var(--pano-metin);`,
     `                      white-space: nowrap; font-weight: 600;`,
     `                      font-variant-numeric: tabular-nums }`,
-    `  .madalyon { position: absolute; bottom: 128px; z-index: 3; transform: translateX(-50%);`,
-    `              text-align: center }`,
-    `  .madalyon-no { display: flex; width: 46px; height: 46px; border-radius: 50%;`,
-    `                 border: 2px solid var(--pano-aksan); color: var(--pano-aksan);`,
-    `                 align-items: center; font-variant-numeric: tabular-nums;`,
-    `                 justify-content: center; font-weight: 800; margin: 0 auto 7px;`,
-    `                 background: ${doc.zemin} }`,
-    `  .madalyon-ad { font-size: 15px; letter-spacing: 0.14em; color: ${sol('--pano-metin', 75)} }`,
     // ── alt ray: her slaytta aynı yerde, ritmi taşıyan tekrar ────────────────
     // ⚠ Ray `.gorsel`in (z-index 4) ÜSTÜNDE: alt kenardan taşan kesik özne rayı örtüyordu
     // ve marka imzası ile kaynak satırı görünmez oluyordu. Ölçüldü, D-300.

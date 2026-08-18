@@ -80,10 +80,16 @@ describe('zeminden türeyen renk', () => {
     expect(html).not.toMatch(/rgba\(255,\s*255,\s*255/)
   })
 
+  // ⚠ Eskiden `color-mix(in oklab, var(--pano-metin)` aranıyordu; o kullanım
+  // `.madalyon-ad`daydı ve madalyon silindi (D-306). Değişmez aynı — kart DIŞI ögelerin
+  // rengi belgeden türüyor — ama kanıtı artık DOĞRUDAN kullanımda: `.kilometre-etiket`.
+  // Silinen bir ögenin izini aramak, kuralı değil o ögeyi test etmek olurdu.
   it('kart dışı ögeler `--pano-metin`den türüyor', () => {
     const html = panoramaHtml(belge())
     expect(html).toContain('--pano-metin:')
-    expect(html).toContain('color-mix(in oklab, var(--pano-metin)')
+    expect(html).toContain('color: var(--pano-metin)')
+    // Kart dışı hiçbir öge sabit renk taşımıyor.
+    expect(html).not.toMatch(/\.kilometre-etiket[^}]*color:\s*#/)
   })
 
   it('kâğıt zeminde metin MÜREKKEP, koyu zeminde YÜZEY', () => {

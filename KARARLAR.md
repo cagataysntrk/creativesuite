@@ -538,3 +538,26 @@ söylediği şey. +1 tolerans bir Türkçe ekine pay bırakıyor.
 
 İstem bütçeyi açıkça yazıyor, `uyarla` aşanı reddediyor — yalnız reddetmek modeli her
 koşuda aynı duvara çarptırıp bir tur yakardı.
+
+## D-306
+
+**Numaralı rozet silindi — elle çizilmiş jenerik öge, sıfır üretim yolu.**
+
+`.madalyon-no`: 46 px'lik, 2 px kenarlıklı, içinde numara duran bir daire. Depo
+sahibinin *"şu aptal dairemsi renkli topları kaldır, bunlar web tasarım duruyor"*
+dediği sınıfın tam örneği ve R-81'in birebir hedefi (rozet).
+
+**Üretim yolu YOKTU.** `bant.tip: 'kemer'` varyantına aitti; altı şablonun hiçbiri
+`kemer` kullanmıyor, altısında da `madalyon` dizisi boş. Yani kural ihlali ile ölü kod
+aynı satırdaydı.
+
+**Kemerin kendisi kaldı.** Yay bir KOMPOZİSYON ögesi — tuvali bölen bir çizgi, süs
+değil. Silinmesi gereken şey, o yayın üstüne oturtulan rozetti.
+
+**`.kilometre-nokta` (13 px) KALDI ve kalmalı.** O bir süs değil, veri eğrisi üstünde
+bir kilometre taşını işaretliyor — R-81'in veri görselleştirmesi istisnası. `panorama.ts`
+şimdi üç `border-radius: 50%` taşıyor: ikisi `donen` şablonunun daire KIRPMASI (içi
+fotoğrafla dolu), biri bu nokta.
+
+Kapı tavanı 4'ten **3'e indirildi** — gevşetme değil sıkma; sahte bir rozet eklenince
+kırmızıya dönüyor (denendi).

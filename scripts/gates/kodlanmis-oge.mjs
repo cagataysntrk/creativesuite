@@ -84,9 +84,12 @@ const TAVAN = {
   'sablon-susleme.ts_svg': { 'svg-cizgi': 2, 'svg-cember': 3, 'svg-dikdortgen': 1, 'svg-yol': 2 },
   'static.ts_svg': { 'svg-cizgi': 1, 'svg-yol': 1 },
   'zemin.ts_svg': { 'svg-dikdortgen': 1 },
-  // `.gorsel.daire` ve `.gorsel-yer.daire` KIRPMA (donen şablonunun daire maskesi);
-  // `.kilometre-nokta` (13px) ve `.madalyon-no` (46px) elle çizilmiş öge — DONDURULDU.
-  'panorama.ts': { daire: 4, 'kirpma-yolu': 0, cokgen: 0, 'sozde-oge': 0, 'ucgen-kenar': 0 },
+  // `.gorsel.daire` ve `.gorsel-yer.daire` KIRPMA (donen şablonunun daire maskesi).
+  // ⚠ 4'ten 3'e İNDİ: `.madalyon-no` (46px numaralı rozet) silindi — elle çizilmiş
+  // jenerik öge ve altı şablonun hiçbiri kullanmıyordu (D-306). Kalan tek çizilmiş
+  // daire `.kilometre-nokta` (13px) ve o VERİ: eğri üstünde bir kilometre taşını
+  // işaretliyor, R-81'in veri görselleştirmesi istisnası.
+  'panorama.ts': { daire: 3, 'kirpma-yolu': 0, cokgen: 0, 'sozde-oge': 0, 'ucgen-kenar': 0 },
   // ⚠ Tavan 4 değil 1: ilk sayım YORUMLARI da sayıyordu. `clip-path: circle(50%)` KODDA
   // bir kez geçiyor, kalan üçü o kararın neden böyle olduğunu anlatan açıklama satırları.
   'static.ts': { daire: 0, 'kirpma-yolu': 1, cokgen: 0, 'sozde-oge': 0, 'ucgen-kenar': 0 },
