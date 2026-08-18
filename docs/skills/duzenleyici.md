@@ -26,6 +26,17 @@ kullanılabilir.
 
 ⚠ Şablon yazımı bir **öneri**dir (Yasa 2): `git diff` ile bak, onay senin commit'in.
 
+## Kendi görselini koymak
+
+✥ taşı modunda bir görsele tıkla → sağdaki **GÖRSEL** bölümünden dosya seç. Kutu
+konumu, kırpma biçimi (`kesik` · `daire`) ve **alt metni** de orada.
+
+⚠ Yalnız **KOŞU** modunda çalışır. Şablona sabit fotoğraf konmaz: o şablondan
+üretilecek her karosel aynı fotoğrafı taşırdı.
+
+⚠ Hattın ürettiği görselin **üstüne yazılmaz** — elle konan dosya `-elle` ekiyle
+yanına iner ve ikisi karşılaştırılabilir kalır.
+
 ## Sınırlar — bilerek
 
 - Metne **mutlak konum verilmez**; verilen şey ızgaranın üstünde sınırlı bir pay

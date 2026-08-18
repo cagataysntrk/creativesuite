@@ -12,6 +12,15 @@
 // ⚠ Politika ("yoruma backtick yazma") altı kez denendi ve altı kez tutmadı. Yapı
 // tutuyor: burada backtick YASAL, çünkü artık bir dizenin içinde değiliz.
 const $ = (s) => document.querySelector(s)
+
+// ⚠ Eylem sonucu ölçüm panelinden AYRI: ölçüm her düzenlemeden sonra koşuyor ve
+// aynı yüzeyi paylaşsalardı sonucu silerdi (bir kez oldu: görsel koyma reddi hiç
+// görünmedi ve işlem başarılı sanıldı).
+const mesaj = (metin) => {
+  const m = $('#mesaj')
+  m.textContent = metin
+  m.className = metin.startsWith('✗') ? 'hata' : metin.startsWith('✓') ? 'iyi' : ''
+}
 let id = $('#sablon').value,
   olcek = 0.34,
   gecmis = []
@@ -153,6 +162,12 @@ function mufettisiKur(doc) {
     p.textContent =
       duzenMod === 'tasi' ? 'Tuvalde bir metne tıkla.' : '✥ taşı moduna geçip bir ögeye tıkla.'
     kok.appendChild(p)
+  } else if (secili.alan === 'gorsel') {
+    // Görselin alanları kendi bölümünde; burada yalnız ne seçili olduğu yazıyor.
+    const p = document.createElement('div')
+    p.className = 'bos'
+    p.textContent = 'görsel ' + (secili.i + 1) + ' — alanları aşağıda'
+    kok.appendChild(p)
   } else {
     const a = (doc.kartlar[secili.i]?.ayar ?? {})[secili.alan] ?? {}
     const yazAyar = (k, v) =>
@@ -192,6 +207,48 @@ function mufettisiKur(doc) {
       void yaz({ tur: 'sil', i: s.i, alan: s.alan })
     }
     kok.appendChild(b)
+  }
+
+  // ── görsel ──
+  if (secili !== null && secili.alan === 'gorsel') {
+    const g = doc.gorseller[secili.i] ?? {}
+    const yazG = (alan, v) => yaz({ tur: 'gorsel-alan', i: secili.i, alan, deger: v })
+    baslikEkle(kok, 'GÖRSEL ' + (secili.i + 1))
+    for (const a of [
+      { ad: 'x', etiket: 'sol (%)', min: -20, max: 100, adim: 0.1 },
+      { ad: 'y', etiket: 'üst (%)', min: -20, max: 100, adim: 0.1 },
+      { ad: 'genislik', etiket: 'genişlik (%)', min: 2, max: 60, adim: 0.1 },
+      { ad: 'yukseklik', etiket: 'yükseklik (%)', min: 5, max: 120, adim: 0.5 },
+    ]) {
+      if (g[a.ad] === undefined) continue
+      kok.appendChild(kaydirak(g[a.ad], a, (v) => yazG(a.ad, v)))
+    }
+    kok.appendChild(
+      secim('kırpma', g.kirpma ?? '', ['', 'kesik', 'daire'], (v) => yazG('kirpma', v))
+    )
+    // ⚠ `alt` YAYIN KAPISI için zorunlu (R-34): Türkçe, ≤125 karakter. Editörde
+    // sormak, kapıda öğrenmekten ucuz.
+    kok.appendChild(metinKutusu('alt metin (TR, ≤125)', g.alt, (v) => yazG('alt', v)))
+
+    const dosya = document.createElement('input')
+    dosya.type = 'file'
+    dosya.accept = 'image/png,image/jpeg,image/webp'
+    dosya.onchange = () => {
+      const f = dosya.files?.[0]
+      if (f === undefined) return
+      const fr = new FileReader()
+      fr.onload = async () => {
+        const veri = String(fr.result).split(',')[1]
+        const r = await fetch('/gorsel-koy?id=' + id, {
+          method: 'POST',
+          body: JSON.stringify({ i: secili.i, veri, mime: f.type }),
+        })
+        mesaj(await r.text())
+        await cek()
+      }
+      fr.readAsDataURL(f)
+    }
+    kok.appendChild(el('kendi görselini koy', dosya))
   }
 
   // ── kart ──
@@ -365,6 +422,13 @@ function bagla(d, doc) {
     }
   )
   d.querySelectorAll('.gorsel,.gorsel-yer').forEach((e, i) => {
+    // ⚠ Görsel de SEÇİLEBİLİR: müfettiş onun alanlarını (kırpma, alt metin, kutu)
+    // ancak seçiliyken gösterebilir. Sürüklemeden önce seçim yapılıyor, sonra değil —
+    // yoksa panel her sürükleyişte bir kare geriden gelirdi.
+    e.addEventListener('pointerdown', () => {
+      secili = { i, alan: 'gorsel', e }
+      mufettisiKur(doc)
+    })
     e.style.cursor = 'move'
     e.style.outline = '1px dashed rgba(90,169,230,.5)'
     e.addEventListener('pointerdown', (ev) => {
@@ -453,7 +517,7 @@ $('#mod').onclick = () => {
 // belgeden düşüyor — ekranda boş bir kutu kalmıyor.
 const sil = async () => {
   if (secili === null) {
-    $('#kusur').textContent = '⚠ önce ✥ TAŞI moduna geç ve silinecek ögeye tıkla'
+    mesaj('⚠ önce ✥ TAŞI moduna geç ve silinecek ögeye tıkla')
     return
   }
   const { i, alan } = secili
@@ -492,7 +556,7 @@ $('#geri').onclick = async () => {
 }
 $('#kaydet').onclick = async () => {
   const r = await fetch('/kaydet?id=' + id, { method: 'POST' })
-  $('#kusur').textContent = await r.text()
+  mesaj(await r.text())
 }
 // ⚠ Rampa ÖNCE okunuyor, sonra ilk çizim: panel açıldığı anda renk seçenekleri
 // dolu olmalı. Sonradan yüklemek, ilk açılışta boş bir renk listesi gösterirdi.

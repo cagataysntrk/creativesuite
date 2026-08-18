@@ -39,7 +39,7 @@ hedefi, düzenleme döngüsü değil) · Yasa 4 · Yasa 11 · Yasa 13
 🧪 Rampa dışı renk seç → editör reddediyor
 💾 `feat(cli): tipografi ve zemin paneli` · `Refs: FAZ-16.2 · §12.1`
 
-## 16.3 — Öge ekleme: kendi görselini koy    [ ]
+## 16.3 — Öge ekleme: kendi görselini koy    [x]
 
 📖 §7.2 · R-20
 🔗 FAZ-16.1

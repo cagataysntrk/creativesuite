@@ -87,7 +87,7 @@ import { providerCall } from '../provider-call.js'
 import { prospectDeckZinciri } from '../prospect-deck.js'
 import type { Kaynak, KisiselAlan } from '@suite/kernel'
 import { dirname, join } from 'node:path'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 
 /** Gövdelere geçen girdi. `inputs` önceki adımların çıktıları — id ile anahtarlı. */
@@ -762,8 +762,19 @@ export const panoramaBelgesiniYaz = (
     const src = (g as { readonly src?: unknown }).src
     if (typeof src !== 'string' || !src.startsWith('data:')) return g
     const virgul = src.indexOf(',')
-    const ad = `gorsel-${String(i + 1).padStart(2, '0')}.${uzanti(src.slice(5, virgul))}`
-    writeFileSync(join(dizin, ad), Buffer.from(src.slice(virgul + 1), 'base64'))
+    const bayt = Buffer.from(src.slice(virgul + 1), 'base64')
+    const kok = `gorsel-${String(i + 1).padStart(2, '0')}`
+    const uz = uzanti(src.slice(5, virgul))
+    // ⚠ ⚠ **VAR OLAN VE FARKLI OLAN DOSYANIN ÜSTÜNE YAZILMIYOR.** Elle konan bir
+    // görsel kaydedilirken bu fonksiyon aynı adı yeniden üretiyordu ve hattın
+    // ürettiği kesik özneyi eziyordu. Bir testte tam bu oldu: 1,1 MB'lık üretim
+    // 209 baytlık bir kareye döndü ve geri getirilemedi — o görsel para ve
+    // rastgelelikle üretilmişti. Byte'lar aynıysa yazmak zararsız; farklıysa
+    // `-elle` ekiyle YANINA yazılıyor ve ikisi karşılaştırılabilir kalıyor.
+    const asilYol = join(dizin, `${kok}.${uz}`)
+    const ayni = existsSync(asilYol) && Buffer.compare(readFileSync(asilYol), bayt) === 0
+    const ad = existsSync(asilYol) && !ayni ? `${kok}-elle.${uz}` : `${kok}.${uz}`
+    writeFileSync(join(dizin, ad), bayt)
     return { ...g, src: ad }
   })
   const kalan: Record<string, unknown> = { ...doc, gorseller }

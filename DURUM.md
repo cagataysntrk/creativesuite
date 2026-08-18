@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 16
-siradaki_adim: 16.3
+siradaki_adim: 16.6
 son_guncelleme: 2026-08-18
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "MUFETTIS PANELI GELDI (16.2) + 16.5 KAPANDI. Editor artik veri modelinde ne varsa onu duzenliyor: SECILI OGE (yatay/dikey kaydirma, punto carpani, sil), KART (kolon, zemin, hayalet, alt ray sol/kaynak), BELGE (dikey yerlesim, belge zemini), TIPOGRAFI (dokuz kaydirak: baslik payi, genislik, agirlik, satir araligi, harf arasi, ust genislik, govde orani, baslik sutunu, panel olcegi). Panel VERIDEN turuyor - alan tablosuna bir satir eklemek yetiyor, elle form yazilmiyor. Renk SERBEST DEGIL: marka rampasindan (12 rol) okunuyor, turetilmis token dosyasindan; serbest hex R-35 ihlali. Her denetim ANINDA yaziyor ve render yeniden kosuyor - 'uygula' dugmesi yok, cunku tasarim karari gozle verilir. Klavye: ok 1 px, Shift+ok 10 px. Olculdu: tipografi 800->500, kart kolonu sag, kart zemini var(--role-surface) - ucu de canli uygulandi VE katalog dosyasina yazildi (yeni alanlar EKLENDI, var olan sayi degistirildi, dosya derlendi, ayni veri geri okundu). 16.5: just setup artik uretim onkosullarini da sayiyor ve ucuz olanlari kuruyor; brd_dima token'i kaldirilinca cikis kodu 1 ve eksik ADIYLA bildirildi."
+son_kanit: "16.3 KAPANDI: kendi gorselini yuvaya koyma. Iki kok karar. (1) SABLONA SABIT FOTOGRAF KONMUYOR - katalog taslagi bir DUZEN, yuvasi bos cunku her kosuda o konunun gorseli dolduruyor; taslaga fotograf gommek o sablondan uretilecek BUTUN gelecek karosellerin ayni fotografi tasimasi demekti (Yasa 13). Editor bunu acik metinle reddediyor, kosuda kabul ediyor. (2) URETILMIS GORSELIN USTUNE YAZILMIYOR: bir testte gercek bir kosunun 1,1 MB'lik kesik oznesini 209 baytlik bir kareye cevirdim ve geri getirilemedi - o gorsel para ve rastgelelikle uretilmisti. Artik elle konan varlik '-elle' ekiyle yaninda yasiyor; koruma hem editorde hem panoramaBelgesiniYaz'da, cunku kaydetme yolu adi yeniden uretiyordu. AYRICA UI KOK ONARIMI: eylem mesaji ile olcum paneli AYRI satirlara alindi - ayni yuzeyi paylasiyorlardi ve her duzenlemeden sonra kosan olcum mesaji siliyordu; sablona gorsel koyma reddi ekranda HIC gorunmedi ve islem basarili sanildi. Sureğen bir olcumle gecici bir sonuc ayni yuzeyi paylasamaz. Mufettiste GORSEL bolumu: sol/ust/genislik/yukseklik kaydiraklari, kirpma secimi, alt metin (R-34) ve dosya secici."
 ```
 
 ## Neredeyiz
@@ -38,6 +38,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **16.4** · `SKILLS.md` + iki beceri dosyası; sıfır bağlamla tek komut | 2026-08-18 |
 | **16.5** · `just setup` üretim önkoşullarını da sayıyor; eksik ADIYLA, çıkış kodu 1 | 2026-08-18 |
 | **16.2** · müfettiş paneli: tipografi, kart, belge, seçili öge — hepsi canlı ve dosyaya yazıyor | 2026-08-18 |
+| **16.3** · kendi görselini koy; şablona sabit fotoğraf REDDEDİLİYOR, üretilen ezilmiyor | 2026-08-18 |
 
 ## Sıradaki adım
 

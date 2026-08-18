@@ -151,6 +151,15 @@ const KABUK = (
   #kilavuz b{position:absolute;top:4px;font:11px/1 ui-monospace,monospace;
     color:rgba(255,96,96,.8);transform:translateX(6px)}
   #ipucu{margin-left:auto;opacity:.62;font-size:12.5px}
+  /* ⚠ ⚠ **EYLEM MESAJI ile ÖLÇÜM AYRI SATIRLAR.** İkisi aynı yeri paylaşıyordu ve
+     her eylemden sonra koşan ölçüm mesajı SİLİYORDU: şablona görsel koyma reddi
+     ekranda hiç görünmedi, kullanıcı işlemin başarılı olduğunu sanırdı. Süreğen bir
+     ölçümle geçici bir sonuç aynı yüzeyi paylaşamaz. */
+  #mesaj{padding:0 16px;background:#1b1f26;font:12.5px/2.2 ui-monospace,monospace;
+    white-space:pre-wrap;border-top:1px solid var(--kenar);min-height:0;transition:.15s}
+  #mesaj:empty{padding:0;border:0}
+  #mesaj.hata{color:#ff9b9b}
+  #mesaj.iyi{color:#8fd18f}
   #kusur{padding:8px 16px;background:#1b1f26;border-top:1px solid var(--kenar);
     font:12.5px/1.5 ui-monospace,monospace;white-space:pre-wrap;max-height:26vh;overflow:auto}
 </style>
@@ -179,6 +188,7 @@ const KABUK = (
   <div id="tuval"><div id="sahne-sarmal"><iframe id="pano"></iframe><div id="kilavuz"></div></div></div>
   <aside id="mufettis"></aside>
 </div>
+<div id="mesaj"></div>
 <div id="kusur">ölçüm bekleniyor…</div>
 <script type="module" src="/istemci.js"></script>`
 
@@ -519,6 +529,9 @@ const sunucu = createServer(async (req, res) => {
           delete kalan.ayar
           calisan[id].kartlar[d.i] = Object.keys(ayar).length === 0 ? kalan : { ...kalan, ayar }
         }
+      } else if (d.tur === 'gorsel-alan') {
+        const g = calisan[id].gorseller[d.i]
+        if (g) calisan[id].gorseller[d.i] = { ...g, [d.alan]: d.deger }
       } else if (d.tur === 'belge-alan') {
         // Belge kökündeki alan: `yerlesim`, `zemin`, `baslikSutunu`…
         calisan[id] = { ...calisan[id], [d.alan]: d.deger }
@@ -556,6 +569,47 @@ const sunucu = createServer(async (req, res) => {
         if (k && harita[alan]) k[harita[alan]] = d.deger.trim()
       }
       return json({ ok: true })
+    }
+    // ── elle görsel yerleştirme (FAZ-16.3) ─────────────────────────────────
+    //
+    // ⚠ ⚠ **ŞABLONA SABİT FOTOĞRAF KONMUYOR ve bu bir kısıt değil, kuralın kendisi.**
+    // Katalog taslağı bir DÜZEN; yuvası `src: ''` ile boş duruyor çünkü onu her koşuda
+    // o konunun görseli dolduruyor. Taslağa belirli bir fotoğraf gömmek, o şablondan
+    // üretilecek BÜTÜN gelecek karosellerin aynı fotoğrafı taşıması demekti — katalog
+    // mantığı (Yasa 13) tam olarak burada çökerdi.
+    //
+    // ⚠ Koşuya koymak meşru: orada görsel zaten o karoselin kendi varlığı. Dosya
+    // koşu dizinine yazılıyor ve belge onun ADINI taşıyor (D-302 referans biçimi).
+    if (u.pathname === '/gorsel-koy') {
+      const d = JSON.parse(await govde(req))
+      const k = kaynak[id]
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
+      if (k?.tur !== 'kosu')
+        return res.end(
+          '✗ şablona sabit görsel konmaz — o şablondan üretilecek HER karosel bu\n' +
+            '  fotoğrafı taşırdı (Yasa 13). Bir koşu seç ve oraya koy.'
+        )
+      const g = calisan[id].gorseller[d.i]
+      if (g === undefined) return res.end('✗ ' + (d.i + 1) + '. yuva yok')
+      const uz = (d.mime ?? '').includes('jpeg')
+        ? 'jpg'
+        : (d.mime ?? '').includes('webp')
+          ? 'webp'
+          : 'png'
+      // ⚠ ⚠ **ÜRETİLMİŞ GÖRSELİN ÜSTÜNE YAZILMIYOR — ayrı ada yazılıyor.**
+      // İlk sürüm `gorsel-NN.<uz>` diyordu ve bir testte gerçek bir koşunun 1,1 MB'lık
+      // kesik öznesini 209 baytlık bir kareye çevirdi. O görsel para ve rastgelelikle
+      // üretildi; geri getirilemez. Elle konan varlık `-elle` ekiyle yaşıyor, hattın
+      // ürettiği yerinde kalıyor — slaytlarda zaten uyguladığımız kural.
+      const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.' + uz
+      writeFileSync(join(k.dizin, ad), Buffer.from(d.veri, 'base64'))
+      calisan[id].gorseller[d.i] = {
+        ...g,
+        src: 'data:' + (d.mime ?? 'image/png') + ';base64,' + d.veri,
+      }
+      return res.end(
+        '✓ ' + ad + ' yuvaya kondu (' + Math.round((d.veri.length * 0.75) / 1024) + ' KB)'
+      )
     }
     if (u.pathname === '/geri') {
       if (yedek[id]) calisan[id] = structuredClone(yedek[id])
