@@ -140,6 +140,33 @@ describe('hayalet puntosu uzunluğa göre küçülüyor', () => {
   })
 })
 
+// ⚠ ⚠ **ZEMİN KOYULUĞU ADDAN DEĞİL AÇIKLIKTAN.** Eski sürüm token ADINDA 'ink' ya da
+// 'line-edge' arıyordu; `memphis`e lacivert bir kart zemini (`--ramp-marka-mavi-700`)
+// eklenince sessizce "açık" dedi ve koyu mavi üstüne koyu metin çizdi — slayt okunmaz
+// oldu. **Adı ölçmek, şeyi ölçmek değildir.**
+describe('kart metni zeminin AÇIKLIĞINA göre seçiliyor', () => {
+  const token =
+    ':root{--ramp-marka-mavi-700: oklch(0.408 0.092 252);' +
+    '--ramp-marka-kagit: oklch(0.962 0.006 90);--kart: var(--ramp-marka-mavi-700)}'
+  const kur = (zemin: string) => {
+    const b = belge()
+    return panoramaHtml({
+      ...b,
+      tokenCss: token,
+      kartlar: b.kartlar.map((k) => ({ ...k, zemin })),
+    })
+  }
+
+  it('lacivert kart KOYU sayılıyor — adında ink/line-edge geçmese bile', () => {
+    // Koyu kartta `acik` sınıfı OLMAMALI: o sınıf metni mürekkebe çeviriyor.
+    expect(kur('var(--ramp-marka-mavi-700)')).not.toContain('class="kart acik')
+  })
+
+  it('kâğıt kart AÇIK sayılıyor', () => {
+    expect(kur('var(--ramp-marka-kagit)')).toContain('class="kart acik')
+  })
+})
+
 describe('çubuk paneli', () => {
   // ⚠ Yuva olmadan `width: %` esnek kapsayıcıda çözülmüyordu ve üç satır da aynı boyda
   // küçük kare çiziyordu: grafik hiçbir şey anlatmıyordu.

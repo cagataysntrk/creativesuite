@@ -390,7 +390,11 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     // metnin daha az dikey yer kaplaması.
     // ⚠ 0,8 → 0,56: yan yana kompozisyonda metin kolonu figüre yer BIRAKMAK zorunda.
     // Genişken blok kadrajı boydan boya kesiyor ve "yan yana" iddiası çöküyor.
-    baslikSutunu: 0.56,
+    // ⚠ ⚠ **0,56 → 0,46 ve GEREKÇESİ ÖLÇÜLDÜ.** Yuva slaydın %52'sini tutuyor; %56'lık bir
+    // metin kolonu ona yer BIRAKMIYOR ve çakışma matematiksel olarak kaçınılmaz oluyordu
+    // (kart 3'te %40, kart 4'te %44 — ölçüldü, göz kararı değil). İki öge aynı kadrajı
+    // paylaşacaksa toplamları 100'ü geçemez; bu bir tasarım tercihi değil, aritmetik.
+    baslikSutunu: 0.46,
   },
   zemin: 'var(--role-line-edge)',
   zeminDokusu: {
@@ -452,6 +456,10 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       { x1: 67, y1: 75, x2: 84, y2: 69, bukum: -48 },
     ],
   },
+  // ⚠ ⚠ **ARALIKLAR KASTEN DÜZENSİZ (T9).** Depo sahibi: *"her şey çok dengeli;
+  // birkaç slaytta kasıtlı dengesizlik elle yapılmış hissi verir"*. Eşit aralıklı
+  // yerleşim bir ızgaranın imzasıdır, bir tasarımcının değil: göz düzenliliği hemen
+  // tanıyor ve "hesaplanmış" diyor. Kaymalar küçük (2–4 puan) ama ritmi kırmaya yetiyor.
   gorseller: [
     // ⚠ ⚠ **TEK ÖZNE, ÜÇ KOPYA DEĞİL — ve bunu gerçek bir koşu gösterdi.** Şablon üç
     // yuva ilan ediyordu; hat TEK görsel üretiyor ve `composeBody` onu üç yuvaya birden
@@ -485,10 +493,10 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     //
     // ⚠ Metin kolonu her karede öznenin KARŞI yanında (`kolon`): 12/24/62/74 sırasıyla
     // sağ · sol · sağ · sol kadrajı tutuyor, metin de sol · sağ · sol · sağ.
-    { src: '', alt: 'kesik özne', x: 12, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 24, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 62, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 74, y: 22, genislik: 13, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 12, y: 21, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 26, y: 23, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 61, y: 20, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne', x: 76, y: 24, genislik: 12, yukseklik: 78, kirpma: 'kesik' },
   ],
   // ⚠ ⚠ **HAYALETLER BOŞTU ve bu "dolu taslak" kuralını deliyordu.** Şablon taslak
   // demek BOŞ demek değil; agent çoğaltıp düzenleyeceği şeyi göremezse alanı ya
@@ -537,7 +545,6 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       hayalet: '04',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
-      // Özne bu karede SOLDA; metin karşı yana geçiyor.
       kolon: 'sag',
     },
   ],
@@ -609,27 +616,15 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     { src: '', alt: 'kesik özne — 2', x: 46, y: 54, genislik: 8, yukseklik: 46, kirpma: 'kesik' },
     { src: '', alt: 'kesik özne — 3', x: 80, y: 50, genislik: 8, yukseklik: 50, kirpma: 'kesik' },
   ],
-  lekeler: [
-    // ⚠ ⚠ **İKİSİ HACİMLİ, DÖRDÜ DÜZ — hepsi blob olsaydı Memphis olmaktan çıkardı.**
-    // Bu şablonun kimliği GEOMETRİK desen dili: halka, kare, tarama, nokta ızgarası.
-    // Hacimli organik şekil o dile bir KARŞITLIK katıyor (rehber §3: katmanlanma ve
-    // kontrast), yerine geçmiyor. Kullanıcının şartı buydu: zenginleştir ama aslına
-    // sadık kal.
-    // ⚠ ⚠ **ÖLÇEK REFERANSTAN ÖLÇÜLDÜ: leke slaytın ~%35'i, bizimki %12–19'du.**
-    // `image copy 4`te organik lekeler dev ve KESİM ÇİZGİLERİNİ AŞIYOR; küçük ve seyrek
-    // şekiller "dekoratif nokta" gibi okunuyordu, desen dili kurmuyordu. Altı slaytta
-    // kesimler %16,7 · %33,3 · %50 · %66,7 · %83,3 — üç leke kasten oraya oturtuldu.
-    // ⚠ İki aksan (mavi + amber): referans da iki aksanlı çalışıyor (turuncu+lacivert).
-    { tip: 'blob', x: 8, y: 74, boyut: 430, renk: 'var(--ramp-marka-mavi-500)' },
-    { tip: 'halka', x: 17, y: 20, boyut: 260, renk: 'var(--ramp-marka-ink-800)' },
-    { tip: 'blob', x: 33, y: 26, boyut: 380, renk: 'var(--ramp-marka-bakir-500)' },
-    { tip: 'tarama', x: 44, y: 78, boyut: 300, renk: 'var(--ramp-marka-ink-800)' },
-    { tip: 'nokta', x: 58, y: 22, boyut: 230, renk: 'var(--ramp-marka-mavi-600)' },
-    { tip: 'blob', x: 67, y: 76, boyut: 400, renk: 'var(--ramp-marka-mavi-200)' },
-    { tip: 'kare', x: 78, y: 20, boyut: 170, renk: 'var(--ramp-marka-bakir-500)' },
-    { tip: 'blob', x: 88, y: 70, boyut: 360, renk: 'var(--ramp-marka-bakir-500)' },
-    { tip: 'nokta', x: 96, y: 26, boyut: 210, renk: 'var(--ramp-marka-ink-800)' },
-  ],
+  // ⚠ ⚠ **LEKELER KALDIRILDI (depo sahibi: "şu aptal dairemsi renkli topları kaldır,
+  // bunlar web tasarım duruyor").** Referansta (`image copy 4`) gerçekten leke var — ama
+  // ORADA DEV, kenardan TAŞIYOR ve fotoğrafın ARKASINDA renk alanı kuruyor. Bizimkiler
+  // kadrajın ortasında yüzen küçük konfetiydi: aynı öge, ters iş. Ayrıca hepsi elle
+  // kodlanmış şekillerdi, yani R-81'in tam tarifi.
+  //
+  // ⚠ Kimlik SİLİNMEDİ, YER DEĞİŞTİRDİ: artık kart zeminlerinin RENK ROTASYONU taşıyor.
+  // Renk alanı bir kompozisyon kararıdır (alan, sınır, ritim); daire bir süstür.
+
   kartlar: [
     {
       elYazisi: 'Kendine sor',
@@ -640,6 +635,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '?',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-kagit)',
     },
     {
       ustBaslik: 'MALİYET',
@@ -649,6 +645,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '01',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-mavi-200)',
     },
     {
       ustBaslik: 'AYRIŞTIRMA',
@@ -666,6 +663,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '02',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-kagit)',
     },
     {
       ustBaslik: 'DÖNGÜ',
@@ -675,6 +673,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '03',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-bakir-200)',
     },
     {
       ustBaslik: 'ÖMÜR',
@@ -690,6 +689,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '04',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-kagit)',
     },
     {
       ustBaslik: 'YAPILACAK',
@@ -699,6 +699,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '05',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
+      zemin: 'var(--ramp-marka-mavi-700)',
     },
   ],
 }
@@ -760,18 +761,18 @@ export const ORNEK_DONEN: KatalogOrnegi = {
     { tip: 'daire', ust: true, x: 75, y: 68, boyut: 700, renk: 'rgba(255,255,255,0.07)' },
     // Ürünün arkasındaki beyaz daire — referansın (`image copy 3`) imzası. Merkezleri
     // ürün kutularıyla AYNI; boyutları üründen KÜÇÜK ki ürün taşsın.
-    { tip: 'daire', ust: true, x: 17, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
-    { tip: 'daire', ust: true, x: 42, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
-    { tip: 'daire', ust: true, x: 67, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
-    { tip: 'daire', ust: true, x: 92, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
+    { tip: 'daire', ust: true, x: 14.5, y: 53, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
+    { tip: 'daire', ust: true, x: 40.5, y: 49, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
+    { tip: 'daire', ust: true, x: 68.5, y: 52, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
+    { tip: 'daire', ust: true, x: 92.5, y: 50, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
   ],
   // ⚠ Kırpma `kesik`: ürün dairenin dışına taşabilsin — referanstaki hacim hissi bu.
   // ⚠ Her ürün KENDİ slaydında, kesimi aşmıyor: merkezler 17 · 42 · 67 · 92.
   gorseller: [
-    { src: '', alt: 'ürün — 1', x: 10.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
-    { src: '', alt: 'ürün — 2', x: 35.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
-    { src: '', alt: 'ürün — 3', x: 60.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
-    { src: '', alt: 'ürün — 4', x: 85.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 1', x: 8, y: 26, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 2', x: 34, y: 22, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 3', x: 62, y: 25, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 4', x: 86, y: 23, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
   ],
   kartlar: [
     {
@@ -894,13 +895,13 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     {
       src: '',
       alt: 'yakın plan — kesim üstü',
-      x: 44,
+      x: 41,
       y: 0,
       genislik: 13,
       yukseklik: 100,
       kirpma: 'tam',
     },
-    { src: '', alt: 'kapanış karesi', x: 87, y: 0, genislik: 13, yukseklik: 100, kirpma: 'tam' },
+    { src: '', alt: 'kapanış karesi', x: 89, y: 0, genislik: 13, yukseklik: 100, kirpma: 'tam' },
   ],
   kartlar: [
     {

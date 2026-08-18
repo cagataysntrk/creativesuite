@@ -166,102 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-284
-
-**Karar:** Marka işareti karosele girdi (alt rayın solunda, sürümü ZEMİN seçiyor);
-logo dosyaları `brand/brd_upcytech/logo/` altında ve alfa kutusundan kırpıldı; marka
-mavisi tokeni logodan YENİDEN ölçülüp düzeltildi; hayalet puntosu uzunluğa göre
-ölçekleniyor.
-
-**Kanıt — A8 zinciri gerçekten çalışıyor:** dördüncü koşu (`Uretim hattinda kalite
-kontrol duraklari`) dört FARKLI figür üretti: koyu tulum + tablet · turuncu yelek +
-rulo çizim · beyaz önlük + pano · beyaz önlük, ayrı poz. Üç koşu boyunca dört özdeş
-fotoğraf veren kusur (D-283) kapandı ve şablon referansın yapısına oturdu.
-
-**Logo — sürümü zemin seçiyor, şablon değil.** Mavi sürüm mavi işaret + BEYAZ kelime
-taşıyor: açık zeminde kelime kaybolur. Siyah sürüm koyu zeminde kaybolur. `koyuMu()`
-zaten kartın zeminini ölçüyor; ikinci bir karar noktası açmak o ölçümü yok saymak olurdu.
-
-⚠ ⚠ **KAYNAK PNG'LER 500×500'DÜ ve işaret yalnız %2,4'ünü kaplıyordu.** Rayda 24px'e
-sığdırılınca işaret ~4px kalıyor ve OKUNMUYORDU — render'a bakınca görüldü. Dosyalar
-alfa kutusundan kırpıldı (338×78); kaynaklar `*-kaynak.png` olarak duruyor (Yasa 10).
-⚠ İki sürüm **ORTAK** kutuyla kırpıldı: ayrı kutular farklı oran verir ve zemin
-değişince logo bir slayttan ötekine ZIPLAR.
-
-⚠ `sahne`nin `rayaSol` metni 'UPCYTECH'ti; logo zaten onu söylüyor. Aynı bilgiyi iki kez
-basmak imzayı zayıflatıyor — 'SAHA' oldu.
-
-⚠ ⚠ **TOKEN "BİREBİR" DİYORDU AMA DEĞİLDİ.** `mavi-500` `#0090fc`ten türetilmişti; asıl
-dosyanın alfası >40 olan tek mavisi **`#0091ff`** = `oklch(0.6515 0.192 251.5)`. İlk
-ölçüm kenar yumuşatmalı bir pikselden alınmış. Rampanın 200/600/800 kademeleri aynı
-oranla taşındı. "Birebir" iddiası taşıyan bir değer yaklaşık olamaz.
-
-⚠ **Hayalet puntosu artık uzunluğa göre.** Sözleşme "kısa: rakam/sembol" diyor ama bu
-bir RİCA; gerçek koşuda model "Hafıza", "Kopukluk", "Tekrar" yazdı ve 470px sabit
-puntoda tek kelime ÜÇ SLAYDI kat edip başlıkla yarıştı. Reddetmek yanlış olurdu
-(D-273: yazar bir model, ret koşunun tamamına mal olur) — ölçek uyarlanıyor. Üç
-karaktere kadar tam punto, sonrası orantılı, taban 0,34.
-
-**Geri alma maliyeti:** düşük — bir opsiyonel alan, bir yükleyici, bir formül.
-
-## D-285
-
-**Karar:** `tasarim` kapısının `font_family_count` sınırı 2 → 3; karşılığında yeni bir
-ölçüm geldi: `font_family_unknown`, tavan **0**. Kullanılan her aile `fonts.ts`in kapalı
-`YUZLER` listesinde beyan edilmiş olmalı.
-
-**Neden gerekli:** Referansta (`image copy 2`) kapağın kontrastı punto farkından değil
-**YÜZ FARKINDAN** geliyor — el yazısı vurgu + ağır condensed. Tek display ailesiyle o
-kontrast kurulamıyor ve R-81 elle taklidi yasaklıyor (bir yazı karakteri, "jenerik ögeyi
-kodlama" yasağının en uç örneği). Üçüncü aile keyfî bir ekleme değil, ayrı bir ROL:
-metin · display · vurgu. Dördüncüsü hâlâ kırmızı.
-
-⚠ ⚠ **BU BİR GEVŞETME DEĞİL, BİR TAKAS — ve net sonuç DAHA SIKI bir kapı.** Eski kural
-kaba bir sayımdı: üç aile kullanan her belge kırmızıydı ama ÜÇÜNCÜNÜN NE OLDUĞU
-sorulmuyordu. `font-family: Georgia` yazan bir belge iki aileyle YEŞİL geçiyordu. Artık
-meşruiyet sayıdan değil KAPALI LİSTEDEN geliyor.
-
-⚠ **Liste ikinci kez yazılmadı:** `BEYAN_EDILEN_AILELER` doğrudan `YUZLER`den türüyor.
-Bu depoda ikiz sözlük hatası üç kez tekrarlandı; dördüncüsü burada olmayacak.
-
-⚠ ⚠ **AYRI TURDA VE AYRI COMMIT'TE — R-76.** Sınır bir önceki turda üçüncü yüz eklenince
-kırmızıya döndü; kural o turda DEĞİŞTİRİLMEDİ, yüz geri alındı (D-282). Kapı yeşile
-döndükten sonra, ayrı bir turda ve `refactor(gates)` tipli ayrı bir commit'le
-değiştiriliyor. Kuralı kırmızıyken değiştirmek, kapıyı geçmek için kuralı yazmaktır.
-
-**Geri alma maliyeti:** düşük — iki sayı ve bir ölçüm satırı.
-
-## D-286
-
-**Karar:** `editoryal` referansına (`image copy 5`) göre YENİDEN KURULDU; `briefTemeli`
-düzeltildi ve "yuva sayısı = varyant sayısı" değişmezi teste bağlandı.
-
-**Neden:** Altı kapağı ızgaraya koyunca `editoryal` açık ara en zayıfıydı. Referansla
-karşılaştırınca üç temel kararın da TERS olduğu görüldü:
-1. **Zemin koyuydu** — referans açık, havadar, neredeyse kâğıt.
-2. **Fotoğraflar panoramanın TAMAMINI kaplıyordu** (0–56 ve 56–100), yani metin hep
-   fotoğrafın üstündeydi. Referansta fotoğraf ve metin YAN YANA, her biri kadrajın
-   yarısı, ve taraflar slayttan slayta değişiyor.
-3. **Başlık 38px'ti.** Referansın "sessiz" tonu küçük puntodan değil AZ AĞIRLIKTAN
-   geliyor: başlık kadrajın en büyük ögesi ama ince. Küçük ve yarı kalın bir başlık
-   sessiz değil, çekingen duruyor.
-
-Yeni hâli: üç yarım kadraj fotoğraf, dönüşümlü yanlarda, üst-alt kenara taşan; ikincisi
-50 kesimini aşıyor (bu şablonun tek süreklilik iddiası); metin kolonu 0,46 ve `kolon`
-ile karşı yana geçiyor; başlık 0,72 payda ve 400 ağırlıkta.
-
-⚠ **`briefTemeli` hâlâ "sağ yarıyı boş bırak" diyordu** — o talimat fotoğrafın tuvali
-kapladığı ESKİ düzene aitti. Boş yarı isteyen bir brief, yeni düzende o yarıyı İKİ KEZ
-boşaltır. Kaldırıldı.
-
-⚠ ⚠ **ÜÇ YUVA, İKİ VARYANT — "ilan ile gerçek" ayrışmasının yeni yüzü.** Sıra varyant
-sayısını aşınca brief boş dönüp adım atlanıyor (kasıtlı: fazlalık adım para harcamasın).
-Ama şablon yuvadan AZ varyant taşırsa aynı mekanizma sessizce bir yuvayı yer tutucu
-bırakıyor. `editoryal` üç yuvaya geçtiğinde tam bu oldu. Değişmez artık test ediliyor:
-varyant eksiltildi → kırmızı, geri kondu → yeşil.
-
-**Geri alma maliyeti:** orta — bir şablon örneği yeniden yazıldı; kayıt ve testler durdu.
-
 ## D-287
 
 **Karar:** Kompozisyon alanlarının uyarlamadan sağ çıkması artık ALAN LİSTESİYLE
@@ -598,3 +502,32 @@ içindir; ikisi aynı değer olamaz.** Yeni rol `role.vurgu` = `mavi-300`.
 token tablosunda iki değer de "mavi" ve makul duruyordu.
 
 **Geri alma maliyeti:** orta — bir yüz ailesi, bir rol, altı şablonun genişlik değeri.
+
+## D-297
+
+**Karar:** `memphis`in renkli lekeleri kaldırıldı, kimliği kart zeminlerinin renk
+rotasyonuna taşındı; `koyuMu()` artık token ADINA değil ÇÖZÜLMÜŞ AÇIKLIĞA bakıyor.
+
+**Neden — lekeler:** depo sahibi: *"şu aptal dairemsi renkli topları kaldır, bunlar web
+tasarım duruyor"*. Referansta (`image copy 4`) gerçekten leke var — ama orada DEV,
+kenardan TAŞIYOR ve fotoğrafın ARKASINDA renk alanı kuruyor. Bizimkiler kadrajın
+ortasında yüzen küçük konfetiydi: **aynı öge, ters iş.** Ayrıca hepsi elle kodlanmış
+şekillerdi (blob · halka · nokta · tarama), yani R-81'in tam tarifi.
+**Kimlik silinmedi, yer değiştirdi:** renk alanı bir kompozisyon kararıdır (alan, sınır,
+ritim); daire bir süstür.
+
+⚠ ⚠ **`koyuMu()` ADI ÖLÇÜYORDU, ŞEYİ DEĞİL.** `zemin.includes('ink') || includes(
+'line-edge')` yazıyordu. `memphis`e lacivert bir kart zemini (`--ramp-marka-mavi-700`)
+eklenince sessizce "açık" dedi: koyu mavi üstüne koyu mürekkep metin çizildi ve slayt
+okunmaz oldu. Açıklık artık `tokenCss`ten okunuyor (tek düzey `var()` dolaylaması
+izleniyor, eşik 0,55). **Adı ölçmek, şeyi ölçmek değildir** — bu depoda tekrar eden sınıf.
+
+⚠ Bulunamazsa eski ada dayalı sezgiye düşülüyor ama bunun bir TAHMİN olduğu kodda yazılı.
+
+**Kanıt:** eski ada dayalı sürüm geri kondu → lacivert kart testi kırmızı; kaldırıldı → yeşil.
+
+⚠ **`texture` kelimesi brief'lerde KULLANILAMAZ:** içinde `text` geçiyor ve R-20 muhafızı
+alt dize eşleştiriyor. Yeni varyantlar ilk yazımda "fabric texture" diyordu; test yakaladı,
+koşuda görsel adımını reddettirecekti. Yerine `weave`, `grain`, `creases`.
+
+**Geri alma maliyeti:** düşük — bir leke dizisi, bir fonksiyon, altı kart zemini.

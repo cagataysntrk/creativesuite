@@ -470,7 +470,38 @@ const METIN = 'var(--role-surface)'
  * o zeminden TÜREMEK zorunda — aksi hâlde şablon kendi kimliğini okunmaz yapıyor.
  * Bu, `sablon.ts`te bir kez öğrenilen dersin panorama yolunda tekrarı.
  */
-const koyuMu = (zemin: string): boolean => zemin.includes('line-edge') || zemin.includes('ink')
+/**
+ * Zemin KOYU mu — token'ın ADINDAN değil, ÇÖZÜLMÜŞ AÇIKLIĞINDAN.
+ *
+ * ⚠ ⚠ **ÖNCEKİ SÜRÜM ADA BAKIYORDU** (`zemin.includes('ink') || includes('line-edge')`)
+ * ve `memphis`e lacivert bir kart zemini (`--ramp-marka-mavi-700`) eklendiğinde sessizce
+ * "açık" dedi: koyu mavi üstüne koyu mürekkep metin çizildi ve slayt okunmaz oldu.
+ * **Adı ölçmek, şeyi ölçmek değildir** — bu depoda tekrar eden sınıf.
+ *
+ * ⚠ Açıklık `tokenCss`ten okunuyor: belge zaten onu taşıyor, ikinci bir kaynak yok.
+ * Tek düzey `var()` dolaylaması izleniyor (`--role-bg: var(--ramp-...)`); daha derini
+ * gerekmedi ve gerekirse burada patlamalı, sessizce yanlış cevap vermemeli.
+ * ⚠ Eşik 0,55: oklch açıklığı algısal, yani orta gri gerçekten 0,5 civarında.
+ * ⚠ Bulunamazsa ESKİ ada dayalı sezgiye düşülüyor — bilinmeyen bir değerde metni
+ * beyaz yapmak, siyah yapmaktan daha sık doğru ama tahmin olduğu YAZILI.
+ */
+const koyuMu = (zemin: string, tokenCss = ''): boolean => {
+  const ad = /var\(\s*(--[\w-]+)/.exec(zemin)?.[1]
+  if (ad !== undefined && tokenCss !== '') {
+    const cozum = (isim: string, derinlik = 0): string | null => {
+      if (derinlik > 2) return null
+      const m = new RegExp(`${isim}\\s*:\\s*([^;]+);`).exec(tokenCss)
+      if (m === null) return null
+      const deger = (m[1] ?? '').trim()
+      const ic = /var\(\s*(--[\w-]+)/.exec(deger)?.[1]
+      return ic === undefined ? deger : cozum(ic, derinlik + 1)
+    }
+    const deger = cozum(ad)
+    const l = deger === null ? null : /oklch\(\s*([\d.]+)/.exec(deger)?.[1]
+    if (l !== undefined && l !== null) return Number.parseFloat(l) < 0.55
+  }
+  return zemin.includes('line-edge') || zemin.includes('ink')
+}
 
 /**
  * Soluk bir ton — bir CSS değişkeninin `yuzde` kadarı, gerisi şeffaf.
@@ -500,7 +531,8 @@ const aksanZeminiMi = (zemin: string): boolean =>
 
 /** Kartın renk seti — zeminden türetiliyor, seçilmiyor. */
 const kartRenkleri = (
-  zemin: string
+  zemin: string,
+  tokenCss = ''
 ): {
   readonly metin: string
   readonly aksan: string
@@ -508,7 +540,7 @@ const kartRenkleri = (
   readonly cip: string
   readonly cipMetin: string
 } =>
-  koyuMu(zemin)
+  koyuMu(zemin, tokenCss)
     ? {
         metin: METIN,
         aksan: AKSAN,
@@ -772,7 +804,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const t = doc.tipografi ?? VARSAYILAN_TIPO
   // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
   // türüyor; kartın kendi zemininden değil — onlar hiçbir kartın içinde durmuyor.
-  const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin)
+  const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin, doc.tokenCss)
   // ⚠ İki alanlı zeminde metin ÜST alanın üstünde duruyor (kartlar üste yaslı), o yüzden
   // renkler üst alandan türüyor. Alt alan bandın ve rakamın bölgesi.
   // ⚠ ⚠ **IIFE'DEN DIŞARI ALINDI:** `<section>` etiketini kuran IIFE kapanınca `kartZemini`
@@ -785,7 +817,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
       (k, i) =>
         ((): string => {
           const kartZemini = kartinZemini(k)
-          const r = kartRenkleri(kartZemini)
+          const r = kartRenkleri(kartZemini, doc.tokenCss)
           // ⚠ ⚠ **HAYALET RENGİNİ DURDUĞU ALAN BELİRLER, KARTIN METNİ DEĞİL.** İki alanlı
           // şablonda kart amber alanın üstünde (metni mürekkep) ama dev rakam sınırın
           // ALTINDA, mürekkep alanda duruyor. Kart renginden türetilince mürekkep-üstüne-
@@ -812,9 +844,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
                     Math.max(1, doc.alanSiniri.noktalar.length)
                 ? doc.alanSiniri.alt
                 : doc.alanSiniri.ust
-          const hr = kartRenkleri(hayaletZemini)
+          const hr = kartRenkleri(hayaletZemini, doc.tokenCss)
           return (
-            `<section class="kart${koyuMu(kartZemini) ? '' : ' acik'}` +
+            `<section class="kart${koyuMu(kartZemini, doc.tokenCss) ? '' : ' acik'}` +
             `${k.kolon === 'sag' ? ' sag' : ''}" ` +
             `style="left:${i * G}px;width:${G}px;` +
             // ⚠ Lekeler ya da alan sınırı varsa kart ŞEFFAF: opak bir kart arkasındaki
@@ -849,7 +881,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         (doc.logo === undefined
           ? ''
           : `<img class="ray-logo" src="${kacir(
-              koyuMu(kartinZemini(k)) ? doc.logo.koyu : doc.logo.acik
+              koyuMu(kartinZemini(k), doc.tokenCss) ? doc.logo.koyu : doc.logo.acik
             )}" alt="Upcytech">`) +
         `<span>${kacir(k.rayaSol)}</span>` +
         `<span>${kacir(k.rayaOrta)}</span>` +

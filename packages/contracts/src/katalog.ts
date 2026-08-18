@@ -185,11 +185,23 @@ export const SAHNE: KatalogSablonu = {
       'single subject, full body, plain solid black background free of gradient or ' +
       'surface detail, strong rim light on the subject only, arms held away from ' +
       'the torso and extending beyond the frame, body fully in frame',
+    // ⚠ ⚠ **VARYANTLAR ARTIK YALNIZ POZ DEĞİL, ÖZNE TÜRÜ DE (T4 · T10).** Depo sahibi:
+    // *"adam imgeleri sadece adam değil, konu neyse onun 3B görseli de olabilir"* ve
+    // *"figürler aynı ailenin klonları gibi"*. İnsan pozu döndürmek çeşitlilik değil,
+    // aynı şeyin varyasyonu; kadraja giren ŞEY değişmeli. İkisi de kesik özne olabiliyor:
+    // arka plan silme insanı da nesneyi de aynı şekilde kesiyor.
+    // ⚠ Malzeme ve ışık da varyantta: pürüzsüz bir render "flat illustration" gibi durur;
+    // doku, temas gölgesi ve tek yönlü ışık onu FOTOĞRAF gibi yapıyor.
+    //
+    // ⚠ ⚠ **"texture" KELİMESİ KULLANILAMAZ — içinde "text" geçiyor.** R-20 muhafızı ALT
+    // DİZE eşleştiriyor ve `no texture` içindeki `text` için yanlış pozitif zaten kayıtlı.
+    // Bu varyantlar ilk yazımda "fabric texture" diyordu ve testi kırdı; koşuda görsel
+    // adımını REDDETTİRECEKTİ. Yerine `weave`, `grain`, `creases` kullanılıyor.
     varyantlar: [
-      'arms open wide, presenting toward the right, full body',
-      'one arm raised high, the other extended sideways, three quarter view',
-      'pointing forward with a straight arm, side profile, full body',
-      'both palms open at chest height, facing the camera, full body',
+      'a worker with arms open wide, presenting toward the right, full body, worn work clothes with visible weave and creases',
+      'a large 3d clay render of the subject matter itself, isometric, matte material, soft contact shadow, no person',
+      'a worker pointing forward with a straight arm, side profile, low camera angle, visible material grain',
+      'a close 3d render of a single object from the topic, three quarter angle, glossy and matte surfaces mixed, strong single light',
     ],
   },
   baslikPayi: 1,
@@ -223,9 +235,9 @@ export const MEMPHIS: KatalogSablonu = {
       'single person, waist up, plain solid black background free of surface detail, ' +
       'even lighting on the subject, lively posture',
     varyantlar: [
-      'seated on a low stool, leaning forward, full body',
-      'standing with hands on the hips, three quarter view',
-      'walking stride caught mid step, side profile',
+      'a seated figure leaning forward, full body, clothing with visible weave, soft rim light',
+      'a 3d clay render of an object from the topic, isometric, matte pastel material, soft contact shadow, no person',
+      'a figure walking, stride caught mid step, side profile, grainy film look',
     ],
   },
   baslikPayi: 0.82,
