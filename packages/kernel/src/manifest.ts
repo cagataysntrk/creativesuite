@@ -76,6 +76,19 @@ export interface StepRecord {
    * cevabı defterde olmak zorunda — yoksa altı ay sonra hiçbir yerde yoktur.
    */
   readonly output?: Readonly<Record<string, unknown>> | null
+  /**
+   * Adım BAŞARISIZ olduysa sebebinin özeti — `kind`, `code` ve kısa mesaj.
+   *
+   * ⚠ ⚠ **`status: 'failed'` KAYDEDİLİYORDU AMA SEBEBİ KAYDEDİLMİYORDU.** Gerçek bir
+   * koşuda `editoryal`in üç görsel adımı da `failed` döndü; manifest yalnız "failed"
+   * diyordu ve sağlayıcı sonradan sınandığında SAĞLAMDI. Teşhis koyacak hiçbir veri
+   * yoktu — defter olayı kaydetmiş, sebebini atmıştı.
+   *
+   * ⚠ **Özet, tam hata DEĞİL.** `details` içinde sağlayıcı gövdesi, prompt parçası ya da
+   * secret sızabilir; defter git'e giriyor (§3.5). Üç alan teşhis için yetiyor ve
+   * hiçbiri serbest veri taşımıyor.
+   */
+  readonly error?: { readonly kind: string; readonly code: string; readonly message: string } | null
 }
 
 /** Enjekte edilen bağlamın özeti — hangi kayıt, neden dahil edildi, kaç token (§5.3). */

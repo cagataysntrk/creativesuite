@@ -40,7 +40,9 @@
 |---|---|---|---|
 | 2.1 | Kütüphane araştırması | 🟡 | D-275 reddetti; yeniden arandı ve **`perfect-freehand` KURULDU** — kontur matematiği 40 satır değil, R-75 eşiğinin üstünde |
 | 2.2 | El çizimi ok/fırça | ✅ | `perfect-freehand` · `roughjs` (MIT, tohumlanabilir) sonraki aday |
-| 2.3 | 3B/izometrik varlık seti | 🔴 | GLB ikinci motor ister (Yasa 4); PNG/SVG set aranmalı |
+| 2.3 | 3B/izometrik varlık seti | 🔴 | GLB ikinci motor ister (Yasa 4); PNG/SVG set aranmalı. **Ölçülen ihtiyaç:** `image copy 3` (donen referansı) köşelerde botanik ögeler taşıyor — R-81 onları kodlamayı yasaklıyor, yani kütüphane ŞART |
+| 2.5 | `donen`: daire KIRPMA değil ARKA FON olmalı | 🔴 | Referansta beyaz daire ürünün ARKASINDA duruyor ve ürün onu taşıyor; bizde fotoğraf daireye KIRPILIYOR. Kart zemini opak olduğu için `lekeler` (z-index 0) görünmüyor — `ustDoku` gibi kart ÜSTÜ bir katman gerekiyor |
+| 2.6 | `donen`: podyum + temas gölgesi | 🔴 | Referansta ürün küçük eliptik bir platformun üstünde duruyor; `temas-golgesi` var ama podyum yok |
 | 2.4 | Kural: yeni jenerik öge KODLANMAZ | ✅ | **R-81 + `kodlanmis-oge` kapısı** (D-279). Sayım dondu; kasten yeni rozet eklendi → kırmızı. Kırpma kapsam dışı: fotoğrafın kadrajı, çizilmiş şekil değil |
 
 ## 3 — Zemin, tipografi, kutular

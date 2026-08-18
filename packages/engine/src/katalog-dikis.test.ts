@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { loadPipeline } from '@suite/registry'
 import { join } from 'node:path'
-import { ornekBul, type KatalogOrnegi } from '@suite/render'
+import { ORNEKLER, ornekBul, type KatalogOrnegi } from '@suite/render'
 import { fixedClock, seededRng } from '@suite/kernel'
 import { composeBody, promptTuret, uyarlamayaCevir } from './verbs/bodies.js'
 
@@ -291,6 +291,53 @@ describe('dikiş 3e: kadraj varyantı GÖRSEL istemine doğrudan giriyor', () =>
     expect(kopuk).toBe(brief)
     expect(istem(2)).not.toBe(kopuk)
   })
+})
+
+// ⚠ ⚠ **KOMPOZİSYON ALANLARI UYARLAMADAN SAĞ ÇIKMALI — ALAN ALAN DEĞİL, LİSTEYLE.**
+// Bu sınıf hata İKİ KEZ tekrarlandı: `kolon` taşınmadı (dört slaytta metin sola düşüp
+// figürün üstüne bindi), sonra dersin HEMEN YANINA eklenen `elYazisi` de taşınmadı
+// (kapak slaydındaki el yazısı vurgusu kayboldu). Üçüncüsünü bir yorum engellemez.
+//
+// ⚠ Liste VERİDEN türüyor: bir kartın İÇERİK alanları sabit ve bilinen; geri kalan her
+// alan kompozisyondur. Yeni bir opsiyonel alan eklendiğinde bu test onu kendiliğinden
+// kapsıyor — bakım gerektiren bir beyaz liste, unutulacak ikinci bir yerdir.
+describe('dikiş 3f: kompozisyon alanları uyarlamadan sağ çıkıyor', () => {
+  /** Uyarlamanın YAZDIĞI alanlar. Geri kalan her şey şablonun kompozisyonudur. */
+  const ICERIK = new Set([
+    'ustBaslik',
+    'baslik',
+    'govde',
+    'panel',
+    'hayalet',
+    'rayaSol',
+    'rayaOrta',
+  ])
+
+  for (const id of Object.keys(ORNEKLER)) {
+    it(`${id} · şablonun kompozisyon alanları duruyor`, () => {
+      const ornek = ornekBul(id) as KatalogOrnegi
+      const r = uyarla(ornek, {
+        sablonId: id,
+        kartlar: ornek.kartlar.map((_, i) => ({
+          ustBaslik: `ADIM ${i}`,
+          baslik: 'Başlık **bir**',
+          govde: 'Gövde.',
+          hayalet: '',
+          rayaSol: 'X',
+          rayaOrta: 'Gerçek kaynak, 2026',
+        })),
+      })
+      expect(r.ok, JSON.stringify((r as { kusurlar?: unknown }).kusurlar)).toBe(true)
+      if (!r.ok) return
+      for (const [i, kart] of ornek.kartlar.entries()) {
+        const cikan = r.belge.kartlar[i] as unknown as Record<string, unknown>
+        for (const [alan, deger] of Object.entries(kart as unknown as Record<string, unknown>)) {
+          if (ICERIK.has(alan) || deger === undefined) continue
+          expect(cikan[alan], `${id} kart ${i}: '${alan}' uyarlamada DÜŞTÜ`).toEqual(deger)
+        }
+      }
+    })
+  }
 })
 
 // ⚠ ⚠ **`kolon` KOMPOZİSYONDUR ve uyarlamada TAŞINMAK ZORUNDA.** Gerçek koşuda taşınmadı:

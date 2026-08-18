@@ -147,6 +147,16 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       // yazılmış ders, o dosyaya SONRADAN eklenen alana kendiliğinden geçmiyor; bu
       // deponun tekrar eden sınıfı.
       ...(o.kolon === undefined ? {} : { kolon: o.kolon }),
+      // ⚠ ⚠ **`elYazisi` DE TAŞINMAYI UNUTTU — ve bu, DERSİN HEMEN YANINA yazıldığı
+      // hâlde oldu.** Bir üstteki blok tam olarak bunu anlatıyor ("bir dosyaya yazılmış
+      // ders, o dosyaya sonradan eklenen alana geçmiyor") ve `elYazisi` o satır
+      // yazıldıktan SONRA eklendi; yine geçmedi. Gerçek koşuda `editoryal`in kapak
+      // slaydındaki el yazısı vurgusu kayboldu.
+      //
+      // ⚠ **Kalıcı çözüm bir yorum değil, bir TEST:** `sablon-uyarla.test.ts` artık
+      // şablonun taşıdığı KOMPOZİSYON alanlarının hepsinin uyarlanmış belgede
+      // durduğunu alan alan değil, ALAN LİSTESİ üzerinden ölçüyor.
+      ...(o.elYazisi === undefined ? {} : { elYazisi: o.elYazisi }),
     })
   }
 

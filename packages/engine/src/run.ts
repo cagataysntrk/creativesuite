@@ -732,6 +732,19 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       // Tam çıktı DEĞİL özet: bir belge modelini manifest'e gömmek dosyayı şişirir ve
       // `git diff`i okunamaz yapar. Özet, ölçülebilir olanı taşır.
       output: ozetle(sonuc.outcome?.data ?? null),
+      // ⚠ Yalnız başarısızlıkta ve yalnız ÜÇ ALAN: `details` sağlayıcı gövdesi ya da
+      // prompt parçası taşıyabilir ve defter git'e giriyor (§3.5 · §14).
+      ...(sonuc.ok
+        ? {}
+        : {
+            error: {
+              kind: String((sonuc as { error?: { kind?: unknown } }).error?.kind ?? 'unknown'),
+              code: String((sonuc as { error?: { code?: unknown } }).error?.code ?? 'UNKNOWN'),
+              message: String(
+                (sonuc as { error?: { userMessageKey?: unknown } }).error?.userMessageKey ?? ''
+              ),
+            },
+          }),
     })
 
     if (sonuc.ok) {

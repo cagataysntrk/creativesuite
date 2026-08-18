@@ -550,3 +550,33 @@ bırakıyor. `editoryal` üç yuvaya geçtiğinde tam bu oldu. Değişmez artık
 varyant eksiltildi → kırmızı, geri kondu → yeşil.
 
 **Geri alma maliyeti:** orta — bir şablon örneği yeniden yazıldı; kayıt ve testler durdu.
+
+## D-287
+
+**Karar:** Kompozisyon alanlarının uyarlamadan sağ çıkması artık ALAN LİSTESİYLE
+ölçülüyor, alan alan değil; başarısız adımın SEBEBİ manifest'e giriyor.
+
+**Neden — alan listesi:** aynı sınıf hata İKİ KEZ tekrarlandı. `kolon` taşınmadı (dört
+slaytta metin sola düşüp figürün üstüne bindi, D-280); dersin HEMEN YANINA eklenen
+`elYazisi` de taşınmadı (`editoryal` koşusunda kapak slaydının el yazısı vurgusu
+kayboldu). **Üçüncüsünü bir yorum engellemez.** Test artık listeyi VERİDEN türetiyor:
+bir kartın içerik alanları sabit ve bilinen (`ustBaslik`, `baslik`, `govde`, `panel`,
+`hayalet`, `rayaSol`, `rayaOrta`); geri kalan HER alan kompozisyondur ve uyarlanmış
+belgede aynı değerle durmalı. Yeni bir opsiyonel alan kendiliğinden kapsanıyor —
+bakım isteyen bir beyaz liste, unutulacak ikinci bir yerdir.
+**Kanıt:** `elYazisi` taşıması kaldırıldı → altı şablonun ALTISI birden kırmızı.
+
+**Neden — hata kaydı:** `editoryal` koşusunda üç görsel adımı da `failed` döndü.
+Manifest yalnız `"status": "failed"` diyordu; sağlayıcı sonradan doğrudan sınandığında
+iki biçimde de SAĞLAM çıktı. Teşhis koyacak hiçbir veri yoktu — **defter olayı
+kaydetmiş, sebebini atmıştı.** `status`ün üç anlamını özenle ayıran yorum bu dosyada
+duruyordu; hata sebebinin hiç kaydedilmediği fark edilmemişti.
+
+⚠ **Özet, tam hata DEĞİL:** `kind` · `code` · `userMessageKey`. `details` sağlayıcı
+gövdesi, prompt parçası ya da secret taşıyabilir ve defter git'e giriyor (§3.5 · §14).
+
+⚠ **Görsel adımlarının neden düştüğü HÂLÂ BİLİNMİYOR** — bu turda kayıt yolu açıldı,
+teşhis bir sonraki koşuya kaldı. Borç olarak yazıldı: sağlayıcı ayrı ayrı çağrıldığında
+tohumlu ve tohumsuz iki istek de başarılı döndü, yani neden koşuya özgü.
+
+**Geri alma maliyeti:** düşük — bir opsiyonel alan, bir test bloğu.
