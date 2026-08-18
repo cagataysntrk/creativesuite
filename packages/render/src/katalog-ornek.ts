@@ -364,9 +364,13 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       // ⚠ Oklar metin bloğu ile kesik özne ARASINDAKİ şeritte: y 42–45. Daha yukarısı
       // gövde satırına giriyor (33'te girdi ve render'a bakınca görüldü), daha aşağısı
       // öznenin üstünden geçiyor. Şerit dar; şablonun kısa metin kuralı bu yüzden var.
-      { x1: 21, y1: 44, x2: 29, y2: 44, bukum: -13 },
-      { x1: 46, y1: 41, x2: 54, y2: 41, bukum: 15 },
-      { x1: 71, y1: 45, x2: 79, y2: 45, bukum: -11 },
+      // ⚠ ⚠ **UZUN VE KIVRIMLI — kısa yay fırça değil MERCEK gibi görünüyor.** İlk
+      // sürüm 8 panorama yüzdesi kadar bir yay çiziyordu ve 34 px'lik fırça o mesafede
+      // incelmeye vakit bulamıyordu: çıktı bir badem şekliydi. Referansta (`image copy 2`)
+      // oklar geniş süpürme hareketleri ve büküm belirgin. Açıklık 8 → 17, büküm 13 → 52.
+      { x1: 17, y1: 46, x2: 34, y2: 40, bukum: -52 },
+      { x1: 42, y1: 39, x2: 59, y2: 46, bukum: 58 },
+      { x1: 67, y1: 47, x2: 84, y2: 41, bukum: -48 },
     ],
   },
   gorseller: [

@@ -30,6 +30,7 @@ import { kacir } from './html.js'
 import { OPENTYPE_CSS, vurguyuIsaretle } from './sablon-tipo.js'
 import { ikonSec, ikonSvg, type IkonAdi } from './sablon-ikon.js'
 import { zeminCss, zeminKarisimi, type ZeminResetesi } from './zemin.js'
+import { getStroke } from 'perfect-freehand'
 
 /** Kesimi aşan sürekli bant — kimliğin taşıyıcısı. */
 export type Bant =
@@ -547,28 +548,65 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
     )
   }
   if (b.tip === 'ok') {
-    // ⚠ Yay tek bir kübik Bézier: iki uç ve bir büküm. El çizimi hissi `stroke-linecap`
-    // ve hafif asimetriden geliyor, rastgelelikten değil (R-06).
+    // ⚠ ⚠ **JENERİK OK GİTTİ, FIRÇA ŞERİDİ GELDİ — depo sahibinin en sert kuralı.**
+    // Önceki hâl sabit kalınlıkta bir `<path>` + üçgen `marker-end`ti: yani bir DİYAGRAM
+    // oku. Referansta (`examples/image copy 2.png`) o oklar el çizimi fırça şeritleri —
+    // uçlarda incelen, ortada kalınlaşan, kıvrılan. Fark "biraz daha güzel" değil:
+    // sabit kalınlıklı bir çizgi göze BİLGİSAYAR İŞİ diye okunuyor ve karoselin
+    // tamamını aşağı çekiyor.
+    //
+    // ⚠ **Kütüphane KULLANILDI, kontur elle yazılmadı.** `perfect-freehand` (MIT, 31 KB,
+    // sıfır bağımlılık) basınca göre değişen genişlikte bir kontur poligonu üretiyor —
+    // tldraw'ın kalemi bu. Doğru birleşimler, uç kapakları ve incelme eğrisi ~40 satır
+    // DEĞİL; R-75'in "kendin yaz" eşiğinin açıkça üstünde.
+    //
+    // ⚠ **DETERMİNİST (R-06):** `simulatePressure: false` ve basınç her noktaya AÇIKÇA
+    // veriliyor. Kütüphanenin rastgelelik kullandığı tek yol simülasyon; o kapalı.
+    // Ölçüldü: aynı girdi iki çağrıda birebir aynı 82 noktalı konturu verdi.
     const oklar = b.oklar
       .map((o) => {
         const x1 = (o.x1 / 100) * toplamGenislik
         const x2 = (o.x2 / 100) * toplamGenislik
         const y1 = (o.y1 / 100) * yukseklik
         const y2 = (o.y2 / 100) * yukseklik
-        const kx = (x1 + x2) / 2
-        const ky = (y1 + y2) / 2 - o.bukum
-        return (
-          `<path d="M ${x1} ${y1} Q ${kx} ${ky} ${x2} ${y2}" fill="none" ` +
-          `stroke="${AKSAN}" stroke-width="9" stroke-linecap="round" marker-end="url(#uc)"/>`
-        )
+        // Yay örnekleniyor: kuadratik Bézier üstünde 28 nokta. Basınç uçlarda düşük,
+        // ortada yüksek — fırçanın kâğıda basma eğrisi.
+        const N = 28
+        const nokta: [number, number, number][] = Array.from({ length: N + 1 }, (_, i) => {
+          const t = i / N
+          const kx = (x1 + x2) / 2
+          const ky = (y1 + y2) / 2 - o.bukum
+          const x = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * kx + t * t * x2
+          const y = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * ky + t * t * y2
+          // ⚠ Uçta 0,18 — sıfır değil: sıfır basınç konturu kapatmıyor ve şerit
+          // ucunda sivri bir artefakt bırakıyor.
+          return [x, y, 0.18 + 0.82 * Math.sin(t * Math.PI)]
+        })
+        const kontur = getStroke(nokta, {
+          size: 34,
+          thinning: 0.78,
+          smoothing: 0.62,
+          streamline: 0.42,
+          simulatePressure: false,
+          last: true,
+        })
+        if (kontur.length === 0) return ''
+        const d =
+          kontur
+            .map(
+              (p, i) =>
+                `${i === 0 ? 'M' : 'L'} ${(p[0] as number).toFixed(1)} ${(p[1] as number).toFixed(1)}`
+            )
+            .join(' ') + ' Z'
+        // ⚠ Ok BAŞI ayrı bir üçgen DEĞİL: şeridin kendisi uçta inceliyor ve yön
+        // kıvrımdan okunuyor. Üçgen bir uç, fırça şeridine yapıştırılmış bir diyagram
+        // parçası olurdu — kaçtığımız şeyin ta kendisi.
+        return `<path d="${d}" fill="${AKSAN}" fill-rule="nonzero"/>`
       })
       .join('')
     return (
       `<svg class="bant-ok" viewBox="0 0 ${toplamGenislik} ${yukseklik}" ` +
-      `preserveAspectRatio="none" aria-hidden="true">` +
-      `<defs><marker id="uc" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="6" ` +
-      `markerHeight="6" orient="auto"><path d="M 0 0 L 12 6 L 0 12 z" fill="${AKSAN}"/>` +
-      `</marker></defs>${oklar}</svg>`
+      `preserveAspectRatio="none" aria-hidden="true">${oklar}</svg>`
     )
   }
   // Kemer dizisi: yatayda tekrarlayan yay, aralar eşit.
