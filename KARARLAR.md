@@ -166,98 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-270 — Mimarinin tamamı üretim yolundan KOPUKTU: onuncu ve en büyüğü
-
-**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · D-261 ailesi · §3.10
-
-Panorama render'ı, altı şablonluk katalog, dolu örnek belgeler, deterministik seçici,
-uyarlama sözleşmesi ve DOM denetimi yazıldı. Her birinin testi yeşildi, 42 kapı yeşildi.
-Ve `grep -rn "renderPanorama(" packages/engine` **sıfır satır** veriyordu: mimarinin
-tamamı `just uret`ten erişilemez duruyordu.
-
-⚠ **Bu, aynı sınıf hatanın onuncu tekrarı** (`validateVerbOutput`, `chart`, `diagram`,
-`tasarimOlc`, `captureProductShot`, `renderDeckPdf`, `PUBLISH` gövdesi, `softHyphenate`,
-`Archivo` genişlik ekseni, ikon dağarcığı) — ve en büyüğü, çünkü kaçırılan şey bir
-fonksiyon değil bir MİMARİ idi. Sebep tekrar ettiği için artık tesadüf sayılamaz:
-**yeni bir yol açıldığında eski yolun bağladığı zincirler otomatik gelmiyor** ve
-"modülün testi var" duygusu, "üretim yolu var" duygusuyla karışıyor.
-
-**Karar:** bir yetenek ancak **hattan çağrıldığı gösterilebiliyorsa** bitmiş sayılır.
-`katalog-dikis.test.ts` bunu bir teste çeviriyor: üretim kaynağında `renderPanorama(`
-çağıranlarını SAYIYOR ve sıfırsa kırmızı. Modül testi zinciri test etmez; her halka
-sağlamken zincir kopuk olabilir.
-
-**Bağlama sırasında GERÇEK KOŞUNUN öğrettiği üç kusur** (hiçbiri testle bulunamazdı):
-
-1. **Zorunlu adım sessizce atlandı.** Şablon seçilemeyince istem boş döndü, koşucu
-   `{atlandi: true, sebep: 'prompt-yok'}` yazdı ve hat iki adım sonra anlamsız bir
-   `NO_ADAPTATION` ile durdu. Seçim artık istem kurucusundan AYRI: başarısızlık
-   `TEMPLATE_SELECTION_FAILED` ile, puanlarıyla birlikte deftere giriyor.
-2. **Eleme kuralı iki yönlüydü.** `metin-uret` 11 satır üretti; şablonlar 3–8 kart
-   istiyordu ve **altı şablonun altısı birden elendi.** Yanlış olan metin değil kuraldı:
-   yazar CÜMLE üretiyor, karosel KART taşıyor. Kural asimetrik oldu — fazlayı uyarlama
-   birleştirir, eksiği uyduramaz.
-3. **Sağlayıcı çıktı şekli üç adla geliyor.** Ayrıştırıcı yalnız `{text}` biliyordu;
-   `claude-code` `{result}` döndürüyor ve hat `ADAPTATION_UNPARSEABLE` ile durdu.
-   `metneCevir` üç adı da (`result`/`text`/`content`) zaten biliyordu — ikinci bir liste
-   yazmak D-227'nin birebir tekrarıydı.
-
-**Geri alma maliyeti:** düşük — katalog dalları kısıtla açılıyor (`katalog: true`,
-`sablon_uyarla: true`); kısıt yoksa eski yol aynen koşuyor.
-
-## D-271 — Eski karosel yolu emekli; "öldür" TAM silme demek değil, ÖLÇÜLDÜ
-
-**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · Yasa 10 · R-12 · §3.5
-
-Katalog merkezli üretim (D-268) devreye girince eski karosel tasarım yolunun emekliye
-ayrılması gerekti. **Kapsam ölçülerek belirlendi, varsayılarak değil.**
-
-| Öge | Karar | Gerekçe |
-|---|---|---|
-| `scripts/sablon-turu.mjs` (yedi-aile tezgâhı) | **arşive taşındı** | Terk edilen yaklaşımın deney tezgâhı; kalması onu diriltmeye davet |
-| `instagram-carousel` hattı | **emekli işaretlendi, dosya kaldı** | `apps/ui` id'ye bağlı · FAZ-3.14 onu hedefliyor (bloke) |
-| `aileSec` karosel seçimi | **emekli** | Karosel artık katalogdan geçiyor |
-| `sablon.ts` · `AileProfili` · `static.ts` | **KALDI** | ⚠ ölçüm: `static.ts`te `doc.aile` **on altı yerde**; LinkedIn dökümanı, deck PDF, prospect-deck, reels, explainer, ad-creative ve tek görsel postu dahil **sekiz hat** ondan besleniyor |
-
-⚠ ⚠ **"Eski sistemi öldür" isteği, sekiz hattı kırmadan tam olarak karşılanamıyor ve bu
-rapor edilmesi gereken bir sonuç, sessizce daraltılacak bir kapsam değil.** Emekli olan
-şey **karosel için aile seçimi**dir; slayt-başına render'ın kendisi değil — o, karoselin
-değil BELGE ve DECK'in motoru ve karoselle birlikte ölmesi için hiçbir sebep yok.
-Yasa 4 (tek render motoru) da bozulmuyor: panorama ile `static.ts` aynı Chromium'u, aynı
-gömülü fontu ve aynı token CSS'ini kullanıyor — ikinci bir CSS alt kümesi yok.
-
-**Geri alma maliyeti:** yok — hiçbir dosya silinmedi, biri taşındı.
-
-## D-272 — Hat 21 dakika asıldı: `close` gelmiyordu, çünkü boruyu bir TORUN tutuyordu
-
-**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · §3.8 · `chokepoints.json → alt-surec`
-
-Katalog hattı gerçek koşuda `sablon-uyarla` adımında **iki ayrı denemede 21'er dakika
-asıldı**. `ps` hiçbir çocuk süreç göstermiyordu: alt süreç ölmüştü ama `spawnProcess`
-hâlâ bekliyordu. **Sağlayıcının 10 dakikalık zaman aşımı da kurtarmadı.**
-
-**Kök neden:** Node `close` olayını yalnız TÜM stdio akışları kapandığında yayıyor;
-`exit`i süreç bittiğinde. İkisi normalde art arda gelir — **alt süreç kendi çocuğunu
-doğurup boruları ona devretmediği sürece.** `claude` CLI tam bunu yapıyor: kalıcı bir
-`claude daemon run` süreci başlatıyor ve o daemon stdout borusunu açık tutuyor.
-
-⚠ ⚠ **KURTARMA YOLU ASIL YOLLA AYNI OLAYA BAĞLIYDI ve bu tasarımın asıl kusuru.** Zaman
-aşımı `SIGTERM` gönderiyor, süreç ölüyor — ve yine `close` bekleniyor. Bir zaman aşımı,
-korumaya çalıştığı mekanizmanın aynısına dayanıyorsa koruma değildir.
-
-**Düzeltme:** `exit` de dinleniyor; geldiğinde 250 ms'lik bir boşalma penceresi açılıyor.
-Normal durumda `close` o pencere dolmadan gelir ve davranış birebir aynı kalır.
-
-**İhlal testiyle doğrulandı:** boruyu devralan ayrılmış bir torun doğuran alt süreç
-yazıldı. `exit` dinleyicisi kaldırıldığında test 20 sn tavana dayanıp **asıldı**;
-dinleyiciyle **388 ms**'de doğru çıktıyla döndü.
-
-⚠ Bu, ring-0'da (`kernel/src/proc/spawn.ts`) bir değişiklik ve orası "sabit" olmalı —
-ama asılan bir darboğaz, sabit değil bozuktur. Değişiklik davranış-koruyucu: yeni bir
-olay dinleniyor, hiçbir yol kaldırılmıyor.
-
-**Geri alma maliyeti:** yok — tek dosya, tek olay dinleyicisi.
-
 ## D-273 — Reddetmek ile uyarmak: farkı YAZARIN kim olduğu belirliyor
 
 **Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · §5.4 · Yasa 8
@@ -582,3 +490,36 @@ kapıyı okumak değil; iki yerde yaşayan bir sınır, bir yerde görülüp öt
 görülmeyebiliyor.
 
 **Bedel:** +104 KB font (base64 gömülü, iki alt küme). Ağ çağrısı yok.
+
+## D-283
+
+**Karar:** `image.matte` girdilerini `needs` ile daraltıyor. Dört özdeş fotoğrafın kök
+sebebi buydu — üç gerçek koşu boyunca görünen kusur, üç yanlış teşhisten sonra bulundu.
+
+**Kök sebep:** `run.ts` her adıma `inputs: ciktilar` geçiyor — o ana kadarki BÜTÜN
+çıktıları. Daraltmayı `needs`i okuyan gövde yapmak zorunda. `uretilenGorseller(...)[0]`
+ise listenin ilkini alıyordu: dört kırpma adımının DÖRDÜ DE 1. görseli kırptı. Kırpılmış
+olan öbek içinde hamı EZDİĞİ için dört yuvanın dördüne aynı figür girdi. Şablon dört
+görsel sipariş etti, sağlayıcı dördünü de üretti, üçü çöpe gitti.
+
+⚠ ⚠ **HATA BİR YORUM SATIRIYDI.** Kodun yanında *"İLKİNİ almak doğru, çünkü `needs`
+girdiyi zaten DARALTIYOR (D-246)"* yazıyordu. D-246 gerçekten böyle bir ders içeriyor —
+ama o ders İSTEM KURUCUSU için: `promptTuret` `input.needs` üzerinde döner, `inputs`
+üzerinde değil. Doğru bir dersin YANLIŞ yere uygulanması, dersin hiç olmamasından daha
+tehlikeli: yorum, doğrulamayı gereksiz gösteriyor.
+
+**Üç yanlış teşhis, sırayla:**
+1. *"Kadraj tarifi brief isteminde eksik"* → eklendi (D-280), değişmedi.
+2. *"Metin modeli tarifi düzlüyor"* → tarif doğrudan görsel istemine kondu, değişmedi.
+3. *"Sağlayıcı tohumsuz çağrıda sabit varsayılan kullanıyor"* → tohum eklendi (D-281),
+   değişmedi.
+
+**Teşhisi getiren şey sağlayıcıyı DOĞRUDAN sınamak oldu:** aynı isteme üç çağrı —
+`seed 7919`, `seed 15838`, tohumsuz — ÜÇ FARKLI görsel döndürdü (98.633 · 84.896 ·
+94.379 bayt, üç ayrı özet). Sağlayıcı suçsuzdu, dolayısıyla çökme bizdeydi. **Zincirin
+bir ucunu sabitlemeden ortasını tahmin etmek üç turumu aldı.**
+
+⚠ D-280 ve D-281 geçersiz DEĞİL: varyant kadrajı ayrıştırıyor, tohum tekrarlanabilirliği
+garantiliyor. Ama ikisi de kusuru gideremezdi — hepsi kırpma adımında birleşiyordu.
+
+**Geri alma maliyeti:** düşük — bir opsiyonel parametre, iki çağrı yeri.

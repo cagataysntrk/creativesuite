@@ -642,11 +642,21 @@ interface UretilenGorsel {
  * aynı öbekte, öbek içinde kırpılmış olan hamı EZER.
  */
 const uretilenGorseller = (
-  inputs: Readonly<Record<string, unknown>>
+  inputs: Readonly<Record<string, unknown>>,
+  // ⚠ ⚠ **`needs` VERİLMEZSE TÜM ÇIKTILARA BAKILIR — ve `inputs` GERÇEKTEN TÜMÜDÜR.**
+  // `run.ts` her adıma `inputs: ciktilar` geçiyor, yani o ana kadarki BÜTÜN çıktıları;
+  // daraltmayı `needs`i okuyan gövde yapmak zorunda. Bunu "DAG zaten daraltıyor" diye
+  // varsaymak dört özdeş fotoğrafın kök sebebiydi: dört kırpma adımının her biri
+  // listenin İLKİNİ, yani 1. görseli kırpıyordu ve kırpılmış olan hamı ezdiği için
+  // dört yuvanın dördüne de aynı figür giriyordu. Üç gerçek koşu bunu gösterdi ve
+  // teşhis ancak sağlayıcı DOĞRUDAN sınandıktan sonra buraya geldi (tohum çalışıyordu).
+  needs?: readonly string[]
 ): readonly UretilenGorsel[] => {
   const obekler = new Map<string, UretilenGorsel>()
   const sira: string[] = []
-  for (const [anahtar, v] of Object.entries(inputs)) {
+  const girdiler =
+    needs === undefined ? Object.entries(inputs) : needs.map((a) => [a, inputs[a]] as const)
+  for (const [anahtar, v] of girdiler) {
     if (v === null || typeof v !== 'object') continue
     const o = v as {
       format?: unknown
@@ -1586,10 +1596,11 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
   // ⚠ Silinecek görsel yoksa istem BOŞ: silinecek bir şey olmadan model çağırmak,
   // bir önceki adımın düşmesini gizlemek olurdu.
   if (yetenek === 'image.matte') {
-    // ⚠ **İLKİNİ almak doğru, çünkü `needs` girdiyi zaten DARALTIYOR** (D-246): bir kırpma
-    // adımı yalnız kendi `gorsel-uret-K` adımına bağlı ve başkasının çıktısını görmüyor.
-    // Bağ koparsa burası sessizce yanlış görseli kırpar — kısıt DAG'da, kodda değil.
-    return uretilenGorseller(input.inputs).length === 0 ? '' : 'arka plan silme'
+    // ⚠ ⚠ **`needs` AÇIKÇA GEÇİLİYOR — "DAG zaten daraltıyor" VARSAYIMI YANLIŞTI.**
+    // Burada bir yorum satırı "needs girdiyi zaten daraltıyor" diyordu; `run.ts` ise her
+    // adıma TÜM çıktıları geçiyor. Sonuç: dört kırpma adımı da 1. görseli kırptı, kırpılmış
+    // olan hamı ezdi ve dört yuvaya aynı figür girdi. Yorumun kendisi hataydı.
+    return uretilenGorseller(input.inputs, input.needs).length === 0 ? '' : 'arka plan silme'
   }
 
   if (yetenek.startsWith('image.') || yetenek.startsWith('video.')) {
@@ -2110,7 +2121,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // yetenek için genişletirdi; kısıt zaten `Record<string, unknown>` ve yük oraya
     // sığıyor. Sınır korunuyor: adaptör hâlâ yalnız `ProviderInput` görüyor.
     const matlanacak =
-      yetenek === 'image.matte' ? (uretilenGorseller(input.inputs)[0] ?? null) : null
+      yetenek === 'image.matte' ? (uretilenGorseller(input.inputs, input.needs)[0] ?? null) : null
     // ⚠ ⚠ **TOHUM YUVA SIRASINDAN TÜRÜYOR — dört özdeş fotoğrafın yapısal ilacı.**
     // İki gerçek koşuda da dört ayrı çağrı aynı kadrajı döndürdü; kadraj tarifini
     // istemde güçlendirmek yetmedi çünkü sağlayıcı tohum verilmediğinde SABİT bir

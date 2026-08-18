@@ -232,6 +232,32 @@ describe('dikiş 3b: iki panorama arasından SONUNCUSU seçiliyor', () => {
   })
 })
 
+// ⚠ ⚠ **KIRPMA ADIMI KENDİ GÖRSELİNİ KIRPAR — `inputs` TÜM ÇIKTILARI TAŞIYOR.**
+// `run.ts` her adıma `inputs: ciktilar` geçiyor; daraltmayı `needs`i okuyan gövde yapmak
+// zorunda. "DAG zaten daraltıyor" varsayımı bir YORUM SATIRI olarak yazılmıştı ve yanlıştı:
+// dört kırpma adımının dördü de listenin ilkini, yani 1. görseli kırpıyordu. Kırpılmış
+// olan hamı ezdiği için dört yuvaya da AYNI figür giriyordu. Üç gerçek koşu boyunca
+// görünen "dört özdeş fotoğraf" kusurunun kök sebebi buydu.
+describe('dikiş 3g: kırpma adımı KENDİ görselini seçiyor', () => {
+  const istem = (needs: readonly string[]): string =>
+    promptTuret('image.matte', {
+      capability: 'image.matte',
+      constraints: {},
+      needs,
+      inputs: {
+        'gorsel-uret': { format: 'base64', data: 'AAAA', width: 8, height: 8 },
+        'gorsel-uret-2': { format: 'base64', data: 'BBBB', width: 8, height: 8 },
+      },
+    } as never)
+
+  it('bağlı olmadığı görsel TEK BAŞINA istem üretmez', () => {
+    // `gorsel-uret-3` hiç üretilmediyse (şablonun üç yuvası yok) kırpma adımı ATLANMALI —
+    // ama `inputs`ta başkalarının görselleri duruyor ve daraltma olmazsa adım koşardı.
+    expect(istem(['gorsel-uret-3'])).toBe('')
+    expect(istem(['gorsel-uret-2'])).not.toBe('')
+  })
+})
+
 // ⚠ ⚠ **DÖRT YUVA, DÖRT AYRI KADRAJ — ve bunu GERÇEK KOŞU öğretti.** İlk sürümde kadraj
 // tarifi yalnız brief adımının istemine giriyordu: dört ayrı brief koştu, dördünün istemi
 // farklıydı ve çıkan dört fotoğraf BİREBİR AYNIYDI. Metin modeli tarifi düzledi. Bir
