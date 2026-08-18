@@ -16,7 +16,7 @@ son_kanit: "KATALOG SISTEMIN MERKEZINE BAGLANDI (FAZ-15.1-15.8 kapali, 15.9 deva
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**43 kapı · 23 ihlal kırmızı · 1613 test.**
+**44 kapı · 23 ihlal kırmızı · 1731 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·

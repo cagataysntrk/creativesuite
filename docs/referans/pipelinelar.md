@@ -93,16 +93,16 @@ Toplam **11** hat.
 | `sablon-uyarla` | `GENERATE` | `text.generate` | bilgi-sec, metin-uret | — | — |
 | `kompozit` | `COMPOSE` | — | metin-uret, sablon-uyarla | — | — |
 | `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
-| `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief | — | ✓ |
+| `gorsel-uret` | `GENERATE` | `image.generate` | gorsel-brief, kompozit | — | ✓ |
 | `gorsel-kirp` | `GENERATE` | `image.matte` | gorsel-uret | — | ✓ |
 | `gorsel-brief-2` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
-| `gorsel-uret-2` | `GENERATE` | `image.generate` | gorsel-brief-2 | — | ✓ |
+| `gorsel-uret-2` | `GENERATE` | `image.generate` | gorsel-brief-2, kompozit | — | ✓ |
 | `gorsel-kirp-2` | `GENERATE` | `image.matte` | gorsel-uret-2 | — | ✓ |
 | `gorsel-brief-3` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
-| `gorsel-uret-3` | `GENERATE` | `image.generate` | gorsel-brief-3 | — | ✓ |
+| `gorsel-uret-3` | `GENERATE` | `image.generate` | gorsel-brief-3, kompozit | — | ✓ |
 | `gorsel-kirp-3` | `GENERATE` | `image.matte` | gorsel-uret-3 | — | ✓ |
 | `gorsel-brief-4` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |
-| `gorsel-uret-4` | `GENERATE` | `image.generate` | gorsel-brief-4 | — | ✓ |
+| `gorsel-uret-4` | `GENERATE` | `image.generate` | gorsel-brief-4, kompozit | — | ✓ |
 | `gorsel-kirp-4` | `GENERATE` | `image.matte` | gorsel-uret-4 | — | ✓ |
 | `yuva-doldur` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4 | — | — |
 | `render` | `RENDER` | — | yuva-doldur | — | — |

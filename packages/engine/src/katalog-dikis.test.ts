@@ -232,6 +232,67 @@ describe('dikiş 3b: iki panorama arasından SONUNCUSU seçiliyor', () => {
   })
 })
 
+// ⚠ ⚠ **DÖRT YUVA, DÖRT AYRI KADRAJ — ve bunu GERÇEK KOŞU öğretti.** İlk sürümde kadraj
+// tarifi yalnız brief adımının istemine giriyordu: dört ayrı brief koştu, dördünün istemi
+// farklıydı ve çıkan dört fotoğraf BİREBİR AYNIYDI. Metin modeli tarifi düzledi. Bir
+// modele "şunu koru" demek bir RİCA; garanti yapıya gömülmeli.
+describe('dikiş 3e: kadraj varyantı GÖRSEL istemine doğrudan giriyor', () => {
+  const brief = 'a worker on a textile line, cinematic light'
+  const istem = (sira: number): string =>
+    promptTuret('image.generate', {
+      capability: 'image.generate',
+      constraints: { topic: 'konu', gorsel_sira: sira },
+      needs: ['gorsel-brief', 'kompozit'],
+      inputs: { 'gorsel-brief': { text: brief }, kompozit: { sablonId: 'sahne' } },
+    } as never)
+
+  it('her sıra AYRI bir kadraj cümlesi taşıyor', () => {
+    const dort = [1, 2, 3, 4].map(istem)
+    for (const p of dort) expect(p).toContain(brief)
+    // Dördü de birbirinden farklı olmalı: eşitlik, dört özdeş fotoğraf demek.
+    expect(new Set(dort).size).toBe(4)
+  })
+
+  it('`kompozit` bağı KOPARSA varyant düşer — bağın bedeli ölçülüyor', () => {
+    // ⚠ Bu iddia bağın GEREKLİLİĞİNİ kanıtlıyor: `needs`ten `kompozit` çıkınca şablon
+    // kimliği okunamaz ve istem yalnız brief'e iner.
+    const kopuk = promptTuret('image.generate', {
+      capability: 'image.generate',
+      constraints: { topic: 'konu', gorsel_sira: 2 },
+      needs: ['gorsel-brief'],
+      inputs: { 'gorsel-brief': { text: brief } },
+    } as never)
+    expect(kopuk).toBe(brief)
+    expect(istem(2)).not.toBe(kopuk)
+  })
+})
+
+// ⚠ ⚠ **`kolon` KOMPOZİSYONDUR ve uyarlamada TAŞINMAK ZORUNDA.** Gerçek koşuda taşınmadı:
+// dört slaytta da metin sola düştü ve figürün üstüne bindi. Ders bir satır yukarıda
+// `zemin` için yazılıydı; yeni alan onu kendiliğinden almadı.
+describe('dikiş 3f: `kolon` uyarlamadan sağ çıkıyor', () => {
+  it('şablonun `kolon` alanı uyarlanmış belgede duruyor', () => {
+    const ornek = ornekBul('sahne') as KatalogOrnegi
+    const beklenen = ornek.kartlar.map((k) => k.kolon ?? null)
+    // Şablonun kendisi en az bir `sag` taşımalı, yoksa test hiçbir şey ölçmez.
+    expect(beklenen).toContain('sag')
+    const r = uyarla(ornek, {
+      sablonId: 'sahne',
+      kartlar: ornek.kartlar.map((_, i) => ({
+        ustBaslik: `ADIM ${i}`,
+        baslik: 'Başlık **bir**',
+        govde: 'Gövde.',
+        hayalet: '',
+        rayaSol: 'X',
+        rayaOrta: 'Gerçek kaynak, 2026',
+      })),
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.belge.kartlar.map((k) => k.kolon ?? null)).toEqual(beklenen)
+  })
+})
+
 // ⚠ ⚠ **N GÖRSEL → N YUVA, SIRAYA GÖRE (borç A8).** `composeBody` tek görseli HER yuvaya
 // yayıyordu: iki yuvalı bir şablon aynı figürü iki kez çiziyordu ve çıktı tasarım değil
 // hata gibi okunuyordu. Bu testin sorduğu şey davranışın kendisi, kaynak metni değil.

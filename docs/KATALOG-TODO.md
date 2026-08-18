@@ -6,7 +6,7 @@
 > ⚠ **Bu listenin kendisi bir sınav:** referanslar `examples/` altında duruyor. Bir
 > madde ancak çıktı referansın YANINA konup karşılaştırıldığında kapanır.
 
-**Son güncelleme:** 2026-08-18
+**Son güncelleme:** 2026-08-18 (A8 kapandı · yan yana kompozisyon)
 
 ---
 
@@ -26,7 +26,7 @@
 
 | # | Referans | Bizdeki fark | Durum |
 |---|---|---|---|
-| 1.1 | `image copy 2` (sahne) — kesik özne kadrajın **~%40'ı**, KAHRAMAN | Bizde %26 (13'ten çıkarıldı), hâlâ küçük | 🟡 |
+| 1.1 | `image copy 2` (sahne) — kesik özne kadrajın **~%40'ı**, KAHRAMAN | ✅ Sorun ölçek değil YERLEŞİMdi: tek yuva dört slayda düşüyordu. A8 kapandı (D-278), `sahne` DÖRT yuva; her karede bir özne, y%22'den alt kenara kesik. Doluluk %5–9 → %10,6–14,1 | ✅ |
 | 1.2 | `image copy 2` — oklar **el çizimi fırça şeridi** | ✅ `perfect-freehand` (MIT, 31KB, sıfır bağımlılık, determinist); açıklık 8→17, büküm 13→52 | ✅ |
 | 1.3 | `image copy 2` — **el yazısı ikinci yüz** ("Instagram" kelimesi) | Bizde tek tipografik aile | 🔴 |
 | 1.4 | `image copy 4` (memphis) — lekeler **dev**, kesim aşıyor | ✅ 6→9 leke, boyut 130–210 → 170–430 px (slaytın ~%35'i), üçü kesim üstünde, iki aksan | ✅ |
@@ -41,7 +41,7 @@
 | 2.1 | Kütüphane araştırması | 🟡 | D-275 reddetti; yeniden arandı ve **`perfect-freehand` KURULDU** — kontur matematiği 40 satır değil, R-75 eşiğinin üstünde |
 | 2.2 | El çizimi ok/fırça | ✅ | `perfect-freehand` · `roughjs` (MIT, tohumlanabilir) sonraki aday |
 | 2.3 | 3B/izometrik varlık seti | 🔴 | GLB ikinci motor ister (Yasa 4); PNG/SVG set aranmalı |
-| 2.4 | Kural: yeni jenerik öge KODLANMAZ | 🔴 | Kural yazılmalı (`KURALLAR.md`) ve bir kapıya bağlanmalı |
+| 2.4 | Kural: yeni jenerik öge KODLANMAZ | ✅ | **R-81 + `kodlanmis-oge` kapısı** (D-279). Sayım dondu; kasten yeni rozet eklendi → kırmızı. Kırpma kapsam dışı: fotoğrafın kadrajı, çizilmiş şekil değil |
 
 ## 3 — Zemin, tipografi, kutular
 

@@ -76,9 +76,12 @@ steps:
   - id: gorsel-uret
     verb: GENERATE
     capability: image.generate
-    needs: [gorsel-brief]
+    # ⚠ `kompozit` BAĞI ŞART: varyant tablosu şablon kaydında ve şablon kimliği oradan
+    # geliyor. Bağ koparsa dört yuva dört ÖZDEŞ fotoğraf alır (gerçek koşu gösterdi).
+    needs: [gorsel-brief, kompozit]
     constraints:
       optional: true
+      gorsel_sira: 1
       aspect: '4:5'
       no_text: true
       max_cost_usd_micros: 20000
@@ -132,9 +135,12 @@ steps:
   - id: gorsel-uret-2
     verb: GENERATE
     capability: image.generate
-    needs: [gorsel-brief-2]
+    # ⚠ `kompozit` BAĞI ŞART: varyant tablosu şablon kaydında ve şablon kimliği oradan
+    # geliyor. Bağ koparsa dört yuva dört ÖZDEŞ fotoğraf alır (gerçek koşu gösterdi).
+    needs: [gorsel-brief-2, kompozit]
     constraints:
       optional: true
+      gorsel_sira: 2
       aspect: '4:5'
       no_text: true
       max_cost_usd_micros: 20000
@@ -159,9 +165,12 @@ steps:
   - id: gorsel-uret-3
     verb: GENERATE
     capability: image.generate
-    needs: [gorsel-brief-3]
+    # ⚠ `kompozit` BAĞI ŞART: varyant tablosu şablon kaydında ve şablon kimliği oradan
+    # geliyor. Bağ koparsa dört yuva dört ÖZDEŞ fotoğraf alır (gerçek koşu gösterdi).
+    needs: [gorsel-brief-3, kompozit]
     constraints:
       optional: true
+      gorsel_sira: 3
       aspect: '4:5'
       no_text: true
       max_cost_usd_micros: 20000
@@ -186,9 +195,12 @@ steps:
   - id: gorsel-uret-4
     verb: GENERATE
     capability: image.generate
-    needs: [gorsel-brief-4]
+    # ⚠ `kompozit` BAĞI ŞART: varyant tablosu şablon kaydında ve şablon kimliği oradan
+    # geliyor. Bağ koparsa dört yuva dört ÖZDEŞ fotoğraf alır (gerçek koşu gösterdi).
+    needs: [gorsel-brief-4, kompozit]
     constraints:
       optional: true
+      gorsel_sira: 4
       aspect: '4:5'
       no_text: true
       max_cost_usd_micros: 20000

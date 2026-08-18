@@ -344,3 +344,15 @@ yeşilini beklemek yasak.
 **Neden:** `vitest run` tek başına çıkış kodu 1 verdi ("Worker exited unexpectedly",
 1511 testin **161'i hiç koşmadı**), aynı paket `just check` içinde yeşil geçti. R-71'in
 ikizi: yeşil kapı hiçbir şey kanıtlamaz, **kararsız** kapı daha azını. → D-265
+
+### R-81 · jenerik-oge-kodlanmaz · GATE · aktif
+Yeni bir **jenerik grafik öge** CSS/HTML ile kodlanmaz: ikon, ok, rozet, çerçeve, çizgi
+süsü, 3B şekil, illüstrasyon. Bunlar tasarım kütüphanesinden gelir (`perfect-freehand`
+kontur matematiği gibi) ya da hiç konmaz.
+**İstisna — kodlanabilir olanlar:** YERLEŞİM (ızgara, kolon, boşluk), TİPOGRAFİ,
+ZEMİN reçetesi (degrade/ışık/gren) ve VERİ görselleştirmesi (çubuk, vafel — bunlar süs
+değil, verinin kendisi).
+**Neden:** depo sahibinin ölçümü — `examples/` altındaki profesyonel tasarımlarla
+bizimkiler yan yana konduğunda fark renkte ya da düzende değil, ÖGELERDEydi. Elle
+kodlanmış bir ikon "bilgisayar işi" gibi duruyor çünkü öyle; bir tasarımcının çizdiği
+öge, ölçülemeyen binlerce kararı taşıyor. → D-279 · `docs/referans/tasarim-rehberi.md`

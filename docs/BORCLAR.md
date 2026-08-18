@@ -17,7 +17,7 @@
 | A4 | **Doodle/illüstrasyon kütüphanesi** | ✅ **KARARA BAĞLANDI (D-275)** | `humaaans` CC BY atıf + fotoğrafik öznelerle çakışıyor; ikon setleri çıktıyı DAHA jenerik yapar |
 | A5 | **Foto manipülasyon** | 🟡 KISMİ | `tema-uyum` (renk derecelendirme) + `temas-golgesi` eklendi. **Perspektif ve ışık yönü eşleme YOK** |
 | A6 | Şablonların **zenginleştirilmesi** | 🟡 KISMİ | Boşluk ritmi 1:3, panel tek ayıraç, hayalet katman, hacimli blob **uygulandı**. §7 (tek kahraman) ve §9 (hikâye) HENÜZ değil |
-| A8 | `GorselIhtiyaci.adet` ilan ediliyor, **hat dinlemiyor** | 🔴 AÇIK | Katalog `slayt-basina` diyor; DAG dinamik çoğaltma yapmıyor ve tek görsel üretiliyor. `sahne` tek geniş yuvaya çevrildi (referansa sadık), ama İLAN ile GERÇEK hâlâ ayrı |
+| A8 | `GorselIhtiyaci.adet` ilan ediliyor, **hat dinlemiyor** | ✅ KAPANDI (D-278) | Üç parça: `uretilenGorseller()` sıraya göre eşleştiriyor (yayma yok) · hat görsel üçlüsünü **açarak** dörde çıkardı · `varyantlar` yuva başına kadraj tarif ediyor. Fazlalık sıra brief'i BOŞ döndürüp adımı atlıyor: para harcanmıyor |
 | A7 | `content/` çıktılarının tazelenmesi | 🔴 AÇIK | Eski render'lar duruyor; katalog merkezli hatla yeniden üretilmeli |
 
 ⚠ **A3/A4 için ölçüt (rehber §4, §6):** kütüphane "ikon seti" değil **kompozisyon ögesi**

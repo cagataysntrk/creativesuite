@@ -166,114 +166,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-267 — Kalan iki bloke adım da tetikleyici aldı; kararsız blokajla faz kapanmaz
-
-**2026-08-17.** D-266 FAZ-11'in dört adımını karara bağladı ama `12.8` ve `13.3` aynı
-durumda bırakıldı — ve 2. doğrulama turu haklı olarak bunu yakaladı: **kendi yazdığım
-ilkeyi bir sonraki dosyada uygulamamıştım.** Bir kuralı bir yerde uygulayıp komşusunda
-uygulamamak, kuralı olmamasından kötüdür (bu turda üçüncü kez).
-
-| Adım | Karar | Tetikleyici |
-|---|---|---|
-| `12.8` `sharp`/Lanczos | **ERTELENDİ** | Upscale yumuşaması FAZ-12.2'de `feConvolveMatrix` ile **bağımlılıksız** çözüldü (kenar enerjisi 2,04 → 2,36). Kalan: gerçek yeniden örnekleme + EXIF temizliği. Tetikleyici: `keskinlik` sonrası bir koşuda örnekleme kaybı GÖRÜNÜR olsun, ya da EXIF taşıyan bir kaynak fotoğraf hatta girsin. Bugün model çıktısı PNG ve EXIF yok. |
-| `13.3` vektörleştirme | **ERTELENDİ** | Gerekçesi renk sapmasıydı; duotone (11.7) sapmayı YAPISAL olarak kapatıyor ve ölçüldü: doygun bir test görselinde ortalama ΔE **12,79 → 8,19**. Üstelik bugün bedava şeritte görsel sağlayıcı YOK — vektörleştirilecek model çıktısı da yok. Tetikleyici: ücretli görsel şeridi açılsın **ve** duotone'un yetmediği ölçülsün. |
-
-⚠ **Blokajı sınıflandırmak karara bağlamak değildir.** `bloke: karar` bir etiket; karar,
-adımın hangi gözlenebilir koşulda yeniden açılacağını yazmaktır. Etiket kalırsa plan her
-turda okunur, her turda atlanır ve sessizce gerçeklikten kopar.
-
-⚠ **`durum` kapısı bunu göremiyor** ve görmesi de beklenmemeli: yalnız DURUM→FAZ yönünü
-doğruluyor, `bloke` sınıfları `insan|teknik`. `karar` üçüncü bir sınıf değil — D-157'nin
-`insan` sınıfının alt kümesi (dış girdi: para, ağırlık, lisans). İkisi de artık
-DURUM.md'nin `bloke` dizisinde `insan` olarak duruyor.
-
-**Geri alma maliyeti:** sıfır — hiçbir kod yazılmadı, hiçbir bağımlılık eklenmedi.
-
-## D-268 — KATALOG MERKEZLİ ÜRETİM: serbest üretim yok, şablon var
-
-**2026-08-18.** Bu karar bir mimariyi değiştiriyor; öncekiler onun içinde kalıyor.
-
-**Ne yanlıştı.** Sistem tek bir gramer kurup onu parametrelerle çeşitlendirmeye çalışıyordu:
-`AileProfili` renk, süsleme yoğunluğu, tipografi ölçeği söylüyor, `sablon.ts` her slaydı
-AYRI çiziyordu. Yedi "aile" tanımlandı ve render edildi; ızgaraya bakınca **yedi tasarım
-değil, tek tasarımın yedi boyası** göründü. Sebep tek bir eksik parametre değildi:
-
-1. **Tuvalin nasıl bölündüğü, hangi ögenin nereye oturduğu, çizginin hangi açıyla geçtiği
-   `sablon.ts`'e GÖMÜLÜYDÜ.** Bir şablonu şablon yapan şey rengi değil; çizgileri,
-   açıları, bölmeleri ve akışıdır.
-2. **Süreklilik İMA EDİLİYORDU.** Her slayt ayrı render edilip "eğrinin çıkış açısı
-   sonrakinin girişiyle uyumlu olsun" deniyordu. Bu yaklaşımla sürekli görünmek
-   imkânsız — süreklilik bir efekt değil, **tuvalin kendisidir.**
-
-**Ne doğru.** *Seamless carousel*: N slayt için `N × 1080` genişliğinde **tek tuval**
-tasarlanır, ögeler kesim çizgilerini serbestçe aşar, sonra dilimlenir. Ve **kesimi aşan
-öge içerikten türer, süsten değil** — veri eğrisi, kemer dizisi, kesik öznenin kolu.
-Bant süs olsaydı silinebilirdi; içerikten türediği için silinemiyor.
-
-**Yeni çalışma biçimi: KATALOG MERKEZLİ.**
-
-| Eski | Yeni |
-|---|---|
-| Tek gramer + parametreler | **Elle kurulmuş şablon kataloğu** (`packages/contracts/src/katalog.ts`) |
-| Slayt başına render | **Panorama**: tek tuval + dilimleme (`packages/render/src/panorama.ts`) |
-| Süreklilik ima edilir | Süreklilik **kurulur**; taşıyıcı öge içerikten türer |
-| Aile renk/süsleme seçer | Şablon **kompozisyonu** taşır; içerik ve görsellik değişir |
-
-⚠ **Serbest üretim YOK.** Hat bir düzen icat etmiyor: kataloğdan bir şablon seçiyor,
-içeriği ve görselleri onun yuvalarına üretiyor. Hedef determinizm değil — **üretken ve
-estetik olmak**; ama üretkenlik kompozisyonda değil, İÇERİKTE ve GÖRSELLİKTE.
-
-⚠ **Katalog bugün altı kayıt** ve hedef 20–30. Beşi referans örneklerden ölçüldü
-(`ornek-1..5`), biri panorama referansından. Her kayıt görsel ihtiyacını **ilan ediyor**
-(adet · kırpma · brief temeli) ve `kullanilabilir` bayrağı taşıyor: kataloga eklemek işi
-bitirmez, kullanılabilirlik ayrı bir sorudur.
-
-⚠ **Garanti katmanı DEĞİŞMEDİ.** Kontrast, Türkçe taşma, chroma tavanı, kelime bütçesi,
-R-20 hâlâ ölçüm olarak üstte duruyor. Şablon kompozisyon seçer, kuralı gevşetemez —
-`kartRenkleri` metin rengini zeminden TÜRETİYOR, seçtirmiyor.
-
-**Devredilen dosyalar:** `sablon.ts` ve `AileProfili` yaşamaya devam ediyor (slayt başına
-render yolu ve `tasarim` kapısı onlara bağlı), ama **yeni şablonlar kataloğa yazılıyor.**
-İkisini birleştirmek ayrı bir adım.
-
-**Geri alma maliyeti:** düşük — panorama ayrı bir modül, mevcut render yolu bozulmadı.
-
-
-## D-269 — "Ne kurmalı" sorusunun cevabı ÖLÇÜLDÜ: hiçbir şey; üç eksen kullanılmıyordu
-
-**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.1 · §17 · R-75
-
-"Muazzam tasarımlar için ne yüklemek, hangi kütüphaneyi eklemek lazım" sorusu bir
-envanterle değil bir **ölçümle** cevaplandı. Tarayıcıda gerçek fontla ölçülen değerler:
-
-| Yetenek | Durum | Ölçüm |
-|---|---|---|
-| Display genişlik ekseni | **VAR, kullanılmıyordu** | `Sürdürülebilirlik` `wdth 62`→580 px, `wdth 125`→1001 px (1,73×) |
-| Metin ağırlık ekseni | **VAR, kullanılmıyordu** | 400→735 px, 800→798 px |
-| Tabular rakam | **VAR, kullanılmıyordu** | `1111 8888` orantılı 464 px, tabular 543 px |
-| İkon seti | **VAR, panorama çağırmıyordu** | 20 ikon `sablon-ikon.ts`te çizili |
-| Doku/gren, degrade, maske | VAR — SVG `feTurbulence`/`linearGradient` yerel | — |
-| Renk uzayı | VAR — OKLCH token'ları + `color-mix(in oklab)` | — |
-
-**Karar: yeni bağımlılık YOK, yeni font YOK.** Eksik olan araç değil, **bağlanmamış
-zincir**. Bir kütüphane kurmak eksik olanı vermezdi; kurulmuş olsaydı aynı eksenler yine
-kullanılmadan duracak, üstüne bir lisans denetimi borcu doğacaktı (R-75).
-
-⚠ **Bu, D-261 ailesinin sekizinci ve dokuzuncu üyesi.** `softHyphenate` için yedincisi
-yazılmıştı; şimdi aynı sınıf iki kez daha çıktı — modül var, test yeşil, üretim yolu
-sıfır. Sorunun tekrar etmesi tesadüf değil: **yeni bir yol açıldığında (panorama) eski
-yolun bağladığı zincirler otomatik gelmiyor.** FAZ-15.9 eski yolu emekliye ayırırken
-kontrol listesi bu tablodur.
-
-⚠ **Başlık heceleme REDDEDİLDİ, gerekçesi korunarak.** Uzun Türkçe kelime punto tavanını
-düşürüyor ve heceleme onu kurtarırdı; ama `static.ts` başlık hecelemeyi kompozisyon
-gerekçesiyle reddediyor ve kırmızı bir kuralın gerekçesi başka bir dosyada sessizce
-delinmez. Doğru kaldıraç genişlik ekseni çıktı: `wdth 62`'de aynı kelime %67 genişlikte,
-punto tavanı **1,49 kat** yükseliyor. Eklemeli bir dilde poster tipografisinin yolu
-daraltmaktan geçiyor — ölçülmeden bilinemeyecek bir sonuç.
-
-**Geri alma maliyeti:** yok — hiçbir şey kurulmadı.
-
 ## D-270 — Mimarinin tamamı üretim yolundan KOPUKTU: onuncu ve en büyüğü
 
 **Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.9 · D-261 ailesi · §3.10
@@ -561,3 +453,66 @@ hiçbir iddia çalışmıyor, test YEŞİL kalıyordu. Şablon `editoryal` (2 yu
 değiştirildi ve yayma kasten geri konarak kırmızıya döndüğü GÖRÜLDÜ.
 
 **Geri alma maliyeti:** orta — bir motor fonksiyonu, dokuz hat adımı, bir sözleşme alanı.
+
+## D-279
+
+**Karar:** R-81 — yeni jenerik grafik öge (ikon, ok, rozet, çerçeve, çizgi süsü, 3B
+şekil) CSS/HTML ile KODLANMAZ. `kodlanmis-oge` kapısı sayıyı donduruyor.
+
+**Neden:** depo sahibinin ölçümü. `examples/` altındaki profesyonel tasarımlarla bizim
+çıktılar yan yana konduğunda fark renkte ya da düzende değil, ÖGELERDEydi. Elle
+kodlanmış bir ikon "bilgisayar işi" gibi duruyor çünkü öyle: bir tasarımcının çizdiği
+öge ölçülemeyen binlerce kararı taşır, `border-radius: 50%` taşımaz.
+
+**Kapsam dışı — ve sınır burada:** YERLEŞİM, TİPOGRAFİ, ZEMİN reçetesi ve VERİ
+görselleştirmesi. Çubuk bir süs değil, verinin kendisi; onu kütüphaneye devretmek
+veriyi bir üçüncü tarafın estetiğine teslim etmek olurdu.
+
+⚠ ⚠ **KIRPMA BİR ÖGE DEĞİLDİR.** `clip-path: circle(50%)` bir FOTOĞRAFI daire yapıyor —
+kadraj kararı, çizilmiş şekil değil. Aynı satırı yasaklamak `donen` şablonunun daire
+maskesini imkânsız kılardı. Ayrım: şeklin içi fotoğrafla doluysa kırpma, boşsa öge.
+
+⚠ **Kural YENİ öge için, mevcutlar dondurulmuş.** `.kilometre-nokta` (13px) ve
+`.madalyon-no` (46px) tam olarak R-81'in yasakladığı şey ama silmek kompozisyonu bozardı
+ve emeklilik silme değildir (Yasa 10). Ölçülen şey sayının ARTMAMASI. Tavanı düşüren
+değişiklik de kırmızı: bir öge silindiyse tavan onunla inmeli, yoksa kapı sessizce
+gevşer ve yerine yenisi konabilir.
+
+⚠ ⚠ **KAPININ İLK SÜRÜMÜ YORUMLARI SAYIYORDU.** İlk koşuda `sekil-cebri.ts` yanlış
+pozitif verdi: `polygon()` orada geçiyor ama bir AÇIKLAMA cümlesinde — hem de o tekniğin
+neden KULLANILMADIĞINI anlatarak. `static.ts`in tavanı da 4 sanılmıştı, kodda 1.
+Bu depoda ölçüm aracı, ölçtüğü şeyden daha sık bozuk çıkıyor.
+
+**Kanıt:** yeni bir `border-radius: 50%` rozeti eklendi → kapı KIRMIZI (4 → 5); geri
+alındı → yeşil.
+
+**Geri alma maliyeti:** düşük — bir kapı dosyası, bir kural.
+
+## D-280
+
+**Karar:** Kadraj varyantı GÖRSEL isteminin kendisine ekleniyor (`gorsel-uret-K` artık
+`kompozit`e de bağlı) ve `kolon` uyarlamada korunuyor. İkisini de **gerçek koşu** buldu.
+
+**Koşu:** `instagram-karosel` "Tekstil hattinda geri kazanim adimlari" — 25 adım yeşil,
+dört görsel üretimi + dört arka plan silme, insan kapısında durdu. A8 üretimde çalıştı.
+Çıktıya BAKILDI ve iki kusur göründü.
+
+**Kusur 1 — dört fotoğraf BİREBİR AYNI.** Dört ayrı brief adımı koştu, dördünün
+isteminde farklı bir kadraj cümlesi vardı (ölçüldü: sıra 1–4 farklı, sıra 5 boş) ve
+çıkan dört fotoğraf piksel piksel aynıydı. Sebep yapısal: kadraj tarifi METİN
+MODELİNDEN GEÇEREK gidiyordu ve model onu düzledi. **Bir modele "şunu koru" demek bir
+rica; garanti yapıya gömülmeli** — aynı ders `matlama` → `gorsel-kirp` geçişinde de
+öğrenilmişti. Varyant artık brief metnine doğrudan ekleniyor.
+
+⚠ **Yanlış teşhisten dönüldü:** önce idempotency çökmesi sanıldı (anahtar `stepId`
+içermiyor, kasten). Ama `inputDigest` adım kimliğini İÇERİYOR; dört çağrı gerçekten
+ayrı ayrı yapılmıştı. Ölçüm teşhisi düzeltti.
+
+**Kusur 2 — `kolon` uyarlamada düşüyordu.** Dört slaytta da metin sola indi ve figürün
+üstüne bindi. `zemin` bir satır YUKARIDA şablondan korunuyordu; yeni alan o dersi
+kendiliğinden almadı. Bu deponun tekrar eden sınıfı: **bir dosyaya yazılmış ders, o
+dosyaya sonradan eklenen alana geçmiyor.**
+
+**Kanıt:** iki düzeltme de kasten geri alındı → üç test kırmızı; geri konuldu → yeşil.
+
+**Geri alma maliyeti:** düşük — bir `needs` bağı, iki kısıt, iki satır.

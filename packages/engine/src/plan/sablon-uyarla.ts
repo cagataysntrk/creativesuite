@@ -140,6 +140,13 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       // ⚠ Kartın kendi zemini KOMPOZİSYON: `donen`in kimliği tam olarak o rotasyon.
       // Uyarlamadan değil şablondan geliyor.
       ...(o.zemin === undefined ? {} : { zemin: o.zemin }),
+      // ⚠ ⚠ **`kolon` DA KOMPOZİSYON ve TAŞINMAYI UNUTTU — gerçek koşu gösterdi.**
+      // Metnin yatay yeri öznenin karşı yanı demek; taşınmayınca dört slaytta da metin
+      // SOLA düştü ve figürün üstüne bindi ("amirinin…" bir gövdenin arkasından
+      // okunuyordu). Ders bir satır YUKARIDA yazılıydı — `zemin` için. Bir dosyaya
+      // yazılmış ders, o dosyaya SONRADAN eklenen alana kendiliğinden geçmiyor; bu
+      // deponun tekrar eden sınıfı.
+      ...(o.kolon === undefined ? {} : { kolon: o.kolon }),
     })
   }
 

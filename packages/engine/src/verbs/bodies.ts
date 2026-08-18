@@ -1598,7 +1598,23 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     // Tüm çıktılara bakmak, Türkçe gönderi metnini görsel prompt'u sanmaktı (D-246).
     for (const ad of input.needs ?? Object.keys(input.inputs)) {
       const d = duzMetin(input.inputs[ad])
-      if (d !== null) return d
+      if (d === null) continue
+      // ⚠ ⚠ **VARYANT GÖRSEL İSTEMİNE DOĞRUDAN EKLENİYOR — brief'e GÜVENMİYORUZ.**
+      // Gerçek koşu: dört yuvaya dört ayrı brief adımı koştu, her birinin isteminde
+      // farklı bir kadraj satırı vardı ve çıkan dört fotoğraf BİREBİR AYNIYDI. Sebep
+      // yapısal: kadraj tarifi metin modelinden GEÇEREK gidiyordu ve model onu düzledi.
+      // Bir modele "şunu koru" demek bir RİCA; garantiyi yapıya gömmek gerekiyor
+      // (aynı ders `matlama` → `gorsel-kirp` geçişinde de öğrenildi).
+      //
+      // ⚠ Bu yüzden `gorsel-uret-K` artık `kompozit`e de BAĞLI: şablon kimliği olmadan
+      // varyant tablosu okunamaz. Bağ koparsa varyant sessizce düşer ve dört özdeş
+      // fotoğraf geri gelir — `katalog-dikis` testi bağı ölçüyor.
+      const sira =
+        typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : 1
+      const sid = katalogSablonuId(input.inputs)
+      const vs = sid === null ? [] : (sablonBul(sid)?.gorsel?.varyantlar ?? [])
+      const varyant = vs[sira - 1]
+      return varyant === undefined ? d : `${d}, ${varyant}`
     }
     return ''
   }

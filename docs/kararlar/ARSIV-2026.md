@@ -4546,3 +4546,110 @@ ama talep bir sezgi değil, bir referans örnek ya da bir kabul koşusu bulgusu 
 
 **Geri alma maliyeti:** sıfır — hiçbir kod yazılmadı, hiçbir bağımlılık eklenmedi.
 
+## D-267 — Kalan iki bloke adım da tetikleyici aldı; kararsız blokajla faz kapanmaz
+
+**2026-08-17.** D-266 FAZ-11'in dört adımını karara bağladı ama `12.8` ve `13.3` aynı
+durumda bırakıldı — ve 2. doğrulama turu haklı olarak bunu yakaladı: **kendi yazdığım
+ilkeyi bir sonraki dosyada uygulamamıştım.** Bir kuralı bir yerde uygulayıp komşusunda
+uygulamamak, kuralı olmamasından kötüdür (bu turda üçüncü kez).
+
+| Adım | Karar | Tetikleyici |
+|---|---|---|
+| `12.8` `sharp`/Lanczos | **ERTELENDİ** | Upscale yumuşaması FAZ-12.2'de `feConvolveMatrix` ile **bağımlılıksız** çözüldü (kenar enerjisi 2,04 → 2,36). Kalan: gerçek yeniden örnekleme + EXIF temizliği. Tetikleyici: `keskinlik` sonrası bir koşuda örnekleme kaybı GÖRÜNÜR olsun, ya da EXIF taşıyan bir kaynak fotoğraf hatta girsin. Bugün model çıktısı PNG ve EXIF yok. |
+| `13.3` vektörleştirme | **ERTELENDİ** | Gerekçesi renk sapmasıydı; duotone (11.7) sapmayı YAPISAL olarak kapatıyor ve ölçüldü: doygun bir test görselinde ortalama ΔE **12,79 → 8,19**. Üstelik bugün bedava şeritte görsel sağlayıcı YOK — vektörleştirilecek model çıktısı da yok. Tetikleyici: ücretli görsel şeridi açılsın **ve** duotone'un yetmediği ölçülsün. |
+
+⚠ **Blokajı sınıflandırmak karara bağlamak değildir.** `bloke: karar` bir etiket; karar,
+adımın hangi gözlenebilir koşulda yeniden açılacağını yazmaktır. Etiket kalırsa plan her
+turda okunur, her turda atlanır ve sessizce gerçeklikten kopar.
+
+⚠ **`durum` kapısı bunu göremiyor** ve görmesi de beklenmemeli: yalnız DURUM→FAZ yönünü
+doğruluyor, `bloke` sınıfları `insan|teknik`. `karar` üçüncü bir sınıf değil — D-157'nin
+`insan` sınıfının alt kümesi (dış girdi: para, ağırlık, lisans). İkisi de artık
+DURUM.md'nin `bloke` dizisinde `insan` olarak duruyor.
+
+**Geri alma maliyeti:** sıfır — hiçbir kod yazılmadı, hiçbir bağımlılık eklenmedi.
+
+## D-268 — KATALOG MERKEZLİ ÜRETİM: serbest üretim yok, şablon var
+
+**2026-08-18.** Bu karar bir mimariyi değiştiriyor; öncekiler onun içinde kalıyor.
+
+**Ne yanlıştı.** Sistem tek bir gramer kurup onu parametrelerle çeşitlendirmeye çalışıyordu:
+`AileProfili` renk, süsleme yoğunluğu, tipografi ölçeği söylüyor, `sablon.ts` her slaydı
+AYRI çiziyordu. Yedi "aile" tanımlandı ve render edildi; ızgaraya bakınca **yedi tasarım
+değil, tek tasarımın yedi boyası** göründü. Sebep tek bir eksik parametre değildi:
+
+1. **Tuvalin nasıl bölündüğü, hangi ögenin nereye oturduğu, çizginin hangi açıyla geçtiği
+   `sablon.ts`'e GÖMÜLÜYDÜ.** Bir şablonu şablon yapan şey rengi değil; çizgileri,
+   açıları, bölmeleri ve akışıdır.
+2. **Süreklilik İMA EDİLİYORDU.** Her slayt ayrı render edilip "eğrinin çıkış açısı
+   sonrakinin girişiyle uyumlu olsun" deniyordu. Bu yaklaşımla sürekli görünmek
+   imkânsız — süreklilik bir efekt değil, **tuvalin kendisidir.**
+
+**Ne doğru.** *Seamless carousel*: N slayt için `N × 1080` genişliğinde **tek tuval**
+tasarlanır, ögeler kesim çizgilerini serbestçe aşar, sonra dilimlenir. Ve **kesimi aşan
+öge içerikten türer, süsten değil** — veri eğrisi, kemer dizisi, kesik öznenin kolu.
+Bant süs olsaydı silinebilirdi; içerikten türediği için silinemiyor.
+
+**Yeni çalışma biçimi: KATALOG MERKEZLİ.**
+
+| Eski | Yeni |
+|---|---|
+| Tek gramer + parametreler | **Elle kurulmuş şablon kataloğu** (`packages/contracts/src/katalog.ts`) |
+| Slayt başına render | **Panorama**: tek tuval + dilimleme (`packages/render/src/panorama.ts`) |
+| Süreklilik ima edilir | Süreklilik **kurulur**; taşıyıcı öge içerikten türer |
+| Aile renk/süsleme seçer | Şablon **kompozisyonu** taşır; içerik ve görsellik değişir |
+
+⚠ **Serbest üretim YOK.** Hat bir düzen icat etmiyor: kataloğdan bir şablon seçiyor,
+içeriği ve görselleri onun yuvalarına üretiyor. Hedef determinizm değil — **üretken ve
+estetik olmak**; ama üretkenlik kompozisyonda değil, İÇERİKTE ve GÖRSELLİKTE.
+
+⚠ **Katalog bugün altı kayıt** ve hedef 20–30. Beşi referans örneklerden ölçüldü
+(`ornek-1..5`), biri panorama referansından. Her kayıt görsel ihtiyacını **ilan ediyor**
+(adet · kırpma · brief temeli) ve `kullanilabilir` bayrağı taşıyor: kataloga eklemek işi
+bitirmez, kullanılabilirlik ayrı bir sorudur.
+
+⚠ **Garanti katmanı DEĞİŞMEDİ.** Kontrast, Türkçe taşma, chroma tavanı, kelime bütçesi,
+R-20 hâlâ ölçüm olarak üstte duruyor. Şablon kompozisyon seçer, kuralı gevşetemez —
+`kartRenkleri` metin rengini zeminden TÜRETİYOR, seçtirmiyor.
+
+**Devredilen dosyalar:** `sablon.ts` ve `AileProfili` yaşamaya devam ediyor (slayt başına
+render yolu ve `tasarim` kapısı onlara bağlı), ama **yeni şablonlar kataloğa yazılıyor.**
+İkisini birleştirmek ayrı bir adım.
+
+**Geri alma maliyeti:** düşük — panorama ayrı bir modül, mevcut render yolu bozulmadı.
+
+
+## D-269 — "Ne kurmalı" sorusunun cevabı ÖLÇÜLDÜ: hiçbir şey; üç eksen kullanılmıyordu
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.1 · §17 · R-75
+
+"Muazzam tasarımlar için ne yüklemek, hangi kütüphaneyi eklemek lazım" sorusu bir
+envanterle değil bir **ölçümle** cevaplandı. Tarayıcıda gerçek fontla ölçülen değerler:
+
+| Yetenek | Durum | Ölçüm |
+|---|---|---|
+| Display genişlik ekseni | **VAR, kullanılmıyordu** | `Sürdürülebilirlik` `wdth 62`→580 px, `wdth 125`→1001 px (1,73×) |
+| Metin ağırlık ekseni | **VAR, kullanılmıyordu** | 400→735 px, 800→798 px |
+| Tabular rakam | **VAR, kullanılmıyordu** | `1111 8888` orantılı 464 px, tabular 543 px |
+| İkon seti | **VAR, panorama çağırmıyordu** | 20 ikon `sablon-ikon.ts`te çizili |
+| Doku/gren, degrade, maske | VAR — SVG `feTurbulence`/`linearGradient` yerel | — |
+| Renk uzayı | VAR — OKLCH token'ları + `color-mix(in oklab)` | — |
+
+**Karar: yeni bağımlılık YOK, yeni font YOK.** Eksik olan araç değil, **bağlanmamış
+zincir**. Bir kütüphane kurmak eksik olanı vermezdi; kurulmuş olsaydı aynı eksenler yine
+kullanılmadan duracak, üstüne bir lisans denetimi borcu doğacaktı (R-75).
+
+⚠ **Bu, D-261 ailesinin sekizinci ve dokuzuncu üyesi.** `softHyphenate` için yedincisi
+yazılmıştı; şimdi aynı sınıf iki kez daha çıktı — modül var, test yeşil, üretim yolu
+sıfır. Sorunun tekrar etmesi tesadüf değil: **yeni bir yol açıldığında (panorama) eski
+yolun bağladığı zincirler otomatik gelmiyor.** FAZ-15.9 eski yolu emekliye ayırırken
+kontrol listesi bu tablodur.
+
+⚠ **Başlık heceleme REDDEDİLDİ, gerekçesi korunarak.** Uzun Türkçe kelime punto tavanını
+düşürüyor ve heceleme onu kurtarırdı; ama `static.ts` başlık hecelemeyi kompozisyon
+gerekçesiyle reddediyor ve kırmızı bir kuralın gerekçesi başka bir dosyada sessizce
+delinmez. Doğru kaldıraç genişlik ekseni çıktı: `wdth 62`'de aynı kelime %67 genişlikte,
+punto tavanı **1,49 kat** yükseliyor. Eklemeli bir dilde poster tipografisinin yolu
+daraltmaktan geçiyor — ölçülmeden bilinemeyecek bir sonuç.
+
+**Geri alma maliyeti:** yok — hiçbir şey kurulmadı.
