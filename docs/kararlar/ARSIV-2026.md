@@ -4814,3 +4814,92 @@ denk çıktı; BRIA'nın üstünlüğü saç/ince kenar/karışık zemin gibi zo
 burada ÖLÇÜLMEDİ. `REMBG_MODEL` ile değiştirilebilir bırakıldı.
 
 **Geri alma maliyeti:** düşük — tek alan (`noncommercial_ack`) ve tek kapı satırı.
+
+## D-275 — Görsel kütüphaneleri ARAŞTIRILDI: ikisi reddedildi, biri kendimiz yazıldı
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.11 · §17 · R-75 · R-06
+
+Kullanıcı *"doodle club, 3d element icon görsel kütüphaneleri gibi farklı kütüphaneler
+de yüklenmeli"* dedi. npm'de tek tek sorgulandı ve **ölçüm kararı verdi:**
+
+| Aday | Bulunan | Karar | Gerekçe |
+|---|---|---|---|
+| `blobshape` | 1.0.0 · MIT | **RET, yerine kendimiz** | `Math.random` kullanıyor; R-06 determinizmi yasaklıyor ve replay bozulur. Tohumlu bir üretici ~30 satır (R-75) |
+| `lucide-static` | 1.31.0 · ISC | **RET** | Kendi 20 ikonumuz zaten çizili ve o karar gerekçeliydi; jenerik bir set eklemek çıktıyı DAHA standart yapar — kullanıcının *"ai durmamalı"* dediğinin tersi |
+| `@phosphor-icons/core` | 2.1.1 · MIT | **RET** | Aynı gerekçe |
+| `humaaans` | 1.7.0 | **RET** | CC BY 4.0 atıf şartı; ayrıca düz vektör insanlar, bizim fotoğrafik kesik öznelerimizle aynı karede çakışır |
+| 3B varlık kütüphaneleri (GLB/three.js) | — | **RET** | Chromium'da render için ikinci bir motor ister (Yasa 4) ve tek bir öge için orantısız |
+
+⚠ ⚠ **"3D element" GÖRÜNÜMÜNÜN GERÇEKTE NE OLDUĞU ÖLÇÜLDÜ.** Bu karosellerdeki imza
+üçüncü bir boyut değil; **yumuşak degrade + tek yönlü ışık + zemine düşen gölge**. Üçü
+de SVG'de var. `blob` leke tipi bunu veriyor: radyal degrade (ışık sol üstte), paylaşılan
+`feDropShadow`, tohumu KONUMDAN gelen deterministik bir kuadratik eğri.
+
+⚠ **Memphis'te ikisi blob, dördü düz kaldı.** Hepsi blob olsaydı şablon Memphis olmaktan
+çıkardı: o dilin kimliği geometrik desen. Hacimli şekil bir KARŞITLIK katıyor, yerine
+geçmiyor — kullanıcının şartı buydu: *"zenginleştir ama asıllarına sadık kal."*
+
+**Geri alma maliyeti:** yok — hiçbir bağımlılık eklenmedi.
+
+## D-276 — Marka rengi LOGODAN ölçüldü: aksanımız stok şablondan gelmişti
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.12 · §12.1 · D-253
+
+Depo sahibi iki logo bıraktı (`upcytech mavi beyaz.png`, `upcytech siyah beyaz.png`) ve
+*"bunlara uygun paletleri hazırla, katalog bizim markamızın katalogu"* dedi. Logolar
+ölçüldü: **tek renk `#0090fc` = `oklch(0.647 0.189 251.2)`** ve siyah.
+
+⚠ ⚠ **ASIL BULGU TOKEN AÇIKLAMASINDA YAZIYORDU.** `role.bg` şöyle tanımlıydı:
+*"Kapak ve vurgu slaytlarının zemini. **Referans karosellerdeki sarı alanın karşılığı.**"*
+Yani kreatif zeminimiz markadan değil, **incelediğimiz stok şablondan** geliyordu.
+Logoda sarı YOK. Aylardır markanın kendi rengi hiçbir çıktıda görünmüyordu ve bunu
+kimse fark etmedi çünkü hiçbir kapı "bu renk nereden geliyor" diye sormuyor.
+
+**Karar:**
+
+| Rol | Önce | Sonra | Gerekçe |
+|---|---|---|---|
+| `role.bg` | `amber-500` | **`mavi-500`** | Logodan ölçülen renk; markanın kendisi |
+| `role.accent` | `amber-600` | `amber-500` | Amber SİLİNMEDİ, karşı aksan oldu |
+
+⚠ **Amber neden silinmedi:** referans tasarımların hepsi iki aksanlı çalışıyor
+(turuncu+lacivert, sarı+siyah). Tek renkli bir palet cansız kalıyor; sıcak bir karşıt
+mavi alanı canlandırıyor. Amber artık birincil değil, KARŞITI.
+
+⚠ **Kendiliğinden uyum:** konsol gri rampası zaten 250 tonunda kurulmuştu, marka mavisi
+251. Enstrüman grisi ile marka mavisi aynı tonda — bu tasarlanmamıştı ama tutuyor.
+
+**Geri alma maliyeti:** düşük — iki token değeri; rampa eklendi, hiçbiri silinmedi.
+
+## D-277
+
+**Karar:** Kart metni yatayda konumlanabilir (`kolon: 'sol' | 'sag'`) ve `sahne`
+dikey ortaya (`yerlesim: 'orta'`) geçti. Referansın kompozisyonu YAN YANA, bizimki
+ÜST ÜSTE BANTLIydı.
+
+**Neden:** Ölçüm: `sahne`nin dört slaydından üçünde alt yarı doluluğu %0,3–%1,2 idi.
+Kadrajın yarısı boştu ve çıktı bir web "hero" bölümü gibi okunuyordu — kullanıcının
+"web tasarımı gibi duruyor" tespiti tam olarak buydu. Sebep tercih değil, **ifade
+edememekti**: her kart `align-items: flex-start` ile sola yapışıktı, dolayısıyla tek
+kurulabilen düzen bantlamaktı (metin bandı · ok bandı · özne bandı). Referansta
+(`image copy 2`) özne kadrajın bir yanını doldururken metin ötekinde yaşıyor.
+
+**Ölçülen sonuç:** üst/alt doluluk 18,7/0,3 → 7,6/4,1 · 16,6/1,2 → 6,4/6,6 ·
+10,6/0,3 → 3,1/3,4. Ölü alt yarı bitti.
+
+⚠ **`sag` blok sağa KONUMLANIR, metin SOLA hizalı kalır.** Referansta da böyle.
+`text-align: right` Türkçe gövdede tırtıklı sol kenar üretir; hizalama ile
+konumlandırma ayrı kararlardır.
+
+⚠ ⚠ **BAĞLI OLDUĞU YAZILMAYAN İKİNCİ SAYI ok şeridiydi.** Oklar y%39–47'deydi ve bu
+sayı `ust` yerleşimindeki metnin ALTINDA olmak üzere seçilmişti. Yerleşim `orta`
+olunca metin y%30–62'ye indi ve oklar başlıkların üstünü çizdi — "Önce sorun duruyor"
+okunamaz oldu. Şerit y%68–80'e taşındı; bağ artık kodda yazılı.
+
+**Geri alma maliyeti:** düşük — bir opsiyonel alan, iki CSS kuralı, üç sayı.
+
+⚠ **Bu değişiklik `sahne`yi asıllına BENZETMEDİ, yalnız bant düzenini kaldırdı.**
+Referansta her slaytta bir fotoğraf var ve kadrajı boydan boya dolduruyor; bizde tek
+görsel dört slayda düşüyor ve kalan üçü metinle doluyor. Toplam doluluk hâlâ %3–8.
+**Kök engel borç A8'dir** (`GorselIhtiyaci.adet: 'slayt-basina'` ilan ediliyor, DAG
+çoğaltmıyor) ve bu artık iddia değil, ölçülmüş.

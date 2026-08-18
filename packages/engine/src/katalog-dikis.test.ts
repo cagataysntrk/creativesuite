@@ -31,7 +31,7 @@ const DAMGA = {
   contextManifest: 'ctx_1',
   sourceRunId: 'run_t',
 }
-import { uyarla } from './plan/sablon-uyarla.js'
+import { uyarla, uyarlamaIstemi } from './plan/sablon-uyarla.js'
 
 const REPO = join(import.meta.dirname, '../../..')
 
@@ -291,6 +291,27 @@ describe('dikiş 3e: kadraj varyantı GÖRSEL istemine doğrudan giriyor', () =>
     expect(kopuk).toBe(brief)
     expect(istem(2)).not.toBe(kopuk)
   })
+})
+
+// ⚠ ⚠ **ÖRNEK BAŞLIĞIN METNİ İSTEME GİRMEZ — YALNIZ ŞEKLİ.** İstem "başlıkları konuya
+// göre yeniden yaz, aynen bırakmak reddedilir" diyordu ve model İKİ AYRI GERÇEK KOŞUDA
+// dördü de aynen döndürdü; `uyarla` reddetti, hat `kompozit`te öldü. Talimatı yükseltmek
+// üçüncü kez denemek olurdu: kopyalanmasını istemediğimiz metni modelin önüne koyduğumuz
+// sürece kopyalanıyor.
+describe('dikiş 3h: uyarlama istemi örnek başlığı SIZDIRMIYOR', () => {
+  for (const id of Object.keys(ORNEKLER)) {
+    it(`${id} · başlık metinleri istemde yok, şekli var`, () => {
+      const ornek = ornekBul(id) as KatalogOrnegi
+      const istem = uyarlamaIstemi(ornek, id, 'bir konu')
+      for (const k of ornek.kartlar) {
+        // Vurgu işaretleri ve boşluklar atılmış hâliyle bile geçmemeli.
+        const duz = k.baslik.replace(/\*\*/g, '')
+        expect(istem, `${id}: "${duz}" isteme sızdı`).not.toContain(duz)
+      }
+      // Şekil bilgisi DURMALI: uzunluk ve vurgu yeri olmadan başlık disiplini kaybolur.
+      expect(istem).toMatch(/başlık: \d+ kelime/)
+    })
+  }
 })
 
 // ⚠ ⚠ **KOMPOZİSYON ALANLARI UYARLAMADAN SAĞ ÇIKMALI — ALAN ALAN DEĞİL, LİSTEYLE.**

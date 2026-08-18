@@ -705,16 +705,36 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   // onu zeminden koparıp rozet gibi gösteriyor. Renk uyumu var — ürün her kartta BAŞKA
   // bir zemine düşüyor ve kendi sıcaklığıyla gelirse dördü de yamalı görünür.
   gorselIslemleri: ['keskinlik', 'tema-uyum'],
-  gorseller: [
-    // ⚠ y 34: daire başlığın ALTINDA, gövde metninin ÜSTÜNDE. y 46'da gövdeyi örtüyordu
-    // ve metin dairenin içinden okunuyordu — render'a bakınca görüldü.
-    { src: '', alt: 'ürün — 1', x: 20, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
-    { src: '', alt: 'ürün — 2', x: 45, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
-    { src: '', alt: 'ürün — 3', x: 70, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
-    { src: '', alt: 'ürün — 4', x: 91, y: 34, genislik: 9, yukseklik: 30, kirpma: 'daire' },
+  // ⚠ ⚠ **DAİRE ARKA FON, KIRPMA DEĞİL (D-288).** Referansta (`image copy 3`) beyaz daire
+  // ürünün ARKASINDA duruyor ve ürün onu TAŞIYOR — omuzları, sapı, yaprağı dairenin
+  // dışına çıkıyor. Bizde fotoğraf daireye KIRPILIYORDU: aynı görüntü değil, daha az
+  // tasarım. Hat zaten arka planı siliyor (`gorsel-kirp`), yani kesik ürün elimizde;
+  // eksik olan tek şey dairenin görünür bir katmanda durmasıydı.
+  // ⚠ Daireler `ust: true`: kart zemini opak ve altta kalan bir leke hiç görünmüyor.
+  lekeler: [
+    // ⚠ ⚠ **SÜREKLİLİK ÜRÜNDE DEĞİL, ZEMİNDE.** İlk kurulumda ürünler kesimi aşıyordu ve
+    // her slaytta İKİ yarım figür beliriyordu (kendi ürünü + öncekinin kuyruğu); metin
+    // ikisinin arasında sıkışıp üstlerine bindi — render'a bakınca görüldü. Ürün bir
+    // slaydın konusudur, iki slaydın ortak ögesi değil.
+    // Kesimi aşan şey artık SOLUK BÜYÜK DAİRELER: zemin katmanında yaşıyorlar, metinle
+    // yarışmıyorlar ve şablonun süreklilik iddiasını gerçekten kuruyorlar.
+    { tip: 'daire', ust: true, x: 25, y: 30, boyut: 760, renk: 'rgba(255,255,255,0.07)' },
+    { tip: 'daire', ust: true, x: 75, y: 68, boyut: 700, renk: 'rgba(255,255,255,0.07)' },
+    // Ürünün arkasındaki beyaz daire — referansın (`image copy 3`) imzası. Merkezleri
+    // ürün kutularıyla AYNI; boyutları üründen KÜÇÜK ki ürün taşsın.
+    { tip: 'daire', ust: true, x: 17, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
+    { tip: 'daire', ust: true, x: 42, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
+    { tip: 'daire', ust: true, x: 67, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
+    { tip: 'daire', ust: true, x: 92, y: 51, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
   ],
-  // ⚠ Hayalet rakam bu şablonda hiyerarşiyi de kuruyor: hayaletsiz hâlde en büyük punto
-  // başlıktı ve en büyük/en küçük oranı 5,9'da kalıyordu (rehber §10 ölçüt 1: ≥6).
+  // ⚠ Kırpma `kesik`: ürün dairenin dışına taşabilsin — referanstaki hacim hissi bu.
+  // ⚠ Her ürün KENDİ slaydında, kesimi aşmıyor: merkezler 17 · 42 · 67 · 92.
+  gorseller: [
+    { src: '', alt: 'ürün — 1', x: 10.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 2', x: 35.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 3', x: 60.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 4', x: 85.5, y: 24, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+  ],
   kartlar: [
     {
       elYazisi: 'Seride',

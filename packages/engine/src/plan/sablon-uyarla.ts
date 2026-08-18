@@ -210,18 +210,33 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
  * gösterir ve o seçimi yapmaya çalışır.
  */
 export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: string): string => {
+  // ⚠ ⚠ **ÖRNEK BAŞLIĞIN METNİ İSTEME GİRMİYOR — YALNIZ ŞEKLİ.** İstem zaten
+  // "başlıkları konuya göre yeniden yaz, aynen bırakmak reddedilir" diyordu ve model
+  // İKİ AYRI KOŞUDA dördü de aynen döndürdü; `uyarla` haklı olarak reddetti ve hat
+  // `kompozit`te öldü. Talimatı yükseltmek üçüncü kez denemek olurdu: **kopyalanmasını
+  // istemediğimiz metni modelin önüne koyduğumuz sürece kopyalanıyor.** Model bir
+  // örneği "doldurulacak yer tutucu" değil "verilmiş içerik" sayıyor.
+  //
+  // ⚠ Kaybedilen bir şey YOK: başlığın işlevini taşıyan bilgi uzunluğu, vurgunun kaçıncı
+  // kelimede olduğu ve panel tipi. Üçü de burada. Konuya özgü malzeme zaten istemin
+  // "Kaynak metin" bölümünde ve gerçek içerik oradan gelmeli.
   const kartlar = ornek.kartlar
     .map((k, i) => {
       const p = k.panel === null ? 'panel yok' : `panel: ${k.panel.tip} (tipi DEĞİŞTİRİLEMEZ)`
-      return `${i + 1}. ${k.ustBaslik} — "${k.baslik}" · ${p}`
+      const kelimeler = k.baslik.split(/\s+/).filter((w) => w !== '')
+      const vurguSirasi = kelimeler.findIndex((w) => w.includes('**'))
+      const vurgu =
+        vurguSirasi < 0 ? 'vurgu yok' : `vurgu ${vurguSirasi + 1}. kelimede (\`**böyle**\`)`
+      return `${i + 1}. ${k.ustBaslik} — başlık: ${kelimeler.length} kelime, ${vurgu} · ${p}`
     })
     .join('\n')
   return [
     `Konu: ${konu}`,
     `Şablon: ${sablonId} · ${ornek.kartlar.length} kart`,
     '',
-    'Aşağıdaki DOLU taslağı bu konuya uyarla. BAŞLIKLARI DA konuya göre yeniden yaz —',
-    'örnekteki başlıkları aynen bırakmak uyarlama sayılmaz ve reddedilir.',
+    'Aşağıdaki kart iskeletini bu konuya göre DOLDUR. Başlıkların METNİ sana verilmedi:',
+    'her başlığı Kaynak metinden yola çıkarak SEN yazacaksın; verilen şey yalnız uzunluğu,',
+    'vurgunun yeri ve panel tipi.',
     'Kompozisyonu değiştirme; yalnız metni ve',
     `panel verisini değiştir. Kart sayısı SABİT: tam ${ornek.kartlar.length} kart üret.`,
     'Kaynak metinde daha fazla madde varsa BİRLEŞTİR; daha az varsa madde UYDURMA —',

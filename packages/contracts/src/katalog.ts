@@ -251,7 +251,11 @@ export const DONEN: KatalogSablonu = {
   },
   gorsel: {
     adet: 'slayt-basina',
-    kirpma: 'daire',
+    // ⚠ ⚠ **`daire` → `kesik` (D-288).** Referansta (`image copy 3`) daire ürünün ARKASINDA
+    // duran beyaz bir alan; ürün onu TAŞIYOR, sapı ve yaprağı dışına çıkıyor. Fotoğrafı
+    // daireye KIRPMAK aynı görüntü değil, daha az tasarım. Hat zaten arka planı siliyor
+    // (`gorsel-kirp`), yani kesik ürün elimizdeydi; daire artık bir leke katmanı.
+    kirpma: 'kesik',
     briefTemeli:
       'single product, centred, plain seamless backdrop, soft studio lighting, ' +
       'composed for a circular crop',

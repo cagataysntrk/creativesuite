@@ -372,6 +372,18 @@ export interface PanoramaBelgesi {
      * ve tohumu içerikten geliyor: aynı belge her koşuda aynı blob'u veriyor.
      */
     readonly tip: 'daire' | 'halka' | 'kare' | 'nokta' | 'tarama' | 'blob'
+    /**
+     * Kartların ÜSTÜNDE mi çizilsin — varsayılan HAYIR.
+     *
+     * ⚠ ⚠ **OPAK KART, ALTINDAKİ HER ŞEYİ ÖRTÜYOR.** Lekeler z-index 0'da, yani kart
+     * zemininin ALTINDA; `memphis` gibi kartı şeffaf olan şablonlarda bu doğru (leke
+     * metnin altında kalmalı). Ama `donen`in kimliği kart renklerinin DÖNMESİ, kartlar
+     * opak olmak zorunda ve leke hiç görünmüyor. Referansta (`image copy 3`) ürünün
+     * ARKASINDA duran beyaz daire tam olarak böyle bir öge: kart renginin üstünde,
+     * ürünün altında.
+     * ⚠ Metnin ÜSTÜNE çıkmıyor: katman kartlarla görseller ARASINDA.
+     */
+    readonly ust?: boolean
     readonly x: number
     readonly y: number
     readonly boyut: number
@@ -856,27 +868,33 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           )
           .join('')
 
-  const lekeKatmani =
-    doc.lekeler === undefined || doc.lekeler.length === 0
+  // ⚠ Lekeler İKİ katmana ayrılıyor: `ust` olanlar kartların üstünde, ötekiler altında.
+  // Tek bir SVG'de z-index ile ayrılamazlar; kartlar araya giren DOM düğümleri.
+  // ⚠ ⚠ **HER ŞEKLE `leke` SINIFI — denetim onu ARIYORDU ama kimse YAZMIYORDU.**
+  // `panorama-denetim.ts` kesintisizlik ölçümünde `.hayalet, .gorsel, .gorsel-yer, .leke`
+  // seçicisini kullanıyor; `.leke` hiçbir zaman eşleşmedi, yani ölçümün o kolu ölüydü.
+  // `donen`in kesimi aşan daireleri sayılmayınca kusur haklı görünen bir yanlış verdi.
+  const lekeSvg = (secilen: NonNullable<typeof doc.lekeler>, sinif: string): string =>
+    secilen.length === 0
       ? ''
-      : `<svg class="lekeler" viewBox="0 0 ${toplam} ${doc.yukseklik}" aria-hidden="true">` +
+      : `<svg class="${sinif}" viewBox="0 0 ${toplam} ${doc.yukseklik}" aria-hidden="true">` +
         `<defs>${blobDegradeleri}` +
         // ⚠ Gölge tek tanım, her blob onu paylaşıyor: filtre başına bir SVG filtresi
         // kurmak aynı görüntüyü N kez tarif etmek olurdu.
         `<filter id="blob-golge" x="-30%" y="-30%" width="170%" height="170%">` +
         `<feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.28"/>` +
         `</filter></defs>` +
-        doc.lekeler
+        secilen
           .map((l) => {
             const cx = (l.x / 100) * toplam
             const cy = (l.y / 100) * doc.yukseklik
             const r = l.boyut / 2
             if (l.tip === 'daire')
-              return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${l.renk}"/>`
+              return `<circle class="leke" cx="${cx}" cy="${cy}" r="${r}" fill="${l.renk}"/>`
             if (l.tip === 'halka')
-              return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${l.renk}" stroke-width="7"/>`
+              return `<circle class="leke" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${l.renk}" stroke-width="7"/>`
             if (l.tip === 'kare')
-              return `<rect x="${cx - r}" y="${cy - r}" width="${l.boyut}" height="${l.boyut}" fill="${l.renk}" transform="rotate(12 ${cx} ${cy})"/>`
+              return `<rect class="leke" x="${cx - r}" y="${cy - r}" width="${l.boyut}" height="${l.boyut}" fill="${l.renk}" transform="rotate(12 ${cx} ${cy})"/>`
             if (l.tip === 'blob') {
               // ⚠ ⚠ **TOHUM KONUMDAN, RASTGELELİKTEN DEĞİL (R-06).** Yarıçaplar `l.x`
               // ve `l.y`den türeyen deterministik bir diziyle salınıyor: aynı belge her
@@ -918,6 +936,17 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           })
           .join('') +
         `</svg>`
+
+  // ⚠ `ust` olanlar kartların ÜSTÜNDE, ötekiler ALTINDA çiziliyor: tek SVG'de z-index
+  // ile ayrılamazlar, çünkü kartlar araya giren DOM düğümleri.
+  const lekeKatmani = lekeSvg(
+    (doc.lekeler ?? []).filter((l) => l.ust !== true),
+    'lekeler'
+  )
+  const ustLekeKatmani = lekeSvg(
+    (doc.lekeler ?? []).filter((l) => l.ust === true),
+    'lekeler ust'
+  )
 
   // İki alanlı zemin: tek SVG, tüm panorama. Kartlar bunun üstünde şeffaf duruyor.
   const alanKatmani =
@@ -1160,6 +1189,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // şablonu yarıya indiriyordu ve ancak render'a bakınca görüldü.
     `  .lekeler { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
     `             height: ${doc.yukseklik}px; z-index: 0; pointer-events: none }`,
+    // ⚠ Kart zemini z-index 1'de; `ust` lekeler 2'de, görseller 3'te. Sıra tesadüf değil:
+    // daire kart renginin ÜSTÜNDE, ürünün ALTINDA durmalı (referans: `image copy 3`).
+    `  .lekeler.ust { z-index: 2 }`,
     `  .alan-siniri { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
     `                 height: ${doc.yukseklik}px; z-index: 0 }`,
     `  .bant-ok { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
@@ -1211,6 +1243,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     lekeKatmani,
     bantSvg(doc.bant, toplam, doc.yukseklik),
     kartlar,
+    // ⚠ Kartlardan SONRA, görsellerden ÖNCE: `donen`in beyaz dairesi kart renginin
+    // üstünde ama ürünün ALTINDA duruyor — referansın (`image copy 3`) katman sırası.
+    ustLekeKatmani,
     gorseller,
     // ⚠ Görsellerden SONRA, kesim ayracından ÖNCE: doku fotoğrafı da kapsıyor (yoksa
     // kesik özne tasarımın üstünde ayrı bir dünya gibi durur), ayraç ise en üstte kalıyor.
