@@ -554,6 +554,7 @@ const sunucu = createServer(async (req, res) => {
           if (d.dx) yeni.dx = d.dx
           if (d.dy) yeni.dy = d.dy
           if (d.olcek !== undefined && d.olcek !== 1) yeni.olcek = d.olcek
+          if (d.z !== undefined && d.z !== null) yeni.z = d.z
           if (Object.keys(yeni).length === 0) delete ayar[d.alan]
           else ayar[d.alan] = yeni
           const kalan = { ...k }
@@ -642,6 +643,43 @@ const sunucu = createServer(async (req, res) => {
         '✓ ' + ad + ' yuvaya kondu (' + Math.round((d.veri.length * 0.75) / 1024) + ' KB)'
       )
     }
+    // ── arka plan silme: SEÇİLİ görsele, editörden (FAZ-17.2) ───────────────
+    //
+    // ⚠ ⚠ **HAT BUNU ZATEN YAPIYOR ama düzeltme turunda yapmıyor.** `matlama-tutmuyor`
+    // kusuru gerçek bir koşuda çıktı (alfa 127/255) ve insan onu editörde görüyor —
+    // görüp düzeltememek, ölçümü bir şikâyete çevirir. Aynı yerel model (`rembg`)
+    // burada da çağrılıyor; ikinci bir teknik eklenmiyor.
+    // ⚠ Sonuç `-elle` ekiyle yazılıyor: hattın ürettiği asıl görsel yerinde kalıyor
+    // ve ikisi karşılaştırılabiliyor.
+    if (u.pathname === '/arkaplan-sil') {
+      const d = JSON.parse(await govde(req))
+      const k = kaynak[id]
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
+      if (k?.tur !== 'kosu') return res.end('✗ arka plan silme yalnız KOŞU modunda')
+      const g = calisan[id].gorseller[d.i]
+      if (g === undefined || typeof g.src !== 'string' || !g.src.startsWith('data:'))
+        return res.end('✗ ' + (d.i + 1) + '. yuvada görsel yok')
+      const { spawnSync } = await import('node:child_process')
+      const python = join(REPO, '.venv-gorsel/bin/python')
+      if (!existsSync(python)) return res.end('✗ .venv-gorsel yok — `just setup` çalıştır')
+      const b64 = g.src.slice(g.src.indexOf(',') + 1)
+      const r = spawnSync(python, [join(REPO, 'scripts/gorsel/arkaplan-sil.py')], {
+        input: b64,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+      })
+      if (r.status !== 0)
+        return res.end('✗ silme başarısız: ' + String(r.stderr ?? '').slice(0, 200))
+      const yeni = 'data:image/png;base64,' + String(r.stdout).trim()
+      writeFileSync(
+        join(k.dizin, 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'),
+        Buffer.from(String(r.stdout).trim(), 'base64')
+      )
+      anlikGoruntuAl(id)
+      calisan[id].gorseller[d.i] = { ...g, src: yeni }
+      return res.end('✓ ' + (d.i + 1) + '. görselin arka planı silindi')
+    }
+
     if (u.pathname === '/geri') {
       const y = geriYigin[id] ?? []
       if (y.length > 0) {

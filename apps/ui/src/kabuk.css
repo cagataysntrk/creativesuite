@@ -649,3 +649,40 @@ tr[data-tiklanir] {
   padding-inline-start: var(--space-5);
   color: var(--role-text-muted);
 }
+
+/* ── toplu işlem çubuğu (FAZ-17.2) ────────────────────────────────────────
+ * Kuyrukta 62 bekleyen vardı; tek tek kapatmak 62 tıklama demek ve o yüzden
+ * kimse kapatmıyor. Kapanmayan bir kuyruk, bekleyen GERÇEK işi gizler.
+ */
+.toplu-cubuk {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) 0;
+  color: var(--role-text-muted);
+}
+
+.toplu-cubuk button {
+  background: none;
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  color: var(--role-text);
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+}
+
+.toplu-cubuk button:hover {
+  border-color: var(--role-accent);
+}
+
+/* Varlık önizlemesi — 305 satırlık bir hash listesi kütüphane değildir.
+   `loading="lazy"`: 305 görseli birden çekmek paneli dondururdu. */
+.varlik-onizleme {
+  inline-size: 56px;
+  block-size: 70px;
+  object-fit: cover;
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  display: block;
+}

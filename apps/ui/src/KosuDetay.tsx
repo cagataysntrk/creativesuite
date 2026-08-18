@@ -48,6 +48,11 @@ export const KosuDetay = ({
 
   useEffect(() => {
     void yukle()
+    // ⚠ ⚠ **EKRAN KENDİNİ TAZELİYOR.** Hat sürdükten sonra adımlar ilerliyor ama ekran
+    // donmuş kalıyordu: kullanıcı "bir şey olmadı" görüyordu. Beş saniye, bir adımın
+    // bitmesinden kısa ve tarayıcıyı yormayacak kadar uzun.
+    const t = setInterval(() => void yukle(), 5000)
+    return () => clearInterval(t)
   }, [yukle])
 
   const karar = useCallback(
@@ -59,15 +64,28 @@ export const KosuDetay = ({
         body: JSON.stringify({ karar: k, gerekce: not }),
       })
       const j = (await r.json()) as { ok?: boolean; hata?: string }
-      // ⚠ Onay koşuyu SÜRDÜRMÜYOR — kararı deftere yazıyor. Sürdürme ayrı bir komut
-      // (`just uret --devam`) ve bu bilinçli: karar Ring 1'de git'te yaşar, bir web
-      // isteği para harcayan bir hattı kendiliğinden başlatmaz (Yasa 2).
-      setMesaj(
-        j.ok === true
-          ? `✓ karar yazıldı — sürdürmek için: just uret ${d.pipeline} --devam ${runId}`
-          : `✗ ${j.hata ?? 'karar yazılamadı'}`
-      )
+      if (j.ok !== true) {
+        setMesaj(`✗ ${j.hata ?? 'karar yazılamadı'}`)
+        return
+      }
       setGerekce(null)
+      // ⚠ ⚠ **ONAY, HATTI SÜRDÜRÜR.** İlk sürüm yalnız kararı deftere yazıyordu ve
+      // orada bitiyordu: düğmeler yerinde kalıyor, hiçbir şey değişmiyordu ve
+      // kullanıcı onayladığını sanıp bekliyordu. Bir onay düğmesi, onayın SONUCUNU
+      // doğurmuyorsa düğme değil bir yanılsamadır.
+      // ⚠ RET sürdürmez: reddedilen bir kapıdan devam etmek reddi anlamsız kılardı.
+      if (k === 'approved') {
+        setMesaj('✓ onaylandı — hat sürdürülüyor…')
+        const s2 = await fetch(`/api/kosu/${runId}/surdur`, { method: 'POST' })
+        const j2 = (await s2.json()) as { ok?: boolean; hata?: string }
+        setMesaj(
+          j2.ok === true
+            ? '✓ onaylandı, hat sürüyor — bu ekran kendini tazeliyor'
+            : `✓ karar yazıldı ama sürdürülemedi: ${j2.hata ?? 'bilinmeyen'}`
+        )
+      } else {
+        setMesaj('✓ reddedildi — gerekçe sonraki denemeye negatif kısıt olarak girecek')
+      }
       void yukle()
     },
     [d, runId, yukle]
@@ -104,8 +122,13 @@ export const KosuDetay = ({
             <button type="button" onClick={() => setGerekce('')}>
               ✗ reddet
             </button>
-            <a href={EDITOR} target="_blank" rel="noreferrer">
-              ✎ editörde aç
+            {/* ⚠ ⚠ **O KOŞUYU AÇIYOR, ŞABLONU DEĞİL.** İlk sürüm çıplak `EDITOR`
+                adresine gidiyordu ve editör varsayılan olarak ŞABLONU açıyordu —
+                yani "bu çıktıyı düzelt" düğmesi, altı tasarımın kaynağını açıyordu.
+                Şablonu değiştirmek bütün gelecek karoselleri etkiler; yanlışlıkla
+                oraya girmek en pahalı kaza olurdu. */}
+            <a href={`${EDITOR}/?id=kosu:${runId}`} target="_blank" rel="noreferrer">
+              ✎ bu koşuyu editörde aç
             </a>
           </div>
           {gerekce === null ? null : (

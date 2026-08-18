@@ -65,6 +65,40 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
 }
 
 /**
+ * Duraklamış bir çalıştırmayı SÜRDÜRÜR — kapı kararı yazıldıktan sonra.
+ *
+ * ⚠ ⚠ **BU EKSİKTİ VE AKIŞI KIRIYORDU.** Panelde "onayla" kararı deftere yazıyor ve
+ * ORADA bitiyordu: düğmeler yerinde kalıyor, hiçbir şey değişmiyor, hat ilerlemiyordu.
+ * Kullanıcı onayladığını sanıp bekliyordu. Bir onay düğmesi, onayın SONUCUNU
+ * doğurmuyorsa düğme değil bir yanılsamadır.
+ *
+ * ⚠ Yasa 2 ihlali DEĞİL: kapıyı açan şey insanın tıklaması. "Agent önerir, insan
+ * uygular" kuralı, insan uyguladıktan sonra hattın durmasını gerektirmiyor — kapının
+ * amacı insanın GÖRMESİydi ve gördü.
+ *
+ * ⚠ Konu argümanı YOK: `--devam` konuyu donmuş plandan okuyor. Yeniden yazdırmak bir
+ * harf farkıyla `idempotencyKey`i değiştirir ve sürdürme, sürdürme olmaktan çıkardı.
+ */
+export const calistirmaSurdur = (g: {
+  readonly repoRoot: string
+  readonly pipelineId: string
+  readonly runId: string
+  readonly env?: Readonly<Record<string, string>>
+  readonly komut?: string
+}): BaslatSonuc => {
+  if (g.pipelineId.trim() === '') return { ok: false, hata: 'pipeline seçilmedi' }
+  if (g.runId.trim() === '') return { ok: false, hata: 'çalıştırma id yok' }
+  void spawnProcess(g.komut ?? 'just', ['uret', g.pipelineId, '--devam', g.runId], {
+    cwd: g.repoRoot,
+    ...(g.env === undefined ? {} : { env: g.env }),
+    maxOutputBytes: 1_000_000,
+  }).catch(() => {
+    // Âkıbet manifeste yazılır; burada yutulan tek şey promise reddi.
+  })
+  return { ok: true, runId: g.runId as RunId }
+}
+
+/**
  * `rerun` / `replay` — **AYRI eylemler** (§13 · FAZ-4.15).
  *
  * `rerun` donmuş planı diskten okuyup aynen koşar: kararı tekrarlar. `replay` bugünün

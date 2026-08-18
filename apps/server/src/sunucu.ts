@@ -53,7 +53,7 @@ import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 import { calistirmaDetayi, calistirmalar } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
-import { calistirmaBaslat, tekrarBaslat } from './calistir.js'
+import { calistirmaBaslat, calistirmaSurdur, tekrarBaslat } from './calistir.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -586,6 +586,25 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // söylemezse operatör onu içerik sorunu sanar.
       olcumHatasi: olcumler.ok ? null : olcumler.error,
     })
+  })
+
+  // ⚠ ⚠ **ONAY SONRASI SÜRDÜRME.** Kapı kararı yazmak yetmiyordu: panelde "onayla"
+  // dendiğinde karar deftere düşüyor ve hat ORADA kalıyordu — düğmeler yerinde,
+  // hiçbir şey değişmiyor. Bir onay düğmesi, onayın sonucunu doğurmuyorsa düğme değil
+  // bir yanılsamadır. Ayrı uç: karar yazmak ile hattı sürdürmek AYRI eylemler ve
+  // reddedilen bir kapı sürdürülmez.
+  app.post('/api/kosu/:runId/surdur', async (c) => {
+    const runId = c.req.param('runId')
+    const m = readManifest(o.repoRoot, runId as never)
+    if (m === null) return c.json({ ok: false, hata: `manifest yok: ${runId}` }, 404)
+    const r = calistirmaSurdur({
+      repoRoot: o.repoRoot,
+      pipelineId: m.pipeline,
+      runId,
+      env: o.env ?? {},
+    })
+    if (r.ok) yayinla('degisim')
+    return c.json(r, r.ok ? 202 : 400)
   })
 
   app.post('/api/kuyruk/:runId/:gate', async (c) => {

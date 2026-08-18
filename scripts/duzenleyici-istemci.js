@@ -21,9 +21,21 @@ const mesaj = (metin) => {
   m.textContent = metin
   m.className = metin.startsWith('✗') ? 'hata' : metin.startsWith('✓') ? 'iyi' : ''
 }
-let id = $('#sablon').value,
+// ⚠ ⚠ **URL'DEN AÇILABİLİR: `?id=kosu:<runId>`.** Panel "bu koşuyu editörde aç"
+// diyordu ama çıplak adrese gidiyordu ve editör varsayılan olarak ŞABLONU açıyordu —
+// yani "bu çıktıyı düzelt" düğmesi altı tasarımın kaynağını açıyordu.
+const istenenId = new URLSearchParams(location.search).get('id')
+// ⚠ ⚠ **İSTENEN AÇILAMIYORSA SESSİZ KALMIYOR.** Panelden gelen bir koşu editörün
+// listesinde olmayabilir: editör yalnız `panorama.json` yazmış koşuları açabiliyor
+// (D-302 öncesi koşularda o dosya yok). İlk sürüm `select.value`ye atıyor, tarayıcı
+// geçersiz değeri sessizce yutuyor ve ekran BOŞ kalıyordu — kullanıcı editörün
+// bozuk olduğunu düşünürdü.
+const secenekler = [...$('#sablon').options].map((o) => o.value)
+const acilamaz = istenenId !== null && !secenekler.includes(istenenId)
+let id = acilamaz || istenenId === null ? $('#sablon').value : istenenId,
   olcek = 0.34,
   gecmis = []
+if (!acilamaz && istenenId !== null) $('#sablon').value = istenenId
 // ⚠ İKİ MOD, çünkü ikisi aynı anda OLAMAZ: contenteditable bir ögede sürüklemek
 // metni SEÇER, taşımaz. Tek modda denendi ve yazı düzenlemek imkânsızlaştı.
 let duzenMod = 'yaz' // 'yaz' → metne yaz · 'tasi' → metni taşı/ölçekle/sil
@@ -199,6 +211,21 @@ function mufettisiKur(doc) {
         yazAyar('olcek', v)
       )
     )
+    // ⚠ Katman: öne/arkaya. Sabit bir sıra, "figürün kolu başlığın önünden geçsin"
+    // gibi bir tasarım kararını elden alıyordu (D-304 metni üste aldı, hepsini değil).
+    kok.appendChild(
+      kaydirak(
+        a.z ?? (secili.alan === 'gorsel' ? 4 : 6),
+        {
+          etiket: 'katman (öne/arkaya)',
+          min: 0,
+          max: 9,
+          adim: 1,
+        },
+        (v) => yazAyar('z', v)
+      )
+    )
+
     const b = document.createElement('button')
     b.className = 'sil'
     b.textContent = '⌫ bu ögeyi sil'
@@ -224,6 +251,13 @@ function mufettisiKur(doc) {
       if (g[a.ad] === undefined) continue
       kok.appendChild(kaydirak(g[a.ad], a, (v) => yazG(a.ad, v)))
     }
+    // Katman: figür başlığın önünde mi arkasında mı — bir tasarım kararı (D-304
+    // metni üste aldı, HEPSİNİ değil; referansta figürün kolu başlığın önünden geçer).
+    kok.appendChild(
+      kaydirak(g.z ?? 4, { etiket: 'katman (öne/arkaya)', min: 0, max: 9, adim: 1 }, (v) =>
+        yazG('z', v)
+      )
+    )
     kok.appendChild(
       secim('kırpma', g.kirpma ?? '', ['', 'kesik', 'daire'], (v) => yazG('kirpma', v))
     )
@@ -250,6 +284,24 @@ function mufettisiKur(doc) {
       fr.readAsDataURL(f)
     }
     kok.appendChild(el('kendi görselini koy', dosya))
+
+    // ⚠ Arka plan silme burada, GÖRSELİN yanında: kusur (`matlama-tutmuyor`) bu
+    // ögede ölçülüyor ve düzeltmesi de bu ögede olmalı. Ayrı bir menüye koymak,
+    // ölçümle düzeltmeyi birbirinden uzaklaştırırdı.
+    const sil = document.createElement('button')
+    sil.textContent = '✂ arka planı sil'
+    sil.onclick = async () => {
+      sil.disabled = true
+      mesaj('… arka plan siliniyor (yerel model, birkaç saniye)')
+      const r = await fetch('/arkaplan-sil?id=' + id, {
+        method: 'POST',
+        body: JSON.stringify({ i: secili.i }),
+      })
+      mesaj(await r.text())
+      sil.disabled = false
+      await cek()
+    }
+    kok.appendChild(el('arka plan', sil))
   }
 
   // ── kart ──
@@ -475,8 +527,24 @@ function bagla(d, doc) {
   })
 }
 
+// ⚠ ⚠ **KAYDEDİLMEMİŞ DEĞİŞİKLİK SAYILIYOR.** Düzenlemeler sunucu BELLEĞİNDE yaşıyor;
+// "JSON'u yaz" denmeden sekme kapanırsa emek kaybolur ve bunu hiçbir şey söylemiyordu.
+let kaydedilmemis = 0
+const kaydiIsaretle = (n) => {
+  kaydedilmemis = n
+  const d = $('#kaydet')
+  d.textContent = n === 0 ? 'JSON’u yaz' : `JSON’u yaz (${n} değişiklik)`
+  d.dataset.bekleyen = n === 0 ? '' : '1'
+}
+window.addEventListener('beforeunload', (e) => {
+  if (kaydedilmemis === 0) return
+  e.preventDefault()
+  e.returnValue = ''
+})
+
 async function yaz(d) {
   gecmis.push(1)
+  kaydiIsaretle(kaydedilmemis + 1)
   await fetch('/degistir?id=' + id, { method: 'POST', body: JSON.stringify(d) })
   // ⚠ Yazdıktan sonra HEMEN yeniden çiziliyor: "uygula" düğmesi yok, karar gözle
   // veriliyor. Bu satır bir kez kazara silindi ve düzenleme sessizce görünmez oldu.
@@ -490,8 +558,31 @@ async function olc() {
       ? '✓ kusur yok'
       : k.map((x) => '✗ kart ' + (x.kart ?? '–') + ' · ' + x.tur + ' · ' + x.aciklama).join('\\n')
 }
+// ⚠ ⚠ **ŞABLON DÜZENLEMEK İKİ KEZ SORULUYOR — ve bu bir kolaylık kaybı değil, bir
+// ORANTI meselesi.** Bir KOŞUYU düzeltmek tek karoseli etkiler; bir ŞABLONU düzeltmek
+// o şablondan üretilecek BÜTÜN gelecek karoselleri etkiler. İkisi aynı tıklama
+// maliyetinde olamaz. Birinci onay şablona GİRERKEN, ikincisi katalog dosyasına
+// YAZARKEN soruluyor: yanlışlıkla girmek ile yanlışlıkla yazmak ayrı kazalardır.
+const sablonMu = (x) => String(x).startsWith('sablon:')
+let sablonIzni = false
+
 $('#sablon').onchange = (e) => {
-  id = e.target.value
+  const yeni = e.target.value
+  if (sablonMu(yeni) && !sablonIzni) {
+    const onay = window.confirm(
+      '⚠ DİKKAT — ŞABLON DÜZENLİYORSUN\n\n' +
+        'Bu, altı tasarımdan birinin KAYNAĞI. Değiştirirsen bu şablondan üretilecek\n' +
+        'BÜTÜN gelecek karoseller etkilenir — tek bir gönderi değil.\n\n' +
+        'Tek bir çıktıyı düzeltmek istiyorsan listeden bir KOŞU seç.\n\n' +
+        'Yine de şablonu açmak istiyor musun?'
+    )
+    if (!onay) {
+      e.target.value = id
+      return
+    }
+    sablonIzni = true
+  }
+  id = yeni
   cek()
 }
 $('#buyut').onclick = () => {
@@ -576,11 +667,37 @@ $('#geri').onclick = async () => {
   await cek()
 }
 $('#kaydet').onclick = async () => {
+  // İKİNCİ onay: girmek ayrı, YAZMAK ayrı. Katalog dosyası altı tasarımın kaynağı.
+  if (sablonMu(id)) {
+    const onay = window.confirm(
+      '⚠ İKİNCİ ONAY — KATALOG DOSYASINA YAZILACAK\n\n' +
+        id.replace('sablon:', '') +
+        ' şablonu `packages/render/src/katalog-ornek.ts` içinde DEĞİŞECEK.\n' +
+        'Bu şablondan üretilecek bütün gelecek karoseller bundan etkilenir.\n\n' +
+        'Değişiklik bir ÖNERİdir: `git diff` ile bakabilir, commit etmeyerek geri\n' +
+        'alabilirsin.\n\nYazılsın mı?'
+    )
+    if (!onay) {
+      mesaj('⚠ yazılmadı — şablon dosyasına dokunulmadı')
+      return
+    }
+  }
   const r = await fetch('/kaydet?id=' + id, { method: 'POST' })
-  mesaj(await r.text())
+  const cevap = await r.text()
+  mesaj(cevap)
+  if (cevap.startsWith('✓')) kaydiIsaretle(0)
 }
 // ⚠ Rampa ÖNCE okunuyor, sonra ilk çizim: panel açıldığı anda renk seçenekleri
 // dolu olmalı. Sonradan yüklemek, ilk açılışta boş bir renk listesi gösterirdi.
+if (acilamaz)
+  mesaj(
+    '⚠ ' +
+      istenenId +
+      ' bu editörde açılamıyor — o koşunun kompozisyon dosyası yok\n' +
+      '  (panorama.json yalnız D-302 sonrası koşularda yazılıyor). Listeden başka bir\n' +
+      '  koşu ya da şablon seç.'
+  )
+
 fetch('/rampa')
   .then((r) => r.json())
   .then((v) => {

@@ -128,6 +128,11 @@ export const VarlikKutuphanesi = (): React.JSX.Element => {
         <table className="kayit-tablosu">
           <thead>
             <tr>
+              {/* ⚠ ⚠ **ÖNİZLEME OLMADAN VARLIK KÜTÜPHANESİ BİR HASH LİSTESİDİR.**
+                  305 satır vardı ve ekranda `img` sayısı SIFIRDI: kullanıcı hangi
+                  varlığın ne olduğunu ancak açarak öğrenebiliyordu. Bir kütüphane,
+                  içindekini göstermiyorsa katalog değil envanterdir. */}
+              <th aria-label="önizleme" />
               <th>konu</th>
               <th>hat</th>
               <th>şerit</th>
@@ -139,6 +144,16 @@ export const VarlikKutuphanesi = (): React.JSX.Element => {
           <tbody>
             {gorunen.map((v) => (
               <tr key={v.digest}>
+                <td>
+                  <a href={`/api/varlik/${v.digest}`} target="_blank" rel="noreferrer">
+                    <img
+                      className="varlik-onizleme"
+                      src={`/api/varlik/${v.digest}`}
+                      alt={v.konu === '' ? 'üretilen varlık' : v.konu}
+                      loading="lazy"
+                    />
+                  </a>
+                </td>
                 <td>{v.konu === '' ? <span className="birim">konusuz</span> : v.konu}</td>
                 <td>{v.pipeline}</td>
                 <td className="olcum">{v.lane ?? '—'}</td>

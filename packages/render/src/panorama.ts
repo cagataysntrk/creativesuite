@@ -150,6 +150,16 @@ export interface MetinAyari {
   readonly dy?: number
   /** Punto çarpanı. Sınır 0,5–2. */
   readonly olcek?: number
+  /**
+   * Katman — `z-index`. Verilmezse şablonun sırası geçerli (metin 6, görsel 4).
+   *
+   * ⚠ ⚠ **KATMAN BİR TASARIM KARARI, bir kaza düzeltmesi değil.** Metin görsellerin
+   * ÜSTÜNE alındı (D-304) çünkü altta kalınca okunmuyordu; ama referans tasarımlarda
+   * bir figürün kolu bazen başlığın ÖNÜNDEN geçer. Sabit bir sıra, o kararı elden
+   * alıyordu. Sınır 0–9: dokuzdan büyüğü kartın kendi zeminini aşar ve öge komşu
+   * slayta taşar.
+   */
+  readonly z?: number
 }
 
 /** Bir slaydın içeriği. */
@@ -345,6 +355,7 @@ export const ayarStili = (ayar: MetinAyari | undefined): string => {
   const parcalar: string[] = []
   if (dx !== 0 || dy !== 0) parcalar.push(`transform:translate(${dx}px,${dy}px)`)
   if (olcek !== 1) parcalar.push(`--ayar-olcek:${olcek}`)
+  if (ayar.z !== undefined) parcalar.push(`z-index:${kis(ayar.z, 0, 9)}`)
   return parcalar.length === 0 ? '' : ` style="${parcalar.join(';')}"`
 }
 
@@ -961,9 +972,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // olmalı, yoksa eksik bir tasarım tam sanılır.
   const gorseller = doc.gorseller
     .map((g) => {
+      // ⚠ ⚠ **KATMAN GÖRSELDE DE AYARLANABİLİR.** Metin görsellerin üstüne alındı
+      // (D-304) çünkü altta kalınca okunmuyordu; ama referans tasarımlarda bir figürün
+      // kolu bazen başlığın ÖNÜNDEN geçer. Sabit bir sıra o kararı elden alıyordu.
+      // Varsayılan yine 4 (CSS'te); `z` verilmişse o kazanıyor.
+      const kat = (g as { readonly z?: number }).z
       const stil =
         `left:${(g.x / 100) * toplam}px;top:${g.y}%;` +
-        `width:${(g.genislik / 100) * toplam}px;height:${g.yukseklik}%`
+        `width:${(g.genislik / 100) * toplam}px;height:${g.yukseklik}%` +
+        (kat === undefined ? '' : `;z-index:${Math.min(9, Math.max(0, kat))}`)
       if (g.src === '')
         return (
           `<div class="gorsel-yer ${g.kirpma}" style="${stil}" aria-hidden="true">` +

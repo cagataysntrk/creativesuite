@@ -43,6 +43,13 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
   const [satirlar, setSatirlar] = useState<readonly Satir[] | null>(null)
   const [secili, setSecili] = useState(0)
   const [gerekce, setGerekce] = useState<string | null>(null)
+  // ⚠ ⚠ **TOPLU İŞLEM BİR KOLAYLIK DEĞİL, KUYRUĞUN YAŞAYABİLİRLİK ŞARTI.** Kuyrukta
+  // 62 bekleyen vardı ve çoğu günler önceki denemelerden kalmıştı; tek tek kapatmak
+  // 62 tıklama demek ve o yüzden kimse kapatmıyor. Kapanmayan bir kuyruk, bekleyen
+  // gerçek işi gizler — yani toplu işlem olmadan kuyruk kendi amacını yitiriyor.
+  const [secilenler, setSecilenler] = useState<ReadonlySet<string>>(new Set())
+  const [topluGerekce, setTopluGerekce] = useState<string | null>(null)
+  const [ilerleme, setIlerleme] = useState<string | null>(null)
   const [mesaj, setMesaj] = useState<string | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
@@ -87,6 +94,30 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
   )
 
   // Klavye kabuğa bağlı, satıra değil: odak nerede olursa olsun aynı tuş aynı işi yapar.
+  /**
+   * Seçilenlere aynı kararı yazar — SIRAYLA, paralel değil.
+   *
+   * ⚠ Paralel gönderim defteri aynı anda birden çok yerden yazardı; kuyruk yazıcısı
+   * tek nokta (R-05 ailesi) ve 62 eşzamanlı istek onu sıraya sokmak yerine yarıştırır.
+   * ⚠ İlerleme SAYIYLA gösteriliyor: uzun süren bir toplu işlemde "çalışıyor mu,
+   * dondu mu" sorusunun cevabı ekranda olmalı.
+   */
+  const topluKarar = useCallback(
+    async (karar: 'approved' | 'rejected', not: string): Promise<void> => {
+      const hedefler = (satirlar ?? []).filter((r) => secilenler.has(r.runId))
+      let sayac = 0
+      for (const r of hedefler) {
+        sayac += 1
+        setIlerleme(`${String(sayac)}/${String(hedefler.length)} — ${r.runId.slice(0, 12)}`)
+        await kararGonder(r, karar, not)
+      }
+      setIlerleme(`✓ ${String(hedefler.length)} kapı kapatıldı`)
+      setSecilenler(new Set())
+      setTopluGerekce(null)
+    },
+    [satirlar, secilenler, kararGonder]
+  )
+
   useEffect(() => {
     const dinle = (e: KeyboardEvent): void => {
       // Gerekçe yazılırken tuşlar KOMUT DEĞİL metindir — yoksa "a" harfi onay verirdi.
@@ -126,6 +157,55 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
 
       {mesaj === null ? null : <p className="ret-mesaji">{mesaj}</p>}
 
+      {/* ⚠ Toplu çubuk yalnız SEÇİM VARKEN görünüyor: boşta duran bir "hepsini reddet"
+          düğmesi, yanlışlıkla basılacak en tehlikeli düğmedir. */}
+      <div className="toplu-cubuk">
+        <label>
+          <input
+            type="checkbox"
+            checked={satirlar.length > 0 && secilenler.size === satirlar.length}
+            onChange={(e) =>
+              setSecilenler(e.target.checked ? new Set(satirlar.map((r) => r.runId)) : new Set())
+            }
+          />{' '}
+          tümünü seç
+        </label>
+        {secilenler.size === 0 ? (
+          <span className="bos">satır seçilmedi</span>
+        ) : (
+          <>
+            <strong>{secilenler.size}</strong> seçili
+            <button type="button" onClick={() => void topluKarar('approved', '')}>
+              ✓ seçilenleri onayla
+            </button>
+            <button type="button" onClick={() => setTopluGerekce('')}>
+              ✗ seçilenleri reddet
+            </button>
+          </>
+        )}
+        {ilerleme === null ? null : <span className="olcum">{ilerleme}</span>}
+      </div>
+
+      {topluGerekce === null ? null : (
+        <div className="gerekce-kutusu">
+          <label htmlFor="toplu-gerekce">
+            {secilenler.size} kapı için ORTAK red gerekçesi (zorunlu)
+          </label>
+          <textarea
+            id="toplu-gerekce"
+            value={topluGerekce}
+            onChange={(e) => setTopluGerekce(e.target.value)}
+          />
+          <button
+            type="button"
+            disabled={topluGerekce.trim() === ''}
+            onClick={() => void topluKarar('rejected', topluGerekce.trim())}
+          >
+            {secilenler.size} kapıyı reddet
+          </button>
+        </div>
+      )}
+
       {satirlar.length === 0 ? (
         // Boş kuyruk bir BAŞARIDIR ve öyle yazılır; boş bir liste bunu söylemez.
         <p className="bos">bekleyen onay yok — kuyruk temiz</p>
@@ -133,6 +213,7 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
         <table className="kayit-tablosu">
           <thead>
             <tr>
+              <th aria-label="seçim" />
               <th>çalıştırma</th>
               <th>pipeline</th>
               <th>kapı</th>
@@ -151,6 +232,20 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
                   ac?.(r.runId)
                 }}
               >
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={secilenler.has(r.runId)}
+                    aria-label={`${r.runId} seç`}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      const y = new Set(secilenler)
+                      if (e.target.checked) y.add(r.runId)
+                      else y.delete(r.runId)
+                      setSecilenler(y)
+                    }}
+                  />
+                </td>
                 <td className="olcum">{r.runId.slice(0, 12)}</td>
                 <td>{r.pipeline}</td>
                 <td>{r.gate}</td>
