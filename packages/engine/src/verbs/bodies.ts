@@ -42,6 +42,7 @@ import {
 } from '@suite/render'
 import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../plan/sablon-uyarla.js'
 import { sablonSec } from '../plan/sablon-sec.js'
+import { duzeltilebilir, duzeltmeIstemi, type DenetimKusuru } from '../plan/denetim-turu.js'
 import { sablonBul } from '@suite/contracts'
 import type { KatalogOrnegi } from '@suite/render'
 import {
@@ -244,12 +245,19 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     // çağırmıyor — `COMPOSE`un yan etki sınıfı `pure` (R-04) ve öyle kalıyor. Metni
     // konuya çeviren yaratıcılık `GENERATE` adımında; burada yalnız birleştirme var.
     if (input.constraints['katalog'] === true) {
-      const uyarlamaCiktisi = Object.values(input.inputs).find(
+      // ⚠ ⚠ **SONUNCU, İLK DEĞİL — aynı tuzak bu dosyada ÜÇÜNCÜ kez.** İki adım uyarlama
+      // üretiyor: `sablon-uyarla` (ilk yazım) ve `duzelt` (denetim kusurlarına göre
+      // düzeltilmiş). `.find()` ilkini alsaydı düzeltme turu koşar, model düzeltirdi ve
+      // belge DÜZELTİLMEMİŞ hâliyle render edilirdi — yapılan işin sessizce çöpe gitmesi.
+      // `document` (D-259) ve `panorama` yollarında aynı ders yazılıydı; yeni dal onu
+      // yine kendiliğinden almadı. Bu dosyada "en son üreticiye bak" bir DESEN.
+      const uyarlamalar = Object.values(input.inputs).filter(
         (v): v is { readonly uyarlama: Uyarlama } =>
           v !== null &&
           typeof v === 'object' &&
           (v as { uyarlama?: unknown }).uyarlama !== undefined
       )
+      const uyarlamaCiktisi = uyarlamalar[uyarlamalar.length - 1]
       if (uyarlamaCiktisi === undefined) return err(hata('validation', 'NO_ADAPTATION', ctx))
       const sablonId = uyarlamaCiktisi.uyarlama.sablonId
       const ornek = ornekBul(sablonId)
@@ -1580,6 +1588,35 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     }
   }
 
+  // ── DÜZELTME TURU: denetimin ölçtüğü kusurları metinle kapat ────────────
+  //
+  // ⚠ ⚠ **KUSUR YOKSA İSTEM BOŞ ve adım ATLANIYOR.** Zorla bir düzeltme turu koşturmak,
+  // düzeltilecek şey olmadığında DEĞİŞİKLİK üretir: agent bir şey bulmak zorunda hisseder
+  // ve insanın onayladığı metinden uzaklaşır. Kayıtlı ders (doğrulama turu tavanı) burada
+  // da geçerli — tur bir hak değil, bir ihtiyaçtır.
+  //
+  // ⚠ Düzeltme çıktısı yine bir `Uyarlama`: kompozisyon alanları şemada YOK, yani
+  // "düzeltme" adı altında tasarımı değiştirmek temsil edilemiyor.
+  if (input.constraints['sablon_duzelt'] === true) {
+    // ⚠ ⚠ **YALNIZ METİNLE DÜZELİR KUSURLAR TURA GİRİYOR.** Gerçek koşuda dört kusurun
+    // dördü de `matlama-tutmuyor`du (görselin zemini siyah değil) ve tur yine koştu:
+    // agent'a çözemeyeceği bir görev verildi, bir model çağrısı harcandı ve kusur aynen
+    // kaldı. Çözemeyeceği bir şey verilen agent, çözebileceğini bozar.
+    const kusurlar = duzeltilebilir(renderKusurlari(input.inputs))
+    if (kusurlar.length === 0) return ''
+    const onceki = sonUyarlama(input.inputs)
+    if (onceki === null) return ''
+    return [
+      duzeltmeIstemi(kusurlar),
+      '',
+      'Düzeltilecek uyarlama (JSON):',
+      JSON.stringify(onceki, null, 1),
+      '',
+      'ÇIKTI BİÇİMİ — yalnız düzeltilmiş JSON döndür, açıklama yazma. Kart sayısı,',
+      '`sablonId` ve panel tipleri AYNI kalmalı; yalnız kusurlu alanları değiştir.',
+    ].join('\n')
+  }
+
   const gorselBriefMi = input.constraints['gorsel_brief'] === true
   // ⚠ **YUVA yalnız brief için aranıyor** ve `kompozit` çıktısından geliyor — yani bu
   // adım artık `kompozit`e BAĞLI (hat dosyasında `needs: [bilgi-sec, kompozit]`).
@@ -1709,6 +1746,27 @@ export const uyarlamayaCevir = (ham: unknown): Uyarlama | null => {
     })
   }
   return { sablonId: n.sablonId, kartlar }
+}
+
+/** Render adımının ölçtüğü kusurlar — düzeltme turunun girdisi. */
+const renderKusurlari = (inputs: Readonly<Record<string, unknown>>): readonly DenetimKusuru[] => {
+  for (const v of Object.values(inputs)) {
+    if (v === null || typeof v !== 'object') continue
+    const k = (v as { kusurlar?: unknown }).kusurlar
+    if (Array.isArray(k)) return k as readonly DenetimKusuru[]
+  }
+  return []
+}
+
+/** Girdilerdeki EN SON uyarlama — düzeltme onun üstüne yazıyor. */
+const sonUyarlama = (inputs: Readonly<Record<string, unknown>>): Uyarlama | null => {
+  let son: Uyarlama | null = null
+  for (const v of Object.values(inputs)) {
+    if (v === null || typeof v !== 'object') continue
+    const u = (v as { uyarlama?: unknown }).uyarlama
+    if (u !== undefined) son = u as Uyarlama
+  }
+  return son
 }
 
 /**

@@ -179,9 +179,12 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
         tip: 'liste',
         baslik: 'ÜÇ ÖNCELİK',
         ogeler: [
-          { no: '01', ad: 'Girdi saflığını sözleşmeye bağla' },
-          { no: '02', ad: 'Her partide numune ölç' },
-          { no: '03', ad: 'Alıcıyı üretimden önce bul' },
+          // ⚠ Satır metinleri ikon köklerine DOĞAL olarak oturuyor (`denet`, `ölç`,
+          // `üretim`): ikon içerikten türüyor, içerik ikona göre eğilip bükülmüyor.
+          // Bir satır bile eşleşmezse ikon katmanı hiç açılmıyor (ya hepsi ya hiçbiri).
+          { no: '01', ad: 'Girdi saflığını her partide denetle' },
+          { no: '02', ad: 'Numuneyi hatta ölç, sonra kabul et' },
+          { no: '03', ad: 'Alıcıyı üretimden önce bağla' },
         ],
       },
       hayalet: '05',
@@ -491,9 +494,9 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
         tip: 'liste',
         baslik: 'YEDİ AKIŞTAN ÜÇÜ',
         ogeler: [
-          { no: '01', ad: 'PET — şişe, sonsuza yakın döngü' },
-          { no: '02', ad: 'HDPE — bidon, kalın cidar' },
-          { no: '07', ad: 'Diğer — karışık, ayrıştırılamaz' },
+          { no: '01', ad: 'PET — şişe, uzun çevrim ömrü' },
+          { no: '02', ad: 'HDPE — bidon, depo malzemesi' },
+          { no: '07', ad: 'Diğer — karışık, ayrıştırma hatası' },
         ],
       },
       hayalet: '02',

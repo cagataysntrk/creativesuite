@@ -130,6 +130,25 @@ export const denetimTuru = async (
   return { belge, uyarlama, kalanKusurlar: kusurlar, defter }
 }
 
+/**
+ * Metinle DÜZELTİLEBİLİR kusur türleri.
+ *
+ * ⚠ ⚠ **BU AYRIM GERÇEK BİR KOŞUDAN DOĞDU.** Düzeltme turu koştu, bir model çağrısı
+ * harcandı ve kalan dört kusurun dördü de `matlama-tutmuyor`du: görselin zemini siyah
+ * değil. Bunu metin değiştirerek düzeltmenin yolu YOK — agent'a çözemeyeceği bir görev
+ * verildi ve o da bir şey değiştirmek zorunda hissedecekti. Kusuru sınıflandırmayan bir
+ * düzeltme turu, düzeltemeyeceği şey için para harcar ve düzeltebileceğini bozar.
+ *
+ * ⚠ Dışarıda kalanlar (`matlama-tutmuyor`, `kesintisizlik-yok`, `kesim-uzeri-metin`,
+ * `kart-disi`) KOMPOZİSYON ya da GÖRSEL kusuru: çözümleri yeniden üretim ya da şablon
+ * değişikliği — ikisi de insanın kararı.
+ */
+export const METINLE_DUZELIR: readonly string[] = ['tasma', 'punto-cokmesi', 'eksik-glif']
+
+/** Kusurlardan yalnız metinle düzeltilebilenler. */
+export const duzeltilebilir = (kusurlar: readonly DenetimKusuru[]): readonly DenetimKusuru[] =>
+  kusurlar.filter((k) => METINLE_DUZELIR.includes(k.tur))
+
 /** Agent'a verilecek düzeltme istemi — kusurlar ve DOKUNULABİLİR alanlar. */
 export const duzeltmeIstemi = (kusurlar: readonly DenetimKusuru[]): string =>
   [
@@ -145,6 +164,5 @@ export const duzeltmeIstemi = (kusurlar: readonly DenetimKusuru[]): string =>
     '  eşanlamlıyla değiştir; başlığı bölmek yerine kelimeyi değiştir.',
     '- "panel dikeyde tuvali aşıyor" → panel satır sayısını azalt, veriyi özetle.',
     '- "kapsamı dışında" → marka fontunun desteklemediği karakteri metinden çıkar.',
-    '- "hiçbir öge kesimi aşmıyor" → bu bir kompozisyon kusuru; metinle düzeltilemez,',
-    '  raporla ve insana bırak.',
+    '- "kapsamı dışında" → o karakteri metinden çıkar, eşanlamlısını yaz.',
   ].join('\n')

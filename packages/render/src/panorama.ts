@@ -28,6 +28,7 @@ import { withPage, type BrowserResult, type Oturum, type Page } from './browser.
 import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { kacir } from './html.js'
 import { OPENTYPE_CSS, vurguyuIsaretle } from './sablon-tipo.js'
+import { ikonSec, ikonSvg, type IkonAdi } from './sablon-ikon.js'
 import { zeminCss, zeminKarisimi, type ZeminResetesi } from './zemin.js'
 
 /** Kesimi aşan sürekli bant — kimliğin taşıyıcısı. */
@@ -467,18 +468,36 @@ const panelHtml = (p: Panel): string => {
       `<div class="vafel">${kareler}</div></div>`
     )
   }
-  if (p.tip === 'liste')
+  if (p.tip === 'liste') {
+    // ⚠ ⚠ **İKON DAĞARCIĞI YAZILMIŞTI ve panorama onu HİÇ ÇAĞIRMIYORDU.** Yirmi ikon
+    // `sablon-ikon.ts`te çizili, testli ve `static.ts` yolunda kullanılıyor; panorama
+    // yolunda sıfır çağıran vardı (FAZ-15.1 envanterinde bulundu, D-269'da kayıtlı).
+    // Yeni bir yol açıldığında eski yolun bağladığı zincirler otomatik gelmiyor.
+    //
+    // ⚠ ⚠ **YA HEPSİ YA HİÇBİRİ — ve bu bir tasarım kararı, bir kolaylık değil.** İkon
+    // metinden türüyor (`ikonSec` Türkçe köke bakıyor) ve bazı satırlar eşleşmiyor.
+    // Eşleşenlere ikon, eşleşmeyenlere boşluk koymak listeyi KIRIK gösterir: göz eksik
+    // olanı arar. Bir satır bile eşleşmiyorsa ikon katmanı hiç açılmıyor ve liste
+    // numarasıyla kalıyor — ritim bozulmuyor.
+    // ⚠ İkon SÜS DEĞİL: satırın kendi metninden türüyor. Türemeseydi silinebilirdi.
+    const ikonlar = p.ogeler.map((o) => ikonSec(o.ad))
+    const hepsiVar = ikonlar.length > 0 && ikonlar.every((i) => i !== null)
     return (
       `<div class="panel"><div class="panel-baslik">${kacir(p.baslik)}</div>` +
       p.ogeler
-        .map(
-          (o) =>
-            `<div class="liste-satir"><span class="liste-no">${kacir(o.no)}</span>` +
+        .map((o, i) => {
+          const ikon = hepsiVar
+            ? `<span class="liste-ikon">${ikonSvg(ikonlar[i] as IkonAdi, 'var(--kart-aksan)', 21)}</span>`
+            : ''
+          return (
+            `<div class="liste-satir">${ikon}<span class="liste-no">${kacir(o.no)}</span>` +
             `<span class="liste-ad">${kacir(o.ad)}</span></div>`
-        )
+          )
+        })
         .join('') +
       `</div>`
     )
+  }
   return (
     `<div class="etiketler">` +
     p.ogeler.map((o) => `<span class="etiket">${kacir(o)}</span>`).join('') +
@@ -894,6 +913,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `              color: var(--kart-aksan); font-variant-numeric: tabular-nums;`,
     `              font-weight: 800; min-width: 32px }`,
     `  .liste-ad { font-size: 22px }`,
+    `  .liste-ikon { display: flex; align-items: center; width: 21px; flex: none }`,
     `  .etiketler { display: flex; flex-wrap: wrap; gap: 10px; max-width: 620px }`,
     `  .etiket { border: 1px solid ${sol('--kart-metin', 16)}; border-radius: 999px;`,
     `            padding: 8px 16px; font-size: 18px; color: ${sol('--kart-metin', 80)} }`,

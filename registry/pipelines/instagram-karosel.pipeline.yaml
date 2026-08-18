@@ -117,9 +117,43 @@ steps:
     capability: design.critique
     needs: [render]
 
+  # 8) DÜZELTME TURU — denetimin ölçtüğü kusurları METİNLE kapat.
+  #
+  # ⚠ ⚠ **DAG DÖNGÜ TAŞIMIYOR, o yüzden tur AÇILARAK yazıldı.** `denetimTuru` kütüphane
+  # düzeyinde iki tur destekliyor; hatta bir tur açıldı çünkü ikincisi altı adım daha
+  # eklerdi ve ölçülen kazancı yok. Bir turdan sonra kalan kusur SUSTURULMUYOR: `kalite`
+  # onu sayıyor ve insan onay kapısı görüyor.
+  #
+  # ⚠ **Kusur yoksa istem boş dönüyor ve adım atlanıyor** — zorla koşan bir düzeltme
+  # turu, düzeltilecek şey olmadığında değişiklik üretir.
+  - id: duzelt
+    verb: GENERATE
+    capability: text.generate
+    needs: [render, sablon-uyarla]
+    constraints:
+      sablon_duzelt: true
+      max_chars: 4000
+      optional: true
+
+  # 9) DÜZELTİLMİŞ BELGE ve SON RENDER. `duzelt` atlandıysa girdilerdeki en son uyarlama
+  # hâlâ ilk yazımdır: aynı belge yeniden kuruluyor ve render birebir aynı çıkıyor.
+  # Bedeli yerel bir render (bedava, saniyeler); kazancı tek bir çıkış noktası.
+  - id: kompozit-son
+    verb: COMPOSE
+    needs: [metin-uret, sablon-uyarla, gorsel-uret, duzelt]
+    constraints:
+      katalog: true
+
+  - id: render-son
+    verb: RENDER
+    needs: [kompozit-son]
+    constraints:
+      width: 1080
+      height: 1350
+
   - id: kalite
     verb: VALIDATE
-    needs: [render, gorsel-yargi, tasarim-yargi, gorsel-uret]
+    needs: [render-son, gorsel-yargi, tasarim-yargi, gorsel-uret]
 
   - id: onay
     verb: PROPOSE

@@ -8,7 +8,8 @@
 import { describe, expect, it } from 'vitest'
 import { KATALOG } from '@suite/contracts'
 import { ORNEKLER, ornekBul, type KatalogOrnegi } from './katalog-ornek.js'
-import { VARSAYILAN_TIPO } from './panorama.js'
+import { panoramaHtml, VARSAYILAN_TIPO } from './panorama.js'
+import { ikonSec } from './sablon-ikon.js'
 
 const ornekler = Object.entries(ORNEKLER)
 
@@ -97,6 +98,53 @@ describe('örnek içeriği', () => {
     for (const [id, o] of ornekler)
       for (const k of o.kartlar)
         expect((k.baslik.match(/\*\*/g) ?? []).length % 2, `${id}: ${k.baslik}`).toBe(0)
+  })
+})
+
+describe('ikon katmanı — içerikten türüyor', () => {
+  // ⚠ ⚠ **YİRMİ İKON YAZILMIŞTI ve panorama onları HİÇ ÇAĞIRMIYORDU** (FAZ-15.1
+  // envanteri · D-269). Bağlandıktan sonra ikinci bir tuzak çıktı: kural "ya hepsi ya
+  // hiçbiri" olduğu için hiçbir örnek listesi eşleşmiyordu ve katman BAĞLI AMA ÖLÜYDÜ.
+  // Bağlanmış ama hiç ateşlemeyen bir zincir, bağlanmamıştan az farklıdır.
+  it('liste taşıyan her örnekte TÜM satırlar ikon köküne oturuyor', () => {
+    for (const [id, o] of ornekler)
+      for (const k of o.kartlar) {
+        if (k.panel?.tip !== 'liste') continue
+        const ikonlar = k.panel.ogeler.map((x) => ikonSec(x.ad))
+        expect(
+          ikonlar.every((i) => i !== null),
+          `${id}: ${ikonlar.join(' ')}`
+        ).toBe(true)
+      }
+  })
+
+  // ⚠ Eşleşmeyen tek satır varsa katman HİÇ açılmıyor: eksik ikon, listeyi kırık gösterir.
+  it('bir satır bile eşleşmezse ikon basılmıyor', () => {
+    const o = ornekBul('veri-hikayesi') as KatalogOrnegi
+    const kart = o.kartlar.find((k) => k.panel?.tip === 'liste')
+    expect(kart).toBeDefined()
+    if (kart === undefined || kart.panel?.tip !== 'liste') return
+    const bozuk = {
+      ...o,
+      kartlar: o.kartlar.map((k) =>
+        k === kart && k.panel?.tip === 'liste'
+          ? {
+              ...k,
+              panel: {
+                ...k.panel,
+                ogeler: [{ no: '01', ad: 'xyzzy qwerty' }, ...k.panel.ogeler],
+              },
+            }
+          : k
+      ),
+    }
+    // ⚠ ⚠ **İŞARET GÖVDEDE ARANIYOR, CSS'te DEĞİL.** İlk sürüm `'liste-ikon'` diye
+    // arıyordu ve `.liste-ikon { … }` kuralı HER BELGEDE basılıyor: test, ikon çizilmese
+    // bile eşleşiyordu. Ölçüm aracının kendisi bozuktu — bu oturumda tekrar eden sınıf.
+    const DAMGA = { brandId: 'b', eraId: 'e', kitVersion: 'k' }
+    const ISARET = '<span class="liste-ikon">'
+    expect(panoramaHtml({ ...bozuk, tokenCss: '', stamp: DAMGA } as never)).not.toContain(ISARET)
+    expect(panoramaHtml({ ...o, tokenCss: '', stamp: DAMGA } as never)).toContain(ISARET)
   })
 })
 

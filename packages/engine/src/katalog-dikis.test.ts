@@ -188,6 +188,96 @@ describe('dikiş 3b: iki panorama arasından SONUNCUSU seçiliyor', () => {
     // İlk eşleşeni alan bir `find` panorama dalında kalmamalı.
     expect(kaynak).toContain('panoramalar[panoramalar.length - 1]')
     expect(kaynak).toContain('panoramaListesi[panoramaListesi.length - 1]')
+    // ⚠ Uyarlamada da aynı desen: `duzelt` ikinci bir uyarlama üretiyor ve ilkini almak,
+    // düzeltme turunun işini sessizce çöpe atmak olurdu.
+    expect(kaynak).toContain('uyarlamalar[uyarlamalar.length - 1]')
+  })
+})
+
+// ⚠ ⚠ **DÜZELTME TURU: kusur YOKSA istem BOŞ.** Zorla koşan bir tur, düzeltilecek şey
+// olmadığında değişiklik üretir ve insanın onayladığı metinden uzaklaşır.
+describe('dikiş 3c: denetim kusurları → düzeltme istemi', () => {
+  const uyarlama = {
+    sablonId: 'sahne',
+    kartlar: Array.from({ length: 4 }, (_, i) => ({
+      ustBaslik: `ADIM ${i}`,
+      baslik: `Başlık **${i}**`,
+      govde: 'Gövde.',
+      hayalet: '',
+      rayaSol: 'X',
+      rayaOrta: 'Kaynak 2026',
+    })),
+  }
+
+  it('kusur varsa istem kusurları ve ÖNCEKİ uyarlamayı taşıyor', () => {
+    const p = promptTuret(
+      'text.generate',
+      girdi(
+        { sablon_duzelt: true },
+        {
+          u: { uyarlama },
+          r: {
+            kusurlar: [{ tur: 'eksik-glif', kart: null, alan: null, aciklama: 'kapsam dışı: ✓' }],
+          },
+        }
+      )
+    )
+    expect(p).toContain('kapsam dışı: ✓')
+    expect(p).toContain('"sablonId": "sahne"')
+    expect(p).toContain('kompozisyona dokunamazsın')
+  })
+
+  // ⚠ ⚠ **GERÇEK KOŞUDAN:** dört kusurun dördü de `matlama-tutmuyor`du (görsel zemini
+  // siyah değil) ve tur yine koştu — agent'a çözemeyeceği bir görev, boşa bir çağrı.
+  it('yalnız METİNLE düzelir kusur varsa tur koşuyor', () => {
+    const gorselKusuru = {
+      tur: 'matlama-tutmuyor',
+      kart: null,
+      alan: null,
+      aciklama: 'köşe parlaklığı 101/255',
+    }
+    expect(
+      promptTuret(
+        'text.generate',
+        girdi({ sablon_duzelt: true }, { u: { uyarlama }, r: { kusurlar: [gorselKusuru] } })
+      )
+    ).toBe('')
+    // Metinle düzelir bir kusur eklenince tur koşuyor ve YALNIZ onu taşıyor.
+    const p = promptTuret(
+      'text.generate',
+      girdi(
+        { sablon_duzelt: true },
+        {
+          u: { uyarlama },
+          r: {
+            kusurlar: [
+              gorselKusuru,
+              { tur: 'tasma', kart: 2, alan: 'baslik', aciklama: 'yatayda 40 px taşıyor' },
+            ],
+          },
+        }
+      )
+    )
+    expect(p).toContain('yatayda 40 px')
+    expect(p).not.toContain('köşe parlaklığı')
+  })
+
+  it('kusur yoksa istem BOŞ — tur koşmuyor', () => {
+    expect(
+      promptTuret(
+        'text.generate',
+        girdi({ sablon_duzelt: true }, { u: { uyarlama }, r: { kusurlar: [] } })
+      )
+    ).toBe('')
+  })
+
+  it('önceki uyarlama yoksa tur koşmuyor', () => {
+    expect(
+      promptTuret(
+        'text.generate',
+        girdi({ sablon_duzelt: true }, { r: { kusurlar: [{ aciklama: 'x' }] } })
+      )
+    ).toBe('')
   })
 })
 

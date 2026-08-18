@@ -5,6 +5,8 @@ import { ornekBul, type KatalogOrnegi } from '@suite/render'
 import {
   denetimTuru,
   duzeltmeIstemi,
+  duzeltilebilir,
+  METINLE_DUZELIR,
   TUR_TAVANI,
   type DenetimKusuru,
   type Denetleyici,
@@ -134,9 +136,20 @@ describe('düzeltme istemi', () => {
     expect(i).toContain('kompozisyona dokunamazsın')
   })
 
-  // ⚠ Metinle düzeltilemeyecek bir kusuru "düzelt" diye vermek, agenta olmayan bir
-  // yetki tarif etmektir; istem bunu açıkça söylüyor.
-  it('kompozisyon kusurunun metinle düzeltilemeyeceğini söylüyor', () => {
-    expect(duzeltmeIstemi([kusur('x')])).toContain('insana bırak')
+  // ⚠ ⚠ **METİNLE DÜZELMEYEN KUSUR İSTEME HİÇ GİRMİYOR — istemde "bunu düzeltemezsin"
+  // yazmaktansa onu göndermemek doğru.** Gerçek koşuda dört kusurun dördü de görsel
+  // kusuruydu (`matlama-tutmuyor`) ve tur yine koştu: agent'a çözemeyeceği bir görev
+  // verildi. Ayıklama istemde değil, isteme GİRERKEN yapılıyor.
+  it('metinle düzelmeyen kusurlar ayıklanıyor', () => {
+    const gorsel: DenetimKusuru = {
+      tur: 'matlama-tutmuyor',
+      kart: null,
+      alan: null,
+      aciklama: 'köşe parlaklığı 101/255',
+    }
+    expect(duzeltilebilir([gorsel])).toEqual([])
+    expect(duzeltilebilir([gorsel, kusur('taşıyor')])).toHaveLength(1)
+    expect(METINLE_DUZELIR).toContain('eksik-glif')
+    expect(METINLE_DUZELIR).not.toContain('kesintisizlik-yok')
   })
 })
