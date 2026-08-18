@@ -91,9 +91,22 @@ interface Detay {
 
 const kisaSha = (s: string): string => (/^[0-9a-f]{40}$/.test(s) ? s.slice(0, 8) : s)
 
-export const RunGecmisi = (): React.JSX.Element => {
+export const RunGecmisi = ({
+  ac,
+}: {
+  /** Koşu ekranını açar — panelin geri kalanıyla AYNI hedef (FAZ-17.3). */
+  readonly ac?: (runId: string) => void
+} = {}): React.JSX.Element => {
   const [liste, setListe] = useState<readonly Ozet[] | null>(null)
   const [secili, setSecili] = useState<string | null>(null)
+  // ⚠ ⚠ **138 SATIR FİLTRESİZ DÖKÜLÜYORDU.** Ekran "çalıştırma geçmişi" diyor ama
+  // kullanıcının sorusu hiçbir zaman "hepsini göster" değil: "bugün ne koştu",
+  // "hangileri durdu", "şu hat ne yaptı". Filtresiz bir liste, cevabı içinde
+  // saklayan bir liste.
+  const [fHat, setFHat] = useState('')
+  const [fDurum, setFDurum] = useState('')
+  const [fTaze, setFTaze] = useState(false)
+  const [ara, setAra] = useState('')
   const [detay, setDetay] = useState<Detay | null>(null)
   const [tekrarSonuc, setTekrarSonuc] = useState<string | null>(null)
 
@@ -134,11 +147,76 @@ export const RunGecmisi = (): React.JSX.Element => {
 
   if (liste === null) return <p>yükleniyor…</p>
 
+  const hatlar = [...new Set(liste.map((r) => r.pipeline))].sort()
+  const yediGunOnce = Date.now() - 7 * 24 * 3600 * 1000
+  const durumu = (r: Ozet): string =>
+    !r.manifestSaglam
+      ? 'kusurlu'
+      : r.awaitingGate !== null
+        ? 'kapida'
+        : r.stoppedAt !== null
+          ? 'durdu'
+          : 'tamam'
+  const suzulmus = liste
+    .filter((r) => fHat === '' || r.pipeline === fHat)
+    .filter((r) => fDurum === '' || durumu(r) === fDurum)
+    .filter((r) => !fTaze || new Date(r.createdAt).getTime() >= yediGunOnce)
+    .filter((r) => ara.trim() === '' || `${r.runId} ${r.pipeline}`.includes(ara.trim()))
+    // ⚠ EN YENİ ÖNCE: geçmiş ekranında insan en son ne olduğuna bakar. Kuyrukta
+    // (bekleyen iş) sıra terstir ve bu ayrım bilinçli — orada en eski dipte
+    // unutulmamalı, burada en yeni aranıyor.
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  const sayim = {
+    kapida: liste.filter((r) => durumu(r) === 'kapida').length,
+    durdu: liste.filter((r) => durumu(r) === 'durdu').length,
+    kusurlu: liste.filter((r) => durumu(r) === 'kusurlu').length,
+  }
+
   return (
     <section>
       <h1>Çalıştırma geçmişi</h1>
-      {liste.length === 0 ? (
-        <p>Henüz çalıştırma yok — geçmiş boş bir liste, bir hata değil.</p>
+      <p className="giris-not">
+        {liste.length} koşu · {sayim.kapida} kapıda · {sayim.durdu} durdu · {sayim.kusurlu} kusurlu
+        manifest
+        {suzulmus.length === liste.length ? null : <> · süzülen {suzulmus.length}</>}
+      </p>
+
+      <div className="filtre-cubuk">
+        <label>
+          hat{' '}
+          <select value={fHat} onChange={(e) => setFHat(e.target.value)}>
+            <option value="">hepsi</option>
+            {hatlar.map((h) => (
+              <option key={h} value={h}>
+                {h}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          durum{' '}
+          <select value={fDurum} onChange={(e) => setFDurum(e.target.value)}>
+            <option value="">hepsi</option>
+            <option value="kapida">kapıda bekliyor</option>
+            <option value="durdu">durdu</option>
+            <option value="tamam">tamamlandı</option>
+            <option value="kusurlu">kusurlu manifest</option>
+          </select>
+        </label>
+        <label>
+          <input type="checkbox" checked={fTaze} onChange={(e) => setFTaze(e.target.checked)} /> son
+          7 gün
+        </label>
+        <label>
+          ara <input type="text" value={ara} onChange={(e) => setAra(e.target.value)} />
+        </label>
+      </div>
+      {suzulmus.length === 0 ? (
+        <p>
+          {liste.length === 0
+            ? 'Henüz çalıştırma yok — geçmiş boş bir liste, bir hata değil.'
+            : 'Bu süzgeçle koşu yok — filtreyi gevşet.'}
+        </p>
       ) : (
         <table>
           <thead>
@@ -153,9 +231,26 @@ export const RunGecmisi = (): React.JSX.Element => {
             </tr>
           </thead>
           <tbody>
-            {liste.map((r) => (
+            {suzulmus.map((r) => (
               <tr key={r.runId} onClick={() => setSecili(r.runId)}>
-                <td>{r.runId}</td>
+                <td>
+                  {/* ⚠ İki ayrı hedef, iki ayrı tıklama: satır köken/tekrar
+                      ayrıntısını açıyor, düğme KOŞU ekranına götürüyor. Tek
+                      tıklamaya iki anlam yüklemek, ikisini de belirsiz yapardı. */}
+                  {r.runId}
+                  {ac === undefined ? null : (
+                    <button
+                      type="button"
+                      className="satir-ac"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        ac(r.runId)
+                      }}
+                    >
+                      ↗ aç
+                    </button>
+                  )}
+                </td>
                 <td>{r.pipeline}</td>
                 <td className="mono">{kisaSha(r.corpusCommit)}</td>
                 <td className="mono">{usdBicimle(r.tahminUstMikros)}</td>

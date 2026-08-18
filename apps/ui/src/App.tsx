@@ -260,7 +260,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'varliklar' ? (
           <VarlikKutuphanesi ac={kosuAc} />
         ) : ekran === 'gecmis' ? (
-          <RunGecmisi />
+          <RunGecmisi ac={kosuAc} />
         ) : ekran === 'saglik' ? (
           <StratejiSagligi />
         ) : ekran === 'doktor' ? (
