@@ -3,7 +3,6 @@
 # Kural (D-38): derived/index, derived/blobs ve derived/ingest yeniden üretilebilir.
 # derived/runs TÜRETİLEMEZ — çalıştırma defteri corpus'tan üretilemez, bu yüzden
 # ignore EDİLMEZ ve yedeklenir. Buraya ekleme yapmadan önce D-38'i oku.
-# ─────────────────────────────────────────────────────────────────────────────
 derived/index/
 derived/blobs/
 # Karantina: yayınlanamaz varlıklar (D-155). Byte'lar `derived/blobs` gibi ignore'lu;
@@ -75,3 +74,5 @@ derived/runs/**/*.png
 
 # graphify eklentisinin türetilmiş çıktısı — depo içeriği değil.
 graphify-out/
+
+.venv-gorsel/

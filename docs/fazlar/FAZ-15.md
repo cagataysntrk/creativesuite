@@ -154,3 +154,23 @@ hat konudan bitmiş karosele kesintisiz koşuyor · eski slayt-başına yol arş
 ✅ Gerçek bir koşu baştan sona belgeyle satır satır eşleşiyor · `citations` yeşil
 🧪 Belgede olmayan bir adım ekle → belge ile defter uyuşmuyor, denetim yakalıyor
 💾 `docs(docs): katalog merkezli hat — kullanim belgesi` · `Refs: FAZ-15.10 · §7.1`
+
+## 15.11 — Arka plan silme: kesik özne artık RİCA değil, İŞLEM    [ ]
+
+📖 §8.4, §7.1 · D-274 · R-04
+🔗 FAZ-15.9
+🛠 `matlama` (luma anahtarı) brief'in *"düz siyah zemin"* ricasına dayanıyordu ve üç
+   gerçek koşuda model açık gri stüdyo zemini üretti (köşe parlaklığı 59–101/255
+   ölçüldü): çıktıda kesik özne yerine **dikdörtgen fotoğraf** kaldı. Denetim kusuru
+   görüyordu, düzeltemiyordu — metin değiştirerek bir görselin zemini siyahlaşmaz.
+   ⚠ `rembg` + BRIA RMBG 2.0 yerel kuruldu; `local-rembg` sağlayıcısı `image.matte`
+   yeteneğini veriyor. Model yerel ama MODEL: `GENERATE` çağırıyor (R-04), onuncu fiil
+   açılmadı (R-02).
+   ⚠ **Kapı bir tur boyunca yanlıştı ve kaliteyi düşürttü** (D-274): ticari lisans şartı
+   "çıktılar ticari yayınlanıyor" öncülüne dayanıyordu; burası yerel ve ticari olmayan
+   bir komuta merkezi. Koruma kaldırılmadı, yayın kapısına taşındı.
+📁 `packages/providers/src/image/rembg.ts` · `scripts/gorsel/arkaplan-sil.py` ·
+   `registry/providers/local-rembg.provider.yaml`
+✅ Gerçek koşuda `kesik` görselin arka planı silindi ve `matlama-tutmuyor` kusuru KALMADI
+🧪 `noncommercial_ack` beyanını kaldır → `providers` kapısı kırmızı (denendi, döndü)
+💾 `feat(providers): yerel arka plan silici` · `Refs: FAZ-15.11 · §8.4`

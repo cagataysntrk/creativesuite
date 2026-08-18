@@ -99,10 +99,22 @@ for (const d of descriptors) {
   if (bedavaYetenekler.length === 0) continue
   const adlar = bedavaYetenekler.map((c) => c.name).join(', ')
 
-  if (d.freeTierCommercial === false) {
+  // ⚠ ⚠ **KURAL DÜZELTİLDİ (D-274): ticari olmayan lisans ARTIK BEDAVA ŞERİDİ KAPATMIYOR.**
+  // İlk kural "ticari lisansı yoksa premium şeride" diyordu ve öncülü şuydu: bu deponun
+  // ÇIKTILARI ticari olarak yayınlanıyor. Öncül YANLIŞ — burası yerel, ticari olmayan bir
+  // komuta merkezi ve sahibi bunu açıkça beyan etti. Kural, yerel bir arka plan silme
+  // modelini (BRIA RMBG 2.0) reddedip yerine daha zayıf bir model seçtirdi: **kapı
+  // kaliteyi, korumadığı bir riske feda ediyordu.**
+  //
+  // ⚠ **KORUMA KALDIRILMADI, DOĞRU YERE TAŞINDI.** Asıl risk lisanssız bir varlığın
+  // YAYINLANMASI ve o kapı ayrı: `PUBLISH` insan onayından sonra koşuyor (§4.1b).
+  // Burada istenen şey beyan: `noncommercial_ack` ile sahibi "biliyorum ve kabul
+  // ediyorum" demiş oluyor. Beyansız `false` hâlâ HATA — sessiz kalan bir lisans
+  // riski, en pahalı hatadır.
+  if (d.freeTierCommercial === false && d.noncommercialAck !== true) {
     hatalar.push(
-      `${d.id}: bedava şeritte (${adlar}) ama bedava katmanının TİCARİ lisansı YOK ` +
-        `— yalnız premium şeride konulabilir (§7.5)`
+      `${d.id}: bedava şeritte (${adlar}) ticari olmayan lisans var ama 'noncommercial_ack' ` +
+        `beyan edilmemiş — yerel kullanım kabul ediliyorsa AÇIKÇA yazılmalı (D-274 · §7.5)`
     )
   } else if (d.freeTierCommercial === null) {
     hatalar.push(

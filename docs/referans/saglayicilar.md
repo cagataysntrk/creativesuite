@@ -4,7 +4,7 @@
 > Kaynak: `registry/providers/*.provider.yaml`. Elle yapılan düzenleme
 > `just docs` çalıştığında kaybolur; `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **6** tanımlayıcı.
+Toplam **7** tanımlayıcı.
 
 | id | başlık | adaptör | durum | yetenek | şerit | fiyat anlık görüntüsü |
 |---|---|---|---|---|---|---|
@@ -14,6 +14,7 @@ Toplam **6** tanımlayıcı.
 | `elevenlabs` | ElevenLabs (premium şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | premium | — |
 | `fal-flux` | FLUX (fal) | `fal-flux` | ⏸ kapalı | `image.generate` | premium | `_pricing/fal-2026-08-15.json` ⚠ doğrulanmamış |
 | `gemini-tts` | Gemini TTS (bedava şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
+| `local-rembg` | Yerel arka plan silici (BRIA RMBG, CPU) | `local-rembg` | ✅ aktif | `image.matte` | free | — |
 
 ## Desteklenen kısıtlar
 
@@ -56,3 +57,7 @@ Toplam **6** tanımlayıcı.
 - **audio.tts** — şerit: free
   - `locale`: `tr-TR`
   - `clone`: `false`
+
+### `local-rembg`
+
+- **image.matte** — şerit: free

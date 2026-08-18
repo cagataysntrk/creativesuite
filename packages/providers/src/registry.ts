@@ -12,8 +12,16 @@ import type { Lane, ProviderAdapter } from './types.js'
 import { claudeCode } from './claude-code.js'
 import { cloudflareImage } from './image/cloudflare.js'
 import { falImage } from './image/fal.js'
+import { localRembg } from './image/rembg.js'
 
-export const ADAPTERS: readonly ProviderAdapter[] = [claudeCode, cloudflareImage, falImage]
+export const ADAPTERS: readonly ProviderAdapter[] = [
+  claudeCode,
+  cloudflareImage,
+  falImage,
+  // ⚠ Yerel arka plan silici (D-274). `image.matte` yeteneğinin TEK adayı; yönlendirici
+  // yine de listeliyor ve kurulu değilse SEBEBİYLE yazıyor — sessiz atlama yok.
+  localRembg,
+]
 
 export interface Candidate {
   readonly providerId: string

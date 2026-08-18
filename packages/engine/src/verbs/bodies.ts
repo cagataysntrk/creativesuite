@@ -601,20 +601,43 @@ const kisisellestirmeCiktisi = (
  */
 const uretilenGorsel = (
   inputs: Readonly<Record<string, unknown>>
-): { readonly src: string; readonly width: number; readonly height: number } | null => {
+): {
+  readonly src: string
+  readonly width: number
+  readonly height: number
+  readonly matlandi: boolean
+} | null => {
+  // ⚠ ⚠ **SONUNCU, İLK DEĞİL — aynı tuzak bu dosyada DÖRDÜNCÜ kez.** İki adım base64
+  // görsel üretiyor: `gorsel-uret` (ham, arka planı duran) ve `gorsel-kirp` (arka planı
+  // silinmiş). İlkini almak, arka plan silmeyi koşturup çöpe atmak olurdu — tam olarak
+  // `document`, `panorama` ve `uyarlama` yollarında yaşanan şey. Bu dosyada "en son
+  // üreticiye bak" artık bir DESEN ve dördüncü tekrarı tesadüf değil.
+  let son: {
+    readonly src: string
+    readonly width: number
+    readonly height: number
+    readonly matlandi: boolean
+  } | null = null
   for (const v of Object.values(inputs)) {
     if (v === null || typeof v !== 'object') continue
-    const o = v as { format?: unknown; data?: unknown; width?: unknown; height?: unknown }
+    const o = v as {
+      format?: unknown
+      data?: unknown
+      width?: unknown
+      height?: unknown
+      matlandi?: unknown
+    }
     if (o.format !== 'base64' || typeof o.data !== 'string' || o.data === '') continue
-    return {
+    son = {
       // PNG varsayımı YOK: Cloudflare JPEG döndürüyor ve `image/png` yazmak tarayıcıyı
       // yanıltmazdı ama yalan olurdu. Base64 imzasından okunuyor.
       src: `data:${o.data.startsWith('/9j/') ? 'image/jpeg' : 'image/png'};base64,${o.data}`,
       width: typeof o.width === 'number' ? o.width : 0,
       height: typeof o.height === 'number' ? o.height : 0,
+      matlandi: o.matlandi === true,
     }
   }
-  return null
+  return son
 }
 
 const urunCekimleri = (

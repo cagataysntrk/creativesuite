@@ -1,0 +1,45 @@
+# Yerel arka plan silici — `image.matte` (FAZ-15.11 · D-274).
+#
+# ⚠ ⚠ **BU SAĞLAYICI BİR ÖLÇÜMDEN DOĞDU, BİR TERCİHTEN DEĞİL.** Kesik özne şablonları
+# `matlama` (luma anahtarı) ile kuruluyordu ve o teknik brief'in "düz siyah zemin"
+# ricasına dayanıyordu. Üç gerçek koşuda model açık gri stüdyo zemini üretti (köşe
+# parlaklığı 59–101/255 ölçüldü) ve çıktıda kesik özne yerine DİKDÖRTGEN fotoğraf kaldı.
+# Denetim kusuru görüyordu, düzeltemiyordu.
+#
+# ⚠ **Model YEREL ve depo dışında:** BRIA RMBG 2.0, `~/.rembg/models/` altında, 1,02 GB.
+# `.venv-gorsel` gitignore'lu ve türetilmiş; `just setup` yeniden kurar.
+#
+# ⚠ ⚠ **KAPI BİR TUR BOYUNCA YANLIŞTI ve kaliteyi düşürttü.** İlk hâlinde `providers`
+# kapısı BRIA'yı reddetti (ticari lisans yok) ve model `u2net`e indirildi. Kuralın
+# öncülü şuydu: *bu deponun çıktıları ticari olarak yayınlanıyor.* Öncül yanlış —
+# burası YEREL, ticari olmayan bir komuta merkezi. Kural D-274'te düzeltildi: ticari
+# olmayan lisans bedava şeridi kapatmıyor, **açık beyan** (`noncommercial_ack`)
+# istiyor; asıl koruma yayın kapısında, insanda.
+#
+# **Lisans:** BRIA RMBG 2.0 — ticari olmayan kullanımda serbest. Bu depo ticari ürün
+# üretmiyor; kabul açıkça beyan edildi.
+id: local-rembg
+title: Yerel arka plan silici (BRIA RMBG, CPU)
+adapter: local-rembg
+enabled: true
+
+# Model diskte, çağrı ağa çıkmıyor: sıfır "bilinmiyor" değil, ÖLÇÜLMÜŞ sıfır.
+cost_formula: '0'
+pricing_snapshot: null
+
+# Ticari kullanım serbest DEĞİL — ve bu sessiz bırakılmıyor.
+free_tier_commercial: false
+# ⚠ Yerel, ticari olmayan kullanım açıkça kabul edildi (D-274). Beyansız `false` kapıyı
+# kırmızıya döndürür: bilinmeyen bir lisans riski, bilinen bir riskten tehlikelidir.
+noncommercial_ack: true
+
+# Anahtar YOK: yerel süreç.
+auth_env: null
+
+capabilities:
+  # ⚠ `image.generate` DEĞİL: bu yetenek görsel ÜRETMİYOR, var olanın arka planını
+  # siliyor. Aynı ada koymak yönlendiriciyi yanıltır ve bir üretim isteği buraya
+  # düşebilirdi.
+  - name: image.matte
+    lanes: [free]
+    supports: {}

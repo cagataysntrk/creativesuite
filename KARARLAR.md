@@ -512,3 +512,39 @@ yalnız uyarlama yolunu görüyor.
 soru şu: *bu kuralı ihlal eden kim ve ihlali düzeltmesinin bedeli ne?*
 
 **Geri alma maliyeti:** düşük — `uyarilar` alanı ek, hiçbir ret kaldırılmadı.
+
+## D-274 — Kapı yanlıştı ve kaliteyi düşürttü: ticari lisans şartının öncülü hatalı
+
+**Tarih:** 2026-08-18 · **Bağlam:** FAZ-15.11 · §7.5 · R-76
+
+Arka plan silme için `rembg` kuruldu ve varsayılan model BRIA RMBG 2.0 indi.
+`providers` kapısı reddetti: *"bedava şeritte ama bedava katmanının TİCARİ lisansı YOK
+— yalnız premium şeride konulabilir."* Kural kırmızıydı; R-76 uyarınca kuralı
+gevşetmedim, **modeli düşürdüm** (`u2net`, Apache-2.0) ve kapı yeşile döndü.
+
+⚠ ⚠ **BU YANLIŞTI ve depo sahibi düzeltti.** Kuralın öncülü şuydu: *bu deponun
+çıktıları ticari olarak yayınlanıyor.* Öncül hatalı — burası **yerel, ticari olmayan
+bir komuta merkezi**. Yanlış öncüle dayanan bir kapı, korumadığı bir risk için gerçek
+bir kaliteyi feda ettirdi: en iyi modeli reddedip yerine daha zayıfını seçtirdi.
+
+**R-76'nın sınırı burada görünüyor:** *"kırmızı bir kapının kuralı aynı turda
+gevşetilmez"* doğru bir refleks ama **kuralın kendisi yanlışsa uyulacak şey kural değil,
+düzeltme yoludur** — CLAUDE.md zaten bunu söylüyor: *"bir kural yanlışsa KURALLAR.md'de
+değiştir, koda farklı yazma."* Ben üçüncü yolu seçtim: kuralı da kodu da değiştirmeden
+GİRDİYİ bozdum. En sessiz hata biçimi buydu; kapı yeşildi ve kimse kalitenin
+düşürüldüğünü göremezdi.
+
+**Düzeltme — koruma kaldırılmadı, DOĞRU YERE taşındı:**
+
+| Önce | Sonra |
+|---|---|
+| Ticari olmayan lisans → bedava şerit YASAK | Ticari olmayan lisans → **açık beyan** (`noncommercial_ack`) şartıyla serbest |
+| Beyansız `false` → hata | Beyansız `false` → **hâlâ hata** (kasten ihlal edilip doğrulandı) |
+| Asıl risk (lisanssız varlığın YAYINLANMASI) sağlayıcı kapısında | Asıl risk `PUBLISH` kapısında, insan onayından sonra (§4.1b) |
+
+**Ölçüm (aynı görsel, 600×750):** `bria-rmbg` 9,7 sn · şeffaf %90,9 · opak %8,1 —
+`u2net` 0,2 sn · %89,9 · %7,7. ⚠ **Bu vaka KOLAYDI** (düz zeminde tek özne) ve ikisi
+denk çıktı; BRIA'nın üstünlüğü saç/ince kenar/karışık zemin gibi zor vakalarda ve
+burada ÖLÇÜLMEDİ. `REMBG_MODEL` ile değiştirilebilir bırakıldı.
+
+**Geri alma maliyeti:** düşük — tek alan (`noncommercial_ack`) ve tek kapı satırı.

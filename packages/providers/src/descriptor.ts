@@ -58,6 +58,15 @@ export interface ProviderDescriptor {
    * olmayan bir sesle üretilmiş bir prospect videosu demektir ve o yayın geri alınamaz.
    */
   readonly freeTierCommercial: boolean | null
+  /**
+   * Ticari olmayan lisansın AÇIK kabulü (D-274).
+   *
+   * ⚠ İlk kural ticari olmayan lisansı bedava şeritten men ediyordu ve öncülü "bu
+   * deponun çıktıları ticari olarak yayınlanıyor"du. Öncül yanlış: burası yerel, ticari
+   * olmayan bir komuta merkezi. Koruma kaldırılmadı, doğru yere taşındı — asıl risk
+   * YAYIN ve o kapıda insan duruyor. Burada istenen şey beyan.
+   */
+  readonly noncommercialAck: boolean
 }
 
 export type DescriptorError =
@@ -156,6 +165,9 @@ export const parseDescriptor = (text: string): DescriptorResult => {
       costFormula: str(map['cost_formula']),
       freeTierCommercial:
         typeof map['free_tier_commercial'] === 'boolean' ? map['free_tier_commercial'] : null,
+      // ⚠ Ticari olmayan lisansın AÇIK kabulü (D-274). Beyan edilmemişse `false` ve
+      // kapı reddediyor: sessiz kalan bir lisans riski en pahalı hatadır.
+      noncommercialAck: map['noncommercial_ack'] === true,
     },
   }
 }
