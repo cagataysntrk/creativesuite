@@ -102,8 +102,16 @@ else bildir "corpus" "⚠ boş — bilgi seçimi zayıf kalır"; fi
 
 echo
 if [ $eksik -eq 0 ]; then
+  # ⚠ ⚠ **ARAÇ VE BELGE AYNI ŞEYİ SÖYLEMELİ.** README ve SKILLS.md paneli öne aldı
+  # (başlatma, kapı onayı ve canlı izleme tek yerden) ama bu satır hâlâ CLI'yi
+  # gösteriyordu. Bir depoyu klonlayan insan, aracın SON SATIRINI izler — belgeyi
+  # değil. İki yer ayrıştığında kazanan, gözünün önündeki satırdır.
   echo "✓ üretime hazır — sonraki adım:"
+  echo "    just dev        # panel: http://localhost:5173 — tür seç, başlat, onayla"
+  echo
+  echo "  komut satırını tercih edersen:"
   echo "    sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel \"<konu>\"'"
+  echo "    sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel --konu-sec'"
 else
   echo "✗ üretim önkoşulları eksik — yukarıdaki satırları çöz"
   exit 1
