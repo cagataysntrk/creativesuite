@@ -126,16 +126,24 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   PNG'yi damgalar, `assets` çıktısı `stamped: true` taşır ve sıra sorunu kalkar.
   Bunun için uyum iddiasının koşu ÖNCESİNDE hesaplanması gerekiyor (bugün sonra
   hesaplanıyor) — küçük ama gerçek bir yeniden sıralama.
-- **D19 · Kapı onayından sonra adımlar YENİDEN koşuyor.** Ölçüldü: `metin-uret`
-  defterde iki ayrı `idempotency_key` ile iki satır bırakıyor, yani "bu iş yapıldı"
-  bilgisi kayboluyor ve her onay metni yeniden yazdırıp görselleri yeniden
-  ürettiriyor. Bu hem para hem tutarlılık sorunu: **onaylanan metin ile yayına giden
-  metin farklı olabilir** (R-07'nin ruhuna aykırı).
-  Elenen adaylar (hepsi ölçüldü, hiçbiri sebep değil): `params` (kayıtlı dosyayla
-  birebir aynı) · `corpusCommit` (dondurulmuş değer kullanılıyor) · `konu-sec`
-  tekrarı (defterde tek satır) · `selectSearch` sıralaması (bu konuda boş dönüyor) ·
-  `selectRecords` + `asOf` (iki farklı zamanda aynı 7 kayıt, aynı sıra, aynı gövde).
-  Kalan iz: `metin-uret`in GİRDİ özeti 1. ve 3. geçişte AYNI (`5f64fd5c`), 2. geçişte
-  farklı (`ff42205c`) — yani sapma tekrarlanabilir değil, bir kez oldu.
-  Araç hazır: iz satırı artık her adımın girdi VE çıktı özetini basıyor
-  (`▶ adim [girdi]` · `↳ adim çıktı [çıktı]`), bir sonraki sapma anında görünecek.
+- **D19 · KAPANDI (2026-08-19) · Kapı onayından sonra adımlar yeniden koşuyordu.**
+  Sebep tahminle değil izle bulundu: `konu-sec`in GİRDİ özeti iki geçişte aynıydı
+  (`5a68ed27`) ama ÇIKTI özeti değişti (`5e0f8c7d` → `e02f01c7`) — yani model yeniden
+  çağrılmış, yedi saniye harcanmış ve BAŞKA bir cevap dönmüştü. Sorumlu, defterin
+  "ücretsiz kapanmış kayıt yeniden koşsun" dalıydı (D-247); gerekçesi *"atlarsak çıktıyı
+  kaybederiz"*, ve o gerekçe kendi notunda *"doğru çözüm çıktıyı `steps/` altına yazmak
+  — bugün yok"* diyordu. O çözüm sonradan geldi, dal haberdar olmadı. **Gerekçesi
+  çürüyen bir dal, doğru görünmeye devam ediyor.** Zamanlayıcı artık `deps.ciktiVar`
+  ile soruyor; çıktı diskteyse atlıyor. Üretimde doğrulandı: sürdürmede
+  `↺ konu-sec çıktısı defterden okundu`.
+- **D20 · Görsel adımları her sürdürmede YENİDEN üretiyor — onaylanan tasarım
+  değişiyor.** Ölçüldü: `gorsel-uret-2` GİRDİ özeti üç geçişte de aynı (`39a8c02e`),
+  çıktı her seferinde farklı (`2c1d3c70` → `c642914f` → …) ve damgalanan dört varlığın
+  özetleri de değişiyor. D19'un aynı sınıfı ama **başka sebeple**: görsel çıktısı gömülü
+  byte taşıdığı için deftere bilerek yazılmıyor (R-64), yani "diskte çıktı var mı"
+  sorusu görsel adımlarında hep `hayır`. Sonuç: insan `tasarim-onayi`nde gördüğü
+  slaytları onaylıyor, yayına BAŞKA slaytlar gidiyor.
+  Doğru çözüm: `gorsel-uret` bayt'ı `derived/blobs`a içerik-adresli yazsın ve deftere
+  `{blobDigest}` düşsün; tekrar oynatmada okuyucu onu aynı `{format, data}` şekline
+  geri açsın. Blob deposu (`packages/engine/src/blobs.ts`) zaten var — eksik olan
+  dikiş.
