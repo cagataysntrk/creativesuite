@@ -512,3 +512,32 @@ bakmıyordu — çünkü o veri hiç yoktu. Artık iki kanıt aranıyor.
 
 ⚠ Kalan sıra sorunu D18 olarak `docs/BORCLAR.md`'de: damga koşudan sonra basılıyor,
 `PUBLISH` ise koşunun içinde.
+
+## D-312
+
+**Ayrımı tipografi değil İSKELET kuruyor.**
+
+Depo sahibi "yedi tasarım değil tek tasarımın yedi boyası" demişti ve bunun için bir
+test yazılmıştı: her şablon KENDİ tipografi reçetesini taşıyor. Test yeşildi. Izgaraya
+yeniden bakıldı — hâlâ aynı görünüyorlardı. Ölçüldü: **altı şablonun BEŞİ birebir aynı
+öge envanterini taşıyordu** (`elYazisi + ustBaslik + baslik + govde`), yani punto
+farklıydı, KOMPOZİSYON aynıydı. *Ölçülmeyen şey, olmayan şeydir* — ama yanlış şeyi
+ölçen bir test, olmayan bir şeyi var sanmaya da yol açar.
+
+**Sebep bir sözleşmedeydi:** `uyarla`, HER kartta boş olmayan bir üst başlık şart
+koşuyordu. Bir doğrulama kuralı, bir tasarım kararını evrenselleştirmişti. Kural artık
+şablona bakıyor — `hayalet` için verilmiş D-299'un aynısı: **ögenin var olup olmadığına
+şablon karar verir, model yalnız doldurur.**
+
+**Envanter çeşitliliği görsel ayrımın VEKİLİ DEĞİL — bu bir denemeyle öğrenildi.**
+İlk hamle `memphis`ten el yazısını silmekti; bakıldı ve şablon ayırt edici değil
+SIRADAN oldu. Öge silmek bir kompozisyon kararı değil, bir eksiltme. `memphis` yerine
+çapa değiştirdi (`ust` → `alt`): üstte büyük boşluk, soru dibe çakılı — bir afiş.
+`editoryal` ise gerçekten eksiltmeyi hak ediyordu: dergi kapağı az ögeyle konuşur,
+etiket eklemek onu sunum slaytına çevirir.
+
+Ölçüm artık İSKELET = öge envanteri + dikey çapa. Altı şablonun en az dördü farklı
+iskelet kurmalı; ikisinin aynı iskeleti iki farklı tipografik sesle kullanması meşru.
+
+⚠ Yan kazanç: "her kartta üst başlık var" testi, bazı kartlarda olup bazılarında
+olmayan bir şablonu GEÇİRİYORDU. Yeni kural (ya hepsinde ya hiçbirinde) onu yakalıyor.

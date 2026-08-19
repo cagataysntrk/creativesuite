@@ -74,10 +74,21 @@ describe('örnek içeriği', () => {
 
   it('hiçbir kart boş başlıkla gelmiyor — taslak DOLU', () => {
     for (const [id, o] of ornekler)
-      for (const k of o.kartlar) {
-        expect(k.baslik.trim().length, id).toBeGreaterThan(8)
-        expect(k.ustBaslik.trim(), id).not.toBe('')
-      }
+      for (const k of o.kartlar) expect(k.baslik.trim().length, id).toBeGreaterThan(8)
+  })
+
+  // ⚠ ⚠ **ESKİ KURAL "her kartta üst başlık VAR" idi ve bir tasarım kararını sessizce
+  // EVRENSELLEŞTİRİYORDU:** altı şablona tek bir iskelet dayatıyordu. Yeni kural aynı
+  // niyeti (yarım dolu taslak yasak) koruyor ama DAHA SIKI: şablon bu ögeyi ya
+  // kullanır ya kullanmaz — bazı kartlarda olup bazılarında olmaması, eskisinin
+  // GEÇİRDİĞİ gerçek bir kusurdur. → D-312
+  it('üst başlık şablon genelinde TUTARLI — ya hepsinde ya hiçbirinde', () => {
+    for (const [id, o] of ornekler) {
+      const dolu = o.kartlar.filter((k) => k.ustBaslik.trim() !== '').length
+      expect([0, o.kartlar.length], `${id}: ${String(dolu)}/${String(o.kartlar.length)}`).toContain(
+        dolu
+      )
+    }
   })
 
   // ⚠ Boş bir panel, panel başlığını çizip altını boş bırakıyor: "ÜÇ ÖNCELİK" yazıp
@@ -176,6 +187,32 @@ describe('şablonlar birbirinin boyası DEĞİL', () => {
     expect(Math.max(...g) - Math.min(...g)).toBeGreaterThanOrEqual(
       ((ust ?? 100) - (alt ?? 75)) * 0.6
     )
+  })
+
+  // ⚠ ⚠ **BU TESTİN OLMAMASI, BİR AYNILIĞI YEŞİL GEÇİRDİ.** Üstteki testler tipografi
+  // İMZASINA bakıyor ve altı şablon farklı imza taşıyordu — ama ızgaraya bakınca hepsi
+  // aynı iskeleti kuruyordu: el yazısı → kaps etiket → sol üst iri başlık → gövde.
+  // Ölçüldü: altı şablonun BEŞİ birebir aynı öge envanterine sahipti. Punto farkı bir
+  // tasarım farkı değildir; ölçülmeyen şey, olmayan şeydir.
+  //
+  // ⚠ **Ama envanter çeşitliliği de görsel ayrımın VEKİLİ değil** ve bu bir denemeyle
+  // öğrenildi: `memphis`ten el yazısını silmek envanteri farklılaştırdı ve şablonu
+  // ayırt edici DEĞİL, sıradan yaptı. Bu yüzden ölçülen şey İSKELET = envanter + çapa;
+  // ayrımı iki eksenden biri sağlayabilir.
+  it('şablonlar tek bir İSKELET üzerine kurulmamış', () => {
+    const OGELER = ['elYazisi', 'ustBaslik', 'baslik', 'govde', 'hayalet', 'panel'] as const
+    const iskelet = ornekler.map(([id, o]) => {
+      const k = o.kartlar[0] as unknown as Record<string, unknown>
+      const env = OGELER.filter((a) => {
+        const v = k[a]
+        if (v === undefined || v === null) return false
+        return typeof v === 'object' ? true : String(v).trim() !== ''
+      }).join('+')
+      return [id, `${env}@${o.yerlesim ?? 'ust'}`] as const
+    })
+    // Altı şablonun en az dördü farklı iskelet kurmalı: ikisi aynı kalabilir (bir
+    // iskeletin iki farklı tipografik sesi meşrudur), altısı aynı olamaz.
+    expect(new Set(iskelet.map(([, i]) => i)).size).toBeGreaterThanOrEqual(4)
   })
 
   it('yerleşim tek bir değerde toplanmamış', () => {

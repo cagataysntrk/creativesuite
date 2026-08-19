@@ -589,6 +589,13 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
  * ⚠ Zemin AÇIK — panel ve ray renkleri `--kart-metin`den türüdüğü için okunuyor. Sabit
  * beyaz olsalardı bu şablonun tüm verisi görünmezdi (FAZ-15.2).
  */
+/**
+ * ⚠ ⚠ **AYRIMI ÖGE SİLEREK DEĞİL, KOMPOZİSYONLA ARIYOR — ve bu bir DENEMEYLE
+ * öğrenildi.** İlk hamle el yazısını kaldırmaktı; bakıldı ve şablon ayırt edici
+ * OLMADI, sıradanlaştı. Öge envanteri çeşitliliği görsel ayrımın vekili değil.
+ * Soru ritmi yerini değiştirerek ayrışıyor: metin DİBE iniyor, üstte büyük bir
+ * boşluk kalıyor — soru soran bir afiş. → D-312
+ */
 export const ORNEK_MEMPHIS: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
@@ -599,7 +606,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // kartın metni solda başlıyor ve kesimi aşan her öge bir sonraki kartın soluna giriyor.
   // Çözüm dikeyde ayrışmak; `sahne` de aynı yola çıktı. Ayrım artık yerleşimde değil
   // zeminde (kâğıt), lekelerde ve `wdth 92`lik geniş seste.
-  yerlesim: 'ust',
+  yerlesim: 'alt',
   tipografi: {
     baslikPayi: 0.98,
     baslikGenislik: 92,
@@ -864,6 +871,18 @@ export const ORNEK_DONEN: KatalogOrnegi = {
 // geliyor; tek tonda yıkanmış bir kadraj sade değil, SİSLİ.**
 // Kart zeminleri artık kâğıt → soluk mavi → açık gri → MÜREKKEP: kapanış kartı gerçek
 // siyaha iniyor ve şerit boyunca bir ton yolculuğu kuruluyor.
+/**
+ * ⚠ ⚠ **BU ŞABLONUN İSKELETİ KASTEN FARKLI: el yazısı YOK, üst başlık YOK.**
+ *
+ * Ölçüldü: altı şablonun beşi birebir aynı öge envanterini taşıyordu
+ * (`elYazisi + ustBaslik + baslik + govde`). Tipografi reçeteleri farklıydı ama
+ * KOMPOZİSYON aynıydı — depo sahibinin "yedi tasarım değil tek tasarımın yedi
+ * boyası" dediği şey tam buydu ve `birbirinin boyası DEĞİL` testi bunu ölçmüyordu:
+ * o yalnız punto/genişlik/ağırlık imzasına bakıyor.
+ *
+ * Dergi kapağı az ögeyle konuşur: fotoğrafın yanında TEK bir başlık ve kısa bir
+ * giriş. Etiket eklemek onu bir sunum slaytına çevirir. → D-312
+ */
 export const ORNEK_EDITORYAL: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
@@ -941,8 +960,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   ],
   kartlar: [
     {
-      elYazisi: 'Sahadan',
-      ustBaslik: 'SAHADAN',
+      ustBaslik: '',
       baslik: 'Sessiz bir **dönüşüm**',
       govde: 'Bir hattın değişimi gürültüyle değil, ölçüyle başlıyor.',
       panel: null,
@@ -954,7 +972,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       kolon: 'sag',
     },
     {
-      ustBaslik: 'BOŞLUK',
+      ustBaslik: '',
       baslik: 'Boşluk da bir **karar**',
       govde: 'Doldurulmayan alan, gözün dinlendiği yerdir.',
       panel: null,
@@ -964,7 +982,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       zemin: 'var(--ramp-marka-mavi-200)',
     },
     {
-      ustBaslik: 'PUNTO',
+      ustBaslik: '',
       baslik: 'Küçük punto **güven** ister',
       govde: 'Bağırmayan bir başlık, okunacağını varsayıyor.',
       panel: null,
@@ -975,7 +993,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       kolon: 'sag',
     },
     {
-      ustBaslik: 'İMZA',
+      ustBaslik: '',
       baslik: 'Ve **kapanış**',
       govde: 'Dört karede tek bir bakış; imza altta duruyor.',
       panel: null,

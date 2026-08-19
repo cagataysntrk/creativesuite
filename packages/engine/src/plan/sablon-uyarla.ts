@@ -151,7 +151,17 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
     if (y.baslik.trim() === '') kusurlar.push(`${yer}: başlık boş`)
     if ((y.baslik.match(/\*\*/g) ?? []).length % 2 !== 0)
       kusurlar.push(`${yer}: yarım kalan \`**\` vurgu işareti`)
-    if (y.ustBaslik.trim() === '') kusurlar.push(`${yer}: üst başlık boş`)
+    // ⚠ ⚠ **ÜST BAŞLIĞIN VAR OLUP OLMADIĞINA ŞABLON KARAR VERİR — D-299'un aynısı.**
+    // Eski kural her kartta üst başlık ŞART koşuyordu ve bu, altı şablona TEK bir
+    // iskelet dayatıyordu: el yazısı → kaps etiket → iri başlık → gövde. Depo sahibi
+    // "yedi tasarım değil tek tasarımın yedi boyası" derken tam bunu görmüştü; tipografi
+    // reçeteleri farklıydı, KOMPOZİSYON aynıydı. Bir sözleşme, bir tasarım kararını
+    // sessizce evrenselleştirmişti.
+    //
+    // ⚠ Aynı ders `hayalet` için zaten yazılmıştı ve `ustBaslik`e uygulanmamıştı — bu
+    // deponun tekrar eden sınıfı: bir dosyaya yazılmış ders komşu alana geçmiyor.
+    const ustBaslikVar = (o.ustBaslik ?? '').trim() !== ''
+    if (ustBaslikVar && y.ustBaslik.trim() === '') kusurlar.push(`${yer}: üst başlık boş`)
     const butce = kelimeButcesi(ornek)
     const uzun = enUzunKelime(y.baslik)
     if ([...uzun].length > butce)
@@ -159,7 +169,7 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
         `${yer}: başlıktaki "${uzun}" ${[...uzun].length} harf, şablonun bütçesi ${butce} — ` +
           `tek uzun kelime TÜM karoselin puntosunu düşürür, daha kısa bir kelime seç`
       )
-    if (SAYAC_ETIKETI.test(y.ustBaslik))
+    if (ustBaslikVar && SAYAC_ETIKETI.test(y.ustBaslik))
       kusurlar.push(
         `${yer}: üst başlık bir SAYAÇ ("${y.ustBaslik}") — numaralı etiket yasak, kartın konusunu adlandır`
       )
@@ -189,7 +199,9 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
     })()
 
     kartlar.push({
-      ustBaslik: y.ustBaslik,
+      // Şablon bu ögeyi kullanmıyorsa model doldursa bile ÇİZİLMEZ: kompozisyon
+      // şablonun, içerik modelin.
+      ustBaslik: ustBaslikVar ? y.ustBaslik : '',
       baslik: y.baslik,
       govde: y.govde,
       // ⚠ ⚠ **HAYALETİ ŞABLON KARAR VERİR, MODEL DEĞİL (D-299).** Örnekteki hayalet BOŞSA
