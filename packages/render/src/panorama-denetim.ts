@@ -64,6 +64,20 @@ export type KusurTuru =
    */
   | 'ifsa-okunmuyor'
   /**
+   * Çıktıda YER TUTUCU kutusu var — görsel üretilemedi ve yerine çerçeve çizildi.
+   *
+   * ⚠ ⚠ **BU KUSUR GERÇEK BİR ÇIKTIYA BAKARAK DOĞDU ve kalite kapısı onu GEÇİRDİ.**
+   * Panelden onaylanan koşuda `gorsel-uret` sağlayıcı politikasıyla reddedildi
+   * (`IMAGE_PROMPT_REJECTED`), bir yuva boş kaldı ve son slaytta kesik çizgili bir
+   * kutu ile "kesik özne — 3" etiketi kaldı. `kalite` yine de "0 kusur, geçti" dedi:
+   * denetim taşmayı, kesimi, glifi ölçüyordu ama EKSİĞİ ölçmüyordu.
+   *
+   * ⚠ Yer tutucu bilerek çiziliyor (D-…: eksiklik görünür kalmalı, sessizce metin-only
+   * bir karosele düşmek tasarımı tanınmaz yapar). Doğru davranış onu SİLMEK değil,
+   * yayına gitmesini ENGELLEMEK: kusur olarak bildiriliyor, insan kapısı görüyor.
+   */
+  | 'yer-tutucu'
+  /**
    * `matlama` bekleniyor ama görselin zemini siyah DEĞİL — kesim tutmayacak.
    *
    * ⚠ ⚠ **BU KUSUR TÜRÜ GERÇEK BİR ÇIKTIYA BAKARAK DOĞDU.** `kesik` kırpma, brief'in
@@ -157,6 +171,27 @@ const OLCUM = (
   const kutular = []
   const kesimler = ${JSON.stringify(kesimler)}
   const kartlar = Array.from(document.querySelectorAll('.kart'))
+
+  // ── YER TUTUCU: üretilemeyen görselin yerine çerçeve çizildi mi ──────────
+  // ⚠ ⚠ **YER TUTUCU KARTIN İÇİNDE DEĞİL, AYRI KATMANDA — ve bu hata bu dosyada
+  // ÜÇÜNCÜ kez yapıldı.** Dosyanın kendi yorumu "GÖRSELLER KARTLARIN ÜSTÜNDE, AYRI
+  // BİR KATMANDA" diyor; ifşa kontrastı ölçümü de aynı tuzağa düşmüştü. Belge
+  // düzeyinde aranıyor, kart KONUMDAN türetiliyor.
+  Array.from(document.querySelectorAll('.gorsel-yer')).forEach((yer) => {
+    const yr = yer.getBoundingClientRect()
+    if (yr.width < 2 || yr.height < 2) return
+    const kartIndex = kartlar.findIndex((k) => {
+      const kr = k.getBoundingClientRect()
+      return yr.left + yr.width / 2 >= kr.left && yr.left + yr.width / 2 < kr.right
+    })
+    kusurlar.push({
+      tur: 'yer-tutucu',
+      kart: kartIndex < 0 ? null : kartIndex + 1,
+      alan: null,
+      aciklama:
+        'bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik',
+    })
+  })
 
   // ── AI ifşası: her slaytta GÖRÜNÜR mü ─────────────────────────────────────
   // ⚠ Varlık kontrolü YETMEZ: sıfır boyutlu, gizlenmiş ya da opaklığı sıfır bir
