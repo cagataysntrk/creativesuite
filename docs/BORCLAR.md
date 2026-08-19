@@ -126,3 +126,16 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   PNG'yi damgalar, `assets` çıktısı `stamped: true` taşır ve sıra sorunu kalkar.
   Bunun için uyum iddiasının koşu ÖNCESİNDE hesaplanması gerekiyor (bugün sonra
   hesaplanıyor) — küçük ama gerçek bir yeniden sıralama.
+- **D19 · Kapı onayından sonra adımlar YENİDEN koşuyor.** Ölçüldü: `metin-uret`
+  defterde iki ayrı `idempotency_key` ile iki satır bırakıyor, yani "bu iş yapıldı"
+  bilgisi kayboluyor ve her onay metni yeniden yazdırıp görselleri yeniden
+  ürettiriyor. Bu hem para hem tutarlılık sorunu: **onaylanan metin ile yayına giden
+  metin farklı olabilir** (R-07'nin ruhuna aykırı).
+  Elenen adaylar (hepsi ölçüldü, hiçbiri sebep değil): `params` (kayıtlı dosyayla
+  birebir aynı) · `corpusCommit` (dondurulmuş değer kullanılıyor) · `konu-sec`
+  tekrarı (defterde tek satır) · `selectSearch` sıralaması (bu konuda boş dönüyor) ·
+  `selectRecords` + `asOf` (iki farklı zamanda aynı 7 kayıt, aynı sıra, aynı gövde).
+  Kalan iz: `metin-uret`in GİRDİ özeti 1. ve 3. geçişte AYNI (`5f64fd5c`), 2. geçişte
+  farklı (`ff42205c`) — yani sapma tekrarlanabilir değil, bir kez oldu.
+  Araç hazır: iz satırı artık her adımın girdi VE çıktı özetini basıyor
+  (`▶ adim [girdi]` · `↳ adim çıktı [çıktı]`), bir sonraki sapma anında görünecek.

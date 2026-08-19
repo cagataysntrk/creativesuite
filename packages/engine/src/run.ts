@@ -825,6 +825,10 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         ciktilar[id] = kayitli
       } else {
         ciktilar[id] = tazeCikti
+        // ⚠ ÇIKTI özeti de basılıyor: girdi özeti "hangi adımdan sonra kaydı"
+        // sorusunu cevapladı ama "kimin çıktısı değişti" sorusunu cevaplayamadı.
+        // İki geçişte aynı adımın çıktı özeti farklıysa kararsızlık ORADA.
+        input.iz?.(`  ↳ ${id} çıktı [${digest(id, JSON.stringify(tazeCikti)).slice(0, 8)}]`)
         // ⚠ **"Atlandı" bir hata DEĞİL.** Gömülü byte taşıyan çıktı bilerek
         // yazılmıyor (byte `derived/blobs`ta, adım sürdürmede yeniden koşuyor);
         // onu uyarı olarak basmak, doğru olmayan bir alarm üretir ve gürültülü
