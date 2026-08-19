@@ -133,6 +133,27 @@ export type KusurTuru =
    * fazlası kaybolduysa cümle artık okunmuyor.
    */
   | 'metin-ortuluyor'
+  /**
+   * **Süs ögesi metnin ARKASINDAN geçiyor.**
+   *
+   * ⚠ ⚠ **DEPO SAHİBİNİN GÖZÜ GÖRDÜ, DENETİM GÖRMEDİ.** Panelden koşan
+   * `run_01a01876`in 2. ve 3. slaytlarında akan mavi alan gövde metninin son iki
+   * satırının altından geçiyordu: okunuyor ama YANLIŞ görünüyor — tasarım değil,
+   * kaza gibi. Denetim "0 kusur" dedi. Var olan hiçbir ölçüm bunu göremezdi:
+   * `metin-ortuluyor` metnin ALTTA kalmasını arıyor (burada metin ÜSTTE),
+   * `ifsa-okunmuyor` yalnız şeride bakıyor, kontrast ölçümü ise kutunun MEDYANINA
+   * bakıyor ve iki satırlık bir kesişim medyanı kıpırdatmıyor.
+   *
+   * ⚠ Kuralın kendisi kataloğa ZATEN yazılıydı — `sahne` kaydı *"el çizimi yaylar kart
+   * ARALARINDA duruyor, metnin üstünden geçmiyor: nüfus karoselinde oklar başlıkların
+   * ortasından geçince okunmaz oldu ve silindi"* diyor. Yazılı olması yetmedi; ölçüm
+   * yoktu.
+   *
+   * ⚠ Ölçü İKİ RENDER FARKI: süs gizlenip aynı kutu yeniden okunuyor, değişen piksel
+   * oranı süsün metnin altında kapladığı alandır. Eşik ölçülerek seçildi — gerçek
+   * belgede temiz kutular %0, kesişen ikisi %4,6 ve %5,9 verdi (§7.1).
+   */
+  | 'sus-metni-kesiyor'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -460,6 +481,75 @@ const kartTavanlari = (doc: PanoramaBelgesi): string => {
  * ⚠ Ekran görüntüsü ALINMIYOR: denetim pikselleri değil kutuları okuyor ve dosyaya
  * yazmadan çalışıyor. Böylece düzeltme turu, kaydedilmiş bir çıktıyı geçersiz kılmıyor.
  */
+/**
+ * Metin kutuları — süs kesişimi ölçümünün girdisi.
+ *
+ * ⚠ Kart SIRASI DOM'dan geliyor, konumdan hesaplanmıyor: panoramada kartlar zaten
+ * ayrı `<section>`lar ve konumdan türetmek, kesimi aşan bir öge yüzünden kayardı.
+ */
+const METIN_KUTULARI = `(() => {
+  const cikti = []
+  document.querySelectorAll('.kart').forEach((kart, i) => {
+    const alanlar = [['baslik','.baslik'],['govde','.govde'],['ustBaslik','.ust-baslik']]
+    for (const [alan, sec] of alanlar) {
+      const e = kart.querySelector(sec)
+      if (e === null) continue
+      const r = e.getBoundingClientRect()
+      if (r.width < 4 || r.height < 4) continue
+      cikti.push({ kart: i + 1, alan, sol: r.left, ust: r.top, en: r.width, boy: r.height })
+    }
+  })
+  return cikti
+})()`
+
+/**
+ * Süs ögeleri — metnin üstünden geçmemesi gereken ÇİZGİSEL ögeler.
+ *
+ * ⚠ Görsel (`img`) listede YOK ve bu kasıtlı: metnin bir figürün üstünden geçmesi
+ * referans tasarımlarda İSTENEN şey (`metin-ortuluyor` onu ayrıca ölçüyor). Burada
+ * ölçülen şey SÜSÜN metne girmesi.
+ *
+ * ⚠ ⚠ **`.alan-siniri` LİSTEDE YOK ve bunu ilk sürüm YANLIŞ yaptı:** `akan-alan`da o
+ * sınır bir süs değil ZEMİNİN KENDİSİ — iki renk alanını ayıran eğri. Gizlenince tüm
+ * kartın arkası değişiyor ve ölçüm "süs her metnin altında" diyordu; temiz bir belgede
+ * on sekiz kusur. Zemini süs sanan bir ölçüm, doğru şeyi yanlış yerde arar.
+ */
+const SUSU_GIZLE = `(() => {
+  const st = document.createElement('style')
+  st.id = 'sus-gizle'
+  st.textContent = '.bant, .bant-kemer, .bant-ok, .lekeler { display: none !important }'
+  document.head.appendChild(st)
+  return true
+})()`
+
+const SUSU_GOSTER = `(() => {
+  document.getElementById('sus-gizle')?.remove()
+  return true
+})()`
+
+/** İki PNG arasında GÖZLE görülür farkın oranı (%, bir ondalık). */
+const farkOrani = (a: string, b: string): string => `(async () => {
+  const yukle = async (b64) => {
+    const im = new Image()
+    im.src = 'data:image/png;base64,' + b64
+    await im.decode()
+    const c = document.createElement('canvas')
+    c.width = im.width; c.height = im.height
+    const x = c.getContext('2d')
+    x.drawImage(im, 0, 0)
+    return x.getImageData(0, 0, c.width, c.height).data
+  }
+  const p = await yukle(${JSON.stringify(a)})
+  const q = await yukle(${JSON.stringify(b)})
+  const n = Math.min(p.length, q.length)
+  let degisen = 0
+  for (let j = 0; j < n; j += 4) {
+    // 24: JPEG/antialias gurultusunun ustunde, renk degisiminin altinda.
+    if (Math.abs(p[j]-q[j]) + Math.abs(p[j+1]-q[j+1]) + Math.abs(p[j+2]-q[j+2]) > 24) degisen++
+  }
+  return Math.round((degisen / (n / 4)) * 1000) / 10
+})()`
+
 export const panoramaDenetle = async (
   doc: PanoramaBelgesi,
   oturum?: Oturum
@@ -578,6 +668,61 @@ export const panoramaDenetle = async (
         })
       }
     }
+    // ── süs metni kesiyor mu: İKİ RENDER FARKI (§7.1) ───────────────────────
+    //
+    // ⚠ ⚠ **BU KUSURU GÖZ BULDU, ÖLÇÜM DEĞİL.** Akan mavi alan gövde metninin son iki
+    // satırının altından geçiyordu ve denetim "0 kusur" diyordu. Kontrast ölçümü de
+    // görmedi: kutunun MEDYANINA bakıyor ve iki satırlık bir kesişim medyanı
+    // kıpırdatmıyor. Doğru ölçü, süsün ORADA OLUP OLMADIĞI.
+    //
+    // ⚠ Aynı sayfa kullanılıyor, ikinci bir `setContent` YOK: süs tek bir `<style>` ile
+    // gizleniyor, kutular yeniden okunuyor, stil kaldırılıyor. İkinci bir kurulum,
+    // ölçtüğünü sandığı şeyi başka bir ortamda ölçer.
+    const susKusurlari: Kusur[] = []
+    try {
+      const kutular = (await page.evaluate(METIN_KUTULARI)) as readonly {
+        kart: number
+        alan: 'baslik' | 'govde' | 'ustBaslik'
+        sol: number
+        ust: number
+        en: number
+        boy: number
+      }[]
+      const kirp = (k: { sol: number; ust: number; en: number; boy: number }) => ({
+        x: Math.max(0, Math.round(k.sol)),
+        y: Math.max(0, Math.round(k.ust)),
+        width: Math.max(1, Math.round(k.en)),
+        height: Math.max(1, Math.round(k.boy)),
+      })
+      const once: string[] = []
+      for (const k of kutular)
+        once.push((await page.screenshot({ clip: kirp(k) })).toString('base64'))
+      await page.evaluate(SUSU_GIZLE)
+      for (let i = 0; i < kutular.length; i++) {
+        const k = kutular[i]
+        if (k === undefined) continue
+        const sonra = (await page.screenshot({ clip: kirp(k) })).toString('base64')
+        const oran = (await page.evaluate(farkOrani(once[i] ?? '', sonra))) as number
+        // ⚠ Eşik ÖLÇÜLEREK seçildi: gerçek belgede dokunmayan kutular %0, kesişen
+        // ikisi %4,6 ve %5,9 verdi. %2 ikisini ayırıyor ve bir kenarın metne
+        // değmesine (kasıtlı katmanlanma) izin veriyor.
+        if (oran >= 2) {
+          susKusurlari.push({
+            tur: 'sus-metni-kesiyor',
+            kart: k.kart,
+            alan: k.alan,
+            aciklama:
+              `süs ögesi ${k.alan} metninin %${String(oran)}'inin arkasından geçiyor — ` +
+              'metin kısaltılmalı ya da süsün dışına alınmalı',
+          })
+        }
+      }
+      await page.evaluate(SUSU_GOSTER)
+    } catch {
+      // Ölçülemedi: kusur UYDURULMUYOR. Ölçülemeyen bir şeyi kusur saymak, ölçüm
+      // aracının arızasını tasarımın suçu yapardı.
+    }
+
     // ── punto çökmesi: hangi KART tavanı aşağı çekiyor ──────────────────────
     // ⚠ ⚠ **İKİ TARAF AYRI KAYNAKTAN.** Ölçüm bir sabitle değil, KARTLARIN KENDİ
     // ORTANCASIYLA karşılaştırılıyor: "bu kart ötekilerden çok mu dar". Mutlak bir eşik
@@ -611,6 +756,7 @@ export const panoramaDenetle = async (
     return [
       ...ham,
       ...ifsaKusurlari,
+      ...susKusurlari,
       ...cokme,
       ...(eksik.length === 0
         ? []

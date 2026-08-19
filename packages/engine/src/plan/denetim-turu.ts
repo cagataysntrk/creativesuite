@@ -143,7 +143,15 @@ export const denetimTuru = async (
  * `kart-disi`) KOMPOZİSYON ya da GÖRSEL kusuru: çözümleri yeniden üretim ya da şablon
  * değişikliği — ikisi de insanın kararı.
  */
-export const METINLE_DUZELIR: readonly string[] = ['tasma', 'punto-cokmesi', 'eksik-glif']
+export const METINLE_DUZELIR: readonly string[] = [
+  'tasma',
+  'punto-cokmesi',
+  'eksik-glif',
+  // ⚠ Süs metnin arkasından geçiyorsa çözüm METİNDEDİR: gövde kısalınca satır sayısı
+  // düşer ve kutu süsün üstünde kalır. Süsün konumu şablonun kimliği (kesimi aşan öge)
+  // ve onu oynatmak kompozisyona dokunmak olurdu — bu tur ona yetkili değil.
+  'sus-metni-kesiyor',
+]
 
 /** Kusurlardan yalnız metinle düzeltilebilenler. */
 export const duzeltilebilir = (kusurlar: readonly DenetimKusuru[]): readonly DenetimKusuru[] =>
@@ -165,4 +173,6 @@ export const duzeltmeIstemi = (kusurlar: readonly DenetimKusuru[]): string =>
     '- "panel dikeyde tuvali aşıyor" → panel satır sayısını azalt, veriyi özetle.',
     '- "kapsamı dışında" → marka fontunun desteklemediği karakteri metinden çıkar.',
     '- "kapsamı dışında" → o karakteri metinden çıkar, eşanlamlısını yaz.',
+    '- "süs ögesi ... arkasından geçiyor" → o karttaki gövdeyi bir iki satır KISALT;',
+    '  cümleyi at değil, sıkıştır. Süsün yerini değiştiremezsin.',
   ].join('\n')
