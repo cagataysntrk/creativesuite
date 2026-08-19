@@ -16,7 +16,7 @@
 // "bu bir bug" sanmaya iter ve o an sistemin geri kalanına olan güvenini de kaybeder.
 // Bu yüzden belirsizlik bir dipnot değil, ÖLÇÜLMÜŞ bir liste: hangi adımlar, neden.
 
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { RUNS_DIR, costSummary, inspectManifest, type RunManifest } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
@@ -86,6 +86,15 @@ export interface CalistirmaOzeti {
   readonly awaitingGate: string | null
   readonly stoppedAt: string | null
   readonly kararSayisi: number
+  /**
+   * Bu koşu ELENDİ mi — insan "bunu beğenmedim" dedi.
+   *
+   * ⚠ ⚠ **SİLMEK YOK, ELEMEK VAR.** `derived/runs` türetilemez ve silinmez (Yasa 11 ·
+   * R-52): maliyet ve sağlayıcı geçmişi başka hiçbir yerde yazmıyor. Ama beğenilmeyen
+   * bir çıktının listeyi doldurması da bir maliyet — insan aradığını bulamıyor.
+   * Eleme ikisini uzlaştırıyor: kayıt DURUYOR, liste temizleniyor.
+   */
+  readonly elendi: { readonly at: string; readonly sebep: string } | null
   /** Manifest kusursuz mu (D-155). Kusurluysa çıktı yayınlanamaz. */
   readonly manifestSaglam: boolean
   /** Donmuş plan diskte var mı — **`rerun`un tek ön koşulu**. */
@@ -168,18 +177,77 @@ const ozetle = (m: RunManifest, donmusPlanVar: boolean): CalistirmaOzeti => {
     awaitingGate: m.awaitingGate ?? null,
     stoppedAt: m.stoppedAt ?? null,
     kararSayisi: m.decisions.length,
+    elendi: null,
     manifestSaglam: inspectManifest(m).length === 0,
     donmusPlanVar,
   }
 }
 
 /** En YENİ üstte: geçmişe "en son ne koştu" diye bakılır. */
+/** Eleme kaydı — `derived/runs/<id>/elendi.json`. Yoksa `null`. */
+export const elemeKaydi = (
+  repoRoot: string,
+  runId: string
+): { readonly at: string; readonly sebep: string } | null => {
+  const yol = join(repoRoot, RUNS_DIR, runId, 'elendi.json')
+  if (!existsSync(yol)) return null
+  try {
+    return JSON.parse(readFileSync(yol, 'utf8')) as { at: string; sebep: string }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Koşuyu eler — **byte'a ve deftere DOKUNMADAN**.
+ *
+ * ⚠ Sebep ZORUNLU: gerekçesiz bir eleme, altı ay sonra "bu neden elenmiş" sorusunu
+ * cevapsız bırakır. Karantinada da aynı kural var (D-155) ve aynı sebeple.
+ */
+export const kosuyuEle = (
+  repoRoot: string,
+  runId: string,
+  sebep: string,
+  at: string
+): { readonly ok: true } | { readonly ok: false; readonly hata: string } => {
+  if (sebep.trim() === '') return { ok: false, hata: 'eleme GEREKÇE ister' }
+  const dizin = join(repoRoot, RUNS_DIR, runId)
+  if (!existsSync(dizin)) return { ok: false, hata: `çalıştırma yok: ${runId}` }
+  try {
+    writeFileSync(
+      join(dizin, 'elendi.json'),
+      `${JSON.stringify({ at, sebep: sebep.trim() }, null, 2)}\n`
+    )
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, hata: `yazılamadı: ${String(e)}` }
+  }
+}
+
+/** Elemeyi GERİ ALIR — karar değişebilir, kayıt kalıcıdır. */
+export const elemeyiGeriAl = (
+  repoRoot: string,
+  runId: string
+): { readonly ok: true } | { readonly ok: false; readonly hata: string } => {
+  const yol = join(repoRoot, RUNS_DIR, runId, 'elendi.json')
+  if (!existsSync(yol)) return { ok: true }
+  try {
+    rmSync(yol)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, hata: `silinemedi: ${String(e)}` }
+  }
+}
+
 export const calistirmalar = (repoRoot: string): readonly CalistirmaOzeti[] => {
   const out: CalistirmaOzeti[] = []
   for (const id of runIdleri(repoRoot)) {
     const m = readManifest(repoRoot, id as RunId)
     if (m === null) continue
-    out.push(ozetle(m, readFrozenPlan(repoRoot, id as RunId) !== null))
+    out.push({
+      ...ozetle(m, readFrozenPlan(repoRoot, id as RunId) !== null),
+      elendi: elemeKaydi(repoRoot, id),
+    })
   }
   return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }

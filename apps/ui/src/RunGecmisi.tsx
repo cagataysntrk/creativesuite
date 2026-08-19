@@ -31,6 +31,8 @@ interface Ozet {
   readonly kararSayisi: number
   readonly manifestSaglam: boolean
   readonly donmusPlanVar: boolean
+  /** İnsan "bunu beğenmedim" dedi — kayıt duruyor, liste temizleniyor. */
+  readonly elendi: { readonly at: string; readonly sebep: string } | null
 }
 
 interface Adim {
@@ -107,6 +109,7 @@ export const RunGecmisi = ({
   const [fDurum, setFDurum] = useState('')
   const [fTaze, setFTaze] = useState(false)
   const [ara, setAra] = useState('')
+  const [elenenler, setElenenler] = useState(false)
   const [detay, setDetay] = useState<Detay | null>(null)
   const [tekrarSonuc, setTekrarSonuc] = useState<string | null>(null)
 
@@ -129,12 +132,34 @@ export const RunGecmisi = ({
     }
   }
 
-  useEffect(() => {
+  const listeyiCek = (): void => {
     void fetch('/api/calistirmalar')
       .then((r) => r.json() as Promise<{ calistirmalar: readonly Ozet[] }>)
       .then((j) => setListe(j.calistirmalar))
       .catch(() => setListe([]))
-  }, [])
+  }
+
+  useEffect(listeyiCek, [])
+
+  /**
+   * Koşuyu eler — **byte'a ve deftere DOKUNMADAN.**
+   *
+   * ⚠ Gerekçe ZORUNLU (sunucu da zorluyor): gerekçesiz bir eleme, altı ay sonra "bu
+   * neden elenmiş" sorusunu cevapsız bırakır ve kimse geri almaya cesaret edemez.
+   */
+  const ele = async (r: Ozet): Promise<void> => {
+    const geriAl = r.elendi !== null
+    const sebep = geriAl
+      ? ''
+      : (prompt('Neden eleniyor? (kayıt SİLİNMİYOR, listeden kalkıyor)') ?? '')
+    if (!geriAl && sebep.trim() === '') return
+    await fetch(`/api/kosu/${encodeURIComponent(r.runId)}/ele`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(geriAl ? { geriAl: true } : { sebep }),
+    })
+    listeyiCek()
+  }
 
   useEffect(() => {
     if (secili === null) return
@@ -162,6 +187,10 @@ export const RunGecmisi = ({
     .filter((r) => fDurum === '' || durumu(r) === fDurum)
     .filter((r) => !fTaze || new Date(r.createdAt).getTime() >= yediGunOnce)
     .filter((r) => ara.trim() === '' || `${r.runId} ${r.pipeline}`.includes(ara.trim()))
+    // ⚠ ⚠ **SİLMEK YOK, ELEMEK VAR.** `derived/runs` türetilemez ve silinmez (Yasa 11 ·
+    // R-52); ama beğenilmeyen çıktının listeyi doldurması da bir maliyet — insan
+    // aradığını bulamıyor. Eleme ikisini uzlaştırıyor: kayıt DURUYOR, liste temizleniyor.
+    .filter((r) => elenenler || r.elendi === null)
     // ⚠ EN YENİ ÖNCE: geçmiş ekranında insan en son ne olduğuna bakar. Kuyrukta
     // (bekleyen iş) sıra terstir ve bu ayrım bilinçli — orada en eski dipte
     // unutulmamalı, burada en yeni aranıyor.
@@ -210,6 +239,14 @@ export const RunGecmisi = ({
         <label>
           ara <input type="text" value={ara} onChange={(e) => setAra(e.target.value)} />
         </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={elenenler}
+            onChange={(e) => setElenenler(e.target.checked)}
+          />{' '}
+          elenenleri de göster
+        </label>
       </div>
       {suzulmus.length === 0 ? (
         <p>
@@ -250,6 +287,18 @@ export const RunGecmisi = ({
                       ↗ aç
                     </button>
                   )}
+                  {/* ⚠ Eleme GEREKÇE istiyor ve GERİ ALINABİLİR: gerekçesiz bir eleme
+                      altı ay sonra "bu neden elenmiş" sorusunu cevapsız bırakır. */}
+                  <button
+                    type="button"
+                    className="satir-ac"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void ele(r)
+                    }}
+                  >
+                    {r.elendi === null ? '✕ ele' : '↩ elemeyi geri al'}
+                  </button>
                 </td>
                 <td>{r.pipeline}</td>
                 <td className="mono">{kisaSha(r.corpusCommit)}</td>

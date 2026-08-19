@@ -66,7 +66,7 @@ import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
-import { calistirmaDetayi, calistirmalar } from './gecmis.js'
+import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
 import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
 
@@ -412,6 +412,24 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
 
   // Detay: zaman çizgisi + rerun/replay karşılaştırması. Dünya durumu BURADA kurulur —
   // kurulamazsa `null` geçer ve ekran "sapma ölçülmedi" der, "sapma yok" demez (D-175).
+  // ── koşuyu ELE / elemeyi geri al (FAZ-17.3) ──────────────────────────────
+  //
+  // ⚠ ⚠ **SİLMEK YOK, ELEMEK VAR.** Depo sahibi *"beğenmediklerimi ya da başarısızları
+  // silebilmem lazım"* dedi ve istek meşru: beğenilmeyen çıktının listeyi doldurması
+  // bir maliyet. Ama `derived/runs` türetilemez ve silinmez (Yasa 11 · R-52) — maliyet
+  // ve sağlayıcı geçmişi başka hiçbir yerde yazmıyor. Eleme ikisini uzlaştırıyor:
+  // kayıt DURUYOR, liste temizleniyor, karar geri alınabiliyor.
+  app.post('/api/kosu/:runId/ele', async (c) => {
+    const g = (await c.req.json().catch(() => ({}))) as { sebep?: string; geriAl?: boolean }
+    const runId = c.req.param('runId')
+    const r =
+      g.geriAl === true
+        ? elemeyiGeriAl(o.repoRoot, runId)
+        : kosuyuEle(o.repoRoot, runId, g.sebep ?? '', o.simdi())
+    if (r.ok) yayinla('degisim')
+    return c.json(r, r.ok ? 200 : 400)
+  })
+
   app.get('/api/calistirmalar/:runId', async (c) => {
     let dunya = null
     try {

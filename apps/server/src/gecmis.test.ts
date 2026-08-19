@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { RUNS_DIR, frozenPlanPath, manifestPath } from '@suite/kernel'
 import type { StaleCheck } from '@suite/engine'
-import { belirsizAdimlar, calistirmaDetayi, calistirmalar } from './gecmis.js'
+import {
+  belirsizAdimlar,
+  calistirmaDetayi,
+  calistirmalar,
+  elemeKaydi,
+  elemeyiGeriAl,
+  kosuyuEle,
+} from './gecmis.js'
 
 // ⚠ Fikstürlerin biçimi diskteki GERÇEK dosyalardan okundu (D-174): `Money` kablo
 // biçimi `{ micros: <ondalık dize>, currency }`, `bigint` değil.
@@ -256,5 +263,52 @@ describe('çalıştırma geçmişi', () => {
   it('manifesti olmayan çalıştırma null döner — boş detay uydurulmaz', () => {
     const kok = kur({ manifestler: [] })
     expect(calistirmaDetayi(kok, 'run_yok', null)).toBeNull()
+  })
+})
+
+// ── eleme: SİLMEK yok, ELEMEK var (Yasa 11 · R-52) ─────────────────────────
+//
+// ⚠ ⚠ Depo sahibi *"beğenmediklerimi silebilmem lazım"* dedi ve istek meşru: beğenilmeyen
+// çıktının listeyi doldurması bir maliyet. Ama koşu defteri türetilemez ve silinmez —
+// maliyet ve sağlayıcı geçmişi başka hiçbir yerde yazmıyor. Eleme ikisini uzlaştırıyor.
+describe('koşu eleme', () => {
+  const kur = (): string => {
+    const kok = mkdtempSync(join(tmpdir(), 'suite-eleme-'))
+    mkdirSync(join(kok, RUNS_DIR, 'run_x'), { recursive: true })
+    return kok
+  }
+
+  it('gerekçesiz eleme REDDEDİLİYOR', () => {
+    const kok = kur()
+    try {
+      const r = kosuyuEle(kok, 'run_x', '   ', '2026-08-19T10:00:00.000Z')
+      expect(r.ok).toBe(false)
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('eleme kaydı yazılıyor, defter dosyaları DURUYOR', () => {
+    const kok = kur()
+    writeFileSync(join(kok, RUNS_DIR, 'run_x', 'manifest.json'), '{}')
+    try {
+      expect(kosuyuEle(kok, 'run_x', 'beğenmedim', '2026-08-19T10:00:00.000Z').ok).toBe(true)
+      expect(elemeKaydi(kok, 'run_x')?.sebep).toBe('beğenmedim')
+      // ⚠ Asıl ölçüm bu: defter YERİNDE. Eleme bir görünürlük kararı, bir silme değil.
+      expect(existsSync(join(kok, RUNS_DIR, 'run_x', 'manifest.json'))).toBe(true)
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('eleme GERİ ALINABİLİR — karar değişir, kayıt kalır', () => {
+    const kok = kur()
+    try {
+      kosuyuEle(kok, 'run_x', 'beğenmedim', '2026-08-19T10:00:00.000Z')
+      expect(elemeyiGeriAl(kok, 'run_x').ok).toBe(true)
+      expect(elemeKaydi(kok, 'run_x')).toBeNull()
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
   })
 })
