@@ -97,3 +97,8 @@ derived/runs/*/slayt-*.png
 # bir klonla birlikte takım arkadaşına da gidiyordu.
 a.out
 *.o
+
+# Görsel düzenleyicinin (D-301) çalışma dosyaları: kaynak katalog kaydı ve koşu
+# belgesi; ikisi de yeniden üretilebilir (Yasa 11). `derived/runs` DEĞİL — ona
+# dokunulmuyor.
+derived/duzenleyici-*.json
