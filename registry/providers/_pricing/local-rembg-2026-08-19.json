@@ -1,0 +1,11 @@
+{
+  "provider": "local-rembg",
+  "captured_at": "2026-08-19",
+  "verified": true,
+  "verified_by": "measured",
+  "measurement": "Yerel süreç (`.venv-gorsel` Python, `rembg`). Ağ çağrısı YOK, harici fatura ucu YOK. Gerçek koşuda (run_01a016ee) dört `gorsel-kirp` adımının dördü de $0.0000 ile kapandı.",
+  "unitMicros": 0,
+  "sourceUrl": "https://github.com/danielgatis/rembg",
+  "openRisk": "Maliyet paraya değil SÜREYE yazılıyor: uzun bir kırpma bütçeyi değil duvar saatini harcar. Bütçe kapısı bunu görmez ve görmemeli — para tavanı bir zaman tavanı değildir.",
+  "_not": "DEĞİŞMEZ anlık görüntü. Yerel araç sürümü değişirse ölçüm yenilenir ve YENİ dosya açılır."
+}

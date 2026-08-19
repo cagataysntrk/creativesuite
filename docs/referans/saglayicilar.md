@@ -9,12 +9,12 @@ Toplam **7** tanımlayıcı.
 | id | başlık | adaptör | durum | yetenek | şerit | fiyat anlık görüntüsü |
 |---|---|---|---|---|---|---|
 | `chatterbox` | Chatterbox Multilingual V3 (yerel, MIT) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
-| `claude-code` | Claude Code (headless) | `claude-code` | ✅ aktif | `image.critique`<br>`design.critique`<br>`text.generate` | free | — |
+| `claude-code` | Claude Code (headless) | `claude-code` | ✅ aktif | `image.critique`<br>`design.critique`<br>`text.generate` | free | `_pricing/claude-code-2026-08-19.json` |
 | `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ✅ aktif | `image.generate` | free | `_pricing/cloudflare-2026-08-16.json` |
 | `elevenlabs` | ElevenLabs (premium şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | premium | — |
 | `fal-flux` | FLUX (fal) | `fal-flux` | ⏸ kapalı | `image.generate` | premium | `_pricing/fal-2026-08-15.json` ⚠ doğrulanmamış |
 | `gemini-tts` | Gemini TTS (bedava şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
-| `local-rembg` | Yerel arka plan silici (BRIA RMBG, CPU) | `local-rembg` | ✅ aktif | `image.matte` | free | — |
+| `local-rembg` | Yerel arka plan silici (BRIA RMBG, CPU) | `local-rembg` | ✅ aktif | `image.matte` | free | `_pricing/local-rembg-2026-08-19.json` |
 
 ## Desteklenen kısıtlar
 

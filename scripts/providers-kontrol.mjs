@@ -56,8 +56,27 @@ for (const d of descriptors) {
 }
 
 // Fiyat anlık görüntüsü VAR olmalı ve doğrulanmamışsa öyle DEMELİ (§8.3).
+//
+// ⚠ ⚠ **KAPININ DELİĞİ BUYDU: `pricingSnapshot === null` sessizce ATLANIYORDU.**
+// Yani anlık görüntüsü OLMAYAN bir sağlayıcı kapıdan geçiyor, doğrulanmamış görüntüsü
+// olan takılıyordu — hiç kayıt tutmamak, kötü kayıt tutmaktan ucuza geliyordu.
+// `doktor` bunu zaten haftalık raporunda "fiyat anlık görüntüsü YOK ama enabled —
+// maliyet tahmini dayanaksız" diye söylüyordu; iki alet aynı olguya bakıp farklı şey
+// diyorsa biri yanlıştır. Rapor haklıydı, kapı gevşekti.
+//
+// ⚠ Sıfır maliyet MUAF DEĞİL: `cost_formula: '0'` bir iddiadır ve iddianın dayanağı
+// yazılmalı (abonelik mi, yerel işlem mi, bedava katman mı). Sıfır bir bilgisizlik
+// değil, kaydedilmiş bir olgu olmalı.
 for (const d of descriptors) {
-  if (d.pricingSnapshot === null) continue
+  if (d.pricingSnapshot === null) {
+    if (d.enabled) {
+      hatalar.push(
+        `${d.id}: enabled ama fiyat anlık görüntüsü YOK — maliyet tahmini dayanaksız. ` +
+          `Sıfır maliyetli sağlayıcı da gerekçesini yazar (§8.7).`
+      )
+    }
+    continue
+  }
   const yol = join(KOK, d.pricingSnapshot)
   if (!existsSync(yol)) {
     hatalar.push(`${d.id}: fiyat anlık görüntüsü YOK (${d.pricingSnapshot})`)

@@ -25,7 +25,10 @@ enabled: true
 
 # Model diskte, çağrı ağa çıkmıyor: sıfır "bilinmiyor" değil, ÖLÇÜLMÜŞ sıfır.
 cost_formula: '0'
-pricing_snapshot: null
+# ⚠ Sıfır maliyetin de bir GEREKÇESİ olmalı: doktor 'fiyat anlık görüntüsü YOK ama
+# enabled' diyordu ve haklıydı — tahmin $0.00 gösteriyor ama dayanağı hiçbir yerde
+# yazmıyordu. Sıfır bir bilgisizlik değil, kaydedilmiş bir olgu olmalı (§8.7).
+pricing_snapshot: _pricing/local-rembg-2026-08-19.json
 
 # Ticari kullanım serbest DEĞİL — ve bu sessiz bırakılmıyor.
 free_tier_commercial: false

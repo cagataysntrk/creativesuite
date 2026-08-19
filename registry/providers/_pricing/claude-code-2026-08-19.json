@@ -1,0 +1,11 @@
+{
+  "provider": "claude-code",
+  "captured_at": "2026-08-19",
+  "verified": true,
+  "verified_by": "structural",
+  "measurement": "Sağlayıcı yerel `claude` CLI'sini çağırıyor. Faturalama operatörün ABONELİĞİNDE; çağrı başına bir fatura kalemi doğmuyor ve çağrılacak bir fiyat ucu yok. Gerçek koşularda (run_01a016ee, run_01a01742) `metin-uret`, `konu-sec`, `sablon-uyarla`, `gorsel-brief` adımlarının hepsi $0.0000 ile kapandı.",
+  "unitMicros": 0,
+  "sourceUrl": "https://www.anthropic.com/pricing",
+  "openRisk": "Sıfır BİRİM FİYAT, sınırsızlık DEĞİLDİR: abonelik kullanım limitine takıldığında çağrı reddedilir ve adım hata verir. Bu bir FİYAT belirsizliği değil LİMİT belirsizliğidir — cloudflare anlık görüntüsündeki ayrımın aynısı. Bütçe kapısı limiti göremez; onu `available()` ve adım hatası gösterir.",
+  "_not": "DEĞİŞMEZ anlık görüntü. Fiyatlandırma değişirse YENİ dosya açılır, bu düzenlenmez — eski çalıştırmanın maliyeti hâlâ açıklanabilir olmalı."
+}
