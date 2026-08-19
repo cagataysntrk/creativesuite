@@ -874,7 +874,10 @@ const rapor = await runPipeline({
   sleep: async () => undefined,
   // ⚠ İz stdout'a: sunucu alt sürecin stdout'unu canlı olarak koşu günlüğüne
   // akıtıyor, yani panelde de görünüyor. Tek satır, tek yön.
-  iz: (satir) => console.log(`  ${satir}`),
+  // ⚠ SAAT iz satırında: canlı günlükte "hangi adım ne kadar sürdü" ancak zaman
+  // varsa okunur ve manifest yalnız koşu BİTİNCE yazılıyor. Saat tek yerden
+  // (`clock`, §13) — `new Date()` ikinci bir saat olurdu.
+  iz: (satir) => console.log(`  ${clock.nowIso().slice(11, 19)}  ${satir}`),
 })
 
 // ── damga + CAS: zincirin son halkası ───────────────────────────────────────
