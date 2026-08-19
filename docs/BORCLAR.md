@@ -136,14 +136,13 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   çürüyen bir dal, doğru görünmeye devam ediyor.** Zamanlayıcı artık `deps.ciktiVar`
   ile soruyor; çıktı diskteyse atlıyor. Üretimde doğrulandı: sürdürmede
   `↺ konu-sec çıktısı defterden okundu`.
-- **D20 · Görsel adımları her sürdürmede YENİDEN üretiyor — onaylanan tasarım
-  değişiyor.** Ölçüldü: `gorsel-uret-2` GİRDİ özeti üç geçişte de aynı (`39a8c02e`),
-  çıktı her seferinde farklı (`2c1d3c70` → `c642914f` → …) ve damgalanan dört varlığın
-  özetleri de değişiyor. D19'un aynı sınıfı ama **başka sebeple**: görsel çıktısı gömülü
-  byte taşıdığı için deftere bilerek yazılmıyor (R-64), yani "diskte çıktı var mı"
-  sorusu görsel adımlarında hep `hayır`. Sonuç: insan `tasarim-onayi`nde gördüğü
-  slaytları onaylıyor, yayına BAŞKA slaytlar gidiyor.
-  Doğru çözüm: `gorsel-uret` bayt'ı `derived/blobs`a içerik-adresli yazsın ve deftere
-  `{blobDigest}` düşsün; tekrar oynatmada okuyucu onu aynı `{format, data}` şekline
-  geri açsın. Blob deposu (`packages/engine/src/blobs.ts`) zaten var — eksik olan
-  dikiş.
+- **D20 · KAPANDI (2026-08-19) · Görsel adımları her sürdürmede yeniden üretiyordu.**
+  Ölçülmüştü: `gorsel-uret` GİRDİ özeti üç geçişte de aynı (`39a8c02e`), çıktı her
+  seferinde farklı — yani insan `tasarim-onayi`nde gördüğü slaytları onaylıyor, yayına
+  başka slaytlar gidiyordu. Sebep D19'la aynı sınıf, başka kök: gömülü byte taşıyan
+  çıktı deftere yazılmıyordu (R-64), dolayısıyla "diskte çıktı var mı" sorusu görsel
+  adımlarında hep `hayır`dı. Byte artık `derived/blobs`a iniyor, deftere yalnız ADRESİ
+  giriyor (`{__bayt, uzunluk}`); defter dosyası 220 KB yerine 155 bayt.
+  Üretimde doğrulandı: aynı koşunun iki ardışık sürdürmesinde damgalanan dört varlığın
+  özeti BİREBİR aynı (`cea26dd5` · `54ca40ca` · `5a06c161` · `085a9dc0`) ve ikinci
+  geçiş 10 dakika yerine **10 saniye** sürdü.
