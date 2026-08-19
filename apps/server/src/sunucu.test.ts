@@ -164,6 +164,43 @@ describe('makine durumu', () => {
 })
 
 describe('HTTP uçları', () => {
+  // ⚠ ⚠ **BU ÖLÇÜM BİR GERÇEK KOŞUDAN GELDİ.** Sunucu açılışta HEAD'i BİR KEZ okuyup
+  // saklıyordu; o gün iki commit attım ve panelden başlatılan her çalıştırma sessizce
+  // öldü:
+  //
+  //   ✗ onaylanan plan ile şimdiki plan AYNI DEĞİL
+  //     onaylanan: sha256:20954f08…   şimdiki: sha256:4ef896d5…
+  //
+  // Panel bayat commit'le plan donduruyor, CLI çalışma anında gerçek HEAD'i okuyor,
+  // R-07 haklı olarak reddediyor. Kural doğruydu; ÖLÇÜM ARACI bayattı.
+  //
+  // Ölçülen şey bir DEĞER değil bir DAVRANIŞ: dünya her istekte OKUNUYOR mu. Değer
+  // karşılaştırmak, bugünkü uygulamayı test etmek olurdu.
+  it('dünya HER İSTEKTE okunuyor — açılışta dondurulmuş bir commit paneli kırıyordu', async () => {
+    const kok = kurRepo([])
+    let okuma = 0
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+      corpusCommit: () => {
+        okuma += 1
+        return Promise.resolve('c'.repeat(40))
+      },
+    })
+    try {
+      // Hat bilinmiyor: cevap 404 ve bu ÖNEMSİZ — ölçülen şey dünyanın okunması.
+      await s.app.request('/api/plan?pipeline=yok-boyle-hat')
+      await s.app.request('/api/plan?pipeline=yok-boyle-hat')
+      expect(okuma).toBe(2)
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
   it('/api/durum diskteki gerçeği döner', async () => {
     const kok = kurRepo([manifest({ runId: 'run_06', biten: false })])
     const s = kurSunucu({

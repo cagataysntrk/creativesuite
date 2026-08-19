@@ -99,9 +99,22 @@ export interface SunucuSecenekleri {
    * Planın dondurulacağı dünya: bilgi ve registry commit'i (§13).
    * Verilmezse `worktree` — ve `inspectManifest` onu KUSURLU sayar (D-155), yani
    * kirli ağaçtan dondurulmuş bir plan yayınlanabilir bir çıktı üretemez.
+   *
+   * ⚠ ⚠ **DEĞER DEĞİL, OKUYUCU — ve bu fark ölçülerek öğrenildi.** Önceden bu alan
+   * bir DİZEYDİ ve sunucu açılışında bir kez hesaplanıyordu. Sonuç: sunucu açıkken
+   * atılan HER commit panelden başlatmayı kırıyordu. Panel `20954f08…` özetini
+   * dondurup onaylatıyor, CLI çalışma anında HEAD'i okuyup `4ef896d5…` buluyor,
+   * R-07 haklı olarak reddediyordu:
+   *
+   *   ✗ onaylanan plan ile şimdiki plan AYNI DEĞİL
+   *
+   * Belirti "panelden üretim başlamıyor"du; sebep panelin BAYAT bir dünyayı
+   * ölçmesiydi. Ölçüm aracı, ölçtüğü şeyden daha sık bozuluyor. Artık her istek
+   * kendi dünyasını okuyor; R-07 yalnız GERÇEK kaymayı (onaydan sonra değişen depo)
+   * yakalıyor.
    */
-  readonly corpusCommit?: string
-  readonly registryCommit?: string
+  readonly corpusCommit?: () => Promise<string>
+  readonly registryCommit?: () => Promise<string>
 }
 
 export interface Sunucu {
@@ -200,6 +213,11 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   const yayinla = (tip: string): void => {
     for (const a of aboneler) a(tip)
   }
+
+  // Dünya HER İSTEKTE okunuyor. Okuyucu verilmemişse `worktree` — ve o da bir
+  // gerçektir: kirli ağaçtan dondurulmuş plan yayınlanabilir çıktı üretemez (D-155).
+  const dunyaCommiti = async (oku?: () => Promise<string>): Promise<string> =>
+    oku === undefined ? 'worktree' : await oku()
 
   const durumOku = (): MakineDurumu =>
     makineDurumu({ repoRoot: o.repoRoot, db, query: o.query, simdi: o.simdi() })
@@ -316,10 +334,14 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
 
   // Detay: zaman çizgisi + rerun/replay karşılaştırması. Dünya durumu BURADA kurulur —
   // kurulamazsa `null` geçer ve ekran "sapma ölçülmedi" der, "sapma yok" demez (D-175).
-  app.get('/api/calistirmalar/:runId', (c) => {
+  app.get('/api/calistirmalar/:runId', async (c) => {
     let dunya = null
     try {
-      dunya = dunyaDurumu(o.repoRoot, o.corpusCommit ?? 'worktree', o.registryCommit ?? 'worktree')
+      dunya = dunyaDurumu(
+        o.repoRoot,
+        await dunyaCommiti(o.corpusCommit),
+        await dunyaCommiti(o.registryCommit)
+      )
     } catch {
       // Tanımlayıcılar okunamadı: sapma ölçülemez ve bu AÇIKÇA söylenir.
     }
@@ -906,7 +928,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // GET ve hiçbir şey harcamaz (R-47): `plan()` kuru ikizleri çağırır. Dondurma da
   // yan etkisiz — donmuş plan yalnız cevapta döner; onaylanan plan çalıştırma anında
   // motora GERİ VERİLİR (`runPipeline({ frozen })`).
-  app.get('/api/plan', (c) => {
+  app.get('/api/plan', async (c) => {
     const tavanMikros = c.req.query('tavan_mikros')
     // ⚠ Konu PLANA girer, çünkü özet adım kısıtlarını kapsar. Konusuz dondurulmuş
     // bir özet, konuyla koşan CLI'nin özetiyle asla eşleşmez (R-07).
@@ -921,8 +943,8 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       runId: (c.req.query('run') ?? 'run_onizleme') as never,
       brandId: o.query.brandId as never,
       eraId: o.query.eraId as never,
-      corpusCommit: o.corpusCommit ?? 'worktree',
-      registryCommit: o.registryCommit ?? 'worktree',
+      corpusCommit: await dunyaCommiti(o.corpusCommit),
+      registryCommit: await dunyaCommiti(o.registryCommit),
       frozenAt: o.simdi(),
       // ⚠ ⚠ `[]` idi ve panelden başlatma bu yüzden HİÇ çalışmıyordu: özet
       // `recordIds`i kapsıyor, CLI gerçek kayıtları donduruyor, özetler ayrışıyor

@@ -20,8 +20,19 @@ const { knowledgeCommit } = await import(join(REPO, 'packages/engine/dist/index.
 // Planın dondurulacağı DÜNYA gerçek HEAD commit'idir, 'worktree' değil (D-155, D-167).
 // 'worktree' yazan bir manifest KUSURLUDUR ve o plandan çıkan varlık yayınlanamaz —
 // yani sunucu bunu okumazsa launcher baştan yayınlanamaz planlar donduruyor demektir.
+//
+// ⚠ ⚠ **BİR KEZ OKUNUYORDU ve sunucu açıkken atılan HER commit paneli kırıyordu.**
+// Panel planı bayat commit'le dondurup onaylatıyor, CLI çalışma anında gerçek HEAD'i
+// okuyor, özetler ayrışıyor ve R-07 reddediyordu — belirti "panelden üretim
+// başlamıyor", sebep panelin bayat bir dünyayı ölçmesi. Bugün iki commit attım ve
+// panel ikisinden sonra da sessizce ölüydü.
 const GIT_ENV = { PATH: process.env['PATH'] ?? '' }
-const { sha: HEAD_SHA, ok: shaOk } = await knowledgeCommit(REPO, GIT_ENV)
+const bilgiCommiti = async () => {
+  const { sha, ok } = await knowledgeCommit(REPO, GIT_ENV)
+  // Kirli ağaç da bir gerçektir: commit okunamazsa 'worktree' kalır ve kusurlu
+  // manifest kapısı (D-155) o çalıştırmanın çıktısını yayından bloke eder.
+  return ok ? sha : 'worktree'
+}
 
 // ⚠ ⚠ **SAĞLAYICI ORTAMI: PANELİN "Başlat" DÜĞMESİNİ AÇAN ŞEY.** Sunucu tek bir `env`
 // tutuyordu ve o env `git` için doğru biçimde `{PATH}`e indirilmişti — ama aynı env
@@ -73,10 +84,9 @@ const sunucu = await baslat({
   // Plan ve çalıştırma sağlayıcı anahtarlarını GÖRÜR; `git` görmez. Ayrım kasıtlı:
   // en az yetki, "hiç yetki" demek değil (§14).
   saglayiciEnv: SAGLAYICI_ORTAMI,
-  // Kirli ağaç da bir gerçektir: commit okunamazsa 'worktree' kalır ve kusurlu
-  // manifest kapısı (D-155) o çalıştırmanın çıktısını yayından bloke eder.
-  corpusCommit: shaOk ? HEAD_SHA : 'worktree',
-  registryCommit: shaOk ? HEAD_SHA : 'worktree',
+  // Dünya HER İSTEKTE okunuyor — açılışta bir kez değil.
+  corpusCommit: bilgiCommiti,
+  registryCommit: bilgiCommiti,
 })
 
 console.log(`  komuta merkezi API   http://localhost:${sunucu.port}`)
