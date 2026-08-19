@@ -63,4 +63,22 @@ describe('adım çıktısı defteri', () => {
     // Ama zincire VERİLMİYOR: işaretçi bir çıktı değildir.
     expect(adimCiktisiniOku(d, 'yuva-doldur')).toBeNull()
   })
+
+  it('GÖMÜLÜ BYTE tasiyan cikti hic yazilmiyor — tavanin altinda olsa bile', () => {
+    const d = gecici()
+    // ⚠ Gerçek ölçüm: `gorsel-uret` çıktısı 220 KB, yani 256 KB tavanının ALTINDA ve
+    // yazılıyordu — koşu başına dört görsel defterde birikiyor ve `git` onu sonsuza
+    // kadar taşıyor. Oysa byte `derived/blobs`ta ve adım sürdürmede zaten yeniden
+    // koşuyor (`islerKalici: false`).
+    const gorsel = { format: 'base64', data: 'A'.repeat(220_000), width: 1024, height: 1280 }
+    expect(adimCiktisiniYaz(d, 'gorsel-uret', gorsel)).toBe(false)
+    expect(adimCiktisiniOku(d, 'gorsel-uret')).toBeNull()
+  })
+
+  it('uzun ama BASE64 OLMAYAN metin yazılıyor — kural şekle bakıyor', () => {
+    const d = gecici()
+    const uzunMetin = { lines: ['Ölçüm başlıyor. '.repeat(600)] }
+    expect(adimCiktisiniYaz(d, 'metin-uret', uzunMetin)).toBe(true)
+    expect(adimCiktisiniOku(d, 'metin-uret')).toEqual(uzunMetin)
+  })
 })

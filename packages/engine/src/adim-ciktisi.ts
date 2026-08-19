@@ -37,6 +37,29 @@ import { join } from 'node:path'
  */
 const TAVAN_BAYT = 256 * 1024
 
+/**
+ * Gömülü BYTE taşıyan çıktı deftere hiç girmez — tavanın altında olsa bile.
+ *
+ * ⚠ ⚠ **TAVAN YETMEDİ.** `gorsel-uret` çıktısı 220 KB: tavanın altında, yani
+ * yazılıyordu — koşu başına dört görsel × ~200 KB base64 defterde birikiyor ve
+ * `git` bunu sonsuza kadar taşıyor. Oysa bu byte'lar defterde HİÇ GEREKMİYOR:
+ * görsel sağlayıcıları `islerKalici: false`, yani sürdürmede adım zaten yeniden
+ * koşuyor; ayrıca byte'ın kendisi `derived/blobs`ta içerik-adresli duruyor.
+ *
+ * ⚠ Kontrol ŞEKLE bakıyor, anahtar ADINA değil: `format: 'base64'` bugünkü şekil,
+ * yarın `image_base64` olabilir. Uzun ve base64 alfabesinden bir dize, bir metin
+ * çıktısı değildir.
+ */
+const gomuluByte = (data: unknown): boolean => {
+  if (data === null || typeof data !== 'object') return false
+  for (const v of Object.values(data as Record<string, unknown>)) {
+    if (typeof v === 'string' && v.length > 4096 && /^[A-Za-z0-9+/=\s]+$/.test(v.slice(0, 512))) {
+      return true
+    }
+  }
+  return false
+}
+
 /** Bir çalıştırmanın adım çıktıları dizini. */
 export const adimDizini = (outDir: string): string => join(outDir, 'steps')
 
@@ -56,8 +79,21 @@ export const adimCiktisiniYaz = (outDir: string, stepId: string, data: unknown):
   try {
     const dizin = adimDizini(outDir)
     mkdirSync(dizin, { recursive: true })
-    const govde = JSON.stringify(data)
     const yol = join(dizin, dosyaAdi(stepId))
+    if (gomuluByte(data)) {
+      writeFileSync(
+        yol,
+        JSON.stringify({
+          buyuk: true,
+          sebep:
+            'çıktı gömülü byte taşıyor — defterde gerekmiyor: byte `derived/blobs`ta, ' +
+            'adım sürdürmede zaten yeniden koşuyor',
+        }),
+        'utf8'
+      )
+      return false
+    }
+    const govde = JSON.stringify(data)
     if (govde.length > TAVAN_BAYT) {
       // ⚠ Tavanı aşan çıktı SESSİZCE atlanmıyor: yerine ne olduğunu söyleyen bir
       // işaretçi yazılıyor. Boş bir dizin "hiç koşmadı" diye okunurdu.
