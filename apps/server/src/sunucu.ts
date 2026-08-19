@@ -34,6 +34,7 @@ import {
   type SelectQuery,
 } from '@suite/corpus'
 import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
+import { KATALOG } from '@suite/contracts'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
 import {
   COLUMN_LABELS,
@@ -171,6 +172,9 @@ const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
  * ⚠ Dizin okunamıyorsa BOŞ liste: düzenleme yokluğu bir hata değil, olağan hâl.
  */
 const elleDuzenlenmisSlaytlar = (repoRoot: string, runId: string): readonly string[] => {
+  // ⚠ Kimlik DIŞ GİRDİ ve yola giriyor: biçim beyaz listeyle sınırlı (aynı gerekçe
+  // `gecmis.ts`teki eleme yolunda yazılı — orada yazma, burada okuma).
+  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return []
   try {
     return readdirSync(join(repoRoot, RUNS_DIR, runId))
       .filter((f) => /^slayt-\d{2}-elle\.png$/.test(f))
@@ -178,6 +182,19 @@ const elleDuzenlenmisSlaytlar = (repoRoot: string, runId: string): readonly stri
   } catch {
     return []
   }
+}
+
+/**
+ * İstenen şablon KATALOGDA var mı — yoksa `null` ve seçim yokmuş gibi davranılıyor.
+ *
+ * ⚠ Doğrulama şart: uydurma bir id çalıştırma parametresine girerse `sablonSecimiIcin`
+ * onu bulamaz ve hat, sebebi uzakta bir hatayla durur. Panel kendi listesinden seçtirse
+ * bile sunucu istemciye güvenmez — istemcinin kilidi bir sınır değildir.
+ */
+const sablonSecimi = (ham: string | undefined): string | null => {
+  const v = (ham ?? '').trim()
+  if (v === '') return null
+  return KATALOG.some((s) => s.id === v && s.kullanilabilir.durum) ? v : null
 }
 
 /** Ekrandaki onay şeridinin bir hanesi. */
@@ -836,6 +853,28 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // Spec KOD OLARAK tutulur (`render`), ekrana API'den gelir: tarayıcı halkası
   // `render`ı import edemez (Playwright çeker) ve ikinci bir kopya tutmak, spec
   // güncellendiğinde ekranın eski ölçüyle çizmesi demekti (D-176).
+  // ── katalog: koşu başlatırken şablon SEÇİLEBİLSİN (Yasa 13) ──────────────
+  //
+  // ⚠ ⚠ **SEÇİM MOTORDA ZATEN VARDI, PANELDE YOKTU.** `sablonSecimiIcin` çalıştırma
+  // parametresi `sablon`ı okuyor ve CLI onu `--sablon sahne` ile geçirebiliyordu;
+  // panelde hiçbir yerde görünmüyordu. Var olan bir yeteneğin arayüzü yoksa, kullanıcı
+  // için o yetenek YOKTUR.
+  //
+  // ⚠ Yalnız KULLANILABİLİR şablonlar: kataloğa eklenmiş ama üretilemeyen bir şablonu
+  // seçtirmek, seçimi bir hataya çevirirdi (`kullanilabilir.sebep` o yüzden var).
+  app.get('/api/katalog', (c) =>
+    c.json({
+      sablonlar: KATALOG.map((s) => ({
+        id: s.id,
+        ad: s.ad,
+        slaytMin: s.slayt.min,
+        slaytMax: s.slayt.max,
+        kullanilabilir: s.kullanilabilir.durum,
+        sebep: s.kullanilabilir.sebep,
+      })),
+    })
+  )
+
   app.get('/api/yerlesimler', (c) =>
     c.json({
       yerlesimler: PLACEMENTS.map((p) => ({
@@ -1084,6 +1123,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         repoRoot: o.repoRoot,
         brandId: String(o.query.brandId),
         konu: c.req.query('konu') ?? '',
+        // ⚠ ⚠ **ŞABLON PLANA GİRMEK ZORUNDA.** Parametre adım kısıtlarına ekleniyor ve
+        // özete giriyor; panel onsuz dondurup CLI onunla koşarsa özetler ayrışır ve
+        // R-07 koşuyu reddeder. Bu tuzağa bu depoda bir kez düşüldü (corpusCommit).
+        ...(sablonSecimi(c.req.query('sablon')) === null
+          ? {}
+          : { serbest: { sablon: sablonSecimi(c.req.query('sablon')) as string } }),
       }),
       repoRoot: o.repoRoot,
       pipelineId: c.req.query('pipeline') ?? '',
@@ -1129,11 +1174,16 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       konu?: string
       planDigest?: string
       konuyuSistemSecsin?: boolean
+      sablon?: string
     }
     const r = calistirmaBaslat({
       repoRoot: o.repoRoot,
       pipelineId: govde.pipeline ?? '',
       konu: govde.konu ?? '',
+      // Boş = "sistem seçsin" (agent kararı). Açık seçim varsa hat onu kullanır.
+      ...(sablonSecimi(govde.sablon) === null
+        ? {}
+        : { sablon: sablonSecimi(govde.sablon) as string }),
       // ⚠ Konusuz başlatma AÇIKÇA istenir. Boş konuyu sessizce "sistem seçsin" saymak,
       // yanlışlıkla boş bırakılan bir alanı onay yerine koymak olurdu.
       konuyuSistemSecsin: govde.konuyuSistemSecsin === true,

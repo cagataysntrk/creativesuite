@@ -271,17 +271,21 @@ describe('çalıştırma geçmişi', () => {
 // ⚠ ⚠ Depo sahibi *"beğenmediklerimi silebilmem lazım"* dedi ve istek meşru: beğenilmeyen
 // çıktının listeyi doldurması bir maliyet. Ama koşu defteri türetilemez ve silinmez —
 // maliyet ve sağlayıcı geçmişi başka hiçbir yerde yazmıyor. Eleme ikisini uzlaştırıyor.
+// ⚠ Kimlik GERÇEKÇİ: `run_x` gibi kısa bir uydurma, biçim kontrolünü (yol geçişi
+// koruması) yanlışlıkla ihlal eder ve testi kodun değil fikstürün hatasıyla kırardı.
+const GERCEK_ID = 'run_01a018ef-b011-7cbc-9b5c-f38c7b0ce655'
+
 describe('koşu eleme', () => {
   const kur = (): string => {
     const kok = mkdtempSync(join(tmpdir(), 'suite-eleme-'))
-    mkdirSync(join(kok, RUNS_DIR, 'run_x'), { recursive: true })
+    mkdirSync(join(kok, RUNS_DIR, GERCEK_ID), { recursive: true })
     return kok
   }
 
   it('gerekçesiz eleme REDDEDİLİYOR', () => {
     const kok = kur()
     try {
-      const r = kosuyuEle(kok, 'run_x', '   ', '2026-08-19T10:00:00.000Z')
+      const r = kosuyuEle(kok, GERCEK_ID, '   ', '2026-08-19T10:00:00.000Z')
       expect(r.ok).toBe(false)
     } finally {
       rmSync(kok, { recursive: true, force: true })
@@ -290,12 +294,12 @@ describe('koşu eleme', () => {
 
   it('eleme kaydı yazılıyor, defter dosyaları DURUYOR', () => {
     const kok = kur()
-    writeFileSync(join(kok, RUNS_DIR, 'run_x', 'manifest.json'), '{}')
+    writeFileSync(join(kok, RUNS_DIR, GERCEK_ID, 'manifest.json'), '{}')
     try {
-      expect(kosuyuEle(kok, 'run_x', 'beğenmedim', '2026-08-19T10:00:00.000Z').ok).toBe(true)
-      expect(elemeKaydi(kok, 'run_x')?.sebep).toBe('beğenmedim')
+      expect(kosuyuEle(kok, GERCEK_ID, 'beğenmedim', '2026-08-19T10:00:00.000Z').ok).toBe(true)
+      expect(elemeKaydi(kok, GERCEK_ID)?.sebep).toBe('beğenmedim')
       // ⚠ Asıl ölçüm bu: defter YERİNDE. Eleme bir görünürlük kararı, bir silme değil.
-      expect(existsSync(join(kok, RUNS_DIR, 'run_x', 'manifest.json'))).toBe(true)
+      expect(existsSync(join(kok, RUNS_DIR, GERCEK_ID, 'manifest.json'))).toBe(true)
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }
@@ -304,9 +308,31 @@ describe('koşu eleme', () => {
   it('eleme GERİ ALINABİLİR — karar değişir, kayıt kalır', () => {
     const kok = kur()
     try {
-      kosuyuEle(kok, 'run_x', 'beğenmedim', '2026-08-19T10:00:00.000Z')
-      expect(elemeyiGeriAl(kok, 'run_x').ok).toBe(true)
-      expect(elemeKaydi(kok, 'run_x')).toBeNull()
+      kosuyuEle(kok, GERCEK_ID, 'beğenmedim', '2026-08-19T10:00:00.000Z')
+      expect(elemeyiGeriAl(kok, GERCEK_ID).ok).toBe(true)
+      expect(elemeKaydi(kok, GERCEK_ID)).toBeNull()
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})
+
+// ⚠ ⚠ **YOL GEÇİŞİ.** Uç HTTP'den besleniyor: `runId` DIŞ GİRDİ ve `join` ile yola
+// giriyor. `../../..` gibi bir kimlik depo dışına yazardı. Biçim beyaz listeyle
+// sınırlı; test onu KASTEN ihlal ediyor.
+describe('eleme yol güvenliği', () => {
+  it('kaçış denemesi REDDEDİLİYOR — hedef dizin VAR OLSA BİLE', () => {
+    const kok = mkdtempSync(join(tmpdir(), 'suite-kacis-'))
+    // ⚠ ⚠ **HEDEF DİZİN GERÇEKTEN VAR.** İlk sürüm bunu kurmuyordu ve test korumayı
+    // KAPATTIĞIMDA da yeşil kalıyordu: `kosuyuEle` zaten "dizin yok" diye reddediyordu,
+    // yani test kendi kurgusunu ölçüyordu. Kaçış ancak varılabilir bir hedefle sınanır.
+    mkdirSync(join(kok, 'kacis'), { recursive: true })
+    try {
+      for (const kotu of ['../../kacis', 'run_aaaaaaaa/../../../kacis', '..', '/etc']) {
+        const r = kosuyuEle(kok, kotu, 'sebep', '2026-08-19T10:00:00.000Z')
+        expect(r.ok).toBe(false)
+      }
+      expect(existsSync(join(kok, 'kacis', 'elendi.json'))).toBe(false)
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }

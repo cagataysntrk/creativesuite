@@ -184,11 +184,23 @@ const ozetle = (m: RunManifest, donmusPlanVar: boolean): CalistirmaOzeti => {
 }
 
 /** En YENİ üstte: geçmişe "en son ne koştu" diye bakılır. */
+/**
+ * Çalıştırma kimliği GEÇERLİ mi — yol birleştirmeden ÖNCE sorulur.
+ *
+ * ⚠ ⚠ **YOL GEÇİŞİ (path traversal) BURADA AÇIKTI.** `join(repoRoot, RUNS_DIR, runId)`
+ * ifadesi `runId` olarak `../../..` alırsa depo dışına yazar; uç HTTP'den besleniyor,
+ * yani kimlik DIŞ GİRDİ. Biçim beyaz listeyle sınırlanıyor: `run_` + onaltılık ve tire.
+ * İstemcinin kendi listesinden seçmesi bir güvence değil — istemcinin kilidi bir
+ * güvenlik sınırı değildir (aynı gerekçe `sablonSecimi` ve `/elle/:ad` için de yazılı).
+ */
+const gecerliRunId = (runId: string): boolean => /^run_[0-9a-f-]{8,64}$/.test(runId)
+
 /** Eleme kaydı — `derived/runs/<id>/elendi.json`. Yoksa `null`. */
 export const elemeKaydi = (
   repoRoot: string,
   runId: string
 ): { readonly at: string; readonly sebep: string } | null => {
+  if (!gecerliRunId(runId)) return null
   const yol = join(repoRoot, RUNS_DIR, runId, 'elendi.json')
   if (!existsSync(yol)) return null
   try {
@@ -211,6 +223,7 @@ export const kosuyuEle = (
   at: string
 ): { readonly ok: true } | { readonly ok: false; readonly hata: string } => {
   if (sebep.trim() === '') return { ok: false, hata: 'eleme GEREKÇE ister' }
+  if (!gecerliRunId(runId)) return { ok: false, hata: `geçersiz çalıştırma kimliği: ${runId}` }
   const dizin = join(repoRoot, RUNS_DIR, runId)
   if (!existsSync(dizin)) return { ok: false, hata: `çalıştırma yok: ${runId}` }
   try {
@@ -229,6 +242,7 @@ export const elemeyiGeriAl = (
   repoRoot: string,
   runId: string
 ): { readonly ok: true } | { readonly ok: false; readonly hata: string } => {
+  if (!gecerliRunId(runId)) return { ok: false, hata: `geçersiz çalıştırma kimliği: ${runId}` }
   const yol = join(repoRoot, RUNS_DIR, runId, 'elendi.json')
   if (!existsSync(yol)) return { ok: true }
   try {
