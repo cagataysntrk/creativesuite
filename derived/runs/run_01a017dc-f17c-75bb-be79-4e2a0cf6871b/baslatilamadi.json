@@ -1,0 +1,9 @@
+{
+  "komut": "just uret instagram-karosel --konu-sec --run run_01a017dc-f17c-75bb-be79-4e2a0cf6871b --plan-digest sha256:12a0fd8baf23bdfed28155afcd6dc943272eabf7201926b76ac7f9013bb8a485",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n✗ plan DEĞİŞTİ — onayladığınız plan artık geçerli değil (R-07)\n    onaylanan: sha256:12a0fd8baf23bdfed28155afcd6dc943272eabf7201926b76ac7f9013bb8a485\n    şimdiki  : sha256:7282e6dc1f7d95a7e9271f3da6366589ac5787458118f3c9afbac7a2bf35b8b2\n    Planı yeniden inceleyin: registry ya da fiyat güncellenmiş olabilir.\n"
+}

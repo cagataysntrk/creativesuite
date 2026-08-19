@@ -1,0 +1,233 @@
+{
+  "runId": "run_01a01827-1b47-79ce-bc13-a96994869bb7",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "d56b8f4fd10c788013ed2d5be52770fdec465f12",
+  "registryCommit": "d56b8f4fd10c788013ed2d5be52770fdec465f12",
+  "createdAt": "2026-08-19T03:53:59.595Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "75",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T03:53:32.089Z",
+      "finishedAt": "2026-08-19T03:53:32.089Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "75",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T03:53:32.090Z",
+      "finishedAt": "2026-08-19T03:53:38.177Z",
+      "output": {
+        "konu": "Veri olgunluğu düşük imalatçı",
+        "gerekce": "Somut bir ICP profili gösterilebilir ve marka bu segmenti tanıdığını kayıtlarıyla kanıtlayabilir."
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "75",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T03:53:38.177Z",
+      "finishedAt": "2026-08-19T03:53:38.179Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "75",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T03:53:38.179Z",
+      "finishedAt": "2026-08-19T03:53:59.594Z",
+      "output": {
+        "lines": [
+          "Verisi olmayan imalatçı **aynı hatayı** hep tekrar eder",
+          "Elinde veri olmayan işletmede her sorun ilk kez oluyormuş gibi karşılanır, çünkü **geçmişe bakacak** bir yer yok",
+          "Bir makine arızalandığında neden sorulur, cevap **ustanın hafızasında** bulunur; yazılı hiçbir yerde durmaz",
+          "O usta izin aldığında ya da işten ayrıldığında, arızanın hikâyesi de onunla birlikte **kapıdan çıkar**",
+          "Veri artık bir kişide değil, **bir kayıtta** yaşadığında iş sürer",
+          "Dağınık verini bir araya getirmenin zamanı geldi"
+        ]
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "metin-onayi",
+  "stoppedAt": "sablon-uyarla"
+}

@@ -5,7 +5,7 @@
   "eraId": "imalat-2026",
   "corpusCommit": "e88c03b71613e14ccc07c4e20358e5c20968ea5c",
   "registryCommit": "e88c03b71613e14ccc07c4e20358e5c20968ea5c",
-  "frozenAt": "2026-08-19T01:36:44.258Z",
+  "frozenAt": "2026-08-19T02:32:56.658Z",
   "order": [
     "cozumle",
     "konu-sec",
@@ -64,8 +64,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "konu_sec": true,
         "max_chars": 400
@@ -109,8 +109,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "locale": "tr-TR",
         "max_chars": 2200
@@ -133,8 +133,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "sablon_uyarla": true,
         "max_chars": 4000,
@@ -181,8 +181,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "gorsel_brief": true,
         "max_chars": 600,
@@ -233,8 +233,8 @@
       "capability": "image.matte",
       "metered": true,
       "providerId": "local-rembg",
-      "confidence": "amber",
-      "descriptorDigest": "d40b6d403",
+      "confidence": "green",
+      "descriptorDigest": "d98c6a669",
       "params": {
         "optional": true
       },
@@ -256,8 +256,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "gorsel_brief": true,
         "gorsel_sira": 2,
@@ -309,8 +309,8 @@
       "capability": "image.matte",
       "metered": true,
       "providerId": "local-rembg",
-      "confidence": "amber",
-      "descriptorDigest": "d40b6d403",
+      "confidence": "green",
+      "descriptorDigest": "d98c6a669",
       "params": {
         "optional": true
       },
@@ -332,8 +332,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "gorsel_brief": true,
         "gorsel_sira": 3,
@@ -385,8 +385,8 @@
       "capability": "image.matte",
       "metered": true,
       "providerId": "local-rembg",
-      "confidence": "amber",
-      "descriptorDigest": "d40b6d403",
+      "confidence": "green",
+      "descriptorDigest": "d98c6a669",
       "params": {
         "optional": true
       },
@@ -408,8 +408,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "gorsel_brief": true,
         "gorsel_sira": 4,
@@ -461,8 +461,8 @@
       "capability": "image.matte",
       "metered": true,
       "providerId": "local-rembg",
-      "confidence": "amber",
-      "descriptorDigest": "d40b6d403",
+      "confidence": "green",
+      "descriptorDigest": "d98c6a669",
       "params": {
         "optional": true
       },
@@ -531,8 +531,8 @@
       "capability": "image.critique",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {},
       "seed": null,
       "estimatedCost": {
@@ -552,8 +552,8 @@
       "capability": "design.critique",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {},
       "seed": null,
       "estimatedCost": {
@@ -573,8 +573,8 @@
       "capability": "text.generate",
       "metered": true,
       "providerId": "claude-code",
-      "confidence": "amber",
-      "descriptorDigest": "d12cd5528",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
       "params": {
         "sablon_duzelt": true,
         "max_chars": 4000,
@@ -720,5 +720,5 @@
     "currency": "USD"
   },
   "varyantSayisi": 1,
-  "digest": "sha256:f49675a17670d182e8157fb2cd7eccba693c0308af0214a5e9319e92f4500e67"
+  "digest": "sha256:b1515905b08d6b18107936b7ee03d6d1d5588e290f80ea815a3a8a71e16efb31"
 }

@@ -17,9 +17,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk"
       },
@@ -38,8 +38,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T00:09:17.984Z",
-      "finishedAt": "2026-08-19T00:09:17.984Z",
+      "startedAt": "2026-08-19T02:50:35.657Z",
+      "finishedAt": "2026-08-19T02:50:35.657Z",
       "output": {
         "brandId": "brd_upcytech"
       }
@@ -54,9 +54,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "konu_sec": true,
@@ -94,11 +94,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:09:17.985Z",
-      "finishedAt": "2026-08-19T00:09:24.748Z",
+      "startedAt": "2026-08-19T02:50:35.657Z",
+      "finishedAt": "2026-08-19T02:50:42.884Z",
       "output": {
-        "konu": "Ölçüm pilotu",
-        "gerekce": "somut bir teklif olarak gösterilebilir, marka kendi kaydı olan bir aksiyon önerisidir ve veri olgunluğu düşük imalatçı ile ölçüm mesaj evi konularını pratiğe döker."
+        "konu": "Veri katmanından karara — Upcytech konumu",
+        "gerekce": "Bu, markanın konumlandırmasını doğrudan somut kanıtla (veri katmanı → karar) anlatan, elde kaydı olan ve bugünün 'veriyle karar alma' gündemine en yakın duran başlık."
       }
     },
     {
@@ -111,9 +111,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk"
       },
@@ -132,8 +132,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T00:09:24.748Z",
-      "finishedAt": "2026-08-19T00:09:24.750Z",
+      "startedAt": "2026-08-19T02:50:42.884Z",
+      "finishedAt": "2026-08-19T02:50:42.886Z",
       "output": null
     },
     {
@@ -146,9 +146,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "locale": "tr-TR",
@@ -186,20 +186,16 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:09:24.750Z",
-      "finishedAt": "2026-08-19T00:10:33.495Z",
+      "startedAt": "2026-08-19T02:50:42.887Z",
+      "finishedAt": "2026-08-19T02:51:15.116Z",
       "output": {
         "lines": [
-          "Ölçüm pilotu Excel'i mi bekliyor",
-          "En sık kazanan alternatif hâlâ **üç seçenekten** biri: Excel, vardiya defteri ya da hiçbir şey.",
-          "2026 planında ayrım sektör değil, verinin var ya da yok olması; dağınık verisi olan imalatçı **asıl hedef**.",
-          "upcyman.com ve upcycarbon.com'daki **iki çalışan ürün**, kantardan satışa uçtan uca aynı süreci bugün taşıyor.",
-          "2026'da veri yoksa kurarız, varsa **karara çeviririz**.",
-          "upcyman.com ve upcycarbon.com'daki iki üründen birini bugün deneyin.",
-          "AKIŞ: Ölçüm pilotu",
-          "- Demo | Çalışan üründe süreci gösteririz",
-          "- Özelleştirme | Sizin hatta uyarlarız",
-          "- Giriş | upcyman ya da upcycarbon ile başlarız"
+          "Fabrikada veri var, **karara dönmüyor**",
+          "1. Veri toplanıyor ama karar hâlâ **kişide kalıyor**.",
+          "2. Üretim hattında bir sapma olduğunda **kayıt aranır**, bulunamayınca tahminle ilerlenir.",
+          "3. Veri katmanı olmayan firmada ürün de havada kalır; o yüzden katmanı **biz kuruyoruz**.",
+          "4. Karar artık kişide değil, **veride yaşar**.",
+          "Veri katmanınız hazır mı, birlikte bakalım."
         ]
       }
     },
@@ -213,9 +209,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "sablon_uyarla": true,
@@ -254,8 +250,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:10:33.495Z",
-      "finishedAt": "2026-08-19T00:11:08.111Z",
+      "startedAt": "2026-08-19T02:51:15.117Z",
+      "finishedAt": "2026-08-19T02:54:36.209Z",
       "output": null
     },
     {
@@ -268,9 +264,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "katalog": true
@@ -290,27 +286,27 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T00:11:08.111Z",
-      "finishedAt": "2026-08-19T00:11:08.113Z",
+      "startedAt": "2026-08-19T02:54:36.209Z",
+      "finishedAt": "2026-08-19T02:54:36.213Z",
       "output": {
-        "sablonId": "sahne",
+        "sablonId": "akan-alan",
         "ritimHedefi": "veri-hikayesi",
-        "ritimTuttu": false
+        "ritimTuttu": true
       }
     },
     {
       "stepId": "gorsel-brief",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "text.generate",
       "providerId": "claude-code",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "gorsel_brief": true,
@@ -349,27 +345,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:11:08.116Z",
-      "finishedAt": "2026-08-19T00:11:14.176Z",
+      "startedAt": "2026-08-19T02:54:36.217Z",
+      "finishedAt": "2026-08-19T02:54:36.219Z",
       "output": {
-        "lines": [
-          "single subject, a technician-worker taking calibrated measurements, full body, worn work clothes with visible weave and creases, arms held open wide presenting toward the right and extending beyond the frame, one hand holding a measuring tool with visible dial markings, plain solid black background free of gradient or surface detail, strong rim light on the subject only, high contrast monochrome illustration with visible ink hatching, matte surfaces only"
-        ]
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-uret",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.generate",
       "providerId": "cloudflare-workers-ai",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true,
@@ -410,27 +405,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:11:14.176Z",
-      "finishedAt": "2026-08-19T00:11:19.827Z",
+      "startedAt": "2026-08-19T02:54:36.219Z",
+      "finishedAt": "2026-08-19T02:54:36.221Z",
       "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-kirp",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.matte",
       "providerId": "local-rembg",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true
@@ -467,25 +461,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:11:19.828Z",
-      "finishedAt": "2026-08-19T00:11:36.683Z",
+      "startedAt": "2026-08-19T02:54:36.221Z",
+      "finishedAt": "2026-08-19T02:54:36.222Z",
       "output": {
-        "format": "base64"
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-brief-2",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "text.generate",
       "providerId": "claude-code",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "gorsel_brief": true,
@@ -525,27 +520,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:11:36.687Z",
-      "finishedAt": "2026-08-19T00:11:42.433Z",
+      "startedAt": "2026-08-19T02:54:36.222Z",
+      "finishedAt": "2026-08-19T02:54:36.223Z",
       "output": {
-        "lines": [
-          "a single industrial measurement gauge unit, full body, three quarter angle, plain solid black background free of gradient or surface detail, strong rim light on the subject only, matte surfaces only, no chrome and no glossy reflection, dial needles and bracket arms extending away from the housing beyond the frame, high contrast monochrome illustration with visible ink hatching, no person"
-        ]
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-uret-2",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.generate",
       "providerId": "cloudflare-workers-ai",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true,
@@ -586,27 +580,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:11:42.433Z",
-      "finishedAt": "2026-08-19T00:11:47.312Z",
+      "startedAt": "2026-08-19T02:54:36.223Z",
+      "finishedAt": "2026-08-19T02:54:36.224Z",
       "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-kirp-2",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.matte",
       "providerId": "local-rembg",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true
@@ -643,25 +636,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:11:47.313Z",
-      "finishedAt": "2026-08-19T00:12:05.376Z",
+      "startedAt": "2026-08-19T02:54:36.224Z",
+      "finishedAt": "2026-08-19T02:54:36.226Z",
       "output": {
-        "format": "base64"
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-brief-3",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "text.generate",
       "providerId": "claude-code",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "gorsel_brief": true,
@@ -701,27 +695,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:12:05.380Z",
-      "finishedAt": "2026-08-19T00:12:11.954Z",
+      "startedAt": "2026-08-19T02:54:36.226Z",
+      "finishedAt": "2026-08-19T02:54:36.226Z",
       "output": {
-        "lines": [
-          "two workers in matching coveralls stand at a control cabinet fitted with dials and gauges for a measurement pilot test, one worker pointing forward with a straight arm toward the readout in side profile from a low camera angle, full bodies in frame with arms extending beyond the frame edge, plain solid black background free of gradient or surface detail, strong rim light outlining the subjects only, rendered as a high contrast monochrome illustration with visible ink hatching and matte surfaces only."
-        ]
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-uret-3",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.generate",
       "providerId": "cloudflare-workers-ai",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true,
@@ -762,27 +755,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:12:11.954Z",
-      "finishedAt": "2026-08-19T00:12:20.442Z",
+      "startedAt": "2026-08-19T02:54:36.226Z",
+      "finishedAt": "2026-08-19T02:54:36.227Z",
       "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-kirp-3",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.matte",
       "providerId": "local-rembg",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true
@@ -819,25 +811,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:12:20.444Z",
-      "finishedAt": "2026-08-19T00:12:36.943Z",
+      "startedAt": "2026-08-19T02:54:36.227Z",
+      "finishedAt": "2026-08-19T02:54:36.228Z",
       "output": {
-        "format": "base64"
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-brief-4",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "text.generate",
       "providerId": "claude-code",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "gorsel_brief": true,
@@ -877,27 +870,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:12:36.946Z",
-      "finishedAt": "2026-08-19T00:12:45.862Z",
+      "startedAt": "2026-08-19T02:54:36.228Z",
+      "finishedAt": "2026-08-19T02:54:36.229Z",
       "output": {
-        "lines": [
-          "a lone field technician holding a measurement gauge and clipboard toward the right, waist up, arms folded with elbows extending beyond the frame, full body in frame, plain solid black background free of gradient or surface detail, strong rim light outlining the subject only, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection"
-        ]
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-uret-4",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.generate",
       "providerId": "cloudflare-workers-ai",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true,
@@ -938,27 +930,26 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:12:45.862Z",
-      "finishedAt": "2026-08-19T00:12:51.838Z",
+      "startedAt": "2026-08-19T02:54:36.229Z",
+      "finishedAt": "2026-08-19T02:54:36.230Z",
       "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
       "stepId": "gorsel-kirp-4",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "skipped",
       "lane": "free",
       "capability": "image.matte",
       "providerId": "local-rembg",
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "optional": true
@@ -995,10 +986,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T00:12:51.839Z",
-      "finishedAt": "2026-08-19T00:13:10.222Z",
+      "startedAt": "2026-08-19T02:54:36.230Z",
+      "finishedAt": "2026-08-19T02:54:36.231Z",
       "output": {
-        "format": "base64"
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
@@ -1011,9 +1003,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "katalog": true
@@ -1033,12 +1025,12 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T00:13:10.226Z",
-      "finishedAt": "2026-08-19T00:13:10.227Z",
+      "startedAt": "2026-08-19T02:54:36.231Z",
+      "finishedAt": "2026-08-19T02:54:36.231Z",
       "output": {
-        "sablonId": "sahne",
+        "sablonId": "akan-alan",
         "ritimHedefi": "veri-hikayesi",
-        "ritimTuttu": false
+        "ritimTuttu": true
       }
     },
     {
@@ -1051,9 +1043,9 @@
       "model": null,
       "seed": null,
       "params": {
-        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"}]",
-        "islenmis_konu_sayisi": "71",
-        "son_kullanilan": "sahne,memphis,akan-alan",
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
         "topic": "",
         "kacinilacak": "yokk",
         "width": 1080,
@@ -1074,25 +1066,388 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T00:13:10.252Z",
-      "finishedAt": "2026-08-19T00:13:13.923Z",
+      "startedAt": "2026-08-19T02:54:36.234Z",
+      "finishedAt": "2026-08-19T02:54:37.614Z",
       "output": {
-        "kusurlar": [
-          {
-            "tur": "tasma",
-            "kart": 3,
-            "alan": "govde",
-            "aciklama": ".govde yatayda 20 px taşıyor"
-          }
-        ],
-        "ifsaGorunur": true,
+        "kusurlar": [],
+        "ifsaGorunur": false,
         "panoramaGenisligi": 1080,
         "slides": [
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-01.png",
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-02.png",
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-03.png",
-          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-04.png"
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-05.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-06.png"
         ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T02:54:37.614Z",
+      "finishedAt": "2026-08-19T02:57:39.872Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              420,
+              900,
+              320,
+              80
+            ],
+            "kategori": "cakisma",
+            "siddet": "uyari",
+            "aciklama": "Alt açıklama metninin ikinci satırı sağ ucu, mavi-siyah zemin eğrisine çok yakın durup binmeye ramak kalmış."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T02:57:39.872Z",
+      "finishedAt": "2026-08-19T02:58:12.555Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              0,
+              480,
+              540,
+              690
+            ],
+            "kategori": "bosluk",
+            "siddet": "uyari",
+            "aciklama": "Slaydın alt üçte biri hiçbir görsel veya tipografik öge taşımadan boş siyah alan olarak kalıyor."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              0,
+              0,
+              540,
+              690
+            ],
+            "kategori": "carpicilik",
+            "siddet": "uyari",
+            "aciklama": "Tasarım grameri için tanımlanan dev konturlu rakam ve sağ üst sayaç ögesi görselde bulunmuyor."
+          }
+        ],
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 3,
+            "gerekce": "Üst blok yoğun metinle ağırlıklı, alt siyah eğri alan neredeyse boş kalarak kompozisyonu üste yıkıyor."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 4,
+            "gerekce": "Dev başlık ve tek renkli vurgu kelime göze ilk çarpan öge olarak net bir giriş noktası kuruyor."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 2,
+            "gerekce": "Alt siyah alan bir ritim değil, içeriksiz kalmış artık alan gibi duruyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 3,
+            "gerekce": "El yazısı logo tipografisi ile kalın gövde tipografisi iki ayrı sistemden geliyormuş hissi veriyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 5,
+            "gerekce": "Koyu zemin üzerinde beyaz gövde metni ve açık mavi vurgu rahat okunuyor."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 2,
+            "gerekce": "Kompozisyon tarif edilen dev kırpılmış rakam ve sayaç gibi imza ögelerden yoksun, akışta sıradan bir metin kartı gibi geçiliyor."
+          }
+        ],
+        "toplam": 3.17,
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T02:58:12.556Z",
+      "finishedAt": "2026-08-19T02:58:12.557Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T02:58:12.557Z",
+      "finishedAt": "2026-08-19T02:58:12.558Z",
+      "output": {
+        "sablonId": "akan-alan",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": true
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T02:58:12.561Z",
+      "finishedAt": "2026-08-19T02:58:13.934Z",
+      "output": {
+        "kusurlar": [],
+        "ifsaGorunur": false,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-05.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/slayt-06.png"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "72",
+        "son_kullanilan": "editoryal,sahne,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T02:58:13.935Z",
+      "finishedAt": "2026-08-19T02:58:13.935Z",
+      "output": {
+        "kusurSayisi": 0,
+        "bulgular": [],
+        "gecti": true,
+        "slaytSayisi": 6
       }
     }
   ],
@@ -1101,6 +1456,12 @@
       "gate": "metin-onayi",
       "decision": "approved",
       "at": "2026-08-18T22:54:38.109Z",
+      "note": null
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "approved",
+      "at": "2026-08-19T02:38:34.718Z",
       "note": null
     }
   ],
@@ -1131,6 +1492,6 @@
     }
   ],
   "contextRetentionDays": 90,
-  "awaitingGate": "tasarim-onayi",
-  "stoppedAt": "gorsel-yargi"
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
 }

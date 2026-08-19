@@ -1,0 +1,1563 @@
+{
+  "runId": "run_01a01826-573e-7a46-aa61-42a59eb71e6b",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "d56b8f4fd10c788013ed2d5be52770fdec465f12",
+  "registryCommit": "d56b8f4fd10c788013ed2d5be52770fdec465f12",
+  "createdAt": "2026-08-19T03:53:18.589Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:18:34.621Z",
+      "finishedAt": "2026-08-19T04:18:34.621Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:18:34.621Z",
+      "finishedAt": "2026-08-19T04:18:41.664Z",
+      "output": {
+        "konu": "Orta ölçekli imalat tesisi",
+        "gerekce": "Somut bir ICP profili olarak veri olgunluğu, üretim süreçleri ve ölçüm ihtiyaçları hakkında elle tutulur, kayıtlara dayalı içerik üretilebilir."
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:18:41.664Z",
+      "finishedAt": "2026-08-19T04:18:41.666Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:18:41.667Z",
+      "finishedAt": "2026-08-19T04:19:12.973Z",
+      "output": {
+        "lines": [
+          "Tesis büyüyor, verisi hâlâ **vardiya defterinde**",
+          "Üretim büyüdükçe hat sayısı, vardiya sayısı ve karar sayısı artıyor ama hepsi aynı **dağınık kayıtlara** sığdırılmaya çalışılıyor.",
+          "Bir hatta yaşanan duruşun nedeni ancak o vardiyayı kapatan kişiye sorularak öğrenilebiliyor, kayıt hiçbir yerde tutulmuyor.",
+          "Aynı sorun ay sonunda tekrar çıktığında hiç kimse ilk seferle bağlantısını kuramıyor, çünkü ikisi de hiçbir sisteme yazılmamış.",
+          "Veri yoksa önce veriyi kuruyoruz, varsa doğrudan **karara çeviriyoruz**.",
+          "Tesisiniz için bir demo isteyin, başlangıç noktasını birlikte görelim."
+        ]
+      }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:19:12.973Z",
+      "finishedAt": "2026-08-19T04:19:25.782Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:19:25.783Z",
+      "finishedAt": "2026-08-19T04:19:25.785Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:19:25.788Z",
+      "finishedAt": "2026-08-19T04:19:31.995Z",
+      "output": {
+        "lines": [
+          "single subject, a factory worker in a mid-sized manufacturing plant, full body, worn work clothes with visible weave and creases, arms held open wide presenting toward the right and extending beyond the frame, plain solid black background free of gradient or surface detail, strong rim light on the subject only, high contrast monochrome illustration with visible ink hatching, matte surfaces only"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 1,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:19:31.995Z",
+      "finishedAt": "2026-08-19T04:19:38.518Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:19:38.518Z",
+      "finishedAt": "2026-08-19T04:19:55.956Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 2,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:19:55.956Z",
+      "finishedAt": "2026-08-19T04:20:02.580Z",
+      "output": {
+        "lines": [
+          "a single industrial hydraulic press machine, full body, plain solid black background free of gradient or surface detail, strong rim light on the machine only, structural arms extending beyond the frame, body fully in frame, three quarter angle, no person, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection."
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 2,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:20:02.580Z",
+      "finishedAt": "2026-08-19T04:20:07.228Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:20:07.229Z",
+      "finishedAt": "2026-08-19T04:20:25.339Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 3,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:20:25.339Z",
+      "finishedAt": "2026-08-19T04:20:31.689Z",
+      "output": {
+        "lines": [
+          "two factory workers in work uniforms stand at an industrial control cabinet in a mid-sized manufacturing plant, one worker pointing forward with a straight arm toward the machinery, side profile, low camera angle, full body in frame, arms held away from the torso and extending beyond the frame, plain solid black background free of gradient or surface detail, strong rim light outlining the subjects only, high contrast monochrome illustration with visible ink hatching, matte surfaces only"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 3,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:20:31.689Z",
+      "finishedAt": "2026-08-19T04:20:37.144Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:20:37.144Z",
+      "finishedAt": "2026-08-19T04:20:54.261Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 4,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:20:54.261Z",
+      "finishedAt": "2026-08-19T04:21:00.547Z",
+      "output": {
+        "lines": [
+          "a factory worker in sturdy work coveralls and a hard hat, standing full body against a plain solid black background free of gradient or surface detail, strong rim light outlining the figure only, arms held away from the torso and extending beyond the frame, body fully in frame, waist up framing with folded arms and looking toward the right, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 4,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:21:00.547Z",
+      "finishedAt": "2026-08-19T04:21:05.252Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:21:05.252Z",
+      "finishedAt": "2026-08-19T04:21:22.223Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:21:22.223Z",
+      "finishedAt": "2026-08-19T04:21:22.224Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:21:22.241Z",
+      "finishedAt": "2026-08-19T04:21:26.578Z",
+      "output": {
+        "kusurlar": [],
+        "ifsaGorunur": true,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-04.png"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:21:26.578Z",
+      "finishedAt": "2026-08-19T04:24:11.137Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              40,
+              1288,
+              470,
+              32
+            ],
+            "kategori": "kontrast",
+            "siddet": "uyari",
+            "aciklama": "Alt bilgi çubuğundaki gri küçük metin koyu lacivert zemin üzerinde düşük kontrastlı ve güç okunuyor."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:24:11.137Z",
+      "finishedAt": "2026-08-19T04:25:08.323Z",
+      "output": {
+        "bulgular": [],
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 3,
+            "gerekce": "Metin bloğu sol üstte, figür sağ altta toplanmış ve bu iki kütle arasında sağ üst ile sol alt köşeler boş kalarak kompozisyon çapraz bir ağırlığa kayıyor."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 4,
+            "gerekce": "Göz önce kalın başlığa, sonra mavi vurgulu 'hat' kelimesine ve ardından illüstrasyona akıyor, net bir okuma sırası kuruluyor."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 3,
+            "gerekce": "Başlığın üstündeki geniş boşluk nefes alanı olarak iyi çalışıyor ama alt şeritteki metin ve sayaç sıkışık durduğu için boşluk dağılımı tuval boyunca eşit bir ritme dönüşmüyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 4,
+            "gerekce": "Çizgisel illüstrasyon, script başlık fontu ve tek mavi vurgu rengi aynı görsel sistemden geliyormuş hissi veriyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 4,
+            "gerekce": "Koyu zemin üzerinde beyaz başlık ve gövde metni rahat okunuyor, yalnız en alttaki açıklama satırı küçük punto nedeniyle göz gezdirirken daha az konforlu."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 3,
+            "gerekce": "Mavi eğri ve figür ilgi çekici ama illüstrasyonun yumuşak, sakin tonu akışta duraksatacak kadar güçlü bir görsel vurgu yaratmıyor."
+          }
+        ],
+        "toplam": 3.5,
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T04:25:08.323Z",
+      "finishedAt": "2026-08-19T04:25:08.324Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:25:08.324Z",
+      "finishedAt": "2026-08-19T04:25:08.325Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:25:08.347Z",
+      "finishedAt": "2026-08-19T04:25:12.805Z",
+      "output": {
+        "kusurlar": [],
+        "ifsaGorunur": true,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-04.png"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:25:12.805Z",
+      "finishedAt": "2026-08-19T04:25:12.805Z",
+      "output": {
+        "kusurSayisi": 0,
+        "bulgular": [],
+        "gecti": true,
+        "slaytSayisi": 4
+      }
+    },
+    {
+      "stepId": "onay",
+      "verb": "PROPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T04:25:12.805Z",
+      "finishedAt": "2026-08-19T04:25:12.806Z",
+      "output": {
+        "proposed": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01826-573e-7a46-aa61-42a59eb71e6b/slayt-04.png"
+        ],
+        "proposedAt": "2026-08-19T04:25:12.806Z"
+      }
+    },
+    {
+      "stepId": "yayinla",
+      "verb": "PUBLISH",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"}]",
+        "islenmis_konu_sayisi": "74",
+        "son_kullanilan": "memphis,editoryal,akan-alan",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "platform": "instagram"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-19T04:25:12.806Z",
+      "finishedAt": "2026-08-19T04:25:12.807Z",
+      "output": null,
+      "error": {
+        "kind": "validation",
+        "code": "NO_PUBLISHABLE_ASSET",
+        "message": "error.verb.no_publishable_asset"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "gate": "metin-onayi",
+      "decision": "approved",
+      "at": "2026-08-19T04:00:44.156Z",
+      "note": null
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "approved",
+      "at": "2026-08-19T04:06:27.272Z",
+      "note": null
+    },
+    {
+      "gate": "insan-onayi",
+      "decision": "approved",
+      "at": "2026-08-19T04:18:33.591Z",
+      "note": null
+    }
+  ],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "yayinla"
+}

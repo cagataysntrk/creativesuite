@@ -1,0 +1,134 @@
+{
+  "slaytGenisligi": 1080,
+  "yukseklik": 1350,
+  "ustDoku": {
+    "gren": 12,
+    "vinyet": 20
+  },
+  "yerlesim": "orta",
+  "tipografi": {
+    "baslikPayi": 0.98,
+    "baslikGenislik": 100,
+    "baslikAgirlik": 400,
+    "satirAraligi": 1.12,
+    "harfArasi": -0.012,
+    "ustGenislik": 76,
+    "govdeOrani": 0.34,
+    "baslikSutunu": 0.46
+  },
+  "zemin": "var(--ramp-marka-mavi-200)",
+  "zeminDokusu": {
+    "taban": "--ramp-marka-mavi-200",
+    "katmanlar": [
+      {
+        "tip": "dogrusal",
+        "aci": 168,
+        "duraklar": [
+          {
+            "renk": "--ramp-marka-kagit",
+            "konum": 0
+          },
+          {
+            "renk": "--ramp-gray-200",
+            "konum": 88
+          }
+        ]
+      },
+      {
+        "tip": "isik",
+        "x": 74,
+        "y": 24,
+        "capX": 58,
+        "capY": 46,
+        "renk": "--ramp-marka-kagit",
+        "guc": 30
+      }
+    ]
+  },
+  "gorselIslemleri": [],
+  "bant": {
+    "tip": "yok"
+  },
+  "gorseller": [
+    {
+      "src": "",
+      "alt": "geniş plan — açılış",
+      "x": 0,
+      "y": 0,
+      "genislik": 13,
+      "yukseklik": 100,
+      "kirpma": "tam"
+    },
+    {
+      "src": "",
+      "alt": "yakın plan — kesim üstü",
+      "x": 41,
+      "y": 0,
+      "genislik": 13,
+      "yukseklik": 100,
+      "kirpma": "tam"
+    },
+    {
+      "src": "",
+      "alt": "kapanış karesi",
+      "x": 89,
+      "y": 0,
+      "genislik": 13,
+      "yukseklik": 100,
+      "kirpma": "tam"
+    }
+  ],
+  "kartlar": [
+    {
+      "ustBaslik": "",
+      "baslik": "Veri hâlâ **defterde**",
+      "govde": "Üç alternatiften biri hâlâ Excel ve vardiya defteri; 2026'da bile en sık kazanan bu.",
+      "hayalet": "",
+      "rayaSol": "SÜREÇ",
+      "rayaOrta": "Üç alternatiften biri: Excel/vardiya defteri, 2026",
+      "panel": null,
+      "zemin": "var(--ramp-marka-kagit)",
+      "kolon": "sag"
+    },
+    {
+      "ustBaslik": "",
+      "baslik": "Tartıdan satışa kadar **akıyor**",
+      "govde": "upcyman.com kantardan satışa uçtan uca bir tesis sürecini bugün canlı taşıyor.",
+      "hayalet": "",
+      "rayaSol": "ÜRÜN",
+      "rayaOrta": "upcyman.com, iki üründen biri, uçtan uca süreç",
+      "panel": null,
+      "zemin": "var(--ramp-marka-mavi-200)"
+    },
+    {
+      "ustBaslik": "",
+      "baslik": "Başlamak için **hazır** değilsin",
+      "govde": "Verin yoksa 2026'da önce onu kuruyoruz; birinci ilke net.",
+      "hayalet": "",
+      "rayaSol": "İLKE",
+      "rayaOrta": "Birinci ilke, 2026: hazır olman gerekmiyor",
+      "panel": null,
+      "zemin": "var(--ramp-gray-100)",
+      "kolon": "sag"
+    },
+    {
+      "ustBaslik": "",
+      "baslik": "Demo **iste**",
+      "govde": "upcyman.com'daki iki üründen birini bugün gör, demo iste.",
+      "hayalet": "",
+      "rayaSol": "AKSİYON",
+      "rayaOrta": "upcyman.com, demo talebi, bugün",
+      "panel": null,
+      "zemin": "var(--ramp-marka-ink-950)"
+    }
+  ],
+  "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-bakir-200: oklch(0.92 0.070 90);\n  --ramp-marka-bakir-500: oklch(0.700 0.132 52);\n  --ramp-marka-bakir-600: oklch(0.72 0.150 82);\n  --ramp-marka-ink-800: oklch(0.225 0.008 250);\n  --ramp-marka-ink-950: oklch(0.055 0.004 250);\n  --ramp-marka-kagit: oklch(0.97 0.004 90);\n  --ramp-marka-mavi-200: oklch(0.900 0.030 248);\n  --ramp-marka-mavi-300: oklch(0.720 0.098 236);\n  --ramp-marka-mavi-500: oklch(0.620 0.132 242);\n  --ramp-marka-mavi-600: oklch(0.512 0.112 246);\n  --ramp-marka-mavi-700: oklch(0.408 0.092 252);\n  --ramp-marka-mavi-800: oklch(0.330 0.078 255);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-bakir-500);\n  --role-bg: var(--ramp-marka-mavi-700);\n  --role-line-edge: var(--ramp-marka-ink-950);\n  --role-line-hair: var(--ramp-marka-ink-800);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-950);\n  --role-text-muted: var(--ramp-marka-ink-800);\n  --role-vurgu: var(--ramp-marka-mavi-300);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+  "stamp": {
+    "brandId": "brd_upcytech",
+    "eraId": "imalat-2026",
+    "kitVersion": "kit-1",
+    "definitionDigest": "sha256:faz3",
+    "contextManifest": "ctx_run_01a017a9-e0c8-7a13-9734-fc693509ff80",
+    "sourceRunId": "run_01a017a9-e0c8-7a13-9734-fc693509ff80"
+  }
+}
