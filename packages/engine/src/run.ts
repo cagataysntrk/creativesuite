@@ -427,7 +427,14 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     // görünüyordu. Gerçek bir asılma bu satır olmadığı için on beş dakika teşhis
     // edilemedi. Satır alt sürecin stdout'una gidiyor; sunucu onu canlı olarak
     // `derived/runs/<id>/calistirma.log` dosyasına akıtıyor.
-    input.iz?.(`▶ ${id}`)
+    // ⚠ ⚠ **ANAHTAR İZE BASILIYOR — çünkü tahminle aranmayacak kadar önemli.**
+    // Ölçüldü: her kapı onayından sonra TÜM hat yeniden koşuyor; defterde her adım
+    // için birden çok satır var, yani `idempotencyKey` geçişten geçişe KAYIYOR ve
+    // "bu iş yapıldı" bilgisi kayboluyor. Anahtarın hangi adımda değiştiğini görmenin
+    // tek dürüst yolu onu yazmak; `params` ve `corpusCommit` ölçülüp elendi.
+    // Girdi özetinin ilk sekiz karakteri: iki geçişte farklıysa adım yeniden koşar.
+    const izGirdi = digest(id, JSON.stringify(ciktilar[s.needs[0] ?? ''] ?? null)).slice(0, 8)
+    input.iz?.(`▶ ${id} [${izGirdi}]`)
 
     // ── insan kapısı: onay bir yan etki değil, bir KAPIDIR (§4c) ───────────
     if (s.gate !== null) {
