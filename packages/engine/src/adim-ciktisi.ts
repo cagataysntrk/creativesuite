@@ -64,6 +64,89 @@ const gomuluByte = (data: unknown): boolean => {
 export const adimDizini = (outDir: string): string => join(outDir, 'steps')
 
 /**
+ * Gömülü byte'ı deftere DEĞİL, içerik-adresli depoya koyan geçit.
+ *
+ * ⚠ ⚠ **D20: BU OLMADAN ONAY BİR ŞEY İFADE ETMİYORDU.** `gorsel-uret`in girdi özeti
+ * üç geçişte de aynıydı (`39a8c02e`), çıktısı her seferinde farklıydı
+ * (`2c1d3c70` → `c642914f` → …): insan `tasarim-onayi`nde gördüğü slaytları
+ * onaylıyor, yayına BAŞKA slaytlar gidiyordu. Sebep, byte taşıyan çıktının deftere
+ * yazılmaması (R-64) ve dolayısıyla tekrar oynatmada "çıktı yok" görünmesiydi.
+ *
+ * Byte artık `derived/blobs`a iniyor, deftere yalnız ADRESİ giriyor. Depo
+ * verilmezse eski davranış aynen sürüyor — bu bir geçit, bir varsayım değil.
+ */
+export interface BaytDeposu {
+  /** Base64 gövdeyi saklar, adresini döner. `null` = saklanamadı. */
+  readonly yaz: (base64: string) => string | null
+  /** Adresi çözer. `null` = byte yok; adım yeniden koşar (dürüst cevap). */
+  readonly oku: (adres: string) => string | null
+}
+
+/** Deftere giren yer tutucu. Bir byte değil, bir ADRES. */
+interface BaytAdresi {
+  readonly __bayt: string
+  readonly uzunluk: number
+}
+
+const baytAdresiMi = (v: unknown): v is BaytAdresi =>
+  v !== null && typeof v === 'object' && typeof (v as { __bayt?: unknown }).__bayt === 'string'
+
+const BASE64_SEKLI = /^[A-Za-z0-9+/=\s]+$/
+
+/** Dönüşüm sırasında bir adres çözülemedi mi — `throw` yerine taşınan bayrak. */
+interface DonusumDurumu {
+  eksik: boolean
+}
+
+/**
+ * Byte'ları adrese çevirir (yazarken) ya da adresleri byte'a (okurken).
+ *
+ * ⚠ Dönüşüm ŞEKLE bakıyor, anahtar ADINA değil — `gomuluByte` ile aynı gerekçe:
+ * `format: 'base64'` bugünkü şekil, yarın `image_base64` olabilir.
+ * ⚠ Derinlik SINIRLI (8): kendine referans veren bir nesne sonsuz döngü yapardı ve
+ * bir defter yazıcısının asılması, koşuyu sessizce durdurur.
+ */
+const donustur = (
+  data: unknown,
+  yon: 'yaz' | 'oku',
+  depo: BaytDeposu,
+  durum: DonusumDurumu,
+  derinlik = 0
+): unknown => {
+  if (derinlik > 8) return data
+  if (Array.isArray(data)) return data.map((v) => donustur(v, yon, depo, durum, derinlik + 1))
+  if (data === null || typeof data !== 'object') return data
+  if (yon === 'oku' && baytAdresiMi(data)) {
+    const b = depo.oku(data.__bayt)
+    // ⚠ ÇÖZÜLEMEYEN ADRES = ÇIKTI YOK. Yarım bir nesne dönmek, aşağı akışa `data:
+    // null` taşıyan bir görsel vermek olurdu — bu deponun defalarca ısırdığı hata.
+    if (b === null) durum.eksik = true
+    return b
+  }
+  const cikti: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(data as Record<string, unknown>)) {
+    if (
+      yon === 'yaz' &&
+      typeof v === 'string' &&
+      v.length > 4096 &&
+      BASE64_SEKLI.test(v.slice(0, 512))
+    ) {
+      const adres = depo.yaz(v)
+      // Saklanamadıysa YER TUTUCU YAZILMIYOR: çözülemeyecek bir adres, olmayan bir
+      // kayıttan kötüdür — okuma onu `null` görür ve zincir sessizce boş kalırdı.
+      if (adres === null) {
+        durum.eksik = true
+        return data
+      }
+      cikti[k] = { __bayt: adres, uzunluk: v.length } satisfies BaytAdresi
+      continue
+    }
+    cikti[k] = donustur(v, yon, depo, durum, derinlik + 1)
+  }
+  return cikti
+}
+
+/**
  * Dosya adı adım id'sinden türetiliyor ve **temizleniyor**: adım id'leri hat
  * dosyasından geliyor, yani dış girdi sayılmasa da yol ayracı taşıyabilir.
  */
@@ -87,13 +170,27 @@ export type YazmaSonucu = 'yazildi' | 'atlandi' | 'yazilamadi'
 export const adimCiktisiniYazDurum = (
   outDir: string,
   stepId: string,
-  data: unknown
+  data: unknown,
+  depo?: BaytDeposu
 ): YazmaSonucu => {
   if (data === null || data === undefined) return 'atlandi'
   try {
     const dizin = adimDizini(outDir)
     mkdirSync(dizin, { recursive: true })
     const yol = join(dizin, dosyaAdi(stepId))
+    // ⚠ Byte deposu VARSA gömülü byte artık bir engel değil: adrese çevrilip
+    // yazılıyor. Yoksa aşağıdaki eski davranış — atlama — aynen sürüyor.
+    if (depo !== undefined && gomuluByte(data)) {
+      const durum: DonusumDurumu = { eksik: false }
+      const adresli = donustur(data, 'yaz', depo, durum)
+      if (durum.eksik) return 'yazilamadi'
+      const govde = JSON.stringify(adresli)
+      // Adrese çevrildikten sonra hâlâ tavanı aşıyorsa sorun byte değil, VERİ.
+      if (govde.length <= TAVAN_BAYT) {
+        writeFileSync(yol, govde, 'utf8')
+        return 'yazildi'
+      }
+    }
     if (gomuluByte(data)) {
       writeFileSync(
         yol,
@@ -140,7 +237,7 @@ export const adimCiktisiniYaz = (outDir: string, stepId: string, data: unknown):
  * sonra tanınmaz bir isimle göstermek olurdu — bu depoda tam olarak böyle bir hata
  * (`ADAPTATION_UNPARSEABLE`) sebebinden uzakta görünmüştü.
  */
-export const adimCiktisiniOku = (outDir: string, stepId: string): unknown => {
+export const adimCiktisiniOku = (outDir: string, stepId: string, depo?: BaytDeposu): unknown => {
   const yol = join(adimDizini(outDir), dosyaAdi(stepId))
   if (!existsSync(yol)) return null
   try {
@@ -150,7 +247,10 @@ export const adimCiktisiniOku = (outDir: string, stepId: string): unknown => {
     if (v !== null && typeof v === 'object' && (v as { buyuk?: unknown }).buyuk === true) {
       return null
     }
-    return v
+    if (depo === undefined) return v
+    const durum: DonusumDurumu = { eksik: false }
+    const acilmis = donustur(v, 'oku', depo, durum)
+    return durum.eksik ? null : acilmis
   } catch {
     return null
   }

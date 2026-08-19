@@ -45,7 +45,9 @@ import { varyantlaGenislet } from './varyant-genislet.js'
 import { CircuitBreaker } from './breaker.js'
 import * as budget from './budget.js'
 import { RateLimiter } from './ratelimit.js'
-import { adimCiktisiniOku, adimCiktisiniYazDurum } from './adim-ciktisi.js'
+import { adimCiktisiniOku, adimCiktisiniYazDurum, type BaytDeposu } from './adim-ciktisi.js'
+import { readStepBytes, storeStepBytes } from './blobs.js'
+import { join } from 'node:path'
 import { runOutputDir } from './manifest-writer.js'
 import { runStep, type CallOutcome, type StepSpec } from './scheduler.js'
 import { runVerb } from './run-verb.js'
@@ -368,10 +370,26 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
   // açılamıyordu** (D-135). Enjekte edilebilir: çağıran çalıştırmalar arası paylaşabilir.
   const breaker = input.breaker ?? new CircuitBreaker()
 
+  // ── adım baytı: defterde ADRES, `derived/blobs`ta byte (D20) ───────────────
+  //
+  // ⚠ ⚠ **BU OLMADAN `tasarim-onayi` BİR ŞEY İFADE ETMİYORDU.** Görsel çıktısı gömülü
+  // byte taşıdığı için deftere yazılmıyordu; her sürdürmede `gorsel-uret` yeniden
+  // koşuyor, BAŞKA bir görsel üretiyor ve insanın onayladığı slaytlar yayına giden
+  // slaytlar olmuyordu. Ölçüldü: girdi özeti sabit (`39a8c02e`), çıktı her geçişte
+  // farklı (`2c1d3c70` → `c642914f`).
+  const baytDeposu: BaytDeposu = {
+    yaz: (base64) =>
+      storeStepBytes(join(input.repoRoot, 'derived/blobs'), Buffer.from(base64, 'base64')),
+    oku: (adres) => {
+      const b = readStepBytes(join(input.repoRoot, 'derived/blobs'), adres)
+      return b === null ? null : b.toString('base64')
+    },
+  }
+
   // Defterin "ücretsiz kaydı yeniden koş" dalı BUNU soruyor: çıktı diskte mi?
   // Duruyorsa çağrıyı tekrarlamak israf — aşağı akış zaten diskten okuyor (D-247).
   const ciktiVar = (_runId: RunId, stepId: string): boolean =>
-    adimCiktisiniOku(runOutputDir(input.repoRoot, input.runId), stepId) !== null
+    adimCiktisiniOku(runOutputDir(input.repoRoot, input.runId), stepId, baytDeposu) !== null
 
   // ── künye: koşunun DOĞUM kaydı, adımlardan ÖNCE ───────────────────────────
   //
@@ -827,7 +845,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       const tazeCikti = sonuc.outcome?.data ?? null
       const diskYolu = runOutputDir(input.repoRoot, input.runId)
       if (tazeCikti === null) {
-        const kayitli = adimCiktisiniOku(diskYolu, id)
+        const kayitli = adimCiktisiniOku(diskYolu, id, baytDeposu)
         if (kayitli !== null) input.iz?.(`  ↺ ${id} çıktısı defterden okundu`)
         ciktilar[id] = kayitli
       } else {
@@ -840,7 +858,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         // yazılmıyor (byte `derived/blobs`ta, adım sürdürmede yeniden koşuyor);
         // onu uyarı olarak basmak, doğru olmayan bir alarm üretir ve gürültülü
         // uyarı okunmaz olur. Yalnız GERÇEK başarısızlık uyarıyor.
-        if (adimCiktisiniYazDurum(diskYolu, id, tazeCikti) === 'yazilamadi') {
+        if (adimCiktisiniYazDurum(diskYolu, id, tazeCikti, baytDeposu) === 'yazilamadi') {
           input.iz?.(`  ⚠ ${id} çıktısı diske YAZILAMADI — tekrar oynatmada kaybolur`)
         }
       }

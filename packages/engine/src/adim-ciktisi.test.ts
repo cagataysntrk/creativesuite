@@ -6,11 +6,16 @@
 // seçtiği konu buharlaşmıştı. `scheduler.ts` bu eksikliği YAZMIŞTI; yazılı olması
 // engellemedi.
 
-import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { adimCiktisiniOku, adimCiktisiniYaz, adimDizini } from './adim-ciktisi.js'
+import {
+  adimCiktisiniOku,
+  adimCiktisiniYaz,
+  adimCiktisiniYazDurum,
+  adimDizini,
+} from './adim-ciktisi.js'
 
 const gecici = (): string => mkdtempSync(join(tmpdir(), 'suite-adim-'))
 
@@ -80,5 +85,65 @@ describe('adım çıktısı defteri', () => {
     const uzunMetin = { lines: ['Ölçüm başlıyor. '.repeat(600)] }
     expect(adimCiktisiniYaz(d, 'metin-uret', uzunMetin)).toBe(true)
     expect(adimCiktisiniOku(d, 'metin-uret')).toEqual(uzunMetin)
+  })
+})
+
+// ── D20: byte deposu · defterde ADRES, `derived/blobs`ta byte ────────────────
+//
+// ⚠ ⚠ **BU OLMADAN `tasarim-onayi` BİR ŞEY İFADE ETMİYORDU.** Ölçüldü: `gorsel-uret`in
+// GİRDİ özeti üç geçişte de aynı (`39a8c02e`), çıktısı her seferinde farklı
+// (`2c1d3c70` → `c642914f` → …). İnsan gördüğü slaytları onaylıyor, yayına başka
+// slaytlar gidiyordu — çünkü byte taşıyan çıktı deftere hiç yazılmıyordu (R-64) ve
+// tekrar oynatmada "çıktı yok" görünüyordu.
+describe('byte deposu', () => {
+  const sahteDepo = () => {
+    const kutu = new Map<string, string>()
+    return {
+      kutu,
+      depo: {
+        yaz: (b64: string): string => {
+          const adres = `sha256:${String(kutu.size)}`
+          kutu.set(adres, b64)
+          return adres
+        },
+        oku: (adres: string): string | null => kutu.get(adres) ?? null,
+      },
+    }
+  }
+
+  const gorsel = { format: 'base64', data: 'A'.repeat(220_000), width: 1024, height: 1280 }
+
+  it('byte defterden ÇIKIYOR ama çıktı KAYBOLMUYOR', () => {
+    const d = gecici()
+    const { depo } = sahteDepo()
+    expect(adimCiktisiniYazDurum(d, 'gorsel-uret', gorsel, depo)).toBe('yazildi')
+    // Defter dosyası KÜÇÜK: byte git'e girmiyor (R-64).
+    const yol = join(adimDizini(d), 'gorsel-uret.json')
+    expect(statSync(yol).size).toBeLessThan(4096)
+    // Ama çıktı AYNEN geri geliyor: onaylanan görsel, yayına giden görsel.
+    expect(adimCiktisiniOku(d, 'gorsel-uret', depo)).toEqual(gorsel)
+  })
+
+  it('byte KAYBOLDUYSA çıktı `null` — yarım nesne zincire verilmiyor', () => {
+    const d = gecici()
+    const { kutu, depo } = sahteDepo()
+    adimCiktisiniYazDurum(d, 'gorsel-uret', gorsel, depo)
+    kutu.clear() // blob silindi: `derived/blobs` yedekten dönmemiş olabilir
+    expect(adimCiktisiniOku(d, 'gorsel-uret', depo)).toBeNull()
+  })
+
+  it('depo VERİLMEZSE eski davranış: byte deftere hiç girmiyor', () => {
+    const d = gecici()
+    expect(adimCiktisiniYazDurum(d, 'gorsel-uret', gorsel)).toBe('atlandi')
+    expect(adimCiktisiniOku(d, 'gorsel-uret')).toBeNull()
+  })
+
+  it('metin çıktısı depo VARKEN de aynen yazılıyor — byte yoksa adres de yok', () => {
+    const d = gecici()
+    const { kutu, depo } = sahteDepo()
+    const metin = { lines: ['Ölçüm başlıyor'], konu: 'Ölçüm pilotu' }
+    expect(adimCiktisiniYazDurum(d, 'metin-uret', metin, depo)).toBe('yazildi')
+    expect(kutu.size).toBe(0)
+    expect(adimCiktisiniOku(d, 'metin-uret', depo)).toEqual(metin)
   })
 })

@@ -193,3 +193,47 @@ export const verifyBlob = (blobFile: string): readonly BlobDefect[] => {
   }
   return kusurlar
 }
+
+// ── adım çıktısı baytı: TESLİMAT DEĞİL, tekrar oynatma kaydı ────────────────
+//
+// ⚠ ⚠ **BU YOL BİR ÖLÇÜMDEN DOĞDU (D20).** `gorsel-uret`in GİRDİ özeti üç geçişte de
+// aynıydı (`39a8c02e`) ama çıktısı her seferinde değişti (`2c1d3c70` → `c642914f` → …):
+// insan `tasarim-onayi`nde gördüğü slaytları onaylıyor, yayına BAŞKA slaytlar gidiyor.
+// Sebep basit ve yapısaldı: görsel çıktısı gömülü byte taşıdığı için deftere
+// yazılmıyordu (R-64) ve "diskte çıktı var mı" sorusu görsel adımlarında hep `hayır`
+// dönüyordu.
+//
+// **Byte'ın yeri burası** (§3.5): `derived/blobs` gitignore'lu ama TÜRETİLEBİLİR DEĞİL —
+// silinirse üretimin parası yeniden ödenir. Adım baytı da tam olarak öyle bir şey.
+//
+// ⚠ Sidecar YOK ve bu kasıtlı: sidecar bir varlığın KÜNYESİ (damga, uyum, teslimat) ve
+// bunlar yayınlanan varlığa ait. Adım baytı bir ara üründür; ona künye yazmak, ara ürünü
+// teslimat sanmaya davettir. Ayrı uzantı (`.bin`) ve künyesizlik ikisini ayırıyor.
+export const storeStepBytes = (blobRoot: string, bayt: Buffer): string | null => {
+  try {
+    const hex = sha256(bayt)
+    const hedef = blobPath(blobRoot, hex, '.bin')
+    if (!existsSync(hedef)) {
+      mkdirSync(dirname(hedef), { recursive: true })
+      writeFileSync(hedef, bayt)
+    }
+    return `sha256:${hex}`
+  } catch {
+    // Yazılamadıysa çağıran `null` görüyor ve çıktıyı deftere HİÇ yazmıyor: yarım bir
+    // kayıt, olmayan bir kayıttan kötüdür (adım yeniden koşar, doğru davranış).
+    return null
+  }
+}
+
+/** `null` = blob yok. Adım yeniden koşar — bu bir hata değil, dürüst bir cevap. */
+export const readStepBytes = (blobRoot: string, digest: string): Buffer | null => {
+  const hex = digest.startsWith('sha256:') ? digest.slice(7) : digest
+  if (!/^[0-9a-f]{64}$/.test(hex)) return null
+  const yol = blobPath(blobRoot, hex, '.bin')
+  if (!existsSync(yol)) return null
+  try {
+    return readFileSync(yol)
+  } catch {
+    return null
+  }
+}
