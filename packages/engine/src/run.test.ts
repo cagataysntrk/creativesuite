@@ -536,3 +536,52 @@ describe('defter beyaz listesi', () => {
     expect(DEFTER_ANAHTARLARI).not.toContain('fontCss')
   })
 })
+
+// ── defterden oynatılan adımın çıktısı manifeste GİRİYOR mu ─────────────────
+//
+// ⚠ ⚠ **BU KUSUR, BİR ÖNCEKİ DÜZELTMENİN YAN ETKİSİYDİ.** Ücretsiz kapanmış kayıt artık
+// yeniden koşmuyor (D-247 · D19) — doğru. Ama kayıt `outcome.data`yı yazıyordu ve o
+// `null` dönüyor; manifest her geçişte YENİDEN yazıldığı için son geçiş, önceki geçişin
+// yazdığı gerçek çıktıyı SİLİYORDU.
+//
+// Ölçülen zincir: `konu-sec` çıktısı manifeste `null` düştü → `islenmisKonular`
+// manifestten okuyor → seçilen konu hiç "işlenmiş" sayılmadı → aday listesinde kaldı →
+// bir sonraki koşu AYNI konuyu seçti. Depo sahibinin ilk şikâyeti buydu.
+describe('defterden oynatma manifesti', () => {
+  const hatKonu = [
+    { id: 'a', verb: 'RESOLVE' as const, capability: null, constraints: {}, needs: [], gate: null },
+    {
+      id: 'konu-sec',
+      verb: 'GENERATE' as const,
+      capability: 'text.generate',
+      constraints: { lane: 'free' },
+      needs: ['a'],
+      gate: null,
+    },
+  ]
+
+  it('ikinci geçişte çıktı `null`a DÜŞMÜYOR — konu buharlaşmıyor', async () => {
+    const ortak = {
+      verbs: {
+        RESOLVE: basarili('RESOLVE', {}),
+        // Ücretsiz kapanan bir kayıt: abonelik çağrısı (claude-code) tam olarak böyle.
+        GENERATE: basarili('GENERATE', { konu: 'Ölçüm pilotu' }, 0n),
+      },
+      candidatesFor: () => aday('p1'),
+      pricing: fiyat('p1', '0'),
+    }
+    const birinci = await kos(hatKonu, ortak)
+    expect(birinci.errors).toHaveLength(0)
+    expect((birinci.manifest.steps[1]?.output as { konu?: string } | null)?.konu).toBe(
+      'Ölçüm pilotu'
+    )
+
+    // İkinci geçiş: AYNI db, aynı runId — defter "bu iş bitti" diyor ve çağrı
+    // yapılmıyor. Manifest yine de gerçeği yazmalı.
+    const ikinci = await kos(hatKonu, ortak)
+    expect(ikinci.errors).toHaveLength(0)
+    expect((ikinci.manifest.steps[1]?.output as { konu?: string } | null)?.konu).toBe(
+      'Ölçüm pilotu'
+    )
+  })
+})

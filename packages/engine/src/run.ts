@@ -783,6 +783,26 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       })),
     ]
 
+    // ⚠ ⚠ **DEFTERDEN OYNATILAN ADIMIN ÇIKTISI MANİFESTE `null` GİRİYORDU.** Ücretsiz
+    // bir adım defterden oynatıldığında `outcome.data` `null` dönüyor (doğru: çağrı
+    // yapılmadı) ve kayıt o `null`ı yazıyordu. Manifest her geçişte YENİDEN yazıldığı
+    // için son geçiş, önceki geçişin yazdığı gerçek çıktıyı SİLİYORDU.
+    //
+    // Ölçülen sonuç: `konu-sec` çıktısı manifeste `null` düştü → `islenmisKonular`
+    // manifestten okuyor → seçilen konu hiç "işlenmiş" sayılmadı → aday listesinde
+    // KALDI → bir sonraki koşu aynı konuyu seçti. Depo sahibinin ilk şikâyeti buydu:
+    // *"hep aynı konuyu seçiyor"*. Çeşitlilik mekanizmasının kör noktası, bu turda
+    // eklenen defterden-oynatma düzeltmesinin yan etkisiydi.
+    //
+    // Etkin çıktı ARTIK KAYITTAN ÖNCE hesaplanıyor: taze varsa o, yoksa diskteki.
+    const diskYolu = runOutputDir(input.repoRoot, input.runId)
+    const tazeCikti = sonuc.ok ? (sonuc.outcome?.data ?? null) : null
+    let etkinCikti: unknown = tazeCikti
+    if (sonuc.ok && tazeCikti === null) {
+      etkinCikti = adimCiktisiniOku(diskYolu, id, baytDeposu)
+      if (etkinCikti !== null) input.iz?.(`  ↺ ${id} çıktısı defterden okundu`)
+    }
+
     kayitlar.push({
       stepId,
       verb: verbAdi,
@@ -815,7 +835,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       // sorusunun cevabı hiçbir yerde yoktu.
       // Tam çıktı DEĞİL özet: bir belge modelini manifest'e gömmek dosyayı şişirir ve
       // `git diff`i okunamaz yapar. Özet, ölçülebilir olanı taşır.
-      output: ozetle(sonuc.outcome?.data ?? null),
+      output: ozetle(etkinCikti ?? null),
       // ⚠ Yalnız başarısızlıkta ve yalnız ÜÇ ALAN: `details` sağlayıcı gövdesi ya da
       // prompt parçası taşıyabilir ve defter git'e giriyor (§3.5 · §14).
       ...(sonuc.ok
@@ -842,12 +862,8 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       // kesiyordu.**
       //
       // Defterin işi ÖDEMEYİ tekrarlamamak; işin SONUCUNU unutmak değil.
-      const tazeCikti = sonuc.outcome?.data ?? null
-      const diskYolu = runOutputDir(input.repoRoot, input.runId)
       if (tazeCikti === null) {
-        const kayitli = adimCiktisiniOku(diskYolu, id, baytDeposu)
-        if (kayitli !== null) input.iz?.(`  ↺ ${id} çıktısı defterden okundu`)
-        ciktilar[id] = kayitli
+        ciktilar[id] = etkinCikti
       } else {
         ciktilar[id] = tazeCikti
         // ⚠ ÇIKTI özeti de basılıyor: girdi özeti "hangi adımdan sonra kaydı"
