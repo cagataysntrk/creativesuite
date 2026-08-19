@@ -39,7 +39,13 @@ import {
 } from '@suite/engine'
 import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
 import { hatDurumlari, loadPipeline } from '@suite/registry'
-import { baglamKayitlari, islenmisKonular, konuAdaylari, kosuParametreleri } from '@suite/engine'
+import {
+  baglamKayitlari,
+  islenmisKonular,
+  konuAdaylari,
+  kosuParametreleri,
+  readRunStub,
+} from '@suite/engine'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
@@ -337,11 +343,19 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // ⚠ Manifest YOKKEN de cevap veriliyor: başlatma hiç tutmadıysa dizinde yalnız
       // `baslatilamadi.json` olur ve 404 dönmek, sebebi olan tek dosyayı gizlemek olurdu.
       const hataKaydi = baslatmaHatasi(o.repoRoot, runId)
-      if (hataKaydi === null) return c.json({ ok: false, hata: `manifest yok: ${runId}` }, 404)
+      // ⚠ ⚠ **YENİ BAŞLAYAN KOŞU HATA GİBİ GÖRÜNÜYORDU.** Manifest ancak ilk adım
+      // bitince yazılıyor; o ana kadar dizinde yalnız `kunye.json` var ve uç 404
+      // dönüyordu. Panel "Başlat"tan sonra koşu ekranına geçiyor ve insanın gördüğü
+      // ilk şey *"içerik okunamadı (404)"* oluyordu — sistem çalışırken bozuk
+      // görünüyor. Künye varsa koşu BAŞLAMIŞTIR ve söylenecek şey budur.
+      const kunye = hataKaydi === null ? readRunStub(o.repoRoot, runId as never) : null
+      if (hataKaydi === null && kunye === null) {
+        return c.json({ ok: false, hata: `manifest yok: ${runId}` }, 404)
+      }
       return c.json({
         runId,
-        pipeline: '',
-        createdAt: '',
+        pipeline: kunye?.pipeline ?? '',
+        createdAt: kunye?.createdAt ?? '',
         bekleyenKapi: null,
         duraklananAdim: null,
         satirlar: [],
@@ -353,8 +367,9 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         varliklar: [],
         konu: null,
         konuGerekcesi: null,
-        durum: 'baslatilamadi',
-        toplamAdim: 0,
+        // Künye var + hata kaydı yok = süreç başladı, ilk adım henüz bitmedi.
+        durum: hataKaydi === null ? 'calisiyor' : 'baslatilamadi',
+        toplamAdim: kunye === null ? 0 : hatAdimSayisi(o.repoRoot, kunye.pipeline),
         bitenAdim: 0,
         baslatilamadi: hataKaydi,
         adimlar: [],
