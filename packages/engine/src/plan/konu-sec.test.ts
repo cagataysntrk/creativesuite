@@ -69,4 +69,47 @@ describe('konu seçimi çözümleme', () => {
   it('aday yoksa istem `null` — konusuz koşan hat markadan gelmeyen metin üretir', () => {
     expect(konuSecPromptu({ adaylar: [], islenmisSayisi: 0 })).toBeNull()
   })
+
+  // ── numara yolu ────────────────────────────────────────────────────────────
+  //
+  // ⚠ ⚠ **GERÇEK KOŞU BURADA DURDU.** `run_01a016ee` ücretli `konu-sec` adımında
+  // `TOPIC_NOT_IN_CANDIDATES` verdi: model sekiz başlığın hiçbirini yazmadı, kendi
+  // cümlesini kurdu. Doğrulama haklıydı — ama İSTEM yanlış soruyu soruyordu.
+  // Kopyalanması istenen her başlık, kopyalanırken bozulabilir.
+
+  it('istem NUMARA istiyor — kopyalanacak bir başlık vermiyor', () => {
+    const p = konuSecPromptu({ adaylar: ADAYLAR, islenmisSayisi: 4 }) ?? ''
+    expect(p).toContain('"secim"')
+    expect(p).not.toContain('"konu":')
+  })
+
+  it('numarayla seçim başlığa çevriliyor', () => {
+    expect(konuSecimiCozumle('{"secim": 2, "gerekce": "rakip anlatısı"}', ADAYLAR)).toEqual({
+      konu: 'Excel ve vardiya defteri',
+      gerekce: 'rakip anlatısı',
+    })
+  })
+
+  it('numara DİZE olarak gelse de kabul ediliyor — anlamı değişmiyor', () => {
+    expect(konuSecimiCozumle('{"secim": "1"}', ADAYLAR)?.konu).toBe('Veri katmanından karara')
+  })
+
+  it('listede olmayan numara REDDEDİLİYOR — uydurma numara da uydurmadır', () => {
+    expect(konuSecimiCozumle('{"secim": 9}', ADAYLAR)).toBeNull()
+    expect(konuSecimiCozumle('{"secim": 0}', ADAYLAR)).toBeNull()
+  })
+
+  it('TİRE farkı seçimi bozmuyor — daktilo farkı uydurma değildir', () => {
+    // Başlıklarda uzun tire var; model kısa tire yazıyor. Anlam aynı.
+    const adaylar: readonly KonuAdayi[] = [
+      { baslik: 'Veri katmanından karara — Upcytech konumu', tur: 'positioning' },
+    ]
+    const r = konuSecimiCozumle('{"konu": "Veri katmanından karara - Upcytech konumu"}', adaylar)
+    // Dönen başlık MODELİN yazdığı değil, LİSTEDEKİ — aşağı akış kayıtla eşleşmeli.
+    expect(r?.konu).toBe('Veri katmanından karara — Upcytech konumu')
+  })
+
+  it('tire toleransı UYDURMAYI geçirmiyor', () => {
+    expect(konuSecimiCozumle('{"konu": "Bambaşka - bir konu"}', ADAYLAR)).toBeNull()
+  })
 })

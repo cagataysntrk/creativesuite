@@ -155,8 +155,15 @@ export const konuSecPromptu = (g: {
     '  · marka bunu söylemeye yetkili mi — elinde kaydı var mı?',
     '  · bugünün gündemine bu liste içinde en yakın duran hangisi?',
     '',
+    // ⚠ ⚠ **BAŞLIK İSTEMEK YANLIŞ SORUYDU — NUMARA İSTİYORUZ.** Gerçek koşuda model
+    // listedeki hiçbir başlığı yazmadı, kendi cümlesini kurdu (*"Veri katmanından
+    // karara — Upcytech konumu"*) ve doğrulama haklı olarak reddetti: koşu ücretli
+    // bir adımda durdu. Başlığı yeniden yazdırmak modelden bir KOPYALAMA istiyor ve
+    // kopyalama her seferinde tire, büyük harf, kısaltma riskiyle geliyor.
+    // Numara kopyalanamaz — ya listededir ya değildir.
     'YALNIZ şu JSON ile cevapla, başka hiçbir şey yazma:',
-    '{"konu": "<yalnız BAŞLIK — parantez içindeki türü YAZMA>", "gerekce": "<tek cümle>"}',
+    '{"secim": <yukarıdaki listeden NUMARA>, "gerekce": "<tek cümle>"}',
+    'Başlığı yeniden yazma, numara yeter. Listede olmayan bir numara verme.',
   ].join('\n')
 }
 
@@ -209,8 +216,8 @@ export const konuSecimiCozumle = (
   let veri: unknown = null
   for (const parca of [...adaylarJson].reverse()) {
     try {
-      const denenen = JSON.parse(parca) as { konu?: unknown }
-      if (typeof denenen.konu === 'string') {
+      const denenen = JSON.parse(parca) as { konu?: unknown; secim?: unknown }
+      if (typeof denenen.konu === 'string' || denenen.secim !== undefined) {
         veri = denenen
         break
       }
@@ -220,7 +227,22 @@ export const konuSecimiCozumle = (
     }
   }
   if (veri === null) return null
-  const o = veri as { konu?: unknown; gerekce?: unknown }
+  const o = veri as { konu?: unknown; secim?: unknown; gerekce?: unknown }
+  const gerekce = typeof o.gerekce === 'string' ? o.gerekce.trim() : ''
+
+  // ── numara yolu: istemin İSTEDİĞİ cevap ────────────────────────────────────
+  //
+  // Numara ya listededir ya değildir; "yakın başlık" diye bir şey yok. `"3"` de
+  // kabul ediliyor çünkü modeller sayıyı sık sık dize olarak yazar ve bu, cevabın
+  // ANLAMINI değiştirmez.
+  const sira = typeof o.secim === 'number' ? o.secim : Number(o.secim)
+  if (Number.isInteger(sira) && sira >= 1 && sira <= basliklar.length) {
+    const baslik = basliklar[sira - 1]
+    if (baslik !== undefined) return { konu: baslik, gerekce }
+  }
+
+  // ── başlık yolu: eski istemle üretilmiş kayıtlar ve numara yerine başlık
+  // yazmakta ısrar eden çıktılar için ───────────────────────────────────────
   if (typeof o.konu !== 'string') return null
   // ⚠ **KENDİ BİÇİMİMİZE toleranslıyız, UYDURMAYA değil.** Model listede gösterdiğimiz
   // süslemeleri (baştaki `[tür]`, sondaki `(tür: …)`, satır numarası) kopyalayabiliyor
@@ -232,6 +254,18 @@ export const konuSecimiCozumle = (
     .replace(/^\[[^\]]*\]\s*/, '')
     .replace(/\s*\((?:tür|tur):[^)]*\)\s*$/i, '')
     .trim()
-  if (!basliklar.includes(temiz)) return null
-  return { konu: temiz, gerekce: typeof o.gerekce === 'string' ? o.gerekce.trim() : '' }
+  if (basliklar.includes(temiz)) return { konu: temiz, gerekce }
+  // ⚠ Son bir tolerans: TİRE ve BOŞLUK. Başlıklarda uzun tire (—) var ve modelin
+  // yeniden yazarken kısa tire koyması bir uydurma değil, bir daktilo farkıdır.
+  // Büyük/küçük harf DÖNÜŞTÜRÜLMÜYOR: Türkçede `i/İ` dönüşümü yerelsizdir ve bu
+  // depoda ayrı bir kapı onu yasaklıyor.
+  const sadelestir = (s: string): string =>
+    s
+      .replace(/[‐-―−]/g, '-')
+      .replace(/\s+/g, ' ')
+      .trim()
+  const hedef = sadelestir(temiz)
+  const esles = basliklar.find((b) => sadelestir(b) === hedef)
+  if (esles !== undefined) return { konu: esles, gerekce }
+  return null
 }
