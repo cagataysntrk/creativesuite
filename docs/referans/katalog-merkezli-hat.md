@@ -80,8 +80,17 @@ kalması** (Yasa 8: kaynaksız sayısal iddia yayınlanamaz).
 | `kart-disi` | metin tuvalin dışına taşıyor mu |
 | `eksik-glif` | marka fontunun `unicode-range` kapsamı dışında karakter var mı |
 | `matlama-tutmuyor` | `kesik` görselin köşe parlaklığı; zemin siyah değilse kesim tutmaz |
+| `yer-tutucu` | görsel üretilemedi ve yerine çerçeve çizildi — **eksik çıktı yayına gitmez** |
+| `ifsa-gorunmuyor` | belge AI ifşası taşıdığını söylüyor ama şerit slaytta yok/gizli |
+| `ifsa-okunmuyor` | ifşa görselin üstüne düşüyor, metin zemine karışıyor (Md. 50 görünürlük) |
 
 Kusurlar susturulmuyor: çıktıya giriyor, `kalite` ve insan onay kapısı görüyor.
+
+⚠ `yer-tutucu` gerçek bir koşuda bulundu: `gorsel-uret` sağlayıcı politikasıyla
+reddedildi (`IMAGE_PROMPT_REJECTED`), bir yuva boş kaldı, son slaytta kesik çizgili bir
+kutu kaldı — ve `kalite` **"0 kusur, geçti"** dedi. Denetim taşmayı ölçüyordu, EKSİĞİ
+değil. Yer tutucu bilerek çiziliyor (eksiklik görünür kalmalı); doğru davranış onu
+silmek değil, yayına gitmesini engellemek.
 Düzeltme turu `denetimTuru` ile en fazla **iki** tur; yalnız **kesin iyileşme** kabul
 ediliyor ve düzeltme yine `uyarla`dan geçtiği için kompozisyonu bozamıyor.
 
