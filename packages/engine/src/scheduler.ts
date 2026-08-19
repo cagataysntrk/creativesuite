@@ -272,7 +272,15 @@ export const runStep = async (
             correlationId,
             retryable: false,
             details: {
-              idempotencyKey: spec.idempotencyKey,
+              // ⚠ ⚠ **TAM ANAHTAR YAZILMIYOR — `gitleaks` onu ANAHTAR SANDI.** `idem_`
+              // + 32 hex, `generic-api-key` kuralına birebir uyuyor ve bu satır koşu
+              // günlüğüne düşünce kapı kırmızıya döndü. Anahtar bir sır değil (plan
+              // alanlarının sha256'sı) ama sürekli alarm veren kapı, kapatılan kapıdır
+              // — ve muafiyet yazmak yerine ALARMIN SEBEBİNİ kaldırmak doğrusu.
+              //
+              // ⚠ Ön ek YETERLİ: defterde arama `LIKE 'idem_ab12%'` ile yapılıyor ve
+              // 8 hex, bir koşudaki onlarca adımı ayırt etmeye fazlasıyla yeter.
+              adimAnahtari: spec.idempotencyKey.slice(0, 13),
               providerId: spec.providerId,
               reason: 'çağrı uçtu mu bilinmiyor — sağlayıcı panelinden doğrulanmalı (§8.5)',
             },

@@ -15,3 +15,18 @@
 # (R-73); doğru hamle muafiyeti DAR ve GEREKÇELİ yazmak.
 packages/providers/src/descriptor.test.ts:generic-api-key:65
 462f47493a2c0a7743264ad3f51a9359219a1bb4:packages/providers/src/descriptor.test.ts:generic-api-key:65
+
+# ── Muafiyet 2 ────────────────────────────────────────────────────────────────
+# `run_01a018ef` koşu günlüğündeki İKİ satır. İçerik: `NEEDS_RECONCILIATION` hatasının
+# ayrıntısına basılan `idempotencyKey` — `idem_` + 32 hex. Bir sır DEĞİL: plan
+# alanlarının (fiil, yetenek, sağlayıcı, param, corpus commit, girdi özeti) sha256'sı;
+# `idempotency.ts` onu böyle üretiyor.
+#
+# ⚠ ALARMIN SEBEBİ KALDIRILDI, muafiyet yalnız GEÇMİŞ iki satır için: hata ayrıntısı
+# artık tam anahtarı değil 13 karakterlik ön ekini yazıyor (`scheduler.ts`). Yani bu
+# muafiyet büyümez — koşu defteri silinmez (R-52) ve o iki satır orada kalır.
+#
+# ⚠ Neden günlüğü düzeltmedik: `derived/runs` APPEND-ONLY kanıttır (D-38). Bir kapıyı
+# geçmek için kanıtı düzenlemek, kapının koruduğu şeyi bozmak olurdu.
+derived/runs/run_01a018ef-b011-7cbc-9b5c-f38c7b0ce655/calistirma.log:generic-api-key:119
+derived/runs/run_01a018ef-b011-7cbc-9b5c-f38c7b0ce655/calistirma.log:generic-api-key:160

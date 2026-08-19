@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { readEnv } from '@suite/kernel'
-import { calistirmaBaslat, tekrarBaslat } from './calistir.js'
+import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
 
 // `komut: 'true'` → gerçek bir çalıştırma başlatmaz ama spawn yolu KOŞAR.
 // `/bin/true` her yerde var ve hemen 0 ile çıkar; testin ağa ya da Chromium'a
@@ -56,5 +56,43 @@ describe('çalıştırma başlatma', () => {
   it('kaynak çalıştırma boşsa tekrar başlatmaz', () => {
     const r = tekrarBaslat({ ...ORTAK, pipelineId: 'p', kaynakRunId: '', kind: 'rerun' })
     expect(r.ok).toBe(false)
+  })
+})
+
+// ── tek uçuş: aynı koşu İKİ KEZ sürdürülemez ────────────────────────────────
+//
+// ⚠ ⚠ **ÖLÇÜLDÜ VE DEFTERİ BOZDU.** `run_01a018ef`in günlüğünde iki *"sürdürülüyor"*
+// başlığı iç içe geçti: insan Telegram'dan onayladı (sunucu sürdürdü), ben de panelden
+// sürdürdüm. `gorsel-brief-4` iki kez başladı, `gorsel-uret-4` yarım yazılmış bir brief
+// gördü ve `prompt-yok` diye ATLANDI; o atlama deftere yazıldı, dördüncü slayt YER
+// TUTUCU ile render edildi ve özet tablosu aynı adımı hem ✓ hem ✗ gösterdi.
+//
+// İkisi de meşru bir eylemdi; meşru olmayan ikisinin AYNI ANDA olmasıydı.
+describe('aynı koşu iki kez sürdürülmez', () => {
+  const ortak = {
+    repoRoot: '/tmp',
+    pipelineId: 'instagram-post',
+    env: { PATH: readEnv('PATH') ?? '' },
+    // ⚠ `sleep 5`: süreç AÇIK kalmalı, yoksa ilk sürdürme biter ve kayıt silinir —
+    // test o zaman yarışı değil, sıralı iki çağrıyı ölçerdi.
+    komut: 'sleep',
+  }
+
+  it('koşarken ikinci sürdürme REDDEDİLİYOR', () => {
+    const runId = 'run_01a00000-0000-7000-8000-00000000test'
+    const birinci = calistirmaSurdur({ ...ortak, runId })
+    expect(birinci.ok).toBe(true)
+    expect(kosuyorMu(runId)).toBe(true)
+
+    const ikinci = calistirmaSurdur({ ...ortak, runId })
+    expect(ikinci.ok).toBe(false)
+    expect(ikinci.ok ? '' : ikinci.hata).toContain('ZATEN koşuyor')
+  })
+
+  it('BAŞKA bir koşu engellenmiyor — kilit koşuya ait, sunucuya değil', () => {
+    const a = calistirmaSurdur({ ...ortak, runId: 'run_01a00000-0000-7000-8000-0000000000aa' })
+    const b = calistirmaSurdur({ ...ortak, runId: 'run_01a00000-0000-7000-8000-0000000000bb' })
+    expect(a.ok).toBe(true)
+    expect(b.ok).toBe(true)
   })
 })

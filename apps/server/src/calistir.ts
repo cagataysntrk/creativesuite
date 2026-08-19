@@ -68,6 +68,25 @@ const gunlugeYaz = (repoRoot: string, runId: string, parca: string): void => {
   }
 }
 
+/**
+ * O anda KOŞAN çalıştırmalar — aynı koşuyu iki kez başlatmayı engelleyen tek kayıt.
+ *
+ * ⚠ ⚠ **BU OLMADAN İKİ SÜREÇ AYNI KOŞUYU EZİYORDU ve ölçüldü.** `run_01a018ef`in
+ * günlüğünde iki *"sürdürülüyor"* başlığı iç içe geçti; `gorsel-brief-4` iki kez
+ * başladı, `gorsel-uret-4` yarım yazılmış bir brief gördü ve `prompt-yok` diye
+ * ATLANDI — o atlama deftere yazıldı, dördüncü slayt YER TUTUCU ile render edildi ve
+ * özet tablosu aynı adımı hem ✓ hem ✗ gösterdi. Sebep: insan Telegram'dan onayladı
+ * (sunucu sürdürdü), ben de panelden sürdürdüm. İkisi de meşru; ikisi aynı anda değil.
+ *
+ * ⚠ Kapsam DÜRÜSTÇE sınırlı: bu kayıt sunucu SÜRECİNE ait. Terminalden elle koşulan
+ * `just uret --devam` bunu görmez. Dosya kilidi daha geniş korurdu ama bayat kilit
+ * yönetimi getirir; ölçülen kusur sunucudan geldi, çözüm de oradan.
+ */
+const kosanlar = new Set<string>()
+
+/** Bir koşu şu anda bu sunucu tarafından koşuluyor mu. */
+export const kosuyorMu = (runId: string): boolean => kosanlar.has(runId)
+
 /** Alt süreç sonucunu izler; yalnız BAŞARISIZLIK deftere düşer. */
 const akibetiIzle = (
   repoRoot: string,
@@ -75,7 +94,9 @@ const akibetiIzle = (
   komut: readonly string[],
   p: ReturnType<typeof spawnProcess>
 ): void => {
+  kosanlar.add(runId)
   void p.then((r) => {
+    kosanlar.delete(runId)
     if (r.code === 0 && !r.timedOut && !r.aborted) return
     baslatmaHatasiniYaz(repoRoot, runId, {
       // ⚠ ⚠ **ZAMAN DAMGASI YOKTU ve panel eski bir hatayı GÜNCEL sanıyordu.**
@@ -180,6 +201,12 @@ export const calistirmaSurdur = (g: {
 }): BaslatSonuc => {
   if (g.pipelineId.trim() === '') return { ok: false, hata: 'pipeline seçilmedi' }
   if (g.runId.trim() === '') return { ok: false, hata: 'çalıştırma id yok' }
+  // ⚠ İkinci sürdürme REDDEDİLİYOR: aynı koşu dizinine yazan iki süreç birbirinin
+  // defterini eziyor ve sonuç ölçüldü — yarım okunan bir brief, `prompt-yok` ile
+  // atlanan bir görsel adımı ve yer tutucuyla render edilen bir slayt.
+  if (kosuyorMu(g.runId)) {
+    return { ok: false, hata: `${g.runId} ZATEN koşuyor — ikinci sürdürme defteri bozar` }
+  }
   const argv = ['uret', g.pipelineId, '--devam', g.runId]
   akibetiIzle(
     g.repoRoot,
