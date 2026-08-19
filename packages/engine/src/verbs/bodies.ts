@@ -2501,7 +2501,21 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     }
 
     let uyarlamaCiktisi: { readonly uyarlama: Uyarlama } | null = null
-    if (input.constraints['sablon_uyarla'] === true) {
+    // ⚠ ⚠ **DÜZELTME TURU ÇIKTISINI KİMSE OKUMUYORDU.** `duzelt` adımı bir uyarlama
+    // ÜRETİYOR ama çıktısı `{lines}` olarak kalıyordu; `composeBody` `{uyarlama}`
+    // arıyor ve bulamayınca ÖNCEKİ uyarlamayla devam ediyordu. Ölçülen koşu:
+    // `sus-metni-kesiyor` iki kartta bulundu, `duzelt` gövdeleri kısaltan bir düzeltme
+    // döndü, `render-son` AYNI kusurları AYNI yüzdeyle (%14,7 · %4,3) tekrar ölçtü —
+    // yani düzeltme hiç uygulanmadı ve bir model çağrısı boşa gitti.
+    //
+    // Bugüne kadar görünmemesinin sebebi, düzeltme turunun neredeyse hiç koşmamasıydı:
+    // ölçülen kusurların hepsi `matlama-tutmuyor` gibi metinle düzelmeyen türlerdi ve
+    // `duzeltilebilir` onları eliyordu. Metinle düzelen ilk kusur türü eklenince
+    // (`sus-metni-kesiyor`) kopukluk aynı gün ortaya çıktı.
+    if (
+      input.constraints['sablon_uyarla'] === true ||
+      input.constraints['sablon_duzelt'] === true
+    ) {
       const c = uyarlamayaCevir(sonuc.value.data)
       if (c === null) return err(hata('validation', 'ADAPTATION_UNPARSEABLE', ctx))
       uyarlamaCiktisi = { uyarlama: c }
