@@ -16,6 +16,7 @@ import { fixedClock, seededRng } from '@suite/kernel'
 import {
   composeBody,
   promptTuret,
+  PUBLISH_ARANAN_ANAHTARLAR,
   renderBody,
   sablonSecimiIcin,
   uyarlamayaCevir,
@@ -115,6 +116,42 @@ describe('dikiş 1: hat dosyası → üretim yolu', () => {
     const geri = JSON.parse(readFileSync(yol, 'utf8')) as KatalogOrnegi
     expect(geri.kartlar.length).toBe(ornek.kartlar.length)
     expect(geri.kartlar[0]?.baslik).toBe(ornek.kartlar[0]?.baslik)
+  }, 120_000)
+
+  // ⚠ ⚠ **PANORAMA YOLU YAYINLANAMIYORDU ve üç kapı da bunu göremedi.** Panelden
+  // koşan `run_01a01876` metin, tasarım ve insan kapılarını geçti, kalite yeşildi,
+  // dört slayt damgalandı — sonra `yayinla` `NO_PUBLISHABLE_ASSET` ile durdu.
+  // Sebep: `renderBody`nin panorama dalı `slides` basıyor, `publishBody` `assets`
+  // arıyordu. Aynı sınıfın ALTINCI tekrarı; belge dalına eklenen düzeltme (B2) bu
+  // dala geçmemişti.
+  //
+  // ⚠ Eski test yalnız ANAHTAR LİSTESİNİN tek yerde tanımlı olduğunu ölçüyordu —
+  // bir sabiti. Sabit doğruydu, ÜRETİM onu basmıyordu. Bu test üretimin GERÇEK
+  // çıktısına bakıyor.
+  it('render ÇIKTISI yayının aradığı anahtarları taşıyor', async () => {
+    const ornek = ORNEKLER['sahne']
+    expect(ornek).toBeDefined()
+    if (ornek === undefined) return
+    const d = mkdtempSync(join(tmpdir(), 'panorama-varlik-'))
+    const r = await renderBody({ outDir: d, layout: null }).run(
+      CTX as never,
+      {
+        constraints: {},
+        inputs: { kompozit: { panorama: { ...ornek, tokenCss: '', stamp: DAMGA } } },
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    const veri = (r.ok ? r.value.data : {}) as { assets?: readonly Record<string, unknown>[] }
+    expect(veri.assets?.length).toBe(ornek.kartlar.length)
+    for (const varlik of veri.assets ?? []) {
+      for (const anahtar of PUBLISH_ARANAN_ANAHTARLAR) {
+        expect(varlik[anahtar]).toBeDefined()
+      }
+      // Alt metin BOŞ olamaz: R-34 boş alt-text'li varlığı yayınlatmıyor ve boş
+      // dönen bir üretim, kapıyı yayın anında patlatırdı.
+      expect(String(varlik['altTr']).length).toBeGreaterThan(0)
+      expect(String(varlik['digest']).startsWith('sha256:')).toBe(true)
+    }
   }, 120_000)
 })
 

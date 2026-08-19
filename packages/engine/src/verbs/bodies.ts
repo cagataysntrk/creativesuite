@@ -947,6 +947,38 @@ export const renderBody = (deps: RenderDeps): Verb =>
           // eksikse `false` — ve o hâlde yayın kapısı doğru biçimde durduruyor.
           ifsaGorunur: doc.aiIfsasi === true && kusurlar.every((k) => k.tur !== 'ifsa-gorunmuyor'),
           images: doc.gorseller.map((g) => ({ alt: g.alt })),
+          // ⚠ ⚠ **BU ANAHTAR YOKTU ve KATALOG YOLU HİÇ YAYINLANAMIYORDU.** Panelden
+          // koşan `run_01a01876` üç kapıyı da geçti, kalite yeşil, dört slayt
+          // damgalandı — ve `yayinla` `NO_PUBLISHABLE_ASSET` ile durdu. Aynı sınıfın
+          // (üretim `slides` basıyor, tüketici `assets` arıyor) ALTINCI tekrarı:
+          // belge dalına B2'de eklenmişti, panorama dalı aynı dosyada açıldı ve o
+          // dersi almadı. **Bir dosyada yazılı ders, o dosyaya eklenen yeni dala
+          // kendiliğinden geçmiyor** — bu cümle bu dalın otuz satır yukarısında
+          // zaten yazılıydı.
+          //
+          // `altTr` KARTTAN geliyor, uydurulmuyor: slayt bir metin taşıyor ve o
+          // metnin taşıyıcısı başlıktır. Hepsi boşsa boş kalır ve R-34 yayını
+          // reddeder — doğru davranış.
+          assets: r.value.yollar.map((yol, i) => {
+            const k = doc.kartlar[i]
+            const alt = [k?.baslik, k?.ustBaslik, k?.govde]
+              .map((s) => (typeof s === 'string' ? s.trim() : ''))
+              .find((s) => s !== '')
+            return {
+              path: yol,
+              altTr: alt ?? '',
+              decorative: false,
+              digest: `sha256:${createHash('sha256').update(readFileSync(yol)).digest('hex')}`,
+              // ⚠ Uyum kaydı ÖLÇÜMDEN: `stamped` burada `false` çünkü CAS damgası
+              // koşudan SONRA basılıyor, `PUBLISH` ise koşunun İÇİNDE (borç D18).
+              compliance: {
+                disclosureRequired: doc.aiIfsasi === true,
+                stamped: false,
+                visibleDisclosure:
+                  doc.aiIfsasi === true && kusurlar.every((ku) => ku.tur !== 'ifsa-gorunmuyor'),
+              },
+            }
+          }),
         },
       })
     }

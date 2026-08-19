@@ -986,7 +986,19 @@ if (depolanan.length > 0) {
   for (const d of depolanan) console.log(`    ${d.digest.slice(0, 19)}…  ${d.bytes} bayt`)
 }
 console.log('')
-if (rapor.outputs['kalite'] !== undefined && rapor.outputs['kalite'] !== null) {
-  console.log(rapor.outputs['kalite'].qa)
+// ⚠ ⚠ **BURASI HER KOŞUDA `undefined` BASIYORDU.** Koruma nesneyi kontrol ediyordu,
+// yazdırdığı ALANI değil: `kalite` çıktısının şekli `{gecti, slaytSayisi, kusurSayisi,
+// bulgular}` — `qa` diye bir alan YOK, eski bir şekilden kalmış. Sonuç: günlüğün son
+// satırı bir kelime, `undefined`. Anlamsız bir son satır, o satıra bakmayı bıraktırır
+// ve bakılmayan yer bu depoda tam olarak hataların saklandığı yer.
+{
+  const k = rapor.outputs['kalite']
+  if (k !== undefined && k !== null) {
+    console.log(
+      typeof k.qa === 'string'
+        ? k.qa
+        : `  kalite: ${k.gecti === true ? 'geçti' : 'KALDI'} · ${k.slaytSayisi} slayt · ${k.kusurSayisi} kusur`
+    )
+  }
 }
 process.exit(rapor.errors.length > 0 && rapor.awaitingGate === null ? 1 : 0)
