@@ -61,7 +61,7 @@ import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 import { calistirmaDetayi, calistirmalar } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
-import { calistirmaBaslat, calistirmaSurdur, tekrarBaslat } from './calistir.js'
+import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
 
 export interface SunucuSecenekleri {
   readonly repoRoot: string
@@ -371,7 +371,16 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // ilk şey *"içerik okunamadı (404)"* oluyordu — sistem çalışırken bozuk
       // görünüyor. Künye varsa koşu BAŞLAMIŞTIR ve söylenecek şey budur.
       const kunye = hataKaydi === null ? readRunStub(o.repoRoot, runId as never) : null
-      if (hataKaydi === null && kunye === null) {
+      // ⚠ ⚠ **KÜNYE BİLE YOKKEN DE BİR CEVAP VAR — ve bu boşluk ÖLÇÜLDÜ.** `just uret`
+      // önce `tsc -b` koşuyor; künye ancak ondan sonra yazılıyor. Ölçülen pencere ~4
+      // saniye ve panel o pencerede koşu ekranına geçmiş oluyor: insanın gördüğü ilk
+      // şey *"içerik okunamadı (404)"*. Depo sahibinin *"başlat diyorum hata veriyor,
+      // çalışmıyor"* şikâyeti birebir bu.
+      //
+      // Sunucu o koşuyu KENDİSİ başlattığını biliyor (`kosuyorMu`); bilmediği tek şey
+      // diskte henüz bir dosya olmadığı. Bilinen bir gerçeği "yok" diye raporlamak,
+      // çalışan bir sistemi bozuk göstermek olurdu.
+      if (hataKaydi === null && kunye === null && !kosuyorMu(runId)) {
         return c.json({ ok: false, hata: `manifest yok: ${runId}` }, 404)
       }
       return c.json({

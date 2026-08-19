@@ -96,3 +96,25 @@ describe('aynı koşu iki kez sürdürülmez', () => {
     expect(b.ok).toBe(true)
   })
 })
+
+// ── başlatmadan hemen sonra koşu GÖRÜNÜR olmalı ─────────────────────────────
+//
+// ⚠ ⚠ **DEPO SAHİBİ BUNU ŞİKÂYET ETTİ: "başlat diyorum, içerik okunamadı yazıyor,
+// çalışmıyor".** Ölçüldü: `just uret` önce `tsc -b` koşuyor, künye ancak ondan sonra
+// yazılıyor ve arada ~4 saniyelik bir pencere var. Panel o pencerede koşu ekranına
+// geçmiş oluyor. Sistem çalışıyordu; ekran bozuk gösteriyordu.
+describe('başlatılan koşu hemen görünür', () => {
+  it('spawn ANINDA koşuyor sayılıyor — disk henüz boşken bile', () => {
+    const r = calistirmaBaslat({
+      repoRoot: '/tmp',
+      pipelineId: 'instagram-post',
+      konu: 'ölçüm',
+      planDigest: 'sha256:abc',
+      env: { PATH: readEnv('PATH') ?? '' },
+      komut: 'sleep',
+    })
+    expect(r.ok).toBe(true)
+    // Disk tarafında henüz hiçbir şey yok; bilgi SUNUCUDA ve cevap bu.
+    expect(r.ok && kosuyorMu(r.runId)).toBe(true)
+  })
+})

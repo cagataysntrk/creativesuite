@@ -76,6 +76,11 @@ export const KosuDetay = ({
       setHata(`içerik okunamadı (${r.status})`)
       return
     }
+    // ⚠ ⚠ **HATA HİÇ SİLİNMİYORDU.** Bir kez 404 alan ekran, sonraki her başarılı
+    // tazelemede de kırmızı kalıyordu: koşu ilerliyor, adımlar geçiyor, ekran hâlâ
+    // *"içerik okunamadı"* diyor. Bir hata mesajı, kendisini doğuran durum geçtiğinde
+    // kalkmıyorsa bir bilgi değil bir gürültüdür.
+    setHata(null)
     setD((await r.json()) as Icerik)
   }, [runId])
 
