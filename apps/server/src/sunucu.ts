@@ -12,7 +12,14 @@
 // anlamalı. Yalnız veri gönderirsek, hiçbir şey değişmediğinde sessizlik ile ölüm
 // birbirinden ayırt edilemez — ve kalıcı bir gösterge bayat değeri canlı gibi gösterir.
 
-import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync } from 'node:fs'
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  readdirSync,
+} from 'node:fs'
 import { join } from 'node:path'
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
@@ -156,6 +163,21 @@ const kosuDurumu = (
 const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
   const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
   return r.ok ? r.value.steps.length : 0
+}
+
+/**
+ * Elle düzenlenmiş slaytlar — `just duzenle` koşu dizinine yazıyor.
+ *
+ * ⚠ Dizin okunamıyorsa BOŞ liste: düzenleme yokluğu bir hata değil, olağan hâl.
+ */
+const elleDuzenlenmisSlaytlar = (repoRoot: string, runId: string): readonly string[] => {
+  try {
+    return readdirSync(join(repoRoot, RUNS_DIR, runId))
+      .filter((f) => /^slayt-\d{2}-elle\.png$/.test(f))
+      .sort()
+  } catch {
+    return []
+  }
 }
 
 /** Ekrandaki onay şeridinin bir hanesi. */
@@ -507,6 +529,18 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         .filter((v) => v.sourceRunId === runId)
         .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
         .map((v) => ({ digest: v.digest, bytes: v.bytes })),
+      // ── ELLE DÜZENLENMİŞ slaytlar (D-301) ────────────────────────────────
+      //
+      // ⚠ ⚠ **EDİTÖRDE YAZILAN ŞEY PANELDE GÖRÜNMÜYORDU.** `just duzenle` düzenlemeyi
+      // koşu dizinine `panorama-elle.json` + `slayt-NN-elle.png` olarak yazıyor; panel
+      // ise yalnız DAMGALANMIŞ varlıkları (kütüphane) gösteriyordu. Sonuç: insan
+      // düzenliyor, kaydediyor, panele dönüyor ve hiçbir şey değişmemiş görünüyor —
+      // yapılan iş görünmez oluyor.
+      //
+      // ⚠ Ayrı bir bölüm olarak veriliyor, damgalı varlıkların yerine GEÇMİYOR: elle
+      // düzenlenmiş bir slayt henüz uyum iddiası taşımıyor ve yayına aday değil.
+      // Karıştırmak, damgasız bir varlığı yayınlanabilir sanmak olurdu.
+      elleSlaytlar: elleDuzenlenmisSlaytlar(o.repoRoot, runId),
       // ── canlı takip (FAZ-17.3) ──────────────────────────────────────────
       //
       // ⚠ ⚠ **BAŞLATTIKTAN SONRA HİÇBİR ŞEY GÖRÜNMÜYORDU.** Ekran "başlatıldı: run_…"
@@ -553,6 +587,23 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // ⚠ Varlık BYTE'ı: panelde slaytı görebilmek için. İçerik-adresli depodan okunuyor;
   // `digest` dışında hiçbir yol kabul edilmiyor — serbest bir dosya yolu, panelin
   // depo dışını okumasına açık kapı bırakırdı.
+  // Elle düzenlenmiş slaytı SERVİS ETMEK için: byte koşu dizininde, damgalı depoda
+  // değil. Ad KATI biçimde doğrulanıyor — dizin dışına çıkan bir ad, sunucuyu dosya
+  // okuyucusuna çevirirdi.
+  app.get('/api/kosu/:runId/elle/:ad', (c) => {
+    const ad = c.req.param('ad')
+    if (!/^slayt-\d{2}-elle\.png$/.test(ad)) {
+      return c.json({ ok: false, hata: 'gecersiz ad' }, 400)
+    }
+    const runId = c.req.param('runId')
+    if (!/^run_[0-9a-f-]+$/.test(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    const yol = join(o.repoRoot, RUNS_DIR, runId, ad)
+    if (!existsSync(yol)) return c.json({ ok: false, hata: 'dosya yok' }, 404)
+    return new Response(new Uint8Array(readFileSync(yol)), {
+      headers: { 'content-type': 'image/png', 'cache-control': 'no-store' },
+    })
+  })
+
   app.get('/api/varlik/:digest', (c) => {
     const d = c.req.param('digest').replace(/^sha256:/, '')
     if (!/^[0-9a-f]{64}$/.test(d)) return c.json({ ok: false, hata: 'gecersiz digest' }, 400)

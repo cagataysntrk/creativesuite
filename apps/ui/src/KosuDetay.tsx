@@ -29,6 +29,8 @@ interface Icerik {
   readonly ritimTuttu: boolean | null
   readonly kusurlar: readonly { readonly tur?: string; readonly aciklama?: string }[]
   readonly varliklar: readonly { readonly digest: string; readonly bytes: number }[]
+  /** Editörde elle düzenlenip koşu dizinine yazılmış slaytlar (D-301). */
+  readonly elleSlaytlar: readonly string[]
   readonly adimlar: readonly {
     readonly id: string
     readonly verb: string
@@ -334,6 +336,25 @@ export const KosuDetay = ({
               </a>
             ))}
           </div>
+        )}
+        {/* ⚠ ⚠ **EDİTÖRDE YAZILAN ŞEY PANELDE GÖRÜNMÜYORDU.** `just duzenle` düzenlemeyi
+            koşu dizinine `slayt-NN-elle.png` olarak yazıyor; panel yalnız DAMGALANMIŞ
+            varlıkları gösteriyordu. İnsan düzenliyor, kaydediyor, panele dönüyor ve
+            hiçbir şey değişmemiş görünüyordu — yapılan iş görünmez oluyordu.
+            ⚠ Ayrı bölüm: elle düzenlenmiş slayt henüz uyum iddiası taşımıyor ve yayına
+            aday DEĞİL. Damgalıların arasına karıştırmak, damgasız bir varlığı
+            yayınlanabilir sanmak olurdu. */}
+        {d.elleSlaytlar.length === 0 ? null : (
+          <>
+            <h4>Elle düzenlenmiş ({d.elleSlaytlar.length}) — damgasız, yayına aday değil</h4>
+            <div className="kosu-slaytlar">
+              {d.elleSlaytlar.map((ad) => (
+                <a key={ad} href={`/api/kosu/${runId}/elle/${ad}`} target="_blank" rel="noreferrer">
+                  <img src={`/api/kosu/${runId}/elle/${ad}`} alt={`elle düzenlenmiş ${ad}`} />
+                </a>
+              ))}
+            </div>
+          </>
         )}
       </section>
 
