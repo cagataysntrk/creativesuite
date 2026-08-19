@@ -25,10 +25,18 @@ sağlayıcı yapılandırması taşır.
 just setup     # araç zinciri + ÜRETİM ÖNKOŞULLARI; eksiği ADIYLA söyler ve kurar
 ```
 
-`just setup` yeşilse üretebilirsin:
+`just setup` yeşilse üretebilirsin. **En kısa yol paneldir:**
+
+```
+just dev       # http://localhost:5173 — tür seç, başlat, her kapıda onayla, canlı izle
+```
+
+Panel gizli anahtarları kendisi açar (`sops`); ayrıca sarmalamana gerek yok. Aynı işi
+komut satırından da yapabilirsin:
 
 ```
 sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "<konu>"'
+sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel --konu-sec'
 just duzenle   # çıktıyı ya da şablonu elle düzelt (http://localhost:4321)
 ```
 

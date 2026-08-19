@@ -8,12 +8,40 @@
 sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "<konu>"'
 ```
 
+Panelden de başlatılabilir — `just dev` → `Üret`. Panel `sops`u kendisi çağırır ve
+koşuyu adım adım gösterir; kapılar aynı kapılardır.
+
 Şablonu kendin seçmek istersen `--sablon <ad>` ekle (`veri-hikayesi` · `akan-alan` ·
 `sahne` · `memphis` · `donen` · `editoryal`). `donen` ve `editoryal` **yalnız** böyle
 seçilebilir; ötekiler içerikten kendiliğinden seçilir.
 
 Konu Türkçe, tek cümle, iddia içeren bir şey olmalı: *"Geri kazanım oranı 2019'dan
 bugüne nasıl değişti"* gibi. Soru da olabilir, liste de.
+
+### Konuyu sistem seçsin
+
+```
+sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel --konu-sec'
+```
+
+Konu **uydurulmaz, seçilir**: adaylar markanın kendi kayıtlarının başlıkları (ürün,
+strateji, kanıt — tür başına tavanla çeşitlendirilir), geçmişte işlenenler elenir ve
+hattın `konu-sec` adımı birini seçip gerekçesini deftere yazar. Listede olmayan bir
+konu yazılırsa adım `TOPIC_NOT_IN_CANDIDATES` ile durur — kaynaksız bir konu,
+kaynaksız bir iddianın başlangıcıdır (Yasa 8).
+
+Aday kalmadıysa hat başlamadan durur ve söyler: yeni bir corpus kaydı ekle ya da
+konuyu elle yaz.
+
+### Onaydan sonra sürdürmek
+
+```
+sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel --devam <run_id>'
+```
+
+Panelden onayladıysan bunu yazmana gerek yok — panel sürdürmeyi kendisi tetikler.
+Sürdürme, koşunun **kendi** parametrelerini okur (`kosu-parametreleri.json`); komut
+satırındaki bayraklardan yeniden türetmez.
 
 ## Ne olacak
 
