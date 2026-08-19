@@ -38,8 +38,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:05:44.063Z",
-      "finishedAt": "2026-08-19T06:05:44.064Z",
+      "startedAt": "2026-08-19T06:40:29.933Z",
+      "finishedAt": "2026-08-19T06:40:29.933Z",
       "output": {
         "brandId": "brd_upcytech"
       }
@@ -94,8 +94,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:05:44.064Z",
-      "finishedAt": "2026-08-19T06:05:44.065Z",
+      "startedAt": "2026-08-19T06:40:29.933Z",
+      "finishedAt": "2026-08-19T06:40:29.934Z",
       "output": null
     },
     {
@@ -129,8 +129,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:05:44.065Z",
-      "finishedAt": "2026-08-19T06:05:44.066Z",
+      "startedAt": "2026-08-19T06:40:29.934Z",
+      "finishedAt": "2026-08-19T06:40:29.936Z",
       "output": null
     },
     {
@@ -183,8 +183,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:05:44.067Z",
-      "finishedAt": "2026-08-19T06:05:44.067Z",
+      "startedAt": "2026-08-19T06:40:29.936Z",
+      "finishedAt": "2026-08-19T06:40:29.936Z",
       "output": null
     },
     {
@@ -238,8 +238,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:05:44.067Z",
-      "finishedAt": "2026-08-19T06:05:44.067Z",
+      "startedAt": "2026-08-19T06:40:29.937Z",
+      "finishedAt": "2026-08-19T06:40:29.937Z",
       "output": null
     },
     {
@@ -274,8 +274,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:05:44.068Z",
-      "finishedAt": "2026-08-19T06:05:44.069Z",
+      "startedAt": "2026-08-19T06:40:29.937Z",
+      "finishedAt": "2026-08-19T06:40:29.939Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -333,8 +333,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:05:44.075Z",
-      "finishedAt": "2026-08-19T06:05:44.076Z",
+      "startedAt": "2026-08-19T06:40:29.944Z",
+      "finishedAt": "2026-08-19T06:40:29.945Z",
       "output": null
     },
     {
@@ -390,13 +390,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:05:44.076Z",
-      "finishedAt": "2026-08-19T06:05:49.795Z",
-      "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
-      }
+      "startedAt": "2026-08-19T06:40:29.945Z",
+      "finishedAt": "2026-08-19T06:40:29.945Z",
+      "output": null
     },
     {
       "stepId": "gorsel-kirp",
@@ -447,11 +443,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:05:49.798Z",
-      "finishedAt": "2026-08-19T06:06:06.768Z",
-      "output": {
-        "format": "base64"
-      }
+      "startedAt": "2026-08-19T06:40:29.946Z",
+      "finishedAt": "2026-08-19T06:40:29.947Z",
+      "output": null
     },
     {
       "stepId": "gorsel-brief-2",
@@ -505,8 +499,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:06.773Z",
-      "finishedAt": "2026-08-19T06:06:06.773Z",
+      "startedAt": "2026-08-19T06:40:29.948Z",
+      "finishedAt": "2026-08-19T06:40:29.948Z",
       "output": null
     },
     {
@@ -562,13 +556,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:06.773Z",
-      "finishedAt": "2026-08-19T06:06:11.965Z",
-      "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
-      }
+      "startedAt": "2026-08-19T06:40:29.948Z",
+      "finishedAt": "2026-08-19T06:40:29.948Z",
+      "output": null
     },
     {
       "stepId": "gorsel-kirp-2",
@@ -619,11 +609,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:11.973Z",
-      "finishedAt": "2026-08-19T06:06:30.941Z",
-      "output": {
-        "format": "base64"
-      }
+      "startedAt": "2026-08-19T06:40:29.950Z",
+      "finishedAt": "2026-08-19T06:40:29.952Z",
+      "output": null
     },
     {
       "stepId": "gorsel-brief-3",
@@ -677,8 +665,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:30.956Z",
-      "finishedAt": "2026-08-19T06:06:30.956Z",
+      "startedAt": "2026-08-19T06:40:29.953Z",
+      "finishedAt": "2026-08-19T06:40:29.953Z",
       "output": null
     },
     {
@@ -734,13 +722,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:30.956Z",
-      "finishedAt": "2026-08-19T06:06:36.104Z",
-      "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
-      }
+      "startedAt": "2026-08-19T06:40:29.954Z",
+      "finishedAt": "2026-08-19T06:40:29.954Z",
+      "output": null
     },
     {
       "stepId": "gorsel-kirp-3",
@@ -791,11 +775,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:36.106Z",
-      "finishedAt": "2026-08-19T06:06:52.720Z",
-      "output": {
-        "format": "base64"
-      }
+      "startedAt": "2026-08-19T06:40:29.956Z",
+      "finishedAt": "2026-08-19T06:40:29.958Z",
+      "output": null
     },
     {
       "stepId": "gorsel-brief-4",
@@ -849,8 +831,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:52.724Z",
-      "finishedAt": "2026-08-19T06:06:52.724Z",
+      "startedAt": "2026-08-19T06:40:29.958Z",
+      "finishedAt": "2026-08-19T06:40:29.958Z",
       "output": null
     },
     {
@@ -906,13 +888,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:52.724Z",
-      "finishedAt": "2026-08-19T06:06:57.261Z",
-      "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
-      }
+      "startedAt": "2026-08-19T06:40:29.959Z",
+      "finishedAt": "2026-08-19T06:40:29.959Z",
+      "output": null
     },
     {
       "stepId": "gorsel-kirp-4",
@@ -963,11 +941,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:06:57.268Z",
-      "finishedAt": "2026-08-19T06:07:14.414Z",
-      "output": {
-        "format": "base64"
-      }
+      "startedAt": "2026-08-19T06:40:29.960Z",
+      "finishedAt": "2026-08-19T06:40:29.962Z",
+      "output": null
     },
     {
       "stepId": "yuva-doldur",
@@ -1001,8 +977,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:07:14.422Z",
-      "finishedAt": "2026-08-19T06:07:14.423Z",
+      "startedAt": "2026-08-19T06:40:29.963Z",
+      "finishedAt": "2026-08-19T06:40:29.964Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -1042,8 +1018,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:07:14.535Z",
-      "finishedAt": "2026-08-19T06:07:19.261Z",
+      "startedAt": "2026-08-19T06:40:30.050Z",
+      "finishedAt": "2026-08-19T06:40:34.688Z",
       "output": {
         "kusurlar": [],
         "ifsaGorunur": true,
@@ -1104,25 +1080,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:07:19.261Z",
-      "finishedAt": "2026-08-19T06:10:18.929Z",
-      "output": {
-        "bulgular": [
-          {
-            "slayt": 1,
-            "bolge": [
-              770,
-              1268,
-              270,
-              35
-            ],
-            "kategori": "kontrast",
-            "siddet": "uyari",
-            "aciklama": "Sağ altta 01/04 sayacının üstündeki küçük altyazı metni koyu zemin üzerinde çok düşük kontrastla neredeyse okunamıyor."
-          }
-        ],
-        "reddedilen": []
-      }
+      "startedAt": "2026-08-19T06:40:34.689Z",
+      "finishedAt": "2026-08-19T06:40:34.689Z",
+      "output": null
     },
     {
       "stepId": "tasarim-yargi",
@@ -1172,50 +1132,14 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:10:18.929Z",
-      "finishedAt": "2026-08-19T06:11:06.609Z",
-      "output": {
-        "bulgular": [],
-        "puanlar": [
-          {
-            "kategori": "denge",
-            "puan": 4,
-            "gerekce": "Sol taraftaki metin bloğu ile sağdaki figür-eğri kümesi görsel ağırlığı iki yana dengeli dağıtıyor."
-          },
-          {
-            "kategori": "hiyerarsi",
-            "puan": 4,
-            "gerekce": "Göz önce kalın 'net mi?' başlığına gidiyor, eyebrow ve gövde metni ona tabi kalarak net bir okuma sırası kuruyor."
-          },
-          {
-            "kategori": "bosluk",
-            "puan": 3,
-            "gerekce": "Üst alan geniş bir soluklanma sunarken alt şerit eğri, altyazılar ve sayaç ile sıkışık görünüyor, ritim üstte ve altta eşit dağılmıyor."
-          },
-          {
-            "kategori": "tutarlilik",
-            "puan": 4,
-            "gerekce": "Tipografi ailesi, mavi vurgu rengi ve koyu zemin tüm ögelerde aynı sistemden geliyor."
-          },
-          {
-            "kategori": "okunabilirlik",
-            "puan": 3,
-            "gerekce": "Gövde metni rahat okunuyor ama alt köşelerdeki mikro etiketler tuval ölçeğine göre küçük kalıp göz için ek çaba istiyor."
-          },
-          {
-            "kategori": "carpicilik",
-            "puan": 3,
-            "gerekce": "Kompozisyon derli toplu ve profesyonel duruyor ama fotografik figür ölçülü kaldığı için akışta durdurucu bir vurgudan çok sakin bir izlenim bırakıyor."
-          }
-        ],
-        "toplam": 3.5,
-        "reddedilen": []
-      }
+      "startedAt": "2026-08-19T06:40:34.689Z",
+      "finishedAt": "2026-08-19T06:40:34.689Z",
+      "output": null
     },
     {
       "stepId": "duzelt",
       "verb": "GENERATE",
-      "status": "skipped",
+      "status": "ok",
       "lane": "free",
       "capability": "text.generate",
       "providerId": "claude-code",
@@ -1263,12 +1187,9 @@
           }
         }
       ],
-      "startedAt": "2026-08-19T06:11:06.610Z",
-      "finishedAt": "2026-08-19T06:11:06.610Z",
-      "output": {
-        "atlandi": true,
-        "sebep": "prompt-yok"
-      }
+      "startedAt": "2026-08-19T06:40:34.690Z",
+      "finishedAt": "2026-08-19T06:40:34.690Z",
+      "output": null
     },
     {
       "stepId": "kompozit-son",
@@ -1302,8 +1223,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:11:06.611Z",
-      "finishedAt": "2026-08-19T06:11:06.611Z",
+      "startedAt": "2026-08-19T06:40:34.690Z",
+      "finishedAt": "2026-08-19T06:40:34.690Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -1343,8 +1264,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:11:06.713Z",
-      "finishedAt": "2026-08-19T06:11:11.523Z",
+      "startedAt": "2026-08-19T06:40:34.768Z",
+      "finishedAt": "2026-08-19T06:40:39.367Z",
       "output": {
         "kusurlar": [],
         "ifsaGorunur": true,
@@ -1388,8 +1309,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:11:11.523Z",
-      "finishedAt": "2026-08-19T06:11:11.524Z",
+      "startedAt": "2026-08-19T06:40:39.368Z",
+      "finishedAt": "2026-08-19T06:40:39.368Z",
       "output": {
         "kusurSayisi": 0,
         "bulgular": [],
@@ -1428,8 +1349,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-19T06:11:11.524Z",
-      "finishedAt": "2026-08-19T06:11:11.524Z",
+      "startedAt": "2026-08-19T06:40:39.368Z",
+      "finishedAt": "2026-08-19T06:40:39.368Z",
       "output": {
         "proposed": [
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01876-fccb-73d7-ae3a-bd02c83b3061/slayt-01.png",
@@ -1441,7 +1362,7 @@
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01876-fccb-73d7-ae3a-bd02c83b3061/slayt-03.png",
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a01876-fccb-73d7-ae3a-bd02c83b3061/slayt-04.png"
         ],
-        "proposedAt": "2026-08-19T06:11:11.524Z"
+        "proposedAt": "2026-08-19T06:40:39.368Z"
       }
     },
     {
@@ -1473,8 +1394,8 @@
       },
       "actualCost": null,
       "candidates": [],
-      "startedAt": "2026-08-19T06:11:11.524Z",
-      "finishedAt": "2026-08-19T06:11:11.525Z",
+      "startedAt": "2026-08-19T06:40:39.369Z",
+      "finishedAt": "2026-08-19T06:40:39.369Z",
       "output": null,
       "error": {
         "kind": "io",
