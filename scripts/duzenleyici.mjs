@@ -58,7 +58,6 @@ const kosulariTara = () => {
     .filter((k) => existsSync(k.yol))
     .map((k) => ({ ...k, zaman: statSync(k.yol).mtimeMs }))
     .sort((a, b) => b.zaman - a.zaman)
-    .slice(0, 12)
 }
 
 /**
@@ -90,14 +89,31 @@ for (const [k, o] of Object.entries(ORNEKLER)) {
   calisan['sablon:' + k] = structuredClone(o)
   kaynak['sablon:' + k] = { tur: 'sablon', ad: k }
 }
-for (const k of kosulariTara()) {
-  try {
-    calisan['kosu:' + k.ad] = kosuBelgesi(join(KOSU_DIZINI, k.ad), k.yol)
-    kaynak['kosu:' + k.ad] = { tur: 'kosu', ad: k.ad, dizin: join(KOSU_DIZINI, k.ad) }
-  } catch {
-    // Bozuk defter tezgâhı indirmesin; o koşu listede çıkmaz.
+/**
+ * Koşuları belleğe alır — **her istekte yeniden, ama ÜSTÜNE YAZMADAN.**
+ *
+ * ⚠ ⚠ **İKİ KUSUR BİRDEN BURADAYDI.** (1) Liste açılışta bir kez taranıyor ve `slice(0,12)`
+ * ile ON İKİ koşuyla sınırlanıyordu: panelden *"bu koşuyu editörde aç"* denen koşu o
+ * on ikinin dışındaysa `calisan[id]` boş kalıyor ve editör ŞABLONU açıyordu — depo
+ * sahibinin gördüğü şey buydu. (2) Editör açıkken üretilen hiçbir koşu listeye
+ * girmiyordu; tezgâhı kapatıp açmak gerekiyordu.
+ *
+ * ⚠ Var olan kayıt EZİLMİYOR: düzenlenmiş bir kopyanın üstüne diskteki hâli yazmak,
+ * kaydedilmemiş işi sessizce silmek olurdu.
+ */
+const kosulariYukle = () => {
+  for (const k of kosulariTara()) {
+    const id = 'kosu:' + k.ad
+    if (calisan[id] !== undefined) continue
+    try {
+      calisan[id] = kosuBelgesi(join(KOSU_DIZINI, k.ad), k.yol)
+      kaynak[id] = { tur: 'kosu', ad: k.ad, dizin: join(KOSU_DIZINI, k.ad) }
+    } catch {
+      // Bozuk defter tezgâhı indirmesin; o koşu listede çıkmaz.
+    }
   }
 }
+kosulariYukle()
 
 // ⚠ `calisan[id]` EN SONA yayılıyor: koşu belgesi kendi `tokenCss`ini ve damgasını
 // TAŞIYOR ve o koşunun dönemine ait. Varsayılanı üstüne yazmak, geçmiş bir koşuyu
@@ -504,6 +520,8 @@ const anlikGoruntuAl = (id) => {
 }
 const sunucu = createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x')
+  // ⚠ Her istekte yeniden taranıyor: editör açıkken üretilen koşu da listeye girsin.
+  kosulariYukle()
   const id = u.searchParams.get('id') ?? Object.keys(calisan)[0]
   const json = (v) => {
     res.writeHead(200, { 'content-type': 'application/json' })
