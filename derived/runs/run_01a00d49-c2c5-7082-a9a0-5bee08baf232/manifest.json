@@ -428,7 +428,14 @@
       }
     }
   ],
-  "decisions": [],
+  "decisions": [
+    {
+      "gate": "insan-onayi",
+      "decision": "approved",
+      "at": "2026-08-18T20:17:34.415Z",
+      "note": null
+    }
+  ],
   "context": [
     {
       "recordId": "rec_pos_veri_karar_2026",

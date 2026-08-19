@@ -104,19 +104,19 @@
   },
   "gorseller": [
     {
-      "src": "gorsel-01.png",
+      "src": "",
       "alt": "kesik özne",
-      "x": 9.41,
-      "y": 16.91,
-      "genislik": 21.09,
+      "x": 9,
+      "y": 20,
+      "genislik": 16,
       "yukseklik": 78,
       "kirpma": "kesik"
     },
     {
-      "src": "gorsel-02.png",
+      "src": "gorsel-02.jpg",
       "alt": "kesik özne",
-      "x": 27.11,
-      "y": 18.08,
+      "x": 8.99,
+      "y": 7.84,
       "genislik": 16,
       "yukseklik": 78,
       "kirpma": "kesik"
@@ -124,8 +124,8 @@
     {
       "src": "gorsel-03.png",
       "alt": "kesik özne",
-      "x": 58.05,
-      "y": 4.22,
+      "x": 59,
+      "y": 21,
       "genislik": 16,
       "yukseklik": 78,
       "kirpma": "kesik"
@@ -133,8 +133,8 @@
     {
       "src": "gorsel-04.png",
       "alt": "kesik özne",
-      "x": 77.72,
-      "y": 29.1,
+      "x": 75,
+      "y": 23,
       "genislik": 16,
       "yukseklik": 78,
       "kirpma": "kesik"

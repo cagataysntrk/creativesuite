@@ -1,0 +1,9 @@
+{
+  "komut": "just uret instagram-karosel --devam run_01a016aa-1af2-7904-9fba-48ba2fe2ac84",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n  run_01a016aa-1af2-7904-9fba-48ba2fe2ac84 sürdürülüyor · 1 kapı kararı · donmuş girdiler yeniden kullanılıyor (corpus 74d8fb0a, konu \"Excel ve vardiya defteri\")\n  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor\n  çalıştırma run_01a016aa-1af2-7904-9fba-48ba2fe2ac84  ·  instagram-karosel\n\n  ✓ cozumle        RESOLVE   —                      $0.0000\n  ✓ bilgi-sec      SELECT    —                      $0.0000\n  ✓ metin-uret     GENERATE  claude-code            $0.0000\n  ✗ sablon-uyarla  GENERATE  claude-code            —\n      ADAPTATION_UNPARSEABLE: {}\n\n  ✗ sablon-uyarla adımında durdu\n  manifest: derived/runs/run_01a016aa-1af2-7904-9fba-48ba2fe2ac84/manifest.json\n\n"
+}

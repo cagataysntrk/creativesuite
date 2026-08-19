@@ -1,0 +1,9 @@
+{
+  "komut": "just uret instagram-karosel --devam run_01a016ee-18ad-7faf-8132-6017722ee9cb",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n  run_01a016ee-18ad-7faf-8132-6017722ee9cb sürdürülüyor · 1 kapı kararı · donmuş girdiler yeniden kullanılıyor (corpus 8201a2b3)\n  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor\n  ▶ cozumle\n  ▶ konu-sec\n  ▶ bilgi-sec\n  çalıştırma run_01a016ee-18ad-7faf-8132-6017722ee9cb  ·  instagram-karosel\n\n  ✓ metin-uret     GENERATE  claude-code            $0.0000\n  ✓ cozumle        RESOLVE   —                      $0.0000\n  ✓ konu-sec       GENERATE  claude-code            $0.0000\n  ✗ bilgi-sec      SELECT    —                      —\n      MISSING_TOPIC: {}\n\n  ✗ bilgi-sec adımında durdu\n  manifest: derived/runs/run_01a016ee-18ad-7faf-8132-6017722ee9cb/manifest.json\n\n"
+}

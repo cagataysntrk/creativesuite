@@ -721,7 +721,14 @@
       }
     }
   ],
-  "decisions": [],
+  "decisions": [
+    {
+      "gate": "insan-onayi",
+      "decision": "rejected",
+      "at": "2026-08-18T20:18:44.886Z",
+      "note": "yokk"
+    }
+  ],
   "context": [
     {
       "recordId": "rec_pos_veri_karar_2026",

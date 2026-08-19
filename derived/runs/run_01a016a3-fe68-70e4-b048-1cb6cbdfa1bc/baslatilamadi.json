@@ -1,0 +1,9 @@
+{
+  "komut": "just uret instagram-karosel Excel ve vardiya defteri --run run_01a016a3-fe68-70e4-b048-1cb6cbdfa1bc --plan-digest sha256:c83bb06ab811a1bcc53eb32c4edd1cadb81e152baa74a18b58c32ae0a3e77765",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n✗ plan DEĞİŞTİ — onayladığınız plan artık geçerli değil (R-07)\n    onaylanan: sha256:c83bb06ab811a1bcc53eb32c4edd1cadb81e152baa74a18b58c32ae0a3e77765\n    şimdiki  : sha256:0b738702a374e8978bd15944553739b586b895add7e10c18e7837c204fbc5624\n    Planı yeniden inceleyin: registry ya da fiyat güncellenmiş olabilir.\n"
+}
