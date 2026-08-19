@@ -45,7 +45,7 @@ import { varyantlaGenislet } from './varyant-genislet.js'
 import { CircuitBreaker } from './breaker.js'
 import * as budget from './budget.js'
 import { RateLimiter } from './ratelimit.js'
-import { adimCiktisiniOku, adimCiktisiniYaz } from './adim-ciktisi.js'
+import { adimCiktisiniOku, adimCiktisiniYazDurum } from './adim-ciktisi.js'
 import { runOutputDir } from './manifest-writer.js'
 import { runStep, type CallOutcome, type StepSpec } from './scheduler.js'
 import { runVerb } from './run-verb.js'
@@ -818,10 +818,12 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         ciktilar[id] = kayitli
       } else {
         ciktilar[id] = tazeCikti
-        if (!adimCiktisiniYaz(diskYolu, id, tazeCikti)) {
-          // Sessiz kalmıyor: yazılamayan bir çıktı, bir sonraki tekrar oynatmada
-          // zincirin yine kesileceği anlamına gelir.
-          input.iz?.(`  ⚠ ${id} çıktısı diske yazılamadı — tekrar oynatmada kaybolur`)
+        // ⚠ **"Atlandı" bir hata DEĞİL.** Gömülü byte taşıyan çıktı bilerek
+        // yazılmıyor (byte `derived/blobs`ta, adım sürdürmede yeniden koşuyor);
+        // onu uyarı olarak basmak, doğru olmayan bir alarm üretir ve gürültülü
+        // uyarı okunmaz olur. Yalnız GERÇEK başarısızlık uyarıyor.
+        if (adimCiktisiniYazDurum(diskYolu, id, tazeCikti) === 'yazilamadi') {
+          input.iz?.(`  ⚠ ${id} çıktısı diske YAZILAMADI — tekrar oynatmada kaybolur`)
         }
       }
       // Dış metin karantinaya indiyse §14 sınırı BUNDAN SONRAKİ metered fiiller için

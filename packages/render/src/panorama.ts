@@ -952,6 +952,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
                 ? kartZemini
                 : 'transparent'
             };` +
+            // ⚠ Kartın zemini CSS DEĞİŞKENİ olarak da yazılıyor: dip vinyeti onu
+            // referans alıyor ve sabit bir renge bağlanmıyor (açık zeminli şablonda
+            // siyah bir vinyet tasarımı bozardı).
+            `--kart-zemin:${kartZemini};` +
             `--kart-metin:${r.metin};` +
             `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk};` +
             `--kart-cip:${r.cip};--kart-cip-metin:${r.cipMetin};` +
@@ -1454,6 +1458,25 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // olmadan içeriklerinin altına inmiyor. Küçülme hakkı kaynak metnine veriliyor
     // (zaten uzun nesir ve kırpılınca anlamı kaybolmaz), ifşa ve sayaç sabit —
     // ifşanın kırpılması Md. 50 açısından kabul edilemez.
+    // ⚠ ⚠ **KÜNYE ŞERİDİ GÖRSELİN ÜSTÜNE DÜŞÜNCE OKUNMUYORDU — ve AI ifşası tam
+    // orada.** Ölçüldü: kesik özne kadrajın dibine iniyor, şerit açık bir kâğıt
+    // yığınının üstüne geliyor, metin zemine karışıyor (medyan 209, metin 245 —
+    // fark 36). Md. 50 GÖRÜNÜR ifşa istiyor; okunamayan bir ifşa, ifşa değildir.
+    //
+    // ⚠ ⚠ **ÇÖZÜM YENİ BİR ÖGE DEĞİL.** İlk deneme `::before` ile bir perde koydu ve
+    // `kodlanmis-oge` kapısı onu haklı olarak reddetti (R-81, tavan 0). Kural bu turda
+    // gevşetilemez (R-76) — ve gevşetilmesi de gerekmiyor: şeridin KENDİ zemini bir
+    // ZEMİN reçetesidir, yeni bir öge değil. Var olan elemana degrade veriliyor.
+    // ⚠ Degrade KENARDAN KENARA: kutu 64 px içeride kalınca dip kararması bir
+    // dikdörtgen gibi görünüyor ve kenarı fark ediliyordu (bakıldı, görüldü).
+    // Negatif yan boşluk + eşit iç boşluk: zemin tuvali kaplıyor, metin içeride.
+    `  .ray { padding-bottom: 30px; margin-bottom: -30px;`,
+    `         margin-left: -64px; margin-right: -64px;`,
+    `         padding-left: 64px; padding-right: 64px;`,
+    `         background: linear-gradient(to top,`,
+    `                     color-mix(in srgb, var(--kart-zemin) 90%, transparent) 0%,`,
+    `                     color-mix(in srgb, var(--kart-zemin) 82%, transparent) 62%,`,
+    `                     color-mix(in srgb, var(--kart-zemin) 0%, transparent) 100%) }`,
     `  .ray-sol { flex: none; white-space: nowrap }`,
     `  .ray-orta { min-width: 0; overflow: hidden; text-overflow: ellipsis;`,
     `         white-space: nowrap }`,

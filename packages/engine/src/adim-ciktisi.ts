@@ -74,8 +74,22 @@ const dosyaAdi = (stepId: string): string => `${stepId.replace(/[^a-zA-Z0-9_-]/g
  * ama bir sonraki tekrar oynatmada çıktı bulunamaz ve zincir yine kesilir. Bu yüzden
  * çağıran hatayı YUTMUYOR: `false` dönüyor ve iz satırına yazılıyor.
  */
-export const adimCiktisiniYaz = (outDir: string, stepId: string, data: unknown): boolean => {
-  if (data === null || data === undefined) return false
+/**
+ * Yazma sonucu — **"yazılmadı" ile "yazılamadı" ayrı şeyler.**
+ *
+ * ⚠ Gerçek koşuda iz satırı `⚠ yuva-doldur çıktısı diske yazılamadı — tekrar
+ * oynatmada kaybolur` diyordu; oysa atlama BİLİNÇLİYDİ (gömülü byte) ve o adım
+ * sürdürmede zaten yeniden koşuyor. Bir uyarı, doğru olmadığında gürültüdür ve
+ * gürültü okunmaz olur.
+ */
+export type YazmaSonucu = 'yazildi' | 'atlandi' | 'yazilamadi'
+
+export const adimCiktisiniYazDurum = (
+  outDir: string,
+  stepId: string,
+  data: unknown
+): YazmaSonucu => {
+  if (data === null || data === undefined) return 'atlandi'
   try {
     const dizin = adimDizini(outDir)
     mkdirSync(dizin, { recursive: true })
@@ -91,7 +105,7 @@ export const adimCiktisiniYaz = (outDir: string, stepId: string, data: unknown):
         }),
         'utf8'
       )
-      return false
+      return 'atlandi'
     }
     const govde = JSON.stringify(data)
     if (govde.length > TAVAN_BAYT) {
@@ -106,14 +120,18 @@ export const adimCiktisiniYaz = (outDir: string, stepId: string, data: unknown):
         }),
         'utf8'
       )
-      return false
+      return 'atlandi'
     }
     writeFileSync(yol, govde, 'utf8')
-    return true
+    return 'yazildi'
   } catch {
-    return false
+    return 'yazilamadi'
   }
 }
+
+/** Geriye dönük ince sarmalayıcı: yalnız "yazıldı mı" sorusunu soranlar için. */
+export const adimCiktisiniYaz = (outDir: string, stepId: string, data: unknown): boolean =>
+  adimCiktisiniYazDurum(outDir, stepId, data) === 'yazildi'
 
 /**
  * Adım çıktısını okur. `null` = kayıt yok.

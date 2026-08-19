@@ -54,6 +54,16 @@ export type KusurTuru =
    */
   | 'ifsa-gorunmuyor'
   /**
+   * İfşa şeridi ÇİZİLİYOR ama arkasındaki görsel yüzünden OKUNMUYOR (§11.3).
+   *
+   * ⚠ ⚠ **"GÖRÜNÜR" İLE "OKUNUR" AYRI ŞEYLER — ve ilk ölçüm bunu karıştırdı.**
+   * Denetim şeridin boyutuna, `display`ine ve opaklığına bakıyordu; üçü de geçiyordu.
+   * Ama gerçek çıktıda kesik özne kadrajın dibine kadar iniyor ve şerit AÇIK bir kâğıt
+   * yığınının üstüne düşüyor: soluk gri metin beyaz zeminde kayboluyor. Md. 50 görünür
+   * ifşa istiyor; okunamayan bir ifşa, ifşa değildir.
+   */
+  | 'ifsa-okunmuyor'
+  /**
    * `matlama` bekleniyor ama görselin zemini siyah DEĞİL — kesim tutmayacak.
    *
    * ⚠ ⚠ **BU KUSUR TÜRÜ GERÇEK BİR ÇIKTIYA BAKARAK DOĞDU.** `kesik` kırpma, brief'in
@@ -143,6 +153,8 @@ const OLCUM = (
   ifsaBekleniyor: boolean
 ): string => `(() => {
   const kusurlar = []
+  // İfşa şeritlerinin EKRAN kutuları — bileşik kontrast Node tarafında ölçülüyor.
+  const kutular = []
   const kesimler = ${JSON.stringify(kesimler)}
   const kartlar = Array.from(document.querySelectorAll('.kart'))
 
@@ -158,6 +170,17 @@ const OLCUM = (
         e !== null && r !== null && st !== null &&
         r.width > 1 && r.height > 1 &&
         st.visibility !== 'hidden' && st.display !== 'none' && Number(st.opacity) > 0.05
+      if (gorunur && r !== null && st !== null) {
+        // ⚠ ⚠ **KONTRAST BURADA ÖLÇÜLEMEZ — ve ilk iki deneme tam bunu denedi.**
+        // İlk sürüm görselin ham piksellerini okudu; ikinci sürüm metin rengini
+        // tuvale çizdirip düzeltti. İkisi de yanlış şeye bakıyordu: aradaki dip
+        // vinyeti (zemin reçetesi) bileşik sonucu değiştiriyor ve ham görsel onu
+        // bilmiyor. Ölçülmesi gereken şey EKRANDAKİ piksel.
+        //
+        // Şeridin kutusu dışarı taşınıyor; bileşik ölçüm Node tarafında,
+        // ekran görüntüsü üzerinden yapılıyor.
+        kutular.push({ kart: i + 1, sol: r.left, ust: r.top, en: r.width, boy: r.height, renk: st.color })
+      }
       if (!gorunur) {
         kusurlar.push({
           tur: 'ifsa-gorunmuyor',
@@ -371,7 +394,7 @@ const OLCUM = (
       kusurlar.push({ tur:'kesintisizlik-yok', kart:null, alan:null,
         aciklama: 'şablon kesintisizlik iddia ediyor ama hiçbir öge kesimi aşmıyor' })
   }
-  return kusurlar
+  return { kusurlar, ifsaKutulari: kutular }
 })()`
 
 /**
@@ -433,9 +456,93 @@ export const panoramaDenetle = async (
       `(async () => { await Promise.all(Array.from(document.images).map(
         (i) => i.decode().catch(() => undefined))); return true })()`
     )
-    const ham = (await page.evaluate(
+    const olcum = (await page.evaluate(
       OLCUM(kesimler, kesintisizlikIddiasi(doc), doc.aiIfsasi === true)
-    )) as readonly Kusur[]
+    )) as {
+      readonly kusurlar: readonly Kusur[]
+      readonly ifsaKutulari: readonly {
+        kart: number
+        sol: number
+        ust: number
+        en: number
+        boy: number
+        renk: string
+      }[]
+    }
+    const ham = olcum.kusurlar
+
+    // ── AI ifşası OKUNUYOR mu — BİLEŞİK piksel üzerinden (§11.3 · Md. 50) ────
+    //
+    // ⚠ ⚠ **İKİ DENEME YANLIŞ ŞEYE BAKTI.** Birincisi görselin HAM piksellerini
+    // okudu, ikincisi metin rengini tuvale çizdirip düzeltti — ama aradaki dip
+    // vinyeti (zemin reçetesi) bileşik sonucu değiştiriyor ve ham görsel onu
+    // bilmiyor. Ölçülmesi gereken şey EKRANDAKİ piksel; o da ancak ekran
+    // görüntüsüyle alınır.
+    //
+    // ⚠ ⚠ **ÖLÇÜT ÜÇÜNCÜ KEZ DÜZELTİLDİ ve her seferinde SAYI gösterdi.** Önce ham
+    // görsel pikselleri okundu (vinyeti görmüyordu), sonra bölgenin luma YAYILIMI
+    // ölçüldü — ölçüldü ve ayırt etmedi: vinyetli 98–115, vinyetsiz 96–232, ikisi de
+    // eşiğin üstünde. Sebep basit: şerit hem koyu metni hem parlak zemini içeriyor,
+    // yani yayılım her hâlde yüksek.
+    //
+    // Doğru ölçüt METİN ile ZEMİN arasındaki fark: bölgenin MEDYANI zemini temsil
+    // ediyor (piksellerin çoğu zemin) ve metin rengi tarayıcıya çizdirilerek
+    // okunuyor. Vinyetsiz kart 3'te medyan 209, metin 245 → fark 36: okunmuyor.
+    // Vinyetli aynı kartta medyan 36 → fark 209: okunuyor.
+    const ifsaKusurlari: Kusur[] = []
+    for (const k of olcum.ifsaKutulari) {
+      try {
+        const png = await page.screenshot({
+          clip: {
+            x: Math.max(0, Math.round(k.sol)),
+            y: Math.max(0, Math.round(k.ust)),
+            width: Math.max(1, Math.round(k.en)),
+            height: Math.max(1, Math.round(k.boy)),
+          },
+        })
+        const yayilim = (await page.evaluate(
+          `(async () => {
+            const im = new Image()
+            im.src = 'data:image/png;base64,${png.toString('base64')}'
+            await im.decode()
+            const c = document.createElement('canvas')
+            c.width = im.width; c.height = im.height
+            const x = c.getContext('2d')
+            x.drawImage(im, 0, 0)
+            const d = x.getImageData(0, 0, c.width, c.height).data
+            const l = []
+            for (let j = 0; j < d.length; j += 4) l.push(0.2126*d[j] + 0.7152*d[j+1] + 0.0722*d[j+2])
+            l.sort((a, b) => a - b)
+            const medyan = l[Math.floor(l.length / 2)]
+            const c2 = document.createElement('canvas')
+            c2.width = 1; c2.height = 1
+            const x2 = c2.getContext('2d')
+            x2.fillStyle = ${JSON.stringify(k.renk)}
+            x2.fillRect(0, 0, 1, 1)
+            const mp = x2.getImageData(0, 0, 1, 1).data
+            const metin = 0.2126*mp[0] + 0.7152*mp[1] + 0.0722*mp[2]
+            return Math.round(Math.abs(medyan - metin))
+          })()`
+        )) as number
+        if (yayilim < 60) {
+          ifsaKusurlari.push({
+            tur: 'ifsa-okunmuyor',
+            kart: k.kart,
+            alan: 'raya',
+            aciklama:
+              `AI ifşası okunmuyor: metin ile zemin arasındaki luma farkı ${String(yayilim)} ` +
+              '(60 altı, metin zemine karışıyor) — Md. 50 GÖRÜNÜR ifşa istiyor',
+          })
+        }
+      } catch (e) {
+        ifsaKusurlari.push({
+          tur: 'ifsa-okunmuyor',
+          kart: k.kart,
+          alan: 'raya',
+          aciklama: `ifşa okunurluğu ÖLÇÜLEMEDİ (${String(e)}) — ölçülemeyen geçmiş sayılmaz`,
+        })
+      }
+    }
     // ── punto çökmesi: hangi KART tavanı aşağı çekiyor ──────────────────────
     // ⚠ ⚠ **İKİ TARAF AYRI KAYNAKTAN.** Ölçüm bir sabitle değil, KARTLARIN KENDİ
     // ORTANCASIYLA karşılaştırılıyor: "bu kart ötekilerden çok mu dar". Mutlak bir eşik
@@ -468,6 +575,7 @@ export const panoramaDenetle = async (
     const eksik = kapsamDisiKarakterler(metin)
     return [
       ...ham,
+      ...ifsaKusurlari,
       ...cokme,
       ...(eksik.length === 0
         ? []
