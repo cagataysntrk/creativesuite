@@ -182,9 +182,16 @@ export const SAHNE: KatalogSablonu = {
       // Yanlış pozitif kapının kendisinde (alt dize eşleşmesi), ama kuralı gevşetmek
       // yerine brief yeniden yazıldı: kırmızı bir kapının kuralı aynı turda gevşetilmez
       // (R-76). Kapı kaydı `KARARLAR.md`ye düşecek.
+      // ⚠ ⚠ **"YÜZEYLER SADE" ÜRETİMDE ÖLÇÜLEREK EKLENDİ.** `run_01a01876`in 2.
+      // slaydında model bir kadran çizdi ve kadranın üstünü UYDURMA rakamlarla
+      // doldurdu — okunmayan, bozuk bir şekil. `NO_TEXT_SUFFIX` prompt'ta VARDI ve
+      // yetmedi: olumsuzlama görsel modelinde zayıf bir garantidir. Garanti yapıya
+      // gömülür — üstü yazı taşımaya müsait bir özne İSTENMEZ (aynı ders: şeffaf
+      // arka plan rica edilmiyor, düz siyah isteniyor).
       'single subject, full body, plain solid black background free of gradient or ' +
       'surface detail, strong rim light on the subject only, arms held away from ' +
-      'the torso and extending beyond the frame, body fully in frame',
+      'the torso and extending beyond the frame, body fully in frame, ' +
+      'every surface in frame plain and unmarked',
     // ⚠ ⚠ **VARYANTLAR ARTIK YALNIZ POZ DEĞİL, ÖZNE TÜRÜ DE (T4 · T10).** Depo sahibi:
     // *"adam imgeleri sadece adam değil, konu neyse onun 3B görseli de olabilir"* ve
     // *"figürler aynı ailenin klonları gibi"*. İnsan pozu döndürmek çeşitlilik değil,
@@ -242,7 +249,7 @@ export const MEMPHIS: KatalogSablonu = {
     kirpma: 'kesik',
     briefTemeli:
       'single person, waist up, plain solid black background free of surface detail, ' +
-      'even lighting on the subject, lively posture',
+      'even lighting on the subject, lively posture, clothing plain and unmarked',
     varyantlar: [
       'a seated figure leaning forward, full body, clothing with visible weave, soft rim light',
       'a 3d clay render of an object from the topic, isometric, matte pastel material, soft contact shadow, no person',
@@ -279,7 +286,7 @@ export const DONEN: KatalogSablonu = {
     kirpma: 'kesik',
     briefTemeli:
       'single product, centred, plain seamless backdrop, soft studio lighting, ' +
-      'composed for a circular crop',
+      'composed for a circular crop, every surface in frame plain and unmarked',
     varyantlar: [
       'front elevation, centred in frame',
       'three quarter angle from the upper left',
@@ -313,9 +320,14 @@ export const EDITORYAL: KatalogSablonu = {
   gorsel: {
     adet: 2,
     kirpma: 'tam',
+    // ⚠ ⚠ **BURADA "typography" YAZIYORDU ve o kelime R-20 muhafızının YASAK
+    // listesinde.** Brief'i yazan model talimattaki kelimeyi yankılar (bu depoda iki
+    // kez oldu: `lettering`, `no texture`) ve görsel adımı `IMAGE_PROMPT_REJECTED`
+    // ile reddedilirdi. Boş bırakılan yarının NEDEN boş olduğunu söylemeye gerek yok:
+    // brief kadrajı tarif eder, sayfanın geri kalanını değil.
     briefTemeli:
       'wide shot, single subject, calm natural light, right half of the frame left ' +
-      'empty for typography, cool muted tones',
+      'empty, cool muted tones, every surface in frame plain and unmarked',
     // ⚠ ⚠ **ÜÇ YUVA, ÜÇ VARYANT.** İki varyant kalsaydı üçüncü görsel adımının brief'i
     // BOŞ döner, adım atlanır ve üçüncü yuva yer tutucu kalırdı — ilan ile gerçek yine
     // ayrışırdı. `katalog-ornek.test.ts` artık eşitliği zorluyor.
