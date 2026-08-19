@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { RUNS_DIR } from '@suite/kernel'
-import { kurSunucu } from './sunucu.js'
+import { hatKapilari, kurSunucu } from './sunucu.js'
 import { makineDurumu } from './durum.js'
 import { tersIndeks, tersIndeksOzeti } from './ters-indeks.js'
 import { bekleyenler, kararVer } from './kuyruk.js'
@@ -756,5 +756,54 @@ describe('bütçe tavanı (§8.3 · D-17)', () => {
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }
+  })
+})
+
+// ── onay şeridi: hangi kapı geçildi, hangisi bekliyor ───────────────────────
+//
+// ⚠ ⚠ **EKRAN YALNIZ "ŞU AN NE BEKLİYOR" DİYORDU.** İnsan üç kapılı bir hattın
+// neresinde olduğunu bilmeden onaylıyordu; depo sahibinin isteği birebir buydu.
+// ⚠ Kapı listesi HAT DOSYASINDAN türüyor: elle yazılmış ikinci bir liste, hat
+// değişince sessizce yalan söylerdi. Bu yüzden test GERÇEK hat dosyasını okuyor.
+describe('onay şeridi', () => {
+  const REPO = join(import.meta.dirname, '../../..')
+
+  it('kapılar hat dosyasından SIRAYLA geliyor', () => {
+    const k = hatKapilari(REPO, 'instagram-karosel', [], null)
+    expect(k.length).toBeGreaterThan(1)
+    expect(k[0]?.ad).toBe('metin-onayi')
+    // Hiç karar yokken hiçbiri "bekliyor" değil: bekleyen kapıyı manifest söyler.
+    expect(k.every((x) => x.durum === 'sirada')).toBe(true)
+  })
+
+  it('karar verilen kapı ONAYLANDI, bekleyen BEKLİYOR, kalan SIRADA', () => {
+    const k = hatKapilari(
+      REPO,
+      'instagram-karosel',
+      [{ gate: 'metin-onayi', decision: 'approved', at: '2026-08-19T07:00:00.000Z', note: null }],
+      'tasarim-onayi'
+    )
+    const durum = (ad: string): string | undefined => k.find((x) => x.ad === ad)?.durum
+    expect(durum('metin-onayi')).toBe('onaylandi')
+    expect(durum('tasarim-onayi')).toBe('bekliyor')
+    expect(durum('insan-onayi')).toBe('sirada')
+  })
+
+  it('red AYRI görünüyor — onayla aynı kutuya girmiyor', () => {
+    const k = hatKapilari(
+      REPO,
+      'instagram-karosel',
+      [
+        {
+          gate: 'metin-onayi',
+          decision: 'rejected',
+          at: '2026-08-19T07:00:00.000Z',
+          note: 'zayıf',
+        },
+      ],
+      null
+    )
+    expect(k.find((x) => x.ad === 'metin-onayi')?.durum).toBe('reddedildi')
+    expect(k.find((x) => x.ad === 'metin-onayi')?.not).toBe('zayıf')
   })
 })

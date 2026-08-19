@@ -592,6 +592,56 @@ tr[data-tiklanir] {
   margin: 0 0 var(--space-2);
 }
 
+/* ── onay şeridi: hattın kapıları sırayla ────────────────────────────────────
+   Ekran yalnız "şu an ne bekliyor" diyordu; hangi kapının geçildiği hiçbir yerde
+   yoktu. Şerit, kararın NEREDE olduğunu tek bakışta veriyor. */
+.kapi-serit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin-block: var(--space-3);
+}
+
+.kapi-hane {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  border: 1px solid var(--role-line);
+  border-radius: var(--radius-2);
+  padding: var(--space-1) var(--space-2);
+  /* ⚠ Sabit genişlik YOK (R-23): "insan-onayi" ile "metin-onayi" farklı uzunlukta ve
+     Türkçe etiketler her zaman uzar. */
+  min-inline-size: 0;
+}
+
+.kapi-hane .kapi-ad {
+  font-weight: 600;
+}
+
+.kapi-hane .kapi-durum {
+  color: var(--role-text-muted);
+  font-size: 0.85em;
+}
+
+.kapi-hane.onaylandi {
+  border-color: var(--role-ok, var(--role-line));
+}
+
+.kapi-hane.reddedildi {
+  border-color: var(--role-danger, var(--role-line));
+}
+
+.kapi-hane.bekliyor {
+  border-color: var(--role-accent);
+  border-width: 2px;
+}
+
+.kapi-hane.sirada {
+  opacity: 0.55;
+}
+
 .kapi-kutusu {
   border: 1px solid var(--role-accent);
   border-radius: var(--radius-2);

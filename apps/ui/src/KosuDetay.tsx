@@ -14,6 +14,13 @@ interface Icerik {
   readonly pipeline: string
   readonly createdAt: string
   readonly bekleyenKapi: string | null
+  /** Onay şeridi: hattın kapıları SIRAYLA ve her birinin durumu. */
+  readonly kapilar: readonly {
+    readonly ad: string
+    readonly durum: 'onaylandi' | 'reddedildi' | 'bekliyor' | 'sirada'
+    readonly at: string | null
+    readonly not: string | null
+  }[]
   /** Hangi adımda durdu — `null` = durmadı. */
   readonly duraklananAdim: string | null
   readonly satirlar: readonly string[]
@@ -226,6 +233,38 @@ export const KosuDetay = ({
             </button>
           </div>
         </div>
+      )}
+
+      {/* ⚠ ⚠ **ONAY ŞERİDİ.** Ekran yalnız "şu an ne bekliyor" diyordu; hangi kapının
+          geçildiği hiçbir yerde yoktu ve insan üç kapılı bir hattın neresinde olduğunu
+          bilmeden onaylıyordu. Şerit hattın KENDİ kapı listesinden türüyor — elle
+          yazılmış bir liste, hat değişince sessizce yalan söylerdi. */}
+      {d.kapilar.length === 0 ? null : (
+        <ol className="kapi-serit">
+          {d.kapilar.map((k) => (
+            <li key={k.ad} className={`kapi-hane ${k.durum}`}>
+              <span className="kapi-isaret">
+                {k.durum === 'onaylandi'
+                  ? '✓'
+                  : k.durum === 'reddedildi'
+                    ? '✗'
+                    : k.durum === 'bekliyor'
+                      ? '⏸'
+                      : '·'}
+              </span>
+              <span className="kapi-ad">{k.ad}</span>
+              <span className="kapi-durum">
+                {k.durum === 'onaylandi'
+                  ? 'onaylandı'
+                  : k.durum === 'reddedildi'
+                    ? 'reddedildi'
+                    : k.durum === 'bekliyor'
+                      ? 'SENİ BEKLİYOR'
+                      : 'sırada'}
+              </span>
+            </li>
+          ))}
+        </ol>
       )}
 
       {d.bekleyenKapi === null ? null : (

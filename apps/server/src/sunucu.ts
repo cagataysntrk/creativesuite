@@ -158,6 +158,62 @@ const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
   return r.ok ? r.value.steps.length : 0
 }
 
+/** Ekrandaki onay şeridinin bir hanesi. */
+export interface KapiHanesi {
+  readonly ad: string
+  readonly durum: 'onaylandi' | 'reddedildi' | 'bekliyor' | 'sirada'
+  readonly at: string | null
+  readonly not: string | null
+}
+
+/**
+ * Hattın onay kapıları — SIRAYLA ve her birinin durumu.
+ *
+ * ⚠ ⚠ **EKRAN YALNIZ "ŞU AN NE BEKLİYOR" DİYORDU.** Hangi kapıların geçildiği,
+ * hangisinin sırada olduğu hiçbir yerde yoktu: insan üç kapılı bir hattın neresinde
+ * olduğunu bilmeden "onayla" diyordu. Depo sahibinin isteği birebir bu — *"metin onayı
+ * verildi, tasarım onayı verildi gibi bar şeklinde görünmeli"*.
+ *
+ * ⚠ Kapı listesi HAT DOSYASINDAN geliyor, elle yazılmıyor: ikinci bir liste, hat
+ * değişince sessizce yalan söylerdi.
+ */
+export const hatKapilari = (
+  repoRoot: string,
+  pipelineId: string,
+  kararlar: readonly {
+    readonly gate: string
+    readonly decision: string
+    readonly at: string
+    readonly note: string | null
+  }[],
+  bekleyen: string | null
+): readonly KapiHanesi[] => {
+  const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+  if (!r.ok) return []
+  const adlar: string[] = []
+  for (const st of r.value.steps) {
+    const g = st.gate
+    if (typeof g === 'string' && g !== '' && !adlar.includes(g)) adlar.push(g)
+  }
+  return adlar.map((ad) => {
+    const k = kararlar.find((x) => x.gate === ad)
+    if (k !== undefined) {
+      return {
+        ad,
+        durum: k.decision === 'rejected' ? ('reddedildi' as const) : ('onaylandi' as const),
+        at: k.at,
+        not: k.note,
+      }
+    }
+    return {
+      ad,
+      durum: ad === bekleyen ? ('bekliyor' as const) : ('sirada' as const),
+      at: null,
+      not: null,
+    }
+  })
+}
+
 /**
  * Başlatma hatası kaydı — `calistir.ts` yazıyor, burası okuyor.
  *
@@ -388,6 +444,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         pipeline: kunye?.pipeline ?? '',
         createdAt: kunye?.createdAt ?? '',
         bekleyenKapi: null,
+        kapilar: kunye === null ? [] : hatKapilari(o.repoRoot, kunye.pipeline, [], null),
         duraklananAdim: null,
         satirlar: [],
         sablonId: null,
@@ -421,6 +478,18 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       pipeline: m.pipeline,
       createdAt: m.createdAt,
       bekleyenKapi: m.awaitingGate ?? null,
+      // Onay şeridi: hangi kapı geçildi, hangisi bekliyor, hangisi sırada.
+      kapilar: hatKapilari(
+        o.repoRoot,
+        m.pipeline,
+        (m.decisions ?? []).map((d) => ({
+          gate: d.gate,
+          decision: d.decision,
+          at: d.at,
+          note: d.note ?? null,
+        })),
+        m.awaitingGate ?? null
+      ),
       duraklananAdim: adimlar.find((s) => s.status !== 'ok')?.stepId ?? null,
       satirlar: (bul('metin-uret')['lines'] as string[] | undefined) ?? [],
       sablonId: sonSablon ?? null,
