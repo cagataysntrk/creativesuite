@@ -23,6 +23,20 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+/**
+ * Yazılabilecek en büyük çıktı.
+ *
+ * ⚠ ⚠ **İLK SÜRÜM HER ŞEYİ YAZDI ve `repo-hygiene` kapısı onu aynı gün yakaladı:**
+ * `yuva-doldur.json` 3,9 MB, `gorsel-kirp*.json` 0,6–1,1 MB — çünkü bu çıktılar
+ * base64 görsel taşıyor. R-64 512 KB üstü izlenen dosyayı yasaklıyor ve haklı:
+ * defter `git`e giriyor, byte'lar `derived/blobs`a.
+ *
+ * ⚠ **Kayıp yok:** büyük çıktı üreten adımlar (görsel üretimi, kırpma) işleri süreci
+ * AŞMAYAN sağlayıcılarda koşuyor (`islerKalici: false`), yani sürdürmede zaten
+ * yeniden çağrılıyorlar. Kaybolan tek şey metin çıktılarıydı ve onlar küçük.
+ */
+const TAVAN_BAYT = 256 * 1024
+
 /** Bir çalıştırmanın adım çıktıları dizini. */
 export const adimDizini = (outDir: string): string => join(outDir, 'steps')
 
@@ -42,7 +56,23 @@ export const adimCiktisiniYaz = (outDir: string, stepId: string, data: unknown):
   try {
     const dizin = adimDizini(outDir)
     mkdirSync(dizin, { recursive: true })
-    writeFileSync(join(dizin, dosyaAdi(stepId)), JSON.stringify(data), 'utf8')
+    const govde = JSON.stringify(data)
+    const yol = join(dizin, dosyaAdi(stepId))
+    if (govde.length > TAVAN_BAYT) {
+      // ⚠ Tavanı aşan çıktı SESSİZCE atlanmıyor: yerine ne olduğunu söyleyen bir
+      // işaretçi yazılıyor. Boş bir dizin "hiç koşmadı" diye okunurdu.
+      writeFileSync(
+        yol,
+        JSON.stringify({
+          buyuk: true,
+          bayt: govde.length,
+          sebep: 'çıktı tavanı aşıyor (gömülü byte) — bu adım sürdürmede yeniden koşar',
+        }),
+        'utf8'
+      )
+      return false
+    }
+    writeFileSync(yol, govde, 'utf8')
     return true
   } catch {
     return false
@@ -60,7 +90,13 @@ export const adimCiktisiniOku = (outDir: string, stepId: string): unknown => {
   const yol = join(adimDizini(outDir), dosyaAdi(stepId))
   if (!existsSync(yol)) return null
   try {
-    return JSON.parse(readFileSync(yol, 'utf8')) as unknown
+    const v = JSON.parse(readFileSync(yol, 'utf8')) as unknown
+    // ⚠ İşaretçi bir çıktı DEĞİL: zincire verilirse `{buyuk:true}` bir belge modeli
+    // sanılır ve hata iki adım sonra tanınmaz bir isimle görünür.
+    if (v !== null && typeof v === 'object' && (v as { buyuk?: unknown }).buyuk === true) {
+      return null
+    }
+    return v
   } catch {
     return null
   }

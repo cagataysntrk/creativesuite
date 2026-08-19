@@ -51,4 +51,16 @@ describe('adım çıktısı defteri', () => {
     // Aynı id ile geri okunabiliyor: temizleme deterministik.
     expect(adimCiktisiniOku(d, '../kacis')).toEqual({ x: 1 })
   })
+
+  it("TAVANI aşan çıktı işaretçiye iniyor — defter git'e giriyor (R-64)", () => {
+    const d = gecici()
+    // ⚠ Gerçek senaryo: `yuva-doldur` çıktısı 3,9 MB'tı çünkü base64 görsel taşıyor.
+    // `repo-hygiene` kapısı aynı gün yakaladı.
+    const kocaman = { gorsel: 'A'.repeat(300 * 1024) }
+    expect(adimCiktisiniYaz(d, 'yuva-doldur', kocaman)).toBe(false)
+    // İşaretçi YAZILDI — boş bir dizin "hiç koşmadı" diye okunurdu.
+    expect(readdirSync(adimDizini(d))).toEqual(['yuva-doldur.json'])
+    // Ama zincire VERİLMİYOR: işaretçi bir çıktı değildir.
+    expect(adimCiktisiniOku(d, 'yuva-doldur')).toBeNull()
+  })
 })
