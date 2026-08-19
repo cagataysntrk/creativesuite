@@ -1,0 +1,1545 @@
+{
+  "runId": "run_01a018d3-a9ac-7039-bf12-b4207129cab7",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "06d5511994cfbf643fdad27ee881742191171b21",
+  "registryCommit": "06d5511994cfbf643fdad27ee881742191171b21",
+  "createdAt": "2026-08-19T07:02:17.783Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:17:56.849Z",
+      "finishedAt": "2026-08-19T07:17:56.849Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.849Z",
+      "finishedAt": "2026-08-19T07:17:56.851Z",
+      "output": {
+        "konu": "Ölçüm pilotu",
+        "gerekce": "Ölçüm pilotu somut bir kayıt olarak gösterilebilir ve marka bunu doğrudan sunduğu için söylemeye yetkilidir."
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:17:56.851Z",
+      "finishedAt": "2026-08-19T07:17:56.852Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.853Z",
+      "finishedAt": "2026-08-19T07:17:56.853Z",
+      "output": {
+        "lines": [
+          "Ölçmediğin şey iyileşmiyor, tahmin ediliyor",
+          "Vardiya sonunda \"bugün nasıl geçti\" sorusuna herkes farklı cevap veriyor; hiçbiri kayıt değil, hepsi izlenim.",
+          "Excel'e her akşam elle girilen sayılar, giren kişinin o gün ne kadar dikkatli olduğuna bağlı.",
+          "Bir haftalık pilot, hattın gerçek verisini **ilk kez** dışarıdan görülebilir hale getiriyor.",
+          "Karar artık vardiya amirinin hafızasına değil, kayda dayanıyor.",
+          "Ölçüm pilotunu konuşalım.",
+          "AKIŞ: Ölçüm pilotu nasıl işler",
+          "- Hat gözlemi | Mevcut veri akışı **haritalanır**",
+          "- Veri kurulumu | Kayıt noktaları **tanımlanır**",
+          "- Pilot süre | Gerçek veri **toplanır**",
+          "- Değerlendirme | Sonuç birlikte **okunur**"
+        ]
+      }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.853Z",
+      "finishedAt": "2026-08-19T07:17:56.854Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:17:56.854Z",
+      "finishedAt": "2026-08-19T07:17:56.855Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.861Z",
+      "finishedAt": "2026-08-19T07:17:56.862Z",
+      "output": {
+        "lines": [
+          "a technician standing full body, plain solid black background free of gradient or surface detail, strong rim light on the subject only, arms held open wide presenting toward the right and extending beyond the frame, body fully in frame, worn work clothes with visible weave and creases, a measuring gauge held loosely in one hand, high contrast monochrome illustration with visible ink hatching, matte surfaces only, every surface in frame plain and unmarked"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 1,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.862Z",
+      "finishedAt": "2026-08-19T07:17:56.863Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.863Z",
+      "finishedAt": "2026-08-19T07:17:56.865Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 2,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.865Z",
+      "finishedAt": "2026-08-19T07:17:56.866Z",
+      "output": {
+        "lines": [
+          "a single precision measurement instrument resembling a calibration gauge stand, full body, plain solid black background free of gradient or surface detail, strong rim light on the subject only, its probe arms held away from the housing and extending beyond the frame, body fully in frame, every surface in frame plain and unmarked, three quarter angle, no person, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 2,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.866Z",
+      "finishedAt": "2026-08-19T07:17:56.866Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.867Z",
+      "finishedAt": "2026-08-19T07:17:56.868Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 3,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.868Z",
+      "finishedAt": "2026-08-19T07:17:56.868Z",
+      "output": {
+        "lines": [
+          "two workers at a control cabinet, one pointing forward with a straight arm as if directing a measurement calibration, side profile, low camera angle, high contrast monochrome illustration with visible ink hatching, matte surfaces only, single subject, full body, plain solid black background free of gradient or surface detail, strong rim light on the subject only, arms held away from the torso and extending beyond the frame, body fully in frame, every surface in frame plain and unmarked"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 3,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.868Z",
+      "finishedAt": "2026-08-19T07:17:56.869Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.871Z",
+      "finishedAt": "2026-08-19T07:17:56.875Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 4,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.876Z",
+      "finishedAt": "2026-08-19T07:17:56.876Z",
+      "output": {
+        "lines": [
+          "a lone field surveyor mid-stride with a leveling rod slung across one shoulder, full body, plain solid black background free of gradient or surface detail, strong rim light on the subject only, arms held away from the torso and extending beyond the frame, body fully in frame, every surface in frame plain and unmarked, waist up, full frame, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 4,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.876Z",
+      "finishedAt": "2026-08-19T07:17:56.876Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:17:56.877Z",
+      "finishedAt": "2026-08-19T07:17:56.879Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:17:56.879Z",
+      "finishedAt": "2026-08-19T07:17:56.880Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:17:56.955Z",
+      "finishedAt": "2026-08-19T07:18:04.364Z",
+      "output": {
+        "kusurlar": [
+          {
+            "tur": "sus-metni-kesiyor",
+            "kart": 2,
+            "alan": "govde",
+            "aciklama": "süs ögesi govde metninin %14.7'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
+          },
+          {
+            "tur": "sus-metni-kesiyor",
+            "kart": 3,
+            "alan": "govde",
+            "aciklama": "süs ögesi govde metninin %4.3'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
+          }
+        ],
+        "ifsaGorunur": true,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-04.png"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:18:04.364Z",
+      "finishedAt": "2026-08-19T07:19:57.554Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              650,
+              1260,
+              430,
+              90
+            ],
+            "kategori": "kontrast",
+            "siddet": "uyari",
+            "aciklama": "Alt bilgi satırındaki metin (sayaç/başlık) mavi eğri şeridinin üzerine biniyor ve zeminle metin arasındaki kontrast bu bölgede düşüyor."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:19:57.555Z",
+      "finishedAt": "2026-08-19T07:20:27.052Z",
+      "output": {
+        "bulgular": [],
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 4,
+            "gerekce": "Sol metin kütlesi ile sağ illüstrasyon eğri üzerinden birbirine bağlanıyor ve kompozisyon devrilmeden oturuyor."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 4,
+            "gerekce": "Göz önce mavi-beyaz başlığa, sonra figüre, sonra gövde metnine gidiyor; net bir okuma sırası kurulmuş."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 3,
+            "gerekce": "Başlık üstündeki boşluk nefes alanı gibi çalışıyor ama gövde metni ile alt şerit arasındaki geniş boş alan ritimden çok kullanılmamış alan izlenimi veriyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 4,
+            "gerekce": "Tipografi kademeleri, çizgisel illüstrasyon üslubu ve iki renkli sistem aynı görsel dilden geliyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 4,
+            "gerekce": "Başlık ve gövde metni koyu zemin üzerinde rahat okunuyor, yalnızca alt köşedeki küçük gri yazı biraz göz zorluyor."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 3,
+            "gerekce": "Figür ve mavi eğri dikkat çekiyor ama kompozisyon akışı durdurmaktan çok standart bir editoryal düzen hissi veriyor."
+          }
+        ],
+        "toplam": 3.67,
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:20:27.053Z",
+      "finishedAt": "2026-08-19T07:20:39.283Z",
+      "output": {
+        "lines": [
+          "```json",
+          "{",
+          "\"sablonId\": \"sahne\",",
+          "\"kartlar\": [",
+          "{",
+          "\"ustBaslik\": \"GÖZLEM\",",
+          "\"baslik\": \"Herkes **Farklı** Söylüyor\",",
+          "\"govde\": \"Vardiya sonunda herkes bugünü kendi izlenimiyle anlatıyor, kaydı yok.\",",
+          "\"hayalet\": \"İzlenim\",",
+          "\"rayaSol\": \"GÖZLEM\",",
+          "\"rayaOrta\": \"Vardiya sonu ortak cevap yok, yalnız izlenim\"",
+          "},",
+          "{",
+          "\"ustBaslik\": \"KAYITSIZ\",",
+          "\"baslik\": \"Veri **Kişiye** Bağlı\",",
+          "\"govde\": \"Excel'e elle girilen sayılar, kişinin dikkatine bağlı.\",",
+          "\"hayalet\": \"Elle\",",
+          "\"rayaSol\": \"KAYIT\",",
+          "\"rayaOrta\": \"Excel'e elle girilen sayı, kişiye bağlı\"",
+          "},",
+          "{",
+          "\"ustBaslik\": \"PİLOT\",",
+          "\"baslik\": \"Veri **İlk** Kez Görünür\",",
+          "\"govde\": \"Bir haftalık pilot, hattın verisini ilk kez görülebilir kılıyor.\",",
+          "\"hayalet\": \"1\",",
+          "\"rayaSol\": \"PİLOT\",",
+          "\"rayaOrta\": \"Bir haftalık pilot, veriyi ilk kez görünür kılıyor\"",
+          "},",
+          "{",
+          "\"ustBaslik\": \"SONUÇ\",",
+          "\"baslik\": \"Karar Artık **Kayda** Dayanıyor\",",
+          "\"govde\": \"Karar artık vardiya amirinin hafızasına değil, kayda dayanıyor.\",",
+          "\"hayalet\": \"Kayıt\",",
+          "\"rayaSol\": \"KARAR\",",
+          "\"rayaOrta\": \"Karar artık hafızaya değil, kayda dayanıyor\"",
+          "}",
+          "]",
+          "}",
+          "```"
+        ]
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:20:39.283Z",
+      "finishedAt": "2026-08-19T07:20:39.284Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:20:39.349Z",
+      "finishedAt": "2026-08-19T07:20:45.873Z",
+      "output": {
+        "kusurlar": [
+          {
+            "tur": "sus-metni-kesiyor",
+            "kart": 2,
+            "alan": "govde",
+            "aciklama": "süs ögesi govde metninin %14.7'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
+          },
+          {
+            "tur": "sus-metni-kesiyor",
+            "kart": 3,
+            "alan": "govde",
+            "aciklama": "süs ögesi govde metninin %4.3'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
+          }
+        ],
+        "ifsaGorunur": true,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a018d3-a9ac-7039-bf12-b4207129cab7/slayt-04.png"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "77",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:20:45.873Z",
+      "finishedAt": "2026-08-19T07:20:45.874Z",
+      "output": {
+        "kusurSayisi": 2,
+        "bulgular": [
+          "süs ögesi govde metninin %14.7'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı",
+          "süs ögesi govde metninin %4.3'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
+        ],
+        "gecti": false,
+        "slaytSayisi": 4
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "gate": "metin-onayi",
+      "decision": "approved",
+      "at": "2026-08-19T07:10:01.933Z",
+      "note": "metin marka diliyle"
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "approved",
+      "at": "2026-08-19T07:17:55.740Z",
+      "note": "kusurlar duzelt turuna birakildi"
+    }
+  ],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
+}

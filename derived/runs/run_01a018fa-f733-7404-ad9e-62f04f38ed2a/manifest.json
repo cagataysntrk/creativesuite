@@ -1,0 +1,238 @@
+{
+  "runId": "run_01a018fa-f733-7404-ad9e-62f04f38ed2a",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "d6c70263496934c657f54d6da59f3961f2f4e1df",
+  "registryCommit": "d6c70263496934c657f54d6da59f3961f2f4e1df",
+  "createdAt": "2026-08-19T07:45:51.802Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "80",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:44:56.442Z",
+      "finishedAt": "2026-08-19T07:44:56.442Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "80",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:44:56.442Z",
+      "finishedAt": "2026-08-19T07:45:03.621Z",
+      "output": {
+        "konu": "Üretim müdürü",
+        "gerekce": "Persona somut bir davranış ve acı noktası üzerinden gösterilebilir, rakip araç eleştirisine göre elde daha güçlü marka kaydı var."
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "80",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:45:03.622Z",
+      "finishedAt": "2026-08-19T07:45:03.624Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\"}]",
+        "islenmis_konu_sayisi": "80",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:45:03.625Z",
+      "finishedAt": "2026-08-19T07:45:51.802Z",
+      "output": {
+        "lines": [
+          "Dün hatta ne oldu kimse tam bilmiyor",
+          "Vardiya amiri anlatıyor, sabah raporu Excel'de birleştiriliyor, duruşun **gerçek nedeni** hiçbir kayıtta yer almıyor.",
+          "Aynı arıza tekrar ettiğinde önceki kayıtla bağlantı kurulamıyor, çünkü ilk seferinde **hiçbir yere yazılmamıştı**.",
+          "Kök neden arandığında iş vardiya amirinin **hafızasına kalıyor**, o da izne çıktığında iz kayboluyor.",
+          "Artık her duruşun nedeni hatta değil, **kayıtta duruyor**.",
+          "Hattınızın verisini bugün kaydetmeye başlayın.",
+          "AKIŞ: Veriden karara",
+          "- Veri var mı | Durum tespit edilir",
+          "- Veri yoksa | Kayıt sistemi kurulur",
+          "- Veri varsa | Karara çevrilir",
+          "- Sonuç | Nedenli karar oluşur"
+        ]
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "metin-onayi",
+  "stoppedAt": "sablon-uyarla"
+}

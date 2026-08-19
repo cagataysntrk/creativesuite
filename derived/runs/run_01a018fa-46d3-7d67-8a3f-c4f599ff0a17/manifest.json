@@ -1,0 +1,234 @@
+{
+  "runId": "run_01a018fa-46d3-7d67-8a3f-c4f599ff0a17",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "d6c70263496934c657f54d6da59f3961f2f4e1df",
+  "registryCommit": "d6c70263496934c657f54d6da59f3961f2f4e1df",
+  "createdAt": "2026-08-19T07:44:41.126Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "Dima hakkında bir konu seç",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:44:11.528Z",
+      "finishedAt": "2026-08-19T07:44:11.528Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "Dima hakkında bir konu seç",
+        "kacinilacak": "yokk",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:44:11.529Z",
+      "finishedAt": "2026-08-19T07:44:11.530Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "Dima hakkında bir konu seç",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:44:11.531Z",
+      "finishedAt": "2026-08-19T07:44:11.532Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "Dima hakkında bir konu seç",
+        "kacinilacak": "yokk",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:44:11.533Z",
+      "finishedAt": "2026-08-19T07:44:41.125Z",
+      "output": {
+        "lines": [
+          "Veri yoksa başlamaz mı sanıyorsunuz",
+          "Diğer araçlar mevcut bir veri altyapısı ister; yoksa proje daha masaya oturmadan kilitlenir.",
+          "Sabah raporu hâlâ Excel'de birleştiriliyor, dün hattaki duruşun nedeni vardiya amirinin hafızasında kalıyor.",
+          "Bu boşluğu görüp **veri katmanını biz kuruyoruz**; kantardan satışa uçtan uca çalışan bir sistemi upcyman'da zaten yazdık.",
+          "Veriniz olgun değilse sorun değil, **önce veriyi kurup** sonra karara çeviriyoruz.",
+          "Dima için demo iste, hattının verisini birlikte kuralım.",
+          "KARŞILAŞTIRMA: Veri olgunluğu",
+          "ÖNCE: Veri dağınık",
+          "- Excel'de birleştirme",
+          "- Hafızaya bağlı kayıt",
+          "- Kök neden bulunamıyor",
+          "SONRA: Veri kurulu",
+          "- Tek kaynaktan kayıt",
+          "- Karar destekli rapor",
+          "- Kök neden izlenebilir"
+        ]
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "metin-onayi",
+  "stoppedAt": "sablon-uyarla"
+}
