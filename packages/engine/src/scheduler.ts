@@ -75,6 +75,14 @@ export interface EngineDeps {
   readonly limiter?: RateLimiter
   /** Test bunu 0 yapar; üretimde gerçekten bekler. */
   readonly sleep?: (ms: number, signal: AbortSignal) => Promise<void>
+  /**
+   * Bu adımın çıktısı diskte DURUYOR mu (`derived/runs/<run>/steps/<adim>.json`)?
+   *
+   * ⚠ Verilmezse `false` varsayılır — yani eski davranış: ücretsiz kapanmış kayıt
+   * yeniden koşar. Zorunlu kılmak, çağıranın diski bilmesini şart koşardı; oysa
+   * zamanlayıcı diski bilmiyor ve bilmemeli.
+   */
+  readonly ciktiVar?: (runId: RunId, stepId: StepId) => boolean
 }
 
 export interface StepResult {
@@ -203,10 +211,35 @@ export const runStep = async (
         // önlenecek ödeme yok — abonelik çağrısı (claude-code) ya da bedava katman
         // (Cloudflare). Atlamak hiçbir şey kazandırmıyor, çıktıyı kaybettiriyor.
         //
-        // ⚠ **Ücretli kayıtlarda sınır duruyor ve bu bir EKSİKLİK:** çıktı deftere
-        // yazılmadığı için ücretli bir adım tekrar oynatıldığında aşağı akış boş
-        // kalır. Doğru çözüm çıktıyı `derived/runs/<run>/steps/` altına yazmak —
-        // bugün yok ve olmadığını söylemek, varmış gibi davranmaktan iyi.
+        // ⚠ ⚠ **O "doğru çözüm" ARTIK VAR ve bu dal onu bilmiyordu.** Çıktı
+        // `derived/runs/<run>/steps/<adim>.json` altına yazılıyor (`adim-ciktisi.ts`).
+        // Yani "atlarsak çıktıyı kaybederiz" gerekçesi ÖLÇÜLEREK çürüdü: çıktı
+        // duruyorsa atlamak kayıp değil, TEKRAR ETMEK israf.
+        //
+        // Ölçüm: `run_01a01876` kapıdan sonra sürdürüldüğünde `konu-sec` GİRDİ özeti
+        // `5a68ed27` ile aynıydı ama çıktı özeti değişti — `5e0f8c7d` → `e02f01c7`.
+        // Yani model yeniden çağrılmış, yedi saniye ve gerçek token harcanmış,
+        // üstelik BAŞKA bir cevap dönmüş. Bir kapıyı onaylamak, onayladığın metnin
+        // değişmesine sebep oluyordu. (D19 · BORCLAR)
+        //
+        // Bugünkü kural: çıktı diskteyse ücretli daldaki gibi ATLA — aşağı akış onu
+        // `adimCiktisiniOku` ile zaten diskten okuyor. Diskte yoksa eski davranış
+        // aynen sürüyor; gerekçe hâlâ geçerli çünkü kaybedecek çıktı GERÇEKTEN var.
+        if (deps.ciktiVar?.(spec.runId, spec.stepId) === true) {
+          return {
+            outcome: {
+              amount: rez.entry.amount,
+              chargeStatus: rez.entry.chargeStatus,
+              externalId: rez.entry.externalId,
+              data: null,
+            },
+            error: null,
+            attempts: 0,
+            costs: [],
+            replayedFromLedger: true,
+            budget: budget.settleLease(bState, spec.estimateHigh, rez.entry.amount),
+          }
+        }
         ledger.reopen(deps.db, spec.idempotencyKey, spec.runId, spec.stepId)
       } else if (!yarim) {
         // (a) KAPANMIŞ ve ÜCRETLİ kayıt: iş bitmiş, tutarı biliniyor. Çağrı atlanır.

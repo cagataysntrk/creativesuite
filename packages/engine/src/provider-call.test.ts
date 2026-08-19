@@ -300,3 +300,49 @@ describe('devralınamayan sağlayıcı', () => {
     expect(sayac.start).toBe(0)
   })
 })
+
+// ── ücretsiz kapanmış kayıt: atlamak KAYIP mı, tekrar etmek İSRAF mı (D-247 · D19) ──
+//
+// ⚠ ⚠ **BU DAVRANIŞ GERÇEK BİR KOŞUDA ISIRDI.** `run_01a01876` insan kapısında durdu,
+// panelden onaylandı, sürdürüldü — ve `konu-sec` YENİDEN koştu: girdi özeti aynı
+// (`5a68ed27`) ama çıktı özeti değişti (`5e0f8c7d` → `e02f01c7`). Yani onaylanan
+// metnin dayandığı konu, onaydan SONRA değişti. Sebep D-247'nin dalıydı: "ücretsiz
+// kayıtta atlamak çıktıyı kaybettirir". O gerekçe artık geçersiz — çıktı
+// `derived/runs/<run>/steps/` altında duruyor.
+describe('ücretsiz kapanmış kayıt', () => {
+  it('çıktı DİSKTE ise çağrı TEKRARLANMIYOR — onay, onaylananı değiştiremez', async () => {
+    const { adapter, sayac } = sahteAdaptor({ maliyet: 0n })
+    const b = emptyBudget({ perRun: null, perMonth: null })
+    await runStep(deps(), spec(), b, cagri(adapter), CID, new AbortController().signal)
+    expect(sayac.start).toBe(1)
+
+    // Kapı onayından sonraki sürdürme. Çıktı diskte DURUYOR.
+    const r = await runStep(
+      { ...deps(), ciktiVar: () => true },
+      spec(),
+      b,
+      cagri(adapter),
+      CID,
+      new AbortController().signal
+    )
+    expect(sayac.start).toBe(1)
+    expect(r.replayedFromLedger).toBe(true)
+  })
+
+  it('çıktı diskte YOKSA tekrar koşuyor — D-247 gerekçesi orada hâlâ geçerli', async () => {
+    const { adapter, sayac } = sahteAdaptor({ maliyet: 0n })
+    const b = emptyBudget({ perRun: null, perMonth: null })
+    await runStep(deps(), spec(), b, cagri(adapter), CID, new AbortController().signal)
+    await runStep(
+      { ...deps(), ciktiVar: () => false },
+      spec(),
+      b,
+      cagri(adapter),
+      CID,
+      new AbortController().signal
+    )
+    // Atlansaydı aşağı akış boş girdiyle kalırdı: ölçülmüş kusur, `gorsel-uret`
+    // brief'i `null` almıştı.
+    expect(sayac.start).toBe(2)
+  })
+})

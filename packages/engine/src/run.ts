@@ -368,6 +368,11 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
   // açılamıyordu** (D-135). Enjekte edilebilir: çağıran çalıştırmalar arası paylaşabilir.
   const breaker = input.breaker ?? new CircuitBreaker()
 
+  // Defterin "ücretsiz kaydı yeniden koş" dalı BUNU soruyor: çıktı diskte mi?
+  // Duruyorsa çağrıyı tekrarlamak israf — aşağı akış zaten diskten okuyor (D-247).
+  const ciktiVar = (_runId: RunId, stepId: string): boolean =>
+    adimCiktisiniOku(runOutputDir(input.repoRoot, input.runId), stepId) !== null
+
   // ── künye: koşunun DOĞUM kaydı, adımlardan ÖNCE ───────────────────────────
   //
   // Manifest en sonda yazılıyor ve bu doğru — maliyet ancak koşu bitince bilinir. Ama
@@ -578,6 +583,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
           rng,
           ...(input.limiter === undefined ? {} : { limiter: input.limiter }),
           ...(input.sleep === undefined ? {} : { sleep: input.sleep }),
+          ciktiVar,
         },
         {
           runId: input.runId,
@@ -674,6 +680,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
             rng,
             ...(input.limiter === undefined ? {} : { limiter: input.limiter }),
             ...(input.sleep === undefined ? {} : { sleep: input.sleep }),
+            ciktiVar,
           },
           spec,
           bState,
