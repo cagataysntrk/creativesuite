@@ -214,3 +214,60 @@ describe('uyarlama istemi', () => {
     expect(i).toContain(`toplam ${ornek.kartlar.length} kart`)
   })
 })
+
+// ⚠ ⚠ **BİR SÖZLEŞME, BİR TASARIM KARARINI EVRENSELLEŞTİRİYORDU (D-312).** `uyarla`
+// her kartta boş olmayan bir üst başlık şart koşuyordu; altı şablona tek bir iskelet
+// dayatan şey buydu. Kural artık şablona bakıyor — `hayalet` için verilmiş D-299'un
+// aynısı: ögenin VAR OLUP OLMADIĞINA şablon karar verir, model yalnız doldurur.
+describe('üst başlık şablona bağlı', () => {
+  const kart = (ustBaslik: string) => ({
+    ustBaslik,
+    baslik: 'Ölçüm **başlıyor**',
+    govde: 'Tek cümle.',
+    hayalet: '',
+    rayaSol: 'SAHA',
+    rayaOrta: 'Gerçek kaynak',
+    panel: null,
+  })
+
+  const sablon = (ustBaslik: string): KatalogOrnegi =>
+    ({
+      slaytGenisligi: 1080,
+      yukseklik: 1350,
+      kartlar: [kart(ustBaslik)],
+      gorseller: [],
+      zemin: '#000',
+    }) as unknown as KatalogOrnegi
+
+  const uyarlama = (ustBaslik: string) => ({
+    sablonId: 'x',
+    kartlar: [
+      {
+        ustBaslik,
+        baslik: 'Yeni **başlık** burada',
+        govde: 'Yeni gövde.',
+        hayalet: '',
+        rayaSol: 'SAHA',
+        rayaOrta: '2026 ölçümü',
+      },
+    ],
+  })
+
+  it('şablon kullanIYORsa boş üst başlık REDDEDİLİYOR', () => {
+    const r = uyarla(sablon('KONU'), uyarlama('') as never)
+    expect(r.ok).toBe(false)
+    expect(r.ok ? [] : r.kusurlar.join(' ')).toContain('üst başlık boş')
+  })
+
+  it('şablon kullanMIYORsa model doldursa bile ÇİZİLMİYOR', () => {
+    const r = uyarla(sablon(''), uyarlama('MODELİN UYDURDUĞU') as never)
+    expect(r.ok).toBe(true)
+    expect(r.ok ? r.belge.kartlar[0]?.ustBaslik : 'x').toBe('')
+  })
+
+  it('istem de şablona göre şekilleniyor — olmayan alan İSTENMİYOR', () => {
+    expect(uyarlamaIstemi(sablon(''), 'x', 'ölçüm')).toContain('ÜST BAŞLIK YOK')
+    expect(uyarlamaIstemi(sablon(''), 'x', 'ölçüm')).not.toContain('SAYAÇ OLAMAZ')
+    expect(uyarlamaIstemi(sablon('KONU'), 'x', 'ölçüm')).toContain('SAYAÇ OLAMAZ')
+  })
+})

@@ -304,6 +304,8 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
   // ⚠ Kaybedilen bir şey YOK: başlığın işlevini taşıyan bilgi uzunluğu, vurgunun kaçıncı
   // kelimede olduğu ve panel tipi. Üçü de burada. Konuya özgü malzeme zaten istemin
   // "Kaynak metin" bölümünde ve gerçek içerik oradan gelmeli.
+  // Şablon bu ögeyi kullanıyor mu — istemin ÜÇ yeri buna bağlı (D-312).
+  const ustBasligiVar = ornek.kartlar.some((k) => k.ustBaslik.trim() !== '')
   const kartlar = ornek.kartlar
     .map((k, i) => {
       const p = k.panel === null ? 'panel yok' : `panel: ${k.panel.tip} (tipi DEĞİŞTİRİLEMEZ)`
@@ -311,7 +313,11 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
       const vurguSirasi = kelimeler.findIndex((w) => w.includes('**'))
       const vurgu =
         vurguSirasi < 0 ? 'vurgu yok' : `vurgu ${vurguSirasi + 1}. kelimede (\`**böyle**\`)`
-      return `${i + 1}. ${k.ustBaslik} — başlık: ${kelimeler.length} kelime, ${vurgu} · ${p}`
+      // ⚠ Şablon üst başlık kullanmıyorsa kart satırı da onu YAZMIYOR: modelin önüne
+      // koyduğumuz her alan doldurulmayı ister ve doldurulan alan çizilmese bile
+      // modelin dikkatini böler.
+      const etiket = k.ustBaslik.trim() === '' ? `kart ${i + 1}` : k.ustBaslik
+      return `${i + 1}. ${etiket} — başlık: ${kelimeler.length} kelime, ${vurgu} · ${p}`
     })
     .join('\n')
   return [
@@ -349,15 +355,23 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     `BAŞLIKTA EN UZUN KELİME ${kelimeButcesi(ornek)} HARFİ GEÇEMEZ. Türkçe eklemeli;` +
       ' tek uzun kelime tüm karoselin puntosunu düşürür. Uzun bir kavramı ikiye böl' +
       ' ya da daha kısa bir eşanlamlı kullan.',
-    'ÜST BAŞLIK SAYAÇ OLAMAZ: "BÖLÜM 01", "SERİ 2", "SORU 3", "ADIM 4" gibi numaralı',
-    'etiketler YASAK. Slayt numarası zaten alt rayda basılıyor; üst başlık o kartın',
-    'KONUSUNU adlandırır (örn. "MALİYET", "AYRIŞTIRMA", "DÖNGÜ").',
+    // ⚠ ⚠ **BU KURAL ŞABLONA BAĞLI.** Üst başlık kullanmayan bir şablonda (dergi
+    // kapağı gibi) sayaç yasağını anlatmak, olmayan bir alan hakkında talimat
+    // vermektir — model onu doldurmaya çalışır ve çıktı şablonun kompozisyonuyla
+    // çelişir. → D-312
+    ...(ustBasligiVar
+      ? [
+          'ÜST BAŞLIK SAYAÇ OLAMAZ: "BÖLÜM 01", "SERİ 2", "SORU 3", "ADIM 4" gibi numaralı',
+          'etiketler YASAK. Slayt numarası zaten alt rayda basılıyor; üst başlık o kartın',
+          'KONUSUNU adlandırır (örn. "MALİYET", "AYRIŞTIRMA", "DÖNGÜ").',
+        ]
+      : ['BU ŞABLONDA ÜST BAŞLIK YOK: `ustBaslik` alanını BOŞ dize olarak bırak.']),
     'ÇIKTI BİÇİMİ — yalnız JSON döndür, önünde ve arkasında hiçbir açıklama olmasın:',
     '{',
     `  "sablonId": "${sablonId}",`,
     '  "kartlar": [',
     '    {',
-    '      "ustBaslik": "KISA KONU ETİKETİ",',
+    ustBasligiVar ? '      "ustBaslik": "KISA KONU ETİKETİ",' : '      "ustBaslik": "",',
     '      "baslik": "Kısa başlık, **vurgulu** kelimeyle",',
     '      "govde": "Tek cümlelik gövde.",',
     '      "hayalet": "1",',
