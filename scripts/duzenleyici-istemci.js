@@ -229,7 +229,17 @@ function mufettisiKur(doc) {
     const b = document.createElement('button')
     b.className = 'sil'
     b.textContent = '⌫ bu ögeyi sil'
-    b.onclick = () => {
+    // ⚠ ⚠ **`click` HİÇ VARMIYORDU ve sebebi ölçüldü.** Düğmeye basmak önce
+    // düzenlenebilir ögede `blur` tetikliyor; `blur` bir yazma yapıyor, yazma
+    // `cek()` ile panoyu ve MÜFETTİŞİ yeniden çiziyor — yani düğme, `mouseup`
+    // gelmeden DOM'dan siliniyor ve `click` hiç doğmuyor. Gerçek tarayıcıda
+    // ölçüldü: tıklamadan sonra giden tek istek `{tur:'metin'}`, `{tur:'sil'}` YOK.
+    // Depo sahibinin *"tıklasam da çalışmıyor"* şikâyeti birebir bu.
+    //
+    // `pointerdown` blur'dan ÖNCE geliyor; `preventDefault` odağın taşınmasını da
+    // engelliyor, yani gereksiz metin yazması hiç olmuyor.
+    b.onpointerdown = (ev) => {
+      ev.preventDefault()
       const s = secili
       secili = null
       void yaz({ tur: 'sil', i: s.i, alan: s.alan })
@@ -410,6 +420,28 @@ function bagla(d, doc) {
       e.style.outline = '1px dashed rgba(90,169,230,.35)'
 
       if (duzenMod === 'yaz') {
+        // ⚠ ⚠ **SİLME YAZ MODUNDA HİÇ ERİŞİLEBİLİR DEĞİLDİ.** *"⌫ bu ögeyi sil"*
+        // düğmesi müfettişte YALNIZ `secili` doluyken çiziliyor, `secili` ise yalnız
+        // TAŞI modundaki `pointerdown` ile doluyordu. Yani varsayılan modda kullanıcı
+        // hangi ögeye tıklarsa tıklasın silme düğmesi hiç görünmüyordu — depo
+        // sahibinin *"öge silme hiçbir şekilde çalışmıyor"* şikâyeti birebir bu.
+        // Sunucu tarafı SAĞLAMDI (ölçüldü: `{tur:'sil'}` gövdeyi boşaltıyor); eksik
+        // olan tek şey düğmeye ulaşan yoldu.
+        //
+        // ⚠ Yazılabilirlik BOZULMUYOR: seçim `contentEditable`ı kapatmıyor, yalnız
+        // müfettişe "şu an bu öge" diyor. Panel gibi yazılamayan ögeler de seçilebilir
+        // olmalı — silinecek şeylerin çoğu onlar.
+        e.addEventListener('pointerdown', () => {
+          secili = { i, alan, e }
+          seciliKart = i
+          for (const o of d.querySelectorAll('[data-secili]')) {
+            o.removeAttribute('data-secili')
+            o.style.outline = '1px dashed rgba(90,169,230,.35)'
+          }
+          e.setAttribute('data-secili', '1')
+          e.style.outline = '2px solid rgba(90,169,230,.9)'
+          mufettisiKur(sonDoc)
+        })
         if (!yazilabilir) return
         e.contentEditable = 'true'
         e.addEventListener('blur', () =>
@@ -542,13 +574,27 @@ window.addEventListener('beforeunload', (e) => {
   e.returnValue = ''
 })
 
+// ⚠ ⚠ **YAZMALAR SIRAYA GİRİYOR ve bunu bir YARIŞ öğretti.** Silme düğmesine basmak
+// önce düzenlenebilir ögede `blur` tetikliyor (metni geri yazan bir istek), sonra
+// silme isteğini gönderiyordu. İki istek paralel gidiyor ve blur'unki SONRA varınca
+// silinen metin geri geliyordu: kullanıcı siliyor, hiçbir şey olmuyor. Ölçüldü —
+// gerçek tarayıcıda başlık silme sonrası AYNEN duruyordu.
+//
+// Sıra tek bir zincirle korunuyor: her yazma bir öncekinin bitmesini bekliyor. Tezgâh
+// tek kullanıcılı ve yazmalar milisaniyeler sürüyor; kaybedilen şey yok, kazanılan şey
+// SON SÖZÜN son yazana ait olması.
+let yazmaZinciri = Promise.resolve()
+
 async function yaz(d) {
   gecmis.push(1)
   kaydiIsaretle(kaydedilmemis + 1)
-  await fetch('/degistir?id=' + id, { method: 'POST', body: JSON.stringify(d) })
-  // ⚠ Yazdıktan sonra HEMEN yeniden çiziliyor: "uygula" düğmesi yok, karar gözle
-  // veriliyor. Bu satır bir kez kazara silindi ve düzenleme sessizce görünmez oldu.
-  await cek()
+  yazmaZinciri = yazmaZinciri.then(async () => {
+    await fetch('/degistir?id=' + id, { method: 'POST', body: JSON.stringify(d) })
+    // ⚠ Yazdıktan sonra HEMEN yeniden çiziliyor: "uygula" düğmesi yok, karar gözle
+    // veriliyor. Bu satır bir kez kazara silindi ve düzenleme sessizce görünmez oldu.
+    await cek()
+  })
+  await yazmaZinciri
 }
 async function olc() {
   const r = await fetch('/olc?id=' + id)
