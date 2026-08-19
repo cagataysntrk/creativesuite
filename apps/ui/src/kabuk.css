@@ -933,3 +933,26 @@ tr[data-tiklanir] {
   border-radius: var(--radius);
   padding: var(--space-2);
 }
+
+/* Uyum özeti — durum başına sayı + ne yapılacağı. Düğme aynı zamanda filtre:
+   sayıya tıklamak o durumu süzer, ikinci tıklama bırakır. */
+.uyum-ozet {
+  list-style: none;
+  margin: var(--space-2) 0;
+  padding: 0;
+}
+.uyum-ozet li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--role-line-hair);
+}
+.uyum-ozet button {
+  min-width: 14rem;
+  text-align: left;
+}
+.uyum-ozet button.secili {
+  color: var(--role-text);
+  border-color: var(--role-text);
+}
