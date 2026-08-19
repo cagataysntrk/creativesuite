@@ -14,6 +14,33 @@ import { describe, expect, it } from 'vitest'
 import { ORNEK_SAHNE } from './katalog-ornek.js'
 import { AI_IFSA_METNI, panoramaHtml, type PanoramaBelgesi } from './panorama.js'
 import { panoramaDenetle } from './panorama-denetim.js'
+import { withPage } from './browser.js'
+
+/**
+ * Belgeyi tarayıcıda kurup verilen ölçümü koşar.
+ *
+ * ⚠ Ayrı bir yardımcı: denetim kusur LİSTESİ döndürüyor, buradaki sorular ise
+ * yerleşimle ilgili ve kusur türü açmayı hak etmiyor. Tarayıcı darboğazı yine
+ * `withPage` (§3.8) — ikinci bir Chromium açan test, ölçtüğünü sandığı şeyi
+ * başka bir ortamda ölçer.
+ */
+interface SeritOlcumu {
+  readonly cakisma: readonly string[]
+  readonly tasan: number
+  readonly ifsaGenisligi: number
+}
+
+const olcumSayfasi = async (doc: PanoramaBelgesi, kod: string): Promise<SeritOlcumu | null> => {
+  const r = await withPage(async (page) => {
+    await page.setViewportSize({ width: doc.slaytGenisligi, height: doc.yukseklik })
+    await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
+    await page.evaluate('(async () => { await document.fonts.ready; return true })()')
+    return (await page.evaluate(kod)) as SeritOlcumu
+  })
+  // ⚠ `throw` YOK: hata bir DEĞERDİR (§8.6) ve `chokepoints` kapısı testte de zorluyor.
+  // `null` dönüyor; çağıran onu bir başarısızlık olarak SINIYOR.
+  return r.ok ? r.value : null
+}
 
 const DAMGA = { brandId: 'b', eraId: 'e', kitVersion: 'k' }
 const belge = (aiIfsasi: boolean): PanoramaBelgesi =>
@@ -39,6 +66,40 @@ describe('görünür AI ifşası', () => {
     expect(r.ok).toBe(true)
     const kusurlar = r.ok ? r.value : []
     expect(kusurlar.filter((k) => k.tur === 'ifsa-gorunmuyor')).toEqual([])
+  }, 30_000)
+
+  // ⚠ ⚠ **İFŞA ŞERİDİ EKLEMEK KÜNYEYİ TAŞIRDI ve bunu ölçüm DEĞİL göz yakaladı.**
+  // Gerçek çıktıda uzun bir kaynak metni ifşanın altından geçti: flex öğeleri
+  // `min-width: 0` olmadan içeriklerinin altına inmiyor. Küçülme hakkı kaynak
+  // metnine ait; ifşa ve sayaç sabit — ifşanın kırpılması Md. 50 açısından kabul
+  // edilemez, kaynak metninin kırpılması ise anlamı yok etmez.
+  it('uzun kaynak metniyle bile şeritte ÇAKIŞMA yok', async () => {
+    const uzun = 'Excel, vardiya defteri ya da hiçbir şey — imalatta ölçüm başlangıcı'
+    const doc = {
+      ...belge(true),
+      kartlar: ORNEK_SAHNE.kartlar.map((k) => ({ ...k, rayaOrta: uzun })),
+    } as unknown as PanoramaBelgesi
+    const r = await olcumSayfasi(
+      doc,
+      `(() => {
+      const ray = document.querySelector('.kart .ray')
+      const c = [...ray.children].map((e) => {
+        const r = e.getBoundingClientRect()
+        return { sinif: e.className, sol: r.left, sag: r.right }
+      })
+      const cakisma = []
+      for (let i = 1; i < c.length; i++) if (c[i].sol < c[i-1].sag - 1) cakisma.push(c[i-1].sinif)
+      const rr = ray.getBoundingClientRect()
+      const ifsa = c.find((x) => x.sinif === 'ray-ifsa')
+      return { cakisma, tasan: c.filter((x) => x.sag > rr.right + 1).length,
+               ifsaGenisligi: ifsa === undefined ? 0 : ifsa.sag - ifsa.sol }
+    })()`
+    )
+    expect(r).not.toBeNull()
+    expect(r?.cakisma).toEqual([])
+    expect(r?.tasan).toBe(0)
+    // İfşa KIRPILMAMIŞ: genişliği metnin gerçek genişliği kadar.
+    expect(r?.ifsaGenisligi ?? 0).toBeGreaterThan(100)
   }, 30_000)
 
   it('şerit GİZLENİRSE ölçüm YAKALIYOR — varlık değil görünürlük ölçülüyor', async () => {

@@ -985,8 +985,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           : `<img class="ray-logo" src="${kacir(
               koyuMu(kartinZemini(k), doc.tokenCss) ? doc.logo.koyu : doc.logo.acik
             )}" alt="Upcytech">`) +
-        `<span>${kacir(k.rayaSol)}</span>` +
-        `<span>${kacir(k.rayaOrta)}</span>` +
+        // ⚠ Sınıflar AÇIK: küçülme hakkı yalnız ORTA metne ait. `nth-child` ile
+        // hedeflemek, logo varken/yokken farklı öğeyi kırpardı.
+        `<span class="ray-sol">${kacir(k.rayaSol)}</span>` +
+        `<span class="ray-orta">${kacir(k.rayaOrta)}</span>` +
         (doc.aiIfsasi === true ? `<span class="ray-ifsa">${kacir(AI_IFSA_METNI)}</span>` : '') +
         `<span class="ray-sayac">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</span></div>` +
         `</section>`
@@ -1441,11 +1443,21 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `         display: flex; gap: 40px; align-items: center;`,
     `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: 20px;`,
     `         font-size: 18px; letter-spacing: 0.13em; color: ${sol('--kart-metin', 48)} }`,
-    `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700 }`,
+    `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700;`,
+    `         flex: none; white-space: nowrap }`,
     // ⚠ İfşa şeritte, künyenin yanında: bir uyarı kutusu değil bir KÜNYE satırı —
     // fotoğraf kredisi gibi okunur. Görünür olmak zorunda ama tasarımı bozmak
     // zorunda değil; `ray-sayac`tan ÖNCE, sağa yaslanmadan duruyor.
-    `  .ray-ifsa { margin-left: auto; opacity: 0.85 }`,
+    //
+    // ⚠ ⚠ **KAYNAK METNİ KISALIR, İFŞA KISALMAZ.** Gerçek çıktıda uzun bir `rayaOrta`
+    // ifşanın ALTINDAN geçip okunmaz bir karışıklık üretti: flex öğeleri `min-width`
+    // olmadan içeriklerinin altına inmiyor. Küçülme hakkı kaynak metnine veriliyor
+    // (zaten uzun nesir ve kırpılınca anlamı kaybolmaz), ifşa ve sayaç sabit —
+    // ifşanın kırpılması Md. 50 açısından kabul edilemez.
+    `  .ray-sol { flex: none; white-space: nowrap }`,
+    `  .ray-orta { min-width: 0; overflow: hidden; text-overflow: ellipsis;`,
+    `         white-space: nowrap }`,
+    `  .ray-ifsa { margin-left: auto; opacity: 0.85; flex: none; white-space: nowrap }`,
     `  .ray-ifsa + .ray-sayac { margin-left: 40px }`,
     // ── görsel katmanı ──────────────────────────────────────────────────────
     `  .gorsel, .gorsel-yer { position: absolute; z-index: 4; object-fit: cover }`,

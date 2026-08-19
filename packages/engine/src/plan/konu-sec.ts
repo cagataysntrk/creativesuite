@@ -143,7 +143,11 @@ export const konuSecPromptu = (g: {
     'Aşağıdakiler markanın KENDİ kayıtlarının başlıkları — ürünler, strateji notları,',
     'kanıtlar. BİRİNİ seç: yeni bir konu UYDURMA, listede olmayan bir şey yazma.',
     '',
-    ...g.adaylar.map((a, i) => `${String(i + 1)}. [${a.tur}] ${a.baslik}`),
+    // ⚠ ⚠ **BAŞLIK ÖNCE, TÜR SONRA — ve bu sıra ölçülerek değişti.** İlk sürüm
+    // `[tur] baslik` yazıyordu ve model "başlığı birebir kopyala" talimatını
+    // uygularken ÖN EKİ DE kopyaladı: `"[positioning] Veri katmanından karara"`.
+    // Doğrulama reddetti, koşu durdu. Model yanlış davranmadı; istem belirsizdi.
+    ...g.adaylar.map((a, i) => `${String(i + 1)}. ${a.baslik}   (tür: ${a.tur})`),
     '',
     `Geçmişte ${String(g.islenmisSayisi)} konu işlendi ve onlar bu listede YOK.`,
     'Seçerken sırayla şunu sor:',
@@ -152,7 +156,7 @@ export const konuSecPromptu = (g: {
     '  · bugünün gündemine bu liste içinde en yakın duran hangisi?',
     '',
     'YALNIZ şu JSON ile cevapla, başka hiçbir şey yazma:',
-    '{"konu": "<listeden başlığı birebir kopyala>", "gerekce": "<tek cümle, neden bu>"}',
+    '{"konu": "<yalnız BAŞLIK — parantez içindeki türü YAZMA>", "gerekce": "<tek cümle>"}',
   ].join('\n')
 }
 
@@ -189,7 +193,16 @@ export const konuSecimiCozumle = (
   }
   const o = veri as { konu?: unknown; gerekce?: unknown }
   if (typeof o.konu !== 'string') return null
-  const konu = o.konu.trim()
-  if (!basliklar.includes(konu)) return null
-  return { konu, gerekce: typeof o.gerekce === 'string' ? o.gerekce.trim() : '' }
+  // ⚠ **KENDİ BİÇİMİMİZE toleranslıyız, UYDURMAYA değil.** Model listede gösterdiğimiz
+  // süslemeleri (baştaki `[tür]`, sondaki `(tür: …)`, satır numarası) kopyalayabiliyor
+  // ve bu bir hata değil, istemi harfiyen uygulaması. Temizlik yalnız BİZİM
+  // yazdığımız kalıpları soyuyor; sonuç yine adaylara karşı doğrulanıyor.
+  const temiz = o.konu
+    .trim()
+    .replace(/^\d+[.)]\s*/, '')
+    .replace(/^\[[^\]]*\]\s*/, '')
+    .replace(/\s*\((?:tür|tur):[^)]*\)\s*$/i, '')
+    .trim()
+  if (!basliklar.includes(temiz)) return null
+  return { konu: temiz, gerekce: typeof o.gerekce === 'string' ? o.gerekce.trim() : '' }
 }

@@ -5,7 +5,7 @@
 // komut sağlayıcı çağırabilir. Bütçe tavanı zorunlu ve varsayılan DÜŞÜK: tavansız
 // çalıştırmak, gözetimsiz bir gecede tavanın olmadığını öğrenmektir.
 
-import { readFileSync, existsSync, statSync, mkdirSync } from 'node:fs'
+import { readFileSync, existsSync, statSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -106,6 +106,9 @@ const KONU_SEC = process.argv.includes('--konu-sec')
 // koşu R-07 kapısında "plan DEĞİŞTİ" ile ölüyordu. İki yerde hesaplanan bir şey
 // iki farklı sonuç verir — hesap `kosuParametreleri`ne taşındı, iki çağıran da
 // oradan okuyor.
+// ⚠ Defter yolu `RUNS_DIR`den geliyor, elle yazılmıyor: `chokepoints` kapısı
+// defterin yerini bilen ikinci bir yer istemiyor (§13 · D-38).
+const { RUNS_DIR } = await import(join(REPO, 'packages/kernel/dist/manifest.js'))
 const { kosuParametreleri, konuAdaylari, islenmisKonular } = await import(
   join(REPO, 'packages/engine/dist/index.js')
 )
@@ -687,38 +690,88 @@ if (beklenenDigest !== undefined && beklenenDigest !== donmusPlan.digest) {
 // hesaplamıyordu ve panelden başlatılan HER koşu R-07 kapısında "plan DEĞİŞTİ" ile
 // ölüyordu — panel bir özete onay alıyor, CLI başkasını hesaplıyordu. Hesap
 // `kosuParametreleri`ne taşındı; iki çağıran da oradan okuyor.
-const KOSU_PARAMLARI = kosuParametreleri({
-  repoRoot: REPO,
-  brandId: MARKA,
-  konu: devamKonu ?? kaynakKonu ?? konu,
-  serbest: {
-    ...serbestParam,
-    // ⚠ ⚠ **KONUSUZ BAŞLATMA: adaylar burada hesaplanır, konu HATTIN İÇİNDE seçilir.**
-    // Deterministik "ilk başlık" yaklaşımı denendi ve her koşuda aynı konuyu verdi
-    // (depo sahibi ilk denemede yakaladı). Seçim modele ait; liste kayıtlara ait.
-    ...(KONU_SEC && (devamKonu ?? kaynakKonu) === null
-      ? (() => {
-          const adaylar = konuAdaylari({
-            db: corpusDb,
-            query: { brandId: MARKA, eraId: AKTIF_DONEM, asOf: clock.nowIso() },
-            repoRoot: REPO,
-          })
-          if (adaylar.length === 0) {
-            console.log('✗ konu seçilemez: geçmişte işlenmemiş aday kayıt kalmadı.')
-            console.log('    Yeni bir corpus kaydı ekle ya da konuyu elle yaz.')
-            process.exit(1)
-          }
-          console.log(`  konu seçimi hatta bırakıldı — ${adaylar.length} aday`)
-          return {
-            konu_adaylari: JSON.stringify(adaylar),
-            islenmis_konu_sayisi: String(islenmisKonular(REPO).size),
-          }
-        })()
-      : {}),
-  },
-})
+// ⚠ ⚠ **SÜRDÜRME PARAMETRELERİ ARGV'DEN TÜRETİLEMEZ.** R-07 "tüm parametreler donar"
+// diyor ama parametreler hiçbir yere YAZILMIYORDU. Sonuç ölçüldü: insan
+// `metin-onayi`ni onayladı, sunucu `just uret <hat> --devam <id>` çalıştırdı — komut
+// satırında `--konu-sec` yok, `konu_adaylari` geçmiyor, `konu-sec` adımı "prompt-yok"
+// diye ATLANIYOR ve `bilgi-sec` `MISSING_TOPIC` ile düşüyor. Kapıyı onaylamak koşuyu
+// öldürüyordu.
+//
+// Aynı sorunun sessiz hâli: `son_kullanilan` ve `kacinilacak` sürdürmede BUGÜNÜN
+// geçmişinden yeniden hesaplanıyordu — yani sürdürülen koşu, dondurulmuş plandan
+// farklı bir dünyada koşuyordu (D-308'in tam tersi).
+//
+// Parametreler artık koşunun kendi defterine yazılıyor ve sürdürmede ORADAN okunuyor.
+const PARAM_DOSYASI = join(cikti, 'kosu-parametreleri.json')
+const kaynakKosu = devamRunId ?? rerunRunId ?? replayRunId
+const KOSU_PARAMLARI = (() => {
+  if (kaynakKosu !== undefined) {
+    const yol = join(REPO, RUNS_DIR, kaynakKosu, 'kosu-parametreleri.json')
+    if (existsSync(yol)) {
+      const p = JSON.parse(readFileSync(yol, 'utf8'))
+      // ⚠ ⚠ **EKSİK KAYIT KENDİNİ İYİLEŞTİRİYOR.** Konusuz bir koşuda `konu_adaylari`
+      // yoksa `konu-sec` "prompt-yok" diye atlanır ve `bilgi-sec` `MISSING_TOPIC` ile
+      // düşer — yani eksik bir kayıt, koşuyu sessizce öldürür. Ölçüldü: hatalı yazılmış
+      // tek bir kayıt sonraki HER sürdürmeyi zehirledi.
+      const konusuz = typeof p.topic !== 'string' || p.topic.trim() === ''
+      if (konusuz && p.konu_adaylari === undefined) {
+        console.log(`  ⚠ kayıtta aday konu listesi yok — yeniden hesaplanıyor`)
+      } else {
+        console.log(`  parametreler kaynak koşudan okundu (${Object.keys(p).length} alan)`)
+        return p
+      }
+    } else {
+      // ⚠ Eski koşularda dosya yok: yeniden hesaplanıyor ama SESSİZ DEĞİL — bu koşu
+      // dondurulmuş parametrelerle değil bugünün dünyasıyla sürüyor.
+      console.log(`  ⚠ kaynak koşuda parametre kaydı yok — bugünün değerleriyle hesaplanıyor`)
+    }
+  }
+  const p = kosuParametreleri({
+    repoRoot: REPO,
+    brandId: MARKA,
+    konu: devamKonu ?? kaynakKonu ?? konu,
+    serbest: {
+      ...serbestParam,
+      // ⚠ ⚠ **KONUSUZ BAŞLATMA: adaylar burada hesaplanır, konu HATTIN İÇİNDE seçilir.**
+      // Deterministik "ilk başlık" yaklaşımı denendi ve her koşuda aynı konuyu verdi
+      // (depo sahibi ilk denemede yakaladı). Seçim modele ait; liste kayıtlara ait.
+      // ⚠ Sürdürmede bayrak YOK ama gerçek var: konusu KAYITLI OLMAYAN bir koşu,
+      // konusunu zincirden almış bir koşudur. Bayrağa bakmak, komut satırını
+      // gerçeğin üstüne koymak olurdu — ve tam bu yüzden onaylanan koşu ölüyordu.
+      ...((KONU_SEC || kaynakKosu !== undefined) && (devamKonu ?? kaynakKonu) === null
+        ? (() => {
+            const adaylar = konuAdaylari({
+              db: corpusDb,
+              query: { brandId: MARKA, eraId: AKTIF_DONEM, asOf: clock.nowIso() },
+              repoRoot: REPO,
+            })
+            if (adaylar.length === 0) {
+              console.log('✗ konu seçilemez: geçmişte işlenmemiş aday kayıt kalmadı.')
+              console.log('    Yeni bir corpus kaydı ekle ya da konuyu elle yaz.')
+              process.exit(1)
+            }
+            console.log(`  konu seçimi hatta bırakıldı — ${adaylar.length} aday`)
+            return {
+              konu_adaylari: JSON.stringify(adaylar),
+              islenmis_konu_sayisi: String(islenmisKonular(REPO).size),
+            }
+          })()
+        : {}),
+    },
+  })
+  return p
+})()
 if (KOSU_PARAMLARI.kacinilacak !== undefined) {
   console.log(`  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor`)
+}
+// ⚠ ⚠ **YALNIZ TAZE KOŞUDA YAZILIYOR.** Sürdürme kaydı EZMEZ: ezseydi bir sürdürmenin
+// eksik parametreleri koşunun doğduğu andaki gerçeğin üstüne yazılırdı — ve tam bu
+// oldu: hatalı yazılmış tek bir kayıt sonraki her sürdürmeyi zehirledi. Donmuş bir
+// kayıt, ancak yazıldığı an doğruysa bir kayıttır.
+// Defterin parçası: `derived/runs/` türetilmiş DEĞİLDİR ve silinmez (Yasa 11).
+if (kaynakKosu === undefined) {
+  mkdirSync(cikti, { recursive: true })
+  writeFileSync(PARAM_DOSYASI, `${JSON.stringify(KOSU_PARAMLARI, null, 2)}\n`, 'utf8')
 }
 
 const rapor = await runPipeline({
@@ -837,13 +890,24 @@ if (slaytlar.length > 0) {
   // katman aşağıda EU AI Act Md. 50 ifşa kapısı sessizce kapandı (D-232). Karar artık
   // hattan okunuyor ve `uyum-kapsami.test.ts` gerçek hat dosyalarına karşı ölçüyor.
   const kapsam = uyumKapsami(cozum.value)
+  const zincirKonusu = rapor.outputs['konu-sec']?.konu
+  const etkinKonu =
+    devamKonu ??
+    kaynakKonu ??
+    (konu !== '' ? konu : typeof zincirKonusu === 'string' ? zincirKonusu : '')
   const iddia = assertCompliance({
     // Özet `assertCompliance` tarafından TARANAN prompt'tan hesaplanır; buradaki
     // değer yok sayılır (D-143). Yer tutucu bırakmak, iddianın kendi dayanağını
     // yazdığı izlenimini verirdi.
     basis: { kind: 'prompt_forbids_people', promptDigest: '' },
     aiGenerated: kapsam.aiGenerated,
-    prompt: taranacakPrompt(kapsam, konu),
+    // ⚠ ⚠ **KONU ZİNCİRDEN DE GELEBİLİR ve gelmediğinde uyum iddiası ÇÖKÜYORDU.**
+    // Konusuz başlatmada CLI konusu boş; gerçek konu `konu-sec` adımının çıktısında.
+    // Boş bir istem taranınca `assertCompliance` — doğru biçimde — `basis_missing`
+    // diyor ve koşu 21 adım sonra, dört görsel üretildikten ve render bittikten SONRA
+    // düşüyordu. Ölçüldü: `✗ uyum iddiası kurulamadı: {"refusal":{"kind":
+    // "basis_missing"}}`. İddia neyi ürettiğimize bakmalı, komut satırına değil.
+    prompt: taranacakPrompt(kapsam, etkinKonu),
     correlationId: `cor_${runId}`,
   })
   if (!iddia.ok) {

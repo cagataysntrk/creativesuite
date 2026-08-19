@@ -45,6 +45,8 @@ import { varyantlaGenislet } from './varyant-genislet.js'
 import { CircuitBreaker } from './breaker.js'
 import * as budget from './budget.js'
 import { RateLimiter } from './ratelimit.js'
+import { adimCiktisiniOku, adimCiktisiniYaz } from './adim-ciktisi.js'
+import { runOutputDir } from './manifest-writer.js'
 import { runStep, type CallOutcome, type StepSpec } from './scheduler.js'
 import { runVerb } from './run-verb.js'
 import { resolveVerb, type VerbImplementations } from './verbs/registry.js'
@@ -798,11 +800,34 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
     })
 
     if (sonuc.ok) {
-      ciktilar[id] = sonuc.outcome?.data ?? null
+      // ⚠ ⚠ **DEFTERDEN OYNATILAN ADIMIN ÇIKTISI DİSKTEN GELİYOR.** Ücretli bir adım
+      // ikinci kez koşulduğunda maliyet defteri "bu iş bitti" deyip çağrıyı atlıyor ve
+      // `data: null` dönüyor — doğru davranış, çift ödeme olmasın. Ama çıktı da yok
+      // oluyordu ve aşağı akış boş kalıyordu: insan `metin-onayi`ni onaylıyor, hat
+      // `--devam` ile sürüyor ve `bilgi-sec` `MISSING_TOPIC` ile düşüyordu — agent'ın
+      // seçtiği konu buharlaşmıştı. Aynı sebeple `sablon-uyarla` daha önce
+      // `ADAPTATION_UNPARSEABLE` vermişti. **Her kapı, arkasındaki zinciri sessizce
+      // kesiyordu.**
+      //
+      // Defterin işi ÖDEMEYİ tekrarlamamak; işin SONUCUNU unutmak değil.
+      const tazeCikti = sonuc.outcome?.data ?? null
+      const diskYolu = runOutputDir(input.repoRoot, input.runId)
+      if (tazeCikti === null) {
+        const kayitli = adimCiktisiniOku(diskYolu, id)
+        if (kayitli !== null) input.iz?.(`  ↺ ${id} çıktısı defterden okundu`)
+        ciktilar[id] = kayitli
+      } else {
+        ciktilar[id] = tazeCikti
+        if (!adimCiktisiniYaz(diskYolu, id, tazeCikti)) {
+          // Sessiz kalmıyor: yazılamayan bir çıktı, bir sonraki tekrar oynatmada
+          // zincirin yine kesileceği anlamına gelir.
+          input.iz?.(`  ⚠ ${id} çıktısı diske yazılamadı — tekrar oynatmada kaybolur`)
+        }
+      }
       // Dış metin karantinaya indiyse §14 sınırı BUNDAN SONRAKİ metered fiiller için
       // devreye girer: taze dış metin varken insan onayı olmadan para harcanamaz,
       // yayın yapılamaz. Sınır fiil ÇALIŞMADAN ÖNCE sorulur (`runVerb`).
-      const d = sonuc.outcome?.data as {
+      const d = ciktilar[id] as {
         fetchedAt?: unknown
         sourceRef?: unknown
         domain?: unknown
