@@ -76,3 +76,27 @@ export const uyumKapsami = (p: Pipeline): UyumKapsami => {
  */
 export const taranacakPrompt = (kapsam: UyumKapsami, konu: string): string =>
   kapsam.aiGenerated ? [konu, ...kapsam.promptlar].join('\n') : konu
+
+/**
+ * Koşu GERÇEKTEN model görseli üretti mi — hattın YAPABİLDİĞİ değil, YAPTIĞI.
+ *
+ * ⚠ ⚠ **HAT KAPSAMI ÜST SINIRDIR, OLGU DEĞİL.** `uyumKapsami` "bu hat görsel
+ * üretebilir mi" sorusunu cevaplıyor ve D-232'de tam da bunun için yazıldı: eskiden
+ * `aiGenerated` sabit `false` idi ve ifşa kapısı sessizce kapanıyordu. Ama üst sınır
+ * karar yerine kullanılınca ters yönde yanılıyor:
+ *
+ * Ölçülen koşu — `akan-alan` şablonu seçildi, o şablonun görsel yuvası YOK, dolayısıyla
+ * `gorsel-uret` **atlandı** (`status: skipped`). Kreatifte tek bir model görseli yok.
+ * Yine de `aiGenerated: true` yazıldı → `disclosureRequired: true` → görünür ifşa
+ * aranmadı (aranacak görsel yok) → `visibleDisclosure: false` → **kusursuz, sıfır
+ * kusurlu bir karosel YAYINLANAMAZ oldu.** İhtiyacı olmayan bir ifşa yüzünden.
+ *
+ * ⚠ Yön önemli: eksik iddia etmek tehlikeli, fazla iddia etmek engelleyici. Bu yüzden
+ * karar bir VARSAYIMA değil deftere dayanıyor — adımın `status`u. Adım koştuysa ve
+ * çıktı ürettiyse ifşa gerekir; `skipped` ise adım hiç çalışmamıştır ve bu bir kayıttır,
+ * bir tahmin değil.
+ */
+export const kosudaGorselUretildi = (
+  kapsam: UyumKapsami,
+  adimDurumlari: Readonly<Record<string, string | undefined>>
+): boolean => kapsam.adimlar.some((id) => adimDurumlari[id] === 'ok')

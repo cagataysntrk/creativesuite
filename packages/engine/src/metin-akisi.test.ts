@@ -194,7 +194,7 @@ describe('akış ayrıştırıcısı — fotoğrafın yerine geçen görsellik',
 // olurdu; yani sistem doğru davranıp KULLANILAMAZ bir çıktı üretti. Kural yorumda
 // yazıyordu, kodda yoktu.
 describe('ritim hedefi kaynağa bağlı', () => {
-  const kayitSayili = [{ id: 'r1', text: '2026 yılında 12 tesis ölçüldü' }]
+  const kayitSayili = [{ id: 'r1', text: '2026 yılında 12 tesis ölçüldü, %38 fire düştü' }]
   const kayitSayisiz = [{ id: 'r2', text: 'Ölçüm altyapısı kurulmuş durumda' }]
 
   it('kaynakta sayı VARSA sayısal ritim hedeflenebiliyor', () => {
@@ -205,6 +205,20 @@ describe('ritim hedefi kaynağa bağlı', () => {
     })
     expect(p).not.toBeNull()
     expect(p).toContain('en az bir SAYI')
+  })
+
+  // ⚠ ⚠ **GERÇEK KOŞUNUN KAYDI.** Bağlamda TEK kayıt vardı ve içinde TEK bir `1`
+  // geçiyordu; "rakam var mı" kontrolü geçti, ritim her satırda sayı istedi ve model
+  // reddetti. Bir metnin içindeki tek bir rakam, beş satırlık bir veri ritmini
+  // taşıyamaz — ölçülen şey artık FARKLI sayısal belirteç sayısı.
+  it('tek bir rakam sayısal ritmi TAŞIMIYOR', () => {
+    const p = icerikPromptu({
+      konu: 'ölçüm',
+      kayitlar: [{ id: 'r', text: 'Veriyi varsayan araçlar tek bir kabulle çalışır' }],
+      sonSablonlar: ['sahne', 'memphis', 'akan-alan'],
+    })
+    expect(p).not.toBeNull()
+    expect(p).not.toContain('en az bir SAYI')
   })
 
   it('kaynakta sayı YOKSA sayısal ritim İSTENMİYOR — uydurma yasak', () => {

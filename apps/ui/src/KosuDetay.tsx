@@ -14,6 +14,8 @@ interface Icerik {
   readonly pipeline: string
   readonly createdAt: string
   readonly bekleyenKapi: string | null
+  /** Hangi adımda durdu — `null` = durmadı. */
+  readonly duraklananAdim: string | null
   readonly satirlar: readonly string[]
   readonly sablonId: string | null
   readonly ritimHedefi: string | null
@@ -40,6 +42,8 @@ interface Icerik {
     readonly code?: number | null
     readonly stderr?: string
     readonly stdout?: string
+    /** `true` = adım kaydı var, yani süreç başlamıştı; bu kayıt GEÇMİŞ bir deneme. */
+    readonly gecmis?: boolean
   } | null
 }
 
@@ -161,7 +165,11 @@ export const KosuDetay = ({
 
       {d.baslatilamadi === null ? null : (
         <div className="kapi-kutusu">
-          <strong>✗ süreç hiç başlamadı.</strong>
+          <strong>
+            {d.baslatilamadi.gecmis === true
+              ? '✗ önceki bir başlatma denemesi başarısız olmuştu'
+              : '✗ süreç hiç başlamadı.'}
+          </strong>
           <p className="giris-not">
             <code>{d.baslatilamadi.komut ?? ''}</code> · çıkış {String(d.baslatilamadi.code ?? '?')}
           </p>
@@ -180,6 +188,40 @@ export const KosuDetay = ({
           </>
         )}
       </p>
+
+      {/* ⚠ ⚠ **DURAN BİR KOŞUYU PANELDEN SÜRDÜRMENİN YOLU YOKTU.** Kapı kararı
+          verilmiş ama adım hata vermişse (model reddi, sağlayıcı hatası) ekranda
+          yapılacak hiçbir şey kalmıyordu: tek çare komut satırıydı. Panelin
+          "tek merkez" iddiası tam burada kırılıyordu. */}
+      {d.durum !== 'durdu' ? null : (
+        <div className="kapi-kutusu">
+          <strong>Koşu {d.duraklananAdim ?? ''} adımında durdu.</strong>
+          <p className="giris-not">
+            Sebep adım defterinde. Düzeltme yapıldıysa buradan sürdürebilirsin — kapı kararları
+            korunur, biten adımlar tekrar koşmaz.
+          </p>
+          <div className="kapi-dugmeler">
+            <button
+              type="button"
+              onClick={() => {
+                void (async () => {
+                  setMesaj('sürdürülüyor…')
+                  const r = await fetch(`/api/kosu/${runId}/surdur`, { method: 'POST' })
+                  const j = (await r.json()) as { ok?: boolean; hata?: string }
+                  setMesaj(
+                    j.ok === true
+                      ? '✓ sürdürülüyor — bu ekran kendini tazeliyor'
+                      : `✗ sürdürülemedi: ${j.hata ?? 'bilinmeyen'}`
+                  )
+                  void yukle()
+                })()
+              }}
+            >
+              ↻ sürdür
+            </button>
+          </div>
+        </div>
+      )}
 
       {d.bekleyenKapi === null ? null : (
         <div className="kapi-kutusu">

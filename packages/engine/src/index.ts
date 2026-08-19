@@ -141,6 +141,7 @@ export {
   kacinilacakGerekceler,
   type KosuParamGirdisi,
 } from './plan/kosu-parametreleri.js'
+export { kosudaGorselUretildi } from './uyum-kapsami.js'
 export { adimCiktisiniOku, adimCiktisiniYaz, adimDizini } from './adim-ciktisi.js'
 export { resolveVerb, type VerbImplementations } from './verbs/registry.js'
 

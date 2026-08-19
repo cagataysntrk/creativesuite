@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { join } from 'node:path'
 import { listPipelines, loadPipeline, type Pipeline } from '@suite/registry'
 import { assertCompliance } from '@suite/render'
-import { taranacakPrompt, uyumKapsami } from './uyum-kapsami.js'
+import { kosudaGorselUretildi, taranacakPrompt, uyumKapsami } from './uyum-kapsami.js'
 
 // Yol `join` ile parça parça kuruluyor: `registry/pipelines/` düz dizesi
 // `yapilandirma-cozucu` darboğazının deseni ve tek yetkili yer `resolve.ts`.
@@ -120,5 +120,30 @@ describe('iddia zinciri: aiGenerated → disclosureRequired', () => {
       correlationId: 'cor_test',
     })
     expect(r.ok).toBe(false)
+  })
+})
+
+// ⚠ ⚠ **HAT KAPSAMI ÜST SINIRDIR, OLGU DEĞİL — ve bu ayrım gerçek bir koşuda ölçüldü.**
+// `akan-alan` şablonu seçildi, o şablonun görsel yuvası yok, `gorsel-uret` ATLANDI ve
+// kreatifte tek bir model görseli kalmadı. Yine de `aiGenerated: true` yazılıyor,
+// görünür ifşa aranıyor (aranacak görsel yok), bulunamıyor ve SIFIR KUSURLU bir
+// karosel yayınlanamaz oluyordu.
+describe('koşuda gerçekten görsel üretildi mi', () => {
+  const kapsam = { aiGenerated: true, adimlar: ['gorsel-uret', 'gorsel-uret-2'], promptlar: [] }
+
+  it('adım ATLANDIYSA ifşa gerekmiyor — kayıt, tahmin değil', () => {
+    expect(
+      kosudaGorselUretildi(kapsam, { 'gorsel-uret': 'skipped', 'gorsel-uret-2': 'skipped' })
+    ).toBe(false)
+  })
+
+  it('bir adım bile KOŞTUYSA ifşa gerekiyor', () => {
+    expect(kosudaGorselUretildi(kapsam, { 'gorsel-uret': 'skipped', 'gorsel-uret-2': 'ok' })).toBe(
+      true
+    )
+  })
+
+  it('adım hiç görünmüyorsa ifşa gerekmiyor — koşmamış bir adım üretmemiştir', () => {
+    expect(kosudaGorselUretildi(kapsam, {})).toBe(false)
   })
 })

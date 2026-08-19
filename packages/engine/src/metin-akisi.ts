@@ -162,9 +162,35 @@ const BICIM: Readonly<Record<string, readonly string[]>> = {
  */
 const SAYI_ISTEYEN: ReadonlySet<string> = new Set(['veri-hikayesi'])
 
-/** Kaynakta gerçekten rakam var mı — ritim hedefi buna bağlı. */
-export const kaynaktaSayiVar = (kayitlar: readonly PromptKaydi[]): boolean =>
-  kayitlar.some((k) => /\d/.test(k.text))
+/**
+ * Sayısal ritmin ihtiyacı duyduğu EN AZ farklı sayı.
+ *
+ * Ritim "2. satırdan itibaren HER satır en az bir sayı içerecek" diyor ve karosel
+ * 5–7 satır. Aynı sayıyı beş kez yazmak bir veri hikâyesi değil, bir tekrardır;
+ * üç farklı sayı en düşük dürüst eşik.
+ */
+const EN_AZ_SAYI = 3
+
+/**
+ * Kaynakta ritmi taşıyacak kadar SAYISAL İDDİA var mı.
+ *
+ * ⚠ ⚠ **"RAKAM VAR MI" ZAYIF BİR VEKİLDİ ve gerçek koşuda kırıldı.** İlk sürüm
+ * `/\d/.test(text)` diyordu; bağlamda TEK kayıt vardı ve içinde TEK bir `1` geçiyordu.
+ * Kontrol "sayı var" dedi, ritim her satırda sayı istedi, model — haklı olarak —
+ * reddetti: *"MARKA BİLGİSİ hiçbir sayı içermiyor (yıl, oran, adet — hiçbiri yok)"*.
+ * Panelden onaylanan koşu tam bu yüzden `TEXT_REFUSED` ile durdu.
+ *
+ * Ölçülen şey artık **farklı sayısal belirteç sayısı**: bir metnin içindeki tek bir
+ * `1`, beş satırlık bir veri ritmini taşıyamaz. Sayılar tekilleştiriliyor — aynı
+ * sayıyı tekrar etmek yeni bir iddia değildir.
+ */
+export const kaynaktaSayiVar = (kayitlar: readonly PromptKaydi[]): boolean => {
+  const sayilar = new Set<string>()
+  for (const k of kayitlar) {
+    for (const m of k.text.matchAll(/\d+(?:[.,]\d+)?\s*%?/g)) sayilar.add(m[0].trim())
+  }
+  return sayilar.size >= EN_AZ_SAYI
+}
 
 const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): readonly string[] => {
   const kullanilan = sonSablonlar.map((s) => RITIM[s]).filter((r): r is string => r !== undefined)

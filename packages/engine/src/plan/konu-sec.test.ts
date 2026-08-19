@@ -37,6 +37,24 @@ describe('konu seçimi çözümleme', () => {
     expect(konuSecimiCozumle('{"konu": "Bugün aklıma gelen bir şey"}', ADAYLAR)).toBeNull()
   })
 
+  // ⚠ ⚠ **GERÇEK KOŞU:** model önce yanlış anahtarla yazdı, sonra "Düzeltme:" deyip
+  // İKİNCİ bir JSON ekledi. Açgözlü `/\{[\s\S]*\}/` ikisini birden yutuyor, sonuç
+  // geçersiz JSON ve adım duruyordu. Modelin SON sözü, düzeltmesidir.
+  it('model kendini düzeltirse SON nesne okunuyor', () => {
+    const ham =
+      '{"konu": "Veri katmanından karara", "gerecke": "yanlış anahtar"} ' +
+      'Düzeltme: {"konu": "Excel ve vardiya defteri", "gerekce": "doğrusu"}'
+    expect(konuSecimiCozumle(ham, ADAYLAR)).toEqual({
+      konu: 'Excel ve vardiya defteri',
+      gerekce: 'doğrusu',
+    })
+  })
+
+  it('önünde açıklama olan JSON okunuyor', () => {
+    const ham = 'Seçimim şu: {"konu": "Veri katmanından karara", "gerekce": "kanıt"}'
+    expect(konuSecimiCozumle(ham, ADAYLAR)?.konu).toBe('Veri katmanından karara')
+  })
+
   it('JSON olmayan cevap reddediliyor', () => {
     expect(konuSecimiCozumle('Bence Excel konusu iyi olur.', ADAYLAR)).toBeNull()
   })

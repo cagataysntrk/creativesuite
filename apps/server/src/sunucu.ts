@@ -145,11 +145,29 @@ const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
  * ⚠ Yazan var okuyan yok, bu depoda en sık tekrarlayan hata sınıfı (D-173). Kayıt
  * yazılıp hiçbir ekranda gösterilmeseydi, panelin "başlatıldı" yalanı devam ederdi.
  */
-const baslatmaHatasi = (repoRoot: string, runId: string): Record<string, unknown> | null => {
+const baslatmaHatasi = (
+  repoRoot: string,
+  runId: string,
+  sonAdimBitisi?: string
+): Record<string, unknown> | null => {
   const yol = join(repoRoot, RUNS_DIR, runId, 'baslatilamadi.json')
   if (!existsSync(yol)) return null
   try {
-    return JSON.parse(readFileSync(yol, 'utf8')) as Record<string, unknown>
+    const kayit = JSON.parse(readFileSync(yol, 'utf8')) as Record<string, unknown>
+    // ⚠ ⚠ **ESKİ BİR HATA GÜNCEL DURUM DEĞİLDİR.** Başarısız bir başlatmadan sonra
+    // aynı koşu sürdürülüp bitmişti; panel hâlâ "✗ süreç hiç başlamadı" diyordu —
+    // 20/28 adım tamam, dört slayt ekranda, üstte bir yalan. Kayıt SİLİNMİYOR
+    // (Yasa 11), yalnız daha yeni bir adım varsa GEÇMİŞ sayılıyor.
+    // ⚠ Zaman damgası olmayan eski kayıtlar (bu alan eklenmeden yazılanlar) güncel
+    // sayılıyor: bilinmeyen bir tarih, "eski" demek değildir.
+    const yazildi = typeof kayit['at'] === 'string' ? kayit['at'] : null
+    if (yazildi !== null && sonAdimBitisi !== undefined && sonAdimBitisi > yazildi) return null
+    // ⚠ ⚠ **"SÜREÇ HİÇ BAŞLAMADI" ÇÜRÜTÜLEBİLİR BİR İDDİADIR.** Zaman damgası olmayan
+    // eski kayıtlarda tarih karşılaştırması yapılamıyor — ama adım kaydı VARSA süreç
+    // apaçık başlamıştır. Panelde 19/28 adım ve dört slayt dururken üstte "hiç
+    // başlamadı" yazıyordu. Kayıt gizlenmiyor, DOĞRU adlandırılıyor: bu bir GEÇMİŞ
+    // deneme.
+    return { ...kayit, gecmis: sonAdimBitisi !== undefined }
   } catch {
     return { hata: 'baslatilamadi.json okunamadı' }
   }
@@ -390,7 +408,15 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       bitenAdim: adimlar.filter((s) => s.status === 'ok').length,
       // Başlatma hiç tutmadıysa sebebi BURADA: `derived/runs/<id>/baslatilamadi.json`.
       // Ekranın "yükleniyor" diye sonsuza kadar dönmesindense hatayı göstermesi gerek.
-      baslatilamadi: baslatmaHatasi(o.repoRoot, runId),
+      baslatilamadi: baslatmaHatasi(
+        o.repoRoot,
+        runId,
+        adimlar
+          .map((s) => s.finishedAt)
+          .filter((x): x is string => typeof x === 'string')
+          .sort()
+          .pop()
+      ),
       adimlar: adimlar.map((s) => ({
         id: s.stepId,
         verb: s.verb,

@@ -183,14 +183,43 @@ export const konuSecimiCozumle = (
   adaylar: readonly (string | KonuAdayi)[]
 ): KonuSecimi | null => {
   const basliklar = adaylar.map((a) => (typeof a === 'string' ? a : a.baslik))
-  const eslesme = /\{[\s\S]*\}/.exec(metin)
-  if (eslesme === null) return null
-  let veri: unknown
-  try {
-    veri = JSON.parse(eslesme[0])
-  } catch {
-    return null
+  // ⚠ ⚠ **AÇGÖZLÜ EŞLEŞME İKİ NESNEYİ BİRDEN YUTUYORDU.** Gerçek koşuda model önce
+  // yanlış anahtarla yazdı, sonra *"Düzeltme:"* deyip İKİNCİ bir JSON ekledi:
+  //   {"konu": "…", "gerecke": "…"} Düzeltme: {"konu": "…", "gerekce": "…"}
+  // `/\{[\s\S]*\}/` ilk `{`den son `}`ye kadar her şeyi alıyor, sonuç geçersiz JSON
+  // ve adım `TOPIC_NOT_IN_CANDIDATES` ile duruyordu. Model kendini DÜZELTMİŞTİ;
+  // ayrıştırıcı düzeltmeyi okuyamadı.
+  //
+  // Dengeli süslü parantezle adaylar çıkarılıyor ve SONDAN başlanıyor: modelin son
+  // sözü, düzeltmesidir.
+  const adaylarJson: string[] = []
+  let derinlik = 0
+  let bas = -1
+  for (let i = 0; i < metin.length; i++) {
+    const c = metin[i]
+    if (c === '{') {
+      if (derinlik === 0) bas = i
+      derinlik += 1
+    } else if (c === '}') {
+      derinlik -= 1
+      if (derinlik === 0 && bas >= 0) adaylarJson.push(metin.slice(bas, i + 1))
+      if (derinlik < 0) derinlik = 0
+    }
   }
+  let veri: unknown = null
+  for (const parca of [...adaylarJson].reverse()) {
+    try {
+      const denenen = JSON.parse(parca) as { konu?: unknown }
+      if (typeof denenen.konu === 'string') {
+        veri = denenen
+        break
+      }
+    } catch {
+      // Bu aday JSON değil; sıradakine bak. Sessiz DEĞİL: hiçbiri tutmazsa `null`
+      // dönüyor ve çağıran ham çıktıyı hataya koyuyor.
+    }
+  }
+  if (veri === null) return null
   const o = veri as { konu?: unknown; gerekce?: unknown }
   if (typeof o.konu !== 'string') return null
   // ⚠ **KENDİ BİÇİMİMİZE toleranslıyız, UYDURMAYA değil.** Model listede gösterdiğimiz

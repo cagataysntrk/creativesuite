@@ -109,7 +109,7 @@ const KONU_SEC = process.argv.includes('--konu-sec')
 // ⚠ Defter yolu `RUNS_DIR`den geliyor, elle yazılmıyor: `chokepoints` kapısı
 // defterin yerini bilen ikinci bir yer istemiyor (§13 · D-38).
 const { RUNS_DIR } = await import(join(REPO, 'packages/kernel/dist/manifest.js'))
-const { kosuParametreleri, konuAdaylari, islenmisKonular } = await import(
+const { kosuParametreleri, konuAdaylari, islenmisKonular, kosudaGorselUretildi } = await import(
   join(REPO, 'packages/engine/dist/index.js')
 )
 
@@ -890,6 +890,18 @@ if (slaytlar.length > 0) {
   // katman aşağıda EU AI Act Md. 50 ifşa kapısı sessizce kapandı (D-232). Karar artık
   // hattan okunuyor ve `uyum-kapsami.test.ts` gerçek hat dosyalarına karşı ölçüyor.
   const kapsam = uyumKapsami(cozum.value)
+  // ⚠ ⚠ **HAT NE YAPABİLİR ≠ KOŞU NE YAPTI.** Ölçülen koşu: `akan-alan` seçildi, o
+  // şablonun görsel yuvası yok, `gorsel-uret` ATLANDI — kreatifte tek bir model
+  // görseli yok. Yine de `aiGenerated: true` yazılıyor, ifşa isteniyor, görünür ifşa
+  // bulunamıyor (aranacak görsel yok) ve SIFIR KUSURLU bir karosel yayınlanamaz
+  // oluyordu. Karar artık defterden: adım `ok` mu, `skipped` mi.
+  const adimDurumlari = Object.fromEntries(
+    (rapor.manifest.steps ?? []).map((s) => [s.stepId, s.status])
+  )
+  const gercektenGorsel = kosudaGorselUretildi(kapsam, adimDurumlari)
+  if (kapsam.aiGenerated && !gercektenGorsel) {
+    console.log('  ⓘ hat görsel üretebiliyor ama bu koşuda üretmedi — AI ifşası GEREKMİYOR')
+  }
   const zincirKonusu = rapor.outputs['konu-sec']?.konu
   const etkinKonu =
     devamKonu ??
@@ -900,7 +912,7 @@ if (slaytlar.length > 0) {
     // değer yok sayılır (D-143). Yer tutucu bırakmak, iddianın kendi dayanağını
     // yazdığı izlenimini verirdi.
     basis: { kind: 'prompt_forbids_people', promptDigest: '' },
-    aiGenerated: kapsam.aiGenerated,
+    aiGenerated: gercektenGorsel,
     // ⚠ ⚠ **KONU ZİNCİRDEN DE GELEBİLİR ve gelmediğinde uyum iddiası ÇÖKÜYORDU.**
     // Konusuz başlatmada CLI konusu boş; gerçek konu `konu-sec` adımının çıktısında.
     // Boş bir istem taranınca `assertCompliance` — doğru biçimde — `basis_missing`

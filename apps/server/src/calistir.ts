@@ -17,7 +17,7 @@
 
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { spawnProcess, newId, RUNS_DIR } from '@suite/kernel'
+import { spawnProcess, newId, systemClock, RUNS_DIR } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
 
 /**
@@ -78,6 +78,14 @@ const akibetiIzle = (
   void p.then((r) => {
     if (r.code === 0 && !r.timedOut && !r.aborted) return
     baslatmaHatasiniYaz(repoRoot, runId, {
+      // ⚠ ⚠ **ZAMAN DAMGASI YOKTU ve panel eski bir hatayı GÜNCEL sanıyordu.**
+      // Başarısız bir başlatmadan sonra aynı koşu sürdürülüp BAŞARIYLA bitti; panel
+      // hâlâ "✗ süreç hiç başlamadı" kutusunu gösteriyordu — 20/28 adım tamam, dört
+      // slayt ekranda, üstte bir yalan. Kayıt silinmez (Yasa 11); ama bir kaydın
+      // GÜNCEL olup olmadığı ancak ne zaman yazıldığı biliniyorsa söylenebilir.
+      // ⚠ Saat TEK yerden (§13 · `chokepoints` kapısı yakaladı): `new Date()`
+      // ikinci bir saattir ve iki saat replay'i bozar.
+      at: systemClock.nowIso(),
       komut: komut.join(' '),
       code: r.code,
       signal: r.signal,
