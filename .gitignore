@@ -92,3 +92,8 @@ derived/runs/*/gorsel-*.png
 derived/runs/*/gorsel-*.jpg
 derived/runs/*/gorsel-*.webp
 derived/runs/*/slayt-*.png
+
+# Derleme artığı: 2026-08-15’te alakasız bir commit’e karışıp depoya girdi ve
+# bir klonla birlikte takım arkadaşına da gidiyordu.
+a.out
+*.o

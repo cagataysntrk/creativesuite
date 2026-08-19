@@ -92,6 +92,36 @@ if [ -n "$big" ]; then
   echo "$big"
 fi
 
+# ── 5b. Derlenmiş İKİLİ izlenmemeli — boyuttan bağımsız ─────────────────────
+#
+# ⚠ ⚠ **BOYUT KONTROLÜ YETMEDİ ve bunu bir KLON gösterdi.** Depo `origin`e
+# gönderildikten sonra `git clone` ile geri alındı ve kökte `a.out` duruyordu:
+# 416 baytlık stripped bir ELF, 2026-08-15'te alakasız bir commit'e karışmış ve o
+# günden beri her klona gidiyordu. 512 KB eşiği onu göremez çünkü sorun BÜYÜKLÜK
+# değil TÜR: bir kaynak deposu derlenmiş nesne taşımaz — kim ürettiği, hangi
+# bayrakla derlendiği ve neyi içerdiği hiçbir yerde yazmaz.
+#
+# ⚠ Sihirli bayta bakılıyor, uzantıya değil: `a.out`un uzantısı yok ve uzantı
+# listesi her zaman bir sonrakini kaçırır.
+ikili=""
+while IFS= read -r f; do
+  [ -f "$f" ] || continue
+  case "$f" in
+    *.png|*.jpg|*.jpeg|*.woff2|*.ttf|*.otf|*.pdf|*.ico) continue ;;
+  esac
+  sihir="$(head -c 4 "$f" 2>/dev/null | od -An -tx1 | tr -d ' \n')"
+  case "$sihir" in
+    7f454c46|cffaedfe|cefaedfe|4d5a*) ikili="$ikili  $f
+" ;;
+  esac
+done <<EOF_IKILI
+$(git ls-files 2>/dev/null)
+EOF_IKILI
+if [ -n "$ikili" ]; then
+  say "derlenmiş ikili izleniyor — kaynak deposu nesne dosyası taşımaz:"
+  printf '%s' "$ikili"
+fi
+
 # ── 6. Kabuk kapıları locale-bağımsız olmalı (R-77) ──────────────────────────
 # `LANG=tr_TR.UTF-8` altında POSIX `[A-Za-z]` sınıfı `i`/`I` çevresinde kırılır ve
 # desen YARIM eşleşir — kapı yeşil raporlarken hiçbir şey korumaz. Bu kontrol olmadan
