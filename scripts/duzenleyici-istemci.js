@@ -712,6 +712,16 @@ $('#geri').onclick = async () => {
   await fetch('/geri?id=' + id, { method: 'POST' })
   await cek()
 }
+// ⚠ Sıfırlama ONAY istiyor: kaydedilmemiş işi atan bir düğme, yanlışlıkla
+// basıldığında en pahalı düğmedir. Geri alınabilir olması yetmiyor — insan ne
+// olacağını ÖNCE bilmeli.
+$('#sifirla').onclick = async () => {
+  if (!confirm('Kaydedilmemiş tüm değişiklikler atılacak ve kaynak hâline dönülecek. Devam?'))
+    return
+  const r = await fetch('/sifirla?id=' + id, { method: 'POST' })
+  mesaj(await r.text())
+  await cek()
+}
 $('#kaydet').onclick = async () => {
   // İKİNCİ onay: girmek ayrı, YAZMAK ayrı. Katalog dosyası altı tasarımın kaynağı.
   if (sablonMu(id)) {

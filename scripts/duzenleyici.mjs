@@ -198,6 +198,7 @@ const KABUK = (
   <button id="sil">⌫ sil</button>
   <button id="geri">↶ geri al</button>
   <button id="ileri">↷ ileri</button>
+  <button id="sifirla">⟲ değişiklikleri sıfırla</button>
   <button class="birincil" id="kaydet">JSON'u yaz</button>
   <span id="ipucu">metne tıkla → düzenle · görseli sürükle → taşı · Shift+sürükle → ölçekle</span>
 </header>
@@ -713,6 +714,30 @@ const sunucu = createServer(async (req, res) => {
         calisan[id] = y.pop()
       }
       return json({ ok: true })
+    }
+    // ── SIFIRLA: kaydedilmemiş her şeyi at, KAYNAĞA dön ────────────────────
+    //
+    // ⚠ ⚠ **"Geri al" YETMİYOR.** Yığın sınırlı ve on düzenleme sonra insanın istediği
+    // şey adım adım geri sarmak değil, TEMİZ SAYFA. Bu düğme JSON'a yazmadan önceki
+    // güvenlik ağı: denemekten korkmamak için geri dönüş ucuz olmalı.
+    //
+    // ⚠ Sıfırlama GERİ ALINABİLİR: mevcut hâl geri yığınına itiliyor. Tek tıkla iş
+    // kaybettiren bir düğme, kullanılmayan bir düğmedir.
+    if (u.pathname === '/sifirla') {
+      const k = kaynak[id]
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
+      if (k === undefined) return res.end('✗ kaynak bulunamadı: ' + id)
+      anlikGoruntuAl(id)
+      if (k.tur === 'sablon') {
+        calisan[id] = structuredClone(ORNEKLER[k.ad])
+        return res.end('✓ şablon kaynağa döndü: ' + k.ad)
+      }
+      try {
+        calisan[id] = kosuBelgesi(k.dizin, join(k.dizin, 'panorama.json'))
+        return res.end('✓ koşu defterindeki hâline döndü: ' + k.ad)
+      } catch (e) {
+        return res.end('✗ defter okunamadı: ' + String(e))
+      }
     }
     if (u.pathname === '/kaydet') {
       const k = kaynak[id]
