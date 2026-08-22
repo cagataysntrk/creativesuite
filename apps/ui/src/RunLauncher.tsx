@@ -75,6 +75,14 @@ export const RunLauncher = ({
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
   const [tavan, setTavan] = useState('')
   const [konu, setKonu] = useState('')
+  // ⚠ ⚠ **ŞABLON SEÇİMİ MOTORDA VARDI, PANELDE YOKTU.** `sablonSecimiIcin` çalıştırma
+  // parametresi `sablon`ı zaten okuyor ve CLI `--sablon sahne` ile geçirebiliyordu.
+  // Var olan bir yeteneğin arayüzü yoksa, kullanıcı için o yetenek YOKTUR.
+  // ⚠ Boş = "hat seçsin": seçim bir zorunluluk değil, bir HAK.
+  const [sablon, setSablon] = useState('')
+  const [sablonlar, setSablonlar] = useState<
+    readonly { id: string; ad: string; kullanilabilir: boolean }[]
+  >([])
   // Başlatma sonucu: `null` henüz denenmedi. Hata TOAST DEĞİL, düğmenin yanında —
   // içeriğin olacağı yerde, kopyalanabilir kimlikle (§12.6).
   const [baslatma, setBaslatma] = useState<{ ok: boolean; mesaj: string } | null>(null)
@@ -82,17 +90,34 @@ export const RunLauncher = ({
   const yukle = useCallback(async (): Promise<void> => {
     const q = new URLSearchParams({ pipeline: hat })
     if (tavan.trim() !== '') q.set('tavan_mikros', String(Math.round(Number(tavan) * 1_000_000)))
+    // ⚠ Şablon PLANA da giriyor: parametre adım kısıtlarına ekleniyor ve özete girer.
+    // Panel onsuz dondurup CLI onunla koşarsa özetler ayrışır ve R-07 reddeder.
+    if (sablon !== '') q.set('sablon', sablon)
     try {
       const r = await fetch(`/api/plan?${q.toString()}`)
       setSonuc((await r.json()) as Sonuc)
     } catch {
       setSonuc({ ok: false, hata: 'sunucuya ulaşılamıyor' })
     }
-  }, [hat, tavan])
+  }, [hat, tavan, sablon])
 
   useEffect(() => {
     setHat(pipeline)
   }, [pipeline])
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const j = (await (await fetch('/api/katalog')).json()) as {
+          sablonlar?: readonly { id: string; ad: string; kullanilabilir: boolean }[]
+        }
+        setSablonlar(j.sablonlar ?? [])
+      } catch {
+        // Katalog okunamazsa seçim kutusu boş kalır ve hat kendi seçer — eski davranış.
+        setSablonlar([])
+      }
+    })()
+  }, [])
 
   useEffect(() => {
     void (async () => {
@@ -140,6 +165,7 @@ export const RunLauncher = ({
             pipeline: hat,
             konu: sistemSecsin ? '' : konu,
             konuyuSistemSecsin: sistemSecsin,
+            sablon,
             planDigest: digest,
           }),
         })
@@ -283,6 +309,25 @@ export const RunLauncher = ({
         />{' '}
         ✨ konuyu sistem seçsin — kutu boş gider, hat markanın kayıtlarından seçer
       </label>
+
+      {/* ⚠ Şablon seçimi OPSİYONEL: boş bırakılırsa hat kendi seçer (ritim ölçümü +
+          son kullanılanlardan kaçınma). Zorunlu kılmak, insanı her koşuda katalog
+          bilgisine mahkûm ederdi; hiç sunmamak ise var olan bir yeteneği gizliyordu. */}
+      {sablonlar.length === 0 ? null : (
+        <label className="giris-alan">
+          şablon{' '}
+          <select value={sablon} onChange={(e) => setSablon(e.target.value)}>
+            <option value="">✨ hat seçsin (ritme ve geçmişe bakar)</option>
+            {sablonlar
+              .filter((s) => s.kullanilabilir)
+              .map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.ad}
+                </option>
+              ))}
+          </select>
+        </label>
+      )}
 
       {!sistemSecsin ? null : adayHata !== null ? (
         <p className="ret-mesaji">⊘ {adayHata}</p>

@@ -1123,9 +1123,16 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         repoRoot: o.repoRoot,
         brandId: String(o.query.brandId),
         konu: c.req.query('konu') ?? '',
-        // ⚠ ⚠ **ŞABLON PLANA GİRMEK ZORUNDA.** Parametre adım kısıtlarına ekleniyor ve
-        // özete giriyor; panel onsuz dondurup CLI onunla koşarsa özetler ayrışır ve
-        // R-07 koşuyu reddeder. Bu tuzağa bu depoda bir kez düşüldü (corpusCommit).
+        // ⚠ ⚠ **ÖLÇÜLDÜ: `plan()` BUGÜN `params` OKUMUYOR.** `PlanInput` şemasında böyle
+        // bir alan yok; `launcherPlani` onu geçiriyor ve sessizce düşüyor. Yani şablon
+        // seçimi donmuş özeti DEĞİŞTİRMİYOR (ölçüm: şablonlu ve şablonsuz özet aynı,
+        // `70919055941d`). Seçim çalışma anında `runPipeline` params'ı üzerinden
+        // adım kısıtlarına giriyor ve `sablonSecimiIcin` orada okuyor.
+        //
+        // ⚠ Yine de geçiliyor: CLI ile SİMETRİ. İki çağıran aynı parametreleri
+        // hesaplarsa, `plan()` bir gün onları okumaya başladığında ikisi birden doğru
+        // olur; biri geçirmiyorsa o gün sessiz bir ayrışma doğar. Borç `D21` olarak
+        // yazıldı.
         ...(sablonSecimi(c.req.query('sablon')) === null
           ? {}
           : { serbest: { sablon: sablonSecimi(c.req.query('sablon')) as string } }),

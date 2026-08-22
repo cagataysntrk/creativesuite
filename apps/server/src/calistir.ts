@@ -130,6 +130,14 @@ export interface BaslatGirdisi {
   readonly planDigest: string
   /** `true` = konu boş gider, hat `konu-sec` adımında kendi seçer (FAZ-17.3). */
   readonly konuyuSistemSecsin?: boolean
+  /**
+   * Şablon SEÇİMİ — boşsa hat kendi seçer (Yasa 13).
+   *
+   * ⚠ Serbest parametre olarak geçiyor (`--sablon <id>`): motor onu her adımın
+   * kısıtlarına ekliyor ve `sablonSecimiIcin` okuyor. Yeni bir bayrak açmak, aynı
+   * şeyi ikinci bir yoldan yapmak olurdu.
+   */
+  readonly sablon?: string
   readonly env: Readonly<Record<string, string>>
   /** Test bunu değiştirir; üretimde gerçekten `just` koşar. */
   readonly komut?: string
@@ -158,10 +166,20 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
   // Kabuk enjeksiyonu yok: argümanlar DİZİ olarak geçiyor, kabuk yorumlaması hiç yok.
   const runId = newId('RunId') as RunId
 
+  const sablonArgv = (g.sablon ?? '').trim() === '' ? [] : ['--sablon', (g.sablon ?? '').trim()]
   const argv =
     g.konu.trim() === ''
-      ? ['uret', g.pipelineId, '--konu-sec', '--run', runId, '--plan-digest', g.planDigest]
-      : ['uret', g.pipelineId, g.konu, '--run', runId, '--plan-digest', g.planDigest]
+      ? [
+          'uret',
+          g.pipelineId,
+          '--konu-sec',
+          ...sablonArgv,
+          '--run',
+          runId,
+          '--plan-digest',
+          g.planDigest,
+        ]
+      : ['uret', g.pipelineId, g.konu, ...sablonArgv, '--run', runId, '--plan-digest', g.planDigest]
   akibetiIzle(
     g.repoRoot,
     runId,

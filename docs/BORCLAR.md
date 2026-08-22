@@ -146,3 +146,10 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   Üretimde doğrulandı: aynı koşunun iki ardışık sürdürmesinde damgalanan dört varlığın
   özeti BİREBİR aynı (`cea26dd5` · `54ca40ca` · `5a06c161` · `085a9dc0`) ve ikinci
   geçiş 10 dakika yerine **10 saniye** sürdü.
+- **D21 · `plan()` çalıştırma parametrelerini OKUMUYOR.** `PlanInput` şemasında `params`
+  alanı yok; `launcherPlani` ve `plan.mjs` onu geçiriyor ve sessizce düşüyor. Ölçüldü:
+  `?sablon=memphis` ile ve onsuz donmuş plan özeti AYNI (`70919055941d`). Bugün zararsız
+  çünkü iki çağıran da aynı şeyi yapıyor ve R-07 karşılaştırması simetrik; ama donmuş
+  planın "tüm parametreler donar" iddiası (R-07) şu an TAM DEĞİL: konu, şablon,
+  `kacinilacak` özete girmiyor. Doğru çözüm `PlanInput`e `params` eklemek ve adım
+  kısıtlarına plan zamanında da katmak — o zaman özet gerçekten planın tamamını kapsar.
