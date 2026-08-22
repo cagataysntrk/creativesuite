@@ -81,6 +81,10 @@ export const KosuDetay = ({
   const [gerekce, setGerekce] = useState<string | null>(null)
   const [mesaj, setMesaj] = useState<string | null>(null)
   const [yukleme, setYukleme] = useState<string | null>(null)
+  // ⚠ ⚠ **ADIM DEFTERİ "NE OLDU"YU SÖYLÜYOR, GÜNLÜK "NE OLUYOR"U.** Manifest ancak bir
+  // adım bitince yazılıyor; 190 saniyelik bir yargı adımının ortasında ekranda hiçbir
+  // hareket yoktu ve insan "asıldı mı" diye bakıyordu.
+  const [gunluk, setGunluk] = useState<readonly string[]>([])
 
   /**
    * Görseli yükler — **yuva sırası dosya adından değil, mevcut yüklü sayıdan** türüyor.
@@ -118,6 +122,14 @@ export const KosuDetay = ({
     // kalkmıyorsa bir bilgi değil bir gürültüdür.
     setHata(null)
     setD((await r.json()) as Icerik)
+    try {
+      const g = (await (await fetch(`/api/kosu/${runId}/gunluk`)).json()) as {
+        satirlar?: string[]
+      }
+      setGunluk(g.satirlar ?? [])
+    } catch {
+      // Günlük okunamıyorsa ekran yine çalışır: eksik olan şey CANLI iz, durum değil.
+    }
   }, [runId])
 
   useEffect(() => {
@@ -411,6 +423,20 @@ export const KosuDetay = ({
               ))}
             </div>
           </>
+        )}
+      </section>
+
+      {/* ⚠ ⚠ **CANLI GÜNLÜK.** Adım defteri bitmiş adımları gösteriyor; bu bölüm ŞU AN
+          ne olduğunu. `▶ adim [girdi]` ve `↳ adim çıktı [özet]` satırları burada:
+          bir adımın çıktısı iki geçişte farklıysa kararsızlık bu satırlarda görünür.
+          ⚠ Son satır ALTTA ve kutu kaydırmalı: bir günlükte insanın aradığı şey
+          neredeyse her zaman SON satırdır. */}
+      <section className="giris-blok">
+        <h3>Canlı günlük ({gunluk.length} satır)</h3>
+        {gunluk.length === 0 ? (
+          <p className="giris-not">Henüz satır yok — süreç kalkıyor.</p>
+        ) : (
+          <pre className="kosu-gunluk">{gunluk.slice(-200).join('\n')}</pre>
         )}
       </section>
 

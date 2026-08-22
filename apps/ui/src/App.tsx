@@ -14,6 +14,7 @@ import { OnayKuyrugu } from './OnayKuyrugu.js'
 import { OnayBolumleri } from './OnayBolumleri.js'
 import { Giris } from './Giris.js'
 import { KosuDetay } from './KosuDetay.js'
+import { adresKur, adresiCoz, type Ekran } from './adres.js'
 import { YerlesimEkrani } from './YerlesimEkrani.js'
 import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
@@ -136,42 +137,52 @@ const URETIM_KOMUTLARI: ReadonlySet<string> = new Set([
 const VARSAYILAN_NABIZ_MS = 5000
 
 /** Kabuğun açabileceği ekranlar. Tek liste — yönlendirme ve tablo ikisi de buna bakar. */
-type Ekran =
-  | 'giris'
-  | 'corpus'
-  | 'baglam'
-  | 'calistir'
-  | 'kuyruk'
-  | 'yerlesim'
-  | 'kesif'
-  | 'sema'
-  | 'butce'
-  | 'varliklar'
-  | 'gecmis'
-  | 'saglik'
-  | 'doktor'
-  | 'kanallar'
-  | 'performans'
-  | 'uyum'
-  // Tek bir koşunun içeriği — kuyruktan tıklanınca açılır.
-  | 'kosu'
 
 export const App = (): React.JSX.Element => {
   const [durum, setDurum] = useState<MakineDurumu | null>(null)
   const [sonOlayMs, setSonOlayMs] = useState<number | null>(null)
-  const [ekran, setEkran] = useState<Ekran>('giris')
+  // ⚠ İlk durum ADRESTEN: tazelemede insan bulunduğu yerde kalıyor.
+  const [ekran, setEkran] = useState<Ekran>(() => adresiCoz(window.location.hash).ekran)
   // Hangi hat çalıştırılacak. Palet komutu ekranı AÇMAKLA kalmaz, hattı da seçer —
   // yoksa "Instagram postu üret" komutu sabit bir hattın launcher'ını açardı ve
   // komutun adı ile açtığı şey ayrışırdı.
-  const [pipeline, setPipeline] = useState('instagram-post')
+  const [pipeline, setPipeline] = useState(() => {
+    const a = adresiCoz(window.location.hash)
+    return a.ekran === 'calistir' && a.arg !== null ? a.arg : 'instagram-post'
+  })
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
   // ⚠ Açık koşu AYRI bir durum: ekran adı tek başına hangi koşunun açıldığını
   // taşımıyor ve tarayıcı geri tuşu bu panelde yok — kaybolan bir seçim, kullanıcıyı
   // listeye geri döndürüp aramaya zorlar.
-  const [acikKosu, setAcikKosu] = useState<string | null>(null)
+  const [acikKosu, setAcikKosu] = useState<string | null>(() => {
+    const a = adresiCoz(window.location.hash)
+    return a.ekran === 'kosu' ? a.arg : null
+  })
   const kosuAc = useCallback((runId: string): void => {
     setAcikKosu(runId)
     setEkran('kosu')
+  }, [])
+
+  // ── adres ↔ ekran: iki yönlü ────────────────────────────────────────────
+  //
+  // ⚠ Yalnız FARKLIYSA yazılıyor: her render'da `hash` set etmek geçmişi çöpe çevirir
+  // ve geri tuşunu kullanılamaz yapardı.
+  useEffect(() => {
+    const hedef = adresKur(ekran, acikKosu, pipeline)
+    if (window.location.hash !== hedef) window.location.hash = hedef
+  }, [ekran, acikKosu, pipeline])
+
+  // ⚠ GERİ TUŞU: tarayıcı adresi değiştirdiğinde ekran onu İZLİYOR. Bu dinleyici
+  // olmadan adres değişir, ekran değişmez ve panel adresle yalan söylerdi.
+  useEffect(() => {
+    const dinle = (): void => {
+      const a = adresiCoz(window.location.hash)
+      setEkran(a.ekran)
+      if (a.ekran === 'kosu') setAcikKosu(a.arg)
+      if (a.ekran === 'calistir' && a.arg !== null) setPipeline(a.arg)
+    }
+    window.addEventListener('hashchange', dinle)
+    return () => window.removeEventListener('hashchange', dinle)
   }, [])
 
   useEffect(() => {

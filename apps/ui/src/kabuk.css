@@ -1006,3 +1006,23 @@ tr[data-tiklanir] {
   color: var(--role-text);
   border-color: var(--role-text);
 }
+
+/* ── canlı günlük: koşu ekranının "ne oluyor" penceresi ──────────────────────
+   ⚠ Son satır altta ve kutu kaydırmalı: bir günlükte aranan şey neredeyse her zaman
+   SON satırdır. Sabit yükseklik değil `max-block-size`: kısa bir günlük koca bir boşluk
+   bırakmamalı. */
+.kosu-gunluk {
+  max-block-size: 40vh;
+  overflow: auto;
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--role-line);
+  border-radius: var(--radius-2);
+  background: var(--role-surface);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.82em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  /* ⚠ Türkçe uzun satırlar kırpılmıyor, sarılıyor (R-23). */
+  overflow-wrap: anywhere;
+}

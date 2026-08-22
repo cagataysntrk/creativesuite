@@ -715,6 +715,34 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     return c.json({ ok: true, ad, sira, bayt: bayt.length })
   })
 
+  // ── CANLI GÜNLÜK: koşu ekranının "ne oluyor" cevabı ──────────────────────
+  //
+  // ⚠ ⚠ **ADIM DEFTERİ "NE OLDU"YU SÖYLÜYOR, GÜNLÜK "NE OLUYOR"U.** Manifest ancak bir
+  // adım bitince yazılıyor; 190 saniyelik bir yargı adımının ortasında ekranda hiçbir
+  // hareket yoktu ve insan "asıldı mı" diye bakıyordu. `calistirma.log` her satırı
+  // anında taşıyor — iz satırları (`▶ adim [girdi]` · `↳ adim çıktı [özet]`) dahil.
+  //
+  // ⚠ SON N BAYT: bir koşu günlüğü yüz kilobayta çıkabiliyor ve ekranın istediği şey
+  // son durum. Baştan okumak, en önemsiz kısmı en pahalı biçimde taşımak olurdu.
+  app.get('/api/kosu/:runId/gunluk', (c) => {
+    const runId = c.req.param('runId')
+    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
+      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    const yol = join(o.repoRoot, RUNS_DIR, runId, 'calistirma.log')
+    if (!existsSync(yol)) return c.json({ ok: true, satirlar: [], bayt: 0 })
+    try {
+      const ham = readFileSync(yol, 'utf8')
+      const kuyruk = ham.length > 60_000 ? ham.slice(ham.length - 60_000) : ham
+      return c.json({
+        ok: true,
+        bayt: ham.length,
+        satirlar: kuyruk.split('\n').filter((x) => x.trim() !== ''),
+      })
+    } catch (e) {
+      return c.json({ ok: false, hata: `günlük okunamadı: ${String(e)}` }, 500)
+    }
+  })
+
   app.get('/api/varlik/:digest', (c) => {
     const d = c.req.param('digest').replace(/^sha256:/, '')
     if (!/^[0-9a-f]{64}$/.test(d)) return c.json({ ok: false, hata: 'gecersiz digest' }, 400)
