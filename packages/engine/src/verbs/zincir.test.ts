@@ -169,7 +169,7 @@ describe('PROPOSE gövdesi (bağlanma)', () => {
   // 🧪 Gövde HİÇ YOKTU: üç hattın üçü de `onay` adımıyla bitiyor ve insan onaylayıp
   // `--devam` dediğinde hat son adımda `VERB_NOT_IMPLEMENTED` ile patlıyordu.
   it('PNG çıktısını deftere geçiriyor', async () => {
-    const r = await proposeBody().run(ctx(), {
+    const r = await proposeBody({ repoRoot: '/tmp/yok-boyle-bir-kok' }).run(ctx(), {
       constraints: {},
       inputs: { render: { slides: ['/tmp/a.png', '/tmp/b.png'] } },
     })
@@ -179,7 +179,7 @@ describe('PROPOSE gövdesi (bağlanma)', () => {
   })
 
   it('PDF çıktısını da geçiriyor — biçim ayrımı yok', async () => {
-    const r = await proposeBody().run(ctx(), {
+    const r = await proposeBody({ repoRoot: '/tmp/yok-boyle-bir-kok' }).run(ctx(), {
       constraints: {},
       inputs: { render: { deck: '/tmp/deck.pdf', pages: 2 } },
     })
@@ -189,7 +189,10 @@ describe('PROPOSE gövdesi (bağlanma)', () => {
   })
 
   it('onaylanacak bir şey yoksa REDDEDİYOR — onay yanılsaması olmaz', async () => {
-    const r = await proposeBody().run(ctx(), { constraints: {}, inputs: {} })
+    const r = await proposeBody({ repoRoot: '/tmp/yok-boyle-bir-kok' }).run(ctx(), {
+      constraints: {},
+      inputs: {},
+    })
     expect(r.ok).toBe(false)
     if (r.ok) return
     expect(r.error.code).toBe('NOTHING_TO_PROPOSE')

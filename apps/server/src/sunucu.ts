@@ -54,6 +54,10 @@ import {
   konuAdaylari,
   kosuParametreleri,
   readRunStub,
+  yayinAniOku,
+  yayinAniYaz,
+  yayinGozlemleri,
+  yayinSaatiOner,
 } from '@suite/engine'
 import { indeksAc, makineDurumu, type MakineDurumu } from './durum.js'
 import { izle, type Izleme } from './izle.js'
@@ -180,6 +184,16 @@ const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
 }
 
 /**
+ * Koşu kimliği GEÇERLİ mi — yola giren dış girdinin tek beyaz listesi.
+ *
+ * ⚠ ⚠ **BU DENETİM BU DOSYADA ALTI KEZ KOPYALANMIŞTI.** Bir yol geçişi muhafızının
+ * altı kopyası, bir gün beşinin düzeltilip birinin unutulması demektir — ve unutulan
+ * kopya, tam olarak saldırının geçtiği yer olur. Tek tanım burada; `gecmis.ts` yazma
+ * tarafında kendi kopyasını taşıyor ve o ayrı bir modül sınırı.
+ */
+const kosuKimligiGecerli = (runId: string): boolean => /^run_[0-9a-f-]{8,64}$/.test(runId)
+
+/**
  * Elle düzenlenmiş slaytlar — `just duzenle` koşu dizinine yazıyor.
  *
  * ⚠ Dizin okunamıyorsa BOŞ liste: düzenleme yokluğu bir hata değil, olağan hâl.
@@ -187,7 +201,7 @@ const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
 const elleDuzenlenmisSlaytlar = (repoRoot: string, runId: string): readonly string[] => {
   // ⚠ Kimlik DIŞ GİRDİ ve yola giriyor: biçim beyaz listeyle sınırlı (aynı gerekçe
   // `gecmis.ts`teki eleme yolunda yazılı — orada yazma, burada okuma).
-  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return []
+  if (!kosuKimligiGecerli(runId)) return []
   try {
     return readdirSync(join(repoRoot, RUNS_DIR, runId))
       .filter((f) => /^slayt-\d{2}-elle\.png$/.test(f))
@@ -233,7 +247,7 @@ const konuSecebilirMi = (repoRoot: string, pipelineId: string): boolean => {
  * insanın gördüğü metin ile hattın kullandığı metin ayrışır.
  */
 const adimSatirlari = (repoRoot: string, runId: string): readonly string[] | null => {
-  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return null
+  if (!kosuKimligiGecerli(runId)) return null
   const yol = join(repoRoot, RUNS_DIR, runId, 'steps', 'metin-uret.json')
   if (!existsSync(yol)) return null
   try {
@@ -246,7 +260,7 @@ const adimSatirlari = (repoRoot: string, runId: string): readonly string[] | nul
 
 /** Metin insan tarafından düzenlendi mi — defterdeki `elleDuzenlendi` bayrağı. */
 const adimMetniElleDuzenlendiMi = (repoRoot: string, runId: string): boolean => {
-  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return false
+  if (!kosuKimligiGecerli(runId)) return false
   const yol = join(repoRoot, RUNS_DIR, runId, 'steps', 'metin-uret.json')
   if (!existsSync(yol)) return false
   try {
@@ -261,7 +275,7 @@ const adimMetniElleDuzenlendiMi = (repoRoot: string, runId: string): boolean => 
 
 /** Panelden yüklenmiş görseller — hat bunları üretim yerine kullanır. */
 const yuklenenGorseller = (repoRoot: string, runId: string): readonly string[] => {
-  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return []
+  if (!kosuKimligiGecerli(runId)) return []
   try {
     return readdirSync(join(repoRoot, RUNS_DIR, runId))
       .filter((f) => /^elle-gorsel-\d{2}\.(png|jpg)$/.test(f))
@@ -593,6 +607,11 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         // bir gün birini unutur — bugün olan tam olarak buydu.
         elleSlaytlar: [],
         yuklenenGorseller: [],
+        // ⚠ Yayın saati alanları BU DALDA da var: iki dalın anahtar kümesi ayrışırsa
+        // ekran bir dalda `undefined` okur ve React ağacı düşer — bu hata bu dosyada
+        // bir kez tam olarak böyle oldu.
+        yayinSaatiOnerisi: null,
+        yayinAni: null,
         metinElleDuzenlendi: false,
         duraklananAdim: null,
         satirlar: [],
@@ -689,6 +708,14 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       //
       // Durum manifestten TÜRETİLİYOR, ayrı bir yerde tutulmuyor: ikinci bir durum
       // deposu, sunucu yeniden başlayınca yalan söylerdi.
+      // ── yayın anı: hat ÖNERİR, insan seçer (§11 · R-46 · FAZ-17.3) ───────
+      //
+      // ⚠ Öneri ÖNCE defterden okunuyor: insanın onay anında gördüğü gerekçe, sonradan
+      // yeniden hesaplanan bir gerekçeyle değiştirilemez. Defterde yoksa (henüz `onay`
+      // adımına gelinmediyse) tazesi hesaplanıyor — ekranda "neden öneri yok" yazsın.
+      yayinSaatiOnerisi:
+        (bul('onay')['yayinSaati'] as unknown) ?? yayinSaatiOner(yayinGozlemleri(o.repoRoot)),
+      yayinAni: yayinAniOku(o.repoRoot, runId),
       konu: bul('konu-sec')['konu'] ?? konuParametresi(adimlar),
       konuGerekcesi: bul('konu-sec')['gerekce'] ?? null,
       durum: kosuDurumu(m, planlananAdim),
@@ -735,7 +762,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       return c.json({ ok: false, hata: 'gecersiz ad' }, 400)
     }
     const runId = c.req.param('runId')
-    if (!/^run_[0-9a-f-]+$/.test(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)
     const yol = join(o.repoRoot, RUNS_DIR, runId, ad)
     if (!existsSync(yol)) return c.json({ ok: false, hata: 'dosya yok' }, 404)
     return new Response(new Uint8Array(readFileSync(yol)), {
@@ -761,8 +788,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // olmaz. `repo-hygiene` kapısı da aynı yöntemi kullanıyor.
   app.post('/api/kosu/:runId/gorsel', async (c) => {
     const runId = c.req.param('runId')
-    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
-      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)
     const dizin = join(o.repoRoot, RUNS_DIR, runId)
     if (!existsSync(dizin)) return c.json({ ok: false, hata: `çalıştırma yok: ${runId}` }, 404)
 
@@ -808,8 +834,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // `sablon-uyarla` ve sonrası düzenlenmiş metni görüyor — ayrı bir yol açmaya gerek yok.
   app.post('/api/kosu/:runId/metin', async (c) => {
     const runId = c.req.param('runId')
-    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
-      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)
     const g = (await c.req.json().catch(() => ({}))) as { satirlar?: readonly string[] }
     const satirlar = (g.satirlar ?? []).map((x) => String(x)).filter((x) => x.trim() !== '')
     if (satirlar.length === 0) return c.json({ ok: false, hata: 'metin boş' }, 400)
@@ -854,8 +879,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // `?parca=<n>` ile tek tek alınıyor ve panel hepsini listeliyor.
   app.get('/api/kosu/:runId/disa-aktar', async (c) => {
     const runId = c.req.param('runId')
-    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
-      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)
     const tarz = c.req.query('tarz') === 'butun' ? 'butun' : 'dilim'
     const ham = c.req.query('bicim')
     const bicim = ham === 'png' || ham === 'jpg' || ham === 'pdf' ? ham : 'png'
@@ -901,8 +925,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // son durum. Baştan okumak, en önemsiz kısmı en pahalı biçimde taşımak olurdu.
   app.get('/api/kosu/:runId/gunluk', (c) => {
     const runId = c.req.param('runId')
-    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
-      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)
     const yol = join(o.repoRoot, RUNS_DIR, runId, 'calistirma.log')
     if (!existsSync(yol)) return c.json({ ok: true, satirlar: [], bayt: 0 })
     try {
@@ -1377,6 +1400,31 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     })
     if (r.ok) yayinla('degisim')
     return c.json(r, r.ok ? 202 : 400)
+  })
+
+  // ── yayın anını İNSAN seçer (§11 · R-46 · Yasa 2 · FAZ-17.3) ──────────────
+  //
+  // ⚠ ⚠ **HAT SAAT ÖNERİR, SEÇMEZ.** `PUBLISH` gövdesi koşu defterinde insanın seçtiği
+  // anı arıyor; yoksa `PUBLISH_TIME_NOT_CHOSEN` ile duruyor. Bu uç, o kararın panelden
+  // verilmesini sağlıyor — ve kaydı, seçim anında ekranda duran ÖNERİYLE birlikte
+  // yazıyor: asıl soru "saat kaçtı" değil, "insan neyi görerek seçti".
+  app.post('/api/kosu/:runId/yayin-ani', async (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const govde = (await c.req.json().catch(() => ({}))) as { an?: string; oneri?: string }
+    const an = String(govde.an ?? '').trim()
+    // Biçim burada da denetleniyor: geçersiz bir an diske yazılıp `PUBLISH`te
+    // reddedilseydi, insan "seçtim" sanıp koşunun sonunda hatayı görürdü.
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(an)) {
+      return c.json({ ok: false, hata: 'an ISO-8601 olmalı (2026-08-23T20:00)' }, 400)
+    }
+    yayinAniYaz(o.repoRoot, runId, {
+      an,
+      secilenAt: o.simdi(),
+      oneri: String(govde.oneri ?? ''),
+    })
+    yayinla('degisim')
+    return c.json({ ok: true, an })
   })
 
   app.post('/api/kuyruk/:runId/:gate', async (c) => {

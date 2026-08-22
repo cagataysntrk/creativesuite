@@ -44,6 +44,8 @@ import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../pl
 import { ritimTuttuMu, sablonSec } from '../plan/sablon-sec.js'
 import { konuSecPromptu, konuSecimiCozumle, type KonuAdayi } from '../plan/konu-sec.js'
 import { duzeltilebilir, duzeltmeIstemi, type DenetimKusuru } from '../plan/denetim-turu.js'
+import { yayinGozlemleri, yayinSaatiOner } from '../plan/yayin-saati.js'
+import { yayinAniOku } from '../yayin-ani.js'
 import { sablonBul } from '@suite/contracts'
 import type { KatalogOrnegi } from '@suite/render'
 import {
@@ -1240,7 +1242,19 @@ export const renderBody = (deps: RenderDeps): Verb =>
 // Burada olan tek şey: onaylanmış çıktıyı ÖZETLEYİP deftere geçirmek. Yazmayı buraya
 // koymak, onay kuyruğunu ATLAYAN ikinci bir yazma yolu açardı (R-14).
 
-export const proposeBody = (): Verb =>
+export interface ProposeDeps {
+  /**
+   * Repo kökü — yayın defterini okumak için.
+   *
+   * ⚠ ⚠ **ÖNERİ BURADA HESAPLANIYOR, `PUBLISH`te DEĞİL.** İkisi ayrı sorular:
+   * `PROPOSE` insanın önüne bir teklif koyar, `PUBLISH` insanın kararını uygular.
+   * Saati yayın anında hesaplamak, insanın onayladığı şeyle uygulanan şeyin
+   * ayrışması demekti — onay ekranında 20:00 yazıp defterde 21:00 çıkabilirdi.
+   */
+  readonly repoRoot: string
+}
+
+export const proposeBody = (deps: ProposeDeps): Verb =>
   govde('PROPOSE', async (ctx, input) => {
     // Kapı kararı motorda okunuyor (`run.ts`): buraya gelindiyse insan ONAYLADI.
     // Gövdenin işi kararı değil, SONUCU kaydetmek.
@@ -1260,11 +1274,17 @@ export const proposeBody = (): Verb =>
       // Onaylanacak bir şey yoksa onay bir kayıt değil, bir yanılsamadır.
       return err(hata('validation', 'NOTHING_TO_PROPOSE', ctx))
     }
+    // ⚠ ⚠ **YAYIN SAATİ BİR ÖNERİ, TEKLİFİN PARÇASI** (§11 · R-46 · FAZ-17.3). Hat
+    // saati seçmiyor: ölçümden çıkan bir sayıyı gerekçesiyle önüne koyuyor ve insan
+    // seçiyor. Ölçüm yoksa öneri de yok — `veri-yok` dalı sebebini yazıyor ve bu
+    // dürüstlük bir eksiklik değil, kaynaksız iddia yasağının (Yasa 8) gereği.
+    const yayinSaati = yayinSaatiOner(yayinGozlemleri(deps.repoRoot))
     return ok({
       costs: [],
       data: {
         proposed: varliklar,
         proposedAt: ctx.clock.nowIso(),
+        yayinSaati,
       },
     })
   })
@@ -2776,6 +2796,29 @@ export const publishBody = (deps: PublishBodyDeps): Verb =>
       return err(hata('validation', 'NO_PUBLISHABLE_ASSET', ctx, { platform }))
     }
 
+    // ⚠ ⚠ **YAYIN ANI BİR KARAR, BİR VARSAYILAN DEĞİL** (§11 · R-46 · FAZ-17.3).
+    // "Onaylandıysa şimdi yayınla" diyen bir dal, insanın SEÇMEDİĞİ bir anı seçerdi —
+    // ve Yasa 2 ("agent önerir, insan uygular") tam olarak burada delinir. Hat saati
+    // `PROPOSE`ta ÖNERİYOR; uygulanacak an, insanın onayla birlikte verdiği değerdir.
+    //
+    // ⚠ Kontrol kanal kontrolünden ÖNCE: kanal bağlıyken de saatsiz yayın olmamalı ve
+    // sıranın tersi, kanallar bağlandığı gün bu kapıyı sessizce atlatırdı.
+    const anKaydi = yayinAniOku(deps.repoRoot, ctx.runId)
+    const secilenAn = (anKaydi?.an ?? '').trim()
+    if (secilenAn === '') {
+      return err(
+        hata('validation', 'PUBLISH_TIME_NOT_CHOSEN', ctx, {
+          platform,
+          neden: 'yayın anını insan seçmedi — hat saat ÖNERİR, seçmez (Yasa 2 · R-46)',
+        })
+      )
+    }
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(secilenAn)) {
+      // Biçimsiz bir an, sessizce "şimdi"ye düşerdi: reddetmek, yanlış zamanda
+      // yayınlamaktan iyidir.
+      return err(hata('validation', 'PUBLISH_TIME_INVALID', ctx, { platform, verilen: secilenAn }))
+    }
+
     if (deps.upload === undefined || deps.publishingLimit === undefined) {
       // **Yükleyici yoksa sessiz başarı YOK.** Gerçek kanal bağlantısı `7.2b`de ve
       // insan girdisi bekliyor; o gelene kadar bu fiil AÇIKÇA durur. "Yayınlandı
@@ -2849,6 +2892,10 @@ export const publishBody = (deps: PublishBodyDeps): Verb =>
       data: {
         published: sonuc.value.externalId,
         platform,
+        // ⚠ İnsanın SEÇTİĞİ an deftere giriyor: "ne zaman yayınlandı" ile "ne zaman
+        // yayınlanması KARARLAŞTIRILDI" iki ayrı soru ve ikincisinin cevabı başka
+        // hiçbir yerde yok.
+        plannedAt: secilenAn,
         // Yayından ÖNCEKİ kota manifest'e yazılıyor: "yayın anında kota neredeydi"
         // sorusunun cevabı sonradan üretilemez.
         quotaBefore: `${sonuc.value.limitBefore.quotaUsed}/${sonuc.value.limitBefore.quotaTotal}`,

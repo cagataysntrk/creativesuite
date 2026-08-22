@@ -136,6 +136,16 @@ export {
   type KonuAdayi,
 } from './plan/konu-sec.js'
 export { baglamKayitlari, type BaglamKaydiGirdisi } from './plan/baglam-kaydi.js'
+// Yayın saati: hat ÖNERİR (FAZ-17.3), insan seçer ve seçim koşu defterine yazılır.
+export {
+  EN_AZ_GOZLEM,
+  turkiyeSaati,
+  yayinGozlemleri,
+  yayinSaatiOner,
+  type YayinGozlemi,
+  type YayinSaatiOnerisi,
+} from './plan/yayin-saati.js'
+export { yayinAniOku, yayinAniYaz, yayinAniYolu, type YayinAniKaydi } from './yayin-ani.js'
 export {
   kosuParametreleri,
   kacinilacakGerekceler,

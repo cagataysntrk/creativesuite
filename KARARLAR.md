@@ -166,56 +166,10 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-255 · D-256 · D-257 · D-258 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > Kapanmış kararlar; atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-299
-
-**Karar:** Hayalet (dev soluk rakam) altı şablonun ALTISINDAN da kaldırıldı; hangi
-şablonun kullanacağına artık ŞABLON karar veriyor, model değil; denetime
-`hayalet-carpisma` kusuru eklendi. Başlıklar büyütüldü.
-
-**Neden:** depo sahibi: *"hepsine arkaya filigran gibi sayı eklemişsin, çoğunda yazılarla
-çakışıyor, neden hepsinde var?"* Dev rakam bir kompozisyon ögesi ve yalnız ona YER olan
-yerde işe yarıyor; ötekilerde metnin, panelin ya da fotoğrafın arkasına düşüp filigran
-gibi okunuyordu.
-
-⚠ Önce yalnız `akan-alan`da bırakıldı ("alt yarısı boş, çakışmıyor"). **Yanlıştı ve depo
-sahibi 4. slaytta gösterdi.** Ölçüm doğruladı: alan sınırı y%44–86 arasında SALINIYOR,
-hayalet %35 boyunda. Tek alana sığması için ya %86'nın altına inmeli (kadraj dışı) ya
-%44'ün üstüne çıkmalı (orada başlık var). **Salınan bir sınırla sabit bir dev rakam yan
-yana yaşayamaz** — geometri, tercih değil.
-
-⚠ ⚠ **`uyarla` ARTIK MODELİN HAYALET YAZMASINI ENGELLİYOR.** Örnekteki hayalet boşsa o
-şablon ögeyi kullanmıyor demektir; içerik modelin işi, kompozisyon bizim. Aksi hâlde
-şablondan silmek yetmiyordu — koşuda model yeniden dolduruyordu.
-
-⚠ ⚠ **DENETİM ALANI ÖLÇÜYORDU, ÇARPIŞMAYI DEĞİL.** `sus-baskin` hayaletin ne kadar YER
-tuttuğunu ölçüyor; bir öge küçük olup yine de yanlış yerde durabilir. `hayalet-carpisma`
-metin kutularıyla örtüşmeyi ölçüyor (eşik %12: kenarın bir harfe değmesi kasıtlı
-katmanlanmadır, gövdenin sekizde biri değil).
-
-⚠ **Hayalet gidince hiyerarşi açığa çıktı:** en büyük/en küçük punto oranı 3,8–5,1'e
-düştü. Eşiği düşürmek yanlış cevap olurdu — ölçüt kırılmadı, hayalet onu SAKLIYORDU.
-Başlık payları yükseltildi (94–119 px), sonra üç taşma çıktı ve paylar geri dengelendi.
-
-**Geri alma maliyeti:** düşük — hayalet alanları, bir koruma satırı, bir denetim bloğu.
-
-## D-300
-
-**Karar:** Kesim ayracı kaldırıldı; alt ray görsel katmanının üstüne alındı.
-
-**Neden — ayraç:** panoramayı bütün hâlde incelerken kesim yerini göstersin diye vardı.
-Ama dilimleme `translateX(-i × G)` ile yapılıyor ve `left: i × G` konumundaki 1 px'lik
-çizgi **tam olarak (i+1). slaydın sıfırıncı sütununa** düşüyor. Ölçüldü: `derived/blobs`
-altındaki gerçek bir üretim slaydında sütun 0, sütun 2'den **+11,3** daha parlak — her
-slaydın sol kenarında hayalet bir hairline YAYINLANMIŞ.
-**Görüntüleme yardımcısı çıktıya sızarsa yardımcı değil, kusurdur.**
-
-⚠ Eski test ayracın VARLIĞINI doğruluyordu (bir sınıf adı çakışmasından sonra yazılmıştı);
-artık YOKLUĞUNU doğruluyor. Bir testin var olması, doğru şeyi savunduğu anlamına gelmiyor.
-
-**Neden — ray:** `.ray` z-index 2'de, `.gorsel` 4'te. Alt kenardan taşan kesik özne rayı
-örtüyor ve marka imzası ile kaynak satırı görünmez oluyordu. Ray 6'ya çıktı.
-
-**Geri alma maliyeti:** düşük — bir CSS kuralı, bir emisyon satırı.
+> **D-299 · D-300 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
+> İkisi de kapandı ve kodda yaşıyor: hayalet öge şablonun kararı (`katalog.ts`),
+> `hayalet-carpisma` kusuru denetimde. Atıf bütünlüğü korunuyor (R-62), tavan
+> açıldı (R-63) — bir kararı arşive taşımak onu iptal etmez.
 
 ## D-301
 
@@ -572,3 +526,39 @@ Yani R-33 bugün bir VEKİL üzerinden çalışıyor. Doğru kaynak brief çıkt
 varyantları bilerek insan figürü istiyor (T4 · T10) ve o kaynağa geçmek, "kesik özne"
 tasarım kararıyla R-33'ü karşı karşıya getirir. Bu bir POLİTİKA sorusu ve insanın
 kararı: `docs/BORCLAR.md` D22.
+
+## D-314 · Yayın anı: hat ÖNERİR, insan SEÇER (2026-08-22)
+
+**Bağlam.** FAZ-17.3 yayın zamanını istiyordu ve iki kolay yol vardı: (a) onaylanan
+koşuyu hemen yayınlamak, (b) "salı 19:00 en iyi saat" gibi genel bir kural gömmek.
+İkisi de yanlış. (a) Yasa 2'yi siler — *agent önerir, insan uygular*; onay "bu içerik
+iyi" demektir, "şimdi yayınla" değil. (b) Kaynaksız bir sayısal iddiadır (Yasa 8) ve
+"öneri" etiketi onu kaynaklı yapmaz.
+
+**Karar.** Üç parça:
+
+1. **Öneri ÖLÇÜMDEN gelir.** `yayinSaatiOner` yayın defterindeki (`published.ndjson`)
+   ETKİLEŞİM ölçümlerini saat kovalarına ayırıp en yüksek ORTALAMAYI söylüyor —
+   toplamı değil, yoksa "en çok yayın yaptığın saat" ile "en iyi saat" karışırdı.
+   Gerekçe sayıyla konuşuyor: kaç ölçüm, hangi dilim, genel ortalamanın yüzde kaç üstü.
+2. **Ölçüm yoksa hat SUSUYOR.** En az beş ölçülmüş yayın gerekiyor; altındaysa cevap
+   `veri-yok` ve SEBEBİ yazılı. Bugün üretimde dönen dal budur — defter yayın ZAMANINI
+   tutuyor, etkileşimi tutmuyor (analitik çekimi FAZ-7.9'da). Ölçüldü: `{"tur":
+   "veri-yok","ornek":0,"sebep":"etkileşimi ölçülmüş yayın yok — saat öneremem"}`.
+3. **Seçim İNSANIN ve `PUBLISH` onsuz koşmuyor.** Karar `derived/runs/<id>/
+   yayin-ani.json` dosyasında: seçilen an, seçen (`human`), seçim zamanı ve o an
+   ekranda duran ÖNERİ. Kayıt yoksa `PUBLISH_TIME_NOT_CHOSEN`, biçimsizse
+   `PUBLISH_TIME_INVALID`.
+
+**Neden çalıştırma parametresi değil.** Parametreler plana DONUYOR (R-07): koşu
+başlarken hesaplanan özet onları kapsıyor ve devam ederken eklenen bir parametre özeti
+değiştirir — kapı haklı olarak *"onayladığınız plan artık geçerli değil"* der. Yayın anı
+koşu başlarken değil, ONAY anında seçiliyor. İki farklı zamana ait iki şey aynı kaba
+konamaz. `HumanDecision.note` da uygun değildi: serbest metinden saat ayrıştırmak,
+yayın zamanını insanın cümle kurma biçimine bağlamak olurdu.
+
+**Ölçüm — iki dal da GERÇEK koşuda görüldü, on sekiz saniye arayla, aynı derlemeyle:**
+karar dosyası yokken `yayinla` adımı `PUBLISH_TIME_NOT_CHOSEN` (16:28:38), karar
+konduğunda muhafızdan geçip dürüst `CHANNEL_NOT_CONNECTED` (16:28:56) ile durdu.
+Kontrol kanal kontrolünün ÖNÜNDE: kanallar bağlandığı gün sıranın tersi bu kapıyı
+sessizce atlatırdı.

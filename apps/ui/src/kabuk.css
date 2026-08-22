@@ -649,6 +649,68 @@ tr[data-tiklanir] {
   margin-block: var(--space-3);
 }
 
+/* ⚠ ⚠ **YAYIN ANI KUTUSU** (FAZ-17.3). Kutu, kapı kutusunun ÜSTÜNDE duruyor: insan
+   "onayla"ya basmadan önce zamanı seçmiş olmalı, sonra değil. Sıra bir tercih değil —
+   `PUBLISH` seçilmemiş bir anda duruyor ve o durma ekranda değil, koşuda görünürdü. */
+.yayin-ani-kutusu {
+  border: 1px dashed var(--role-accent);
+  border-radius: var(--radius-2);
+  padding: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+.yayin-ani-kutusu h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--step-0);
+}
+
+.yayin-oneri {
+  margin: 0 0 var(--space-2);
+  color: var(--role-text);
+}
+
+/* Öneri YOKKEN de bir cümle var: sessiz bir kutu, "ölçüm yok" ile "sistem bozuk"u
+   ayırt edilemez yapardı. */
+.yayin-oneri.yok {
+  color: var(--role-text-soft);
+}
+
+.yayin-uyari {
+  margin: 0 0 var(--space-2);
+  color: var(--role-accent);
+}
+
+.yayin-secildi {
+  margin: 0 0 var(--space-2);
+  color: var(--role-text);
+}
+
+.yayin-ani-satir {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.yayin-ani-satir input {
+  background: none;
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  color: var(--role-text);
+  font: inherit;
+  padding: var(--space-1) var(--space-2);
+}
+
+.yayin-ani-satir button {
+  background: none;
+  border: 1px solid var(--role-line-hair);
+  border-radius: var(--radius-2);
+  color: var(--role-text);
+  font: inherit;
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+}
+
 .kapi-dugmeler {
   display: flex;
   gap: var(--space-2);

@@ -826,7 +826,7 @@ const rapor = await runPipeline({
     // en sık sebebi tam olarak budur.
     // Onay adımı: insan kapıyı geçtiyse SONUCU deftere geçirir. Corpus'a YAZMAZ —
     // yazma darboğazı ayrı ve onay kuyruğu oradan geçiyor (R-14).
-    PROPOSE: proposeBody(),
+    PROPOSE: proposeBody({ repoRoot: REPO }),
     // ⚠ FAZ 7 denetimi: `PUBLISH` de fiil haritasında HİÇ YOKTU — `INGEST`in birebir
     // tekrarı (D-216). Kapılar, sıra, defter ve limiter yazılmıştı; gövdesi ve haritada
     // anahtarı olmadığı için `publish()`in tek çağıranı testlerdi.

@@ -5613,3 +5613,55 @@ araç gözdü. **Bir metriğin sayı üretmesi, doğru şeyi ölçtüğü anlam�
 
 **Geri alma maliyeti:** orta — iki token değeri, bir CSS tabanı, bir kart rotasyonu.
 
+---
+
+## D-299
+
+**Karar:** Hayalet (dev soluk rakam) altı şablonun ALTISINDAN da kaldırıldı; hangi
+şablonun kullanacağına artık ŞABLON karar veriyor, model değil; denetime
+`hayalet-carpisma` kusuru eklendi. Başlıklar büyütüldü.
+
+**Neden:** depo sahibi: *"hepsine arkaya filigran gibi sayı eklemişsin, çoğunda yazılarla
+çakışıyor, neden hepsinde var?"* Dev rakam bir kompozisyon ögesi ve yalnız ona YER olan
+yerde işe yarıyor; ötekilerde metnin, panelin ya da fotoğrafın arkasına düşüp filigran
+gibi okunuyordu.
+
+⚠ Önce yalnız `akan-alan`da bırakıldı ("alt yarısı boş, çakışmıyor"). **Yanlıştı ve depo
+sahibi 4. slaytta gösterdi.** Ölçüm doğruladı: alan sınırı y%44–86 arasında SALINIYOR,
+hayalet %35 boyunda. Tek alana sığması için ya %86'nın altına inmeli (kadraj dışı) ya
+%44'ün üstüne çıkmalı (orada başlık var). **Salınan bir sınırla sabit bir dev rakam yan
+yana yaşayamaz** — geometri, tercih değil.
+
+⚠ ⚠ **`uyarla` ARTIK MODELİN HAYALET YAZMASINI ENGELLİYOR.** Örnekteki hayalet boşsa o
+şablon ögeyi kullanmıyor demektir; içerik modelin işi, kompozisyon bizim. Aksi hâlde
+şablondan silmek yetmiyordu — koşuda model yeniden dolduruyordu.
+
+⚠ ⚠ **DENETİM ALANI ÖLÇÜYORDU, ÇARPIŞMAYI DEĞİL.** `sus-baskin` hayaletin ne kadar YER
+tuttuğunu ölçüyor; bir öge küçük olup yine de yanlış yerde durabilir. `hayalet-carpisma`
+metin kutularıyla örtüşmeyi ölçüyor (eşik %12: kenarın bir harfe değmesi kasıtlı
+katmanlanmadır, gövdenin sekizde biri değil).
+
+⚠ **Hayalet gidince hiyerarşi açığa çıktı:** en büyük/en küçük punto oranı 3,8–5,1'e
+düştü. Eşiği düşürmek yanlış cevap olurdu — ölçüt kırılmadı, hayalet onu SAKLIYORDU.
+Başlık payları yükseltildi (94–119 px), sonra üç taşma çıktı ve paylar geri dengelendi.
+
+**Geri alma maliyeti:** düşük — hayalet alanları, bir koruma satırı, bir denetim bloğu.
+
+## D-300
+
+**Karar:** Kesim ayracı kaldırıldı; alt ray görsel katmanının üstüne alındı.
+
+**Neden — ayraç:** panoramayı bütün hâlde incelerken kesim yerini göstersin diye vardı.
+Ama dilimleme `translateX(-i × G)` ile yapılıyor ve `left: i × G` konumundaki 1 px'lik
+çizgi **tam olarak (i+1). slaydın sıfırıncı sütununa** düşüyor. Ölçüldü: `derived/blobs`
+altındaki gerçek bir üretim slaydında sütun 0, sütun 2'den **+11,3** daha parlak — her
+slaydın sol kenarında hayalet bir hairline YAYINLANMIŞ.
+**Görüntüleme yardımcısı çıktıya sızarsa yardımcı değil, kusurdur.**
+
+⚠ Eski test ayracın VARLIĞINI doğruluyordu (bir sınıf adı çakışmasından sonra yazılmıştı);
+artık YOKLUĞUNU doğruluyor. Bir testin var olması, doğru şeyi savunduğu anlamına gelmiyor.
+
+**Neden — ray:** `.ray` z-index 2'de, `.gorsel` 4'te. Alt kenardan taşan kesik özne rayı
+örtüyor ve marka imzası ile kaynak satırı görünmez oluyordu. Ray 6'ya çıktı.
+
+**Geri alma maliyeti:** düşük — bir CSS kuralı, bir emisyon satırı.

@@ -46,7 +46,7 @@ planlanır — o da bir karardır, otomatik değil.
 🧪 Gerekçesiz ret dene → panel gerekçe istiyor
 💾 `feat(cli): kosu paneli ve kapi onayi` · `Refs: FAZ-17.2 · §4c`
 
-## 17.3 — Yayın zamanı: bir KARAR, otomatik değil    [ ]
+## 17.3 — Yayın zamanı: bir KARAR, otomatik değil    [x]
 
 📖 §11 · R-46
 🔗 FAZ-17.2

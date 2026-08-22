@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 17
-siradaki_adim: 17.3
-son_guncelleme: 2026-08-19
+siradaki_adim: 15.9
+son_guncelleme: 2026-08-22
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "YEDI ISTEK DE KAPANDI VE OLCULDU. (1) Duzenlenen metin ekranda degismiyordu: ekran MANIFESTI okuyordu, duzenleme ise adim defterine gidiyordu — insanin GORDUGU ile hattin KULLANDIGI iki ayri metindi. Ekran artik defteri okuyor, elle-duzenlendi rozeti var. (2,4) Editorde gorsel silme eklendi ve uretim artik SECIM GEREKTIRMIYOR: bos yuvaya uretmek icin once o yuvayi secmek gerekiyordu ama bos yuvada tiklanacak gorsel yok — kisir dongu. (5) Kunye sadelesti: kategori etiketi bos ise cizilmiyor, kaynak tek ve kisa (upcyman.com) ve alt ray artik EDITORDE duzenlenebiliyor. AI ifsasi KALIYOR — Md. 50 bir tercih degil. (6) Sus ogesi editorden kapatilabiliyor: olculdu, bant ok iken sus-metni-kesiyor 2 kusur, yok yapilinca 0. Renk secici EKLENMEDI ve sebebi yazili — metin ve aksan rengi zeminden turuyor (kontrast garantisi §12.1). (7) Disa aktarma alti bicimde: dilim+png yayin, dilim+jpg hafif (9410 → 1520 KB), dilim+pdf her slayt ayri sayfa (4 kart → 4 sayfa), butun+png kesintisizligi gormek, butun+pdf baski. Hem panelde hem editorde, hepsi ayni Chromium motorundan (R-30). 44 kapi yesil, 1971 test."
+son_kanit: "17.3 KAPANDI — YAYIN ANI BIR KARAR. Hat saat ONERIR, insan SECER. Oneri OLCUMDEN geliyor: yayin defterindeki etkilesim olcumleri saat kovalarina ayriliyor ve en yuksek ORTALAMA soyleniyor (toplam degil — yoksa en cok yayin yapilan saat en iyi saat sanilirdi). Olcum yoksa hat SUSUYOR: en az bes olculmus yayin gerekiyor, altindaysa cevap veri-yok ve sebebi yazili. Bugun uretimde donen dal bu ve panelde gorunuyor: tur veri-yok, ornek 0, sebep etkilesimi olculmus yayin yok. Secim insanin ve derived/runs/<id>/yayin-ani.json dosyasinda: an, secen human, secim zamani ve o an ekranda duran ONERI. PUBLISH onsuz kosmuyor — iki dal da GERCEK kosuda olculdu, on sekiz saniye arayla ayni derlemeyle: karar yokken PUBLISH_TIME_NOT_CHOSEN 16:28:38, karar konunca muhafizdan gecip durust CHANNEL_NOT_CONNECTED 16:28:56. Ayrica gorseller artik EXPORTA GOMULUYOR (D-302 referans bicimi data URI'ye ceviriliyor): panel dilim/png 2 615 325 bayt, editor 2 617 558 bayt, dort parca — once ayni cagri kesik ozneyi cizmiyordu. 44 kapi yesil."
 ```
 
 ## Neredeyiz
@@ -46,6 +46,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **16.10** · geri/ileri YIĞINI (tavan 50) + Ctrl+Z; düğme derinliği gösteriyor | 2026-08-18 |
 | **17.1** · metin ve tasarım kapıları hatta; `just onay --kapi` ile tek kapı onaylanıyor | 2026-08-18 |
 | **17.2** · komuta merkezi: görünür nav, koşu DETAYI (metin+slayt+kusur+onay), tıklama canlı | 2026-08-18 |
+| **17.3** · yayın anı bir KARAR: hat ölçümden saat ÖNERİR, ölçüm yoksa susar; `PUBLISH` seçimsiz koşmuyor (D-314) | 2026-08-22 |
 
 ## Sıradaki adım
 

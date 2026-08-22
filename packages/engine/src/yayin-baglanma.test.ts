@@ -14,12 +14,23 @@ import { ok as sonucOk, err as sonucErr } from '@suite/contracts'
 import { publishBody, type PublishBodyDeps } from './verbs/bodies.js'
 import { RateLimiter } from './ratelimit.js'
 import { appendPublished, initLedgerFile, lookupPublished, readLedger } from './publish-ledger.js'
+import { yayinAniYaz, yayinAniYolu } from './yayin-ani.js'
+import { rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { systemClock, systemRng } from '@suite/kernel'
 import type { BrandId, CorrelationId, EraId, RunId, StepId } from '@suite/contracts'
 
 let tmp: TempDir
 beforeEach(() => {
   tmp = makeTempDir('suite-yayin-')
+  // ⚠ ⚠ **YAYIN ANI SEÇİLMEDEN YAYIN YOK** (FAZ-17.3): gövde artık koşunun defterinde
+  // insanın seçtiği anı arıyor. Testler o kararı BURADA veriyor — çünkü gerçek akışta
+  // da onu bir insan veriyor. Seçim yokken ne olduğunu ölçen ayrı bir test var.
+  yayinAniYaz(tmp.path, 'run_yayin', {
+    an: '2026-08-17T20:00:00+03:00',
+    secilenAt: SIMDI,
+    oneri: 'veri yok — saat önerilmedi',
+  })
 })
 afterEach(() => tmp.cleanup())
 
@@ -238,5 +249,64 @@ describe('uyum kaydı eksikse', () => {
     if (r.ok) return
     expect(r.error.details?.['kind']).toBe('disclosure_missing')
     expect(yuklendi).toEqual([])
+  })
+})
+
+// ── yayın ANI: insan seçmeden yayın yok (§11 · R-46 · FAZ-17.3) ─────────────
+//
+// ⚠ ⚠ Bu bloğun ölçtüğü şey bir özellik değil, bir YASA: *"agent önerir, insan
+// uygular"* (Yasa 2). Hat yayın anını ÖNERİR; uygulanacak an insanın seçtiğidir.
+// "Onaylandıysa şimdi yayınla" diyen bir dal bu yasayı sessizce siler ve sessizce
+// silinen bir yasa, hiç yazılmamış bir yasadır.
+describe('yayın anı seçilmeden', () => {
+  it('yayın DURUYOR — kanal bağlı olsa bile', async () => {
+    initLedgerFile(tmp.path)
+    // Seçim kaydı SİLİNİYOR: `beforeEach` onu yazmıştı, burada karar geri alınıyor.
+    rmSync(join(tmp.path, yayinAniYolu('run_yayin')), { force: true })
+    const yuklendi: string[] = []
+    const r = await kosLocal(yuklendi)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.code).toBe('PUBLISH_TIME_NOT_CHOSEN')
+    // ⚠ Yükleyici HİÇ çağrılmadı: kapı yükleme yolunun ÖNÜNDE. Sonrasında olsaydı
+    // "yayınlanmadı" derken içerik çoktan kanala gitmiş olurdu.
+    expect(yuklendi).toEqual([])
+  })
+
+  it('BİÇİMSİZ an reddediliyor — sessizce "şimdi"ye düşmüyor', async () => {
+    initLedgerFile(tmp.path)
+    writeFileSync(
+      join(tmp.path, yayinAniYolu('run_yayin')),
+      JSON.stringify({ an: 'yarın akşam', secen: 'human', secilenAt: SIMDI, oneri: '' })
+    )
+    const yuklendi: string[] = []
+    const r = await kosLocal(yuklendi)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.code).toBe('PUBLISH_TIME_INVALID')
+    expect(yuklendi).toEqual([])
+  })
+
+  it('hat kendi adına SEÇEMEZ — `secen: agent` bir seçim değildir', async () => {
+    initLedgerFile(tmp.path)
+    writeFileSync(
+      join(tmp.path, yayinAniYolu('run_yayin')),
+      JSON.stringify({ an: '2026-08-17T20:00:00+03:00', secen: 'agent', secilenAt: SIMDI })
+    )
+    const yuklendi: string[] = []
+    const r = await kosLocal(yuklendi)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.code).toBe('PUBLISH_TIME_NOT_CHOSEN')
+    expect(yuklendi).toEqual([])
+  })
+
+  it('seçilen an YAYIN KAYDINA giriyor — "ne zaman kararlaştırıldı" sorusu cevaplı', async () => {
+    initLedgerFile(tmp.path)
+    const yuklendi: string[] = []
+    const r = await kosLocal(yuklendi)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect((r.value.data as { plannedAt: string }).plannedAt).toBe('2026-08-17T20:00:00+03:00')
   })
 })

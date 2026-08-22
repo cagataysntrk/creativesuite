@@ -318,6 +318,15 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   // METİN DEFTERDE YOKTU. Bir kapı, kararın dayanağını taşımıyorsa kapı değil bir
   // gecikmedir. Satırlar kısa ve sayılı; yük değil kanıt.
   'lines',
+  // ⚠ ⚠ **YAYIN SAATİ ÖNERİSİ (FAZ-17.3).** Öneri deftere girmezse insanın onay
+  // ekranında gördüğü gerekçe hiçbir yerde yazmaz — ve "bu saat neden seçildi"
+  // sorusu, tam da kaynağı olması gereken yerde cevapsız kalır (Yasa 8).
+  // ⚠ `veri-yok` dalı da yazılıyor: öneri YAPILMADIĞININ kaydı, yapılanın kaydı
+  // kadar önemli. Sessiz bir susma, ölçülmemiş bir hesabı "ölçüldü" gibi gösterir.
+  'yayinSaati',
+  // ⚠ İnsanın SEÇTİĞİ yayın anı — `published` "oldu" der, bu alan "kararlaştırıldı"
+  // der. İkisi ayrı sorular ve ikincisi yalnız burada yazılı.
+  'plannedAt',
 ] as const
 
 /**

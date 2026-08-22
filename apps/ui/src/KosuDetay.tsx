@@ -45,6 +45,28 @@ interface Icerik {
     readonly saniye: number | null
     readonly maliyetMikros: string
   }[]
+  /**
+   * Yayın saati ÖNERİSİ — ölçümden gelir ya da hiç gelmez (§11 · R-46 · FAZ-17.3).
+   *
+   * ⚠ `veri-yok` bir hata değil, DÜRÜST bir cevap: etkileşim ölçümü olmadan saat
+   * önermek, kaynaksız bir sayısal iddia olurdu (Yasa 8).
+   */
+  readonly yayinSaatiOnerisi:
+    | {
+        readonly tur: 'oneri'
+        readonly saat: number
+        readonly gerekce: string
+        readonly ornek: number
+      }
+    | { readonly tur: 'veri-yok'; readonly sebep: string; readonly ornek: number }
+    | null
+  /** İnsanın SEÇTİĞİ yayın anı — seçilmediyse `null` ve yayın durur. */
+  readonly yayinAni: {
+    readonly an: string
+    readonly secen: string
+    readonly secilenAt: string
+    readonly oneri: string
+  } | null
   readonly konu: string | null
   readonly konuGerekcesi: string | null
   readonly durum: 'kapida' | 'calisiyor' | 'durdu' | 'bitti' | 'baslatilamadi'
@@ -92,6 +114,8 @@ export const KosuDetay = ({
   // çağrısı, üç dakika ve büyük ihtimalle BAŞKA bir metin.
   // `null` = düzenleme açılmadı; dizi = düzenleniyor.
   const [taslak, setTaslak] = useState<readonly string[] | null>(null)
+  /** Saat kutusundaki değer — boşken kaydedilemez, çünkü boş bir an bir seçim değildir. */
+  const [yayinAniTaslak, setYayinAniTaslak] = useState<string>('')
 
   /**
    * Görseli yükler — **yuva sırası dosya adından değil, mevcut yüklü sayıdan** türüyor.
@@ -172,6 +196,35 @@ export const KosuDetay = ({
     const t = setInterval(() => void yukle(), 5000)
     return () => clearInterval(t)
   }, [yukle])
+
+  /**
+   * Seçilen yayın anını deftere yazar (§11 · R-46 · FAZ-17.3).
+   *
+   * ⚠ ⚠ **BU DÜĞME OLMADAN YAYIN HİÇ OLMUYOR.** `PUBLISH` gövdesi koşu defterinde
+   * insanın seçtiği anı arıyor ve yoksa duruyor — panelde seçme yolu olmasaydı
+   * kapı, kimsenin geçemediği bir duvar olurdu.
+   * ⚠ Ekranda duran ÖNERİ de kayda giriyor: "insan neyi görerek seçti" sorusunun
+   * cevabı sonradan üretilemez.
+   */
+  const yayinAniniKaydet = useCallback(async (): Promise<void> => {
+    if (yayinAniTaslak === '') {
+      setMesaj('✗ önce bir an seç — boş bir an bir seçim değildir')
+      return
+    }
+    const o = d?.yayinSaatiOnerisi
+    const oneriMetni =
+      o == null ? '' : o.tur === 'oneri' ? `${String(o.saat)}:00 · ${o.gerekce}` : o.sebep
+    const r = await fetch(`/api/kosu/${runId}/yayin-ani`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ an: yayinAniTaslak, oneri: oneriMetni }),
+    })
+    const j = (await r.json()) as { ok?: boolean; hata?: string }
+    setMesaj(
+      j.ok === true ? '✓ yayın anı seçildi ve deftere yazıldı' : `✗ ${j.hata ?? 'yazılamadı'}`
+    )
+    void yukle()
+  }, [d, runId, yayinAniTaslak, yukle])
 
   const karar = useCallback(
     async (k: 'approved' | 'rejected', not: string): Promise<void> => {
@@ -338,6 +391,50 @@ export const KosuDetay = ({
             </li>
           ))}
         </ol>
+      )}
+
+      {/* ⚠ ⚠ **YAYIN ANI — SON KAPIDA SORULUYOR** (§11 · R-46 · Yasa 2 · FAZ-17.3).
+          Hat saati ÖNERİR, insan seçer. Öneri ölçümden gelmiyorsa hat susuyor ve
+          SEBEBİNİ yazıyor: uydurulmuş bir saat, kaynaksız bir sayısal iddiadır.
+          ⚠ Kutu yalnız son kapıda görünüyor: metin onayında yayın saati sormak,
+          henüz görselleri bile üretilmemiş bir işi zamanlamak olurdu. */}
+      {d.bekleyenKapi !== 'insan-onayi' ? null : (
+        <div className="yayin-ani-kutusu">
+          <h3>yayın anı — sen seçiyorsun</h3>
+          {d.yayinSaatiOnerisi == null ? null : d.yayinSaatiOnerisi.tur === 'oneri' ? (
+            <p className="yayin-oneri">
+              ⏱ önerilen saat{' '}
+              <strong>{String(d.yayinSaatiOnerisi.saat).padStart(2, '0')}:00</strong> —{' '}
+              {d.yayinSaatiOnerisi.gerekce}
+            </p>
+          ) : (
+            <p className="yayin-oneri yok">
+              ⏱ saat ÖNERİLMİYOR: {d.yayinSaatiOnerisi.sebep}. Ölçüm biriktikçe (en az beş yayının
+              etkileşimi) hat gerekçeli bir saat önerecek — o güne kadar seçim tamamen senin.
+            </p>
+          )}
+          {d.yayinAni === null ? (
+            <p className="yayin-uyari">
+              ⚠ Henüz bir an seçilmedi. <strong>Seçilmeden yayın adımı çalışmaz</strong> — hat kendi
+              kendine "şimdi" demez.
+            </p>
+          ) : (
+            <p className="yayin-secildi">
+              ✓ seçilen an: <strong>{d.yayinAni.an}</strong> ({d.yayinAni.secen})
+            </p>
+          )}
+          <div className="yayin-ani-satir">
+            <input
+              type="datetime-local"
+              value={yayinAniTaslak}
+              onChange={(e) => setYayinAniTaslak(e.target.value)}
+              aria-label="yayın anı"
+            />
+            <button type="button" onClick={() => void yayinAniniKaydet()}>
+              ⏱ yayın anını seç
+            </button>
+          </div>
+        </div>
       )}
 
       {d.bekleyenKapi === null ? null : (

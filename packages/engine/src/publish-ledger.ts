@@ -25,6 +25,15 @@ export interface PublishedEntry {
   readonly runId: string
   /** ISO 8601 — çağıran verir (R-06). */
   readonly publishedAt: string
+  /**
+   * ÖLÇÜLMÜŞ etkileşim — bugün hiçbir yazıcı doldurmuyor (FAZ-7.9 · FAZ-17.3).
+   *
+   * ⚠ ⚠ Alan burada çünkü yayın saati önerisi (`yayinSaatiOner`) onu OKUYOR ve
+   * okuduğu şeyin şemada adı olmalı: `as unknown as` ile kaçamak bir okuma, defterin
+   * sözleşmesini kodun dışında tutardı. `undefined` "sıfır etkileşim" DEĞİL, "ölçüm
+   * yok" demektir — öneri dalı ikisini ayırıyor.
+   */
+  readonly engagement?: number
 }
 
 /** Defter yolu. `derived/runs` dizesi kernel'de (`manifest-yazici` darboğazı). */
