@@ -68,6 +68,15 @@ export type BantTarifi =
   | { readonly tip: 'egri'; readonly aciklama: string }
   | { readonly tip: 'kemer'; readonly aciklama: string }
   | { readonly tip: 'ok'; readonly aciklama: string }
+  /**
+   * **Ölçek çizgisi** — panoramayı kat eden hairline ve tırtıkları (D-319).
+   *
+   * ⚠ Süreklilik bir ışık geçişiyle İMA EDİLMİYOR, bir ölçüyle KURULUYOR: markanın
+   * dizayn sistemi degradeyi ve glow'u yasaklıyor, ayrımı yüzey adımı + hairline ile
+   * kuruyor. Duraklar içerikten geliyor — silinirse kaybolan şey bir dekor değil,
+   * okuyucunun nerede olduğu bilgisi.
+   */
+  | { readonly tip: 'olcek'; readonly aciklama: string }
   /** Süreklilik iki renk alanını ayıran eğri SINIRDA — ayrı bir bant ögesi yok. */
   | { readonly tip: 'alan'; readonly aciklama: string }
   | { readonly tip: 'yok'; readonly aciklama: string }
@@ -300,8 +309,11 @@ export const DONEN: KatalogSablonu = {
   zemin: KANVAS,
   rotasyon: [KANVAS, KART_ACIK, KAGIT, KART_KOYU],
   bant: {
-    tip: 'yok',
-    aciklama: 'Süreklilik renk rotasyonunun kendisi: her kart öncekinin devamı gibi okunuyor.',
+    tip: 'olcek',
+    aciklama:
+      'Renk rotasyonu tek başına yetmiyordu: iki dev soluk daire sürekliliği bir IŞIK ' +
+      'HAVUZUYLA kuruyordu ve dizayn sistemi bunu yasaklıyor. Yerine ölçek çizgisi — ' +
+      'duraklar ürünlerin yerinde, yani süreklilik bir süs değil bir ölçü.',
   },
   gorsel: {
     adet: 'slayt-basina',

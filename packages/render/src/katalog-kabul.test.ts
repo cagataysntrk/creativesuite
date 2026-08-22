@@ -34,8 +34,10 @@ const kesimiAsanlar = (o: KatalogOrnegi): readonly string[] => {
   if (b.tip === 'ok') {
     for (const ok of b.oklar) if (asiyorMu(o, ok.x1, ok.x2)) bulunan.push(`ok@${ok.x1}`)
   }
-  // ⚠ Eğri ve kemer panoramanın TAMAMINI kat ediyor: tanım gereği her kesimi aşarlar.
-  if (b.tip === 'egri' || b.tip === 'kemer') bulunan.push(`bant:${b.tip}`)
+  // ⚠ Eğri, kemer ve ÖLÇEK panoramanın TAMAMINI kat ediyor: tanım gereği her kesimi
+  // aşarlar. `olcek` D-319'la geldi ve listeye aynı turda eklendi — bir mekanizmayı
+  // ekleyip ölçümü güncellememek, bu depoda tekrar eden hata.
+  if (b.tip === 'egri' || b.tip === 'kemer' || b.tip === 'olcek') bulunan.push(`bant:${b.tip}`)
   for (const l of o.lekeler ?? []) {
     // Leke boyutu PİKSEL, x yüzde: yarıçapı panorama yüzdesine çeviriyoruz.
     const yariCap = (l.boyut / 2 / (o.slaytGenisligi * o.kartlar.length)) * 100
@@ -68,20 +70,29 @@ describe('tasarım rehberi §10 — katalog kabul ölçütleri', () => {
         // gibi göründü. Yanlış olan eşik değil, LİSTEYDİ: `ustDoku` kartların ÜSTÜNDE
         // gren+vinyet çiziyor, `alanSiniri` tuvali iki alana bölüyor — ikisi de gerçek
         // katmanlanma ve ikisi de sayılmıyordu.
+        // ⚠ ⚠ **LİSTE ÜÇÜNCÜ KEZ EKSİK KALDI (D-319).** `ustDoku` (gren + vinyet) emekli
+        // oldu — markanın dizayn sistemi "atmosferik renk"i yasaklıyor — ve ölçüt
+        // kırmızıya döndü. Yanlış olan ölçüt değil, MEKANİZMA LİSTESİ: kesimi kat eden
+        // bir bant da katmanlanmadır ve kartların üstünden/altından geçer.
         const hayaletVar = o.kartlar.some((k) => k.hayalet.trim() !== '')
         const katman =
           hayaletVar ||
           o.gorseller.length > 0 ||
           (o.lekeler ?? []).length > 0 ||
           o.ustDoku !== undefined ||
-          o.alanSiniri !== undefined
+          o.alanSiniri !== undefined ||
+          o.bant.tip !== 'yok'
         expect(katman, `${id}: hiçbir öge katmanlanmıyor — düz bir yerleşim`).toBe(true)
       })
 
       // ── Ölçüt 5: zemin en az İKİ katmanlı ────────────────────────────────
       //
-      // ⚠ Tek katmanlı zemin = düz renk = "web arka planı". İki katman en az bir degrade
-      // ve bir vinyet/ışık demek; rehber §5'in ölçülebilir hâli.
+      // ⚠ ⚠ **ÖLÇÜT YENİDEN TANIMLANDI (D-319) — ve bu bir gevşetme DEĞİL, bir dil
+      // değişikliği.** Eski hâli "iki katman" derken degradeyi ve vinyeti kastediyordu;
+      // markanın dizayn sistemi ikisini de yasaklıyor ve ayrımı **yüzey adımı + hairline**
+      // ile kuruyor. Ölçütün amacı aynı kalıyor: zemin düz bir web arka planı olmasın.
+      // Ölçülen mekanizmalar sistemin kendi mekanizmaları: yüzey adımı (kart zemini
+      // kanvastan farklı), alan sınırı, tam kaplama fotoğraf ya da kesimi kat eden bant.
       it('ölçüt 5 · zemin en az iki katmanlı', () => {
         // ⚠ ⚠ **İLK ÖLÇÜM YALNIZ `zeminDokusu`YA BAKIYORDU ve üç şablonu haksız yere
         // kırmızıya düşürdü.** Katmanlı zemin bu belgede ÜÇ ayrı mekanizmayla kuruluyor:
@@ -90,13 +101,21 @@ describe('tasarım rehberi §10 — katalog kabul ölçütleri', () => {
         // tek mekanizma tanıması aracın eksiğidir, şablonun değil.
         const doku = o.zeminDokusu?.katmanlar.length ?? 0
         const tamKaplama = o.gorseller.some((g) => g.kirpma === 'tam')
+        // Yüzey adımı: en az bir kart, panorama zemininden BAŞKA bir zemin taşıyor.
+        // Sistemin ayrım kuralının birebir karşılığı (tint step + hairline).
+        const yuzeyAdimi = o.kartlar.some((k) => k.zemin !== undefined && k.zemin !== o.zemin)
         // ⚠ `ustDoku` DÖRDÜNCÜ mekanizma: kartların ÜSTÜNDE gren + vinyet. `donen`in
         // opak kart renkleri panorama zeminini tamamen örttüğü için tek çözüm buydu.
         const katmanli =
-          doku >= 2 || o.alanSiniri !== undefined || tamKaplama || o.ustDoku !== undefined
+          doku >= 2 ||
+          o.alanSiniri !== undefined ||
+          tamKaplama ||
+          o.ustDoku !== undefined ||
+          yuzeyAdimi ||
+          o.bant.tip !== 'yok'
         expect(
           katmanli,
-          `${id}: zemin tek katmanlı (doku ${doku}) — düz renk web arka planıdır`
+          `${id}: zemin düz — ne yüzey adımı, ne alan sınırı, ne bant, ne tam kaplama`
         ).toBe(true)
       })
     })

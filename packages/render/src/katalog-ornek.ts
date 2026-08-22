@@ -68,7 +68,6 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   // film greni (daha görünür), açık zeminde kâğıt paraziti (daha ince) — aynı doku iki
   // zeminde aynı güçte olamaz.
   // ⚠ Vinyet kadrajı topluyor: kenarları hafif düşürmek merkezi kendiliğinden öne çıkarıyor.
-  ustDoku: { gren: 20, vinyet: 30 },
   // ⚠ `ayrik`: paneller DİBE, eğrinin üstüne oturuyor. Aradaki boşluk kusur değil,
   // eğrinin hikâyeyi anlattığı alan.
   yerlesim: 'ayrik',
@@ -92,23 +91,6 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     panelPayi: 1.7,
   },
   zemin: 'var(--role-line-edge)',
-  zeminDokusu: {
-    taban: '--ramp-marka-ink-950',
-    katmanlar: [
-      {
-        tip: 'dogrusal',
-        aci: 104,
-        duraklar: [
-          { renk: '--ramp-marka-ink-950', konum: 0 },
-          { renk: '--ramp-marka-ink-800', konum: 52 },
-          { renk: '--ramp-marka-ink-950', konum: 100 },
-        ],
-      },
-      { tip: 'isik', x: 12, y: 22, capX: 46, capY: 74, renk: '--ramp-marka-mavi-500', guc: 16 },
-      { tip: 'isik', x: 86, y: 78, capX: 40, capY: 58, renk: '--ramp-marka-mavi-600', guc: 12 },
-      { tip: 'vinyet', guc: 30 },
-    ],
-  },
   bant: {
     tip: 'egri',
     noktalar: [
@@ -256,7 +238,6 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
 export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
-  ustDoku: { gren: 18, vinyet: 26 },
   yerlesim: 'ust',
   tipografi: {
     baslikPayi: 1.18,
@@ -378,7 +359,6 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
 export const ORNEK_SAHNE: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
-  ustDoku: { gren: 22, vinyet: 34 },
   // ⚠ ⚠ **METİN ÜSTTE, ÖZNE ALTTA — ikisi de altta olamaz.** İlk sürüm `yerlesim: 'alt'`
   // idi ve kesik özne kutuları başlıkların ÜSTÜNE bindi: "Sonra elle tutulur bir ölçü"
   // bir insan gövdesinin arkasından okunuyordu. Süreklilik ögesi kesimi aşmak ZORUNDA,
@@ -405,31 +385,11 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     // metin kolonu ona yer BIRAKMIYOR ve çakışma matematiksel olarak kaçınılmaz oluyordu
     // (kart 3'te %40, kart 4'te %44 — ölçüldü, göz kararı değil). İki öge aynı kadrajı
     // paylaşacaksa toplamları 100'ü geçemez; bu bir tasarım tercihi değil, aritmetik.
-    baslikSutunu: 0.46,
+    // ⚠ 0,46 → 0,54: dar kolonda baslik uc satira bolunuyordu ("Sessiz / bir /
+    // donusum") ve editoryal ses cirkinlesti. Fotograf kolonuna hala yer var.
+    baslikSutunu: 0.54,
   },
   zemin: 'var(--role-line-edge)',
-  zeminDokusu: {
-    taban: '--ramp-marka-ink-950',
-    katmanlar: [
-      {
-        tip: 'dogrusal',
-        aci: 90,
-        duraklar: [
-          { renk: '--ramp-marka-ink-800', konum: 0 },
-          { renk: '--ramp-marka-ink-950', konum: 74 },
-        ],
-      },
-      // ⚠ ⚠ **IŞIK ORTADAN KAÇIRILDI — merkezî havuz ŞERİT gibi okunuyordu.** `x: 50`
-      // ile havuz panoramanın tam ortasına düşüyor ve 2.–3. slaytlar ötekilerden gözle
-      // görülür biçimde açık kalıyor: göz bunu "ışık" değil "kutu" diye okuyor. Rehber
-      // §5 zaten söylüyordu: merkezi ortada olan bir odak fark edilmiyor, asimetri
-      // gerekiyor. ⚠ Düşüş de yumuşatıldı (`capX` 84 → 62): geniş ve sert kenarlı bir
-      // havuz, dar ve yumuşak olandan daha çok "kutu" üretiyor.
-      { tip: 'isik', x: 22, y: 16, capX: 62, capY: 52, renk: '--ramp-marka-mavi-300', guc: 34 },
-      { tip: 'isik', x: 88, y: 74, capX: 46, capY: 44, renk: '--ramp-marka-mavi-500', guc: 9 },
-      { tip: 'vinyet', guc: 42 },
-    ],
-  },
   // ⚠ ⚠ **`matlama` LİSTEDE KALDI ama artık YEDEK.** Arka plan silme hatta bağlandı
   // (`gorsel-kirp`); silme koştuğunda `composeBody` `matlama`yı listeden ÇIKARIYOR —
   // şeffaf zeminli bir PNG'ye luma anahtarı uygulanınca öznenin koyu bölgeleri de
@@ -590,7 +550,6 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
 export const ORNEK_MEMPHIS: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
-  ustDoku: { gren: 13, vinyet: 18 },
   // ⚠ ⚠ **`orta` DENENDİ ve BIRAKILDI.** Dikeyde ortalanan metin, kesimi aşan özneyle
   // aynı bandı istiyor: liste paneli bir insan gövdesinin arkasında kalıyordu. Süreklilik
   // ögesi kesimi aşmak ZORUNDA olduğuna göre çakışmayı yatayda çözmek imkânsız — her
@@ -613,20 +572,6 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // ⚠ Kâğıt zeminde koyu bir hayalet aynı opaklıkta DAHA GÜÇLÜ okunur (koyu üstüne
   // açık ile açık üstüne koyu simetrik değil): %7 burada yeterli, ölçek büyütülüyor.
   hayaletKonumu: { ust: 30, olcek: 1.4, guc: 7 },
-  zeminDokusu: {
-    taban: '--ramp-marka-kagit',
-    katmanlar: [
-      {
-        tip: 'dogrusal',
-        aci: 160,
-        duraklar: [
-          { renk: '--ramp-marka-kagit', konum: 0 },
-          { renk: '--ramp-gray-100', konum: 100 },
-        ],
-      },
-      { tip: 'isik', x: 78, y: 18, capX: 44, capY: 52, renk: '--ramp-marka-mavi-200', guc: 40 },
-    ],
-  },
   bant: { tip: 'yok' },
   // ⚠ Kâğıt zeminde gölge DAHA gerekli: açık zeminde kesik bir figürün kenarı zeminle
   // aynı parlaklıkta olabiliyor ve figür "kesilmiş kâğıt" gibi görünüyor.
@@ -669,7 +614,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
-      zemin: 'var(--ramp-marka-mavi-200)',
+      zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
       ustBaslik: 'AYRIŞTIRMA',
@@ -759,9 +704,22 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   // onların altında hiç görünmüyor. Sonuç her kartta düz bir renk, yani rehber §10
   // ölçüt 5'in tarif ettiği "web arka planı" — kabul testi bunu kırmızı verdi.
   // Gren + yumuşak vinyet üstte duruyor ve düz rengi yüzeye çeviriyor.
-  ustDoku: { gren: 16, vinyet: 24 },
   zemin: 'var(--role-bg)',
-  bant: { tip: 'yok' },
+  // ⚠ ⚠ **SÜREKLİLİK ARTIK BİR ÖLÇEK ÇİZGİSİ (FAZ-18.3).** Önce iki dev soluk daire
+  // taşıyordu — bir ışık havuzu, yani sistemin yasakladığı "atmosferik renk". Ölçek
+  // çizgisi panoramayı kat ediyor ve duraklar ÜRÜNLERİN yerinde: silinirse kaybolan şey
+  // bir dekor değil, dört ürünün aynı hattın çıktısı olduğu bilgisi.
+  bant: {
+    tip: 'olcek',
+    y: 74,
+    aralik: 3.125,
+    duraklar: [
+      { x: 14.5, etiket: '01' },
+      { x: 40.5, etiket: '02' },
+      { x: 68.5, etiket: '03' },
+      { x: 92.5, etiket: '04' },
+    ],
+  },
   // ⚠ Gölge YOK: daire maske ögeyi zaten ayırıyor ve maskeli bir ögeye gölge eklemek
   // onu zeminden koparıp rozet gibi gösteriyor. Renk uyumu var — ürün her kartta BAŞKA
   // bir zemine düşüyor ve kendi sıcaklığıyla gelirse dördü de yamalı görünür.
@@ -772,22 +730,18 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   // tasarım. Hat zaten arka planı siliyor (`gorsel-kirp`), yani kesik ürün elimizde;
   // eksik olan tek şey dairenin görünür bir katmanda durmasıydı.
   // ⚠ Daireler `ust: true`: kart zemini opak ve altta kalan bir leke hiç görünmüyor.
-  lekeler: [
-    // ⚠ ⚠ **SÜREKLİLİK ÜRÜNDE DEĞİL, ZEMİNDE.** İlk kurulumda ürünler kesimi aşıyordu ve
-    // her slaytta İKİ yarım figür beliriyordu (kendi ürünü + öncekinin kuyruğu); metin
-    // ikisinin arasında sıkışıp üstlerine bindi — render'a bakınca görüldü. Ürün bir
-    // slaydın konusudur, iki slaydın ortak ögesi değil.
-    // Kesimi aşan şey artık SOLUK BÜYÜK DAİRELER: zemin katmanında yaşıyorlar, metinle
-    // yarışmıyorlar ve şablonun süreklilik iddiasını gerçekten kuruyorlar.
-    { tip: 'daire', ust: true, x: 25, y: 30, boyut: 760, renk: 'rgba(255,255,255,0.07)' },
-    { tip: 'daire', ust: true, x: 75, y: 68, boyut: 700, renk: 'rgba(255,255,255,0.07)' },
-    // Ürünün arkasındaki beyaz daire — referansın (`image copy 3`) imzası. Merkezleri
-    // ürün kutularıyla AYNI; boyutları üründen KÜÇÜK ki ürün taşsın.
-    { tip: 'daire', ust: true, x: 14.5, y: 53, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
-    { tip: 'daire', ust: true, x: 40.5, y: 49, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
-    { tip: 'daire', ust: true, x: 68.5, y: 52, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
-    { tip: 'daire', ust: true, x: 92.5, y: 50, boyut: 400, renk: 'var(--ramp-marka-kagit)' },
-  ],
+  // ⚠ ⚠ **İKİ DEV SOLUK DAİRE EMEKLİ (FAZ-18.3).** Sürekliliği %7 beyaz, 760 px'lik iki
+  // yumuşak daire taşıyordu — yani bir IŞIK HAVUZU. Markanın dizayn sistemi "atmosferik
+  // renk"i ve glow'u açıkça yasaklıyor; sürekliliği YÜZEY ADIMI + HAIRLINE ile kuruyor.
+  // Yerine gelen şey bir süs değil bir ÖLÇÜ: `olcek` bandı panoramayı kat ediyor ve her
+  // ürünün altında etiketli bir durak var.
+  //
+  // ⚠ Podyum diskleri KALDI ama kâğıt beyazı değil YÜZEY ADIMI (#171717): kesik ürünün
+  // altında bir tabla duruyor, kadrajda bir projektör lekesi değil.
+  // ⚠ ⚠ **PODYUM DİSKLERİ DE EMEKLİ.** Beyaz diskler kâğıt kartlarda DEV KOYU dairelere
+  // dönüyordu (çizildi, bakıldı): belge düzeyinde tek renk, kart düzeyinde iki ayrı
+  // zemin — aynı öge bir slaytta plaka, ötekinde delik gibi okunuyordu. Ürünü yere
+  // basıran şey zaten `temas-golgesi`; ikinci bir tabla kompozisyon değil gürültü.
   // ⚠ Kırpma `kesik`: ürün dairenin dışına taşabilsin — referanstaki hacim hissi bu.
   // ⚠ Her ürün KENDİ slaydında, kesimi aşmıyor: merkezler 17 · 42 · 67 · 92.
   gorseller: [
@@ -871,7 +825,6 @@ export const ORNEK_DONEN: KatalogOrnegi = {
 export const ORNEK_EDITORYAL: KatalogOrnegi = {
   slaytGenisligi: 1080,
   yukseklik: 1350,
-  ustDoku: { gren: 12, vinyet: 20 },
   // ⚠ ⚠ **BU ŞABLON REFERANSA GÖRE YENİDEN KURULDU (D-286).** Önceki hâli referansın
   // (`image copy 5`) ÜÇ temel kararını da ters yapıyordu:
   //   1. Zemin KOYUYDU — referans açık, havadar, neredeyse kâğıt.
@@ -885,34 +838,22 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   tipografi: {
     // ⚠ 0,4 → 0,72 ve ağırlık 500 → 400: referansın "sessiz" tonu İNCE ve BÜYÜK bir
     // başlıktan geliyor. Küçük ve yarı kalın bir başlık sessiz değil, çekingen duruyor.
-    baslikPayi: 0.98,
+    // ⚠ 0,98 → 1,18: kapakta baslik KAHRAMAN olmak zorunda (FAZ-18.3). Olculdu —
+    // kapak basligi kadrajin yalniz %5'ini kapliyordu ve kadraj bos duruyordu.
+    baslikPayi: 1.18,
     baslikAgirlik: 500,
-    satirAraligi: 1.12,
-    harfArasi: -0.012,
-    govdeOrani: 0.34,
+    satirAraligi: 1.1,
+    harfArasi: -0.02,
+    govdeOrani: 0.3,
     // ⚠ 0,6 → 0,46: metin kolonu fotoğrafa yer BIRAKMAK zorunda. Yan yana kompozisyonun
     // tek sert kısıtı bu; kolon geniş kalırsa iki öge üst üste biner ve düzen çöker.
-    baslikSutunu: 0.46,
+    // ⚠ 0,46 → 0,54: dar kolonda baslik uc satira bolunuyordu ("Sessiz / bir /
+    // donusum") ve editoryal ses cirkinlesti. Fotograf kolonuna hala yer var.
+    baslikSutunu: 0.54,
   },
   // ⚠ Açık zemin: kart metni `kartRenkleri` ile zeminden TÜRÜYOR, sabit beyaz değil —
   // bu yüzden zemini açığa çevirmek metni okunmaz yapmıyor (FAZ-15.2 dersi).
-  zemin: 'var(--ramp-marka-mavi-200)',
-  zeminDokusu: {
-    taban: '--ramp-marka-mavi-200',
-    katmanlar: [
-      // ⚠ Referansın zemini düz değil: soluk bir sıcaklık farkı var. İki katman —
-      // dikey bir açılma ve tek bir yumuşak ışık havuzu — onu kuruyor.
-      {
-        tip: 'dogrusal',
-        aci: 168,
-        duraklar: [
-          { renk: '--ramp-marka-kagit', konum: 0 },
-          { renk: '--ramp-gray-200', konum: 88 },
-        ],
-      },
-      { tip: 'isik', x: 74, y: 24, capX: 58, capY: 46, renk: '--ramp-marka-kagit', guc: 30 },
-    ],
-  },
+  zemin: 'var(--ramp-marka-kagit-0)',
   gorselIslemleri: [],
   bant: { tip: 'yok' },
   gorseller: [
@@ -962,7 +903,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
-      zemin: 'var(--ramp-marka-mavi-200)',
+      zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
       ustBaslik: '',
@@ -972,7 +913,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
-      zemin: 'var(--ramp-gray-100)',
+      zemin: 'var(--ramp-marka-ink-200)',
       kolon: 'sag',
     },
     {

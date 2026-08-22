@@ -180,56 +180,9 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62), tavan
 > açıldı (R-63).
 
-## D-305
-
-**İki kalite ölçüsü de kökünden düzeltildi: biri eskimişti, öteki bütçesizdi.**
-
-**`matlama-tutmuyor` yanlış şeyi ölçüyordu.** Kural luma-anahtarı döneminde yazıldı:
-o zaman arka planı kesmenin tek yolu koyu zemini CSS filtresiyle şeffaflaştırmaktı ve
-"köşe parlaklığı" doğru vekildi. Sonra hatta gerçek arka plan silme (rembg) girdi;
-görseller artık RGBA geliyor, köşeler ŞEFFAF. Ama ölçüm alfa kanalını hiç okumuyordu
-(`d[i+3]` yok) ve şeffaf pikselin ALTINDAKİ RGB çöp değerini parlaklık sayıyordu.
-Gerçek bir koşuda köşe parlaklığı 38/255 ölçüldü ve kusur bildirildi — oysa kesim
-zaten tutmuştu. **Tekniği değiştirdik, ölçüsünü değiştirmedik.** Artık önce alfa
-bakılıyor: köşe şeffafsa (alfa < 16/255) iş bitmiş demektir; opaksa luma eşiği devreye
-giriyor.
-
-**`punto-cokmesi` bir bütçe eksikliğiydi.** Gerçek bir koşuda model "Karşılaştırma"
-(13 harf) yazdı; o kartın başlığı 88 px'e sığdı, öteki üç kart 149 px'deydi. Punto TÜM
-panorama için tek — **bir kelime dört slaydın tipografisini birden düşürüyor.** Sebep
-yapısal: Türkçe eklemeli, uzun kavramlar tek kelimede toplanıyor.
-
-**Bütçe elle SEÇİLMEDİ, şablondan OKUNDU.** Taslaklar elle kuruldu ve sığdığı görüldü;
-en uzun başlık kelimesi altı şablonda 7–11 harf. Yani sınır zaten tasarımın içinde
-yazılı. Sabit bir sayı yazmak altı farklı kolon genişliğine tek cevap vermek olurdu;
-`sahne` 12'ye izin verirken `editoryal` 8'de kalıyor ve ikisi de kendi tasarımının
-söylediği şey. +1 tolerans bir Türkçe ekine pay bırakıyor.
-
-İstem bütçeyi açıkça yazıyor, `uyarla` aşanı reddediyor — yalnız reddetmek modeli her
-koşuda aynı duvara çarptırıp bir tur yakardı.
-
-## D-306
-
-**Numaralı rozet silindi — elle çizilmiş jenerik öge, sıfır üretim yolu.**
-
-`.madalyon-no`: 46 px'lik, 2 px kenarlıklı, içinde numara duran bir daire. Depo
-sahibinin *"şu aptal dairemsi renkli topları kaldır, bunlar web tasarım duruyor"*
-dediği sınıfın tam örneği ve R-81'in birebir hedefi (rozet).
-
-**Üretim yolu YOKTU.** `bant.tip: 'kemer'` varyantına aitti; altı şablonun hiçbiri
-`kemer` kullanmıyor, altısında da `madalyon` dizisi boş. Yani kural ihlali ile ölü kod
-aynı satırdaydı.
-
-**Kemerin kendisi kaldı.** Yay bir KOMPOZİSYON ögesi — tuvali bölen bir çizgi, süs
-değil. Silinmesi gereken şey, o yayın üstüne oturtulan rozetti.
-
-**`.kilometre-nokta` (13 px) KALDI ve kalmalı.** O bir süs değil, veri eğrisi üstünde
-bir kilometre taşını işaretliyor — R-81'in veri görselleştirmesi istisnası. `panorama.ts`
-şimdi üç `border-radius: 50%` taşıyor: ikisi `donen` şablonunun daire KIRPMASI (içi
-fotoğrafla dolu), biri bu nokta.
-
-Kapı tavanı 4'ten **3'e indirildi** — gevşetme değil sıkma; sahte bir rozet eklenince
-kırmızıya dönüyor (denendi).
+> **D-305 · D-306 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
+> İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62), tavan
+> açıldı (R-63).
 
 ## D-307
 
@@ -593,3 +546,37 @@ koyuyor ve gerekçesi ölçülü:
 **Ölçüm.** Altı şablon yeniden çizildi ve bakıldı: mavi zeminler koyu kanvasa döndü,
 aksan yalnız kapak vurgusunda ve süreklilik ögesinde kaldı, kâğıt zeminli iki şablon ilk
 kez marka mavisini taşıyabiliyor. 44 kapı yeşil.
+
+## D-319 · Süreklilik bir IŞIK HAVUZU değil, bir ÖLÇEK ÇİZGİSİ (2026-08-22)
+
+**Bağlam.** Karoselin sürekliliğini üç mekanizma taşıyordu: panoramayı kat eden degrade,
+kartların üstündeki gren + vinyet, ve `donen`de iki dev soluk daire (%7 beyaz, 760 px).
+Markanın dizayn sistemi üçünü de yasaklıyor — anti-desen listesi *"degrade meshi, glow,
+yörüngedeki parçacıklar"* ve *"yüzmeyen hiçbir şeye gölge"* diyor; ayrımı **yüzey adımı +
+1 px hairline** ile kuruyor.
+
+**Karar.** Yeni bant tipi: `olcek`. Panoramayı kat eden bir hairline, eşit aralıklı
+tırtıklar ve **içerikten gelen** etiketli duraklar. Bir enstrüman skalası — sistemin
+*"süslenmiş gösterge paneli değil, enstrüman paneli"* tarifinin karoseldeki karşılığı.
+
+**Neden süs değil.** Duraklar uydurulmuyor: `donen`de dört ürünün konumu, bir veri
+şablonunda kilometre taşları. Silinirse kaybolan şey bir dekor değil, dört ürünün aynı
+hattın çıktısı olduğu bilgisi. Ölçüt: bir öge silindiğinde YALNIZ görsellik kaybolduysa
+o öge süstür.
+
+**CSS, SVG değil — ve bunu kapı söyledi.** İlk sürüm çizgiyi ve tırtıkları `<line>`
+ögeleriyle çiziyordu; `kodlanmis-oge` kapısı R-81 gereği kırmızıya döndü. Doğrusu da bu:
+bir cetvel çizilmiş bir şekil değil, TEKRAR EDEN bir ölçüdür ve tekrarın dili CSS'te
+zaten var (`repeating-linear-gradient` + kenarlık). Kodlanmış öge sıfır.
+
+**Kabul ölçütleri yeniden tanımlandı — gevşetme değil, DİL değişikliği.** Ölçüt 5 "zemin
+en az iki katmanlı" derken degradeyi ve vinyeti kastediyordu. Amacı korunuyor (zemin düz
+bir web arka planı olmasın) ama ölçtüğü mekanizmalar sistemin mekanizmaları: **yüzey
+adımı** (kart zemini kanvastan farklı), alan sınırı, tam kaplama fotoğraf ya da kesimi
+kat eden bant. Ölçüt 4'ün listesine bant eklendi: kartların üstünden geçen bir bant
+katmanlanmanın kendisidir.
+
+**Ölçüm.** `donen` yeniden çizildi ve bakıldı: iki soluk daire gitti, ölçek çizgisi
+1080 px'lik slaytta okunuyor, duraklar dört ürünün altında. İlk denemede çizgi
+GÖRÜNMÜYORDU — `vector-effect="non-scaling-stroke"` kalınlığı cihaz pikselinde okuyor ve
+0.12 alt piksele düşüyordu; çizildi, bakıldı, düzeltildi.

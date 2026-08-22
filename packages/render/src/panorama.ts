@@ -75,6 +75,27 @@ export type Bant =
         readonly bukum: number
       }[]
     }
+  | {
+      /**
+       * **ÖLÇEK ÇİZGİSİ** — panoramayı kat eden hairline ve tırtıkları (D-319).
+       *
+       * ⚠ ⚠ **DEGRADE VE IŞIK HAVUZU YERİNE GELDİ.** Zemin dokusu sürekliliği bir ışık
+       * geçişiyle ima ediyordu; markanın dizayn sistemi degrade meshi, glow'u ve
+       * "atmosferik renk"i açıkça yasaklıyor ve ayrımı YÜZEY ADIMI + 1px HAIRLINE ile
+       * kuruyor. Bu bant o dilin karoseldeki karşılığı: bir enstrüman skalası.
+       *
+       * ⚠ **Süs değil, ÖLÇÜ.** Tırtıklar eşit aralıklı; etiketli duraklar içerikten
+       * geliyor (bir kilometre taşı, bir slayt eşiği). Silinirse kaybolan şey bir
+       * dekor değil, okuyucunun nerede olduğu bilgisi — sürekliliğin ta kendisi.
+       */
+      readonly tip: 'olcek'
+      /** Çizginin y'si — 0–100, panorama yüksekliğine göre. */
+      readonly y: number
+      /** Tırtık aralığı — panorama x'inde yüzde. 0 ise tırtık yok. */
+      readonly aralik: number
+      /** Etiketli duraklar — gerçek bir eşik, uydurma bir işaret değil. */
+      readonly duraklar: readonly { readonly x: number; readonly etiket: string }[]
+    }
   | { readonly tip: 'yok' }
 
 /**
@@ -746,6 +767,34 @@ const panelHtml = (p: Panel, stil = ''): string => {
  */
 const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => {
   if (b.tip === 'yok') return ''
+  if (b.tip === 'olcek') {
+    // ⚠ ⚠ **SVG DEĞİL CSS — ve bunu R-81 KAPISI SÖYLEDİ.** İlk sürüm çizgiyi ve
+    // tırtıkları `<line>` ögeleriyle çiziyordu; `kodlanmis-oge` kapısı haklı olarak
+    // kırmızıya döndü: *"jenerik öge kodlanmaz"*. Bir cetvel ÇİZİLMİŞ bir şekil değil,
+    // TEKRAR EDEN bir ölçüdür — ve tekrarın dili CSS'te zaten var. `repeating-linear-gradient`
+    // tırtıkları tek bildirimle veriyor, çizgi bir kenarlık: kodlanmış öge sıfır.
+    //
+    // ⚠ Tırtık aralığı YÜZDE: panorama ne kadar genişlerse tırtıklar da o kadar; sabit
+    // piksel yazmak dört slaytta doğru, altı slaytta yanlış olurdu.
+    const y = b.y
+    const tirtik =
+      b.aralik <= 0
+        ? ''
+        : `<div class="olcek-tirtik" style="top:${String(y)}%;` +
+          `background-size:${String(b.aralik)}% 100%"></div>`
+    return (
+      `<div class="olcek-cizgi" style="top:${String(y)}%"></div>` +
+      tirtik +
+      b.duraklar
+        .map(
+          (d) =>
+            `<div class="olcek-durak" style="left:${String(d.x)}%;top:${String(y)}%"></div>` +
+            `<div class="olcek-etiket" style="left:${String(d.x)}%;` +
+            `top:calc(${String(y)}% + 14px)">${kacir(d.etiket)}</div>`
+        )
+        .join('')
+    )
+  }
   if (b.tip === 'egri') {
     const d = b.noktalar.map((n, i) => `${i === 0 ? 'M' : 'L'} ${n.x} ${n.y}`).join(' ')
     const dolgu = `${d} L 100 100 L 0 100 Z`
@@ -1441,6 +1490,31 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kilometre-etiket { font-size: 16px; letter-spacing: 0.1em; color: var(--pano-metin);`,
     `                      white-space: nowrap; font-weight: 600;`,
     `                      font-variant-numeric: tabular-nums }`,
+    // ── ölçek çizgisi: enstrüman skalası, panoramayı kat ediyor (D-319) ─────
+    //
+    // ⚠ Çizgi bir KENARLIK, tırtıklar bir TEKRAR: ikisi de CSS'in kendi dili. Kodlanmış
+    // SVG ögesi yok (R-81).
+    `  .olcek-cizgi { position: absolute; left: 0; width: ${toplam}px; height: 0;`,
+    `                 border-top: 1px solid ${sol('--pano-metin', 34)}; z-index: 1;`,
+    `                 pointer-events: none }`,
+    `  .olcek-tirtik { position: absolute; left: 0; width: ${toplam}px; height: 9px;`,
+    `                  transform: translateY(-9px); z-index: 1; pointer-events: none;`,
+    `                  background-image: linear-gradient(to right,`,
+    `                    ${sol('--pano-metin', 30)} 1px, transparent 1px);`,
+    `                  background-repeat: repeat-x }`,
+    // ⚠ Durak tırtığı AKSAN ve daha uzun: eşit aralıklı tırtıklar ölçeği, durak ise
+    // içeriğin nerede olduğunu söylüyor. İkisi aynı renkte olsaydı ölçek bir desene,
+    // durak da bir tekrara dönerdi.
+    `  .olcek-durak { position: absolute; width: 2px; height: 26px; z-index: 2;`,
+    `                 transform: translate(-1px, -26px); background: var(--pano-aksan);`,
+    `                 pointer-events: none }`,
+    // Etiket MONO ve BUYUK HARF: sistemin `micro` kurali — bir olcek etiketi duzyazi
+    // degil, bir OKUMADIR.
+    `  .olcek-etiket { position: absolute; transform: translateX(-50%);`,
+    `                  font-family: "Marka Mono", ui-monospace, monospace; font-size: 15px;`,
+    `                  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500;`,
+    `                  color: ${sol('--pano-metin', 62)}; white-space: nowrap; z-index: 3;`,
+    `                  font-variant-numeric: tabular-nums }`,
     // ── alt ray: her slaytta aynı yerde, ritmi taşıyan tekrar ────────────────
     // ⚠ Ray `.gorsel`in (z-index 4) ÜSTÜNDE: alt kenardan taşan kesik özne rayı örtüyordu
     // ve marka imzası ile kaynak satırı görünmez oluyordu. Ölçüldü, D-300.
@@ -1491,11 +1565,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // kullanıyordu ve açık zeminli şablonlarda (`memphis`, `editoryal`) tamamen
     // kayboluyordu — kimliği görsel olan iki şablon BOŞ görünüyordu. Eksik bir taşıyıcı,
     // görünmezse eksik sayılmaz ve tasarım tam sanılır.
-    // Aksan rengi iki zeminde de okunuyor; yer tutucu bir uyarıdır, bir süs değil.
-    `  .gorsel-yer { border: 3px dashed ${AKSAN}; display: flex;`,
+    // Yer tutucu bir uyarıdır, bir süs değil — ama uyarı da AKSANI harcamamalı (D-318):
+    // aksan karneli ve karoselde kapağın vurgusuna, süreklilik ögesine ve sayaca ait.
+    // Kart başına hesaplanan SOLUK renk iki zeminde de okunuyor (#989898 / #696969) ve
+    // yer tutucu artık "eksik" gibi duruyor, "tasarım" gibi değil.
+    // ⚠ ⚠ **RENK PANORAMA DÜZEYİNDEN — kart değişkeni burada TANIMSIZ.** Yer tutucu
+    // kartların dışında yaşıyor (z-index 4, panorama koordinatı); `--kart-soluk` ona
+    // miras kalmıyor ve kenarlık sessizce görünmez oluyordu. Çizildi, bakıldı, yoktu.
+    `  .gorsel-yer { border: 1px dashed ${sol('--pano-metin', 45)}; display: flex;`,
     `                align-items: center; justify-content: center; text-align: center;`,
-    `                color: ${AKSAN}; font-size: 22px; letter-spacing: 0.14em;`,
-    `                font-weight: 700; padding: 20px; background: rgba(127,127,127,0.14) }`,
+    `                color: ${sol('--pano-metin', 62)}; font-size: 18px; letter-spacing: 0.08em;`,
+    `                text-transform: uppercase; font-weight: 500; padding: 20px;`,
+    `                font-family: "Marka Mono", ui-monospace, monospace }`,
     `  .gorsel-yer.daire { border-radius: 50% }`,
     '</style>',
     `<body data-surface="kreatif">`,

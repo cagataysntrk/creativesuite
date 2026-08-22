@@ -9,8 +9,10 @@
 //
 //   · `dilim` + `png`  → Instagram/LinkedIn karoseli. Platform slayt slayt yükleme
 //     istiyor ve PNG kayıpsız: tipografi kenarları temiz kalır. **Yayın için bu.**
-//   · `dilim` + `jpg`  → aynı slaytlar, ~5 kat küçük. Onay için WhatsApp/e-posta ile
-//     göndermek gibi hızlı paylaşımlarda; metin kenarlarında hafif bozulma olur.
+//   · `dilim` + `jpg`  → aynı slaytlar. **Yalnız FOTOĞRAF taşıyan slaytta küçülüyor** ve
+//     bu ölçüldü (D-318): palet düzleşince düz kadrajda PNG 148 KB, JPEG 209 KB çıktı —
+//     yani "JPEG her zaman hafif" tavsiyesi tasarım değiştiği an yalan oldu. Fotoğraflı
+//     kadrajda sıra tersine dönüyor. Metin kenarlarında hafif bozulma her hâlükârda var.
 //   · `butun` + `png`  → tek geniş tuval. Kesintisizliği GÖRMEK için: kesimi aşan ögenin
 //     gerçekten aktığı ancak burada anlaşılır. Platforma yüklenmez.
 //   · `butun` + `pdf`  → tek geniş sayfa. Baskı ve sunum eki; vektör metin taşır, yani

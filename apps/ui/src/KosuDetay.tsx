@@ -609,8 +609,9 @@ export const KosuDetay = ({
           <strong>Yayın için:</strong> dilimlenmiş PNG — platform slayt slayt yükleme istiyor ve PNG
           kayıpsız, tipografi kenarları temiz kalır.
           <br />
-          <strong>Onaya göndermek için:</strong> dilimlenmiş JPEG (~5 kat küçük) ya da tek dosya
-          isteniyorsa dilimlenmiş PDF — her slayt ayrı sayfa, sıra korunur.
+          <strong>Onaya göndermek için:</strong> tek dosya isteniyorsa dilimlenmiş PDF — her slayt
+          ayrı sayfa, sıra korunur. JPEG yalnız FOTOĞRAF taşıyan slaytlarda küçülüyor; düz zeminli
+          tasarımda PNG zaten daha küçük (ölçüldü: 148 KB / 209 KB) ve kayıpsız.
           <br />
           <strong>Kesintisizliği görmek için:</strong> bütün PNG — kesimi aşan ögenin gerçekten
           aktığı ancak tek geniş tuvalde anlaşılır. Platforma yüklenmez.

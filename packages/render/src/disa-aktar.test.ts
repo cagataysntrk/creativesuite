@@ -56,13 +56,55 @@ describe('dışa aktarma', () => {
     expect((metin.match(/\/Type\s*\/Page[^s]/g) ?? []).length).toBe(1)
   }, 120_000)
 
-  it('JPEG belirgin biçimde KÜÇÜK — hızlı paylaşım için', async () => {
+  // ⚠ ⚠ **BU TESTİN İDDİASI DEĞİŞTİ ve değişme sebebi bir ÖLÇÜMDÜ (D-318).** Eski hâli
+  // "JPEG her zaman çok daha küçük" diyordu; bu, zemini degrade ve gren taşıyan eski
+  // tasarımda doğruydu. Palet dizayn sistemine geçince zemin DÜZLEŞTİ ve ölçüm tersine
+  // döndü: düz renkli bir kadrajda PNG 148 KB, JPEG 209 KB. Yani tavsiyenin kendisi
+  // içeriğe bağlı ve testin bunu söylemesi gerekiyor.
+  //
+  // Kural: **fotoğraf taşıyan slaytta JPEG küçük, düz tasarımda PNG küçük.** İkisi de
+  // ölçülüyor — biri diğerinin yerine geçen bir varsayım olmasın.
+  it('DÜZ tasarımda PNG küçük — JPEG düz alanda kazanmıyor', async () => {
     const [png, jpg] = await Promise.all([
       panoramaDisaAktar(BELGE, { tarz: 'butun', bicim: 'png' }),
       panoramaDisaAktar(BELGE, { tarz: 'butun', bicim: 'jpg' }),
     ])
     expect(png.ok && jpg.ok).toBe(true)
     if (!png.ok || !jpg.ok) return
-    expect(jpg.value[0]?.bayt.length ?? 0).toBeLessThan((png.value[0]?.bayt.length ?? 0) / 2)
+    expect(png.value[0]?.bayt.length ?? 0).toBeLessThan(jpg.value[0]?.bayt.length ?? 0)
+  }, 120_000)
+
+  it('FOTOĞRAF taşıyan slaytta JPEG belirgin biçimde küçük', async () => {
+    // ⚠ Sahte bir "fotoğraf": `feTurbulence` ile TAM KADRAJ yüksek frekanslı doku.
+    // Gerçek bir fotoğrafın sıkıştırma davranışı budur — bitişik pikseller arasında
+    // yüksek frekanslı fark. PNG bunu sıkıştıramaz, JPEG tam da bunun için vardır.
+    // ⚠ DETERMİNİST: `feTurbulence`ın tohumu varsayılan 0 ve aynı girdi aynı dokuyu
+    // veriyor (R-06); testte rastgelelik yok.
+    const svg =
+      `<svg xmlns="http://www.w3.org/2000/svg" width="540" height="675">` +
+      `<filter id="d"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4"/></filter>` +
+      `<rect width="100%" height="100%" filter="url(#d)"/></svg>`
+    const b64 = Buffer.from(svg).toString('base64')
+    const fotografli = {
+      ...BELGE,
+      gorseller: [
+        {
+          src: `data:image/svg+xml;base64,${b64}`,
+          alt: 'ölçüm dokusu',
+          x: 0,
+          y: 0,
+          genislik: 100,
+          yukseklik: 100,
+          kirpma: 'tam' as const,
+        },
+      ],
+    } as unknown as PanoramaBelgesi
+    const [png, jpg] = await Promise.all([
+      panoramaDisaAktar(fotografli, { tarz: 'butun', bicim: 'png' }),
+      panoramaDisaAktar(fotografli, { tarz: 'butun', bicim: 'jpg' }),
+    ])
+    expect(png.ok && jpg.ok).toBe(true)
+    if (!png.ok || !jpg.ok) return
+    expect(jpg.value[0]?.bayt.length ?? 0).toBeLessThan(png.value[0]?.bayt.length ?? 0)
   }, 120_000)
 })
