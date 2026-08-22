@@ -165,3 +165,12 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   **Bu bir politika sorusu, bir hata değil** ve insanın kararı: illüstre bir işçi figürü
   Md. 27/12 anlamında "onay ima eden yapay insan" mı? Karar verilene kadar tarama
   vekille çalışıyor ve bu satır o vekilin varlığını gizlemiyor. → D-313
+- **D23 · Ok şeridinin y'si SABİT, metin bloğunun yeri içerikten geliyor.** `sahne`
+  şablonunda oklar panorama yüzdesi olarak sabit bir şeritte (`y 68–80`); gövde bloğu
+  ise satır sayısına göre uzuyor ve şeridin içine giriyor. Ölçüldü: düzeltme turu
+  gövdeleri kısalttı, `tasma` 28 px → 15 px düzeldi ama `sus-metni-kesiyor` %9,7 ve
+  %9,2 olarak **kıpırdamadı** — çünkü kutunun YERİ değişmiyor, yalnız içi.
+  Kataloğun kendi notu bu kırılganlığı yazıyor: *"gövde iki satıra çıkınca okların
+  şeridine giriyor"*. Doğru çözüm ikisini BAĞLAMAK: şerit, ölçülen metin bloğunun
+  altından başlamalı. Bugün kusur GÖRÜNÜYOR (`sus-metni-kesiyor`) ve düzeltme turu
+  artık onu boşuna denemiyor — ama kompozisyon hâlâ elle kurulmuş iki sayıya dayanıyor.

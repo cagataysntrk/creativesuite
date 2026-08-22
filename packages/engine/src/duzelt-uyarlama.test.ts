@@ -70,12 +70,10 @@ const CTX = {
 const GIRDILER = {
   render: {
     kusurlar: [
-      {
-        tur: 'sus-metni-kesiyor',
-        kart: 2,
-        alan: 'govde',
-        aciklama: "süs ögesi govde metninin %14.7'inin arkasından geçiyor",
-      },
+      // ⚠ Fikstür METİNLE DÜZELEN bir kusur taşıyor (`tasma`): `sus-metni-kesiyor`
+      // ölçüldü ve metinle düzelmiyor — gövde kutusunun YERİ ızgaradan geliyor
+      // (borç D23), o yüzden düzeltme turuna artık girmiyor.
+      { tur: 'tasma', kart: 2, alan: 'govde', aciklama: '.govde yatayda 28 px taşıyor' },
     ],
   },
   'sablon-uyarla': {

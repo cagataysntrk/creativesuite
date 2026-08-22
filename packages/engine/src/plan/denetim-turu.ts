@@ -147,10 +147,19 @@ export const METINLE_DUZELIR: readonly string[] = [
   'tasma',
   'punto-cokmesi',
   'eksik-glif',
-  // ⚠ Süs metnin arkasından geçiyorsa çözüm METİNDEDİR: gövde kısalınca satır sayısı
-  // düşer ve kutu süsün üstünde kalır. Süsün konumu şablonun kimliği (kesimi aşan öge)
-  // ve onu oynatmak kompozisyona dokunmak olurdu — bu tur ona yetkili değil.
-  'sus-metni-kesiyor',
+  // ⚠ ⚠ **`sus-metni-kesiyor` BURADAN ÇIKARILDI — ÖLÇÜM onu çürüttü.** "Gövdeyi kısalt"
+  // varsayımı yanlıştı: gövde kutusunun yeri ve boyu şablonun ızgarasından geliyor,
+  // metin uzunluğundan değil. Gerçek koşuda düzeltme turu koştu, gövdeleri kısalttı ve
+  // sonuç ölçüldü:
+  //
+  //   tasma            28 px → 15 px   (düzeldi — metinle düzelen bir kusur)
+  //   sus-metni-kesiyor %9,7 → %9,7    (KIPIRDAMADI)
+  //   sus-metni-kesiyor %9,2 → %9,2    (KIPIRDAMADI)
+  //
+  // Yani tur, çözemeyeceği bir kusur için bir model çağrısı harcıyordu — bu dosyanın
+  // en üstündeki dersin birebir tekrarı: *"çözemeyeceği bir şey verilen agent,
+  // çözebileceğini bozar."* Kök sebep kompozisyonda: ok şeridinin y'si SABİT, metin
+  // bloğunun yeri ise içeriğe göre kayıyor ve ikisi bağlı değil (borç D23).
 ]
 
 /** Kusurlardan yalnız metinle düzeltilebilenler. */
@@ -173,6 +182,4 @@ export const duzeltmeIstemi = (kusurlar: readonly DenetimKusuru[]): string =>
     '- "panel dikeyde tuvali aşıyor" → panel satır sayısını azalt, veriyi özetle.',
     '- "kapsamı dışında" → marka fontunun desteklemediği karakteri metinden çıkar.',
     '- "kapsamı dışında" → o karakteri metinden çıkar, eşanlamlısını yaz.',
-    '- "süs ögesi ... arkasından geçiyor" → o karttaki gövdeyi bir iki satır KISALT;',
-    '  cümleyi at değil, sıkıştır. Süsün yerini değiştiremezsin.',
   ].join('\n')
