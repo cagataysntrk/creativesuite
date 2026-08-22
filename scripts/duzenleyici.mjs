@@ -31,6 +31,7 @@ const { fontCss } = await import(join(REPO, 'packages/render/dist/fonts.js'))
 // okuyamaz hâle gelirdi.
 const { panoramaBelgesiniYaz } = await import(join(REPO, 'packages/engine/dist/verbs/bodies.js'))
 const { logoVarliklari } = await import(join(REPO, 'packages/render/dist/logo.js'))
+const { gorselleriGom } = await import(join(REPO, 'packages/render/dist/gorsel-gom.js'))
 // ⚠ ⚠ **EDİTÖRDEN GÖRSEL ÜRETME — sağlayıcı köprüsü HATTIN KULLANDIĞIYLA AYNI.** Depo
 // sahibi: *"editörde modele prompt gönderip görsel üretme olmalı, beğenmediğimizi silip
 // yerine kendimiz ürettirebiliriz."* İkinci bir çağrı yolu yazmak, R-20 muhafızının ve
@@ -79,21 +80,12 @@ const kosulariTara = () => {
  * yine açılıyor. Sessizce yer tutucu çizmektense boş kutu göstermek dürüst: eksik olan
  * şey görülsün.
  */
-const MIME = { jpg: 'image/jpeg', webp: 'image/webp', png: 'image/png' }
-const kosuBelgesi = (dizin, jsonYolu) => {
-  const doc = JSON.parse(readFileSync(jsonYolu, 'utf8'))
-  const gorseller = (doc.gorseller ?? []).map((g) => {
-    if (typeof g.src !== 'string' || g.src === '' || g.src.startsWith('data:')) return g
-    const yol = join(dizin, g.src)
-    if (!existsSync(yol)) return { ...g, src: '' }
-    const uz = g.src.split('.').pop()
-    return {
-      ...g,
-      src: 'data:' + (MIME[uz] ?? 'image/png') + ';base64,' + readFileSync(yol).toString('base64'),
-    }
-  })
-  return { ...doc, gorseller }
-}
+const kosuBelgesi = (dizin, jsonYolu) =>
+  // ⚠ ⚠ **BU ÇEVİRİ BURADA YAZILIYDI ve sunucu onu bilmiyordu.** Defter görseli DOSYA
+  // ADI olarak taşıyor (D-302); okuma tarafındaki çeviri iki yerde olsaydı biri
+  // düzeltilip öteki unutulurdu — dışa aktarmada tam olarak böyle oldu, slaytlar
+  // görselsiz çıktı. Artık tek yer: `@suite/render`.
+  gorselleriGom(JSON.parse(readFileSync(jsonYolu, 'utf8')), dizin)
 
 /** Çalışan kopya — sunucu belleğinde. Kaydetmeden dosyaya DOKUNULMUYOR. */
 const calisan = {}

@@ -46,7 +46,7 @@ import {
   readLedger,
   readManifest,
 } from '@suite/engine'
-import { PLACEMENTS, safeBand, specAgeDays, panoramaDisaAktar } from '@suite/render'
+import { PLACEMENTS, safeBand, specAgeDays, panoramaDisaAktar, gorselleriGom } from '@suite/render'
 import { hatDurumlari, loadPipeline } from '@suite/registry'
 import {
   baglamKayitlari,
@@ -866,7 +866,11 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     if (!existsSync(yol)) return c.json({ ok: false, hata: 'belge yok — koşu render etmemiş' }, 404)
     let doc: unknown
     try {
-      doc = JSON.parse(readFileSync(yol, 'utf8'))
+      // ⚠ ⚠ **GÖRSELLER DOSYA ADI OLARAK DURUYOR** (D-302): defter referans tutuyor,
+      // byte tutmuyor. Belgeyi doğrudan render'a vermek, Chromium'a çözemeyeceği bir ad
+      // vermek demek — slaytlar çiziliyor ama KESİK ÖZNE YOK. Çeviri tek yerde
+      // (`gorselleriGom`) ve editör de aynı fonksiyonu kullanıyor.
+      doc = gorselleriGom(JSON.parse(readFileSync(yol, 'utf8')) as never, dizin)
     } catch (e) {
       return c.json({ ok: false, hata: `belge okunamadı: ${String(e)}` }, 500)
     }

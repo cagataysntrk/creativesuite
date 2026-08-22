@@ -342,3 +342,6 @@ export {
   type DisaParca,
   type DisaTarz,
 } from './disa-aktar.js'
+
+// Defterdeki referans biçimini gömülü byte'a çevirir — TEK yer (D-302).
+export { gorselleriGom } from './gorsel-gom.js'
