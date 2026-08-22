@@ -8,6 +8,7 @@
 // aynı öneriyi tekrar getirir (§4.5).
 
 import { useCallback, useEffect, useState } from 'react'
+import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 import { Asama, ASAMALAR } from './Asama.js'
 
 interface Satir {
@@ -57,6 +58,10 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
   const [fHat, setFHat] = useState('')
   const [fKapi, setFKapi] = useState('')
   const [fBayat, setFBayat] = useState(false)
+  // ⚠ Tarih aralığı ve sıralama TÜM listelerde aynı — kuyrukta da.
+  const [fBas, setFBas] = useState('')
+  const [fSon, setFSon] = useState('')
+  const [siralama, setSiralama] = useState<Siralama>('eski')
   const [mesaj, setMesaj] = useState<string | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
@@ -161,8 +166,13 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
     if (fHat !== '' && r.pipeline !== fHat) return false
     if (fKapi !== '' && r.gate !== fKapi) return false
     if (fBayat && Date.now() - new Date(r.createdAt).getTime() > BIR_GUN) return false
+    if (!aralikta(r.createdAt, fBas, fSon)) return false
     return true
   })
+  // ⚠ ⚠ **KUYRUKTA VARSAYILAN SIRA EN ESKİ ÖNCE** ve bu ayrım bilinçli: bekleyen iş
+  // ekranında en eski dipte unutulmamalı. Geçmişte tersi doğru (en yeni önce) ve orada
+  // öyle. Sabit bir sıralama ikisinden birini yanlış yapardı; artık seçilebilir.
+  const sirali = tariheGore(suzulmus, (r) => r.createdAt, siralama)
   const hatlar = [...new Set((satirlar ?? []).map((r) => r.pipeline))].sort()
 
   const s = satirlar[secili]
@@ -185,6 +195,19 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
       {mesaj === null ? null : <p className="ret-mesaji">{mesaj}</p>}
 
       <div className="filtre-cubuk">
+        <label>
+          başlangıç <input type="date" value={fBas} onChange={(e) => setFBas(e.target.value)} />
+        </label>
+        <label>
+          bitiş <input type="date" value={fSon} onChange={(e) => setFSon(e.target.value)} />
+        </label>
+        <label>
+          sıra{' '}
+          <select value={siralama} onChange={(e) => setSiralama(e.target.value as Siralama)}>
+            <option value="eski">en eski önce</option>
+            <option value="yeni">en yeni önce</option>
+          </select>
+        </label>
         <label>
           hat{' '}
           <select value={fHat} onChange={(e) => setFHat(e.target.value)}>
@@ -276,13 +299,14 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
               <th>çalıştırma</th>
               <th>hat</th>
               <th>aşama</th>
+              <th>tarih</th>
               <th>bekleme</th>
               <th>manifest</th>
               <th>hızlı</th>
             </tr>
           </thead>
           <tbody>
-            {suzulmus.map((r, i) => (
+            {sirali.map((r, i) => (
               <tr
                 key={r.runId}
                 data-secili={i === secili}
@@ -313,6 +337,9 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
                 </td>
                 {/* ⚠ "harcanan $0.00" hiçbir şey söylemiyordu (bedava şerit); BEKLEME
                     SÜRESİ söylüyor: bir iş ne kadar süredir insanı bekliyor. */}
+                {/* ⚠ TAM tarih ve BEKLEME birlikte: biri "ne zaman", diğeri "ne
+                    kadar süredir" sorusunu cevaplıyor ve ikisi ayrı sorular. */}
+                <td className="mono">{tamTarih(r.createdAt)}</td>
                 <td className="olcum">{bekleme(r.createdAt)}</td>
                 <td>
                   {r.manifestSaglam ? (

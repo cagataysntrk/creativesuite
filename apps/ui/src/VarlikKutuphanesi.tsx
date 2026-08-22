@@ -10,6 +10,7 @@
 // korunur" demek (D-155) ve senkron kalmanın tek yolu bu.
 
 import type React from 'react'
+import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 import { useCallback, useEffect, useState } from 'react'
 // ⚠ ⚠ **ARAMA KATLAMASI ELLE YAPILMAZ.** `toLocaleLowerCase('tr')` yazdım ve
 // `turkish-case` kapısı reddetti — haklıydı: doğru locale'i vermek yetmiyor, case
@@ -54,6 +55,11 @@ export const VarlikKutuphanesi = ({
   const [fDurum, setFDurum] = useState('')
   const [fTaze, setFTaze] = useState(false)
   const [ara, setAra] = useState('')
+  // ⚠ Tarih aralığı ve sıralama TÜM listelerde aynı: "şu iki gün arasında ne üretildi"
+  // ve "en eskiden başla" soruları her ekranda meşru ve cevabı hiçbirinde yoktu.
+  const [fBas, setFBas] = useState('')
+  const [fSon, setFSon] = useState('')
+  const [siralama, setSiralama] = useState<Siralama>('yeni')
 
   const yukle = useCallback(async (): Promise<void> => {
     const r = (await (await fetch('/api/varliklar')).json()) as {
@@ -103,9 +109,12 @@ export const VarlikKutuphanesi = ({
     if (fDurum === 'bekleyen' && g.yayinlandi) return false
     if (fDurum === 'kusurlu' && g.saglam) return false
     if (fTaze && Date.now() - new Date(g.createdAt).getTime() > BIR_HAFTA) return false
+    if (!aralikta(g.createdAt, fBas, fSon)) return false
     if (q !== '' && !foldForSearch(`${g.konu} ${g.pipeline} ${g.runId}`).includes(q)) return false
     return true
   })
+
+  const siraliListe = tariheGore(suzulmus, (g) => g.createdAt, siralama)
 
   const karantinaYap = async (): Promise<void> => {
     const digests = suzulmus
@@ -147,6 +156,19 @@ export const VarlikKutuphanesi = ({
                 {h}
               </option>
             ))}
+          </select>
+        </label>
+        <label>
+          başlangıç <input type="date" value={fBas} onChange={(e) => setFBas(e.target.value)} />
+        </label>
+        <label>
+          bitiş <input type="date" value={fSon} onChange={(e) => setFSon(e.target.value)} />
+        </label>
+        <label>
+          sıra{' '}
+          <select value={siralama} onChange={(e) => setSiralama(e.target.value as Siralama)}>
+            <option value="yeni">en yeni önce</option>
+            <option value="eski">en eski önce</option>
           </select>
         </label>
         <label>
@@ -208,7 +230,7 @@ export const VarlikKutuphanesi = ({
         <p className="bos">süzgece uyan gönderi yok</p>
       ) : (
         <ul className="grup-listesi">
-          {suzulmus.map((g) => (
+          {siraliListe.map((g) => (
             <li key={g.runId} className="grup">
               <div className="grup-basi">
                 <input
@@ -225,7 +247,7 @@ export const VarlikKutuphanesi = ({
                 <strong>{g.konu === '' ? g.runId.slice(0, 16) : g.konu}</strong>
                 <span className="olcum">{g.pipeline}</span>
                 <span className="olcum">{g.varliklar.length} slayt</span>
-                <span className="olcum">{g.createdAt.slice(0, 16).replace('T', ' ')}</span>
+                <span className="olcum">{tamTarih(g.createdAt)}</span>
                 <span className={g.yayinlandi ? 'is-hat' : 'bos'}>
                   {g.yayinlandi ? '✓ yayınlandı' : 'yayınlanmadı'}
                 </span>

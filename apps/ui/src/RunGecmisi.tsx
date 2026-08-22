@@ -11,6 +11,7 @@
 // koymak, hangisinin olduğunu kullanıcının bilmemesi demekti.
 
 import { useEffect, useState } from 'react'
+import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 import { usdBicimle } from './baglanti.js'
 
 interface Ozet {
@@ -110,6 +111,13 @@ export const RunGecmisi = ({
   const [fTaze, setFTaze] = useState(false)
   const [ara, setAra] = useState('')
   const [elenenler, setElenenler] = useState(false)
+  // ⚠ ⚠ **TARİH EKRANDA HİÇ YOKTU** ve süzgeçlerde de yoktu: "bu ne zaman koştu" ve
+  // "şu iki gün arasında ne oldu" sorularının cevabı hiçbir yerde yoktu.
+  const [fBas, setFBas] = useState('')
+  const [fSon, setFSon] = useState('')
+  const [siralama, setSiralama] = useState<Siralama>('yeni')
+  // ⚠ Çoklu seçim: on koşuyu tek tek elemek, elemeyi kullanılmaz yapardı.
+  const [secilenler, setSecilenler] = useState<readonly string[]>([])
   const [detay, setDetay] = useState<Detay | null>(null)
   const [tekrarSonuc, setTekrarSonuc] = useState<string | null>(null)
 
@@ -147,6 +155,21 @@ export const RunGecmisi = ({
    * ⚠ Gerekçe ZORUNLU (sunucu da zorluyor): gerekçesiz bir eleme, altı ay sonra "bu
    * neden elenmiş" sorusunu cevapsız bırakır ve kimse geri almaya cesaret edemez.
    */
+  /** Seçilen koşuları TEK gerekçeyle eler — tek tek sormak on soru demekti. */
+  const topluEle = async (): Promise<void> => {
+    const sebep = prompt(`${secilenler.length} koşu elenecek. Neden? (kayıt SİLİNMİYOR)`) ?? ''
+    if (sebep.trim() === '') return
+    for (const runId of secilenler) {
+      await fetch(`/api/kosu/${encodeURIComponent(runId)}/ele`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sebep }),
+      })
+    }
+    setSecilenler([])
+    listeyiCek()
+  }
+
   const ele = async (r: Ozet): Promise<void> => {
     const geriAl = r.elendi !== null
     const sebep = geriAl
@@ -182,7 +205,7 @@ export const RunGecmisi = ({
         : r.stoppedAt !== null
           ? 'durdu'
           : 'tamam'
-  const suzulmus = liste
+  const suzulmusHam = liste
     .filter((r) => fHat === '' || r.pipeline === fHat)
     .filter((r) => fDurum === '' || durumu(r) === fDurum)
     .filter((r) => !fTaze || new Date(r.createdAt).getTime() >= yediGunOnce)
@@ -191,10 +214,12 @@ export const RunGecmisi = ({
     // R-52); ama beğenilmeyen çıktının listeyi doldurması da bir maliyet — insan
     // aradığını bulamıyor. Eleme ikisini uzlaştırıyor: kayıt DURUYOR, liste temizleniyor.
     .filter((r) => elenenler || r.elendi === null)
-    // ⚠ EN YENİ ÖNCE: geçmiş ekranında insan en son ne olduğuna bakar. Kuyrukta
-    // (bekleyen iş) sıra terstir ve bu ayrım bilinçli — orada en eski dipte
-    // unutulmamalı, burada en yeni aranıyor.
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .filter((r) => aralikta(r.createdAt, fBas, fSon))
+  // ⚠ Sıralama artık SEÇİLEBİLİR. Varsayılan yine en yeni önce: geçmiş ekranında insan
+  // en son ne olduğuna bakar. Ama "ilk koşular ne yapmıştı" da meşru bir soru ve
+  // cevabını sabit bir sıralama gizliyordu.
+  const sirali = tariheGore(suzulmusHam, (r) => r.createdAt, siralama)
+  const suzulmus = sirali
   const sayim = {
     kapida: liste.filter((r) => durumu(r) === 'kapida').length,
     durdu: liste.filter((r) => durumu(r) === 'durdu').length,
@@ -247,7 +272,37 @@ export const RunGecmisi = ({
           />{' '}
           elenenleri de göster
         </label>
+        {/* ⚠ Tarih aralığı: "şu iki gün arasında ne oldu" sorusunun cevabı ekranda
+            YOKTU. Boş uç = sınırsız; iki ucu da doldurmak zorunda değilsin. */}
+        <label>
+          başlangıç <input type="date" value={fBas} onChange={(e) => setFBas(e.target.value)} />
+        </label>
+        <label>
+          bitiş <input type="date" value={fSon} onChange={(e) => setFSon(e.target.value)} />
+        </label>
+        <label>
+          sıra{' '}
+          <select value={siralama} onChange={(e) => setSiralama(e.target.value as Siralama)}>
+            <option value="yeni">en yeni önce</option>
+            <option value="eski">en eski önce</option>
+          </select>
+        </label>
       </div>
+      {/* ⚠ ⚠ **ÇOKLU SEÇİM.** On koşuyu tek tek elemek, elemeyi kullanılmaz yapardı;
+          depo sahibi *"çoklu seçim yok"* diye yazdı. Seçim SÜZÜLMÜŞ listeye ait: göz
+          neyi görüyorsa onu seçiyor — görünmeyen bir satırı toplu eylem yakalamamalı. */}
+      {secilenler.length === 0 ? null : (
+        <div className="filtre-cubuk">
+          <strong>{secilenler.length} koşu seçili</strong>
+          <button type="button" onClick={() => void topluEle()}>
+            ✕ seçilenleri ele
+          </button>
+          <button type="button" onClick={() => setSecilenler([])}>
+            seçimi temizle
+          </button>
+        </div>
+      )}
+
       {suzulmus.length === 0 ? (
         <p>
           {liste.length === 0
@@ -258,7 +313,18 @@ export const RunGecmisi = ({
         <table>
           <thead>
             <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  aria-label="hepsini seç"
+                  checked={secilenler.length > 0 && secilenler.length === suzulmus.length}
+                  onChange={(e) =>
+                    setSecilenler(e.target.checked ? suzulmus.map((x) => x.runId) : [])
+                  }
+                />
+              </th>
               <th>çalıştırma</th>
+              <th>tarih</th>
               <th>hat</th>
               <th>bilgi ağacı</th>
               <th>tahmin üst</th>
@@ -270,6 +336,20 @@ export const RunGecmisi = ({
           <tbody>
             {suzulmus.map((r) => (
               <tr key={r.runId} onClick={() => setSecili(r.runId)}>
+                <td onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    aria-label={`${r.runId} seç`}
+                    checked={secilenler.includes(r.runId)}
+                    onChange={(e) =>
+                      setSecilenler(
+                        e.target.checked
+                          ? [...secilenler, r.runId]
+                          : secilenler.filter((x) => x !== r.runId)
+                      )
+                    }
+                  />
+                </td>
                 <td>
                   {/* ⚠ İki ayrı hedef, iki ayrı tıklama: satır köken/tekrar
                       ayrıntısını açıyor, düğme KOŞU ekranına götürüyor. Tek
@@ -300,6 +380,9 @@ export const RunGecmisi = ({
                     {r.elendi === null ? '✕ ele' : '↩ elemeyi geri al'}
                   </button>
                 </td>
+                {/* ⚠ TAM tarih: gün, ay, yıl, saat, dakika. "3 saat önce" iki koşuyu
+                    karşılaştırmayı imkânsız kılar ve liste ekranında asıl iş odur. */}
+                <td className="mono">{tamTarih(r.createdAt)}</td>
                 <td>{r.pipeline}</td>
                 <td className="mono">{kisaSha(r.corpusCommit)}</td>
                 <td className="mono">{usdBicimle(r.tahminUstMikros)}</td>
