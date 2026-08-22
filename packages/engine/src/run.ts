@@ -601,6 +601,14 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       return r.ok ? { ok: true, value: r.value.output } : { ok: false, error: r.error }
     }
 
+    // ⚠ ⚠ **DEFTERDEN OYNATILAN ADIMIN KAYDI, ÖNCEKİ KAYITTIR.** Bu geçişte çağrı
+    // yapılmadı: sağlayıcı da maliyet de bu geçişte doğmadı, ÖNCEKİ geçişte doğdu.
+    // Boş bir kayıt yazmak manifest doğrulayıcısını haklı olarak kızdırıyordu
+    // (`no_selected_provider`, `metered_step_without_cost`) ve sonuç manifestin HİÇ
+    // yazılmaması oluyordu — düzeltmenin kendisi, kanıtı yok ediyordu.
+    const oncekiKayit = (input.previous?.steps ?? []).find((k) => String(k.stepId) === id) ?? null
+    let defterdenSaglayicisiz = false
+
     // Metered fiiller motorun tam yolundan geçer; metered olmayanlar doğrudan koşar.
     // Ayrım gövdede değil SÖZLEŞMEDE: `verb.metered` kernel'in dediğidir (R-04).
     let sonuc: {
@@ -675,6 +683,7 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       sonuc = { ok: r.error === null, outcome: r.outcome, error: r.error }
     } else if (verb.metered) {
       if (kazanan === null && ciktiVar(input.runId, stepId)) {
+        defterdenSaglayicisiz = true
         // ⚠ ⚠ **ANAHTARSIZ SÜRDÜRME, ÜRETİLMİŞ GÖRSELLERİ SİLİYORDU.** Ölçüldü
         // (`run_01a02989`): panelden onaylanıp sürdürülen bir koşuda dört `gorsel-uret`
         // adımı da `NO_PROVIDER` ile düştü — `sops exec-env` olmadan Cloudflare
@@ -852,21 +861,29 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       // "brief üretildi" yalanı bırakırdı; `failed` demek doğru bir kararı hata
       // gibi gösterirdi. `StepStatus` bu üçlüyü kernel'de zaten taşıyordu (§13);
       // eksik olan onu ÜRETEN yoldu.
+      // ⚠ Defterden oynatıldı ama ÖNCEKİ KAYIT YOKSA (manifest kayıp, defter duruyor)
+      // `ok` demek "bu geçişte sağlayıcı seçildi ve ödendi" iddiası olurdu; `skipped`
+      // dürüst olanı: adım koştu, çağrı yapılmadı, çıktı defterden geldi.
       status: sonuc.ok
-        ? (sonuc.outcome?.data as { atlandi?: unknown } | null)?.atlandi === true
+        ? defterdenSaglayicisiz && oncekiKayit === null
           ? 'skipped'
-          : 'ok'
+          : (sonuc.outcome?.data as { atlandi?: unknown } | null)?.atlandi === true
+            ? 'skipped'
+            : 'ok'
         : 'failed',
       lane: s.constraints['lane'] === 'premium' ? 'premium' : 'free',
       capability: s.capability,
-      providerId: kazanan?.providerId ?? null,
+      providerId:
+        kazanan?.providerId ?? (defterdenSaglayicisiz ? (oncekiKayit?.providerId ?? null) : null),
       model: null,
       seed: null,
       params: s.constraints,
       estimatedCost: tahmin,
       // **Gerçek maliyet tahminden KOPYALANMAZ** (§8.3). Adım koşmadıysa `null`.
-      actualCost: sonuc.outcome?.amount ?? null,
-      candidates: adaylarKaydi,
+      actualCost:
+        sonuc.outcome?.amount ?? (defterdenSaglayicisiz ? (oncekiKayit?.actualCost ?? null) : null),
+      candidates:
+        defterdenSaglayicisiz && oncekiKayit !== null ? oncekiKayit.candidates : adaylarKaydi,
       startedAt: baslangic,
       finishedAt: clock.nowIso(),
       // **Adım çıktısının ÖZETİ manifest'e girer** (D-136). İlk sürümde QA raporu

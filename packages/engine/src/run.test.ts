@@ -486,6 +486,11 @@ describe('bütçe tavanı hattı KİLİTLİYOR (D-17)', () => {
     // ⚠ Asıl ölçüm bu: çıktı AŞAĞI AKIŞA geçti. Adımın "ok" görünüp çıktıyı
     // kaybetmesi, tam olarak karoseli boşaltan davranıştı.
     expect(gorulen).toEqual({ url: 'defterden' })
+    // ⚠ ⚠ **VE MANİFEST YAZILDI.** İlk düzeltmem bu geçişte sağlayıcısız/maliyetsiz bir
+    // `ok` kaydı yazıyordu; doğrulayıcı `no_selected_provider` +
+    // `metered_step_without_cost` diyor ve manifest HİÇ yazılmıyordu — yani düzeltme
+    // görselleri kurtarırken KANITI yok ediyordu. Gerçek koşuda görüldü.
+    expect(r.manifestWrite.ok).toBe(true)
   })
 })
 
