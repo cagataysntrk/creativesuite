@@ -118,3 +118,40 @@ describe('görünür AI ifşası', () => {
     expect(ifsa.length).toBe(ORNEK_SAHNE.kartlar.length)
   }, 30_000)
 })
+
+// ── künye SADELEŞTİ: kategori etiketi boşsa çizilmiyor ─────────────────────
+//
+// ⚠ ⚠ Depo sahibi: *"İDDİA · upcyman.com, api.upcyman.com · yapay zekâ görseli — bu
+// tarz footerları kaldır, tek konuyla alakalı mesele upcyman.com yazsın yeter"*.
+// Kategori etiketi zaten kartın ÜST BAŞLIĞINDA duruyor; aynı bilgiyi iki kez basmak
+// künyeyi gürültüye çevirir.
+//
+// ⚠ **AI İFŞASI KALIYOR** ve bu bir tercih değil: model görseli kullanan bir kreatifte
+// Md. 50 görünür ifşa istiyor (Yasa 9). Kaldırılan şey gürültü, yükümlülük değil.
+describe('künye sadeliği', () => {
+  const raysiz = (): PanoramaBelgesi =>
+    ({
+      ...ORNEK_SAHNE,
+      tokenCss: '',
+      stamp: DAMGA,
+      aiIfsasi: false,
+      kartlar: ORNEK_SAHNE.kartlar.map((k) => ({ ...k, rayaSol: '' })),
+    }) as unknown as PanoramaBelgesi
+
+  it('`rayaSol` boşsa HİÇ çizilmiyor — boş bir etiket de yer kaplar', () => {
+    expect(panoramaHtml(raysiz())).not.toContain('class="ray-sol"')
+  })
+
+  it('doluysa çiziliyor — şablonu olan kayıt onu kullanabilir', () => {
+    const doc = {
+      ...raysiz(),
+      kartlar: ORNEK_SAHNE.kartlar.map((k) => ({ ...k, rayaSol: 'GERİ KAZANIM' })),
+    } as unknown as PanoramaBelgesi
+    expect(panoramaHtml(doc)).toContain('class="ray-sol"')
+  })
+
+  it('ifşa AI görselinde KALIYOR — kaldırılan gürültü, yükümlülük değil', () => {
+    const doc = { ...raysiz(), aiIfsasi: true } as unknown as PanoramaBelgesi
+    expect(panoramaHtml(doc)).toContain(AI_IFSA_METNI)
+  })
+})

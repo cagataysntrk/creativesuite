@@ -615,7 +615,15 @@ const sunucu = createServer(async (req, res) => {
         }
       } else if (d.tur === 'sil') {
         // Boş değer alana göre: metin '' olur, panel null.
-        const bos = { baslik: '', govde: '', ustBaslik: '', elYazisi: '', panel: null }
+        const bos = {
+          baslik: '',
+          govde: '',
+          ustBaslik: '',
+          elYazisi: '',
+          panel: null,
+          rayaSol: '',
+          rayaOrta: '',
+        }
         const k = calisan[id].kartlar[d.i]
         if (k && d.alan in bos) calisan[id].kartlar[d.i] = { ...k, [d.alan]: bos[d.alan] }
       } else {
@@ -625,6 +633,10 @@ const sunucu = createServer(async (req, res) => {
           govde: 'govde',
           'ust-baslik': 'ustBaslik',
           'el-yazisi': 'elYazisi',
+          // ⚠ Alt ray da düzenlenebilir: künye kartın en çok gözden geçirilen parçası
+          // (kaynak, alan adı) ve düzeltmesi için koşuyu baştan üretmek gerekiyordu.
+          'ray-sol': 'rayaSol',
+          'ray-orta': 'rayaOrta',
         }
         const k = calisan[id].kartlar[d.i]
         if (k && harita[alan]) k[harita[alan]] = d.deger.trim()

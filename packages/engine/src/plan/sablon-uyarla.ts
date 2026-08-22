@@ -351,8 +351,16 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     kartlar,
     '',
     'Kurallar:',
-    '- Her kartın `rayaOrta` alanına GERÇEK kaynağı yaz. Şablondaki "ÖRNEK VERİ" ifadesi',
-    '  kalırsa uyarlama reddedilir; kaynağı olmayan sayısal iddia kullanma.',
+    // ⚠ ⚠ **KÜNYE KISA OLMAK ZORUNDA.** Eskiden model oraya virgüllü listeler yazıyordu
+    // (`upcyman.com, api.upcyman.com`) ve alt ray bir dipnot alanına dönüyordu. Depo
+    // sahibi: *"tek konuyla alakalı mesele upcyman.com yazsın yeter"*.
+    // ⚠ R-32 hâlâ geçerli: sayısal bir iddia varsa kaynağı GÖRÜNMELİ — ama kaynak tek
+    // ve kısa olabilir. Kural kaynağın VARLIĞI, uzunluğu değil.
+    '- `rayaOrta` KISA olacak: tek kaynak, tercihen sadece alan adı (`upcyman.com`).',
+    '  Virgüllü liste, tarih, açıklama YAZMA. Şablondaki "ÖRNEK VERİ" ifadesi kalırsa',
+    '  uyarlama reddedilir; kaynağı olmayan sayısal iddia kullanma.',
+    '- `rayaSol` BOŞ bırak: kategori etiketi zaten `ustBaslik`ta ve aynı bilgiyi iki kez',
+    '  basmak künyeyi gürültüye çevirir.',
     '- Başlıkta vurgulanacak kelimeyi `**böyle**` işaretle; işaretler çift olmalı.',
     '- `hayalet` alanı kısa olmalı: bir rakam ya da tek kelime.',
     '- Yalnız Latin harfleri, Türkçe harfler, rakam ve normal noktalama kullan.',
@@ -406,8 +414,8 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     '      "baslik": "Kısa başlık, **vurgulu** kelimeyle",',
     '      "govde": "Tek cümlelik gövde.",',
     '      "hayalet": "1",',
-    '      "rayaSol": "KONU ETİKETİ",',
-    '      "rayaOrta": "Gerçek kaynak, tarih"',
+    '      "rayaSol": "",',
+    '      "rayaOrta": "upcyman.com"',
     '    }',
     `    // … toplam ${ornek.kartlar.length} kart`,
     '  ]',

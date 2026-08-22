@@ -991,7 +991,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             )}" alt="Upcytech">`) +
         // ⚠ Sınıflar AÇIK: küçülme hakkı yalnız ORTA metne ait. `nth-child` ile
         // hedeflemek, logo varken/yokken farklı öğeyi kırpardı.
-        `<span class="ray-sol">${kacir(k.rayaSol)}</span>` +
+        // ⚠ ⚠ **KÜNYE SADELEŞTİ — depo sahibinin isteği.** Alt rayda dört şey birden
+        // vardı: kategori etiketi (İDDİA), virgüllü kaynak listesi
+        // (`upcyman.com, api.upcyman.com`), ifşa ve sayaç. Depo sahibi: *"tek konuyla
+        // alakalı mesele upcyman.com yazsın yeter"*. Kategori etiketi zaten kartın
+        // üst başlığında duruyor; aynı bilgiyi iki kez basmak künyeyi gürültüye çevirir.
+        //
+        // ⚠ Alan MODELDE kalıyor: boş değilse yine çiziliyor. Şablonu olan bir kayıt
+        // onu kullanmak isteyebilir; varsayılan olarak boş geliyor.
+        (k.rayaSol.trim() === '' ? '' : `<span class="ray-sol">${kacir(k.rayaSol)}</span>`) +
         `<span class="ray-orta">${kacir(k.rayaOrta)}</span>` +
         (doc.aiIfsasi === true ? `<span class="ray-ifsa">${kacir(AI_IFSA_METNI)}</span>` : '') +
         `<span class="ray-sayac">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</span></div>` +

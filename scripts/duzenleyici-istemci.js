@@ -433,105 +433,110 @@ function bagla(d, doc) {
     panel: 'panel',
     sayilar: 'panel',
     etiketler: 'panel',
+    // ⚠ ⚠ **ALT RAY DÜZENLENEMİYORDU.** Depo sahibi: *"bunlar editörde düzenlenemiyor
+    // bile"*. Künye kartın en çok gözden geçirilen parçası (kaynak, alan adı) ve
+    // düzeltmesi için koşuyu baştan üretmek gerekiyordu.
+    'ray-sol': 'rayaSol',
+    'ray-orta': 'rayaOrta',
   }
   const alanAdi = (e) => ALAN[e.className.split(' ')[0]]
 
-  d.querySelectorAll('.baslik,.govde,.ust-baslik,.el-yazisi,.panel,.sayilar,.etiketler').forEach(
-    (e) => {
-      const i = kartlar.indexOf(e.closest('section.kart'))
-      const alan = alanAdi(e)
-      if (i < 0 || alan === undefined) return
-      const yazilabilir =
-        e.className.split(' ')[0] !== 'panel' && ALAN[e.className.split(' ')[0]] !== 'panel'
-      e.style.outline = '1px dashed rgba(90,169,230,.35)'
+  d.querySelectorAll(
+    '.baslik,.govde,.ust-baslik,.el-yazisi,.panel,.sayilar,.etiketler,.ray-sol,.ray-orta'
+  ).forEach((e) => {
+    const i = kartlar.indexOf(e.closest('section.kart'))
+    const alan = alanAdi(e)
+    if (i < 0 || alan === undefined) return
+    const yazilabilir =
+      e.className.split(' ')[0] !== 'panel' && ALAN[e.className.split(' ')[0]] !== 'panel'
+    e.style.outline = '1px dashed rgba(90,169,230,.35)'
 
-      if (duzenMod === 'yaz') {
-        // ⚠ ⚠ **SİLME YAZ MODUNDA HİÇ ERİŞİLEBİLİR DEĞİLDİ.** *"⌫ bu ögeyi sil"*
-        // düğmesi müfettişte YALNIZ `secili` doluyken çiziliyor, `secili` ise yalnız
-        // TAŞI modundaki `pointerdown` ile doluyordu. Yani varsayılan modda kullanıcı
-        // hangi ögeye tıklarsa tıklasın silme düğmesi hiç görünmüyordu — depo
-        // sahibinin *"öge silme hiçbir şekilde çalışmıyor"* şikâyeti birebir bu.
-        // Sunucu tarafı SAĞLAMDI (ölçüldü: `{tur:'sil'}` gövdeyi boşaltıyor); eksik
-        // olan tek şey düğmeye ulaşan yoldu.
-        //
-        // ⚠ Yazılabilirlik BOZULMUYOR: seçim `contentEditable`ı kapatmıyor, yalnız
-        // müfettişe "şu an bu öge" diyor. Panel gibi yazılamayan ögeler de seçilebilir
-        // olmalı — silinecek şeylerin çoğu onlar.
-        e.addEventListener('pointerdown', () => {
-          secili = { i, alan, e }
-          seciliKart = i
-          for (const o of d.querySelectorAll('[data-secili]')) {
-            o.removeAttribute('data-secili')
-            o.style.outline = '1px dashed rgba(90,169,230,.35)'
-          }
-          e.setAttribute('data-secili', '1')
-          e.style.outline = '2px solid rgba(90,169,230,.9)'
-          mufettisiKur(sonDoc)
-        })
-        if (!yazilabilir) return
-        e.contentEditable = 'true'
-        e.addEventListener('blur', () =>
-          yaz({ tur: 'metin', sec: e.className, i, deger: metinAl(e) })
-        )
-        return
-      }
-
-      // ── TAŞI modu: metin de görsel gibi sürükleniyor ve ölçekleniyor ────────
-      // ⚠ Yazılan şey MUTLAK KONUM DEĞİL, kaydırma payı: şablonun ızgarası duruyor,
-      // üstüne sınırlı bir pay biniyor (D-301 · Yasa 13). Sürükleme sırasında
-      // transform canlı uygulanıyor ki göz sonucu görsün.
-      e.contentEditable = 'false'
-      e.style.cursor = 'move'
-      const mevcut = (doc.kartlar[i] && doc.kartlar[i].ayar && doc.kartlar[i].ayar[alan]) || {}
-      e.addEventListener('pointerdown', (ev) => {
-        ev.preventDefault()
-        ev.stopPropagation()
+    if (duzenMod === 'yaz') {
+      // ⚠ ⚠ **SİLME YAZ MODUNDA HİÇ ERİŞİLEBİLİR DEĞİLDİ.** *"⌫ bu ögeyi sil"*
+      // düğmesi müfettişte YALNIZ `secili` doluyken çiziliyor, `secili` ise yalnız
+      // TAŞI modundaki `pointerdown` ile doluyordu. Yani varsayılan modda kullanıcı
+      // hangi ögeye tıklarsa tıklasın silme düğmesi hiç görünmüyordu — depo
+      // sahibinin *"öge silme hiçbir şekilde çalışmıyor"* şikâyeti birebir bu.
+      // Sunucu tarafı SAĞLAMDI (ölçüldü: `{tur:'sil'}` gövdeyi boşaltıyor); eksik
+      // olan tek şey düğmeye ulaşan yoldu.
+      //
+      // ⚠ Yazılabilirlik BOZULMUYOR: seçim `contentEditable`ı kapatmıyor, yalnız
+      // müfettişe "şu an bu öge" diyor. Panel gibi yazılamayan ögeler de seçilebilir
+      // olmalı — silinecek şeylerin çoğu onlar.
+      e.addEventListener('pointerdown', () => {
         secili = { i, alan, e }
+        seciliKart = i
         for (const o of d.querySelectorAll('[data-secili]')) {
           o.removeAttribute('data-secili')
           o.style.outline = '1px dashed rgba(90,169,230,.35)'
         }
         e.setAttribute('data-secili', '1')
         e.style.outline = '2px solid rgba(90,169,230,.9)'
-        seciliKart = i
-        mufettisiKur(doc)
-        const x0 = ev.clientX,
-          y0 = ev.clientY
-        const dx0 = mevcut.dx || 0,
-          dy0 = mevcut.dy || 0,
-          o0 = mevcut.olcek || 1
-        let son = { dx: dx0, dy: dy0, olcek: o0 }
-        const surukle = (m) => {
-          if (m.shiftKey) {
-            // Yatay sürükleme punto çarpanı: 300 px ↔ 1 kat.
-            son = {
-              dx: dx0,
-              dy: dy0,
-              olcek: Math.min(2, Math.max(0.5, o0 + (m.clientX - x0) / 300)),
-            }
-            e.style.setProperty('--ayar-olcek', son.olcek)
-          } else {
-            son = { dx: dx0 + (m.clientX - x0), dy: dy0 + (m.clientY - y0), olcek: o0 }
-            e.style.transform = 'translate(' + son.dx + 'px,' + son.dy + 'px)'
-          }
-        }
-        const birak = () => {
-          d.removeEventListener('pointermove', surukle)
-          d.removeEventListener('pointerup', birak)
-          yaz({
-            tur: 'ayar',
-            i,
-            alan,
-            dx: Math.round(son.dx),
-            dy: Math.round(son.dy),
-            olcek: +son.olcek.toFixed(3),
-          })
-        }
-        d.addEventListener('pointermove', surukle)
-        d.addEventListener('pointerup', birak)
+        mufettisiKur(sonDoc)
       })
+      if (!yazilabilir) return
+      e.contentEditable = 'true'
+      e.addEventListener('blur', () =>
+        yaz({ tur: 'metin', sec: e.className, i, deger: metinAl(e) })
+      )
+      return
     }
-  )
+
+    // ── TAŞI modu: metin de görsel gibi sürükleniyor ve ölçekleniyor ────────
+    // ⚠ Yazılan şey MUTLAK KONUM DEĞİL, kaydırma payı: şablonun ızgarası duruyor,
+    // üstüne sınırlı bir pay biniyor (D-301 · Yasa 13). Sürükleme sırasında
+    // transform canlı uygulanıyor ki göz sonucu görsün.
+    e.contentEditable = 'false'
+    e.style.cursor = 'move'
+    const mevcut = (doc.kartlar[i] && doc.kartlar[i].ayar && doc.kartlar[i].ayar[alan]) || {}
+    e.addEventListener('pointerdown', (ev) => {
+      ev.preventDefault()
+      ev.stopPropagation()
+      secili = { i, alan, e }
+      for (const o of d.querySelectorAll('[data-secili]')) {
+        o.removeAttribute('data-secili')
+        o.style.outline = '1px dashed rgba(90,169,230,.35)'
+      }
+      e.setAttribute('data-secili', '1')
+      e.style.outline = '2px solid rgba(90,169,230,.9)'
+      seciliKart = i
+      mufettisiKur(doc)
+      const x0 = ev.clientX,
+        y0 = ev.clientY
+      const dx0 = mevcut.dx || 0,
+        dy0 = mevcut.dy || 0,
+        o0 = mevcut.olcek || 1
+      let son = { dx: dx0, dy: dy0, olcek: o0 }
+      const surukle = (m) => {
+        if (m.shiftKey) {
+          // Yatay sürükleme punto çarpanı: 300 px ↔ 1 kat.
+          son = {
+            dx: dx0,
+            dy: dy0,
+            olcek: Math.min(2, Math.max(0.5, o0 + (m.clientX - x0) / 300)),
+          }
+          e.style.setProperty('--ayar-olcek', son.olcek)
+        } else {
+          son = { dx: dx0 + (m.clientX - x0), dy: dy0 + (m.clientY - y0), olcek: o0 }
+          e.style.transform = 'translate(' + son.dx + 'px,' + son.dy + 'px)'
+        }
+      }
+      const birak = () => {
+        d.removeEventListener('pointermove', surukle)
+        d.removeEventListener('pointerup', birak)
+        yaz({
+          tur: 'ayar',
+          i,
+          alan,
+          dx: Math.round(son.dx),
+          dy: Math.round(son.dy),
+          olcek: +son.olcek.toFixed(3),
+        })
+      }
+      d.addEventListener('pointermove', surukle)
+      d.addEventListener('pointerup', birak)
+    })
+  })
   d.querySelectorAll('.gorsel,.gorsel-yer').forEach((e, i) => {
     // ⚠ Görsel de SEÇİLEBİLİR: müfettiş onun alanlarını (kırpma, alt metin, kutu)
     // ancak seçiliyken gösterebilir. Sürüklemeden önce seçim yapılıyor, sonra değil —
