@@ -46,6 +46,42 @@ const TUR_BASINA = 4
  * ⚠ Dizin adına göre okunuyor (uuidv7 zaman sıralı); `mtime` bir dosyaya dokunulduğu
  * an sırayı bozardı.
  */
+/**
+ * Konu → EN SON hangi koşuda işlendi (koşu dizini adı; uuidv7 zaman sıralı).
+ *
+ * ⚠ ⚠ **BU HARİTA BİR DUVARDAN DOĞDU.** Aday havuzu tükendi ve panel *"konu seçilemez:
+ * geçmişte işlenmemiş aday kayıt kalmadı"* diyerek üretimi TAMAMEN durdurdu. Bir
+ * markanın kayıt sayısı sonludur; N koşudan sonra kalıcı olarak duran bir sistem
+ * tasarımı gereği bozuktur. Çeşitlilik "bir daha asla" değil "en son kullanılan en
+ * sona" demek — bunun için konunun ne zaman işlendiğini bilmek gerekiyor.
+ */
+export const konuGecmisi = (repoRoot: string): ReadonlyMap<string, string> => {
+  const kok = join(repoRoot, RUNS_DIR)
+  const gecmis = new Map<string, string>()
+  if (!existsSync(kok)) return gecmis
+  for (const ad of [...readdirSync(kok)].sort()) {
+    const yol = join(kok, ad, 'manifest.json')
+    if (!existsSync(yol)) continue
+    try {
+      const m = JSON.parse(readFileSync(yol, 'utf8')) as {
+        steps?: readonly {
+          params?: Record<string, unknown>
+          output?: Record<string, unknown> | null
+        }[]
+      }
+      for (const st of m.steps ?? []) {
+        const t = st.params?.['topic']
+        if (typeof t === 'string' && t.trim() !== '') gecmis.set(t, ad)
+        const secilen = st.output?.['konu']
+        if (typeof secilen === 'string' && secilen.trim() !== '') gecmis.set(secilen, ad)
+      }
+    } catch {
+      // Bozuk manifest bir konuyu gizler, sonucu bozmaz.
+    }
+  }
+  return gecmis
+}
+
 export const islenmisKonular = (repoRoot: string): ReadonlySet<string> => {
   const kok = join(repoRoot, RUNS_DIR)
   if (!existsSync(kok)) return new Set()
@@ -90,6 +126,13 @@ export interface KonuAdayi {
   readonly baslik: string
   /** Kayıt türü — ürün mü, strateji mi, kanıt mı; seçimin anlamı buna bağlı. */
   readonly tur: string
+  /**
+   * Daha önce işlendiyse EN SON hangi koşuda — yoksa alan hiç yok.
+   *
+   * ⚠ Havuz tükendiğinde liste "hiç işlenmemişler" yerine "en eskiden başlayarak
+   * hepsi" oluyor ve istem bunu AÇIKÇA söylüyor: model tekrar ürettiğini bilsin.
+   */
+  readonly sonKosu?: string
 }
 
 export const konuAdaylari = (g: KonuAdayGirdisi): readonly KonuAdayi[] => {
@@ -125,7 +168,35 @@ export const konuAdaylari = (g: KonuAdayGirdisi): readonly KonuAdayi[] => {
       if (a !== undefined) sonuc.push(a)
     }
   }
-  return sonuc.slice(0, ADAY_TAVANI)
+  if (sonuc.length > 0) return sonuc.slice(0, ADAY_TAVANI)
+
+  // ── havuz TÜKENDİ: en eskiden başlayarak yeniden dolaşıma gir ─────────────
+  //
+  // ⚠ ⚠ **BURASI ÜRETİMİ TAMAMEN DURDURUYORDU.** Panel *"konu seçilemez: geçmişte
+  // işlenmemiş aday kayıt kalmadı"* diyordu ve konusuz üretim bir daha hiç
+  // başlamıyordu. Bir markanın kayıt sayısı SONLUDUR; N koşudan sonra kalıcı duran
+  // bir sistem, tasarımı gereği bozuktur.
+  //
+  // Çeşitlilik "bir daha asla" değil "EN SON KULLANILAN EN SONA" demek. Liste en eski
+  // kullanımdan başlıyor ve `sonKosu` taşıyor — istem bunu açıkça söylüyor, yani model
+  // tekrar ürettiğini biliyor ve yeni bir açı arıyor.
+  const gecmis = konuGecmisi(g.repoRoot)
+  const hepsi: KonuAdayi[] = []
+  const gorulen2 = new Set<string>()
+  for (const k of kayitlar) {
+    const baslik = k.title
+    if (typeof baslik !== 'string' || baslik.trim() === '' || gorulen2.has(baslik)) continue
+    gorulen2.add(baslik)
+    const sonKosu = gecmis.get(baslik)
+    hepsi.push({
+      baslik,
+      tur: typeof k.type === 'string' && k.type !== '' ? k.type : 'kayıt',
+      ...(sonKosu === undefined ? {} : { sonKosu }),
+    })
+  }
+  // En ESKİ kullanım önce; hiç kullanılmamış varsa (olmamalı ama) en başa.
+  hepsi.sort((a, b) => (a.sonKosu ?? '').localeCompare(b.sonKosu ?? ''))
+  return hepsi.slice(0, ADAY_TAVANI)
 }
 
 /**
@@ -149,7 +220,13 @@ export const konuSecPromptu = (g: {
     // Doğrulama reddetti, koşu durdu. Model yanlış davranmadı; istem belirsizdi.
     ...g.adaylar.map((a, i) => `${String(i + 1)}. ${a.baslik}   (tür: ${a.tur})`),
     '',
-    `Geçmişte ${String(g.islenmisSayisi)} konu işlendi ve onlar bu listede YOK.`,
+    ...(g.adaylar.every((a) => a.sonKosu !== undefined)
+      ? [
+          `Geçmişte ${String(g.islenmisSayisi)} konu işlendi ve HAVUZ TÜKENDİ.`,
+          'Bu başlıkların hepsi daha önce işlendi; liste EN ESKİ kullanımdan başlıyor.',
+          'Seçtiğin konuyu YENİ bir açıdan ele alacağız — aynı metni tekrar üretmek yok.',
+        ]
+      : [`Geçmişte ${String(g.islenmisSayisi)} konu işlendi ve onlar bu listede YOK.`]),
     'Seçerken sırayla şunu sor:',
     '  · bundan gösterilecek somut bir şey çıkar mı, yoksa yalnız laf mı olur?',
     '  · marka bunu söylemeye yetkili mi — elinde kaydı var mı?',

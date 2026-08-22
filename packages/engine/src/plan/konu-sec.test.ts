@@ -113,3 +113,33 @@ describe('konu seçimi çözümleme', () => {
     expect(konuSecimiCozumle('{"konu": "Bambaşka - bir konu"}', ADAYLAR)).toBeNull()
   })
 })
+
+// ── havuz tükenince ÜRETİM DURMAZ ──────────────────────────────────────────
+//
+// ⚠ ⚠ **BU DUVAR GERÇEKTEN VURULDU.** Panelden konusuz başlatma
+// *"konu seçilemez: geçmişte işlenmemiş aday kayıt kalmadı"* diyerek üretimi tamamen
+// durdurdu. Bir markanın kayıt sayısı SONLUDUR; N koşudan sonra kalıcı olarak duran
+// bir sistem tasarımı gereği bozuktur. Çeşitlilik "bir daha asla" değil "en son
+// kullanılan en sona" demek.
+describe('aday havuzu tükendiğinde', () => {
+  const ADAYLAR_TEKRAR: readonly KonuAdayi[] = [
+    { baslik: 'Ölçüm pilotu', tur: 'offer', sonKosu: 'run_01a00000' },
+    { baslik: 'Üretim müdürü', tur: 'persona', sonKosu: 'run_01a00001' },
+  ]
+
+  it('istem TEKRAR DOLAŞIMI açıkça söylüyor', () => {
+    const p = konuSecPromptu({ adaylar: ADAYLAR_TEKRAR, islenmisSayisi: 77 }) ?? ''
+    expect(p).toContain('HAVUZ TÜKENDİ')
+    expect(p).toContain('EN ESKİ')
+  })
+
+  it('havuz DOLUYKEN eski istem korunuyor — gereksiz uyarı gürültüdür', () => {
+    const p = konuSecPromptu({ adaylar: ADAYLAR, islenmisSayisi: 4 }) ?? ''
+    expect(p).not.toContain('HAVUZ TÜKENDİ')
+    expect(p).toContain('onlar bu listede YOK')
+  })
+
+  it('tekrar listesinden seçim yine NUMARAYLA çözülüyor', () => {
+    expect(konuSecimiCozumle('{"secim": 2}', ADAYLAR_TEKRAR)?.konu).toBe('Üretim müdürü')
+  })
+})
