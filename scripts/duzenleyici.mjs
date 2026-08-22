@@ -593,6 +593,12 @@ const sunucu = createServer(async (req, res) => {
       } else if (d.tur === 'gorsel-alan') {
         const g = calisan[id].gorseller[d.i]
         if (g) calisan[id].gorseller[d.i] = { ...g, [d.alan]: d.deger }
+      } else if (d.tur === 'bant-tip') {
+        // ⚠ ⚠ **SÜS KAPATILABİLİR.** `sus-metni-kesiyor` ölçülüyor ama metinle
+        // düzelmiyor (borç D23); insanın elindeki tek gerçek çare süsü kaldırmak.
+        // ⚠ Tip değişince ÖGELER korunuyor: `yok`tan geri dönüldüğünde oklar yerinde.
+        const mevcut = calisan[id].bant ?? {}
+        calisan[id] = { ...calisan[id], bant: { ...mevcut, tip: d.deger } }
       } else if (d.tur === 'belge-alan') {
         // Belge kökündeki alan: `yerlesim`, `zemin`, `baslikSutunu`…
         calisan[id] = { ...calisan[id], [d.alan]: d.deger }

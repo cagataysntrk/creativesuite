@@ -450,6 +450,29 @@ function mufettisiKur(doc) {
       yaz({ tur: 'belge-alan', alan: 'zemin', deger: v })
     )
   )
+  // ⚠ ⚠ **SÜS ÖGESİ KAPATILABİLİR OLMALI.** `sus-metni-kesiyor` kusuru ölçülüyor ama
+  // düzeltmesi metinle YAPILAMIYOR (borç D23: şeridin y'si sabit, metin bloğu içerikle
+  // kayıyor). İnsanın elinde tek gerçek çare süsü kaldırmak; onu ölçüp sonra
+  // "yapamazsın" demek, ölçümü bir şikâyete çevirir.
+  //
+  // ⚠ Kapatmak KİMLİK kaybı: `sahne`nin iki süreklilik ögesinden biri oklar. Seçenek
+  // sunuluyor, varsayılan değişmiyor.
+  kok.appendChild(
+    secim(
+      'süs ögesi (bant)',
+      (doc.bant ?? {}).tip ?? 'yok',
+      ['yok', 'ok', 'egri', 'kemer', 'alan'],
+      (v) => yaz({ tur: 'bant-tip', deger: v })
+    )
+  )
+  // ⚠ Metin/aksan rengi ZEMİNDEN türüyor ve seçilmiyor (§12.6): amber üstüne amber
+  // 1,9:1 kontrast veriyordu — WCAG AA'nın yarısı. Renk seçimi zemin üzerinden yapılır;
+  // serbest bir renk kutusu, ölçülmüş bir garantiyi elle bozmaya davet olurdu.
+  const renkNot = document.createElement('div')
+  renkNot.className = 'bos'
+  renkNot.textContent =
+    'Metin ve aksan rengi zeminden türüyor (kontrast garantisi). Rengi değiştirmek için zemini değiştir.'
+  kok.appendChild(renkNot)
 
   // ── tipografi ──
   baslikEkle(kok, 'TİPOGRAFİ')
