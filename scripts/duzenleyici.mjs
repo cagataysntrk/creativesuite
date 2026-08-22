@@ -28,6 +28,16 @@ const { fontCss } = await import(join(REPO, 'packages/render/dist/fonts.js'))
 // okuyamaz hâle gelirdi.
 const { panoramaBelgesiniYaz } = await import(join(REPO, 'packages/engine/dist/verbs/bodies.js'))
 const { logoVarliklari } = await import(join(REPO, 'packages/render/dist/logo.js'))
+// ⚠ ⚠ **EDİTÖRDEN GÖRSEL ÜRETME — sağlayıcı köprüsü HATTIN KULLANDIĞIYLA AYNI.** Depo
+// sahibi: *"editörde modele prompt gönderip görsel üretme olmalı, beğenmediğimizi silip
+// yerine kendimiz ürettirebiliriz."* İkinci bir çağrı yolu yazmak, R-20 muhafızının ve
+// şerit kurallarının atlandığı bir arka kapı açardı.
+const { adapterById, loadDescriptors, saglayiciOrtami } = await import(
+  join(REPO, 'packages/providers/dist/index.js')
+)
+const { readEnv } = await import(join(REPO, 'packages/kernel/dist/index.js'))
+const { descriptors: TANIMLAYICILAR } = loadDescriptors(join(REPO, 'registry/providers'))
+const SAGLAYICI_ORTAMI = saglayiciOrtami(TANIMLAYICILAR, readEnv, ['CF_ACCOUNT_ID'])
 
 const f = fontCss(join(REPO, 'brand/brd_upcytech/fonts'))
 const tokenCss = readFileSync(join(REPO, 'brand/brd_upcytech/derived-tokens/tokens.css'), 'utf8')
@@ -697,6 +707,78 @@ const sunucu = createServer(async (req, res) => {
       anlikGoruntuAl(id)
       calisan[id].gorseller[d.i] = { ...g, src: yeni }
       return res.end('✓ ' + (d.i + 1) + '. görselin arka planı silindi')
+    }
+
+    // ── EDİTÖRDEN GÖRSEL ÜRETME (FAZ-17.3) ─────────────────────────────────
+    //
+    // ⚠ ⚠ **BEĞENİLMEYEN GÖRSELİN TEK ÇARESİ KOŞUYU BAŞTAN ÜRETMEKTİ.** Depo sahibi:
+    // *"beğenmediğimizi silip yerine kendimiz ürettirebiliriz istediğimiz gibi
+    // özgürce."* Dört slaytlık bir karoselde tek bir görseli beğenmemek, dördünü de
+    // yeniden üretmek demekti.
+    //
+    // ⚠ İstem R-20 MUHAFIZINDAN geçiyor — insanın yazdığı prompt da bir prompt.
+    // "Kullanıcı yazdı" bir muafiyet sebebi değil; metin isteyen bir istem, kimin
+    // yazdığından bağımsız olarak Türkçe tipografiyi bozuyor.
+    //
+    // ⚠ Sonuç `-elle` ekiyle diske yazılıyor: hattın ürettiği asıl görsel yerinde
+    // kalıyor ve ikisi karşılaştırılabiliyor (aynı kural `/gorsel-koy`da da var).
+    if (u.pathname === '/gorsel-uret') {
+      const d = JSON.parse(await govde(req))
+      const k = kaynak[id]
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
+      if (k?.tur !== 'kosu') return res.end('✗ şablona görsel üretilmez — bir koşu seç (Yasa 13).')
+      const g = calisan[id].gorseller[d.i]
+      if (g === undefined) return res.end('✗ ' + (d.i + 1) + '. yuva yok')
+      const istem = String(d.prompt ?? '').trim()
+      if (istem === '') return res.end('✗ istem boş')
+
+      const adapter = adapterById('cloudflare-workers-ai')
+      if (adapter === null) return res.end('✗ sağlayıcı bulunamadı: cloudflare-workers-ai')
+      // ⚠ İmza `available(env)` — sarmalayıcı bir nesne DEĞİL. İlk sürüm
+      // `{env}` geçiyordu ve anahtar varken bile *anahtar yok* diyordu.
+      if (!adapter.available(SAGLAYICI_ORTAMI))
+        return res.end('✗ anahtar yok — tezgâhı `just dev` ile (sops altında) başlat')
+
+      const dogrulanan = adapter.validate({
+        capability: 'image.generate',
+        lane: 'free',
+        prompt: istem,
+        // ⚠ ⚠ **ORAN ZORUNLU** ve ilk iki sürüm onu geçemedi: önce alan hiç yoktu,
+        // sonra adı yanlıştı (`aspect_ratio`). Hata mesajı ikisinde de "R-20" diyordu
+        // ve beni yanlış yere baktırdı — oysa `supported` listesi cevabı yazıyordu.
+        // Yuvalar 1024×1280 üretiyor; `4:5` o oranın adı.
+        constraints: { aspect: '4:5' },
+        idempotencyKey: 'editor:' + id + ':' + String(d.i),
+      })
+      if (!dogrulanan.ok)
+        return res.end(
+          '✗ istem reddedildi (R-20): ' + JSON.stringify(dogrulanan.error.details ?? {})
+        )
+
+      const is = await adapter.start(dogrulanan.value, {
+        correlationId: 'cor_editor',
+        env: SAGLAYICI_ORTAMI,
+      })
+      if (!is.ok) return res.end('✗ çağrı başlamadı: ' + JSON.stringify(is.error.code ?? ''))
+      let durum = await adapter.status(is.value)
+      for (let i = 0; i < 60 && durum.ok && durum.value.state === 'running'; i++) {
+        await new Promise((c) => setTimeout(c, 1000))
+        durum = await adapter.status(is.value)
+      }
+      if (!durum.ok || durum.value.state !== 'succeeded')
+        return res.end(
+          '✗ üretim başarısız: ' + JSON.stringify(durum.ok ? durum.value.state : durum.error.code)
+        )
+
+      const cikti = durum.value.output ?? {}
+      const b64 =
+        typeof cikti.image_base64 === 'string' ? cikti.image_base64 : String(cikti.data ?? '')
+      if (b64 === '') return res.end('✗ sağlayıcı byte döndürmedi')
+      const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'
+      writeFileSync(join(k.dizin, ad), Buffer.from(b64, 'base64'))
+      anlikGoruntuAl(id)
+      calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + b64 }
+      return res.end('✓ ' + (d.i + 1) + '. yuvaya üretildi → ' + ad)
     }
 
     if (u.pathname === '/geri') {

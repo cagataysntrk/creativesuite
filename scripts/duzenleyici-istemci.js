@@ -295,6 +295,32 @@ function mufettisiKur(doc) {
     }
     kok.appendChild(el('kendi görselini koy', dosya))
 
+    // ⚠ ⚠ **BEĞENİLMEYEN GÖRSELİN TEK ÇARESİ KOŞUYU BAŞTAN ÜRETMEKTİ.** Dört slaytlık
+    // bir karoselde tek bir görseli beğenmemek, dördünü de yeniden üretmek demekti.
+    // Artık istemi insan yazıyor ve YALNIZ o yuva yeniden üretiliyor.
+    // ⚠ İstem R-20 muhafızından geçiyor: "kullanıcı yazdı" bir muafiyet sebebi değil.
+    const istem = document.createElement('textarea')
+    istem.placeholder = 'ingilizce istem — ne görmek istiyorsun? (metin/yazı isteme, R-20 reddeder)'
+    istem.rows = 3
+    istem.style.inlineSize = '100%'
+    const uret = document.createElement('button')
+    uret.textContent = '✨ bu yuvaya üret'
+    uret.onclick = async () => {
+      const p = istem.value.trim()
+      if (p === '') return mesaj('✗ istem boş')
+      uret.disabled = true
+      mesaj('… model çağrılıyor (birkaç saniye)')
+      const r = await fetch('/gorsel-uret?id=' + id, {
+        method: 'POST',
+        body: JSON.stringify({ i: secili.i, prompt: p }),
+      })
+      mesaj(await r.text())
+      uret.disabled = false
+      await cek()
+    }
+    kok.appendChild(el('modelden üret', istem))
+    kok.appendChild(uret)
+
     // ⚠ Arka plan silme burada, GÖRSELİN yanında: kusur (`matlama-tutmuyor`) bu
     // ögede ölçülüyor ve düzeltmesi de bu ögede olmalı. Ayrı bir menüye koymak,
     // ölçümle düzeltmeyi birbirinden uzaklaştırırdı.
