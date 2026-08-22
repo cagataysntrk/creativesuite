@@ -541,3 +541,34 @@ iskelet kurmalı; ikisinin aynı iskeleti iki farklı tipografik sesle kullanmas
 
 ⚠ Yan kazanç: "her kartta üst başlık var" testi, bazı kartlarda olup bazılarında
 olmayan bir şablonu GEÇİRİYORDU. Yeni kural (ya hepsinde ya hiçbirinde) onu yakalıyor.
+
+## D-313 · "çalışan" deseni ÇEKİMLİ hâllere daraltıldı (2026-08-22)
+
+**Bağlam.** Panelden koşan bir karosel, damgalama adımında düştü:
+
+```
+✗ uyum iddiası kurulamadı:
+  {"refusal":{"kind":"prompt_requests_person","matched":"çalışan"},"rule":"R-33"}
+```
+
+Konu **"UpcyMan: çalışan üretim altyapısı"** idi — markanın KENDİ kayıt başlığı.
+Buradaki *çalışan* "çalışmakta olan" demek; personel değil. R-33'ün Türkçe deseni
+(`\bcalisan\w*`) eş sesliyi ayırt edemiyordu ve sonuç: **hattın asla üretemeyeceği bir
+konu.** Kusursuz bir karosel, sıfır kusurla, yayına gidemeden öldü.
+
+**Karar.** Desen yalnız ÇEKİMLİ hâlleri arıyor: `çalışanlar`, `çalışanı`, `çalışanın`,
+`çalışanımız`… Türkçede *çalışan* sıfat olarak isimden önce gelir ve ek almaz
+("çalışan üretim"); isim olarak çekim eki alır. Ayrım dilin kendi yapısında.
+
+**Neden koruma zayıflamadı.** `işçi`, `mühendis`, `operatör`, `insan`, `kişi`, `müşteri`,
+`portre`, `gülümseyen` desenleri yerinde; İngilizce tarafta `worker|employee|staff|crew`
+duruyor. Kaybedilen tek şey bir sıfatın insan sanılması. Aynı turda `personel` deseni
+EKLENDİ — listede hiç yoktu ve "personel toplantıda" kapıdan geçiyordu; eksikliği bir
+karar değil bir boşluktu.
+
+**Kalan borç.** Bu tarama hâlâ KONUYU okuyor, gerçek görsel prompt'unu değil: hiçbir hat
+`prompt` kısıtı yazmıyor ve asıl istem `gorsel-brief` adımının çıktısında yaşıyor.
+Yani R-33 bugün bir VEKİL üzerinden çalışıyor. Doğru kaynak brief çıktısı — ama katalog
+varyantları bilerek insan figürü istiyor (T4 · T10) ve o kaynağa geçmek, "kesik özne"
+tasarım kararıyla R-33'ü karşı karşıya getirir. Bu bir POLİTİKA sorusu ve insanın
+kararı: `docs/BORCLAR.md` D22.

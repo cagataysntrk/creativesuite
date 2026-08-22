@@ -5,6 +5,7 @@
 // eskiyemez — kırmızıya döner.
 
 import { describe, expect, it } from 'vitest'
+import { promptRequestsPerson } from '@suite/render'
 import { join } from 'node:path'
 import { listPipelines, loadPipeline, type Pipeline } from '@suite/registry'
 import { assertCompliance } from '@suite/render'
@@ -145,5 +146,36 @@ describe('koşuda gerçekten görsel üretildi mi', () => {
 
   it('adım hiç görünmüyorsa ifşa gerekmiyor — koşmamış bir adım üretmemiştir', () => {
     expect(kosudaGorselUretildi(kapsam, {})).toBe(false)
+  })
+})
+
+// ── R-33 taraması bugün KONU üzerinden çalışıyor (D-313 · borç D22) ────────
+//
+// ⚠ ⚠ **BU BİR VEKİL ve satır onu gizlemiyor.** Hiçbir hat `prompt` kısıtı yazmıyor;
+// asıl istem `gorsel-brief` adımının ÇIKTISINDA yaşıyor ve tarama oraya bakmıyor.
+// Yani "sentetik insan yok" iddiası konu metni üzerinden kuruluyor. Gerçek brief'e
+// geçmek bir POLİTİKA sorusu açıyor (katalog varyantları bilerek insan figürü istiyor)
+// ve o karar insanın — borç D22.
+describe('taranacak prompt', () => {
+  const kapsam = (
+    promptlar: readonly string[],
+    ai: boolean
+  ): Parameters<typeof taranacakPrompt>[0] =>
+    ({ aiGenerated: ai, adimlar: ['gorsel-uret'], promptlar }) as never
+
+  it('konu taramaya GİRİYOR — bugünkü tek sinyal', () => {
+    expect(taranacakPrompt(kapsam([], true), 'vardiya kayıpları')).toContain('vardiya')
+  })
+
+  it('görsel prompt`u varsa O DA giriyor', () => {
+    const p = taranacakPrompt(kapsam(['two workers at a cabinet'], true), 'konu')
+    expect(p).toContain('workers')
+  })
+
+  // ⚠ ⚠ **EŞ SESLİ (D-313).** Konu *"UpcyMan: çalışan üretim altyapısı"* kusursuz bir
+  // koşuyu damgalama adımında öldürdü: "çalışan" burada ÇALIŞMAKTA OLAN demek.
+  it('eş sesli konu artık koşuyu ÖLDÜRMÜYOR', () => {
+    const p = taranacakPrompt(kapsam([], true), 'UpcyMan: çalışan üretim altyapısı')
+    expect(promptRequestsPerson(p)).toBeNull()
   })
 })

@@ -153,3 +153,15 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   planın "tüm parametreler donar" iddiası (R-07) şu an TAM DEĞİL: konu, şablon,
   `kacinilacak` özete girmiyor. Doğru çözüm `PlanInput`e `params` eklemek ve adım
   kısıtlarına plan zamanında da katmak — o zaman özet gerçekten planın tamamını kapsar.
+- **D22 · R-33 taraması KONUYU okuyor, gerçek görsel prompt'unu değil.** Hiçbir hat
+  `prompt` kısıtı yazmıyor; asıl istem `gorsel-brief` adımının çıktısında yaşıyor ve
+  tarama oraya HİÇ bakmıyor. Yani "sentetik insan yok" iddiası bugün bir VEKİL (konu
+  metni) üzerinden kuruluyor. Ölçüldü: `taranacakPrompt` yalnız `kapsam.promptlar` +
+  konu döndürüyor ve `promptlar` üretimde her zaman BOŞ.
+  Doğru kaynak brief çıktısı — ama katalog varyantları bilerek insan figürü istiyor
+  (T4 · T10: *"kesik özne"* insan da olabilir nesne de) ve o kaynağa geçmek, tasarım
+  kararıyla R-33'ü karşı karşıya getirir: bugünkü briefler `a worker with arms open
+  wide` diyor ve tarama açılırsa HER karosel koşusu R-33'e takılır.
+  **Bu bir politika sorusu, bir hata değil** ve insanın kararı: illüstre bir işçi figürü
+  Md. 27/12 anlamında "onay ima eden yapay insan" mı? Karar verilene kadar tarama
+  vekille çalışıyor ve bu satır o vekilin varlığını gizlemiyor. → D-313

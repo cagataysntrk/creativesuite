@@ -183,7 +183,9 @@ describe("her desen KENDİ probe'uyla kanıtlanıyor", () => {
   })
 
   it('probe sayısı desen sayısına EŞİT — probesuz desen eklenemez', () => {
-    expect(PERSON_PROBES.length).toBe(16)
+    // ⚠ Sayı ELLE tutuluyor ve bu KASITLI: desen eklemek bir KARAR ve bu satırı da
+    // değiştirmeyi gerektiriyor. 16 → 17: `personel` eklendi (listede hiç yoktu).
+    expect(PERSON_PROBES.length).toBe(17)
     expect(new Set(PERSON_PROBES).size).toBe(PERSON_PROBES.length)
   })
 })
@@ -357,5 +359,31 @@ describe('dayanak ÇAĞIRANIN beyanı değil (İ7 · D-143)', () => {
       correlationId: CID,
     })
     expect(r.ok && r.value.basis.kind).toBe('human_photograph')
+  })
+})
+
+// ── eş sesli: "çalışan" sıfat mı, personel mi (D-313) ──────────────────────
+//
+// ⚠ ⚠ **GERÇEK KOŞU ÖLDÜ.** Konu *"UpcyMan: çalışan üretim altyapısı"* — buradaki
+// "çalışan" ÇALIŞMAKTA OLAN demek. Eski desen onu yakaladı ve kusursuz bir karosel
+// damgalama adımında düştü; üstelik bu markanın KENDİ kayıt başlığı.
+describe('çalışan eş seslisi', () => {
+  const insanMi = (p: string): boolean => promptRequestsPerson(p) !== null
+
+  it('SIFAT hâli insan SAYILMIYOR — çalışmakta olan bir şey personel değildir', () => {
+    expect(insanMi('UpcyMan: çalışan üretim altyapısı')).toBe(false)
+    expect(insanMi('çalışan bir hat, çalışan bir sistem')).toBe(false)
+  })
+
+  it('ÇEKİMLİ hâller hâlâ yakalanıyor — insanı kastettiği yerler', () => {
+    expect(insanMi('çalışanların vardiyası')).toBe(true)
+    expect(insanMi('çalışanı gülümserken göster')).toBe(true)
+    expect(insanMi('çalışanımız anlatıyor')).toBe(true)
+  })
+
+  it('koruma ZAYIFLAMADI — öteki insan sözcükleri yerinde', () => {
+    for (const p of ['işçiler tezgâhta', 'personel toplantıda', 'iki operatör', 'a worker']) {
+      expect(insanMi(p)).toBe(true)
+    }
   })
 })

@@ -108,7 +108,28 @@ const INSAN_ISTEYEN: readonly {
   { desen: /\bkisi\w*/, ornek: 'kişi', probe: 'bir kişi duruyor' },
   { desen: /\bmusteri\w*/, ornek: 'müşteri', probe: 'müşterimiz memnun' },
   { desen: /\bkullanici\w*/, ornek: 'kullanıcı', probe: 'kullanıcılarımız' },
-  { desen: /\bcalisan\w*/, ornek: 'çalışan', probe: 'çalışanların vardiyası' },
+  // ⚠ ⚠ **BU DESEN BİR EŞ SESLİ YÜZÜNDEN DARALTILDI (D-313).** Gerçek koşu: konu
+  // *"UpcyMan: çalışan üretim altyapısı"* — buradaki "çalışan" ÇALIŞMAKTA OLAN demek,
+  // personel değil. Eski desen (`\bcalisan\w*`) onu yakaladı ve kusursuz bir karosel
+  // damgalama adımında `prompt_requests_person` ile düştü. Üstelik bu, markanın KENDİ
+  // kayıt başlığı: hattın asla üretemeyeceği bir konu doğmuştu.
+  //
+  // Türkçede "çalışan" sıfat olarak bir isimden ÖNCE gelir ve ek almaz ("çalışan
+  // üretim"); isim olarak ise çekim eki alır ("çalışanlar", "çalışanı", "çalışanın").
+  // Desen artık yalnız ÇEKİMLİ hâlleri arıyor — yani insanı kastettiği hâlleri.
+  //
+  // ⚠ Koruma zayıflamadı: `işçi`, `personel`, `operatör`, `mühendis`, `insan`, `kişi`
+  // desenleri yerinde ve İngilizce `employee|staff|worker` da öyle. Kaybedilen tek şey
+  // bir sıfatın insan sanılması.
+  {
+    desen: /\bcalisan(lar|i|in|imiz|iniz|larimiz|lariniz)\w*/,
+    ornek: 'çalışan',
+    probe: 'çalışanların vardiyası',
+  },
+  // ⚠ `personel` listede HİÇ YOKTU ve bunu bir test yazarken fark ettim: "personel
+  // toplantıda" prompt'u kapıdan geçiyordu. Türkçede eş sesli değil, tek anlamı var —
+  // eksikliği bir karar değil, bir boşluktu.
+  { desen: /\bpersonel\w*/, ornek: 'personel', probe: 'personel toplantıda' },
   { desen: /\bmuhendis\w*/, ornek: 'mühendis', probe: 'mühendisler hattı inceliyor' },
   { desen: /\bisci\w*/, ornek: 'işçi', probe: 'işçiler tezgâhta' },
   { desen: /\byonetici\w*/, ornek: 'yönetici', probe: 'yöneticiler toplantıda' },
