@@ -536,7 +536,11 @@ export interface PanoramaBelgesi {
 // GRİYE kaçtı — render'a bakınca "iki katına", "sorun", "koyu" okunmuyordu.
 // **Zemin büyük alan içindir, vurgu okunmak içindir.**
 const AKSAN = 'var(--role-vurgu, var(--role-bg))'
-const METIN = 'var(--role-surface)'
+// ⚠ ⚠ **KOYU ZEMİN METNİ ARTIK KENDİ TOKEN'I (D-318).** Eskiden kâğıt rengiydi
+// (`--role-surface`) — yani "açık olan neyse metin odur". Markanın dizayn sistemi ikisini
+// AYIRIYOR: kâğıt #fafafa, koyu zemin metni #eeeeee. Fark küçük ama kasıtlı; saf beyaza
+// yakın bir metin OLED'de halasyon yapıyor ve sistem bunu ölçerek 0.950'de durduruyor.
+const METIN = 'var(--role-metin-koyu, var(--role-surface))'
 
 /**
  * Bir zeminin KOYU olup olmadığı — metin ve aksan rengi buradan türüyor.
@@ -601,19 +605,6 @@ const koyuMu = (zemin: string, tokenCss = ''): boolean => {
 const sol = (degisken: string, yuzde: number): string =>
   `color-mix(in oklab, var(${degisken}) ${yuzde}%, transparent)`
 
-/**
- * Zemin AKSANIN KENDİSİ mi — vurgu çipinin rengi buna bağlı.
- *
- * ⚠ ⚠ **BU AYRIM BİR RENDER'A BAKMADAN ÇIKMADI.** Açık zeminde vurgu bir ÇİP: amber
- * zemin, mürekkep metin (FAZ-12.6'da bulunmuştu). Ama `akan-alan` ve `donen`in ilk
- * kartında kartın KENDİ zemini zaten amber — yani çip amber-üstüne-amber düşüyor ve
- * **vurgulanan kelime tamamen kayboluyor.** "Açık zemin" tek bir şey değil: kâğıt açık,
- * amber de açık, ama çip ikisinde aynı renk olamaz. Kâğıtta çip amber, amberde çip
- * mürekkep. Kural tek cümle: **çip zeminle aynı renk olamaz.**
- */
-const aksanZeminiMi = (zemin: string): boolean =>
-  zemin.includes('role-bg') || zemin.includes('amber') || zemin.includes('role-accent')
-
 /** Kartın renk seti — zeminden türetiliyor, seçilmiyor. */
 const kartRenkleri = (
   zemin: string,
@@ -622,27 +613,26 @@ const kartRenkleri = (
   readonly metin: string
   readonly aksan: string
   readonly soluk: string
-  readonly cip: string
-  readonly cipMetin: string
 } =>
   koyuMu(zemin, tokenCss)
     ? {
         metin: METIN,
         aksan: AKSAN,
-        soluk: sol('--role-surface', 72),
-        // Koyu zeminde çip kullanılmıyor; aksan rengi zaten ayrışıyor. Yine de tanımlı:
-        // tanımsız bir değişken CSS'te sessizce miras alınır ve yanlış renk verir.
-        cip: AKSAN,
-        cipMetin: MUREKKEP_T,
+        // ⚠ Soluk metin ALFA HARMANI DEĞİL, ölçülmüş bir adım: #989898, koyu kanvasta
+        // 7.12:1. Alfa ile yaklaşmak "aşağı yukarı soluk" demektir; sistem "şu kadar
+        // soluk, şu kadar kontrast" diyor.
+        soluk: 'var(--role-soluk-koyu, var(--role-surface))',
       }
     : // ⚠ Açık zeminde aksan MÜREKKEP: amber üstüne amber görünmez, kâğıt üstüne amber
       // ise 1,9:1 kontrast veriyor (FAZ-12.6'da ölçüldü) — WCAG AA'nın yarısı.
       {
         metin: MUREKKEP_T,
-        aksan: MUREKKEP_T,
-        soluk: sol('--role-line-edge', 62),
-        cip: aksanZeminiMi(zemin) ? MUREKKEP_T : AKSAN,
-        cipMetin: aksanZeminiMi(zemin) ? METIN : MUREKKEP_T,
+        // ⚠ ⚠ **KÂĞITTA AKSAN ARTIK MAVİ (D-318).** Eskiden mürekkepti ve gerekçesi
+        // ölçülmüştü: bakır/amber aksan kâğıtta 1,9:1 veriyordu. Sistemin mavisi kâğıt
+        // için AYRI bir adım taşıyor (#0b5bf0, 5.34:1) — yani artık marka rengi açık
+        // zeminli slaytta da görünebiliyor ve karosel tek bir aksanla konuşuyor.
+        aksan: 'var(--role-vurgu-acik, var(--role-line-edge))',
+        soluk: 'var(--role-soluk-acik, var(--role-line-edge))',
       }
 
 const MUREKKEP_T = 'var(--role-line-edge)'
@@ -950,7 +940,6 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `--kart-zemin:${kartZemini};` +
             `--kart-metin:${r.metin};` +
             `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk};` +
-            `--kart-cip:${r.cip};--kart-cip-metin:${r.cipMetin};` +
             `--hayalet-renk:${hr.metin}">`
           )
         })() +
@@ -1301,14 +1290,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kart.ilk .baslik { font-family: "Marka Display", "Marka Baslik", serif;`,
     `                      font-weight: 500; letter-spacing: -0.025em }`,
     `  .baslik strong { color: var(--kart-aksan); font-weight: inherit }`,
-    // ⚠ ⚠ **AÇIK ZEMİNDE VURGU BİR ÇİP, RENK DEĞİL.** Aksanı mürekkebe çevirmek kontrastı
-    // kurtardı ama vurguyu ÖLDÜRDÜ: başlıklar düzleşti, vurgulanan kelime gövdeden
-    // ayrışmaz oldu. Amber üstüne amber görünmüyordu, kâğıt üstüne amber 1,9:1 veriyordu
-    // (ölçüldü) — üçüncü yol: amber ZEMİN, mürekkep metin. Hem kontrast hem vurgu.
-    // Aynı çözüm slayt render'ında da bulunmuştu; iki yol aynı dersi ayrı ayrı öğrendi.
-    `  .kart.acik .baslik strong { background: var(--kart-cip); color: var(--kart-cip-metin);`,
-    `                              padding: 0.02em 0.14em; box-decoration-break: clone;`,
-    `                              -webkit-box-decoration-break: clone }`,
+    // ⚠ ⚠ **VURGU ÇİPİ EMEKLİ (D-318).** Açık zeminde vurgulanan kelime DOLU bir kutuya
+    // alınıyordu; gerekçesi ölçülmüştü (kâğıt üstüne eski amber aksan 1,9:1 veriyordu ve
+    // renkle vurgulanamıyordu). Markanın dizayn sistemi o gerekçeyi ortadan kaldırdı:
+    // kâğıt için AYRI bir aksan adımı var (#0b5bf0, 5.34:1). Ve sistemin anti-desen
+    // listesi açık — **aksan asla bir zemin ya da büyük yüzey değildir**. Bir kelimenin
+    // arkasındaki dolu kutu, karoselin en çok bakılan yerinde tam olarak o.
+    // Vurgu artık iki yüzeyde de aynı şekilde çalışıyor: RENK, kutu değil.
     // ⚠ Taban 34 px: ölçüldü, gövde 23–27 px'e düşüyordu ve 1080 px telefonda ~390 pt'ye
     // indiği için 25 px ≈ 9 pt oluyordu. Oran şablonun sesi, taban okunabilirlik şartı.
     `  .govde { margin-top: 44px;`,

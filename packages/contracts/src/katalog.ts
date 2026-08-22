@@ -91,11 +91,14 @@ export interface KatalogSablonu {
   readonly kullanilabilir: { readonly durum: boolean; readonly sebep: string }
 }
 
-const AMBER = 'var(--role-bg)'
+// ⚠ ⚠ **ZEMİN ADLARI ARTIK SİSTEMİN ADLARI (D-318).** `AMBER` diye bir zemin yoktu —
+// token uzun süre önce laciverte, sonra koyu kanvasa döndü ve ad kaldı. Yanlış adlandırılmış
+// bir sabit, okuyanı her seferinde bir kez yanıltıyor.
+const KANVAS = 'var(--role-bg)'
 const KAGIT = 'var(--role-surface)'
 const MUREKKEP = 'var(--role-line-edge)'
-const AMBER_ACIK = 'var(--ramp-marka-amber-200)'
-const AMBER_KOYU = 'var(--ramp-marka-amber-600)'
+const KART_KOYU = 'var(--role-kart-koyu)'
+const KART_ACIK = 'var(--role-kart-acik)'
 
 /**
  * Görsel taşıyan şablonlar — ÇALIŞIYOR.
@@ -294,8 +297,8 @@ export const DONEN: KatalogSablonu = {
   ad: 'Dönen — zemin her slaytta değişiyor, ürün daire maskede',
   kaynak: 'ornek-2',
   slayt: { min: 3, max: 6 },
-  zemin: AMBER,
-  rotasyon: [AMBER, AMBER_ACIK, KAGIT, AMBER_KOYU],
+  zemin: KANVAS,
+  rotasyon: [KANVAS, KART_ACIK, KAGIT, KART_KOYU],
   bant: {
     tip: 'yok',
     aciklama: 'Süreklilik renk rotasyonunun kendisi: her kart öncekinin devamı gibi okunuyor.',
@@ -379,8 +382,8 @@ export const AKAN_ALAN: KatalogSablonu = {
   ad: 'Akan alan — iki renk alanı, eğri sınır, dev hayalet rakam',
   kaynak: 'ornek-5',
   slayt: { min: 4, max: 8 },
-  zemin: AMBER,
-  rotasyon: [AMBER, KAGIT],
+  zemin: KANVAS,
+  rotasyon: [KANVAS, KAGIT],
   bant: {
     tip: 'alan',
     aciklama:

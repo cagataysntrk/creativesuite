@@ -13,18 +13,23 @@
   --ramp-gray-800: oklch(0.28 0.010 250);
   --ramp-gray-900: oklch(0.21 0.010 250);
   --ramp-gray-950: oklch(0.16 0.010 250);
-  --ramp-marka-bakir-200: oklch(0.92 0.070 90);
-  --ramp-marka-bakir-500: oklch(0.700 0.132 52);
-  --ramp-marka-bakir-600: oklch(0.72 0.150 82);
-  --ramp-marka-ink-800: oklch(0.225 0.008 250);
-  --ramp-marka-ink-950: oklch(0.055 0.004 250);
-  --ramp-marka-kagit: oklch(0.97 0.004 90);
-  --ramp-marka-mavi-200: oklch(0.900 0.030 248);
-  --ramp-marka-mavi-300: oklch(0.720 0.098 236);
-  --ramp-marka-mavi-500: oklch(0.620 0.132 242);
-  --ramp-marka-mavi-600: oklch(0.512 0.112 246);
-  --ramp-marka-mavi-700: oklch(0.408 0.092 252);
-  --ramp-marka-mavi-800: oklch(0.330 0.078 255);
+  --ramp-marka-ink-1000: oklch(0.105 0 0);
+  --ramp-marka-ink-200: oklch(0.920 0 0);
+  --ramp-marka-ink-450: oklch(0.680 0 0);
+  --ramp-marka-ink-500: oklch(0.655 0 0);
+  --ramp-marka-ink-60: oklch(0.950 0 0);
+  --ramp-marka-ink-600: oklch(0.520 0 0);
+  --ramp-marka-ink-650: oklch(0.485 0 0);
+  --ramp-marka-ink-850: oklch(0.270 0 0);
+  --ramp-marka-ink-880: oklch(0.190 0 0);
+  --ramp-marka-ink-900: oklch(0.205 0 0);
+  --ramp-marka-ink-950: oklch(0.165 0 0);
+  --ramp-marka-kagit: oklch(0.985 0 0);
+  --ramp-marka-kagit-0: oklch(1 0 0);
+  --ramp-marka-mavi-200: oklch(0.850 0.070 262);
+  --ramp-marka-mavi-300: oklch(0.760 0.117 262);
+  --ramp-marka-mavi-500: oklch(0.600 0.206 262);
+  --ramp-marka-mavi-600: oklch(0.530 0.234 262);
   --ramp-signal-danger: oklch(0.58 0.160 25);
   --ramp-signal-ok: oklch(0.68 0.130 195);
   --ramp-signal-warn: oklch(0.72 0.150 75);
@@ -50,17 +55,24 @@
 }
 
 [data-surface='kreatif'] {
-  --role-accent: var(--ramp-marka-bakir-500);
-  --role-bg: var(--ramp-marka-mavi-700);
-  --role-line-edge: var(--ramp-marka-ink-950);
-  --role-line-hair: var(--ramp-marka-ink-800);
+  --role-accent: var(--ramp-marka-mavi-500);
+  --role-bg: var(--ramp-marka-ink-1000);
+  --role-kart-acik: var(--ramp-marka-kagit-0);
+  --role-kart-koyu: var(--ramp-marka-ink-950);
+  --role-line-edge: var(--ramp-marka-ink-880);
+  --role-line-hair: var(--ramp-marka-ink-850);
+  --role-line-hair-acik: var(--ramp-marka-ink-200);
+  --role-metin-koyu: var(--ramp-marka-ink-60);
+  --role-soluk-acik: var(--ramp-marka-ink-600);
+  --role-soluk-koyu: var(--ramp-marka-ink-450);
   --role-state-danger: var(--ramp-signal-danger);
   --role-state-ok: var(--ramp-signal-ok);
   --role-state-warn: var(--ramp-signal-warn);
   --role-surface: var(--ramp-marka-kagit);
-  --role-text: var(--ramp-marka-ink-950);
-  --role-text-muted: var(--ramp-marka-ink-800);
-  --role-vurgu: var(--ramp-marka-mavi-300);
+  --role-text: var(--ramp-marka-ink-880);
+  --role-text-muted: var(--ramp-marka-ink-600);
+  --role-vurgu: var(--ramp-marka-mavi-500);
+  --role-vurgu-acik: var(--ramp-marka-mavi-600);
 }
 
 [data-surface='studio'] {

@@ -5,8 +5,8 @@
 
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
-aktif_faz: 17
-siradaki_adim: 15.9
+aktif_faz: 18
+siradaki_adim: 18.3
 son_guncelleme: 2026-08-22
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -47,6 +47,8 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **17.1** · metin ve tasarım kapıları hatta; `just onay --kapi` ile tek kapı onaylanıyor | 2026-08-18 |
 | **17.2** · komuta merkezi: görünür nav, koşu DETAYI (metin+slayt+kusur+onay), tıklama canlı | 2026-08-18 |
 | **17.3** · yayın anı bir KARAR: hat ölçümden saat ÖNERİR, ölçüm yoksa susar; `PUBLISH` seçimsiz koşmuyor (D-314) | 2026-08-22 |
+| **18.1** · tip ölçeği markanın dizayn sisteminden: dört aile, dört rol; el yazısı ve `wdth` emekli (D-317) | 2026-08-22 |
+| **18.2** · palet sistemden: chroma 0 nötrler, `#040404` kanvas, aksanın iki adımı; vurgu çipi emekli (D-318) | 2026-08-22 |
 
 ## Sıradaki adım
 

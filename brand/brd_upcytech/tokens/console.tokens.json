@@ -52,63 +52,91 @@
       }
     },
     "marka": {
-      "$description": "KREATİF rampa (§12.1 · D-253). Doygun ve bu KASITLI: kreatif yüzeyde chroma tavanı yok, renk kaynağı beyanlıdır. Konsolda KULLANILMAZ — orada ISA-101 geçerli ve `kreatif` dışındaki her yüzey tavana tabi.",
-      "$mavi": "MARKANIN KENDİ RENGİ — logodan ÖLÇÜLDÜ (D-276, D-284 ile DÜZELTİLDİ). `brand/brd_upcytech/logo/upcytech-mavi.png` içindeki tek mavi #0091ff = oklch(0.6515 0.192 251.5). İlk ölçüm #0090fc demişti: kenar yumuşatmalı bir pikselden alınmıştı. Token 'BİREBİR' iddiasında bulunuyor, dolayısıyla yaklaşık olamaz. Amber ise logodan gelmiyordu: token açıklaması onu açıkça 'referans karosellerdeki sarının kardeşi' diye tanımlıyordu, yani aksanımız MARKADAN DEĞİL STOK ŞABLONDAN gelmişti. Konsol gri rampası zaten 250 tonunda; marka mavisi 251 ve ikisi kendiliğinden uyumlu.",
-      "mavi-500": {
-        "$description": "VURGU mavisi — logonun birebir rengi DEĞİL, onunla UYUMLU. Logo #0091ff = oklch(0.6515 0.192 251.5); o ton büyük alanda cıvık duruyor ve paletin geri kalanını eziyordu. Chroma 0,192 → 0,132, ton 251,5 → 242: aynı aile, daha sakin. Siyah-beyaz logo zaten her zeminle uyuyor, yani birebir eşleşme bir zorunluluk değildi (D-295).",
-        "$value": "oklch(0.620 0.132 242)",
-        "$type": "color"
-      },
-      "mavi-600": {
-        "$description": "Orta kademe — vurgu ile zemin arasındaki basamak.",
-        "$value": "oklch(0.512 0.112 246)",
-        "$type": "color"
-      },
-      "mavi-800": {
-        "$description": "GECE MAVİSİ — büyük alanların zemini. Eskitmeli, doygunluğu düşük.",
-        "$value": "oklch(0.330 0.078 255)",
-        "$type": "color"
-      },
-      "mavi-700": {
-        "$description": "ESKİTMELİ LACİVERT — zemin ile gece mavisi arasındaki ara alan. Derinlik iki komşu tonun farkından doğuyor; tek düz renk her zaman düz durur.",
-        "$value": "oklch(0.408 0.092 252)",
-        "$type": "color"
-      },
-      "mavi-300": {
-        "$description": "Buzlu mavi — koyu zeminde ikincil vurgu, açık zeminde ana vurgu.",
-        "$value": "oklch(0.720 0.098 236)",
-        "$type": "color"
-      },
-      "mavi-200": {
-        "$description": "KÂĞIT MAVİSİ — açık zeminlerde alan ve leke; neredeyse nötr.",
-        "$value": "oklch(0.900 0.030 248)",
-        "$type": "color"
-      },
-      "bakir-500": {
-        "$description": "KARŞI aksan — BAKIR (D-295). Eski amber (oklch 0.80 0.156 87) markadan gelmiyordu; token açıklaması onu açıkça 'referans karosellerdeki sarının kardeşi' diye tanımlıyordu, yani stok şablondan mirastı. Bakır, eskitmeli lacivertin sıcak karşıtı: aynı yaşlandırılmış aile, sarının turistik parlaklığı olmadan.",
-        "$value": "oklch(0.700 0.132 52)",
-        "$type": "color"
-      },
-      "bakir-600": {
-        "$value": "oklch(0.72 0.150 82)",
-        "$type": "color"
-      },
-      "bakir-200": {
-        "$value": "oklch(0.92 0.070 90)",
+      "$description": "Marka rampası — MARKANIN KENDİ DİZAYN SİSTEMİNDEN (D-318). Nötrler CHROMA 0: sistem Dima'nın sıcak mürekkebini (hue 65) ve UpcyMan'in soğuk mavi-grisini (240) bilerek tersine çevirip gerçek nötre geçiyor. Koyu zemin #040404 — saf siyah DEĞİL: OLED halasyonu ve kenarda kaybolan hairline'lar yüzünden. Normal mesafede ikisi ayırt edilemez; panelin kenarında edilir. Mavi rampa OKLCH hue 262 ve her adım KONTRAST ÇÖZÜLEREK bulunmuş, seçilmemiş.",
+      "ink-1000": {
+        "$description": "KOYU KANVAS #040404 — karoselin zemini.",
+        "$value": "oklch(0.105 0 0)",
         "$type": "color"
       },
       "ink-950": {
-        "$description": "EN KOYU — ve artık GERÇEKTEN koyu (D-298). 0,15 idi, yani RGB ~30: siyah değil koyu gri. Referans karoselin (image copy 2) ton aralığı 0–255 ve std 79; bizimki 11–161 ve std 27 ölçüldü. Bir tasarimin DERIN durmasi siyahin gercekten siyah olmasina bagli — kırpılmış bir taban tüm kadrajı sisli yapıyor",
-        "$value": "oklch(0.055 0.004 250)",
+        "$description": "koyu yüzey #0e0e0e — kart.",
+        "$value": "oklch(0.165 0 0)",
         "$type": "color"
       },
-      "ink-800": {
-        "$value": "oklch(0.225 0.008 250)",
+      "ink-900": {
+        "$description": "koyu yükseltilmiş #171717 — panel.",
+        "$value": "oklch(0.205 0 0)",
+        "$type": "color"
+      },
+      "ink-850": {
+        "$description": "koyu hairline #262626 — ayrımı TAŞIYAN çizgi (gölge değil).",
+        "$value": "oklch(0.270 0 0)",
+        "$type": "color"
+      },
+      "ink-650": {
+        "$description": "koyu kontrol kenarı #5f5f5f — 3.21:1.",
+        "$value": "oklch(0.485 0 0)",
+        "$type": "color"
+      },
+      "ink-450": {
+        "$description": "koyu zeminde SOLUK metin #989898 — 7.12:1.",
+        "$value": "oklch(0.680 0 0)",
+        "$type": "color"
+      },
+      "ink-60": {
+        "$description": "koyu zeminde gövde metni #eeeeee — 17.74:1. Saf beyaz DEĞİL.",
+        "$value": "oklch(0.950 0 0)",
+        "$type": "color"
+      },
+      "ink-880": {
+        "$description": "kâğıt üstünde gövde metni #141414 — 17.69:1.",
+        "$value": "oklch(0.190 0 0)",
+        "$type": "color"
+      },
+      "ink-600": {
+        "$description": "kâğıt üstünde soluk metin #696969 — 5.28:1.",
+        "$value": "oklch(0.520 0 0)",
+        "$type": "color"
+      },
+      "ink-500": {
+        "$description": "kâğıt üstünde kontrol kenarı #909090 — 3.04:1.",
+        "$value": "oklch(0.655 0 0)",
+        "$type": "color"
+      },
+      "ink-200": {
+        "$description": "kâğıt hairline #e4e4e4.",
+        "$value": "oklch(0.920 0 0)",
         "$type": "color"
       },
       "kagit": {
-        "$description": "Kreatif beyaz — saf beyaz DEĞİL: baskıda ve ekranda saf beyaz parlar ve tipografiyi sertleştirir.",
-        "$value": "oklch(0.97 0.004 90)",
+        "$description": "AÇIK KANVAS #fafafa — kâğıt zeminli şablonlar.",
+        "$value": "oklch(0.985 0 0)",
+        "$type": "color"
+      },
+      "kagit-0": {
+        "$description": "açık yüzey #ffffff — kâğıt üstünde kart.",
+        "$value": "oklch(1 0 0)",
+        "$type": "color"
+      },
+      "$mavi": "MARKANIN KENDİ RENGİ — logodan ÖLÇÜLDÜ (D-276, D-284 ile DÜZELTİLDİ). `brand/brd_upcytech/logo/upcytech-mavi.png` içindeki tek mavi #0091ff = oklch(0.6515 0.192 251.5). İlk ölçüm #0090fc demişti: kenar yumuşatmalı bir pikselden alınmıştı. Token 'BİREBİR' iddiasında bulunuyor, dolayısıyla yaklaşık olamaz. Amber ise logodan gelmiyordu: token açıklaması onu açıkça 'referans karosellerdeki sarının kardeşi' diye tanımlıyordu, yani aksanımız MARKADAN DEĞİL STOK ŞABLONDAN gelmişti. Konsol gri rampası zaten 250 tonunda; marka mavisi 251 ve ikisi kendiliğinden uyumlu.",
+      "mavi-600": {
+        "$description": "UpcyTech DOLGU ve KÂĞIT ÜSTÜ metin #0b5bf0 — üstünde beyaz 5.57:1, kâğıtta 5.34:1.",
+        "$value": "oklch(0.530 0.234 262)",
+        "$type": "color"
+      },
+      "mavi-500": {
+        "$description": "KOYU ZEMİN aksanı #3477f9 — #040404 üstünde 5.03:1. Odak halkası da bu.",
+        "$value": "oklch(0.600 0.206 262)",
+        "$type": "color"
+      },
+      "mavi-300": {
+        "$description": "açık ton — yalnız ince ayrım için.",
+        "$value": "oklch(0.760 0.117 262)",
+        "$type": "color"
+      },
+      "mavi-200": {
+        "$description": "en açık ton — kâğıt üstü ince alanlar.",
+        "$value": "oklch(0.850 0.070 262)",
         "$type": "color"
       }
     }

@@ -1,41 +1,80 @@
 {
   "$description": "KREATİF yüzey (§12.1 · D-253). Instagram/LinkedIn çıktısının rolleri. Chroma tavanı BURADA UYGULANMAZ: ISA-101 gerekçesi izleme kabini içindir ve bir gönderide ters yönde çalışır. Tutarlılık token seviyesinde değil, BASILMIŞ PİKSELDE ölçülüyor (§11.1 ΔE + palet-dışı oran). Yalnız 2. kademe rolleri yeniden tanımlar — rampalar ve yapı ortak.",
   "role": {
+    "$description": "2. kademe — KREATİF rolleri. Markanın dizayn sistemi (D-318): yakın-monokrom zemin, TEK karneli aksan. Aksan ASLA zemin ya da büyük yüzey olmuyor; marka işaretinde, kapak vurgusunda ve süreklilik ögesinde görünüyor.",
     "bg": {
-      "$description": "KREATİF zemin — ESKİTMELİ LACİVERT (D-295). Vurgu mavisi (mavi-500) büyük alanda cıvık duruyordu: bir aksan rengi kadraj boyunca yayılınca aksan olmaktan çıkıyor. Zemin bir basamak koyu ve doygunluğu düşük; vurgu onun ÜSTÜNDE yaşıyor",
-      "$value": "{ramp.marka.mavi-700}",
-      "$type": "color"
-    },
-    "vurgu": {
-      "$description": "KOYU ZEMİNDE vurgu (D-296). Ayrı bir rol OLMAK ZORUNDA: vurgu eskiden `role.bg`in kendisiydi ve zemin eskitmeli lacivere inince (D-295) vurgu da onunla indi — mürekkep zemin üstünde 0,408 açıklıkta bir mavi GRİYE kaçıyor ve render'a bakınca 'iki katına', 'sorun', 'koyu' kelimeleri okunmuyordu. Zemin büyük alan içindir, vurgu okunmak içindir; ikisi aynı değer olamaz.",
-      "$value": "{ramp.marka.mavi-300}",
+      "$description": "KOYU KANVAS #040404. Eski eskitmeli lacivert (D-295) emekli: mavi bir zemin, aksanı büyük yüzeye yayıyordu ve sistemin anti-desen listesinin ikinci maddesi tam olarak bu.",
+      "$value": "{ramp.marka.ink-1000}",
       "$type": "color"
     },
     "surface": {
-      "$description": "Gövde slaytlarının zemini — ritim için zeminin dönüşmesi gerekiyor (§12.1).",
+      "$description": "KÂĞIT #fafafa — açık zeminli şablonların yüzeyi.",
       "$value": "{ramp.marka.kagit}",
       "$type": "color"
     },
+    "kart-koyu": {
+      "$description": "koyu kart #0e0e0e — zeminden BİR ADIM yukarı.",
+      "$value": "{ramp.marka.ink-950}",
+      "$type": "color"
+    },
+    "kart-acik": {
+      "$description": "açık kart #ffffff — kâğıttan bir adım yukarı.",
+      "$value": "{ramp.marka.kagit-0}",
+      "$type": "color"
+    },
+    "metin-koyu": {
+      "$description": "koyu zeminde gövde metni #eeeeee. Saf beyaz DEĞİL: sistem halasyon yüzünden 0.950'de duruyor.",
+      "$value": "{ramp.marka.ink-60}",
+      "$type": "color"
+    },
+    "soluk-koyu": {
+      "$description": "koyu zeminde soluk metin #989898 — 7.12:1.",
+      "$value": "{ramp.marka.ink-450}",
+      "$type": "color"
+    },
+    "soluk-acik": {
+      "$description": "kâğıt üstünde soluk metin #696969 — 5.28:1.",
+      "$value": "{ramp.marka.ink-600}",
+      "$type": "color"
+    },
     "line-hair": {
-      "$value": "{ramp.marka.ink-800}",
+      "$description": "KOYU HAIRLINE #262626. Sistemin ayrım kuralı: yüzey adımı + 1px hairline; gölge YALNIZ gerçekten yüzen şeye (popover, dialog). Bir kart yüzmez.",
+      "$value": "{ramp.marka.ink-850}",
+      "$type": "color"
+    },
+    "line-hair-acik": {
+      "$description": "kâğıt hairline #e4e4e4.",
+      "$value": "{ramp.marka.ink-200}",
       "$type": "color"
     },
     "line-edge": {
-      "$value": "{ramp.marka.ink-950}",
+      "$description": "kâğıt üstünde mürekkep #141414 — 17.69:1.",
+      "$value": "{ramp.marka.ink-880}",
       "$type": "color"
     },
     "text": {
-      "$description": "Kehribar zemin üstünde mürekkep: kontrast hesaplanır, göze bakılmaz (§12.1).",
-      "$value": "{ramp.marka.ink-950}",
+      "$description": "kâğıt üstünde gövde metni.",
+      "$value": "{ramp.marka.ink-880}",
       "$type": "color"
     },
     "text-muted": {
-      "$value": "{ramp.marka.ink-800}",
+      "$description": "kâğıt üstünde soluk metin.",
+      "$value": "{ramp.marka.ink-600}",
+      "$type": "color"
+    },
+    "vurgu": {
+      "$description": "KOYU ZEMİN aksanı #3477f9 — 5.03:1. Karneli: kapakta bir kelime, süreklilik ögesi, sayaç.",
+      "$value": "{ramp.marka.mavi-500}",
+      "$type": "color"
+    },
+    "vurgu-acik": {
+      "$description": "KÂĞIT üstü aksan #0b5bf0 — 5.34:1. Aynı mavi kâğıtta parlıyor, koyuda soluyor: iki ayrı adım şart.",
+      "$value": "{ramp.marka.mavi-600}",
       "$type": "color"
     },
     "accent": {
-      "$description": "KARŞI aksan: mavi zemin üstünde sıcak vurgu (D-276). Referans tasarımlar iki aksanlı çalışıyor (turuncu+lacivert); tek renkli bir palet cansız kalıyor. Amber birincil olmaktan çıktı ama SİLİNMEDİ — mavinin karşıtı olarak işi var.",
-      "$value": "{ramp.marka.bakir-500}",
+      "$description": "eş anlamlı — eski çağıranlar için.",
+      "$value": "{ramp.marka.mavi-500}",
       "$type": "color"
     },
     "state-warn": {

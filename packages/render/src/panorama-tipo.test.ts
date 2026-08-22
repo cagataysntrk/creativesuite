@@ -114,11 +114,29 @@ describe('zeminden türeyen renk', () => {
     expect(html).not.toMatch(/\.kilometre-etiket[^}]*color:\s*#/)
   })
 
-  it('kâğıt zeminde metin MÜREKKEP, koyu zeminde YÜZEY', () => {
+  // ⚠ ⚠ **KOYU ZEMİN METNİ ARTIK KENDİ TOKEN'I (D-318).** Eskiden "açık olan neyse metin
+  // odur" diye kâğıt rengine bağlıydı; sistem ikisini ayırıyor — kâğıt #fafafa, koyu
+  // zemin metni #eeeeee. Fark küçük ve kasıtlı: saf beyaza yakın metin OLED'de halasyon
+  // yapıyor. Test iki YÜZEYİN AYRI token okuduğunu ölçüyor.
+  it('kâğıt zeminde metin MÜREKKEP, koyu zeminde kendi metin token`ı', () => {
     const acik = panoramaHtml(belge({ zemin: 'var(--role-surface)' }))
     const koyu = panoramaHtml(belge({ zemin: 'var(--role-line-edge)' }))
     expect(acik).toContain('--kart-metin:var(--role-line-edge)')
-    expect(koyu).toContain('--kart-metin:var(--role-surface)')
+    expect(koyu).toContain('--kart-metin:var(--role-metin-koyu')
+  })
+
+  // ⚠ Kâğıtta aksan artık MAVİ (5.34:1), mürekkep değil: sistemin kâğıt için ayrı bir
+  // aksan adımı var ve karosel tek bir aksanla konuşuyor.
+  it('kâğıt zeminde aksan MAVİ — karosel tek aksanla konuşuyor', () => {
+    const acik = panoramaHtml(belge({ zemin: 'var(--role-surface)' }))
+    expect(acik).toContain('--kart-aksan:var(--role-vurgu-acik')
+  })
+
+  // ⚠ Vurgu çipi emekli: aksan asla bir zemin ya da büyük yüzey değil.
+  it('vurgu bir KUTU değil RENK — çip kalmadı', () => {
+    const html = panoramaHtml(belge({ zemin: 'var(--role-surface)' }))
+    expect(html).not.toContain('--kart-cip')
+    expect(html).toContain('.baslik strong { color: var(--kart-aksan)')
   })
 })
 

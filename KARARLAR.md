@@ -559,3 +559,37 @@ yüzeylerinde; karosel bir pazarlama yüzeyi. Beşinci aile hâlâ kırmızı.
 **Bedeli.** Dört yüz ailesi gömülü olarak taşınıyor (latin + latin-ext, sekiz dosya,
 toplam ~426 KB). Eski dört dosya (Inter, Archivo, Bricolage, Caveat) emekli oluyor;
 `scripts/font-getir.mjs` listeyi geri koyan tek satırla onları da geri getirebilir.
+
+## D-318 · Palet dizayn sisteminden: yakın-monokrom zemin, TEK karneli aksan (2026-08-22)
+
+**Bulgu.** Kreatif yüzey kendi paletini taşıyordu: eskitmeli lacivert zemin (D-295),
+bakır aksan, sıcak kâğıt. Markanın gerçek dizayn sistemi bunların üçünü de başka yere
+koyuyor ve gerekçesi ölçülü:
+
+- **Nötrler chroma 0.** Sistem, Dima'nın sıcak mürekkebini (hue 65) ve UpcyMan'in soğuk
+  mavi-grisini (240) BİLEREK tersine çevirip gerçek nötre geçiyor. Zemin `#040404` —
+  saf siyah değil: OLED halasyonu ve panel kenarında kaybolan hairline'lar yüzünden.
+- **Aksan ASLA zemin değil.** Anti-desen listesinin ikinci maddesi: *"aksanı bir arka
+  plan ya da büyük yüzey olarak kullanma"*. Bizim iki şablonumuzun zemini mavinin
+  kendisiydi.
+- **Aksanın iki adımı var.** `#0b5bf0` kâğıt üstünde (5.34:1), `#3477f9` koyu zeminde
+  (5.03:1). Tek bir değer ikisini de karşılayamıyor — sistemin "split roles" tespiti.
+
+**Karar.** Kreatif rolleri sistemin merdivenine bağlandı: kanvas `#040404`, kart
+`#0e0e0e`, hairline `#262626`, koyu zemin metni `#eeeeee`, soluk `#989898`; kâğıt
+`#fafafa`, mürekkep `#141414`, soluk `#696969`, hairline `#e4e4e4`.
+
+**Üç şey emekli oldu:**
+
+1. **Vurgu çipi.** Açık zeminde vurgulanan kelime DOLU bir kutuya alınıyordu; gerekçesi
+   ölçülmüştü (eski amber aksan kâğıtta 1,9:1). Kâğıt için ayrı aksan adımı gelince o
+   gerekçe kalktı — ve karoselin en çok bakılan yerindeki dolu kutu, "aksan asla yüzey
+   değildir" kuralının tam ihlaliydi. Vurgu artık iki yüzeyde de RENK.
+2. **Koyu zemin metninin kâğıt rengine bağlı olması.** "Açık olan neyse metin odur"
+   varsayımıydı; sistem ikisini ayırıyor ve farkı gerekçeliyor.
+3. **Alfa harmanlı soluk metin.** `color-mix(… 72%)` "aşağı yukarı soluk" demekti;
+   sistem "şu kadar soluk, şu kadar kontrast" diyor ve değer ölçülmüş bir adım.
+
+**Ölçüm.** Altı şablon yeniden çizildi ve bakıldı: mavi zeminler koyu kanvasa döndü,
+aksan yalnız kapak vurgusunda ve süreklilik ögesinde kaldı, kâğıt zeminli iki şablon ilk
+kez marka mavisini taşıyabiliyor. 44 kapı yeşil.

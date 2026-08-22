@@ -104,8 +104,8 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
           { renk: '--ramp-marka-ink-950', konum: 100 },
         ],
       },
-      { tip: 'isik', x: 12, y: 22, capX: 46, capY: 74, renk: '--ramp-marka-bakir-500', guc: 16 },
-      { tip: 'isik', x: 86, y: 78, capX: 40, capY: 58, renk: '--ramp-marka-bakir-600', guc: 12 },
+      { tip: 'isik', x: 12, y: 22, capX: 46, capY: 74, renk: '--ramp-marka-mavi-500', guc: 16 },
+      { tip: 'isik', x: 86, y: 78, capX: 40, capY: 58, renk: '--ramp-marka-mavi-600', guc: 12 },
       { tip: 'vinyet', guc: 30 },
     ],
   },
@@ -426,7 +426,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       // gerekiyor. ⚠ Düşüş de yumuşatıldı (`capX` 84 → 62): geniş ve sert kenarlı bir
       // havuz, dar ve yumuşak olandan daha çok "kutu" üretiyor.
       { tip: 'isik', x: 22, y: 16, capX: 62, capY: 52, renk: '--ramp-marka-mavi-300', guc: 34 },
-      { tip: 'isik', x: 88, y: 74, capX: 46, capY: 44, renk: '--ramp-marka-bakir-500', guc: 9 },
+      { tip: 'isik', x: 88, y: 74, capX: 46, capY: 44, renk: '--ramp-marka-mavi-500', guc: 9 },
       { tip: 'vinyet', guc: 42 },
     ],
   },
@@ -624,7 +624,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
           { renk: '--ramp-gray-100', konum: 100 },
         ],
       },
-      { tip: 'isik', x: 78, y: 18, capX: 44, capY: 52, renk: '--ramp-marka-bakir-200', guc: 40 },
+      { tip: 'isik', x: 78, y: 18, capX: 44, capY: 52, renk: '--ramp-marka-mavi-200', guc: 40 },
     ],
   },
   bant: { tip: 'yok' },
@@ -697,7 +697,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
-      zemin: 'var(--ramp-marka-bakir-200)',
+      zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
       ustBaslik: 'ÖMÜR',
@@ -723,7 +723,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
-      zemin: 'var(--ramp-marka-mavi-700)',
+      zemin: 'var(--ramp-marka-ink-950)',
     },
   ],
 }
@@ -815,7 +815,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
-      zemin: 'var(--ramp-marka-bakir-200)',
+      zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
       ustBaslik: 'RİTİM',
