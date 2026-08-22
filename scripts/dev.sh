@@ -35,13 +35,25 @@ API_PID=$!
 ( cd apps/ui && "$ROOT/node_modules/.bin/vite" ) &
 VITE_PID=$!
 
+# ⚠ ⚠ **DÜZENLEYİCİ DE BURADAN KALKIYOR — üç süreç TEK komut.** Depo sahibi: *"5173
+# çalışıyor ama 4321 yani editör çalışmıyor, bunlar ikisi tek gibi çalışmalı."* Haklı:
+# panelden *"bu koşuyu editörde aç"* bağlantısı 4321'e gidiyor ve o port kapalıysa
+# bağlantı ölü bir düğme oluyor. Ayrı komutla kaldırmayı hatırlamak bir kullanıcı
+# görevi değil, bir tasarım hatasıdır.
+#
+# ⚠ Derleme burada BİR KEZ yapılıyor: `just duzenle` kendi `tsc -b`sini koşuyordu ve iki
+# derleme aynı `dist`e yazarken birbirini ezebiliyor. Sunucu zaten derlenmiş dist'i
+# okuyor; düzenleyici de öyle.
+node scripts/duzenleyici.mjs &
+EDITOR_PID=$!
+
 # Biri ölürse diğeri de ölür: yarım ayakta bir sistem, "çalışıyor" sanılan bir sistemdir.
 kapat() {
-  kill "$API_PID" "$VITE_PID" 2>/dev/null
-  wait "$API_PID" "$VITE_PID" 2>/dev/null
+  kill "$API_PID" "$VITE_PID" "$EDITOR_PID" 2>/dev/null
+  wait "$API_PID" "$VITE_PID" "$EDITOR_PID" 2>/dev/null
   exit 0
 }
 trap kapat INT TERM
 
-wait -n "$API_PID" "$VITE_PID"
+wait -n "$API_PID" "$VITE_PID" "$EDITOR_PID"
 kapat
