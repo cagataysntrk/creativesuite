@@ -1,0 +1,242 @@
+{
+  "runId": "run_01a018ff-72bc-7c66-8922-ba38833e6d1c",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "a1224a900b0120e32d2a380444dc2a6541ff15fb",
+  "registryCommit": "a1224a900b0120e32d2a380444dc2a6541ff15fb",
+  "createdAt": "2026-08-19T07:50:48.796Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"}]",
+        "islenmis_konu_sayisi": "81",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:49:50.424Z",
+      "finishedAt": "2026-08-19T07:49:50.424Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"}]",
+        "islenmis_konu_sayisi": "81",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:49:50.424Z",
+      "finishedAt": "2026-08-19T07:49:56.814Z",
+      "output": {
+        "konu": "Veriyi varsayan araçlar ve Excel",
+        "gerekce": "Veriyi varsayan araçlar ve Excel konusu, markanın kanıtlı deneyimine dayanan somut, gösterilebilir bir örnek sunuyor."
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"}]",
+        "islenmis_konu_sayisi": "81",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-19T07:49:56.814Z",
+      "finishedAt": "2026-08-19T07:49:56.816Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\"}]",
+        "islenmis_konu_sayisi": "81",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-19T07:49:56.816Z",
+      "finishedAt": "2026-08-19T07:50:48.795Z",
+      "output": {
+        "lines": [
+          "Araç veri ister, elinde sadece Excel var",
+          "Çoğu araç veri zaten temiz ve hazır duruyormuş gibi kurulur; gerçekte o yer Excel dosyası ve vardiya defteridir.",
+          "Yeni sistem kurulunca ilk iş, yıllardır tutulan Excel'i satır satır **elle aktarmak** olur, kimse bu işi üstlenmek istemez.",
+          "Aktarım yarım kalınca ekip iki kaynağı birden takip eder, biri güncel biri değil, hangisine güvenileceği belli olmaz.",
+          "Doğru soru araç seçmek değil, önce veriyi **tek bir yerde** toplamayı kurmaktır.",
+          "Excel'ini elden çıkarma, önce **nasıl kullandığını** bize göster.",
+          "KARŞILAŞTIRMA: Veri nereden başlar",
+          "ÖNCE: Excel ve vardiya defteri",
+          "- Serbest metin, sabit alan yok",
+          "- Tek kişinin hafızasında",
+          "- Yeni araca elle taşınır",
+          "SONRA: Tek kaynaktan yapılandırılmış veri",
+          "- Aynı alan, herkeste aynı",
+          "- Araç veriyi doğrudan okur",
+          "- Aktarım hatası yok"
+        ]
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "metin-onayi",
+  "stoppedAt": "sablon-uyarla"
+}

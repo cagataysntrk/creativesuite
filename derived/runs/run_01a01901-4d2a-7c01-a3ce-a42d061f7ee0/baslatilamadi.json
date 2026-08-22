@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-19T07:51:51.684Z",
+  "komut": "just uret instagram-karosel --konu-sec --run run_01a01901-4d2a-7c01-a3ce-a42d061f7ee0 --plan-digest sha256:47e2ff44bffb1913f43a4fb3c3305dc12ae2002c78dace4e0b1c576dadda26b5",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n✗ konu seçilemez: geçmişte işlenmemiş aday kayıt kalmadı.\n    Yeni bir corpus kaydı ekle ya da konuyu elle yaz.\n"
+}
