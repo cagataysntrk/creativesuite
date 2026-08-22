@@ -222,17 +222,27 @@ describe('SIGTERM yutan + boruyu devreden süreç', () => {
   it('sinyal hiçbir şey yapmasa BİLE dönüyor — zaman aşımı bir garantidir', async () => {
     const fixture = join(import.meta.dirname, 'fixtures/olmez-boru.mjs')
     const cocuklar: NodeJS.Signals[] = []
+    // ⚠ ⚠ **BU TEST SÜREÇ SIZDIRIYORDU: 87 tane birikmişti.** Sinyali yutmak ölçümün
+    // KENDİSİ (süreç ölmese bile dönmeli) ama ölçüm bitince süreç hâlâ yaşıyor ve
+    // kimse onu öldürmüyordu. Her tam test koşusu makinede bir ölümsüz node bırakıyor;
+    // "bir ay ihmal edilse de çalışır" (Yasa 12) diyen bir depoda bu, bir ay sonra
+    // yüzlerce süreç demek. Kimlik dikişten geliyor ve temizlik ÖLÇÜMDEN SONRA.
+    let cocukPid: number | undefined
     const r = await spawnProcess(process.execPath, [fixture], {
       env: {},
       timeoutMs: 300,
       graceMs: 200,
       // Sinyal YUTULUYOR: süreç ölmez, hiçbir olay gelmez.
-      sinyalGonder: (s) => {
+      sinyalGonder: (s, pid) => {
         cocuklar.push(s)
+        cocukPid = pid
       },
     })
     expect(r.timedOut).toBe(true)
     expect(cocuklar).toEqual(['SIGTERM', 'SIGKILL'])
     expect(r.stdout).toContain('basladi')
+    // Ölçüm bitti: yutulan sinyal artık GERÇEKTEN gönderiliyor.
+    expect(cocukPid).toBeGreaterThan(0)
+    if (cocukPid !== undefined) process.kill(cocukPid, 'SIGKILL')
   }, 8_000)
 })

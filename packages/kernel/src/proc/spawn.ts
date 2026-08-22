@@ -33,7 +33,12 @@ export interface SpawnOptions {
    * Alan "sinyal iletilmedi" durumunu modelliyor ve o durum uydurma değil: gerçek
    * koşuda çocuk çoktan ölmüştü, `kill` hiçbir şey yapmadı ve hiçbir olay gelmedi.
    */
-  readonly sinyalGonder?: (sinyal: NodeJS.Signals) => void
+  /**
+   * ⚠ Süreç kimliği de veriliyor: sinyali YUTAN bir dikiş, süreci gerçekten
+   * öldürmek istediğinde tutamağa muhtaç. Kimliksiz bir dikiş, testin kasten
+   * öldürmediği süreci TEMİZLEYEMEZ — ölçüldü, 87 tane birikmişti.
+   */
+  readonly sinyalGonder?: (sinyal: NodeJS.Signals, pid: number | undefined) => void
   /**
    * Çıktı GELDİĞİ ANDA haber verir — biriktirip sonunda vermek değil.
    *
@@ -130,11 +135,14 @@ export const spawnProcess = (
     let sonTimer: NodeJS.Timeout | null = null
     let drainTimer: NodeJS.Timeout | null = null
     const gonder = opts.sinyalGonder ?? ((sinyal: NodeJS.Signals) => void child.kill(sinyal))
+    const sinyalle = (sinyal: NodeJS.Signals): void => {
+      gonder(sinyal, child.pid)
+    }
     const oldur = (): void => {
       if (bitti) return
-      gonder('SIGTERM')
+      sinyalle('SIGTERM')
       killTimer = setTimeout(() => {
-        if (!bitti) gonder('SIGKILL')
+        if (!bitti) sinyalle('SIGKILL')
       }, grace)
       // Bu zamanlayıcı süreci canlı tutmasın: kapanışta bekleyen bir timer,
       // "bir ay ihmal edilse de çalışır" için gereksiz bir kilit noktasıdır.
