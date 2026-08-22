@@ -188,10 +188,13 @@ export const SAHNE: KatalogSablonu = {
       // yetmedi: olumsuzlama görsel modelinde zayıf bir garantidir. Garanti yapıya
       // gömülür — üstü yazı taşımaya müsait bir özne İSTENMEZ (aynı ders: şeffaf
       // arka plan rica edilmiyor, düz siyah isteniyor).
-      'single subject, full body, plain solid black background free of gradient or ' +
-      'surface detail, strong rim light on the subject only, arms held away from ' +
-      'the torso and extending beyond the frame, body fully in frame, ' +
-      'every surface in frame plain and unmarked',
+      // ⚠ ⚠ **ESKİ HÂLİ İNSAN VARSAYIYORDU** (*"arms held away from the torso"*,
+      // *"body fully in frame"*) ve konu ne olursa olsun modelden bir gövde istiyordu.
+      // Taban artık yalnız TEKNİK sözleşme: tek özne, düz siyah zemin (alfa oradan
+      // türetiliyor), tek yönlü ışık, sade yüzey. ÖZNEYE agent karar veriyor.
+      'single subject, plain solid black background free of gradient or surface ' +
+      'detail, strong rim light on the subject only, the subject reaching past one ' +
+      'edge of the frame, every surface in frame plain and unmarked',
     // ⚠ ⚠ **VARYANTLAR ARTIK YALNIZ POZ DEĞİL, ÖZNE TÜRÜ DE (T4 · T10).** Depo sahibi:
     // *"adam imgeleri sadece adam değil, konu neyse onun 3B görseli de olabilir"* ve
     // *"figürler aynı ailenin klonları gibi"*. İnsan pozu döndürmek çeşitlilik değil,
@@ -213,11 +216,30 @@ export const SAHNE: KatalogSablonu = {
     // ⚠ **`humanoid`, `robot`, `android` ve `chrome` AÇIKÇA yasak:** soyut bir konuda
     // ("veri katmanı") modelden "konudan bir nesne" istemek insansı krom bir robot
     // getiriyor — ölçüldü. Geri kazanım hattı anlatan bir markada bu konu dışıdır.
+    // ⚠ ⚠ **VARYANTLAR ARTIK ÖZNE DEĞİL KADRAJ SÖYLÜYOR — ve bunu ÇIKTI KALİTESİ
+    // dayattı.** Depo sahibi: *"insanlar ya da görseller hep bozuk, AI modeller
+    // normalde çok daha iyi sonuç veriyor; herhalde bizim şablon veya istem bozuk.
+    // İlla adam illa görsel olacak diye bir şey yok, konuya uygun olmalı."*
+    //
+    // Eski varyantlar ÖZNEYİ dikte ediyordu: *"a worker with arms open wide"*,
+    // *"two workers at a control cabinet"*. Konu "veri katmanı" olsa bile model bir
+    // işçi çizmek zorundaydı ve konuya ait olmayan bir figürü zorlamak, modelin en
+    // kötü çalıştığı yerdir — sonuç bozuk eller, bozuk yüzler, anlamsız sahneler.
+    //
+    // Artık varyant yalnız KADRAJI söylüyor (açı, mesafe, çerçeveyi aşma) ve ÖZNEYE
+    // agent karar veriyor: konu neyi gerektiriyorsa o — bir kişi, bir makine parçası,
+    // bir malzeme yığını, soyut bir hacim. Değişmeyen şey GÖRSEL DİL: tek yönlü ışık,
+    // mat yüzey, mürekkep tarama, düz siyah zemin. Seri bütünlüğü üsluptan gelir,
+    // özneden değil.
+    //
+    // ⚠ `humanoid`, `robot`, `android` ve `chrome` hâlâ AÇIKÇA yasak: soyut bir konuda
+    // modelden nesne istemek insansı krom bir robot getiriyor (ölçüldü) ve geri kazanım
+    // hattı anlatan bir markada bu konu dışı.
     varyantlar: [
-      'a worker with arms open wide presenting toward the right, full body, worn work clothes with visible weave and creases, high contrast monochrome illustration with visible ink hatching, matte surfaces only',
-      'a single piece of industrial equipment from the topic, three quarter angle, no person, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection',
-      'two workers at a control cabinet, one pointing forward with a straight arm, side profile, low camera angle, high contrast monochrome illustration with visible ink hatching, matte surfaces only',
-      'a worker looking toward the right with folded arms, waist up, full frame, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no chrome and no glossy reflection',
+      'framed head-on and centred, subject extending beyond the frame on the right, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
+      'three quarter angle, subject filling the lower two thirds, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
+      'low camera angle looking up, subject cropped at the left edge, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
+      'close crop on the most telling part of the subject, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
     ],
   },
   baslikPayi: 1,
@@ -250,10 +272,11 @@ export const MEMPHIS: KatalogSablonu = {
     briefTemeli:
       'single person, waist up, plain solid black background free of surface detail, ' +
       'even lighting on the subject, lively posture, clothing plain and unmarked',
+    // ⚠ Varyant KADRAJ ve MALZEME söylüyor; özneyi konu belirliyor (bkz. `SAHNE`).
     varyantlar: [
-      'a seated figure leaning forward, full body, clothing with visible weave, soft rim light',
-      'a 3d clay render of an object from the topic, isometric, matte pastel material, soft contact shadow, no person',
-      'a figure walking, stride caught mid step, side profile, grainy film look',
+      'seated pose or resting position, leaning into the frame, matte surfaces with visible weave, soft rim light',
+      'isometric 3d clay render of the subject, matte pastel material, soft contact shadow',
+      'caught mid movement, side profile, grainy film look, matte surfaces',
     ],
   },
   baslikPayi: 0.82,
@@ -287,11 +310,13 @@ export const DONEN: KatalogSablonu = {
     briefTemeli:
       'single product, centred, plain seamless backdrop, soft studio lighting, ' +
       'composed for a circular crop, every surface in frame plain and unmarked',
+    // ⚠ Görsel dili varyanta da yazılıyor: `briefTemeli` stüdyo ışığını söylüyor ama
+    // varyant onu tekrar etmezse model kadrajı değiştirirken üslubu da kaydırıyor.
     varyantlar: [
-      'front elevation, centred in frame',
-      'three quarter angle from the upper left',
-      'close macro of the surface detail',
-      'top down flat view from directly above',
+      'front elevation, centred in frame, soft studio lighting, matte surfaces',
+      'three quarter angle from the upper left, soft studio lighting, matte surfaces',
+      'close macro of the surface detail, soft studio lighting, matte surfaces',
+      'top down flat view from directly above, soft studio lighting, matte surfaces',
     ],
   },
   baslikPayi: 0.86,
@@ -331,10 +356,11 @@ export const EDITORYAL: KatalogSablonu = {
     // ⚠ ⚠ **ÜÇ YUVA, ÜÇ VARYANT.** İki varyant kalsaydı üçüncü görsel adımının brief'i
     // BOŞ döner, adım atlanır ve üçüncü yuva yer tutucu kalırdı — ilan ile gerçek yine
     // ayrışırdı. `katalog-ornek.test.ts` artık eşitliği zorluyor.
+    // ⚠ Varyant KADRAJ söylüyor; "iki el" gibi bir ifade özneyi insana sabitliyordu.
     varyantlar: [
-      'wide establishing view of the workspace',
-      'tight detail of two hands at work',
-      'the subject turning away, seen from behind at shoulder height',
+      'wide establishing view, calm natural light, matte surfaces',
+      'tight detail of the point where the work actually happens, natural light, matte surfaces',
+      'seen from behind at shoulder height, turning away from the camera, natural light, matte surfaces',
     ],
   },
   baslikPayi: 0.38,

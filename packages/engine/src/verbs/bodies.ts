@@ -1889,11 +1889,29 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       // ta kendisi. Atlama makinesi zaten var; yeni bir kaçış yolu açmaya gerek yok.
       if (sira > 1 && sira > varyantlar.length) return ''
       const varyant = varyantlar[sira - 1]
+      // ⚠ ⚠ **ÖZNEYE AGENT KARAR VERİYOR — ve bunu ÇIKTI KALİTESİ dayattı.** Depo
+      // sahibi: *"insanlar ya da görseller hep bozuk; AI modeller normalde çok daha iyi
+      // sonuç veriyor. İlla adam illa görsel olacak diye bir şey yok, konuya uygun
+      // olmalı. Biz ne istediğimizde net olalım, çıktı zaten güzel gelir."*
+      //
+      // Eski istem özneyi DİKTE ediyordu (`a worker with arms open wide`). Konu "veri
+      // katmanı" olsa bile model bir işçi çizmek zorundaydı; konuya ait olmayan bir
+      // figürü zorlamak, modelin en kötü çalıştığı yerdir — bozuk eller, bozuk yüzler,
+      // anlamsız sahneler. Artık şablon GÖRSEL DİLİ ve KADRAJI söylüyor, özneyi konu
+      // belirliyor: bir kişi, bir makine parçası, bir malzeme, soyut bir hacim.
+      //
+      // ⚠ Seri bütünlüğü ÜSLUPTAN geliyor, özneden değil: dört slaytın dördü de aynı
+      // ışığı, aynı mat yüzeyi, aynı mürekkep taramasını taşıyor.
       return [
         'write one short image generation brief in english, lowercase only.',
-        `keep this base description and add detail from the topic: ${kayit.gorsel.briefTemeli}`,
-        // ⚠ Varyant KADRAJI söylüyor, konuyu değil: aynı konudan N özdeş görsel çıkmasın.
-        ...(varyant === undefined ? [] : [`frame the subject like this: ${varyant}`]),
+        'YOU choose what to depict — the topic decides, not a template:',
+        '  · if the topic is about people and their work, a single figure is right.',
+        '  · if it is about a machine, a material or a measurement, show THAT thing.',
+        '  · if it is abstract, show a physical object that stands for it.',
+        'choose the one subject a reader would recognise instantly for this topic.',
+        `keep this technical base: ${kayit.gorsel.briefTemeli}`,
+        // ⚠ Varyant KADRAJI söylüyor, ÖZNEYİ değil: aynı konudan N özdeş görsel çıkmasın.
+        ...(varyant === undefined ? [] : [`frame it like this: ${varyant}`]),
         `topic: ${konu}`,
         'describe only the subject, the lighting and the background surface.',
         'answer with the brief sentence alone.',

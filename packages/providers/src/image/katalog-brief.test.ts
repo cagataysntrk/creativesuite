@@ -55,3 +55,32 @@ describe('katalog briefleri', () => {
     }
   })
 })
+
+// ── özneyi ŞABLON değil KONU belirliyor (çıktı kalitesi) ───────────────────
+//
+// ⚠ ⚠ Depo sahibi: *"insanlar ya da görseller hep bozuk; illa adam illa görsel olacak
+// diye bir şey yok, konuya uygun olmalı."* Eski varyantlar özneyi dikte ediyordu
+// (`a worker with arms open wide`) ve konu "veri katmanı" olsa bile model bir işçi
+// çizmek zorundaydı — konuya ait olmayan bir figürü zorlamak, modelin en kötü
+// çalıştığı yer.
+describe('katalog varyantları', () => {
+  const gorselli = KATALOG.filter((s) => s.gorsel !== null)
+
+  it('varyantlar ÖZNE dayatmıyor — kadraj söylüyor', () => {
+    for (const s of gorselli) {
+      for (const v of s.gorsel?.varyantlar ?? []) {
+        // ⚠ Kelime listesi değil ROL ölçülüyor: "worker/technician/person" bir ÖZNE
+        // adıdır ve varyantın işi özne seçmek değil.
+        expect(v).not.toMatch(/\b(worker|technician|engineer|person|figure|man|woman)s?\b/)
+      }
+    }
+  })
+
+  it('görsel DİLİ hâlâ ortak — seri bütünlüğü üsluptan geliyor', () => {
+    for (const s of gorselli) {
+      for (const v of s.gorsel?.varyantlar ?? []) {
+        expect(v).toMatch(/monochrome|matte|studio|natural light|rim light/)
+      }
+    }
+  })
+})
