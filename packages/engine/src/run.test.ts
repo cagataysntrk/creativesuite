@@ -16,6 +16,8 @@ import type { Pipeline } from '@suite/registry'
 import { initLedger } from './cost/ledger.js'
 import { readFrozenPlan } from './manifest-writer.js'
 import { runPipeline, DEFTER_ANAHTARLARI } from './run.js'
+import { adimCiktisiniYazDurum } from './adim-ciktisi.js'
+import { runOutputDir } from './manifest-writer.js'
 import { readManifest } from './manifest-writer.js'
 import type { ProviderPricing } from './router/route.js'
 
@@ -432,6 +434,58 @@ describe('bütçe tavanı hattı KİLİTLİYOR (D-17)', () => {
     expect(r.errors[0]?.error.code).toBe('NO_PROVIDER')
     const gerekce = r.errors[0]?.error.details?.['rejected'] as string[]
     expect(gerekce[0]).toContain('premium şeridinde değil')
+  })
+
+  // ⚠ ⚠ **ANAHTARSIZ SÜRDÜRME ÜRETİLMİŞ GÖRSELLERİ SİLİYORDU.** Gerçek koşu
+  // (`run_01a02989`): panelden onaylanıp sürdürülen bir hatta dört `gorsel-uret` adımı
+  // da `NO_PROVIDER` ile düştü (`sops exec-env` yok → "yerel önkoşul sağlanmadı`).
+  // Adımlar `optional` olduğu için hat DEVAM etti, `COMPOSE` görselsiz bir belge kurdu
+  // ve `RENDER` onu yeniden çizdi: insanın onayladığı kesik özneler yerine dört YER
+  // TUTUCU. Bir sürdürme, tamamlanmış bir işi BOZDU.
+  it('sağlayıcı yok ama çıktı DEFTERDE — adım düşmüyor, defterden oynatılıyor', async () => {
+    // Defterde duran çıktı: byte'ları `derived/blobs`ta olan bir görselin kaydı gibi.
+    adimCiktisiniYazDurum(runOutputDir(tmp.path, RUN), 'uret', { url: 'defterden' })
+    let gorulen: unknown = null
+    const r = await kos(
+      [
+        ...uretimHat,
+        {
+          id: 'son',
+          verb: 'COMPOSE' as const,
+          capability: null,
+          constraints: {},
+          needs: ['uret'],
+          gate: null,
+        },
+      ],
+      {
+        verbs: {
+          RESOLVE: basarili('RESOLVE', {}),
+          GENERATE: basarili('GENERATE', {}, 0n),
+          COMPOSE: sahte('COMPOSE', async (_c, i) => {
+            gorulen = (i as { inputs: Record<string, unknown> }).inputs['uret']
+            return ok({ costs: [], data: { bitti: true } })
+          }),
+        },
+        // Sağlayıcı YOK: `free` şeridinde premium isteyen adıma aday çıkmıyor.
+        candidatesFor: () => [
+          {
+            providerId: 'p1',
+            title: 'p1',
+            lanes: ['free'] as const,
+            available: true,
+            unavailableReason: null,
+          },
+        ],
+        pricing: fiyat('p1', '0.025'),
+      }
+    )
+    // Adım DÜŞMEDİ ve hat durmadı: çağrılacak bir şey yoktu ki sağlayıcı gereksin.
+    expect(r.errors).toHaveLength(0)
+    expect(r.stoppedAt).toBeNull()
+    // ⚠ Asıl ölçüm bu: çıktı AŞAĞI AKIŞA geçti. Adımın "ok" görünüp çıktıyı
+    // kaybetmesi, tam olarak karoseli boşaltan davranıştı.
+    expect(gorulen).toEqual({ url: 'defterden' })
   })
 })
 

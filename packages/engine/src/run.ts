@@ -674,10 +674,29 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       bState = r.budget
       sonuc = { ok: r.error === null, outcome: r.outcome, error: r.error }
     } else if (verb.metered) {
-      if (kazanan === null) {
-        // Sağlayıcı seçilemedi. Sessizce atlamak yasak: eleme gerekçeleri hatanın
-        // içinde taşınıyor ki kullanıcı "anahtarı tanımla" ile "bu yeteneği kimse
-        // yapmıyor" arasındaki farkı görebilsin.
+      if (kazanan === null && ciktiVar(input.runId, stepId)) {
+        // ⚠ ⚠ **ANAHTARSIZ SÜRDÜRME, ÜRETİLMİŞ GÖRSELLERİ SİLİYORDU.** Ölçüldü
+        // (`run_01a02989`): panelden onaylanıp sürdürülen bir koşuda dört `gorsel-uret`
+        // adımı da `NO_PROVIDER` ile düştü — `sops exec-env` olmadan Cloudflare
+        // "yerel önkoşul sağlanmadı" diyor. Adımlar `optional` olduğu için hat DEVAM
+        // etti, `COMPOSE` görselsiz bir belge kurdu ve `RENDER` onu yeniden çizdi:
+        // insanın onayladığı kesik özneler yerine dört YER TUTUCU. Bir sürdürme,
+        // tamamlanmış bir işi bozdu.
+        //
+        // ⚠ **Çağrılacak bir şey yoktu ki sağlayıcı gereksin.** Adımın çıktısı
+        // `derived/runs/<run>/steps/<adim>.json` içinde ve byte'ları
+        // `derived/blobs`ta duruyor; yönlendirici yalnız YENİ bir çağrı için gerekli.
+        // Sağlayıcı yokluğunu "çıktı yok" saymak, defterin var olma sebebini
+        // yok saymaktı.
+        //
+        // ⚠ Sıra önemli: kontrol `NO_PROVIDER`ın ÖNÜNDE. Sonrasında olsaydı hata
+        // zaten üretilmiş, adım `failed` yazılmış olurdu.
+        input.iz?.(`  ↺ ${id}: sağlayıcı yok ama çıktı DEFTERDE — yeniden üretilmiyor`)
+        sonuc = { ok: true, outcome: null, error: null }
+      } else if (kazanan === null) {
+        // Sağlayıcı seçilemedi ve defterde de çıktı yok. Sessizce atlamak yasak: eleme
+        // gerekçeleri hatanın içinde taşınıyor ki kullanıcı "anahtarı tanımla" ile
+        // "bu yeteneği kimse yapmıyor" arasındaki farkı görebilsin.
         const gerekce = (yonlendirme?.rejected ?? []).map(
           (r) => `${r.providerId}: ${rejectionMessage(r.reason)}`
         )
