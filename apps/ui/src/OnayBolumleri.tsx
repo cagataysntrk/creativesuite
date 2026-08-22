@@ -12,6 +12,7 @@
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { Asama } from './Asama.js'
+import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 
 type Bolum = 'bekleyen' | 'onaylanan' | 'yayinlanan' | 'planlanan'
 
@@ -35,6 +36,16 @@ export const OnayBolumleri = ({
 }): React.JSX.Element => {
   const [bolum, setBolum] = useState<Bolum>('bekleyen')
   const [kararlar, setKararlar] = useState<readonly Karar[] | null>(null)
+  // ⚠ ⚠ **ONAYLANANLAR BİR YIĞINDI.** Depo sahibi: *"onaylananlar daha kategorik
+  // olmalı ve orada da toplu seçim silme vs diğer sayfalardaki gibi olmalı; tek tek
+  // söyletme"*. Süzgeç ve toplu eylem öteki listelerde vardı, burada yoktu — aynı iş
+  // iki ekranda iki farklı zahmet demekti.
+  const [fHat, setFHat] = useState('')
+  const [fKapi, setFKapi] = useState('')
+  const [fBas, setFBas] = useState('')
+  const [fSon, setFSon] = useState('')
+  const [siralama, setSiralama] = useState<Siralama>('yeni')
+  const [secilenler, setSecilenler] = useState<readonly string[]>([])
 
   const yukle = useCallback(async (): Promise<void> => {
     try {
@@ -49,7 +60,35 @@ export const OnayBolumleri = ({
     if (bolum === 'onaylanan') void yukle()
   }, [bolum, yukle])
 
-  const onaylananlar = (kararlar ?? []).filter((k) => k.decision === 'approved')
+  const hamOnaylananlar = (kararlar ?? []).filter((k) => k.decision === 'approved')
+  const hatlar = [...new Set(hamOnaylananlar.map((k) => k.pipeline))].sort()
+  const kapilar = [...new Set(hamOnaylananlar.map((k) => k.gate))].sort()
+  const onaylananlar = tariheGore(
+    hamOnaylananlar
+      .filter((k) => fHat === '' || k.pipeline === fHat)
+      .filter((k) => fKapi === '' || k.gate === fKapi)
+      .filter((k) => aralikta(k.at, fBas, fSon)),
+    (k) => k.at,
+    siralama
+  )
+  // ⚠ Toplu eylem KOŞUYA ait, karara değil: bir koşu birden çok kapı kararı taşıyor ve
+  // aynı koşuyu iki kez elemek anlamsız.
+  const seciliKosular = [...new Set(secilenler)]
+
+  /** Seçilen koşuları TEK gerekçeyle eler — silmek yok, elemek var (Yasa 11). */
+  const topluEle = async (): Promise<void> => {
+    const sebep = prompt(`${seciliKosular.length} koşu elenecek. Neden? (kayıt SİLİNMİYOR)`) ?? ''
+    if (sebep.trim() === '') return
+    for (const runId of seciliKosular) {
+      await fetch(`/api/kosu/${encodeURIComponent(runId)}/ele`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sebep }),
+      })
+    }
+    setSecilenler([])
+    await yukle()
+  }
 
   return (
     <div>
@@ -92,20 +131,101 @@ export const OnayBolumleri = ({
         ) : onaylananlar.length === 0 ? (
           <p className="bos">henüz onaylanmış kapı yok</p>
         ) : (
-          <ul className="is-listesi">
-            {onaylananlar.map((k) => (
-              <li key={`${k.runId}-${k.gate}`}>
-                <button type="button" className="satir-ac" onClick={() => ac(k.runId)}>
-                  <Asama kapi={k.gate} />
-                  <span className="is-hat">{k.pipeline}</span>
-                  <span className="olcum">{k.at.slice(0, 16).replace('T', ' ')}</span>
-                  {k.note === null || k.note === '' ? null : (
-                    <span className="olcum">— {k.note}</span>
-                  )}
+          <>
+            <div className="filtre-cubuk">
+              <label>
+                hat{' '}
+                <select value={fHat} onChange={(e) => setFHat(e.target.value)}>
+                  <option value="">hepsi</option>
+                  {hatlar.map((h) => (
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                kapı{' '}
+                <select value={fKapi} onChange={(e) => setFKapi(e.target.value)}>
+                  <option value="">hepsi</option>
+                  {kapilar.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                başlangıç{' '}
+                <input type="date" value={fBas} onChange={(e) => setFBas(e.target.value)} />
+              </label>
+              <label>
+                bitiş <input type="date" value={fSon} onChange={(e) => setFSon(e.target.value)} />
+              </label>
+              <label>
+                sıra{' '}
+                <select value={siralama} onChange={(e) => setSiralama(e.target.value as Siralama)}>
+                  <option value="yeni">en yeni önce</option>
+                  <option value="eski">en eski önce</option>
+                </select>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  aria-label="hepsini seç"
+                  checked={
+                    secilenler.length > 0 &&
+                    seciliKosular.length === [...new Set(onaylananlar.map((k) => k.runId))].length
+                  }
+                  onChange={(e) =>
+                    setSecilenler(e.target.checked ? onaylananlar.map((k) => k.runId) : [])
+                  }
+                />{' '}
+                hepsini seç
+              </label>
+            </div>
+
+            {seciliKosular.length === 0 ? null : (
+              <div className="filtre-cubuk">
+                <strong>{seciliKosular.length} koşu seçili</strong>
+                <button type="button" onClick={() => void topluEle()}>
+                  ✕ seçilenleri ele
                 </button>
-              </li>
-            ))}
-          </ul>
+                <button type="button" onClick={() => setSecilenler([])}>
+                  seçimi temizle
+                </button>
+              </div>
+            )}
+
+            <ul className="is-listesi">
+              {onaylananlar.map((k) => (
+                <li key={`${k.runId}-${k.gate}`}>
+                  <input
+                    type="checkbox"
+                    aria-label={`${k.runId} seç`}
+                    checked={secilenler.includes(k.runId)}
+                    onChange={(e) =>
+                      setSecilenler(
+                        e.target.checked
+                          ? [...secilenler, k.runId]
+                          : secilenler.filter((x) => x !== k.runId)
+                      )
+                    }
+                  />
+                  <button type="button" className="satir-ac" onClick={() => ac(k.runId)}>
+                    <Asama kapi={k.gate} />
+                    <span className="is-hat">{k.pipeline}</span>
+                    {/* ⚠ TAM tarih: ham ISO parçası (`2026-08-22T11:09`) bir tarih
+                        değil, bir dize parçasıydı. */}
+                    <span className="olcum">{tamTarih(k.at)}</span>
+                    {k.note === null || k.note === '' ? null : (
+                      <span className="olcum">— {k.note}</span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
         )
       ) : null}
 
