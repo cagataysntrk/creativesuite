@@ -85,6 +85,11 @@ export const KosuDetay = ({
   // adım bitince yazılıyor; 190 saniyelik bir yargı adımının ortasında ekranda hiçbir
   // hareket yoktu ve insan "asıldı mı" diye bakıyordu.
   const [gunluk, setGunluk] = useState<readonly string[]>([])
+  // ⚠ ⚠ **ONAY BİR EVET/HAYIR DEĞİL, BİR DÜZELTME ANIDIR.** İnsan bir kelimeyi
+  // değiştirmek için koşuyu reddedip baştan üretmek zorunda kalıyordu: bir model
+  // çağrısı, üç dakika ve büyük ihtimalle BAŞKA bir metin.
+  // `null` = düzenleme açılmadı; dizi = düzenleniyor.
+  const [taslak, setTaslak] = useState<readonly string[] | null>(null)
 
   /**
    * Görseli yükler — **yuva sırası dosya adından değil, mevcut yüklü sayıdan** türüyor.
@@ -92,6 +97,31 @@ export const KosuDetay = ({
    * ⚠ Base64 gövde: `multipart` ayrıştırıcısı ikinci bir çözücü demekti ve bu depoda
    * "tek çözücü" bir kural (§3.8). Tarayıcı `FileReader` ile zaten base64 veriyor.
    */
+  /**
+   * Düzenlenen metni defterin adım çıktısına yazar; istenirse ardından ONAYLAR.
+   *
+   * ⚠ Adım çıktısı defteri tekrar oynatmanın da kaynağı: düzenleme oraya yazılınca
+   * `sablon-uyarla` ve sonrası düzenlenmiş metni görüyor — ayrı bir yol yok.
+   */
+  const metniKaydet = async (onayla: boolean): Promise<void> => {
+    if (taslak === null) return
+    setMesaj('… metin kaydediliyor')
+    const r = await fetch(`/api/kosu/${runId}/metin`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ satirlar: taslak }),
+    })
+    const j = (await r.json()) as { ok: boolean; hata?: string; degisti?: boolean }
+    if (!j.ok) {
+      setMesaj(`✗ ${j.hata ?? 'kaydedilemedi'}`)
+      return
+    }
+    setTaslak(null)
+    setMesaj(j.degisti === false ? 'değişiklik yok' : '✓ metin kaydedildi')
+    await yukle()
+    if (onayla) await karar('approved', 'metin elle düzenlendi ve onaylandı')
+  }
+
   const gorselYukle = async (dosya: File | null): Promise<void> => {
     if (dosya === null) return
     setYukleme('… yükleniyor')
@@ -354,12 +384,47 @@ export const KosuDetay = ({
         <h3>Üretilen metin</h3>
         {d.satirlar.length === 0 ? (
           <p className="giris-not">Bu adımda metin yok.</p>
+        ) : taslak === null ? (
+          <>
+            <ol className="kosu-satirlar">
+              {d.satirlar.map((s, i) => (
+                <li key={`${String(i)}-${s.slice(0, 12)}`}>{s}</li>
+              ))}
+            </ol>
+            {/* ⚠ Düzenleme YALNIZ metin kapısında: sonraki adımlar bu metinden türedi
+                ve tasarım onayından sonra metni değiştirmek, onaylanmış slaytlarla
+                tutarsız bir defter bırakırdı. */}
+            {d.bekleyenKapi === 'metin-onayi' ? (
+              <button type="button" onClick={() => setTaslak([...d.satirlar])}>
+                ✎ metni düzenle
+              </button>
+            ) : null}
+          </>
         ) : (
-          <ol className="kosu-satirlar">
-            {d.satirlar.map((s, i) => (
-              <li key={`${String(i)}-${s.slice(0, 12)}`}>{s}</li>
+          <div className="metin-duzenle">
+            {taslak.map((s, i) => (
+              <textarea
+                key={`t-${String(i)}`}
+                value={s}
+                aria-label={`satır ${String(i + 1)}`}
+                onChange={(e) => setTaslak(taslak.map((x, j) => (j === i ? e.target.value : x)))}
+              />
             ))}
-          </ol>
+            <div className="kapi-dugmeler">
+              <button type="button" onClick={() => void metniKaydet(false)}>
+                kaydet
+              </button>
+              <button type="button" onClick={() => void metniKaydet(true)}>
+                ✓ kaydet ve onayla
+              </button>
+              <button type="button" onClick={() => setTaslak(null)}>
+                vazgeç
+              </button>
+            </div>
+            <p className="giris-not">
+              Önceki hâl defterde kalıyor (`oncekiSatirlar`) — kanıt silinmiyor, ekleniyor.
+            </p>
+          </div>
         )}
       </section>
 

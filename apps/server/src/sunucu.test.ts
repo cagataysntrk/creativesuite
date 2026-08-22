@@ -925,3 +925,86 @@ describe('içerik ucu şekil sözleşmesi', () => {
     }
   })
 })
+
+// ── metin onayında DÜZENLEME (FAZ-17.3) ────────────────────────────────────
+//
+// ⚠ ⚠ **ONAY BİR EVET/HAYIR DEĞİL, BİR DÜZELTME ANIDIR.** İnsan bir kelimeyi
+// değiştirmek için koşuyu reddedip baştan üretmek zorunda kalıyordu: bir model çağrısı,
+// üç dakika ve büyük ihtimalle BAŞKA bir metin.
+describe('metin düzenleme ucu', () => {
+  const kurMetin = (satirlar: readonly string[]): { kok: string; runId: string } => {
+    const kok = mkdtempSync(join(tmpdir(), 'suite-metin-'))
+    const runId = 'run_01a01111-0000-7000-8000-00000000000a'
+    mkdirSync(join(kok, RUNS_DIR, runId, 'steps'), { recursive: true })
+    writeFileSync(
+      join(kok, RUNS_DIR, runId, 'steps', 'metin-uret.json'),
+      JSON.stringify({ lines: satirlar, raw: { result: satirlar.join('\n') } })
+    )
+    return { kok, runId }
+  }
+
+  const gonder = async (kok: string, runId: string, satirlar: readonly string[]) => {
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const r = await s.app.request(`/api/kosu/${runId}/metin`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ satirlar }),
+      })
+      return { durum: r.status, govde: (await r.json()) as Record<string, unknown> }
+    } finally {
+      s.kapat()
+    }
+  }
+
+  it('düzenlenen metin deftere yazılıyor, ÖNCEKİ hâl KORUNUYOR', async () => {
+    const { kok, runId } = kurMetin(['Eski birinci', 'Eski ikinci'])
+    try {
+      const r = await gonder(kok, runId, ['Yeni birinci', 'Eski ikinci'])
+      expect(r.durum).toBe(200)
+      const d = JSON.parse(
+        readFileSync(join(kok, RUNS_DIR, runId, 'steps', 'metin-uret.json'), 'utf8')
+      ) as Record<string, unknown>
+      expect(d['lines']).toEqual(['Yeni birinci', 'Eski ikinci'])
+      expect(d['elleDuzenlendi']).toBe(true)
+      // ⚠ KANIT SİLİNMİYOR (D-38): hem önceki satırlar hem ham sağlayıcı yanıtı yerinde.
+      expect(d['oncekiSatirlar']).toEqual(['Eski birinci', 'Eski ikinci'])
+      expect(d['raw']).toBeDefined()
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('DEĞİŞİKLİK YOKSA yazmıyor — anlamsız bir "insan düzenledi" izi bırakmaz', async () => {
+    const { kok, runId } = kurMetin(['Aynı satır'])
+    try {
+      const r = await gonder(kok, runId, ['Aynı satır'])
+      expect(r.govde['degisti']).toBe(false)
+      const d = JSON.parse(
+        readFileSync(join(kok, RUNS_DIR, runId, 'steps', 'metin-uret.json'), 'utf8')
+      ) as Record<string, unknown>
+      expect(d['elleDuzenlendi']).toBeUndefined()
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('boş metin ve GEÇERSİZ kimlik REDDEDİLİYOR', async () => {
+    const { kok, runId } = kurMetin(['bir'])
+    try {
+      expect((await gonder(kok, runId, [])).durum).toBe(400)
+      // ⚠ Yol geçişi HTTP yolundan denenemiyor (yönlendirici parçaları ayırıyor);
+      // ölçülen şey BİÇİM kontrolü: `run_` öneki ve onaltılık gövde olmayan kimlik.
+      expect((await gonder(kok, 'kacis', ['x'])).durum).toBe(400)
+      expect((await gonder(kok, 'run_ZZ', ['x'])).durum).toBe(400)
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})

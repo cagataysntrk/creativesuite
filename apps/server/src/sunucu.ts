@@ -748,6 +748,52 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     return c.json({ ok: true, ad, sira, bayt: bayt.length })
   })
 
+  // ── METİN ONAYINDA DÜZENLEME (FAZ-17.3) ──────────────────────────────────
+  //
+  // ⚠ ⚠ **ONAY BİR "EVET/HAYIR" DEĞİL, BİR DÜZELTME ANIDIR.** Depo sahibi: *"metin
+  // onayı sırasında metin düzenlenip onaylanabilmeli"*. İnsan bir kelimeyi değiştirmek
+  // için koşuyu reddedip baştan üretmek zorunda kalıyordu — bir model çağrısı, üç
+  // dakika ve büyük ihtimalle BAŞKA bir metin.
+  //
+  // ⚠ **KANIT SİLİNMİYOR** (D-38): ham sağlayıcı yanıtı (`raw`) yerinde kalıyor ve
+  // önceki satırlar `oncekiSatirlar` olarak kaydın içine yazılıyor. Yani "bu metni
+  // insan mı yazdı model mi" sorusu altı ay sonra da cevaplanabiliyor.
+  //
+  // ⚠ Adım çıktısı defteri, tekrar oynatmanın da kaynağı: düzenleme buraya yazılınca
+  // `sablon-uyarla` ve sonrası düzenlenmiş metni görüyor — ayrı bir yol açmaya gerek yok.
+  app.post('/api/kosu/:runId/metin', async (c) => {
+    const runId = c.req.param('runId')
+    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
+      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    const g = (await c.req.json().catch(() => ({}))) as { satirlar?: readonly string[] }
+    const satirlar = (g.satirlar ?? []).map((x) => String(x)).filter((x) => x.trim() !== '')
+    if (satirlar.length === 0) return c.json({ ok: false, hata: 'metin boş' }, 400)
+
+    const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps', 'metin-uret.json')
+    if (!existsSync(yol)) return c.json({ ok: false, hata: 'metin adımı defteri yok' }, 404)
+    try {
+      const eski = JSON.parse(readFileSync(yol, 'utf8')) as Record<string, unknown>
+      const onceki = Array.isArray(eski['lines']) ? (eski['lines'] as string[]) : []
+      // ⚠ Değişiklik YOKSA yazma: aynı içeriği yeniden yazmak defterde anlamsız bir
+      // "insan düzenledi" izi bırakırdı.
+      if (onceki.join('\n') === satirlar.join('\n')) return c.json({ ok: true, degisti: false })
+      writeFileSync(
+        yol,
+        JSON.stringify({
+          ...eski,
+          lines: satirlar,
+          elleDuzenlendi: true,
+          oncekiSatirlar: eski['oncekiSatirlar'] ?? onceki,
+        }),
+        'utf8'
+      )
+      yayinla('degisim')
+      return c.json({ ok: true, degisti: true, satir: satirlar.length })
+    } catch (e) {
+      return c.json({ ok: false, hata: `yazılamadı: ${String(e)}` }, 500)
+    }
+  })
+
   // ── CANLI GÜNLÜK: koşu ekranının "ne oluyor" cevabı ──────────────────────
   //
   // ⚠ ⚠ **ADIM DEFTERİ "NE OLDU"YU SÖYLÜYOR, GÜNLÜK "NE OLUYOR"U.** Manifest ancak bir

@@ -211,6 +211,10 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   'elleYuklendi',
   'yapayZeka',
   'dosya',
+  // ⚠ İnsanın metin onayında yaptığı düzenleme — kanıt: bu metni model mi yazdı insan
+  // mı. `oncekiSatirlar` da defterde: kanıt silinmiyor, ekleniyor (D-38).
+  'elleDuzenlendi',
+  'oncekiSatirlar',
   // ⚠ ⚠ Katalog merkezli yol (FAZ-15.9): bu anahtarlar deftere girmezse hangi şablonun
   // seçildiği ve render'ın ölçtüğü kusurların ne olduğu KAYBOLUR — koşu sonradan
   // denetlenemez hâle gelir. `sablonId` özellikle kritik: "bu karosel neden böyle"
