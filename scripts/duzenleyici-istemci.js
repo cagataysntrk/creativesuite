@@ -172,8 +172,8 @@ function mufettisiKur(doc) {
   if (secili === null) {
     const p = document.createElement('div')
     p.className = 'bos'
-    p.textContent =
-      duzenMod === 'tasi' ? 'Tuvalde bir metne tıkla.' : '✥ taşı moduna geçip bir ögeye tıkla.'
+    // ⚠ ⚠ **YAZ MODUNDA DA TIKLAMA SEÇİYOR** (önceki tur) — mesaj onu söylemeliydi.
+    p.textContent = 'Tuvalde bir ögeye tıkla: metin, künye ya da görsel.'
     kok.appendChild(p)
   } else if (secili.alan === 'gorsel') {
     // Görselin alanları kendi bölümünde; burada yalnız ne seçili olduğu yazıyor.
@@ -321,6 +321,18 @@ function mufettisiKur(doc) {
     kok.appendChild(el('modelden üret', istem))
     kok.appendChild(uret)
 
+    // ⚠ ⚠ **GÖRSELİ SİLME YOKTU.** Metin ögesinin silme düğmesi vardı, görselinki
+    // yoktu: beğenilmeyen bir görseli kaldırmanın tek yolu üstüne başkasını üretmekti.
+    // Boş yuva YER TUTUCU çiziyor ve bu dürüst: eksik olan görünüyor.
+    const gsil = document.createElement('button')
+    gsil.className = 'sil'
+    gsil.textContent = '⌫ bu görseli sil'
+    gsil.onpointerdown = (ev) => {
+      ev.preventDefault()
+      void yaz({ tur: 'gorsel-alan', i: secili.i, alan: 'src', deger: '' })
+    }
+    kok.appendChild(gsil)
+
     // ⚠ Arka plan silme burada, GÖRSELİN yanında: kusur (`matlama-tutmuyor`) bu
     // ögede ölçülüyor ve düzeltmesi de bu ögede olmalı. Ayrı bir menüye koymak,
     // ölçümle düzeltmeyi birbirinden uzaklaştırırdı.
@@ -338,6 +350,51 @@ function mufettisiKur(doc) {
       await cek()
     }
     kok.appendChild(el('arka plan', sil))
+  }
+
+  // ── MODELDEN ÜRET: seçim GEREKTİRMEZ ────────────────────────────────────
+  //
+  // ⚠ ⚠ **ÜRETİM SEÇİLİ GÖRSELE BAĞLIYDI.** Depo sahibi: *"öge seçili olmadan da
+  // modelden üretim yapılabilmeli"*. Boş bir yuvaya üretmek için önce o yuvayı seçmek
+  // gerekiyordu — ama boş yuvada tıklanacak bir görsel YOK. Kısır döngü.
+  //
+  // ⚠ Yuva numarası AÇIKÇA seçiliyor: "seçili olan" örtük bir durumdur ve üretim
+  // pahalı bir eylem; hangi yuvaya gittiği görünür olmalı.
+  if ((doc.gorseller ?? []).length > 0) {
+    baslikEkle(kok, 'MODELDEN ÜRET')
+    const yuva = document.createElement('select')
+    ;(doc.gorseller ?? []).forEach((g, i) => {
+      const o = document.createElement('option')
+      o.value = String(i)
+      o.textContent =
+        String(i + 1) +
+        '. yuva' +
+        (typeof g.src === 'string' && g.src !== '' ? ' (dolu)' : ' (boş)')
+      if (secili !== null && secili.alan === 'gorsel' && secili.i === i) o.selected = true
+      yuva.appendChild(o)
+    })
+    const gistem = document.createElement('textarea')
+    gistem.placeholder = 'ingilizce istem — ne görmek istiyorsun? (metin/yazı isteme)'
+    gistem.rows = 3
+    gistem.style.inlineSize = '100%'
+    const guret = document.createElement('button')
+    guret.textContent = '✨ üret'
+    guret.onclick = async () => {
+      const p2 = gistem.value.trim()
+      if (p2 === '') return mesaj('✗ istem boş')
+      guret.disabled = true
+      mesaj('… model çağrılıyor (birkaç saniye)')
+      const r = await fetch('/gorsel-uret?id=' + id, {
+        method: 'POST',
+        body: JSON.stringify({ i: Number(yuva.value), prompt: p2 }),
+      })
+      mesaj(await r.text())
+      guret.disabled = false
+      await cek()
+    }
+    kok.appendChild(el('yuva', yuva))
+    kok.appendChild(el('istem', gistem))
+    kok.appendChild(guret)
   }
 
   // ── kart ──
