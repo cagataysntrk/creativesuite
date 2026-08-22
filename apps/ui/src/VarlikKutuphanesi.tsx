@@ -31,6 +31,8 @@ interface Varlik {
 
 interface Grup {
   readonly runId: string
+  /** Editörde düzenlenmiş slaytlar — damgasız, yayına aday değil (D-301). */
+  readonly elle: readonly string[]
   readonly pipeline: string
   readonly konu: string
   readonly createdAt: string
@@ -60,13 +62,17 @@ export const VarlikKutuphanesi = ({
   const [fBas, setFBas] = useState('')
   const [fSon, setFSon] = useState('')
   const [siralama, setSiralama] = useState<Siralama>('yeni')
+  /** Koşu → editörde düzenlenmiş slayt dosyaları. Boşsa o koşuda elle iş yok. */
+  const [elleSlaytlar, setElleSlaytlar] = useState<Readonly<Record<string, string[]>>>({})
 
   const yukle = useCallback(async (): Promise<void> => {
     const r = (await (await fetch('/api/varliklar')).json()) as {
       varliklar?: Varlik[]
+      elleSlaytlar?: Record<string, string[]>
       karantina?: number
     }
     setHam(r.varliklar ?? [])
+    setElleSlaytlar(r.elleSlaytlar ?? {})
     setKarantina(r.karantina ?? 0)
   }, [])
 
@@ -89,6 +95,7 @@ export const VarlikKutuphanesi = ({
       const ilk = sirali[0] as Varlik
       return {
         runId,
+        elle: elleSlaytlar[runId] ?? [],
         pipeline: ilk.pipeline,
         konu: ilk.konu,
         createdAt: ilk.createdAt,
@@ -252,6 +259,9 @@ export const VarlikKutuphanesi = ({
                   {g.yayinlandi ? '✓ yayınlandı' : 'yayınlanmadı'}
                 </span>
                 {g.saglam ? null : <span className="is-uyari">⊘ kusurlu manifest</span>}
+                {g.elle.length === 0 ? null : (
+                  <span className="is-uyari">✎ {g.elle.length} slayt elle düzenlendi</span>
+                )}
                 {ac === undefined ? null : (
                   <button type="button" className="hizli" onClick={() => ac(g.runId)}>
                     aç →
@@ -270,6 +280,33 @@ export const VarlikKutuphanesi = ({
                   </a>
                 ))}
               </div>
+              {/* ⚠ ⚠ **ELLE DÜZENLENMİŞ HÂL DE BURADA — ama damgalıların YERİNE
+                  geçmiyor.** Depo sahibi: *"varlıklarda hâlâ eskisi görünüyor."* Liste
+                  yanlış değildi, EKSİKTİ: insanın en son gördüğü hâl hiçbir yerde
+                  yoktu. Damgasız bir slayt uyum iddiası taşımıyor ve yayına aday
+                  değil (Yasa 7 · R-33); ikisini karıştırmak, damgasız bir varlığı
+                  yayınlanabilir sanmak olurdu. O yüzden ayrı satır, açık etiket. */}
+              {g.elle.length === 0 ? null : (
+                <>
+                  <p className="olcum">✎ elle düzenlenmiş sürüm — damgasız, yayına aday değil</p>
+                  <div className="kosu-slaytlar">
+                    {g.elle.map((ad) => (
+                      <a
+                        key={ad}
+                        href={`/api/kosu/${g.runId}/elle/${ad}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <img
+                          src={`/api/kosu/${g.runId}/elle/${ad}`}
+                          alt={`elle düzenlenmiş ${ad}`}
+                          loading="lazy"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>

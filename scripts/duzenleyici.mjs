@@ -31,7 +31,9 @@ const { fontCss } = await import(join(REPO, 'packages/render/dist/fonts.js'))
 // okuyamaz hâle gelirdi.
 const { panoramaBelgesiniYaz } = await import(join(REPO, 'packages/engine/dist/verbs/bodies.js'))
 const { logoVarliklari } = await import(join(REPO, 'packages/render/dist/logo.js'))
-const { gorselleriGom } = await import(join(REPO, 'packages/render/dist/gorsel-gom.js'))
+const { kosuBelgeYolu, kosuBelgesiniOku } = await import(
+  join(REPO, 'packages/render/dist/kosu-belgesi.js')
+)
 // ⚠ ⚠ **EDİTÖRDEN GÖRSEL ÜRETME — sağlayıcı köprüsü HATTIN KULLANDIĞIYLA AYNI.** Depo
 // sahibi: *"editörde modele prompt gönderip görsel üretme olmalı, beğenmediğimizi silip
 // yerine kendimiz ürettirebiliriz."* İkinci bir çağrı yolu yazmak, R-20 muhafızının ve
@@ -68,8 +70,8 @@ const KOSU_DIZINI = join(REPO, 'derived/runs')
 const kosulariTara = () => {
   if (!existsSync(KOSU_DIZINI)) return []
   return readdirSync(KOSU_DIZINI)
-    .map((ad) => ({ ad, yol: join(KOSU_DIZINI, ad, 'panorama.json') }))
-    .filter((k) => existsSync(k.yol))
+    .map((ad) => ({ ad, dizin: join(KOSU_DIZINI, ad), yol: kosuBelgeYolu(join(KOSU_DIZINI, ad)) }))
+    .filter((k) => k.yol !== null)
     .map((k) => ({ ...k, zaman: statSync(k.yol).mtimeMs }))
     .sort((a, b) => b.zaman - a.zaman)
 }
@@ -80,12 +82,15 @@ const kosulariTara = () => {
  * yine açılıyor. Sessizce yer tutucu çizmektense boş kutu göstermek dürüst: eksik olan
  * şey görülsün.
  */
-const kosuBelgesi = (dizin, jsonYolu) =>
-  // ⚠ ⚠ **BU ÇEVİRİ BURADA YAZILIYDI ve sunucu onu bilmiyordu.** Defter görseli DOSYA
-  // ADI olarak taşıyor (D-302); okuma tarafındaki çeviri iki yerde olsaydı biri
-  // düzeltilip öteki unutulurdu — dışa aktarmada tam olarak böyle oldu, slaytlar
-  // görselsiz çıktı. Artık tek yer: `@suite/render`.
-  gorselleriGom(JSON.parse(readFileSync(jsonYolu, 'utf8')), dizin)
+const kosuBelgesi = (dizin, sadeceAsil = false) => {
+  // ⚠ ⚠ **HANGİ BELGE ve GÖRSELLERİN GÖMÜLMESİ tek fonksiyonda** (`@suite/render`).
+  // İkisi de burada YAZILIYDI: çeviri sunucunun bilmediği bir kopyaydı (slaytlar
+  // görselsiz dışa aktarıldı) ve seçim hiç yoktu — editör her açılışta ASLINI
+  // açıyor, elle düzenlenmiş sürümü görmezden geliyordu.
+  const r = kosuBelgesiniOku(dizin, sadeceAsil)
+  if (r === null) throw new Error('belge yok: ' + dizin)
+  return r.belge
+}
 
 /** Çalışan kopya — sunucu belleğinde. Kaydetmeden dosyaya DOKUNULMUYOR. */
 const calisan = {}
@@ -111,7 +116,7 @@ const kosulariYukle = () => {
     const id = 'kosu:' + k.ad
     if (calisan[id] !== undefined) continue
     try {
-      calisan[id] = kosuBelgesi(join(KOSU_DIZINI, k.ad), k.yol)
+      calisan[id] = kosuBelgesi(k.dizin)
       kaynak[id] = { tur: 'kosu', ad: k.ad, dizin: join(KOSU_DIZINI, k.ad) }
     } catch {
       // Bozuk defter tezgâhı indirmesin; o koşu listede çıkmaz.
@@ -873,7 +878,9 @@ const sunucu = createServer(async (req, res) => {
         return res.end('✓ şablon kaynağa döndü: ' + k.ad)
       }
       try {
-        calisan[id] = kosuBelgesi(k.dizin, join(k.dizin, 'panorama.json'))
+        // ⚠ Sıfırlama HATTIN ürettiğine döner (`panorama.json`), elle düzenlenmiş
+        // sürüme değil: aksi hâlde düğme hiçbir şey yapmazdı.
+        calisan[id] = kosuBelgesi(k.dizin, true)
         return res.end('✓ koşu defterindeki hâline döndü: ' + k.ad)
       } catch (e) {
         return res.end('✗ defter okunamadı: ' + String(e))

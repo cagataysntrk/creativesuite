@@ -39,6 +39,12 @@ export default tseslint.config(
       '**/*.d.ts',
       'docs/**',
       'scripts/gates/**', // kapılar düz Node betiği; kendi disiplinleri var
+      // ⚠ ⚠ **`examples/` BİZİM KODUMUZ DEĞİL — referans malzemesi ve gitignore'lu.**
+      // Depoya yeni bir referans projesi kopyalandığı an kapı, bizim yazmadığımız ve
+      // düzeltemeyeceğimiz kodda 12 hata verip kırmızıya döndü. Bir kapının kendi
+      // kapsamı dışındaki koda kızması, kapıyı gürültüye çevirir ve gürültülü kapı
+      // okunmaz olur. Kapsam: BU deponun kaynak kodu.
+      'examples/**',
     ],
   },
 

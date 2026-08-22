@@ -171,58 +171,10 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > `hayalet-carpisma` kusuru denetimde. Atıf bütünlüğü korunuyor (R-62), tavan
 > açıldı (R-63) — bir kararı arşive taşımak onu iptal etmez.
 
-## D-301
-
-**Şablon ve karosel elle düzenlenebilir — ama piksel değil, VERİ düzenlenir.**
-
-Depo sahibi Photoshop benzeri bir ortam istedi: görseli hareket ettirmek, yazıyı
-değiştirmek, renklerle oynamak. İki yol vardı.
-
-**Reddedilen yol — serbest piksel tuvali.** Bir tuval editörü (fabric.js, tldraw)
-kurup çıktıyı oradan almak. Reddedildi: o an ikinci bir render motoru doğar ve
-Yasa 4 tam bunu yasaklıyor — ikinci CSS alt kümesi ikinci Türkçe hata modudur.
-Ayrıca elle boyanmış bir tuval **şablon değildir**; bir sonraki konuya uyarlanamaz
-ve katalog mantığının (Yasa 13) tamamı çöker.
-
-**Seçilen yol — aynı motor, düzenlenen şey veri.** `just duzenle` `panoramaHtml(doc)`
-çıktısını bir iframe'de gösteriyor; tıklanan metin ve sürüklenen görsel kutusu
-`KatalogOrnegi` **alanlarına** yazıyor, DOM'a değil. Gördüğün şey ihraç edilen şeydir
-çünkü ikisi aynı fonksiyondan geliyor. Panorama denetimi düzenlemenin yanında canlı
-koşuyor: kusur düzenlerken görünüyor, render'dan sonra değil.
-
-**İki mod, seçilebilir** (depo sahibinin kararı): şablon düzenleme katalog dosyasına
-yazar ve altı tasarımı kalıcı değiştirir; tek karosel düzenleme yalnız o koşunun
-defterine bindirme yazar. Prototip **hiçbirine yazmıyor** — `derived/` altına JSON
-önizlemesi basıyor. Yazma yolu şablonu bozarsa altı tasarım birden gider; ayrı turda,
-kendi testiyle bağlanacak (BORÇLAR D15).
-
-**Bağımlılık eklenmedi.** `node:http` + tarayıcı. Bir editör çatısı, düzenlediğimiz
-şeyden büyük olurdu.
-
-## D-302
-
-**Koşu defteri kompozisyonu REFERANS biçiminde saklıyor: metin izlenir, piksel izlenmez.**
-
-`render` artık panorama belgesini `derived/runs/<id>/panorama.json` olarak yazıyor.
-Sebep bir zincir kopukluğu: defterde yalnız ÖZET vardı (`sablonId`, `slides`,
-`kusurlar`) ve **kompozisyonun kendisi hiçbir yere düşmüyordu**. PNG'ler duruyordu,
-onları üreten VERİ yoktu; üretilmiş bir karosel bir daha açılamıyor, elle
-düzeltilemiyor (D-301) ve aynı belgeyle yeniden render edilemiyordu.
-
-**Belgeyi olduğu gibi yazmak yanlış cevaptı.** Ölçüldü: 3.299 KB — `gorseller`
-2.741 KB (data URI'ler), `fontCss` 552 KB (base64 gömülü yüzler), `tokenCss` 2 KB.
-`derived/runs` git'te İZLENİYOR (Yasa 11) ve `repo-hygiene` 512 KB'ı reddediyor;
-koşu başına 3 MB ikili veri commit'lemek defteri okunamaz hâle getirirdi.
-
-**Ayrım tekrar üretilebilirlik.** `fontCss` markanın font dizininden deterministik
-kuruluyor → yazılmıyor, açan taraf yeniden üretiyor. Görseller ise ÜRETİLDİ — para ve
-rastgelelik harcandı, geri getirilemezler → yan dosyaya PNG olarak düşüyor, belge
-onların ADINI taşıyor, byte'lar `.gitignore`da. Sonuç: 3.299 KB → 7 KB.
-
-Bu, slaytların `derived/blobs`ta durmasıyla aynı model: **kompozisyon izlenir,
-pikselleri izlenmez.** Yazma ve okuma tek fonksiyondan geçiyor
-(`panoramaBelgesiniYaz`) — editör kendi serileştiricisini yazsaydı iki biçim doğar
-ve biri gün gelip ötekinden ayrışırdı.
+> **D-301 · D-302 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
+> İkisi de kapandı ve kodda yaşıyor: elle düzenleme koşu defterine iniyor
+> (`panorama-elle.json`), defter görseli REFERANS tutuyor ve okuma tarafındaki
+> çeviri `gorselleriGom`da. Atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
 ## D-303
 
@@ -592,3 +544,34 @@ alındığında KIRMIZI dönüyor.
 **Sınır.** Girdiler değiştiyse defterdeki çıktı bayattır ve bu dal onu yine de
 kullanır. Alternatif, tamamlanmış bir işi SİLMEKTİ; bayat bir görsel, yok edilmiş bir
 görselden iyidir ve iz satırı olan biteni ekranda söylüyor.
+
+## D-316 · Elle düzenlenmiş sürüm GÖRÜNÜR: editör onu açar, kütüphane onu gösterir (2026-08-22)
+
+**Bulgu — depo sahibi:** *"editörde düzenleyince elle düzenlenmiş versiyon koşu
+sayfasına geliyor ama tekrar koşuyu editörde aç deyince eskisini açıyor; ayrıca
+varlıklarda da hâlâ eskisi görünüyor, güncellenmiyor."*
+
+**İki ayrı kusur, tek kök:** yazan taraf `panorama-elle.json` üretiyordu, okuyan taraf
+onu hiç sormuyordu.
+
+1. **Editör.** Koşu tarayıcısı her zaman `panorama.json` arıyordu. Düzenleme bellekte
+   yaşıyor, `just dev` her yeniden başladığında kayboluyor gibi görünüyordu — oysa
+   diskte duruyordu. Artık seçim kuralı TEK yerde (`kosuBelgesiniOku`): elle
+   düzenlenmiş varsa O geçerlidir. *"Değişiklikleri sıfırla"* ise açıkça asıl belgeyi
+   istiyor (`sadeceAsil`), yoksa düğme hiçbir şey yapmazdı.
+2. **Kütüphane.** Liste DAMGALI byte'ları gösteriyor; elle düzenlenmiş slayt damga
+   taşımıyor (Yasa 7: damga üretim anında basılır, retrofit imkânsız). Liste yanlış
+   değildi — **eksikti**: insanın en son gördüğü hâl hiçbir yerde yoktu. Artık her
+   koşu satırında ayrı bir şerit: *"✎ elle düzenlenmiş sürüm — damgasız, yayına aday
+   değil"*. Damgalıların YERİNE geçmiyor; karıştırmak, damgasız bir varlığı
+   yayınlanabilir sanmak olurdu (R-33).
+
+**Seçim kuralı neden ortak modüle taşındı.** Sunucunun dışa aktarma yolu "önce `-elle`,
+sonra asıl" kuralını kendi içinde taşıyordu, editör hiç taşımıyordu. Aynı kuralın iki
+kopyası bu depoda bir kez daha (D-302, `gorselleriGom`) birinin düzeltilip ötekinin
+unutulmasıyla sonuçlanmıştı. Üçüncü kopya yazılmadan tek yere alındı.
+
+**Ölçüm.** Editörde başlık değiştirildi, kaydedildi, **editör süreci öldürülüp yeniden
+başlatıldı** ve açılışta düzenlenmiş başlık geldi (`ELLE Kantar mı satış mı`); önce
+asıl başlık geliyordu. Kütüphane ekranı gerçek tarayıcıda: 7 koşuda "elle düzenlendi"
+rozeti, 28 elle slayt görseli, hepsi `/api/kosu/<run>/elle/<ad>` üzerinden.

@@ -5665,3 +5665,58 @@ artık YOKLUĞUNU doğruluyor. Bir testin var olması, doğru şeyi savunduğu a
 örtüyor ve marka imzası ile kaynak satırı görünmez oluyordu. Ray 6'ya çıktı.
 
 **Geri alma maliyeti:** düşük — bir CSS kuralı, bir emisyon satırı.
+
+---
+
+## D-301
+
+**Şablon ve karosel elle düzenlenebilir — ama piksel değil, VERİ düzenlenir.**
+
+Depo sahibi Photoshop benzeri bir ortam istedi: görseli hareket ettirmek, yazıyı
+değiştirmek, renklerle oynamak. İki yol vardı.
+
+**Reddedilen yol — serbest piksel tuvali.** Bir tuval editörü (fabric.js, tldraw)
+kurup çıktıyı oradan almak. Reddedildi: o an ikinci bir render motoru doğar ve
+Yasa 4 tam bunu yasaklıyor — ikinci CSS alt kümesi ikinci Türkçe hata modudur.
+Ayrıca elle boyanmış bir tuval **şablon değildir**; bir sonraki konuya uyarlanamaz
+ve katalog mantığının (Yasa 13) tamamı çöker.
+
+**Seçilen yol — aynı motor, düzenlenen şey veri.** `just duzenle` `panoramaHtml(doc)`
+çıktısını bir iframe'de gösteriyor; tıklanan metin ve sürüklenen görsel kutusu
+`KatalogOrnegi` **alanlarına** yazıyor, DOM'a değil. Gördüğün şey ihraç edilen şeydir
+çünkü ikisi aynı fonksiyondan geliyor. Panorama denetimi düzenlemenin yanında canlı
+koşuyor: kusur düzenlerken görünüyor, render'dan sonra değil.
+
+**İki mod, seçilebilir** (depo sahibinin kararı): şablon düzenleme katalog dosyasına
+yazar ve altı tasarımı kalıcı değiştirir; tek karosel düzenleme yalnız o koşunun
+defterine bindirme yazar. Prototip **hiçbirine yazmıyor** — `derived/` altına JSON
+önizlemesi basıyor. Yazma yolu şablonu bozarsa altı tasarım birden gider; ayrı turda,
+kendi testiyle bağlanacak (BORÇLAR D15).
+
+**Bağımlılık eklenmedi.** `node:http` + tarayıcı. Bir editör çatısı, düzenlediğimiz
+şeyden büyük olurdu.
+
+## D-302
+
+**Koşu defteri kompozisyonu REFERANS biçiminde saklıyor: metin izlenir, piksel izlenmez.**
+
+`render` artık panorama belgesini `derived/runs/<id>/panorama.json` olarak yazıyor.
+Sebep bir zincir kopukluğu: defterde yalnız ÖZET vardı (`sablonId`, `slides`,
+`kusurlar`) ve **kompozisyonun kendisi hiçbir yere düşmüyordu**. PNG'ler duruyordu,
+onları üreten VERİ yoktu; üretilmiş bir karosel bir daha açılamıyor, elle
+düzeltilemiyor (D-301) ve aynı belgeyle yeniden render edilemiyordu.
+
+**Belgeyi olduğu gibi yazmak yanlış cevaptı.** Ölçüldü: 3.299 KB — `gorseller`
+2.741 KB (data URI'ler), `fontCss` 552 KB (base64 gömülü yüzler), `tokenCss` 2 KB.
+`derived/runs` git'te İZLENİYOR (Yasa 11) ve `repo-hygiene` 512 KB'ı reddediyor;
+koşu başına 3 MB ikili veri commit'lemek defteri okunamaz hâle getirirdi.
+
+**Ayrım tekrar üretilebilirlik.** `fontCss` markanın font dizininden deterministik
+kuruluyor → yazılmıyor, açan taraf yeniden üretiyor. Görseller ise ÜRETİLDİ — para ve
+rastgelelik harcandı, geri getirilemezler → yan dosyaya PNG olarak düşüyor, belge
+onların ADINI taşıyor, byte'lar `.gitignore`da. Sonuç: 3.299 KB → 7 KB.
+
+Bu, slaytların `derived/blobs`ta durmasıyla aynı model: **kompozisyon izlenir,
+pikselleri izlenmez.** Yazma ve okuma tek fonksiyondan geçiyor
+(`panoramaBelgesiniYaz`) — editör kendi serileştiricisini yazsaydı iki biçim doğar
+ve biri gün gelip ötekinden ayrışırdı.

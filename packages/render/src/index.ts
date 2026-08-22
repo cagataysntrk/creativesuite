@@ -345,3 +345,11 @@ export {
 
 // Defterdeki referans biçimini gömülü byte'a çevirir — TEK yer (D-302).
 export { gorselleriGom } from './gorsel-gom.js'
+// Koşunun GEÇERLİ belgesi: elle düzenlenmiş varsa O — seçim kuralı TEK yerde (D-301).
+export {
+  ASIL_BELGE,
+  ELLE_BELGE,
+  kosuBelgesiniOku,
+  kosuBelgeYolu,
+  type KosuBelgesi,
+} from './kosu-belgesi.js'

@@ -46,7 +46,13 @@ import {
   readLedger,
   readManifest,
 } from '@suite/engine'
-import { PLACEMENTS, safeBand, specAgeDays, panoramaDisaAktar, gorselleriGom } from '@suite/render'
+import {
+  PLACEMENTS,
+  safeBand,
+  specAgeDays,
+  panoramaDisaAktar,
+  kosuBelgesiniOku,
+} from '@suite/render'
 import { hatDurumlari, loadPipeline } from '@suite/registry'
 import {
   baglamKayitlari,
@@ -483,7 +489,25 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // Filtre sunucuda DEĞİL istemcide: liste zaten tam geliyor ve "premium ama
   // yayınlanmamış" bir SORU, bir sorgu parametresi değil — operatör onu açıp kapatarak
   // karşılaştırma yapar. Sunucuda filtrelemek, toplam harcamayı da filtrelerdi.
-  app.get('/api/varliklar', (c) => c.json(kutuphane(o.repoRoot)))
+  // ⚠ ⚠ **KÜTÜPHANE ELLE DÜZENLENMİŞ SÜRÜMÜ GÖRMÜYORDU.** Depo sahibi: *"varlıklarda
+  // hâlâ eskisi görünüyor, güncellenmiyor."* Kütüphane DAMGALI byte'ları listeliyor;
+  // editörde düzenlenen slayt ise koşu dizinine `slayt-NN-elle.png` olarak iniyor ve
+  // damga taşımıyor (Yasa 7: damga üretim anında basılır, retrofit imkânsız). Yani
+  // liste yanlış değildi — EKSİKTİ: insanın en son gördüğü hâl hiçbir yerde yoktu.
+  //
+  // ⚠ Damgalıların YERİNE geçmiyor, YANINA geliyor ve ekranda "damgasız · yayına aday
+  // değil" diye işaretleniyor. Karıştırmak, damgasız bir varlığı yayınlanabilir
+  // sanmak olurdu — bu ayrım bir kolaylık değil, uyum iddiasının kendisi (R-33).
+  app.get('/api/varliklar', (c) => {
+    const k = kutuphane(o.repoRoot)
+    const runIdler = [...new Set(k.varliklar.map((v) => v.sourceRunId))]
+    const elle: Record<string, readonly string[]> = {}
+    for (const runId of runIdler) {
+      const liste = elleDuzenlenmisSlaytlar(o.repoRoot, runId)
+      if (liste.length > 0) elle[runId] = liste
+    }
+    return c.json({ ...k, elleSlaytlar: elle })
+  })
 
   // ── doctor: bir ay ihmalden sonra açılacak İLK ekran (§13, §16 · FAZ-4.17) ─
   //
@@ -884,21 +908,14 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const ham = c.req.query('bicim')
     const bicim = ham === 'png' || ham === 'jpg' || ham === 'pdf' ? ham : 'png'
     const dizin = join(o.repoRoot, RUNS_DIR, runId)
-    const elle = join(dizin, 'panorama-elle.json')
-    const asil = join(dizin, 'panorama.json')
-    const yol = existsSync(elle) ? elle : asil
-    if (!existsSync(yol)) return c.json({ ok: false, hata: 'belge yok — koşu render etmemiş' }, 404)
-    let doc: unknown
-    try {
-      // ⚠ ⚠ **GÖRSELLER DOSYA ADI OLARAK DURUYOR** (D-302): defter referans tutuyor,
-      // byte tutmuyor. Belgeyi doğrudan render'a vermek, Chromium'a çözemeyeceği bir ad
-      // vermek demek — slaytlar çiziliyor ama KESİK ÖZNE YOK. Çeviri tek yerde
-      // (`gorselleriGom`) ve editör de aynı fonksiyonu kullanıyor.
-      doc = gorselleriGom(JSON.parse(readFileSync(yol, 'utf8')) as never, dizin)
-    } catch (e) {
-      return c.json({ ok: false, hata: `belge okunamadı: ${String(e)}` }, 500)
+    // ⚠ ⚠ Hangi belge geçerli (elle düzenlenmiş mi asıl mı) ve görsellerin gömülmesi
+    // TEK fonksiyonda: kural burada da editörde de kopyalanmış olsaydı biri düzeltilip
+    // öteki unutulurdu — `gorselleriGom` ile bu depoda tam olarak öyle oldu (D-302).
+    const okunan = kosuBelgesiniOku<unknown>(dizin)
+    if (okunan === null) {
+      return c.json({ ok: false, hata: 'belge yok — koşu render etmemiş' }, 404)
     }
-    const r = await panoramaDisaAktar(doc as never, { tarz, bicim })
+    const r = await panoramaDisaAktar(okunan.belge as never, { tarz, bicim })
     if (!r.ok) return c.json({ ok: false, hata: JSON.stringify(r.error).slice(0, 300) }, 500)
     const parcaNo = Number(c.req.query('parca') ?? '0')
     const p = r.value[Number.isInteger(parcaNo) && parcaNo >= 0 ? parcaNo : 0]
