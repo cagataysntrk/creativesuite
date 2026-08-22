@@ -18,7 +18,9 @@ import { describe, expect, it } from 'vitest'
 import { ZERO_USD, ok, type CorrelationId, type RunId, type StepId } from '@suite/contracts'
 import { fixedClock, seededRng } from '@suite/kernel'
 import type { JobHandle, JobStatus, ProviderAdapter } from '@suite/providers'
-import { elleGorselAdi, generateBody } from './verbs/bodies.js'
+import { elleGorselAdi, generateBody, uyarlamayaCevir } from './verbs/bodies.js'
+import { uyarlamaIstemi } from './plan/sablon-uyarla.js'
+import { ORNEKLER } from '@suite/render'
 
 const UYARLAMA = {
   sablonId: 'sahne',
@@ -184,5 +186,35 @@ describe('yüklenen görselin uyum sonucu', () => {
     expect(data['elleYuklendi']).toBe(true)
     // ⚠ Sağlayıcıya HİÇ gidilmedi: maliyet listesi boş.
     expect((r.ok ? r.value.costs : ['x']).length).toBe(0)
+  })
+})
+
+// ── görsel dili: koşu başına BİR kez, konuya göre ──────────────────────────
+//
+// ⚠ ⚠ Şablon her varyantta *"monochrome ink hatching"* diyordu ve konu ne olursa olsun
+// çıktı siyah-beyaz mürekkepti. Depo sahibi: *"yine siyah beyaz gibi… konuya uygun daha
+// özgün şeyler ürettirebiliriz."* Üslup artık uyarlama adımında seçiliyor — ama TEK,
+// çünkü dört slayt aynı dili konuşmazsa yan yana dört ayrı tasarım çıkar.
+const ORNEK = ORNEKLER['sahne'] as never
+
+describe('görsel dili', () => {
+  it('uyarlama çıktısındaki `gorselDili` TAŞINIYOR', () => {
+    const c = uyarlamayaCevir({
+      result: JSON.stringify({ ...UYARLAMA, gorselDili: 'matte 3d clay render' }),
+    })
+    expect(c?.gorselDili).toBe('matte 3d clay render')
+  })
+
+  it('alan YOKSA uyarlama yine çözülüyor — eski kayıtlar ayrıştırılabilir kalıyor', () => {
+    const c = uyarlamayaCevir({ result: JSON.stringify(UYARLAMA) })
+    expect(c).not.toBeNull()
+    expect(c?.gorselDili).toBeUndefined()
+  })
+
+  it('istem TEK üslup istiyor ve örnekleri kopyalatmıyor', () => {
+    const p = uyarlamaIstemi(ORNEK, 'sahne', 'Ölçüm pilotu')
+    expect(p).toContain('gorselDili')
+    expect(p).toContain('TEK bir üslup')
+    expect(p).toContain('kopyalama')
   })
 })

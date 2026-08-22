@@ -1882,6 +1882,8 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       // Sıra yoksa 1: tek görselli eski hatlar değişmeden çalışıyor.
       const sira =
         typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : 1
+      // Uyarlama adımının seçtiği üslup — yoksa şablonun varsayılanı (boş dize).
+      const gorselDili = uyarlamaDili(input.inputs)
       const varyantlar = kayit.gorsel.varyantlar ?? []
       // ⚠ ⚠ **FAZLALIK SIRA BOŞ İSTEM DÖNDÜRÜR ve adım ATLANIR.** Şablonun iki yuvası
       // varsa üçüncü görsel adımı koşmamalı: koşarsa para harcanır, görsel üretilir ve
@@ -1910,6 +1912,11 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
         '  · if it is abstract, show a physical object that stands for it.',
         'choose the one subject a reader would recognise instantly for this topic.',
         `keep this technical base: ${kayit.gorsel.briefTemeli}`,
+        // ⚠ ⚠ **ÜSLUBU DA KONU SEÇİYOR — ama KOŞU BAŞINA BİR KEZ.** Şablon her varyantta
+        // *"monochrome ink hatching"* diyordu ve konu ne olursa olsun çıktı siyah-beyaz
+        // mürekkepti. Dil artık uyarlama adımında bir kez seçiliyor ve dört slayt onu
+        // paylaşıyor: seri bütünlüğü korunuyor, ama üslup konuya ait.
+        ...(gorselDili === '' ? [] : [`visual language for this whole set: ${gorselDili}`]),
         // ⚠ Varyant KADRAJI söylüyor, ÖZNEYİ değil: aynı konudan N özdeş görsel çıkmasın.
         ...(varyant === undefined ? [] : [`frame it like this: ${varyant}`]),
         `topic: ${konu}`,
@@ -2093,6 +2100,23 @@ const alan = (ham: unknown, ad: string): string | null =>
     : null
 
 /**
+ * Uyarlamanın seçtiği görsel dili — yoksa boş dize.
+ *
+ * ⚠ SON uyarlama kazanıyor: düzeltme turu da bir uyarlama üretiyor ve o, insanın
+ * gördüğü son karardır.
+ */
+const uyarlamaDili = (inputs: Readonly<Record<string, unknown>>): string => {
+  const diller = Object.values(inputs).flatMap((v) => {
+    if (v === null || typeof v !== 'object') return []
+    const u = (v as { uyarlama?: { gorselDili?: unknown } }).uyarlama
+    return u !== undefined && typeof u.gorselDili === 'string' && u.gorselDili.trim() !== ''
+      ? [u.gorselDili.trim()]
+      : []
+  })
+  return diller[diller.length - 1] ?? ''
+}
+
+/**
  * Bu yuva için elle yüklenmiş dosya adı — yoksa `null`.
  *
  * ⚠ İki biçim tanınıyor: `elle_gorsel_2` (yuvaya özel) ve `elle_gorsel` (tek dosya,
@@ -2143,7 +2167,7 @@ export const uyarlamayaCevir = (ham: unknown): Uyarlama | null => {
   } catch {
     return null
   }
-  const n = o as { sablonId?: unknown; kartlar?: unknown }
+  const n = o as { sablonId?: unknown; kartlar?: unknown; gorselDili?: unknown }
   if (typeof n.sablonId !== 'string' || !Array.isArray(n.kartlar)) return null
   const kartlar: UyarlamaKarti[] = []
   for (const k of n.kartlar) {
@@ -2177,7 +2201,11 @@ export const uyarlamayaCevir = (ham: unknown): Uyarlama | null => {
         : { panel: y['panel'] as NonNullable<UyarlamaKarti['panel']> }),
     })
   }
-  return { sablonId: n.sablonId, kartlar }
+  // ⚠ Görsel dili İSTEĞE BAĞLI: eski uyarlamalar onu taşımıyor ve o hâlde şablonun
+  // varsayılan dili kullanılıyor. Zorunlu kılmak, defterdeki her eski kaydı
+  // ayrıştırılamaz yapardı.
+  const dil = typeof n.gorselDili === 'string' ? n.gorselDili.trim() : ''
+  return { sablonId: n.sablonId, kartlar, ...(dil === '' ? {} : { gorselDili: dil }) }
 }
 
 /** Render adımının ölçtüğü kusurlar — düzeltme turunun girdisi. */

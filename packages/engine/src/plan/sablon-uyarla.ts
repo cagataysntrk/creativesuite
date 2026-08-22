@@ -48,6 +48,22 @@ export interface UyarlamaKarti {
 export interface Uyarlama {
   readonly sablonId: string
   readonly kartlar: readonly UyarlamaKarti[]
+  /**
+   * Bu koşunun GÖRSEL DİLİ — bir cümlelik üslup tarifi.
+   *
+   * ⚠ ⚠ **ÜSLUP DA ŞABLONDA SABİTTİ ve çıktı hep aynı görünüyordu.** Her varyant
+   * *"high contrast monochrome illustration with visible ink hatching"* diyordu; konu
+   * ne olursa olsun sonuç siyah-beyaz mürekkep taramasıydı. Depo sahibi: *"yine
+   * üretilen görseller siyah beyaz gibi… biz konuya uygun daha özgün şeyler
+   * ürettirebiliriz."*
+   *
+   * ⚠ Karar KOŞU BAŞINA BİR KEZ: dört slayt aynı dili konuşmak zorunda. Slayt başına
+   * seçtirmek, bu depoda ölçülmüş "dört ayrı tasarım dili yan yana" kusurunu geri
+   * getirirdi. Bir koşu = bir üslup, ama üslubu KONU seçiyor.
+   *
+   * Boşsa şablonun varsayılan dili kullanılıyor — eski davranış.
+   */
+  readonly gorselDili?: string
 }
 
 export type UyarlamaSonucu =
@@ -366,9 +382,24 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
           'KONUSUNU adlandırır (örn. "MALİYET", "AYRIŞTIRMA", "DÖNGÜ").',
         ]
       : ['BU ŞABLONDA ÜST BAŞLIK YOK: `ustBaslik` alanını BOŞ dize olarak bırak.']),
+    // ⚠ ⚠ **GÖRSEL DİLİNİ DE SEN SEÇİYORSUN — koşu başına BİR KEZ.** Şablon her
+    // varyantta *"monochrome ink hatching"* diyordu ve konu ne olursa olsun çıktı
+    // siyah-beyaz mürekkep taramasıydı; depo sahibi *"yine siyah beyaz gibi, daha özgün
+    // olabilir"* dedi. Üslup artık konuya ait ama TEK: dört slayt aynı dili konuşmak
+    // zorunda, yoksa yan yana dört ayrı tasarım çıkar (bu depoda ölçülmüş bir kusur).
+    'GÖRSEL DİLİ — bu karoselin BÜTÜN görselleri için TEK bir üslup seç ve `gorselDili`',
+    'alanına İNGİLİZCE, küçük harfle, tek cümle yaz. Konu neyi hak ediyorsa onu seç;',
+    'örnekler (kopyalama, konuya göre KENDİN kur):',
+    '  · matte 3d clay render, soft studio light, muted single accent',
+    '  · high contrast monochrome illustration with ink hatching',
+    '  · documentary photograph, natural light, shallow depth',
+    '  · technical line drawing on dark ground, thin even strokes',
+    'Kural: tek cümle, insan/metin/logo isteme, marka rengiyle çatışan doygun renk yok.',
+    '',
     'ÇIKTI BİÇİMİ — yalnız JSON döndür, önünde ve arkasında hiçbir açıklama olmasın:',
     '{',
     `  "sablonId": "${sablonId}",`,
+    '  "gorselDili": "matte 3d clay render, soft studio light",',
     '  "kartlar": [',
     '    {',
     ustBasligiVar ? '      "ustBaslik": "KISA KONU ETİKETİ",' : '      "ustBaslik": "",',
