@@ -38,8 +38,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:50.096Z",
-      "finishedAt": "2026-08-22T16:28:50.096Z",
+      "startedAt": "2026-08-22T16:44:23.742Z",
+      "finishedAt": "2026-08-22T16:44:23.742Z",
       "output": {
         "brandId": "brd_upcytech"
       }
@@ -94,8 +94,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.097Z",
-      "finishedAt": "2026-08-22T16:28:50.098Z",
+      "startedAt": "2026-08-22T16:44:23.742Z",
+      "finishedAt": "2026-08-22T16:44:23.743Z",
       "output": {
         "konu": "UpcyMan: çalışan üretim altyapısı",
         "gerekce": "UpcyMan somut kanıt varlığı olduğu için markanın gösterilebilir ve söyleme yetkisi olan tek başlık, laf değil ürün gösterir."
@@ -132,8 +132,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:50.098Z",
-      "finishedAt": "2026-08-22T16:28:50.100Z",
+      "startedAt": "2026-08-22T16:44:23.744Z",
+      "finishedAt": "2026-08-22T16:44:23.745Z",
       "output": null
     },
     {
@@ -186,8 +186,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.100Z",
-      "finishedAt": "2026-08-22T16:28:50.100Z",
+      "startedAt": "2026-08-22T16:44:23.746Z",
+      "finishedAt": "2026-08-22T16:44:23.746Z",
       "output": {
         "lines": [
           "Kantar mı yalan söylüyor, satış mı",
@@ -250,8 +250,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.101Z",
-      "finishedAt": "2026-08-22T16:28:50.101Z",
+      "startedAt": "2026-08-22T16:44:23.746Z",
+      "finishedAt": "2026-08-22T16:44:23.746Z",
       "output": null
     },
     {
@@ -286,8 +286,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:50.101Z",
-      "finishedAt": "2026-08-22T16:28:50.103Z",
+      "startedAt": "2026-08-22T16:44:23.746Z",
+      "finishedAt": "2026-08-22T16:44:23.748Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -345,8 +345,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.108Z",
-      "finishedAt": "2026-08-22T16:28:50.109Z",
+      "startedAt": "2026-08-22T16:44:23.754Z",
+      "finishedAt": "2026-08-22T16:44:23.754Z",
       "output": {
         "lines": [
           "a robotic recycling arm gripping a compressed metal scrap bale, plain solid black background free of gradient or surface detail, strong rim light on the arm and bale only, subject extending beyond the frame on the right, high contrast monochrome illustration with visible ink hatching, matte surfaces only, framed head-on and centred"
@@ -401,8 +401,8 @@
           "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.109Z",
-      "finishedAt": "2026-08-22T16:28:50.109Z",
+      "startedAt": "2026-08-22T16:44:23.754Z",
+      "finishedAt": "2026-08-22T16:44:23.754Z",
       "output": null,
       "error": {
         "kind": "internal",
@@ -459,8 +459,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.109Z",
-      "finishedAt": "2026-08-22T16:28:50.109Z",
+      "startedAt": "2026-08-22T16:44:23.754Z",
+      "finishedAt": "2026-08-22T16:44:23.754Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -518,8 +518,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.109Z",
-      "finishedAt": "2026-08-22T16:28:50.110Z",
+      "startedAt": "2026-08-22T16:44:23.755Z",
+      "finishedAt": "2026-08-22T16:44:23.755Z",
       "output": {
         "lines": [
           "a battered fabric bale press, its steel jaws mid-compression on a dense block of compacted textile scraps, filling the lower two thirds and pushing past the right edge, single strong rim light tracing the machine's edges against a plain solid black background, matte unmarked surfaces throughout, three quarter angle, high contrast monochrome illustration with visible ink hatching, no humanoid robot, no chrome"
@@ -574,8 +574,8 @@
           "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.110Z",
-      "finishedAt": "2026-08-22T16:28:50.110Z",
+      "startedAt": "2026-08-22T16:44:23.755Z",
+      "finishedAt": "2026-08-22T16:44:23.755Z",
       "output": null,
       "error": {
         "kind": "internal",
@@ -632,8 +632,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.110Z",
-      "finishedAt": "2026-08-22T16:28:50.110Z",
+      "startedAt": "2026-08-22T16:44:23.755Z",
+      "finishedAt": "2026-08-22T16:44:23.755Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -691,8 +691,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.110Z",
-      "finishedAt": "2026-08-22T16:28:50.110Z",
+      "startedAt": "2026-08-22T16:44:23.755Z",
+      "finishedAt": "2026-08-22T16:44:23.755Z",
       "output": {
         "lines": [
           "a large industrial recycling press mid-crush on a bundle of compacted material, cropped at the left edge, low camera angle looking up, plain solid black background free of gradient or surface detail, strong rim light on the machine only, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome"
@@ -747,8 +747,8 @@
           "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.110Z",
-      "finishedAt": "2026-08-22T16:28:50.110Z",
+      "startedAt": "2026-08-22T16:44:23.756Z",
+      "finishedAt": "2026-08-22T16:44:23.756Z",
       "output": null,
       "error": {
         "kind": "internal",
@@ -805,8 +805,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.110Z",
-      "finishedAt": "2026-08-22T16:28:50.111Z",
+      "startedAt": "2026-08-22T16:44:23.756Z",
+      "finishedAt": "2026-08-22T16:44:23.756Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -864,8 +864,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.111Z",
-      "finishedAt": "2026-08-22T16:28:50.111Z",
+      "startedAt": "2026-08-22T16:44:23.756Z",
+      "finishedAt": "2026-08-22T16:44:23.756Z",
       "output": {
         "lines": [
           "a factory conveyor belt with a single glass bottle mid-transit, plain solid black background, strong rim light tracing the bottle's edge and the belt's mechanical ridges, the belt reaching past the bottom edge of the frame, close crop on the bottle sitting on the belt track, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome"
@@ -920,8 +920,8 @@
           "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.111Z",
-      "finishedAt": "2026-08-22T16:28:50.111Z",
+      "startedAt": "2026-08-22T16:44:23.756Z",
+      "finishedAt": "2026-08-22T16:44:23.756Z",
       "output": null,
       "error": {
         "kind": "internal",
@@ -978,8 +978,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:50.111Z",
-      "finishedAt": "2026-08-22T16:28:50.111Z",
+      "startedAt": "2026-08-22T16:44:23.756Z",
+      "finishedAt": "2026-08-22T16:44:23.756Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -1017,8 +1017,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:50.111Z",
-      "finishedAt": "2026-08-22T16:28:50.112Z",
+      "startedAt": "2026-08-22T16:44:23.756Z",
+      "finishedAt": "2026-08-22T16:44:23.757Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -1058,8 +1058,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:50.119Z",
-      "finishedAt": "2026-08-22T16:28:53.248Z",
+      "startedAt": "2026-08-22T16:44:23.764Z",
+      "finishedAt": "2026-08-22T16:44:26.889Z",
       "output": {
         "kusurlar": [
           {
@@ -1163,8 +1163,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:53.248Z",
-      "finishedAt": "2026-08-22T16:28:53.249Z",
+      "startedAt": "2026-08-22T16:44:26.889Z",
+      "finishedAt": "2026-08-22T16:44:26.890Z",
       "output": {
         "bulgular": [
           {
@@ -1243,8 +1243,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:53.249Z",
-      "finishedAt": "2026-08-22T16:28:53.249Z",
+      "startedAt": "2026-08-22T16:44:26.890Z",
+      "finishedAt": "2026-08-22T16:44:26.890Z",
       "output": {
         "bulgular": [
           {
@@ -1359,8 +1359,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T16:28:53.249Z",
-      "finishedAt": "2026-08-22T16:28:53.249Z",
+      "startedAt": "2026-08-22T16:44:26.890Z",
+      "finishedAt": "2026-08-22T16:44:26.890Z",
       "output": null
     },
     {
@@ -1395,8 +1395,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:53.249Z",
-      "finishedAt": "2026-08-22T16:28:53.250Z",
+      "startedAt": "2026-08-22T16:44:26.890Z",
+      "finishedAt": "2026-08-22T16:44:26.891Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -1436,8 +1436,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:53.260Z",
-      "finishedAt": "2026-08-22T16:28:56.340Z",
+      "startedAt": "2026-08-22T16:44:26.900Z",
+      "finishedAt": "2026-08-22T16:44:30.049Z",
       "output": {
         "kusurlar": [
           {
@@ -1524,8 +1524,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:56.340Z",
-      "finishedAt": "2026-08-22T16:28:56.341Z",
+      "startedAt": "2026-08-22T16:44:30.049Z",
+      "finishedAt": "2026-08-22T16:44:30.050Z",
       "output": {
         "kusurSayisi": 7,
         "bulgular": [
@@ -1572,8 +1572,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:56.341Z",
-      "finishedAt": "2026-08-22T16:28:56.342Z",
+      "startedAt": "2026-08-22T16:44:30.050Z",
+      "finishedAt": "2026-08-22T16:44:30.050Z",
       "output": {
         "proposed": [
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-01.png",
@@ -1585,7 +1585,7 @@
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-03.png",
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-04.png"
         ],
-        "proposedAt": "2026-08-22T16:28:56.342Z",
+        "proposedAt": "2026-08-22T16:44:30.050Z",
         "yayinSaati": {
           "tur": "veri-yok",
           "ornek": 0,
@@ -1622,8 +1622,8 @@
       },
       "actualCost": null,
       "candidates": [],
-      "startedAt": "2026-08-22T16:28:56.342Z",
-      "finishedAt": "2026-08-22T16:28:56.343Z",
+      "startedAt": "2026-08-22T16:44:30.050Z",
+      "finishedAt": "2026-08-22T16:44:30.052Z",
       "output": null,
       "error": {
         "kind": "io",
