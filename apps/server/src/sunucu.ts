@@ -17,8 +17,9 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  renameSync,
   readdirSync,
+  renameSync,
+  writeFileSync,
 } from 'node:fs'
 import { join } from 'node:path'
 import { Hono } from 'hono'
@@ -195,6 +196,18 @@ const sablonSecimi = (ham: string | undefined): string | null => {
   const v = (ham ?? '').trim()
   if (v === '') return null
   return KATALOG.some((s) => s.id === v && s.kullanilabilir.durum) ? v : null
+}
+
+/** Panelden yüklenmiş görseller — hat bunları üretim yerine kullanır. */
+const yuklenenGorseller = (repoRoot: string, runId: string): readonly string[] => {
+  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return []
+  try {
+    return readdirSync(join(repoRoot, RUNS_DIR, runId))
+      .filter((f) => /^elle-gorsel-\d{2}\.(png|jpg)$/.test(f))
+      .sort()
+  } catch {
+    return []
+  }
 }
 
 /** Ekrandaki onay şeridinin bir hanesi. */
@@ -576,6 +589,8 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // düzenlenmiş bir slayt henüz uyum iddiası taşımıyor ve yayına aday değil.
       // Karıştırmak, damgasız bir varlığı yayınlanabilir sanmak olurdu.
       elleSlaytlar: elleDuzenlenmisSlaytlar(o.repoRoot, runId),
+      // Panelden yüklenmiş görseller: hat bunları `elle_gorsel_<sıra>` ile kullanır.
+      yuklenenGorseller: yuklenenGorseller(o.repoRoot, runId),
       // ── canlı takip (FAZ-17.3) ──────────────────────────────────────────
       //
       // ⚠ ⚠ **BAŞLATTIKTAN SONRA HİÇBİR ŞEY GÖRÜNMÜYORDU.** Ekran "başlatıldı: run_…"
@@ -627,7 +642,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // okuyucusuna çevirirdi.
   app.get('/api/kosu/:runId/elle/:ad', (c) => {
     const ad = c.req.param('ad')
-    if (!/^slayt-\d{2}-elle\.png$/.test(ad)) {
+    if (!/^(slayt-\d{2}-elle\.png|elle-gorsel-\d{2}\.(png|jpg))$/.test(ad)) {
       return c.json({ ok: false, hata: 'gecersiz ad' }, 400)
     }
     const runId = c.req.param('runId')
@@ -635,8 +650,58 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const yol = join(o.repoRoot, RUNS_DIR, runId, ad)
     if (!existsSync(yol)) return c.json({ ok: false, hata: 'dosya yok' }, 404)
     return new Response(new Uint8Array(readFileSync(yol)), {
-      headers: { 'content-type': 'image/png', 'cache-control': 'no-store' },
+      headers: {
+        'content-type': ad.endsWith('.jpg') ? 'image/jpeg' : 'image/png',
+        'cache-control': 'no-store',
+      },
     })
+  })
+
+  // ── PANELDEN GÖRSEL YÜKLEME (FAZ-17.3) ───────────────────────────────────
+  //
+  // ⚠ ⚠ **ÜRÜN TANITIMINDA MODEL GÖRSELİ YANLIŞ CEVAPTIR.** Depo sahibi: *"bazen ürün
+  // tanıtımı yapıyoruz, corpus'a yüklemedik ama panelden de üretime dahil edilmeli"*.
+  // Gerçek ürünün fotoğrafı varken onu ÜRETMEYE çalışmak hem para harcar hem yanlış
+  // ürünü çizer.
+  //
+  // ⚠ Dosya koşu dizinine iniyor ve hat onu `elle_gorsel_<sıra>` parametresiyle
+  // okuyor. Corpus'a YAZMIYOR: corpus'a yazma yetkisi insanın git commit'i (R-14) ve
+  // bir yüklemenin o kapıyı atlaması, marka bilgisine denetimsiz giriş açardı.
+  //
+  // ⚠ Tür MAGIC BYTE ile doğrulanıyor, uzantıyla değil: `.png` adlı bir betik `.png`
+  // olmaz. `repo-hygiene` kapısı da aynı yöntemi kullanıyor.
+  app.post('/api/kosu/:runId/gorsel', async (c) => {
+    const runId = c.req.param('runId')
+    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
+      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    const dizin = join(o.repoRoot, RUNS_DIR, runId)
+    if (!existsSync(dizin)) return c.json({ ok: false, hata: `çalıştırma yok: ${runId}` }, 404)
+
+    const g = (await c.req.json().catch(() => ({}))) as { sira?: number; base64?: string }
+    const sira = typeof g.sira === 'number' && g.sira >= 1 && g.sira <= 12 ? Math.trunc(g.sira) : 1
+    const ham = (g.base64 ?? '').replace(/^data:[^;]+;base64,/, '')
+    if (ham === '') return c.json({ ok: false, hata: 'dosya boş' }, 400)
+    let bayt: Buffer
+    try {
+      bayt = Buffer.from(ham, 'base64')
+    } catch {
+      return c.json({ ok: false, hata: 'base64 çözülemedi' }, 400)
+    }
+    // ⚠ 8 MB: bir slayt görseli bundan büyük olmaz ve sınırsız bir uç, diski dolduran
+    // bir uçtur. Byte `derived/runs` altında ve o dizin git'e giriyor — ama `*.png`
+    // zaten gitignore'lu (R-64 · D-38).
+    if (bayt.length > 8 * 1024 * 1024) return c.json({ ok: false, hata: 'dosya 8 MB üstü' }, 400)
+    const png = bayt.subarray(0, 8).toString('hex') === '89504e470d0a1a0a'
+    const jpg = bayt.subarray(0, 3).toString('hex') === 'ffd8ff'
+    if (!png && !jpg) return c.json({ ok: false, hata: 'yalnız PNG ya da JPEG' }, 400)
+    const ad = `elle-gorsel-${String(sira).padStart(2, '0')}.${png ? 'png' : 'jpg'}`
+    try {
+      writeFileSync(join(dizin, ad), bayt)
+    } catch (e) {
+      return c.json({ ok: false, hata: `yazılamadı: ${String(e)}` }, 500)
+    }
+    yayinla('degisim')
+    return c.json({ ok: true, ad, sira, bayt: bayt.length })
   })
 
   app.get('/api/varlik/:digest', (c) => {

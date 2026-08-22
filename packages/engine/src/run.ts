@@ -203,6 +203,14 @@ export const UNTRUSTED_GATE = 'untrusted-input'
  * Liste sınanabilir olmazsa altıncı kez eksik kalır.
  */
 export const DEFTER_ANAHTARLARI: readonly string[] = [
+  // ── elle yüklenen görsel (FAZ-17.3) ────────────────────────────────────
+  //
+  // ⚠ Üçü de KÜÇÜK ve KARAR taşıyor: hangi dosya kullanıldı, üretim mi yükleme mi,
+  // ve ifşa gerekiyor mu. `yapayZeka` doğrudan Md. 50 kararının girdisi — defterde
+  // olmazsa "bu karosel neden ifşasız yayınlandı" sorusu cevapsız kalırdı.
+  'elleYuklendi',
+  'yapayZeka',
+  'dosya',
   // ⚠ ⚠ Katalog merkezli yol (FAZ-15.9): bu anahtarlar deftere girmezse hangi şablonun
   // seçildiği ve render'ın ölçtüğü kusurların ne olduğu KAYBOLUR — koşu sonradan
   // denetlenemez hâle gelir. `sablonId` özellikle kritik: "bu karosel neden böyle"

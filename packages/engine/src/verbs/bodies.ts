@@ -320,7 +320,11 @@ export const composeBody = (deps: ComposeDeps): Verb =>
           ? kartlar
           : {
               ...kartlar,
-              aiIfsasi: true,
+              // ⚠ ⚠ **İFŞA ARTIK KOŞULLU: kreatifte MODEL görseli var mı.** Elle
+              // yüklenen ürün fotoğraflarıyla kurulmuş bir karosel yapay zekâ ürünü
+              // değildir ve ona ifşa yazmak yanlış beyandır. Biri bile model üretimiyse
+              // ifşa GEREKİR — karışık bir kreatifte "biraz yapay" diye bir şey yok.
+              aiIfsasi: uretilenler.some((u) => u.yapayZeka),
               gorseller: kartlar.gorseller.map((g, i) => {
                 const u = uretilenler[i]
                 return u === undefined ? g : { ...g, src: u.src }
@@ -663,6 +667,14 @@ interface UretilenGorsel {
   readonly width: number
   readonly height: number
   readonly matlandi: boolean
+  /**
+   * Bu görsel MODEL tarafından mı üretildi.
+   *
+   * ⚠ ⚠ **İFŞA BUNA BAĞLI (Md. 50).** Elle yüklenen gerçek bir ürün fotoğrafına
+   * "yapay zekâ görseli" yazmak, doğru olmayan bir beyandır — ve bu depoda beyan
+   * ölçümden gelir, varsayımdan değil (D-23).
+   */
+  readonly yapayZeka: boolean
 }
 
 /**
@@ -704,6 +716,7 @@ const uretilenGorseller = (
       width?: unknown
       height?: unknown
       matlandi?: unknown
+      yapayZeka?: unknown
     }
     if (o.format !== 'base64' || typeof o.data !== 'string' || o.data === '') continue
     // Sonek yoksa öbek `1`: tek görselli eski hatlar (`instagram-post`) değişmeden çalışır.
@@ -716,6 +729,10 @@ const uretilenGorseller = (
       width: typeof o.width === 'number' ? o.width : 0,
       height: typeof o.height === 'number' ? o.height : 0,
       matlandi: o.matlandi === true,
+      // ⚠ Varsayılan TRUE: alanı taşımayan bir çıktı model üretimidir (eski hatlar ve
+      // sağlayıcı yanıtları). Bilinmeyen bir kaynağı "insan çekti" saymak, ifşayı
+      // sessizce kapatırdı — ve bu, kapının en çok gerektiği yerde kapanması olurdu.
+      yapayZeka: o.yapayZeka !== false,
     }
     const mevcut = obekler.get(obek)
     if (mevcut === undefined) sira.push(obek)
@@ -1618,6 +1635,14 @@ const urunEkranlari = (
 export interface GenerateDeps {
   /** Yönlendiricinin seçtiği id'den adaptörü bulur. `adapterById` geçilir. */
   readonly resolveAdapter: (providerId: string) => ProviderAdapter | null
+  /**
+   * Çalıştırma dizini — **elle yüklenen görseller buradan okunuyor** (FAZ-17.3).
+   *
+   * ⚠ Yol ÇAĞIRANDAN geliyor, kısıttan değil: kısıt yalnız DOSYA ADI taşıyor. Mutlak
+   * bir yolu parametre olarak kabul etmek, çalıştırma parametresini bir dosya okuyucu
+   * yapardı — depo dışındaki her şey okunabilir hâle gelirdi (§14).
+   */
+  readonly runDir?: string
   /** Ortam AÇIKÇA verilir (§14); gövde `process.env`e dokunamaz. */
   readonly env: Readonly<Record<string, string>>
   readonly capability: string
@@ -2049,6 +2074,43 @@ const alan = (ham: unknown, ad: string): string | null =>
     ? ((ham as Record<string, string>)[ad] as string)
     : null
 
+/**
+ * Bu yuva için elle yüklenmiş dosya adı — yoksa `null`.
+ *
+ * ⚠ İki biçim tanınıyor: `elle_gorsel_2` (yuvaya özel) ve `elle_gorsel` (tek dosya,
+ * yalnız birinci yuva). İkincisi tek görselli hatlar için; çoğu koşuda insan tek bir
+ * ürün fotoğrafı yüklüyor ve ona iki farklı ad ezberletmek gereksiz.
+ *
+ * ⚠ Ad TEMİZ olmak zorunda: yol ayracı ya da `..` taşıyan bir ad, çalıştırma dizininin
+ * dışına çıkardı.
+ */
+export const elleGorselAdi = (
+  kisitlar: Readonly<Record<string, unknown>>,
+  sira: number
+): string | null => {
+  const oku = (anahtar: string): string | null => {
+    const v = kisitlar[anahtar]
+    if (typeof v !== 'string' || v.trim() === '') return null
+    const ad = v.trim()
+    return /^[A-Za-z0-9._-]+$/.test(ad) && !ad.includes('..') ? ad : null
+  }
+  return oku(`elle_gorsel_${String(sira)}`) ?? (sira === 1 ? oku('elle_gorsel') : null)
+}
+
+/**
+ * Koşu dizinindeki SÖZLEŞMELİ ad — `elle-gorsel-<sıra>.png|jpg`. Yoksa `null`.
+ *
+ * ⚠ Yalnız bu iki uzantı ve yalnız iki haneli sıra: dizin listelemek yerine ADI
+ * KURUYORUZ, yani dizindeki başka hiçbir dosya yanlışlıkla görsele dönüşemez.
+ */
+const elleGorselDosyasi = (runDir: string, sira: number): string | null => {
+  const taban = `elle-gorsel-${String(sira).padStart(2, '0')}`
+  for (const uzanti of ['.png', '.jpg']) {
+    if (existsSync(join(runDir, `${taban}${uzanti}`))) return `${taban}${uzanti}`
+  }
+  return null
+}
+
 export const uyarlamayaCevir = (ham: unknown): Uyarlama | null => {
   const metin =
     typeof ham === 'string'
@@ -2205,6 +2267,54 @@ export const generateBody = (deps: GenerateDeps): Verb =>
     // varsayılan. Kurulumdan almak, tek bir gövdenin tüm `GENERATE` adımlarına
     // hizmet ettiği yerde metin adımını görsel yeteneğiyle koşturuyordu.
     const yetenek = input.capability ?? deps.capability
+
+    // ── ELLE YÜKLENEN GÖRSEL: üretim yerine İNSANIN dosyası ─────────────────
+    //
+    // ⚠ ⚠ **EN BAŞTA — istemden de, sağlayıcıdan da ÖNCE.** İlk sürüm bu kontrolü
+    // istem kurulduktan sonraya koymuştu ve ölçüm gösterdi ki yüklenmiş görsel varken
+    // adım yine de `{atlandi: true, sebep: 'prompt-yok'}` ile düşüyordu: brief üreten
+    // model çağrısı olmadığında istem boş kalıyor ve koşucu adımı atlıyor. Oysa yüklü
+    // bir fotoğrafın brief'e İHTİYACI YOK — sorulmaması gereken bir soruyu sormak,
+    // cevabı olmadığı için işi durduruyordu.
+    //
+    // ⚠ ⚠ **ÜRÜN TANITIMINDA MODEL GÖRSELİ YANLIŞ CEVAPTIR.** Depo sahibi: *"bazen
+    // ürün tanıtımı yapıyoruz, panelden yüklenen görsel üretime dahil edilmeli"*.
+    // Gerçek ürünün fotoğrafı varken onu üretmeye çalışmak, hem para harcar hem
+    // yanlış ürünü çizer.
+    //
+    // ⚠ ⚠ **UYUM SONUCU: bu görsel AI DEĞİL.** Çıktı `yapayZeka: false` taşıyor;
+    // ifşa yükümlülüğü (Md. 50) yalnız model üretimi için var ve gerçek bir fotoğrafa
+    // "yapay zekâ görseli" yazmak, doğru olmayan bir beyandır.
+    //
+    // ⚠ Kısıt yalnız DOSYA ADI taşıyor, yolu çağıran veriyor: mutlak yol kabul etmek
+    // çalıştırma parametresini dosya okuyucuya çevirirdi (§14).
+    const yuvaSirasi =
+      typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : null
+    if (yetenek === 'image.generate' && yuvaSirasi !== null && deps.runDir !== undefined) {
+      // ⚠ ⚠ **PARAMETRE ŞART DEĞİL: DOSYA ADI BİR SÖZLEŞME.** Panel yüklemeyi koşu
+      // dizinine `elle-gorsel-01.png` gibi sabit bir adla yazıyor. Parametre plumbing'i
+      // şart koşmak, "yükle ve sürdür" akışını iki adım uzatırdı; dosya zaten O
+      // koşunun dizininde ve oraya operatör koydu.
+      const elle =
+        elleGorselAdi(input.constraints, yuvaSirasi) ?? elleGorselDosyasi(deps.runDir, yuvaSirasi)
+      if (elle !== null) {
+        const yol = join(deps.runDir, elle)
+        if (existsSync(yol)) {
+          const bayt = readFileSync(yol)
+          return ok({
+            costs: [],
+            data: {
+              format: 'base64',
+              data: bayt.toString('base64'),
+              // ⚠ Ölçü DEĞİL BEYAN: gerçek boyut render tarafında zaten okunuyor.
+              elleYuklendi: true,
+              yapayZeka: false,
+              dosya: elle,
+            },
+          })
+        }
+      }
+    }
 
     // ── 9. yasa: SAĞLAYICI SEÇİLMEDEN ÖNCE (§11.3 · R-33 · D-239) ───────────
     //

@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest'
 import { ZERO_USD, ok, type CorrelationId, type RunId, type StepId } from '@suite/contracts'
 import { fixedClock, seededRng } from '@suite/kernel'
 import type { JobHandle, JobStatus, ProviderAdapter } from '@suite/providers'
-import { generateBody } from './verbs/bodies.js'
+import { elleGorselAdi, generateBody } from './verbs/bodies.js'
 
 const UYARLAMA = {
   sablonId: 'sahne',
@@ -119,5 +119,72 @@ describe('düzeltme turu çıktısı', () => {
   it('bayrak yoksa uyarlama ÜRETİLMİYOR', async () => {
     const d = await kos({})
     expect(d['uyarlama']).toBeUndefined()
+  })
+})
+
+// ── elle yüklenen görsel ÜRETİMİN YERİNE geçiyor (FAZ-17.3) ────────────────
+//
+// ⚠ ⚠ **ÜRÜN TANITIMINDA MODEL GÖRSELİ YANLIŞ CEVAPTIR.** Gerçek ürünün fotoğrafı
+// varken onu üretmeye çalışmak hem para harcar hem yanlış ürünü çizer. Depo sahibi:
+// *"panelden yüklenen görsel üretime dahil edilmeli"*.
+describe('elle yüklenen görsel adı', () => {
+  it('yuvaya özel ad okunuyor', () => {
+    expect(elleGorselAdi({ elle_gorsel_2: 'elle-gorsel-02.png' }, 2)).toBe('elle-gorsel-02.png')
+  })
+
+  it('tek dosya yalnız BİRİNCİ yuvaya geçiyor', () => {
+    expect(elleGorselAdi({ elle_gorsel: 'a.png' }, 1)).toBe('a.png')
+    // ⚠ İkinci yuvaya da geçseydi, tek fotoğraf dört slaytta tekrarlanırdı — bu
+    // deponun "aynı figür yan yana" kusuru.
+    expect(elleGorselAdi({ elle_gorsel: 'a.png' }, 2)).toBeNull()
+  })
+
+  it('YOL AYRACI taşıyan ad REDDEDİLİYOR — çalıştırma dizininin dışına çıkılmaz', () => {
+    expect(elleGorselAdi({ elle_gorsel: '../../etc/passwd' }, 1)).toBeNull()
+    expect(elleGorselAdi({ elle_gorsel: 'alt/dizin.png' }, 1)).toBeNull()
+    expect(elleGorselAdi({ elle_gorsel: '..' }, 1)).toBeNull()
+  })
+
+  it('parametre yoksa `null` — varsayılan davranış ÜRETİM', () => {
+    expect(elleGorselAdi({}, 1)).toBeNull()
+  })
+})
+
+// ── ifşa KOŞULLU: görselin KAYNAĞI (§11.3 · Md. 50) ────────────────────────
+//
+// ⚠ ⚠ Elle yüklenen ürün fotoğraflarıyla kurulmuş bir karosel yapay zekâ ürünü
+// DEĞİLDİR; ona "yapay zekâ görseli" yazmak doğru olmayan bir beyandır. Ama biri bile
+// model üretimiyse ifşa GEREKİR — karışık bir kreatifte "biraz yapay" yoktur.
+describe('yüklenen görselin uyum sonucu', () => {
+  it('çıktı `yapayZeka: false` TAŞIYOR — ifşa kararı buradan doğuyor', async () => {
+    const { mkdtempSync, writeFileSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const d = mkdtempSync(join(tmpdir(), 'elle-gorsel-'))
+    // Gerçek PNG imzası: gövde önemli değil, KAYNAK önemli.
+    writeFileSync(join(d, 'elle-gorsel-01.png'), Buffer.from('89504e470d0a1a0a', 'hex'))
+
+    const v = generateBody({
+      resolveAdapter: () => adapter,
+      env: {},
+      capability: 'image.generate',
+      runDir: d,
+    })
+    const r = await v.run(
+      CTX as never,
+      {
+        capability: 'image.generate',
+        providerId: 'p_sahte',
+        constraints: { gorsel_sira: 1 },
+        inputs: {},
+        signal: new AbortController().signal,
+      } as never
+    )
+    expect(r.ok).toBe(true)
+    const data = (r.ok ? r.value.data : {}) as Record<string, unknown>
+    expect(data['yapayZeka']).toBe(false)
+    expect(data['elleYuklendi']).toBe(true)
+    // ⚠ Sağlayıcıya HİÇ gidilmedi: maliyet listesi boş.
+    expect((r.ok ? r.value.costs : ['x']).length).toBe(0)
   })
 })

@@ -592,6 +592,8 @@ const bilgiSha = bilgi.sha
 // gerçek bir kod yolundan geliyor.
 const generate = generateBody({
   resolveAdapter: adapterById,
+  // ⚠ Elle yüklenen görseller BU dizinden okunuyor; kısıt yalnız dosya adı taşıyor.
+  runDir: cikti,
   // ⚠ Bu liste ELLE SAYILIYORDU (üç ad) ve dördüncü sağlayıcı eklendiği gün sessizce
   // unutulacaktı (D-237). Artık tanımlayıcıların `auth_env` beyanından türetiliyor —
   // hangi anahtarın gerektiği veridir, kod değil. Okuyucu TEK: `readEnv` (§14).

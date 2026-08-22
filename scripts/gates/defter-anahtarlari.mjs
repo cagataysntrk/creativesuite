@@ -56,6 +56,7 @@ const DISARIDA = {
   genislik: 'render genişliği — `panoramaGenisligi` taşıyor',
   gorsel: 'görsel data URI — byte, defterde yeri yok',
   image_base64: 'görsel data URI — aynı sebep',
+  data: 'base64 gövde — byte defterde durmaz, `derived/blobs`ta (R-64)',
   // ⚠ Aşağıdakiler kapı yazılınca çıktı ve BİLEREK dışarıda: hepsi liste/yük.
   records: "kayıt listesi — id'ler donmuş planın `recordIds` alanında zaten var",
   assets: "varlık listesi — byte içerik-adresli depoda, digest'ler `digests` alanında",

@@ -31,6 +31,8 @@ interface Icerik {
   readonly varliklar: readonly { readonly digest: string; readonly bytes: number }[]
   /** Editörde elle düzenlenip koşu dizinine yazılmış slaytlar (D-301). */
   readonly elleSlaytlar: readonly string[]
+  /** Panelden yüklenmiş görseller — hat bunları üretim YERİNE kullanır. */
+  readonly yuklenenGorseller: readonly string[]
   readonly adimlar: readonly {
     readonly id: string
     readonly verb: string
@@ -78,6 +80,31 @@ export const KosuDetay = ({
   const [hata, setHata] = useState<string | null>(null)
   const [gerekce, setGerekce] = useState<string | null>(null)
   const [mesaj, setMesaj] = useState<string | null>(null)
+  const [yukleme, setYukleme] = useState<string | null>(null)
+
+  /**
+   * Görseli yükler — **yuva sırası dosya adından değil, mevcut yüklü sayıdan** türüyor.
+   *
+   * ⚠ Base64 gövde: `multipart` ayrıştırıcısı ikinci bir çözücü demekti ve bu depoda
+   * "tek çözücü" bir kural (§3.8). Tarayıcı `FileReader` ile zaten base64 veriyor.
+   */
+  const gorselYukle = async (dosya: File | null): Promise<void> => {
+    if (dosya === null) return
+    setYukleme('… yükleniyor')
+    const base64 = await new Promise<string>((coz) => {
+      const fr = new FileReader()
+      fr.onload = () => coz(String(fr.result ?? ''))
+      fr.readAsDataURL(dosya)
+    })
+    const r = await fetch(`/api/kosu/${runId}/gorsel`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ sira: (d?.yuklenenGorseller.length ?? 0) + 1, base64 }),
+    })
+    const j = (await r.json()) as { ok: boolean; ad?: string; hata?: string }
+    setYukleme(j.ok ? `✓ yüklendi: ${j.ad ?? ''}` : `✗ ${j.hata ?? 'yüklenemedi'}`)
+    await yukle()
+  }
 
   const yukle = useCallback(async (): Promise<void> => {
     const r = await fetch(`/api/kosu/${runId}/icerik`)
@@ -344,6 +371,35 @@ export const KosuDetay = ({
             ⚠ Ayrı bölüm: elle düzenlenmiş slayt henüz uyum iddiası taşımıyor ve yayına
             aday DEĞİL. Damgalıların arasına karıştırmak, damgasız bir varlığı
             yayınlanabilir sanmak olurdu. */}
+        {/* ⚠ ⚠ **ÜRÜN TANITIMINDA MODEL GÖRSELİ YANLIŞ CEVAPTIR.** Gerçek ürünün
+            fotoğrafı varken onu üretmeye çalışmak hem para harcar hem yanlış ürünü
+            çizer. Yüklenen dosya `elle_gorsel_<sıra>` parametresiyle o yuvaya giriyor
+            ve o görsel için AI ifşası GEREKMİYOR — gerçek bir fotoğrafa "yapay zekâ
+            görseli" yazmak doğru olmayan bir beyandır. */}
+        <div className="giris-alan">
+          <label htmlFor="gorsel-yukle">
+            görsel yükle (yuva sırası ile) — üretim yerine BU dosya kullanılır
+          </label>
+          <input
+            id="gorsel-yukle"
+            type="file"
+            accept="image/png,image/jpeg"
+            onChange={(e) => void gorselYukle(e.target.files?.[0] ?? null)}
+          />
+          {yukleme === null ? null : <span className="giris-not">{yukleme}</span>}
+        </div>
+        {d.yuklenenGorseller.length === 0 ? null : (
+          <>
+            <h4>Yüklenen görseller ({d.yuklenenGorseller.length}) — üretimde kullanılacak</h4>
+            <div className="kosu-slaytlar">
+              {d.yuklenenGorseller.map((ad) => (
+                <a key={ad} href={`/api/kosu/${runId}/elle/${ad}`} target="_blank" rel="noreferrer">
+                  <img src={`/api/kosu/${runId}/elle/${ad}`} alt={`yüklenen ${ad}`} />
+                </a>
+              ))}
+            </div>
+          </>
+        )}
         {d.elleSlaytlar.length === 0 ? null : (
           <>
             <h4>Elle düzenlenmiş ({d.elleSlaytlar.length}) — damgasız, yayına aday değil</h4>
