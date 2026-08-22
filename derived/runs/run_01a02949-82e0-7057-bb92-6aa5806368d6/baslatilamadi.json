@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-22T11:45:09.600Z",
+  "komut": "just uret instagram-post --devam run_01a02949-82e0-7057-bb92-6aa5806368d6",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n✗ run_01a02949-82e0-7057-bb92-6aa5806368d6: hiç kapı kararı yok — önce: just onay run_01a02949-82e0-7057-bb92-6aa5806368d6 onayla\n"
+}

@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-22T11:51:52.141Z",
+  "komut": "just uret deck --konu-sec --run run_01a02950-2040-7705-9d8a-4efa7d745621 --plan-digest sha256:x",
+  "code": null,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "spawn just ENOENT",
+  "stdout": ""
+}

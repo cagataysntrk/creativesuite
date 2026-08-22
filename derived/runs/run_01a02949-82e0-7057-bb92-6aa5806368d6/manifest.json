@@ -1,0 +1,115 @@
+{
+  "runId": "run_01a02949-82e0-7057-bb92-6aa5806368d6",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-post",
+  "corpusCommit": "70a705722ad816c0bb5732fb48b479b66a6f709a",
+  "registryCommit": "70a705722ad816c0bb5732fb48b479b66a6f709a",
+  "createdAt": "2026-08-22T11:44:39.603Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Excel ve vardiya defteri\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a016aa-1af2-7904-9fba-48ba2fe2ac84\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a016ee-18ad-7faf-8132-6017722ee9cb\"},{\"baslik\":\"UpcyMan: çalışan üretim altyapısı\",\"tur\":\"proof_asset\",\"sonKosu\":\"run_01a01742-1525-7c77-98eb-38b76c829190\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a017a9-e0c8-7a13-9734-fc693509ff80\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a017fe-847d-715d-b0ce-c7c28b692934\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01826-573e-7a46-aa61-42a59eb71e6b\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01827-1b47-79ce-bc13-a96994869bb7\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\",\"sonKosu\":\"run_01a01850-915c-7e16-af0e-abe2d2e2842e\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\",\"sonKosu\":\"run_01a018d3-a9ac-7039-bf12-b4207129cab7\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a018ef-b011-7cbc-9b5c-f38c7b0ce655\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\",\"sonKosu\":\"run_01a018fa-f733-7404-ad9e-62f04f38ed2a\"},{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a018ff-72bc-7c66-8922-ba38833e6d1c\"}]",
+        "islenmis_konu_sayisi": "82",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-22T11:44:39.602Z",
+      "finishedAt": "2026-08-22T11:44:39.603Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Excel ve vardiya defteri\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a016aa-1af2-7904-9fba-48ba2fe2ac84\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a016ee-18ad-7faf-8132-6017722ee9cb\"},{\"baslik\":\"UpcyMan: çalışan üretim altyapısı\",\"tur\":\"proof_asset\",\"sonKosu\":\"run_01a01742-1525-7c77-98eb-38b76c829190\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a017a9-e0c8-7a13-9734-fc693509ff80\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a017fe-847d-715d-b0ce-c7c28b692934\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01826-573e-7a46-aa61-42a59eb71e6b\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01827-1b47-79ce-bc13-a96994869bb7\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\",\"sonKosu\":\"run_01a01850-915c-7e16-af0e-abe2d2e2842e\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\",\"sonKosu\":\"run_01a018d3-a9ac-7039-bf12-b4207129cab7\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a018ef-b011-7cbc-9b5c-f38c7b0ce655\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\",\"sonKosu\":\"run_01a018fa-f733-7404-ad9e-62f04f38ed2a\"},{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a018ff-72bc-7c66-8922-ba38833e6d1c\"}]",
+        "islenmis_konu_sayisi": "82",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-22T11:44:39.603Z",
+      "finishedAt": "2026-08-22T11:44:39.603Z",
+      "output": null,
+      "error": {
+        "kind": "validation",
+        "code": "MISSING_TOPIC",
+        "message": "error.verb.missing_topic"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "bilgi-sec"
+}
