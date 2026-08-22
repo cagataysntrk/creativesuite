@@ -162,9 +162,21 @@ const kosuDurumu = (
 }
 
 /** Hattın planladığı adım sayısı — ilerleme çubuğunun paydası. */
+/**
+ * Hattın adım sayısı — dosya yoksa 0.
+ *
+ * ⚠ ⚠ **`loadPipeline` DOSYA YOKKEN FIRLATIYOR** (`readFileSync` ENOENT) ve bu ucu 500
+ * yapıyordu: hat dosyası silinmiş/yeniden adlandırılmış bir koşunun detay ekranı komple
+ * çöküyordu. Bir çalıştırma defteri hattından UZUN yaşar; defteri okumak, o hattın
+ * bugün var olmasına bağlanamaz.
+ */
 const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
-  const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
-  return r.ok ? r.value.steps.length : 0
+  try {
+    const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+    return r.ok ? r.value.steps.length : 0
+  } catch {
+    return 0
+  }
 }
 
 /**
@@ -205,8 +217,12 @@ const sablonSecimi = (ham: string | undefined): string | null => {
  * bir hat eklendiği gün sessizce yalan söylerdi.
  */
 const konuSecebilirMi = (repoRoot: string, pipelineId: string): boolean => {
-  const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
-  return r.ok && r.value.steps.some((st) => st.constraints['konu_sec'] === true)
+  try {
+    const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+    return r.ok && r.value.steps.some((st) => st.constraints['konu_sec'] === true)
+  } catch {
+    return false
+  }
 }
 
 /** Panelden yüklenmiş görseller — hat bunları üretim yerine kullanır. */
@@ -251,7 +267,13 @@ export const hatKapilari = (
   }[],
   bekleyen: string | null
 ): readonly KapiHanesi[] => {
-  const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+  let r
+  try {
+    r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+  } catch {
+    // Hat dosyası yok: kapı şeridi boş kalır ve ekran yine çalışır.
+    return []
+  }
   if (!r.ok) return []
   const adlar: string[] = []
   for (const st of r.value.steps) {
@@ -526,6 +548,17 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         createdAt: kunye?.createdAt ?? '',
         bekleyenKapi: null,
         kapilar: kunye === null ? [] : hatKapilari(o.repoRoot, kunye.pipeline, [], null),
+        // ⚠ ⚠ **BU İKİ ALAN EKSİKTİ ve panel SİYAH EKRAN veriyordu.** Manifest dalı
+        // onları döndürüyordu, künye dalı döndürmüyordu; ekran `d.elleSlaytlar.length`
+        // okuyunca `TypeError: Cannot read properties of undefined` fırlıyor ve React
+        // ağacı komple düşüyordu — beyaz/siyah bir sayfa. F5'te düzelmesinin sebebi de
+        // buydu: o ana kadar manifest yazılmış oluyor ve dal değişiyordu.
+        //
+        // **İki dal AYNI ŞEKLİ döndürmek zorunda.** Bir uç, hangi dalından çıktığına
+        // göre farklı alanlar veriyorsa tüketici her alanı savunmak zorunda kalır ve
+        // bir gün birini unutur — bugün olan tam olarak buydu.
+        elleSlaytlar: [],
+        yuklenenGorseller: [],
         duraklananAdim: null,
         satirlar: [],
         sablonId: null,

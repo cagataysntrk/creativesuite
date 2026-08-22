@@ -103,7 +103,7 @@ export const KosuDetay = ({
     const r = await fetch(`/api/kosu/${runId}/gorsel`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ sira: (d?.yuklenenGorseller.length ?? 0) + 1, base64 }),
+      body: JSON.stringify({ sira: (d?.yuklenenGorseller ?? []).length + 1, base64 }),
     })
     const j = (await r.json()) as { ok: boolean; ad?: string; hata?: string }
     setYukleme(j.ok ? `✓ yüklendi: ${j.ad ?? ''}` : `✗ ${j.hata ?? 'yüklenemedi'}`)
@@ -280,9 +280,9 @@ export const KosuDetay = ({
           geçildiği hiçbir yerde yoktu ve insan üç kapılı bir hattın neresinde olduğunu
           bilmeden onaylıyordu. Şerit hattın KENDİ kapı listesinden türüyor — elle
           yazılmış bir liste, hat değişince sessizce yalan söylerdi. */}
-      {d.kapilar.length === 0 ? null : (
+      {(d.kapilar ?? []).length === 0 ? null : (
         <ol className="kapi-serit">
-          {d.kapilar.map((k) => (
+          {(d.kapilar ?? []).map((k) => (
             <li key={k.ad} className={`kapi-hane ${k.durum}`}>
               <span className="kapi-isaret">
                 {k.durum === 'onaylandi'
@@ -400,11 +400,13 @@ export const KosuDetay = ({
           />
           {yukleme === null ? null : <span className="giris-not">{yukleme}</span>}
         </div>
-        {d.yuklenenGorseller.length === 0 ? null : (
+        {(d.yuklenenGorseller ?? []).length === 0 ? null : (
           <>
-            <h4>Yüklenen görseller ({d.yuklenenGorseller.length}) — üretimde kullanılacak</h4>
+            <h4>
+              Yüklenen görseller ({(d.yuklenenGorseller ?? []).length}) — üretimde kullanılacak
+            </h4>
             <div className="kosu-slaytlar">
-              {d.yuklenenGorseller.map((ad) => (
+              {(d.yuklenenGorseller ?? []).map((ad) => (
                 <a key={ad} href={`/api/kosu/${runId}/elle/${ad}`} target="_blank" rel="noreferrer">
                   <img src={`/api/kosu/${runId}/elle/${ad}`} alt={`yüklenen ${ad}`} />
                 </a>
@@ -412,11 +414,13 @@ export const KosuDetay = ({
             </div>
           </>
         )}
-        {d.elleSlaytlar.length === 0 ? null : (
+        {(d.elleSlaytlar ?? []).length === 0 ? null : (
           <>
-            <h4>Elle düzenlenmiş ({d.elleSlaytlar.length}) — damgasız, yayına aday değil</h4>
+            <h4>
+              Elle düzenlenmiş ({(d.elleSlaytlar ?? []).length}) — damgasız, yayına aday değil
+            </h4>
             <div className="kosu-slaytlar">
-              {d.elleSlaytlar.map((ad) => (
+              {(d.elleSlaytlar ?? []).map((ad) => (
                 <a key={ad} href={`/api/kosu/${runId}/elle/${ad}`} target="_blank" rel="noreferrer">
                   <img src={`/api/kosu/${runId}/elle/${ad}`} alt={`elle düzenlenmiş ${ad}`} />
                 </a>

@@ -871,3 +871,57 @@ describe('konu seçebilen hatlar', () => {
     }
   })
 })
+
+// ── içerik ucu: İKİ DAL AYNI ŞEKLİ döndürür ────────────────────────────────
+//
+// ⚠ ⚠ **PANEL SİYAH EKRAN VERİYORDU.** Manifest dalı `elleSlaytlar`/`yuklenenGorseller`
+// döndürüyor, künye dalı (koşu daha yeni başladı) döndürmüyordu. Ekran
+// `d.elleSlaytlar.length` okuyunca `TypeError` fırlıyor ve React ağacı komple düşüyordu:
+// boş bir sayfa. F5'te düzelmesinin sebebi manifestin o ana kadar yazılmış olmasıydı —
+// yani hata adreste değil, ŞEKİLDEYDİ.
+//
+// ⚠ Ölçülen şey ALAN LİSTESİ, değerler değil: bir uç hangi dalından çıktığına göre
+// farklı alanlar veriyorsa tüketici her alanı savunmak zorunda kalır ve bir gün birini
+// unutur.
+describe('içerik ucu şekil sözleşmesi', () => {
+  it('künye dalı ile manifest dalı AYNI anahtarları taşıyor', async () => {
+    const kok = kurRepo([
+      manifest({ runId: 'run_01a01111-0000-7000-8000-000000000001', biten: true }),
+    ])
+    // Künye dalı: manifesti olmayan ama künyesi olan bir koşu.
+    const yeni = 'run_01a01111-0000-7000-8000-000000000002'
+    mkdirSync(join(kok, RUNS_DIR, yeni), { recursive: true })
+    writeFileSync(
+      join(kok, RUNS_DIR, yeni, 'kunye.json'),
+      JSON.stringify({
+        runId: yeni,
+        brandId: 'brd_test',
+        eraId: 'era_test',
+        pipeline: 'instagram-post',
+        createdAt: '2026-08-22T10:00:00.000Z',
+        corpusCommit: 'a'.repeat(40),
+        registryCommit: 'b'.repeat(40),
+      })
+    )
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const a = (await (
+        await s.app.request('/api/kosu/run_01a01111-0000-7000-8000-000000000001/icerik')
+      ).json()) as Record<string, unknown>
+      const b = (await (await s.app.request(`/api/kosu/${yeni}/icerik`)).json()) as Record<
+        string,
+        unknown
+      >
+      expect(Object.keys(b).sort()).toEqual(Object.keys(a).sort())
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})
