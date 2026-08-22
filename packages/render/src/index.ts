@@ -333,3 +333,12 @@ export {
   type AlanRolleri,
 } from './sablon.js'
 export { logoVarliklari, type LogoSonucu, type LogoVarliklari } from './logo.js'
+
+// Dışa aktarma — kesintisiz tek görsel ya da dilimlenmiş slaytlar (§7.1).
+export {
+  panoramaDisaAktar,
+  disaMime,
+  type DisaBicim,
+  type DisaParca,
+  type DisaTarz,
+} from './disa-aktar.js'

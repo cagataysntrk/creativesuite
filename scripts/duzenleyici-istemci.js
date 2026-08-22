@@ -826,6 +826,15 @@ $('#geri').onclick = async () => {
 // ⚠ Sıfırlama ONAY istiyor: kaydedilmemiş işi atan bir düğme, yanlışlıkla
 // basıldığında en pahalı düğmedir. Geri alınabilir olması yetmiyor — insan ne
 // olacağını ÖNCE bilmeli.
+// ⚠ İndirme bir GEZİNME: `fetch` ile alıp `Blob` kurmak aynı byte'ı bir kez daha
+// belleğe kopyalardı ve tezgâh 9 MB'lık tuvallerle çalışıyor. `location` tarayıcının
+// kendi indirme yolunu kullanıyor.
+$('#disaAl').onclick = () => {
+  const [tarz, bicim] = ($('#disa').value || 'dilim:png').split(':')
+  mesaj('… dışa aktarılıyor (birkaç saniye)')
+  window.location.href =
+    '/disa-aktar?id=' + encodeURIComponent(id) + '&tarz=' + tarz + '&bicim=' + bicim
+}
 $('#sifirla').onclick = async () => {
   if (!confirm('Kaydedilmemiş tüm değişiklikler atılacak ve kaynak hâline dönülecek. Devam?'))
     return

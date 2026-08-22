@@ -502,6 +502,61 @@ export const KosuDetay = ({
         )}
       </section>
 
+      {/* ⚠ ⚠ **ÇIKTIYI ALMANIN TEK YOLU KOŞU DİZİNİNE GİRMEKTİ.** Slaytlar ekranda
+          görünüyordu ama indirilemiyordu. Açıklama burada duruyor çünkü seçim bir
+          TERCİH değil bir KULLANIM sorusudur: nereye yükleyeceğin hangi biçimi
+          gerektirdiğini belirler. */}
+      <section className="giris-blok">
+        <h3>Dışa aktar</h3>
+        <p className="giris-not">
+          <strong>Yayın için:</strong> dilimlenmiş PNG — platform slayt slayt yükleme istiyor ve PNG
+          kayıpsız, tipografi kenarları temiz kalır.
+          <br />
+          <strong>Onaya göndermek için:</strong> dilimlenmiş JPEG (~5 kat küçük) ya da tek dosya
+          isteniyorsa dilimlenmiş PDF — her slayt ayrı sayfa, sıra korunur.
+          <br />
+          <strong>Kesintisizliği görmek için:</strong> bütün PNG — kesimi aşan ögenin gerçekten
+          aktığı ancak tek geniş tuvalde anlaşılır. Platforma yüklenmez.
+          <br />
+          <strong>Baskı/sunum için:</strong> bütün PDF — vektör metin taşır, yakınlaşınca tipografi
+          bulanmaz.
+        </p>
+        <div className="kapi-dugmeler">
+          {(
+            [
+              ['dilim', 'png', 'slaytlar · PNG (yayın)'],
+              ['dilim', 'jpg', 'slaytlar · JPEG (hafif)'],
+              ['dilim', 'pdf', 'slaytlar · PDF (her slayt bir sayfa)'],
+              ['butun', 'png', 'kesintisiz · PNG'],
+              ['butun', 'jpg', 'kesintisiz · JPEG'],
+              ['butun', 'pdf', 'kesintisiz · PDF'],
+            ] as const
+          ).map(([tarz, bicim, etiket]) => (
+            <a
+              key={`${tarz}-${bicim}`}
+              href={`/api/kosu/${runId}/disa-aktar?tarz=${tarz}&bicim=${bicim}`}
+              // ⚠ Dilimlenmiş görselde ilk parça iniyor; ötekiler `&parca=N` ile.
+              // Zip yazmak bir bağımlılık ya da elle bir ikili biçim demekti (R-75).
+            >
+              ⭳ {etiket}
+            </a>
+          ))}
+        </div>
+        {d.varliklar.length <= 1 ? null : (
+          <p className="giris-not">
+            Dilimlenmiş görselde tek tek slayt:{' '}
+            {d.varliklar.map((_, i) => (
+              <a
+                key={`p-${String(i)}`}
+                href={`/api/kosu/${runId}/disa-aktar?tarz=dilim&bicim=png&parca=${String(i)}`}
+              >
+                {String(i + 1).padStart(2, '0')}{' '}
+              </a>
+            ))}
+          </p>
+        )}
+      </section>
+
       {/* ⚠ ⚠ **CANLI GÜNLÜK.** Adım defteri bitmiş adımları gösteriyor; bu bölüm ŞU AN
           ne olduğunu. `▶ adim [girdi]` ve `↳ adim çıktı [özet]` satırları burada:
           bir adımın çıktısı iki geçişte farklıysa kararsızlık bu satırlarda görünür.

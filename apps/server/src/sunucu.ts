@@ -46,7 +46,7 @@ import {
   readLedger,
   readManifest,
 } from '@suite/engine'
-import { PLACEMENTS, safeBand, specAgeDays } from '@suite/render'
+import { PLACEMENTS, safeBand, specAgeDays, panoramaDisaAktar } from '@suite/render'
 import { hatDurumlari, loadPipeline } from '@suite/registry'
 import {
   baglamKayitlari,
@@ -837,6 +837,53 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     } catch (e) {
       return c.json({ ok: false, hata: `yazılamadı: ${String(e)}` }, 500)
     }
+  })
+
+  // ── DIŞA AKTARMA (FAZ-17.3) ──────────────────────────────────────────────
+  //
+  // ⚠ ⚠ **ÇIKTIYI ALMANIN TEK YOLU KOŞU DİZİNİNE GİRMEKTİ.** Panelde slaytlar
+  // görünüyordu ama indirilemiyordu. Depo sahibi: *"hem koşu tarafında hem editörde
+  // çıktı alma seçeneği olmalı, hem seamless tek görsel hem de bölümleyerek."*
+  //
+  // ⚠ Belge KOŞU DEFTERİNDEN okunuyor (`panorama-elle.json` varsa O, yoksa
+  // `panorama.json`): insan editörde düzelttiyse dışa aktarılan şey düzeltilmiş
+  // hâlidir — ekranda gördüğü ile indirdiği aynı olmalı.
+  //
+  // ⚠ Birden çok parça çıkan biçimlerde (dilim + png/jpg) TEK dosya indirilemiyor:
+  // zip yazmak bir bağımlılık ya da elle bir ikili biçim demekti (R-75). Bunun yerine
+  // `?parca=<n>` ile tek tek alınıyor ve panel hepsini listeliyor.
+  app.get('/api/kosu/:runId/disa-aktar', async (c) => {
+    const runId = c.req.param('runId')
+    if (!/^run_[0-9a-f-]{8,64}$/.test(runId))
+      return c.json({ ok: false, hata: 'gecersiz run' }, 400)
+    const tarz = c.req.query('tarz') === 'butun' ? 'butun' : 'dilim'
+    const ham = c.req.query('bicim')
+    const bicim = ham === 'png' || ham === 'jpg' || ham === 'pdf' ? ham : 'png'
+    const dizin = join(o.repoRoot, RUNS_DIR, runId)
+    const elle = join(dizin, 'panorama-elle.json')
+    const asil = join(dizin, 'panorama.json')
+    const yol = existsSync(elle) ? elle : asil
+    if (!existsSync(yol)) return c.json({ ok: false, hata: 'belge yok — koşu render etmemiş' }, 404)
+    let doc: unknown
+    try {
+      doc = JSON.parse(readFileSync(yol, 'utf8'))
+    } catch (e) {
+      return c.json({ ok: false, hata: `belge okunamadı: ${String(e)}` }, 500)
+    }
+    const r = await panoramaDisaAktar(doc as never, { tarz, bicim })
+    if (!r.ok) return c.json({ ok: false, hata: JSON.stringify(r.error).slice(0, 300) }, 500)
+    const parcaNo = Number(c.req.query('parca') ?? '0')
+    const p = r.value[Number.isInteger(parcaNo) && parcaNo >= 0 ? parcaNo : 0]
+    if (p === undefined) return c.json({ ok: false, hata: 'parça yok' }, 404)
+    return new Response(new Uint8Array(p.bayt), {
+      headers: {
+        'content-type': p.mime,
+        'content-disposition': `attachment; filename="${p.ad}"`,
+        'cache-control': 'no-store',
+        // Panel kaç parça olduğunu bu başlıktan öğreniyor: gövde bir DOSYA, JSON değil.
+        'x-parca-sayisi': String(r.value.length),
+      },
+    })
   })
 
   // ── CANLI GÜNLÜK: koşu ekranının "ne oluyor" cevabı ──────────────────────

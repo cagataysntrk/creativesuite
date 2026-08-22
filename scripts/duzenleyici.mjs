@@ -21,6 +21,9 @@ const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
 const { panoramaHtml, renderPanorama } = await import(
   join(REPO, 'packages/render/dist/panorama.js')
 )
+// ⚠ Dışa aktarma AYNI motordan (R-30): editör kendi çıktıcısını yazsaydı panelin
+// indirdiğiyle editörün indirdiği iki farklı dosya olurdu.
+const { panoramaDisaAktar } = await import(join(REPO, 'packages/render/dist/disa-aktar.js'))
 const { ORNEKLER } = await import(join(REPO, 'packages/render/dist/katalog-ornek.js'))
 const { fontCss } = await import(join(REPO, 'packages/render/dist/fonts.js'))
 // ⚠ Yazma AYNI fonksiyondan geliyor. Editör kendi serileştiricisini yazsaydı iki biçim
@@ -209,6 +212,24 @@ const KABUK = (
   <button id="geri">↶ geri al</button>
   <button id="ileri">↷ ileri</button>
   <button id="sifirla">⟲ değişiklikleri sıfırla</button>
+  <!-- ⚠ ⚠ **ÇIKTI ALMAK EDİTÖRDE HİÇ YOKTU.** Tezgâhta düzeltip sonra dosyayı koşu
+       dizininden elle bulmak gerekiyordu. Seçim bir TERCİH değil bir KULLANIM sorusu:
+       nereye yükleyeceğin hangi biçimi gerektirdiğini belirler — başlıklar bunu yazıyor. -->
+  <select id="disa">
+    <optgroup label="YAYIN — platform slayt slayt ister, PNG kayıpsız">
+      <option value="dilim:png">⭳ slaytlar · PNG</option>
+    </optgroup>
+    <optgroup label="ONAY — hızlı paylaşım ya da tek dosya">
+      <option value="dilim:jpg">⭳ slaytlar · JPEG (~5× küçük)</option>
+      <option value="dilim:pdf">⭳ slaytlar · PDF (her slayt bir sayfa)</option>
+    </optgroup>
+    <optgroup label="KESİNTİSİZLİĞİ GÖRMEK — platforma yüklenmez">
+      <option value="butun:png">⭳ kesintisiz · PNG</option>
+      <option value="butun:jpg">⭳ kesintisiz · JPEG</option>
+      <option value="butun:pdf">⭳ kesintisiz · PDF (vektör metin)</option>
+    </optgroup>
+  </select>
+  <button id="disaAl">⭳ indir</button>
   <button class="birincil" id="kaydet">JSON'u yaz</button>
   <span id="ipucu">metne tıkla → düzenle · görseli sürükle → taşı · Shift+sürükle → ölçekle</span>
 </header>
@@ -797,6 +818,33 @@ const sunucu = createServer(async (req, res) => {
       anlikGoruntuAl(id)
       calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + b64 }
       return res.end('✓ ' + (d.i + 1) + '. yuvaya üretildi → ' + ad)
+    }
+
+    // ── DIŞA AKTARMA: editörden de (FAZ-17.3) ──────────────────────────────
+    //
+    // ⚠ Belge BELLEKTEKİ çalışan kopyadan: editörde yaptığın düzenleme indirilen
+    // dosyada olmalı, yoksa "gördüğün şey ihraç edilen şeydir" vaadi kırılır.
+    if (u.pathname === '/disa-aktar') {
+      const tarz = u.searchParams.get('tarz') === 'butun' ? 'butun' : 'dilim'
+      const ham = u.searchParams.get('bicim')
+      const bicim = ham === 'png' || ham === 'jpg' || ham === 'pdf' ? ham : 'png'
+      const parcaNo = Number(u.searchParams.get('parca') ?? '0')
+      const r = await panoramaDisaAktar(belge(id), { tarz, bicim })
+      if (!r.ok) {
+        res.writeHead(500, { 'content-type': 'text/plain; charset=utf-8' })
+        return res.end('✗ dışa aktarılamadı: ' + JSON.stringify(r.error).slice(0, 200))
+      }
+      const p = r.value[Number.isInteger(parcaNo) && parcaNo >= 0 ? parcaNo : 0]
+      if (p === undefined) {
+        res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' })
+        return res.end('✗ parça yok')
+      }
+      res.writeHead(200, {
+        'content-type': p.mime,
+        'content-disposition': 'attachment; filename="' + p.ad + '"',
+        'x-parca-sayisi': String(r.value.length),
+      })
+      return res.end(p.bayt)
     }
 
     if (u.pathname === '/geri') {
