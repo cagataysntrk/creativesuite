@@ -807,3 +807,67 @@ describe('onay şeridi', () => {
     expect(k.find((x) => x.ad === 'metin-onayi')?.not).toBe('zayıf')
   })
 })
+
+// ── hat kendi konusunu seçebiliyor mu (FAZ-17.3) ───────────────────────────
+//
+// ⚠ ⚠ **PANEL TUTAMAYACAĞI BİR SÖZ VERİYORDU.** "Konuyu sistem seçsin" her hat için
+// gösteriliyordu; `instagram-post` hattında `konu-sec` adımı YOK ve konusuz başlatılan
+// koşu ikinci adımda `MISSING_TOPIC` ile düştü — ekranda boş bir koşu, defterde enkaz.
+describe('konu seçebilen hatlar', () => {
+  const REPO2 = join(import.meta.dirname, '../../..')
+
+  it('`/api/hatlar` konu seçebilenleri AYRI bildiriyor', async () => {
+    const kok = kurRepo([])
+    const s = kurSunucu({
+      repoRoot: REPO2,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const j = (await (await s.app.request('/api/hatlar')).json()) as {
+        hatlar: string[]
+        konuSecebilen: string[]
+      }
+      expect(j.hatlar).toContain('instagram-karosel')
+      // ⚠ Liste HAT DOSYASINDAN türüyor: elle yazılmış bir liste, yeni bir hat
+      // eklendiği gün sessizce yalan söylerdi.
+      expect(j.konuSecebilen).toContain('instagram-karosel')
+      expect(j.konuSecebilen.length).toBeLessThanOrEqual(j.hatlar.length)
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('seçemeyen hatta konusuz başlatma REDDEDİLİYOR — doomed koşu başlamıyor', async () => {
+    const s = kurSunucu({
+      repoRoot: REPO2,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const j = (await (await s.app.request('/api/hatlar')).json()) as { konuSecebilen: string[] }
+      const secemeyen = ['deck', 'reels', 'linkedin-post'].find((h) => !j.konuSecebilen.includes(h))
+      expect(secemeyen).toBeDefined()
+      const r = await s.app.request('/api/calistir', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          pipeline: secemeyen,
+          konu: '',
+          konuyuSistemSecsin: true,
+          planDigest: 'sha256:x',
+        }),
+      })
+      expect(r.status).toBe(400)
+      const g = (await r.json()) as { hata?: string }
+      expect(g.hata ?? '').toContain('konu-sec')
+    } finally {
+      s.kapat()
+    }
+  })
+})

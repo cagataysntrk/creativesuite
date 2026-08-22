@@ -83,9 +83,17 @@ export const RunLauncher = ({
   const [sablonlar, setSablonlar] = useState<
     readonly { id: string; ad: string; kullanilabilir: boolean }[]
   >([])
+  // ⚠ ⚠ **HER HAT KENDİ KONUSUNU SEÇEMEZ** ve panel bunu bilmeden vaat ediyordu:
+  // `instagram-post` konusuz başlatıldı, o hatta `konu-sec` adımı yok, konu boş kaldı
+  // ve ikinci adım `MISSING_TOPIC` ile düştü — ekranda boş bir koşu.
+  const [konuSecebilen, setKonuSecebilen] = useState<readonly string[]>([])
   // Başlatma sonucu: `null` henüz denenmedi. Hata TOAST DEĞİL, düğmenin yanında —
   // içeriğin olacağı yerde, kopyalanabilir kimlikle (§12.6).
   const [baslatma, setBaslatma] = useState<{ ok: boolean; mesaj: string } | null>(null)
+
+  // ⚠ Türetilmiş: hat değişince kutu kendiliğinden doğru duruma geçiyor. Ayrı bir
+  // state tutmak, iki gerçek arasında bir senkron borcu açardı.
+  const konuSecebilir = konuSecebilen.includes(hat)
 
   const yukle = useCallback(async (): Promise<void> => {
     const q = new URLSearchParams({ pipeline: hat })
@@ -122,10 +130,15 @@ export const RunLauncher = ({
   useEffect(() => {
     void (async () => {
       try {
-        const r = (await (await fetch('/api/hatlar')).json()) as { hatlar?: string[] }
+        const r = (await (await fetch('/api/hatlar')).json()) as {
+          hatlar?: string[]
+          konuSecebilen?: string[]
+        }
         setHatlar(r.hatlar ?? [])
+        setKonuSecebilen(r.konuSecebilen ?? [])
       } catch {
         setHatlar([])
+        setKonuSecebilen([])
       }
     })()
   }, [])
@@ -163,8 +176,8 @@ export const RunLauncher = ({
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             pipeline: hat,
-            konu: sistemSecsin ? '' : konu,
-            konuyuSistemSecsin: sistemSecsin,
+            konu: sistemSecsin && konuSecebilir ? '' : konu,
+            konuyuSistemSecsin: sistemSecsin && konuSecebilir,
             sablon,
             planDigest: digest,
           }),
@@ -304,10 +317,13 @@ export const RunLauncher = ({
       <label>
         <input
           type="checkbox"
-          checked={sistemSecsin}
+          checked={sistemSecsin && konuSecebilir}
+          disabled={!konuSecebilir}
           onChange={(e) => setSistemSecsin(e.target.checked)}
         />{' '}
-        ✨ konuyu sistem seçsin — kutu boş gider, hat markanın kayıtlarından seçer
+        {konuSecebilir
+          ? '✨ konuyu sistem seçsin — kutu boş gider, hat markanın kayıtlarından seçer'
+          : `⊘ bu hat kendi konusunu seçemiyor (konu-sec adımı yok) — konuyu yaz`}
       </label>
 
       {/* ⚠ Şablon seçimi OPSİYONEL: boş bırakılırsa hat kendi seçer (ritim ölçümü +

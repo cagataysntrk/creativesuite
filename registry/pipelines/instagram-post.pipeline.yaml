@@ -9,9 +9,24 @@ steps:
   - id: cozumle
     verb: RESOLVE
 
+  # ⚠ ⚠ **KONUSUZ BAŞLATMA BU ADIM OLMADAN ÖLÜ DOĞUYORDU.** Panel "konuyu sistem seçsin"
+  # diyordu, bu hatta seçen bir adım YOKTU ve ikinci adım `MISSING_TOPIC` ile düşüyordu:
+  # ekranda boş bir koşu, defterde bir enkaz. Adım karoseldekiyle AYNI şekilde: konu
+  # UYDURULMUYOR, markanın kendi kayıtlarından seçiliyor ve gerekçesi deftere yazılıyor.
+  #
+  # ⚠ Konu ELLE yazıldığında bu adım kendiliğinden atlanıyor (`konu_sec` kısıtı yalnız
+  # `--konu-sec` ile geliyor); yani hat iki modda da çalışıyor.
+  - id: konu-sec
+    verb: GENERATE
+    capability: text.generate
+    needs: [cozumle]
+    constraints:
+      konu_sec: true
+      max_chars: 400
+
   - id: bilgi-sec
     verb: SELECT
-    needs: [cozumle]
+    needs: [cozumle, konu-sec]
 
   - id: metin-uret
     verb: GENERATE

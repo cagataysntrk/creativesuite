@@ -118,12 +118,13 @@ Toplam **11** hat.
 
 ## `instagram-post` — Instagram tek görsel postu
 
-13 adım · 5 yetenek isteyen · 1 insan kapısı
+14 adım · 6 yetenek isteyen · 1 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
 | `cozumle` | `RESOLVE` | — | — | — | — |
-| `bilgi-sec` | `SELECT` | — | cozumle | — | — |
+| `konu-sec` | `GENERATE` | `text.generate` | cozumle | — | — |
+| `bilgi-sec` | `SELECT` | — | cozumle, konu-sec | — | — |
 | `metin-uret` | `GENERATE` | `text.generate` | bilgi-sec | — | — |
 | `kompozit` | `COMPOSE` | — | metin-uret | — | — |
 | `gorsel-brief` | `GENERATE` | `text.generate` | bilgi-sec, kompozit | — | ✓ |

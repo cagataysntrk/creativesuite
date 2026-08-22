@@ -198,6 +198,17 @@ const sablonSecimi = (ham: string | undefined): string | null => {
   return KATALOG.some((s) => s.id === v && s.kullanilabilir.durum) ? v : null
 }
 
+/**
+ * Bu hat KENDİ konusunu seçebiliyor mu — yani `konu_sec` kısıtlı bir adımı var mı.
+ *
+ * ⚠ Hat DOSYASINDAN okunuyor, elle yazılmış bir listeden değil: ikinci bir liste, yeni
+ * bir hat eklendiği gün sessizce yalan söylerdi.
+ */
+const konuSecebilirMi = (repoRoot: string, pipelineId: string): boolean => {
+  const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+  return r.ok && r.value.steps.some((st) => st.constraints['konu_sec'] === true)
+}
+
 /** Panelden yüklenmiş görseller — hat bunları üretim yerine kullanır. */
 const yuklenenGorseller = (repoRoot: string, runId: string): readonly string[] => {
   if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return []
@@ -990,7 +1001,16 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // gibi okunur (Yasa 10).
   app.get('/api/hatlar', (c) => {
     const d = hatDurumlari(join(o.repoRoot, 'registry/pipelines'))
-    return c.json({ hatlar: d.aktif, emekli: d.emekli })
+    return c.json({
+      hatlar: d.aktif,
+      emekli: d.emekli,
+      // ⚠ ⚠ **"KONUYU SİSTEM SEÇSİN" HER HATTIN YAPABİLECEĞİ BİR ŞEY DEĞİL** ve panel
+      // bunu bilmeden vaat ediyordu. Ölçülen sonuç: `instagram-post` konusuz
+      // başlatıldı, o hatta `konu-sec` adımı YOK, konu boş kaldı ve ikinci adım
+      // `MISSING_TOPIC` ile düştü — ekranda boş bir koşu. Bir kutucuk, arkasındaki
+      // hattın tutamayacağı bir sözü veremez.
+      konuSecebilen: d.aktif.filter((h) => konuSecebilirMi(o.repoRoot, h)),
+    })
   })
 
   // ⚠ ⚠ **KONUYU SİSTEM SEÇERKEN SEÇEN ŞEY MODEL, UÇ DEĞİL.**
@@ -1247,6 +1267,19 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       planDigest?: string
       konuyuSistemSecsin?: boolean
       sablon?: string
+    }
+    // ⚠ Hattın tutamayacağı söz BAŞLAMADAN reddediliyor: doomed bir koşu başlatmak,
+    // insana boş bir ekran ve defterde bir enkaz bırakır.
+    if (govde.konuyuSistemSecsin === true && !konuSecebilirMi(o.repoRoot, govde.pipeline ?? '')) {
+      return c.json(
+        {
+          ok: false,
+          hata:
+            `'${govde.pipeline ?? ''}' hattı kendi konusunu seçemiyor (\`konu-sec\` adımı yok). ` +
+            'Konuyu yaz ya da konu seçebilen bir hat kullan.',
+        },
+        400
+      )
     }
     const r = calistirmaBaslat({
       repoRoot: o.repoRoot,
