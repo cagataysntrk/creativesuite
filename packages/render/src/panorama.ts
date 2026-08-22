@@ -165,18 +165,10 @@ export interface MetinAyari {
 /** Bir slaydın içeriği. */
 export interface Kart {
   /**
-   * Alan başına elle ince ayar. Anahtar: `elYazisi` · `ustBaslik` · `baslik` ·
-   * `govde` · `panel`. Verilmezse şablonun ızgarası aynen geçerli.
+   * Alan başına elle ince ayar. Anahtar: `ustBaslik` · `baslik` · `govde` · `panel`.
+   * Verilmezse şablonun ızgarası aynen geçerli.
    */
   readonly ayar?: Readonly<Record<string, MetinAyari>>
-  /**
-   * El yazısı vurgu satırı — başlığın ÜSTÜNDE, kısa.
-   *
-   * ⚠ Referansta kapak başlığının ilk kelimesi el yazısı, kalanı ağır condensed;
-   * kontrastı kuran şey punto değil YÜZ FARKI (D-282 · D-285).
-   * ⚠ Kısa tutuluyor: el yazısı satır uzadıkça okunurluğu düşüyor.
-   */
-  readonly elYazisi?: string
   /** Küçük büyük harf üst başlık — bölüm adı. */
   readonly ustBaslik: string
   /** Başlık; `**vurgu**` işareti aksan rengine dönüşüyor. */
@@ -250,16 +242,12 @@ export interface AlanSiniri {
 export interface TipoResetesi {
   /** Başlık puntosunun ÖLÇÜLEN tavana oranı (0–1]. */
   readonly baslikPayi: number
-  /** Başlık genişlik ekseni — `Archivo` `wdth`, 62–125. */
-  readonly baslikGenislik: number
   /** Başlık ağırlığı 400–900. */
   readonly baslikAgirlik: number
   /** Satır aralığı çarpanı — sıkı 0,98 · havadar 1,3. */
   readonly satirAraligi: number
   /** Harf arası, em. Negatif = sıkı poster; pozitif = seyrek editoryal. */
   readonly harfArasi: number
-  /** Üst başlık genişlik ekseni — başlıkla ZIT olması ayrımı keskinleştiriyor. */
-  readonly ustGenislik: number
   /** Gövde/başlık punto oranı. Küçük = sert hiyerarşi. */
   readonly govdeOrani: number
   /** Başlık sütununun kart genişliğine oranı (0–1]. */
@@ -286,11 +274,9 @@ export interface TipoResetesi {
  */
 export const VARSAYILAN_TIPO: TipoResetesi = {
   baslikPayi: 0.92,
-  baslikGenislik: 78,
   baslikAgirlik: 800,
   satirAraligi: 1.02,
   harfArasi: -0.02,
-  ustGenislik: 96,
   govdeOrani: 0.3,
   baslikSutunu: 0.86,
 }
@@ -939,7 +925,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
                 : doc.alanSiniri.ust
           const hr = kartRenkleri(hayaletZemini, doc.tokenCss)
           return (
+            // ⚠ ⚠ **KAPAK AYRI BİR SINIF ALIYOR (`ilk`) ve sebebi tipografik.** Markanın
+            // dizayn sistemi Source Serif 4'e TEK bir iş veriyor: pazarlama sayfasının
+            // H1'i — "başka hiçbir yer". Karoselde o H1 kapak başlığıdır; gövde
+            // slaytlarının başlıkları BÖLÜM başlığıdır ve Montserrat'ın işidir.
+            // Sınıf olmadan bu ayrım kurulamıyordu.
             `<section class="kart${koyuMu(kartZemini, doc.tokenCss) ? '' : ' acik'}` +
+            `${i === 0 ? ' ilk' : ''}` +
             `${k.kolon === 'sag' ? ' sag' : ''}" ` +
             `style="left:${i * G}px;width:${G}px;` +
             // ⚠ Lekeler ya da alan sınırı varsa kart ŞEFFAF: opak bir kart arkasındaki
@@ -965,11 +957,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         `<div class="hayalet" aria-hidden="true" ` +
         `style="--hayalet-punto:${Math.round(hayaletPuntosu(k.hayalet, doc.hayaletKonumu?.olcek ?? 1))}">` +
         `${kacir(k.hayalet)}</div>` +
-        // ⚠ El yazısı satırı üst başlığın ÜSTÜNDE: göz önce onu, sonra bölüm etiketini,
-        // sonra başlığı okuyor — referanstaki sıra.
-        (k.elYazisi === undefined || k.elYazisi.trim() === ''
-          ? ''
-          : `<div class="el-yazisi"${ayarStili(k.ayar?.['elYazisi'])}>${kacir(k.elYazisi)}</div>`) +
+        // ⚠ ⚠ **EL YAZISI SATIRI EMEKLİ (D-317).** Markanın dizayn sistemi dört aile
+        // tanımlıyor ve hiçbiri el yazısı değil; "tipografik süs yok" anti-desenler
+        // listesinin ilk maddesi. Kapağın hiyerarşisi artık YÜZ FARKINDAN değil,
+        // sistemin kendi merdiveninden geliyor: mono eyebrow → serif H1 → sans gövde
+        // → mono künye. Alan belge modelinden de kalktı; yarım bırakılan bir alan
+        // bir gün yeniden çizilirdi.
         // ⚠ Üst başlık BOŞSA hiç çizilmiyor: editörde öge SİLİNEBİLMELİ ve silmenin
         // karşılığı boş bir etiket değil, ögenin yokluğudur. Boş bir `.ust-baslik`
         // 14 px alt boşluk ve 2 px'lik bir çizgi bırakıyordu — silinmiş görünmüyordu.
@@ -1193,9 +1186,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         ]),
     `           --pano-metin: ${panoRenkleri.metin}; --pano-aksan: ${panoRenkleri.aksan}; }`,
     // ── tipografi reçetesi: değişkenler ÖNCE, kullanımlar sonra ───────────────
-    `  #sahne { --baslik-wdth: ${t.baslikGenislik}; --baslik-wght: ${t.baslikAgirlik};`,
+    // ⚠ ⚠ **GENİŞLİK EKSENİ KALKTI (D-317).** Sistemin dört ailesinin hiçbirinde `wdth`
+    // yok; olmayan bir ekseni CSS'e yazmak sessiz bir yalan olurdu — tarayıcı
+    // `font-stretch`i kırpar, reçete "78" der, çıktı 100'dür. Türkçe'de punto satın
+    // alan mekanizma artık yalnız ÖLÇÜLEN tavan (`puntoTavani`) ve kısa başlık disiplini.
+    `  #sahne { --baslik-wght: ${t.baslikAgirlik};`,
     `           --baslik-lh: ${t.satirAraligi}; --baslik-ls: ${t.harfArasi}em;`,
-    `           --ust-wdth: ${t.ustGenislik}; --govde-orani: ${t.govdeOrani};`,
+    `           --govde-orani: ${t.govdeOrani};`,
     // ⚠ Başlangıç değeri; gerçek punto render sonrası ÖLÇÜLEREK yazılıyor (`puntoTavani`).
     `           --baslik-punto: ${Math.round(96 * t.baslikPayi)}px;`,
     `           --panel-kok: ${t.panelPayi ?? 1};`,
@@ -1258,46 +1255,51 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // altındaki gerçek bir üretim slaydında sütun 0, sütun 2'den **+11,3** daha parlak —
     // her slaydın sol kenarında hayalet bir hairline yayınlanmış.
     // **Görüntüleme yardımcısı çıktıya sızarsa yardımcı değil, kusurdur.**
-    // ⚠ Üst başlık başlıkla ZIT eksende: başlık genişse üst başlık dar, tersi de doğru.
-    // Aynı genişlikte iki tipografik ses, bir hiyerarşi değil bir yankı üretiyor.
-    // ⚠ ⚠ **PUNTO BAŞLIĞA GÖRE, SABİT DEĞİL.** El yazısı başlıktan çok küçük kalırsa
-    // "dipnot" gibi okunuyor; büyük kalırsa başlığı ezip iki ana ses üretiyor. Referansta
-    // oran ~0,52. Hafif SOLA taşıyor: ilk harfin süslemesi metin kolonunun dışına çıkınca
-    // blok "yazılmış" gibi duruyor, "yerleştirilmiş" gibi değil.
-    `  .el-yazisi { font-family: "Marka El Yazisi", cursive; font-weight: 600;`,
-    `               font-size: calc(var(--baslik-punto) * 0.52 * var(--ayar-olcek, 1));`,
-    `               line-height: 0.92;`,
-    `               color: var(--kart-aksan); margin: 0 0 6px -0.06em }`,
-    `  .ust-baslik { font-size: calc(24px * var(--ayar-olcek, 1));`,
-    `                letter-spacing: 0.2em; text-transform: none;`,
-    `                font-stretch: calc(var(--ust-wdth) * 1%);`,
+    // ── EYEBROW: mono, BÜYÜK HARF, +0.08em (dizayn sistemi §7 · D-317) ────────
+    //
+    // ⚠ ⚠ **BU SATIR SİSTEMİN İMZASININ YARISI.** Sistem `eyebrow` ve `micro` için tek
+    // bir kural yazıyor: "mono only and uppercase only". Bir cümle, bir başlık ya da
+    // bir isim tamlaması buraya GİREMEZ — o zaman en az 12px Plus Jakarta olur.
+    // ⚠ Renk SOLUK, aksan DEĞİL: aksan karoselde karneli (kapak vurgusu + süreklilik
+    // ögesi + sayaç). Eyebrow'u da aksana boyamak, karneyi üçe katlardı.
+    `  .ust-baslik { font-family: "Marka Mono", ui-monospace, monospace;`,
+    `                font-size: calc(20px * var(--ayar-olcek, 1));`,
+    `                letter-spacing: 0.08em; text-transform: uppercase;`,
     `                font-feature-settings: ${OPENTYPE_CSS};`,
     // ⚠ ⚠ **BOŞLUK RİTMİ 1:3 — eşit boşluk, boşluk YOKLUĞUDUR (tasarım rehberi §2).**
     // Önceki değerler 26 / 24 / 34 px idi: üçü de birbirine denk ve göz hiçbir grup
     // göremiyordu. Bu, çıktının "web sayfası gibi" durmasının en büyük tek sebebiydi —
     // renk eklemek çözmüyor çünkü sorun renkte değil ritimde. Üst başlık başlığa YAPIŞIK
     // (14 px, aynı grup), başlık gövdeden AYRIK (44 px), panel çok daha uzak (§2).
-    `                color: var(--kart-aksan); font-weight: 700; margin-bottom: 14px;`,
+    `                color: var(--kart-soluk); font-weight: 500; margin-bottom: 14px;`,
     `                display: flex; align-items: center; gap: 14px }`,
     `  .ust-baslik::before { content: ""; width: 30px; height: 2px; background: var(--kart-aksan) }`,
     // ⚠ Başlık SIKIŞIK ve İRİ; `line-height` 1,04 — 0,90'da Türkçe `Ş` kuyruğu alt satıra
     // giriyor ve "HEB" gibi okunuyor. Aksan kırpılması bu ailenin bilinen tuzağı.
     // ⚠ Punto artık sabit 82 px DEĞİL: reçetenin payı × render anında ölçülen tavan.
-    `  .baslik { font-family: "Marka Display", "Marka Metin", sans-serif;`,
+    // ── BAŞLIK: bölüm başlığı Montserrat, KAPAK H1'i Source Serif (D-317) ─────
+    //
+    // ⚠ ⚠ Sistem iki yüze iki AYRI iş veriyor ve sınırı sert çiziyor: Source Serif 4
+    // "pazarlama sayfasının tek H1'i, başka hiçbir yer"; Montserrat "bölüm başlıkları
+    // ve alt başlıklar, gövde metni asla". Karosel bir pazarlama yüzeyi: kapak o tek
+    // H1, gövde slaytları bölüm başlığı. Aynı yüzü her slayda vermek, sistemin en açık
+    // kuralını sessizce silmek olurdu.
+    `  .baslik { font-family: "Marka Baslik", "Marka Metin", sans-serif;`,
     `            font-size: calc(var(--baslik-punto) * var(--ayar-olcek, 1));`,
     `            line-height: var(--baslik-lh);`,
     `            font-weight: var(--baslik-wght);`,
-    `            font-stretch: calc(var(--baslik-wdth) * 1%);`,
     `            font-feature-settings: ${OPENTYPE_CSS};`,
     `            letter-spacing: var(--baslik-ls);`,
-    // ⚠ ⚠ **DARALTMANIN BEDELİ: BOŞLUK DA DARALIYOR.** `wdth` ekseni glifleri yatayda
-    // sıkıştırırken BOŞLUK glifini de sıkıştırıyor. `wdth 66`'da `sahne` şablonunun
-    // başlıkları `Sonraelle tutulurbir ölçü` gibi okundu — kelimeler birbirine yapıştı ve
-    // bu ancak render'a bakınca görüldü. Telafi genişlikle TERS orantılı: dar yüzde çok,
-    // geniş yüzde hiç. Sabit bir `word-spacing` yazmak `editoryal`in geniş yüzünde
-    // kelimeleri dağıtırdı — telafi de bir parametre, bir sabit değil.
-    `            word-spacing: calc((100 - var(--baslik-wdth)) * 0.0030em);`,
     `            max-width: ${Math.round(G * t.baslikSutunu) - 128}px }`,
+    // ⚠ ⚠ **KAPAK H1'İ SERİF — ve YALNIZ kapak.** Sistem Source Serif 4'e tek bir iş
+    // veriyor. Ağırlık 500: serif bir display'de 700+ "kalın" değil "kaba" okunuyor ve
+    // sistemin ölçeği de 500 diyor. Tracking negatif ama Montserrat'tan DAHA AZ: serif
+    // formlar yan yana geldiğinde zaten sıkı görünür, aynı değer onları çakıştırır.
+    // ⚠ `opsz` ekseni puntoya bağlı çalışıyor (`font-optical-sizing` varsayılan `auto`):
+    // display puntoda daha ince tırnaklar ve daha yüksek kontrast, ikinci bir kesim
+    // gerekmeden.
+    `  .kart.ilk .baslik { font-family: "Marka Display", "Marka Baslik", serif;`,
+    `                      font-weight: 500; letter-spacing: -0.025em }`,
     `  .baslik strong { color: var(--kart-aksan); font-weight: inherit }`,
     // ⚠ ⚠ **AÇIK ZEMİNDE VURGU BİR ÇİP, RENK DEĞİL.** Aksanı mürekkebe çevirmek kontrastı
     // kurtardı ama vurguyu ÖLDÜRDÜ: başlıklar düzleşti, vurgulanan kelime gövdeden
@@ -1334,9 +1336,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // uyarlanıyor. Üç karaktere kadar tam punto, sonrası orantılı küçülüyor — yani bir
     // rakam DEV kalıyor, bir kelime bir slayda sığıyor.
     `             font-size: calc(var(--hayalet-punto) * 1px);`,
-    `             font-family: "Marka Display", sans-serif; font-weight: 900;`,
+    `             font-family: "Marka Mono", ui-monospace, monospace; font-weight: 700;`,
     `             letter-spacing: -0.055em;`,
-    `             font-stretch: calc(var(--baslik-wdth) * 1%);`,
     `             color: ${sol('--hayalet-renk', doc.hayaletKonumu?.guc ?? 7)}; letter-spacing: -0.05em;`,
     // ⚠ ⚠ **`line-height: 0.76` KEYFİ DEĞİL, `ust`U ANLAMLI KILAN ŞEY.** Varsayılan satır
     // yüksekliğinde kutunun tepesi ile glifin tepesi arasında ~0,25em boşluk var; 893 px'lik
@@ -1405,9 +1406,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ ⚠ **DEV SAYIDA TRACKING AGRESİF NEGATİF (T6).** Varsayılan harf aralığı gövde
     // metni için ayarlıdır; 150 px'lik bir rakamda aynı aralık ögeleri BİRBİRİNDEN KOPARIR
     // ve sayı tek bir kütle olmaktan çıkar. Photoshop'ta bu elle sıkıştırılır.
-    `  .sayi { font-family: "Marka Display", sans-serif; font-size: calc(74px * var(--panel-olcek)); font-weight: 900;`,
-    `          letter-spacing: -0.045em;`,
-    `          font-stretch: calc(var(--baslik-wdth) * 1%); font-variant-numeric: tabular-nums;`,
+    // ⚠ ⚠ **RAKAM MONO (D-317).** Sistem "tabular numerals everywhere a figure appears"
+    // diyor ve rakamları JetBrains Mono'ya veriyor: bir sayı bir kelime değildir, bir
+    // ÖLÇÜMDÜR ve iki slayt arasında sütunu kaymamalı.
+    `  .sayi { font-family: "Marka Mono", ui-monospace, monospace;`,
+    `          font-size: calc(74px * var(--panel-olcek)); font-weight: 700;`,
+    `          letter-spacing: -0.03em;`,
+    `          font-variant-numeric: tabular-nums;`,
     `          color: var(--kart-aksan); line-height: 1 }`,
     `  .birim { font-size: calc(26px * var(--panel-olcek)); margin-left: calc(8px * var(--panel-olcek)); color: ${sol('--kart-metin', 70)} }`,
     `  .sayi-alt { font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 60)}; margin-top: calc(8px * var(--panel-olcek)) }`,
@@ -1416,7 +1421,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                border-radius: 2px }`,
     `  .vafel-kare.dolu { background: var(--kart-aksan) }`,
     `  .liste-satir { display: flex; gap: calc(14px * var(--panel-olcek)); align-items: baseline; margin-bottom: calc(10px * var(--panel-olcek)) }`,
-    `  .liste-no { font-family: "Marka Display", sans-serif; font-size: calc(22px * var(--panel-olcek));`,
+    `  .liste-no { font-family: "Marka Mono", ui-monospace, monospace; font-size: calc(22px * var(--panel-olcek));`,
     `              color: var(--kart-aksan); font-variant-numeric: tabular-nums;`,
     `              font-weight: 800; min-width: calc(32px * var(--panel-olcek)) }`,
     `  .liste-ad { font-size: calc(22px * var(--panel-olcek)) }`,

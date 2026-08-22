@@ -53,10 +53,30 @@ const belge = (ek: Partial<PanoramaBelgesi> = {}): PanoramaBelgesi => ({
 })
 
 describe('panorama tipografi ekseni', () => {
-  it('genişlik ekseni CSS değişkenine giriyor — sabit 88% DEĞİL', () => {
-    const html = panoramaHtml(belge({ tipografi: { ...VARSAYILAN_TIPO, baslikGenislik: 63 } }))
-    expect(html).toContain('--baslik-wdth: 63')
-    expect(html).toContain('font-stretch: calc(var(--baslik-wdth) * 1%)')
+  // ⚠ ⚠ **DÖRT AİLE, DÖRT ROL (D-317).** Genişlik ekseni emekli oldu; onun yerine
+  // ölçülen şey rollerin GERÇEKTEN ayrıldığı: kapak H1'i serif, gövde slaytları
+  // Montserrat, eyebrow mono ve BÜYÜK HARF. Aynı yüzü her yere vermek sistemin en açık
+  // kuralını sessizce silmek olurdu ve CSS'e bakmadan fark edilmezdi.
+  it('KAPAK başlığı serif, gövde başlıkları Montserrat', () => {
+    const html = panoramaHtml(belge())
+    expect(html).toContain('.baslik { font-family: "Marka Baslik"')
+    expect(html).toContain('.kart.ilk .baslik { font-family: "Marka Display"')
+    // Emekli eksen hiçbir yerde kalmadı: kırpılan bir `font-stretch` reçeteyi
+    // yalancı yapardı.
+    expect(html).not.toContain('font-stretch')
+    expect(html).not.toContain('--baslik-wdth')
+  })
+
+  it('eyebrow MONO ve BÜYÜK HARF, +0.08em', () => {
+    const html = panoramaHtml(belge())
+    expect(html).toContain('.ust-baslik { font-family: "Marka Mono"')
+    expect(html).toContain('letter-spacing: 0.08em; text-transform: uppercase')
+  })
+
+  it('rakamlar MONO ve tabular — bir sayı bir kelime değil bir ÖLÇÜM', () => {
+    const html = panoramaHtml(belge())
+    expect(html).toContain('.sayi { font-family: "Marka Mono"')
+    expect(html).toContain('font-variant-numeric: tabular-nums')
   })
 
   it('punto CSS`te sabit değil, değişkenden geliyor', () => {

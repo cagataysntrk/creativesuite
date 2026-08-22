@@ -180,24 +180,28 @@ describe('yay işlevi bloğun üstünde taşınıyor', () => {
 // ⚠ ⚠ **SINIR 2 → 3 BİR TAKASTI (D-285): sayı gevşedi, MEŞRUİYET SIKILAŞTI.** Eski kural
 // üçüncü ailenin NE OLDUĞUNU sormuyordu; `font-family: Georgia` yazan bir belge iki
 // aileyle yeşil geçiyordu. Bu blok takasın iki yarısını da ölçüyor.
-describe('font ailesi: üç ROL serbest, beyan edilmemiş aile YASAK', () => {
+describe('font ailesi: dört ROL serbest, beyan edilmemiş aile YASAK', () => {
   // ⚠ Alan `status` ('in' | 'out'); ilk sürüm `withinTolerance` uydurmuştu ve üç iddia
   // birden `undefined`a çarptı. Ölçüm aracına bakmadan onun şeklini varsaymak bu depoda
   // tekrar eden hata.
   const durum = (html: string, metric: string): string | undefined =>
     tipografiSay(html).readings.find((r) => r.metric === metric)?.status
 
-  it('üç beyan edilmiş aile GEÇİYOR', () => {
+  // ⚠ ⚠ **DÖRT ROL (D-317):** gövde · pazarlama H1'i · bölüm başlığı · rakam-künye.
+  // Markanın dizayn sistemi dördünü de ADLANDIRIYOR ve her birine tek bir iş veriyor;
+  // sayı oradan geliyor, bizim keyfimizden değil.
+  it('dört beyan edilmiş aile GEÇİYOR', () => {
     const html =
-      'a{font-family:"Marka Metin"}b{font-family:"Marka Display"}c{font-family:"Marka El Yazisi"}'
+      'a{font-family:"Marka Metin"}b{font-family:"Marka Display"}' +
+      'c{font-family:"Marka Baslik"}d{font-family:"Marka Mono"}'
     expect(durum(html, 'font_family_count')).toBe('in')
     expect(durum(html, 'font_family_unknown')).toBe('in')
   })
 
-  it('DÖRDÜNCÜ aile kırmızı — rol sayısı üç', () => {
+  it('BEŞİNCİ aile kırmızı — rol sayısı dört', () => {
     const html =
       'a{font-family:"Marka Metin"}b{font-family:"Marka Display"}' +
-      'c{font-family:"Marka El Yazisi"}d{font-family:"Marka Dorduncu"}'
+      'c{font-family:"Marka Baslik"}d{font-family:"Marka Mono"}e{font-family:"Marka Besinci"}'
     expect(durum(html, 'font_family_count')).toBe('out')
   })
 

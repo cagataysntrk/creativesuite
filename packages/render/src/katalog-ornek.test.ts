@@ -9,7 +9,6 @@ import { describe, expect, it } from 'vitest'
 import { KATALOG } from '@suite/contracts'
 import { ORNEKLER, ornekBul, type KatalogOrnegi } from './katalog-ornek.js'
 import { panoramaHtml, VARSAYILAN_TIPO } from './panorama.js'
-import { YUZLER } from './fonts.js'
 import { ikonSec } from './sablon-ikon.js'
 
 const ornekler = Object.entries(ORNEKLER)
@@ -165,28 +164,33 @@ describe('şablonlar birbirinin boyası DEĞİL', () => {
   // bakınca yedi TASARIM değil tek tasarımın yedi BOYASI görünmüştü. Aynı tipografi
   // reçetesini paylaşan iki şablon, katalogda iki satır ama tasarımda bir tanedir.
   it('her şablon KENDİ tipografi reçetesini taşıyor', () => {
+    // ⚠ ⚠ **GENİŞLİK EKSENİ İMZADAN ÇIKTI (D-317).** Markanın dizayn sisteminin dört
+    // ailesinin hiçbirinde `wdth` yok; imzayı olmayan bir eksene dayamak, ölçülmeyen
+    // bir şeyi ölçüyormuş gibi yapmaktı. Ayrım artık ağırlık · punto payı · satır
+    // aralığı · harf arası · gövde oranı · sütun genişliğinden geliyor — hepsi
+    // GERÇEKTEN çizime giren değerler.
     const imzalar = ornekler.map(([id, o]) => {
       const t = o.tipografi ?? VARSAYILAN_TIPO
       return [
         id,
-        `${t.baslikGenislik}/${t.baslikAgirlik}/${t.baslikPayi}/${t.ustGenislik}`,
+        `${t.baslikAgirlik}/${t.baslikPayi}/${t.satirAraligi}/${t.harfArasi}/${t.govdeOrani}/${t.baslikSutunu}`,
       ] as const
     })
     expect(new Set(imzalar.map(([, i]) => i)).size).toBe(imzalar.length)
   })
 
-  it('genişlik ekseni gerçekten AÇILMIŞ — hepsi aynı yerde değil', () => {
-    const g = ornekler.map(([, o]) => (o.tipografi ?? VARSAYILAN_TIPO).baslikGenislik)
-    // ⚠ ⚠ **EŞİK EKSENE ORANLI, SABİT DEĞİL — ve bunu bir yüz değişikliği gösterdi.**
-    // Sabit 25, Archivo'nun 62–125 ekseninde (63 birim) makul bir yayılımdı; Bricolage'ın
-    // 75–100 ekseninde (25 birim) aynı sayı TÜM EKSENİ zorunlu kılıyor ve şablonlara
-    // hareket alanı bırakmıyor. Ölçülen şey "yayılım var mı", "kaç birim" değil.
-    // Eksen `YUZLER`den okunuyor: ikinci bir yerde yazılan bir sınır, bir yerde unutulur.
-    const eksen = YUZLER.find((y) => y.aile === 'Marka Display' && y.genislik !== null)?.genislik
-    const [alt, ust] = (eksen ?? '75% 100%').split(' ').map((x) => Number.parseFloat(x))
-    expect(Math.max(...g) - Math.min(...g)).toBeGreaterThanOrEqual(
-      ((ust ?? 100) - (alt ?? 75)) * 0.6
-    )
+  // ⚠ ⚠ **SESİN YÜKSEKLİĞİ GERÇEKTEN DEĞİŞİYOR MU.** Genişlik ekseni emekli olunca
+  // (D-317) ayrımı taşıyan iki eksen kaldı: punto payı ve ağırlık. İkisi de bir yerde
+  // toplanırsa altı şablon yine tek tasarımın altı boyası olur — ve bu depoda bir kez
+  // tam olarak öyle oldu.
+  it('punto payı yayılıyor — hepsi aynı sesle konuşmuyor', () => {
+    const p = ornekler.map(([, o]) => (o.tipografi ?? VARSAYILAN_TIPO).baslikPayi)
+    expect(Math.max(...p) - Math.min(...p)).toBeGreaterThanOrEqual(0.15)
+  })
+
+  it('ağırlık yayılıyor — en az üç farklı değer', () => {
+    const a = ornekler.map(([, o]) => (o.tipografi ?? VARSAYILAN_TIPO).baslikAgirlik)
+    expect(new Set(a).size).toBeGreaterThanOrEqual(3)
   })
 
   // ⚠ ⚠ **BU TESTİN OLMAMASI, BİR AYNILIĞI YEŞİL GEÇİRDİ.** Üstteki testler tipografi

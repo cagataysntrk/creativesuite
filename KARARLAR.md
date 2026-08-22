@@ -176,53 +176,9 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > (`panorama-elle.json`), defter görseli REFERANS tutuyor ve okuma tarafındaki
 > çeviri `gorselleriGom`da. Atıf bütünlüğü korunuyor (R-62), tavan açıldı (R-63).
 
-## D-303
-
-**Sayaç etiketi yasağı İSTEMDE de yazılı, `uyarla`da da zorunlu.**
-
-Depo sahibi `BÖLÜM 1` / `SERİ 1` / `SORU 1` sayaçlarını açıkça kaldırttı ve altı
-katalog taslağından silindiler. Buna rağmen gerçek bir koşuda dört kartın DÖRDÜ de
-`BÖLÜM 01…04` ile çıktı. Kök neden: **uyarlama isteminin JSON örneği hâlâ
-`"ustBaslik": "BÖLÜM 01"` diyordu** ve model örneği kopyaladı. Bir dosyada silinen
-şey, başka bir dosyadaki örnekte yaşamaya devam etti — aynı sınıf hata bu depoda
-daha önce de oldu (D-259 → D-283: bir dosyaya yazılan ders, o dosyaya sonradan
-eklenen dala kendiliğinden geçmiyor).
-
-İki taraf birden: istem sayacı ÖĞRETMİYOR ve yasağı açıkça yazıyor; `uyarla` sayaç
-gelirse REDDEDİYOR. Yalnız reddetmek modeli her koşuda aynı duvara çarptırıp bir tur
-daha yakardı; kuralı önce söyle, sonra zorla.
-
-⚠ Kalıp `i` bayrağı KULLANMIYOR: JavaScript'in case-folding'i `İ`/`i` çiftini
-Türkçe'nin beklediği gibi eşlemiyor (R-21 ile aynı kök). Biçimler açıkça sayılıyor.
-
-## D-304
-
-**Metin görsellerin ÜSTÜNDE çiziliyor — ve örtülme artık ÖLÇÜLÜYOR.**
-
-Gerçek bir üretim karoselinde iki kartın gövdesi kesik öznenin arkasında kaldı, bir
-üçüncüsü yarıdan kırpıldı. **Denetim "kusur yok" dedi.** Var olan hiçbir ölçüm bunu
-göremiyordu: `tasma` kutu İÇİNDEKİ kırpılmayı ölçüyor, `kart-disi` tuvalden taşmayı,
-`sus-baskin` yalnız alan oranını. Örtülmek bunların hiçbiri değil.
-
-**İki ayrı sessiz hata üst üste binmişti.** Düzenleyicinin kusur paneli de
-`panoramaDenetle`yi yanlış çağırıyordu — o bir async fonksiyon, `page.evaluate`e
-verilince tarayıcı patlıyor, hata yutuluyor ve panel "✓ kusur yok" yazıyordu. Yani
-bozuk bir alet, ölçmediği şeye temiz diyordu. **Başarısız bir ölçüm "temiz" değildir**;
-panel artık hatayı yazıyor. ⚠ `panoramaDenetle`nin o güne dek HİÇ TESTİ YOKTU.
-
-**Ölçü çakışma değil ÖRTÜLME.** Metnin bir figürün üstünden geçmesi referans
-tasarımlarda İSTENEN şey; kusur olan metnin ALTTA kalması. Bu yüzden kutu kesişimi
-değil `elementFromPoint` ile gerçek boyama sırası örnekleniyor — gözün gördüğü şey
-ölçülüyor, bir vekil değil.
-
-**Düzeltme tek sayı.** `.kart` yığın bağlamı kurmuyor (`position: absolute`, z-index
-yok), yani kart çocuklarının z-index'i doğrudan görsellerle yarışıyordu: metin 2,
-görseller 4. Metin 6'ya çıktı. Sıra artık: kart zemini → lekeler(2) → GÖRSEL(4) →
-oklar(5) → METİN(6).
-
-**Kanıt kırmızıdan geliyor.** Düzeltmeden önce ölçüm altı şablonun ÜÇÜNDE (`sahne`
-%13, `memphis` %20, `donen` %6) ve iki gerçek koşunun İKİSİNDE de örtülme buldu;
-sonra hepsi temiz. Katmanlanma kasten bozulunca dört test birden kırmızıya dönüyor.
+> **D-303 · D-304 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
+> İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62), tavan
+> açıldı (R-63).
 
 ## D-305
 
@@ -575,3 +531,31 @@ unutulmasıyla sonuçlanmıştı. Üçüncü kopya yazılmadan tek yere alındı
 başlatıldı** ve açılışta düzenlenmiş başlık geldi (`ELLE Kantar mı satış mı`); önce
 asıl başlık geliyordu. Kütüphane ekranı gerçek tarayıcıda: 7 koşuda "elle düzenlendi"
 rozeti, 28 elle slayt görseli, hepsi `/api/kosu/<run>/elle/<ad>` üzerinden.
+
+## D-317 · Tip ölçeği markanın dizayn sistemine bağlanıyor — dört aile, dört rol (2026-08-22)
+
+**Bağlam.** Depo sahibi markanın gerçek dizayn sistemini depoya koydu
+(`examples/design-system-master/`, gitignore'lu — GitHub'a gitmesin diye) ve *"şablonları
+bu dizayn sisteme uygun olarak güncelle"* dedi. Sistem tipografiyi tahminle değil
+ÖLÇÜMLE seçmiş: dört ailenin WOFF2 ikilisi çözülüp `cmap` okunmuş, 15 Türkçe kod
+noktasının hepsi doğrulanmış, `Ş`(U+015E) ile `Ș`(U+0218) aynı glife düşüyor mu diye
+bakılmış ve `GSUB`ta `latn/TRK` dil sistemi aranmış. Inter bu sınavda *"Türkçe dil
+sistemi yok"* diye elenmiş — bizim bugünkü gövde fontumuz.
+
+**Karar.** `font_family_count` tavanı 3 → 4. Dört aile, dört AYRI rol:
+
+| Aile | Rol | Asla |
+|---|---|---|
+| Plus Jakarta Sans | gövde, etiket, tüm arayüz | pazarlama display puntosu |
+| Source Serif 4 | pazarlama sayfasının TEK H1'i — karoselde kapak başlığı | başka her yer |
+| Montserrat | bölüm başlıkları ve alt başlıklar — karoselde gövde slaytları | gövde metni |
+| JetBrains Mono | rakam, kimlik, künye, eyebrow | düzyazı |
+
+**Neden gevşeme değil.** "Beyan edilmemiş aile" tavanı 0 olarak duruyor: hangi ailenin
+meşru olduğu `fonts.ts`in kapalı listesinden geliyor. Sistemin kendi sınırlama kuralı da
+devrede — Source Serif 4 ve Montserrat ürün kromunda YASAK, yalnız pazarlama
+yüzeylerinde; karosel bir pazarlama yüzeyi. Beşinci aile hâlâ kırmızı.
+
+**Bedeli.** Dört yüz ailesi gömülü olarak taşınıyor (latin + latin-ext, sekiz dosya,
+toplam ~426 KB). Eski dört dosya (Inter, Archivo, Bricolage, Caveat) emekli oluyor;
+`scripts/font-getir.mjs` listeyi geri koyan tek satırla onları da geri getirebilir.

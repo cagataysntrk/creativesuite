@@ -42,73 +42,89 @@ const LATIN_EXT =
  * bir import değil. Tip ölçeği kapalı kalmazsa "marka şablonu" bir öneriye dönüşür.
  */
 export const YUZLER: readonly FontYuzu[] = [
-  // Metin: Inter — geniş latin-ext kapsaması, değişken ağırlık.
+  // ⚠ ⚠ **DÖRT AİLE, DÖRT ROL — markanın kendi dizayn sisteminden (D-317).** Sistem
+  // aileleri tahminle değil ÖLÇÜMLE seçmiş: WOFF2 ikilisi brotli ile çözülüp `cmap`
+  // okunmuş, 15 Türkçe kod noktasının hepsi doğrulanmış, `Ş`(U+015E) ile `Ș`(U+0218)
+  // aynı glife düşüyor mu diye bakılmış (Romence için çizilmiş yüzlerin klasik hatası)
+  // ve `GSUB`ta `latn/TRK` dil sistemi aranmış.
+  //
+  // ⚠ ⚠ **INTER BU SINAVDA ELENDİ** ve bizim gövde fontumuzdu: Türkçe dil sistemi YOK.
+  // Bugün görünür bir kusur doğurmuyor (shipped subset'te bastırılacak `fi` ligatürü
+  // yok) ama Türkçe'ye özgü hiçbir iş yapılmadığının işareti. Ölçüm bu depoda da
+  // tekrarlandı: dört ailenin dördü de 15/15, `Ş`≠`Ș`, `latn/TRK`.
+  //
+  // ⚠ **GENİŞLİK EKSENİ YOK ve bu bilinçli.** Bricolage'ın `wdth` ekseni Türkçe'de
+  // punto satın alıyordu (D-296) — ama sistemin dört ailesinin hiçbirinde o eksen yok
+  // ve olmayan bir ekseni CSS'te sürmek sessiz bir yalan olurdu: tarayıcı `font-stretch`i
+  // kırpar, reçete "wdth 78" der, çıktı 100'dür. Eksen reçeteden de KALDIRILDI (D-317);
+  // punto tavanı artık yalnız gerçek genişlik ölçümünden geliyor.
+
+  // GÖVDE · etiket · tüm arayüz metni.
   {
     aile: 'Marka Metin',
-    dosya: 'Inter-latin.woff2',
+    dosya: 'PlusJakartaSans-latin.woff2',
     unicodeRange: LATIN,
-    agirlik: '400 800',
+    agirlik: '200 800',
     genislik: null,
   },
   {
     aile: 'Marka Metin',
-    dosya: 'Inter-latin-ext.woff2',
+    dosya: 'PlusJakartaSans-latin-ext.woff2',
     unicodeRange: LATIN_EXT,
-    agirlik: '400 800',
+    agirlik: '200 800',
     genislik: null,
   },
-  // ⚠ ⚠ **DISPLAY: ARCHIVO → BRICOLAGE GROTESQUE (T5 · D-296).** Depo sahibinin tespiti:
-  // *"font çok temiz, karakteri az — system UI / Inter ailesi hissi var"*. Archivo teknik
-  // olarak doğru bir seçimdi (değişken genişlik 62–125%, geniş latin-ext) ama tarafsız:
-  // bir arayüz grotesk'i, bir tasarımın sesi değil. Yan yana render edilip bakıldı;
-  // Bricolage'ın terminalleri, `a`/`ş`/`y` çizimi ve sıkı ritmi kadraja karakter veriyor.
-  //
-  // ⚠ **Genişlik ekseni DARALDI: 62–125% → 75–100%.** Şablonların `baslikGenislik` ve
-  // `ustGenislik` değerleri bu aralığa taşındı; aralık dışı bir değer sessizce kırpılır
-  // ve tipografi reçetesi yalan söylemeye başlar.
-  // ⚠ Türkçe kapsaması ÇİZDİREREK doğrulandı: `ğ ü ş ı İ Ö Ç` render edilip bakıldı.
+
+  // DISPLAY · pazarlama sayfasının TEK H1'i. Karoselde: kapak başlığı, başka hiçbir yer.
+  // ⚠ `opsz` ekseni puntoya bağlı: display puntolarda daha sıkı, daha yüksek kontrastlı
+  // formlar ikinci bir kesim gerektirmeden geliyor.
   {
     aile: 'Marka Display',
-    dosya: 'Bricolage-latin.woff2',
+    dosya: 'SourceSerif4-latin.woff2',
     unicodeRange: LATIN,
-    agirlik: '400 800',
-    genislik: '75% 100%',
-  },
-  {
-    aile: 'Marka Display',
-    dosya: 'Bricolage-latin-ext.woff2',
-    unicodeRange: LATIN_EXT,
-    agirlik: '400 800',
-    genislik: '75% 100%',
-  },
-  // ⚠ ⚠ **ÜÇÜNCÜ AİLE — bir KARAR (D-282 · D-285), bir import değil.** Referansta
-  // (`image copy 2`) kapak başlığının ilk kelimesi el yazısı, kalanı ağır condensed;
-  // kontrastı kuran şey punto değil YÜZ FARKI. Tek display ailesiyle kurulamıyordu ve
-  // R-81 elle taklidi yasaklıyor — bir yazı karakteri o yasağın en uç örneği.
-  //
-  // ⚠ **Bu yüz bir turda EKLENİP GERİ ALINDI.** `tasarim` kapısının 2-aile sınırını
-  // deliyordu ve R-76 kırmızı kapının kuralını aynı turda gevşetmeyi yasaklıyor. Sınır
-  // ayrı bir turda, ayrı bir `refactor(gates)` commit'iyle 3'e çıkarıldı (D-285) ve
-  // karşılığında "beyan edilmemiş aile" tavanı 0 oldu; sonra yüz geri bağlandı.
-  //
-  // ⚠ **Caveat, OFL** — mevcut iki aileyle aynı lisans ailesi. Türkçe kapsaması
-  // ÇİZDİREREK doğrulandı (`ı İ ğ ö ü ş` render edilip bakıldı), beyan edilen
-  // `unicode-range`e güvenilmedi: bir fontun "latin-ext" demesi Türkçe'nin tamamını
-  // taşıdığı anlamına gelmiyor.
-  // ⚠ **YALNIZ VURGU İÇİN.** Gövde metninde el yazısı okunurluğu düşürür; şablon onu
-  // tek kısa satırda kullanıyor.
-  {
-    aile: 'Marka El Yazisi',
-    dosya: 'Caveat-latin.woff2',
-    unicodeRange: LATIN,
-    agirlik: '400 700',
+    agirlik: '200 900',
     genislik: null,
   },
   {
-    aile: 'Marka El Yazisi',
-    dosya: 'Caveat-latin-ext.woff2',
+    aile: 'Marka Display',
+    dosya: 'SourceSerif4-latin-ext.woff2',
     unicodeRange: LATIN_EXT,
-    agirlik: '400 700',
+    agirlik: '200 900',
+    genislik: null,
+  },
+
+  // BÖLÜM BAŞLIĞI · alt başlık. Karoselde: gövde slaytlarının başlıkları.
+  // ⚠ Gövde metni ASLA: sistemin sınırlama kuralı bu aileyi başlıkla sınırlıyor.
+  {
+    aile: 'Marka Baslik',
+    dosya: 'Montserrat-latin.woff2',
+    unicodeRange: LATIN,
+    agirlik: '100 900',
+    genislik: null,
+  },
+  {
+    aile: 'Marka Baslik',
+    dosya: 'Montserrat-latin-ext.woff2',
+    unicodeRange: LATIN_EXT,
+    agirlik: '100 900',
+    genislik: null,
+  },
+
+  // RAKAM · kimlik · künye · eyebrow. **Yalnız BÜYÜK HARF ve tracked +0.08em.**
+  // ⚠ Bu aile sistemin imza ögesini taşıyor: bir sayının nereden geldiğini söyleyen
+  // kaynak satırı (§8). Düzyazı ASLA.
+  {
+    aile: 'Marka Mono',
+    dosya: 'JetBrainsMono-latin.woff2',
+    unicodeRange: LATIN,
+    agirlik: '100 800',
+    genislik: null,
+  },
+  {
+    aile: 'Marka Mono',
+    dosya: 'JetBrainsMono-latin-ext.woff2',
+    unicodeRange: LATIN_EXT,
+    agirlik: '100 800',
     genislik: null,
   },
 ]

@@ -80,11 +80,9 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   hayaletKonumu: { ust: 26, olcek: 1.55, guc: 9 },
   tipografi: {
     baslikPayi: 1.16,
-    baslikGenislik: 78,
-    baslikAgirlik: 800,
+    baslikAgirlik: 600,
     satirAraligi: 0.98,
     harfArasi: -0.025,
-    ustGenislik: 96,
     govdeOrani: 0.27,
     baslikSutunu: 0.88,
     // ⚠ ⚠ **2,1 — VERİ ŞABLONUNDA VERİ %2'YDİ.** Ölçüldü: panel kadrajın %0,9–4,9'unu,
@@ -140,7 +138,6 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       // bakınca ikisi tek bir cümlenin iki kez yazılması gibi okundu. Referansta iki satır
       // AYRI şey söylüyor: el yazısı kim konuşuyor, ağır condensed ne söylüyor. Uyarlama
       // bu ayrımı örnekten öğreniyor.
-      elYazisi: 'Rakamlarla',
       ustBaslik: 'AÇILIŞ',
       baslik: 'Altı yılda **iki katına** çıkan bir eğri',
       govde: 'Kaydırın: eğri altı slaydı kat ediyor ve her durakta bir karar var.',
@@ -263,11 +260,9 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   yerlesim: 'ust',
   tipografi: {
     baslikPayi: 1.18,
-    baslikGenislik: 100,
-    baslikAgirlik: 800,
+    baslikAgirlik: 700,
     satirAraligi: 1.06,
     harfArasi: -0.015,
-    ustGenislik: 80,
     govdeOrani: 0.3,
     baslikSutunu: 0.82,
   },
@@ -316,7 +311,6 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
-      elYazisi: 'Adım adım',
       ustBaslik: 'DÖNGÜSELLİK',
       baslik: 'Bir hattı **döngüsel** yapan beş şart',
       govde: 'Beşi de olmadan döngü kapanmıyor; biri eksikse sistem doğrusal kalıyor.',
@@ -398,11 +392,9 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   yerlesim: 'orta',
   tipografi: {
     baslikPayi: 0.98,
-    baslikGenislik: 76,
-    baslikAgirlik: 800,
+    baslikAgirlik: 600,
     satirAraligi: 0.96,
     harfArasi: -0.03,
-    ustGenislik: 100,
     govdeOrani: 0.32,
     // ⚠ 0,66'da başlık üç satıra çıkıyor ve metin bloğu okların şeridine giriyordu.
     // Sütunu genişletmek satır sayısını ikiye indiriyor: oklara yer açan şey boşluk değil,
@@ -535,7 +527,6 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   // ⚠ Rakamlar aynı zamanda referanstaki `#003` tipi indeks etiketinin karşılığı.
   kartlar: [
     {
-      elYazisi: 'Bir bakışta',
       ustBaslik: 'SAHNE',
       baslik: 'Anlatmak **göstermekle** başlar',
       govde: 'Dört karede tek bir hareket.',
@@ -609,11 +600,9 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   yerlesim: 'alt',
   tipografi: {
     baslikPayi: 0.98,
-    baslikGenislik: 92,
-    baslikAgirlik: 800,
+    baslikAgirlik: 500,
     satirAraligi: 1.08,
     harfArasi: -0.01,
-    ustGenislik: 84,
     govdeOrani: 0.34,
     baslikSutunu: 0.8,
     // ⚠ 1,7: `memphis` panelleri veri değil RİTİM taşıyor (etiket, liste); veri
@@ -663,7 +652,6 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
 
   kartlar: [
     {
-      elYazisi: 'Kendine sor',
       ustBaslik: 'VARSAYIM',
       baslik: 'Altı soru, **altı** yanlış varsayım',
       govde: 'Her kare bir varsayımı yıkıyor.',
@@ -754,11 +742,9 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   yerlesim: 'yayik',
   tipografi: {
     baslikPayi: 0.98,
-    baslikGenislik: 88,
-    baslikAgirlik: 800,
+    baslikAgirlik: 700,
     satirAraligi: 1.0,
     harfArasi: -0.02,
-    ustGenislik: 94,
     govdeOrani: 0.31,
     // ⚠ 0,7'de üç satırlık başlık daireye giriyordu (1. kartta "tek" çipi dairenin
     // altında kaldı). Sütun daralınca metin ve daire ayrı dikey şeritlerde kalıyor.
@@ -812,7 +798,6 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   ],
   kartlar: [
     {
-      elYazisi: 'Seride',
       ustBaslik: 'MALZEME',
       baslik: 'Dört malzeme, **tek** hat',
       govde: 'Aynı hat, dört farklı beslemeyle çalışıyor.',
@@ -901,11 +886,9 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     // ⚠ 0,4 → 0,72 ve ağırlık 500 → 400: referansın "sessiz" tonu İNCE ve BÜYÜK bir
     // başlıktan geliyor. Küçük ve yarı kalın bir başlık sessiz değil, çekingen duruyor.
     baslikPayi: 0.98,
-    baslikGenislik: 100,
-    baslikAgirlik: 400,
+    baslikAgirlik: 500,
     satirAraligi: 1.12,
     harfArasi: -0.012,
-    ustGenislik: 76,
     govdeOrani: 0.34,
     // ⚠ 0,6 → 0,46: metin kolonu fotoğrafa yer BIRAKMAK zorunda. Yan yana kompozisyonun
     // tek sert kısıtı bu; kolon geniş kalırsa iki öge üst üste biner ve düzen çöker.

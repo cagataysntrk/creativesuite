@@ -474,16 +474,23 @@ export const tipografiSay = (html: string): QaReport => {
     // Yeni kural iki parça: sayı ≤ 3 VE kullanılan her aile `YUZLER`de BEYAN EDİLMİŞ
     // olmalı (aşağıdaki `font_family_unknown`, tavan 0). Toplamda gate DAHA SIKI.
     //
-    // ⚠ Üçüncü aile keyfî bir ekleme değil, ayrı bir ROL: referansta (`image copy 2`)
-    // kapağın kontrastı punto farkından değil YÜZ FARKINDAN geliyor — el yazısı vurgu +
-    // ağır condensed. Tek display ailesiyle o kontrast kurulamıyor ve R-81 elle taklidi
-    // yasaklıyor. Dördüncü bir aile hâlâ kırmızı: rol sayısı üç (metin · display · vurgu).
+    // ⚠ ⚠ **SINIR 3 → 4 (D-317) ve yine bir TAKAS, bir gevşeme değil.** Markanın
+    // dizayn sistemi (`examples/design-system-master/DESIGN.md` §7) DÖRT aile
+    // tanımlıyor ve her birine TEK bir rol veriyor: gövde (Plus Jakarta Sans),
+    // pazarlama H1'i (Source Serif 4), bölüm başlığı (Montserrat), rakam/künye
+    // (JetBrains Mono). Dördü de Türkçe kapsaması ÖLÇÜLEREK seçilmiş — WOFF2 ikilisi
+    // çözülüp `cmap` okunmuş, `Ş`≠`Ș` ayrımı ve `latn/TRK` dil sistemi doğrulanmış.
+    //
+    // ⚠ Sistemin kendi "containment" kuralı da devrede: Source Serif 4 ve Montserrat
+    // ÜRÜN kromunda yasak, yalnız pazarlama yüzeylerinde. Karosel bir pazarlama
+    // yüzeyi. Beşinci aile hâlâ kırmızı ve "beyan edilmemiş aile" tavanı 0 kalıyor:
+    // hangi ailelerin meşru olduğu `fonts.ts`in kapalı listesinden geliyor.
     reading({
       metric: 'font_family_count',
       label: 'kullanılan font ailesi',
       value: aileler.size,
-      warn: 3,
-      limit: 3,
+      warn: 4,
+      limit: 4,
       direction: 'lower',
       unit: '',
     }),

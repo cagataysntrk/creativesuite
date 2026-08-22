@@ -5720,3 +5720,53 @@ Bu, slaytların `derived/blobs`ta durmasıyla aynı model: **kompozisyon izlenir
 pikselleri izlenmez.** Yazma ve okuma tek fonksiyondan geçiyor
 (`panoramaBelgesiniYaz`) — editör kendi serileştiricisini yazsaydı iki biçim doğar
 ve biri gün gelip ötekinden ayrışırdı.
+
+---
+
+## D-303
+
+**Sayaç etiketi yasağı İSTEMDE de yazılı, `uyarla`da da zorunlu.**
+
+Depo sahibi `BÖLÜM 1` / `SERİ 1` / `SORU 1` sayaçlarını açıkça kaldırttı ve altı
+katalog taslağından silindiler. Buna rağmen gerçek bir koşuda dört kartın DÖRDÜ de
+`BÖLÜM 01…04` ile çıktı. Kök neden: **uyarlama isteminin JSON örneği hâlâ
+`"ustBaslik": "BÖLÜM 01"` diyordu** ve model örneği kopyaladı. Bir dosyada silinen
+şey, başka bir dosyadaki örnekte yaşamaya devam etti — aynı sınıf hata bu depoda
+daha önce de oldu (D-259 → D-283: bir dosyaya yazılan ders, o dosyaya sonradan
+eklenen dala kendiliğinden geçmiyor).
+
+İki taraf birden: istem sayacı ÖĞRETMİYOR ve yasağı açıkça yazıyor; `uyarla` sayaç
+gelirse REDDEDİYOR. Yalnız reddetmek modeli her koşuda aynı duvara çarptırıp bir tur
+daha yakardı; kuralı önce söyle, sonra zorla.
+
+⚠ Kalıp `i` bayrağı KULLANMIYOR: JavaScript'in case-folding'i `İ`/`i` çiftini
+Türkçe'nin beklediği gibi eşlemiyor (R-21 ile aynı kök). Biçimler açıkça sayılıyor.
+
+## D-304
+
+**Metin görsellerin ÜSTÜNDE çiziliyor — ve örtülme artık ÖLÇÜLÜYOR.**
+
+Gerçek bir üretim karoselinde iki kartın gövdesi kesik öznenin arkasında kaldı, bir
+üçüncüsü yarıdan kırpıldı. **Denetim "kusur yok" dedi.** Var olan hiçbir ölçüm bunu
+göremiyordu: `tasma` kutu İÇİNDEKİ kırpılmayı ölçüyor, `kart-disi` tuvalden taşmayı,
+`sus-baskin` yalnız alan oranını. Örtülmek bunların hiçbiri değil.
+
+**İki ayrı sessiz hata üst üste binmişti.** Düzenleyicinin kusur paneli de
+`panoramaDenetle`yi yanlış çağırıyordu — o bir async fonksiyon, `page.evaluate`e
+verilince tarayıcı patlıyor, hata yutuluyor ve panel "✓ kusur yok" yazıyordu. Yani
+bozuk bir alet, ölçmediği şeye temiz diyordu. **Başarısız bir ölçüm "temiz" değildir**;
+panel artık hatayı yazıyor. ⚠ `panoramaDenetle`nin o güne dek HİÇ TESTİ YOKTU.
+
+**Ölçü çakışma değil ÖRTÜLME.** Metnin bir figürün üstünden geçmesi referans
+tasarımlarda İSTENEN şey; kusur olan metnin ALTTA kalması. Bu yüzden kutu kesişimi
+değil `elementFromPoint` ile gerçek boyama sırası örnekleniyor — gözün gördüğü şey
+ölçülüyor, bir vekil değil.
+
+**Düzeltme tek sayı.** `.kart` yığın bağlamı kurmuyor (`position: absolute`, z-index
+yok), yani kart çocuklarının z-index'i doğrudan görsellerle yarışıyordu: metin 2,
+görseller 4. Metin 6'ya çıktı. Sıra artık: kart zemini → lekeler(2) → GÖRSEL(4) →
+oklar(5) → METİN(6).
+
+**Kanıt kırmızıdan geliyor.** Düzeltmeden önce ölçüm altı şablonun ÜÇÜNDE (`sahne`
+%13, `memphis` %20, `donen` %6) ve iki gerçek koşunun İKİSİNDE de örtülme buldu;
+sonra hepsi temiz. Katmanlanma kasten bozulunca dört test birden kırmızıya dönüyor.

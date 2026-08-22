@@ -60,7 +60,9 @@ describe('metin ince ayarı', () => {
   it('punto formülleri çarpanı okuyor — yoksa ayar hiçbir şey yapmazdı', () => {
     const html = panoramaHtml(belge({}))
     expect(html).toContain('calc(var(--baslik-punto) * var(--ayar-olcek, 1))')
-    expect(html).toContain('calc(24px * var(--ayar-olcek, 1))')
+    // ⚠ Eyebrow puntosu 24 → 20 (D-317: sistemin `eyebrow` ölçeği). Ölçülen şey punto
+    // değil, ÇARPANIN okunduğu: elle ayar bu ögeye de geçmeli.
+    expect(html).toContain('calc(20px * var(--ayar-olcek, 1))')
     // Panel payı KÖKTEN türüyor: elle ayar şablonun kendi payını EZMİYOR, çarpıyor.
     expect(html).toContain('--panel-olcek: calc(var(--panel-kok) * var(--ayar-olcek, 1))')
   })

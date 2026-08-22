@@ -249,7 +249,6 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       // ⚠ **Kalıcı çözüm bir yorum değil, bir TEST:** `sablon-uyarla.test.ts` artık
       // şablonun taşıdığı KOMPOZİSYON alanlarının hepsinin uyarlanmış belgede
       // durduğunu alan alan değil, ALAN LİSTESİ üzerinden ölçüyor.
-      ...(o.elYazisi === undefined ? {} : { elYazisi: o.elYazisi }),
       // ⚠ ⚠ **`ayar` ÜÇÜNCÜ ADAY ve ISIRMADAN önce yakalandı.** Elle yapılmış ince ayar
       // (kaydırma + punto çarpanı) da kompozisyondur: depo sahibi bir başlığı elle
       // yerine oturttuysa o karar şablonun parçasıdır ve uyarlama onu düşüremez.
