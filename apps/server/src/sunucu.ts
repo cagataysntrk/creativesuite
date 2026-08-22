@@ -225,6 +225,40 @@ const konuSecebilirMi = (repoRoot: string, pipelineId: string): boolean => {
   }
 }
 
+/**
+ * Adım defterindeki metin satırları — **manifest özetinden ÖNCE gelir**.
+ *
+ * ⚠ Manifest bir ÖZET taşıyor (D-136) ve o özet, insanın düzenlemesinden önce
+ * yazılmıştı. Tekrar oynatma `steps/metin-uret.json` okuyor; ekran da onu okumazsa
+ * insanın gördüğü metin ile hattın kullandığı metin ayrışır.
+ */
+const adimSatirlari = (repoRoot: string, runId: string): readonly string[] | null => {
+  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return null
+  const yol = join(repoRoot, RUNS_DIR, runId, 'steps', 'metin-uret.json')
+  if (!existsSync(yol)) return null
+  try {
+    const d = JSON.parse(readFileSync(yol, 'utf8')) as { lines?: unknown }
+    return Array.isArray(d.lines) ? (d.lines as string[]) : null
+  } catch {
+    return null
+  }
+}
+
+/** Metin insan tarafından düzenlendi mi — defterdeki `elleDuzenlendi` bayrağı. */
+const adimMetniElleDuzenlendiMi = (repoRoot: string, runId: string): boolean => {
+  if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return false
+  const yol = join(repoRoot, RUNS_DIR, runId, 'steps', 'metin-uret.json')
+  if (!existsSync(yol)) return false
+  try {
+    return (
+      (JSON.parse(readFileSync(yol, 'utf8')) as { elleDuzenlendi?: unknown }).elleDuzenlendi ===
+      true
+    )
+  } catch {
+    return false
+  }
+}
+
 /** Panelden yüklenmiş görseller — hat bunları üretim yerine kullanır. */
 const yuklenenGorseller = (repoRoot: string, runId: string): readonly string[] => {
   if (!/^run_[0-9a-f-]{8,64}$/.test(runId)) return []
@@ -559,6 +593,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         // bir gün birini unutur — bugün olan tam olarak buydu.
         elleSlaytlar: [],
         yuklenenGorseller: [],
+        metinElleDuzenlendi: false,
         duraklananAdim: null,
         satirlar: [],
         sablonId: null,
@@ -605,7 +640,17 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         m.awaitingGate ?? null
       ),
       duraklananAdim: adimlar.find((s) => s.status !== 'ok')?.stepId ?? null,
-      satirlar: (bul('metin-uret')['lines'] as string[] | undefined) ?? [],
+      // ⚠ ⚠ **EKRAN MANİFESTİ OKUYORDU, DÜZENLEME DEFTERE YAZILIYORDU.** İnsan metni
+      // düzenleyip kaydediyor, ekran hâlâ ESKİ hâli gösteriyordu: manifest adım
+      // çıktısının ÖZETİNİ taşıyor ve o özet düzenlemeden önce yazılmıştı. Aşağı akış
+      // (tekrar oynatma) zaten `steps/metin-uret.json` okuyor — ekran da onu okumalı,
+      // yoksa insanın gördüğü ile hattın kullandığı iki farklı metin olur.
+      satirlar:
+        adimSatirlari(o.repoRoot, runId) ??
+        (bul('metin-uret')['lines'] as string[] | undefined) ??
+        [],
+      /** Metin insan tarafından düzenlendi mi — kaynağı defterdeki kayıt. */
+      metinElleDuzenlendi: adimMetniElleDuzenlendiMi(o.repoRoot, runId),
       sablonId: sonSablon ?? null,
       ritimHedefi: bul('kompozit')['ritimHedefi'] ?? null,
       ritimTuttu: bul('kompozit')['ritimTuttu'] ?? null,

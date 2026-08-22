@@ -1008,3 +1008,60 @@ describe('metin düzenleme ucu', () => {
     }
   })
 })
+
+// ── düzenlenen metin EKRANDA da değişiyor ──────────────────────────────────
+//
+// ⚠ ⚠ **DEPO SAHİBİ: "metin düzenleyip kaydedince eski hâli kalıyor, değişmedi".**
+// Ekran manifesti okuyordu; manifest adım çıktısının ÖZETİNİ taşıyor ve o özet
+// düzenlemeden ÖNCE yazılmıştı. Aşağı akış (tekrar oynatma) zaten `steps/` okuyor —
+// ekran da onu okumazsa insanın gördüğü ile hattın kullandığı iki farklı metin olur.
+describe('düzenlenen metin ekranda', () => {
+  it('`/icerik` defterdeki satırları döndürüyor, manifest özetini DEĞİL', async () => {
+    const runId = 'run_01a01111-0000-7000-8000-00000000000b'
+    const kok = mkdtempSync(join(tmpdir(), 'suite-metin2-'))
+    const m = manifest({ runId, biten: true }) as Record<string, unknown>
+    ;(m['steps'] as Record<string, unknown>[]).push({
+      stepId: 'metin-uret',
+      verb: 'GENERATE',
+      lane: 'free',
+      capability: 'text.generate',
+      providerId: 'claude-code',
+      model: null,
+      seed: null,
+      params: {},
+      estimatedCost: {
+        low: { micros: '0', currency: 'USD' },
+        high: { micros: '0', currency: 'USD' },
+      },
+      actualCost: null,
+      candidates: [],
+      startedAt: '2026-08-15T10:00:00.000Z',
+      finishedAt: '2026-08-15T10:00:01.000Z',
+      output: { lines: ['MANİFESTTEKİ eski satır'] },
+    })
+    mkdirSync(join(kok, RUNS_DIR, runId, 'steps'), { recursive: true })
+    writeFileSync(join(kok, RUNS_DIR, runId, 'manifest.json'), JSON.stringify(m))
+    writeFileSync(
+      join(kok, RUNS_DIR, runId, 'steps', 'metin-uret.json'),
+      JSON.stringify({ lines: ['DEFTERDEKİ yeni satır'], elleDuzenlendi: true })
+    )
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const j = (await (await s.app.request(`/api/kosu/${runId}/icerik`)).json()) as {
+        satirlar: string[]
+        metinElleDuzenlendi: boolean
+      }
+      expect(j.satirlar).toEqual(['DEFTERDEKİ yeni satır'])
+      expect(j.metinElleDuzenlendi).toBe(true)
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})

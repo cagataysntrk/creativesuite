@@ -24,6 +24,8 @@ interface Icerik {
   /** Hangi adımda durdu — `null` = durmadı. */
   readonly duraklananAdim: string | null
   readonly satirlar: readonly string[]
+  /** Metin insan tarafından düzenlendi mi — ekranda görünür bir OLGU. */
+  readonly metinElleDuzenlendi?: boolean
   readonly sablonId: string | null
   readonly ritimHedefi: string | null
   readonly ritimTuttu: boolean | null
@@ -381,7 +383,12 @@ export const KosuDetay = ({
       {mesaj === null ? null : <p className="giris-not">{mesaj}</p>}
 
       <section className="giris-blok">
-        <h3>Üretilen metin</h3>
+        <h3>
+          Üretilen metin
+          {d.metinElleDuzenlendi === true ? (
+            <span className="olcum"> · ✎ elle düzenlendi</span>
+          ) : null}
+        </h3>
         {d.satirlar.length === 0 ? (
           <p className="giris-not">Bu adımda metin yok.</p>
         ) : taslak === null ? (
