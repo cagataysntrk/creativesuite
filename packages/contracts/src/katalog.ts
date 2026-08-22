@@ -204,9 +204,15 @@ export const SAHNE: KatalogSablonu = {
       // *"body fully in frame"*) ve konu ne olursa olsun modelden bir gövde istiyordu.
       // Taban artık yalnız TEKNİK sözleşme: tek özne, düz siyah zemin (alfa oradan
       // türetiliyor), tek yönlü ışık, sade yüzey. ÖZNEYE agent karar veriyor.
+      // ⚠ ⚠ **"RIM LIGHT" → TEK YUMUŞAK ANAHTAR IŞIK (FAZ-18.3).** Ölçüldü: rim light
+      // isteyen brief, öznenin arkasına PARLAK BİR HALE koyuyor ve o hale kesme
+      // işleminden sonra da kalıyor — düz `#040404` zeminimizin üstünde beyaz bir bulut
+      // gibi duruyor. Markanın dizayn sistemi glow'u ve "atmosferik renk"i yasaklıyor;
+      // brief onu İSTEMEYE devam ederse yasak yalnız CSS'te geçerli olur.
       'single subject, plain solid black background free of gradient or surface ' +
-      'detail, strong rim light on the subject only, the subject reaching past one ' +
-      'edge of the frame, every surface in frame plain and unmarked',
+      'detail, one soft key light from the side, matte finish, muted achromatic ' +
+      'palette, the subject reaching past one edge of the frame, every surface in ' +
+      'frame plain and unmarked',
     // ⚠ ⚠ **VARYANTLAR ARTIK YALNIZ POZ DEĞİL, ÖZNE TÜRÜ DE (T4 · T10).** Depo sahibi:
     // *"adam imgeleri sadece adam değil, konu neyse onun 3B görseli de olabilir"* ve
     // *"figürler aynı ailenin klonları gibi"*. İnsan pozu döndürmek çeşitlilik değil,
@@ -283,10 +289,11 @@ export const MEMPHIS: KatalogSablonu = {
     kirpma: 'kesik',
     briefTemeli:
       'single person, waist up, plain solid black background free of surface detail, ' +
-      'even lighting on the subject, lively posture, clothing plain and unmarked',
+      'one soft key light, matte finish, muted achromatic palette, lively posture, ' +
+      'clothing plain and unmarked',
     // ⚠ Varyant KADRAJ ve MALZEME söylüyor; özneyi konu belirliyor (bkz. `SAHNE`).
     varyantlar: [
-      'seated pose or resting position, leaning into the frame, matte surfaces with visible weave, soft rim light',
+      'seated pose or resting position, leaning into the frame, matte surfaces with visible weave, one soft key light',
       'isometric 3d clay render of the subject, matte pastel material, soft contact shadow',
       'caught mid movement, side profile, grainy film look, matte surfaces',
     ],
@@ -323,15 +330,16 @@ export const DONEN: KatalogSablonu = {
     // (`gorsel-kirp`), yani kesik ürün elimizdeydi; daire artık bir leke katmanı.
     kirpma: 'kesik',
     briefTemeli:
-      'single product, centred, plain seamless backdrop, soft studio lighting, ' +
-      'composed for a circular crop, every surface in frame plain and unmarked',
+      'single product, centred, plain solid black background free of gradient or ' +
+      'surface detail, one soft key light, matte finish, muted achromatic palette, ' +
+      'every surface in frame plain and unmarked',
     // ⚠ Görsel dili varyanta da yazılıyor: `briefTemeli` stüdyo ışığını söylüyor ama
     // varyant onu tekrar etmezse model kadrajı değiştirirken üslubu da kaydırıyor.
     varyantlar: [
-      'front elevation, centred in frame, soft studio lighting, matte surfaces',
-      'three quarter angle from the upper left, soft studio lighting, matte surfaces',
-      'close macro of the surface detail, soft studio lighting, matte surfaces',
-      'top down flat view from directly above, soft studio lighting, matte surfaces',
+      'front elevation, centred in frame, one soft key light, matte surfaces',
+      'three quarter angle from the upper left, one soft key light, matte surfaces',
+      'close macro of the surface detail, one soft key light, matte surfaces',
+      'top down flat view from directly above, one soft key light, matte surfaces',
     ],
   },
   baslikPayi: 0.86,
@@ -366,8 +374,9 @@ export const EDITORYAL: KatalogSablonu = {
     // ile reddedilirdi. Boş bırakılan yarının NEDEN boş olduğunu söylemeye gerek yok:
     // brief kadrajı tarif eder, sayfanın geri kalanını değil.
     briefTemeli:
-      'wide shot, single subject, calm natural light, right half of the frame left ' +
-      'empty, cool muted tones, every surface in frame plain and unmarked',
+      'wide shot, single subject, one soft key light, matte finish, right half of the ' +
+      'frame left empty, muted achromatic palette, every surface in frame plain and ' +
+      'unmarked',
     // ⚠ ⚠ **ÜÇ YUVA, ÜÇ VARYANT.** İki varyant kalsaydı üçüncü görsel adımının brief'i
     // BOŞ döner, adım atlanır ve üçüncü yuva yer tutucu kalırdı — ilan ile gerçek yine
     // ayrışırdı. `katalog-ornek.test.ts` artık eşitliği zorluyor.
