@@ -5,7 +5,7 @@
   "eraId": "imalat-2026",
   "corpusCommit": "dce59cadb6200fe872712e73457bc1ecf0e9746e",
   "registryCommit": "dce59cadb6200fe872712e73457bc1ecf0e9746e",
-  "frozenAt": "2026-08-22T13:06:01.945Z",
+  "frozenAt": "2026-08-22T16:28:50.093Z",
   "order": [
     "cozumle",
     "konu-sec",
@@ -205,9 +205,9 @@
       "verb": "GENERATE",
       "capability": "image.generate",
       "metered": true,
-      "providerId": "cloudflare-workers-ai",
-      "confidence": "green",
-      "descriptorDigest": "d3c341f84",
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
       "params": {
         "optional": true,
         "gorsel_sira": 1,
@@ -281,9 +281,9 @@
       "verb": "GENERATE",
       "capability": "image.generate",
       "metered": true,
-      "providerId": "cloudflare-workers-ai",
-      "confidence": "green",
-      "descriptorDigest": "d3c341f84",
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
       "params": {
         "optional": true,
         "gorsel_sira": 2,
@@ -357,9 +357,9 @@
       "verb": "GENERATE",
       "capability": "image.generate",
       "metered": true,
-      "providerId": "cloudflare-workers-ai",
-      "confidence": "green",
-      "descriptorDigest": "d3c341f84",
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
       "params": {
         "optional": true,
         "gorsel_sira": 3,
@@ -433,9 +433,9 @@
       "verb": "GENERATE",
       "capability": "image.generate",
       "metered": true,
-      "providerId": "cloudflare-workers-ai",
-      "confidence": "green",
-      "descriptorDigest": "d3c341f84",
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
       "params": {
         "optional": true,
         "gorsel_sira": 4,
@@ -720,5 +720,5 @@
     "currency": "USD"
   },
   "varyantSayisi": 1,
-  "digest": "sha256:f1042f8fe850d7811384879b72509b625fa4af1047c89ca3bd6a3b4ce23ac207"
+  "digest": "sha256:d7053c02e4e0420aa3bf8581ccff2e3111fc83686b7b111c6ecee841e9580bc0"
 }

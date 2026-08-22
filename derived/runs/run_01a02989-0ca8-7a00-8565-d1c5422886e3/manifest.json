@@ -38,8 +38,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:06:01.948Z",
-      "finishedAt": "2026-08-22T13:06:01.948Z",
+      "startedAt": "2026-08-22T16:28:50.096Z",
+      "finishedAt": "2026-08-22T16:28:50.096Z",
       "output": {
         "brandId": "brd_upcytech"
       }
@@ -94,8 +94,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.948Z",
-      "finishedAt": "2026-08-22T13:06:01.949Z",
+      "startedAt": "2026-08-22T16:28:50.097Z",
+      "finishedAt": "2026-08-22T16:28:50.098Z",
       "output": {
         "konu": "UpcyMan: çalışan üretim altyapısı",
         "gerekce": "UpcyMan somut kanıt varlığı olduğu için markanın gösterilebilir ve söyleme yetkisi olan tek başlık, laf değil ürün gösterir."
@@ -132,8 +132,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:06:01.950Z",
-      "finishedAt": "2026-08-22T13:06:01.951Z",
+      "startedAt": "2026-08-22T16:28:50.098Z",
+      "finishedAt": "2026-08-22T16:28:50.100Z",
       "output": null
     },
     {
@@ -186,8 +186,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.952Z",
-      "finishedAt": "2026-08-22T13:06:01.952Z",
+      "startedAt": "2026-08-22T16:28:50.100Z",
+      "finishedAt": "2026-08-22T16:28:50.100Z",
       "output": {
         "lines": [
           "Kantar mı yalan söylüyor, satış mı",
@@ -250,8 +250,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.952Z",
-      "finishedAt": "2026-08-22T13:06:01.952Z",
+      "startedAt": "2026-08-22T16:28:50.101Z",
+      "finishedAt": "2026-08-22T16:28:50.101Z",
       "output": null
     },
     {
@@ -286,8 +286,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:06:01.953Z",
-      "finishedAt": "2026-08-22T13:06:01.954Z",
+      "startedAt": "2026-08-22T16:28:50.101Z",
+      "finishedAt": "2026-08-22T16:28:50.103Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -345,8 +345,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.960Z",
-      "finishedAt": "2026-08-22T13:06:01.961Z",
+      "startedAt": "2026-08-22T16:28:50.108Z",
+      "finishedAt": "2026-08-22T16:28:50.109Z",
       "output": {
         "lines": [
           "a robotic recycling arm gripping a compressed metal scrap bale, plain solid black background free of gradient or surface detail, strong rim light on the arm and bale only, subject extending beyond the frame on the right, high contrast monochrome illustration with visible ink hatching, matte surfaces only, framed head-on and centred"
@@ -356,10 +356,10 @@
     {
       "stepId": "gorsel-uret",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "failed",
       "lane": "free",
       "capability": "image.generate",
-      "providerId": "cloudflare-workers-ai",
+      "providerId": null,
       "model": null,
       "seed": null,
       "params": {
@@ -384,34 +384,30 @@
           "currency": "USD"
         }
       },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
+      "actualCost": null,
       "candidates": [
         {
           "providerId": "cloudflare-workers-ai",
           "capability": "image.generate",
-          "selected": true,
-          "rejectionReason": null,
-          "estimatedCost": {
-            "low": {
-              "micros": "0",
-              "currency": "USD"
-            },
-            "high": {
-              "micros": "0",
-              "currency": "USD"
-            }
-          }
+          "selected": false,
+          "rejectionReason": "şu an kullanılamıyor — cloudflare-workers-ai: yerel önkoşul sağlanmadı",
+          "estimatedCost": null
+        },
+        {
+          "providerId": "fal-flux",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "free şeridinde değil (desteklediği: premium)",
+          "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.961Z",
-      "finishedAt": "2026-08-22T13:06:01.962Z",
-      "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
+      "startedAt": "2026-08-22T16:28:50.109Z",
+      "finishedAt": "2026-08-22T16:28:50.109Z",
+      "output": null,
+      "error": {
+        "kind": "internal",
+        "code": "NO_PROVIDER",
+        "message": "error.run.no_provider"
       }
     },
     {
@@ -463,10 +459,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.963Z",
-      "finishedAt": "2026-08-22T13:06:01.965Z",
+      "startedAt": "2026-08-22T16:28:50.109Z",
+      "finishedAt": "2026-08-22T16:28:50.109Z",
       "output": {
-        "format": "base64"
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
@@ -521,8 +518,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.965Z",
-      "finishedAt": "2026-08-22T13:06:01.965Z",
+      "startedAt": "2026-08-22T16:28:50.109Z",
+      "finishedAt": "2026-08-22T16:28:50.110Z",
       "output": {
         "lines": [
           "a battered fabric bale press, its steel jaws mid-compression on a dense block of compacted textile scraps, filling the lower two thirds and pushing past the right edge, single strong rim light tracing the machine's edges against a plain solid black background, matte unmarked surfaces throughout, three quarter angle, high contrast monochrome illustration with visible ink hatching, no humanoid robot, no chrome"
@@ -532,10 +529,10 @@
     {
       "stepId": "gorsel-uret-2",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "failed",
       "lane": "free",
       "capability": "image.generate",
-      "providerId": "cloudflare-workers-ai",
+      "providerId": null,
       "model": null,
       "seed": null,
       "params": {
@@ -560,34 +557,30 @@
           "currency": "USD"
         }
       },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
+      "actualCost": null,
       "candidates": [
         {
           "providerId": "cloudflare-workers-ai",
           "capability": "image.generate",
-          "selected": true,
-          "rejectionReason": null,
-          "estimatedCost": {
-            "low": {
-              "micros": "0",
-              "currency": "USD"
-            },
-            "high": {
-              "micros": "0",
-              "currency": "USD"
-            }
-          }
+          "selected": false,
+          "rejectionReason": "şu an kullanılamıyor — cloudflare-workers-ai: yerel önkoşul sağlanmadı",
+          "estimatedCost": null
+        },
+        {
+          "providerId": "fal-flux",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "free şeridinde değil (desteklediği: premium)",
+          "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.965Z",
-      "finishedAt": "2026-08-22T13:06:01.966Z",
-      "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
+      "startedAt": "2026-08-22T16:28:50.110Z",
+      "finishedAt": "2026-08-22T16:28:50.110Z",
+      "output": null,
+      "error": {
+        "kind": "internal",
+        "code": "NO_PROVIDER",
+        "message": "error.run.no_provider"
       }
     },
     {
@@ -639,10 +632,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.968Z",
-      "finishedAt": "2026-08-22T13:06:01.972Z",
+      "startedAt": "2026-08-22T16:28:50.110Z",
+      "finishedAt": "2026-08-22T16:28:50.110Z",
       "output": {
-        "format": "base64"
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
@@ -697,8 +691,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.972Z",
-      "finishedAt": "2026-08-22T13:06:01.972Z",
+      "startedAt": "2026-08-22T16:28:50.110Z",
+      "finishedAt": "2026-08-22T16:28:50.110Z",
       "output": {
         "lines": [
           "a large industrial recycling press mid-crush on a bundle of compacted material, cropped at the left edge, low camera angle looking up, plain solid black background free of gradient or surface detail, strong rim light on the machine only, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome"
@@ -708,10 +702,10 @@
     {
       "stepId": "gorsel-uret-3",
       "verb": "GENERATE",
-      "status": "ok",
+      "status": "failed",
       "lane": "free",
       "capability": "image.generate",
-      "providerId": "cloudflare-workers-ai",
+      "providerId": null,
       "model": null,
       "seed": null,
       "params": {
@@ -736,34 +730,30 @@
           "currency": "USD"
         }
       },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
+      "actualCost": null,
       "candidates": [
         {
           "providerId": "cloudflare-workers-ai",
           "capability": "image.generate",
-          "selected": true,
-          "rejectionReason": null,
-          "estimatedCost": {
-            "low": {
-              "micros": "0",
-              "currency": "USD"
-            },
-            "high": {
-              "micros": "0",
-              "currency": "USD"
-            }
-          }
+          "selected": false,
+          "rejectionReason": "şu an kullanılamıyor — cloudflare-workers-ai: yerel önkoşul sağlanmadı",
+          "estimatedCost": null
+        },
+        {
+          "providerId": "fal-flux",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "free şeridinde değil (desteklediği: premium)",
+          "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.972Z",
-      "finishedAt": "2026-08-22T13:06:01.973Z",
-      "output": {
-        "format": "base64",
-        "width": 1024,
-        "height": 1280
+      "startedAt": "2026-08-22T16:28:50.110Z",
+      "finishedAt": "2026-08-22T16:28:50.110Z",
+      "output": null,
+      "error": {
+        "kind": "internal",
+        "code": "NO_PROVIDER",
+        "message": "error.run.no_provider"
       }
     },
     {
@@ -815,10 +805,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.976Z",
-      "finishedAt": "2026-08-22T13:06:01.981Z",
+      "startedAt": "2026-08-22T16:28:50.110Z",
+      "finishedAt": "2026-08-22T16:28:50.111Z",
       "output": {
-        "format": "base64"
+        "atlandi": true,
+        "sebep": "prompt-yok"
       }
     },
     {
@@ -873,8 +864,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.981Z",
-      "finishedAt": "2026-08-22T13:06:01.981Z",
+      "startedAt": "2026-08-22T16:28:50.111Z",
+      "finishedAt": "2026-08-22T16:28:50.111Z",
       "output": {
         "lines": [
           "a factory conveyor belt with a single glass bottle mid-transit, plain solid black background, strong rim light tracing the bottle's edge and the belt's mechanical ridges, the belt reaching past the bottom edge of the frame, close crop on the bottle sitting on the belt track, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome"
@@ -887,7 +878,7 @@
       "status": "failed",
       "lane": "free",
       "capability": "image.generate",
-      "providerId": "cloudflare-workers-ai",
+      "providerId": null,
       "model": null,
       "seed": null,
       "params": {
@@ -917,27 +908,25 @@
         {
           "providerId": "cloudflare-workers-ai",
           "capability": "image.generate",
-          "selected": true,
-          "rejectionReason": null,
-          "estimatedCost": {
-            "low": {
-              "micros": "0",
-              "currency": "USD"
-            },
-            "high": {
-              "micros": "0",
-              "currency": "USD"
-            }
-          }
+          "selected": false,
+          "rejectionReason": "şu an kullanılamıyor — cloudflare-workers-ai: yerel önkoşul sağlanmadı",
+          "estimatedCost": null
+        },
+        {
+          "providerId": "fal-flux",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "free şeridinde değil (desteklediği: premium)",
+          "estimatedCost": null
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.981Z",
-      "finishedAt": "2026-08-22T13:06:01.984Z",
+      "startedAt": "2026-08-22T16:28:50.111Z",
+      "finishedAt": "2026-08-22T16:28:50.111Z",
       "output": null,
       "error": {
-        "kind": "policy_blocked",
-        "code": "IMAGE_PROMPT_REJECTED",
-        "message": "error.image.promptRejected"
+        "kind": "internal",
+        "code": "NO_PROVIDER",
+        "message": "error.run.no_provider"
       }
     },
     {
@@ -989,8 +978,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:01.984Z",
-      "finishedAt": "2026-08-22T13:06:01.984Z",
+      "startedAt": "2026-08-22T16:28:50.111Z",
+      "finishedAt": "2026-08-22T16:28:50.111Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -1028,8 +1017,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:06:01.984Z",
-      "finishedAt": "2026-08-22T13:06:01.985Z",
+      "startedAt": "2026-08-22T16:28:50.111Z",
+      "finishedAt": "2026-08-22T16:28:50.112Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -1069,10 +1058,28 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:06:02.087Z",
-      "finishedAt": "2026-08-22T13:06:08.269Z",
+      "startedAt": "2026-08-22T16:28:50.119Z",
+      "finishedAt": "2026-08-22T16:28:53.248Z",
       "output": {
         "kusurlar": [
+          {
+            "tur": "yer-tutucu",
+            "kart": 1,
+            "alan": null,
+            "aciklama": "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik"
+          },
+          {
+            "tur": "yer-tutucu",
+            "kart": 2,
+            "alan": null,
+            "aciklama": "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik"
+          },
+          {
+            "tur": "yer-tutucu",
+            "kart": 3,
+            "alan": null,
+            "aciklama": "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik"
+          },
           {
             "tur": "yer-tutucu",
             "kart": 4,
@@ -1084,12 +1091,6 @@
             "kart": 3,
             "alan": "govde",
             "aciklama": ".govde yatayda 28 px taşıyor"
-          },
-          {
-            "tur": "matlama-tutmuyor",
-            "kart": null,
-            "alan": null,
-            "aciklama": "kesik görselin köşesi OPAK (alfa 127/255) ve parlaklık 64/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek"
           },
           {
             "tur": "sus-metni-kesiyor",
@@ -1104,7 +1105,7 @@
             "aciklama": "süs ögesi govde metninin %9.2'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
           }
         ],
-        "ifsaGorunur": true,
+        "ifsaGorunur": false,
         "panoramaGenisligi": 1080,
         "slides": [
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-01.png",
@@ -1162,33 +1163,33 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:06:08.269Z",
-      "finishedAt": "2026-08-22T13:16:46.676Z",
+      "startedAt": "2026-08-22T16:28:53.248Z",
+      "finishedAt": "2026-08-22T16:28:53.249Z",
       "output": {
         "bulgular": [
           {
             "slayt": 1,
             "bolge": [
-              40,
-              410,
-              430,
-              140
+              600,
+              230,
+              470,
+              650
             ],
-            "kategori": "kontrast",
-            "siddet": "uyari",
-            "aciklama": "Alt başlık paragraf metni koyu lacivert zemin üzerinde soluk gri renkte, okunabilirliği düşürüyor."
+            "kategori": "hizalama",
+            "siddet": "kritik",
+            "aciklama": "Sağ tarafta noktalı bir kılavuz/slot çerçevesi nihai görselde görünür kalmış, editör kalıntısı gibi duruyor."
           },
           {
             "slayt": 1,
             "bolge": [
-              650,
-              820,
-              350,
-              260
+              630,
+              460,
+              170,
+              55
             ],
-            "kategori": "kontrast",
-            "siddet": "uyari",
-            "aciklama": "Robot kolundan akan mavi sıvı, arka plandaki mavi renk alanı eğrisiyle neredeyse aynı tonda olduğu için sınırı belirsizleşiyor."
+            "kategori": "tipografi",
+            "siddet": "kritik",
+            "aciklama": "'kesik özne' yazısı bir yer tutucu/hata etiketi gibi görünüyor ve nihai tasarımda kalmış."
           }
         ],
         "reddedilen": []
@@ -1242,43 +1243,68 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:16:46.676Z",
-      "finishedAt": "2026-08-22T13:17:16.233Z",
+      "startedAt": "2026-08-22T16:28:53.249Z",
+      "finishedAt": "2026-08-22T16:28:53.249Z",
       "output": {
-        "bulgular": [],
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              480,
+              510,
+              600,
+              545
+            ],
+            "kategori": "tutarlilik",
+            "siddet": "uyari",
+            "aciklama": "Kesik çizgili kutu ve içindeki 'kesik özne' yazısı, sayfanın tasarlanmış tipografi ve renk sisteminin dışında bir yer tutucu gibi görünüyor."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              480,
+              510,
+              600,
+              545
+            ],
+            "kategori": "carpicilik",
+            "siddet": "uyari",
+            "aciklama": "Sağ yarıda beklenen güçlü görsel çapa yerine boş bir kutu bulunması sayfanın akışta durdurma etkisini zayıflatıyor."
+          }
+        ],
         "puanlar": [
           {
             "kategori": "denge",
-            "puan": 4,
-            "gerekce": "Sol taraftaki metin bloğu ile sağ alttaki robot kolu görseli, eğrinin diyagonal akışıyla birbirini dengeliyor."
+            "puan": 3,
+            "gerekce": "Sol yarı metin ve başlıkla dolu, sağ yarı yalnız kesik çizgili bir kutuya sahip olduğu için ağırlık belirgin biçimde sola kaymış."
           },
           {
             "kategori": "hiyerarsi",
-            "puan": 5,
-            "gerekce": "Göz önce mavi vurgulu 'satış' kelimesine, ardından kalın başlığa gidiyor ve robot kolu ikinci planda kalıyor."
+            "puan": 3,
+            "gerekce": "Göz önce büyük başlığa gidiyor ama tasarımın vaat ettiği güçlü sağ taraf çapası yerine boş bir yer tutucu olduğu için ikinci durak zayıf kalıyor."
           },
           {
             "kategori": "bosluk",
             "puan": 3,
-            "gerekce": "Üst ve alt bantlar nefes alanı sağlıyor ama orta gövde metin ve illüstrasyonla yoğun, boşluk bir ritimden çok kalan alan gibi duruyor."
+            "gerekce": "Sağdaki geniş boşluk kasıtlı ritim yerine içi doldurulmamış bir alan izlenimi veriyor."
           },
           {
             "kategori": "tutarlilik",
-            "puan": 5,
-            "gerekce": "Koyu lacivert-açık mavi renk ikilisi, tipografi ve SORUN/sayaç/kulp etiketleri aynı görsel sistemden geliyor."
+            "puan": 2,
+            "gerekce": "Sağdaki kesik çizgili kutu ve içindeki küçük yazı, sayfanın geri kalanındaki tipografi ve renk sisteminden kopuk, taslak notu gibi duruyor."
           },
           {
             "kategori": "okunabilirlik",
             "puan": 4,
-            "gerekce": "Beyaz ve mavi metin koyu zemin üzerinde rahat okunuyor, yalnız gövde metni başlığa göre küçük kalıyor."
+            "gerekce": "Koyu zemin üzerinde başlık ve gövde metni rahat okunuyor, satır uzunlukları konforlu."
           },
           {
             "kategori": "carpicilik",
-            "puan": 4,
-            "gerekce": "Endüstriyel robot kolu illüstrasyonu ile kalın tipografinin birleşimi akışta durdurucu bir görsel oluşturuyor."
+            "puan": 2,
+            "gerekce": "Tasarım dilinin vurguladığı dev, kenardan kırpılmış rakam ya da güçlü ikinci öge burada yok, bu da akışta durdurma gücünü zayıflatıyor."
           }
         ],
-        "toplam": 4.17,
+        "toplam": 2.83,
         "reddedilen": []
       }
     },
@@ -1333,8 +1359,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-22T13:17:16.233Z",
-      "finishedAt": "2026-08-22T13:18:06.923Z",
+      "startedAt": "2026-08-22T16:28:53.249Z",
+      "finishedAt": "2026-08-22T16:28:53.249Z",
       "output": null
     },
     {
@@ -1369,8 +1395,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:18:06.923Z",
-      "finishedAt": "2026-08-22T13:18:06.924Z",
+      "startedAt": "2026-08-22T16:28:53.249Z",
+      "finishedAt": "2026-08-22T16:28:53.250Z",
       "output": {
         "sablonId": "sahne",
         "ritimHedefi": "veri-hikayesi",
@@ -1410,10 +1436,28 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:18:07.023Z",
-      "finishedAt": "2026-08-22T13:18:13.093Z",
+      "startedAt": "2026-08-22T16:28:53.260Z",
+      "finishedAt": "2026-08-22T16:28:56.340Z",
       "output": {
         "kusurlar": [
+          {
+            "tur": "yer-tutucu",
+            "kart": 1,
+            "alan": null,
+            "aciklama": "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik"
+          },
+          {
+            "tur": "yer-tutucu",
+            "kart": 2,
+            "alan": null,
+            "aciklama": "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik"
+          },
+          {
+            "tur": "yer-tutucu",
+            "kart": 3,
+            "alan": null,
+            "aciklama": "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik"
+          },
           {
             "tur": "yer-tutucu",
             "kart": 4,
@@ -1424,13 +1468,7 @@
             "tur": "tasma",
             "kart": 3,
             "alan": "govde",
-            "aciklama": ".govde yatayda 15 px taşıyor"
-          },
-          {
-            "tur": "matlama-tutmuyor",
-            "kart": null,
-            "alan": null,
-            "aciklama": "kesik görselin köşesi OPAK (alfa 127/255) ve parlaklık 64/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek"
+            "aciklama": ".govde yatayda 28 px taşıyor"
           },
           {
             "tur": "sus-metni-kesiyor",
@@ -1445,7 +1483,7 @@
             "aciklama": "süs ögesi govde metninin %9.2'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
           }
         ],
-        "ifsaGorunur": true,
+        "ifsaGorunur": false,
         "panoramaGenisligi": 1080,
         "slides": [
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-01.png",
@@ -1486,19 +1524,111 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-22T13:18:13.093Z",
-      "finishedAt": "2026-08-22T13:18:13.094Z",
+      "startedAt": "2026-08-22T16:28:56.340Z",
+      "finishedAt": "2026-08-22T16:28:56.341Z",
       "output": {
-        "kusurSayisi": 5,
+        "kusurSayisi": 7,
         "bulgular": [
           "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik",
+          "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik",
+          "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik",
+          "bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik",
           ".govde yatayda 28 px taşıyor",
-          "kesik görselin köşesi OPAK (alfa 127/255) ve parlaklık 64/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek",
           "süs ögesi govde metninin %9.7'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı",
           "süs ögesi govde metninin %9.2'inin arkasından geçiyor — metin kısaltılmalı ya da süsün dışına alınmalı"
         ],
         "gecti": false,
         "slaytSayisi": 4
+      }
+    },
+    {
+      "stepId": "onay",
+      "verb": "PROPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Excel ve vardiya defteri\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a016aa-1af2-7904-9fba-48ba2fe2ac84\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a016ee-18ad-7faf-8132-6017722ee9cb\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a017a9-e0c8-7a13-9734-fc693509ff80\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a017fe-847d-715d-b0ce-c7c28b692934\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01826-573e-7a46-aa61-42a59eb71e6b\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01827-1b47-79ce-bc13-a96994869bb7\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\",\"sonKosu\":\"run_01a01850-915c-7e16-af0e-abe2d2e2842e\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\",\"sonKosu\":\"run_01a018d3-a9ac-7039-bf12-b4207129cab7\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a018ef-b011-7cbc-9b5c-f38c7b0ce655\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\",\"sonKosu\":\"run_01a018fa-f733-7404-ad9e-62f04f38ed2a\"},{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a018ff-72bc-7c66-8922-ba38833e6d1c\"},{\"baslik\":\"UpcyMan: çalışan üretim altyapısı\",\"tur\":\"proof_asset\",\"sonKosu\":\"run_01a0295e-0644-7862-9f7e-42a51b3c54a6\"}]",
+        "islenmis_konu_sayisi": "82",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-22T16:28:56.341Z",
+      "finishedAt": "2026-08-22T16:28:56.342Z",
+      "output": {
+        "proposed": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-04.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-01.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-02.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-03.png",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a02989-0ca8-7a00-8565-d1c5422886e3/slayt-04.png"
+        ],
+        "proposedAt": "2026-08-22T16:28:56.342Z",
+        "yayinSaati": {
+          "tur": "veri-yok",
+          "ornek": 0,
+          "sebep": "etkileşimi ölçülmüş yayın yok — saat öneremem"
+        }
+      }
+    },
+    {
+      "stepId": "yayinla",
+      "verb": "PUBLISH",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "konu_adaylari": "[{\"baslik\":\"Excel ve vardiya defteri\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a016aa-1af2-7904-9fba-48ba2fe2ac84\"},{\"baslik\":\"Veri katmanından karara — Upcytech konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a016ee-18ad-7faf-8132-6017722ee9cb\"},{\"baslik\":\"İmalatta ölçülebilir verimlilik konumu\",\"tur\":\"positioning\",\"sonKosu\":\"run_01a017a9-e0c8-7a13-9734-fc693509ff80\"},{\"baslik\":\"Veri yoksa önce veri — mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a017fe-847d-715d-b0ce-c7c28b692934\"},{\"baslik\":\"Orta ölçekli imalat tesisi\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01826-573e-7a46-aa61-42a59eb71e6b\"},{\"baslik\":\"Veri olgunluğu düşük imalatçı\",\"tur\":\"icp\",\"sonKosu\":\"run_01a01827-1b47-79ce-bc13-a96994869bb7\"},{\"baslik\":\"Ürün demosu girişi\",\"tur\":\"offer\",\"sonKosu\":\"run_01a01850-915c-7e16-af0e-abe2d2e2842e\"},{\"baslik\":\"Ölçüm pilotu\",\"tur\":\"offer\",\"sonKosu\":\"run_01a018d3-a9ac-7039-bf12-b4207129cab7\"},{\"baslik\":\"Ölçüm mesaj evi\",\"tur\":\"messaging\",\"sonKosu\":\"run_01a018ef-b011-7cbc-9b5c-f38c7b0ce655\"},{\"baslik\":\"Üretim müdürü\",\"tur\":\"persona\",\"sonKosu\":\"run_01a018fa-f733-7404-ad9e-62f04f38ed2a\"},{\"baslik\":\"Veriyi varsayan araçlar ve Excel\",\"tur\":\"competitor\",\"sonKosu\":\"run_01a018ff-72bc-7c66-8922-ba38833e6d1c\"},{\"baslik\":\"UpcyMan: çalışan üretim altyapısı\",\"tur\":\"proof_asset\",\"sonKosu\":\"run_01a0295e-0644-7862-9f7e-42a51b3c54a6\"}]",
+        "islenmis_konu_sayisi": "82",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "",
+        "kacinilacak": "yokk",
+        "platform": "instagram"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-22T16:28:56.342Z",
+      "finishedAt": "2026-08-22T16:28:56.343Z",
+      "output": null,
+      "error": {
+        "kind": "io",
+        "code": "CHANNEL_NOT_CONNECTED",
+        "message": "error.verb.channel_not_connected"
       }
     }
   ],
@@ -1514,6 +1644,12 @@
       "decision": "approved",
       "at": "2026-08-22T13:06:00.870Z",
       "note": "duzelt turu kusurlari kapatsin"
+    },
+    {
+      "gate": "insan-onayi",
+      "decision": "approved",
+      "at": "2026-08-22T16:22:58.732Z",
+      "note": null
     }
   ],
   "context": [
@@ -1543,6 +1679,6 @@
     }
   ],
   "contextRetentionDays": 90,
-  "awaitingGate": "insan-onayi",
-  "stoppedAt": "onay"
+  "awaitingGate": null,
+  "stoppedAt": "yayinla"
 }
