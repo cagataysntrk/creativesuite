@@ -188,64 +188,8 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62), tavan
 > açıldı (R-63).
 
-## D-309
-
-**İçerik çeşitliliği ÜSLUPLA istenmiyor, sayılabilir bir biçim kuralıyla isteniyor.**
-
-D-308 şablon seçimini geçmişe duyarlı yaptı ve dikişi test edildi — ama üretimde
-tekrar sürdü. Sebep ölçüldü: kısıt gövdeye ULAŞTI, kural doğru davrandı (eleme
-yalnız başka uygun aday varsa uygulanır) ve o içeriklerde başka aday YOKTU, çünkü
-`metin-uret` konudan bağımsız hep aynı şekli üretiyordu.
-
-**İki yaklaşım denendi, ikisi de gerçek koşuda tutmadı** (LOOP§G):
-
-1. **Ritim menüsü** — "son karoseller şu biçimlerdeydi, bu sefer başka bir ritim kur,
-   örneğin şunlar". Model her koşuda en kolayını, yani zaten bildiği düz anlatıyı
-   seçti. Bir seçenek listesi bir talimat değildir.
-2. **Tek hedef + "bu bir öneri değil"** — kaçış kapısı ("konu izin vermiyorsa
-   zorlama") daraltıldı ama çıktı yine anlatı oldu.
-
-**Ortak sebep: ikisi de ÜSLUP tarif ediyordu.** Üslup ölçülemez; model kendi
-ürettiğinin o üsluba uyduğunu sanabilir ve kimse aksini söyleyemez.
-
-**Üçüncü yaklaşım — ritmin MEKANİK karşılığı.** "2. satırdan itibaren her satır
-`1.` `2.` `3.` ile BAŞLAYACAK" bir üslup değil, sayılabilir bir sözleşme; `sablonSec`
-zaten tam bunu ölçüyor. Aynı ders bu depoda uyarlama isteminde de çıkmıştı: şemayı
-yazmadan uyulmasını beklemek, kuralı koymadan ihlali cezalandırmaktır.
-
-⚠ Sayısal ritmin kaynağı kısıtlı: sayılar yalnız MARKA BİLGİSİ'nde geçenlerden
-alınabilir. Kaynakta olmayan bir sayıyı uydurmak Yasa 8 ihlalidir ve çeşitlilik
-uğruna bir yasa çiğnenmez.
-
-## D-310
-
-**Beyaz listeyi yorum korumuyor, kapı koruyor.**
-
-`run.ts`teki `DEFTER_ANAHTARLARI`, listede olmayan her çıktı alanını sessizce atıyor.
-Bu **altı kez** tekrarladı: `tasarimPlani` · `digests` · yargı çıktıları (`puanlar`
-`toplam` `bulgular` `reddedilen`) · ritim ölçümü. Her seferinde kod doğruydu, testler
-yeşildi ve defter boştu; hata ancak gerçek bir koşunun defterini **elle okuyunca**
-görünüyordu.
-
-⚠ Listenin KENDİ yorumu *"eksik bir beyaz liste sessiz bir körlüktür"* diyor. O cümle
-yazılırken bile liste bir sonraki alanı elemeye hazırdı. **Yorum altı kez yetmedi.**
-
-**Beyaz listeyi kaldırmak çözüm değil.** Defterin küçük kalması ölçülmüş bir gereklilik:
-gömülü font ve görsel data URI'siyle bir manifest 580 KB'a çıkmış ve R-64'ün 512 KB
-tavanını aşmıştı. Sorun listenin varlığı değil **sessizliği**.
-
-**Kapı sessizliği kaldırıyor:** bir anahtar ya defterde olur ya envanterde gerekçesiyle
-dışarıda. İkisi de değilse kapı kırmızı ve anahtarı ADIYLA söylüyor.
-
-⚠ **Kapı yazılır yazılmaz on alan daha çıktı** ve içlerinde yayın kanıtı vardı:
-`published` (kanal id'si), `proposedAt`, `quotaBefore`. Yayınlanmış bir varlığın kanal
-id'sinin defterde olmaması, R-46'nın (körlemesine tekrar yok, önce mutabakat)
-dayanacağı kaydın hiç yazılmaması demekti. Yedisi deftere alındı; üçü (`records`,
-`assets`, `gorselliSlaytlar`) yük oldukları için gerekçeyle dışarıda.
-
-⚠ Kapının kendi sınırı yazılı: yalnız `data: { … }` sözlük anahtarlarını ve o bloktaki
-`...yardimci(…)` yayılmalarının dönüş tipi anahtarlarını görüyor; dinamik anahtar
-göremez. Görülmeyen bir sınır, olmayan bir sınır sanılır.
+> **D-309 · D-310 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
+> İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62).
 
 ## D-311
 
@@ -589,3 +533,28 @@ safe-zone sayılarının ("üstte 135 px UI", "yanlar 60 / üst-alt 80") hiçbir
 gelmiyor ve çoğu **Reels rakamlarının akışa yanlış taşınması**. Bunlar kural olarak
 KODLANMADI ve belgede "doğrulanmadı" diye işaretli. Kaynağı olmayan bir sayı, kaynağı
 olmayan bir iddiadır (Yasa 8) — ve bu, kendi kodumuz için de geçerli.
+
+## D-322 · `KURALLAR.md` tavanı 400 → 480: tavan artık BİLGİYİ sınırlıyor (2026-08-23)
+
+**Bulgu.** FAZ-18'de altı kural eklendi (R-83…R-88) ve her biri tavanı deldi. Her
+seferinde bir ESKİ kuralın gerekçesini kısaltarak geçtim — dört turda dokuz kural
+kısaldı. Yani kapı yeni kuralı değil, **eski kuralların gerekçesini** kesiyordu.
+
+**Tavanın amacı okunabilirlik.** R-63'ün kendi cümlesi: *"boş bir bölüm uzun bir
+bölümden pahalıdır — kuralı bulamayan kuralı yok sanmaz, kendi uydurur"*. Gerekçesi
+budanmış bir kural tam olarak bu tuzağa düşüyor: kural orada duruyor ama NEDEN orada
+olduğu artık yazmıyor ve altı ay sonra biri onu "gereksiz" diye kaldırıyor.
+
+**Karar.** `KURALLAR.md` tavanı **480**. Sayı keyfî değil: bugün 60 kural × ortalama
+6,5 satır ≈ 390, artı başlık ve bölüm ayraçları. 480, on kurallık bir büyüme payı
+bırakıyor ve o dolduğunda tekrar bir karar gerektiriyor — tavan kalkmıyor, bir kez
+yükseliyor.
+
+**Neden R-76 ihlali değil.** *"Kırmızı bir kapının kuralı aynı turda gevşetilemez"* —
+bu kapı bir KUSURU yakalamıyordu; belge büyüdü çünkü içine ölçülmüş bilgi girdi.
+Ve yükseltme kırmızı turda değil, ayrı bir turda ve kendi kararıyla yapılıyor.
+
+**Sınır neden kalkmıyor.** Kural kitabı sonsuz büyüyemez: 88 kuralın hepsini okuyan
+kimse yok, `just tur` yalnız atıf verileni getiriyor. Ama bir kuralın GEREKÇESİ o kuralın
+parçası — zorlaması olmayan kural yazılmadığı gibi, gerekçesi olmayan kural da
+savunulamaz.

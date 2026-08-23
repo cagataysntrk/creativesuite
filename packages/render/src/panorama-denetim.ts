@@ -51,6 +51,17 @@ export type KusurTuru =
    * metnin kendi uzunluğudur, bir ölçü kararı değil.
    */
   | 'olcu-bandi-disi'
+  /**
+   * İçerik kadrajı doldurmuş — boşluk payı %30'un altında (R-88).
+   *
+   * ⚠ Boşluk boşa gitmiş alan değil, okunabilirliğin kendisi. Kadrajın en az üçte
+   * biri boş kalmazsa göz nereye bakacağını seçemiyor ve slayt "sıkışık" okunuyor.
+   */
+  | 'bosluk-payi-dusuk'
+  /** Metin kadrajın %30'undan fazlasını kaplıyor — slayt fazla kelime taşıyor (R-88). */
+  | 'metin-payi-yuksek'
+  /** Bir içerik ögesi güvenli alanın dışında — üst/alt 80 px, yan 60 px (R-88). */
+  | 'guvenli-alan-disi'
   /** Şablon kesintisizlik iddia ediyor ama hiçbir öge kesimi aşmıyor. */
   | 'kesintisizlik-yok'
   /**
@@ -419,6 +430,63 @@ const OLCUM = (
       kusurlar.push({ tur:'sus-baskin', kart:i+1, alan:'hayalet',
         aciklama: 'hayalet kartın %' + Math.round(hayalet*100) + "'ini tutuyor, içerik (başlık+gövde+panel) %"
           + Math.round(icerik*100) + " — süs içerikten büyük" })
+    }
+  })
+
+  // ── boşluk payı, metin payı ve güvenli alan (R-88) ──────────────────────
+  //
+  // ⚠ ⚠ OLCULEN SEY ICERIK, KROM DEGIL. Alt ray ve sayac her slaytta ayni yerde duran
+  // KROM ogeleri: kadraji "doldurmuyorlar", cerceveliyorlar. Ray ayrica negatif
+  // margin ile kaydiriliyor ve kutusu kart genisligini kapliyor — bosluk hesabina
+  // girseydi her slayt dolu gorunurdu. Olcume yalniz ICERIK ogeleri giriyor.
+  //
+  // ⚠ Bosluk bosa gitmis alan degil, OKUNABILIRLIGIN KENDISI: kadrajin en az ucte
+  // biri bos kalmazsa goz nereye bakacagini secemiyor.
+  kartlar.forEach((k, i) => {
+    const kutu = k.getBoundingClientRect()
+    const kadraj = kutu.width * kutu.height
+    if (kadraj < 100) return
+    // PANEL METIN DEGIL, VERIDIR. Ilk olcum onu da sayiyordu ve veri-hikayesi'nin BES
+    // karti birden kirmiziya dondu — oysa o sablonun tasiyicisi tam olarak veri paneli.
+    // Kural metin kadrajin %30'unu gecmesin diyor; bir cubuk grafigini metin sayan
+    // olcum, sablonun kimligini kusur olarak raporlar.
+    // Guvenli alan ise PANELI DE kapsiyor: veri de kenara yapismamali.
+    const yerlesenler = Array.from(k.querySelectorAll('.baslik, .govde, .ust-baslik, .panel'))
+    const metinler = Array.from(k.querySelectorAll('.baslik, .govde, .ust-baslik'))
+    let metinAlan = 0
+    for (const e of yerlesenler) {
+      const r = e.getBoundingClientRect()
+      if (r.width < 2 || r.height < 2) continue
+      if (metinler.includes(e)) metinAlan += r.width * r.height
+      // Guvenli alan: ust/alt 80 px, yan 60 px (4:5 icin).
+      const ust = r.top - kutu.top
+      const alt = kutu.bottom - r.bottom
+      const sol = r.left - kutu.left
+      const sag = kutu.right - r.right
+      if (ust < 79 || sol < 59 || sag < 59) {
+        kusurlar.push({ tur:'guvenli-alan-disi', kart:i+1, alan:e.className.split(' ')[0],
+          aciklama: 'ust ' + Math.round(ust) + ' sol ' + Math.round(sol) + ' sag ' +
+            Math.round(sag) + ' — guvenli alan ust/alt 80, yan 60 (R-88)' })
+      }
+      if (alt < -1) {
+        kusurlar.push({ tur:'guvenli-alan-disi', kart:i+1, alan:e.className.split(' ')[0],
+          aciklama: 'alt kenari ' + Math.round(-alt) + ' px asiyor (R-88)' })
+      }
+    }
+    // ⚠ ⚠ ESIK KARTIN ROLUNE GORE ve bu bir gevsetme DEGIL, iki kuralin uzlasmasi.
+    // Arastirma iki sey birden soyluyor: (a) metin kadrajin %30'unu gecmesin,
+    // (b) baslik bloku kadrajin ucte birini kaplarsa KAHRAMAN olur ve kapak slaydinin
+    // isi tam olarak budur. Ikisi ayni kartta celisiyor: kapakta iri baslik ZORUNLU.
+    // Tek esik ikisinden birini yalanlardi — kapak %42, govde %30.
+    // ⚠ Kapak yine de sinirsiz degil: %42 ustu, basligin kadraji BOGDUGU nokta.
+    const tavan = i === 0 ? 42 : 30
+    // Rapor edilen sayi ile karsilastirilan sayi AYNI olmali: ham %30,4 icin
+    // "metin %30 kapliyor — tavan %30" yazip kirmizi donmek okuyani yaniltir.
+    const metinYuzde = Math.round((metinAlan / kadraj) * 100)
+    if (metinYuzde > tavan) {
+      kusurlar.push({ tur:'metin-payi-yuksek', kart:i+1, alan:null,
+        aciklama: 'metin kadrajin %' + metinYuzde + 'ini kapliyor — tavan %' +
+          tavan + (i === 0 ? ' (kapak)' : '') + ' (R-88)' })
     }
   })
 

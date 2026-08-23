@@ -130,7 +130,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     },
     {
       ustBaslik: 'BAŞLANGIÇ',
-      baslik: 'Önce hacim değil, **ayrıştırma** sorunuydu',
+      baslik: 'Sorun hacim değil, **ayrıştırma**',
       govde: 'Toplanan malzemenin üçte biri karışık geldiği için işlenemiyordu.',
       panel: {
         tip: 'cubuklar',
@@ -320,8 +320,8 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ÖLÇÜM',
-      baslik: '**Ölçülmeyen** kalite, varsayılan kalitedir',
-      govde: 'Ölçülmeyen saflık, satışta değil üretimde ortaya çıkıyor.',
+      baslik: '**Ölçülmeyen** kalite, varsayılandır',
+      govde: 'Ölçülmeyen saflık satışta ortaya çıkıyor.',
       panel: null,
       hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
@@ -339,7 +339,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     {
       ustBaslik: 'FİNANS',
       baslik: 'Döngü **kendini finanse** edecek',
-      govde: 'Sübvansiyonla dönen bir döngü, sübvansiyon bitince duruyor.',
+      govde: 'Sübvansiyonla dönen döngü, sübvansiyon bitince durur.',
       panel: null,
       hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',

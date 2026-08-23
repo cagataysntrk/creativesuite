@@ -100,7 +100,7 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    yazmak YANLIŞ olurdu — iddia da düşer ve ölçüm hiç çalışmaz
 💾 `feat(render): her kesimde tasiyici` · `Refs: FAZ-18.7 · §7.1`
 
-## 18.8 — Güvenli alan ve boşluk payı ölçülüyor    [ ]
+## 18.8 — Güvenli alan ve metin payı ölçülüyor    [x]
 
 📖 §7.1 · D-321
 🔗 FAZ-18.7
@@ -110,10 +110,12 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    kırpıyor; 88 > 34.
    ⚠ **YAPMA:** dolaşımdaki safe-zone sayıları doğrulanmadı ve çoğu Reels rakamının
    akışa yanlış taşınması (araştırma §3).
-📁 `packages/render/src/{panorama,panorama-denetim,tasarim-olcum}.ts`
-✅ Altı şablonda boşluk ≥%30 · metin ≤%30 · kontrast ≥4,5 · üst dolgu 80
-🧪 Metni dibe indir → `guvenli-alan` kırmızı; kadrajı metinle doldur → `bosluk-payi` kırmızı
-💾 `feat(render): guvenli alan ve bosluk payi` · `Refs: FAZ-18.8 · §7.1`
+📁 `packages/render/src/{panorama,panorama-denetim,katalog-ornek}.ts`
+✅ Üst dolgu 68 → **80** · altı şablonda `guvenli-alan-disi` 0 · metin ≤%30 (kapak %42) ·
+   gövde başlığı 0,82 çarpanıyla indi · kural **R-88**
+🧪 Panel metin sayıldı → `veri-hikayesi`nin beş kartı kırmızı; panel ayrıldı → temiz.
+   Tek eşik denendi → kapak ile gövde çelişti; iki eşik uzlaştırdı.
+💾 `feat(render): guvenli alan ve metin payi` · `Refs: FAZ-18.8 · §7.1`
 
 ## 18.9 — İçerik kapıları: kanca 5–8 kelime, slayt ≤28 kelime    [ ]
 

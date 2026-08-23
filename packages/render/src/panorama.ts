@@ -1294,7 +1294,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `           --panel-olcek: var(--panel-kok); }`,
     // ⚠ Kart bir FLEX SÜTUNU: panel `margin-top:auto` ile aşağı itiliyor ve kartın alt
     // yarısı boş kalmıyor. İlk render'da her şey üste yığılmış, alt %60 bomboştu.
-    `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px; padding: 68px 64px 190px;`,
+    // ⚠ ⚠ **ÜST DOLGU 68 → 80 px (R-88).** 4:5 güvenli alanı üst/alt 80, yan 60 istiyor
+    // ve 68 eşiğin 12 px altındaydı. Sayı ızgara kırpmasıyla da uyumlu: profil
+    // ızgarası 4:5'i her yandan **34 px** kırpıyor (1080 → 1012, iki bağımsız kaynak),
+    // yani 80 hem güvenli alanı hem kırpmayı karşılıyor.
+    // ⚠ Yan 64 zaten 60'ın üstünde; alt 190 rayı ve sayacı taşıyor.
+    `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px; padding: 80px 64px 190px;`,
     `          color: var(--kart-metin);`,
     `          display: flex; flex-direction: column; align-items: flex-start;`,
     `          justify-content: ${YERLESIM_CSS[doc.yerlesim ?? 'ust']} }`,
@@ -1390,6 +1395,17 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ `opsz` ekseni puntoya bağlı çalışıyor (`font-optical-sizing` varsayılan `auto`):
     // display puntoda daha ince tırnaklar ve daha yüksek kontrast, ikinci bir kesim
     // gerekmeden.
+    // ── gövde slaytları kapaktan DAHA SESSİZ (R-88) ────────────────────────
+    //
+    // ⚠ ⚠ **ÖLÇÜLDÜ: gövde kartlarında metin kadrajın %36–38'ini kaplıyordu.** Sebep
+    // tipografikti: her slayt kapakla AYNI punto payını kullanıyordu. Sistemin kendi
+    // merdiveni bunu zaten reddediyor — Source Serif 4 "pazarlama sayfasının TEK H1'i",
+    // Montserrat "bölüm başlığı". İki rol aynı büyüklükte olamaz; kapak kahraman,
+    // gövde enstrüman.
+    // ⚠ 0,82: kapak %42 tavanındayken gövde %30'un altına iniyor ve hiyerarşi tek
+    // bakışta okunuyor. Daha sert bir düşüş (0,7) gövdeyi alt başlığa çeviriyordu.
+    `  .kart:not(.ilk) .baslik { font-size: calc(var(--baslik-punto) * 0.82`,
+    `                              * var(--ayar-olcek, 1)) }`,
     `  .kart.ilk .baslik { font-family: "Marka Display", "Marka Baslik", serif;`,
     `                      font-weight: 500; letter-spacing: -0.025em }`,
     `  .baslik strong { color: var(--kart-aksan); font-weight: inherit }`,

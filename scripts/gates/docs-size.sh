@@ -18,7 +18,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../.." || exit 1
 # dosya:tavan
 LIMITS="
 CLAUDE.md:200
-KURALLAR.md:400
+KURALLAR.md:480
 KARARLAR.md:600
 DURUM.md:120
 docs/ANAYASA.md:1400

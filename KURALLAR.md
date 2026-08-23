@@ -249,7 +249,7 @@ Her `§N` / `R-nn` / `D-nn` / `V-nn` / `FAZ-N.x` / `LOOP§X` hedefte var olmalı
 **Zorlama:** `citations` kapısı.
 
 ### R-63 · belge-tavanlari · BLOCKING · aktif
-`CLAUDE.md` 200 · `KURALLAR.md` 400 · `KARARLAR.md` 600 · `DURUM.md` 120 ·
+`CLAUDE.md` 200 · `KURALLAR.md` **480** · `KARARLAR.md` 600 · `DURUM.md` 120 ·
 `ANAYASA.md` 1400 · **ANAYASA alt bölümü (`### §N.M`) 60** · `FAZ-N.md` 250 ·
 `.claude/rules/*.md` 120 satır.
 ANAYASA'da asıl tavan **alt bölümdür**: belge hiçbir zaman baştan sona okunmaz, `just tur`
@@ -257,6 +257,9 @@ yalnız atıf verilen bölümü getirir ve okuyucunun maliyeti **o bölümün** 
 satırlık bir belgede 60 satırlık on bölüm, 1200 satırlık bir belgede 300 satırlık tek
 bölümden ucuzdur. **Boş bir bölüm uzun bir bölümden pahalıdır** — kuralı bulamayan
 kuralı yok sanmaz, kendi uydurur (D-230).
+⚠ **Tavan bir kez yükseldi (400 → 480, D-322)** ve sebebi kendi cümlesiydi: FAZ-18'de
+altı yeni kural eklendi, her biri tavanı deldi ve her seferinde bir ESKİ kuralın
+gerekçesi budandı. Gerekçesi budanmış kural, bulunamayan kuralla aynı tuzağa düşüyor.
 **Zorlama:** `docs-size` kapısı.
 
 ### R-64 · buyuk-dosya-git-e-girmez · BLOCKING · aktif
@@ -398,3 +401,19 @@ temiz sayılıyordu. Süreklilik **her geçişin** özelliği. Kesim başına ö
 kaldı: `olcek` CSS'e taşınınca `.bant path` sorgusu onu göremedi ve `donen` taşıyıcısı
 YERİNDEYKEN kırmızı raporlandı. **Zorlama:** `kesintisizlik-yok`, boş kesimlerin x'iyle.
 → D-319 · D-321
+
+### R-88 · guvenli-alan-ve-metin-payi · GATE · aktif
+İçerik ögesi güvenli alanın dışına çıkamaz (üst/alt **80 px**, yan **60 px**) ve metin
+kadrajın **%30**'unu geçemez — **kapakta %42**, çünkü kapak başlığı KAHRAMAN olmak
+zorunda.
+**Neden:** üst dolgu 68 px'ti, eşiğin 12 px altında. Metin payı ölçülünce gövde
+kartlarında **%36–38** çıktı: her slayt kapakla AYNI punto payını kullanıyordu ve
+sistemin kendi merdiveni bunu zaten reddediyor — serif "tek H1", Montserrat "bölüm
+başlığı". Gövde başlığı 0,82 çarpanıyla indi.
+⚠ **İki eşik, çünkü iki kural çelişiyor:** "metin ≤%30" ile "başlık kadrajın üçte birini
+kaplarsa kahraman" aynı kartta uzlaşmaz. Tek eşik ikisinden birini yalanlardı.
+⚠ **Panel metin DEĞİL, veridir** — ilk ölçüm onu da sayıp `veri-hikayesi`nin beş kartını
+kırmızıya çevirdi; oysa o şablonun taşıyıcısı tam olarak veri paneli. Güvenli alan
+paneli yine kapsıyor: veri de kenara yapışmamalı.
+⚠ Ray ve sayaç KROM: kadrajı doldurmuyor, çerçeveliyor — boşluk hesabına girmiyor.
+**Zorlama:** `guvenli-alan-disi` · `metin-payi-yuksek`. → D-321
