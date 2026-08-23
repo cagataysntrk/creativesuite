@@ -256,6 +256,23 @@ export type KusurTuru =
    * garanti edemez; bu yüzden kural render tarafında zorlanıyor.
    */
   | 'gorsel-zemine-karismasin'
+  /**
+   * Bir görsel KROM ŞERİDİNE giriyor — ray paylaşılan bir alan değildir (R-97).
+   *
+   * ⚠ ⚠ **ÖNCE "meşru" SAYILDI ve ölçüm aksini söyledi.** R-95 yazılırken karar
+   * *"tam kadraj fotoğrafın üstünde künye satırı meşru bir editoryal araçtır"* idi.
+   * Sonra `editoryal`in tam boy şeridi ölçüldü: rayın arkasındaki zeminin **%8**'i
+   * medyandan 60'tan fazla sapıyordu — ayakkabının siyah konturları. Kontrast ORTALAMA
+   * yeterliydi, metin yine de çizgilerin içinde yüzüyordu.
+   *
+   * ⚠ Ray fine print taşıyor (logo, dönem, sayaç), masthead değil. Fotoğrafın üstünde
+   * fine print için yumuşak bir perde yetmiyor; opak bir bar gerekirdi ve o da rayı
+   * tasarımın parçası olmaktan çıkarıp bir kutuya çevirirdi.
+   *
+   * ⚠ Yan kazanç AİLE: altı şablonun altısında da görüntü aynı yerde bitiyor. Ortak bir
+   * zemin çizgisi, altı ayrı tasarımı tek bir sayfanın parçası yapan şeylerden biri.
+   */
+  | 'krom-seridine-giriyor'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -339,20 +356,46 @@ const OLCUM = (
   //
   // Burada yalniz BOYANAN kutu toplaniyor; ayrisma iki render farkiyla Node'da
   // olculuyor cunku bilesik piksel ancak ekran goruntusuyle okunur.
-  Array.from(document.querySelectorAll('.gorsel')).forEach((g) => {
+  // ⚠ TEK YARDIMCI, IKI OLCUM: ayrisma (R-96) yalniz gercek gorsele bakiyor, serit
+  // ihlali (R-97) yer tutucuya da — cizilen kesikli kutu da rayin ustune duser.
+  // Kutuyu iki yerde ayri hesaplamak, birinin contain bosluguna dusmesi demekti.
+  const boyaKutusu = (g) => {
     const r = g.getBoundingClientRect()
-    if (r.width < 8 || r.height < 8) return
+    if (r.width < 8 || r.height < 8) return null
     const nw = g.naturalWidth || 0
     const nh = g.naturalHeight || 0
-    let sol = r.left, ust = r.top, en = r.width, boy = r.height
     if (nw > 0 && nh > 0 && getComputedStyle(g).objectFit === 'contain') {
       const sc = Math.min(r.width / nw, r.height / nh)
-      en = nw * sc; boy = nh * sc
-      sol = r.left + (r.width - en) / 2
-      ust = r.bottom - boy
+      const en = nw * sc, boy = nh * sc
+      return { alt: g.alt || null, sol: r.left + (r.width - en) / 2, ust: r.bottom - boy, en: en, boy: boy }
     }
-    gorselKutulari.push({ alt: g.alt || null, sol: sol, ust: ust, en: en, boy: boy })
+    return { alt: g.alt || g.textContent || null, sol: r.left, ust: r.top, en: r.width, boy: r.height }
+  }
+  Array.from(document.querySelectorAll('.gorsel')).forEach((g) => {
+    const k = boyaKutusu(g)
+    if (k !== null) gorselKutulari.push(k)
   })
+
+  // ── krom seridi AYRILMISTIR: hicbir gorsel oraya giremez (R-97) ─────────
+  //
+  // Bant OLCULUYOR, varsayilmiyor: rayin kendi kutusu tek gercek. Dolgu sabitini
+  // burada tekrar yazmak, CSS degisince sessizce yanlis yeri korumak demekti.
+  // (Bu blok bir sablon dizesinin ICINDE — ters tirnak yasak, ucuncu kez kirdi.)
+  const raylar = Array.from(document.querySelectorAll('.ray')).map((r) => r.getBoundingClientRect())
+  if (raylar.length > 0) {
+    const bantUst = Math.min.apply(null, raylar.map((r) => r.top))
+    const bantAdaylari = Array.from(document.querySelectorAll('.gorsel, .gorsel-yer'))
+      .map(boyaKutusu)
+      .filter((k) => k !== null)
+    for (const g of bantAdaylari) {
+      const gAlt = g.ust + g.boy
+      if (gAlt > bantUst + 0.5) {
+        kusurlar.push({ tur:'krom-seridine-giriyor', kart:null, alan:g.alt,
+          aciklama: 'boya ' + Math.round(gAlt - bantUst) + ' px krom seridine giriyor' +
+            ' (ray ' + Math.round(bantUst) + ' px) — serit paylasilmaz (R-97)' })
+      }
+    }
+  }
 
   // ── krom kutulari: ray cocuklari, KONTRAST NODE TARAFINDA (R-95) ────────
   //
@@ -1086,7 +1129,7 @@ export const panoramaDenetle = async (
               height: Math.max(1, Math.round(k.boy)),
             },
           })
-          const yakinPay = (await page.evaluate(
+          const olculen = (await page.evaluate(
             `(async () => {
               const im = new Image()
               im.src = 'data:image/png;base64,${png.toString('base64')}'
@@ -1103,15 +1146,38 @@ export const panoramaDenetle = async (
               x2.fillRect(0, 0, 1, 1)
               const mp = x2.getImageData(0, 0, 1, 1).data
               const metin = 0.2126*mp[0] + 0.7152*mp[1] + 0.0722*mp[2]
-              let yakin = 0, n = 0
+              const hepsi = []
+              let yakin = 0
               for (let j = 0; j < d.length; j += 4) {
                 const l = 0.2126*d[j] + 0.7152*d[j+1] + 0.0722*d[j+2]
-                n += 1
+                hepsi.push(l)
                 if (Math.abs(l - metin) < 44) yakin += 1
               }
-              return Math.round((yakin / n) * 100)
+              // ⚠ ⚠ İKİNCİ İSTATİSTİK: zemin metne YAKIN olmayabilir ama GÜRÜLTÜLÜ
+              // olabilir. Yarısı siyah yarısı beyaz bir zeminde hiçbir piksel metne
+              // yakın değildir ve metin yine de çizgilerin içinde yüzer. Ölçüldü:
+              // 90 krom kutusunun 88'i tam %0, kirli ikisi %4 ve %8.
+              const sirali = hepsi.slice().sort((a, b) => a - b)
+              const medyan = sirali[Math.floor(sirali.length / 2)]
+              const gurultu = hepsi.filter((l) => Math.abs(l - medyan) > 60).length
+              return [
+                Math.round((yakin / hepsi.length) * 100),
+                Math.round((gurultu / hepsi.length) * 100),
+              ]
             })()`
-          )) as number
+          )) as readonly number[]
+          const yakinPay = olculen[0] ?? 0
+          const gurultuPay = olculen[1] ?? 0
+          if (gurultuPay > 3) {
+            kromKusurlari.push({
+              tur: 'krom-okunmuyor',
+              kart: k.kart,
+              alan: 'raya',
+              aciklama:
+                `${k.alan} gürültülü bir zeminin üstünde: yüzeyinin %${String(gurultuPay)}'i ` +
+                'medyandan 60 luma sapıyor (tavan %3) — kontrast yeter, okunurluk yetmez (R-95)',
+            })
+          }
           if (yakinPay > 4) {
             kromKusurlari.push({
               tur: 'krom-okunmuyor',

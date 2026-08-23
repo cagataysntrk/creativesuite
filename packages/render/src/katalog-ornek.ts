@@ -956,9 +956,15 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   gorseller: [
     // ⚠ **Orta şerit kesime TAM oturuyordu** (x=39 → sağ kenar 2160,0): arada kalma.
     // 36'ya çekildi, kesime 130 px açıklık kaldı. Kenar şeritler zaten uzak.
-    { src: '', alt: 'geniş plan', x: 0, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
-    { src: '', alt: 'yakın plan', x: 36, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
-    { src: '', alt: 'kapanış karesi', x: 89, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
+    // ⚠ ⚠ **`100` DEĞİL `93`: şerit KROM BANDINDA duruyor, onun içinde değil (R-97).**
+    // Tam boy şeritte ayakkabının siyah konturları rayın altına giriyordu; ortalama
+    // kontrast yeterliydi ama ölçüm zeminin **%8**'inin medyandan 60'tan fazla saptığını
+    // söyledi — `UPCYTECH · SAHA · ÖRNEK VERİ` çizgilerin içinde yüzüyordu.
+    // ⚠ 93 × 1350 = 1255 px; ray 1259'da başlıyor. Aynı zemin çizgisi altı şablonda da
+    // geçerli: ortak bir taban, altı ayrı tasarımı tek sayfanın parçası yapıyor.
+    { src: '', alt: 'geniş plan', x: 0, y: 0, genislik: 11, yukseklik: 93, kirpma: 'tam' },
+    { src: '', alt: 'yakın plan', x: 36, y: 0, genislik: 11, yukseklik: 93, kirpma: 'tam' },
+    { src: '', alt: 'kapanış karesi', x: 89, y: 0, genislik: 11, yukseklik: 93, kirpma: 'tam' },
   ],
   kartlar: [
     {

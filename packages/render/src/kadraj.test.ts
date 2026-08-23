@@ -84,6 +84,7 @@ describe('kadraj — altı şablon', () => {
       expect(suzgec(r.value, 'dikis-bandinda')).toEqual([])
       expect(suzgec(r.value, 'krom-okunmuyor')).toEqual([])
       expect(suzgec(r.value, 'gorsel-zemine-karismasin')).toEqual([])
+      expect(suzgec(r.value, 'krom-seridine-giriyor')).toEqual([])
     })
   }
 })
@@ -138,6 +139,22 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
   //
   // Bu yüzden burada ZİNCİR sınanıyor: kutup bilgisi üretim yoluna gerçekten ULAŞIYOR
   // mu. Kopan bir zincirde yukarıdaki altı ölçüm kendiliğinden kırmızıya döner.
+  // 🧪 ⚠ **KASTEN İHLAL** (R-71): şerit tam boya çıkarılıyor — düzeltmeden önceki hâl.
+  // ⚠ Bu kural D-324'ün KENDİ CÜMLESİNİ bozuyor: *"tam kadraj fotoğrafın üstünde künye
+  // meşrudur"* denmişti ve ölçülmemişti. Üç slaytta yanlış çıktı.
+  it('tam boy şerit krom bandına giriyor — ölçüm boş değil', async () => {
+    const o = ORNEKLER['editoryal']
+    expect(o).toBeDefined()
+    if (o === undefined) return
+    const tamBoy = { ...belge(o), gorseller: o.gorseller.map((g) => ({ ...g, yukseklik: 100 })) }
+    const r = await panoramaDenetle(tamBoy)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const bulgu = suzgec(r.value, 'krom-seridine-giriyor')
+    expect(bulgu.length).toBeGreaterThan(0)
+    expect(bulgu[0]).toContain('px')
+  })
+
   it('kutup zinciri: açık kartın görseli açık tema kimliğini ÇAĞIRIYOR', () => {
     expect(islemZinciri(['tema-uyum'], true)).toContain(ACIK_TEMA_KIMLIGI)
     expect(islemZinciri(['tema-uyum'], false)).not.toContain(ACIK_TEMA_KIMLIGI)

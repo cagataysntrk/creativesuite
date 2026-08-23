@@ -191,72 +191,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-309 · D-310 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62).
 
-## D-314 · Yayın anı: hat ÖNERİR, insan SEÇER (2026-08-22)
-
-**Bağlam.** FAZ-17.3 yayın zamanını istiyordu ve iki kolay yol vardı: (a) onaylanan
-koşuyu hemen yayınlamak, (b) "salı 19:00 en iyi saat" gibi genel bir kural gömmek.
-İkisi de yanlış. (a) Yasa 2'yi siler — *agent önerir, insan uygular*; onay "bu içerik
-iyi" demektir, "şimdi yayınla" değil. (b) Kaynaksız bir sayısal iddiadır (Yasa 8) ve
-"öneri" etiketi onu kaynaklı yapmaz.
-
-**Karar.** Üç parça:
-
-1. **Öneri ÖLÇÜMDEN gelir.** `yayinSaatiOner` yayın defterindeki (`published.ndjson`)
-   ETKİLEŞİM ölçümlerini saat kovalarına ayırıp en yüksek ORTALAMAYI söylüyor —
-   toplamı değil, yoksa "en çok yayın yaptığın saat" ile "en iyi saat" karışırdı.
-   Gerekçe sayıyla konuşuyor: kaç ölçüm, hangi dilim, genel ortalamanın yüzde kaç üstü.
-2. **Ölçüm yoksa hat SUSUYOR.** En az beş ölçülmüş yayın gerekiyor; altındaysa cevap
-   `veri-yok` ve SEBEBİ yazılı. Bugün üretimde dönen dal budur — defter yayın ZAMANINI
-   tutuyor, etkileşimi tutmuyor (analitik çekimi FAZ-7.9'da). Ölçüldü: `{"tur":
-   "veri-yok","ornek":0,"sebep":"etkileşimi ölçülmüş yayın yok — saat öneremem"}`.
-3. **Seçim İNSANIN ve `PUBLISH` onsuz koşmuyor.** Karar `derived/runs/<id>/
-   yayin-ani.json` dosyasında: seçilen an, seçen (`human`), seçim zamanı ve o an
-   ekranda duran ÖNERİ. Kayıt yoksa `PUBLISH_TIME_NOT_CHOSEN`, biçimsizse
-   `PUBLISH_TIME_INVALID`.
-
-**Neden çalıştırma parametresi değil.** Parametreler plana DONUYOR (R-07): koşu
-başlarken hesaplanan özet onları kapsıyor ve devam ederken eklenen bir parametre özeti
-değiştirir — kapı haklı olarak *"onayladığınız plan artık geçerli değil"* der. Yayın anı
-koşu başlarken değil, ONAY anında seçiliyor. İki farklı zamana ait iki şey aynı kaba
-konamaz. `HumanDecision.note` da uygun değildi: serbest metinden saat ayrıştırmak,
-yayın zamanını insanın cümle kurma biçimine bağlamak olurdu.
-
-**Ölçüm — iki dal da GERÇEK koşuda görüldü, on sekiz saniye arayla, aynı derlemeyle:**
-karar dosyası yokken `yayinla` adımı `PUBLISH_TIME_NOT_CHOSEN` (16:28:38), karar
-konduğunda muhafızdan geçip dürüst `CHANNEL_NOT_CONNECTED` (16:28:56) ile durdu.
-Kontrol kanal kontrolünün ÖNÜNDE: kanallar bağlandığı gün sıranın tersi bu kapıyı
-sessizce atlatırdı.
-
-## D-315 · Sağlayıcı yokluğu, DEFTERDEKİ çıktıyı yok saymaz (2026-08-22)
-
-**Bulgu — gerçek koşu, `run_01a02989`.** Panelden onaylanıp sürdürülen bir karoselde
-dört `gorsel-uret` adımı da `NO_PROVIDER` ile düştü: `sops exec-env` olmadan koşan bir
-sürdürmede Cloudflare *"yerel önkoşul sağlanmadı"* diyor. Adımlar `optional` olduğu
-için hat DEVAM etti, `COMPOSE` görselsiz bir belge kurdu ve `RENDER` onu yeniden çizdi.
-Sonuç: insanın **onayladığı** kesik özneler yerine dört yer tutucu. Dışa aktarma da
-onları verdi — bir sürdürme, tamamlanmış bir işi bozdu ve kimse fark etmedi çünkü
-`kalite` adımı kusuru sayıp geçti (`yer-tutucu`, 5 kusur).
-
-**Kök sebep.** Yönlendirici, adımın çıktısının DEFTERDE durduğunu bilmiyordu. Oysa
-`derived/runs/<run>/steps/<adim>.json` kaydı ve `derived/blobs`taki byte'lar oradaydı:
-ölçüldü, `gorsel-uret` çıktısı 261 760 karakterlik base64 olarak sorunsuz çözülüyor.
-**Çağrılacak bir şey yoktu ki sağlayıcı gereksin** — yönlendirici yalnız YENİ bir çağrı
-için gerekli.
-
-**Karar.** `runPipeline` metered adımda sağlayıcı seçemediğinde önce deftere bakıyor:
-çıktı duruyorsa adım defterden oynatılıyor (`↺ … sağlayıcı yok ama çıktı DEFTERDE`),
-yoksa eskisi gibi `NO_PROVIDER`. Sıra önemli — kontrol hatanın ÖNÜNDE, sonrasında
-olsaydı adım çoktan `failed` yazılmış olurdu.
-
-**Ölçüm.** Aynı anahtarsız sürdürme, düzeltmeden önce panorama belgesinde dört boş
-`src`, sonra `gorsel-01.jpg · gorsel-02.jpg · gorsel-03.jpg` (dördüncü gerçekten hiç
-üretilmemişti). Slayt yeniden çizildi ve kesik özne yerinde. Birim testi düzeltme geri
-alındığında KIRMIZI dönüyor.
-
-**Sınır.** Girdiler değiştiyse defterdeki çıktı bayattır ve bu dal onu yine de
-kullanır. Alternatif, tamamlanmış bir işi SİLMEKTİ; bayat bir görsel, yok edilmiş bir
-görselden iyidir ve iz satırı olan biteni ekranda söylüyor.
-
 ## D-316 · Elle düzenlenmiş sürüm GÖRÜNÜR: editör onu açar, kütüphane onu gösterir (2026-08-22)
 
 **Bulgu — depo sahibi:** *"editörde düzenleyince elle düzenlenmiş versiyon koşu
@@ -570,3 +504,58 @@ dokuz görselde 226–249, üç hayalette 48–81.
 tek cümlelik neden tutuyor, ölçülmüş kanıt `docs/kurallar/OLCUMLER.md`'ye taşındı.
 `R-nn` başlıkları yerinde kaldı, `citations` kapısı bozulmadı; kitap 480'den **464**'e
 indi ve on dört kuralın gerekçesi budanmadan yaşıyor.
+
+## D-327 · Krom şeridi paylaşılmaz — ve bu, D-324'ün kendi kararını bozması
+
+**D-324 açıkça şunu yazmıştı:** *"Kural hiçbir tasarım aracını yasaklamıyor. Tam kadraj
+fotoğrafın üstünde künye satırı meşru; meşru olmayan, perdesiz olması."* O cümle bir
+tercihti ve ölçülmemişti.
+
+**Ölçüldü ve yanlıştı.** `editoryal`in tam boy şeridinde ray, kesik öznenin
+ayakkabılarının üstüne düşüyor. `krom-okunmuyor`un istatistiği (zeminin metin lumasına
+yakın piksel payı) **%0** diyordu ve teknik olarak haklıydı: ayakkabı beyaz, konturları
+siyah, ray metni koyu — hiçbir piksel metne yakın değil. Metin yine de okunmuyordu, çünkü
+eksik olan şey KONTRAST değil SAKİNLİK'ti.
+
+**İkinci istatistik: gürültü.** Zeminin medyandan 60 lumadan fazla sapan piksel payı.
+Ölçüldü: 90 krom kutusunun 88'i tam %0, kirli ikisi %4 ve %8 — ikisi de `editoryal`.
+Tavan %3, iki kümenin arasında.
+
+**Karar.** Ray bandı AYRILMIŞTIR: hiçbir görselin boyası oraya giremez (R-97). Perde
+yetmiyor çünkü ray fine print taşıyor, masthead değil; fotoğraf üstünde fine print opak
+bir bar ister ve o bar rayı tasarımın parçası olmaktan çıkarır.
+
+**Bant sabitten değil ölçülerek alınıyor** — `.ray`in kendi kutusu. Dolgu sabitini
+denetimde tekrar yazmak, CSS değişince sessizce yanlış yeri korumak demekti; bu depoda
+"iki tarafı ayrı kaynaktan gelen ölçüm" tekrar eden bir hata.
+
+**Yan kazanç aile.** Altı şablonun altısında da görüntü artık aynı yerde bitiyor
+(1255 px). Ortak bir zemin çizgisi, altı ayrı tasarımı tek bir Instagram sayfasının
+parçası yapan şeylerden biri.
+
+⚠ **Bir kuralın kendi sınırını ölçmeden koyması, kuralın kendisi kadar tehlikeli.**
+D-324'ün o cümlesi savunulabilir görünüyordu ve üç slaytta yanlıştı.
+
+## D-328 · Dört kez aynı şekilde kırılan dosya bir kapı hak eder
+
+**Olay.** `panorama-denetim.ts` içindeki `OLCUM` bir şablon dizesi ve gövdesi tarayıcıda
+koşuyor. O gövdeye Türkçe bir yorum yazarken kod alıntısını ters tırnakla göstermek —
+`` `contain` `` gibi — diziyi ORADA bitiriyor. Geri kalan her şey TypeScript sanılıyor ve
+hata ölçümle ilgisiz bir yerde patlıyor: *"Property 'ray' does not exist on type
+'string'"*.
+
+**Dördüncü kez oldu.** Dosyanın kendi yorumunda *"bu bölgedeki yorumlar ters tırnaksız
+olmalı"* yazıyordu. Yazılı olması yetmedi — bu, R-87'nin dersinin aynısı: kural kataloğa
+yazılıydı, ölçüm yoktu.
+
+**Karar.** `olcum-ters-tirnak` kapısı. Kapsam DAR ve bu bir gevşetme değil, kapının
+çalışabilmesinin şartı: yalnız üç tarayıcı gövdesi, yalnız yorum satırları, yalnız
+ÇIPLAK ters tırnak — kaçırılmış olan meşru ve sık kullanılıyor.
+
+**Kapı iki kez yanlış pozitif verdi ve ikisi de düzeltildi.** (1) Kaçırılmış ters
+tırnakları da ihlal saydı. (2) Gövdenin açılışını "ilk ters tırnak" sanıp sabitin
+ÜSTÜNDEKİ JSDoc'ta duran kod alıntılarını gövde içi gördü; üç gövde de `(() => {` ile
+açılıyor ve aranan o. Yanlış pozitif de bir hatadır: okunmayan kapı, olmayan kapıdır.
+
+**Kanıt.** Kural kasten ihlal edildi — tek bir yoruma ters tırnak konup kapı kırmızıya
+döndü, geri alınınca yeşile.

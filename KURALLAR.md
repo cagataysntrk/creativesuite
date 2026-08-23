@@ -462,3 +462,19 @@ miras almıyor; beyaz çizgili bir özne beyaz zeminde yalnız gölgesinden seç
 Kusur şablonda değil, **varlığın kutupluluğunda** — hat onu garanti edemez.
 **Zorlama:** `gorsel-zemine-karismasin`; `ZEMINDEN_AYRISMA` tek sabit; `ACIK_TEMA_KIMLIGI`
 açık kartta tepe ucu bastırıyor. → D-326 · ölçüm: `docs/kurallar/OLCUMLER.md`
+
+### R-97 · krom-seridi-ayrilmistir · GATE · aktif
+Hiçbir görselin boyası ray bandına giremez. Bant ÖLÇÜLÜR (`.ray` kutusu), sabitten
+türetilmez.
+**Neden:** R-95 *"tam kadraj fotoğrafın üstünde künye meşrudur"* demişti ve ölçülmemişti;
+ölçüm aksini söyledi — zeminin **%8'i** medyandan 60 luma sapıyordu. Ray fine print
+taşıyor, masthead değil. ⚠ Yan kazanç AİLE: altı şablonda ortak bir zemin çizgisi.
+**Zorlama:** `krom-seridine-giriyor`; ayrıca `krom-okunmuyor` artık zemin GÜRÜLTÜSÜNÜ de
+ölçüyor. → D-327 · ölçüm: `docs/kurallar/OLCUMLER.md`
+
+### R-98 · olcum-govdesinde-ters-tirnak-yok · GATE · aktif
+Tarayıcıda koşan ölçüm gövdelerinde (`OLCUM`, `METIN_KUTULARI`, `puntoOlcumu`) ÇIPLAK
+ters tırnak olamaz; kaçırılmış olan meşrudur.
+**Neden:** gövdeler şablon dizesi; yorumdaki bir kod alıntısı diziyi ORADA bitiriyor ve
+hata ölçümle ilgisiz bir yerde patlıyor. **Dört kez aynı şekilde kırıldı.**
+**Zorlama:** `olcum-ters-tirnak` kapısı (fast). → D-328

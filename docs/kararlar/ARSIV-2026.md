@@ -6031,3 +6031,69 @@ Yani R-33 bugün bir VEKİL üzerinden çalışıyor. Doğru kaynak brief çıkt
 varyantları bilerek insan figürü istiyor (T4 · T10) ve o kaynağa geçmek, "kesik özne"
 tasarım kararıyla R-33'ü karşı karşıya getirir. Bu bir POLİTİKA sorusu ve insanın
 kararı: `docs/BORCLAR.md` D22.
+
+## D-314 · Yayın anı: hat ÖNERİR, insan SEÇER (2026-08-22)
+
+**Bağlam.** FAZ-17.3 yayın zamanını istiyordu ve iki kolay yol vardı: (a) onaylanan
+koşuyu hemen yayınlamak, (b) "salı 19:00 en iyi saat" gibi genel bir kural gömmek.
+İkisi de yanlış. (a) Yasa 2'yi siler — *agent önerir, insan uygular*; onay "bu içerik
+iyi" demektir, "şimdi yayınla" değil. (b) Kaynaksız bir sayısal iddiadır (Yasa 8) ve
+"öneri" etiketi onu kaynaklı yapmaz.
+
+**Karar.** Üç parça:
+
+1. **Öneri ÖLÇÜMDEN gelir.** `yayinSaatiOner` yayın defterindeki (`published.ndjson`)
+   ETKİLEŞİM ölçümlerini saat kovalarına ayırıp en yüksek ORTALAMAYI söylüyor —
+   toplamı değil, yoksa "en çok yayın yaptığın saat" ile "en iyi saat" karışırdı.
+   Gerekçe sayıyla konuşuyor: kaç ölçüm, hangi dilim, genel ortalamanın yüzde kaç üstü.
+2. **Ölçüm yoksa hat SUSUYOR.** En az beş ölçülmüş yayın gerekiyor; altındaysa cevap
+   `veri-yok` ve SEBEBİ yazılı. Bugün üretimde dönen dal budur — defter yayın ZAMANINI
+   tutuyor, etkileşimi tutmuyor (analitik çekimi FAZ-7.9'da). Ölçüldü: `{"tur":
+   "veri-yok","ornek":0,"sebep":"etkileşimi ölçülmüş yayın yok — saat öneremem"}`.
+3. **Seçim İNSANIN ve `PUBLISH` onsuz koşmuyor.** Karar `derived/runs/<id>/
+   yayin-ani.json` dosyasında: seçilen an, seçen (`human`), seçim zamanı ve o an
+   ekranda duran ÖNERİ. Kayıt yoksa `PUBLISH_TIME_NOT_CHOSEN`, biçimsizse
+   `PUBLISH_TIME_INVALID`.
+
+**Neden çalıştırma parametresi değil.** Parametreler plana DONUYOR (R-07): koşu
+başlarken hesaplanan özet onları kapsıyor ve devam ederken eklenen bir parametre özeti
+değiştirir — kapı haklı olarak *"onayladığınız plan artık geçerli değil"* der. Yayın anı
+koşu başlarken değil, ONAY anında seçiliyor. İki farklı zamana ait iki şey aynı kaba
+konamaz. `HumanDecision.note` da uygun değildi: serbest metinden saat ayrıştırmak,
+yayın zamanını insanın cümle kurma biçimine bağlamak olurdu.
+
+**Ölçüm — iki dal da GERÇEK koşuda görüldü, on sekiz saniye arayla, aynı derlemeyle:**
+karar dosyası yokken `yayinla` adımı `PUBLISH_TIME_NOT_CHOSEN` (16:28:38), karar
+konduğunda muhafızdan geçip dürüst `CHANNEL_NOT_CONNECTED` (16:28:56) ile durdu.
+Kontrol kanal kontrolünün ÖNÜNDE: kanallar bağlandığı gün sıranın tersi bu kapıyı
+sessizce atlatırdı.
+
+## D-315 · Sağlayıcı yokluğu, DEFTERDEKİ çıktıyı yok saymaz (2026-08-22)
+
+**Bulgu — gerçek koşu, `run_01a02989`.** Panelden onaylanıp sürdürülen bir karoselde
+dört `gorsel-uret` adımı da `NO_PROVIDER` ile düştü: `sops exec-env` olmadan koşan bir
+sürdürmede Cloudflare *"yerel önkoşul sağlanmadı"* diyor. Adımlar `optional` olduğu
+için hat DEVAM etti, `COMPOSE` görselsiz bir belge kurdu ve `RENDER` onu yeniden çizdi.
+Sonuç: insanın **onayladığı** kesik özneler yerine dört yer tutucu. Dışa aktarma da
+onları verdi — bir sürdürme, tamamlanmış bir işi bozdu ve kimse fark etmedi çünkü
+`kalite` adımı kusuru sayıp geçti (`yer-tutucu`, 5 kusur).
+
+**Kök sebep.** Yönlendirici, adımın çıktısının DEFTERDE durduğunu bilmiyordu. Oysa
+`derived/runs/<run>/steps/<adim>.json` kaydı ve `derived/blobs`taki byte'lar oradaydı:
+ölçüldü, `gorsel-uret` çıktısı 261 760 karakterlik base64 olarak sorunsuz çözülüyor.
+**Çağrılacak bir şey yoktu ki sağlayıcı gereksin** — yönlendirici yalnız YENİ bir çağrı
+için gerekli.
+
+**Karar.** `runPipeline` metered adımda sağlayıcı seçemediğinde önce deftere bakıyor:
+çıktı duruyorsa adım defterden oynatılıyor (`↺ … sağlayıcı yok ama çıktı DEFTERDE`),
+yoksa eskisi gibi `NO_PROVIDER`. Sıra önemli — kontrol hatanın ÖNÜNDE, sonrasında
+olsaydı adım çoktan `failed` yazılmış olurdu.
+
+**Ölçüm.** Aynı anahtarsız sürdürme, düzeltmeden önce panorama belgesinde dört boş
+`src`, sonra `gorsel-01.jpg · gorsel-02.jpg · gorsel-03.jpg` (dördüncü gerçekten hiç
+üretilmemişti). Slayt yeniden çizildi ve kesik özne yerinde. Birim testi düzeltme geri
+alındığında KIRMIZI dönüyor.
+
+**Sınır.** Girdiler değiştiyse defterdeki çıktı bayattır ve bu dal onu yine de
+kullanır. Alternatif, tamamlanmış bir işi SİLMEKTİ; bayat bir görsel, yok edilmiş bir
+görselden iyidir ve iz satırı olan biteni ekranda söylüyor.
