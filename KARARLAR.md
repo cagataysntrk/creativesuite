@@ -184,59 +184,9 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62), tavan
 > açıldı (R-63).
 
-## D-307
-
-**Hazır tasarım editörü ana düzenleme döngüsüne girmiyor; Penpot tek yönlü rötuş
-kulvarı olarak açık kalıyor.**
-
-Depo sahibi Canva'yı ve genel olarak hazır bir açık kaynak editörü sordu. Adaylar
-ölçüldü: **Polotno** (SDK ticari lisans), **tldraw** (özel lisans, filigran/ücret),
-**Fabric.js / Konva** (MIT ama editör değil, kütüphane — editörü yine biz yazarız),
-**Penpot** (MPL-2.0, self-host, gerçek özgür yazılım).
-
-**Ortak ve belirleyici sorun lisans değil, VERİ MODELİ.** Hepsi şekil/piksel düzenliyor;
-bizim editör `KatalogOrnegi` ALANLARINI düzenliyor. Bir slaydı Canva'da ya da Penpot'ta
-güzelleştirmek o güzelliği **bir sonraki konuya taşımaz** — şablon mantığı (Yasa 13)
-çöker, çıktı veriden yeniden üretilemez olur (Yasa 11) ve ikinci bir render motoru
-doğar (Yasa 4). Katalog merkezli üretimin tamamı "bir kez mükemmelleştir, sonsuz kez
-uygula" öncülüne dayanıyor; serbest tuval tam olarak bunu bozar.
-
-**Maliyet karşılaştırması da aynı yöne bakıyor.** Depo sahibinin istediği yetenekler —
-yazıyı taşı, ölçekle, tipografi, öge sil — bizim editörde birkaç yüz satır ve hepsi
-veri modelinde kalıyor. Hazır bir editörü bağlamak bundan pahalı ve tekrar
-kullanılabilirliği öldürüyor.
-
-**Açık kalan kapı:** Penpot **tek yönlü dışa aktarım** hedefi olarak meşru. Tek bir
-yayın için son rötuş isteniyorsa SVG verilir ve orada açılır; şablon döngüsü bizde
-kalır ve geri okuma YOKTUR. Geri okuma eklenirse bu karar yeniden açılır.
-
-## D-308
-
-**Tekrar, seçicinin kusuru değil tasarım sonucuydu — düzeltmesi de tasarımda.**
-
-Depo sahibi *"sistem önceki oluşturulanlardan FARKLI yeni bir tane planlasın"* dedi.
-Defter ölçüldü: son ÜÇ karosel koşusunun **üçü de `sahne`** seçmiş ve konular
-birbirinin kopyasıydı.
-
-**Bu bir hata değildi.** Şablon seçimi içeriğin ölçülen şeklinden deterministik
-çıkıyor (D-268): benzer konu benzer şekil verir, benzer şekil aynı şablonu seçer.
-Doğru çalışan bir seçici, tek başına bırakıldığında aynı tasarımı sonsuz kez üretir.
-Kusur seçimde değil, seçimin **geçmişi görmemesindeydi**.
-
-**Rastgelelik EKLENMEDİ** (R-06). Kural kayıttan: son üç koşuda kullanılmış bir
-şablon, **başka uygun aday varsa** eleniyor. "Uygun" demek `puan > 0`, yani eleme
-zaten geçilmiş — çeşitlilik uğruna kötü bir şablon seçmek mümkün değil. Başka aday
-yoksa tekrar meşrudur: içerik gerçekten tek bir şablona uyuyor demektir. Seçim
-gerekçesi elemeyi **yazıyor**; sessiz bir sapma, açıklanmış bir sapmadan kötüdür.
-
-**Geçmiş PLANA DONUYOR, çalışma anında okunmuyor.** Seçim anında diskten okumak,
-aynı planın iki farklı zamanda iki farklı tasarım üretmesi demekti ve `R-07`'yi
-(plan dondurulur) bozardı. `just uret` geçmişi okuyup `son_kullanilan` kısıtına
-yazıyor; defter neyi gördüyse onu saklıyor ve replay aynı sonucu veriyor.
-
-⚠ Sıralama dosya ADINA göre, `mtime`a göre değil: `run_<uuidv7>` zaman-sıralı bir id
-taşıyor. Bir defterin kopyalanması ya da dokunulması `mtime` sırasını bozar ve
-"son üç koşu" başka bir şey olurdu.
+> **D-307 · D-308 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
+> İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62), tavan
+> açıldı (R-63).
 
 ## D-309
 
@@ -580,3 +530,62 @@ katmanlanmanın kendisidir.
 1080 px'lik slaytta okunuyor, duraklar dört ürünün altında. İlk denemede çizgi
 GÖRÜNMÜYORDU — `vector-effect="non-scaling-stroke"` kalınlığı cihaz pikselinde okuyor ve
 0.12 alt piksele düşüyordu; çizildi, bakıldı, düzeltildi.
+
+## D-320 · Tanımsız token çağrısı bir KAPIYA bağlandı (2026-08-23)
+
+**Bulgu, kendi açtığım yaradan.** D-318 amber rampasını emekli etti;
+`packages/contracts/src/aile.ts` iki değişkeni çağırmaya devam etti:
+
+    const AMBER_ACIK = 'var(--ramp-marka-amber-200)'   ← artık tanımsız
+
+**CSS tanımsız bir `var()` için hata VERMEZ.** Bildirimi geçersiz sayıp ögeyi sessizce
+şeffaf bırakır. Üç şablonun zemin ögesi kayboldu, hiçbir test kırmızı olmadı, hiçbir
+kapı konuşmadı. Derleyici de göremez — çağrı bir DİZE içinde yaşıyor.
+
+**Karar.** `token-cagrisi` kapısı: çağrılan her `--ramp-*` / `--role-*`, üretilmiş
+`tokens.css` dosyalarının birleşiminde tanımlı olmak ZORUNDA. Yorum satırları
+atlanıyor: emekli bir token'ın adını bir gerekçede anmak çağrı değil, kayıttır.
+
+**Kapsam neden daraltıldı.** İlk sürüm her `var()`e baktı ve 39 "ihlal" buldu — çoğu
+yanlış: bir belge kendi `:root{--ui:…}` değişkenini tanımlayıp kullanabilir. Kapının işi
+token SÖZLEŞMESİNİ korumak; `--ramp-*` ve `--role-*` `tokens.css`ten gelmek zorunda
+çünkü onları üreten tek yer `just tokens`. **Gürültülü bir kapı okunmaz olur ve okunmayan
+bir kapı yoktur** — daraltma bir gevşeme değil, kapının çalışabilmesinin şartı.
+
+**Bulduğu gerçek kusurlar:** `aile.ts` iki amber çağrısı · `sablon.ts` `ink-800`
+(emekli; "koyu mu" kümesinde tanımsız olduğu için metin rengi yanlış tarafa düşebilirdi)
+· `kabuk.css` dört yanlış rol adı (`--role-line`, `--role-ok`, `--role-danger`,
+`--role-text-soft`).
+
+**Ölçüm.** 52 tanımlı token · 325 dosyada çağrı denetlendi · 0 ihlal. Kasten
+`--ramp-marka-yok-1` yazıldı → kırmızı döndü, geri alındı.
+
+## D-321 · Araştırma tabanı: sayılar kaynağıyla duruyor (2026-08-23)
+
+**Bağlam.** Depo sahibi şablonları dizayn sistemine oturtmamı istedi ve ben araştırma
+yapmadan koda giriştim. Uyardı: *"webden araştırdın mı, seamless muazzam tasarımlar için
+nasıl olmalı biliyor musun, gerçekten başarılı olanları gördün mü? Bunları halletmeden
+işe geçtin."* Haklıydı — kodladığım her eşik tahmindi.
+
+**Karar.** Üç bağımsız araştırma koşturuldu ve bulguları
+`docs/referans/arastirma-2026-08.md`ye yazıldı. FAZ-18'in her sayısı oraya bakıyor:
+**bir eşiği değiştiren, önce kaynağı çürütmek zorunda.**
+
+**Üç bulgu, üçü de bizim kodumuzu yanlış çıkardı:**
+
+1. **Gövde puntomuz okuma eşiğinin altında.** Kritik punto 0,2° açısal x-yüksekliği
+   (Legge & Bigelow 2011); 1080 px tuvalde taban **36 px**, hedef 40–48. Ölçüldü: bugün
+   **34 px**. Ve `govdeOrani` GÖRELİ olduğu için başlık küçüldükçe daha da iniyor.
+   ⚠ Yaygın "gövde 24 px yeter" tavsiyesi eşiğin **%30 altında** ve hiçbir kaynağı yok.
+2. **Instagram 3:4'ü (1080×1440) 29 May 2025'ten beri destekliyor** — depo sahibi
+   haklıydı. Bizim 1080×1350'miz hâlâ geçerli ama artık tavan değil; ızgarada her yandan
+   34 px kaybediyor. ⚠ Bedeli: 3:4 Meta reklamında kullanılamıyor.
+3. **Graph API karoseli 10 ile sınırlıyor ve yalnız JPEG kabul ediyor.** Biz PNG
+   üretiyoruz ve slayt sayısını hiç kontrol etmiyoruz — yayın anında patlayacak iki hata.
+
+**Yöntem notu, kalıcı olarak kayda geçiyor.** 2025–26'da arama sonuçlarını dolduran AI
+üretimi SEO siteleri birbirini kopyalıyor ve birincil kaynağa gitmiyor. Dolaşımdaki
+safe-zone sayılarının ("üstte 135 px UI", "yanlar 60 / üst-alt 80") hiçbiri Meta'dan
+gelmiyor ve çoğu **Reels rakamlarının akışa yanlış taşınması**. Bunlar kural olarak
+KODLANMADI ve belgede "doğrulanmadı" diye işaretli. Kaynağı olmayan bir sayı, kaynağı
+olmayan bir iddiadır (Yasa 8) — ve bu, kendi kodumuz için de geçerli.

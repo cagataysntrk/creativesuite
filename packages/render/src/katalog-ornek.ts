@@ -560,7 +560,12 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // kartın metni solda başlıyor ve kesimi aşan her öge bir sonraki kartın soluna giriyor.
   // Çözüm dikeyde ayrışmak; `sahne` de aynı yola çıktı. Ayrım artık yerleşimde değil
   // zeminde (kâğıt), lekelerde ve `wdth 92`lik geniş seste.
-  yerlesim: 'alt',
+  // ⚠ ⚠ **`alt` → `ust` ve sebebi ÖLÇÜLDÜ (FAZ-18.3).** Metin dibe itiliyordu, kesik
+  // özne de alt yarıda duruyordu: ikisi aynı bandı istiyor ve `metin-gorsel-cakisiyor`
+  // beş kusur buldu. Yatayda çözmek imkânsızdı — süreklilik ögesi kesimi aşmak ZORUNDA
+  // ve kesim metin kolonunun içinden geçiyor. Çakışma DİKEYDE çözülüyor: metin üstte,
+  // özne altta. Aynı ders `sahne`de bir kez öğrenilmişti.
+  yerlesim: 'ust',
   tipografi: {
     baslikPayi: 0.98,
     baslikAgirlik: 500,
@@ -586,9 +591,9 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // çıkardı. `ornek-3`ün kimliği desen + İNSAN; ikisinden biri eksikse o şablon değil.
   // ⚠ Yuvalar kesimlerin ÜSTÜNDE (6 slaytta kesimler %16,7 · %33,3 · %50 · %66,7 · %83,3).
   gorseller: [
-    { src: '', alt: 'kesik özne — 1', x: 13, y: 52, genislik: 8, yukseklik: 48, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 2', x: 46, y: 54, genislik: 8, yukseklik: 46, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 3', x: 80, y: 50, genislik: 8, yukseklik: 50, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 1', x: 13, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 2', x: 46, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 3', x: 80, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
   ],
   // ⚠ ⚠ **LEKELER KALDIRILDI (depo sahibi: "şu aptal dairemsi renkli topları kaldır,
   // bunlar web tasarım duruyor").** Referansta (`image copy 4`) gerçekten leke var — ama

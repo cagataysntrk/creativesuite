@@ -151,8 +151,13 @@ export interface AileProfili {
 const AMBER = 'var(--role-bg)'
 const KAGIT = 'var(--role-surface)'
 const MUREKKEP = 'var(--role-line-edge)'
-const AMBER_ACIK = 'var(--ramp-marka-amber-200)'
-const AMBER_KOYU = 'var(--ramp-marka-amber-600)'
+// ⚠ ⚠ **BU İKİ SABİT TANIMSIZ BİR DEĞİŞKENİ ÇAĞIRIYORDU.** Amber rampası D-318 ile
+// emekli oldu (palet dizayn sisteminin nötr merdivenine geçti) ama buradaki çağrılar
+// kaldı: CSS'te tanımsız bir `var()` hata vermiyor, `background` bildirimini geçersiz
+// kılıp ögeyi SESSİZCE şeffaf bırakıyor. Bir rampayı silerken çağıranlarını aramak
+// yeterli değil — çağrı bir dize içinde yaşıyorsa derleyici de görmez.
+const AKSAN_ACIK = 'var(--ramp-marka-mavi-200)'
+const AKSAN_KOYU = 'var(--ramp-marka-mavi-600)'
 
 /**
  * Bugünkü tek aile: amber ↔ mürekkep iki alan, akan eğri, dev hayalet rakam.
@@ -329,7 +334,7 @@ export const DONEN_AILE: AileProfili = {
   tipoEfektleri: ['vurgu'],
   gorselIslemleri: ['keskinlik', 'duotone'],
   alan: {
-    zeminler: [AMBER, AMBER_ACIK, KAGIT, AMBER_KOYU],
+    zeminler: [AMBER, AKSAN_ACIK, KAGIT, AKSAN_KOYU],
     kapanisZemini: MUREKKEP,
     ikiAlan: false,
   },

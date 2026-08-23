@@ -35,7 +35,16 @@ const MUREKKEP = 'var(--role-line-edge)'
  * yazılmalı — ve yazılmazsa metin koyu-üstü-koyu çıkar, kontrast metriği YAKALAR.
  * Yani unutmanın bedeli sessiz değil: kapı kırmızı yanar.
  */
-const KOYULAR = new Set([MUREKKEP, 'var(--ramp-marka-ink-800)', 'var(--ramp-marka-ink-950)'])
+// ⚠ `ink-800` D-318'de emekli oldu; nötr merdivenin koyu adımları artık `ink-850`,
+// `ink-900`, `ink-950`, `ink-1000`. Tanımsız bir token burada sessizce "koyu değil"
+// sayılıyordu — yani metin rengi yanlış tarafa düşebilirdi (D-320).
+const KOYULAR = new Set([
+  MUREKKEP,
+  'var(--ramp-marka-ink-850)',
+  'var(--ramp-marka-ink-900)',
+  'var(--ramp-marka-ink-950)',
+  'var(--ramp-marka-ink-1000)',
+])
 const koyuMu = (token: string): boolean => KOYULAR.has(token)
 
 /**

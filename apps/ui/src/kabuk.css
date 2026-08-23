@@ -608,7 +608,7 @@ tr[data-tiklanir] {
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
-  border: 1px solid var(--role-line);
+  border: 1px solid var(--role-line-hair);
   border-radius: var(--radius-2);
   padding: var(--space-1) var(--space-2);
   /* ⚠ Sabit genişlik YOK (R-23): "insan-onayi" ile "metin-onayi" farklı uzunlukta ve
@@ -626,11 +626,11 @@ tr[data-tiklanir] {
 }
 
 .kapi-hane.onaylandi {
-  border-color: var(--role-ok, var(--role-line));
+  border-color: var(--role-state-ok, var(--role-line-hair));
 }
 
 .kapi-hane.reddedildi {
-  border-color: var(--role-danger, var(--role-line));
+  border-color: var(--role-state-error, var(--role-line-hair));
 }
 
 .kapi-hane.bekliyor {
@@ -672,7 +672,7 @@ tr[data-tiklanir] {
 /* Öneri YOKKEN de bir cümle var: sessiz bir kutu, "ölçüm yok" ile "sistem bozuk"u
    ayırt edilemez yapardı. */
 .yayin-oneri.yok {
-  color: var(--role-text-soft);
+  color: var(--role-text-muted);
 }
 
 .yayin-uyari {
@@ -1078,7 +1078,7 @@ tr[data-tiklanir] {
   overflow: auto;
   margin: 0;
   padding: var(--space-2);
-  border: 1px solid var(--role-line);
+  border: 1px solid var(--role-line-hair);
   border-radius: var(--radius-2);
   background: var(--role-surface);
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -1102,7 +1102,7 @@ tr[data-tiklanir] {
   inline-size: 100%;
   min-block-size: 3.2em;
   padding: var(--space-2);
-  border: 1px solid var(--role-line);
+  border: 1px solid var(--role-line-hair);
   border-radius: var(--radius-2);
   background: var(--role-surface);
   color: var(--role-text);

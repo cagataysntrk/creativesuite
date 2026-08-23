@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 18
-siradaki_adim: 18.3
+siradaki_adim: 18.5
 son_guncelleme: 2026-08-22
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -16,7 +16,7 @@ son_kanit: "IKI KUSUR DAHA KAPANDI, ikisi de GERCEK KOSUDA bulundu. (1) ANAHTARS
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**45 kapı · 24 ihlal kırmızı · 1836 test.**
+**46 kapı · 24 ihlal kırmızı · 1836 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
@@ -49,50 +49,20 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **17.3** · yayın anı bir KARAR: hat ölçümden saat ÖNERİR, ölçüm yoksa susar; `PUBLISH` seçimsiz koşmuyor (D-314) | 2026-08-22 |
 | **18.1** · tip ölçeği markanın dizayn sisteminden: dört aile, dört rol; el yazısı ve `wdth` emekli (D-317) | 2026-08-22 |
 | **18.2** · palet sistemden: chroma 0 nötrler, `#040404` kanvas, aksanın iki adımı; vurgu çipi emekli (D-318) | 2026-08-22 |
+| **18.0** · araştırma tabanı: Instagram spec + tasarım disiplini + marka farkı, hepsi kaynaklı (D-321) | 2026-08-23 |
+| **18.3** · süreklilik ölçek çizgisi; `sahne`de görsel kesim üstünde, dörtten ikiye (D-319) | 2026-08-23 |
+| **18.4** · tanımsız token çağrısı kapısı — CSS sessizce şeffaf bırakıyordu (D-320) | 2026-08-23 |
 
 ## Sıradaki adım
 
-## FAZ 15 — KATALOG MERKEZLİ ÜRETİM (D-268 · D-269 · D-270)
+## FAZ 15 — katalog merkezli üretim (D-268 · D-269 · D-270)
 
-**Serbest üretim YOK.** Katalogdan şablon SEÇİLİR, agent onun **dolu taslağını** uyarlar.
-**15.1–15.8 + 15.10 KAPALI · 15.9 DEVAM.** Belge: `docs/referans/katalog-merkezli-hat.md`
-
-| Adım | Ne yapıldı | Ölçüm |
-|---|---|---|
-| **15.1** | ne kurmalı → HİÇBİR ŞEY (D-269) | üç eksen vardı, kullanılmıyordu |
-| **15.2** | genişlik ekseni; punto ölçülen tavandan | `wdth 62`→580px, `125`→1001px |
-| **15.3** | zemin reçetesi | bant 36px → 8px |
-| **15.4** | katalog DOLU taslak, altı örnek | her kart kaynak beyan ediyor |
-| **15.5** | altı şablon render edilip BAKILDI | 5 kusur kapatıldı |
-| **15.6** | `sablonSec` içerik şeklinden | 5 sinyal, gerekçeli |
-| **15.7** | `uyarla` — kompozisyon KİLİTLİ | yapısal alan şemada yok |
-| **15.8** | DOM denetimi + düzeltme turu | 4 ihlal denendi, 4'ü kırmızı |
-
-### 15.9 — HAT UÇTAN UCA KOŞUYOR ✓
-
-`sops exec-env secrets/secrets.enc.yaml 'just uret instagram-karosel "<konu>"'`
-→ 12 adım yeşil · görsel `cloudflare-workers-ai`ten · 4 varlık damgalandı ·
-insan onay kapısında durdu. Defterde `sablonId: 'sahne'`, `kalite` bir kusur buldu
-(`marka fontunun kapsamı dışında: ✓`) ve onu insana taşıdı.
+**15.1–15.12 + 15.14 KAPALI · 15.9 ve 15.13 AÇIK.** Ayrıntı: `docs/fazlar/FAZ-15.md`.
+Belge: `docs/referans/katalog-merkezli-hat.md`.
 
 ⚠ **ONUNCU ZİNCİR KOPUKLUĞU (D-270):** `renderPanorama`nın üretim yolunda SIFIR çağıranı
-vardı — mimarinin tamamı `just uret`ten erişilemezdi.
-
-**Bağlarken çıkan ALTI kopuk halka** — hiçbiri testle, hepsi GERÇEK KOŞUYLA bulundu:
-zorunlu adım sessizce atlandı · eleme iki yönlüydü ve 11 satır altı şablonu birden eledi ·
-istem JSON şemasını hiç söylemiyordu · sağlayıcı `{result}` döndürüyordu · brief kurucusu
-eski `tasarimPlani`ni arıyordu · `.find()` ilk (boş) panoramayı alıyordu.
-
-⚠ **Hat iki kez 21 dakika ASILDI (D-272):** `claude` CLI daemon'u stdout borusunu tutuyor,
-Node `close` yaymıyor ve 10 dakikalık zaman aşımı da AYNI olaya bağlıydı. `spawn.ts`
-artık `exit`i de dinliyor; ihlal testi asılmayı yeniden üretiyor.
-
-**Eski yol emekli (D-271), ÖLÇÜLEREK:** `sablon-turu.mjs` arşivde, `instagram-carousel`
-emekli işaretli. ⚠ `static.ts`/`AileProfili` KALDI: `doc.aile` orada on altı yerde ve
-**sekiz hat** ondan besleniyor. Emekli olan karosel için AİLE SEÇİMİ, render değil.
-
-**15.9 KALANI:** `denetimTuru` yazıldı, test edildi, hatta BAĞLI DEĞİL — kusurlar
-rapor ediliyor, otomatik düzeltilmiyor. ⚠ FAZ-12 kabul sayacı hâlâ 0/20.
+vardı — mimarinin tamamı `just uret`ten erişilemezdi. Bağlarken çıkan altı kopuk halkanın
+hiçbiri testle, hepsi GERÇEK KOŞUYLA bulundu.
 
 ## Devreden borçlar
 

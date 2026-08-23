@@ -5823,3 +5823,59 @@ fotoğrafla dolu), biri bu nokta.
 
 Kapı tavanı 4'ten **3'e indirildi** — gevşetme değil sıkma; sahte bir rozet eklenince
 kırmızıya dönüyor (denendi).
+
+---
+
+## D-307
+
+**Hazır tasarım editörü ana düzenleme döngüsüne girmiyor; Penpot tek yönlü rötuş
+kulvarı olarak açık kalıyor.**
+
+Depo sahibi Canva'yı ve genel olarak hazır bir açık kaynak editörü sordu. Adaylar
+ölçüldü: **Polotno** (SDK ticari lisans), **tldraw** (özel lisans, filigran/ücret),
+**Fabric.js / Konva** (MIT ama editör değil, kütüphane — editörü yine biz yazarız),
+**Penpot** (MPL-2.0, self-host, gerçek özgür yazılım).
+
+**Ortak ve belirleyici sorun lisans değil, VERİ MODELİ.** Hepsi şekil/piksel düzenliyor;
+bizim editör `KatalogOrnegi` ALANLARINI düzenliyor. Bir slaydı Canva'da ya da Penpot'ta
+güzelleştirmek o güzelliği **bir sonraki konuya taşımaz** — şablon mantığı (Yasa 13)
+çöker, çıktı veriden yeniden üretilemez olur (Yasa 11) ve ikinci bir render motoru
+doğar (Yasa 4). Katalog merkezli üretimin tamamı "bir kez mükemmelleştir, sonsuz kez
+uygula" öncülüne dayanıyor; serbest tuval tam olarak bunu bozar.
+
+**Maliyet karşılaştırması da aynı yöne bakıyor.** Depo sahibinin istediği yetenekler —
+yazıyı taşı, ölçekle, tipografi, öge sil — bizim editörde birkaç yüz satır ve hepsi
+veri modelinde kalıyor. Hazır bir editörü bağlamak bundan pahalı ve tekrar
+kullanılabilirliği öldürüyor.
+
+**Açık kalan kapı:** Penpot **tek yönlü dışa aktarım** hedefi olarak meşru. Tek bir
+yayın için son rötuş isteniyorsa SVG verilir ve orada açılır; şablon döngüsü bizde
+kalır ve geri okuma YOKTUR. Geri okuma eklenirse bu karar yeniden açılır.
+
+## D-308
+
+**Tekrar, seçicinin kusuru değil tasarım sonucuydu — düzeltmesi de tasarımda.**
+
+Depo sahibi *"sistem önceki oluşturulanlardan FARKLI yeni bir tane planlasın"* dedi.
+Defter ölçüldü: son ÜÇ karosel koşusunun **üçü de `sahne`** seçmiş ve konular
+birbirinin kopyasıydı.
+
+**Bu bir hata değildi.** Şablon seçimi içeriğin ölçülen şeklinden deterministik
+çıkıyor (D-268): benzer konu benzer şekil verir, benzer şekil aynı şablonu seçer.
+Doğru çalışan bir seçici, tek başına bırakıldığında aynı tasarımı sonsuz kez üretir.
+Kusur seçimde değil, seçimin **geçmişi görmemesindeydi**.
+
+**Rastgelelik EKLENMEDİ** (R-06). Kural kayıttan: son üç koşuda kullanılmış bir
+şablon, **başka uygun aday varsa** eleniyor. "Uygun" demek `puan > 0`, yani eleme
+zaten geçilmiş — çeşitlilik uğruna kötü bir şablon seçmek mümkün değil. Başka aday
+yoksa tekrar meşrudur: içerik gerçekten tek bir şablona uyuyor demektir. Seçim
+gerekçesi elemeyi **yazıyor**; sessiz bir sapma, açıklanmış bir sapmadan kötüdür.
+
+**Geçmiş PLANA DONUYOR, çalışma anında okunmuyor.** Seçim anında diskten okumak,
+aynı planın iki farklı zamanda iki farklı tasarım üretmesi demekti ve `R-07`'yi
+(plan dondurulur) bozardı. `just uret` geçmişi okuyup `son_kullanilan` kısıtına
+yazıyor; defter neyi gördüyse onu saklıyor ve replay aynı sonucu veriyor.
+
+⚠ Sıralama dosya ADINA göre, `mtime`a göre değil: `run_<uuidv7>` zaman-sıralı bir id
+taşıyor. Bir defterin kopyalanması ya da dokunulması `mtime` sırasını bozar ve
+"son üç koşu" başka bir şey olurdu.
