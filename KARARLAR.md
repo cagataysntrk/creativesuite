@@ -558,3 +558,31 @@ Ve yükseltme kırmızı turda değil, ayrı bir turda ve kendi kararıyla yapı
 kimse yok, `just tur` yalnız atıf verileni getiriyor. Ama bir kuralın GEREKÇESİ o kuralın
 parçası — zorlaması olmayan kural yazılmadığı gibi, gerekçesi olmayan kural da
 savunulamaz.
+
+## D-323 · Kadraj kartın kutusu değil, EKRANIN kutusu — sahne kaymaz
+
+**Bulgu.** Görsel payını ölçmek için yazılan geçici bir alet, ölçmeye çalıştığı şeyi
+değil bambaşka bir kusuru gösterdi: `sahne` `memphis` ve `donen` şablonlarında sahne
+gövdenin (0,0)'ında **başlamıyordu** — `top: 21`. Sebep, görsel işlemlerinin
+`<svg class="filtre-tanim" width="0" height="0">` tanımlarının gövdede INLINE durması.
+Sıfır boyutlu bir inline öge bile satır kutusu doğuruyor ve o kutunun strut yüksekliği
+21 px. Yani **görsel işlemi olan her belge 21 px aşağı kaymış** üretiliyordu: üstte gövde
+zemininden bir şerit, altta kartın son 21 px'i — imza rayının durduğu yer — kadrajın
+dışında.
+
+**Neden hiçbir kapı görmedi.** Bu depodaki bütün panorama ölçümleri ögeleri KARTA göre
+okuyor: taşma kart kutusunda, güvenli alan kart kenarından, metin payı kart alanına
+bölünerek. Kart kendi içinde kusursuzdu; yanlış olan onun YERİYDİ. Ölçüm aletinin
+kendisinin bozuk çıktığı dördüncü vaka (D-31x ailesi) ve en sessizi: alet doğru çalışıyor,
+yalnız yanlış şeye bağlı.
+
+**Karar.** Kadrajın tanımı düzeltiliyor: kadraj `.kart`ın kutusu değil, EKRANIN kutusudur.
+`sahne-kaymis` kusuru sahneyi mutlak koordinatta ölçüyor — tolerans yok, çünkü bir piksel
+kayma ekran görüntüsünün her slaytta aynı yerden kesilmediği demektir. Kural R-93.
+
+**Düzeltme tanımı ÜRETEN modülde.** `FILTRE_TANIM_CSS` `gorsel-islem.ts`te tek sabit;
+`panorama.ts` ve `static.ts` ikisi de onu basıyor. İki render yolu aynı işaretlemeyi
+üretiyor ve stili birinde unutmak, kaymayı yalnız orada geri getirirdi (§3.8 darboğaz).
+
+**Kanıt.** Kural iptal edilip koşuldu: kusur tam olarak görsel işlemi olan ÜÇ şablonda
+kırmızı, diğer üçünde sessiz. Ölçüm, kaymanın kendisini de doğrudan okuyor.

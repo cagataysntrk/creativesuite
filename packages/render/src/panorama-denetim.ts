@@ -188,6 +188,23 @@ export type KusurTuru =
    * belgede temiz kutular %0, kesişen ikisi %4,6 ve %5,9 verdi (§7.1).
    */
   | 'sus-metni-kesiyor'
+  /**
+   * **Sahne gövdenin sol üst köşesinde DEĞİL** — bütün karosel kaymış.
+   *
+   * ⚠ ⚠ **ÜRETİMDE 21 PX AŞAĞI KAYIYORDU ve hiçbir ölçüm bunu göremezdi.** Sebep:
+   * görsel işlemlerinin `<svg class="filtre-tanim" width="0" height="0">` tanımları
+   * gövdede INLINE duruyordu. Sıfır boyutlu bir inline öge bile satır kutusu doğurur
+   * ve o kutunun strut yüksekliği 21 px'ti. Yani görsel işlemi olan HER belgede üstte
+   * gövde zemininden bir şerit kalıyor, kartın son 21 px'i kadrajın dışına taşıyordu.
+   *
+   * ⚠ Var olan hiçbir kusur bunu göremezdi çünkü hepsi ögeleri KARTA göre ölçüyor:
+   * kart kendi içinde kusursuzdu, YERİ yanlıştı. Güvenli alan bile karttan sayıldığı
+   * için sessizdi. Kadraj, kartın kutusu değil EKRANIN kutusudur.
+   *
+   * ⚠ Ölçü mutlak: sahne (0,0)'da başlamıyorsa kusur. Tolerans yok — bir piksel kayma
+   * bile ekran görüntüsünün her slaytta aynı yerden kesilmediği anlamına gelir.
+   */
+  | 'sahne-kaymis'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -227,6 +244,22 @@ const OLCUM = (
   const kutular = []
   const kesimler = ${JSON.stringify(kesimler)}
   const kartlar = Array.from(document.querySelectorAll('.kart'))
+
+  // -- sahne (0,0)'da mi (R-93) --------------------------------------------
+  //
+  // ILK OLCUM: her sey karta gore olculuyordu ve kart kusursuzdu; kayan sey SAHNEYDI.
+  // Sifir boyutlu inline bir <svg> tanimi bile govdede satir kutusu dogurup sahneyi
+  // 21 px asagi itiyordu. Bu tek satir, akisa sizan HER ogeyi yakalar — hangisi
+  // oldugunu bilmeye gerek yok, sonucu ayni: kadraj kayar.
+  const sahne = document.getElementById('sahne')
+  if (sahne) {
+    const sr = sahne.getBoundingClientRect()
+    if (Math.abs(sr.left) > 0.5 || Math.abs(sr.top) > 0.5) {
+      kusurlar.push({ tur:'sahne-kaymis', kart:null, alan:null,
+        aciklama: 'sahne (' + Math.round(sr.left) + ',' + Math.round(sr.top) +
+          ') — govdenin sol ust kosesinde baslamiyor, butun karosel kaymis (R-93)' })
+    }
+  }
 
   // ── YER TUTUCU: üretilemeyen görselin yerine çerçeve çizildi mi ──────────
   // ⚠ ⚠ **YER TUTUCU KARTIN İÇİNDE DEĞİL, AYRI KATMANDA — ve bu hata bu dosyada

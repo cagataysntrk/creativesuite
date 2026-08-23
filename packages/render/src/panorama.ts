@@ -25,7 +25,7 @@
 
 import type { AssetStamp } from '@suite/kernel'
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
-import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
+import { FILTRE_TANIM_CSS, type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { kacir } from './html.js'
 import { OPENTYPE_CSS, vurguyuIsaretle } from './sablon-tipo.js'
 import { ikonSec, ikonSvg, type IkonAdi } from './sablon-ikon.js'
@@ -1253,6 +1253,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     doc.tokenCss,
     doc.fontCss ?? '',
     `  * { margin: 0; padding: 0; box-sizing: border-box }`,
+    FILTRE_TANIM_CSS,
     `  body { width: ${toplam}px; height: ${doc.yukseklik}px; overflow: hidden;`,
     `         background: ${doc.zemin}; color: ${METIN};`,
     `         font-family: "Marka Metin", system-ui, sans-serif; }`,

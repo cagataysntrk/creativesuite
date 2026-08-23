@@ -40,7 +40,7 @@ import {
   vurguyuIsaretle,
 } from './sablon-tipo.js'
 import { markaCss, markaKilidi } from './marka-isareti.js'
-import { type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
+import { FILTRE_TANIM_CSS, type GorselIslem, islemTanimi, islemZinciri } from './gorsel-islem.js'
 import { z } from './kompozit.js'
 import { type AlanSemasi, type SinirBicimi, TEMEL_AILE } from '@suite/contracts'
 import { degradeDefSvg } from './sablon-degrade.js'
@@ -262,6 +262,7 @@ export const toHtml = (doc: DocumentModel): string =>
     DIAGRAM_CSS,
     COMPARE_CSS,
     `  html, body { margin: 0; padding: 0; }`,
+    FILTRE_TANIM_CSS,
     `  body { width: ${doc.width}px; height: ${doc.height}px; background: var(--role-bg);`,
     // ⚠ Eskiden `"DejaVu Sans"` — SİSTEM fontu. Repoda tek bir font dosyası yoktu ve
     // çıktının "amatör" görünmesinin en büyük tek sebebi buydu (D-252).

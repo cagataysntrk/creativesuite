@@ -406,16 +406,13 @@ YERİNDEYKEN kırmızı raporlandı. **Zorlama:** `kesintisizlik-yok`, boş kesi
 İçerik ögesi güvenli alanın dışına çıkamaz (üst/alt **80 px**, yan **60 px**) ve metin
 kadrajın **%30**'unu geçemez — **kapakta %42**, çünkü kapak başlığı KAHRAMAN olmak
 zorunda.
-**Neden:** üst dolgu 68 px'ti, eşiğin 12 px altında. Metin payı ölçülünce gövde
-kartlarında **%36–38** çıktı: her slayt kapakla AYNI punto payını kullanıyordu ve
-sistemin kendi merdiveni bunu zaten reddediyor — serif "tek H1", Montserrat "bölüm
-başlığı". Gövde başlığı 0,82 çarpanıyla indi.
+**Neden:** üst dolgu 68 px'ti, eşiğin 12 px altında. Metin payı gövde kartlarında
+**%36–38** çıktı: her slayt kapakla AYNI punto payını kullanıyordu — sistemin kendi
+merdiveni bunu zaten reddediyor. Gövde başlığı 0,82 çarpanıyla indi.
 ⚠ **İki eşik, çünkü iki kural çelişiyor:** "metin ≤%30" ile "başlık kadrajın üçte birini
 kaplarsa kahraman" aynı kartta uzlaşmaz. Tek eşik ikisinden birini yalanlardı.
-⚠ **Panel metin DEĞİL, veridir** — ilk ölçüm onu da sayıp `veri-hikayesi`nin beş kartını
-kırmızıya çevirdi; oysa o şablonun taşıyıcısı tam olarak veri paneli. Güvenli alan
-paneli yine kapsıyor: veri de kenara yapışmamalı.
-⚠ Ray ve sayaç KROM: kadrajı doldurmuyor, çerçeveliyor — boşluk hesabına girmiyor.
+⚠ **Panel metin DEĞİL, veridir**; ray ve sayaç KROM. İkisi de paya girmiyor — giren ilk
+ölçüm `veri-hikayesi`nin beş kartını kırmızıya çevirmişti.
 **Zorlama:** `guvenli-alan-disi` · `metin-payi-yuksek`. → D-321
 
 ### R-89 · kelime-butcesi · GATE · aktif
@@ -428,10 +425,8 @@ kelime çıkıyor — iki bağımsız türetmenin aynı sayıya varması kuralı
 ⚠ **ÜST sınır zorlanır, ALT sınır zorlanmaz.** Üç kelimelik bir başlık ("Sessiz bir
 dönüşüm") kusur değil, çoğu zaman daha güçlü. Ölçülen şey kadraja SIĞMA; kısalık bir
 tercih, uzunluk bir taşma riski.
-⚠ **Sınır İSTEME de yazılıyor:** bir ret koşunun tamamına mal oluyor (model yeniden
-çağrılır, konu yeniden okunur). Sığdırmaya çalışan başlık, kırpılan başlıktan iyidir.
-⚠ Ret RENDER'dan önce: dört görsel üretip sonra "başlık uzun" demek o parayı geri
-getirmiyor.
+⚠ Sınır İSTEME de yazılıyor ve ret RENDER'dan ÖNCE: dört görsel üretip sonra "başlık
+uzun" demek o parayı geri getirmiyor.
 **Zorlama:** `uyarla` → `BASLIK_KELIME_TAVANI` · `SLAYT_KELIME_TAVANI`. → D-321
 
 ### R-90 · yayin-sozlesmesi · GATE · aktif
@@ -439,12 +434,10 @@ Karosel en fazla **10 slayt** taşır ve yayınlanan her dosya **JPEG** olur. İ
 yükleme yolunun ÖNÜNDE denetlenir.
 **Neden:** Graph API ikisini de açıkça sınırlıyor (*"Carousels are limited to 10 images"*
 · *"JPEG is the only image format supported"*, Meta Content Publishing, 30 Haz 2026).
-Uygulama 20 slayta izin veriyor ama **bizim yayın yolumuz API** — iki sayıyı karıştırmak,
-elle paylaşılabilen bir karoseli hattan geçirilebilir sanmak demek. Ve hattımız PNG
-üretiyordu: her slayt yayın anında reddedilecekti, yani dört görsel üretildikten, bir
-insan onayladıktan ve kota harcandıktan SONRA.
-⚠ Kontrol token'dan ÖNCE: sözleşme ihlali bir yetki sorunu değil ve token yenilemek onu
-düzeltmiyor. Ucuz olan önce sorulur.
+Uygulama 20 slayta izin veriyor ama **bizim yayın yolumuz API**. Ve hattımız PNG
+üretiyordu: her slayt yayın anında reddedilecekti — dört görsel ve bir insan onayından
+SONRA.
+⚠ Kontrol token'dan ÖNCE: sözleşme ihlali bir yetki sorunu değil.
 ⚠ Biçim çağıranın verdiği YOLDAN türüyor, bir parametreden değil: dosya adı `.jpg`
 derken içeriğin PNG olması defterin kendi kendine yalan söylemesidir.
 **Zorlama:** `publish` → `too_many_assets` · `unsupported_format`; `renderPanorama`
@@ -453,28 +446,35 @@ biçimi uzantıdan okuyor. → D-321
 ### R-91 · tuval-tek-kaynaktan · GATE · aktif
 Karosel tuvalinin ölçüsü **tek sözleşme sabitinden** gelir (`VARSAYILAN_TUVAL`); hiçbir
 dosya `1350` yazmaz.
-**Neden:** aynı sayı altı ayrı dosyada kopyalıydı ve altı kopya, bir gün beşinin
-değişip birinin unutulması demek. O gün panorama sessizce farklı orandan dilimlenir —
-ve Meta API'de **ilk slaydın oranı tüm karoseli belirlediği için** geri kalan slaytlar
-KIRPILIR, içerik uçar.
-⚠ **3:4 artık resmî** (Instagram Yardım Merkezi, 29 May 2025: oran 1.91:1 – 3:4,
-yükseklik 566–1440) ama 4:5 **Meta reklamında ZORUNLU** (min oran 400×500). Yani karar
-"hangi oran" değil — **oran bir PARAMETRE** ve iki değer de aynı hattan üretilebilmeli.
-⚠ Genişlik her iki oranda da 1080: Instagram üstünü kendi yeniden örnekleyicisiyle
-küçültüyor ve küçültmeyi biz yaparsak sonucu kontrol ederiz.
+**Neden:** aynı sayı altı dosyada kopyalıydı; bir gün beşi değişir biri unutulur. O gün
+panorama sessizce başka orandan dilimlenir ve Meta API'de **ilk slaydın oranı tüm
+karoseli belirlediği için** kalanlar KIRPILIR.
+⚠ **3:4 artık resmî** (Instagram, 29 May 2025) ama 4:5 **Meta reklamında ZORUNLU**. Karar
+"hangi oran" değil — **oran bir PARAMETRE**, iki değer de aynı hattan üretilebilmeli.
 **Zorlama:** `tuval.test.ts` — oran adı ile sayının ayrışamayacağını da ölçüyor
 (`oran: '4:5'` yazıp 1440 vermek defterin kendi kendine yalan söylemesi). → D-321
 
 ### R-92 · uretim-yolu-imza-tasir · GATE · aktif
 Üretilen her karosel marka işaretini TAŞIR; `logoVarliklari` üretim betiğinden çağrılır
 ve sonucu `COMPOSE`a geçer.
-**Neden:** dosyalar `brand/<id>/logo/` altında duruyordu, `logoVarliklari()` yazılmış ve
-test edilmişti — ama **tek çağıranı editör önizlemesiydi**. `uret.mjs` içinde `logo`
-kelimesi hiç geçmiyordu ve `panorama.ts` *"verilmezse imza BASILMIYOR"* diyordu. Yani
-üretilen hiçbir karosel imza taşımıyordu ve hiçbir test kırmızı değildi.
+**Neden:** `logoVarliklari()` yazılmış ve test edilmişti — ama **tek çağıranı editör
+önizlemesiydi**; `uret.mjs` `logo` kelimesini hiç anmıyordu. Üretilen hiçbir karosel imza
+taşımıyordu ve hiçbir test kırmızı değildi.
 ⚠ **Zincir kopukluğunun yedincisi:** modül var, test yeşil, üretim yolu yok (D-182 ·
 D-190 · D-224 · D-250 · D-261 · D-270 ailesi). Modülü test etmek zinciri test etmiyor.
-⚠ Eksik logo koşuyu DURDURMUYOR — fontun aksine: font eksikse çıktı YANLIŞ üretilir,
-logo eksikse geometrik yedek çizilir. Ama sessiz değil: uyarı basılıyor.
+⚠ Eksik logo koşuyu DURDURMUYOR (fontun aksine: geometrik yedek meşru bir çıktı) ama
+sessiz de değil — uyarı basılıyor.
 **Zorlama:** `marka-imzasi.test.ts` — modülü DEĞİL çağrıyı sınıyor (`uret.mjs` bir CLI,
 import edilip çağrılamıyor; davranış testi kopukluğu göremezdi). → D-321
+
+### R-93 · sahne-kaymaz · GATE · aktif
+Sahne gövdenin **(0,0)**'ında başlar; hiçbir tanım ögesi akışta duramaz. Tolerans yok.
+**Neden:** görsel işlemlerinin `<svg class="filtre-tanim" width="0" height="0">` tanımları
+gövdede INLINE duruyordu. Sıfır boyutlu bir inline öge bile satır kutusu doğurur ve o
+kutunun strut yüksekliği **21 px**: üretilen her karosel 21 px aşağı kaymış, üstte gövde
+zemininden bir şerit kalmış, kartın son 21 px'i — imzanın durduğu ray — kadrajın dışına
+taşmıştı.
+⚠ **Var olan hiçbir kusur bunu göremezdi:** bütün ölçümler ögeleri KARTA göre okuyor.
+Kart kusursuzdu, YERİ yanlıştı. Kadraj kartın kutusu değil, EKRANIN kutusudur.
+**Zorlama:** `sahne-kaymis` kusuru + `FILTRE_TANIM_CSS` tek sabit (iki render yolu da
+onu basıyor); `sahne-kaymasi.test.ts` kuralı iptal edip kaymayı ÖLÇÜYOR. → D-323

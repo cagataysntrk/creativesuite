@@ -66,6 +66,20 @@ void _kumelerAyni
  * ⚠ `color-interpolation-filters="sRGB"`: linearRGB'de parlaklık eşiği kayıyor ve
  * aynı tablo başka bir yerde kesiyor.
  */
+/**
+ * **Tanım SVG'leri AKIŞTAN ÇIKARILIYOR — ve bu bir süs değil, bir KAYMA düzeltmesi.**
+ *
+ * ⚠ ⚠ `<svg width="0" height="0">` sıfır boyutlu ama INLINE bir ögedir: gövdede satır
+ * kutusu doğuruyor ve o kutunun yüksekliği (strut) **21 px**. Yani görsel işlemi olan
+ * her belgede sahne 21 px AŞAĞI kayıyordu — üstte gövde zemininden bir şerit, altta
+ * kartın son 21 px'i kadrajın dışında. Hiçbir test kırmızı değildi; ölçüm `.kart`ın
+ * kendi kutusunu okuyordu ve o kutu doğruydu, YERİ yanlıştı.
+ *
+ * ⚠ CSS tanımı ÜRETEN modülde duruyor: iki ayrı render yolu (`panorama`, `static`) aynı
+ * işaretlemeyi basıyor ve stili birinde unutmak, kaymayı yalnız orada geri getirir (§3.8).
+ */
+export const FILTRE_TANIM_CSS = '  .filtre-tanim { position: absolute; width: 0; height: 0 }'
+
 export const matlamaSvg = (id: string): string =>
   `<svg class="filtre-tanim" width="0" height="0" aria-hidden="true">` +
   `<filter id="${id}" color-interpolation-filters="sRGB">` +
