@@ -82,7 +82,7 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    → dengede. "Sağlanması imkânsız bir şey isteyen ölçüm, ölçüm değil gürültüdür."
 💾 `feat(render): olcu bandi` · `Refs: FAZ-18.6 · §7.2`
 
-## 18.7 — Dikiş disiplini: taşıyıcı ZORUNLU, kimlik ögesi YASAK    [ ]
+## 18.7 — Dikiş disiplini: HER kesimde taşıyıcı    [x]
 
 📖 §7.1 · D-321
 🔗 FAZ-18.3
@@ -91,14 +91,14 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    Sonuç iki kural:
    · **R-B4** her kesimde en az bir taşıyıcı (bant · alan sınırı · kesimi aşan görsel)
      ÖLÇÜLEREK doğrulanıyor — "kesintisiz" iddiası test edilmeden kabul edilmiyor.
-   · **R-B3** dikiş dışlama bandı **±93 px** (2° net bölgenin yarısı): kimlik ögesi
-     (metin, logo, yüz) ya banttan uzak duracak ya da her iki slaytta genişliğin
-     **≥%40**'ını kaplayacak. Arada kalan "biraz taşsın" en kötü seçenek.
-📁 `packages/render/src/panorama-denetim.ts` · `packages/contracts/src/katalog.ts`
-✅ Altı şablonun her kesiminde taşıyıcı var · dışlama bandında kimlik ögesi yok
-🧪 Bir şablondan bandı kaldır → `dikis-tasiyicisi-yok` kırmızı; başlığı kesime taşı →
-   `dikis-dislama` kırmızı
-💾 `feat(render): dikis disiplini olculuyor` · `Refs: FAZ-18.7 · §7.1`
+   · **R-B3** dikiş dışlama bandı ±93 px — 18.8'e ertelendi (metin/görsel çakışması
+     R-84 ile zaten ölçülüyor; bant ayrı bir tur).
+📁 `packages/render/src/{panorama-denetim,katalog-ornek}.ts` · `punto-esigi.test.ts`
+✅ Ölçüm kesim BAŞINA · `donen` haksız kusuru düştü (ölçek bandı artık tanınıyor) ·
+   `memphis` 2 + `editoryal` 2 GİZLİ boş kesim bulundu ve kapatıldı · kural **R-87**
+🧪 Görselleri kesim arasına sıkıştır → boş kesimlerin x'iyle kırmızı; `gorseller: []`
+   yazmak YANLIŞ olurdu — iddia da düşer ve ölçüm hiç çalışmaz
+💾 `feat(render): her kesimde tasiyici` · `Refs: FAZ-18.7 · §7.1`
 
 ## 18.8 — Güvenli alan ve boşluk payı ölçülüyor    [ ]
 

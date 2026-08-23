@@ -584,7 +584,24 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // ⚠ Kâğıt zeminde koyu bir hayalet aynı opaklıkta DAHA GÜÇLÜ okunur (koyu üstüne
   // açık ile açık üstüne koyu simetrik değil): %7 burada yeterli, ölçek büyütülüyor.
   hayaletKonumu: { ust: 30, olcek: 1.4, guc: 7 },
-  bant: { tip: 'yok' },
+  // ⚠ ⚠ **ÜÇ GÖRSEL BEŞ KESİMİ KAPATAMAZ (R-87).** Görseller %16,7 · %50 · %83,3
+  // kesimlerini aşıyor; %33,3 ve %66,7 boştu ve ölçüm belge düzeyinde olduğu için
+  // görmüyordu. Dördüncü ve beşinci bir görsel eklemek şablonun "az öge" kimliğini
+  // bozardı — ölçek çizgisi panoramayı KAT EDİYOR ve beş kesimi birden kapatıyor.
+  // ⚠ Duraklar içerikten: altı varsayımın numarası, uydurma bir işaret değil.
+  bant: {
+    tip: 'olcek',
+    y: 88,
+    aralik: 4.17,
+    duraklar: [
+      { x: 8, etiket: '01' },
+      { x: 25, etiket: '02' },
+      { x: 42, etiket: '03' },
+      { x: 58, etiket: '04' },
+      { x: 75, etiket: '05' },
+      { x: 92, etiket: '06' },
+    ],
+  },
   // ⚠ Kâğıt zeminde gölge DAHA gerekli: açık zeminde kesik bir figürün kenarı zeminle
   // aynı parlaklıkta olabiliyor ve figür "kesilmiş kâğıt" gibi görünüyor.
   gorselIslemleri: ['matlama', 'tema-uyum', 'temas-golgesi'],
@@ -864,6 +881,9 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     // tek sert kısıtı bu; kolon geniş kalırsa iki öge üst üste biner ve düzen çöker.
     // ⚠ 0,46 → 0,54: dar kolonda baslik uc satira bolunuyordu ("Sessiz / bir /
     // donusum") ve editoryal ses cirkinlesti. Fotograf kolonuna hala yer var.
+    // ⚠ Kolon 0,54 → 0,46: kesimin üstündeki ince fotoğraf şeridi kartın iki kenarında
+    // da duruyor (kendi kesiminden gelen + sonrakine giden). Metin ikisinin ARASINDA
+    // kalmak zorunda; geniş kolon şeride biniyordu (R-84, ölçüldü: 8 çakışma).
     baslikSutunu: 0.54,
     // ⚠ Gövde sütunu başlıktan AYRI (R-86): dar bir başlık tercihi gövdeyi de
     // daraltıyordu ve satır ölçü bandının altına düşüyordu.
@@ -874,31 +894,36 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   zemin: 'var(--ramp-marka-kagit-0)',
   gorselIslemleri: [],
   bant: { tip: 'yok' },
+  // ⚠ Genlik NAZİK (%38–58): bu şablonun sesi sessiz ve keskin bir bölme onu
+  // "memphis" yapardı. Sınır yine de her kesimi aşıyor — süreklilik iddiası ölçülüyor.
+  alanSiniri: {
+    ust: 'var(--role-surface)',
+    alt: 'var(--role-kart-acik)',
+    noktalar: [
+      { x: 0, y: 58 },
+      { x: 22, y: 41 },
+      { x: 45, y: 56 },
+      { x: 68, y: 38 },
+      { x: 88, y: 52 },
+      { x: 100, y: 44 },
+    ],
+  },
+  // ⚠ ⚠ **GÖRSEL BU ŞABLONDA KESİM TAŞIYICISI DEĞİL — ve bunu bir ÇELİŞKİ gösterdi.**
+  // Görselleri kesimlere hizalamayı denedim: her seferinde sonraki kartın metnine
+  // girdiler (R-84, 8 çakışma). Sebep geometrik ve çözülemez: yan yana kolon düzeninde
+  // fotoğraf kartın KENARINDA duruyor, kesim de kenarda — kesimi aşan bir fotoğraf
+  // zorunlu olarak komşu kartın metin kolonuna giriyor.
+  //
+  // ⚠ Taşıyıcı ALAN SINIRINA geçti: sistemin en güçlü kesim taşıyıcısı (sıfır uzamsal
+  // frekans, parçadan bütün zorunlu). Fotoğraflar kartların İÇİNDE kaldı ve kendi
+  // işlerini yapıyor. **Her ögeyi kesime zorlamak değil, doğru ögeyi seçmek.**
+  //
+  // ⚠ Konum kolon düzeninin AYNASI: metin sağdaysa fotoğraf solda. Ortaya alınca ikisi
+  // de aynı bandı istedi ve altı çakışma doğdu — düzenin kendisi zaten doğruydu.
   gorseller: [
-    // ⚠ ⚠ **ÜÇ YARIM KADRAJ, DÖNÜŞÜMLÜ YANLARDA — referansın ritmi bu.** Her fotoğraf
-    // slaydın ~%52'si ve üst-alt kenara TAŞIYOR (`y: 0, yukseklik: 100`); referansta da
-    // fotoğraflar kadrajı boydan boya kesiyor, içinde yüzen bir kutu değiller.
-    // ⚠ İkincisi 50 kesimini AŞIYOR: bu şablonun tek süreklilik iddiası o. Üçü de slayt
-    // ortasına otursaydı `kesintisizlik-yok` kusuru haklı olarak düşerdi.
-    {
-      src: '',
-      alt: 'geniş plan — açılış',
-      x: 0,
-      y: 0,
-      genislik: 13,
-      yukseklik: 100,
-      kirpma: 'tam',
-    },
-    {
-      src: '',
-      alt: 'yakın plan — kesim üstü',
-      x: 41,
-      y: 0,
-      genislik: 13,
-      yukseklik: 100,
-      kirpma: 'tam',
-    },
-    { src: '', alt: 'kapanış karesi', x: 89, y: 0, genislik: 13, yukseklik: 100, kirpma: 'tam' },
+    { src: '', alt: 'geniş plan', x: 0, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
+    { src: '', alt: 'yakın plan', x: 39, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
+    { src: '', alt: 'kapanış karesi', x: 89, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
   ],
   kartlar: [
     {

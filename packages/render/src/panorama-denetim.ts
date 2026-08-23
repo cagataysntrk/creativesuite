@@ -574,24 +574,37 @@ const OLCUM = (
     }
   })
 
-  // ── kesintisizlik: iddia varsa BİR ÖGE kesimi aşmalı ─────────────────────
+  // ── kesintisizlik: HER KESIMDE bir tasiyici (R-87) ──────────────────────
+  //
+  // ⚠ ⚠ **ESKI OLCUM BELGE DUZEYINDEYDI: "hicbir oge kesimi asmiyor".** Yani ALTI
+  // kesimden BIRINDE tasiyici varsa belge temiz sayiliyordu ve kalan bes kesimde goz
+  // bagi kopuyordu. Sureklilik bir belge ozelligi degil, HER GECISIN ozelligi —
+  // okuyucu kesimleri tek tek geciyor.
+  //
+  // ⚠ ⚠ **OLCUM MEKANIZMA LISTESI UCUNCU KEZ EKSIK KALDI.** Once hayalet sanildi
+  // (D-299'da kalkti), sonra ustDoku eklendi (D-319'da kalkti), simdi olcek bandi
+  // CSS'e tasindi (R-81: cetvel cizilmis sekil degil TEKRAR EDEN olcudur) ve
+  // .bant path arayan sorgu onu goremedi: donen sablonu tasiyicisi TAM YERINDEYKEN
+  // "kesintisizlik yok" raporlandi. **Bir mekanizmayi degistirip olcumu guncellememek
+  // bu depoda tekrar eden hata** — liste artik CSS ogelerini de kapsiyor.
   if (${iddia ? 'true' : 'false'}) {
-    const asanlar = Array.from(document.querySelectorAll('.hayalet, .gorsel, .gorsel-yer, .leke'))
-      .filter((e) => { const r = e.getBoundingClientRect()
-        return kesimler.some((x) => r.left < x - 0.5 && r.right > x + 0.5) })
-    // ⚠ ⚠ **DOĞRU SORU "BANT VAR MI" DEĞİL, "KESİMİ GEÇİYOR MU".** İlk sürüm ögenin
-    // varlığına baktı; ikincisi çizilmiş bir yol aradı ve İKİSİ DE yakalamadı: boş bir
-    // ok bandı bile 21 karakterlik bir path (ok başlığı tanımı) basıyor. Kesintisizlik
-    // bir ögenin VAR OLMASI değil, kesim çizgisini AŞMASIDIR — ölçülecek şey tam olarak
-    // iddianın kendisi. Varlığı ölçen iki deneme de aynı sebeple boşa gitti: iddia ile
-    // ölçüm farklı şeylerdi.
-    const bantVar = Array.from(
-      document.querySelectorAll('.bant path, .bant-kemer path, .bant-ok path, .alan-siniri path')
-    ).some((e) => { const r = e.getBoundingClientRect()
-      return kesimler.some((x) => r.left < x - 0.5 && r.right > x + 0.5) })
-    if (asanlar.length === 0 && !bantVar)
+    const TASIYICI =
+      '.hayalet, .gorsel, .gorsel-yer, .leke, ' +
+      '.bant path, .bant-kemer path, .bant-ok path, .alan-siniri path, ' +
+      '.olcek-cizgi, .olcek-tirtik, .bant-olcek'
+    const adaylar = Array.from(document.querySelectorAll(TASIYICI)).map((e) =>
+      e.getBoundingClientRect()
+    )
+    const bos = []
+    for (const x of kesimler) {
+      const gecen = adaylar.some((r) => r.left < x - 0.5 && r.right > x + 0.5)
+      if (!gecen) bos.push(Math.round(x))
+    }
+    if (bos.length > 0) {
       kusurlar.push({ tur:'kesintisizlik-yok', kart:null, alan:null,
-        aciklama: 'şablon kesintisizlik iddia ediyor ama hiçbir öge kesimi aşmıyor' })
+        aciklama: bos.length + ' kesimde tasiyici yok (x=' + bos.join(', ') +
+          ') — sureklilik HER gecisin ozelligi (R-87)' })
+    }
   }
   return { kusurlar, ifsaKutulari: kutular }
 })()`

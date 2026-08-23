@@ -104,3 +104,42 @@ describe('gövde satırı ölçü bandında', () => {
     for (const k of d) expect(String(k.aciklama)).toMatch(/kaldiriyor|tavani/)
   }, 120_000)
 })
+
+// ── her kesimde taşıyıcı (R-87) ─────────────────────────────────────────────
+describe('kesintisizlik HER geçişte kuruluyor', () => {
+  for (const [id, o] of Object.entries(ORNEKLER)) {
+    it(`${id} · hiçbir kesim taşıyıcısız değil`, async () => {
+      const r = await panoramaDenetle(belge(o))
+      expect(r.ok).toBe(true)
+      if (!r.ok) return
+      const y = r.value.filter((k) => k.tur === 'kesintisizlik-yok')
+      expect(y.map((k) => String(k.aciklama))).toEqual([])
+    }, 120_000)
+  }
+
+  // ⚠ ⚠ **ALET SINANIYOR.** Taşıyıcıları söküp kusurun doğduğunu görmek; yoksa
+  // "kusur yok" sonucu ölçümün çalıştığını değil, hiç bakmadığını da gösterebilir.
+  it('ALET ÇALIŞIYOR: taşıyıcısız belge KUSUR veriyor', async () => {
+    const o = ORNEKLER['sahne']
+    expect(o).toBeDefined()
+    if (o === undefined) return
+    // ⚠ İDDİA VAR ama taşıyıcı yok: görseller kesimlerin ARASINA sıkıştırıldı.
+    // `gorseller: []` yazmak yanlış olurdu — o zaman iddia da düşer ve ölçüm hiç
+    // çalışmaz (doğru davranış: iddia edilmeyen şey ölçülmez). Aletin sınandığı
+    // durum "iddia edildi ama kurulmadı".
+    const cıplak = {
+      ...belge(o),
+      gorseller: [{ src: '', alt: 'x', x: 3, y: 20, genislik: 6, yukseklik: 60, kirpma: 'kesik' }],
+      bant: { tip: 'yok' },
+      lekeler: [],
+    } as unknown as PanoramaBelgesi
+    const r = await panoramaDenetle(cıplak)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const y = r.value.filter((k) => k.tur === 'kesintisizlik-yok')
+    expect(y.length).toBeGreaterThan(0)
+    // Açıklama HANGİ kesimlerin boş olduğunu söylüyor: "kusur var" demek yetmez,
+    // düzeltecek kişinin nereye bakacağını bilmesi gerek.
+    expect(String(y[0]?.aciklama)).toMatch(/x=/)
+  }, 120_000)
+})

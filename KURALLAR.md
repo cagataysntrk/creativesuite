@@ -35,12 +35,10 @@ Chromium'a dokunur, yalnız `PROPOSE` çalışma ağacına yazar, yalnız `PUBLI
 çağırır, yalnız `INGEST` dış kaynak çeker.
 **Neden:** `RENDER` sessizce LLM çağırabilseydi, çalıştırma öncesi gösterdiğimiz maliyet
 tahmini yalan olurdu.
-**Zorlama:** dependency-cruiser fiil dizinlerine göre kural; `VerbTable` tipi yanlış
-imzayı `tsc -b` hatası yapar. Ayrıca `fiil-haritasi` kapısı **iki soruyu** sorar:
-gövde üretim haritasında bağlı mı, ve o fiili çağıran en az bir HAT var mı.
-**Neden iki soru:** `INGEST` (D-216) ve `PUBLISH` (D-222) aynı hatayı iki fazda
-tekrarladı — modül ve test vardı, üretim yolu yoktu; `PUBLISH`te harita dolduruldu
-ama hattı yazan olmadı. "Çağıran var mı" ZİNCİR için sorulur.
+**Zorlama:** dependency-cruiser + `VerbTable` tipi; `fiil-haritasi` kapısı **iki soru**
+sorar: gövde haritada bağlı mı, o fiili çağıran bir HAT var mı. `INGEST` (D-216) ve
+`PUBLISH` (D-222) aynı hatayı iki fazda tekrarladı — modül ve test vardı, üretim yolu
+yoktu. "Çağıran var mı" ZİNCİR için sorulur.
 
 ### R-05 · tek-nokta · BLOCKING · FAZ-0.C.8
 `chokepoints.json`'daki her yetenek için repoda **tam olarak bir** uygulama olur:
@@ -349,10 +347,9 @@ kontur matematiği gibi) ya da hiç konmaz.
 **İstisna — kodlanabilir olanlar:** YERLEŞİM (ızgara, kolon, boşluk), TİPOGRAFİ,
 ZEMİN reçetesi (degrade/ışık/gren) ve VERİ görselleştirmesi (çubuk, vafel — bunlar süs
 değil, verinin kendisi).
-**Neden:** depo sahibinin ölçümü — `examples/` altındaki profesyonel tasarımlarla
-bizimkiler yan yana konduğunda fark renkte ya da düzende değil, ÖGELERDEydi. Elle
-kodlanmış bir ikon "bilgisayar işi" gibi duruyor çünkü öyle; bir tasarımcının çizdiği
-öge, ölçülemeyen binlerce kararı taşıyor. → D-279 · `docs/referans/tasarim-rehberi.md`
+**Neden:** `examples/` altındaki profesyonel tasarımlarla bizimkiler yan yana
+konduğunda fark renkte ya da düzende değil, ÖGELERDEydi. Elle kodlanmış bir ikon
+"bilgisayar işi" gibi duruyor çünkü öyle. → D-279
 
 ### R-82 · defter-anahtari-sessizce-elenmez · GATE · aktif
 Bir gövdenin `data` çıktısındaki her anahtar YA `DEFTER_ANAHTARLARI` beyaz listesinde
@@ -364,35 +361,40 @@ yetmedi.** Kapı yazılır yazılmaz on alan daha çıktı, içlerinde YAYIN KAN
 **Zorlama:** `defter-anahtarlari` kapısı (fast grubu). → D-310
 
 ### R-83 · punto-okuma-esigi-altina-inmez · GATE · aktif
-Gövde metni **0,20° açısal x-yüksekliğinin** altına inemez — 1080 px genişlikte
-**36 px**, hedef 40–48 px. Oran (`govdeOrani`) bu tabanı EZEMEZ; taban tuval
-genişliğine orantılıdır, sabit piksel değildir.
-**Neden:** ölçü nominal punto değil, harfin gözde kapladığı AÇIDIR. Kritik punto 0,2°
-(Legge & Bigelow 2011, *JOV*). Bizim gövdemiz **34 px** ölçüldü ve oran göreli olduğu
-için başlık küçüldükçe daha da iniyordu. ⚠ İstisna DAR: üç kelimelik etiket okunmaz,
-TANINIR. **Zorlama:** `punto-esik-alti` kusuru, GERÇEK render'da. → D-321
+Gövde metni **0,20° açısal x-yüksekliğinin** altına inemez — 1080 px'te **36 px**,
+hedef 40–48. Oran tabanı EZEMEZ; taban tuval genişliğine orantılı, sabit piksel değil.
+**Neden:** ölçü nominal punto değil, harfin gözde kapladığı AÇIDIR — kritik punto 0,2°
+(Legge & Bigelow 2011). Gövdemiz **34 px** ölçüldü; oran göreli olduğu için başlık
+küçüldükçe daha da iniyordu. ⚠ İstisna DAR: üç kelimelik etiket TANINIR, okunmaz.
+**Zorlama:** `punto-esik-alti`. → D-321
 
 ### R-84 · gorsel-metnin-ustunde-durmaz · GATE · aktif
 Metin gövdesi (`.baslik`, `.govde`) bir görselle **%12'den fazla** çakışamaz.
 **Neden:** *"üstte olmak okunabilirlik değildir."* `metin-ortuluyor` boyama SIRASINI
 soruyor; yanlış olan SORUYDU. Ölçüldü: metin alanının **%29'u** görselin üstündeydi.
-⚠ Eşik sıfır DEĞİL: kesik öznenin kolunun kolona girmesi istenen bir şey.
-**Zorlama:** `metin-gorsel-cakisiyor` kusuru. → D-319
+⚠ Eşik sıfır DEĞİL. **Zorlama:** `metin-gorsel-cakisiyor`. → D-319
 
 ### R-85 · tanimsiz-token-cagrilmaz · GATE · aktif
 Çağrılan her `var(--ramp-*)` / `var(--role-*)`, üretilmiş `tokens.css` dosyalarının
 birleşiminde TANIMLI olmak zorundadır.
 **Neden:** **CSS tanımsız bir `var()` için hata VERMEZ** — ögeyi sessizce şeffaf
 bırakır. D-318 amber rampasını emekli etti, `aile.ts` çağırmaya devam etti; üç şablonun
-zemin ögesi kayboldu, hiçbir test kırmızı olmadı. Derleyici de göremez: çağrı bir DİZE
-içinde.
+zemin ögesi kayboldu, hiçbir test kırmızı olmadı. Derleyici de göremez (çağrı DİZE
+içinde).
 **Zorlama:** `token-cagrisi` kapısı (fast grubu). → D-320
 
 ### R-86 · olcu-bandi · GATE · aktif
-Gövde satırı **45–75 karakter** olur. Alt sınır YALNIZ sütun onu kaldırabiliyorsa
-zorlanır; üst sınır her zaman.
-**Neden:** alt sınır üst sınır kadar önemli ve eksik olan oydu — çok kısa satır gözü her
-satırda geri döndürüp ritmi kırıyor (Butterick 45–90). Sayıldı: `donen` **19**,
-`editoryal` 27; kusur "taşma" gibi görünmediği için hiçbir ölçüm görmüyordu.
-⚠ **Alt sınır koşullu:** sağlanması imkânsız bir şey isteyen ölçüm gürültüdür.
-**Zorlama:** `olcu-bandi-disi`; satırlar `Range` ile GERÇEK kırılmalardan. → D-321
+Gövde satırı **45–75 karakter**. Alt sınır yalnız sütun onu kaldırabiliyorsa zorlanır.
+**Neden:** alt sınır üst sınır kadar önemli ve eksik olan oydu — çok kısa satır gözü
+her satırda geri döndürüp ritmi kırıyor (Butterick 45–90). Sayıldı: `donen` **19**,
+`editoryal` 27. ⚠ Alt sınır koşullu: imkânsız bir şey isteyen ölçüm gürültüdür.
+**Zorlama:** `olcu-bandi-disi`, `Range` ile GERÇEK kırılmalardan. → D-321
+
+### R-87 · her-kesimde-tasiyici · GATE · aktif
+Kesintisizlik iddia eden şablonda **HER kesim** en az bir taşıyıcı ögeyle aşılır.
+**Neden:** eski ölçüm belge düzeyindeydi — altı kesimden birinde taşıyıcı varsa belge
+temiz sayılıyordu. Süreklilik **her geçişin** özelliği. Kesim başına ölçülünce
+`memphis`te 2, `editoryal`de 2 boş kesim çıktı. ⚠ Mekanizma listesi üçüncü kez eksik
+kaldı: `olcek` CSS'e taşınınca `.bant path` sorgusu onu göremedi ve `donen` taşıyıcısı
+YERİNDEYKEN kırmızı raporlandı. **Zorlama:** `kesintisizlik-yok`, boş kesimlerin x'iyle.
+→ D-319 · D-321

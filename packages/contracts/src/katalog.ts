@@ -290,7 +290,9 @@ export const MEMPHIS: KatalogSablonu = {
   zemin: KAGIT,
   rotasyon: [],
   bant: {
-    tip: 'yok',
+    // ⚠ Üç görsel BEŞ kesimi kapatamıyor (R-87): ölçek çizgisi panoramayı kat edip
+    // hepsini birden kapatıyor. Duraklar altı varsayımın numarası.
+    tip: 'olcek',
     aciklama:
       'Referansta slaytlar bağımsız; bağlayan şey desen dili ve soru ritmi. Olmayan bir ' +
       'sürekliliği iddia etmemek, zayıf bir süreklilik kurmaktan dürüst.',
@@ -371,7 +373,9 @@ export const EDITORYAL: KatalogSablonu = {
   zemin: KAGIT,
   rotasyon: [],
   bant: {
-    tip: 'yok',
+    // ⚠ Fotoğraf bu şablonda kesim taşıyıcısı OLAMIYOR: yan yana kolon düzeninde
+    // kesimi aşan fotoğraf komşu kartın metnine giriyor (R-84). Taşıyıcı alan sınırı.
+    tip: 'alan',
     aciklama:
       'Süreklilik fotoğrafın kendisinden: tam kaplama görsel kesimi aşarak sonraki ' +
       'slayda devam ediyor. Çizgi ya da desen yok — boşluk ve fotoğraf yetiyor.',
