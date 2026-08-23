@@ -19,10 +19,16 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
-import { FILTRE_TANIM_CSS } from './gorsel-islem.js'
+import { ACIK_TEMA_KIMLIGI, FILTRE_TANIM_CSS, islemZinciri } from './gorsel-islem.js'
 import { ORNEKLER } from './katalog-ornek.js'
 import { panoramaDenetle, type Kusur } from './panorama-denetim.js'
-import { DIKIS_BANDI, EZICI_PAY, panoramaHtml, type PanoramaBelgesi } from './panorama.js'
+import {
+  DIKIS_BANDI,
+  EZICI_PAY,
+  panoramaHtml,
+  ZEMINDEN_AYRISMA,
+  type PanoramaBelgesi,
+} from './panorama.js'
 
 const DAMGA = {
   brandId: 'brd_t',
@@ -57,6 +63,11 @@ const TOKEN = readFileSync(
   'utf8'
 )
 
+/** Tek piksellik bir kaynak — `src` boş kalırsa yer tutucu çizilir ve zincir kurulmaz. */
+const TEK_PIKSEL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAA' +
+  'DUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
+
 const belge = (o: Ornek): PanoramaBelgesi =>
   ({ ...o, tokenCss: TOKEN, stamp: DAMGA }) as unknown as PanoramaBelgesi
 
@@ -72,6 +83,7 @@ describe('kadraj — altı şablon', () => {
       expect(suzgec(r.value, 'sahne-kaymis')).toEqual([])
       expect(suzgec(r.value, 'dikis-bandinda')).toEqual([])
       expect(suzgec(r.value, 'krom-okunmuyor')).toEqual([])
+      expect(suzgec(r.value, 'gorsel-zemine-karismasin')).toEqual([])
     })
   }
 })
@@ -79,9 +91,10 @@ describe('kadraj — altı şablon', () => {
 describe('sözleşmeler — kural CSS’te duruyor mu', () => {
   const kapak = (): PanoramaBelgesi => belge(ORNEKLER['sahne'] as Ornek)
 
-  it('eşikler ARAŞTIRMADAN geliyor — 93 px ve %40', () => {
+  it('eşikler ARAŞTIRMADAN ve ÖLÇÜMDEN geliyor — 93 px, %40, 120 luma', () => {
     expect(DIKIS_BANDI).toBe(93)
     expect(EZICI_PAY).toBe(0.4)
+    expect(ZEMINDEN_AYRISMA).toBe(120)
   })
 
   it('tanım ögeleri akışın DIŞINDA — sahneyi kaydıramazlar', () => {
@@ -115,6 +128,36 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(suzgec(r.value, 'dikis-bandinda').length).toBeGreaterThan(0)
+  })
+
+  // ⚠ ⚠ **BU KUSUR SENTETİK OLARAK ÜRETİLEMİYOR ve denemesi öğreticiydi:** `tema-uyum`
+  // listeden düşürülünce görsel HAM çiziliyor ve ham hâli düzeltilmişten biraz KOYU —
+  // yani ölçüm yeşil kalıyor. Kusuru üreten şey işlemin yokluğu değil, YANLIŞ KUTUPTA
+  // uygulanması. O da ancak kaynağı bozarak kurulabilir; elle yapıldı ve ölçüm üç
+  // görselde 60 · 44 · 82 verdi (eşik 120), diğerleri sessiz kaldı.
+  //
+  // Bu yüzden burada ZİNCİR sınanıyor: kutup bilgisi üretim yoluna gerçekten ULAŞIYOR
+  // mu. Kopan bir zincirde yukarıdaki altı ölçüm kendiliğinden kırmızıya döner.
+  it('kutup zinciri: açık kartın görseli açık tema kimliğini ÇAĞIRIYOR', () => {
+    expect(islemZinciri(['tema-uyum'], true)).toContain(ACIK_TEMA_KIMLIGI)
+    expect(islemZinciri(['tema-uyum'], false)).not.toContain(ACIK_TEMA_KIMLIGI)
+    // ⚠ Kataloğun `src`i BOŞ ve boş `src` yer tutucuya düşüyor — yer tutucunun filtre
+    // zinciri yok. Zincir ancak GERÇEK bir görselde kuruluyor, o yüzden tek piksellik
+    // bir kaynak veriliyor: ölçülen şey `<img>` yolunun ta kendisi.
+    const gorselli = (o: Ornek): PanoramaBelgesi => ({
+      ...belge(o),
+      gorseller: o.gorseller.map((g) => ({ ...g, src: TEK_PIKSEL })),
+    })
+    // `memphis` kâğıt kartlarda özne taşıyor: üretilen HTML açık varyantı çağırmalı.
+    const acik = ORNEKLER['memphis']
+    expect(acik).toBeDefined()
+    if (acik === undefined) return
+    expect(panoramaHtml(gorselli(acik))).toContain(`url(#${ACIK_TEMA_KIMLIGI})`)
+    // `sahne` koyu kartlarda: açık varyant HİÇ çağrılmamalı.
+    const koyu = ORNEKLER['sahne']
+    expect(koyu).toBeDefined()
+    if (koyu === undefined) return
+    expect(panoramaHtml(gorselli(koyu))).not.toContain(`url(#${ACIK_TEMA_KIMLIGI})`)
   })
 
   it('kural iptal edilince sahne GERÇEKTEN kayıyor', async () => {

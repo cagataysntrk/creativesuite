@@ -634,9 +634,12 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     // ⚠ Yani `memphis`in öznesi `sahne`ninkinden küçük olmak ZORUNDA ve bu bir kusur
     // değil, iki şablonun farkı: `sahne` tek özneyi kahraman yapıyor, `memphis` üç
     // özneyi altı slayda dağıtıyor.
-    { src: '', alt: 'kesik özne — 1', x: 3, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 2', x: 38, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 3', x: 70, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    // ⚠ `y: 53` — özne rayın ÜSTÜNDE bitiyor, kadraj kenarında değil. 60'ta ayaklar
+    // tuvalin alt kenarında kesiliyordu ve ray ayak bileklerinden geçiyordu. 53+40 = %93
+    // → 1255 px; ray 1259'da başlıyor. `sahne` ile aynı zemin çizgisi: aile böyle kuruluyor.
+    { src: '', alt: 'kesik özne — 1', x: 3, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 2', x: 38, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 3', x: 70, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
   ],
   // ⚠ ⚠ **LEKELER KALDIRILDI (depo sahibi: "şu aptal dairemsi renkli topları kaldır,
   // bunlar web tasarım duruyor").** Referansta (`image copy 4`) gerçekten leke var — ama

@@ -60,6 +60,7 @@ Tek anlamlı. `citations` kapısı her atıfın hedefte var olduğunu doğrular.
 | Şu anki durum | `DURUM.md` |
 | Neden böyle | `KARARLAR.md` |
 | Neye uymak zorundayım | `KURALLAR.md` |
+| Bir kuralın sayısı NEREDEN geldi | `docs/kurallar/OLCUMLER.md` — ölçüm defteri (D-325) |
 | Sistem nasıl çalışıyor | `docs/ANAYASA.md` (§ ile, baştan sona değil) |
 | Bu adımda ne yapılacak | `docs/fazlar/FAZ-N.md` |
 | Döngü nasıl işliyor | `docs/LOOP.md` |

@@ -22,6 +22,7 @@ import { kapsamDisiKarakterler } from './fonts.js'
 import {
   DIKIS_BANDI,
   EZICI_PAY,
+  ZEMINDEN_AYRISMA,
   panoramaHtml,
   puntoOlcumu,
   type PanoramaBelgesi,
@@ -242,6 +243,19 @@ export type KusurTuru =
    * künye satırı meşru bir editoryal araç; meşru olmayan, perdesiz olması.
    */
   | 'krom-okunmuyor'
+  /**
+   * Kesik özne kart zemininden AYRILMIYOR — çizildi ama görünmüyor (R-96).
+   *
+   * ⚠ ⚠ **`memphis`in kâğıt kartında figür yalnız TEMAS GÖLGESİNDEN seçiliyordu.**
+   * Beyaz çizgili bir kesik özne, beyaz zeminde. Var olan hiçbir ölçüm göremezdi:
+   * görsel oradaydı, kutusu doğruydu, metni örtmüyordu, kesime uzaktı. Yalnız
+   * GÖRÜNMÜYORDU.
+   *
+   * ⚠ Kusur şablonun değil VARLIĞIN kutupluluğundan doğuyor — aynı hat, koyu mürekkepli
+   * bir varlıkta aynı kâğıt kartta kusursuz çıkıyor. Hangi kutupta üretileceğini hat
+   * garanti edemez; bu yüzden kural render tarafında zorlanıyor.
+   */
+  | 'gorsel-zemine-karismasin'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -280,6 +294,7 @@ const OLCUM = (
   // İfşa şeritlerinin EKRAN kutuları — bileşik kontrast Node tarafında ölçülüyor.
   const kutular = []
   const kromKutulari = []
+  const gorselKutulari = []
   const kesimler = ${JSON.stringify(kesimler)}
   const kartlar = Array.from(document.querySelectorAll('.kart'))
 
@@ -318,6 +333,25 @@ const OLCUM = (
       aciklama:
         'bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik',
     })
+  })
+
+  // ── gorsel boya kutulari: AYRISMA NODE TARAFINDA (R-96) ─────────────────
+  //
+  // Burada yalniz BOYANAN kutu toplaniyor; ayrisma iki render farkiyla Node'da
+  // olculuyor cunku bilesik piksel ancak ekran goruntusuyle okunur.
+  Array.from(document.querySelectorAll('.gorsel')).forEach((g) => {
+    const r = g.getBoundingClientRect()
+    if (r.width < 8 || r.height < 8) return
+    const nw = g.naturalWidth || 0
+    const nh = g.naturalHeight || 0
+    let sol = r.left, ust = r.top, en = r.width, boy = r.height
+    if (nw > 0 && nh > 0 && getComputedStyle(g).objectFit === 'contain') {
+      const sc = Math.min(r.width / nw, r.height / nh)
+      en = nw * sc; boy = nh * sc
+      sol = r.left + (r.width - en) / 2
+      ust = r.bottom - boy
+    }
+    gorselKutulari.push({ alt: g.alt || null, sol: sol, ust: ust, en: en, boy: boy })
   })
 
   // ── krom kutulari: ray cocuklari, KONTRAST NODE TARAFINDA (R-95) ────────
@@ -809,7 +843,7 @@ const OLCUM = (
           ') — sureklilik HER gecisin ozelligi (R-87)' })
     }
   }
-  return { kusurlar, ifsaKutulari: kutular, kromKutulari }
+  return { kusurlar, ifsaKutulari: kutular, kromKutulari, gorselKutulari }
 })()`
 
 /**
@@ -961,6 +995,13 @@ export const panoramaDenetle = async (
         renk: string
         alan: string
       }[]
+      readonly gorselKutulari: readonly {
+        alt: string | null
+        sol: number
+        ust: number
+        en: number
+        boy: number
+      }[]
     }
     const ham = olcum.kusurlar
 
@@ -1096,6 +1137,80 @@ export const panoramaDenetle = async (
       await page.evaluate(`(() => document.getElementById('krom-gizle')?.remove())()`)
     }
 
+    // ── görsel zeminden AYRIŞIYOR mu — İKİ RENDER FARKI (R-96) ──────────────
+    //
+    // ⚠ ⚠ **KUSURU GÖZ BULDU, ÖLÇÜM DEĞİL — ve ilk iki ölçüt YANLIŞ ŞEYE BAKTI.**
+    // `memphis`in kâğıt kartında beyaz çizgili figür yalnız temas gölgesinden
+    // seçiliyordu. Ortalama fark gölgeyi görünürlük sanıyor; medyan ise ince bir özneyi
+    // (ölçüm sehpası) görünmez sanıyor. Doğru soru "ne kadar mürekkep var" değil,
+    // **olan mürekkep ayırt ediliyor mu**: silüetin p90 luma farkı.
+    //
+    // ⚠ Silüet, GÖRSEL GİZLENİP kutunun yeniden okunmasıyla bulunuyor: değişen her
+    // piksel öznenin bir parçası. İkinci bir kurulum yok, aynı sayfa.
+    const ayrismaKusurlari: Kusur[] = []
+    if (olcum.gorselKutulari.length > 0) {
+      for (const k of olcum.gorselKutulari) {
+        try {
+          const clip = {
+            x: Math.max(0, Math.round(k.sol)),
+            y: Math.max(0, Math.round(k.ust)),
+            width: Math.max(1, Math.round(k.en)),
+            height: Math.max(1, Math.round(k.boy)),
+          }
+          const varken = await page.screenshot({ clip })
+          await page.evaluate(
+            `(() => { const s = document.createElement('style'); s.id = 'gorsel-gizle';
+              s.textContent = '.gorsel { visibility: hidden }'; document.head.appendChild(s) })()`
+          )
+          const yokken = await page.screenshot({ clip })
+          await page.evaluate(`(() => document.getElementById('gorsel-gizle')?.remove())()`)
+          const p90 = (await page.evaluate(
+            `(async () => {
+              const yukle = async (b64) => {
+                const im = new Image()
+                im.src = 'data:image/png;base64,' + b64
+                await im.decode()
+                const c = document.createElement('canvas')
+                c.width = im.width; c.height = im.height
+                const x = c.getContext('2d')
+                x.drawImage(im, 0, 0)
+                return x.getImageData(0, 0, c.width, c.height).data
+              }
+              const a = await yukle(${JSON.stringify(varken.toString('base64'))})
+              const b = await yukle(${JSON.stringify(yokken.toString('base64'))})
+              const farklar = []
+              for (let j = 0; j < a.length; j += 4) {
+                const la = 0.2126*a[j] + 0.7152*a[j+1] + 0.0722*a[j+2]
+                const lb = 0.2126*b[j] + 0.7152*b[j+1] + 0.0722*b[j+2]
+                const d = Math.abs(la - lb)
+                if (d >= 2) farklar.push(d)
+              }
+              if (farklar.length === 0) return 0
+              farklar.sort((x, y) => x - y)
+              return Math.round(farklar[Math.floor(farklar.length * 0.9)])
+            })()`
+          )) as number
+          if (p90 < ZEMINDEN_AYRISMA) {
+            ayrismaKusurlari.push({
+              tur: 'gorsel-zemine-karismasin',
+              kart: null,
+              alan: null,
+              aciklama:
+                `${k.alt ?? 'görsel'} zemine karışıyor: silüetin p90 luma farkı ` +
+                `${String(p90)} (eşik ${String(ZEMINDEN_AYRISMA)}) — çizildi ama görünmüyor (R-96)`,
+            })
+          }
+        } catch (e) {
+          ayrismaKusurlari.push({
+            tur: 'gorsel-zemine-karismasin',
+            kart: null,
+            alan: null,
+            aciklama: `görsel ayrışması ÖLÇÜLEMEDİ (${String(e)}) — ölçülemeyen geçmiş sayılmaz`,
+          })
+        }
+      }
+    }
+
     // ── AI ifşası OKUNUYOR mu — BİLEŞİK piksel üzerinden (§11.3 · Md. 50) ────
     //
     // ⚠ ⚠ **ÖLÇÜT ÜÇÜNCÜ KEZ DÜZELTİLDİ ve her seferinde SAYI gösterdi.** Önce ham
@@ -1223,6 +1338,7 @@ export const panoramaDenetle = async (
       ...ham,
       ...ifsaKusurlari,
       ...kromKusurlari,
+      ...ayrismaKusurlari,
       ...susKusurlari,
       ...cokme,
       ...(eksik.length === 0

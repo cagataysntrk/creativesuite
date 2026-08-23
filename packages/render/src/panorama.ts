@@ -728,6 +728,20 @@ export const GOVDE_TABANI_1080 = 36
  */
 export const GOVDE_BASLIK_CARPANI = 0.82
 
+/**
+ * Kesik öznenin zeminden AYRILMA eşiği — silüetin p90 luma farkı (R-96).
+ *
+ * ⚠ ⚠ **SAYI SEÇİLMEDİ, OKUNDU.** Altı şablonun on iki görseli ölçüldü: çalışan
+ * dokuzunda p90 **226–249**, `memphis`in üç hayaletinde **48–81**. 120, 145 birimlik
+ * bir boşluğun ortasında duruyor — eşik bir tercih değil, iki kümenin arası.
+ *
+ * ⚠ **p90, ortalama ya da medyan DEĞİL** ve ilk iki deneme tam onları kullandı. Ortalama
+ * temas gölgesini görünürlük sanıyor: hayalet figür yalnız gölgesinden seçiliyordu ve
+ * ortalama "görünür" diyordu. Medyan ise ince bir özneyi (ölçüm sehpası) görünmez
+ * sanıyor. Soru "ne kadar mürekkep var" değil, **"olan mürekkep ayırt ediliyor mu"**.
+ */
+export const ZEMINDEN_AYRISMA = 120
+
 export const DIKIS_BANDI = 93
 export const EZICI_PAY = 0.4
 
@@ -1147,7 +1161,19 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           `<div class="gorsel-yer ${g.kirpma}" style="${stil}" aria-hidden="true">` +
           `<span>${kacir(g.alt)}</span></div>`
         )
-      const zincir = islemZinciri(doc.gorselIslemleri ?? [])
+      // ⚠ ⚠ **ZİNCİR GÖRSEL BAŞINA SEÇİLİYOR — belge başına DEĞİL.** Görseller kartların
+      // DIŞINDA, ayrı bir katmanda yaşıyor ve hiçbir kartın rengini miras almıyorlar.
+      // Yani "bu özne açık bir kâğıdın mı yoksa koyu bir mürekkebin mi üstünde duruyor"
+      // sorusunun cevabı yalnız KONUMDAN gelir. Sormayan bir tema uyumu, adı uyum olsa
+      // bile uyum değildir (R-96).
+      const merkez = ((g.x + g.genislik / 2) / 100) * toplam
+      const kartIndeks = Math.min(
+        doc.kartlar.length - 1,
+        Math.max(0, Math.floor(merkez / doc.slaytGenisligi))
+      )
+      const altKart = doc.kartlar[kartIndeks]
+      const acikKart = altKart !== undefined && !koyuMu(kartinZemini(altKart), doc.tokenCss)
+      const zincir = islemZinciri(doc.gorselIslemleri ?? [], acikKart)
       return (
         `<img class="gorsel ${g.kirpma}" style="${stil}${zincir === '' ? '' : `;filter:${zincir}`}" ` +
         `src="${kacir(g.src)}" alt="${kacir(g.alt)}">`

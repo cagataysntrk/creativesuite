@@ -142,6 +142,21 @@ export const keskinlikSvg = (id: string): string =>
  * yükseltiyor; amber zeminde bu, öznenin gölgesinin zeminden ışık ALMASI demek.
  * Simetrik bir "soğutma" yazılmadı: rampa sıcak, ikinci bir yön ikinci bir karar ister.
  */
+/**
+ * Açık kart için tema kimliği — `tema-uyum`un ikinci yüzü.
+ *
+ * ⚠ ⚠ **`tema-uyum` ADIYLA UYUM VAAT EDİYORDU AMA KARTIN AÇIK MI KOYU MU OLDUĞUNU HİÇ
+ * SORMUYORDU.** Sabit bir sıcaklık matrisiydi ve `intercept: +0.03` ile görüntüyü
+ * AÇIYORDU. `memphis`in kâğıt kartında beyaz çizgili bir kesik özne, beyaz zeminde
+ * yalnız temas gölgesinden seçiliyordu; ölçüldü, silüetin p90 luma farkı **48–81**,
+ * oysa çalışan dokuz görselde 226–249.
+ *
+ * ⚠ ⚠ **KUSUR ŞABLONDA DEĞİL, VARLIĞIN KUTUPLULUĞUNDA.** Aynı hat, koyu mürekkepli bir
+ * varlıkta aynı kâğıt kartta kusursuz çıkıyor (`editoryal` slayt 2). Hangi kutupta
+ * üretileceğini hat garanti edemiyor; o yüzden garanti RENDER tarafında veriliyor.
+ */
+export const ACIK_TEMA_KIMLIGI = 'islem-tema-uyum-acik'
+
 const temaUyumSvg = (id: string): string =>
   `<svg class="filtre-tanim" width="0" height="0" aria-hidden="true">` +
   `<filter id="${id}" color-interpolation-filters="sRGB">` +
@@ -178,13 +193,34 @@ const temasGolgesiSvg = (id: string): string =>
   `</filter></svg>`
 
 /** Bir işlemin SVG tanımı. */
+/**
+ * Açık kartta tepe ucu BASTIRILIYOR — alt uç dokunulmadan.
+ *
+ * ⚠ Yalnız TEPE ucu: kâğıt kartta tehlike açık mürekkep, koyu mürekkep zaten okunuyor.
+ * İki ucu birden sıkıştırmak, çalışan koyu çizgileri de griye çevirirdi.
+ * ⚠ Tablo ölçülerek seçildi: beyaz (1,0) → 0,46 → luma 117; kâğıt zemin 250 → fark 133,
+ * eşiğin (120) üstünde. Siyah 0'da kalıyor.
+ * ⚠ Yan etkisi ARZULANAN: `editoryal`in kadranlarındaki beyaz yüzeyler de kâğıt zeminde
+ * kayboluyordu ve yalnız kendi konturlarından okunuyordu; artık gri bir yüzey oluyorlar.
+ */
+const acikTemaSvg = (id: string): string =>
+  `<svg class="filtre-tanim" width="0" height="0" aria-hidden="true">` +
+  `<filter id="${id}" color-interpolation-filters="sRGB">` +
+  `<feColorMatrix type="saturate" values="0.78"/>` +
+  `<feComponentTransfer>` +
+  `<feFuncR type="table" tableValues="0 0.22 0.38 0.46"/>` +
+  `<feFuncG type="table" tableValues="0 0.22 0.38 0.46"/>` +
+  `<feFuncB type="table" tableValues="0 0.22 0.38 0.46"/>` +
+  `</feComponentTransfer>` +
+  `</filter></svg>`
+
 export const islemTanimi = (islem: GorselIslem, u: DuotoneUclari = VARSAYILAN_UCLAR): string =>
-  islem === 'matlama'
-    ? matlamaSvg(islemKimligi(islem))
-    : islem === 'keskinlik'
-      ? keskinlikSvg(islemKimligi(islem))
-      : islem === 'tema-uyum'
-        ? temaUyumSvg(islemKimligi(islem))
+  islem === 'tema-uyum'
+    ? temaUyumSvg(islemKimligi(islem)) + acikTemaSvg(ACIK_TEMA_KIMLIGI)
+    : islem === 'matlama'
+      ? matlamaSvg(islemKimligi(islem))
+      : islem === 'keskinlik'
+        ? keskinlikSvg(islemKimligi(islem))
         : islem === 'temas-golgesi'
           ? temasGolgesiSvg(islemKimligi(islem))
           : duotoneSvg(islemKimligi(islem), u)
@@ -198,7 +234,7 @@ export const islemTanimi = (islem: GorselIslem, u: DuotoneUclari = VARSAYILAN_UC
  * sıralanmış bir liste sessizce hale üretirdi.
  * ⚠ Boş liste `none` DÖNMÜYOR, boş dize dönüyor: çağıran satırı hiç basmasın.
  */
-export const islemZinciri = (islemler: readonly GorselIslem[]): string =>
+export const islemZinciri = (islemler: readonly GorselIslem[], acikKart = false): string =>
   GORSEL_ISLEMLERI.filter((i) => islemler.includes(i))
-    .map((i) => `url(#${islemKimligi(i)})`)
+    .map((i) => `url(#${i === 'tema-uyum' && acikKart ? ACIK_TEMA_KIMLIGI : islemKimligi(i)})`)
     .join(' ')

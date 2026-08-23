@@ -543,3 +543,30 @@ kapısı kırılmaz). Bu, `KARARLAR.md`'nin arşiv desenidir; orada işe yaradı
 **Neden şimdi yapılmadı.** Bir turda bir adım: bu tur iki ölçü aleti kuruldu ve altı
 şablonun geometrisi düzeltiliyor. Bölmeyi aynı turda yapmak, `citations` ve `just tur`
 yollarını sınamadan değiştirmek olurdu. Borç burada, adı konmuş hâlde duruyor.
+
+## D-326 · Tema uyumu KARTIN KUTBUNU sorar — ve kural kitabı ikiye ayrıldı
+
+**Bulgu.** `memphis`in kâğıt kartında kesik özne yalnız temas gölgesinden seçiliyordu:
+beyaz çizgili bir figür, beyaz zeminde. Var olan hiçbir ölçüm göremezdi — görsel
+oradaydı, kutusu doğruydu, metni örtmüyordu, kesime uzaktı. Yalnız GÖRÜNMÜYORDU.
+
+**Kusur şablonda değil, varlığın kutupluluğunda.** Aynı hat, koyu mürekkepli bir varlıkta
+aynı kâğıt kartta kusursuz çıkıyor (`editoryal` slayt 2 — ölçüm sehpası). Görselin hangi
+kutupta üretileceğini hat garanti edemiyor; o yüzden garanti RENDER tarafında veriliyor.
+
+**`tema-uyum` adıyla uyum vaat ediyordu ve hiçbir şeye uymuyordu.** Sabit bir sıcaklık
+matrisiydi; üstelik `intercept: +0.03` ile görüntüyü AÇIYORDU, yani kâğıt kartta durumu
+kötüleştiriyordu. Sebep yapısal: görseller kartların DIŞINDA, ayrı bir katmanda yaşıyor
+ve hiçbir kartın rengini miras almıyor. "Bu özne kâğıdın mı mürekkebin mi üstünde" sorusu
+yalnız KONUMDAN cevaplanır — zincir artık her görsel için o soruyu soruyor.
+
+**Ölçüt iki kez yanlış seçildi.** Ortalama luma farkı temas gölgesini görünürlük sanıyor;
+medyan ise ince bir özneyi görünmez sanıyor. Doğru soru "ne kadar mürekkep var" değil,
+**olan mürekkep ayırt ediliyor mu**: silüetin p90 luma farkı. Eşik 120 okundu — çalışan
+dokuz görselde 226–249, üç hayalette 48–81.
+
+**Kural kitabı ikiye ayrıldı (D-325'in borcu ödendi).** R-96 tavanı delecekti ve D-322
+"tavan bir kez yükselir" demişti. Yükseltilmedi: `KURALLAR.md` artık beyan + zorlama +
+tek cümlelik neden tutuyor, ölçülmüş kanıt `docs/kurallar/OLCUMLER.md`'ye taşındı.
+`R-nn` başlıkları yerinde kaldı, `citations` kapısı bozulmadı; kitap 480'den **464**'e
+indi ve on dört kuralın gerekçesi budanmadan yaşıyor.
