@@ -36,6 +36,14 @@ export type KusurTuru =
    * okunmaz ve kesik özne tanımı gereği dokuludur (gerçek koşu: `run_01a02ade`).
    */
   | 'metin-gorsel-cakisiyor'
+  /**
+   * Bir metin gövdesi OKUMA EŞİĞİNİN altında dizilmiş (R-83).
+   *
+   * ⚠ Ölçü nominal punto değil, harfin gözde kapladığı AÇI. Kritik punto 0,20°
+   * (Legge & Bigelow 2011); altında okuma hızı çöküyor. Etiket/künye muaf —
+   * üç kelimelik bir dize okunmaz, TANINIR.
+   */
+  | 'punto-esik-alti'
   /** Şablon kesintisizlik iddia ediyor ama hiçbir öge kesimi aşmıyor. */
   | 'kesintisizlik-yok'
   /**
@@ -193,7 +201,8 @@ const kesintisizlikIddiasi = (doc: PanoramaBelgesi): boolean =>
 const OLCUM = (
   kesimler: readonly number[],
   iddia: boolean,
-  ifsaBekleniyor: boolean
+  ifsaBekleniyor: boolean,
+  slaytGenisligi: number
 ): string => `(() => {
   const kusurlar = []
   // İfşa şeritlerinin EKRAN kutuları — bileşik kontrast Node tarafında ölçülüyor.
@@ -405,6 +414,31 @@ const OLCUM = (
           + Math.round(icerik*100) + " — süs içerikten büyük" })
     }
   })
+
+  // ── punto okuma eşiğinin altında mı (R-83) ──────────────────────────────
+  //
+  // ⚠ ⚠ ESKI TABAN 34 px "olculdu" diyordu ama olculen sey BIZIM CIKTIMIZDI, okuma
+  // esigi degil. Kritik punto 0,20 derece acisal x-yuksekligi; 1080 px tuvalde 36 px.
+  // ⚠ Esik TUVAL GENISLIGINE orantili: aci sabit, piksel turev. Sabit sayi yazmak
+  // 1080'i sozlesme sanmakti ve tuval buyuyunce taban sessizce esik altina inerdi.
+  // ⚠ Sadece OKUNAN roller olculuyor. Etiket ve kunye uc kelimeyi gecmiyor; onlar
+  // okunmuyor, TANINIYOR ve orada esik alti mesru (arastirma belgesi, bolum 3).
+  {
+    const taban = (36 * ${String(slaytGenisligi)}) / 1080
+    kartlar.forEach((k, i) => {
+      for (const sec of ['.baslik', '.govde']) {
+        const e = k.querySelector(sec)
+        if (!e) continue
+        const px = parseFloat(getComputedStyle(e).fontSize)
+        if (!isFinite(px) || px <= 0) continue
+        if (px < taban - 0.5) {
+          kusurlar.push({ tur:'punto-esik-alti', kart:i+1, alan:sec.slice(1),
+            aciklama: sec + ' ' + Math.round(px) + ' px — okuma esigi ' +
+              Math.round(taban) + ' px (R-83, kritik punto 0,20 derece)' })
+        }
+      }
+    })
+  }
 
   // ── metin GÖRSELİN üstünde mi duruyor: kutu kesişimi ────────────────────
   //
@@ -630,7 +664,7 @@ export const panoramaDenetle = async (
         (i) => i.decode().catch(() => undefined))); return true })()`
     )
     const olcum = (await page.evaluate(
-      OLCUM(kesimler, kesintisizlikIddiasi(doc), doc.aiIfsasi === true)
+      OLCUM(kesimler, kesintisizlikIddiasi(doc), doc.aiIfsasi === true, doc.slaytGenisligi)
     )) as {
       readonly kusurlar: readonly Kusur[]
       readonly ifsaKutulari: readonly {

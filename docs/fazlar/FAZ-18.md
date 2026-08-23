@@ -55,18 +55,17 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
 
 ---
 
-## 18.5 — Okunabilirlik tabanı: gövde 36 px ALTINA İNEMEZ    [ ]
+## 18.5 — Okunabilirlik tabanı: gövde 36 px ALTINA İNEMEZ    [x]
 
 📖 §7.2 · D-321
 🔗 FAZ-18.4
 🛠 ⚠ ⚠ **EN KRİTİK AÇIK.** Kritik punto 0,2° açısal x-yüksekliği → 1080 px tuvalde
    **taban 36 px, hedef 40–48 px** (araştırma §3). `govdeOrani: 0.30` GÖRELİ: başlık
    90 px olursa gövde 27 px = eşiğin %30 altı. Ölçüldü — bugün **34 px**, zaten altında.
-📁 `packages/render/src/panorama.ts` (`TipoResetesi`, `puntoOlcumu`)
-✅ Hiçbir şablonda gövde < 36 px · `govdeOrani` tabanı ezemiyor · taban devreye girdiyse
-   deftere yazılıyor
-🧪 `govdeOrani: 0.1` yaz → taban devreye giriyor, punto 36'nın altına inmiyor
-💾 `fix(render): govde puntosu okuma esiginin altina inemiyor` · `Refs: FAZ-18.5 · §7.2`
+📁 `packages/render/src/panorama.ts` · `packages/render/src/punto-esigi.test.ts`
+✅ Altı şablonun gövdesi 34 → **36 px** · taban tuval genişliğine ORANTILI (sabit piksel
+   değil) · `govdeOrani` onu ezemiyor · kural **R-83** olarak yazıldı
+🧪 `govdeTabani` 24'e sabitlendi → `sahne` 4 + `donen` 4 `punto-esik-alti` kusuru, geri alındı
 
 ## 18.6 — Gövde satır aralığı display'den AYRILIYOR    [ ]
 

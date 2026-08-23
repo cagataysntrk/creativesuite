@@ -300,7 +300,13 @@ export { ALAN_KAYNAGI, dagilim, PARMAK_IZI_ALANLARI, parmakIzi, uzaklik } from '
 export type { ParmakIzi, ParmakIziAlani } from './cesitlilik.js'
 export { KATMAN_SIRASI, ustunde, z } from './kompozit.js'
 export type { Katman } from './kompozit.js'
-export { panoramaHtml, puntoOlcumu, renderPanorama, VARSAYILAN_TIPO } from './panorama.js'
+export {
+  GOVDE_TABANI_1080,
+  panoramaHtml,
+  puntoOlcumu,
+  renderPanorama,
+  VARSAYILAN_TIPO,
+} from './panorama.js'
 export type {
   AlanSiniri,
   Bant,

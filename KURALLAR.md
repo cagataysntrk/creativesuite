@@ -1,12 +1,9 @@
 # KURALLAR
 
 Zorlanabilir kural kitabı. **Zorlaması olmayan kural buraya yazılmaz** — uygulanmayan
-111 kural, uygulanan 20 kuraldan kötüdür; kimse hangisinin gerçek olduğunu bilmez.
-
-`Durum` sütunu dürüst olmak zorunda: **aktif** = kapı bugün çalışıyor ve kasten ihlal
-edilerek denendi. **FAZ-N** = kapı o adımda gelecek, henüz zorlanmıyor.
-
-Tam araştırma külliyatı (111 kural, gerekçeleriyle): `docs/research/5-kural-kitabi--*`.
+111 kural, uygulanan 20 kuraldan kötüdür. `Durum`: **aktif** = kapı bugün çalışıyor ve
+kasten ihlal edilerek denendi. **FAZ-N** = o adımda gelecek. Külliyat:
+`docs/research/5-kural-kitabi--*`.
 
 ---
 
@@ -361,9 +358,42 @@ kodlanmış bir ikon "bilgisayar işi" gibi duruyor çünkü öyle; bir tasarım
 Bir gövdenin `data` çıktısındaki her anahtar YA `DEFTER_ANAHTARLARI` beyaz listesinde
 olur YA `defter-anahtarlari` kapısının envanterinde **gerekçesiyle** dışarıda bırakılır.
 **Neden:** beyaz liste, listede olmayan alanı sessizce atıyor. Aynı hata **altı kez**
-tekrarladı — `tasarimPlani`, `digests`, yargı çıktıları, ritim ölçümü; her seferinde kod
-doğru, test yeşil, defter boştu. Listenin kendi yorumu *"eksik bir beyaz liste sessiz
-bir körlüktür"* diyordu ve altıncısı yine oldu: **yorum yetmedi.** Kapı yazılır yazılmaz
-on alan daha çıktı ve içlerinde YAYIN KANITI vardı (`published` kanal id'si) — R-46'nın
-dayanacağı kayıt hiç yazılmıyordu.
+tekrarladı; her seferinde kod doğru, test yeşil, defter boştu. Listenin kendi yorumu
+*"eksik bir beyaz liste sessiz bir körlüktür"* diyordu ve altıncısı yine oldu: **yorum
+yetmedi.** Kapı yazılır yazılmaz on alan daha çıktı, içlerinde YAYIN KANITI vardı.
 **Zorlama:** `defter-anahtarlari` kapısı (fast grubu). → D-310
+
+### R-83 · punto-okuma-esigi-altina-inmez · GATE · aktif
+Gövde metni **0,20° açısal x-yüksekliğinin** altına inemez — 1080 px genişlikte
+**36 px**, hedef 40–48 px. Oran (`govdeOrani`) bu tabanı EZEMEZ; taban tuval
+genişliğine orantılıdır, sabit piksel değildir.
+**Neden:** okunabilirliğin ölçüsü nominal punto değil, harfin gözde kapladığı AÇIDIR.
+Kritik punto 0,2°; altında okuma hızı çöküyor (Legge & Bigelow 2011, *JOV*). Gerçek
+basılı iş 0,23–0,24°. Bizim gövdemiz **34 px** ölçüldü ve oran göreli olduğu için başlık
+küçüldükçe daha da iniyordu. Yaygın *"24 px yeter"* tavsiyesi eşiğin **%30 altında**.
+⚠ **İstisna, DAR ve gerekçeli:** üç kelimeyi geçmeyen etiket/künye okunmaz, TANINIR;
+orada 28–32 px meşru. Bir CÜMLEYİ eşik altında dizmek okuma hızını düşürür ve akışta
+okuma hızının düşmesi kaydırıp geçmek demektir.
+**Zorlama:** `panoramaDenetle` → `punto-esik-alti` kusuru, GERÇEK render'da ölçüyor;
+`punto-esigi.test.ts` altı şablonun hepsinde sıfır olduğunu ve tabanın tuval genişliğine
+orantılı kaldığını doğruluyor. → D-321 · `docs/referans/arastirma-2026-08.md`
+
+### R-84 · gorsel-metnin-ustunde-durmaz · GATE · aktif
+Metin gövdesi (`.baslik`, `.govde`) bir görselle **%12'den fazla** çakışamaz.
+**Neden:** *"üstte olmak okunabilirlik değildir."* `metin-ortuluyor` boyama SIRASINI
+soruyor ve doğru cevap veriyordu; yanlış olan SORUYDU. Bir fotoğrafın üstündeki metin,
+fotoğraf dokulu olduğu ölçüde okunmaz. Gerçek koşuda başlıklar okunmuyor, denetim temiz
+raporluyordu; ölçüldü, metin alanının **%29'u** görselin üstündeydi.
+⚠ Eşik sıfır DEĞİL: kesik öznenin bir kolunun metin kolonuna hafifçe girmesi istenen
+bir şey (süreklilik). Ölçülen şey metnin GÖVDESİNİN fotoğraf üstünde durup durmadığı.
+**Zorlama:** `panoramaDenetle` → `metin-gorsel-cakisiyor` kusuru; `tests` kapısı altı
+şablonun hepsinde sıfır olduğunu doğruluyor. → D-319
+
+### R-85 · tanimsiz-token-cagrilmaz · GATE · aktif
+Çağrılan her `var(--ramp-*)` / `var(--role-*)`, üretilmiş `tokens.css` dosyalarının
+birleşiminde TANIMLI olmak zorundadır.
+**Neden:** **CSS tanımsız bir `var()` için hata VERMEZ** — ögeyi sessizce şeffaf
+bırakır. D-318 amber rampasını emekli etti, `aile.ts` çağırmaya devam etti; üç şablonun
+zemin ögesi kayboldu, hiçbir test kırmızı olmadı. Derleyici de göremez: çağrı bir DİZE
+içinde. Silerken çağıranı aramayı hatırlamak bir zorlama değildir.
+**Zorlama:** `token-cagrisi` kapısı (fast grubu). → D-320

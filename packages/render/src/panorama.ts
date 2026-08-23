@@ -658,6 +658,19 @@ const kartRenkleri = (
 
 const MUREKKEP_T = 'var(--role-line-edge)'
 
+/**
+ * Gövde puntosunun MUTLAK TABANI, 1080 px genişlikte (R-83 · D-321).
+ *
+ * ⚠ Sayı bizim çıktımızdan değil GÖRME BİLİMİNDEN geliyor: kritik punto 0,20° açısal
+ * x-yüksekliği (Legge & Bigelow 2011, *Journal of Vision*); 32,2 cm telefon mesafesinde
+ * (Bababekova 2011) 1080 px tuvalde 36 px. Gazete kalitesi 0,23° = 40 px.
+ *
+ * ⚠ **Bu bir tercih değil bir EŞİK.** Altında okuma hızı çöküyor ve akışta okuma hızının
+ * düşmesi kaydırıp geçmek demektir. `govdeOrani` şablonun sesidir; taban okunabilirliğin
+ * şartı ve oran onu EZEMEZ.
+ */
+export const GOVDE_TABANI_1080 = 36
+
 /** Hayaletin satır yüksekliği — `ust` alanını glif tepesine yaklaştırıyor. Ölçüm bu
  * sabiti PAYLAŞMAK zorunda: CSS'te başka, hesapta başka bir değer olsaydı rakamın hangi
  * alanda olduğu yanlış bulunurdu. */
@@ -918,6 +931,8 @@ const yumusakYol = (n: readonly { readonly x: number; readonly y: number }[]): s
 export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const n = doc.kartlar.length
   const G = doc.slaytGenisligi
+  // ⚠ Taban AÇIYA sabit, piksele değil: tuval genişledikçe piksel karşılığı büyüyor.
+  const govdeTabani = Math.round((GOVDE_TABANI_1080 * G) / 1080)
   const toplam = n * G
   const t = doc.tipografi ?? VARSAYILAN_TIPO
   // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
@@ -1346,10 +1361,19 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // listesi açık — **aksan asla bir zemin ya da büyük yüzey değildir**. Bir kelimenin
     // arkasındaki dolu kutu, karoselin en çok bakılan yerinde tam olarak o.
     // Vurgu artık iki yüzeyde de aynı şekilde çalışıyor: RENK, kutu değil.
-    // ⚠ Taban 34 px: ölçüldü, gövde 23–27 px'e düşüyordu ve 1080 px telefonda ~390 pt'ye
-    // indiği için 25 px ≈ 9 pt oluyordu. Oran şablonun sesi, taban okunabilirlik şartı.
+    // ── gövde puntosu: ÖLÇÜLMÜŞ okuma eşiği (R-83) ──────────────────────────
+    //
+    // ⚠ ⚠ **TABAN 34 → 36 px ve bu sefer bir KAYNAĞI var.** Eski 34 "ölçüldü"
+    // diyordu ama ölçülen şey bizim çıktımızdı, okuma eşiği değil. Okunabilirliğin ölçüsü
+    // nominal punto değil harfin gözde kapladığı AÇIDIR: kritik punto 0,20° açısal
+    // x-yüksekliği (Legge & Bigelow 2011, JOV), altında okuma hızı çöküyor. 32 cm telefon
+    // mesafesinde 1080 px tuvalde bu **36 px** eder; gazete 0,23° = 40 px.
+    //
+    // ⚠ ⚠ **TABAN TUVAL GENİŞLİĞİNE ORANTILI, SABİT PİKSEL DEĞİL.** Sabit 34 px yazmak
+    // 1080'i sözleşme sanmaktı; tuval 1440'a çıkarsa aynı sayı daha KÜÇÜK bir açı verir
+    // ve taban sessizce eşik altına iner. Açı sabit, piksel türev.
     `  .govde { margin-top: 44px;`,
-    `           font-size: calc(max(34px, calc(var(--baslik-punto) * var(--govde-orani)))`,
+    `           font-size: calc(max(${String(govdeTabani)}px, calc(var(--baslik-punto) * var(--govde-orani)))`,
     `                       * var(--ayar-olcek, 1));`,
     // ⚠ ⚠ **GENİŞLİK KOLONDAN BAĞIMSIZDI ve gövde büyüyünce TAŞTI.** `34ch` sabitti;
     // 34 px puntoda ~580 px eder, `editoryal`in metin kolonu ise 0,46 × 1080 − 128 = 369 px.
