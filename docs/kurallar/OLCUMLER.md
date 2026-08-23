@@ -337,3 +337,35 @@ girmek yapılandırma hatasını gizler.
 Düzeltmeden sonra: `brd_dima` font **OK** (devralındı `brand/brd_upcytech/fonts`), logo
 **OK** (devralındı). Ana marka kendi varlıklarını kullanıyor, zincir onu atlamıyor.
 Zincir kasten koparıldı (`varlikZinciri` çağrısı elle diziye çevrildi) → test kırmızı.
+
+## R-102 · token yüzeye göre çözülür
+
+Kapı (D-320) tanımlı token'ları `tokens.css` dosyalarının **birleşiminden** topluyordu.
+Bir kaskat dört blok taşıyor — `:root`, `console`, `kreatif`, `studio` — ve aynı değişken
+hepsinde yeniden tanımlı. Birleşimde "tanımlı" görünen bir değişken, kullanıldığı yüzeyde
+TANIMSIZ olabiliyor.
+
+**Kusur 1 — uyarı rengi.** `--role-state-danger` yalnız `kreatif` bloğunda; kabuk
+`data-surface="console"` ile koşuyor. Ölçüldü:
+
+| öge | renk |
+|---|---|
+| `.is-hat` (gövde) | `oklch(0.97 0.004 250)` |
+| `.is-uyari` (uyarı) | `oklch(0.97 0.004 250)` ← **aynı** |
+| `--role-state-danger` (console) | *(boş)* |
+| `--role-state-error` (console) | `oklch(0.58 0.160 25)` |
+
+Panelde *"⊘ kusurlu manifest"* ve *"✎ N slayt elle düzenlendi"* gövde metniyle birebir
+aynı renkte çiziliyordu.
+
+**Kusur 2 — kapı düzeltilince ortaya çıktı.** Yüzey başına çözüm açılır açılmaz DOKUZ
+ihlal daha: `--role-accent` de yalnız `kreatif`te tanımlıydı ve kabuk onu dokuz yerde
+çağırıyor — aktif sekmenin çerçevesi dahil.
+
+⚠ **Ders `koyuMu()`nunkiyle aynı:** doğru dosyayı okumak, doğru YERİ okumak değildir.
+
+⚠ Eşlenmemiş dosya birleşime düşüyor ama SAYISI raporlanıyor (bugün 2). Sessizce
+genişleyen bir istisna, istisna değil deliktir.
+
+**Gözle doğrulandı.** Panel açıldı, ekran görüntüsü alındı ve BAKILDI: uyarı kırmızı
+(`oklch(0.58 0.16 25)`), aktif sekmenin çerçevesi mavi (`oklch(0.6 0.206 262)`).

@@ -87,17 +87,18 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
 📁 `packages/render/src/marka-varlik.ts` · `logo.ts` · `scripts/uret.mjs`
 ✅ Gerçek koşu: *"font DEVRALINDI"* + *"marka işareti DEVRALINDI"*, hat font kapısını geçip içerik adımına kadar ilerledi (orada `NO_CONTEXT` — ilgisiz ve dürüst bir dur)
 
-## 18.13d — Eksik roller ve ölçek emit'i    [ ]
+## 18.13d — Token YÜZEYE göre çözülüyor; iki ölü rol dirildi    [x]
 
-📖 §4.1 · D-320
-🔗 FAZ-18.13c
-🛠 Eksik roller: `fg-on-brand` (alt marka eklendiği gün sessizce beyaz basılır),
-   `border-strong`, `state-info`; `state-danger`/`state-error` tek ada iniyor. Ölçek
-   (spacing **48·64·96**, radius 4·6·8·12·16) `tokens.css`e emit edilmiyor.
-📁 `scripts/tokens.mjs`
-✅ Roller ve ölçek emit ediliyor · literal px yerine token çağrısı
-🧪 Rolü sil → `token-cagrisi` kırmızı
-💾 `feat(brand): eksik roller ve olcek emit` · `Refs: FAZ-18.13d · §4.1`
+📁 `scripts/gates/token-cagrisi.mjs` · `apps/ui/src/kabuk.css`
+✅ Kapı birleşime bakıyordu ve iki CANLI kusuru gizliyordu: `state-danger` ve `accent`
+   yalnız `kreatif`te tanımlıyken kabuk `console`da koşuyor — panelde uyarı gövdeyle aynı
+   renkte, aktif sekmenin çerçevesi renksizdi. Kapı yüzey başına çözülünce dokuz ihlal
+   daha çıktı. Panel açılıp BAKILDI: uyarı kırmızı, çerçeve mavi. Kural **R-102** · D-333
+⏭ **Ölçek emit'i YAPILMADI ve sebebi ölçüldü:** kabukta hiç `border-radius` piksel
+   değeri yok, `112px` hiç geçmiyor, altı `96px`in altısı da `min-inline-size` — sütun
+   genişliği, boşluk adımı değil. 66 literalin 46'sı `1px` saç çizgisi. Ölçek zaten
+   SİSTEME ait (§7.4), altı adımı var ve 111 kez çağrılıyor. Madde yanlış öncülden
+   yazılmıştı; kullanılmayan adım eklemek ikinci bir ölçek demekti.
 
 ## 18.14 — Ses: yasak terim listesi sistemin sözlüğüne genişliyor    [ ]
 

@@ -23,24 +23,67 @@ import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '../..')
 
-/** Tanımlı değişkenler — üretilmiş `tokens.css` dosyalarının BİRLEŞİMİ. */
-const tanimlilar = new Set()
+/**
+ * Tanımlı değişkenler — **YÜZEY BAŞINA** (§4.1 · D-333).
+ *
+ * ⚠ ⚠ **İLK SÜRÜM BİRLEŞİME BAKTI ve CANLI BİR KUSURU KAÇIRDI.** `--role-state-danger`
+ * yalnız `[data-surface='kreatif']` bloğunda tanımlıydı; kabuk ise `console` yüzeyinde
+ * koşuyor. Birleşimde "tanımlı" görünüyordu, kullanıldığı yerde TANIMSIZDI. Ölçüldü:
+ * `.is-uyari` ile `.is-hat` ikisi de `oklch(0.97 0.004 250)` — panelde *"⊘ kusurlu
+ * manifest"* uyarısı gövde metniyle BİREBİR aynı renkte çiziliyordu.
+ *
+ * ⚠ Ders `koyuMu()`nun dersiyle aynı: **doğru dosyayı okumak, doğru YERİ okumak
+ * değildir.** Bir kaskat dört blok taşıyor ve aynı değişken hepsinde yeniden tanımlı.
+ */
+const bloklar = { kok: new Set(), console: new Set(), kreatif: new Set(), studio: new Set() }
 const markalar = readdirSync(join(REPO, 'brand'), { withFileTypes: true })
   .filter((d) => d.isDirectory())
   .map((d) => d.name)
 for (const m of markalar) {
   const yol = join(REPO, `brand/${m}/derived-tokens/tokens.css`)
+  let css
   try {
-    for (const eslesme of readFileSync(yol, 'utf8').matchAll(/^\s*(--[\w-]+)\s*:/gm)) {
-      tanimlilar.add(eslesme[1])
-    }
+    css = readFileSync(yol, 'utf8')
   } catch {
     // Marka henüz token üretmemiş olabilir; `tokens` kapısı onu ayrıca söylüyor.
+    continue
+  }
+  const ekle = (kume, metin) => {
+    for (const e of metin.matchAll(/^\s*(--[\w-]+)\s*:/gm)) kume.add(e[1])
+  }
+  ekle(bloklar.kok, /:root\s*\{([^}]*)\}/.exec(css)?.[1] ?? '')
+  for (const yuzey of ['console', 'kreatif', 'studio']) {
+    const b = new RegExp(`\\[data-surface='${yuzey}'\\]\\s*\\{([^}]*)\\}`).exec(css)
+    ekle(bloklar[yuzey], b?.[1] ?? '')
   }
 }
+const tanimlilar = new Set([
+  ...bloklar.kok,
+  ...bloklar.console,
+  ...bloklar.kreatif,
+  ...bloklar.studio,
+])
 if (tanimlilar.size === 0) {
   console.log('✗ hiç token okunamadı — `just tokens` çalıştırılmamış, kapı boş geçiyor')
   process.exit(1)
+}
+
+/**
+ * Hangi dosya hangi yüzeyde ÇİZİLİYOR.
+ *
+ * ⚠ Eşlenmemiş dosya BİRLEŞİME düşüyor ve bu bilinçli: `scripts/` çoğunlukla üretiyor ya
+ * da çözümlüyor, bir belge çizmiyor. Ama düşen dosya SAYISI raporlanıyor — sessizce
+ * genişleyen bir istisna, istisna değil deliktir.
+ */
+const YUZEY_HARITASI = [
+  ['apps/ui/', ['console']],
+  ['packages/render/', ['kreatif']],
+  // `packages/ui/` kabuk teması: iki yüzeyde de çiziliyor, İKİSİNDE de tanımlı olmalı.
+  ['packages/ui/', ['console', 'studio']],
+]
+const yuzeyleri = (gorece) => {
+  for (const [onEk, y] of YUZEY_HARITASI) if (gorece.startsWith(onEk)) return y
+  return null
 }
 
 /**
@@ -71,6 +114,7 @@ const gez = (d) => {
 for (const k of KLASORLER) gez(join(REPO, k))
 
 const ihlaller = []
+const birlesimeDusen = new Set()
 for (const dosya of dosyalar) {
   const metin = readFileSync(dosya, 'utf8')
   metin.split('\n').forEach((satir, i) => {
@@ -81,9 +125,20 @@ for (const dosya of dosyalar) {
     for (const m of satir.matchAll(/var\(\s*(--[\w-]+)/g)) {
       const ad = m[1]
       if (!KAPSAM.test(ad)) continue
-      if (!tanimlilar.has(ad)) {
+      const gorece = dosya.slice(REPO.length + 1)
+      const yuzeyler = yuzeyleri(gorece)
+      if (yuzeyler === null) {
+        birlesimeDusen.add(gorece)
+        if (!tanimlilar.has(ad)) {
+          ihlaller.push(`${gorece}:${String(i + 1)}  ${ad} — hiçbir tokens.css'te tanımlı değil`)
+        }
+        continue
+      }
+      const eksik = yuzeyler.filter((y) => !bloklar.kok.has(ad) && !bloklar[y].has(ad))
+      if (eksik.length > 0) {
         ihlaller.push(
-          `${dosya.slice(REPO.length + 1)}:${String(i + 1)}  ${ad} — hiçbir tokens.css'te tanımlı değil`
+          `${gorece}:${String(i + 1)}  ${ad} — '${eksik.join("', '")}' yüzeyinde TANIMSIZ` +
+            ` (bu dosya orada çiziliyor; başka bir yüzeyde tanımlı olması KURTARMIYOR)`
         )
       }
     }
@@ -99,5 +154,8 @@ if (ihlaller.length > 0) {
   process.exit(1)
 }
 console.log(
-  `  ${String(tanimlilar.size)} tanımlı token · ${String(dosyalar.length)} dosyada çağrı denetlendi`
+  `  ${String(tanimlilar.size)} token · kök ${String(bloklar.kok.size)} · console ` +
+    `${String(bloklar.console.size)} · kreatif ${String(bloklar.kreatif.size)} · studio ` +
+    `${String(bloklar.studio.size)} · ${String(dosyalar.length)} dosyada çağrı denetlendi` +
+    ` · ${String(birlesimeDusen.size)} dosya yüzeye eşlenmemiş (birleşime düştü)`
 )

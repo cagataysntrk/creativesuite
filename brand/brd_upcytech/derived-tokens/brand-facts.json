@@ -2,6 +2,7 @@
   "brand_id": "brd_upcytech",
   "era": "imalat-2026",
   "role_tokens": [
+    "role.accent",
     "role.bg",
     "role.line-hair",
     "role.state-error",

@@ -32,6 +32,11 @@
       "$value": "{ramp.signal.danger}",
       "$type": "color"
     },
+    "accent": {
+      "$description": "Vurgu adımı YÜZEYİN AÇIKLIĞINDAN seçiliyor (D-318): koyu yüzeyde mavi-500, kâğıtta mavi-600. Bu rol studio yüzeyinde YOKTU ve kabuk onu dokuz yerde çağırıyordu — tanımsız (D-333).",
+      "$value": "{ramp.marka.mavi-600}",
+      "$type": "color"
+    },
     "state-ok": {
       "$value": "{ramp.signal.ok}",
       "$type": "color"

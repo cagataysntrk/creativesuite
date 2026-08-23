@@ -6,6 +6,7 @@ export const brandTheme = {
     'comp-tolerance-limit': 'var(--comp-tolerance-limit)',
     'comp-tolerance-out': 'var(--comp-tolerance-out)',
     'comp-tolerance-track': 'var(--comp-tolerance-track)',
+    'role-accent': 'var(--role-accent)',
     'role-bg': 'var(--role-bg)',
     'role-line-hair': 'var(--role-line-hair)',
     'role-state-error': 'var(--role-state-error)',

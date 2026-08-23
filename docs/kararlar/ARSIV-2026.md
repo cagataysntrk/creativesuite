@@ -6156,3 +6156,71 @@ yüzeylerinde; karosel bir pazarlama yüzeyi. Beşinci aile hâlâ kırmızı.
 **Bedeli.** Dört yüz ailesi gömülü olarak taşınıyor (latin + latin-ext, sekiz dosya,
 toplam ~426 KB). Eski dört dosya (Inter, Archivo, Bricolage, Caveat) emekli oluyor;
 `scripts/font-getir.mjs` listeyi geri koyan tek satırla onları da geri getirebilir.
+
+## D-318 · Palet dizayn sisteminden: yakın-monokrom zemin, TEK karneli aksan (2026-08-22)
+
+**Bulgu.** Kreatif yüzey kendi paletini taşıyordu: eskitmeli lacivert zemin (D-295),
+bakır aksan, sıcak kâğıt. Markanın gerçek dizayn sistemi bunların üçünü de başka yere
+koyuyor ve gerekçesi ölçülü:
+
+- **Nötrler chroma 0.** Sistem, Dima'nın sıcak mürekkebini (hue 65) ve UpcyMan'in soğuk
+  mavi-grisini (240) BİLEREK tersine çevirip gerçek nötre geçiyor. Zemin `#040404` —
+  saf siyah değil: OLED halasyonu ve panel kenarında kaybolan hairline'lar yüzünden.
+- **Aksan ASLA zemin değil.** Anti-desen listesinin ikinci maddesi: *"aksanı bir arka
+  plan ya da büyük yüzey olarak kullanma"*. Bizim iki şablonumuzun zemini mavinin
+  kendisiydi.
+- **Aksanın iki adımı var.** `#0b5bf0` kâğıt üstünde (5.34:1), `#3477f9` koyu zeminde
+  (5.03:1). Tek bir değer ikisini de karşılayamıyor — sistemin "split roles" tespiti.
+
+**Karar.** Kreatif rolleri sistemin merdivenine bağlandı: kanvas `#040404`, kart
+`#0e0e0e`, hairline `#262626`, koyu zemin metni `#eeeeee`, soluk `#989898`; kâğıt
+`#fafafa`, mürekkep `#141414`, soluk `#696969`, hairline `#e4e4e4`.
+
+**Üç şey emekli oldu:**
+
+1. **Vurgu çipi.** Açık zeminde vurgulanan kelime DOLU bir kutuya alınıyordu; gerekçesi
+   ölçülmüştü (eski amber aksan kâğıtta 1,9:1). Kâğıt için ayrı aksan adımı gelince o
+   gerekçe kalktı — ve karoselin en çok bakılan yerindeki dolu kutu, "aksan asla yüzey
+   değildir" kuralının tam ihlaliydi. Vurgu artık iki yüzeyde de RENK.
+2. **Koyu zemin metninin kâğıt rengine bağlı olması.** "Açık olan neyse metin odur"
+   varsayımıydı; sistem ikisini ayırıyor ve farkı gerekçeliyor.
+3. **Alfa harmanlı soluk metin.** `color-mix(… 72%)` "aşağı yukarı soluk" demekti;
+   sistem "şu kadar soluk, şu kadar kontrast" diyor ve değer ölçülmüş bir adım.
+
+**Ölçüm.** Altı şablon yeniden çizildi ve bakıldı: mavi zeminler koyu kanvasa döndü,
+aksan yalnız kapak vurgusunda ve süreklilik ögesinde kaldı, kâğıt zeminli iki şablon ilk
+kez marka mavisini taşıyabiliyor. 44 kapı yeşil.
+
+## D-319 · Süreklilik bir IŞIK HAVUZU değil, bir ÖLÇEK ÇİZGİSİ (2026-08-22)
+
+**Bağlam.** Karoselin sürekliliğini üç mekanizma taşıyordu: panoramayı kat eden degrade,
+kartların üstündeki gren + vinyet, ve `donen`de iki dev soluk daire (%7 beyaz, 760 px).
+Markanın dizayn sistemi üçünü de yasaklıyor — anti-desen listesi *"degrade meshi, glow,
+yörüngedeki parçacıklar"* ve *"yüzmeyen hiçbir şeye gölge"* diyor; ayrımı **yüzey adımı +
+1 px hairline** ile kuruyor.
+
+**Karar.** Yeni bant tipi: `olcek`. Panoramayı kat eden bir hairline, eşit aralıklı
+tırtıklar ve **içerikten gelen** etiketli duraklar. Bir enstrüman skalası — sistemin
+*"süslenmiş gösterge paneli değil, enstrüman paneli"* tarifinin karoseldeki karşılığı.
+
+**Neden süs değil.** Duraklar uydurulmuyor: `donen`de dört ürünün konumu, bir veri
+şablonunda kilometre taşları. Silinirse kaybolan şey bir dekor değil, dört ürünün aynı
+hattın çıktısı olduğu bilgisi. Ölçüt: bir öge silindiğinde YALNIZ görsellik kaybolduysa
+o öge süstür.
+
+**CSS, SVG değil — ve bunu kapı söyledi.** İlk sürüm çizgiyi ve tırtıkları `<line>`
+ögeleriyle çiziyordu; `kodlanmis-oge` kapısı R-81 gereği kırmızıya döndü. Doğrusu da bu:
+bir cetvel çizilmiş bir şekil değil, TEKRAR EDEN bir ölçüdür ve tekrarın dili CSS'te
+zaten var (`repeating-linear-gradient` + kenarlık). Kodlanmış öge sıfır.
+
+**Kabul ölçütleri yeniden tanımlandı — gevşetme değil, DİL değişikliği.** Ölçüt 5 "zemin
+en az iki katmanlı" derken degradeyi ve vinyeti kastediyordu. Amacı korunuyor (zemin düz
+bir web arka planı olmasın) ama ölçtüğü mekanizmalar sistemin mekanizmaları: **yüzey
+adımı** (kart zemini kanvastan farklı), alan sınırı, tam kaplama fotoğraf ya da kesimi
+kat eden bant. Ölçüt 4'ün listesine bant eklendi: kartların üstünden geçen bir bant
+katmanlanmanın kendisidir.
+
+**Ölçüm.** `donen` yeniden çizildi ve bakıldı: iki soluk daire gitti, ölçek çizgisi
+1080 px'lik slaytta okunuyor, duraklar dört ürünün altında. İlk denemede çizgi
+GÖRÜNMÜYORDU — `vector-effect="non-scaling-stroke"` kalınlığı cihaz pikselinde okuyor ve
+0.12 alt piksele düşüyordu; çizildi, bakıldı, düzeltildi.

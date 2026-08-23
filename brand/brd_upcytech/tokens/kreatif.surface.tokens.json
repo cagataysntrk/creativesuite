@@ -82,7 +82,8 @@
       "$value": "{ramp.signal.warn}",
       "$type": "color"
     },
-    "state-danger": {
+    "state-error": {
+      "$description": "AD `state-error`, `state-danger` DEĞİL — bir kavramın iki adı, bir yüzeyde tanımlı öbüründe tanımsız demekti (D-333).",
       "$value": "{ramp.signal.danger}",
       "$type": "color"
     },

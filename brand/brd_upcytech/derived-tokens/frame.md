@@ -12,6 +12,7 @@ yüzey değiştiğinde rol değişir, kompozisyon değişmez (§4.1).
 
 | Rol | CSS değişkeni |
 |---|---|
+| `role.accent` | `var(--role-accent)` |
 | `role.bg` | `var(--role-bg)` |
 | `role.line-hair` | `var(--role-line-hair)` |
 | `role.state-error` | `var(--role-state-error)` |

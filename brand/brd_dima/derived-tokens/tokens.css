@@ -33,6 +33,7 @@
   --ramp-signal-danger: oklch(0.58 0.160 25);
   --ramp-signal-ok: oklch(0.68 0.130 195);
   --ramp-signal-warn: oklch(0.72 0.150 75);
+  --role-accent: var(--ramp-marka-mavi-500);
   --role-bg: var(--ramp-gray-950);
   --role-line-hair: var(--ramp-gray-800);
   --role-state-error: var(--ramp-signal-danger);
@@ -44,6 +45,7 @@
 }
 
 [data-surface='console'] {
+  --role-accent: var(--ramp-marka-mavi-500);
   --role-bg: var(--ramp-gray-950);
   --role-line-hair: var(--ramp-gray-800);
   --role-state-error: var(--ramp-signal-danger);
@@ -65,7 +67,7 @@
   --role-metin-koyu: var(--ramp-marka-ink-60);
   --role-soluk-acik: var(--ramp-marka-ink-600);
   --role-soluk-koyu: var(--ramp-marka-ink-450);
-  --role-state-danger: var(--ramp-signal-danger);
+  --role-state-error: var(--ramp-signal-danger);
   --role-state-ok: var(--ramp-signal-ok);
   --role-state-warn: var(--ramp-signal-warn);
   --role-surface: var(--ramp-marka-kagit);
@@ -76,6 +78,7 @@
 }
 
 [data-surface='studio'] {
+  --role-accent: var(--ramp-marka-mavi-600);
   --role-bg: var(--ramp-gray-300);
   --role-line-hair: var(--ramp-gray-200);
   --role-state-error: var(--ramp-signal-danger);

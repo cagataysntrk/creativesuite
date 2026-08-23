@@ -499,3 +499,12 @@ bir modülken `upcytech-mavi.png` yazıyordu — ikinci marka kendi işaretini K
 zinciri kesip koşuyu yine fontsuz bırakırdı.
 **Zorlama:** `marka-varlik.test.ts` — modülü DEĞİL `uret.mjs`in ÇAĞRISINI sınıyor.
 → D-332 · `OLCUMLER.md`
+
+### R-102 · token-yuzeye-gore-cozulur · GATE · aktif
+Bir `--role-*` çağrısı, dosyanın ÇİZİLDİĞİ yüzeyde tanımlı olmak zorunda. Başka bir
+yüzeyde tanımlı olması KURTARMAZ. Yüzeye eşlenmemiş dosya sayısı raporlanır.
+**Neden:** kapı birleşime bakıyordu ve iki canlı kusuru kaçırdı — `state-danger` yalnız
+`kreatif`te, `accent` yalnız `kreatif`te tanımlıyken kabuk `console`da koşuyor. Panelde
+uyarı metni gövdeyle aynı renkteydi, aktif sekmenin çerçevesi renksizdi.
+⚠ Ders `koyuMu()`nunkiyle aynı: **doğru dosyayı okumak, doğru YERİ okumak değildir.**
+**Zorlama:** `token-cagrisi` kapısı, yüzey başına blok. → D-333 · `OLCUMLER.md`

@@ -929,8 +929,15 @@ tr[data-tiklanir] {
   color: var(--role-text);
 }
 
+/* ⚠ ⚠ **ADI `state-error`, `state-danger` DEĞİL — ve bu satır ÖLÇÜLEREK bulundu.**
+   `--role-state-danger` yalnız `kreatif` yüzeyinde tanımlıydı; kabuk `console`
+   yüzeyinde koşuyor ve orada TANIMSIZ. CSS tanımsız `var()` için hata vermiyor, bildirimi
+   geçersiz sayıyor: uyarı metni gövde metniyle BİREBİR aynı renkte çiziliyordu. Ölçüldü:
+   `.is-uyari` ile `.is-hat` aynı değeri veriyordu — sayı `OLCUMLER.md`'de. (D-333)
+   ⚠ Sayı buraya YAZILAMIYOR: `ui-tema` kapısı yorum ile bildirimi ayırmıyor ve düz bir
+   renk değerini yorumda görse bile ihlal sayıyor. Borç kayıtlı (D-333). */
 .is-uyari {
-  color: var(--role-state-danger);
+  color: var(--role-state-error);
 }
 
 /* ── varlık grupları: bir karosel BİR gönderi ─────────────────────────────

@@ -191,74 +191,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-309 · D-310 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62).
 
-## D-318 · Palet dizayn sisteminden: yakın-monokrom zemin, TEK karneli aksan (2026-08-22)
-
-**Bulgu.** Kreatif yüzey kendi paletini taşıyordu: eskitmeli lacivert zemin (D-295),
-bakır aksan, sıcak kâğıt. Markanın gerçek dizayn sistemi bunların üçünü de başka yere
-koyuyor ve gerekçesi ölçülü:
-
-- **Nötrler chroma 0.** Sistem, Dima'nın sıcak mürekkebini (hue 65) ve UpcyMan'in soğuk
-  mavi-grisini (240) BİLEREK tersine çevirip gerçek nötre geçiyor. Zemin `#040404` —
-  saf siyah değil: OLED halasyonu ve panel kenarında kaybolan hairline'lar yüzünden.
-- **Aksan ASLA zemin değil.** Anti-desen listesinin ikinci maddesi: *"aksanı bir arka
-  plan ya da büyük yüzey olarak kullanma"*. Bizim iki şablonumuzun zemini mavinin
-  kendisiydi.
-- **Aksanın iki adımı var.** `#0b5bf0` kâğıt üstünde (5.34:1), `#3477f9` koyu zeminde
-  (5.03:1). Tek bir değer ikisini de karşılayamıyor — sistemin "split roles" tespiti.
-
-**Karar.** Kreatif rolleri sistemin merdivenine bağlandı: kanvas `#040404`, kart
-`#0e0e0e`, hairline `#262626`, koyu zemin metni `#eeeeee`, soluk `#989898`; kâğıt
-`#fafafa`, mürekkep `#141414`, soluk `#696969`, hairline `#e4e4e4`.
-
-**Üç şey emekli oldu:**
-
-1. **Vurgu çipi.** Açık zeminde vurgulanan kelime DOLU bir kutuya alınıyordu; gerekçesi
-   ölçülmüştü (eski amber aksan kâğıtta 1,9:1). Kâğıt için ayrı aksan adımı gelince o
-   gerekçe kalktı — ve karoselin en çok bakılan yerindeki dolu kutu, "aksan asla yüzey
-   değildir" kuralının tam ihlaliydi. Vurgu artık iki yüzeyde de RENK.
-2. **Koyu zemin metninin kâğıt rengine bağlı olması.** "Açık olan neyse metin odur"
-   varsayımıydı; sistem ikisini ayırıyor ve farkı gerekçeliyor.
-3. **Alfa harmanlı soluk metin.** `color-mix(… 72%)` "aşağı yukarı soluk" demekti;
-   sistem "şu kadar soluk, şu kadar kontrast" diyor ve değer ölçülmüş bir adım.
-
-**Ölçüm.** Altı şablon yeniden çizildi ve bakıldı: mavi zeminler koyu kanvasa döndü,
-aksan yalnız kapak vurgusunda ve süreklilik ögesinde kaldı, kâğıt zeminli iki şablon ilk
-kez marka mavisini taşıyabiliyor. 44 kapı yeşil.
-
-## D-319 · Süreklilik bir IŞIK HAVUZU değil, bir ÖLÇEK ÇİZGİSİ (2026-08-22)
-
-**Bağlam.** Karoselin sürekliliğini üç mekanizma taşıyordu: panoramayı kat eden degrade,
-kartların üstündeki gren + vinyet, ve `donen`de iki dev soluk daire (%7 beyaz, 760 px).
-Markanın dizayn sistemi üçünü de yasaklıyor — anti-desen listesi *"degrade meshi, glow,
-yörüngedeki parçacıklar"* ve *"yüzmeyen hiçbir şeye gölge"* diyor; ayrımı **yüzey adımı +
-1 px hairline** ile kuruyor.
-
-**Karar.** Yeni bant tipi: `olcek`. Panoramayı kat eden bir hairline, eşit aralıklı
-tırtıklar ve **içerikten gelen** etiketli duraklar. Bir enstrüman skalası — sistemin
-*"süslenmiş gösterge paneli değil, enstrüman paneli"* tarifinin karoseldeki karşılığı.
-
-**Neden süs değil.** Duraklar uydurulmuyor: `donen`de dört ürünün konumu, bir veri
-şablonunda kilometre taşları. Silinirse kaybolan şey bir dekor değil, dört ürünün aynı
-hattın çıktısı olduğu bilgisi. Ölçüt: bir öge silindiğinde YALNIZ görsellik kaybolduysa
-o öge süstür.
-
-**CSS, SVG değil — ve bunu kapı söyledi.** İlk sürüm çizgiyi ve tırtıkları `<line>`
-ögeleriyle çiziyordu; `kodlanmis-oge` kapısı R-81 gereği kırmızıya döndü. Doğrusu da bu:
-bir cetvel çizilmiş bir şekil değil, TEKRAR EDEN bir ölçüdür ve tekrarın dili CSS'te
-zaten var (`repeating-linear-gradient` + kenarlık). Kodlanmış öge sıfır.
-
-**Kabul ölçütleri yeniden tanımlandı — gevşetme değil, DİL değişikliği.** Ölçüt 5 "zemin
-en az iki katmanlı" derken degradeyi ve vinyeti kastediyordu. Amacı korunuyor (zemin düz
-bir web arka planı olmasın) ama ölçtüğü mekanizmalar sistemin mekanizmaları: **yüzey
-adımı** (kart zemini kanvastan farklı), alan sınırı, tam kaplama fotoğraf ya da kesimi
-kat eden bant. Ölçüt 4'ün listesine bant eklendi: kartların üstünden geçen bir bant
-katmanlanmanın kendisidir.
-
-**Ölçüm.** `donen` yeniden çizildi ve bakıldı: iki soluk daire gitti, ölçek çizgisi
-1080 px'lik slaytta okunuyor, duraklar dört ürünün altında. İlk denemede çizgi
-GÖRÜNMÜYORDU — `vector-effect="non-scaling-stroke"` kalınlığı cihaz pikselinde okuyor ve
-0.12 alt piksele düşüyordu; çizildi, bakıldı, düzeltildi.
-
 ## D-320 · Tanımsız token çağrısı bir KAPIYA bağlandı (2026-08-23)
 
 **Bulgu, kendi açtığım yaradan.** D-318 amber rampasını emekli etti;
@@ -596,3 +528,40 @@ tipografi, iki markanın karışımıdır.
 
 **Test modülü değil ÇAĞRIYI sınıyor** — R-92'nin dersi. `uret.mjs` bir CLI, import edilip
 çağrılamıyor; bu depoda "modül var, test yeşil, üretim yolu yok" sekiz kez tekrarlandı.
+
+## D-333 · Token yüzeye göre çözülür — birleşim iki canlı kusuru gizledi
+
+**Bulgu.** `token-cagrisi` kapısı (D-320) tanımlı token'ları `tokens.css` dosyalarının
+BİRLEŞİMİNDEN topluyordu. Ama bir kaskat dört blok taşıyor — `:root`, `console`,
+`kreatif`, `studio` — ve aynı değişken hepsinde yeniden tanımlı. Birleşimde "tanımlı"
+görünen bir değişken, kullanıldığı yüzeyde TANIMSIZ olabiliyor.
+
+**İki canlı kusur.** (1) `--role-state-danger` yalnız `kreatif` bloğunda tanımlıydı;
+kabuk `data-surface="console"` ile koşuyor. Ölçüldü: `.is-uyari` ile `.is-hat` ikisi de
+`oklch(0.97 0.004 250)` — panelde *"⊘ kusurlu manifest"* ve *"✎ N slayt elle
+düzenlendi"* uyarıları gövde metniyle **birebir aynı renkte** çiziliyordu. (2) Kapı
+yüzey başına çözecek şekilde düzeltilir düzeltilmez DOKUZ kusur daha çıktı:
+`--role-accent` da yalnız `kreatif`te tanımlıydı ve kabuk onu dokuz yerde çağırıyor —
+aktif sekmenin çerçevesi dahil.
+
+**Ders `koyuMu()`nunkiyle aynı:** *doğru dosyayı okumak, doğru YERİ okumak değildir.*
+
+**Karar.** Kapı yüzey başına çözüyor. Dizinden yüzeye küçük bir harita: `apps/ui/` →
+console, `packages/render/` → kreatif, `packages/ui/` → console **ve** studio (kabuk
+teması ikisinde de çiziliyor, ikisinde de tanımlı olmalı). Eşlenmemiş dosya birleşime
+düşüyor ama SAYISI raporlanıyor — sessizce genişleyen bir istisna, istisna değil deliktir.
+
+**Ad çatallanması kapatıldı.** `state-danger`/`state-error` bir kavramın iki adıydı;
+`kreatif` de artık `state-error` diyor. Bir kavramın iki adı, birinde tanımlı öbüründe
+tanımsız olmak demekti.
+
+**`accent` rolü console ve studio'ya eklendi**, adım YÜZEYİN AÇIKLIĞINDAN seçilerek
+(D-318): koyu konsolda `mavi-500`, kâğıt studio'da `mavi-600`.
+
+**Gözle doğrulandı.** Panel açıldı ve BAKILDI: uyarı artık kırmızı, aktif sekmenin
+çerçevesi mavi. İkisi de bu turdan önce ölüydü.
+
+⚠ **BORÇ: `ui-tema` kapısı yorum ile bildirimi ayırmıyor.** Bu düzeltmenin gerekçesini
+yoruma yazarken ölçülen renk değeri ihlal sayıldı. `token-cagrisi` ve `olcum-ters-tirnak`
+yorum satırlarını atlıyor; `ui-tema` atlamıyor. Aynı turda düzeltilmedi — kapı KIRMIZIYKEN
+kuralını gevşetmek yasak (R-76), yanlış pozitif bile olsa. Ayrı bir turda.

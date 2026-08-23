@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 18
-siradaki_adim: 18.13d
+siradaki_adim: 18.14
 son_guncelleme: 2026-08-23
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "ALT MARKA TANIMLIYDI AMA KOSAMIYORDU. brd_dima token sisteminin kalitimini kullanan gercek bir alt marka: parent dosyasi brd_upcytech diyor, yalniz state-ok rolunu eziyor ve kendi kaydi ezmedigin sey MIRASTIR yaziyor. FONT VE LOGO O CUMLENIN DISINDAYDI — uret.mjs dogrudan brand/brd_dima/fonts bakiyor, sekiz dosyayi bulamiyor ve exit(1) ediyordu. IKINCI KUSUR EKSIK LISTESININ KENDISINDEYDI: aranan dosyalar upcytech-mavi.png ve upcytech-siyah.png, yani marka-notr bir modulde bir markanin adi — ikinci marka kendi isaretini KOYAMAZDI. Adlar isaret-koyu / isaret-acik oldu; secim zeminin acikligindan yapiliyor, markadan degil. Kopyalamak alternatif DEGILDI: sekiz woff2yi her alt markaya kopyalamak, kopyanin bir gun ayrismasi ve iki markanin ayni ada sahip iki farkli fontla uretim yapmasi demekti. Zincir dizin var mi diye sormuyor, sonuc TAM mi diye soruyor: bos bir fonts klasoru zinciri keser ve kosu yine fontsuz kalirdi. GERCEK KOSUYLA DOGRULANDI — SUITE_BRAND=brd_dima ile hat font DEVRALINDI ve marka isareti DEVRALINDI yazip font kapisini gecti, icerik adiminda NO_CONTEXT ile durdu (ilgisiz ve durust bir dur). Test modulu degil CAGRIYI siniyor. AYRICA FAZ-18.md tavani deldi: kapanmis 17 adim 📁 ve ✅ye indirildi (262 yol hala dogrulaniyor), dosya 263ten 153e indi. 47 kapi, 2082 test."
+son_kanit: "KAPI BIRLESIME BAKIYORDU VE IKI CANLI KUSURU GIZLIYORDU. token-cagrisi (D-320) tanimli tokenlari tokens.css dosyalarinin BIRLESIMINDEN topluyordu; oysa bir kaskat dort blok tasiyor (:root, console, kreatif, studio) ve ayni degisken hepsinde yeniden tanimli. Birlesimde tanimli gorunen bir degisken, kullanildigi yuzeyde TANIMSIZ olabiliyor. (1) --role-state-danger yalniz kreatif blogundaydi, kabuk console yuzeyinde kosuyor: olculdu, .is-uyari ile .is-hat ikisi de oklch(0.97 0.004 250) — panelde kusurlu manifest ve N slayt elle duzenlendi uyarilari GOVDE METNIYLE BIREBIR AYNI RENKTE ciziliyordu. (2) Kapi yuzey basina cozecek sekilde duzeltilir duzeltilmez DOKUZ ihlal daha cikti: --role-accent de yalniz kreatifteydi ve kabuk onu dokuz yerde cagiriyor, aktif sekmenin cercevesi dahil. Ders koyuMu nunkiyle ayni: dogru dosyayi okumak dogru YERI okumak degildir. Ad catallanmasi kapatildi (state-danger/state-error tek ada), accent rolu console ve studioya eklendi, adim YUZEYIN ACIKLIGINDAN secilerek (D-318). GOZLE DOGRULANDI: panel Chromiumla acildi, ekran goruntusu alindi ve BAKILDI — uyari kirmizi oklch(0.58 0.16 25), aktif sekme cercevesi mavi oklch(0.6 0.206 262). Ikisi de bu turdan once oluydu. OLCEK EMITI YAPILMADI ve sebebi olculdu: kabukta hic border-radius piksel degeri yok, 112px hic gecmiyor, alti 96pxin altisi da min-inline-size — sutun genisligi, bosluk adimi degil; 66 literalin 46si 1px sac cizgisi. Olcek zaten SISTEME ait, alti adimi var ve 111 kez cagriliyor. 47 kapi."
 ```
 
 ## Neredeyiz
@@ -63,6 +63,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **18.13** · ölçek TEK tabandan: krom ölçeklenmiyordu, 1080→1350'de yedi ölçü de %25 büyüdü (R-99) | 2026-08-23 |
 | **18.13b** · taban çizgisi ızgarası metinden türüyor — sabit 54 px altıdan beşinde yanlıştı (R-100) | 2026-08-23 |
 | **18.13c** · alt marka gerçekten koşuyor: font ve logo da devralınıyor, adlar marka-nötr (R-101) | 2026-08-23 |
+| **18.13d** · token yüzeye göre çözülüyor — iki ölü rol panelde gözle doğrulandı (R-102) | 2026-08-24 |
 
 ## Sıradaki adım
 
