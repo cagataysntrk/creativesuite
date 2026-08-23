@@ -142,19 +142,19 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
 ⏭ Dilim boyut eşitliği 18.11'e — aynı sabiti paylaşıyorlar
 💾 `feat(providers): yayin sozlesmesi` · `Refs: FAZ-18.10 · §9.2`
 
-## 18.11 — Tuval oranı TEK kaynaktan; 3:4 bir parametre    [ ]
+## 18.11 — Tuval oranı TEK kaynaktan; 3:4 bir parametre    [x]
 
 📖 §7.1 · D-321
 🔗 FAZ-18.10
 🛠 Instagram 29 May 2025'ten beri **3:4 (1080×1440)** destekliyor: +%6,7 alan, ızgarada
    sıfır kırpma. ⚠ **Bedeli:** 3:4 Meta reklamında KULLANILAMAZ. Karar "hangi oran"
    değil, **"oran bir parametre olsun"**. Bugün `1350` altı ayrı dosyada sabit.
-📁 `packages/engine/src/verbs/bodies.ts` · `packages/engine/src/saglik/strateji.ts` ·
-   `packages/providers/src/image/lanes.ts` (`3:4` şeridi yok)
-✅ Tuval oranı tek sözleşme sabitinden · 4:5 ve 3:4 aynı hattan üretiliyor · kart
-   dolgusu yüksekliğe orantılı
-🧪 Oranı 3:4 yap → altı şablon da doğru ölçüde çiziliyor, hiçbir sabit geride kalmıyor
-💾 `feat(render): tuval orani tek kaynaktan` · `Refs: FAZ-18.11 · §7.1`
+✅ `VARSAYILAN_TUVAL` tek kaynak · altı şablon + `bodies.ts` (4 yer) + `strateji.ts`
+   ondan okuyor · varsayılan 4:5 (reklam zorunluluğu) · kural **R-91**
+🧪 Sabit 3:4'e çevrildi → altı şablon da 1080×1440 çizildi ve kusur SAYISI ARTMADI;
+   geri alındı. Hiçbir sabit geride kalmadı.
+⏭ `lanes.ts`'e `3:4` şeridi ve kart dolgusunun yüksekliğe orantılı olması 18.13'e
+💾 `feat(contracts): tuval orani tek kaynaktan` · `Refs: FAZ-18.11 · §7.1`
 
 ## 18.12 — Marka seti tamamlanıyor: logo · eksik roller · ölçekler    [ ]
 

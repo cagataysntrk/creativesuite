@@ -47,3 +47,46 @@ export interface SafeBand {
   readonly width: number
   readonly height: number
 }
+
+// ── karosel tuvali: TEK sözleşme sabiti (R-91 · D-321) ──────────────────────
+//
+// ⚠ ⚠ **`1350` ALTI AYRI DOSYADA SABİTTİ** — `bodies.ts`te üç kez, `strateji.ts`te bir,
+// katalog örneklerinde ve testlerde. Aynı sayının altı kopyası, bir gün beşinin
+// değişip birinin unutulması demektir ve o gün panorama sessizce farklı orandan
+// dilimlenir: ilk slaydın oranı tüm karoseli belirlediği için (Meta API) geri kalan
+// slaytlar KIRPILIR.
+//
+// ⚠ ⚠ **3:4 ARTIK RESMÎ** (Instagram Yardım Merkezi, 29 May 2025): oran aralığı
+// 1.91:1 – 3:4, yükseklik 566–1440. 4:5 hâlâ geçerli ve **Meta reklamında ZORUNLU**
+// (min oran 400×500; 3:4 kabul edilmiyor). Yani karar "hangi oran" değil — **oran bir
+// PARAMETRE olmalı** ve iki değer de aynı hattan üretilebilmeli.
+//
+// ⚠ Genişlik neden sabit: Instagram 1080'den genişini kendi yeniden örnekleyicisiyle
+// küçültüyor. Küçültmeyi biz yaparsak sonucu kontrol ederiz.
+
+/** Karosel tuvali — genişlik SABİT 1080, yükseklik orana göre. */
+export interface KaroselTuvali {
+  readonly genislik: number
+  readonly yukseklik: number
+  /** İnsan okunur oran — defterde ve istemde bu yazıyor. */
+  readonly oran: '4:5' | '3:4'
+}
+
+/**
+ * **4:5 — bugünkü varsayılan.** Organik akışta geçerli VE Meta reklamında zorunlu;
+ * ızgarada her yandan 34 px kırpılıyor (1080 → 1012).
+ */
+export const TUVAL_4_5: KaroselTuvali = { genislik: 1080, yukseklik: 1350, oran: '4:5' }
+
+/**
+ * **3:4 — organik için daha fazla alan.** +%6,7 yükseklik ve ızgarada SIFIR kırpma.
+ * ⚠ Meta reklamında KULLANILAMAZ; reklam verilecek bir kreatif 4:5 üretilmeli.
+ */
+export const TUVAL_3_4: KaroselTuvali = { genislik: 1080, yukseklik: 1440, oran: '3:4' }
+
+/**
+ * Hattın bugün ürettiği tuval.
+ *
+ * ⚠ Değiştirmek TEK satır ve altı dosya birden onu izliyor — sabitin var olma sebebi bu.
+ */
+export const VARSAYILAN_TUVAL = TUVAL_4_5

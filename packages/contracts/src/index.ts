@@ -125,7 +125,9 @@ export {
 export type { ToleranceStatus, ToleranceReading, QaReport } from './tolerance.js'
 
 // Platform yerleşim spec'i — ölçen (render) ile gösteren (ui) ortak sözlüğü (D-176).
-export type { Placement, SafeArea, SafeBand } from './placement.js'
+export type { KaroselTuvali, Placement, SafeArea, SafeBand } from './placement.js'
+// Karosel tuvali TEK sözleşme sabiti (R-91): `1350` altı ayrı dosyada kopyalanmıştı.
+export { TUVAL_3_4, TUVAL_4_5, VARSAYILAN_TUVAL } from './placement.js'
 
 // Keşif planı — motor ile inceleme ekranı ortak sözlüğü (D-177).
 export type {

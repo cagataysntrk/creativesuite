@@ -9,7 +9,7 @@
 // çalıştırma öncesi maliyet tahminini yalan yapardı.
 
 import type { AppError, Result, ToleranceReading, VerbName } from '@suite/contracts'
-import { ZERO_USD, err, ok } from '@suite/contracts'
+import { ZERO_USD, err, ok, VARSAYILAN_TUVAL } from '@suite/contracts'
 import {
   asciiLower,
   getVerb,
@@ -544,7 +544,10 @@ export const composeBody = (deps: ComposeDeps): Verb =>
     ]
 
     const w = typeof input.constraints['width'] === 'number' ? input.constraints['width'] : 1080
-    const h = typeof input.constraints['height'] === 'number' ? input.constraints['height'] : 1350
+    const h =
+      typeof input.constraints['height'] === 'number'
+        ? input.constraints['height']
+        : VARSAYILAN_TUVAL.yukseklik
 
     const doc: DocumentModel = {
       kind: 'post',
@@ -1716,7 +1719,7 @@ const yargilanacakSlaytlar = (input: BodyInput): readonly YargiHedefi[] => {
     const yollar = v.slides.filter((x): x is string => typeof x === 'string')
     if (yollar.length === 0) continue
     const g = typeof v.width === 'number' ? v.width : 1080
-    const y = typeof v.height === 'number' ? v.height : 1350
+    const y = typeof v.height === 'number' ? v.height : VARSAYILAN_TUVAL.yukseklik
     return yollar.map((yol, i) => ({
       yol,
       slayt: i + 1,
@@ -2623,7 +2626,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       const ilk = hedefler[0]
       yargi = yargiyaCevir(sonuc.value.data, ilk?.slayt ?? 1, {
         genislik: ilk?.genislik ?? 1080,
-        yukseklik: ilk?.yukseklik ?? 1350,
+        yukseklik: ilk?.yukseklik ?? VARSAYILAN_TUVAL.yukseklik,
       })
     }
 
@@ -2639,7 +2642,7 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       const ilk = hedefler[0]
       const y = tasarimYargisinaCevir(sonuc.value.data, ilk?.slayt ?? 1, {
         genislik: ilk?.genislik ?? 1080,
-        yukseklik: ilk?.yukseklik ?? 1350,
+        yukseklik: ilk?.yukseklik ?? VARSAYILAN_TUVAL.yukseklik,
       })
       tasarim = { ...y, toplam: toplamPuan(y) }
     }

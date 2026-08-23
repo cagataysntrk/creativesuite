@@ -15,6 +15,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { parseFrontmatter } from '@suite/corpus'
+import { VARSAYILAN_TUVAL } from '@suite/contracts'
 import {
   checkTransfer,
   lintDocument,
@@ -192,7 +193,7 @@ export const stratejiSagligi = (g: SaglikGirdisi): StratejiSagligi => {
     const sahteBelge = {
       kind: 'post' as const,
       width: 1080,
-      height: 1350,
+      height: VARSAYILAN_TUVAL.yukseklik,
       tokenCss: '',
       stamp: {},
       blocks: [{ type: 'body' as const, text: govde }],

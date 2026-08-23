@@ -26,6 +26,7 @@
 // reçeteyi paylaşan iki şablon, iki tasarım değil bir tasarımın iki boyasıdır — bu
 // kataloğun düzeltmek üzere kurulduğu hatanın ta kendisi.
 
+import { VARSAYILAN_TUVAL } from '@suite/contracts'
 import type { PanoramaBelgesi } from './panorama.js'
 
 /**
@@ -60,8 +61,8 @@ const ORNEK = 'ÖRNEK VERİ'
 // onu SAKLIYORDU. Referansta kadrajın en büyük ögesi başlığın kendisi; bizimki
 // tuvalin %5–6,7'siydi. Paylar ~%30 yükseltildi.
 export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
-  slaytGenisligi: 1080,
-  yukseklik: 1350,
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
   // ⚠ ⚠ **GREN HER ŞABLONDA (T7).** Depo sahibi: *"illüstrasyon stili çok pürüzsüz,
   // gölgesiz, texture'sız"*. Düz bir dijital alan her zaman dijital görünüyor; film greni
   // ve kâğıt paraziti, gözün "bu bir yüzey" demesi için gereken tek şey. Koyu zeminde
@@ -236,8 +237,8 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
 // ve orada bir tasarım ögesi değil, bir FİLİGRAN gibi okunuyor.
 // **Aynı öge her şablonda aynı anlama gelmiyor** — tekrar eden ders.
 export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
-  slaytGenisligi: 1080,
-  yukseklik: 1350,
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
   yerlesim: 'ust',
   tipografi: {
     baslikPayi: 1.18,
@@ -357,8 +358,8 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
  * eksikliği GÖRÜNÜR bırakmak (panorama.ts).
  */
 export const ORNEK_SAHNE: KatalogOrnegi = {
-  slaytGenisligi: 1080,
-  yukseklik: 1350,
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
   // ⚠ ⚠ **METİN ÜSTTE, ÖZNE ALTTA — ikisi de altta olamaz.** İlk sürüm `yerlesim: 'alt'`
   // idi ve kesik özne kutuları başlıkların ÜSTÜNE bindi: "Sonra elle tutulur bir ölçü"
   // bir insan gövdesinin arkasından okunuyordu. Süreklilik ögesi kesimi aşmak ZORUNDA,
@@ -555,8 +556,8 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
  * boşluk kalıyor — soru soran bir afiş. → D-312
  */
 export const ORNEK_MEMPHIS: KatalogOrnegi = {
-  slaytGenisligi: 1080,
-  yukseklik: 1350,
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
   // ⚠ ⚠ **`orta` DENENDİ ve BIRAKILDI.** Dikeyde ortalanan metin, kesimi aşan özneyle
   // aynı bandı istiyor: liste paneli bir insan gövdesinin arkasında kalıyordu. Süreklilik
   // ögesi kesimi aşmak ZORUNDA olduğuna göre çakışmayı yatayda çözmek imkânsız — her
@@ -711,8 +712,8 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
  * hiç görünmezdi. Bu şablonun zemini kartın kendisi.
  */
 export const ORNEK_DONEN: KatalogOrnegi = {
-  slaytGenisligi: 1080,
-  yukseklik: 1350,
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
   yerlesim: 'yayik',
   tipografi: {
     baslikPayi: 0.98,
@@ -855,8 +856,8 @@ export const ORNEK_DONEN: KatalogOrnegi = {
  * giriş. Etiket eklemek onu bir sunum slaytına çevirir. → D-312
  */
 export const ORNEK_EDITORYAL: KatalogOrnegi = {
-  slaytGenisligi: 1080,
-  yukseklik: 1350,
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
   // ⚠ ⚠ **BU ŞABLON REFERANSA GÖRE YENİDEN KURULDU (D-286).** Önceki hâli referansın
   // (`image copy 5`) ÜÇ temel kararını da ters yapıyordu:
   //   1. Zemin KOYUYDU — referans açık, havadar, neredeyse kâğıt.

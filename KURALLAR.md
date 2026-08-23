@@ -449,3 +449,18 @@ düzeltmiyor. Ucuz olan önce sorulur.
 derken içeriğin PNG olması defterin kendi kendine yalan söylemesidir.
 **Zorlama:** `publish` → `too_many_assets` · `unsupported_format`; `renderPanorama`
 biçimi uzantıdan okuyor. → D-321
+
+### R-91 · tuval-tek-kaynaktan · GATE · aktif
+Karosel tuvalinin ölçüsü **tek sözleşme sabitinden** gelir (`VARSAYILAN_TUVAL`); hiçbir
+dosya `1350` yazmaz.
+**Neden:** aynı sayı altı ayrı dosyada kopyalıydı ve altı kopya, bir gün beşinin
+değişip birinin unutulması demek. O gün panorama sessizce farklı orandan dilimlenir —
+ve Meta API'de **ilk slaydın oranı tüm karoseli belirlediği için** geri kalan slaytlar
+KIRPILIR, içerik uçar.
+⚠ **3:4 artık resmî** (Instagram Yardım Merkezi, 29 May 2025: oran 1.91:1 – 3:4,
+yükseklik 566–1440) ama 4:5 **Meta reklamında ZORUNLU** (min oran 400×500). Yani karar
+"hangi oran" değil — **oran bir PARAMETRE** ve iki değer de aynı hattan üretilebilmeli.
+⚠ Genişlik her iki oranda da 1080: Instagram üstünü kendi yeniden örnekleyicisiyle
+küçültüyor ve küçültmeyi biz yaparsak sonucu kontrol ederiz.
+**Zorlama:** `tuval.test.ts` — oran adı ile sayının ayrışamayacağını da ölçüyor
+(`oran: '4:5'` yazıp 1440 vermek defterin kendi kendine yalan söylemesi). → D-321
