@@ -127,16 +127,14 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
    ESKİ şablonları da etkiliyordu: `kemer` koordinat uzayı kırık, oklar yön vermiyor,
    çubuk grafiği veri taşımıyor (yuva 10 px). Kural **R-105** · D-337
 
-## 18.17 — Izgara sınavı: on şablon TEK sayfa    [ ]
+## 18.17 — Izgara sınavı: on şablon TEK sayfa    [x]
 
-📖 §7.1
-🔗 FAZ-18.16
-🛠 Kapaklar ızgarada yan yana konur ve **bakılır**: hepsi aynı hesaba mı ait? Ayrım
-   layout'tan gelmeli; palet, tip ölçeği ve künye ortak kalmalı.
-📁 `docs/referans/`
-✅ Izgarada aile okunuyor; hiçbir şablon "başka bir marka" gibi durmuyor
-🧪 Bir şablonun aksanını değiştir → ızgarada hemen sırıtıyor
-💾 `feat(render): izgara sinavi` · `Refs: FAZ-18.17 · §7.1`
+📁 `scripts/izgara.mjs` · `packages/render/src/aile-tutarliligi.test.ts`
+✅ On kapak tek sayfaya kondu ve BAKILDI: ayrım yerleşimden, palet/tip/künye ortak.
+   Ölçüldü — baskın ton onunda da **220°** (%86–100), krom on yerde birebir aynı
+   (18 px @1259), gövde okuma eşiğinin üstünde. H1 kasten serbest (74–151). Kasten ihlal:
+   `dizin`in aksanı turuncuya çevrildi, ölçüm sapmayı ADIYLA söyledi. Izgara sayfasının
+   kendi kusuru da bakılarak bulundu — künye şeridi rayı örtüyordu. Kural **R-107** · D-339
 
 ## 18.18 — Gerçek koşu: uçtan uca çıktı ve kalite    [ ]
 

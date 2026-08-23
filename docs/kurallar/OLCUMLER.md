@@ -470,3 +470,42 @@ saklanıyorlardı. **Yeni şablon yazmak, eski şablonların denetimidir.**
 ⚠ Etiket sütunu SABİT genişlikti ve Türkçe etiket taşıyordu ("A vardiyası" kırpılıyordu).
 `flex: none` + `min-width`: sütun en az tabanı kadar geniş, gerekirse kelimeye açılıyor,
 çubuklar kalan yeri paylaşıyor — eksen hizası korunuyor (R-23).
+
+## R-107 · aile ölçülebilir
+
+On kapak tek sayfada ölçüldü — ailenin üç ortak ekseni:
+
+| şablon | H1 | gövde | ray | baskın ton |
+|---|---|---|---|---|
+| veri-hikayesi | 151 | 41 | 18@1259 | 220° · %98 |
+| akan-alan | 131 | 39 | 18@1259 | 220° · %98 |
+| sahne | 93 | 36 | 18@1259 | 220° · %99 |
+| memphis | 119 | 40 | 18@1259 | 220° · %100 |
+| donen | 74 | 36 | 18@1259 | 220° · %86 |
+| editoryal | 122 | 37 | 18@1259 | 220° · %100 |
+| kavis | 148 | 46 | 18@1259 | 220° · %100 |
+| alinti | 138 | 36 | 18@1259 | 220° · %100 |
+| karsilastirma | 140 | 42 | 18@1259 | 220° · %99 |
+| dizin | 128 | 41 | 18@1259 | 220° · %99 |
+
+⚠ **Onunda da tek ton.** Hiçbir şablon ikinci bir renk kümesi getirmiyor; kalan %1–14
+kenar yumuşatmanın 210°'si. Bu, ızgaranın en görünür ortak ekseni ve tek sayıyla
+ölçülebiliyor.
+
+⚠ **Krom birebir aynı** — on yerde de 18 px, üst kenar 1259. Mutlak sayıyla değil
+EŞİTLİKLE sınanıyor: ilk sürüm `rayCocuk === 4` yazdı ve on şablonda kırmızıya döndü,
+çünkü öge sayısı logo verilip verilmemesine bağlı — o iddia şablonu değil FIXTURE'ı
+ölçüyordu. Ailenin tanımı *"krom dört ögedir"* değil, *"krom her şablonda AYNIDIR"*.
+
+⚠ **H1 serbest ve bu bir kusur değil:** 74–151 px. Başlık kadraja oturuyor; ortak olan
+ölçek, piksel değil.
+
+⚠ **Doygunluk eşiği 0,25** — nötr rampa chroma 0 (D-318) ama kenar yumuşatma gri
+piksellerde küçük bir doygunluk üretiyor. Eşiksiz ölçüm o gürültüyü renk sayardı.
+
+Kasten ihlal: `dizin`in aksanı turuncuya (50°) çevrildi → baskın ton 220°'den saptı ve
+test *"bozuk 50° · sağlam 220°"* diyerek kırmızıya döndü.
+
+⚠ **Izgara sayfasının KENDİ kusuru da bakılarak bulundu:** künye şeridi altta duruyordu
+ve slaydın RAYINI örtüyordu — sınavın bakacağı ögeyi sınav sayfası gizliyordu. Üste
+alındı. Ölçüm aleti ölçtüğü şeyi kapatıyorsa alet değildir.

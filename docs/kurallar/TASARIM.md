@@ -194,3 +194,14 @@ paneli ALAN SINIRININ üstüne düştü — yarısı kâğıtta, yarısı mürek
 ⚠ Ölçü kromunkiyle AYNI: metin metindir, krom olması onu farklı kılmaz.
 **Zorlama:** `metin-zemine-karisiyor`; tek çift ekran görüntüsü, kutu başına değil.
 → D-337 · `OLCUMLER.md`
+
+### R-107 · aile-olculebilir · GATE · aktif
+On şablon tek ızgarada **bir aile** okunur ve bu ÖLÇÜLÜR: baskın ton hepsinde aynı
+(±15°), krom (ray puntosu · üst kenar · öge sayısı) hepsinde birebir aynı, gövde okuma
+eşiğinin üstünde. Ayrım yalnız YERLEŞİMDEN gelir.
+**Neden:** *"bakılır"* tek başına bir kapı değil — göz onu her turda yeniden bakmadan
+koruyamaz. Adımın kendi testi zaten ölçülebilirlik istiyordu: *"bir şablonun aksanını
+değiştir → ızgarada hemen sırıtıyor."*
+⚠ H1 puntosu KASTEN serbest (74–151 px ölçüldü): başlık kadraja oturuyor. Ortak olan
+ölçek, piksel değil — sabitlemek uzun bir başlığı taşırır, kısa birini cüce bırakır.
+**Zorlama:** `aile-tutarliligi.test.ts`; mercek `just izgara`. → D-339 · `OLCUMLER.md`

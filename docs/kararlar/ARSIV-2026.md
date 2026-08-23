@@ -6336,3 +6336,51 @@ kayma ekran görüntüsünün her slaytta aynı yerden kesilmediği demektir. Ku
 
 **Kanıt.** Kural iptal edilip koşuldu: kusur tam olarak görsel işlemi olan ÜÇ şablonda
 kırmızı, diğer üçünde sessiz. Ölçüm, kaymanın kendisini de doğrudan okuyor.
+
+## D-324 · Dikiş bandı ve krom okunurluğu — iki ölçü, ikisi de gözle bulundu
+
+**Dikiş bandı (R-94).** Kesik öznelerin küçük kaldığını çıktıya BAKINCA gördüm ve bir
+"görsel payı ≥%X" eşiği uyduracaktım. Araştırma o kuralı zaten türetmişti ve ölçüsü
+alan değil **genişlikti** (`arastirma-2026-08` böl. 1.3): bir kimlik ögesi kesime ya ≥93 px
+uzaktır ya da kesimin iki yakasında da slayt genişliğinin ≥%40'ını kaplar. 93, tek
+fiksasyonun net bölgesinin yarısı; %40, gözün ikinci slaytta aynı kütleyi bulması.
+
+**Bulgular sayıyla.** `sahne`nin "1↔2 kesimi" diye ADLANDIRILMIŞ öznesi kesimin 0,4 px
+solunda bitiyordu — adı doğru, geometrisi yanlış. `memphis` üç kesimini de aşıyor ama
+%16–28'le eziyordu. `donen` ve `editoryal`de görselin kenarı kesime TAM oturuyordu.
+`kesintisizlik-yok` hepsinde sessizdi çünkü kesimleri başka bir taşıyıcı — ince bir
+çizgi — geçiyordu: **kesimde bir şeyin bulunması, doğru şeyin bulunması demek değil.**
+
+**Ölçü boyadan, kutudan değil.** `object-fit: contain` kutuyu doldurmuyor; kutunun kenarı
+kesime değse bile boya içeride kalabiliyor. Tasarımın niyeti kutu, gözün gördüğü boya.
+
+**Krom okunurluğu (R-95).** `sahne`nin öznesi kahraman ölçüye çıkınca ayakkabısı ray
+bandına girdi ve `01 / 04` okunmaz oldu. Ray zaten bir perde taşıyor — mekanizma vardı,
+**parametresi yanlıştı**: perde o yükseklikte %82'ye düşüyor, metin `--kart-metin` %48.
+
+**İlk ölçüm kusuru göremedi ve göz görmüştü.** İfşa şeridinin medyan ölçüsü ödünç
+alınmıştı; ifşa şeridi geniş, `ray-sayac` ise 84 px. Ayakkabı kutunun yarısını kaplasa
+bile medyan koyu kalıyor. Medyan sağlam bir istatistik olduğu için burada YANLIŞ
+istatistik. Doğru ölçü iki render farkı: metin gizleniyor, zeminin metin lumasına
+44'ten yakın piksel PAYI sayılıyor. Eşik %4 ÖLÇÜLEREK seçildi — altı şablonun 90 krom
+kutusunda temiz olanların hepsi tam %0, kirli tek kutu %10.
+
+**Kural hiçbir tasarım aracını yasaklamıyor.** Tam kadraj fotoğrafın üstünde künye satırı
+meşru; meşru olmayan, perdesiz olması.
+
+## D-325 · `KURALLAR.md` yapısal olarak doldu — sonraki kural bir yükseltme değil
+
+**Durum.** D-322 tavanı 400'den 480'e çıkarırken *"tavan kalkmıyor, bir kez yükseliyor"*
+dedi ve on kurallık bir pay bıraktı. R-93 · R-94 · R-95 ile o pay **doldu**: 67 kural,
+480 satır, kural başına 7,6 satır. Üç kuralın hepsi ancak eski kuralların gerekçesi
+budanarak sığdı — ve D-322'nin kendi gerekçesi tam olarak bunun yapılmaması gerektiğini
+söylüyor.
+
+**Karar: bir sonraki kural tavanı yükseltmez.** Gerekçeler ayrı bir dosyaya alınır —
+`KURALLAR.md` beyan + zorlama + tek cümlelik neden tutar, ölçülmüş kanıt ve ⚠ notları
+`docs/kurallar/OLCUMLER.md`'ye taşınır, `R-nn` başlıkları yerinde kalır (`citations`
+kapısı kırılmaz). Bu, `KARARLAR.md`'nin arşiv desenidir; orada işe yaradı.
+
+**Neden şimdi yapılmadı.** Bir turda bir adım: bu tur iki ölçü aleti kuruldu ve altı
+şablonun geometrisi düzeltiliyor. Bölmeyi aynı turda yapmak, `citations` ve `just tur`
+yollarını sınamadan değiştirmek olurdu. Borç burada, adı konmuş hâlde duruyor.

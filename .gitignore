@@ -83,6 +83,10 @@ graphify-out/
 # git'e değil `derived/blobs`a gider (§3.5). Bakmak için diskte duruyor.
 derived/katalog-onizleme/
 
+# Aile sınavının çıktısı (`just izgara`): on kapak + tek sayfa HTML. Türetilmiş ve tek
+# komutla yeniden üretiliyor (Yasa 11); değeri BAKILDIĞI anda, dosyada değil.
+derived/izgara/
+
 
 # Koşu defterindeki İKİLİ yan dosyalar (D-302). `panorama.json` bunların ADINI taşıyor;
 # byte'ları git'e girmiyor — koşu başına 3 MB, `repo-hygiene`in 512 KB sınırının çok

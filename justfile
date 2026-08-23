@@ -70,6 +70,11 @@ gate name:
 gates-list:
     @ls -1 {{gates_dir}}/*.sh {{gates_dir}}/*.mjs 2>/dev/null | xargs -rn1 basename | sed 's/\.\(sh\|mjs\)$//' || echo "(henüz kapı yok)"
 
+# Aile sınavı: her şablondan bir kapak, tek sayfa. Kapı DEĞİL, mercek — on tasarım
+# yan yana tek bir hesaba mı ait görünüyor sorusunu ancak insan cevaplar.
+izgara:
+    @./node_modules/.bin/tsc -b && node scripts/izgara.mjs
+
 # ── test ─────────────────────────────────────────────────────────────────────
 
 test *args:
