@@ -29,13 +29,49 @@ import {
  * tutulsaydı, biri güncellenip diğeri unutulduğunda pano "temiz" derken kapı kırmızı
  * olurdu — ve hangisinin haklı olduğu belirsiz kalırdı.
  */
+/**
+ * Yayınlanamayan pazarlama dili (§11.4 · R-103).
+ *
+ * ⚠ ⚠ **ALTI TERİM SİSTEMİN KENDİ SÖZLÜĞÜNÜN ÜÇTE BİRİYDİ** ve corpus'ta üç canlı ihlal
+ * duruyordu — liste kısa olduğu için değil, YANLIŞ kısa olduğu için: en sık kullanılan
+ * boş sıfatlar (`akıllı`, `öncü`, `yenilikçi`) hiç yoktu.
+ *
+ * ⚠ ⚠ **ÖLÇÜT "abartılı" DEĞİL, YANLIŞLANAMAZ.** Bir iddia ölçülemiyorsa reklam değil
+ * gürültüdür ve Yasa 8 zaten kaynaksız sayısal iddiayı yasaklıyor; bu liste onun NİTEL
+ * kardeşi. *"Sektör lideri"* yanlışlanamaz; *"pazar payı %31 (kaynak)"* yanlışlanabilir.
+ *
+ * ⚠ **ÇIPLAK SIFAT LİSTEYE GİRMİYOR.** `çözüm` tek başına meşru bir kelime (bir denklemin
+ * çözümü); `çözüm odaklı` boş bir sıfat. `akıllı` tek başına meşru (akıllı telefon);
+ * `Akıllı <Ürün>` bir üstünlük iddiası. Bu yüzden liste ÖBEKLERDEN kuruluyor — çıplak
+ * sıfat listesi, doğru cümleleri de kırmızıya çevirip kapıyı okunmaz yapardı.
+ */
 export const YASAK_TERIMLER: readonly string[] = [
+  // ── üstünlük iddiaları: yanlışlanamaz ───────────────────────────────────
   'devrim niteliğinde',
   'çığır açan',
   'dünyanın en iyisi',
+  'dünya lideri',
   'sektör lideri',
+  'pazar lideri',
+  'sektörün öncüsü',
   'benzersiz',
   'kusursuz',
+  'eşsiz',
+  'rakipsiz',
+  'en iyi çözüm',
+  // ── boş sıfatlar: bilgi taşımayan pazarlama dolgusu ──────────────────────
+  'yenilikçi',
+  'çözüm odaklı',
+  'özel çözümler',
+  'uçtan uca çözüm',
+  'katma değerli',
+  'müşteri odaklı',
+  // ── moda ifadeler: tarihi olan, anlamı olmayan ───────────────────────────
+  'dijital dönüşüm',
+  'next-generation',
+  'yeni nesil',
+  'akıllı genbi',
+  'yapay zekâ destekli',
 ]
 
 export type BulguTuru =

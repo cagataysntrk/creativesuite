@@ -565,3 +565,34 @@ tanımsız olmak demekti.
 yoruma yazarken ölçülen renk değeri ihlal sayıldı. `token-cagrisi` ve `olcum-ters-tirnak`
 yorum satırlarını atlıyor; `ui-tema` atlamıyor. Aynı turda düzeltilmedi — kapı KIRMIZIYKEN
 kuralını gevşetmek yasak (R-76), yanlış pozitif bile olsa. Ayrı bir turda.
+
+## D-334 · Yasak terim listesi öbeklerden kurulur — ve kanonik liste tek yerde
+
+**Bulgu.** `YASAK_TERIMLER` altı terimdi; sistemin kendi sözlüğü ~20. Eksik olanlar
+rastgele değildi: en sık kullanılan boş sıfatlar (`yenilikçi`, `öncü`, `akıllı`,
+`çözüm odaklı`) hiç yoktu. Liste kısa olduğu için değil, **yanlış kısa** olduğu için üç
+canlı ihlal corpus'ta duruyordu.
+
+**Ölçüt "abartılı" değil, YANLIŞLANAMAZ.** Yasa 8 kaynaksız SAYISAL iddiayı yasaklıyor;
+bu liste onun nitel kardeşi. *"Sektör lideri"* yanlışlanamaz; *"pazar payı %31
+(kaynak)"* yanlışlanabilir ve meşrudur.
+
+**Liste ÖBEKLERDEN kuruluyor, çıplak sıfattan değil.** `çözüm` tek başına meşru bir
+kelime (bir denklemin çözümü); `çözüm odaklı` boş bir sıfat. `akıllı` tek başına meşru
+(akıllı telefon); `Akıllı <Ürün>` bir üstünlük iddiası. Çıplak sıfat listesi doğru
+cümleleri de kırmızıya çevirir ve **okunmayan kapı, olmayan kapıdır.**
+
+**Üç canlı ihlal kapatıldı:** `veri-katmanindan-karara.md` *"Akıllı GenBI"* → *"Doğal
+dilden sorgu (GenBI)"* · `imalat-verimlilik-konumu.md` *"özel çözümler"* → *"tesise özgü
+yazılım"* · `olcum-mesaj-evi.md` yasak listesini KOPYALIYORDU ve kendi yasağını ihlal
+ediyordu — artık listeyi adıyla anıyor.
+
+⚠ **`era.yaml` DEĞİŞMEZ.** Dönem dosyası da *"özel çözümler"* içeriyor ama bir dönem
+damgası geçmişin kaydıdır; düzeltmek geçmişi değiştirmek olurdu. Yeni dönem açıldığında
+metin düzelir; o güne kadar kayıt burada duruyor. Linter `corpus/`e bakıyor, `brand/`e
+değil — bu bilinçli.
+
+**Hayalet yol kapatıldı ve KÖKÜ bulundu.** İki kayıt ve `ANAYASA.md` kanonik listeyi
+`registry/lexicon/tr` diye gösteriyordu — **böyle bir yol yok.** Kök `kesif-roportaj.mjs`
+ŞABLONUNDAYDI: üretilen her yeni kayıt hayalet yolu taşıyacaktı. Dördü de gerçek yeri
+(`YASAK_TERIMLER`) gösteriyor.

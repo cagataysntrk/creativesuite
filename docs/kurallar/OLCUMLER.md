@@ -369,3 +369,30 @@ genişleyen bir istisna, istisna değil deliktir.
 
 **Gözle doğrulandı.** Panel açıldı, ekran görüntüsü alındı ve BAKILDI: uyarı kırmızı
 (`oklch(0.58 0.16 25)`), aktif sekmenin çerçevesi mavi (`oklch(0.6 0.206 262)`).
+
+## R-103 · yasak terim listesi
+
+Liste altı terimdi; sistemin sözlüğü ~20. Genişletilince `lexicon` kapısı **üç canlı
+ihlal** buldu:
+
+```
+corpus/messaging/olcum-mesaj-evi.md          "dünya lideri"
+corpus/positioning/imalat-verimlilik-konumu.md  "özel çözümler"
+corpus/positioning/veri-katmanindan-karara.md   "akıllı genbi"
+```
+
+⚠ **Üçüncüsü öğretici:** `olcum-mesaj-evi.md` yasak terimleri LİSTELEYEN kayıttı ve
+listeyi kopyaladığı için kendi yasağını ihlal ediyordu. Çözüm kopyayı kaldırmak — iki
+kopya bir gün ayrışır ve hangisinin geçerli olduğu cevapsız kalır.
+
+⚠ **Sınır ÖBEK/SIFAT ayrımında ve bu ölçülerek bulundu.** Çıplak `çözüm` denenseydi
+teknik nesir kırmızıya dönerdi; `çözüm odaklı` yalnız pazarlama dolgusunu yakalıyor.
+Aynısı `akıllı` için: `akıllı telefon` meşru, `Akıllı GenBI` bir üstünlük iddiası.
+
+⚠ Kasten ihlal: *"tesise özgü yazılım"* → *"yenilikçi çözümler"* yazıldı, kapı
+*"yasak terim yenilikçi"* diyerek kırmızıya döndü, geri alındı.
+
+**Hayalet yolun kökü bir ŞABLONDU.** `registry/lexicon/tr` iki kayıtta ve `ANAYASA.md`'de
+geçiyordu; kaynağı `scripts/kesif-roportaj.mjs` — yani üretilen HER yeni kayıt onu
+taşıyacaktı. Var olmayan bir yolu gösteren belge, bağlamı sıfırlanmış bir agent'ı arama
+yapmaya yollar.

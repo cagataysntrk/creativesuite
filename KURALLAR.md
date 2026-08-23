@@ -508,3 +508,13 @@ yüzeyde tanımlı olması KURTARMAZ. Yüzeye eşlenmemiş dosya sayısı raporl
 uyarı metni gövdeyle aynı renkteydi, aktif sekmenin çerçevesi renksizdi.
 ⚠ Ders `koyuMu()`nunkiyle aynı: **doğru dosyayı okumak, doğru YERİ okumak değildir.**
 **Zorlama:** `token-cagrisi` kapısı, yüzey başına blok. → D-333 · `OLCUMLER.md`
+
+### R-103 · yasak-terim-listesi-obeklerden · GATE · aktif
+Yayınlanamayan pazarlama dili **öbeklerden** kurulur, çıplak sıfattan değil. Ölçüt
+"abartılı" değil **yanlışlanamaz**. Liste TEK yerde; kayıt onu kopyalamaz, ADIYLA anar.
+**Neden:** altı terim sistemin sözlüğünün üçte biriydi ve corpus'ta üç canlı ihlal
+duruyordu — liste kısa olduğu için değil, YANLIŞ kısa olduğu için: en sık kullanılan boş
+sıfatlar (`yenilikçi`, `öncü`, `akıllı`) hiç yoktu.
+⚠ `çözüm` tek başına meşru (bir denklemin çözümü), `çözüm odaklı` değil. Çıplak sıfat
+listesi doğru cümleleri de kırmızıya çevirip kapıyı okunmaz yapardı.
+**Zorlama:** `lexicon` kapısı · `YASAK_TERIMLER`. → D-334 · `OLCUMLER.md`

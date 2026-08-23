@@ -935,7 +935,7 @@ kontrastlı kreatifi seçmeye başlar ve kimse fark etmez.
 ### §11.2 Deterministik lexicon linter {#section-11-2}
 
 **Modele "bu marka uygun mu" diye sorulmaz.** Sorulan model neredeyse her şeye evet der.
-Liste bakar: yasak terim (`registry/lexicon/tr.lexicon.yaml`) · token dışı hex ·
+Liste bakar: yasak terim (`YASAK_TERIMLER`, `saglik/strateji.ts`) · token dışı hex ·
 `claim_source`'suz sayısal iddia · eksik alt-text · locale-naif casing · prospect tüzel
 adında büyük harf hatası · Meta kişisel-özellik kuralını tetikleyen ikinci tekil yapılar
 (`KOBİ sahibi misiniz?` → `KOBİ'ler için…`) · nitelenmemiş üstünlük iddiaları.

@@ -162,7 +162,7 @@ uydurulmadı. On gerçek satış görüşmesinden sonra doldurulacak.`,
 **Ton:** teknik ve somut (üretim müdürü) · yönetici sunumunda finansal karşılığa
 çevrilir · **abartısız** — kanıtımız henüz yetenek, sonuç değil.
 
-**Yasak terimler burada TEKRARLANMIYOR.** Kanonik liste \`registry/lexicon/tr\` ve
+**Yasak terimler burada TEKRARLANMIYOR.** Kanonik liste \`YASAK_TERIMLER\` ve
 \`lexicon\` kapısı; ikinci bir kopya bir gün ayrışır ve hangisinin geçerli olduğu
 belirsizleşir. ⚠ İlk sürümde terimleri buraya literal yazmıştım ve **kapı bu kaydı
 reddetti** — yasağı listeleyen belge yasağı ihlal ediyordu.

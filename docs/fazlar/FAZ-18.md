@@ -100,19 +100,14 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
    SİSTEME ait (§7.4), altı adımı var ve 111 kez çağrılıyor. Madde yanlış öncülden
    yazılmıştı; kullanılmayan adım eklemek ikinci bir ölçek demekti.
 
-## 18.14 — Ses: yasak terim listesi sistemin sözlüğüne genişliyor    [ ]
+## 18.14 — Ses: yasak terim listesi sistemin sözlüğüne genişledi    [x]
 
-📖 §11.4 · D-321
-🔗 FAZ-18.2
-🛠 Bugünkü `YASAK_TERIMLER` **altı** terim; sistemin listesi ~20 (`lider` · `en iyi` ·
-   `öncü` · `yenilikçi` · `çözüm odaklı` · `dijital dönüşüm` · `akıllı` · `gelişmiş`…).
-   ⚠ Üç CANLI ihlal: `veri-katmanindan-karara.md:45` · `imalat-verimlilik-konumu.md:29` ·
-   `era.yaml:12` — sonuncusu DEĞİŞMEZ, `KARARLAR.md`'ye not düşülüyor.
-   ⚠ `veri-yoksa-once-veri.md:54` `registry/lexicon/tr` diyor — **böyle bir yol yok**.
-📁 `packages/engine/src/saglik/strateji.ts` · `corpus/`
-✅ Liste ~20 terim · corpus'ta canlı ihlal 0 · hayalet yol gerçek yerle değişti
-🧪 `lider` yaz → kapı kırmızı
-💾 `feat(engine): yasak terim listesi genisledi` · `Refs: FAZ-18.14 · §11.4`
+📁 `packages/engine/src/saglik/strateji.ts` · `corpus/` · `scripts/kesif-roportaj.mjs`
+✅ Altı → yirmi üç terim; kapı ÜÇ canlı ihlal buldu ve üçü de kapatıldı. Sınır
+   ÖBEK/SIFAT ayrımında: `çözüm` meşru, `çözüm odaklı` değil — çıplak sıfat listesi doğru
+   cümleleri de kırmızıya çevirirdi. `olcum-mesaj-evi.md` yasak listesini KOPYALADIĞI için
+   kendi yasağını ihlal ediyordu. Hayalet yolun (`registry/lexicon/tr`) kökü bir
+   ŞABLONDU — üretilen her yeni kayıt onu taşıyacaktı. Kural **R-103** · D-334
 
 ## 18.15 — Kaynak satırı: sistemin İMZASI karosele iniyor    [ ]
 
