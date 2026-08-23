@@ -191,59 +191,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-309 · D-310 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62).
 
-## D-322 · `KURALLAR.md` tavanı 400 → 480: tavan artık BİLGİYİ sınırlıyor (2026-08-23)
-
-**Bulgu.** FAZ-18'de altı kural eklendi (R-83…R-88) ve her biri tavanı deldi. Her
-seferinde bir ESKİ kuralın gerekçesini kısaltarak geçtim — dört turda dokuz kural
-kısaldı. Yani kapı yeni kuralı değil, **eski kuralların gerekçesini** kesiyordu.
-
-**Tavanın amacı okunabilirlik.** R-63'ün kendi cümlesi: *"boş bir bölüm uzun bir
-bölümden pahalıdır — kuralı bulamayan kuralı yok sanmaz, kendi uydurur"*. Gerekçesi
-budanmış bir kural tam olarak bu tuzağa düşüyor: kural orada duruyor ama NEDEN orada
-olduğu artık yazmıyor ve altı ay sonra biri onu "gereksiz" diye kaldırıyor.
-
-**Karar.** `KURALLAR.md` tavanı **480**. Sayı keyfî değil: bugün 60 kural × ortalama
-6,5 satır ≈ 390, artı başlık ve bölüm ayraçları. 480, on kurallık bir büyüme payı
-bırakıyor ve o dolduğunda tekrar bir karar gerektiriyor — tavan kalkmıyor, bir kez
-yükseliyor.
-
-**Neden R-76 ihlali değil.** *"Kırmızı bir kapının kuralı aynı turda gevşetilemez"* —
-bu kapı bir KUSURU yakalamıyordu; belge büyüdü çünkü içine ölçülmüş bilgi girdi.
-Ve yükseltme kırmızı turda değil, ayrı bir turda ve kendi kararıyla yapılıyor.
-
-**Sınır neden kalkmıyor.** Kural kitabı sonsuz büyüyemez: 88 kuralın hepsini okuyan
-kimse yok, `just tur` yalnız atıf verileni getiriyor. Ama bir kuralın GEREKÇESİ o kuralın
-parçası — zorlaması olmayan kural yazılmadığı gibi, gerekçesi olmayan kural da
-savunulamaz.
-
-## D-323 · Kadraj kartın kutusu değil, EKRANIN kutusu — sahne kaymaz
-
-**Bulgu.** Görsel payını ölçmek için yazılan geçici bir alet, ölçmeye çalıştığı şeyi
-değil bambaşka bir kusuru gösterdi: `sahne` `memphis` ve `donen` şablonlarında sahne
-gövdenin (0,0)'ında **başlamıyordu** — `top: 21`. Sebep, görsel işlemlerinin
-`<svg class="filtre-tanim" width="0" height="0">` tanımlarının gövdede INLINE durması.
-Sıfır boyutlu bir inline öge bile satır kutusu doğuruyor ve o kutunun strut yüksekliği
-21 px. Yani **görsel işlemi olan her belge 21 px aşağı kaymış** üretiliyordu: üstte gövde
-zemininden bir şerit, altta kartın son 21 px'i — imza rayının durduğu yer — kadrajın
-dışında.
-
-**Neden hiçbir kapı görmedi.** Bu depodaki bütün panorama ölçümleri ögeleri KARTA göre
-okuyor: taşma kart kutusunda, güvenli alan kart kenarından, metin payı kart alanına
-bölünerek. Kart kendi içinde kusursuzdu; yanlış olan onun YERİYDİ. Ölçüm aletinin
-kendisinin bozuk çıktığı dördüncü vaka (D-31x ailesi) ve en sessizi: alet doğru çalışıyor,
-yalnız yanlış şeye bağlı.
-
-**Karar.** Kadrajın tanımı düzeltiliyor: kadraj `.kart`ın kutusu değil, EKRANIN kutusudur.
-`sahne-kaymis` kusuru sahneyi mutlak koordinatta ölçüyor — tolerans yok, çünkü bir piksel
-kayma ekran görüntüsünün her slaytta aynı yerden kesilmediği demektir. Kural R-93.
-
-**Düzeltme tanımı ÜRETEN modülde.** `FILTRE_TANIM_CSS` `gorsel-islem.ts`te tek sabit;
-`panorama.ts` ve `static.ts` ikisi de onu basıyor. İki render yolu aynı işaretlemeyi
-üretiyor ve stili birinde unutmak, kaymayı yalnız orada geri getirirdi (§3.8 darboğaz).
-
-**Kanıt.** Kural iptal edilip koşuldu: kusur tam olarak görsel işlemi olan ÜÇ şablonda
-kırmızı, diğer üçünde sessiz. Ölçüm, kaymanın kendisini de doğrudan okuyor.
-
 ## D-324 · Dikiş bandı ve krom okunurluğu — iki ölçü, ikisi de gözle bulundu
 
 **Dikiş bandı (R-94).** Kesik öznelerin küçük kaldığını çıktıya BAKINCA gördüm ve bir
@@ -581,3 +528,58 @@ kuralın eski kopyası sessizce yaşamaya devam edemiyor.
 yazdım ve beş dosyaya yaydım; arşiv sıfır dolgusuz biçim kullanıyor ve o numara başka bir
 konuya ait. Atıf sözlüğünün tek anlamlı olması tam da bunun içindir — kaynak satırının
 gerçek yeri Anayasa'nın imza bölümü.
+
+## D-337 · Şablon ailesi 6 → 10; yeni şablon yazmak eski şablonların DENETİMİDİR
+
+**Dört yeni şablon:** `kavis` (kemer dizisi · geometri öncülü) · `alinti` (yalnız
+tipografi · kâğıt · ailenin sessiz üyesi) · `karsilastirma` (tek yönlü alan süpürmesi ·
+önce/sonra) · `dizin` (akış okları · numaralı adımlar). **Dördü de GÖRSELSİZ** ve bu bir
+kısıt değil bir karar: mevcut altının beşi görsele dayanıyordu, aile geometri ve
+tipografiyle taşıyan üyelere muhtaçtı — hem çeşitlilik hem de sağlayıcısız koşuda
+üretilebilen bir çıktı için.
+
+**Kurulu kapılar yeni şablonlarda anında konuştu:** hayalet üç şablonda başlığa çarptı,
+alan sınırı `karsilastirma`da rayı yuttu (R-95), `alinti`de etiket panelini yuttu (R-105).
+Ama asıl değerli üç bulguyu GÖZ buldu ve ölçüm sonradan doğruladı — üçü de ESKİ
+şablonları da etkiliyordu:
+
+1. **`kemer` taşıyıcısı kırıktı.** Modelde vardı, hiçbir şablon kullanmıyordu; geometri
+   mutlak pikselle yazılmış, `preserveAspectRatio="none"` dikeyi %41'e sıkıştırıyordu.
+   Kullanılmamasının sebebi tercih değil, koordinat uzayıydı.
+2. **Oklar yön vermiyordu.** Simetrik basınç eğrisi bir mercek çiziyordu; dosyanın kendi
+   yorumu *"yön kıvrımdan okunuyor"* diyordu ve yanlıştı.
+3. **Çubuk grafiği veri taşımıyordu.** Panelin eni içeriğine kilitli olduğu için
+   `flex: 1` büyüyecek boşluk bulamıyordu: yuva `veri-hikayesi`de **10 px**. Üç ayrı
+   değer aynı minik kare olarak çiziliyordu.
+
+**Ders.** Üç kusur da ay­larca yaşadı çünkü kullanılmayan bir bantta ve küçük bir panelde
+saklanıyordu. Yeni bir şablon, var olan mekanizmaları yeni bileşimlerde ZORLUYOR — yani
+bir şablon ailesini büyütmek, ailenin geri kalanını denetlemektir.
+
+**İki fikir ÖLÇÜM YÜZÜNDEN terk edildi ve ikisi de kayıtlı:** `karsilastirma`nın "zemin
+kâğıda dönüyor" fikri geometrik olarak imkânsız (kartın metin rengi kendi zemininden
+türüyor; kâğıt yukarıdan gelirse başlığı, aşağıdan gelirse rayı yutuyor — üçüncü yön
+yok). `alinti`nin etiket paneli kaldırıldı: sınır onu yutuyordu ve alıntı şablonunda
+üçüncü bir ses zaten fazlaydı.
+
+## D-338 · Kök eşleşmesi ünsüz yumuşamasını bilmiyordu
+
+**Bulgu.** `dizin` şablonunun liste satırı *"eşiği yaz"* ikon köküne oturmadı ve katalog
+kabul testi kırmızıya döndü. Kök `eşik`, kelime `eşiği`: sesli harfle başlayan ek gelince
+sondaki sert ünsüz yumuşuyor ve `startsWith` bunu türetemiyor.
+
+**Sınıf tanıdık:** `'i'.toUpperCase()` → `I` ailesinden. Kural Türkçe hakkında, eşleşme
+İngilizce sezgisiyle yazılmış. Yeni şablon bunu GÖRÜNÜR yaptı, sebep olmadı — kök listesi
+`eşik` · `stok` · `kayıp` · `paket` gibi yumuşayan köklerle doluydu ve hiçbiri çekimli
+hâliyle eşleşmiyordu.
+
+**Karar.** Eşleşme son ünsüzü esnetiyor (k→ğ · p→b · t→d · ç→c). Kök listesine yumuşamış
+ikizleri elle yazmak alternatifti ve reddedildi: yirmi bir ikonun kökleri elle çoğaltılsa
+bir gün biri unutulur.
+
+**Sınır YAZILI.** `kayıp → kaybı` hem yumuşuyor hem gövdeden ünlü düşürüyor; bu kural onu
+yakalamıyor ve yakalamaya çalışmak bir morfoloji motoru yazmak olurdu (R-75). **Sınırını
+söylemeyen bir kural, olmayan bir sınır sanılır** — test o sınırı da ölçüyor.
+
+⚠ Yalnız SON ünsüz esniyor, gövde değil: `eşiğ` kabul, `eşşik` değil. Anlamsız ikon,
+ikonsuzluktan kötüdür.

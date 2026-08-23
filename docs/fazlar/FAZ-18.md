@@ -118,17 +118,14 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
    kesikli `KAYNAK YOK` kutusu basıyor ve denetim onu raporluyor. Çizildi ve BAKILDI.
    Kural **R-104** · D-335
 
-## 18.16 — Şablon ailesi büyüyor: altı → on    [ ]
+## 18.16 — Şablon ailesi büyüdü: altı → on    [x]
 
-📖 §7.1 · D-268
-🔗 FAZ-18.9 · FAZ-18.13
-🛠 Depo sahibi: *"sadece sahne yok, altı tane muazzam şablon olacak, hatta daha fazla."*
-   Her yeni şablon: referans oku → modele kur → **çiz ve BAK** → 18.5–18.13 kapılarından
-   geçir. Taşıyıcı güç sırası: renk alanı > çizgi/eğri > geometrik form > ok > fotoğraf.
-📁 `packages/contracts/src/katalog.ts` · `packages/render/src/katalog-ornek.ts`
-✅ On şablon · her biri kendi tipografi imzasını taşıyor · hepsi kapılardan geçiyor
-🧪 Yeni şablonu kapılardan geçirmeden ekle → `katalog-kabul` kırmızı
-💾 `feat(render): sablon ailesi buyudu` · `Refs: FAZ-18.16 · §7.1`
+📁 `packages/render/src/katalog-ornek.ts` · `panorama.ts` · `panorama-denetim.ts`
+✅ `kavis` (kemer · geometri) · `alinti` (yalnız tipografi · kâğıt) · `karsilastirma`
+   (alan süpürmesi · önce/sonra) · `dizin` (akış okları · adımlar). Dördü de GÖRSELSİZ —
+   aile görsel-öncülüydü. Kapılar anında konuştu; asıl üç bulguyu GÖZ buldu ve üçü de
+   ESKİ şablonları da etkiliyordu: `kemer` koordinat uzayı kırık, oklar yön vermiyor,
+   çubuk grafiği veri taşımıyor (yuva 10 px). Kural **R-105** · D-337
 
 ## 18.17 — Izgara sınavı: on şablon TEK sayfa    [ ]
 

@@ -1,6 +1,7 @@
 // Şablon seçimi — katalogdan, içeriğin şekline göre (FAZ-15.6 · D-268).
 
 import { describe, expect, it } from 'vitest'
+import { KATALOG } from '@suite/contracts'
 import { icerikSekli, sablonSec } from './sablon-sec.js'
 
 const veri = [
@@ -147,10 +148,23 @@ describe('seçim REDDEDEBİLİR — sessizce varsayılana düşmüyor', () => {
 
   // ⚠ ⚠ Görsel üretilemiyorsa katalog İKİ kayda iniyor — kimliği yer tutucudan ibaret
   // bir karosel teslim etmektense, seçimi daraltmak doğru cevap.
+  // ⚠ ⚠ **İDDİA KATALOĞDAN TÜRÜYOR, ELLE YAZILMIŞ BİR LİSTEDEN DEĞİL.** İlk sürüm
+  // `['akan-alan', 'veri-hikayesi']` yazıyordu ve aile altıdan ona çıkınca bayatladı.
+  // Elle liste, testi zayıflatmadan da yanlış yapabilir: yeni bir GÖRSELLİ şablon
+  // sızsaydı liste onu yakalamazdı, yalnız sayı tutmazdı. Türetilmiş iddia hem bayatlamaz
+  // hem daha güçlü — seçilen HER şablonun görselsiz olduğunu söylüyor.
   it('görsel üretilemiyorsa yalnız görselsiz şablonlar seçilebiliyor', () => {
     const s = sablonSec(anlati, { gorselUretilebilir: false })
     expect(s.ok).toBe(false)
-    expect(s.puanlar.map((p) => p.id).sort()).toEqual(['akan-alan', 'veri-hikayesi'])
+    const gorselsiz = KATALOG.filter((k) => k.gorsel === null)
+      .map((k) => k.id)
+      .sort()
+    expect(gorselsiz.length).toBeGreaterThan(1)
+    expect(s.puanlar.map((p) => p.id).sort()).toEqual(gorselsiz)
+    // Ve seçilenlerin hiçbiri görsel istemiyor — listenin kendisi de doğrulanıyor.
+    for (const p of s.puanlar) {
+      expect(KATALOG.find((k) => k.id === p.id)?.gorsel, p.id).toBeNull()
+    }
   })
 
   it('görselsiz koşuda görsele bağlı şablon İSTENSE de reddediliyor', () => {

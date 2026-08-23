@@ -284,6 +284,20 @@ export type KusurTuru =
    * Yer tutucu görselle aynı desen: eksik olan şey GÖRÜLMELİ, sonra RAPORLANMALI.
    */
   | 'kaynak-yok'
+  /**
+   * İçerik metni kendi zemininden AYRILMIYOR — renk ya da gürültü yüzünden (R-105).
+   *
+   * ⚠ ⚠ **KROM İÇİN ÖLÇÜLÜYORDU, İÇERİK İÇİN ÖLÇÜLMÜYORDU.** `krom-okunmuyor` yalnız
+   * rayı denetliyor; başlık, gövde ve üst başlık hiçbir kontrast ölçümüne girmiyordu.
+   * Yeni `alinti` şablonunda etiket paneli ALAN SINIRININ tam üstüne düştü: yarısı
+   * kâğıtta, yarısı mürekkepte ve koyu metin mürekkepte kayboldu. Denetim *"0 kusur"*
+   * dedi — `metin-ortuluyor` görselleri arıyor, `sus-metni-kesiyor` süsleri, ikisi de
+   * alan sınırını görmüyor.
+   *
+   * ⚠ Ölçü kromunkiyle AYNI ve bu bilinçli: metin metindir, krom olması onu farklı
+   * kılmaz. İki istatistik — zeminin metne yakınlığı ve zeminin gürültüsü.
+   */
+  | 'metin-zemine-karisiyor'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -323,6 +337,7 @@ const OLCUM = (
   const kutular = []
   const kromKutulari = []
   const gorselKutulari = []
+  const metinKutulari = []
   const kesimler = ${JSON.stringify(kesimler)}
   const kartlar = Array.from(document.querySelectorAll('.kart'))
 
@@ -421,6 +436,21 @@ const OLCUM = (
       }
     }
   }
+
+  // ── icerik metin kutulari: KONTRAST NODE TARAFINDA (R-105) ──────────────
+  //
+  // Krom icin olculuyordu, icerik icin olculmuyordu. Ayni alet, ayni gerekce.
+  kartlar.forEach((kart, i) => {
+    for (const sec of ['.ust-baslik', '.baslik', '.govde', '.etiketler']) {
+      const e = kart.querySelector(sec)
+      if (!e) continue
+      const r = e.getBoundingClientRect()
+      if (r.width < 8 || r.height < 8) continue
+      if ((e.textContent || '').trim() === '') continue
+      metinKutulari.push({ kart: i + 1, alan: sec.slice(1), sol: r.left, ust: r.top,
+        en: r.width, boy: r.height, renk: getComputedStyle(e).color })
+    }
+  })
 
   // ── krom kutulari: ray cocuklari, KONTRAST NODE TARAFINDA (R-95) ────────
   //
@@ -911,7 +941,7 @@ const OLCUM = (
           ') — sureklilik HER gecisin ozelligi (R-87)' })
     }
   }
-  return { kusurlar, ifsaKutulari: kutular, kromKutulari, gorselKutulari }
+  return { kusurlar, ifsaKutulari: kutular, kromKutulari, gorselKutulari, metinKutulari }
 })()`
 
 /**
@@ -1069,6 +1099,15 @@ export const panoramaDenetle = async (
         ust: number
         en: number
         boy: number
+      }[]
+      readonly metinKutulari: readonly {
+        kart: number
+        alan: string
+        sol: number
+        ust: number
+        en: number
+        boy: number
+        renk: string
       }[]
     }
     const ham = olcum.kusurlar
@@ -1302,6 +1341,102 @@ export const panoramaDenetle = async (
       }
     }
 
+    // ── içerik metni zeminden AYRIŞIYOR mu (R-105) ──────────────────────────
+    //
+    // ⚠ ⚠ **KROM İÇİN ÖLÇÜLÜYORDU, İÇERİK İÇİN ÖLÇÜLMÜYORDU.** Yeni `alinti` şablonunda
+    // etiket paneli alan sınırının tam üstüne düştü — yarısı kâğıtta, yarısı mürekkepte —
+    // ve denetim *"0 kusur"* dedi. `metin-ortuluyor` görselleri arıyor, `sus-metni-kesiyor`
+    // süsleri; ikisi de alan sınırını görmüyor.
+    //
+    // ⚠ **TEK ÇİFT EKRAN GÖRÜNTÜSÜ, kutu başına DEĞİL.** Kutu başına iki çekim 80 çekim
+    // ederdi ve paketi yavaşlatırdı; burada tüm panorama iki kez çekiliyor (metinli /
+    // metinsiz) ve her kutu o iki resimden okunuyor. Ölçüm aynı, maliyet 40 kat düşük.
+    const metinKusurlari: Kusur[] = []
+    if (olcum.metinKutulari.length > 0) {
+      try {
+        const varken = await page.screenshot({ fullPage: false })
+        await page.evaluate(
+          `(() => { const s = document.createElement('style'); s.id = 'metin-gizle';
+            s.textContent = '.ust-baslik, .baslik, .govde, .etiketler { visibility: hidden }';
+            document.head.appendChild(s) })()`
+        )
+        const yokken = await page.screenshot({ fullPage: false })
+        await page.evaluate(`(() => document.getElementById('metin-gizle')?.remove())()`)
+        const sonuc = (await page.evaluate(
+          `(async () => {
+            const yukle = async (b64) => {
+              const im = new Image()
+              im.src = 'data:image/png;base64,' + b64
+              await im.decode()
+              const c = document.createElement('canvas')
+              c.width = im.width; c.height = im.height
+              const x = c.getContext('2d')
+              x.drawImage(im, 0, 0)
+              return { d: x.getImageData(0, 0, c.width, c.height).data, w: c.width, h: c.height }
+            }
+            const A = await yukle(${JSON.stringify(varken.toString('base64'))})
+            const B = await yukle(${JSON.stringify(yokken.toString('base64'))})
+            const kutular = ${JSON.stringify(olcum.metinKutulari)}
+            const boya = document.createElement('canvas').getContext('2d')
+            const luma = (d, o) => 0.2126*d[o] + 0.7152*d[o+1] + 0.0722*d[o+2]
+            return kutular.map((k) => {
+              boya.fillStyle = k.renk
+              boya.fillRect(0, 0, 1, 1)
+              const mp = boya.getImageData(0, 0, 1, 1).data
+              const metin = 0.2126*mp[0] + 0.7152*mp[1] + 0.0722*mp[2]
+              const x0 = Math.max(0, Math.round(k.sol)), y0 = Math.max(0, Math.round(k.ust))
+              const x1 = Math.min(B.w, Math.round(k.sol + k.en))
+              const y1 = Math.min(B.h, Math.round(k.ust + k.boy))
+              const zemin = []
+              for (let y = y0; y < y1; y += 1) {
+                for (let x = x0; x < x1; x += 1) zemin.push(luma(B.d, (y * B.w + x) * 4))
+              }
+              if (zemin.length === 0) return { kart: k.kart, alan: k.alan, yakin: 0, gurultu: 0 }
+              let yakin = 0
+              for (const l of zemin) if (Math.abs(l - metin) < 44) yakin += 1
+              const sirali = zemin.slice().sort((a, b) => a - b)
+              const medyan = sirali[Math.floor(sirali.length / 2)]
+              let gurultu = 0
+              for (const l of zemin) if (Math.abs(l - medyan) > 60) gurultu += 1
+              return {
+                kart: k.kart, alan: k.alan,
+                yakin: Math.round((yakin / zemin.length) * 100),
+                gurultu: Math.round((gurultu / zemin.length) * 100),
+              }
+            })
+          })()`
+        )) as readonly { kart: number; alan: string; yakin: number; gurultu: number }[]
+        for (const o of sonuc) {
+          if (o.yakin > 4) {
+            metinKusurlari.push({
+              tur: 'metin-zemine-karisiyor',
+              kart: o.kart,
+              alan: null,
+              aciklama:
+                `${o.alan} zeminine karışıyor: yüzeyinin %${String(o.yakin)}'i metin ` +
+                "lumasına 44'ten yakın (tavan %4) — R-105",
+            })
+          } else if (o.gurultu > 12) {
+            metinKusurlari.push({
+              tur: 'metin-zemine-karisiyor',
+              kart: o.kart,
+              alan: null,
+              aciklama:
+                `${o.alan} gürültülü bir zeminin üstünde: yüzeyinin %${String(o.gurultu)}'i ` +
+                'medyandan 60 luma sapıyor (tavan %12) — R-105',
+            })
+          }
+        }
+      } catch (e) {
+        metinKusurlari.push({
+          tur: 'metin-zemine-karisiyor',
+          kart: null,
+          alan: null,
+          aciklama: `metin okunurluğu ÖLÇÜLEMEDİ (${String(e)}) — ölçülemeyen geçmiş sayılmaz`,
+        })
+      }
+    }
+
     // ── AI ifşası OKUNUYOR mu — BİLEŞİK piksel üzerinden (§11.3 · Md. 50) ────
     //
     // ⚠ ⚠ **ÖLÇÜT ÜÇÜNCÜ KEZ DÜZELTİLDİ ve her seferinde SAYI gösterdi.** Önce ham
@@ -1430,6 +1565,7 @@ export const panoramaDenetle = async (
       ...ifsaKusurlari,
       ...kromKusurlari,
       ...ayrismaKusurlari,
+      ...metinKusurlari,
       ...susKusurlari,
       ...cokme,
       ...(eksik.length === 0

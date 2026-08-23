@@ -363,3 +363,13 @@ bir karoselin nasıl çizildiği. Mimari ve süreç kurallarını her turda okuy
 okumuyor; karosel üstünde çalışan biri ise YALNIZ onları okuyor. `citations` kapısı iki
 dosyayı da tarıyor ve bir `R-nn`in İKİSİNDE birden olmasını reddediyor — `KARARLAR.md`
 ile arşivi arasındaki sözleşmenin aynısı.
+
+### R-106 · kok-eslesmesi-yumusamayi-bilir · GATE · aktif
+Türkçe kök eşleşmesi ünsüz yumuşamasını (k→ğ · p→b · t→d · ç→c) hesaba katar. Sınır
+YAZILI: ünlü düşmesi kapsam dışı.
+**Neden:** `eşik` kökü `eşiği` kelimesiyle eşleşmiyordu — `startsWith` bunu türetemez.
+`'i'.toUpperCase()` ailesinden: kural Türkçe hakkında, eşleşme İngilizce sezgisiyle
+yazılmış. Kök listesine yumuşamış ikizleri elle yazmak, bir gün birini unutmak demek.
+⚠ Yalnız SON ünsüz esniyor: `eşiğ` kabul, `eşşik` değil. Geniş esneme yanlış ikon üretir
+ve **anlamsız ikon, ikonsuzluktan kötüdür.**
+**Zorlama:** `sablon-ikon.test.ts` — yumuşama, sınır ve gövde katılığı. → D-338

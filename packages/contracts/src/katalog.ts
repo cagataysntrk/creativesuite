@@ -435,9 +435,123 @@ export const AKAN_ALAN: KatalogSablonu = {
   },
 }
 
+/**
+ * **Kavis** — kemer dizisi; ailenin geometri öncülü üyesi (D-337).
+ *
+ * ⚠ `kemer` taşıyıcısı modelde vardı ve hiçbir şablon kullanmıyordu; geometrisi de
+ * kırıktı (mutlak piksel, sıkışan viewBox). Bu şablon onu hem kullanıyor hem düzeltti.
+ */
+export const KAVIS: KatalogSablonu = {
+  id: 'kavis',
+  ad: 'Kavis — kemer dizisi, dar ve ağır tipografi',
+  kaynak: 'aile-2026',
+  slayt: { min: 3, max: 6 },
+  zemin: KANVAS,
+  rotasyon: [],
+  bant: {
+    tip: 'kemer',
+    aciklama:
+      'Kesimler kemerlerin TEPESİNE değil ORTASINA düşüyor: ortadan kesilen bir yay ' +
+      'iki yandan da aynı eğimi veriyor ve devamı zorunlu okunuyor. Tepe noktası ' +
+      'kesime düşseydi göz iki yarım tepe görürdü.',
+  },
+  gorsel: null,
+  baslikPayi: 1,
+  kullanilabilir: {
+    durum: true,
+    sebep: 'Görsel gerektirmiyor; taşıyıcı kemer dizisi ve hayalet kelime.',
+  },
+}
+
+/**
+ * **Alıntı** — ailenin sessiz üyesi: yalnız tipografi, kâğıt zemin (D-337).
+ *
+ * ⚠ Ailede hiç metin-öncülü şablon yoktu; bir karosel dizisi sürekli yüksek sesle
+ * konuşamaz. Izgarada yan yana geldiğinde nefes aralığı.
+ */
+export const ALINTI: KatalogSablonu = {
+  id: 'alinti',
+  ad: 'Alıntı — tek iri serif söz, kâğıt zemin, süs yok',
+  kaynak: 'aile-2026',
+  slayt: { min: 2, max: 4 },
+  zemin: KAGIT,
+  rotasyon: [],
+  bant: {
+    tip: 'alan',
+    aciklama:
+      'Kâğıt/mürekkep sınırı panoramayı kat ediyor ve alıntının ALTINDAN geçiyor. ' +
+      'Eğim iki kez azaltıldı: metnin içinden geçen bir sınır, metni zemine karıştırıyor.',
+  },
+  gorsel: null,
+  baslikPayi: 1,
+  kullanilabilir: {
+    durum: true,
+    sebep: 'Görsel gerektirmiyor; taşıyıcı alan sınırı, içerik yalnız tipografi.',
+  },
+}
+
+/**
+ * **Karşılaştırma** — önce/sonra; tek yönlü alan süpürmesi (D-337).
+ *
+ * ⚠ "Zemin kâğıda dönüyor" fikri ölçüm yüzünden terk edildi: kartın metin rengi kendi
+ * zemininden türüyor, kâğıt yukarıdan gelirse başlığı aşağıdan gelirse rayı yutuyor.
+ * Önce/sonra üç kanaldan okunuyor: süpürme, üst başlıklar ve panel çifti.
+ */
+export const KARSILASTIRMA: KatalogSablonu = {
+  id: 'karsilastirma',
+  ad: 'Karşılaştırma — önce/sonra, tek yönlü alan süpürmesi, panel çifti',
+  kaynak: 'aile-2026',
+  slayt: { min: 3, max: 6 },
+  zemin: KANVAS,
+  rotasyon: [],
+  bant: {
+    tip: 'alan',
+    aciklama:
+      'Sınır TEK YÖNLÜ iniyor — salınan bir sınır akan alanın işi. Panel çifti kasten ' +
+      'farklı: önce tarafında dağılım (çubuklar), sonra tarafında sonuç (sayılar).',
+  },
+  gorsel: null,
+  baslikPayi: 1,
+  kullanilabilir: {
+    durum: true,
+    sebep: 'Görsel gerektirmiyor; taşıyıcı alan sınırı, karşılaştırmayı panel çifti kuruyor.',
+  },
+}
+
+/**
+ * **Dizin** — numaralı adımlar; taşıyıcı akış okları (D-337).
+ *
+ * ⚠ Oklar bu şablonda İKİNCİL değil kompozisyonun kendisi. Basınç eğrisi bu şablon
+ * yüzünden düzeltildi: simetrik daralma yön taşımıyordu.
+ */
+export const DIZIN: KatalogSablonu = {
+  id: 'dizin',
+  ad: 'Dizin — numaralı adımlar, akış okları, mono liste',
+  kaynak: 'aile-2026',
+  slayt: { min: 3, max: 6 },
+  zemin: KANVAS,
+  rotasyon: [],
+  bant: {
+    tip: 'ok',
+    aciklama:
+      'Her ok bir adımı sonrakine bağlıyor ve kesimi TAM ORTADAN aşıyor. Oklar kart ' +
+      'ARALARINDA duruyor: metnin üstünden geçen bir ok okunabilirliği düşürüyor.',
+  },
+  gorsel: null,
+  baslikPayi: 1,
+  kullanilabilir: {
+    durum: true,
+    sebep: 'Görsel gerektirmiyor; taşıyıcı akış okları ve numaralı liste.',
+  },
+}
+
 export const KATALOG: readonly KatalogSablonu[] = [
   VERI_HIKAYESI,
   AKAN_ALAN,
+  KAVIS,
+  ALINTI,
+  KARSILASTIRMA,
+  DIZIN,
   SAHNE,
   MEMPHIS,
   DONEN,

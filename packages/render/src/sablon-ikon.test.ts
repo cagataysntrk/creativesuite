@@ -126,3 +126,25 @@ describe('ikon kararı SLAYTIN tamamına ait', () => {
     expect((h.match(/class="ikonlu"/g) ?? []).length).toBe(2)
   })
 })
+
+// ── ünsüz yumuşaması (R-106 · D-338) ────────────────────────────────────────
+//
+// ⚠ ⚠ **`eşik` KÖKÜ `eşiği` KELİMESİYLE EŞLEŞMİYORDU** ve bu, `'i'.toUpperCase()`
+// ailesinden bir hata: kural Türkçe hakkında, eşleşme İngilizce sezgisiyle yazılmış.
+// Yeni `dizin` şablonunun liste satırı bunu görünür yaptı — sebep olmadı.
+describe('ünsüz yumuşaması', () => {
+  it('yumuşamış kök EŞLEŞİYOR', () => {
+    expect(ikonSec('eşiği yaz')).toBe('ayar')
+    expect(ikonSec('eşik yaz')).toBe('ayar')
+  })
+
+  it('SINIR yazılı: ünlü düşmesi kapsam dışı', () => {
+    // `kayıp → kaybı` hem yumuşuyor hem ünlü düşürüyor. Kural onu yakalamıyor ve
+    // yakalamaya çalışmak bir morfoloji motoru yazmak olurdu.
+    expect(ikonSec('kaybı yaz')).toBeNull()
+  })
+
+  it('gövde ESNEMİYOR — yalnız son ünsüz', () => {
+    expect(ikonSec('eşşik yaz')).toBeNull()
+  })
+})

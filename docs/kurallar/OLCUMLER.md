@@ -418,3 +418,55 @@ mekanizmanın ayrışması böylece imkânsız.
 
 Kasten ihlal: ilk kartın `rayaOrta`sı boşaltıldı → `kart 1: kaynak satiri BOS` ve rayda
 kesikli kutu göründü. Çizildi ve BAKILDI.
+
+## R-105 · metin zemininden ayrışır
+
+Krom için ölçülüyordu (R-95), içerik için ölçülmüyordu. Yeni `alinti` şablonunda etiket
+paneli alan sınırının TAM üstüne düştü ve denetim *"0 kusur"* dedi.
+
+Ölçüm eklendiğinde üç bulgu çıktı ve üçü de YENİ şablonlardaydı — altı eski şablon temiz:
+
+```
+alinti         etiketler  %100 yakın   (kâğıt/mürekkep sınırı tam altında)
+karsilastirma  baslik     %69 yakın    (kâğıt alanı başlığın üstüne geldi)
+karsilastirma  govde      %15 gürültülü
+```
+
+⚠ **Ölçü kromunkiyle aynı ve bu bilinçli:** metin metindir. İki istatistik — zeminin
+metne YAKINLIĞI (%4) ve zeminin GÜRÜLTÜSÜ (%12). İkincisi olmadan yarısı siyah yarısı
+beyaz bir zemin "temiz" görünür.
+
+⚠ **Tek çift ekran görüntüsü, kutu başına değil.** Kutu başına iki çekim 80 çekim ederdi;
+tüm panorama iki kez çekiliyor (metinli/metinsiz) ve her kutu o iki resimden okunuyor.
+
+## Şablon ailesi 6 → 10 — bulunan kusurlar
+
+Dört yeni şablon (`kavis` · `alinti` · `karsilastirma` · `dizin`) yazılırken kurulu
+kapılar ÜÇ tasarım kusuru buldu, ama asıl değerli olanları GÖZ buldu ve ölçüm sonradan
+doğruladı:
+
+**1. `kemer` taşıyıcısı kırıktı** — modelde vardı, hiçbir şablon kullanmıyordu. Geometri
+MUTLAK PİKSELLE yazılmıştı (52 · 132 px) ama `viewBox` tüm panorama boyutunda ve
+`preserveAspectRatio="none"` ile 560 px'lik banda sıkışıyor: dikey **%41'e** iniyor.
+132 px'lik tepe ekranda ~55 px oluyordu. Kullanılmamasının sebebi tercih değil,
+koordinat uzayıydı. Ölçüler bandın kendi yüksekliğinin payına çevrildi (%10 taban,
+%86 tepe) ve form DOLDURULDU — araştırma dolu formu ince yaydan güçlü sayıyor.
+
+**2. Oklar yön vermiyordu.** Basınç `0,18 + 0,82·sin(tπ)` idi: iki ucu da ince,
+simetrik — bir MERCEK. Dosyanın kendi yorumu *"yön kıvrımdan okunuyor"* diyordu ama
+simetrik bir daralma yön taşımaz; çizildi ve bakıldı, oklar mavi yapraklar gibi
+duruyordu. Basınç tek yönlü azalıyor artık (`0,95 − 0,75·t`).
+
+**3. ÇUBUK GRAFİĞİ VERİ TAŞIMIYORDU.** Kart bir flex sütunu ve `align-items:
+flex-start`; panelin eni içeriğine kilitleniyor, yani `.cubuk-yuva { flex: 1 }`
+büyüyecek boşluk bulamıyor. Ölçüldü — yuva `veri-hikayesi`de **10 px**,
+`karsilastirma`da 42 px. Üç ayrı değer (62 · 71 · 58) aynı minik kare olarak
+çiziliyordu. `max-width` bunu çözmüyor: max bir TAVAN, taban değil. `width: 100%`
+eklendi → yuva 631 px.
+
+⚠ Üçü de ESKİ şablonları da etkiliyordu; küçük panelde ve kullanılmayan bir bantta
+saklanıyorlardı. **Yeni şablon yazmak, eski şablonların denetimidir.**
+
+⚠ Etiket sütunu SABİT genişlikti ve Türkçe etiket taşıyordu ("A vardiyası" kırpılıyordu).
+`flex: none` + `min-width`: sütun en az tabanı kadar geniş, gerekirse kelimeye açılıyor,
+çubuklar kalan yeri paylaşıyor — eksen hizası korunuyor (R-23).

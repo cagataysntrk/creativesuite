@@ -117,6 +117,34 @@ const kelimeler = (metin: string): readonly string[] =>
  * atamak (indekse göre) daha "zengin" görünürdü ama takvimden bahseden bir satırın yanına
  * fabrika ikonu koyardı. **Anlamsız ikon, ikonsuzluktan kötüdür.**
  */
+/**
+ * Ünsüz yumuşaması — Türkçe'nin ön ek eşleşmesini kıran kuralı.
+ *
+ * ⚠ ⚠ **`eşik` KÖKÜ `eşiği` KELİMESİYLE EŞLEŞMİYORDU.** Sesli harfle başlayan bir ek
+ * gelince sondaki sert ünsüz yumuşuyor: `eşik → eşiği`, `kanat → kanadı`, `ağaç →
+ * ağacı`. `startsWith` bunu türetemiyor ve kök listesine yumuşamış ikizleri elle yazmak,
+ * bir gün birini unutmak demek.
+ *
+ * ⚠ **SINIR YAZILI: ünlü düşmesi KAPSAM DIŞI.** `kayıp → kaybı` hem yumuşuyor hem
+ * gövdeden ünlü düşürüyor; bu kural onu yakalamaz ve yakalamaya çalışmak bir morfoloji
+ * motoru yazmak olurdu (R-75). Sınırını söylemeyen bir kural, olmayan bir sınır sanılır.
+ *
+ * ⚠ Bu, `'i'.toUpperCase()` ailesinden bir hata: kural Türkçe hakkında ve İngilizce
+ * sezgisiyle yazılmış bir ön ek eşleşmesi onu göremiyor.
+ *
+ * ⚠ Yalnız SON harf esnetiliyor, gövde değil: `eşiğ` kabul ediliyor ama `eşşik` değil.
+ * Daha geniş bir esneme yanlış ikon üretirdi ve **anlamsız ikon, ikonsuzluktan kötüdür.**
+ */
+const YUMUSAMA: Readonly<Record<string, string>> = { k: 'ğ', p: 'b', t: 'd', ç: 'c' }
+
+const kokEsliyor = (kelime: string, kok: string): boolean => {
+  if (kelime.startsWith(kok)) return true
+  const son = kok.slice(-1)
+  const yumusak = YUMUSAMA[son]
+  if (yumusak === undefined) return false
+  return kelime.startsWith(kok.slice(0, -1) + yumusak)
+}
+
 export const ikonSec = (metin: string): IkonAdi | null => {
   // ⚠ **Kelime sırası KAZANIR, ikon sırası değil.** Bir cümlede birden çok kök geçebilir:
   // *"Üretim hattı iki saat durdu"* hem `üretim` (fabrika) hem `saat` (saat) içeriyor.
@@ -126,7 +154,7 @@ export const ikonSec = (metin: string): IkonAdi | null => {
   // söyler. Böylece kazanan anlamdan geliyor, dizi indeksinden değil.
   for (const w of kelimeler(metin)) {
     for (const ad of IKONLAR) {
-      if (KOKLER[ad].some((kok) => w.startsWith(kok))) return ad
+      if (KOKLER[ad].some((kok) => kokEsliyor(w, kok))) return ad
     }
   }
   return null

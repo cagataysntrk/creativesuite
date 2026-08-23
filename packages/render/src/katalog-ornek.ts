@@ -1013,6 +1013,364 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   ],
 }
 
+/**
+ * **kavis** — kemer dizisi; ailenin GEOMETRİ öncülü üyesi.
+ *
+ * ⚠ ⚠ **`kemer` TAŞIYICISI MODELDE VARDI, HİÇBİR ŞABLON KULLANMIYORDU.** Yani destek
+ * yazılmış, testi yeşil, üretim yolu yok — bu deponun tekrar eden kopukluğu, bu kez bir
+ * TASARIM aracında. Araştırma sıralamasında *"büyük geometrik form"* üçüncü en güçlü
+ * taşıyıcı: silueti tanınabilir, yarısı formu belirliyor.
+ *
+ * ⚠ Görselsiz. Mevcut altı şablonun beşi görsele dayanıyor; aile geometriyle ve
+ * tipografiyle taşıyan üyelere muhtaç — hem çeşitlilik hem de sağlayıcısız koşuda
+ * üretilebilen bir çıktı için.
+ *
+ * ⚠ Tipografi ailenin EN SIKI reçetesi: 800 ağırlık, −0,04 harf arası, 0,72 sütun. Dar ve
+ * uzun bir başlık bloğu, geniş kemerin karşı ağırlığı.
+ */
+export const ORNEK_KAVIS: KatalogOrnegi = {
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
+  yerlesim: 'ust',
+  tipografi: {
+    baslikPayi: 1.05,
+    baslikAgirlik: 800,
+    satirAraligi: 0.98,
+    harfArasi: -0.04,
+    govdeOrani: 0.31,
+    baslikSutunu: 0.72,
+    govdeSutunu: 0.78,
+  },
+  zemin: 'var(--role-bg)',
+  hayaletKonumu: { ust: 66, olcek: 1.5, guc: 12 },
+  // Beş kemer, dört kesim: her kesim bir kemerin ORTASINA denk geliyor, tepesine değil.
+  // Tepe noktası kesime düşseydi göz iki yarım tepe görürdü; ortadan kesilen bir yay
+  // ise iki yandan da AYNI eğimi veriyor ve devamı zorunlu okunuyor.
+  bant: { tip: 'kemer', sayi: 5 },
+  gorseller: [],
+  kartlar: [
+    {
+      ustBaslik: 'RİTİM',
+      baslik: 'Bir hat **tekrarla** öğrenir',
+      govde: 'Aynı hareketin beşinci tekrarı, birincisinden ucuzdur.',
+      panel: null,
+      hayalet: 'RİTİM',
+      rayaSol: 'ATÖLYE',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'ÖLÇÜ',
+      baslik: 'Önce **ölç**, sonra tekrarla',
+      govde: 'Ölçülmeyen bir tekrar, alışkanlıktır.',
+      panel: { tip: 'vafel', baslik: 'ölçülen adım', toplam: 20, dolu: 13 },
+      hayalet: '',
+      rayaSol: 'ATÖLYE',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'SAPMA',
+      baslik: 'Sapma **görünür** olmalı',
+      govde: 'Görünmeyen sapma, ortalamanın içinde kaybolur.',
+      panel: null,
+      hayalet: '',
+      rayaSol: 'ATÖLYE',
+      rayaOrta: ORNEK,
+      kolon: 'sag',
+    },
+    {
+      ustBaslik: 'SÜREKLİLİK',
+      baslik: 'Ritim **kendini** taşır',
+      govde: 'Kurulmuş bir ritim, gözetim istemez.',
+      panel: { tip: 'etiketler', ogeler: ['ölç', 'tekrarla', 'sapmayı gör'] },
+      hayalet: '',
+      rayaSol: 'ATÖLYE',
+      rayaOrta: ORNEK,
+    },
+  ],
+}
+
+/**
+ * **alinti** — ailenin SESSİZ üyesi: yalnız tipografi.
+ *
+ * ⚠ ⚠ **Ailede hiç metin-öncülü şablon yoktu.** Altısının altısı ya görsel ya panel ya
+ * veri taşıyor; bir karosel dizisi sürekli yüksek sesle konuşamaz. Bu şablon kâğıt
+ * zeminde tek bir iri serif alıntı taşıyor — ızgarada yan yana geldiğinde nefes aralığı.
+ *
+ * ⚠ Taşıyıcı ALAN SINIRI (araştırmanın en güçlü taşıyıcısı, *"sıfır uzamsal frekans"*):
+ * kâğıt/mürekkep bölünmesi panoramayı kat ediyor ve alıntının altından geçiyor. Metin
+ * kesimi ASLA aşmıyor (R-87 taşıyıcısı sınırın kendisi).
+ *
+ * ⚠ `baslikPayi: 1.5` ailenin en irisi ve 400 ağırlık en hafifi: alıntı bağırmıyor, YER
+ * KAPLIYOR. İkisi aynı şey değil.
+ */
+export const ORNEK_ALINTI: KatalogOrnegi = {
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
+  yerlesim: 'orta',
+  tipografi: {
+    baslikPayi: 1.5,
+    baslikAgirlik: 400,
+    satirAraligi: 1.0,
+    harfArasi: -0.02,
+    govdeOrani: 0.26,
+    baslikSutunu: 0.9,
+    govdeSutunu: 0.62,
+  },
+  zemin: 'var(--ramp-marka-kagit)',
+  hayaletKonumu: { ust: 62, olcek: 1.1, guc: 8 },
+  alanSiniri: {
+    ust: 'var(--ramp-marka-kagit)',
+    alt: 'var(--role-line-edge)',
+    // Sınır TEK YÖNLÜ iniyor: alıntı ilerledikçe mürekkep alanı büyüyor. Salınan bir
+    // sınır "akan alan"ın işi; burada geometri bir CÜMLENİN ağırlaşmasını anlatıyor.
+    //
+    // ⚠ ⚠ **EĞİM İKİ KEZ AZALTILDI ve ikisini de ÖLÇÜM söyledi.** İlk sürüm %52'ye
+    // iniyordu: sınır gövde metninin içinden geçti ve zeminin **%24'ü** medyandan 60
+    // luma sapar oldu — metin çizgilerin içinde yüzüyordu (R-105). Yerleşim `orta`, yani
+    // metin dikeyde ortada; sınırın ona dokunmadan inebileceği en düşük yer %72.
+    noktalar: [
+      { x: 0, y: 94 },
+      { x: 25, y: 90 },
+      { x: 50, y: 84 },
+      { x: 75, y: 78 },
+      { x: 100, y: 72 },
+    ],
+  },
+  bant: { tip: 'yok' },
+  gorseller: [],
+  kartlar: [
+    {
+      ustBaslik: 'ALINTI',
+      baslik: '**Ölçmediğin** şeyi iyileştiremezsin',
+      govde: '',
+      panel: null,
+      hayalet: '',
+      rayaSol: 'SÖZ',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'KARŞI SÖZ',
+      baslik: 'Ama ölçtüğün her şey **önemli** değildir',
+      govde: 'İki cümle birlikte doğru; ayrı ayrı yanıltıcı.',
+      panel: null,
+      hayalet: '',
+      rayaSol: 'SÖZ',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'SORU',
+      baslik: 'Hangi ölçü **karar** değiştiriyor?',
+      govde: 'Karar değiştirmeyen ölçü, rapor sayfası doldurur.',
+      // ⚠ ⚠ **ETİKET PANELİ KALDIRILDI ve sebebi ÖLÇÜLDÜ.** Panel alan sınırının TAM
+      // üstüne düşüyordu: yarısı kâğıtta, yarısı mürekkepte, koyu metin mürekkepte
+      // kayboluyordu — ölçüm zeminin **%100'ünün** metin lumasına 44'ten yakın olduğunu
+      // söyledi (R-105). Sınırı aşağı çekmek "ağırlaşan cümle" fikrini öldürürdü;
+      // etiketler ise bu şablonda zaten üçüncü bir sesti. Alıntı yalnız tipografi.
+      panel: null,
+      hayalet: '',
+      rayaSol: 'SÖZ',
+      rayaOrta: ORNEK,
+    },
+  ],
+}
+
+/**
+ * **karsilastirma** — önce/sonra; zemin panorama boyunca DÖNÜYOR.
+ *
+ * ⚠ ⚠ **Kart başına zemin değiştirmek DEĞİL — o, her kesimde sert bir renk sıçraması
+ * demek olurdu** ve `editoryal` o yolu zaten deniyor (kimliği o). Burada alan sınırı
+ * tek yönlü SÜPÜRÜYOR: mürekkep alanı küçülürken kâğıt büyüyor, yani "önce"den
+ * "sonra"ya geçiş kesimlerde değil, panoramanın tamamında oluyor.
+ *
+ * ⚠ Araştırmanın en güçlü taşıyıcısı bu: renk alanı bölünmesi, sıfır uzamsal frekans —
+ * *"parçadan bütün zorunlu"*.
+ *
+ * ⚠ Panel çifti KASTEN farklı: önce tarafında `cubuklar` (dağılım), sonra tarafında
+ * `sayilar` (sonuç). Aynı panel iki kez, karşılaştırmayı görsel olarak DÜZLERDİ.
+ */
+export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
+  yerlesim: 'ust',
+  tipografi: {
+    baslikPayi: 1.22,
+    baslikAgirlik: 650,
+    satirAraligi: 1.02,
+    harfArasi: -0.025,
+    govdeOrani: 0.3,
+    baslikSutunu: 0.8,
+    govdeSutunu: 0.7,
+    // ⚠ Panel WEB ölçüsünde kalıyordu: çubuklar minik kareler gibi çiziliyor ve
+    // karşılaştırmanın taşıyıcısı okunmuyordu. `veri-hikayesi` ile aynı çarpan.
+    panelPayi: 1.7,
+  },
+  zemin: 'var(--role-bg)',
+  // ⚠ ⚠ **BU ŞABLONUN HAYALETİ YOK ve bu bir eksiklik değil, ölçülmüş bir karar.** Üç yer
+  // denendi: 64'te panele %23, 46'da gövdeye %64 çarptı. Sebep geometrik — metin tepede,
+  // panel dipte, arada hayaletin sığacağı boşluk yok. Kompozisyonu zaten alan süpürmesi
+  // taşıyor; hayalet üçüncü bir ses olurdu. `akan-alan`, `editoryal` ve `alinti` de
+  // hayaletsiz: her şablonun her aracı kullanması gerekmiyor.
+  hayaletKonumu: { ust: 46, olcek: 1.28, guc: 14 },
+  // ⚠ ⚠ **"ZEMİN DÖNÜYOR" FİKRİ GEOMETRİK OLARAK İMKÂNSIZ ÇIKTI ve iki ölçüm bunu
+  // söyledi.** Kartın metin rengi KENDİ zemininden türüyor (koyu kart → açık metin);
+  // üstüne kâğıt alanı gelince metin o alanın üstünde kayboluyor. Kâğıt aşağıdan
+  // büyütüldü → ray yutuldu (`ray-sayac` %26 yakın, R-95). Yukarıdan büyütüldü → başlık
+  // yutuldu (%69 yakın, gövde %15 gürültülü, R-105). Ray dipte, metin tepede: kâğıdın
+  // gidebileceği üçüncü bir yön yok.
+  //
+  // ⚠ Çözüm alanı KALDIRMAK değil, iki ucu da KOYU tutmak. Önce/sonra artık üç kanaldan
+  // okunuyor: tek yönlü süpürme (ölçünün inişi), ÖNCE/SONRA üst başlıkları ve panel
+  // çifti (dağılım → sonuç). `akan-alan`dan farkı da bu: orada sınır SALINIYOR, burada
+  // tek yönlü iniyor; orada panel yok, burada iki farklı panel karşılaştırmayı taşıyor.
+  alanSiniri: {
+    ust: 'var(--role-bg)',
+    alt: 'var(--role-line-edge)',
+    noktalar: [
+      { x: 0, y: 92 },
+      { x: 25, y: 80 },
+      { x: 50, y: 68 },
+      { x: 75, y: 56 },
+      { x: 100, y: 44 },
+    ],
+  },
+  bant: { tip: 'yok' },
+  gorseller: [],
+  kartlar: [
+    {
+      ustBaslik: 'ÖNCE',
+      baslik: 'Fire **nerede** olduğunu söylemiyordu',
+      govde: 'Toplam biliniyordu; hangi vardiyada oluştuğu bilinmiyordu.',
+      panel: {
+        tip: 'cubuklar',
+        baslik: 'vardiya başına fire',
+        // ⚠ `tahmin: true` bir SÜS değil: ölçülmemiş bir çubuğu ölçülmüşten ayırıyor.
+        // Üçüncü vardiyanın sayacı yoktu; onu kesin göstermek defterin yalanı olurdu.
+        satirlar: [
+          { etiket: 'A vardiyası', deger: 62, not: 'sayaçtan', tahmin: false },
+          { etiket: 'B vardiyası', deger: 71, not: 'sayaçtan', tahmin: false },
+          { etiket: 'C vardiyası', deger: 58, not: 'tahmin', tahmin: true },
+        ],
+      },
+      hayalet: '',
+      rayaSol: 'ÖLÇÜM',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'DEĞİŞİM',
+      baslik: 'Ölçü **vardiyaya** indi',
+      govde: 'Aynı sayı, üç ayrı sorumlulukla okundu.',
+      panel: null,
+      hayalet: '',
+      rayaSol: 'ÖLÇÜM',
+      rayaOrta: ORNEK,
+      kolon: 'sag',
+    },
+    {
+      ustBaslik: 'HIZ',
+      baslik: 'Karar **haftalıktan** günlüğe geçti',
+      govde: 'Geciken bir ölçü, geciken bir karar demek.',
+      panel: null,
+      hayalet: '',
+      rayaSol: 'ÖLÇÜM',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'SONRA',
+      baslik: 'Fire **yarıya** indi',
+      govde: 'Ölçü değişti, hat değişmedi.',
+      panel: {
+        tip: 'sayilar',
+        ogeler: [
+          { deger: '48', birim: '%', alt: 'fire, önce' },
+          { deger: '23', birim: '%', alt: 'fire, sonra' },
+        ],
+      },
+      hayalet: '',
+      rayaSol: 'ÖLÇÜM',
+      rayaOrta: ORNEK,
+    },
+  ],
+}
+
+/**
+ * **dizin** — numaralı adımlar; taşıyıcı AKIŞ OKLARI.
+ *
+ * ⚠ Araştırma okları *"anlamsal: devamı var der"* diye sıralıyor. `sahne` de ok
+ * kullanıyor ama orada oklar İKİNCİL — kimliği kesik özne. Burada oklar kompozisyonun
+ * kendisi: her ok bir adımı sonrakine bağlıyor ve kesimi tam ortadan aşıyor.
+ *
+ * ⚠ Oklar KART ARALARINDA, metnin üstünden geçmiyor (panorama modelinin kendi kaydı:
+ * nüfus karoselinde oklar başlıkların ortasından geçince okunmaz oldu ve silindi).
+ *
+ * ⚠ Tipografi ailenin en MONO'su: `liste` paneli numaralı ve tabular; başlık ağırlığı
+ * 600'de tutuluyor ki numaralar başlıkla yarışmasın.
+ */
+export const ORNEK_DIZIN: KatalogOrnegi = {
+  slaytGenisligi: VARSAYILAN_TUVAL.genislik,
+  yukseklik: VARSAYILAN_TUVAL.yukseklik,
+  yerlesim: 'ust',
+  tipografi: {
+    baslikPayi: 1.1,
+    baslikAgirlik: 600,
+    satirAraligi: 1.04,
+    harfArasi: -0.02,
+    govdeOrani: 0.32,
+    baslikSutunu: 0.76,
+    govdeSutunu: 0.66,
+  },
+  zemin: 'var(--ramp-marka-ink-950)',
+  hayaletKonumu: { ust: 68, olcek: 1.42, guc: 11 },
+  bant: {
+    tip: 'ok',
+    // Üç ok, üç kesim: her ok kesimden ÖNCE başlayıp SONRA bitiyor. `bukum` işareti
+    // dönüşümlü — düz bir ok dizisi ritmi düzleştirir.
+    oklar: [
+      { x1: 18, y1: 62, x2: 32, y2: 68, bukum: 22 },
+      { x1: 43, y1: 66, x2: 57, y2: 60, bukum: -20 },
+      { x1: 68, y1: 60, x2: 82, y2: 66, bukum: 24 },
+    ],
+  },
+  gorseller: [],
+  kartlar: [
+    {
+      ustBaslik: 'DİZİN',
+      baslik: 'Dört adımda **ölçülebilir** hat',
+      govde: 'Sırayı bozmak, ölçüyü bozuyor.',
+      panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '01', ad: 'ölçüm noktasını koy' }] },
+      hayalet: 'DİZİN',
+      rayaSol: 'YÖNTEM',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'ADIM 02',
+      baslik: 'İkinci adım: **eşiği** yaz',
+      govde: 'Eşiksiz sayı, alarm üretmiyor.',
+      panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '02', ad: 'eşiği yaz' }] },
+      hayalet: '',
+      rayaSol: 'YÖNTEM',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'ADIM 03',
+      baslik: 'Üçüncü adım: **sorumlu** ata',
+      govde: 'Sahipsiz alarm, kapatılan alarmdır.',
+      panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '03', ad: 'sorumlu ata' }] },
+      hayalet: '',
+      rayaSol: 'YÖNTEM',
+      rayaOrta: ORNEK,
+    },
+    {
+      ustBaslik: 'ADIM 04',
+      baslik: 'Dördüncü adım: **haftalık** oku',
+      govde: 'Okunmayan ölçü, ölçülmemiş sayılır.',
+      panel: { tip: 'etiketler', ogeler: ['say', 'eşikle', 'ata', 'oku'] },
+      hayalet: '',
+      rayaSol: 'YÖNTEM',
+      rayaOrta: ORNEK,
+    },
+  ],
+}
+
 export const ORNEKLER: Readonly<Record<string, KatalogOrnegi>> = {
   'veri-hikayesi': ORNEK_VERI_HIKAYESI,
   'akan-alan': ORNEK_AKAN_ALAN,
@@ -1020,6 +1378,10 @@ export const ORNEKLER: Readonly<Record<string, KatalogOrnegi>> = {
   memphis: ORNEK_MEMPHIS,
   donen: ORNEK_DONEN,
   editoryal: ORNEK_EDITORYAL,
+  kavis: ORNEK_KAVIS,
+  alinti: ORNEK_ALINTI,
+  karsilastirma: ORNEK_KARSILASTIRMA,
+  dizin: ORNEK_DIZIN,
 }
 
 export const ornekBul = (id: string): KatalogOrnegi | null => ORNEKLER[id] ?? null

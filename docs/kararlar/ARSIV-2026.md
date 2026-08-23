@@ -6283,3 +6283,56 @@ safe-zone sayılarının ("üstte 135 px UI", "yanlar 60 / üst-alt 80") hiçbir
 gelmiyor ve çoğu **Reels rakamlarının akışa yanlış taşınması**. Bunlar kural olarak
 KODLANMADI ve belgede "doğrulanmadı" diye işaretli. Kaynağı olmayan bir sayı, kaynağı
 olmayan bir iddiadır (Yasa 8) — ve bu, kendi kodumuz için de geçerli.
+
+## D-322 · `KURALLAR.md` tavanı 400 → 480: tavan artık BİLGİYİ sınırlıyor (2026-08-23)
+
+**Bulgu.** FAZ-18'de altı kural eklendi (R-83…R-88) ve her biri tavanı deldi. Her
+seferinde bir ESKİ kuralın gerekçesini kısaltarak geçtim — dört turda dokuz kural
+kısaldı. Yani kapı yeni kuralı değil, **eski kuralların gerekçesini** kesiyordu.
+
+**Tavanın amacı okunabilirlik.** R-63'ün kendi cümlesi: *"boş bir bölüm uzun bir
+bölümden pahalıdır — kuralı bulamayan kuralı yok sanmaz, kendi uydurur"*. Gerekçesi
+budanmış bir kural tam olarak bu tuzağa düşüyor: kural orada duruyor ama NEDEN orada
+olduğu artık yazmıyor ve altı ay sonra biri onu "gereksiz" diye kaldırıyor.
+
+**Karar.** `KURALLAR.md` tavanı **480**. Sayı keyfî değil: bugün 60 kural × ortalama
+6,5 satır ≈ 390, artı başlık ve bölüm ayraçları. 480, on kurallık bir büyüme payı
+bırakıyor ve o dolduğunda tekrar bir karar gerektiriyor — tavan kalkmıyor, bir kez
+yükseliyor.
+
+**Neden R-76 ihlali değil.** *"Kırmızı bir kapının kuralı aynı turda gevşetilemez"* —
+bu kapı bir KUSURU yakalamıyordu; belge büyüdü çünkü içine ölçülmüş bilgi girdi.
+Ve yükseltme kırmızı turda değil, ayrı bir turda ve kendi kararıyla yapılıyor.
+
+**Sınır neden kalkmıyor.** Kural kitabı sonsuz büyüyemez: 88 kuralın hepsini okuyan
+kimse yok, `just tur` yalnız atıf verileni getiriyor. Ama bir kuralın GEREKÇESİ o kuralın
+parçası — zorlaması olmayan kural yazılmadığı gibi, gerekçesi olmayan kural da
+savunulamaz.
+
+## D-323 · Kadraj kartın kutusu değil, EKRANIN kutusu — sahne kaymaz
+
+**Bulgu.** Görsel payını ölçmek için yazılan geçici bir alet, ölçmeye çalıştığı şeyi
+değil bambaşka bir kusuru gösterdi: `sahne` `memphis` ve `donen` şablonlarında sahne
+gövdenin (0,0)'ında **başlamıyordu** — `top: 21`. Sebep, görsel işlemlerinin
+`<svg class="filtre-tanim" width="0" height="0">` tanımlarının gövdede INLINE durması.
+Sıfır boyutlu bir inline öge bile satır kutusu doğuruyor ve o kutunun strut yüksekliği
+21 px. Yani **görsel işlemi olan her belge 21 px aşağı kaymış** üretiliyordu: üstte gövde
+zemininden bir şerit, altta kartın son 21 px'i — imza rayının durduğu yer — kadrajın
+dışında.
+
+**Neden hiçbir kapı görmedi.** Bu depodaki bütün panorama ölçümleri ögeleri KARTA göre
+okuyor: taşma kart kutusunda, güvenli alan kart kenarından, metin payı kart alanına
+bölünerek. Kart kendi içinde kusursuzdu; yanlış olan onun YERİYDİ. Ölçüm aletinin
+kendisinin bozuk çıktığı dördüncü vaka (D-31x ailesi) ve en sessizi: alet doğru çalışıyor,
+yalnız yanlış şeye bağlı.
+
+**Karar.** Kadrajın tanımı düzeltiliyor: kadraj `.kart`ın kutusu değil, EKRANIN kutusudur.
+`sahne-kaymis` kusuru sahneyi mutlak koordinatta ölçüyor — tolerans yok, çünkü bir piksel
+kayma ekran görüntüsünün her slaytta aynı yerden kesilmediği demektir. Kural R-93.
+
+**Düzeltme tanımı ÜRETEN modülde.** `FILTRE_TANIM_CSS` `gorsel-islem.ts`te tek sabit;
+`panorama.ts` ve `static.ts` ikisi de onu basıyor. İki render yolu aynı işaretlemeyi
+üretiyor ve stili birinde unutmak, kaymayı yalnız orada geri getirirdi (§3.8 darboğaz).
+
+**Kanıt.** Kural iptal edilip koşuldu: kusur tam olarak görsel işlemi olan ÜÇ şablonda
+kırmızı, diğer üçünde sessiz. Ölçüm, kaymanın kendisini de doğrudan okuyor.

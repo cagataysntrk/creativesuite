@@ -183,3 +183,14 @@ bir çıktıyı imzalı sanıp onaylıyordu.
 ⚠ Yer tutucu görselle birebir aynı desen: eksik olan şey önce GÖRÜLMELİ, sonra
 raporlanmalı. Ölçüm düzeltmenin kendisini arıyor — kutu varsa kaynak yoktur.
 **Zorlama:** `kaynak-yok` kusuru · `KAYNAK_YOK_METNI`. → D-335 · `OLCUMLER.md`
+
+### R-105 · metin-zemininden-ayrisir · GATE · aktif
+İçerik metni (`ust-baslik` · `baslik` · `govde` · `etiketler`) kendi zemininden ayrışır:
+zeminin en fazla **%4**'ü metin lumasına 44'ten yakın, en fazla **%12**'si medyandan 60
+luma sapar.
+**Neden:** krom için ölçülüyordu, içerik için ölçülmüyordu. `alinti` şablonunda etiket
+paneli ALAN SINIRININ üstüne düştü — yarısı kâğıtta, yarısı mürekkepte — ve denetim
+*"0 kusur"* dedi: `metin-ortuluyor` görselleri arıyor, `sus-metni-kesiyor` süsleri.
+⚠ Ölçü kromunkiyle AYNI: metin metindir, krom olması onu farklı kılmaz.
+**Zorlama:** `metin-zemine-karisiyor`; tek çift ekran görüntüsü, kutu başına değil.
+→ D-337 · `OLCUMLER.md`

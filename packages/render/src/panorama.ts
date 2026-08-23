@@ -947,9 +947,15 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
           const ky = (y1 + y2) / 2 - o.bukum
           const x = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * kx + t * t * x2
           const y = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * ky + t * t * y2
-          // ⚠ Uçta 0,18 — sıfır değil: sıfır basınç konturu kapatmıyor ve şerit
-          // ucunda sivri bir artefakt bırakıyor.
-          return [x, y, 0.18 + 0.82 * Math.sin(t * Math.PI)]
+          // ⚠ ⚠ **BASINÇ TEK YÖNLÜ AZALIYOR — ve eskiden SİMETRİKTİ.** `0,18 + 0,82·sin(tπ)`
+          // iki ucu da inceltiyordu: ortası kalın, uçları sivri bir MERCEK. Dosyanın kendi
+          // yorumu *"yön kıvrımdan okunuyor"* diyordu ama simetrik bir daralma yön
+          // TAŞIMAZ — çizildi ve bakıldı, oklar mavi yapraklar gibi duruyordu.
+          // Araştırma bu taşıyıcıyı *"YÖN VEREN ok / akış"* diye sıralıyor; yönü olmayan
+          // bir ok, sıralamadaki yerini hak etmiyor.
+          // ⚠ Uçta 0,20 — sıfır değil: sıfır basınç konturu kapatmıyor ve şerit ucunda
+          // sivri bir artefakt bırakıyor.
+          return [x, y, 0.95 - 0.75 * t]
         })
         const kontur = getStroke(nokta, {
           size: 34,
@@ -967,9 +973,9 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
                 `${i === 0 ? 'M' : 'L'} ${(p[0] as number).toFixed(1)} ${(p[1] as number).toFixed(1)}`
             )
             .join(' ') + ' Z'
-        // ⚠ Ok BAŞI ayrı bir üçgen DEĞİL: şeridin kendisi uçta inceliyor ve yön
-        // kıvrımdan okunuyor. Üçgen bir uç, fırça şeridine yapıştırılmış bir diyagram
-        // parçası olurdu — kaçtığımız şeyin ta kendisi.
+        // ⚠ Ok BAŞI ayrı bir üçgen DEĞİL: şerit KALINDAN İNCEYE gidiyor ve yön o
+        // azalmadan okunuyor. Üçgen bir uç, fırça şeridine yapıştırılmış bir diyagram
+        // parçası olurdu — kaçtığımız şeyin ta kendisi (R-81).
         return `<path d="${d}" fill="${AKSAN}" fill-rule="nonzero"/>`
       })
       .join('')
@@ -978,14 +984,38 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
       `preserveAspectRatio="none" aria-hidden="true">${oklar}</svg>`
     )
   }
-  // Kemer dizisi: yatayda tekrarlayan yay, aralar eşit.
+  // ── Kemer dizisi: yatayda tekrarlayan yay, aralar eşit ──────────────────
+  //
+  // ⚠ ⚠ **BU BANT MODELDE VARDI, HİÇBİR ŞABLON KULLANMIYORDU — ve sebebi ÖLÇÜLDÜ.**
+  // Geometri MUTLAK PİKSELLE yazılmıştı (52 ve 132 px), oysa `viewBox` tüm panorama
+  // boyutunda ve `preserveAspectRatio="none"` ile 560 px'lik bir banda sıkıştırılıyor:
+  // dikey **%41'e** iniyor. 132 px'lik tepe ekranda ~55 px oluyordu — dipte ince bir
+  // kıvrım. Araştırmanın *"büyük geometrik form"* taşıyıcısı, bir saç çizgisi olarak
+  // çiziliyordu. Kullanılmamasının sebebi tercih değil, KOORDİNAT UZAYIYDI.
+  //
+  // ⚠ Ölçüler artık bandın kendi yüksekliğinin PAYI: taban %10, tepe %86. Sıkışma da
+  // dahil, ekranda yayın gerçek yüksekliği bandın yüksekliğine oranlı kalıyor.
+  //
+  // ⚠ **DOLU, ÇİZGİ DEĞİL.** Araştırma sıralamasında dolu bir form (*"silueti
+  // tanınabilir, yarısı formu belirler"*) ince bir yaydan güçlü. Üst kenarda ince bir
+  // kontur formu tanımlıyor; gövde çok düşük opaklıkta bir alan.
   const adim = toplamGenislik / b.sayi
+  const taban = yukseklik * 0.1
+  const tepe = yukseklik * 0.86
   const kemerler = Array.from({ length: b.sayi }, (_, i) => {
     const x = i * adim
+    const yol =
+      `M ${x} ${yukseklik} L ${x} ${yukseklik - taban} ` +
+      `Q ${x + adim / 2} ${yukseklik - tepe} ${x + adim} ${yukseklik - taban} ` +
+      `L ${x + adim} ${yukseklik}`
+    // ⚠ TEK `<path>`, iki değil: aynı yol hem dolgu hem kontur taşıyabiliyor. İkinci bir
+    // yol yazmak `kodlanmis-oge` tavanını deliyordu (R-81) ve kapı haklıydı — aynı
+    // geometriyi iki kez yazmak, bir gün birini güncellemeyi unutmak demek.
+    // ⚠ Dolgu opaklığı `fill-opacity`, kontur `stroke-opacity`: `opacity` ikisini birden
+    // eziyor ve konturu da soluklaştırıyordu.
     return (
-      `<path d="M ${x} ${yukseklik} L ${x} ${yukseklik - 52} ` +
-      `Q ${x + adim / 2} ${yukseklik - 132} ${x + adim} ${yukseklik - 52} ` +
-      `L ${x + adim} ${yukseklik}" fill="none" stroke="${AKSAN}" stroke-width="1.6" opacity="0.5"/>`
+      `<path d="${yol}" fill="${AKSAN}" fill-opacity="0.1" ` +
+      `stroke="${AKSAN}" stroke-opacity="0.55" stroke-width="2.5"/>`
     )
   }).join('')
   return (
@@ -1607,12 +1637,26 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     //
     // ⚠ Tek çarpan, tüm panel: ayrı ayrı büyütmek oranları bozardı ve panelin kendi iç
     // ritmi (rehber §3, 1:3 boşluk) referansın değil bizim tercihimiz olurdu.
-    `  .panel { padding: calc(4px * var(--panel-olcek)) 0 calc(4px * var(--panel-olcek)) calc(26px * var(--panel-olcek)); max-width: calc(640px * var(--panel-olcek));`,
+    // ⚠ ⚠ **`width: 100%` EKLENDİ ve sebebi ÖLÇÜLDÜ: ÇUBUK GRAFİĞİ VERİ TAŞIMIYORDU.**
+    // Kart bir flex sütunu ve `align-items: flex-start`; panelin eni içeriğine kilitleniyor,
+    // yani `.cubuk-yuva { flex: 1 }` büyüyecek boşluk BULAMIYOR. Ölçüldü — `veri-hikayesi`
+    // kartlarında yuva **10 px**, `karsilastirma`da 42 px. Üç ayrı değerin (62 · 71 · 58)
+    // üçü de aynı minik kare olarak çiziliyordu: bir çubuk grafiği, çubuksuz.
+    // ⚠ `max-width` bunu ÇÖZMÜYOR — max bir tavan, taban değil. Panel bugüne kadar
+    // görünüyordu, o yüzden kimse bakmadı; hata küçük panelde saklanıyordu.
+    `  .panel { width: 100%; padding: calc(4px * var(--panel-olcek)) 0 calc(4px * var(--panel-olcek)) calc(26px * var(--panel-olcek)); max-width: calc(640px * var(--panel-olcek));`,
     `           border-left: 3px solid var(--kart-aksan) }`,
     `  .panel-baslik { font-size: calc(16px * var(--panel-olcek)); letter-spacing: 0.16em; color: ${sol('--kart-metin', 50)};`,
     `                  margin-bottom: calc(18px * var(--panel-olcek)); font-weight: 600 }`,
     `  .cubuk-satir { display: flex; align-items: center; gap: calc(12px * var(--panel-olcek)); margin-bottom: calc(11px * var(--panel-olcek)) }`,
-    `  .cubuk-etiket { width: calc(64px * var(--panel-olcek)); font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 60)};`,
+    // ⚠ ⚠ **SABİT GENİŞLİK DEĞİL, TABAN GENİŞLİK (R-23).** `width` sabitti ve Türkçe
+    // etiket ("A vardiyası") sığmadan TAŞIYORDU — çizildi ve bakıldı, "vardiyası"
+    // sağdan kesiliyordu. Ama tamamen içerik boyuna bırakmak da yanlış: çubukların
+    // hizası bir eksen ve eksen kayarsa grafik grafik olmaktan çıkar.
+    // ⚠ `flex: none` + `min-width` ikisini uzlaştırıyor: sütun en az tabanı kadar geniş,
+    // gerekirse Türkçe kelimeye açılıyor, çubuklar kalan yeri paylaşıyor.
+    `  .cubuk-etiket { flex: none; min-width: calc(64px * var(--panel-olcek));`,
+    `                  font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 60)};`,
     `                  font-variant-numeric: tabular-nums }`,
     `  .cubuk-yuva { flex: 1; height: calc(22px * var(--panel-olcek)); background: ${sol('--kart-metin', 8)};`,
     `                border-radius: 3px; overflow: hidden; display: block }`,
