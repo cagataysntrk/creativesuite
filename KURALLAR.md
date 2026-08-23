@@ -252,14 +252,11 @@ Her `§N` / `R-nn` / `D-nn` / `V-nn` / `FAZ-N.x` / `LOOP§X` hedefte var olmalı
 `CLAUDE.md` 200 · `KURALLAR.md` **480** · `KARARLAR.md` 600 · `DURUM.md` 120 ·
 `ANAYASA.md` 1400 · **ANAYASA alt bölümü (`### §N.M`) 60** · `FAZ-N.md` 250 ·
 `.claude/rules/*.md` 120 satır.
-ANAYASA'da asıl tavan **alt bölümdür**: belge hiçbir zaman baştan sona okunmaz, `just tur`
-yalnız atıf verilen bölümü getirir ve okuyucunun maliyeti **o bölümün** boyudur. 1400
-satırlık bir belgede 60 satırlık on bölüm, 1200 satırlık bir belgede 300 satırlık tek
-bölümden ucuzdur. **Boş bir bölüm uzun bir bölümden pahalıdır** — kuralı bulamayan
-kuralı yok sanmaz, kendi uydurur (D-230).
-⚠ **Tavan bir kez yükseldi (400 → 480, D-322)** ve sebebi kendi cümlesiydi: FAZ-18'de
-altı yeni kural eklendi, her biri tavanı deldi ve her seferinde bir ESKİ kuralın
-gerekçesi budandı. Gerekçesi budanmış kural, bulunamayan kuralla aynı tuzağa düşüyor.
+ANAYASA'da asıl tavan **alt bölümdür**: belge baştan sona okunmaz, `just tur` yalnız
+atıf verileni getirir ve maliyet **o bölümün** boyudur. **Boş bir bölüm uzun bir
+bölümden pahalıdır** — kuralı bulamayan kuralı yok sanmaz, kendi uydurur (D-230).
+⚠ **`KURALLAR.md` tavanı bir kez yükseldi (400 → 480, D-322) ve o pay DOLDU.** Sonraki
+kural bir yükseltme değil, gerekçelerin ayrı dosyaya alınmasını gerektiriyor → D-324.
 **Zorlama:** `docs-size` kapısı.
 
 ### R-64 · buyuk-dosya-git-e-girmez · BLOCKING · aktif
@@ -347,12 +344,11 @@ ikizi: yeşil kapı hiçbir şey kanıtlamaz, **kararsız** kapı daha azını. 
 Yeni bir **jenerik grafik öge** CSS/HTML ile kodlanmaz: ikon, ok, rozet, çerçeve, çizgi
 süsü, 3B şekil, illüstrasyon. Bunlar tasarım kütüphanesinden gelir (`perfect-freehand`
 kontur matematiği gibi) ya da hiç konmaz.
-**İstisna — kodlanabilir olanlar:** YERLEŞİM (ızgara, kolon, boşluk), TİPOGRAFİ,
-ZEMİN reçetesi (degrade/ışık/gren) ve VERİ görselleştirmesi (çubuk, vafel — bunlar süs
-değil, verinin kendisi).
-**Neden:** `examples/` altındaki profesyonel tasarımlarla bizimkiler yan yana
-konduğunda fark renkte ya da düzende değil, ÖGELERDEydi. Elle kodlanmış bir ikon
-"bilgisayar işi" gibi duruyor çünkü öyle. → D-279
+**İstisna:** YERLEŞİM (ızgara, kolon, boşluk), TİPOGRAFİ, ZEMİN reçetesi ve VERİ
+görselleştirmesi — bunlar süs değil, verinin kendisi.
+**Neden:** `examples/` altındaki profesyonel işlerle bizimkiler yan yana konunca fark
+renkte ya da düzende değil, ÖGELERDEydi. Elle kodlanmış ikon "bilgisayar işi" gibi
+duruyor çünkü öyle. → D-279
 
 ### R-82 · defter-anahtari-sessizce-elenmez · GATE · aktif
 Bir gövdenin `data` çıktısındaki her anahtar YA `DEFTER_ANAHTARLARI` beyaz listesinde
@@ -367,39 +363,36 @@ yetmedi.** Kapı yazılır yazılmaz on alan daha çıktı, içlerinde YAYIN KAN
 Gövde metni **0,20° açısal x-yüksekliğinin** altına inemez — 1080 px'te **36 px**,
 hedef 40–48. Oran tabanı EZEMEZ; taban tuval genişliğine orantılı, sabit piksel değil.
 **Neden:** ölçü nominal punto değil, harfin gözde kapladığı AÇIDIR — kritik punto 0,2°
-(Legge & Bigelow 2011). Gövdemiz **34 px** ölçüldü; oran göreli olduğu için başlık
-küçüldükçe daha da iniyordu. ⚠ İstisna DAR: üç kelimelik etiket TANINIR, okunmaz.
+(Legge & Bigelow 2011). Gövdemiz **34 px** ölçüldü. ⚠ İstisna DAR: kısa etiket TANINIR.
 **Zorlama:** `punto-esik-alti`. → D-321
 
 ### R-84 · gorsel-metnin-ustunde-durmaz · GATE · aktif
 Metin gövdesi (`.baslik`, `.govde`) bir görselle **%12'den fazla** çakışamaz.
 **Neden:** *"üstte olmak okunabilirlik değildir."* `metin-ortuluyor` boyama SIRASINI
 soruyor; yanlış olan SORUYDU. Ölçüldü: metin alanının **%29'u** görselin üstündeydi.
-⚠ Eşik sıfır DEĞİL. **Zorlama:** `metin-gorsel-cakisiyor`. → D-319
+⚠ Eşik sıfır DEĞİL. **Zorlama:** `metin-gorsel-cakisiyor` → D-319
 
 ### R-85 · tanimsiz-token-cagrilmaz · GATE · aktif
 Çağrılan her `var(--ramp-*)` / `var(--role-*)`, üretilmiş `tokens.css` dosyalarının
 birleşiminde TANIMLI olmak zorundadır.
 **Neden:** **CSS tanımsız bir `var()` için hata VERMEZ** — ögeyi sessizce şeffaf
 bırakır. D-318 amber rampasını emekli etti, `aile.ts` çağırmaya devam etti; üç şablonun
-zemin ögesi kayboldu, hiçbir test kırmızı olmadı. Derleyici de göremez (çağrı DİZE
-içinde).
+zemin ögesi kayboldu ve hiçbir test kırmızı olmadı. Derleyici de göremez: çağrı DİZEDE.
 **Zorlama:** `token-cagrisi` kapısı (fast grubu). → D-320
 
 ### R-86 · olcu-bandi · GATE · aktif
 Gövde satırı **45–75 karakter**. Alt sınır yalnız sütun onu kaldırabiliyorsa zorlanır.
-**Neden:** alt sınır üst sınır kadar önemli ve eksik olan oydu — çok kısa satır gözü
-her satırda geri döndürüp ritmi kırıyor (Butterick 45–90). Sayıldı: `donen` **19**,
-`editoryal` 27. ⚠ Alt sınır koşullu: imkânsız bir şey isteyen ölçüm gürültüdür.
+**Neden:** alt sınır üst sınır kadar önemli ve eksik olan oydu — kısa satır gözü her
+satırda geri döndürüp ritmi kırıyor (Butterick 45–90). Sayıldı: `donen` **19**.
+⚠ Alt sınır koşullu: imkânsız bir şey isteyen ölçüm gürültüdür.
 **Zorlama:** `olcu-bandi-disi`, `Range` ile GERÇEK kırılmalardan. → D-321
 
 ### R-87 · her-kesimde-tasiyici · GATE · aktif
 Kesintisizlik iddia eden şablonda **HER kesim** en az bir taşıyıcı ögeyle aşılır.
 **Neden:** eski ölçüm belge düzeyindeydi — altı kesimden birinde taşıyıcı varsa belge
-temiz sayılıyordu. Süreklilik **her geçişin** özelliği. Kesim başına ölçülünce
-`memphis`te 2, `editoryal`de 2 boş kesim çıktı. ⚠ Mekanizma listesi üçüncü kez eksik
-kaldı: `olcek` CSS'e taşınınca `.bant path` sorgusu onu göremedi ve `donen` taşıyıcısı
-YERİNDEYKEN kırmızı raporlandı. **Zorlama:** `kesintisizlik-yok`, boş kesimlerin x'iyle.
+temiz sayılıyordu. Süreklilik **her geçişin** özelliği; kesim başına ölçülünce dört boş
+kesim çıktı. ⚠ Mekanizma listesi üçüncü kez eksik kaldı ve taşıyıcı YERİNDEYKEN kırmızı
+raporlandı. **Zorlama:** `kesintisizlik-yok`, boş kesimlerin x'iyle.
 → D-319 · D-321
 
 ### R-88 · guvenli-alan-ve-metin-payi · GATE · aktif
@@ -407,24 +400,20 @@ YERİNDEYKEN kırmızı raporlandı. **Zorlama:** `kesintisizlik-yok`, boş kesi
 kadrajın **%30**'unu geçemez — **kapakta %42**, çünkü kapak başlığı KAHRAMAN olmak
 zorunda.
 **Neden:** üst dolgu 68 px'ti, eşiğin 12 px altında. Metin payı gövde kartlarında
-**%36–38** çıktı: her slayt kapakla AYNI punto payını kullanıyordu — sistemin kendi
-merdiveni bunu zaten reddediyor. Gövde başlığı 0,82 çarpanıyla indi.
-⚠ **İki eşik, çünkü iki kural çelişiyor:** "metin ≤%30" ile "başlık kadrajın üçte birini
-kaplarsa kahraman" aynı kartta uzlaşmaz. Tek eşik ikisinden birini yalanlardı.
-⚠ **Panel metin DEĞİL, veridir**; ray ve sayaç KROM. İkisi de paya girmiyor — giren ilk
-ölçüm `veri-hikayesi`nin beş kartını kırmızıya çevirmişti.
+**%36–38** çıktı: her slayt kapakla AYNI punto payını kullanıyordu. Gövde başlığı 0,82
+çarpanıyla indi.
+⚠ **İki eşik, çünkü iki kural çelişiyor:** "metin ≤%30" ile "kapak başlığı kahraman"
+aynı kartta uzlaşmaz. Panel metin DEĞİL veridir; ray ve sayaç KROM — ikisi de paya
+girmiyor.
 **Zorlama:** `guvenli-alan-disi` · `metin-payi-yuksek`. → D-321
 
 ### R-89 · kelime-butcesi · GATE · aktif
 Başlık en fazla **8 kelime**, bir slaytta başlık + gövde + üst başlık toplamı en fazla
 **28 kelime**. Sınır hem isteme yazılır hem uyarlamada zorlanır.
-**Neden:** *"5–8 kelimelik kanca"* bir pazarlama sezgisi DEĞİL, geometrik zorunluluk:
-başlığın bakışlık puntoda (≥0,5° açısal x-yüksekliği) olması ve 2–3 satıra sığması
-gerekiyor; 1080 px tuvalde bu satır başına ~2,5 kelime eder. Aynı yoldan gövde ≈20
-kelime çıkıyor — iki bağımsız türetmenin aynı sayıya varması kuralın kanıtı.
-⚠ **ÜST sınır zorlanır, ALT sınır zorlanmaz.** Üç kelimelik bir başlık ("Sessiz bir
-dönüşüm") kusur değil, çoğu zaman daha güçlü. Ölçülen şey kadraja SIĞMA; kısalık bir
-tercih, uzunluk bir taşma riski.
+**Neden:** *"5–8 kelimelik kanca"* pazarlama sezgisi DEĞİL, geometri: başlık bakışlık
+puntoda (≥0,5°) ve 2–3 satırda olmalı; 1080 px'te bu satır başına ~2,5 kelime eder.
+Gövde aynı yoldan ≈20 çıkıyor — iki bağımsız türetmenin aynı sayıya varması kanıttır.
+⚠ **ÜST sınır zorlanır, ALT sınır zorlanmaz:** kısalık tercih, uzunluk taşma riski.
 ⚠ Sınır İSTEME de yazılıyor ve ret RENDER'dan ÖNCE: dört görsel üretip sonra "başlık
 uzun" demek o parayı geri getirmiyor.
 **Zorlama:** `uyarla` → `BASLIK_KELIME_TAVANI` · `SLAYT_KELIME_TAVANI`. → D-321
@@ -432,25 +421,21 @@ uzun" demek o parayı geri getirmiyor.
 ### R-90 · yayin-sozlesmesi · GATE · aktif
 Karosel en fazla **10 slayt** taşır ve yayınlanan her dosya **JPEG** olur. İkisi de
 yükleme yolunun ÖNÜNDE denetlenir.
-**Neden:** Graph API ikisini de açıkça sınırlıyor (*"Carousels are limited to 10 images"*
-· *"JPEG is the only image format supported"*, Meta Content Publishing, 30 Haz 2026).
-Uygulama 20 slayta izin veriyor ama **bizim yayın yolumuz API**. Ve hattımız PNG
-üretiyordu: her slayt yayın anında reddedilecekti — dört görsel ve bir insan onayından
-SONRA.
+**Neden:** Graph API ikisini de sınırlıyor (*"Carousels are limited to 10 images"* ·
+*"JPEG is the only image format supported"*, Meta, 30 Haz 2026). Hattımız PNG
+üretiyordu: her slayt yayın anında reddedilecekti — dört görsel ve bir onaydan SONRA.
 ⚠ Kontrol token'dan ÖNCE: sözleşme ihlali bir yetki sorunu değil.
-⚠ Biçim çağıranın verdiği YOLDAN türüyor, bir parametreden değil: dosya adı `.jpg`
-derken içeriğin PNG olması defterin kendi kendine yalan söylemesidir.
+⚠ Biçim çağıranın verdiği YOLDAN türüyor: `.jpg` deyip PNG yazmak defterin yalanı.
 **Zorlama:** `publish` → `too_many_assets` · `unsupported_format`; `renderPanorama`
 biçimi uzantıdan okuyor. → D-321
 
 ### R-91 · tuval-tek-kaynaktan · GATE · aktif
 Karosel tuvalinin ölçüsü **tek sözleşme sabitinden** gelir (`VARSAYILAN_TUVAL`); hiçbir
 dosya `1350` yazmaz.
-**Neden:** aynı sayı altı dosyada kopyalıydı; bir gün beşi değişir biri unutulur. O gün
-panorama sessizce başka orandan dilimlenir ve Meta API'de **ilk slaydın oranı tüm
-karoseli belirlediği için** kalanlar KIRPILIR.
-⚠ **3:4 artık resmî** (Instagram, 29 May 2025) ama 4:5 **Meta reklamında ZORUNLU**. Karar
-"hangi oran" değil — **oran bir PARAMETRE**, iki değer de aynı hattan üretilebilmeli.
+**Neden:** aynı sayı altı dosyada kopyalıydı; beşi değişip biri unutulunca panorama
+sessizce başka orandan dilimlenir ve Meta'da **ilk slaydın oranı tüm karoseli
+belirlediği için** kalanlar KIRPILIR.
+⚠ **3:4 resmî** (Instagram, 29 May 2025), 4:5 **reklamda ZORUNLU** — oran bir PARAMETRE.
 **Zorlama:** `tuval.test.ts` — oran adı ile sayının ayrışamayacağını da ölçüyor
 (`oran: '4:5'` yazıp 1440 vermek defterin kendi kendine yalan söylemesi). → D-321
 
@@ -460,21 +445,36 @@ ve sonucu `COMPOSE`a geçer.
 **Neden:** `logoVarliklari()` yazılmış ve test edilmişti — ama **tek çağıranı editör
 önizlemesiydi**; `uret.mjs` `logo` kelimesini hiç anmıyordu. Üretilen hiçbir karosel imza
 taşımıyordu ve hiçbir test kırmızı değildi.
-⚠ **Zincir kopukluğunun yedincisi:** modül var, test yeşil, üretim yolu yok (D-182 ·
-D-190 · D-224 · D-250 · D-261 · D-270 ailesi). Modülü test etmek zinciri test etmiyor.
-⚠ Eksik logo koşuyu DURDURMUYOR (fontun aksine: geometrik yedek meşru bir çıktı) ama
-sessiz de değil — uyarı basılıyor.
+⚠ **Zincir kopukluğunun yedincisi** (D-182 · D-190 · D-224 · D-250 · D-261 · D-270):
+modülü test etmek zinciri test etmiyor. Eksik logo koşuyu durdurmuyor ama uyarı basıyor.
 **Zorlama:** `marka-imzasi.test.ts` — modülü DEĞİL çağrıyı sınıyor (`uret.mjs` bir CLI,
 import edilip çağrılamıyor; davranış testi kopukluğu göremezdi). → D-321
 
 ### R-93 · sahne-kaymaz · GATE · aktif
 Sahne gövdenin **(0,0)**'ında başlar; hiçbir tanım ögesi akışta duramaz. Tolerans yok.
 **Neden:** görsel işlemlerinin `<svg class="filtre-tanim" width="0" height="0">` tanımları
-gövdede INLINE duruyordu. Sıfır boyutlu bir inline öge bile satır kutusu doğurur ve o
-kutunun strut yüksekliği **21 px**: üretilen her karosel 21 px aşağı kaymış, üstte gövde
-zemininden bir şerit kalmış, kartın son 21 px'i — imzanın durduğu ray — kadrajın dışına
-taşmıştı.
+gövdede INLINE duruyordu. Sıfır boyutlu bir inline öge bile satır kutusu doğurur, strut
+yüksekliği **21 px**: üretilen her karosel 21 px aşağı kaymış, kartın son 21 px'i —
+imzanın durduğu ray — kadrajın dışına taşmıştı.
 ⚠ **Var olan hiçbir kusur bunu göremezdi:** bütün ölçümler ögeleri KARTA göre okuyor.
 Kart kusursuzdu, YERİ yanlıştı. Kadraj kartın kutusu değil, EKRANIN kutusudur.
 **Zorlama:** `sahne-kaymis` kusuru + `FILTRE_TANIM_CSS` tek sabit (iki render yolu da
 onu basıyor); `sahne-kaymasi.test.ts` kuralı iptal edip kaymayı ÖLÇÜYOR. → D-323
+
+### R-94 · dikis-dislama-bandi · GATE · aktif
+Bir görsel kesime ya **≥93 px uzaktır** ya da onu **ezer**: kesimin iki yakasında da
+slayt genişliğinin ≥%40'ını kaplar. Arada kalan yok.
+**Neden:** türetildi (`arastirma-2026-08` böl. 1.3) — 93, tek fiksasyonun net bölgesinin
+(≈2° = 186 px) yarısı. *"Biraz taşsın" en kötü seçenek.* Ölçüldü: "1↔2 kesimi" diye
+ADLANDIRILMIŞ özne kesimin **0,4 px** solunda bitiyordu. ⚠ Ölçü BOYANAN alandan: `contain` kutuyu doldurmuyor — niyet kutu, gözün
+gördüğü boya. **Zorlama:** `dikis-bandinda`; `DIKIS_BANDI`/`EZICI_PAY` tek sabit. → D-324
+
+### R-95 · krom-okunur · GATE · aktif
+Ray metni — logo, marka, dönem, sayaç — arkasındaki hiçbir şeye karışmaz.
+**Neden:** ray zaten perde taşıyordu ve yeterli sanıldı; kesik özne kahraman ölçüye
+çıkınca ayakkabı içine girdi, `01 / 04` okunmaz oldu. **Mekanizma vardı, parametresi
+yanlıştı.**
+⚠ **Medyan burada YANLIŞ istatistik** — 84 px'lik kutunun yarısı örtülse bile koyu kalır.
+Ölçü iki render farkı: metin gizlenip zeminin metin lumasına 44'ten yakın piksel PAYI.
+Eşik %4 ÖLÇÜLDÜ (90 kutunun temizleri %0, kirli tek kutu %10). Kural "raya girmesin"
+demiyor; perdesiz girmesin diyor. **Zorlama:** `krom-okunmuyor`. → D-324

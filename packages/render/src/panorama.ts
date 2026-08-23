@@ -697,6 +697,40 @@ export const GOVDE_TABANI_1080 = 36
  * ⚠ Butterick 45–90 diyor; üst sınır 75'e çekildi: 1080 px'lik bir tuvalde 90 karakter
  * kart dolgusunu zaten aşıyor ve pratikte erişilemez.
  */
+/**
+ * **Dikiş dışlama bandı** — bir kimlik ögesi kesime ya UZAKTIR ya da onu EZER (R-94).
+ *
+ * ⚠ ⚠ **ARADA KALAN YOK ve "biraz taşsın" en kötü seçenek:** ne devamlılık kuruyor ne
+ * bütünlük. Göz yarım bir ürünü ne tanıyor ne de "devamı var" diye okuyor.
+ *
+ * ⚠ `93` ölçülerek türetildi, seçilmedi: tek fiksasyonun net bölgesi ≈2° görsel açı;
+ * bu tuvalde 2° = 186 px ve yarısı 93. Yani öge kesime 93 px'ten yakınsa okuyucunun
+ * TEK bakışında kesimle birlikte düşüyor.
+ *
+ * ⚠ `0,40` ezme eşiği: öge kesimin İKİ yakasında da slayt genişliğinin en az %40'ını
+ * kaplamalı. Tek yakada büyük olmak yetmiyor — devamlılığı kuran şey, gözün ikinci
+ * slaytta AYNI kütleyi bulması.
+ *
+ * ⚠ Kural GÖRSELLERE bakıyor, metne değil: metnin kesimi aşması zaten ayrı ve mutlak
+ * bir kusur (`kesim-uzeri-metin`), kesime yaklaşması ise güvenli alanın işi (R-88) —
+ * kart dolgusu 64 px ve bu bilinçli, 93 değil.
+ *
+ * Kaynak: `docs/referans/arastirma-2026-08.md` böl. 1.3.
+ */
+/**
+ * Gövde kartı başlığının kapağa oranı (R-88).
+ *
+ * ⚠ ⚠ **SABİT OLARAK ÇIKARILDI ÇÜNKÜ OTURMA ÖLÇÜMÜ ONU BİLMEK ZORUNDA.** CSS'te
+ * gömülü kaldığı sürece `puntoOlcumu` kapağın gövdeden BÜYÜK olduğunu göremiyordu:
+ * arama "hepsine sığan" tek bir punto buluyor, sonra kapak `baslikPayi` ile
+ * büyütülüyordu. `editoryal`de sonuç 108'de sığan başlığın 127,4'te çizilmesiydi —
+ * kapak başlığı 21 px taşıyordu ve bu, çıktının EN büyük ögesiydi.
+ */
+export const GOVDE_BASLIK_CARPANI = 0.82
+
+export const DIKIS_BANDI = 93
+export const EZICI_PAY = 0.4
+
 export const OLCU_ALT = 45
 export const OLCU_HEDEF = 62
 export const OLCU_UST = 75
@@ -1405,7 +1439,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // gövde enstrüman.
     // ⚠ 0,82: kapak %42 tavanındayken gövde %30'un altına iniyor ve hiyerarşi tek
     // bakışta okunuyor. Daha sert bir düşüş (0,7) gövdeyi alt başlığa çeviriyordu.
-    `  .kart:not(.ilk) .baslik { font-size: calc(var(--baslik-punto) * 0.82`,
+    `  .kart:not(.ilk) .baslik { font-size: calc(var(--baslik-punto) * ${String(GOVDE_BASLIK_CARPANI)}`,
     `                              * var(--ayar-olcek, 1)) }`,
     `  .kart.ilk .baslik { font-family: "Marka Display", "Marka Baslik", serif;`,
     `                      font-weight: 500; letter-spacing: -0.025em }`,
@@ -1728,8 +1762,16 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
     const basliklar = Array.from(document.querySelectorAll('.baslik'))
     if (basliklar.length === 0) return 0
     let tavan = 168
+    // ⚠ ⚠ **KENDİ ÇARPANINI BİLMEYEN OTURMA ÖLÇÜMÜ HİÇBİR ŞEY KANITLAMAZ.** Arama
+    // "hepsine sığan" bir punto buluyordu; sonra kapak \`baslikPayi\` ile çarpılıyor,
+    // gövde kartları ise \`GOVDE_BASLIK_CARPANI\` ile küçülüyordu. Yani ölçülen sayı
+    // ile ÇİZİLEN sayı farklıydı ve fark kapakta 1,18 kat: sığan 108, çizilen 127,4.
+    // Artık her başlık KENDİ çarpanıyla sınırlanıyor ve tavan ikisinin küçüğü.
+    let sinirPunto = 1e9
     for (const b of basliklar) {
       const sinir = ${sutunSiniri}
+      const carpan = b.closest('.kart') && b.closest('.kart').classList.contains('ilk')
+        ? 1 : ${String(GOVDE_BASLIK_CARPANI)}
       let alt = 20, ust = 168
       // 18 tur ikili arama: 148 px aralıkta 0,001 px çözünürlük — fazlası gereksiz.
       for (let k = 0; k < 18; k += 1) {
@@ -1741,9 +1783,13 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
       }
       b.style.fontSize = ''
       if (alt < tavan) tavan = alt
+      if (alt / carpan < sinirPunto) sinirPunto = alt / carpan
     }
-    const punto = tavan * ${t.baslikPayi}
-    sahne.style.setProperty('--baslik-punto', punto.toFixed(1) + 'px')
+    const punto = Math.min(tavan * ${t.baslikPayi}, sinirPunto)
+    // AŞAĞI yuvarlaniyor, en yakina DEGIL: toFixed(1) sigdirilan sayiyi 0,05 px
+    // BUYUTEBILIYOR ve o kadari editoryal kapaginda 2 px tasma olarak geri geldi.
+    // Bir oturma olcumunun yazdigi sayi, olctugu sayidan buyuk olamaz.
+    sahne.style.setProperty('--baslik-punto', (Math.floor(punto * 10) / 10).toFixed(1) + 'px')
     return punto
   })()`
 }

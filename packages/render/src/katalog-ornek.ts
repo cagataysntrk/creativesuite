@@ -467,23 +467,32 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   //
   // ⚠ Aradaki slaytlar BOŞ değil: taşıyıcı orada tipografi. Dört slaytta iki görsel
   // (1↔2 kesimi ve 3↔4 kesimi), aralarda başlık kadrajı taşıyor.
+  // ⚠ ⚠ **ÖLÇÜLER "GÜZEL GÖRÜNSÜN" DİYE DEĞİL, DİKİŞ BANDINDAN TÜRÜYOR (R-94).** Önceki
+  // sürüm `genislik: 12` idi: özne kesimin iki yakasında da slayt genişliğinin yalnız
+  // **%24**'ünü kaplıyordu — arada kalan bölge, araştırmanın *"en kötü seçenek"* dediği
+  // yer. Ezme eşiği %40 → kesimin her yakasında ≥432 px → boyanan genişlik ≥864 px.
+  // 864/4320 = **%20**, kesime ortalanınca x = (kesim − 432)/4320.
+  // ⚠ Yükseklik de bundan türüyor, ayrı bir tercih değil: 4:5 kaynakta 864 px genişlik
+  // ancak 1080 px yükseklikte BOYANIYOR (`contain`). 78 verilseydi kutu 1053'te kalır,
+  // boya 842'ye düşer ve eşik yine tutmazdı — kutuyu büyütüp boyayı unutmak bu kusurun
+  // ta kendisi.
   gorseller: [
     {
       src: '',
       alt: 'kesik özne — 1↔2 kesimi',
-      x: 19,
-      y: 20,
-      genislik: 12,
-      yukseklik: 78,
+      x: 15,
+      y: 13,
+      genislik: 20,
+      yukseklik: 80,
       kirpma: 'kesik',
     },
     {
       src: '',
       alt: 'kesik özne — 3↔4 kesimi',
-      x: 69,
-      y: 22,
-      genislik: 12,
-      yukseklik: 78,
+      x: 65,
+      y: 13,
+      genislik: 20,
+      yukseklik: 80,
       kirpma: 'kesik',
     },
   ],
@@ -612,9 +621,22 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // çıkardı. `ornek-3`ün kimliği desen + İNSAN; ikisinden biri eksikse o şablon değil.
   // ⚠ Yuvalar kesimlerin ÜSTÜNDE (6 slaytta kesimler %16,7 · %33,3 · %50 · %66,7 · %83,3).
   gorseller: [
-    { src: '', alt: 'kesik özne — 1', x: 13, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 2', x: 46, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 3', x: 80, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    // ⚠ ⚠ **R-94'ÜN İKİNCİ ŞIKKI: UZAK.** Önceki sürüm üç kesimi de aşıyordu ama yalnız
+    // %16–28 ile — araştırmanın *"arada kalan"* dediği yer. `sahne` gibi EZMEK
+    // `memphis`i `sahne`ye çevirirdi; bu şablonun kesim taşıyıcısı zaten lekeler.
+    // Özneler kendi slaytlarının içine çekildi, iki yakasında da ≥93 px açıklıkla.
+    //
+    // ⚠ ⚠ **BÜYÜTÜLMEDİ ve bu da ÖLÇEREK anlaşıldı.** Kadraj payı %16'dan %36'ya
+    // çıkarıldı; ölçüm ilk kartın gövdesinin **%60'ının** görsel altında kaldığını
+    // söyledi (R-84). Sebep geometrik: metin sütunu 800 px, slayt 1080 px — büyüyen
+    // özne yatayda kaçacak yer bulamıyor. Özne alt banda hapsolduğu için (y 60, boy 40)
+    // eni de o bandın yüksekliğinden türüyor: `contain` ile 432 px.
+    // ⚠ Yani `memphis`in öznesi `sahne`ninkinden küçük olmak ZORUNDA ve bu bir kusur
+    // değil, iki şablonun farkı: `sahne` tek özneyi kahraman yapıyor, `memphis` üç
+    // özneyi altı slayda dağıtıyor.
+    { src: '', alt: 'kesik özne — 1', x: 3, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 2', x: 38, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 3', x: 70, y: 60, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
   ],
   // ⚠ ⚠ **LEKELER KALDIRILDI (depo sahibi: "şu aptal dairemsi renkli topları kaldır,
   // bunlar web tasarım duruyor").** Referansta (`image copy 4`) gerçekten leke var — ama
@@ -778,9 +800,16 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   // ⚠ Kırpma `kesik`: ürün dairenin dışına taşabilsin — referanstaki hacim hissi bu.
   // ⚠ Her ürün KENDİ slaydında, kesimi aşmıyor: merkezler 17 · 42 · 67 · 92.
   gorseller: [
+    // ⚠ ⚠ **ÜRÜN — 3 KESİME TAM OTURUYORDU (x=62 → sağ kenar 3240,0).** Ne aşıyor ne
+    // uzak: R-94'ün yasakladığı arada kalma. Yalnız O taşındı (x=59), açıklık 130 px.
+    // ⚠ ⚠ **BOYUT BÜYÜTÜLMEDİ ve bu ÖLÇEREK anlaşıldı.** Ürünler %27'den %46'ya
+    // çıkarıldı, ölçüm gövdenin **%86'sının** görselin altında kaldığını söyledi (R-84).
+    // Bu şablonda ürünün yanında metin yaşıyor: 1080 px'lik slayttan 734 px'i ürüne
+    // verilirse metne 346 px kalıyor ve o sütun okunmuyor. Ürünün boyu bir tercih değil,
+    // kompozisyonun kendisi — küçük görünmesi kusur DEĞİL, `sahne`den farkı.
     { src: '', alt: 'ürün — 1', x: 8, y: 26, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
     { src: '', alt: 'ürün — 2', x: 34, y: 22, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
-    { src: '', alt: 'ürün — 3', x: 62, y: 25, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    { src: '', alt: 'ürün — 3', x: 59, y: 25, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
     { src: '', alt: 'ürün — 4', x: 86, y: 23, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
   ],
   kartlar: [
@@ -922,8 +951,10 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   // ⚠ Konum kolon düzeninin AYNASI: metin sağdaysa fotoğraf solda. Ortaya alınca ikisi
   // de aynı bandı istedi ve altı çakışma doğdu — düzenin kendisi zaten doğruydu.
   gorseller: [
+    // ⚠ **Orta şerit kesime TAM oturuyordu** (x=39 → sağ kenar 2160,0): arada kalma.
+    // 36'ya çekildi, kesime 130 px açıklık kaldı. Kenar şeritler zaten uzak.
     { src: '', alt: 'geniş plan', x: 0, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
-    { src: '', alt: 'yakın plan', x: 39, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
+    { src: '', alt: 'yakın plan', x: 36, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
     { src: '', alt: 'kapanış karesi', x: 89, y: 0, genislik: 11, yukseklik: 100, kirpma: 'tam' },
   ],
   kartlar: [

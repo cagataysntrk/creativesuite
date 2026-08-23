@@ -19,7 +19,13 @@
 
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
 import { kapsamDisiKarakterler } from './fonts.js'
-import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+import {
+  DIKIS_BANDI,
+  EZICI_PAY,
+  panoramaHtml,
+  puntoOlcumu,
+  type PanoramaBelgesi,
+} from './panorama.js'
 
 export type KusurTuru =
   /** Bir metin kutusu içeriğini kırpıyor — satır ya da kelime görünmüyor. */
@@ -205,6 +211,37 @@ export type KusurTuru =
    * bile ekran görüntüsünün her slaytta aynı yerden kesilmediği anlamına gelir.
    */
   | 'sahne-kaymis'
+  /**
+   * Bir görsel kesimin **arada kalan** bölgesinde: ne yeterince uzak ne de ezici (R-94).
+   *
+   * ⚠ ⚠ **KESİNTİSİZLİĞİN TAŞIYICISI SANILAN GÖRSELLER KESİMİ HİÇ AŞMIYORDU.**
+   * `sahne`nin "1↔2 kesimi" diye adlandırılmış öznesi kesimin **0,4 px** solunda
+   * bitiyordu; `donen` ve `editoryal`de görselin sağ kenarı kesime TAM oturuyordu.
+   * Ad doğruydu, geometri yanlıştı — ve `kesintisizlik-yok` sessizdi, çünkü kesimi
+   * başka bir taşıyıcı (ince bir çizgi) geçiyordu. Kesimde bir şeyin bulunması,
+   * DOĞRU şeyin bulunması demek değil.
+   *
+   * ⚠ Ölçü BOYANAN alandan: `object-fit: contain` kutuyu doldurmuyor ve kutunun kenarı
+   * kesime değse bile boya 43 px içeride kalabiliyor. Tasarımın niyeti kutu, gözün
+   * gördüğü boya.
+   */
+  | 'dikis-bandinda'
+  /**
+   * Ray metni — logo, marka, dönem, sayaç — arkasındaki şeye KARIŞIYOR (R-95).
+   *
+   * ⚠ ⚠ **MEKANİZMA VARDI, PARAMETRESİ YANLIŞTI.** Ray zaten bir perde taşıyor
+   * (`--kart-zemin` %90'dan şeffafa bir degrade) ve bu yeterli sanıldı. Kesik özne
+   * kahraman ölçüye çıkınca ayakkabısı rayın içine girdi: perde o yükseklikte %82'ye
+   * düşüyor, metin ise `--kart-metin` %48 — parlak bir yüzeyin üstünde ikisi birden
+   * kayboluyor. `01 / 04` okunmuyordu ve hiçbir ölçüm bunu görmüyordu.
+   *
+   * ⚠ Ölçü, AI ifşasıyla AYNI alet: ekran görüntüsünden medyan luma ile metin luması
+   * arasındaki fark. Krom da ifşa kadar okunmak zorunda — biri yasal, öteki kimlik.
+   *
+   * ⚠ Kusur "görsel rayın içine girmesin" DEMİYOR. Tam kadraj fotoğrafın üstünde
+   * künye satırı meşru bir editoryal araç; meşru olmayan, perdesiz olması.
+   */
+  | 'krom-okunmuyor'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -242,6 +279,7 @@ const OLCUM = (
   const kusurlar = []
   // İfşa şeritlerinin EKRAN kutuları — bileşik kontrast Node tarafında ölçülüyor.
   const kutular = []
+  const kromKutulari = []
   const kesimler = ${JSON.stringify(kesimler)}
   const kartlar = Array.from(document.querySelectorAll('.kart'))
 
@@ -280,6 +318,26 @@ const OLCUM = (
       aciklama:
         'bu slaytta gorsel yerine YER TUTUCU cizili — gorsel uretilemedi, cikti eksik',
     })
+  })
+
+  // ── krom kutulari: ray cocuklari, KONTRAST NODE TARAFINDA (R-95) ────────
+  //
+  // Ayni alet, ayni gerekce: bilesik piksel ancak ekran goruntusuyle okunur. Burada
+  // yalniz kutu ve renk toplaniyor.
+  Array.from(document.querySelectorAll('.ray > *')).forEach((e) => {
+    const r = e.getBoundingClientRect()
+    const st = getComputedStyle(e)
+    if (r.width < 8 || r.height < 6) return
+    if (st.visibility === 'hidden' || st.display === 'none' || Number(st.opacity) < 0.05) return
+    // Metni olmayan bir oge (logo gorseli) luma karsilastirmasina girmiyor: onun
+    // okunurlugu renk degil BICIM meselesi.
+    if ((e.textContent || '').trim() === '') return
+    const kartIndex = kartlar.findIndex((k) => {
+      const kr = k.getBoundingClientRect()
+      return r.left + r.width / 2 >= kr.left && r.left + r.width / 2 < kr.right
+    })
+    kromKutulari.push({ kart: kartIndex < 0 ? null : kartIndex + 1, sol: r.left, ust: r.top,
+      en: r.width, boy: r.height, renk: st.color, alan: e.className.split(' ')[0] })
   })
 
   // ── AI ifşası: her slaytta GÖRÜNÜR mü ─────────────────────────────────────
@@ -675,6 +733,50 @@ const OLCUM = (
     }
   })
 
+  // ── dikis dislama bandi: ya UZAK ya EZICI (R-94) ────────────────────────
+  //
+  // Arastirmanin turettigi kural (arastirma-2026-08 bol. 1.3): bir kimlik ogesi kesime ya
+  // en az 93 px uzaktir ya da kesimin IKI yakasinda da slayt genisliginin %40'ini
+  // kaplar. Arada kalan yok — "biraz tassin" ne devamlilik kuruyor ne butunluk.
+  //
+  // ⚠ OLCU BOYANAN ALANDAN, kutudan degil: object-fit contain kutuyu doldurmuyor.
+  // sahne'nin "1↔2 kesimi" diye ADLANDIRILMIS ozne kutusu kesime dayaniyordu, boyasi
+  // ise 0,4 px solunda bitiyordu. Ad dogruydu, geometri yanlisti.
+  for (const g of Array.from(document.querySelectorAll('.gorsel, .gorsel-yer'))) {
+    const r = g.getBoundingClientRect()
+    if (r.width < 4 || r.height < 4) continue
+    const nw = g.naturalWidth || 0
+    const nh = g.naturalHeight || 0
+    let sol = r.left
+    let sag = r.right
+    if (nw > 0 && nh > 0 && getComputedStyle(g).objectFit === 'contain') {
+      const s = Math.min(r.width / nw, r.height / nh)
+      const bosluk = (r.width - nw * s) / 2
+      sol = r.left + bosluk
+      sag = r.right - bosluk
+    }
+    for (const x of kesimler) {
+      const asiyor = sol < x - 0.5 && sag > x + 0.5
+      if (asiyor) {
+        const solPay = (x - sol) / ${String(slaytGenisligi)}
+        const sagPay = (sag - x) / ${String(slaytGenisligi)}
+        if (solPay < ${String(EZICI_PAY)} || sagPay < ${String(EZICI_PAY)}) {
+          kusurlar.push({ tur:'dikis-bandinda', kart:null, alan:g.alt || null,
+            aciklama: 'x=' + Math.round(x) + ' kesimini asiyor ama ezmiyor: sol %' +
+              Math.round(solPay*100) + ' sag %' + Math.round(sagPay*100) +
+              ' — iki yakada da en az %' + Math.round(${String(EZICI_PAY)}*100) + ' (R-94)' })
+        }
+        continue
+      }
+      const mesafe = sag <= x ? x - sag : sol - x
+      if (mesafe >= 0 && mesafe < ${String(DIKIS_BANDI)}) {
+        kusurlar.push({ tur:'dikis-bandinda', kart:null, alan:g.alt || null,
+          aciklama: 'x=' + Math.round(x) + ' kesimine ' + Math.round(mesafe) +
+            ' px — ya ' + ${String(DIKIS_BANDI)} + ' px uzak ya ezici olmali (R-94)' })
+      }
+    }
+  }
+
   // ── kesintisizlik: HER KESIMDE bir tasiyici (R-87) ──────────────────────
   //
   // ⚠ ⚠ **ESKI OLCUM BELGE DUZEYINDEYDI: "hicbir oge kesimi asmiyor".** Yani ALTI
@@ -707,7 +809,7 @@ const OLCUM = (
           ') — sureklilik HER gecisin ozelligi (R-87)' })
     }
   }
-  return { kusurlar, ifsaKutulari: kutular }
+  return { kusurlar, ifsaKutulari: kutular, kromKutulari }
 })()`
 
 /**
@@ -850,62 +952,168 @@ export const panoramaDenetle = async (
         boy: number
         renk: string
       }[]
+      readonly kromKutulari: readonly {
+        kart: number | null
+        sol: number
+        ust: number
+        en: number
+        boy: number
+        renk: string
+        alan: string
+      }[]
     }
     const ham = olcum.kusurlar
 
+    /**
+     * Bir kutunun BİLEŞİK okunurluğu: medyan luma ile metin luması arasındaki fark.
+     *
+     * ⚠ ⚠ **AYNI ALET İKİ KUSURA HİZMET EDİYOR ve bu bir kopyala-yapıştır olmasın
+     * diye çıkarıldı.** İfşa şeridi ile ray metni aynı soruyu soruyor — "bu yazı
+     * arkasındaki şeye karışıyor mu" — ve o soru yalnız EKRAN pikseliyle
+     * cevaplanıyor. İki kopya, bir gün birinin eşiğinin değişip ötekinin unutulması
+     * demek.
+     */
+    const okunurluk = async (k: {
+      readonly sol: number
+      readonly ust: number
+      readonly en: number
+      readonly boy: number
+      readonly renk: string
+    }): Promise<number> => {
+      const png = await page.screenshot({
+        clip: {
+          x: Math.max(0, Math.round(k.sol)),
+          y: Math.max(0, Math.round(k.ust)),
+          width: Math.max(1, Math.round(k.en)),
+          height: Math.max(1, Math.round(k.boy)),
+        },
+      })
+      return (await page.evaluate(
+        `(async () => {
+          const im = new Image()
+          im.src = 'data:image/png;base64,${png.toString('base64')}'
+          await im.decode()
+          const c = document.createElement('canvas')
+          c.width = im.width; c.height = im.height
+          const x = c.getContext('2d')
+          x.drawImage(im, 0, 0)
+          const d = x.getImageData(0, 0, c.width, c.height).data
+          const l = []
+          for (let j = 0; j < d.length; j += 4) l.push(0.2126*d[j] + 0.7152*d[j+1] + 0.0722*d[j+2])
+          l.sort((a, b) => a - b)
+          const medyan = l[Math.floor(l.length / 2)]
+          const c2 = document.createElement('canvas')
+          c2.width = 1; c2.height = 1
+          const x2 = c2.getContext('2d')
+          x2.fillStyle = ${JSON.stringify(k.renk)}
+          x2.fillRect(0, 0, 1, 1)
+          const mp = x2.getImageData(0, 0, 1, 1).data
+          const metin = 0.2126*mp[0] + 0.7152*mp[1] + 0.0722*mp[2]
+          return Math.round(Math.abs(medyan - metin))
+        })()`
+      )) as number
+    }
+
+    // ── krom okunuyor mu — İKİ RENDER FARKI (R-95) ──────────────────────────
+    //
+    // ⚠ ⚠ **İLK SÜRÜM MEDYANA BAKTI ve kusuru GÖREMEDİ — göz görmüştü.** İfşa şeridi
+    // geniş; `ray-sayac` ise 84 px. Ayakkabı kutunun yarısını kaplasa bile medyan hâlâ
+    // koyu kalıyor ve ölçüm "temiz" diyor, oysa metnin YARISI okunmuyor. Medyan sağlam
+    // bir istatistik olduğu için burada YANLIŞ istatistik.
+    //
+    // Doğru ölçü: metin GİZLENİP zemin okunuyor ve zeminin metin lumasına 44'ten yakın
+    // piksel PAYI sayılıyor. Ortalama değil pay — kutunun küçük bir bölgesi bile metni
+    // yutuyorsa krom okunmuyor.
+    //
+    // ⚠ Eşik %4 ÖLÇÜLEREK seçildi: altı şablonun 90 krom kutusunda temiz olanların
+    // hepsi tam **%0** verdi, kirli tek kutu **%10**. Aradaki boşluk kenar yumuşatma
+    // gürültüsünü rahatça kapsıyor.
+    const kromKusurlari: Kusur[] = []
+    if (olcum.kromKutulari.length > 0) {
+      await page.evaluate(
+        `(() => { const s = document.createElement('style'); s.id = 'krom-gizle';
+          s.textContent = '.ray > * { color: transparent !important }';
+          document.head.appendChild(s) })()`
+      )
+      for (const k of olcum.kromKutulari) {
+        try {
+          const png = await page.screenshot({
+            clip: {
+              x: Math.max(0, Math.round(k.sol)),
+              y: Math.max(0, Math.round(k.ust)),
+              width: Math.max(1, Math.round(k.en)),
+              height: Math.max(1, Math.round(k.boy)),
+            },
+          })
+          const yakinPay = (await page.evaluate(
+            `(async () => {
+              const im = new Image()
+              im.src = 'data:image/png;base64,${png.toString('base64')}'
+              await im.decode()
+              const c = document.createElement('canvas')
+              c.width = im.width; c.height = im.height
+              const x = c.getContext('2d')
+              x.drawImage(im, 0, 0)
+              const d = x.getImageData(0, 0, c.width, c.height).data
+              const c2 = document.createElement('canvas')
+              c2.width = 1; c2.height = 1
+              const x2 = c2.getContext('2d')
+              x2.fillStyle = ${JSON.stringify(k.renk)}
+              x2.fillRect(0, 0, 1, 1)
+              const mp = x2.getImageData(0, 0, 1, 1).data
+              const metin = 0.2126*mp[0] + 0.7152*mp[1] + 0.0722*mp[2]
+              let yakin = 0, n = 0
+              for (let j = 0; j < d.length; j += 4) {
+                const l = 0.2126*d[j] + 0.7152*d[j+1] + 0.0722*d[j+2]
+                n += 1
+                if (Math.abs(l - metin) < 44) yakin += 1
+              }
+              return Math.round((yakin / n) * 100)
+            })()`
+          )) as number
+          if (yakinPay > 4) {
+            kromKusurlari.push({
+              tur: 'krom-okunmuyor',
+              kart: k.kart,
+              alan: 'raya',
+              aciklama:
+                `${k.alan} zeminine karışıyor: yüzeyinin %${String(yakinPay)}'i metin ` +
+                "lumasına 44'ten yakın (tavan %4) — krom kimliktir, görsel onu yutamaz (R-95)",
+            })
+          }
+        } catch (e) {
+          kromKusurlari.push({
+            tur: 'krom-okunmuyor',
+            kart: k.kart,
+            alan: 'raya',
+            aciklama: `${k.alan} okunurluğu ÖLÇÜLEMEDİ (${String(e)}) — ölçülemeyen geçmiş sayılmaz`,
+          })
+        }
+      }
+      // ⚠ Stil KALDIRILIYOR: aynı sayfada sonra süs ölçümü koşuyor ve şeffaf bir ray
+      // onun kutularını da değiştirirdi. Ölçüm ortamını kirletmek, sonraki ölçümü
+      // sessizce yalanlamaktır.
+      await page.evaluate(`(() => document.getElementById('krom-gizle')?.remove())()`)
+    }
+
     // ── AI ifşası OKUNUYOR mu — BİLEŞİK piksel üzerinden (§11.3 · Md. 50) ────
     //
-    // ⚠ ⚠ **İKİ DENEME YANLIŞ ŞEYE BAKTI.** Birincisi görselin HAM piksellerini
-    // okudu, ikincisi metin rengini tuvale çizdirip düzeltti — ama aradaki dip
-    // vinyeti (zemin reçetesi) bileşik sonucu değiştiriyor ve ham görsel onu
-    // bilmiyor. Ölçülmesi gereken şey EKRANDAKİ piksel; o da ancak ekran
-    // görüntüsüyle alınır.
-    //
     // ⚠ ⚠ **ÖLÇÜT ÜÇÜNCÜ KEZ DÜZELTİLDİ ve her seferinde SAYI gösterdi.** Önce ham
-    // görsel pikselleri okundu (vinyeti görmüyordu), sonra bölgenin luma YAYILIMI
+    // görsel pikselleri okundu (dip vinyetini görmüyordu), sonra bölgenin luma YAYILIMI
     // ölçüldü — ölçüldü ve ayırt etmedi: vinyetli 98–115, vinyetsiz 96–232, ikisi de
-    // eşiğin üstünde. Sebep basit: şerit hem koyu metni hem parlak zemini içeriyor,
-    // yani yayılım her hâlde yüksek.
+    // eşiğin üstünde. Sebep basit: şerit hem koyu metni hem parlak zemini içeriyor.
     //
     // Doğru ölçüt METİN ile ZEMİN arasındaki fark: bölgenin MEDYANI zemini temsil
-    // ediyor (piksellerin çoğu zemin) ve metin rengi tarayıcıya çizdirilerek
-    // okunuyor. Vinyetsiz kart 3'te medyan 209, metin 245 → fark 36: okunmuyor.
-    // Vinyetli aynı kartta medyan 36 → fark 209: okunuyor.
+    // ediyor ve metin rengi tarayıcıya çizdirilerek okunuyor. Vinyetsiz kart 3'te
+    // medyan 209, metin 245 → fark 36: okunmuyor. Vinyetli aynı kartta medyan 36 →
+    // fark 209: okunuyor.
+    //
+    // ⚠ Burada medyan DOĞRU istatistik, kromun aksine: ifşa şeridi geniş ve zemini
+    // tekdüze. Dar bir sayaç kutusunda aynı medyan yalan söylüyordu (R-95).
     const ifsaKusurlari: Kusur[] = []
     for (const k of olcum.ifsaKutulari) {
       try {
-        const png = await page.screenshot({
-          clip: {
-            x: Math.max(0, Math.round(k.sol)),
-            y: Math.max(0, Math.round(k.ust)),
-            width: Math.max(1, Math.round(k.en)),
-            height: Math.max(1, Math.round(k.boy)),
-          },
-        })
-        const yayilim = (await page.evaluate(
-          `(async () => {
-            const im = new Image()
-            im.src = 'data:image/png;base64,${png.toString('base64')}'
-            await im.decode()
-            const c = document.createElement('canvas')
-            c.width = im.width; c.height = im.height
-            const x = c.getContext('2d')
-            x.drawImage(im, 0, 0)
-            const d = x.getImageData(0, 0, c.width, c.height).data
-            const l = []
-            for (let j = 0; j < d.length; j += 4) l.push(0.2126*d[j] + 0.7152*d[j+1] + 0.0722*d[j+2])
-            l.sort((a, b) => a - b)
-            const medyan = l[Math.floor(l.length / 2)]
-            const c2 = document.createElement('canvas')
-            c2.width = 1; c2.height = 1
-            const x2 = c2.getContext('2d')
-            x2.fillStyle = ${JSON.stringify(k.renk)}
-            x2.fillRect(0, 0, 1, 1)
-            const mp = x2.getImageData(0, 0, 1, 1).data
-            const metin = 0.2126*mp[0] + 0.7152*mp[1] + 0.0722*mp[2]
-            return Math.round(Math.abs(medyan - metin))
-          })()`
-        )) as number
+        const yayilim = await okunurluk(k)
         if (yayilim < 60) {
           ifsaKusurlari.push({
             tur: 'ifsa-okunmuyor',
@@ -925,6 +1133,7 @@ export const panoramaDenetle = async (
         })
       }
     }
+
     // ── süs metni kesiyor mu: İKİ RENDER FARKI (§7.1) ───────────────────────
     //
     // ⚠ ⚠ **BU KUSURU GÖZ BULDU, ÖLÇÜM DEĞİL.** Akan mavi alan gövde metninin son iki
@@ -1013,6 +1222,7 @@ export const panoramaDenetle = async (
     return [
       ...ham,
       ...ifsaKusurlari,
+      ...kromKusurlari,
       ...susKusurlari,
       ...cokme,
       ...(eksik.length === 0
