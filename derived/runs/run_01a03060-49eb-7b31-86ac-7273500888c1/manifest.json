@@ -1,0 +1,86 @@
+{
+  "runId": "run_01a03060-49eb-7b31-86ac-7273500888c1",
+  "brandId": "brd_dima",
+  "eraId": "dima-2026",
+  "pipeline": "ad-creative-set",
+  "corpusCommit": "907976580ba0747c88869d441f86c823419e7759",
+  "registryCommit": "907976580ba0747c88869d441f86c823419e7759",
+  "createdAt": "2026-08-23T20:46:51.911Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "butce": "0",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "test"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-23T20:46:51.909Z",
+      "finishedAt": "2026-08-23T20:46:51.910Z",
+      "output": {
+        "brandId": "brd_dima"
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "butce": "0",
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "test"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-23T20:46:51.910Z",
+      "finishedAt": "2026-08-23T20:46:51.910Z",
+      "output": null,
+      "error": {
+        "kind": "not_found",
+        "code": "NO_CONTEXT",
+        "message": "error.verb.no_context"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "bilgi-sec"
+}
