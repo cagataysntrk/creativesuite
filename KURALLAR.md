@@ -367,27 +367,17 @@ yetmedi.** Kapı yazılır yazılmaz on alan daha çıktı, içlerinde YAYIN KAN
 Gövde metni **0,20° açısal x-yüksekliğinin** altına inemez — 1080 px genişlikte
 **36 px**, hedef 40–48 px. Oran (`govdeOrani`) bu tabanı EZEMEZ; taban tuval
 genişliğine orantılıdır, sabit piksel değildir.
-**Neden:** okunabilirliğin ölçüsü nominal punto değil, harfin gözde kapladığı AÇIDIR.
-Kritik punto 0,2°; altında okuma hızı çöküyor (Legge & Bigelow 2011, *JOV*). Gerçek
-basılı iş 0,23–0,24°. Bizim gövdemiz **34 px** ölçüldü ve oran göreli olduğu için başlık
-küçüldükçe daha da iniyordu. Yaygın *"24 px yeter"* tavsiyesi eşiğin **%30 altında**.
-⚠ **İstisna, DAR ve gerekçeli:** üç kelimeyi geçmeyen etiket/künye okunmaz, TANINIR;
-orada 28–32 px meşru. Bir CÜMLEYİ eşik altında dizmek okuma hızını düşürür ve akışta
-okuma hızının düşmesi kaydırıp geçmek demektir.
-**Zorlama:** `panoramaDenetle` → `punto-esik-alti` kusuru, GERÇEK render'da ölçüyor;
-`punto-esigi.test.ts` altı şablonun hepsinde sıfır olduğunu ve tabanın tuval genişliğine
-orantılı kaldığını doğruluyor. → D-321 · `docs/referans/arastirma-2026-08.md`
+**Neden:** ölçü nominal punto değil, harfin gözde kapladığı AÇIDIR. Kritik punto 0,2°
+(Legge & Bigelow 2011, *JOV*). Bizim gövdemiz **34 px** ölçüldü ve oran göreli olduğu
+için başlık küçüldükçe daha da iniyordu. ⚠ İstisna DAR: üç kelimelik etiket okunmaz,
+TANINIR. **Zorlama:** `punto-esik-alti` kusuru, GERÇEK render'da. → D-321
 
 ### R-84 · gorsel-metnin-ustunde-durmaz · GATE · aktif
 Metin gövdesi (`.baslik`, `.govde`) bir görselle **%12'den fazla** çakışamaz.
 **Neden:** *"üstte olmak okunabilirlik değildir."* `metin-ortuluyor` boyama SIRASINI
-soruyor ve doğru cevap veriyordu; yanlış olan SORUYDU. Bir fotoğrafın üstündeki metin,
-fotoğraf dokulu olduğu ölçüde okunmaz. Gerçek koşuda başlıklar okunmuyor, denetim temiz
-raporluyordu; ölçüldü, metin alanının **%29'u** görselin üstündeydi.
-⚠ Eşik sıfır DEĞİL: kesik öznenin bir kolunun metin kolonuna hafifçe girmesi istenen
-bir şey (süreklilik). Ölçülen şey metnin GÖVDESİNİN fotoğraf üstünde durup durmadığı.
-**Zorlama:** `panoramaDenetle` → `metin-gorsel-cakisiyor` kusuru; `tests` kapısı altı
-şablonun hepsinde sıfır olduğunu doğruluyor. → D-319
+soruyor; yanlış olan SORUYDU. Ölçüldü: metin alanının **%29'u** görselin üstündeydi.
+⚠ Eşik sıfır DEĞİL: kesik öznenin kolunun kolona girmesi istenen bir şey.
+**Zorlama:** `metin-gorsel-cakisiyor` kusuru. → D-319
 
 ### R-85 · tanimsiz-token-cagrilmaz · GATE · aktif
 Çağrılan her `var(--ramp-*)` / `var(--role-*)`, üretilmiş `tokens.css` dosyalarının
@@ -395,5 +385,14 @@ birleşiminde TANIMLI olmak zorundadır.
 **Neden:** **CSS tanımsız bir `var()` için hata VERMEZ** — ögeyi sessizce şeffaf
 bırakır. D-318 amber rampasını emekli etti, `aile.ts` çağırmaya devam etti; üç şablonun
 zemin ögesi kayboldu, hiçbir test kırmızı olmadı. Derleyici de göremez: çağrı bir DİZE
-içinde. Silerken çağıranı aramayı hatırlamak bir zorlama değildir.
+içinde.
 **Zorlama:** `token-cagrisi` kapısı (fast grubu). → D-320
+
+### R-86 · olcu-bandi · GATE · aktif
+Gövde satırı **45–75 karakter** olur. Alt sınır YALNIZ sütun onu kaldırabiliyorsa
+zorlanır; üst sınır her zaman.
+**Neden:** alt sınır üst sınır kadar önemli ve eksik olan oydu — çok kısa satır gözü her
+satırda geri döndürüp ritmi kırıyor (Butterick 45–90). Sayıldı: `donen` **19**,
+`editoryal` 27; kusur "taşma" gibi görünmediği için hiçbir ölçüm görmüyordu.
+⚠ **Alt sınır koşullu:** sağlanması imkânsız bir şey isteyen ölçüm gürültüdür.
+**Zorlama:** `olcu-bandi-disi`; satırlar `Range` ile GERÇEK kırılmalardan. → D-321

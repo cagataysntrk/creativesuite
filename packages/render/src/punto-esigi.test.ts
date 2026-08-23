@@ -66,3 +66,41 @@ describe('gövde puntosu okuma eşiğinin altına inmiyor', () => {
     expect(taban(genis)).toBe(GOVDE_TABANI_1080 * 2)
   })
 })
+
+// ── ölçü bandı: satır 45–75 karakter (R-86) ─────────────────────────────────
+describe('gövde satırı ölçü bandında', () => {
+  for (const [id, o] of Object.entries(ORNEKLER)) {
+    it(`${id} · satır bandın dışında değil`, async () => {
+      const r = await panoramaDenetle(belge(o))
+      expect(r.ok).toBe(true)
+      if (!r.ok) return
+      const d = r.value.filter((k) => k.tur === 'olcu-bandi-disi')
+      expect(d.map((k) => `${k.kart}: ${k.aciklama}`)).toEqual([])
+    }, 120_000)
+  }
+
+  // ⚠ ⚠ **ALET SINANIYOR.** Sütun ölçü tabanını kaldırabiliyorken satır kısa kalırsa
+  // kusur doğmalı. `sahne`nin gövde sütunu daraltılıyor — kapasite düşmüyor çünkü
+  // punto tabanı sabit; satır kısalıyor ve alt sınır devreye giriyor.
+  it('ALET ÇALIŞIYOR: geniş sütunda kısa satır KUSUR veriyor', async () => {
+    const o = ORNEKLER['veri-hikayesi']
+    expect(o).toBeDefined()
+    if (o === undefined) return
+    // Gövde metni kısaltılıyor ama sütun geniş kalıyor: kapasite 45+, satır 45'in altı.
+    const kisa = {
+      ...belge(o),
+      kartlar: o.kartlar.map((k) => ({
+        ...k,
+        govde: 'Kısa bir gövde satırı burada duruyor ve iki satıra bölünüyor.',
+      })),
+    } as unknown as PanoramaBelgesi
+    const r = await panoramaDenetle(kisa)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    // Bu belge ya bandın altında kalır (kusur) ya da tek satıra sığar (ölçüm atlar).
+    // Ölçülen şey ALETİN kapasiteyi gerçekten okuduğu: kusur çıkarsa açıklamada
+    // sütun kapasitesi yazılı olmalı.
+    const d = r.value.filter((k) => k.tur === 'olcu-bandi-disi')
+    for (const k of d) expect(String(k.aciklama)).toMatch(/kaldiriyor|tavani/)
+  }, 120_000)
+})

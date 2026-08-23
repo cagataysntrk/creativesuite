@@ -388,6 +388,9 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     // ⚠ 0,46 → 0,54: dar kolonda baslik uc satira bolunuyordu ("Sessiz / bir /
     // donusum") ve editoryal ses cirkinlesti. Fotograf kolonuna hala yer var.
     baslikSutunu: 0.54,
+    // ⚠ Gövde sütunu başlıktan AYRI (R-86): dar bir başlık tercihi gövdeyi de
+    // daraltıyordu ve satır ölçü bandının altına düşüyordu.
+    govdeSutunu: 0.54,
   },
   zemin: 'var(--role-line-edge)',
   // ⚠ ⚠ **`matlama` LİSTEDE KALDI ama artık YEDEK.** Arka plan silme hatta bağlandı
@@ -707,6 +710,9 @@ export const ORNEK_DONEN: KatalogOrnegi = {
     // altından okunuyordu ("Kağıttaki ka|ğıt"). Yan yana kompozisyonun bedeli bu: iki
     // ögenin sınırı ÖLÇÜLMELİ, göz kararı bırakılmamalı.
     baslikSutunu: 0.4,
+    // ⚠ Gövde sütunu başlıktan AYRI (R-86): dar bir başlık tercihi gövdeyi de
+    // daraltıyordu ve satır ölçü bandının altına düşüyordu.
+    govdeSutunu: 0.86,
   },
   // ⚠ ⚠ **KARTLARIN ÜSTÜNDE DOKU — `donen`in zemini tek katmanlıydı.** Bu şablonun
   // kimliği kart renklerinin DÖNMESİ; kartlar opak olmak zorunda ve panorama zemini
@@ -859,6 +865,9 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     // ⚠ 0,46 → 0,54: dar kolonda baslik uc satira bolunuyordu ("Sessiz / bir /
     // donusum") ve editoryal ses cirkinlesti. Fotograf kolonuna hala yer var.
     baslikSutunu: 0.54,
+    // ⚠ Gövde sütunu başlıktan AYRI (R-86): dar bir başlık tercihi gövdeyi de
+    // daraltıyordu ve satır ölçü bandının altına düşüyordu.
+    govdeSutunu: 0.54,
   },
   // ⚠ Açık zemin: kart metni `kartRenkleri` ile zeminden TÜRÜYOR, sabit beyaz değil —
   // bu yüzden zemini açığa çevirmek metni okunmaz yapmıyor (FAZ-15.2 dersi).

@@ -44,6 +44,13 @@ export type KusurTuru =
    * üç kelimelik bir dize okunmaz, TANINIR.
    */
   | 'punto-esik-alti'
+  /**
+   * Gövde satırı ölçü bandının (45–75 karakter) dışında (R-86).
+   *
+   * ⚠ Yalnız ÇOK SATIRLI gövdede anlamlı: tek satıra sığan kısa bir metnin "satırı"
+   * metnin kendi uzunluğudur, bir ölçü kararı değil.
+   */
+  | 'olcu-bandi-disi'
   /** Şablon kesintisizlik iddia ediyor ama hiçbir öge kesimi aşmıyor. */
   | 'kesintisizlik-yok'
   /**
@@ -412,6 +419,60 @@ const OLCUM = (
       kusurlar.push({ tur:'sus-baskin', kart:i+1, alan:'hayalet',
         aciklama: 'hayalet kartın %' + Math.round(hayalet*100) + "'ini tutuyor, içerik (başlık+gövde+panel) %"
           + Math.round(icerik*100) + " — süs içerikten büyük" })
+    }
+  })
+
+  // ── ölçü bandı: satır 45–75 karakter (R-86) ─────────────────────────────
+  //
+  // ⚠ ⚠ ALT SINIR UST SINIR KADAR ONEMLI ve eksik olan oydu. Cok kisa satir gozu her
+  // satirda geri dondurup ritmi kiriyor; kusur "tasma" gibi gorunmedigi icin hicbir
+  // olcum onu gormuyordu. Olculdu: donen 19, editoryal 27 karakter.
+  // ⚠ Satirlar GERCEK kirilmalardan sayiliyor (Range ile), tahminle degil.
+  // ⚠ YALNIZ COK SATIRLI govde olculuyor: tek satira sigan kisa bir metnin satiri
+  // metnin kendi uzunlugudur, bir olcu karari degil.
+  kartlar.forEach((k, i) => {
+    const e = k.querySelector('.govde')
+    if (!e) return
+    const t = e.firstChild
+    if (!t || t.nodeType !== 3) return
+    const r = document.createRange()
+    const satirlar = []
+    let bas = 0
+    let oncekiUst = null
+    for (let n = 1; n <= t.length; n++) {
+      r.setStart(t, n - 1)
+      r.setEnd(t, n)
+      const ust = Math.round(r.getBoundingClientRect().top)
+      if (oncekiUst !== null && ust !== oncekiUst) { satirlar.push(n - 1 - bas); bas = n - 1 }
+      oncekiUst = ust
+    }
+    satirlar.push(t.length - bas)
+    if (satirlar.length < 2) return
+    // Son satir kisa olabilir (paragraf sonu) — o dogal, olcuye girmiyor.
+    const olculen = satirlar.slice(0, -1).filter((n) => n > 3)
+    if (olculen.length === 0) return
+    const enUzun = Math.max(...olculen)
+    // ⚠ ⚠ **KUSUR SUTUNUN KAPASITESINE BAGLI, METNE DEGIL.** Ilk surum her satiri
+    // 45'e zorluyordu ve alti sablonun altisini kirmiziya dusurdu — ama sahnenin
+    // metin kolonu 605 px ve okunabilir puntoda 33 karakter aliyor: 45 orada
+    // GEOMETRIK OLARAK imkansiz. Bir olcum, saglanmasi imkansiz bir sey isterse
+    // olcum degil gurultudur ve gurultulu kapi kapatilan kapidir.
+    // Kapasite: sutun genisligi / (punto × 0,5).
+    const px = parseFloat(getComputedStyle(e).fontSize)
+    const genislik = e.getBoundingClientRect().width
+    const kapasite = px > 0 ? Math.floor(genislik / (px * 0.5)) : 0
+    // Ust sinir HER ZAMAN gecerli: uzun satir gozun satir basini kaybetmesi.
+    if (enUzun > 75) {
+      kusurlar.push({ tur:'olcu-bandi-disi', kart:i+1, alan:'govde',
+        aciklama: 'govde satiri ' + enUzun + ' karakter — olcu tavani 75 (R-86)' })
+      return
+    }
+    // Alt sinir YALNIZ sutun onu kaldirabiliyorsa: aksi halde sablonun bilincli
+    // dar kolonu, metnin kusuru degil.
+    if (kapasite >= 45 && enUzun < 45) {
+      kusurlar.push({ tur:'olcu-bandi-disi', kart:i+1, alan:'govde',
+        aciklama: 'govde satiri ' + enUzun + ' karakter ama sutun ' + kapasite +
+          ' kaldiriyor — olcu tabani 45 (R-86)' })
     }
   })
 

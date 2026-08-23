@@ -67,17 +67,20 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    değil) · `govdeOrani` onu ezemiyor · kural **R-83** olarak yazıldı
 🧪 `govdeTabani` 24'e sabitlendi → `sahne` 4 + `donen` 4 `punto-esik-alti` kusuru, geri alındı
 
-## 18.6 — Gövde satır aralığı display'den AYRILIYOR    [ ]
+## 18.6 — Ölçü bandı: satır 45–75 karakter    [x]
 
 📖 §7.2 · D-321
 🔗 FAZ-18.5
-🛠 `satirAraligi: 1.02` tek değer: display için doğru, gövde için Butterick'in
-   %120–145 bandının çok altında → `govdeSatirAraligi` (varsayılan **1,35**). Ölçü
-   tavanı satır başına **≤60 karakter**; gövde iki sütuna bölünemez (araştırma §3.5).
-📁 `packages/render/src/panorama.ts`
-✅ Gövde satır aralığı ≥1,25 · hiçbir gövde satırı >60 karakter
-🧪 Uzun bir gövde yaz → sütun daralıyor, satır 60'ı geçmiyor
-💾 `feat(render): govde satir araligi ve olcu tavani` · `Refs: FAZ-18.6 · §7.2`
+🛠 Satır aralığı ÖLÇÜLDÜ: gövde zaten 1,5 — Butterick bandının içinde, düzeltme
+   gerekmedi. **Asıl kusur satır UZUNLUĞUYDU ve ters yöndeydi:** `donen` 19,
+   `editoryal` 27, `sahne` 30 karakter — bandın (45–90) çok altı. Sebep: gövde başlığın
+   sütununa hapsedilmişti. `govdeSutunu` alanı eklendi; sütunlar ayrıldı.
+📁 `packages/render/src/{panorama,panorama-denetim,katalog-ornek}.ts` ·
+   `packages/render/src/punto-esigi.test.ts`
+✅ `donen` 19 → 49 · `editoryal` 27 → 55 · `akan-alan` 45 → 57 · kural **R-86**
+🧪 Alt sınır herkese dayatıldı → altı şablon kırmızı; kusur sütun KAPASİTESİNE bağlandı
+   → dengede. "Sağlanması imkânsız bir şey isteyen ölçüm, ölçüm değil gürültüdür."
+💾 `feat(render): olcu bandi` · `Refs: FAZ-18.6 · §7.2`
 
 ## 18.7 — Dikiş disiplini: taşıyıcı ZORUNLU, kimlik ögesi YASAK    [ ]
 

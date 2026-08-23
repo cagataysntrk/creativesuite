@@ -274,6 +274,20 @@ export interface TipoResetesi {
   /** Başlık sütununun kart genişliğine oranı (0–1]. */
   readonly baslikSutunu: number
   /**
+   * Gövde sütununun oranı — verilmezse `baslikSutunu` (R-86).
+   *
+   * ⚠ ⚠ **İKİSİ AYRI OLMAK ZORUNDA ve bunu bir ölçüm gösterdi.** Gövde başlığın
+   * sütununa hapsedilmişti; bir şablonun dar başlık tercihi (poster sesi) gövdeyi de
+   * daraltıyordu. Tarayıcıda sayıldı: `donen` **19**, `editoryal` 27 karakter — Butterick
+   * bandının (45–90) çok altı. Gövde daha küçük puntoda ve aynı genişlikte çok daha
+   * fazla karakter taşır; iki sütun aynı sayıdan türeyemez.
+   *
+   * ⚠ Ama gövde sütunu KEYFÎ de genişleyemez: görselli şablonlarda fotoğraf kolonuna
+   * girer. Sınır şablonun kendi kararı — ölçü bandı bir DİLEK değil, şablonun ilan
+   * ettiği geometri içinde sağlanacak bir hedef.
+   */
+  readonly govdeSutunu?: number
+  /**
    * Panel ögelerinin ölçek çarpanı — 1 = eski web ölçüsü.
    *
    * ⚠ ⚠ **VERİ ŞABLONUNDA VERİ KADRAJIN %2'SİYDİ.** Ölçüldü: `veri-hikayesi` kartlarında
@@ -671,6 +685,22 @@ const MUREKKEP_T = 'var(--role-line-edge)'
  */
 export const GOVDE_TABANI_1080 = 36
 
+/**
+ * Gövde satırının KARAKTER bandı — Butterick'in ölçüsü (R-86).
+ *
+ * ⚠ ⚠ **ALT SINIR ÜST SINIR KADAR ÖNEMLİ ve bu depoda eksik olan oydu.** Uzun satır
+ * gözün satır başını kaybetmesine yol açıyor; ÇOK KISA satır ise gözü her satırda geri
+ * döndürüp ritmi kırıyor. Ölçüldü: `donen` 19, `editoryal` 27, `sahne` 30 karakter —
+ * üçü de bandın altında ve hiçbir ölçüm görmüyordu, çünkü kusur "taşma" gibi
+ * görünmüyor.
+ *
+ * ⚠ Butterick 45–90 diyor; üst sınır 75'e çekildi: 1080 px'lik bir tuvalde 90 karakter
+ * kart dolgusunu zaten aşıyor ve pratikte erişilemez.
+ */
+export const OLCU_ALT = 45
+export const OLCU_HEDEF = 62
+export const OLCU_UST = 75
+
 /** Hayaletin satır yüksekliği — `ust` alanını glif tepesine yaklaştırıyor. Ölçüm bu
  * sabiti PAYLAŞMAK zorunda: CSS'te başka, hesapta başka bir değer olsaydı rakamın hangi
  * alanda olduğu yanlış bulunurdu. */
@@ -935,6 +965,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const govdeTabani = Math.round((GOVDE_TABANI_1080 * G) / 1080)
   const toplam = n * G
   const t = doc.tipografi ?? VARSAYILAN_TIPO
+  // ── ölçü bandı (R-86): satır 45–75 karakter ────────────────────────────────
+  //
+  // ⚠ Ortalama karakter genişliği ≈ 0,5 em — sans yüzler için kabul gören yaklaşım ve
+  // ölçümle uyuşuyor: 36 px puntoda 45 karakter ≈ 810 px çıkıyor ve tarayıcıda sayılan
+  // satırlar bu civarda kırılıyor.
+  // Gövde sütunu şablonun kendi kararı; verilmezse başlıkla aynı.
+  const govdeSinir = Math.round(G * (t.govdeSutunu ?? t.baslikSutunu)) - 128
+  const olcuAlt = Math.min(govdeSinir, Math.round(govdeTabani * 0.5 * OLCU_ALT))
+  const olcuHedef = Math.min(govdeSinir, Math.round(govdeTabani * 0.5 * OLCU_HEDEF))
   // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
   // türüyor; kartın kendi zemininden değil — onlar hiçbir kartın içinde durmuyor.
   const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin, doc.tokenCss)
@@ -1381,7 +1420,21 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // görünür yaptı, sebep olmadı; hata baştan oradaydı ve küçük puntoda saklanıyordu.
     // ⚠ `min()`: satır uzunluğu okunabilirlik için 34ch'i AŞMAMALI, kolonu da aşmamalı.
     `           line-height: 1.5; color: var(--kart-soluk);`,
-    `           max-width: min(34ch, ${Math.round(G * t.baslikSutunu) - 128}px) }`,
+    // ── ölçü BANDI: 45–75 karakter (R-86) ──────────────────────────────────
+    //
+    // ⚠ ⚠ **ÖLÇÜLDÜ: SATIR ÇOK DARDI, ÇOK GENİŞ DEĞİL.** Gövde başlığın sütununa
+    // hapsedilmişti (`baslikSutunu`) ve gerçek satırlar tarayıcıda sayıldı:
+    // `donen` **19**, `editoryal` 27, `sahne` 30 karakter. Butterick'in alt sınırı 45 —
+    // yani üç şablon bandın çok altındaydı. Aşırı dar satır da okumayı bozar: göz her
+    // satırda geri dönüyor ve ritim kırılıyor; kusur "taşma" gibi görünmediği için
+    // hiçbir ölçüm onu görmüyordu.
+    //
+    // ⚠ **Gövde sütunu BAŞLIK sütunundan ayrıldı.** İkisi aynı sayıdan türerken bir
+    // şablonun dar başlık tercihi (poster sesi) gövdeyi de daraltıyordu — oysa gövde
+    // daha küçük puntoda ve aynı genişlikte çok daha fazla karakter taşır.
+    // ⚠ Kart dolgusu (64+64) düşülüyor: `max-width` kartın kullanılabilir genişliğini
+    // aşarsa taşma olur ve `tasma` kusuru doğar.
+    `           max-width: clamp(${String(olcuAlt)}px, ${String(olcuHedef)}px, ${String(govdeSinir)}px) }`,
     `  .govde strong { color: var(--kart-metin); font-weight: 700 }`,
     // ⚠ Dev soluk metin kesim çizgilerini KASTEN aşıyor: kesintisizliğin en görünür işareti.
     // ⚠ Dev soluk metin: BÜYÜK ve kesim çizgilerini aşacak kadar aşağıda. İlk sürümde
