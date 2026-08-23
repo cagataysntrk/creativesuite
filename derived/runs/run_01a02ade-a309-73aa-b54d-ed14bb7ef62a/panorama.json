@@ -1,0 +1,133 @@
+{
+  "slaytGenisligi": 1080,
+  "yukseklik": 1350,
+  "yerlesim": "orta",
+  "tipografi": {
+    "baslikPayi": 0.98,
+    "baslikAgirlik": 600,
+    "satirAraligi": 0.96,
+    "harfArasi": -0.03,
+    "govdeOrani": 0.32,
+    "baslikSutunu": 0.54
+  },
+  "zemin": "var(--role-line-edge)",
+  "gorselIslemleri": [
+    "keskinlik",
+    "tema-uyum",
+    "temas-golgesi"
+  ],
+  "bant": {
+    "tip": "ok",
+    "oklar": [
+      {
+        "x1": 17,
+        "y1": 74,
+        "x2": 34,
+        "y2": 68,
+        "bukum": -52
+      },
+      {
+        "x1": 42,
+        "y1": 67,
+        "x2": 59,
+        "y2": 74,
+        "bukum": 58
+      },
+      {
+        "x1": 67,
+        "y1": 75,
+        "x2": 84,
+        "y2": 69,
+        "bukum": -48
+      }
+    ]
+  },
+  "gorseller": [
+    {
+      "src": "gorsel-01.png",
+      "alt": "kesik özne",
+      "x": 9,
+      "y": 20,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-02.png",
+      "alt": "kesik özne",
+      "x": 25,
+      "y": 22,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-03.png",
+      "alt": "kesik özne",
+      "x": 59,
+      "y": 21,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-04.png",
+      "alt": "kesik özne",
+      "x": 75,
+      "y": 23,
+      "genislik": 16,
+      "yukseklik": 78,
+      "kirpma": "kesik"
+    }
+  ],
+  "kartlar": [
+    {
+      "ustBaslik": "İDDİA",
+      "baslik": "Vaat **Kanıt** İster",
+      "govde": "'Veri katmanını biz de kurarız' dedik — çalışan bir sistem göstermeden hiçbir iddia inandırıcı değildir.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": null
+    },
+    {
+      "ustBaslik": "SÜREÇ",
+      "baslik": "Süreç **Hafızada** Kayboluyor",
+      "govde": "Bir tesis süreci artık kağıtta ya da hafızada değil, kantardan satışa canlı bir yazılımda akıyor.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": null,
+      "kolon": "sag"
+    },
+    {
+      "ustBaslik": "ÜRETİM",
+      "baslik": "Bugün **Üretimde** Duran Sistem",
+      "govde": "upcyman.com ve api.upcyman.com bugün çalışıyor; bu bir mockup değil, üretimde duran bir sistem.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": null
+    },
+    {
+      "ustBaslik": "AKIŞ",
+      "baslik": "Kantardan Satışa **Akan** Sistem",
+      "govde": "Kantar, üretim ve satış artık tek sistemde uçtan uca akıyor.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": null,
+      "kolon": "sag"
+    }
+  ],
+  "aiIfsasi": true,
+  "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-ink-1000: oklch(0.105 0 0);\n  --ramp-marka-ink-200: oklch(0.920 0 0);\n  --ramp-marka-ink-450: oklch(0.680 0 0);\n  --ramp-marka-ink-500: oklch(0.655 0 0);\n  --ramp-marka-ink-60: oklch(0.950 0 0);\n  --ramp-marka-ink-600: oklch(0.520 0 0);\n  --ramp-marka-ink-650: oklch(0.485 0 0);\n  --ramp-marka-ink-850: oklch(0.270 0 0);\n  --ramp-marka-ink-880: oklch(0.190 0 0);\n  --ramp-marka-ink-900: oklch(0.205 0 0);\n  --ramp-marka-ink-950: oklch(0.165 0 0);\n  --ramp-marka-kagit: oklch(0.985 0 0);\n  --ramp-marka-kagit-0: oklch(1 0 0);\n  --ramp-marka-mavi-200: oklch(0.850 0.070 262);\n  --ramp-marka-mavi-300: oklch(0.760 0.117 262);\n  --ramp-marka-mavi-500: oklch(0.600 0.206 262);\n  --ramp-marka-mavi-600: oklch(0.530 0.234 262);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-mavi-500);\n  --role-bg: var(--ramp-marka-ink-1000);\n  --role-kart-acik: var(--ramp-marka-kagit-0);\n  --role-kart-koyu: var(--ramp-marka-ink-950);\n  --role-line-edge: var(--ramp-marka-ink-880);\n  --role-line-hair: var(--ramp-marka-ink-850);\n  --role-line-hair-acik: var(--ramp-marka-ink-200);\n  --role-metin-koyu: var(--ramp-marka-ink-60);\n  --role-soluk-acik: var(--ramp-marka-ink-600);\n  --role-soluk-koyu: var(--ramp-marka-ink-450);\n  --role-state-danger: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-880);\n  --role-text-muted: var(--ramp-marka-ink-600);\n  --role-vurgu: var(--ramp-marka-mavi-500);\n  --role-vurgu-acik: var(--ramp-marka-mavi-600);\n}\n\n[data-surface='studio'] {\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+  "stamp": {
+    "brandId": "brd_upcytech",
+    "eraId": "imalat-2026",
+    "kitVersion": "kit-1",
+    "definitionDigest": "sha256:faz3",
+    "contextManifest": "ctx_run_01a02ade-a309-73aa-b54d-ed14bb7ef62a",
+    "sourceRunId": "run_01a02ade-a309-73aa-b54d-ed14bb7ef62a"
+  }
+}
