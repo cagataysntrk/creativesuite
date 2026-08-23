@@ -30,15 +30,14 @@ import ve paket kökünden kaçan göreli yol yasak.
 kapsamında döngü) + TS project references — üçü birden.
 
 ### R-04 · tek-yan-etki · BLOCKING · FAZ-1.11
-Her fiil tek yan etki sınıfına sahiptir. Yalnız `GENERATE` model çağırır, yalnız `RENDER`
-Chromium'a dokunur, yalnız `PROPOSE` çalışma ağacına yazar, yalnız `PUBLISH` kanal
-çağırır, yalnız `INGEST` dış kaynak çeker.
+Her fiil tek yan etki sınıfına sahiptir: yalnız `GENERATE` model çağırır, `RENDER`
+Chromium'a dokunur, `PROPOSE` çalışma ağacına yazar, `PUBLISH` kanal çağırır, `INGEST`
+dış kaynak çeker.
 **Neden:** `RENDER` sessizce LLM çağırabilseydi, çalıştırma öncesi gösterdiğimiz maliyet
 tahmini yalan olurdu.
 **Zorlama:** dependency-cruiser + `VerbTable` tipi; `fiil-haritasi` kapısı **iki soru**
-sorar: gövde haritada bağlı mı, o fiili çağıran bir HAT var mı. `INGEST` (D-216) ve
-`PUBLISH` (D-222) aynı hatayı iki fazda tekrarladı — modül ve test vardı, üretim yolu
-yoktu. "Çağıran var mı" ZİNCİR için sorulur.
+sorar: gövde haritada bağlı mı, o fiili çağıran bir HAT var mı — `INGEST` (D-216) ve
+`PUBLISH` (D-222) aynı hatayı iki fazda tekrarladı. "Çağıran var mı" ZİNCİR için sorulur.
 
 ### R-05 · tek-nokta · BLOCKING · FAZ-0.C.8
 `chokepoints.json`'daki her yetenek için repoda **tam olarak bir** uygulama olur:
@@ -58,8 +57,8 @@ yeniden üret" sessizce farklı çıktı verir.
 dosya hariç.
 
 ### R-07 · plan-dondurulur · BLOCKING · FAZ-1.9
-Plan onaya giderken donar: corpus commit'i, registry commit'i, adım DAG'ı, çözülmüş
-sağlayıcı + model + descriptor hash'i, tüm parametreler, seed, seçilen kayıt id'leri.
+Plan onaya giderken donar: corpus ve registry commit'i, adım DAG'ı, çözülmüş sağlayıcı +
+model + descriptor hash'i, tüm parametreler, seed, seçilen kayıt id'leri.
 **Neden:** geç çözüm, insanın 40 TL'ye onayladığı çalıştırmanın farklı ve pahalı bir
 modelle koşmasına yol açar.
 **Zorlama:** `FrozenPlan` katı Zod şeması; `VerbContext` registry loader'ı **açmaz**.
@@ -252,9 +251,9 @@ Her `§N` / `R-nn` / `D-nn` / `V-nn` / `FAZ-N.x` / `LOOP§X` hedefte var olmalı
 `CLAUDE.md` 200 · `KURALLAR.md` **480** · `KARARLAR.md` 600 · `DURUM.md` 120 ·
 `ANAYASA.md` 1400 · **ANAYASA alt bölümü (`### §N.M`) 60** · `FAZ-N.md` 250 ·
 `.claude/rules/*.md` 120 satır.
-ANAYASA'da asıl tavan **alt bölümdür**: belge baştan sona okunmaz, `just tur` yalnız
-atıf verileni getirir ve maliyet **o bölümün** boyudur. **Boş bir bölüm uzun bir
-bölümden pahalıdır** — kuralı bulamayan kuralı yok sanmaz, kendi uydurur (D-230).
+ANAYASA'da asıl tavan **alt bölümdür**: belge baştan sona okunmaz ve maliyet **o
+bölümün** boyudur. **Boş bir bölüm uzun bir bölümden pahalıdır** — kuralı bulamayan onu
+yok sanmaz, kendi uydurur (D-230).
 ⚠ **`KURALLAR.md` tavanı bir kez yükseldi (400 → 480, D-322) ve o pay DOLDU.** Sonraki
 kural bir yükseltme değil, gerekçelerin ayrı dosyaya alınmasını gerektiriyor → D-324.
 **Zorlama:** `docs-size` kapısı.
@@ -299,21 +298,17 @@ Kod bir kuraldan farklı davranacaksa önce bu dosya değişir. Sessiz sapma yas
 ### R-76 · kural-gevsetme-yasagi · BLOCKING · aktif
 Bir kapı kırmızıyken **aynı turda** o kapının kuralını gevşetmek yasak. Kural değişikliği
 ayrı bir turda, ayrı bir commit'te ve `KARARLAR.md`'de bir `D-nn` girdisiyle yapılır.
-**Neden:** döngünün tam yetkisi var ve kural değiştirebiliyor. Bu sınır olmadan
-"başarısız kapıyı geçmek için kuralı gevşetmek" meşru bir hamle gibi görünür ve tüm
-kural sisteminin altını oyar — testi zayıflatmanın (R-73) kural seviyesindeki hâli.
-**Zorlama:** `KURALLAR.md` değişikliği içeren commit yalnız `docs(docs)` veya
-`refactor(gates)` tipinde olabilir ve gövdesinde `D-` atfı taşımalı; `fix(...)` tipiyle
-kural değiştirmek `commit-msg` kapısında reddedilir.
+**Neden:** döngünün tam yetkisi var. Bu sınır olmadan "kırmızı kapıyı geçmek için kuralı
+gevşetmek" meşru bir hamle gibi görünür — testi zayıflatmanın (R-73) kural hâli.
+**Zorlama:** `KURALLAR.md` değişikliği yalnız `docs(docs)`/`refactor(gates)` tipinde
+olabilir ve `D-` atfı taşımalı; `fix(...)` ile kural değiştirmek reddedilir.
 
 ### R-77 · kabuk-kapilari-locale-bagimsiz · BLOCKING · aktif
 Kabuk tabanlı her kapı ve git kancası `export LC_ALL=C` ile başlar.
-**Neden:** `LANG=tr_TR.UTF-8` altında POSIX karakter sınıfları Türkçe collation'a göre
-çözülür ve `[A-Za-z]` aralığı `i`/`I` çevresinde **kırılır**:
-`grep -oE "[a-z.]+@[a-z.]+"` → `ahmet.yilmaz@dokumsanayi.com.tr` girdisinde
-`lmaz@dokumsanay` döndürür. Desen eşleşiyormuş gibi görünür ama **yarım** eşleşir;
-kapı yeşil raporlarken hiçbir şey korumaz. `'i'.toUpperCase()` → `I` hatasının (R-21)
-kabuk seviyesindeki kardeşidir. → D-58
+**Neden:** `LANG=tr_TR.UTF-8` altında `[A-Za-z]` aralığı `i`/`I` çevresinde **kırılır**:
+`ahmet.yilmaz@dokumsanayi.com.tr` girdisinde desen `lmaz@dokumsanay` döndürür — YARIM
+eşleşir ve kapı yeşil raporlarken hiçbir şey korumaz. `'i'.toUpperCase()` → `I`
+hatasının (R-21) kabuk seviyesindeki kardeşi. → D-58
 **Zorlama:** `repo-hygiene` kapısı her kapı ve kancada satırı arar.
 
 ### R-75 · bagimlilik-son-care · CONVENTION · aktif
@@ -344,11 +339,10 @@ ikizi: yeşil kapı hiçbir şey kanıtlamaz, **kararsız** kapı daha azını. 
 Yeni bir **jenerik grafik öge** CSS/HTML ile kodlanmaz: ikon, ok, rozet, çerçeve, çizgi
 süsü, 3B şekil, illüstrasyon. Bunlar tasarım kütüphanesinden gelir (`perfect-freehand`
 kontur matematiği gibi) ya da hiç konmaz.
-**İstisna:** YERLEŞİM (ızgara, kolon, boşluk), TİPOGRAFİ, ZEMİN reçetesi ve VERİ
-görselleştirmesi — bunlar süs değil, verinin kendisi.
-**Neden:** `examples/` altındaki profesyonel işlerle bizimkiler yan yana konunca fark
-renkte ya da düzende değil, ÖGELERDEydi. Elle kodlanmış ikon "bilgisayar işi" gibi
-duruyor çünkü öyle. → D-279
+**İstisna:** YERLEŞİM, TİPOGRAFİ, ZEMİN reçetesi ve VERİ görselleştirmesi — bunlar süs
+değil, verinin kendisi.
+**Neden:** profesyonel işlerle bizimkiler yan yana konunca fark renkte ya da düzende
+değil, ÖGELERDEydi. Elle kodlanmış ikon "bilgisayar işi" gibi duruyor çünkü öyle. → D-279
 
 ### R-82 · defter-anahtari-sessizce-elenmez · GATE · aktif
 Bir gövdenin `data` çıktısındaki her anahtar YA `DEFTER_ANAHTARLARI` beyaz listesinde
@@ -477,4 +471,10 @@ Tarayıcıda koşan ölçüm gövdelerinde (`OLCUM`, `METIN_KUTULARI`, `puntoOlc
 ters tırnak olamaz; kaçırılmış olan meşrudur.
 **Neden:** gövdeler şablon dizesi; yorumdaki bir kod alıntısı diziyi ORADA bitiriyor ve
 hata ölçümle ilgisiz bir yerde patlıyor. **Dört kez aynı şekilde kırıldı.**
-**Zorlama:** `olcum-ters-tirnak` kapısı (fast). → D-328
+**Zorlama:** `olcum-ters-tirnak`. → D-328
+
+### R-99 · olcek-tek-tabandan · GATE · aktif
+1080'de ölçülmüş her sayı tuvale `G / 1080` ile çevrilir; çıplak piksel yok.
+**Neden:** başlık, gövde ve panel ölçekleniyordu ama KROM ölçeklenmiyordu; 1080'de doğru
+görünen oran 1350'de bozuluyordu — **tek tuvalde her sayı doğru GÖRÜNÜR.**
+**Zorlama:** `olcek-tabani.test.ts` İKİ tuvalin oranını ölçüyor. → D-329 · `OLCUMLER.md`

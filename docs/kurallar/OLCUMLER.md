@@ -231,3 +231,36 @@ CSS değişince sessizce yanlış yeri korumak demekti.
 **Yan kazanç aile.** Altı şablonun altısında da görüntü aynı yerde bitiyor (1255 px, ray
 1259'da). Ortak bir zemin çizgisi, altı ayrı tasarımı tek bir sayfanın parçası yapan
 şeylerden biri — ve kullanıcının istediği tam olarak buydu.
+
+## R-99 · ölçek tek tabandan
+
+Sistemin "ölçeklenen" yanı doğruydu: başlık ikili aramayla, gövde `GOVDE_TABANI_1080`
+ile, panel `--panel-olcek` ile tuvale bağlıydı. **Krom değildi.** `.ray-logo{24/104px}`,
+`.kilometre-nokta{13px}`, `.kilometre-etiket{16px}`, `.ray{font-size:18px; bottom:46px}`
+ve kart dolgusu `80/64/190px` — hepsi çıplak piksel.
+
+⚠ **Bu kusuru tek tuvalde görmek imkânsız.** Tek tuvalde her sayı doğru GÖRÜNÜR, çünkü
+referansı yoktur. Ancak iki tuvalin ORANI karşılaştırılınca ortaya çıkıyor: 1080 → 1350
+(%25) geçişinde tipografi büyüyor, krom olduğu yerde kalıyordu.
+
+Düzeltmeden sonra ölçüldü (1080 → 1350):
+
+| öge | 1080 | 1350 | beklenen |
+|---|---|---|---|
+| ray puntosu | 18 | 23 | 22,5 |
+| logo eni × boyu | 104 × 24 | 130 × 30 | 130 × 30 |
+| kilometre noktası | 13 | 16 | 16,25 |
+| kilometre etiketi | 16 | 20 | 20 |
+| kart dolgusu | 64 | 80 | 80 |
+| ray yüksekliği | 46 | 58 | 57,5 |
+
+⚠ Test `null`u "geçti" saymıyor: `.ray-logo` çizilmemişse ölçüm YAPILMAMIŞTIR. Logo bu
+yüzden teste açıkça veriliyor — ölçülemeyen geçmiş sayılmaz.
+
+⚠ Kasten ihlal edildi: tek bir `olc(18)` çıplak `18px`e döndürüldü ve test *"ray puntosu:
+18 → 18, beklenen ≈22,5"* diyerek kırmızıya döndü. Kusuru ADIYLA söylüyor.
+
+⚠ **Taban çizgisi ızgarası (54 px) bu adımda KAPANMADI** ve sebebi ölçülerek anlaşıldı:
+kartın dış dolgusu bir çerçeve, metin ritminin parçası değil. Müller-Brockmann'ın iddiası
+bloklar ARASI boşlukla ilgili. 54'ün yarımlarına izin vermek kuralı anlamsız kılıyordu
+(27 ile neredeyse her sayı ifade edilebiliyor). Ayrı bir adım — 18.13b.

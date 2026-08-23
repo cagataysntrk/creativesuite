@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 18
-siradaki_adim: 18.13
+siradaki_adim: 18.13b
 son_guncelleme: 2026-08-23
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "KROM SERIDI PAYLASILMAZ — ve bu karar D-324un KENDI CUMLESINI bozuyor. R-95 yazilirken tam kadraj fotografin ustunde kunye mesrudur denmisti; o cumle bir tercihti ve OLCULMEMISTI. editoryalin tam boy seridinde ray kesik oznenin ayakkabilarinin ustune dusuyordu. krom-okunmuyorun ilk istatistigi (zeminin metin lumasina yakin piksel payi) %0 diyordu ve teknik olarak HAKLIYDI: ayakkabi beyaz, konturlari siyah, ray metni koyu — hicbir piksel metne yakin degil. Metin yine de okunmuyordu, cunku eksik olan KONTRAST degil SAKINLIKti. Ikinci istatistik gurultu: zeminin medyandan 60 luma sapan piksel payi. 90 krom kutusunun 88i tam %0, kirli ikisi %4 ve %8, ikisi de editoryal. Tavan %3. Karar: ray bandi AYRILMISTIR, hicbir gorselin boyasi oraya giremez (R-97); bant sabitten degil rayin kendi kutusundan okunuyor. Yan kazanc AILE: alti sablonun altisinda da goruntu ayni yerde bitiyor (1255 px). AYRICA DORDUNCU KEZ AYNI SEKILDE KIRILAN DOSYA BIR KAPI ALDI: OLCUM bir sablon dizesi ve yoruma yazilan bir kod alintisi diziyi ORADA bitiriyor; hata olcumle ilgisiz bir yerde patliyor. Dosyanin kendi yorumunda ters tirnaksiz olmali yaziyordu ve yetmedi. olcum-ters-tirnak kapisi yazildi, iki kez yanlis pozitif verdi (kacirilmis ters tirnaklar; govdenin acilisini ilk ters tirnak sanmak) ve ikisi de duzeltildi. Kasten ihlal edilip kirmiziya donduruldu. 47 kapi yesil, 2063 test."
+son_kanit: "OLCEK TEK TABANDAN — ve bu, TEK TUVALDE GORULEMEYEN bir kusur sinifi. Sistemin olceklenen yani dogruydu: baslik ikili aramayla, govde GOVDE_TABANI_1080 ile, panel --panel-olcek ile tuvale bagliydi. KROM DEGILDI: ray-logo 24/104px, kilometre-nokta 13px, kilometre-etiket 16px, rayin font-size 18pxi ve kart dolgusu 80/64/190px ciplak piksel olarak duruyordu. Tuval genisleyince tipografi buyuyor, krom oldugu yerde kaliyordu. TEK TUVALDE HER SAYI DOGRU GORUNUR cunku referansi yok; hata ancak IKI tuvalin ORANI karsilastirilinca ortaya cikiyor — bu depodaki bakarak bulunan kusurlardan farkli bir sinif, bakmak yetmiyor iki kez bakip karsilastirmak gerekiyor. olc(px) = round(px * G / 1080) tek taban. Olculdu 1080 -> 1350: ray puntosu 18->23, logo 104x24 -> 130x30, kilometre noktasi 13->16, etiket 16->20, kart dolgusu 64->80, ray yuksekligi 46->58 — yedisi de %25. Test null u gecti saymiyor: oge cizilmediyse olcum YAPILMAMISTIR. Kasten ihlal: tek bir olc(18) ciplak 18pxe donduruldu ve test ray puntosu: 18 -> 18, beklenen 22,5 diyerek kusuru ADIYLA soyledi. TABAN CIZGISI IZGARASI BU ADIMDA KAPANMADI ve sebebi olculerek anlasildi: kartin dis dolgusu bir cerceve, metin ritminin parcasi degil; 54un yarimlarina izin vermek kurali anlamsiz kiliyordu (27 ile her sayi ifade edilebilir). Adim bolundu: 18.13b taban izgarasi, 18.13c eksik roller ve brd_dima. 47 kapi yesil."
 ```
 
 ## Neredeyiz
@@ -60,6 +60,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **18.10** · yayın sözleşmesi: API 10 slayt + yalnız JPEG; hat PNG yazıyordu, artık `.jpg` (R-90) | 2026-08-23 |
 | **18.11** · tuval oranı tek sözleşme sabitinden; 3:4'e geçiş tek satır, ölçülerek doğrulandı (R-91) | 2026-08-23 |
 | **18.12** · marka imzası üretim yoluna bağlandı — logo hiç basılmıyordu, zincirin yedinci kopukluğu (R-92) | 2026-08-23 |
+| **18.13** · ölçek TEK tabandan: krom ölçeklenmiyordu, 1080→1350'de yedi ölçü de %25 büyüdü (R-99) | 2026-08-23 |
 
 ## Sıradaki adım
 

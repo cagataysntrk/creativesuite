@@ -1011,6 +1011,19 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const G = doc.slaytGenisligi
   // ⚠ Taban AÇIYA sabit, piksele değil: tuval genişledikçe piksel karşılığı büyüyor.
   const govdeTabani = Math.round((GOVDE_TABANI_1080 * G) / 1080)
+  /**
+   * **1080 px'lik tuvalde ölçülmüş bir sayıyı BU tuvale çevirir (R-99).**
+   *
+   * ⚠ ⚠ **RAY VE KİLOMETRE ÖGELERİ HİÇBİR TUVALE BAĞLI DEĞİLDİ.** Başlık ikili aramayla,
+   * gövde `GOVDE_TABANI_1080` ile, panel `--panel-olcek` ile ölçekleniyordu; ama
+   * `.ray-logo{24/104px}`, `.kilometre-nokta{13px}`, `.kilometre-etiket{16px}` ve rayın
+   * kendi `font-size: 18px`i çıplak piksel olarak duruyordu. Tuval genişliği değişince
+   * tipografi büyüyor, KROM olduğu yerde kalıyordu — 1080'de doğru görünen oran
+   * 1350'de bozuluyor ve bunu ancak iki tuvali yan yana koyan biri görebilirdi.
+   *
+   * ⚠ Ölçek tek tabandan: `G / 1080`. İkinci bir çarpan, bir gün birinin unutulması.
+   */
+  const olc = (px1080: number): number => Math.round((px1080 * G) / 1080)
   const toplam = n * G
   const t = doc.tipografi ?? VARSAYILAN_TIPO
   // ── ölçü bandı (R-86): satır 45–75 karakter ────────────────────────────────
@@ -1360,7 +1373,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ızgarası 4:5'i her yandan **34 px** kırpıyor (1080 → 1012, iki bağımsız kaynak),
     // yani 80 hem güvenli alanı hem kırpmayı karşılıyor.
     // ⚠ Yan 64 zaten 60'ın üstünde; alt 190 rayı ve sayacı taşıyor.
-    `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px; padding: 80px 64px 190px;`,
+    `  .kart { position: absolute; top: 0; height: ${doc.yukseklik}px;`,
+    `          padding: ${olc(80)}px ${olc(64)}px ${olc(190)}px;`,
     `          color: var(--kart-metin);`,
     `          display: flex; flex-direction: column; align-items: flex-start;`,
     `          justify-content: ${YERLESIM_CSS[doc.yerlesim ?? 'ust']} }`,
@@ -1404,7 +1418,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // görüldü. Dosyalar ALFA KUTUSUNDAN kırpıldı (338x78, oran 4,33); kaynaklar
     // `*-kaynak.png` olarak duruyor. ⚠ İki sürüm ORTAK kutuyla kırpıldı: ayrı kutular
     // farklı oranlar verir ve zemin değişince logo bir slayttan ötekine ZIPLAR.
-    `  .ray-logo { height: 24px; width: 104px; object-fit: contain; object-position: left;`,
+    `  .ray-logo { height: ${olc(24)}px; width: ${olc(104)}px; object-fit: contain;`,
+    `              object-position: left;`,
     `              flex: none; opacity: 0.92 }`,
     // ⚠ ⚠ **KESİM AYRACI KALDIRILDI — ÜRETİM DİLİMLERİNE SIZIYORDU (D-300).** Ayraç
     // panoramayı bütün hâlde incelerken kesim yerini göstersin diye vardı. Ama dilimleme
@@ -1635,13 +1650,16 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                 height: ${doc.yukseklik}px; z-index: 0 }`,
     `  .bant-ok { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
     `             height: ${doc.yukseklik}px; z-index: 5; pointer-events: none }`,
-    `  .bant, .bant-kemer { position: absolute; left: 0; bottom: 120px;`,
-    `                       width: ${toplam}px; height: 560px; z-index: 1 }`,
-    `  .kilometre { position: absolute; bottom: 120px; z-index: 3; transform: translateX(-50%);`,
+    `  .bant, .bant-kemer { position: absolute; left: 0; bottom: ${olc(120)}px;`,
+    `                       width: ${toplam}px; height: ${olc(560)}px; z-index: 1 }`,
+    `  .kilometre { position: absolute; bottom: ${olc(120)}px; z-index: 3;`,
+    `               transform: translateX(-50%);`,
     `               text-align: center }`,
-    `  .kilometre-nokta { display: block; width: 13px; height: 13px; border-radius: 50%;`,
-    `                     background: var(--pano-aksan); margin: 0 auto 8px }`,
-    `  .kilometre-etiket { font-size: 16px; letter-spacing: 0.1em; color: var(--pano-metin);`,
+    `  .kilometre-nokta { display: block; width: ${olc(13)}px; height: ${olc(13)}px;`,
+    `                     border-radius: 50%;`,
+    `                     background: var(--pano-aksan); margin: 0 auto ${olc(8)}px }`,
+    `  .kilometre-etiket { font-size: ${olc(16)}px; letter-spacing: 0.1em;`,
+    `                      color: var(--pano-metin);`,
     `                      white-space: nowrap; font-weight: 600;`,
     `                      font-variant-numeric: tabular-nums }`,
     // ── ölçek çizgisi: enstrüman skalası, panoramayı kat ediyor (D-319) ─────
@@ -1672,10 +1690,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ── alt ray: her slaytta aynı yerde, ritmi taşıyan tekrar ────────────────
     // ⚠ Ray `.gorsel`in (z-index 4) ÜSTÜNDE: alt kenardan taşan kesik özne rayı örtüyordu
     // ve marka imzası ile kaynak satırı görünmez oluyordu. Ölçüldü, D-300.
-    `  .ray { position: absolute; left: 64px; right: 64px; bottom: 46px; z-index: 6;`,
-    `         display: flex; gap: 40px; align-items: center;`,
-    `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: 20px;`,
-    `         font-size: 18px; letter-spacing: 0.13em; color: ${sol('--kart-metin', 48)} }`,
+    `  .ray { position: absolute; left: ${olc(64)}px; right: ${olc(64)}px;`,
+    `         bottom: ${olc(46)}px; z-index: 6;`,
+    `         display: flex; gap: ${olc(40)}px; align-items: center;`,
+    `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: ${olc(20)}px;`,
+    `         font-size: ${olc(18)}px; letter-spacing: 0.13em;`,
+    `         color: ${sol('--kart-metin', 48)} }`,
     `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700;`,
     `         flex: none; white-space: nowrap }`,
     // ⚠ İfşa şeritte, künyenin yanında: bir uyarı kutusu değil bir KÜNYE satırı —
@@ -1699,9 +1719,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Degrade KENARDAN KENARA: kutu 64 px içeride kalınca dip kararması bir
     // dikdörtgen gibi görünüyor ve kenarı fark ediliyordu (bakıldı, görüldü).
     // Negatif yan boşluk + eşit iç boşluk: zemin tuvali kaplıyor, metin içeride.
-    `  .ray { padding-bottom: 30px; margin-bottom: -30px;`,
-    `         margin-left: -64px; margin-right: -64px;`,
-    `         padding-left: 64px; padding-right: 64px;`,
+    `  .ray { padding-bottom: ${olc(30)}px; margin-bottom: ${olc(-30)}px;`,
+    `         margin-left: ${olc(-64)}px; margin-right: ${olc(-64)}px;`,
+    `         padding-left: ${olc(64)}px; padding-right: ${olc(64)}px;`,
     `         background: linear-gradient(to top,`,
     `                     color-mix(in srgb, var(--kart-zemin) 90%, transparent) 0%,`,
     `                     color-mix(in srgb, var(--kart-zemin) 82%, transparent) 62%,`,
@@ -1710,7 +1730,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .ray-orta { min-width: 0; overflow: hidden; text-overflow: ellipsis;`,
     `         white-space: nowrap }`,
     `  .ray-ifsa { margin-left: auto; opacity: 0.85; flex: none; white-space: nowrap }`,
-    `  .ray-ifsa + .ray-sayac { margin-left: 40px }`,
+    `  .ray-ifsa + .ray-sayac { margin-left: ${olc(40)}px }`,
     // ── görsel katmanı ──────────────────────────────────────────────────────
     `  .gorsel, .gorsel-yer { position: absolute; z-index: 4; object-fit: cover }`,
     `  .gorsel.kesik, .gorsel-yer.kesik { object-fit: contain; object-position: bottom }`,
