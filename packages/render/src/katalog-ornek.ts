@@ -441,43 +441,47 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   // ⚠ **Metin figürün ÜSTÜNE binebilir ve referansta da biniyor.** Daha önce çakışmayı
   // sıfıra indirmiştim; o, iki ögeyi de küçülten yanlış bir hedefti. Kesik öznenin
   // etrafındaki boşluk metnin yeri değil, öznenin nefesi.
+  // ⚠ ⚠ **GÖRSEL METİN KOLONUNDAN KAÇIYOR (FAZ-18.3).** Gerçek koşuda ölçüldü
+  // (run_01a02ade): metin alanının %29'u görselin ÜSTÜNDE duruyordu. Metin z-index 6
+  // ile üstteydi ve `metin-ortuluyor` bu yüzden temiz çıkıyordu — ama "üstte olmak
+  // okunabilirlik değildir": beyaz bir başlık parlak metal bir yüzeyde kayboluyor.
+  // Slaytlara BAKILINCA görüldü, sonra `metin-gorsel-cakisiyor` kusuru yazıldı.
+  //
+  // ⚠ Kolon sınırı: metin kartın sol %54'ünde (`baslikSutunu`), görsel sağ yarıda.
+  // Dört kart = %25/kart, yani görsel kart içinde ~%56'dan başlıyor.
+  // ⚠ **Kesim aşma KORUNUYOR:** her görsel kendi kartının sağ sınırını geçip sonraki
+  // slayda uzanıyor — bu şablonun süreklilik iddiası tam olarak o.
+  // ⚠ ⚠ **DÖRT GÖRSEL → İKİ GÖRSEL, ve ikisi de KESİMİN ÜSTÜNDE (FAZ-18.3).** Depo
+  // sahibi çıktıya bakıp yazdı: *"iki görsel farklı sayfalarda yan yana olmamalı, tek
+  // görsel iki sayfanın ortasında olmalı — yarısı ilkinde yarısı diğerinde ki kaydırırken
+  // seamless hissedilsin. Her sayfada görsel olmasına gerek yok, aşırı boğucu."*
+  //
+  // ⚠ **Süreklilik İMA EDİLMİYOR, KANITLANIYOR.** Slayt başına bir görsel, kaydırırken
+  // dört ayrı kare demek — her karede yeni bir figür beliriyor ve göz bağı kopuyor.
+  // Kesimin TAM üstüne oturan bir görselde ise aynı figürün devamı geliyor: seamless
+  // olduğunun kanıtı, iddiası değil.
+  //
+  // ⚠ Aradaki slaytlar BOŞ değil: taşıyıcı orada tipografi. Dört slaytta iki görsel
+  // (1↔2 kesimi ve 3↔4 kesimi), aralarda başlık kadrajı taşıyor.
   gorseller: [
-    // ⚠ ⚠ **TEK ÖZNE, ÜÇ KOPYA DEĞİL — ve bunu gerçek bir koşu gösterdi.** Şablon üç
-    // yuva ilan ediyordu; hat TEK görsel üretiyor ve `composeBody` onu üç yuvaya birden
-    // koyuyordu. Çıktıda aynı figür üç kez yan yana duruyordu: tasarım değil, hata gibi
-    // okunuyor. Katalog `adet: 'slayt-basina'` diyor ama hattın DAG'ı dinamik çoğaltma
-    // yapmıyor (borç A8) — ilan ile gerçek ayrışıyordu.
-    //
-    // ⚠ Referansın (`ornek-1`) yaptığı şey de zaten bu değil: TEK bir özne kesimi aşarak
-    // devam ediyor. Tek geniş yuva hem dürüst hem referansa sadık: figür 2. ve 3. slaydı
-    // kat ediyor ve süreklilik gerçekten kuruluyor.
-    // ⚠ ⚠ **KAHRAMAN ÖLÇEĞİ: %26 → %40 (rehber §7, referans ölçümü).** `image copy 2`de
-    // pandomimci kadrajın ~%40'ını tutuyor ve karenin KAHRAMANI; bizimki %13'ten %26'ya
-    // çıkmıştı ve hâlâ bir dipnot gibi duruyordu. Rehber §7 tek cümle: "her karede tek
-    // bir kahraman vardır ve karenin en az %40'ını tutar; üç öge de orta boyda ise
-    // kompozisyon yoktur, yalnız yerleşim vardır."
-    // ⚠ Yukarı da çekildi (y 44 → 30): alt kenara yapışmış bir figür "eklenmiş" durur;
-    // referansta özne kadrajın ortasından yükseliyor ve metinle aynı hizada yaşıyor.
-    // ⚠ ⚠ **TEK YUVADAN DÖRDE — borç A8 kapandığı için mümkün oldu.** Tek özne kararı
-    // (yukarıdaki not) doğruydu AMA sebebi tasarım değil, kısıttı: hat tek görsel
-    // üretiyor ve `composeBody` onu her yuvaya YAYIYORDU. Yayma kaldırıldı, hat
-    // slayt başına üretiyor; referansın (`image copy 2`) yaptığı şey artık kurulabilir:
-    // her karede AYRI bir poz ve figür kadrajın altından KESİLİYOR.
-    //
-    // ⚠ Geometri referanstan ölçüldü: özne y%22'den ALT KENARA kadar (h 78) ve slaydın
-    // ~%52'si kadar geniş. Alt kenardan kesilmek "eklenmiş" hissini bitiren şey; boşlukta
-    // yüzen bir figür her zaman yapıştırılmış durur.
-    //
-    // ⚠ ⚠ **İKİ YUVA KESİMİ AŞIYOR (x 24 ve 74) ve bu şablonun süreklilik İDDİASIDIR.**
-    // Dördü de slayt ortasına otursaydı `kesintisizlik-yok` kusuru haklı olarak düşerdi:
-    // oklar tek başına süreklilik kurmuyor, gövde de kesimi geçmeli.
-    //
-    // ⚠ Metin kolonu her karede öznenin KARŞI yanında (`kolon`): 12/24/62/74 sırasıyla
-    // sağ · sol · sağ · sol kadrajı tutuyor, metin de sol · sağ · sol · sağ.
-    { src: '', alt: 'kesik özne', x: 9, y: 20, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 25, y: 22, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 59, y: 21, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne', x: 75, y: 23, genislik: 16, yukseklik: 78, kirpma: 'kesik' },
+    {
+      src: '',
+      alt: 'kesik özne — 1↔2 kesimi',
+      x: 19,
+      y: 20,
+      genislik: 12,
+      yukseklik: 78,
+      kirpma: 'kesik',
+    },
+    {
+      src: '',
+      alt: 'kesik özne — 3↔4 kesimi',
+      x: 69,
+      y: 22,
+      genislik: 12,
+      yukseklik: 78,
+      kirpma: 'kesik',
+    },
   ],
   // ⚠ ⚠ **HAYALETLER BOŞTU ve bu "dolu taslak" kuralını deliyordu.** Şablon taslak
   // demek BOŞ demek değil; agent çoğaltıp düzenleyeceği şeyi göremezse alanı ya

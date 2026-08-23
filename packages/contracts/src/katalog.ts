@@ -176,7 +176,12 @@ export const SAHNE: KatalogSablonu = {
       'karoselinde oklar başlıkların ortasından geçince okunmaz oldu ve silindi.',
   },
   gorsel: {
-    adet: 'slayt-basina',
+    // ⚠ ⚠ **SLAYT BAŞINA DEĞİL, KESİM BAŞINA (FAZ-18.3).** Depo sahibi çıktıya bakıp
+    // yazdı: *"her sayfada görsel olmasına gerek yok, aşırı boğucu"*. Ve asıl mesele
+    // sayı değil KONUM: kesimin üstüne oturan bir görsel sürekliliği KANITLIYOR;
+    // slayt başına bir görsel dört ayrı kare üretiyor ve göz bağı her kesimde kopuyor.
+    // İki görsel, ikisi de kesimin tam üstünde; aradaki slaytların taşıyıcısı tipografi.
+    adet: 2,
     kirpma: 'kesik',
     briefTemeli:
       // ⚠ ⚠ **"ŞEFFAF ARKA PLAN" İSTEMİYORUZ — DÜZ SİYAH İSTİYORUZ.** Görsel modelleri
@@ -253,11 +258,17 @@ export const SAHNE: KatalogSablonu = {
     // ⚠ `humanoid`, `robot`, `android` ve `chrome` hâlâ AÇIKÇA yasak: soyut bir konuda
     // modelden nesne istemek insansı krom bir robot getiriyor (ölçüldü) ve geri kazanım
     // hattı anlatan bir markada bu konu dışı.
+    // ⚠ ⚠ **DÖRTTEN İKİYE — yuva sayısı kadar (FAZ-18.3).** Kapı bu değişmezi yakaladı:
+    // iki yuvaya dört varyant, yani ikisi hiç sipariş edilmeyecek bir kadrajı tarif
+    // ediyordu. Ölü bir varyant, yazıldığı gün doğru görünen ve bir daha okunmayan
+    // koddur.
+    //
+    // ⚠ İkisi de KESİMİN üstünde duracak bir özne istiyor: figürün gövdesi kadrajı
+    // dikine kesmeli ki iki slayda bölündüğünde her iki yarı da kendi başına okunsun.
+    // Yatay yayılan bir özne, kesimde ikiye ayrılınca iki yarım nesne veriyor.
     varyantlar: [
-      'framed head-on and centred, subject extending beyond the frame on the right, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
-      'three quarter angle, subject filling the lower two thirds, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
-      'low camera angle looking up, subject cropped at the left edge, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
-      'close crop on the most telling part of the subject, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
+      'framed head-on and centred, upright subject filling the frame vertically, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
+      'three quarter angle, upright subject filling the frame vertically, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
     ],
   },
   baslikPayi: 1,

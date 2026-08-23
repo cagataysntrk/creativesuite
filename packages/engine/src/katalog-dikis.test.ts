@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os'
 import { loadPipeline } from '@suite/registry'
 import { join } from 'node:path'
 import { ORNEKLER, ornekBul, type KatalogOrnegi } from '@suite/render'
+import { KATALOG } from '@suite/contracts'
 import { fixedClock, seededRng } from '@suite/kernel'
 import {
   composeBody,
@@ -489,10 +490,17 @@ describe('dikiş 3e: kadraj varyantı GÖRSEL istemine doğrudan giriyor', () =>
     } as never)
 
   it('her sıra AYRI bir kadraj cümlesi taşıyor', () => {
-    const dort = [1, 2, 3, 4].map(istem)
-    for (const p of dort) expect(p).toContain(brief)
-    // Dördü de birbirinden farklı olmalı: eşitlik, dört özdeş fotoğraf demek.
-    expect(new Set(dort).size).toBe(4)
+    // ⚠ ⚠ **SAYI ARTIK ŞABLONDAN OKUNUYOR, SABİT DEĞİL.** `sahne` dört yuvadan ikiye
+    // indi (FAZ-18.3: görsel kesimin üstünde, slayt başına değil) ve sabit `4` yazan
+    // bu test kırmızıya döndü. Ölçülen şey "dört varyant var mı" değil — **her yuvanın
+    // AYRI bir kadraj cümlesi alması**. Sayıyı kataloğa sormak, aynı testi yuva sayısı
+    // her değiştiğinde yeniden yazmaktan kurtarıyor.
+    const yuva = KATALOG.find((s) => s.id === 'sahne')?.gorsel?.varyantlar?.length ?? 0
+    expect(yuva).toBeGreaterThan(1)
+    const istemler = Array.from({ length: yuva }, (_, i) => istem(i + 1))
+    for (const p of istemler) expect(p).toContain(brief)
+    // Hepsi birbirinden farklı olmalı: eşitlik, N özdeş fotoğraf demek.
+    expect(new Set(istemler).size).toBe(yuva)
   })
 
   it('`kompozit` bağı KOPARSA varyant düşer — bağın bedeli ölçülüyor', () => {

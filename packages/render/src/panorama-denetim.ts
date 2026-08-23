@@ -28,6 +28,14 @@ export type KusurTuru =
   | 'eksik-glif'
   /** Metin kesim çizgisini geçiyor: yarısı bir slaytta, yarısı ötekinde. */
   | 'kesim-uzeri-metin'
+  /**
+   * Metin gövdesi görselin ÜSTÜNDE duruyor — üstte olmak okunabilirlik değildir.
+   *
+   * ⚠ `metin-ortuluyor` boyama SIRASINI soruyor ve doğru cevap veriyor; bu kusur
+   * KONUMU soruyor. Bir fotoğrafın üstündeki metin, fotoğraf dokulu olduğu ölçüde
+   * okunmaz ve kesik özne tanımı gereği dokuludur (gerçek koşu: `run_01a02ade`).
+   */
+  | 'metin-gorsel-cakisiyor'
   /** Şablon kesintisizlik iddia ediyor ama hiçbir öge kesimi aşmıyor. */
   | 'kesintisizlik-yok'
   /**
@@ -395,6 +403,46 @@ const OLCUM = (
       kusurlar.push({ tur:'sus-baskin', kart:i+1, alan:'hayalet',
         aciklama: 'hayalet kartın %' + Math.round(hayalet*100) + "'ini tutuyor, içerik (başlık+gövde+panel) %"
           + Math.round(icerik*100) + " — süs içerikten büyük" })
+    }
+  })
+
+  // ── metin GÖRSELİN üstünde mi duruyor: kutu kesişimi ────────────────────
+  //
+  // ⚠ ⚠ **BU KUSUR GERÇEK BİR KOŞUDAN DOĞDU (run_01a02ade).** Metin görselin ÜSTÜNDE
+  // (z-index 6) ve metin-ortuluyor bu yüzden temiz çıkıyordu — ama slaytlara bakınca
+  // başlıklar okunmuyordu: kesik özne metnin ARKASINDA duruyor ve parlak metal
+  // yüzeyinin üstündeki beyaz başlık kayboluyor. Ölçüldü: dört slaytta da metin
+  // alanının **%28'i** görselle çakışıyor.
+  //
+  // ⚠ **"Üstte olmak" okunabilirlik DEĞİLDİR.** Eski ölçüm boyama sırasını soruyordu ve
+  // doğru cevabı veriyordu; yanlış olan SORUYDU. Bir fotoğrafın üstündeki metin, fotoğraf
+  // dokulu olduğu ölçüde okunmaz — ve kesik özne tanımı gereği dokuludur.
+  //
+  // ⚠ Eşik %12: sıfır olamaz, çünkü kesik öznenin bir kolu metin kolonuna hafifçe
+  // girebilir ve bu istenen bir şey (süreklilik). Ölçülen şey metnin GÖVDESİNİN
+  // fotoğrafın üstünde durup durmadığı.
+  kartlar.forEach((k, i) => {
+    const g = Array.from(document.querySelectorAll('.gorsel, .gorsel-yer')).map((e) =>
+      e.getBoundingClientRect()
+    )
+    if (g.length === 0) return
+    const kesis = (a, b) =>
+      Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) *
+      Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top))
+    for (const sec of ['.baslik', '.govde']) {
+      const e = k.querySelector(sec)
+      if (!e) continue
+      const r = e.getBoundingClientRect()
+      const alan = r.width * r.height
+      if (alan < 400) continue
+      let ort = 0
+      for (const gr of g) ort += kesis(r, gr)
+      const oran = ort / alan
+      if (oran > 0.12) {
+        kusurlar.push({ tur:'metin-gorsel-cakisiyor', kart:i+1, alan:sec.slice(1),
+          aciklama: sec + ' alanının %' + Math.round(oran*100) +
+            "'i görselin üstünde — ustte olmak okunabilirlik degildir" })
+      }
     }
   })
 
