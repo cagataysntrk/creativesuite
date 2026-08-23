@@ -1392,7 +1392,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).
     ...(doc.yerlesim === undefined || doc.yerlesim === 'ayrik'
       ? [`  .panel, .sayilar, .etiketler { margin-top: auto }`]
-      : [`  .panel, .sayilar, .etiketler { margin-top: 132px }`]),
+      : [`  .panel, .sayilar, .etiketler { margin-top: calc(var(--taban, ${olc(54)}px) * 2) }`]),
     // ── kesim çizgisi: hiçbir ögeyi kırpmıyor, yalnız ince bir ayraç ─────────
     // ⚠ ⚠ **SINIF ADI `kesim`, `kesik` DEĞİL — ve bu bir ÇAKIŞMA DÜZELTMESİ.** Kesim
     // ayracı `.kesik` sınıfını kullanıyordu; kırpma biçimi de `kirpma: 'kesik'` üzerinden
@@ -1444,7 +1444,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // göremiyordu. Bu, çıktının "web sayfası gibi" durmasının en büyük tek sebebiydi —
     // renk eklemek çözmüyor çünkü sorun renkte değil ritimde. Üst başlık başlığa YAPIŞIK
     // (14 px, aynı grup), başlık gövdeden AYRIK (44 px), panel çok daha uzak (§2).
-    `                color: var(--kart-soluk); font-weight: 500; margin-bottom: 14px;`,
+    // ⚠ Ust baslik ile baslik TEK BIRIM: aralarindaki 14 px bir blok araligi degil, bir
+    // etiket baglantisi. Tabana cevirmek ikisini birbirinden KOPARIRDI (R-100 istisnasi).
+    `                color: var(--kart-soluk); font-weight: 500; margin-bottom: ${olc(14)}px;`,
     `                display: flex; align-items: center; gap: 14px }`,
     `  .ust-baslik::before { content: ""; width: 30px; height: 2px; background: var(--kart-aksan) }`,
     // ⚠ Başlık SIKIŞIK ve İRİ; `line-height` 1,04 — 0,90'da Türkçe `Ş` kuyruğu alt satıra
@@ -1503,7 +1505,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ ⚠ **TABAN TUVAL GENİŞLİĞİNE ORANTILI, SABİT PİKSEL DEĞİL.** Sabit 34 px yazmak
     // 1080'i sözleşme sanmaktı; tuval 1440'a çıkarsa aynı sayı daha KÜÇÜK bir açı verir
     // ve taban sessizce eşik altına iner. Açı sabit, piksel türev.
-    `  .govde { margin-top: 44px;`,
+    // ⚠ Blok ARASI bosluk tabandan (R-100); yedek deger tuvale cevrilmis 54 px, cunku
+    // `panoramaHtml` tek basina cagrilirsa (editor onizlemesi) punto olcumu kosmamis olur.
+    `  .govde { margin-top: calc(var(--taban, ${olc(54)}px) * 1);`,
     `           font-size: calc(max(${String(govdeTabani)}px, calc(var(--baslik-punto) * var(--govde-orani)))`,
     `                       * var(--ayar-olcek, 1));`,
     // ⚠ ⚠ **GENİŞLİK KOLONDAN BAĞIMSIZDI ve gövde büyüyünce TAŞTI.** `34ch` sabitti;
@@ -1836,6 +1840,18 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
     // BUYUTEBILIYOR ve o kadari editoryal kapaginda 2 px tasma olarak geri geldi.
     // Bir oturma olcumunun yazdigi sayi, olctugu sayidan buyuk olamaz.
     sahne.style.setProperty('--baslik-punto', (Math.floor(punto * 10) / 10).toFixed(1) + 'px')
+    // -- taban cizgisi izgarasi: RITIM METINDEN TURUYOR (R-100) ---------------
+    //
+    // ⚠ ⚠ TABAN SABIT BIR SAYI DEGIL ve faz plani oyle varsayiyordu (40 x 1,35 = 54).
+    // Olculdu: gercek satir araligi 1,50 ve govde puntosu sablondan sablona degisiyor —
+    // 54 · 54,9 · 59,1 · 60,6 · 61,2. Sabit 54, ALTIDAN BESINDE yanlis olurdu.
+    // Govde puntosu baslik puntosuna bagli, o da bu aramanin sonucu: taban ancak
+    // BURADA, punto belli olduktan SONRA bilinebilir.
+    const govde = document.querySelector('.govde')
+    if (govde) {
+      const aralik = parseFloat(getComputedStyle(govde).lineHeight)
+      if (aralik > 0) sahne.style.setProperty('--taban', aralik.toFixed(1) + 'px')
+    }
     return punto
   })()`
 }

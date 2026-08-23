@@ -164,17 +164,17 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
 🧪 Tek `olc(18)` çıplak `18px`e döndürüldü → *"ray puntosu: 18 → 18, beklenen ≈22,5"*
 💾 `refactor(render): olcek tek tabandan` · `Refs: FAZ-18.13 · §7.1`
 
-## 18.13b — Taban çizgisi ızgarası    [ ]
+## 18.13b — Taban çizgisi ızgarası: ritim METİNDEN    [x]
 
-📖 §7.1 · D-329
+📖 §7.1 · D-330 · R-100
 🔗 FAZ-18.13
-🛠 Müller-Brockmann: `TABAN = gövdePuntosu × satırAralığı` = 40×1,35 = **54 px**.
-   ⚠ Kapsam DAR (D-329'da ölçüldü): kartın DIŞ DOLGUSU bir çerçeve, ritmin parçası değil.
-   Kural bloklar ARASI boşluğa ait. 54'ün yarımlarına izin vermek kuralı anlamsız kılıyor
-   (27 ile her sayı ifade edilebilir); tam kat ya da hiç.
-📁 `packages/render/src/panorama.ts`
-✅ Blok arası her dikey boşluk 54'ün (tuvale çevrilmiş) tam katı
-🧪 Bir boşluğu 54'ün katı olmayan bir sayıya çek → ölçüm ADIYLA söylesin
+🛠 Plan `40 × 1,35 = 54 px` varsayıyordu; **iki çarpan da yanlıştı.** Ölçüldü: aralık
+   **1,50**, gövde 36–40,8 → taban 54 · 54,9 · 59,1 · 60,6 · 61,2; sabit 54 altıdan
+   BEŞİNDE yanlış olurdu. `puntoOlcumu` artık `--taban`ı da yazıyor. ⚠ Yazılı yalnız ÜÇ
+   boşluk var (14 · 44 · 132); gerisi `auto` artığı. Üst başlık ↔ başlık istisna.
+📁 `packages/render/src/panorama.ts` · `taban-ritmi.test.ts`
+✅ `başlık→gövde` her şablonda tam 1× kendi tabanı · `gövde→panel` `memphis`te tam 2×
+🧪 `--taban` yazan satır iptal → altı şablon *"--taban hiç kurulmamış"* ile kırmızı
 💾 `refactor(render): taban cizgisi izgarasi` · `Refs: FAZ-18.13b · §7.1`
 
 ## 18.13c — Eksik roller, ölçek emit'i ve `brd_dima`    [ ]

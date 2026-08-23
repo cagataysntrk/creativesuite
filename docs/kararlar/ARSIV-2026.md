@@ -6097,3 +6097,62 @@ alındığında KIRMIZI dönüyor.
 **Sınır.** Girdiler değiştiyse defterdeki çıktı bayattır ve bu dal onu yine de
 kullanır. Alternatif, tamamlanmış bir işi SİLMEKTİ; bayat bir görsel, yok edilmiş bir
 görselden iyidir ve iz satırı olan biteni ekranda söylüyor.
+
+## D-316 · Elle düzenlenmiş sürüm GÖRÜNÜR: editör onu açar, kütüphane onu gösterir (2026-08-22)
+
+**Bulgu — depo sahibi:** *"editörde düzenleyince elle düzenlenmiş versiyon koşu
+sayfasına geliyor ama tekrar koşuyu editörde aç deyince eskisini açıyor; ayrıca
+varlıklarda da hâlâ eskisi görünüyor, güncellenmiyor."*
+
+**İki ayrı kusur, tek kök:** yazan taraf `panorama-elle.json` üretiyordu, okuyan taraf
+onu hiç sormuyordu.
+
+1. **Editör.** Koşu tarayıcısı her zaman `panorama.json` arıyordu. Düzenleme bellekte
+   yaşıyor, `just dev` her yeniden başladığında kayboluyor gibi görünüyordu — oysa
+   diskte duruyordu. Artık seçim kuralı TEK yerde (`kosuBelgesiniOku`): elle
+   düzenlenmiş varsa O geçerlidir. *"Değişiklikleri sıfırla"* ise açıkça asıl belgeyi
+   istiyor (`sadeceAsil`), yoksa düğme hiçbir şey yapmazdı.
+2. **Kütüphane.** Liste DAMGALI byte'ları gösteriyor; elle düzenlenmiş slayt damga
+   taşımıyor (Yasa 7: damga üretim anında basılır, retrofit imkânsız). Liste yanlış
+   değildi — **eksikti**: insanın en son gördüğü hâl hiçbir yerde yoktu. Artık her
+   koşu satırında ayrı bir şerit: *"✎ elle düzenlenmiş sürüm — damgasız, yayına aday
+   değil"*. Damgalıların YERİNE geçmiyor; karıştırmak, damgasız bir varlığı
+   yayınlanabilir sanmak olurdu (R-33).
+
+**Seçim kuralı neden ortak modüle taşındı.** Sunucunun dışa aktarma yolu "önce `-elle`,
+sonra asıl" kuralını kendi içinde taşıyordu, editör hiç taşımıyordu. Aynı kuralın iki
+kopyası bu depoda bir kez daha (D-302, `gorselleriGom`) birinin düzeltilip ötekinin
+unutulmasıyla sonuçlanmıştı. Üçüncü kopya yazılmadan tek yere alındı.
+
+**Ölçüm.** Editörde başlık değiştirildi, kaydedildi, **editör süreci öldürülüp yeniden
+başlatıldı** ve açılışta düzenlenmiş başlık geldi (`ELLE Kantar mı satış mı`); önce
+asıl başlık geliyordu. Kütüphane ekranı gerçek tarayıcıda: 7 koşuda "elle düzenlendi"
+rozeti, 28 elle slayt görseli, hepsi `/api/kosu/<run>/elle/<ad>` üzerinden.
+
+## D-317 · Tip ölçeği markanın dizayn sistemine bağlanıyor — dört aile, dört rol (2026-08-22)
+
+**Bağlam.** Depo sahibi markanın gerçek dizayn sistemini depoya koydu
+(`examples/design-system-master/`, gitignore'lu — GitHub'a gitmesin diye) ve *"şablonları
+bu dizayn sisteme uygun olarak güncelle"* dedi. Sistem tipografiyi tahminle değil
+ÖLÇÜMLE seçmiş: dört ailenin WOFF2 ikilisi çözülüp `cmap` okunmuş, 15 Türkçe kod
+noktasının hepsi doğrulanmış, `Ş`(U+015E) ile `Ș`(U+0218) aynı glife düşüyor mu diye
+bakılmış ve `GSUB`ta `latn/TRK` dil sistemi aranmış. Inter bu sınavda *"Türkçe dil
+sistemi yok"* diye elenmiş — bizim bugünkü gövde fontumuz.
+
+**Karar.** `font_family_count` tavanı 3 → 4. Dört aile, dört AYRI rol:
+
+| Aile | Rol | Asla |
+|---|---|---|
+| Plus Jakarta Sans | gövde, etiket, tüm arayüz | pazarlama display puntosu |
+| Source Serif 4 | pazarlama sayfasının TEK H1'i — karoselde kapak başlığı | başka her yer |
+| Montserrat | bölüm başlıkları ve alt başlıklar — karoselde gövde slaytları | gövde metni |
+| JetBrains Mono | rakam, kimlik, künye, eyebrow | düzyazı |
+
+**Neden gevşeme değil.** "Beyan edilmemiş aile" tavanı 0 olarak duruyor: hangi ailenin
+meşru olduğu `fonts.ts`in kapalı listesinden geliyor. Sistemin kendi sınırlama kuralı da
+devrede — Source Serif 4 ve Montserrat ürün kromunda YASAK, yalnız pazarlama
+yüzeylerinde; karosel bir pazarlama yüzeyi. Beşinci aile hâlâ kırmızı.
+
+**Bedeli.** Dört yüz ailesi gömülü olarak taşınıyor (latin + latin-ext, sekiz dosya,
+toplam ~426 KB). Eski dört dosya (Inter, Archivo, Bricolage, Caveat) emekli oluyor;
+`scripts/font-getir.mjs` listeyi geri koyan tek satırla onları da geri getirebilir.

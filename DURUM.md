@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 18
-siradaki_adim: 18.13b
+siradaki_adim: 18.13c
 son_guncelleme: 2026-08-23
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "OLCEK TEK TABANDAN — ve bu, TEK TUVALDE GORULEMEYEN bir kusur sinifi. Sistemin olceklenen yani dogruydu: baslik ikili aramayla, govde GOVDE_TABANI_1080 ile, panel --panel-olcek ile tuvale bagliydi. KROM DEGILDI: ray-logo 24/104px, kilometre-nokta 13px, kilometre-etiket 16px, rayin font-size 18pxi ve kart dolgusu 80/64/190px ciplak piksel olarak duruyordu. Tuval genisleyince tipografi buyuyor, krom oldugu yerde kaliyordu. TEK TUVALDE HER SAYI DOGRU GORUNUR cunku referansi yok; hata ancak IKI tuvalin ORANI karsilastirilinca ortaya cikiyor — bu depodaki bakarak bulunan kusurlardan farkli bir sinif, bakmak yetmiyor iki kez bakip karsilastirmak gerekiyor. olc(px) = round(px * G / 1080) tek taban. Olculdu 1080 -> 1350: ray puntosu 18->23, logo 104x24 -> 130x30, kilometre noktasi 13->16, etiket 16->20, kart dolgusu 64->80, ray yuksekligi 46->58 — yedisi de %25. Test null u gecti saymiyor: oge cizilmediyse olcum YAPILMAMISTIR. Kasten ihlal: tek bir olc(18) ciplak 18pxe donduruldu ve test ray puntosu: 18 -> 18, beklenen 22,5 diyerek kusuru ADIYLA soyledi. TABAN CIZGISI IZGARASI BU ADIMDA KAPANMADI ve sebebi olculerek anlasildi: kartin dis dolgusu bir cerceve, metin ritminin parcasi degil; 54un yarimlarina izin vermek kurali anlamsiz kiliyordu (27 ile her sayi ifade edilebilir). Adim bolundu: 18.13b taban izgarasi, 18.13c eksik roller ve brd_dima. 47 kapi yesil."
+son_kanit: "TABAN CIZGISI IZGARASI SABIT BIR SAYI DEGIL — faz plani oyle varsayiyordu (40 x 1,35 = 54) ve IKI CARPAN DA YANLISTI. Olculdu: gercek satir araligi 1,50 ve govde puntosu sablondan sablona degisiyor (36 - 40,8), yani taban 54 · 54,9 · 59,1 · 60,6 · 61,2. Sabit 54, alti sablonun BESINDE yanlis bir izgara dayatirdi. Neden degisken: govde puntosu max(taban, baslikPuntosu x oran) ve baslik puntosu ikili aramanin sonucu — metne bagli. Taban ancak olcum KOSTUKTAN sonra bilinebiliyor; puntoOlcumu artik --tabani da yaziyor ve CSS bosluklari calc(var(--taban) * N) ile ondan turuyor. KAPSAM OLCULEREK DARALDI: olcum yazili yalniz UC bosluk oldugunu gosterdi (14 · 44 · 132), gerisi margin-top auto artigi ve tasarim karari degil. Ust baslik ile baslik arasi da ISTISNA — tek birim, aradaki 14 px bir etiket baglantisi. KURAL RENDERDA SINANAMAZ: getComputedStyle marginTop auto icin de KULLANILAN pikseli donduruyor, tabana bagli bir boslukla auto bir bosluk tarayicida ayirt edilemiyor. Iki sinav: CSS tabani cagiriyor mu VE --taban KURULUYOR mu. Zincir kasten koparildi, alti sablon da --taban hic kurulmamis diyerek kirmiziya dondu. AYRICA KURALLAR.md tavani 480 - 520 yukseltildi (D-331): D-325in istedigi bolme yapildi, kurallar 6,8 satira indi ve dort tur ust uste yeni kural ancak eskilerin gerekcesi budanarak sigdi. 47 kapi yesil."
 ```
 
 ## Neredeyiz
@@ -61,6 +61,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **18.11** · tuval oranı tek sözleşme sabitinden; 3:4'e geçiş tek satır, ölçülerek doğrulandı (R-91) | 2026-08-23 |
 | **18.12** · marka imzası üretim yoluna bağlandı — logo hiç basılmıyordu, zincirin yedinci kopukluğu (R-92) | 2026-08-23 |
 | **18.13** · ölçek TEK tabandan: krom ölçeklenmiyordu, 1080→1350'de yedi ölçü de %25 büyüdü (R-99) | 2026-08-23 |
+| **18.13b** · taban çizgisi ızgarası metinden türüyor — sabit 54 px altıdan beşinde yanlıştı (R-100) | 2026-08-23 |
 
 ## Sıradaki adım
 

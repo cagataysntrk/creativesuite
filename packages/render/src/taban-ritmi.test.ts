@@ -1,0 +1,103 @@
+// Taban çizgisi ızgarası: dikey ritim METİNDEN türüyor (R-100 · D-330).
+//
+// ⚠ ⚠ **TABAN SABİT BİR SAYI DEĞİL ve faz planı öyle varsayıyordu** (40 × 1,35 = 54).
+// Ölçüldü: gerçek satır aralığı **1,50** ve gövde puntosu şablondan şablona değişiyor —
+// 54 · 54,9 · 59,1 · 60,6 · 61,2 px. Sabit 54, altı şablonun BEŞİNDE yanlış olurdu.
+// Gövde puntosu başlık puntosuna bağlı, başlık puntosu ise ikili aramanın sonucu: taban
+// ancak ölçüm KOŞTUKTAN sonra bilinebiliyor.
+//
+// ⚠ ⚠ **KURAL RENDER'DA SINANAMAZ.** `getComputedStyle().marginTop` `auto` için de
+// KULLANILAN pikseli döndürüyor; yani `margin-top: auto` ile yazılmış bir boşluk ile
+// tabana bağlanmış bir boşluk tarayıcıda ayırt edilemiyor. Bu yüzden iki ayrı sınav:
+// üretilen CSS tabanı ÇAĞIRIYOR mu, ve `--taban` gerçekten KURULUYOR mu. İkincisi
+// olmazsa yedek değer sessizce devralır ve her şablon yanlış ritme döner — bu deponun
+// tekrar eden kopukluğu.
+
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { describe, expect, it } from 'vitest'
+import { withPage } from './browser.js'
+import { ORNEKLER } from './katalog-ornek.js'
+import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+
+const TOKEN = readFileSync(
+  join(
+    dirname(fileURLToPath(import.meta.url)),
+    '../../../brand/brd_upcytech/derived-tokens/tokens.css'
+  ),
+  'utf8'
+)
+
+const DAMGA = {
+  brandId: 'brd_t',
+  eraId: 'era_t',
+  kitVersion: 'kit-1',
+  definitionDigest: 'sha256:x',
+  contextManifest: 'ctx_1',
+  sourceRunId: 'run_t',
+}
+
+type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
+const belge = (o: Ornek): PanoramaBelgesi =>
+  ({ ...o, tokenCss: TOKEN, stamp: DAMGA }) as unknown as PanoramaBelgesi
+
+describe('taban çizgisi ızgarası', () => {
+  it('blok arası boşluklar tabanı ÇAĞIRIYOR — sabit piksel değil', () => {
+    const o = ORNEKLER['memphis']
+    expect(o).toBeDefined()
+    if (o === undefined) return
+    const css = panoramaHtml(belge(o))
+    expect(css).toMatch(/\.govde \{ margin-top: calc\(var\(--taban, \d+px\) \* 1\)/)
+    expect(css).toMatch(
+      /\.panel, \.sayilar, \.etiketler \{ margin-top: calc\(var\(--taban, \d+px\) \* 2\) \}/
+    )
+    // ⚠ Üst başlık İSTİSNA: başlıkla tek birim, aralarındaki boşluk bir blok aralığı
+    // değil bir etiket bağlantısı. Tabana çevirmek ikisini KOPARIRDI.
+    expect(css).toMatch(/margin-bottom: \d+px;/)
+  })
+
+  for (const [id, o] of Object.entries(ORNEKLER)) {
+    it(`${id} · taban ÖLÇÜLEN gövde aralığı ve boşluk onun tam katı`, async () => {
+      const doc = belge(o)
+      const r = await withPage(async (page) => {
+        await page.setViewportSize({
+          width: doc.slaytGenisligi * doc.kartlar.length,
+          height: doc.yukseklik,
+        })
+        await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
+        await page.evaluate('(async () => { await document.fonts.ready; return true })()')
+        await page.evaluate(puntoOlcumu(doc))
+        return page.evaluate(`(() => {
+          const sahne = document.getElementById('sahne')
+          const taban = parseFloat(getComputedStyle(sahne).getPropertyValue('--taban'))
+          const g = document.querySelector('.govde')
+          if (!g) return { taban: taban, aralik: null, bosluk: null }
+          return {
+            taban: taban,
+            aralik: parseFloat(getComputedStyle(g).lineHeight),
+            bosluk: parseFloat(getComputedStyle(g).marginTop),
+          }
+        })()`)
+      })
+      expect(r.ok).toBe(true)
+      if (!r.ok) return
+      const v = r.value as { taban: number; aralik: number | null; bosluk: number | null }
+      // ⚠ ⚠ `--taban` KURULMAMIŞSA yedek sessizce devralır ve hiçbir şey kırmızı olmaz.
+      // Ölçülemeyen geçmiş sayılmaz: önce KURULDUĞU sınanıyor.
+      expect(Number.isNaN(v.taban), `${id}: --taban hiç kurulmamış`).toBe(false)
+      expect(v.taban).toBeGreaterThan(40)
+      if (v.aralik === null || v.bosluk === null) return
+      // Taban ölçülen gövde satır aralığının ta kendisi.
+      expect(Math.abs(v.taban - v.aralik), `${id}: taban ${String(v.taban)} ≠ aralık`).toBeLessThan(
+        0.2
+      )
+      // Ve blok arası boşluk onun tam katı.
+      const kat = v.bosluk / v.taban
+      expect(
+        Math.abs(kat - Math.round(kat)),
+        `${id}: boşluk/taban = ${kat.toFixed(3)}`
+      ).toBeLessThan(0.02)
+    })
+  }
+})

@@ -191,65 +191,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-309 · D-310 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62).
 
-## D-316 · Elle düzenlenmiş sürüm GÖRÜNÜR: editör onu açar, kütüphane onu gösterir (2026-08-22)
-
-**Bulgu — depo sahibi:** *"editörde düzenleyince elle düzenlenmiş versiyon koşu
-sayfasına geliyor ama tekrar koşuyu editörde aç deyince eskisini açıyor; ayrıca
-varlıklarda da hâlâ eskisi görünüyor, güncellenmiyor."*
-
-**İki ayrı kusur, tek kök:** yazan taraf `panorama-elle.json` üretiyordu, okuyan taraf
-onu hiç sormuyordu.
-
-1. **Editör.** Koşu tarayıcısı her zaman `panorama.json` arıyordu. Düzenleme bellekte
-   yaşıyor, `just dev` her yeniden başladığında kayboluyor gibi görünüyordu — oysa
-   diskte duruyordu. Artık seçim kuralı TEK yerde (`kosuBelgesiniOku`): elle
-   düzenlenmiş varsa O geçerlidir. *"Değişiklikleri sıfırla"* ise açıkça asıl belgeyi
-   istiyor (`sadeceAsil`), yoksa düğme hiçbir şey yapmazdı.
-2. **Kütüphane.** Liste DAMGALI byte'ları gösteriyor; elle düzenlenmiş slayt damga
-   taşımıyor (Yasa 7: damga üretim anında basılır, retrofit imkânsız). Liste yanlış
-   değildi — **eksikti**: insanın en son gördüğü hâl hiçbir yerde yoktu. Artık her
-   koşu satırında ayrı bir şerit: *"✎ elle düzenlenmiş sürüm — damgasız, yayına aday
-   değil"*. Damgalıların YERİNE geçmiyor; karıştırmak, damgasız bir varlığı
-   yayınlanabilir sanmak olurdu (R-33).
-
-**Seçim kuralı neden ortak modüle taşındı.** Sunucunun dışa aktarma yolu "önce `-elle`,
-sonra asıl" kuralını kendi içinde taşıyordu, editör hiç taşımıyordu. Aynı kuralın iki
-kopyası bu depoda bir kez daha (D-302, `gorselleriGom`) birinin düzeltilip ötekinin
-unutulmasıyla sonuçlanmıştı. Üçüncü kopya yazılmadan tek yere alındı.
-
-**Ölçüm.** Editörde başlık değiştirildi, kaydedildi, **editör süreci öldürülüp yeniden
-başlatıldı** ve açılışta düzenlenmiş başlık geldi (`ELLE Kantar mı satış mı`); önce
-asıl başlık geliyordu. Kütüphane ekranı gerçek tarayıcıda: 7 koşuda "elle düzenlendi"
-rozeti, 28 elle slayt görseli, hepsi `/api/kosu/<run>/elle/<ad>` üzerinden.
-
-## D-317 · Tip ölçeği markanın dizayn sistemine bağlanıyor — dört aile, dört rol (2026-08-22)
-
-**Bağlam.** Depo sahibi markanın gerçek dizayn sistemini depoya koydu
-(`examples/design-system-master/`, gitignore'lu — GitHub'a gitmesin diye) ve *"şablonları
-bu dizayn sisteme uygun olarak güncelle"* dedi. Sistem tipografiyi tahminle değil
-ÖLÇÜMLE seçmiş: dört ailenin WOFF2 ikilisi çözülüp `cmap` okunmuş, 15 Türkçe kod
-noktasının hepsi doğrulanmış, `Ş`(U+015E) ile `Ș`(U+0218) aynı glife düşüyor mu diye
-bakılmış ve `GSUB`ta `latn/TRK` dil sistemi aranmış. Inter bu sınavda *"Türkçe dil
-sistemi yok"* diye elenmiş — bizim bugünkü gövde fontumuz.
-
-**Karar.** `font_family_count` tavanı 3 → 4. Dört aile, dört AYRI rol:
-
-| Aile | Rol | Asla |
-|---|---|---|
-| Plus Jakarta Sans | gövde, etiket, tüm arayüz | pazarlama display puntosu |
-| Source Serif 4 | pazarlama sayfasının TEK H1'i — karoselde kapak başlığı | başka her yer |
-| Montserrat | bölüm başlıkları ve alt başlıklar — karoselde gövde slaytları | gövde metni |
-| JetBrains Mono | rakam, kimlik, künye, eyebrow | düzyazı |
-
-**Neden gevşeme değil.** "Beyan edilmemiş aile" tavanı 0 olarak duruyor: hangi ailenin
-meşru olduğu `fonts.ts`in kapalı listesinden geliyor. Sistemin kendi sınırlama kuralı da
-devrede — Source Serif 4 ve Montserrat ürün kromunda YASAK, yalnız pazarlama
-yüzeylerinde; karosel bir pazarlama yüzeyi. Beşinci aile hâlâ kırmızı.
-
-**Bedeli.** Dört yüz ailesi gömülü olarak taşınıyor (latin + latin-ext, sekiz dosya,
-toplam ~426 KB). Eski dört dosya (Inter, Archivo, Bricolage, Caveat) emekli oluyor;
-`scripts/font-getir.mjs` listeyi geri koyan tek satırla onları da geri getirebilir.
-
 ## D-318 · Palet dizayn sisteminden: yakın-monokrom zemin, TEK karneli aksan (2026-08-22)
 
 **Bulgu.** Kreatif yüzey kendi paletini taşıyordu: eskitmeli lacivert zemin (D-295),
@@ -583,3 +524,51 @@ yapılmamıştır. Kasten ihlal edildi: tek bir `olc(18)` çıplak `18px`e dönd
 adım (18.13b). Sebep ölçülerek anlaşıldı: kartın dış dolgusu bir çerçeve, metin ritminin
 parçası değil ve 54'ün yarımlarına izin vermek kuralı anlamsız kılıyordu — 27 ile
 neredeyse her sayı ifade edilebiliyor. Bir kuralı esneterek kurtarmak, onu kaybetmektir.
+
+## D-330 · Taban çizgisi ızgarası METİNDEN türüyor — sabit 54 px yanlıştı
+
+**Faz planı bir sayı varsayıyordu:** `TABAN = gövdePuntosu × satırAralığı = 40 × 1,35 =
+54 px`. **Ölçüldü ve ikisi de yanlıştı.** Gerçek satır aralığı **1,50**, gövde puntosu ise
+şablondan şablona değişiyor: 54 · 54,9 · 59,1 · 60,6 · 61,2 px. Sabit 54, altı şablonun
+**beşinde** yanlış bir ızgara dayatırdı.
+
+**Neden değişken.** Gövde puntosu `max(taban, başlıkPuntosu × oran)`; başlık puntosu ise
+ikili aramanın sonucu ve metne bağlı. Taban ancak ölçüm KOŞTUKTAN sonra bilinebiliyor —
+bu yüzden `puntoOlcumu` artık `--taban`ı da yazıyor ve CSS boşlukları `calc(var(--taban)
+* N)` ile ondan türüyor. Ritim metinden geliyor; Müller-Brockmann'ın kastettiği de bu.
+
+**Kapsam DAR ve ölçülerek belirlendi.** Ölçüm gösterdi ki YAZILI yalnız üç boşluk var
+(14 · 44 · 132); geri kalan her şey `margin-top: auto`nun artığı ve tasarım kararı değil.
+Üst başlık → başlık boşluğu da İSTİSNA: ikisi tek birim, aradaki 14 px bir blok aralığı
+değil bir etiket bağlantısı. Tabana çevirmek onları birbirinden koparırdı.
+
+**Kural render'da SINANAMAZ.** `getComputedStyle().marginTop` `auto` için de KULLANILAN
+pikseli döndürüyor; tabana bağlanmış bir boşlukla `auto` bir boşluk tarayıcıda ayırt
+edilemiyor. İki ayrı sınav: üretilen CSS tabanı çağırıyor mu, ve `--taban` gerçekten
+KURULUYOR mu. İkincisi olmazsa yedek değer sessizce devralır ve her şablon yanlış ritme
+döner — bu deponun tekrar eden kopukluğu. Zincir kasten koparıldı: altı şablon da
+*"--taban hiç kurulmamış"* diyerek kırmızıya döndü.
+
+## D-331 · `KURALLAR.md` tavanı 480 → 520: D-322'nin sözü artık bağlamıyor
+
+**D-322 şöyle demişti:** *"tavan kalkmıyor, bir kez yükseliyor."* O söz, tavan dolduğunda
+doğru cevabın SIKIŞTIRMAK olduğu varsayımıyla verildi. D-325 o varsayımı reddetti ve
+yapısal cevabı adlandırdı: gerekçeler ayrı dosyaya. **O iş yapıldı** —
+`docs/kurallar/OLCUMLER.md` on beş kuralın ölçülmüş kanıtını taşıyor ve `KURALLAR.md`
+480'den 464'e indi.
+
+**Şimdi doluluk başka bir şey anlatıyor.** 71 kural, 480 satır: kural başına **6,8 satır**
+ve bunun ikisi başlık ile boş satır. Kalan dört satır beyan + neden + zorlama demek.
+Bundan sonra sıkıştırmak metin kısaltmak değil, **bilgi silmek**.
+
+**Dört tur üst üste yeni bir kural ancak eski kuralların gerekçesi budanarak sığdı** —
+D-322'nin kendi gerekçesi tam olarak bunun yapılmaması gerektiğini söylüyor.
+
+**Karar.** Tavan **520**. Yeni pay yine sınırlı (≈sekiz kural) ve dolduğunda cevap yine
+yükseltmek olmayacak: sıradaki yapısal hamle kural kitabını halkalara bölmek
+(`KURALLAR.md` mimari + süreç, `docs/kurallar/TASARIM.md` render ailesi).
+
+**Neden R-76 ihlali değil.** `docs-size` kırmızı DEĞİL — 480'de, tavanın tam üstünde
+değil. Yükseltme bir kapıdan kaçmak için değil, kendi kararıyla ve gerekçesiyle yapılıyor.
+⚠ Yine de bu hamle bir kez daha tekrarlanırsa şüpheyle bakılmalı: **tavanı yükselterek
+korunan bir belge, tavansız bir belgedir.**

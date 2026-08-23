@@ -478,3 +478,12 @@ hata ölçümle ilgisiz bir yerde patlıyor. **Dört kez aynı şekilde kırıld
 **Neden:** başlık, gövde ve panel ölçekleniyordu ama KROM ölçeklenmiyordu; 1080'de doğru
 görünen oran 1350'de bozuluyordu — **tek tuvalde her sayı doğru GÖRÜNÜR.**
 **Zorlama:** `olcek-tabani.test.ts` İKİ tuvalin oranını ölçüyor. → D-329 · `OLCUMLER.md`
+
+### R-100 · taban-cizgisi-izgarasi · GATE · aktif
+Blok arası dikey boşluklar **ölçülen** gövde satır aralığının (`--taban`) tam katıdır.
+İstisna: üst başlık ↔ başlık — ikisi tek birim, aradaki boşluk bir etiket bağlantısı.
+**Neden:** taban sabit bir sayı DEĞİL; gövde puntosu başlığa, başlık ikili aramaya bağlı.
+Sabit 54 px altı şablonun **beşinde** yanlış olurdu (gerçek: 54 · 54,9 · 59,1 · 60,6 ·
+61,2). Ritim metinden türer.
+**Zorlama:** `taban-ritmi.test.ts` — CSS tabanı çağırıyor mu VE `--taban` kuruluyor mu.
+Kurulmazsa yedek sessizce devralır. → D-330 · `OLCUMLER.md`

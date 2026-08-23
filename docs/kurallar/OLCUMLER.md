@@ -264,3 +264,37 @@ yüzden teste açıkça veriliyor — ölçülemeyen geçmiş sayılmaz.
 kartın dış dolgusu bir çerçeve, metin ritminin parçası değil. Müller-Brockmann'ın iddiası
 bloklar ARASI boşlukla ilgili. 54'ün yarımlarına izin vermek kuralı anlamsız kılıyordu
 (27 ile neredeyse her sayı ifade edilebiliyor). Ayrı bir adım — 18.13b.
+
+## R-100 · taban çizgisi ızgarası
+
+Faz planı bir sayı varsayıyordu: `TABAN = gövdePuntosu × satırAralığı = 40 × 1,35 = 54`.
+**Ölçüldü ve iki çarpan da yanlıştı.** Gerçek satır aralığı **1,50**; gövde puntosu ise
+şablondan şablona değişiyor:
+
+| şablon | gövde | satır aralığı | taban |
+|---|---|---|---|
+| `sahne` · `donen` | 36,0 | 1,50 | **54,0** |
+| `editoryal` | 36,6 | 1,50 | **54,9** |
+| `akan-alan` | 39,4 | 1,50 | **59,1** |
+| `memphis` | 40,4 | 1,50 | **60,6** |
+| `veri-hikayesi` | 40,8 | 1,50 | **61,2** |
+
+Sabit 54, altı şablonun **beşinde** yanlış bir ızgara dayatırdı.
+
+⚠ **Neden değişken:** gövde puntosu `max(taban, başlıkPuntosu × oran)` ve başlık puntosu
+ikili aramanın sonucu — metne bağlı. Taban ancak ölçüm KOŞTUKTAN sonra bilinebiliyor.
+
+⚠ **Kapsam ölçülerek daraldı.** Ölçüm gösterdi ki YAZILI yalnız üç boşluk var (14 · 44 ·
+132); geri kalan her şey `margin-top: auto`nun artığı — tasarım kararı değil. Üst başlık
+→ başlık da istisna: ikisi tek birim.
+
+⚠ **Kural render'da sınanamaz.** `getComputedStyle().marginTop` `auto` için de KULLANILAN
+pikseli döndürüyor; tabana bağlı bir boşlukla `auto` bir boşluk tarayıcıda ayırt
+edilemiyor. İki sınav: CSS tabanı çağırıyor mu, ve `--taban` KURULUYOR mu.
+
+⚠ Zincir kasten koparıldı (`--taban` yazan satır iptal edildi): altı şablon da
+*"--taban hiç kurulmamış"* diyerek kırmızıya döndü. Kurulmazsa yedek sessizce devralır ve
+her şablon yanlış ritme döner.
+
+Düzeltmeden sonra: `başlık→gövde` her şablonda **tam 1× kendi tabanı**, `gövde→panel`
+`memphis`te **tam 2×**.
