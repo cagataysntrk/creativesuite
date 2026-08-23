@@ -29,7 +29,19 @@ const idSet = (file, re) => {
   if (t === null) return null // dosya henüz yok → uyarı, hata değil
   return new Set([...t.matchAll(re)].map((m) => m[1]))
 }
-const rules = idSet('KURALLAR.md', /^##+ +`?(R-\d+)`?/gm)
+// ⚠ ⚠ **KURAL KİTABI İKİ DOSYADA YAŞIYOR** (D-336): mimari + süreç `KURALLAR.md`'de,
+// karosel render ailesi `docs/kurallar/TASARIM.md`'de. Satır tavanını (R-63) yapısal
+// çözmenin yolu bu — `KARARLAR.md` ile arşivi arasındaki sözleşmenin aynısı.
+// ⚠ Bir `R-nn` İKİSİNDE birden olamaz: hangisinin geçerli olduğu belirsiz kalır ve
+// taşınmış bir kuralın eski kopyası sessizce yaşamaya devam eder.
+const KURAL_DOSYALARI = ['KURALLAR.md', 'docs/kurallar/TASARIM.md']
+const kuralKumeleri = KURAL_DOSYALARI.map((f) => idSet(f, /^##+ +`?(R-\d+)`?/gm) ?? new Set())
+const cakisanR = [...kuralKumeleri[0]].filter((r) => kuralKumeleri[1].has(r))
+if (cakisanR.length > 0) {
+  console.log(`  aynı kural iki dosyada birden: ${cakisanR.join(', ')}`)
+  process.exit(1)
+}
+const rules = new Set(kuralKumeleri.flatMap((k) => [...k]))
 
 // Karar defteri İKİ dosyada yaşar: aktif `KARARLAR.md` + `docs/kararlar/ARSIV-<yyyy>.md`.
 // Satır tavanını (R-63) yapısal çözmenin yolu bu: kapanmış kararlar devredilir,
@@ -139,10 +151,10 @@ for (const f of files) {
     // R-nn
     for (const m of line.matchAll(/\bR-(\d+)\b/g)) {
       if (rules === null) {
-        warns.add('KURALLAR.md yok — R-nn atıfları doğrulanmadı')
+        warns.add('kural kitabı yok — R-nn atıfları doğrulanmadı')
         break
       }
-      if (!rules.has(`R-${m[1]}`)) at(`R-${m[1]} — KURALLAR.md'de yok`)
+      if (!rules.has(`R-${m[1]}`)) at(`R-${m[1]} — kural kitabında yok`)
     }
 
     // D-nn / V-nn

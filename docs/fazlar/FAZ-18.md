@@ -109,17 +109,14 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
    kendi yasağını ihlal ediyordu. Hayalet yolun (`registry/lexicon/tr`) kökü bir
    ŞABLONDU — üretilen her yeni kayıt onu taşıyacaktı. Kural **R-103** · D-334
 
-## 18.15 — Kaynak satırı: sistemin İMZASI karosele iniyor    [ ]
+## 18.15 — Kaynak satırı: eksikliği artık SESSİZ değil    [x]
 
-📖 §8 · §11.4 · D-321
-🔗 FAZ-18.12
-🛠 Sistemin tek imzası bu (*"imza renk değil, kaynak satırıdır"*) ve bizde HİÇ yok. Veri
-   var (`claim_source` kapısı çalışıyor), **görsel yuva yok**. Mono + BÜYÜK HARF, sayı
-   taşıyan slaytta ZORUNLU; dolmadığında görünür boş kutu.
-📁 `packages/contracts/src/katalog.ts` · `packages/render/src/panorama.ts`
-✅ Sayı taşıyan her slaytta kaynak satırı · boşken görünür şekilde boş
-🧪 Kaynaksız sayı koy → yuva boş kutu çiziyor, sessizce gizlemiyor
-💾 `feat(render): kaynak satiri` · `Refs: FAZ-18.15 · §8`
+📁 `packages/render/src/panorama.ts` · `panorama-denetim.ts`
+✅ Madde *"kaynak satırı bizde HİÇ yok"* diyordu; ÖLÇÜM aksini gösterdi — yuva var,
+   çiziliyor, `sablon-uyarla` doğruluyor. Gerçek açık başkaydı: boş `rayaOrta` boş bir
+   `<span>` basıyordu, slayt kusursuz GÖRÜNÜYOR ve kaynağını kaybetmiş oluyordu. Artık
+   kesikli `KAYNAK YOK` kutusu basıyor ve denetim onu raporluyor. Çizildi ve BAKILDI.
+   Kural **R-104** · D-335
 
 ## 18.16 — Şablon ailesi büyüyor: altı → on    [ ]
 

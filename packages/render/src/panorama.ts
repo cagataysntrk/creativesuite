@@ -428,6 +428,15 @@ const YERLESIM_CSS: Record<Yerlesim, string> = {
  */
 export const AI_IFSA_METNI = 'yapay zekâ görseli'
 
+/**
+ * Kaynak satırı boşken basılan metin (R-104 · §8).
+ *
+ * ⚠ ⚠ **SESSİZ BOŞLUK YASAK.** Sistemin tek imzası *"imza renk değil, KAYNAK
+ * SATIRIDIR"*; eksikliği gizlenirse imzasız bir çıktı imzalı sanılır ve insan kapısı
+ * onaylar. Yer tutucu görselle birebir aynı gerekçe: eksik olan şey GÖRÜLMELİ.
+ */
+export const KAYNAK_YOK_METNI = 'KAYNAK YOK'
+
 export interface PanoramaBelgesi {
   readonly slaytGenisligi: number
   readonly yukseklik: number
@@ -1146,7 +1155,14 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         // ⚠ Alan MODELDE kalıyor: boş değilse yine çiziliyor. Şablonu olan bir kayıt
         // onu kullanmak isteyebilir; varsayılan olarak boş geliyor.
         (k.rayaSol.trim() === '' ? '' : `<span class="ray-sol">${kacir(k.rayaSol)}</span>`) +
-        `<span class="ray-orta">${kacir(k.rayaOrta)}</span>` +
+        // ⚠ ⚠ **BOŞ KAYNAK SESSİZ OLAMAZ (R-104).** Önceki sürüm boş bir `<span>`
+        // basıyordu: hiçbir şey çizilmiyor, slayt kusursuz GÖRÜNÜYOR ve kaynağını
+        // kaybetmiş oluyordu. Sistemin tek imzası kaynak satırıdır (§8); eksikliği
+        // gizlenirse imzasız bir çıktı imzalı sanılır. Kesikli kutu, insan kapısının
+        // GÖRECEĞİ bir boşluk bırakıyor — yer tutucu görselle aynı gerekçe.
+        (k.rayaOrta.trim() === ''
+          ? `<span class="ray-orta ray-orta-bos">${kacir(KAYNAK_YOK_METNI)}</span>`
+          : `<span class="ray-orta">${kacir(k.rayaOrta)}</span>`) +
         (doc.aiIfsasi === true ? `<span class="ray-ifsa">${kacir(AI_IFSA_METNI)}</span>` : '') +
         `<span class="ray-sayac">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</span></div>` +
         `</section>`
@@ -1733,6 +1749,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .ray-sol { flex: none; white-space: nowrap }`,
     `  .ray-orta { min-width: 0; overflow: hidden; text-overflow: ellipsis;`,
     `         white-space: nowrap }`,
+    // ⚠ Kesikli çerçeve + uyarı rengi: eksiklik GÖRÜLSÜN diye. Rengi zeminden türüyor —
+    // sabit kırmızı, kâğıt kartta da koyu kartta da aynı görünmez (R-95 ailesi).
+    `  .ray-orta-bos { border: 1px dashed ${sol('--kart-metin', 38)};`,
+    `         padding: ${olc(2)}px ${olc(10)}px; color: ${sol('--kart-metin', 70)};`,
+    `         border-radius: ${olc(3)}px }`,
     `  .ray-ifsa { margin-left: auto; opacity: 0.85; flex: none; white-space: nowrap }`,
     `  .ray-ifsa + .ray-sayac { margin-left: ${olc(40)}px }`,
     // ── görsel katmanı ──────────────────────────────────────────────────────

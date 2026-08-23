@@ -191,65 +191,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-309 · D-310 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62).
 
-## D-320 · Tanımsız token çağrısı bir KAPIYA bağlandı (2026-08-23)
-
-**Bulgu, kendi açtığım yaradan.** D-318 amber rampasını emekli etti;
-`packages/contracts/src/aile.ts` iki değişkeni çağırmaya devam etti:
-
-    const AMBER_ACIK = 'var(--ramp-marka-amber-200)'   ← artık tanımsız
-
-**CSS tanımsız bir `var()` için hata VERMEZ.** Bildirimi geçersiz sayıp ögeyi sessizce
-şeffaf bırakır. Üç şablonun zemin ögesi kayboldu, hiçbir test kırmızı olmadı, hiçbir
-kapı konuşmadı. Derleyici de göremez — çağrı bir DİZE içinde yaşıyor.
-
-**Karar.** `token-cagrisi` kapısı: çağrılan her `--ramp-*` / `--role-*`, üretilmiş
-`tokens.css` dosyalarının birleşiminde tanımlı olmak ZORUNDA. Yorum satırları
-atlanıyor: emekli bir token'ın adını bir gerekçede anmak çağrı değil, kayıttır.
-
-**Kapsam neden daraltıldı.** İlk sürüm her `var()`e baktı ve 39 "ihlal" buldu — çoğu
-yanlış: bir belge kendi `:root{--ui:…}` değişkenini tanımlayıp kullanabilir. Kapının işi
-token SÖZLEŞMESİNİ korumak; `--ramp-*` ve `--role-*` `tokens.css`ten gelmek zorunda
-çünkü onları üreten tek yer `just tokens`. **Gürültülü bir kapı okunmaz olur ve okunmayan
-bir kapı yoktur** — daraltma bir gevşeme değil, kapının çalışabilmesinin şartı.
-
-**Bulduğu gerçek kusurlar:** `aile.ts` iki amber çağrısı · `sablon.ts` `ink-800`
-(emekli; "koyu mu" kümesinde tanımsız olduğu için metin rengi yanlış tarafa düşebilirdi)
-· `kabuk.css` dört yanlış rol adı (`--role-line`, `--role-ok`, `--role-danger`,
-`--role-text-soft`).
-
-**Ölçüm.** 52 tanımlı token · 325 dosyada çağrı denetlendi · 0 ihlal. Kasten
-`--ramp-marka-yok-1` yazıldı → kırmızı döndü, geri alındı.
-
-## D-321 · Araştırma tabanı: sayılar kaynağıyla duruyor (2026-08-23)
-
-**Bağlam.** Depo sahibi şablonları dizayn sistemine oturtmamı istedi ve ben araştırma
-yapmadan koda giriştim. Uyardı: *"webden araştırdın mı, seamless muazzam tasarımlar için
-nasıl olmalı biliyor musun, gerçekten başarılı olanları gördün mü? Bunları halletmeden
-işe geçtin."* Haklıydı — kodladığım her eşik tahmindi.
-
-**Karar.** Üç bağımsız araştırma koşturuldu ve bulguları
-`docs/referans/arastirma-2026-08.md`ye yazıldı. FAZ-18'in her sayısı oraya bakıyor:
-**bir eşiği değiştiren, önce kaynağı çürütmek zorunda.**
-
-**Üç bulgu, üçü de bizim kodumuzu yanlış çıkardı:**
-
-1. **Gövde puntomuz okuma eşiğinin altında.** Kritik punto 0,2° açısal x-yüksekliği
-   (Legge & Bigelow 2011); 1080 px tuvalde taban **36 px**, hedef 40–48. Ölçüldü: bugün
-   **34 px**. Ve `govdeOrani` GÖRELİ olduğu için başlık küçüldükçe daha da iniyor.
-   ⚠ Yaygın "gövde 24 px yeter" tavsiyesi eşiğin **%30 altında** ve hiçbir kaynağı yok.
-2. **Instagram 3:4'ü (1080×1440) 29 May 2025'ten beri destekliyor** — depo sahibi
-   haklıydı. Bizim 1080×1350'miz hâlâ geçerli ama artık tavan değil; ızgarada her yandan
-   34 px kaybediyor. ⚠ Bedeli: 3:4 Meta reklamında kullanılamıyor.
-3. **Graph API karoseli 10 ile sınırlıyor ve yalnız JPEG kabul ediyor.** Biz PNG
-   üretiyoruz ve slayt sayısını hiç kontrol etmiyoruz — yayın anında patlayacak iki hata.
-
-**Yöntem notu, kalıcı olarak kayda geçiyor.** 2025–26'da arama sonuçlarını dolduran AI
-üretimi SEO siteleri birbirini kopyalıyor ve birincil kaynağa gitmiyor. Dolaşımdaki
-safe-zone sayılarının ("üstte 135 px UI", "yanlar 60 / üst-alt 80") hiçbiri Meta'dan
-gelmiyor ve çoğu **Reels rakamlarının akışa yanlış taşınması**. Bunlar kural olarak
-KODLANMADI ve belgede "doğrulanmadı" diye işaretli. Kaynağı olmayan bir sayı, kaynağı
-olmayan bir iddiadır (Yasa 8) — ve bu, kendi kodumuz için de geçerli.
-
 ## D-322 · `KURALLAR.md` tavanı 400 → 480: tavan artık BİLGİYİ sınırlıyor (2026-08-23)
 
 **Bulgu.** FAZ-18'de altı kural eklendi (R-83…R-88) ve her biri tavanı deldi. Her
@@ -596,3 +537,47 @@ değil — bu bilinçli.
 `registry/lexicon/tr` diye gösteriyordu — **böyle bir yol yok.** Kök `kesif-roportaj.mjs`
 ŞABLONUNDAYDI: üretilen her yeni kayıt hayalet yolu taşıyacaktı. Dördü de gerçek yeri
 (`YASAK_TERIMLER`) gösteriyor.
+
+## D-335 · Kaynak satırı sessizce kaybolamaz — imzasız çıktı imzalı sanılıyordu
+
+**Faz maddesi *"kaynak satırı bizde HİÇ yok"* diyordu ve ÖLÇÜM aksini gösterdi.** Yuva
+var (`rayaOrta`), rayda mono büyük harfle çiziliyor, `sablon-uyarla` onu doğruluyor
+(boşsa ve örnek işaretini taşıyorsa reddediyor) ve uyarlama istemine yazılı. Madde
+bayatlamıştı — FAZ-15'in ray çalışması onu zaten getirmişti.
+
+**Gerçek açık başka yerdeydi ve ölçülerek bulundu:** boş bir `rayaOrta` **boş bir
+`<span>`** basıyordu. Hiçbir şey çizilmiyor, slayt kusursuz GÖRÜNÜYOR ve kaynağını
+kaybetmiş oluyor. Sistemin tek imzası kaynak satırıdır (§8); eksikliği gizlenirse
+imzasız bir çıktı imzalı sanılır ve insan kapısı onu onaylar.
+
+**Karar.** Boş kaynak **kesikli bir kutu** basıyor: `KAYNAK YOK`. Yer tutucu görselle
+birebir aynı desen — eksik olan şey önce GÖRÜLMELİ, sonra raporlanmalı. Rengi zeminden
+türüyor: sabit kırmızı kâğıt kartta da koyu kartta da yanlış olurdu (R-95 ailesi).
+
+**Ölçüm düzeltmenin kendisini arıyor:** `kaynak-yok` kusuru kesikli kutuyu sorguluyor —
+kutu varsa kaynak yoktur. Böylece iki mekanizma ayrışamıyor.
+
+**Çizildi ve BAKILDI:** rayda `UPCYTECH · GERİ KAZANIM · [KAYNAK YOK] · 01/06`, kesikli
+çerçeve net görünüyor.
+
+## D-336 · Kural kitabı halkalara bölündü — mimari + süreç · tasarım
+
+**D-331 sıradaki hamleyi önceden adlandırmıştı:** *"dolduğunda cevap yine yükseltmek
+olmayacak; sıradaki yapısal hamle kural kitabını halkalara bölmek."* İki kural sonra
+doldu ve hamle yapıldı.
+
+**Bölme konuya göre, boyuta göre değil.** R-83 … R-104 tek bir konu: bir karoselin nasıl
+çizildiği. Mimari ve süreç kurallarını her turda okuyan biri onları okumuyor; karosel
+üstünde çalışan biri ise yalnız onları okuyor. `KURALLAR.md` 530 → **365** satır.
+
+**`citations` iki dosyayı da tarıyor** ve bir `R-nn`in İKİSİNDE birden olmasını
+REDDEDİYOR — `KARARLAR.md` ile arşivi arasındaki sözleşmenin aynısı (D-72). Taşınmış bir
+kuralın eski kopyası sessizce yaşamaya devam edemiyor.
+
+**Üç katman, üç dosya, tek numaralandırma:** beyan + zorlama (`KURALLAR.md` ya da
+`TASARIM.md`) · ölçülmüş kanıt (`OLCUMLER.md`) · karar ve bağlam (`KARARLAR.md`).
+
+⚠ **Kapı bir UYDURMA ATIF yakaladı.** Bu turda var olmayan bir karar numarasına atıf
+yazdım ve beş dosyaya yaydım; arşiv sıfır dolgusuz biçim kullanıyor ve o numara başka bir
+konuya ait. Atıf sözlüğünün tek anlamlı olması tam da bunun içindir — kaynak satırının
+gerçek yeri Anayasa'nın imza bölümü.

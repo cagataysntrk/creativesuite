@@ -60,6 +60,7 @@ Tek anlamlı. `citations` kapısı her atıfın hedefte var olduğunu doğrular.
 | Şu anki durum | `DURUM.md` |
 | Neden böyle | `KARARLAR.md` |
 | Neye uymak zorundayım | `KURALLAR.md` |
+| Karosel render kuralları | `docs/kurallar/TASARIM.md` — R-83 … R-104 (D-336) |
 | Bir kuralın sayısı NEREDEN geldi | `docs/kurallar/OLCUMLER.md` — ölçüm defteri (D-325) |
 | Sistem nasıl çalışıyor | `docs/ANAYASA.md` (§ ile, baştan sona değil) |
 | Bu adımda ne yapılacak | `docs/fazlar/FAZ-N.md` |

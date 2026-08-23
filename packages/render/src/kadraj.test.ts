@@ -85,6 +85,7 @@ describe('kadraj — altı şablon', () => {
       expect(suzgec(r.value, 'krom-okunmuyor')).toEqual([])
       expect(suzgec(r.value, 'gorsel-zemine-karismasin')).toEqual([])
       expect(suzgec(r.value, 'krom-seridine-giriyor')).toEqual([])
+      expect(suzgec(r.value, 'kaynak-yok')).toEqual([])
     })
   }
 })
@@ -153,6 +154,27 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     const bulgu = suzgec(r.value, 'krom-seridine-giriyor')
     expect(bulgu.length).toBeGreaterThan(0)
     expect(bulgu[0]).toContain('px')
+  })
+
+  // 🧪 ⚠ **KASTEN İHLAL** (R-71): kaynak satırı boşaltılıyor. Düzeltmeden önce bu hâl
+  // SESSİZDİ — boş bir `<span>` çiziliyor, slayt kusursuz görünüyor ve kaynağını
+  // kaybetmiş oluyordu. Sistemin tek imzası kaynak satırıdır (§8).
+  it('boş kaynak satırı GÖRÜNÜR bir kutu bırakıyor ve raporlanıyor', async () => {
+    const o = ORNEKLER['veri-hikayesi']
+    expect(o).toBeDefined()
+    if (o === undefined) return
+    const kaynaksiz = {
+      ...belge(o),
+      kartlar: o.kartlar.map((k, i) => (i === 0 ? { ...k, rayaOrta: '' } : k)),
+    } as unknown as PanoramaBelgesi
+    // Önce ÇİZİLİYOR mu: sessiz bir boşluk hiçbir ölçümü tetiklemez.
+    expect(panoramaHtml(kaynaksiz)).toContain('ray-orta-bos')
+    const r = await panoramaDenetle(kaynaksiz)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const bulgu = r.value.filter((k) => k.tur === 'kaynak-yok')
+    expect(bulgu.length).toBe(1)
+    expect(bulgu[0]?.kart).toBe(1)
   })
 
   it('kutup zinciri: açık kartın görseli açık tema kimliğini ÇAĞIRIYOR', () => {

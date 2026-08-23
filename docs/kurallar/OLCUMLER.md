@@ -396,3 +396,25 @@ Aynısı `akıllı` için: `akıllı telefon` meşru, `Akıllı GenBI` bir üst�
 geçiyordu; kaynağı `scripts/kesif-roportaj.mjs` — yani üretilen HER yeni kayıt onu
 taşıyacaktı. Var olmayan bir yolu gösteren belge, bağlamı sıfırlanmış bir agent'ı arama
 yapmaya yollar.
+
+## R-104 · kaynak satırı
+
+Faz maddesi *"kaynak satırı bizde HİÇ yok"* diyordu. **Ölçüm aksini gösterdi:** yuva var
+(`rayaOrta`), rayda mono büyük harfle çiziliyor, `sablon-uyarla` boş ve örnek-işaretli
+değerleri reddediyor, uyarlama istemine yazılı. Madde bayatlamıştı.
+
+**Gerçek açık:** boş `rayaOrta` → boş `<span>` → hiçbir şey çizilmiyor.
+
+```
+ray-orta → ""            (düzeltmeden önce: görünmez)
+ray-orta ray-orta-bos → "KAYNAK YOK"   (sonra: kesikli kutu)
+```
+
+⚠ Sessiz boşluk, eksik veriden daha tehlikeli: slayt **kusursuz görünüyor**. İnsan kapısı
+imzasız bir çıktıyı imzalı sanıp onaylar.
+
+⚠ Ölçüm düzeltmenin KENDİSİNİ arıyor (`.ray-orta-bos`) — kutu varsa kaynak yoktur. İki
+mekanizmanın ayrışması böylece imkânsız.
+
+Kasten ihlal: ilk kartın `rayaOrta`sı boşaltıldı → `kart 1: kaynak satiri BOS` ve rayda
+kesikli kutu göründü. Çizildi ve BAKILDI.

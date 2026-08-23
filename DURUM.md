@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 18
-siradaki_adim: 18.15
+siradaki_adim: 18.16
 son_guncelleme: 2026-08-23
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -65,6 +65,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **18.13c** · alt marka gerçekten koşuyor: font ve logo da devralınıyor, adlar marka-nötr (R-101) | 2026-08-23 |
 | **18.13d** · token yüzeye göre çözülüyor — iki ölü rol panelde gözle doğrulandı (R-102) | 2026-08-24 |
 | **18.14** · yasak terim listesi 6 → 23; üç canlı ihlal ve hayalet yolun ŞABLON kökü kapandı (R-103) | 2026-08-24 |
+| **18.15** · kaynak satırı eksikliği artık görünür kutu — sessiz boşluk imzasız çıktıyı imzalı gösteriyordu (R-104) | 2026-08-24 |
 
 ## Sıradaki adım
 

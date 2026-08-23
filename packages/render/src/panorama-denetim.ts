@@ -273,6 +273,17 @@ export type KusurTuru =
    * zemin çizgisi, altı ayrı tasarımı tek bir sayfanın parçası yapan şeylerden biri.
    */
   | 'krom-seridine-giriyor'
+  /**
+   * Slaytın KAYNAK SATIRI boş — sistemin tek imzası eksik (R-104 · §8).
+   *
+   * ⚠ ⚠ **ÖNCEDEN SESSİZDİ.** Boş `rayaOrta` boş bir `<span>` basıyordu: hiçbir şey
+   * çizilmiyor, slayt kusursuz GÖRÜNÜYOR ve kaynağını kaybetmiş oluyordu. İmzasız bir
+   * çıktı imzalı sanılır ve insan kapısı onu onaylar.
+   *
+   * ⚠ Kusur, KESİKLİ KUTUYU ararken bulunuyor — yani düzeltmenin kendisi ölçülüyor.
+   * Yer tutucu görselle aynı desen: eksik olan şey GÖRÜLMELİ, sonra RAPORLANMALI.
+   */
+  | 'kaynak-yok'
 
 export interface Kusur {
   readonly tur: KusurTuru
@@ -374,6 +385,20 @@ const OLCUM = (
   Array.from(document.querySelectorAll('.gorsel')).forEach((g) => {
     const k = boyaKutusu(g)
     if (k !== null) gorselKutulari.push(k)
+  })
+
+  // ── kaynak satiri: sistemin IMZASI (R-104) ──────────────────────────────
+  //
+  // Bos kaynak artik kesikli bir kutu basiyor; olcum o kutuyu ARIYOR. Yani duzeltmenin
+  // kendisi olculuyor: kutu varsa kaynak yoktur.
+  Array.from(document.querySelectorAll('.ray-orta-bos')).forEach((e) => {
+    const r = e.getBoundingClientRect()
+    const kartIndex = kartlar.findIndex((k) => {
+      const kr = k.getBoundingClientRect()
+      return r.left + r.width / 2 >= kr.left && r.left + r.width / 2 < kr.right
+    })
+    kusurlar.push({ tur:'kaynak-yok', kart: kartIndex < 0 ? null : kartIndex + 1, alan:'raya',
+      aciklama: 'kaynak satiri BOS — sistemin tek imzasi bu ve slayt onsuz yayina gidemez (R-104)' })
   })
 
   // ── krom seridi AYRILMISTIR: hicbir gorsel oraya giremez (R-97) ─────────
