@@ -1,0 +1,213 @@
+{
+  "runId": "run_01a030df-5117-74b5-aa7f-25098b4095e0",
+  "pipeline": "instagram-carousel",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "corpusCommit": "30b38f20de6289ba74b25fc22d5c48e4319698b0",
+  "registryCommit": "30b38f20de6289ba74b25fc22d5c48e4319698b0",
+  "frozenAt": "2026-08-23T23:05:36.811Z",
+  "order": [
+    "cozumle",
+    "bilgi-sec",
+    "gorsel-uret",
+    "kompozit",
+    "render",
+    "kalite",
+    "onay",
+    "yayinla"
+  ],
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "capability": "image.generate",
+      "metered": true,
+      "providerId": "cloudflare-workers-ai",
+      "confidence": "green",
+      "descriptorDigest": "d3c341f84",
+      "params": {
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 60000,
+        "optional": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "width": 1080,
+        "height": 1350
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "width": 1080,
+        "height": 1350
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "onay",
+      "verb": "PROPOSE",
+      "capability": null,
+      "metered": false,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {},
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "yayinla",
+      "verb": "PUBLISH",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "platform": "instagram"
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    }
+  ],
+  "recordIds": [],
+  "totalLow": {
+    "micros": "0",
+    "currency": "USD"
+  },
+  "totalHigh": {
+    "micros": "0",
+    "currency": "USD"
+  },
+  "varyantSayisi": 1,
+  "digest": "sha256:199ee47609c72387d348143abc8b2f5df1fb9bd29b426f4d0bef251e5b38e723"
+}

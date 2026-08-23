@@ -1,0 +1,391 @@
+{
+  "runId": "run_01a030e4-e8c6-7fd1-ad48-23b085eb7541",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-carousel",
+  "corpusCommit": "30b38f20de6289ba74b25fc22d5c48e4319698b0",
+  "registryCommit": "30b38f20de6289ba74b25fc22d5c48e4319698b0",
+  "createdAt": "2026-08-23T23:11:43.718Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "deneme",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-23T23:11:43.327Z",
+      "finishedAt": "2026-08-23T23:11:43.327Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "deneme",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-23T23:11:43.328Z",
+      "finishedAt": "2026-08-23T23:11:43.329Z",
+      "output": null
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "failed",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "deneme",
+        "kacinilacak": "yokk",
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 60000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "şu an kullanılamıyor — cloudflare-workers-ai: yerel önkoşul sağlanmadı",
+          "estimatedCost": null
+        },
+        {
+          "providerId": "fal-flux",
+          "capability": "image.generate",
+          "selected": false,
+          "rejectionReason": "free şeridinde değil (desteklediği: premium)",
+          "estimatedCost": null
+        }
+      ],
+      "startedAt": "2026-08-23T23:11:43.330Z",
+      "finishedAt": "2026-08-23T23:11:43.330Z",
+      "output": null,
+      "error": {
+        "kind": "internal",
+        "code": "NO_PROVIDER",
+        "message": "error.run.no_provider"
+      }
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "deneme",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-23T23:11:43.330Z",
+      "finishedAt": "2026-08-23T23:11:43.331Z",
+      "output": {
+        "document": {
+          "kind": "post",
+          "width": 1080,
+          "height": 1350,
+          "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-ink-1000: oklch(0.105 0 0);\n  --ramp-marka-ink-200: oklch(0.920 0 0);\n  --ramp-marka-ink-450: oklch(0.680 0 0);\n  --ramp-marka-ink-500: oklch(0.655 0 0);\n  --ramp-marka-ink-60: oklch(0.950 0 0);\n  --ramp-marka-ink-600: oklch(0.520 0 0);\n  --ramp-marka-ink-650: oklch(0.485 0 0);\n  --ramp-marka-ink-850: oklch(0.270 0 0);\n  --ramp-marka-ink-880: oklch(0.190 0 0);\n  --ramp-marka-ink-900: oklch(0.205 0 0);\n  --ramp-marka-ink-950: oklch(0.165 0 0);\n  --ramp-marka-kagit: oklch(0.985 0 0);\n  --ramp-marka-kagit-0: oklch(1 0 0);\n  --ramp-marka-mavi-200: oklch(0.850 0.070 262);\n  --ramp-marka-mavi-300: oklch(0.760 0.117 262);\n  --ramp-marka-mavi-500: oklch(0.600 0.206 262);\n  --ramp-marka-mavi-600: oklch(0.530 0.234 262);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.150 75);\n  --role-accent: var(--ramp-marka-mavi-500);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-accent: var(--ramp-marka-mavi-500);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-mavi-500);\n  --role-bg: var(--ramp-marka-ink-1000);\n  --role-kart-acik: var(--ramp-marka-kagit-0);\n  --role-kart-koyu: var(--ramp-marka-ink-950);\n  --role-line-edge: var(--ramp-marka-ink-880);\n  --role-line-hair: var(--ramp-marka-ink-850);\n  --role-line-hair-acik: var(--ramp-marka-ink-200);\n  --role-metin-koyu: var(--ramp-marka-ink-60);\n  --role-soluk-acik: var(--ramp-marka-ink-600);\n  --role-soluk-koyu: var(--ramp-marka-ink-450);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-880);\n  --role-text-muted: var(--ramp-marka-ink-600);\n  --role-vurgu: var(--ramp-marka-mavi-500);\n  --role-vurgu-acik: var(--ramp-marka-mavi-600);\n}\n\n[data-surface='studio'] {\n  --role-accent: var(--ramp-marka-mavi-600);\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+          "fontCss": "«elenmis sha256:1ed923c121accacc6d0de76c472ade4edc5471e13ad89beef0fc127fb8b3e006 584915B»",
+          "stamp": {
+            "brandId": "brd_upcytech",
+            "eraId": "imalat-2026",
+            "kitVersion": "kit-1",
+            "definitionDigest": "sha256:faz3",
+            "contextManifest": "ctx_run_01a030e4-e8c6-7fd1-ad48-23b085eb7541",
+            "sourceRunId": "run_01a030e4-e8c6-7fd1-ad48-23b085eb7541"
+          },
+          "aile": {
+            "suslemeYogunlugu": 0.55,
+            "vinyetGucu": 0,
+            "degrade": true,
+            "panorama": true,
+            "gorselIslemleri": [
+              "keskinlik",
+              "duotone"
+            ],
+            "tipoEfektleri": [
+              "vurgu",
+              "kontur"
+            ],
+            "alan": {
+              "zeminler": [
+                "var(--role-bg)",
+                "var(--role-surface)"
+              ],
+              "kapanisZemini": "var(--role-line-edge)",
+              "ikiAlan": true
+            },
+            "sinir": "egri",
+            "hayalet": {
+              "bicim": "kontur",
+              "olcekYuzde": 52
+            },
+            "tipoPayi": 1,
+            "suslemeTipleri": [
+              "blob",
+              "nokta",
+              "tarama",
+              "halka",
+              "kare",
+              "yay"
+            ],
+            "yerlesim": {
+              "kolon": "sinir",
+              "payPayi": 1,
+              "dikey": "orta"
+            },
+            "iskelet": {
+              "metin": {
+                "x": 0,
+                "y": 0,
+                "genislik": 62,
+                "yukseklik": 100
+              },
+              "rakam": {
+                "x": 62,
+                "y": 55,
+                "genislik": 46,
+                "yukseklik": 42
+              },
+              "gorsel": {
+                "x": 0,
+                "y": 40,
+                "genislik": 62,
+                "yukseklik": 40
+              },
+              "susleme": {
+                "x": 64,
+                "y": 10,
+                "genislik": 34,
+                "yukseklik": 60
+              },
+              "cizgi": {
+                "tip": "egri",
+                "merkez": 73,
+                "genlik": 5
+              },
+              "tipo": {
+                "baslikPayi": 1,
+                "govdeOrani": 0.53,
+                "satirAraligi": 1.1
+              }
+            }
+          },
+          "blocks": [
+            {
+              "type": "heading",
+              "text": "Rol: Üretim/fabrika müdürü. Hattın çıktısından, duruşundan ve firesinden",
+              "level": 1,
+              "islev": "kanca"
+            }
+          ]
+        },
+        "tasarimPlani": {
+          "surum": 1,
+          "konu": "deneme",
+          "aile": {
+            "deger": "akici",
+            "gerekce": "Akıcı — yön veren çizim slaytlar arasında akıyor. Estetik parametreler buradan; garanti katmanı ailenin DIŞINDA."
+          },
+          "yay": [
+            "kanca"
+          ],
+          "suslemeYogunlugu": {
+            "deger": 0.55,
+            "gerekce": "Aileden geliyor: açık kâğıt alanda ince kontur okunur, yoğun tarama koyu bir ailede doğru olurdu (D-262)."
+          },
+          "yuvaBicimi": {
+            "deger": "alan",
+            "gerekce": "Uçtan uca alan: fotoğraf kutu değil zemin olur, kompozisyon çerçeveyi kullanır."
+          },
+          "panorama": {
+            "deger": true,
+            "gerekce": "Aileden geliyor: yön veren süsleme slaytlar arasında akıyor (FAZ-12.4, render bağlı)."
+          },
+          "slaytlar": [
+            {
+              "index": 0,
+              "islev": "kanca",
+              "oge": {
+                "deger": "yok",
+                "gerekce": "Kapak süssüz: ızgarada ilk kare bir cümledir, bir desen değil."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "deneme",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-23T23:11:43.339Z",
+      "finishedAt": "2026-08-23T23:11:43.717Z",
+      "output": {
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e4-e8c6-7fd1-ad48-23b085eb7541/slayt-01.png"
+        ],
+        "count": 1,
+        "rung": [
+          1
+        ],
+        "bytes": [
+          212440
+        ],
+        "digests": [
+          "sha256:88d5d0f203dfe4f8f9f1a24523f46d9e757662fe2ace8e42429fa11ca04bf7b4"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "deneme",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-23T23:11:43.718Z",
+      "finishedAt": "2026-08-23T23:11:43.718Z",
+      "output": null,
+      "error": {
+        "kind": "internal",
+        "code": "PLAN_MISMATCH",
+        "message": "error.verb.plan_mismatch"
+      }
+    }
+  ],
+  "decisions": [],
+  "context": [],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "kalite"
+}
