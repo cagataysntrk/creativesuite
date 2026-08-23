@@ -34,8 +34,9 @@ x_signature: sha256:8a2bfab1baaa159b71834ac5810ebfcea9b72e4d9eabe4c75da5dff17b0e
 
 **Ton:** teknik (üretim müdürü) · yönetici sunumunda finansal karşılığa çevrilir.
 
-**Yasak terimler:** "devrim", "dünya lideri", "%X tasarruf garantisi" — sonuncusu
-kaynaksız sayısal iddiadır ve R-32 gereği yayınlanamaz.
+**Yasak terimler:** kanonik liste `YASAK_TERIMLER`; buraya KOPYALANMIYOR — iki kopya bir
+gün ayrışır ve hangisinin geçerli olduğu sorusu cevapsız kalır. Kaynaksız oransal garanti
+de yayınlanamaz: her sayı `claim_source` ister.
 
 ⚠ Bu mesaj evi hiçbir sayısal iddia İÇERMİYOR. Sayı eklenecekse `claim_source`
 zorunludur; uydurma metrikler (eski sitedeki "1.247 İlan", "1.234.567 ton CO2")

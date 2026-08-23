@@ -42,7 +42,7 @@ Yani sattığımız şey bir gösterge paneli değil, **karara giden zincirin ta
 veri yoksa veri, veri varsa analiz, analiz varsa karar.
 
 **Ürün hattı**
-- **Dima** — şirket beyni. Akıllı GenBI, grafik ve dashboard üretimi, raporlama,
+- **Dima** — şirket beyni. Doğal dilden sorgu (GenBI), grafik ve dashboard üretimi, raporlama,
   anomali tespiti, kök neden analizi, karar motoru. *İlk sürümü tamamlanmak üzere;
   tamamlandığında ana ürün Dima olacak.*
 - **UpcyCarbon** — karbon ve sürdürülebilirlik raporlaması; OEE de içinde.

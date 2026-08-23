@@ -26,7 +26,7 @@ x_signature: sha256:c1b033efaa5c978fe1251d61212d39ab002417d06a3855a6208bf9b76dc4
 ---
 
 Elli-beş yüz kişilik imalat tesisleri için, hattaki veriyi ölçülebilir
-verimliliğe çeviren özel çözümler ve SaaS üretiyoruz.
+verimliliğe çeviren tesise özgü yazılım ve SaaS üretiyoruz.
 
 **Hedef segment:** 50-500 çalışanlı, çok vardiyalı, hattında halihazırda veri üreten
 (PLC, terazi, sayaç) ama o veriyi kararlara bağlayamayan imalat tesisleri.
