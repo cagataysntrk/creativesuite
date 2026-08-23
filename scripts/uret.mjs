@@ -183,6 +183,26 @@ if (!cozum.ok) {
   process.exit(1)
 }
 
+// ── emekli hat KOŞMADAN ÖNCE söyler (R-108) ─────────────────────────────────
+//
+// ⚠ ⚠ **EMEKLİLİK YALNIZ YAML BAŞLIĞINDA YAZIYORDU ve kimse koşmadan önce onu
+// okumuyor.** `instagram-carousel` 2026-08-18'de emekli edildi (D-268) ve
+// `instagram-karosel` ile değiştirildi; iki ad bir harf farkıyla ayrılıyor, biri
+// İngilizce biri Türkçe. Yanlış olanı koştum ve hat SESSİZCE çalıştı: eski tasarımla,
+// katalog dışı bir yerleşimle, metin kontrastı 1,1:1 olan bir slaytla.
+//
+// ⚠ Emekli hat ÇALIŞTIRILABİLİR kalıyor — Yasa 10: emeklilik silme değildir ve
+// `apps/ui` hâlâ bu id'ye bağlı. Değişen tek şey: artık SÖYLÜYOR. Sessiz bir emeklilik,
+// emeklilik değil bir tuzaktır.
+if (cozum.value.retired === true) {
+  const yerine = cozum.value.supersededBy
+  console.log(
+    `  ⚠ ⚠ '${id}' EMEKLİ bir hat — yeni işler ` +
+      `${yerine === undefined ? 'yerine geçen hatta' : `'${yerine}' hattına`} gider.`
+  )
+  console.log('    Yasa 10 gereği çalıştırılabilir kalıyor; çıktısı GÜNCEL TASARIM DEĞİL.')
+}
+
 // ── marka bağlamı ───────────────────────────────────────────────────────────
 // Ortam TEK okuyucudan (`secret-okuyucu` darboğazı, §14): dağılmış `process.env`,
 // bir ay ihmalden sonra sistemi başlatamamanın en sık sebebi.

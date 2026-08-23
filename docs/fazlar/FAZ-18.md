@@ -136,12 +136,16 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
    `dizin`in aksanı turuncuya çevrildi, ölçüm sapmayı ADIYLA söyledi. Izgara sayfasının
    kendi kusuru da bakılarak bulundu — künye şeridi rayı örtüyordu. Kural **R-107** · D-339
 
-## 18.18 — Gerçek koşu: uçtan uca çıktı ve kalite    [ ]
+## 18.18 — Gerçek koşu: uçtan uca çıktı ve kalite    [ ] · insan kapısı
 
 📖 §13
 🔗 FAZ-18.17
-🛠 Panelden gerçek karosel üretilir, dışa aktarılır, slayt slayt BAKILIR.
+🛠 Anahtarlarla gerçek koşu YAPILDI (`sops exec-env` · `instagram-karosel`): konu seçildi,
+   bilgi seçildi, metin üretildi ve hat **`metin-onayi` insan kapısında durdu** — doğru
+   davranış (Yasa 2: onay = git commit; agent onu veremez).
+   ⚠ İlk denemede EMEKLİ hat (`instagram-carousel`) koşuldu ve sessizce çalıştı; kalite
+   kapısı metin kontrastını **1,1:1** ile durdurdu. Tuzak kapatıldı → R-108 · D-340.
 📁 `derived/runs/`
-✅ Çıktı ızgarada aile olarak duruyor; kusur sayısı önceki koşudan düşük
-🧪 —
+✅ Metin onaylandıktan sonra: render + `just izgara` ile bakılır, kusur sayısı ölçülür
+🧪 Üretilen metin okundu: kurum sesinde, yasak terim yok, kaynaksız sayı yok
 💾 çalıştırma commit'i (`Run:` · `Actor:` · `Kind:`)

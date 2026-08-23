@@ -14,6 +14,9 @@
 # ⚠ `retired: true` — emekliliğin MAKİNE OKUR hâli. Yalnız yorumda yazdığı sürece
 # panel bu hattı güncel bir seçenek gibi listeliyordu. Çalıştırılabilir kalıyor.
 retired: true
+# ⚠ Yasa 10'un ikinci yarısı: emekli olduğunu söylemek yetmiyor, NEREYE gidileceğini de
+# söylemek gerekiyor. Bu ad yalnız yukarıdaki yorumda duruyordu — makine okuyamıyordu.
+supersededBy: instagram-karosel
 #
 # MODEL ADI YOK (R-40): adımlar YETENEK ister. Taşan içerik otomatik BÖLÜNÜR ve her
 # slayt kendi PNG'si olur — küçültme yok (§7.1), çünkü Türkçe'de tipi küçültmek

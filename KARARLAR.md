@@ -562,3 +562,28 @@ hesaba mı ait görünüyor.* Çıktı `derived/` altında — türetilmiş, yen
 ⚠ **Izgara sayfasının kendi kusuru da bakılarak bulundu:** künye şeridi slaydın RAYINI
 örtüyordu — sınavın bakacağı ögeyi sınav sayfası gizliyordu. **Ölçüm aleti ölçtüğü şeyi
 kapatıyorsa alet değildir.**
+
+## D-340 · Sessiz emeklilik bir tuzaktır — ve gerçek bir koşuda yakalandı
+
+**Olay.** 18.18'in uçtan uca koşusunu başlatırken `instagram-carousel` hattını çalıştırdım.
+O hat **2026-08-18'de emekli edildi** (D-268) ve yerine `instagram-karosel` geçti. `just
+uret` hiçbir şey söylemeden koştu: eski slayt-başına render, katalog dışı yerleşim ve
+metin kontrastı **1,1:1** olan bir kapak — kalite kapısı durdurdu ve haklıydı.
+
+**İki ad bir harfle ayrılıyor:** `carousel` (İngilizce, emekli) ve `karosel` (Türkçe,
+güncel). Bu, bir agent'ın da bir insanın da düşeceği bir tuzak ve düştüm.
+
+**Emeklilik makine okunur HÂLDE VARDI ama yalnız yarısı.** `retired: true` yazılıydı ve
+`hatDurumlari()` onu listeden gizliyordu; ama **yerine geçenin adı yalnız YAML
+YORUMUNDAYDI.** Yasa 10 `expired_at` + `superseded_by` diyor — ikincisi eksikti. Emekli
+olduğunu bilmek, nereye gideceğini bilmek değildir.
+
+**Karar.** `supersededBy` şemaya girdi ve `uret.mjs` koşmadan ÖNCE basıyor. Hat
+çalıştırılabilir kalıyor — Yasa 10 nettir ve `apps/ui` hâlâ o id'ye bağlı. Değişen tek
+şey: artık söylüyor.
+
+**Test hedefin GERÇEKTEN VAR OLDUĞUNU da ölçüyor:** ölü bir işaretçi, işaretçisizlikten
+kötüdür — ve emekli bir hattın emekli bir hatta işaret etmesi de yasak.
+
+⚠ Bu, "yazılı olması yetmez" dersinin bir örneği daha: kural YAML başlığında yazılıydı,
+ölçüm yoktu (R-87'nin ve D-328'in aynısı).

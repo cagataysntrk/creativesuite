@@ -373,3 +373,13 @@ yazılmış. Kök listesine yumuşamış ikizleri elle yazmak, bir gün birini u
 ⚠ Yalnız SON ünsüz esniyor: `eşiğ` kabul, `eşşik` değil. Geniş esneme yanlış ikon üretir
 ve **anlamsız ikon, ikonsuzluktan kötüdür.**
 **Zorlama:** `sablon-ikon.test.ts` — yumuşama, sınır ve gövde katılığı. → D-338
+
+### R-108 · emeklilik-koşmadan-once-soyler · GATE · aktif
+Emekli hat çalıştırılabilir kalır (Yasa 10) ama **koşmadan önce söyler** ve yerine
+geçenin adını da söyler. `supersededBy` makine okunur ve hedef GERÇEKTEN var olmalı.
+**Neden:** `instagram-carousel` emekliydi, `just uret` onu SESSİZCE çalıştırdı. İki
+hattın adı bir harfle ayrılıyor (`carousel` / `karosel`) ve yanlış olanı koşan bir tur,
+katalog dışı yerleşimle metin kontrastı **1,1:1** olan bir slayt üretti.
+⚠ Emeklilik yalnız YAML başlığında yazıyordu; kimse koşmadan önce onu okumuyor.
+**Sessiz bir emeklilik, emeklilik değil bir tuzaktır.**
+**Zorlama:** `emeklilik.test.ts` — modülü DEĞİL `uret.mjs`in çağrısını sınıyor. → D-340

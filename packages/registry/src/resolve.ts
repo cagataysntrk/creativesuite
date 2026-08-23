@@ -80,6 +80,15 @@ export interface Pipeline {
    * okuyabildiği tek şey ikincisidir.
    */
   readonly retired: boolean
+  /**
+   * Yerine geçen hattın id'si — Yasa 10'un ikinci yarısı.
+   *
+   * ⚠ ⚠ **`retired: true` TEK BAŞINA YETMİYOR.** Emekli olduğunu bilmek, nereye
+   * gideceğini bilmek değildir; `instagram-carousel` emekliydi ve yerine geçenin adı
+   * yalnız YAML YORUMUNDAYDI — makine okuyamıyordu, `just uret` söyleyemiyordu.
+   * Yasa 10 `expired_at` + `superseded_by` diyor; ikincisi eksikti.
+   */
+  readonly supersededBy: string | null
 }
 
 export type ResolveError =
@@ -245,6 +254,7 @@ export const parsePipeline = (text: string): ResolveResult => {
       steps,
       matris,
       retired: map['retired'] === true,
+      supersededBy: typeof map['supersededBy'] === 'string' ? map['supersededBy'] : null,
     },
   }
 }
