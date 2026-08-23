@@ -1789,7 +1789,21 @@ export const renderPanorama = async (
       await page.evaluate(
         `document.getElementById('sahne').style.transform = 'translateX(${-i * doc.slaytGenisligi}px)'`
       )
-      await page.screenshot({ path: yol, type: 'png' })
+      // ── biçim UZANTIDAN türüyor (R-90) ──────────────────────────────────
+      //
+      // ⚠ ⚠ **API YALNIZ JPEG KABUL EDİYOR** (*"JPEG is the only image format
+      // supported"*, Meta Content Publishing) ve burası sabit `png` yazıyordu. Yani
+      // hattın ürettiği her slayt yayın anında reddedilecekti — dört görsel ve bir
+      // insan onayı harcandıktan SONRA.
+      //
+      // ⚠ Biçim çağıranın verdiği YOLDAN okunuyor, bir parametreden değil: dosya adı
+      // `.jpg` derken içeriğin PNG olması, defterin kendi kendine yalan söylemesidir.
+      // Arşiv/denetim yolu PNG istemeye devam edebilir; yayın yolu `.jpg` ister.
+      const jpeg = /\.jpe?g$/i.test(yol)
+      await page.screenshot({
+        path: yol,
+        ...(jpeg ? { type: 'jpeg' as const, quality: 92 } : { type: 'png' as const }),
+      })
     }
     return { yollar: ciktiYollari, genislik: doc.slaytGenisligi }
   })

@@ -41,7 +41,7 @@ const DIGEST = 'sha256:deck'
 const renderCiktisi = {
   assets: [
     {
-      path: '/tmp/a.png',
+      path: '/tmp/a.jpg',
       altTr: 'Fire ölçümü paneli',
       decorative: false,
       digest: DIGEST,
@@ -235,7 +235,7 @@ describe('uyum kaydı eksikse', () => {
           render: {
             assets: [
               {
-                path: '/tmp/a.png',
+                path: '/tmp/a.jpg',
                 altTr: 'Fire ölçümü paneli',
                 decorative: false,
                 digest: DIGEST,

@@ -22,7 +22,7 @@
 // ancak herkes hatırladığı sürece çalışırdı (FAZ-7 denetimi, B4).
 
 import type { Result } from '@suite/contracts'
-import { err, ok } from '@suite/contracts'
+import { err, ok, asciiLower } from '@suite/contracts'
 import { createHash } from 'node:crypto'
 
 /** Yayınlanacak varlık. `altTr` **zorunlu** — isteğe bağlı olsaydı boş geçilirdi. */
@@ -124,6 +124,22 @@ export type PublishRefusal =
   | { readonly kind: 'already_published'; readonly externalId: string }
   | { readonly kind: 'no_assets' }
   /**
+   * Karosel API tavanını aşıyor (R-90).
+   *
+   * ⚠ Uygulama 20 slayta izin veriyor ama **Graph API 10'da kesiyor** ve bizim yayın
+   * yolumuz API. Fark bir ayrıntı değil: 11 slaytlık bir karosel elle paylaşılabilir,
+   * bizim hattımızdan geçemez.
+   */
+  | { readonly kind: 'too_many_assets'; readonly count: number; readonly max: number }
+  /**
+   * Yayınlanacak dosya JPEG değil (R-90).
+   *
+   * ⚠ Meta dokümanı birebir: *"JPEG is the only image format supported."* PNG kabul
+   * EDİLMİYOR ve biz PNG üretiyoruz — bu kontrol olmasaydı hata yayın anında, dört
+   * görsel ve bir insan onayı harcandıktan sonra gelirdi.
+   */
+  | { readonly kind: 'unsupported_format'; readonly path: string }
+  /**
    * Defter okunamadı. **`already_published` DEĞİL, `no_assets` DEĞİL** — durum
    * bilinmiyor ve bilinmeyen durumda yayın yapmak yinelemeyi göze almaktır.
    */
@@ -219,11 +235,44 @@ export interface PublishDeps {
  * Reddetme bir başarısızlık değil, sistemin işi: yayınlanmış bir post düzenlenemiyor,
  * bu yüzden her kontrol yayından ÖNCE yapılıyor. "Sonra düzeltiriz" bu hatta yok.
  */
+/**
+ * Graph API karosel tavanı (R-90).
+ *
+ * ⚠ Uygulama 8 Ağu 2024'te 10 → 20'ye çıktı ama **API 10'da kaldı** ve bizim yayın
+ * yolumuz API. İki sayıyı karıştırmak, elle paylaşılabilen bir karoseli hattan
+ * geçirilebilir sanmak demek.
+ */
+export const KAROSEL_TAVANI = 10
+
+/** API'nin kabul ettiği TEK biçim (R-90). PNG reddediliyor. */
+export const JPEG_UZANTILARI = ['.jpg', '.jpeg'] as const
+
 export const publish = async (
   req: PublishRequest,
   deps: PublishDeps
 ): Promise<Result<PublishSuccess, PublishRefusal>> => {
   if (req.assets.length === 0) return err({ kind: 'no_assets' })
+
+  // ── API sözleşmesi: 10 slayt, yalnız JPEG (R-90) ──────────────────────────
+  //
+  // ⚠ ⚠ **BU İKİ KONTROL YOKTU ve ikisi de yayın anında patlayacaktı.** `publish`
+  // 50 gönderi/24s kotasını izliyordu ama slayt SAYISINI hiç sormuyordu; format hiç
+  // denetlenmiyordu. Meta dokümanı (30 Haz 2026 güncel) ikisini de açıkça yazıyor:
+  // *"Carousels are limited to 10 images"* ve *"JPEG is the only image format
+  // supported."*
+  //
+  // ⚠ Kontrol token'dan ÖNCE: sözleşme ihlali bir yetki sorunu değil ve token
+  // yenilemek onu düzeltmiyor. Ucuz olan önce sorulur.
+  if (req.assets.length > KAROSEL_TAVANI) {
+    return err({ kind: 'too_many_assets', count: req.assets.length, max: KAROSEL_TAVANI })
+  }
+  for (const a of req.assets) {
+    // ⚠ `asciiLower`: dosya UZANTISI Türkçe metin değil, bir protokol token'ıdır.
+    // Türkçe kuralıyla küçültmek `.JPG` → `.jpğ` sınıfından hatalar üretir.
+    if (!JPEG_UZANTILARI.some((u) => asciiLower(a.path).endsWith(u))) {
+      return err({ kind: 'unsupported_format', path: a.path })
+    }
+  }
 
   // ── 1. token ────────────────────────────────────────────────────────────
   const token = await deps.tokenState()
@@ -328,6 +377,13 @@ export const refusalMessage = (r: PublishRefusal): string => {
       return `token ölmüş (${r.expiredAt}) — yenileme işi çalışmamış; yayın BLOKLANDI (§9.2)`
     case 'token_missing_scope':
       return `token '${r.needed}' kapsamını taşımıyor — yayın anında 403 alırdık`
+    case 'too_many_assets':
+      return (
+        `karosel ${String(r.count)} slayt — Graph API tavanı ${String(r.max)} ` +
+        '(uygulama 20 kabul ediyor ama yayın yolumuz API)'
+      )
+    case 'unsupported_format':
+      return `${r.path}: API yalnız JPEG kabul ediyor — PNG yayın anında reddedilir`
     case 'missing_alt':
       return `${r.path}: Türkçe alt-text yok (R-34) — yayınlanmış post düzenlenemiyor`
     case 'alt_too_long':

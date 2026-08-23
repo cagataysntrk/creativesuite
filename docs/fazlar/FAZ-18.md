@@ -75,8 +75,6 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    gerekmedi. **Asıl kusur satır UZUNLUĞUYDU ve ters yöndeydi:** `donen` 19,
    `editoryal` 27, `sahne` 30 karakter — bandın (45–90) çok altı. Sebep: gövde başlığın
    sütununa hapsedilmişti. `govdeSutunu` alanı eklendi; sütunlar ayrıldı.
-📁 `packages/render/src/{panorama,panorama-denetim,katalog-ornek}.ts` ·
-   `packages/render/src/punto-esigi.test.ts`
 ✅ `donen` 19 → 49 · `editoryal` 27 → 55 · `akan-alan` 45 → 57 · kural **R-86**
 🧪 Alt sınır herkese dayatıldı → altı şablon kırmızı; kusur sütun KAPASİTESİNE bağlandı
    → dengede. "Sağlanması imkânsız bir şey isteyen ölçüm, ölçüm değil gürültüdür."
@@ -93,7 +91,6 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
      ÖLÇÜLEREK doğrulanıyor — "kesintisiz" iddiası test edilmeden kabul edilmiyor.
    · **R-B3** dikiş dışlama bandı ±93 px — 18.8'e ertelendi (metin/görsel çakışması
      R-84 ile zaten ölçülüyor; bant ayrı bir tur).
-📁 `packages/render/src/{panorama-denetim,katalog-ornek}.ts` · `punto-esigi.test.ts`
 ✅ Ölçüm kesim BAŞINA · `donen` haksız kusuru düştü (ölçek bandı artık tanınıyor) ·
    `memphis` 2 + `editoryal` 2 GİZLİ boş kesim bulundu ve kapatıldı · kural **R-87**
 🧪 Görselleri kesim arasına sıkıştır → boş kesimlerin x'iyle kırmızı; `gorseller: []`
@@ -110,7 +107,6 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    kırpıyor; 88 > 34.
    ⚠ **YAPMA:** dolaşımdaki safe-zone sayıları doğrulanmadı ve çoğu Reels rakamının
    akışa yanlış taşınması (araştırma §3).
-📁 `packages/render/src/{panorama,panorama-denetim,katalog-ornek}.ts`
 ✅ Üst dolgu 68 → **80** · altı şablonda `guvenli-alan-disi` 0 · metin ≤%30 (kapak %42) ·
    gövde başlığı 0,82 çarpanıyla indi · kural **R-88**
 🧪 Panel metin sayıldı → `veri-hikayesi`nin beş kartı kırmızı; panel ayrıldı → temiz.
@@ -124,7 +120,6 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
 🛠 *"5–8 kelimelik kanca"* pazarlama sezgisi DEĞİL, geometrik zorunluluk (araştırma
    §3.6): başlık bakışlık olacak + 2–3 satıra sığacak. Gövde ≈20 kelime. Kapak **tek
    başına tam bir gönderi**: kesimi aşan tek şey bant/alan sınırı. Son slayt **tek** CTA.
-📁 `packages/engine/src/plan/sablon-uyarla.ts`
 ✅ Sınır hem İSTEME yazılı hem uyarlamada zorlanıyor · ret RENDER'dan ÖNCE (dört görsel
    üretip sonra "başlık uzun" demek o parayı geri getirmiyor) · kural **R-89**
 🧪 11 kelimelik başlık → ret; 3 kelimelik → geçer (alt sınır zorlanmıyor: kısa başlık
@@ -132,7 +127,7 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
 ⏭ Kapak "tek başına tam gönderi" ve son slaytta tek CTA — 18.16'ya (şablon ailesi)
 💾 `feat(engine): kelime butcesi` · `Refs: FAZ-18.9 · §11.4`
 
-## 18.10 — Yayın sözleşmesi: 10 slayt · JPEG · dilim eşitliği    [ ]
+## 18.10 — Yayın sözleşmesi: 10 slayt · JPEG    [x]
 
 📖 §9.2 · D-321
 🔗 FAZ-17.3
@@ -140,10 +135,12 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    `publish.ts` kotayı izliyor ama **slayt sayısını hiç kontrol etmiyor**.
    ⚠ **API yalnız JPEG kabul ediyor**; `panorama.ts` PNG yazıyor.
    ⚠ **İlk slayt oranı tüm karoseli belirliyor** → dilim boyut eşitliği kapıya çevriliyor.
-📁 `packages/providers/src/publish.ts` · `packages/render/src/{panorama,disa-aktar}.ts`
-✅ 11 slayt → üretim tarafında red · yayın yolu JPEG · tüm dilimler bit-bit aynı boyut
-🧪 11 slaytlık belge kur → kapı kırmızı; bir dilimi farklı ölçüde al → eşitlik kapısı kırmızı
-💾 `feat(providers): yayin sozlesmesi olculuyor` · `Refs: FAZ-18.10 · §9.2`
+📁 `packages/providers/src/publish.ts` · `packages/render/src/panorama.ts`
+✅ 11 slayt → `too_many_assets` · PNG → `unsupported_format` · hat artık `.jpg` yazıyor
+   ve `renderPanorama` biçimi UZANTIDAN okuyor · kural **R-90**
+🧪 11 slayt → ret (yükleyici hiç çağrılmadı); tam 10 → geçti; PNG yolu → ret
+⏭ Dilim boyut eşitliği 18.11'e — aynı sabiti paylaşıyorlar
+💾 `feat(providers): yayin sozlesmesi` · `Refs: FAZ-18.10 · §9.2`
 
 ## 18.11 — Tuval oranı TEK kaynaktan; 3:4 bir parametre    [ ]
 

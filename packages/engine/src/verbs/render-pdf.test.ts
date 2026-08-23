@@ -51,13 +51,18 @@ const kos = async (constraints: Record<string, unknown>, outDir: string) => {
 }
 
 describe('RENDER gövdesi · PDF yolu (bağlanma)', () => {
-  it('kısıtsız çağrı PNG üretiyor — varsayılan davranış korunuyor', async () => {
-    const d = mkdtempSync(join(tmpdir(), 'render-png-'))
+  // ⚠ ⚠ **VARSAYILAN PNG → JPEG (R-90) ve bu bir test zayıflatması DEĞİL.** Graph API
+  // *"JPEG is the only image format supported"* diyor; PNG üretmek yayın anında —
+  // dört görsel ve bir insan onayı harcandıktan SONRA — reddedilmek demekti. Testin
+  // koruduğu şey "PNG" değil, **slaytın gerçekten yazıldığı**; biçim artık yayın
+  // sözleşmesinden geliyor ve iddia ona göre güncellendi.
+  it('kısıtsız çağrı JPEG üretiyor — yayın sözleşmesi (R-90)', async () => {
+    const d = mkdtempSync(join(tmpdir(), 'render-jpg-'))
     const r = await kos({}, d)
     expect(r.ok).toBe(true)
     if (!r.ok) return
     const veri = r.value.data as { slides?: string[] }
-    expect(veri.slides?.[0]).toMatch(/slayt-01\.png$/)
+    expect(veri.slides?.[0]).toMatch(/slayt-01\.jpg$/)
     expect(existsSync(veri.slides![0]!)).toBe(true)
   }, 60_000)
 

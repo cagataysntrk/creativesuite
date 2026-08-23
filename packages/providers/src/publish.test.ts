@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { ok as sonucOk, err as sonucErr } from '@suite/contracts'
 import {
   ALT_MAX,
+  KAROSEL_TAVANI,
   needsRefresh,
   publish,
   refusalMessage,
@@ -19,7 +20,7 @@ const istek = (over: Partial<PublishRequest> = {}): PublishRequest => ({
   placementId: 'instagram-feed-4x5',
   assets: [
     {
-      path: '/tmp/a.png',
+      path: '/tmp/a.jpg',
       altTr: 'Fire ölçümü paneli',
       decorative: false,
       digest: 'sha256:a',
@@ -131,7 +132,7 @@ describe('alt-text (R-34)', () => {
       istek({
         assets: [
           {
-            path: '/tmp/a.png',
+            path: '/tmp/a.jpg',
             altTr: '   ',
             decorative: false,
             digest: 'sha256:a',
@@ -151,7 +152,7 @@ describe('alt-text (R-34)', () => {
       istek({
         assets: [
           {
-            path: '/tmp/a.png',
+            path: '/tmp/a.jpg',
             altTr: '',
             decorative: true,
             digest: 'sha256:a',
@@ -170,7 +171,7 @@ describe('alt-text (R-34)', () => {
       istek({
         assets: [
           {
-            path: '/tmp/a.png',
+            path: '/tmp/a.jpg',
             altTr: 'ö'.repeat(ALT_MAX + 1),
             decorative: false,
             digest: 'x',
@@ -265,7 +266,7 @@ describe('AI ifşası', () => {
     istek({
       assets: [
         {
-          path: '/tmp/a.png',
+          path: '/tmp/a.jpg',
           altTr: 'Ölçüm paneli',
           decorative: false,
           digest: 'sha256:a',
@@ -307,5 +308,61 @@ describe('AI ifşası', () => {
       d
     )
     expect(r.ok).toBe(true)
+  })
+})
+
+// ── API sözleşmesi: 10 slayt, yalnız JPEG (R-90) ────────────────────────────
+//
+// ⚠ ⚠ **İKİSİ DE YOKTU ve ikisi de YAYIN ANINDA patlayacaktı** — yani dört görsel
+// üretildikten, bir insan onayladıktan ve kota harcandıktan sonra. Meta dokümanı
+// (30 Haz 2026 güncel) ikisini de açıkça yazıyor.
+describe('API sözleşmesi', () => {
+  const varlik = (path: string): PublishAsset => ({
+    path,
+    altTr: 'Ölçüm görseli',
+    decorative: false,
+    digest: 'sha256:' + path,
+    compliance: { disclosureRequired: false, stamped: false, visibleDisclosure: false },
+  })
+
+  it('11 slayt REDDEDİLİYOR — uygulama 20 kabul ediyor ama yolumuz API', async () => {
+    const d = deps()
+    const r = await publish(
+      istek({
+        assets: Array.from({ length: KAROSEL_TAVANI + 1 }, (_, i) =>
+          varlik(`/tmp/s${String(i)}.jpg`)
+        ),
+      }),
+      d.d
+    )
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind).toBe('too_many_assets')
+    // ⚠ Yükleyici HİÇ çağrılmadı: sözleşme ihlali yükleme yolunun ÖNÜNDE.
+    expect(d.sira).not.toContain('upload')
+  })
+
+  it('tam 10 slayt GEÇİYOR — tavan dahil', async () => {
+    const r = await publish(
+      istek({
+        assets: Array.from({ length: KAROSEL_TAVANI }, (_, i) => varlik(`/tmp/s${String(i)}.jpg`)),
+      }),
+      deps().d
+    )
+    expect(r.ok).toBe(true)
+  })
+
+  it('PNG REDDEDİLİYOR — API yalnız JPEG kabul ediyor', async () => {
+    const d = deps()
+    const r = await publish(istek({ assets: [varlik('/tmp/slayt-01.png')] }), d.d)
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.error.kind).toBe('unsupported_format')
+    expect(d.sira).not.toContain('upload')
+  })
+
+  it('ret mesajı NEDEN olduğunu söylüyor — düzeltecek kişi yolu bilmeli', () => {
+    expect(refusalMessage({ kind: 'too_many_assets', count: 11, max: 10 })).toMatch(/API tavanı 10/)
+    expect(refusalMessage({ kind: 'unsupported_format', path: '/tmp/a.png' })).toMatch(/JPEG/)
   })
 })

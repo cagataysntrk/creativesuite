@@ -928,7 +928,11 @@ export const renderBody = (deps: RenderDeps): Verb =>
       mkdirSync(deps.outDir, { recursive: true })
       const doc = panoramaCiktisi.panorama
       const yollar = doc.kartlar.map((_, i) =>
-        join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
+        // ⚠ ⚠ **`.jpg` ve sebebi API SÖZLEŞMESİ (R-90).** Graph API yalnız JPEG kabul
+        // ediyor; PNG yazmak, yayın anında — dört görsel ve bir insan onayı
+        // harcandıktan SONRA — reddedilmek demekti. `renderPanorama` biçimi uzantıdan
+        // okuyor, yani burada adı değiştirmek gerçekten JPEG üretiyor.
+        join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.jpg`)
       )
       // ⚠ ⚠ **BELGE DİSKE YAZILIYOR — ve bu bir kolaylık değil, bir ZİNCİR ONARIMI.**
       // Koşu defterinde bugüne kadar yalnız ÖZET vardı (`sablonId`, `slides`, `kusurlar`);
@@ -1123,7 +1127,7 @@ export const renderBody = (deps: RenderDeps): Verb =>
     // garantisi duruyor.
     const oturumSonucu = await withOturum(async (oturum) => {
       for (const [i, slayt] of slaytlar.entries()) {
-        const taban = join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.png`)
+        const taban = join(deps.outDir, `slayt-${String(i + 1).padStart(2, '0')}.jpg`)
         if (deps.maxBytes === undefined) {
           const r = await renderStatic(slayt, taban, oturum)
           if (!r.ok) {

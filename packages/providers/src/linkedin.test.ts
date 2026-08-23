@@ -65,13 +65,13 @@ describe('üç format', () => {
   })
 
   it('metin postuna varlık eklenirse REDDEDİLİYOR — biçim karışmıyor', () => {
-    const r = buildLinkedinPost(post({ assets: [varlik('/tmp/a.png')] }), YAZAR, TAZE)
+    const r = buildLinkedinPost(post({ assets: [varlik('/tmp/a.jpg')] }), YAZAR, TAZE)
     expect(isLinkedinRefusal(r) && r.kind).toBe('wrong_asset_count')
   })
 
   it('görsel postu: en az bir varlık', () => {
     const r = buildLinkedinPost(
-      post({ kind: 'image', assets: [varlik('/tmp/a.png'), varlik('/tmp/b.png')] }),
+      post({ kind: 'image', assets: [varlik('/tmp/a.jpg'), varlik('/tmp/b.jpg')] }),
       YAZAR,
       TAZE
     )

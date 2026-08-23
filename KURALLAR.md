@@ -433,3 +433,19 @@ tercih, uzunluk bir taşma riski.
 ⚠ Ret RENDER'dan önce: dört görsel üretip sonra "başlık uzun" demek o parayı geri
 getirmiyor.
 **Zorlama:** `uyarla` → `BASLIK_KELIME_TAVANI` · `SLAYT_KELIME_TAVANI`. → D-321
+
+### R-90 · yayin-sozlesmesi · GATE · aktif
+Karosel en fazla **10 slayt** taşır ve yayınlanan her dosya **JPEG** olur. İkisi de
+yükleme yolunun ÖNÜNDE denetlenir.
+**Neden:** Graph API ikisini de açıkça sınırlıyor (*"Carousels are limited to 10 images"*
+· *"JPEG is the only image format supported"*, Meta Content Publishing, 30 Haz 2026).
+Uygulama 20 slayta izin veriyor ama **bizim yayın yolumuz API** — iki sayıyı karıştırmak,
+elle paylaşılabilen bir karoseli hattan geçirilebilir sanmak demek. Ve hattımız PNG
+üretiyordu: her slayt yayın anında reddedilecekti, yani dört görsel üretildikten, bir
+insan onayladıktan ve kota harcandıktan SONRA.
+⚠ Kontrol token'dan ÖNCE: sözleşme ihlali bir yetki sorunu değil ve token yenilemek onu
+düzeltmiyor. Ucuz olan önce sorulur.
+⚠ Biçim çağıranın verdiği YOLDAN türüyor, bir parametreden değil: dosya adı `.jpg`
+derken içeriğin PNG olması defterin kendi kendine yalan söylemesidir.
+**Zorlama:** `publish` → `too_many_assets` · `unsupported_format`; `renderPanorama`
+biçimi uzantıdan okuyor. → D-321
