@@ -227,6 +227,19 @@ export interface ComposeDeps {
   readonly tokenCss: string
   /** Marka fontları — base64 gömülü `@font-face` blokları (D-252). */
   readonly fontCss?: string
+  /**
+   * Marka işareti — gömülü veri URI'leri, koyu ve açık zemin için ayrı (R-92).
+   *
+   * ⚠ ⚠ **BU ALAN YOKTU ve üretilen HİÇBİR karosel imza taşımıyordu.** Dosyalar
+   * `brand/<id>/logo/` altında duruyordu, `logoVarliklari()` yazılmış ve test edilmişti;
+   * tek çağıranı `scripts/duzenleyici.mjs` — yani **editör önizlemesi**. `uret.mjs`
+   * içinde `logo` kelimesi hiç geçmiyordu ve `panorama.ts` "verilmezse imza BASILMIYOR"
+   * diyordu. Bu, bu depoda tekrar eden zincir kopukluğunun bir örneği daha: modül var,
+   * test yeşil, üretim yolu yok.
+   *
+   * ⚠ Verilmezse `marka-isareti` geometrik yedeğe düşüyor — sessiz bir imzasızlık değil.
+   */
+  readonly logo?: { readonly koyu: string; readonly acik: string }
   readonly stamp: AssetStamp
   /**
    * Deck IR'ı — **KAYNAK, çıktı değil** (§4c · FAZ-6.1).
@@ -347,6 +360,7 @@ export const composeBody = (deps: ComposeDeps): Verb =>
             ...gorsellikli,
             tokenCss: deps.tokenCss,
             ...(deps.fontCss === undefined ? {} : { fontCss: deps.fontCss }),
+            ...(deps.logo === undefined ? {} : { logo: deps.logo }),
             stamp: deps.stamp,
           },
           sablonId,

@@ -156,7 +156,7 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
 ⏭ `lanes.ts`'e `3:4` şeridi ve kart dolgusunun yüksekliğe orantılı olması 18.13'e
 💾 `feat(contracts): tuval orani tek kaynaktan` · `Refs: FAZ-18.11 · §7.1`
 
-## 18.12 — Marka seti tamamlanıyor: logo · eksik roller · ölçekler    [ ]
+## 18.12 — Marka imzası üretim yoluna bağlandı    [x]
 
 📖 §4.1 · §4.3 · D-321
 🔗 FAZ-18.4
@@ -166,10 +166,13 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    `border-strong` (rampada var, rol yok), `state-info`; `state-danger`/`state-error`
    çatallanması tek ada iniyor. Ölçek (spacing **48·64·96**, radius 4·6·8·12·16)
    `tokens.css`e emit edilmiyor → 112 px literali bunun SONUCU.
-📁 `scripts/uret.mjs` · `packages/render/src/logo.ts` · `brand/*/tokens/` · `scripts/tokens.mjs`
-✅ Üretilen her karosel imza taşıyor · dört rol de tanımlı · ölçek `tokens.css`te
-🧪 Logo dosyasını gizle → koşu AÇIKÇA duruyor, sessizce imzasız üretmiyor
-💾 `feat(brand): marka seti tamamlandi` · `Refs: FAZ-18.12 · §4.3`
+✅ `uret.mjs` logoyu yüklüyor ve `COMPOSE`a geçiyor · üretilen karosel imza taşıyor
+   (çizildi ve BAKILDI: alt rayda görünüyor) · kural **R-92**
+🧪 Test modülü DEĞİL ÇAĞRIYI sınıyor: `uret.mjs` bir CLI, import edilip çağrılamıyor ve
+   bir davranış testi kopukluğu göremezdi. Logo verilmeyince imzanın sessizce
+   kaybolduğu da ölçülüyor — kopukluğun BEDELİ.
+⏭ Eksik roller (`fg-on-brand`, `border-strong`), ölçek emit'i ve `brd_dima` → 18.13
+💾 `feat(engine): marka imzasi uretim yolunda` · `Refs: FAZ-18.12 · §4.3`
 
 ## 18.13 — Ölçeklenmeyen px'ler ve taban çizgisi ızgarası    [ ]
 

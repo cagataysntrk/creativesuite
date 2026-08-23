@@ -55,6 +55,7 @@ const {
   reklamIhlalMesaji,
   reklamLint,
   DEFAULT_LIMITS,
+  logoVarliklari,
 } = await import(join(REPO, 'packages/render/dist/index.js'))
 const { openDb, systemClock, seededRng, newId, readEnv } = await import(
   join(REPO, 'packages/kernel/dist/index.js')
@@ -235,6 +236,25 @@ if (!fontSonucu.ok) {
   process.exit(1)
 }
 const markaFontCss = fontSonucu.css
+
+// ── marka işareti: üretilen her karosel imza taşır (R-92) ────────────────────
+//
+// ⚠ ⚠ **BU ÇAĞRI YOKTU ve üretilen HİÇBİR karosel imza taşımıyordu.** Dosyalar
+// `brand/<id>/logo/` altında duruyordu, `logoVarliklari()` yazılmış ve test edilmişti;
+// tek çağıranı `scripts/duzenleyici.mjs` — yani EDİTÖR ÖNİZLEMESİ. Bu dosyada `logo`
+// kelimesi hiç geçmiyordu ve `panorama.ts` "verilmezse imza BASILMIYOR" diyordu.
+// Zincir kopukluğunun bir örneği daha: modül var, test yeşil, üretim yolu yok.
+//
+// ⚠ **Eksik logo koşuyu DURDURMUYOR** — fontun aksine. Font eksikse çıktı YANLIŞ
+// üretilir (sistem fontu, bozuk `ĞÜŞİÖÇ`); logo eksikse `marka-isareti` geometrik
+// yedeğe düşüyor ve bu meşru bir çıktı. Ama sessiz de değil: uyarı basılıyor.
+const logoSonucu = logoVarliklari(join(REPO, `brand/${MARKA}/logo`))
+if (!logoSonucu.ok) {
+  console.log(
+    `  ⚠ marka işareti eksik (${logoSonucu.eksikler.join(', ')}) — geometrik yedek çizilecek`
+  )
+}
+const markaLogo = logoSonucu.ok ? logoSonucu.varliklar : undefined
 
 // Ön ekli kimlik kernel'den (R-06 · `id-uretici` darboğazı): ikinci bir üreteç,
 // sıralanamayan ve tipi anlaşılmayan id üretir.
@@ -799,6 +819,7 @@ const rapor = await runPipeline({
     COMPOSE: composeBody({
       tokenCss,
       fontCss: markaFontCss,
+      ...(markaLogo === undefined ? {} : { logo: markaLogo }),
       stamp: damga,
       ...(irBelge === null ? {} : { ir: irBelge }),
     }),

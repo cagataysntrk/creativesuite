@@ -464,3 +464,17 @@ yükseklik 566–1440) ama 4:5 **Meta reklamında ZORUNLU** (min oran 400×500).
 küçültüyor ve küçültmeyi biz yaparsak sonucu kontrol ederiz.
 **Zorlama:** `tuval.test.ts` — oran adı ile sayının ayrışamayacağını da ölçüyor
 (`oran: '4:5'` yazıp 1440 vermek defterin kendi kendine yalan söylemesi). → D-321
+
+### R-92 · uretim-yolu-imza-tasir · GATE · aktif
+Üretilen her karosel marka işaretini TAŞIR; `logoVarliklari` üretim betiğinden çağrılır
+ve sonucu `COMPOSE`a geçer.
+**Neden:** dosyalar `brand/<id>/logo/` altında duruyordu, `logoVarliklari()` yazılmış ve
+test edilmişti — ama **tek çağıranı editör önizlemesiydi**. `uret.mjs` içinde `logo`
+kelimesi hiç geçmiyordu ve `panorama.ts` *"verilmezse imza BASILMIYOR"* diyordu. Yani
+üretilen hiçbir karosel imza taşımıyordu ve hiçbir test kırmızı değildi.
+⚠ **Zincir kopukluğunun yedincisi:** modül var, test yeşil, üretim yolu yok (D-182 ·
+D-190 · D-224 · D-250 · D-261 · D-270 ailesi). Modülü test etmek zinciri test etmiyor.
+⚠ Eksik logo koşuyu DURDURMUYOR — fontun aksine: font eksikse çıktı YANLIŞ üretilir,
+logo eksikse geometrik yedek çizilir. Ama sessiz değil: uyarı basılıyor.
+**Zorlama:** `marka-imzasi.test.ts` — modülü DEĞİL çağrıyı sınıyor (`uret.mjs` bir CLI,
+import edilip çağrılamıyor; davranış testi kopukluğu göremezdi). → D-321
