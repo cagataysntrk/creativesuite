@@ -572,3 +572,27 @@ yükseltmek olmayacak: sıradaki yapısal hamle kural kitabını halkalara bölm
 değil. Yükseltme bir kapıdan kaçmak için değil, kendi kararıyla ve gerekçesiyle yapılıyor.
 ⚠ Yine de bu hamle bir kez daha tekrarlanırsa şüpheyle bakılmalı: **tavanı yükselterek
 korunan bir belge, tavansız bir belgedir.**
+
+## D-332 · Font ve logo da devralınır — ve marka-nötr bir modülde marka adı
+
+**Bulgu.** `brd_dima` token sisteminin kalıtımını kullanan gerçek bir alt marka: `parent`
+dosyası `brd_upcytech` diyor, yalnız `state-ok` rolünü eziyor ve kendi kaydı *"ezmediğin
+şey MİRASTIR"* yazıyor. **Font ve logo o cümlenin dışındaydı.** Ölçüldü: sekiz font
+eksik, `uret.mjs` `exit(1)`. Yani dima bir alt marka gibi tanımlıydı ama koşamıyordu.
+
+**İkinci kusur eksik listesinin kendisinde duruyordu:** aranan dosyalar
+`upcytech-mavi.png` ve `upcytech-siyah.png`. Marka-nötr bir modülde bir markanın adı.
+İkinci marka kendi işaretini KOYAMAZDI — dosyanın adı başka bir markanın adıydı. Adlar
+`isaret-koyu` / `isaret-acik` oldu: seçim zeminin açıklığından yapılıyor, markadan değil.
+
+**Kopyalamak alternatif değildi.** Sekiz woff2'yi her alt markaya kopyalamak, kopyanın
+bir gün ayrışması ve iki markanın aynı ada sahip iki farklı fontla üretim yapması
+demekti — D-252'nin çözdüğü hatanın alt marka ölçeğinde tekrarı.
+
+**Zincir "dizin var mı" diye sormuyor, "sonuç TAM mı" diye soruyor.** İlk tasarım "dizin
+varsa onu al" idi; alt markanın boş bir `fonts/` klasörü zinciri orada keser ve koşu yine
+fontsuz kalırdı. Kısmi devralma da yok: yarısı kendinden yarısı atasından gelen bir
+tipografi, iki markanın karışımıdır.
+
+**Test modülü değil ÇAĞRIYI sınıyor** — R-92'nin dersi. `uret.mjs` bir CLI, import edilip
+çağrılamıyor; bu depoda "modül var, test yeşil, üretim yolu yok" sekiz kez tekrarlandı.

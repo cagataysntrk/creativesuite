@@ -25,8 +25,12 @@ export interface LogoSonucu {
   readonly eksikler: readonly string[]
 }
 
-const KOYU_DOSYA = 'upcytech-mavi.png'
-const ACIK_DOSYA = 'upcytech-siyah.png'
+// ⚠ ⚠ **ADLAR MARKA-NÖTR ve eskiden DEĞİLDİ:** `upcytech-mavi.png` / `upcytech-siyah.png`
+// yazıyordu. Marka-nötr bir modülde bir markanın adı, ikinci markanın kendi işaretini
+// koymasını İMKÂNSIZ kılıyordu. Seçim zeminin açıklığından yapılıyor, markadan değil —
+// dosya adı da öyle olmalı (R-101).
+const KOYU_DOSYA = 'isaret-koyu.png'
+const ACIK_DOSYA = 'isaret-acik.png'
 
 /** Tek dosyayı veri URI'sine çevirir; yoksa `null`. */
 const veriUri = (yol: string): string | null =>

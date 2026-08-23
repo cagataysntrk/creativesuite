@@ -298,3 +298,42 @@ her şablon yanlış ritme döner.
 
 Düzeltmeden sonra: `başlık→gövde` her şablonda **tam 1× kendi tabanı**, `gövde→panel`
 `memphis`te **tam 2×**.
+
+## R-101 · marka varlıkları devralınır
+
+Token sistemi kalıtımı zaten biliyordu: `brand/<id>/parent` tek satır ve `brd_dima`
+yalnız `state-ok` rolünü ezip *"ezmediğin şey MİRASTIR"* diyor. **Font ve logo o cümlenin
+dışındaydı.** Ölçüldü:
+
+```
+brd_dima   font ok: false  eksik: 8
+           logo ok: false  eksik: upcytech-mavi.png, upcytech-siyah.png
+```
+
+`uret.mjs` doğrudan `brand/brd_dima/fonts` bakıyor, bulamıyor ve `process.exit(1)`
+ediyordu. Yani `brd_dima` bir alt marka gibi TANIMLIYDI ama bir alt marka gibi
+KOŞAMIYORDU.
+
+⚠ **Eksik listesi ikinci kusuru da söylüyor:** aranan dosyaların adı `upcytech-mavi.png`
+ve `upcytech-siyah.png`. Marka-nötr bir modülde (`logo.ts`) bir markanın adı — ikinci
+marka kendi işaretini koyamazdı, çünkü dosyanın adı başka bir markanın adıydı. Seçim
+zeminin açıklığından yapılıyor, markadan değil; ad da öyle olmalı: `isaret-koyu` /
+`isaret-acik`.
+
+⚠ **Kopyalamak alternatif değildi.** Sekiz woff2'yi her alt markaya kopyalamak, kopyanın
+bir gün ayrışması ve iki markanın aynı ada sahip iki farklı fontla üretim yapması
+demekti.
+
+⚠ **Zincir "dizin var mı" diye sormuyor, "sonuç TAM mı" diye soruyor.** İlk tasarım
+"dizin varsa onu al" idi; alt markanın boş bir `fonts/` klasörü olsa zincir orada durur
+ve koşu yine fontsuz kalırdı. Kalıtımın anlamı *"eksik olan yukarıdan gelir"*.
+
+⚠ Kısmi devralma YOK: bir marka fontlarını eziyorsa hepsini ezer. Yarısı kendinden
+yarısı atasından gelen bir tipografi, iki markanın karışımıdır.
+
+⚠ Döngü (`a → b → a`) sessizce atlanmıyor, zincir orada KESİLİYOR — sonsuz döngüye
+girmek yapılandırma hatasını gizler.
+
+Düzeltmeden sonra: `brd_dima` font **OK** (devralındı `brand/brd_upcytech/fonts`), logo
+**OK** (devralındı). Ana marka kendi varlıklarını kullanıyor, zincir onu atlamıyor.
+Zincir kasten koparıldı (`varlikZinciri` çağrısı elle diziye çevrildi) → test kırmızı.

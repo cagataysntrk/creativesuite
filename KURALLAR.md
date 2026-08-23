@@ -487,3 +487,15 @@ Sabit 54 px altı şablonun **beşinde** yanlış olurdu (gerçek: 54 · 54,9 ·
 61,2). Ritim metinden türer.
 **Zorlama:** `taban-ritmi.test.ts` — CSS tabanı çağırıyor mu VE `--taban` kuruluyor mu.
 Kurulmazsa yedek sessizce devralır. → D-330 · `OLCUMLER.md`
+
+### R-101 · marka-varliklari-devralinir · GATE · aktif
+Font ve logo da token gibi `brand/<id>/parent` zincirinden devralınır; dosya adları
+MARKA-NÖTR (`isaret-koyu` / `isaret-acik`). Kısmi devralma yok — bir marka eziyorsa
+hepsini ezer.
+**Neden:** token sistemi *"ezmediğin şey MİRASTIR"* diyordu ama font ve logo o cümlenin
+dışındaydı: `brd_dima` sekiz font bulamayıp `exit(1)` ediyordu. Ve `logo.ts` marka-nötr
+bir modülken `upcytech-mavi.png` yazıyordu — ikinci marka kendi işaretini KOYAMAZDI.
+⚠ Zincir "dizin var mı" değil "sonuç TAM mı" diye soruyor: boş bir `fonts/` klasörü
+zinciri kesip koşuyu yine fontsuz bırakırdı.
+**Zorlama:** `marka-varlik.test.ts` — modülü DEĞİL `uret.mjs`in ÇAĞRISINI sınıyor.
+→ D-332 · `OLCUMLER.md`

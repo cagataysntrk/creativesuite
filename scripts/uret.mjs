@@ -56,6 +56,8 @@ const {
   reklamLint,
   DEFAULT_LIMITS,
   logoVarliklari,
+  varlikZinciri,
+  zincirdenCoz,
 } = await import(join(REPO, 'packages/render/dist/index.js'))
 const { openDb, systemClock, seededRng, newId, readEnv } = await import(
   join(REPO, 'packages/kernel/dist/index.js')
@@ -230,11 +232,21 @@ const tokenCss = readFileSync(tokenYolu, 'utf8')
 // **Eksik font SESSİZCE geçilmez.** Geçilseydi çıktı sistem fontuyla üretilir,
 // `ĞÜŞİÖÇ` bozulur ve hiçbir hata görünmezdi — yanlış fontla üretilmiş bir varlık,
 // üretilmemiş bir varlıktan kötüdür.
-const fontSonucu = fontCss(join(REPO, `brand/${MARKA}/fonts`))
+// ⚠ ⚠ **KALITIM ZİNCİRİNDEN (R-101).** Doğrudan `brand/<id>/fonts` bakılıyordu ve
+// `brd_dima` — token sisteminin kalıtımını kullanan gerçek bir alt marka — burada
+// ÖLÜYORDU: sekiz dosya eksik, `exit(1)`. Token *"ezmediğin şey MİRASTIR"* diyor;
+// font ve logo o cümlenin dışında kalmıştı.
+const fontZinciri = varlikZinciri(join(REPO, 'brand'), MARKA, 'fonts')
+const fontCozum = zincirdenCoz(fontZinciri, (d) => fontCss(d))
+const fontSonucu = fontCozum.sonuc
 if (!fontSonucu.ok) {
-  console.log(`✗ marka fontu eksik: ${fontSonucu.eksikler.map((e) => e.dosya).join(', ')}`)
+  console.log(
+    `✗ marka fontu eksik: ${fontSonucu.eksikler.map((e) => e.dosya).join(', ')}` +
+      ` (bakılan: ${fontZinciri.join(' → ')})`
+  )
   process.exit(1)
 }
+if (fontCozum.devralindi) console.log(`  · font DEVRALINDI: ${fontCozum.dizin}`)
 const markaFontCss = fontSonucu.css
 
 // ── marka işareti: üretilen her karosel imza taşır (R-92) ────────────────────
@@ -248,11 +260,15 @@ const markaFontCss = fontSonucu.css
 // ⚠ **Eksik logo koşuyu DURDURMUYOR** — fontun aksine. Font eksikse çıktı YANLIŞ
 // üretilir (sistem fontu, bozuk `ĞÜŞİÖÇ`); logo eksikse `marka-isareti` geometrik
 // yedeğe düşüyor ve bu meşru bir çıktı. Ama sessiz de değil: uyarı basılıyor.
-const logoSonucu = logoVarliklari(join(REPO, `brand/${MARKA}/logo`))
+const logoZinciri = varlikZinciri(join(REPO, 'brand'), MARKA, 'logo')
+const logoCozum = zincirdenCoz(logoZinciri, (d) => logoVarliklari(d))
+const logoSonucu = logoCozum.sonuc
 if (!logoSonucu.ok) {
   console.log(
     `  ⚠ marka işareti eksik (${logoSonucu.eksikler.join(', ')}) — geometrik yedek çizilecek`
   )
+} else if (logoCozum.devralindi) {
+  console.log(`  · marka işareti DEVRALINDI: ${logoCozum.dizin}`)
 }
 const markaLogo = logoSonucu.ok ? logoSonucu.varliklar : undefined
 

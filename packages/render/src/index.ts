@@ -339,6 +339,7 @@ export {
   type AlanRolleri,
 } from './sablon.js'
 export { logoVarliklari, type LogoSonucu, type LogoVarliklari } from './logo.js'
+export { varlikZinciri, zincirdenCoz } from './marka-varlik.js'
 
 // Dışa aktarma — kesintisiz tek görsel ya da dilimlenmiş slaytlar (§7.1).
 export {

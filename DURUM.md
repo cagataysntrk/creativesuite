@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 18
-siradaki_adim: 18.13c
+siradaki_adim: 18.13d
 son_guncelleme: 2026-08-23
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "TABAN CIZGISI IZGARASI SABIT BIR SAYI DEGIL — faz plani oyle varsayiyordu (40 x 1,35 = 54) ve IKI CARPAN DA YANLISTI. Olculdu: gercek satir araligi 1,50 ve govde puntosu sablondan sablona degisiyor (36 - 40,8), yani taban 54 · 54,9 · 59,1 · 60,6 · 61,2. Sabit 54, alti sablonun BESINDE yanlis bir izgara dayatirdi. Neden degisken: govde puntosu max(taban, baslikPuntosu x oran) ve baslik puntosu ikili aramanin sonucu — metne bagli. Taban ancak olcum KOSTUKTAN sonra bilinebiliyor; puntoOlcumu artik --tabani da yaziyor ve CSS bosluklari calc(var(--taban) * N) ile ondan turuyor. KAPSAM OLCULEREK DARALDI: olcum yazili yalniz UC bosluk oldugunu gosterdi (14 · 44 · 132), gerisi margin-top auto artigi ve tasarim karari degil. Ust baslik ile baslik arasi da ISTISNA — tek birim, aradaki 14 px bir etiket baglantisi. KURAL RENDERDA SINANAMAZ: getComputedStyle marginTop auto icin de KULLANILAN pikseli donduruyor, tabana bagli bir boslukla auto bir bosluk tarayicida ayirt edilemiyor. Iki sinav: CSS tabani cagiriyor mu VE --taban KURULUYOR mu. Zincir kasten koparildi, alti sablon da --taban hic kurulmamis diyerek kirmiziya dondu. AYRICA KURALLAR.md tavani 480 - 520 yukseltildi (D-331): D-325in istedigi bolme yapildi, kurallar 6,8 satira indi ve dort tur ust uste yeni kural ancak eskilerin gerekcesi budanarak sigdi. 47 kapi yesil."
+son_kanit: "ALT MARKA TANIMLIYDI AMA KOSAMIYORDU. brd_dima token sisteminin kalitimini kullanan gercek bir alt marka: parent dosyasi brd_upcytech diyor, yalniz state-ok rolunu eziyor ve kendi kaydi ezmedigin sey MIRASTIR yaziyor. FONT VE LOGO O CUMLENIN DISINDAYDI — uret.mjs dogrudan brand/brd_dima/fonts bakiyor, sekiz dosyayi bulamiyor ve exit(1) ediyordu. IKINCI KUSUR EKSIK LISTESININ KENDISINDEYDI: aranan dosyalar upcytech-mavi.png ve upcytech-siyah.png, yani marka-notr bir modulde bir markanin adi — ikinci marka kendi isaretini KOYAMAZDI. Adlar isaret-koyu / isaret-acik oldu; secim zeminin acikligindan yapiliyor, markadan degil. Kopyalamak alternatif DEGILDI: sekiz woff2yi her alt markaya kopyalamak, kopyanin bir gun ayrismasi ve iki markanin ayni ada sahip iki farkli fontla uretim yapmasi demekti. Zincir dizin var mi diye sormuyor, sonuc TAM mi diye soruyor: bos bir fonts klasoru zinciri keser ve kosu yine fontsuz kalirdi. GERCEK KOSUYLA DOGRULANDI — SUITE_BRAND=brd_dima ile hat font DEVRALINDI ve marka isareti DEVRALINDI yazip font kapisini gecti, icerik adiminda NO_CONTEXT ile durdu (ilgisiz ve durust bir dur). Test modulu degil CAGRIYI siniyor. AYRICA FAZ-18.md tavani deldi: kapanmis 17 adim 📁 ve ✅ye indirildi (262 yol hala dogrulaniyor), dosya 263ten 153e indi. 47 kapi, 2082 test."
 ```
 
 ## Neredeyiz
@@ -62,6 +62,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **18.12** · marka imzası üretim yoluna bağlandı — logo hiç basılmıyordu, zincirin yedinci kopukluğu (R-92) | 2026-08-23 |
 | **18.13** · ölçek TEK tabandan: krom ölçeklenmiyordu, 1080→1350'de yedi ölçü de %25 büyüdü (R-99) | 2026-08-23 |
 | **18.13b** · taban çizgisi ızgarası metinden türüyor — sabit 54 px altıdan beşinde yanlıştı (R-100) | 2026-08-23 |
+| **18.13c** · alt marka gerçekten koşuyor: font ve logo da devralınıyor, adlar marka-nötr (R-101) | 2026-08-23 |
 
 ## Sıradaki adım
 
