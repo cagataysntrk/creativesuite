@@ -117,17 +117,20 @@ D-320 (tanımsız token) · D-321 (araştırma tabanı) · Yasa 4 · Yasa 5 · R
    Tek eşik denendi → kapak ile gövde çelişti; iki eşik uzlaştırdı.
 💾 `feat(render): guvenli alan ve metin payi` · `Refs: FAZ-18.8 · §7.1`
 
-## 18.9 — İçerik kapıları: kanca 5–8 kelime, slayt ≤28 kelime    [ ]
+## 18.9 — Kelime bütçesi: başlık ≤8, slayt ≤28    [x]
 
 📖 §11.4 · D-321
 🔗 FAZ-18.6
 🛠 *"5–8 kelimelik kanca"* pazarlama sezgisi DEĞİL, geometrik zorunluluk (araştırma
    §3.6): başlık bakışlık olacak + 2–3 satıra sığacak. Gövde ≈20 kelime. Kapak **tek
    başına tam bir gönderi**: kesimi aşan tek şey bant/alan sınırı. Son slayt **tek** CTA.
-📁 `packages/engine/src/plan/` · `packages/render/src/panorama-denetim.ts`
-✅ Kapak 5–8 kelime · slayt ≤28 · başlık ≤3 satır · son slaytta tek eylem çağrısı
-🧪 Kapağa 15 kelimelik başlık yaz → kapı reddediyor
-💾 `feat(engine): icerik kapilari olculuyor` · `Refs: FAZ-18.9 · §11.4`
+📁 `packages/engine/src/plan/sablon-uyarla.ts`
+✅ Sınır hem İSTEME yazılı hem uyarlamada zorlanıyor · ret RENDER'dan ÖNCE (dört görsel
+   üretip sonra "başlık uzun" demek o parayı geri getirmiyor) · kural **R-89**
+🧪 11 kelimelik başlık → ret; 3 kelimelik → geçer (alt sınır zorlanmıyor: kısa başlık
+   kusur değil, çoğu zaman daha güçlü); 28+ kelimelik slayt → ret
+⏭ Kapak "tek başına tam gönderi" ve son slaytta tek CTA — 18.16'ya (şablon ailesi)
+💾 `feat(engine): kelime butcesi` · `Refs: FAZ-18.9 · §11.4`
 
 ## 18.10 — Yayın sözleşmesi: 10 slayt · JPEG · dilim eşitliği    [ ]
 

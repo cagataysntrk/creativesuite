@@ -271,3 +271,41 @@ describe('üst başlık şablona bağlı', () => {
     expect(uyarlamaIstemi(sablon('KONU'), 'x', 'ölçüm')).toContain('SAYAÇ OLAMAZ')
   })
 })
+
+// ── kelime bütçesi (R-89) ───────────────────────────────────────────────────
+//
+// ⚠ ⚠ Sayılar GEOMETRİDEN geliyor: başlık bakışlık puntoda 2–3 satıra sığacak →
+// 5–8 kelime; gövde ≈20 → slayt toplamı 28. Bir eşiği değiştiren, önce türetmeyi
+// çürütmek zorunda (`docs/referans/arastirma-2026-08.md`).
+describe('kelime bütçesi', () => {
+  it('UZUN başlık reddediliyor — render`a kadar beklemek dört görsele mal olur', () => {
+    const r = uyarla(
+      ornek,
+      uyarlama([{ baslik: 'Bir iki üç dört beş altı yedi sekiz dokuz on bir başlık' }])
+    )
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.kusurlar.join(' ')).toMatch(/başlık 1[0-9] kelime — tavan 8/)
+  })
+
+  it('KISA başlık kusur DEĞİL — alt sınır zorlanmıyor', () => {
+    const r = uyarla(ornek, uyarlama([{ baslik: 'Sessiz **dönüşüm**' }]))
+    expect(r.ok).toBe(true)
+  })
+
+  it('slayt toplamı 28`i aşınca reddediliyor', () => {
+    const uzun =
+      'Bir iki üç dört beş altı yedi sekiz dokuz on on bir on iki on üç on dört ' +
+      'on beş on altı on yedi on sekiz on dokuz yirmi yirmi bir yirmi iki yirmi üç.'
+    const r = uyarla(ornek, uyarlama([{ baslik: 'Kısa **başlık**', govde: uzun }]))
+    expect(r.ok).toBe(false)
+    if (r.ok) return
+    expect(r.kusurlar.join(' ')).toMatch(/slayt \d+ kelime — tavan 28/)
+  })
+
+  it('sınır İSTEME de yazılıyor — model onu bilmeli', () => {
+    const istem = uyarlamaIstemi(ornek, 'veri-hikayesi', 'konu')
+    expect(istem).toContain('EN FAZLA 8 kelime')
+    expect(istem).toContain('en fazla 28 kelime')
+  })
+})

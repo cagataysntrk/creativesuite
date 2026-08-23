@@ -417,3 +417,19 @@ kırmızıya çevirdi; oysa o şablonun taşıyıcısı tam olarak veri paneli. 
 paneli yine kapsıyor: veri de kenara yapışmamalı.
 ⚠ Ray ve sayaç KROM: kadrajı doldurmuyor, çerçeveliyor — boşluk hesabına girmiyor.
 **Zorlama:** `guvenli-alan-disi` · `metin-payi-yuksek`. → D-321
+
+### R-89 · kelime-butcesi · GATE · aktif
+Başlık en fazla **8 kelime**, bir slaytta başlık + gövde + üst başlık toplamı en fazla
+**28 kelime**. Sınır hem isteme yazılır hem uyarlamada zorlanır.
+**Neden:** *"5–8 kelimelik kanca"* bir pazarlama sezgisi DEĞİL, geometrik zorunluluk:
+başlığın bakışlık puntoda (≥0,5° açısal x-yüksekliği) olması ve 2–3 satıra sığması
+gerekiyor; 1080 px tuvalde bu satır başına ~2,5 kelime eder. Aynı yoldan gövde ≈20
+kelime çıkıyor — iki bağımsız türetmenin aynı sayıya varması kuralın kanıtı.
+⚠ **ÜST sınır zorlanır, ALT sınır zorlanmaz.** Üç kelimelik bir başlık ("Sessiz bir
+dönüşüm") kusur değil, çoğu zaman daha güçlü. Ölçülen şey kadraja SIĞMA; kısalık bir
+tercih, uzunluk bir taşma riski.
+⚠ **Sınır İSTEME de yazılıyor:** bir ret koşunun tamamına mal oluyor (model yeniden
+çağrılır, konu yeniden okunur). Sığdırmaya çalışan başlık, kırpılan başlıktan iyidir.
+⚠ Ret RENDER'dan önce: dört görsel üretip sonra "başlık uzun" demek o parayı geri
+getirmiyor.
+**Zorlama:** `uyarla` → `BASLIK_KELIME_TAVANI` · `SLAYT_KELIME_TAVANI`. → D-321

@@ -148,6 +148,18 @@ const enUzunKelime = (metin: string): string =>
 const SAYAC_ETIKETI =
   /(?:BÖLÜM|Bölüm|bölüm|BOLUM|Bolum|bolum|SERİ|Seri|seri|SERI|SORU|Soru|soru|ADIM|Adım|adım|KISIM|Kısım|kısım|SAYFA|Sayfa|sayfa|PART|Part|part|STEP|Step|step)\s*[-–—.:]?\s*\d+/u
 
+/**
+ * Kapak/bölüm başlığının kelime tavanı (R-89).
+ *
+ * ⚠ Geometrik türetme: başlık bakışlık puntoda (≥0,5°) olacak ve 2–3 satıra sığacak;
+ * 1080 px tuvalde satır başına ~2,5 kelime → 5–8. Bu bir üslup tercihi değil, punto ile
+ * sütun genişliğinin birlikte dayattığı sınır.
+ */
+export const BASLIK_KELIME_TAVANI = 8
+
+/** Slayt başına toplam kelime (R-89): başlık ≤8 + gövde ≈20. */
+export const SLAYT_KELIME_TAVANI = 28
+
 export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
   const kusurlar: string[] = []
 
@@ -165,6 +177,35 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
     const yer = `kart ${i + 1}`
 
     if (y.baslik.trim() === '') kusurlar.push(`${yer}: başlık boş`)
+    // ── kelime bütçesi: kanca ≤8, slayt ≤28 (R-89) ────────────────────────
+    //
+    // ⚠ ⚠ **BU SAYILAR PAZARLAMA SEZGİSİ DEĞİL, GEOMETRİK ZORUNLULUK.** Başlığın
+    // bakışlık puntoda (≥0,5° açısal x-yüksekliği) olması ve 2–3 satıra sığması
+    // gerekiyor; 1080 px tuvalde bu satır başına ~2,5 kelime eder → **5–8 kelime**.
+    // Aynı yoldan gövde ≈20 kelime çıkıyor. İki bağımsız türetmenin aynı sayıya
+    // varması kuralın sağlamlığının kanıtı (araştırma belgesi).
+    //
+    // ⚠ **ÜST SINIR ZORLANIYOR, ALT SINIR ZORLANMIYOR.** Kısa bir başlık ("Sessiz bir
+    // dönüşüm" — üç kelime) kusur değil, çoğu zaman daha güçlü. Ölçülen şey uzunluğun
+    // kadraja SIĞIP SIĞMADIĞI; kısalık bir tercih, uzunluk bir taşma riski.
+    //
+    // ⚠ Burada reddediliyor çünkü model yazıyor: render'a kadar beklemek dört görsel
+    // üretip sonra "başlık uzun" demek olurdu ve o para geri gelmiyor.
+    const kelimeSay = (t: string): number =>
+      t.replace(/\*\*/g, '').trim().split(/\s+/).filter(Boolean).length
+    const baslikKelime = kelimeSay(y.baslik)
+    if (baslikKelime > BASLIK_KELIME_TAVANI) {
+      kusurlar.push(
+        `${yer}: başlık ${String(baslikKelime)} kelime — tavan ${String(BASLIK_KELIME_TAVANI)} ` +
+          `(bakışlık punto 2–3 satıra sığmalı, R-89)`
+      )
+    }
+    const slaytKelime = baslikKelime + kelimeSay(y.govde) + kelimeSay(y.ustBaslik)
+    if (slaytKelime > SLAYT_KELIME_TAVANI) {
+      kusurlar.push(
+        `${yer}: slayt ${String(slaytKelime)} kelime — tavan ${String(SLAYT_KELIME_TAVANI)} (R-89)`
+      )
+    }
     if ((y.baslik.match(/\*\*/g) ?? []).length % 2 !== 0)
       kusurlar.push(`${yer}: yarım kalan \`**\` vurgu işareti`)
     // ⚠ ⚠ **ÜST BAŞLIĞIN VAR OLUP OLMADIĞINA ŞABLON KARAR VERİR — D-299'un aynısı.**
@@ -360,6 +401,14 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     '  uyarlama reddedilir; kaynağı olmayan sayısal iddia kullanma.',
     '- `rayaSol` BOŞ bırak: kategori etiketi zaten `ustBaslik`ta ve aynı bilgiyi iki kez',
     '  basmak künyeyi gürültüye çevirir.',
+    // ⚠ ⚠ **SINIRI İSTEME YAZMAK, REDDETMEKTEN UCUZ.** Uyarlayıcı kelime tavanını
+    // zaten zorluyor (R-89) ama bir ret koşunun tamamına mal oluyor: model yeniden
+    // çağrılıyor, konu yeniden okunuyor. Modelin sınırı BİLMESİ hem daha ucuz hem
+    // daha iyi sonuç veriyor — sığdırmaya çalışan bir başlık, kırpılan bir başlıktan
+    // iyidir.
+    `- Başlık EN FAZLA ${String(BASLIK_KELIME_TAVANI)} kelime; kısası daha güçlü. Bu bir üslup` +
+      ' tercihi değil: başlık poster puntosunda 2–3 satıra sığmak zorunda.',
+    `- Bir slaytta başlık + gövde + üst başlık toplamı en fazla ${String(SLAYT_KELIME_TAVANI)} kelime.`,
     '- Başlıkta vurgulanacak kelimeyi `**böyle**` işaretle; işaretler çift olmalı.',
     '- `hayalet` alanı kısa olmalı: bir rakam ya da tek kelime.',
     '- Yalnız Latin harfleri, Türkçe harfler, rakam ve normal noktalama kullan.',
