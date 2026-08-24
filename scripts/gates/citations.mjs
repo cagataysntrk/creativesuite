@@ -121,12 +121,26 @@ try {
 const SKIP = /^docs\/(research|PLAN-ARSIV|denetim-tasfiye)/
 files = files.filter((f) => !SKIP.test(f))
 
+// ⚠ ⚠ **HARİCİ KOPYA belgeler taranmaz — ve bunu DİZİN ADI değil, belgenin KENDİSİ
+// ilan eder.** Ajan raporları birebir kopyalanır; yeniden yazmak onları kanıt olmaktan
+// çıkarır (bu oturumda depo sahibinin açık talimatı: *"yazma kopyala"*). Kopyanın kendi
+// § numaralandırması vardır ve ANAYASA'ya eşlenmez — kapı onu doğrulayamaz, yalnız
+// yanlış yere işaret eder. Dizin tabanlı bir SKIP `docs/referans/`teki DEPO YAZIMI
+// belgeleri de (`katalog-merkezli-hat.md`) sessizce kapsam dışına atardı; işaret
+// dosyanın içinde durur ki niyet görünür olsun.
+const KOPYA_ISARETI = /<!--\s*ATIF-KAPISI:\s*HAR[İI]C[İI] KOPYA[^>]*-->/
+
 // ── kontrol ──────────────────────────────────────────────────────────────────
 const errors = []
 const warns = new Set()
+const kopyalar = []
 
 for (const f of files) {
   const text = readFileSync(p(f), 'utf8')
+  if (KOPYA_ISARETI.test(text)) {
+    kopyalar.push(f)
+    continue
+  }
   const lines = text.split('\n')
   lines.forEach((line, i) => {
     const at = (msg) => errors.push(`${f}:${i + 1}  ${msg}`)
@@ -305,6 +319,7 @@ if (anayasa) {
   }
 }
 
+for (const k of kopyalar) console.log(`  ⊙ ${k} — HARİCİ KOPYA, atıf taraması dışı`)
 for (const w of warns) console.log(`  ⚠ ${w}`)
 if (errors.length) {
   console.log(errors.map((e) => `  ${e}`).join('\n'))

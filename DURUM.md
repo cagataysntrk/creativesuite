@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 19
-siradaki_adim: 19.1
+siradaki_adim: 19.4
 son_guncelleme: 2026-08-24
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "KAROSEL HATTI JPEG'E GECTIGINDEN BERI HIC BITMIYORDU — gercek kosu buldu. run_01a030e2 onaylandi (metin okundu: kurum sesinde, yasak terim yok, kaynaksiz sayi yok) ve surduruldu; DUZEN PROVASI kostu (plan --devam ile YENIDEN donduruluyor, yani guncel hatti aliyor — onceki turda yanlis soylemistim), render dort slaydi yazdi ve hat gorsel-yargi adiminda OLDU: damgalanamadi slayt-01.jpg (not_png). Sebep: R-90 yayin sozlesmesi render'i JPEG'e cevirdi (Graph API yalniz JPEG kabul ediyor) ama damgalayici PNG'de kaldi. Gorseller diskte duruyor, kosu defterde bitmemis: panelde ne gecmiste ne varliklarda gorunuyor. stampJpeg + stampAsset yazildi (COM segmenti SOI ardina, UTF-8 JSON; EXIF degil cunku o bir TIFF agaci demek). Gidis-donus dogrulandi: 414 bayt damga, 11 alan geri okundu, damgali dosya 1080x1350 COZULUYOR. ⚠ OLCU ALETI BESINCI KEZ YANILTTI: veri-URI ile decode HEM damgaliyi HEM ORIJINALI cozemedi sandim; file:// ile ikisi de saglam cikti — once aletten suphelen. AYRICA depo sahibi eski instagram-carousel'in hala kosulabilir oldugunu gordu: uc acik vardi ve ucu de kapatildi (CLI exit 1, CLI menusu ham listPipelines yerine hatDurumlari, /api/calistir muhafizi). Kasten ihlal: muhafizsiz API 202 donup kosuyu BASLATIYOR. Onceki turlar: R-110 R-111 R-112 R-113, duzen provasi hatta bagli (D-347), R-89 artik ON ELEME."
+son_kanit: "FAZ-19 NIHAI HALINDE — asama-2 tatbik raporu geldi (birebir kopya, seamless-arastirma-2026-08.md satir 985+) ve DORT DENETIM + RECETE tek faz belgesinde birlestirildi. RECETENIN TANISI KENDI ALETIMLE DOGRULANDI: on kapagin modal RGB kaplamasi %67,7-%92,3 (medyan ~85), on sablon DORT renk (#040404 #fafafa #0e0e0e #141414) — sayilar birebir cikti. KOK SEBEP BULUNDU: zeminCss greni YALNIZ degrade varsa ekliyor (zemin.ts:168 degradeVar) ve degrade yasakliydi, yani on sablonun HICBIRINDE gren yok; yasak kendisini telafi edecek tek mekanizmayi da kapatmis. ustDoku olu ama bu bir unutma DEGIL karar (D-319; katalog-kabul.test.ts:82 yoklugunu iddia ediyor) — diriltmek yerine .panorama::after tek ortusu gececek. markaKilidi panoramadan cikti ama static.ts:748de duruyor; ajanin elle-cizilmis-U bulgusu panorama icin ESKIMIS. ATIF KAPISI: birebir kopyalanan ajan raporu kendi bolum numaralandirmasini tasiyor ve kapiyi 13 kirik atifla kirmiziya cevirdi — dizin tabanli SKIP yerine BELGENIN KENDI ILAN ETTIGI isaret eklendi (ATIF-KAPISI: HARICI KOPYA) ve atlanan dosya adiyla bildiriliyor, sessiz degil. KASTEN IHLAL EDILDI: olmayan kural/karar/bolum numaralari eklendi, kapi 3 kirik atifla kirmizi dondu, geri alinca yesil. Onceki tur: JPEG damgasi, emekli hat uc yerden kapatildi, tuval 3:4."
 ```
 
 ## Neredeyiz
@@ -24,13 +24,15 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > ⛔ **YİRMİ BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` `3.7` `3.8` `3.14` `4.13b` `5.4b`
 > `5.5b` `6.5b` `6.9b` `7.2b` `7.5b` `7.6b` `7.8b` `8.6` `8.8b` `11.5` `11.6` `11.9`
 > `12.8` `13.3` `18.18`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık.
-> ⚠ **FAZ 19 = TASARIM FAZI.** Tam program, depo sahibinin BÜTÜN talepleri ve dört
-> denetimin özeti `docs/fazlar/FAZ-19.md`'de — bağlam sıfırlanırsa ÖNCE orayı oku.
-> ⚠ **İki araştırma raporu BİREBİR KOPYALANDI:** `docs/referans/seamless-arastirma-2026-08.md`
-> (976 satır — ölçülmüş gren/bant/font/renk değerleri). Dört tasarım denetimi:
-> `docs/referans/tasarim-denetimi-2026-08.md`.
-> ⚠ **BEKLENEN:** aşama-2 tatbik raporu (ajan `adf83dbed1f37401e`, brif
-> `scratchpad/asama2-brief.md`). Gelince KOPYALA, yazma.
+> ⚠ ⚠ **FAZ 19 = TASARIM FAZI ve belge NİHAİ HALİNDE.** `docs/fazlar/FAZ-19.md` (658
+> satır) artık tek başına yeter: depo sahibinin BÜTÜN talepleri · dört denetimin tasarım
+> yargısı · reçetenin ölçülen tanısı · on tema · on beş adım · ilk beş iş.
+> **Bağlam sıfırlanırsa ÖNCE orayı oku.**
+> ⚠ **İki referans belgesi:** `docs/referans/seamless-arastirma-2026-08.md` (1553 satır —
+> üç ajan çıktısının BİREBİR KOPYASI; satır 985'ten sonrası **AŞAMA 2 REÇETE**, uygulama
+> kaynağı) · `docs/referans/tasarim-denetimi-2026-08.md` (dört denetim).
+> ⚠ **SIRADAKİ İŞ 19.4 — zemin ve yüzey.** İlk iş tek dosya: `zemin.ts` greni koşulsuz
+> açar ve luminansa bağlar. Kabul: modal renk kaplaması ≤%40, en uzun sabit bant ≤10 px.
 > ⚠ **YAYIN YOK.** Degrade yasağının kapsamı değişti: optik degrade serbest.
 
 ## Tamamlananlar
@@ -75,6 +77,9 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **18.15** · kaynak satırı eksikliği artık görünür kutu — sessiz boşluk imzasız çıktıyı imzalı gösteriyordu (R-104) | 2026-08-24 |
 | **18.16** · şablon ailesi 6 → 10; yeni şablonlar ESKİ şablonların üç kusurunu ortaya çıkardı (R-105 · R-106) | 2026-08-24 |
 | **18.17** · ızgara sınavı ÖLÇÜLEBİLİR: baskın ton onunda da 220°, krom birebir aynı (R-107) | 2026-08-24 |
+| **19.1** · dört katmanlı tasarım denetimi: kapak · 45 iç slayt · zanaat/finiş · seamless panorama | 2026-08-24 |
+| **19.2** · bağımsız seamless araştırması BİREBİR kopyalandı; sekiz ailede görsel işlemleri açıldı | 2026-08-24 |
+| **19.3** · tatbik reçetesi: on tema, şablon şablon zemin/tipografi/taşıyıcı değerleri, ortak altyapı | 2026-08-24 |
 
 ## Sıradaki adım
 

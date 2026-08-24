@@ -1,5 +1,7 @@
 # Seamless karosel — ARAŞTIRMA ve ÖLÇÜM raporları
 
+<!-- ATIF-KAPISI: HARİCİ KOPYA — ajan raporu birebir kopyalandı, yeniden yazılmadı. Kendi § numaralandırması vardır; ANAYASA bölümlerine eşlenmez. -->
+
 ⚠ **Bu dosya ajan raporlarının BİREBİR KOPYASIDIR.** Yeniden yazılmadı, özetlenmedi —
 bağlam sıfırlansa da tam metin burada durur. Her rapor kendi başlığı altında.
 
