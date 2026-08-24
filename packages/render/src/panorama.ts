@@ -1201,8 +1201,13 @@ const bantSvg = (
           return [x, y, 0.95 - 0.75 * t]
         })
         const kontur = getStroke(nokta, {
-          size: 34,
-          thinning: 0.78,
+          // ⚠ ⚠ **34 → 14: OK ARTIK BİR ŞEYE BAĞLI, kalınlık da ona göre.** Uçlar
+          // boşluktayken kalın bir leke "bir şey var" diyordu; şimdi ok bir maddeden
+          // çıkıp sonraki maddenin numarasına iniyor ve kalın gövde o numarayı EZİYOR.
+          // Çizildi ve BAKILDI: 34'te üç şişman leke, 14'te üç kalem izi. Reçetenin
+          // verdiği sayı da 14 ve gerekçesi buymuş — ok bağlandıktan sonra anlaşıldı.
+          size: 14,
+          thinning: 0.6,
           smoothing: 0.62,
           streamline: 0.42,
           simulatePressure: false,

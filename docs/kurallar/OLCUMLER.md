@@ -1367,3 +1367,47 @@ aksanlı olması yolculuğu değil GÜRÜLTÜYÜ artırıyordu.
 Kesilmemiş panoramaya BAKILDI: 2.–5. başlıklar artık sessiz, magenta yalnız açılışta
 ("iki katına") ve varışta ("kalite") konuşuyor. Panorama genelinde aksan piksel oranı
 **%1,89**.
+
+## FAZ-19.7 · `dizin` okları — "üç aynı leke" VERİDE birebir öyleydi
+
+Denetim: *"üç mavi ok aslında ÜÇ AYNI LEKE: aynı şekil, aynı uzunluk, başsız uçsuz,
+hiçbirini hiçbir şeye bağlamıyor."* Veriye bakıldı:
+
+| ok | açıklık | \|Δy\| |
+|---|---|---|
+| 1 | 14 | 6 |
+| 2 | 14 | 6 |
+| 3 | 14 | 6 |
+
+**Üçünün de açıklığı ve dikey yolu birebir aynı.** Şikâyet bir izlenim değil, veri.
+
+### Uçlar ölçülerek bağlandı
+
+`liste.mjs` ile liste panellerinin gerçek panorama yüzdeleri okundu:
+
+| kart | panel x | madde numarası |
+|---|---|---|
+| 1 | %7,5–22,3 | %9,0 · y %44,2 |
+| 2 | %26,5–41,3 | %28,0 · y %41,1 |
+| 3 | %51,5–66,3 | %53,0 · y %41,1 |
+| 4 | **panel YOK** | — |
+
+Her ok artık bir kartın panelinin BİTTİĞİ yerden başlayıp sonraki kartın madde
+NUMARASINA iniyor. Açıklıklar 5,7 · 11,7 · 10,2 — üç ok üç ayrı mesafe kat ediyor.
+
+### ⚠ REÇETENİN İKİ ŞARTI AYNI ANDA SAĞLANAMIYOR
+
+Reçete hem *"sonraki maddenin numarasına insin"* hem *"kesimi 45–60° açıyla geçsin"*
+diyor. Maddeler aynı yükseklikte (y %41–44); %5,7'lik bir açıklıkta 45° için ~%17 dikey
+yol gerekiyor ve o da oku maddenin çok altına indirirdi. **Ya ok maddeye iner ya dik
+açıyla geçer.** Bağlantı seçildi — denetimin şikâyeti "açı" değil *"hiçbirini hiçbir şeye
+bağlamıyor"*du.
+
+⚠ **Kalınlık 34 → 14 ve bunu BAĞLANTI ortaya çıkardı.** Uçlar boşluktayken kalın bir leke
+*"bir şey var"* diyordu; ok bir numaraya inince kalın gövde o numarayı EZDİ. Çizildi ve
+bakıldı: 34'te üç şişman leke, 14'te üç kalem izi. Reçetenin verdiği sayı da 14'tü ve
+gerekçesi ancak ok bağlandıktan sonra anlaşıldı.
+
+⚠ **AÇIK: `dizin` 4. kartında panel YOK.** Denetim *"dört maddenin DÖRDÜNÜ göstersin"*
+diyor; kapanış kartı listeyi taşımıyor ve üçüncü ok bu yüzden bir numaraya değil çip
+satırına iniyor.

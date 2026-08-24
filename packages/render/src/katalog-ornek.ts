@@ -1525,10 +1525,26 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     tip: 'ok',
     // Üç ok, üç kesim: her ok kesimden ÖNCE başlayıp SONRA bitiyor. `bukum` işareti
     // dönüşümlü — düz bir ok dizisi ritmi düzleştirir.
+    // ⚠ ⚠ **OKLAR ARTIK BİR ŞEYE BAĞLI — eskiden ÜÇ AYNI LEKEYDİ.** Denetim: *"üç mavi
+    // ok aslında üç aynı leke: aynı şekil, aynı uzunluk, başsız uçsuz, hiçbirini hiçbir
+    // şeye bağlamıyor."* Veride birebir öyleydi: üçünün de açıklığı **14**, üçünün de
+    // |Δy|'si **6**. Yeni uçlar ÖLÇÜLDÜ (`liste.mjs`): her ok bir kartın liste panelinin
+    // BİTTİĞİ yerden başlayıp sonraki kartın madde NUMARASINA iniyor.
+    //   kart 1 panel %7,5–22,3 · numara %9,0 / y %44,2
+    //   kart 2 panel %26,5–41,3 · numara %28,0 / y %41,1
+    //   kart 3 panel %51,5–66,3 · numara %53,0 / y %41,1
+    // Açıklıklar artık 5,7 · 11,7 · 10,2 — üç ok üç ayrı mesafe kat ediyor.
+    //
+    // ⚠ ⚠ **REÇETENİN "45–60° AÇIYLA GEÇSİN" ŞARTI UYGULANMADI ve sebebi geometrik.**
+    // Maddeler aynı yükseklikte (y %41–44); kesimde 45° için uçlar arasında açıklık
+    // kadar dikey yol gerekiyor (%5,7 açıklık ≈ 246 px ⇒ ~%17 dikey). O da oku bir
+    // sonraki maddenin ÇOK ALTINA indirirdi. **İki şart aynı anda sağlanamıyor:** ya ok
+    // maddeye iner ya dik açıyla geçer. Bağlantı seçildi — denetimin şikâyeti "açı" değil
+    // *"hiçbirini hiçbir şeye bağlamıyor"*du.
     oklar: [
-      { x1: 18, y1: 62, x2: 32, y2: 68, bukum: 22 },
-      { x1: 43, y1: 66, x2: 57, y2: 60, bukum: -20 },
-      { x1: 68, y1: 60, x2: 82, y2: 66, bukum: 24 },
+      { x1: 22.3, y1: 44.2, x2: 28.0, y2: 41.1, bukum: 16 },
+      { x1: 41.3, y1: 41.1, x2: 53.0, y2: 41.1, bukum: -24 },
+      { x1: 66.3, y1: 41.1, x2: 76.5, y2: 36.5, bukum: 12 },
     ],
   },
   gorseller: [],
