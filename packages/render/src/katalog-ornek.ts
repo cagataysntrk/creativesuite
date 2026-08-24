@@ -1138,6 +1138,13 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
 export const ORNEK_KAVIS: KatalogOrnegi = {
   slaytGenisligi: VARSAYILAN_TUVAL.genislik,
   yukseklik: VARSAYILAN_TUVAL.yukseklik,
+  // ⚠ ⚠ **KAPAK KİLİDİ ÖLÇÜLDÜ: on kapağın DOKUZU %5,9'da, YEDİSİ %5,6'da başlıyor.**
+  // Göz ilk 300 ms'de siluet okur, süs okumaz — ve dokuz kapak aynı silueti veriyordu.
+  // ⚠ ⚠ **`orta` DENENDİ ve KAPI GERİ ÇEVİRDİ.** Metin ortaya çekilince doğrudan
+  // kemerlerin içine düştü: `sus-metni-kesiyor` %36,2, `metin-zemine-karisiyor` %20 ve
+  // %11 (tavan %4). Kemerler kadrajın alt yarısını tutuyor; `kavis`in metni bu yüzden
+  // ÜSTTE — bu bir alışkanlık değil, formun kendisi. Siluet DİKEYDE değil YATAYDA
+  // kırılıyor: kemerler soldan yükseliyor, metin sağa geçiyor.
   yerlesim: 'ust',
   tipografi: {
     baslikPayi: 1.05,
@@ -1183,6 +1190,7 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
+      kolon: 'sag' as const,
       // ⚠ ⚠ **HAYALET KALDIRILDI ve yerine ne konacağını KAPI söyledi.** Hayalet etiket
       // serisinin ilk kelimesini (`RİTİM`) tekrarlıyordu: aynı kelime bir kez 18 px, bir
       // kez kadrajın üçte biri — sıfır bilgi. Yerine `01` denendi ve `sus-baskin` kırmızı

@@ -1150,3 +1150,36 @@ bozuyor.
 ⚠ **R-98 yine vurdu:** yorumdaki ters tırnaklar tarayıcı kod parçasını taşıyan template
 literal'i kapattı ve dosya AYRIŞMADI. Tarayıcıya gönderilen metnin içinde ters tırnak
 kullanılamaz — bu oturumda dördüncü tekrarı.
+
+## FAZ-19.7 · kapak kilidi ÖLÇÜLDÜ — dokuz kapak aynı noktadan açılıyor
+
+Denetim *"on kartın dokuzunda aynı açılış hamlesi"* demişti. Ölçüldü — kapak metin
+yığınının sol ve üst kenarı (kadraj yüzdesi):
+
+| | değer | kaç şablon |
+|---|---|---|
+| **sol kenar** | %5,7–5,9 | **9 / 10** (yalnız `editoryal` %51,8) |
+| **üst kenar** | %5,6 | **7 / 10** (`alinti` %27,2 · `sahne` %29,6 · `editoryal` %26,7) |
+
+**Göz ilk 300 ms'de siluet okur, süs okumaz** — ve dokuz kapak aynı silueti veriyordu.
+
+### ⚠ ALTI AD, ÜÇ SONUÇ — çeşitlilik yapılandırmada var, piksele ULAŞMIYOR
+
+Beyan edilen yerleşim dağılımı aslında çeşitli: `ust-sol` 3 · `orta-sag` 2 · `ust-sag` 2 ·
+`ayrik-sol` 1 · `yayik-sol` 1 · `orta-sol` 1. Ama ölçüm dokuz kapağı aynı yerde buluyor.
+İki sebep:
+
+1. **`kolon: 'sag'` KAPAK KARTINDA değil**, sonraki kartlarda ayarlıydı — `kavis` ve
+   `karsilastirma` "sag" beyan ediyor, kapakları soldan açılıyordu.
+2. **`ayrik` ve `ust` aynı `justify-content`** (`flex-start`) — kapak için ayırt edilemez.
+   `yayik` gerçekten farklı (`donen`in yığını %86,8'e iniyor); `ayrik` değil.
+
+**Bu, "beş ad tek doku" hatasının kompozisyondaki karşılığı.**
+
+### ⚠ `kavis` DİKEYDE KIRILAMADI — form buna izin vermiyor
+
+Önce `yerlesim: 'orta'` denendi. Kapı geri çevirdi: metin doğrudan kemerlerin içine
+düştü — `sus-metni-kesiyor` **%36,2**, `metin-zemine-karisiyor` %20 ve %11 (tavan %4).
+**Kemerler kadrajın alt yarısını tutuyor; `kavis`in metninin üstte olması bir alışkanlık
+değil, formun kendisi.** Siluet YATAYDA kırıldı: kapak kartı `kolon: 'sag'`, sol kenar
+**%5,9 → %28,0**. Sol kenar paylaşan şablon 9 → 8.
