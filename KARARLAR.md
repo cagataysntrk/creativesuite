@@ -191,54 +191,6 @@ kuralı gereği **ilk yeniden üretim gerçekten acıtana kadar** kurulmaz. → 
 > **D-309 · D-310 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`.
 > İkisi de kapandı ve kodda yaşıyor. Atıf bütünlüğü korunuyor (R-62).
 
-## D-328 · Dört kez aynı şekilde kırılan dosya bir kapı hak eder
-
-**Olay.** `panorama-denetim.ts` içindeki `OLCUM` bir şablon dizesi ve gövdesi tarayıcıda
-koşuyor. O gövdeye Türkçe bir yorum yazarken kod alıntısını ters tırnakla göstermek —
-`` `contain` `` gibi — diziyi ORADA bitiriyor. Geri kalan her şey TypeScript sanılıyor ve
-hata ölçümle ilgisiz bir yerde patlıyor: *"Property 'ray' does not exist on type
-'string'"*.
-
-**Dördüncü kez oldu.** Dosyanın kendi yorumunda *"bu bölgedeki yorumlar ters tırnaksız
-olmalı"* yazıyordu. Yazılı olması yetmedi — bu, R-87'nin dersinin aynısı: kural kataloğa
-yazılıydı, ölçüm yoktu.
-
-**Karar.** `olcum-ters-tirnak` kapısı. Kapsam DAR ve bu bir gevşetme değil, kapının
-çalışabilmesinin şartı: yalnız üç tarayıcı gövdesi, yalnız yorum satırları, yalnız
-ÇIPLAK ters tırnak — kaçırılmış olan meşru ve sık kullanılıyor.
-
-**Kapı iki kez yanlış pozitif verdi ve ikisi de düzeltildi.** (1) Kaçırılmış ters
-tırnakları da ihlal saydı. (2) Gövdenin açılışını "ilk ters tırnak" sanıp sabitin
-ÜSTÜNDEKİ JSDoc'ta duran kod alıntılarını gövde içi gördü; üç gövde de `(() => {` ile
-açılıyor ve aranan o. Yanlış pozitif de bir hatadır: okunmayan kapı, olmayan kapıdır.
-
-**Kanıt.** Kural kasten ihlal edildi — tek bir yoruma ters tırnak konup kapı kırmızıya
-döndü, geri alınınca yeşile.
-
-## D-329 · Ölçek tek tabandan — ve tek tuvalde görülemeyen kusur sınıfı
-
-**Bulgu.** Sistemin ölçeklenen yanı doğruydu: başlık ikili aramayla, gövde
-`GOVDE_TABANI_1080` ile, panel `--panel-olcek` ile tuvale bağlıydı. **Krom değildi.**
-`.ray-logo{24/104px}`, `.kilometre-nokta{13px}`, `.kilometre-etiket{16px}`, rayın
-`font-size:18px`i ve kart dolgusu çıplak piksel olarak duruyordu.
-
-**Kusur tek tuvalde görülemez.** Tek tuvalde her sayı doğru GÖRÜNÜR çünkü referansı
-yoktur; hata ancak iki tuvalin ORANI karşılaştırılınca ortaya çıkıyor. Bu, bu depodaki
-"bakarak bulunan" kusurlardan farklı bir sınıf: bakmak yetmiyor, İKİ kez bakıp
-karşılaştırmak gerekiyor.
-
-**Karar.** 1080'de ölçülmüş her sayı `olc(px) = round(px × G / 1080)` ile çevriliyor.
-Tek taban: ikinci bir çarpan, bir gün birinin unutulması demek.
-
-**Test iki tuval koşuyor** ve `null`u "geçti" saymıyor — öge çizilmemişse ölçüm
-yapılmamıştır. Kasten ihlal edildi: tek bir `olc(18)` çıplak `18px`e döndürüldü ve test
-*"ray puntosu: 18 → 18, beklenen ≈22,5"* diyerek kusuru ADIYLA söyledi.
-
-**Taban çizgisi ızgarası bu adımda KAPANMADI.** 18.13 iki iş taşıyordu; ikincisi ayrı bir
-adım (18.13b). Sebep ölçülerek anlaşıldı: kartın dış dolgusu bir çerçeve, metin ritminin
-parçası değil ve 54'ün yarımlarına izin vermek kuralı anlamsız kılıyordu — 27 ile
-neredeyse her sayı ifade edilebiliyor. Bir kuralı esneterek kurtarmak, onu kaybetmektir.
-
 ## D-330 · Taban çizgisi ızgarası METİNDEN türüyor — sabit 54 px yanlıştı
 
 **Faz planı bir sayı varsayıyordu:** `TABAN = gövdePuntosu × satırAralığı = 40 × 1,35 =
@@ -574,3 +526,32 @@ ikinci kez düşülür; bu depoda defalarca oldu.
 
 **Bakıldı.** Izgara 1440'ta yeniden çizildi: on kapak, sıfır kusur, aile tutuyor, ayrım
 hâlâ yerleşimden geliyor. → R-91 · `tuval.test.ts`
+
+
+## D-349 · Ailelik AKSANDAN değil ORTAK İSKELETTEN okunur — tek palet kalktı
+
+**Bağlam.** `aile-tutarliligi` on şablonun baskın tonunun ±15° içinde kalmasını istiyordu
+ve bu D-318'in "tek karneli aksan" kararının ölçüm karşılığıydı. FAZ-19.6'da `alinti`
+P3 (kâğıt+oksit, **mavi YOK**) ve `kavis` P4 (beton+amber) paletlerine geçince ölçüt
+kırıldı — haklı olarak: oksit 32°, amber 80°, marka mavisi 262°.
+
+**Karar.** Ölçüt DEĞİŞTİ, kaldırılmadı. Ailelik artık şunlardan okunuyor: aynı ızgara,
+aynı güvenli alan (R-88), aynı künye şeridi geometrisi, aynı gövde ailesi (Archivo),
+aynı gren yasası. **Aksan bu listede DEĞİL.** Yerine gelen kısıt: aksan keyfî olamaz —
+`--ramp-palet-*` ya da marka rampasından gelmek zorunda. Yani şablon renk dünyasını
+seçebilir, İCAT edemez.
+
+**Neden.** Depo sahibinin talimatı açık ve tekrarlı: *"on şablona on ayrı tema"*,
+*"marka renk/font zorunluluğu YOK — uyumlu olmak aynısını kullanmak değil"*. Reçete de
+aynı yeri gösteriyor: *"Ailelik neyden okunuyor: aynı ızgara, aynı güvenli alan, aynı
+gövde ailesi, aynı künye geometrisi, aynı gren yasası. Farklılık yüzey·ışık·ölçek·
+renk·yoğunlukta — kompozisyon sözleşmesinde değil."*
+
+⚠ **Ölçülen boşluk bunu ZORLADI.** `tas` ve `beton` yüzeyleri σ'da ayrılmıyordu
+(5,10 / 5,00): iki malzeme, tek görünüm. Doku farkı yetmiyor; ayrımın taşıyıcısı RENK.
+Tek palet kuralı, yüzey ailelerini yarım bırakıyordu.
+
+⚠ **Bu bir gevşetme değil, ölçütün DOĞRU ŞEYE bakması.** Eski ölçüt "hepsi aynı renkte
+mi" diye soruyordu; yeni ölçüt "hepsi aynı iskeleti mi kullanıyor, ve rengi kendi
+icat mı etti" diye soruyor. İkincisi markayı gerçekten koruyan sorudur.
+

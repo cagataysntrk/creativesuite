@@ -30,6 +30,14 @@
   --ramp-marka-mavi-300: oklch(0.760 0.117 262);
   --ramp-marka-mavi-500: oklch(0.600 0.206 262);
   --ramp-marka-mavi-600: oklch(0.530 0.234 262);
+  --ramp-palet-beton-amber: oklch(0.780 0.140 80);
+  --ramp-palet-beton-murekkep: oklch(0.140 0.006 75);
+  --ramp-palet-beton-taban: oklch(0.380 0.009 75);
+  --ramp-palet-beton-yuzey: oklch(0.480 0.010 75);
+  --ramp-palet-kagit-murekkep: oklch(0.200 0.007 75);
+  --ramp-palet-kagit-oksit: oklch(0.520 0.174 32);
+  --ramp-palet-kagit-taban: oklch(0.950 0.004 75);
+  --ramp-palet-kagit-yuzey: oklch(0.880 0.006 75);
   --ramp-signal-danger: oklch(0.58 0.160 25);
   --ramp-signal-ok: oklch(0.68 0.107 195);
   --ramp-signal-warn: oklch(0.72 0.140 75);

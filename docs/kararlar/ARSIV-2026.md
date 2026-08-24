@@ -6603,3 +6603,51 @@ değil, ölü kodun gitmesi oldu — **R-76'nın dilediği tam olarak bu:** tava
 
 ⚠ `lekeler`in diğer tipleri (`daire` · `halka` · `kare` · `nokta` · `tarama`) duruyor:
 onlar düz dolgu, yani sistemin diliyle uyumlu.
+
+## D-328 · Dört kez aynı şekilde kırılan dosya bir kapı hak eder
+
+**Olay.** `panorama-denetim.ts` içindeki `OLCUM` bir şablon dizesi ve gövdesi tarayıcıda
+koşuyor. O gövdeye Türkçe bir yorum yazarken kod alıntısını ters tırnakla göstermek —
+`` `contain` `` gibi — diziyi ORADA bitiriyor. Geri kalan her şey TypeScript sanılıyor ve
+hata ölçümle ilgisiz bir yerde patlıyor: *"Property 'ray' does not exist on type
+'string'"*.
+
+**Dördüncü kez oldu.** Dosyanın kendi yorumunda *"bu bölgedeki yorumlar ters tırnaksız
+olmalı"* yazıyordu. Yazılı olması yetmedi — bu, R-87'nin dersinin aynısı: kural kataloğa
+yazılıydı, ölçüm yoktu.
+
+**Karar.** `olcum-ters-tirnak` kapısı. Kapsam DAR ve bu bir gevşetme değil, kapının
+çalışabilmesinin şartı: yalnız üç tarayıcı gövdesi, yalnız yorum satırları, yalnız
+ÇIPLAK ters tırnak — kaçırılmış olan meşru ve sık kullanılıyor.
+
+**Kapı iki kez yanlış pozitif verdi ve ikisi de düzeltildi.** (1) Kaçırılmış ters
+tırnakları da ihlal saydı. (2) Gövdenin açılışını "ilk ters tırnak" sanıp sabitin
+ÜSTÜNDEKİ JSDoc'ta duran kod alıntılarını gövde içi gördü; üç gövde de `(() => {` ile
+açılıyor ve aranan o. Yanlış pozitif de bir hatadır: okunmayan kapı, olmayan kapıdır.
+
+**Kanıt.** Kural kasten ihlal edildi — tek bir yoruma ters tırnak konup kapı kırmızıya
+döndü, geri alınınca yeşile.
+
+## D-329 · Ölçek tek tabandan — ve tek tuvalde görülemeyen kusur sınıfı
+
+**Bulgu.** Sistemin ölçeklenen yanı doğruydu: başlık ikili aramayla, gövde
+`GOVDE_TABANI_1080` ile, panel `--panel-olcek` ile tuvale bağlıydı. **Krom değildi.**
+`.ray-logo{24/104px}`, `.kilometre-nokta{13px}`, `.kilometre-etiket{16px}`, rayın
+`font-size:18px`i ve kart dolgusu çıplak piksel olarak duruyordu.
+
+**Kusur tek tuvalde görülemez.** Tek tuvalde her sayı doğru GÖRÜNÜR çünkü referansı
+yoktur; hata ancak iki tuvalin ORANI karşılaştırılınca ortaya çıkıyor. Bu, bu depodaki
+"bakarak bulunan" kusurlardan farklı bir sınıf: bakmak yetmiyor, İKİ kez bakıp
+karşılaştırmak gerekiyor.
+
+**Karar.** 1080'de ölçülmüş her sayı `olc(px) = round(px × G / 1080)` ile çevriliyor.
+Tek taban: ikinci bir çarpan, bir gün birinin unutulması demek.
+
+**Test iki tuval koşuyor** ve `null`u "geçti" saymıyor — öge çizilmemişse ölçüm
+yapılmamıştır. Kasten ihlal edildi: tek bir `olc(18)` çıplak `18px`e döndürüldü ve test
+*"ray puntosu: 18 → 18, beklenen ≈22,5"* diyerek kusuru ADIYLA söyledi.
+
+**Taban çizgisi ızgarası bu adımda KAPANMADI.** 18.13 iki iş taşıyordu; ikincisi ayrı bir
+adım (18.13b). Sebep ölçülerek anlaşıldı: kartın dış dolgusu bir çerçeve, metin ritminin
+parçası değil ve 54'ün yarımlarına izin vermek kuralı anlamsız kılıyordu — 27 ile
+neredeyse her sayı ifade edilebiliyor. Bir kuralı esneterek kurtarmak, onu kaybetmektir.

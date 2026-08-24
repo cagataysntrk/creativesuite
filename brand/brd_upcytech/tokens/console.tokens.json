@@ -51,6 +51,33 @@
         "$type": "color"
       }
     },
+    "palet": {
+      "$description": "ŞABLON PALETLERİ (FAZ-19.6). Marka rampası tek bir dünyayı tarif ediyor: mürekkep + mavi. On şablonun on ayrı malzemesi varsa on ayrı renk dünyası da olmalı — yoksa `alinti`nin açık taşı ile `kavis`in betonu ölçümde de gözde de ayrılmıyor (σ 5,10 / 5,00, ayrım YOK). Paletler reçetenin `0.3` bölümünden ve HEPSİ gamut denetiminden geçti (oran 0,06–0,89, tavan 0,96). ⚠ Aksanlar cusp'ın %85–89'unda: reçete kendi kuralını (C ≤ maksC×0,85) uygulamış.",
+      "kagit-taban": {
+        "$description": "P3 sıcak kâğıt. #FAFAFA DEĞİL: saf beyaz kâğıt değil ekrandır.",
+        "$value": "oklch(0.950 0.004 75)",
+        "$type": "color"
+      },
+      "kagit-yuzey": { "$value": "oklch(0.880 0.006 75)", "$type": "color" },
+      "kagit-murekkep": { "$value": "oklch(0.200 0.007 75)", "$type": "color" },
+      "kagit-oksit": {
+        "$description": "P3'ün TEK aksanı. ⚠ Bu palette MAVİ YOK — markadan çıkışın kanıtı: uyumlu olmak aynısını kullanmak değildir.",
+        "$value": "oklch(0.520 0.174 32)",
+        "$type": "color"
+      },
+      "beton-taban": {
+        "$description": "P4 beton. Orta açıklıkta bir zemin — ne mürekkep ne kâğıt.",
+        "$value": "oklch(0.380 0.009 75)",
+        "$type": "color"
+      },
+      "beton-yuzey": { "$value": "oklch(0.480 0.010 75)", "$type": "color" },
+      "beton-murekkep": { "$value": "oklch(0.140 0.006 75)", "$type": "color" },
+      "beton-amber": {
+        "$description": "P4'ün aksanı. Koyu beton zemin üstünde 9,70:1.",
+        "$value": "oklch(0.780 0.140 80)",
+        "$type": "color"
+      }
+    },
     "marka": {
       "$description": "Marka rampası — MARKANIN KENDİ DİZAYN SİSTEMİNDEN (D-318). Nötrler CHROMA 0: sistem Dima'nın sıcak mürekkebini (hue 65) ve UpcyMan'in soğuk mavi-grisini (240) bilerek tersine çevirip gerçek nötre geçiyor. Koyu zemin #040404 — saf siyah DEĞİL: OLED halasyonu ve kenarda kaybolan hairline'lar yüzünden. Normal mesafede ikisi ayırt edilemez; panelin kenarında edilir. Mavi rampa OKLCH hue 262 ve her adım KONTRAST ÇÖZÜLEREK bulunmuş, seçilmemiş.",
       "ink-1000": {

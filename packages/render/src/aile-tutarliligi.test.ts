@@ -227,18 +227,39 @@ describe('aile sınavı — on şablon tek ızgarada', () => {
     }
   })
 
-  it('on şablonun BASKIN TONU aynı — ızgara tek bir hesaba ait', () => {
-    const tonlar = Object.entries(olculer)
-      .filter(([, v]) => v.renkli > 200)
-      .map(([id, v]) => [id, v.tepe] as const)
-    expect(tonlar.length).toBeGreaterThan(6)
-    const ilk = tonlar[0]?.[1]
-    for (const [id, t] of tonlar) {
-      expect(
-        Math.abs((t ?? 0) - (ilk ?? 0)),
-        `${id}: ton ${String(t)}°, aile ${String(ilk)}°`
-      ).toBeLessThanOrEqual(15)
+  // ⚠ ⚠ **İDDİA DEĞİŞTİ: "hepsi aynı renkte mi" → "rengini İCAT mı etti" (D-349).**
+  // Eski ölçüt on şablonun baskın tonunu ±15°'de tutuyordu ve D-318'in "tek karneli
+  // aksan" kararının ölçüm karşılığıydı. FAZ-19.6'da `alinti` P3'e (kâğıt+oksit, **mavi
+  // YOK**), `kavis` P4'e (beton+amber) geçince kırıldı — haklı olarak: oksit 32°,
+  // amber 80°, marka mavisi 262°.
+  //
+  // ⚠ ⚠ **ÖLÇÜLEN BOŞLUK BU DEĞİŞİMİ ZORLADI.** `tas` ve `beton` yüzeyleri σ'da
+  // ayrılmıyordu (5,10 / 5,00): iki malzeme, tek görünüm. Doku farkı yetmiyor; ayrımın
+  // taşıyıcısı RENK. Tek palet kuralı, yüzey ailelerini yarım bırakıyordu.
+  //
+  // ⚠ Bu bir gevşetme DEĞİL. Ailelik artık ortak iskeletten okunuyor (ızgara, güvenli
+  // alan, künye geometrisi, gövde ailesi, gren) — ve onların hepsi bu dosyada ayrıca
+  // sınanıyor. Aksana gelen kısıt: **keyfî olamaz.** Bir şablon renk dünyasını SEÇER,
+  // İCAT ETMEZ; aksan `--ramp-*` token'larından gelmek zorunda.
+  it('şablon aksanı rampadan geliyor — renk SEÇİLİR, icat EDİLMEZ (D-349)', () => {
+    for (const [id, o] of Object.entries(ORNEKLER)) {
+      const a = (o as { readonly aksan?: string }).aksan
+      if (a === undefined) continue
+      expect(a, `${id}: aksan serbest renk — rampadan gelmeli`).toMatch(
+        /^var\(--ramp-[a-z0-9-]+\)$/
+      )
     }
+  })
+
+  // ⚠ Palet SAYISI da serbest değil: iki şablon aynı paleti kullanabilir, ama on ayrı
+  // renk icadı "on marka" demek olurdu. Bugün iki palet var; tavan reçetenin beşi.
+  it('kullanılan palet sayısı BEŞİ aşmıyor — on tema, beş renk dünyası', () => {
+    const paletler = new Set(
+      Object.values(ORNEKLER)
+        .map((o) => (o as { readonly aksan?: string }).aksan)
+        .filter((a): a is string => a !== undefined)
+    )
+    expect(paletler.size, `kullanılan aksan: ${[...paletler].join(' · ')}`).toBeLessThanOrEqual(5)
   })
 
   // 🧪 ⚠ **KASTEN İHLAL** — adımın kendi testi: *"bir şablonun aksanını değiştir →

@@ -1142,7 +1142,9 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
     baslikSutunu: 0.72,
     govdeSutunu: 0.78,
   },
-  zemin: 'var(--role-bg)',
+  zemin: 'var(--ramp-palet-beton-taban)',
+  // ⚠ PALET — P4 BETON+AMBER — orta açıklıkta bir zemin, ne mürekkep ne kâğıt. Betonun kimliği taneden değil RENKTEN de geliyor.
+  aksan: 'var(--ramp-palet-beton-amber)',
   // ⚠ YÜZEY AİLESİ — beton: kaba tane, ölçülen σ kâğıdın ~3,7 katı.
   yuzey: 'beton' as const,
   hayaletKonumu: { ust: 66, olcek: 1.5, guc: 12 },
@@ -1249,7 +1251,9 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
     baslikSutunu: 0.9,
     govdeSutunu: 0.62,
   },
-  zemin: 'var(--ramp-marka-kagit)',
+  zemin: 'var(--ramp-palet-kagit-taban)',
+  // ⚠ PALET — P3 KÂĞIT+OKSİT — bu palette MAVİ YOK. Markadan çıkışın kanıtı: uyumlu olmak aynısını kullanmak değildir. `tas` yüzeyi ile `beton` σ'da ayrılmıyordu (5,10 / 5,00); ayrım BURADA kuruluyor.
+  aksan: 'var(--ramp-palet-kagit-oksit)',
   // ⚠ YÜZEY AİLESİ — açık taş: iri tane + damar. Damar `multiply` — taş ışığı geçirmez.
   yuzey: 'tas' as const,
   hayaletKonumu: { ust: 62, olcek: 1.1, guc: 8 },

@@ -541,6 +541,19 @@ export interface PanoramaBelgesi {
    */
   readonly yuzey?: Yuzey
   /**
+   * ŞABLONUN AKSANI — palet kimliği (FAZ-19.6).
+   *
+   * ⚠ ⚠ **AKSAN ZEMİNİN KUTBUNDAN TÜRÜYORDU ve bu TEK renk dünyası demekti.**
+   * `kartRenkleri` koyu zeminde marka mavisini, açık zeminde kâğıt mavisini veriyor:
+   * doğru bir kural ama tek palet varsayıyor. On şablonun on ayrı malzemesi varsa on
+   * ayrı renk dünyası da olmalı — `alinti`nin açık taşı ile `kavis`in betonu ölçümde
+   * de gözde de ayrılmıyordu (σ 5,10 / 5,00). Palet farkı o boşluğu kapatıyor.
+   *
+   * ⚠ Verilmezse eski davranış: aksan zeminden türer. Palet vermeyen şablon marka
+   * paletinde kalır — sessiz bir varsayılan değil, açık bir geri dönüş.
+   */
+  readonly aksan?: string
+  /**
    * Kartların ÜSTÜNDE duran bitiş dokusu — gren + vinyet.
    *
    * ⚠ ⚠ **`zeminDokusu` OPAK KARTIN ALTINDA KALIYOR ve `donen` bu yüzden tek katmanlıydı.**
@@ -823,7 +836,8 @@ const yuzeyAdimi = (yuzde: number): string =>
 /** Kartın renk seti — zeminden türetiliyor, seçilmiyor. */
 const kartRenkleri = (
   zemin: string,
-  tokenCss = ''
+  tokenCss = '',
+  paletAksani?: string
 ): {
   readonly metin: string
   readonly aksan: string
@@ -832,7 +846,7 @@ const kartRenkleri = (
   koyuMu(zemin, tokenCss)
     ? {
         metin: METIN,
-        aksan: AKSAN,
+        aksan: paletAksani ?? AKSAN,
         // ⚠ Soluk metin ALFA HARMANI DEĞİL, ölçülmüş bir adım: #989898, koyu kanvasta
         // 7.12:1. Alfa ile yaklaşmak "aşağı yukarı soluk" demektir; sistem "şu kadar
         // soluk, şu kadar kontrast" diyor.
@@ -846,7 +860,7 @@ const kartRenkleri = (
         // ölçülmüştü: bakır/amber aksan kâğıtta 1,9:1 veriyordu. Sistemin mavisi kâğıt
         // için AYRI bir adım taşıyor (#0b5bf0, 5.34:1) — yani artık marka rengi açık
         // zeminli slaytta da görünebiliyor ve karosel tek bir aksanla konuşuyor.
-        aksan: 'var(--role-vurgu-acik, var(--role-line-edge))',
+        aksan: paletAksani ?? 'var(--role-vurgu-acik, var(--role-line-edge))',
         soluk: 'var(--role-soluk-acik, var(--role-line-edge))',
       }
 
@@ -1282,9 +1296,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const olcuHedef = Math.min(govdeSinir, Math.round(govdeTabani * 0.5 * OLCU_HEDEF))
   // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
   // türüyor; kartın kendi zemininden değil — onlar hiçbir kartın içinde durmuyor.
-  const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin, doc.tokenCss)
+  const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin, doc.tokenCss, doc.aksan)
   // Künye şeridi panorama zemininin üstünde duruyor — rengi ORADAN türüyor.
-  const rayRenkleri = kartRenkleri(doc.zemin, doc.tokenCss)
+  const rayRenkleri = kartRenkleri(doc.zemin, doc.tokenCss, doc.aksan)
   // ⚠ İki alanlı zeminde metin ÜST alanın üstünde duruyor (kartlar üste yaslı), o yüzden
   // renkler üst alandan türüyor. Alt alan bandın ve rakamın bölgesi.
   // ⚠ ⚠ **IIFE'DEN DIŞARI ALINDI:** `<section>` etiketini kuran IIFE kapanınca `kartZemini`
@@ -1297,7 +1311,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
       (k, i) =>
         ((): string => {
           const kartZemini = kartinZemini(k)
-          const r = kartRenkleri(kartZemini, doc.tokenCss)
+          const r = kartRenkleri(kartZemini, doc.tokenCss, doc.aksan)
           // ⚠ ⚠ **YÜZEY DÖNÜŞÜ KESİMDE DEĞİL, KARTIN SON %30'UNDA (FAZ-19.7).**
           // `donen`in kimliği kart renklerinin dönmesi; ama dönüş TAM KESİM ÇİZGİSİNDE
           // oluyordu ve bu seamless'ın TERSİ: kaydıran göz iki ayrı kare görüyor,
@@ -1345,7 +1359,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
                     Math.max(1, doc.alanSiniri.noktalar.length)
                 ? doc.alanSiniri.alt
                 : doc.alanSiniri.ust
-          const hr = kartRenkleri(hayaletZemini, doc.tokenCss)
+          const hr = kartRenkleri(hayaletZemini, doc.tokenCss, doc.aksan)
           return (
             // ⚠ ⚠ **KAPAK AYRI BİR SINIF ALIYOR (`ilk`) ve sebebi tipografik.** Markanın
             // dizayn sistemi Source Serif 4'e TEK bir iş veriyor: pazarlama sayfasının

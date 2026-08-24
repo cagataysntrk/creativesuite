@@ -1079,3 +1079,30 @@ zemine dönüşmüştü — açık taş değil, ucuz bir doku kaplaması. Damar 
 `multiply` → `soft-light`: `multiply` açık zeminde yalnız karartıyor, taşın damarı ise
 ışığı DAĞITIR. σ 5,10 → **3,88** ve çizim ilk kez gerçek bir taş yüzeyi gibi duruyor.
 **Bir sayının iyi olması, bakmamak için gerekçe değil.**
+
+## FAZ-19.6 · beş palet — ve `tas`/`beton` ayrımı ölçüyle KAPANDI
+
+Yirmi rengin yirmisi de gamut denetiminden geçti (oran 0,06–0,89, tavan 0,96) ve
+reçetenin verdiği hex'ler benim hesabımla **birebir** çıktı: `#000337` · `#3e79ed` ·
+`#be5823` · `#f0eeeb` · `#b8321c` · `#e6ac3d` · `#d82e92`. Aksanların hepsi cusp'ın
+%85–89'unda — reçete kendi kuralını (`C ≤ maksC×0,85`) uygulamış.
+
+İki palet bağlandı: `alinti` → **P3 kâğıt+oksit (mavi YOK)**, `kavis` → **P4 beton+amber**.
+
+| şablon | önce | sonra |
+|---|---|---|
+| `alinti` σ / uçlarda | 5,10 / — | **3,88 / %87,7** (açık taş) |
+| `kavis` σ / uçlarda | 5,00 / %19,9 | **5,05 / %0,7** (orta ton beton) |
+
+⚠ **Geçen turun açık bulgusu kapandı.** `tas` ve `beton` σ'da ayrılmıyordu (5,10 / 5,00):
+iki malzeme, tek görünüm. Şimdi tonal yerleşimleri taban tabana zıt — biri kâğıt ucunda,
+öteki tam ortada — ve aksanları oksit (32°) ile amber (80°). **Doku farkı yetmiyordu;
+ayrımın taşıyıcısı RENK.**
+
+⚠ ⚠ **BU DEĞİŞİM BİR KURALI KIRDI ve kural DEĞİŞTİ, test değil (D-349).**
+`aile-tutarliligi` on şablonun baskın tonunu ±15°'de tutuyordu — D-318'in "tek karneli
+aksan" kararının ölçüm karşılığı. Ölçüt kaldırılmadı, **iddiası değişti:** ailelik artık
+ortak iskeletten okunuyor (ızgara · güvenli alan · künye geometrisi · gövde ailesi ·
+gren) ve aksana gelen kısıt *"keyfî olamaz"*: `--ramp-*` token'ından gelmek zorunda.
+**Şablon renk dünyasını SEÇER, İCAT ETMEZ.** Eski ölçüt "hepsi aynı renkte mi" diye
+soruyordu; yenisi "rengini icat mı etti" diye soruyor — markayı gerçekten koruyan soru bu.
