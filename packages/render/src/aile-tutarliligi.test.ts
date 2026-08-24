@@ -55,6 +55,22 @@ const OLCUM = `(() => {
     rayPunto: al('.ray', 'fontSize'),
     rayUst: rb ? Math.round(rb.top) : null,
     rayCocuk: ray ? ray.children.length : null,
+    hizaSapmasi: (() => {
+      let en = 0
+      document.querySelectorAll('.kart').forEach((kart) => {
+        const b = kart.querySelector('.baslik')
+        if (!b) return
+        const sol = b.getBoundingClientRect().left
+        for (const sec of ['.ust-baslik', '.govde']) {
+          const e = kart.querySelector(sec)
+          if (!e) continue
+          const r = e.getBoundingClientRect()
+          if (r.width < 4) continue
+          en = Math.max(en, Math.abs(Math.round(r.left - sol)))
+        }
+      })
+      return en
+    })(),
     etiketAcikligi: (() => {
       const ue = document.querySelector('.ust-baslik')
       const bs = document.querySelector('.baslik')
@@ -105,6 +121,7 @@ interface Olcu {
   readonly rayUst: number
   readonly rayCocuk: number
   readonly etiketAcikligi: number | null
+  readonly hizaSapmasi: number
   readonly renkli: number
   readonly tepe: number | null
   readonly pay: number
@@ -174,6 +191,19 @@ describe('aile sınavı — on şablon tek ızgarada', () => {
     const ilk = olculu[0]?.[1].etiketAcikligi
     for (const [id, v] of olculu) {
       expect(v.etiketAcikligi, `${id} etiket→başlık açıklığı`).toBe(ilk)
+    }
+  })
+
+  // ⚠ ⚠ **SAĞ YASLI KART BİR SÜTUN DEĞİL, "SAĞA İTİLMİŞ KUTULAR" İDİ.** `align-items:
+  // flex-end` her bloğu ayrı ayrı sağa itiyor; kutular içeriklerine göre daraldığı için
+  // üç bloğun ÜÇ AYRI sol kenarı oluyordu. Ölçüldü: sol yaslı kartların hepsinde sapma
+  // 0, sağ yaslı DÖRT kartın dördünde de kaymış — `sahne` 2/4 (+343), `kavis` 3 (+538,
+  // gövde −64), `karsilastirma` 2 (+597, gövde +108). Üç şablon, tek sebep.
+  // ⚠ Ölçü MUTLAK sıfır: bir metin bloğunun sol kenarı ya ötekilerle aynıdır ya değildir.
+  // Tolerans yazmak 300 px'lik bir kaymayı "biraz" yapardı.
+  it('metin blokları TEK sol kenarı paylaşıyor — sağ yaslı kartta da', () => {
+    for (const [id, v] of Object.entries(olculer)) {
+      expect(v.hizaSapmasi, `${id}: etiket/gövde başlığın sol kenarından kaymış`).toBe(0)
     }
   })
 

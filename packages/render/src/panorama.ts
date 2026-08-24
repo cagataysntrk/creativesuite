@@ -1438,7 +1438,19 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // TÜRÜYOR (`--kart-metin`), sabit beyaz değil — kâğıt zeminde beyaz ışık görünmez.
     `  .kart { box-shadow: inset 0 1px 0 ${sol('--kart-metin', 9)},`,
     `          inset 0 -1px 0 ${sol('--kart-metin', 5)} }`,
-    `  .kart.sag { align-items: flex-end }`,
+    // ⚠ ⚠ **SAĞ KART "SAĞA İTİLMİŞ KUTULAR" DEĞİL, BİR SÜTUNDUR — ve fark ÖLÇÜLDÜ.**
+    // `align-items: flex-end` her bloğu AYRI AYRI sağa itiyordu; kutular içeriklerine
+    // göre daralınca üç bloğun üç ayrı sol kenarı oluyordu. Ölçüm: sol yaslı kartların
+    // hepsinde etiket ve gövde başlıkla aynı sol kenarda (0 · 0); sağ yaslı DÖRT kartın
+    // dördünde de kaymış — `sahne` 2/4 (+343), `kavis` 3 (+538, gövde −64),
+    // `karsilastirma` 2 (+597, gövde +108). Üç şablon, tek sebep.
+    // ⚠ Çözüm hizalamayı değiştirmek değil, SÜTUNU kurmak: kart sola yaslı kalıyor,
+    // sol dolgu sütunu sağ yakaya taşıyor. Böylece üç blok tek sol kenarı paylaşıyor ve
+    // metin kendi kutusunda solda kalıyor — `text-align` dokunulmadan duruyor.
+    // ⚠ Sütun İKİSİNİN BÜYÜĞÜ: başlık kolonu ile gövde ölçü sınırı farklı olabiliyor
+    // (`govdeSutunu`); küçüğünü almak geniş olanı sağdan taşırırdı. → R-113
+    `  .kart.sag { align-items: flex-start;`,
+    `              padding-left: ${String(Math.max(0, G - olc(64) - Math.max(Math.round(G * t.baslikSutunu) - 128, govdeSinir)))}px }`,
     `  .kart.sag > * { text-align: left }`,
     // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).

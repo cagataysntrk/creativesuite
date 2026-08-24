@@ -183,3 +183,11 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   (R-21) ve depoda çıplak kullanım yok. Ama kapı yanlış sebeple yeşil: literali yasaklıyor,
   locale'i değil. Düzeltmesi küçük (case satırlarını sıyırmadan önce yakala) ve
   `ui-tema`nın yorum körlüğüyle aynı sınıf — **ölçüm aleti ölçtüğü şeyi göstermiyor.**
+- **D25 · `TASARIM.md` satır tavanına DAYANDI (260/260).** R-113 ancak bugün yazılan üç
+  kuralın (R-110 · R-111 · R-112) kanıt anlatısı kısaltılarak sığdı; o ayrıntı zaten
+  `OLCUMLER.md` ve `KARARLAR.md`'de duruyor, yani kayıp yok. Ama bir sonraki kural
+  sığmayacak ve **tavanı yükseltmek yanlış cevap** olur (R-63'ün amacı okunabilirlik).
+  Yapısal çözüm bir bölme daha: dosya bugün 31 kural taşıyor ve iki farklı işi var —
+  **tipografi/ölçü** (R-83 R-86 R-88 R-100 …) ile **kompozisyon/süreklilik** (R-87 R-94
+  R-109 R-112 R-113 …). Bölme DELİBERE yapılmalı, bir sonraki kural sıkışınca aceleyle
+  değil. ⚠ `citations` kapısının `KURAL_DOSYALARI` listesi de güncellenmeli.

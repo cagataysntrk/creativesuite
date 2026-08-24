@@ -221,37 +221,40 @@ aynı sebeple kayboldu (D-319'un tekrarı).
 ### R-110 · katalog-vaadi-baglayici · GATE · aktif
 Kataloğun `gorsel.adet` beyanı ile örneğin yuva sayısı **eşittir**; `slayt-basina` her
 karta bir yuva demektir. Fazla yuva da eksik yuva kadar kusurdur.
-**Neden:** beyanı üretimde **hiç kimse okumuyordu** — arandı, tek okuyan `kirpma`ydı;
-sayıyı `ORNEKLER`in yuva adedi sürüyor. Bağlamayan bir beyan sessizce kayar ve iki
-şablonda kaydı: `memphis` altı slayda üç yuva veriyordu, `editoryal`in beyanı üç şerit
-çizerken iki diyordu.
+**Neden:** beyanı üretimde **hiç kimse okumuyordu** ve bağlamayan bir beyan sessizce
+kaydı — `memphis` altı slayda üç yuva veriyordu.
 ⚠ Kapı VARDI ve beyanın **yanlış yarısını** ölçüyordu (`toBeGreaterThan(0)`). Yarım
 ölçülen bir beyan ölçülmeyenden tehlikelidir: yeşil tik ikisini de kapsıyor sanılır.
-⚠ Eşitlik, yeterlilik değil: üretim yuva `i`ye görsel `i`yi koyuyor, görsel yetmezse yuva
-BOŞ kalıyor (`bodies.ts`).
+⚠ Eşitlik, yeterlilik değil: görsel yetmezse yuva BOŞ kalıyor (`bodies.ts`).
 **Zorlama:** `katalog-ornek.test.ts`; mercek `just izgara`. → D-343 · `OLCUMLER.md`
 
 ### R-111 · sus-bilgi-tasir · GATE · aktif
 Süs metni (dev hayalet) slaytta **zaten yazan** bir kelimeyi tekrarlayamaz — üst etikette,
 başlıkta ya da gövdede geçen bir kelime hayalet olarak basılmaz.
-**Neden:** ailedeki İKİ hayaletin İKİSİ de kendi üst etiketini tekrarlıyordu (`kavis` →
-`RİTİM`, `dizin` → `DİZİN`). Aynı kelimeyi bir kez 18 px bir kez kadrajın üçte biri
-yazmak sıfır bilgi ekler; kalan şey gürültüdür. D-299 hayaleti altı şablonda *yer
-olmadığı* için kapatmıştı — tekrarı hiç ölçmemişti.
-⚠ **Kısa hayalet uzun olandan BÜYÜKTÜR:** hayalet genişliğe göre ölçekleniyor. `RİTİM`
-yerine `01` denendi ve `sus-baskin` kırmızı döndü — iki karakter kartın %28'ini tuttu,
-içerik %26. Yani kuralı "daha kısa bir kelime seç" ile geçmek imkânsız; tek çıkış bilgi
-taşıyan bir kelime ya da hayaletin olmaması.
+**Neden:** ailedeki İKİ hayaletin İKİSİ de kendi üst etiketini tekrarlıyordu — aynı
+kelimeyi bir kez 18 px bir kez kadrajın üçte biri yazmak sıfır bilgi ekler.
+⚠ **Kısa hayalet uzun olandan BÜYÜKTÜR** (genişliğe göre ölçekleniyor): `01` denendi,
+`sus-baskin` %28'e %26 ile kırmızı döndü. Kuralı "daha kısa kelime seç" ile geçmek
+imkânsız; tek çıkış bilgi taşıyan bir kelime ya da hayaletin olmaması.
 **Zorlama:** `katalog-ornek.test.ts`; mercek `just izgara`. → D-344 · `OLCUMLER.md`
 
 ### R-112 · etiket-basligina-bagli · GATE · aktif
 Üst etiket ile başlığı arasındaki açıklık **on şablonda aynıdır**. Ayrım yerleşimden
 gelir (R-107); bu açıklık ailenin ortak tipografik DNA'sıdır.
-**Neden:** `donen`de etiket kadrajın tepesinde yapayalnız duruyordu — açıklık **369 px**,
-ailenin öteki sekizinde her kartta tam **14 px**. Üst etiket başlığın ADIDIR ve onları
-bağlayan tek şey yakınlıktır. Sebep `yerlesim: 'yayik'` = `space-between`: boşluğu dört
-ögeye TEK TEK dağıtıyor, ilk kurban etiket oluyordu.
-⚠ Yayılma KALDIRILMADI, öbek-farkında yapıldı: başlık öbeği üstte kalıyor, gövde
-`margin-top: auto` ile dibe iniyor. Yerleşim ayrımı duruyor.
+**Neden:** `donen`de açıklık **369 px**, ailenin öteki sekizinde her kartta **14 px**.
+Üst etiket başlığın ADIDIR; onları bağlayan tek şey yakınlıktır. Sebep `yayik` =
+`space-between` idi — boşluğu ögelere tek tek dağıtıyor, ilk kurban etiket oluyordu.
+⚠ Yayılma KALDIRILMADI, öbek-farkında yapıldı; yerleşim ayrımı duruyor.
 ⚠ Ölçü **EŞİTLİK**, tavan değil: bir tavan yazmak 300 px'lik kaymayı meşru kılardı.
 **Zorlama:** `aile-tutarliligi.test.ts`; mercek `just izgara`. → D-345 · `OLCUMLER.md`
+
+### R-113 · sag-kart-bir-sutundur · GATE · aktif
+Bir kartın metin blokları (üst etiket · başlık · gövde) **tek sol kenarı** paylaşır; sağ
+yaslı kartta da. Sapma sıfırdır.
+**Neden:** `align-items: flex-end` her bloğu AYRI AYRI sağa itiyordu ve kutular
+içeriklerine göre daralınca üç bloğun üç ayrı sol kenarı oluyordu. Sol yaslı kartların
+hepsinde sapma 0; sağ yaslı DÖRT kartın dördünde de kaymış: `sahne` 2/4 (+343), `kavis` 3
+(+538, gövde −64), `karsilastirma` 2 (+597, gövde +108).
+⚠ Çözüm hizalama değil SÜTUN: kart sola yaslı kalıyor, sol dolgu sütunu sağ yakaya
+taşıyor, `text-align` dokunulmuyor. Ölçü MUTLAK sıfır — tolerans 300 px'i "biraz" yapardı.
+**Zorlama:** `aile-tutarliligi.test.ts`; mercek `just izgara`. → D-346 · `OLCUMLER.md`

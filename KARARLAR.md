@@ -578,3 +578,21 @@ payı kaldırınca kırmızı döndü: *"donen etiket→başlık açıklığı: 
 
 **Karar.** Yayılma öbek-farkında: başlık öbeği (etiket + başlık) üstte tek parça, gövde
 dibe. Ölçü eşitlik — tavan yazmak 300 px'lik kaymayı meşru kılardı. → R-112
+
+## D-346 · Sağ yaslı kart bir sütun değil, "sağa itilmiş kutular"dı
+
+**Bağlam.** `sahne`nin 2. slaydına bakıldı: üst etiket "— SORUN" başlığın sol kenarından
+kopuk, tek başına içeride duruyor. Başlık ve gövde aynı sol kenardan başlıyor, etiket
+başka bir yerden.
+
+**Ölçüm.** Etiketin ve gövdenin sol kenarı başlığınkinden ne kadar sapıyor: sol yaslı
+kartların **hepsinde 0 · 0**. Sağ yaslı DÖRT kartın dördünde de kaymış — `sahne` 2/4
+(+343), `kavis` 3 (+538, gövde −64), `karsilastirma` 2 (+597, gövde +108). Üç şablon,
+tek sebep: `align-items: flex-end` her bloğu ayrı ayrı sağa itiyor ve kutular
+içeriklerine göre daraldığı için üç bloğun üç ayrı sol kenarı oluyor.
+
+**Karar.** Sağ kart bir SÜTUNDUR. Hizalama değiştirilmedi — kart sola yaslı kalıyor ve
+sol dolgu sütunu sağ yakaya taşıyor; `text-align` dokunulmadan duruyor. Sütun, başlık
+kolonu ile gövde ölçü sınırının BÜYÜĞÜ: küçüğünü almak geniş olanı sağdan taşırırdı.
+Ölçü mutlak sıfır — tolerans 300 px'lik bir kaymayı "biraz" yapardı. Kasten ihlal
+edildi: *"sahne: expected 343 to be +0"*. → R-113
