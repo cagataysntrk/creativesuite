@@ -6475,3 +6475,52 @@ kâğıda dönüyor" fikri geometrik olarak imkânsız (kartın metin rengi kend
 türüyor; kâğıt yukarıdan gelirse başlığı, aşağıdan gelirse rayı yutuyor — üçüncü yön
 yok). `alinti`nin etiket paneli kaldırıldı: sınır onu yutuyordu ve alıntı şablonunda
 üçüncü bir ses zaten fazlaydı.
+
+## D-338 · Kök eşleşmesi ünsüz yumuşamasını bilmiyordu
+
+**Bulgu.** `dizin` şablonunun liste satırı *"eşiği yaz"* ikon köküne oturmadı ve katalog
+kabul testi kırmızıya döndü. Kök `eşik`, kelime `eşiği`: sesli harfle başlayan ek gelince
+sondaki sert ünsüz yumuşuyor ve `startsWith` bunu türetemiyor.
+
+**Sınıf tanıdık:** `'i'.toUpperCase()` → `I` ailesinden. Kural Türkçe hakkında, eşleşme
+İngilizce sezgisiyle yazılmış. Yeni şablon bunu GÖRÜNÜR yaptı, sebep olmadı — kök listesi
+`eşik` · `stok` · `kayıp` · `paket` gibi yumuşayan köklerle doluydu ve hiçbiri çekimli
+hâliyle eşleşmiyordu.
+
+**Karar.** Eşleşme son ünsüzü esnetiyor (k→ğ · p→b · t→d · ç→c). Kök listesine yumuşamış
+ikizleri elle yazmak alternatifti ve reddedildi: yirmi bir ikonun kökleri elle çoğaltılsa
+bir gün biri unutulur.
+
+**Sınır YAZILI.** `kayıp → kaybı` hem yumuşuyor hem gövdeden ünlü düşürüyor; bu kural onu
+yakalamıyor ve yakalamaya çalışmak bir morfoloji motoru yazmak olurdu (R-75). **Sınırını
+söylemeyen bir kural, olmayan bir sınır sanılır** — test o sınırı da ölçüyor.
+
+⚠ Yalnız SON ünsüz esniyor, gövde değil: `eşiğ` kabul, `eşşik` değil. Anlamsız ikon,
+ikonsuzluktan kötüdür.
+
+## D-339 · Aile sınavı ölçülebilir — "bakılır" tek başına bir kapı değil
+
+**Adımın kendi testi ölçülebilirlik istiyordu:** *"bir şablonun aksanını değiştir →
+ızgarada hemen sırıtıyor."* Göz aileyi her turda yeniden bakmadan koruyamaz; bir insan
+bakmayı bıraktığı gün aile sessizce dağılır.
+
+**Ölçülen üç eksen, adımın kendi cümlesinden** (*"ayrım layout'tan gelmeli; palet, tip
+ölçeği ve künye ORTAK kalmalı"*):
+
+- **Palet** — çizilen renkli piksellerin baskın tonu. On şablonun onunda da **220°**,
+  pay %86–100. Hiçbiri ikinci bir renk kümesi getirmiyor.
+- **Krom** — ray on yerde de birebir aynı (18 px, üst kenar 1259, aynı öge sayısı).
+- **Tip** — gövde okuma eşiğinin üstünde; H1 KASTEN serbest (74–151 px), çünkü başlık
+  kadraja oturuyor. Ortak olan ölçek, piksel değil.
+
+**Krom EŞİTLİKLE sınanıyor, mutlak sayıyla değil.** İlk sürüm `rayCocuk === 4` yazdı ve
+on şablonda kırmızıya döndü: öge sayısı logo verilip verilmemesine bağlı, yani o iddia
+şablonu değil FIXTURE'ı ölçüyordu.
+
+**`just izgara` bir kapı değil, bir MERCEK.** Kapı testte; betik on kapağı tek sayfaya
+koyup insanın bakmasını sağlıyor. Ölçülemeyen soru şu: *on tasarım yan yana tek bir
+hesaba mı ait görünüyor.* Çıktı `derived/` altında — türetilmiş, yeniden üretilebilir.
+
+⚠ **Izgara sayfasının kendi kusuru da bakılarak bulundu:** künye şeridi slaydın RAYINI
+örtüyordu — sınavın bakacağı ögeyi sınav sayfası gizliyordu. **Ölçüm aleti ölçtüğü şeyi
+kapatıyorsa alet değildir.**

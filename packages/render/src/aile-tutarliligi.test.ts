@@ -55,6 +55,12 @@ const OLCUM = `(() => {
     rayPunto: al('.ray', 'fontSize'),
     rayUst: rb ? Math.round(rb.top) : null,
     rayCocuk: ray ? ray.children.length : null,
+    etiketAcikligi: (() => {
+      const ue = document.querySelector('.ust-baslik')
+      const bs = document.querySelector('.baslik')
+      if (!ue || !bs) return null
+      return Math.round(bs.getBoundingClientRect().top - ue.getBoundingClientRect().bottom)
+    })(),
   }
 })()`
 
@@ -98,6 +104,7 @@ interface Olcu {
   readonly rayPunto: number
   readonly rayUst: number
   readonly rayCocuk: number
+  readonly etiketAcikligi: number | null
   readonly renkli: number
   readonly tepe: number | null
   readonly pay: number
@@ -151,6 +158,22 @@ describe('aile sınavı — on şablon tek ızgarada', () => {
       expect(v.rayPunto, `${id} ray puntosu`).toBe(ilk.rayPunto)
       expect(v.rayUst, `${id} ray üst kenarı`).toBe(ilk.rayUst)
       expect(v.rayCocuk, `${id} ray öge sayısı`).toBe(ilk.rayCocuk)
+    }
+  })
+
+  // ⚠ ⚠ **ÜST ETİKET BAŞLIĞIN ADIDIR — onları bağlayan tek şey YAKINLIK.** `donen`de
+  // etiket kadrajın tepesinde yapayalnız duruyordu: etiket→başlık **369 px**, ailenin
+  // öteki sekizinde her kartta tam **14 px**. Varyasyon değil, bambaşka bir ilişki.
+  // ⚠ Sebep `yerlesim: 'yayik'` = `space-between` idi: boşluğu dört ögeye TEK TEK
+  // dağıtıyor ve ilk kurban etiket oluyordu. Yayılma kaldırılmadı, öbek-farkında yapıldı.
+  // ⚠ Ölçü EŞİTLİK, tavan değil: bu aralık ailenin ortak tipografik DNA'sı, ayrım
+  // yerleşimden gelir (R-107). Bir tavan yazmak 300 px'lik bir kaymayı meşru kılardı.
+  it('üst etiket başlığından KOPMUYOR — açıklık on şablonda aynı', () => {
+    const olculu = Object.entries(olculer).filter(([, v]) => v.etiketAcikligi !== null)
+    expect(olculu.length, 'üst etiket taşıyan şablon').toBeGreaterThan(1)
+    const ilk = olculu[0]?.[1].etiketAcikligi
+    for (const [id, v] of olculu) {
+      expect(v.etiketAcikligi, `${id} etiket→başlık açıklığı`).toBe(ilk)
     }
   })
 

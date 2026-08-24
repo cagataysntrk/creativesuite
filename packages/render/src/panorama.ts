@@ -342,7 +342,17 @@ export type Yerlesim =
   | 'orta'
   /** Her şey dibe yaslı — boşluk ÜSTTE; poster/afiş dili. */
   | 'alt'
-  /** Eşit dağılım — üst başlık, başlık, gövde, panel arası boşluk eşitlenir. */
+  /**
+   * Yayık — başlık öbeği üstte, gövde dibe itilmiş.
+   *
+   * ⚠ ⚠ **`space-between` DEĞİL ve sebebi ÖLÇÜLDÜ.** Eşit dağılım ögeleri TEK TEK
+   * dağıtıyordu: `donen`de üst etiket kadrajın tepesinde yapayalnız kalıyor, başlığıyla
+   * arasında **369 px** açıklık oluşuyordu. Ailenin öteki sekiz şablonunda bu açıklık
+   * her kartta tam **14 px** — yani varyasyon değil, bambaşka bir ilişki. Etiket
+   * başlığın ADIDIR; yakınlık onları bağlayan tek şey ve dörtte bir kadraj o bağı koparır.
+   * ⚠ Yayılma KALDIRILMADI, öbek-farkında yapıldı: başlık öbeği üstte kalıyor, gövde
+   * `margin-top: auto` ile dibe iniyor. Ayrım hâlâ yerleşimden geliyor (R-107). → R-112
+   */
   | 'yayik'
 
 /**
@@ -413,7 +423,13 @@ const YERLESIM_CSS: Record<Yerlesim, string> = {
   ayrik: 'flex-start',
   orta: 'center',
   alt: 'flex-end',
-  yayik: 'space-between',
+  // ⚠ `space-between` başlık öbeğini parçalıyordu — gerekçe `Yerlesim` tipinde.
+  // ⚠ ⚠ **YÜKÜ TAŞIYAN BU SATIR DEĞİL, `.govde`nin `margin-top: auto`SU — ve bunu
+  // kasten ihlal denemesi söyledi.** Önce burası `space-between`e geri çevrildi ve test
+  // YEŞİL kaldı: otomatik pay boş alanın tamamını yuttuğu için `justify-content`e
+  // dağıtacak bir şey kalmıyor. Satır yine de `flex-start`: niyeti doğru söylüyor ve
+  // güvenliği başka bir kuralın yan etkisine bırakmıyor.
+  yayik: 'flex-start',
 }
 
 /**
@@ -1546,6 +1562,16 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .govde { margin-top: calc(var(--taban, ${olc(54)}px) * 1);`,
     `           font-size: calc(max(${String(govdeTabani)}px, calc(var(--baslik-punto) * var(--govde-orani)))`,
     `                       * var(--ayar-olcek, 1));`,
+    // ⚠ ⚠ **BU KURAL `.govde` BLOĞU KAPANDIKTAN SONRA gelmek ZORUNDA ve iki kez yanlış
+    // yere kondu.** Önce ritim kuralından önce yazıldı — aynı özgüllükte sonra gelen
+    // kazandığı için hiçbir şey değişmedi. Sonra "sonrasına" konduğu sanıldı; oysa
+    // `.govde` kuralı ÇOK SATIRLI ve orada henüz kapanmamıştı, yani kural bir bildirim
+    // bloğunun İÇİNE düşüp geçersiz oldu. İkisinde de `margin-top` hesaplanan değeri
+    // `54px` kaldı ve yayık yerleşim sessizce `ust`a dönüştü — bir yerleşim değeri ölmüş,
+    // hiçbir kapı bunu söylememişti.
+    // ⚠ Başlık öbeği (etiket + başlık) üstte tek parça kalıyor, boşluğun TAMAMI başlıkla
+    // gövde arasına gidiyor. `space-between` bunu dört ögeye bölüyordu ve ilk kurban
+    // etiketti: `donen`de etiket→başlık 369 px, ailenin sekizinde 14 px. → R-112
     // ⚠ ⚠ **GENİŞLİK KOLONDAN BAĞIMSIZDI ve gövde büyüyünce TAŞTI.** `34ch` sabitti;
     // 34 px puntoda ~580 px eder, `editoryal`in metin kolonu ise 0,46 × 1080 − 128 = 369 px.
     // Gövde kolonu 200 px aşıp fotoğrafın altına giriyordu — punto tabanı (34 px) bunu
@@ -1567,6 +1593,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Kart dolgusu (64+64) düşülüyor: `max-width` kartın kullanılabilir genişliğini
     // aşarsa taşma olur ve `tasma` kusuru doğar.
     `           max-width: clamp(${String(olcuAlt)}px, ${String(olcuHedef)}px, ${String(govdeSinir)}px) }`,
+    ...(doc.yerlesim === 'yayik' ? [`  .govde { margin-top: auto }`] : []),
     `  .govde strong { color: var(--kart-metin); font-weight: 700 }`,
     // ⚠ Dev soluk metin kesim çizgilerini KASTEN aşıyor: kesintisizliğin en görünür işareti.
     // ⚠ Dev soluk metin: BÜYÜK ve kesim çizgilerini aşacak kadar aşağıda. İlk sürümde

@@ -92,6 +92,37 @@ describe('taban çizgisi ızgarası', () => {
       expect(Math.abs(v.taban - v.aralik), `${id}: taban ${String(v.taban)} ≠ aralık`).toBeLessThan(
         0.2
       )
+      // ⚠ ⚠ **`yayik` MUAF ve muafiyet ÖLÇÜMLE alındı, varsayımla değil.** O yerleşimde
+      // gövde `margin-top: auto` ile ÇERÇEVEYE yaslanıyor; boşluk bir ritim adımı değil,
+      // başlık öbeğinden artan pay. Ritim kuralı AKAN blokları yönetir, çerçeveye
+      // çivilenmiş bloğu çerçeve yönetir.
+      // ⚠ Muafiyet bir gevşeme DEĞİL: yerine daha güçlü bir iddia geliyor. `donen`in dört
+      // kartında gövdenin ALT kenarı ölçüldü — **1160 · 1160 · 1160 · 1160**, birebir aynı.
+      // Üst kenar (1106/1052/1052/1052) başlığın satır sayısına göre oynuyor, alt kenar
+      // oynamıyor: okuyucu kaydırırken gövde satırı yerinden KIPIRDAMIYOR. Katlık testi
+      // bunu hiç ölçmüyordu.
+      if (doc.yerlesim === 'yayik') {
+        const alt = await withPage(async (page) => {
+          await page.setViewportSize({
+            width: doc.slaytGenisligi * doc.kartlar.length,
+            height: doc.yukseklik,
+          })
+          await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
+          await page.evaluate('(async () => { await document.fonts.ready; return true })()')
+          await page.evaluate(puntoOlcumu(doc))
+          return page.evaluate(
+            '(() => Array.from(document.querySelectorAll(".govde")).map((e) => Math.round(e.getBoundingClientRect().bottom)))()'
+          )
+        })
+        expect(alt.ok).toBe(true)
+        if (!alt.ok) return
+        const kenarlar = alt.value as number[]
+        expect(kenarlar.length, `${id}: gövde taşıyan kart`).toBeGreaterThan(1)
+        for (const k of kenarlar) {
+          expect(k, `${id}: gövde alt kenarı kartlar arasında oynuyor`).toBe(kenarlar[0])
+        }
+        return
+      }
       // Ve blok arası boşluk onun tam katı.
       const kat = v.bosluk / v.taban
       expect(

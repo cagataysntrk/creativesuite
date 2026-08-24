@@ -247,7 +247,11 @@ describe('yerleşim', () => {
     ['ayrik', 'flex-start'],
     ['orta', 'center'],
     ['alt', 'flex-end'],
-    ['yayik', 'space-between'],
+    // ⚠ ⚠ **`space-between` → `flex-start` (R-112).** Eşit dağılım boşluğu dört ögeye TEK
+    // TEK bölüyordu ve üst etiketi başlığından koparıyordu: `donen`de açıklık 369 px,
+    // ailenin sekizinde 14 px. Yayılma öbek-farkında yapıldı — gövde `margin-top: auto`
+    // ile dibe iniyor, başlık öbeği üstte tek parça kalıyor.
+    ['yayik', 'flex-start'],
   ]
   for (const [y, css] of bekleme)
     it(`\`${y}\` → justify-content: ${css}`, () => {

@@ -426,54 +426,11 @@ gerçek yeri Anayasa'nın imza bölümü.
 > **D-337 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`. Şablon ailesi 6 → 10;
 > yeni şablon yazmak eski şablonların DENETİMİDİR.
 
-## D-338 · Kök eşleşmesi ünsüz yumuşamasını bilmiyordu
+> **D-338 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`. Kök eşleşmesi ünsüz
+> yumuşamasını bilmiyordu.
 
-**Bulgu.** `dizin` şablonunun liste satırı *"eşiği yaz"* ikon köküne oturmadı ve katalog
-kabul testi kırmızıya döndü. Kök `eşik`, kelime `eşiği`: sesli harfle başlayan ek gelince
-sondaki sert ünsüz yumuşuyor ve `startsWith` bunu türetemiyor.
-
-**Sınıf tanıdık:** `'i'.toUpperCase()` → `I` ailesinden. Kural Türkçe hakkında, eşleşme
-İngilizce sezgisiyle yazılmış. Yeni şablon bunu GÖRÜNÜR yaptı, sebep olmadı — kök listesi
-`eşik` · `stok` · `kayıp` · `paket` gibi yumuşayan köklerle doluydu ve hiçbiri çekimli
-hâliyle eşleşmiyordu.
-
-**Karar.** Eşleşme son ünsüzü esnetiyor (k→ğ · p→b · t→d · ç→c). Kök listesine yumuşamış
-ikizleri elle yazmak alternatifti ve reddedildi: yirmi bir ikonun kökleri elle çoğaltılsa
-bir gün biri unutulur.
-
-**Sınır YAZILI.** `kayıp → kaybı` hem yumuşuyor hem gövdeden ünlü düşürüyor; bu kural onu
-yakalamıyor ve yakalamaya çalışmak bir morfoloji motoru yazmak olurdu (R-75). **Sınırını
-söylemeyen bir kural, olmayan bir sınır sanılır** — test o sınırı da ölçüyor.
-
-⚠ Yalnız SON ünsüz esniyor, gövde değil: `eşiğ` kabul, `eşşik` değil. Anlamsız ikon,
-ikonsuzluktan kötüdür.
-
-## D-339 · Aile sınavı ölçülebilir — "bakılır" tek başına bir kapı değil
-
-**Adımın kendi testi ölçülebilirlik istiyordu:** *"bir şablonun aksanını değiştir →
-ızgarada hemen sırıtıyor."* Göz aileyi her turda yeniden bakmadan koruyamaz; bir insan
-bakmayı bıraktığı gün aile sessizce dağılır.
-
-**Ölçülen üç eksen, adımın kendi cümlesinden** (*"ayrım layout'tan gelmeli; palet, tip
-ölçeği ve künye ORTAK kalmalı"*):
-
-- **Palet** — çizilen renkli piksellerin baskın tonu. On şablonun onunda da **220°**,
-  pay %86–100. Hiçbiri ikinci bir renk kümesi getirmiyor.
-- **Krom** — ray on yerde de birebir aynı (18 px, üst kenar 1259, aynı öge sayısı).
-- **Tip** — gövde okuma eşiğinin üstünde; H1 KASTEN serbest (74–151 px), çünkü başlık
-  kadraja oturuyor. Ortak olan ölçek, piksel değil.
-
-**Krom EŞİTLİKLE sınanıyor, mutlak sayıyla değil.** İlk sürüm `rayCocuk === 4` yazdı ve
-on şablonda kırmızıya döndü: öge sayısı logo verilip verilmemesine bağlı, yani o iddia
-şablonu değil FIXTURE'ı ölçüyordu.
-
-**`just izgara` bir kapı değil, bir MERCEK.** Kapı testte; betik on kapağı tek sayfaya
-koyup insanın bakmasını sağlıyor. Ölçülemeyen soru şu: *on tasarım yan yana tek bir
-hesaba mı ait görünüyor.* Çıktı `derived/` altında — türetilmiş, yeniden üretilebilir.
-
-⚠ **Izgara sayfasının kendi kusuru da bakılarak bulundu:** künye şeridi slaydın RAYINI
-örtüyordu — sınavın bakacağı ögeyi sınav sayfası gizliyordu. **Ölçüm aleti ölçtüğü şeyi
-kapatıyorsa alet değildir.**
+> **D-339 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`. Aile sınavı ölçülebilir —
+> "bakılır" tek başına bir kapı değil.
 
 ## D-340 · Sessiz emeklilik bir tuzaktır — ve gerçek bir koşuda yakalandı
 
@@ -597,3 +554,27 @@ tutuyor. **Kısa hayalet uzun olandan büyüktür.** Daha uzun bir kelime de ç�
 etiket serisi (ADIM 01–04) tamamlandı — kapak zaten ilk adımı listeliyordu. `kavis`in
 hayaleti kaldırıldı: o şablonun taşıyıcısı kemer bandı, hayalet D-299'un artığıydı.
 Cihaz artık tek yerde ve orada artefaktı ADLANDIRIYOR. → R-111
+
+## D-345 · Bir yerleşim değeri ölmüştü ve hiçbir kapı söylemedi
+
+**Bağlam.** `donen` kapağına bakıldı: üst etiket kadrajın tepesinde yapayalnız, başlığı
+kadrajın ortasında, gövdesi dibinde. Üç metin bloğu birbirinden kopuk.
+
+**Ölçüm.** Etiket→başlık açıklığı: ailenin sekiz şablonunda her kartta tam **14 px**,
+`donen`de **369/331/362/362**. Varyasyon değil, bambaşka bir ilişki. Sebep `donen`in tek
+kullanıcısı olduğu `yerlesim: 'yayik'` = `space-between`: boşluğu dört ögeye TEK TEK
+dağıtıyor ve ilk kurban, adlandırdığı şeyden koparılan etiket oluyor.
+
+**Düzeltme İKİ KEZ yanlış yere kondu ve ikisi de SESSİZ kaldı.** `.govde { margin-top:
+auto }` önce ritim kuralından önce yazıldı — aynı özgüllükte sonra gelen kazandı. Sonra
+"sonrasına" konduğu sanıldı; oysa `.govde` kuralı çok satırlı ve orada kapanmamıştı,
+kural bir bildirim bloğunun İÇİNE düşüp geçersiz oldu. İkisinde de hesaplanan değer
+`54px` kaldı, yayık yerleşim sessizce `ust`a dönüştü — **bir yerleşim değeri ölmüştü.**
+
+**Kasten ihlal denemesi bir yanılgıyı da düzeltti.** `yayik` `space-between`e geri
+çevrildi ve test YEŞİL kaldı: otomatik pay boş alanın tamamını yutuyor, `justify-content`e
+dağıtacak bir şey kalmıyor. Yükü taşıyan satır sanılan yer değildi. Kural ancak auto
+payı kaldırınca kırmızı döndü: *"donen etiket→başlık açıklığı: expected 361 to be 14"*.
+
+**Karar.** Yayılma öbek-farkında: başlık öbeği (etiket + başlık) üstte tek parça, gövde
+dibe. Ölçü eşitlik — tavan yazmak 300 px'lik kaymayı meşru kılardı. → R-112

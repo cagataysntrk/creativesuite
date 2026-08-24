@@ -243,3 +243,15 @@ yerine `01` denendi ve `sus-baskin` kırmızı döndü — iki karakter kartın 
 içerik %26. Yani kuralı "daha kısa bir kelime seç" ile geçmek imkânsız; tek çıkış bilgi
 taşıyan bir kelime ya da hayaletin olmaması.
 **Zorlama:** `katalog-ornek.test.ts`; mercek `just izgara`. → D-344 · `OLCUMLER.md`
+
+### R-112 · etiket-basligina-bagli · GATE · aktif
+Üst etiket ile başlığı arasındaki açıklık **on şablonda aynıdır**. Ayrım yerleşimden
+gelir (R-107); bu açıklık ailenin ortak tipografik DNA'sıdır.
+**Neden:** `donen`de etiket kadrajın tepesinde yapayalnız duruyordu — açıklık **369 px**,
+ailenin öteki sekizinde her kartta tam **14 px**. Üst etiket başlığın ADIDIR ve onları
+bağlayan tek şey yakınlıktır. Sebep `yerlesim: 'yayik'` = `space-between`: boşluğu dört
+ögeye TEK TEK dağıtıyor, ilk kurban etiket oluyordu.
+⚠ Yayılma KALDIRILMADI, öbek-farkında yapıldı: başlık öbeği üstte kalıyor, gövde
+`margin-top: auto` ile dibe iniyor. Yerleşim ayrımı duruyor.
+⚠ Ölçü **EŞİTLİK**, tavan değil: bir tavan yazmak 300 px'lik kaymayı meşru kılardı.
+**Zorlama:** `aile-tutarliligi.test.ts`; mercek `just izgara`. → D-345 · `OLCUMLER.md`
