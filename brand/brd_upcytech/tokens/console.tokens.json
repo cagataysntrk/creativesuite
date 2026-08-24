@@ -37,9 +37,9 @@
       }
     },
     "signal": {
-      "$description": "Yalnız %4'ten küçük alanlarda. Renk ANORMALLİK demektir (§12.1).",
+      "$description": "Yalnız %4'ten küçük alanlarda. Renk ANORMALLİK demektir (§12.1). ⚠ warn kroması 0,150 → 0,140: 0,150 sRGB cusp'ının %99'u (maks 0,152) ve o kadar kenarda duran bir renk yuvarlama ya da renk yönetimi farkında SESSİZCE kırpılır — ton kayar, kimse fark etmez. 0,140 = %92, aynı sarı, güvenli. Ölçüm: scripts/gamut-denetim.mjs.",
       "warn": {
-        "$value": "oklch(0.72 0.150 75)",
+        "$value": "oklch(0.72 0.140 75)",
         "$type": "color"
       },
       "danger": {

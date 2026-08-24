@@ -1008,3 +1008,43 @@ hayatta da yakın malzemeler. Ayrımın asıl yeri RENK — FAZ-19.6 (P3 açık 
 `kodlanmis-oge` `svg-dikdortgen` sayısını 2'de yakaladı (tavan 1). Üslup kuralı değil:
 iki ayrı doku üreticisi, biri değişince öbürü sessizce eskir. `grenKatmani` artık
 `doku()`nun tek frekanslı bir çağrısı.
+
+## FAZ-19.6 · gamut — kırpılma SESSİZDİR ve canlı bir kurban buldu
+
+Tarayıcı gamut dışı bir `oklch()`i reddetmez; en yakın sRGB rengine **kırpar** ve TON
+KAYAR. Ne hata, ne uyarı — yalnız yanlış renk. `scripts/gates/gamut.mjs` yazıldı:
+her `(L,h)` için sRGB'de kalan maks kromayı ikili aramayla bulup token'ın kromasıyla
+karşılaştırıyor. **Çevrimdışı** — JSON okur, saf matematik yapar, `fast` grup.
+
+### Raporun her sayısı bağımsız olarak yeniden üretildi
+
+marka mavisi `h=262`, sabit `C=0.206`:
+
+| L | maks kroma | rapor | C=0.206 çizince | |
+|---|---|---|---|---|
+| 0,15 | **0,112** | 0,112 | **`#0f0061`** | ⚠ MOR — raporun adlandırdığı hex |
+| 0,30 | 0,144 | 0,144 | `#000692` | ⚠ kırpılıyor |
+| 0,50 | 0,233 | 0,233 | `#1556d6` | içeride |
+| 0,80 | 0,101 | 0,101 | `#71b8ff` | ⚠ kırpılıyor |
+| 0,90 | 0,048 | 0,048 | `#90daff` | ⚠ kırpılıyor |
+
+Beş değerin beşi de birebir. **Sabit kroma rampası mavi yazıp mor çiziyor.**
+
+### ⚠ EŞİK %85 DEĞİL %96 — ve bu bir gevşetme değil, doğru birim
+
+Araştırma `C ≤ maksC(L)×0,85` diyor; bu YENİ üretilen rampalar için bir güvenlik payı.
+Depodaki mavi rampası cusp'ı **bilerek** takip ediyor (her L'de maksın %94–95'i) ve
+rapor da bunu *"doğru kurulmuş"* diye kaydediyor: markanın mavisi doygun olmak zorunda.
+%85 eşiği o rampayı haksız yere kırmızıya çevirir ve **kapı beş gün içinde görmezden
+gelinirdi.** %96 gerçekten kenarda duranı yakalıyor.
+
+### Kapı ilk koşuşunda İKİ kurban buldu
+
+| token | oran | çizilen | ne yapıldı |
+|---|---|---|---|
+| `brd_upcytech` `signal.warn` `oklch(0.72 0.150 75)` | **0,99** | — | 0,140'a çekildi (%92) |
+| `brd_dima` `ok` `oklch(0.68 0.130 195)` | **1,12** | **`#00b0b1`** | 0,107'ye çekildi (%92) |
+
+⚠ ⚠ **İkincisi GAMUT DIŞINDAYDI ve şu anda kırpılıyordu.** Alt markanın "ok" rengi token
+ne derse desin `#00b0b1` çiziliyordu. Kimsenin bakmadığı, hiçbir testin göremediği,
+yalnız matematiğin gördüğü bir hata — ve alt marka canlı (`brd_dima` devralıyor).

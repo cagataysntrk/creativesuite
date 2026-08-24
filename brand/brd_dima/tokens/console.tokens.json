@@ -3,7 +3,11 @@
   "ramp": {
     "$description": "dima kendi sinyal rengini getiriyor; gri rampalar ana markadan devralınır.",
     "signal": {
-      "ok": { "$value": "oklch(0.68 0.130 195)", "$type": "color" }
+      "ok": {
+        "$description": "⚠ Kroma 0,130 → 0,107. 0,130 sRGB GAMUTUNUN DIŞINDAYDI (maks 0,116, oran 1,12): tarayıcı sessizce kırpıyor ve #00b0b1 çiziyordu — token ne derse desin. Yeni değer cusp'ın %92'si, kırpılmıyor. scripts/gates/gamut.mjs bulmuştu.",
+        "$value": "oklch(0.68 0.107 195)",
+        "$type": "color"
+      }
     }
   },
   "role": {

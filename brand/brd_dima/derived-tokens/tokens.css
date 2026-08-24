@@ -31,8 +31,8 @@
   --ramp-marka-mavi-500: oklch(0.600 0.206 262);
   --ramp-marka-mavi-600: oklch(0.530 0.234 262);
   --ramp-signal-danger: oklch(0.58 0.160 25);
-  --ramp-signal-ok: oklch(0.68 0.130 195);
-  --ramp-signal-warn: oklch(0.72 0.150 75);
+  --ramp-signal-ok: oklch(0.68 0.107 195);
+  --ramp-signal-warn: oklch(0.72 0.140 75);
   --role-accent: var(--ramp-marka-mavi-500);
   --role-bg: var(--ramp-gray-950);
   --role-line-hair: var(--ramp-gray-800);
