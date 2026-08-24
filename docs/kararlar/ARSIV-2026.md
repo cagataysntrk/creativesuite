@@ -6384,3 +6384,61 @@ kapısı kırılmaz). Bu, `KARARLAR.md`'nin arşiv desenidir; orada işe yaradı
 **Neden şimdi yapılmadı.** Bir turda bir adım: bu tur iki ölçü aleti kuruldu ve altı
 şablonun geometrisi düzeltiliyor. Bölmeyi aynı turda yapmak, `citations` ve `just tur`
 yollarını sınamadan değiştirmek olurdu. Borç burada, adı konmuş hâlde duruyor.
+
+## D-326 · Tema uyumu KARTIN KUTBUNU sorar — ve kural kitabı ikiye ayrıldı
+
+**Bulgu.** `memphis`in kâğıt kartında kesik özne yalnız temas gölgesinden seçiliyordu:
+beyaz çizgili bir figür, beyaz zeminde. Var olan hiçbir ölçüm göremezdi — görsel
+oradaydı, kutusu doğruydu, metni örtmüyordu, kesime uzaktı. Yalnız GÖRÜNMÜYORDU.
+
+**Kusur şablonda değil, varlığın kutupluluğunda.** Aynı hat, koyu mürekkepli bir varlıkta
+aynı kâğıt kartta kusursuz çıkıyor (`editoryal` slayt 2 — ölçüm sehpası). Görselin hangi
+kutupta üretileceğini hat garanti edemiyor; o yüzden garanti RENDER tarafında veriliyor.
+
+**`tema-uyum` adıyla uyum vaat ediyordu ve hiçbir şeye uymuyordu.** Sabit bir sıcaklık
+matrisiydi; üstelik `intercept: +0.03` ile görüntüyü AÇIYORDU, yani kâğıt kartta durumu
+kötüleştiriyordu. Sebep yapısal: görseller kartların DIŞINDA, ayrı bir katmanda yaşıyor
+ve hiçbir kartın rengini miras almıyor. "Bu özne kâğıdın mı mürekkebin mi üstünde" sorusu
+yalnız KONUMDAN cevaplanır — zincir artık her görsel için o soruyu soruyor.
+
+**Ölçüt iki kez yanlış seçildi.** Ortalama luma farkı temas gölgesini görünürlük sanıyor;
+medyan ise ince bir özneyi görünmez sanıyor. Doğru soru "ne kadar mürekkep var" değil,
+**olan mürekkep ayırt ediliyor mu**: silüetin p90 luma farkı. Eşik 120 okundu — çalışan
+dokuz görselde 226–249, üç hayalette 48–81.
+
+**Kural kitabı ikiye ayrıldı (D-325'in borcu ödendi).** R-96 tavanı delecekti ve D-322
+"tavan bir kez yükselir" demişti. Yükseltilmedi: `KURALLAR.md` artık beyan + zorlama +
+tek cümlelik neden tutuyor, ölçülmüş kanıt `docs/kurallar/OLCUMLER.md`'ye taşındı.
+`R-nn` başlıkları yerinde kaldı, `citations` kapısı bozulmadı; kitap 480'den **464**'e
+indi ve on dört kuralın gerekçesi budanmadan yaşıyor.
+
+## D-327 · Krom şeridi paylaşılmaz — ve bu, D-324'ün kendi kararını bozması
+
+**D-324 açıkça şunu yazmıştı:** *"Kural hiçbir tasarım aracını yasaklamıyor. Tam kadraj
+fotoğrafın üstünde künye satırı meşru; meşru olmayan, perdesiz olması."* O cümle bir
+tercihti ve ölçülmemişti.
+
+**Ölçüldü ve yanlıştı.** `editoryal`in tam boy şeridinde ray, kesik öznenin
+ayakkabılarının üstüne düşüyor. `krom-okunmuyor`un istatistiği (zeminin metin lumasına
+yakın piksel payı) **%0** diyordu ve teknik olarak haklıydı: ayakkabı beyaz, konturları
+siyah, ray metni koyu — hiçbir piksel metne yakın değil. Metin yine de okunmuyordu, çünkü
+eksik olan şey KONTRAST değil SAKİNLİK'ti.
+
+**İkinci istatistik: gürültü.** Zeminin medyandan 60 lumadan fazla sapan piksel payı.
+Ölçüldü: 90 krom kutusunun 88'i tam %0, kirli ikisi %4 ve %8 — ikisi de `editoryal`.
+Tavan %3, iki kümenin arasında.
+
+**Karar.** Ray bandı AYRILMIŞTIR: hiçbir görselin boyası oraya giremez (R-97). Perde
+yetmiyor çünkü ray fine print taşıyor, masthead değil; fotoğraf üstünde fine print opak
+bir bar ister ve o bar rayı tasarımın parçası olmaktan çıkarır.
+
+**Bant sabitten değil ölçülerek alınıyor** — `.ray`in kendi kutusu. Dolgu sabitini
+denetimde tekrar yazmak, CSS değişince sessizce yanlış yeri korumak demekti; bu depoda
+"iki tarafı ayrı kaynaktan gelen ölçüm" tekrar eden bir hata.
+
+**Yan kazanç aile.** Altı şablonun altısında da görüntü artık aynı yerde bitiyor
+(1255 px). Ortak bir zemin çizgisi, altı ayrı tasarımı tek bir Instagram sayfasının
+parçası yapan şeylerden biri.
+
+⚠ **Bir kuralın kendi sınırını ölçmeden koyması, kuralın kendisi kadar tehlikeli.**
+D-324'ün o cümlesi savunulabilir görünüyordu ve üç slaytta yanlıştı.

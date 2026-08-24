@@ -517,14 +517,13 @@ export interface PanoramaBelgesi {
    */
   readonly lekeler?: readonly {
     /**
-     * ⚠ ⚠ **`blob` HACİMLİ: düz dolgu değil, DEGRADE + gölge.** Kullanıcının istediği
-     * "3D element" görünümünün büyük kısmı bu: uzatılmış/hacimli organik bir şekil.
-     * Hazır bir kütüphane arandı ve REDDEDİLDİ — `blobshape` (MIT) `Math.random`
-     * kullanıyor ve R-06 determinizmi yasaklıyor; üç boyutlu varlık kütüphaneleri ise
-     * Chromium'da render için ikinci bir motor ister (Yasa 4). Şekil burada ÜRETİLİYOR
-     * ve tohumu içerikten geliyor: aynı belge her koşuda aynı blob'u veriyor.
+     * ⚠ ⚠ **`blob` EMEKLİ (D-342).** Gerekçesi *"hacim için gereken şey DEGRADE + GÖLGE"*
+     * idi ve **D-318 tam olarak onları emekli etti** — degrade, glow, atmosferik renk.
+     * Karar verildi, dal kaldı; üstelik kataloğun hiçbir şablonu onu kullanmıyordu.
+     * D-306'nın madalyonuyla aynı gerekçe: kullanılmayan, sonraki bir kararla çelişen
+     * ve R-81'in tam hedefinde duran bir süs.
      */
-    readonly tip: 'daire' | 'halka' | 'kare' | 'nokta' | 'tarama' | 'blob'
+    readonly tip: 'daire' | 'halka' | 'kare' | 'nokta' | 'tarama'
     /**
      * Kartların ÜSTÜNDE mi çizilsin — varsayılan HAYIR.
      *
@@ -898,13 +897,19 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
   if (b.tip === 'egri') {
     const d = b.noktalar.map((n, i) => `${i === 0 ? 'M' : 'L'} ${n.x} ${n.y}`).join(' ')
     const dolgu = `${d} L 100 100 L 0 100 Z`
+    // ⚠ ⚠ **ÇİZGİ GÖRÜNMÜYORDU: `stroke-width="0.22"` CİHAZ PİKSELİNDE.**
+    // `vector-effect="non-scaling-stroke"` genişliği ölçekten kurtarıyor ama birim artık
+    // cihaz pikseli — 0,22 alt piksele düşüyor ve çizgi kayboluyor. Bu, D-319'da ölçek
+    // çizgisinde yaşanan hatanın BİREBİR aynısı (orada 0,12'ydi) ve araştırmanın **ikinci
+    // en güçlü** taşıyıcısı (*"tek sürekli çizgi"*) bir sis olarak çiziliyordu.
+    //
+    // ⚠ ⚠ **DOLGU DEGRADE DEĞİL, YÜZEY ADIMI.** D-318 degradeyi, glow'u ve atmosferik
+    // rengi açıkça emekli etti; bu bant o karardan sonra da bir `linearGradient` taşıyordu.
+    // Eğrinin altı artık düz bir yüzey — `akan-alan`ın alan sınırıyla aynı dil.
     return (
       `<svg class="bant" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">` +
-      `<defs><linearGradient id="bant-dolgu" x1="0" y1="0" x2="0" y2="1">` +
-      `<stop offset="0" stop-color="${AKSAN}" stop-opacity="0.22"/>` +
-      `<stop offset="1" stop-color="${AKSAN}" stop-opacity="0"/></linearGradient></defs>` +
-      `<path d="${dolgu}" fill="url(#bant-dolgu)"/>` +
-      `<path d="${d}" fill="none" stroke="${AKSAN}" stroke-width="0.22" ` +
+      `<path d="${dolgu}" fill="var(--ramp-marka-ink-950)" fill-opacity="0.75"/>` +
+      `<path d="${d}" fill="none" stroke="${AKSAN}" stroke-width="2" ` +
       `vector-effect="non-scaling-stroke"/></svg>` +
       b.kilometre
         .map(
@@ -1011,11 +1016,18 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
     // ⚠ TEK `<path>`, iki değil: aynı yol hem dolgu hem kontur taşıyabiliyor. İkinci bir
     // yol yazmak `kodlanmis-oge` tavanını deliyordu (R-81) ve kapı haklıydı — aynı
     // geometriyi iki kez yazmak, bir gün birini güncellemeyi unutmak demek.
-    // ⚠ Dolgu opaklığı `fill-opacity`, kontur `stroke-opacity`: `opacity` ikisini birden
-    // eziyor ve konturu da soluklaştırıyordu.
+    //
+    // ⚠ ⚠ **DOLGU AKSAN TİNTİ DEĞİL, YÜZEY ADIMI — ve bunu ÇİZİP BAKARAK öğrendim.**
+    // İlk sürüm `AKSAN` rengini %10 opaklıkla döküyordu: neredeyse siyah bir zeminde
+    // mavi bir sis, kadrajda hiçbir kütle kurmuyordu. `akan-alan`ın alan sınırında aynı
+    // hata ölçülmüştü (ΔL 0,03) ve çözüm oradan geliyor: dizayn sisteminin aygıtı
+    // **yüzey adımı + hairline**, atmosferik bir tint değil (D-318 degradeyi ve glow'u
+    // açıkça yasaklıyor).
+    // ⚠ Kontur `--pano-metin`den türüyor, aksandan değil: kemer bir VURGU değil bir
+    // ZEMİN formu. Aksanı forma dökmek, tek karneli aksan kuralını (D-318) deler.
     return (
-      `<path d="${yol}" fill="${AKSAN}" fill-opacity="0.1" ` +
-      `stroke="${AKSAN}" stroke-opacity="0.55" stroke-width="2.5"/>`
+      `<path d="${yol}" fill="var(--ramp-marka-ink-850)" fill-opacity="0.55" ` +
+      `stroke="${sol('--pano-metin', 20)}" stroke-width="1.5"/>`
     )
   }).join('')
   return (
@@ -1249,19 +1261,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // karosellerde "3D element" denen şeyin görsel imzası: yumuşak bir degrade, tek yönlü
   // bir ışık ve zemine düşen bir gölge. Üçü de SVG'de var; bir 3B motor (three.js +
   // GLB) ikinci bir render motoru demek olurdu (Yasa 4) ve tek bir öge için orantısız.
-  const blobDegradeleri =
-    doc.lekeler === undefined
-      ? ''
-      : doc.lekeler
-          .map((l, i) =>
-            l.tip !== 'blob'
-              ? ''
-              : `<radialGradient id="blob-${i}" cx="34%" cy="28%" r="78%">` +
-                `<stop offset="0" stop-color="${l.renk}" stop-opacity="1"/>` +
-                `<stop offset="1" stop-color="${l.renk}" stop-opacity="0.55"/>` +
-                `</radialGradient>`
-          )
-          .join('')
+  // ⚠ ⚠ **BLOB LEKESİ EMEKLİ (D-342).** Yorumu *"hacim için gereken şey DEGRADE +
+  // GÖLGE"* diyordu ve D-318 tam olarak onları emekli etti: degrade, glow ve atmosferik
+  // renk. Karar verildi, bu dal kaldı — ve kataloğun HİÇBİR şablonu onu kullanmıyordu.
+  // D-306'nın madalyonuyla aynı gerekçe: kullanılmayan, sonraki bir kararla çelişen ve
+  // R-81'in tam hedefinde duran bir süs.
+  // ⚠ Kaldırılması `kodlanmis-oge` tavanını da rahatlattı: alan sınırının hairline'ı
+  // yedinci yolu getiriyordu ve yer açan şey bir gevşetme değil, ÖLÜ KODUN gitmesi oldu.
 
   // ⚠ Lekeler İKİ katmana ayrılıyor: `ust` olanlar kartların üstünde, ötekiler altında.
   // Tek bir SVG'de z-index ile ayrılamazlar; kartlar araya giren DOM düğümleri.
@@ -1273,12 +1279,6 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     secilen.length === 0
       ? ''
       : `<svg class="${sinif}" viewBox="0 0 ${toplam} ${doc.yukseklik}" aria-hidden="true">` +
-        `<defs>${blobDegradeleri}` +
-        // ⚠ Gölge tek tanım, her blob onu paylaşıyor: filtre başına bir SVG filtresi
-        // kurmak aynı görüntüyü N kez tarif etmek olurdu.
-        `<filter id="blob-golge" x="-30%" y="-30%" width="170%" height="170%">` +
-        `<feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.28"/>` +
-        `</filter></defs>` +
         secilen
           .map((l) => {
             const cx = (l.x / 100) * toplam
@@ -1290,30 +1290,6 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
               return `<circle class="leke" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${l.renk}" stroke-width="7"/>`
             if (l.tip === 'kare')
               return `<rect class="leke" x="${cx - r}" y="${cy - r}" width="${l.boyut}" height="${l.boyut}" fill="${l.renk}" transform="rotate(12 ${cx} ${cy})"/>`
-            if (l.tip === 'blob') {
-              // ⚠ ⚠ **TOHUM KONUMDAN, RASTGELELİKTEN DEĞİL (R-06).** Yarıçaplar `l.x`
-              // ve `l.y`den türeyen deterministik bir diziyle salınıyor: aynı belge her
-              // koşuda AYNI blob'u veriyor ve golden test kurulabiliyor. `Math.random`
-              // burada bir satırla girebilirdi ve replay'i sessizce bozardı.
-              const n = 7
-              const tohum = Math.round(l.x * 37 + l.y * 11 + l.boyut)
-              const nokta = Array.from({ length: n }, (_, k) => {
-                const aci = (k / n) * Math.PI * 2 - Math.PI / 2
-                // Salınım ±%18: daha azı daireye benziyor, daha fazlası yıldıza.
-                const sapma = 1 + 0.18 * Math.sin(tohum * 0.37 + k * 2.399)
-                return [cx + Math.cos(aci) * r * sapma, cy + Math.sin(aci) * r * sapma] as const
-              })
-              // Kuadratik zincir: eğri komşu orta noktalardan geçiyor, köşe kalmıyor.
-              const orta = (a: readonly number[], b: readonly number[]): string =>
-                `${((a[0] as number) + (b[0] as number)) / 2} ${((a[1] as number) + (b[1] as number)) / 2}`
-              let d = `M ${orta(nokta[n - 1] as readonly number[], nokta[0] as readonly number[])}`
-              for (let k = 0; k < n; k += 1) {
-                const p = nokta[k] as readonly number[]
-                const q = nokta[(k + 1) % n] as readonly number[]
-                d += ` Q ${p[0]} ${p[1]} ${orta(p, q)}`
-              }
-              return `<path d="${d} Z" fill="url(#blob-${doc.lekeler?.indexOf(l) ?? 0})" filter="url(#blob-golge)"/>`
-            }
             if (l.tip === 'nokta') {
               const n = 5
               const adim = l.boyut / (n - 1)
@@ -1354,10 +1330,24 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           // YUMUŞAK. Kuadratik zincir: kontrol noktası veri noktası, eğri komşu orta
           // noktalardan geçiyor. Veri noktaları KORUNUYOR, aralar yumuşuyor.
           const d = yumusakYol(a.noktalar)
+          // ⚠ ⚠ **SINIRDA HAIRLINE VAR ve eskiden YOKTU.** Dizayn sisteminin kendi aygıtı
+          // *"yüzey adımı + 1 px hairline"* (D-319'da alıntılı); burada yalnız adım vardı.
+          // Yakın-monokrom bir palette (D-318) adım kaçınılmaz olarak sessiz kalıyor ve
+          // `akan-alan`ın iki alanı arasında **ΔL 0,03** ölçüldü — kimliği "iki renk alanı"
+          // olan bir şablonun iki alanı ayırt edilemiyordu. Çizilmiş bir kenar, sessiz bir
+          // adımı OKUNUR yapıyor: kâğıdın katlandığı yer gibi.
+          //
+          // ⚠ `vector-effect="non-scaling-stroke"` ZORUNLU: `viewBox` 100×100 ve
+          // `preserveAspectRatio="none"` ile 6480×1350'ye geriliyor; ölçeklenen bir kontur
+          // yatayda kalın dikeyde saç teli olurdu. Genişlik CİHAZ pikselinde okunuyor —
+          // 0,12 gibi bir değer alt piksele düşüp KAYBOLUYOR (D-319'un dersi).
+          const kenar = `${sol('--pano-metin', 22)}`
           return (
             `<svg class="alan-siniri" viewBox="0 0 100 100" preserveAspectRatio="none" ` +
             `aria-hidden="true"><rect x="0" y="0" width="100" height="100" fill="${a.ust}"/>` +
-            `<path d="${d} L 100 100 L 0 100 Z" fill="${a.alt}"/></svg>`
+            `<path d="${d} L 100 100 L 0 100 Z" fill="${a.alt}"/>` +
+            `<path d="${d}" fill="none" stroke="${kenar}" stroke-width="1" ` +
+            `vector-effect="non-scaling-stroke"/></svg>`
           )
         })()
 

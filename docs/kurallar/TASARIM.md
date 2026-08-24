@@ -205,3 +205,15 @@ değiştir → ızgarada hemen sırıtıyor."*
 ⚠ H1 puntosu KASTEN serbest (74–151 px ölçüldü): başlık kadraja oturuyor. Ortak olan
 ölçek, piksel değil — sabitlemek uzun bir başlığı taşırır, kısa birini cüce bırakır.
 **Zorlama:** `aile-tutarliligi.test.ts`; mercek `just izgara`. → D-339 · `OLCUMLER.md`
+
+### R-109 · tasiyici-yuzey-adimi-hairline · GATE · aktif
+Süreklilik taşıyıcıları **yüzey adımı + hairline** ile çizilir; atmosferik tint, degrade
+ya da alt piksel çizgi ile DEĞİL. Çizgi genişliği cihaz pikselinde ≥1.
+**Neden:** üç taşıyıcı da atmosfer olarak çiziliyordu ve üçü de görünmüyordu — alan
+sınırı **ΔL 0,03**, kemer %10 aksan tinti, eğri `stroke-width: 0.22` (cihaz pikseli, alt
+piksele düşüyor) + bir `linearGradient`. D-318 degradeyi ve glow'u zaten emekli etmişti;
+D-319 dilin *"yüzey adımı + 1 px hairline"* olduğunu yazıyordu. Uygulama ikisini de
+görmezden geliyordu.
+⚠ `vector-effect="non-scaling-stroke"` genişliği CİHAZ pikseline çeviriyor — 0,22 ve 0,12
+aynı sebeple kayboldu (D-319'un tekrarı).
+**Zorlama:** `tasiyici-gorunur.test.ts`. → D-341 · `OLCUMLER.md`

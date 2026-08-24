@@ -260,9 +260,14 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     olcek: 1.34,
     guc: 16,
   },
+  // ⚠ ⚠ **İKİ ALAN AYIRT EDİLEMİYORDU.** `role-bg` (L 0,16) ile `role-line-edge`
+  // (L 0,19) arasında **ΔL 0,03** var — kimliği "iki renk alanı" olan bir şablonun iki
+  // alanı aynı renkti. Yakın-monokrom palet (D-318) adımı sessiz tutuyor ama SIFIR
+  // tutmuyor: rampanın uçları `ink-1000` (0,105) ve `ink-850` (0,270), ΔL **0,165**.
+  // Hâlâ sakin, artık görünür. Sınırdaki hairline de aynı sebeple eklendi.
   alanSiniri: {
-    ust: 'var(--role-bg)',
-    alt: 'var(--role-line-edge)',
+    ust: 'var(--ramp-marka-ink-1000)',
+    alt: 'var(--ramp-marka-ink-850)',
     // ⚠ ⚠ **GENLİK %9'DAN %58'E — referansla farkın kaynağı EKSEN DEĞİL, GENLİKTİ.**
     // `image.png`de amber alan slayttan slayta yer değiştiriyor: bir karede neredeyse
     // tamamı kaplıyor, ötekinde alt köşeye çekiliyor. Bizim sınır 57–66 arası
@@ -1222,9 +1227,11 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
   // okunuyor: tek yönlü süpürme (ölçünün inişi), ÖNCE/SONRA üst başlıkları ve panel
   // çifti (dağılım → sonuç). `akan-alan`dan farkı da bu: orada sınır SALINIYOR, burada
   // tek yönlü iniyor; orada panel yok, burada iki farklı panel karşılaştırmayı taşıyor.
+  // ⚠ Aynı ΔL 0,03 sorunu buradaydı: süpürme görünmüyordu, yani şablonun anlattığı
+  // "önce → sonra" geçişi hiç okunmuyordu.
   alanSiniri: {
-    ust: 'var(--role-bg)',
-    alt: 'var(--role-line-edge)',
+    ust: 'var(--ramp-marka-ink-1000)',
+    alt: 'var(--ramp-marka-ink-850)',
     noktalar: [
       { x: 0, y: 92 },
       { x: 25, y: 80 },

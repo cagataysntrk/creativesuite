@@ -509,3 +509,27 @@ test *"bozuk 50° · sağlam 220°"* diyerek kırmızıya döndü.
 ⚠ **Izgara sayfasının KENDİ kusuru da bakılarak bulundu:** künye şeridi altta duruyordu
 ve slaydın RAYINI örtüyordu — sınavın bakacağı ögeyi sınav sayfası gizliyordu. Üste
 alındı. Ölçüm aleti ölçtüğü şeyi kapatıyorsa alet değildir.
+
+## R-109 · taşıyıcı yüzey adımı + hairline
+
+Üç taşıyıcı da **atmosfer** olarak çiziliyordu ve üçü de görünmüyordu. Ölçüldü:
+
+| taşıyıcı | eskiden | ölçü | şimdi |
+|---|---|---|---|
+| `alanSiniri` | `role-bg` / `role-line-edge` | **ΔL 0,03** | `ink-1000` / `ink-850` · ΔL **0,165** + hairline |
+| `kemer` | `AKSAN` %10 tint | zeminde sis | `ink-850` %55 + `--pano-metin` %20 kontur |
+| `egri` | `stroke-width: 0.22` + degrade | **alt piksel** | `stroke-width: 2` + düz yüzey |
+
+⚠ **`vector-effect="non-scaling-stroke"` genişliği CİHAZ pikseline çeviriyor.** 0,22 ve
+D-319'daki 0,12 aynı sebeple kayboldu — aynı hata, iki yıl arayla değil iki ay arayla.
+
+⚠ **Degrade zaten emekliydi (D-318)** ama `egri` bandı bir `linearGradient` taşımaya devam
+ediyordu: karar verildi, uygulama takip etmedi. Bu, "kural yazılı, ölçüm yok" ailesinden.
+
+⚠ **Kontur `--pano-metin`den türüyor, aksandan değil:** kemer bir VURGU değil bir ZEMİN
+formu. Aksanı forma dökmek tek-karneli-aksan kuralını (D-318) deler.
+
+Hepsi çizilip BAKILDI: `akan-alan`ın dalgası altı slaydı kat ediyor, `kavis`in kemerleri
+mimari bir ritim kuruyor, `veri-hikayesi`nin eğrisi okunur bir hat oldu. Üçü de önce
+görünmüyordu ve hiçbir kapı bunu söylemiyordu — çünkü hiçbir kapı *"taşıyıcı görünüyor
+mu"* diye sormuyordu.
