@@ -36,8 +36,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-23T23:08:41.761Z",
-      "finishedAt": "2026-08-23T23:08:41.761Z",
+      "startedAt": "2026-08-24T03:17:26.130Z",
+      "finishedAt": "2026-08-24T03:17:26.131Z",
       "output": {
         "brandId": "brd_upcytech"
       }
@@ -45,7 +45,7 @@
     {
       "stepId": "konu-sec",
       "verb": "GENERATE",
-      "status": "skipped",
+      "status": "ok",
       "lane": "free",
       "capability": "text.generate",
       "providerId": "claude-code",
@@ -90,8 +90,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-23T23:08:41.762Z",
-      "finishedAt": "2026-08-23T23:08:41.763Z",
+      "startedAt": "2026-08-24T03:17:26.131Z",
+      "finishedAt": "2026-08-24T03:17:26.132Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -126,8 +126,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-23T23:08:41.763Z",
-      "finishedAt": "2026-08-23T23:08:41.765Z",
+      "startedAt": "2026-08-24T03:17:26.132Z",
+      "finishedAt": "2026-08-24T03:17:26.134Z",
       "output": null
     },
     {
@@ -178,8 +178,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-23T23:08:41.765Z",
-      "finishedAt": "2026-08-23T23:08:59.489Z",
+      "startedAt": "2026-08-24T03:17:26.134Z",
+      "finishedAt": "2026-08-24T03:17:26.134Z",
       "output": {
         "lines": [
           "Fire nereden geliyor kimse bilmiyor",
@@ -190,9 +190,1263 @@
           "Verinizi kurun, kararı biz getirelim"
         ]
       }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:26.134Z",
+      "finishedAt": "2026-08-24T03:17:26.135Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-24T03:17:26.135Z",
+      "finishedAt": "2026-08-24T03:17:26.137Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "duzen-provasi",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "prova": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-24T03:17:26.147Z",
+      "finishedAt": "2026-08-24T03:17:28.022Z",
+      "output": {
+        "provaGecti": true
+      }
+    },
+    {
+      "stepId": "gorsel-brief",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.023Z",
+      "finishedAt": "2026-08-24T03:17:28.023Z",
+      "output": {
+        "lines": [
+          "a factory floor measurement gauge mounted on a workbench, needle steady on the dial, plain solid black background free of gradient or surface detail, one soft key light from the side, matte finish, muted achromatic palette, the gauge body reaching past one edge of the frame, every surface in frame plain and unmarked, high contrast monochrome illustration with visible ink hatching, framed head-on and centred, upright subject filling the frame vertically"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 1,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.023Z",
+      "finishedAt": "2026-08-24T03:17:28.024Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.025Z",
+      "finishedAt": "2026-08-24T03:17:28.028Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 2,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.028Z",
+      "finishedAt": "2026-08-24T03:17:28.028Z",
+      "output": {
+        "lines": [
+          "a factory measuring gauge mounted on a workstation post, its dial glowing faintly under one soft side light, casting a sharp shadow across a plain matte black background, three quarter angle, upright filling the frame vertically, high contrast monochrome illustration with visible ink hatching, matte surfaces only, reaching past the frame's edge"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-uret-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 2,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.029Z",
+      "finishedAt": "2026-08-24T03:17:28.029Z",
+      "output": {
+        "format": "base64",
+        "width": 1024,
+        "height": 1280
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-2",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.030Z",
+      "finishedAt": "2026-08-24T03:17:28.031Z",
+      "output": {
+        "format": "base64"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 3,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.031Z",
+      "finishedAt": "2026-08-24T03:17:28.031Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-uret-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 3,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.031Z",
+      "finishedAt": "2026-08-24T03:17:28.032Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-3",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.032Z",
+      "finishedAt": "2026-08-24T03:17:28.032Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-brief-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "gorsel_brief": true,
+        "gorsel_sira": 4,
+        "max_chars": 600,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.032Z",
+      "finishedAt": "2026-08-24T03:17:28.032Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-uret-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.generate",
+      "providerId": "cloudflare-workers-ai",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true,
+        "gorsel_sira": 4,
+        "aspect": "4:5",
+        "no_text": true,
+        "max_cost_usd_micros": 20000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "cloudflare-workers-ai",
+          "capability": "image.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.032Z",
+      "finishedAt": "2026-08-24T03:17:28.032Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "gorsel-kirp-4",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.matte",
+      "providerId": "local-rembg",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "local-rembg",
+          "capability": "image.matte",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:28.032Z",
+      "finishedAt": "2026-08-24T03:17:28.032Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "yuva-doldur",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-24T03:17:28.032Z",
+      "finishedAt": "2026-08-24T03:17:28.033Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "render",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-24T03:17:28.068Z",
+      "finishedAt": "2026-08-24T03:17:34.119Z",
+      "output": {
+        "kusurlar": [],
+        "ifsaGorunur": true,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-01.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-02.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-03.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-04.jpg"
+        ]
+      }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:17:34.120Z",
+      "finishedAt": "2026-08-24T03:28:07.104Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              630,
+              1190,
+              450,
+              80
+            ],
+            "kategori": "cakisma",
+            "siddet": "uyari",
+            "aciklama": "Saat makinesinin alt kısmındaki fiş/kart parçası footer güvenli alanına çok yakın, alt bilgi şeridiyle neredeyse temas ediyor."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:28:07.105Z",
+      "finishedAt": "2026-08-24T03:29:05.841Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              0,
+              0,
+              1080,
+              430
+            ],
+            "kategori": "bosluk",
+            "siddet": "uyari",
+            "aciklama": "Tuvalin üst kısmı hiçbir öge taşımadan boş bırakılmış, alt yarıya yığılan içerikle dengesiz bir dikey dağılım oluşturuyor."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              630,
+              230,
+              450,
+              1000
+            ],
+            "kategori": "tutarlilik",
+            "siddet": "uyari",
+            "aciklama": "Gravür tarzı detaylı saat illüstrasyonu, sayfadaki düz renkli ve minimal tipografik ögelerle aynı görsel sistemden gelmiyor."
+          }
+        ],
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 4,
+            "gerekce": "Sol metin bloğu ile sağdan taşan saat illüstrasyonu ve alt mavi şerit birbirini dengeliyor, kompozisyon bir yana devrilmiyor."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 4,
+            "gerekce": "Göz önce detaylı saat kadranına, sonra başlığa gidiyor; net bir birincil odak var."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 3,
+            "gerekce": "Tuvalin üst üçte biri tamamen boş kalmış, bu bir ritimden çok kullanılmamış alan izlenimi veriyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 2,
+            "gerekce": "Gravür/yarım-ton tarzındaki saat illüstrasyonu ile düz vektör tipografi ve mavi şerit farklı iki görsel dilden geliyor, sistem birliği kurulmamış."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 5,
+            "gerekce": "Kırık beyaz ve gri metin koyu zemin üzerinde rahat okunuyor, satır uzunlukları ve boşluklar konforlu."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 4,
+            "gerekce": "Alışılmadık gravür saat görseli akışta durdurucu bir merak unsuru yaratıyor."
+          }
+        ],
+        "toplam": 3.67,
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-24T03:29:05.841Z",
+      "finishedAt": "2026-08-24T03:29:05.842Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-24T03:29:05.843Z",
+      "finishedAt": "2026-08-24T03:29:05.844Z",
+      "output": {
+        "sablonId": "sahne",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-24T03:29:05.885Z",
+      "finishedAt": "2026-08-24T03:29:12.238Z",
+      "output": {
+        "kusurlar": [],
+        "ifsaGorunur": true,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-01.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-02.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-03.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a030e2-2385-743c-9f4a-bdf9ae79479e/slayt-04.jpg"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "sahne,akan-alan,memphis",
+        "topic": "ölçüm vardiyaya inince fire yarıya indi",
+        "kacinilacak": "yokk"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-24T03:29:12.238Z",
+      "finishedAt": "2026-08-24T03:29:12.238Z",
+      "output": {
+        "kusurSayisi": 0,
+        "bulgular": [],
+        "gecti": true,
+        "slaytSayisi": 4
+      }
     }
   ],
-  "decisions": [],
+  "decisions": [
+    {
+      "gate": "metin-onayi",
+      "decision": "approved",
+      "at": "2026-08-24T02:45:42.999Z",
+      "note": null
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "approved",
+      "at": "2026-08-24T03:17:14.104Z",
+      "note": null
+    }
+  ],
   "context": [
     {
       "recordId": "rec_pos_veri_karar_2026",
@@ -220,6 +1474,6 @@
     }
   ],
   "contextRetentionDays": 90,
-  "awaitingGate": "metin-onayi",
-  "stoppedAt": "sablon-uyarla"
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
 }

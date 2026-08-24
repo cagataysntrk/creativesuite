@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-24T02:56:12.930Z",
+  "komut": "just uret instagram-carousel fire ölçümü --run run_01a031b2-7076-7495-9de7-a82e4dc57623 --plan-digest sha256:x",
+  "code": null,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "spawn just ENOENT",
+  "stdout": ""
+}

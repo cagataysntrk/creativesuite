@@ -5,7 +5,7 @@
   "eraId": "imalat-2026",
   "corpusCommit": "30b38f20de6289ba74b25fc22d5c48e4319698b0",
   "registryCommit": "30b38f20de6289ba74b25fc22d5c48e4319698b0",
-  "frozenAt": "2026-08-23T23:08:41.754Z",
+  "frozenAt": "2026-08-24T03:17:26.127Z",
   "order": [
     "cozumle",
     "konu-sec",
@@ -13,6 +13,7 @@
     "metin-uret",
     "sablon-uyarla",
     "kompozit",
+    "duzen-provasi",
     "gorsel-brief",
     "gorsel-uret",
     "gorsel-kirp",
@@ -162,6 +163,29 @@
       "descriptorDigest": null,
       "params": {
         "katalog": true
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
+      "stepId": "duzen-provasi",
+      "verb": "RENDER",
+      "capability": null,
+      "metered": true,
+      "providerId": null,
+      "confidence": null,
+      "descriptorDigest": null,
+      "params": {
+        "prova": true
       },
       "seed": null,
       "estimatedCost": {
@@ -720,5 +744,5 @@
     "currency": "USD"
   },
   "varyantSayisi": 1,
-  "digest": "sha256:660c5f1cd762869a104f4d72094f97cceb7a659d20a70edf2903caeb5a403eff"
+  "digest": "sha256:6640e1ce3755b0c1a0be582ddb88c7558796582cbea93125a997af2d72a5996a"
 }
