@@ -6524,3 +6524,64 @@ hesaba mı ait görünüyor.* Çıktı `derived/` altında — türetilmiş, yen
 ⚠ **Izgara sayfasının kendi kusuru da bakılarak bulundu:** künye şeridi slaydın RAYINI
 örtüyordu — sınavın bakacağı ögeyi sınav sayfası gizliyordu. **Ölçüm aleti ölçtüğü şeyi
 kapatıyorsa alet değildir.**
+
+## D-340 · Sessiz emeklilik bir tuzaktır — ve gerçek bir koşuda yakalandı
+
+**Olay.** 18.18'in uçtan uca koşusunu başlatırken `instagram-carousel` hattını çalıştırdım.
+O hat **2026-08-18'de emekli edildi** (D-268) ve yerine `instagram-karosel` geçti. `just
+uret` hiçbir şey söylemeden koştu: eski slayt-başına render, katalog dışı yerleşim ve
+metin kontrastı **1,1:1** olan bir kapak — kalite kapısı durdurdu ve haklıydı.
+
+**İki ad bir harfle ayrılıyor:** `carousel` (İngilizce, emekli) ve `karosel` (Türkçe,
+güncel). Bu, bir agent'ın da bir insanın da düşeceği bir tuzak ve düştüm.
+
+**Emeklilik makine okunur HÂLDE VARDI ama yalnız yarısı.** `retired: true` yazılıydı ve
+`hatDurumlari()` onu listeden gizliyordu; ama **yerine geçenin adı yalnız YAML
+YORUMUNDAYDI.** Yasa 10 `expired_at` + `superseded_by` diyor — ikincisi eksikti. Emekli
+olduğunu bilmek, nereye gideceğini bilmek değildir.
+
+**Karar.** `supersededBy` şemaya girdi ve `uret.mjs` koşmadan ÖNCE basıyor. Hat
+çalıştırılabilir kalıyor — Yasa 10 nettir ve `apps/ui` hâlâ o id'ye bağlı. Değişen tek
+şey: artık söylüyor.
+
+**Test hedefin GERÇEKTEN VAR OLDUĞUNU da ölçüyor:** ölü bir işaretçi, işaretçisizlikten
+kötüdür — ve emekli bir hattın emekli bir hatta işaret etmesi de yasak.
+
+⚠ Bu, "yazılı olması yetmez" dersinin bir örneği daha: kural YAML başlığında yazılıydı,
+ölçüm yoktu (R-87'nin ve D-328'in aynısı).
+
+## D-341 · Taşıyıcılar atmosfer olarak çiziliyordu — üçü de görünmüyordu
+
+**Dört süreklilik taşıyıcısı ölçüldü ve dördü de zayıftı**, üçü kurtarılamayacak kadar:
+
+| taşıyıcı | eskiden | ölçü |
+|---|---|---|
+| `alanSiniri` (`akan-alan` · `karsilastirma`) | `role-bg` / `role-line-edge` | **ΔL 0,03** |
+| `kemer` (`kavis`) | `AKSAN` %10 tint | zeminde sis |
+| `egri` (`veri-hikayesi`) | `stroke-width: 0.22` + `linearGradient` | **alt piksel** |
+
+**Kök tek:** taşıyıcılar ATMOSFER olarak çiziliyordu — düşük opaklıkta tint, degrade,
+alt piksel çizgi. Oysa dizayn sisteminin dili başka ve İKİ KARARDA yazılı: D-318 degradeyi,
+glow'u ve atmosferik rengi emekli etti; D-319 ayrımın **"yüzey adımı + 1 px hairline"**
+ile kurulduğunu söyledi. Uygulama ikisini de görmezden geliyordu.
+
+**`vector-effect="non-scaling-stroke"` genişliği CİHAZ pikseline çeviriyor** ve 0,22 alt
+piksele düşüyor. D-319'da aynı hata 0,12 ile yaşanmıştı — iki ay arayla ikinci kez.
+
+**Karar.** Her taşıyıcı yüzey adımı YA DA çizilmiş kenar taşır; alan sınırına hairline
+eklendi, kemer aksan tintinden yüzey adımına döndü, eğrinin degradesi düz yüzeye ve çizgisi
+2 cihaz pikseline çıktı.
+
+**Ölçüt İKİ KEZ SEÇİLDİ ve ilki yanlıştı.** İlk sürüm iki alanın MEDYAN farkına baktı ve
+`editoryal`i kırmızıya döndürdü — oysa o şablonun genliği kasten nazik ve sınırı hairline
+taşıyor. Kural iki aygıttan BİRİNİ istiyor; medyan farkı yalnız birincisini görüyor. Doğru
+ölçü **kenar gücü**: dokuz sütunda komşu piksellerin en büyük luma sıçraması. Adım da
+hairline da sıçrama üretiyor.
+
+**Eşik 25 ölçülerek seçildi:** düzeltmeden sonra kenar medyanları 44 · 57 · 60 · 230,
+en zayıf tek sütun 34; `akan-alan` düzeltmeden önce ~8. Kasten ihlal edildi (hairline
+kaldırıldı, eski renk çifti geri kondu) → *"kenar gücü 5, beklenen ≥25"*.
+
+⚠ **Hiçbir kapı bunu söylemiyordu** çünkü hiçbir kapı *"taşıyıcı görünüyor mu"* diye
+sormuyordu. `kesintisizlik-yok` kesimde bir öge VAR MI diye bakıyor — o öge şeffafsa da
+"var" diyor. Varlık, görünürlük değildir.

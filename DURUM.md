@@ -23,7 +23,10 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > D-224 · D-250 · D-261 · **D-270 (mimarinin tamamı)**. Zincir için sorulur, adım için değil.
 > ⛔ **YİRMİ BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` `3.7` `3.8` `3.14` `4.13b` `5.4b`
 > `5.5b` `6.5b` `6.9b` `7.2b` `7.5b` `7.6b` `7.8b` `8.6` `8.8b` `11.5` `11.6` `11.9`
-> `12.8` `13.3` `18.18`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık. ⚠ `3.14`
+> `12.8` `13.3` `18.18`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık.
+> ⚠ **`18.18` ONAYLANMADAN ÖNCE OKU (D-347):** `run_01a030e2`nin metni, düzeni HİÇ
+> prova edilmemiş hâlde kapıda bekliyor. Kelime bütçesi tavanında on şablonun sekizi
+> kırılıyor; onaylayıp render etmek kusurlu bir çıktıya bakmak olur. Önce düzen provası. ⚠ `3.14`
 > `2.9`'a bağlı; `11.5`/`11.9` BiRefNet, `11.6`/`13.3` ücretli görsel bekliyor.
 
 ## Tamamlananlar

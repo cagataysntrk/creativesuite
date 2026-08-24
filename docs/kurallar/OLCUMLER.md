@@ -605,3 +605,33 @@ YAZILMADI — kırık olduğu bilinen bir ölçüye kural bağlamak, kuralsızl�
 `karsilastirma` 1,02 ile sıkışıktı. Sıkışmayı `satirAraligi` değil, karşılaşan Türkçe
 AKSAN ÇİFTİ belirliyor (ğ kavisi ile ö noktaları, ç kuyruğu ile b çıkıntısı). Bu yüzden
 `satirAraligi` üzerine bir taban yazmak da işe yaramazdı.
+
+## Kelime bütçesi (R-89) on şablonun sekizini KIRIYOR — ve kelime yanlış büyüklük
+
+R-89 başlık ≤8, slayt toplamı ≤28 kelime diyor. Tam o tavanda, gerçekçi uzun Türkçe
+kelimelerle (`sürdürülebilirlik`, `raporlamasında`, `denetlenebilir`) her şablon
+zorlandı: **36 kusur, on şablonun sekizinde.** En ağırı `donen`de `punto-esik-alti` —
+gövde, R-83'ün okunabilirlik tabanının ALTINA düşüyor.
+
+Başlık 8'de sabitlenip gövde tabana kadar indirilerek her şablonun gerçek kapasitesi
+ölçüldü (başlık + gövde, sıfır kusur veren en büyük değer):
+
+| şablon | kapasite | ilan | şablon | kapasite | ilan |
+|---|---|---|---|---|---|
+| `editoryal` | **27** | 28 | `veri-hikayesi` | 16 | 28 |
+| `kavis` | 25 | 28 | `memphis` | 15 | 28 |
+| `alinti` | 19 | 28 | `sahne` | **12** | 28 |
+| `karsilastirma` | 19 | 28 | `donen` | **ölçülemedi** | 28 |
+| `akan-alan` | 18 | 28 | | | |
+
+`donen` başlık 3 kelimeye ve gövde 0'a inse bile kusurlu — kapasitesi kelimeyle
+İFADE EDİLEMİYOR. **2,25 kat yayılma** ve bir de tanımsız uç.
+
+**Kök sebep kodda yazılıydı:** bütçenin türetmesi *"1080 px tuvalde satır başına ~2,5
+kelime"* diyor. Ama metin tuvalde değil bir SÜTUNDA yaşıyor ve `baslikSutunu` şablona
+göre **0,46 → 0,88** değişiyor. Tek sayı bu yüzden tutamaz.
+
+**Ama şablon başına kelime yazmak da yanlış olurdu.** Kelime, geometrinin vekilidir ve
+kötü bir vekildir: *"Bir hat tekrarla öğrenir"* (4 kelime, 23 karakter) ile
+*"Sürdürülebilirlik raporlamasında ölçülebilir dönüşüm"* (4 kelime, 52 karakter) aynı
+sayıyı verir. `donen`in ölçülemez çıkması tam olarak bunun kanıtı.
