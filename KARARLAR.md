@@ -423,38 +423,8 @@ yazdım ve beş dosyaya yaydım; arşiv sıfır dolgusuz biçim kullanıyor ve o
 konuya ait. Atıf sözlüğünün tek anlamlı olması tam da bunun içindir — kaynak satırının
 gerçek yeri Anayasa'nın imza bölümü.
 
-## D-337 · Şablon ailesi 6 → 10; yeni şablon yazmak eski şablonların DENETİMİDİR
-
-**Dört yeni şablon:** `kavis` (kemer dizisi · geometri öncülü) · `alinti` (yalnız
-tipografi · kâğıt · ailenin sessiz üyesi) · `karsilastirma` (tek yönlü alan süpürmesi ·
-önce/sonra) · `dizin` (akış okları · numaralı adımlar). **Dördü de GÖRSELSİZ** ve bu bir
-kısıt değil bir karar: mevcut altının beşi görsele dayanıyordu, aile geometri ve
-tipografiyle taşıyan üyelere muhtaçtı — hem çeşitlilik hem de sağlayıcısız koşuda
-üretilebilen bir çıktı için.
-
-**Kurulu kapılar yeni şablonlarda anında konuştu:** hayalet üç şablonda başlığa çarptı,
-alan sınırı `karsilastirma`da rayı yuttu (R-95), `alinti`de etiket panelini yuttu (R-105).
-Ama asıl değerli üç bulguyu GÖZ buldu ve ölçüm sonradan doğruladı — üçü de ESKİ
-şablonları da etkiliyordu:
-
-1. **`kemer` taşıyıcısı kırıktı.** Modelde vardı, hiçbir şablon kullanmıyordu; geometri
-   mutlak pikselle yazılmış, `preserveAspectRatio="none"` dikeyi %41'e sıkıştırıyordu.
-   Kullanılmamasının sebebi tercih değil, koordinat uzayıydı.
-2. **Oklar yön vermiyordu.** Simetrik basınç eğrisi bir mercek çiziyordu; dosyanın kendi
-   yorumu *"yön kıvrımdan okunuyor"* diyordu ve yanlıştı.
-3. **Çubuk grafiği veri taşımıyordu.** Panelin eni içeriğine kilitli olduğu için
-   `flex: 1` büyüyecek boşluk bulamıyordu: yuva `veri-hikayesi`de **10 px**. Üç ayrı
-   değer aynı minik kare olarak çiziliyordu.
-
-**Ders.** Üç kusur da ay­larca yaşadı çünkü kullanılmayan bir bantta ve küçük bir panelde
-saklanıyordu. Yeni bir şablon, var olan mekanizmaları yeni bileşimlerde ZORLUYOR — yani
-bir şablon ailesini büyütmek, ailenin geri kalanını denetlemektir.
-
-**İki fikir ÖLÇÜM YÜZÜNDEN terk edildi ve ikisi de kayıtlı:** `karsilastirma`nın "zemin
-kâğıda dönüyor" fikri geometrik olarak imkânsız (kartın metin rengi kendi zemininden
-türüyor; kâğıt yukarıdan gelirse başlığı, aşağıdan gelirse rayı yutuyor — üçüncü yön
-yok). `alinti`nin etiket paneli kaldırıldı: sınır onu yutuyordu ve alıntı şablonunda
-üçüncü bir ses zaten fazlaydı.
+> **D-337 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`. Şablon ailesi 6 → 10;
+> yeni şablon yazmak eski şablonların DENETİMİDİR.
 
 ## D-338 · Kök eşleşmesi ünsüz yumuşamasını bilmiyordu
 
@@ -583,3 +553,47 @@ değil, ölü kodun gitmesi oldu — **R-76'nın dilediği tam olarak bu:** tava
 
 ⚠ `lekeler`in diğer tipleri (`daire` · `halka` · `kare` · `nokta` · `tarama`) duruyor:
 onlar düz dolgu, yani sistemin diliyle uyumlu.
+
+## D-343 · Katalog beyanını üretimde kimse okumuyordu — yarım ölçülen bir kapı
+
+**Bağlam.** Izgaraya bakıldı; `memphis` kapağında metin bloğu ile figür arasında ölü bir
+kuşak görünüyordu. Denetim *"0 kusur"* diyordu.
+
+**Ölçüm.** İki alet zıt cevap verdi: kutu ölçümü `memphis`i ailenin en iyisi (%17),
+mürekkep ölçümü en kötüsü (%53) saydı. Kutu `.gorsel` YUVASINI okuyor, kesik PNG'nin
+saydam kenar payını dolu sayıyor. Göz mürekkebe bakar. Ayrıntı `OLCUMLER.md`.
+
+**Sebep beklenenden derinde çıktı.** Yarık geometrik değil SÖZLEŞMESELDİ: katalog
+`memphis` için `adet: 'slayt-basina'` (altı) ilan ediyor, örnek üç yuva veriyordu.
+Özneler 1., 3. ve 5. slayda düşüyor; 2., 4. ve 6. slaytta metin bitiyor ve altında
+hiçbir şey kalmıyordu.
+
+**Asıl bulgu.** `gorsel.adet` üretimde **hiç kimse tarafından okunmuyor** — arandı, tek
+tüketici `kirpma`. Sayıyı `ORNEKLER`in yuva adedi sürüyor. Ve kapı VARDI:
+`toBeGreaterThan(0)`. Beyanın yanlış yarısını ölçüyordu. **Yarım ölçülen bir beyan,
+ölçülmeyen bir beyandan tehlikelidir** — yeşil tik ikisini de kapsıyor sanılır. Zincir
+kopukluğunun yeni bir türü: modül var, test yeşil, ama test yanlış soruyu soruyor.
+
+**Karar.** Beyan bağlayıcı: yuva sayısı `adet` ile EŞİT. `memphis` üç → altı yuva (her
+biri kendi slaydının ortasında, iki yakada 281 px açıklık), `editoryal` beyanı 2 → 3.
+Yarık %53 → %27, kenar payı %44 → %3. Kasten ihlal edildi, kırmızı döndü ve şablonu
+adıyla söyledi. → R-110
+
+## D-344 · İki hayaletin ikisi de kendi etiketini tekrarlıyordu
+
+**Bağlam.** Izgaranın on kapağına bakıldı. `dizin` ve `kavis` kapaklarında dev soluk bir
+kelime var ve ikisi de üst etikette yazan kelimenin aynısı.
+
+**Ölçüm.** Ailede hayalet taşıyan kart iki tane; ikisi de tekrar — **2/2**. Yedi şablon
+`hayaletKonumu` ilan ediyor ve hiçbirinde hayalet yok (D-299 kasten kapatmıştı; bu kusur
+değil, karar). Yani cihaz nerede kullanılıyorsa orada bilgi taşımıyordu.
+
+**Denenen ve reddedilen.** `kavis`in hayaleti `01` yapıldı; `sus-baskin` kırmızı döndü —
+hayalet genişliğe göre ölçeklendiği için iki karakter kartın %28'ini, içerik %26'sını
+tutuyor. **Kısa hayalet uzun olandan büyüktür.** Daha uzun bir kelime de çıkmaz:
+`TEKRAR` başlıkta ve gövdede geçiyor.
+
+**Karar.** `dizin`in kapak etiketi `DİZİN` → `ADIM 01`: hem hayalet tekrarı bitti hem
+etiket serisi (ADIM 01–04) tamamlandı — kapak zaten ilk adımı listeliyordu. `kavis`in
+hayaleti kaldırıldı: o şablonun taşıyıcısı kemer bandı, hayalet D-299'un artığıydı.
+Cihaz artık tek yerde ve orada artefaktı ADLANDIRIYOR. → R-111

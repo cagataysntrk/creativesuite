@@ -6442,3 +6442,36 @@ parçası yapan şeylerden biri.
 
 ⚠ **Bir kuralın kendi sınırını ölçmeden koyması, kuralın kendisi kadar tehlikeli.**
 D-324'ün o cümlesi savunulabilir görünüyordu ve üç slaytta yanlıştı.
+
+## D-337 · Şablon ailesi 6 → 10; yeni şablon yazmak eski şablonların DENETİMİDİR
+
+**Dört yeni şablon:** `kavis` (kemer dizisi · geometri öncülü) · `alinti` (yalnız
+tipografi · kâğıt · ailenin sessiz üyesi) · `karsilastirma` (tek yönlü alan süpürmesi ·
+önce/sonra) · `dizin` (akış okları · numaralı adımlar). **Dördü de GÖRSELSİZ** ve bu bir
+kısıt değil bir karar: mevcut altının beşi görsele dayanıyordu, aile geometri ve
+tipografiyle taşıyan üyelere muhtaçtı — hem çeşitlilik hem de sağlayıcısız koşuda
+üretilebilen bir çıktı için.
+
+**Kurulu kapılar yeni şablonlarda anında konuştu:** hayalet üç şablonda başlığa çarptı,
+alan sınırı `karsilastirma`da rayı yuttu (R-95), `alinti`de etiket panelini yuttu (R-105).
+Ama asıl değerli üç bulguyu GÖZ buldu ve ölçüm sonradan doğruladı — üçü de ESKİ
+şablonları da etkiliyordu:
+
+1. **`kemer` taşıyıcısı kırıktı.** Modelde vardı, hiçbir şablon kullanmıyordu; geometri
+   mutlak pikselle yazılmış, `preserveAspectRatio="none"` dikeyi %41'e sıkıştırıyordu.
+   Kullanılmamasının sebebi tercih değil, koordinat uzayıydı.
+2. **Oklar yön vermiyordu.** Simetrik basınç eğrisi bir mercek çiziyordu; dosyanın kendi
+   yorumu *"yön kıvrımdan okunuyor"* diyordu ve yanlıştı.
+3. **Çubuk grafiği veri taşımıyordu.** Panelin eni içeriğine kilitli olduğu için
+   `flex: 1` büyüyecek boşluk bulamıyordu: yuva `veri-hikayesi`de **10 px**. Üç ayrı
+   değer aynı minik kare olarak çiziliyordu.
+
+**Ders.** Üç kusur da ay­larca yaşadı çünkü kullanılmayan bir bantta ve küçük bir panelde
+saklanıyordu. Yeni bir şablon, var olan mekanizmaları yeni bileşimlerde ZORLUYOR — yani
+bir şablon ailesini büyütmek, ailenin geri kalanını denetlemektir.
+
+**İki fikir ÖLÇÜM YÜZÜNDEN terk edildi ve ikisi de kayıtlı:** `karsilastirma`nın "zemin
+kâğıda dönüyor" fikri geometrik olarak imkânsız (kartın metin rengi kendi zemininden
+türüyor; kâğıt yukarıdan gelirse başlığı, aşağıdan gelirse rayı yutuyor — üçüncü yön
+yok). `alinti`nin etiket paneli kaldırıldı: sınır onu yutuyordu ve alıntı şablonunda
+üçüncü bir ses zaten fazlaydı.

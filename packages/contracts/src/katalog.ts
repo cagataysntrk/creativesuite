@@ -309,6 +309,14 @@ export const MEMPHIS: KatalogSablonu = {
       'seated pose or resting position, leaning into the frame, matte surfaces with visible weave, one soft key light',
       'isometric 3d clay render of the subject, matte pastel material, soft contact shadow',
       'caught mid movement, side profile, grainy film look, matte surfaces',
+      // ⚠ ⚠ **ÜÇ → ALTI: yuva sayısı = varyant sayısı (`katalog-kabul.test.ts`).** Yuva
+      // üçten altıya çıkınca bu değişmez kırmızı döndü ve düzeltmenin yarım kaldığını
+      // söyledi: altı yuva üç varyantla dolarsa dördüncü ve beşinci slaytta AYNI poz
+      // tekrar eder — `memphis`in kimliği ise her karede başka bir duruş.
+      // ⚠ Varyant KADRAJ ve MALZEME söyler, özneyi konu belirler.
+      'standing three quarter turn, weight on one leg, hands relaxed, matte woven fabric, single soft light from above',
+      'crouched low toward the ground, compact silhouette, chalky matte surface, soft even light',
+      'back turned with head in profile over the shoulder, matte paper like surface, low contrast light',
     ],
   },
   baslikPayi: 0.82,
@@ -381,7 +389,10 @@ export const EDITORYAL: KatalogSablonu = {
       'slayda devam ediyor. Çizgi ya da desen yok — boşluk ve fotoğraf yetiyor.',
   },
   gorsel: {
-    adet: 2,
+    // ⚠ **2 → 3: BEYAN BAYATTI, ÖRNEK ÜÇ ŞERİT ÇİZİYOR.** `adet`i üretimde hiç kimse
+    // okumuyordu (aranıp bulundu: tek okuyan `kirpma`ydı); sayıyı `ORNEKLER`in yuva
+    // adedi sürüyor. Beyan bir şey bağlamayınca sessizce kaymıştı. → R-110
+    adet: 3,
     kirpma: 'tam',
     // ⚠ ⚠ **BURADA "typography" YAZIYORDU ve o kelime R-20 muhafızının YASAK
     // listesinde.** Brief'i yazan model talimattaki kelimeyi yankılar (bu depoda iki

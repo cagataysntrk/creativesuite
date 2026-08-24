@@ -174,3 +174,12 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   şeridine giriyor"*. Doğru çözüm ikisini BAĞLAMAK: şerit, ölçülen metin bloğunun
   altından başlamalı. Bugün kusur GÖRÜNÜYOR (`sus-metni-kesiyor`) ve düzeltme turu
   artık onu boşuna denemiyor — ama kompozisyon hâlâ elle kurulmuş iki sayıya dayanıyor.
+- **D24 · `turkish-case` kapısı denetlediği argümanı GÖREMİYOR.** Kapı eşleştirmeden
+  önce `stripStringBodies()` çağırıyor, yani `.toLocaleLowerCase('tr')` ifadesinde `'tr'`
+  silinip gidiyor ve `(?!['"`]tr)` negatif ileri-bakışı boşa düşüyor: **doğru yazılmış
+  her kullanım yanlış pozitif.** Kapının mesajı da yanıltıyor — *"locale'siz veya 'tr'
+  dışı"* diyor, oysa gerçek şart *"string literal değil, sabit kullan"*.
+  Bugün zararsız çünkü doğru cevap zaten `text-tr.ts`in yetkili yardımcısını kullanmak
+  (R-21) ve depoda çıplak kullanım yok. Ama kapı yanlış sebeple yeşil: literali yasaklıyor,
+  locale'i değil. Düzeltmesi küçük (case satırlarını sıyırmadan önce yakala) ve
+  `ui-tema`nın yorum körlüğüyle aynı sınıf — **ölçüm aleti ölçtüğü şeyi göstermiyor.**

@@ -217,3 +217,29 @@ görmezden geliyordu.
 ⚠ `vector-effect="non-scaling-stroke"` genişliği CİHAZ pikseline çeviriyor — 0,22 ve 0,12
 aynı sebeple kayboldu (D-319'un tekrarı).
 **Zorlama:** `tasiyici-gorunur.test.ts`. → D-341 · `OLCUMLER.md`
+
+### R-110 · katalog-vaadi-baglayici · GATE · aktif
+Kataloğun `gorsel.adet` beyanı ile örneğin yuva sayısı **eşittir**; `slayt-basina` her
+karta bir yuva demektir. Fazla yuva da eksik yuva kadar kusurdur.
+**Neden:** beyanı üretimde **hiç kimse okumuyordu** — arandı, tek okuyan `kirpma`ydı;
+sayıyı `ORNEKLER`in yuva adedi sürüyor. Bağlamayan bir beyan sessizce kayar ve iki
+şablonda kaydı: `memphis` altı slayda üç yuva veriyordu, `editoryal`in beyanı üç şerit
+çizerken iki diyordu.
+⚠ Kapı VARDI ve beyanın **yanlış yarısını** ölçüyordu (`toBeGreaterThan(0)`). Yarım
+ölçülen bir beyan ölçülmeyenden tehlikelidir: yeşil tik ikisini de kapsıyor sanılır.
+⚠ Eşitlik, yeterlilik değil: üretim yuva `i`ye görsel `i`yi koyuyor, görsel yetmezse yuva
+BOŞ kalıyor (`bodies.ts`).
+**Zorlama:** `katalog-ornek.test.ts`; mercek `just izgara`. → D-343 · `OLCUMLER.md`
+
+### R-111 · sus-bilgi-tasir · GATE · aktif
+Süs metni (dev hayalet) slaytta **zaten yazan** bir kelimeyi tekrarlayamaz — üst etikette,
+başlıkta ya da gövdede geçen bir kelime hayalet olarak basılmaz.
+**Neden:** ailedeki İKİ hayaletin İKİSİ de kendi üst etiketini tekrarlıyordu (`kavis` →
+`RİTİM`, `dizin` → `DİZİN`). Aynı kelimeyi bir kez 18 px bir kez kadrajın üçte biri
+yazmak sıfır bilgi ekler; kalan şey gürültüdür. D-299 hayaleti altı şablonda *yer
+olmadığı* için kapatmıştı — tekrarı hiç ölçmemişti.
+⚠ **Kısa hayalet uzun olandan BÜYÜKTÜR:** hayalet genişliğe göre ölçekleniyor. `RİTİM`
+yerine `01` denendi ve `sus-baskin` kırmızı döndü — iki karakter kartın %28'ini tuttu,
+içerik %26. Yani kuralı "daha kısa bir kelime seç" ile geçmek imkânsız; tek çıkış bilgi
+taşıyan bir kelime ya da hayaletin olmaması.
+**Zorlama:** `katalog-ornek.test.ts`; mercek `just izgara`. → D-344 · `OLCUMLER.md`

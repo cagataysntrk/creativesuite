@@ -533,3 +533,24 @@ Hepsi çizilip BAKILDI: `akan-alan`ın dalgası altı slaydı kat ediyor, `kavis
 mimari bir ritim kuruyor, `veri-hikayesi`nin eğrisi okunur bir hat oldu. Üçü de önce
 görünmüyordu ve hiçbir kapı bunu söylemiyordu — çünkü hiçbir kapı *"taşıyıcı görünüyor
 mu"* diye sormuyordu.
+
+## Ölü kuşak: kutu ölçümü ile mürekkep ölçümü TERS cevap verdi
+
+`memphis`in kapağına bakılınca metin bloğu ile figür arasında büyük bir boşluk
+görünüyordu. İki alet ölçtü ve **birbirinin zıddını** söyledi:
+
+| şablon | kutu ölçümü (DOM) | mürekkep ölçümü (piksel) |
+|---|---|---|
+| `memphis` | %17 — ailenin **en iyisi** | %53 — ailenin **en kötüsü** |
+| `akan-alan` | %43 — ailenin **en kötüsü** | %19 — ailenin **en iyisi** |
+
+Sebep: `.gorsel` kutusu **yuvayı** ölçüyor, mürekkebi değil. Kesik PNG'nin saydam kenar
+payı kutuya dahil, göze değil. Göz mürekkebe bakar — ölçü de mürekkebe bakmalı.
+
+**İkinci ayrım, ilkinden önemli:** boşluk `yarık` (üstünde VE altında mürekkep var) ile
+`pay` (kadraj kenarında) ayrılmadan anlamsız. `sahne`nin %36'sı üst paydır — koyu bir
+afişin nefesi. `memphis`in %53'ü iki içerik arasındaydı: kompozisyonu ikiye bölen bir
+yarık. Aynı sayı, zıt yargı.
+
+Altı yuvaya çıkarıldıktan sonra ailenin yarık dağılımı: 15 · 19 · 22 · 22 · 26 · 27 ·
+28 · 30 · 32 · 36. Aykırı değer yok — `memphis` %53'ten %27'ye, kenar payı %44'ten %3'e.

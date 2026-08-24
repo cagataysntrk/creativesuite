@@ -33,11 +33,24 @@ describe('katalog ↔ örnek eşleşmesi', () => {
     }
   })
 
-  it('görsel ilan eden şablonun örneği görsel yuvası taşıyor', () => {
+  // ⚠ ⚠ **BU TEST `toBeGreaterThan(0)` DİYORDU ve bir kusuru ALTI SLAYT boyunca
+  // taşıdı.** Katalog `memphis` için `adet: 'slayt-basina'` ilan ediyordu; örnek altı
+  // slayda ÜÇ yuva veriyordu ve test yeşildi. Sonuç ızgarada görüldü: özneler 1., 3. ve
+  // 5. slayda düşüyor, 2., 4. ve 6. slaytta metin bitiyor ve altında hiçbir şey kalmıyor
+  // — dördüncü slaydın **%53'ü** ölü kuşak (ailenin en kötüsü; düzeltince %27).
+  // ⚠ Kapı VARDI ve beyanın YANLIŞ YARISINI ölçüyordu: `kirpma`yı doğruluyor, adedi
+  // doğrulamıyordu. Yarım ölçülen bir beyan, ölçülmeyen bir beyandan tehlikelidir —
+  // yeşil tik ikisini de kapsıyor sanılır.
+  // ⚠ EŞİTLİK, yeterlilik değil: üretim yuva `i`ye görsel `i`yi koyuyor ve görsel
+  // yetmezse yuva BOŞ kalıyor (`bodies.ts`). Fazla yuva da eksik yuva kadar kusurdur.
+  it('görsel yuvası sayısı kataloğun İLAN ETTİĞİ kadar', () => {
     for (const s of KATALOG) {
       const o = ornekBul(s.id) as KatalogOrnegi
       if (s.gorsel === null) continue
-      expect(o.gorseller.length, s.id).toBeGreaterThan(0)
+      const gereken = s.gorsel.adet === 'slayt-basina' ? o.kartlar.length : s.gorsel.adet
+      expect(o.gorseller.length, `${s.id}: katalog ${String(s.gorsel.adet)} ilan ediyor`).toBe(
+        gereken
+      )
       // ⚠ Kırpma kataloğun ilanıyla aynı olmalı: `daire` ilan edip `kesik` çizen bir
       // örnek, brief'i doğru üretilmiş bir görseli yanlış maskeye sokar.
       for (const g of o.gorseller) expect(g.kirpma, s.id).toBe(s.gorsel.kirpma)
@@ -92,6 +105,30 @@ describe('örnek içeriği', () => {
 
   // ⚠ Boş bir panel, panel başlığını çizip altını boş bırakıyor: "ÜÇ ÖNCELİK" yazıp
   // hiçbir şey göstermeyen bir kutu. İlk sürümde iki şablonda tam bu vardı.
+  // ⚠ ⚠ **AİLEDEKİ İKİ HAYALETİN İKİSİ DE KENDİ ETİKETİNİ TEKRARLIYORDU.** Dev soluk
+  // kelime bir KOMPOZİSYON ögesi; slaytta zaten yazan bir kelimeyi ikinci kez, bu kez
+  // kadrajın üçte biri boyunda yazmak sıfır bilgi ekler. D-299 hayaleti altı şablonda
+  // *yer olmadığı* için kapatmıştı — tekrarı hiç ölçmemişti.
+  // ⚠ Karşılaştırma Türkçe kıvrımlı: `toLocaleLowerCase('tr')` (`İ` → `i`, `I` → `ı`)
+  // ve noktalama atılıyor, yoksa `ADIM 01` ile `adım01` eşleşmez.
+  it('hayalet slaytta zaten yazan bir kelimeyi TEKRARLAMIYOR', () => {
+    const sadelestir = (t: string | null | undefined) =>
+      String(t ?? '')
+        .trim()
+        .toLocaleLowerCase('tr')
+        .replace(/[^\p{L}\p{N}]/gu, '')
+    for (const [ad, o] of ornekler) {
+      o.kartlar.forEach((k, i) => {
+        const h = sadelestir(k.hayalet)
+        if (h === '') return
+        const nerede = ad + ' · kart' + String(i + 1) + ' · hayalet "' + String(k.hayalet) + '"'
+        expect(sadelestir(k.ustBaslik), nerede + ' üst etiketi tekrarlıyor').not.toBe(h)
+        expect(sadelestir(k.baslik).includes(h), nerede + ' başlıkta geçiyor').toBe(false)
+        expect(sadelestir(k.govde).includes(h), nerede + ' gövdede geçiyor').toBe(false)
+      })
+    }
+  })
+
   it('panel varsa İÇİ de var', () => {
     for (const [id, o] of ornekler)
       for (const k of o.kartlar) {

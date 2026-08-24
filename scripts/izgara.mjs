@@ -9,8 +9,13 @@
 // ⚠ Çıktı `derived/` altında: türetilmiş, yeniden üretilebilir, git'te değil (Yasa 11).
 // `docs/`e yazılmıyor — üretilmiş bir ikili belge, belge değil çıktıdır.
 //
-// ⚠ Görsel taşıyan şablonlar YER TUTUCU ile çiziliyor: ızgara sınavının konusu
-// KOMPOZİSYON, sağlayıcı çıktısı değil. Gerçek görsellerle bakmak 18.18'in işi.
+// ⚠ ⚠ **GÖRSELLER GERÇEK — ve bu bir DÜZELTME.** İlk sürüm görselli şablonları yer
+// tutucuyla çiziyordu ("sınavın konusu kompozisyon"). Izgaraya BAKINCA görüldü ki üç
+// şablon (`sahne` · `memphis` · `donen`) o hâlde YARGILANAMIYOR: kadrajın yarısı kesikli
+// bir kutu oluyor ve "bu tasarım aileye ait mi" sorusu cevapsız kalıyor. Sınav aletinin
+// ölçtüğü şeyi göstermemesi, aletin kusurudur.
+// ⚠ Kaynak `derived/runs` altındaki GERÇEK kesik özneler; yoksa yer tutucuya düşüyor ve
+// bu SÖYLENİYOR — sessiz bir yedek, sınavı yine yargılanamaz kılardı.
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -49,6 +54,38 @@ const DAMGA = {
 }
 
 mkdirSync(CIKTI, { recursive: true })
+
+// ── gerçek kesik özneler: en son koşudan ────────────────────────────────────
+const { readdirSync } = await import('node:fs')
+const gorselHavuzu = (() => {
+  const kok = join(REPO, 'derived/runs')
+  let kosular
+  try {
+    kosular = readdirSync(kok)
+      .filter((a) => a.startsWith('run_'))
+      .sort()
+      .reverse()
+  } catch {
+    return []
+  }
+  for (const k of kosular) {
+    try {
+      const dosyalar = readdirSync(join(kok, k))
+        .filter((a) => /^gorsel-\d+\.png$/.test(a))
+        .sort()
+      if (dosyalar.length >= 2) return dosyalar.map((a) => join(kok, k, a))
+    } catch {
+      continue
+    }
+  }
+  return []
+})()
+const veriUri = (yol) => `data:image/png;base64,${readFileSync(yol).toString('base64')}`
+console.log(
+  gorselHavuzu.length === 0
+    ? '  ⚠ gerçek kesik özne bulunamadı — görselli şablonlar YER TUTUCU ile çizilecek'
+    : `  · ${String(gorselHavuzu.length)} gerçek kesik özne kullanılıyor`
+)
 const kapaklar = []
 let toplamKusur = 0
 
@@ -59,6 +96,14 @@ for (const [id, o] of Object.entries(ORNEKLER)) {
     fontCss: f.sonuc.css,
     stamp: DAMGA,
     ...(l.sonuc.ok ? { logo: l.sonuc.varliklar } : {}),
+    ...(gorselHavuzu.length === 0
+      ? {}
+      : {
+          gorseller: o.gorseller.map((g, i) => ({
+            ...g,
+            src: veriUri(gorselHavuzu[i % gorselHavuzu.length]),
+          })),
+        }),
   }
   // ⚠ Kusur sayısı da basılıyor: temiz görünen bir ızgara, kusursuz bir ızgara demek
   // değil. İkisi birlikte okunur.

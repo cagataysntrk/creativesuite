@@ -216,11 +216,14 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
 }
 
 /**
- * **akan-alan** — iki renk alanı, panoramayı kat eden eğri sınır, dev hayalet rakam.
+ * **akan-alan** — iki renk alanı, panoramayı kat eden eğri sınır.
  *
  * ⚠ Sınır YATAY ve tek bir yol; slayt başına çizilseydi kesimde kırılırdı (panorama.ts).
- * ⚠ Kartlar üst alanda duruyor, hayalet rakamlar sınırı aşıyor: kesintisizliğin ikinci
- * kanalı. Tipografi GENİŞ (`wdth 104`) — `veri-hikayesi`nin dar sesinin karşıtı.
+ * ⚠ ⚠ **BAŞLIK "dev hayalet rakam" DİYORDU ve o öge yirmi satır aşağıda KALDIRILMIŞTI
+ * (D-299).** Kartlar üst alanda duruyor; sürekliliği KESİNTİSİZ SINIR taşıyor, tek
+ * kanal. Bir şablonun başlığı onda olmayan bir ögeyi kimlik sayarsa, sonraki okuyan onu
+ * arar ve bulamaz — bu depoda tam olarak bu oldu. → R-110
+ * ⚠ Tipografi GENİŞ (`wdth 104`) — `veri-hikayesi`nin dar sesinin karşıtı.
  */
 // ⚠ ⚠ **HAYALET BURADAN DA KALKTI — SIĞACAK YER YOK, ÖLÇÜLDÜ (D-299).** Önce "boş alt
 // alanda çakışmıyor" diye burada bırakılmıştı; depo sahibi 3. slaytta çakışmayı gördü ve
@@ -637,14 +640,53 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     // özne yatayda kaçacak yer bulamıyor. Özne alt banda hapsolduğu için (y 60, boy 40)
     // eni de o bandın yüksekliğinden türüyor: `contain` ile 432 px.
     // ⚠ Yani `memphis`in öznesi `sahne`ninkinden küçük olmak ZORUNDA ve bu bir kusur
-    // değil, iki şablonun farkı: `sahne` tek özneyi kahraman yapıyor, `memphis` üç
-    // özneyi altı slayda dağıtıyor.
+    // değil, iki şablonun farkı: `sahne` tek özneyi kahraman yapıyor, `memphis` özneyi
+    // her slayda dağıtıyor.
     // ⚠ `y: 53` — özne rayın ÜSTÜNDE bitiyor, kadraj kenarında değil. 60'ta ayaklar
     // tuvalin alt kenarında kesiliyordu ve ray ayak bileklerinden geçiyordu. 53+40 = %93
     // → 1255 px; ray 1259'da başlıyor. `sahne` ile aynı zemin çizgisi: aile böyle kuruluyor.
-    { src: '', alt: 'kesik özne — 1', x: 3, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 2', x: 38, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 3', x: 70, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    //
+    // ⚠ ⚠ **ÜÇ → ALTI ve bu bir GÖZ bulgusuydu, sonra iki kez ölçüldü.** Üç yuva altı
+    // slayda dağılınca özneler 1., 3. ve 5. slayda düşüyordu; 2., 4. ve 6. slaytta metin
+    // üstte bitiyor ve ALTINDA hiçbir şey kalmıyordu. Dördüncü slaydın **%53'ü** iki
+    // içerik arasında ölü bir kuşaktı — ailenin en kötüsü.
+    // ⚠ İlk ölçüm bunu GÖRMEDİ: kutu ölçümü `.gorsel` YUVASINI okuyordu ve kesik PNG'nin
+    // saydam kenar payını dolu sayıyordu. Aynı iki şablona kutu ölçümü ile mürekkep
+    // ölçümü TERS cevap verdi (`akan-alan` en kötü ↔ en iyi). Göz mürekkebe bakıyor.
+    // ⚠ Asıl kusur sayı değil SÖZLEŞMEYDİ: katalog `adet: 'slayt-basina'` ilan ediyor,
+    // örnek yarısını veriyordu — ve bunu hiçbir kapı ölçmüyordu. → R-110
+    // ⚠ Her yuva kendi slaydının ORTASINDA: slayt payı %16,667, yuva %8, iki yakada
+    // %4,33 = 281 px açıklık — R-94'ün "uzak" şıkkı için gereken 93 px'in üç katı.
+    { src: '', alt: 'kesik özne — 1', x: 4.33, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 2', x: 21, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    {
+      src: '',
+      alt: 'kesik özne — 3',
+      x: 37.67,
+      y: 53,
+      genislik: 8,
+      yukseklik: 40,
+      kirpma: 'kesik',
+    },
+    {
+      src: '',
+      alt: 'kesik özne — 4',
+      x: 54.33,
+      y: 53,
+      genislik: 8,
+      yukseklik: 40,
+      kirpma: 'kesik',
+    },
+    { src: '', alt: 'kesik özne — 5', x: 71, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    {
+      src: '',
+      alt: 'kesik özne — 6',
+      x: 87.67,
+      y: 53,
+      genislik: 8,
+      yukseklik: 40,
+      kirpma: 'kesik',
+    },
   ],
   // ⚠ ⚠ **LEKELER KALDIRILDI (depo sahibi: "şu aptal dairemsi renkli topları kaldır,
   // bunlar web tasarım duruyor").** Referansta (`image copy 4`) gerçekten leke var — ama
@@ -967,9 +1009,16 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     // söyledi — `UPCYTECH · SAHA · ÖRNEK VERİ` çizgilerin içinde yüzüyordu.
     // ⚠ 93 × 1350 = 1255 px; ray 1259'da başlıyor. Aynı zemin çizgisi altı şablonda da
     // geçerli: ortak bir taban, altı ayrı tasarımı tek sayfanın parçası yapıyor.
-    { src: '', alt: 'geniş plan', x: 0, y: 0, genislik: 11, yukseklik: 93, kirpma: 'tam' },
-    { src: '', alt: 'yakın plan', x: 36, y: 0, genislik: 11, yukseklik: 93, kirpma: 'tam' },
-    { src: '', alt: 'kapanış karesi', x: 89, y: 0, genislik: 11, yukseklik: 93, kirpma: 'tam' },
+    // ⚠ ⚠ **ŞERİT 11 → 10 ve ORTA ŞERİT SAĞA KAYDI — GERÇEK GÖRSELLE ölçüldü.** Yer
+    // tutucuyla bakarken görünmüyordu: ikinci kartta başlık 1144–1599, görsel 1555–2030,
+    // yani **44 px** çakışma. `metin-gorsel-cakisiyor` eşiği (%12) altında kaldığı için
+    // sessizdi; R-105 zeminin **%7'sinin** metin lumasına yakın olduğunu söyledi.
+    // ⚠ Slaytın matematiği dar: 1080 px'e 432 şerit + 455 metin sütunu + 64 dolgu + 93
+    // dikiş açıklığı sığıyor, 11'lik şeritle sığmıyordu. Şeridi kısaltmak metni daraltmaktan
+    // iyi — `editoryal`in ölçüsü zaten ailenin en darı (R-86 alt sınırı koşullu).
+    { src: '', alt: 'geniş plan', x: 0, y: 0, genislik: 10, yukseklik: 93, kirpma: 'tam' },
+    { src: '', alt: 'yakın plan', x: 37.7, y: 0, genislik: 10, yukseklik: 93, kirpma: 'tam' },
+    { src: '', alt: 'kapanış karesi', x: 90, y: 0, genislik: 10, yukseklik: 93, kirpma: 'tam' },
   ],
   kartlar: [
     {
@@ -1055,11 +1104,19 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
+      // ⚠ ⚠ **HAYALET KALDIRILDI ve yerine ne konacağını KAPI söyledi.** Hayalet etiket
+      // serisinin ilk kelimesini (`RİTİM`) tekrarlıyordu: aynı kelime bir kez 18 px, bir
+      // kez kadrajın üçte biri — sıfır bilgi. Yerine `01` denendi ve `sus-baskin` kırmızı
+      // döndü: hayalet genişliğe göre ölçeklendiği için iki karakter kartın **%28'ini**
+      // tutuyor, içerik %26 (`olcek: 1.55`). Kısa bir hayalet, uzun olandan BÜYÜKTÜR.
+      // ⚠ Daha uzun bir kelime aramak da çıkmaz: `TEKRAR` başlıkta ve gövdede geçiyor.
+      // Bu şablonun taşıyıcısı zaten KEMER BANDI; hayalet D-299'un altı şablonda
+      // kapattığı ögenin artığıydı. Cihaz artık tek yerde: `dizin`. → R-111
       ustBaslik: 'RİTİM',
       baslik: 'Bir hat **tekrarla** öğrenir',
       govde: 'Aynı hareketin beşinci tekrarı, birincisinden ucuzdur.',
       panel: null,
-      hayalet: 'RİTİM',
+      hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
     },
@@ -1340,7 +1397,11 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
-      ustBaslik: 'DİZİN',
+      // ⚠ ⚠ **`DİZİN` → `ADIM 01`: etiket hem seriden KOPUKTU hem hayaletle AYNI
+      // kelimeydi.** Öteki üç kart `ADIM 02/03/04` diyor, kapak `DİZİN` diyordu; oysa
+      // ilk adım kapağın listesinde duruyor. Aynı kelimeyi bir kez küçük bir kez dev
+      // yazmak bilgi eklemiyor — süs metni slaytta zaten yazanı tekrarlayamaz. → R-111
+      ustBaslik: 'ADIM 01',
       baslik: 'Dört adımda **ölçülebilir** hat',
       govde: 'Sırayı bozmak, ölçüyü bozuyor.',
       panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '01', ad: 'ölçüm noktasını koy' }] },
