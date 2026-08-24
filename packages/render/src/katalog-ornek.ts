@@ -71,6 +71,16 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   // ⚠ Vinyet kadrajı topluyor: kenarları hafif düşürmek merkezi kendiliğinden öne çıkarıyor.
   // ⚠ `ayrik`: paneller DİBE, eğrinin üstüne oturuyor. Aradaki boşluk kusur değil,
   // eğrinin hikâyeyi anlattığı alan.
+  // ⚠ ⚠ **KAPAK KİLİDİ DİKEYDE KIRILAMADI — `kavis` ve `memphis` ile ÜÇÜNCÜ kez, AYNI
+  // sebeple.** `alt` denendi: gövde köşegen bandın içine düştü (`sus-metni-kesiyor`
+  // %4,4 · %2,2 · %2,3; tavan %2). Eğri bandı kadrajın alt %40'ını tutuyor.
+  //
+  // ⚠ ⚠ **KÖK SEBEP: KAPAK KİLİDİ TAŞIYICI GELENEĞİNİN SONUCU.** On şablonun
+  // dokuzunda akış taşıyıcısı — eğri, kemer, kama, ok, kesik özne — kadrajın ALT
+  // yarısında duruyor. Metin bu yüzden üstte; "dokuz kapak aynı yerden açılıyor"
+  // tembellik değil, taşıyıcı konumunun kaçınılmaz sonucu. Dikey çeşitlilik ancak
+  // taşıyıcı da yer değiştirirse gelir (FAZ-19.7 "sürekliliği VERİYE bağla" +
+  // FAZ-19.8 görsel briefi). Yatay eksen bu yüzden tek gerçek serbestlik derecesiydi.
   yerlesim: 'ayrik',
   // ⚠ ⚠ **HAYALET BİR KATMAN, BİR FİLİGRAN DEĞİL (tasarım rehberi §3).** Varsayılan
   // (%7 opaklık, 1× ölçek) rakamı fark edilmez yapıyordu ve kart yüzeyinde HİÇBİR

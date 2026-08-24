@@ -1278,3 +1278,29 @@ kırılamıyor çünkü kadrajın alt yarısını içerik tutuyor.
 ⚠ **Kural yanlış değil; DAĞARCIK eksik.** Beş duruma ulaşmanın yolu şablonları zorlamak
 değil, `tam-genislik` (metin sütunu kadrajın tamamı) durumunu YAZMAK. O gelene kadar
 5/4/1 dürüst tavan.
+
+## FAZ-19.7 · KÖK SEBEP — kapak kilidi TAŞIYICI GELENEĞİNİN sonucu
+
+Üç şablonun üçü de dikeyde kırılamadı ve **üçünde de sebep aynı**:
+
+| şablon | denenen | kapının cevabı | alt yarıyı ne tutuyor |
+|---|---|---|---|
+| `kavis` | `orta` | `sus-metni-kesiyor` %36,2 | kemer dizisi |
+| `memphis` | `orta` | `metin-gorsel-cakisiyor` gövde %63 | kesik özne |
+| `veri-hikayesi` | `alt` | `sus-metni-kesiyor` %4,4 · %2,2 · %2,3 | eğri bandı |
+
+**On şablonun dokuzunda akış taşıyıcısı — eğri · kemer · kama · ok · kesik özne —
+kadrajın ALT yarısında duruyor.** Metin bu yüzden üstte.
+
+⚠ ⚠ *"Dokuz kapak aynı yerden açılıyor"* bir tembellik değil, **taşıyıcı konumunun
+kaçınılmaz sonucu.** Denetim semptomu doğru teşhis etti, sebebi değil. Dikey çeşitlilik
+ancak TAŞIYICI da yer değiştirirse gelir — yani *"sürekliliği veriye bağla"* (19.7) ve
+görsel briefi (19.8) adımlarıyla. Yatay eksen, bu geleneğin altında tek gerçek
+serbestlik derecesiydi ve sonuna kadar kullanıldı:
+
+**sol kenar dağılımı 9/0/1 → 5/4/1** — dört şablon kapak kartına `kolon: 'sag'` alarak
+(`akan-alan` %23,9 · `karsilastirma` %25,9 · `kavis` %28,0 · `dizin` %29,9).
+
+⚠ `tam-genislik` de çare değildi: ölçüldü, şablonların metin sütunu zaten kadrajın
+%42–88'ini kaplıyor (`alinti` %78,1 · `veri-hikayesi` %76,1). Eksik olan genişlik değil,
+DİKEY serbestlik.
