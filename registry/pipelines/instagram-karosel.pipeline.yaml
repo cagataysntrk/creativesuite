@@ -85,12 +85,30 @@ steps:
     constraints:
       katalog: true
 
+  # 3b) DÜZEN PROVASI — PARANIN ÖNÜNDE, gerçek geometriyle (D-347).
+  #
+  # ⚠ ⚠ **KELİME BÜTÇESİ YETMİYOR ve bu ÖLÇÜLDÜ.** R-89 tavanındaki bir metinle (başlık 8
+  # + slayt 28, gerçekçi uzun Türkçe kelimelerle) on şablonun SEKİZİ kırılıyor; `donen`de
+  # gövde okunabilirlik tabanının ALTINA düşüyor. Kelime, geometrinin kötü bir vekili:
+  # aynı kelime sayısı iki katı genişlik verebiliyor.
+  # ⚠ Prova yeni bir ölçüt icat etmiyor — `panoramaDenetle`yi DOĞRU ANDA çağırıyor:
+  # görseller doğmadan, yer tutucularla. Maliyet sıfır (`local-chromium`).
+  # ⚠ Yeri R-04'ün sonucu: *"yalnız RENDER Chromium'a dokunur"*. `kompozit`e konamazdı.
+  # ⚠ `metin-onayi` kapısı YERİNDE KALIYOR: koşu kapıyı GÖRÜNCE durduğu için orada
+  # onaylanan şey `metin-uret`in çıktısı; uyarlanmış belge o anda henüz yok.
+  - id: duzen-provasi
+    verb: RENDER
+    needs: [kompozit]
+    constraints:
+      prova: true
+
   # 4) ŞABLONUN İHTİYAÇ DUYDUĞU GÖRSEL. Brief'in sabit kısmı katalog kaydından
   # (`briefTemeli`), konuya özgü kısmı modelden geliyor.
+  # ⚠ Brief'ler provaya BAĞLI: düzen sığmadan tek bir görsel bile üretilmiyor.
   - id: gorsel-brief
     verb: GENERATE
     capability: text.generate
-    needs: [bilgi-sec, kompozit]
+    needs: [bilgi-sec, kompozit, duzen-provasi]
     constraints:
       gorsel_brief: true
       max_chars: 600
@@ -148,7 +166,7 @@ steps:
   - id: gorsel-brief-2
     verb: GENERATE
     capability: text.generate
-    needs: [bilgi-sec, kompozit]
+    needs: [bilgi-sec, kompozit, duzen-provasi]
     constraints:
       gorsel_brief: true
       gorsel_sira: 2
@@ -178,7 +196,7 @@ steps:
   - id: gorsel-brief-3
     verb: GENERATE
     capability: text.generate
-    needs: [bilgi-sec, kompozit]
+    needs: [bilgi-sec, kompozit, duzen-provasi]
     constraints:
       gorsel_brief: true
       gorsel_sira: 3
@@ -208,7 +226,7 @@ steps:
   - id: gorsel-brief-4
     verb: GENERATE
     capability: text.generate
-    needs: [bilgi-sec, kompozit]
+    needs: [bilgi-sec, kompozit, duzen-provasi]
     constraints:
       gorsel_brief: true
       gorsel_sira: 4

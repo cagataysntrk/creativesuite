@@ -220,6 +220,12 @@ export const DEFTER_ANAHTARLARI: readonly string[] = [
   // denetlenemez hâle gelir. `sablonId` özellikle kritik: "bu karosel neden böyle"
   // sorusunun tek cevabı o.
   'sablonId',
+  // ⚠ ⚠ **DÜZEN PROVASI DEFTERE GİRİYOR (D-347).** Prova geçtiyse bunun kaydı, "bu
+  // koşunun düzeni görsel harcamasından ÖNCE ölçüldü mü" sorusunun tek cevabı. Kayıtsız
+  // bir prova, koşmamış bir provadan ayırt edilemez — ve `defter-anahtarlari` kapısı bu
+  // anahtarı ilk yazıldığı anda yakaladı: gövde üretiyordu, defter sessizce eliyordu.
+  // Bu dosyanın kendi yorumunun saydığı sınıfın bir tekrarı daha, bu kez kapı önce davrandı.
+  'provaGecti',
   // ⚠ Konusuz başlatmada konuyu AGENT seçiyor (`konu-sec`). Seçilen konu ve gerekçesi
   // deftere girmezse "bu karosel neden bu konuda" sorusunun cevabı hiçbir yerde
   // yazmaz — ve `islenmisKonular` bir daha aynı konuyu eleyemez.

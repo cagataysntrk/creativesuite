@@ -83,7 +83,7 @@ import { RateLimiter } from '../ratelimit.js'
 import { appendPublished, lookupPublished } from '../publish-ledger.js'
 import { aileSec, tasarla } from '../plan/tasarla.js'
 import { yay } from '@suite/contracts'
-import { planDenetle, uyumsuzlukOzeti } from '@suite/render'
+import { duzenProvasi, planDenetle, uyumsuzlukOzeti } from '@suite/render'
 import type { Islev } from '@suite/kernel'
 import type { TasarimPlani } from '@suite/contracts'
 import type { Yuva } from '../metin-akisi.js'
@@ -941,6 +941,53 @@ export const renderBody = (deps: RenderDeps): Verb =>
         v !== null && typeof v === 'object' && (v as { panorama?: unknown }).panorama !== undefined
     )
     const panoramaCiktisi = panoramalar[panoramalar.length - 1]
+
+    // ── DÜZEN PROVASI: para harcanmadan ÖNCE gerçek geometri (D-347) ─────────
+    //
+    // ⚠ ⚠ **ŞABLONLAR KURALIN İZİN VERDİĞİ METNİ TAŞIMIYOR ve bu ÖLÇÜLDÜ.** R-89 tavanında
+    // (başlık 8 + slayt 28, gerçekçi uzun Türkçe kelimelerle) on şablonun SEKİZİ kırıldı.
+    // En ağırı `donen`de `punto-esik-alti`: gövde, R-83'ün okunabilirlik tabanının ALTINA
+    // düşüyor — yani kuralın izin verdiği bir metin şablonu okunmaz yapabiliyor.
+    //
+    // ⚠ Şablon başına kelime bütçesi REDDEDİLDİ: kelime geometrinin vekilidir ve kötü bir
+    // vekildir. `donen`in kapasitesi kelimeyle İFADE EDİLEMEDİ (başlık 3, gövde 0'da bile
+    // kusurlu). Ölçemediğin bir büyüklüğe kural bağlanmaz. Kapasite tablosu
+    // `docs/kurallar/OLCUMLER.md`'de.
+    //
+    // ⚠ **YERİ R-04 SEÇTİ, ben değil.** *"Yalnız `RENDER` Chromium'a dokunur"* — prova
+    // `kompozit`e konamazdı, o adımın sınıfı `pure`. Kural mimariyi belirledi.
+    //
+    // ⚠ **SERT DURUŞ, uyarı değil.** Sığmayan bir düzenle devam etmek dört görsel üretip
+    // sonra "olmadı" demektir ve o para geri gelmiyor — `ADAPTATION_REJECTED` ile aynı
+    // gerekçe, aynı davranış.
+    if (input.constraints['prova'] === true) {
+      if (panoramaCiktisi === undefined) return err(hata('validation', 'NO_PANORAMA', ctx))
+      const prova = await duzenProvasi(panoramaCiktisi.panorama)
+      if (!prova.ok)
+        return err(hata('render_failed', 'REHEARSAL_FAILED', ctx, { error: prova.error }))
+      if (!prova.value.sigiyor)
+        return err(
+          hata('validation', 'LAYOUT_REJECTED', ctx, {
+            ozet: prova.value.ozet,
+            // ⚠ Kusurlar ADIYLA taşınıyor: "sığmadı" tek başına düzeltilemez bir geri
+            // bildirimdir; düzeltme turu neyi kısaltacağını bilmek zorunda.
+            kusurlar: prova.value.kusurlar.map((k) => ({ kart: k.kart, tur: k.tur })),
+          })
+        )
+      return ok({
+        costs: [
+          {
+            verb: 'RENDER' as VerbName,
+            capability: 'image.render',
+            providerId: 'local-chromium',
+            amount: ZERO_USD,
+            kind: 'actual' as const,
+          },
+        ],
+        data: { provaGecti: true, ozet: prova.value.ozet },
+      })
+    }
+
     if (panoramaCiktisi !== undefined) {
       mkdirSync(deps.outDir, { recursive: true })
       const doc = panoramaCiktisi.panorama
