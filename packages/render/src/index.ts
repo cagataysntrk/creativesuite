@@ -324,6 +324,8 @@ export type { Durak, ZeminKatmani, ZeminResetesi } from './zemin.js'
 // üretim (D-268) yalnız kâğıt üstünde kalırdı.
 export { ORNEKLER, ornekBul } from './katalog-ornek.js'
 export { kusurMetni, panoramaDenetle, type Kusur, type KusurTuru } from './panorama-denetim.js'
+// ⚠ Prova, denetimi DOĞRU ANDA çağıran ince bir sarmalayıcı — yeni ölçüt icat etmiyor (D-347).
+export { duzenProvasi, type ProvaSonucu } from './duzen-provasi.js'
 export { kapsamDisiKarakterler } from './fonts.js'
 export type { KatalogOrnegi } from './katalog-ornek.js'
 export { egriZarfi } from './sekil-cebri.js'
