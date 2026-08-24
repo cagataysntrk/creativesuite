@@ -88,7 +88,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     // ⚠ KURAL YAZILMADI: bu sayıyı üreten alet SONRADAN kırık çıktı ve iki alet daha
     // denendi, üçü de gözle çelişti. Düzeltme ölçüye değil BAKMAYA dayanıyor.
     // → `docs/kurallar/OLCUMLER.md`
-    satirAraligi: 1.04,
+    satirAraligi: 1.18,
     harfArasi: -0.025,
     govdeOrani: 0.27,
     baslikSutunu: 0.88,
@@ -274,7 +274,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.18,
     baslikAgirlik: 700,
-    satirAraligi: 1.06,
+    satirAraligi: 1.18,
     harfArasi: -0.015,
     govdeOrani: 0.3,
     baslikSutunu: 0.82,
@@ -415,7 +415,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 0.98,
     baslikAgirlik: 600,
-    satirAraligi: 0.96,
+    satirAraligi: 1.18,
     harfArasi: -0.03,
     govdeOrani: 0.32,
     // ⚠ 0,66'da başlık üç satıra çıkıyor ve metin bloğu okların şeridine giriyordu.
@@ -633,7 +633,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 0.98,
     baslikAgirlik: 500,
-    satirAraligi: 1.08,
+    satirAraligi: 1.18,
     harfArasi: -0.01,
     govdeOrani: 0.34,
     baslikSutunu: 0.8,
@@ -833,7 +833,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 0.98,
     baslikAgirlik: 700,
-    satirAraligi: 1.0,
+    satirAraligi: 1.18,
     harfArasi: -0.02,
     govdeOrani: 0.31,
     // ⚠ 0,7'de üç satırlık başlık daireye giriyordu (1. kartta "tek" çipi dairenin
@@ -997,7 +997,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     // kapak basligi kadrajin yalniz %5'ini kapliyordu ve kadraj bos duruyordu.
     baslikPayi: 1.18,
     baslikAgirlik: 500,
-    satirAraligi: 1.1,
+    satirAraligi: 1.18,
     harfArasi: -0.02,
     govdeOrani: 0.3,
     // ⚠ 0,6 → 0,46: metin kolonu fotoğrafa yer BIRAKMAK zorunda. Yan yana kompozisyonun
@@ -1132,7 +1132,7 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.05,
     baslikAgirlik: 800,
-    satirAraligi: 0.98,
+    satirAraligi: 1.18,
     harfArasi: -0.04,
     govdeOrani: 0.31,
     baslikSutunu: 0.72,
@@ -1237,7 +1237,7 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.5,
     baslikAgirlik: 400,
-    satirAraligi: 1.0,
+    satirAraligi: 1.18,
     harfArasi: -0.02,
     govdeOrani: 0.26,
     baslikSutunu: 0.9,
@@ -1327,7 +1327,7 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
     // ⚠ AYAR SONUCU ÖNGÖRMÜYOR: `sahne` 0,96 ile rahat, bu şablon 1,02 ile sıkışıktı.
     // Sıkışmayı ayar değil, karşılaşan AKSAN ÇİFTİ belirliyor — bu yüzden `satirAraligi`
     // üzerine bir taban yazmak da işe yaramazdı. → `docs/kurallar/OLCUMLER.md`
-    satirAraligi: 1.08,
+    satirAraligi: 1.18,
     harfArasi: -0.025,
     govdeOrani: 0.3,
     baslikSutunu: 0.8,
@@ -1446,7 +1446,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.1,
     baslikAgirlik: 600,
-    satirAraligi: 1.04,
+    satirAraligi: 1.18,
     harfArasi: -0.02,
     govdeOrani: 0.32,
     baslikSutunu: 0.76,

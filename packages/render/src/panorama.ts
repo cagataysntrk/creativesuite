@@ -340,7 +340,7 @@ export interface TipoResetesi {
 export const VARSAYILAN_TIPO: TipoResetesi = {
   baslikPayi: 0.92,
   baslikAgirlik: 800,
-  satirAraligi: 1.02,
+  satirAraligi: 1.18,
   harfArasi: -0.02,
   govdeOrani: 0.3,
   baslikSutunu: 0.86,

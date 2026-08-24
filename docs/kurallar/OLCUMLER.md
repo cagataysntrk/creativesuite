@@ -910,3 +910,32 @@ wght 400 **84 px**). On kapak sıfır kusur.
 yüzün o dile ait alternatiflerini AÇAR. Kapalıyken `fi` bağı bağlanıyor ve **noktalı i'nin
 noktası kayboluyor** — Türkçe'de `fi` ≠ `fı`. `tnum`: künye sayacı (`01 / 04`) oransal
 rakamlarla slayttan slayta ZIPLIYORDU.
+
+## FAZ-19.5 · satır aralığı — MÜREKKEP ölçüldü, kutu değil
+
+`line-height` satır KUTUSUNU verir; çarpışan şey glifin kendisidir. Ölçüm canvas
+`actualBoundingBoxAscent/Descent` ile: ardışık iki satırın gerçek mürekkep boşluğu.
+
+| şablon | satırlar | önce | sonra |
+|---|---|---|---|
+| `sahne` | "göstermekle" / "başlar" | **−4 px** | +17 px |
+| `alinti` | "şeyi" / "iyileştiremezsin" | **−1 px** | + |
+| `alinti` | "Ölçmediğin" / "şeyi" | 1 px | + |
+| `kavis` | "Sapma görünür" / "olmalı" | 4 px | + |
+| `donen` | altı satır çifti | 6–7 px | + |
+| `akan-alan` | "döngüsel" / "yapan beş şart" | 7 px | + |
+
+⚠ **Eksi sayı gerçek bir üst üste binmedir:** `g`nin kuyruğu bir alt satırın `b`sinin
+gövdesine giriyordu. Rapor tam bu iki örneği adlandırmıştı; ölçüm bağımsız olarak
+ikisini de üretti.
+
+**Sebep:** Türkçe satır kutusunun İKİ ucu da dolu — üstte `İ Ö Ü ğ`, altta `Ş Ç ş ç g y
+p j`. Latin display'de normal olan 1,0, Türkçe'de çarpışmadır. Ölçülen fontlarda Türkçe
+mürekkep yüksekliği ~**1,05em**; taban **1,18** seçildi, kalan 0,13em nefes payı.
+
+⚠ **Değerler `katalog-ornek.ts`teydi, `aile.ts`te değil.** Aile tabanları 1,0–1,55'ti ama
+`.baslik`in `line-height`ini katalog örneklerinin `tipografi.satirAraligi`si sürüyor:
+1,04 · 1,06 · **0,96** · 1,08 · 1,0 · 1,1 · 0,98 · 1,0 · 1,08 · 1,04. Biri BİRİN ALTINDA.
+İkisi de tabana çekildi; varsayılan `VARSAYILAN_TIPO` 1,02 → 1,18.
+
+En dar boşluk **−4 px → +17 px**, hiçbir satır 8 px'in altında değil, on kapak sıfır kusur.

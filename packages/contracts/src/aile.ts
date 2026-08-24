@@ -193,7 +193,7 @@ export const TEMEL_AILE: AileProfili = {
     gorsel: { x: 0, y: 40, genislik: 62, yukseklik: 40 },
     susleme: { x: 66, y: 14, genislik: 30, yukseklik: 34 },
     cizgi: { tip: 'egri', merkez: 73, genlik: 5 },
-    tipo: { baslikPayi: 1, govdeOrani: 0.53, satirAraligi: 1.1 },
+    tipo: { baslikPayi: 1, govdeOrani: 0.53, satirAraligi: 1.22 },
   },
 }
 
@@ -241,7 +241,7 @@ export const AKICI_AILE: AileProfili = {
     gorsel: { x: 0, y: 40, genislik: 62, yukseklik: 40 },
     susleme: { x: 64, y: 10, genislik: 34, yukseklik: 60 },
     cizgi: { tip: 'egri', merkez: 73, genlik: 5 },
-    tipo: { baslikPayi: 1, govdeOrani: 0.53, satirAraligi: 1.1 },
+    tipo: { baslikPayi: 1, govdeOrani: 0.53, satirAraligi: 1.22 },
   },
 }
 
@@ -311,7 +311,7 @@ export const GECE_AILE: AileProfili = {
     gorsel: { x: 52, y: 12, genislik: 46, yukseklik: 44 },
     susleme: { x: 60, y: 60, genislik: 38, yukseklik: 34 },
     cizgi: { tip: 'yok' },
-    tipo: { baslikPayi: 0.95, govdeOrani: 0.45, satirAraligi: 1.05 },
+    tipo: { baslikPayi: 0.95, govdeOrani: 0.45, satirAraligi: 1.2 },
   },
 }
 
@@ -433,7 +433,7 @@ export const KESIT_AILE: AileProfili = {
     gorsel: { x: 54, y: 52, genislik: 44, yukseklik: 42 },
     susleme: { x: 58, y: 60, genislik: 36, yukseklik: 32 },
     cizgi: { tip: 'kosegen', merkez: 52, egim: 14 },
-    tipo: { baslikPayi: 1, govdeOrani: 0.42, satirAraligi: 1 },
+    tipo: { baslikPayi: 1, govdeOrani: 0.42, satirAraligi: 1.18 },
   },
 }
 

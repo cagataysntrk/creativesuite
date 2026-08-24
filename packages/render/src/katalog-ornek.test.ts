@@ -261,6 +261,29 @@ describe('şablonlar birbirinin boyası DEĞİL', () => {
     expect(new Set(ornekler.map(([, o]) => o.yerlesim ?? 'ust')).size).toBeGreaterThanOrEqual(3)
   })
 
+  // ⚠ ⚠ **SATIR ARALIĞI TABANI 1,18 — ve sayı ÖLÇÜMDEN, zevkten değil (FAZ-19.5).**
+  // Türkçe satır kutusunun İKİ ucu da dolu: üstte `İ Ö Ü ğ`, altta `Ş Ç ş ç g y p j`.
+  // Latin display'de normal olan 1,0 burada ÇARPIŞMA demek. Ölçüldü — satır kutusu
+  // değil MÜREKKEP (canvas `actualBoundingBox*`), ardışık iki satırın gerçek boşluğu:
+  //
+  // | şablon | satırlar | boşluk |
+  // |---|---|---|
+  // | `sahne` | "göstermekle" / "başlar" | **−4 px** (üst üste biniyor) |
+  // | `alinti` | "şeyi" / "iyileştiremezsin" | **−1 px** |
+  // | `kavis` | "Sapma görünür" / "olmalı" | 4 px |
+  //
+  // Taban 1,18'e çekilince en dar boşluk **−4 → +17 px**; hiçbir satır 8 px'in altında
+  // değil. Türkçe mürekkep yüksekliği ölçülen fontlarda ~1,05em; kalan 0,13em nefes.
+  it('satır aralığı Türkçe tabanının ALTINA inmiyor — mürekkep çarpışıyor', () => {
+    for (const [id, o] of ornekler) {
+      const lh = o.tipografi?.satirAraligi
+      if (lh === undefined) continue
+      expect(lh, `${id}: satırAralığı ${String(lh)} — Türkçe tabanı 1,18`).toBeGreaterThanOrEqual(
+        1.18
+      )
+    }
+  })
+
   it('şablon damga/token TAŞIMIYOR — Yasa 7', () => {
     for (const [id, o] of ornekler) {
       expect(o, id).not.toHaveProperty('stamp')
