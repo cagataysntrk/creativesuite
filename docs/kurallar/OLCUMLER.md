@@ -939,3 +939,23 @@ mürekkep yüksekliği ~**1,05em**; taban **1,18** seçildi, kalan 0,13em nefes 
 İkisi de tabana çekildi; varsayılan `VARSAYILAN_TIPO` 1,02 → 1,18.
 
 En dar boşluk **−4 px → +17 px**, hiçbir satır 8 px'in altında değil, on kapak sıfır kusur.
+
+## FAZ-19.5 · optik hizalama — YIĞIN işi, blok işi değil
+
+`O Ö C Ç G Q S Ş 0` taban çizgisinde matematiksel olarak hizalıdır; göz onları **içeride**
+görür, çünkü eğri kenara yalnız bir noktada değiyor. Tırnak daha beter: altı boş bir
+işaret satır başında delik açıyor. Pay em cinsinden — yuvarlak **0,018em**, tırnak
+**0,055em** (üç kat, deliğin büyüklüğü kadar).
+
+⚠ ⚠ **İLK SÜRÜM `.baslik`E `margin-left: -0.018em` KOYDU ve `aile-tutarliligi` haklı
+olarak kırmızı döndü:** *"metin blokları TEK sol kenarı paylaşıyor"*. Ölçüt yanlış
+değildi — uygulamam yanlıştı. **Optik hizalama bir blok değil bir YIĞIN işidir:** yığının
+algılanan sol kenarını en büyük öge (başlık) belirler, etiket ve gövde ona uyar.
+
+⚠ **Kaydırma `em` de olamaz.** Etiket 20 px, başlık 84 px, gövde 38 px: aynı `em` üç
+farklı piksel demek ve üç blok üç ayrı yere kayardı — düzeltmeye çalıştığım şeyin ta
+kendisi. Pay `--baslik-punto` üstünden PİKSEL hesaplanıyor
+(`calc(var(--baslik-punto, 0px) * -0.018)`), üçü birlikte kayıyor, sol kenar tek kalıyor.
+
+⚠ Pay ŞABLONDAN değil METİNDEN türüyor: `optikPay(k.baslik)`. Bir sonraki koşuda başlık
+değişince pay da değişiyor; şablona sabit yazılsaydı içerik değişince yalan olurdu.

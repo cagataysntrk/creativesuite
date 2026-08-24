@@ -740,6 +740,34 @@ const Z = {
   yastik: 7,
 } as const
 
+/**
+ * Optik hizalama — yuvarlak glif ve tırnak satır başında İÇERİ KAÇMIŞ görünür.
+ *
+ * ⚠ ⚠ **BU BİR GÖZ YANILSAMASI, ÖLÇÜM HATASI DEĞİL.** `O Ö C Ç G S Ş 0` gibi yuvarlak
+ * formlar taban çizgisinde matematiksel olarak hizalıdır ama göz onları içeride görür:
+ * eğri, düz bir gövdenin aksine kenara yalnız bir noktada değiyor. Tırnak daha beter —
+ * altı boş bir işaret, satır başında bir delik açıyor.
+ *
+ * ⚠ Kaydırma `text-indent` ile YAPILMIYOR: o yalnız İLK satırı kaydırır ve başlık üç
+ * satıra sarınca ikinci satır hizasız kalır. `margin-left` kutunun tamamını kaydırıyor;
+ * blok zaten sola yaslı (`align-items: flex-start`), yani kayan şey optik kenardır.
+ *
+ * ⚠ Değerler em cinsinden: 84 px'lik bir kapakta 1,5 px, 240 px'lik bir alıntıda 4,3 px.
+ * Sabit piksel yazmak, ölçek değişince yanlış olurdu (R-99 ailesi).
+ */
+const OPTIK_KACIK = 0.018
+const OPTIK_TIRNAK = 0.055
+const YUVARLAK = new Set([...'OÖCÇGQS\u015E0'])
+const TIRNAKLAR = new Set([...'"\u201C\u00AB\u2018\u2019\u201D'])
+
+/** Bir metnin optik sola kaçırma payı (em). Gerekmiyorsa 0. */
+const optikPay = (metin: string): number => {
+  const ilk = metin.replace(/^\*\*/, '').trimStart()[0]
+  if (ilk === undefined) return 0
+  if (TIRNAKLAR.has(ilk)) return OPTIK_TIRNAK
+  return YUVARLAK.has(ilk) ? OPTIK_KACIK : 0
+}
+
 const vinyetGucu = (acikklik: number): number => (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34)
 
 const koyuMu = (zemin: string, tokenCss = ''): boolean => {
@@ -1313,7 +1341,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             // Sınıf olmadan bu ayrım kurulamıyordu.
             `<section class="kart${koyuMu(kartZemini, doc.tokenCss) ? '' : ' acik'}` +
             `${i === 0 ? ' ilk' : ''}` +
-            `${k.kolon === 'sag' ? ' sag' : ''}" ` +
+            `${k.kolon === 'sag' ? ' sag' : ''}` +
+            // ⚠ ⚠ **PAY BLOĞA DEĞİL KARTA veriliyor ve sebebi bir TESTİN kırılması.**
+            // İlk sürüm `margin-left: -0.018em`i yalnız `.baslik`e koydu; `aile-tutarliligi`
+            // *"metin blokları TEK sol kenarı paylaşıyor"* diyerek kırmızı döndü ve HAKLIYDI.
+            // Optik hizalama bir blok değil bir YIĞIN işidir: yığının algılanan sol kenarını
+            // en büyük öge — başlık — belirler, ötekiler ona uyar. Kaydırma `em` de olamaz;
+            // her bloğun puntosu farklı, aynı `em` farklı piksel demek. `--baslik-punto`
+            // üstünden PİKSEL: üç blok da birebir aynı kadar kayıyor, kenar tek kalıyor.
+            `${optikPay(k.baslik) === 0 ? '' : optikPay(k.baslik) > 0.03 ? ' optik-tirnak' : ' optik-yuvarlak'}" ` +
             `style="left:${i * G}px;width:${G}px;` +
             // ⚠ Lekeler ya da alan sınırı varsa kart ŞEFFAF: opak bir kart arkasındaki
             // desen katmanını tamamen örtüyordu ve `memphis`in kimliği görünmüyordu.
@@ -1894,6 +1930,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Sıra şimdi: kart zemini → lekeler(2) → GÖRSEL(4) → oklar(5) → METİN(6).
     // Referans tasarımlarda da başlık figürün önünden geçiyor; istenen katmanlanma bu.
     `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: ${Z.metin} }`,
+    `  .kart.optik-yuvarlak .ust-baslik, .kart.optik-yuvarlak .baslik,`,
+    `  .kart.optik-yuvarlak .govde {`,
+    `      margin-left: calc(var(--baslik-punto, 0px) * -${String(OPTIK_KACIK)}) }`,
+    `  .kart.optik-tirnak .ust-baslik, .kart.optik-tirnak .baslik,`,
+    `  .kart.optik-tirnak .govde {`,
+    `      margin-left: calc(var(--baslik-punto, 0px) * -${String(OPTIK_TIRNAK)}) }`,
     // ── OKUNURLUK YASTIĞI DENENDİ ve ÜÇ SEBEPLE GERİ ALINDI (FAZ-19.7) ────────
     //
     // Reçetenin `C.5`b maddesi *"metnin arkasına yumuşak yerel karartma"* öneriyor ve
