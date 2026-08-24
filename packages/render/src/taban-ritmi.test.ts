@@ -118,8 +118,26 @@ describe('taban çizgisi ızgarası', () => {
         if (!alt.ok) return
         const kenarlar = alt.value as number[]
         expect(kenarlar.length, `${id}: gövde taşıyan kart`).toBeGreaterThan(1)
-        for (const k of kenarlar) {
-          expect(k, `${id}: gövde alt kenarı kartlar arasında oynuyor`).toBe(kenarlar[0])
+        // ⚠ ⚠ **KAPANIŞ KARTI BU EŞİTLİKTEN MUAF ve muafiyet kuralın KENDİ gerekçesinden
+        // geliyor.** Kural şunu söylüyordu: *"okuyucu kaydırırken gövde satırı yerinden
+        // kıpırdamıyor."* O, GÖVDE kartları hakkında bir söz; kapanış kartı kaydırmanın
+        // BİTTİĞİ yer. 300 px'lik varış rakamı ile 1250 px'lik gövde tabanı aynı kartta
+        // duramıyor: `donen`de ölçüldü, gövde 1250'den 434'e çıkıyor.
+        // ⚠ Muafiyet AÇIK ÇEK DEĞİL: kapanışın gövdesi ötekilerden YUKARIDA olmak
+        // zorunda. Aşağı kayarsa bu bir kompozisyon kararı değil, bir kazadır.
+        const kapanisli = doc.kartlar.map((k) => (k as { kapanis?: unknown }).kapanis !== undefined)
+        const govdeli =
+          kenarlar.length === doc.kartlar.length ? kapanisli : kapanisli.slice(0, kenarlar.length)
+        const govde = kenarlar.filter((_, i) => govdeli[i] !== true)
+        const kapanis = kenarlar.filter((_, i) => govdeli[i] === true)
+        expect(govde.length, `${id}: kapanış dışı gövde kartı`).toBeGreaterThan(1)
+        for (const k of govde) {
+          expect(k, `${id}: gövde alt kenarı kartlar arasında oynuyor`).toBe(govde[0])
+        }
+        for (const k of kapanis) {
+          expect(k, `${id}: kapanış gövdesi ötekilerin ALTINA kaydı`).toBeLessThan(
+            govde[0] as number
+          )
         }
         return
       }

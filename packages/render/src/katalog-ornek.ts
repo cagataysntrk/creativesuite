@@ -257,6 +257,11 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
+      kapanis: {
+        rakam: '2,0×',
+        rakamAlt: 'ÜÇ YILDA EĞRİ',
+        cagri: 'Sıradaki eşiği **birlikte** koyalım.',
+      },
     },
   ],
 }
@@ -414,6 +419,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
+      kapanis: { rakam: '00', rakamAlt: 'SÜBVANSİYON', cagri: 'Döngüyü **birlikte** kuralım.' },
     },
   ],
 }
@@ -624,6 +630,17 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       kolon: 'sag',
+      // ⚠ ⚠ **KAPANIŞ MEKANİZMASI KODDA VARDI ve KATALOGDA SIFIR ÇAĞIRANI.** Tip,
+      // işaretleme ve CSS `panorama.ts`te duruyordu; on şablonun hiçbiri kullanmıyordu.
+      // Bu depoda on birinci kez aynı sınıf: modül yazılır, testi yeşildir, üretim
+      // yolunda çağıranı olmaz (D-182 · D-190 · D-224 · D-250 · D-261 · D-270 · D-347).
+      // ⚠ Ölçüldü: `sahne`nin son karesi destenin en boş karesi — mürekkep **%2,2**.
+      // Karoselin tepe yapması gereken yerde sistem düz çiziyor.
+      kapanis: {
+        rakam: '03',
+        rakamAlt: 'ADIMDA KARAR',
+        cagri: 'Ölçüyü **birlikte** koyalım.',
+      },
     },
   ],
 }
@@ -759,15 +776,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       kirpma: 'kesik',
     },
     { src: '', alt: 'kesik özne — 5', x: 71, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    {
-      src: '',
-      alt: 'kesik özne — 6',
-      x: 87.67,
-      y: 53,
-      genislik: 8,
-      yukseklik: 40,
-      kirpma: 'kesik',
-    },
+    // ⚠ Altıncı görsel KALDIRILDI — kapanış kartı fotoğraf taşımaz (aşağıda `donen`).
   ],
   // ⚠ ⚠ **LEKELER KALDIRILDI (depo sahibi: "şu aptal dairemsi renkli topları kaldır,
   // bunlar web tasarım duruyor").** Referansta (`image copy 4`) gerçekten leke var — ama
@@ -852,6 +861,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-ink-950)',
+      kapanis: { rakam: '03', rakamAlt: 'ADIMDA SIRA', cagri: 'Sırayı **birlikte** kuralım.' },
     },
   ],
 }
@@ -941,7 +951,13 @@ export const ORNEK_DONEN: KatalogOrnegi = {
     { src: '', alt: 'ürün — 1', x: 8, y: 26, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
     { src: '', alt: 'ürün — 2', x: 34, y: 22, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
     { src: '', alt: 'ürün — 3', x: 59, y: 25, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
-    { src: '', alt: 'ürün — 4', x: 86, y: 23, genislik: 13, yukseklik: 54, kirpma: 'kesik' },
+    // ⚠ ⚠ **DÖRDÜNCÜ GÖRSEL KALDIRILDI — KAPANIŞ KARTI FOTOĞRAF TAŞIMAZ.** Varış
+    // tipografiktir: rakam, tek iddia, imza, tek eylem. Kapanış gövdeyi yukarı itiyor
+    // (rakama yer açmak için) ve gövde tam o yükseklikteki görselin ÜSTÜNE bindi —
+    // `metin-gorsel-cakisiyor` "gövdenin %47'si görselin üstünde" dedi.
+    // ⚠ Önce metin kolonunu görsele kadar DARALTMAK denendi ve DAHA KÖTÜ oldu: `memphis`te
+    // gövde dört satıra sardı ve kart TAŞTI, çağrı rayın altında kesildi. Çizilene
+    // bakılınca görüldü. Fotoğraf rakamla aynı karede yarışıyor — biri gidecekti.
   ],
   kartlar: [
     {
@@ -983,6 +999,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-line-edge)',
+      kapanis: { rakam: '360°', rakamAlt: 'TAM DÖNÜŞ', cagri: 'Düzeni **birlikte** kapatalım.' },
     },
   ],
 }
@@ -1146,6 +1163,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-ink-950)',
+      kapanis: { rakam: '01', rakamAlt: 'TEK BAKIŞ', cagri: 'Bakışı **birlikte** yazalım.' },
     },
   ],
 }
@@ -1264,6 +1282,7 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
+      kapanis: { rakam: '12', rakamAlt: 'AYDA BİR RİTİM', cagri: 'Ritmi **birlikte** kuralım.' },
     },
   ],
 }
@@ -1353,6 +1372,11 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'SÖZ',
       rayaOrta: ORNEK,
+      kapanis: {
+        rakam: '01',
+        rakamAlt: 'KARAR DEĞİŞTİREN ÖLÇÜ',
+        cagri: 'Ölçüyü **birlikte** seçelim.',
+      },
     },
   ],
 }
@@ -1487,6 +1511,7 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'ÖLÇÜM',
       rayaOrta: ORNEK,
+      kapanis: { rakam: '-25', rakamAlt: 'PUAN FİRE', cagri: 'Farkı **birlikte** ölçelim.' },
     },
   ],
 }
@@ -1552,7 +1577,12 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     oklar: [
       { x1: 22.3, y1: 52.7, x2: 27.2, y2: 61.5, bukum: 12 },
       { x1: 41.3, y1: 61.5, x2: 52.2, y2: 72.6, bukum: -16 },
-      { x1: 66.3, y1: 72.6, x2: 77.2, y2: 83.8, bukum: 14 },
+      // ⚠ ⚠ **SON OK LİSTEYE DEĞİL VARIŞ RAKAMINA İNİYOR.** Kapanış kartı güzergâhı
+      // TOPLUYOR (`yayik: false`), o yüzden yanık satır %83,8'den %48,8'e çıktı ve okun
+      // ucu boşlukta kaldı — çizilene bakılınca görüldü. Üç kart rotayı iniyor, dördüncüde
+      // rota bir SAYIYA varıyor: son ok rakamın sol kenarına (%76,5) 0,8 pay bırakarak
+      // iniyor. Ötekilerle aynı pay, farklı hedef.
+      { x1: 66.3, y1: 72.6, x2: 75.7, y2: 74.0, bukum: 14 },
     ],
   },
   gorseller: [],
@@ -1631,7 +1661,12 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       // DİZİN olmalı — dördüncü madde yanık, ilk üçü sönük.
       panel: {
         tip: 'liste',
-        yayik: true,
+        // ⚠ ⚠ **KAPANIŞ KARTINDA GÜZERGÂH YAYILMIYOR — iki varış aygıtı çakıştı.**
+        // `yayik` panele kalan yüksekliği veriyor; kapanış bloğu da aynı yeri istedi ve
+        // ÇİZİLENE BAKILINCA görüldü: dev `04` rakamı listenin kendi `04` satırının
+        // üstüne bindi. Kapanış kartı iskeleti KIRAR: üç kart güzergâhı yayıyor,
+        // dördüncü onu topluyor ve varış rakamını veriyor.
+        yayik: false,
         baslik: 'sıra',
         ogeler: [
           { no: '01', ad: 'ölçüm noktasını koy' },
@@ -1643,6 +1678,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,
+      kapanis: { rakam: '04', rakamAlt: 'ADIMDA HAT', cagri: 'İlk ölçüyü **birlikte** koyalım.' },
     },
   ],
 }

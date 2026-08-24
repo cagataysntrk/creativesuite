@@ -28,6 +28,11 @@ export interface GorselIhtiyaci {
    * Kaç görsel gerekiyor. `slayt-basina` her karta bir tane ister (kesik özne
    * referansında her karede farklı poz var).
    */
+  /**
+   * ⚠ `slayt-basina` **GÖVDE slaydı başına** demektir: kapanış kartı özne taşımaz, varış
+   * rakamını taşır. Kapsam ölçülerek daraldı — `donen`de gövdenin %47'si, `memphis`te
+   * %19'u kapanış karesindeki kesik öznenin üstüne biniyordu.
+   */
   readonly adet: 'slayt-basina' | number
   /** Nasıl kırpılacak — kompozisyondaki rolü belirliyor. */
   readonly kirpma: 'kesik' | 'daire' | 'tam'
@@ -326,7 +331,8 @@ export const MEMPHIS: KatalogSablonu = {
       // ⚠ Varyant KADRAJ ve MALZEME söyler, özneyi konu belirler.
       'standing three quarter turn, weight on one leg, hands relaxed, matte woven fabric, single soft light from above',
       'crouched low toward the ground, compact silhouette, chalky matte surface, soft even light',
-      'back turned with head in profile over the shoulder, matte paper like surface, low contrast light',
+      // ⚠ ⚠ **ALTINCI VARYANT KALDIRILDI — kapanış kartı özne taşımıyor artık.** Yukarıda
+      // "üç → altı" yazıyor; şimdi altı → beş. Aynı değişmez iki kez, iki yönde çalıştı.
     ],
   },
   baslikPayi: 0.82,
@@ -370,7 +376,9 @@ export const DONEN: KatalogSablonu = {
       'front elevation, centred in frame, one soft key light, matte surfaces',
       'three quarter angle from the upper left, one soft key light, matte surfaces',
       'close macro of the surface detail, one soft key light, matte surfaces',
-      'top down flat view from directly above, one soft key light, matte surfaces',
+      // ⚠ ⚠ **DÖRDÜNCÜ VARYANT KALDIRILDI — kapanış kartı özne taşımıyor artık.**
+      // `katalog-kabul` değişmezi (yuva = varyant) bunu ISIRARAK söyledi: yuva üçe indi,
+      // varyant dörtte kaldı. Bir sözleşme yarım güncellenirse sessiz kalmıyor.
     ],
   },
   baslikPayi: 0.86,

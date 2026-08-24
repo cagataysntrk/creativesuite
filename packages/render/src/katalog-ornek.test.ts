@@ -47,7 +47,16 @@ describe('katalog ↔ örnek eşleşmesi', () => {
     for (const s of KATALOG) {
       const o = ornekBul(s.id) as KatalogOrnegi
       if (s.gorsel === null) continue
-      const gereken = s.gorsel.adet === 'slayt-basina' ? o.kartlar.length : s.gorsel.adet
+      // ⚠ ⚠ **`slayt-basina` GÖVDE SLAYDI BAŞINA demek — kapanış kartı özne taşımaz.**
+      // Kapanış varış rakamını taşıyor; oraya bir de yüzen kesik özne koymak ikisini
+      // yarıştırıyor ve ölçüldü: `donen`de gövdenin %47'si, `memphis`te %19'u görselin
+      // üstüne bindi (`kapanis-karti.test.ts`). Sayının kendisi değil, SÖZLEŞMENİN
+      // kapsamı yanlıştı — "her slayt" derken kapanış hiç düşünülmemişti.
+      const kapanisli = o.kartlar.filter(
+        (k) => (k as { kapanis?: unknown }).kapanis !== undefined
+      ).length
+      const gereken =
+        s.gorsel.adet === 'slayt-basina' ? o.kartlar.length - kapanisli : s.gorsel.adet
       expect(o.gorseller.length, `${s.id}: katalog ${String(s.gorsel.adet)} ilan ediyor`).toBe(
         gereken
       )

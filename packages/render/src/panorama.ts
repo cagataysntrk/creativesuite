@@ -253,7 +253,18 @@ export interface Kart {
    * markalama işini 20 px'lik künye şeridi yapıyor — o bir altbilgi, imza değil) ve tek
    * satırlık tek çağrı. İkisi de tipografi ve marka VARLIĞI; CSS'le çizilmiş şekil değil.
    */
-  readonly kapanis?: { readonly cagri: string }
+  readonly kapanis?: {
+    /**
+     * ⚠ ⚠ **VARIŞ RAKAMI — ve İMZADAN ÖNCE GELİYOR, sıra bir tercih değil ÖLÇÜM.**
+     * İmza tek başına eklendiğinde son karenin mürekkebi %2,1'den yalnız %2,8'e çıktı:
+     * doğru müdahale, yanlış sırada. Kapanışı taşıyan şey imza değil, VARILAN SAYIdır.
+     * Kapak yüksekliği 300-360 px hedefleniyor (tuval 1440) — kadrajın dörtte biri.
+     */
+    readonly rakam?: string
+    /** Rakamın altındaki tek satırlık okuma — rakam kaynaksız kalmasın (R-32). */
+    readonly rakamAlt?: string
+    readonly cagri: string
+  }
   readonly rayaSol: string
   readonly rayaOrta: string
   /**
@@ -1355,6 +1366,22 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // satırlar bu civarda kırılıyor.
   // Gövde sütunu şablonun kendi kararı; verilmezse başlıkla aynı.
   const govdeSinir = Math.round(G * (t.govdeSutunu ?? t.baslikSutunu)) - 128
+  /**
+   * **Varış rakamının puntosu kolonundan HESAPLANIYOR — sabit yazılınca KESİLDİ.**
+   *
+   * ⚠ ⚠ İlk sürüm sabit 458 px yazdı ve `sahne`nin kapanışında rakam kadrajın sağ
+   * kenarından TAŞTI — yani tam da bu fazın kapatmaya çalıştığı *"çizgiler yazıyı
+   * kesiyor"* kusurunu kendi elimle ürettim.
+   * ⚠ Sayılar TAHMİN değil ÖLÇÜM (`rakam-en.mjs`): Archivo 700 + `-0.045em` aralıkta
+   * hane ilerlemesi **0,552 em**, kapak yüksekliği **0,705 em**. İki hane 458 px'te
+   * 506 px yer istiyor; `sahne`nin sağ kolonu 454 px. Kolonun suçu, rakamın değil.
+   */
+  const sutunGenisligi = Math.max(Math.round(G * t.baslikSutunu) - 128, govdeSinir)
+  const rakamPuntosu = (rakam: string): number =>
+    Math.min(
+      olc(458),
+      Math.floor(sutunGenisligi / (0.552 * Math.max(1, rakam.replace(/\s/g, '').length)))
+    )
   const olcuAlt = Math.min(govdeSinir, Math.round(govdeTabani * 0.5 * OLCU_ALT))
   const olcuHedef = Math.min(govdeSinir, Math.round(govdeTabani * 0.5 * OLCU_HEDEF))
   // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
@@ -1455,6 +1482,14 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             // referans alıyor ve sabit bir renge bağlanmıyor (açık zeminli şablonda
             // siyah bir vinyet tasarımı bozardı).
             `--kart-zemin:${kartZemini};` +
+            // ⚠ ⚠ **KAPANIŞ KARTINDA METİN KOLONU GÖRSELE KADAR DARALIYOR.** Kapanış
+            // gövdeyi YUKARI itiyor (varış rakamına yer açmak için) ve `donen`de gövde
+            // tam o yükseklikte duran görselin ÜSTÜNE bindi: `metin-gorsel-cakisiyor`
+            // *"gövdenin %47'si görselin üstünde"* dedi. Gövde kartların altında dururken
+            // görselin ALTINDA kaldığı için sorun görünmüyordu; yer değişince çıktı.
+            // ⚠ Görselin sol kenarı ÖLÇÜLEREK bulunuyor (panorama % → kart pikseli), bir
+            // sabit yazılmıyor: dört görsel dört ayrı x'te ve her şablonda başka.
+
             `--kart-metin:${r.metin};` +
             `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk};` +
             `--hayalet-renk:${hr.metin}">`
@@ -1487,6 +1522,16 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         (k.kapanis === undefined
           ? ''
           : `<div class="kapanis">` +
+            // ⚠ SIRA: rakam → okuma → imza + çağrı. Ölçüm bu sırayı dayattı (yukarıda).
+            (k.kapanis.rakam === undefined
+              ? ''
+              : `<div class="kapanis-varis"><div class="kapanis-rakam" ` +
+                `style="font-size:${String(rakamPuntosu(k.kapanis.rakam))}px">` +
+                `${kacir(k.kapanis.rakam)}</div>` +
+                (k.kapanis.rakamAlt === undefined
+                  ? ''
+                  : `<div class="kapanis-rakam-alt">${kacir(k.kapanis.rakamAlt)}</div>`) +
+                `</div>`) +
             // ⚠ ⚠ **GERÇEK LOGO, ELLE ÇİZİLMİŞ "U" DEĞİL.** İlk sürüm `markaKilidi()`
             // çağırıyordu — o, SVG ile çizilmiş bir harf ve altına küçük bir ad yazıyor.
             // Depo sahibi çıktıya bakıp *"orantısız ve çirkin, ayrıca kendi logolarımız
@@ -1803,6 +1848,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kapanis { margin-top: auto; display: flex; flex-direction: column;`,
     `             gap: ${olc(26)}px; align-items: flex-start }`,
     // ⚠ İşaret gerçek logo dosyası; yüksekliği sabit, genişliği oranından geliyor.
+    // ⚠ ⚠ **RAKAM PUNTOSU KAPAK YÜKSEKLİĞİNDEN GERİYE HESAPLANIYOR.** Archivo'nun kapak
+    // oranı ~0,72 em; 330 px kapak için punto ≈ 458 px. "Punto 330" yazmak kadrajda
+    // 238 px'lik bir rakam üretirdi — hedefin üçte ikisi. Ölçülen şey harfin BOYU.
+    `  .kapanis-varis { display: flex; flex-direction: column; gap: ${olc(14)}px }`,
+    // ⚠ Punto işaretlemede satır içinde veriliyor (kolondan hesaplanıyor); buradaki
+    // değer yalnız yedek — kesilmiş bir rakam, küçük bir rakamdan kötüdür.
+    `  .kapanis-rakam { font-family: 'Marka Baslik', sans-serif; font-size: ${olc(458)}px;`,
+    `                   line-height: 0.84; font-weight: 700; letter-spacing: -0.045em;`,
+    `                   color: var(--kart-metin); font-feature-settings: 'tnum' 1, 'locl' 1 }`,
+    `  .kapanis-rakam-alt { font-family: 'Marka Mono', ui-monospace, monospace;`,
+    `                       font-size: ${olc(24)}px; letter-spacing: 0.14em;`,
+    `                       color: ${sol('--kart-metin', 62)} }`,
     `  .kapanis-isaret { height: ${olc(64)}px; width: auto; display: block }`,
     `  .kapanis-cagri { margin: 0; font-family: 'Marka Baslik', sans-serif;`,
     `                   font-size: ${olc(44)}px; line-height: 1.24; font-weight: 500;`,

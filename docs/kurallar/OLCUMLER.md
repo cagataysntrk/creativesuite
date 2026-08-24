@@ -1520,3 +1520,132 @@ Tavan 12 denendi ve işe yaramazdı — ihlal 0,014 puanla kırmızıya dönüyo
 `editoryal` k3 %29 · `karsilastirma` k2 %37. Kapandıkça tavan aşağı çekilecek.
 
 **Art arda yakın başlangıç (%8 kuralı) henüz kapıda değil: 28 ihlal.**
+
+---
+
+## Kapanış kartı — deste "bitti" değil "VARDIK" demeli (FAZ-19)
+
+### Mekanizma kodda vardı, katalogda SIFIR çağıranı
+
+`kapanis` tipi, işaretlemesi ve CSS'i `panorama.ts`te duruyordu; **on şablonun hiçbiri
+kullanmıyordu.** On birinci kez aynı sınıf (D-182 · D-190 · D-224 · D-250 · D-261 ·
+D-270 · D-347): modül yazılır, testi yeşildir, üretim yolunda çağıranı olmaz.
+
+### Sıra bir tercih değil, ÖLÇÜM
+
+`sahne`nin son karesinde mürekkep %2,2 idi.
+
+| eklenen | mürekkep |
+|---|---|
+| yalnız imza (marka işareti + çağrı) | %2,2 → **%2,8** (+0,6) |
+| varış rakamı + imza | %2,2 → **%8,0** (+5,8) |
+| bunun imzadan geleni | **+0,4** |
+
+**Kapanışı taşıyan şey imza değil, VARILAN SAYIdır.** Rakam işaretten önce geliyor.
+
+### Rakam sabit puntoyla yazıldı ve KESİLDİ
+
+Archivo 700 + `-0.045em` aralıkta ölçüldü (`rakam-en.mjs`, tahmin değil):
+
+| ölçü | değer |
+|---|---|
+| hane ilerlemesi | **0,552 em** (1, 2 ve 3 hanede aynı) |
+| kapak yüksekliği | **0,705 em** |
+
+458 px'te iki hane **506 px** yer istiyor; `sahne`nin sağ kolonu **454 px**. Rakam
+kadrajın dışına taştı — yani *"çizgiler yazıyı kesiyor"* kusurunu kendi elimle ürettim.
+Punto artık kolondan hesaplanıyor: `min(458, kolon / (0,552 × hane))`.
+
+### `yayik` ile `kapanis` aynı kartta ÇAKIŞTI
+
+`dizin`in son kartında dev `04` rakamı listenin kendi `04` satırının üstüne bindi —
+`yayik` panele kalan yüksekliği veriyor, kapanış bloğu da aynı yeri istiyor. **İki varış
+aygıtı bir kartta.** Çözüm iskeleti KIRMAK: üç kart güzergâhı yayıyor, dördüncü onu
+topluyor ve varış rakamını veriyor. Son ok da artık liste satırına değil **rakama**
+iniyor (yanık satır %83,8'den %48,8'e çıktığı için ucu boşlukta kalmıştı).
+
+### Mürekkep — on deste, son kart
+
+| şablon | önce | sonra | destenin en boşu | oran |
+|---|---|---|---|---|
+| veri-hikayesi | %6,6 | **%13,0** | %5,0 | 2,60 |
+| akan-alan | %41,9 | **%43,3** | %29,5 | 1,47 |
+| sahne | %2,2 | **%8,0** | %2,4 | 3,33 |
+| memphis | %7,5 | **%14,5** | %3,6 | 4,03 |
+| donen | %6,7 | **%14,3** | %9,4 | 1,52 |
+| editoryal | %6,9 | **%12,4** | %7,2 | 1,72 |
+| kavis | %23,5 | **%27,8** | %23,7 | 1,17 |
+| alinti | %24,6 | **%29,9** | %9,8 | 3,05 |
+| karsilastirma | %49,9 | **%50,6** | %18,4 | 2,75 |
+| dizin | %3,9 | **%10,4** | %3,7 | 2,81 |
+
+### Denetimin "%12 mürekkep" eşiği KULLANILMADI — ve sebebi ölçüm
+
+İki aday kural denendi, ikisi de yanlış çıktı:
+
+- **"kapanış ≥ gövde ortalamasının 2 katı"** — `akan-alan` 1,18× · `donen` 0,60× ·
+  `kavis` 0,96×. Görselli kartlar gövde ortalamasını tanım gereği yükseltiyor; kural
+  destenin zenginliğini kusur sayıyordu.
+- **"kapanış ≥ destenin medyanı"** — `donen` 14,3 vs medyan 20,95'te düşüyor. Tam fotoğraf
+  taşıyan bir karenin piksel kütlesi, tipografik kütleyle kıyaslanabilir değil.
+
+Kalan kural denetimin KENDİ kanıtına dayanıyor: *"son kare destenin en boş karesi."*
+**Kapanış ≥ destenin en boşu × 1,10.** On destede geçiyor; en dar pay `kavis` (1,17)
+çünkü o destenin dört karesi zaten birbirine yakın (%23,7-%27,8).
+
+### Kapı
+
+`kapanis-karti.test.ts` (12 test): on destenin ONUNDA da son kart kapanış taşıyor ·
+kapanış yalnız son kartta · rakam kartın içinde kalıyor (taşma = kesilmiş) · kapak boyu
+240-360 px · rakam imzadan önce. Kasten ihlal: punto tavanı `min` yerine `max` yapıldı,
+beş şablon kırmızıya döndü (kapak 484 px).
+
+### Kapanış kartı KURULURKEN dört kapı birden kırmızıya döndü — dördü de haklıydı
+
+**1. `katalog-dikis` — ON şablonda birden.** `uyarla` alanı taşımıyordu: kapanış kataloğa
+girdi, uyarlanmış belgeye GEÇMEDİ. `zemin` · `kolon` · `ayar` aynı dersi üç kez anlatmıştı
+(D-269 sınıfı); `kapanis` dördüncüsü ve **ilk kez bir kural — yorum değil — yakaladı.**
+
+**2. `taban-ritmi` — `donen`.** Kural *"okuyucu kaydırırken gövde satırı yerinden
+kıpırdamıyor"* diyordu; kapanışta gövde 1250'den 434'e çıkıyor. Muafiyet kuralın KENDİ
+gerekçesinden geldi: o söz GÖVDE kartları hakkında, kapanış kaydırmanın bittiği yer.
+**Muafiyet açık çek değil:** kapanış gövdesi ötekilerin ALTINA kayarsa yine kırmızı.
+
+**3. `metin-gorsel-cakisiyor` — `donen` %47, sonra `memphis` %19.** Kapanış gövdeyi yukarı
+itiyor ve gövde tam o yükseklikteki görselin üstüne biniyor. **Gövde kartların DİBİNDE
+dururken görselin ALTINDA kaldığı için sorun görünmüyordu; yer değişince çıktı.**
+
+**4. `duzen-provasi` — `donen`.** Kapanış eklenince örnek metin sığmaz oldu.
+
+#### Metin kolonunu daraltmak DENENDİ ve DAHA KÖTÜ oldu
+
+İlk çözüm gövdeyi görselin sol kenarına kadar daraltmaktı (kolon TS'te görsel x'inden
+hesaplanıyordu). `donen` düzeldi, `memphis` bozuldu: gövde **dört satıra sardı**, kart
+TAŞTI ve çağrı rayın altında kesildi. Çizilene bakılınca görüldü, ölçümden değil.
+
+#### Kalan kural: kapanış kartında YÜZEN kesik özne yok, tam boy şerit serbest
+
+| şablon | görsel | sonuç |
+|---|---|---|
+| `donen` | y23-77 kesik özne | gövdenin %47'si üstünde → **kaldırıldı** |
+| `memphis` | y53-93 kesik özne | %19 → **kaldırıldı** |
+| `editoryal` | y0-93 tam boy şerit | çakışma yok → **DURUYOR** |
+
+⚠ Kural önce *"kapanışta fotoğraf olmaz"* diye fazla geniş yazıldı ve `editoryal`i
+kırmızıya çevirdi. **İki dakika önce yazılmış bir kural uğruna çalışan bir kompozisyonu
+silmek, sessiz düzeltmenin ta kendisi olurdu.** Ölçümün desteklediği ayrım tutuldu:
+yüzen kesik özne rakamla aynı kadrajda yarışıyor, tam boy şerit metnin girmediği bantta.
+
+#### Ve görsel kaldırmak İKİ SÖZLEŞMEYİ daha ısırdı
+
+`donen` ve `memphis`ten kapanış görselini çıkarınca iki değişmez daha kırmızı döndü —
+ikisi de düzeltmenin YARIM kaldığını söyledi:
+
+| kapı | ne dedi | ne yapıldı |
+|---|---|---|
+| `katalog-ornek` | *"katalog `slayt-basina` ilan ediyor: 5 ≠ 6"* | `slayt-basina` artık **GÖVDE slaydı başına** — kapanış özne taşımaz |
+| `katalog-kabul` | *"5 yuva, 6 varyant"* | altıncı varyant kaldırıldı (`donen`de dördüncü) |
+
+⚠ `memphis`in varyant listesinde *"üç → altı"* notu duruyordu; şimdi **altı → beş**.
+**Aynı değişmez iki kez, iki yönde çalıştı** — bir sözleşme yarım güncellenirse sessiz
+kalmıyor. Toplam: kapanış kartı **altı kapı** tarafından sınandı ve altısı da haklıydı.

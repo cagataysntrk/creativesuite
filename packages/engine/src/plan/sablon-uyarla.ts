@@ -43,6 +43,11 @@ export interface UyarlamaKarti {
   readonly rayaOrta: string
   /** Panel VERİSİ — tipi şablondan gelir, değiştirilemez. */
   readonly panel?: Panel | null
+  /**
+   * Kapanış kartının metni — uyarlama varış rakamını ve çağrıyı YAZABİLİR, ama şablonda
+   * kapanış yoksa EKLEYEMEZ (kompozisyon kararı şablonundur).
+   */
+  readonly kapanis?: { readonly rakam?: string; readonly rakamAlt?: string; readonly cagri: string }
 }
 
 export interface Uyarlama {
@@ -297,6 +302,14 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       // ÖNCEDEN uygulanmış hâli — alan eklenirken listeye de eklendi, koşu gösterdikten
       // sonra değil.
       ...(o.ayar === undefined ? {} : { ayar: o.ayar }),
+      // ⚠ ⚠ **`kapanis` DÖRDÜNCÜ ADAY ve dikiş testi ISIRMADAN yakaladı.** Kapanış kartı
+      // kataloğa girer girmez `katalog-dikis` ON şablonda birden kırmızıya döndü: alan
+      // şablonda vardı, uyarlanmış belgeye GEÇMİYORDU. Yukarıdaki üç blok aynı dersi üç
+      // kez anlatıyor (`zemin` · `kolon` · `ayar`); bu dördüncüsü ve ilk kez bir kural
+      // — yorum değil — onu yakaladı.
+      // ⚠ Varış rakamı KOMPOZİSYONDUR: destenin nerede tepe yaptığını o söylüyor.
+      // Metni uyarlama değiştirebilir, VARLIĞINI değiştiremez.
+      ...(o.kapanis === undefined ? {} : { kapanis: y.kapanis ?? o.kapanis }),
     })
   }
 
