@@ -81,9 +81,21 @@ const OLCUM = `(() => {
 })()`
 
 /**
- * ⚠ ⚠ **DOYGUNLUK EŞİĞİ 0,25 ve bu bir ayrıntı değil.** Nötr rampanın chroma'sı 0
- * (D-318) ama kenar yumuşatma gri piksellerde küçük bir doygunluk üretiyor. Eşiksiz
- * ölçüm o gürültüyü "renk" sayar ve her şablonda rastgele tonlar bulur.
+ * ⚠ ⚠ **EŞİK HSL DOYGUNLUĞU DEĞİL OKLCH KROMASI — ve birimi ÖLÇÜM değiştirdi.**
+ * Eski eşik `s ≥ 0,25` (HSL) idi ve nötr rampanın chroma'sı 0 iken doğru çalışıyordu.
+ * FAZ-19.6'da nötrler kasten ısıtıldı (gölge h=250, ışık h=75, C 0,005–0,014) ve ölçüm
+ * çöktü: `sahne`nin baskın ton payı %60'a düştü. Sebep aritmetik —
+ *
+ * | token | OKLCH kroma | HSL doygunluk |
+ * |---|---|---|
+ * | `oklch(0.105 0.014 250)` | 0,014 | **0,609** |
+ * | `oklch(0.165 0.013 250)` | 0,013 | **0,325** |
+ * | `oklch(0.485 0.008 250)` | 0,008 | 0,041 |
+ *
+ * HSL doygunluğu `(mx−mn)/(1−|2l−1|)`: çok koyu bir renkte payda sıfıra gidiyor ve
+ * MİNİCİK bir kroma %61 doygunluk gibi görünüyor. **Kâğıt üstünde nötr sayılan bir ton,
+ * siyahın dibinde "renk" sayılıyor.** Tasarım OKLCH'te yazılıyor; ölçüm de orada
+ * yapılmalı. Eşik `C ≥ 0,03`: kasıtlı ısı (≤0,014) dışarıda, marka mavisi (0,206) içeride.
  */
 const TON = (b64: string): string => `(async () => {
   const im = new Image()
@@ -99,8 +111,16 @@ const TON = (b64: string): string => `(async () => {
   for (let i = 0; i < d.length; i += 28) {
     const r = d[i]/255, g = d[i+1]/255, b = d[i+2]/255
     const mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/2
-    const s = mx === mn ? 0 : (mx-mn)/(1 - Math.abs(2*l - 1))
-    if (s < 0.25 || l < 0.06 || l > 0.96) continue
+    // sRGB → OKLab → kroma. Tasarım OKLCH'te yazılıyor; "renk mi" sorusu da orada sorulur.
+    const li = (v) => v <= 0.04045 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4)
+    const R = li(r), G = li(g), B = li(b)
+    const l_ = Math.cbrt(0.4122214708*R + 0.5363325363*G + 0.0514459929*B)
+    const m_ = Math.cbrt(0.2119034982*R + 0.6806995451*G + 0.1073969566*B)
+    const s_ = Math.cbrt(0.0883024619*R + 0.2817188376*G + 0.6299787005*B)
+    const oa = 1.9779984951*l_ - 2.4285922050*m_ + 0.4505937099*s_
+    const ob = 0.0259040371*l_ + 0.7827717662*m_ - 0.8086757660*s_
+    const kroma = Math.sqrt(oa*oa + ob*ob)
+    if (kroma < 0.03 || l < 0.06 || l > 0.96) continue
     renkli += 1
     let h = 0
     if (mx === r) h = 60*(((g-b)/(mx-mn))%6)

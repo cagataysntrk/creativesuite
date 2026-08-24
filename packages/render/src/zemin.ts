@@ -271,11 +271,16 @@ export const yuzeyKatmanlari = (yuzey: Yuzey, guc: number): YuzeyKatmanlari => {
     case 'tas':
       // İri tane + damar. Damar `multiply`: taşın damarı ışığı GEÇİRMEZ, yumuşatmaz.
       return {
+        // ⚠ ⚠ **DAMAR `multiply` İLE ÇOK GÜÇLÜYDÜ ve ÇİZİP BAKINCA görüldü.** σ 5,10
+        // "ölçüm iyi" diyordu; kadraja bakınca `alinti` ağır, bulutlu, gri bir zemine
+        // dönüşmüştü — açık taş değil, ucuz bir doku kaplaması. **Ölçü dokunun VARLIĞINI
+        // görüyor, AĞIRLIĞINI değil.** Damar 1,6 → 0,55 ve `soft-light`e alındı:
+        // `multiply` açık zeminde yalnız karartıyor, taşın damarı ise ışığı DAĞITIR.
         katmanlar: [
-          doku('0.9', 4, 3, Math.min(100, guc * 2.6)),
-          doku('0.012', 6, 5, Math.min(100, guc * 1.6), 900),
+          doku('0.9', 4, 3, Math.min(100, guc * 1.7)),
+          doku('0.012', 6, 5, Math.min(100, guc * 0.55), 900),
         ],
-        kipler: ['soft-light', 'multiply'],
+        kipler: ['soft-light', 'soft-light'],
         boyutlar: ['180px 180px', '900px 900px'],
       }
     case 'beton':

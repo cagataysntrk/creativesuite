@@ -1048,3 +1048,34 @@ gelinirdi.** %96 gerçekten kenarda duranı yakalıyor.
 ⚠ ⚠ **İkincisi GAMUT DIŞINDAYDI ve şu anda kırpılıyordu.** Alt markanın "ok" rengi token
 ne derse desin `#00b0b1` çiziliyordu. Kimsenin bakmadığı, hiçbir testin göremediği,
 yalnız matematiğin gördüğü bir hata — ve alt marka canlı (`brd_dima` devralıyor).
+
+## FAZ-19.6 · nötr artık "sıfır kroma" DEĞİL — ve ölçüm birimi onunla birlikte değişti
+
+Rampanın on bir adımının on biri `oklch(L 0 0)`di: reçetenin *"ekrandaki en ölü yüzey"*
+dediği şeyin ta kendisi. Gölge ucu **soğuk çelik h=250** (C 0,008–0,014), ışık ucu
+**sıcak kâğıt h=75** (C 0,005–0,006); geçiş L≈0,55. Klasik editoryal bölünmüş nötr.
+
+### ⚠ HSL DOYGUNLUĞU BU İŞİN BİRİMİ DEĞİL — ölçüldü
+
+`aile-tutarliligi` *"baskın ton payı ≥%80"* diyor ve nötrler ısıtılınca `sahne` **%60**'a
+düştü. Sebep aritmetik: HSL doygunluğu `(mx−mn)/(1−|2l−1|)` ve çok koyu bir renkte payda
+sıfıra gidiyor.
+
+| token | OKLCH kroma | HSL doygunluk |
+|---|---|---|
+| `oklch(0.105 0.014 250)` | 0,014 | **0,609** |
+| `oklch(0.165 0.013 250)` | 0,013 | **0,325** |
+| `oklch(0.485 0.008 250)` | 0,008 | 0,041 |
+| `oklch(0.95 0.006 75)` | 0,006 | 0,192 |
+
+**Kâğıt üstünde nötr sayılan bir ton, siyahın dibinde "renk" sayılıyor.** Tasarım OKLCH'te
+yazılıyor; ölçüm de orada yapılmalı. Eşik `C ≥ 0,03`: kasıtlı ısı (≤0,014) dışarıda,
+marka mavisi (0,206) içeride. On beş test yeşil.
+
+### ⚠ ÖLÇÜ DOKUNUN VARLIĞINI GÖRÜYOR, AĞIRLIĞINI DEĞİL
+
+`tas` σ 5,10 ile "iyi" ölçülüyordu; kadraja BAKINCA `alinti` ağır, bulutlu, gri bir
+zemine dönüşmüştü — açık taş değil, ucuz bir doku kaplaması. Damar 1,6 → 0,55 ve
+`multiply` → `soft-light`: `multiply` açık zeminde yalnız karartıyor, taşın damarı ise
+ışığı DAĞITIR. σ 5,10 → **3,88** ve çizim ilk kez gerçek bir taş yüzeyi gibi duruyor.
+**Bir sayının iyi olması, bakmamak için gerekçe değil.**
