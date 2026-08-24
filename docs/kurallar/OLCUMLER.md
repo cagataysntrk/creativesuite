@@ -1106,3 +1106,47 @@ ortak iskeletten okunuyor (ızgara · güvenli alan · künye geometrisi · göv
 gren) ve aksana gelen kısıt *"keyfî olamaz"*: `--ramp-*` token'ından gelmek zorunda.
 **Şablon renk dünyasını SEÇER, İCAT ETMEZ.** Eski ölçüt "hepsi aynı renkte mi" diye
 soruyordu; yenisi "rengini icat mı etti" diye soruyor — markayı gerçekten koruyan soru bu.
+
+## FAZ-19.6 · beş paletin beşi de bağlandı — on şablon, dokuz zemin
+
+| şablon | palet | aksan | modal zemin |
+|---|---|---|---|
+| `akan-alan` · `sahne` | P1 mürekkep+mavi | mavi=ÖZNE | `#020408` · `#000337` |
+| `karsilastirma` · `dizin` | P2 çelik+bakır | bakır 45° | `#020408` · `#13161a` |
+| `alinti` | P3 kâğıt+oksit | oksit 32° · **mavi YOK** | `#e0e0e0` |
+| `kavis` | P4 beton+amber | amber 80° | `#45423d` |
+| `veri-hikayesi` | P5 gece+magenta | magenta 350° | `#07090c` |
+
+**Başlangıç: on şablon, DÖRT renk. Şimdi: on şablon, DOKUZ zemin, BEŞ aksan.**
+
+⚠ `veri-hikayesi`nin köşegeni artık ölçülerek magenta: `rgb(215,44,143)`. Reçetenin
+ikinci işiydi ve gerekçesi estetik değil AYIRT EDİLEBİLİRLİK — taşıyıcı marka mavisiyle
+çiziliyor, markanın geri kalanıyla karışıyordu; göz onu taşıyıcı değil SÜS okuyordu.
+
+### ⚠ ÖLÇÜM KENDİ KOVALAMASINI KUSUR SANDI
+
+`aile-tutarliligi` her şablonda renkli piksellerin ≥%80'inin tek tonda toplanmasını
+istiyor. Zeminler kroma taşımaya başlayınca `akan-alan` **%78** verdi. Histogram:
+
+| kova | pay |
+|---|---|
+| 240° | %81,3 |
+| 220° | %14,3 |
+| 230° | %4,2 |
+| **240°±10** | **%99,8** |
+
+Üçü TEK bir renk ailesi; gren ve vinyet aynı mavinin tonunu bir kova kaydırıyor.
+**Ton sürekli bir büyüklük, kova 10°** — tek kova sayan ölçüm sürekliliği kusur olarak
+raporluyordu. Pencere ±10°'ye açıldı ve hâlâ dar: amber (80°) ile mavi (240°) arasında
+160° var, gerçek bir ikinci küme bu pencereye sığmaz.
+
+### ⚠ KASTEN İHLAL TESTİNİN HEDEFİ ESKİDİ
+
+*"Bir şablonun aksanını değiştir → ızgarada sırıtsın"* testi marka mavisini bozuyordu;
+`dizin` P2'ye geçince mavi onu hiç etkilemez oldu ve ölçüm *"bozuk 20° · sağlam 20°"*
+dedi. **İddia doğru, HEDEF eskimişti:** artık `dizin`in kendi paletini (`celik-bakir`)
+bozuyor.
+
+⚠ **R-98 yine vurdu:** yorumdaki ters tırnaklar tarayıcı kod parçasını taşıyan template
+literal'i kapattı ve dosya AYRIŞMADI. Tarayıcıya gönderilen metnin içinde ters tırnak
+kullanılamaz — bu oturumda dördüncü tekrarı.

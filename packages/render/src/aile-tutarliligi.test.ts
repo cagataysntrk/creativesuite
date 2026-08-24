@@ -132,7 +132,16 @@ const TON = (b64: string): string => `(async () => {
   }
   if (renkli === 0) return { renkli: 0, tepe: null, pay: 0 }
   const sirali = [...kova.entries()].sort((a,b)=>b[1]-a[1])
-  return { renkli: renkli, tepe: sirali[0][0], pay: Math.round(sirali[0][1]/renkli*100) }
+  // KOMSU KOVALAR DA SAYILIYOR — yoksa olcum KENDI KOVALAMASINI kusur saniyor.
+  // Ton surekli bir buyukluk; kova 10 derece. Zeminler kroma tasimaya baslayinca
+  // akan-alanin mavisi uc komsu kovaya yayildi: 240 %81,3 · 220 %14,3 · 230 %4,2.
+  // Ucu TEK bir renk ailesi (toplam %99,8) ama tek kova sayan olcum %78 dedi.
+  // +-10 derece penceresi hala dar: amber (80) ile mavi (240) arasinda 160 derece var.
+  const tepe = sirali[0][0]
+  const yakin = [...kova.entries()]
+    .filter(([k]) => Math.min(Math.abs(k - tepe), 360 - Math.abs(k - tepe)) <= 10)
+    .reduce((a, [, v]) => a + v, 0)
+  return { renkli: renkli, tepe: tepe, pay: Math.round(yakin/renkli*100) }
 })()`
 
 interface Olcu {
@@ -268,9 +277,14 @@ describe('aile sınavı — on şablon tek ızgarada', () => {
     const o = ORNEKLER['dizin']
     expect(o).toBeDefined()
     if (o === undefined) return
+    // ⚠ ⚠ **BOZULAN TOKEN DEĞİŞTİ: `dizin` artık marka mavisini KULLANMIYOR (D-349).**
+    // Test marka mavisini bozup `dizin`in tonunun kaymasını bekliyordu; `dizin` P2'ye
+    // (çelik+bakır) geçince mavi onu hiç etkilemez oldu ve ölçüm *"bozuk 20° · sağlam
+    // 20°"* dedi. Testin iddiası doğru, HEDEFİ eskimişti: bir şablonun aksanını bozmak
+    // için o şablonun KENDİ paletini bozmak gerekiyor.
     const bozuk = TOKEN.replace(
-      /--ramp-marka-mavi-500:[^;]+;/g,
-      '--ramp-marka-mavi-500: oklch(0.70 0.190 50);'
+      /--ramp-palet-celik-bakir:[^;]+;/g,
+      '--ramp-palet-celik-bakir: oklch(0.60 0.190 260);'
     )
     expect(bozuk).not.toBe(TOKEN)
     const v = await kapagiOlc(o, bozuk)

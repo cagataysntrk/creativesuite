@@ -53,6 +53,42 @@
     },
     "palet": {
       "$description": "ŞABLON PALETLERİ (FAZ-19.6). Marka rampası tek bir dünyayı tarif ediyor: mürekkep + mavi. On şablonun on ayrı malzemesi varsa on ayrı renk dünyası da olmalı — yoksa `alinti`nin açık taşı ile `kavis`in betonu ölçümde de gözde de ayrılmıyor (σ 5,10 / 5,00, ayrım YOK). Paletler reçetenin `0.3` bölümünden ve HEPSİ gamut denetiminden geçti (oran 0,06–0,89, tavan 0,96). ⚠ Aksanlar cusp'ın %85–89'unda: reçete kendi kuralını (C ≤ maksC×0,85) uygulamış.",
+      "murekkep-taban": {
+        "$description": "P1 mürekkep+mavi. ⚠ Nötr DEĞİL: mavi kroma 0,101 taşıyor. `akan-alan`ın iki alanı bu rampadan ve aralarındaki fark artık RENKTE de var, yalnız açıklıkta değil.",
+        "$value": "oklch(0.160 0.101 262)",
+        "$type": "color"
+      },
+      "murekkep-yuzey": { "$value": "oklch(0.240 0.102 262)", "$type": "color" },
+      "murekkep-mavi": {
+        "$description": "P1'in aksanı — mavi burada ÖZNE. Marka mavisinden bir tık sakin (0,185 / 0,206) çünkü zemin de mavi: aynı doygunluk iki katman olunca birbirini yer.",
+        "$value": "oklch(0.600 0.185 262)",
+        "$type": "color"
+      },
+      "murekkep-ink": { "$value": "oklch(0.930 0.029 262)", "$type": "color" },
+      "celik-taban": {
+        "$description": "P2 çelik+bakır. Soğuk nötr zemin; mavi bu palette yalnız KILCAL ÇİZGİ, aksan değil.",
+        "$value": "oklch(0.200 0.010 250)",
+        "$type": "color"
+      },
+      "celik-yuzey": { "$value": "oklch(0.280 0.012 250)", "$type": "color" },
+      "celik-bakir": {
+        "$description": "P2'nin aksanı. Oksitten (32°) ve amberden (80°) ayrı bir sıcak: 45°.",
+        "$value": "oklch(0.580 0.146 45)",
+        "$type": "color"
+      },
+      "celik-ink": { "$value": "oklch(0.880 0.007 250)", "$type": "color" },
+      "gece-taban": {
+        "$description": "P5 gece+magenta. En koyu taban — `veri-hikayesi`nin ölçü ızgarası bunun üstünde okunuyor.",
+        "$value": "oklch(0.140 0.008 250)",
+        "$type": "color"
+      },
+      "gece-yuzey": { "$value": "oklch(0.200 0.010 250)", "$type": "color" },
+      "gece-magenta": {
+        "$description": "P5'in aksanı — ÖLÇÜM aksanı. ⚠ Magenta seçilmesinin sebebi estetik değil AYIRT EDİLEBİLİRLİK: `veri-hikayesi`nin köşegeni marka mavisiyle çiziliyordu ve markanın geri kalanıyla karışıyordu, yani göz onu bir taşıyıcı değil bir süs olarak okuyordu.",
+        "$value": "oklch(0.600 0.221 350)",
+        "$type": "color"
+      },
+      "gece-mavi-kilcal": { "$value": "oklch(0.530 0.220 262)", "$type": "color" },
       "kagit-taban": {
         "$description": "P3 sıcak kâğıt. #FAFAFA DEĞİL: saf beyaz kâğıt değil ekrandır.",
         "$value": "oklch(0.950 0.004 75)",

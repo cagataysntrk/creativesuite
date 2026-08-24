@@ -1112,9 +1112,12 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
       // sözleşmesi ve metin kutusu maskesi (`C.5`, beşinci iş) KURULMADAN çizilemez.
       // Bu, kapanış imzasının `--punto-rakam`dan önce eklenmesiyle aynı sınıf hata:
       // doğru müdahale, yanlış sırada, yarım sonuç. 2 px kalıyor; 6 px beşinci işte.
-      // ⚠ Renk de `AKSAN` kalıyor: reçete magenta istiyor ama magenta rampada YOK —
-      // palet işi FAZ-19.6.
-      `<path d="${d}" fill="none" stroke="${AKSAN}" stroke-width="2" ` +
+      // ⚠ ⚠ **RENK ARTIK ŞABLONUN PALETİNDEN, SABİT `AKSAN`DAN DEĞİL.** Reçetenin
+      // ikinci işi *"köşegeni magenta yap"*tı ve gerekçesi estetik değil AYIRT
+      // EDİLEBİLİRLİK: `veri-hikayesi`nin taşıyıcısı marka mavisiyle çiziliyor, yani
+      // markanın geri kalanıyla karışıyordu — göz onu bir TAŞIYICI değil bir SÜS
+      // olarak okuyordu. `--pano-aksan` şablonun paletinden geliyor (P5 → magenta).
+      `<path d="${d}" fill="none" stroke="var(--pano-aksan)" stroke-width="2" ` +
       `vector-effect="non-scaling-stroke"/></svg>` +
       b.kilometre
         .map(
@@ -1186,7 +1189,7 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
         // ⚠ Ok BAŞI ayrı bir üçgen DEĞİL: şerit KALINDAN İNCEYE gidiyor ve yön o
         // azalmadan okunuyor. Üçgen bir uç, fırça şeridine yapıştırılmış bir diyagram
         // parçası olurdu — kaçtığımız şeyin ta kendisi (R-81).
-        return `<path d="${d}" fill="${AKSAN}" fill-rule="nonzero"/>`
+        return `<path d="${d}" fill="var(--pano-aksan)" fill-rule="nonzero"/>`
       })
       .join('')
     return (

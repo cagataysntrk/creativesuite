@@ -98,7 +98,9 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     // değil: iç oranlar (rehber §3) korunuyor.
     panelPayi: 1.7,
   },
-  zemin: 'var(--role-line-edge)',
+  zemin: 'var(--ramp-palet-gece-taban)',
+  // ⚠ PALET — P5 GECE+MAGENTA — ölçüm aksanı. Köşegen marka mavisiyle çiziliyordu ve markanın geri kalanıyla KARIŞIYORDU: göz onu taşıyıcı değil süs olarak okuyordu.
+  aksan: 'var(--ramp-palet-gece-magenta)',
   bant: {
     tip: 'egri',
     // ⚠ ⚠ **EĞRİ KAPAKTA DÜZDÜ — ölçüldü, sonra ÖLÇÜT DÜZELTİLDİ.** İlk ölçüm dikey
@@ -279,7 +281,9 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     govdeOrani: 0.3,
     baslikSutunu: 0.82,
   },
-  zemin: 'var(--role-bg)',
+  zemin: 'var(--ramp-palet-murekkep-taban)',
+  // ⚠ PALET — P1 MÜREKKEP+MAVİ — mavi burada ÖZNE. Zemin de mavi kroma taşıyor (0,101), yani iki alan arasındaki fark artık RENKTE de var, yalnız açıklıkta değil.
+  aksan: 'var(--ramp-palet-murekkep-mavi)',
   // ⚠ Hayalet ALT alanda: sınır ~%60'ta, rakam %52'den başlayıp mürekkep alana taşıyor.
   // İlk sürümde üst alanda kalıyordu ve tuvalin alt %40'ı bomboş siyahtı.
   hayaletKonumu: {
@@ -434,7 +438,9 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     // daraltıyordu ve satır ölçü bandının altına düşüyordu.
     govdeSutunu: 0.54,
   },
-  zemin: 'var(--role-line-edge)',
+  zemin: 'var(--ramp-palet-murekkep-taban)',
+  // ⚠ PALET — P1 — neredeyse tek renk; mavi yalnız bir kelimede. Nesne kahraman, renk sessiz.
+  aksan: 'var(--ramp-palet-murekkep-mavi)',
   // ⚠ ⚠ **`matlama` LİSTEDE KALDI ama artık YEDEK.** Arka plan silme hatta bağlandı
   // (`gorsel-kirp`); silme koştuğunda `composeBody` `matlama`yı listeden ÇIKARIYOR —
   // şeffaf zeminli bir PNG'ye luma anahtarı uygulanınca öznenin koyu bölgeleri de
@@ -1348,7 +1354,9 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
     // karşılaştırmanın taşıyıcısı okunmuyordu. `veri-hikayesi` ile aynı çarpan.
     panelPayi: 1.7,
   },
-  zemin: 'var(--role-bg)',
+  zemin: 'var(--ramp-palet-celik-taban)',
+  // ⚠ PALET — P2 ÇELİK+BAKIR — `celik` yüzeyinin renk karşılığı. Mavi bu palette yalnız kılcal çizgi.
+  aksan: 'var(--ramp-palet-celik-bakir)',
   // ⚠ YÜZEY AİLESİ — fırçalanmış çelik: ANİZOTROPİK doku, fırça izi yön taşır.
   yuzey: 'celik' as const,
   // ⚠ ⚠ **BU ŞABLONUN HAYALETİ YOK ve bu bir eksiklik değil, ölçülmüş bir karar.** Üç yer
@@ -1466,7 +1474,9 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     baslikSutunu: 0.76,
     govdeSutunu: 0.66,
   },
-  zemin: 'var(--ramp-marka-ink-950)',
+  zemin: 'var(--ramp-palet-celik-taban)',
+  // ⚠ PALET — P2 — bakır; elle çizilmiş okların rengi. Sıcak defter.
+  aksan: 'var(--ramp-palet-celik-bakir)',
   hayaletKonumu: { ust: 68, olcek: 1.42, guc: 11 },
   bant: {
     tip: 'ok',
