@@ -181,12 +181,13 @@ Kapak kilidini kır (`blok-yerlesimi`, hiçbir durum ikiden fazla) · slayda ROL
 pay, üç başlık ölçeği, üç dikey hiza; **art arda iki slayt aynı üçlüyü kullanamaz**) ·
 **z-sırası sözleşmesi ✅** (tek yerde: zemin 0 · taşıyıcı 1 · leke 2 · durak 3 · gren 4 ·
 görsel 5 · vinyet 6 · metin 7; `.bant-ok` 5→1, **özne şeridi KESİYOR**; test SIRAYI
-sınıyor) · ⚠ **KALAN:** okunurluk yastığı + metin kutusu maskesi · taşıyıcıyı
-görünür kıl (≥1,6:1, değer adımı %6→%14) · **yüzeyi kesimden ayır** (`donen`+`memphis`
+sınıyor) · ⚠ **KALAN:** yastık ölçümde ÇÜRÜDÜ (%9,2 → %9,2; `blur(26px)` 69 px'lik kutuyu
+yarı saydam yapıyor + hale + R-81) — doğru çözüm maske ve o CSS kuralı değil,
+`duzenProvasi` ölçümünü render'a taşıyan ADIM · **yüzeyi kesimden ayır** (`donen`+`memphis`
 dönüşü slayt merkezine) · sürekliliği **VERİYE bağla** · orta kuşağı doldur · R-87
 ölçülebilir olur · **marka işareti karosel başına TAM İKİ KEZ** (künye şeridindeki 20 px
 logo kalkar — imza değil duvar kâğıdı) · **KAPANIŞ KARTI iskeleti KIRAR** (varış · tek
-iddia 300–360 px · güzergâh · imza + tek eylem · ton kırılması · mürekkep ≥%12).
+iddia 300–360 px · güzergâh · imza · ton kırılması · mürekkep ≥%12).
 
 ### 19.8 — GÖRSEL DİLİ VE YÜZEY ZANAATI    [ ]
 **"Kutu değil yüzey"** altı kuralı: `border-radius` 0 ya da ≥28 px (✅ etiket çipi) · saf
@@ -209,8 +210,7 @@ kapanış mürekkebi ≥%12 · art arda iki slayt aynı üçlüyü kullanamaz.
 ⚠ **Her kapı, kasten ihlal edilip kırmızıya döndüğü GÖRÜLMEDEN yazılmış sayılmaz.**
 
 ### 19.11 — Kapı borçları (D26 · D27)    [ ]
-D27: `sus-metni-kesiyor` süsün GÖRSELİ kesmesini ölçmüyor. D26: prova durduruyor ama
-düzeltmiyor, tur açılmalı.
+D27: `sus-metni-kesiyor` süsün GÖRSELİ kesmesini ölçmüyor. D26: prova durduruyor, düzeltmiyor.
 
 ### 19.12 — Sistem temizliği    [ ]
 163 koşu · 80 kapıda · 67 durdu · 12 kusurlu manifest · 252 slaydın **189'u karantinada**.
@@ -237,7 +237,7 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 | 2 | ◐ **Taşıyıcıyı görünür kıl** | `kavis` ✅ 1,66:1 · `akan-alan` ✅ 2,65:1 · `veri-hikayesi` köşegen KALDI | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.4 |
 | 3 | **Yüzeyi kesimden ayır** | `donen` · `memphis` degrade duraklarının yeri | bu ikisi bugün sürekliliği **aktif olarak kırıyor** | 19.7 |
 | 4 | **Fontları değiştir ve şablona ata** | `font-getir.mjs` + `fonts.ts` `YUZLER` | *"bilgisayar fontu"* şikâyetinin doğrudan cevabı | 19.5 |
-| 5 | ◐ **Z-sırası ✅ + taşıyıcı maskesi — 3. SIRAYA ALINDI** | `panorama.ts` | 2. iş bunsuz BİTİRİLEMİYOR (ölçüldü); çip yüzeyi ilk parçasıydı %99,3 → %9 | 19.7 |
+| 5 | ◐ **Z-sırası ✅ · maske: prova ölçümü render'a taşınmalı** | `panorama.ts` | 2. iş bunsuz bitmiyor; yastık denendi ve çürüdü — bkz. `OLCUMLER.md` | 19.7 |
 
 **Her işin sonunda:** çiz → **BAK** → ölç → `just check`. **Kanıtsız "bitti" yok.**
 
