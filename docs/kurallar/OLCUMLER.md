@@ -1304,3 +1304,35 @@ serbestlik derecesiydi ve sonuna kadar kullanıldı:
 ⚠ `tam-genislik` de çare değildi: ölçüldü, şablonların metin sütunu zaten kadrajın
 %42–88'ini kaplıyor (`alinti` %78,1 · `veri-hikayesi` %76,1). Eksik olan genişlik değil,
 DİKEY serbestlik.
+
+## FAZ-19.7 · sürekliliği VERİYE bağla — geometri iddianın kanıtı
+
+Denetimin en sert tek cümlesi `veri-hikayesi` içindi: *"grafik başlığı YALANLIYOR —
+'iki katına çıkan' derken çizgi ~4°; bu zevk değil ARGÜMAN hatası."*
+
+### 1 · Eğri, başlığın söylediği sayıyı çizmiyordu
+
+Eğrinin taşıdığı değer taban çizgisinden yükseklik (`100 − y`):
+
+| | ilk | son | oran |
+|---|---|---|---|
+| eski noktalar | 30 | 96 | **3,2×** |
+| yeni noktalar | 45 | 90 | **2,0×** |
+
+**Tipografi "iki kat" derken geometri "üç kat" çiziyordu.** `veri-egrisi.test.ts` artık
+bir SAYIYI değil bir İLİŞKİYİ sınıyor: başlıkta "iki katına" geçiyorsa eğrinin son
+değeri ilk değerinin iki katı olmak zorunda; ayrıca eğri MONOTON yükselmeli (arada
+düşen bir eğri, uçlar tutsa bile iddiayı daha sinsi biçimde yalanlar).
+
+### 2 · Kilometre durakları eğriye DEĞMİYORDU
+
+`.kilometre` yalnız `left` alıyordu; `bottom` CSS'te sabit **120 px**'ti. Yıl pulları
+eğriyle hiç temas etmiyordu — denetimin sözleriyle *"eksen değil LEJANT."* Artık her
+durağın y'si eğri noktaları arasında doğrusal ara değerle bulunuyor. Eğri zaten düz
+parçalardan oluştuğu için (`M/L`) ara değer **eğrinin kendisi** — yaklaşık değil.
+
+⚠ `bantSvg` ölçeği bilmiyordu; `slaytGenisligi` parametresi eklendi (R-99: her sayı tek
+tabandan). Bilmeseydi tuval değişince duraklar eğriden kayardı.
+
+Kesilmemiş panoramaya BAKILDI: yıl pulları artık yükselen köşegenin üstünde oturuyor.
+**Bir lejant süstür; eğrinin üstünde duran bir durak iddianın kanıtıdır.**

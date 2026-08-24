@@ -1050,7 +1050,16 @@ const panelHtml = (p: Panel, stil = ''): string => {
  * gerilen bir eğri hâlâ aynı eğridir, gerilen bir daire elips olur (o yüzden madalyonlar
  * ayrı katmanda, gerilmemiş bir SVG'de).
  */
-const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => {
+// ⚠ `slaytGenisligi` EKLENDİ: kilometre durakları eğrinin y'sine oturuyor ve o hesap
+// ölçekli piksel istiyor (R-99: her sayı tek tabandan). Bant fonksiyonu ölçeği
+// bilmiyordu; tuval değişince duraklar eğriden kayardı.
+const bantSvg = (
+  b: Bant,
+  toplamGenislik: number,
+  yukseklik: number,
+  slaytGenisligi: number
+): string => {
+  const olc = (px1080: number): number => Math.round((px1080 * slaytGenisligi) / 1080)
   if (b.tip === 'yok') return ''
   if (b.tip === 'olcek') {
     // ⚠ ⚠ **SVG DEĞİL CSS — ve bunu R-81 KAPISI SÖYLEDİ.** İlk sürüm çizgiyi ve
@@ -1120,12 +1129,33 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
       `<path d="${d}" fill="none" stroke="var(--pano-aksan)" stroke-width="2" ` +
       `vector-effect="non-scaling-stroke"/></svg>` +
       b.kilometre
-        .map(
-          (k) =>
-            `<div class="kilometre" style="left:${(k.x / 100) * toplamGenislik}px">` +
+        .map((k) => {
+          // ⚠ ⚠ **ETİKET EĞRİNİN ÜSTÜNE OTURUYOR — eskiden SABİT bir hatta duruyordu.**
+          // `.kilometre` yalnız `left` alıyordu; `bottom` CSS'te sabit 120 px'ti, yani
+          // yıl pulları eğriyle HİÇ TEMAS ETMİYORDU. Denetimin sözleriyle: *"kilometre
+          // etiketleri eğriye DEĞMİYOR — eksen değil LEJANT."* Bir lejant süstür;
+          // eğrinin üstünde duran bir durak İDDİANIN KANITIDIR (R-107 · 19.7).
+          // ⚠ y, noktalar arasında DOĞRUSAL ara değerle bulunuyor: eğri zaten düz
+          // parçalardan oluşuyor (`M/L`), yani ara değer eğrinin KENDİSİ — yaklaşık değil.
+          const n = b.noktalar
+          const oncekiler = n.filter((q) => q.x <= k.x)
+          const onceki = oncekiler[oncekiler.length - 1] ?? n[0]
+          const sonraki = n.find((q) => q.x >= k.x) ?? n[n.length - 1]
+          const yON = onceki?.y ?? 0
+          const ySON = sonraki?.y ?? 0
+          const xON = onceki?.x ?? 0
+          const xSON = sonraki?.x ?? 0
+          const t = xSON === xON ? 0 : (k.x - xON) / (xSON - xON)
+          const y = yON + (ySON - yON) * t
+          // Bant dibi 120 px yukarıda ve 560 px yüksekliğinde; y%0 bandın TEPESİ.
+          const dip = Math.round(olc(120) + ((100 - y) / 100) * olc(560))
+          return (
+            `<div class="kilometre" style="left:${(k.x / 100) * toplamGenislik}px;` +
+            `bottom:${dip}px">` +
             `<span class="kilometre-nokta"></span>` +
             `<span class="kilometre-etiket">${kacir(k.etiket)}</span></div>`
-        )
+          )
+        })
         .join('')
     )
   }
@@ -2239,7 +2269,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `<div id="sahne">`,
     alanKatmani,
     lekeKatmani,
-    bantSvg(doc.bant, toplam, doc.yukseklik),
+    bantSvg(doc.bant, toplam, doc.yukseklik, G),
     kartlar,
     // ⚠ Kartlardan SONRA, görsellerden ÖNCE: `donen`in beyaz dairesi kart renginin
     // üstünde ama ürünün ALTINDA duruyor — referansın (`image copy 3`) katman sırası.

@@ -134,14 +134,20 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     // ve temiz sanıldı — oysa kapaktaki pullar `.etiketler` ögesi, başka bir şey.
     // Aynı ders bu turda üçüncü kez: alet, ölçtüğünü sandığı şeyi ölçmüyor.
     // 70'te sol uç 1062'ye çıkıyor, pul sırasının 30 px üstünde.
+    // ⚠ ⚠ **GEOMETRİ İDDİANIN KANITI OLMAK ZORUNDA — ve DEĞİLDİ.** Başlık *"Altı yılda
+    // İKİ KATINA çıkan bir eğri"* diyor. Eğrinin taşıdığı değer taban çizgisinden
+    // yükseklik, yani `100 − y`. Eski noktalar: 30 → 96, oran **3,2×**. Yani tipografi
+    // "iki kat" derken geometri "üç kat" çiziyordu. Denetimin `veri-hikayesi` için
+    // yazdığı şey tam buydu: *"grafik başlığı YALANLIYOR — bu zevk değil ARGÜMAN hatası."*
+    // Yeni noktalar 45 → 90, oran **tam 2,0×**. Kilitli: `veri-egrisi.test.ts`.
     noktalar: [
-      { x: 0, y: 70 },
-      { x: 18, y: 58 },
-      { x: 36, y: 46 },
-      { x: 54, y: 34 },
-      { x: 72, y: 22 },
-      { x: 88, y: 12 },
-      { x: 100, y: 4 },
+      { x: 0, y: 55 },
+      { x: 18, y: 50 },
+      { x: 36, y: 44 },
+      { x: 54, y: 37 },
+      { x: 72, y: 28 },
+      { x: 88, y: 18 },
+      { x: 100, y: 10 },
     ],
     kilometre: [
       { x: 18, etiket: '2020' },
