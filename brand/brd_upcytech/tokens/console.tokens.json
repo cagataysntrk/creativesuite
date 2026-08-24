@@ -59,6 +59,11 @@
         "$type": "color"
       },
       "murekkep-yuzey": { "$value": "oklch(0.240 0.102 262)", "$type": "color" },
+      "murekkep-alan": {
+        "$description": "P1'in ÜÇÜNCÜ adımı — dökme alanın kendisi. ⚠ Reçetenin verdiği taban/yüzey çifti (oklch 0.160 ve 0.240) ÖLÇÜLDÜ ve kontrastı 1,18:1 çıktı: reçete iki alan arasında ≥1,6:1 ŞART koşuyor ve kendi verdiği çift bunu SAĞLAMIYOR. Rampanın gölgede ara adımı yoktu; bu adım o boşluğu dolduruyor. oklch(0.360) taban ile 1,77:1 veriyor, kroma cusp'ın %76'sı.",
+        "$value": "oklch(0.360 0.130 262)",
+        "$type": "color"
+      },
       "murekkep-mavi": {
         "$description": "P1'in aksanı — mavi burada ÖZNE. Marka mavisinden bir tık sakin (0,185 / 0,206) çünkü zemin de mavi: aynı doygunluk iki katman olunca birbirini yer.",
         "$value": "oklch(0.600 0.185 262)",

@@ -307,7 +307,12 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     // token uzayında büyük olan fark, KONTRAST ORANINDA küçük. **İki farklı birim,
     // biri ötekini garanti etmiyor.** `ink-650` (oklch 0.485) adımı gerçekten görünür
     // kılıyor; nötr rampanın gölgede ara adımı yok, o eksik FAZ-19.6'nın işi.
-    alt: 'var(--ramp-marka-ink-650)',
+    // ⚠ ⚠ **ARTIK PALETİN İÇİNDE.** `ink-650` nötr griydi: kontrastı taşıyordu (3,07:1)
+    // ama `akan-alan` P1'e (mürekkep+mavi) geçtikten sonra dökme alan gri kalıyordu —
+    // palet dışı bir yüzey. Reçetenin verdiği taban/yüzey çifti denendi ve ÖLÇÜLDÜ:
+    // **1,18:1**, yani reçetenin kendi ≥1,6:1 şartını SAĞLAMIYOR. `murekkep-alan`
+    // (üçüncü adım) 1,77:1 veriyor: hem mavi hem görünür.
+    alt: 'var(--ramp-palet-murekkep-alan)',
     // ⚠ ⚠ **GENLİK %9'DAN %58'E — referansla farkın kaynağı EKSEN DEĞİL, GENLİKTİ.**
     // `image.png`de amber alan slayttan slayta yer değiştiriyor: bir karede neredeyse
     // tamamı kaplıyor, ötekinde alt köşeye çekiliyor. Bizim sınır 57–66 arası
@@ -338,6 +343,9 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
+      // ⚠ KAPAK KİLİDİ — eğri sınırı 01'de y=%78'den başlıyor, yani KÜTLE sol-altta.
+      // Metin sağa geçince kadraj iki kütleye bölünüyor ve giriş noktası ayrışıyor.
+      kolon: 'sag' as const,
       ustBaslik: 'DÖNGÜSELLİK',
       baslik: 'Bir hattı **döngüsel** yapan beş şart',
       govde: 'Beşi de olmadan döngü kapanmıyor; biri eksikse sistem doğrusal kalıyor.',

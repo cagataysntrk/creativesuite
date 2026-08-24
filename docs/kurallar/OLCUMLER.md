@@ -1222,3 +1222,31 @@ kesik özne. **Metnin üstte olması bir alışkanlık değil, formun kendisi.**
 karşılanamıyor.** Yerleşim çeşitliliğinin sınırını İÇERİK çiziyor: bu iki şablonun girişi
 ancak görsel briefi değişirse (FAZ-19.8) yer değiştirebilir. Kural yanlış değil; **tek
 başına yeterli değil** ve bunu ancak kapıya çarparak öğrenilir.
+
+## FAZ-19.7 · giriş noktası 6/10 → 4/10 · ve REÇETE KENDİ ŞARTINI SAĞLAMIYOR
+
+`akan-alan` kapağı da sağ kolona alındı: sol kenar %5,9 → **%23,9**. Eğri sınırı 01'de
+y=%78'den başlıyor, yani kütle sol-altta; metin sağa geçince kadraj iki kütleye bölünüyor.
+
+**(%5,9 · %5,6)'dan açılan şablon: 9 → 6 → 4** (`veri-hikayesi` · `memphis` · `donen` ·
+`dizin`).
+
+### ⚠ ⚠ REÇETENİN VERDİĞİ P1 ÇİFTİ, REÇETENİN KENDİ EŞİĞİNİ GEÇEMİYOR
+
+Reçete `akan-alan` için *"İkisi arasındaki kontrast ≥ 1,6:1 olmak zorunda"* diyor ve
+hemen ardından çifti veriyor: `--m-taban oklch(0.160 0.101 262)` ve
+`--m-yuzey oklch(0.240 0.102 262)`. Ölçüldü:
+
+| çift | kontrast | reçetenin şartı |
+|---|---|---|
+| P1 taban ↔ P1 yüzey | **1,18:1** | ≥1,6 ✗ |
+| P1 taban ↔ `ink-650` (bugünkü gri) | 3,07:1 | ✓ ama palet DIŞI |
+| P1 taban ↔ **`murekkep-alan`** (yeni) | **1,77:1** | ✓ ve palet İÇİ |
+
+**Reçete doğru şeyi istiyor, verdiği sayı onu tutmuyor.** Sebep rampanın gölgede ara
+adımının olmaması — aynı boşluk `kavis`in taşıyıcısını `color-mix`e zorlamıştı. P1'e
+üçüncü adım eklendi: `oklch(0.360 0.130 262)` = `#123780`, cusp'ın %76'sı.
+
+Çizildi ve BAKILDI: dökme alan artık **mavi** (`#113272`) ve görünür — hem palet içinde
+hem eşiğin üstünde. Nötr gri bir alan, "mürekkep+mavi" adını taşıyan bir palette
+sessizce yabancıydı.
