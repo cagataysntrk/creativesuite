@@ -1518,6 +1518,9 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
+      // ⚠ KAPAK KİLİDİ — hayalet kelime (DİZİN) kadrajın sol-altını tutuyor; metin
+      // sağa geçince ikisi çakışmıyor ve giriş noktası ailenin geri kalanından ayrışıyor.
+      kolon: 'sag' as const,
       // ⚠ ⚠ **`DİZİN` → `ADIM 01`: etiket hem seriden KOPUKTU hem hayaletle AYNI
       // kelimeydi.** Öteki üç kart `ADIM 02/03/04` diyor, kapak `DİZİN` diyordu; oysa
       // ilk adım kapağın listesinde duruyor. Aynı kelimeyi bir kez küçük bir kez dev

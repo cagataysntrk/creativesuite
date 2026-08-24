@@ -1250,3 +1250,31 @@ adımının olmaması — aynı boşluk `kavis`in taşıyıcısını `color-mix`
 Çizildi ve BAKILDI: dökme alan artık **mavi** (`#113272`) ve görünür — hem palet içinde
 hem eşiğin üstünde. Nötr gri bir alan, "mürekkep+mavi" adını taşıyan bir palette
 sessizce yabancıydı.
+
+## FAZ-19.7 · giriş noktası 4/10 → 3/10 — ve DAĞARCIK TÜKENDİ
+
+`dizin` kapağı da sağ kolona: sol kenar %5,9 → **%29,9**. Hayalet kelime (DİZİN) kadrajın
+sol-altını tutuyor; metin sağa geçince ikisi artık aynı köşe için yarışmıyor.
+
+**(%5,9 · %5,6)'dan açılan şablon: 9 → 6 → 4 → 3** (`veri-hikayesi` · `memphis` · `donen`).
+
+### ⚠ ⚠ DENETİMİN "İKİDEN FAZLA TEKRARLANMAZ" KURALI BU DAĞARCIKLA KARŞILANAMAZ
+
+Sol kenar üçe bölününce bugünkü dağılım:
+
+| bölge | şablon | sayı |
+|---|---|---|
+| sol (<%15) | `veri-hikayesi` · `memphis` · `donen` · `sahne` · `alinti` | **5** |
+| orta (%15–40) | `akan-alan` · `karsilastirma` · `kavis` · `dizin` | **4** |
+| sağ (>%40) | `editoryal` | 1 |
+
+Başlangıç 9/0/1'di; bugün 5/4/1. Gerçek bir kazanç ama tavan 2 değil.
+
+**Sebep dağarcıkta:** yatay eksenin YALNIZ İKİ durumu var (`sol` · `sag`). Denetim beş
+durum istiyor — `ust-sol` · `alt-sol` · `orta-sag` · **`tam-genislik`** · **`zemin-ustu`** —
+ve son ikisi kodda **YOK**. Üç şablon da (`memphis` · `donen` · `veri-hikayesi`) dikeyde
+kırılamıyor çünkü kadrajın alt yarısını içerik tutuyor.
+
+⚠ **Kural yanlış değil; DAĞARCIK eksik.** Beş duruma ulaşmanın yolu şablonları zorlamak
+değil, `tam-genislik` (metin sütunu kadrajın tamamı) durumunu YAZMAK. O gelene kadar
+5/4/1 dürüst tavan.
