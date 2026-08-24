@@ -161,11 +161,15 @@ kutusunun **%99,3'ünün** arkasından geçiyormuş, görünmezken kimse fark et
 ışık kaynağı katmanı · JPEG q=90'ın yayın yoluna bağlanması · şablon şablon zemin
 reçeteleri (`seamless-arastirma-2026-08.md` `B`).
 
-### 19.5 — TİPOGRAFİ    [ ]
-Archivo (`wdth 62–125`) · Big Shoulders (+Stencil) · Martian Mono · Literata · Young Serif
-gelir; Jakarta · Montserrat · JetBrains · Source Serif gider. ⚠ **`IBM Plex` DENENMEZ** —
-`latn/TRK` yok, ölçüldü. Satır aralığı 1.0 → **1.18–1.24** (Türkçe satır kutusunun İKİ ucu
-da dolu), `locl`+`tnum` açılır, optik hizalama, aksana ağırlık telafisi.
+### 19.5 — TİPOGRAFİ    [ ]    ← aile + satır aralığı + optik hiza BİTTİ
+**✅ Archivo** (gövde + bölüm başlığı, `wdth 62–125`) · **Literata** (kapak serifi, wght
+400) · **Martian Mono**. `scripts/font-denetim.mjs` raporun HER elemesini bağımsız üretti:
+`IBM Plex`/`Inter` `latn/TRK` YOK, `Stardos`/`Share Tech` 10/15. ⚠ **Big Shoulders
+evrensel bölüm başlığı OLAMADI** — dar poster yüzü dar sütunda hiyerarşiyi tersine
+çeviriyor. Stencil + Young Serif ölçüldü, geçti, **çağrı yeri yok diye girmedi**.
+**✅ Satır aralığı 1,18** — mürekkep ölçüldü: `sahne` **−4 px** (biniyordu) → **+17 px**.
+**✅ `locl`+`tnum`** · **✅ Optik hizalama** (pay bloğa değil YIĞINA, `em` değil PİKSEL).
+**KALAN:** aksana ağırlık telafisi, şablon şablon tipografi.
 **Dördüncü ve beşinci ses:** `--punto-rakam` (240–360 px, yalnız rakam) ve `--punto-not`
 (13–15 px mono). ⚠ **Bu adım 19.7'nin kapanış kartından ÖNCE gelir** — sırası ölçümle
 kanıtlandı: imzayı rakamdan önce eklemek yarım bir kapanış üretti.
@@ -230,16 +234,11 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 
 ---
 
-## 6 · İLK BEŞ İŞ — en yüksek görsel kazanç, sırayla
+## 6 · İŞ SIRASI
 
-| # | iş | nerede | neden ilk | adım |
-|---|---|---|---|---|
-| 1 | ✅ **Greni koşulsuz aç, luminansa bağla** | `zemin.ts` + `panorama.ts` | **BİTTİ:** %85 düz alan → %8,8–17,1; JPEG sonrası σ 1,62–3,61 | 19.4 |
-| 2 | ◐ **Taşıyıcıyı görünür kıl** | `kavis` ✅ 1,66:1 · `akan-alan` ✅ 2,65:1 · `veri-hikayesi` köşegen KALDI | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.4 |
-| 3 | ✅ **Yüzeyi kesimden ayır** | `donen` · `memphis` + künye şeridi | kesimde fark **636 → 0–3**; dört panorama ≤%4,3 | 19.7 |
-| 4 | **Fontları değiştir ve şablona ata** | `font-getir.mjs` + `fonts.ts` `YUZLER` | *"bilgisayar fontu"* şikâyetinin doğrudan cevabı | 19.5 |
-| 5 | ◐ **Z-sırası ✅ · maske: prova ölçümü render'a taşınmalı** | `panorama.ts` | 2. iş bunsuz bitmiyor; yastık denendi ve çürüdü — bkz. `OLCUMLER.md` | 19.7 |
-
+Beş iş ve **ölçümle iki kez değişen sırası**: `tasarim-tanisi-2026-08.md` → *İŞ SIRASI*.
+**Bitti:** ① gren ② taşıyıcı (kısmen) ③ yüzey+şerit dikişi ④ fontlar.
+**Bekliyor:** ⑤ taşıyıcı maskesi — `duzenProvasi` ölçümünü render'a taşıyan adım.
 **Her işin sonunda:** çiz → **BAK** → ölç → `just check`. **Kanıtsız "bitti" yok.**
 
 ---

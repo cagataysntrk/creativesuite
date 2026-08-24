@@ -523,3 +523,22 @@ aile okunmalı ama **üç ayrı tema** kullanacak — aynı şablona yığılmay
 
 ---
 
+
+
+---
+
+# İŞ SIRASI — reçetenin beş işi ve ölçümle değişen sırası
+
+
+| # | iş | nerede | neden ilk | adım |
+|---|---|---|---|---|
+| 1 | ✅ **Greni koşulsuz aç, luminansa bağla** | `zemin.ts` + `panorama.ts` | **BİTTİ:** %85 düz alan → %8,8–17,1; JPEG sonrası σ 1,62–3,61 | 19.4 |
+| 2 | ◐ **Taşıyıcıyı görünür kıl** | `kavis` ✅ 1,66:1 · `akan-alan` ✅ 2,65:1 · `veri-hikayesi` köşegen KALDI | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.4 |
+| 3 | ✅ **Yüzeyi kesimden ayır** | `donen` · `memphis` + künye şeridi | kesimde fark **636 → 0–3**; dört panorama ≤%4,3 | 19.7 |
+| 4 | ✅ **Fontları değiştir ve şablona ata** | `font-getir.mjs` · `fonts.ts` · `font-denetim.mjs` | Archivo + Literata + Martian Mono; her eleme bağımsız doğrulandı | 19.5 |
+| 5 | ◐ **Z-sırası ✅ · maske: prova ölçümü render'a taşınmalı** | `panorama.ts` | 2. iş bunsuz bitmiyor; yastık denendi ve çürüdü — bkz. `OLCUMLER.md` | 19.7 |
+
+**Her işin sonunda:** çiz → **BAK** → ölç → `just check`. **Kanıtsız "bitti" yok.**
+
+---
+
