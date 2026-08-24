@@ -720,3 +720,29 @@ aradaki her şey eksik. `kavis` bu yüzden sabit token yerine **yüzey adımı**
 `color-mix(in oklab, var(--pano-metin) 26%, var(--pano-zemin))`. Adım zeminin kendi
 metin renginden türediği için koyu şablonda yukarı, kâğıt şablonda aşağı gidiyor —
 sabit bir token iki kutupta birden doğru olamazdı. Ara adım eksiği FAZ-19.6'nın işi.
+
+## FAZ-19.4 · görünür taşıyıcı, z-sırası sözleşmesini ZORUNLU kılıyor
+
+`veri-hikayesi` eğrisinin dolgusu yüzey adımına çevrildi ve kontrast **1,00:1 → 1,74:1**
+oldu. Aynı anda `sus-metni-kesiyor` kırmızı döndü: eğri, `ustBaslik` kutusunun
+**%99,3'ünün** arkasından geçiyormuş. **Görünmezken kimse fark etmiyordu.**
+
+Çipe gerçek yüzey verilince (aşağı bak) oran %99,3 → **%9**'a indi; kapının eşiği %2.
+
+⚠ ⚠ **REÇETENİN KENDİ SIRASI YANLIŞ.** "İlk beş iş" listesinde taşıyıcıyı görünür kılmak
+2., z-sırası sözleşmesi + metin kutusu maskesi 5. sırada. Ölçüm bunun tersini söylüyor:
+**görünür bir taşıyıcı, maskesi olmadan çizilemez.** Bu, kapanış imzasının
+`--punto-rakam`dan ÖNCE eklenmesiyle aynı sınıf hata — doğru müdahale, yanlış sırada,
+yarım sonuç. `kavis` ve `akan-alan` bundan etkilenmedi çünkü taşıyıcıları metin
+kutularının altında kalıyor; `veri-hikayesi`nin köşegeni kadrajı kat ediyor.
+
+## FAZ-19.4 · saydam çip iki kusuru aynı anda üretiyordu
+
+`.etiket` yalnız 1 px kontur + `border-radius: 999px` taşıyordu.
+
+1. **Süs çipin İÇİNDEN geçiyordu** — kusurlu olan süs değil ÇİPTİ. Gerçek yüzey (yüzey
+   adımı %9 + 1 px iç ışık) verilince fark oranı %99,3 → %9.
+2. **Denetçinin *"haplar UI filtre çipi gibi"* bulgusunun kaynağı buydu:** 999 px yarıçap
+   + hairline kontur, bir yazılım arayüzü ögesidir. Reçete `C.4`: yarıçap ya 0 ya ≥28 px;
+   4–12 px arası "bootstrap kartı" bandı. **Yarıçap 0** — basılı bir künye etiketi keskin
+   köşelidir. Çizildi ve BAKILDI: çipler artık basılı etiket okunuyor.

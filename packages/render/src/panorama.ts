@@ -993,7 +993,26 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
     // Eğrinin altı artık düz bir yüzey — `akan-alan`ın alan sınırıyla aynı dil.
     return (
       `<svg class="bant" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">` +
+      // ⚠ ⚠ **ÖLÇÜLDÜ: `ink-950` @0,75 zeminden AYRIŞMIYOR** — `#151515` / `#151515`,
+      // yani **1,00:1**. Taşıyıcı teknik olarak var, algısal olarak yok.
+      // ⚠ ⚠ **YÜZEY ADIMINA ÇEVRİLDİ, ÖLÇÜLDÜ (1,74:1) ve GERİ ALINDI.** Görünür olur
+      // olmaz `sus-metni-kesiyor` kırmızı döndü: eğri, `ustBaslik` kutusunun **%99,3'ünün**
+      // arkasından geçiyormuş — görünmezken kimse fark etmiyordu. Çipe gerçek yüzey
+      // verilince %9'a indi ama kapının eşiği %2.
+      // **REÇETENİN KENDİ SIRASI YANLIŞ:** görünür taşıyıcı, z-sırası sözleşmesi ve metin
+      // kutusu maskesi (`C.5`, beşinci iş) KURULMADAN çizilemez. Kapanış imzasının
+      // `--punto-rakam`dan önce eklenmesiyle aynı sınıf: doğru müdahale, yanlış sırada.
+      // Beşinci iş bitince bu satır `yuzeyAdimi(26)` olacak.
       `<path d="${dolgu}" fill="var(--ramp-marka-ink-950)" fill-opacity="0.75"/>` +
+      // ⚠ ⚠ **6 px DENENDİ ve KAPI HAKLI OLARAK REDDETTİ.** Reçete çizgiyi 2 → 6 px
+      // istiyor (*"ölçülen eğri kendi kütlesini kazansın"*) ve denendiğinde
+      // `sus-metni-kesiyor` kırmızı döndü: kalın çizgi kilometre etiketinin **%96,6'sının
+      // arkasından** geçiyor. **REÇETENİN KENDİ SIRASI YANLIŞ:** kalın taşıyıcı, z-sırası
+      // sözleşmesi ve metin kutusu maskesi (`C.5`, beşinci iş) KURULMADAN çizilemez.
+      // Bu, kapanış imzasının `--punto-rakam`dan önce eklenmesiyle aynı sınıf hata:
+      // doğru müdahale, yanlış sırada, yarım sonuç. 2 px kalıyor; 6 px beşinci işte.
+      // ⚠ Renk de `AKSAN` kalıyor: reçete magenta istiyor ama magenta rampada YOK —
+      // palet işi FAZ-19.6.
       `<path d="${d}" fill="none" stroke="${AKSAN}" stroke-width="2" ` +
       `vector-effect="non-scaling-stroke"/></svg>` +
       b.kilometre
@@ -1872,8 +1891,19 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .liste-ad { font-size: calc(22px * var(--panel-olcek)) }`,
     `  .liste-ikon { display: flex; align-items: center; width: calc(21px * var(--panel-olcek)); flex: none }`,
     `  .etiketler { display: flex; flex-wrap: wrap; gap: calc(10px * var(--panel-olcek)); max-width: calc(620px * var(--panel-olcek)) }`,
-    `  .etiket { border: 1px solid ${sol('--kart-metin', 16)}; border-radius: 999px;`,
-    `            padding: calc(8px * var(--panel-olcek)) calc(16px * var(--panel-olcek)); font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 80)} }`,
+    // ⚠ ⚠ **ÇİP SAYDAMDI ve iki ayrı kusuru aynı anda üretiyordu.** (1) Denetim
+    // *"süs ögesi etiket metninin %99,3'ünün arkasından geçiyor"* dedi — taşıyıcı
+    // görünür olur olmaz çipin İÇİNDEN geçmeye başladı; süs değil ÇİP kusurluydu.
+    // (2) `999px` yarıçap + 1 px kontur, denetçinin *"haplar UI filtre çipi gibi"*
+    // dediği görünümün ta kendisi: bir yazılım arayüzü ögesi, basılmış bir etiket değil.
+    // ⚠ ⚠ **YARIÇAP 0** — reçetenin `C.4` kuralı: ya 0 ya ≥28 px; arası "bootstrap
+    // kartı" bandı. Basılı bir künye etiketi keskin köşelidir.
+    // ⚠ Zemin saf renk DEĞİL: yüzey adımı + 1 px iç ışık. Çip artık gerçek bir yüzey,
+    // yani arkasından geçen hiçbir şey içinden görünmüyor — `C.5`in z-sırası
+    // sözleşmesini kutu kutu kurmanın en ucuz yolu.
+    `  .etiket { background: color-mix(in oklab, var(--kart-metin) 9%, var(--kart-zemin));`,
+    `            border: 0; border-radius: 0; box-shadow: inset 0 1px 0 ${sol('--kart-metin', 10)};`,
+    `            padding: calc(8px * var(--panel-olcek)) calc(16px * var(--panel-olcek)); font-size: calc(18px * var(--panel-olcek)); color: ${sol('--kart-metin', 88)} }`,
     // ── bant ────────────────────────────────────────────────────────────────
     // ⚠ Bant 560 px: 300 px'te eğri dibe yapışıyor ve "hikâye" okunmuyordu. Yükseklik
     // eğrinin anlatabileceği fark kadar olmalı.
