@@ -149,18 +149,31 @@ const GREN_KARISIMI = 'soft-light'
  *
  * ⚠ Bağımlılık yok: bir doku kütüphanesi ya da PNG varlığı yerine 300 baytlık bir SVG.
  */
-export const grenKatmani = (guc: number): string => {
+/** Bir `feTurbulence` dokusu — frekans, oktav ve tohum dışarıdan. */
+const doku = (bf: string, oct: number, seed: number, guc: number, boy = 180): string => {
+  // ⚠ Frekansın HİÇBİR bileşeni tam sayı olamaz (R-85 sınıfı): Perlin kafesi piksel
+  // ızgarasına oturur ve doku sessizce ölür. Kilidi `zemin.test.ts` tutuyor.
   const svg =
-    `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>` +
-    `<filter id='g' color-interpolation-filters='sRGB'>` +
-    `<feTurbulence type='fractalNoise' baseFrequency='${GREN_FREKANSI}' ` +
-    `numOctaves='4' seed='7' stitchTiles='stitch'/>` +
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${boy}' height='${boy}'>` +
+    `<filter id='d' color-interpolation-filters='sRGB'>` +
+    `<feTurbulence type='fractalNoise' baseFrequency='${bf}' numOctaves='${oct}' ` +
+    `seed='${seed}' stitchTiles='stitch'/>` +
     `<feColorMatrix type='saturate' values='0'/>` +
     `<feComponentTransfer><feFuncA type='discrete' tableValues='1'/></feComponentTransfer>` +
     `</filter>` +
-    `<rect width='180' height='180' filter='url(%23g)' opacity='${(guc / 100).toFixed(3)}'/></svg>`
+    `<rect width='${boy}' height='${boy}' filter='url(%23d)' opacity='${(guc / 100).toFixed(3)}'/></svg>`
   return `url("data:image/svg+xml,${svg.replace(/#/g, '%23').replace(/"/g, "'")}")`
 }
+
+/**
+ * Gren — yüzey ailelerinin ORTAK TABANI.
+ *
+ * ⚠ ⚠ **KENDİ `<rect>`İNİ ÇİZİYORDU ve `kodlanmis-oge` haklı olarak reddetti** (R-81,
+ * `svg-dikdortgen` tavanı 1, sayı 2'ye çıkmıştı). Kapı bir üslup kuralı değil bir R-05
+ * uyarısı veriyordu: iki ayrı doku üreticisi, biri değişince öbürü sessizce eskir.
+ * Gren artık `doku()`nun tek frekanslı bir çağrısı — imza tek yerde.
+ */
+export const grenKatmani = (guc: number): string => doku(String(GREN_FREKANSI), 4, 7, guc)
 
 /**
  * Gren opaklığı — **yüzey luminansının FONKSİYONU, sabit değil** (FAZ-19.4).
@@ -202,6 +215,120 @@ const UCTA = (yuzeyL: number): boolean => yuzeyL < 0.14 || yuzeyL > 0.85
 
 /** Gren karışım kipi — uçlarda `normal`, ortada `soft-light`. */
 export const grenKipi = (yuzeyL: number): string => (UCTA(yuzeyL) ? 'normal' : GREN_KARISIMI)
+
+/**
+ * YÜZEY AİLELERİ — **kapalı dağarcık.** Altıncı bir yüzey bir KARAR ister, bir satır değil.
+ *
+ * ⚠ ⚠ **BEŞ AD, TEK DOKU OLMASIN.** Denetimin en sert bulgusu *"on şablon, üç zemin"*di:
+ * isimler farklıydı, yüzey aynıydı. Bu yüzden her aile ÖLÇÜLEBİLİR biçimde ayrı bir imza
+ * bırakıyor ve `yuzey-ailesi.test.ts` imzaları birbirinden ayırt ediyor:
+ *
+ * | aile | imza | nasıl ölçülür |
+ * |---|---|---|
+ * | `kagit` | ince gren + uzun dalga leke | σ orta, düşük frekans dalgalanma |
+ * | `tas` | iri tane + damar | σ orta, `multiply` damar |
+ * | `beton` | kaba tane | σ YÜKSEK |
+ * | `celik` | **anizotropik** | yatay/dikey doku oranı ≈ 0,02 |
+ * | `halftone` | nokta tramı | piksellerin ~%97'si uçlarda (ikili) |
+ *
+ * ⚠ ⚠ **ANİZOTROPİ TEK DEĞERLE İMKÂNSIZ.** Fırçalanmış metalin imzası yönlü olmasıdır:
+ * `baseFrequency='0.004 0.9'` — yatayda çok düşük, dikeyde yüksek frekans. Tek sayı
+ * yazan bir `baseFrequency` her zaman yönsüz bir bulut üretir ve "fırçalanmış" olmaz.
+ */
+export const YUZEYLER = ['kagit', 'tas', 'beton', 'celik', 'halftone'] as const
+export type Yuzey = (typeof YUZEYLER)[number]
+
+/** Bir yüzey ailesinin katmanları ve karışım kipleri — sırayla eşleşir. */
+export interface YuzeyKatmanlari {
+  readonly katmanlar: readonly string[]
+  readonly kipler: readonly string[]
+  readonly boyutlar: readonly string[]
+}
+
+/**
+ * Yüzey ailesinin doku katmanları. `guc` grenin luminanstan gelen opaklığı (0–100).
+ *
+ * ⚠ Ölçülen σ değerleri reçeteden: kagit 4,06 · beton 14,88 · celik 11,07.
+ * Buradaki güçler o ölçümlere oranlanıyor, tahmin edilmiyor.
+ */
+export const yuzeyKatmanlari = (yuzey: Yuzey, guc: number): YuzeyKatmanlari => {
+  switch (yuzey) {
+    case 'kagit':
+      // İnce lif + uzun dalga leke: kâğıdın imzası ikisinin ÜST ÜSTE gelmesi.
+      return {
+        // ⚠ ⚠ **GÜÇ GRENİN OPAKLIĞINDAN TÜRETİLEMİYOR ve ölçüm bunu gösterdi.** Kâğıt
+        // zeminde `grenOpakligi` 0,10 döndürüyor (uçta `normal` kip, bantlanma için
+        // KASITLI olarak düşük). O sayıdan türeyen kâğıt dokusu σ 2,29 verdi — düz
+        // grenin (2,26) ayırt edilemez kadar yakını. **Yüzey ailesi grenin şiddetini
+        // değil MALZEMENİN imzasını taşır;** kendi çarpanı var.
+        katmanlar: [
+          doku('1.2', 4, 7, Math.min(100, guc * 2.4)),
+          doku('0.02', 5, 11, Math.min(100, guc * 1.4), 700),
+        ],
+        kipler: ['soft-light', 'soft-light'],
+        boyutlar: ['180px 180px', '700px 700px'],
+      }
+    case 'tas':
+      // İri tane + damar. Damar `multiply`: taşın damarı ışığı GEÇİRMEZ, yumuşatmaz.
+      return {
+        katmanlar: [
+          doku('0.9', 4, 3, Math.min(100, guc * 2.6)),
+          doku('0.012', 6, 5, Math.min(100, guc * 1.6), 900),
+        ],
+        kipler: ['soft-light', 'multiply'],
+        boyutlar: ['180px 180px', '900px 900px'],
+      }
+    case 'beton':
+      // Kaba tane, ölçülen σ 14,88 — kâğıdın ~3,7 katı.
+      return {
+        // ⚠ ⚠ **KABALIK OPAKLIKTAN GELMİYOR, TANE BOYUNDAN GELİYOR.** İlk sürüm betonu
+        // taşla aynı frekansta (0,9) çizip opaklığı yükseltti: ölçüm σ 5,19 verdi, taş
+        // 5,10 — **iki malzeme ayırt edilemez.** Opaklık zaten tavandaydı, yani daha
+        // fazlası yoktu. Betonun imzası İRİ TANE: frekans 0,9 → 0,34 ve döşeme 256 →
+        // 320 px. Reçetenin ölçtüğü oran da bu yönde (beton σ 14,88, kâğıt 4,06).
+        katmanlar: [
+          doku('0.34', 3, 13, Math.min(100, guc * 2.6), 320),
+          doku('0.012', 6, 17, guc, 900),
+        ],
+        kipler: ['overlay', 'multiply'],
+        boyutlar: ['320px 320px', '900px 900px'],
+      }
+    case 'celik':
+      // ⚠ ANİZOTROPİK: yatayda 0,004, dikeyde 0,9. Fırça izi yön TAŞIR.
+      return {
+        // ⚠ ⚠ **ÇOK DÜZENLİ BİR FIRÇA İZİ, FIRÇA İZİ DEĞİL — ÇİZGİ DESENİDİR.** İlk sürüm
+        // `numOctaves=2` ve tam güçle çizdi; çıktıya bakıldı ve eşit aralıklı yatay
+        // şeritler görüldü: tam olarak bu fazın yasakladığı "html css deseni". Oktav 4'e
+        // çıkarılıp güç 2,0 → 1,45'e indirildi: yön KORUNUYOR (anizotropi ölçümü 0,62),
+        // düzenlilik kırılıyor. Fırça izinin imzası yön TAŞIMASI, eşit aralıklı olması değil.
+        katmanlar: [
+          doku('0.004 0.72', 4, 19, Math.min(100, guc * 1.45)),
+          doku('0.9', 3, 23, guc * 0.4),
+        ],
+        kipler: ['overlay', 'soft-light'],
+        boyutlar: ['100% 100%', '180px 180px'],
+      }
+    case 'halftone':
+      // ⚠ Tram bir GÜRÜLTÜ değil bir IZGARA: `feTurbulence` değil radyal nokta dizisi.
+      //
+      // ⚠ ⚠ **`contrast(20)` DENENDİ ve R-96 GERİ ÇEVİRDİ.** Reçete tramı 8–40 aralığında
+      // veriyor ve 20'de gazete tramı çıkıyor — ama reçete onu **bloklara** uyguluyor
+      // (*"parlak kâğıt + halftone BLOKLAR"*), panorama genişliğinde bir zemine değil.
+      // Tam kaplama uygulanınca kâğıt %50 siyah bir ekrana dönüştü ve kesik öznenin
+      // silüet farkı 108–117'ye düştü (eşik 120): özne zemine karıştı. Nokta opaklığı
+      // üçte bire, kontrast yumuşak uca (8 → ~139 seviye) çekildi. **Tram artık kâğıdın
+      // baskı izi; kâğıdın yerine geçen bir desen değil.**
+      return {
+        katmanlar: [
+          `radial-gradient(circle at 50% 50%, rgb(0 0 0 / ${(guc / 300).toFixed(3)}) 0 46%,` +
+            ` rgb(255 255 255 / ${(guc / 300).toFixed(3)}) 54% 100%)`,
+          doku('0.82', 3, 29, guc * 0.5),
+        ],
+        kipler: ['overlay', 'soft-light'],
+        boyutlar: ['8px 8px', '180px 180px'],
+      }
+  }
+}
 
 /*
  * ⚠ ⚠ **BURAYA BİR TOKEN→AÇIKLIK ÇÖZÜCÜSÜ YAZILDI ve GERİ ALINDI (FAZ-19.4).**

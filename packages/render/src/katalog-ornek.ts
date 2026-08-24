@@ -642,6 +642,8 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     panelPayi: 1.7,
   },
   zemin: 'var(--role-surface)',
+  // ⚠ YÜZEY AİLESİ — parlak kâğıt + gazete tramı — riso baskının imzası.
+  yuzey: 'halftone' as const,
   // ⚠ Kâğıt zeminde koyu bir hayalet aynı opaklıkta DAHA GÜÇLÜ okunur (koyu üstüne
   // açık ile açık üstüne koyu simetrik değil): %7 burada yeterli, ölçek büyütülüyor.
   hayaletKonumu: { ust: 30, olcek: 1.4, guc: 7 },
@@ -1015,6 +1017,8 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   // ⚠ Açık zemin: kart metni `kartRenkleri` ile zeminden TÜRÜYOR, sabit beyaz değil —
   // bu yüzden zemini açığa çevirmek metni okunmaz yapmıyor (FAZ-15.2 dersi).
   zemin: 'var(--ramp-marka-kagit-0)',
+  // ⚠ YÜZEY AİLESİ — sıcak kâğıt: ince lif + uzun dalga leke. Katalog zaten "kâğıt" diyordu.
+  yuzey: 'kagit' as const,
   gorselIslemleri: [],
   bant: { tip: 'yok' },
   // ⚠ Genlik NAZİK (%38–58): bu şablonun sesi sessiz ve keskin bir bölme onu
@@ -1139,6 +1143,8 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
     govdeSutunu: 0.78,
   },
   zemin: 'var(--role-bg)',
+  // ⚠ YÜZEY AİLESİ — beton: kaba tane, ölçülen σ kâğıdın ~3,7 katı.
+  yuzey: 'beton' as const,
   hayaletKonumu: { ust: 66, olcek: 1.5, guc: 12 },
   // Kesim bir kemerin ORTASINA denk geliyor, tepesine değil. Tepe noktası kesime
   // düşseydi göz iki yarım tepe görürdü; ortadan kesilen bir yay ise iki yandan da AYNI
@@ -1244,6 +1250,8 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
     govdeSutunu: 0.62,
   },
   zemin: 'var(--ramp-marka-kagit)',
+  // ⚠ YÜZEY AİLESİ — açık taş: iri tane + damar. Damar `multiply` — taş ışığı geçirmez.
+  yuzey: 'tas' as const,
   hayaletKonumu: { ust: 62, olcek: 1.1, guc: 8 },
   alanSiniri: {
     ust: 'var(--ramp-marka-kagit)',
@@ -1337,6 +1345,8 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
     panelPayi: 1.7,
   },
   zemin: 'var(--role-bg)',
+  // ⚠ YÜZEY AİLESİ — fırçalanmış çelik: ANİZOTROPİK doku, fırça izi yön taşır.
+  yuzey: 'celik' as const,
   // ⚠ ⚠ **BU ŞABLONUN HAYALETİ YOK ve bu bir eksiklik değil, ölçülmüş bir karar.** Üç yer
   // denendi: 64'te panele %23, 46'da gövdeye %64 çarptı. Sebep geometrik — metin tepede,
   // panel dipte, arada hayaletin sığacağı boşluk yok. Kompozisyonu zaten alan süpürmesi

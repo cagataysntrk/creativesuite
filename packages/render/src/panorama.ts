@@ -33,8 +33,10 @@ import {
   grenKatmani,
   grenKipi,
   grenOpakligi,
+  yuzeyKatmanlari,
   zeminCss,
   zeminKarisimi,
+  type Yuzey,
   type ZeminResetesi,
 } from './zemin.js'
 import { getStroke } from 'perfect-freehand'
@@ -527,6 +529,17 @@ export interface PanoramaBelgesi {
    * türetimini dokudan bağımsız bırakıyor.
    */
   readonly zeminDokusu?: ZeminResetesi
+  /**
+   * YÜZEY AİLESİ — şablonun dokusal kimliği (FAZ-19.4).
+   *
+   * ⚠ ⚠ **DENETİMİN EN SERT BULGUSU: "on şablon, üç zemin".** İsimler farklıydı, yüzey
+   * aynıydı; katalog *"editoryal — sıcak kâğıt"*, *"kavis — beton"* yazıyordu ve render
+   * ikisini de aynı düz mürekkeple çiziyordu. Bu alan o farkı ÇİZİLEBİLİR kılıyor.
+   *
+   * ⚠ Verilmezse yüzey yok, yalnız gren — yani bugünkü davranış. Sessiz bir varsayılan
+   * seçmiyoruz: bir şablonun hangi malzemeden yapıldığı yazılı olmalı.
+   */
+  readonly yuzey?: Yuzey
   /**
    * Kartların ÜSTÜNDE duran bitiş dokusu — gren + vinyet.
    *
@@ -1748,8 +1761,28 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // Vinyet: kenarları toplayan tek radyal. Merkez ŞEFFAF — ortadaki içeriği
     // karartmayan bir vinyet, kadrajı daraltır ama okunurluğu düşürmez.
     `  .ust-gren, .ust-vinyet { position: absolute; inset: 0; pointer-events: none }`,
-    `  .ust-gren { z-index: ${Z.gren}; mix-blend-mode: ${grenKipi(zeminAcikligi)};`,
-    `              background: ${grenKatmani(doc.ustDoku?.gren ?? grenOpakligi(zeminAcikligi) * 100)} }`,
+    // ⚠ ⚠ **YÜZEY VARSA GREN DEĞİL O ÇİZİLİYOR.** Gren her yüzeyin ortak tabanı; yüzey
+    // ailesi onun ÜSTÜNE malzemenin kendi imzasını koyuyor (kâğıt lifi, taş damarı,
+    // beton tanesi, fırça izi, tram noktası). İkisi birden çizilseydi doku iki kez
+    // toplanır ve `beton` ile `kagit` yine birbirine benzerdi.
+    ...(doc.yuzey === undefined
+      ? [
+          `  .ust-gren { z-index: ${Z.gren}; mix-blend-mode: ${grenKipi(zeminAcikligi)};`,
+          `              background: ${grenKatmani(doc.ustDoku?.gren ?? grenOpakligi(zeminAcikligi) * 100)} }`,
+        ]
+      : (() => {
+          const y = yuzeyKatmanlari(
+            doc.yuzey,
+            doc.ustDoku?.gren ?? grenOpakligi(zeminAcikligi) * 100
+          )
+          return [
+            `  .ust-gren { z-index: ${Z.gren}; mix-blend-mode: ${grenKipi(zeminAcikligi)};`,
+            `              background-image: ${y.katmanlar.join(', ')};`,
+            `              background-size: ${y.boyutlar.join(', ')};`,
+            `              background-blend-mode: ${y.kipler.join(', ')};`,
+            `              filter: ${doc.yuzey === 'halftone' ? 'contrast(8) grayscale(1)' : 'none'} }`,
+          ]
+        })()),
     `  .ust-vinyet { z-index: ${Z.vinyet};`,
     `              background: radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
       ` rgba(0,0,0,${((doc.ustDoku?.vinyet ?? vinyetGucu(zeminAcikligi)) / 100).toFixed(2)}) 100%) }`,

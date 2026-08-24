@@ -959,3 +959,52 @@ kendisi. Pay `--baslik-punto` üstünden PİKSEL hesaplanıyor
 
 ⚠ Pay ŞABLONDAN değil METİNDEN türüyor: `optikPay(k.baslik)`. Bir sonraki koşuda başlık
 değişince pay da değişiyor; şablona sabit yazılsaydı içerik değişince yalan olurdu.
+
+## FAZ-19.4 · beş yüzey ailesi — beş AD değil beş DOKU
+
+Denetimin en sert bulgusu *"on şablon, üç zemin"*di: katalog `editoryal — sıcak kâğıt`,
+`kavis — beton` yazıyordu, render ikisini de aynı düz mürekkeple çiziyordu. Beş aile
+kapalı dağarcık olarak yazıldı ve her biri bir şablona verildi.
+
+### Ölçülen imzalar (çok ölçekli σ + anizotropi + uçlarda toplanma)
+
+| şablon | aile | σ₈ | σ₉₆ | σ₉₆/σ₈ | yatay/dikey |
+|---|---|---|---|---|---|
+| `akan-alan` · `donen` | — (düz gren) | 2,26 | 2,39 | 1,06 | 1,02 |
+| `editoryal` | **kagit** | 4,72 | 5,89 | 1,25 | 1,01 |
+| `alinti` | **tas** | 5,10 | 6,33 | 1,24 | 0,98 |
+| `kavis` | **beton** | 5,00 | 6,34 | 1,27 | 0,99 |
+| `karsilastirma` | **celik** | 1,88 | 3,58 | **1,90** | **0,69** |
+| `memphis` | **halftone** | 10,00 | 10,07 | 1,01 | 1,00 |
+
+### ⚠ ÜÇ ÖLÇÜM ARACI YANILDI, ÜÇÜ DE DÜZELTİLDİ
+
+1. **Tek ölçekli σ kabalığı GÖREMİYOR.** Beton frekansı 0,9 → 0,34'e indirilince 8×8 σ
+   5,19 → 5,00 çıktı; alet *"değişmedi"* dedi. 320 px'lik bir tanenin değişimi bloklar
+   ARASINDA, blok içinde değil. Çok ölçekli σ (8·32·96) taneyi boyuyla ayırıyor.
+2. **Güç grenin opaklığından türetilemiyor.** Kâğıt zeminde `grenOpakligi` 0,10 döndürüyor
+   (uçta `normal` kip, bantlanma için KASITLI olarak düşük). O sayıdan türeyen kâğıt σ
+   2,29 verdi — düz grenin (2,26) ayırt edilemez kadar yakını. Yüzey ailesi grenin
+   şiddetini değil MALZEMENİN imzasını taşır; kendi çarpanı var.
+3. **Kabalık opaklıktan gelmiyor, TANE BOYUNDAN geliyor.** Beton opaklığı zaten tavandaydı.
+
+### ⚠ İKİ TASARIM DENEMESİ GERİ ÇEVRİLDİ
+
+- **`contrast(20)` halftone tam kaplama:** R-96 kırmızı — kesik öznenin silüet farkı
+  108–117'ye düştü (eşik 120). Reçete tramı **bloklara** veriyor, panorama genişliğinde
+  bir zemine değil. Nokta opaklığı üçte bire, kontrast yumuşak uca (8) çekildi.
+  **Tram artık kâğıdın baskı izi; kâğıdın yerine geçen bir desen değil.**
+- **Çok düzenli fırça izi:** `numOctaves=2` + tam güç eşit aralıklı yatay şeritler
+  üretti — bu fazın yasakladığı "html css deseni". Oktav 4, güç 1,45: **yön korunuyor
+  (0,69), düzenlilik kırılıyor.** Fırça izinin imzası yön TAŞIMASI, eşit aralıklı olması değil.
+
+### ⚠ `tas` ile `beton` σ'da ayrılmıyor — açık kalan
+
+1,24 ve 1,27. Farkları damar (`multiply`) ve tane boyu; ölçü onu görmüyor. İkisi gerçek
+hayatta da yakın malzemeler. Ayrımın asıl yeri RENK — FAZ-19.6 (P3 açık taş, P4 beton+amber).
+
+### ⚠ İki `<rect>` üreticisi — kapı R-05 uyarısı veriyordu
+
+`kodlanmis-oge` `svg-dikdortgen` sayısını 2'de yakaladı (tavan 1). Üslup kuralı değil:
+iki ayrı doku üreticisi, biri değişince öbürü sessizce eskir. `grenKatmani` artık
+`doku()`nun tek frekanslı bir çağrısı.
