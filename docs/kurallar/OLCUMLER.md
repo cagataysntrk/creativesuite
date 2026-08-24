@@ -770,3 +770,51 @@ kesik özneyi de karartan bir vinyet, özne ile zemini BİRLİKTE kaydırıp ara
 korur; yalnız zemini karartan bir vinyet o farkı YER. **Vinyet mercek etkisidir —
 sahneye değil filme aittir, yani öznenin de üstündedir.** Rakamın tutması, teşhisin
 doğru olduğu anlamına gelmiyordu.
+
+## FAZ-19.7 · OKUNURLUK YASTIĞI — reçetenin cevabı ÖLÇÜMDE ÇÜRÜDÜ
+
+Reçete `C.5`b: *"metin bir görselin ya da parlak alanın üstündeyse, arkasına yumuşak
+yerel karartma konur (kutu değil, elips)"* — amacı `sus-metni-kesiyor`u karşılanabilir
+kılmak. Yazıldı, çizildi, ölçüldü ve **üç ayrı sebeple geri alındı.**
+
+### 1 · İşe yaramıyor — ve sebebi aritmetik
+
+`veri-hikayesi` kart 1, `alan: 'etiket'` (çiplerin BİRLEŞİK kutusu, x 64–612, y 1181–1250):
+
+| kurulum | fark oranı | eşik |
+|---|---|---|
+| yastıksız | %9,2 | %2 |
+| yastık (elips, `blur(26px)`, `--kart-zemin` %92) | **%9,2** | — |
+| yastık %100 opak | %9,3 | — |
+| yastık düz KIRMIZI, `rgba(...,0.9)` | %9,3 | — |
+| yastık düz KIRMIZI, tam opak | **%7,3** | — |
+
+⚠ ⚠ **`blur(26px)` 69 px yüksekliğindeki bir kutunun TAMAMINI yarı saydam yapıyor.**
+Bulanıklık kenardan 26 px içeri işliyor; iki kenardan 52 px, kutu 69 px. **Yumuşak bir
+yastık, tanımı gereği örtemez.** Kutu büyütülerek çözülemiyor: `inset: -22px -30px`
+denendi ve kadraj denetimi 94 `tasma` kusuru döktü — sayı birebir insetti, çünkü pseudo
+öge LAYOUT kutusunu büyütüp R-88'in güvenli alanını deliyor.
+
+⚠ Değişen piksellerin ne olduğu da ölçüldü: **çiplerin ARASINDAKİ boşluklar.** Üç boşluk
+× ~14 px × 69 px ≈ kutunun %9'u. Denetim çipleri tek tek değil birleşik kutu olarak
+ölçtüğü için aradaki zemin de "etiket metni" sayılıyor.
+
+### 2 · Gerekmediği yerde HALE bırakıyor
+
+Düz koyu kartta başlığın etrafında hafif ama görülebilir bir dikdörtgen. Yumuşak da olsa
+bir kutu — bu fazın yasakladığı *"html css gibi duruyor"*un ta kendisi. Çizildi, BAKILDI.
+
+### 3 · R-81 zaten yasaklıyor
+
+`kodlanmis-oge` kapısı `panorama.ts`te `sozde-oge` tavanını **0** tutuyor. Kural haklıydı.
+
+### Doğru çözüm ne
+
+**Taşıyıcıyı maskelemek** — ve maske kutuları ancak düzen ÖLÇÜLDÜKTEN sonra bilinebilir
+(`duzenProvasi`, D-347). Yani bu bir CSS kuralı değil, **provanın ölçümünü render'a
+taşıyan bir ADIM.** `veri-hikayesi` köşegeni (görünür hâlde kontrast 1,74:1) o adım
+gelene kadar görünmez kalıyor.
+
+⚠ **Reçetenin sırası ikinci kez yanlışlandı.** Önce "görünür taşıyıcı maskeden önce
+çizilemez" çıktı; şimdi de "maskenin yerine geçeceği söylenen yastık maskenin yerine
+geçemiyor". Reçete iyi bir kaynak ama sırası ölçümle sınanmadan uygulanamaz.

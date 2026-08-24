@@ -736,6 +736,8 @@ const Z = {
   vinyet: 6,
   /** başlık, gövde, etiket, künye şeridi */
   metin: 7,
+  /** okunurluk yastığı — metnin KENDİ bağlamında `-1`, yani metninin hemen altında */
+  yastik: 7,
 } as const
 
 const vinyetGucu = (acikklik: number): number => (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34)
@@ -1852,6 +1854,25 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Sıra şimdi: kart zemini → lekeler(2) → GÖRSEL(4) → oklar(5) → METİN(6).
     // Referans tasarımlarda da başlık figürün önünden geçiyor; istenen katmanlanma bu.
     `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: ${Z.metin} }`,
+    // ── OKUNURLUK YASTIĞI DENENDİ ve ÜÇ SEBEPLE GERİ ALINDI (FAZ-19.7) ────────
+    //
+    // Reçetenin `C.5`b maddesi *"metnin arkasına yumuşak yerel karartma"* öneriyor ve
+    // amacı `sus-metni-kesiyor`u karşılanabilir kılmak. Yazıldı, çizildi, ölçüldü:
+    //
+    // 1. **İŞE YARAMIYOR.** `veri-hikayesi` kart 1'de fark oranı %9,2. Yastık eklendi:
+    //    **%9,2** — hiç kıpırdamadı. Yastık kırmızıya boyanıp %100 opak yapıldığında
+    //    bile yalnız %7,3'e indi. Sebep `blur(26px)`: 69 px yüksekliğindeki bir kutuya
+    //    26 px'lik bulanıklık uygulanınca kutunun TAMAMI yarı saydam oluyor. **Yumuşak
+    //    bir yastık, tanımı gereği örtemez.** Ölçülen fark tam olarak çiplerin
+    //    ARASINDAKİ boşluklardı (3 boşluk × ~14 px × 69 px ≈ %9).
+    // 2. **HALE BIRAKIYOR.** Düz koyu kartta başlığın etrafında hafif ama görülebilir
+    //    bir dikdörtgen — bu fazın yasakladığı *"html css gibi duruyor"*un ta kendisi.
+    // 3. **R-81 zaten yasaklıyor:** `panorama.ts`te `sozde-oge` tavanı 0. Kural haklı.
+    //
+    // **Doğru çözüm taşıyıcıyı MASKELEMEK** ve maske kutuları ancak düzen ÖLÇÜLDÜKTEN
+    // sonra bilinebilir (`duzenProvasi`, D-347). Yani bu, CSS'e yazılacak bir kural
+    // değil, provanın ölçümünü render'a taşıyan bir ADIM. `veri-hikayesi` köşegeni o
+    // adım gelene kadar görünmez kalıyor — kanıtı `docs/kurallar/OLCUMLER.md`'de.
     `  .panel, .sayilar, .etiketler { --panel-olcek: calc(var(--panel-kok) * var(--ayar-olcek, 1)) }`,
     // ── paneller ────────────────────────────────────────────────────────────
     // ⚠ ⚠ **PANEL RENKLERİ ZEMİNDEN TÜRÜYOR — ONALTI SABİT BEYAZ SİLİNDİ.** Panel gövdesi,
