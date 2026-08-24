@@ -858,3 +858,55 @@ düşünce R-95 yine kırmızı (`ray-sayac` yüzeyinin %8'i). Dolgu %86'ya çı
 ### Dört panoramada kesim farkı (0–765)
 
 `donen` 0–24 · `memphis` 18–24 · `alinti` 18 · `akan-alan` 18–33. Hepsi ≤%4,3.
+
+## FAZ-19.5 · font — raporun her elemesi BAĞIMSIZ olarak yeniden üretildi
+
+Araştırma raporu *"IBM Plex'in tamamı `latn/TRK` taşımıyor"* diyordu ve o iddiaya
+dayanarak aile seçilecekti. **Başkasının ölçümüne dayanarak karar vermek dayanaksızdır.**
+`scripts/font-denetim.mjs` yazıldı: TTF indirir, `cmap`te 15 Türkçe kod noktasını,
+`Ş`(U+015E) ≠ `Ș`(U+0218) ayrımını ve `GSUB`ta `latn/TRK` dil sistemini okur.
+
+| aile | cmap | Ş≠Ș | latn/TRK | sonuç |
+|---|---|---|---|---|
+| Archivo · Literata · Martian Mono | 15/15 | evet | VAR | ✓ |
+| Big Shoulders (+Stencil) · Young Serif | 15/15 | evet | VAR | ✓ (park edildi) |
+| Montserrat · Plus Jakarta Sans | 15/15 | evet | VAR | ✓ (yerini bıraktı) |
+| **IBM Plex Sans · IBM Plex Mono** | 15/15 | evet | **YOK** | ✗ |
+| **Inter** | 15/15 | evet | **YOK** | ✗ |
+| **Stardos Stencil · Share Tech Mono** | **10/15** (`Ğ ğ İ Ş ş` YOK) | — | YOK | ✗ |
+
+Raporun adlandırdığı harfler birebir çıktı. Alet hem EVET hem HAYIR diyebiliyor.
+
+### ⚠ BIG SHOULDERS DENENDİ ve ÖLÇÜM GERİ ÇEVİRDİ
+
+Reçete Big Shoulders'a *"sanayi display, hayalet rakam"* rolü veriyor; ben onu EVRENSEL
+bölüm başlığı yaptım ve **beş şablon `punto-cokmesi` döktü.** Sebep ölçüldü —
+`donen`in başlık sütunu **304 px**:
+
+| kart | yüz | sığan punto | kısıt |
+|---|---|---|---|
+| 1 (kapak) | Literata (geniş serif) | **69 px** | genişlik |
+| 2–4 (gövde) | Big Shoulders (ultra dar) | 113–147 px | genişlik |
+
+**Dar bir poster yüzü, dar bir sütunun içinde ölçek üretmez — hiyerarşiyi TERSİNE çevirir.**
+Bölüm başlığı Archivo'ya alındı (reçetenin kendi şablon tabloları da öyle diyor); Archivo'nun
+`wdth` ekseni sayesinde daralmayı ŞABLON seçiyor, yüz dayatmıyor.
+
+⚠ **İlk düzeltme denemem YANLIŞTI ve kayda öyle geçmesin:** denetimin ham "sığan punto"yu
+kendi çarpanına bölmesini önerdim (render'ın araması öyle yapıyor). Bölünce gövde tavanı
+161 → 196'ya çıktı ve fark BÜYÜDÜ; beş şablon yerine altı şablon kırmızıya döndü. Ölçüm
+birimini düzeltmek, ölçülen şeyin yanlış olduğu bir yerde işe yaramıyor.
+
+### Kapak ağırlığı 500 → 400: bir GENİŞLİK kararı
+
+`sahne` kapağı 500'de **81 px**'de sıkışıyor, gövde kartları 134'e çıkıyordu (oran 0,60,
+eşik 0,62). Editoryal serifin 500'ü bir medium ve dar sütunda punto satın alıyor. 400'de
+kapak **84 px** — reçetenin `sahne` için verdiği sayının ta kendisi (Literata opsz 60
+wght 400 **84 px**). On kapak sıfır kusur.
+
+### `locl` ve `tnum` açıldı
+
+`lang="tr"` tek başına yetmiyor: dil etiketi yüze hangi dilde olduğunu söyler, `locl`
+yüzün o dile ait alternatiflerini AÇAR. Kapalıyken `fi` bağı bağlanıyor ve **noktalı i'nin
+noktası kayboluyor** — Türkçe'de `fi` ≠ `fı`. `tnum`: künye sayacı (`01 / 04`) oransal
+rakamlarla slayttan slayta ZIPLIYORDU.

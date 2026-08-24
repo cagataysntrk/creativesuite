@@ -28,8 +28,19 @@ export type TipoEfekti = (typeof TIPO_EFEKTLERI)[number]
  *
  * ⚠ `dlig` (isteğe bağlı bağlar) KAPALI: Türkçe'de `fi` bağı `fı` ile karışabilir ve
  * dekoratif bağlar okunabilirliği düşürür. Süs değil, doğruluk aranıyor.
+ *
+ * ⚠ ⚠ **`locl` EKLENDİ ve eksikliği SESSİZ bir Türkçe hatasıydı (FAZ-19.5).**
+ * `lang="tr"` tek başına yetmiyor: dil etiketi yüze *hangi* dilde olduğunu söyler,
+ * `locl` ise yüzün o dile ait alternatiflerini AÇAR. Kapalıyken `fi` bağı bağlanıyor
+ * ve **noktalı i'nin noktası kayboluyor** — Türkçe'de `fi` ≠ `fı`, yani bağ yalnız
+ * çirkin değil YANLIŞ. Yeni dört yüzün dördünde de `GSUB`ta `latn/TRK` var (ölçüldü),
+ * yani açacak bir şey gerçekten mevcut.
+ *
+ * ⚠ ⚠ **`tnum` EKLENDİ ve sebebi KAYDIRMA.** Rakamlar oransalken künye sayacı
+ * (`01 / 04`) slayttan slayta ZIPLIYOR: `1` dar, `0` geniş. Kesintisiz bir karoselde
+ * yerinde durması gereken tek şey sayaçtır. Tablo rakamı onu sabitler.
  */
-export const OPENTYPE_CSS = `"kern" 1, "liga" 1, "calt" 1`
+export const OPENTYPE_CSS = `"kern" 1, "liga" 1, "calt" 1, "locl" 1, "tnum" 1`
 
 /**
  * Vurgu şeridi — bir ifadenin ARKASINA çekilen eğik bant.

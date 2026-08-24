@@ -28,10 +28,22 @@ const HEDEF = join(REPO, 'brand/brd_upcytech/fonts')
  * bir fazla" diye kaydediyor ve Montserrat'ı sınırlandırıyor.
  */
 const AILELER = [
-  { ad: 'PlusJakartaSans', sorgu: 'Plus+Jakarta+Sans:wght@200..800' },
-  { ad: 'SourceSerif4', sorgu: 'Source+Serif+4:opsz,wght@8..60,200..900' },
-  { ad: 'Montserrat', sorgu: 'Montserrat:wght@100..900' },
-  { ad: 'JetBrainsMono', sorgu: 'JetBrains+Mono:wght@100..800' },
+  // ⚠ ⚠ **DÖRT AİLE → ALTI YÜZ (FAZ-19.5) ve hepsi ÖLÇÜLEREK seçildi.**
+  // `scripts/font-denetim.mjs` her adayın TTF'ini indirip `cmap`te 15 Türkçe kod
+  // noktasını, `Ş`(U+015E) ≠ `Ș`(U+0218) ayrımını ve `GSUB`ta `latn/TRK` dil sistemini
+  // doğruluyor. Ölçüm `docs/kurallar/OLCUMLER.md`'de; altısı da 15/15 · Ş≠Ș · TRK VAR.
+  //
+  // ⚠ ⚠ **IBM PLEX AİLESİNİN TAMAMI ELENDİ ve sanayi işi için en bariz tercihti.**
+  // Sans da Mono da `latn/TRK` TAŞIMIYOR — Inter'i eleyen kapının aynısı (D-317).
+  // Denenmesin diye buraya yazılıyor: eleme ölçüldü, tahmin değil.
+  { ad: 'Archivo', sorgu: 'Archivo:wdth,wght@62..125,100..900' },
+  { ad: 'MartianMono', sorgu: 'Martian+Mono:wdth,wght@75..112.5,100..800' },
+  { ad: 'Literata', sorgu: 'Literata:opsz,wght@7..72,200..900' },
+  // ⚠ **`Big Shoulders`, `Big Shoulders Stencil` ve `Young Serif` ÖLÇÜLDÜ, GEÇTİ, YOK.**
+  // Reçete ikisini `memphis` aksanı ve `alinti` anıtsal display'i için istiyor;
+  // o çağrı yerleri henüz yazılmadı. Çağıranı olmayan bir dosyayı depoya koymak,
+  // bu depoda on iki kez tekrarlanan hatanın font hâli olurdu. Çağrı yeri doğduğu
+  // gün iki satır: ölçümleri `docs/kurallar/OLCUMLER.md`'de duruyor.
 ]
 
 // ⚠ Modern tarayıcı UA'sı ZORUNLU: Google Fonts eski UA'ya `ttf` döndürüyor ve o dosya

@@ -1788,8 +1788,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // bakışta okunuyor. Daha sert bir düşüş (0,7) gövdeyi alt başlığa çeviriyordu.
     `  .kart:not(.ilk) .baslik { font-size: calc(var(--baslik-punto) * ${String(GOVDE_BASLIK_CARPANI)}`,
     `                              * var(--ayar-olcek, 1)) }`,
+    // ⚠ ⚠ **AĞIRLIK 500 → 400 ve bu bir GENİŞLİK kararı.** Editoryal serifin 500'ü bir
+    // medium: aynı kelimeyi belirgin biçimde genişletiyor ve dar başlık sütununda
+    // puntoyu satın alıyor. Ölçüldü — `sahne` kapağı 500'de **81 px**'de sıkışıyor,
+    // gövde kartları 134'e çıkıyor ve denetim hiyerarşiyi "çökmüş" sayıyor.
+    // Reçete de zaten 400 diyor (`sahne` Literata opsz 60 **wght 400**).
     `  .kart.ilk .baslik { font-family: "Marka Display", "Marka Baslik", serif;`,
-    `                      font-weight: 500; letter-spacing: -0.025em }`,
+    `                      font-weight: 400; letter-spacing: -0.025em }`,
     `  .baslik strong { color: var(--kart-aksan); font-weight: inherit }`,
     // ⚠ ⚠ **VURGU ÇİPİ EMEKLİ (D-318).** Açık zeminde vurgulanan kelime DOLU bir kutuya
     // alınıyordu; gerekçesi ölçülmüştü (kâğıt üstüne eski amber aksan 1,9:1 veriyordu ve

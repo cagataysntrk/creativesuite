@@ -53,26 +53,28 @@ export const YUZLER: readonly FontYuzu[] = [
   // yok) ama Türkçe'ye özgü hiçbir iş yapılmadığının işareti. Ölçüm bu depoda da
   // tekrarlandı: dört ailenin dördü de 15/15, `Ş`≠`Ș`, `latn/TRK`.
   //
-  // ⚠ **GENİŞLİK EKSENİ YOK ve bu bilinçli.** Bricolage'ın `wdth` ekseni Türkçe'de
-  // punto satın alıyordu (D-296) — ama sistemin dört ailesinin hiçbirinde o eksen yok
-  // ve olmayan bir ekseni CSS'te sürmek sessiz bir yalan olurdu: tarayıcı `font-stretch`i
-  // kırpar, reçete "wdth 78" der, çıktı 100'dür. Eksen reçeteden de KALDIRILDI (D-317);
-  // punto tavanı artık yalnız gerçek genişlik ölçümünden geliyor.
+  // ⚠ ⚠ **GENİŞLİK EKSENİ GERİ GELDİ — ve D-317 yanlış değildi, ARTIK GEÇERSİZ.**
+  // D-317 *"sistemin dört ailesinin hiçbirinde `wdth` yok, olmayan bir ekseni CSS'te
+  // sürmek sessiz bir yalandır"* diyordu ve o dört aile için doğruydu. Yeni gövde
+  // ailesi **Archivo**'da eksen GERÇEKTEN var (62–125) ve **Martian Mono**'da da
+  // (75–112,5). Kayıt bir gözlemdi, bir yasak değil: gözlem değişti.
+  // ⚠ Eksen bir ÇARE değil bir ARAÇ: Türkçe'de daralan bir yüz punto satın alır ama
+  // okunurluğu da satar. R-83'ün okuma eşiği hâlâ tavan.
 
   // GÖVDE · etiket · tüm arayüz metni.
   {
     aile: 'Marka Metin',
-    dosya: 'PlusJakartaSans-latin.woff2',
+    dosya: 'Archivo-latin.woff2',
     unicodeRange: LATIN,
-    agirlik: '200 800',
-    genislik: null,
+    agirlik: '100 900',
+    genislik: '62% 125%',
   },
   {
     aile: 'Marka Metin',
-    dosya: 'PlusJakartaSans-latin-ext.woff2',
+    dosya: 'Archivo-latin-ext.woff2',
     unicodeRange: LATIN_EXT,
-    agirlik: '200 800',
-    genislik: null,
+    agirlik: '100 900',
+    genislik: '62% 125%',
   },
 
   // DISPLAY · pazarlama sayfasının TEK H1'i. Karoselde: kapak başlığı, başka hiçbir yer.
@@ -80,34 +82,46 @@ export const YUZLER: readonly FontYuzu[] = [
   // formlar ikinci bir kesim gerektirmeden geliyor.
   {
     aile: 'Marka Display',
-    dosya: 'SourceSerif4-latin.woff2',
+    dosya: 'Literata-latin.woff2',
     unicodeRange: LATIN,
     agirlik: '200 900',
     genislik: null,
   },
   {
     aile: 'Marka Display',
-    dosya: 'SourceSerif4-latin-ext.woff2',
+    dosya: 'Literata-latin-ext.woff2',
     unicodeRange: LATIN_EXT,
     agirlik: '200 900',
     genislik: null,
   },
 
   // BÖLÜM BAŞLIĞI · alt başlık. Karoselde: gövde slaytlarının başlıkları.
-  // ⚠ Gövde metni ASLA: sistemin sınırlama kuralı bu aileyi başlıkla sınırlıyor.
+  //
+  // ⚠ ⚠ **BIG SHOULDERS DENENDİ ve ÖLÇÜM GERİ ÇEVİRDİ.** Reçete onu *"sanayi display,
+  // hayalet rakam"* rolüne veriyor; ben onu EVRENSEL bölüm başlığı yaptım ve beş şablon
+  // `punto-cokmesi` döktü. Sebep ölçüldü: `donen`in başlık sütunu **304 px** ve o
+  // sütunda Big Shoulders (ultra dar) **147 px**'e kadar büyüyor, kapağın geniş serifi
+  // (Literata) **69 px**'de sıkışıyor. Aynı sütunda iki kat fark — hiyerarşi tersine
+  // dönüyor. Dar bir poster yüzü, dar bir sütunun içinde ölçek üretmez, GÜRÜLTÜ üretir.
+  //
+  // ⚠ Doğru yüz **Archivo**: reçetenin kendi şablon tablolarında bölüm başlıkları zaten
+  // Archivo (`veri-hikayesi` 600/76 · `karsilastirma` wdth 70 800/88 · `dizin` 600/76).
+  // `wdth` ekseni sayesinde bir şablon isterse daraltabiliyor — sabit dar bir yüzden
+  // farkı, DARALMAYI ŞABLONUN SEÇMESİ. Big Shoulders hayalet rakam ve `kavis` için
+  // saklı; çağrı yeri doğduğunda geri gelir (ölçümü `OLCUMLER.md`'de, 15/15 · TRK VAR).
   {
     aile: 'Marka Baslik',
-    dosya: 'Montserrat-latin.woff2',
+    dosya: 'Archivo-latin.woff2',
     unicodeRange: LATIN,
     agirlik: '100 900',
-    genislik: null,
+    genislik: '62% 125%',
   },
   {
     aile: 'Marka Baslik',
-    dosya: 'Montserrat-latin-ext.woff2',
+    dosya: 'Archivo-latin-ext.woff2',
     unicodeRange: LATIN_EXT,
     agirlik: '100 900',
-    genislik: null,
+    genislik: '62% 125%',
   },
 
   // RAKAM · kimlik · künye · eyebrow. **Yalnız BÜYÜK HARF ve tracked +0.08em.**
@@ -115,17 +129,17 @@ export const YUZLER: readonly FontYuzu[] = [
   // kaynak satırı (§8). Düzyazı ASLA.
   {
     aile: 'Marka Mono',
-    dosya: 'JetBrainsMono-latin.woff2',
+    dosya: 'MartianMono-latin.woff2',
     unicodeRange: LATIN,
     agirlik: '100 800',
-    genislik: null,
+    genislik: '75% 112.5%',
   },
   {
     aile: 'Marka Mono',
-    dosya: 'JetBrainsMono-latin-ext.woff2',
+    dosya: 'MartianMono-latin-ext.woff2',
     unicodeRange: LATIN_EXT,
     agirlik: '100 800',
-    genislik: null,
+    genislik: '75% 112.5%',
   },
 ]
 
