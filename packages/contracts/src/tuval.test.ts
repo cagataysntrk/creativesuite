@@ -33,10 +33,29 @@ describe('karosel tuvali', () => {
     }
   })
 
-  it('varsayılan 4:5 — Meta REKLAMINDA zorunlu olan oran', () => {
-    // ⚠ 3:4 organik akışta daha fazla alan veriyor (+%6,7, ızgarada sıfır kırpma) ama
-    // Meta reklamının minimum oranı 400×500 ve 3:4 onun altında kalıyor. Reklam
-    // verilecek bir kreatif 4:5 üretilmek zorunda; varsayılan bu yüzden 4:5.
-    expect(VARSAYILAN_TUVAL).toBe(TUVAL_4_5)
+  // ⚠ ⚠ **VARSAYILAN 4:5 → 3:4 ve bu bir DAVRANIŞ düzeltmesi değil, KARAR değişikliği.**
+  // Instagram organik akışta 3:4'ü tam boy gösteriyor; 4:5 profil ızgarasında her yandan
+  // 34 px kırpılıyordu, 3:4'te kırpma SIFIR ve slayt %6,7 uzuyor.
+  // ⚠ Geçiş ÖLÇÜLDÜ: on şablon 1350 ve 1440'ta ayrı ayrı denetlendi, ikisinde de sıfır
+  // kusur. Geometri yüzde tabanlı olduğu için ölçeğe dayandı. 2184 testin yalnız BİRİ
+  // kırıldı — o da bu testti, yani eski kararın kendisi.
+  it('varsayılan 3:4 — organik akışta tam boy, ızgarada sıfır kırpma', () => {
+    expect(VARSAYILAN_TUVAL).toBe(TUVAL_3_4)
+    expect(VARSAYILAN_TUVAL.yukseklik).toBe(1440)
+  })
+
+  // ⚠ ⚠ **REKLAM KISITI KAYBOLMADI — varsayılan değişti, kural DEĞİŞMEDİ.** Meta
+  // reklamının asgari oranı 400×500 ve 3:4 onun altında kalıyor: reklam verilecek bir
+  // kreatif 4:5 üretilmek ZORUNDA. Varsayılan artık 3:4 olduğuna göre reklam yolu onu
+  // miras ALAMAZ, açıkça `TUVAL_4_5` istemek zorunda.
+  // ⚠ Bu testin var olma sebebi tam olarak budur: bir karar değişince onun GEREKÇESİ
+  // sessizce silinirse, aynı tuzağa ikinci kez düşülür — bu depoda defalarca oldu.
+  it('reklam oranı 4:5 DURUYOR ve varsayılandan AYRI — miras alınamaz', () => {
+    expect(TUVAL_4_5.oran).toBe('4:5')
+    expect(TUVAL_4_5.yukseklik).toBe(1350)
+    expect(TUVAL_4_5).not.toBe(VARSAYILAN_TUVAL)
+    // Meta asgari oranı 400×500 = 0,8; 4:5 tam 0,8, 3:4 ise 0,75 (altında).
+    expect(TUVAL_4_5.genislik / TUVAL_4_5.yukseklik).toBeCloseTo(0.8, 3)
+    expect(TUVAL_3_4.genislik / TUVAL_3_4.yukseklik).toBeLessThan(0.8)
   })
 })

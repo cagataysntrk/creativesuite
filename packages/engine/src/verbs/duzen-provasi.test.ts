@@ -54,7 +54,11 @@ const GOVDE =
   'raporlamada kabul edilmiyor ve tedarik zincirinde güven kaybına yol açıyor'
 
 const panorama = (yaz?: (k: unknown) => unknown): unknown => {
-  const o: KatalogOrnegi | null = ornekBul('sahne')
+  // ⚠ ⚠ **`sahne` → `donen`: tuval 1080×1440'a çıkınca (D-348) `sahne` tam bütçeyi
+  // TAŞIR oldu.** Bütçe tavanındaki kusur 36 → 24'e indi ve dört şablon kurtuldu; bu
+  // testin iddiası yanlış değil, ÖRNEĞİ eskimişti. `donen` seçildi çünkü en ağır vaka
+  // orada: `punto-esik-alti` ×3, yani gövde R-83'ün okunabilirlik tabanının ALTINDA.
+  const o: KatalogOrnegi | null = ornekBul('donen')
   if (o === null) return null
   return {
     ...o,
@@ -76,7 +80,7 @@ const kos = async (p: unknown) => {
 describe('RENDER gövdesi · düzen provası (bağlanma)', () => {
   it('örnek metinle GEÇİYOR ve defter için `provaGecti` basıyor', async () => {
     const p = panorama()
-    expect(p, 'sahne örneği yok').not.toBeNull()
+    expect(p, 'donen örneği yok').not.toBeNull()
     if (p === null) return
     const r = await kos(p)
     expect(r.ok, JSON.stringify(r.ok ? '' : r.error)).toBe(true)
@@ -94,7 +98,7 @@ describe('RENDER gövdesi · düzen provası (bağlanma)', () => {
       baslik: BASLIK,
       govde: GOVDE,
     }))
-    expect(p, 'sahne örneği yok').not.toBeNull()
+    expect(p, 'donen örneği yok').not.toBeNull()
     if (p === null) return
     const r = await kos(p)
     expect(r.ok, 'prova bütçe tavanındaki metni geçirdi').toBe(false)
@@ -114,7 +118,7 @@ describe('RENDER gövdesi · düzen provası (bağlanma)', () => {
   // ayrıca sınamaktır.
   it('`prova` kısıtı YOKKEN prova dalına girmiyor', async () => {
     const p = panorama()
-    expect(p, 'sahne örneği yok').not.toBeNull()
+    expect(p, 'donen örneği yok').not.toBeNull()
     if (p === null) return
     const outDir = mkdtempSync(join(tmpdir(), 'prova-yok-'))
     const r = await renderBody({ outDir, layout: 'statement' }).run(ctx(), {

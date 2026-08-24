@@ -169,11 +169,21 @@ export const SAHNE: KatalogSablonu = {
   slayt: { min: 3, max: 6 },
   zemin: MUREKKEP,
   rotasyon: [],
+  // ⚠ ⚠ **OKLAR KALDIRILDI ve sebebi ÖLÇÜLDÜ.** Eski açıklama yalnız *"metnin üstünden
+  // geçmiyor"* diyordu — GÖRSELİN üstünden geçip geçmediği hiç sorulmamıştı. Gerçek
+  // görsellerle ölçüldü: üç yayın ikisi kesik öznelerin üstünden geçiyor, her birinde
+  // **772×125 px = görselin %10'u**. Depo sahibi çıktıya bakıp gördü; sayı doğruladı.
+  // ⚠ Süreklilik KAYBOLMUYOR: bu şablonun taşıyıcısı zaten kesimi EZEN kesik özne
+  // (R-94'ün birinci şıkkı) ve `dikis-bandinda` onu ölçüyor. İkinci bir kanal, birinciyi
+  // kesiyorsa kanal değil gürültüdür.
+  // ⚠ Aynı ders bu şablonda İKİNCİ kez: nüfus karoselinde oklar başlıkların ortasından
+  // geçince silinmişti; bu kez metni değil özneyi kesiyorlardı.
   bant: {
-    tip: 'ok',
+    tip: 'olcek',
     aciklama:
-      'El çizimi yaylar kart ARALARINDA duruyor, metnin üstünden geçmiyor: nüfus ' +
-      'karoselinde oklar başlıkların ortasından geçince okunmaz oldu ve silindi.',
+      'Kesik özne kesimi EZİYOR (R-94); ölçek çizgisi öznelerin AYAK HİZASINDAN geçip ' +
+      'kalan kesimi kapatıyor. El çizimi yaylar denendi ve kaldırıldı — kesik öznelerin ' +
+      "%10'unu kesiyorlardı ve kalkınca ortadaki kesim taşıyıcısız kaldı (R-87).",
   },
   gorsel: {
     // ⚠ ⚠ **SLAYT BAŞINA DEĞİL, KESİM BAŞINA (FAZ-18.3).** Depo sahibi çıktıya bakıp

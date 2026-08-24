@@ -123,3 +123,24 @@ Sessizleşirse teknik blokaja terfi eder.
 
 **Kırmızı kapı ile commit yok.** `just check` kırmızıysa tur commit'siz biter,
 `DURUM.md` güncellenir, sonraki tur oradan devam eder.
+
+## LOOP§H — panelden BAKARAK kontrol {#loop-h}
+
+**Gerçek kullanıcı arayüzü paneldir.** Bir koşu diskte kusursuz, API'de doğru ve panelde
+GÖRÜNMEZ olabilir — bu depoda tam olarak bu oldu.
+
+- Görsel/koşu üreten her turda panel Playwright ile **açılır ve bakılır**: `#/gecmis`,
+  varlıklar, üret. Sayfanın metnini okumak yetmez; ekran görüntüsü alınır.
+- Mümkünse koşu **panelden** başlatılır ve kapılar oradan geçilir: CLI'dan koşan bir hat,
+  panelden koşmadığını söylemez.
+- Doğrulama zinciri: *dosya → API → PANEL*. İlk ikisi yeşilken üçüncüsü kırmızı olabilir.
+
+**Neden:** JPEG damgası kırıkken hat `gorsel-yargi`da ölüyordu; slaytlar diskte duruyordu,
+koşu defterde bitmemişti. Ben API ve dosyadan doğrulayıp *"görünüyor"* dedim; eksikliği
+depo sahibi **panelde** gördü. Bir doğrulama, kullanıcının baktığı yerden yapılmazsa
+doğrulama değildir.
+
+⚠ Playwright MCP Chrome arıyor (`/opt/google/chrome/chrome`) ve kurulumu sudo istiyor;
+deponun kendi Chromium'u (`packages/render/src/browser.ts`) aynı işi görüyor ve kullanılan
+odur. ⚠ Vite dev sunucusunda `waitUntil: 'networkidle'` ASLA gerçekleşmez (HMR websocket
+açık kalır) — `domcontentloaded` + kısa bekleme kullanılır.

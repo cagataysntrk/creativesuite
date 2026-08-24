@@ -78,19 +78,26 @@ describe('düzen provası', () => {
   // ⚠ ⚠ **KELİME BÜTÇESİNİN İZİN VERDİĞİ METİN.** Aşağıdaki kart R-89'u İHLAL ETMİYOR:
   // başlık 8, üst etiket 1, gövde 19 — toplam tam 28. `uyarla` bunu geçirirdi. Prova
   // geçirmiyor ve fark tam olarak budur: biri kelime sayıyor, öteki kadraja bakıyor.
+  // ⚠ ⚠ **ŞABLON `sahne`DEN `donen`E TAŞINDI ve sebebi bir KAZANÇ.** Tuval 1080×1440'a
+  // çıkınca (D-348) bütçe tavanındaki kusur 36 → 24'e indi ve dört şablon — `sahne`
+  // dahil — tam bütçeyi TAŞIR oldu. Yani bu test artık `sahne`de yeşil kalıyordu:
+  // iddiası yanlış değil, ÖRNEĞİ eskimişti.
+  // ⚠ `donen` seçildi çünkü en ağır vaka orada duruyor: `punto-esik-alti` ×3, yani gövde
+  // R-83'ün okunabilirlik tabanının ALTINA düşüyor. Kuralın izin verdiği bir metin hâlâ
+  // bir şablonu OKUNMAZ yapabiliyor — provanın var olma sebebi bu.
   it('bütçenin İZİN VERDİĞİ metinle kırmızı dönüyor — kelime sığar demek değil', async () => {
     const say = (t: string): number =>
       t.replace(/\*\*/g, '').trim().split(/\s+/).filter(Boolean).length
     expect(say(BASLIK), 'başlık R-89 tavanında').toBe(8)
     expect(say(BASLIK) + say(ETIKET) + say(GOVDE), 'slayt R-89 tavanında').toBe(28)
 
-    const b = belge('sahne', (k) => ({
+    const b = belge('donen', (k) => ({
       ...(k as Record<string, unknown>),
       ustBaslik: ETIKET,
       baslik: BASLIK,
       govde: GOVDE,
     }))
-    expect(b, 'sahne örneği yok').not.toBeNull()
+    expect(b, 'donen örneği yok').not.toBeNull()
     if (b === null) return
     const r = await duzenProvasi(b)
     expect(r.ok).toBe(true)

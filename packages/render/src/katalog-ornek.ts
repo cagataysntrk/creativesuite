@@ -446,25 +446,35 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
   // metnin üstünden geçiyor — nüfus karoselinde aynı şey olmuş ve oklar SİLİNMİŞTİ.
   // Örnek başlıklar kasten kısa: uyarlama adımı çoğaltacağı şeyin sınırını buradan görür.
   bant: {
-    tip: 'ok',
-    oklar: [
-      // ⚠ Oklar metin bloğu ile kesik özne ARASINDAKİ şeritte: y 42–45. Daha yukarısı
-      // gövde satırına giriyor (33'te girdi ve render'a bakınca görüldü), daha aşağısı
-      // öznenin üstünden geçiyor. Şerit dar; şablonun kısa metin kuralı bu yüzden var.
-      // ⚠ ⚠ **UZUN VE KIVRIMLI — kısa yay fırça değil MERCEK gibi görünüyor.** İlk
-      // sürüm 8 panorama yüzdesi kadar bir yay çiziyordu ve 34 px'lik fırça o mesafede
-      // incelmeye vakit bulamıyordu: çıktı bir badem şekliydi. Referansta (`image copy 2`)
-      // oklar geniş süpürme hareketleri ve büküm belirgin. Açıklık 8 → 17, büküm 13 → 52.
-      // ⚠ ⚠ **ŞERİT y 39–47'DEN 68–80'E TAŞINDI — yerleşim değişince ESKİ ŞERİT METNİN
-      // İÇİNE DÜŞTÜ.** `ust`ta metin y%8–35 arasındaydı ve 39–47 onun hemen altındaki boş
-      // banttı. `orta`ya geçince blok y%30–62'ye indi ve oklar başlıkların ÜSTÜNÜ ÇİZDİ:
-      // "Önce sorun duruyor" ve "En sonda karar var" okunamaz hâle geldi (render'a bakıldı).
-      // İki sayı birbirine bağlıydı ve bağ yazılı değildi; şimdi yazılı.
-      // ⚠ Alt yarı zaten ölçülmüş biçimde boştu (%0,3–%1,2 doluluk); şerit oraya inince
-      // hem çakışma bitiyor hem boşluk hareket kazanıyor — tek taşla iki kusur.
-      { x1: 17, y1: 74, x2: 34, y2: 68, bukum: -52 },
-      { x1: 42, y1: 67, x2: 59, y2: 74, bukum: 58 },
-      { x1: 67, y1: 75, x2: 84, y2: 69, bukum: -48 },
+    // ⚠ ⚠ **YAYLAR KALDIRILDI — GÖRSELİN %10'UNU KESİYORLARDI.** Depo sahibi çıktıya
+    // bakıp gördü, ölçüm doğruladı: üç yayın ikisi kesik öznelerin üstünden geçiyor,
+    // her birinde **772×125 px**. Eski gerekçe yalnız *"metnin üstünden geçmiyor"*
+    // diyordu; GÖRSELİN üstünden geçip geçmediği hiç sorulmamıştı — ve denetimde de
+    // karşılığı yok (`sus-metni-kesiyor` yalnız METNİ arıyor).
+    // ⚠ Süreklilik KAYBOLMUYOR, TEKLEŞİYOR: bu şablonun taşıyıcısı zaten kesimi EZEN
+    // kesik özne (R-94'ün birinci şıkkı) ve `dikis-bandinda` onu ölçüyor. İkinci bir
+    // kanal birinciyi kesiyorsa, kanal değil gürültüdür.
+    // ⚠ Bu şablonda İKİNCİ kez oluyor: nüfus karoselinde oklar başlıkların ortasından
+    // geçince silinmişti. O zaman metni kesiyorlardı, bu kez özneyi.
+    //
+    // ⚠ ⚠ **YERİNE ZEMİN ÇİZGİSİ — ve bunu KAPI dayattı, ben değil.** Yaylar kalkınca
+    // `kesintisizlik-yok` ortadaki kesimin (x=2160) taşıyıcısız kaldığını söyledi: iki
+    // görsel üç kesimin ancak ikisini kapatıyor, üçüncüsünü yaylar taşıyormuş.
+    // *"Süreklilik tekleşiyor"* derken fazla emin konuşmuşum; R-87 düzeltti.
+    // ⚠ Ölçek çizgisi öznenin ÜSTÜNDEN geçmiyor, ALTINDAN geçiyor: y 93, yani kesik
+    // öznelerin ayak hizası (görseller y%13–93 arasında duruyor). Aynı aygıt `memphis`te
+    // de zemin çizgisi ve o şablonun notu bunu zaten söylüyordu: *"`sahne` ile aynı
+    // zemin çizgisi: aile böyle kuruluyor."*
+    // ⚠ Duraklar dört slaydı numaralıyor; kesimler %25/%50/%75'te, duraklar onların
+    // ARASINDA — durak bir kesime denk gelirse ölçü değil süs olur.
+    tip: 'olcek',
+    y: 93,
+    aralik: 6.25,
+    duraklar: [
+      { x: 12, etiket: '01' },
+      { x: 37, etiket: '02' },
+      { x: 62, etiket: '03' },
+      { x: 87, etiket: '04' },
     ],
   },
   // ⚠ ⚠ **ARALIKLAR KASTEN DÜZENSİZ (T9).** Depo sahibi: *"her şey çok dengeli;

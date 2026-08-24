@@ -44,9 +44,17 @@ describe('süs metni kesiyor mu', () => {
   // sınıyor: "süs oradaysa görür mü". Gerçek üretimdeki oranı (%5,8 ve %7,1) teste
   // yazmak, bugünkü belgenin geometrisini test etmek olurdu.
   it('süs metnin altına yayılırsa YAKALANIYOR', async () => {
+    // ⚠ ⚠ **`.bant-ok` YAZIYORDU ve `sahne` o ögeyi KAYBEDİNCE test sessizce 0 buldu.**
+    // Yaylar kesik öznelerin %10'unu kesiyordu ve kaldırıldı; test onların varlığına
+    // bağlıydı, yani kapıyı değil o günkü tasarımı sınıyordu.
+    // ⚠ Şimdi `.olcek-cizgi` boyanıyor — `sahne`nin bugünkü bandı VE listeye yeni eklendi
+    // (`SUSU_GIZLE` ölçek çizgisini hiç saymıyordu; bu bulgu tam da bu kırılmadan çıktı).
     const doc = belge(
       'sahne',
-      '.bant-ok { position: absolute; inset: 0; z-index: 0; background: #4a90d9 }'
+      // ⚠ `!important` ŞART: ölçek çizgisi satır içi `top` stili taşıyor (`top:93%`) ve
+      // enjekte edilen kural onu ezemiyordu — öge metnin ALTINDA kalıyor, ölçüm 0 buluyordu.
+      '.olcek-cizgi { position: absolute !important; inset: 0 !important; ' +
+        'height: auto !important; z-index: 0; background: #4a90d9 }'
     )
     const kusurlar = await susKusurlari(doc)
     // Her kartın gövdesi süsün üstünde: en az kart sayısı kadar kusur.

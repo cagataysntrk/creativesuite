@@ -78,7 +78,11 @@ const rejected = new Set()
   }
 }
 const loopSections = new Set(
-  [...(read('docs/LOOP.md') ?? '').matchAll(/\{#loop-([a-g])\}/g)].map((m) => m[1].toUpperCase())
+  // ⚠ ⚠ **ARALIK `[a-g]` SABİTTİ ve sekizinci bölüm eklemeyi İMKÂNSIZ kılıyordu.**
+  // `LOOP§H` yazıldı, çapası `{#loop-h}` biçimindeydi ve kapı *"böyle bir bölüm yok"*
+  // dedi — bölümü değil, kendi regex'inin tavanını ölçüyordu. Bir kapının kabul ettiği
+  // aralık, koruduğu şeyin büyümesini engellememeli.
+  [...(read('docs/LOOP.md') ?? '').matchAll(/\{#loop-([a-z])\}/g)].map((m) => m[1].toUpperCase())
 )
 
 const phaseSteps = new Map() // "0" -> Set("A.1","B.2a",…)

@@ -6585,3 +6585,21 @@ kaldırıldı, eski renk çifti geri kondu) → *"kenar gücü 5, beklenen ≥25
 ⚠ **Hiçbir kapı bunu söylemiyordu** çünkü hiçbir kapı *"taşıyıcı görünüyor mu"* diye
 sormuyordu. `kesintisizlik-yok` kesimde bir öge VAR MI diye bakıyor — o öge şeffafsa da
 "var" diyor. Varlık, görünürlük değildir.
+
+## D-342 · `blob` lekesi emekli — kararla çelişen, kullanılmayan bir süs
+
+**Gerekçesi kendi kendini çürütüyordu.** Kodun yorumu *"hacim için gereken şey DEGRADE +
+GÖLGE"* diyordu ve **D-318 tam olarak onları emekli etti**: degrade, glow, atmosferik
+renk. Karar verildi, dal kaldı — ve kataloğun on şablonundan HİÇBİRİ onu kullanmıyordu.
+
+**D-306'nın madalyonuyla aynı gerekçe:** kullanılmayan, sonraki bir kararla çelişen ve
+R-81'in tam hedefinde duran bir süs. Bir `radialGradient` + `feDropShadow` çifti, "3B
+öge" görüntüsünü taklit etmek için kurulmuştu; sistem o görüntüden vazgeçti.
+
+**Yan kazanç: `kodlanmis-oge` tavanı rahatladı.** Alan sınırına eklenen hairline yedinci
+SVG yolunu getiriyordu ve kapı haklı olarak kırmızıya döndü. Yer açan şey bir GEVŞETME
+değil, ölü kodun gitmesi oldu — **R-76'nın dilediği tam olarak bu:** tavanı yükseltmeden
+önce, tavanı dolduran şeyin hâlâ gerekli olup olmadığını sor.
+
+⚠ `lekeler`in diğer tipleri (`daire` · `halka` · `kare` · `nokta` · `tarama`) duruyor:
+onlar düz dolgu, yani sistemin diliyle uyumlu.

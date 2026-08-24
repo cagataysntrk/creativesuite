@@ -88,5 +88,16 @@ export const TUVAL_3_4: KaroselTuvali = { genislik: 1080, yukseklik: 1440, oran:
  * Hattın bugün ürettiği tuval.
  *
  * ⚠ Değiştirmek TEK satır ve altı dosya birden onu izliyor — sabitin var olma sebebi bu.
+ *
+ * ⚠ ⚠ **4:5 → 3:4 (1080×1440).** Instagram organik akışta artık 3:4'ü tam boy gösteriyor;
+ * 4:5 ızgarada her yandan 34 px kırpılıyordu, 3:4'te kırpma SIFIR. Geçişten önce on
+ * şablon 1350 ve 1440'ta AYRI AYRI denetlendi: **ikisinde de sıfır kusur.** Geometri
+ * yüzde tabanlı olduğu için ölçeğe dayandı — bu bir şans değil, `olc()` ve yüzde
+ * konumlandırmanın tasarım gereği.
+ *
+ * ⚠ ⚠ **REKLAM YOLU 4:5 KALMAK ZORUNDA.** Meta reklamı 3:4 kabul etmiyor (asgari oran
+ * 400×500). Bu sabiti değiştirmek organik karoseli büyütür ama reklam kreatifini
+ * geçersiz kılar; reklam üreten bir hat `TUVAL_4_5`i AÇIKÇA istemeli. Sessizce miras
+ * almak, yayın anında — dört görsel harcandıktan sonra — reddedilmek demektir.
  */
-export const VARSAYILAN_TUVAL = TUVAL_4_5
+export const VARSAYILAN_TUVAL = TUVAL_3_4

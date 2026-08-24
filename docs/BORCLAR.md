@@ -203,3 +203,12 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   olarak bassın, ölmesin) → `duzen-duzelt` (`sablon_duzelt`, `optional`) → `kompozit-2`
   → `duzen-provasi-2` (bu SERT dursun) → `gorsel-brief*` ona bağlansın.
   Bugün sert duruş bilinçli bir ara durum: parayı koruyor, koşuyu kurtarmıyor.
+- **D27 · `sus-metni-kesiyor` yalnız METNİ arıyor — ÖZNEYİ değil.** `sahne`nin el çizimi
+  yayları kesik öznelerin üstünden geçiyordu (ölçüldü: iki görselin her birinde
+  **772×125 px = %10**) ve denetim SESSİZDİ. Kapı `METIN_KUTULARI`nı geziyor; bir süsün
+  görseli kesmesi hiçbir yerde sorulmuyor.
+  ⚠ Bu, bu oturumda kapattığım pul-sırası açığının (D-347 turu) ikizi: orada da kapı
+  metnin bir türünü görmüyordu. Aynı iki-render farkı aleti `.gorsel` kutuları için de
+  çalışır — eksik olan kutu listesi, ölçüm yöntemi değil.
+  ⚠ Bugün yaylar KALDIRILARAK çözüldü; kapı hâlâ kör. Bir sonraki şablon aynı süsü
+  koyarsa kimse söylemeyecek.

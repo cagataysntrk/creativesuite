@@ -1023,10 +1023,20 @@ const METIN_KUTULARI = `(() => {
  * kartın arkası değişiyor ve ölçüm "süs her metnin altında" diyordu; temiz bir belgede
  * on sekiz kusur. Zemini süs sanan bir ölçüm, doğru şeyi yanlış yerde arar.
  */
+// ⚠ ⚠ **ÖLÇEK ÇİZGİSİ LİSTEDE YOKTU ve o da bir SÜS.** `olcek` bandı `<div>` basıyor
+// (`.olcek-cizgi` · `.olcek-durak` · `.olcek-etiket`), svg değil; liste yalnız svg
+// bantlarını ve lekeleri sayıyordu. Sonuç: ölçek çizgisi bir metnin üstünden geçse
+// `sus-metni-kesiyor` bunu ASLA göremezdi — dört şablon (`memphis` · `donen` · `dizin` ·
+// `sahne`) bu bandı kullanıyor.
+// ⚠ Bulgu bir TESTİN KIRILMASINDAN çıktı: test `.bant-ok`u boyuyordu, `sahne` o ögeyi
+// kaybedince test 0 kusur buldu ve listeye bakınca eksik olan görüldü.
+// ⚠ ⚠ Bu yorum şablon dizesinin DIŞINDA duruyor ve sebebi R-98: ters tırnak, dizeyi
+// kapatıyor. İlk yazımda içeri koydum ve dosya sekiz derleme hatası verdi — deponun
+// kendi kapısının kolladığı tuzağın aynısı.
 const SUSU_GIZLE = `(() => {
   const st = document.createElement('style')
   st.id = 'sus-gizle'
-  st.textContent = '.bant, .bant-kemer, .bant-ok, .lekeler { display: none !important }'
+  st.textContent = '.bant, .bant-kemer, .bant-ok, .lekeler, .olcek-cizgi, .olcek-durak, .olcek-etiket { display: none !important }'
   document.head.appendChild(st)
   return true
 })()`

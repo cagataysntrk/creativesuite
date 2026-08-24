@@ -438,23 +438,8 @@ gerçek yeri Anayasa'nın imza bölümü.
 > **D-341 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`. Taşıyıcılar atmosfer
 > olarak çiziliyordu — üçü de görünmüyordu.
 
-## D-342 · `blob` lekesi emekli — kararla çelişen, kullanılmayan bir süs
-
-**Gerekçesi kendi kendini çürütüyordu.** Kodun yorumu *"hacim için gereken şey DEGRADE +
-GÖLGE"* diyordu ve **D-318 tam olarak onları emekli etti**: degrade, glow, atmosferik
-renk. Karar verildi, dal kaldı — ve kataloğun on şablonundan HİÇBİRİ onu kullanmıyordu.
-
-**D-306'nın madalyonuyla aynı gerekçe:** kullanılmayan, sonraki bir kararla çelişen ve
-R-81'in tam hedefinde duran bir süs. Bir `radialGradient` + `feDropShadow` çifti, "3B
-öge" görüntüsünü taklit etmek için kurulmuştu; sistem o görüntüden vazgeçti.
-
-**Yan kazanç: `kodlanmis-oge` tavanı rahatladı.** Alan sınırına eklenen hairline yedinci
-SVG yolunu getiriyordu ve kapı haklı olarak kırmızıya döndü. Yer açan şey bir GEVŞETME
-değil, ölü kodun gitmesi oldu — **R-76'nın dilediği tam olarak bu:** tavanı yükseltmeden
-önce, tavanı dolduran şeyin hâlâ gerekli olup olmadığını sor.
-
-⚠ `lekeler`in diğer tipleri (`daire` · `halka` · `kare` · `nokta` · `tarama`) duruyor:
-onlar düz dolgu, yani sistemin diliyle uyumlu.
+> **D-342 arşive taşındı** → `docs/kararlar/ARSIV-2026.md`. `blob` lekesi emekli —
+> kararla çelişen, kullanılmayan bir süs.
 
 ## D-343 · Katalog beyanını üretimde kimse okumuyordu — yarım ölçülen bir kapı
 
@@ -568,3 +553,24 @@ kapıdan önce koşmalı: insan sığdığı GÖRÜLMÜŞ bir metni onaylasın.
 saf bir işlevi tarayıcıya bağlamak onu test edilemez yapardı.
 ⚠ R-89 KALIYOR — ucuz ön eleme ve modele verilen talimat olarak. Emekli edilen şey onun
 TEK KAPI olması. → R-89 · `OLCUMLER.md`
+
+## D-348 · Tuval 4:5 → 3:4; reklam oranı AYRIŞTI
+
+**Karar.** `VARSAYILAN_TUVAL = TUVAL_3_4` (1080×1440). Instagram organik akışta 3:4'ü
+tam boy gösteriyor; 4:5 profil ızgarasında her yandan 34 px kırpılıyordu, 3:4'te kırpma
+**sıfır** ve slayt %6,7 uzuyor.
+
+**Geçiş ÖLÇÜLDÜ, sonra yapıldı.** On şablon 1350 ve 1440'ta AYRI AYRI denetlendi:
+**ikisinde de sıfır kusur.** Geometri yüzde tabanlı ve ölçek `olc()` ile genişlikten
+türüyor; tuval uzayınca kompozisyon dayandı. 2184 testin yalnız **biri** kırıldı — o da
+`VARSAYILAN_TUVAL === TUVAL_4_5` diyen test, yani eski kararın kendisi. R-91'in
+*"tuval oranı TEK kaynaktan, 3:4 bir parametre"* sözü tuttu.
+
+**Reklam kısıtı KAYBOLMADI.** Meta reklamının asgari oranı 400×500 (= 0,8) ve 3:4 = 0,75
+onun altında: reklam verilecek kreatif 4:5 üretilmek ZORUNDA. Varsayılan artık 3:4
+olduğuna göre reklam yolu onu **miras alamaz**, açıkça `TUVAL_4_5` istemek zorunda — ve
+bu bir teste bağlandı. Bir karar değişince gerekçesi sessizce silinirse aynı tuzağa
+ikinci kez düşülür; bu depoda defalarca oldu.
+
+**Bakıldı.** Izgara 1440'ta yeniden çizildi: on kapak, sıfır kusur, aile tutuyor, ayrım
+hâlâ yerleşimden geliyor. → R-91 · `tuval.test.ts`
