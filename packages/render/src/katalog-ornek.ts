@@ -1541,10 +1541,13 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     // sonraki maddenin ÇOK ALTINA indirirdi. **İki şart aynı anda sağlanamıyor:** ya ok
     // maddeye iner ya dik açıyla geçer. Bağlantı seçildi — denetimin şikâyeti "açı" değil
     // *"hiçbirini hiçbir şeye bağlamıyor"*du.
+    // ⚠ Uçlar YENİDEN ölçüldü: kartlar dört maddeyi birden taşıyınca YANIK satır her
+    // kartta bir aşağı iniyor (y %44,2 → %43,6 → %46,2 → %48,8). Oklar artık o inişi
+    // izliyor — geometri, dizinin ilerlediğini de söylüyor.
     oklar: [
-      { x1: 22.3, y1: 44.2, x2: 28.0, y2: 41.1, bukum: 16 },
-      { x1: 41.3, y1: 41.1, x2: 53.0, y2: 41.1, bukum: -24 },
-      { x1: 66.3, y1: 41.1, x2: 76.5, y2: 36.5, bukum: 12 },
+      { x1: 22.3, y1: 44.2, x2: 27.2, y2: 43.6, bukum: 14 },
+      { x1: 41.3, y1: 43.6, x2: 52.2, y2: 46.2, bukum: -22 },
+      { x1: 66.3, y1: 46.2, x2: 77.2, y2: 48.8, bukum: 18 },
     ],
   },
   gorseller: [],
@@ -1560,7 +1563,16 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       ustBaslik: 'ADIM 01',
       baslik: 'Dört adımda **ölçülebilir** hat',
       govde: 'Sırayı bozmak, ölçüyü bozuyor.',
-      panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '01', ad: 'ölçüm noktasını koy' }] },
+      panel: {
+        tip: 'liste',
+        baslik: 'sıra',
+        ogeler: [
+          { no: '01', ad: 'ölçüm noktasını koy', aktif: true },
+          { no: '02', ad: 'eşiği yaz' },
+          { no: '03', ad: 'sorumlu ata' },
+          { no: '04', ad: 'haftalık oku' },
+        ],
+      },
       hayalet: 'DİZİN',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,
@@ -1569,7 +1581,16 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       ustBaslik: 'ADIM 02',
       baslik: 'İkinci adım: eşiği yaz',
       govde: 'Eşiksiz sayı, alarm üretmiyor.',
-      panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '02', ad: 'eşiği yaz' }] },
+      panel: {
+        tip: 'liste',
+        baslik: 'sıra',
+        ogeler: [
+          { no: '01', ad: 'ölçüm noktasını koy' },
+          { no: '02', ad: 'eşiği yaz', aktif: true },
+          { no: '03', ad: 'sorumlu ata' },
+          { no: '04', ad: 'haftalık oku' },
+        ],
+      },
       hayalet: '',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,
@@ -1578,7 +1599,16 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       ustBaslik: 'ADIM 03',
       baslik: 'Üçüncü adım: sorumlu ata',
       govde: 'Sahipsiz alarm, kapatılan alarmdır.',
-      panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '03', ad: 'sorumlu ata' }] },
+      panel: {
+        tip: 'liste',
+        baslik: 'sıra',
+        ogeler: [
+          { no: '01', ad: 'ölçüm noktasını koy' },
+          { no: '02', ad: 'eşiği yaz' },
+          { no: '03', ad: 'sorumlu ata', aktif: true },
+          { no: '04', ad: 'haftalık oku' },
+        ],
+      },
       hayalet: '',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,
@@ -1587,7 +1617,20 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       ustBaslik: 'ADIM 04',
       baslik: 'Dördüncü adım: **haftalık** oku',
       govde: 'Okunmayan ölçü, ölçülmemiş sayılır.',
-      panel: { tip: 'etiketler', ogeler: ['say', 'eşikle', 'ata', 'oku'] },
+      // ⚠ ⚠ **ÇİP SATIRI → LİSTE.** Kapanış kartı dizinin kendisini taşımıyordu:
+      // dört adımlık bir dizin son karede dört ÇİP gösteriyordu ve üçüncü ok bir
+      // madde numarasına değil o çip satırına iniyordu. Dizin, vardığı yerde de
+      // DİZİN olmalı — dördüncü madde yanık, ilk üçü sönük.
+      panel: {
+        tip: 'liste',
+        baslik: 'sıra',
+        ogeler: [
+          { no: '01', ad: 'ölçüm noktasını koy' },
+          { no: '02', ad: 'eşiği yaz' },
+          { no: '03', ad: 'sorumlu ata' },
+          { no: '04', ad: 'haftalık oku', aktif: true },
+        ],
+      },
       hayalet: '',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,

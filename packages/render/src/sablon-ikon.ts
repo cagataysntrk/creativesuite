@@ -89,7 +89,12 @@ const KOKLER: Record<IkonAdi, readonly string[]> = {
   enerji: ['enerji', 'elektrik', 'tüket', 'kompresör'],
   katman: ['katman', 'seviye', 'aşama', 'kademe'],
   dongu: ['döngü', 'tekrar', 'süreç', 'akış', 'çevrim'],
-  takvim: ['plan', 'takvim', 'bakım', 'program', 'periyod', 'çizelge'],
+  // ⚠ `hafta` EKLENDİ: `dizin` her kartta dört maddenin dördünü göstermeye başlayınca
+  // (FAZ-19.7) *"haftalık oku"* satırı ilk kez her kartta göründü ve HİÇBİR köke
+  // oturmadı — kural "ya hepsi ya hiçbiri" olduğu için ikon katmanı tümden kapandı.
+  // Hafta bir takvim kavramı; dağarcık zaten `periyod` · `program` · `çizelge`
+  // taşıyor. Yeni İKON değil, var olan ikona eksik bir kök.
+  takvim: ['plan', 'takvim', 'bakım', 'program', 'periyod', 'çizelge', 'hafta'],
   belge: ['kayıt', 'belge', 'rapor', 'doküman', 'form', 'veri'],
   ekip: ['ekip', 'çalışan', 'operatör', 'personel', 'sorumlu', 'vardiya'],
   kalkan: ['güvenlik', 'koruma', 'önlem'],

@@ -168,7 +168,18 @@ export type Panel =
   | {
       readonly tip: 'liste'
       readonly baslik: string
-      readonly ogeler: readonly { readonly no: string; readonly ad: string }[]
+      /**
+       * ⚠ ⚠ **`aktif` EKLENDİ ve sebebi bir ANLATI kusuruydu.** Denetim: *"dört adımlık
+       * dizin her karede TEK satır gösteriyor — dizin hiçbir yerde bir arada görünmüyor."*
+       * Bir dizin, yalnız o anki maddeyi gösteriyorsa dizin değildir; **bütünü gösterip
+       * içinde nerede olduğunu söyleyen şeydir.** Her kart artık dört maddenin dördünü
+       * taşıyor: üçü sönük, biri yanık.
+       */
+      readonly ogeler: readonly {
+        readonly no: string
+        readonly ad: string
+        readonly aktif?: boolean
+      }[]
     }
   | { readonly tip: 'etiketler'; readonly ogeler: readonly string[] }
 
@@ -1025,7 +1036,8 @@ const panelHtml = (p: Panel, stil = ''): string => {
             ? `<span class="liste-ikon">${ikonSvg(ikonlar[i] as IkonAdi, 'var(--kart-aksan)', 21)}</span>`
             : ''
           return (
-            `<div class="liste-satir">${ikon}<span class="liste-no">${kacir(o.no)}</span>` +
+            `<div class="liste-satir${o.aktif === true ? ' yanik' : ' sonuk'}">${ikon}` +
+            `<span class="liste-no">${kacir(o.no)}</span>` +
             `<span class="liste-ad">${kacir(o.ad)}</span></div>`
           )
         })
@@ -2117,6 +2129,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                border-radius: 2px }`,
     `  .vafel-kare.dolu { background: var(--kart-aksan) }`,
     `  .liste-satir { display: flex; gap: calc(14px * var(--panel-olcek)); align-items: baseline; margin-bottom: calc(10px * var(--panel-olcek)) }`,
+    // ⚠ ⚠ **SÖNÜK SATIR SİLİNMİŞ DEĞİL, GERİ ÇEKİLMİŞTİR.** Opaklık 0,38: okunuyor ama
+    // yarışmıyor. Daha düşüğü listeyi "gri bir leke" yapar ve bütünü göstermenin anlamı
+    // kalmaz; daha yükseği yanık satırı öldürür. Yanık satır ayrıca AKSAN taşıyor —
+    // aksan disiplini (vurgu ≤2) metin içindir, bir dizinin ŞU AN işaretini kapsamaz.
+    `  .liste-satir.sonuk { opacity: 0.38 }`,
+    `  .liste-satir.yanik .liste-ad { color: var(--kart-metin); font-weight: 600 }`,
     `  .liste-no { font-family: "Marka Mono", ui-monospace, monospace; font-size: calc(22px * var(--panel-olcek));`,
     `              color: var(--kart-aksan); font-variant-numeric: tabular-nums;`,
     `              font-weight: 800; min-width: calc(32px * var(--panel-olcek)) }`,

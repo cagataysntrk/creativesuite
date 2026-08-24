@@ -1411,3 +1411,37 @@ gerekçesi ancak ok bağlandıktan sonra anlaşıldı.
 ⚠ **AÇIK: `dizin` 4. kartında panel YOK.** Denetim *"dört maddenin DÖRDÜNÜ göstersin"*
 diyor; kapanış kartı listeyi taşımıyor ve üçüncü ok bu yüzden bir numaraya değil çip
 satırına iniyor.
+
+## FAZ-19.7 · `dizin` BÜTÜN oldu — ve bir zincir halkasını daha ortaya çıkardı
+
+Denetim: *"dört adımlık dizin her karede TEK satır gösteriyor — dizin hiçbir yerde bir
+arada görünmüyor."* Veride birebir öyleydi: üç kartta tek maddelik liste, dördüncüde hiç
+liste yok (çip satırı vardı).
+
+**Yalnız o anki maddeyi gösteren şey bir dizin değildir; dizin bütünü gösterip içinde
+nerede olduğunu söyleyendir.** Artık her kart dört maddenin dördünü taşıyor — üçü sönük
+(opaklık 0,38), biri yanık.
+
+### Yanık satır kart sırasıyla iniyor — ve oklar onu izliyor
+
+| kart | yanık madde | y |
+|---|---|---|
+| 1 | 01 | %44,2 |
+| 2 | 02 | %43,6 |
+| 3 | 03 | %46,2 |
+| 4 | 04 | %48,8 |
+
+Oklar yeniden ölçülüp bu inişe bağlandı. **Geometri artık dizinin ilerlediğini de
+söylüyor** — okun eğimi bir süs değil, listedeki adımın karşılığı.
+
+### ⚠ İKON KATMANI SESSİZCE KAPANDI ve kapı yakaladı
+
+`dizin` dört maddeyi birden göstermeye başlayınca *"haftalık oku"* satırı ilk kez her
+kartta göründü ve **hiçbir köke oturmadı**. İkon kuralı *"ya hepsi ya hiçbiri"* olduğu
+için tek eşleşmeyen satır katmanı TÜMDEN kapatıyordu — dört listenin dördünde de ikon
+kayboldu. `katalog-ornek.test.ts` bunu anında kırmızıya çevirdi.
+
+⚠ Çözüm yeni bir İKON değil, var olan `takvim` ikonuna eksik bir kök: **`hafta`**.
+Dağarcık zaten `periyod` · `program` · `çizelge` taşıyor; hafta da bir takvim kavramı.
+**İçerik zenginleşince sözlüğün eksiği görünür oldu** — dört maddeden üçü hep görünüyordu,
+dördüncüsü hiç.
