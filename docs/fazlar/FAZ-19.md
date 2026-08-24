@@ -96,7 +96,7 @@ hastalık grensizlikti.
    kaplaması **%67,7–%92,3** (medyan ~85). **On şablon, dört renk** — `#040404` `#fafafa`
    `#0e0e0e` `#141414`. Ajanın sayısı birebir çıktı.
 2. **Kapanışlar setin en boş kareleri** (`sahne` %2,1 · `donen` %3,3 · `memphis` %3,5 ·
-   `dizin` %4,7; hedef ≥%12). Karoselin tepe yapması gereken yerde sistem düz çiziyor.
+   `dizin` %4,7; hedef ≥%12) — tepe yapacağı yerde sistem düz çiziyor.
 3. **Şablon farkı KATALOGDA var, RENDER'DA yok** — "tam kaplama fotoğraf", "dev hayalet
    rakam", "geometrik leke", "kemer dizisi": dördü de çizilmiyor. Yasa 13'ün (D-268)
    yarısı uygulanmıyor: şablon seçiliyor, şablonun KONSEPTİ çizilmiyor.
@@ -177,15 +177,16 @@ metin yasak (4.07 < 4.5) · **aksan disiplini** dört rol (`vurgu` ≤2, `yok` �
 *Tek mavi anı işe yarayan şey nadirliğidir.*
 
 ### 19.7 — KOMPOZİSYON VE SEAMLESS AKIŞ    [ ]
-Kapak kilidini kır (`blok-yerlesimi`, hiçbir durum ikiden fazla) · slayda ROL ver (üç sol
-pay, üç başlık ölçeği, üç dikey hiza; **art arda iki slayt aynı üçlüyü kullanamaz**) ·
-**z-sırası sözleşmesi ✅** (tek yerde: zemin 0 · taşıyıcı 1 · leke 2 · durak 3 · gren 4 ·
-görsel 5 · vinyet 6 · metin 7; `.bant-ok` 5→1, **özne şeridi KESİYOR**; test SIRAYI
-sınıyor) · ⚠ **KALAN:** yastık ölçümde ÇÜRÜDÜ (%9,2 → %9,2; `blur(26px)` 69 px'lik kutuyu
-yarı saydam yapıyor + hale + R-81) — doğru çözüm maske ve o CSS kuralı değil,
-`duzenProvasi` ölçümünü render'a taşıyan ADIM · **yüzeyi kesimden ayır** (`donen`+`memphis`
-dönüşü slayt merkezine) · sürekliliği **VERİYE bağla** · orta kuşağı doldur · R-87
-ölçülebilir olur · **marka işareti karosel başına TAM İKİ KEZ** (künye şeridindeki 20 px
+Kapak kilidini kır (`blok-yerlesimi`) · slayda ROL ver (üç sol pay, üç başlık ölçeği, üç
+dikey hiza; **art arda iki slayt aynı üçlüyü kullanamaz**) · **z-sırası sözleşmesi ✅**
+(zemin 0 · taşıyıcı 1 · leke 2 · durak 3 · gren 4 · görsel 5 · vinyet 6 · metin 7;
+`.bant-ok` 5→1, **özne şeridi KESİYOR**) · ⚠ **KALAN:** yastık ölçümde ÇÜRÜDÜ (%9,2 →
+%9,2; `blur(26px)` 69 px'lik kutuyu yarı saydam yapıyor + hale + R-81) — doğru çözüm
+maske ve o CSS kuralı değil, `duzenProvasi` ölçümünü render'a taşıyan ADIM · **yüzey
+kesimden ÇIKTI ✅** (dönüş kartın son %30'unda; merkez OLAMAZ, metin kutbu kart
+zemininden türüyor) · **künye şeridi artık PANORAMANIN ✅** — asıl dikişi o atıyordu:
+yüzey 3–24'e inince şerit hâlâ **636** · sürekliliği **VERİYE bağla** · orta kuşağı doldur
+· R-87 ölçülebilir olur · **marka işareti karosel başına TAM İKİ KEZ** (künye şeridindeki 20 px
 logo kalkar — imza değil duvar kâğıdı) · **KAPANIŞ KARTI iskeleti KIRAR** (varış · tek
 iddia 300–360 px · güzergâh · imza · ton kırılması · mürekkep ≥%12).
 
@@ -235,7 +236,7 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 |---|---|---|---|---|
 | 1 | ✅ **Greni koşulsuz aç, luminansa bağla** | `zemin.ts` + `panorama.ts` | **BİTTİ:** %85 düz alan → %8,8–17,1; JPEG sonrası σ 1,62–3,61 | 19.4 |
 | 2 | ◐ **Taşıyıcıyı görünür kıl** | `kavis` ✅ 1,66:1 · `akan-alan` ✅ 2,65:1 · `veri-hikayesi` köşegen KALDI | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.4 |
-| 3 | **Yüzeyi kesimden ayır** | `donen` · `memphis` degrade duraklarının yeri | bu ikisi bugün sürekliliği **aktif olarak kırıyor** | 19.7 |
+| 3 | ✅ **Yüzeyi kesimden ayır** | `donen` · `memphis` + künye şeridi | kesimde fark **636 → 0–3**; dört panorama ≤%4,3 | 19.7 |
 | 4 | **Fontları değiştir ve şablona ata** | `font-getir.mjs` + `fonts.ts` `YUZLER` | *"bilgisayar fontu"* şikâyetinin doğrudan cevabı | 19.5 |
 | 5 | ◐ **Z-sırası ✅ · maske: prova ölçümü render'a taşınmalı** | `panorama.ts` | 2. iş bunsuz bitmiyor; yastık denendi ve çürüdü — bkz. `OLCUMLER.md` | 19.7 |
 
@@ -246,5 +247,4 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 ## 7 · EKSİK KALAN
 
 - **Kaynaklı sektör referansı** (TOMRA, Sandvik, Trumpf…) — paralel ajan dönmedi.
-- **Tuval 3:4 gerçek yüklemeyle doğrulanmadı** — taşıyıcı yükü 1080×1350 merkez bandında
-  kalırsa risk sıfır, ama teyit edilmedi. (`alanSiniri` çelişkisi ✅ çözüldü: birim farkı.)
+- **Tuval 3:4 gerçek yüklemeyle doğrulanmadı** — taşıyıcı yükü 1080×1350 merkez bandındaysa risk sıfır. (`alanSiniri` çelişkisi ✅ çözüldü: birim farkı.)
