@@ -150,7 +150,7 @@ AŞAMA 2: ölçülen tanı · teknik sabitler · font elemesi · beş palet · o
 **TAŞIYICI ✅ (kısmen)** — `kavis` 1,16:1 → **1,66:1**, `akan-alan` 1,32:1 → **2,65:1**.
 `yuzeyAdimi()` adımı zeminin KENDİ metin renginden türetiyor: koyu şablonda yukarı,
 kâğıt şablonda aşağı. Sabit token iki kutupta birden doğru olamaz.
-⚠ Nötr rampanın gölgede ara adımı YOK (`ink-850` 0,270 → `ink-650` 0,485) — 19.6'nın işi.
+⚠ Nötr rampanın gölgede ara adımı YOK (`ink-850` → `ink-650`) — 19.6'nın işi.
 ⚠ ⚠ **REÇETENİN SIRASI YANLIŞ ÇIKTI — ÖLÇÜMLE.** `veri-hikayesi` eğrisi görünür yapıldı
 (1,00 → **1,74:1**) ve aynı anda `sus-metni-kesiyor` kırmızı döndü: eğri `ustBaslik`
 kutusunun **%99,3'ünün** arkasından geçiyormuş, görünmezken kimse fark etmiyordu.
@@ -179,8 +179,9 @@ metin yasak (4.07 < 4.5) · **aksan disiplini** dört rol (`vurgu` ≤2, `yok` �
 ### 19.7 — KOMPOZİSYON VE SEAMLESS AKIŞ    [ ]
 Kapak kilidini kır (`blok-yerlesimi`, hiçbir durum ikiden fazla) · slayda ROL ver (üç sol
 pay, üç başlık ölçeği, üç dikey hiza; **art arda iki slayt aynı üçlüyü kullanamaz**) ·
-**z-sırası sözleşmesi** + taşıyıcı metin kutusunun 24 px dışına maskelenir (kutular
-düzen provasından, D-347) · `bant-ok` `z4`→`z3`, **özne şeridi KESSİN** · taşıyıcıyı
+**z-sırası sözleşmesi ✅** (tek yerde: zemin 0 · taşıyıcı 1 · leke 2 · durak 3 · gren 4 ·
+görsel 5 · vinyet 6 · metin 7; `.bant-ok` 5→1, **özne şeridi KESİYOR**; test SIRAYI
+sınıyor) · ⚠ **KALAN:** okunurluk yastığı + metin kutusu maskesi · taşıyıcıyı
 görünür kıl (≥1,6:1, değer adımı %6→%14) · **yüzeyi kesimden ayır** (`donen`+`memphis`
 dönüşü slayt merkezine) · sürekliliği **VERİYE bağla** · orta kuşağı doldur · R-87
 ölçülebilir olur · **marka işareti karosel başına TAM İKİ KEZ** (künye şeridindeki 20 px
@@ -188,9 +189,9 @@ logo kalkar — imza değil duvar kâğıdı) · **KAPANIŞ KARTI iskeleti KIRAR
 iddia 300–360 px · güzergâh · imza + tek eylem · ton kırılması · mürekkep ≥%12).
 
 ### 19.8 — GÖRSEL DİLİ VE YÜZEY ZANAATI    [ ]
-**"Kutu değil yüzey"** altı kuralı: `border-radius` 0 ya da ≥28 px · saf renk yok · düz
-gölge yok (iki katman) · kenar bozma yalnız dekoratif ögede ve `scale ≤ 4` (aksanlar
-önce ölür) · **seed'li düzensizlik** (rastgele değil — Yasa 11) · **eşit aralık yasak**.
+**"Kutu değil yüzey"** altı kuralı: `border-radius` 0 ya da ≥28 px (✅ etiket çipi) · saf
+renk yok · düz gölge yok · kenar bozma yalnız dekoratif ögede, `scale ≤ 4` · **seed'li
+düzensizlik** (rastgele değil — Yasa 11) · **eşit aralık yasak**.
 Kesik özne: AO + kenar dekontaminasyonu + ışık yönü sabitlenmesi + kareler arası kutup
 tutarlılığı. `briefTemeli` yenilenir, antika kadran EMEKLİ. İnsan varsa yalnız el/kol,
 yüz yok — R-33.
@@ -236,7 +237,7 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 | 2 | ◐ **Taşıyıcıyı görünür kıl** | `kavis` ✅ 1,66:1 · `akan-alan` ✅ 2,65:1 · `veri-hikayesi` köşegen KALDI | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.4 |
 | 3 | **Yüzeyi kesimden ayır** | `donen` · `memphis` degrade duraklarının yeri | bu ikisi bugün sürekliliği **aktif olarak kırıyor** | 19.7 |
 | 4 | **Fontları değiştir ve şablona ata** | `font-getir.mjs` + `fonts.ts` `YUZLER` | *"bilgisayar fontu"* şikâyetinin doğrudan cevabı | 19.5 |
-| 5 | ⬆ **Z-sırası + taşıyıcı maskesi — ARTIK 3. SIRADA** | `panorama.ts` | 2. iş bunsuz BİTİRİLEMİYOR (ölçüldü); çip yüzeyi ilk parçasıydı: %99,3 → %9 | 19.7 |
+| 5 | ◐ **Z-sırası ✅ + taşıyıcı maskesi — 3. SIRAYA ALINDI** | `panorama.ts` | 2. iş bunsuz BİTİRİLEMİYOR (ölçüldü); çip yüzeyi ilk parçasıydı %99,3 → %9 | 19.7 |
 
 **Her işin sonunda:** çiz → **BAK** → ölç → `just check`. **Kanıtsız "bitti" yok.**
 
@@ -245,6 +246,5 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 ## 7 · EKSİK KALAN
 
 - **Kaynaklı sektör referansı** (TOMRA, Sandvik, Trumpf…) — paralel ajan dönmedi.
-- **Tuval 3:4 gerçek yüklemeyle doğrulanmadı.** Tasarım hamlesi (taşıyıcı yükü 1080×1350
-  merkez bandında) riski sıfırlıyor ama teyit edilmedi.
-- **`alanSiniri` çelişkisi** — 19.4'ün ilk işi.
+- **Tuval 3:4 gerçek yüklemeyle doğrulanmadı** — taşıyıcı yükü 1080×1350 merkez bandında
+  kalırsa risk sıfır, ama teyit edilmedi. (`alanSiniri` çelişkisi ✅ çözüldü: birim farkı.)
