@@ -50,12 +50,12 @@ zorunda. Panel metin DEĞİL veridir; ray ve sayaç KROM — ikisi de paya girmi
 `docs/kurallar/OLCUMLER.md`
 
 ### R-89 · kelime-butcesi · GATE · aktif
-Başlık en fazla **8 kelime**, bir slaytta başlık + gövde + üst başlık toplamı en fazla
-**28 kelime**. Sınır hem isteme yazılır hem uyarlamada zorlanır; ret RENDER'dan ÖNCE.
-**Neden:** *"5–8 kelimelik kanca"* pazarlama sezgisi DEĞİL, geometri. ÜST sınır zorlanır,
-ALT sınır zorlanmaz.
-**Zorlama:** `uyarla` → `BASLIK_KELIME_TAVANI` · `SLAYT_KELIME_TAVANI`. → D-321 · ölçüm:
-`docs/kurallar/OLCUMLER.md`
+Başlık en fazla **8 kelime**, slayt toplamı en fazla **28**. ⚠ **ÖN ELEME, tek kapı
+DEĞİL:** tam tavandaki metinle on şablonun SEKİZİ kırılıyor — `donen`de gövde
+okunabilirlik tabanının ALTINA düşüyor. Kelime geometrinin kötü bir vekili; aynı sayı
+iki katı genişlik verebiliyor. Asıl kapı `duzen-provasi` (D-347).
+**Neden:** *"5–8 kelimelik kanca"* pazarlama sezgisi DEĞİL, geometri. ÜST sınır zorlanır.
+**Zorlama:** `uyarla` + `duzen-provasi`. → D-321 · D-347 · `OLCUMLER.md`
 
 ### R-90 · yayin-sozlesmesi · GATE · aktif
 Karosel en fazla **10 slayt** taşır ve yayınlanan her dosya **JPEG** olur. İkisi de

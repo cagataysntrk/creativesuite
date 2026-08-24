@@ -145,7 +145,13 @@ farklı ama tek bir Instagram ızgarasında yan yana geldiğinde **bir aile** ol
    davranış (Yasa 2: onay = git commit; agent onu veremez).
    ⚠ İlk denemede EMEKLİ hat (`instagram-carousel`) koşuldu ve sessizce çalıştı; kalite
    kapısı metin kontrastını **1,1:1** ile durdurdu. Tuzak kapatıldı → R-108 · D-340.
-📁 `derived/runs/`
+📁 `derived/runs/` · `packages/render/src/duzen-provasi.ts` · `packages/engine/src/verbs/bodies.ts`
+🛠 **DÜZEN PROVASI HATTA GİRDİ (D-347).** Kelime bütçesi (R-89) tek kapıyken tavandaki
+   metinle on şablonun SEKİZİ kırılıyordu; `donen`de gövde okunabilirlik tabanının ALTINA
+   düşüyordu. Prova, uyarlanmış belgeyi yer tutucu görsellerle render edip denetliyor —
+   `gorsel-brief`in dördü de ona bağlı, yani düzen sığmadan tek görsel üretilmiyor.
+   Kasten ihlal: R-89'u TAM sağlayan metinle (8+1+19=28) hat `LAYOUT_REJECTED` ile durdu.
+   ⚠ `run_01a030e2` kendi DONDURULMUŞ planıyla koşuyor: provayı ALMAYACAK.
 ✅ Metin onaylandıktan sonra: render + `just izgara` ile bakılır, kusur sayısı ölçülür
 🧪 Üretilen metin okundu: kurum sesinde, yasak terim yok, kaynaksız sayı yok
 💾 çalıştırma commit'i (`Run:` · `Actor:` · `Kind:`)
