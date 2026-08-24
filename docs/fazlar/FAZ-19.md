@@ -106,12 +106,10 @@ hastalık grensizlikti.
 5. **Kapak kilidi:** on kartın **dokuzunda** aynı açılış hamlesi; **45 slaydın 34'ünde**
    sol kenar %6,0–6,7; dinamik aralık ~**6:1**, hepsi skalanın ortasında.
 
-⚠ **İki bulgu uygulanmadan ÖNCE doğrulanacak:** (a) "elle çizilmiş U hâlâ render'da"
-panorama için ESKİMİŞ — ama `static.ts:748` hâlâ `markaKilidi()` çağırıyor; (b) ölçüm
-defteri `alanSiniri` ΔL 0,165 diyor, `akan-alan` kapağı %67,7 tek renk. **Önce ölç.**
-
-⚠ **"Dört şablonda aynı antika kronometre" bulgusu GEÇERSİZ** — ızgara aynı iki koşu
-görselini döndürüyor; kusur ölçüm düzeneğimde. Asıl soru: `briefTemeli` (19.8).
+⚠ **Doğrulanacak:** "elle çizilmiş U hâlâ render'da" panorama için ESKİMİŞ — ama
+`static.ts:748` hâlâ `markaKilidi()` çağırıyor.
+⚠ **"Dört şablonda aynı antika kronometre" GEÇERSİZ** — ızgara aynı iki koşu görselini
+döndürüyor; kusur ölçüm düzeneğimde. Asıl soru: `briefTemeli` (19.8).
 
 ---
 
@@ -134,17 +132,15 @@ AŞAMA 2: ölçülen tanı · teknik sabitler · font elemesi · beş palet · o
 şablon reçete · ortak altyapı · ilk beş iş. Brif: `scratchpad/asama2-brief.md`.
 
 ### 19.4 — ZEMİN VE YÜZEY    [ ]    ← gren BİTTİ, yüzey aileleri kaldı
-**GREN ✅** — koşulsuz, luminansa bağlı, JPEG'ten sağ çıkıyor. Tam ölçüm defterde
-(`docs/kurallar/OLCUMLER.md` → FAZ-19.4).
-- Zincirin **on ikinci kopukluğu:** `zeminDokusu` ve `ustDoku` alanları yazılmış,
-  üretim yolunda **hiçbir üreticileri yoktu**. `.ust-gren` + `.ust-vinyet` artık koşulsuz.
-- Gren **kartların ÜSTÜNDE** olmak zorunda: `zeminDokusu` opak kartın altında kalıyor.
-  *Film greni sahnenin değil FİLMİN özelliğidir.*
-- **Kip de luminansın fonksiyonu:** uçlarda (`L<0,14` · `L>0,85`) `soft-light` çarpacak
-  bir şey bulamıyor — kâğıt şablonlarında düz blokların **%87'si σ<0,5**, yani JPEG onu
-  tamamen siliyordu. Uçlarda `normal` @0,10.
-- **Sonuç:** tam modal kaplama %67,6–%90,7 → **%8,8–%17,1** (tavan %40 ✅). Düz blok
-  medyan σ 2,26–3,85; **JPEG q=90 sonrası 1,62–3,61.** On kapak, sıfır kusur, BAKILDI.
+**GREN ✅** koşulsuz, luminansa bağlı, JPEG'ten sağ çıkıyor. Ölçüm: `OLCUMLER.md`.
+- Zincirin **on ikinci kopukluğu:** `zeminDokusu` ve `ustDoku` yazılmış, üretim yolunda
+  **üreticileri yoktu**. `.ust-gren` + `.ust-vinyet` artık koşulsuz.
+- Gren **kartların ÜSTÜNDE**: `zeminDokusu` opak kartın altında kalıyor. *Film greni
+  sahnenin değil FİLMİN özelliğidir.*
+- **Kip de luminansın fonksiyonu:** uçlarda `soft-light` çarpacak bir şey bulamıyor —
+  kâğıtta düz blokların **%87'si σ<0,5**, JPEG onu siliyordu. Uçlarda `normal` @0,10.
+- **Sonuç:** modal kaplama %67,6–%90,7 → **%8,8–%17,1** (tavan %40 ✅); düz blok medyan
+  σ 2,26–3,85, **JPEG q=90 sonrası 1,62–3,61.** On kapak, sıfır kusur, BAKILDI.
 - ⚠ **Bedel ve o bedel FİZİK:** `#040404`→`#111111`, `#fafafa`→`#eeeeee`. Siyahın ALTINA
   dither edilemez; zemini uçtan çıkarmak 19.6'nın işi.
 - ⚠ **4.5'teki çelişki ÇÖZÜLDÜ ve cevap ikisi de değildi: BİRİM farkıydı.** ΔL 0,165
@@ -155,7 +151,11 @@ AŞAMA 2: ölçülen tanı · teknik sabitler · font elemesi · beş palet · o
 `yuzeyAdimi()` adımı zeminin KENDİ metin renginden türetiyor: koyu şablonda yukarı,
 kâğıt şablonda aşağı. Sabit token iki kutupta birden doğru olamaz.
 ⚠ Nötr rampanın gölgede ara adımı YOK (`ink-850` 0,270 → `ink-650` 0,485) — 19.6'nın işi.
-⚠ **KALAN:** `veri-hikayesi` köşegeni 2 → 6 px ve magenta; `karsilastirma` sınır çizgisi.
+⚠ ⚠ **REÇETENİN SIRASI YANLIŞ ÇIKTI — ÖLÇÜMLE.** `veri-hikayesi` eğrisi görünür yapıldı
+(1,00 → **1,74:1**) ve aynı anda `sus-metni-kesiyor` kırmızı döndü: eğri `ustBaslik`
+kutusunun **%99,3'ünün** arkasından geçiyormuş, görünmezken kimse fark etmiyordu.
+**Görünür taşıyıcı, metin kutusu maskesi (5. iş) kurulmadan çizilemez.** Geri alındı.
+→ **5. İŞ ARTIK 3. SIRADA.** Kalan: `veri-hikayesi` köşegeni · `karsilastirma` sınırı.
 
 **KALAN:** beş yüzey ailesi (kâğıt · taş · beton · fırçalanmış çelik · halftone) ·
 ışık kaynağı katmanı · JPEG q=90'ın yayın yoluna bağlanması · şablon şablon zemin
@@ -236,7 +236,7 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 | 2 | ◐ **Taşıyıcıyı görünür kıl** | `kavis` ✅ 1,66:1 · `akan-alan` ✅ 2,65:1 · `veri-hikayesi` köşegen KALDI | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.4 |
 | 3 | **Yüzeyi kesimden ayır** | `donen` · `memphis` degrade duraklarının yeri | bu ikisi bugün sürekliliği **aktif olarak kırıyor** | 19.7 |
 | 4 | **Fontları değiştir ve şablona ata** | `font-getir.mjs` + `fonts.ts` `YUZLER` | *"bilgisayar fontu"* şikâyetinin doğrudan cevabı | 19.5 |
-| 5 | **Z-sırası + taşıyıcı maskesi** | `panorama.ts` | *"çizgiler yazıyı kesiyor"*u kökten bitirir; ölçüm altyapısı **zaten var** | 19.7 |
+| 5 | ⬆ **Z-sırası + taşıyıcı maskesi — ARTIK 3. SIRADA** | `panorama.ts` | 2. iş bunsuz BİTİRİLEMİYOR (ölçüldü); çip yüzeyi ilk parçasıydı: %99,3 → %9 | 19.7 |
 
 **Her işin sonunda:** çiz → **BAK** → ölç → `just check`. **Kanıtsız "bitti" yok.**
 
