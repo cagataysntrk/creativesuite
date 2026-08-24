@@ -19,10 +19,8 @@ zanaatı — **HTML-CSS görünümünden çıkış.** Sonra sistem temizlenir ve
 - **Döngü:** `/loop`, tur başına en fazla 70 sn. Commit'te durma. *"Ben PC başında değilim."*
 - **Kanıtsız "bitti" yok.** Doğrulama komutu çalıştırılır, gerçek çıktı gösterilir.
 - **BAKARAK kontrol.** *"Görmeden iş yapmam."* Her değişiklik çizilir ve GÖRÜLÜR.
-- **Kural değil ESTETİK.** *"İş artık sistematik kural değil, estetik ve tasarımsal design
-  gözü."* Sıfır kusur iyi tasarım demek değil.
-- **Boş alan kuralla ölçülmez.** *"Boş alan aşırı doludur aslında, güzeldir."* Ölçüm teşhis
-  içindir, yargı gözdedir.
+- **Kural değil ESTETİK.** *"Estetik ve tasarımsal design gözü."* Sıfır kusur ≠ iyi tasarım.
+- **Boş alan kuralla ölçülmez.** Ölçüm teşhis içindir, yargı gözdedir.
 - **PC/HTML-CSS görünümü YASAK.** *"Kareler kutucuklar ögeler html css gibi çünkü öyle."*
 - **Gerekirse kütüphane kur, hazır görsel al, webden araştır.** PS seviyesi için elzem.
 - **Şablonlar birbirinin aynısı olmayacak** — on şablona on ayrı tema.
@@ -32,8 +30,8 @@ zanaatı — **HTML-CSS görünümünden çıkış.** Sonra sistem temizlenir ve
 - **Panelden kontrol ŞART** (`LOOP§H`): Playwright ile `#/gecmis`, Üret, Varlıklar.
 - **Denetim ajanına SEAMLESS tuval verilir**, dilimlenmiş kare değil. *"Biz önce seamless
   tam yatay üretip onu kırpıyoruz."*
-- **Ajanı kaybetme:** rapor gelir gelmez sıradaki brif gönderilir; brifler diske yazılır.
-- **Raporu KOPYALA, yeniden yazma** — yazmak bağlamı yakar ve kanıtı bozar.
+- **Ajanı kaybetme:** rapor gelir gelmez sıradaki brif gönderilir, brifler diske yazılır.
+  **Raporu KOPYALA, yeniden yazma** — yazmak bağlamı yakar ve kanıtı bozar.
 - **Sıra:** şablonlar mükemmelleşecek → sistem/geçmiş temizliği → panelden 3 tanıtım
   karoseli → 9 karosel daha → **dur ve depo sahibini bekle**.
 
@@ -59,9 +57,8 @@ zanaatı — **HTML-CSS görünümünden çıkış.** Sonra sistem temizlenir ve
   kullanıyordu; `matlama` · `tema-uyum` · `temas-golgesi` yazılmış, test edilmiş ama
   **çağıranı yoktu**. **Bugünkü en büyük görsel kazanç, tek satır.**
 - **Gerçek logo** — elle çizilmiş "U" panoramadan çıktı; `isaret-{koyu,acik}.png` geldi.
-- **Düzen provası** (D-347) üretim yolunda: düzen sığmadan tek görsel üretilmiyor.
-- **JPEG damgası** — hat JPEG'e geçtiğinden beri `gorsel-yargi`da ölüyordu; gerçek koşuda
-  doğrulandı.
+- **Düzen provası** (D-347) hatta: düzen sığmadan tek görsel üretilmiyor.
+- **JPEG damgası** — hat JPEG'e geçtiğinden beri `gorsel-yargi`da ölüyordu; düzeltildi.
 - **Emekli hat kapatıldı** — `instagram-carousel` üç yerden birden.
 - **`kavis` kemer 5 → 13** (12 YANLIŞTI: N 4'e bölünürse kesim kemer SINIRINA düşer).
 - **Atıf kapısı** birebir kopyalanan raporu doğrulayamıyordu; **belgenin kendi ilan ettiği**
@@ -107,16 +104,14 @@ hastalık grensizlikti.
    (`donen` · `memphis`) yüzeyi tam kesim yerinde çevirip sürekliliği AKTİF olarak
    kırıyor.** R-87 VARLIK ölçüyor, GÖRÜNÜRLÜK ölçmüyor: *teknik yeşil, algısal kırmızı.*
 5. **Kapak kilidi:** on kartın **dokuzunda** aynı açılış hamlesi; **45 slaydın 34'ünde**
-   sol kenar %6,0–6,7. Dinamik aralık ~**6:1** ve her şey skalanın ortasında — hiçbir
-   yerde *devasa*, hiçbir yerde *fısıltı* yok.
+   sol kenar %6,0–6,7; dinamik aralık ~**6:1**, hepsi skalanın ortasında.
 
 ⚠ **İki bulgu uygulanmadan ÖNCE doğrulanacak:** (a) "elle çizilmiş U hâlâ render'da"
 panorama için ESKİMİŞ — ama `static.ts:748` hâlâ `markaKilidi()` çağırıyor; (b) ölçüm
 defteri `alanSiniri` ΔL 0,165 diyor, `akan-alan` kapağı %67,7 tek renk. **Önce ölç.**
 
 ⚠ **"Dört şablonda aynı antika kronometre" bulgusu GEÇERSİZ** — ızgara aynı iki koşu
-görselini döndürüyor; kusur ölçüm düzeneğimde. Asıl soru şablonun hangi görseli
-İSTEYECEĞİ: `briefTemeli` (19.8).
+görselini döndürüyor; kusur ölçüm düzeneğimde. Asıl soru: `briefTemeli` (19.8).
 
 ---
 
@@ -152,9 +147,15 @@ AŞAMA 2: ölçülen tanı · teknik sabitler · font elemesi · beş palet · o
   medyan σ 2,26–3,85; **JPEG q=90 sonrası 1,62–3,61.** On kapak, sıfır kusur, BAKILDI.
 - ⚠ **Bedel ve o bedel FİZİK:** `#040404`→`#111111`, `#fafafa`→`#eeeeee`. Siyahın ALTINA
   dither edilemez; zemini uçtan çıkarmak 19.6'nın işi.
-- ⚠ **4.5'teki çelişki ÇÖZÜLDÜ:** `alanSiniri` düzeltmesi `akan-alan`a ULAŞMIŞ — eğri
-  render'da net görünüyor. Düz-modal ölçümü kapağın metin yarısını sayıyordu, taşıyıcıyı
-  değil. **Ölçüm yanlış değildi, YANLIŞ YERE bakıyordu.**
+- ⚠ **4.5'teki çelişki ÇÖZÜLDÜ ve cevap ikisi de değildi: BİRİM farkıydı.** ΔL 0,165
+  kaydı doğru; ama kontrast oranında o yalnız **1,32:1**. Token açıklığı ile WCAG
+  kontrastı iki AYRI birim, biri ötekini garanti etmiyor.
+
+**TAŞIYICI ✅ (kısmen)** — `kavis` 1,16:1 → **1,66:1**, `akan-alan` 1,32:1 → **2,65:1**.
+`yuzeyAdimi()` adımı zeminin KENDİ metin renginden türetiyor: koyu şablonda yukarı,
+kâğıt şablonda aşağı. Sabit token iki kutupta birden doğru olamaz.
+⚠ Nötr rampanın gölgede ara adımı YOK (`ink-850` 0,270 → `ink-650` 0,485) — 19.6'nın işi.
+⚠ **KALAN:** `veri-hikayesi` köşegeni 2 → 6 px ve magenta; `karsilastirma` sınır çizgisi.
 
 **KALAN:** beş yüzey ailesi (kâğıt · taş · beton · fırçalanmış çelik · halftone) ·
 ışık kaynağı katmanı · JPEG q=90'ın yayın yoluna bağlanması · şablon şablon zemin
@@ -223,8 +224,7 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 Ürün · iş · önem · süreç · kanıt · SSS · karşılaştırma · rehber · çağrı. Şablon dağılımı
 ölçülür — on iki karosel tek şablona yığılmaz.
 
-### 19.15 — Dur ve depo sahibini bekle    [ ]
-⛔ **YAYIN YAPILMAZ.**
+### 19.15 — Dur ve depo sahibini bekle    [ ]    ⛔ **YAYIN YAPILMAZ.**
 
 ---
 
@@ -233,7 +233,7 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 | # | iş | nerede | neden ilk | adım |
 |---|---|---|---|---|
 | 1 | ✅ **Greni koşulsuz aç, luminansa bağla** | `zemin.ts` + `panorama.ts` | **BİTTİ:** %85 düz alan → %8,8–17,1; JPEG sonrası σ 1,62–3,61 | 19.4 |
-| 2 | **Taşıyıcıyı görünür kıl** | `akan-alan` · `kavis` kontrast; `veri-hikayesi` köşegen 6 px magenta | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.7 |
+| 2 | ◐ **Taşıyıcıyı görünür kıl** | `kavis` ✅ 1,66:1 · `akan-alan` ✅ 2,65:1 · `veri-hikayesi` köşegen KALDI | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.4 |
 | 3 | **Yüzeyi kesimden ayır** | `donen` · `memphis` degrade duraklarının yeri | bu ikisi bugün sürekliliği **aktif olarak kırıyor** | 19.7 |
 | 4 | **Fontları değiştir ve şablona ata** | `font-getir.mjs` + `fonts.ts` `YUZLER` | *"bilgisayar fontu"* şikâyetinin doğrudan cevabı | 19.5 |
 | 5 | **Z-sırası + taşıyıcı maskesi** | `panorama.ts` | *"çizgiler yazıyı kesiyor"*u kökten bitirir; ölçüm altyapısı **zaten var** | 19.7 |
