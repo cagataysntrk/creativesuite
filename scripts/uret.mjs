@@ -49,7 +49,7 @@ const {
   hexFromTokens,
   colorsFromTokens,
   assertCompliance,
-  stampPng,
+  stampAsset,
   placementById,
   reklamBloklayici,
   reklamIhlalMesaji,
@@ -1020,7 +1020,7 @@ if (slaytlar.length > 0) {
   const rol = (i, n) => (n === 1 ? 'tek' : i === 0 ? 'kapak' : i === n - 1 ? 'kapanis' : 'govde')
 
   for (const [sira, yol] of slaytlar.entries()) {
-    const d = stampPng(yol, { stamp: damga, claim: iddia.value })
+    const d = stampAsset(yol, { stamp: damga, claim: iddia.value })
     if (!d.ok) {
       console.log(`✗ damgalanamadı: ${yol} (${d.error})`)
       process.exit(1)

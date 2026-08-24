@@ -133,6 +133,10 @@ export {
 } from './compliance/claim.js'
 export {
   stampPng,
+  // ⚠ Karosel JPEG üretiyor (R-90) ve PNG damgalayıcısı onu reddediyordu — hat
+  // `not_png` ile ölüyordu. `stampAsset` imzadan karar veriyor.
+  stampJpeg,
+  stampAsset,
   readStamp,
   hasComplianceStamp,
   STAMP_KEYS,

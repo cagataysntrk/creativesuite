@@ -10,7 +10,7 @@ siradaki_adim: 18.18
 son_guncelleme: 2026-08-24
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "SAG YASLI KART BIR SUTUN DEGIL, SAGA ITILMIS KUTULARDI. sahnenin 2. slaydina bakildi: baslik ve govde ayni sol kenardan basliyor, ust etiket tek basina iceride. Olculdu — etiket ve govdenin sol kenarinin baslikatan sapmasi: sol yasli kartlarin HEPSINDE 0/0, sag yasli DORT kartin dordunde de kaymis: sahne 2/4 (+343), kavis 3 (+538, govde -64), karsilastirma 2 (+597, govde +108). Uc sablon, tek sebep: align-items: flex-end her blogu AYRI AYRI saga itiyor ve kutular iceriklerine gore daraldigi icin uc blogun uc ayri sol kenari oluyor. Hizalama degistirilmedi, SUTUN kuruldu: kart sola yasli kaliyor, sol dolgu sutunu sag yakaya tasiyor, text-align dokunulmuyor. Sutun baslik kolonu ile govde olcu sinirinin BUYUGU — kucugunu almak genis olani sagdan tasirirdi. Olcu MUTLAK sifir; kasten ihlal edildi: sahne expected 343 to be +0. R-113 / D-346. AYRICA genisletilen sus-metni-kesiyor kapisinin kapsami durustce olculdu: pul dort sablonda BES kartta var, besi de temiz. VE YAPISAL SINIR: TASARIM.md tavana dayandi (260/260); R-113 ancak bugun yazilan uc kuralin kanit anlatisi kisaltilarak sigdi. Tavani yukseltmek yanlis cevap — dosya iki ayri is yapiyor (tipografi/olcu ve kompozisyon/sureklilik); bolme D25 olarak borc defterinde. Onceki turlar: R-110 katalog vaadi, R-111 hayalet tekrari, R-112 etiket yakinligi. Aile yarigi 15-36%, 10 kapak 0 kusur, 46 kapi yesil."
+son_kanit: "KAROSEL HATTI JPEG'E GECTIGINDEN BERI HIC BITMIYORDU — gercek kosu buldu. run_01a030e2 onaylandi (metin okundu: kurum sesinde, yasak terim yok, kaynaksiz sayi yok) ve surduruldu; DUZEN PROVASI kostu (plan --devam ile YENIDEN donduruluyor, yani guncel hatti aliyor — onceki turda yanlis soylemistim), render dort slaydi yazdi ve hat gorsel-yargi adiminda OLDU: damgalanamadi slayt-01.jpg (not_png). Sebep: R-90 yayin sozlesmesi render'i JPEG'e cevirdi (Graph API yalniz JPEG kabul ediyor) ama damgalayici PNG'de kaldi. Gorseller diskte duruyor, kosu defterde bitmemis: panelde ne gecmiste ne varliklarda gorunuyor. stampJpeg + stampAsset yazildi (COM segmenti SOI ardina, UTF-8 JSON; EXIF degil cunku o bir TIFF agaci demek). Gidis-donus dogrulandi: 414 bayt damga, 11 alan geri okundu, damgali dosya 1080x1350 COZULUYOR. ⚠ OLCU ALETI BESINCI KEZ YANILTTI: veri-URI ile decode HEM damgaliyi HEM ORIJINALI cozemedi sandim; file:// ile ikisi de saglam cikti — once aletten suphelen. AYRICA depo sahibi eski instagram-carousel'in hala kosulabilir oldugunu gordu: uc acik vardi ve ucu de kapatildi (CLI exit 1, CLI menusu ham listPipelines yerine hatDurumlari, /api/calistir muhafizi). Kasten ihlal: muhafizsiz API 202 donup kosuyu BASLATIYOR. Onceki turlar: R-110 R-111 R-112 R-113, duzen provasi hatta bagli (D-347), R-89 artik ON ELEME."
 ```
 
 ## Neredeyiz
@@ -24,10 +24,10 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > ⛔ **YİRMİ BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` `3.7` `3.8` `3.14` `4.13b` `5.4b`
 > `5.5b` `6.5b` `6.9b` `7.2b` `7.5b` `7.6b` `7.8b` `8.6` `8.8b` `11.5` `11.6` `11.9`
 > `12.8` `13.3` `18.18`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık.
-> ⚠ **`18.18` ONAYLANMADAN ÖNCE OKU (D-347):** `run_01a030e2`nin metni, düzeni HİÇ
-> prova edilmemiş hâlde kapıda bekliyor. Kelime bütçesi tavanında on şablonun sekizi
-> kırılıyor; onaylayıp render etmek kusurlu bir çıktıya bakmak olur. Önce düzen provası. ⚠ `3.14`
-> `2.9`'a bağlı; `11.5`/`11.9` BiRefNet, `11.6`/`13.3` ücretli görsel bekliyor.
+> ⚠ **SIRADAKİ İŞ (18.18):** JPEG damgası düzeldi; `run_01a030e2` yeniden sürdürülüp
+> UÇTAN UCA bitirilecek — sonra panelde `#/gecmis` ve varlıklarda GÖRÜNDÜĞÜ doğrulanacak,
+> slaytlara BAKILACAK, kusur sayısı okunacak. Gerekirse panel üstünden (Playwright) koşulur.
+> ⚠ Açık borç D26: prova sığmayınca koşuyu DURDURUYOR ama düzeltmiyor — tur açılmalı.
 
 ## Tamamlananlar
 

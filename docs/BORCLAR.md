@@ -191,3 +191,15 @@ katman koyar — kullanıcının "ai durmamalı" dediği şeyin tam tersi.
   **tipografi/ölçü** (R-83 R-86 R-88 R-100 …) ile **kompozisyon/süreklilik** (R-87 R-94
   R-109 R-112 R-113 …). Bölme DELİBERE yapılmalı, bir sonraki kural sıkışınca aceleyle
   değil. ⚠ `citations` kapısının `KURAL_DOSYALARI` listesi de güncellenmeli.
+- **D26 · Düzen provası DURDURUYOR ama DÜZELTMİYOR.** `duzen-provasi` sığmayan düzeni
+  `LAYOUT_REJECTED` ile kesiyor (D-347) ve bu, dört görsel üretip sonra pişman olmaktan
+  kesinlikle iyi. Ama koşu o noktada TAMAMEN ölüyor: `konu-sec` · `bilgi-sec` ·
+  `metin-uret` · `sablon-uyarla` — dört model çağrısı harcanmış oluyor ve metin bir
+  kelime uzun diye çöpe gidiyor.
+  Hattaki `duzelt` adımı bu boşluğu kapatmıyor: `needs: [render, sablon-uyarla]`, yani
+  görseller ÜRETİLDİKTEN sonra koşuyor.
+  ⚠ Çözümün deseni hatta ZATEN VAR ve gerekçesi yazılı: *"DAG döngü taşımıyor, o yüzden
+  tur AÇILARAK yazıldı"*. Aynısı burada da gerekiyor: `duzen-provasi` (kusurları VERİ
+  olarak bassın, ölmesin) → `duzen-duzelt` (`sablon_duzelt`, `optional`) → `kompozit-2`
+  → `duzen-provasi-2` (bu SERT dursun) → `gorsel-brief*` ona bağlansın.
+  Bugün sert duruş bilinçli bir ara durum: parayı koruyor, koşuyu kurtarmıyor.

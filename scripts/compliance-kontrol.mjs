@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
 const {
   assertCompliance,
-  stampPng,
+  stampAsset,
   readStamp,
   hasComplianceStamp,
   STAMP_KEYS,
@@ -121,7 +121,7 @@ try {
     if (hasComplianceStamp(yol)) {
       hatalar.push('ÖZ-TEST: DAMGASIZ PNG damgalı sayıldı — kapı boş geçiyor')
     }
-    const s = stampPng(yol, {
+    const s = stampAsset(yol, {
       stamp: {
         brandId: 'brd_test',
         eraId: 'era_test',

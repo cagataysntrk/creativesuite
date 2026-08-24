@@ -13,7 +13,7 @@ import {
   promptDigest,
   type PersonBasis,
 } from './claim.js'
-import { STAMP_KEYS, hasComplianceStamp, readStamp, stampPng } from './stamp.js'
+import { STAMP_KEYS, hasComplianceStamp, readStamp, stampAsset, stampPng } from './stamp.js'
 
 const CID = 'cor_uyum'
 const DAMGA: AssetStamp = {
@@ -385,5 +385,91 @@ describe('çalışan eş seslisi', () => {
     for (const p of ['işçiler tezgâhta', 'personel toplantıda', 'iki operatör', 'a worker']) {
       expect(insanMi(p)).toBe(true)
     }
+  })
+})
+
+// ── JPEG DAMGASI: karosel hattı bunsuz HİÇ BİTMİYORDU ───────────────────────
+//
+// ⚠ ⚠ **GERÇEK BİR KOŞU BUNU BULDU, test değil.** R-90 yayın sözleşmesi gereği render
+// JPEG yazıyor (Graph API yalnız JPEG kabul ediyor) ama damgalayıcı PNG'ye bakıyordu:
+// koşu dört slaydı üretiyor, `gorsel-yargi` adımında
+// `✗ damgalanamadı: slayt-01.jpg (not_png)` ile ÖLÜYORDU. Görseller diskte duruyor,
+// koşu defterde bitmemiş görünüyor — panelde ne geçmişte ne varlıklarda. Biçim bir uçta
+// değişti, öteki uç güncellenmedi.
+//
+// ⚠ Yasa 7 pazarlık konusu değil: damga varlıkla BİRLİKTE seyahat eder; atlamak ya da
+// yan dosyaya yazmak yasayı deler.
+describe('damga · JPEG (R-90 yayın sözleşmesi)', () => {
+  let d: TempDir
+  beforeEach(() => {
+    d = makeTempDir('damga-jpeg-')
+  })
+  afterEach(() => {
+    d.cleanup()
+  })
+
+  // ⚠ Asgari geçerli JPEG: SOI + APP0/JFIF + EOI. Görüntü verisi taşımıyor ama
+  // damgalayıcının gezdiği YAPI birebir gerçek dosyayla aynı.
+  const jpegYaz = (yol: string): void => {
+    const jfif = Buffer.from([
+      0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00,
+      0x01, 0x00, 0x01, 0x00, 0x00, 0xff, 0xd9,
+    ])
+    writeFileSync(yol, jfif)
+  }
+
+  const pngBelgesi = (): DocumentModel => ({
+    kind: 'post',
+    width: 1080,
+    height: 1350,
+    tokenCss: ':root { --role-bg: #101418; --role-text: #f2f4f7; }',
+    stamp: DAMGA,
+    blocks: [{ type: 'heading', text: 'Ölçemediğiniz fireyi yönetemezsiniz', level: 1 }],
+  })
+
+  const girdi = {
+    stamp: DAMGA,
+    claim: {
+      containsSyntheticPerson: false,
+      // ⚠ Dosyanın kendi `basis()` yardımcısı kullanılıyor: `PersonBasis` bir BİRLEŞİM ve
+      // elle yazılan bir dal eksik alanla derlenmiyor (`types` kapısı yakaladı).
+      basis: basis(),
+      aiGenerated: true,
+      disclosureRequired: true,
+    },
+  } as Parameters<typeof stampAsset>[1]
+
+  it('JPEG damgalanıyor ve GERİ OKUNUYOR — `not_png` ile ölmüyor', () => {
+    const yol = join(d.path, 'slayt-01.jpg')
+    jpegYaz(yol)
+    const r = stampAsset(yol, girdi)
+    expect(r.ok, r.ok ? '' : r.error).toBe(true)
+    const s = readStamp(yol)
+    expect(s, 'damga geri okunamadı').not.toBeNull()
+    expect(s?.[STAMP_KEYS.brand]).toBe(DAMGA.brandId)
+    expect(s?.[STAMP_KEYS.run]).toBe(DAMGA.sourceRunId)
+  })
+
+  // ⚠ Damga SOI'nin hemen ardına giriyor; dosya JPEG olarak GEÇERLİ kalmalı. Bir baytı
+  // yanlış yere koymak görüntüyü bozar ve bunu ancak bir kod çözücü söyler.
+  it('damgalı dosya hâlâ GEÇERLİ bir JPEG — imza ve EOI yerinde', () => {
+    const yol = join(d.path, 'slayt-02.jpg')
+    jpegYaz(yol)
+    stampAsset(yol, girdi)
+    const buf = readFileSync(yol)
+    expect(buf.subarray(0, 2).equals(Buffer.from([0xff, 0xd8])), 'SOI bozuldu').toBe(true)
+    expect(buf.subarray(-2).equals(Buffer.from([0xff, 0xd9])), 'EOI bozuldu').toBe(true)
+    // COM segmenti (FFFE) SOI'den HEMEN sonra olmalı — SOS'tan sonrası sıkıştırılmış veri.
+    expect(buf.subarray(2, 4).equals(Buffer.from([0xff, 0xfe])), 'COM yanlış yerde').toBe(true)
+  })
+
+  it('`stampAsset` biçimi İMZADAN seçiyor — uzantıdan değil', async () => {
+    // ⚠ `.jpg` adlı bir PNG: uzantıya bakan bir dağıtıcı burada sessizce damgasız
+    // bırakırdı ve kimse fark etmezdi. Karar İMZADAN veriliyor.
+    const yol = join(d.path, 'aslinda-png.jpg')
+    await renderStatic(pngBelgesi(), yol)
+    const r = stampAsset(yol, girdi)
+    expect(r.ok, r.ok ? '' : r.error).toBe(true)
+    expect(hasComplianceStamp(yol), 'PNG damgası okunamadı').toBe(true)
   })
 })
