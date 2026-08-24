@@ -1336,3 +1336,34 @@ tabandan). Bilmeseydi tuval değişince duraklar eğriden kayardı.
 
 Kesilmemiş panoramaya BAKILDI: yıl pulları artık yükselen köşegenin üstünde oturuyor.
 **Bir lejant süstür; eğrinin üstünde duran bir durak iddianın kanıtıdır.**
+
+## FAZ-19.7 · aksan disiplini — 45/45'ten 20/45'e
+
+Denetim: *"aksan on kartta da aynı sözdizimsel yerde — her kartta aynı yerde duran aksan,
+AKSAN DEĞİLDİR"* ve *"tek mavi anı işe yarayan şey NADİRLİĞİDİR."* Ölçüldü:
+
+| | önce | sonra |
+|---|---|---|
+| başlığında aksan taşıyan kart | **45 / 45 (%100)** | **20 / 45 (%44)** |
+| şablon başına | 3–6 | tam **2** |
+| tamamen sessiz kart | **0** | 25 |
+
+⚠ **İlk ölçüm YANLIŞ ÖGEYİ sayacaktı.** `**...**` hem başlıkta hem gövdede geçiyor ama
+`.govde strong` `--kart-metin` kullanıyor, `--kart-aksan` değil: gövde vurgusu KALIN,
+renkli değil. Aksan sayımı yalnız `.baslik`e bakmak zorunda — yoksa ölçüm rengi olmayan
+bir vurguyu "aksan" sayardı. (Gövde zaten hiç `**` taşımıyordu; sayı aynı çıktı ama
+tesadüfen doğru olmak, doğru ölçmek değildir.)
+
+### Kural iki yönlü ve ikisi de gerekli
+
+- **`vurgu` ≤ 2** — aksan nadir olmalı.
+- **`yok` ≥ 1** — en az bir kart TAMAMEN sessiz; tavan tek başına *"her kartta biraz"*
+  dağılımını engellemez.
+
+⚠ **Hangi ikisi: AÇILIŞ ve VARIŞ.** Karosel bir yolculuk; girişini ve vardığı yeri
+işaretlemek, aradaki her adımı işaretlemekten daha çok şey söyler. Ortadaki kartların
+aksanlı olması yolculuğu değil GÜRÜLTÜYÜ artırıyordu.
+
+Kesilmemiş panoramaya BAKILDI: 2.–5. başlıklar artık sessiz, magenta yalnız açılışta
+("iki katına") ve varışta ("kalite") konuşuyor. Panorama genelinde aksan piksel oranı
+**%1,89**.

@@ -177,7 +177,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     },
     {
       ustBaslik: 'BAŞLANGIÇ',
-      baslik: 'Sorun hacim değil, **ayrıştırma**',
+      baslik: 'Sorun hacim değil, ayrıştırma',
       govde: 'Toplanan malzemenin üçte biri karışık geldiği için işlenemiyordu.',
       panel: {
         tip: 'cubuklar',
@@ -194,7 +194,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     },
     {
       ustBaslik: 'KIRILMA',
-      baslik: 'Tek bir hat değişikliği eğriyi **büktü**',
+      baslik: 'Tek bir hat değişikliği eğriyi büktü',
       govde: 'Optik ayrıştırıcı devreye girdiği yıl kayıp oranı yarıya indi.',
       panel: {
         tip: 'sayilar',
@@ -209,7 +209,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     },
     {
       ustBaslik: 'YAYILMA',
-      baslik: 'Aynı yöntem **dört tesise** taşındı',
+      baslik: 'Aynı yöntem dört tesise taşındı',
       govde: 'Kopyalanan şey makine değil, besleme sırasıydı.',
       panel: {
         tip: 'vafel',
@@ -223,7 +223,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     },
     {
       ustBaslik: 'BUGÜN',
-      baslik: 'Eğrinin ucu artık **tahmin**, ölçüm değil',
+      baslik: 'Eğrinin ucu artık tahmin, ölçüm değil',
       govde: 'Son iki nokta projeksiyon; kesikli çerçeve onu söylüyor.',
       panel: {
         tip: 'cubuklar',
@@ -372,7 +372,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'İZLENEBİLİRLİK',
-      baslik: 'Girdi **izlenebilir** olacak',
+      baslik: 'Girdi izlenebilir olacak',
       govde: 'Nereden geldiği bilinmeyen malzeme, nereye gittiği bilinmeyen atıktır.',
       panel: null,
       hayalet: '',
@@ -381,7 +381,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'AYRIŞTIRMA',
-      baslik: 'Ayrıştırma **kaynakta** başlayacak',
+      baslik: 'Ayrıştırma kaynakta başlayacak',
       govde: 'Sonradan ayrıştırma her adımda pahalılaşıyor ve saflığı düşürüyor.',
       panel: null,
       hayalet: '',
@@ -390,7 +390,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ÖLÇÜM',
-      baslik: '**Ölçülmeyen** kalite, varsayılandır',
+      baslik: 'Ölçülmeyen kalite, varsayılandır',
       govde: 'Ölçülmeyen saflık satışta ortaya çıkıyor.',
       panel: null,
       hayalet: '',
@@ -399,7 +399,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ALICI',
-      baslik: 'Çıktının bir **alıcısı** olacak',
+      baslik: 'Çıktının bir alıcısı olacak',
       govde: 'Alıcısı olmayan geri kazanım, ertelenmiş bir depolama.',
       panel: null,
       hayalet: '',
@@ -597,7 +597,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     },
     {
       ustBaslik: 'SORUN',
-      baslik: 'Önce **sorun** duruyor',
+      baslik: 'Önce sorun duruyor',
       govde: 'Adı konmamış sorun çözülemez.',
       panel: null,
       hayalet: '',
@@ -608,7 +608,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ÖLÇÜ',
-      baslik: 'Sonra **bir ölçü** koyuluyor',
+      baslik: 'Sonra bir ölçü koyuluyor',
       govde: 'Ölçü, tartışmayı tercihe çevirir.',
       panel: null,
       hayalet: '',
@@ -791,7 +791,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     },
     {
       ustBaslik: 'MALİYET',
-      baslik: 'Geri dönüşüm **ücretsiz** mi?',
+      baslik: 'Geri dönüşüm ücretsiz mi?',
       govde: 'Toplama, taşıma ve ayrıştırma bir maliyet kalemi; bedava olan yalnız atmak.',
       panel: { tip: 'etiketler', ogeler: ['toplama', 'taşıma', 'ayrıştırma'] },
       hayalet: '',
@@ -801,7 +801,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     },
     {
       ustBaslik: 'AYRIŞTIRMA',
-      baslik: 'Her plastik **aynı** mı?',
+      baslik: 'Her plastik aynı mı?',
       govde: 'Yedi kod, yedi ayrı akış. Karıştıkları an yedisi birden değersizleşiyor.',
       panel: {
         tip: 'liste',
@@ -819,7 +819,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     },
     {
       ustBaslik: 'DÖNGÜ',
-      baslik: 'Temizlemek **şart** mı?',
+      baslik: 'Temizlemek şart mı?',
       govde: 'Kalıntı, bir sonraki döngüde kokuya ve renk kaybına dönüşüyor.',
       panel: null,
       hayalet: '',
@@ -829,7 +829,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ÖMÜR',
-      baslik: 'Sonsuz kez **dönebilir** mi?',
+      baslik: 'Sonsuz kez dönebilir mi?',
       govde: 'Her döngüde zincir kısalıyor; sınırsız değil, sayılı.',
       panel: {
         tip: 'sayilar',
@@ -956,7 +956,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ZEMİN',
-      baslik: 'Aynı düzen, **başka** zemin',
+      baslik: 'Aynı düzen, başka zemin',
       govde: 'Süreklilik rengin dönmesinden geliyor; düzen hiç değişmiyor.',
       panel: null,
       hayalet: '',
@@ -966,7 +966,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'RİTİM',
-      baslik: 'Ritmi kuran **tekrar**',
+      baslik: 'Ritmi kuran tekrar',
       govde: 'Göz üçüncü karede düzeni öğreniyor ve dördüncüyü bekliyor.',
       panel: null,
       hayalet: '',
@@ -1118,7 +1118,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     },
     {
       ustBaslik: '',
-      baslik: 'Boşluk da bir **karar**',
+      baslik: 'Boşluk da bir karar',
       govde: 'Doldurulmayan alan, gözün dinlendiği yerdir.',
       panel: null,
       hayalet: '',
@@ -1128,7 +1128,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
     },
     {
       ustBaslik: '',
-      baslik: 'Küçük punto **güven** ister',
+      baslik: 'Küçük punto güven ister',
       govde: 'Bağırmayan bir başlık, okunacağını varsayıyor.',
       panel: null,
       hayalet: '',
@@ -1239,7 +1239,7 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ÖLÇÜ',
-      baslik: 'Önce **ölç**, sonra tekrarla',
+      baslik: 'Önce ölç, sonra tekrarla',
       govde: 'Ölçülmeyen bir tekrar, alışkanlıktır.',
       panel: { tip: 'vafel', baslik: 'ölçülen adım', toplam: 20, dolu: 13 },
       hayalet: '',
@@ -1248,7 +1248,7 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
     },
     {
       ustBaslik: 'SAPMA',
-      baslik: 'Sapma **görünür** olmalı',
+      baslik: 'Sapma görünür olmalı',
       govde: 'Görünmeyen sapma, ortalamanın içinde kaybolur.',
       panel: null,
       hayalet: '',
@@ -1333,7 +1333,7 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
     },
     {
       ustBaslik: 'KARŞI SÖZ',
-      baslik: 'Ama ölçtüğün her şey **önemli** değildir',
+      baslik: 'Ama ölçtüğün her şey önemli değildir',
       govde: 'İki cümle birlikte doğru; ayrı ayrı yanıltıcı.',
       panel: null,
       hayalet: '',
@@ -1456,7 +1456,7 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
     },
     {
       ustBaslik: 'DEĞİŞİM',
-      baslik: 'Ölçü **vardiyaya** indi',
+      baslik: 'Ölçü vardiyaya indi',
       govde: 'Aynı sayı, üç ayrı sorumlulukla okundu.',
       panel: null,
       hayalet: '',
@@ -1466,7 +1466,7 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
     },
     {
       ustBaslik: 'HIZ',
-      baslik: 'Karar **haftalıktan** günlüğe geçti',
+      baslik: 'Karar haftalıktan günlüğe geçti',
       govde: 'Geciken bir ölçü, geciken bir karar demek.',
       panel: null,
       hayalet: '',
@@ -1551,7 +1551,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ADIM 02',
-      baslik: 'İkinci adım: **eşiği** yaz',
+      baslik: 'İkinci adım: eşiği yaz',
       govde: 'Eşiksiz sayı, alarm üretmiyor.',
       panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '02', ad: 'eşiği yaz' }] },
       hayalet: '',
@@ -1560,7 +1560,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ADIM 03',
-      baslik: 'Üçüncü adım: **sorumlu** ata',
+      baslik: 'Üçüncü adım: sorumlu ata',
       govde: 'Sahipsiz alarm, kapatılan alarmdır.',
       panel: { tip: 'liste', baslik: 'sıra', ogeler: [{ no: '03', ad: 'sorumlu ata' }] },
       hayalet: '',
