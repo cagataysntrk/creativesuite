@@ -1445,3 +1445,78 @@ kayboldu. `katalog-ornek.test.ts` bunu anında kırmızıya çevirdi.
 Dağarcık zaten `periyod` · `program` · `çizelge` taşıyor; hafta da bir takvim kavramı.
 **İçerik zenginleşince sözlüğün eksiği görünür oldu** — dört maddeden üçü hep görünüyordu,
 dördüncüsü hiç.
+
+---
+
+## Ölü bant — her slaytta en uzun içeriksiz yatay bant (FAZ-19)
+
+Denetim: *"panolar y≈%75'ten %45-60'a insin ve sürekli ögeye DEĞSİN; art arda iki slaytta
+en uzun boş bandın başlangıç y'si %8'den yakın olamaz."* Ölçmek için yeni bir alet yazıldı.
+
+### Alet ÖNCE PİKSELLE yazıldı ve YANLIŞTI
+
+İlk sürüm kenar sayıyordu (4×4 küçültme + yatay gri farkı). İki yerde yalan söyledi:
+
+| Şablon | Alet ne dedi | Gerçek |
+|---|---|---|
+| `kavis` | en uzun ölü bant **%2** | her satırda 30-150‰ "kenar" vardı — o **DOKU**ydu |
+| `memphis` | y%53-92 arası **dolu** | sabit 15‰ = tek bir **4 px'lik saç çizgisi** |
+
+**Doku tanım gereği zemindir; ölçülen şey içerik dağılımıdır.** İkinci sürüm içerik
+kutuları + taşıyıcının gerçek geometrisi (`getPointAtLength` örneklemesi) üzerinden
+ölçüyor — `getBBox` panoramanın tamamına yayıldığı için kullanılamadı.
+
+**Ve ikinci sürüm de bir kez yalan söyledi:** dört şablon "%100 dolu" çıktı. Sebep
+`alan-siniri`in tuvali kaplayan konturSUZ `rect`i — bir **renk alanı zemindir**, içerik
+değil. Konturu olmayan ve slaytı kaplayan dolgu artık geçiliyor; çizilmiş **kenar** değil.
+
+### Ölçüm (10 şablon, kart kart, `y%başlangıç+yükseklik`)
+
+| Şablon | Kartlar | Kapsam |
+|---|---|---|
+| veri-hikayesi | 47+26 · 34+35 · 34+34 · 31+34 · 34+27 · 34+22 | %57 |
+| akan-alan | 47+12 · 35+23 · 42+13 · 38+14 · 35+21 · 35+18 | %73 |
+| sahne | 0+13 ×4 | %85 |
+| memphis | 31+22 · 44+9 · 26+7 · 26+27 · 32+7 · 38+15 | %70 |
+| donen | 87+7 ×4 | %83 |
+| editoryal | 0+0 · 0+0 · 0+29 · 0+0 | %93 |
+| kavis | 44+19 · 44+19 · 33+30 · 39+24 | %60 |
+| alinti | 0+27 · 0+25 · 0+29 | %55 |
+| karsilastirma | 73+8 · 31+37 · 35+21 · 24+7 | %70 |
+| **dizin (önce)** | **54+14 · 51+43 · 51+43 · 51+43** | **%42** |
+
+`kavis` %44+19 ölçüldü — denetimin bağımsız gözlemi *"gövde ~y620 ile kemerler ~y900
+arası ölü"* (= %43-%62). **İki ayrı yöntem aynı yeri gösterdi.**
+
+### `dizin`: sebep tek satırdı — `gorseller: []`
+
+On şablonun tek görselsiz olanı. Kapsamı %42, aile ortalaması %70; alt yarısı boştu.
+
+**Bir dizin sıkışık bir pencere ögesi değil, sayfadan aşağı inen bir GÜZERGÂHTIR.**
+`yayik` maddeleri kadrajın boyuna dağıtıyor. **Doldurmak için hiçbir öge EKLENMEDİ** —
+kutu koymak R-81'in saydığı "kodlanmış öge"yi artırır ve tam da şikâyet edilen HTML-CSS
+görüntüsünü üretirdi. Zaten çizili olan sol dikey çizgi bir omurga uzunluğuna kavuştu.
+
+| | önce | sonra |
+|---|---|---|
+| en uzun ölü bant | **%43** | **%7** |
+| kapsam | %42 | **%74** |
+| yanık maddenin inişi | %44,2 → %48,8 (**%4,6**) | %52,7 → %83,8 (**%31,2**) |
+| ok açısı | ~1,4° | ~27° |
+
+### Bir önceki tespit NİCELİK olarak eskidi
+
+*"Ok hem maddeye inip hem 45-60° geçemez"* tespiti duruyor ama sayıları değişti: iniş
+dört katına çıkınca açı ~1,4°'den ~27°'ye yükseldi. Hâlâ 45° değil — kesim açıklığı
+dikey yoldan uzun — ama üç ok artık üç ayrı yükseklikten geçen bir **iniş** çiziyor.
+
+### Kapı ve kalan borç
+
+`olu-bant.test.ts`: genel tavan **%38**, `dizin` tavanı **%9**.
+Tavan 12 denendi ve işe yaramazdı — ihlal 0,014 puanla kırmızıya dönüyordu.
+
+**%38 dürüsttür, hedef değildir.** %25'in üstünde kalanlar yazılı borçtur:
+`veri-hikayesi` %26/35/34/34/27 · `memphis` %27 · `kavis` %30 · `alinti` %27/25/29 ·
+`editoryal` k3 %29 · `karsilastirma` k2 %37. Kapandıkça tavan aşağı çekilecek.
+
+**Art arda yakın başlangıç (%8 kuralı) henüz kapıda değil: 28 ihlal.**

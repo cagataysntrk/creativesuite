@@ -180,6 +180,18 @@ export type Panel =
         readonly ad: string
         readonly aktif?: boolean
       }[]
+      /**
+       * ⚠ ⚠ **`yayik` EKLENDİ — ÖLÇÜLDÜ: `dizin`in alt %43'ü BOŞTU.** Yeni alet
+       * (`olu-bant`) her slaytta en uzun içeriksiz yatay bandı buluyor; `dizin`in üç
+       * kartında bant y%51'de başlayıp %94'e kadar iniyordu — kadrajın neredeyse yarısı.
+       * Sebep tek satırdı: `gorseller: []`. On şablonun tek görselsiz olanı ve kapsamı
+       * %42 — ailenin ortalaması %70.
+       *
+       * **Bir dizin sıkışık bir pencere ögesi değil, sayfadan aşağı inen bir GÜZERGÂHTIR.**
+       * `yayik` maddeleri kadrajın boyuna dağıtıyor: soldaki dikey çizgi bir omurgaya,
+       * numaralar duraklara dönüşüyor ve kartlar arası oklar o inişin devamı oluyor.
+       */
+      readonly yayik?: boolean
     }
   | { readonly tip: 'etiketler'; readonly ogeler: readonly string[] }
 
@@ -1029,7 +1041,8 @@ const panelHtml = (p: Panel, stil = ''): string => {
     const ikonlar = p.ogeler.map((o) => ikonSec(o.ad))
     const hepsiVar = ikonlar.length > 0 && ikonlar.every((i) => i !== null)
     return (
-      `<div class="panel"${stil}><div class="panel-baslik">${kacir(p.baslik)}</div>` +
+      `<div class="panel${p.yayik === true ? ' yayik' : ''}"${stil}>` +
+      `<div class="panel-baslik">${kacir(p.baslik)}</div>` +
       p.ogeler
         .map((o, i) => {
           const ikon = hepsiVar
@@ -2134,6 +2147,16 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // kalmaz; daha yükseği yanık satırı öldürür. Yanık satır ayrıca AKSAN taşıyor —
     // aksan disiplini (vurgu ≤2) metin içindir, bir dizinin ŞU AN işaretini kapsamaz.
     `  .liste-satir.sonuk { opacity: 0.38 }`,
+    // ⚠ ⚠ **YAYIK LİSTE — ölü bandı DOLDURAN şey, eklenen bir kutu DEĞİL.** Boşluğa bir
+    // öge koymak R-81'in saydığı "kodlanmış öge"yi artırırdı ve tam da şikâyet edilen
+    // HTML-CSS görüntüsünü üretirdi. Burada eklenen hiçbir şey yok: var olan dört madde
+    // kadrajın boyuna dağılıyor. Soldaki `border-left` — zaten çizili — bir omurga
+    // uzunluğuna kavuşuyor.
+    // ⚠ `flex: 1` kartın kalan yüksekliğini panele veriyor; `min-height: 0` olmadan
+    // flex çocuğu içeriğinden küçülemez ve rayı aşağı iter.
+    `  .panel.yayik { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;`,
+    `                 justify-content: space-between; padding-bottom: calc(30px * var(--panel-olcek)) }`,
+    `  .panel.yayik .liste-satir { margin-bottom: 0 }`,
     `  .liste-satir.yanik .liste-ad { color: var(--kart-metin); font-weight: 600 }`,
     `  .liste-no { font-family: "Marka Mono", ui-monospace, monospace; font-size: calc(22px * var(--panel-olcek));`,
     `              color: var(--kart-aksan); font-variant-numeric: tabular-nums;`,

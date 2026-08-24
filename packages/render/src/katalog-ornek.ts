@@ -1542,12 +1542,17 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     // maddeye iner ya dik açıyla geçer. Bağlantı seçildi — denetimin şikâyeti "açı" değil
     // *"hiçbirini hiçbir şeye bağlamıyor"*du.
     // ⚠ Uçlar YENİDEN ölçüldü: kartlar dört maddeyi birden taşıyınca YANIK satır her
-    // kartta bir aşağı iniyor (y %44,2 → %43,6 → %46,2 → %48,8). Oklar artık o inişi
-    // izliyor — geometri, dizinin ilerlediğini de söylüyor.
+    // kartta bir aşağı iniyor. Oklar o inişi izliyor — geometri, dizinin ilerlediğini
+    // de söylüyor.
+    // ⚠ ⚠ **VE İNİŞ `yayik` İLE DÖRT KATINA ÇIKTI: %4,6 → %31,2.** Liste kadrajın
+    // boyuna dağılınca yanık madde y %52,7 → %61,5 → %72,6 → %83,8'e indi. Yukarıdaki
+    // "45° geometrik olarak imkânsız" tespiti NİCELİK olarak eskidi: okun açısı ~1,4°'den
+    // ~27°'ye çıktı. Hâlâ 45° değil (kesim açıklığı dikey yoldan uzun), ama artık ok bir
+    // İNİŞ çiziyor — üç ok üç ayrı yükseklikten geçiyor.
     oklar: [
-      { x1: 22.3, y1: 44.2, x2: 27.2, y2: 43.6, bukum: 14 },
-      { x1: 41.3, y1: 43.6, x2: 52.2, y2: 46.2, bukum: -22 },
-      { x1: 66.3, y1: 46.2, x2: 77.2, y2: 48.8, bukum: 18 },
+      { x1: 22.3, y1: 52.7, x2: 27.2, y2: 61.5, bukum: 12 },
+      { x1: 41.3, y1: 61.5, x2: 52.2, y2: 72.6, bukum: -16 },
+      { x1: 66.3, y1: 72.6, x2: 77.2, y2: 83.8, bukum: 14 },
     ],
   },
   gorseller: [],
@@ -1565,6 +1570,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       govde: 'Sırayı bozmak, ölçüyü bozuyor.',
       panel: {
         tip: 'liste',
+        yayik: true,
         baslik: 'sıra',
         ogeler: [
           { no: '01', ad: 'ölçüm noktasını koy', aktif: true },
@@ -1583,6 +1589,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       govde: 'Eşiksiz sayı, alarm üretmiyor.',
       panel: {
         tip: 'liste',
+        yayik: true,
         baslik: 'sıra',
         ogeler: [
           { no: '01', ad: 'ölçüm noktasını koy' },
@@ -1601,6 +1608,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       govde: 'Sahipsiz alarm, kapatılan alarmdır.',
       panel: {
         tip: 'liste',
+        yayik: true,
         baslik: 'sıra',
         ogeler: [
           { no: '01', ad: 'ölçüm noktasını koy' },
@@ -1623,6 +1631,7 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       // DİZİN olmalı — dördüncü madde yanık, ilk üçü sönük.
       panel: {
         tip: 'liste',
+        yayik: true,
         baslik: 'sıra',
         ogeler: [
           { no: '01', ad: 'ölçüm noktasını koy' },
