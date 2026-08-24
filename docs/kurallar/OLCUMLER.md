@@ -746,3 +746,27 @@ kutularının altında kalıyor; `veri-hikayesi`nin köşegeni kadrajı kat ediy
    + hairline kontur, bir yazılım arayüzü ögesidir. Reçete `C.4`: yarıçap ya 0 ya ≥28 px;
    4–12 px arası "bootstrap kartı" bandı. **Yarıçap 0** — basılı bir künye etiketi keskin
    köşelidir. Çizildi ve BAKILDI: çipler artık basılı etiket okunuyor.
+
+## FAZ-19.7 · z-sırası — dağınık sayılar bir sözleşme değildir
+
+`z-index` on iki ayrı CSS satırında elle yazılıydı; sıra hiçbir yerde bir arada
+görünmüyordu. Toplanınca tek bakışta görülen ihlal: **`.bant-ok` 5'te, `.gorsel` 4'te** —
+akış taşıyıcısı kesik öznenin ÜSTÜNDEN geçiyordu. Denetçi bunu gözle bulmuştu:
+*"üstten geçen çizgi 'bağlantı' değil fosforlu kalem lekesi okunuyor."*
+
+Sözleşme tek yerde (`Z`, `panorama.ts`) ve testi SIRAYI sınıyor, sayıyı değil:
+zemin 0 · taşıyıcı 1 · leke-üst 2 · durak 3 · **gren 4** · görsel 5 · **vinyet 6** · metin 7.
+
+### ⚠ Gren ile vinyet AYNI seviyede olamıyor — ölçüm ayırdı
+
+İkisi tek "film" seviyesinde toplanıp görselin ALTINA alındığında R-96 kırmızı döndü:
+`memphis` siluetinin p90 luma farkı **119**, eşik 120. Ayrılıp **vinyet görselin ÜSTÜNE**
+çıkarılınca on kapak sıfır kusur.
+
+⚠ ⚠ **İLK TEŞHİSİM YANLIŞTI ve kayda doğrusu geçiyor.** Sebebin `normal` kipli grenin
+altındaki her kontrastı (1−α) ile çarpması olduğunu sandım (132 × 0,9 = 119 — sayı bile
+tutuyordu). Greni tek başına altta bırakınca kusur DEVAM ETTİ. Gerçek sebep vinyet:
+kesik özneyi de karartan bir vinyet, özne ile zemini BİRLİKTE kaydırıp aradaki farkı
+korur; yalnız zemini karartan bir vinyet o farkı YER. **Vinyet mercek etkisidir —
+sahneye değil filme aittir, yani öznenin de üstündedir.** Rakamın tutması, teşhisin
+doğru olduğu anlamına gelmiyordu.

@@ -694,6 +694,50 @@ const tokenAcikligi = (zemin: string, tokenCss = ''): number | null => {
  * ⚠ Kâğıt zeminde 34'lük bir vinyet kirli bir hale bırakıyor; mürekkep zeminde 18'lik
  * bir vinyet hiç görünmüyor. Tek sayı ikisinden birinde yanlış.
  */
+/**
+ * **Z-SIRASI SÖZLEŞMESİ — tek yer, tek sıra (FAZ-19.7).**
+ *
+ * ⚠ ⚠ **DAĞINIK SAYILAR BİR SÖZLEŞME DEĞİLDİR.** `z-index` on iki ayrı CSS satırında
+ * elle yazılıydı ve sıra hiçbir yerde bir arada görünmüyordu. Sonuç ölçüldü:
+ * `.bant-ok` **5**'teydi, `.gorsel` **4** — yani akış taşıyıcısı kesik öznenin
+ * ÜSTÜNDEN geçiyordu. Denetçinin sözleriyle: *"üstten geçen çizgi bağlantı değil
+ * fosforlu kalem lekesi okunuyor."* Doğru olan tersi: **özne şeridi KESSİN** — kesilen
+ * çizgi derinlik kurar.
+ *
+ * ⚠ `#sahne` TEK yığın bağlamı: `.kart` kendi bağlamını kurmuyor (`z-index` yok), bu
+ * yüzden kart çocukları doğrudan panorama ögeleriyle yarışıyor. Tek ölçek yeterli.
+ *
+ * ⚠ ⚠ **GREN VE VİNYET AYRI SEVİYE — ve ayrımı bir ÖLÇÜM dayattı, simetri değil.**
+ * İkisi tek "film" seviyesinde toplanıp görselin ALTINA alındığında R-96 kırmızı döndü:
+ * `memphis`te siluetin p90 luma farkı **119**, eşik 120. Ayrılıp vinyet görselin
+ * ÜSTÜNE çıkarılınca on kapak sıfır kusur.
+ * ⚠ **İlk teşhisim YANLIŞTI ve kayda öyle geçmesin:** sebebin `normal` kipli grenin
+ * kontrastı %90'a çarpması olduğunu sandım; greni tek başına altta bırakınca kusur
+ * DEVAM ETTİ. Sebep vinyetti — kesik özneyi de karartan bir vinyet, özne ile zemini
+ * BİRLİKTE kaydırıyor ve aradaki farkı korurken; yalnız zemini karartan bir vinyet
+ * farkı yiyor. **Vinyet mercek etkisidir: sahneye değil FİLME ait, yani öznenin de
+ * üstünde.** Gren ise kart zemininin üstünde, görselin altında kalıyor — kesik öznenin
+ * sahneye oturması zaten `temas-golgesi` · `tema-uyum` · `matlama` zincirinin işi.
+ */
+const Z = {
+  /** zemin, hayalet, lekeler, alan sınırı */
+  zemin: 0,
+  /** AKIŞ TAŞIYICISI — bant, kemer, ok, ölçek çizgisi */
+  tasiyici: 1,
+  /** kart renginin üstünde, öznenin altında duran leke */
+  lekeUst: 2,
+  /** taşıyıcının okunur parçaları: durak, etiket, kilometre */
+  durak: 3,
+  /** GREN — kart zemininin üstünde, görselin ALTINDA (aşağıdaki ölçüme bak) */
+  gren: 4,
+  /** kesik özne + temas gölgesi */
+  gorsel: 5,
+  /** VİNYET — kadrajın tamamına, görselin ÜSTÜNDE: mercek etkisi sahneye değil FİLME ait */
+  vinyet: 6,
+  /** başlık, gövde, etiket, künye şeridi */
+  metin: 7,
+} as const
+
 const vinyetGucu = (acikklik: number): number => (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34)
 
 const koyuMu = (zemin: string, tokenCss = ''): boolean => {
@@ -1631,9 +1675,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // Vinyet: kenarları toplayan tek radyal. Merkez ŞEFFAF — ortadaki içeriği
     // karartmayan bir vinyet, kadrajı daraltır ama okunurluğu düşürmez.
     `  .ust-gren, .ust-vinyet { position: absolute; inset: 0; pointer-events: none }`,
-    `  .ust-gren { z-index: 3; mix-blend-mode: ${grenKipi(zeminAcikligi)};`,
+    `  .ust-gren { z-index: ${Z.gren}; mix-blend-mode: ${grenKipi(zeminAcikligi)};`,
     `              background: ${grenKatmani(doc.ustDoku?.gren ?? grenOpakligi(zeminAcikligi) * 100)} }`,
-    `  .ust-vinyet { z-index: 4;`,
+    `  .ust-vinyet { z-index: ${Z.vinyet};`,
     `              background: radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
       ` rgba(0,0,0,${((doc.ustDoku?.vinyet ?? vinyetGucu(zeminAcikligi)) / 100).toFixed(2)}) 100%) }`,
     // ⚠ ⚠ **KAYNAK PNG'LER 500x500'DÜ ve işaret onun yalnız %2,4'ünü kaplıyordu.** Rayda
@@ -1795,7 +1839,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // taşıp tamamen kayboldu ve "hayalet yok" sanıldı. Satır yüksekliği sabitlenince `ust`
     // yaklaşık olarak GLİFİN tepesini gösteriyor — yani şablon yazarının kastettiği şeyi.
     `             line-height: ${HAYALET_SATIRI};`,
-    `             pointer-events: none; white-space: nowrap; z-index: 0 }`,
+    `             pointer-events: none; white-space: nowrap; z-index: ${Z.zemin} }`,
     // ⚠ ⚠ **`.ray` HARİÇ.** İlk sürüm `:not(.hayalet)` diyordu ve `.ray`in
     // `position: absolute`ını EZİYORDU: alt ray akışa girip gövde metninin hemen altına
     // düşüyor, künye kartın ortasında duruyordu. Bakınca görüldü.
@@ -1807,7 +1851,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // çocukların z-index'i doğrudan görsellerle yarışıyor — düzeltme tek sayı.
     // ⚠ Sıra şimdi: kart zemini → lekeler(2) → GÖRSEL(4) → oklar(5) → METİN(6).
     // Referans tasarımlarda da başlık figürün önünden geçiyor; istenen katmanlanma bu.
-    `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: 6 }`,
+    `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: ${Z.metin} }`,
     `  .panel, .sayilar, .etiketler { --panel-olcek: calc(var(--panel-kok) * var(--ayar-olcek, 1)) }`,
     // ── paneller ────────────────────────────────────────────────────────────
     // ⚠ ⚠ **PANEL RENKLERİ ZEMİNDEN TÜRÜYOR — ONALTI SABİT BEYAZ SİLİNDİ.** Panel gövdesi,
@@ -1911,20 +1955,20 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // hiç çizilmiyordu. Oklar `sahne` şablonunun iki süreklilik ögesinden biri — yokluğu
     // şablonu yarıya indiriyordu ve ancak render'a bakınca görüldü.
     `  .lekeler { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
-    `             height: ${doc.yukseklik}px; z-index: 0; pointer-events: none }`,
+    `             height: ${doc.yukseklik}px; z-index: ${Z.zemin}; pointer-events: none }`,
     // ⚠ Kart zemini z-index 1'de; `ust` lekeler 2'de, görseller 3'te. Sıra tesadüf değil:
     // daire kart renginin ÜSTÜNDE, ürünün ALTINDA durmalı (referans: `image copy 3`).
-    `  .lekeler.ust { z-index: 2 }`,
+    `  .lekeler.ust { z-index: ${Z.lekeUst} }`,
     `  .alan-siniri { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
-    `                 height: ${doc.yukseklik}px; z-index: 0 }`,
+    `                 height: ${doc.yukseklik}px; z-index: ${Z.zemin} }`,
     `  .bant-ok { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
-    `             height: ${doc.yukseklik}px; z-index: 5; pointer-events: none }`,
+    `             height: ${doc.yukseklik}px; z-index: ${Z.tasiyici}; pointer-events: none }`,
     // ⚠ Band yüksekliği şablondan gelebiliyor (`bant.yukseklik`); verilmezse ortak 560.
     `  .bant, .bant-kemer { position: absolute; left: 0; bottom: ${olc(120)}px;`,
     `                       width: ${toplam}px;`,
     `                       height: ${olc(doc.bant?.tip === 'kemer' ? (doc.bant.yukseklik ?? 560) : 560)}px;`,
-    `                       z-index: 1 }`,
-    `  .kilometre { position: absolute; bottom: ${olc(120)}px; z-index: 3;`,
+    `                       z-index: ${Z.tasiyici} }`,
+    `  .kilometre { position: absolute; bottom: ${olc(120)}px; z-index: ${Z.durak};`,
     `               transform: translateX(-50%);`,
     `               text-align: center }`,
     `  .kilometre-nokta { display: block; width: ${olc(13)}px; height: ${olc(13)}px;`,
@@ -1939,17 +1983,17 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Çizgi bir KENARLIK, tırtıklar bir TEKRAR: ikisi de CSS'in kendi dili. Kodlanmış
     // SVG ögesi yok (R-81).
     `  .olcek-cizgi { position: absolute; left: 0; width: ${toplam}px; height: 0;`,
-    `                 border-top: 1px solid ${sol('--pano-metin', 34)}; z-index: 1;`,
+    `                 border-top: 1px solid ${sol('--pano-metin', 34)}; z-index: ${Z.tasiyici};`,
     `                 pointer-events: none }`,
     `  .olcek-tirtik { position: absolute; left: 0; width: ${toplam}px; height: 9px;`,
-    `                  transform: translateY(-9px); z-index: 1; pointer-events: none;`,
+    `                  transform: translateY(-9px); z-index: ${Z.tasiyici}; pointer-events: none;`,
     `                  background-image: linear-gradient(to right,`,
     `                    ${sol('--pano-metin', 30)} 1px, transparent 1px);`,
     `                  background-repeat: repeat-x }`,
     // ⚠ Durak tırtığı AKSAN ve daha uzun: eşit aralıklı tırtıklar ölçeği, durak ise
     // içeriğin nerede olduğunu söylüyor. İkisi aynı renkte olsaydı ölçek bir desene,
     // durak da bir tekrara dönerdi.
-    `  .olcek-durak { position: absolute; width: 2px; height: 26px; z-index: 2;`,
+    `  .olcek-durak { position: absolute; width: 2px; height: 26px; z-index: ${Z.lekeUst};`,
     `                 transform: translate(-1px, -26px); background: var(--pano-aksan);`,
     `                 pointer-events: none }`,
     // Etiket MONO ve BUYUK HARF: sistemin `micro` kurali — bir olcek etiketi duzyazi
@@ -1957,13 +2001,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .olcek-etiket { position: absolute; transform: translateX(-50%);`,
     `                  font-family: "Marka Mono", ui-monospace, monospace; font-size: 15px;`,
     `                  letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500;`,
-    `                  color: ${sol('--pano-metin', 62)}; white-space: nowrap; z-index: 3;`,
+    `                  color: ${sol('--pano-metin', 62)}; white-space: nowrap; z-index: ${Z.durak};`,
     `                  font-variant-numeric: tabular-nums }`,
     // ── alt ray: her slaytta aynı yerde, ritmi taşıyan tekrar ────────────────
     // ⚠ Ray `.gorsel`in (z-index 4) ÜSTÜNDE: alt kenardan taşan kesik özne rayı örtüyordu
     // ve marka imzası ile kaynak satırı görünmez oluyordu. Ölçüldü, D-300.
     `  .ray { position: absolute; left: ${olc(64)}px; right: ${olc(64)}px;`,
-    `         bottom: ${olc(46)}px; z-index: 6;`,
+    `         bottom: ${olc(46)}px; z-index: ${Z.metin};`,
     `         display: flex; gap: ${olc(40)}px; align-items: center;`,
     `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: ${olc(20)}px;`,
     `         font-size: ${olc(18)}px; letter-spacing: 0.13em;`,
@@ -2009,7 +2053,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .ray-ifsa { margin-left: auto; opacity: 0.85; flex: none; white-space: nowrap }`,
     `  .ray-ifsa + .ray-sayac { margin-left: ${olc(40)}px }`,
     // ── görsel katmanı ──────────────────────────────────────────────────────
-    `  .gorsel, .gorsel-yer { position: absolute; z-index: 4; object-fit: cover }`,
+    `  .gorsel, .gorsel-yer { position: absolute; z-index: ${Z.gorsel}; object-fit: cover }`,
     `  .gorsel.kesik, .gorsel-yer.kesik { object-fit: contain; object-position: bottom }`,
     `  .gorsel.daire, .gorsel-yer.daire { border-radius: 50%; object-fit: cover }`,
     // ⚠ ⚠ **YER TUTUCU HER ZEMİNDE GÖRÜNMEK ZORUNDA.** İlk sürüm beyaz-şeffaf çizgi
