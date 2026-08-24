@@ -97,6 +97,38 @@ describe('z-sırası sözleşmesi', () => {
     expect(vinyet ?? 9).toBeLessThan(metin ?? 0)
   })
 
+  // ⚠ ⚠ **YÜZEY DÖNÜŞÜ KESİMDE OLAMAZ (FAZ-19.7).** `donen`in kimliği kart renklerinin
+  // dönmesi; dönüş TAM KESİM ÇİZGİSİNDEyken kaydıran göz iki ayrı kare görüyordu.
+  // Ölçüldü: kesimde renk farkı **636/765**. Dönüş kartın son %30'una taşındıktan sonra
+  // dört kesimde de **0–24**. Test pikseli değil MEKANİZMAYI sınıyor: sonraki kartın
+  // zemini farklıysa kart düz renk TAŞIYAMAZ.
+  it('kart zemini SONRAKİNE geçiyor — dönüş kesimde değil kartın içinde', () => {
+    const d = belge('donen')
+    expect(d, 'donen örneği yok').not.toBeNull()
+    if (d === null) return
+    const h = panoramaHtml(d)
+    const zeminler = d.kartlar.map((k) => k.zemin ?? d.zemin)
+    const farkVar = zeminler.some((z, i) => i + 1 < zeminler.length && zeminler[i + 1] !== z)
+    expect(farkVar, 'donen kartları aynı zemini taşıyor — örnek eskimiş').toBe(true)
+    // Geçiş kartın SON bölgesinde: `70%` durağı ve `90deg` ekseni.
+    // ⚠ `[^)]*` DENENDİ ve patladı: degrade `var(--ramp-…)` taşıyor, yani içinde `)` var.
+    // Kapatma parantezine dayanan bir desen, CSS değişkeni gören her yerde kırılır.
+    const g = h.slice(h.indexOf('linear-gradient(90deg,'))
+    expect(h).toContain('linear-gradient(90deg,')
+    expect(g.slice(0, 200), 'geçiş durağı kartın son %30`unda değil').toContain(' 70%,')
+  })
+
+  // ⚠ ⚠ **KÜNYE ŞERİDİ KARTIN DEĞİL PANORAMANIN ÖGESİ.** Şerit rengini kart zemininden
+  // alıyordu; `donen`de kart zemini dönünce şerit kesimde siyahtan beyaza atlıyor ve
+  // **kesimin KENDİSİNİ çiziyordu** (ölçüm: 636/765, yüzey 3–24'teyken).
+  it('künye şeridi `--ray-*` kullanıyor — kart zeminine bağlı değil', () => {
+    expect(css).toContain('--ray-zemin:')
+    expect(css).toContain('--ray-metin:')
+    const ray = /\.ray \{[^}]*\}/.exec(css)?.[0] ?? ''
+    expect(ray.length, '.ray kuralı yok').toBeGreaterThan(0)
+    expect(ray, '.ray hâlâ kart zeminine bağlı').not.toContain('--kart-')
+  })
+
   it('ZEMİN katmanı en altta — hayalet, lekeler, alan sınırı', () => {
     const gorsel = z(css, '.gorsel, .gorsel-yer')
     for (const s of ['.lekeler', '.alan-siniri']) {

@@ -1242,6 +1242,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // ⚠ Kart dışı ögeler (kesim ayracı, kilometre etiketi, madalyon) belgenin ZEMİNİNDEN
   // türüyor; kartın kendi zemininden değil — onlar hiçbir kartın içinde durmuyor.
   const panoRenkleri = kartRenkleri(doc.alanSiniri?.alt ?? doc.zemin, doc.tokenCss)
+  // Künye şeridi panorama zemininin üstünde duruyor — rengi ORADAN türüyor.
+  const rayRenkleri = kartRenkleri(doc.zemin, doc.tokenCss)
   // ⚠ İki alanlı zeminde metin ÜST alanın üstünde duruyor (kartlar üste yaslı), o yüzden
   // renkler üst alandan türüyor. Alt alan bandın ve rakamın bölgesi.
   // ⚠ ⚠ **IIFE'DEN DIŞARI ALINDI:** `<section>` etiketini kuran IIFE kapanınca `kartZemini`
@@ -1255,6 +1257,27 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         ((): string => {
           const kartZemini = kartinZemini(k)
           const r = kartRenkleri(kartZemini, doc.tokenCss)
+          // ⚠ ⚠ **YÜZEY DÖNÜŞÜ KESİMDE DEĞİL, KARTIN SON %30'UNDA (FAZ-19.7).**
+          // `donen`in kimliği kart renklerinin dönmesi; ama dönüş TAM KESİM ÇİZGİSİNDE
+          // oluyordu ve bu seamless'ın TERSİ: kaydıran göz iki ayrı kare görüyor,
+          // devam eden bir yüzey değil. Denetim bunu ölçtü — `donen` ve `memphis`
+          // sürekliliği aktif olarak KIRIYOR.
+          //
+          // ⚠ Reçete dönüşü slayt MERKEZİNE öneriyor. Merkez olamaz: metin kartın sol
+          // %60'ında ve metin kutbu (`kartRenkleri`) kart zemininden türüyor — geçiş
+          // metnin altından geçerse aynı başlık yarısı açık yarısı koyu zeminde kalır
+          // ve hiçbir tek kutup onu okunur yapamaz. Dönüş metnin BİTTİĞİ yerde başlıyor.
+          //
+          // ⚠ Kesimde iki taraf AYNI renkte buluşuyor: kart N %100'de sonrakinin
+          // rengine varıyor, kart N+1 o renkten başlıyor. Dikiş yok; değişim kartın
+          // İÇİNDE, yani kaydırırken bir vaat olarak okunuyor.
+          const sonraki = doc.kartlar[i + 1]
+          const sonrakiZemin = sonraki === undefined ? null : kartinZemini(sonraki)
+          const kartDolgusu =
+            sonrakiZemin === null || sonrakiZemin === kartZemini
+              ? kartZemini
+              : `linear-gradient(90deg, ${kartZemini} 0%, ${kartZemini} 70%,` +
+                ` ${sonrakiZemin} 100%)`
           // ⚠ ⚠ **HAYALET RENGİNİ DURDUĞU ALAN BELİRLER, KARTIN METNİ DEĞİL.** İki alanlı
           // şablonda kart amber alanın üstünde (metni mürekkep) ama dev rakam sınırın
           // ALTINDA, mürekkep alanda duruyor. Kart renginden türetilince mürekkep-üstüne-
@@ -1299,7 +1322,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
               (doc.alanSiniri === undefined &&
                 (doc.lekeler ?? []).length === 0 &&
                 doc.zeminDokusu === undefined)
-                ? kartZemini
+                ? kartDolgusu
                 : 'transparent'
             };` +
             // ⚠ Kartın zemini CSS DEĞİŞKENİ olarak da yazılıyor: dip vinyeti onu
@@ -1585,7 +1608,19 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `           --pano-metin: ${panoRenkleri.metin}; --pano-aksan: ${panoRenkleri.aksan};`,
     // ⚠ Zemin de DEĞİŞKEN: yüzey adımı (`yuzeyAdimi`) onu metin rengiyle karıştırıyor.
     // Sabit bir token kullanılsaydı adım kâğıt şablonda ters yöne giderdi.
-    `           --pano-zemin: ${doc.zemin}; }`,
+    // ⚠ ⚠ **KÜNYE ŞERİDİ KARTIN DEĞİL PANORAMANIN ÖGESİ (FAZ-19.7).** Şerit rengini
+    // kart zemininden alıyordu ve `donen`de kart zemini dönüyor: kesim çizgisinde
+    // ÖLÇÜLEN fark **636/765** — yüzeyin kendisi kesimde 3–24'e inmişken şerit hâlâ
+    // siyahtan beyaza atlıyordu. Bir seamless karoselde her kesimde renk değiştiren bir
+    // altbilgi, kesimin KENDİSİNİ çiziyor. Şerit artık panorama boyunca TEK yüzey:
+    // kaydırırken yerinde duran bir ray, altında akan bir tuval.
+    `           --pano-zemin: ${doc.zemin};`,
+    // ⚠ ⚠ **RAY METNİ RAYIN KENDİ ZEMİNİNDEN TÜRÜYOR, `panoRenkleri`NDEN DEĞİL.**
+    // İlk sürüm `panoRenkleri`ni kullandı ve `alinti` altı kusur döktü (R-95): o
+    // renkler `alanSiniri.alt`tan, yani KOYU kamadan türüyor — ray zemini ise kâğıt.
+    // Açık üstüne açık. Kural her yerde aynı: **renk, ögenin oturduğu yüzeyden türer.**
+    `           --ray-zemin: ${doc.zemin}; --ray-metin: ${rayRenkleri.metin};`,
+    `           --ray-aksan: ${rayRenkleri.aksan}; }`,
     // ── tipografi reçetesi: değişkenler ÖNCE, kullanımlar sonra ───────────────
     // ⚠ ⚠ **GENİŞLİK EKSENİ KALKTI (D-317).** Sistemin dört ailesinin hiçbirinde `wdth`
     // yok; olmayan bir ekseni CSS'e yazmak sessiz bir yalan olurdu — tarayıcı
@@ -2030,10 +2065,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .ray { position: absolute; left: ${olc(64)}px; right: ${olc(64)}px;`,
     `         bottom: ${olc(46)}px; z-index: ${Z.metin};`,
     `         display: flex; gap: ${olc(40)}px; align-items: center;`,
-    `         border-top: 1px solid ${sol('--kart-metin', 10)}; padding-top: ${olc(20)}px;`,
+    `         border-top: 1px solid ${sol('--ray-metin', 10)}; padding-top: ${olc(20)}px;`,
     `         font-size: ${olc(18)}px; letter-spacing: 0.13em;`,
-    `         color: ${sol('--kart-metin', 48)} }`,
-    `  .ray-sayac { margin-left: auto; color: var(--kart-aksan); font-weight: 700;`,
+    `         color: ${sol('--ray-metin', 48)} }`,
+    `  .ray-sayac { margin-left: auto; color: var(--ray-aksan); font-weight: 700;`,
     `         flex: none; white-space: nowrap }`,
     // ⚠ İfşa şeritte, künyenin yanında: bir uyarı kutusu değil bir KÜNYE satırı —
     // fotoğraf kredisi gibi okunur. Görünür olmak zorunda ama tasarımı bozmak
@@ -2060,16 +2095,21 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `         margin-left: ${olc(-64)}px; margin-right: ${olc(-64)}px;`,
     `         padding-left: ${olc(64)}px; padding-right: ${olc(64)}px;`,
     `         background: linear-gradient(to top,`,
-    `                     color-mix(in srgb, var(--kart-zemin) 90%, transparent) 0%,`,
-    `                     color-mix(in srgb, var(--kart-zemin) 82%, transparent) 62%,`,
-    `                     color-mix(in srgb, var(--kart-zemin) 0%, transparent) 100%) }`,
+    // ⚠ ⚠ **DOLGU %62'DE BİTİYORDU ve şerit panoramanın ögesi olunca bu YETMEDİ.** Kart
+    // zeminine bağlıyken şeridin altındaki yüzey zaten aynı renkti; artık `donen`de kart
+    // AÇIK, ray KOYU. Sayacın üst kısmı solan bölgeye düşünce R-95 kırmızı döndü
+    // (`ray-sayac` yüzeyinin %8'i metin lumasına 44'ten yakın). Dolgu kendi rayını
+    // taşımak zorunda: %86'ya kadar tam, üstünde yumuşak bir çıkış.
+    `                     color-mix(in srgb, var(--ray-zemin) 96%, transparent) 0%,`,
+    `                     color-mix(in srgb, var(--ray-zemin) 94%, transparent) 86%,`,
+    `                     color-mix(in srgb, var(--ray-zemin) 0%, transparent) 100%) }`,
     `  .ray-sol { flex: none; white-space: nowrap }`,
     `  .ray-orta { min-width: 0; overflow: hidden; text-overflow: ellipsis;`,
     `         white-space: nowrap }`,
     // ⚠ Kesikli çerçeve + uyarı rengi: eksiklik GÖRÜLSÜN diye. Rengi zeminden türüyor —
     // sabit kırmızı, kâğıt kartta da koyu kartta da aynı görünmez (R-95 ailesi).
-    `  .ray-orta-bos { border: 1px dashed ${sol('--kart-metin', 38)};`,
-    `         padding: ${olc(2)}px ${olc(10)}px; color: ${sol('--kart-metin', 70)};`,
+    `  .ray-orta-bos { border: 1px dashed ${sol('--ray-metin', 38)};`,
+    `         padding: ${olc(2)}px ${olc(10)}px; color: ${sol('--ray-metin', 70)};`,
     `         border-radius: ${olc(3)}px }`,
     `  .ray-ifsa { margin-left: auto; opacity: 0.85; flex: none; white-space: nowrap }`,
     `  .ray-ifsa + .ray-sayac { margin-left: ${olc(40)}px }`,

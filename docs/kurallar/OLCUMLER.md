@@ -818,3 +818,43 @@ gelene kadar görünmez kalıyor.
 ⚠ **Reçetenin sırası ikinci kez yanlışlandı.** Önce "görünür taşıyıcı maskeden önce
 çizilemez" çıktı; şimdi de "maskenin yerine geçeceği söylenen yastık maskenin yerine
 geçemiyor". Reçete iyi bir kaynak ama sırası ölçümle sınanmadan uygulanamaz.
+
+## FAZ-19.7 · yüzey dönüşü kesimde OLAMAZ — ve asıl dikişi künye şeridi atıyordu
+
+`donen` ve `memphis` sürekliliği **aktif olarak kırıyordu**: kart zeminleri tam kesim
+çizgisinde değişiyordu, yani seamless'ın tersi. Ölçüm — kesimin ±5 px'inde RGB farkı
+(0–765 ölçeğinde), kesilmemiş panorama üstünde:
+
+| yer | önce | sonra |
+|---|---|---|
+| yüzey (y 200 · 700 · 1300) | 21–24 | **0–24** |
+| **künye şeridi (y 1390)** | **636** | **0–3** |
+
+### Dönüş kartın SON %30'una taşındı, merkezine değil
+
+Reçete dönüşü slayt MERKEZİNE öneriyor. **Merkez olamaz:** metin kartın sol %60'ında ve
+metin kutbu (`kartRenkleri`) kart zemininden türüyor — geçiş metnin altından geçerse aynı
+başlık yarısı açık yarısı koyu zeminde kalır ve hiçbir tek kutup onu okunur yapamaz.
+Dönüş metnin BİTTİĞİ yerde başlıyor: `linear-gradient(90deg, own 0%, own 70%, next 100%)`.
+Kesimde iki taraf aynı renkte buluşuyor — kart N %100'de sonrakinin rengine varıyor,
+kart N+1 o renkten başlıyor.
+
+### ⚠ ASIL DİKİŞİ ŞERİT ATIYORDU ve yüzey düzelince ORTAYA ÇIKTI
+
+Yüzey kesimde 3–24'e inince künye şeridi hâlâ **636** veriyordu: rengini kart zemininden
+alıyordu ve `donen`de kart zemini dönüyor. **Bir seamless karoselde her kesimde renk
+değiştiren bir altbilgi, kesimin KENDİSİNİ çiziyor.** Şerit artık panorama ögesi:
+`--ray-zemin` · `--ray-metin` · `--ray-aksan`, hepsi `doc.zemin`den. Kaydırırken yerinde
+duran bir ray, altında akan bir tuval.
+
+⚠ **Ray metni `panoRenkleri`nden türetilemez.** İlk sürüm onu kullandı ve `alinti` altı
+R-95 kusuru döktü: o renkler `alanSiniri.alt`tan, yani KOYU kamadan türüyor — ray zemini
+ise kâğıt. Açık üstüne açık. Kural her yerde aynı: **renk, ögenin oturduğu yüzeyden türer.**
+
+⚠ **Dolgunun %62'de bitmesi de yetmedi.** Kart zeminine bağlıyken şeridin altındaki yüzey
+zaten aynı renkti; artık `donen`de kart AÇIK, ray KOYU. Sayacın üst kısmı solan bölgeye
+düşünce R-95 yine kırmızı (`ray-sayac` yüzeyinin %8'i). Dolgu %86'ya çıkarıldı.
+
+### Dört panoramada kesim farkı (0–765)
+
+`donen` 0–24 · `memphis` 18–24 · `alinti` 18 · `akan-alan` 18–33. Hepsi ≤%4,3.
