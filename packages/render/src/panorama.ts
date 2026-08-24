@@ -716,6 +716,23 @@ const koyuMu = (zemin: string, tokenCss = ''): boolean => {
 const sol = (degisken: string, yuzde: number): string =>
   `color-mix(in oklab, var(${degisken}) ${yuzde}%, transparent)`
 
+/**
+ * Yüzey adımı — zeminden AYRIŞAN bir düzlem rengi (FAZ-19.4).
+ *
+ * ⚠ ⚠ **SABİT BİR TOKEN SEÇMEK İKİ KUTUPTA BİRDEN DOĞRU OLAMAZ.** Taşıyıcı alanların
+ * rengi `--ramp-marka-ink-850` sabitiydi: koyu şablonda zeminden ayrışıyor, kâğıt
+ * şablonda zeminin ÜSTÜNDE koyu bir leke bırakıyordu. Adım, zeminin kendi metin
+ * renginden türetiliyor: koyu zeminde metin AÇIK olduğu için adım yukarı, kâğıt zeminde
+ * metin KOYU olduğu için aşağı gidiyor. Tek ifade, iki kutup.
+ *
+ * ⚠ ⚠ **YÜZDE ÖLÇÜLDÜ.** `ink-850` (%100 opak) `#040404` zemininde `#2b2b2b` veriyor:
+ * kontrast **1,32:1**, R-87'nin algısal eşiği 1,6:1'in altında. Nötr rampanın gölgede
+ * yeterince ince adımı YOK — bu bir eksiklik ve FAZ-19.6'nın (palet) işi. O gelene
+ * kadar adım karışımla kuruluyor.
+ */
+const yuzeyAdimi = (yuzde: number): string =>
+  `color-mix(in oklab, var(--pano-metin) ${yuzde}%, var(--pano-zemin))`
+
 /** Kartın renk seti — zeminden türetiliyor, seçilmiyor. */
 const kartRenkleri = (
   zemin: string,
@@ -1094,8 +1111,11 @@ const bantSvg = (b: Bant, toplamGenislik: number, yukseklik: number): string => 
     // ⚠ Kontur `--pano-metin`den türüyor, aksandan değil: kemer bir VURGU değil bir
     // ZEMİN formu. Aksanı forma dökmek, tek karneli aksan kuralını (D-318) deler.
     return (
-      `<path d="${yol}" fill="var(--ramp-marka-ink-850)" fill-opacity="0.55" ` +
-      `stroke="${sol('--pano-metin', 20)}" stroke-width="1.5"/>`
+      // ⚠ ⚠ **ÖLÇÜLDÜ: `ink-850` @0,55 → `#202020`, kontrast 1,16:1.** R-87 kapısı
+      // yeşildi ve kemer YİNE görünmüyordu — kapı VARLIK ölçüyor, GÖRÜNÜRLÜK değil.
+      // *"Teknik yeşil, algısal kırmızı."* Adım artık zeminin kendi metin renginden.
+      `<path d="${yol}" fill="${yuzeyAdimi(26)}" ` +
+      `stroke="${sol('--pano-metin', 30)}" stroke-width="1.5"/>`
     )
   }).join('')
   return (
@@ -1497,7 +1517,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           `           background: ${zeminCss(doc.zeminDokusu, tokenAcikligi(`var(${doc.zeminDokusu.taban})`, doc.tokenCss) ?? 0.12)};`,
           `           background-blend-mode: ${zeminKarisimi(doc.zeminDokusu)};`,
         ]),
-    `           --pano-metin: ${panoRenkleri.metin}; --pano-aksan: ${panoRenkleri.aksan}; }`,
+    `           --pano-metin: ${panoRenkleri.metin}; --pano-aksan: ${panoRenkleri.aksan};`,
+    // ⚠ Zemin de DEĞİŞKEN: yüzey adımı (`yuzeyAdimi`) onu metin rengiyle karıştırıyor.
+    // Sabit bir token kullanılsaydı adım kâğıt şablonda ters yöne giderdi.
+    `           --pano-zemin: ${doc.zemin}; }`,
     // ── tipografi reçetesi: değişkenler ÖNCE, kullanımlar sonra ───────────────
     // ⚠ ⚠ **GENİŞLİK EKSENİ KALKTI (D-317).** Sistemin dört ailesinin hiçbirinde `wdth`
     // yok; olmayan bir ekseni CSS'e yazmak sessiz bir yalan olurdu — tarayıcı

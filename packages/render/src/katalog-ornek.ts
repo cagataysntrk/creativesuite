@@ -298,7 +298,12 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   // Hâlâ sakin, artık görünür. Sınırdaki hairline de aynı sebeple eklendi.
   alanSiniri: {
     ust: 'var(--ramp-marka-ink-1000)',
-    alt: 'var(--ramp-marka-ink-850)',
+    // ⚠ ⚠ **`ink-850` ÖLÇÜLDÜ ve YETMİYORDU: `#2b2b2b` / `#121212` = 1,32:1.** R-87'nin
+    // algısal eşiği 1,6:1. Ölçüm defteri ΔL 0,165 diye kaydetmişti ve o doğruydu —
+    // token uzayında büyük olan fark, KONTRAST ORANINDA küçük. **İki farklı birim,
+    // biri ötekini garanti etmiyor.** `ink-650` (oklch 0.485) adımı gerçekten görünür
+    // kılıyor; nötr rampanın gölgede ara adımı yok, o eksik FAZ-19.6'nın işi.
+    alt: 'var(--ramp-marka-ink-650)',
     // ⚠ ⚠ **GENLİK %9'DAN %58'E — referansla farkın kaynağı EKSEN DEĞİL, GENLİKTİ.**
     // `image.png`de amber alan slayttan slayta yer değiştiriyor: bir karede neredeyse
     // tamamı kaplıyor, ötekinde alt köşeye çekiliyor. Bizim sınır 57–66 arası

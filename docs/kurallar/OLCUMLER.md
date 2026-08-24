@@ -697,3 +697,26 @@ taşıdığı için KENDİ yığın bağlamını kuruyor: çocuğun `mix-blend-m
 şeffaf ebeveyniyle karışıyor, yani hiç karışmıyor. Ölçüm: `#040404` zemin `#5c5c5c`ye
 çıktı ve on kapakta R-105 patladı. **Gren kaybolmamıştı, GRİ PERDE olmuştu.** Çözüm:
 gren ve vinyet `#sahne`in doğrudan çocukları, kardeş.
+
+## FAZ-19.4 · taşıyıcı görünürlüğü — ΔL büyük, KONTRAST küçük
+
+**R-87 yeşildi ve taşıyıcı yine görünmüyordu.** Kapı VARLIK ölçüyor, GÖRÜNÜRLÜK
+ölçmüyor: *"teknik yeşil, algısal kırmızı."* Ölçüm — taşıyıcı alanın 12×12 ortalaması
+ile üstündeki zeminin WCAG kontrast oranı, vinyetten uzak bir noktada:
+
+| şablon | önce | sonra | eşik 1,6:1 |
+|---|---|---|---|
+| `kavis` | `#202020` / `#121212` = **1,16:1** | `#3a3a3a` / `#121212` = **1,66:1** | ✓ |
+| `akan-alan` | `#2b2b2b` / `#121212` = **1,32:1** | `#585858` / `#121212` = **2,65:1** | ✓ |
+
+⚠ ⚠ **ÖLÇÜM DEFTERİ YANILMAMIŞTI, BİRİM DEĞİŞTİRMİŞTİ.** R-87 kaydı `alanSiniri` için
+*"ΔL 0,165"* diyordu ve o doğru: `ink-1000` (oklch 0,105) ile `ink-850` (0,270) arasında
+token uzayında gerçekten 0,165 var. Ama **kontrast oranında bu yalnız 1,32:1.** Token
+açıklığı ile WCAG kontrastı iki AYRI birim ve biri ötekini garanti etmiyor. Bir kural
+bir birimde ölçülüp başka birimde iddia edilirse, kayıt doğru kalır ve iş yanlış çıkar.
+
+⚠ **Nötr rampanın gölgede ara adımı YOK:** `ink-850` 0,270, sonraki `ink-650` 0,485 —
+aradaki her şey eksik. `kavis` bu yüzden sabit token yerine **yüzey adımı** kullanıyor:
+`color-mix(in oklab, var(--pano-metin) 26%, var(--pano-zemin))`. Adım zeminin kendi
+metin renginden türediği için koyu şablonda yukarı, kâğıt şablonda aşağı gidiyor —
+sabit bir token iki kutupta birden doğru olamazdı. Ara adım eksiği FAZ-19.6'nın işi.
