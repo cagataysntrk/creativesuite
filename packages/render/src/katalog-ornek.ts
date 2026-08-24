@@ -635,6 +635,12 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   // beş kusur buldu. Yatayda çözmek imkânsızdı — süreklilik ögesi kesimi aşmak ZORUNDA
   // ve kesim metin kolonunun içinden geçiyor. Çakışma DİKEYDE çözülüyor: metin üstte,
   // özne altta. Aynı ders `sahne`de bir kez öğrenilmişti.
+  // ⚠ ⚠ **KAPAK KİLİDİ DİKEYDE KIRILAMADI — `kavis`le AYNI SEBEP.** `orta` denendi:
+  // gövdenin **%63'ü** kesik öznenin üstüne düştü (`metin-gorsel-cakisiyor`, ayrıca
+  // başlık %13 ve ikinci bir gövde %31). Kesik özne kadrajın alt-ortasını tutuyor;
+  // metnin üstte olması bir alışkanlık değil, formun kendisi. **Yerleşim çeşitliliğinin
+  // sınırını İÇERİK çiziyor** — bu şablonun girişi ancak görsel briefi değişirse
+  // (FAZ-19.8) yer değiştirebilir.
   yerlesim: 'ust',
   tipografi: {
     baslikPayi: 0.98,
@@ -1401,6 +1407,11 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
   gorseller: [],
   kartlar: [
     {
+      // ⚠ ⚠ **KAPAK KİLİDİ — `sag` BEYAN EDİLİYORDU ama KAPAK KARTINDA DEĞİL.**
+      // Şablon dağılımı `ust-sag` diyordu; ölçüm kapağı %5,9'da buldu, çünkü `kolon`
+      // sonraki kartlarda ayarlıydı. Beyan ile çizilen arasındaki fark tam olarak bu
+      // deponun tekrar eden hatası — burada kompozisyon hâlinde.
+      kolon: 'sag' as const,
       ustBaslik: 'ÖNCE',
       baslik: 'Fire **nerede** olduğunu söylemiyordu',
       govde: 'Toplam biliniyordu; hangi vardiyada oluştuğu bilinmiyordu.',

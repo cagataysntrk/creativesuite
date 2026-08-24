@@ -1161,6 +1161,10 @@ yığınının sol ve üst kenarı (kadraj yüzdesi):
 | **sol kenar** | %5,7–5,9 | **9 / 10** (yalnız `editoryal` %51,8) |
 | **üst kenar** | %5,6 | **7 / 10** (`alinti` %27,2 · `sahne` %29,6 · `editoryal` %26,7) |
 
+⚠ Panel de sayılınca kompozisyon imzası (sol/üst/alt) ondan dokuzunda AYRI çıkıyor;
+tek çakışma `veri-hikayesi` ile `donen` (6/6/87). Kalan kilit **giriş noktası**:
+altı şablon hâlâ (%6, %6)'dan açılıyor.
+
 **Göz ilk 300 ms'de siluet okur, süs okumaz** — ve dokuz kapak aynı silueti veriyordu.
 
 ### ⚠ ALTI AD, ÜÇ SONUÇ — çeşitlilik yapılandırmada var, piksele ULAŞMIYOR
@@ -1171,10 +1175,15 @@ Beyan edilen yerleşim dağılımı aslında çeşitli: `ust-sol` 3 · `orta-sag
 
 1. **`kolon: 'sag'` KAPAK KARTINDA değil**, sonraki kartlarda ayarlıydı — `kavis` ve
    `karsilastirma` "sag" beyan ediyor, kapakları soldan açılıyordu.
-2. **`ayrik` ve `ust` aynı `justify-content`** (`flex-start`) — kapak için ayırt edilemez.
-   `yayik` gerçekten farklı (`donen`in yığını %86,8'e iniyor); `ayrik` değil.
-
-**Bu, "beş ad tek doku" hatasının kompozisyondaki karşılığı.**
+2. ⚠ ⚠ **BU MADDE YANLIŞTI ve düzeltilerek duruyor.** *"`ayrik` ile `ust` aynı
+   `justify-content` — ayırt edilemez"* yazmıştım. `justify-content` kısmı doğru (ikisi de
+   `flex-start`) ama SONUÇ yanlış: `ayrik` metin yığınına değil **PANELE** etki ediyor —
+   `.panel, .sayilar, .etiketler { margin-top: auto }`. Aleti yalnız `.ust-baslik,
+   .baslik, .govde` ölçüyordu, yani `ayrik`ın etki ettiği ögeyi HİÇ GÖRMÜYORDU.
+   Panel de sayılınca fark ortaya çıkıyor: `veri-hikayesi` alt kenarı %46,7 → **%86,8**,
+   `karsilastirma` %48,2 → **%72,5**, `dizin` %33,1 → **%46,1**.
+   **Ölçüm aracı dokuzuncu kez yanlış şeye bakıyordu** — ve bu kez yanlış sonucu
+   deftere de yazdırmıştı.
 
 ### ⚠ `kavis` DİKEYDE KIRILAMADI — form buna izin vermiyor
 
@@ -1183,3 +1192,33 @@ düştü — `sus-metni-kesiyor` **%36,2**, `metin-zemine-karisiyor` %20 ve %11 
 **Kemerler kadrajın alt yarısını tutuyor; `kavis`in metninin üstte olması bir alışkanlık
 değil, formun kendisi.** Siluet YATAYDA kırıldı: kapak kartı `kolon: 'sag'`, sol kenar
 **%5,9 → %28,0**. Sol kenar paylaşan şablon 9 → 8.
+
+## FAZ-19.7 · giriş noktası 9/10 → 6/10 — ve sınırı YERLEŞİM değil İÇERİK çiziyor
+
+| şablon | sol kenar | nasıl |
+|---|---|---|
+| `kavis` | %5,9 → **%28,0** | kapak kartı `kolon: 'sag'` |
+| `karsilastirma` | %5,9 → **%25,9** | kapak kartı `kolon: 'sag'` |
+
+⚠ **`karsilastirma` zaten `sag` BEYAN EDİYORDU** — ama `kolon` sonraki kartlarda
+ayarlıydı, kapakta değil. Beyan ile çizilen arasındaki fark, bu deponun tekrar eden
+hatasının kompozisyon hâli.
+
+Kompozisyon imzası (sol/üst/alt, panel dahil) artık ondan dokuzunda AYRI; tek çakışma
+`veri-hikayesi` ↔ `donen` (6/6/87). Kalan kilit giriş noktasında: **beş şablon hâlâ
+(%5,9 · %5,6)'dan açılıyor.**
+
+### ⚠ ⚠ İKİ ŞABLON DİKEYDE KIRILAMADI — ve sebebi AYNI
+
+| şablon | denenen | kapının cevabı |
+|---|---|---|
+| `kavis` | `yerlesim: 'orta'` | `sus-metni-kesiyor` **%36,2** · `metin-zemine-karisiyor` %20 ve %11 |
+| `memphis` | `yerlesim: 'orta'` | `metin-gorsel-cakisiyor` gövde **%63** · başlık %13 · gövde %31 |
+
+İkisinde de kadrajın alt yarısını bir KÜTLE tutuyor — `kavis`te kemer dizisi, `memphis`te
+kesik özne. **Metnin üstte olması bir alışkanlık değil, formun kendisi.**
+
+⚠ **Denetimin *"hiçbir durum ikiden fazla tekrarlanmaz"* kuralı YERLEŞİMLE tek başına
+karşılanamıyor.** Yerleşim çeşitliliğinin sınırını İÇERİK çiziyor: bu iki şablonun girişi
+ancak görsel briefi değişirse (FAZ-19.8) yer değiştirebilir. Kural yanlış değil; **tek
+başına yeterli değil** ve bunu ancak kapıya çarparak öğrenilir.
