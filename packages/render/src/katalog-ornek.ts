@@ -94,14 +94,35 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   zemin: 'var(--role-line-edge)',
   bant: {
     tip: 'egri',
+    // ⚠ ⚠ **EĞRİ KAPAKTA DÜZDÜ — ölçüldü, sonra ÖLÇÜT DÜZELTİLDİ.** İlk ölçüm dikey
+    // yolculuğu slayt başına **2 3 3 5 5 3** (% kadraj) buldu ve ailenin öteki çizgi
+    // taşıyıcılarını 6–26 gösterdi. Oradan bir taban yazmak YANLIŞ olurdu: o 6–26'nın
+    // hepsi `alanSiniri`, yani TAM KADRAJ aygıtı. `egri` dibe yaslı 560 px'lik bir
+    // bandın içinde yaşıyor (kadrajın %41'i) ve türünün tek örneği — tek üyeli bir
+    // popülasyondan eşik türetilmez.
+    // ⚠ Ölçülebilir olan başkaydı: eğri kendi bandının yalnız **%49'unu** kullanıyordu
+    // (y 78→29). Genlik 88→16'ya açıldı: aynı band, aynı hikâye, %72 kullanım.
+    // ⚠ Dağılım da düzeldi. Eskisi güçlü DIŞBÜKEYDİ — sonda ivmelenen bir büyüme
+    // çiziyordu, oysa başlık *"altı yılda İKİ KATINA çıkan"* diyor; sabit oranlı bir
+    // ikiye katlanma yaklaşık düz bir yükseliştir. Yeni dağılım hem her slaytta yön
+    // veriyor hem iddiaya daha SADIK.
+    // ⚠ ⚠ **88'DE BAŞLAMAK ÇOK DİPTİ ve bunu SAYI DEĞİL GÖZ buldu.** Genlik açılınca
+    // eğrinin sol ucu pul sırasına indi ve çizgi "2023" ile "2025" etiketlerinin İÇİNDEN
+    // geçti. Denetim sessizdi ve sebebi ölçüldü: `METIN_KUTULARI` yalnız başlık/gövde/üst
+    // etiketi tanıyordu, pulları hiç. Kapı genişletildi ve **kendi düzeltmemi yakaladı**.
+    // ⚠ 80 de yetmedi: pullar y 1092–1160, eğri o aralıkta 1114'e iniyordu (%2,6 kesişme).
+    // ⚠ ARADAKİ ÖLÇÜM YANLIŞ ÖGEYİ OKUDU: `.kilometre` kutuları 144 px açıklık gösterdi
+    // ve temiz sanıldı — oysa kapaktaki pullar `.etiketler` ögesi, başka bir şey.
+    // Aynı ders bu turda üçüncü kez: alet, ölçtüğünü sandığı şeyi ölçmüyor.
+    // 70'te sol uç 1062'ye çıkıyor, pul sırasının 30 px üstünde.
     noktalar: [
-      { x: 0, y: 78 },
-      { x: 18, y: 74 },
-      { x: 36, y: 66 },
-      { x: 54, y: 57 },
-      { x: 72, y: 44 },
-      { x: 88, y: 34 },
-      { x: 100, y: 29 },
+      { x: 0, y: 70 },
+      { x: 18, y: 58 },
+      { x: 36, y: 46 },
+      { x: 54, y: 34 },
+      { x: 72, y: 22 },
+      { x: 88, y: 12 },
+      { x: 100, y: 4 },
     ],
     kilometre: [
       { x: 18, etiket: '2020' },

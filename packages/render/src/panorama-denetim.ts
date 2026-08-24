@@ -305,7 +305,7 @@ export interface Kusur {
   readonly kart: number | null
   readonly aciklama: string
   /** Uyarlamanın hangi alanını değiştirmesi gerektiği; yoksa `null`. */
-  readonly alan: 'baslik' | 'govde' | 'ustBaslik' | 'panel' | 'hayalet' | 'raya' | null
+  readonly alan: 'baslik' | 'govde' | 'ustBaslik' | 'etiket' | 'panel' | 'hayalet' | 'raya' | null
 }
 
 /**
@@ -978,6 +978,14 @@ const kartTavanlari = (doc: PanoramaBelgesi): string => {
  * ⚠ Kart SIRASI DOM'dan geliyor, konumdan hesaplanmıyor: panoramada kartlar zaten
  * ayrı `<section>`lar ve konumdan türetmek, kesimi aşan bir öge yüzünden kayardı.
  */
+// ⚠ ⚠ **PUL SIRASI LİSTEDE YOKTU ve tam da bandın yaşadığı yerde duruyor.**
+// `veri-hikayesi`nin eğrisi genliği açılınca "2023" ve "2025" pullarının İÇİNDEN geçti;
+// denetim *"0 kusur"* dedi. Sebep burasıydı: yalnız başlık/gövde/üst etiket ölçülüyordu,
+// oysa bir taşıyıcının metni kesmesi en çok bandın kendi kuşağında olur — orada duran
+// metin de tam olarak bu pullar. `SUSU_GIZLE` bandı zaten gizliyordu; eksik olan kutuydu.
+// ⚠ Pullar TEK BİRLEŞİK kutu olarak ölçülüyor, tek tek değil: ölçü iki ekran görüntüsü
+// istiyor ve kart başına dört pul maliyeti üçe katlardı. Kesişen bir çizgi birleşik
+// kutuda da fark üretir.
 const METIN_KUTULARI = `(() => {
   const cikti = []
   document.querySelectorAll('.kart').forEach((kart, i) => {
@@ -988,6 +996,16 @@ const METIN_KUTULARI = `(() => {
       const r = e.getBoundingClientRect()
       if (r.width < 4 || r.height < 4) continue
       cikti.push({ kart: i + 1, alan, sol: r.left, ust: r.top, en: r.width, boy: r.height })
+    }
+    const pullar = Array.from(kart.querySelectorAll('.etiketler > *'))
+      .map((e) => e.getBoundingClientRect())
+      .filter((r) => r.width >= 4 && r.height >= 4)
+    if (pullar.length > 0) {
+      const sol = Math.min.apply(null, pullar.map((r) => r.left))
+      const ust = Math.min.apply(null, pullar.map((r) => r.top))
+      const sag = Math.max.apply(null, pullar.map((r) => r.right))
+      const alt = Math.max.apply(null, pullar.map((r) => r.bottom))
+      cikti.push({ kart: i + 1, alan: 'etiket', sol, ust, en: sag - sol, boy: alt - ust })
     }
   })
   return cikti

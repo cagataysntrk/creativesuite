@@ -554,3 +554,28 @@ yarık. Aynı sayı, zıt yargı.
 
 Altı yuvaya çıkarıldıktan sonra ailenin yarık dağılımı: 15 · 19 · 22 · 22 · 26 · 27 ·
 28 · 30 · 32 · 36. Aykırı değer yok — `memphis` %53'ten %27'ye, kenar payı %44'ten %3'e.
+
+## Eğri kapakta düzdü — ve ÖLÇÜT bir kez yanlış seçildi
+
+`veri-hikayesi`nin başlığı *"altı yılda İKİ KATINA çıkan bir eğri"* diyor; kapaktaki
+eğri neredeyse yatay çiziliyordu. Dikey yolculuk slayt başına:
+
+| | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| önce | 2 | 3 | 3 | 5 | 5 | 3 |
+| sonra | 5 | 5 | 5 | 5 | 4 | 5 |
+
+**Buradan bir eşik yazmak yanlış olurdu.** İlk ölçüm ailenin öteki çizgi taşıyıcılarını
+6–26 gösterdi (`akan-alan` 13, `karsilastirma` 12, `editoryal` ve `alinti` 6) ve %6'lık
+bir taban davetkâr göründü. Ama o altı değerin hepsi `alanSiniri` — **tam kadraj**
+aygıtı. `egri` dibe yaslı 560 px'lik bir bandın içinde yaşıyor (kadrajın %41'i) ve
+türünün tek örneği. Tek üyeli bir popülasyondan eşik türetilmez.
+
+Ölçülebilir olan başkaydı: eğri kendi bandının yalnız **%49'unu** kullanıyordu (y 78→29).
+Genlik 70→4'e açıldı; band, başlangıç bölgesi ve hikâye aynı kaldı.
+
+**Aynı turda alet ÜÇÜNCÜ kez yanlış şeyi ölçtü.** Genlik açılınca eğri pulların içinden
+geçti. Açıklık ölçüldü ve *"144 px temiz"* çıktı — ama ölçülen `.kilometre` kutularıydı,
+kapaktaki pullar ise `.etiketler`. Doğru kutuyla bakınca pullar y 1092–1160, eğri 1114:
+kesişiyordu. Denetim de sessizdi, çünkü `METIN_KUTULARI` yalnız başlık/gövde/üst etiketi
+tanıyordu. Kapı pul sırasına açıldı ve **kendi düzeltmesini %2,6 ile yakaladı.**
