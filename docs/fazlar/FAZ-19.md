@@ -92,27 +92,21 @@ hastalık grensizlikti.
 
 ## 4 · TANI — beş cümle, tamamı `tasarim-tanisi-2026-08.md`'de
 
-1. **Zeminler gerçekten düz** ve bu **kendi aletimle doğrulandı**: on kapağın modal RGB
-   kaplaması **%67,7–%92,3** (medyan ~85). **On şablon, dört renk** — `#040404` `#fafafa`
-   `#0e0e0e` `#141414`. Ajanın sayısı birebir çıktı.
-2. **Kapanışlar setin en boş kareleri** (`sahne` %2,1 · `donen` %3,3 · `memphis` %3,5 ·
-   `dizin` %4,7; hedef ≥%12) — tepe yapacağı yerde sistem düz çiziyor.
+1. **Zeminler düz** — on kapağın modal RGB kaplaması %67,7–%92,3, on şablon DÖRT renk.
+   Kendi aletimle doğrulandı. → ✅ 19.4
+2. **Kapanışlar setin en boş kareleri** (`sahne` %2,1 · `donen` %3,3; hedef ≥%12) —
+   tepe yapacağı yerde sistem düz çiziyor. → 19.7 kapanış kartı
 3. **Şablon farkı KATALOGDA var, RENDER'DA yok** — "tam kaplama fotoğraf", "dev hayalet
-   rakam", "geometrik leke", "kemer dizisi": dördü de çizilmiyor. Yasa 13'ün (D-268)
-   yarısı uygulanmıyor: şablon seçiliyor, şablonun KONSEPTİ çizilmiyor.
-4. **Akış taşıyıcısı fiilen yok.** İkisi çalışıyor, ikisi siyah üstüne siyah, **ikisi
-   (`donen` · `memphis`) yüzeyi tam kesim yerinde çevirip sürekliliği AKTİF olarak
-   kırıyor.** R-87 VARLIK ölçüyor, GÖRÜNÜRLÜK ölçmüyor: *teknik yeşil, algısal kırmızı.*
-5. **Kapak kilidi:** on kartın **dokuzunda** aynı açılış hamlesi; **45 slaydın 34'ünde**
-   sol kenar %6,0–6,7; dinamik aralık ~**6:1**, hepsi skalanın ortasında.
+   rakam", "geometrik leke", "kemer dizisi" çizilmiyor. Yasa 13'ün (D-268) yarısı
+   uygulanmıyor. → yüzey aileleri ✅, kalanı 19.7/19.8
+4. **Akış taşıyıcısı fiilen yok** — ikisi çalışıyor, ikisi siyah üstüne siyah, ikisi
+   sürekliliği AKTİF kırıyor. R-87 VARLIK ölçüyor, GÖRÜNÜRLÜK ölçmüyor. → ✅ 19.4 + 19.7
+5. **Kapak kilidi** — on kartın dokuzunda aynı açılış; 45 slaydın 34'ünde sol kenar
+   %6,0–6,7; dinamik aralık ~6:1. → 19.7 `blok-yerlesimi`
 
-⚠ **Doğrulanacak:** "elle çizilmiş U hâlâ render'da" panorama için ESKİMİŞ — ama
-`static.ts:748` hâlâ `markaKilidi()` çağırıyor.
-⚠ **"Dört şablonda aynı antika kronometre" GEÇERSİZ** — ızgara aynı iki koşu görselini
-döndürüyor; kusur ölçüm düzeneğimde. Asıl soru: `briefTemeli` (19.8).
-
----
-
+⚠ **Doğrulanacak:** "elle çizilmiş U" bulgusu panorama için ESKİMİŞ ama `static.ts:748`
+hâlâ `markaKilidi()` çağırıyor. ⚠ **"Aynı antika kronometre" GEÇERSİZ** — ızgara aynı iki
+koşu görselini döndürüyor; asıl soru `briefTemeli` (19.8).
 ## 5 · ADIMLAR
 
 Her adımın **tam değerleri** `docs/referans/tasarim-tanisi-2026-08.md` → *UYGULAMA
@@ -157,9 +151,13 @@ kutusunun **%99,3'ünün** arkasından geçiyormuş, görünmezken kimse fark et
 **Görünür taşıyıcı, metin kutusu maskesi (5. iş) kurulmadan çizilemez.** Geri alındı.
 → **5. İŞ ARTIK 3. SIRADA.** Kalan: `veri-hikayesi` köşegeni · `karsilastirma` sınırı.
 
-**KALAN:** beş yüzey ailesi (kâğıt · taş · beton · fırçalanmış çelik · halftone) ·
-ışık kaynağı katmanı · JPEG q=90'ın yayın yoluna bağlanması · şablon şablon zemin
-reçeteleri (`seamless-arastirma-2026-08.md` `B`).
+**BEŞ YÜZEY AİLESİ ✅** — kapalı dağarcık, her biri bir şablonda: `kagit`(editoryal) ·
+`tas`(alinti) · `beton`(kavis) · `celik`(karsilastirma) · `halftone`(memphis). Ölçülen σ:
+düz gren 2,26 · kâğıt 4,72 · taş 5,10 · beton 5,00 · halftone 10,00 · **çelik yatay/dikey
+0,69** (tek yönlü olan). ⚠ `tas`/`beton` σ'da ayrılmıyor — ayrımın yeri RENK (19.6).
+⚠ İki deneme geri çevrildi: tam kaplama `contrast(20)` R-96'yı kırdı, çok düzenli fırça
+izi yasaklı "html css deseni" üretti. **KALAN:** ışık kaynağı · JPEG q=90'ın yayın yolu ·
+şablon şablon zemin reçeteleri (`seamless-arastirma-2026-08.md` `B`).
 
 ### 19.5 — TİPOGRAFİ    [ ]    ← aile + satır aralığı + optik hiza BİTTİ
 **✅ Archivo** (gövde + bölüm başlığı, `wdth 62–125`) · **Literata** (kapak serifi, wght
