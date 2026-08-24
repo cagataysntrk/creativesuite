@@ -29,7 +29,14 @@ import { FILTRE_TANIM_CSS, type GorselIslem, islemTanimi, islemZinciri } from '.
 import { kacir } from './html.js'
 import { OPENTYPE_CSS, vurguyuIsaretle } from './sablon-tipo.js'
 import { ikonSec, ikonSvg, type IkonAdi } from './sablon-ikon.js'
-import { grenKatmani, zeminCss, zeminKarisimi, type ZeminResetesi } from './zemin.js'
+import {
+  grenKatmani,
+  grenKipi,
+  grenOpakligi,
+  zeminCss,
+  zeminKarisimi,
+  type ZeminResetesi,
+} from './zemin.js'
 import { getStroke } from 'perfect-freehand'
 
 /** Kesimi aşan sürekli bant — kimliğin taşıyıcısı. */
@@ -648,30 +655,52 @@ const METIN = 'var(--role-metin-koyu, var(--role-surface))'
  * ⚠ Bulunamazsa ESKİ ada dayalı sezgiye düşülüyor — bilinmeyen bir değerde metni
  * beyaz yapmak, siyah yapmaktan daha sık doğru ama tahmin olduğu YAZILI.
  */
-const koyuMu = (zemin: string, tokenCss = ''): boolean => {
+/**
+ * Bir zemin ifadesinin ÇÖZÜLMÜŞ açıklığı (oklch L, 0–1) — bulunamazsa `null`.
+ *
+ * ⚠ ⚠ **AYRI BİR ÇÖZÜCÜ YAZILMADI ve sebebi bu dosyada YAZILI bir hata.** `koyuMu`
+ * kaskadın doğru bloğunu (`[data-surface='kreatif']`) okumayı öğrenmişti; ikinci bir
+ * çözücü o dersi bilmez ve `--role-surface` için KONSOL değerini okurdu. Gren opaklığı
+ * da açıklığa bağlı (FAZ-19.4), yani ikinci bir kullanıcı doğdu — çözüm ikinci bir
+ * üretici değil, var olanı DIŞARI ÇIKARMAK (R-05).
+ */
+const tokenAcikligi = (zemin: string, tokenCss = ''): number | null => {
   const ad = /var\(\s*(--[\w-]+)/.exec(zemin)?.[1]
-  if (ad !== undefined && tokenCss !== '') {
-    // ⚠ ⚠ **KASKAT OKUNMALI, DOSYA DEĞİL.** `tokens.css` dört yüzey bloğu taşıyor
-    // (`:root`, `console`, `kreatif`, `studio`) ve aynı değişken hepsinde YENİDEN
-    // tanımlı. İlk sürüm ilk eşleşmeyi alıyordu: `--role-surface` için KONSOL değerini
-    // (oklch 0.21, koyu) okuyup `donen`in kâğıt kartını "koyu" sandı, metni beyaz yaptı
-    // ve başlık beyaz zeminde KAYBOLDU. Render `data-surface="kreatif"` ile çiziliyor;
-    // ölçüm de o bloğu okumak zorunda. **Doğru dosyayı okumak, doğru yeri okumak değildir.**
-    const kreatif = /\[data-surface='kreatif'\]\s*\{([^}]*)\}/.exec(tokenCss)?.[1] ?? ''
-    const cozum = (isim: string, derinlik = 0): string | null => {
-      if (derinlik > 2) return null
-      const kural = new RegExp(`${isim}\\s*:\\s*([^;]+);`)
-      const m = kural.exec(kreatif) ?? kural.exec(tokenCss)
-      if (m === null) return null
-      const deger = (m[1] ?? '').trim()
-      const ic = /var\(\s*(--[\w-]+)/.exec(deger)?.[1]
-      return ic === undefined ? deger : cozum(ic, derinlik + 1)
-    }
-    const deger = cozum(ad)
-    const l = deger === null ? null : /oklch\(\s*([\d.]+)/.exec(deger)?.[1]
-    if (l !== undefined && l !== null) return Number.parseFloat(l) < 0.55
+  if (ad === undefined || tokenCss === '') return null
+  // ⚠ ⚠ **KASKAT OKUNMALI, DOSYA DEĞİL.** `tokens.css` dört yüzey bloğu taşıyor
+  // (`:root`, `console`, `kreatif`, `studio`) ve aynı değişken hepsinde YENİDEN
+  // tanımlı. İlk sürüm ilk eşleşmeyi alıyordu: `--role-surface` için KONSOL değerini
+  // (oklch 0.21, koyu) okuyup `donen`in kâğıt kartını "koyu" sandı, metni beyaz yaptı
+  // ve başlık beyaz zeminde KAYBOLDU. Render `data-surface="kreatif"` ile çiziliyor;
+  // ölçüm de o bloğu okumak zorunda. **Doğru dosyayı okumak, doğru yeri okumak değildir.**
+  const kreatif = /\[data-surface='kreatif'\]\s*\{([^}]*)\}/.exec(tokenCss)?.[1] ?? ''
+  const cozum = (isim: string, derinlik = 0): string | null => {
+    if (derinlik > 2) return null
+    const kural = new RegExp(`${isim}\\s*:\\s*([^;]+);`)
+    const m = kural.exec(kreatif) ?? kural.exec(tokenCss)
+    if (m === null) return null
+    const deger = (m[1] ?? '').trim()
+    const ic = /var\(\s*(--[\w-]+)/.exec(deger)?.[1]
+    return ic === undefined ? deger : cozum(ic, derinlik + 1)
   }
-  return zemin.includes('line-edge') || zemin.includes('ink')
+  const deger = cozum(ad)
+  const l = deger === null ? null : /oklch\(\s*([\d.]+)/.exec(deger)?.[1]
+  return l === undefined || l === null ? null : Number.parseFloat(l)
+}
+
+/**
+ * Vinyet gücü yüzey açıklığına göre — reçetenin üç durağı (FAZ-19.4).
+ *
+ * ⚠ Kâğıt zeminde 34'lük bir vinyet kirli bir hale bırakıyor; mürekkep zeminde 18'lik
+ * bir vinyet hiç görünmüyor. Tek sayı ikisinden birinde yanlış.
+ */
+const vinyetGucu = (acikklik: number): number => (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34)
+
+const koyuMu = (zemin: string, tokenCss = ''): boolean => {
+  const l = tokenAcikligi(zemin, tokenCss)
+  // ⚠ Eşik 0,55: oklch açıklığı algısal, yani orta gri gerçekten 0,5 civarında.
+  // ⚠ Bulunamazsa ESKİ ada dayalı sezgiye düşülüyor — tahmin olduğu YAZILI.
+  return l === null ? zemin.includes('line-edge') || zemin.includes('ink') : l < 0.55
 }
 
 /**
@@ -1310,7 +1339,22 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     .join('')
 
   // Bitiş dokusu: kartların ÜSTÜNDE, tıklamayı ve metni ETKİLEMEDEN.
-  const ustDoku = doc.ustDoku === undefined ? '' : `<div class="ust-doku" aria-hidden="true"></div>`
+  // ⚠ ⚠ **KOŞULSUZ (FAZ-19.4).** Eskiden `doc.ustDoku` verilirse çiziliyordu ve
+  // **hiçbir yerde verilmiyordu** — alan yazılmış, üretim yolunda üreticisi yoktu.
+  // Ölçüldü: on kapağın %67,7–%92,3'ü tek bir RGB değeri. Grenin ÜSTTE olması bir
+  // tercih değil zorunluluk: `zeminDokusu` opak kartın altında kalıyor, `donen`in
+  // kart renkleri panorama zeminini tamamen örtüyor. Film greni sahnenin değil
+  // FİLMİN özelliğidir. `ustDoku` alanı artık yalnız ŞİDDET AYARI.
+  // ⚠ ⚠ **İKİ AYRI KARDEŞ, İÇ İÇE DEĞİL — ve bunu ÖLÇÜM öğretti.** İlk sürüm greni
+  // `.ust-doku::before`e koydu: `.ust-doku` `position:absolute` + `z-index` taşıdığı
+  // için KENDİ yığın bağlamını kuruyor ve çocuğun `mix-blend-mode`u kartlarla değil
+  // ŞEFFAF EBEVEYNİYLE karışıyor — yani hiç karışmıyor. Sonuç ölçüldü: `#040404`
+  // zemin `#5c5c5c`ye çıktı, on kapakta R-105 (metin zemine karışıyor) patladı.
+  // **Gren kaybolmamıştı; GRİ PERDE olmuştu.** Kardeş olarak `#sahne`in bağlamında
+  // duruyorlar ve altlarındaki her şeyle karışıyorlar.
+  const ustDoku =
+    `<div class="ust-gren" aria-hidden="true"></div>` +
+    `<div class="ust-vinyet" aria-hidden="true"></div>`
 
   // Geometrik lekeler: tek SVG, panorama koordinatında. Kartların ALTINDA (z-index 0)
   // duruyorlar — metnin üstüne çıkan bir leke okunabilirliği düşürür.
@@ -1408,6 +1452,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           )
         })()
 
+  // Panoramanın taban açıklığı — gren opaklığı ve vinyet gücü buradan (FAZ-19.4).
+  // ⚠ Bulunamazsa 0,12: on şablonun altısında taban zaten mürekkep, ve yanlış tarafa
+  // düşmek greni GÖRÜNÜR yapar, YOK etmez. Sessiz kayıp, görünür fazlalıktan kötüdür.
+  const zeminAcikligi = tokenAcikligi(doc.zemin, doc.tokenCss) ?? 0.12
+
   return [
     // ⚠ ⚠ **YÜZEY BEYAN EDİLMEK ZORUNDA.** `kreatif` rolleri `[data-surface='kreatif']`
     // altında tanımlı; beyan edilmezse tarayıcı KONSOL yüzeyine düşüyor ve koyu zeminli
@@ -1437,10 +1486,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // Doku kayan katmana ait: panorama koordinatında tek bir yüzey.
     `  #sahne { position: relative; width: ${toplam}px; height: ${doc.yukseklik}px;`,
     `           transform: translateX(0px);`,
+    // ⚠ ⚠ **GREN OPAKLIĞI YÜZEY LUMİNANSINDAN — ve luminans TOKEN'IN DEĞERİNDEN
+    // okunuyor, ADINDAN değil.** `--ramp-marka-ink-900` `oklch(0.205)`, `-880` ise
+    // `oklch(0.190)`: numara büyüdükçe koyulaşmıyor. Belgede token yoksa (`null`)
+    // koyu taban varsayılıyor — bu şablonların dokuzunda taban zaten mürekkep, ve
+    // yanlış tarafa düşmek greni GÖRÜNÜR yapar, YOK etmez.
     ...(doc.zeminDokusu === undefined
       ? []
       : [
-          `           background: ${zeminCss(doc.zeminDokusu)};`,
+          `           background: ${zeminCss(doc.zeminDokusu, tokenAcikligi(`var(${doc.zeminDokusu.taban})`, doc.tokenCss) ?? 0.12)};`,
           `           background-blend-mode: ${zeminKarisimi(doc.zeminDokusu)};`,
         ]),
     `           --pano-metin: ${panoRenkleri.metin}; --pano-aksan: ${panoRenkleri.aksan}; }`,
@@ -1520,16 +1574,26 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // temiz çıktı), sonra zemin ışık havuzu (görselsiz render temiz çıktı), sonra
     // tarayıcıya `getComputedStyle` soruldu ve `backgroundColor: oklab(0.97 … / 0.06)`
     // göründü. **Ölçüm üç kez hipotezi çürüttü; dördüncüde DOM cevabı verdi.**
-    ...(doc.ustDoku === undefined
-      ? []
-      : [
-          `  .ust-doku { position: absolute; inset: 0; pointer-events: none; z-index: 3;`,
-          `              background: ${grenKatmani(doc.ustDoku.gren)},`,
-          // Vinyet: kenarları toplayan tek radyal. Merkez ŞEFFAF — ortadaki içeriği
-          // karartmayan bir vinyet, kadrajı daraltır ama okunurluğu düşürmez.
-          `                radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
-            ` rgba(0,0,0,${(doc.ustDoku.vinyet / 100).toFixed(2)}) 100%) }`,
-        ]),
+    // ⚠ ⚠ **GREN PANORAMANIN TAMAMINA TEK KATMAN.** `.ust-doku` `#sahne`in çocuğu ve
+    // `inset: 0` panorama genişliğini kaplıyor — slayt başına verilseydi doku FAZI her
+    // kesimde sıfırlanır ve dilimler ayrı ayrı çekilmiş gibi görünürdü. Vinyet için de
+    // aynısı geçerli: slayt başına vinyet, her kesimde bir karartma halkası demektir.
+    // ⚠ Opaklık yüzey açıklığının FONKSİYONU (`grenOpakligi`): sabit opaklık mürekkep
+    // zeminde σ≈0,70 üretiyor ve σ<1,0 gren JPEG tarafından SİLİNİYOR.
+    // ⚠ Vinyet gücü zemine göre: kâğıt 18 · orta 26 · mürekkep 34 — koyu yüzey daha çok
+    // kaldırıyor. `doc.ustDoku` verilirse o kazanır (şablon kendi şiddetini seçebilir).
+    // ⚠ ⚠ **GREN VE VİNYET AYRI KATMAN — tek elemanda birleştirilemezler.** Gren
+    // `soft-light` ister (yüzeyi kırar, karartmaz), vinyet `normal` ister (kenarı
+    // GERÇEKTEN karartır). İkisi tek `mix-blend-mode` altında toplansaydı vinyet de
+    // soft-light'a düşer ve kenar toplama işini yapmazdı — ölçülmeden fark edilmez.
+    // Vinyet: kenarları toplayan tek radyal. Merkez ŞEFFAF — ortadaki içeriği
+    // karartmayan bir vinyet, kadrajı daraltır ama okunurluğu düşürmez.
+    `  .ust-gren, .ust-vinyet { position: absolute; inset: 0; pointer-events: none }`,
+    `  .ust-gren { z-index: 3; mix-blend-mode: ${grenKipi(zeminAcikligi)};`,
+    `              background: ${grenKatmani(doc.ustDoku?.gren ?? grenOpakligi(zeminAcikligi) * 100)} }`,
+    `  .ust-vinyet { z-index: 4;`,
+    `              background: radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
+      ` rgba(0,0,0,${((doc.ustDoku?.vinyet ?? vinyetGucu(zeminAcikligi)) / 100).toFixed(2)}) 100%) }`,
     // ⚠ ⚠ **KAYNAK PNG'LER 500x500'DÜ ve işaret onun yalnız %2,4'ünü kaplıyordu.** Rayda
     // 26px yüksekliğe sığdırılınca işaret ~4px kalıyor ve okunmuyordu — render'a bakınca
     // görüldü. Dosyalar ALFA KUTUSUNDAN kırpıldı (338x78, oran 4,33); kaynaklar

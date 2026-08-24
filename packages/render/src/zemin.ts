@@ -107,6 +107,38 @@ const renk = (t: RampaTokeni, opaklik?: number): string =>
     : `color-mix(in oklab, var(${t}) ${yuzde(opaklik)}%, transparent)`
 
 /**
+ * Gren frekansı — **TAM SAYI OLAMAZ ve bu sessiz bir arıza sınıfıdır (R-85 kardeşi).**
+ *
+ * ⚠ ⚠ **ÖLÇÜM:** `baseFrequency` 0.99 → σ 4,10 · **1 → σ 0,000** · 1.01 → σ 4,11 ·
+ * **2 → σ 0,000**. Tam sayıda Perlin kafesi piksel ızgarasına birebir oturuyor ve
+ * gürültü her pikselde AYNI değeri örnekliyor: gren **hata vermeden tamamen ölüyor.**
+ * Değer bir gün "yuvarlansın" diye 1'e çekilse, çıktı sessizce grensiz kalır ve bunu
+ * ancak bant sayan bir ölçüm görür. Kilidi `zemin.test.ts` tutuyor.
+ */
+const GREN_FREKANSI = 0.82
+
+/**
+ * Gren karışımı — **`overlay` DEĞİL `soft-light`, ve eski kayıt YANLIŞ DEĞİL EKSİKTİ.**
+ *
+ * ⚠ ⚠ Depodaki `GREN_GUCU = 26` + `overlay` kararı gerçek bir ölçüme dayanıyordu:
+ * 300×900 px düşük kontrastlı degradede en uzun düz bant grensiz **36 px**, `overlay`
+ * grenle **8 px**, `normal` ile 3 px. O ölçüm **PNG alanında** yapıldı ve kodlayıcıdan
+ * geçirilmedi. Yayın JPEG (R-90) ve JPEG'te sonuç başka çıkıyor:
+ *
+ * | q | grensiz | σ=0,5 | σ=1,5 | σ=2,0 |
+ * |---|---|---|---|---|
+ * | 82 | %94,9 | %93,8 | %31,5 | %22,7 |
+ * | 90 | %96,2 | %68,9 | %27,9 | **%20,1** |
+ * | 95 | %95,9 | %43,6 | %21,3 | %16,7 |
+ *
+ * `overlay` + 26, `#040404` zemininde σ≈0,5 üretiyor → q=82'de **tamamen siliniyor**.
+ * `soft-light` + luminansa bağlı opaklık σ≈2,0 tutuyor ve düz plato %95'ten %20'ye
+ * iniyor. Ayrıca JPEG kalitesini yükseltmek tek başına HİÇBİR ŞEY çözmüyor
+ * (q75→q95: %95,1→%95,9, dosya +%28): bant 8-bit kaynakta, kodlayıcıda değil.
+ */
+const GREN_KARISIMI = 'soft-light'
+
+/**
  * Gren dokusu — `feTurbulence` bir veri URI'sinde.
  *
  * ⚠ ⚠ **DETERMİNİZM (R-06) BURADA BEDAVA DEĞİL, KONTROL EDİLDİ.** `feTurbulence`in
@@ -120,11 +152,64 @@ const renk = (t: RampaTokeni, opaklik?: number): string =>
 export const grenKatmani = (guc: number): string => {
   const svg =
     `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>` +
-    `<filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.82' ` +
-    `numOctaves='3' seed='7' stitchTiles='stitch'/></filter>` +
+    `<filter id='g' color-interpolation-filters='sRGB'>` +
+    `<feTurbulence type='fractalNoise' baseFrequency='${GREN_FREKANSI}' ` +
+    `numOctaves='4' seed='7' stitchTiles='stitch'/>` +
+    `<feColorMatrix type='saturate' values='0'/>` +
+    `<feComponentTransfer><feFuncA type='discrete' tableValues='1'/></feComponentTransfer>` +
+    `</filter>` +
     `<rect width='180' height='180' filter='url(%23g)' opacity='${(guc / 100).toFixed(3)}'/></svg>`
   return `url("data:image/svg+xml,${svg.replace(/#/g, '%23').replace(/"/g, "'")}")`
 }
+
+/**
+ * Gren opaklığı — **yüzey luminansının FONKSİYONU, sabit değil** (FAZ-19.4).
+ *
+ * ⚠ ⚠ **SABİT OPAKLIK KOYU ZEMİNDE BANTLANMAYI ÇÖZMÜYOR.** Ölçüm (σ, gren gücü sabitken
+ * yüzey L'sine göre):
+ *
+ * | blend | L=8 | L=16 | L=32 | L=64 | L=128 | L=230 |
+ * |---|---|---|---|---|---|---|
+ * | `soft-light` .25 | 0,70 | 1,23 | 1,94 | 2,53 | 2,62 | 0,83 |
+ * | `overlay` .25 | 0,51 | 0,77 | 1,46 | 2,87 | 5,72 | 1,18 |
+ *
+ * Yani tek bir opaklık, mürekkep zeminde σ 0,70 üretiyor — ve **σ<1,0 gren JPEG
+ * tarafından siliniyor.** Opaklık luminansla TERS ölçeklenmek zorunda.
+ */
+export const grenOpakligi = (yuzeyL: number): number =>
+  UCTA(yuzeyL) ? 0.1 : yuzeyL < 0.2 ? 0.7 : yuzeyL < 0.35 ? 0.4 : yuzeyL < 0.62 ? 0.25 : 0.35
+
+/**
+ * Yüzey `soft-light`in TUTAMADIĞI uçta mı — saf siyaha ya da kâğıda yakın.
+ *
+ * ⚠ ⚠ **ÖLÇÜLDÜ, VARSAYILMADI.** `soft-light` çarpımsal: siyah zeminde çarpacak bir şey
+ * yok, beyaz zeminde doyum var. On kapak render edilip düz blokların medyan σ'sı
+ * ölçüldüğünde tam bu ikilik çıktı:
+ *
+ * | zemin | L | `soft-light` σ | σ<0,5 olan blok |
+ * |---|---|---|---|
+ * | `sahne` `veri-hikayesi` | ~0,16 | 3,8 | %0,1 |
+ * | `dizin` | ~0,17 | 2,9 | %1,2 |
+ * | `akan-alan` `donen` `kavis` | ~0,105 (#040404) | **1,0** | %1,3 |
+ * | `alinti` `editoryal` `memphis` | ~0,98 (#fafafa) | **0,24** | **%87** |
+ *
+ * Kâğıt şablonlarında düz blokların %87'si σ<0,5 — yani **JPEG onu tamamen siler** ve
+ * gren hiç uygulanmamış gibi olur. Uçlarda `normal` kullanılıyor: ölçüm tablosunda
+ * `normal` σ'sı luminanstan BAĞIMSIZ (L=8'de de L=230'da da 2,87), yalnız opaklık
+ * düşük tutulmak zorunda ki dither kalsın, görünür film greni olmasın.
+ */
+const UCTA = (yuzeyL: number): boolean => yuzeyL < 0.14 || yuzeyL > 0.85
+
+/** Gren karışım kipi — uçlarda `normal`, ortada `soft-light`. */
+export const grenKipi = (yuzeyL: number): string => (UCTA(yuzeyL) ? 'normal' : GREN_KARISIMI)
+
+/*
+ * ⚠ ⚠ **BURAYA BİR TOKEN→AÇIKLIK ÇÖZÜCÜSÜ YAZILDI ve GERİ ALINDI (FAZ-19.4).**
+ * `panorama.ts` zaten kaskadın doğru bloğunu (`[data-surface='kreatif']`) okumayı
+ * öğrenmiş bir çözücü taşıyor; naif bir ikinci çözücü `--role-surface` için KONSOL
+ * değerini okur ve greni yanlış eşiğe düşürürdü — sessizce. İki tanım, biri eskir
+ * (R-05). Açıklık `zeminCss`e DIŞARIDAN veriliyor; bu dosya onu hesaplamıyor.
+ */
 
 const katmanCss = (k: ZeminKatmani): string => {
   switch (k.tip) {
@@ -161,38 +246,17 @@ const katmanCss = (k: ZeminKatmani): string => {
  * olduğu için liste burada TERSİNE çevriliyor: reçetede önce yazılan, zeminde ALTTA.
  * Bu çevrim yapılmasaydı vinyet degradenin altında kalır ve hiç görünmezdi.
  */
-export const zeminCss = (r: ZeminResetesi): string => {
-  const degradeVar = r.katmanlar.some((k) => k.tip === 'dogrusal' || k.tip === 'isik')
+export const zeminCss = (r: ZeminResetesi, yuzeyL: number): string => {
   const katmanlar = [...r.katmanlar].reverse().map(katmanCss)
   // ⚠ Gren EN ÜSTTE: altta kalsaydı degradeyi kaplayamaz ve bantlaşmayı gizleyemezdi.
-  const hepsi = degradeVar ? [grenKatmani(GREN_GUCU), ...katmanlar] : katmanlar
+  // ⚠ ⚠ **KOŞULSUZ — `degradeVar` kapısı KALKTI (FAZ-19.4).** Eski kural *"degrade
+  // açıksa gren de açık"* diyordu; degrade yasağı (D-318) yürürlükteyken bu koşul HİÇ
+  // sağlanmadı ve on şablonun hiçbirinde gren olmadı. Ölçüldü: on kapağın %67,7–%92,3'ü
+  // tek bir RGB değeri. **Düz zemin greni EN ÇOK isteyen zemindir** — yasak, kendisini
+  // telafi edecek tek mekanizmayı da kapatmıştı.
+  const hepsi = [grenKatmani(grenOpakligi(yuzeyL) * 100), ...katmanlar]
   return [...hepsi, `var(${r.taban})`].join(', ')
 }
-
-/**
- * Gren gücü — **ÖLÇÜLEREK seçildi, beğenilerek değil.**
- *
- * ⚠ ⚠ **DENEY:** 300×900 px, `#1a1e23 → #0e1116` düşük kontrastlı dikey degrade; tek bir
- * sütun boyunca aynı luminans değerinin üst üste kaç piksel sürdüğü sayıldı. Bir bandın
- * yüksekliği tam olarak budur.
- *
- * | Kurulum | ort. bant | **en uzun bant** | yatay std |
- * |---|---|---|---|
- * | grensiz | 1,98 px | **36 px** | 0,00 |
- * | gren + `overlay` | 1,48 px | **8 px** | 0,73 |
- * | gren + `normal` | 1,07 px | **3 px** | 6,04 |
- *
- * ⚠ **Yatay std 0,00 bantlaşmanın imzası:** satırın her pikseli birebir aynı, yani göz
- * 36 piksellik düz bir şerit görüyor. Gren o şeridi kırıyor.
- *
- * ⚠ ⚠ **`normal` DEĞİL `overlay` SEÇİLDİ ve gerekçe kayıtta.** `normal` bantlaşmayı
- * tamamen bitiriyor (3 px) ama yatay std'yi 6,04'e çıkarıyor — bu artık dither değil,
- * **görünür film greni**, yani bir süs. `sablon-degrade.ts`in kaydı greni bir DÜZELTME
- * olarak tanımlıyor; süse dönüştürmek o kaydı sessizce değiştirmek olurdu. `overlay`
- * bandı 36→8 px'e indiriyor ve dokuyu görünmez bırakıyor (0,73): işini yapıyor, kendini
- * göstermiyor. **Görünmez olması başarısızlık değil, şartname.**
- */
-const GREN_GUCU = 26
 
 /**
  * Katman başına karışım kipi — gren `overlay`, diğerleri `normal`.
@@ -204,9 +268,8 @@ const GREN_GUCU = 26
  * fonksiyon aynı listeyi aynı kurala göre üretiyor ve testi ikisinin uzunluğunu eşliyor.
  */
 export const zeminKarisimi = (r: ZeminResetesi): string => {
-  const degradeVar = r.katmanlar.some((k) => k.tip === 'dogrusal' || k.tip === 'isik')
   const kipler = r.katmanlar.map(() => 'normal')
-  return [...(degradeVar ? ['overlay'] : []), ...kipler, 'normal'].join(', ')
+  return [GREN_KARISIMI, ...kipler, 'normal'].join(', ')
 }
 
 /** Reçetenin taban rengi — metin/aksan türetimi hâlâ buradan (koyu mu açık mı). */

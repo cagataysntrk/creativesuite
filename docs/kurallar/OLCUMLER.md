@@ -635,3 +635,65 @@ göre **0,46 → 0,88** değişiyor. Tek sayı bu yüzden tutamaz.
 kötü bir vekildir: *"Bir hat tekrarla öğrenir"* (4 kelime, 23 karakter) ile
 *"Sürdürülebilirlik raporlamasında ölçülebilir dönüşüm"* (4 kelime, 52 karakter) aynı
 sayıyı verir. `donen`in ölçülemez çıkması tam olarak bunun kanıtı.
+
+## FAZ-19.4 · gren — koşulsuz, luminansa bağlı, JPEG'ten sağ çıkan
+
+**Neyi ölçtük:** `derived/izgara/*.png`, 8×8 blokların içinde aralık ≤24 olanların (yani
+kenar ve metin taşımayanların) medyan standart sapması. ⚠ İlk alet YANLIŞTI: sol 120 px
+şeridin σ'sını aldı ve kart kenarını da içine kattı — ölçtüğü şey gren değil KONTRASTTI.
+
+### Başlangıç: gren HİÇ uygulanmamıştı
+
+`zeminCss` greni yalnız `degradeVar` iken ekliyordu; degrade yasağı (D-318) yürürlükteyken
+o koşul hiç sağlanmadı. Üstelik `zeminDokusu` **hiçbir yerde set edilmiyordu** ve
+`ustDoku` alanının da üreticisi yoktu — zincir kopukluğunun on ikinci tekrarı.
+
+| şablon | modal renk | tam modal | ±2 |
+|---|---|---|---|
+| `akan-alan` | `#040404` | %67,6 | %67,7 |
+| `dizin` | `#0e0e0e` | %90,7 | **%92,3** |
+| … on şablon, **dört renk** | | medyan ~%85 | |
+
+### `soft-light` tek başına UÇLARDA ÇALIŞMIYOR
+
+Gren üstte, koşulsuz ve `soft-light` yapıldıktan sonra ölçülen düz-blok medyan σ:
+
+| zemin | L | σ | σ<0,5 olan blok |
+|---|---|---|---|
+| `sahne` · `veri-hikayesi` | ~0,16 | 3,8 | %0,1 |
+| `dizin` | ~0,17 | 2,9 | %1,2 |
+| `akan-alan` · `donen` · `kavis` · `karsilastirma` | ~0,105 (`#040404`) | **1,0** | %1,3 |
+| `alinti` · `editoryal` · `memphis` | ~0,98 (`#fafafa`) | **0,24** | **%87** |
+
+⚠ **Kâğıt şablonlarında düz blokların %87'si σ<0,5** — JPEG onu tamamen siler, yani gren
+hiç uygulanmamış gibi olur. Sebep çarpımsal: `soft-light` siyahta çarpacak bir şey
+bulamıyor, beyazda doyuyor.
+
+### Çözüm: kip de luminansın fonksiyonu
+
+`L < 0,14` ya da `L > 0,85` → `normal` @ 0,10 (ölçüm tablosunda `normal` σ'sı luminanstan
+BAĞIMSIZ); aradaki her yerde `soft-light` + luminansa bağlı opaklık.
+
+| şablon | PNG σ | **JPEG q=90 sonrası σ** | σ<0,5 |
+|---|---|---|---|
+| `akan-alan` · `donen` · `kavis` · `karsilastirma` | 2,26–2,27 | 1,62–1,65 | %2,5–4,5 |
+| `alinti` · `editoryal` · `memphis` | 2,26–2,30 | 1,63–1,69 | %0,5–5,4 |
+| `dizin` | 2,94 | 2,46 | %4,2 |
+| `sahne` · `veri-hikayesi` | 3,80–3,85 | 3,52–3,61 | %2,9–3,3 |
+
+Tam modal kaplama %67,6–%90,7 → **%8,8–%17,1** (kabul tavanı %40). On kapak, sıfır kusur.
+
+### ⚠ BEDEL: uçlarda luminans KAYIYOR ve bu FİZİK, hata değil
+
+`#040404` → `#111111` (+13) · `#fafafa` → `#eeeeee` (−12). Siyahın ALTINA dither
+edilemez: near-black bir zeminde simetrik gürültü 0'da kırpılır, dolayısıyla ortalama
+kaçınılmaz olarak YÜKSELİR. Tek çare zemini uçtan çıkarmaktır — FAZ-19.6'nın beş paleti
+zaten bunu yapıyor (P1 taban `oklch(0.160)`, `soft-light` bandının içinde).
+
+### ⚠ Bir yığın-bağlamı hatası, ölçümle yakalandı
+
+Gren önce `.ust-doku::before`e konuldu. `.ust-doku` `position:absolute` + `z-index`
+taşıdığı için KENDİ yığın bağlamını kuruyor: çocuğun `mix-blend-mode`u kartlarla değil
+şeffaf ebeveyniyle karışıyor, yani hiç karışmıyor. Ölçüm: `#040404` zemin `#5c5c5c`ye
+çıktı ve on kapakta R-105 patladı. **Gren kaybolmamıştı, GRİ PERDE olmuştu.** Çözüm:
+gren ve vinyet `#sahne`in doğrudan çocukları, kardeş.

@@ -64,14 +64,22 @@ describe('dışa aktarma', () => {
   //
   // Kural: **fotoğraf taşıyan slaytta JPEG küçük, düz tasarımda PNG küçük.** İkisi de
   // ölçülüyor — biri diğerinin yerine geçen bir varsayım olmasın.
-  it('DÜZ tasarımda PNG küçük — JPEG düz alanda kazanmıyor', async () => {
+  // ⚠ ⚠ **BU TESTİN İDDİASI TERSİNE DÖNDÜ ve sebebi bir TASARIM KARARI (FAZ-19.4).**
+  // Eskiden *"DÜZ tasarımda PNG küçük — JPEG düz alanda kazanmıyor"* diyordu ve DOĞRUYDU:
+  // panorama düz renk alanlarından oluşuyordu, PNG onları bedavaya sıkıştırıyordu.
+  // **Artık düz panorama diye bir şey yok:** gren koşulsuz ve panoramanın tamamına tek
+  // katman. Ölçüldü — düz blok medyan σ'sı 2,26–3,85. Yüksek frekanslı doku tam olarak
+  // PNG'nin sıkıştıramadığı, JPEG'in ise var olma sebebi olan şeydir.
+  // **Test yanlış değildi; ölçtüğü DÜNYA değişti.** R-90 (yayın yalnız JPEG) artık
+  // yalnız Graph API kısıtı değil, sıkıştırma gerçeği.
+  it('gren sonrası JPEG HER YERDE kazanıyor — düz panorama diye bir şey kalmadı', async () => {
     const [png, jpg] = await Promise.all([
       panoramaDisaAktar(BELGE, { tarz: 'butun', bicim: 'png' }),
       panoramaDisaAktar(BELGE, { tarz: 'butun', bicim: 'jpg' }),
     ])
     expect(png.ok && jpg.ok).toBe(true)
     if (!png.ok || !jpg.ok) return
-    expect(png.value[0]?.bayt.length ?? 0).toBeLessThan(jpg.value[0]?.bayt.length ?? 0)
+    expect(jpg.value[0]?.bayt.length ?? 0).toBeLessThan(png.value[0]?.bayt.length ?? 0)
   }, 120_000)
 
   it('FOTOĞRAF taşıyan slaytta JPEG belirgin biçimde küçük', async () => {

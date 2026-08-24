@@ -138,14 +138,27 @@ RAPOR 1 + RAPOR 2 birebir kopya. Bu adımda sekiz ailenin görsel işlemleri aç
 AŞAMA 2: ölçülen tanı · teknik sabitler · font elemesi · beş palet · on tema · şablon
 şablon reçete · ortak altyapı · ilk beş iş. Brif: `scratchpad/asama2-brief.md`.
 
-### 19.4 — ZEMİN VE YÜZEY    [ ]    ← **SIRADAKİ**
-Gren tek doğru üreticiden (alfa sabit, `soft-light`, opaklık **yüzey L'sinin fonksiyonu**),
-`degradeVar` koşulu KALKAR, gren+vinyet+ışık **panoramanın TAMAMINA tek katman**, JPEG
-**q=90**, beş yüzey ailesi (kâğıt · taş · beton · fırçalanmış çelik · halftone).
-⚠ İlk iş `alanSiniri` çelişkisini ölçmek. ⚠ `ustDoku` diriltilmez (D-319); yerine
-`.panorama::after` tek örtüsü geçer.
-**Kabul:** modal renk kaplaması **≤%40**, en uzun sabit bant **≤10 px** — 4.1 tablosu
-yeniden ölçülür, on satırın onu da geçer. **Kanıt:** ölçüm + panoramaya BAKMA + panel.
+### 19.4 — ZEMİN VE YÜZEY    [ ]    ← gren BİTTİ, yüzey aileleri kaldı
+**GREN ✅** — koşulsuz, luminansa bağlı, JPEG'ten sağ çıkıyor. Tam ölçüm defterde
+(`docs/kurallar/OLCUMLER.md` → FAZ-19.4).
+- Zincirin **on ikinci kopukluğu:** `zeminDokusu` ve `ustDoku` alanları yazılmış,
+  üretim yolunda **hiçbir üreticileri yoktu**. `.ust-gren` + `.ust-vinyet` artık koşulsuz.
+- Gren **kartların ÜSTÜNDE** olmak zorunda: `zeminDokusu` opak kartın altında kalıyor.
+  *Film greni sahnenin değil FİLMİN özelliğidir.*
+- **Kip de luminansın fonksiyonu:** uçlarda (`L<0,14` · `L>0,85`) `soft-light` çarpacak
+  bir şey bulamıyor — kâğıt şablonlarında düz blokların **%87'si σ<0,5**, yani JPEG onu
+  tamamen siliyordu. Uçlarda `normal` @0,10.
+- **Sonuç:** tam modal kaplama %67,6–%90,7 → **%8,8–%17,1** (tavan %40 ✅). Düz blok
+  medyan σ 2,26–3,85; **JPEG q=90 sonrası 1,62–3,61.** On kapak, sıfır kusur, BAKILDI.
+- ⚠ **Bedel ve o bedel FİZİK:** `#040404`→`#111111`, `#fafafa`→`#eeeeee`. Siyahın ALTINA
+  dither edilemez; zemini uçtan çıkarmak 19.6'nın işi.
+- ⚠ **4.5'teki çelişki ÇÖZÜLDÜ:** `alanSiniri` düzeltmesi `akan-alan`a ULAŞMIŞ — eğri
+  render'da net görünüyor. Düz-modal ölçümü kapağın metin yarısını sayıyordu, taşıyıcıyı
+  değil. **Ölçüm yanlış değildi, YANLIŞ YERE bakıyordu.**
+
+**KALAN:** beş yüzey ailesi (kâğıt · taş · beton · fırçalanmış çelik · halftone) ·
+ışık kaynağı katmanı · JPEG q=90'ın yayın yoluna bağlanması · şablon şablon zemin
+reçeteleri (`seamless-arastirma-2026-08.md` `B`).
 
 ### 19.5 — TİPOGRAFİ    [ ]
 Archivo (`wdth 62–125`) · Big Shoulders (+Stencil) · Martian Mono · Literata · Young Serif
@@ -219,7 +232,7 @@ okunmalı ama **üç ayrı tema** kullanmalı.
 
 | # | iş | nerede | neden ilk | adım |
 |---|---|---|---|---|
-| 1 | **Greni koşulsuz aç, luminansa bağla** | `zemin.ts` — üç değişiklik | on kapağın **%85'lik düz alanını tek işte** bitirir | 19.4 |
+| 1 | ✅ **Greni koşulsuz aç, luminansa bağla** | `zemin.ts` + `panorama.ts` | **BİTTİ:** %85 düz alan → %8,8–17,1; JPEG sonrası σ 1,62–3,61 | 19.4 |
 | 2 | **Taşıyıcıyı görünür kıl** | `akan-alan` · `kavis` kontrast; `veri-hikayesi` köşegen 6 px magenta | seamless'ın çalışmadığı üç şablon **kompozisyon değişmeden** çalışır | 19.7 |
 | 3 | **Yüzeyi kesimden ayır** | `donen` · `memphis` degrade duraklarının yeri | bu ikisi bugün sürekliliği **aktif olarak kırıyor** | 19.7 |
 | 4 | **Fontları değiştir ve şablona ata** | `font-getir.mjs` + `fonts.ts` `YUZLER` | *"bilgisayar fontu"* şikâyetinin doğrudan cevabı | 19.5 |
