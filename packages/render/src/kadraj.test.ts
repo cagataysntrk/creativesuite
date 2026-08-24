@@ -86,7 +86,13 @@ describe('kadraj — altı şablon', () => {
       expect(suzgec(r.value, 'gorsel-zemine-karismasin')).toEqual([])
       expect(suzgec(r.value, 'krom-seridine-giriyor')).toEqual([])
       expect(suzgec(r.value, 'kaynak-yok')).toEqual([])
-    })
+      // ⚠ ⚠ **10 sn'lik VARSAYILAN tavan bu testte YANLIŞ BİRİMİ ölçüyordu.** Her
+      // yineleme Chromium'da tam bir panorama çiziyor; dosya tek başına 42 sn sürüyor.
+      // Tam paket paralel koşarken `veri-hikayesi` dilimi tavanı aştı ve kapı
+      // KIRMIZI döndü — ama kırılan şey render değil, ZAMANLAYICIYDI. Kardeş render
+      // testleri (`duzen-provasi.test.ts`) zaten 60_000 taşıyor; buradaki eksikti.
+      // Gevşetme değil hizalama: yanlış alarm veren kapı beş gün içinde görmezden gelinir.
+    }, 60_000)
   }
 })
 

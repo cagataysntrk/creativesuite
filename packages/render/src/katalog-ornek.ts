@@ -1135,10 +1135,32 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
   },
   zemin: 'var(--role-bg)',
   hayaletKonumu: { ust: 66, olcek: 1.5, guc: 12 },
-  // Beş kemer, dört kesim: her kesim bir kemerin ORTASINA denk geliyor, tepesine değil.
-  // Tepe noktası kesime düşseydi göz iki yarım tepe görürdü; ortadan kesilen bir yay
-  // ise iki yandan da AYNI eğimi veriyor ve devamı zorunlu okunuyor.
-  bant: { tip: 'kemer', sayi: 5 },
+  // Kesim bir kemerin ORTASINA denk geliyor, tepesine değil. Tepe noktası kesime
+  // düşseydi göz iki yarım tepe görürdü; ortadan kesilen bir yay ise iki yandan da AYNI
+  // eğimi veriyor ve devamı zorunlu okunuyor.
+  //
+  // ⚠ ⚠ **BEŞ → ON İKİ: RİTİM SLAYT BAŞINA OKUNUR, PANORAMA BAŞINA DEĞİL.** Beş kemer
+  // dört slayda dağılınca slayt başına ~1,25 yay düşüyordu ve tasarım denetimi bunu
+  // adıyla söyledi: *"ritim değil iki tepe — ritim en az üç vuruş ve görünür bir aralık
+  // ister"*. Şablonun içeriği *"bir hat TEKRARLA öğrenir"* diyor; form o tekrarı
+  // kuramıyordu, yani **form içeriği yalanlıyordu.**
+  // ⚠ ⚠ **SAYI 4'E BÖLÜNMEMELİ — ve bunu KAPI öğretti.** Önce 12 yazıldı ("dört slayt ×
+  // üç vuruş") ve `punto-esigi` kırmızı döndü: *"kavis · hiçbir kesim taşıyıcısız değil"*.
+  // Aritmetik şöyle: N kemer panoramayı N eşit parçaya böler, sınırlar `k/N`'de. Dört
+  // slaytta kesimler %25/%50/%75'te; kesim bir SINIRA denk gelirse orada mürekkep yok ve
+  // taşıyıcı kaybolur. %25 sınır olur ⟺ `0,25·N` tam sayı ⟺ **N 4'e bölünür.**
+  // 12 bölünüyordu; 5 bölünmüyordu — orijinal sayının seçilme sebebi buymuş.
+  // ⚠ 13 seçildi: slayt başına 3,25 vuruş (ritmin alt sınırı üç) ve N TEK olduğu için
+  // %50 kesimi ortadaki kemerin tam ORTASINA düşüyor — kesim tepeden değil gövdeden
+  // geçiyor, iki yandan aynı eğim veriliyor ve devamı zorunlu okunuyor.
+  // ⚠ ⚠ **BAND 560 → 860: ÖLÜ ORTA KAPANDI.** Ortak yükseklikle gövde ~y700'de bitiyor,
+  // kemerler ~y930'da başlıyordu; arada şekillenmemiş bir kuşak kalıyordu. Tasarım
+  // denetimi bunu *"nizami boşluk, gerilimli boşluk değil — üst blok ile alt süs
+  // birbirinden habersiz"* diye yazdı ve setin EN BOŞ kartı bu şablondu.
+  // ⚠ 860 keyfi değil: 1440 tuvalde band üst kenarı 1440−120−860 = **y460**'a çıkıyor,
+  // yani gövdenin bittiği yerin hemen altı. Kolonad artık kompozisyonun ALT YARISI,
+  // dibe yapışmış bir şerit değil.
+  bant: { tip: 'kemer', sayi: 13, yukseklik: 860 },
   gorseller: [],
   kartlar: [
     {

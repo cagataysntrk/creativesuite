@@ -51,6 +51,17 @@ export type Bant =
       /** Kemer dizisi — mimari/ritmik konularda eğrinin karşılığı. */
       readonly tip: 'kemer'
       readonly sayi: number
+      /**
+       * Bandın yüksekliği — 1080 tabanında px, verilmezse ortak varsayılan (560).
+       *
+       * ⚠ ⚠ **ÖLÜ ORTA BİR TASARIM KUSURUDUR.** Ortak 560 px'lik band tuvalin altına
+       * yapışıyor; `kavis`te gövde ~y700'de bitiyor, kemerler ~y930'da başlıyordu ve
+       * arada şekillenmemiş bir kuşak kalıyordu. Tasarım denetimi bunu *"nizami boşluk,
+       * gerilimli boşluk değil"* diye yazdı: üst blok ile alt süs birbirinden habersiz.
+       * ⚠ Band yüksekliği ŞABLONA ait bir karardır: mimari bir kolonad tuvalin üçte
+       * birine sıkışamaz. Ortak sabit, ortak bir tasarım dayatıyordu.
+       */
+      readonly yukseklik?: number
       // ⚠ `madalyon` KALDIRILDI (D-306): numaralı daire bir ROZETti — elle çizilmiş
       // jenerik öge, R-81'in tam hedefi — ve altı şablonun HİÇBİRİ kullanmıyordu.
       // Kemerin kendisi kompozisyon (yay), rozet süstü.
@@ -199,6 +210,18 @@ export interface Kart {
   /** Arkadaki dev soluk metin — kesim çizgilerini KASTEN aşıyor. */
   readonly hayalet: string
   /** Alt ray: sol (dönem/bölüm) ve orta (kaynak). */
+  /**
+   * Kapanış kartı — karoseli BİTİREN kare.
+   *
+   * ⚠ ⚠ **KAPANIŞ, KAROSELİN EN BOŞ KARESİYDİ ve bu ÖLÇÜLDÜ.** Dört şablonda son kare
+   * kendi destesinin en az mürekkepli karesi: `sahne-04` %2,1 · `donen-04` %3,3 ·
+   * `memphis-06` %3,5 · `dizin-04` %4,7. Tasarım denetimi bunu *"içerik bitti diyor,
+   * VARDIK demiyor"* diye yazdı. Karoselin tepe yapması gereken yerde sistem düz çiziyordu.
+   * ⚠ Çözüm süs EKLEMEK değil: kapanış marka kilidini GERÇEK BOYDA taşıyor (bugün
+   * markalama işini 20 px'lik künye şeridi yapıyor — o bir altbilgi, imza değil) ve tek
+   * satırlık tek çağrı. İkisi de tipografi ve marka VARLIĞI; CSS'le çizilmiş şekil değil.
+   */
+  readonly kapanis?: { readonly cagri: string }
   readonly rayaSol: string
   readonly rayaOrta: string
   /**
@@ -1196,6 +1219,24 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           : `<p class="govde"${ayarStili(k.ayar?.['govde'])}>` +
             `${vurguyuIsaretle(kacir(k.govde))}</p>`) +
         (k.panel === null ? '' : panelHtml(k.panel, ayarStili(k.ayar?.['panel']))) +
+        // ⚠ Kapanış bloğu panelin ARDINDAN, rayın ÖNÜNDEN giriyor: imza içeriğin sonudur,
+        // künyenin parçası değil. Marka kilidi kart zeminine göre renk alıyor.
+        (k.kapanis === undefined
+          ? ''
+          : `<div class="kapanis">` +
+            // ⚠ ⚠ **GERÇEK LOGO, ELLE ÇİZİLMİŞ "U" DEĞİL.** İlk sürüm `markaKilidi()`
+            // çağırıyordu — o, SVG ile çizilmiş bir harf ve altına küçük bir ad yazıyor.
+            // Depo sahibi çıktıya bakıp *"orantısız ve çirkin, ayrıca kendi logolarımız
+            // zaten var, onlar nerede?"* dedi ve haklıydı: `brand/brd_upcytech/logo/`
+            // altında gerçek marka işareti duruyor ve künye şeridi onu ZATEN kullanıyor.
+            // Marka varlığı dururken harf çizmek, tam olarak bu fazın yasakladığı şey.
+            (doc.logo === undefined
+              ? ''
+              : `<img class="kapanis-isaret" src="${kacir(
+                  koyuMu(kartinZemini(k), doc.tokenCss) ? doc.logo.koyu : doc.logo.acik
+                )}" alt="Upcytech">`) +
+            `<p class="kapanis-cagri">${vurguyuIsaretle(kacir(k.kapanis.cagri))}</p>` +
+            `</div>`) +
         `<div class="ray">` +
         (doc.logo === undefined
           ? ''
@@ -1452,6 +1493,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `  .kart.sag { align-items: flex-start;`,
     `              padding-left: ${String(Math.max(0, G - olc(64) - Math.max(Math.round(G * t.baslikSutunu) - 128, govdeSinir)))}px }`,
     `  .kart.sag > * { text-align: left }`,
+    // ⚠ ⚠ **KAPANIŞ İMZASI — ölçülerek eklendi.** Dört şablonda son kare destenin en boş
+    // karesiydi (%2,1 … %4,7). Marka kilidi burada GERÇEK boyda duruyor; künye şeridinin
+    // 20 px'lik logosu bir altbilgidir, imza değil.
+    // ⚠ `margin-top: auto` imzayı içeriğin ALTINA itiyor ama rayın üstünde tutuyor.
+    `  .kapanis { margin-top: auto; display: flex; flex-direction: column;`,
+    `             gap: ${olc(26)}px; align-items: flex-start }`,
+    // ⚠ İşaret gerçek logo dosyası; yüksekliği sabit, genişliği oranından geliyor.
+    `  .kapanis-isaret { height: ${olc(64)}px; width: auto; display: block }`,
+    `  .kapanis-cagri { margin: 0; font-family: 'Marka Baslik', sans-serif;`,
+    `                   font-size: ${olc(44)}px; line-height: 1.24; font-weight: 500;`,
+    `                   letter-spacing: -0.012em; color: var(--kart-metin);`,
+    `                   max-width: ${olc(760)}px }`,
     // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).
     ...(doc.yerlesim === undefined || doc.yerlesim === 'ayrik'
@@ -1606,6 +1659,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // aşarsa taşma olur ve `tasma` kusuru doğar.
     `           max-width: clamp(${String(olcuAlt)}px, ${String(olcuHedef)}px, ${String(govdeSinir)}px) }`,
     ...(doc.yerlesim === 'yayik' ? [`  .govde { margin-top: auto }`] : []),
+    // ⚠ ⚠ **İKİ `auto` PAY BOŞ ALANI PAYLAŞIR — ve bu bir GERİLEME üretti.** Kapanış
+    // bloğu eklenince `yayik` yerleşimde hem `.govde` hem `.kapanis` `margin-top: auto`
+    // aldı; ikisi boşluğu böldü ve gövde YUKARI çıkıp görselin üstüne oturdu
+    // (`donen`: gövdenin %49'u görselin üstünde). Dibe itme hakkı TEK ögeye ait olmalı.
+    // ⚠ Kapanış kartında o hak kapanışındır: imza içeriğin sonudur, gövde değil.
+    `  .kart:has(.kapanis) .govde { margin-top: calc(var(--taban, ${olc(54)}px) * 1) }`,
     `  .govde strong { color: var(--kart-metin); font-weight: 700 }`,
     // ⚠ Dev soluk metin kesim çizgilerini KASTEN aşıyor: kesintisizliğin en görünür işareti.
     // ⚠ Dev soluk metin: BÜYÜK ve kesim çizgilerini aşacak kadar aşağıda. İlk sürümde
@@ -1743,8 +1802,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                 height: ${doc.yukseklik}px; z-index: 0 }`,
     `  .bant-ok { position: absolute; left: 0; top: 0; width: ${toplam}px;`,
     `             height: ${doc.yukseklik}px; z-index: 5; pointer-events: none }`,
+    // ⚠ Band yüksekliği şablondan gelebiliyor (`bant.yukseklik`); verilmezse ortak 560.
     `  .bant, .bant-kemer { position: absolute; left: 0; bottom: ${olc(120)}px;`,
-    `                       width: ${toplam}px; height: ${olc(560)}px; z-index: 1 }`,
+    `                       width: ${toplam}px;`,
+    `                       height: ${olc(doc.bant?.tip === 'kemer' ? (doc.bant.yukseklik ?? 560) : 560)}px;`,
+    `                       z-index: 1 }`,
     `  .kilometre { position: absolute; bottom: ${olc(120)}px; z-index: 3;`,
     `               transform: translateX(-50%);`,
     `               text-align: center }`,

@@ -24,19 +24,14 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > ⛔ **YİRMİ BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` `3.7` `3.8` `3.14` `4.13b` `5.4b`
 > `5.5b` `6.5b` `6.9b` `7.2b` `7.5b` `7.6b` `7.8b` `8.6` `8.8b` `11.5` `11.6` `11.9`
 > `12.8` `13.3` `18.18`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık.
-> ⚠ **FAZ 19 = TASARIM FAZI.** Depo sahibi yönü netleştirdi: iş artık sistematik kural
-> değil **estetik ve tasarım gözü**. Sıfır kusur iyi tasarım demek değil. Sıra: uzman
-> denetimi → tipografi → zemin/yüzey → kompozisyon → görsel dili → eksik arketipler →
-> kapı borçları → temizlik (Yasa 11: ELE, silme yok) → panelden 3 + 9 karosel → bekle.
-> **Yayın fazın DIŞINDA.**
-> ⚠ **SON DURUM:** Tuval 1080×1440 (D-348); bütçe tavanındaki kusur 36 → 24.
-> `run_01a030e2` UÇTAN UCA koştu: kalite yeşil (4 slayt · 0 kusur), panelde görünüyor,
-> `insan-onayi` kapısında BEKLETİLİYOR — yayın kararı depo sahibinin.
-> `sahne`nin yayları kalktı (görselin %10'unu kesiyorlardı), yerine zemin çizgisi.
-> Üç kapı körlüğü kapandı: JPEG damgası yoktu, `SUSU_GIZLE` ölçek çizgisini saymıyordu,
-> `citations` bölüm aralığı sabit harf aralığıyla kilitliydi. `LOOP§H`: panelden bakmak
-> artık kural.
-> ⚠ **SIRADAKİ İŞ:** FAZ-19.1 — on şablonun İÇ slaytlarına bak; ilk hedef `sahne` 2. slayt.
+> ⚠ **FAZ 19 = TASARIM FAZI.** Tam program, depo sahibinin BÜTÜN talepleri ve dört
+> denetimin özeti `docs/fazlar/FAZ-19.md`'de — bağlam sıfırlanırsa ÖNCE orayı oku.
+> ⚠ **İki araştırma raporu BİREBİR KOPYALANDI:** `docs/referans/seamless-arastirma-2026-08.md`
+> (976 satır — ölçülmüş gren/bant/font/renk değerleri). Dört tasarım denetimi:
+> `docs/referans/tasarim-denetimi-2026-08.md`.
+> ⚠ **BEKLENEN:** aşama-2 tatbik raporu (ajan `adf83dbed1f37401e`, brif
+> `scratchpad/asama2-brief.md`). Gelince KOPYALA, yazma.
+> ⚠ **YAYIN YOK.** Degrade yasağının kapsamı değişti: optik degrade serbest.
 
 ## Tamamlananlar
 
