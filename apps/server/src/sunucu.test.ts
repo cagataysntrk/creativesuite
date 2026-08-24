@@ -870,6 +870,44 @@ describe('konu seçebilen hatlar', () => {
       s.kapat()
     }
   })
+
+  // ⚠ ⚠ **GİZLEMEK ENGELLEMEK DEĞİL.** `/api/hatlar` emekli hatları zaten gizliyordu ve
+  // açık KAPANMIŞ sanılıyordu; oysa `/api/calistir` gövdedeki id'yi olduğu gibi alıyordu,
+  // yani menüde olmayan bir hat doğrudan çağrıyla koşabiliyordu. Depo sahibi eski hattın
+  // hâlâ koşulabilir olmasını bir TUZAK olarak gördü — kapı listede değil BAŞLATMADA olur.
+  // ⚠ Yasa 10 delinmiyor: dosya duruyor, id çözülüyor, geçmiş koşular okunuyor; yasaklanan
+  // tek şey YENİ İŞ. `scripts/uret.mjs` ile aynı davranış, aynı gerekçe.
+  it('EMEKLİ hat başlatılamıyor — menüde olmaması yetmez', async () => {
+    const s = kurSunucu({
+      repoRoot: REPO2,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const j = (await (await s.app.request('/api/hatlar')).json()) as { aktif?: string[] }
+      // Emekli hat menüde YOK — önce bunu doğruluyoruz ki test iki şeyi birden korusun.
+      expect((j.aktif ?? []).includes('instagram-carousel')).toBe(false)
+      const r = await s.app.request('/api/calistir', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          pipeline: 'instagram-carousel',
+          konu: 'fire ölçümü',
+          planDigest: 'sha256:x',
+        }),
+      })
+      expect(r.status, 'emekli hat başlatıldı').toBe(400)
+      const g = (await r.json()) as { hata?: string }
+      expect(g.hata ?? '').toContain('EMEKLİ')
+      // ⚠ Yerine geçen hat ADIYLA söyleniyor: "koşma" demek yetmez, NEREYE gidileceğini
+      // söylemeyen bir ret, kullanıcıyı aynı hatayı tekrarlamaya bırakır (Yasa 10).
+      expect(g.hata ?? '').toContain('instagram-karosel')
+    } finally {
+      s.kapat()
+    }
+  })
 })
 
 // ── içerik ucu: İKİ DAL AYNI ŞEKLİ döndürür ────────────────────────────────

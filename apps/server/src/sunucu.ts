@@ -190,6 +190,28 @@ const hatAdimSayisi = (repoRoot: string, pipelineId: string): number => {
 }
 
 /**
+ * Hat EMEKLİ mi — dosya yoksa/okunamıyorsa `null` (bilinmiyor), asla fırlatmaz.
+ *
+ * ⚠ ⚠ **`loadPipeline` DOSYA YOKKEN FIRLATIYOR** — yukarıdaki uyarının aynısı. İlk
+ * yazımda bu denetimi doğrudan uca koydum ve olmayan bir hat id'si ucu 500 yapardı;
+ * dosyanın kendi yorumu beni yakaladı. Muhafız da aynı sarmalayıcıyı kullanmak zorunda.
+ * ⚠ `null` ile `false` AYRI: bilinmeyen bir hat "emekli değil" demek değildir; başlatma
+ * yolunda id zaten ayrıca doğrulanıyor ve orada anlamlı bir hata veriyor.
+ */
+const hatEmekliMi = (
+  repoRoot: string,
+  pipelineId: string
+): { readonly emekli: boolean; readonly yerine: string | null } | null => {
+  try {
+    const r = loadPipeline(join(repoRoot, 'registry/pipelines'), pipelineId)
+    if (!r.ok) return null
+    return { emekli: r.value.retired === true, yerine: r.value.supersededBy ?? null }
+  } catch {
+    return null
+  }
+}
+
+/**
  * Koşu kimliği GEÇERLİ mi — yola giren dış girdinin tek beyaz listesi.
  *
  * ⚠ ⚠ **BU DENETİM BU DOSYADA ALTI KEZ KOPYALANMIŞTI.** Bir yol geçişi muhafızının
@@ -1535,6 +1557,25 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       planDigest?: string
       konuyuSistemSecsin?: boolean
       sablon?: string
+    }
+    // ⚠ ⚠ **EMEKLİ HAT BAŞLATILAMAZ — ve buradaki açık GİZLEMEKLE kapanmış SANILIYORDU.**
+    // `/api/hatlar` emeklileri zaten gizliyor, ama gizlemek engellemek değil: bu uç
+    // gövdedeki `pipeline` id'sini olduğu gibi alıyordu, yani menüde olmayan bir hat
+    // doğrudan çağrıyla koşabiliyordu. Kapı listede değil, BAŞLATMADA olmalı.
+    // ⚠ Yasa 10 delinmiyor: dosya duruyor, id çözülüyor, geçmiş koşular okunuyor —
+    // yalnız YENİ İŞ başlamıyor. CLI (`scripts/uret.mjs`) ile aynı davranış.
+    const hatDurumu = hatEmekliMi(o.repoRoot, govde.pipeline ?? '')
+    if (hatDurumu !== null && hatDurumu.emekli) {
+      const yerine = hatDurumu.yerine
+      return c.json(
+        {
+          ok: false,
+          hata:
+            `'${govde.pipeline ?? ''}' EMEKLİ bir hat ve koşturulmuyor. ` +
+            (yerine === null ? 'Yerine geçen hat beyan edilmemiş.' : `Yerine: '${yerine}'.`),
+        },
+        400
+      )
     }
     // ⚠ Hattın tutamayacağı söz BAŞLAMADAN reddediliyor: doomed bir koşu başlatmak,
     // insana boş bir ekran ve defterde bir enkaz bırakır.

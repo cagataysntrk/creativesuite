@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url'
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
 const PIPELINES = join(REPO, 'registry/pipelines')
 
-const { loadPipeline, listPipelines } = await import(join(REPO, 'packages/registry/dist/index.js'))
+const { loadPipeline, hatDurumlari } = await import(join(REPO, 'packages/registry/dist/index.js'))
 const {
   runPipeline,
   formatRun,
@@ -148,7 +148,15 @@ if (
   console.log(`  konusuz:  just uret <pipeline> --konu-sec   (konuyu hattın agent'ı seçer)`)
   console.log(`  devam:    just uret <pipeline> --devam <run_id>   (konu manifest'ten okunur)`)
   console.log(`  parametre: just uret prospect-deck <konu> --url <site> --demo-ref <yol>`)
-  console.log(`  mevcut: ${listPipelines(PIPELINES).join(', ') || '(yok)'}`)
+  // ⚠ ⚠ **EMEKLİ HAT ARTIK MENÜDE YOK.** `hatDurumlari` aktif/emekli ayrımını yapmak için
+  // YAZILMIŞTI ve bu CLI ham `listPipelines`ı çağırıyordu: emekli hat, koşmaması gereken
+  // hat, kullanım satırında ÖNERİLİYORDU. Bu depoda aynı sınıf hatanın bir tekrarı daha —
+  // doğru fonksiyon var, çağıran yanlış olanı çağırıyor.
+  // ⚠ Sayısı SÖYLENİYOR: liste sessizce kısalırsa "hat kayboldu" denir; emeklilik
+  // kendini duyurmak zorunda (Yasa 10).
+  const durum = hatDurumlari(PIPELINES)
+  console.log(`  mevcut: ${durum.aktif.join(', ') || '(yok)'}`)
+  if (durum.emekli.length > 0) console.log(`  emekli (koşturulmuyor): ${durum.emekli.join(', ')}`)
   process.exit(1)
 }
 
@@ -191,16 +199,27 @@ if (!cozum.ok) {
 // İngilizce biri Türkçe. Yanlış olanı koştum ve hat SESSİZCE çalıştı: eski tasarımla,
 // katalog dışı bir yerleşimle, metin kontrastı 1,1:1 olan bir slaytla.
 //
-// ⚠ Emekli hat ÇALIŞTIRILABİLİR kalıyor — Yasa 10: emeklilik silme değildir ve
-// `apps/ui` hâlâ bu id'ye bağlı. Değişen tek şey: artık SÖYLÜYOR. Sessiz bir emeklilik,
-// emeklilik değil bir tuzaktır.
+// ⚠ ⚠ **UYARI YETMEDİ — EMEKLİ HAT ARTIK KOŞMUYOR.** Önceki sürüm yalnız bir satır
+// basıyor ve çalıştırıyordu; depo sahibi eski hattın hâlâ koşulabilir olmasını bir
+// TUZAK olarak gördü ve haklı: uyarı, akan bir konsolun içinde ikinci koşuda görünmez
+// olur. Bir kapı ancak DURDURUYORSA kapıdır.
+//
+// ⚠ **Bu Yasa 10'u DELMİYOR.** Yasa *"emeklilik silme değildir"* diyor; dosya duruyor,
+// `retired`/`supersededBy` duruyor, id ÇÖZÜLEBİLİR kalıyor — geçmiş koşular okunuyor ve
+// `apps/ui` bu id'ye bağlı kalmaya devam ediyor. Yasaklanan tek şey YENİ İŞ BAŞLATMAK,
+// ki yasanın kendi cümlesi zaten *"yeni işler yerine geçen hatta gider"*.
+//
+// ⚠ `--devam` ve `--rerun` de reddediliyor: emekli bir tasarımla yarım kalmış bir koşuyu
+// SÜRDÜRMEK, o tasarımla yeni görsel üretmek demektir ve para oradan gider.
 if (cozum.value.retired === true) {
   const yerine = cozum.value.supersededBy
-  console.log(
-    `  ⚠ ⚠ '${id}' EMEKLİ bir hat — yeni işler ` +
-      `${yerine === undefined ? 'yerine geçen hatta' : `'${yerine}' hattına`} gider.`
+  console.error(`  ✗ '${id}' EMEKLİ bir hat ve KOŞTURULMUYOR.`)
+  console.error(
+    `    Yerine: ${yerine == null ? '(yerine geçen hat beyan edilmemiş)' : `'${yerine}'`}`
   )
-  console.log('    Yasa 10 gereği çalıştırılabilir kalıyor; çıktısı GÜNCEL TASARIM DEĞİL.')
+  console.error('    Yasa 10: dosya silinmedi, id çözülüyor, geçmiş koşular okunuyor —')
+  console.error('    yalnız YENİ İŞ başlatmıyor. Çıktısı güncel tasarım değildi.')
+  process.exit(1)
 }
 
 // ── marka bağlamı ───────────────────────────────────────────────────────────
