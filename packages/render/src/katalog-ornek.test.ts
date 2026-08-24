@@ -6,7 +6,7 @@
 // para harcandıktan sonra — patlar. Kapı burada.
 
 import { describe, expect, it } from 'vitest'
-import { KATALOG } from '@suite/contracts'
+import { KATALOG, lower } from '@suite/contracts'
 import { ORNEKLER, ornekBul, type KatalogOrnegi } from './katalog-ornek.js'
 import { panoramaHtml, VARSAYILAN_TIPO } from './panorama.js'
 import { ikonSec } from './sablon-ikon.js'
@@ -109,14 +109,15 @@ describe('örnek içeriği', () => {
   // kelime bir KOMPOZİSYON ögesi; slaytta zaten yazan bir kelimeyi ikinci kez, bu kez
   // kadrajın üçte biri boyunda yazmak sıfır bilgi ekler. D-299 hayaleti altı şablonda
   // *yer olmadığı* için kapatmıştı — tekrarı hiç ölçmemişti.
-  // ⚠ Karşılaştırma Türkçe kıvrımlı: `toLocaleLowerCase('tr')` (`İ` → `i`, `I` → `ı`)
-  // ve noktalama atılıyor, yoksa `ADIM 01` ile `adım01` eşleşmez.
+  // ⚠ Karşılaştırma Türkçe kıvrımlı: `lower` (`İ` → `i`, `I` → `ı`) ve noktalama
+  // atılıyor, yoksa `ADIM 01` ile `adım01` eşleşmez.
+  // ⚠ `toLocaleLowerCase('tr')` DOĞRU olurdu ama `turkish-case` kapısı eşleştirmeden
+  // önce string gövdelerini siliyor: denetlediği argümanı GÖREMİYOR ve her doğru
+  // kullanımı yanlış pozitif sayıyor. Kapıyı gevşetmek yerine deponun yetkili yardımcısı
+  // kullanılıyor — zaten doğru cevap o (R-21: case dönüşümü tek yerde).
   it('hayalet slaytta zaten yazan bir kelimeyi TEKRARLAMIYOR', () => {
     const sadelestir = (t: string | null | undefined) =>
-      String(t ?? '')
-        .trim()
-        .toLocaleLowerCase('tr')
-        .replace(/[^\p{L}\p{N}]/gu, '')
+      lower(String(t ?? '').trim()).replace(/[^\p{L}\p{N}]/gu, '')
     for (const [ad, o] of ornekler) {
       o.kartlar.forEach((k, i) => {
         const h = sadelestir(k.hayalet)

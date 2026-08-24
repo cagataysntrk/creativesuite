@@ -579,3 +579,29 @@ geçti. Açıklık ölçüldü ve *"144 px temiz"* çıktı — ama ölçülen `
 kapaktaki pullar ise `.etiketler`. Doğru kutuyla bakınca pullar y 1092–1160, eğri 1114:
 kesişiyordu. Denetim de sessizdi, çünkü `METIN_KUTULARI` yalnız başlık/gövde/üst etiketi
 tanıyordu. Kapı pul sırasına açıldı ve **kendi düzeltmesini %2,6 ile yakaladı.**
+
+## Satır sıkışması: ÜÇ ALET DENENDİ, ÜÇÜ DE GÖZLE ÇELİŞTİ — kural YAZILMADI
+
+`alinti` kapağında satırlar birbirine değiyor göründü. Ölçmeye çalışıldı:
+
+1. **Mürekkep bantları.** Başlık kutusundaki dolu piksel satırlarını bantlara ayır,
+   aralarındaki boş satırı say. `alinti` 8 px çıktı, en dar `veri-hikayesi` ve
+   `karsilastirma` 3 px. ⚠ **Kırık:** bir harfin NOKTASI gövdesinden ayrıksa fazladan
+   bant sayılıyor; daha kötüsü, gerçekten değen iki satır TEK bant olup ölçümden
+   düşüyor — yani alet en kötü vakayı göremiyor.
+2. **Satır kutusu + boş satır.** `Range.getClientRects()` ile gerçek satırlar alındı.
+   Şimdi `sahne` ve `alinti` **0** verdi. ⚠ **Çelişki:** ikisine de bakıldı ve ikisi de
+   GÜÇLÜ duruyor. Sıfır "değiyor" demek değil, "temiz beyaz bant yok" demek — çıkıntılar
+   yatayda kaymışsa göz rahatsız olmuyor.
+3. **Sütun başına en yakın mesafe.** İki satırın ortasından yukarı ve aşağı tarayıp en
+   yakın mürekkep çiftini bul. ⚠ **Kırık:** bir çıkıntı orta satırı geçiyorsa hem yukarı
+   hem aşağı arama AYNI pikseli buluyor ve mesafe 0 çıkıyor — beş şablonda öyle oldu.
+
+**Sonuç: ölçü yok, düzeltme var.** `veri-hikayesi` (0,98 → 1,04) ve `karsilastirma`
+(1,02 → 1,08) kırpılıp BAKILARAK düzeltildi; öncesi ve sonrası yan yana kondu. Kural
+YAZILMADI — kırık olduğu bilinen bir ölçüye kural bağlamak, kuralsızlıktan kötüdür.
+
+⚠ Ayrıca kesin olan bir şey var: **ayar sonucu öngörmüyor.** `sahne` 0,96 ile rahat,
+`karsilastirma` 1,02 ile sıkışıktı. Sıkışmayı `satirAraligi` değil, karşılaşan Türkçe
+AKSAN ÇİFTİ belirliyor (ğ kavisi ile ö noktaları, ç kuyruğu ile b çıkıntısı). Bu yüzden
+`satirAraligi` üzerine bir taban yazmak da işe yaramazdı.

@@ -81,7 +81,14 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.16,
     baslikAgirlik: 600,
-    satirAraligi: 0.98,
+    // ⚠ ⚠ **0,98 → 1,04: SATIRLAR TÜRKÇE AKSANDA ÇAKIŞIYORDU.** Mürekkep ölçüldü —
+    // başlığın iki satırı arasında yalnız **3 px** boş piksel satırı kalıyordu, puntonun
+    // (151 px) **%2'si**. Kırpılıp BAKILDI: "çıkan"ın ç kuyruğu alt satırın "bir"ine
+    // giriyor.
+    // ⚠ KURAL YAZILMADI: bu sayıyı üreten alet SONRADAN kırık çıktı ve iki alet daha
+    // denendi, üçü de gözle çelişti. Düzeltme ölçüye değil BAKMAYA dayanıyor.
+    // → `docs/kurallar/OLCUMLER.md`
+    satirAraligi: 1.04,
     harfArasi: -0.025,
     govdeOrani: 0.27,
     baslikSutunu: 0.88,
@@ -1278,7 +1285,12 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.22,
     baslikAgirlik: 650,
-    satirAraligi: 1.02,
+    // ⚠ ⚠ **1,02 → 1,08: aynı Türkçe çakışma.** Boşluk 3 px, punto 140 px, oran **%2,1**;
+    // "olduğunu" ile "söylemiyordu" birbirine yapışıyordu — ğ kavisi ile ö noktaları.
+    // ⚠ AYAR SONUCU ÖNGÖRMÜYOR: `sahne` 0,96 ile rahat, bu şablon 1,02 ile sıkışıktı.
+    // Sıkışmayı ayar değil, karşılaşan AKSAN ÇİFTİ belirliyor — bu yüzden `satirAraligi`
+    // üzerine bir taban yazmak da işe yaramazdı. → `docs/kurallar/OLCUMLER.md`
+    satirAraligi: 1.08,
     harfArasi: -0.025,
     govdeOrani: 0.3,
     baslikSutunu: 0.8,
