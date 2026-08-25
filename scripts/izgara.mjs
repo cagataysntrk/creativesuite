@@ -87,8 +87,16 @@ const veriUri = (yol) => `data:image/png;base64,${readFileSync(yol).toString('ba
 console.log(
   gorselHavuzu.length === 0
     ? '  ⚠ gerçek kesik özne bulunamadı — görselli şablonlar YER TUTUCU ile çizilecek'
-    : `  · ${String(gorselHavuzu.length)} gerçek kesik özne kullanılıyor`
+    : `  · ${String(gorselHavuzu.length)} gerçek kesik özne kullanılıyor — ` +
+        `ÖDÜNÇ: son koşudan alınıp on şablona sırayla dağıtılıyor`
 )
+// ⚠ ⚠ **GÖRSELE DAİR KUSURLAR ÖDÜNÇ ÖZNEDE ÖLÇÜLÜYOR.** Havuz son koşudan geliyor ve
+// `i % havuz.length` ile dönüyor: `memphis` başka bir şablonun brief'iyle üretilmiş bir
+// fotoğrafı kendi BEYAZ zemininde taşıyabiliyor. Ölçüldü: `gorsel-zemine-karismasin`
+// p90 farkı **119**, eşik 120 — bir puan, ve o fark ödünç fotoğrafın açıklığından.
+// Üretimde her şablon KENDİ brief'inden görsel alıyor (`memphis`: koyu zeminde kişi).
+// Mercek bunu söylemezse, şablonun kusuru sanılır ve yanlış yer düzeltilir.
+const GORSEL_KUSURU = new Set(['gorsel-zemine-karismasin', 'metin-gorsel-cakisiyor'])
 const kapaklar = []
 let toplamKusur = 0
 
@@ -142,7 +150,13 @@ for (const [id, o] of Object.entries(ORNEKLER)) {
   console.log(
     `  ${isaret} ${id.padEnd(15)} ${String(doc.kartlar.length)} slayt · ${String(kusur.length)} kusur`
   )
-  for (const k of kusur) console.log(`      · ${k.tur} ${k.aciklama}`)
+  for (const k of kusur)
+    console.log(
+      `      · ${k.tur} ${k.aciklama}` +
+        (GORSEL_KUSURU.has(k.tur) && gorselHavuzu.length > 0
+          ? `\n        ⚠ ÖDÜNÇ özneyle ölçüldü — üretimde şablon KENDİ brief'inden görsel alır`
+          : '')
+    )
 }
 
 // ⚠ Tek sayfa HTML: ızgarayı bir tarayıcıda açıp BAKMAK için. PNG'leri birleştirmek bir

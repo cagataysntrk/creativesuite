@@ -131,30 +131,33 @@ AŞAMA 2: ölçülen tanı · teknik sabitler · font elemesi · beş palet · o
   **üreticileri yoktu**. `.ust-gren` + `.ust-vinyet` artık koşulsuz.
 - Gren **kartların ÜSTÜNDE**: `zeminDokusu` opak kartın altında kalıyor. *Film greni
   sahnenin değil FİLMİN özelliğidir.*
-- **Kip de luminansın fonksiyonu:** uçlarda `soft-light` çarpacak bir şey bulamıyor —
-  kâğıtta düz blokların **%87'si σ<0,5**, JPEG onu siliyordu. Uçlarda `normal` @0,10.
+- **Kip de luminansın fonksiyonu:** uçlarda `soft-light` çarpacak bir şey bulamıyor
+  (kâğıtta düz blokların **%87'si σ<0,5**); uçlarda `normal` @0,10.
 - **Sonuç:** modal kaplama %67,6–%90,7 → **%8,8–%17,1** (tavan %40 ✅); düz blok medyan
   σ 2,26–3,85, **JPEG q=90 sonrası 1,62–3,61.** On kapak, sıfır kusur, BAKILDI.
-- ⚠ **Bedel ve o bedel FİZİK:** `#040404`→`#111111`, `#fafafa`→`#eeeeee`. Siyahın ALTINA
-  dither edilemez; zemini uçtan çıkarmak 19.6'nın işi.
-- ⚠ **4.5'teki çelişki ÇÖZÜLDÜ ve cevap ikisi de değildi: BİRİM farkıydı.** ΔL 0,165
-  kaydı doğru; ama kontrast oranında o yalnız **1,32:1**. Token açıklığı ile WCAG
-  kontrastı iki AYRI birim, biri ötekini garanti etmiyor.
+- ⚠ **Bedel FİZİK:** `#040404`→`#111111`; siyahın ALTINA dither edilemez (19.6'nın işi).
+- ⚠ **4.5'teki çelişki BİRİM farkıydı:** ΔL 0,165 doğru, kontrast oranı **1,32:1**.
 
 **TAŞIYICI ✅ (kısmen)** — `kavis` 1,16:1 → **1,66:1**, `akan-alan` 1,32:1 → **2,65:1**.
 `yuzeyAdimi()` adımı zeminin KENDİ metin renginden türetiyor: koyu şablonda yukarı,
 kâğıt şablonda aşağı. Sabit token iki kutupta birden doğru olamaz.
 ⚠ Nötr rampanın gölgede ara adımı YOK (`ink-850` → `ink-650`) — 19.6'nın işi.
-⚠ ⚠ **REÇETENİN SIRASI YANLIŞ ÇIKTI — ÖLÇÜMLE.** `veri-hikayesi` eğrisi görünür yapıldı
-(1,00 → **1,74:1**) ve aynı anda `sus-metni-kesiyor` kırmızı döndü: eğri `ustBaslik`
-kutusunun **%99,3'ünün** arkasından geçiyormuş, görünmezken kimse fark etmiyordu.
-**Görünür taşıyıcı, metin kutusu maskesi (5. iş) kurulmadan çizilemez.** Geri alındı.
-→ **5. İŞ ARTIK 3. SIRADA.** Kalan: `veri-hikayesi` köşegeni · `karsilastirma` sınırı.
+⚠ ⚠ **REÇETENİN SIRASI YANLIŞ ÇIKTI — ÖLÇÜMLE.** Eğri görünür yapılınca
+`sus-metni-kesiyor` kırmızı döndü: eğri `ustBaslik` kutusunun **%99,3'ünün** arkasından
+geçiyormuş, görünmezken kimse fark etmiyordu. Görünür taşıyıcı, metin kutusu maskesi
+(5. iş) kurulmadan çizilemez → **5. İŞ 3. SIRAYA ALINDI.**
+
+**✅ 5. İŞ BİTTİ, iki engel de kalktı.** `metinMaskesi()` bant KONTURLARINI metin
+kutularından deliyor (dolgu delinmez — delik zeminin renginde dikdörtgen bırakır); çizgi
+reçetenin istediği **6 px**, dolgu `yuzeyAdimi(26)` (L 0,3506 / zemin 0,14, en kötü ΔL
+0,60). `karsilastirma` sınırı da görünür (ΔL 0,165 · eşik 0,06). **Kalan iş yok.**
+⚠ Aynı sınıf üç kusur daha: **kapılar · denetim · aile merceği** üretimin düzenini
+ölçmüyordu. Üçü de artık `puntoOlcumu → knockoutOlcumu → metinMaskesi` koşuyor.
 
 **BEŞ YÜZEY AİLESİ ✅** — kapalı dağarcık, her biri bir şablonda: `kagit`(editoryal) ·
 `tas`(alinti) · `beton`(kavis) · `celik`(karsilastirma) · `halftone`(memphis). Ölçülen σ:
-düz gren 2,26 · kâğıt 4,72 · taş 5,10 · beton 5,00 · halftone 10,00 · **çelik yatay/dikey
-0,69** (tek yönlü olan). ⚠ `tas`/`beton` σ'da ayrılmıyor — ayrımın yeri RENK (19.6).
+düz 2,26 · kâğıt 4,72 · taş 5,10 · beton 5,00 · halftone 10,00 · **çelik 0,69** (tek
+yönlü). ⚠ `tas`/`beton` σ'da ayrılmıyor — ayrımın yeri RENK (19.6).
 ⚠ İki deneme geri çevrildi: tam kaplama `contrast(20)` R-96'yı kırdı, çok düzenli fırça
 izi yasaklı "html css deseni" üretti. **KALAN:** ışık kaynağı · JPEG q=90'ın yayın yolu ·
 şablon şablon zemin reçeteleri (`seamless-arastirma-2026-08.md` `B`).
