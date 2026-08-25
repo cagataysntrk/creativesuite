@@ -2505,3 +2505,123 @@ bir test, meşru HER eklemeyi kırar ve suçu son ekleyene yükler. Beş denetim
 tavan taşımıyordu, komşuları taşıyordu — **kural vardı, tutarlı uygulanmıyordu.**
 Yeni kapı `denetim-tavani`: `panoramaDenetle` çağıran her test açık zaman aşımı taşır.
 Kasten ihlal edildi, dosya ve satır adıyla kırmızı döndü (13 test tarandı).
+
+### Hayalet rakam: "15. zincir kopukluğu" tespitim ÇÜRÜDÜ
+
+Ölçüm: on şablonun **45 kartının 45'inde** `hayalet: ''`, ama yedi şablon ayarlanmış bir
+`hayaletKonumu` taşıyor ve `katalog.ts` `akan-alan` için açıkça *"dev hayalet rakam"*
+yazıyor. İlk okuyuşta bu bir zincir kopukluğu gibi göründü: çizilmeyen bir şeyin konumu
+ayarlanmış.
+
+**Değil. Kararla kapatılmış** — D-299. Depo sahibi altı şablonda gördü: *"hepsine arkaya
+filigran gibi sayı eklemişsin, çoğunda yazılarla çakışıyor."* Ve `akan-alan`'da sebep
+tercih bile değil GEOMETRİ: alan sınırı y%44–86 arasında salınıyor, hayalet %35 boyunda;
+tek alana sığması için ya kadraj dışına inmeli ya başlığın olduğu yere çıkmalı. **Salınan
+bir sınırla sabit bir dev rakam yan yana yaşayamaz.** D-344 de artığı zaten adlandırmış:
+*"yedi şablon `hayaletKonumu` ilan ediyor ve hiçbirinde hayalet yok — bu kusur değil,
+karar."*
+
+⚠ ⚠ **VE GERİ AÇMAK BUGÜNKÜ EN İYİ SAYIYI DA BOZARDI.** D-299'un kendi kaydı şunu
+söylüyor: hayalet gidince en büyük/en küçük punto oranı **3,8–5,1'e düştü** — yani hayalet
+hiyerarşi eksikliğini SAKLIYORDU. Bugün ölçülen dinamik aralık **medyan 25,4:1** ve onu
+taşıyan şey `.kapanis-rakam`, yani bir SÜS değil bir İÇERİK ögesi (varış rakamı). Hayaleti
+geri koymak, aralığı içerikle değil süsle şişirmek olurdu. **Kapalı kalıyor.**
+
+| şablon | dinamik aralık | en büyük ses | en küçük |
+|---|---|---|---|
+| `donen` | 20,8:1 | 250 px kapak "360°" | 12 px |
+| `veri-hikayesi` | 23,3:1 | 257 px "2,0×" | 11 px |
+| `editoryal` | 22,9:1 | 284 px "01" | 12 px |
+| `kavis` · `dizin` | **28,6:1** | 316 px | 11 px |
+| **medyan** | **25,4:1** | — | — |
+
+⚠ Denetimin *"dinamik aralık ~6:1 ve her şey skalanın ortasında"* şikâyeti **ESKİMİŞ**:
+kapanış kartı o tarihten sonra geldi ve dördüncü sesi getirdi.
+
+### Uyuyan çelişki: `kontur` ilan edilmiş, render'da kontur yolu yok
+
+`aile.ts` hayaleti `{ bicim: 'kontur', olcekYuzde: 52 }` diye ilan ediyor ve
+`kompozit.ts` katman sırasında *"Hayalet rakam — dev, kırpılmış, **yalnız kontur**"*
+yazıyor. `panorama.ts` ise `.hayalet`i düz `color` ile, yani DOLGU çiziyor;
+`konturBildirimi()` var ama hayalet onu çağırmıyor.
+
+Bu **canlı bir kusur değil** (öge kapalı), ama uyuyan bir çelişki: hayalet bir gün
+açılırsa iki sözleşmeye de aykırı biçimde çizilir. ⚠ Ayrıca D-299'un reddettiği şeyin
+DOLGU hayalet olduğunu hatırlatıyor — kontur hayalet hiç denenmedi. Karar sahibinin
+gördüğü şey buydu; başka bir biçim önerilecekse ona ÇİZİLİP gösterilir, sessizce
+açılmaz.
+
+### Aksana ağırlık telafisi ÇÜRÜDÜ — çare hastalıktan on kat büyük
+
+Denetim (`tasarim-denetimi-2026-08.md` satır 257) *"aksanlı kelime optik olarak İNCE
+görünüyor"* deyip `font-weight +25` ya da `text-stroke 0.35px` öneriyor. Ölçüldü: aynı
+kelimenin aksanlı ve aksansız hâli, Archivo, gerçek marka fontu, 36 px ve 96 px.
+
+⚠ ⚠ **NORMALİZASYONU SEÇMEK ÖLÇÜMÜN KENDİSİDİR — üç farklı cevap çıkıyor:**
+
+| ölçüt | 36 px | 96 px | ne diyor |
+|---|---|---|---|
+| kapak kutusuna göre yoğunluk | **+3,9%** | **+4,9%** | aksanlı DAHA KOYU |
+| tam mürekkep kutusuna göre | **−5,8%** | **−4,9%** | aksanlı DAHA AÇIK |
+| **x-yüksekliği bandı** | **−0,8%** | **−0,0%** | **AYNI** |
+
+Doğru ölçüt üçüncüsü. Gözün "kelimenin ağırlığı" diye okuduğu şey gövde bandıdır; aksan
+işaretleri x-yüksekliğinin ÜSTÜNDE durur, gövdeye tek piksel eklemez. Tam kutu ölçütü
+aksanlı kelimeyi "açık" gösteriyor çünkü **kutu daha yüksek** — hiçbir gövde incelmediği
+hâlde payda büyüyor. Kapak ölçütü ters yönde aynı hatayı yapıyor.
+
+**Çarenin büyüklüğü ölçüldü** (`değişim`, 96 px, x-bandı):
+
+| ayar | yoğunluk | fark |
+|---|---|---|
+| `wght 400` | 0,3895 | — |
+| `wght 425` (öneri) | 0,4206 | **+8,0%** |
+| `wght 500` | 0,4600 | +18,1% |
+| `text-stroke 0.35px` (öneri) | 0,4410 | **+13,2%** |
+
+**Çare hastalıktan 10–16 kat büyük.** Uygulanırsa aksanlı kelimeler görünür biçimde
+AĞIRLAŞIR: olmayan bir kusurun yerine gerçek bir kusur konur. **Uygulanmıyor.**
+
+⚠ Denetimin gerekçesi de kelimeye değil RENGE aitti: *"koyu zeminde düşük luminanslı renk
+daha az yayılır"* — bu irradyasyon ve metnin rengiyle ilgili, aksanla değil. Öneri doğru
+gözlemin yanlış maddesine iliştirilmiş.
+
+⚠ **KENDİ İTİRAZIM DA ÇÜRÜDÜ.** "Her iki çare de karakter başına `span` ister, kerning
+çiftlerini koparır" demiştim. Ölçüldü: `değişim` · `ölçüm` · `güç` · `şirket` düz ve
+span'lı hâlde **birebir aynı genişlikte** (fark +0,00 px) — Chromium satır içi
+kardeşler arasında kerningi koruyor. İtiraz geçersiz; ret gerekçesi tek başına
+BÜYÜKLÜK farkıdır.
+
+### Dinamik aralık geniş ama TEK ÖGENİN SIRTINDA — ve arada delik var
+
+Aralık oranı (25,4:1) tek başına denetimin şikâyetini ölçmüyor. Şikâyet *"her şey
+skalanın ortasında"*ydı; oran yalnız iki UCU görür. Sesler kapak yüksekliğine göre log2
+kovalara ayrıldı (üretim düzeni, gerçek fontla):
+
+| şablon | 8–16 | 16–32 | 32–64 | 64–128 | **128–256** | **256–512** |
+|---|---|---|---|---|---|---|
+| `veri-hikayesi` | 21 | 42 | 2 | 6 | **0** | **1** |
+| `akan-alan` | 18 | 14 | 0 | 6 | **0** | **1** |
+| `sahne` | 18 | 10 | 4 | 0 | **0** | **1** |
+| `memphis` | 29 | 29 | 2 | 6 | **0** | **1** |
+| `donen` | 19 | 10 | 4 | 0 | **1** | **0** |
+| `editoryal` | 15 | 6 | 3 | 1 | **0** | **1** |
+| `kavis` | 16 | 10 | 0 | 4 | **0** | **1** |
+| `alinti` | 9 | 7 | 0 | 3 | **0** | **1** |
+| `karsilastirma` | 12 | 23 | 6 | 4 | **0** | **1** |
+| `dizin` | 32 | 26 | 0 | 4 | **0** | **1** |
+
+**Şekil hep aynı:** küçük seslerin büyük yığını · birkaç orta ses · **128–256 px kovasında
+DELİK (10 şablonun 9'unda boş)** · 256+ kovasında **tam bir öge** — kapanış rakamı.
+
+Yani 25,4:1 oranını tek bir öge taşıyor. O öge çıkarsa aralık çöker; D-299 bunu zaten
+ölçmüştü (hayalet gidince oran **3,8–5,1**). Aralık gerçek ama TEK BACAKLI.
+
+⚠ Boş kova bir kusur değil bir FIRSAT: reçetenin `B` bölümü tam oraya bir ses koyuyor —
+`alinti` için **Young Serif 240 px** (kapak ~170 px, yani boş kovanın ortası). Bugün o
+şablonun en büyük sesi 64–128 kovasında. *Anıtsal olduğu söylenen bir alıntı, setin geri
+kalanıyla aynı kovada duruyor.*
+
+⚠ Not: `baslikPayi` bir tavan oranı (`96 × payı`), gerçek punto `puntoOlcumu` ile kolona
+OTURTULUYOR. Payı yükseltmek rendered puntoyu yükseltmeyebilir — değişiklik ÖLÇÜLMEDEN
+yapılmış sayılmaz.
