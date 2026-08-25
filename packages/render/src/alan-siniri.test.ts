@@ -19,7 +19,7 @@ import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
 import { olcumBelgesi } from './olcum-belgesi.js'
-import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+import { knockoutOlcumu, panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
 const belge = (o: Ornek): PanoramaBelgesi => olcumBelgesi(o)
@@ -139,13 +139,44 @@ const OLC = `(() => {
       // Ikinci deneme varyanti ADINDAN tahmin etti (token adinda ink- geciyor mu) ve
       // akan-alan'i kacirdi: onun alt alani murekkep-alan. Tahmin yerine GORSELIN KENDI
       // pikselleri olculuyor: saydam olmayan piksellerin ortalama isigi.
-      const metin = el.tagName === 'IMG' ? gorselIsigi(el) : acikligi(getComputedStyle(el).color)
+      // KNOCKOUT'U TANI (R-98: sablon degismezi ICINDE, ters tirnak yok). Maskelenmis
+      // yazinin murekkebi color DEGIL degrade; color transparent oluyor ve kapi onu
+      // "gorunmuyor" sanip UC SAHTE kusur bildirdi. Maskeli ogede degradenin IKI rengi
+      // ayri ayri, KENDI yakasindaki alana karsi olculuyor.
+      const st = getComputedStyle(el)
+      if (st.backgroundClip === 'text' || st.webkitBackgroundClip === 'text') {
+        const bg = st.backgroundImage
+        const renkler = []
+        let p2 = 0
+        while (true) {
+          const a2 = bg.indexOf('oklch(', p2), b2 = bg.indexOf('oklab(', p2)
+          const k2 = a2 < 0 ? b2 : b2 < 0 ? a2 : Math.min(a2, b2)
+          if (k2 < 0) break
+          renkler.push(Number(bg.slice(bg.indexOf('(', k2) + 1).split(' ')[0]))
+          p2 = k2 + 6
+        }
+        if (renkler.length >= 2) {
+          // TARAYICI HER DURAGI IKI KEZ YAZIYOR: "renk 0 301px" -> "renk 0px, renk 301px".
+          // Ilk iki ornegi almak AYNI rengi iki alana karsi olcuyordu ve dL 0,000 diye
+          // SAHTE bir kusur uretti. Ilk ve SON alinacak: degradenin iki ucu.
+          const ustAlan = Math.max.apply(null, ISIK), altAlan = Math.min.apply(null, ISIK)
+          const d1 = Math.abs(renkler[0] - ustAlan)
+          const d2 = Math.abs(renkler[renkler.length - 1] - altAlan)
+          if (Math.min(d1, d2) < 0.30)
+            kusur.push(
+              'kart ' + (i + 1) + ' · ' + el.className.split(' ')[0] +
+              ' maskeli ama bir yaka okunmuyor (dL ' + Math.min(d1, d2).toFixed(3) + ')'
+            )
+          continue
+        }
+      }
+      const metin = el.tagName === 'IMG' ? gorselIsigi(el) : acikligi(st.color)
       if (metin === null || isNaN(metin)) continue
       // Kesilen oge IKI alana karsi, kesilmeyen yalniz USTUNDE DURDUGU alana karsi.
       const alanlar = icinde.length > 0
         ? ISIK
         : [altta ? Math.min.apply(null, ISIK) : Math.max.apply(null, ISIK)]
-      const a = el.tagName === 'IMG' ? 1 : alfasi(getComputedStyle(el).color)
+      const a = el.tagName === 'IMG' ? 1 : alfasi(st.color)
       const enYakin = Math.min.apply(null, alanlar.map((v) => a * Math.abs(metin - v)))
       if (enYakin < 0.30)
         kusur.push(
@@ -171,6 +202,8 @@ const kesenler = async (o: Ornek): Promise<readonly string[]> => {
     await page.setViewportSize({ width: G * o.kartlar.length, height: o.yukseklik })
     // ⚠ Punto oturtma ölçümün parçası — üretim onu her karede koşuyor.
     await page.evaluate(puntoOlcumu(belge(o)))
+    // ⚠ Knockout PUNTODAN SONRA: maske kutunun SON hâlini ölçmek zorunda.
+    await page.evaluate(knockoutOlcumu())
     return (await page.evaluate(
       OLC.replace('%SEC%', JSON.stringify(SEC)).replace(/%PAY%/g, String(PAY))
     )) as readonly string[]

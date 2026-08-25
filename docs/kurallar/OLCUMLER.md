@@ -2069,3 +2069,60 @@ fark tam olarak alfa katsayısı kadar küçülüyor (bileşke L = a·metin + (1
 
 Kasten ihlal: `RAKAM_Y` 58'den 90'a alındı (rakam da imzanın alanını sorar oldu), kapı
 ΔL 0,035 ve 0,022 ile kırmızı döndü. **Ölü bant tavanı %27 → %23.**
+
+---
+
+## KNOCKOUT MASKESİ — sınırın kestiği yazı iki yakada iki renk (FAZ-19)
+
+Faz dosyasının *"prova ölçümünü render'a taşıyan maske adımı"* borcu kapandı.
+
+### Sebep geometrik, zevk değil
+
+`alinti`nin kapanış karesinde varış rakamı y%45-72 arasını kaplıyor. Sınır 64'ten geçince
+rakamı **ortadan** kesiyor ve tek bir renk iki alanda birden okunamıyor — ölçüldü, iki
+denemede de: **ΔL 0,000** ve **0,035**. Sınır bu yüzden yalnız %72-77 penceresinden
+geçebiliyordu.
+
+### Kutunun yeri SABİT YAZILMIYOR, tarayıcıya ÖLÇTÜRÜLÜYOR
+
+Bu oturumda sabit yazılmış her ölçü er geç kaydı ve sessizce yanlış oldu (punto 458 →
+kesildi; metin dibi %26 → gerçekte %51; alan y'si). `knockoutOlcumu` sınırı **gerçek
+kutunun kenarlarında** okuyup degradenin açısını ve sert durağını oradan hesaplıyor.
+Üretimde `puntoOlcumu`dan **SONRA** koşuyor — punto metni büyütüp küçültüyor; önce koşan
+bir maske kaymış bir kutuyu ölçerdi.
+
+⚠ Degrade bir SÜS değil: `background-clip: text` ile yazının kendi mürekkebi oluyor ve
+sert duraklı olduğu için geçiş değil **kesin bir sınır** çiziyor. D-318 süs degradesini
+yasakladı; bu optik bir maskeleme aygıtı.
+
+### Kazanç
+
+| | maskesiz | maskeli |
+|---|---|---|
+| `alinti` sınırı | 88 → 74 | **78 → 62** |
+| ölü bant | %21 · %18 · %10 | **%11 · %7 · %10** |
+| kapsam | %58 | **%66** |
+
+### Kapı knockout'u TANIMIYORDU ve alet iki kez daha yalan söyledi
+
+**5.** Maskelenmiş yazının mürekkebi `color` değil degrade; `color` `transparent` oluyor ve
+kapı onu *"görünmüyor"* sanıp **üç sahte kusur** bildirdi. Kapı öğrendi: maskeli ögede
+degradenin iki rengi ayrı ayrı, **kendi yakasındaki** alana karşı ölçülüyor.
+
+**6.** Tarayıcı her durağı İKİ KEZ yazıyor (`renk 0 301px` → `renk 0px, renk 301px`).
+İlk iki örneği almak **aynı rengi** iki alana karşı ölçüyordu → yine ΔL 0,000. İlk ve
+**son** alınıyor: degradenin iki ucu.
+
+### Ve bir gerçek kusur daha çıktı
+
+`kapanis-rakam-alt` rakamın rengini devralıyordu ama **kendi yüksekliğinde** (y%76,8-81,2)
+duruyor, yani imzayla aynı yakada — koyu alanda koyu kalıyordu. Artık `--kapanis-metin`
+alıyor.
+
+### Tavan %23'te KALIYOR — ve bu dürüstlük
+
+Maske `alinti`yi %21'den %11'e indirdi ama tavanı indirmiyor: en kötü artık `akan-alan` k2
+ve `donen` k4, **ikisi de %22,01**. Tavan 22 denendi ve **0,014 puanla** kırmızı döndü;
+öyle bir kapı hiçbir şey söylemez.
+
+Kasten ihlal: `knockoutOlcumu`nun kesişme dalı ters çevrildi, kapı ΔL 0,000 ile kırmızı döndü.

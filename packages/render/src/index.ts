@@ -307,6 +307,7 @@ export type { Katman } from './kompozit.js'
 export {
   GOVDE_TABANI_1080,
   panoramaHtml,
+  knockoutOlcumu,
   puntoOlcumu,
   renderPanorama,
   VARSAYILAN_TIPO,

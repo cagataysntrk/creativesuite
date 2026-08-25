@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
 import { olcumBelgesi } from './olcum-belgesi.js'
-import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+import { knockoutOlcumu, panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
 
 const SEC =
   '.ust-baslik,.baslik,.govde,.panel,.sayilar,.etiketler,.kapanis,.gorsel,' +
@@ -96,6 +96,8 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
     // `memphis`te metin dibi oturtmasız y%26, oturtmalı **y%51**. Kapı ile üretim aynı
     // düzeni görmüyorsa kapı hiçbir şey kanıtlamıyordur.
     await page.evaluate(puntoOlcumu(belge(o)))
+    // ⚠ Knockout PUNTODAN SONRA: maske kutunun SON hâlini ölçmek zorunda.
+    await page.evaluate(knockoutOlcumu())
     const kod = OLC.replace('%G%', String(G))
       .replace('%H%', String(o.yukseklik))
       .replace('%N%', String(o.kartlar.length))
@@ -127,6 +129,9 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
 // **En kötü artık `alinti` k1 (%26).** Tavan %27: bir puanlık gerçek pay.
 // ⚠ **%27 → %23:** `alinti`nin alanı ölçülen pencerede yükseldi (%26 → %21).
 // En kötü artık `akan-alan` k2/k5 (%22).
+// ⚠ **%23'te KALIYOR:** knockout maskesi `alinti` sınırını 78→62'ye çıkardı (%21 → %11)
+// ama tavanı indirmiyor — en kötü artık `akan-alan` k2 ve `donen` k4, ikisi de **%22,01**.
+// Tavan 22 denendi ve 0,014 puanla kırmızı döndü; öyle bir kapı hiçbir şey söylemiyor.
 const TAVAN = 23
 // ⚠ Tavan 12 DENENDİ ve işe yaramazdı: kapak kartı `yayik` olmadan %12,01 ölçüyor —
 // kapı 0,014 puanla kırmızıya dönüyordu, yani hiçbir şey söylemiyordu. Ölçülen %7,

@@ -1366,10 +1366,10 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
     // SABİTLENİYOR (`kartZemini`), yani metin rengi altındaki alanı takip etmiyor.
     // Yükselmeyi korumanın yolu kart zemininin bölgeye göre dönmesi — ayrı bir iş.
     noktalar: [
-      { x: 0, y: 88 },
-      { x: 33, y: 84 },
-      { x: 66, y: 79 },
-      { x: 100, y: 74 },
+      { x: 0, y: 78 },
+      { x: 33, y: 73 },
+      { x: 66, y: 68 },
+      { x: 100, y: 62 },
     ],
   },
   bant: { tip: 'yok' },

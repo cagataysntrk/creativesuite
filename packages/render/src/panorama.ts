@@ -1604,7 +1604,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             ((): string => {
               const rz = kartRenkleri(bloktaZemin(k, i, RAKAM_Y), doc.tokenCss, doc.aksan)
               const iz = kartRenkleri(imzaninZemini(k, i), doc.tokenCss, doc.aksan)
-              return `--kapanis-rakam-metin:${rz.metin};--kapanis-metin:${iz.metin};`
+              // ⚠ KNOCKOUT için İKİ alanın rengi de karta yazılıyor: sınırın kestiği bir
+              // yazı tek renkle çizilemez, iki yakasında iki ayrı renk ister.
+              const a = doc.alanSiniri
+              const ko =
+                a === undefined
+                  ? ''
+                  : `--knockout-ust:${kartRenkleri(a.ust, doc.tokenCss, doc.aksan).metin};` +
+                    `--knockout-alt:${kartRenkleri(a.alt, doc.tokenCss, doc.aksan).metin};`
+              return `--kapanis-rakam-metin:${rz.metin};--kapanis-metin:${iz.metin};${ko}`
             })() +
             `--hayalet-renk:${hr.metin}">`
           )
@@ -1974,7 +1982,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                   font-feature-settings: 'tnum' 1, 'locl' 1 }`,
     `  .kapanis-rakam-alt { font-family: 'Marka Mono', ui-monospace, monospace;`,
     `                       font-size: ${olc(24)}px; letter-spacing: 0.14em;`,
-    `                       color: color-mix(in oklab, var(--kapanis-rakam-metin, var(--kart-metin)) 62%, transparent) }`,
+    // ⚠ ETİKET RAKAMIN DEĞİL KENDİ YÜKSEKLİĞİNİN alanını soruyor: y%76,8-81,2'de duruyor,
+    // yani imzayla aynı yakada. Rakamın rengini devralması onu koyu alanda koyu bırakıyordu.
+    `                       color: color-mix(in oklab, var(--kapanis-metin, var(--kart-metin)) 62%, transparent) }`,
     `  .kapanis-isaret { height: ${olc(64)}px; width: auto; display: block }`,
     `  .kapanis-cagri { margin: 0; font-family: 'Marka Baslik', sans-serif;`,
     `                   font-size: ${olc(44)}px; line-height: 1.24; font-weight: 500;`,
@@ -2520,6 +2530,77 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
  * ⚠ `baslikPayi` bu tavanın oranı: bir şablon (`editoryal`, payı 0,38) kasten fısıldar.
  * Tavanı AŞMAK temsil edilemiyor — çarpan 0–1 arası, garanti yapıdan geliyor.
  */
+/**
+ * **KNOCKOUT — alan sınırının kestiği yazı, sınırın iki yakasında İKİ AYRI renkte.**
+ *
+ * ⚠ ⚠ **SEBEP GEOMETRİK, ZEVK DEĞİL.** `alinti`nin kapanış karesinde dev varış rakamı
+ * y%45-72 arasını kaplıyor; sınır 64'ten geçince rakamı ORTADAN kesiyor ve tek bir renk
+ * iki alanda birden okunamıyor (ölçüldü: ΔL 0,035 / 0,000). Sınır bu yüzden yalnız
+ * %72-77 penceresinden geçebiliyordu ve `alinti`nin ölü bandı %21'de takılı kalmıştı.
+ *
+ * ⚠ ⚠ **KUTUNUN YERİ SABİT YAZILMIYOR, TARAYICIYA ÖLÇTÜRÜLÜYOR.** Bu oturumda sabit
+ * yazılmış her ölçü (punto 458, metin dibi, alan y'si) er geç kaydı ve sessizce yanlış
+ * oldu. Sınır burada gerçek kutunun kenarlarında okunuyor; içerik değişirse hesap da
+ * değişiyor. Faz dosyasının *"prova ölçümünü render'a taşıyan maske adımı"* borcu budur.
+ *
+ * ⚠ Degrade bir SÜS değil: `background-clip: text` ile yazının kendi mürekkebi oluyor ve
+ * sert duraklı (`0 Xpx, X px 100%`) olduğu için geçiş değil KESİN bir sınır çiziyor.
+ * D-318 süs degradesini yasakladı; bu optik bir maskeleme aygıtı.
+ */
+export const knockoutOlcumu = (): string => `(() => {
+  const svg = document.querySelector('svg.alan-siniri')
+  if (svg === null) return 0
+  const yol = Array.from(svg.querySelectorAll('path')).filter(
+    (p) => getComputedStyle(p).stroke !== 'none'
+  )[0]
+  if (yol === undefined || typeof yol.getTotalLength !== 'function') return 0
+  const ctm = yol.getScreenCTM()
+  if (ctm === null) return 0
+  const L = yol.getTotalLength()
+  const nokta = []
+  for (let i = 0; i <= 2000; i++) {
+    const p = yol.getPointAtLength((i / 2000) * L)
+    nokta.push([p.x * ctm.a + p.y * ctm.c + ctm.e, p.x * ctm.b + p.y * ctm.d + ctm.f])
+  }
+  // Sinirin verilen x'teki y'si: en yakin ornek. Yol duz parcalardan olustugu icin
+  // 2000 ornek panorama genisliginde piksel alti dogruluk veriyor.
+  const yAt = (x) => {
+    let en = null
+    for (const n of nokta) if (en === null || Math.abs(n[0] - x) < Math.abs(en[0] - x)) en = n
+    return en === null ? null : en[1]
+  }
+  let sayi = 0
+  for (const el of document.querySelectorAll('.kapanis-rakam, .kapanis-rakam-alt')) {
+    const r = el.getBoundingClientRect()
+    if (r.width < 4 || r.height < 4) continue
+    const ySol = yAt(r.left), ySag = yAt(r.right)
+    if (ySol === null || ySag === null) continue
+    // Kutuyu KESIYOR mu: sinir kutunun dikey araliginda mi.
+    const kesiyor =
+      (ySol > r.top && ySol < r.bottom) || (ySag > r.top && ySag < r.bottom)
+    if (!kesiyor) continue
+    const st = getComputedStyle(el)
+    const ust = st.getPropertyValue('--knockout-ust').trim()
+    const alt = st.getPropertyValue('--knockout-alt').trim()
+    if (ust === '' || alt === '') continue
+    // Kutu-yerel: sinirin sol ve sag kenardaki y'si, sonra o dogrunun acisi.
+    const a = ySol - r.top, b = ySag - r.top
+    const aci = (Math.atan2(b - a, r.width) * 180) / Math.PI
+    // Degradenin ekseni acidan dik; sert durak dogrunun kutu ortasindaki uzakligi.
+    const orta = (a + b) / 2
+    const uz = Math.abs(Math.cos((aci * Math.PI) / 180))
+    const durak = Math.max(0, Math.min(r.height, orta)) * (uz === 0 ? 1 : 1 / uz)
+    el.style.backgroundImage =
+      'linear-gradient(' + (90 + aci).toFixed(2) + 'deg, ' +
+      ust + ' 0 ' + durak.toFixed(1) + 'px, ' + alt + ' ' + durak.toFixed(1) + 'px 100%)'
+    el.style.backgroundClip = 'text'
+    el.style.webkitBackgroundClip = 'text'
+    el.style.color = 'transparent'
+    sayi++
+  }
+  return sayi
+})()`
+
 export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
   const t = doc.tipografi ?? VARSAYILAN_TIPO
   // Kart iç yüksekliği: üst/alt dolgu (68 + 190) düşülüyor. Başlık bloğunun payı %44 —
@@ -2621,6 +2702,9 @@ export const renderPanorama = async (
     // görmezdi. Tavan tüm kartların EN DARINDAN geliyor: karosel tek bir tasarım,
     // slayttan slayda değişen bir başlık puntosu ritmi kırar.
     await page.evaluate(puntoOlcumu(doc))
+    // ⚠ ⚠ **PUNTODAN SONRA: knockout kutunun SON hâlini ölçmek zorunda.** Punto oturtma
+    // metni büyütüp küçültüyor; önce koşan bir maske, kaymış bir kutuyu ölçerdi.
+    await page.evaluate(knockoutOlcumu())
     for (const [i, yol] of ciktiYollari.entries()) {
       await page.evaluate(
         `document.getElementById('sahne').style.transform = 'translateX(${-i * doc.slaytGenisligi}px)'`
