@@ -3386,3 +3386,156 @@ Kapı yine de yazıldı (`kapak-silueti`) çünkü bugün ihlal yok diye yarın 
 anlamına gelmiyor. Gerçekten ateşlendiği kurgusal bir çarpışmayla kanıtlandı: `editoryal`
 kapağı `orta-sag`dan `orta-sol`a çevrilince kapı *"orta-sol: sahne, editoryal, alinti"*
 diyerek kırmızı döndü.
+
+### Marka işareti her kartta vardı — yedi kez
+
+Denetim *"karosel başına TAM İKİ KEZ"* diyor: slayt 1'de küçük bir sahiplik işareti, son
+slaytta büyük imza. Künye şeridindeki logo için sözü net — *"imza değil duvar kâğıdı"*.
+
+Ölçüldü: altı kartlık bir destede **yedi işaret** (altı künye logosu 104 px + bir kapanış
+imzası 277 px). Künye logosu söküldü, kapağa sağ üstte 88 px'lik sahiplik işareti kondu.
+Sonuç **7 → 2**, on destenin onunda da.
+
+⚠ ⚠ **İŞARET İLK DENEMEDE YANLIŞ YERE DÜŞTÜ ve bunu ŞERİT söyledi.** `.kapak-isaret`
+mutlak konumlu yazıldı ama `.kart > *` kuralı ona `position: relative` veriyordu;
+`top`/`right` değerleri akıştaki yerinden KAYDIRMAYA dönüştü ve işaret sağ üstte değil
+**başlığın üzerinde** belirdi. Seçici dışlamaya alındı; ölçülen son konum **x %85,9–94,1 ·
+y %5,6**.
+
+*Yazdığın kuralın, daha geniş bir kural tarafından eziliyor olabileceğini her seferinde
+sına — bu fazda üçüncü kez oldu (satır içi `style` iki kez, geniş seçici bir kez).*
+
+Kural `marka-nadirligi` kapısına bağlandı: sayı tam iki, biri KAPAKTA öteki SON kartta, ve
+imza sahiplikten en az iki kat büyük (bugün 277/88 ≈ 3,1×). Künye logosu geri konarak
+kasten ihlal edildi; on destenin onu da kırmızı döndü.
+
+### Taşıyıcı ile pano aynı sayıyı gösteriyor — ama korumasızdı
+
+Denetim: *"Sürekliliği VERİYE bağla — `kavis`te 13 kemer ↔ 13 vafel karesi hizalansın.
+Geometri iddianın KANITI olsun."* Ölçüldü ve hizalama **bugün duruyor**: `bant.kemer.sayi`
+13, `panel.vafel.dolu` 13 (yirmi karenin on üçü); render'da 20 `vafel-kare` sayıldı.
+
+Kusur yoktu, **koruma yoktu**. Biri değişirse öteki sessizce yalan söylerdi. `veri-egrisi`
+ve `sayilan-iddia` ile aynı aileden bir kapı yazıldı (`tasiyici-verisi`): orada tipografi
+ile geometri, burada taşıyıcı ile pano.
+
+⚠ Kapsam veriden türüyor: kural yalnız HEM kemer bandı HEM vafel panosu taşıyan desteye
+uygulanıyor. Bu depoda kuralı gereğinden geniş yazmak altı kez kapıya takıldı; kapsamı
+varsayımdan değil içerikten okumak yedincisini önlüyor.
+
+Kasten ihlal: `dolu` 13 → 11, kapı *"bant 13 kemer çiziyor ama vafel 11 kare dolduruyor"*
+diyerek kırmızı döndü.
+
+### Kapanış karesi: şikâyet İKİNCİ kez geldi ve eski kural yetmiyordu
+
+Depo sahibi on kapanış karesini yan yana görüp *"son sayfalardaki büyük sayılar çok kötü
+duruyorlar"* ve *"alttan akan son sayfalara doğru yazılara giriyor"* dedi — **aynı şikâyet
+ikinci kez.** İlk seferinde `kapanis-temiz` yazılmıştı ve doğruydu; ama **iki taşıyıcı tipi
+için** yazılmıştı, oysa beş tip var.
+
+Ölçüldü: `veri-hikayesi`nde eğrinin DOLGUSU, `kavis`te kemerler, `dizin`de ok bandı dev
+rakamın üstünden geçiyordu. Nokta listesini kısaltmak çözmezdi — dolgu ve tekrar eden yay
+son noktadan SONRA da çiziliyor.
+
+⚠ Çözüm veri değil **KATMAN** düzeyinde: taşıyıcı katmanı son karenin genişliği kadar
+kırpılıyor (`clip-path: inset(0 G 0 0)`). Bir kural, üç taşıyıcı — ve yarın eklenecek
+dördüncüsü kendiliğinden kapsama giriyor. *Bir kuralı her tip için ayrı ayrı yazmak
+yerine, tiplerin ORTAK katmanına yazmak; tip listesi büyüdükçe kural eskimiyor.*
+
+Yeni kapı `kapanis-yuzeyi` de tipten bağımsız: **rakamın ardındaki yüzey TEK TON olmalı.**
+Ölçüm rakamı `visibility: hidden` ile gizleyip ARDINDAKİ pikselleri okuyor — glif
+kirlenmesi yok, model varsayımı yok.
+
+⚠ ⚠ **VE EŞİĞİ YİNE TAHMİNLE YAZDIM — kapı beni anında yalanladı.** İlk sürüm 26 dedi ve
+ON destede de kırmızı döndü. Gerçek sayılar alındı: kırık hâl **`kavis` 61 · `veri-hikayesi`
+50**; sağlıklı hâl en yüksek **28** (`kavis`, beton greni), sonra 24 · 24 · 23 · 21 · 18 ·
+17 · 16 · 4. Yani DOKU en fazla 28, SINIR en az 50 üretiyor; eşik **38** ikisinin ortasında
+(%36 ve %24 pay). *Bu defterde üç kez "gözle seçilmiş sayı" diye eleştirdiğim şeyi
+dördüncü kez ben yaptım — fark, bu kez kapının aynı turda yakalaması.*
+
+⚠ Ölçüm aleti de iki kez patladı: Playwright'in `clip`i `w`/`h` kabul etmiyor (`width`/
+`height` zorunlu), ve **R-98 ON BİRİNCİ kez ısırdı** — şablon değişmezinin içindeki yoruma
+ters tırnak yazınca dosya hiç ayrıştırılamadı.
+
+⚠ Tabakada `veri-hikayesi`nin kapanışında hâlâ bir "kama" görünüyordu; tam boyutta bakınca
+**yoktu** — küçültme artefaktıymış. *Doğru ölçekte bakmak, bakmanın kendisi kadar önemli.*
+
+### 19.8'in render tarafında İHLAL YOK — ve bunu ölçmek iki kez gereksiz işten döndürdü
+
+*"Kutu değil yüzey"* altı kuralı ölçüldü:
+- **Yarıçap:** en büyük 3 px (`cubuk`), sonra 2 px (`vafel-kare`), bir de `kilometre-nokta`
+  daire. Yasak **4–12 px** bandında **hiçbir öge yok.** İlk bakışta "0 da değil, 28 de
+  değil" diye düzeltmeye niyetlendim; kural o bandı adıyla anıyor ve 2 px'lik optik
+  yumuşatma bir UI kartı değil.
+- **Gölge:** on destede de bütün `box-shadow`lar `inset`. **Dış gölge hiç yok**, yani "düz
+  gölge" kuralının ihlal edecek nesnesi de yok. Sistem derinliği gölgeyle değil YÜZEYLE
+  kuruyor.
+- **Saf renk:** on destenin onunda da gren (`soft-light` ya da `normal`), çizgi ve ışık
+  katmanları duruyor.
+
+⚠ ⚠ **PİKSEL TARAMASI ÜÇ DESTEYİ "DÜZ RENK" DİYE İŞARETLEDİ ve üçünde `yuzey` gerçekten
+BOŞTU** — `akan-alan` · `sahne` · `donen`. Yüzey ailesi atamaya hazırlanırken §4 matrisine
+bakıldı: o üçünün yüzeyi bir DOKU AİLESİ değil, **ALANIN KENDİSİ** — *"dökme mürekkep
+alanı"* · *"derin mürekkep + temas zemini"* · *"alternan"*. Eksiklik değil, tasarım. Koyu
+zeminde grenin mutlak luminans yayılımı doğal olarak küçük; alet onu "gren yok" sandı.
+
+*Ölçülen her sapma bir kusur değildir.* Bu fazda ölçüm beni **iki kez** gereksiz işten
+döndürdü (kapak silueti + bu) ve **bir kez** döndüremedi (kapak taşımaları, ki onlar da
+zarar vermedi). Kural: bir sapmayı düzeltmeden önce KURALIN NE DEDİĞİNE bak.
+
+Yine de kapı yazıldı (`yuzey-zanaati`): bugün doğru olan bir şey korunmadığı sürece yarın
+sessizce bozulur — bu fazda tam bunun üç örneği çıktı (13 kemer ↔ 13 vafel · marka
+nadirliği · kapanış yüzeyi; hepsi doğruydu, hiçbiri korunmuyordu). Kasten ihlal: karta
+8 px yarıçap verildi, on deste kırmızı döndü.
+
+⚠ İhlali önce çok satırlı `.kart` bildiriminin İÇİNE yazdım ve kapı yeşil kaldı — CSS iç
+içe geçmişti. Bu tuzak bu turda ÜÇÜNCÜ kez kurdu: *çok satırlı bir CSS bildiriminin içine
+kural eklemek, kuralı sessizce yok eder.*
+
+### Kırpma bir GERİLEME üretti — giyotin bir bitiş değildir
+
+Taşıyıcıyı son karenin başında `clip-path` ile kestim; kapanış temizlendi (`kavis` 61 → 28)
+ama **şeride bakınca son kemer DİKEY OLARAK İKİYE bölünmüştü** — dikişin tam üstünde sert
+bir kenar. Kural *"sürekli öge kapanış karesinde BİTER"* diyor; ama bitiş TASARLANMIŞ
+olmalı ve giyotin bir bitiş değildir.
+
+⚠ Ayrıca kesintisizlik ölçümü (`kesim-serit.mjs`, metin gizli, kesim çizgisinin ±40 px
+şeridinde ton yayılımı) kırpmanın **son dikişi zayıflattığını** gösterdi: `veri-hikayesi`
+son kesim 52, `kavis` 59 — ötekiler 62-65. Yani kapanışı temizlerken dikişten çalmıştım.
+
+Çözüm **sönümleme**: taşıyıcı dikişi GEÇİYOR ve kapanış karesinin ilk %26'sında eriyor.
+İkisi birden sağlanıyor — kesintisizlik korunuyor (`kavis` son kesim 59 → **61**,
+`veri-hikayesi` 52 → **55**) ve kapanış tek ton kalıyor (`kavis` 30, `veri-hikayesi` 28;
+eşik 38). *Bir kural iki gerekliliği aynı anda karşılayamıyorsa, kural değil ARACI
+yanlıştır.*
+
+### Kesintisizlik ölçüldü: bir dikiş ÖLÜ
+
+`kesim-serit.mjs` on destenin bütün kesim çizgilerini taradı (metin gizli — kesintisizliği
+taşıyıcı kurar, metin değil). Ton yayılımı: `alinti` 194-195 · `sahne` 127-125 ·
+`karsilastirma` 116-112 · `veri-hikayesi` 63-65 · `kavis` 61-62 · `akan-alan` 59-62 ·
+`donen` 26-47 · `dizin` 24-33 · `memphis` 27-40 · `editoryal` 25-26.
+
+⚠ **`sahne`nin SON kesiminde yayılım 4** — orada hiçbir şey dikişi geçmiyor, süreklilik
+ima ediliyor ama KURULMUYOR (D-268). → 19.10'un kesintisizlik kalemi
+
+### `sahne`nin "ölü dikişi" — üçüncü kez ölçüm beni yanılttı, üçüncü kez ŞERİT kurtardı
+
+Kesim taraması `sahne`nin son dikişinde **4** okudu (ötekiler 24-195) ve ilk iki dikişinde
+**127/125**. "Süreklilik ima ediliyor ama kurulmuyor" diye düzeltmeye hazırlandım.
+
+⚠ Önce parlak bloğu aradım: DOM'da yoktu, `elementsFromPoint` saydam öge gösteriyordu,
+katmanları tek tek gizlemek de değiştirmedi. Katman katman elemeyle bulundu — **kart 2'nin
+KENDİSİ**, çünkü ona bu fazda `aksanRolu: 'alan'` verdim. Yani 127/125'i üreten şey bir
+kusur değil, **benim tasarladığım aksan yüzeyi.**
+
+⚠ Ve son dikişteki 4 de kusur değil: bu şablonun sürekliliğini §4 matrisine göre
+*"tek nesne: döner, büyür, kesimi aşar"* taşıyor — yani GÖRSEL. Görsel `%65-85`te duruyor
+ve son kesimi (%75) gerçekten aşıyor; ama `src` bugün BOŞ, yer tutucu yalnız soluk bir
+çerçeve çiziyor. Gerçek görsel geldiğinde dikişi o kuracak.
+
+**Kesim metriği, taşıyıcısı GÖRSEL olan destelerde taslak hâlde okunamaz** — tıpkı alt yarı
+metriğinin `.gorsel-yer`i saymadığında yanılttığı gibi. Aynı sınıf, ikinci kez.
+
+*Bu fazda ölçüm beni ÜÇ kez gereksiz işten döndürdü (kapak silueti · yüzey zanaatı · bu) ve
+üçünde de kurtaran şey aynı oldu: ÇİZİP BAKMAK.*

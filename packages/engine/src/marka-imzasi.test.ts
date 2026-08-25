@@ -47,7 +47,9 @@ describe('marka imzası üretim yolunda', () => {
       stamp: DAMGA,
       logo: lg.varliklar,
     } as unknown as PanoramaBelgesi)
-    expect(html).toContain('class="ray-logo"')
+    // ⚠ Künye şeridindeki logo KALKTI (marka karosel başına tam iki kez); sahiplik
+    // işareti artık kapakta duruyor.
+    expect(html).toContain('class="kapak-isaret"')
   })
 
   it('logo VERİLMEZSE imza sessizce KAYBOLUYOR — kopuk zincirin belirtisi', () => {
@@ -58,7 +60,7 @@ describe('marka imzası üretim yolunda', () => {
     const o = ORNEKLER['sahne']
     if (o === undefined) return
     const html = panoramaHtml({ ...o, tokenCss: '', stamp: DAMGA } as unknown as PanoramaBelgesi)
-    expect(html).not.toContain('class="ray-logo"')
+    expect(html).not.toContain('class="kapak-isaret"')
   })
 
   // ⚠ ⚠ **ZİNCİR SINANIYOR: üretim betiği logoyu GERÇEKTEN yüklüyor mu.** Modülün

@@ -25,8 +25,14 @@ const OLCUM = `(() => {
   }
   return {
     'ray puntosu': al('.ray', 'fontSize'),
-    'logo eni': al('.ray-logo', 'width'),
-    'logo boyu': al('.ray-logo', 'height'),
+    // OLCU .ray-logo'DAN .kapak-isaret'E TASINDI ve sebebi bir KURAL. Kunye seridindeki
+    // logo kalkti: marka isareti artik karosel basina TAM IKI KEZ gorunuyor (kapakta
+    // sahiplik, kapanista imza) — olculdugunde her kartta vardi, alti kartlik destede
+    // yedi kez. Bu test kromun OLCEKLENDIGINI siniyor, hangi ogeden okudugu ikincil;
+    // ama olctugu oge var olmak ZORUNDA, yoksa null doner ve test sessizce gecer.
+    // ⚠ Ters tirnak YOK: bu blok bir sablon degismezinin ICINDE (R-98, on ikinci kez).
+    'logo eni': al('.kapak-isaret', 'width'),
+    'logo boyu': al('.kapak-isaret', 'height'),
     'kilometre noktası': al('.kilometre-nokta', 'width'),
     'kilometre etiketi': al('.kilometre-etiket', 'fontSize'),
     'kart dolgusu': al('.kart', 'paddingLeft'),
@@ -41,7 +47,7 @@ const olc = async (G: number): Promise<Record<string, number | null>> => {
     ...olcumBelgesi(o as (typeof ORNEKLER)[keyof typeof ORNEKLER]),
     slaytGenisligi: G,
     yukseklik: Math.round(G * 1.25),
-    // ⚠ Logo VERİLİYOR: `.ray-logo` yoksa ölçüm sessizce `null` döner ve test
+    // ⚠ Logo VERİLİYOR: `.kapak-isaret` yoksa ölçüm sessizce `null` döner ve test
     // "ölçeklendi" sanır. Ölçülemeyen geçmiş sayılmaz.
     logo: { koyu: TEK_PIKSEL, acik: TEK_PIKSEL },
   } as unknown as PanoramaBelgesi

@@ -1845,6 +1845,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `--hayalet-renk:${hr.metin}">`
           )
         })() +
+        (i !== 0 || doc.logo === undefined
+          ? ''
+          : `<img class="kapak-isaret" src="${kacir(
+              koyuMu(kartinZemini(k), doc.tokenCss) ? doc.logo.koyu : doc.logo.acik
+            )}" alt="Upcytech">`) +
         `<div class="hayalet" aria-hidden="true" ` +
         `style="--hayalet-punto:${Math.round(hayaletPuntosu(k.hayalet, doc.hayaletKonumu?.olcek ?? 1))}">` +
         `${kacir(k.hayalet)}</div>` +
@@ -1899,11 +1904,6 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `<p class="kapanis-cagri">${vurguyuIsaretle(kacir(k.kapanis.cagri))}</p>` +
             `</div>`) +
         `<div class="ray">` +
-        (doc.logo === undefined
-          ? ''
-          : `<img class="ray-logo" src="${kacir(
-              koyuMu(kartinZemini(k), doc.tokenCss) ? doc.logo.koyu : doc.logo.acik
-            )}" alt="Upcytech">`) +
         // ⚠ Sınıflar AÇIK: küçülme hakkı yalnız ORTA metne ait. `nth-child` ile
         // hedeflemek, logo varken/yokken farklı öğeyi kırpardı.
         // ⚠ ⚠ **KÜNYE SADELEŞTİ — depo sahibinin isteği.** Alt rayda dört şey birden
@@ -2355,6 +2355,17 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // görüldü. Dosyalar ALFA KUTUSUNDAN kırpıldı (338x78, oran 4,33); kaynaklar
     // `*-kaynak.png` olarak duruyor. ⚠ İki sürüm ORTAK kutuyla kırpıldı: ayrı kutular
     // farklı oranlar verir ve zemin değişince logo bir slayttan ötekine ZIPLAR.
+    // ⚠ ⚠ **KAPAK SAHIPLIK ISARETI — kunye seridindeki logo bunun icin KALKTI.**
+    // Olculdu: marka isareti HER kartta vardi (alti kartlik destede 7 kez: alti ray
+    // logosu + bir kapanis imzasi). Denetim *"karosel basina TAM IKI KEZ"* diyor —
+    // slayt 1'de sahiplik, son slaytta imza — ve kunye seridindeki logo icin *"imza
+    // degil duvar kagidi"* diyor. Her karede tekrarlanan bir marka, marka olmaktan
+    // cikip desene doner; imzanin agirligi NADIRLIGINDEN gelir.
+    // ⚠ Mutlak konumlu: kartin metin akisina girmiyor, dolayisiyla hicbir olcumu
+    // (punto oturtma, siluet, alt yari) kaydirmiyor.
+    `  .kapak-isaret { position: absolute; top: ${olc(80)}px; right: ${olc(64)}px;`,
+    `                  height: ${olc(20)}px; width: ${olc(88)}px; object-fit: contain;`,
+    `                  opacity: 0.9; z-index: ${String(Z.metin)} }`,
     `  .ray-logo { height: ${olc(24)}px; width: ${olc(104)}px; object-fit: contain;`,
     `              object-position: left;`,
     `              flex: none; opacity: 0.92 }`,
@@ -2573,7 +2584,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // çocukların z-index'i doğrudan görsellerle yarışıyor — düzeltme tek sayı.
     // ⚠ Sıra şimdi: kart zemini → lekeler(2) → GÖRSEL(4) → oklar(5) → METİN(6).
     // Referans tasarımlarda da başlık figürün önünden geçiyor; istenen katmanlanma bu.
-    `  .kart > *:not(.hayalet):not(.ray) { position: relative; z-index: ${Z.metin} }`,
+    // ⚠ `.kapak-isaret` de DISARIDA: mutlak konumlu bir isaret, buradaki `relative`
+    // ile ezilince `top`/`right` degerleri akistaki yerinden KAYDIRMAYA donusuyor ve
+    // isaret sag ustte degil basligin uzerinde beliriyor. Cizilip bakilinca gorulda.
+    `  .kart > *:not(.hayalet):not(.ray):not(.kapak-isaret) { position: relative; z-index: ${Z.metin} }`,
     `  .kart.optik-yuvarlak .ust-baslik, .kart.optik-yuvarlak .baslik,`,
     `  .kart.optik-yuvarlak .govde {`,
     `      margin-left: calc(var(--baslik-punto, 0px) * -${String(OPTIK_KACIK)}) }`,
@@ -2738,6 +2752,35 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                       width: ${toplam}px;`,
     `                       height: ${olc(doc.bant?.tip === 'kemer' ? (doc.bant.yukseklik ?? 560) : 560)}px;`,
     `                       z-index: ${Z.tasiyici} }`,
+    // ⚠ ⚠ **SÜREKLİ ÖGE KAPANIŞ KARESİNDE BİTER — TEK KURAL, ÜÇ TAŞIYICI.** Depo sahibi
+    // on kapanış karesini yan yana görünce *"son sayfalardaki büyük sayılar çok kötü
+    // duruyorlar"* ve *"alttan akan son sayfalara doğru yazılara giriyor"* dedi. Ölçüldü:
+    // ON kapanışın ÜÇÜNDE taşıyıcı dev rakamın içinden geçiyordu — `veri-hikayesi`nde
+    // eğrinin altındaki dolgu %88, `kavis`te kemerler %100, `dizin`de ok bandı %100.
+    //
+    // ⚠ ⚠ **VE ESKİ KURAL BU YÜZDEN YETMEDİ: iki tip için yazılmıştı, beş tip vardı.**
+    // `kapanis-temiz` yalnız `egri` noktalarını ve `alanSiniri` yüksekliğini sınıyordu;
+    // `kemer` · `ok` · eğrinin DOLGUSU kapsam dışındaydı. Nokta listesini kısaltmak da
+    // çözmezdi — dolgu ve tekrar eden yay, son noktadan SONRA da çiziliyor.
+    //
+    // ⚠ Çözüm veri değil KATMAN düzeyinde: taşıyıcı katmanı son karenin genişliği kadar
+    // kırpılıyor. Bir kural, üç taşıyıcı, ve yarın eklenecek dördüncüsü de kendiliğinden
+    // kapsama giriyor. Kapanış karesi artık TEK ve TEMİZ bir yüzey.
+    // ⚠ Kırpma `alan-siniri`ye UYGULANMIYOR: o taşıyıcı değil ZEMİN; kırpılırsa son kare
+    // boyasız kalırdı. Onun kapanış kuralı ayrı ve ölçülü (sınır rakamın bandına giremez).
+    // ⚠ ⚠ **KIRPMA SÖNÜMLEMEYE ÇEVRİLDİ — çünkü giyotin bir GERİLEME üretti.** İlk sürüm
+    // `clip-path: inset(0 G 0 0)` ile taşıyıcıyı son karenin başında KESTİ. Kapanış karesi
+    // temizlendi (ölçüldü: `kavis` 61 → 28) ama şeride bakınca son kemer DİKEY OLARAK
+    // İKİYE bölünmüştü: dikişin tam üstünde sert bir kenar. Kural *"sürekli öge kapanış
+    // karesinde BİTER"* diyor, ama bitiş TASARLANMIŞ olmalı; giyotin bir bitiş değil.
+    // ⚠ Sönümleme ikisini birden veriyor: taşıyıcı dikişi GEÇİYOR (kesintisizlik korunuyor,
+    // C.7) ve kapanış karesinin ilk üçte birinde eriyor, yani dev rakam tek tonun üstünde
+    // kalıyor. Bir kural, iki gereklilik.
+    `  .bant, .bant-kemer, .bant-ok {`,
+    `    -webkit-mask-image: linear-gradient(to right, #000 ${String(G * (n - 1))}px,`,
+    `                        transparent ${String(G * (n - 1) + Math.round(G * 0.26))}px);`,
+    `    mask-image: linear-gradient(to right, #000 ${String(G * (n - 1))}px,`,
+    `                transparent ${String(G * (n - 1) + Math.round(G * 0.26))}px) }`,
     `  .kilometre { position: absolute; bottom: ${olc(120)}px; z-index: ${Z.durak};`,
     `               transform: translateX(-50%);`,
     `               text-align: center }`,

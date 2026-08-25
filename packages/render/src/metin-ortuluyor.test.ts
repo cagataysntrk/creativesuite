@@ -50,7 +50,12 @@ describe('metin görselin altında kalmıyor', () => {
     if (o === undefined) return
     const css = panoramaHtml(belge(o))
     const kat = (kural: RegExp): number => Number(kural.exec(css)?.[1] ?? -1)
-    const metin = kat(/\.kart > \*:not\(\.hayalet\):not\(\.ray\) \{[^}]*z-index: (\d+)/)
+    // ⚠ ⚠ **DESEN SEÇİCİNİN TAM METNİNE BAĞLIYDI ve seçici BÜYÜYÜNCE koptu.** `.kart > *`
+    // kuralına `:not(.kapak-isaret)` eklendi (mutlak konumlu bir işaret, buradaki
+    // `relative` ile ezilince yanlış yere düşüyordu) ve test hemen kırmızı döndü — ölçtüğü
+    // şey değişmediği hâlde. Desen artık dışlama listesinin UZUNLUĞUNU umursamıyor:
+    // sınanan şey metnin z-index'i, seçicinin kaç istisnası olduğu değil.
+    const metin = kat(/\.kart > \*(?::not\([^)]*\))* \{[^}]*z-index: (\d+)/)
     const gorsel = kat(/\.gorsel, \.gorsel-yer \{[^}]*z-index: (\d+)/)
     expect(metin).toBeGreaterThan(0)
     expect(gorsel).toBeGreaterThan(0)

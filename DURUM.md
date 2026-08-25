@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 19
-siradaki_adim: 19.7
+siradaki_adim: 19.8
 son_guncelleme: 2026-08-25
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -31,7 +31,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > REÇETE**) · `docs/referans/tasarim-denetimi-2026-08.md`. ⚠ ⚠ **TUZAK:** o dosyada İKİ
 > ayrı `A`/`B`/`C` var — RAPOR 2'nin `B`si RENK, **AŞAMA 2'nin `B`si ŞABLON ŞABLON
 > REÇETE.** "Reçetenin B'si" hep ikincisidir.
-> ⚠ **SIRADAKİ İŞ 19.7 — KOMPOZİSYON.** Slayt rolü ✅ · alan sınırı ✅. Kalan: `veri-hikayesi` yıl hapları eğriye DEĞMİYOR · aksanın kalan üç rolü (`alan`/`isaret`/`yok`) · `karsilastirma` köşegeni boş alt yarıyı süpürüyor · orta kuşak %75 → %45-60.
+> ⚠ **SIRADAKİ İŞ 19.8 — GÖRSEL DİLİ VE YÜZEY ZANAATI.** "Kutu değil yüzey" altı kuralı: `border-radius` 0 ya da ≥28 px (4-12 px tam olarak "bootstrap kartı" bandı) · saf renk yok (taban + soft-light gren + 1 px iç ışık) · görsel kesim taşıyıcısı.
 > ⚠ **YAYIN YOK.** Degrade yasağının kapsamı değişti: optik degrade serbest.
 
 ## Tamamlananlar
@@ -55,8 +55,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **17.1** · metin ve tasarım kapıları hatta; `just onay --kapi` ile tek kapı onaylanıyor | 2026-08-18 |
 | **17.2** · komuta merkezi: görünür nav, koşu DETAYI (metin+slayt+kusur+onay), tıklama canlı | 2026-08-18 |
 | **17.3** · yayın anı bir KARAR: hat ölçümden saat ÖNERİR, ölçüm yoksa susar; `PUBLISH` seçimsiz koşmuyor (D-314) | 2026-08-22 |
-| **18.1** · tip ölçeği markanın dizayn sisteminden: dört aile, dört rol; el yazısı ve `wdth` emekli (D-317) | 2026-08-22 |
-| **18.2** · palet sistemden: chroma 0 nötrler, `#040404` kanvas, aksanın iki adımı; vurgu çipi emekli (D-318) | 2026-08-22 |
+| **18.1-18.2** · tip ölçeği ve palet markanın dizayn sisteminden; el yazısı, `wdth`, vurgu çipi emekli (D-317, D-318) | 2026-08-22 |
 | **18.0** · araştırma tabanı: Instagram spec + tasarım disiplini + marka farkı, hepsi kaynaklı (D-321) | 2026-08-23 |
 | **18.3** · süreklilik ölçek çizgisi; `sahne`de görsel kesim üstünde, dörtten ikiye (D-319) | 2026-08-23 |
 | **18.4** · tanımsız token çağrısı kapısı — CSS sessizce şeffaf bırakıyordu (D-320) | 2026-08-23 |
@@ -82,6 +81,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **19.4** · zemin ve yüzey: gren · yedi yüzey ailesi · ışık · vinyet malzemede · çizgili zemin | 2026-08-25 |
 | **19.5** · tipografi: iki uç kapısı · aksan telafisi çürüdü · genişlik ekseni iki yöne · alıntıya atıf | 2026-08-25 |
 | **19.6** · renk: beş palet · aksan dört rol · kontrast zeminden türüyor, gövde artık soluk değil | 2026-08-25 |
+| **19.7** · kompozisyon: slayt rolü · aksan yüzeyi · kapak silueti · kapanış tek yüzey · marka iki kez | 2026-08-25 |
 
 ## Sıradaki adım
 

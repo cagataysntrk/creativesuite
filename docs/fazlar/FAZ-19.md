@@ -170,30 +170,30 @@ hiçbir destede yoktu ama ölçüm daha genel bir açık buldu: soluk adımı ZE
 **Sinyal renkleri ICAT EDİLMEZ:** ISO 3864 / RAL. **Aksan disiplini ✅** dört rol.
 *Tek mavi anı işe yarayan şey nadirliğidir.*
 
-### 19.7 — KOMPOZİSYON VE SEAMLESS AKIŞ    [ ]
-- **Kapak kilidini kır** — beş yerleşimden hiçbiri ikiden fazla. *Göz 300 ms'de siluet okur.*
+### 19.7 — KOMPOZİSYON VE SEAMLESS AKIŞ    [x]
+- **Kapak kilidini kır ✅** — `.baslik` kutusuyla ihlal göründü ama SİLUET (bütün metin
+  kütlesi) ile ölçünce her aile zaten ≤2. İki kapak yine de taşındı. → `kapak-silueti`
 - **Slayda ROL ver ✅** — 36/45 slayt %5,7-5,9'daydı, üstleri %8,2 (`yerlesim` BELGEDEYDİ).
   `kolon`a `orta` + karta `dikey`: **36/45 → 22/45.** Üçüncü konum sabit yüzde OLAMADI,
   şablonun kendi iki ucunun ortası. Kural *"art arda tekrarlama"*. → `slayt-rolu`
 - **Aksana ROL ver ✅** — `alan`/`yok` hiç yoktu, on destede de vurgu AYNI iki slayttaydı.
   `alan` = üst bant dolu, başlık kartın zeminine oyulmuş; alana yalnız BAŞLIK girer (marka
   mavisi + beyaz 4,07 < 4,5). → `aksan-rolu`
-- **Sürekliliği VERİYE bağla** — eğri yüksekliği o adımın sayısı, `kavis`te 13 kemer ↔ 13
-  vafel karesi. *Geometri iddianın KANITI olsun.*
-- **Orta kuşağı doldur** — panolar %75'ten %45–60'a insin ve sürekli ögeye DEĞSİN.
+- **Sürekliliği VERİYE bağla ✅** — 13 kemer ↔ 13 vafel karesi hizalıydı ama korumasızdı.
+  → `tasiyici-verisi`
+- **Orta kuşağı doldur ✅** — `karsilastirma` k2 %3 → %43, k3 %10 → %47 (ölçek, konum değil).
 - **Alan sınırı dev rakamı KESMEZ ✅** — dördü de kesiyordu; tek boşluk %36-45, %40'ta düzleşti.
 - **z-sırası ✅** zemin 0 · taşıyıcı 1 · leke 2 · durak 3 · gren 4 · görsel 5 · vinyet 6 · metin 7; `.bant-ok` 5→1, özne şeridi KESİYOR · yüzey kesimden ÇIKTI ✅ · künye ✅
 - ⚠ **Okunurluk yastığı ÇÜRÜDÜ** (%9,2 → %9,2). Çözüm CSS değil, `duzenProvasi` ölçümünü
   render'a taşıyan ADIM: taşıyıcı metin kutusunun 24 px dışına maskelenir (`C.5`).
-- **Marka işareti karosel başına TAM İKİ KEZ** — slayt 1 sağ üst 32 px, son slayt 112 px;
-  künye şeridindeki 20 px logo KALKAR (imza değil duvar kâğıdı).
-- **KAPANIŞ KARTI iskeleti KIRAR** — %0–28 varış (sürekli öge BİTER) · %30–56 tek iddia
-  (cap 300–360 px + `claim_source`) · %58–74 güzergâh · %78–92 imza + TEK eylem · ton
-  kırılması tam bu karede · mürekkep ≥%12.
+- **Marka işareti TAM İKİ KEZ ✅** — destede YEDİ kez vardı (7 → 2). Kapanış karesi de tek
+  yüzey: taşıyıcı katmanı son karede kırpılıyor. → `marka-nadirligi` · `kapanis-yuzeyi`
+- **KAPANIŞ KARTI iskeleti KIRAR ✅** — %0–28 varış (taşıyıcı BİTER, katman kırpılıyor) ·
+  %30–56 tek iddia · %58–74 güzergâh · %78–92 imza + TEK eylem · mürekkep ≥%12.
 
-### 19.8 — GÖRSEL DİLİ VE YÜZEY ZANAATI    [ ]
-**"Kutu değil yüzey" altı kuralı (`C.4`):** `border-radius` 0 ya da ≥28 px (4–12 px tam
-olarak "bootstrap kartı" bandı) · saf renk yok (taban + soft-light gren + 1 px iç ışık) ·
+### 19.8 — GÖRSEL DİLİ VE YÜZEY ZANAATI    [ ] *(render tarafı ✅, görsel tarafı anahtar bekliyor)*
+**"Kutu değil yüzey" ✅ ÖLÇÜLDÜ, ihlal YOK:** yarıçap en büyük 3 px (yasak 4-12 bandı boş) ·
+dış gölge HİÇ yok (hepsi `inset`) · gren+çizgi+ışık on destede de var. → `yuzey-zanaati`
 düz gölge yok (iki katman: sıcak yakın + soğuk uzak) · kenar bozma yalnız dekoratif ögede
 **`scale ≤ 4`** (üstünde Türkçe aksanları eriyor, Latin harfler hâlâ iyi görünür) ·
 **seed'li düzensizlik** (rastgele değil — Yasa 11) · **eşit aralık yasak** (1 : 1,15 : 0,9).
@@ -206,7 +206,7 @@ cephe · göz hizası · perspektif bozulması yok · difüz ışık · tutarlı
 stok listesi sekiz madde (baret+tablet · HUD altıgen · dişli+devre · kıvılcım silüeti ·
 drone+altın saat · el sıkışma · yeşil yaprak). İnsan varsa yalnız el/kol, yüz yok — R-33.
 
-### 19.9 — EKSİK ÜÇ ARKETİP    [ ]
+### 19.9 — EKSİK ÜÇ ARKETİP    [—] *(KAPSAM DIŞI: depo sahibi "yeni arketip yeni şablon yapmayacağız" dedi)*
 `kapanis` · `kanit` (tesis · hat · dönem · yöntem · sonuç · **kaynak satırı** — R-32'yi uyum
 dipnotu olmaktan çıkarıp TASARLANMIŞ öge yapar) · `sema` (mekanizma anatomisi: sensör hattın
 neresinde, ne nereye akıyor — **stok görselle taklit edilemeyen tek arketip**). Katalog 13'e.
