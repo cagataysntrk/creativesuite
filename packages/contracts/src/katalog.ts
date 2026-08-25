@@ -465,30 +465,40 @@ export const AKAN_ALAN: KatalogSablonu = {
 }
 
 /**
- * **Kavis** — kemer dizisi; ailenin geometri öncülü üyesi (D-337).
+ * **Kavis** — tek sürekli ufuk; ailenin geometri öncülü üyesi (D-337).
  *
- * ⚠ `kemer` taşıyıcısı modelde vardı ve hiçbir şablon kullanmıyordu; geometrisi de
- * kırıktı (mutlak piksel, sıkışan viewBox). Bu şablon onu hem kullanıyor hem düzeltti.
+ * ⚠ ⚠ **KEMER DİZİSİ KALDIRILDI — depo sahibinin kararı.** On üç özdeş parabol için
+ * *"aşırı HTML/CSS duruyor, çok çirkin, kaldır"* dedi ve haklıydı: eşit genişlikte,
+ * eşit yükseklikte, birbirine değen, düz dolgulu tümsekler bir mimari değil bir
+ * `border-radius` deseni okuyordu.
+ * ⚠ Bant iki iş yapıyordu ve ikisi de karşılandı: kesintisizlik artık tek sürekli bir
+ * ALAN SINIRI ile taşınıyor (panorama boyunca bir kez yükselip inen, kesimlerde
+ * kırılmayan bir ufuk); veri bağı ise `tasiyici-verisi` kapısında ok↔liste çiftine
+ * yönlendirildi. Deste adını hâlâ hak ediyor: kavis gitmedi, TEKLEŞTİ.
  */
 export const KAVIS: KatalogSablonu = {
   id: 'kavis',
-  ad: 'Kavis — kemer dizisi, dar ve ağır tipografi',
+  ad: 'Kavis — tek sürekli ufuk, dar ve ağır tipografi',
   kaynak: 'aile-2026',
   slayt: { min: 3, max: 6 },
   zemin: KANVAS,
   rotasyon: [],
   bant: {
-    tip: 'kemer',
+    // ⚠ Doğru sözcük `yok` DEĞİL `alan`: süreklilik ayrı bir bant ögesiyle değil, iki
+    // renk alanını ayıran eğri SINIRLA taşınıyor. Sözlükte bu durumun adı zaten vardı;
+    // ilk yazımda `yok` denendi ve tip sistemi reddetti — kayıt yanlış sözcüğe
+    // zorlanamadı.
+    tip: 'alan',
     aciklama:
-      'Kesimler kemerlerin TEPESİNE değil ORTASINA düşüyor: ortadan kesilen bir yay ' +
-      'iki yandan da aynı eğimi veriyor ve devamı zorunlu okunuyor. Tepe noktası ' +
-      'kesime düşseydi göz iki yarım tepe görürdü.',
+      'Tek sürekli ufuk: panorama boyunca bir kez yükselip inen, kesimlerde ' +
+      'kırılmayan simetrik bir yay. On üç özdeş kemer bir mimari değil bir desen ' +
+      'okunuyordu; tekleşince hem sakinleşti hem sürekliliği tek başına taşır oldu.',
   },
   gorsel: null,
   baslikPayi: 1,
   kullanilabilir: {
     durum: true,
-    sebep: 'Görsel gerektirmiyor; taşıyıcı kemer dizisi ve hayalet kelime.',
+    sebep: 'Görsel gerektirmiyor; taşıyıcı tek sürekli ufuk ve tipografi.',
   },
 }
 

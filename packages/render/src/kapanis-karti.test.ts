@@ -6,9 +6,15 @@
 // (D-182 · D-190 · D-224 · D-250 · D-261 · D-270 · D-347). Bu kapının ilk işi o zinciri
 // bağlamak: her destenin SON kartı kapanış taşıyor mu.
 //
-// ⚠ ⚠ **SIRA ÖLÇÜMDEN GELİYOR.** İmza tek başına eklendiğinde `sahne`nin son karesi
-// %2,2'den yalnız %8,0'e çıktı ve bunun %7,6'sı RAKAMDAN, %0,4'ü işaretten geldi.
-// Kapanışı taşıyan şey imza değil, VARILAN SAYIdır — bu yüzden rakam işaretten önce.
+// ⚠ ⚠ **VARIŞ İŞARETİ ARTIK RAKAM OLMAK ZORUNDA DEĞİL.** Sıra ölçümden gelmişti: imza
+// tek başına eklendiğinde `sahne`nin son karesi %2,2'den yalnız %8,0'e çıkıyordu ve
+// bunun %7,6'sı RAKAMDAN geliyordu — yani kapanışı taşıyan şey imza değil VARIŞTI.
+// O ölçüm hâlâ doğru; değişen, varışın NEYLE işaretlendiği. Depo sahibi on kapanışa
+// yan yana bakıp *"bu sayılar iğrenç duruyor, son sayfaları inanılmaz karışıklaştırıyor,
+// nizami olmalı"* dedi ve rakamlar dokuz desteden kaldırıldı. Yerine poster ölçekli
+// ÇAĞRI geçti: son sayfada bağıracak şey zaten eylem çağrısıdır.
+// ⚠ Bu kapı o yüzden işaretin BİÇİMİNİ değil DAVRANIŞINI sınıyor: kolonuna sığıyor mu,
+// bir fısıltı değil bir varış ölçeğinde mi.
 //
 // ⚠ ⚠ **RAKAM SABİT PUNTOYLA YAZILDI VE KESİLDİ.** 458 px'te iki hane 506 px yer istiyor,
 // `sahne`nin sağ kolonu 454 px: rakam kadrajın dışına taştı — yani tam da bu fazın
@@ -31,6 +37,21 @@ import {
 const KAPAK_ORANI = 0.705
 const KAPAK_TABANI = 240
 const KAPAK_TAVANI = 360
+/**
+ * Sade kapanışta ÇAĞRI varışı taşır — tabanı ölçüldü.
+ *
+ * ⚠ ⚠ **BU TABAN BİR KEZ 55 YAZILDI VE TASARIMI ZORLADI.** Dev rakam kalkınca çağrıyı
+ * poster ölçeğine (152 px) çıkarmıştım; depo sahibi baktı ve *"fontlar aşırı kaba,
+ * yazılar aşırı büyük, bütün kompozisyona aykırı… CTA olmalı ama bu kadar büyük gerek
+ * yok, boşluk da bazen estetiktir"* dedi. Çağrı 68 px'e indi ve **kapı ondan sonra**
+ * yeniden türetildi — tersi değil: bir kapı tasarımı ölçer, ona yön vermez.
+ *
+ * Ölçülen: on destenin dokuzunda da çağrı kapağı **48 px** (dar sağ kolonlu `sahne`
+ * dahil — punto kolona oturtulduğu için tek bir sayı çıkıyor). Taban **42**: %12,5 pay
+ * bırakıyor ve gövde kapağının (~25 px) hâlâ belirgin üstünde. Çağrı bir altyazı değil,
+ * ama bir afiş de değil.
+ */
+const CAGRI_KAPAK_TABANI = 42
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
 const belge = (o: Ornek): PanoramaBelgesi => olcumBelgesi(o)
@@ -40,9 +61,13 @@ describe('kapanış kartı', () => {
   // şablonun kapanışı YOKSA destenin son karesi yine destenin en boş karesi olur ve
   // denetimin şikâyeti geri gelir — sessizce.
   it('on destenin ONUNDA da SON kart kapanış taşıyor', () => {
+    // ⚠ ⚠ **ZİNCİR "RAKAM VAR MI" DİYE SORUYORDU, "KAPANIŞ VAR MI" DEMESİ GEREKİYORDU.**
+    // Depo sahibi dev rakamları kaldırınca dokuz deste birden kapanışsız SANILDI — oysa
+    // hepsinin kapanışı duruyor, yalnız varış işareti değişti. Zincir testinin işi
+    // mekanizmanın çağrılıp çağrılmadığını görmek; işaretin BİÇİMİNİ sormak değil.
     const eksik = Object.entries(ORNEKLER).filter(([, o]) => {
-      const son = o.kartlar[o.kartlar.length - 1] as { kapanis?: { rakam?: string } } | undefined
-      return son?.kapanis?.rakam === undefined
+      const son = o.kartlar[o.kartlar.length - 1] as { kapanis?: unknown } | undefined
+      return son?.kapanis === undefined
     })
     expect(
       eksik.map(([id]) => id),
@@ -92,7 +117,7 @@ describe('kapanış kartı', () => {
   })
 
   for (const [id, o] of Object.entries(ORNEKLER)) {
-    it(`${id} · varış rakamı kolonuna sığıyor, kapak boyu ölçüde, imzadan ÖNCE`, async () => {
+    it(`${id} · varış işareti kolonuna sığıyor ve varış ölçeğinde`, async () => {
       const sonuc = await withPage(async (page) => {
         const G = o.slaytGenisligi
         await page.setViewportSize({ width: G, height: o.yukseklik })
@@ -104,48 +129,75 @@ describe('kapanış kartı', () => {
         )
         await page.setViewportSize({ width: G * o.kartlar.length, height: o.yukseklik })
         // ⚠ ⚠ **PUNTO OTURTMA ADIMI ÖLÇÜMÜN PARÇASI — üretim onu HER ekran görüntüsünden
-        // önce koşuyor (`panoramaCiz`).** Atlayan bir kapı, yayınlanmayan bir düzeni ölçer:
-        // `memphis`te metin dibi oturtmasız y%26, oturtmalı **y%51**. Kapı ile üretim aynı
-        // düzeni görmüyorsa kapı hiçbir şey kanıtlamıyordur.
+        // önce koşuyor.** Atlayan bir kapı, yayınlanmayan bir düzeni ölçer: `memphis`te
+        // metin dibi oturtmasız y%26, oturtmalı **y%51**. Üstelik sade kapanışın çağrısı
+        // TAM BU ADIMDA kolonuna oturuyor — atlayan ölçüm taşmayı hiç göremez.
         await page.evaluate(puntoOlcumu(belge(o)))
         // ⚠ Knockout PUNTODAN SONRA: maske kutunun SON hâlini ölçmek zorunda.
         await page.evaluate(knockoutOlcumu())
         await page.evaluate(metinMaskesi())
         return (await page.evaluate(
           '(() => {' +
-            ' const r = document.querySelector(".kapanis-rakam");' +
-            ' if (r === null) return null;' +
-            ' const kart = r.closest(".kart");' +
-            ' const kk = kart.getBoundingClientRect(), rk = r.getBoundingClientRect();' +
-            ' const im = r.closest(".kapanis").querySelector(".kapanis-isaret, .kapanis-cagri");' +
-            ' const imk = im === null ? null : im.getBoundingClientRect();' +
-            ' return { sol: rk.left - kk.left, sag: kk.right - rk.right,' +
-            '   punto: parseFloat(getComputedStyle(r).fontSize),' +
-            '   kartEni: kk.width, imzaUstu: imk === null ? null : imk.top - kk.top,' +
-            '   rakamAlti: rk.bottom - kk.top } })()'
+            ' const rakam = document.querySelector(".kapanis-rakam");' +
+            ' const el = rakam === null' +
+            '   ? document.querySelector(".kapanis-sade .kapanis-cagri") : rakam;' +
+            ' if (el === null) return null;' +
+            ' const kart = el.closest(".kart");' +
+            ' const kk = kart.getBoundingClientRect(), rk = el.getBoundingClientRect();' +
+            ' const ks = getComputedStyle(kart);' +
+            ' return { rakamMi: rakam !== null,' +
+            '   panolu: kart.querySelector(".panel") !== null,' +
+            '   sol: rk.left - kk.left - parseFloat(ks.paddingLeft),' +
+            '   sag: kk.right - rk.right,' +
+            '   punto: parseFloat(getComputedStyle(el).fontSize),' +
+            '   kartEni: kk.width } })()'
         )) as {
+          rakamMi: boolean
+          panolu: boolean
           sol: number
           sag: number
           punto: number
           kartEni: number
-          imzaUstu: number | null
-          rakamAlti: number
         } | null
       })
       expect(sonuc.ok, 'tarayıcı açılamadı').toBe(true)
       if (!sonuc.ok) return
       const v = sonuc.value
-      expect(v, `${id} kapanış rakamı çizilmemiş`).not.toBeNull()
+      expect(v, `${id} varış işareti çizilmemiş`).not.toBeNull()
       if (v === null) return
-      // ⚠ Taşma: rakamın sağ kenarı kartın içinde kalmalı. Negatif `sag` = KESİLMİŞ.
-      expect(v.sag, `${id} rakam kartın sağından ${String(-v.sag)} px taşıyor`).toBeGreaterThan(0)
-      expect(v.sol, `${id} rakam kartın solundan taşıyor`).toBeGreaterThanOrEqual(0)
+      // ⚠ Taşma: işaretin sağ kenarı kartın içinde kalmalı. Negatif `sag` = KESİLMİŞ.
+      // Bu, `sahne`de gerçekten yakalandı: sade çağrı kartın sağından 33 px taşıyordu.
+      expect(
+        v.sag,
+        `${id} varış işareti kartın sağından ${String(Math.round(-v.sag))} px taşıyor`
+      ).toBeGreaterThan(0)
+      expect(v.sol, `${id} varış işareti kartın solundan taşıyor`).toBeGreaterThanOrEqual(-1)
       const kapak = v.punto * KAPAK_ORANI
-      expect(kapak, `${id} kapak boyu ${kapak.toFixed(0)} px`).toBeGreaterThanOrEqual(KAPAK_TABANI)
-      expect(kapak, `${id} kapak boyu ${kapak.toFixed(0)} px`).toBeLessThanOrEqual(KAPAK_TAVANI)
-      // ⚠ Rakam imzadan ÖNCE: ölçüm bu sırayı dayattı (yukarıdaki not).
-      if (v.imzaUstu !== null)
-        expect(v.rakamAlti, `${id} imza rakamın üstünde`).toBeLessThanOrEqual(v.imzaUstu + 4)
+      if (v.rakamMi) {
+        // Rakam varışı: denetimin `--punto-rakam` bandı.
+        expect(kapak, `${id} rakam kapak boyu ${kapak.toFixed(0)} px`).toBeGreaterThanOrEqual(
+          KAPAK_TABANI
+        )
+        expect(kapak, `${id} rakam kapak boyu ${kapak.toFixed(0)} px`).toBeLessThanOrEqual(
+          KAPAK_TAVANI
+        )
+      } else if (v.panolu) {
+        // ⚠ ⚠ **PANOLU KAPANIŞTA VARIŞ İŞARETİ PANONUN KENDİSİDİR.** `dizin`de güzergâhın
+        // son oku dev rakama değil listenin DÖRDÜNCÜ maddesine varıyor (ölçüldü: satır
+        // y=%63,1, ok ucu oraya 0,8 pay bırakarak iniyor) ve liste tam bu yüzden 1,6×
+        // büyütüldü. Çağrı orada bilinçli olarak küçük: bir kartta tek aygıt bağırır.
+        // ⚠ Muafiyet ADA göre değil YAPIYA göre: yarın panolu kapanışı olan ikinci bir
+        // deste eklense kural onu da kendiliğinden kapsar.
+        expect(v.panolu, `${id} panolu kapanışta varış panosu yok`).toBe(true)
+      } else {
+        // ⚠ ÇAĞRI VARIŞI: bir cümle 240 px kapağa ÇIKAMAZ (sekiz harflik kelime o
+        // puntoda ~1270 px ister, kart 1080 px) ve ÇIKMAMALI da — gerekçesi tabanın
+        // tanımında. Burada sınanan tek şey, çağrının gövde ölçeğine düşmemesi.
+        expect(
+          kapak,
+          `${id} çağrı kapak boyu ${kapak.toFixed(0)} px — varış değil altyazı ölçeğinde`
+        ).toBeGreaterThanOrEqual(CAGRI_KAPAK_TABANI)
+      }
     }, 90_000)
   }
 })

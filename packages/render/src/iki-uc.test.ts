@@ -26,12 +26,30 @@ import { knockoutOlcumu, metinMaskesi, panoramaHtml, puntoOlcumu } from './panor
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
 
 /**
- * DEVASA ucun tabanı — kapak yüksekliği piksel.
- * Denetimin `--punto-rakam` bandı 240–360 px kapak; ölçülen en küçük dev **250** px
- * (`donen`). Taban 220: bugünkü en zayıf deste bile %14 pay taşıyor, ama bir desteden
- * kapanış rakamı düşerse (ölçülen ikinci büyük ses ~90 px kapak) kapı kırmızı döner.
+ * SESLİ ucun tabanı — kapak yüksekliği piksel.
+ *
+ * ⚠ ⚠ **BU SAYI İKİ KEZ DÜŞTÜ VE İKİNCİSİ BİR DERSTİ.** Eski taban **220**, dev kapanış
+ * rakamlarından türemişti. Depo sahibi o rakamları kaldırınca kapı dokuz destede kırmızı
+ * döndü; ben de boşluğu kapatmak için kapanış çağrısını 152 px'e çıkardım ve tabanı 78'e
+ * çektim. Sahibi çıktıya baktı: *"fontlar aşırı kaba, yazılar aşırı büyük, bütün
+ * kompozisyona aykırı… boşluk da bazen estetiktir."* Ve haklıydı.
+ *
+ * ⚠ ⚠ **HATA SAYIDA DEĞİL SIRADAYDI: bir kapıyı memnun etmek için tipografi
+ * kabalaştırılmaz.** Kapı tasarımı ÖLÇER, tasarıma yön VERMEZ. Çağrı 68 px'e indirildi
+ * (gövdenin belirgin üstünde, kapanış başlığının altında) ve taban ondan SONRA yeniden
+ * türetildi.
+ *
+ * ⚠ Bugün ölçülen en yüksek sesler: **51** (`donen`) · **60** (`sahne`) · **78**
+ * (`memphis`) · … · **105**. Üçüne de tek tek BAKILDI: `memphis` ve `sahne` gayet
+ * oturaklı; yalnız `donen`in kapak başlığı gerçekten küçük duruyor — ama o bir
+ * KOMPOZİSYON kararı (kartın ortası bugün boş bir görsel yer tutucusu), bir kapının
+ * dayatacağı şey değil.
+ *
+ * Taban **48**: en sessiz desteye %6 pay bırakıyor ve gövde kapağının (~25 px) yine
+ * iki katı. Kapının işi artık bir poster dayatmak değil, ÇÖKÜŞÜ yakalamak: bir destenin
+ * bütün sesleri gövde ölçeğine inerse — denetimin ilk şikâyeti — kapı kırmızı döner.
  */
-const DEV_TABANI = 220
+const DEV_TABANI = 48
 /**
  * FISILTI ucun tavanı. Ölçülen en küçük sesler 11–12 px kapak (künye sayacı, ölçek
  * etiketi). 20 px tavanı bugünkü değerlerin rahat üstünde ama gövde puntosunun
@@ -40,12 +58,18 @@ const DEV_TABANI = 220
 const FISILTI_TAVANI = 20
 
 /**
- * DEV ses bir RAKAMDIR, bir cümle değil.
- * Denetim: *"~240–360 px, yalnız rakam/sıra/yıl/yüzde, **asla cümle içinde**"*. Ölçülen
- * bugünkü dev sesler: `2,0×` · `00` · `03` · `360°` · `01` · `12` · `-25` · `04`.
- * İzin verilen: rakam, ayırıcı, işaret. Yasak: harf.
+ * DEV ses KISADIR — bir kelime, bir cümle değil.
+ *
+ * ⚠ ⚠ **ESKİ KURAL "DEV SES BİR RAKAMDIR" DİYORDU ve o rakamlar artık YOK.** Kuralın
+ * gerçek gerekçesi kaydedilmişti: *"300 px'lik bir cümle bağırmaz, BOĞAR; dinamik
+ * aralığın üst ucu bir vurgu aracıdır, bir metin boyu değil."* O gerekçe hâlâ doğru —
+ * yasaklanması gereken şey HARF değil UZUNLUK. Rakam yalnızca kısa olmanın bir yoluydu.
+ *
+ * Bugün dev ses çağrının vurgulanan kelimesi: `birlikte` (8 harf) · `ölçülebilir`
+ * (11 harf) · `-25` (3 harf). Tavan 14: en uzun bugünkü sesin %27 üstünde, ama iki
+ * kelimelik bir öbeği bile geçirmez.
  */
-const RAKAM_DESENI = /^[\d\s.,:%×°+\-/–—]+$/u
+const DEV_SES_HARF_TAVANI = 14
 
 const OLC = `(() => {
   const yaprak = (e) => {
@@ -118,13 +142,13 @@ describe('iki uç', () => {
         enKucuk.kapak,
         `${id}: en küçük ses ${enKucuk.kapak.toFixed(0)} px kapak — FISILTI ucu kaybolmuş`
       ).toBeLessThanOrEqual(FISILTI_TAVANI)
-      // ⚠ ⚠ **DEV SES BİR RAKAMDIR.** 300 px'lik bir cümle bağırmaz, BOĞAR: dinamik
-      // aralığın üst ucu bir vurgu aracıdır, bir metin boyu değil.
+      // ⚠ ⚠ **DEV SES KISADIR.** 300 px'lik bir cümle bağırmaz, BOĞAR: dinamik aralığın
+      // üst ucu bir vurgu aracıdır, bir metin boyu değil.
       expect(
-        RAKAM_DESENI.test(enBuyuk.metin),
-        `${id}: dev ses harf taşıyor — "${enBuyuk.metin}"; ` +
-          'bu ses yalnız rakam/yıl/yüzde/işaret taşır, asla cümle'
-      ).toBe(true)
+        enBuyuk.metin.length,
+        `${id}: dev ses ${String(enBuyuk.metin.length)} harf taşıyor — ` +
+          `"${enBuyuk.metin}"; bu ses tek bir kelimedir, bir cümle değil`
+      ).toBeLessThanOrEqual(DEV_SES_HARF_TAVANI)
     }, 60_000)
   }
 })

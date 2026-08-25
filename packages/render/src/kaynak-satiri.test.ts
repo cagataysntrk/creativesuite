@@ -38,7 +38,13 @@ describe('kaynak satırı', () => {
         ).not.toBe('')
       }
     }
-    expect(sayilan, 'hiç kapanış rakamı bulunamadı — kapı boşa dönüyor').toBeGreaterThan(5)
+    // ⚠ ⚠ **KORUMA 5'TEN 0'A İNDİ ve sebebi bir TASARIM KARARI.** Depo sahibi on
+    // kapanışa bakıp *"bu sayılar iğrenç duruyor, son sayfaları inanılmaz
+    // karışıklaştırıyor"* dedi; dev rakam dokuz desteden kalktı ve katalogda tek bir
+    // tanesi kaldı (`karsilastirma` — *"kalabilir"* dediği). Kural AYNEN doğru: bir
+    // rakam neyi ölçtüğünü söyleyen satır olmadan yayınlanamaz. Koruma "kapı boşa
+    // dönmesin" diyordu; TEK bir vaka varken kapı boşa dönmüyor, o vakayı sınıyor.
+    expect(sayilan, 'hiç kapanış rakamı bulunamadı — kapı boşa dönüyor').toBeGreaterThan(0)
   })
 
   // ── ÇAĞRI YERİ 2: alıntı ──────────────────────────────────────────────

@@ -10,7 +10,6 @@
 // ama sessizce ayrışamazlar.
 
 import { describe, expect, it } from 'vitest'
-import { lower } from '@suite/contracts'
 import { ORNEKLER } from './katalog-ornek.js'
 
 /** Eğrinin taşıdığı değer: taban çizgisinden yükseklik. */
@@ -21,46 +20,17 @@ const deger = (y: number): number => 100 - y
 // diye açıyor — ve on üç kemerin on üçü BİREBİR aynı yükseklikteydi. Tipografi sapmadan
 // söz ederken geometri kusursuz bir ritim çiziyordu: kart kendi cümlesini yalanlıyordu.
 // Sapan kemer o kartın ölü bandını da kapattı (%30 → %17) — süs değil ARGÜMAN.
-describe('kemer ritmi — sapma iddiası ile geometri', () => {
-  const o = ORNEKLER['kavis']
-
-  it('örnek var ve kemer bandı taşıyor', () => {
-    expect(o, 'kavis örneği yok').toBeDefined()
-    expect((o?.bant as { tip?: string } | undefined)?.tip, 'bant tipi').toBe('kemer')
-  })
-
-  it('"sapma" diyen kart VAR ve kemerlerde bir sapma çizili', () => {
-    if (o === undefined) return
-    const b = o.bant as { sayi?: number; sapma?: { indeks: number; carpan: number } }
-    const sapmaKarti = o.kartlar.findIndex((k) =>
-      // ⚠ `toLocaleLowerCase('tr')` DOĞRU olurdu ama `turkish-case` kapısı eşleştirmeden
-      // önce string gövdelerini siliyor: denetlediği argümanı GÖREMİYOR ve her doğru
-      // kullanımı yanlış pozitif sayıyor (aynı not `katalog-ornek.test.ts`te). Kapıyı
-      // gevşetmek yerine deponun yetkili yardımcısı — zaten doğru cevap o (R-21).
-      lower(`${k.ustBaslik ?? ''} ${k.baslik} ${k.govde ?? ''}`).includes('sapma')
-    )
-    expect(sapmaKarti, 'sapmadan söz eden kart yok').toBeGreaterThanOrEqual(0)
-    expect(b.sapma, 'kart sapmadan söz ediyor, geometride sapma yok').toBeDefined()
-    if (b.sapma === undefined || b.sayi === undefined) return
-    // ⚠ Sapma GÖRÜNÜR olmalı: %10'luk bir fark ritmin içinde kaybolur, tam da kartın
-    // *"ortalamanın içinde kaybolur"* dediği şey olurdu.
-    expect(Math.abs(b.sapma.carpan - 1), `çarpan ${String(b.sapma.carpan)}`).toBeGreaterThanOrEqual(
-      0.25
-    )
-    // ⚠ Ve sapma O KARTIN üstünde: başka bir karede sapan kemer, cümleyi kanıtlamaz.
-    const kartGenisligi = b.sayi / o.kartlar.length
-    const kart = Math.floor((b.sapma.indeks + 0.5) / kartGenisligi)
-    expect(
-      kart,
-      `sapan kemer kart ${String(kart + 1)}'de, cümle kart ${String(sapmaKarti + 1)}'de`
-    ).toBe(sapmaKarti)
-  })
-
-  it('sapma TEK — ikisi ritim değişimi olur, sapma olmaz', () => {
-    const b = o?.bant as { sapma?: unknown } | undefined
-    expect(Array.isArray(b?.sapma), 'sapma bir liste değil, tek kemer').toBe(false)
-  })
-})
+// ⚠ ⚠ **KEMER RİTMİ KAPISI EMEKLİYE AYRILDI — kural yanlış değildi, ÖZNESİ KALMADI.**
+// Burada bir `kavis` bloğu vardı: kart 3 *"Sapma görünür olmalı"* diyordu ve on üç
+// kemerden birinin 1,5× yükselmesi o cümleyi kanıtlıyordu. Depo sahibi kemer bandı için
+// *"aşırı HTML/CSS duruyor, çok çirkin, kaldır"* dedi; yerine tek sürekli bir ufuk geldi.
+// ⚠ Sapmayı ufka taşımak DENENDİ ve çıktıya bakılınca çalışmadığı görüldü: *"tasarımsız,
+// ayrıca simetrik ve düzgün değil."* Sebebi yapısal — **bir sapma ancak TEKRAR EDEN bir
+// ritmin içinde sapma olarak okunur;** tek bir yayda yerel çıkıntı şeklin kendisi olur.
+// ⚠ Bu yüzden iddia SİLİNMEDİ, EMEKLİ EDİLDİ (Yasa 10): ritim cihazı geri gelirse kural
+// da geri gelir. Aynı sınıftaki canlı bağlar duruyor ve aşağıda/komşu kapılarda sınanıyor:
+// `veri-hikayesi` eğrisinin oranı (tam 2,0×) ve `dizin`in ok sayısı ↔ madde sayısı
+// (`tasiyici-verisi`). Katalogda "geometri iddiayı kanıtlar" kuralı öksüz kalmadı.
 
 describe('veri eğrisi — iddia ile geometri', () => {
   const o = ORNEKLER['veri-hikayesi']

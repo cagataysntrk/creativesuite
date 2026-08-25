@@ -1316,7 +1316,16 @@ const bantSvg = (
   }
   if (b.tip === 'egri') {
     const d = b.noktalar.map((n, i) => `${i === 0 ? 'M' : 'L'} ${n.x} ${n.y}`).join(' ')
-    const dolgu = `${d} L 100 100 L 0 100 Z`
+    // ⚠ ⚠ **DOLGU SON VERİ NOKTASINDA KAPANIR, PANORAMANIN SONUNDA DEĞİL.** Eskiden
+    // `L 100 100` yazıyordu: çizgi x=83'te bitse bile ALTINDAKİ ALAN tuvalin sonuna
+    // kadar uzanıyordu. Depo sahibi *"son sayfaya da hiç geçmesin; sondan önceki
+    // sayfanın son grafiğine değmeden altına kadar gelip dursun"* dedi ve ölçüm onu
+    // doğruladı: kapanış karesinde dolgu 478 px yüksekliğinde bir alan kaplıyordu ve
+    // çağrı onun üstünde duruyordu.
+    // ⚠ Veri nerede bitiyorsa çizim de orada biter — bir eğrinin altındaki alan, o
+    // eğrinin söylediğinden daha uzağa gidemez.
+    const sonNokta = b.noktalar[b.noktalar.length - 1] ?? { x: 100, y: 100 }
+    const dolgu = `${d} L ${String(sonNokta.x)} 100 L 0 100 Z`
     // ⚠ ⚠ **ÇİZGİ GÖRÜNMÜYORDU: `stroke-width="0.22"` CİHAZ PİKSELİNDE.**
     // `vector-effect="non-scaling-stroke"` genişliği ölçekten kurtarıyor ama birim artık
     // cihaz pikseli — 0,22 alt piksele düşüyor ve çizgi kayboluyor. Bu, D-319'da ölçek
@@ -1822,6 +1831,27 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             // Alan bandinin dibi karta YAZILIYOR: deger karttan geliyor, stil sayfasi
             // onu bilemez. Rol `alan` degilse degisken hic yazilmiyor.
             `${k.aksanRolu === 'alan' ? `--aksan-dibi:${String(k.aksanDibi ?? 30)}%;` : ''}` +
+            // ⚠ ⚠ **ALAN ÜSTÜNDEKİ KNOCKOUT RENGİ SABİT DEĞİL, SEÇİLİYOR — ve bunu
+            // kendi kapım yakaladı.** Aksan alanı doygun aksandan alan dozuna
+            // çekilince (depo sahibi: *"aşırı cırtlak, koyu ile uyumsuz"*) üstündeki
+            // metin `--kart-zemin` ile yazılmaya devam ediyordu ve ÜÇ kartta birden
+            // okunmaz oldu: `sahne` k2 **2,26** · `alinti` k2 **2,67** ·
+            // `karsilastirma` k2 **2,12** (`baslik-kontrasti`, taban 4,5).
+            // ⚠ Bir eşik yetmez, KARŞILAŞTIRMA gerekir: alan koyuysa açık metin,
+            // açıksa koyu metin — yani kartın iki renginden alandan DAHA ÇOK ayrışan
+            // hangisiyse o. `alinti`nin gül rengi alanı açık, `sahne`nin mavisi koyu;
+            // tek bir sabit ikisini birden doğru yapamaz.
+            `${
+              k.aksanRolu === 'alan'
+                ? `--aksan-alan-metin:${(() => {
+                    const la = tokenAcikligi(r.aksan, doc.tokenCss) ?? 0.5
+                    const lz = tokenAcikligi(kartZemini, doc.tokenCss) ?? 0.2
+                    const lm = tokenAcikligi(r.metin, doc.tokenCss) ?? 0.9
+                    const alan = la * 0.55 + lz * 0.45
+                    return Math.abs(alan - lz) >= Math.abs(alan - lm) ? kartZemini : r.metin
+                  })()};`
+                : ''
+            }` +
             // ⚠ ⚠ **KAPANIŞ BLOĞU KENDİ ALANININ RENGİNİ SORUYOR.** `imzaninZemini` marka
             // işareti için kurulmuştu; kapı sınırı yükseltince bir sonraki ögeyi adıyla
             // söyledi: dev varış rakamı da ΔL 0,000 ile alt alanda kayboluyordu. Kural
@@ -1876,7 +1906,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         // künyenin parçası değil. Marka kilidi kart zeminine göre renk alıyor.
         (k.kapanis === undefined
           ? ''
-          : `<div class="kapanis">` +
+          : `<div class="kapanis${k.kapanis.rakam === undefined ? ' kapanis-sade' : ''}">` +
             // ⚠ SIRA: rakam → okuma → imza + çağrı. Ölçüm bu sırayı dayattı (yukarıda).
             (k.kapanis.rakam === undefined
               ? ''
@@ -2084,9 +2114,28 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           // yatayda kalın dikeyde saç teli olurdu. Genişlik CİHAZ pikselinde okunuyor —
           // 0,12 gibi bir değer alt piksele düşüp KAYBOLUYOR (D-319'un dersi).
           const kenar = `${sol('--pano-metin', 22)}`
+          // ⚠ ⚠ **ALAN DÜZ DOLGU DEĞİL, DERİNLİĞİ OLAN BİR YÜZEY.** Depo sahibi
+          // `akan-alan` için *"alttaki mavi çok düz, ana renk gibi baskın; onun
+          // baskınlığını bir efekt gibi bir şeyle alalım"*, `kavis` için *"alttaki
+          // siyahlık aşırı siyah ve tasarımsız"* dedi. İkisi de AYNI kökten geliyordu:
+          // alan tek bir düz renkle dolduruluyordu ve göz düz bir rengi ZEMİN sanar,
+          // bir yüzey olarak okumaz.
+          // ⚠ Geçiş alanın GÖRÜNÜR bandında çalışıyor: sınır destelerde %60-90 arasında
+          // salınıyor, bu yüzden degrade 0,55'ten başlıyor — tuvalin tamamına yayılan bir
+          // degrade, görünen şeridin içinde hiç değişmezdi.
+          // ⚠ Dip zemine doğru eriyor: alan sınırın yanında en güçlü, kartın dibinde en
+          // sessiz. Sınırın okunurluğu (R-87, ≥1,6:1) sınırda ölçülür ve orada tam güç
+          // duruyor — bastırma sınırı değil, ALANIN AĞIRLIĞINI alıyor.
+          // ⚠ ⚠ **DEGRADE DENENDİ VE GERİ ÇEKİLDİ — D-318 onu EMEKLİ ETMİŞ.** Alanın
+          // düzlüğünü kırmak için dikey bir `linearGradient` yazdım; `tasiyici-gorunur`
+          // beş destede birden kırmızı döndü ve HAKLIYDI: bu sistem derinliği ışıktan
+          // değil MALZEMEDEN alıyor (gren, doku, vinyet). Kararı sessizce delmek yerine
+          // baskınlık alanın KENDİ dozundan ve YERİNDEN alındı: renk zemine doğru
+          // çekildi, dalga aşağı indi.
           return (
             `<svg class="alan-siniri" viewBox="0 0 100 100" preserveAspectRatio="none" ` +
-            `aria-hidden="true"><rect x="0" y="0" width="100" height="100" fill="${a.ust}"/>` +
+            `aria-hidden="true">` +
+            `<rect x="0" y="0" width="100" height="100" fill="${a.ust}"/>` +
             `<path d="${d} L 100 100 L 0 100 Z" fill="${a.alt}"/>` +
             `<path d="${d}" fill="none" stroke="${kenar}" stroke-width="1" ` +
             `vector-effect="non-scaling-stroke"/></svg>`
@@ -2239,8 +2288,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // karesiydi (%2,1 … %4,7). Marka kilidi burada GERÇEK boyda duruyor; künye şeridinin
     // 20 px'lik logosu bir altbilgidir, imza değil.
     // ⚠ `margin-top: auto` imzayı içeriğin ALTINA itiyor ama rayın üstünde tutuyor.
-    `  .kapanis { margin-top: auto; display: flex; flex-direction: column;`,
-    `             gap: ${olc(26)}px; align-items: flex-start }`,
+    // ⚠ `padding-top` NEFES PAYI: `margin-top: auto` bloğu dibe iter ama içerik kartı
+    // doldurduğunda pay SIFIRA düşer — `veri-hikayesi`de marka işareti gövde metninin
+    // tam dibine yapışmıştı (ölçüldü: gövde 585..699, işaret 699..763, boşluk 0 px).
+    // Blok zaten dibe hizalı olduğu için bu pay tavanı yükseltir, tabanı İTMEZ.
+    `  .kapanis { margin-top: auto; padding-top: ${olc(52)}px; display: flex;`,
+    `             flex-direction: column; gap: ${olc(26)}px; align-items: flex-start }`,
     // ⚠ İşaret gerçek logo dosyası; yüksekliği sabit, genişliği oranından geliyor.
     // ⚠ ⚠ **RAKAM PUNTOSU KAPAK YÜKSEKLİĞİNDEN GERİYE HESAPLANIYOR.** Archivo'nun kapak
     // oranı ~0,72 em; 330 px kapak için punto ≈ 458 px. "Punto 330" yazmak kadrajda
@@ -2258,6 +2311,42 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // yani imzayla aynı yakada. Rakamın rengini devralması onu koyu alanda koyu bırakıyordu.
     `                       color: color-mix(in oklab, var(--kapanis-metin, var(--kart-metin)) 62%, transparent) }`,
     `  .kapanis-isaret { height: ${olc(64)}px; width: auto; display: block }`,
+    // ⚠ ⚠ **SADE KAPANIŞTA ÇAĞRI POSTER SESİDİR — ve bu bir BOŞLUK onarımı.** Depo sahibi
+    // on kapanışa yan yana bakıp dev rakamlar için *"iğrenç duruyor, son sayfaları
+    // inanılmaz karışıklaştırıyor, nizami olmalı"* dedi. Rakam dokuz desteden kalkınca
+    // kartın ortasında rakamın bıraktığı boşluk kaldı: kompozisyon "bir şey silinmiş"
+    // diye okunuyordu ve destenin ≥220 px'lik TEK dev sesi de o rakamdı (`iki-uc`
+    // dokuz destede birden kırmızıya döndü, ölçüldü: en yüksek ses 51-103 px kapağa
+    // düştü). Boşluğu süsle doldurmak yanlış cevaptı; son sayfada bağıracak şey zaten
+    // ÇAĞRIDIR. Ses kapanışa geri geldi, ama artık dekoratif bir rakam değil ANLAMLI
+    // bir cümle taşıyor.
+    // ⚠ Yalnız `kapanis-sade`de: rakamı DURAN kapanışta (bugün `karsilastirma`) iki dev
+    // ses yan yana yarışırdı.
+    // ⚠ ⚠ **GENİŞLİK SABİT DEĞİL KOLONA GÖRE.** Sabit `980px` sol kolonda doğruydu ama
+    // `sahne` içeriğini SAĞ kolonda kuruyor: çağrı x=561'den başlayıp 1113'e uzanıyor,
+    // yani kartın sağından **33 px TAŞIYOR** (ölçüldü, bakıldı, görüldü). Bir kolon
+    // genişliği kolondan sorulur, sayıyla varsayılmaz.
+    // ⚠ ⚠ **PUNTO KOLONDAN TÜRER — `max-width` BİR KELİMEYİ KIRMAZ.** `sahne` içeriğini
+    // dar SAĞ kolonda kuruyor (455 px) ve 152 px'lik "birlikte" oraya sığmıyordu; genişlik
+    // sınırı koymak taşmayı ÇÖZMEDİ çünkü sınır kelimenin min-content genişliğini yenemez
+    // (ölçüldü: çağrı 561..1113, kartın sağından +33 px). `cqw` puntoyu kolonun kendi
+    // genişliğine bağlıyor: 22cqw, sekiz harflik en uzun kelimenin sığdığı orandır.
+    // ⚠ ⚠ **BİR KEZ 152 px YAZILDI VE KABA ÇIKTI — DERSİ KAYDA GEÇİYORUM.** Dev rakam
+    // kalkınca `iki-uc` kapısı dokuz destede kırmızı döndü ve ben boşluğu kapatmak için
+    // çağrıyı poster ölçeğine çıkardım. Depo sahibi baktı: *"fontlar aşırı kaba, yazılar
+    // aşırı büyük, bütün kompozisyona aykırı; CTA olmalı ama bu kadar büyük gerek yok…
+    // boşluk da bazen estetiktir."* Haklıydı ve hata TASARIMDA değil SIRADAYDI: bir
+    // kapıyı memnun etmek için tipografi kabalaştırılmaz — önce kompozisyon oturur,
+    // kapı ONA göre yeniden türetilir.
+    // ⚠ 68 px: gövdenin (~40) belirgin üstünde, kapanış başlığının (~96-120) altında.
+    // Çağrı bir kapanış cümlesidir, bir afiş değil.
+    `  .kapanis-sade .kapanis-cagri { font-size: ${olc(68)}px; line-height: 1.18;`,
+    `                                 letter-spacing: -0.016em; font-weight: 600;`,
+    `                                 max-width: 100% }`,
+    // ⚠ PANOLU KAPANIŞTA ÇAĞRI KÜÇÜLÜR: `dizin`de sıra listesi zaten kartın ortasını
+    // tutuyor ve 120 px'lik çağrı hem listeye biniyor hem künye şeridini AŞIYORDU
+    // (bakıldı, görüldü). Bir kartta iki aygıt varsa ikincisi bağırmaz.
+
     `  .kapanis-cagri { margin: 0; font-family: 'Marka Baslik', sans-serif;`,
     `                   font-size: ${olc(44)}px; line-height: 1.24; font-weight: 500;`,
     `                   letter-spacing: -0.012em; color: var(--kapanis-metin, var(--kart-metin));`,
@@ -2416,12 +2505,26 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // `background-image`i SATIR İÇİ yazıyor ve satır içi stil hiçbir stil sayfası
     // kuralıyla geçilemez. Bu, aynı dersin bu turdaki İKİNCİ tekrarı.
     // ⚠ `lekeUst` katmanı: kart zemininin üstünde, metnin altında. Doku ve gren korunuyor.
+    // ⚠ ⚠ **AKSAN ALANI, AKSANIN KENDİSİ DEĞİLDİR — ve bunu depo sahibi gördü.**
+    // `sahne` k2 için *"üstteki açık mavi aşırı cırtlak, koyu ile uyumsuz duruyor"*
+    // dedi. Ölçüldü: alan tam doygun aksanla boyanıyordu — `oklch(0.6 0.185 262)`,
+    // kartın zemini `oklch(0.16 0.101 262)`. Yani kartın %49'u, yalnız VURGU için
+    // ayrılmış bir rengin en yüksek dozuyla kaplıydı.
+    // ⚠ Kural tipografiden geliyor ve bu depoda zaten yazılı (D-318, tek karneli aksan):
+    // **aksan vurgu içindir, YÜZEY için değil.** Bir vurgu rengi alana dönüşünce vurgu
+    // olmaktan çıkar, gürültü olur. Alan artık aksanla ZEMİNİN karışımı: aynı renk
+    // ailesi, alan dozunda. Paletin kendi `alan` adımıyla (L 0,36) örtüşüyor —
+    // yani sayı uydurulmadı, paletin zaten söylediği şey.
     `  .kart.aksan-alan::before { content: ""; position: absolute; left: 0; right: 0; top: 0;`,
-    `                             height: var(--aksan-dibi); background: var(--kart-aksan);`,
+    `                             height: var(--aksan-dibi);`,
+    `                             background: color-mix(in oklab, var(--kart-aksan) 55%,`,
+    `                                         var(--kart-zemin));`,
     `                             z-index: ${String(Z.lekeUst)} }`,
-    `  .kart.aksan-alan .ust-baslik, .kart.aksan-alan .baslik { color: var(--kart-zemin) }`,
-    `  .kart.aksan-alan .ust-baslik::before { background: var(--kart-zemin) }`,
-    `  .kart.aksan-alan .baslik strong { color: var(--kart-zemin) }`,
+    `  .kart.aksan-alan .ust-baslik, .kart.aksan-alan .baslik {`,
+    `    color: var(--aksan-alan-metin, var(--kart-zemin)) }`,
+    `  .kart.aksan-alan .ust-baslik::before {`,
+    `    background: var(--aksan-alan-metin, var(--kart-zemin)) }`,
+    `  .kart.aksan-alan .baslik strong { color: var(--aksan-alan-metin, var(--kart-zemin)) }`,
     // ⚠ Başlık SIKIŞIK ve İRİ; `line-height` 1,04 — 0,90'da Türkçe `Ş` kuyruğu alt satıra
     // giriyor ve "HEB" gibi okunuyor. Aksan kırpılması bu ailenin bilinen tuzağı.
     // ⚠ Punto artık sabit 82 px DEĞİL: reçetenin payı × render anında ölçülen tavan.
@@ -2776,11 +2879,32 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Sönümleme ikisini birden veriyor: taşıyıcı dikişi GEÇİYOR (kesintisizlik korunuyor,
     // C.7) ve kapanış karesinin ilk üçte birinde eriyor, yani dev rakam tek tonun üstünde
     // kalıyor. Bir kural, iki gereklilik.
-    `  .bant, .bant-kemer, .bant-ok {`,
-    `    -webkit-mask-image: linear-gradient(to right, #000 ${String(G * (n - 1))}px,`,
-    `                        transparent ${String(G * (n - 1) + Math.round(G * 0.26))}px);`,
-    `    mask-image: linear-gradient(to right, #000 ${String(G * (n - 1))}px,`,
-    `                transparent ${String(G * (n - 1) + Math.round(G * 0.26))}px) }`,
+    // ⚠ ⚠ **SÖNÜMLEME PENCERESİ VERİDEN TÜRÜYOR, SABİT DEĞİL.** Depo sahibi
+    // `veri-hikayesi` için *"son sayfaya da hiç geçmesin; sondan önceki sayfanın son
+    // grafiğine değmeden altına kadar gelip dursun"* dedi. Dolgu artık son veri
+    // noktasında kapanıyor (yukarıda) ama orada DİK bir kenar bırakıyordu — yani tam da
+    // `clip-path` giyotininin ürettiği gerileme, bu kez sağ kenarda.
+    // ⚠ Pencere iki türlü kuruluyor ve ikisi de gerekli:
+    //   • Eğri: veri x=82,5'te bitiyor → sönümleme ORADA tamamlanıyor, kapanış karesine
+    //     hiç girmiyor. Bitiş tasarlanmış, kesik değil.
+    //   • Öteki taşıyıcılar: kesimde başlayıp kapanış karesinin ilk üçte birinde eriyor.
+    //     `dizin`in son oku kapanış kartındaki DÖRDÜNCÜ maddeye BİLEREK varıyor; pencere
+    //     öne çekilse o ok yok olurdu (yazıldı, düşünüldü, çekilmedi).
+    ...(() => {
+      const egriSonu =
+        doc.bant?.tip === 'egri'
+          ? (doc.bant.noktalar[doc.bant.noktalar.length - 1]?.x ?? 100) * 0.01 * toplam
+          : null
+      const son = egriSonu === null ? G * (n - 1) + Math.round(G * 0.26) : Math.round(egriSonu)
+      const bas = egriSonu === null ? G * (n - 1) : Math.round(egriSonu - G * 0.1)
+      return [
+        `  .bant, .bant-kemer, .bant-ok {`,
+        `    -webkit-mask-image: linear-gradient(to right, #000 ${String(bas)}px,`,
+        `                        transparent ${String(son)}px);`,
+        `    mask-image: linear-gradient(to right, #000 ${String(bas)}px,`,
+        `                transparent ${String(son)}px) }`,
+      ]
+    })(),
     `  .kilometre { position: absolute; bottom: ${olc(120)}px; z-index: ${Z.durak};`,
     `               transform: translateX(-50%);`,
     `               text-align: center }`,
@@ -3136,6 +3260,34 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
     // 54 · 54,9 · 59,1 · 60,6 · 61,2. Sabit 54, ALTIDAN BESINDE yanlis olurdu.
     // Govde puntosu baslik puntosuna bagli, o da bu aramanin sonucu: taban ancak
     // BURADA, punto belli olduktan SONRA bilinebilir.
+    // -- SADE KAPANISIN CAGRISI DA KOLONA OTURUYOR ---------------------------
+    //
+    // ⚠ ⚠ **max-width BIR KELIMEYI KIRMAZ ve bu tuzak olculdu.** Sade kapanista cagri
+    // poster olcegindedir; sahne icerigini DAR sag kolonda kuruyor (455 px) ve 152 px'lik
+    // "birlikte" oraya sigmiyordu. Once genislik siniri konuldu — TASMA SURDU (cagri
+    // 561..1113, kartin sagindan +33 px), cunku sinir kelimenin min-content genisligini
+    // yenemez. Sonra container-type denendi — duzeni COKERTTI (cagri sifir genislige indi).
+    // Dogru cozum baslikta zaten kullanilan sey: kolona OTURTMAK.
+    //
+    // ⚠ Sinir kartin GERCEK ic kutusundan okunuyor, baslikSutunu'ndan degil: kapanis
+    // cagrisi baslik kolonunu degil kartin tamamini kullanabilir ve kolon ayari
+    // padding olarak duruyor.
+    for (const c of document.querySelectorAll('.kapanis-sade .kapanis-cagri')) {
+      const kart = c.closest('.kart')
+      if (!kart) continue
+      const ks = getComputedStyle(kart)
+      const sinir = kart.clientWidth - parseFloat(ks.paddingLeft) - parseFloat(ks.paddingRight)
+      const tavanPx = parseFloat(getComputedStyle(c).fontSize)
+      let a2 = 24, u2 = tavanPx
+      for (let k = 0; k < 16; k += 1) {
+        const orta = (a2 + u2) / 2
+        c.style.fontSize = orta + 'px'
+        if (c.scrollWidth <= sinir + 1) a2 = orta; else u2 = orta
+      }
+      // ASAGI yuvarlaniyor: bir oturma olcumunun yazdigi sayi, olctugu sayidan
+      // buyuk olamaz (ayni ders baslikta editoryal kapaginda 2 px tasma vermisti).
+      c.style.fontSize = (Math.floor(a2 * 10) / 10).toFixed(1) + 'px'
+    }
     const govde = document.querySelector('.govde')
     if (govde) {
       const aralik = parseFloat(getComputedStyle(govde).lineHeight)

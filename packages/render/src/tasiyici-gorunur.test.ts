@@ -56,6 +56,12 @@ describe('taşıyıcı görünür', () => {
   // başlığın kenarı her şablonu "görünür" gösterirdi.
   const alanli = Object.entries(ORNEKLER).filter(([, o]) => o.alanSiniri !== undefined)
 
+  // ⚠ ⚠ **ZAMAN AŞIMI AÇIKÇA YAZILDI — varsayılan 10 s ARTIK YETMİYOR.** Bu iddia
+  // `alanSiniri` taşıyan HER desteyi tek tek tarayıcıda açıyor; `kavis`in kemer bandı
+  // kaldırılıp yerine alan sınırı gelince deste sayısı dörtten BEŞE çıktı ve süre
+  // 8,5 s'ye tırmandı. Tek başına geçiyor, kapı grubunda paralel yük altında düşüyordu —
+  // yani kırmızı bir tasarım kusurunu değil, bir SAYAÇ tavanını gösteriyordu.
+  // ⚠ 60 s ailenin geri kalanıyla aynı (`kapanis-yuzeyi` 60, `baslik-kontrasti` 90).
   it('alan sınırı taşıyan her şablonda sınır GÖRÜNÜYOR', async () => {
     expect(alanli.length).toBeGreaterThan(2)
     for (const [id, o] of alanli) {
@@ -102,5 +108,5 @@ describe('taşıyıcı görünür', () => {
       // 25, iki kümenin arasında.
       expect(r.value as number, `${id}: sınır kenar gücü`).toBeGreaterThanOrEqual(25)
     }
-  })
+  }, 60_000)
 })

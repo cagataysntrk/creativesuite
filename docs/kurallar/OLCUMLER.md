@@ -3539,3 +3539,159 @@ metriğinin `.gorsel-yer`i saymadığında yanılttığı gibi. Aynı sınıf, i
 
 *Bu fazda ölçüm beni ÜÇ kez gereksiz işten döndürdü (kapak silueti · yüzey zanaatı · bu) ve
 üçünde de kurtaran şey aynı oldu: ÇİZİP BAKMAK.*
+
+### Türkçe glif: sessiz yedeğe düşüş — bugün YOK, artık korunuyor
+
+19.10'un font denetimi kalemi. Ölçüldü (advance-width karşılaştırması: glif eksikse tarayıcı
+zaten yedeği kullanır ve iki ölçüm birebir eşit çıkar): `Ö Ç Ü Ş Ğ İ ı ş ğ ç ö ü` — **on iki
+harfin on ikisi de üç ailede** (`Marka Baslik` · `Marka Display` · `Marka Mono`) marka
+fontundan geliyor. Sessiz yedeğe düşüş yok.
+
+Bu, **Yasa 3'ün render tarafındaki karşılığı**: yasa görsel modeline Türkçe çizdirmeyi
+yasaklıyor, ama metni biz çizsek bile font `Ş`i taşımıyorsa tarayıcı SESSİZCE sistem
+fontuna düşer — hata yok, uyarı yok, yalnız harfin biçimi değişir.
+
+⚠ ⚠ **KAPI KENDİ KALİBRASYONUNU TAŞIYOR.** Bu fazda "ihlal yok" sonucu üç kez aletin
+bozukluğundan geldi; bu yüzden kapı, fontta KESİNLİKLE bulunmayan karakterlerin (`漢` `✓`
+`→` `Ω`) yedeğe düştüğünü GÖRMEK zorunda. Kalibrasyon ölçüldü: `Ş`/`Ğ` **MARKA**,
+`漢 ✓ → Ω` **YEDEK**. Alet körelirse birinci iddia bedava yeşil kalır, ikincisi hemen
+kırmızı döner.
+
+⚠ `✓` ve `→`nin yedeğe düşmesi bilinen bir durum (`unicode-range` kapsamıyor; üretim
+yolunda `kapsamDisiKarakterler` yakalıyor) — burada kusur değil, **aletin çalıştığının
+kanıtı**.
+
+Kasten ihlal: Türkçe listesine `Ω` eklendi, kapı üç ailede birden kırmızı döndü.
+
+### `baseFrequency` yasağı vardı — kapsamı TEK reçeteydi
+
+19.10'un ilk kalemi. Kural zaten yazılıydı ve doğruydu: `baseFrequency` tam sayı olursa
+Perlin kafesi piksel ızgarasına oturuyor ve gren **σ 0,000**'a düşüyor — hata vermeden
+(ölçüm defterde: 0.99 → 4,10 · **1 → 0,000** · 1.01 → 4,11 · **2 → 0,000**).
+
+⚠ Ama iddia yalnız **varsayılan reçeteyi** sınıyordu; oysa 19.4'te **yedi yüzey ailesi**
+kuruldu ve her biri kendi dokusunu üretiyor. Bu, bu deponun tekrar eden hatası:
+*bir kural doğru yazılıyor, sonra sistem etrafında büyüyor ve kural yeni durumları
+kapsamıyor* — `kapanis-temiz` iki taşıyıcı tipi için yazılmıştı, beş tip vardı; burada bir
+reçete için yazılmıştı, yedi yüzey var.
+
+Kapsam yedi yüzeye ve iki uç luminansa (koyu 0,18 · açık 0,92) genişletildi; çok değerli
+`baseFrequency` (`'0.004 0.9'` gibi) yazımı da parça parça taranıyor. Kasten ihlal: frekans
+`Math.round` ile tam sayıya çekildi, kapı **yedi yüzeyde birden** kırmızı döndü.
+
+## Başlık kontrastı — iki alet birbirini yalanladı (FAZ-19.10)
+
+`okuma-kontrasti` gövde ve listeyi koruyor; **başlık, göz kaşı ve dev rakam kapsam
+dışıydı.** Ölçmeye kalkınca iki yöntem de yalan söyledi:
+
+| yöntem | `memphis` başlık | `akan-alan` kapak | neden yalan |
+|---|---|---|---|
+| yüzdelik (medyan = zemin) | **2,7** | — | dev rakamda glif alanın yarısından fazlasını kaplıyor, medyan artık zemin değil GLİF |
+| analitik (`computed color`) | 17,4 ✓ | **1,04** | başlığın rengi `rgba(0,0,0,0)`; metin `background-clip: text` ile DEGRADEDEN boyanıyor |
+| fark (görünür − gizli), glif **medyanı** | 17,3 ✓ | 15,9 ✓ | ince tipografide değişen piksellerin çoğu kenar yumuşatma pikseli → `editoryal` **3,92** (gerçeği 12,10) |
+| fark, glif **çekirdeği** (%10/%90 dilim) | 17,25 ✓ | 15,94 ✓ | çapraz doğrulandı: analitiğin geçerli olduğu düz renkli başlıklarda iki yöntem aynı sayıyı veriyor |
+
+**Ölçülen dağılım** (çekirdek yöntemi, on deste): mürekkep başlık **7,99 … 18,48** ·
+aksan başlık **4,90 … 9,64** · göz kaşı **4,74 … 8,01**. Hiçbir ihlal yok; kapı yine de
+yazıldı (bugün doğru olan korunmadıkça bozulur).
+
+**Eşikler:** mürekkep **7** (WCAG AAA; başlık büyük metin, AA'sı 3,0 — kapı gereğinin iki
+katından fazlasını tutuyor, pay %12,4) · aksan **4,5** (AA, pay %8,9) · göz kaşı **4,2**
+(`okuma-kontrasti` ile aynı sayı, pay %12,9).
+
+⚠ **İLK YAZILAN 11 TABANI SAHTE BİR AYRIMA DAYANIYORDU.** Jeton probu `document.body`ye
+ekleniyordu, oysa palet KARTA bağlı: `kavis`in mürekkep başlığı "aksan" sanılıp kümenin
+dışında kalmış, mürekkep 12,10–18,48 / aksan 4,90–9,64 diye ayrık görünmüştü. Prob kartın
+içine alınınca `kavis` başlıklarının jetonla birebir mürekkep (`oklch(0.95 0.006 75)`) ve
+**7,99–8,65** okuduğu görüldü. Eşik ölçüme değil ölçüm HATASINA dayanıyormuş.
+
+⚠ **`baseFrequency` YEDİ YÜZEY İHLALİ İLK SEFERİNDE SAHTE KIRMIZIYDI.** `recete({ yuzey })`
+yazılmıştı; `yuzey` `ZeminResetesi`nin alanı değil, vitest tipleri sildiği için sessizce
+yok sayıldı ve yedi yüzey aslında varsayılan reçetenin yedi kopyasıydı. `types` kapısı
+TS2353 ile yakaladı. Doğru API `yuzeyKatmanlari(y, guc)`; gerçek ihlal `doku()` frekansı
+yuvarlanınca `kagit@0.18: 1` diye yüzey adıyla kırmızı dönüyor.
+
+## Katalog revizyonu — depo sahibinin yedi maddesi (FAZ-19.10)
+
+Depo sahibi on şeride tek tek bakıp yedi madde saydı. Hepsi uygulandı; her biri önce
+ÖLÇÜLDÜ, sonra düzeltildi, sonra ÇİZİLİP BAKILDI.
+
+| # | Şikâyet | Ölçülen | Yapılan |
+|---|---|---|---|
+| 0 | *"son sayfadaki büyük sayılar iğrenç, nizami olmalı"* | dokuz destede dev rakam | `rakam` dokuz desteden kalktı (`karsilastirma` hariç — sahibi *"kalabilir"* dedi) |
+| 1 | *"akan-alan kapağında yazılar ortada olmalı, maviye girmemeli"* | metin dibi 1250 px, mavi tepe 862 px → **388 px içeride** | `dikey: alt → orta` |
+| 2 | *"4. sayfada yazılar iki ayrı arkaplanda"* | metin 751..1250, mavi tepe 785 → **465 px bölünme** | `dikey: alt → ust`; alan %12 bastırıldı |
+| 3 | *"dizinde sayı kalksın, liste büyüsün, çizgi ucu 4. satıra"* | ok ucu %74,3, satır %63,1 | liste 1,6×; üç ok da kendi kartının yanık satırına bağlandı |
+| 4 | *"karşılaştırmanın sonundaki sayı kalabilir"* | — | `-25` korundu |
+| 5 | *"kavisin kemerleri aşırı HTML/CSS, kaldır"* | 13 özdeş parabol | bant kaldırıldı, yerine **tek büyük tonoz** (alan sınırı) |
+| 6 | *"sahnenin 2. sayfasındaki açık mavi cırtlak"* | alan tam doygun aksanla boyanıyordu (`oklch(0.6 0.185 262)` / zemin `0.16`) | alan = aksan×%55 + zemin |
+| 7 | *"veri hikayesinde çizgi çok yüksekten, son sayfaya geçiyor"* | k5'te panonun **125 px içinde**, k4'te pay **3 px**, kapanışta dolgu 478 px | uçlar 45→90 yerine **25→50** (oran hâlâ tam 2,0×), dolgu son veri noktasında kapanıyor |
+
+### Bu turun en pahalı dersi: KAPI TASARIMA YÖN VERMEZ
+
+Dev rakam kalkınca `iki-uc` dokuz destede kırmızı döndü — çünkü o rakam her destenin TEK
+≥220 px sesiymiş (ölçüldü: kalkınca en yüksek ses **51–103 px** kapağa düştü). Boşluğu
+kapatmak için kapanış çağrısını **152 px**'e çıkardım ve tabanı 78'e çektim. Depo sahibi
+baktı: *"fontlar aşırı kaba, yazılar aşırı büyük, bütün kompozisyona aykırı… CTA olmalı
+ama bu kadar büyük gerek yok, boşluk da bazen estetiktir."*
+
+**Hata sayıda değil SIRADAYDI.** Doğru sıra: önce kompozisyon oturur, kapı ONA göre
+yeniden türetilir. Çağrı 68 px'e indi (kapak 48 px — on destede de aynı), `iki-uc` tabanı
+ölçülene çekildi (**48**, en sessiz desteye %6 pay) ve `kapanis-karti` çağrı tabanı **42**
+oldu. Üç sessiz kapağa tek tek BAKILDI: `memphis` (78) ve `sahne` (60) gayet oturaklı;
+yalnız `donen` (51) küçük duruyor — ama o bir kompozisyon kararı, kapının dayatacağı şey
+değil.
+
+### Kapsamı daralan/genişleyen kapılar
+
+- `kapanis-temiz` · `kapanis-karti` zincir testi: filtre `kapanis.rakam` → `kapanis`.
+  Rakamlar kalkınca kapı kendi kendini boşa çıkarmıştı.
+- `iki-uc`: *"dev ses bir RAKAMDIR"* → *"dev ses KISADIR"* (≤14 harf). Gerekçe aynı
+  (*"300 px'lik bir cümle bağırmaz, BOĞAR"*); yasaklanması gereken HARF değil UZUNLUK.
+- `tasiyici-verisi`: kemer↔vafel çifti öznesiz kaldı → ok↔liste çiftine YÖNLENDİRİLDİ
+  (her ok bir maddeden sonrakine gider, sayı ondan türer).
+- `veri-egrisi`: kemer sapması → **tonoz sapması**. Kart 3 hâlâ *"Sapma görünür olmalı"*
+  diyor; kanıtı artık tonozun komşularından 12 puan ayrılan noktası taşıyor.
+- `baslik-kontrasti`: aksan ALANI üzerindeki metin aksan tabanına (4,5) tabi — bir renk
+  alanı okuma zemini değildir.
+
+### Aletin üç yalanı daha
+
+1. **Aksan mavisi kelime alan sınırı sanıldı** — tek piksel taraması `akan-alan` kapağının
+   *"döngüsel"* kelimesini sınır okudu (862 yerine 593). Alan bir ŞERİTTİR: en az 120 px
+   kesintisiz mavi arandı.
+2. **`container-type: inline-size` düzeni çökertti** — çağrıyı kolona sığdırmak için
+   denendi, kutu sıfır genişliğe indi.
+3. **`max-width` bir kelimeyi kırmaz** — `sahne`nin dar sağ kolonunda (455 px) 152 px'lik
+   *"birlikte"* taşıyordu; genişlik sınırı taşmayı ÇÖZMEDİ. Doğru çözüm başlıkta zaten
+   kullanılan şeydi: `puntoOlcumu` içinde kolona OTURTMAK.
+
+## İkinci tur — sahibin dört maddesi daha (FAZ-19.10)
+
+| # | Şikâyet | Ölçülen | Yapılan |
+|---|---|---|---|
+| a | *"akan-alanda mavi çok düz, ana renk gibi baskın; biraz aşağı al; son sayfada olmasın"* | tepe %44-46, kapanışta alan kartın %60'ı | tepeler **%68-70**'e indi; sınır son kesimden ÖNCE dibe iniyor (kapanış düz koyu mavi); alan nötre çekildi (%84 alan + %16 `ink-850`) |
+| b | *"kavisin altındaki siyahlık aşırı siyah ve tasarımsız, simetrik değil"* | `beton-murekkep` L 0,140 ↔ zemin 0,380 | ton zemine %35 çekildi; ufuk **simetrik** (93·87·82·79·78·78·79·87·93) |
+| c | *"alıntıda son sayfa neden bir anda patlayıp yükseliyor"* | sınır 78→73→68 sonra x=66,67'de **68→40** | eşit adımlı iniş: 78 → 73 → 68 → **63** |
+| d | *"dizinin ilk sayfası sağa yaslı, doğru mu?"* | kapak `kolon: sag`, gövde kartları sol | kapak SOLA alındı, ayrım DİKEYE taşındı (`dikey: orta`); `kapak-silueti` yeşil |
+
+⚠ **DEGRADE DENENDİ VE GERİ ÇEKİLDİ.** Alanın düzlüğünü kırmak için dikey bir
+`linearGradient` yazıldı; `tasiyici-gorunur` beş destede kırmızı döndü ve HAKLIYDI:
+**D-318 degradeyi, glow'u ve atmosferik rengi EMEKLİ ETMİŞ.** Bu sistem derinliği ışıktan
+değil malzemeden alıyor. Baskınlık alanın kendi DOZUNDAN ve YERİNDEN alındı.
+Ölçülen sınır oranı (bastırma sonrası): **1,63 · 1,79 · 1,83** — R-87 eşiği 1,60.
+
+⚠ **`kavis`in SAPMA bağı emekli edildi (Yasa 10, silinmedi).** Kart 3 *"Sapma görünür
+olmalı"* diyor ve kanıtı on üç kemerden birinin 1,5× yükselmesiydi. Kemer bandı
+kaldırılınca sapma tonoza taşındı — ve çıktıya bakılınca çalışmadığı görüldü:
+**bir sapma ancak TEKRAR EDEN bir ritmin içinde sapma olarak okunur;** tek bir yayda
+yerel çıkıntı şeklin KENDİSİ olur (tonozun tepesi o noktaya kaydı). Ritim cihazı geri
+gelirse kural da geri gelir.
+
+⚠ **RENK HİZASI SORULDU, SAHİBİ KARARI VERDİ.** Katalogda beş deste marka çiftinin
+(mavi 262° + amber 80°) dışında: `gece-magenta` 350°, `kagit-oksit` 32°, `celik-bakir`
+45°. Jeton dosyasındaki gerekçeler bilinçliydi (*"bu palette MAVİ YOK — markadan çıkışın
+kanıtı"*, magenta *"ayırt edilebilirlik için"*). Sahibi önce tutarlılık istedi, sonra
+*"magenta kalsın, neyse bir farklılık olur"* dedi — palet farkı KABUL EDİLDİ, jetonlara
+dokunulmadı. ⚠ `palet-ailesi` kapısı aksanın zeminle AYNI paletten gelmesini şart
+koşuyor; yani bu hizalama deste düzeyinde değil ancak JETON düzeyinde yapılabilir.

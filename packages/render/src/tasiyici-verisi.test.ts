@@ -18,32 +18,65 @@ import { describe, expect, it } from 'vitest'
 import { ORNEKLER } from './katalog-ornek.js'
 
 describe('taşıyıcı verisi', () => {
-  const ciftli: [string, number, number][] = []
+  // ── EŞLEŞME 1: kemer bandı ↔ vafel panosu ──────────────────────────────────
+  const kemerCifti: [string, number, number][] = []
   for (const [id, o] of Object.entries(ORNEKLER)) {
     const b = o.bant
     if (b.tip !== 'kemer') continue
     for (const k of o.kartlar) {
       if (k.panel?.tip !== 'vafel') continue
-      ciftli.push([id, b.sayi, k.panel.dolu])
+      kemerCifti.push([id, b.sayi, k.panel.dolu])
     }
   }
 
-  // ⚠ Kapı boşa dönmesin: hiç çift yoksa aşağıdaki iddia hiç koşmaz ve yeşil hiçbir şey
-  // kanıtlamaz. Bugün tam bir çift var (`kavis`).
-  it('kemer bandı VE vafel panosu taşıyan deste VAR', () => {
+  // ── EŞLEŞME 2: ok güzergâhı ↔ liste maddeleri ──────────────────────────────
+  //
+  // ⚠ ⚠ **BU EŞLEŞME, BİRİNCİSİ ÖZNESİZ KALINCA YAZILDI.** Depo sahibi `kavis`in kemer
+  // bandı için *"aşırı HTML/CSS duruyor, çok çirkin, kaldır"* dedi; bant kalkınca
+  // katalogda tek bir kemer+vafel çifti kalmadı ve kapının kendi *"boşa dönmesin"*
+  // koruması HAKLI OLARAK kırmızı döndü. Test silinmedi, YÖNLENDİRİLDİ: kural aynı
+  // kural (**bir şablon bir sayıyı iki yerde gösteriyorsa ikisi aynı sayıyı göstermeli**),
+  // yalnız bugünkü öznesi başka.
+  //
+  // ⚠ `dizin`de güzergâh maddeleri birbirine bağlıyor: her ok bir maddeden SONRAKİNE
+  // gidiyor, dolayısıyla ok sayısı madde sayısının BİR EKSİĞİ olmak zorunda. Beşinci bir
+  // madde eklenip dördüncü ok unutulursa dizin yarım kalır ve bunu hiçbir piksel ölçümü
+  // söylemez — rota "bitmiş" görünür.
+  const okCifti: [string, number, number][] = []
+  for (const [id, o] of Object.entries(ORNEKLER)) {
+    const b = o.bant
+    if (b.tip !== 'ok') continue
+    const liste = o.kartlar.map((k) => k.panel).find((pn) => pn?.tip === 'liste')
+    if (liste?.tip !== 'liste') continue
+    okCifti.push([id, b.oklar.length, liste.ogeler.length])
+  }
+
+  // ⚠ Kapı boşa dönmesin: hiç çift yoksa aşağıdaki iddialar hiç koşmaz ve yeşil hiçbir
+  // şey kanıtlamaz. Bu koruma bu fazda GERÇEKTEN işe yaradı (yukarıdaki not).
+  it('taşıyıcısı veriye bağlı deste VAR', () => {
     expect(
-      ciftli.map(([id]) => id).join(', '),
-      'hiç kemer+vafel çifti yok — kapı boşa dönüyor'
+      [...kemerCifti, ...okCifti].map(([id]) => id).join(', '),
+      'hiç taşıyıcı-veri çifti yok — kapı boşa dönüyor'
     ).not.toBe('')
   })
 
-  for (const [id, kemer, dolu] of ciftli) {
+  for (const [id, kemer, dolu] of kemerCifti) {
     it(`${id} · kemer sayısı ile dolu vafel karesi AYNI`, () => {
       expect(
         dolu,
         `${id}: bant ${String(kemer)} kemer çiziyor ama vafel ${String(dolu)} kare ` +
           'dolduruyor — taşıyıcı ile pano aynı adımı sayıyorsa aynı sayıyı göstermeli'
       ).toBe(kemer)
+    })
+  }
+
+  for (const [id, ok, madde] of okCifti) {
+    it(`${id} · ok sayısı madde sayısının BİR EKSİĞİ`, () => {
+      expect(
+        ok,
+        `${id}: liste ${String(madde)} madde taşıyor ama güzergâh ${String(ok)} ok ` +
+          'çiziyor — her ok bir maddeden sonrakine gider, sayı ondan türer'
+      ).toBe(madde - 1)
     })
   }
 })

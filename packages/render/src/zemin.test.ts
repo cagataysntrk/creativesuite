@@ -1,7 +1,15 @@
 // Zemin reçetesi — katman, sıra, karışım (FAZ-15.3 · §12.1).
 
 import { describe, expect, it } from 'vitest'
-import { grenKipi, grenOpakligi, zeminCss, zeminKarisimi, type ZeminResetesi } from './zemin.js'
+import {
+  YUZEYLER,
+  grenKipi,
+  grenOpakligi,
+  yuzeyKatmanlari,
+  zeminCss,
+  zeminKarisimi,
+  type ZeminResetesi,
+} from './zemin.js'
 
 // Örnek yüzey açıklığı — `--ramp-marka-ink-950` = `oklch(0.165)`.
 const L = 0.165
@@ -60,6 +68,38 @@ describe('zemin reçetesi', () => {
     const m = /baseFrequency='([0-9.]+)'/.exec(zeminCss(recete(), L))
     expect(m, 'baseFrequency üretilen CSS`te yok').not.toBeNull()
     expect(Number.isInteger(Number(m?.[1]))).toBe(false)
+  })
+
+  // ⚠ ⚠ **KURAL VARDI, KAPSAMI TEK REÇETEYDİ.** Yukarıdaki iddia yalnız varsayılan
+  // reçeteyi sınıyordu; oysa YEDİ yüzey ailesi var (19.4'te kuruldu) ve her biri kendi
+  // dokusunu üretiyor. Bu deponun tekrar eden hatası tam olarak bu: bir kural doğru
+  // yazılıyor, sonra sistem etrafında büyüyor ve kural yeni durumları kapsamıyor
+  // (`kapanis-temiz` iki taşıyıcı tipi için yazılmıştı, beş tip vardı).
+  // ⚠ Her yüzey ve iki uç luminans (koyu 0,18 · açık 0,92) taranıyor: gren opaklığı
+  // luminansla değiştiği için frekans üretimi de zemine göre değişebilir.
+  it('YEDİ yüzeyin YEDİSİNDE de baseFrequency tam sayı DEĞİL', () => {
+    const kotu: string[] = []
+    for (const y of YUZEYLER) {
+      for (const isik of [0.18, 0.92]) {
+        // ⚠ Yüzey `ZeminResetesi`nin alanı DEĞİL: doku katmanları ayrı üretiliyor.
+        // İlk yazımda `recete({ yuzey })` denendi ve `types` kapısı TS2353 ile reddetti —
+        // kural doğruydu, çağrı yanlıştı.
+        const katmanlar = [
+          zeminCss(recete(), isik),
+          ...yuzeyKatmanlari(y, grenOpakligi(isik) * 100).katmanlar,
+        ].join(' ')
+        for (const m of katmanlar.matchAll(/baseFrequency='([0-9.\s]+)'/g)) {
+          const parcalar = (m[1] ?? '').trim().split(/\s+/).map(Number)
+          for (const n of parcalar)
+            if (Number.isInteger(n)) kotu.push(`${y}@${String(isik)}: ${String(n)}`)
+        }
+      }
+    }
+    expect(
+      kotu.join(' · '),
+      'tam sayı baseFrequency: Perlin kafesi piksel ızgarasına oturur ve gren σ 0,000`a ' +
+        'düşer — HATA VERMEDEN'
+    ).toBe('')
   })
 
   // ⚠ Sabit opaklık koyu zeminde σ 0,70 üretiyor ve σ<1,0 gren JPEG tarafından SİLİNİYOR.

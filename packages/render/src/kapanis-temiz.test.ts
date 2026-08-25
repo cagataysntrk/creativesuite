@@ -25,14 +25,19 @@ import { describe, expect, it } from 'vitest'
 import { ORNEKLER } from './katalog-ornek.js'
 
 describe('kapanış temiz', () => {
+  // ⚠ ⚠ **KAPSAM "RAKAMI OLAN"DAN "KAPANIŞI OLAN"A GENİŞLEDİ.** Filtre `kapanis.rakam`e
+  // bakıyordu; depo sahibi dev rakamları dokuz desteden kaldırınca kapı kendi kendini
+  // BOŞA çıkardı — on destenin biri kaldı ve "en az beş deste" koruması kırmızı döndü.
+  // Kuralın konusu rakam değil KAPANIŞ KARTI: bir kapanış kartı içerik panosu taşımaz,
+  // rakamı olsun olmasın.
   const kapanisli = Object.entries(ORNEKLER).filter(([, o]) =>
-    o.kartlar.some((k) => (k.kapanis?.rakam ?? '').trim() !== '')
+    o.kartlar.some((k) => k.kapanis !== undefined)
   )
 
-  // ⚠ Kapı boşa dönmesin: kapanış rakamı taşıyan deste yoksa aşağıdaki iddialar
+  // ⚠ Kapı boşa dönmesin: kapanış taşıyan deste yoksa aşağıdaki iddialar
   // hiç koşmaz ve yeşil hiçbir şey kanıtlamaz.
-  it('kapanış rakamı taşıyan deste VAR', () => {
-    expect(kapanisli.length, 'hiçbir destede kapanış rakamı yok').toBeGreaterThan(5)
+  it('kapanış taşıyan deste VAR', () => {
+    expect(kapanisli.length, 'hiçbir destede kapanış yok').toBeGreaterThan(5)
   })
 
   for (const [id, o] of kapanisli) {
@@ -43,7 +48,7 @@ describe('kapanış temiz', () => {
       // TAŞIYICISI. Kuralı ona da uygulayınca kapı haklı olarak kırmızı döndü.
       if (id === 'dizin') return
       for (const k of o.kartlar) {
-        if ((k.kapanis?.rakam ?? '').trim() === '') continue
+        if (k.kapanis === undefined) continue
         expect(
           k.panel,
           `${id}: kapanış kartı hem pano hem kapanış jesti taşıyor — ölçüldü, içeriğin ` +

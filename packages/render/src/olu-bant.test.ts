@@ -150,10 +150,24 @@ describe('ölü bant', () => {
     it(`${id} · hiçbir slaytta %${String(TAVAN)}'den uzun içeriksiz bant yok`, async () => {
       const b = await olc(o)
       expect(b.length, 'ölçüm alınamadı').toBe(o.kartlar.length)
-      for (const [i, v] of b.entries())
+      for (const [i, v] of b.entries()) {
+        // ⚠ ⚠ **KAPANIŞ KARTI MUAF — ve muafiyet ADA değil YAPIYA bağlı.** Depo sahibi
+        // kapanışların dev rakamlarını kaldırttı ve yerine poster ölçekli bir çağrı
+        // koyduğumda *"fontlar aşırı kaba, yazılar aşırı büyük… CTA olmalı ama bu kadar
+        // büyük gerek yok, BOŞLUK DA BAZEN ESTETİKTİR"* dedi. Çağrı 68 px'e indi ve
+        // kapanış karesinin ortası bilerek boş kaldı: başlık üstte, imza + çağrı altta,
+        // arada bir duraklama.
+        // ⚠ Bu kural o boşluğu kusur sayıyordu (`donen` k4 %43 · `memphis` k6 %37) ama
+        // konusu O DEĞİL: kural `dizin`in GÖRSELSİZ, kapsamı %42'lik kartlarından doğdu —
+        // yani "hiçbir şeyin olmadığı" bant. Kapanışta bandın ALTINDA imza ve çağrı
+        // duruyor; boşluk kurulmuş bir duraklamadır, bitmemişlik değil.
+        // ⚠ İçerik kartlarında tavan AYNEN duruyor: orada boşluk bir karar değil, bir
+        // eksikliktir.
+        if (o.kartlar[i]?.kapanis !== undefined) continue
         expect(v, `${id} kart ${String(i + 1)} ölü bant %${v.toFixed(0)}`).toBeLessThanOrEqual(
           TAVAN
         )
+      }
     }, 90_000)
   }
 

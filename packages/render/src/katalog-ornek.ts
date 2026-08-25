@@ -143,24 +143,36 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     // "iki kat" derken geometri "üç kat" çiziyordu. Denetimin `veri-hikayesi` için
     // yazdığı şey tam buydu: *"grafik başlığı YALANLIYOR — bu zevk değil ARGÜMAN hatası."*
     // Yeni noktalar 45 → 90, oran **tam 2,0×**. Kilitli: `veri-egrisi.test.ts`.
+    // ⚠ ⚠ **EĞRİ ALÇALDI, ORAN DEĞİŞMEDİ — ve bu ayrım kritik.** Depo sahibi *"alttaki
+    // çizgi ve altındaki alan çok yüksekten başlıyor, daha alçaktan başlayıp yükselsin
+    // ki hiçbir sayfada ne bir ögeye ne de yazıya denk gelsin, çok da yükselmesin"*
+    // dedi. Ölçüldü ve haklıydı: eski uçlarla eğrinin tepesi k5'te panonun **125 px
+    // İÇİNE** giriyordu, k4'te pay yalnız **3 px** kalmıştı.
+    // ⚠ ⚠ Uçları serbestçe indirmek YASAK: bunlar süs değil VERİ. İlk denemem 22 → 58
+    // (oran 2,64×) idi ve başlığı — *"iki katına çıkan bir eğri"* — YALANLARDI. Değerler
+    // 45 → 90 yerine **25 → 50**: eğri aşağı indi, oran hâlâ tam 2,0×.
+    // ⚠ Yeni uçlar kart kart ÖLÇÜLEN içerik diplerinden türedi (k1 1029 · k2 1001 ·
+    // k3 968 · k4 929 · k5 942 px); her karede eğrinin tepesi içeriğin dibinin ALTINDA.
+    // ⚠ Son nokta x=83 değil **82,5**: kapanış karesinin başına değil, sondan bir önceki
+    // kartın son grafiğinin ALTINA kadar gelip duruyor.
     noktalar: [
-      { x: 0, y: 55 },
-      { x: 18, y: 50 },
-      { x: 36, y: 44 },
-      { x: 54, y: 37 },
+      { x: 0, y: 75 },
+      { x: 18, y: 70 },
+      { x: 36, y: 65 },
+      { x: 54, y: 60 },
       // ⚠ ⚠ **SUREKLI OGE KAPANIS KARTINDA BITER, ONU KAT ETMEZ.** Denetimin kapanis
       // tarifi: *"y %0-28 Varis. Surekli oge burada BITER."* Egri 100'e kadar surunce
       // yukselen alan siniri son kartin ORTASINDAN geciyordu: dev rakam iki tonun
       // arasinda ikiye bolunuyor ve kilometre etiketi '2025' rakamin uzerine dusuyordu.
       // Depo sahibi bakti ve "son sayfalardaki buyuk sayilar cok kotu duruyor" dedi.
       // Alti slaytin sonuncusu x %83'te basliyor; egri orada duruyor.
-      { x: 72, y: 28 },
+      { x: 72, y: 55 },
       // ⚠ ⚠ **IDDIA VARISTA TAMAMLANIYOR.** veri-egrisi kapisi "baslik iki katina diyor,
       // egri de IKI KAT yukselmeli" istiyor (deger = 100-y, yani 45 -> 90). Once egriyi
       // yumusattim ve kapi HAKLI OLARAK kirmizi dondu: 1,6x kaldi ve tipografi
       // geometriyi yalanladi. Dogru cozum egriyi kisaltmak degil, ONU SON KARTIN
       // BASINDA BITIRMEK — iddia tam varista tamamlaniyor ve kapanis karti temiz kaliyor.
-      { x: 83, y: 10 },
+      { x: 82.5, y: 50 },
     ],
     kilometre: [
       { x: 18, etiket: '2020' },
@@ -289,11 +301,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       zemin: 'var(--ramp-palet-gece-yuzey)',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
-      kapanis: {
-        rakam: '2,0×',
-        rakamAlt: 'ÜÇ YILDA EĞRİ',
-        cagri: 'Sıradaki eşiği **birlikte** koyalım.',
-      },
+      kapanis: { cagri: 'Sıradaki eşiği **birlikte** koyalım.' },
     },
   ],
 }
@@ -365,7 +373,15 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     // palet dışı bir yüzey. Reçetenin verdiği taban/yüzey çifti denendi ve ÖLÇÜLDÜ:
     // **1,18:1**, yani reçetenin kendi ≥1,6:1 şartını SAĞLAMIYOR. `murekkep-alan`
     // (üçüncü adım) 1,77:1 veriyor: hem mavi hem görünür.
-    alt: 'var(--ramp-palet-murekkep-alan)',
+    // ⚠ ⚠ **ALAN BİR TIK BASTIRILDI — ama BASTIRMA PAYI DAR ve ölçülü.** Depo sahibi
+    // *"alttaki maviliğe biraz daha yan element olduğunu, süs olduğunu belli edecek bir
+    // bastırıcı şeyler yapılabilir, çok baskın şu anda"* dedi. Baskınlığın BÜYÜK kısmı
+    // renkten değil YERDEN geliyordu: kapak ve 4. kart metni alanın içine düşüyordu
+    // (388 px ve 465 px, ölçüldü) ve göz iki yüzeyi ayıramayınca mavi öne çıkıyordu.
+    // O düzeltildikten sonra kalan iş küçüktü: alan zemine doğru %12 çekildi.
+    // ⚠ DAHA FAZLASI YASAK: R-87 alan/zemin oranını ≥1,6:1 istiyor ve saf jeton 1,77:1
+    // veriyor — yani bastırma payı yalnızca 0,17. Karartmak süsü değil SINIRI yok eder.
+    alt: 'color-mix(in oklab, var(--ramp-palet-murekkep-alan) 84%, var(--ramp-marka-ink-850))',
     // ⚠ ⚠ **GENLİK %9'DAN %58'E — referansla farkın kaynağı EKSEN DEĞİL, GENLİKTİ.**
     // `image.png`de amber alan slayttan slayta yer değiştiriyor: bir karede neredeyse
     // tamamı kaplıyor, ötekinde alt köşeye çekiliyor. Bizim sınır 57–66 arası
@@ -382,12 +398,17 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
     // kaplıyor; dalga oraya girince "Ölçülmeyen kalite" başlığının yarısı mürekkep
     // alanda kaldı. Genlik hâlâ büyük (%42 salınım) ama tavan %44'te: referansın etkisi
     // duruyor, okunabilirlik kaybı yok.
+    // ⚠ ⚠ **DALGA AŞAĞI İNDİ — depo sahibi ikinci turda ölçüyü söyledi.** *"Alttaki mavi
+    // çok düz, ana renk gibi baskın… hem de birazcık aşağı al, çok yukarı çıkmasın."*
+    // Tepe noktaları %46/%44'ten **%70/%68**'e indi: dalga hâlâ salınıyor (her kare
+    // başka yükseklikte kesiyor, yani dikey bölme etkisi duruyor) ama artık kartın
+    // yarısını değil alt üçte birini tutuyor.
     noktalar: [
-      { x: 0, y: 86 },
-      { x: 18, y: 46 },
-      { x: 36, y: 80 },
-      { x: 54, y: 44 },
-      { x: 72, y: 78 },
+      { x: 0, y: 92 },
+      { x: 18, y: 70 },
+      { x: 36, y: 88 },
+      { x: 54, y: 68 },
+      { x: 72, y: 86 },
       // DALGA KAPANISTA DINLENIYOR — olculdu ve BAKILDI: son kartta alan siniri
       // y=45'ten y=72'ye tirmaniyordu, yani ustten %55'ten %28'e; dev rakam ustten
       // %47-68'de duruyor ve tam ustunde kaliyordu, iki tonun arasinda ikiye
@@ -397,9 +418,15 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       // dogal degeri, yani sinir kirilmiyor sadece DEGISMEYI birakiyor. Once y=20
       // denendi: alan son iki kari BASTI ve 5. kartin gri govdesi mavinin ustunde
       // kaldi. Cizip BAKMASAM gecerdi.
-      { x: 83, y: 45 },
-      { x: 83.3333, y: 40 },
-      { x: 100, y: 40 },
+      // ⚠ ⚠ **KAPANIŞ KARESİ ARTIK DÜZ KOYU MAVİ — sahibinin isteği.** *"Son sayfada
+      // olmasın, son sayfa koyu mavi olsun sadece."* Eskiden sınır orada %40'a çıkıp
+      // kartın %60'ını mavi alanla kaplıyordu. Şimdi sınır son kesimden ÖNCE dibe
+      // iniyor: dalga sondan bir önceki karede sönüyor ve kapanış tek yüzey kalıyor.
+      // ⚠ İniş kesimde DEĞİL, x=80'de başlıyor: kesimin üstünde biten bir eğri orada
+      // dikey bir kenar bırakırdı — bitiş tasarlanmış olmalı, giyotin değil.
+      { x: 80, y: 95 },
+      { x: 83.3333, y: 100 },
+      { x: 100, y: 100 },
     ],
   },
   bant: { tip: 'yok' },
@@ -422,7 +449,12 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       // gorseli YOK (memphis'inki y%54-93'te, donen'inki y%26-80'de, ikisinde de
       // baslik ustte kalmak ZORUNDA) ve dalga kapakta yalnizca dibin %14'unu tutuyor,
       // yani orta kusak bombostu. Baslik alana INDI: tipografi alanin uzerinde duruyor.
-      dikey: 'alt' as const,
+      // ⚠ ⚠ **'alt' → 'orta': KAPAK METNİ MAVİ ALANA GİRİYORDU.** Depo sahibi
+      // *"akan alanın ilk sayfasında yazılar ortada olmalı ve alttaki mavi kısma
+      // girmemeli, nizamsız duruyor"* dedi. Ölçüldü ve haklıydı: metin dibi 1250 px,
+      // mavi alanın tepesi kart ortasında 862 px — başlığın son satırı ile gövdenin
+      // TAMAMI, yani **388 px**, mavinin içinde kalıyordu.
+      dikey: 'orta' as const,
       ustBaslik: 'DÖNGÜSELLİK',
       baslik: 'Bir hattı **döngüsel** yapan beş şart',
       govde: 'Beşi de olmadan döngü kapanmıyor; biri eksikse sistem doğrusal kalıyor.',
@@ -432,7 +464,11 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      dikey: 'ust' as const,
+      // ⚠ ⚠ **'ust' → 'orta': DALGA ALÇALINCA ARADA %40 ÖLÜ BANT KALDI.** Sahibi maviyi
+      // aşağı aldırdı; metin tepede kalınca ikisinin arasında kartın %40'ı boşaldı
+      // (`olu-bant` ölçtü). Boşluğu kapatmanın yolu ögeleri şişirmek değil, metni
+      // boşluğun İÇİNE almak: blok ortaya gelince tek büyük boşluk iki paya bölünüyor.
+      dikey: 'orta' as const,
       ustBaslik: '01 · İZLENEBİLİRLİK',
       baslik: 'Girdi izlenebilir olacak',
       govde: 'Nereden geldiği bilinmeyen malzeme, nereye gittiği bilinmeyen atıktır.',
@@ -453,7 +489,17 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      dikey: 'alt' as const,
+      // ⚠ ⚠ **'alt' → 'ust': METİN İKİ ZEMİNE BÖLÜNÜYORDU.** Depo sahibi
+      // *"yazıların bir kısmı farklı arkada bir kısmı farklı arkaplanda görünüyor,
+      // hepsini siyaha yukarıya taşıyabiliriz"* dedi. Ölçüldü: metin 751..1250 px,
+      // mavi alanın tepesi 785 px — başlığın ilk satırı koyuda, kalan iki satır ve
+      // gövde mavide, yani **465 px** bölünme. Bir metin bloğu tek yüzeyde durur.
+      // ⚠ ⚠ **'ust' → 'orta' ve bu, sahibinin isteğini BOZMUYOR.** Sahibi bu kart için
+      // *"yazıların hepsini siyaha yukarıya taşıyabiliriz"* demişti — derdi metnin İKİ
+      // ZEMİNE bölünmesiydi. Dalga sonra %74'e indi; metin tepede kalınca ikisinin
+      // arasında %32 ölü bant açıldı. Blok ortaya alındı: hâlâ TAMAMEN koyu zeminde
+      // (mavi tepe %74, metin dibi %70) ama boşluk artık bölünmüş.
+      dikey: 'orta' as const,
       aksanRolu: 'yok' as const,
       ustBaslik: '03 · ÖLÇÜM',
       baslik: 'Ölçülmeyen kalite, varsayılandır',
@@ -483,7 +529,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'DÖNGÜSELLİK',
       rayaOrta: ORNEK,
-      kapanis: { rakam: '00', rakamAlt: 'SÜBVANSİYON', cagri: 'Döngüyü **birlikte** kuralım.' },
+      kapanis: { cagri: 'Döngüyü **birlikte** kuralım.' },
     },
   ],
 }
@@ -702,11 +748,7 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       // yolunda çağıranı olmaz (D-182 · D-190 · D-224 · D-250 · D-261 · D-270 · D-347).
       // ⚠ Ölçüldü: `sahne`nin son karesi destenin en boş karesi — mürekkep **%2,2**.
       // Karoselin tepe yapması gereken yerde sistem düz çiziyor.
-      kapanis: {
-        rakam: '03',
-        rakamAlt: 'ADIMDA KARAR',
-        cagri: 'Ölçüyü **birlikte** koyalım.',
-      },
+      kapanis: { cagri: 'Ölçüyü **birlikte** koyalım.' },
     },
   ],
 }
@@ -969,7 +1011,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-ink-950)',
-      kapanis: { rakam: '03', rakamAlt: 'ADIMDA SIRA', cagri: 'Sırayı **birlikte** kuralım.' },
+      kapanis: { cagri: 'Sırayı **birlikte** kuralım.' },
     },
   ],
 }
@@ -1123,7 +1165,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       rayaSol: 'ÜRÜN',
       rayaOrta: ORNEK,
       zemin: 'var(--role-line-edge)',
-      kapanis: { rakam: '360°', rakamAlt: 'TAM DÖNÜŞ', cagri: 'Düzeni **birlikte** kapatalım.' },
+      kapanis: { cagri: 'Düzeni **birlikte** kuralım.' },
     },
   ],
 }
@@ -1293,7 +1335,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       rayaSol: 'SAHA',
       rayaOrta: ORNEK,
       zemin: 'var(--ramp-marka-ink-950)',
-      kapanis: { rakam: '01', rakamAlt: 'TEK BAKIŞ', cagri: 'Bakışı **birlikte** yazalım.' },
+      kapanis: { cagri: 'Bakışı **birlikte** kuralım.' },
     },
   ],
 }
@@ -1371,7 +1413,51 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
   // dibe yapışmış bir şerit değil.
   // ⚠ Sapan kemer 8. indekste: 13 kemer 4 karta bölününce 7-8-9 üçüncü kartta kalıyor
   // ve üçüncü kart tam olarak *"Sapma görünür olmalı"* diyen kart.
-  bant: { tip: 'kemer', sayi: 13, yukseklik: 860, sapma: { indeks: 8, carpan: 1.5 } },
+  // ⚠ ⚠ **KEMER BANDI KALDIRILDI — DEPO SAHİBİNİN KARARI.** On üç özdeş parabol
+  // *"aşırı HTML/CSS duruyor, çok çirkin"* dedi ve haklıydı: eşit genişlikte, eşit
+  // yükseklikte, birbirine değen, düz gri dolgulu tümsekler bir mimari değil bir
+  // `border-radius` deseni okuyordu.
+  // ⚠ Bant yalnız süs DEĞİLDİ, iki iş yapıyordu: (1) kesintisizliği taşıyordu
+  // (kesim şeridinde %61-62 kaplama), (2) on üç kemer ↔ on üç dolu vafel karesi ile
+  // VERİYİ taşıyordu. İkisi de karşılanmadan bant kaldırılamaz — yerine `karsilastirma`
+  // ailesindeki sakin ALAN SINIRI geldi: tek sürekli eğri, tümsek dizisi değil.
+  bant: { tip: 'yok' },
+  // ⚠ ⚠ **ON ÜÇ TÜMSEK YERİNE TEK BÜYÜK KAVİS.** Kaldırılan kemer bandının iki işi
+  // vardı ve ikisi de karşılanmak zorundaydı. Kesintisizliği (D-268) artık tek sürekli
+  // bir alan sınırı taşıyor: panorama boyunca bir kez yükselip bir kez inen, kesimlerde
+  // kırılmayan bir tonoz. Deste adını da böyle hak ediyor — kavis GİTMEDİ, TEKLEŞTİ.
+  // ⚠ Aygıt `karsilastirma`dan ödünç: depo sahibi o destenin altındaki sakin ögeyi
+  // *"yan element olduğunu, süs olduğunu belli eden"* diye tarif etmişti. Farkı da var:
+  // orada sınır tek yönlü İNİYOR (ölçünün düşüşü), burada bir KEMER çiziyor.
+  // ⚠ Tepe %66'da: ölçüldü, dört kartın en alçak metin dibi %61,8 — sınır metnin
+  // altında kalıyor ve hiçbir karede yazıya değmiyor.
+  alanSiniri: {
+    ust: 'var(--ramp-palet-beton-taban)',
+    // ⚠ ⚠ **SAF MÜREKKEP ÇOK SİYAHTI.** Depo sahibi *"alttaki siyahlık aşırı siyah ve
+    // tasarımsız"* dedi: `beton-murekkep` (L 0,140) beton zeminin (L 0,380) yanında bir
+    // gölge değil bir DELİK okuyordu. Zemine doğru %35 çekildi — hâlâ net bir taban
+    // düzlemi, ama artık aynı malzemenin koyu tarafı.
+    alt: 'color-mix(in oklab, var(--ramp-palet-beton-murekkep) 65%, var(--ramp-palet-beton-taban))',
+    noktalar: [
+      { x: 0, y: 93 },
+      { x: 12.5, y: 87 },
+      { x: 25, y: 82 },
+      { x: 37.5, y: 79 },
+      { x: 50, y: 78 },
+      // ⚠ ⚠ **SAPMA GEOMETRİDEN ÇIKTI — ve sebebi kaydedilmeli.** Kemer bandında bir
+      // sapma vardı (on üç kemerin biri 1,5× yükseliyordu) ve üçüncü kartın *"Sapma
+      // görünür olmalı"* cümlesini o kanıtlıyordu. Bant kaldırılınca sapmayı tonoza
+      // taşıdım; depo sahibi baktı: *"alttaki siyahlık tasarımsız, ayrıca simetrik ve
+      // düzgün değil."* Haklıydı ve sebebi yapısal: **bir sapma ancak TEKRAR EDEN bir
+      // ritmin içinde sapma olarak okunur.** Tek bir yayda yerel bir çıkıntı, sapma
+      // değil ŞEKLİN KENDİSİ olur — nitekim tonozun tepesi o noktaya kayıyordu.
+      // ⚠ Ritim kaldırıldığına göre sapma da kaldırıldı; ufuk simetrik ve düzgün.
+      { x: 62.5, y: 78 },
+      { x: 75, y: 79 },
+      { x: 87.5, y: 87 },
+      { x: 100, y: 93 },
+    ],
+  },
   gorseller: [],
   kartlar: [
     {
@@ -1410,6 +1496,10 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
     },
     {
       aksanRolu: 'yok' as const,
+      // ⚠ ⚠ **'ust' → 'orta': UFUK ALÇALINCA ARADA %28 ÖLÜ BANT KALDI.** Kemer bandı
+      // kaldırılıp yerine alçak bir ufuk gelince metin tepede yalnız kaldı ve arada
+      // kartın %28'i boşaldı (`olu-bant` ölçtü). Blok ortaya indi; boşluk bölündü.
+      dikey: 'orta' as const,
       ustBaslik: 'SAPMA',
       baslik: 'Sapma görünür olmalı',
       govde: 'Görünmeyen sapma, ortalamanın içinde kaybolur.',
@@ -1435,7 +1525,7 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
-      kapanis: { rakam: '12', rakamAlt: 'AYDA BİR RİTİM', cagri: 'Ritmi **birlikte** kuralım.' },
+      kapanis: { cagri: 'Ritmi **birlikte** kuralım.' },
     },
   ],
 }
@@ -1498,11 +1588,18 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
     // SABİTLENİYOR (`kartZemini`), yani metin rengi altındaki alanı takip etmiyor.
     // Yükselmeyi korumanın yolu kart zemininin bölgeye göre dönmesi — ayrı bir iş.
     noktalar: [
+      // ⚠ ⚠ **SON KESİMDEKİ SIÇRAMA KALDIRILDI.** Sınır 78 → 73 → 68 diye sakin
+      // iniyordu, sonra x=66,67'de (son kesim) **68'den 40'a** fırlıyordu: kapanış
+      // karesinde alan bir anda kartın %60'ını kaplıyordu. Depo sahibi baktı ve
+      // *"son sayfa neden bir anda patlayıp yükseliyor, simetrik devam etsin,
+      // parabolik bir yükseliş olmasın"* dedi.
+      // ⚠ İniş artık DÜZGÜN: eşit adımlarla 78 → 73 → 68 → 63. Şablonun iddiası
+      // (*"alıntı ilerledikçe mürekkep alanı büyüyor"*) korunuyor — büyüme sıçrayarak
+      // değil, düzenli olarak anlatılıyor.
       { x: 0, y: 78 },
       { x: 33, y: 73 },
       { x: 66, y: 68 },
-      { x: 66.6667, y: 40 },
-      { x: 100, y: 40 },
+      { x: 100, y: 63 },
     ],
   },
   bant: { tip: 'yok' },
@@ -1546,11 +1643,7 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'SÖZ',
       rayaOrta: ORNEK,
-      kapanis: {
-        rakam: '01',
-        rakamAlt: 'KARAR DEĞİŞTİREN ÖLÇÜ',
-        cagri: 'Ölçüyü **birlikte** seçelim.',
-      },
+      kapanis: { cagri: 'Ölçüyü **birlikte** koyalım.' },
     },
   ],
 }
@@ -1813,14 +1906,25 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     // ~27°'ye çıktı. Hâlâ 45° değil (kesim açıklığı dikey yoldan uzun), ama artık ok bir
     // İNİŞ çiziyor — üç ok üç ayrı yükseklikten geçiyor.
     oklar: [
-      { x1: 22.3, y1: 52.7, x2: 27.2, y2: 61.5, bukum: 12 },
-      { x1: 41.3, y1: 61.5, x2: 52.2, y2: 72.6, bukum: -16 },
+      // ⚠ ⚠ **UÇLAR YENİDEN ÖLÇÜLDÜ: HER OK KENDİ KARTININ YANIK SATIRINA VARIYOR.**
+      // Ölçülen yanık satırlar (kart içi %): k2 satır2 y=65,4 · k3 satır3 y=74,6 ·
+      // k4 satır4 y=63,1; x sol kenarları 27,15 · 55,16 · 77,51. Her uç o satırın sol
+      // kenarına **0,8 pay** bırakıyor — üçünde de aynı pay, çünkü aynı jest.
+      { x1: 22.3, y1: 52.7, x2: 26.4, y2: 65.4, bukum: 12 },
+      { x1: 41.3, y1: 65.4, x2: 54.4, y2: 74.6, bukum: -16 },
       // ⚠ ⚠ **SON OK LİSTEYE DEĞİL VARIŞ RAKAMINA İNİYOR.** Kapanış kartı güzergâhı
       // TOPLUYOR (`yayik: false`), o yüzden yanık satır %83,8'den %48,8'e çıktı ve okun
       // ucu boşlukta kaldı — çizilene bakılınca görüldü. Üç kart rotayı iniyor, dördüncüde
       // rota bir SAYIYA varıyor: son ok rakamın sol kenarına (%76,5) 0,8 pay bırakarak
       // iniyor. Ötekilerle aynı pay, farklı hedef.
-      { x1: 66.3, y1: 72.6, x2: 75.7, y2: 74.0, bukum: 14 },
+      // ⚠ ⚠ **SON OK ARTIK RAKAMA DEĞİL DÖRDÜNCÜ MADDEYE VARIYOR.** Eskiden dev varış
+      // rakamının sol kenarına iniyordu; depo sahibi o rakamı kaldırınca uç BOŞLUKTA
+      // kaldı (ölçüldü: uç %74,3'te, liste %63,1'de) ve *"çizgi ucu 4. sıradaki satıra
+      // denk gelsin"* dedi. Varış işareti artık listenin kendisi — bu yüzden liste de
+      // 1,6× büyütüldü: bir güzergâhın vardığı yer okunacak kadar büyük olmalı.
+      // ⚠ Son ok İNMİYOR, YÜKSELİYOR (74,6 → 63,1) ve bu bilinçli: üç kart rotayı
+      // aşağı iniyor, dördüncüde rota VARIYOR. İniş bir yolculuk, çıkış bir varış.
+      { x1: 66.3, y1: 74.6, x2: 76.7, y2: 63.1, bukum: 14 },
     ],
   },
   gorseller: [],
@@ -1828,7 +1932,14 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     {
       // ⚠ KAPAK KİLİDİ — hayalet kelime (DİZİN) kadrajın sol-altını tutuyor; metin
       // sağa geçince ikisi çakışmıyor ve giriş noktası ailenin geri kalanından ayrışıyor.
-      kolon: 'sag' as const,
+      // ⚠ ⚠ **KAPAK SOLA ALINDI, AYRIM DİKEYE TAŞINDI.** Depo sahibi sordu:
+      // *"dizinin ilk sayfasının yazıları sağa yaslı, bu bilerek mi, sence doğru mu?"*
+      // Bilerekti: `kapak-silueti` on kapağın aynı görünmesini yasaklıyor ve dizin
+      // sağ kolonu çekmişti. Ama seçim BU desteye tersti — kimliği sola yaslı numaralı
+      // bir güzergâh ve rota ilk kartta sağdan başlayıp sonra sola atlıyordu.
+      // ⚠ Ayrım kaybolmuyor, EKSEN değiştiriyor: kapak artık sol kolonda ama dikeyde
+      // ORTADA. Dağılım da düzeliyor — sağ/üst grubu ikiden bire iniyor.
+      dikey: 'orta' as const,
       // ⚠ ⚠ **`DİZİN` → `ADIM 01`: etiket hem seriden KOPUKTU hem hayaletle AYNI
       // kelimeydi.** Öteki üç kart `ADIM 02/03/04` diyor, kapak `DİZİN` diyordu; oysa
       // ilk adım kapağın listesinde duruyor. Aynı kelimeyi bir kez küçük bir kez dev
@@ -1902,6 +2013,12 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       ustBaslik: 'ADIM 04',
       baslik: 'Okunmayan ölçü **yok** sayılır',
       govde: 'Haftalık okuma, ölçüyü bir alışkanlığa çeviriyor.',
+      // ⚠ ⚠ **LİSTE BÜYÜDÜ — DEV RAKAM GİDİNCE VARIŞ NOKTASI O OLDU.** Depo sahibi
+      // *"dizinde de son sayfadaki sayıyı kaldırıp sıra listesini büyütüp çizgi ucu
+      // 4. sıradaki satıra denk gelsin"* dedi. Rakam bu destenin varış işaretiydi;
+      // o gidince güzergâhın varacağı yer LİSTENİN KENDİSİ oldu ve varış noktası
+      // okunacak kadar büyük olmak zorunda.
+      ayar: { panel: { olcek: 1.6 } },
       // ⚠ ⚠ **ÇİP SATIRI → LİSTE.** Kapanış kartı dizinin kendisini taşımıyordu:
       // dört adımlık bir dizin son karede dört ÇİP gösteriyordu ve üçüncü ok bir
       // madde numarasına değil o çip satırına iniyordu. Dizin, vardığı yerde de
@@ -1933,12 +2050,14 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,
-      // ⚠ ⚠ **DEV RAKAM KALDIRILDI VE GERI KONDU — kapi haklı ciktı.** Once "liste zaten
-      // 01-04 diyor, dev 04 tekrar" diye kaldirdim; iki-uc kapisi kirmiziya dondu cunku
-      // bu destenin ≥220 px'lik TEK dev sesi oydu (hayalet yok). Ve gerekce de fazla
-      // genisti: liste KANIT, dev rakam IDDIA — biri otekini tekrarlamiyor.
-      // Gercek sorun yer: olculdu, cagri %105-108'de yani kartin DISINDA. → kapanis payi
-      kapanis: { rakam: '04', rakamAlt: 'ADIMDA HAT', cagri: 'İlk ölçüyü **birlikte** koyalım.' },
+      // ⚠ ⚠ **DEV RAKAM ÜÇÜNCÜ KEZ VE BU SEFER KALICI OLARAK KALKTI — SEBEP TASARIM.**
+      // Bir kez "liste zaten 01-04 diyor" diye kaldırılmış, `iki-uc` kapısı kırmızıya
+      // dönünce geri konmuştu: destenin ≥220 px'lik TEK dev sesi oydu. Depo sahibi on
+      // kapanışa yan yana bakıp *"bunlar iğrenç duruyor, son sayfaları inanılmaz
+      // karışıklaştırıyor, nizami olmalı"* dedi ve dokuz destede birden kaldırıldı.
+      // ⚠ Kapı haksız DEĞİLDİ: bir destenin dev sesi olmak zorunda. Ama o ses artık
+      // KAPAK BAŞLIĞI — kapanışta değil girişte. Dev rakam bir ses değil bir GÜRÜLTÜYDÜ.
+      kapanis: { cagri: 'İlk ölçüyü **birlikte** koyalım.' },
     },
   ],
 }

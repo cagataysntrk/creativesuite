@@ -933,7 +933,15 @@ const OLCUM = (
       e.getBoundingClientRect()
     )
     const bos = []
-    for (const x of kesimler) {
+    // ⚠ ⚠ **SON KESIM MUAF — ve bu bir gevseme degil, iki kuralin BULUSTUGU yer.**
+    // Denetimin kendi kapanis tarifi *"y %0-28 Varis. Surekli oge burada BITER"*
+    // diyor; kapanis-yuzeyi de kapanis karesinin TEK TON olmasini sart kosuyor.
+    // Depo sahibi ucuncu kez ayni seyi soyledi: *"son sayfaya da hic gecmesin;
+    // sondan onceki sayfanin son grafigine degmeden altina kadar gelip dursun."*
+    // Bir tasiyicinin kapanisa GIRMESI serbest (dizin son okunu bilerek sokuyor,
+    // dorduncu maddeye variyor) ama ZORUNLU degil.
+    // ⚠ Kalan kesimlerin HEPSI zorunlu: sureklilik hala her GECISIN ozelligi.
+    for (const x of kesimler.slice(0, -1)) {
       const gecen = adaylar.some((r) => r.left < x - 0.5 && r.right > x + 0.5)
       if (!gecen) bos.push(Math.round(x))
     }
