@@ -61,6 +61,18 @@ export type Bant =
       readonly tip: 'kemer'
       readonly sayi: number
       /**
+       * **Ritmi BOZAN tek kemer** — indeks ve tepe çarpanı.
+       *
+       * ⚠ ⚠ **GEOMETRİ İDDİANIN KANITI OLMAK ZORUNDA (R-107).** `kavis`in üçüncü karesi
+       * *"Sapma görünür olmalı"* diyor ve *"görünmeyen sapma, ortalamanın içinde
+       * kaybolur"* diye açıyor — ama on üç kemerin on üçü BİREBİR aynı yüksekteydi.
+       * Tipografi sapmadan söz ederken geometri kusursuz bir ritim çiziyordu, yani
+       * kartın kendi cümlesini yalanlıyordu. Aynı sınıf kusur `veri-hikayesi`nin
+       * eğrisinde ölçülmüştü: başlık "iki kat" derken eğri 3,2× çiziyordu.
+       * ⚠ Sapan kemer o kartın ölü bandını da dolduruyor — süs değil, ARGÜMAN.
+       */
+      readonly sapma?: { readonly indeks: number; readonly carpan: number }
+      /**
        * Bandın yüksekliği — 1080 tabanında px, verilmezse ortak varsayılan (560).
        *
        * ⚠ ⚠ **ÖLÜ ORTA BİR TASARIM KUSURUDUR.** Ortak 560 px'lik band tuvalin altına
@@ -1173,18 +1185,9 @@ const bantSvg = (
           // eğrinin üstünde duran bir durak İDDİANIN KANITIDIR (R-107 · 19.7).
           // ⚠ y, noktalar arasında DOĞRUSAL ara değerle bulunuyor: eğri zaten düz
           // parçalardan oluşuyor (`M/L`), yani ara değer eğrinin KENDİSİ — yaklaşık değil.
-          const n = b.noktalar
-          const oncekiler = n.filter((q) => q.x <= k.x)
-          const onceki = oncekiler[oncekiler.length - 1] ?? n[0]
-          const sonraki = n.find((q) => q.x >= k.x) ?? n[n.length - 1]
-          const yON = onceki?.y ?? 0
-          const ySON = sonraki?.y ?? 0
-          const xON = onceki?.x ?? 0
-          const xSON = sonraki?.x ?? 0
-          const t = xSON === xON ? 0 : (k.x - xON) / (xSON - xON)
-          const y = yON + (ySON - yON) * t
-          // Bant dibi 120 px yukarıda ve 560 px yüksekliğinde; y%0 bandın TEPESİ.
-          const dip = Math.round(olc(120) + ((100 - y) / 100) * olc(560))
+          // ⚠ Ara değer ORTAK: aynı hesap panolar için de gerekiyor (`egriDibi`).
+          // İki kopya, bir gün birinin unutulması demek.
+          const dip = egriDibi(b.noktalar, k.x, olc)
           return (
             `<div class="kilometre" style="left:${(k.x / 100) * toplamGenislik}px;` +
             `bottom:${dip}px">` +
@@ -1288,9 +1291,11 @@ const bantSvg = (
   const tepe = yukseklik * 0.86
   const kemerler = Array.from({ length: b.sayi }, (_, i) => {
     const x = i * adim
+    // ⚠ Sapma TEK kemerde: ikisi olsa "ritim değişti" okunur, sapma okunmaz.
+    const t = b.sapma !== undefined && b.sapma.indeks === i ? tepe * b.sapma.carpan : tepe
     const yol =
       `M ${x} ${yukseklik} L ${x} ${yukseklik - taban} ` +
-      `Q ${x + adim / 2} ${yukseklik - tepe} ${x + adim} ${yukseklik - taban} ` +
+      `Q ${x + adim / 2} ${yukseklik - t} ${x + adim} ${yukseklik - taban} ` +
       `L ${x + adim} ${yukseklik}`
     // ⚠ TEK `<path>`, iki değil: aynı yol hem dolgu hem kontur taşıyabiliyor. İkinci bir
     // yol yazmak `kodlanmis-oge` tavanını deliyordu (R-81) ve kapı haklıydı — aynı
@@ -1338,6 +1343,32 @@ const yumusakYol = (n: readonly { readonly x: number; readonly y: number }[]): s
   return `${d} T ${son.x} ${son.y}`
 }
 
+/**
+ * Eğrinin verilen x'teki KART DİBİNDEN yüksekliği (piksel).
+ *
+ * ⚠ y, noktalar arasında DOĞRUSAL ara değerle bulunuyor: eğri zaten düz parçalardan
+ * oluşuyor (`M/L`), yani ara değer eğrinin KENDİSİ — yaklaşık değil.
+ * ⚠ Bant dibi 120 px yukarıda ve 560 px yüksekliğinde; `y%0` bandın TEPESİ.
+ */
+const araDeger = (
+  noktalar: readonly { readonly x: number; readonly y: number }[],
+  x: number
+): number => {
+  const oncekiler = noktalar.filter((q) => q.x <= x)
+  const onceki = oncekiler[oncekiler.length - 1] ?? noktalar[0]
+  const sonraki = noktalar.find((q) => q.x >= x) ?? noktalar[noktalar.length - 1]
+  const xON = onceki?.x ?? 0
+  const xSON = sonraki?.x ?? 0
+  const t = xSON === xON ? 0 : (x - xON) / (xSON - xON)
+  return (onceki?.y ?? 0) + ((sonraki?.y ?? 0) - (onceki?.y ?? 0)) * t
+}
+
+const egriDibi = (
+  noktalar: readonly { readonly x: number; readonly y: number }[],
+  x: number,
+  olc: (px1080: number) => number
+): number => Math.round(olc(120) + ((100 - araDeger(noktalar, x)) / 100) * olc(560))
+
 /** Panoramanın tam HTML'i — tek sayfa, `slaytSayisi × slaytGenisligi` genişlikte. */
 export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   const n = doc.kartlar.length
@@ -1377,6 +1408,35 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
    * 506 px yer istiyor; `sahne`nin sağ kolonu 454 px. Kolonun suçu, rakamın değil.
    */
   const sutunGenisligi = Math.max(Math.round(G * t.baslikSutunu) - 128, govdeSinir)
+  /**
+   * Panonun kart dibinden yüksekliği — taşıyıcı bir EĞRİ ise onun altına oturuyor.
+   *
+   * ⚠ Kural taşıyıcı TÜRÜNE bağlı, şablon ADINA değil: eğri taşıyıcılı her şablon aynı
+   * davranıyor. Bugün tek üye var; kuralı isme bağlamak onu tek seferlik bir yama yapardı.
+   */
+  const panoDibi = (k: Kart, i: number): number | null => {
+    // ⚠ ⚠ **KURAL YALNIZ DİPTEN KONUMLANAN YERLEŞİMLERE — ÖLÇÜM sınırı çizdi.**
+    // `yerlesim: 'ust'`ta pano zaten gövdenin hemen ALTINDA; taşıyıcıya bindirmek onu
+    // aşağı çekiyor ve gövdeyle arasında YENİ bir bant açıyor. `karsilastirma`da
+    // denendi ve ölçüldü: kart 1 %73+8 → **%48+19**, kart 2 %51+17 → **%31+29**,
+    // kapsam %76 → %73. Kural doğruydu, KAPSAMI yanlıştı.
+    if (doc.yerlesim !== undefined && doc.yerlesim !== 'ayrik') return null
+    if (k.panel === null || k.panel === undefined) return null
+    if (k.kapanis !== undefined) return null
+    const merkez = (100 * (i + 0.5)) / n
+    const b = doc.bant
+    const dip =
+      b !== undefined && b.tip === 'egri'
+        ? egriDibi(b.noktalar, merkez, olc)
+        : // ⚠ `alanSiniri` KADRAJ uzayında (viewBox 0 0 100 100, `preserveAspectRatio:
+          // none`), `egri` ise dibe yaslı 560 px'lik bandın içinde. İki taşıyıcı, iki
+          // birim — birini ötekinin hesabıyla okumak sessizce yanlış yere koyardı.
+          doc.alanSiniri === undefined
+          ? null
+          : Math.round(((100 - araDeger(doc.alanSiniri.noktalar, merkez)) / 100) * doc.yukseklik)
+    if (dip === null) return null
+    return Math.max(0, dip + olc(26) - olc(190))
+  }
   const rakamPuntosu = (rakam: string): number =>
     Math.min(
       olc(458),
@@ -1482,6 +1542,22 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             // referans alıyor ve sabit bir renge bağlanmıyor (açık zeminli şablonda
             // siyah bir vinyet tasarımı bozardı).
             `--kart-zemin:${kartZemini};` +
+            // ⚠ ⚠ **PANOLAR EĞRİYİ BİNİYOR — denetimin "sürekli ögeye DEĞSİN" şartı.**
+            // Ölçüldü: `veri-hikayesi`nin altı karesinin BEŞİNDE ölü bant %26-%35 ve hepsi
+            // aynı yerde (y%31-34). Sebep kompozisyonun kendi mantığına aykırıydı: eğri
+            // panorama boyunca YÜKSELİYOR, panolar ise dipte DÜZ duruyordu. Boşluk tam
+            // olarak eğrinin OLMADIĞI yerdi.
+            // ⚠ Pano artık kendi kartının merkezinde eğrinin altına oturuyor: kart kart
+            // yükseliyor, taşıyıcıya değiyor ve boşluk her karede BAŞKA yere düşüyor —
+            // "art arda iki slaytta bant aynı yerde başlayamaz" kuralı da bundan çıkıyor.
+            // ⚠ Kapanış kartı MUAF: orada pano varış rakamıyla yer paylaşıyor (o kartın
+            // ölü bandı zaten %6) ve ikisini birden yükseltmek çakışma üretirdi.
+            // ⚠ ⚠ **`--pano-ust: auto` ZORUNLU ve eksikliği ÖLÇÜMLE görüldü.** `yerlesim:
+            // 'ust'` panoyu ÜSTTEN konumluyor; orada `margin-bottom` hiçbir şeyi
+            // yukarı taşımıyor — `karsilastirma`da pano gövdenin hemen altında kaldı ve
+            // altında %17'lik yeni bir bant açıldı. Taşıyıcıyı binmek, panonun DİPTEN
+            // ölçülmesini gerektiriyor.
+            `${panoDibi(k, i) === null ? '' : `--pano-ust:auto;--pano-dip:${String(panoDibi(k, i))}px;`}` +
             // ⚠ ⚠ **KAPANIŞ KARTINDA METİN KOLONU GÖRSELE KADAR DARALIYOR.** Kapanış
             // gövdeyi YUKARI itiyor (varış rakamına yer açmak için) ve `donen`de gövde
             // tam o yükseklikte duran görselin ÜSTÜNE bindi: `metin-gorsel-cakisiyor`
@@ -1868,8 +1944,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).
     ...(doc.yerlesim === undefined || doc.yerlesim === 'ayrik'
-      ? [`  .panel, .sayilar, .etiketler { margin-top: auto }`]
-      : [`  .panel, .sayilar, .etiketler { margin-top: calc(var(--taban, ${olc(54)}px) * 2) }`]),
+      ? [
+          `  .panel, .sayilar, .etiketler { margin-top: var(--pano-ust, auto); margin-bottom: var(--pano-dip, 0px) }`,
+        ]
+      : [
+          `  .panel, .sayilar, .etiketler { margin-top: var(--pano-ust, calc(var(--taban, ${olc(54)}px) * 2)); margin-bottom: var(--pano-dip, 0px) }`,
+        ]),
     // ── kesim çizgisi: hiçbir ögeyi kırpmıyor, yalnız ince bir ayraç ─────────
     // ⚠ ⚠ **SINIF ADI `kesim`, `kesik` DEĞİL — ve bu bir ÇAKIŞMA DÜZELTMESİ.** Kesim
     // ayracı `.kesik` sınıfını kullanıyordu; kırpma biçimi de `kirpma: 'kesik'` üzerinden

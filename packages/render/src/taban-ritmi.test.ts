@@ -50,7 +50,11 @@ describe('taban çizgisi ızgarası', () => {
     const css = panoramaHtml(belge(o))
     expect(css).toMatch(/\.govde \{ margin-top: calc\(var\(--taban, \d+px\) \* 1\)/)
     expect(css).toMatch(
-      /\.panel, \.sayilar, \.etiketler \{ margin-top: calc\(var\(--taban, \d+px\) \* 2\) \}/
+      // ⚠ Kural aynı, KURALIN YAZIMI değişti: bildirim `var(--pano-ust, …)` üzerinden
+      // geçiyor ve bloğa `margin-bottom: var(--pano-dip)` eklendi — panolar taşıyıcıyı
+      // biniyor. İddia hâlâ *"boşluk `--taban`ı ÇAĞIRIYOR, sabit piksel değil"*; seçici ve
+      // süsleme iddiaya dahil değildi ve onları aramak kuralı değil noktalamayı sınıyordu.
+      /margin-top: var\(--pano-ust, calc\(var\(--taban, \d+px\) \* 2\)\)/
     )
     // ⚠ Üst başlık İSTİSNA: başlıkla tek birim, aralarındaki boşluk bir blok aralığı
     // değil bir etiket bağlantısı. Tabana çevirmek ikisini KOPARIRDI.

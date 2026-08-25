@@ -1234,7 +1234,9 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
   // ⚠ 860 keyfi değil: 1440 tuvalde band üst kenarı 1440−120−860 = **y460**'a çıkıyor,
   // yani gövdenin bittiği yerin hemen altı. Kolonad artık kompozisyonun ALT YARISI,
   // dibe yapışmış bir şerit değil.
-  bant: { tip: 'kemer', sayi: 13, yukseklik: 860 },
+  // ⚠ Sapan kemer 8. indekste: 13 kemer 4 karta bölününce 7-8-9 üçüncü kartta kalıyor
+  // ve üçüncü kart tam olarak *"Sapma görünür olmalı"* diyen kart.
+  bant: { tip: 'kemer', sayi: 13, yukseklik: 860, sapma: { indeks: 8, carpan: 1.5 } },
   gorseller: [],
   kartlar: [
     {
@@ -1482,17 +1484,38 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
       ustBaslik: 'DEĞİŞİM',
       baslik: 'Ölçü vardiyaya indi',
       govde: 'Aynı sayı, üç ayrı sorumlulukla okundu.',
-      panel: null,
+      // ⚠ ⚠ **ORTA İKİ KART ÖLÇÜSÜZDÜ ve bu bir KOMPOZİSYON değil ARGÜMAN kusuruydu.**
+      // Ölçüldü: kart 2'nin ölü bandı **%37** — destenin en uzunu. Sebep boşluk değil,
+      // içerik yokluğuydu: bir KARŞILAŞTIRMA destesinin ortasında iki kart hiçbir şey
+      // karşılaştırmıyordu. Başlık *"ölçü vardiyaya indi"* diyor ve altında ölçü yok.
+      panel: {
+        tip: 'sayilar',
+        ogeler: [
+          { deger: '1', birim: 'sayaç', alt: 'önce, hat toplamında' },
+          { deger: '3', birim: 'sayaç', alt: 'sonra, vardiya başına' },
+        ],
+      },
       hayalet: '',
       rayaSol: 'ÖLÇÜM',
       rayaOrta: ORNEK,
-      kolon: 'sag',
+      // ⚠ ⚠ **`sag` KALDIRILDI — iki komşu "önce/sonra" çifti FARKLI okunuyordu.** Kart 2
+      // `sag` olduğu için kolonu dardı ve iki sayı DİKEY sarıyordu; kart 3'ün aynı anlamdaki
+      // çifti YATAY duruyordu. Seamless karoselde göz komşu kareleri karşılaştırır: aynı
+      // şeyi iki ayrı biçimde çizmek, "aynı şablon farklı ad" şikâyetinin tersidir.
+      // ⚠ Kapak (`kart 1`) `sag` KALIYOR: girişin ayrı durması kilidin kendisi.
     },
     {
       ustBaslik: 'HIZ',
       baslik: 'Karar haftalıktan günlüğe geçti',
       govde: 'Geciken bir ölçü, geciken bir karar demek.',
-      panel: null,
+      // ⚠ Başlık "haftalıktan günlüğe" diyor; sayı onu göstermeliydi (kart 2 ile aynı ders).
+      panel: {
+        tip: 'sayilar',
+        ogeler: [
+          { deger: '7', birim: 'gün', alt: 'karar gecikmesi, önce' },
+          { deger: '1', birim: 'gün', alt: 'karar gecikmesi, sonra' },
+        ],
+      },
       hayalet: '',
       rayaSol: 'ÖLÇÜM',
       rayaOrta: ORNEK,

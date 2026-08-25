@@ -1649,3 +1649,104 @@ ikisi de düzeltmenin YARIM kaldığını söyledi:
 ⚠ `memphis`in varyant listesinde *"üç → altı"* notu duruyordu; şimdi **altı → beş**.
 **Aynı değişmez iki kez, iki yönde çalıştı** — bir sözleşme yarım güncellenirse sessiz
 kalmıyor. Toplam: kapanış kartı **altı kapı** tarafından sınandı ve altısı da haklıydı.
+
+---
+
+## Panolar taşıyıcıyı biniyor (FAZ-19)
+
+Denetim: *"panolar y≈%75'ten %45-60'a insin ve **sürekli ögeye DEĞSİN**."*
+
+### `veri-hikayesi` — boşluk, eğrinin OLMADIĞI yerdi
+
+Altı karesinin **beşinde** ölü bant %26-%35 ve hepsi aynı yerde başlıyor (y%31-34).
+Sebep kompozisyonun kendi mantığına aykırıydı: **eğri panorama boyunca yükseliyor,
+panolar dipte düz duruyordu.** Pano artık kendi kartının merkezinde taşıyıcının altına
+oturuyor (`--pano-dip`, 26 px pay).
+
+| | önce | sonra |
+|---|---|---|
+| ölü bant (6 kart) | 26 · 35 · 34 · 34 · 27 · 6 | **20 · 18 · 21 · 22 · 10 · 6** |
+| kapsam | %61 | **%71** |
+| pano dipleri | 190 (hepsi) | **221 · 249 · 282 · 321 · 370** |
+
+Ara değer hesabı `kilometre` duraklarından ORTAKLAŞTIRILDI (`araDeger`): iki kopya, bir
+gün birinin unutulması demek.
+
+### Kural bir kez FAZLA GENİŞ uygulandı ve ölçüm sınırı çizdi
+
+`yerlesim: 'ust'`ta pano zaten gövdenin hemen ALTINDA; taşıyıcıya bindirmek onu aşağı
+çekip gövdeyle arasında YENİ bant açıyor.
+
+| `karsilastirma` | dipten konumlu | üstten konumlu (yanlış kapsam) |
+|---|---|---|
+| kart 1 | %73+8 | **%48+19** |
+| kart 2 | %51+17 | **%31+29** |
+| kapsam | %76 | **%73** |
+
+**Kural doğruydu, KAPSAMI yanlıştı.** Yalnız dipten konumlanan yerleşimlere uygulanıyor.
+
+⚠ Ve `--pano-dip` tek başına yetmedi: `ust` yerleşimde `margin-bottom` hiçbir şeyi yukarı
+taşımıyor. `--pano-ust: auto` da yazılıyor — **taşıyıcıyı binmek panonun DİPTEN
+ölçülmesini gerektiriyor.**
+
+### `karsilastirma` — %37'lik bant bir KOMPOZİSYON değil ARGÜMAN kusuruydu
+
+Destenin en uzun ölü bandı kart 2'deydi ve sebebi boşluk değil **içerik yokluğuydu**:
+bir KARŞILAŞTIRMA destesinin ortasındaki iki kart hiçbir şey karşılaştırmıyordu. Başlık
+*"ölçü vardiyaya indi"* diyor, altında ölçü yok.
+
+Kart 2 → `1 sayaç` (önce, hat toplamında) / `3 sayaç` (sonra, vardiya başına)
+Kart 3 → `7 gün` / `1 gün` (karar gecikmesi)
+
+| | önce | sonra |
+|---|---|---|
+| ölü bant | 8 · **37** · 21 · 7 | 8 · **17** · 7 · 7 |
+| kapsam | %70 | **%76** |
+| art arda yakın | 1 | **0 — ilk temiz şablon** |
+
+⚠ Kart 2'nin `kolon: 'sag'`ı kaldırıldı: kolonu dar olduğu için iki sayı DİKEY sarıyordu,
+kart 3'ün aynı anlamdaki çifti YATAY duruyordu. **Seamless karoselde göz komşu kareleri
+karşılaştırır**; aynı şeyi iki ayrı biçimde çizmek "aynı şablon farklı ad" şikâyetinin
+tersidir. Kapak `sag` kalıyor — girişin ayrı durması kilidin kendisi.
+
+### Kapı ve yeni tavan
+
+`pano-tasiyici.test.ts`: pano dibi taşıyıcının en fazla **90 px** üstünde ("değmek"
+ölçülebilir bir şeydir) · taşıyıcı yükseliyorsa panolar da yükseliyor · **kuralın kapsamı
+boş olamaz** (bu depoda on bir kez "yazıldı ama çağrılmadı" oldu).
+
+Ara değer testte YENİDEN yazıldı ve bu kasıtlı: `panorama.ts`in kendi yardımcısını çağıran
+bir test, o yardımcı yanlışsa da yeşil kalır.
+
+**Ölü bant tavanı %38 → %31.** En kötü artık `kavis` k3 (%30). Kasten ihlal: dip sıfırlandı,
+iki kapı birden kırmızı döndü (bant %35, pano-taşıyıcı açıklığı 195 px).
+
+---
+
+## Kemer ritmi — sapma iddiası ile geometri (FAZ-19)
+
+`kavis`in üçüncü karesi *"Sapma görünür olmalı"* diyor, gövdesi *"görünmeyen sapma,
+ortalamanın içinde kaybolur"* diye açıyor. **On üç kemerin on üçü birebir aynı
+yükseklikteydi** — tipografi sapmadan söz ederken geometri kusursuz bir ritim çiziyordu.
+
+Bu, `veri-hikayesi` eğrisiyle **aynı sınıf kusur**: orada başlık "iki katına" derken eğri
+3,2× çiziyordu (R-107). İki şablon, tek kural: *geometri iddianın kanıtı olmak zorunda.*
+
+| | önce | sonra |
+|---|---|---|
+| kart 3 ölü bant | **%30** | **%17** |
+| kemer yüksekliği | 13 kemer, hepsi eşit | 12 eşit + **1 sapan (1,5×)** |
+| destenin en uzun bandı | %30 | %29 (`editoryal` k3) |
+
+Sapan kemer 8. indekste: 13 kemer 4 karta bölününce 7-8-9 üçüncü karta düşüyor ve
+üçüncü kart tam olarak sapmadan söz eden kart. **Sapan kemer o kartın ölü bandını da
+kapatıyor — süs değil ARGÜMAN.**
+
+### Kapı
+
+`veri-egrisi.test.ts` genişletildi: sapmadan söz eden kart varsa geometride sapma OLMALI ·
+çarpan farkı ≥0,25 (%10'luk bir sapma ritmin içinde kaybolur — tam da kartın şikâyet
+ettiği şey) · sapma O KARTIN üstünde (başka karede sapan kemer cümleyi kanıtlamaz) ·
+sapma TEK (ikisi ritim değişimi olur, sapma olmaz).
+
+Kasten ihlal: çarpan 1,05 yapıldı, kapı kırmızı döndü. **Ölü bant tavanı %31 → %30.**

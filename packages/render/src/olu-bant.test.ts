@@ -113,7 +113,11 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
 //   veri-hikayesi %26/35/34/34/27 · memphis %27 · kavis %30 · alinti %27/25/29
 //   editoryal k3 %29 · karsilastirma k2 %37
 // Her biri kapatıldıkça bu tavan aşağı çekilecek.
-const TAVAN = 38
+// ⚠ Tavan %38'den **%31'e** çekildi: `veri-hikayesi` (panolar eğriyi biniyor) ve
+// `karsilastirma` (orta iki kart ölçüsünü aldı) kapandı. En kötü artık `kavis` k3 %30.
+// ⚠ **%31 → %30:** `kavis` k3 kapandı (sapan kemer, %30 → %17). En kötü artık
+// `editoryal` k3 (%29).
+const TAVAN = 30
 // ⚠ Tavan 12 DENENDİ ve işe yaramazdı: kapak kartı `yayik` olmadan %12,01 ölçüyor —
 // kapı 0,014 puanla kırmızıya dönüyordu, yani hiçbir şey söylemiyordu. Ölçülen %7,
 // tavan 9: iki puanlık gerçek pay, ve ihlal (%12 · %43) açık farkla düşüyor.

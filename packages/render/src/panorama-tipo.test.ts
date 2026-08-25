@@ -262,7 +262,10 @@ describe('yerleşim', () => {
   // tek değerde tutmak, üstte hizalanıp panelini dipte istemeyen şablonu ifade edilemez
   // yapıyordu (`memphis`in paneli kesik öznenin arkasına düşüyordu).
   it('panel yalnız `ayrik`ta dibe itiliyor', () => {
-    const dibe = '.panel, .sayilar, .etiketler { margin-top: auto }'
+    // ⚠ ⚠ **İDDİA AYNI, YAZIMI DEĞİŞTİ.** Bildirim artık `var(--pano-ust, …)` üzerinden
+    // geçiyor (panolar taşıyıcıyı biniyor); dipe itme o değişkenin VARSAYILANINDA duruyor.
+    // Metnin birebir kendisini aramak, kuralı değil noktalama işaretlerini sınamaktı.
+    const dibe = 'margin-top: var(--pano-ust, auto)'
     expect(panoramaHtml(belge({ yerlesim: 'ayrik' }))).toContain(dibe)
     for (const y of ['ust', 'orta', 'alt', 'yayik'] as const)
       expect(panoramaHtml(belge({ yerlesim: y })), y).not.toContain(dibe)
