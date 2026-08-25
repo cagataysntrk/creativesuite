@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
+import { fontCss } from './fonts.js'
 import { panoramaHtml, type PanoramaBelgesi } from './panorama.js'
 
 const KOK = join(dirname(fileURLToPath(import.meta.url)), '../../..')
@@ -77,15 +78,32 @@ const OLC = `(() => {
     for (const [b, ab] of kova) isaretle(b * 12, ab[0] - yari, b * 12 + 12, ab[1] + yari + 1)
   }
   return dolu.map((d) => {
+    // ⚠ KENAR PAYI ÖLÜ BANT DEĞİLDİR: aranan şey ilk ve son dolu satır ARASINDAKİ boşluk.
+    let ilk = -1, son = -1
+    for (let y = 0; y < H; y++) if (d[y] === 1) { if (ilk < 0) ilk = y; son = y }
+    if (ilk < 0) return 100
     let enUzun = 0, run = 0
-    for (let y = 0; y < H; y++) { if (d[y] === 0) run++; else { if (run > enUzun) enUzun = run; run = 0 } }
-    return (100 * Math.max(enUzun, run)) / H
+    for (let y = ilk; y <= son; y++) {
+      if (d[y] === 0) run++
+      else { if (run > enUzun) enUzun = run; run = 0 }
+    }
+    return (100 * enUzun) / H
   })
 })()`
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
+// ⚠ ⚠ **FONT YÜKLENMEDEN ÖLÇÜLEN DÜZEN, ÜRETİMDEKİ DÜZEN DEĞİLDİR.** Kapı fontsuz
+// ölçerken `veri-hikayesi` k1'i %29 buluyordu, alet (fontlu) %20. Yedek fontun satır
+// metrikleri başka: bloklar kayıyor ve ölü bant uzuyor. Kapı ile alet aynı şeyi
+// ölçmüyorsa ikisinden biri yalan söylüyor demektir.
+const FONT_SONUCU = fontCss(join(KOK, 'brand/brd_upcytech/fonts'))
 const belge = (o: Ornek): PanoramaBelgesi =>
-  ({ ...o, tokenCss: TOKEN, stamp: DAMGA }) as unknown as PanoramaBelgesi
+  ({
+    ...o,
+    tokenCss: TOKEN,
+    fontCss: FONT_SONUCU.ok ? FONT_SONUCU.css : '',
+    stamp: DAMGA,
+  }) as unknown as PanoramaBelgesi
 
 const olc = async (o: Ornek): Promise<readonly number[]> => {
   const sonuc = await withPage(async (page) => {
@@ -110,14 +128,18 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
 // ⚠ ⚠ **TAVAN DÜRÜSTTÜR, HEDEF DEĞİL.** Ölçülen en kötü değer %37 (`karsilastirma` k2);
 // %38 tavanı REGRESYONU durdurur, borcu KAPATMAZ. %25'in üstünde kalanlar — ve bu bir
 // sessiz kırpma değil, yazılı borçtur:
-//   veri-hikayesi %26/35/34/34/27 · memphis %27 · kavis %30 · alinti %27/25/29
-//   editoryal k3 %29 · karsilastirma k2 %37
+//   memphis k4 %27 · alinti k1 %23 · veri-hikayesi %18-22 · akan-alan %21-23
 // Her biri kapatıldıkça bu tavan aşağı çekilecek.
 // ⚠ Tavan %38'den **%31'e** çekildi: `veri-hikayesi` (panolar eğriyi biniyor) ve
 // `karsilastirma` (orta iki kart ölçüsünü aldı) kapandı. En kötü artık `kavis` k3 %30.
-// ⚠ **%31 → %30:** `kavis` k3 kapandı (sapan kemer, %30 → %17). En kötü artık
-// `editoryal` k3 (%29).
-const TAVAN = 30
+// ⚠ ⚠ **ÖLÇÜM DÜZELTİLDİ: KENAR PAYI ÖLÜ BANT DEĞİLDİR.** Eski hâl kartın üst payını
+// da sayıyordu; `sahne` %13, `editoryal` k3 %29 ve `alinti` %27/%25 diye kayıtlıydı ve
+// **üçü de kenar payıydı, kusur değil**. Bir sayfanın kenar payı bir tasarım kararıdır.
+// ⚠ Arada bir GENİŞLİK EŞİĞİ (%18) de denendi ve geri alındı: `editoryal`in şeridi zaten
+// kart genişliğinin %40'ı (eşik ona dokunmadı) ama eşik SİVRİ biçimleri eledi —
+// `kavis`in sapan kemerinin ucu dar olduğu için o kart %17'den yine %30'a çıkıyordu.
+// **%30 → %28.** Gerçek iç bantlar: `memphis` k4 %27 · `alinti` k1 %23 · `veri-hikayesi` %22.
+const TAVAN = 28
 // ⚠ Tavan 12 DENENDİ ve işe yaramazdı: kapak kartı `yayik` olmadan %12,01 ölçüyor —
 // kapı 0,014 puanla kırmızıya dönüyordu, yani hiçbir şey söylemiyordu. Ölçülen %7,
 // tavan 9: iki puanlık gerçek pay, ve ihlal (%12 · %43) açık farkla düşüyor.

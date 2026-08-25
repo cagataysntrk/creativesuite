@@ -1791,3 +1791,42 @@ kendisi.
 ⚠ Kapının kırmızısı **geçici görünüyordu** — aynı ağaçta bir koşuda yeşil, ötekinde
 kırmızı. Sebep bulunana kadar "kapı flaky" demek kolaydı; deney dosyası onun flaky değil
 **yanlış** olduğunu gösterdi.
+
+---
+
+## Ölü bant aleti ÜÇÜNCÜ kez düzeltildi — kenar payı ölü bant değildir
+
+`editoryal`in üç kartı **"sıfır boş satır"** ölçüyordu ve panoramaya bakınca deste
+neredeyse bomboştu. Şüphelendim ve iki değişiklik denedim; **biri yanlış çıktı.**
+
+### Denenen ve GERİ ALINAN: satır genişlik eşiği (%18)
+
+Hipotez: kartın dar bir dikey şeridi her satırı "dolu" saydırıyor. İki yerde yanlış:
+
+1. **`editoryal`in şeridi zaten kart genişliğinin %40'ı** — eşik ona hiç dokunmadı.
+   Yani alarm boştu: gördüğüm boşluk `src: ''` **yer tutucusuydu**; üretimde orada
+   gerçek bir fotoğraf kolonu duruyor. *Alet haklıydı, gözüm yanılmıştı.*
+2. Eşik **sivri biçimleri eledi**: `kavis`in sapan kemerinin ucu kartın %18'inden dar
+   ve ölçüm o kartı %17'den yine %30'a çıkardı — oysa o boşluğu **dolduran şey** tam
+   olarak o kemer.
+
+### Kalan ve DOĞRU olan: kenar payı ölü bant değildir
+
+Ölü bant artık **ilk ve son dolu satır arasında** aranıyor. Bir sayfanın kenar payı bir
+tasarım kararıdır, kusur değil. Borç listemin üçte biri borç değilmiş:
+
+| şablon | eski kayıt | gerçek | ne olduğu |
+|---|---|---|---|
+| `sahne` | %13 ×4 | **%1** | üst kenar payı |
+| `editoryal` k3 | %29 | **%0** | ortalanmış metnin üst payı |
+| `alinti` k1/k2 | %27/%25 | **%23/%12** (y%65/%68) | üst pay + gerçek iç bant |
+
+### Kapı ile alet AYNI ŞEYİ ölçmüyordu
+
+Düzeltmeyi kapıya taşıyınca `veri-hikayesi` k1 kapıda %29, alette %20 çıktı. Sebep:
+**kapı fontları yüklemiyordu.** Yedek fontun satır metrikleri başka; bloklar kayıyor ve
+ölü bant uzuyor. *Kapı ile alet aynı şeyi ölçmüyorsa ikisinden biri yalan söylüyordur.*
+`fontCss` kapıya eklendi.
+
+**Ölü bant tavanı %30 → %28.** Kalan gerçek iç bantlar: `memphis` k4 **%27** ·
+`alinti` k1 %23 · `veri-hikayesi` %18-22 · `akan-alan` %21-23.
