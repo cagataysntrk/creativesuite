@@ -19,7 +19,13 @@ import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
 import { olcumBelgesi } from './olcum-belgesi.js'
-import { knockoutOlcumu, panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+import {
+  knockoutOlcumu,
+  metinMaskesi,
+  panoramaHtml,
+  puntoOlcumu,
+  type PanoramaBelgesi,
+} from './panorama.js'
 
 // ⚠ Archivo 700 + `-0.045em`: ÖLÇÜLDÜ (`rakam-en.mjs`), tahmin edilmedi.
 const KAPAK_ORANI = 0.705
@@ -104,6 +110,7 @@ describe('kapanış kartı', () => {
         await page.evaluate(puntoOlcumu(belge(o)))
         // ⚠ Knockout PUNTODAN SONRA: maske kutunun SON hâlini ölçmek zorunda.
         await page.evaluate(knockoutOlcumu())
+        await page.evaluate(metinMaskesi())
         return (await page.evaluate(
           '(() => {' +
             ' const r = document.querySelector(".kapanis-rakam");' +

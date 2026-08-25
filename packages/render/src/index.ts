@@ -308,6 +308,7 @@ export {
   GOVDE_TABANI_1080,
   panoramaHtml,
   knockoutOlcumu,
+  metinMaskesi,
   puntoOlcumu,
   renderPanorama,
   VARSAYILAN_TIPO,

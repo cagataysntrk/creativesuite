@@ -24,6 +24,8 @@ import {
   EZICI_PAY,
   ZEMINDEN_AYRISMA,
   panoramaHtml,
+  knockoutOlcumu,
+  metinMaskesi,
   puntoOlcumu,
   type PanoramaBelgesi,
 } from './panorama.js'
@@ -1092,6 +1094,13 @@ export const panoramaDenetle = async (
     await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
     await page.evaluate('(async () => { await document.fonts.ready; return true })()')
     await page.evaluate(puntoOlcumu(doc))
+    // ⚠ ⚠ **DENETİM ÜRETİMİN ÇİZDİĞİNİ GÖRMEK ZORUNDA.** `panoramaCiz` punto'dan sonra
+    // knockout maskesini ve metin kutusu maskesini de koşuyor; burada koşmayan bir
+    // denetim, yayınlanmayan bir düzeni ölçer. Aynı sınıf hata bu fazda kapılarda
+    // ölçüldü: fontsuz/logosuz/puntosuz ölçüm hem gerçek kusuru kaçırdı hem olmayanı
+    // uydurdu.
+    await page.evaluate(knockoutOlcumu())
+    await page.evaluate(metinMaskesi())
     // ⚠ ⚠ **GÖRSELLERİN ÇÖZÜLMESİ BEKLENİYOR — beklenmediğinde ölçüm SESSİZCE boş
     // dönüyordu.** `naturalWidth` yüklenmemiş bir `<img>`de 0 ve döngü `continue` ile
     // atlıyordu: matlama denetimi hem siyah hem açık zeminli görselde "kusur yok" dedi.

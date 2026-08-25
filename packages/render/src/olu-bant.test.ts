@@ -18,7 +18,13 @@ import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
 import { olcumBelgesi } from './olcum-belgesi.js'
-import { knockoutOlcumu, panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+import {
+  knockoutOlcumu,
+  metinMaskesi,
+  panoramaHtml,
+  puntoOlcumu,
+  type PanoramaBelgesi,
+} from './panorama.js'
 
 const SEC =
   '.ust-baslik,.baslik,.govde,.panel,.sayilar,.etiketler,.kapanis,.gorsel,' +
@@ -98,6 +104,7 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
     await page.evaluate(puntoOlcumu(belge(o)))
     // ⚠ Knockout PUNTODAN SONRA: maske kutunun SON hâlini ölçmek zorunda.
     await page.evaluate(knockoutOlcumu())
+    await page.evaluate(metinMaskesi())
     const kod = OLC.replace('%G%', String(G))
       .replace('%H%', String(o.yukseklik))
       .replace('%N%', String(o.kartlar.length))

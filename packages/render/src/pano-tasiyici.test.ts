@@ -15,7 +15,13 @@ import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
 import { olcumBelgesi } from './olcum-belgesi.js'
-import { knockoutOlcumu, panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+import {
+  knockoutOlcumu,
+  metinMaskesi,
+  panoramaHtml,
+  puntoOlcumu,
+  type PanoramaBelgesi,
+} from './panorama.js'
 
 const araDeger = (n: readonly { readonly x: number; readonly y: number }[], x: number): number => {
   const oncekiler = n.filter((q) => q.x <= x)
@@ -76,6 +82,7 @@ describe('panolar taşıyıcıyı biniyor', () => {
         await page.evaluate(puntoOlcumu(belge(o)))
         // ⚠ Knockout PUNTODAN SONRA: maske kutunun SON hâlini ölçmek zorunda.
         await page.evaluate(knockoutOlcumu())
+        await page.evaluate(metinMaskesi())
         return (await page.evaluate(
           '(() => Array.from(document.querySelectorAll(".kart")).map((k) => {' +
             ' const p = k.querySelector(".panel, .sayilar, .etiketler");' +

@@ -1161,6 +1161,13 @@ const bantSvg = (
       // kutusu maskesi (`C.5`, beşinci iş) KURULMADAN çizilemez. Kapanış imzasının
       // `--punto-rakam`dan önce eklenmesiyle aynı sınıf: doğru müdahale, yanlış sırada.
       // Beşinci iş bitince bu satır `yuzeyAdimi(26)` olacak.
+      // ⚠ ⚠ **YÜZEY ADIMI YİNE DENENDİ, ÇİZİLDİ, BAKILDI ve YİNE GERİ ALINDI — ama sebep
+      // ARTIK BAŞKA.** Eski engel `sus-metni-kesiyor`du; metin kutusu maskesi (beşinci iş)
+      // kurulunca o engel KALKTI ve kapı yeşil geçti. Yeni engel okunabilirlik: dolgu
+      // görünür olunca kart 6'nın `ÜÇ ÖNCELİK` listesi ve `2,0×` varış rakamı AÇIK alanın
+      // üstünde AÇIK kaldı — `alinti`de ölçülen kusurun aynısı.
+      // ⚠ Çözüm de aynı: knockout maskesi. Ama `knockoutOlcumu` yalnız `alan-siniri`
+      // tanıyor; `egri` bandı için genişletilmesi gerekiyor. Sıradaki iş.
       `<path d="${dolgu}" fill="var(--ramp-marka-ink-950)" fill-opacity="0.75"/>` +
       // ⚠ ⚠ **6 px DENENDİ ve KAPI HAKLI OLARAK REDDETTİ.** Reçete çizgiyi 2 → 6 px
       // istiyor (*"ölçülen eğri kendi kütlesini kazansın"*) ve denendiğinde
@@ -1174,7 +1181,7 @@ const bantSvg = (
       // EDİLEBİLİRLİK: `veri-hikayesi`nin taşıyıcısı marka mavisiyle çiziliyor, yani
       // markanın geri kalanıyla karışıyordu — göz onu bir TAŞIYICI değil bir SÜS
       // olarak okuyordu. `--pano-aksan` şablonun paletinden geliyor (P5 → magenta).
-      `<path d="${d}" fill="none" stroke="var(--pano-aksan)" stroke-width="2" ` +
+      `<path d="${d}" fill="none" stroke="var(--pano-aksan)" stroke-width="6" ` +
       `vector-effect="non-scaling-stroke"/></svg>` +
       b.kilometre
         .map((k) => {
@@ -2601,6 +2608,77 @@ export const knockoutOlcumu = (): string => `(() => {
   return sayi
 })()`
 
+/**
+ * **METİN KUTUSU MASKESİ — taşıyıcının ÇİZGİSİ yazının arkasından geçmiyor.**
+ *
+ * ⚠ ⚠ **REÇETENİN İKİ İSTEĞİ BU ADIMDA BEKLİYORDU.** `veri-hikayesi`nin eğrisi 2 → 6 px
+ * istenmişti (*"ölçülen eğri kendi kütlesini kazansın"*) ve denendiğinde
+ * `sus-metni-kesiyor` kırmızı döndü: kalın çizgi kilometre etiketinin **%96,6'sının**
+ * arkasından geçiyordu. Aynı sınıf ikinci vaka: eğrinin dolgusu yüzey adımına çevrilince
+ * `ustBaslik` kutusunun **%99,3'ü** kapandı. Kodun kendi notu *"beşinci iş bitince"*
+ * diyordu — beşinci iş budur.
+ *
+ * ⚠ ⚠ **YALNIZ KONTUR DELİNİYOR, DOLGU DEĞİL.** Dolgulu bir alanı metin kutusundan
+ * delmek, zeminin renginde bir DİKDÖRTGEN bırakır — kesilen çizgiden beter. Çizgi
+ * kaybolduğunda arkasındaki alan devam ediyor; delik görünmüyor, çizgi görünmüyor.
+ *
+ * ⚠ Kutular tarayıcıya ölçtürülüyor ve SVG'nin kendi kullanıcı uzayına ters CTM ile
+ * çevriliyor: `viewBox` 100×100 ve `preserveAspectRatio: none` olan bantta ekran
+ * pikselini doğrudan yazmak maskeyi yanlış yere koyardı.
+ */
+export const metinMaskesi = (): string => `(() => {
+  const SEC = '.ust-baslik,.baslik,.govde,.etiket,.liste-satir,.cubuk-satir,.sayi-kart,' +
+    '.panel-baslik,.kilometre-etiket,.olcek-etiket,.kapanis-rakam,.kapanis-rakam-alt,' +
+    '.kapanis-cagri'
+  const PAY = 8
+  const kutular = []
+  for (const el of document.querySelectorAll(SEC)) {
+    const r = el.getBoundingClientRect()
+    if (r.width > 3 && r.height > 3) kutular.push(r)
+  }
+  if (kutular.length === 0) return 0
+  const NS = 'http://www.w3.org/2000/svg'
+  let sayi = 0
+  const svgler = document.querySelectorAll('svg.bant, svg.bant-kemer, svg.bant-ok')
+  for (let n = 0; n < svgler.length; n++) {
+    const svg = svgler[n]
+    const konturlu = Array.from(svg.querySelectorAll('path, line, polyline')).filter(
+      (p) => getComputedStyle(p).stroke !== 'none' && getComputedStyle(p).fill === 'none'
+    )
+    if (konturlu.length === 0) continue
+    const ctm = svg.getScreenCTM()
+    if (ctm === null) continue
+    const ters = ctm.inverse()
+    const vb = svg.viewBox.baseVal
+    const mask = document.createElementNS(NS, 'mask')
+    const kimlik = 'metin-maske-' + n
+    mask.setAttribute('id', kimlik)
+    mask.setAttribute('maskUnits', 'userSpaceOnUse')
+    const zemin = document.createElementNS(NS, 'rect')
+    zemin.setAttribute('x', String(vb.x)); zemin.setAttribute('y', String(vb.y))
+    zemin.setAttribute('width', String(vb.width)); zemin.setAttribute('height', String(vb.height))
+    zemin.setAttribute('fill', 'white')
+    mask.appendChild(zemin)
+    for (const r of kutular) {
+      const p1 = svg.createSVGPoint(); p1.x = r.left - PAY; p1.y = r.top - PAY
+      const p2 = svg.createSVGPoint(); p2.x = r.right + PAY; p2.y = r.bottom + PAY
+      const a = p1.matrixTransform(ters), b = p2.matrixTransform(ters)
+      const delik = document.createElementNS(NS, 'rect')
+      delik.setAttribute('x', String(Math.min(a.x, b.x)))
+      delik.setAttribute('y', String(Math.min(a.y, b.y)))
+      delik.setAttribute('width', String(Math.abs(b.x - a.x)))
+      delik.setAttribute('height', String(Math.abs(b.y - a.y)))
+      delik.setAttribute('fill', 'black')
+      mask.appendChild(delik)
+    }
+    const defs = document.createElementNS(NS, 'defs')
+    defs.appendChild(mask)
+    svg.insertBefore(defs, svg.firstChild)
+    for (const p of konturlu) { p.setAttribute('mask', 'url(#' + kimlik + ')'); sayi++ }
+  }
+  return sayi
+})()`
+
 export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
   const t = doc.tipografi ?? VARSAYILAN_TIPO
   // Kart iç yüksekliği: üst/alt dolgu (68 + 190) düşülüyor. Başlık bloğunun payı %44 —
@@ -2705,6 +2783,8 @@ export const renderPanorama = async (
     // ⚠ ⚠ **PUNTODAN SONRA: knockout kutunun SON hâlini ölçmek zorunda.** Punto oturtma
     // metni büyütüp küçültüyor; önce koşan bir maske, kaymış bir kutuyu ölçerdi.
     await page.evaluate(knockoutOlcumu())
+    // ⚠ Maske EN SON: kutular punto ve knockout oturduktan sonra kesinleşiyor.
+    await page.evaluate(metinMaskesi())
     for (const [i, yol] of ciktiYollari.entries()) {
       await page.evaluate(
         `document.getElementById('sahne').style.transform = 'translateX(${-i * doc.slaytGenisligi}px)'`

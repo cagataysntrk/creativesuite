@@ -2126,3 +2126,55 @@ ve `donen` k4, **ikisi de %22,01**. Tavan 22 denendi ve **0,014 puanla** kırmı
 öyle bir kapı hiçbir şey söylemez.
 
 Kasten ihlal: `knockoutOlcumu`nun kesişme dalı ters çevrildi, kapı ΔL 0,000 ile kırmızı döndü.
+
+---
+
+## METİN KUTUSU MASKESİ — beşinci iş (FAZ-19)
+
+Kodun kendi notu iki yerde *"beşinci iş bitince"* diyordu. Beşinci iş buydu.
+
+### Reçetenin iki isteği bu adımda bekliyordu
+
+| istek | eski engel | ölçüm |
+|---|---|---|
+| eğri çizgisi 2 → **6 px** | `sus-metni-kesiyor` | kalın çizgi kilometre etiketinin **%96,6**'sının arkasından geçiyordu |
+| eğri dolgusu **yüzey adımı** | aynı kapı | `ustBaslik` kutusunun **%99,3**'ü kapanıyordu |
+
+Maske kurulunca **6 px geçti** ve `sus-metni` yeşil. Çizgi artık kadrajda gerçek bir
+kütle: panoramayı kat eden, metnin arkasından geçerken **delinen** bir hat.
+
+### YALNIZ KONTUR DELİNİYOR, DOLGU DEĞİL
+
+Dolgulu bir alanı metin kutusundan delmek, zeminin renginde bir **dikdörtgen** bırakır —
+kesilen çizgiden beter. Çizgi kaybolduğunda arkasındaki alan devam ediyor: delik
+görünmüyor, çizgi görünmüyor.
+
+⚠ Kutular tarayıcıya ölçtürülüp SVG'nin kendi kullanıcı uzayına **ters CTM** ile
+çevriliyor. `viewBox` 100×100 ve `preserveAspectRatio: none` olan bantta ekran pikselini
+doğrudan yazmak maskeyi yanlış yere koyardı.
+
+### DENETİM ÜRETİMİN ÇİZDİĞİNİ GÖRMÜYORDU
+
+`panoramaDenetle` yalnız `puntoOlcumu` koşuyordu; `panoramaCiz` ise ondan sonra knockout
+ve metin maskesini de koşuyor. **Yayınlanmayan bir düzeni ölçen bir denetim**, bu fazda
+kapılarda tam olarak ölçülmüş sınıf: hem gerçek kusuru kaçırıyor hem olmayanı uyduruyor.
+Denetim artık üç adımı da koşuyor.
+
+### Dolgu YİNE geri alındı — ama sebep ARTIK BAŞKA
+
+Eski engel kapıydı ve **kalktı**; kapı yeşil geçti. Yeni engel okunabilirlik: dolgu
+görünür olunca kart 6'nın `ÜÇ ÖNCELİK` listesi ve `2,0×` varış rakamı **açık alanın
+üstünde açık** kaldı — `alinti`de ölçülen kusurun aynısı. Çözüm de aynı: knockout.
+Ama `knockoutOlcumu` yalnız `alan-siniri` tanıyor; `egri` bandı için genişletilmesi
+gerekiyor. **Sıradaki iş, ve borç yazılı.**
+
+### `akan-alan` ve `donen`in kalan bantları KUSUR DEĞİL
+
+- **`akan-alan` k2/k5 %22**: bant, metnin altındaki mavi ALANIN kendisi. Alet rengi
+  (haklı olarak) zemin sayıyor, ama *"boş = kusur"* önermesi bir renk alanı için geçmiyor.
+  Aynı dersin tersi: doku içerik değildir, **alan da ölü değildir**.
+- **`donen` k4 %22**: gövde y%29'da bitiyor, `360°` y%51'de başlıyor. Rakamın puntosu
+  dört haneli olduğu için kolondan 363 px'e düşüyor (`alinti`de 458) ve arta kalan hava
+  bant olarak okunuyor. Kapanış kartında iddia ile varış arasındaki hava kasıtlı.
+
+**Tavan %23'te kalıyor** ve sebebi artık yazılı: kalan iki bant içerik boşluğu değil.
