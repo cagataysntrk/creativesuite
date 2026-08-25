@@ -2999,3 +2999,24 @@ birebir aynı yükseklikte). **Kural bir yerde vardı, ötekinde yoktu.**
 Onu "daha farklı" yapmak veriyi ÇARPITMAK olurdu (Yasa 8 · R-32). Kural daraltıldı:
 *bir zaman serisi ne ise onu gösterir; bir KARŞILAŞTIRMA ise iki durumu yan yana koymak
 için vardır — ikincisinde fark yoksa kartın var olma sebebi yoktur.*
+
+### "Beş şart" deniyordu, 01–05 hiçbir yerde yoktu
+
+Denetim: *"`akan-alan`: altı karede SIFIR bilgi ögesi; 'beş şart' deniyor, 01–05 hiçbir
+yerde yok."* Ölçüldü — altı kartın altısında da `panel: null`. Ama **eksik olan bilgi
+ögesi değil, SAYIMDI**: beş kart zaten o beş şarttı (İZLENEBİLİRLİK · AYRIŞTIRMA · ÖLÇÜM ·
+ALICI · FİNANS), hiçbiri numaralı değildi. Üst etiketler `01 · …` → `05 · …` oldu; kapak
+"beş" diyor ve kaydırınca beşi de sayılıyor.
+
+⚠ **Pano EKLENMEDİ ve bu bilinçli:** reçete bu şablon için panosuzluğu açıkça onaylıyor —
+*"Görsel YOK — bu şablon saf tipografi + alan. Bugün de öyle; doğru olan bu."*
+
+Yeni kapı `sayilan-iddia`, `veri-egrisi` ile aynı aileden: **tipografi bir sayı
+söylüyorsa yapı onu doğrulamak zorunda.**
+
+⚠ ⚠ **VE KAPI DÖRDÜNCÜ KEZ FAZLA GENİŞ YAZILDI.** İlk sürüm yalnız sayı sözcüğünü
+arıyordu ve `veri-hikayesi`yi kırmızıya çevirdi: kapağı *"Altı yılda **iki katına** çıkan
+bir eğri"* ve oradaki "iki" bir **ORAN**, iki madde değil — o iddiayı zaten `veri-egrisi`
+taşıyor. Kural daraltıldı: sayı sözcüğü ancak **sayılabilir bir öge adını** (şart · adım ·
+madde · soru · ilke · kural · neden · aşama · varsayım) niteliyorsa sayım iddiasıdır.
+*Aynı sözcük, iki ayrı iddia; ayıran şey neyi nitelediği.*

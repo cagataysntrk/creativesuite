@@ -380,6 +380,13 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
   },
   bant: { tip: 'yok' },
   gorseller: [],
+  // ⚠ ⚠ **"BES SART" DENIYORDU, 01-05 HICBIR YERDE YOKTU.** Denetim: *"alti karede
+  // SIFIR bilgi ogesi; 'bes sart' deniyor, 01-05 hicbir yerde yok."* Ve bes kart
+  // ZATEN o bes sart — eksik olan sey icerik degil SAYIM. Ust etiketler artik sirayi
+  // tasiyor: kapak "bes" diyor, sonraki bes kart 01'den 05'e sayiyor ve iddia
+  // kaydirilarak DOGRULANIYOR.
+  // ⚠ Pano EKLENMEDI: recete bu sablon icin panosuzlugu ACIKCA onayliyor
+  // (*"Gorsel YOK — bu sablon saf tipografi + alan. Bugun de oyle; dogru olan bu"*).
   kartlar: [
     {
       // ⚠ KAPAK KİLİDİ — eğri sınırı 01'de y=%78'den başlıyor, yani KÜTLE sol-altta.
@@ -394,7 +401,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'İZLENEBİLİRLİK',
+      ustBaslik: '01 · İZLENEBİLİRLİK',
       baslik: 'Girdi izlenebilir olacak',
       govde: 'Nereden geldiği bilinmeyen malzeme, nereye gittiği bilinmeyen atıktır.',
       panel: null,
@@ -403,7 +410,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'AYRIŞTIRMA',
+      ustBaslik: '02 · AYRIŞTIRMA',
       baslik: 'Ayrıştırma kaynakta başlayacak',
       govde: 'Sonradan ayrıştırma her adımda pahalılaşıyor ve saflığı düşürüyor.',
       panel: null,
@@ -412,7 +419,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ÖLÇÜM',
+      ustBaslik: '03 · ÖLÇÜM',
       baslik: 'Ölçülmeyen kalite, varsayılandır',
       govde: 'Ölçülmeyen saflık satışta ortaya çıkıyor.',
       panel: null,
@@ -421,7 +428,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'ALICI',
+      ustBaslik: '04 · ALICI',
       baslik: 'Çıktının bir alıcısı olacak',
       govde: 'Alıcısı olmayan geri kazanım, ertelenmiş bir depolama.',
       panel: null,
@@ -430,7 +437,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
-      ustBaslik: 'FİNANS',
+      ustBaslik: '05 · FİNANS',
       baslik: 'Döngü **kendini finanse** edecek',
       govde: 'Sübvansiyonla dönen döngü, sübvansiyon bitince durur.',
       panel: null,
