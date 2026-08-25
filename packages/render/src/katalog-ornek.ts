@@ -148,14 +148,24 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       { x: 18, y: 50 },
       { x: 36, y: 44 },
       { x: 54, y: 37 },
+      // ⚠ ⚠ **SUREKLI OGE KAPANIS KARTINDA BITER, ONU KAT ETMEZ.** Denetimin kapanis
+      // tarifi: *"y %0-28 Varis. Surekli oge burada BITER."* Egri 100'e kadar surunce
+      // yukselen alan siniri son kartin ORTASINDAN geciyordu: dev rakam iki tonun
+      // arasinda ikiye bolunuyor ve kilometre etiketi '2025' rakamin uzerine dusuyordu.
+      // Depo sahibi bakti ve "son sayfalardaki buyuk sayilar cok kotu duruyor" dedi.
+      // Alti slaytin sonuncusu x %83'te basliyor; egri orada duruyor.
       { x: 72, y: 28 },
-      { x: 88, y: 18 },
-      { x: 100, y: 10 },
+      // ⚠ ⚠ **IDDIA VARISTA TAMAMLANIYOR.** veri-egrisi kapisi "baslik iki katina diyor,
+      // egri de IKI KAT yukselmeli" istiyor (deger = 100-y, yani 45 -> 90). Once egriyi
+      // yumusattim ve kapi HAKLI OLARAK kirmizi dondu: 1,6x kaldi ve tipografi
+      // geometriyi yalanladi. Dogru cozum egriyi kisaltmak degil, ONU SON KARTIN
+      // BASINDA BITIRMEK — iddia tam varista tamamlaniyor ve kapanis karti temiz kaliyor.
+      { x: 83, y: 10 },
     ],
     kilometre: [
       { x: 18, etiket: '2020' },
       { x: 54, etiket: '2023' },
-      { x: 88, etiket: '2025' },
+      { x: 78, etiket: '2025' },
     ],
   },
   // ⚠ ⚠ **DAİRELER KESİME DEĞİYORDU, GEÇMİYORDU (16..25, 41..50, 66..75).** Karoselin
@@ -245,19 +255,24 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       ustBaslik: 'SONRAKİ',
       baslik: 'Sıradaki eşik **kalite**, hacim değil',
       govde: 'Aynı eğri devam ederse sınırı belirleyen şey pazar değil, saflık olacak.',
-      panel: {
-        tip: 'liste',
-        baslik: 'ÜÇ ÖNCELİK',
-        ogeler: [
-          // ⚠ Satır metinleri ikon köklerine DOĞAL olarak oturuyor (`denet`, `ölç`,
-          // `üretim`): ikon içerikten türüyor, içerik ikona göre eğilip bükülmüyor.
-          // Bir satır bile eşleşmezse ikon katmanı hiç açılmıyor (ya hepsi ya hiçbiri).
-          { no: '01', ad: 'Girdi saflığını her partide denetle' },
-          { no: '02', ad: 'Numuneyi hatta ölç, sonra kabul et' },
-          { no: '03', ad: 'Alıcıyı üretimden önce bağla' },
-        ],
-      },
+      // ⚠ ⚠ **KAPANIS KARTI PANO TASIMAZ.** Depo sahibi bakti ve soyledi:
+      // *"son sayfalardaki buyuk sayilar cok kotu duruyorlar."* Olculdu ve sebep
+      // tam olarak buydu: bu kart hem normal bir icerik panosunu hem de kapanis
+      // jestini (dev rakam + okuma satiri + imza + cagri) tasiyordu ve icerigin dibi
+      // kartin ALT KENARINI ASIYORDU — veri-hikayesi'nde **%103,2**. Rakam kesildi,
+      // kunye seridine bindi, tasarlanmis degil BOZUK gorundu.
+      // Denetimin kapanis tarifi zaten bunu soyluyordu: *"Kapanis iskeleti kullanmaz,
+      // KIRAR. Serit yok, uc satir baslik yok, ALT PANO YOK."* Bes destede ihlal.
+      panel: null,
       hayalet: '',
+      // ⚠ ⚠ **KAPANISTA TON KIRILIR ve SUREKLI OGE ORADA BITER.** Denetimin kapanis
+      // tarifi: *"Ton kirilmasi tam bu karede: parmak kaydirinca ton degisir, fiziksel
+      // 'vardik'."* Bu kart kendi zeminini OPAK boyayinca yukselen alan siniri ve onun
+      // kilometre etiketleri kartin ustunden GECMIYOR — olculdu: etiket '2025' tam dev
+      // rakamin uzerine dusuyordu ve rakam iki tonun arasinda ikiye BOLUNMUS gorunuyordu.
+      // donen'in kapanisi bunu zaten yapiyordu (zemin: role-line-edge) ve tek duzgun
+      // duran kapanis oydu.
+      zemin: 'var(--ramp-palet-gece-yuzey)',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
       kapanis: {
@@ -703,7 +718,12 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     // şablonu kadar büyümeleri gerekmiyor ama web ölçüsünde de kalamazlar.
     panelPayi: 1.7,
   },
-  zemin: 'var(--role-surface)',
+  // ⚠ PALET — recete A tablosu. Bes palet token'a girmisti ama UC sablon sistemin
+  // DISINDA kaliyordu (--role-* ile ciziliyorlardi): memphis, donen, editoryal.
+  // ⚠ memphis = P3 KAGIT + P4 BETON: uc murekkep riso (oksit, amber, murekkep), MAVI YOK.
+  // Aile garantisi matematiksel: bes palette accent hue'su sabit 262.
+  zemin: 'var(--ramp-palet-kagit-taban)',
+  aksan: 'var(--ramp-palet-kagit-oksit)',
   // ⚠ YÜZEY AİLESİ — parlak kâğıt + gazete tramı — riso baskının imzası.
   yuzey: 'halftone' as const,
   // ⚠ Kâğıt zeminde koyu bir hayalet aynı opaklıkta DAHA GÜÇLÜ okunur (koyu üstüne
@@ -884,7 +904,15 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       ustBaslik: 'YAPILACAK',
       baslik: 'Peki **ne** yapmalı?',
       govde: 'Önce ayrıştır, sonra temizle, sonra ölç. Sıra değişince üçü de boşa gidiyor.',
-      panel: { tip: 'etiketler', ogeler: ['ayrıştır', 'temizle', 'ölç'] },
+      // ⚠ ⚠ **KAPANIS KARTI PANO TASIMAZ.** Depo sahibi bakti ve soyledi:
+      // *"son sayfalardaki buyuk sayilar cok kotu duruyorlar."* Olculdu ve sebep
+      // tam olarak buydu: bu kart hem normal bir icerik panosunu hem de kapanis
+      // jestini (dev rakam + okuma satiri + imza + cagri) tasiyordu ve icerigin dibi
+      // kartin ALT KENARINI ASIYORDU — veri-hikayesi'nde **%103,2**. Rakam kesildi,
+      // kunye seridine bindi, tasarlanmis degil BOZUK gorundu.
+      // Denetimin kapanis tarifi zaten bunu soyluyordu: *"Kapanis iskeleti kullanmaz,
+      // KIRAR. Serit yok, uc satir baslik yok, ALT PANO YOK."* Bes destede ihlal.
+      panel: null,
       hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
@@ -928,7 +956,12 @@ export const ORNEK_DONEN: KatalogOrnegi = {
   // onların altında hiç görünmüyor. Sonuç her kartta düz bir renk, yani rehber §10
   // ölçüt 5'in tarif ettiği "web arka planı" — kabul testi bunu kırmızı verdi.
   // Gren + yumuşak vinyet üstte duruyor ve düz rengi yüzeye çeviriyor.
-  zemin: 'var(--role-bg)',
+  // ⚠ PALET — recete A tablosu. Bes palet token'a girmisti ama UC sablon sistemin
+  // DISINDA kaliyordu (--role-* ile ciziliyorlardi): memphis, donen, editoryal.
+  // ⚠ donen = P1 MUREKKEP ile P3 KAGIT gecisli; gecis slayt MERKEZINDE, kesimde DEGIL.
+  // Aile garantisi matematiksel: bes palette accent hue'su sabit 262.
+  zemin: 'var(--ramp-palet-murekkep-taban)',
+  aksan: 'var(--ramp-palet-murekkep-mavi)',
   // ⚠ ⚠ **SÜREKLİLİK ARTIK BİR ÖLÇEK ÇİZGİSİ (FAZ-18.3).** Önce iki dev soluk daire
   // taşıyordu — bir ışık havuzu, yani sistemin yasakladığı "atmosferik renk". Ölçek
   // çizgisi panoramayı kat ediyor ve duraklar ÜRÜNLERİN yerinde: silinirse kaybolan şey
@@ -1097,7 +1130,12 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
   },
   // ⚠ Açık zemin: kart metni `kartRenkleri` ile zeminden TÜRÜYOR, sabit beyaz değil —
   // bu yüzden zemini açığa çevirmek metni okunmaz yapmıyor (FAZ-15.2 dersi).
-  zemin: 'var(--ramp-marka-kagit-0)',
+  // ⚠ PALET — recete A tablosu. Bes palet token'a girmisti ama UC sablon sistemin
+  // DISINDA kaliyordu (--role-* ile ciziliyorlardi): memphis, donen, editoryal.
+  // ⚠ editoryal = P3 KAGIT: bu sablon MAVIDEN CIKISIN kaniti, tek aksan oksit.
+  // Aile garantisi matematiksel: bes palette accent hue'su sabit 262.
+  zemin: 'var(--ramp-palet-kagit-taban)',
+  aksan: 'var(--ramp-palet-kagit-oksit)',
   // ⚠ YÜZEY AİLESİ — sıcak kâğıt: ince lif + uzun dalga leke. Katalog zaten "kâğıt" diyordu.
   yuzey: 'kagit' as const,
   gorselIslemleri: [],
@@ -1225,6 +1263,11 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.05,
     baslikAgirlik: 800,
+    // ⚠ RECETE B: kavis govdesi Archivo wdth 88. Baslik DEGIL govde daraliyor —
+    // sablonun sesi 'dar ve agir' ve daralma govdede beton yuzeyle birlikte siki bir
+    // sanayi dokusu veriyor. ⚠ Kapak basligi Literata ve eksensiz; genislik oraya
+    // ulasmiyor, bu KUSUR DEGIL: display serif kapak ayri bir sestir.
+    govdeGenislik: 88,
     satirAraligi: 1.18,
     harfArasi: -0.04,
     govdeOrani: 0.31,
@@ -1308,7 +1351,15 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
       ustBaslik: 'SÜREKLİLİK',
       baslik: 'Ritim **kendini** taşır',
       govde: 'Kurulmuş bir ritim, gözetim istemez.',
-      panel: { tip: 'etiketler', ogeler: ['ölç', 'tekrarla', 'sapmayı gör'] },
+      // ⚠ ⚠ **KAPANIS KARTI PANO TASIMAZ.** Depo sahibi bakti ve soyledi:
+      // *"son sayfalardaki buyuk sayilar cok kotu duruyorlar."* Olculdu ve sebep
+      // tam olarak buydu: bu kart hem normal bir icerik panosunu hem de kapanis
+      // jestini (dev rakam + okuma satiri + imza + cagri) tasiyordu ve icerigin dibi
+      // kartin ALT KENARINI ASIYORDU — veri-hikayesi'nde **%103,2**. Rakam kesildi,
+      // kunye seridine bindi, tasarlanmis degil BOZUK gorundu.
+      // Denetimin kapanis tarifi zaten bunu soyluyordu: *"Kapanis iskeleti kullanmaz,
+      // KIRAR. Serit yok, uc satir baslik yok, ALT PANO YOK."* Bes destede ihlal.
+      panel: null,
       hayalet: '',
       rayaSol: 'ATÖLYE',
       rayaOrta: ORNEK,
@@ -1575,13 +1626,15 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
       ustBaslik: 'SONRA',
       baslik: 'Fire **yarıya** indi',
       govde: 'Ölçü değişti, hat değişmedi.',
-      panel: {
-        tip: 'sayilar',
-        ogeler: [
-          { deger: '48', birim: '%', alt: 'fire, önce' },
-          { deger: '23', birim: '%', alt: 'fire, sonra' },
-        ],
-      },
+      // ⚠ ⚠ **KAPANIS KARTI PANO TASIMAZ.** Depo sahibi bakti ve soyledi:
+      // *"son sayfalardaki buyuk sayilar cok kotu duruyorlar."* Olculdu ve sebep
+      // tam olarak buydu: bu kart hem normal bir icerik panosunu hem de kapanis
+      // jestini (dev rakam + okuma satiri + imza + cagri) tasiyordu ve icerigin dibi
+      // kartin ALT KENARINI ASIYORDU — veri-hikayesi'nde **%103,2**. Rakam kesildi,
+      // kunye seridine bindi, tasarlanmis degil BOZUK gorundu.
+      // Denetimin kapanis tarifi zaten bunu soyluyordu: *"Kapanis iskeleti kullanmaz,
+      // KIRAR. Serit yok, uc satir baslik yok, ALT PANO YOK."* Bes destede ihlal.
+      panel: null,
       hayalet: '',
       rayaSol: 'ÖLÇÜM',
       rayaOrta: ORNEK,
@@ -1743,19 +1796,27 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       // dört adımlık bir dizin son karede dört ÇİP gösteriyordu ve üçüncü ok bir
       // madde numarasına değil o çip satırına iniyordu. Dizin, vardığı yerde de
       // DİZİN olmalı — dördüncü madde yanık, ilk üçü sönük.
+      // ⚠ ⚠ **KAPANIS KARTI PANO TASIMAZ.** Depo sahibi bakti ve soyledi:
+      // *"son sayfalardaki buyuk sayilar cok kotu duruyorlar."* Olculdu ve sebep
+      // tam olarak buydu: bu kart hem normal bir icerik panosunu hem de kapanis
+      // jestini (dev rakam + okuma satiri + imza + cagri) tasiyordu ve icerigin dibi
+      // kartin ALT KENARINI ASIYORDU — veri-hikayesi'nde **%103,2**. Rakam kesildi,
+      // kunye seridine bindi, tasarlanmis degil BOZUK gorundu.
+      // Denetimin kapanis tarifi zaten bunu soyluyordu: *"Kapanis iskeleti kullanmaz,
+      // KIRAR. Serit yok, uc satir baslik yok, ALT PANO YOK."* Bes destede ihlal.
       panel: {
+        // ⚠ ⚠ **BU LISTE BIR ICERIK PANOSU DEGIL, DESTENIN TASIYICISI.** "Kapanis karti
+        // pano tasimaz" kuralini yazdim ve dizin'i de kapsadi; dizin-butunlugu kapisi
+        // HAKLI OLARAK kirmizi dondu: bu sablonun kimligi "dort maddenin dordu HER
+        // kartta" ve son kart o butunlugun tamamlandigi yer. Kural daraltildi.
         tip: 'liste',
-        // ⚠ ⚠ **KAPANIŞ KARTINDA GÜZERGÂH YAYILMIYOR — iki varış aygıtı çakıştı.**
-        // `yayik` panele kalan yüksekliği veriyor; kapanış bloğu da aynı yeri istedi ve
-        // ÇİZİLENE BAKILINCA görüldü: dev `04` rakamı listenin kendi `04` satırının
-        // üstüne bindi. Kapanış kartı iskeleti KIRAR: üç kart güzergâhı yayıyor,
-        // dördüncü onu topluyor ve varış rakamını veriyor.
-        yayik: false,
-        baslik: 'sıra',
+        baslik: 'SIRA',
         ogeler: [
           { no: '01', ad: 'ölçüm noktasını koy' },
           { no: '02', ad: 'eşiği yaz' },
           { no: '03', ad: 'sorumlu ata' },
+          // ⚠ 4. kart = 4. madde yanik: dizin-butunlugu "yanik madde kart sirasiyla
+          // ILERLIYOR" istiyor ve son kart o ilerlemenin TAMAMLANDIGI yer.
           { no: '04', ad: 'haftalık oku', aktif: true },
         ],
       },

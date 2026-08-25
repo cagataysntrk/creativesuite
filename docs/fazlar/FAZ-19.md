@@ -130,7 +130,7 @@ yatay baskın). ⚠ **Çizilmek yetmedi: ilk sürüm ΔL 0,002 ölçtü** — ku
 konmuştu ve `soft-light` gölgelerde çöküyor. *Gren FİLMİN özelliğidir, çizgi MÜREKKEPTİR.*
 Ayrı `.ust-cizgi`, `normal` kip: 0,082 / 0,089 · çizgisiz kontrol `kavis` **0,005**.
 
-### 19.5 — TİPOGRAFİ    [ ]
+### 19.5 — TİPOGRAFİ    [x]
 **✅ Archivo** (gövde, `wdth 62–125`) · **Literata** (kapak serifi) · **Martian Mono**.
 `scripts/font-denetim.mjs` raporun HER elemesini bağımsız üretti: `IBM Plex`/`Inter`
 `latn/TRK` YOK, `Stardos`/`Share Tech` 10/15.
@@ -152,11 +152,12 @@ Ayrı `.ust-cizgi`, `normal` kip: 0,082 / 0,089 · çizgisiz kontrol `kavis` **0
    **Karar:** üç yüz kurulur — Big Shoulders · Big Shoulders Stencil · Young Serif (üçü de
    Türkçe sınavından ölçülerek geçti). `Anybody` ve `Schibsted Grotesk` KURULMAZ önce
    ÖLÇÜLÜR: Archivo'nun `wdth 62–125` ekseni ikisinin işini görüyorsa aile eklenmez.
-3. **Aksana ağırlık telafisi** — denetim *"aksanlı kelime optik olarak İNCE görünüyor"*
-   diyor ve `font-weight +25` ya da `text-stroke 0.35px` öneriyor. ⚠ ÖLÇÜLMEDEN
-   UYGULANMAZ: her iki çare de karakter başına `span` ister, o da `kern`/`liga`/`calt`/
-   `locl`i bozar. Önce mürekkep yoğunluğu ölçülür (aksanlı ↔ aksansız aynı kelime),
-   sonra çarenin bedeli ölçülür. Çürürse ÇÜRÜK yazılır.
+3. **✅ AKSAN TELAFİSİ ÇÜRÜDÜ** — hastalık x-yüksekliği bandında **%0,0**, çare **%8–13**:
+   çare hastalıktan on kat büyük, uygulanmadı. **✅ İKİ UÇ kapısı** (kapak ≥220 px devasa ·
+   ≤20 px fısıltı · dev ses RAKAMDIR, cümle değil). **✅ GENİŞLİK EKSENİ İKİ YÖNE** —
+   `karsilastirma` 88 · `memphis` 125 · `kavis` gövde 88; `akan-alan` 95 VERİLMEDİ
+   (ölçüldü: %4,6, görünürlük eşiğinin altı). ⚠ **KALAN BORÇ:** `alinti` atfı hâlâ gövde
+   sesinde; ayrı atıf yuvası bir SÖZLEŞME değişikliği (→ 19.9).
 
 ### 19.6 — RENK    [ ]
 Cusp-takipli rampa (`C ≤ maxC(L)×0,85`) — sabit kroma h=262'de 12 basamağın 5'ini

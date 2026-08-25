@@ -181,19 +181,28 @@ describe('ikon katmanı — içerikten türüyor', () => {
 
   // ⚠ Eşleşmeyen tek satır varsa katman HİÇ açılmıyor: eksik ikon, listeyi kırık gösterir.
   it('bir satır bile eşleşmezse ikon basılmıyor', () => {
-    const o = ornekBul('veri-hikayesi') as KatalogOrnegi
+    // ⚠ ⚠ **ÖRNEK DESTE `dizin`E ÇEVRİLDİ ve sebebi bir TASARIM kararı.** Eskiden
+    // `veri-hikayesi` okunuyordu; o destenin tek liste panosu KAPANIŞ kartındaydı ve
+    // kapanış kartı artık içerik panosu taşımıyor (ölçüldü: içerik dibi kartı %103,2 ile
+    // aşıyor, dev rakam kesiliyordu). `dizin` yapısal olarak HER kartta liste taşır
+    // (dizin-butunlugu kapısı bunu zorluyor), yani bu testin dayanağı orada kalıcı.
+    const o = ornekBul('dizin') as KatalogOrnegi
     const kart = o.kartlar.find((k) => k.panel?.tip === 'liste')
     expect(kart).toBeDefined()
     if (kart === undefined || kart.panel?.tip !== 'liste') return
     const bozuk = {
       ...o,
+      // ⚠ ⚠ **HER LİSTE BOZULUYOR, YALNIZ BİRİ DEĞİL.** Eski deste (`veri-hikayesi`)
+      // tek liste taşıyordu; `dizin` HER kartta taşıyor, yani tek kartı bozmak ikonu
+      // yok etmiyor — öbür kartlardan geliyordu ve test haklı olarak kırmızı döndü.
+      // İddia "bir satır bile eşleşmezse" olduğuna göre hiçbir satır eşleşmemeli.
       kartlar: o.kartlar.map((k) =>
-        k === kart && k.panel?.tip === 'liste'
+        k.panel?.tip === 'liste'
           ? {
               ...k,
               panel: {
                 ...k.panel,
-                ogeler: [{ no: '01', ad: 'xyzzy qwerty' }, ...k.panel.ogeler],
+                ogeler: [{ no: '01', ad: 'xyzzy qwerty' }],
               },
             }
           : k

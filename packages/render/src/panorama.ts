@@ -2309,6 +2309,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ⚠ Blok ARASI bosluk tabandan (R-100); yedek deger tuvale cevrilmis 54 px, cunku
     // `panoramaHtml` tek basina cagrilirsa (editor onizlemesi) punto olcumu kosmamis olur.
     `  .govde { margin-top: calc(var(--taban, ${olc(54)}px) * 1);`,
+    // ⚠ Genislik degiskenden; degisken yoksa bildirim GECERSIZ olur ve govde varsayilan
+    // genislikte kalir. Yedegi 100% YAZILMIYOR: "verilmemis" ile "100 istenmis" ayirt
+    // edilebilir kalmak zorunda.
+    `           font-stretch: var(--govde-wdth);`,
     `           font-size: calc(max(${String(govdeTabani)}px, calc(var(--baslik-punto) * var(--govde-orani)))`,
     `                       * var(--ayar-olcek, 1));`,
     // ⚠ ⚠ **BU KURAL `.govde` BLOĞU KAPANDIKTAN SONRA gelmek ZORUNDA ve iki kez yanlış

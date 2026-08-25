@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 19
-siradaki_adim: 19.5
+siradaki_adim: 19.6
 son_guncelleme: 2026-08-25
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-19.4 KAPANDI. Son kalem cizgili zemindi ve 14. ZINCIR KOPUKLUGUYDU: zemin.ts bir tip tarama katmani (repeating-linear-gradient) tasiyordu, uretim yolunda cagirani yoktu. Iki yeni yuzey ailesi: kopya (veri-hikayesi, 60 px, iki eksen esit) ve defter (dizin, 48 px, yatay baskin). AMA CIZILMEK YETMEDI: ilk surum kurallari .ust-grene koydu, o eleman soft-light karisiyor ve recetenin kendi tablosu o kipin golgelerde coktugunu ZATEN olcmustu (L=8de sigma 0,70) - yuzde 9,5 alfa ekranda delta-L 0,002 kaldi, CIZILMISTI YOKTU. Ayrim kavramsal ve kalici: gren FILMIN ozelligidir, cizgi MUREKKEPTIR. Kurallar mix-blend-mode normal tasiyan ayri bir .ust-cizgiye alindi. OLCULEN: veri-hikayesi yatay 0,0817 dikey 0,0738 periyot 60; dizin yatay 0,0892 dikey 0,0424 periyot 48; KONTROL cizgisiz kavis 0,0051. Kapi kasten ihlal edildi (normal yerine soft-light): 0,0136 ve 0,0225 dondu, esik 0,06 - pay dort ila alti kat. Alet iki kez daha yanroltti: (9) otokorelasyon ham profile uygulaninca duz degradenin monoton dususu yuzunden en kucuk gecikme her zaman kazandi, on sablon birden periyot 6 okundu, olculen sey vinyetti; (10) en parlak N satir olcutu veri-hikayesinde parlak bir panel blogunu ele gecirdi ve yatay cizgi yok okundu, ham piksel tersini soyluyordu (y=239te 39,5 karsi 20). Duzeltme faz tabanli medyan. Vinyet: cizgili ikili malzemeden degil ISIKTAN turuyor cunku recete ikisine de duz golgesiz diyor - kopya 0,08 defter 0,11; karari DERLEYICI zorladi. Yeni kapi cizgili-zemin.test.ts. izgara 10 kapak 0 kusur, ikisine de BAKILDI: kopya teknik cizim kagidi, defter milimetrik defter."
+son_kanit: "19.5 TIPOGRAFI KAPANDI. (a) IKI UC kapisi: oran degil VARLIK olculuyor — destede kapak >=220 px DEVASA ve <=20 px FISILTI bulunmak zorunda, dev ses RAKAMDIR cumle degil; iki AYRI ihlalle kirmiziya donduruldu ve ogretici cikti, uzun bir cumle dev yuvaya konunca zaten dev OLMUYOR (punto oturtucu kuculturuyor) yani boy kurali harf kuralindan once yakaliyor. (c) AKSAN TELAFISI CURUDU: ayni olcum uc farkli cevap veriyor ve hangi paydayi sectigin olcumun kendisi — kapak kutusuna gore +%4,9, tam murekkep kutusuna gore -%4,9, x-YUKSEKLIGI BANDINA gore %0,0. Dogrusu ucuncusu cunku gozun agirlik diye okudugu sey govde bandi ve aksan x-yuksekliginin USTUNDE. Care olculdu: wght 425 +%8,0, text-stroke 0,35 +%13,2 — CARE HASTALIKTAN 10-16 KAT BUYUK, uygulanmadi. Kendi itirazim da curudu: span kerningi koparmiyor (+0,00 px). (b) GENISLIK EKSENI: fontta canliydi (Archivo 62-125) ama yerlesimde hic kullanilmiyordu, panorama.ts eski D-317 kaydini tasiyordu. Baglandi, IKI YONE: karsilastirma 88 dar, memphis 125 genis, kavis govde 88. akan-alan 95 VERILMEDI cunku olculdu ve yalniz %4,6 fark uretiyor, kapinin %6 gorunurluk esiginin altinda. Kapi genislik-ekseni yonu ILANDAN turetiyor ve ADVANCE olcuyor cunku getComputedStyle().fontStretch bildirilen degeri doner. AYRICA depo sahibinin iki gorsel sikayeti cozuldu: kapanis kartlari hem pano hem kapanis jesti tasiyordu (10 destenin 5inde, icerik dibi %103,2 ile karti asiyordu, dev rakam kesiliyordu) ve yukselen alan siniri son karti kat edip rakami ikiye boluyordu; panolar kaldirildi (dip %86,8), egri son kartin basinda durduruldu. Yeni kapilar: iki-uc, kaynak-satiri, genislik-ekseni, kapanis-temiz, cizgili-zemin, denetim-tavani. izgara 10 kapak 0 kusur, seritlere BAKILDI."
 ```
 
 ## Neredeyiz
@@ -30,10 +30,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > REÇETE**) · `docs/referans/tasarim-denetimi-2026-08.md`. ⚠ ⚠ **TUZAK:** o dosyada İKİ
 > ayrı `A`/`B`/`C` var — RAPOR 2'nin `B`si RENK, **AŞAMA 2'nin `B`si ŞABLON ŞABLON
 > REÇETE.** "Reçetenin B'si" hep ikincisidir.
-> ⚠ **SIRADAKİ İŞ 19.5 — TİPOGRAFİ.** (a) `--punto-rakam` 240–360 px + `--punto-not`
-> 13–15 px — kapanış kartından ÖNCE gelir. (b) şablon şablon tipografi (reçete `B`):
-> hayalet rakam bugün Martian Mono **wght 700**, reçete Big Shoulders **100–200** istiyor.
-> (c) aksan telafisi ÖLÇÜLMEDEN uygulanmaz — çareler shaping'i bozuyor.
+> ⚠ **SIRADAKİ İŞ 19.6 — RENK.** Cusp-takipli rampa · iki nötr rampa (sıcak h=75 / soğuk h=250) · beş palet token'a girer · marka mavisi üstüne beyaz gövde YASAK (4,07) · aksan disiplini dört rol.
 > ⚠ **YAYIN YOK.** Degrade yasağının kapsamı değişti: optik degrade serbest.
 
 ## Tamamlananlar
@@ -82,6 +79,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **19.2** · bağımsız seamless araştırması BİREBİR kopyalandı; sekiz ailede görsel işlemleri açıldı | 2026-08-24 |
 | **19.3** · tatbik reçetesi: on tema, şablon şablon zemin/tipografi/taşıyıcı değerleri, ortak altyapı | 2026-08-24 |
 | **19.4** · zemin ve yüzey: gren · yedi yüzey ailesi · ışık · vinyet malzemede · çizgili zemin | 2026-08-25 |
+| **19.5** · tipografi: iki uç kapısı · aksan telafisi çürüdü · genişlik ekseni iki yöne · alıntıya atıf | 2026-08-25 |
 
 ## Sıradaki adım
 

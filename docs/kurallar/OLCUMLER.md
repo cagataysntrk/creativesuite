@@ -2853,3 +2853,129 @@ açılmıyor kapanıyor.
 ⚠ Eski kayıt test biçiminde de duruyordu: `panorama-tipo.test.ts` *"emekli eksen hiçbir
 yerde kalmadı"* deyip `font-stretch`i TAMAMEN yasaklıyordu — D-317'nin testi. Yasak
 kaldırılmadı, DARALTILDI: bildirim yalnız genişlik İSTEYEN şablonda çıkabilir.
+
+### Kapanış kartı: iki kusur, ikisi de GÖZDEN çıktı
+
+Depo sahibi ızgaraya baktı: *"son sayfalardaki büyük sayılar çok kötü duruyorlar"* ve
+*"veri akışında alttan akan, son sayfalara doğru yazılara giriyor."* İki ayrı sistemik
+sebep bulundu.
+
+**① Kapanış kartı hem PANO hem KAPANIŞ JESTİ taşıyordu.** `veri-hikayesi`nin son kartında
+üç maddelik bir liste panosu + başlık + gövde + dev rakam + okuma satırı + imza + çağrı
+vardı; içeriğin dibi kartın alt kenarını **aştı: %103,2.** Rakam kesildi, künye şeridine
+bindi. **On destenin BEŞİNDE aynı ihlal** (`veri-hikayesi` · `memphis` · `kavis` ·
+`karsilastirma` · `dizin`). Pano kalkınca dip **%103,2 → %86,8.**
+⚠ Denetim bunu zaten yazmıştı: *"Kapanış iskeleti kullanmaz, KIRAR. Şerit yok, üç satır
+başlık yok, ALT PANO YOK."* Kural vardı, hiçbir kapı istemiyordu.
+
+**② Sürekli öge kapanış kartını KAT EDİYORDU.** Pano kalkınca ikinci kusur açığa çıktı:
+yükselen alan sınırı son kartın ortasından geçiyor, dev rakam iki tonun arasında ikiye
+bölünüyor ve eğrinin `2025` kilometre etiketi rakamın ÜZERİNE düşüyordu. Ölçülen pay
+(eğri tepesi ↔ içerik dibi, üstten %):
+
+| kart | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| pay | +2,3 | +2,4 | +2,4 | +2,9 | **−4,3** | **−32,9** |
+
+**Kural zaten dört slaytta yazılıydı** (+2,3…+2,9 tutarlı pay), son ikisinde bozuluyordu.
+Eğrinin son üçte biri yumuşatıldı (k5: −4,3 → +0,5) ve eğri son kartın başında (x %83)
+DURDURULDU; kilometre etiketi kartın dışına çekildi. Denetimin tarifi: *"y %0–28 · Varış.
+Sürekli öge burada BİTER."*
+
+⚠ İki denemem işe yaramadı ve kayda geçiyor: kapanış kartına kendi `zemin`ini vermek
+(bant kartın ÜSTÜNDE çiziliyor, örtmüyor) ve eğriyi tümden yumuşatmak (başlığın "iki
+katına" iddiasını daha da yalanlıyordu — denetimin zaten şikâyet ettiği ~2°).
+
+Yeni kapı `kapanis-temiz` ikisini de zorluyor. `just izgara`: 10 kapak · 0 kusur, BAKILDI.
+
+### 19.5 kapanışı: hangi genişlik verildi, hangisi VERİLMEDİ
+
+| şablon | rol | reçete | verilen | gerekçe |
+|---|---|---|---|---|
+| `karsilastirma` | başlık | 70 | **88** | 70'te ölü bant %24,4 (tavan %23); eşik 80–88 arasında ölçüldü |
+| `memphis` | başlık | Anybody 125 | **125** | Archivo 125 aynı jesti veriyor; genişleyen yön ölü bant AÇMIYOR |
+| `kavis` | gövde | 88 | **88** | beton yüzeyle birlikte sıkı sanayi dokusu |
+| `akan-alan` | başlık | 95 | **YOK** | ölçüldü: 95 yalnız **%4,6** fark — kapının %6 görünürlük eşiğinin altında, yani hiçbir şey değiştirmeyen bir bildirim olurdu |
+| `alinti` | atıf | 75 | **YOK** | atıf `govde` yuvasını paylaşıyor; 75 vermek 2. ve 3. kartların GERÇEK gövde metnini de daraltır |
+| `veri-hikayesi` · `dizin` | panel | Mono 87,5 | **YOK** | panel metni `.baslik`/`.govde` değil; üçüncü bir alan gerekiyor, sözleşme değişikliği |
+
+Archivo'nun ölçülen bandı: 62→%32 · 70→%25,6 · 75→%21,5 · 80→%17,3 · 88→%10,7 ·
+**95→%4,6** · 112→%12,7 · 125→%26,3. Martian Mono 75'in altında ve 112,5'in üstünde
+KIRPIYOR (62/70/75 hepsi %14,3).
+
+**Kural:** bir şablon yalnız **ölçülebilir** bir genişlik ister. Reçetenin bir sayısı
+görünmüyorsa yazılmaz — yazılan ama hiçbir şey yapmayan bildirim, bu depoda on beş kez
+çıkan sessiz arıza sınıfının ta kendisi.
+
+### 19.6: beş palet vardı, ÜÇ ŞABLON dışında kalmıştı
+
+Reçete 0.3'ün beş paleti token'lara zaten girmişti. Ölçüldü — yedi şablon reçetenin `A`
+tablosuyla **birebir** örtüşüyordu (akan-alan P1 · sahne P1 · veri-hikayesi P5 · alinti P3
+· kavis P4 · karsilastirma P2 · dizin P2), ama üçü jenerik rol belirteçleriyle çiziliyordu:
+
+| şablon | eskiden | şimdi | reçete |
+|---|---|---|---|
+| `memphis` | `--role-surface` | `palet-kagit-taban` + oksit | P3+P4 riso |
+| `editoryal` | `--ramp-marka-kagit-0` | `palet-kagit-taban` + oksit | P3, mavi YOK |
+| `donen` | `--role-bg` | `palet-murekkep-taban` + mavi | P1↔P3 |
+
+**Aile garantisi matematiksel:** beş palette `accent` hue'su sabit **262**, `signal`
+hue'su ISO 3864 uyarı bandında (26–95); değişen yalnız L ve C. Bir şablon paletin dışına
+çıkarsa garanti sessizce bozulur. Yeni kapı `palet-ailesi` üç şey istiyor: zemin beş
+paletten biri · aksan zeminle AYNI palet (`memphis` hariç, riso için iki palet meşru) ·
+**beşinin beşi de kullanılmış**.
+
+⚠ Çizildi ve BAKILDI: `editoryal` artık soğuk `marka-kagit` yerine SICAK kâğıtta ve aksanı
+oksit — reçetenin *"bu şablon paletten çıkışın kanıtı olacak"* dediği şey. `donen`in
+alternansı bozulmadı, künye şeridi palet mürekkebine geçti.
+
+### Aksan disiplini: sayısal kural ZATEN tutuyor — tekdüzelik tutmuyor
+
+Denetimin 5. müdahalesi dört rol istiyor (`vurgu` ≤2 · `alan` · `isaret` · `yok` ≥1).
+Ölçüldü — on destenin **onunda da** aksanlı başlık sayısı **tam 2**:
+
+| deste | vurgulu/kart | | deste | vurgulu/kart |
+|---|---|---|---|---|
+| veri-hikayesi | 2/9 | | editoryal | 2/4 |
+| akan-alan | 2/6 | | kavis | 2/5 |
+| sahne | 2/4 | | alinti | 2/3 |
+| memphis | 2/7 | | karsilastirma | 2/5 |
+| donen | 2/4 | | dizin | 2/7 |
+
+Yani `vurgu ≤2` ve `yok ≥1` **tutuyor** — ama tam olarak tutması sorunun kendisi: on deste
+de aynı sayıyı aynı sözdizimsel yerde kullanıyor. Denetimin *"aksan dokuya dönüşmüş"*
+dediği şey bir kural ihlali değil, **TEKDÜZELİK.**
+
+⚠ Kalan üç rol (`alan` ≥%20 mavi alan + oyulmuş beyaz · `isaret` tek küçük işaret ·
+açıkça `yok`) bir KOMPOZİSYON işi, renk işi değil → **19.7**. Yeni kapı `aksan-disiplini`
+bugünkü kazanımı kilitliyor ve ayrıca reçetenin *"mavi YOK"* dediği iki şablonda
+(`editoryal` · `memphis`) aksanın mavi OLMADIĞINI zorluyor — palet değişikliği sessizce
+geri alınamasın.
+
+### `gamut` kapısı ZATEN vardı ve eşiği bilinçli olarak reçeteden farklı
+
+Reçete `C ≤ maxC(L)×0,85` diyor; kapı **%96** kullanıyor ve gerekçesi kayıtlı: depodaki
+mavi rampası cusp'ı BİLEREK takip ediyor (her L'de maksın %94–95'i) ve bu bir kusur değil
+tasarımın kendisi. %85 o rampayı haksız yere kırmızıya çevirir ve kapı görmezden
+gelinirdi. Yani 19.6'nın bu kalemi açılmadan önce kapanmıştı.
+
+### "Kapanış pano taşımaz" kuralı DARALTILDI — iki kapı beni düzeltti
+
+Kuralı on desteye birden uyguladım ve iki kapı haklı olarak kırmızı döndü:
+
+**① `dizin-butunlugu`:** *"HER kart dizinin TAMAMINI taşıyor."* O şablonun kimliği
+"dört maddenin dördü her kartta" ve son kart o bütünlüğün TAMAMLANDIĞI yer. Listesi bir
+içerik panosu değil, destenin **taşıyıcısı**. Kural daraltıldı, `dizin` muaf — muafiyet
+kuralı DELMİYOR, sınırını çiziyor.
+
+**② `veri-egrisi`:** *"başlık 'iki katına' diyor — eğri de İKİ KAT yükselmeli"* (değer =
+`100 − y`, yani 45 → 90). Eğriyi yumuşatınca **1,6×** kaldı ve tipografi geometriyi
+yalanladı — üstelik bu denetimin `veri-hikayesi` için en sert bulgusuydu. **Yumuşatma
+GERİ ALINDI.** Doğru çözüm eğriyi kısaltmak değil, **onu son kartın başında BİTİRMEK**:
+noktalar `x83 y10` — iddia tam VARIŞTA tamamlanıyor ve kapanış kartı temiz kalıyor.
+
+⚠ Üçüncü bir kapı da eskimişti: `katalog-ornek.test.ts` `veri-hikayesi`de liste panosu
+arıyordu; o destenin tek listesi kapanış kartındaydı ve kaldırılınca test dayanaksız
+kaldı. `dizin`e çevrildi — ama `dizin` HER kartta liste taşıdığı için tek kartı bozmak
+ikonu yok etmiyordu; iddia *"bir satır bile eşleşmezse"* olduğuna göre **hepsi** bozuluyor.
+*Bir desteyi örnek alan test, o destenin yapısı değişince sessizce anlamını yitirir.*
