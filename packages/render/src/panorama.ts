@@ -957,6 +957,16 @@ const VINYET_YUZEY: Readonly<Record<Yuzey, number>> = {
 const vinyetGucu = (acikklik: number, yuzey?: Yuzey): number =>
   yuzey === undefined ? (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34) : VINYET_YUZEY[yuzey]
 
+/**
+ * Bir zeminin "orta ton" sayıldığı alt sınır.
+ *
+ * ⚠ 0,30 ölçümden: `beton-taban` L=0,380 ve orada soluk adımı 3,48 veriyor (eşik 4,5);
+ * ondan koyu zeminler (`ink-1000` 0,105 · `ink-950` 0,165 · `murekkep-alan`) 6,3–7,3
+ * veriyor, yani sınırın altı sağlıklı. Üst sınır `koyuMu`nun 0,55'i — ondan açığı zaten
+ * açık zemin dalına gidiyor.
+ */
+const ORTA_ZEMIN_TABANI = 0.3
+
 const koyuMu = (zemin: string, tokenCss = ''): boolean => {
   const l = tokenAcikligi(zemin, tokenCss)
   // ⚠ Eşik 0,55: oklch açıklığı algısal, yani orta gri gerçekten 0,5 civarında.
@@ -1037,7 +1047,22 @@ const kartRenkleri = (
         // ⚠ Soluk metin ALFA HARMANI DEĞİL, ölçülmüş bir adım: #989898, koyu kanvasta
         // 7.12:1. Alfa ile yaklaşmak "aşağı yukarı soluk" demektir; sistem "şu kadar
         // soluk, şu kadar kontrast" diyor.
-        soluk: 'var(--role-soluk-koyu, var(--role-surface))',
+        //
+        // ⚠ ⚠ **AMA O ÖLÇÜ TEK BİR KANVASA GÖREYDİ — ve beş palet başka zeminler getirdi.**
+        // Ölçüldü (gövde metni ile ARKASINDA GERÇEKTEN BOYANAN yüzey arasında, piksel
+        // histogramıyla): on destenin yedisi **6,3–7,3** ile belgelenen değeri doğruluyor,
+        // `editoryal` 5,29 — ama **`kavis` 3,48** ve bu WCAG AA eşiğinin (4,5) ALTINDA.
+        // Sebebi zemin: `beton-taban` L=0,380, yani ORTA TON; sabit soluk adımı (ink-450,
+        // L=0,680) ona fazla yakın kalıyor. Karanlık kanvasta 7,12 veren aynı renk, orta
+        // tonda 3,48 veriyor.
+        //
+        // ⚠ Çözüm tek desteyi elle düzeltmek DEĞİL, adımı ZEMİNDEN türetmek: zemin orta
+        // tondaysa soluk yukarı çıkıyor. Eşik `koyuMu`nun 0,55'iyle aynı aileden ve alt
+        // sınır 0,30 — ondan koyu zeminlerde ink-450 zaten ölçülmüş 6,3–7,3'ü veriyor.
+        soluk:
+          (tokenAcikligi(zemin, tokenCss) ?? 0) >= ORTA_ZEMIN_TABANI
+            ? 'var(--ramp-marka-ink-200, var(--role-surface))'
+            : 'var(--role-soluk-koyu, var(--role-surface))',
       }
     : // ⚠ Açık zeminde aksan MÜREKKEP: amber üstüne amber görünmez, kâğıt üstüne amber
       // ise 1,9:1 kontrast veriyor (FAZ-12.6'da ölçüldü) — WCAG AA'nın yarısı.
@@ -1048,7 +1073,18 @@ const kartRenkleri = (
         // için AYRI bir adım taşıyor (#0b5bf0, 5.34:1) — yani artık marka rengi açık
         // zeminli slaytta da görünebiliyor ve karosel tek bir aksanla konuşuyor.
         aksan: paletAksani ?? 'var(--role-vurgu-acik, var(--role-line-edge))',
-        soluk: 'var(--role-soluk-acik, var(--role-line-edge))',
+        // ⚠ ⚠ **AÇIK DALDA DA AYNI HASTALIK VARDI, daha hafif.** Ölçüldü: `alinti`nin
+        // gövdesi kâğıt üstünde **4,14** (piksel), aletin kalibrasyonuyla ≈4,35 —
+        // WCAG AA eşiğinin (4,5) hemen altında. `--role-soluk-acik` = ink-600 (L=0,520)
+        // ve kâğıt L≈0,95; aradaki fark yetmiyor. Çok açık zeminde adım bir basamak
+        // KOYULAŞIYOR (ink-650, L=0,485). Daha koyusu (ink-850, L=0,270) soluk olmaktan
+        // çıkıp gövde metnine dönerdi — soluk, sessiz OLMALI ama okunur KALMALI.
+        // ⚠ Koşul KALDIRILDI ve sebebi ölçüldü: eşiği 0,85 koyunca `alinti` düzeldi ama
+        // `editoryal` (zemini daha koyu bir açık ton) 4,12'de kaldı. Tahmin edilmiş bir
+        // eşik yerine kuralın kendisi: AÇIK zeminde daha koyu bir adım kontrastı yalnızca
+        // ARTIRIR, hiçbir desteyi kötüleştiremez. Basamak farkı küçük (0,520 → 0,485),
+        // yani soluk hâlâ sessiz ama artık her açık zeminde okunur.
+        soluk: 'var(--ramp-marka-ink-650, var(--role-line-edge))',
       }
 
 const MUREKKEP_T = 'var(--role-line-edge)'
@@ -2444,6 +2480,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // ve taban sessizce eşik altına iner. Açı sabit, piksel türev.
     // ⚠ Blok ARASI bosluk tabandan (R-100); yedek deger tuvale cevrilmis 54 px, cunku
     // `panoramaHtml` tek basina cagrilirsa (editor onizlemesi) punto olcumu kosmamis olur.
+    // ⚠ ⚠ **GOVDE ARTIK SOLUK DEGIL, TAM METIN — ve bu bir ayar degil KARAR.**
+    // Govde `--kart-soluk` ile ciziliyordu ve kontrast olcumu bunun sistemik bir
+    // erisilebilirlik acigi oldugunu gosterdi: `editoryal` 4,12 · `alinti` 4,14 ·
+    // `kavis` 3,16-3,42 — hepsi WCAG AA esiginin (4,5) ALTINDA. Soluk adimini zeminden
+    // turetmek `kavis`i kurtardi ama `editoryal` 4,12'de kaldi: rampada ink-650
+    // (L=0,485) ile ink-850 (L=0,270) arasinda adim YOK.
+    // ⚠ Asil kusur adimda degil ATAMADAYDI: soluk, ALT YAZI ve etiket rengidir; govde
+    // metni ICERIKTIR ve tam murekkeple cizilir. Hiyerarsiyi renk degil BOYUT tasiyor —
+    // baslik zaten uc dort kat buyuk. Ust etiket soluk kalmaya devam ediyor.
+    // ⚠ Olculdu: govde kontrasti ~4,1'den 8,3-17,6'ya cikti. Cizildi ve BAKILDI
+    // (editoryal · alinti · kavis): hiyerarsi bozulmadi, dokulu kagitta soluk duran
+    // govde artik net.
     `  .govde { margin-top: calc(var(--taban, ${olc(54)}px) * 1);`,
     // ⚠ Genislik degiskenden; degisken yoksa bildirim GECERSIZ olur ve govde varsayilan
     // genislikte kalir. Yedegi 100% YAZILMIYOR: "verilmemis" ile "100 istenmis" ayirt
@@ -2466,7 +2514,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // Gövde kolonu 200 px aşıp fotoğrafın altına giriyordu — punto tabanı (34 px) bunu
     // görünür yaptı, sebep olmadı; hata baştan oradaydı ve küçük puntoda saklanıyordu.
     // ⚠ `min()`: satır uzunluğu okunabilirlik için 34ch'i AŞMAMALI, kolonu da aşmamalı.
-    `           line-height: 1.5; color: var(--kart-soluk);`,
+    `           line-height: 1.5; color: var(--kart-metin);`,
     // ── ölçü BANDI: 45–75 karakter (R-86) ──────────────────────────────────
     //
     // ⚠ ⚠ **ÖLÇÜLDÜ: SATIR ÇOK DARDI, ÇOK GENİŞ DEĞİL.** Gövde başlığın sütununa
@@ -2632,7 +2680,14 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // yarışmıyor. Daha düşüğü listeyi "gri bir leke" yapar ve bütünü göstermenin anlamı
     // kalmaz; daha yükseği yanık satırı öldürür. Yanık satır ayrıca AKSAN taşıyor —
     // aksan disiplini (vurgu ≤2) metin içindir, bir dizinin ŞU AN işaretini kapsamaz.
-    `  .liste-satir.sonuk { opacity: 0.38 }`,
+    // ⚠ ⚠ **0,38 GÖZLE SEÇİLMİŞTİ VE ÖLÇÜM YANLIŞLADI.** Yukarıdaki yorum *"okunuyor ama
+    // yarışmıyor"* diyor; piksel ölçümü okunMADIĞINI söyledi — `dizin` sönük satırları
+    // **3,22-3,31**, `memphis` **2,45-2,57**, hepsi WCAG AA eşiğinin (4,5) altında.
+    // Üç değer ölçüldü: 0,55 → en düşük 3,94 (yetmiyor) · 0,62 → **4,92** · 0,70 → 6,42.
+    // 0,62 seçildi: eşiği payıyla geçiyor ve geri çekilme hâlâ görünüyor.
+    // ⚠ Yanık satır ölmüyor çünkü ayrımı YALNIZ opaklık taşımıyor: tam mürekkep + 600
+    // ağırlık + aksan renkli numara. Üç sinyal, biri zayıflayınca ötekiler duruyor.
+    `  .liste-satir.sonuk { opacity: 0.62 }`,
     // ⚠ ⚠ **YAYIK LİSTE — ölü bandı DOLDURAN şey, eklenen bir kutu DEĞİL.** Boşluğa bir
     // öge koymak R-81'in saydığı "kodlanmış öge"yi artırırdı ve tam da şikâyet edilen
     // HTML-CSS görüntüsünü üretirdi. Burada eklenen hiçbir şey yok: var olan dört madde

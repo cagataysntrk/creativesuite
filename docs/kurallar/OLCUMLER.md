@@ -3266,3 +3266,83 @@ yok sayılan bir alan, yanlış bir alandan daha tehlikelidir: hata vermiyor.*
 `kavis`te kemerler, `veri-hikayesi`nde eğri var — alet taşıyıcıyı saymıyor. Bir eşik
 koymak o üç şablonu haksız yere kırardı. *Ölçebildiğin her şey kural olmaz; bir metrik
 niyeti okuyamıyorsa kapıya değil deftere yazılır.*
+
+### 19.6'nın son kalemi: kontrast — ve ÜÇ ALET ÜST ÜSTE YALAN SÖYLEDİ
+
+Faz maddesi *"marka mavisi üstüne beyaz gövde YASAK (4,07 < 4,5)"*. Önce ihlal VAR MI diye
+ölçmeye kalktım; üç alet kurdum, ilk ikisi yanlış çıktı.
+
+1. **`getComputedStyle` `oklch()`i ÇÖZMEDEN döndürüyor.** Dizgeden sayı çekip RGB sandım ve
+   alet **91 ögenin 91'ini** "2,16" diye okudu. Tek tip sonuç, uydurma bir alarmdı.
+2. Renkleri tuvale boyayıp çözdüm — ama ZEMİNİ **CSS ağacını yürüyerek** arıyordum.
+   `alinti` k3'ün çağrısı için **1,00** (yani görünmez) dedi; oysa şeritte apaçık okunuyor.
+   Sebep: o kartın gerçek yüzeyi bir SVG **alan sınırı**, CSS `background` değil. Aynı alet
+   `donen`i de 3,56 diye suçladı — o da yanlıştı, kartın kendi kâğıt zeminini görmüyordu.
+3. **Doğru alet pikselden okuyor:** elemanın kutusu ekran görüntüsünden kesiliyor, luminans
+   histogramı çıkarılıyor; ÇOĞUNLUK zemin, uçtaki %2 metin.
+
+Piksel ölçümü: **`kavis` dört kartın dördünde 3,16–3,42** · `alinti` gövde 4,14–4,18 ·
+öteki sekiz deste temiz. Bağımsız bir ikinci ölçüm (token'ları prob ile çözüp oran alan)
+`kavis` için **3,48** dedi — iki alet aynı şeyi söylüyor, bulgu gerçek.
+
+⚠ ⚠ **VE SEBEP SİSTEMİK.** `--role-soluk-koyu` (#989898) yanında şu yazıyor: *"koyu
+kanvasta 7,12:1"* — o ölçü **TEK BİR KANVASA** göre yapılmış. Beş palet, hiç ölçülmemiş
+zeminler getirdi: `kavis`in zemini `beton-taban`, yani orta ton. On destenin ölçümü şöyle:
+yedisi **6,3–7,3** (belgelenen değerle uyumlu), `editoryal` 5,29, `kavis` **3,48**. Sabit
+bir soluk adımı, değişken bir zemin ailesiyle birlikte yaşayamıyor.
+
+⚠ Marka mavisi + beyaz vakasının kendisi bugün HİÇBİR destede yok; kural yine de gerekli,
+ama asıl açık daha genel: **gövde metni, ARKASINDA GERÇEKTEN BOYANAN yüzeye karşı 4,5'i
+geçmek zorunda.** → 19.6 kapanışı
+
+**Düzeltme ve nerede durduğu.** Soluk adımı artık ZEMİNDEN türüyor:
+- koyu zemin **orta tondaysa** (L ≥ 0,30) adım yukarı çıkıyor (ink-450 → ink-200);
+- açık zeminde adım bir basamak koyulaşıyor (ink-600 → ink-650) — koşulsuz, çünkü açık
+  zeminde daha koyu bir adım kontrastı yalnızca ARTIRIR, hiçbir desteyi kötüleştiremez.
+  (Önce 0,85 eşiği yazıldı; `alinti` düzeldi ama `editoryal` 4,12'de kaldı. Tahmin edilmiş
+  bir eşik yerine yönü garanti olan kural seçildi ve ölü sabit söküldü.)
+
+Ölçülen sonuç: **`kavis` 3,16–3,42 → 7,18–7,65** · `alinti` 4,14 → eşiğin üstünde ·
+`kavis` k4 çağrısı 4,45 (kalibreli ≈4,68). Çizildi ve BAKILDI: `kavis`in gövdesi beton
+zeminde artık okunuyor.
+
+⚠ ⚠ **AÇIK KALAN İKİ VAKA — TİKLENMİYOR.** `editoryal` gövdesi kâğıt üstünde **4,12**
+(kalibreli ≈4,33) ve `memphis` k3'ün liste satırları **2,45–2,57**. İkisi de rampanın
+yapısına takılıyor: ink-650 (L=0,485) ile ink-850 (L=0,270) arasında adım YOK ve ink-850
+soluk olmaktan çıkıp gövde metnine dönüşür. Asıl soru daha derinde: **gövde metni neden
+SOLUK adımı kullanıyor?** Çoğu sistemde soluk, alt yazı ve etiketlerin rengidir; gövde tam
+metin rengiyle çizilir. Bunu değiştirmek on destenin tonunu değiştirir — ayar değil TASARIM
+kararı, bu yüzden ölçülüp bırakıldı.
+
+⚠ Aletin kalibrasyonu: `karsilastirma` pikselde 6,92, bağımsız token probunda 7,30 — piksel
+yöntemi kenar yumuşatma yüzünden tutarlı biçimde **%5 düşük** okuyor. Eşiğe yakın sayılar
+bu payla okunmalı.
+
+### Karar: gövde metni SOLUK adımı kullanmayı bıraktı
+
+Yukarıdaki iki açık vaka (`editoryal` 4,12 · `memphis` liste 2,45) rampanın yapısına
+takılıyordu ve asıl soru şuydu: **gövde metni neden soluk adımı kullanıyor?** Denendi,
+ölçüldü, çizildi, BAKILDI.
+
+`.govde` rengi `--kart-soluk` → `--kart-metin`. Ölçülen gövde kontrastı **~4,1'den
+8,3–17,6'ya** çıktı (on destenin onunda da eşiğin üstünde). Şeride bakıldı — `editoryal`,
+`alinti` ve `kavis` — ve **hiyerarşi bozulmadı**: onu renk değil BOYUT taşıyor, başlık
+zaten üç dört kat büyük. Dokulu kâğıtta soluk duran gövde artık net. Üst etiket soluk
+kalmaya devam ediyor; soluk artık gerçekten ALT YAZI rengi.
+
+*Kusur adımın değerinde değil, ATAMASINDAYDI.*
+
+### Sönük liste satırı: 0,38 gözle seçilmişti, ölçüm yanlışladı
+
+Geriye kalan tek grup dimmed liste satırlarıydı. Kodun yorumu *"opaklık 0,38: okunuyor ama
+yarışmıyor"* diyor — piksel ölçümü **okunMADIĞINI** söyledi: `dizin` **3,22–3,31**,
+`memphis` **2,45–2,57**.
+
+Üç değer ölçüldü: 0,55 → en düşük **3,94** (yetmiyor) · 0,62 → **4,92** · 0,70 → 6,42.
+**0,62** seçildi ve çizilip bakıldı: sönük satırlar okunuyor, yanık satır hâlâ ayrışıyor —
+çünkü ayrımı yalnız opaklık taşımıyor: **tam mürekkep + 600 ağırlık + aksan renkli numara.**
+Üç sinyal; biri zayıflayınca ötekiler ayakta kalıyor.
+
+⚠ Bu turda gözle seçilip hiç ölçülmemiş **üçüncü** sayı çıktı (soluk adımı · sönük opaklık ·
+`--role-soluk-koyu`nun tek kanvaslık ölçüsü). Ortak kalıp: *bir sayı bir kez doğru
+görünmüş, sonra sistem etrafında değişmiş ve sayı kimseye haber vermeden yanlışa düşmüş.*

@@ -159,15 +159,15 @@ Ayrı `.ust-cizgi`, `normal` kip: 0,082 / 0,089 · çizgisiz kontrol `kavis` **0
    (ölçüldü: %4,6, görünürlük eşiğinin altı). ⚠ **KALAN BORÇ:** `alinti` atfı hâlâ gövde
    sesinde; ayrı atıf yuvası bir SÖZLEŞME değişikliği (→ 19.9).
 
-### 19.6 — RENK    [ ]
-Cusp-takipli rampa (`C ≤ maxC(L)×0,85`) — sabit kroma h=262'de 12 basamağın 5'ini
-sessizce kırpıyor ve kırpma **hue kaydırıyor** (L=0,15'te `#0F0061`, mor). **İki nötr
-rampa:** sıcak kâğıt h=75 · soğuk çelik h=250 — saf 0-kroma ekrandaki en ölü yüzeydir.
+### 19.6 — RENK    [x]
+Cusp-takipli rampa (`C ≤ maxC(L)×0,85`) — sabit kroma h=262'de 5 basamağı kırpıp **hue
+kaydırıyor**. **İki nötr rampa:** kâğıt h=75 · çelik h=250; saf 0-kroma en ölü yüzeydir.
 **Beş palet token'a girer** (P1 mürekkep+mavi · P2 çelik+bakır · P3 kâğıt+oksit ·
-P4 beton+amber · P5 gece+magenta) ve §4 tablosundaki şablona atanır. **Marka mavisi
-üstüne beyaz gövde metni YASAK** (4,07 < 4,5) — `--mavi-500`e in ya da metni siyah yap.
-**Sinyal renkleri ICAT EDİLMEZ:** ISO 3864 / RAL. **Aksan disiplini** dört rol
-(`vurgu` ≤2 · `alan` ≥%20 mavi alan + oyulmuş beyaz · `isaret` · `yok` ≥1).
+P4 beton+amber · P5 gece+magenta) ve §4 tablosundaki şablona atanır. **Kontrast ✅** — o vaka
+hiçbir destede yoktu ama ölçüm daha genel bir açık buldu: soluk adımı ZEMİNDEN türüyor,
+`.govde` soluk değil TAM metin (kusur değerde değil ATAMADAYDI), sönük satır 0,38 → 0,62.
+`kavis` 3,16 → 7,18; gövde ~4,1 → 8,3-17,6. → `okuma-kontrasti`
+**Sinyal renkleri ICAT EDİLMEZ:** ISO 3864 / RAL. **Aksan disiplini ✅** dört rol.
 *Tek mavi anı işe yarayan şey nadirliğidir.*
 
 ### 19.7 — KOMPOZİSYON VE SEAMLESS AKIŞ    [ ]
