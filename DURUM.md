@@ -16,7 +16,7 @@ son_kanit: "FAZ-19.4 KAPANDI. Son kalem cizgili zemindi ve 14. ZINCIR KOPUKLUGUY
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**50 kapı · 24 ihlal kırmızı · 2263 test.**
+**50 kapı · 24 ihlal kırmızı · 2273 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·

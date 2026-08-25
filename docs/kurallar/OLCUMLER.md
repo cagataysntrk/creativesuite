@@ -2661,3 +2661,29 @@ Arama tavanını yükselten değişiklik ateşlenmediği için SÖKÜLDÜ (kod o
 
 ⚠ R-98 DOKUZUNCU kez ısırdı: bu bulgunun yorumuna yazdığım ters tırnaklar şablon
 değişmezini kapattı, derleme iki hatayla durdu.
+
+### İki uç: oran değil VARLIK ölçülür — yeni kapı `iki-uc`
+
+Dinamik aralık oranı (25,4:1) denetimin şikâyetini ölçmüyordu; oran yalnız iki UCU görür
+ve o iki uçtan biri **tek bir ögenin sırtında**. Kapı artık oranı değil iki ucun VARLIĞINI
+sınıyor, üç iddiayla:
+
+| iddia | eşik | bugünkü en zayıf | pay |
+|---|---|---|---|
+| destede DEVASA bir ses var | kapak ≥ **220 px** | `donen` **250** | %14 |
+| destede FISILTI ucu var | kapak ≤ **20 px** | 11–12 px | %40 |
+| dev ses RAKAMDIR, cümle değil | harf yok | `2,0×` `00` `360°` `-25` | — |
+
+**Kasten iki kez ihlal edildi, ikisi de kırmızı döndü — ve ikisi FARKLI iddiayı kırdı:**
+
+1. Kapanış rakamı yerine bir CÜMLE (`Ölçmek bilmektir`) kondu → *birinci* iddia patladı:
+   **66 px** kapak, eşik 220. ⚠ Öğretici: uzun bir cümle dev yuvaya konunca zaten dev
+   OLMUYOR — punto oturtucu onu küçültüyor. Yani boy kuralı, harf kuralından önce yakalar.
+2. Bu yüzden ikinci ihlal KISA bir kelimeyle yapıldı (`TAM`) → *üçüncü* iddia patladı:
+   *"dev ses harf taşıyor"*. **Tek bir ihlalle iki kuralın ikisi de sınanamıyordu.**
+
+Eşiklerin gerekçesi: 220 tabanı denetimin `--punto-rakam` bandının (240–360 kapak) hemen
+altında ve ölçülen en zayıf desteye %14 pay bırakıyor; bir desteden kapanış rakamı düşerse
+ikinci büyük ses ~90 px kapak olduğu için kapı kesin kırmızı döner. 20 px tavanı ölçülen
+11–12'nin rahat üstünde ama gövde puntosunun (~25 px kapak) ALTINDA: fısıltı gerçekten
+ayrı bir ses olmak zorunda.
