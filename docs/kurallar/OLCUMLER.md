@@ -2014,3 +2014,58 @@ durduğunu söylüyor — tek kartlık yama değil, kural.
 değişmezi kapatıyor. Bu oturumda altıncı ve yedinci kez.
 
 Kasten ihlal: `imzaninZemini` geri alındı, kapı ΔL 0,190 ile kırmızı döndü.
+
+---
+
+## `alinti` alanı YÜKSELDİ — kapı yol gösterdi, ölçüm sınırı çizdi
+
+Geçen tur sınırı 78→62'ye çekmek kapanış kartını yutmuştu ve geri alınmıştı. Bu tur
+bekçi vardı (`alan-siniri.test.ts`) ve **her adımda bir sonraki ögeyi adıyla söyledi.**
+
+### Kapı üç kez konuştu, üçünde de haklıydı
+
+1. Sınır yükseltildi → **`kapanis-rakam` ΔL 0,000**. Geçen turun kusuru, bu kez sayıyla.
+2. Kapanış bloğunun tamamına alt alanın rengi verildi → ΔL 0,000 → **0,035**. Renk
+   değişti ama hâlâ okunmuyor: **blok iki alanı birden kaplıyor**, tek renk ikisinde
+   birden okunamaz.
+3. Blok değişkeni ögelere BÖLÜNDÜ → yeşil.
+
+### Ölçülen pencere: kapanış bloğu bir yığın değil, üç ayrı yükseklik
+
+`kutu.mjs` ile ölçüldü (tahmin değil): `kapanis-rakam` **y%45,3-72,0** · `kapanis-isaret`
+**%76,8-81,2** · `kapanis-cagri` **%83,0-86,8**. Sınırın kart 3'te geçebileceği tek temiz
+aralık **%72-77** — rakamın dibiyle işaretin tepesi arası.
+
+Yeni sınır **88 → 74**: kart 1'de %85,7, kart 2'de %79, kart 3'te %75,7.
+
+| | önce | sonra |
+|---|---|---|
+| `alinti` ölü bant | %26 · %19 · %10 | **%21 · %18 · %10** |
+| kapsam | %56 | **%58** |
+| destenin en uzunu | %26 | **%22** |
+
+⚠ 78→62 hâlâ imkânsız ve sebebi geometrik: kart 3'te rakam %45-72 arasını kaplıyor,
+sınır 64'te onu **ortadan keser**. Tek renk iki alanda birden okunamayacağı için çözüm
+**knockout maskesi** — sınırın iki yakasında rakamın iki ayrı renkte çizilmesi.
+Sıradaki iş, ve `alinti`nin kalan %21'i o iş yapılana kadar açık borç.
+
+### Kapının kendi deliği: yalnız KESİLENİ denetliyordu
+
+Blok değişkenini yazdığımda kapı **yeşil** kaldı ve gerileme çizimde göründü: dev rakam
+açık alanda açık. Sebep — kapı yalnız sınırın **kestiği** ögeleri ölçüyordu; kesmediği
+ögeyi hiç sormuyordu. **Bir kapının görmediği yer, bir sonraki kusurun saklandığı yerdir.**
+Kapı genişledi: her öge artık **üstünde durduğu** alana karşı ölçülüyor; kesilen öge ikisine
+karşı.
+
+### Ve alet DÖRDÜNCÜ kez yalan söyledi — `oklab`
+
+Genişletilmiş kapı üç "kusur" daha bildirdi: `kapanis-rakam-alt` ve `panel-baslik`.
+Hepsi SAHTEydi. Tarayıcı sessiz etiketleri `oklab(0.95 ... / 0.62)` diye veriyor; parser
+yalnız `oklch` biliyordu ve sayısal yedeğe düşüp **0,95'i RGB sanıyordu**.
+
+⚠ Ayrıca **alfa görmezden gelinemez**: %62 opak bir etiket zemine karışıyor ve algılanan
+fark tam olarak alfa katsayısı kadar küçülüyor (bileşke L = a·metin + (1−a)·alan, yani
+|bileşke − alan| = a·|metin − alan|). Kural sessiz etiketi susturmuyor, **ölçüyor**.
+
+Kasten ihlal: `RAKAM_Y` 58'den 90'a alındı (rakam da imzanın alanını sorar oldu), kapı
+ΔL 0,035 ve 0,022 ile kırmızı döndü. **Ölü bant tavanı %27 → %23.**

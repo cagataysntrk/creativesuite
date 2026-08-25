@@ -1466,12 +1466,22 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
    * **ΔL 0,000** ile kayboluyordu. Kapı adıyla söyledi: `alan-siniri.test.ts`.
    * ⚠ Sınırın y'si kartın MERKEZİNDEN okunuyor; imza kartın ortasında, dibe yakın.
    */
-  const IMZA_DIBI = 87
-  const imzaninZemini = (k: Kart, i: number): string => {
+  /**
+   * ⚠ ⚠ **HER ÖGE SINIRI KENDİ YÜKSEKLİĞİNDE SORAR.** Tek bir blok değişkeni KABA kaldı
+   * ve ölçüldü: kapanış bloğu iki alanı birden kaplıyor — rakam y%45-72, işaret %77-81,
+   * çağrı %83-87. Bloğun tamamına alt alanın rengini vermek çağrıyı kurtarırken dev
+   * rakamı AÇIK alanda AÇIK bıraktı (ΔL 0,035) ve bunu ilk kapı göremedi çünkü yalnız
+   * sınırın KESTİĞİ ögeleri denetliyordu. Kapı genişletildi, kural inceltildi.
+   * ⚠ Yükseklikler ÖLÇÜLDÜ (`kutu.mjs`), tahmin edilmedi.
+   */
+  const RAKAM_Y = 58
+  const IMZA_Y = 84
+  const bloktaZemin = (k: Kart, i: number, y: number): string => {
     const a = doc.alanSiniri
     if (a === undefined) return kartinZemini(k)
-    return araDeger(a.noktalar, (100 * (i + 0.5)) / n) < IMZA_DIBI ? a.alt : a.ust
+    return araDeger(a.noktalar, (100 * (i + 0.5)) / n) < y ? a.alt : a.ust
   }
+  const imzaninZemini = (k: Kart, i: number): string => bloktaZemin(k, i, IMZA_Y)
   const kartlar = doc.kartlar
     .map(
       (k, i) =>
@@ -1584,6 +1594,18 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
 
             `--kart-metin:${r.metin};` +
             `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk};` +
+            // ⚠ ⚠ **KAPANIŞ BLOĞU KENDİ ALANININ RENGİNİ SORUYOR.** `imzaninZemini` marka
+            // işareti için kurulmuştu; kapı sınırı yükseltince bir sonraki ögeyi adıyla
+            // söyledi: dev varış rakamı da ΔL 0,000 ile alt alanda kayboluyordu. Kural
+            // ögeye değil BLOĞA ait — kapanış bloğunun tamamı dibe yaslı ve sınır onun
+            // üstünden geçtiğinde hepsi alt alanda duruyor.
+            // ⚠ Alan sınırı yoksa değerler kartın kendi renkleriyle AYNI: kural yalnız
+            // iki alanlı zeminde bir şey değiştiriyor.
+            ((): string => {
+              const rz = kartRenkleri(bloktaZemin(k, i, RAKAM_Y), doc.tokenCss, doc.aksan)
+              const iz = kartRenkleri(imzaninZemini(k, i), doc.tokenCss, doc.aksan)
+              return `--kapanis-rakam-metin:${rz.metin};--kapanis-metin:${iz.metin};`
+            })() +
             `--hayalet-renk:${hr.metin}">`
           )
         })() +
@@ -1948,14 +1970,15 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // değer yalnız yedek — kesilmiş bir rakam, küçük bir rakamdan kötüdür.
     `  .kapanis-rakam { font-family: 'Marka Baslik', sans-serif; font-size: ${olc(458)}px;`,
     `                   line-height: 0.84; font-weight: 700; letter-spacing: -0.045em;`,
-    `                   color: var(--kart-metin); font-feature-settings: 'tnum' 1, 'locl' 1 }`,
+    `                   color: var(--kapanis-rakam-metin, var(--kart-metin));`,
+    `                   font-feature-settings: 'tnum' 1, 'locl' 1 }`,
     `  .kapanis-rakam-alt { font-family: 'Marka Mono', ui-monospace, monospace;`,
     `                       font-size: ${olc(24)}px; letter-spacing: 0.14em;`,
-    `                       color: ${sol('--kart-metin', 62)} }`,
+    `                       color: color-mix(in oklab, var(--kapanis-rakam-metin, var(--kart-metin)) 62%, transparent) }`,
     `  .kapanis-isaret { height: ${olc(64)}px; width: auto; display: block }`,
     `  .kapanis-cagri { margin: 0; font-family: 'Marka Baslik', sans-serif;`,
     `                   font-size: ${olc(44)}px; line-height: 1.24; font-weight: 500;`,
-    `                   letter-spacing: -0.012em; color: var(--kart-metin);`,
+    `                   letter-spacing: -0.012em; color: var(--kapanis-metin, var(--kart-metin));`,
     `                   max-width: ${olc(760)}px }`,
     // ⚠ `margin-top: auto` YALNIZ `ust` yerleşiminde: diğer üçünde panel'i dibe iten bu
     // kural `justify-content`i ezip yerleşimi anlamsız kılıyordu (yazıldı, bakıldı, görüldü).

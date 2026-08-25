@@ -125,7 +125,9 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
 //   3. kenar payı ölü bant sayıldı · ve font yüklenmiyordu
 //
 // **En kötü artık `alinti` k1 (%26).** Tavan %27: bir puanlık gerçek pay.
-const TAVAN = 27
+// ⚠ **%27 → %23:** `alinti`nin alanı ölçülen pencerede yükseldi (%26 → %21).
+// En kötü artık `akan-alan` k2/k5 (%22).
+const TAVAN = 23
 // ⚠ Tavan 12 DENENDİ ve işe yaramazdı: kapak kartı `yayik` olmadan %12,01 ölçüyor —
 // kapı 0,014 puanla kırmızıya dönüyordu, yani hiçbir şey söylemiyordu. Ölçülen %7,
 // tavan 9: iki puanlık gerçek pay, ve ihlal (%12 · %43) açık farkla düşüyor.

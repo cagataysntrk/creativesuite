@@ -66,14 +66,28 @@ const OLC = `(() => {
   //
   // Ilk surum ayrica dolguyu rgb sanip oklch'i 255'e boldu ve HERKESI gecti. Sessizce
   // her seyi gecen bir kapi, kapi degildir.
+  // oklch VE oklab: ikisinde de L ilk sayi. Ilk surum yalniz oklch biliyordu ve
+  // oklab(0.95 ... / 0.62) sayisal yedege dusup 0,95'i RGB sandi: uc SAHTE kusur
+  // uretti (kasten sessiz etiketler). Bu kapinin dorduncu alet hatasi.
   const acikligi = (c) => {
-    const k = c.indexOf('oklch(')
-    if (k >= 0) return Number(c.slice(k + 6).split(' ')[0])
+    for (const ad of ['oklch(', 'oklab(']) {
+      const k = c.indexOf(ad)
+      if (k >= 0) return Number(c.slice(k + ad.length).split(' ')[0])
+    }
     const sayi = c.replace(/[^0-9.]+/g, ' ').trim().split(' ').map(Number)
     if (sayi.length < 3) return null
     const d = sayi.slice(0, 3).map((v) => { const x = v / 255
       return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4) })
     return 0.2126 * d[0] + 0.7152 * d[1] + 0.0722 * d[2]
+  }
+  // ALFA GORMEZDEN GELINEMEZ: %62 opak bir etiket zemine karisiyor ve algilanan fark
+  // tam olarak alfa katsayisi kadar kuculuyor. Bileske L = a*metin + (1-a)*alan, yani
+  // |bileske - alan| = a * |metin - alan|. Kural sessiz etiketi susturmuyor, olcuyor.
+  const alfasi = (c) => {
+    const k = c.lastIndexOf('/')
+    if (k < 0) return 1
+    const v = Number(c.slice(k + 1).replace(')', '').trim())
+    return isNaN(v) ? 1 : v
   }
   const ISIK = Array.from(svg.querySelectorAll('rect, path'))
     .filter((p) => getComputedStyle(p).fill !== 'none')
@@ -106,7 +120,17 @@ const OLC = `(() => {
       const icinde = nokta.filter(
         (n) => n[0] >= r.left && n[0] <= r.right && n[1] >= r.top - %PAY% && n[1] <= r.bottom + %PAY%
       )
-      if (icinde.length === 0) continue
+      // HER OGE, USTUNDE DURDUGU ALANA KARSI OLCULUYOR (R-98: sablon degismezi ICINDE,
+      // ters tirnak yok). Ilk surum yalniz SINIRIN KESTIGI ogeleri denetledi ve kendi
+      // yazdigim bir gerilemeyi goremedi: kapanis blogunun tamami alt alanin rengini
+      // alinca dev rakam ACIK alanda ACIK kaldi, ama sinir onu kesmedigi icin kapi
+      // yesildi. Bir kapinin gormedigi yer, bir sonraki kusurun sakland1g1 yerdir.
+      const merkezX = (r.left + r.right) / 2
+      const merkezY = (r.top + r.bottom) / 2
+      let sinirY = null
+      for (const nk of nokta)
+        if (sinirY === null || Math.abs(nk[0] - merkezX) < Math.abs(sinirY[0] - merkezX)) sinirY = nk
+      const altta = sinirY !== null && merkezY > sinirY[1]
       // GORSELIN MURKEBI color OZELLIGINDEN OKUNMAZ (R-98: bu blok sablon degismezinin
       // ICINDE, ters tirnak yazilamaz). Marka isareti bir <img>; color onun devraldigi
       // METIN rengi ve goruntuyle ilgisi yok. Ilk surum bunu olctu ve renderer
@@ -117,11 +141,17 @@ const OLC = `(() => {
       // pikselleri olculuyor: saydam olmayan piksellerin ortalama isigi.
       const metin = el.tagName === 'IMG' ? gorselIsigi(el) : acikligi(getComputedStyle(el).color)
       if (metin === null || isNaN(metin)) continue
-      const enYakin = Math.min.apply(null, ISIK.map((v) => Math.abs(metin - v)))
+      // Kesilen oge IKI alana karsi, kesilmeyen yalniz USTUNDE DURDUGU alana karsi.
+      const alanlar = icinde.length > 0
+        ? ISIK
+        : [altta ? Math.min.apply(null, ISIK) : Math.max.apply(null, ISIK)]
+      const a = el.tagName === 'IMG' ? 1 : alfasi(getComputedStyle(el).color)
+      const enYakin = Math.min.apply(null, alanlar.map((v) => a * Math.abs(metin - v)))
       if (enYakin < 0.30)
         kusur.push(
-          'kart ' + (i + 1) + ' · ' + el.className.split(' ')[0] +
-          ' sinirin kestigi alanda okunmuyor (dL ' + enYakin.toFixed(3) + ')'
+          'kart ' + (i + 1) + ' · ' + el.className.split(' ')[0] + ' ' +
+          (icinde.length > 0 ? 'sinirin kestigi alanda' : (altta ? 'ALT' : 'UST') + ' alanda') +
+          ' okunmuyor (dL ' + enYakin.toFixed(3) + ')'
         )
     }
   })
