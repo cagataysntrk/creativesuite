@@ -1381,7 +1381,11 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
     {
       ustBaslik: 'ALINTI',
       baslik: '**Ölçmediğin** şeyi iyileştiremezsin',
-      govde: '',
+      // ⚠ ATIF, UYDURULMADAN. Bu soz yaygin bir yonetim aforizmasi ve sahibi tartismali;
+      // Drucker'a da Kelvin'e de atfediliyor, ikisi de dogrulanmiyor. Sahte bir sahip
+      // vermek R-32'nin ihlali olurdu. Dogru atif, sozun NE OLDUGUNU soylemektir —
+      // olcen bir markanin bir alintinin kaynagini bilmedigini soylemesi tutarliliktir.
+      govde: '— Sanayi sözü, sahibi belirsiz',
       panel: null,
       hayalet: '',
       rayaSol: 'SÖZ',

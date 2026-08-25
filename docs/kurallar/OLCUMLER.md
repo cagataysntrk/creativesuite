@@ -2687,3 +2687,36 @@ altında ve ölçülen en zayıf desteye %14 pay bırakıyor; bir desteden kapan
 ikinci büyük ses ~90 px kapak olduğu için kapı kesin kırmızı döner. 20 px tavanı ölçülen
 11–12'nin rahat üstünde ama gövde puntosunun (~25 px kapak) ALTINDA: fısıltı gerçekten
 ayrı bir ses olmak zorunda.
+
+### Büyük ses kaynağını taşır — kural vardı, YARISI yazılıydı, hiçbiri zorlanmıyordu
+
+`Kart.kapanis.rakamAlt`ın kendi yorumu ilkeyi zaten söylüyor: *"Rakamın altındaki tek
+satırlık okuma — rakam kaynaksız kalmasın (R-32)."* Ölçüldü:
+
+| çağrı yeri | bugünkü durum | kapı |
+|---|---|---|
+| kapanış rakamı → `rakamAlt` | **10/10 dolu** | **yoktu** |
+| alıntı → atıf | **BOŞ** (denetimin 1. şikâyeti) | yoktu |
+
+Yani ilkenin bir yarısı gelenekle yaşıyordu, öteki yarısı hiç yoktu. Yeni kapı
+`kaynak-satiri` ikisini tek kural olarak zorluyor. ⚠ Kapı **ilk koşuşunda gerçek kusuru
+buldu** — deneme ihlaline gerek kalmadı; `rakamAlt` yarısı ise bir kusur bulmuyor, bir
+GELENEĞİ kilitliyor. *Kapının işi her zaman kırmızı bulmak değil, yeşilin kaza eseri
+olmadığını garanti etmek.*
+
+**ATIF UYDURULMADI.** Örnekteki söz yaygın bir yönetim aforizması ve sahibi tartışmalı;
+sahte bir sahip vermek R-32'nin ihlali olurdu. Doğru atıf sözün NE OLDUĞUNU söylemek:
+`— Sanayi sözü, sahibi belirsiz`. *Ölçen bir markanın bir alıntının kaynağını bilmediğini
+söylemesi zayıflık değil tutarlılıktır.*
+
+⚠ **İLK YAZIM ÇİZİLDİ, BAKILDI, KISALTILDI.** İlk hâli (`Sanayi sözü; sahibi
+doğrulanamadı.`) iki satıra sarıyor ve gövde puntosunda (31 px) duruyordu: bir atıf gibi
+değil bir PARAGRAF gibi okunuyordu. Tek satıra çekildi ve başına tire kondu — kart artık
+`— ALINTI` ile açılıp `— Sanayi sözü…` ile kapanıyor, açılış etiketiyle kafiyeli.
+Alttaki ölü alan da küçüldü.
+
+⚠ **AÇIK KALAN (19.5-b):** atıf hâlâ GÖVDE sesinde. Reçete `B` onu `Archivo wdth 75
+wght 500 22px versal` istiyor, yani ÜST ETİKET sesinde. `govdeOrani`yi düşürmek çare
+DEĞİL: aynı şablonun 2. ve 3. kartları `govde`de gerçek gövde metni taşıyor ve R-83'ün
+okuma tabanı (36 px) onları korur. Ayrı bir atıf yuvası bir sözleşme değişikliğidir;
+ölçüldü, yazıldı, 19.5-b'ye bırakıldı.
