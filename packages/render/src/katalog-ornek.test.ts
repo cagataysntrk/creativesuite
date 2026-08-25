@@ -120,10 +120,13 @@ describe('örnek içeriği', () => {
   // *yer olmadığı* için kapatmıştı — tekrarı hiç ölçmemişti.
   // ⚠ Karşılaştırma Türkçe kıvrımlı: `lower` (`İ` → `i`, `I` → `ı`) ve noktalama
   // atılıyor, yoksa `ADIM 01` ile `adım01` eşleşmez.
-  // ⚠ `toLocaleLowerCase('tr')` DOĞRU olurdu ama `turkish-case` kapısı eşleştirmeden
-  // önce string gövdelerini siliyor: denetlediği argümanı GÖREMİYOR ve her doğru
-  // kullanımı yanlış pozitif sayıyor. Kapıyı gevşetmek yerine deponun yetkili yardımcısı
-  // kullanılıyor — zaten doğru cevap o (R-21: case dönüşümü tek yerde).
+  // ⚠ ⚠ **BURADA BİR KAPI KUSURU KAYITLIYDI ve ARTIK DÜZELDİ.** `turkish-case`
+  // eşleştirmeden önce dizi gövdelerini siliyordu: `toLocaleLowerCase('tr')` taramaya
+  // `toLocaleLowerCase('')` olarak geliyor ve kapı DOĞRU kullanımı suçluyordu. Locale
+  // doğrulaması artık ham satırdan okunuyor — iki satırlık bir deney dosyasıyla önce
+  // yanlış pozitif, sonra düzelmiş hâli kanıtlandı.
+  // ⚠ Kod yine de `lower` kullanıyor ve bu bir geçiştirme DEĞİL: R-21 case dönüşümünü
+  // tek yerde topluyor. Kapı düzeldi diye doğru cevap değişmedi.
   it('hayalet slaytta zaten yazan bir kelimeyi TEKRARLAMIYOR', () => {
     const sadelestir = (t: string | null | undefined) =>
       lower(String(t ?? '').trim()).replace(/[^\p{L}\p{N}]/gu, '')

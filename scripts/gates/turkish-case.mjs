@@ -116,8 +116,21 @@ let tarandi = 0
 for (const g of GLOBS) {
   for (const rel of globSync(g, { cwd: REPO }).sort()) {
     tarandi++
-    const src = stripStringBodies(stripComments(readFileSync(p(rel), 'utf8')))
+    const ham = stripComments(readFileSync(p(rel), 'utf8'))
+    const src = stripStringBodies(ham)
     const lines = src.split('\n')
+    // ⚠ ⚠ **LOCALE KONTROLÜ DİZİ GÖVDESİ SİLİNMEMİŞ satıra bakmak ZORUNDA.**
+    // `stripStringBodies` her dizinin içini boşaltıyor — `.toLocaleLowerCase('tr')`
+    // taramaya `.toLocaleLowerCase('')` olarak geliyor ve kapı DOĞRU kodu suçluyordu.
+    // Kanıt: iki satırlık bir deney dosyası (`s.toLocaleLowerCase('tr')` ve şablon
+    // değişmezli hâli) İKİSİ BİRDEN kırmızı döndü.
+    // ⚠ Ve bu kapı gerçek koda çoktan zarar vermişti: `katalog-ornek.test.ts`te
+    // *"`toLocaleLowerCase('tr')` DOĞRU olurdu ama `turkish-case` kapısı eşleştirmeden..."*
+    // diye bir geçiştirme yorumu duruyor. **Yanlış alarm veren kapı, etrafından dolaşılan
+    // kapıdır.** Çıplak `.toUpperCase()` taraması dizi gövdesiz satırda KALIYOR (bir
+    // dizinin İÇİNDE geçen çağrı adı ihlal değildir); yalnız locale doğrulaması ham
+    // satırdan okunuyor, çünkü aranan kanıt dizinin KENDİSİ.
+    const hamSatirlar = ham.split('\n')
 
     lines.forEach((line, i) => {
       // Testte hatanın kendisini göstermek meşru: `'istanbul'.toUpperCase()` ifadesinin
@@ -134,7 +147,11 @@ for (const g of GLOBS) {
       }
 
       LOCALE_SIZ.lastIndex = 0
-      if (LOCALE_SIZ.test(line) && rel !== KUTSANMIS) {
+      // ⚠ Eşleşme dizi gövdesiz satırda aranıyor (dizi İÇİNDEKİ metin ihlal değil),
+      // doğrulama ham satırda yapılıyor (locale'in kendisi bir dizi).
+      const hamSatir = hamSatirlar[i] ?? ''
+      const localeVar = /toLocale(Upper|Lower)Case\s*\(\s*(TR\b|['"`]tr)/.test(hamSatir)
+      if (LOCALE_SIZ.test(line) && rel !== KUTSANMIS && !localeVar) {
         errors.push(
           `${rel}:${i + 1}  toLocale…Case() locale'siz veya 'tr' dışı — ` +
             `doğru fonksiyon, yanlış locale sessizce aynı hatayı verir`

@@ -1750,3 +1750,44 @@ ettiği şey) · sapma O KARTIN üstünde (başka karede sapan kemer cümleyi ka
 sapma TEK (ikisi ritim değişimi olur, sapma olmaz).
 
 Kasten ihlal: çarpan 1,05 yapıldı, kapı kırmızı döndü. **Ölü bant tavanı %31 → %30.**
+
+---
+
+## `turkish-case` kapısı DOĞRU kodu suçluyordu (FAZ-19)
+
+Kapı `.toLocaleLowerCase('tr')` — yani tam olarak İSTEDİĞİ yazımı — kırmızıya çeviriyordu.
+
+**Sebep:** tarama, satırı `stripStringBodies`ten geçirdikten sonra okuyor. O da her dizinin
+İÇİNİ boşaltıyor, yani `('tr')` → `('')`. Kapı **denetlediği argümanı göremiyordu.**
+
+**Kanıt** — iki satırlık deney dosyası, ikisi de ders kitabı doğrusu:
+
+```ts
+export const a = (s: string): string => s.toLocaleLowerCase('tr')
+export const b = (s, t) => `${s} ${t}`.toLocaleLowerCase('tr').includes('x')
+```
+
+İkisi de kırmızı döndü.
+
+**Ve kapı gerçek koda çoktan zarar vermişti.** `katalog-ornek.test.ts`te şu yorum
+duruyordu: *"`toLocaleLowerCase('tr')` DOĞRU olurdu ama `turkish-case` kapısı
+eşleştirmeden önce string gövdelerini siliyor…"* — **yanlış alarm veren kapı, etrafından
+dolaşılan kapıdır** ve bu depoda dolaşılmıştı.
+
+**Düzeltme:** eşleşme hâlâ dizi gövdesiz satırda aranıyor (bir dizinin İÇİNDE geçen çağrı
+adı ihlal değildir), ama locale doğrulaması HAM satırdan okunuyor — aranan kanıt dizinin
+kendisi.
+
+**Kasten ihlal — dördü de yakalandı:**
+
+| yazım | sonuç |
+|---|---|
+| `toLocaleLowerCase()` (locale'siz) | ✗ yakalandı |
+| `toLocaleUpperCase('en')` | ✗ yakalandı |
+| `toUpperCase()` (çıplak) | ✗ yakalandı |
+| `` `${s}`.toLocaleLowerCase('de') `` | ✗ yakalandı |
+| `toLocaleLowerCase('tr')` | ✓ geçiyor |
+
+⚠ Kapının kırmızısı **geçici görünüyordu** — aynı ağaçta bir koşuda yeşil, ötekinde
+kırmızı. Sebep bulunana kadar "kapı flaky" demek kolaydı; deney dosyası onun flaky değil
+**yanlış** olduğunu gösterdi.
