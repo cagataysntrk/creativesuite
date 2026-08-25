@@ -3346,3 +3346,43 @@ yarışmıyor"* diyor — piksel ölçümü **okunMADIĞINI** söyledi: `dizin` 
 ⚠ Bu turda gözle seçilip hiç ölçülmemiş **üçüncü** sayı çıktı (soluk adımı · sönük opaklık ·
 `--role-soluk-koyu`nun tek kanvaslık ölçüsü). Ortak kalıp: *bir sayı bir kez doğru
 görünmüş, sonra sistem etrafında değişmiş ve sayı kimseye haber vermeden yanlışa düşmüş.*
+
+### Kapak kilidi: ihlal SANDIĞIM şey, aletimin kendisiydi
+
+Denetim *"göz ilk 300 ms'de siluet okur"* diyor ve beş yerleşimden hiçbirinin ikiden fazla
+kullanılmamasını istiyor. Ölçtüm ve iki aile eşiği aşıyor göründü: `ust-orta` **4** ·
+`ust-sol` **3**.
+
+Taşınabilecekleri içerikle seçtim — bu kısmı doğru yaptım. `memphis`in kapak görseli
+y%54–93'te, `donen`inki y%26–80'de; ikisinde de başlık ÜSTTE kalmak zorunda.
+`karsilastirma` ve `dizin`in kapağında pano var. Taşınabilen ikisi taşındı: `akan-alan`
+başlığı alana indi (dalganın üstünde duruyor), `kavis` başlığı ortaya indi (kemerlerin
+üstünde). İkisine de ÇİZİP BAKTIM, ikisi de daha iyi.
+
+⚠ ⚠ **ÜÇÜNCÜ TAŞIMA DENENDİ VE ÖLÜ ÇIKTI.** `veri-hikayesi`nin kapağına `dikey: 'orta'`
+verildi, render HİÇ DEĞİŞMEDİ. Sebep depoda zaten yazılıydı (`YERLESIM_CSS` yorumu):
+panonun `margin-top: auto`su boş alanın tamamını yutunca `justify-content`in dağıtacağı
+bir şey kalmıyor. Yani kurduğum `dikey` alanı `yerlesim: 'ayrik'` + panolu destelerde
+**sessizce etkisiz**. Söküldü.
+
+⚠ ⚠ ⚠ **VE ASIL BULGU BU: İHLAL HİÇ YOKMUŞ.** Kapıyı yazarken aleti düzelttim — ilk
+sınıflandırıcı yalnız `.baslik` kutusuna bakıyordu, oysa denetimin sözcüğü SİLUET ve göz
+başlığı değil bütün metin KÜTLESİNİ okur. Kütleyle ölçünce dağılım `ust-sol` 2 ·
+`alt-orta` 2 · `orta-sol` 2 · `yayik-orta` 2 · `yayik-sol` 1 · `orta-sag` 1 — hepsi eşiğin
+altında. Sonra iki taşımayı da GERİ ALIP kapıyı koşturdum: **yine yeşil.** Yani doğru
+metrikle bakıldığında ortada hiç ihlal yoktu; ben yanlış aletin gösterdiği bir kusuru
+düzeltmek için çalıştım.
+
+**On sekizinci alet yalanı — ve ilki, bana GEREKSİZ İŞ YAPTIRAN.** Ötekiler beni yanlış
+yere bakmaya ya da gerçek kusuru kaçırmaya itmişti; bu, olmayan bir kusura çalıştırdı.
+*Bir alarma göre iş yapmadan önce aletin ölçtüğü şeyin, kuralın konuştuğu şey olduğunu
+doğrula.*
+
+⚠ İki taşıma GERİ ALINMADI: kural gerektirmiyordu ama çizilip bakıldığında ikisi de daha
+iyi duruyor ve hiçbir kapıyı kırmıyor. *Gerekmeyen bir iyileştirme, gereksiz bir iş
+değildir; gereksiz olan onu zorunluymuş gibi sunmaktır.*
+
+Kapı yine de yazıldı (`kapak-silueti`) çünkü bugün ihlal yok diye yarın olmayacağı
+anlamına gelmiyor. Gerçekten ateşlendiği kurgusal bir çarpışmayla kanıtlandı: `editoryal`
+kapağı `orta-sag`dan `orta-sol`a çevrilince kapı *"orta-sol: sahne, editoryal, alinti"*
+diyerek kırmızı döndü.

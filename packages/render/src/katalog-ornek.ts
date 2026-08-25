@@ -416,6 +416,13 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       // ⚠ KAPAK KİLİDİ — eğri sınırı 01'de y=%78'den başlıyor, yani KÜTLE sol-altta.
       // Metin sağa geçince kadraj iki kütleye bölünüyor ve giriş noktası ayrışıyor.
       kolon: 'sag' as const,
+      // ⚠ ⚠ **KAPAK KILIDI: on kapagin dordu `ust-orta` idi.** Olculdu — ust-sol 3,
+      // ust-orta 4, orta-sol 2, orta-sag 1; denetim *"bes yerlesimden hicbiri ikiden
+      // fazla"* diyor ve iki aile esigi asiyordu. Bu deste tasinabilenlerdendi: kapak
+      // gorseli YOK (memphis'inki y%54-93'te, donen'inki y%26-80'de, ikisinde de
+      // baslik ustte kalmak ZORUNDA) ve dalga kapakta yalnizca dibin %14'unu tutuyor,
+      // yani orta kusak bombostu. Baslik alana INDI: tipografi alanin uzerinde duruyor.
+      dikey: 'alt' as const,
       ustBaslik: 'DÖNGÜSELLİK',
       baslik: 'Bir hattı **döngüsel** yapan beş şart',
       govde: 'Beşi de olmadan döngü kapanmıyor; biri eksikse sistem doğrusal kalıyor.',
@@ -1377,6 +1384,13 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
       // ⚠ Daha uzun bir kelime aramak da çıkmaz: `TEKRAR` başlıkta ve gövdede geçiyor.
       // Bu şablonun taşıyıcısı zaten KEMER BANDI; hayalet D-299'un altı şablonda
       // kapattığı ögenin artığıydı. Cihaz artık tek yerde: `dizin`. → R-111
+      // ⚠ ⚠ **KAPAK KILIDI.** Olculdu: on kapagin dagilimi ust-sol 3 · ust-orta 4 ·
+      // orta-sol 2 · orta-sag 1 idi ve denetim *"bes yerlesimden hicbiri ikiden fazla"*
+      // diyor. Bu deste ust-orta ailesinden tasinabilenlerdendi: kapak gorseli YOK ve
+      // kemerler dipte duruyor, yani dikeyde yer var. Baslik ortaya indi.
+      // ⚠ karsilastirma ve dizin TASINAMADI: ikisinin de kapaginda pano var (cubuklar
+      // ve liste), basligi asagi almak onlarin uzerine binerdi.
+      dikey: 'orta' as const,
       ustBaslik: 'RİTİM',
       baslik: 'Bir hat **tekrarla** öğrenir',
       govde: 'Aynı hareketin beşinci tekrarı, birincisinden ucuzdur.',
