@@ -2235,3 +2235,32 @@ bir gün bir yazı eğriyi keserse kapı onu adıyla söyler, o zaman o satır g
 kutu boyayan değil.
 
 ⚠ R-98 **sekizinci** kez ısırdı, yine şablon değişmezi içindeki bir yorumda.
+
+---
+
+## AİLE MERCEĞİ üretimin çizdiğini göstermiyordu (FAZ-19)
+
+`just izgara` — on kapağı yan yana koyan, sahibin baktığı mercek — **hiçbir sayfa adımını
+koşmuyordu**: punto oturmamış, knockout uygulanmamış, metin kutusu maskesi konmamış bir
+düzeni gösteriyordu. Aynı sınıf hata bu fazda **kapılarda**, **denetimde** ve şimdi
+**mercekte** ölçüldü; üçü de kapandı. *Bakılan şey yayınlanan şey olmak zorunda.*
+
+### Mercek iki kusur buldu; ikisi de gerçekti
+
+**1. `dizin` — hayalet kelime güzergâhla çakışıyor (%65).** Ölçüldü: hayalet x%3-81 /
+y%68-82, yayık liste x%30-89 / y%55-87. `yayik` öncesinde liste kompakttı (y%38-50) ve
+çakışma yoktu; güzergâh kadrajın boyuna dağılınca hayaletin yeri kalmadı.
+
+**Bir kartta tek aygıt** — `yayik` ile `kapanis`in çakışmasıyla aynı ders. Kapağın alt
+yarısını artık güzergâh tutuyor ve o, şablonun kimliği. Hayalet kaldırıldı.
+
+**2. `memphis` — kesik özne zemine karışıyor: p90 luma farkı 119, eşik 120.**
+Bir puan. Şablon zaten beş görsel işlemini de taşıyor (`matlama` · `keskinlik` ·
+`tema-uyum` · `duotone` · `temas-golgesi`), yani kaldıraç orada değil: kalan fark
+**üretilen fotoğrafın kendi açıklığı** ve her koşuda değişiyor. Açık borç.
+
+### On kapak yan yana: aile okunuyor
+
+Zeminler ayrışıyor (mürekkep · gece mavisi · kâğıt · beton · çelik), paletler ayrışıyor
+(magenta · mavi · amber · kiremit · bakır), tipografi ve künye ortak. On ayrı tasarım,
+tek hesap.

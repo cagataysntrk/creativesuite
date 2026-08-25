@@ -1664,7 +1664,14 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
           { no: '04', ad: 'haftalık oku' },
         ],
       },
-      hayalet: 'DİZİN',
+      // ⚠ ⚠ **HAYALET KALDIRILDI — İKİ AYGIT AYNI TOPRAĞI İSTİYORDU.** Ölçüldü: hayalet
+      // x%3-81 / y%68-82, yayık liste x%30-89 / y%55-87 — örtüşme hayaletin **%65'i** ve
+      // `hayalet-carpisma` kapısı onu adıyla söyledi. `yayik` öncesinde liste kompakttı
+      // (y%38-50) ve çakışma yoktu; güzergâh kadrajın boyuna dağılınca hayaletin yeri
+      // kalmadı.
+      // ⚠ Bu, `yayik` ile `kapanis`in çakışmasıyla AYNI ders: **bir kartta tek aygıt.**
+      // Kapağın alt yarısını artık güzergâh tutuyor ve o, şablonun kimliği.
+      hayalet: '',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,
     },

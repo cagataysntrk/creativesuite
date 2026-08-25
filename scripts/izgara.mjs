@@ -28,8 +28,11 @@ const {
   ORNEKLER,
   fontCss,
   logoVarliklari,
+  knockoutOlcumu,
+  metinMaskesi,
   panoramaHtml,
   panoramaDenetle,
+  puntoOlcumu,
   varlikZinciri,
   zincirdenCoz,
 } = await import(join(REPO, 'packages/render/dist/index.js'))
@@ -120,6 +123,13 @@ for (const [id, o] of Object.entries(ORNEKLER)) {
     await page.setViewportSize({ width: doc.slaytGenisligi, height: doc.yukseklik })
     await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
     await page.evaluate('(async () => { await document.fonts.ready; return true })()')
+    // ⚠ ⚠ **MERCEK ÜRETİMİN ÇİZDİĞİNİ GÖSTERMEK ZORUNDA.** Bu ızgara hiçbir sayfa adımını
+    // koşmuyordu: punto oturmamış, knockout uygulanmamış, metin kutusu maskesi
+    // konmamış bir düzeni gösteriyordu — yani **yayınlanmayan** bir aileyi. Aynı sınıf
+    // hata bu fazda kapılarda ve denetimde de ölçüldü; ızgara sonuncusuydu.
+    await page.evaluate(puntoOlcumu(doc))
+    await page.evaluate(knockoutOlcumu())
+    await page.evaluate(metinMaskesi())
     await page.screenshot({ path: yol })
     return true
   })
