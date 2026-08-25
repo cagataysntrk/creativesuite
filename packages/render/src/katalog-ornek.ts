@@ -755,27 +755,46 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
     // örnek yarısını veriyordu — ve bunu hiçbir kapı ölçmüyordu. → R-110
     // ⚠ Her yuva kendi slaydının ORTASINDA: slayt payı %16,667, yuva %8, iki yakada
     // %4,33 = 281 px açıklık — R-94'ün "uzak" şıkkı için gereken 93 px'in üç katı.
-    { src: '', alt: 'kesik özne — 1', x: 4.33, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
-    { src: '', alt: 'kesik özne — 2', x: 21, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    // ⚠ ⚠ **BEŞ GÖRSELİN BEŞİ DE AYNI y'DEYDİ, AYNI BOYDA, EŞİT ARALIKTA.** `x` farkları
+    // tam 16,67 ve `y` beşinde de 53. Serpilme YOKTU — bu, tam olarak depo sahibinin
+    // *"kutucuklar html css gibi"* dediği ızgara ve `kavis`in on üç özdeş kemeriyle aynı
+    // sınıf kusur. Ölçüldü: kart 4'ün ölü bandı %27 (destenin en uzunu) ve gövde y%26'da
+    // bitip görsel y%53'te başlıyordu.
+    // ⚠ ⚠ **KUTU ORANI KAYNAĞIN ORANINDAN TÜRÜYOR — `sahne`de ÖLÇÜLMÜŞ tuzak.** Sağlayıcı
+    // 4:5 üretiyor (oran 0,80); `contain` kutuyu doldurmuyor, kutunun İÇİNE sığdırıyor.
+    // Yüksekliği artırıp genişliği sabit bırakmak kutunun altını BOŞ bırakırdı — `sahne`de
+    // 405 px ölçülmüştü. Her yuvanın genişliği kendi yüksekliğinden hesaplandı:
+    //   en% = (yuk% × 1440 × 0,80) / 6480 × 100
+    // ⚠ Yatayda çakışma yok: yuvalar 16,67 aralıkta, en geniş yuva %10,7.
+    {
+      src: '',
+      alt: 'kesik özne — 1',
+      x: 4.33,
+      y: 54,
+      genislik: 6.9,
+      yukseklik: 39,
+      kirpma: 'kesik',
+    },
+    { src: '', alt: 'kesik özne — 2', x: 21, y: 49, genislik: 7.8, yukseklik: 44, kirpma: 'kesik' },
     {
       src: '',
       alt: 'kesik özne — 3',
       x: 37.67,
-      y: 53,
-      genislik: 8,
-      yukseklik: 40,
+      y: 45,
+      genislik: 8.5,
+      yukseklik: 48,
       kirpma: 'kesik',
     },
     {
       src: '',
       alt: 'kesik özne — 4',
       x: 54.33,
-      y: 53,
-      genislik: 8,
-      yukseklik: 40,
+      y: 44,
+      genislik: 8.7,
+      yukseklik: 49,
       kirpma: 'kesik',
     },
-    { src: '', alt: 'kesik özne — 5', x: 71, y: 53, genislik: 8, yukseklik: 40, kirpma: 'kesik' },
+    { src: '', alt: 'kesik özne — 5', x: 71, y: 47, genislik: 8.2, yukseklik: 46, kirpma: 'kesik' },
     // ⚠ Altıncı görsel KALDIRILDI — kapanış kartı fotoğraf taşımaz (aşağıda `donen`).
   ],
   // ⚠ ⚠ **LEKELER KALDIRILDI (depo sahibi: "şu aptal dairemsi renkli topları kaldır,

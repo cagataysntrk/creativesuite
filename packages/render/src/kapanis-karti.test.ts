@@ -15,24 +15,11 @@
 // kapatmaya çalıştığı *"çizgiler yazıyı kesiyor"* kusuru. Punto artık kolondan
 // hesaplanıyor; bu kapı taşmanın geri gelmediğini sınıyor.
 
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
-import { panoramaHtml, type PanoramaBelgesi } from './panorama.js'
-
-const KOK = join(dirname(fileURLToPath(import.meta.url)), '../../..')
-const TOKEN = readFileSync(join(KOK, 'brand/brd_upcytech/derived-tokens/tokens.css'), 'utf8')
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
+import { olcumBelgesi } from './olcum-belgesi.js'
+import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
 
 // ⚠ Archivo 700 + `-0.045em`: ÖLÇÜLDÜ (`rakam-en.mjs`), tahmin edilmedi.
 const KAPAK_ORANI = 0.705
@@ -40,8 +27,7 @@ const KAPAK_TABANI = 240
 const KAPAK_TAVANI = 360
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
-const belge = (o: Ornek): PanoramaBelgesi =>
-  ({ ...o, tokenCss: TOKEN, stamp: DAMGA }) as unknown as PanoramaBelgesi
+const belge = (o: Ornek): PanoramaBelgesi => olcumBelgesi(o)
 
 describe('kapanış kartı', () => {
   // ⚠ ⚠ **ZİNCİR TESTİ.** Yeni bir şablon kapanışsız eklenirse burası söyler. Bir
@@ -111,6 +97,11 @@ describe('kapanış kartı', () => {
             ' s.style.transform = "none"; document.body.style.width = s.style.width })()'
         )
         await page.setViewportSize({ width: G * o.kartlar.length, height: o.yukseklik })
+        // ⚠ ⚠ **PUNTO OTURTMA ADIMI ÖLÇÜMÜN PARÇASI — üretim onu HER ekran görüntüsünden
+        // önce koşuyor (`panoramaCiz`).** Atlayan bir kapı, yayınlanmayan bir düzeni ölçer:
+        // `memphis`te metin dibi oturtmasız y%26, oturtmalı **y%51**. Kapı ile üretim aynı
+        // düzeni görmüyorsa kapı hiçbir şey kanıtlamıyordur.
+        await page.evaluate(puntoOlcumu(belge(o)))
         return (await page.evaluate(
           '(() => {' +
             ' const r = document.querySelector(".kapanis-rakam");' +

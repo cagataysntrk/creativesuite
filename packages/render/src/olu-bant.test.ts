@@ -14,25 +14,11 @@
 // ⚠ SVG'de tuvali kaplayan konturSUZ dolgu (`alan-siniri`in `rect`i) İÇERİK SAYILMAZ:
 // sayınca dört şablon "%100 dolu" göründü ve alet yalancı çıktı. Çizilmiş KENAR sayılır.
 
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
-import { fontCss } from './fonts.js'
-import { panoramaHtml, type PanoramaBelgesi } from './panorama.js'
-
-const KOK = join(dirname(fileURLToPath(import.meta.url)), '../../..')
-const TOKEN = readFileSync(join(KOK, 'brand/brd_upcytech/derived-tokens/tokens.css'), 'utf8')
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
+import { olcumBelgesi } from './olcum-belgesi.js'
+import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
 
 const SEC =
   '.ust-baslik,.baslik,.govde,.panel,.sayilar,.etiketler,.kapanis,.gorsel,' +
@@ -92,18 +78,7 @@ const OLC = `(() => {
 })()`
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
-// ⚠ ⚠ **FONT YÜKLENMEDEN ÖLÇÜLEN DÜZEN, ÜRETİMDEKİ DÜZEN DEĞİLDİR.** Kapı fontsuz
-// ölçerken `veri-hikayesi` k1'i %29 buluyordu, alet (fontlu) %20. Yedek fontun satır
-// metrikleri başka: bloklar kayıyor ve ölü bant uzuyor. Kapı ile alet aynı şeyi
-// ölçmüyorsa ikisinden biri yalan söylüyor demektir.
-const FONT_SONUCU = fontCss(join(KOK, 'brand/brd_upcytech/fonts'))
-const belge = (o: Ornek): PanoramaBelgesi =>
-  ({
-    ...o,
-    tokenCss: TOKEN,
-    fontCss: FONT_SONUCU.ok ? FONT_SONUCU.css : '',
-    stamp: DAMGA,
-  }) as unknown as PanoramaBelgesi
+const belge = (o: Ornek): PanoramaBelgesi => olcumBelgesi(o)
 
 const olc = async (o: Ornek): Promise<readonly number[]> => {
   const sonuc = await withPage(async (page) => {
@@ -116,6 +91,11 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
         ' s.style.transform = "none"; document.body.style.width = s.style.width })()'
     )
     await page.setViewportSize({ width: G * o.kartlar.length, height: o.yukseklik })
+    // ⚠ ⚠ **PUNTO OTURTMA ADIMI ÖLÇÜMÜN PARÇASI — üretim onu HER ekran görüntüsünden
+    // önce koşuyor (`panoramaCiz`).** Atlayan bir kapı, yayınlanmayan bir düzeni ölçer:
+    // `memphis`te metin dibi oturtmasız y%26, oturtmalı **y%51**. Kapı ile üretim aynı
+    // düzeni görmüyorsa kapı hiçbir şey kanıtlamıyordur.
+    await page.evaluate(puntoOlcumu(belge(o)))
     const kod = OLC.replace('%G%', String(G))
       .replace('%H%', String(o.yukseklik))
       .replace('%N%', String(o.kartlar.length))
@@ -132,14 +112,20 @@ const olc = async (o: Ornek): Promise<readonly number[]> => {
 // Her biri kapatıldıkça bu tavan aşağı çekilecek.
 // ⚠ Tavan %38'den **%31'e** çekildi: `veri-hikayesi` (panolar eğriyi biniyor) ve
 // `karsilastirma` (orta iki kart ölçüsünü aldı) kapandı. En kötü artık `kavis` k3 %30.
-// ⚠ ⚠ **ÖLÇÜM DÜZELTİLDİ: KENAR PAYI ÖLÜ BANT DEĞİLDİR.** Eski hâl kartın üst payını
-// da sayıyordu; `sahne` %13, `editoryal` k3 %29 ve `alinti` %27/%25 diye kayıtlıydı ve
-// **üçü de kenar payıydı, kusur değil**. Bir sayfanın kenar payı bir tasarım kararıdır.
-// ⚠ Arada bir GENİŞLİK EŞİĞİ (%18) de denendi ve geri alındı: `editoryal`in şeridi zaten
-// kart genişliğinin %40'ı (eşik ona dokunmadı) ama eşik SİVRİ biçimleri eledi —
-// `kavis`in sapan kemerinin ucu dar olduğu için o kart %17'den yine %30'a çıkıyordu.
-// **%30 → %28.** Gerçek iç bantlar: `memphis` k4 %27 · `alinti` k1 %23 · `veri-hikayesi` %22.
-const TAVAN = 28
+// ⚠ ⚠ ⚠ **ÖLÇÜM ALETİ DÖRT KEZ DÜZELTİLDİ; DÖRDÜNCÜSÜ EN PAHALISIYDI.**
+// Üretim her ekran görüntüsünden önce `puntoOlcumu` koşuyor (`panoramaCiz`): punto
+// kolona oturuyor ve metin AŞAĞI iniyor. Bu kapı o adımı atlıyordu, yani **yayınlanmayan
+// bir düzeni** ölçüyordu. `memphis`te metin dibi oturtmasız y%26, oturtmalı **y%51**.
+// Bu yüzden defterdeki eski ölü bant sayılarının hepsi geçersiz; üretim düzeni ölçülünce
+// tablo çok daha iyi çıktı — en uzun bant %28 değil **%26**, art arda yakın 24 değil 15.
+//
+// Önceki üç düzeltme (hepsi defterde):
+//   1. piksel kenar sayımı dokuyu içerik sandı
+//   2. tuvali kaplayan konturSUZ dolgu (`alan-siniri`in `rect`i) içerik sayıldı
+//   3. kenar payı ölü bant sayıldı · ve font yüklenmiyordu
+//
+// **En kötü artık `alinti` k1 (%26).** Tavan %27: bir puanlık gerçek pay.
+const TAVAN = 27
 // ⚠ Tavan 12 DENENDİ ve işe yaramazdı: kapak kartı `yayik` olmadan %12,01 ölçüyor —
 // kapı 0,014 puanla kırmızıya dönüyordu, yani hiçbir şey söylemiyordu. Ölçülen %7,
 // tavan 9: iki puanlık gerçek pay, ve ihlal (%12 · %43) açık farkla düşüyor.

@@ -15,6 +15,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { ORNEKLER } from './katalog-ornek.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
 import { panoramaDenetle } from './panorama-denetim.js'
 import { panoramaHtml, type PanoramaBelgesi } from './panorama.js'
 
@@ -27,8 +28,11 @@ const DAMGA = {
   sourceRunId: 'run_t',
 }
 
-const belge = (o: (typeof ORNEKLER)[keyof typeof ORNEKLER]): PanoramaBelgesi =>
-  ({ ...o, tokenCss: '', stamp: DAMGA }) as unknown as PanoramaBelgesi
+// ⚠ ⚠ **BU KAPI FONTSUZ VE BELİRTEÇSİZ (`tokenCss: ''`) ÖLÇÜYORDU** ve olmayan bir
+// çakışma bildirdi: `memphis` k1'de gövde y%31,1'de bitiyor, görsel y%34'te başlıyor —
+// yedek fontun satır metrikleriyle gövde aşağı taşıyor ve çakışma "beliriyor".
+// Yanlış düzeni ölçen bir kapı hem gerçek kusuru kaçırır hem olmayanı uydurur.
+const belge = (o: (typeof ORNEKLER)[keyof typeof ORNEKLER]): PanoramaBelgesi => olcumBelgesi(o)
 
 describe('metin görselin altında kalmıyor', () => {
   // 🧪 ⚠ **ALET KANITI BİR TESTTEN DEĞİL, GERÇEK ÇIKTIDAN GELDİ.** Düzeltmeden ÖNCE

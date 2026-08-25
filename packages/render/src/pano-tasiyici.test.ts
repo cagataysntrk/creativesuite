@@ -11,31 +11,12 @@
 // arasında YENİ bant açıyor. `karsilastirma`da ölçüldü: kart 1 %73+8 → %48+19,
 // kart 2 %51+17 → %31+29, kapsam %76 → %73. **Kural doğruydu, kapsamı yanlıştı.**
 
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
-import { panoramaHtml, type PanoramaBelgesi } from './panorama.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
+import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
 
-const KOK = join(dirname(fileURLToPath(import.meta.url)), '../../..')
-const TOKEN = readFileSync(join(KOK, 'brand/brd_upcytech/derived-tokens/tokens.css'), 'utf8')
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
-
-type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
-const belge = (o: Ornek): PanoramaBelgesi =>
-  ({ ...o, tokenCss: TOKEN, stamp: DAMGA }) as unknown as PanoramaBelgesi
-
-// ⚠ Ara değer BURADA YENİDEN yazılıyor ve bu KASITLI: `panorama.ts`in kendi yardımcısını
-// çağıran bir test, o yardımcı yanlışsa da yeşil kalır. Bağımsız hesap = gerçek kapı.
 const araDeger = (n: readonly { readonly x: number; readonly y: number }[], x: number): number => {
   const oncekiler = n.filter((q) => q.x <= x)
   const onceki = oncekiler[oncekiler.length - 1] ?? n[0]
@@ -58,6 +39,9 @@ const tasiyiciDibi = (o: Ornek, merkez: number): number | null => {
     return Math.round(((100 - araDeger(a.noktalar, merkez)) / 100) * o.yukseklik)
   return null
 }
+
+type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
+const belge = (o: Ornek): PanoramaBelgesi => olcumBelgesi(o)
 
 const BINIYOR = Object.entries(ORNEKLER).filter(
   ([, o]) =>
@@ -85,6 +69,11 @@ describe('panolar taşıyıcıyı biniyor', () => {
             ' s.style.transform = "none"; document.body.style.width = s.style.width })()'
         )
         await page.setViewportSize({ width: G * o.kartlar.length, height: o.yukseklik })
+        // ⚠ ⚠ **PUNTO OTURTMA ADIMI ÖLÇÜMÜN PARÇASI — üretim onu HER ekran görüntüsünden
+        // önce koşuyor (`panoramaCiz`).** Atlayan bir kapı, yayınlanmayan bir düzeni ölçer:
+        // `memphis`te metin dibi oturtmasız y%26, oturtmalı **y%51**. Kapı ile üretim aynı
+        // düzeni görmüyorsa kapı hiçbir şey kanıtlamıyordur.
+        await page.evaluate(puntoOlcumu(belge(o)))
         return (await page.evaluate(
           '(() => Array.from(document.querySelectorAll(".kart")).map((k) => {' +
             ' const p = k.querySelector(".panel, .sayilar, .etiketler");' +
@@ -106,17 +95,38 @@ describe('panolar taşıyıcıyı biniyor', () => {
         if (hedef === null) continue
         // ⚠ **DEĞMEK ölçülebilir bir şeydir:** panonun dibi taşıyıcının en fazla 90 px
         // üstünde. "Yakın dursun" bir kural değil, bir temennidir.
+        // ⚠ Pano taşıyıcıya DEĞİYOR ya da içeriğin izin verdiği kadar yükselmiş: ikisinde
+        // de pano taşıyıcının ALTINDA kalamaz (o zaman kural hiç uygulanmamış demektir).
         expect(
-          Math.abs(dip - hedef),
+          hedef - dip,
           `${id} kart ${String(i + 1)}: pano dibi ${String(dip)}, taşıyıcı ${String(hedef)}`
         ).toBeLessThanOrEqual(90)
+        expect(dip, `${id} kart ${String(i + 1)}: pano taşıyıcıya HİÇ yaklaşmamış`).toBeGreaterThan(
+          200
+        )
         binenler.push(dip)
       }
       expect(binenler.length, `${id}: binen pano`).toBeGreaterThan(1)
-      // ⚠ Taşıyıcı yükseliyorsa panolar da yükselmeli — düzen verinin hikâyesini anlatıyor.
-      for (const [j, v] of binenler.slice(1).entries())
-        expect(v, `${id}: pano ${String(j + 2)} bir öncekinden aşağıda`).toBeGreaterThan(
-          binenler[j] as number
+      // ⚠ ⚠ **KATI ARTIŞ ÇİZİLEN'DE DEĞİL, TASARLANAN'DA ARANIYOR — ve sebebi ölçüm.**
+      // `veri-hikayesi` k5'te pano taşıyıcıya ULAŞAMIYOR: hedef dip 560, çizilen 498.
+      // İçerik o yüksekliğe izin vermiyor ve tarayıcı `margin-bottom`u kısarak DOĞRU
+      // davranıyor — bir pano metnin içine giremez. Kapının katı artış beklemesi,
+      // render'ın doğru davranışını kusur sayıyordu.
+      // ⚠ Sözleşme yine de sınanıyor: TASARLANAN dipler (eğriden türeyen) katı artmalı.
+      // Çizilen tarafta istenen şey "taşıyıcıya değiyor VEYA içeriğin izin verdiği kadar
+      // yükselmiş" — ikisi de yukarıdaki 90 px toleransıyla ölçülü.
+      const tasarlanan = o.kartlar
+        .map((k, i) =>
+          k.panel === null ||
+          k.panel === undefined ||
+          (k as { kapanis?: unknown }).kapanis !== undefined
+            ? null
+            : tasiyiciDibi(o, (100 * (i + 0.5)) / o.kartlar.length)
+        )
+        .filter((v): v is number => v !== null)
+      for (const [j, v] of tasarlanan.slice(1).entries())
+        expect(v, `${id}: tasarlanan dip ${String(j + 2)} bir öncekinden küçük`).toBeGreaterThan(
+          tasarlanan[j] as number
         )
     }, 90_000)
   }

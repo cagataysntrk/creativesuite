@@ -1830,3 +1830,62 @@ Düzeltmeyi kapıya taşıyınca `veri-hikayesi` k1 kapıda %29, alette %20 çı
 
 **Ölü bant tavanı %30 → %28.** Kalan gerçek iç bantlar: `memphis` k4 **%27** ·
 `alinti` k1 %23 · `veri-hikayesi` %18-22 · `akan-alan` %21-23.
+
+---
+
+## ⚠ ÖLÇÜM ALETİ DÖRDÜNCÜ KEZ YALAN SÖYLEDİ — ve bu en pahalısıydı
+
+**Üretim her ekran görüntüsünden önce `puntoOlcumu` koşuyor** (`panoramaCiz`, `panorama.ts`):
+punto kolona oturuyor ve metin AŞAĞI iniyor. Ölü bant aletinin ve kapısının hiçbiri o adımı
+koşmuyordu — yani **yayınlanmayan bir düzen** ölçülüyordu.
+
+| `memphis` metin dibi | oturtmasız | oturtmalı (üretim) |
+|---|---|---|
+| kart 1 | y%31,1 | **y%50,9** |
+| kart 4 | y%25,8 | **y%40,7** |
+
+### Sonuç: defterdeki eski ölü bant sayıları GEÇERSİZ
+
+Üretim düzeni ölçülünce tablo **çok daha iyi** çıktı:
+
+| ölçüt | eski (yanlış düzen) | üretim düzeni |
+|---|---|---|
+| en uzun ölü bant | %28 | **%26** (`alinti` k1) |
+| art arda yakın | 24 | **15** |
+| `memphis` kapsam | %71 | **%85** |
+| `memphis` k4 bandı | **%27** | **%5** |
+
+**`memphis` k4'ün %27'lik deliği hiç var olmadı.** Serpilmeyi o deliğe bakarak yaptım.
+
+### Beş özdeş kutu tespiti YİNE DE doğru — gerekçe değişti, karar değil
+
+`memphis`in beş görselinin beşi de `y: 53`, `genislik: 8`, `yukseklik: 40` ve `x` farkları
+tam **16,67**. Serpilme yoktu; bu, depo sahibinin *"kutucuklar html css gibi"* dediği ızgara
+ve `kavis`in on üç özdeş kemeriyle aynı sınıf. Yuvalar artık **ölçülen metin diplerinden**
+türüyor (k1 %50,9 · k2 %45,5 · k3-k5 %40,7) ve kutu oranı kaynağın 4:5'inden hesaplanıyor
+(`sahne`de ölçülmüş `contain` tuzağı). Bedeli dürüstçe kayıtlı: kapsam %85 → %82.
+
+### Aletin dört yalanı — hepsi aynı aileden
+
+1. **Piksel kenar sayımı dokuyu içerik sandı** (`kavis` her satırda 30-150‰).
+2. **Tuvali kaplayan konturSUZ dolgu içerik sayıldı** (`alan-siniri`in `rect`i) — dört
+   şablon "%100 dolu" göründü.
+3. **Kenar payı ölü bant sayıldı** ve **font yüklenmiyordu** (`veri-hikayesi` k1: %29 / %20).
+4. **Punto oturtma adımı atlandı** — üretimdeki düzen hiç ölçülmedi.
+
+### Kalıcı çözüm: `olcum-belgesi.ts` — belge TEK yerden kuruluyor
+
+On bir tarayıcı kapısının **dokuzu** yedek fontla ölçüyordu; `metin-gorsel-cakisiyor` ayrıca
+**belirteçsizdi** (`tokenCss: ''`). Ölçüm belgesi artık tek yerde kuruluyor: belirteç + font
++ **logo** + damga. Logo da ölçümün parçası — kapanış kartı gerçek marka işaretini taşıyor
+ve logosuz ölçen kapı `donen` k4'te olmayan bir bant bildiriyordu (%22 / %28).
+
+### Ve bir kapı FAZLA KATIYDI
+
+`pano-tasiyici` çizilen panoların katı artmasını istiyordu. `veri-hikayesi` k5'te pano
+taşıyıcıya **ulaşamıyor**: hedef dip 560, çizilen 498 — içerik izin vermiyor ve tarayıcı
+`margin-bottom`u kısarak **doğru** davranıyor. Kapı artık katı artışı **tasarlanan** diplerde
+(eğriden türeyen) arıyor; çizilen tarafta *"taşıyıcıya değiyor ya da içeriğin izin verdiği
+kadar yükselmiş"* ölçülüyor. **Render'ın doğru davranışını kusur sayan kapı, kapı değildir.**
+
+**Ölü bant tavanı %28 → %27.** Kasten ihlal: tavan 24 yapıldı, `alinti` k1 (%26) kırmızı döndü.
