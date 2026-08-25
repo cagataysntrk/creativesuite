@@ -1351,6 +1351,20 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
     // iniyordu: sınır gövde metninin içinden geçti ve zeminin **%24'ü** medyandan 60
     // luma sapar oldu — metin çizgilerin içinde yüzüyordu (R-105). Yerleşim `orta`, yani
     // metin dikeyde ortada; sınırın ona dokunmadan inebileceği en düşük yer %72.
+    // ⚠ ⚠ **ALANI BÜYÜTMEK DENENDİ, ÇİZİLDİ, BAKILDI ve GERİ ALINDI.** Kart 1'de mürekkep
+    // alanı kadrajın yalnız %6'sı; söz y%62'de bitiyor ve altındaki %26 boş. Şablonun
+    // kendi iddiası *"alıntı ilerledikçe mürekkep alanı büyüyor"* ve geometri o ağırlaşmayı
+    // çizmiyor, yalnız ima ediyor. Sınır 78→62'ye çekildi: ölü bant %26/%19/%10'dan
+    // %10/%6/%10'a, kapsam %56'dan %66'ya çıktı.
+    // ⚠ ⚠ **AMA KAPANIŞ KARTINI YUTTU.** Kart 3'ün gerçek içerik dibi **y%86,8**
+    // (`.kapanis` bloğu dahil; ilk ölçümüm yalnız başlık+gövdeye bakıp %35,7 demişti ve
+    // YANLIŞTI). Sınır tek yönlü yükseldiği için en sağda o içeriğe takılıyor: dev "01"
+    // rakamının altı, künye ve marka işareti koyu alanın üstünde kayboldu — yani tam da
+    // bu fazın kapatmaya çalıştığı "çizgiler yazıyı kesiyor" kusuru.
+    // ⚠ **HİÇBİR KAPI YAKALAMADI**, göz yakaladı: `sus-metni` süsleri ölçüyor, alan
+    // sınırını değil. Sebep kökte: `alanSiniri` varken kart zemini `alanSiniri.ust`e
+    // SABİTLENİYOR (`kartZemini`), yani metin rengi altındaki alanı takip etmiyor.
+    // Yükselmeyi korumanın yolu kart zemininin bölgeye göre dönmesi — ayrı bir iş.
     noktalar: [
       { x: 0, y: 94 },
       { x: 25, y: 90 },

@@ -1927,3 +1927,38 @@ doğru** — gizli tuzağı kaldırıyor — ama kazanç diye yazılmıyor.
 
 Kasten ihlal: `punto-esigi` elle belgeye döndürüldü → kırmızı. Kapının kendi kapsamı da
 korunuyor: hiçbir tarayıcı testi taranmazsa kapı **boş geçmiyor**, kırmızı dönüyor.
+
+---
+
+## `alinti` — alanı büyütmek denendi, ÇİZİLDİ, BAKILDI ve geri alındı
+
+`alinti` destenin en boşu: kapsam %56, kart 1'in ölü bandı %26. Şablonun kendi iddiası
+*"alıntı ilerledikçe mürekkep alanı büyüyor"* ama kart 1'de alan kadrajın yalnız **%6'sı** —
+geometri o ağırlaşmayı çizmiyor, yalnız **ima ediyor**.
+
+Sınır 94→72'den **78→62'ye** çekildi. Ölçüm iyi çıktı:
+
+| | önce | sonra |
+|---|---|---|
+| ölü bant | %26 · %19 · %10 | **%10 · %6 · %10** |
+| kapsam | %56 | **%66** |
+| destenin en uzunu | %26 | **%22** |
+
+### Ama kapanış kartını YUTTU
+
+Kart 3'ün **gerçek** içerik dibi `.kapanis` bloğu dahil **y%86,8**. İlk ölçümüm yalnız
+`.baslik`+`.govde`ye bakıp **%35,7** dedi ve yanlıştı — kapanış bloğu ölçüm seçicisinde
+yoktu. Sınır tek yönlü yükseldiği için en sağda o içeriğe takılıyor: dev "01" rakamının
+altı, künye ve marka işareti koyu alanın üstünde kayboldu. **Yani bu fazın kapatmaya
+çalıştığı "çizgiler yazıyı kesiyor" kusurunu yeniden ürettim.**
+
+### Hiçbir kapı yakalamadı — GÖZ yakaladı
+
+`sus-metni` süs ögelerini ölçüyor, **alan sınırını değil**. Sebep kökte: `alanSiniri`
+varken kart zemini `alanSiniri.ust`e SABİTLENİYOR (`kartZemini`), yani metin rengi
+altındaki alanı takip etmiyor. Tek yönlü yükselen bir sınır, en sağdaki kapanış kartının
+içeriğine takılmak zorunda.
+
+**Yükselmeyi korumanın yolu kart zemininin bölgeye göre dönmesi** — ayrı bir iş, ve
+`alinti`nin %26'lık bandı o iş yapılana kadar açık borç. Geri alındı: görünen bir gerileme
+gönderilmez.
