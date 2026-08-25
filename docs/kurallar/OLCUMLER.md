@@ -3245,3 +3245,24 @@ hata mesajını düz `JSON.stringify` ile kuruyordu; hata nesnesindeki `BigInt`e
 *"Do not know how to serialize a BigInt"* fırlatıyor ve GERÇEK kusuru gizliyordu. BigInt
 güvenli bir replacer eklendi. *Kırmızı bir test sebebini söyleyemiyorsa yarısı kadar işe
 yarar.*
+
+### `karsilastirma`nın orta kuşağı — ve neden buna KAPI yazılmadı
+
+Denetimin adıyla andığı tek vaka. Ölçüldü: bu destenin k2'si alt yarısının **%3**'ü, k3'ü
+**%10**'u dolu; görsel yuvası taşıyan kartların hepsi %37–82 arasında. Sayı çiftleri
+%40–56'da bitiyor ve altında %56–87 bomboş, yalnızca köşegen süpürüyordu.
+
+Çözüm `ayar: { panel: { olcek: 1.5, dy: 90 } }` — yani KONUM değil ÖLÇEK. (Panoyu
+taşıyıcıya indirmek daha önce **tam bu destede** ölçülerek çürütülmüştü.) Sonuç: k2 %3 →
+**%43**, k3 %10 → **%47**. Çizildi ve bakıldı: sayı çiftleri dikey yığıldı (1 → 3 · 7 → 1)
+ve köşegen artık boşluğu süpürmek yerine onların ARKASINDAN geçiyor.
+
+⚠ İlk deneme anahtar adını `sayilar` yazdı ve ayar **hiç ateşlenmedi** — ölçüm %3'te kaldı.
+`ayarStili` yalnız `ustBaslik` · `baslik` · `govde` · `panel` anahtarlarını okuyor. *Sessizce
+yok sayılan bir alan, yanlış bir alandan daha tehlikelidir: hata vermiyor.*
+
+⚠ ⚠ **VE BURAYA GENEL BİR KAPI YAZILMADI — sebebi ölçüldü.** Metrik, TASARLANMIŞ BOŞLUK ile
+İHMALİ ayırt edemiyor. `akan-alan`ın alt yarısı %0 ama orayı mavi dalga alanı dolduruyor;
+`kavis`te kemerler, `veri-hikayesi`nde eğri var — alet taşıyıcıyı saymıyor. Bir eşik
+koymak o üç şablonu haksız yere kırardı. *Ölçebildiğin her şey kural olmaz; bir metrik
+niyeti okuyamıyorsa kapıya değil deftere yazılır.*

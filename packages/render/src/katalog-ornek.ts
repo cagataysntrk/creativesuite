@@ -1654,6 +1654,18 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
     {
       aksanRolu: 'alan' as const,
       aksanDibi: 26,
+      // ⚠ ⚠ **BU KARTIN ALT YARISI %3 DOLUYDU — denetimin adiyla andigi tek vaka.**
+      // Olculdu (alt-yari.mjs): gorsel yuvasi olan kartlarin hepsi %37-82 arasinda,
+      // bu kart %3. Gorseli YOK ve sayi cifti %40-56'da bitiyor; altinda %56-87
+      // bombos, yalnizca kosegen supuruyordu.
+      // ⚠ Panoyu TASIYICIYA INDIRMEK cozum DEGIL — o yol daha once tam bu destede
+      // olculerek curutuldu (sablon-uyarla: "kural dogruydu, KAPSAMI yanlisti").
+      // Dogru yon KONUM degil OLCEK: kanit, baslikla ayni mesafeden okunmali.
+      // ⚠ Genel bir kapi YAZILMADI ve sebebi olculdu: metrik, tasarlanmis bosluk ile
+      // ihmali AYIRT EDEMIYOR. akan-alan'in alt yarisi %0 ama orayi mavi dalga alani
+      // dolduruyor; kavis'te kemerler, veri-hikayesi'nde egri var. Alet tasiyiciyi
+      // saymiyor. Esigi kurala cevirmek o uc sabloni haksiz yere kirardi.
+      ayar: { panel: { olcek: 1.5, dy: 90 } },
       ustBaslik: 'DEĞİŞİM',
       baslik: 'Ölçü vardiyaya indi',
       govde: 'Aynı sayı, üç ayrı sorumlulukla okundu.',
@@ -1679,6 +1691,7 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
     },
     {
       kolon: 'orta',
+      ayar: { panel: { olcek: 1.5, dy: 90 } },
       ustBaslik: 'HIZ',
       baslik: 'Karar haftalıktan günlüğe geçti',
       govde: 'Geciken bir ölçü, geciken bir karar demek.',
