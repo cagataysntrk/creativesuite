@@ -310,6 +310,21 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       // ⚠ Varış rakamı KOMPOZİSYONDUR: destenin nerede tepe yaptığını o söylüyor.
       // Metni uyarlama değiştirebilir, VARLIĞINI değiştiremez.
       ...(o.kapanis === undefined ? {} : { kapanis: y.kapanis ?? o.kapanis }),
+      // ⚠ ⚠ **BEŞİNCİ KEZ — VE BU KEZ ÜÇ ALAN BİRDEN.** Yukarıdaki bloklar aynı dersi
+      // dört kez anlatıyor (`zemin` · `kolon` · `elYazisi` · `ayar` · `kapanis`) ve
+      // beşincisini yine ben yaptım: `dikey`, `aksanRolu` ve `aksanDibi` şablona eklendi,
+      // buraya eklenmedi. `katalog-dikis` ON şablonda birden kırmızı döndü.
+      //
+      // ⚠ Ve kusuru gözden kaçırmamın sebebi ölçülebilir: yalnız `packages/render` paketini
+      // koşturdum, oysa bu kapı `packages/engine`de duruyor. *Bir paketin yeşili, ötekinin
+      // kırmızısını gizler.*
+      //
+      // ⚠ Üçü de KOMPOZİSYON: `dikey` metnin dikey hizası, `aksanRolu` rengin o karttaki
+      // işi (vurgu · yüzey · işaret · sessizlik), `aksanDibi` yüzeyin nerede bittiği.
+      // İçeriği uyarlama yazar; kartın NEREYE ve NASIL yerleştiğini şablon söyler.
+      ...(o.dikey === undefined ? {} : { dikey: o.dikey }),
+      ...(o.aksanRolu === undefined ? {} : { aksanRolu: o.aksanRolu }),
+      ...(o.aksanDibi === undefined ? {} : { aksanDibi: o.aksanDibi }),
     })
   }
 

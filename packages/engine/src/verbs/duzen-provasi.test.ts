@@ -83,7 +83,13 @@ describe('RENDER gövdesi · düzen provası (bağlanma)', () => {
     expect(p, 'donen örneği yok').not.toBeNull()
     if (p === null) return
     const r = await kos(p)
-    expect(r.ok, JSON.stringify(r.ok ? '' : r.error)).toBe(true)
+    // ⚠ ⚠ **ALET KENDİ HATA MESAJINDA ÇÖKÜYORDU.** Düz `JSON.stringify` hata
+    // nesnesindeki `BigInt`e çarpıp *"Do not know how to serialize a BigInt"*
+    // fırlatıyor ve GERÇEK kusuru gizliyordu: kırmızı bir test, sebebini
+    // söyleyemiyorsa yarısı kadar işe yarar.
+    const anlat = (d: unknown): string =>
+      JSON.stringify(d, (_k, v) => (typeof v === 'bigint' ? `${String(v)}n` : v)) ?? ''
+    expect(r.ok, r.ok ? '' : anlat(r.error)).toBe(true)
     if (!r.ok) return
     expect((r.value.data as Record<string, unknown>)['provaGecti']).toBe(true)
   }, 60_000)

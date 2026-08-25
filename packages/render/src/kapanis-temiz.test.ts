@@ -80,4 +80,60 @@ describe('kapanış temiz', () => {
         ).toBeLessThanOrEqual(sonKartBasi + 0.5)
     })
   }
+
+  // ── KURAL 3: alan sınırı dev rakamı KESMEZ ─────────────────────────────────
+  //
+  // ⚠ ⚠ **BU KAPI KENDİ KAPSAMI HAKKINDA YALAN SÖYLÜYORDU.** Yukarıdaki yorum kuralın
+  // *"`egri` ve `alanSiniri`"*ne uygulandığını söylüyordu; kod yalnız `bant.tip ===
+  // 'egri'` okuyordu ve `alanSiniri` hiç sınanmıyordu. Beyan ile uygulanan arasındaki
+  // fark tam olarak bu deponun tekrar eden hatası — bu kez KAPININ KENDİSİNDE.
+  //
+  // ⚠ Dört deste `alanSiniri` taşıyor ve **dördünde de** sınır dev rakamın içinden
+  // geçiyordu: ölçülen sınır `akan-alan` %62 · `editoryal` %49–56 · `alinti` %65–68 ·
+  // `karsilastirma` %45–52, rakam ise dördünde de üstten **%45–72**. Rakam iki tonun
+  // arasında ikiye bölünüyordu — depo sahibinin *"son sayfalardaki büyük sayılar çok
+  // kötü duruyorlar"* dediği kusurun üçüncü ve son kaynağı buydu.
+  //
+  // ⚠ ⚠ **KURAL AYAR DEĞİL, ÖLÇÜLEN TEK BOŞLUK.** Kapanış kartının içeriği ölçüldü:
+  // gövde %28–36'da bitiyor, kapanış öbeği %45'te başlayıp **%87'ye kadar kesintisiz**
+  // (rakam · alt etiket · marka kilidi · çağrı). Yani sınırın oturabileceği tek yer
+  // %36 ile %45 arası; dördü de %40'a çekildi. Rakamın altına koymak mümkün DEĞİL —
+  // orada boşluk yok.
+  //
+  // ⚠ ⚠ **VE BU KURALI YAZDIRAN ÖLÇÜM İKİ KEZ TERS OKUNDU.** İlk alet `100 − y` alıyordu;
+  // eksen aslında ÜSTTEN yüzde. Ters okumayla `alinti` "temiz", ötekiler "kesiyor"
+  // çıkmıştı — düzeltince tam tersi. Piksel basamağı ekseni kesin söyledi: `akan-alan`
+  // sınırı üstten **%61,9** ölçüldü, modelde `y: 62`.
+  const RAKAM_UST = 45
+  const RAKAM_ALT = 72
+  for (const [id, o] of Object.entries(ORNEKLER)) {
+    const s = o.alanSiniri
+    if (s === undefined) continue
+    if (!o.kartlar.some((k) => (k.kapanis?.rakam ?? '').trim() !== '')) continue
+    const n = o.kartlar.length
+    const bas = ((n - 1) / n) * 100
+    it(`${id} · alan sınırı dev rakamı KESMİYOR`, () => {
+      const araDeger = (x: number): number => {
+        const p = s.noktalar
+        for (let i = 1; i < p.length; i += 1) {
+          const a = p[i - 1]
+          const b = p[i]
+          if (a === undefined || b === undefined) continue
+          if (x <= b.x) return a.y + ((b.y - a.y) * (x - a.x)) / (b.x - a.x)
+        }
+        return p[p.length - 1]?.y ?? 0
+      }
+      const ys = [
+        araDeger(bas),
+        araDeger(100),
+        ...s.noktalar.filter((p) => p.x > bas).map((p) => p.y),
+      ]
+      const kesen = ys.filter((y) => y > RAKAM_UST && y < RAKAM_ALT)
+      expect(
+        kesen.map((y) => `%${y.toFixed(0)}`).join(','),
+        `${id}: alan sınırı kapanış kartında dev rakamın bandına (%${String(RAKAM_UST)}–` +
+          `%${String(RAKAM_ALT)}) giriyor — rakam iki tonun arasında ikiye bölünür`
+      ).toBe('')
+    })
+  }
 })

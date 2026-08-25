@@ -6,17 +6,18 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 19
-siradaki_adim: 19.6
+siradaki_adim: 19.7
 son_guncelleme: 2026-08-25
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "19.5 TIPOGRAFI KAPANDI. (a) IKI UC kapisi: oran degil VARLIK olculuyor — destede kapak >=220 px DEVASA ve <=20 px FISILTI bulunmak zorunda, dev ses RAKAMDIR cumle degil; iki AYRI ihlalle kirmiziya donduruldu ve ogretici cikti, uzun bir cumle dev yuvaya konunca zaten dev OLMUYOR (punto oturtucu kuculturuyor) yani boy kurali harf kuralindan once yakaliyor. (c) AKSAN TELAFISI CURUDU: ayni olcum uc farkli cevap veriyor ve hangi paydayi sectigin olcumun kendisi — kapak kutusuna gore +%4,9, tam murekkep kutusuna gore -%4,9, x-YUKSEKLIGI BANDINA gore %0,0. Dogrusu ucuncusu cunku gozun agirlik diye okudugu sey govde bandi ve aksan x-yuksekliginin USTUNDE. Care olculdu: wght 425 +%8,0, text-stroke 0,35 +%13,2 — CARE HASTALIKTAN 10-16 KAT BUYUK, uygulanmadi. Kendi itirazim da curudu: span kerningi koparmiyor (+0,00 px). (b) GENISLIK EKSENI: fontta canliydi (Archivo 62-125) ama yerlesimde hic kullanilmiyordu, panorama.ts eski D-317 kaydini tasiyordu. Baglandi, IKI YONE: karsilastirma 88 dar, memphis 125 genis, kavis govde 88. akan-alan 95 VERILMEDI cunku olculdu ve yalniz %4,6 fark uretiyor, kapinin %6 gorunurluk esiginin altinda. Kapi genislik-ekseni yonu ILANDAN turetiyor ve ADVANCE olcuyor cunku getComputedStyle().fontStretch bildirilen degeri doner. AYRICA depo sahibinin iki gorsel sikayeti cozuldu: kapanis kartlari hem pano hem kapanis jesti tasiyordu (10 destenin 5inde, icerik dibi %103,2 ile karti asiyordu, dev rakam kesiliyordu) ve yukselen alan siniri son karti kat edip rakami ikiye boluyordu; panolar kaldirildi (dip %86,8), egri son kartin basinda durduruldu. Yeni kapilar: iki-uc, kaynak-satiri, genislik-ekseni, kapanis-temiz, cizgili-zemin, denetim-tavani. izgara 10 kapak 0 kusur, seritlere BAKILDI."
+son_kanit: "19.7 SLAYDA ROL VERILDI — denetimin 'setin en buyuk hastaligi' dedigi madde. Denetim 34/45 slaytta sol kenar %6,0-6,7 diyordu; tarayicida olculdu ve DAHA SERT cikti: 36/45 slayt %5,7-5,9'da VE hepsinin ust kenari %8,2'de. Hastalik bir eksen daha derindi — yerlesim BELGE duzeyindeydi, yani bir destenin butun kartlari tek dikey hizayi paylasmak ZORUNDAYDI, dikeyde secenek BILE YOKTU. Iki mekanizma: kolon'a ucuncu deger (orta) ve karta inen dikey. Yedi destenin rolleri yazildi, dagilim 36/45 -> 22/45 (%80 -> %49). UCUNCU KONUM SABIT YUZDE OLAMADI ve bunu SERIT soyledi: denetimin onerdigi %26 sabit yazildi, memphis cizilip bakilinca orta (k2) ile sag (k3) ayni yere dustu cunku sag'in sol kenari SUTUN GENISLIGINDEN turuyor ve sablona gore %26-52 arasi geziyor. Dogru olcu sablonun kendi iki ucunun ortasi: memphis artik %5,9 / %15,7 / %25,9. Kural 'ucunu de kullan' DEGIL 'art arda tekrarlama' — sahne/editoryal/kavis zaten sasirtiyor ve dogru duruyorlar, ucunu zorlayan kural onlari haksiz kirardi. IKINCI BULGU: akan-alan'in dikey rolleri (ust/orta/alt/orta/ust) yazilinca bes sart alanin dalgasina bindi ama son karede alan siniri dev rakami KESIYORDU — ve kapanis-temiz kapisi bunu bilmiyordu, yorumu 'egri ve alanSiniri' diyordu, kodu yalniz egri okuyordu. KAPI KENDI KAPSAMI HAKKINDA YANLIS BEYAN VERIYORDU. Dort destenin DORDUNDE de sinir rakamin icinden geciyordu. Cozum ayar degil OLCULEN TEK BOSLUK: kapanis karti icerigi olculdu, govde %28-36'da bitiyor, kapanis obegi %45'te baslayip %87'ye kadar KESINTISIZ; sinirin oturabilecegi tek aralik %36-45, dordu de %40'ta duzlestirildi. ALET ONUCUNCU KEZ YALAN SOYLEDI, bu kez EKSEN TERSTI: alet 100-y aliyordu, alanSiniri.y ustten yuzde. Ters okumayla alinti temiz otekiler kesiyor cikti, duzeltince TAM TERSI — iki kez yanlis desteyi duzeltmeye basladim. Ekseni piksel basamagi kesin soyledi: akan-alan siniri ustten %61,9, modelde y=62. Bir kez de BAKARAK affettim, alet haklıydı. Yeni kapilar slayt-rolu ve kapanis-temiz KURAL 3, ikisi de kasten ihlalle kirmiziya donduruldu. 80 dosya 864 test yesil, seritlere BAKILDI."
+
 ```
 
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**50 kapı · 24 ihlal kırmızı · 2273 test.**
+**50 kapı · 24 ihlal kırmızı · 898 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
@@ -30,7 +31,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > REÇETE**) · `docs/referans/tasarim-denetimi-2026-08.md`. ⚠ ⚠ **TUZAK:** o dosyada İKİ
 > ayrı `A`/`B`/`C` var — RAPOR 2'nin `B`si RENK, **AŞAMA 2'nin `B`si ŞABLON ŞABLON
 > REÇETE.** "Reçetenin B'si" hep ikincisidir.
-> ⚠ **SIRADAKİ İŞ 19.6 — RENK.** Cusp-takipli rampa · iki nötr rampa (sıcak h=75 / soğuk h=250) · beş palet token'a girer · marka mavisi üstüne beyaz gövde YASAK (4,07) · aksan disiplini dört rol.
+> ⚠ **SIRADAKİ İŞ 19.7 — KOMPOZİSYON.** Slayt rolü ✅ · alan sınırı ✅. Kalan: `veri-hikayesi` yıl hapları eğriye DEĞMİYOR · aksanın kalan üç rolü (`alan`/`isaret`/`yok`) · `karsilastirma` köşegeni boş alt yarıyı süpürüyor · orta kuşak %75 → %45-60.
 > ⚠ **YAYIN YOK.** Degrade yasağının kapsamı değişti: optik degrade serbest.
 
 ## Tamamlananlar

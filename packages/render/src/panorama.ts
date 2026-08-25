@@ -295,7 +295,49 @@ export interface Kart {
    * başlıyor. `text-align: right` Türkçe gövde metninde tırtıklı bir sol kenar üretir
    * ve okunurluğu düşürür — hizalama ile KONUMLANDIRMA ayrı kararlardır.
    */
-  readonly kolon?: 'sol' | 'sag'
+  readonly kolon?: 'sol' | 'orta' | 'sag'
+  /**
+   * Bu kartta aksan RENGİNİN rolü.
+   *
+   * ⚠ ⚠ **DENETİM: *"Aksan dokuya dönüşmüş — her kartta aynı sözdizimsel yerde."*** Ölçüldü
+   * ve iddiadan sert çıktı: on destenin ONUNDA da `**vurgu**` **aynı iki slaytta** (kapak ve
+   * SON kart); yani kural değil REFLEKS. Ve asıl mürekkep daha derinde — aksan renginde
+   * çizilen bütün ögeler sayılınca **her kartta 1–14 tane** var (üst etiket tiresi, liste
+   * numaraları, künye sayacı). Yani `yok` rolü bugün hiçbir kartta YOKTU.
+   *
+   * - `vurgu` (varsayılan) — başlıkta bir-iki kelime aksanlı, üst etikette tire.
+   * - `alan` — kartın üst bandı aksanla DOLU, üzerindeki metin kâğıt rengine oyulmuş.
+   * - `isaret` — yalnız üst etiket tiresi; başlıkta aksan YOK.
+   * - `yok` — kartta hiç aksan mürekkebi yok, tire de sönük metin rengine düşer.
+   */
+  readonly aksanRolu?: 'vurgu' | 'alan' | 'isaret' | 'yok'
+  /**
+   * `alan` bandının dibi — kart yüksekliğinin yüzdesi.
+   *
+   * ⚠ ⚠ **BU SAYI YAZILMAK ZORUNDA VE SEBEBİ ÖLÇÜLDÜ.** Bant başlığı içine almalı, gövdeyi
+   * ASLA: mavi alan üstünde beyaz gövde 4,07 kontrast veriyor ve 4,5 eşiğinin altında —
+   * başlık ise büyük metin, 3:1 yetiyor. Ölçüm başlık dibi ile gövde başı arasında tutarlı
+   * **3–4 puanlık** bir boşluk gösterdi (örn. `karsilastirma` k2 25 ↔ 28, `alinti` k2
+   * 50 ↔ 54). Bant o boşluğa oturuyor. Değer render'dan türetilemiyor çünkü punto
+   * tarayıcıda oturuyor; bu yüzden YAZILIYOR ve `aksan-rolu` kapısı gövdeyi bandın dışında
+   * TUTUYOR. Kapı olmadan bu alan sessizce okunmaz metin üretirdi.
+   */
+  readonly aksanDibi?: number
+  /**
+   * Bu kartın DİKEY hizası — verilmezse belgenin `yerlesim`i.
+   *
+   * ⚠ ⚠ **HASTALIĞIN ÖLÇÜLEN YARISI BURADAYDI.** Denetim *"45 slaydın 34'ünde metin
+   * bloğunun sol kenarı %6,0–6,7 arasında"* diyordu; ölçüm daha da sert çıktı —
+   * **36/45 slayt %5,7–5,9'da** ve üstelik **hepsinin üst kenarı %8,2'de.** Sebebi
+   * mekanizmadaydı: `yerlesim` BELGE düzeyindeydi, yani bir destenin bütün kartları tek
+   * dikey hizayı paylaşmak ZORUNDAYDI. Yatay eksende hiç olmazsa `kolon` vardı; dikeyde
+   * hiçbir kart ötekinden ayrılamıyordu.
+   *
+   * ⚠ Bu alan yalnız `justify-content`i değiştirir. `yerlesim`in öteki işleri (pano üst
+   * payı, gövdenin otomatik payı) BELGE kararıdır ve kart bunları devralmaz — bir kartın
+   * dikey hizası, destenin pano düzenini bozmamalıdır.
+   */
+  readonly dikey?: Yerlesim
   /**
    * Bu kartın kendi zemini — verilmezse belgenin zemini.
    *
@@ -1503,6 +1545,10 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // satırlar bu civarda kırılıyor.
   // Gövde sütunu şablonun kendi kararı; verilmezse başlıkla aynı.
   const govdeSinir = Math.round(G * (t.govdeSutunu ?? t.baslikSutunu)) - 128
+  const sagPadi = Math.max(
+    0,
+    G - olc(64) - Math.max(Math.round(G * t.baslikSutunu) - 128, govdeSinir)
+  )
   /**
    * **Varış rakamının puntosu kolonundan HESAPLANIYOR — sabit yazılınca KESİLDİ.**
    *
@@ -1539,13 +1585,47 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
           // birim — birini ötekinin hesabıyla okumak sessizce yanlış yere koyardı.
           doc.alanSiniri === undefined
           ? null
-          : Math.round(((100 - araDeger(doc.alanSiniri.noktalar, merkez)) / 100) * doc.yukseklik)
+          : // ⚠ ⚠ **BU DAL BUGÜN HİÇ KOŞMUYOR VE UYANDIĞI GÜN YANLIŞ YERE KOYACAKTI.**
+            // Ölçüldü: `alanSiniri` taşıyan dört destenin (akan-alan · editoryal · alinti ·
+            // karsilastirma) dördü de `yerlesim: 'ust'/'orta'` ve yukarıdaki koşulda `null`
+            // dönüyor; buraya yalnız `veri-hikayesi` geliyor, o da `egri` dalını alıyor.
+            // ⚠ Eski hâli `100 − y` alıyordu. `alanSiniri.y` ÜSTTEN yüzdedir — bu turda
+            // piksel basamağıyla kanıtlandı (`akan-alan` sınırı üstten %61,9, modelde 62).
+            // Yani dal, bir gün bir desteye `ayrik` verildiğinde panoyu sınırın AYNA
+            // konumuna koyardı. Ölü kod sessizce yanlıştı; ölçüm onu uyanmadan yakaladı.
+            Math.round((araDeger(doc.alanSiniri.noktalar, merkez) / 100) * doc.yukseklik)
     if (dip === null) return null
     return Math.max(0, dip + olc(26) - olc(190))
   }
-  const rakamPuntosu = (rakam: string): number =>
+  /**
+   * Kapanış rakamının puntosu.
+   *
+   * ⚠ ⚠ **KAPANIŞ KARTI KANIT DA TAŞIYORSA İDDİA YER VERİR — ve sayı ÖLÇÜLDÜ.** `dizin`in
+   * kapanış kartı hem listeyi (o şablonun TAŞIYICISI, `dizin-butunlugu` bunu zorluyor) hem
+   * kapanış jestini taşıyor ve kart iki kez doluydu: başlık %17–24, gövde %37–45, liste
+   * %54–66, dev rakam %67–93, alt etiket %94–96 (künye şeridiyle ÇAKIŞIYOR) ve **çağrı
+   * %105–108 — kartın DIŞINDA.**
+   *
+   * ⚠ Önce rakamı büsbütün kaldırdım; `iki-uc` kapısı HAKLI OLARAK kırmızı döndü, çünkü bu
+   * destenin ≥220 px'lik tek dev sesi oydu (hiç hayaleti yok). Gerekçem de fazla genişti:
+   * *"liste zaten 01–04 diyor"* demiştim, oysa **liste KANIT, dev rakam İDDİA** — biri
+   * ötekini tekrarlamıyor. Çözüm susturmak değil, KÜÇÜLTMEK.
+   *
+   * ⚠ ⚠ **380 ÖLÇÜLDÜ, TAHMİN EDİLMEDİ — ve ilk tahmin yanlıştı.** Önce 300 seçildi çünkü
+   * aletim rakamın KUTU yüksekliğini (252 px) veriyordu; `iki-uc` ise CAP yüksekliğini
+   * ölçüyor ve o **207 px** çıktı, yani eşiğin ALTINDA. Kapı kırmızı döndü ve haklıydı.
+   * 380'de kapı yeşil, çağrı dibi %92,5 — künye şeridinin (%95–97) üstünde.
+   *
+   * ⚠ ⚠ **VE BU İLK OLARAK CSS'E YAZILDI, İKİ KEZ ÖLÜ ÇIKTI.** Birinci deneme kuralı çok
+   * satırlı `.kapanis-rakam` bildiriminin İÇİNE düşürdü: CSS iç içe geçti, seçici
+   * `.kapanis-rakam .kart:has(.panel) .kapanis-rakam` oldu, hiç eşleşmedi. Blok dışına
+   * taşındı — punto YİNE 458 kaldı, çünkü rakam puntosunu **satır içi `style`** yazıyor ve
+   * onu hiçbir stil sayfası kuralı geçemez. Kural, değeri ÜRETEN yere yazılmak zorundaydı.
+   * *Ateşlenmeyen değişikliği sökmek de işin parçası.*
+   */
+  const rakamPuntosu = (rakam: string, panoluMu: boolean): number =>
     Math.min(
-      olc(458),
+      olc(panoluMu ? 380 : 458),
       Math.floor(sutunGenisligi / (0.552 * Math.max(1, rakam.replace(/\s/g, '').length)))
     )
   const olcuAlt = Math.min(govdeSinir, Math.round(govdeTabani * 0.5 * OLCU_ALT))
@@ -1651,6 +1731,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `<section class="kart${koyuMu(kartZemini, doc.tokenCss) ? '' : ' acik'}` +
             `${i === 0 ? ' ilk' : ''}` +
             `${k.kolon === 'sag' ? ' sag' : ''}` +
+            `${k.kolon === 'orta' ? ' orta' : ''}` +
+            `${k.aksanRolu === undefined ? '' : ` aksan-${k.aksanRolu}`}` +
+            `${k.dikey === undefined ? '' : ` dikey-${k.dikey === 'ayrik' ? 'ust' : k.dikey}`}` +
             // ⚠ ⚠ **PAY BLOĞA DEĞİL KARTA veriliyor ve sebebi bir TESTİN kırılması.**
             // İlk sürüm `margin-left: -0.018em`i yalnız `.baslik`e koydu; `aile-tutarliligi`
             // *"metin blokları TEK sol kenarı paylaşıyor"* diyerek kırmızı döndü ve HAKLIYDI.
@@ -1700,6 +1783,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
 
             `--kart-metin:${r.metin};` +
             `--kart-aksan:${r.aksan};--kart-soluk:${r.soluk};` +
+            // Alan bandinin dibi karta YAZILIYOR: deger karttan geliyor, stil sayfasi
+            // onu bilemez. Rol `alan` degilse degisken hic yazilmiyor.
+            `${k.aksanRolu === 'alan' ? `--aksan-dibi:${String(k.aksanDibi ?? 30)}%;` : ''}` +
             // ⚠ ⚠ **KAPANIŞ BLOĞU KENDİ ALANININ RENGİNİ SORUYOR.** `imzaninZemini` marka
             // işareti için kurulmuştu; kapı sınırı yükseltince bir sonraki ögeyi adıyla
             // söyledi: dev varış rakamı da ΔL 0,000 ile alt alanda kayboluyordu. Kural
@@ -1754,9 +1840,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             (k.kapanis.rakam === undefined
               ? ''
               : `<div class="kapanis-varis"><div class="kapanis-rakam" ` +
-                `style="font-size:${String(rakamPuntosu(k.kapanis.rakam))}px">` +
+                `style="font-size:${String(rakamPuntosu(k.kapanis.rakam, k.panel !== null))}px">` +
                 `${kacir(k.kapanis.rakam)}</div>` +
-                (k.kapanis.rakamAlt === undefined
+                // ⚠ Kanıt taşıyan kapanışta ÜÇÜNCÜ ses de düşüyor. Alt etiket rakamın
+                // birimini tekrar söylüyor; kart zaten bir pano taşıyorken o üçüncü satır
+                // künye şeridine biniyordu (ölçüldü: %94–96 ile %95–97 çakışması).
+                (k.kapanis.rakamAlt === undefined || k.panel !== null
                   ? ''
                   : `<div class="kapanis-rakam-alt">${kacir(k.kapanis.rakamAlt)}</div>`) +
                 `</div>`) +
@@ -2085,9 +2174,31 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // metin kendi kutusunda solda kalıyor — `text-align` dokunulmadan duruyor.
     // ⚠ Sütun İKİSİNİN BÜYÜĞÜ: başlık kolonu ile gövde ölçü sınırı farklı olabiliyor
     // (`govdeSutunu`); küçüğünü almak geniş olanı sağdan taşırırdı. → R-113
+    // ⚠ Değer bir SABİTE alındı çünkü artık iki yer okuyor: `sag`ın kendisi ve `orta`nın
+    // orta noktası. İkinci bir kopya, ikisinin sessizce ayrışması demekti.
     `  .kart.sag { align-items: flex-start;`,
-    `              padding-left: ${String(Math.max(0, G - olc(64) - Math.max(Math.round(G * t.baslikSutunu) - 128, govdeSinir)))}px }`,
+    `              padding-left: ${String(sagPadi)}px }`,
     `  .kart.sag > * { text-align: left }`,
+    // ⚠ ⚠ **ÜÇÜNCÜ SÜTUN — ve varlık sebebi bir ÖLÇÜM.** `kolon` iki değerliydi (`sol`
+    // %5,9 · `sag` %26–52) ve on destenin 45 slaydından **36'sı** `sol`daydı. Denetim:
+    // *"bir karosel boyunca yatay kompozisyon kare genişliğinin %0,7'sinden az değişiyor
+    // — bu bir şablon değil bir FORM."* İki konum bir ritim kuramaz; üçüncüsü kurar.
+    //
+    // ⚠ ⚠ **VE ÜÇÜNCÜSÜ SABİT BİR YÜZDE OLAMAZ — bunu ŞERİT söyledi.** İlk sürüm
+    // denetimin önerdiği %26'yı sabit yazdı; `memphis` çizilip BAKILINCA 3. kart (`sag`)
+    // ile 2. kart (`orta`) neredeyse aynı yere düştü. Sebep: `sag`ın sol kenarı SÜTUN
+    // GENİŞLİĞİNDEN türüyor, yani şablona göre %26 ile %52 arasında geziyor. Geniş
+    // sütunlu bir şablonda `sag` zaten %25'te; oraya sabit bir %26 koyunca üç rol İKİYE
+    // düşüyor. Doğru ölçü şablonun KENDİ iki ucunun ortası: `sol` ile `sag` arası ikiye
+    // bölünüyor. Böylece üç konum her şablonda ayrık ve eşit aralıklı — dar sütunlu
+    // şablonda geniş, geniş sütunluda dar adımlarla, ama hep ÜÇ adım.
+    // ⚠ Blok daralıyor ve bu doğru: ortada duran bir blok kenardan kenara uzayamaz.
+    // Punto'yu kısmaya gerek yok, `puntoOlcumu` daralan kutuyu tarayıcıda ölçüp uyuyor.
+    `  .kart.orta { padding-left: ${String(Math.round((olc(64) + sagPadi) / 2))}px }`,
+    // ⚠ Dikey hiza KART düzeyinde: belge `yerlesim`ini yalnız `justify-content`te ezer.
+    `  .kart.dikey-orta { justify-content: center }`,
+    `  .kart.dikey-alt { justify-content: flex-end }`,
+    `  .kart.dikey-ust { justify-content: flex-start }`,
     // ⚠ ⚠ **KAPANIŞ İMZASI — ölçülerek eklendi.** Dört şablonda son kare destenin en boş
     // karesiydi (%2,1 … %4,7). Marka kilidi burada GERÇEK boyda duruyor; künye şeridinin
     // 20 px'lik logosu bir altbilgidir, imza değil.
@@ -2239,6 +2350,31 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `                color: var(--kart-soluk); font-weight: 500; margin-bottom: ${olc(14)}px;`,
     `                display: flex; align-items: center; gap: 14px }`,
     `  .ust-baslik::before { content: ""; width: 30px; height: 2px; background: var(--kart-aksan) }`,
+    // ⚠ `yok` GERÇEKTEN yok demek: tire de aksandan çıkıp sönük metin rengine düşüyor.
+    // Ölçüm bu rolün hiçbir kartta bulunmadığını gösterdi — aksan bir olay değil bir dokuydu.
+    // ⚠ ⚠ **ÖNCE `--kart-soluk` YAZILDI VE ÜRETİM PROVASI YAKALADI.** `duzen-provasi`
+    // `donen` kart 3'te *"metin-zemine-karisiyor"* dedi: soluk ton o kartın zemininde
+    // kayboluyordu. `yok` rolü aksanı SUSTURMAK demek, işareti GÖRÜNMEZ kılmak değil.
+    // `currentColor` tireyi yanındaki etiketin kendi mürekkebine bağlıyor — okunurluğu
+    // tanım gereği etiketle aynı, çünkü aynı renk.
+    `  .kart.aksan-yok .ust-baslik::before { background: currentColor }`,
+    // ⚠ ⚠ **`alan`: AKSAN BİR KELİME DEĞİL BİR YÜZEY.** Bant kartın üstünden `--aksan-dibi`ne
+    // kadar dolu; üst etiket ve başlık kâğıt rengine OYULUYOR. Gövde bandın DIŞINDA kalıyor
+    // ve bu bir tercih değil zorunluluk: marka mavisi üstüne beyaz gövde 4,07 (< 4,5).
+    // ⚠ Bant `background-image`; kartın kendi zemini `background-color`da duruyor, yani
+    // yüzey dokusu ve gren korunuyor.
+    // ⚠ ⚠ **BANT `background-image` DEĞİL, AYRI KATMAN — ve sebebi ÖLÇÜLDÜ.** İlk sürüm
+    // `.kart`a `background-image` veriyordu; hiç boyanmadı ama metin OYULDU, yani açık
+    // kâğıt üstünde beyaz başlık kaldı. Sebep: yüzey dokusu (`kagit`/`tas`/`beton`…)
+    // `background-image`i SATIR İÇİ yazıyor ve satır içi stil hiçbir stil sayfası
+    // kuralıyla geçilemez. Bu, aynı dersin bu turdaki İKİNCİ tekrarı.
+    // ⚠ `lekeUst` katmanı: kart zemininin üstünde, metnin altında. Doku ve gren korunuyor.
+    `  .kart.aksan-alan::before { content: ""; position: absolute; left: 0; right: 0; top: 0;`,
+    `                             height: var(--aksan-dibi); background: var(--kart-aksan);`,
+    `                             z-index: ${String(Z.lekeUst)} }`,
+    `  .kart.aksan-alan .ust-baslik, .kart.aksan-alan .baslik { color: var(--kart-zemin) }`,
+    `  .kart.aksan-alan .ust-baslik::before { background: var(--kart-zemin) }`,
+    `  .kart.aksan-alan .baslik strong { color: var(--kart-zemin) }`,
     // ⚠ Başlık SIKIŞIK ve İRİ; `line-height` 1,04 — 0,90'da Türkçe `Ş` kuyruğu alt satıra
     // giriyor ve "HEB" gibi okunuyor. Aksan kırpılması bu ailenin bilinen tuzağı.
     // ⚠ Punto artık sabit 82 px DEĞİL: reçetenin payı × render anında ölçülen tavan.

@@ -171,25 +171,25 @@ P4 beton+amber · P5 gece+magenta) ve §4 tablosundaki şablona atanır. **Marka
 *Tek mavi anı işe yarayan şey nadirliğidir.*
 
 ### 19.7 — KOMPOZİSYON VE SEAMLESS AKIŞ    [ ]
-- **Kapak kilidini kır** — `blok-yerlesimi`: `ust-sol` · `alt-sol` · `orta-sag` ·
-  `tam-genislik` · `zemin-ustu`; hiçbiri ikiden fazla. *Göz ilk 300 ms'de siluet okur.*
-- **Slayda ROL ver** — üç sol pay (%6/%26/%50), üç başlık ölçeği (tam/0,72/0,45), üç dikey
-  hiza. **Art arda iki slayt aynı üçlüyü kullanamaz.** Tek kural, setin en büyük hastalığı.
-- **Sürekliliği VERİYE bağla** — eğrinin i. slayttaki yüksekliği o adımın sayısı olsun;
-  `kavis`te 13 kemer ↔ 13 vafel karesi hizalansın. *Geometri iddianın KANITI olsun.*
+- **Kapak kilidini kır** — beş yerleşimden hiçbiri ikiden fazla. *Göz 300 ms'de siluet okur.*
+- **Slayda ROL ver ✅** — 36/45 slayt %5,7-5,9'daydı, üstleri %8,2 (`yerlesim` BELGEDEYDİ).
+  `kolon`a `orta` + karta `dikey`: **36/45 → 22/45.** Üçüncü konum sabit yüzde OLAMADI,
+  şablonun kendi iki ucunun ortası. Kural *"art arda tekrarlama"*. → `slayt-rolu`
+- **Aksana ROL ver ✅** — `alan`/`yok` hiç yoktu, on destede de vurgu AYNI iki slayttaydı.
+  `alan` = üst bant dolu, başlık kartın zeminine oyulmuş; alana yalnız BAŞLIK girer (marka
+  mavisi + beyaz 4,07 < 4,5). → `aksan-rolu`
+- **Sürekliliği VERİYE bağla** — eğri yüksekliği o adımın sayısı, `kavis`te 13 kemer ↔ 13
+  vafel karesi. *Geometri iddianın KANITI olsun.*
 - **Orta kuşağı doldur** — panolar %75'ten %45–60'a insin ve sürekli ögeye DEĞSİN.
-- **z-sırası ✅** zemin 0 · taşıyıcı 1 · leke 2 · durak 3 · gren 4 · görsel 5 · vinyet 6 ·
-  metin 7; `.bant-ok` 5→1, **özne şeridi KESİYOR** (üstten geçen çizgi "bağlantı" değil
-  fosforlu kalem lekesi okunur). **yüzey kesimden ÇIKTI ✅** · **künye şeridi PANORAMANIN ✅**
-- ⚠ **Okunurluk yastığı ölçümde ÇÜRÜDÜ** (%9,2 → %9,2; `blur(26px)` 69 px kutuyu yarı
-  saydam yapıyor + hale + R-81). Doğru çözüm CSS kuralı değil, `duzenProvasi` ölçümünü
-  render'a taşıyan ADIM — taşıyıcı metin kutusunun 24 px dışına maskelenir (`C.5`).
-- **Marka işareti karosel başına TAM İKİ KEZ** — slayt 1 sağ üst 32 px (sahiplik) ve son
-  slayt 112 px (imza). Künye şeridindeki 20 px logo KALKAR: imza değil duvar kâğıdı.
-- **KAPANIŞ KARTI iskeleti KIRAR** — y%0–28 varış (sürekli öge burada BİTER, ucu dolu
-  daire) · %30–56 tek iddia (cap 300–360 px + tek satır `claim_source`) · %58–74 güzergâh
-  (önceki şerit etiketleri, hepsi eşit sönük) · %78–92 imza + TEK eylem · **ton kırılması
-  tam bu karede** · **mürekkep ≥%12**.
+- **Alan sınırı dev rakamı KESMEZ ✅** — dördü de kesiyordu; tek boşluk %36-45, %40'ta düzleşti.
+- **z-sırası ✅** zemin 0 · taşıyıcı 1 · leke 2 · durak 3 · gren 4 · görsel 5 · vinyet 6 · metin 7; `.bant-ok` 5→1, özne şeridi KESİYOR · yüzey kesimden ÇIKTI ✅ · künye ✅
+- ⚠ **Okunurluk yastığı ÇÜRÜDÜ** (%9,2 → %9,2). Çözüm CSS değil, `duzenProvasi` ölçümünü
+  render'a taşıyan ADIM: taşıyıcı metin kutusunun 24 px dışına maskelenir (`C.5`).
+- **Marka işareti karosel başına TAM İKİ KEZ** — slayt 1 sağ üst 32 px, son slayt 112 px;
+  künye şeridindeki 20 px logo KALKAR (imza değil duvar kâğıdı).
+- **KAPANIŞ KARTI iskeleti KIRAR** — %0–28 varış (sürekli öge BİTER) · %30–56 tek iddia
+  (cap 300–360 px + `claim_source`) · %58–74 güzergâh · %78–92 imza + TEK eylem · ton
+  kırılması tam bu karede · mürekkep ≥%12.
 
 ### 19.8 — GÖRSEL DİLİ VE YÜZEY ZANAATI    [ ]
 **"Kutu değil yüzey" altı kuralı (`C.4`):** `border-radius` 0 ya da ≥28 px (4–12 px tam

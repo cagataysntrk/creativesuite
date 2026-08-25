@@ -183,12 +183,23 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       ustBaslik: 'AÇILIŞ',
       baslik: 'Altı yılda **iki katına** çıkan bir eğri',
       govde: 'Kaydırın: eğri altı slaydı kat ediyor ve her durakta bir karar var.',
-      panel: { tip: 'etiketler', ogeler: ['2019', '2021', '2023', '2025'] },
+      // ⚠ ⚠ **YIL HAPLARI BIR LEJANTTI, GUZERGAH DEGIL.** Denetim: bu sira bir UI
+      // filtre cipi gibi duruyor, eğriye DEGMIYOR. Olculdu: haplar ustten %67,3-71,5'te,
+      // egri o x'te ~%79 — sekiz puan havada. Ama asil kusur konum degil ICERIKTI:
+      // yillari zaten egrinin kilometre isaretleri tasiyor (2020 · 2023 · 2025), yani
+      // ayni bilgi iki kez yaziliyordu. → R-111 (sus metni slaytta zaten yazani
+      // tekrarlayamaz). Govde "her durakta bir karar var" diyor; haplar artik O
+      // DURAKLAR — ortadaki dort kartin adlari. Kapak bir icindekiler oldu.
+      panel: {
+        tip: 'etiketler',
+        ogeler: ['BAŞLANGIÇ', 'KIRILMA', 'YAYILMA', 'BUGÜN'],
+      },
       hayalet: '',
       rayaSol: 'GERİ KAZANIM',
       rayaOrta: ORNEK,
     },
     {
+      kolon: 'orta',
       ustBaslik: 'BAŞLANGIÇ',
       baslik: 'Sorun hacim değil, ayrıştırma',
       govde: 'Toplanan malzemenin üçte biri karışık geldiği için işlenemiyordu.',
@@ -206,6 +217,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      aksanRolu: 'yok' as const,
       ustBaslik: 'KIRILMA',
       baslik: 'Tek bir hat değişikliği eğriyi büktü',
       govde: 'Optik ayrıştırıcı devreye girdiği yıl kayıp oranı yarıya indi.',
@@ -221,6 +233,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      kolon: 'orta',
       ustBaslik: 'YAYILMA',
       baslik: 'Aynı yöntem dört tesise taşındı',
       govde: 'Kopyalanan şey makine değil, besleme sırasıydı.',
@@ -252,6 +265,7 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      kolon: 'orta',
       ustBaslik: 'SONRAKİ',
       baslik: 'Sıradaki eşik **kalite**, hacim değil',
       govde: 'Aynı eğri devam ederse sınırı belirleyen şey pazar değil, saflık olacak.',
@@ -374,8 +388,18 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       { x: 36, y: 80 },
       { x: 54, y: 44 },
       { x: 72, y: 78 },
-      { x: 88, y: 45 },
-      { x: 100, y: 72 },
+      // DALGA KAPANISTA DINLENIYOR — olculdu ve BAKILDI: son kartta alan siniri
+      // y=45'ten y=72'ye tirmaniyordu, yani ustten %55'ten %28'e; dev rakam ustten
+      // %47-68'de duruyor ve tam ustunde kaliyordu, iki tonun arasinda ikiye
+      // bolunuyordu. Ayni sinif kusur veri-hikayesi'nde vardi ve orada EGRI son kartin
+      // basinda bitirilerek cozulmustu. Burada tasiyici bir CIZGI degil bir ZEMIN;
+      // bitirilemez, DUZLESTIRILIR. x=83 son kartin basi; y=45 dalganin O NOKTADAKI
+      // dogal degeri, yani sinir kirilmiyor sadece DEGISMEYI birakiyor. Once y=20
+      // denendi: alan son iki kari BASTI ve 5. kartin gri govdesi mavinin ustunde
+      // kaldi. Cizip BAKMASAM gecerdi.
+      { x: 83, y: 45 },
+      { x: 83.3333, y: 40 },
+      { x: 100, y: 40 },
     ],
   },
   bant: { tip: 'yok' },
@@ -401,6 +425,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      dikey: 'ust' as const,
       ustBaslik: '01 · İZLENEBİLİRLİK',
       baslik: 'Girdi izlenebilir olacak',
       govde: 'Nereden geldiği bilinmeyen malzeme, nereye gittiği bilinmeyen atıktır.',
@@ -410,6 +435,8 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      kolon: 'orta',
+      dikey: 'orta' as const,
       ustBaslik: '02 · AYRIŞTIRMA',
       baslik: 'Ayrıştırma kaynakta başlayacak',
       govde: 'Sonradan ayrıştırma her adımda pahalılaşıyor ve saflığı düşürüyor.',
@@ -419,6 +446,8 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      dikey: 'alt' as const,
+      aksanRolu: 'yok' as const,
       ustBaslik: '03 · ÖLÇÜM',
       baslik: 'Ölçülmeyen kalite, varsayılandır',
       govde: 'Ölçülmeyen saflık satışta ortaya çıkıyor.',
@@ -428,6 +457,8 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      kolon: 'orta',
+      dikey: 'orta' as const,
       ustBaslik: '04 · ALICI',
       baslik: 'Çıktının bir alıcısı olacak',
       govde: 'Alıcısı olmayan geri kazanım, ertelenmiş bir depolama.',
@@ -437,6 +468,7 @@ export const ORNEK_AKAN_ALAN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      dikey: 'ust' as const,
       ustBaslik: '05 · FİNANS',
       baslik: 'Döngü **kendini finanse** edecek',
       govde: 'Sübvansiyonla dönen döngü, sübvansiyon bitince durur.',
@@ -627,6 +659,8 @@ export const ORNEK_SAHNE: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      aksanRolu: 'alan' as const,
+      aksanDibi: 49,
       ustBaslik: 'SORUN',
       baslik: 'Önce sorun duruyor',
       govde: 'Adı konmamış sorun çözülemez.',
@@ -854,6 +888,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       zemin: 'var(--ramp-marka-kagit)',
     },
     {
+      kolon: 'orta',
       ustBaslik: 'MALİYET',
       baslik: 'Geri dönüşüm ücretsiz mi?',
       govde: 'Toplama, taşıma ve ayrıştırma bir maliyet kalemi; bedava olan yalnız atmak.',
@@ -864,6 +899,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
+      kolon: 'sag',
       ustBaslik: 'AYRIŞTIRMA',
       baslik: 'Her plastik aynı mı?',
       govde: 'Yedi kod, yedi ayrı akış. Karıştıkları an yedisi birden değersizleşiyor.',
@@ -882,6 +918,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       zemin: 'var(--ramp-marka-kagit)',
     },
     {
+      aksanRolu: 'yok' as const,
       ustBaslik: 'DÖNGÜ',
       baslik: 'Temizlemek şart mı?',
       govde: 'Kalıntı, bir sonraki döngüde kokuya ve renk kaybına dönüşüyor.',
@@ -892,6 +929,7 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
       zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
+      kolon: 'orta',
       ustBaslik: 'ÖMÜR',
       baslik: 'Sonsuz kez dönebilir mi?',
       govde: 'Her döngüde zincir kısalıyor; sınırsız değil, sayılı.',
@@ -1039,6 +1077,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       zemin: 'var(--role-bg)',
     },
     {
+      kolon: 'orta',
       ustBaslik: 'ZEMİN',
       baslik: 'Aynı düzen, başka zemin',
       govde: 'Süreklilik rengin dönmesinden geliyor; düzen hiç değişmiyor.',
@@ -1049,6 +1088,15 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
+      // ⚠ ⚠ **BURASI 'sag' YAZILDI VE UYARLAMA PROVASI YAKALADI.** Slayt rollerini
+      // dagitirken bu karta korlemesine `sag` verdim; `duzen-provasi` gercek kosuda
+      // *"kart 3 · metin-zemine-karisiyor"* dedi. Sebep: bu sablonun donen figuru
+      // kadrajin SAG yanini dolduruyor ve metin oraya gecince zemine karisiyor. Ders
+      // bu depoda zaten yaziliydi (sablon-uyarla.ts: *metnin yatay yeri oznenin KARSI
+      // yani demek*) ama ben rolleri desteye bakmadan, ritme bakarak dagittim.
+      // ⚠ Ritim yine bozulmuyor: sol · orta · sol · orta, art arda tekrar YOK.
+      kolon: 'sol',
+      aksanRolu: 'yok' as const,
       ustBaslik: 'RİTİM',
       baslik: 'Ritmi kuran tekrar',
       govde: 'Göz üçüncü karede düzeni öğreniyor ve dördüncüyü bekliyor.',
@@ -1059,6 +1107,7 @@ export const ORNEK_DONEN: KatalogOrnegi = {
       zemin: 'var(--role-surface)',
     },
     {
+      kolon: 'orta',
       ustBaslik: 'KAPANIŞ',
       baslik: 'Kapanış **koyu** gelir',
       govde: 'Son kare diziyi kapatıyor: aynı düzen, en yüksek kontrast.',
@@ -1157,8 +1206,8 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       { x: 22, y: 41 },
       { x: 45, y: 56 },
       { x: 68, y: 38 },
-      { x: 88, y: 52 },
-      { x: 100, y: 44 },
+      { x: 75, y: 40 },
+      { x: 100, y: 40 },
     ],
   },
   // ⚠ ⚠ **GÖRSEL BU ŞABLONDA KESİM TAŞIYICISI DEĞİL — ve bunu bir ÇELİŞKİ gösterdi.**
@@ -1217,6 +1266,7 @@ export const ORNEK_EDITORYAL: KatalogOrnegi = {
       zemin: 'var(--ramp-marka-kagit-0)',
     },
     {
+      aksanRolu: 'yok' as const,
       ustBaslik: '',
       baslik: 'Küçük punto güven ister',
       govde: 'Bağırmayan bir başlık, okunacağını varsayıyor.',
@@ -1345,6 +1395,7 @@ export const ORNEK_KAVIS: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      aksanRolu: 'yok' as const,
       ustBaslik: 'SAPMA',
       baslik: 'Sapma görünür olmalı',
       govde: 'Görünmeyen sapma, ortalamanın içinde kaybolur.',
@@ -1436,7 +1487,8 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
       { x: 0, y: 78 },
       { x: 33, y: 73 },
       { x: 66, y: 68 },
-      { x: 100, y: 62 },
+      { x: 66.6667, y: 40 },
+      { x: 100, y: 40 },
     ],
   },
   bant: { tip: 'yok' },
@@ -1456,6 +1508,9 @@ export const ORNEK_ALINTI: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      kolon: 'orta',
+      aksanRolu: 'alan' as const,
+      aksanDibi: 52,
       ustBaslik: 'KARŞI SÖZ',
       baslik: 'Ama ölçtüğün her şey önemli değildir',
       govde: 'İki cümle birlikte doğru; ayrı ayrı yanıltıcı.',
@@ -1558,8 +1613,8 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
       { x: 0, y: 92 },
       { x: 25, y: 80 },
       { x: 50, y: 68 },
-      { x: 75, y: 56 },
-      { x: 100, y: 44 },
+      { x: 75, y: 40 },
+      { x: 100, y: 40 },
     ],
   },
   bant: { tip: 'yok' },
@@ -1597,6 +1652,8 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      aksanRolu: 'alan' as const,
+      aksanDibi: 26,
       ustBaslik: 'DEĞİŞİM',
       baslik: 'Ölçü vardiyaya indi',
       govde: 'Aynı sayı, üç ayrı sorumlulukla okundu.',
@@ -1621,6 +1678,7 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
       // ⚠ Kapak (`kart 1`) `sag` KALIYOR: girişin ayrı durması kilidin kendisi.
     },
     {
+      kolon: 'orta',
       ustBaslik: 'HIZ',
       baslik: 'Karar haftalıktan günlüğe geçti',
       govde: 'Geciken bir ölçü, geciken bir karar demek.',
@@ -1670,6 +1728,15 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
  * ⚠ Tipografi ailenin en MONO'su: `liste` paneli numaralı ve tabular; başlık ağırlığı
  * 600'de tutuluyor ki numaralar başlıkla yarışmasın.
  */
+// ⚠ ⚠ **BU DESTE HER SEYI UC KEZ SOYLUYORDU.** Ust etiket "ADIM 02", baslik
+// "Ikinci adim: esigi yaz", liste "02 esigi yaz" — ayni bilgi uc ayri yerde ve
+// hicbiri yenisini eklemiyordu (R-111). Kusur once bir TASMA olarak gorundu: kapanis
+// kartinda cagri %96,1'e dusup kunye seridine (%95-97) biniyordu, cunku uc satirlik
+// baslik yer birakmiyordu. SERITTE gorulda.
+// ⚠ Yeni bolusum — dort ses, dort ayri is: ust etiket KONUM · baslik IDDIA ·
+// govde SONUC · liste DORT ADIM. "Ikinci adim:" oneki dustu cunku numarayi zaten
+// ust etiket tasiyor; basliklar artik adimin ADINI degil NEDENINI soyluyor.
+// ⚠ Vurgu sayisi 2'de tutuldu (kapak + kapanis): aksan-disiplini tavani.
 export const ORNEK_DIZIN: KatalogOrnegi = {
   slaytGenisligi: VARSAYILAN_TUVAL.genislik,
   yukseklik: VARSAYILAN_TUVAL.yukseklik,
@@ -1766,8 +1833,8 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ADIM 02',
-      baslik: 'İkinci adım: eşiği yaz',
-      govde: 'Eşiksiz sayı, alarm üretmiyor.',
+      baslik: 'Eşik olmadan alarm yok',
+      govde: 'Sayı tek başına bir olay değil; olay eşiğin aşıldığı andır.',
       panel: {
         tip: 'liste',
         yayik: true,
@@ -1784,9 +1851,11 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       rayaOrta: ORNEK,
     },
     {
+      kolon: 'orta',
+      aksanRolu: 'yok' as const,
       ustBaslik: 'ADIM 03',
-      baslik: 'Üçüncü adım: sorumlu ata',
-      govde: 'Sahipsiz alarm, kapatılan alarmdır.',
+      baslik: 'Sahipsiz alarm kapanır',
+      govde: 'Sahibi olmayan uyarıyı kapatan olur, düzelten olmaz.',
       panel: {
         tip: 'liste',
         yayik: true,
@@ -1804,8 +1873,8 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     },
     {
       ustBaslik: 'ADIM 04',
-      baslik: 'Dördüncü adım: **haftalık** oku',
-      govde: 'Okunmayan ölçü, ölçülmemiş sayılır.',
+      baslik: 'Okunmayan ölçü **yok** sayılır',
+      govde: 'Haftalık okuma, ölçüyü bir alışkanlığa çeviriyor.',
       // ⚠ ⚠ **ÇİP SATIRI → LİSTE.** Kapanış kartı dizinin kendisini taşımıyordu:
       // dört adımlık bir dizin son karede dört ÇİP gösteriyordu ve üçüncü ok bir
       // madde numarasına değil o çip satırına iniyordu. Dizin, vardığı yerde de
@@ -1837,6 +1906,11 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
       hayalet: '',
       rayaSol: 'YÖNTEM',
       rayaOrta: ORNEK,
+      // ⚠ ⚠ **DEV RAKAM KALDIRILDI VE GERI KONDU — kapi haklı ciktı.** Once "liste zaten
+      // 01-04 diyor, dev 04 tekrar" diye kaldirdim; iki-uc kapisi kirmiziya dondu cunku
+      // bu destenin ≥220 px'lik TEK dev sesi oydu (hayalet yok). Ve gerekce de fazla
+      // genisti: liste KANIT, dev rakam IDDIA — biri otekini tekrarlamiyor.
+      // Gercek sorun yer: olculdu, cagri %105-108'de yani kartin DISINDA. → kapanis payi
       kapanis: { rakam: '04', rakamAlt: 'ADIMDA HAT', cagri: 'İlk ölçüyü **birlikte** koyalım.' },
     },
   ],

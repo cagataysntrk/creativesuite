@@ -3020,3 +3020,228 @@ bir eğri"* ve oradaki "iki" bir **ORAN**, iki madde değil — o iddiayı zaten
 taşıyor. Kural daraltıldı: sayı sözcüğü ancak **sayılabilir bir öge adını** (şart · adım ·
 madde · soru · ilke · kural · neden · aşama · varsayım) niteliyorsa sayım iddiasıdır.
 *Aynı sözcük, iki ayrı iddia; ayıran şey neyi nitelediği.*
+
+### Slaydın bir rolü yoktu — 45 karenin 36'sı aynı yerde başlıyordu
+
+Denetimin *"setin en büyük hastalığı"* dediği madde. İddiası: *"45 slaydın 34'ünde metin
+bloğunun sol kenarı %6,0–6,7 arasında; bir karosel boyunca yatay kompozisyon kare
+genişliğinin %0,7'sinden az değişiyor — bu bir şablon değil bir FORM."* Tarayıcıda
+ölçüldü ve **daha sert çıktı: 36/45 slayt %5,7–5,9'da**, üstelik **hepsinin üst kenarı
+%8,2'de.** Yani hastalık bir eksen daha derindi: yatayda tekdüzelik, dikeyde ise seçenek
+BİLE YOKTU — `yerlesim` belge düzeyindeydi.
+
+İki mekanizma: `kolon`a üçüncü değer (`orta`) ve karta inen `dikey`. Yedi destenin rolleri
+yazıldı; dağılım **36/45 → 22/45** (%80 → %49), bantlar %5–10 · %10–15 · %15–20 · %20–25 ·
+%25–30 · %50–55.
+
+⚠ ⚠ **ÜÇÜNCÜ KONUM SABİT BİR YÜZDE OLAMADI ve bunu ŞERİT söyledi.** Denetimin önerdiği
+%26 sabit yazıldı; `memphis` çizilip bakılınca `orta` (2. kart) ile `sag` (3. kart)
+neredeyse aynı yere düştü — çünkü `sag`ın sol kenarı SÜTUN GENİŞLİĞİNDEN türüyor ve
+şablona göre %26 ile %52 arasında geziyor. Geniş sütunlu şablonda üç rol İKİYE düşüyordu.
+Doğru ölçü şablonun kendi iki ucunun ortası: `sol` ile `sag` arası ikiye bölündü. `memphis`
+artık **%5,9 · %15,7 · %25,9** — üç ayrık adım.
+
+⚠ Kural *"üçünü de kullan"* DEĞİL, *"art arda tekrarlama"*. `sahne` · `editoryal` · `kavis`
+zaten `sag`/`sol` diye şaşırtıyor ve çizilince doğru duruyorlar; üç konumu zorlayan bir
+kural o üçünü haksız yere kırardı. Ölçülen kusur çeşit azlığı değil TEKRARdı.
+
+### Alan sınırı dev rakamı kesiyordu — ve kapı bunu bilmiyordu
+
+`akan-alan`ın dikey rolleri yazılınca (`ust · orta · alt · orta · ust`) beş şart alanın
+dalgasına bindi ve kompozisyon açıldı. Ama son karede dev rakamın üstünden alan sınırı
+geçiyordu. `kapanis-temiz` kapısının yorumu kuralın *"`egri` ve `alanSiniri`"*ne
+uygulandığını SÖYLÜYORDU; kodu yalnız `bant.tip === 'egri'` okuyordu. **Kapı kendi kapsamı
+hakkında yanlış beyan veriyordu.**
+
+Dört deste `alanSiniri` taşıyor ve **dördünde de** sınır rakamı kesiyordu: `akan-alan` %62 ·
+`editoryal` %49–56 · `alinti` %65–68 · `karsilastirma` %45–52; rakam dördünde de üstten
+**%45–72**.
+
+⚠ Çözüm ayar değil, ÖLÇÜLEN TEK BOŞLUK: kapanış kartında gövde %28–36'da bitiyor, kapanış
+öbeği %45'te başlayıp **%87'ye kadar kesintisiz** (rakam · alt etiket · marka kilidi ·
+çağrı). Sınırın oturabileceği tek aralık %36–45; dördü de %40'ta düzleştirildi. Rakamın
+ALTINA koymak mümkün değil — orada boşluk yok.
+
+⚠ ⚠ **ALET ON ÜÇÜNCÜ KEZ YALAN SÖYLEDİ — bu kez EKSEN TERSTİ.** Ölçüm aleti `100 − y`
+alıyordu; `alanSiniri.y` aslında ÜSTTEN yüzde. Ters okumayla `alinti` "temiz", ötekiler
+"kesiyor" çıktı; düzeltince tam TERSİ. İki kez yanlış desteyi düzeltmeye başladım. Ekseni
+piksel basamağı kesin söyledi: `akan-alan` sınırı üstten **%61,9** ölçüldü, modelde `y: 62`.
+*Modeli piksele karşı doğrulamayan her ölçüm bir varsayımdır.*
+
+⚠ Bir kez de BAKARAK affettim: `akan-alan`ın "00"ı ilk düzeltmeden sonra gözüme tek tonda
+göründü, alet "hâlâ kesiyor" dedi ve ALET HAKLIYDI — sınır rakamın üst %20'sinden
+geçiyordu, iki koyu ton arasındaki fark o ölçekte göze çarpmıyordu.
+
+### Kapaktaki yıl hapları bir lejanttı, güzergâh değil
+
+Denetim: *"`veri-hikayesi`nin yıl hapları eğriye DEĞMİYOR, bir UI filtre çipi gibi
+duruyor."* Ölçüldü: haplar üstten **%67,3–71,5**'te, eğri o x'te ≈**%79** — sekiz puan
+havada. Ama asıl kusur konum değil **İÇERİKTİ**: 2019 · 2021 · 2023 · 2025 yazıyorlardı ve
+yılları zaten eğrinin kilometre işaretleri taşıyor (2020 · 2023 · 2025). Aynı bilgi iki
+yerde. → R-111
+
+Gövde *"her durakta bir karar var"* diyor; haplar artık **o duraklar** — ortadaki dört
+kartın adları (BAŞLANGIÇ · KIRILMA · YAYILMA · BUGÜN). Kapak bir içindekiler oldu ve haplar
+eğrinin omzuna oturdu.
+
+⚠ `.kilometre` işaretlerinin kendisi bu turda ZATEN düzeltilmişti (`bottom` sabit 120 px'ti,
+eğriye oturtuldu). Denetimin cümlesi iki ayrı kusuru anlatıyordu; biri kapanmıştı.
+
+### `dizin` her şeyi ÜÇ KEZ söylüyordu — ve kusur bir taşma olarak göründü
+
+Ölçüldü: kapanış kartında çağrı **%105–108**, yani kartın DIŞINDA; alt etiket %94–96 künye
+şeridiyle (%95–97) çakışıyordu. Kart fazla dolu değil, **iki kez doluydu**.
+
+⚠ ⚠ **ÜÇ YANLIŞ TEŞHİS, SIRAYLA — ve üçü de öğretici.**
+1. *"Liste zaten 01–04 diyor, dev rakam tekrar"* → rakam kaldırıldı, **`iki-uc` haklı olarak
+   kırmızı döndü**: bu destenin ≥220 px'lik tek dev sesi oydu (hiç hayaleti yok). Gerekçe de
+   fazla genişti: **liste KANIT, dev rakam İDDİA.** Kapı beşinci kez kuralımı daralttı.
+2. Kural CSS'e yazıldı — çok satırlı `.kapanis-rakam` bildiriminin **İÇİNE** düştü, CSS iç
+   içe geçti, seçici hiç eşleşmedi.
+3. Blok dışına taşındı — punto **yine 458 px** kaldı, çünkü rakam puntosunu **satır içi
+   `style`** yazıyor ve onu hiçbir stil sayfası kuralı geçemez. Kural, değeri ÜRETEN yere
+   (`rakamPuntosu`) yazılmak zorundaydı. *Ateşlenmeyen değişikliği sökmek de işin parçası.*
+
+Kural: **kapanış kartı kanıt da taşıyorsa iddia yer verir** — punto 458 → 380 ve üçüncü ses
+(alt etiket) düşüyor.
+
+⚠ ⚠ **ÖNCE 300 SEÇTİM VE `iki-uc` KIRMIZI DÖNDÜ — çünkü YANLIŞ ŞEYİ ölçmüştüm.** Aletim
+rakamın KUTU yüksekliğini veriyordu (252 px) ve ben ona bakıp *"220 tabanına %15 pay var"*
+demiştim; kapı ise CAP yüksekliğini ölçüyor ve o **207 px**'ti. Yani payım hayaldi, üstelik
+işaretin altındaydı. 380'de kapı yeşil ve çağrı dibi %92,5 — künye şeridinin (%95–97)
+üstünde. *Aletin ölçtüğü büyüklük ile kapının ölçtüğü büyüklük aynı değilse, pay diye
+yazdığın sayı bir kurgudur.*
+
+⚠ ⚠ **AMA ŞERİDE BAKINCA HÂLÂ KÖTÜYDÜ:** çağrı künye şeridinin ÜSTÜNE biniyordu. Ölçüm
+"kartın içinde" diyordu, göz "çakışıyor" diyordu ve **bu kez göz haklıydı.** Gerçek sebep
+içerikti: üst etiket *"ADIM 02"*, başlık *"İkinci adım: eşiği yaz"*, liste *"02 eşiği yaz"* —
+aynı bilgi üç ayrı yerde ve üç satırlık başlık yer bırakmıyordu.
+
+Yeni bölüşüm — **dört ses, dört ayrı iş**: üst etiket KONUM · başlık İDDİA · gövde SONUÇ ·
+liste DÖRT ADIM. Başlıklar adımın ADINI değil NEDENİNİ söylüyor (*"Eşik olmadan alarm yok"* ·
+*"Sahipsiz alarm kapanır"* · *"Okunmayan ölçü yok sayılır"*). Sonuç: **on destede SIFIR
+taşma.** Vurgu sayısı 2'de tutuldu (`aksan-disiplini` tavanı).
+
+### Aksan dokusu: denetim haklıydı, ama benim ölçümüm bile yüzeyseldi
+
+`aksan-disiplini` kapısı `**vurgu**` SAYISINI kilitlemişti (on destede de tam 2). Bu turda
+vurgunun NEREDE olduğu sayıldı ve sonuç sayıdan daha sert çıktı: **on destenin onunda da
+aynı iki slayt** — kapak ve SON kart. Yani kural değil, REFLEKS.
+
+⚠ ⚠ **VE ASIL MÜREKKEP DAHA DERİNDE.** Kartın aksan rengiyle çizilen bütün ögeleri sayınca
+(`aksan-payi.mjs`): **her kartta 1–14 öge.** Üst etiket tiresi, liste numaraları, künye
+sayacı — hepsi aksan renginde. Yani `yok` rolü bugün HİÇBİR kartta yok; denetimin *"aksan
+dokuya dönüşmüş"* cümlesi vurgu sayımından çok daha geniş bir doğruyu anlatıyormuş.
+
+⚠ Aletin ilk sürümü **on kartın onunda da sıfır** okudu: `getComputedStyle(k)
+.getPropertyValue('--kart-aksan')` çözülmemiş `var(...)` metnini döndürüyor, `s.color` ise
+çözülmüş `rgb(...)` — iki string hiç eşleşmiyordu. Şeritte turuncu tireler apaçık dururken
+alet "aksan yok" diyordu. Çözüm bir PROB ögesi: `color: var(--kart-aksan)` verilip hesaplanan
+rengi okumak. *Bir CSS değişkenini metin olarak karşılaştırmak, ölçmek değildir.*
+
+### Aksan bir kelime olmaktan çıktı, YÜZEY oldu — ve bu üçüncü yüzeyi kapılar bilmiyordu
+
+Denetimin dört rolünden (`vurgu` · `alan` · `isaret` · `yok`) ikisi hiç yoktu. `alan`
+kuruldu: kartın üst bandı aksan renginde dolu, üst etiket ve başlık **kartın kendi zeminine
+oyulmuş**. Üç desteye verildi — `alinti` k2 (%52) · `sahne` k2 (%49) · `karsilastirma` k2
+(%26); üçü de başlık dibi ile gövde başı arasındaki ölçülen boşluğa oturuyor.
+
+⚠ ⚠ **KONTRAST TUZAĞI KURALA BAĞLANDI.** Denetim `alan`ı *"≥%20 alan + oyulmuş beyaz"* diye
+tarif ediyor ama marka mavisi üstüne beyaz **4,07** verir ve gövde eşiği 4,5. Tarifi
+harfiyen uygulamak okunmaz gövde üretirdi. Alana yalnız BAŞLIK giriyor (büyük metin, eşik
+3:1) ve `aksan-rolu` kapısı gövdenin bandın dışında kaldığını TARAYICIDA doğruluyor. Bandı
+%52'den %62'ye itince kapı kırmızı döndü: *"gövde %53,8'de başlıyor ama alan %62'e iniyor."*
+
+⚠ ⚠ **BANT `background-image` OLARAK ÖLÜ DOĞDU — satır içi stil dersi bu turun İKİNCİSİ.**
+İlk sürüm `.kart`a `background-image` verdi; bant hiç boyanmadı ama metin OYULDU, yani açık
+kâğıt üstünde beyaz başlık kaldı. Sebep: yüzey dokusu (`kagit`/`tas`/`beton`…) o özelliği
+SATIR İÇİ yazıyor. Bant ayrı katmana (`::before`, `lekeUst`) alındı; doku ve gren korundu.
+
+⚠ ⚠ **VE MEVCUT BİR KAPI HAKLI OLARAK KIRMIZI DÖNDÜ.** `alan-siniri` kapısı metnin arkasında
+**iki** alan olduğunu varsayıyordu; `alan` üçüncüsünü ekledi. Kapı oyulmuş başlığı üstteki
+alana karşı ölçtü, **ΔL 0,000** buldu ve kendi modelinde haklıydı — o modelde yazı gerçekten
+görünmezdi. Doğru olan kapıyı gevşetmek değil MODELİNİ DÜZELTMEK: bandın içinde duran yazı
+artık banda karşı ölçülüyor. Körelmediği kasten ihlalle kanıtlandı — oyuk rengi bandın
+rengine eşitlenince kapı yine ΔL 0,000 ile kırmızı döndü.
+
+⚠ **R-98 ONUNCU KEZ ISIRDI:** kapıya yazdığım açıklama şablon değişmezinin içindeydi ve iki
+ters tırnak taşıyordu; dosya ayrıştırılamadı, `Tests no tests` çıktı.
+
+### Ölü bir dal, uyandığı gün yanlış yere koyacaktı
+
+Denetimin *"panolar %75'ten %45–60'a insin ve sürekli ögeye DEĞSİN"* maddesi için
+`panoDibi` mekanizması aranırken bulundu. Mekanizma VAR ama kapsamı `yerlesim` `'ayrik'`
+ile sınırlı — ve o sınır bilinçli: daha önce `karsilastirma`da genişletilmiş, ölçülmüş ve
+DAHA KÖTÜ çıkmış (*"kural doğruydu, KAPSAMI yanlıştı"*). Yani bu kalem zaten bir kez
+çürütülmüş; tekrar denenmedi.
+
+⚠ ⚠ **Ama ölçerken başka bir şey çıktı: `alanSiniri` dalı HİÇ KOŞMUYOR.** `alanSiniri`
+taşıyan dört destenin (`akan-alan` · `editoryal` · `alinti` · `karsilastirma`) dördü de
+`yerlesim: 'ust'/'orta'` ve daha önceki koşulda `null` dönüyor; oraya yalnız
+`veri-hikayesi` geliyor, o da `egri` dalını alıyor.
+
+⚠ Ve o ölü dal `100 − y` alıyordu. `alanSiniri.y` ÜSTTEN yüzdedir — bu turda piksel
+basamağıyla kanıtlandı. Yani bir gün bir desteye `ayrik` verilseydi pano sınırın **ayna
+konumuna** oturacaktı ve kimse sebebini aramayacaktı. Düzeltildi.
+
+*Ölü kod sessizce yanlış olabilir; ölçüm onu uyanmadan yakaladı.*
+
+### Boş alt yarı — VE KENDİ ÖLÇÜMÜMÜ ÇÜRÜTMEK ZORUNDA KALDIM
+
+İlk ölçüm (`alt-yari.mjs`) şunu dedi: `karsilastirma` k2 %3 · k3 %10 · `memphis` **k1/k2/k4
+%0** · `sahne` k1–k3 %8–9 · `editoryal` k1–k3 %9–10. Dört destede birden "gövde kartlarının
+alt yarısı boş" gibi görünüyordu ve tam da düzeltmeye başlayacaktım.
+
+⚠ ⚠ **AMA `donen`i ÇİZİP BAKINCA ortası bomboş beyaz duruyordu ve o boşlukta "ÜRÜN — 2"
+yazan bir kutu vardı — yani GÖRSEL YUVASI.** Şablon taslak, görsel henüz yok; gerçek koşuda
+orayı fotoğraf dolduruyor. Aletim `.gorsel` arıyordu, gerçek sınıf **`.gorsel-yer`**;
+görselleri hiç saymamıştı. **On altıncı alet yalanı — ve bu kez kendi bulgumu yıktı.**
+
+Doğru ölçüm (görsel yuvaları dahil): `memphis` k1 %0 → **%37**, k2 → **%47**, k4 → **%52** ·
+`donen` %48–65 · `sahne` %48–82 · `dizin` %49–59. Yani hastalık dört destede değil,
+**dörtte birinde**: `karsilastirma` k2 **%3** · k3 **%10** · `kavis` k3 **%1** · `editoryal`
+k3 **%10**. Denetimin özellikle `karsilastirma`yı adıyla anması boşuna değilmiş.
+
+⚠ `akan-alan` k1/k2 %0 ama bu KUSUR DEĞİL: o şablon reçetede *"saf tipografi + alan"* diye
+tanımlı ve alt yarısını mavi dalga alanı dolduruyor.
+
+*Bir ölçüm aleti neyi saymadığını söylemez; ancak çizip bakınca anlaşılır.*
+
+### Zincir kırığı, BEŞİNCİ kez — ve ders o dosyada zaten dört kez yazılıydı
+
+`slayt-rolu` ve `aksan-rolu` işleri bittikten sonra commit üç tur boyunca ATILMADI ve ben
+atıldığını sandım. Sebep iki katmanlıydı.
+
+**Katman 1 — `durum` kapısı.** `son_kanit` değerimin İÇİNDE kaçırılmamış çift tırnaklar
+vardı (`"ucunu de kullan" DEGIL "art arda tekrarlama"`) ve YAML dizgeyi erken kapatıyordu;
+ayrıca kapı/ihlal sayaçlarını yanlış bumpladım (52/26 yazdım, gerçek **50/24**). Yani kendi
+ölçüm defterime yanlış sayı yazdığım için commit reddediliyordu — kapının varlık sebebi tam
+olarak bu.
+
+**Katman 2 — `katalog-dikis`.** Yeni alanlarım `dikey` · `aksanRolu` · `aksanDibi`
+`sablon-uyarla.ts`teki taşıma listesine eklenmemişti ve uyarlama adımında DÜŞÜYORDU; kapı
+**on şablonda birden** kırmızı döndü. O dosya aynı dersi zaten **dört kez** anlatıyor
+(`zemin` · `kolon` · `elYazisi` · `ayar` · `kapanis`) ve içlerinden biri aynen şöyle diyor:
+*"bir dosyaya yazılmış ders, o dosyaya SONRADAN eklenen alana kendiliğinden geçmiyor."*
+Beşincisini üç alanla birden yaptım.
+
+⚠ ⚠ **VE GÖRMEMEMİN SEBEBİ ÖLÇÜLEBİLİR: yalnız `packages/render` koşturuyordum, kapı
+`packages/engine`de duruyor.** *Bir paketin yeşili ötekinin kırmızısını gizler.*
+
+⚠ ⚠ **KAPI ÇIKTISI COMMIT KANITI DEĞİLDİR.** Arka plan görevi "exit code 0" dedi, kancanın
+✓ satırları aktı, ben commit atıldı sandım — HEAD hiç kıpırdamadı. Tek kanıt `git log`.
+
+### `donen` k3: rolü desteye bakmadan dağıttım, üretim provası yakaladı
+
+Slayt rollerini yazarken bu karta körlemesine `kolon: 'sag'` verdim. `duzen-provasi` gerçek
+koşuda *"kart 3 · metin-zemine-karisiyor"* dedi. Sebep: bu şablonun dönen figürü kadrajın
+**sağ** yanını dolduruyor ve metin oraya geçince zemine karışıyor. Ders bu depoda zaten
+yazılıydı (`sablon-uyarla.ts`: *"metnin yatay yeri öznenin KARŞI yanı demek"*) ama ben
+rolleri destenin İÇERİĞİNE değil RİTMİNE bakarak dağıttım. `sol` yapıldı; ritim bozulmadı
+(sol · orta · sol · orta).
+
+⚠ ⚠ **VE BU KUSURU ÖNCE ALET GİZLEDİ — ON BEŞİNCİ ALET YALANI.** `duzen-provasi.test.ts`
+hata mesajını düz `JSON.stringify` ile kuruyordu; hata nesnesindeki `BigInt`e çarpıp
+*"Do not know how to serialize a BigInt"* fırlatıyor ve GERÇEK kusuru gizliyordu. BigInt
+güvenli bir replacer eklendi. *Kırmızı bir test sebebini söyleyemiyorsa yarısı kadar işe
+yarar.*

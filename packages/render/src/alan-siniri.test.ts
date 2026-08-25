@@ -203,8 +203,26 @@ const OLC = `(() => {
       }
       const metin = el.tagName === 'IMG' ? gorselIsigi(el) : acikligi(st.color)
       if (metin === null || isNaN(metin)) continue
+      // ⚠ ⚠ **UCUNCU YUZEY: AKSAN BANDI.** Bu kapi metnin arkasinda yalniz IKI alan
+      // oldugunu varsayiyordu. "aksanRolu: 'alan'" ucuncusunu ekledi — kartin ust bandi
+      // aksan renginde DOLU ve ustundeki yazi kagit rengine OYULMUS. Kapi bandi bilmedigi
+      // icin oyulmus basligi USTTEKI alana karsi olctu, dL 0,000 buldu ve haklı olarak
+      // "okunmuyor" dedi: kendi modelinde o yazi gercekten gorunmezdi.
+      // ⚠ Kapiyi gevsetmek DEGIL, modelini duzeltmek dogru olan: bandin ICINDE duran yazi
+      // BANDA karsi olculur. Disinda duran yazi eskisi gibi alana karsi olculur.
+      const kart = el.closest('.kart')
+      let bandIsigi = null
+      if (kart && kart.classList.contains('aksan-alan')) {
+        const kr = kart.getBoundingClientRect()
+        const dip = parseFloat(getComputedStyle(kart).getPropertyValue('--aksan-dibi'))
+        const er = el.getBoundingClientRect()
+        if (isFinite(dip) && er.bottom <= kr.top + (dip / 100) * kr.height + 1)
+          bandIsigi = acikligi(getComputedStyle(kart, '::before').backgroundColor)
+      }
       // Kesilen oge IKI alana karsi, kesilmeyen yalniz USTUNDE DURDUGU alana karsi.
-      const alanlar = icinde.length > 0
+      const alanlar = bandIsigi !== null && !isNaN(bandIsigi)
+        ? [bandIsigi]
+        : icinde.length > 0
         ? ISIK
         : [altta ? Math.min.apply(null, ISIK) : Math.max.apply(null, ISIK)]
       const a = el.tagName === 'IMG' ? 1 : alfasi(st.color)
@@ -212,7 +230,9 @@ const OLC = `(() => {
       if (enYakin < %ESIK%)
         kusur.push(
           'kart ' + (i + 1) + ' · ' + el.className.split(' ')[0] + ' ' +
-          (icinde.length > 0 ? 'sinirin kestigi alanda' : (altta ? 'ALT' : 'UST') + ' alanda') +
+          (bandIsigi !== null && !isNaN(bandIsigi)
+            ? 'AKSAN BANDINDA'
+            : icinde.length > 0 ? 'sinirin kestigi alanda' : (altta ? 'ALT' : 'UST') + ' alanda') +
           ' okunmuyor (dL ' + enYakin.toFixed(3) + ')'
         )
     }
