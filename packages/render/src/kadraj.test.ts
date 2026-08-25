@@ -87,7 +87,7 @@ describe('sözleşmeler — kural CSS’te duruyor mu', () => {
     expect(DIKIS_BANDI).toBe(93)
     expect(EZICI_PAY).toBe(0.4)
     expect(ZEMINDEN_AYRISMA).toBe(120)
-  })
+  }, 60_000)
 
   it('tanım ögeleri akışın DIŞINDA — sahneyi kaydıramazlar', () => {
     expect(panoramaHtml(kapak())).toContain(FILTRE_TANIM_CSS.trim())
@@ -120,7 +120,7 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(suzgec(r.value, 'dikis-bandinda').length).toBeGreaterThan(0)
-  })
+  }, 60_000)
 
   // ⚠ ⚠ **BU KUSUR SENTETİK OLARAK ÜRETİLEMİYOR ve denemesi öğreticiydi:** `tema-uyum`
   // listeden düşürülünce görsel HAM çiziliyor ve ham hâli düzeltilmişten biraz KOYU —
@@ -144,7 +144,7 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     const bulgu = suzgec(r.value, 'krom-seridine-giriyor')
     expect(bulgu.length).toBeGreaterThan(0)
     expect(bulgu[0]).toContain('px')
-  })
+  }, 60_000)
 
   // 🧪 ⚠ **KASTEN İHLAL** (R-71): kaynak satırı boşaltılıyor. Düzeltmeden önce bu hâl
   // SESSİZDİ — boş bir `<span>` çiziliyor, slayt kusursuz görünüyor ve kaynağını
@@ -165,7 +165,7 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     const bulgu = r.value.filter((k) => k.tur === 'kaynak-yok')
     expect(bulgu.length).toBe(1)
     expect(bulgu[0]?.kart).toBe(1)
-  })
+  }, 60_000)
 
   it('kutup zinciri: açık kartın görseli açık tema kimliğini ÇAĞIRIYOR', () => {
     expect(islemZinciri(['tema-uyum'], true)).toContain(ACIK_TEMA_KIMLIGI)

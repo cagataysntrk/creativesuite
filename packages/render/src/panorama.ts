@@ -33,6 +33,7 @@ import {
   grenKatmani,
   grenKipi,
   grenOpakligi,
+  cizgiKatmanlari,
   yuzeyKatmanlari,
   zeminCss,
   zeminKarisimi,
@@ -872,6 +873,13 @@ const isikGucu = (acikklik: number): number => (acikklik > 0.62 ? 0 : acikklik >
  * ⚠ `tas` ve `halftone` tabloda YOK (reçete dört aile sayıyor, depoda beş var). `tas`
  * betona komşu ama daha az gözenekli (20), `halftone` baskı yüzeyi ve kâğıda yakın (12).
  * ⚠ Yüzeysiz şablonda eski davranış korunuyor: açıklıktan türeyen üç kademe.
+ * ⚠ ⚠ **ÇİZGİLİ İKİLİNİN VİNYETİ MALZEMEDEN DEĞİL IŞIKTAN GELİYOR — ve bu bir istisna
+ * değil, tablonun kendi mantığı.** Reçetenin `A` tablosu ikisinin ışığına da *"düz,
+ * gölgesiz"* diyor; düz aydınlatılmış bir yüzeyde kenar toplanması FİZİKSEL olarak
+ * yoktur. Bu yüzden ikisi de bandın ALT ucunda: `kopya` teknik çizim kâğıdı, en temizi
+ * (8); `defter` kullanılmış sıcak kâğıt, biraz daha eskimiş (11 — `kagit` ile aynı).
+ * Derleyici bu kararı ZORLADI: `Record<Yuzey, number>` eksik anahtarla derlenmiyor,
+ * yani yeni bir yüzey sessizce varsayılan bir kenar alamıyor.
  */
 const VINYET_YUZEY: Readonly<Record<Yuzey, number>> = {
   kagit: 11,
@@ -879,6 +887,8 @@ const VINYET_YUZEY: Readonly<Record<Yuzey, number>> = {
   beton: 23,
   celik: 14,
   halftone: 12,
+  kopya: 8,
+  defter: 11,
 }
 
 const vinyetGucu = (acikklik: number, yuzey?: Yuzey): number =>
@@ -1830,6 +1840,9 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // duruyorlar ve altlarındaki her şeyle karışıyorlar.
   const ustDoku =
     `<div class="ust-gren" aria-hidden="true"></div>` +
+    // Çizgili zeminlerde bir kardeş daha: kuralın karışım kipi grenden BAŞKA olmak
+    // zorunda (gerekçe `.ust-cizgi` CSS'inde). Çizgisiz yüzeylerde CSS hiç üretilmiyor.
+    `<div class="ust-cizgi" aria-hidden="true"></div>` +
     // ⚠ ⚠ **IŞIK KARTLARIN ÜSTÜNDE — çünkü ALTINDA hiç çizilmiyordu.** `tip: 'isik'`
     // katmanı `zemin.ts`te tanımlı, testli ve **hiçbir şablon onu istemiyordu**: on
     // şablonun sıfırı `zeminDokusu` taşıyor. Sebep kayıtlı — kart kendi zeminini opak
@@ -2104,7 +2117,8 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // soft-light'a düşer ve kenar toplama işini yapmazdı — ölçülmeden fark edilmez.
     // Vinyet: kenarları toplayan tek radyal. Merkez ŞEFFAF — ortadaki içeriği
     // karartmayan bir vinyet, kadrajı daraltır ama okunurluğu düşürmez.
-    `  .ust-gren, .ust-isik, .ust-vinyet { position: absolute; inset: 0; pointer-events: none }`,
+    `  .ust-gren, .ust-cizgi, .ust-isik, .ust-vinyet { position: absolute; inset: 0;`,
+    `                                                   pointer-events: none }`,
     // ⚠ ⚠ **YÜZEY VARSA GREN DEĞİL O ÇİZİLİYOR.** Gren her yüzeyin ortak tabanı; yüzey
     // ailesi onun ÜSTÜNE malzemenin kendi imzasını koyuyor (kâğıt lifi, taş damarı,
     // beton tanesi, fırça izi, tram noktası). İkisi birden çizilseydi doku iki kez
@@ -2127,6 +2141,20 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `              filter: ${doc.yuzey === 'halftone' ? 'contrast(8) grayscale(1)' : 'none'} }`,
           ]
         })()),
+    // ⚠ ⚠ **ÇİZGİ GRENDEN AYRI BİR ELEMAN — çünkü karışım kipi başka olmak ZORUNDA.**
+    // `.ust-gren` `soft-light` karışıyor ve o kip koyu zeminde çöküyor (reçete reçete 0.1⑤:
+    // L=8'de σ 0,70). Çizgiler oraya konunca %9,5 alfa ekranda **ΔL 0,002** kaldı —
+    // çizilmişti, yoktu. Gren FİLMİN özelliğidir, çizgi MÜREKKEPTİR: biri sahnenin
+    // ışığıyla karışır, öteki kâğıdın üstünde durur. `normal` öngörülebilir.
+    ...((): readonly string[] => {
+      const c = doc.yuzey === undefined ? null : cizgiKatmanlari(doc.yuzey)
+      return c === null
+        ? []
+        : [
+            `  .ust-cizgi { z-index: ${Z.gren}; mix-blend-mode: normal;`,
+            `               background-image: ${c.join(', ')} }`,
+          ]
+    })(),
     // ⚠ ⚠ **ODAK ASİMETRİK ve yönü GÖLGEYLE ANLAŞMAK ZORUNDA.** Katmanın kendi notu
     // *"merkezi ortada olan bir odak fark edilmiyor"* diyor; ayrıca `temas-golgesi`
     // gölgeyi sağ-aşağı düşürüyor (dx 14 · dy 26), yani ışık SOL ÜSTTEN geliyor. İkisi

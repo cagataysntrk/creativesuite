@@ -2423,3 +2423,85 @@ OLAMADI — dar poster yüzü dar sütunda hiyerarşiyi tersine çeviriyor"* diy
 doğru. Ama reçetenin bu yüze verdiği rol bölüm başlığı DEĞİL: hayalet rakam (okunurluk
 alakasız, gereken tam da dar poster yüzü) ve `kavis`in 132 px'lik ağır display başlığı.
 Yüz reddedilmemişti — **çağrı yeri yoktu, ve çağrı yeri B'nin kendisiymiş.**
+
+### Çizgili zemin: 14. zincir kopukluğu kapandı — ve çizilmek YETMEDİ
+
+`zemin.ts` bir `tip: 'tarama'` katmanı (`repeating-linear-gradient`) taşıyordu, üretim
+yolunda **çağıranı yoktu.** Reçetenin `B` bölümü iki şablonda tam olarak bunu istiyor.
+İki yeni yüzey ailesi: `kopya` (60 px, iki eksen eşit) · `defter` (48 px, yatay baskın).
+
+⚠ ⚠ **İLK SÜRÜM ÇİZDİ VE GÖRÜNMEDİ: ΔL 0,002.** Kurallar `.ust-gren`e konmuştu; o eleman
+`soft-light` karışıyor ve reçetenin kendi tablosu (reçete 0.1⑤) o kipin gölgelerde çöktüğünü
+ZATEN ölçmüştü (L=8'de σ 0,70). %9,5 alfa ekranda 0,002 kaldı. Ayrım kavramsal ve kalıcı:
+**gren FİLMİN özelliğidir, çizgi MÜREKKEPTİR** — biri sahnenin ışığıyla karışır, öteki
+kâğıdın üstünde durur. Kurallar `mix-blend-mode: normal` taşıyan ayrı bir `.ust-cizgi`ye
+alındı; `normal` öngörülebilir: çizgi zemini tam `α × (255 − L)` kadar kaldırıyor.
+
+| ölçüm | yatay | dikey | periyot |
+|---|---|---|---|
+| `veri-hikayesi` (`kopya`) | **0,0817** | 0,0738 | 60 |
+| `dizin` (`defter`) | **0,0892** | 0,0424 | 48 |
+| `kavis` (çizgisiz, KONTROL) | 0,0051 | 0,0058 | — |
+| aynı kural `soft-light`te (kasten ihlal) | 0,0136 | 0,0225 | — |
+
+Hedef bant 0,06–0,11: alt uç bu fazın ölçülmüş görünürlük eşiği, üst uç ızgaranın zemin
+olmaktan çıkıp DESEN olduğu yer. `defter`in dikey ekseni kasten zayıf (α×0,55): eşit
+olsaydı `kopya`dan ayırt edilemezdi ve iki ad tek doku olurdu.
+
+**Kontrol ölçümü olmadan yukarıdaki dört sayı hiçbir şey kanıtlamaz.** `kavis` kasten
+seçildi — beton, dağarcığın en kaba dokusu (σ 14,9); gürültüyü kural sayan bir alet önce
+orada patlar. Okuduğu: 0,005. Pay on altı kat.
+
+### Ve alet iki kez daha yanılttı (9. ve 10.)
+
+**9.** Otokorelasyon HAM profile uygulandı: yumuşak bir sinyalin otokorelasyonu gecikmeyle
+monoton düşer, yani en küçük gecikme HER ZAMAN kazanır. On şablonun onu birden *"periyot
+6, korelasyon 0,93+"* okundu — ölçülen şey vinyetti. Düzeltme: 101 pencereli yüksek
+geçirgen + tepenin LOKAL maksimum olma şartı.
+
+**10.** *"En parlak N satır"* ölçütü `veri-hikayesi`de parlak bir panel bloğunu
+(y 1065–1319) ele geçirdi; gerçek kurallar listeye hiç giremedi ve **"yatay çizgi yok"**
+okundu. Ham piksel tersini söylüyordu: y=239'da luma 39,5 ↔ zemin 19,5 (1439−20×60=239,
+tam dizide). Düzeltme: satırlar periyoda göre fazlara ayrılıp her fazın MEDYANI alınıyor —
+bir panel bloğu medyanı kaydıramaz. Kapı da bu ölçümü kullanıyor.
+
+### Vinyet: çizgili ikili malzemeden değil IŞIKTAN türüyor
+
+Reçetenin `A` tablosu ikisinin ışığına da *"düz, gölgesiz"* diyor; düz aydınlatılmış bir
+yüzeyde kenar toplanması fiziksel olarak yoktur. `kopya` 0,08 (teknik çizim kâğıdı, en
+temiz) · `defter` 0,11 (`kagit` ile aynı, kullanılmış sıcak kâğıt).
+⚠ Kararı **derleyici zorladı**: `Record<Yuzey, number>` eksik anahtarla derlenmiyor, yani
+yeni bir yüzey sessizce varsayılan bir kenar alamıyor.
+
+### Denetim tavanı: suçlanan şey masumdu
+
+Çizgili zemin `veri-hikayesi`ye girince `kadraj.test.ts` kırmızı döndü — **tek başına
+koşturulunca da.** Yani çakışma değildi. İlk şüpheli ızgaraydı: 6480×1440'lık bir elemanda
+iki `repeating-linear-gradient`. Ölçüldü:
+
+| yazım | medyan render | çizgisize fark |
+|---|---|---|
+| çizgisiz | 2207 ms | — |
+| `repeating-linear-gradient` | 2219 ms | **+12 ms** |
+| döşemeli `linear-gradient` + `background-size` | 2184 ms | **−23 ms** |
+
+Yayılım 2175–2412 ms. **İki sayı da gürültünün içinde: ızgara bedava.** "Ucuz yazıma
+geç" hipotezi çürüdü ve kod sadeliğini korudu.
+
+Gerçek sebep başkaydı:
+
+| ölçüm | süre |
+|---|---|
+| `panoramaDenetle(veri-hikayesi)` **yüzeysiz** | **8342 ms** |
+| aynısı **yüzeyli** | **11 625 ms** |
+| vitest varsayılan tavanı | 10 000 ms |
+
+Denetim ~40 render yapıyor; yüzey ailesinin `feTurbulence` katmanları render başına
+~70–100 ms ekliyor (`kavis` gibi çizgisiz bir yüzeyde de +69 ms ölçüldü). Yani maliyet
+yüzey ailesinin ve **beş şablon onu zaten ödüyordu.**
+
+⚠ ⚠ **ASIL BULGU BORCUN GİZLİLİĞİ:** test zaten tavanın **%83'ünde** duruyordu. O hâldeki
+bir test, meşru HER eklemeyi kırar ve suçu son ekleyene yükler. Beş denetim testi açık
+tavan taşımıyordu, komşuları taşıyordu — **kural vardı, tutarlı uygulanmıyordu.**
+Yeni kapı `denetim-tavani`: `panoramaDenetle` çağıran her test açık zaman aşımı taşır.
+Kasten ihlal edildi, dosya ve satır adıyla kırmızı döndü (13 test tarandı).

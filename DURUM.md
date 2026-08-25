@@ -6,17 +6,17 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 19
-siradaki_adim: 19.4
+siradaki_adim: 19.5
 son_guncelleme: 2026-08-25
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-19.4 UC KALEM KAPANDI, DORDUNCUSU OKUMA HATASIYLA GORULMEMISTI. Isik: tip isik tanimliydi, on sablonun SIFIRI istiyordu (13. zincir kopuklugu); ust-isik kartlarin ustunde, alfa esikten geriye hesaplandi (tahmin delta-L 0,028 = gorunmez -> 0,061). JPEG: kalite dort yerdeydi, tek yere toplandi (92, olculen taban 90) ve kapiya baglandi. Vinyet: yalniz acikliga bagliydi, MALZEMEYE baglandi (kagit 0,11 halftone 0,12 celik 0,14 tas 0,20 beton 0,23); recetenin kenar sutunu REDDEDILDI cunku kart basina cerceve kesim cizgisini GORUNUR yapar. Alet sekizinci kez yalan soyledi: vinyet regexi degradenin SAYDAM ilk duragini yakaliyordu, on sablon birden 0 okundu. AMA 19.4 ERKEN TIKLENDI: seamless-arastirma iki ajan raporunu birebir tasiyor ve HER IKISININ de kendi A/B/C numaralandirmasi var. RAPOR 2nin B si RENK, ASAMA 2nin B si SABLON SABLON RECETE. Yanlis B okunup atif yanlis denildi. Faz dosyasinin atfi bastan DOGRUYDU. Recetenin B si iki sablonda izgara zemini istiyor: veri-hikayesi 60 px mavi kopya izgarasi, dizin 48 px sicak milimetrik defter. Mekanizma VAR (zemin.ts tip tarama, repeating-linear-gradient), uretim yolunda CAGIRANI YOK: 14. zincir kopuklugu. 19.4 TIKI GERI ALINDI. Ayrica olculdu: hayalet rakam Martian Mono wght 700 ile ciziliyor, recete Big Shoulders 100-200 istiyor; 700 agirligindaki hayalet duvardir. FAZ-19.md NIHAI HALINE getirildi (250 satir): on sablon on tema matrisi girdi, her adim recetenin karsilik gelen sutununu isaret ediyor. 48 kapi yesil."
+son_kanit: "FAZ-19.4 KAPANDI. Son kalem cizgili zemindi ve 14. ZINCIR KOPUKLUGUYDU: zemin.ts bir tip tarama katmani (repeating-linear-gradient) tasiyordu, uretim yolunda cagirani yoktu. Iki yeni yuzey ailesi: kopya (veri-hikayesi, 60 px, iki eksen esit) ve defter (dizin, 48 px, yatay baskin). AMA CIZILMEK YETMEDI: ilk surum kurallari .ust-grene koydu, o eleman soft-light karisiyor ve recetenin kendi tablosu o kipin golgelerde coktugunu ZATEN olcmustu (L=8de sigma 0,70) - yuzde 9,5 alfa ekranda delta-L 0,002 kaldi, CIZILMISTI YOKTU. Ayrim kavramsal ve kalici: gren FILMIN ozelligidir, cizgi MUREKKEPTIR. Kurallar mix-blend-mode normal tasiyan ayri bir .ust-cizgiye alindi. OLCULEN: veri-hikayesi yatay 0,0817 dikey 0,0738 periyot 60; dizin yatay 0,0892 dikey 0,0424 periyot 48; KONTROL cizgisiz kavis 0,0051. Kapi kasten ihlal edildi (normal yerine soft-light): 0,0136 ve 0,0225 dondu, esik 0,06 - pay dort ila alti kat. Alet iki kez daha yanroltti: (9) otokorelasyon ham profile uygulaninca duz degradenin monoton dususu yuzunden en kucuk gecikme her zaman kazandi, on sablon birden periyot 6 okundu, olculen sey vinyetti; (10) en parlak N satir olcutu veri-hikayesinde parlak bir panel blogunu ele gecirdi ve yatay cizgi yok okundu, ham piksel tersini soyluyordu (y=239te 39,5 karsi 20). Duzeltme faz tabanli medyan. Vinyet: cizgili ikili malzemeden degil ISIKTAN turuyor cunku recete ikisine de duz golgesiz diyor - kopya 0,08 defter 0,11; karari DERLEYICI zorladi. Yeni kapi cizgili-zemin.test.ts. izgara 10 kapak 0 kusur, ikisine de BAKILDI: kopya teknik cizim kagidi, defter milimetrik defter."
 ```
 
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**49 kapı · 24 ihlal kırmızı · 2063 test.**
+**50 kapı · 24 ihlal kırmızı · 2263 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·
@@ -24,16 +24,16 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > ⛔ **YİRMİ BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` `3.7` `3.8` `3.14` `4.13b` `5.4b`
 > `5.5b` `6.5b` `6.9b` `7.2b` `7.5b` `7.6b` `7.8b` `8.6` `8.8b` `11.5` `11.6` `11.9`
 > `12.8` `13.3` `18.18`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık.
-> ⚠ ⚠ **FAZ 19 = TASARIM FAZI ve belge NİHAİ HALİNDE** (`docs/fazlar/FAZ-19.md`, 250
-> satır — tavanda). Depo sahibinin BÜTÜN talepleri · dört denetimin yargısı · ölçülen tanı
-> · **on şablon on tema matrisi** · on beş adım. **Bağlam sıfırlanırsa ÖNCE orayı oku.**
-> ⚠ **İki referans:** `docs/referans/seamless-arastirma-2026-08.md` (1555 satır, birebir
-> kopya; **satır 985+ = AŞAMA 2 REÇETE**, uygulama kaynağı) · `tasarim-denetimi-2026-08.md`.
-> ⚠ ⚠ **TUZAK:** o dosyada İKİ ayrı `A`/`B`/`C` var. RAPOR 2'nin (satır ~430) `B`si RENK;
-> **AŞAMA 2'nin (satır 985+) `B`si ŞABLON ŞABLON REÇETE.** "Reçetenin B'si" hep ikincisi.
-> ⚠ **SIRADAKİ İŞ 19.4'ün son kalemi — ızgara zeminleri.** `zemin.ts` `tip: 'tarama'`
-> taşıyor, üretim yolunda çağıranı yok (14. zincir kopukluğu): `veri-hikayesi` 60 px mavi
-> kopya ızgarası, `dizin` 48 px sıcak milimetrik defter. ⚠ 12 px ince alt ızgara EKLENMEZ.
+> ⚠ ⚠ **FAZ 19 = TASARIM FAZI, belge NİHAİ HALİNDE** (`docs/fazlar/FAZ-19.md`, tavanda):
+> talepler · dört denetimin yargısı · tanı · **on şablon on tema matrisi** · on beş adım. **Bağlam sıfırlanırsa ÖNCE orayı oku.**
+> ⚠ **İki referans:** `docs/referans/seamless-arastirma-2026-08.md` (**985+ = AŞAMA 2
+> REÇETE**) · `docs/referans/tasarim-denetimi-2026-08.md`. ⚠ ⚠ **TUZAK:** o dosyada İKİ
+> ayrı `A`/`B`/`C` var — RAPOR 2'nin `B`si RENK, **AŞAMA 2'nin `B`si ŞABLON ŞABLON
+> REÇETE.** "Reçetenin B'si" hep ikincisidir.
+> ⚠ **SIRADAKİ İŞ 19.5 — TİPOGRAFİ.** (a) `--punto-rakam` 240–360 px + `--punto-not`
+> 13–15 px — kapanış kartından ÖNCE gelir. (b) şablon şablon tipografi (reçete `B`):
+> hayalet rakam bugün Martian Mono **wght 700**, reçete Big Shoulders **100–200** istiyor.
+> (c) aksan telafisi ÖLÇÜLMEDEN uygulanmaz — çareler shaping'i bozuyor.
 > ⚠ **YAYIN YOK.** Degrade yasağının kapsamı değişti: optik degrade serbest.
 
 ## Tamamlananlar
@@ -81,6 +81,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **19.1** · dört katmanlı tasarım denetimi: kapak · 45 iç slayt · zanaat/finiş · seamless panorama | 2026-08-24 |
 | **19.2** · bağımsız seamless araştırması BİREBİR kopyalandı; sekiz ailede görsel işlemleri açıldı | 2026-08-24 |
 | **19.3** · tatbik reçetesi: on tema, şablon şablon zemin/tipografi/taşıyıcı değerleri, ortak altyapı | 2026-08-24 |
+| **19.4** · zemin ve yüzey: gren · yedi yüzey ailesi · ışık · vinyet malzemede · çizgili zemin | 2026-08-25 |
 
 ## Sıradaki adım
 

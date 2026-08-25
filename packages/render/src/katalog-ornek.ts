@@ -109,6 +109,9 @@ export const ORNEK_VERI_HIKAYESI: KatalogOrnegi = {
     panelPayi: 1.7,
   },
   zemin: 'var(--ramp-palet-gece-taban)',
+  // ⚠ YÜZEY AİLESİ — mavi kopya ızgarası (reçete `B`: 60 px, iki eksen eşit). Veri
+  // slaydının zemini teknik çizim kâğıdı; ölçüyü taşıyan yüzey ölçülü olmalı.
+  yuzey: 'kopya' as const,
   // ⚠ PALET — P5 GECE+MAGENTA — ölçüm aksanı. Köşegen marka mavisiyle çiziliyordu ve markanın geri kalanıyla KARIŞIYORDU: göz onu taşıyıcı değil süs olarak okuyordu.
   aksan: 'var(--ramp-palet-gece-magenta)',
   bant: {
@@ -1598,6 +1601,9 @@ export const ORNEK_DIZIN: KatalogOrnegi = {
     govdeSutunu: 0.66,
   },
   zemin: 'var(--ramp-palet-celik-taban)',
+  // ⚠ YÜZEY AİLESİ — sıcak milimetrik defter (reçete `B`: 48 px). Bir FİHRİST'in zemini
+  // gürültü değil ÇİZGİdir; yatay satır dikey sütundan ağır, defterin imzası budur.
+  yuzey: 'defter' as const,
   // ⚠ PALET — P2 — bakır; elle çizilmiş okların rengi. Sıcak defter.
   aksan: 'var(--ramp-palet-celik-bakir)',
   hayaletKonumu: { ust: 68, olcek: 1.42, guc: 11 },

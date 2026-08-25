@@ -112,7 +112,7 @@ RAPOR 1 + RAPOR 2 birebir kopya; sekiz ailenin görsel işlemleri bu adımda aç
 ### 19.3 — TATBİK reçetesi    [x]
 AŞAMA 2 alındı. Brif: `scratchpad/asama2-brief.md`.
 
-### 19.4 — ZEMİN VE YÜZEY    [ ]    ← ızgara zeminleri KALDI
+### 19.4 — ZEMİN VE YÜZEY    [x]
 **GREN ✅** koşulsuz, luminansa bağlı, JPEG'ten sağ çıkıyor. Zincirin **12. kopukluğu:**
 `zeminDokusu`/`ustDoku` yazılmış, üreticileri yoktu. Gren **kartların ÜSTÜNDE** (opak kart
 altındakini yutar); kip de luminansın fonksiyonu. Modal kaplama %67,6–%90,7 → **%8,8–%17,1**.
@@ -124,11 +124,11 @@ geriye hesaplandı (tahmin ΔL 0,028 = görünmez → 0,061).
 **VİNYET ✅ MALZEMEYE BAĞLI** kâğıt 0,11 · halftone 0,12 · çelik 0,14 · taş 0,20 ·
 beton 0,23. **Kenar sütunu REDDEDİLDİ:** kart başına çerçeve kesim çizgisini GÖRÜNÜR yapar.
 **JPEG ✅** kalite dört yerdeydi, tek yere toplandı (92 · ölçülen taban 90), kapıya bağlandı.
-⚠ ⚠ **KALAN — 14. ZİNCİR KOPUKLUĞU:** `zemin.ts` `tip: 'tarama'` taşıyor
-(`repeating-linear-gradient`), üretim yolunda **çağıranı yok.** Reçete `B` iki şablonda
-tam olarak bunu istiyor: `veri-hikayesi` **60 px mavi kopya ızgarası**, `dizin` **48 px
-sıcak milimetrik defter**. İkisi de bugün yüzeysiz. ⚠ 12 px ince alt ızgara EKLENMEZ —
-JPEG'te moire yapar (reçete uyarısı). `sahne`nin temas zemini radial'i de burada.
+**ÇİZGİLİ ZEMİN ✅ — 14. zincir kopukluğu.** `tip: 'tarama'` yazılıydı, çağıranı yoktu.
+İki yeni aile: `kopya`(veri-hikayesi, 60 px, iki eksen eşit) · `defter`(dizin, 48 px,
+yatay baskın). ⚠ **Çizilmek yetmedi: ilk sürüm ΔL 0,002 ölçtü** — kurallar `.ust-gren`e
+konmuştu ve `soft-light` gölgelerde çöküyor. *Gren FİLMİN özelliğidir, çizgi MÜREKKEPTİR.*
+Ayrı `.ust-cizgi`, `normal` kip: 0,082 / 0,089 · çizgisiz kontrol `kavis` **0,005**.
 
 ### 19.5 — TİPOGRAFİ    [ ]
 **✅ Archivo** (gövde, `wdth 62–125`) · **Literata** (kapak serifi) · **Martian Mono**.

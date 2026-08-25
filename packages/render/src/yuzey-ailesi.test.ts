@@ -15,8 +15,19 @@ import { YUZEYLER, yuzeyKatmanlari, type Yuzey } from './zemin.js'
 const hepsi = (y: Yuzey): string => yuzeyKatmanlari(y, 35).katmanlar.join(' | ')
 
 describe('yüzey aileleri', () => {
-  it('beş aile — kapalı dağarcık', () => {
-    expect([...YUZEYLER].sort()).toEqual(['beton', 'celik', 'halftone', 'kagit', 'tas'])
+  // ⚠ Altıncı ve yedinci ad (`kopya`, `defter`) reçetenin `B` bölümünden geldi ve
+  // GÜRÜLTÜ ailesi değiller: imzaları sigma değil PERİYOT. Kuralları `cizgili-zemin.test.ts`
+  // ölçüyor; burada yalnız dağarcığın kapalı kaldığı sınanıyor.
+  it('yedi aile — kapalı dağarcık', () => {
+    expect([...YUZEYLER].sort()).toEqual([
+      'beton',
+      'celik',
+      'defter',
+      'halftone',
+      'kagit',
+      'kopya',
+      'tas',
+    ])
   })
 
   // ⚠ ⚠ **ASIL İDDİA BU.** Beş ad beş ayrı reçete üretmiyorsa isim değişikliğinden

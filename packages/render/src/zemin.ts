@@ -166,6 +166,31 @@ const doku = (bf: string, oct: number, seed: number, guc: number, boy = 180): st
 }
 
 /**
+ * Bir ÇİZGİ ailesinin tek ekseni. `aci` 0 yatay çizgi üretir (dikey yönde tekrarlar).
+ *
+ * ⚠ ⚠ **ÇİZGİ AÇIK, ÇÜNKÜ ZEMİN KOYU — ve bu bir tercih değil malzemenin kendisi.**
+ * Kopya kâğıdında (ozalit) çizgi zeminden AÇIKTIR; koyu zeminde koyu çizgi zaten
+ * görünmez. Renk `rgb(255 255 255 / α)`: `.ust-gren`in karışım kipi uçlarda `normal`,
+ * ortada `soft-light` — ikisinde de açık çizgi zeminden ayrışır, sabit bir token ise
+ * iki kutupta birden doğru olamaz (aynı ders `yuzeyAdimi`nde).
+ */
+const cizgi = (aci: number, adim: number, alfa: number): string =>
+  `repeating-linear-gradient(${aci}deg, rgb(255 255 255 / ${alfa.toFixed(3)}) 0 1px,` +
+  ` transparent 1px ${adim}px)`
+
+/** Kopya ızgarası adımı — reçete `B`, `veri-hikayesi`. */
+const KOPYA_ADIMI = 60
+/** Milimetrik defter adımı — reçete `B`, `dizin`. */
+const DEFTER_ADIMI = 48
+/**
+ * Çizgi alfaları — **ÖLÇÜLEREK oturtuldu, tahmin değil.**
+ * Hedef bant: çizgi/zemin ΔL 0,06–0,10. 0,06 bu fazın görünürlük eşiği (ışıkta ölçüldü),
+ * 0,10 üstü ise ızgara zemini olmaktan çıkıp DESEN oluyor — yasaklı "html css deseni".
+ */
+const KOPYA_ALFA = 0.085
+const DEFTER_ALFA = 0.095
+
+/**
  * Gren — yüzey ailelerinin ORTAK TABANI.
  *
  * ⚠ ⚠ **KENDİ `<rect>`İNİ ÇİZİYORDU ve `kodlanmis-oge` haklı olarak reddetti** (R-81,
@@ -230,12 +255,21 @@ export const grenKipi = (yuzeyL: number): string => (UCTA(yuzeyL) ? 'normal' : G
  * | `beton` | kaba tane | σ YÜKSEK |
  * | `celik` | **anizotropik** | yatay/dikey doku oranı ≈ 0,02 |
  * | `halftone` | nokta tramı | piksellerin ~%97'si uçlarda (ikili) |
+ * | `kopya` | **ÇİZGİLİ** — 60 px kopya ızgarası | satır profilinde periyot 60 |
+ * | `defter` | **ÇİZGİLİ** — 48 px milimetrik defter | periyot 48, yatay çizgi dikeyden ağır |
+ *
+ * ⚠ ⚠ **ALTINCI VE YEDİNCİ AD BİR KARARDI, BİR SATIR DEĞİL — ve kararı REÇETE verdi.**
+ * `B` bölümü iki şablonda gürültü değil ÇİZGİ istiyor: `veri-hikayesi` *"mavi kopya
+ * ızgarası"* 60 px, `dizin` *"sıcak milimetrik defter"* 48 px. Mekanizma zaten yazılıydı
+ * (`tip: 'tarama'`, `zemin.ts`) ve üretim yolunda **çağıranı yoktu** — zincirin 14.
+ * kopukluğu. Çizgi bir gürültü ailesi değil: imzası σ değil PERİYOT.
+ * ⚠ Reçetenin kendi uyarısı korunuyor: **12 px ince alt ızgara EKLENMEZ** — JPEG'te moire.
  *
  * ⚠ ⚠ **ANİZOTROPİ TEK DEĞERLE İMKÂNSIZ.** Fırçalanmış metalin imzası yönlü olmasıdır:
  * `baseFrequency='0.004 0.9'` — yatayda çok düşük, dikeyde yüksek frekans. Tek sayı
  * yazan bir `baseFrequency` her zaman yönsüz bir bulut üretir ve "fırçalanmış" olmaz.
  */
-export const YUZEYLER = ['kagit', 'tas', 'beton', 'celik', 'halftone'] as const
+export const YUZEYLER = ['kagit', 'tas', 'beton', 'celik', 'halftone', 'kopya', 'defter'] as const
 export type Yuzey = (typeof YUZEYLER)[number]
 
 /** Bir yüzey ailesinin katmanları ve karışım kipleri — sırayla eşleşir. */
@@ -332,6 +366,47 @@ export const yuzeyKatmanlari = (yuzey: Yuzey, guc: number): YuzeyKatmanlari => {
         kipler: ['overlay', 'soft-light'],
         boyutlar: ['8px 8px', '180px 180px'],
       }
+    case 'kopya':
+      // Çizgili ikilinin DOKUSU ince kâğıt lifi; karakteri çizgide, `cizgiKatmanlari`da.
+      return {
+        katmanlar: [doku('0.82', 3, 37, guc), doku('0.03', 4, 43, guc * 0.5, 620)],
+        kipler: ['soft-light', 'soft-light'],
+        boyutlar: ['180px 180px', '620px 620px'],
+      }
+    case 'defter':
+      return {
+        katmanlar: [doku('0.82', 3, 41, guc), doku('0.05', 4, 47, guc * 0.6, 540)],
+        kipler: ['soft-light', 'soft-light'],
+        boyutlar: ['180px 180px', '540px 540px'],
+      }
+  }
+}
+
+/**
+ * ÇİZGİLİ zeminin çizgileri — **grenden AYRI bir katman, ve ayrılık ÖLÇÜMLE geldi.**
+ *
+ * ⚠ ⚠ **ÇİZGİ `soft-light` İLE ÇİZİLDİ VE GÖRÜNMEDİ: ΔL 0,002.** İlk sürüm çizgileri
+ * `.ust-gren`e koydu; o eleman `soft-light` karışıyor ve reçetenin kendi tablosu
+ * (reçete 0.1⑤) `soft-light`in gölgelerde çöktüğünü zaten ölçmüştü — L=8'de σ 0,70. Yani
+ * çizgi %9,5 alfayla çizildi, ekranda 0,002 kaldı: **çizilmişti, yoktu.**
+ *
+ * Ayrım kavramsal ve bu yüzden kalıcı: **gren FİLMİN özelliğidir, çizgi MÜREKKEPTİR.**
+ * Film sahnenin ışığıyla karışır; mürekkep kâğıdın üstünde durur. `normal` kip
+ * öngörülebilir: açık çizgi zemini tam `α × (255 − L)` kadar kaldırır.
+ *
+ * `null` dönen yüzeylerde çizgi katmanı hiç üretilmez — boş bir eleman da bir yalandır.
+ */
+export const cizgiKatmanlari = (yuzey: Yuzey): readonly string[] | null => {
+  switch (yuzey) {
+    case 'kopya':
+      // İki eksen EŞİT ağırlıkta — teknik çizim kâğıdının imzası budur.
+      return [cizgi(0, KOPYA_ADIMI, KOPYA_ALFA), cizgi(90, KOPYA_ADIMI, KOPYA_ALFA)]
+    case 'defter':
+      // Yatay çizgi dikeyden AĞIR: milimetrik kâğıtta da satır baskındır. Eşit ağırlık
+      // verilseydi `kopya`dan ayırt edilemezdi ve iki ad tek doku olurdu.
+      return [cizgi(0, DEFTER_ADIMI, DEFTER_ALFA), cizgi(90, DEFTER_ADIMI, DEFTER_ALFA * 0.55)]
+    default:
+      return null
   }
 }
 
