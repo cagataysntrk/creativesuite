@@ -980,13 +980,45 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     }
   })
 
+  /**
+   * Varlığın byte'ları — UZANTI VARSAYILMAZ, DİSKTEN OKUNUR.
+   *
+   * ⚠ ⚠ **BU UÇ `.png` SABİT YAZIYORDU ve komuta panosunun manşetini KIRIYORDU.**
+   * Playwright ile 5173 açıldı, "Son üretilen karosel" dört kırık görsel gösteriyordu
+   * ve konsolda dört adet 404 vardı. Blob'lar DİSKTE DURUYORDU
+   * (`derived/blobs/65/65f6eb….jpg`); bulunamamalarının tek sebebi uzantıydı.
+   * ⚠ Depo ikisini de tutuyor: 248 `.png`, 4 `.jpg`, 65 `.bin`. Ve o dört JPEG tam da
+   * EN SON üretilen karoselin slaytlarıydı — yani panonun ilk bakışta gösterdiği şey.
+   * Bir varsayım, en görünür yeri kırmıştı.
+   * ⚠ Yan dosya (`<digest><ext>.meta.json`) uzantıyı zaten SÖYLÜYOR ama adı da uzantıyı
+   * içerdiği için önce dosyayı bulmak gerek: dizin taranıyor, digest'le başlayan ve
+   * `.meta.json` OLMAYAN kayıt alınıyor.
+   */
   app.get('/api/varlik/:digest', (c) => {
     const d = c.req.param('digest').replace(/^sha256:/, '')
     if (!/^[0-9a-f]{64}$/.test(d)) return c.json({ ok: false, hata: 'gecersiz digest' }, 400)
-    const yol = join(o.repoRoot, 'derived/blobs', d.slice(0, 2), `${d}.png`)
-    if (!existsSync(yol)) return c.json({ ok: false, hata: 'varlik yok' }, 404)
-    return new Response(new Uint8Array(readFileSync(yol)), {
-      headers: { 'content-type': 'image/png', 'cache-control': 'no-store' },
+    const dizin = join(o.repoRoot, 'derived/blobs', d.slice(0, 2))
+    if (!existsSync(dizin)) return c.json({ ok: false, hata: 'varlik yok' }, 404)
+    const ad = readdirSync(dizin).find((f) => f.startsWith(`${d}.`) && !f.endsWith('.meta.json'))
+    if (ad === undefined) return c.json({ ok: false, hata: 'varlik yok' }, 404)
+    const TIP: Record<string, string> = {
+      '.png': 'image/png',
+      '.PNG': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.JPG': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml',
+    }
+    // ⚠ `toLowerCase()` YOK: `turkish-case` kapısı çıplak kullanımı reddediyor ve
+    // haklı — Türkçe'de 'I'.toLowerCase() 'i' değil 'ı'dır. Uzantı zaten ASCII ve
+    // diskteki adın kendisi; küçültmeye ihtiyaç yok, tabloda iki yazım da duruyor.
+    const uzanti = ad.slice(d.length)
+    return new Response(new Uint8Array(readFileSync(join(dizin, ad))), {
+      headers: {
+        'content-type': TIP[uzanti] ?? 'application/octet-stream',
+        'cache-control': 'no-store',
+      },
     })
   })
 

@@ -417,6 +417,74 @@ describe('HTTP uçları', () => {
   })
 })
 
+describe('varlık byte ucu', () => {
+  // ⚠ ⚠ **BU KAPI 5173'TE PLAYWRIGHT'LA BULUNAN BİR KUSURDAN DOĞDU.** Komuta panosu
+  // açıldı ve *"Son üretilen karosel"* dört KIRIK görsel gösteriyordu; konsolda dört
+  // adet 404 vardı. Blob'lar diskte DURUYORDU — uç dosya adını `${digest}.png` diye
+  // SABİT kuruyordu, oysa o dört slayt `.jpg` idi.
+  // ⚠ Depo ikisini de tutuyor (248 png · 4 jpg · 65 bin) ve o dört JPEG tam da EN SON
+  // üretilen karoselin slaytlarıydı: bir varsayım, panonun en görünür yerini kırmıştı.
+  // ⚠ Ölçülen şey bir DEĞER değil bir DAVRANIŞ: uç uzantıyı VARSAYIYOR mu, yoksa
+  // diskten mi okuyor. Bugünkü uzantı listesini test etmek, yarın `.webp` eklenince
+  // aynı kusuru geri getirirdi.
+  const kurBlob = (ext: string, icerik: string): { kok: string; digest: string } => {
+    const kok = mkdtempSync(join(tmpdir(), 'suite-blob-'))
+    const digest = 'a3'.padEnd(64, 'f')
+    const dizin = join(kok, 'derived/blobs', digest.slice(0, 2))
+    mkdirSync(dizin, { recursive: true })
+    writeFileSync(join(dizin, `${digest}${ext}`), icerik)
+    // Yan dosya üretimde HER ZAMAN var; uç onu byte sanmamalı.
+    writeFileSync(join(dizin, `${digest}${ext}.meta.json`), JSON.stringify({ ext }))
+    return { kok, digest }
+  }
+
+  for (const [ext, tip] of [
+    ['.png', 'image/png'],
+    ['.jpg', 'image/jpeg'],
+    ['.webp', 'image/webp'],
+  ] as const) {
+    it(`${ext} varlığı SERVİS EDİLİYOR ve içerik tipi doğru`, async () => {
+      const { kok, digest } = kurBlob(ext, 'BYTE')
+      const s = kurSunucu({
+        repoRoot: kok,
+        query: SORGU,
+        kalpAtisiMs: 50,
+        debounceMs: 10,
+        simdi: () => 'S',
+      })
+      try {
+        const r = await s.app.request(`/api/varlik/sha256:${digest}`)
+        expect(r.status, `${ext} varlığı 404 — uç uzantı VARSAYIYOR`).toBe(200)
+        expect(r.headers.get('content-type')).toBe(tip)
+        expect(await r.text()).toBe('BYTE')
+      } finally {
+        s.kapat()
+        rmSync(kok, { recursive: true, force: true })
+      }
+    })
+  }
+
+  // ⚠ Kapı boşa dönmesin: olmayan bir digest GERÇEKTEN 404 vermeli. Aksi hâlde
+  // yukarıdaki üç yeşil, ucun her şeye 200 döndürmesinden de gelebilirdi.
+  it('olmayan varlık 404 veriyor', async () => {
+    const { kok } = kurBlob('.png', 'BYTE')
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const r = await s.app.request(`/api/varlik/sha256:${'b7'.padEnd(64, 'e')}`)
+      expect(r.status).toBe(404)
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('corpus tarayıcısı', () => {
   it('SİLME UCU YOK — hiçbir yol DELETE kabul etmiyor (R-12)', async () => {
     // Bu test bir davranışı değil, bir YOKLUĞU koruyor. `DELETE /api/kayitlar/:id`

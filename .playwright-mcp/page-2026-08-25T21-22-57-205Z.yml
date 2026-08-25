@@ -1,0 +1,38 @@
+- generic [ref=e3]:
+    - navigation "Ekranlar" [ref=e4]:
+        - button "Komuta" [ref=e5] [cursor=pointer]
+        - button "Onaylar" [ref=e6] [cursor=pointer]
+        - button "Üret" [ref=e7] [cursor=pointer]
+        - button "Koşular" [ref=e8] [cursor=pointer]
+        - button "Varlıklar" [ref=e9] [cursor=pointer]
+        - button "Bütçe" [ref=e10] [cursor=pointer]
+        - button "Uyum" [ref=e11] [cursor=pointer]
+        - button "Doktor" [ref=e12] [cursor=pointer]
+        - generic [ref=e13]: ⌘K palet
+    - main [ref=e14]:
+        - paragraph [ref=e15]: yükleniyor…
+    - contentinfo [ref=e16]:
+        - generic [ref=e17]:
+            - generic [ref=e18]: ○
+            - generic [ref=e19]: bağlantı yok
+        - generic [ref=e20]:
+            - generic [ref=e21]: çalıştırma
+            - generic [ref=e22]: —
+        - generic [ref=e23]:
+            - generic [ref=e24]: adım
+            - generic [ref=e25]: —
+        - generic [ref=e26]:
+            - generic [ref=e27]: maliyet
+            - generic [ref=e28]: —
+        - generic [ref=e29]:
+            - generic [ref=e30]: bekleyen kapı
+            - generic [ref=e31]: —
+        - generic [ref=e32]:
+            - generic [ref=e33]: taslak kayıt
+            - generic [ref=e34]: —
+        - generic [ref=e35]:
+            - generic [ref=e36]: kusurlu
+            - generic [ref=e37]: —
+        - generic [ref=e38]:
+            - generic [ref=e39]: kota
+            - generic [ref=e40]: —
