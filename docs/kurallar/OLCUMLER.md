@@ -2373,3 +2373,53 @@ gizli kalmak zorunda. Tablo bağımsız kartlar varsayıyor; bu deste kaydırıl
 
 Vinyeti ölçen ilk regex `rgba(0, 0, 0, …)`in **ilk** eşleşmesini alıyordu — o da degradenin
 saydam durağı. On şablonun onu birden **0** okundu. Regex atıldı, duraklar elle ayrıştırıldı.
+
+## Reçetenin `B` bölümü — "atıf yanlış" tespitinin KENDİSİ yanlıştı
+
+⚠ ⚠ Bu bir alet yalanı değil, bir **okuma hatası** — ve daha pahalısı, çünkü aleti
+düzeltmek yerine belgeyi suçladı.
+
+`seamless-arastirma-2026-08.md` iki ajan raporunu birebir taşıyor ve **her ikisinin de
+kendi `A`/`B`/`C` numaralandırması var:**
+
+| Nerede | `A` | `B` | `C` | `D` |
+|---|---|---|---|---|
+| RAPOR 2 (satır ~430) | tema varyasyon eksenleri | **RENK** | endüstriyel görsel dil | — |
+| **AŞAMA 2 (satır 985+)** | on şablon on tema | **ŞABLON ŞABLON REÇETE** | ortak altyapı | ilk beş iş |
+
+Faz dosyası *"satır 985'ten sonrası AŞAMA 2 — REÇETE: … `B` şablon şablon reçete"*
+diyordu ve **doğruydu.** Ben RAPOR 2'nin `B`sini okuyup renk tabloları görünce
+*"atıf yanlış, doğru bölüm A/Eksen 1"* yazdım — deftere, faz dosyasına ve bir commit
+mesajına (`e0e8567`). Üçü de düzeltiliyor.
+
+Dosyanın kendi başlığı uyarıyordu: *"Kendi § numaralandırması vardır; ANAYASA
+bölümlerine eşlenmez."* Uyarı okundu, **bir dosyada iki kopya olabileceği** hesaba
+katılmadı.
+
+**Bedeli sayıyla:** A/Eksen 1'den okunan iş (grain · vignette · kenar) gerçekten yapıldı
+ve vinyet malzemeye bağlandı — o iş DOĞRU. Ama B'nin istediği şey daha büyüktü ve kalem
+erken kapatıldı.
+
+### B ne istiyormuş — ölçülen üç açık
+
+**① `tarama` zemin katmanı yazılmış, üretim yolunda ÇAĞIRANI YOK — 14. zincir kopukluğu.**
+`zemin.ts:359` `repeating-linear-gradient` üreten bir `tip: 'tarama'` taşıyor. Reçete iki
+şablon için tam olarak bunu istiyor: `veri-hikayesi` **60 px mavi kopya ızgarası**
+(blueprint), `dizin` **48 px sıcak milimetrik defter**. `zeminDokusu` hiçbir yerde set
+edilmiyor (12. kopukluk, kayıtlı) — yani ızgara zemininin gideceği yer `yuzey` ailesinin
+gittiği yer olmak zorunda, kartların ÜSTÜ.
+
+⚠ Reçete `veri-hikayesi` için ayrıca uyarıyor: *"12 px'lik ince alt ızgara eklenmeyecek —
+JPEG'te moire yapar."*
+
+**② Hayalet rakam yüzü TERS seçilmiş.** Bugün `panorama.ts:2301` hayaleti
+`"Marka Mono"` (Martian Mono) **wght 700** ile çiziyor — bir mono yüzün EN AĞIR kesimi.
+Reçete `akan-alan` için Big Shoulders **wght 100** opsz 72 @1400 px, `donen` için **200**
+@520 px, `dizin` için Stencil **400** @380 px istiyor. *700 ağırlığındaki bir hayalet,
+hayalet değil duvardır.*
+
+**③ Big Shoulders YANLIŞ ROL için reddedilmişti.** Kayıt *"evrensel bölüm başlığı
+OLAMADI — dar poster yüzü dar sütunda hiyerarşiyi tersine çeviriyor"* diyor ve o ölçüm
+doğru. Ama reçetenin bu yüze verdiği rol bölüm başlığı DEĞİL: hayalet rakam (okunurluk
+alakasız, gereken tam da dar poster yüzü) ve `kavis`in 132 px'lik ağır display başlığı.
+Yüz reddedilmemişti — **çağrı yeri yoktu, ve çağrı yeri B'nin kendisiymiş.**

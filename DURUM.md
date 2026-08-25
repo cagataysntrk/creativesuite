@@ -6,11 +6,11 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 19
-siradaki_adim: 19.5
-son_guncelleme: 2026-08-24
+siradaki_adim: 19.4
+son_guncelleme: 2026-08-25
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
-son_kanit: "FAZ-19.4 ILK IKI IS BITTI ve UCUNU DE OLCUM YAKALADI. (1) GREN: zeminDokusu ve ustDoku alanlari yazilmis, uretim yolunda HICBIR URETICILERI yoktu — zincirin on ikinci kopuklugu. Gren kartlarin USTUNDE olmak zorunda cunku zeminDokusu opak kartin altinda kaliyor. Kip de luminansin fonksiyonu: soft-light carpimsal, saf siyahta carpacak sey yok kagitta doyum var — kagit sablonlarinda duz bloklarin %87si sigma<0,5 cikti, JPEG greni tamamen siliyordu; uclarda normal @0,10. SONUC tam modal kaplama %67,6-%90,7 -> %8,8-%17,1 (tavan %40), duz blok medyan sigma 2,26-3,85, JPEG q=90 SONRASI 1,62-3,61. Bedel FIZIK: #040404 -> #111111, siyahin ALTINA dither edilemez. (2) TASIYICI: kavis 1,16 -> 1,66:1, akan-alan 1,32 -> 2,65:1. OLCUM DEFTERI YANILMAMISTI BIRIM DEGISTIRMISTI — delta-L 0,165 dogru ama kontrast oraninda yalniz 1,32:1; token acikligi ile WCAG kontrasti IKI AYRI BIRIM. yuzeyAdimi() adimi zeminin KENDI metin renginden turetiyor, sabit token iki kutupta birden dogru olamaz. (3) YIGIN BAGLAMI HATASI: gren once .ust-doku::before iken mix-blend-mode kartlarla degil seffaf ebeveyniyle karisti, zemin #5c5c5cye cikti, on kapakta R-105 patladi — gren kaybolmamisti GRI PERDE olmustu. Iki testin iddiasi tersine dondu (degrade yoksa gren yok / duz tasarimda PNG kucuk): ikisi de yanlis degildi, olctukleri DUNYA degisti. Kasten ihlal: baseFrequency 1 yapildi, kapi kirmizi dondu. On kapak sifir kusur, BAKILDI. 46 kapi yesil. KALAN 19.4: veri-hikayesi kosegeni, bes yuzey ailesi."
+son_kanit: "FAZ-19.4 UC KALEM KAPANDI, DORDUNCUSU OKUMA HATASIYLA GORULMEMISTI. Isik: tip isik tanimliydi, on sablonun SIFIRI istiyordu (13. zincir kopuklugu); ust-isik kartlarin ustunde, alfa esikten geriye hesaplandi (tahmin delta-L 0,028 = gorunmez -> 0,061). JPEG: kalite dort yerdeydi, tek yere toplandi (92, olculen taban 90) ve kapiya baglandi. Vinyet: yalniz acikliga bagliydi, MALZEMEYE baglandi (kagit 0,11 halftone 0,12 celik 0,14 tas 0,20 beton 0,23); recetenin kenar sutunu REDDEDILDI cunku kart basina cerceve kesim cizgisini GORUNUR yapar. Alet sekizinci kez yalan soyledi: vinyet regexi degradenin SAYDAM ilk duragini yakaliyordu, on sablon birden 0 okundu. AMA 19.4 ERKEN TIKLENDI: seamless-arastirma iki ajan raporunu birebir tasiyor ve HER IKISININ de kendi A/B/C numaralandirmasi var. RAPOR 2nin B si RENK, ASAMA 2nin B si SABLON SABLON RECETE. Yanlis B okunup atif yanlis denildi. Faz dosyasinin atfi bastan DOGRUYDU. Recetenin B si iki sablonda izgara zemini istiyor: veri-hikayesi 60 px mavi kopya izgarasi, dizin 48 px sicak milimetrik defter. Mekanizma VAR (zemin.ts tip tarama, repeating-linear-gradient), uretim yolunda CAGIRANI YOK: 14. zincir kopuklugu. 19.4 TIKI GERI ALINDI. Ayrica olculdu: hayalet rakam Martian Mono wght 700 ile ciziliyor, recete Big Shoulders 100-200 istiyor; 700 agirligindaki hayalet duvardir. FAZ-19.md NIHAI HALINE getirildi (250 satir): on sablon on tema matrisi girdi, her adim recetenin karsilik gelen sutununu isaret ediyor. 48 kapi yesil."
 ```
 
 ## Neredeyiz
@@ -24,15 +24,16 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 > ⛔ **YİRMİ BİR ADIM İNSAN GİRDİSİ BEKLİYOR** — `2.9` `3.7` `3.8` `3.14` `4.13b` `5.4b`
 > `5.5b` `6.5b` `6.9b` `7.2b` `7.5b` `7.6b` `7.8b` `8.6` `8.8b` `11.5` `11.6` `11.9`
 > `12.8` `13.3` `18.18`. Sınıfı `insan` (D-157): plan hatası değil dış bağımlılık.
-> ⚠ ⚠ **FAZ 19 = TASARIM FAZI ve belge NİHAİ HALİNDE.** `docs/fazlar/FAZ-19.md` (658
-> satır) artık tek başına yeter: depo sahibinin BÜTÜN talepleri · dört denetimin tasarım
-> yargısı · reçetenin ölçülen tanısı · on tema · on beş adım · ilk beş iş.
-> **Bağlam sıfırlanırsa ÖNCE orayı oku.**
-> ⚠ **İki referans belgesi:** `docs/referans/seamless-arastirma-2026-08.md` (1553 satır —
-> üç ajan çıktısının BİREBİR KOPYASI; satır 985'ten sonrası **AŞAMA 2 REÇETE**, uygulama
-> kaynağı) · `docs/referans/tasarim-denetimi-2026-08.md` (dört denetim).
-> ⚠ **SIRADAKİ İŞ 19.4 — zemin ve yüzey.** İlk iş tek dosya: `zemin.ts` greni koşulsuz
-> açar ve luminansa bağlar. Kabul: modal renk kaplaması ≤%40, en uzun sabit bant ≤10 px.
+> ⚠ ⚠ **FAZ 19 = TASARIM FAZI ve belge NİHAİ HALİNDE** (`docs/fazlar/FAZ-19.md`, 250
+> satır — tavanda). Depo sahibinin BÜTÜN talepleri · dört denetimin yargısı · ölçülen tanı
+> · **on şablon on tema matrisi** · on beş adım. **Bağlam sıfırlanırsa ÖNCE orayı oku.**
+> ⚠ **İki referans:** `docs/referans/seamless-arastirma-2026-08.md` (1555 satır, birebir
+> kopya; **satır 985+ = AŞAMA 2 REÇETE**, uygulama kaynağı) · `tasarim-denetimi-2026-08.md`.
+> ⚠ ⚠ **TUZAK:** o dosyada İKİ ayrı `A`/`B`/`C` var. RAPOR 2'nin (satır ~430) `B`si RENK;
+> **AŞAMA 2'nin (satır 985+) `B`si ŞABLON ŞABLON REÇETE.** "Reçetenin B'si" hep ikincisi.
+> ⚠ **SIRADAKİ İŞ 19.4'ün son kalemi — ızgara zeminleri.** `zemin.ts` `tip: 'tarama'`
+> taşıyor, üretim yolunda çağıranı yok (14. zincir kopukluğu): `veri-hikayesi` 60 px mavi
+> kopya ızgarası, `dizin` 48 px sıcak milimetrik defter. ⚠ 12 px ince alt ızgara EKLENMEZ.
 > ⚠ **YAYIN YOK.** Degrade yasağının kapsamı değişti: optik degrade serbest.
 
 ## Tamamlananlar
@@ -80,7 +81,6 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **19.1** · dört katmanlı tasarım denetimi: kapak · 45 iç slayt · zanaat/finiş · seamless panorama | 2026-08-24 |
 | **19.2** · bağımsız seamless araştırması BİREBİR kopyalandı; sekiz ailede görsel işlemleri açıldı | 2026-08-24 |
 | **19.3** · tatbik reçetesi: on tema, şablon şablon zemin/tipografi/taşıyıcı değerleri, ortak altyapı | 2026-08-24 |
-| **19.4** · zemin ve yüzey: gren · beş yüzey ailesi · ışık kaynağı · vinyet malzemeye bağlandı | 2026-08-25 |
 
 ## Sıradaki adım
 
