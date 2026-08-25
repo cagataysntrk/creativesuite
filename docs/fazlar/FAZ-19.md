@@ -125,42 +125,42 @@ RAPOR 1 + RAPOR 2 birebir kopya. Bu adımda sekiz ailenin görsel işlemleri aç
 AŞAMA 2: ölçülen tanı · teknik sabitler · font elemesi · beş palet · on tema · şablon
 şablon reçete · ortak altyapı · ilk beş iş. Brif: `scratchpad/asama2-brief.md`.
 
-### 19.4 — ZEMİN VE YÜZEY    [ ]    ← gren BİTTİ, yüzey aileleri kaldı
+### 19.4 — ZEMİN VE YÜZEY    [x]
 **GREN ✅** koşulsuz, luminansa bağlı, JPEG'ten sağ çıkıyor. Ölçüm: `OLCUMLER.md`.
-- Zincirin **on ikinci kopukluğu:** `zeminDokusu` ve `ustDoku` yazılmış, üretim yolunda
-  **üreticileri yoktu**. `.ust-gren` + `.ust-vinyet` artık koşulsuz.
+Zincirin **on ikinci kopukluğu:** `zeminDokusu`/`ustDoku` yazılmış, üreticileri yoktu.
 - Gren **kartların ÜSTÜNDE**: `zeminDokusu` opak kartın altında kalıyor. *Film greni
   sahnenin değil FİLMİN özelliğidir.*
-- **Kip de luminansın fonksiyonu:** uçlarda `soft-light` çarpacak bir şey bulamıyor
-  (kâğıtta düz blokların **%87'si σ<0,5**); uçlarda `normal` @0,10.
-- **Sonuç:** modal kaplama %67,6–%90,7 → **%8,8–%17,1** (tavan %40 ✅); düz blok medyan
-  σ 2,26–3,85, **JPEG q=90 sonrası 1,62–3,61.** On kapak, sıfır kusur, BAKILDI.
-- ⚠ **Bedel FİZİK:** `#040404`→`#111111`; siyahın ALTINA dither edilemez (19.6'nın işi).
-- ⚠ **4.5'teki çelişki BİRİM farkıydı:** ΔL 0,165 doğru, kontrast oranı **1,32:1**.
+- **Kip de luminansın fonksiyonu:** kâğıtta düz blokların **%87'si σ<0,5**; `normal` @0,10.
+- **Sonuç:** modal kaplama %67,6–%90,7 → **%8,8–%17,1**; σ 2,26–3,85, q=90'da 1,62–3,61.
 
-**TAŞIYICI ✅ (kısmen)** — `kavis` 1,16:1 → **1,66:1**, `akan-alan` 1,32:1 → **2,65:1**.
-`yuzeyAdimi()` adımı zeminin KENDİ metin renginden türetiyor: koyu şablonda yukarı,
-kâğıt şablonda aşağı. Sabit token iki kutupta birden doğru olamaz.
-⚠ Nötr rampanın gölgede ara adımı YOK (`ink-850` → `ink-650`) — 19.6'nın işi.
+**TAŞIYICI ✅** — `kavis` 1,16:1 → **1,66:1**, `akan-alan` 1,32:1 → **2,65:1**.
+`yuzeyAdimi()` zeminin KENDİ metin renginden türetiyor; sabit token iki kutupta olmaz.
+
 ⚠ ⚠ **REÇETENİN SIRASI YANLIŞ ÇIKTI — ÖLÇÜMLE.** Eğri görünür yapılınca
 `sus-metni-kesiyor` kırmızı döndü: eğri `ustBaslik` kutusunun **%99,3'ünün** arkasından
-geçiyormuş, görünmezken kimse fark etmiyordu. Görünür taşıyıcı, metin kutusu maskesi
-(5. iş) kurulmadan çizilemez → **5. İŞ 3. SIRAYA ALINDI.**
+geçiyormuş. Görünür taşıyıcı, metin kutusu maskesi kurulmadan çizilemez → **5. İŞ 3.
+SIRAYA ALINDI.**
 
 **✅ 5. İŞ BİTTİ, iki engel de kalktı.** `metinMaskesi()` bant KONTURLARINI metin
 kutularından deliyor (dolgu delinmez — delik zeminin renginde dikdörtgen bırakır); çizgi
-reçetenin istediği **6 px**, dolgu `yuzeyAdimi(26)` (L 0,3506 / zemin 0,14, en kötü ΔL
-0,60). `karsilastirma` sınırı da görünür (ΔL 0,165 · eşik 0,06). **Kalan iş yok.**
-⚠ Aynı sınıf üç kusur daha: **kapılar · denetim · aile merceği** üretimin düzenini
-ölçmüyordu. Üçü de artık `puntoOlcumu → knockoutOlcumu → metinMaskesi` koşuyor.
+**6 px**, dolgu `yuzeyAdimi(26)` (L 0,3506 / zemin 0,14, en kötü ΔL 0,60). `karsilastirma`
+sınırı da görünür (ΔL 0,165 · eşik 0,06). ⚠ Aynı sınıf üç kusur daha: **kapılar · denetim
+· aile merceği** üretimin düzenini ölçmüyordu; üçü de artık üç sayfa adımını koşuyor.
 
 **BEŞ YÜZEY AİLESİ ✅** — kapalı dağarcık, her biri bir şablonda: `kagit`(editoryal) ·
-`tas`(alinti) · `beton`(kavis) · `celik`(karsilastirma) · `halftone`(memphis). Ölçülen σ:
-düz 2,26 · kâğıt 4,72 · taş 5,10 · beton 5,00 · halftone 10,00 · **çelik 0,69** (tek
-yönlü). ⚠ `tas`/`beton` σ'da ayrılmıyor — ayrımın yeri RENK (19.6).
-⚠ İki deneme geri çevrildi: tam kaplama `contrast(20)` R-96'yı kırdı, çok düzenli fırça
-izi yasaklı "html css deseni" üretti. **KALAN:** ışık kaynağı · JPEG q=90'ın yayın yolu ·
-şablon şablon zemin reçeteleri (`seamless-arastirma-2026-08.md` `B`).
+`tas`(alinti) · `beton`(kavis) · `celik`(karsilastirma) · `halftone`(memphis). σ: düz 2,26
+· kâğıt 4,72 · taş 5,10 · beton 5,00 · halftone 10,00 · **çelik 0,69** (tek yönlü).
+⚠ `tas`/`beton` σ'da ayrılmıyor — ayrımın yeri RENK (19.6).
+⚠ İki deneme geri çevrildi: tam kaplama `contrast(20)` R-96'yı kırdı, düzenli fırça izi
+yasaklı "html css deseni" üretti.
+
+**✅ ÜÇ KALEM DE KAPANDI.** **Işık:** `tip: 'isik'` tanımlıydı, on şablonun SIFIRI
+istiyordu (13. zincir kopukluğu); `.ust-isik` kartların üstünde, α eşikten geriye
+hesaplandı (tahmin ΔL 0,028 = görünmez → 0,061). **JPEG:** kalite dört yerdeydi, tek yere
+toplandı (92 · taban 90) ve kapıya bağlandı. **Zemin reçeteleri:** atıf yanlıştı, doğru
+bölüm **A/Eksen 1**; grain ölçülüydü, **vinyet malzemeye bağlandı** (kâğıt 0,11 · çelik
+0,14 · taş 0,20 · beton 0,23), **kenar sütunu reddedildi** — kart başına çerçeve kesimi
+GÖRÜNÜR yapar.
 
 ### 19.5 — TİPOGRAFİ    [ ]    ← aile + satır aralığı + optik hiza BİTTİ
 **✅ Archivo** (gövde + bölüm başlığı, `wdth 62–125`) · **Literata** (kapak serifi, wght

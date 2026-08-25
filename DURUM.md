@@ -6,7 +6,7 @@
 ```yaml
 # ── makine-okunur durum bloğu (LOOP§E) ───────────────────────────────────────
 aktif_faz: 19
-siradaki_adim: 19.4
+siradaki_adim: 19.5
 son_guncelleme: 2026-08-24
 bloke: ["2.9:insan", "3.7:insan", "3.8:insan", "3.14:insan", "4.13b:insan", "5.4b:insan", "5.5b:insan", "6.5b:insan", "6.9b:insan", "7.2b:insan", "7.5b:insan", "7.6b:insan", "7.8b:insan", "8.6:insan", "8.8b:insan", "11.5:insan", "11.6:insan", "11.9:insan", "12.8:insan", "13.3:insan", "18.18:insan", "8.3b:teknik"]
 deneme_sayaci: {}
@@ -80,6 +80,7 @@ Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 | **19.1** · dört katmanlı tasarım denetimi: kapak · 45 iç slayt · zanaat/finiş · seamless panorama | 2026-08-24 |
 | **19.2** · bağımsız seamless araştırması BİREBİR kopyalandı; sekiz ailede görsel işlemleri açıldı | 2026-08-24 |
 | **19.3** · tatbik reçetesi: on tema, şablon şablon zemin/tipografi/taşıyıcı değerleri, ortak altyapı | 2026-08-24 |
+| **19.4** · zemin ve yüzey: gren · beş yüzey ailesi · ışık kaynağı · vinyet malzemeye bağlandı | 2026-08-25 |
 
 ## Sıradaki adım
 

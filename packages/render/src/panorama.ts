@@ -859,7 +859,30 @@ const optikPay = (metin: string): number => {
  */
 const isikGucu = (acikklik: number): number => (acikklik > 0.62 ? 0 : acikklik > 0.35 ? 4.5 : 7.5)
 
-const vinyetGucu = (acikklik: number): number => (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34)
+/**
+ * **Vinyet gücü — önce MALZEME, sonra açıklık.**
+ *
+ * ⚠ ⚠ **REÇETE VİNYETİ YÜZEY AİLESİNE BAĞLIYOR, DEPO AÇIKLIĞA BAĞLIYORDU.** Araştırmanın
+ * *"EKSEN 1 — YÜZEY AİLESİ"* tablosu her malzeme için ayrı bir kenar davranışı veriyor:
+ * `kagit` 0,08-0,14 · `beton` 0,18-0,28 · `celik` 0,10-0,18. Gerekçesi fiziksel — beton
+ * kenarda ışığı yutuyor, kâğıt yutmuyor. Depoda vinyet yalnız zeminin açıklığından
+ * türüyordu, yani `beton` ile `kagit` aynı L'de aynı kenarı alıyordu.
+ * ⚠ Reçetenin kendi tavanı: *"0,1-0,4 bandını aşmasın; 0,4 üstü Instagram filtresi
+ * okur."* Seçilen değerler aralıkların ORTASI.
+ * ⚠ `tas` ve `halftone` tabloda YOK (reçete dört aile sayıyor, depoda beş var). `tas`
+ * betona komşu ama daha az gözenekli (20), `halftone` baskı yüzeyi ve kâğıda yakın (12).
+ * ⚠ Yüzeysiz şablonda eski davranış korunuyor: açıklıktan türeyen üç kademe.
+ */
+const VINYET_YUZEY: Readonly<Record<Yuzey, number>> = {
+  kagit: 11,
+  tas: 20,
+  beton: 23,
+  celik: 14,
+  halftone: 12,
+}
+
+const vinyetGucu = (acikklik: number, yuzey?: Yuzey): number =>
+  yuzey === undefined ? (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34) : VINYET_YUZEY[yuzey]
 
 const koyuMu = (zemin: string, tokenCss = ''): boolean => {
   const l = tokenAcikligi(zemin, tokenCss)
@@ -2120,7 +2143,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
       ` ${sol('--pano-metin', isikGucu(zeminAcikligi))} 0%, transparent 64%) }`,
     `  .ust-vinyet { z-index: ${Z.vinyet};`,
     `              background: radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
-      ` rgba(0,0,0,${((doc.ustDoku?.vinyet ?? vinyetGucu(zeminAcikligi)) / 100).toFixed(2)}) 100%) }`,
+      ` rgba(0,0,0,${((doc.ustDoku?.vinyet ?? vinyetGucu(zeminAcikligi, doc.yuzey)) / 100).toFixed(2)}) 100%) }`,
     // ⚠ ⚠ **KAYNAK PNG'LER 500x500'DÜ ve işaret onun yalnız %2,4'ünü kaplıyordu.** Rayda
     // 26px yüksekliğe sığdırılınca işaret ~4px kalıyor ve okunmuyordu — render'a bakınca
     // görüldü. Dosyalar ALFA KUTUSUNDAN kırpıldı (338x78, oran 4,33); kaynaklar

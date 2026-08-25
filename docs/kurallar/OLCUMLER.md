@@ -2326,3 +2326,50 @@ Kasten ihlal: 84 yapıldı, kapı kırmızı döndü.
 kenarı yalnız ilk ve son slaytta beliriyor. Işık için bu doğru (tek sahne, tek güneş);
 **vinyet için açık soru**, çünkü vinyet kameranın özelliğidir ve kamera her slaydı ayrı
 kadrajlar.
+
+---
+
+## VİNYET MALZEMEYE BAĞLANDI — 19.4'ün son kalemi (FAZ-19.4)
+
+Faz dosyası son kalemi *"şablon şablon zemin reçeteleri (reçete `B`)"* diye yazıyordu.
+**Atıf yanlıştı:** reçetenin `B` bölümü RENK (marka mavisi · kroma rampaları · gamut ·
+nötr rampa · aksanlar · beş palet) ve o kalemlerin hepsi zaten bitmişti. Zemin reçetesini
+tarif eden bölüm **A — TEMA VARYASYON EKSENLERİ**.
+
+### Eksen 1 tablosu üç sütun istiyor: grain · vignette · kenar
+
+| sütun | depoda | karar |
+|---|---|---|
+| grain | ✅ beş aile, **ölçülmüş σ** (2,26-10,00) | kapalı |
+| vignette | ❌ yalnız AÇIKLIĞA bağlıydı | **bu turda malzemeye bağlandı** |
+| kenar | ❌ yok | **seamless destede UYGULANAMAZ** (aşağıda) |
+
+### Vinyet: beton kenarda ışığı yutuyor, kâğıt yutmuyor
+
+Depoda vinyet yalnız zeminin açıklığından türüyordu — `beton` ile `kagit` aynı L'de aynı
+kenarı alıyordu. Reçetenin gerekçesi fiziksel ve değerleri açık. Ölçülen sonuç:
+
+| yüzey | reçete aralığı | ölçülen |
+|---|---|---|
+| `kagit` | 0,08-0,14 | **0,11** |
+| `halftone` | (tabloda yok) | **0,12** |
+| `celik` | 0,10-0,18 | **0,14** |
+| `tas` | (tabloda yok) | **0,20** |
+| `beton` | 0,18-0,28 | **0,23** |
+| yüzeysiz | — | 0,34 (eski üç kademe korundu) |
+
+⚠ `tas` ve `halftone` reçetenin tablosunda YOK: reçete dört aile sayıyor (`cam` dahil),
+depoda beş var (`cam` yok, `tas`/`halftone` var). Bu **kayıtlı bir tasarım kararı** —
+"kapalı dağarcık, her biri bir şablonda" — eksiklik değil.
+
+### Kenar sütunu UYGULANAMAZ ve sebebi seamless'in kendisi
+
+Reçete `celik` için *"1px hairline çerçeve"*, `cam` için *"1px %8 opak iç çizgi"* istiyor.
+**Kart başına çerçeve, kesim çizgilerini GÖRÜNÜR yapar** — panorama tek tuval ve dilimleme
+gizli kalmak zorunda. Tablo bağımsız kartlar varsayıyor; bu deste kaydırılan tek bir sahne.
+İstek reddedildi, gerekçesi yazıldı.
+
+### Ve alet SEKİZİNCİ kez yalan söyledi
+
+Vinyeti ölçen ilk regex `rgba(0, 0, 0, …)`in **ilk** eşleşmesini alıyordu — o da degradenin
+saydam durağı. On şablonun onu birden **0** okundu. Regex atıldı, duraklar elle ayrıştırıldı.
