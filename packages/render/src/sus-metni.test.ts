@@ -11,13 +11,14 @@
 
 import { describe, expect, it } from 'vitest'
 import { ORNEKLER } from './katalog-ornek.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
 import { type PanoramaBelgesi } from './panorama.js'
 import { panoramaDenetle } from './panorama-denetim.js'
 
-const DAMGA = { brandId: 'b', eraId: 'e', kitVersion: 'k' }
-
 const belge = (id: string, tokenCss: string): PanoramaBelgesi =>
-  ({ ...ORNEKLER[id], tokenCss, stamp: DAMGA }) as unknown as PanoramaBelgesi
+  // ⚠ `tokenCss` parametresi KORUNUYOR: bu kapı süsün metni kesip kesmediğini FARKLI
+  // belirteçlerle ölçüyor. Taban belge yetkiliden, bilerek ezilen alan üstte.
+  ({ ...olcumBelgesi(ORNEKLER[id] as (typeof ORNEKLER)[keyof typeof ORNEKLER]), tokenCss })
 
 const susKusurlari = async (doc: PanoramaBelgesi): Promise<readonly string[]> => {
   const r = await panoramaDenetle(doc)

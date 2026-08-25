@@ -14,13 +14,11 @@
 // aşımına düşmeye başladı. Kırılgan bir kapı yeşil sayılmaz (R-80): denetim şablon
 // başına BİR kez koşuyor, üç kusur aynı sonuçtan okunuyor.
 
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ACIK_TEMA_KIMLIGI, FILTRE_TANIM_CSS, islemZinciri } from './gorsel-islem.js'
 import { ORNEKLER } from './katalog-ornek.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
 import { panoramaDenetle, type Kusur } from './panorama-denetim.js'
 import {
   DIKIS_BANDI,
@@ -29,15 +27,6 @@ import {
   ZEMINDEN_AYRISMA,
   type PanoramaBelgesi,
 } from './panorama.js'
-
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
 
@@ -55,13 +44,6 @@ type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
  * Palet ÜRETİLMİŞ dosyadan okunuyor — üretimde çizilen renkler bunlar. Marka paleti
  * kromu okunmaz yaparsa bu test kırmızıya döner; **dönmesi de gerekir.**
  */
-const TOKEN = readFileSync(
-  join(
-    dirname(fileURLToPath(import.meta.url)),
-    '../../../brand/brd_upcytech/derived-tokens/tokens.css'
-  ),
-  'utf8'
-)
 
 /** Tek piksellik bir kaynak — `src` boş kalırsa yer tutucu çizilir ve zincir kurulmaz. */
 const TEK_PIKSEL =
@@ -69,7 +51,9 @@ const TEK_PIKSEL =
   'DUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
 
 const belge = (o: Ornek): PanoramaBelgesi =>
-  ({ ...o, tokenCss: TOKEN, stamp: DAMGA }) as unknown as PanoramaBelgesi
+  // ⚠ Ölçüm belgesi TEK yerden (`olcum-belgesi.ts`): belirteç + font + logo + damga.
+  // Yedek fontla ölçen bir kapı, yayınlanmayan bir düzeni denetler.
+  olcumBelgesi(o)
 
 const suzgec = (kusurlar: readonly Kusur[], tur: Kusur['tur']): readonly string[] =>
   kusurlar.filter((k) => k.tur === tur).map((k) => `${k.alan ?? '-'} · ${k.aciklama}`)

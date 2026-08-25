@@ -12,6 +12,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { ORNEK_SAHNE } from './katalog-ornek.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
 import { AI_IFSA_METNI, panoramaHtml, type PanoramaBelgesi } from './panorama.js'
 import { panoramaDenetle } from './panorama-denetim.js'
 import { withPage } from './browser.js'
@@ -44,7 +45,8 @@ const olcumSayfasi = async (doc: PanoramaBelgesi, kod: string): Promise<SeritOlc
 
 const DAMGA = { brandId: 'b', eraId: 'e', kitVersion: 'k' }
 const belge = (aiIfsasi: boolean): PanoramaBelgesi =>
-  ({ ...ORNEK_SAHNE, tokenCss: '', stamp: DAMGA, aiIfsasi }) as unknown as PanoramaBelgesi
+  // ⚠ Belirteçsiz (`tokenCss: ''`) ölçüyordu; ölçüm belgesi tek yerden geliyor artık.
+  ({ ...olcumBelgesi(ORNEK_SAHNE), aiIfsasi })
 
 describe('görünür AI ifşası', () => {
   it('bayrak yokken şerit HİÇ çizilmiyor — ifşa gerekmeyen işi kirletmez', () => {

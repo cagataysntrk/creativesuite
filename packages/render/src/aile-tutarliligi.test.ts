@@ -21,7 +21,8 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
-import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
+import { panoramaHtml, puntoOlcumu } from './panorama.js'
 
 const TOKEN = readFileSync(
   join(
@@ -30,15 +31,6 @@ const TOKEN = readFileSync(
   ),
   'utf8'
 )
-
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
 
@@ -157,7 +149,9 @@ interface Olcu {
 }
 
 const kapagiOlc = async (o: Ornek, token = TOKEN): Promise<Olcu> => {
-  const doc = { ...o, tokenCss: token, stamp: DAMGA } as unknown as PanoramaBelgesi
+  // ⚠ `token` parametresi KORUNUYOR: bu kapı markaları karşılaştırıyor, belirteç onun
+  // ölçtüğü değişken. Taban belge yetkiliden, üstüne bilerek yazılan alan kalıyor.
+  const doc = { ...olcumBelgesi(o), tokenCss: token }
   const r = await withPage(async (page) => {
     await page.setViewportSize({ width: doc.slaytGenisligi, height: doc.yukseklik })
     await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })

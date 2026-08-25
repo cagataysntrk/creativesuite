@@ -10,30 +10,11 @@
 // ⚠ Test tek bir tuvalde koşamaz. Ölçek hatası ancak İKİ tuvalin oranı karşılaştırılınca
 // görünür — tek tuvalde her sayı "doğru" görünür, çünkü referansı yoktur.
 
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
 import { panoramaHtml, type PanoramaBelgesi } from './panorama.js'
-
-const TOKEN = readFileSync(
-  join(
-    dirname(fileURLToPath(import.meta.url)),
-    '../../../brand/brd_upcytech/derived-tokens/tokens.css'
-  ),
-  'utf8'
-)
-
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
 
 /** Ölçekten ETKİLENMESİ gereken ögeler — hepsi 1080'de ölçülmüş sayılar. */
 const OLCUM = `(() => {
@@ -57,11 +38,9 @@ const olc = async (G: number): Promise<Record<string, number | null>> => {
   const o = ORNEKLER['veri-hikayesi']
   expect(o).toBeDefined()
   const doc = {
-    ...(o as (typeof ORNEKLER)[keyof typeof ORNEKLER]),
+    ...olcumBelgesi(o as (typeof ORNEKLER)[keyof typeof ORNEKLER]),
     slaytGenisligi: G,
     yukseklik: Math.round(G * 1.25),
-    tokenCss: TOKEN,
-    stamp: DAMGA,
     // ⚠ Logo VERİLİYOR: `.ray-logo` yoksa ölçüm sessizce `null` döner ve test
     // "ölçeklendi" sanır. Ölçülemeyen geçmiş sayılmaz.
     logo: { koyu: TEK_PIKSEL, acik: TEK_PIKSEL },

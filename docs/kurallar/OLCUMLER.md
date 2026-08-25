@@ -1889,3 +1889,41 @@ taşıyıcıya **ulaşamıyor**: hedef dip 560, çizilen 498 — içerik izin ve
 kadar yükselmiş"* ölçülüyor. **Render'ın doğru davranışını kusur sayan kapı, kapı değildir.**
 
 **Ölü bant tavanı %28 → %27.** Kasten ihlal: tavan 24 yapıldı, `alinti` k1 (%26) kırmızı döndü.
+
+---
+
+## Meta kapı: ölçüm belgesi zorunlu (FAZ-19)
+
+Ölçüm belgesini tek yere toplamak bir hatayı kapatır; **bir dosya daha eklenir ve unutulur.**
+`olcum-belgesi` kapısı (48.) tarayıcı açan her test dosyasının `olcumBelgesi` üzerinden
+ölçtüğünü sınıyor.
+
+### Kapı bilmediğim İKİSİNİ daha buldu
+
+Elle saydığımda yedi fontsuz kapı vardı; kapı **on ikiyi** tarayıp dördünü suçladı ve
+ikisi listemde hiç yoktu: **`punto-esigi`** ve **`sus-metni`**. *Elle sayım, kapının işini
+yapamaz.*
+
+### Kural bir kez FAZLA KÖR yazıldı ve kendi çıktısı düzeltti
+
+İlk hâli her `tokenCss:` yazımını atlama sayıyordu ve meşru testleri kırmızıya çevirdi:
+
+| test | neden `tokenCss` yazıyor |
+|---|---|
+| `ifsa` | şeridi gizlemek için belirteci KASTEN eziyor |
+| `sus-metni` | süsün metni kesmesini FARKLI belirteçlerle ölçüyor |
+| `aile-tutarliligi` | markaları karşılaştırıyor; belirteç onun değişkeni |
+
+**Kapatılacak tuzak unutmak, ezmek değil.** Bir alanı bilerek değiştiren yazar zaten
+haberdardır. Kural daraldı: dosya `olcumBelgesi`i **hiç** çağırmıyorsa kırmızı.
+
+### Font bu dört kapının bugünkü kararını değiştirmiyor — ve bu da bir ölçüm
+
+`OLCUM_FONT` boşaltıldığında yalnız `olu-bant`ın `dizin` iddiası kırmızı döndü;
+`kadraj` · `taban-ritmi` · `tasiyici-gorunur` · `ifsa` yeşil kaldı. **Taşıma yine de
+doğru** — gizli tuzağı kaldırıyor — ama kazanç diye yazılmıyor.
+
+### Kapı ve kapsam koruması
+
+Kasten ihlal: `punto-esigi` elle belgeye döndürüldü → kırmızı. Kapının kendi kapsamı da
+korunuyor: hiçbir tarayıcı testi taranmazsa kapı **boş geçmiyor**, kırmızı dönüyor.

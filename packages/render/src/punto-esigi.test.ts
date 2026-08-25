@@ -11,20 +11,13 @@
 
 import { describe, expect, it } from 'vitest'
 import { ORNEKLER } from './katalog-ornek.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
 import { panoramaDenetle } from './panorama-denetim.js'
 import { GOVDE_TABANI_1080, panoramaHtml, type PanoramaBelgesi } from './panorama.js'
 
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
-
 const belge = (o: (typeof ORNEKLER)[keyof typeof ORNEKLER]): PanoramaBelgesi =>
-  ({ ...o, tokenCss: '', stamp: DAMGA }) as unknown as PanoramaBelgesi
+  // ⚠ Taban belge tek yerden (`olcum-belgesi.ts`): belirteç + font + logo + damga.
+  olcumBelgesi(o)
 
 describe('gövde puntosu okuma eşiğinin altına inmiyor', () => {
   it('taban SAYISI kaynağından geliyor — 36 px, 1080 px tuvalde', () => {

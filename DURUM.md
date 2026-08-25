@@ -16,7 +16,7 @@ son_kanit: "FAZ-19.4 ILK IKI IS BITTI ve UCUNU DE OLCUM YAKALADI. (1) GREN: zemi
 ## Neredeyiz
 
 **FAZ 0–8 kapandı** (5 ve 6 şartlı: D-206 · D-217).
-**48 kapı · 24 ihlal kırmızı · 2063 test.**
+**49 kapı · 24 ihlal kırmızı · 2063 test.**
 Faz tikleri faz dosyalarında; `git log` tek başına yol haritasıdır (D-85).
 
 > **Kök neden, ON tekrar:** kod yazılır, üretim yolunda çağıranı olmaz — D-182 · D-190 ·

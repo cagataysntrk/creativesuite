@@ -13,34 +13,17 @@
 // olmazsa yedek değer sessizce devralır ve her şablon yanlış ritme döner — bu deponun
 // tekrar eden kopukluğu.
 
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { withPage } from './browser.js'
 import { ORNEKLER } from './katalog-ornek.js'
+import { olcumBelgesi } from './olcum-belgesi.js'
 import { panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
-
-const TOKEN = readFileSync(
-  join(
-    dirname(fileURLToPath(import.meta.url)),
-    '../../../brand/brd_upcytech/derived-tokens/tokens.css'
-  ),
-  'utf8'
-)
-
-const DAMGA = {
-  brandId: 'brd_t',
-  eraId: 'era_t',
-  kitVersion: 'kit-1',
-  definitionDigest: 'sha256:x',
-  contextManifest: 'ctx_1',
-  sourceRunId: 'run_t',
-}
 
 type Ornek = (typeof ORNEKLER)[keyof typeof ORNEKLER]
 const belge = (o: Ornek): PanoramaBelgesi =>
-  ({ ...o, tokenCss: TOKEN, stamp: DAMGA }) as unknown as PanoramaBelgesi
+  // ⚠ Ölçüm belgesi TEK yerden (`olcum-belgesi.ts`): belirteç + font + logo + damga.
+  // Yedek fontla ölçen bir kapı, yayınlanmayan bir düzeni denetler.
+  olcumBelgesi(o)
 
 describe('taban çizgisi ızgarası', () => {
   it('blok arası boşluklar tabanı ÇAĞIRIYOR — sabit piksel değil', () => {
