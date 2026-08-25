@@ -689,6 +689,12 @@ export const ORNEK_MEMPHIS: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 0.98,
     baslikAgirlik: 500,
+    // ⚠ RECETE B: memphis basligi GENISLETILMIS ve oyuncu (Anybody wdth 125).
+    // Archivo'nun ekseni 125'e cikiyor; ayri bir aile kurmadan ayni jest.
+    // ⚠ Genisleyen yon DARALAN yonden guvenli: baslik daha cok satira yayiliyor,
+    // yani olu bant ACILMIYOR kapaniyor. Daralan yon karsilastirma'da olculdu ve
+    // 80'in altinda bir satir kaybedip bant actigi icin 88'de durduruldu.
+    baslikGenislik: 125,
     satirAraligi: 1.18,
     harfArasi: -0.01,
     govdeOrani: 0.34,
@@ -1443,6 +1449,12 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
   tipografi: {
     baslikPayi: 1.22,
     baslikAgirlik: 650,
+    // ⚠ RECETE B: karsilastirma bolum basligi Archivo wdth 70 (dar+agir karsitlik).
+    // fonts.ts'in kendi kaydi da bunu soyluyor: dogru yuz Archivo, cunku DARALMAYI
+    // SABLONUN SECMESI gerekiyor; sabit dar bir yuz dar sutunda hiyerarsiyi tersine
+    // ceviriyordu. Eksen KAPAGA ulasmiyor (kapak Literata, eksensiz) ve bu kusur
+    // DEGIL: display serif kapak + dar grotesk ic baslik ayri iki sestir.
+    baslikGenislik: 88,
     // ⚠ ⚠ **1,02 → 1,08: aynı Türkçe çakışma.** Boşluk 3 px, punto 140 px, oran **%2,1**;
     // "olduğunu" ile "söylemiyordu" birbirine yapışıyordu — ğ kavisi ile ö noktaları.
     // ⚠ AYAR SONUCU ÖNGÖRMÜYOR: `sahne` 0,96 ile rahat, bu şablon 1,02 ile sıkışıktı.

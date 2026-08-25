@@ -53,18 +53,26 @@ const belge = (ek: Partial<PanoramaBelgesi> = {}): PanoramaBelgesi => ({
 })
 
 describe('panorama tipografi ekseni', () => {
-  // ⚠ ⚠ **DÖRT AİLE, DÖRT ROL (D-317).** Genişlik ekseni emekli oldu; onun yerine
-  // ölçülen şey rollerin GERÇEKTEN ayrıldığı: kapak H1'i serif, gövde slaytları
-  // Montserrat, eyebrow mono ve BÜYÜK HARF. Aynı yüzü her yere vermek sistemin en açık
-  // kuralını sessizce silmek olurdu ve CSS'e bakmadan fark edilmezdi.
-  it('KAPAK başlığı serif, gövde başlıkları Montserrat', () => {
+  // ⚠ ⚠ **DÖRT AİLE, DÖRT ROL.** Ölçülen şey rollerin GERÇEKTEN ayrıldığı: kapak H1'i
+  // serif, gövde slaytları grotesk, eyebrow mono ve BÜYÜK HARF. Aynı yüzü her yere
+  // vermek sistemin en açık kuralını sessizce silmek olurdu ve CSS'e bakmadan fark
+  // edilmezdi.
+  //
+  // ⚠ ⚠ **BU TEST BİR TUR ESKİ KALDI ve eskidiğini bir kırmızı gösterdi.** Eski hâli
+  // *"emekli eksen hiçbir yerde kalmadı"* diyip `font-stretch`i TAMAMEN yasaklıyordu —
+  // D-317'nin test biçimi. O karar `fonts.ts`te zaten geçersizleşmişti (Archivo'da eksen
+  // GERÇEKTEN var, 62-125) ve eksen bağlanınca bu test kırmızı döndü. Yasak KALDIRILMADI,
+  // DARALTILDI: bildirim yalnız genişlik İSTEYEN şablonda çıkabilir ve gerçekten
+  // daralttığı `genislik-ekseni` kapısında ADVANCE ile ölçülüyor (computed değer yalanabilir).
+  it('KAPAK başlığı serif, gövde başlıkları grotesk', () => {
     const html = panoramaHtml(belge())
     expect(html).toContain('.baslik { font-family: "Marka Baslik"')
     expect(html).toContain('.kart.ilk .baslik { font-family: "Marka Display"')
-    // Emekli eksen hiçbir yerde kalmadı: kırpılan bir `font-stretch` reçeteyi
-    // yalancı yapardı.
-    expect(html).not.toContain('font-stretch')
-    expect(html).not.toContain('--baslik-wdth')
+    // ⚠ Genişlik İSTEMEYEN belgede değişken TANIMLANMAZ: tanımsız `var()` bildirimi
+    // geçersiz kılar ve öge varsayılan genişlikte kalır. "Genişlik verilmemiş" ile
+    // "genişlik 100 istenmiş" ayırt edilebilir olmak zorunda.
+    expect(belge().tipografi?.baslikGenislik, 'bu belge genişlik istemiyor').toBeUndefined()
+    expect(html).not.toContain('--baslik-wdth:')
   })
 
   it('eyebrow MONO ve BÜYÜK HARF, +0.08em', () => {

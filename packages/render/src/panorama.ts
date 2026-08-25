@@ -344,6 +344,27 @@ export interface TipoResetesi {
   readonly baslikPayi: number
   /** Başlık ağırlığı 400–900. */
   readonly baslikAgirlik: number
+  /**
+   * Başlık GENİŞLİĞİ, yüzde (Archivo 62-125 · Martian Mono 75-112,5).
+   *
+   * ⚠ ⚠ **EKSEN FONTTA CANLIYDI, YERLESIMDE KULLANILMIYORDU.** `fonts.ts` `@font-face`te
+   * `font-stretch: 62% 125%` ilan ediyor ve kendi kaydinda *"genislik ekseni GERI GELDI,
+   * D-317 ARTIK GECERSIZ"* yaziyor; ama uretilen HTML'de hicbir ogede `font-stretch`
+   * yoktu ve on sablonun onu da varsayilan 100'de ciziliyordu. Bu bir zincir kopuklugu
+   * degil ESKIMIS BIR KAYIT: D-317 o gunun dort ailesi icin dogruydu.
+   *
+   * ⚠ Eksen Turkce'de PUNTO SATIN ALIYOR — olculdu: ayni kelime `wdth 62`de 580 px,
+   * `wdth 125`te 1001 px, yani **1,73 kat**. Dar bir yuz ayni sutuna daha buyuk punto
+   * sigdiriyor; genis bir yuz ayni puntoyu daha agir gosteriyor.
+   * ⚠ Ama eksen bir CARE degil bir ARAC: R-83'un okuma esigi hala tavan, cunku daralan
+   * bir yuz punto satin alirken okunurluk SATIYOR.
+   *
+   * Verilmezse `font-stretch` HIC yazilmiyor — olmayan bir bildirim, yanlis bir
+   * bildirimden iyidir.
+   */
+  readonly baslikGenislik?: number
+  /** Gövde genişliği, yüzde. Verilmezse gövde de varsayılan genişlikte kalır. */
+  readonly govdeGenislik?: number
   /** Satır aralığı çarpanı — sıkı 0,98 · havadar 1,3. */
   readonly satirAraligi: number
   /** Harf arası, em. Negatif = sıkı poster; pozitif = seyrek editoryal. */
@@ -2009,11 +2030,21 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `           --ray-zemin: ${doc.zemin}; --ray-metin: ${rayRenkleri.metin};`,
     `           --ray-aksan: ${rayRenkleri.aksan}; }`,
     // ── tipografi reçetesi: değişkenler ÖNCE, kullanımlar sonra ───────────────
-    // ⚠ ⚠ **GENİŞLİK EKSENİ KALKTI (D-317).** Sistemin dört ailesinin hiçbirinde `wdth`
-    // yok; olmayan bir ekseni CSS'e yazmak sessiz bir yalan olurdu — tarayıcı
-    // `font-stretch`i kırpar, reçete "78" der, çıktı 100'dür. Türkçe'de punto satın
-    // alan mekanizma artık yalnız ÖLÇÜLEN tavan (`puntoTavani`) ve kısa başlık disiplini.
+    // ⚠ ⚠ **GENİŞLİK EKSENİ GERİ GELDİ — bu yorum bir tur ESKİ KALDI.** D-317
+    // *"sistemin dört ailesinin hiçbirinde wdth yok, olmayan bir ekseni CSS'e yazmak
+    // sessiz bir yalandır"* diyordu ve O DÖRT AİLE İÇİN DOĞRUYDU. Yeni gövde ailesi
+    // Archivo'da eksen GERÇEKTEN var (62-125) ve `fonts.ts` bunu zaten kaydetmiş;
+    // burası haberi almamıştı. Ölçüldü: üretilen HTML'de `font-stretch` YALNIZ
+    // `@font-face`te vardı, hiçbir ögede yoktu — on şablon da varsayılan 100'de.
+    // ⚠ Bildirim KOŞULLU: genişlik verilmeyen şablonda `font-stretch` HİÇ yazılmıyor.
+    // Olmayan bir bildirim, yanlış bir bildirimden iyidir.
     `  #sahne { --baslik-wght: ${t.baslikAgirlik};`,
+    ...(t.baslikGenislik === undefined
+      ? []
+      : [`           --baslik-wdth: ${String(t.baslikGenislik)}%;`]),
+    ...(t.govdeGenislik === undefined
+      ? []
+      : [`           --govde-wdth: ${String(t.govdeGenislik)}%;`]),
     `           --baslik-lh: ${t.satirAraligi}; --baslik-ls: ${t.harfArasi}em;`,
     `           --govde-orani: ${t.govdeOrani};`,
     // ⚠ Başlangıç değeri; gerçek punto render sonrası ÖLÇÜLEREK yazılıyor (`puntoTavani`).
@@ -2222,6 +2253,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     `            font-size: calc(var(--baslik-punto) * var(--ayar-olcek, 1));`,
     `            line-height: var(--baslik-lh);`,
     `            font-weight: var(--baslik-wght);`,
+    // ⚠ `font-stretch` DEGISKENDEN ve degisken yoksa bildirim de yok: `var(--baslik-wdth)`
+    // tanimsizken CSS ozelligi GECERSIZ olur ve tarayici onu yok sayar (R-85 sinifi sessiz
+    // arizanin tersi — burada sessizlik DOGRU davranis, cunku varsayilan genislik zaten
+    // istenen sey). Yedegi 100% YAZILMIYOR: yazilsaydi "genislik verilmemis" ile
+    // "genislik 100 istenmis" ayirt edilemezdi.
+    `            font-stretch: var(--baslik-wdth);`,
     `            font-feature-settings: ${OPENTYPE_CSS};`,
     `            letter-spacing: var(--baslik-ls);`,
     `            max-width: ${Math.round(G * t.baslikSutunu) - 128}px }`,

@@ -2720,3 +2720,136 @@ wght 500 22px versal` istiyor, yani ÜST ETİKET sesinde. `govdeOrani`yi düşü
 DEĞİL: aynı şablonun 2. ve 3. kartları `govde`de gerçek gövde metni taşıyor ve R-83'ün
 okuma tabanı (36 px) onları korur. Ayrı bir atıf yuvası bir sözleşme değişikliğidir;
 ölçüldü, yazıldı, 19.5-b'ye bırakıldı.
+
+### Genişlik ekseni GERİ GELDİ ama hiçbir şablon kullanmıyor
+
+Reçetenin `B` bölümündeki şablon şablon tipografi büyük ölçüde **genişlik** üstüne
+kurulu: `karsilastirma` başlık wdth **70** · `alinti` atıf wdth **75** · `akan-alan`
+başlık wdth **95** · `kavis` gövde wdth **88** · `memphis` başlık wdth **125** ·
+`veri-hikayesi` ve `dizin` panelleri Martian Mono wdth **87,5**.
+
+Üç yönden doğrulandı:
+
+| katman | durum |
+|---|---|
+| `fonts.ts` kaydı | *"GENİŞLİK EKSENİ GERİ GELDİ — D-317 yanlış değildi, ARTIK GEÇERSİZ"* |
+| `@font-face` | `font-stretch: 62% 125%` (Archivo) · `75% 112,5%` (Martian Mono) |
+| üretilen HTML | ⚠ **hiçbir ögede `font-stretch` yok** — üçü de yalnız `@font-face`te |
+| `panorama.ts:2012` | hâlâ eski kaydı taşıyor: *"GENİŞLİK EKSENİ KALKTI (D-317)"* |
+
+Yani eksen fontta **canlı**, yerleşimde **kullanılmıyor**: on şablon da varsayılan
+genişlikte (100) çiziliyor. Denetimin *"on kartın dokuzunda aynı açılış"* bulgusunun bir
+parçası bu — aynı yüz, aynı genişlik, aynı doku.
+
+⚠ **BU BİR ZİNCİR KOPUKLUĞU DEĞİL, ESKİMİŞ BİR KAYIT.** D-317 doğru bir gözlemdi (o
+günün dört ailesinde `wdth` yoktu) ve `fonts.ts` onun geçersizleştiğini zaten yazmış;
+`panorama.ts` haberi almamış. Bugüne dek ölçülen kazanç kayıtlı: aynı kelime `wdth 62`de
+580 px, `wdth 125`te 1001 px — **1,73 kat**, yani genişlik ekseni Türkçe'de PUNTO SATIN
+ALIYOR.
+
+⚠ **Sonuç, kurulacak font sayısını da değiştiriyor:** reçetenin genişlik rollerinin
+hepsi Archivo (62–125) ve Martian Mono (75–112,5) ile karşılanıyor. Yalnız iki rol başka
+bir yüz istiyor — `alinti`nin anıtsal serifi (Young Serif) ve `kavis`in sanayi display'i
+(Big Shoulders) — ve `kavis`in isteği *"dar ve ağır"*, ki Archivo `wdth 62–70` + `wght
+800` tam olarak odur. **Yeni aile kurmadan önce eksen denenmelidir.**
+
+### Genişlik ekseni KAPAĞA ULAŞAMIYOR — ve alet ONBİRİNCİ kez yalan söyledi
+
+Eksen `panorama.ts`e bağlandı (tipografi kaydına `baslikGenislik`/`govdeGenislik`,
+`font-stretch: var(--baslik-wdth)`, bildirim yoksa değişken de yok). Doğrulandı:
+bildirimsizken `computed 100%`, bildirimliyken `computed` birebir izliyor ve 125'te punto
+oturtucu 141→125 düşürüyor. Yani mekanizma çalışıyor.
+
+**AMA ÖNCE ALET YALAN SÖYLEDİ.** İlk ölçümde üç ailenin de `wdth 62` değeri **birebir 919
+px** çıktı — bir yedek fontun imzası. `getComputedStyle().fontStretch` bildirilen değeri
+döndürür; **fontun ekseni taşıyıp taşımadığını SÖYLEMEZ.** Isıtma turu eklendi (her yüz
+örneği önce bir kez çizildi) ve tablo temizlendi:
+
+| aile | wdth 62 | 100 | 62/100 | eksen |
+|---|---|---|---|---|
+| **`Marka Display` (Literata)** | 1083 | 1083 | **1,000** | **YOK** |
+| `Marka Baslik` (Archivo) | 672 | 974 | **0,690** | var |
+| `Marka Metin` (Archivo) | 672 | 974 | **0,690** | var |
+| `Marka Mono` (Martian Mono) | 1440 | 1680 | 0,857 | var, 75'in altı kırpık |
+
+⚠ ⚠ **VE BU, İŞİ YARIM BIRAKIYOR.** `panorama.ts:2288`: `.kart.ilk .baslik` — yani HER
+şablonun KAPAK başlığı — `Marka Display` ile çiziliyor ve Literata'da eksen yok. Reçete
+`B`nin genişlik rollerinin çoğu (karsilastirma wdth 70, akan-alan 95, memphis 125) KAPAK
+başlıklarına ait. `kavis`e `baslikGenislik: 70` verildi, çizildi, BAKILDI: kapak
+değişmedi — iç kartlar daralacaktı, kapak daralmayacaktı. **Tek destede iki farklı
+genişlik, hiç genişlik vermemekten kötüdür.**
+
+⚠ ⚠ **VE İLK KARARIM — "mekanizmayı da sök" — FAZLA GENİŞTİ.** Sökme gerekçem
+*"çağrı yeri yok"*tu; `fonts.ts`in kendi kaydı tersini söylüyor:
+
+> *"Doğru yüz Archivo: reçetenin kendi şablon tablolarında bölüm başlıkları zaten
+> Archivo (`veri-hikayesi` 600/76 · `karsilastirma` wdth 70 800/88 · `dizin` 600/76).
+> `wdth` ekseni sayesinde bir şablon isterse daraltabiliyor — sabit dar bir yüzden
+> farkı, **DARALMAYI ŞABLONUN SEÇMESİ**."*
+
+Yani eksenin meşru çağrı yeri **gövde kartlarının başlıkları** (`.baslik`, Archivo) ve
+orada eksen ÇALIŞIYOR. Kapak (Literata) ayrı bir sestir ve ayrı kalması KUSUR DEĞİL:
+display serif kapak + dar grotesk iç başlık normal bir editoryal sistemdir.
+
+⚠ ⚠ **ASIL HATAM MERCEK HATASIYDI — ONİKİNCİ.** `just izgara` yalnız KAPAKLARI çiziyor;
+ben gövde kartlarını etkileyen bir değişikliği kapağa bakarak yargıladım ve *"kapak
+değişmedi, demek yarım kaldı"* dedim. **Değişikliğin düştüğü yeri göstermeyen bir
+mercek, o değişikliği yargılayamaz.** Aynı sınıf hata bu fazda kapılarda, denetimde ve
+merceğin kendisinde de çıkmıştı.
+
+**Düzeltilmiş karar:** mekanizma geri geliyor, çağrı yeri gövde-kartı başlıkları oluyor
+ve yargı GÖVDE KARTINA bakılarak veriliyor. Kapak yüzü ayrı bir karar olarak açık kalıyor
+(reçete oraya `kavis` için Big Shoulders, `alinti` için Young Serif istiyor).
+
+### Genişlik ekseni BAĞLANDI — ve alet ONİKİNCİ kez yalan söyledi
+
+Mekanizma geri geldi ve ilk çağrı yerini aldı: `karsilastirma` bölüm başlığı
+`baslikGenislik: 70` (reçete `B`: *"Başlık Archivo wdth 70 wght 800"*). Panorama şeridi
+çizildi ve BAKILDI: kapak geniş Literata serif kalıyor, 2–4. kartların başlıkları dar
+grotesk oldu. **İki ses kasıtlı okunuyor** — display serif kapak, sıkı sanayi içi.
+
+Yeni kapı `genislik-ekseni`, iki iddia:
+1. bildirim ögeye ULAŞIYOR (`computed font-stretch` = ilan edilen)
+2. **advance GERÇEKTEN değişiyor** (≥%6) — çünkü birincisi ikincisini garanti etmiyor.
+
+⚠ Kasten ihlal: gövde başlığı eksensiz yüze (`Marka Display`) alındı → kapı kırmızı ve
+sebebi ADIYLA söyledi: *"Marka Display yüzünde genişlik 70 advance'ı değiştirmiyor
+(1464 → 1464 px, oran 1,000) — yüz bu ekseni TAŞIMIYOR olabilir."*
+
+⚠ ⚠ **VE KAPININ KENDİSİ ÖNCE YANLIŞ KIRMIZI VERDİ.** İlk sürüm ölçüm örneğine aileyi
+`JSON.stringify(s.fontFamily)` ile yazıyordu; `s.fontFamily` zaten tırnaklı bir liste
+(`"Marka Baslik", "Marka Metin", sans-serif`) ve bir kez daha tırnaklanınca CSS geçersiz
+oldu, ölçüm YEDEK fonta düştü, iki genişlik birebir aynı çıktı (1308/1308). **Çizimde
+daralma apaçık görünürken kapı "eksen yok" diyordu.** Aile artık `style.fontFamily`ye
+DOĞRUDAN atanıyor, metin olarak enjekte edilmiyor.
+
+*Bu fazın on ikinci alet yalanı ve deseni hep aynı: ölçüm aracı, ölçtüğü şeyin
+kurulumunu kendisi bozuyor.*
+
+### Genişlik iki yöne gidiyor — ve kapı kendi varsayımını açığa vurdu
+
+İlk çağrı yeri `karsilastirma` wdth **70** idi ve **gerçek bir gerileme** üretti: `olu-bant`
+kapısı kart 2'de **%24,4** ölçtü, tavan %23. Dar başlık bir satır kaybedip altında boşluk
+bırakıyor — *kazanç doku, bedel ölü bant.* Ödünleşme ölçüldü:
+
+| genişlik | ölü bant (kart 2) |
+|---|---|
+| yok · 95 · 88 | değişmiyor |
+| **80 ve altı** | **sıçrıyor** (başlık bir satır kaybediyor) |
+
+Eşik 80–88 arasında. `karsilastirma` **88**'de durduruldu: hem ölçülebilir daralma hem
+tavanın altında. ⚠ Reçetenin istediği 70 bu şablonda ULAŞILAMAZ ve sebebi geometrik.
+
+⚠ ⚠ **VE İKİNCİ ÇAĞRI YERİ KAPININ KENDİSİNİ KIRDI.** `memphis`e reçetenin
+*"Anybody wdth 125"*i Archivo karşılığıyla verildi — yani GENİŞLEYEN yön. Kapı kırmızı
+döndü: *"genişlik 125 advance'ı değiştirmiyor (1309 → 1678 px, oran 1,282)"*. Oysa 1,282
+tam da istenen şey. **Kusur şablonda değil KAPIDAYDI:** `1 - oran > 0,06` yazmıştım, yani
+genişliğin HEP daralttığını varsaymıştım. Kural artık yönü İLANDAN türetiyor: 100'ün altı
+daraltmalı, üstü genişletmeli, ikisinde de değişim ≥%6.
+
+⚠ Genişleyen yön daralandan **güvenli**: başlık daha çok satıra yayılıyor, yani ölü bant
+açılmıyor kapanıyor.
+
+⚠ Eski kayıt test biçiminde de duruyordu: `panorama-tipo.test.ts` *"emekli eksen hiçbir
+yerde kalmadı"* deyip `font-stretch`i TAMAMEN yasaklıyordu — D-317'nin testi. Yasak
+kaldırılmadı, DARALTILDI: bildirim yalnız genişlik İSTEYEN şablonda çıkabilir.
