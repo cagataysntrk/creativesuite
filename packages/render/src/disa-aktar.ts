@@ -27,7 +27,7 @@
 // `playwright` import'unu tarayıcı başlatma girişimi sayıyor ve haklı — tarayıcıya
 // erişimin tek kapısı o dosya olmalı (R-30 · D-24).
 import { withPage, type BrowserResult, type Oturum, type Page } from './browser.js'
-import { panoramaHtml, type PanoramaBelgesi } from './panorama.js'
+import { YAYIN_JPEG_KALITESI, panoramaHtml, type PanoramaBelgesi } from './panorama.js'
 
 export type DisaTarz = 'butun' | 'dilim'
 export type DisaBicim = 'png' | 'jpg' | 'pdf'
@@ -133,7 +133,7 @@ export const panoramaDisaAktar = async (
       }
       const bayt = await page.screenshot({
         type: secim.bicim === 'jpg' ? 'jpeg' : 'png',
-        ...(secim.bicim === 'jpg' ? { quality: 92 } : {}),
+        ...(secim.bicim === 'jpg' ? { quality: YAYIN_JPEG_KALITESI } : {}),
         clip: { x: 0, y: 0, width: toplam, height: doc.yukseklik },
       })
       return [
@@ -155,7 +155,7 @@ export const panoramaDisaAktar = async (
       )
       const bayt = await page.screenshot({
         type: secim.bicim === 'jpg' ? 'jpeg' : 'png',
-        ...(secim.bicim === 'jpg' ? { quality: 92 } : {}),
+        ...(secim.bicim === 'jpg' ? { quality: YAYIN_JPEG_KALITESI } : {}),
       })
       parcalar.push({
         ad: `slayt-${String(i + 1).padStart(2, '0')}.${secim.bicim}`,

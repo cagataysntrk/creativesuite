@@ -2264,3 +2264,65 @@ Bir puan. Şablon zaten beş görsel işlemini de taşıyor (`matlama` · `keski
 Zeminler ayrışıyor (mürekkep · gece mavisi · kâğıt · beton · çelik), paletler ayrışıyor
 (magenta · mavi · amber · kiremit · bakır), tipografi ve künye ortak. On ayrı tasarım,
 tek hesap.
+
+---
+
+## IŞIK KAYNAĞI — zincirin ON ÜÇÜNCÜ kopukluğu (FAZ-19.4)
+
+19.4'ün açık kalemi *"ışık kaynağı"*ydı. Sebep arandığında bulunan şey yine aynı sınıftı:
+
+**`tip: 'isik'` katmanı `zemin.ts`te TANIMLI, TESTLİ ve hiçbir şablon onu istemiyordu.**
+Ölçüldü: on şablonun **sıfırı** `zeminDokusu` taşıyor. Yani ışık odağı, leke ve tarama —
+üçü de yazılı, üretim yolunda çağıranı yok.
+
+Sebep kayıtlı ve mimari: **kart kendi zeminini opak boyuyor**, panorama dokusu altında
+kalıyor. Grenin `.ust-gren`e taşınmasının sebebi de tam olarak buydu. Işık da aynı yere
+gitti: `.ust-isik`, kartların üstünde, vinyetten önce — *biri odağı açar, öteki kenarı
+kapatır.*
+
+### Yön GÖLGEYLE anlaşmak zorunda
+
+Odak `at 22% 16%` — sol üst. `temas-golgesi` gölgeyi sağ-aşağı düşürüyor (dx 14 · dy 26),
+yani ışık soldan üstten geliyor. İkisi ayrışırsa göz sahte olduğunu anlar, sebebini
+söyleyemeden. Katmanın kendi notu da *"merkezi ortada olan bir odak fark edilmiyor"* diyor.
+
+### İlk sayılar TAHMİNDİ ve görünmezliğin sınırındaydı
+
+| | α | koyu zeminde bileşke ΔL |
+|---|---|---|
+| ilk (tahmin) | 0,034 | **0,028** — bu fazda defalarca *"ayrışmıyor"* denen bant |
+| ölçümden | **0,075** | **0,061** — görünürlük eşiği 0,06 |
+
+Eğri dolgusu ΔL 0,025'te görünmüyordu; 0,028'lik bir odak da görünmezdi. Değer eşikten
+geriye hesaplandı: α ≥ (0,06)/(0,95−0,14) = **0,074**. Koyu **7,5** · orta **4,5**.
+
+### Açık zeminde odak YOK — ve bu bir KARAR
+
+Beyazın üstüne beyaz hiçbir şey söylemiyor. Açık kartta ışığın işareti odak değil, ondan
+**uzaklaşan gölgedir** — o da vinyetin işi (`vinyetGucu` açıkta 18, koyuda 34).
+`memphis` · `editoryal` · `alinti` α 0 alıyor; unutulmuş bir sıfır değil, yazılı bir karar.
+
+### Kapı çıplak rengi ADIYLA söyledi
+
+İlk sürüm `rgba(255,255,255,…)` yazdı ve *"panoramada hiçbir sabit rgba(255,255,255)
+kalmadı"* testi kırmızı döndü — **haklıydı**: sabit beyaz, zemini koyu olmayan bir markada
+yanlış ışık verir. Odak artık `--pano-metin`den türüyor.
+
+---
+
+## YAYIN JPEG KALİTESİ dört yerde yazılıydı, hiçbir kapı tutmuyordu
+
+`panorama.ts` · `disa-aktar.ts` (iki kez) · merdivenin kendi ayarı. Biri sessizce
+düşürülse **gren ölçümü ötekiler için konuşmazdı** — ve gren bu fazın en pahalı
+ölçümlerinden biri: düz blok medyan σ 2,26-3,85, **q=90 sonrası 1,62-3,61**.
+
+Tek yer: `YAYIN_JPEG_KALITESI = 92`, ölçülen taban `YAYIN_JPEG_TABANI = 90`.
+`yayin-bicimi.test.ts` bir SAYIYI değil bir İLİŞKİYİ sınıyor: yayın kalitesi grenin sağ
+çıktığı tabanın altına inemez, ve hiçbir kaynak dosyada çıplak `quality:` yazılamaz.
+Kasten ihlal: 84 yapıldı, kapı kırmızı döndü.
+
+⚠ Yol boyunca ölçülen bir yan bulgu: `.ust-gren` · `.ust-isik` · `.ust-vinyet` üçü de
+**panorama boyu** (4320×1440), yani optik etkiler slaytlara eşit düşmüyor — vinyetin koyu
+kenarı yalnız ilk ve son slaytta beliriyor. Işık için bu doğru (tek sahne, tek güneş);
+**vinyet için açık soru**, çünkü vinyet kameranın özelliğidir ve kamera her slaydı ayrı
+kadrajlar.

@@ -840,6 +840,25 @@ const optikPay = (metin: string): number => {
   return YUVARLAK.has(ilk) ? OPTIK_KACIK : 0
 }
 
+/**
+ * **Işık odağının gücü — zeminin açıklığının fonksiyonu.**
+ *
+ * ⚠ Koyu zeminde beyaz bir odak okunuyor; kâğıt zeminde aynı sayı hiçbir şey yapmıyor
+ * (beyazın üstüne beyaz). Sabit bir güç iki kutupta birden doğru olamaz — aynı ders
+ * `yuzeyAdimi()` ve `grenOpakligi()`nde de ölçüldü.
+ *
+ * ⚠ ⚠ **İLK SAYILAR TAHMİNDİ ve GÖRÜNMEZLİĞİN SINIRINDAYDI: α 0,034.** Koyu zeminde
+ * (L 0,14) bileşke fark ≈ α·(0,95−0,14) = **ΔL 0,028** — bu fazda defalarca
+ * *"ayrışmıyor"* diye ölçülen bandın ta kendisi (eğri dolgusu 0,025'te görünmüyordu).
+ * Değer ölçümden türetildi: görünürlük eşiği ΔL 0,06 ⇒ α ≥ **0,074**. Koyu **7,5**
+ * (ΔL 0,061) · orta **4,5**. Odak *belli belirsiz* olmalı, YOK değil.
+ *
+ * ⚠ ⚠ **AÇIK ZEMİNDE ODAK YOK ve bu bir KARAR, unutulmuş bir sıfır değil.** Beyazın
+ * üstüne beyaz hiçbir şey söylemiyor; açık kartta ışığın işareti odak değil ondan
+ * UZAKLAŞAN gölgedir — o da vinyetin işi (`vinyetGucu` açıkta 18, koyuda 34).
+ */
+const isikGucu = (acikklik: number): number => (acikklik > 0.62 ? 0 : acikklik > 0.35 ? 4.5 : 7.5)
+
 const vinyetGucu = (acikklik: number): number => (acikklik > 0.62 ? 18 : acikklik > 0.35 ? 26 : 34)
 
 const koyuMu = (zemin: string, tokenCss = ''): boolean => {
@@ -876,6 +895,20 @@ const sol = (degisken: string, yuzde: number): string =>
  * yeterince ince adımı YOK — bu bir eksiklik ve FAZ-19.6'nın (palet) işi. O gelene
  * kadar adım karışımla kuruluyor.
  */
+/**
+ * **YAYIN JPEG KALİTESİ — tek yer, ölçülmüş taban.**
+ *
+ * ⚠ ⚠ **DÖRT AYRI YERDE YAZILIYDI ve hiçbir kapı tutmuyordu:** `panorama.ts`,
+ * `disa-aktar.ts` (iki kez) ve merdivenin kendi ayarı. Biri değişse gren ölçümü ötekiler
+ * için konuşmazdı — ve gren bu fazın en pahalı ölçümlerinden biri.
+ * ⚠ ⚠ **TABAN q=90 ve bu bir ÖLÇÜM:** düz blok medyan σ 2,26-3,85 iken **q=90 sonrası
+ * 1,62-3,61** kalıyor, yani gren JPEG'ten sağ çıkıyor (`OLCUMLER.md`). Üretim 92 yazıyor:
+ * ölçülen tabandan İKİ PUAN güvenli tarafta. Aşağı inilirse ölçüm yeniden yapılmalı.
+ * ⚠ Graph API yalnız JPEG kabul ediyor (R-90); biçim UZANTIDAN türüyor.
+ */
+export const YAYIN_JPEG_TABANI = 90
+export const YAYIN_JPEG_KALITESI = 92
+
 const yuzeyAdimi = (yuzde: number): string =>
   `color-mix(in oklab, var(--pano-metin) ${yuzde}%, var(--pano-zemin))`
 
@@ -1774,6 +1807,12 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // duruyorlar ve altlarındaki her şeyle karışıyorlar.
   const ustDoku =
     `<div class="ust-gren" aria-hidden="true"></div>` +
+    // ⚠ ⚠ **IŞIK KARTLARIN ÜSTÜNDE — çünkü ALTINDA hiç çizilmiyordu.** `tip: 'isik'`
+    // katmanı `zemin.ts`te tanımlı, testli ve **hiçbir şablon onu istemiyordu**: on
+    // şablonun sıfırı `zeminDokusu` taşıyor. Sebep kayıtlı — kart kendi zeminini opak
+    // boyuyor, panorama dokusu altında kalıyor. Grenin üste taşınmasının sebebi de buydu.
+    // ⚠ Vinyetten ÖNCE: ikisi bir çift — biri odağı açar, öteki kenarı kapatır.
+    `<div class="ust-isik" aria-hidden="true"></div>` +
     `<div class="ust-vinyet" aria-hidden="true"></div>`
 
   // Geometrik lekeler: tek SVG, panorama koordinatında. Kartların ALTINDA (z-index 0)
@@ -2042,7 +2081,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
     // soft-light'a düşer ve kenar toplama işini yapmazdı — ölçülmeden fark edilmez.
     // Vinyet: kenarları toplayan tek radyal. Merkez ŞEFFAF — ortadaki içeriği
     // karartmayan bir vinyet, kadrajı daraltır ama okunurluğu düşürmez.
-    `  .ust-gren, .ust-vinyet { position: absolute; inset: 0; pointer-events: none }`,
+    `  .ust-gren, .ust-isik, .ust-vinyet { position: absolute; inset: 0; pointer-events: none }`,
     // ⚠ ⚠ **YÜZEY VARSA GREN DEĞİL O ÇİZİLİYOR.** Gren her yüzeyin ortak tabanı; yüzey
     // ailesi onun ÜSTÜNE malzemenin kendi imzasını koyuyor (kâğıt lifi, taş damarı,
     // beton tanesi, fırça izi, tram noktası). İkisi birden çizilseydi doku iki kez
@@ -2065,6 +2104,20 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             `              filter: ${doc.yuzey === 'halftone' ? 'contrast(8) grayscale(1)' : 'none'} }`,
           ]
         })()),
+    // ⚠ ⚠ **ODAK ASİMETRİK ve yönü GÖLGEYLE ANLAŞMAK ZORUNDA.** Katmanın kendi notu
+    // *"merkezi ortada olan bir odak fark edilmiyor"* diyor; ayrıca `temas-golgesi`
+    // gölgeyi sağ-aşağı düşürüyor (dx 14 · dy 26), yani ışık SOL ÜSTTEN geliyor. İkisi
+    // ayrışırsa göz sahte olduğunu anlar — sebebini söyleyemeden.
+    // ⚠ Güç zeminin açıklığından: koyu zeminde beyaz odak okunuyor, kâğıtta kaybolur ve
+    // sabit bir sayı iki kutupta birden doğru olamaz (aynı ders `yuzeyAdimi`de).
+    // ⚠ ⚠ **RENK BELİRTEÇTEN, ÇIPLAK `rgba` DEĞİL — kapı adıyla söyledi.** İlk sürüm
+    // `rgba(255,255,255,…)` yazdı ve *"panoramada hiçbir sabit rgba(255,255,255) kalmadı"*
+    // testi kırmızı döndü. Haklıydı: sabit beyaz, zemini koyu olmayan bir markada yanlış
+    // ışık verir. `--pano-metin` koyu zeminde açık, kâğıtta koyu — odak zeminin KENDİ
+    // metin renginden türüyor, aynı ders `yuzeyAdimi()`nde de ölçüldü.
+    `  .ust-isik { z-index: ${Z.vinyet};`,
+    `              background: radial-gradient(ellipse 86% 66% at 22% 16%,` +
+      ` ${sol('--pano-metin', isikGucu(zeminAcikligi))} 0%, transparent 64%) }`,
     `  .ust-vinyet { z-index: ${Z.vinyet};`,
     `              background: radial-gradient(120% 80% at 50% 45%, transparent 52%,` +
       ` rgba(0,0,0,${((doc.ustDoku?.vinyet ?? vinyetGucu(zeminAcikligi)) / 100).toFixed(2)}) 100%) }`,
@@ -2826,7 +2879,9 @@ export const renderPanorama = async (
       const jpeg = /\.jpe?g$/i.test(yol)
       await page.screenshot({
         path: yol,
-        ...(jpeg ? { type: 'jpeg' as const, quality: 92 } : { type: 'png' as const }),
+        ...(jpeg
+          ? { type: 'jpeg' as const, quality: YAYIN_JPEG_KALITESI }
+          : { type: 'png' as const }),
       })
     }
     return { yollar: ciktiYollari, genislik: doc.slaytGenisligi }
