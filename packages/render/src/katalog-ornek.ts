@@ -1573,7 +1573,14 @@ export const ORNEK_KARSILASTIRMA: KatalogOrnegi = {
         // ⚠ `tahmin: true` bir SÜS değil: ölçülmemiş bir çubuğu ölçülmüşten ayırıyor.
         // Üçüncü vardiyanın sayacı yoktu; onu kesin göstermek defterin yalanı olurdu.
         satirlar: [
-          { etiket: 'A vardiyası', deger: 62, not: 'sayaçtan', tahmin: false },
+          // ⚠ ⚠ **UC BAR NEREDEYSE AYNI UZUNLUKTAYDI: 62 · 71 · 58, yayilim 1,22x.**
+          // Denetimin en sert bulgusu: *"karsilastirma hicbir sey karsilastirmiyor."*
+          // Ve kart kendi cumlesini yalanliyordu — govde *"toplam biliniyordu; hangi
+          // vardiyada olustugu bilinmiyordu"* diyor, yani IDDIA vardiyalar arasi FARK.
+          // Uc esit bar o farki gostermek soyle dursun, YOK oldugunu soyluyordu.
+          // Ayni sinif kusur `kavis`te de vardi (on uc kemerin on ucu birebir ayni) ve
+          // orada kapiya baglanmisti; burada baglanmamisti.
+          { etiket: 'A vardiyası', deger: 34, not: 'sayaçtan', tahmin: false },
           { etiket: 'B vardiyası', deger: 71, not: 'sayaçtan', tahmin: false },
           { etiket: 'C vardiyası', deger: 58, not: 'tahmin', tahmin: true },
         ],

@@ -2979,3 +2979,23 @@ arıyordu; o destenin tek listesi kapanış kartındaydı ve kaldırılınca tes
 kaldı. `dizin`e çevrildi — ama `dizin` HER kartta liste taşıdığı için tek kartı bozmak
 ikonu yok etmiyordu; iddia *"bir satır bile eşleşmezse"* olduğuna göre **hepsi** bozuluyor.
 *Bir desteyi örnek alan test, o destenin yapısı değişince sessizce anlamını yitirir.*
+
+### Karşılaştırma karşılaştırmıyordu — ve kapı ikinci bir örnek buldu
+
+Denetimin en sert bulgusu veride görünüyordu: `karsilastirma`nın üç çubuğu **62 · 71 · 58**,
+yayılım yalnız **1,22×**. Kart kendi cümlesini yalanlıyordu — gövde *"Toplam biliniyordu;
+hangi vardiyada oluştuğu bilinmiyordu"* diyor, yani iddia vardiyalar arası FARK; üç eşit
+çubuk o farkın YOK olduğunu söylüyordu. Değerler **34 · 71 · 58**'e çekildi: yayılım
+**2,09×**, en yüksek vardiya en düşüğün iki katından fazla. Yeni kapı
+`karsilastirma-farki`, eşik **1,6×** (kusurlu hâl 1,22 · düzeltilmiş 2,09 — ikisinin
+ortası, iki yöne de %31 pay).
+
+⚠ Aynı sınıf kusur `kavis`te bir kez yakalanıp kapıya bağlanmıştı (on üç kemerin on üçü
+birebir aynı yükseklikte). **Kural bir yerde vardı, ötekinde yoktu.**
+
+⚠ ⚠ **VE KAPI KENDİ SINIRINI ÖĞRETTİ.** İlk sürüm bütün çubuk panolarını tarıyordu ve
+`veri-hikayesi`yi kırmızıya çevirdi: çubukları 58,9 · 71,2 · 77,4 (yıllık hacim), yayılım
+1,33×. Ama o bir **ZAMAN SERİSİ** — yayılımı verinin kendisi, tasarımcının tercihi değil.
+Onu "daha farklı" yapmak veriyi ÇARPITMAK olurdu (Yasa 8 · R-32). Kural daraltıldı:
+*bir zaman serisi ne ise onu gösterir; bir KARŞILAŞTIRMA ise iki durumu yan yana koymak
+için vardır — ikincisinde fark yoksa kartın var olma sebebi yoktur.*
