@@ -42,8 +42,17 @@ const SEC =
 // Sıfır pay, "teknik olarak değmiyor ama okunmuyor" vakasını kaçırırdı.
 const PAY = 6
 
+// ⚠ ⚠ **EŞİK 0,30'DAN 0,18'E — ve indiren şey yeni bir POPÜLASYON.** 0,30 `alinti`
+// vakasına göre seçilmişti (en yakın gerçek geçiş 0,590). Kapsam `egri` bandına açılınca
+// **kasten sessiz** etiketler göründü: `panel-baslik` %50 opak ve etkin farkı tam **0,300**.
+// Eşiğin altında kalıyordu, yani kural sessiz olmayı kusur sayıyordu.
+// ⚠ Ölçülen gerçek kusurların hepsi **≤0,035** (marka işareti 0,000 · varış rakamı 0,035 ·
+// rakam etiketi 0,022). 0,18 en kötü gerçek kusurun **beş katı** uzağında ve sessiz
+// etiketleri rahat bırakıyor.
+const ESIK_DL = 0.18
+
 const OLC = `(() => {
-  const svg = document.querySelector('svg.alan-siniri')
+  const svg = document.querySelector('svg.alan-siniri') || document.querySelector('svg.bant')
   if (svg === null) return []
   // ⚠ Konturlu yol SINIRIN kendisi; dolgu yolları ALANLARDIR. Sınırı arıyoruz.
   const yollar = Array.from(svg.querySelectorAll('path')).filter(
@@ -95,10 +104,26 @@ const OLC = `(() => {
     const v = Number(c.slice(k + 1).replace(')', '').trim())
     return isNaN(v) ? 1 : v
   }
-  const ISIK = Array.from(svg.querySelectorAll('rect, path'))
+  // IKI ALAN NEREDEN OKUNUR (R-98: sablon degismezi ICINDE, ters tirnak yok):
+  // alan-siniri'nde ikisi de SVG'nin ICINDE (ust rect + alt path). Egri bandinda ise
+  // yalniz ALT alan SVG'de; UST alan kartin ZEMINI ve SVG'nin disinda. Ikisini de
+  // dolgulardan okumak, egride basligi "dL 0,050 ile okunmuyor" diye SUCLADI — oysa
+  // baslik 0,95, kart zemini 0,14, yani ayrimi 0,81.
+  // MASKE DIKDORTGENLERI ALAN DEGILDIR (R-98: sablon degismezi ICINDE, ters tirnak yok).
+  // Metin kutusu maskesi SVG'nin icine beyaz/siyah mask dikdortgenleri koyuyor; kapi
+  // onlari "iki alan" sanip her yaziyi dL 0,05 ile sucladi. Kendi kurdugum aygit, kendi
+  // kapimi yaniltti. defs icindekiler CIZILMEZ.
+  const dolgular = Array.from(svg.querySelectorAll('rect, path'))
+    .filter((p) => p.closest('defs') === null && p.closest('mask') === null)
     .filter((p) => getComputedStyle(p).fill !== 'none')
     .map((p) => acikligi(getComputedStyle(p).fill))
     .filter((v) => v !== null && !isNaN(v))
+  const ISIK = dolgular.slice()
+  if (dolgular.length < 2) {
+    const kart0 = document.querySelector('.kart')
+    const zemin = kart0 === null ? null : acikligi(getComputedStyle(kart0).backgroundColor)
+    if (zemin !== null && !isNaN(zemin)) ISIK.push(zemin)
+  }
   if (ISIK.length < 2) return ['iki alan okunamadi: ' + ISIK.length + ' dolgu']
   const gorselIsigi = (img) => {
     const c = document.createElement('canvas')
@@ -168,7 +193,7 @@ const OLC = `(() => {
           const ustAlan = Math.max.apply(null, ISIK), altAlan = Math.min.apply(null, ISIK)
           const d1 = Math.abs(renkler[0] - ustAlan)
           const d2 = Math.abs(renkler[renkler.length - 1] - altAlan)
-          if (Math.min(d1, d2) < 0.30)
+          if (Math.min(d1, d2) < %ESIK%)
             kusur.push(
               'kart ' + (i + 1) + ' · ' + el.className.split(' ')[0] +
               ' maskeli ama bir yaka okunmuyor (dL ' + Math.min(d1, d2).toFixed(3) + ')'
@@ -184,7 +209,7 @@ const OLC = `(() => {
         : [altta ? Math.min.apply(null, ISIK) : Math.max.apply(null, ISIK)]
       const a = el.tagName === 'IMG' ? 1 : alfasi(st.color)
       const enYakin = Math.min.apply(null, alanlar.map((v) => a * Math.abs(metin - v)))
-      if (enYakin < 0.30)
+      if (enYakin < %ESIK%)
         kusur.push(
           'kart ' + (i + 1) + ' · ' + el.className.split(' ')[0] + ' ' +
           (icinde.length > 0 ? 'sinirin kestigi alanda' : (altta ? 'ALT' : 'UST') + ' alanda') +
@@ -212,7 +237,9 @@ const kesenler = async (o: Ornek): Promise<readonly string[]> => {
     await page.evaluate(knockoutOlcumu())
     await page.evaluate(metinMaskesi())
     return (await page.evaluate(
-      OLC.replace('%SEC%', JSON.stringify(SEC)).replace(/%PAY%/g, String(PAY))
+      OLC.replace('%SEC%', JSON.stringify(SEC))
+        .replace(/%PAY%/g, String(PAY))
+        .replace(/%ESIK%/g, String(ESIK_DL))
     )) as readonly string[]
   })
   // ⚠ HATAYI YUTMA: 'tarayıcı açılamadı' demek, sebebi saklamak demekti ve bir tur
@@ -220,7 +247,13 @@ const kesenler = async (o: Ornek): Promise<readonly string[]> => {
   return sonuc.ok ? sonuc.value : [`ölçüm koşmadı: ${JSON.stringify(sonuc.error)}`]
 }
 
-const ALANLI = Object.entries(ORNEKLER).filter(([, o]) => o.alanSiniri !== undefined)
+// ⚠ ⚠ **KAPSAM `alanSiniri` İLE SINIRLI DEĞİL.** `egri` bandı da iki alanlı bir taşıyıcı:
+// eğrinin ÜSTÜ kartın zemini, ALTI bandın dolgusu. Kapsamı türe bağlamak `veri-hikayesi`yi
+// dışarıda bırakıyordu ve dolgusu görünür yapılınca kart 6'nın listesi ile varış rakamının
+// açık alanda açık kaldığını **hiçbir kapı söylemedi** — çizime bakınca görüldü.
+const ALANLI = Object.entries(ORNEKLER).filter(
+  ([, o]) => o.alanSiniri !== undefined || (o.bant as { tip?: string } | undefined)?.tip === 'egri'
+)
 
 describe('alan sınırının kestiği yazı İKİ alanda da okunuyor', () => {
   // ⚠ Kapsam boşalırsa döngü hiç koşmaz ve dosya "yeşil" görünür.

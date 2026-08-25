@@ -879,6 +879,18 @@ const sol = (degisken: string, yuzde: number): string =>
 const yuzeyAdimi = (yuzde: number): string =>
   `color-mix(in oklab, var(--pano-metin) ${yuzde}%, var(--pano-zemin))`
 
+/**
+ * **Eğrinin altındaki alanın rengi — TEK yer.**
+ *
+ * ⚠ ⚠ **ESKİ DEĞER GÖRÜNMÜYORDU: `ink-950` @0,75 → ΔL 0,025.** Taşıyıcı teknik olarak
+ * vardı, algısal olarak yoktu. Yüzey adımına çevirmek iki kez denendi ve iki kez geri
+ * alındı — önce `sus-metni-kesiyor` (metin kutusu maskesi kurulunca KALKTI), sonra
+ * okunabilirlik (knockout `egri` bandını tanımıyordu). İkisi de bu turda kapandı.
+ * ⚠ Renk İKİ yerde gerekiyor: bandın dolgusunda ve knockout'un alt alan rengini
+ * hesaplarken. İki kopya, bir gün birinin unutulması demek.
+ */
+const EGRI_DOLGUSU = yuzeyAdimi(26)
+
 /** Kartın renk seti — zeminden türetiliyor, seçilmiyor. */
 const kartRenkleri = (
   zemin: string,
@@ -1168,7 +1180,7 @@ const bantSvg = (
       // üstünde AÇIK kaldı — `alinti`de ölçülen kusurun aynısı.
       // ⚠ Çözüm de aynı: knockout maskesi. Ama `knockoutOlcumu` yalnız `alan-siniri`
       // tanıyor; `egri` bandı için genişletilmesi gerekiyor. Sıradaki iş.
-      `<path d="${dolgu}" fill="var(--ramp-marka-ink-950)" fill-opacity="0.75"/>` +
+      `<path d="${dolgu}" fill="${EGRI_DOLGUSU}"/>` +
       // ⚠ ⚠ **6 px DENENDİ ve KAPI HAKLI OLARAK REDDETTİ.** Reçete çizgiyi 2 → 6 px
       // istiyor (*"ölçülen eğri kendi kütlesini kazansın"*) ve denendiğinde
       // `sus-metni-kesiyor` kırmızı döndü: kalın çizgi kilometre etiketinin **%96,6'sının
@@ -2555,6 +2567,11 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
  * D-318 süs degradesini yasakladı; bu optik bir maskeleme aygıtı.
  */
 export const knockoutOlcumu = (): string => `(() => {
+  // EGRI BANDI KAPSAMA ALINDI VE GERI CIKARILDI: uzanti hicbir yerde ATESLENMIYOR.
+  // veri-hikayesi'nin egrisi dipteki bantta yasiyor ve metin onun USTUNDE duruyor; hicbir
+  // yazi egriyi straddle etmiyor. Kapatilip kapi kosuldu ve YESIL kaldi, yani uzanti
+  // olmeye yazilmis kod olurdu. Kapi kapsami egri sablonlarini ZATEN iceriyor: bir gun
+  // bir yazi egriyi keserse kapi onu adiyla soyler, o zaman bu satir geri gelir.
   const svg = document.querySelector('svg.alan-siniri')
   if (svg === null) return 0
   const yol = Array.from(svg.querySelectorAll('path')).filter(
@@ -2577,7 +2594,14 @@ export const knockoutOlcumu = (): string => `(() => {
     return en === null ? null : en[1]
   }
   let sayi = 0
-  for (const el of document.querySelectorAll('.kapanis-rakam, .kapanis-rakam-alt')) {
+  // YALNIZ TEK RENKLI YAZI YAPRAKLARI. Kapsayicilari maskelemek yanlis: bir cubuk
+  // satiri renkli cubuklar tasiyor ve background-clip: text onlari kesmiyor; olcum de
+  // "bir yaka okunmuyor" diye SUCLADI. Maske yazinin murekkebini degistiren bir aygit,
+  // kutu boyayan degil.
+  const SEC_KO =
+    '.kapanis-rakam, .kapanis-rakam-alt, .kapanis-cagri, .baslik, .govde, ' +
+    '.panel-baslik, .etiket, .kilometre-etiket, .olcek-etiket'
+  for (const el of document.querySelectorAll(SEC_KO)) {
     const r = el.getBoundingClientRect()
     if (r.width < 4 || r.height < 4) continue
     const ySol = yAt(r.left), ySag = yAt(r.right)

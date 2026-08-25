@@ -2178,3 +2178,60 @@ gerekiyor. **Sıradaki iş, ve borç yazılı.**
   bant olarak okunuyor. Kapanış kartında iddia ile varış arasındaki hava kasıtlı.
 
 **Tavan %23'te kalıyor** ve sebebi artık yazılı: kalan iki bant içerik boşluğu değil.
+
+---
+
+## `veri-hikayesi` eğrisi GÖRÜNÜR oldu — dolgu iki turda iki ayrı engeli aştı
+
+Eğrinin altındaki alan `ink-950` @0,75 ile çiziliyordu: kart zemininden ayrımı **ΔL 0,025**.
+Taşıyıcı teknik olarak vardı, algısal olarak yoktu. İki kez denenip iki kez geri alınmıştı:
+
+| deneme | engel | ne oldu |
+|---|---|---|
+| birinci | `sus-metni-kesiyor` | metin kutusu maskesi kurulunca **kalktı** |
+| ikinci | okunabilirlik | knockout `egri`yi tanımıyordu → bu turda kapı kapsamı genişledi |
+
+Dolgu artık `yuzeyAdimi(26)` ve **tek yerden** (`EGRI_DOLGUSU`) geliyor: iki kopya, bir gün
+birinin unutulması demek.
+
+### Gözüm yanıldı, ÖLÇÜM düzeltti
+
+Çizime bakınca kart 6'nın dibi *"yutulmuş"* göründü ve geri almaya hazırlanıyordum.
+Ölçüm başka söyledi:
+
+| | L |
+|---|---|
+| eğri dolgusu | **0,3506** |
+| kart zemini | 0,14 |
+| kart 6'nın bütün yazıları | **0,95** |
+
+En kötü ΔL **0,60** — rahat okunuyor, ve hiçbir öge maskeye ihtiyaç duymuyor.
+*"Yutuldu"* yargısı knockout genişlemeden ÖNCEKİ hâle aitti.
+
+### Aletin YEDİNCİ yalanı — ve bu kez sebebi KENDİ aygıtım
+
+Kapı `egri`ye açılınca her yazıyı *"ΔL 0,05 ile okunmuyor"* diye suçladı. Sebep:
+**`metinMaskesi` SVG'nin içine beyaz/siyah `<mask>` dikdörtgenleri koyuyor** ve kapı onları
+"iki alan" sanıyordu. `<defs>` içindekiler çizilmez — artık eleniyor.
+
+### Eşik 0,30 → 0,18: yeni bir POPÜLASYON göründü
+
+0,30 `alinti` vakasına göre seçilmişti (en yakın gerçek geçiş 0,590). `egri` kapsama
+girince **kasten sessiz** etiketler göründü: `panel-baslik` %50 opak, etkin farkı tam
+**0,300** — eşiğin altında kalıyor, yani kural sessiz olmayı kusur sayıyordu. Ölçülen
+gerçek kusurların hepsi **≤0,035**; 0,18 onların beş katı uzağında.
+
+### Knockout'un `egri` uzantısı YAZILDI ve GERİ ÇIKARILDI
+
+Uzantı hiçbir yerde **ateşlenmiyor**: eğri dipteki bantta yaşıyor, metin onun üstünde
+duruyor, hiçbir yazı eğriyi kesmiyor. Kapatılıp kapı koşuldu ve **yeşil kaldı** — yani
+ölmeye yazılmış kod olurdu. Bu depoda on bir kez tekrarlanan sınıf (D-182 · D-190 · D-224
+· D-250 · D-261 · D-270 · D-347 · `kapanis`). **Kapı kapsamı `egri`yi zaten içeriyor:**
+bir gün bir yazı eğriyi keserse kapı onu adıyla söyler, o zaman o satır geri gelir.
+
+⚠ Ve knockout seçicisi daraltıldı: kapsayıcıları (`.cubuk-satir`, `.sayi-kart`,
+`.liste-satir`) maskelemek yanlış — bir çubuk satırı renkli çubuklar taşıyor ve
+`background-clip: text` onları kesmiyor. Maske yazının mürekkebini değiştiren bir aygıt,
+kutu boyayan değil.
+
+⚠ R-98 **sekizinci** kez ısırdı, yine şablon değişmezi içindeki bir yorumda.
