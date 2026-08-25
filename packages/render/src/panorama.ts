@@ -1456,6 +1456,22 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // soramıyordu. Değer aynı, kapsamı geniş — hesap kartın tamamına ait, açılış etiketine değil.
   const kartinZemini = (k: Kart): string =>
     doc.alanSiniri === undefined ? (k.zemin ?? doc.zemin) : doc.alanSiniri.ust
+  /**
+   * **İmzanın GERÇEKTEN üstünde durduğu zemin.**
+   *
+   * ⚠ ⚠ **YUKARIDAKİ VARSAYIM İMZA İÇİN GEÇERSİZ.** `kartinZemini` *"kartlar üste yaslı,
+   * metin ÜST alanın üstünde"* diyor; kapanış bloğu ise `margin-top: auto` ile DİBE yaslı
+   * ve ölçüldü: üç şablonun üçünde de dibi **y%86,8**. `alinti`de sınır o yüksekliğin
+   * ÜSTÜNDEN geçiyor, yani imza ALT alanda duruyor — ve koyu logo koyu alanın üstünde
+   * **ΔL 0,000** ile kayboluyordu. Kapı adıyla söyledi: `alan-siniri.test.ts`.
+   * ⚠ Sınırın y'si kartın MERKEZİNDEN okunuyor; imza kartın ortasında, dibe yakın.
+   */
+  const IMZA_DIBI = 87
+  const imzaninZemini = (k: Kart, i: number): string => {
+    const a = doc.alanSiniri
+    if (a === undefined) return kartinZemini(k)
+    return araDeger(a.noktalar, (100 * (i + 0.5)) / n) < IMZA_DIBI ? a.alt : a.ust
+  }
   const kartlar = doc.kartlar
     .map(
       (k, i) =>
@@ -1617,7 +1633,7 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
             (doc.logo === undefined
               ? ''
               : `<img class="kapanis-isaret" src="${kacir(
-                  koyuMu(kartinZemini(k), doc.tokenCss) ? doc.logo.koyu : doc.logo.acik
+                  koyuMu(imzaninZemini(k, i), doc.tokenCss) ? doc.logo.koyu : doc.logo.acik
                 )}" alt="Upcytech">`) +
             `<p class="kapanis-cagri">${vurguyuIsaretle(kacir(k.kapanis.cagri))}</p>` +
             `</div>`) +

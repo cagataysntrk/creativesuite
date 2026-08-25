@@ -1962,3 +1962,55 @@ içeriğine takılmak zorunda.
 **Yükselmeyi korumanın yolu kart zemininin bölgeye göre dönmesi** — ayrı bir iş, ve
 `alinti`nin %26'lık bandı o iş yapılana kadar açık borç. Geri alındı: görünen bir gerileme
 gönderilmez.
+
+---
+
+## Alan sınırının kestiği yazı İKİ alanda da okunmalı (FAZ-19)
+
+Önceki turda `alinti`nin mürekkep alanını büyütme denemesi kapanış kartını yutmuştu ve
+**hiçbir kapı yakalamamıştı** — göz yakalamıştı. Bu tur o boşluk kapatıldı
+(`alan-siniri.test.ts`; kapı betiği değil test, o yüzden kapı sayacı 49'da kalıyor).
+
+### Kural İKİ KEZ fazla geniş yazıldı, ölçüm iki kez daralttı
+
+**1. "Sınır metni kesiyorsa kusur"** — dört şablonu birden suçladı. Oysa kesme bir
+**görme** olayı: `editoryal`in iki alanı 0,985 / 1,000 (ΔL 0,015) ve sınır başlığın
+arkasından geçse de hiçbir şey kesmiyor.
+
+**2. "Görünür sınır metni kesiyorsa kusur"** — hâlâ üç şablonu suçladı. Ölçüm ayırdı:
+
+| vaka | metnin İKİ alana ΔL'si | karar |
+|---|---|---|
+| `akan-alan` k6 rakam | 0,845 / 0,590 | okunuyor |
+| `editoryal` k1-k4 | 0,795 / 0,810 | okunuyor (iki alan da açık) |
+| `karsilastirma` k4 rakam | 0,845 / 0,680 | okunuyor (iki alan da koyu) |
+| **`alinti` k3 marka işareti** | 0,795 / **0,000** | **alt alanda GÖRÜNMEZ** |
+
+**Tek gerçek kusur sonuncusu** ve gözün yakaladığı da oydu. Kalan kural: *sınırın kestiği
+yazı iki alanda da okunmalı*, eşik ΔL 0,30 — en yakın gerçek vakadan (0,590) iki kat uzakta.
+
+### Kök sebep: bir varsayım yorumda yazılıydı ve artık geçersizdi
+
+`kartinZemini` şöyle diyor: *"iki alanlı zeminde metin ÜST alanın üstünde duruyor (kartlar
+üste yaslı)"*. Kapanış bloğu `margin-top: auto` ile **dibe** yaslı ve ölçüldü: üç şablonun
+üçünde de dibi **y%86,8**. `alinti`de sınır y%76'dan geçiyor, yani imza ALT alanda.
+Yeni `imzaninZemini` sınırın o karttaki y'sini okuyup imzanın gerçekten hangi alanda
+durduğunu söylüyor — tek kartlık yama değil, kural.
+
+### Ölçüm aleti bu kapıda ÜÇ kez kendini ele verdi
+
+1. **Dolguyu `rgb` sandı**, tarayıcı `oklch()` veriyordu: ilk üç sayıyı 255'e böldü, iki
+   alan da 0 çıktı, oran 1,00 ve kapı **herkesi geçti**. *Sessizce her şeyi geçen bir kapı,
+   kapı değildir.*
+2. **Hatayı yuttu**: `'tarayıcı açılamadı'` diyordu ve gerçek sözdizimi hatasını görünmez
+   yaptı. Kusur ADIYLA taşınır — mesaj açılınca sebep bir denemede çıktı.
+3. **Görselin mürekkebini `color`dan okudu**: marka işareti bir `<img>`; `color` onun
+   devraldığı metin rengi. Render düzeltildikten SONRA bile kapı kırmızı kaldı çünkü yanlış
+   özelliği okuyordu. İkinci deneme varyantı **adından** tahmin etti (`ink-` geçiyor mu) ve
+   `akan-alan`ı kaçırdı (`murekkep-alan`). Kalan: **görselin kendi pikselleri** — saydam
+   olmayan piksellerin ortalama ışığı.
+
+⚠ Ve R-98 iki kez daha ısırdı: şablon değişmezinin İÇİNE ters tırnaklı yorum yazmak
+değişmezi kapatıyor. Bu oturumda altıncı ve yedinci kez.
+
+Kasten ihlal: `imzaninZemini` geri alındı, kapı ΔL 0,190 ile kırmızı döndü.
