@@ -2625,3 +2625,39 @@ kalanıyla aynı kovada duruyor.*
 ⚠ Not: `baslikPayi` bir tavan oranı (`96 × payı`), gerçek punto `puntoOlcumu` ile kolona
 OTURTULUYOR. Payı yükseltmek rendered puntoyu yükseltmeyebilir — değişiklik ÖLÇÜLMEDEN
 yapılmış sayılmaz.
+
+### Boş kova bir hata değil GEOMETRİ — ve yol boyunca bir gerileme gönderdim
+
+128–256 px kapak kovasının boş olmasının sebebi arandı. Üç ölçüm, üç şey öğretti.
+
+**① `baslikPayi` bir tavan, ama tek başına değil.** `alinti`de payı 1,5 → 2,7 arasında
+gezdirildi: **rendered punto HEP 121 px.** Bildirilen 144 · 182 · 221 · 259 — dördü de
+aynı sonucu verdi. İlk yorum: *"payı ≥ 1 ölü."*
+
+**② O yorum YANLIŞTI ve kendi değişikliğim gösterdi.** `punto = min(tavan × payı,
+sinirPunto)` satırındaki çarpan kaldırıldı; kısa bir başlıkta punto **168'den 138'e
+DÜŞTÜ.** Sebep: `tavan` bütün başlıkların EN KÜÇÜK oturması, `sinirPunto` ise her
+birinin kendi çarpanıyla bölünmüşü — ikisi eşit değil ve çarpan tam da **kapağın, en
+küçük gövde-kart oturmasını aşmasını** sağlıyor. Geri alındı. *Ölü sanılan kod, ölü
+olduğu gösterilmeden sökülmez.*
+
+**③ Asıl sınır KOLON.** İkili aramanın üst sınırı 168'di; 252'ye çıkarıldı ve **hiçbir
+şey değişmedi.** Metin kısaldıkça punto yükseliyor ve 168'de doyuyor:
+
+| söz | harf | en uzun satır | punto | kapak |
+|---|---|---|---|---|
+| Ölçmediğin şeyi iyileştiremezsin | 32 | 16 | 121 | 89 |
+| Ölçmediğin şey iyileşmez | 24 | 10 | 148 | 109 |
+| Ölçmeyen bilmez | 15 | 8 | **168** | **123** |
+| Ölçmedin | 8 | 8 | **168** | **123** |
+
+Doygunluk tavandan değil **828 px'lik başlık kolonundan** geliyor. Kapak 128'e (yani boş
+kovaya) çıkmak için satırın ~7 harfe inmesi gerekiyor. **Reçetenin `alinti` için istediği
+240 px, ancak 5–6 harflik bir satırla mümkün** — gerçek bir Türkçe alıntıda yok.
+
+**Sonuç:** boş kova bir kusur değil, tuval genişliği ile Türkçe kelime uzunluğunun
+geometrik sonucu. Poster ölçeği bir CSS ayarı değil bir **METİN BÜTÇESİ** kararıdır.
+Arama tavanını yükselten değişiklik ateşlenmediği için SÖKÜLDÜ (kod olduğu gibi kaldı).
+
+⚠ R-98 DOKUZUNCU kez ısırdı: bu bulgunun yorumuna yazdığım ters tırnaklar şablon
+değişmezini kapattı, derleme iki hatayla durdu.
