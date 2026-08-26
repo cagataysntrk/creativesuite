@@ -5,7 +5,7 @@
 // komut sağlayıcı çağırabilir. Bütçe tavanı zorunlu ve varsayılan DÜŞÜK: tavansız
 // çalıştırmak, gözetimsiz bir gecede tavanın olmadığını öğrenmektir.
 
-import { readFileSync, existsSync, statSync, mkdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -809,6 +809,25 @@ const KOSU_PARAMLARI = (() => {
     konu: devamKonu ?? kaynakKonu ?? konu,
     serbest: {
       ...serbestParam,
+      // ⚠ ⚠ **ÖZGÜNLÜK KÜMESİ PLAN ANINDA DONUYOR (R-07 · D-308).** `derived/runs` her
+      // koşuda büyüyor; kümeyi çalışma anında taramak aynı planın bugün 51, yarın 60
+      // koşuyla karşılaştırılması demekti — aynı girdi farklı çıktı, replay çöker.
+      // Yalnız KİMLİKLER donuyor: defterler değişmez (Yasa 11), metin onlardan okunuyor.
+      // ⚠ Liste SÜZÜLEREK donuyor: elenmiş bir koşu bir üretim değil, bir denemedir
+      // ve ona benzemek tekrar sayılmaz — aksi hâlde reddedilen bir çalışma, aynı
+      // konuyu bir daha DENEMEYİ imkânsız kılardı.
+      ozgunluk_gecmisi: JSON.stringify(
+        readdirSync(join(REPO, RUNS_DIR))
+          .filter((d) => d.startsWith('run_'))
+          .filter((d) => {
+            try {
+              const m = JSON.parse(readFileSync(join(REPO, RUNS_DIR, d, 'manifest.json'), 'utf8'))
+              return !(m.decisions ?? []).some((x) => x.decision === 'rejected')
+            } catch {
+              return false
+            }
+          })
+      ),
       // ⚠ ⚠ **KONUSUZ BAŞLATMA: adaylar burada hesaplanır, konu HATTIN İÇİNDE seçilir.**
       // Deterministik "ilk başlık" yaklaşımı denendi ve her koşuda aynı konuyu verdi
       // (depo sahibi ilk denemede yakaladı). Seçim modele ait; liste kayıtlara ait.
@@ -872,6 +891,8 @@ const rapor = await runPipeline({
     // Deck IR'ı **CLI okur**, gövde değil: `COMPOSE` saf (§3.10). IR verilmediyse
     // metin üretiminden gelen satırlar kullanılır — eski davranış aynen duruyor.
     COMPOSE: composeBody({
+      // ⚠ Özgünlük denetimi geçmiş koşuların defterini okuyor; kök olmadan atlanıyor.
+      repoRoot: REPO,
       tokenCss,
       fontCss: markaFontCss,
       ...(markaLogo === undefined ? {} : { logo: markaLogo }),

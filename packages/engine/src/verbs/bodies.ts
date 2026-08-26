@@ -48,6 +48,7 @@ import {
   type PanoramaBelgesi,
 } from '@suite/render'
 import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../plan/sablon-uyarla.js'
+import { BENZERLIK_TAVANI, gecmisUretimler, ozgunlukDenetle } from '../plan/ozgunluk.js'
 import { ritimTuttuMu, sablonSec } from '../plan/sablon-sec.js'
 import { konuSecPromptu, konuSecimiCozumle, type KonuAdayi } from '../plan/konu-sec.js'
 import { duzeltilebilir, duzeltmeIstemi, type DenetimKusuru } from '../plan/denetim-turu.js'
@@ -239,6 +240,13 @@ export const selectBody = (deps: SelectDeps): Verb =>
 
 // ── COMPOSE: SAF. Kayıtlar → belge modeli ───────────────────────────────────
 export interface ComposeDeps {
+  /**
+   * Depo kökü — özgünlük denetimi geçmiş koşuların defterini okuyor.
+   *
+   * ⚠ İsteğe bağlı: verilmezse denetim ATLANIYOR ve bu SESSİZ değil, `COMPOSE`un saf
+   * kalması gereken testlerde bilinçli. Üretim yolu (`uret.mjs`) her zaman veriyor.
+   */
+  readonly repoRoot?: string
   readonly tokenCss: string
   /** Marka fontları — base64 gömülü `@font-face` blokları (D-252). */
   readonly fontCss?: string
@@ -320,6 +328,47 @@ export const composeBody = (deps: ComposeDeps): Verb =>
       const birlesik = uyarla(ornek, uyarlamaCiktisi.uyarlama)
       if (!birlesik.ok)
         return err(hata('validation', 'ADAPTATION_REJECTED', ctx, { defects: birlesik.kusurlar }))
+
+      // ── ÖZGÜNLÜK (madde 6) ───────────────────────────────────────────────
+      //
+      // ⚠ ⚠ **BURADA, GÖRSELLERDEN ÖNCE.** Metin bu noktada tam ama henüz tek bir
+      // görsel üretilmedi. Tekrarı burada yakalamak bedava; `render`dan sonra
+      // yakalamak beş model çağrısı ve bir insan onayı harcandıktan sonra demek —
+      // R-90'ın JPEG dersiyle aynı aile.
+      // ⚠ Eşik ÖLÇÜLDÜ (`ozgunluk.ts` başındaki tabloya bak): 51 koşunun 1275 çifti
+      // karşılaştırıldı, 648 farklı-konu çiftinin en yükseği 0,222 ve eşik onun hemen
+      // üstünde. Yani bugüne kadar hiçbir özgün üretimi reddetmezdi.
+      // ⚠ Kapı KAPATILABİLİR: `ozgunluk: false` kısıtı geçen bir koşu denetlenmiyor.
+      // Aynı konuyu bilerek yeniden üretmek meşru bir istektir (bir kusuru düzeltmek
+      // için) ve kapı onu imkânsız kılmamalı — yalnız KAZAYLA olmasını engelliyor.
+      // ⚠ Kök verilmemişse denetim atlanıyor: saf `COMPOSE` testlerinin diske
+      // uzanması gerekmiyor ve uzanması onları kırılgan yapardı.
+      if (input.constraints['ozgunluk'] !== false && deps.repoRoot !== undefined) {
+        const kartMetni = uyarlamaCiktisi.uyarlama.kartlar
+          .flatMap((k) => [k.baslik, k.govde])
+          .filter((x): x is string => typeof x === 'string' && x !== '')
+          .join(' ')
+        // ⚠ Liste PLAN ANINDA donduruldu (`ozgunluk_gecmisi`): dizini burada taramak
+        // aynı planın iki zamanda farklı sonuç vermesi demekti (R-07).
+        const hamGecmis = input.constraints['ozgunluk_gecmisi']
+        const idler =
+          typeof hamGecmis === 'string' && hamGecmis !== ''
+            ? (JSON.parse(hamGecmis) as readonly string[])
+            : undefined
+        const o = ozgunlukDenetle(
+          { konu: konuAl(input), metin: kartMetni },
+          gecmisUretimler(deps.repoRoot, ctx.runId, idler)
+        )
+        if (!o.ozgun)
+          return err(
+            hata('validation', 'TEKRAR_URETIM', ctx, {
+              kural: o.kural,
+              eslesen: o.esleseN,
+              skor: o.skor,
+              tavan: BENZERLIK_TAVANI,
+            })
+          )
+      }
 
       // ⚠ ⚠ **GÖRSEL YUVAYA BURADA GİRİYOR ve ilk sürümde HİÇ GİRMİYORDU.** Gerçek koşu
       // on adımı geçti, `cloudflare-workers-ai` görseli ÜRETTİ, render dört slaydı
