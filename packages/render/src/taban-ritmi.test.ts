@@ -134,6 +134,10 @@ describe('taban çizgisi ızgarası', () => {
         Math.abs(kat - Math.round(kat)),
         `${id}: boşluk/taban = ${kat.toFixed(3)}`
       ).toBeLessThan(0.02)
-    })
+      // ⚠ ⚠ **TAVAN AÇIKÇA YAZILDI: TASARIM DEĞİL SAYAÇ.** Bu iddia her desteyi
+      // tarayıcıda tek tek açıyor ve render bu turda iki SAYFA ADIMI kazandı
+      // (`aksanAlaniOlcumu`, `okNisaniOlcumu`). Varsayılan 10 sn tavanda duran testler
+      // 10004 ms'te düştü — kırmızı olan tasarım değil, sayacın kendisiydi.
+    }, 60_000)
   }
 })

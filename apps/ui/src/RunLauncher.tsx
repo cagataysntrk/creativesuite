@@ -193,7 +193,17 @@ export const RunLauncher = ({
         setBaslatma({ ok: false, mesaj: 'sunucuya ulaşılamıyor' })
       }
     },
-    [hat, konu, sistemSecsin, baslayinca]
+    // ⚠ ⚠ **`sablon` VE `konuSecebilir` BURADA YOKTU — ŞABLON SEÇİMİ SESSİZCE
+    // YOK SAYILIYORDU.** Bağımlılık listesi eksik olunca `useCallback` ilk render'ın
+    // kapanışını saklıyor: kullanıcı menüden bir şablon seçiyor, DOM değeri değişiyor,
+    // ama isteğe giden `sablon` HEP `''` oluyordu. Panelden başlatılan her koşuda hat
+    // şablonu kendi seçiyordu ve kimse fark etmiyordu — çünkü çıktı yine geçerli bir
+    // karoseldi, sadece İSTENEN şablon değildi.
+    // ⚠ Playwright ile ölçüldü: menüde `memphis` seçiliyken giden gövde
+    // `"sablon":""`. DOM ile isteğin AYRIŞTIĞI yer tam olarak bu satırdı.
+    // ⚠ `konuSecebilir` de aynı listede yoktu: hat değişince konu-seçebilirliği
+    // değişiyor ama işleyici eski cevabı taşıyordu.
+    [hat, konu, sablon, sistemSecsin, konuSecebilir, baslayinca]
   )
 
   if (sonuc === null) return <p>plan kuruluyor…</p>

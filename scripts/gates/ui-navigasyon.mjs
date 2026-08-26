@@ -14,8 +14,13 @@
 
 import { readFileSync } from 'node:fs'
 
+// ⚠ ⚠ **KOMUT LİSTESİ ARTIK AYRI DOSYADA ve bu kapı onu App.tsx'te arıyordu.** Liste
+// bir VERİDİR; bileşen dosyasında dururken denetimini oraya bağlamak, DOM'a bağımlı bir
+// modülü içe aktarmayı gerektiriyordu (`window` bulunamadı). Taşındı; kapı iki dosyayı
+// birlikte okuyor — yönlendirme `App.tsx`te, komutlar `komutlar.ts`te.
 const YOL = 'apps/ui/src/App.tsx'
-const kaynak = readFileSync(YOL, 'utf8')
+const KOMUT_YOLU = 'apps/ui/src/komutlar.ts'
+const kaynak = readFileSync(YOL, 'utf8') + '\n' + readFileSync(KOMUT_YOLU, 'utf8')
 // Prettier ternary'leri satırlara böler; desenler tek satıra indirilmiş metinde aranır.
 const duz = kaynak.replace(/\s+/g, ' ')
 
@@ -50,7 +55,7 @@ for (const m of duz.matchAll(/setEkran\('([\w-]+)'\)/g)) eslemeler.set(`__dogrud
 // 4) KOMUTLAR listesi
 // Blok ORİJİNAL kaynaktan alınır: düzleştirilmiş metinde iç içe `]` karakterleri
 // (`anahtarlar: ['approve']`) listeyi erken kapatır ve kapı hiçbir komut görmez.
-const blok = /const KOMUTLAR[^=]*= \[\n([\s\S]*?)\n\]/.exec(kaynak)
+const blok = /(?:export )?const KOMUTLAR[^=]*= \[\n([\s\S]*?)\n\]/.exec(kaynak)
 if (blok === null) {
   hatalar.push(`${YOL}: KOMUTLAR listesi bulunamadı — kapı hiçbir şeyi denetlemiyor`)
 }

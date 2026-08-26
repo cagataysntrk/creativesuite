@@ -12,7 +12,7 @@
 // Kuyruk `derived/runs/*/manifest.json`dan beslenir. İkinci bir kaynak (ayrı bir kuyruk
 // tablosu) manifest'le ayrışabilirdi ve o an hangisinin doğru olduğu anlaşılmazdı.
 
-import { appendFileSync, existsSync, readdirSync } from 'node:fs'
+import { appendFileSync, existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { RUNS_DIR, costSummary, type HumanDecision, type RunManifest } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
@@ -31,6 +31,41 @@ export interface KuyrukSatiri {
   readonly tahminUstMikros: string
   /** Manifest kusurluysa çıktı zaten yayınlanamaz (D-155) — kuyrukta İŞARETLENİR. */
   readonly manifestSaglam: boolean
+  /**
+   * Hangi ŞABLON ve hangi KONU — onay verirken bakılan ilk iki şey.
+   *
+   * ⚠ ⚠ **KUYRUK YALNIZ KİMLİK GÖSTERİYORDU ve bu bir gözden geçirmeyi imkânsız
+   * kılıyor.** Depo sahibi on üretimi "tek tek hangisi nasıl olmuş" diye inceleyecekti;
+   * satırlarda `run_01a03c51` gibi kimliklerden başka bir şey yoktu. Hangi şablonun
+   * hangi konuyu ürettiğini görmek için her koşuyu TEK TEK açmak gerekiyordu.
+   * ⚠ İkisi de zaten diskte duruyor (`kosu-parametreleri.json`); eksik olan taşıma.
+   */
+  readonly sablon: string | null
+  readonly konu: string | null
+}
+
+/**
+ * Koşunun ŞABLONU ve KONUSU — çalıştırma parametrelerinden.
+ *
+ * ⚠ Dosya yoksa ya da bozuksa satır yine dönüyor: bir gözden geçirme kolaylığı,
+ * kuyruğun kendisini düşürmemeli.
+ */
+const kosuBilgisi = (
+  repoRoot: string,
+  runId: string
+): { readonly sablon: string | null; readonly konu: string | null } => {
+  try {
+    const yol = join(repoRoot, RUNS_DIR, runId, 'kosu-parametreleri.json')
+    if (!existsSync(yol)) return { sablon: null, konu: null }
+    const p = JSON.parse(readFileSync(yol, 'utf8')) as Record<string, unknown>
+    const al = (k: string): string | null => {
+      const v = p[k]
+      return typeof v === 'string' && v.trim() !== '' ? v : null
+    }
+    return { sablon: al('sablon'), konu: al('topic') }
+  } catch {
+    return { sablon: null, konu: null }
+  }
 }
 
 const manifestler = (repoRoot: string): readonly RunManifest[] => {
@@ -71,6 +106,7 @@ export const bekleyenler = (repoRoot: string): readonly KuyrukSatiri[] => {
       harcananMikros: c.actual.micros.toString(),
       tahminUstMikros: c.estimatedHigh.micros.toString(),
       manifestSaglam: /^[0-9a-f]{40}$/.test(m.corpusCommit),
+      ...kosuBilgisi(repoRoot, m.runId),
     })
   }
   // ⚠ ⚠ **SUNUCU EN ESKİYİ ÖNCE VERİR ve bu bir kuyruk sözleşmesidir:** bekleyen iş

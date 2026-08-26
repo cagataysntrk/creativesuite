@@ -19,6 +19,9 @@ interface Satir {
   readonly harcananMikros: string
   readonly tahminUstMikros: string
   readonly manifestSaglam: boolean
+  /** Hangi şablon ve hangi konu — sunucudan geliyor, gözden geçirmenin ilk iki sorusu. */
+  readonly sablon: string | null
+  readonly konu: string | null
 }
 
 /**
@@ -298,6 +301,12 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
               <th aria-label="seçim" />
               <th>çalıştırma</th>
               <th>hat</th>
+              {/* ⚠ ⚠ **ŞABLON VE KONU: onay verirken bakılan İLK İKİ ŞEY.** Kuyruk
+                  yalnız `run_01a03c51` gibi kimlikler gösteriyordu; on üretimi "hangisi
+                  nasıl olmuş" diye gözden geçirmek için her satırı TEK TEK açmak
+                  gerekiyordu. İkisi de zaten diskte duruyordu, eksik olan taşımaydı. */}
+              <th>şablon</th>
+              <th>konu</th>
               <th>aşama</th>
               <th>tarih</th>
               <th>bekleme</th>
@@ -332,6 +341,10 @@ export const OnayKuyrugu = ({ sira = 'eski', ac }: OnayKuyruguOzellik = {}): Rea
                 </td>
                 <td className="olcum">{r.runId.slice(0, 12)}</td>
                 <td>{r.pipeline}</td>
+                <td className="olcum">{r.sablon ?? '—'}</td>
+                {/* ⚠ Konu KIRPILMIYOR, sarılıyor: kırpılan bir konu, iki koşuyu
+                    birbirinden ayırmaya yetmeyebilir ve gözden geçirme o ayrımdır. */}
+                <td style={{ maxWidth: '22rem' }}>{r.konu ?? '—'}</td>
                 <td>
                   <Asama kapi={r.gate} />
                 </td>

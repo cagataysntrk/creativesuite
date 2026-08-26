@@ -10,6 +10,7 @@ import { Palet } from './Palet.js'
 import { CorpusTarayici } from './CorpusTarayici.js'
 import { BaglamOnizleme } from './BaglamOnizleme.js'
 import { RunLauncher } from './RunLauncher.js'
+import { KOMUTLAR, URETIM_KOMUTLARI } from './komutlar.js'
 import { OnayKuyrugu } from './OnayKuyrugu.js'
 import { OnayBolumleri } from './OnayBolumleri.js'
 import { Giris } from './Giris.js'
@@ -26,61 +27,6 @@ import { Doktor } from './Doktor.js'
 import { KanalDurumu } from './KanalDurumu.js'
 import { PerformansPanosu } from './PerformansPanosu.js'
 import { UyumPanosu } from './UyumPanosu.js'
-import type { Komut } from './palet.js'
-
-// Komutlar SUNUCUDAN gelecek (registry'den, FAZ-4.6). Şimdilik iskelet: elle
-// bakımlanan bir liste ilk yeni pipeline'da bayatlar ve bu dosya o bayatlığın
-// yaşayacağı tek yer — o yüzden burada duruyor, bileşenin içine gömülmüyor.
-const KOMUTLAR: readonly Komut[] = [
-  { id: 'instagram-post', etiket: 'Instagram postu üret', grup: 'Üretim' },
-  { id: 'instagram-carousel', etiket: 'Instagram carousel üret', grup: 'Üretim' },
-  { id: 'linkedin-post', etiket: 'LinkedIn postu üret', grup: 'Üretim' },
-  { id: 'onay-kuyrugu', etiket: 'Onay kuyruğu', grup: 'Gözden geçir', anahtarlar: ['approve'] },
-  { id: 'corpus', etiket: 'Corpus tarayıcı', grup: 'Bilgi', anahtarlar: ['kayit', 'records'] },
-  { id: 'baglam', etiket: 'Bağlam önizleme', grup: 'Bilgi', anahtarlar: ['context', 'prompt'] },
-  { id: 'calistir', etiket: 'Çalıştır', grup: 'Üretim', anahtarlar: ['run', 'launch', 'plan'] },
-  {
-    id: 'yerlesim',
-    etiket: 'Yerleşim önizleme',
-    grup: 'Üretim',
-    anahtarlar: ['placement', 'safe'],
-  },
-  { id: 'kesif', etiket: 'Keşif / mutabakat', grup: 'Bilgi', anahtarlar: ['discovery', 'era'] },
-  { id: 'sema', etiket: 'Şema editörü', grup: 'Bilgi', anahtarlar: ['schema', 'tip', 'alan'] },
-  { id: 'butce', etiket: 'Maliyet ve bütçe', grup: 'Gözden geçir', anahtarlar: ['cost', 'tavan'] },
-  { id: 'varliklar', etiket: 'Varlık kütüphanesi', grup: 'Gözden geçir', anahtarlar: ['asset'] },
-  { id: 'doktor', etiket: 'Doctor', grup: 'Gözden geçir', anahtarlar: ['doctor', 'saglik'] },
-  {
-    id: 'kanallar',
-    etiket: 'Yayın kuyruğu ve kanal durumu',
-    grup: 'Yayın',
-    anahtarlar: ['publish', 'queue', 'token', 'kota', 'oran'],
-  },
-  {
-    id: 'performans',
-    etiket: 'Performans panosu',
-    grup: 'Gözden geçir',
-    anahtarlar: ['performance', 'insight', 'hook', 'olcum'],
-  },
-  {
-    id: 'uyum',
-    etiket: 'Uyum panosu',
-    grup: 'Gözden geçir',
-    anahtarlar: ['compliance', 'ifsa', 'ai', 'yasal'],
-  },
-  {
-    id: 'saglik',
-    etiket: 'Strateji sağlığı',
-    grup: 'Gözden geçir',
-    anahtarlar: ['health', 'lint', 'curume', 'iddia'],
-  },
-  {
-    id: 'gecmis',
-    etiket: 'Çalıştırma geçmişi',
-    grup: 'Gözden geçir',
-    anahtarlar: ['run', 'history', 'koken', 'rerun', 'replay'],
-  },
-]
 
 /**
  * Komut → ekran. **Tablo, iç içe ternary DEĞİL.**
@@ -124,13 +70,6 @@ const NAV: readonly (readonly [Ekran, string])[] = [
   ['doktor', 'Doktor'],
 ]
 
-/** Bir hattı çalıştıran komutlar — ekran açmaz, launcher'ı O hatla açar. */
-const URETIM_KOMUTLARI: ReadonlySet<string> = new Set([
-  'instagram-post',
-  'instagram-carousel',
-  'linkedin-post',
-])
-
 // Nabız aralığı SUNUCUDAN öğrenilir. Buraya bir sabit yazmak, sunucu nabzını
 // değiştirdiği gün UI'ın sessizce yanlış ölçmesi demekti (iki gerçek).
 // Öğrenene kadarki varsayılan yalnız bir başlangıç değeri.
@@ -148,7 +87,12 @@ export const App = (): React.JSX.Element => {
   // komutun adı ile açtığı şey ayrışırdı.
   const [pipeline, setPipeline] = useState(() => {
     const a = adresiCoz(window.location.hash)
-    return a.ekran === 'calistir' && a.arg !== null ? a.arg : 'instagram-post'
+    // ⚠ ⚠ **VARSAYILAN HAT `instagram-post` DEĞİL `instagram-karosel`.** Üret ekranı
+    // her açılışta yanlış hattın planını gösteriyordu: kullanıcı on dört satırlık bir
+    // tabloyu okuyup en altta türü değiştirmek zorundaydı — ve değiştirmeyi unutan
+    // YANLIŞ HATLA üretirdi. Bu deponun bugünkü üretim yolu karosel (D-268); varsayılan
+    // da o olmalı.
+    return a.ekran === 'calistir' && a.arg !== null ? a.arg : 'instagram-karosel'
   })
   const [nabizMs, setNabizMs] = useState(VARSAYILAN_NABIZ_MS)
   // ⚠ Açık koşu AYRI bir durum: ekran adı tek başına hangi koşunun açıldığını

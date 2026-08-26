@@ -1051,13 +1051,24 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const tasinan: string[] = []
     for (const d of hedefler) {
       if (!/^[0-9a-f]{64}$/.test(d)) continue
-      const kaynak = join(o.repoRoot, 'derived/blobs', d.slice(0, 2), `${d}.png`)
-      if (!existsSync(kaynak)) continue
+      // ⚠ ⚠ **BU UÇ DA UZANTI VARSAYIYORDU — ve ders komşu fonksiyona geçmemişti.**
+      // `/api/varlik/:digest` aynı hatayı taşıyordu ve düzeltildi: depoda 248 png ile
+      // birlikte jpg de var. Burada sonuç daha sinsi: `existsSync` false dönünce
+      // `continue` ediliyor, yani JPEG varlık SESSİZCE karantinaya alınmıyor —
+      // "taşındı" listesi kısa döner ve kimse fark etmez.
+      // ⚠ Bu deponun tekrar eden sınıfı: bir dosyaya yazılmış ders komşu alana geçmiyor.
+      const dizin = join(o.repoRoot, 'derived/blobs', d.slice(0, 2))
+      if (!existsSync(dizin)) continue
+      const dosyaAdi = readdirSync(dizin).find(
+        (f) => f.startsWith(`${d}.`) && !f.endsWith('.meta.json')
+      )
+      if (dosyaAdi === undefined) continue
+      const kaynak = join(dizin, dosyaAdi)
       const hedefDizin = join(o.repoRoot, 'derived/karantina', d.slice(0, 2))
       mkdirSync(hedefDizin, { recursive: true })
-      renameSync(kaynak, join(hedefDizin, `${d}.png`))
+      renameSync(kaynak, join(hedefDizin, dosyaAdi))
       const meta = `${kaynak}.meta.json`
-      if (existsSync(meta)) renameSync(meta, join(hedefDizin, `${d}.png.meta.json`))
+      if (existsSync(meta)) renameSync(meta, join(hedefDizin, `${dosyaAdi}.meta.json`))
       tasinan.push(d)
     }
     // ⚠ Gerekçe DEFTERE yazılıyor, bir alan güncellenmiyor: karantina bir OLAY ve

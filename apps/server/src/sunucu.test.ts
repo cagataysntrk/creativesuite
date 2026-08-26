@@ -490,6 +490,37 @@ describe('varlık byte ucu', () => {
     }
   })
 
+  // ⚠ ⚠ **KARANTİNA DA UZANTI VARSAYIYORDU ve sonucu daha SİNSİYDİ.** Varlık ucu
+  // 404 veriyordu — görünür bir arıza. Karantina ucu ise dosyayı bulamayınca `continue`
+  // ediyor: JPEG varlık SESSİZCE karantinaya alınmıyor, "taşındı" listesi kısa dönüyor
+  // ve kimse fark etmiyor. Aynı ders iki komşu fonksiyondan yalnız birine yazılmıştı.
+  it('jpg varlık da KARANTİNAYA alınıyor — sessizce atlanmıyor', async () => {
+    const { kok, digest } = kurBlob('.jpg', 'BYTE')
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const r = await s.app.request('/api/varliklar/karantina', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ digests: [`sha256:${digest}`], sebep: 'deneme' }),
+      })
+      expect(r.status).toBe(200)
+      // ⚠ Uç SAYI döndürüyor, liste değil: sözleşmeyi okumadan yazılan bir iddia,
+      // ölçtüğünü sandığı şeyi ölçmez (ilk yazımda boş liste bekledim ve kapı kendi
+      // hatamı gösterdi).
+      const j = (await r.json()) as { tasinan?: number }
+      expect(j.tasinan ?? 0, 'jpg varlık sessizce atlandı').toBe(1)
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
   // ⚠ Kapı boşa dönmesin: olmayan bir digest GERÇEKTEN 404 vermeli. Aksi hâlde
   // yukarıdaki üç yeşil, ucun her şeye 200 döndürmesinden de gelebilirdi.
   it('olmayan varlık 404 veriyor', async () => {
