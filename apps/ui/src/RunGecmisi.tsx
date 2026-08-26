@@ -12,7 +12,6 @@
 
 import { useEffect, useState } from 'react'
 import { GonderiKutusu } from './GonderiKutusu.js'
-import { PAYLASIM_OLCUSU } from './VarlikKutuphanesi.js'
 import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 import { usdBicimle } from './baglanti.js'
 
@@ -29,6 +28,18 @@ import { usdBicimle } from './baglanti.js'
  * listesi üzerine kursaydım 216 koşu sessizce düşerdi. O yüzden taban KOŞU listesi ve
  * varlıklar ona EKLENİYOR: varlığı olmayan koşu yerinde duruyor, "henüz varlık yok" der.
  */
+/**
+ * Paylaşımın ZORUNLU ölçüsü — depo sahibinin kuralı.
+ *
+ * ⚠ Sunucudaki `VARSAYILAN_TUVAL`den TÜRETİLMİYOR ve bu bilinçli: burası tarayıcı katmanı
+ * ve `@suite/contracts`i import etmesi `rings` kapısına takılıyor. Sayı iki yerde yazılı
+ * olduğu için `paylasim-olcusu` kapısı ikisinin AYNI kaldığını sınıyor.
+ *
+ * ⚠ Eski `VarlikKutuphanesi.tsx`ten BURAYA taşındı: o ekran birleşme sonrası kaldırıldı
+ * ve sabit onunla birlikte kaybolacaktı.
+ */
+const PAYLASIM_OLCUSU = '1080x1440'
+
 interface Varlik {
   readonly digest: string
   readonly sourceRunId: string

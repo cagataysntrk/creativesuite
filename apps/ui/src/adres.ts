@@ -17,7 +17,6 @@ export type Ekran =
   | 'kesif'
   | 'sema'
   | 'butce'
-  | 'varliklar'
   // Yayın akışı: hazır · planlanmış · geçmiş (madde 5).
   | 'yayin-akisi'
   | 'gecmis'
@@ -45,7 +44,6 @@ const EKRANLAR = [
   'kesif',
   'sema',
   'butce',
-  'varliklar',
   'yayin-akisi',
   'gecmis',
   'saglik',

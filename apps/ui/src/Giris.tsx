@@ -43,7 +43,7 @@ export function Giris({
   ekranaGit,
 }: {
   readonly ac: (runId: string) => void
-  readonly ekranaGit: (ekran: 'kuyruk' | 'calistir' | 'varliklar') => void
+  readonly ekranaGit: (ekran: 'kuyruk' | 'calistir' | 'gecmis') => void
 }): React.JSX.Element {
   const [bekleyenler, setBekleyenler] = useState<readonly Bekleyen[] | null>(null)
   const [varliklar, setVarliklar] = useState<readonly Varlik[]>([])
@@ -103,7 +103,7 @@ export function Giris({
           <strong>{bayat}</strong>
           <span>bayat — bir günden eski</span>
         </button>
-        <button type="button" onClick={() => ekranaGit('varliklar')}>
+        <button type="button" onClick={() => ekranaGit('gecmis')}>
           <strong>{varliklar.length}</strong>
           <span>üretilmiş varlık</span>
         </button>

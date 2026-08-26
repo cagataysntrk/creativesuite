@@ -32,7 +32,6 @@ export const KOMUTLAR: readonly Komut[] = [
   { id: 'kesif', etiket: 'Keşif / mutabakat', grup: 'Bilgi', anahtarlar: ['discovery', 'era'] },
   { id: 'sema', etiket: 'Şema editörü', grup: 'Bilgi', anahtarlar: ['schema', 'tip', 'alan'] },
   { id: 'butce', etiket: 'Maliyet ve bütçe', grup: 'Gözden geçir', anahtarlar: ['cost', 'tavan'] },
-  { id: 'varliklar', etiket: 'Varlık kütüphanesi', grup: 'Gözden geçir', anahtarlar: ['asset'] },
   {
     id: 'yayin-akisi',
     etiket: 'Yayın akışı — takvim, hazır ve geçmiş',

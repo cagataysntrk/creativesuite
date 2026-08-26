@@ -12,7 +12,6 @@ const ile = (hash: string): ReturnType<typeof adresiCoz> => adresiCoz(hash)
 describe('adres → ekran', () => {
   it('bilinen ekran adı çözülüyor', () => {
     expect(ile('#/gecmis').ekran).toBe('gecmis')
-    expect(ile('#/varliklar').ekran).toBe('varliklar')
   })
 
   it('koşu adresi KİMLİĞİ taşıyor', () => {

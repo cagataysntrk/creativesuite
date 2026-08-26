@@ -20,7 +20,6 @@ import { YerlesimEkrani } from './YerlesimEkrani.js'
 import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
 import { ButceEkrani } from './ButceEkrani.js'
-import { VarlikKutuphanesi } from './VarlikKutuphanesi.js'
 import { YayinAkisi } from './YayinAkisi.js'
 import { RunGecmisi } from './RunGecmisi.js'
 import { StratejiSagligi } from './StratejiSagligi.js'
@@ -46,7 +45,6 @@ const EKRAN: Readonly<Record<string, Ekran>> = {
   kesif: 'kesif',
   sema: 'sema',
   butce: 'butce',
-  varliklar: 'varliklar',
   'yayin-akisi': 'yayin-akisi',
   gecmis: 'gecmis',
   saglik: 'saglik',
@@ -253,8 +251,6 @@ export const App = (): React.JSX.Element => {
           <SemaEkrani />
         ) : ekran === 'butce' ? (
           <ButceEkrani />
-        ) : ekran === 'varliklar' ? (
-          <VarlikKutuphanesi ac={kosuAc} />
         ) : ekran === 'yayin-akisi' ? (
           <YayinAkisi />
         ) : ekran === 'gecmis' ? (

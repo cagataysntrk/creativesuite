@@ -188,7 +188,11 @@ onayla, **fareye hiç dokunmadan** · Tailscale üzerinden telefondan onay ·
 🛠 FTS5 arama · **"premium üretildi ama hiç yayınlanmadı"** filtresi (para harcanmış,
    değer alınmamış) · **Reuse birinci sınıf eylem** — benzer bir iş geldiğinde LLM'i
    yeniden çalıştırmak yerine IR'ı kopyalayıp düzenlemek hem ucuz hem tutarlı.
-📁 `apps/ui/src/VarlikKutuphanesi.tsx` · `apps/server/src/kutuphane.ts`
+📁 `apps/ui/src/RunGecmisi.tsx` · `apps/server/src/kutuphane.ts`
+   ⚠ Ekran FAZ-19.13'te **koşu ekranıyla BİRLEŞTİ** (`VarlikKutuphanesi.tsx` kaldırıldı):
+   iki ekran aynı şeyin iki yüzüydü ve ikisini eşit tutmak sürekli bir emekti. Bu adımın
+   yetenekleri — süzgeçler, karantina, ölçü denetimi, slayt önizlemesi, elle düzenlenmiş
+   sürüm — birleşik ekranda **kart görünümünde** duruyor.
 ✅ Gerçek repo: **0 varlık · 14 karantinada** (listeye girmiyor, sayılıyor) · yayın
    defteri yok → "yayınlanmadı" ölçüm DEĞİL varsayım, ayrıca bildiriliyor · Reuse
    manifest ister (404) · Türkçe arama `foldForSearch` ile · 9 test

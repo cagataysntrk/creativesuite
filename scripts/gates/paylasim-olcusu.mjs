@@ -27,7 +27,8 @@ const oku = (yol) => {
 }
 
 const sozlesme = oku('packages/contracts/src/placement.ts')
-const panel = oku('apps/ui/src/VarlikKutuphanesi.tsx')
+// ⚠ Varlık ekranı koşu ekranıyla BİRLEŞTİ (FAZ-19.13); sabit oraya taşındı.
+const panel = oku('apps/ui/src/RunGecmisi.tsx')
 
 // ── 1: sözleşmedeki varsayılan hangi tuval ──────────────────────────────────
 const hangi = /export const VARSAYILAN_TUVAL = (TUVAL_[\w]+)/.exec(sozlesme)?.[1]

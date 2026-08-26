@@ -40,7 +40,6 @@ const EKRANLAR = [
   'kesif',
   'sema',
   'butce',
-  'varliklar',
   'yayin-akisi',
   'gecmis',
   'saglik',
