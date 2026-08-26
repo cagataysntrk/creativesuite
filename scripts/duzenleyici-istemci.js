@@ -321,6 +321,89 @@ function mufettisiKur(doc) {
     kok.appendChild(el('modelden üret', istem))
     kok.appendChild(uret)
 
+    // ⚠ ⚠ **WEBDEN TASARIM ÖGESİ — FOTOĞRAF DEĞİL.** Depo sahibi: *"fotoğraf değil
+    // görsel ögeler ikon svg tasarım vs alakalı şeyler… bir görsel yuvasına tıklayıp
+    // webden ara denip aranabilecek"*. Sonuçlar Iconify'dan: açık kaynak setler ve
+    // SVG, yani doğası gereği arkaplansız ve çerçevesiz.
+    // ⚠ ⚠ **ÖNİZLEME `<img>` İLE YÜKLENİYOR ve bu bir GÜVENLİK kararı.** Uzak SVG
+    // `<script>` taşıyabilir; `innerHTML` ile gömseydik editöre betik enjeksiyonu
+    // açardık. Tarayıcı `<img>` bağlamında SVG betiğini çalıştırmaz. Yuvaya konan şey
+    // ise SVG bile değil — sunucuda temizlenip rasterlenmiş saydam PNG.
+    const sorgu = document.createElement('input')
+    sorgu.type = 'search'
+    sorgu.placeholder = 'ingilizce ara: recycle, gear, conveyor, chart…'
+    sorgu.style.inlineSize = '100%'
+    const genis = document.createElement('input')
+    genis.type = 'checkbox'
+    // ⚠ Süzgeç VARSAYILAN AÇIK: şablonun havasına yakın setler önce geliyor
+    // (*"her şablonun kendi havasına temasına uygun"*). Ama bir YARGI olduğu için
+    // kapatılabiliyor — yargıyı duvara çevirmek bu depoda defalarca geri tepti.
+    const izgara = document.createElement('div')
+    izgara.style.cssText =
+      'display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-block-start:6px'
+    // Rampadan renk: serbest hex YOK (R-35). Boş = ögenin kendi rengi.
+    let seciliRenk = ''
+    kok.appendChild(secim('öge rengi (rampadan)', '', ['', ...rampa], (v) => (seciliRenk = v)))
+
+    const koy = async (o) => {
+      mesaj('… ' + o.tam + ' rasterleniyor')
+      const r = await fetch('/gorsel-ara-koy?id=' + id, {
+        method: 'POST',
+        body: JSON.stringify({ i: secili.i, renk: seciliRenk, ...o }),
+      })
+      mesaj(await r.text())
+      await cek()
+    }
+    const arama = async () => {
+      const q = sorgu.value.trim()
+      if (q === '') return mesaj('✗ sorgu boş')
+      izgara.replaceChildren()
+      mesaj('… webde aranıyor')
+      const r = await fetch('/gorsel-ara?id=' + id, {
+        method: 'POST',
+        body: JSON.stringify({ q, tumSetler: genis.checked }),
+      })
+      const j = await r.json()
+      if (j.ok !== true) return mesaj('✗ ' + (j.hata ?? 'arama başarısız'))
+      for (const o of j.ogeler) {
+        const d = document.createElement('button')
+        d.style.cssText =
+          'padding:4px;background:#1c1f26;border:1px solid var(--kenar);border-radius:6px;cursor:pointer'
+        const im = document.createElement('img')
+        // ⚠ Doğrudan Iconify'dan, `<img>` içinde — betik çalışmaz. Önizleme rengi
+        // editörün kendi metin rengi: koyu tezgâhta siyah ikon görünmezdi.
+        im.src =
+          'https://api.iconify.design/' + o.tam.replace(':', '/') + '.svg?height=40&color=%23e6e8ec'
+        im.width = 40
+        im.height = 40
+        im.loading = 'lazy'
+        d.appendChild(im)
+        d.title =
+          o.setAdi + ' · ' + o.ad + '\nlisans: ' + o.lisans + (o.yazar ? ' · ' + o.yazar : '')
+        d.onclick = () => void koy(o)
+        izgara.appendChild(d)
+      }
+      mesaj(
+        '✓ ' +
+          j.ogeler.length +
+          '/' +
+          j.toplam +
+          ' sonuç' +
+          (j.suzgec.length > 0 ? ' · süzgeç: ' + j.suzgec.join(', ') : ' · süzgeç yok') +
+          ' — birine tıkla, yuvaya insin'
+      )
+    }
+    sorgu.onkeydown = (ev) => {
+      if (ev.key === 'Enter') void arama()
+    }
+    const arabtn = document.createElement('button')
+    arabtn.textContent = '🔎 webden ara'
+    arabtn.onclick = () => void arama()
+    kok.appendChild(el('webden tasarım ögesi (ikon · SVG)', sorgu))
+    kok.appendChild(el('şablon havası dışına da bak', genis))
+    kok.appendChild(arabtn)
+    kok.appendChild(izgara)
+
     // ⚠ ⚠ **GÖRSELİ SİLME YOKTU.** Metin ögesinin silme düğmesi vardı, görselinki
     // yoktu: beğenilmeyen bir görseli kaldırmanın tek yolu üstüne başkasını üretmekti.
     // Boş yuva YER TUTUCU çiziyor ve bu dürüst: eksik olan görünüyor.

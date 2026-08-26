@@ -42,6 +42,14 @@ const { adapterById, loadDescriptors, saglayiciOrtami } = await import(
   join(REPO, 'packages/providers/dist/index.js')
 )
 const { readEnv } = await import(join(REPO, 'packages/kernel/dist/index.js'))
+// ⚠ ⚠ **WEBDEN TASARIM ÖGESİ ARAMA — HATTA DEĞİL, EDİTÖRE.** Depo sahibi: *"üretim
+// hattında otomatik olmayacak yani bir görsel yuvasına tıklayıp webden ara denip
+// aranabilecek"*. Hat deterministik kalıyor; dış kaynak yalnız insanın tıkladığı anda
+// giriyor. Gerekçenin tamamı modülün başında.
+const webAra = await import(join(REPO, 'scripts/duzenleyici-web-ara.mjs'))
+// ⚠ Chromium TEK yerden açılıyor (`chokepoints.json` → `chromium-baslatan`): rasterleme
+// `withPage`i ödünç alıyor, kendi `chromium.launch()`unu YAZMIYOR (R-30).
+const { withPage } = await import(join(REPO, 'packages/render/dist/browser.js'))
 const { descriptors: TANIMLAYICILAR } = loadDescriptors(join(REPO, 'registry/providers'))
 const SAGLAYICI_ORTAMI = saglayiciOrtami(TANIMLAYICILAR, readEnv, ['CF_ACCOUNT_ID'])
 
@@ -547,6 +555,15 @@ const anlikGoruntuAl = (id) => {
   // "ileri" düğmesine basınca beklenmedik bir duruma atlamak demekti.
   ileriYigin[id] = []
 }
+// ⚠ ⚠ **ROL LİSTESİ TEK YERDEN — iki okuyucu var ve ikisi AYNI listeyi görmek zorunda.**
+// `/rampa` onu ekrana koyuyor, `/gorsel-ara-koy` gelen rengin gerçekten var olduğunu
+// sınıyor. İkisi ayrı yazılsaydı biri güncellenir öteki unutulurdu ve editör var olmayan
+// bir rolü seçenek diye sunardı.
+const rampaRolleri = () => {
+  const kreatif = /\[data-surface='kreatif'\]\s*\{([^}]*)\}/.exec(tokenCss)?.[1] ?? ''
+  return [...kreatif.matchAll(/(--role-[\w-]+)\s*:/g)].map((m) => m[1])
+}
+
 const sunucu = createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x')
   // ⚠ Her istekte yeniden taranıyor: editör açıkken üretilen koşu da listeye girsin.
@@ -570,11 +587,7 @@ const sunucu = createServer(async (req, res) => {
     // çarpmadan ÖNCE engellemek daha iyi: editör yalnız var olan rolleri sunuyor.
     // Liste türetilmiş token dosyasından OKUNUYOR, elle yazılmıyor; marka paleti
     // değişince editör kendiliğinden güncelleniyor.
-    if (u.pathname === '/rampa') {
-      const kreatif = /\[data-surface='kreatif'\]\s*\{([^}]*)\}/.exec(tokenCss)?.[1] ?? ''
-      const roller = [...kreatif.matchAll(/(--role-[\w-]+)\s*:/g)].map((m) => m[1])
-      return json(roller.map((r) => 'var(' + r + ')'))
-    }
+    if (u.pathname === '/rampa') return json(rampaRolleri().map((r) => 'var(' + r + ')'))
     if (u.pathname === '/pano')
       return json({
         html: panoramaHtml(belge(id)),
@@ -815,6 +828,129 @@ const sunucu = createServer(async (req, res) => {
       anlikGoruntuAl(id)
       calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + b64 }
       return res.end('✓ ' + (d.i + 1) + '. yuvaya üretildi → ' + ad)
+    }
+
+    // ── WEBDEN TASARIM ÖGESİ ARAMA (FAZ-19.11) ─────────────────────────────
+    //
+    // ⚠ ⚠ **ARAMA HATTIN İÇİNDE DEĞİL ve bu bilinçli.** *"üretim hattında otomatik
+    // olmayacak"* — hat aynı girdiye aynı çıktıyı vermeye devam ediyor. Dış kaynak
+    // yalnız burada, insanın tıkladığı anda giriyor.
+    // ⚠ Sonuç FOTOĞRAF değil TASARIM ÖGESİ: kaynak Iconify, 236 açık kaynak set ve
+    // sonuç SVG — yani doğası gereği arkaplansız ve çerçevesiz. Elenen kaynakların
+    // listesi (`svgrepo` 429 · `poly.pizza` anahtar istiyor · `openverse` fotoğraf
+    // getiriyor) modülün başında; bir daha denenmesin diye yazılı.
+    if (u.pathname === '/gorsel-ara') {
+      const d = JSON.parse(await govde(req))
+      const k = kaynak[id]
+      // ⚠ Havayı KOŞUNUN KENDİ defterinden okuyoruz, kullanıcıya sormuyoruz: hangi
+      // şablondan üretildiği zaten yazılı ve sormak onu yanlış cevaplama fırsatıdır.
+      let sablonId = ''
+      if (k?.tur === 'kosu') {
+        try {
+          sablonId =
+            JSON.parse(readFileSync(join(k.dizin, 'steps/sablon-uyarla.json'), 'utf8')).uyarlama
+              .sablonId ?? ''
+        } catch {
+          // Defteri okunamayan koşuda süzgeç yok — 236 setin hepsi aranır.
+        }
+      }
+      const r = await webAra.ara(String(d.q ?? ''), {
+        sablonId,
+        tumSetler: d.tumSetler === true,
+        adet: 24,
+      })
+      return json(r.ok ? { ...r, sablonId } : r)
+    }
+
+    // ── ARANAN ÖGEYİ YUVAYA KOYMA ──────────────────────────────────────────
+    //
+    // ⚠ ⚠ **SVG DEĞİL PNG YAZILIYOR.** Uzak SVG betik taşıyabilir; sunucu bu depoda
+    // `/api/varlik/:digest` yolunda `.svg` sunmayı zaten KASTEN reddediyor. Bayt
+    // sunucuda temizleniyor, sunucuda rasterleniyor ve yuvaya saydam PNG giriyor —
+    // aşağı akıştaki hiçbir yol (blob deposu, damgalama, panel) değişmiyor.
+    // ⚠ ⚠ **KIRPMA DA `kesik`E ÇEKİLİYOR ve bu ihmal edilseydi vaat SESSİZCE ÖLÜRDÜ.**
+    // Varsayılan `.gorsel` kuralı `object-fit: cover`; kare bir ikon 4:5 yuvada üstten
+    // ve alttan KIRPILIR. Yalnız `.gorsel.kesik` `contain` kullanıyor. Katalogda az önce
+    // düzeltilen hatanın (`kirpma: 'tam'` yazıp hattın onu hiç okumaması) aynısını
+    // burada yeniden üretmemek için beyan ile davranış tek işlemde bağlanıyor.
+    if (u.pathname === '/gorsel-ara-koy') {
+      const d = JSON.parse(await govde(req))
+      const k = kaynak[id]
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
+      if (k?.tur !== 'kosu')
+        return res.end(
+          '✗ şablona sabit görsel konmaz — o şablondan üretilecek HER karosel bu\n' +
+            '  ögeyi taşırdı (Yasa 13). Bir koşu seç ve oraya koy.'
+        )
+      const g = calisan[id].gorseller[d.i]
+      if (g === undefined) return res.end('✗ ' + (d.i + 1) + '. yuva yok')
+      // ⚠ Alan adı `tam`: ARAMA ÇIKTISININ alanı. İlk sürüm `ikon` okuyordu ve istemci
+      // sonucun tamamını yayıyordu (`...o`) — iki uç aynı nesneyi iki farklı adla
+      // bekleyince koyma sessizce *"ikon kimliği geçersiz: "* diyordu, BOŞ bir adla.
+      // Sözleşme tek yerden, arama ne veriyorsa koyma onu okur.
+      const tam = String(d.tam ?? d.ikon ?? '')
+      const s = await webAra.svgCek(tam)
+      if (!s.ok) return res.end('✗ ' + s.hata)
+      // ⚠ ⚠ **BİLİNMEYEN ROL SESSİZCE SİYAH ÇİZİYORDU — artık REDDEDİLİYOR.** Sınamada
+      // uydurma bir rol (`--role-kreatif-aksan`) yazıldı; `var()` çözülemedi, `color`
+      // geçersiz oldu ve iki farklı renkle konan iki ikon BİREBİR aynı baytı verdi.
+      // Sessiz düşüş bu depoda tekrar eden en pahalı sınıf: çıktıya bakmadan görülmüyor.
+      const istenenRenk = String(d.renk ?? '').trim()
+      const rolAdi = /^var\((--[\w-]+)\)$/.exec(istenenRenk)?.[1] ?? ''
+      if (istenenRenk !== '' && rolAdi === '')
+        return res.end('✗ renk yalnız rampadan seçilir, serbest değer yok (R-35): ' + istenenRenk)
+      if (rolAdi !== '' && !rampaRolleri().includes(rolAdi))
+        return res.end(
+          '✗ rampada böyle bir rol yok: ' + rolAdi + '\n  var olanlar: ' + rampaRolleri().join(', ')
+        )
+      const seciliRol = istenenRenk
+      const p = await webAra.pngYap(s.svg, {
+        genislik: 1024,
+        yukseklik: 1024,
+        // ⚠ Renk RAMPADAN geliyor, serbest hex DEĞİL (R-35). İkon `currentColor`
+        // kullanıyor, sayfa token CSS'ini taşıyor; ara bir hex dönüşümü yok.
+        renk: seciliRol,
+        tokenCss,
+        withPage,
+      })
+      if (!p.ok) return res.end('✗ ' + p.hata)
+      const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'
+      writeFileSync(join(k.dizin, ad), Buffer.from(p.b64, 'base64'))
+      // ⚠ ⚠ **NEREDEN GELDİĞİ AYNI ANDA YAZILIYOR — sonradan retrofit imkânsız (Yasa 7).**
+      // §17 bu depoda bir sesi *"ticari lisansı YOK"* diye reddetti; bir varlığın
+      // lisansı, varlık yuvaya girerken bilinmiyorsa altı ay sonra hiç bilinmeyecek.
+      writeFileSync(
+        join(k.dizin, ad.replace(/\.png$/, '.kaynak.json')),
+        JSON.stringify(
+          {
+            ikon: tam,
+            set: String(d.set ?? ''),
+            lisans: String(d.lisans ?? ''),
+            spdx: String(d.spdx ?? ''),
+            lisansUrl: String(d.lisansUrl ?? ''),
+            yazar: String(d.yazar ?? ''),
+            kaynakUrl: String(d.kaynakUrl ?? ''),
+            saglayici: 'iconify',
+          },
+          null,
+          2
+        ) + '\n'
+      )
+      anlikGoruntuAl(id)
+      calisan[id].gorseller[d.i] = {
+        ...g,
+        src: 'data:image/png;base64,' + p.b64,
+        kirpma: 'kesik',
+      }
+      return res.end(
+        '✓ ' +
+          tam +
+          ' → ' +
+          ad +
+          '\n  lisans: ' +
+          String(d.lisans ?? '?') +
+          ' · kırpma `kesik`e çekildi (yoksa kare öge 4:5 yuvada kırpılırdı)'
+      )
     }
 
     // ── DIŞA AKTARMA: editörden de (FAZ-17.3) ──────────────────────────────

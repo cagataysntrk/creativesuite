@@ -431,24 +431,36 @@ export const DONEN: KatalogSablonu = {
  */
 export const EDITORYAL: KatalogSablonu = {
   id: 'editoryal',
-  ad: 'Editoryal — tam kaplama fotoğraf, minik zarif tipografi',
+  ad: 'Editoryal — tam kaplama 3B nesne bandı, minik zarif tipografi',
   kaynak: 'ornek-4',
   slayt: { min: 3, max: 6 },
   zemin: KAGIT,
   rotasyon: [],
   bant: {
-    // ⚠ Fotoğraf bu şablonda kesim taşıyıcısı OLAMIYOR: yan yana kolon düzeninde
-    // kesimi aşan fotoğraf komşu kartın metnine giriyor (R-84). Taşıyıcı alan sınırı.
+    // ⚠ Görsel bu şablonda kesim taşıyıcısı OLAMIYOR: yan yana kolon düzeninde
+    // kesimi aşan görsel komşu kartın metnine giriyor (R-84). Taşıyıcı alan sınırı.
     tip: 'alan',
     aciklama:
-      'Süreklilik fotoğrafın kendisinden: tam kaplama görsel kesimi aşarak sonraki ' +
-      'slayda devam ediyor. Çizgi ya da desen yok — boşluk ve fotoğraf yetiyor.',
+      'Süreklilik görselin kendisinden: tam kaplama nesne kesimi aşarak sonraki ' +
+      'slayda devam ediyor. Çizgi ya da desen yok — boşluk ve nesne yetiyor.',
   },
   gorsel: {
     // ⚠ **2 → 3: BEYAN BAYATTI, ÖRNEK ÜÇ ŞERİT ÇİZİYOR.** `adet`i üretimde hiç kimse
     // okumuyordu (aranıp bulundu: tek okuyan `kirpma`ydı); sayıyı `ORNEKLER`in yuva
     // adedi sürüyor. Beyan bir şey bağlamayınca sessizce kaymıştı. → R-110
     adet: 3,
+    // ⚠ ⚠ **`tam` KALIYOR ve bu bir ÖLÇÜMLE karara bağlandı — ilk teşhisim YANLIŞTI.**
+    // Depo sahibi *"editoryalde arkaplan vs duruyor"* dedi; koşunun üç görseline
+    // bakınca konveyör düz bir giyotinle bitiyordu, eller bilekten kopuyordu. Bunu
+    // `kirpma: 'tam'`ın hat tarafından okunmamasına bağladım ve `kesik`e çektim.
+    // ⚠ İki hata birden: (1) `kirpma` arka plan SİLMEYİ değil, YERLEŞİMİ tarif ediyor
+    // (`object-fit`) ve onu okuyan render, motor değil — yani beyan zaten yerinde
+    // okunuyordu. (2) `kesik` bu şablonda ZARAR veriyor: gerçek bir kesik 3B nesneyle
+    // iki hâl yan yana çizildi; `contain` nesneyi şeridin dibine büzüyor, dikey bant
+    // yok oluyor ve 4. kartta nesne kapanış metninin ÜSTÜNE biniyor.
+    // ⚠ ⚠ **KOPUK ELLERİN SEBEBİ BRIEF'Tİ, KIRPMA DEĞİL.** `rembg` fotoğrafik bir
+    // sahneden özneyi kesince geriye sahne PARÇASI kalıyor. Arkaplansız 3B nesneyle
+    // aynı `tam` yerleşimi tertemiz bir dikey bant veriyor — ölçüldü ve bakıldı.
     kirpma: 'tam',
     // ⚠ ⚠ **BURADA "typography" YAZIYORDU ve o kelime R-20 muhafızının YASAK
     // listesinde.** Brief'i yazan model talimattaki kelimeyi yankılar (bu depoda iki
@@ -456,22 +468,33 @@ export const EDITORYAL: KatalogSablonu = {
     // ile reddedilirdi. Boş bırakılan yarının NEDEN boş olduğunu söylemeye gerek yok:
     // brief kadrajı tarif eder, sayfanın geri kalanını değil.
     briefTemeli:
-      // ⚠ ⚠ **BU ŞABLON 3B'YE ÇEVRİLMİYOR ve sebebi KİMLİĞİ.** `editoryal`in tarifi
-      // *"tam kaplama fotoğraf"*; görseli bir nesne değil bir SAHNE ve tuval boyunca
-      // uzanan bir kolon şeridi. Kesik bir 3B nesneye çevirmek şablonu silerdi.
-      // ⚠ Ama `muted achromatic` buradan da kalktı: şikâyet monokromluktu, fotoğraf
-      // olması değil. Palet sakin kalıyor, tek sıcak nota giriyor.
-      'wide shot, single subject, one soft key light, matte finish, right half of the ' +
-      'frame left empty, restrained palette with a single warm amber note, every ' +
-      'surface in frame plain and unmarked',
+      // ⚠ ⚠ **ESKİDEN "BU ŞABLON 3B'YE ÇEVRİLMİYOR" YAZIYORDU — depo sahibi bozdu.**
+      // Gerekçe *"kimliği tam kaplama fotoğraf; kesik bir 3B nesneye çevirmek şablonu
+      // silerdi"* idi. Talimat açık geldi: *"kesinlikle arkaplansız ve çerçevesiz 3B
+      // görseller kullanılacak"*.
+      // ⚠ ⚠ **VE İKİSİ ÇELİŞMİYOR — çelişki sandığım şey bir VARSAYIMDI.** "Kesik 3B
+      // nesne" ile "tam kaplama" birbirini dışlamıyor: `sahne`nin brief'i zaten
+      // *"the object reaching past one edge of the frame"* diyor. Nesne yeterince
+      // büyükse kadrajı doldurur, kesimi aşar ve sürekliliği taşımaya devam eder.
+      // Şablonun kimliği KADRAJDA, öznenin fotoğraf olmasında değildi.
+      // ⚠ `muted achromatic` geri gelmiyor: şikâyet monokromluktu. Palet sakin kalıyor,
+      // tek sıcak nota giriyor — bu şablonun kâğıt zeminiyle akraba olan nota.
+      'a single large object rendered in 3d, bone white matte body with one warm ' +
+      'amber accent surface, plain solid black background free of gradient or ' +
+      'surface detail, one soft key light from above with gentle falloff, soft ' +
+      'contact shadow, every surface in frame plain and unmarked, no screens dials ' +
+      'or gauges, the object filling the frame and reaching past two of its edges',
     // ⚠ ⚠ **ÜÇ YUVA, ÜÇ VARYANT.** İki varyant kalsaydı üçüncü görsel adımının brief'i
     // BOŞ döner, adım atlanır ve üçüncü yuva yer tutucu kalırdı — ilan ile gerçek yine
     // ayrışırdı. `katalog-ornek.test.ts` artık eşitliği zorluyor.
-    // ⚠ Varyant KADRAJ söylüyor; "iki el" gibi bir ifade özneyi insana sabitliyordu.
+    // ⚠ ⚠ **VARYANT ARTIK SAHNE DEĞİL NESNE KADRAJI SÖYLÜYOR.** Eskiler *"iş nerede
+    // oluyorsa oranın yakın çekimi"*, *"omuz hizasından arkadan"* diyordu — üçü de bir
+    // MEKÂN tarif ediyor ve model haklı olarak insanlı bir sahne çiziyordu. Üçü de
+    // nesnenin kadrajı hangi kenardan aştığını söylüyor: taşıyıcı rol varyantta yaşar.
     varyantlar: [
-      'wide establishing view, calm natural light, matte surfaces',
-      'tight detail of the point where the work actually happens, natural light, matte surfaces',
-      'seen from behind at shoulder height, turning away from the camera, natural light, matte surfaces',
+      'seen from a low three quarter angle, rising past the upper edge of the frame',
+      'a tight view of the point where two of its parts meet, reaching past both side edges',
+      'seen from directly above, spreading past the left and lower edges of the frame',
     ],
   },
   baslikPayi: 0.38,

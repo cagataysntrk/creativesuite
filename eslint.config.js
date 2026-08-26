@@ -98,6 +98,12 @@ export default tseslint.config(
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         AbortController: 'readonly',
+        // ⚠ `AbortSignal` LİSTEDE YOKTU ve `AbortController` vardı — ikisi kardeş ama
+        // `AbortSignal.timeout()` statik fabrikayı doğrudan çağırıyor, controller'ı
+        // hiç kurmuyor. Webden arama modülü onu kullanınca `no-undef` haklı olarak
+        // kırmızı döndü: liste "betiklerin gerçekten kullandıklarıyla sınırlı" ve
+        // kullanım yeni.
+        AbortSignal: 'readonly',
         structuredClone: 'readonly',
       },
     },
