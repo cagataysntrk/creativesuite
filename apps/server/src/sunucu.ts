@@ -42,6 +42,7 @@ import { kosuSablonu } from './kosu-sablonu.js'
 import { gecerliKararlar, takvimOlaylari, takvimeYaz } from './yayin-takvimi.js'
 // ⚠ Takvim kuralı `@suite/engine`de: çeşitlilik ve denge orada ÖLÇÜLDÜ.
 import { kusuruYaz, yayinMetniIstemi, yayinPlaniKur } from '@suite/engine'
+import { PAKET_KOK, yayinPaketiYaz } from './yayin-paketi.js'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
 import {
   COLUMN_LABELS,
@@ -630,6 +631,55 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   //
   // ⚠ *"Yayına hazır"* ÖLÇÜLDÜ, varsayılmadı: `insan-onayi` kapısından `approved`
   // almış ve yayın defterinde OLMAYAN koşu. Bugün 8 tane var, yayın defteri boş.
+  /**
+   * Bir koşunun yayın paketini yazar — iki ucun da kullandığı TEK yol.
+   *
+   * ⚠ Slaytlar `teslimat.index`e göre sıralanıyor; damgasız olan için `createdAt`
+   * yedeği. Metinler `yayin-metni` adımından; adım koşmadıysa boş ve bu DÜRÜST —
+   * `GONDERI.md` eksikleri açıkça yazıyor.
+   */
+  const paketle = (
+    runId: string,
+    tarih?: string,
+    platformlar?: readonly string[]
+  ): ReturnType<typeof yayinPaketiYaz> => {
+    const slaytlar = kutuphane(o.repoRoot)
+      .varliklar.filter((v) => v.sourceRunId === runId)
+      .map((v) => ({
+        digest: v.digest,
+        sira: v.teslimat?.index ?? 0,
+        toplam: v.teslimat?.total ?? 0,
+        rol: v.teslimat?.role ?? 'bilinmiyor',
+        olcu: v.olcu,
+        createdAt: v.createdAt,
+      }))
+      .sort((a2, b2) =>
+        a2.toplam > 0 && b2.toplam > 0
+          ? a2.sira - b2.sira
+          : a2.createdAt.localeCompare(b2.createdAt)
+      )
+    const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps/yayin-metni.json')
+    let metinler: Record<string, string> = {}
+    if (existsSync(yol)) {
+      try {
+        metinler =
+          (JSON.parse(readFileSync(yol, 'utf8')) as { yayinMetinleri?: Record<string, string> })
+            .yayinMetinleri ?? {}
+      } catch {
+        // Bozuk adım çıktısı paketi düşürmesin; metin eksikliği `GONDERI.md`de yazıyor.
+      }
+    }
+    const m = readManifest(o.repoRoot, runId as never)
+    return yayinPaketiYaz(o.repoRoot, {
+      runId,
+      slaytlar,
+      metinler,
+      // ⚠ Tarih ÖNCE takvim kararından: paketin adı planlanan güne göre sıralanmalı.
+      tarih: (tarih ?? '') !== '' ? (tarih as string) : (m?.createdAt ?? '').slice(0, 10),
+      platformlar: platformlar ?? [],
+    })
+  }
+
   app.get('/api/yayin-akisi', (c) => {
     const haftadaKac = Number(c.req.query('haftadaKac') ?? '3')
     const baslangic = c.req.query('baslangic') ?? ''
@@ -1296,6 +1346,42 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     } catch (e) {
       return c.json({ ok: false, hata: `yazılamadı: ${String(e)}` }, 500)
     }
+  })
+
+  // ── YAYIN PAKETİ: yayıncıya yüklenecek klasör (FAZ-19.13 · UX-14) ─────────
+  //
+  // ⚠ ⚠ **BU DEPO BİR YAYIN ARACI DEĞİL, BİLEREK.** Araştırma şunu gösterdi: Instagram
+  // API'sinde zamanlama YOK (kap 24 saatte doluyor), LinkedIn'de `SCHEDULED` durumu yok,
+  // X'te zamanlama yalnız Ads API'de; yalnız Facebook gerçekten platform tarafında
+  // zamanlıyor. Kendi zamanlayıcımızı yazmak ise Yasa 12'ye çarpıyordu — makine
+  // kapalıyken gönderi gitmez. Depo sahibi kararı verdi: yayını bir bulut aracıyla elle
+  // yapacak, panel HATIRLATICI ve PLANLAYICI olarak kalacak.
+  //
+  // ⚠ Klasörün asıl işi SIRA: dosya adları `01`, `02`, … ve sıra `teslimat.index`ten.
+  // Yayıncıya yanlış sırada yüklenen bir karosel, yanlış yayınlanmış bir karoseldir.
+  app.post('/api/kosu/:runId/yayin-paketi', (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const r = paketle(runId)
+    return c.json(r, r.ok ? 200 : 400)
+  })
+
+  /**
+   * ⚠ ⚠ **TOPLU PAKETLEME AYRI BİR UÇ ve sebebi iş akışı:** ayın planını tek tek
+   * indirmek on iki tıklama demekti. İnsan ayı planlıyor, bir kez paketliyor, klasörü
+   * yayıncıya taşıyor.
+   * ⚠ Yalnız TAKVİMDE OLANLAR paketleniyor — kapıda bekleyen bir üretimi paketlemek,
+   * onaylanmamış bir tasarımı yayıncıya taşımak olurdu.
+   */
+  app.post('/api/yayin-paketleri', (c) => {
+    const kararlar = gecerliKararlar(o.repoRoot)
+    const sonuc: { runId: string; ok: boolean; klasor?: string; hata?: string }[] = []
+    for (const [runId, olay] of kararlar) {
+      if (olay.karar !== 'planla' && olay.karar !== 'elle-yayinlandi') continue
+      const r = paketle(runId, olay.tarih, olay.platformlar)
+      sonuc.push(r.ok ? { runId, ok: true, klasor: r.klasor } : { runId, ok: false, hata: r.hata })
+    }
+    return c.json({ ok: true, kok: PAKET_KOK, paket: sonuc })
   })
 
   app.post('/api/kosu/:runId/metin', async (c) => {

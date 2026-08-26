@@ -106,3 +106,7 @@ a.out
 # belgesi; ikisi de yeniden üretilebilir (Yasa 11). `derived/runs` DEĞİL — ona
 # dokunulmuyor.
 derived/duzenleyici-*.json
+
+# Yayın paketleri: yayıncıya yüklenecek klasörler (FAZ-19.13). TÜRETİLMİŞ (Yasa 11) —
+# doğruluk `derived/blobs` + koşu defteri; klasör silinir, yeniden üretilir.
+derived/yayin-paketleri/
