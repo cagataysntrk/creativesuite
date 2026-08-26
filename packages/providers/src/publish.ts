@@ -67,7 +67,17 @@ export interface AssetCompliance {
 }
 
 export interface PublishRequest {
-  readonly platform: 'instagram' | 'threads' | 'linkedin'
+  /**
+   * Hedef platform.
+   *
+   * ⚠ ⚠ **`facebook` ve `x` EKLENDİ (madde 3).** Depo sahibi dört platform istedi:
+   * *"insta facebook linkedin ve x platformlarında paylaşım yapılacak"*. `threads`
+   * SİLİNMİYOR — kayıtlı bir yetenek, kullanılmaması silinmesini gerektirmez (Yasa 10).
+   * ⚠ Platform SINIRLARI burada değil `@suite/contracts`ın `platform.ts`inde: bu dosya
+   * gönderim sözleşmesi, o dosya kabul sözleşmesi. Sınırı iki yere yazmak, biri
+   * güncellenip öteki unutulduğunda yayın anında öğrenilen bir ret demek.
+   */
+  readonly platform: 'instagram' | 'threads' | 'linkedin' | 'facebook' | 'x'
   readonly placementId: string
   readonly assets: readonly PublishAsset[]
   readonly caption: string
@@ -202,6 +212,12 @@ export const REQUIRED_SCOPES: Record<PublishRequest['platform'], readonly string
   instagram: ['instagram_content_publish'],
   threads: ['threads_content_publish'],
   linkedin: ['w_member_social'],
+  // ⚠ Kapsam adları platformların KENDİ adlandırması; uydurulmuş bir kapsam, token
+  // doğrulamasını sessizce geçen bir yayın demek. Facebook sayfa gönderisi
+  // `pages_manage_posts` istiyor; X v2 yazma yetkisi `tweet.write` ve okuma için
+  // `users.read` de gerekiyor.
+  facebook: ['pages_manage_posts'],
+  x: ['tweet.write', 'users.read'],
 }
 
 export interface PublishDeps {

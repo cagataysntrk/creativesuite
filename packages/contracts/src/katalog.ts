@@ -491,10 +491,14 @@ export const EDITORYAL: KatalogSablonu = {
     // oluyorsa oranın yakın çekimi"*, *"omuz hizasından arkadan"* diyordu — üçü de bir
     // MEKÂN tarif ediyor ve model haklı olarak insanlı bir sahne çiziyordu. Üçü de
     // nesnenin kadrajı hangi kenardan aştığını söylüyor: taşıyıcı rol varyantta yaşar.
+    // ⚠ ⚠ **HER VARYANT ORTAK ÜSLUP SÖZCÜĞÜNÜ TAŞIMAK ZORUNDA** (`katalog-brief`
+    // kapısı). İlk yazımda `matte` düşmüştü ve kapı haklı olarak kırmızı döndü: serinin
+    // bütünlüğü kadrajdan değil ÜSLUPTAN geliyor: üç ayrı açıdan çekilmiş üç nesne
+    // ancak aynı yüzey diliyle aynı gönderiye ait görünüyor.
     varyantlar: [
-      'seen from a low three quarter angle, rising past the upper edge of the frame',
-      'a tight view of the point where two of its parts meet, reaching past both side edges',
-      'seen from directly above, spreading past the left and lower edges of the frame',
+      'seen from a low three quarter angle, matte surfaces, rising past the upper edge',
+      'a tight view of the point where two of its parts meet, matte surfaces, reaching past both side edges',
+      'seen from directly above, matte surfaces, spreading past the left and lower edges',
     ],
   },
   baslikPayi: 0.38,

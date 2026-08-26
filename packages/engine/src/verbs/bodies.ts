@@ -16,6 +16,7 @@ import {
   VARSAYILAN_TUVAL,
   goruntuOlcusu,
   icerikKipiCozumle,
+  PLATFORMLAR,
 } from '@suite/contracts'
 import {
   asciiLower,
@@ -2920,7 +2921,11 @@ export interface PublishBodyDeps {
  * sisteminden geçmiyor; sınırda doğrulanmazsa hata en derinde ve en anlamsız yerde
  * patlıyor.
  */
-const DESTEKLENEN_PLATFORMLAR: readonly string[] = ['instagram', 'threads', 'linkedin']
+// ⚠ ⚠ **LİSTE `@suite/contracts`TAN TÜRÜYOR, ELLE YAZILMIYOR.** Eskiden burada üç ad
+// elle duruyordu ve platform eklemek iki yerde birden düzenleme istiyordu — bu depoda
+// tekrar eden sınıf: biri güncellenir, öteki unutulur. `threads` listeye AYRICA
+// ekleniyor: kayıtlı bir yetenek, sınır tablosunda olmaması silinmesini gerektirmez.
+const DESTEKLENEN_PLATFORMLAR: readonly string[] = [...PLATFORMLAR.map((p) => p.id), 'threads']
 
 /**
  * `PUBLISH`in bir varlıkta aradığı anahtarlar — **TEK tanım**.
