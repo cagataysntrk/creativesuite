@@ -25,6 +25,8 @@ import { readManifest } from '@suite/engine'
 // kaynağından geliyor; ayrışma yapısal olarak imkânsız.
 import type { BlobMeta, DeliverableRef } from '@suite/engine'
 
+import { kosuSablonu } from './kosu-sablonu.js'
+
 export interface VarlikSatiri {
   readonly digest: string
   readonly ext: string
@@ -37,6 +39,16 @@ export interface VarlikSatiri {
   readonly pipeline: string
   /** Çalıştırma konusu (`params.topic`) — aramanın asıl hedefi. */
   readonly konu: string
+  /**
+   * Varlığı üreten koşunun ŞABLONU. `null` = koşu `sablon-uyarla`ya varmadan düştü.
+   *
+   * ⚠ ⚠ **Depo sahibi: *"koşularda ve varlıklarda üretilenin hangi şablondan olduğu da
+   * yazsın"*.** Kuyruk şablonu gösteriyordu, kütüphane göstermiyordu: 45 slaydın
+   * hangisinin hangi tasarımdan geldiğini görmek için koşuyu açmak gerekiyordu.
+   * ⚠ Kaynak `kosu-sablonu.ts` — parametre dosyası DEĞİL; o alan sistem kendi seçince
+   * boş kalıyor ve bir kez yanlış etikete yol açtı.
+   */
+  readonly sablon: string | null
   /** Bu varlığı üreten adımın şeridi. `null` = adım bulunamadı. */
   readonly lane: 'free' | 'premium' | null
   /** Üreten adımın GERÇEK maliyeti, USD mikro dize. */
@@ -157,6 +169,18 @@ const manifestBul = (
 export const kutuphane = (repoRoot: string): Kutuphane => {
   const yayin = yayinlananlar(repoRoot)
   const onbellek = new Map<string, RunManifest | null>()
+  // ⚠ ⚠ **ÖNBELLEK ŞART: 45 varlık ama 10 koşu.** Her varlık için adım çıktısını yeniden
+  // okumak aynı on dosyayı kırk beş kez açmak olurdu. Manifest zaten böyle önbelleklenmiş;
+  // yeni okuyucu aynı düzeni izliyor, kendi düzenini icat etmiyor.
+  const sablonOnbellek = new Map<string, string | null>()
+  const sablonu = (kok: string, runId: string): string | null => {
+    const v = sablonOnbellek.get(runId)
+    if (v !== undefined) return v
+    const s = kosuSablonu(kok, runId)
+    const sonuc = s.gercek ?? s.istenen
+    sablonOnbellek.set(runId, sonuc)
+    return sonuc
+  }
   const varliklar: VarlikSatiri[] = []
   let bosa = 0n
 
@@ -194,6 +218,7 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
       eraId: meta.stamp?.['eraId'] ?? '',
       pipeline: m?.pipeline ?? '',
       konu,
+      sablon: sablonu(repoRoot, meta.sourceRunId),
       lane,
       harcananMikros: harcanan.toString(),
       yayinlandi,

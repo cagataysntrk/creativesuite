@@ -12,11 +12,13 @@
 // Kuyruk `derived/runs/*/manifest.json`dan beslenir. İkinci bir kaynak (ayrı bir kuyruk
 // tablosu) manifest'le ayrışabilirdi ve o an hangisinin doğru olduğu anlaşılmazdı.
 
-import { appendFileSync, existsSync, readFileSync, readdirSync } from 'node:fs'
+import { appendFileSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { RUNS_DIR, costSummary, type HumanDecision, type RunManifest } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
 import { appendDecision, readManifest, writeManifest } from '@suite/engine'
+
+import { kosuSablonu } from './kosu-sablonu.js'
 
 export interface KuyrukSatiri {
   readonly runId: string
@@ -45,27 +47,24 @@ export interface KuyrukSatiri {
 }
 
 /**
- * Koşunun ŞABLONU ve KONUSU — çalıştırma parametrelerinden.
+ * Koşunun ŞABLONU ve KONUSU.
  *
- * ⚠ Dosya yoksa ya da bozuksa satır yine dönüyor: bir gözden geçirme kolaylığı,
- * kuyruğun kendisini düşürmemeli.
+ * ⚠ ⚠ **PARAMETRE DOSYASINDAN OKUNUYORDU ve bu bir YANLIŞ ETİKET ürettti.** `sablon`
+ * alanı yalnız panel ya da CLI onu yazdıysa dolu; sistem şablonu kendi seçtiğinde
+ * (kısıt olarak yalnız *"şunları kullanma"* verildiğinde) BOŞ kalıyor. Bir koşu bu
+ * yüzden `veri-hikayesi` diye listelendi, adım çıktısı okununca `sahne` çıktı — on
+ * üretimde `veri-hikayesi` hiç yoktu ve `sahne` iki kez vardı.
+ *
+ * ⚠ Artık cevap `kosu-sablonu.ts`ten geliyor ve GERÇEK olan öne alınıyor: hattın ne
+ * uyguladığı, insanın ne istediğinden önce gelir. İstenen yalnız gerçek bilinmiyorsa
+ * kullanılıyor — hiç yoksa `null`, yani "bilinmiyor", boş dize değil.
  */
 const kosuBilgisi = (
   repoRoot: string,
   runId: string
 ): { readonly sablon: string | null; readonly konu: string | null } => {
-  try {
-    const yol = join(repoRoot, RUNS_DIR, runId, 'kosu-parametreleri.json')
-    if (!existsSync(yol)) return { sablon: null, konu: null }
-    const p = JSON.parse(readFileSync(yol, 'utf8')) as Record<string, unknown>
-    const al = (k: string): string | null => {
-      const v = p[k]
-      return typeof v === 'string' && v.trim() !== '' ? v : null
-    }
-    return { sablon: al('sablon'), konu: al('topic') }
-  } catch {
-    return { sablon: null, konu: null }
-  }
+  const s = kosuSablonu(repoRoot, runId)
+  return { sablon: s.gercek ?? s.istenen, konu: s.konu }
 }
 
 const manifestler = (repoRoot: string): readonly RunManifest[] => {

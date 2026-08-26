@@ -75,6 +75,37 @@ const stamp = {
  * defterde yalnız ÖZET vardı ve üretilmiş bir karosel bir daha AÇILAMIYORDU.
  */
 const KOSU_DIZINI = join(REPO, 'derived/runs')
+
+/**
+ * Koşu ELENMİŞ mi — bir kapıda `rejected` kararı almış mı.
+ *
+ * ⚠ ⚠ **BU, KUYRUĞUNKİNDEN BAŞKA BİR SORU ve o yüzden burada ayrı yazılıyor.**
+ * `bekleyenler()` *"bu koşu BANA mı bekliyor"* diye soruyor: kapısı var ve o kapıya
+ * karar verilmemiş. Editörün sorusu *"bu koşu hâlâ yaşıyor mu"*. İkisi farklı: onaylanıp
+ * bitmiş bir koşu kuyrukta durmaz ama editörde açılabilmeli, elenmiş bir koşu ise
+ * ikisinde de durmamalı. Aynı yüklemi kopyalamak yerine kendi yüklemini yazmak,
+ * yarın kuyruk kuralı değişince editörün sessizce yanlış listelemesini önlüyor.
+ *
+ * ⚠ Emeklilik SİLME DEĞİL (Yasa 10): koşu diskte duruyor, defteri duruyor, gerekçesi
+ * duruyor. Yalnız listede görünmüyor — ve `?elenmis=1` ile geri geliyor. Geri dönüşü
+ * olmayan bir gizleme, kaybetmenin başka adıdır.
+ */
+const elenmisMi = (dizin) => {
+  try {
+    const m = JSON.parse(readFileSync(join(dizin, 'manifest.json'), 'utf8'))
+    return (m.decisions ?? []).some((d) => d.decision === 'rejected')
+  } catch {
+    // Manifest okunamıyorsa koşu elenmiş SAYILMIYOR: bilinmezliği gizlemeye çevirmek,
+    // bozuk bir defteri sessizce yok saymak olurdu.
+    return false
+  }
+}
+
+// ⚠ ⚠ **SÜZGEÇ BURADA DEĞİL, AÇILIR LİSTEDE — ve sebebi ÖLÇÜLDÜ.** İlk sürüm elemeyi
+// bu taramaya koymuştu; tarama HER istekte koşuyor (`/degistir` her kaydırak
+// hareketinde) ve 202 manifest okumak 19,7 ms sürüyor (manifest başına 0,10 ms).
+// Yani bir kaydırağı sürüklemek her karede 20 ms manifest okuması demekti. Eleme
+// yalnız listeyi ilgilendiriyor ve liste yalnız sayfa açılışında kuruluyor.
 const kosulariTara = () => {
   if (!existsSync(KOSU_DIZINI)) return []
   return readdirSync(KOSU_DIZINI)
@@ -119,13 +150,38 @@ for (const [k, o] of Object.entries(ORNEKLER)) {
  * ⚠ Var olan kayıt EZİLMİYOR: düzenlenmiş bir kopyanın üstüne diskteki hâli yazmak,
  * kaydedilmemiş işi sessizce silmek olurdu.
  */
+/**
+ * Koşunun HANGİ ŞABLONDAN üretildiği — kendi defterinden.
+ *
+ * ⚠ ⚠ **KOŞU PARAMETRESİNDEN OKUNMUYOR ve sebebi ölçülmüş bir yalan.** `kosu-parametreleri.json`
+ * `sablon` alanını ancak panel/CLI onu yazdıysa taşıyor; sistem kendi seçtiğinde alan BOŞ.
+ * Bu tam olarak bir kez yanlış rapora yol açtı: bir koşuya `veri-hikayesi` dendi, adım
+ * çıktısı okununca `sahne` olduğu görüldü. Tek doğru kaynak `sablon-uyarla` adımının
+ * kendi çıktısı — üretimi gerçekte hangi şablonun taşıdığını yalnız o biliyor.
+ */
+const kosuSablonu = (dizin) => {
+  try {
+    return (
+      JSON.parse(readFileSync(join(dizin, 'steps/sablon-uyarla.json'), 'utf8')).uyarlama.sablonId ??
+      ''
+    )
+  } catch {
+    return ''
+  }
+}
+
 const kosulariYukle = () => {
   for (const k of kosulariTara()) {
     const id = 'kosu:' + k.ad
     if (calisan[id] !== undefined) continue
     try {
       calisan[id] = kosuBelgesi(k.dizin)
-      kaynak[id] = { tur: 'kosu', ad: k.ad, dizin: join(KOSU_DIZINI, k.ad) }
+      kaynak[id] = {
+        tur: 'kosu',
+        ad: k.ad,
+        dizin: join(KOSU_DIZINI, k.ad),
+        sablon: kosuSablonu(k.dizin),
+      }
     } catch {
       // Bozuk defter tezgâhı indirmesin; o koşu listede çıkmaz.
     }
@@ -145,7 +201,8 @@ const belge = (id) => ({
 })
 
 const KABUK = (
-  id
+  id,
+  elenmisDe = false
 ) => `<!doctype html><meta charset="utf-8"><title>Şablon düzenleyici — ${id}</title>
 <style>
   :root{--ui:#14161a;--kenar:#2a2e36;--metin:#e6e8ec;--vurgu:#5aa9e6}
@@ -204,10 +261,22 @@ const KABUK = (
       .map((k) => `<option value="${k}"${k === id ? ' selected' : ''}>${kaynak[k].ad}</option>`)
       .join('')}</optgroup>
     <optgroup label="KOŞU — düzenlersen yalnız o karosel değişir">${Object.keys(kaynak)
-      .filter((k) => kaynak[k].tur === 'kosu')
+      // ⚠ ⚠ **ELENMİŞ KOŞU LİSTEDE YOK.** Depo sahibi: *"editörde panelde elenmiş
+      // koşular listelenmemeli"*. Ölçüldü: editör 56 koşu gösteriyordu, panelde açık
+      // olan 10'du — aradaki 46 emekli koşuydu ve doğru olanı bulmak samanlıkta iğne
+      // aramaya dönmüştü. Süzgeç BURADA da var çünkü `calisan` bir önbellek: tezgâh
+      // açıkken elenen bir koşu yüklü kalır ve yalnız taramayı süzmek onu gizlemezdi.
+      // ⚠ `?elenmis=1` hepsini geri getiriyor — emeklilik silme değildir (Yasa 10) ve
+      // geri dönüşü olmayan bir gizleme, kaybetmenin başka adıdır.
+      .filter((k) => kaynak[k].tur === 'kosu' && (elenmisDe || !elenmisMi(kaynak[k].dizin)))
       .map(
         (k) =>
-          `<option value="${k}"${k === id ? ' selected' : ''}>${kaynak[k].ad.slice(4, 17)}</option>`
+          `<option value="${k}"${k === id ? ' selected' : ''}>${
+            // ⚠ ŞABLON ADI ÖNDE: *"koşularda hangi şablondan olduğu da yazsın"*. Koşu
+            // kimliği tek başına hiçbir şey söylemiyordu — on üretimden hangisi olduğunu
+            // görmek için koşuyu AÇMAK gerekiyordu.
+            (kaynak[k].sablon === '' ? '—' : kaynak[k].sablon) + ' · ' + kaynak[k].ad.slice(4, 17)
+          }</option>`
       )
       .join('')}</optgroup>
   </select>
@@ -567,6 +636,8 @@ const rampaRolleri = () => {
 const sunucu = createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x')
   // ⚠ Her istekte yeniden taranıyor: editör açıkken üretilen koşu da listeye girsin.
+  // ⚠ `?elenmis=1` emekli koşuları da yüklüyor — gizleme geri dönüşlü olsun diye.
+  const elenmisDe = u.searchParams.get('elenmis') === '1'
   kosulariYukle()
   const id = u.searchParams.get('id') ?? Object.keys(calisan)[0]
   const json = (v) => {
@@ -576,7 +647,7 @@ const sunucu = createServer(async (req, res) => {
   try {
     if (u.pathname === '/') {
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
-      return res.end(KABUK(id))
+      return res.end(KABUK(id, elenmisDe))
     }
     if (u.pathname === '/istemci.js') {
       res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' })

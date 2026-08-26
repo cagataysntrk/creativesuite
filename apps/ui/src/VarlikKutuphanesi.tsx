@@ -25,6 +25,8 @@ interface Varlik {
   readonly sourceRunId: string
   readonly pipeline: string
   readonly konu: string
+  /** Üreten koşunun şablonu. `null` = koşu `sablon-uyarla`ya varmadan düştü. */
+  readonly sablon: string | null
   readonly yayinlandi: boolean
   readonly manifestSaglam: boolean
 }
@@ -35,6 +37,7 @@ interface Grup {
   readonly elle: readonly string[]
   readonly pipeline: string
   readonly konu: string
+  readonly sablon: string | null
   readonly createdAt: string
   readonly yayinlandi: boolean
   readonly saglam: boolean
@@ -54,6 +57,7 @@ export const VarlikKutuphanesi = ({
   const [sebep, setSebep] = useState<string | null>(null)
   const [mesaj, setMesaj] = useState<string | null>(null)
   const [fHat, setFHat] = useState('')
+  const [fSablon, setFSablon] = useState('')
   const [fDurum, setFDurum] = useState('')
   const [fTaze, setFTaze] = useState(false)
   const [ara, setAra] = useState('')
@@ -98,6 +102,7 @@ export const VarlikKutuphanesi = ({
         elle: elleSlaytlar[runId] ?? [],
         pipeline: ilk.pipeline,
         konu: ilk.konu,
+        sablon: ilk.sablon,
         createdAt: ilk.createdAt,
         // ⚠ Grup "yayınlandı" ancak HEPSİ yayınlandıysa: karoselin üç slaydı
         // yayınlanmışsa o gönderi yayınlanmamıştır, yarım kalmıştır.
@@ -109,6 +114,11 @@ export const VarlikKutuphanesi = ({
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
   const hatlar = [...new Set(gruplar.map((g) => g.pipeline))].sort()
+  // ⚠ Şablon listesi VERİDEN türüyor, elle yazılmıyor: katalog on birinciyi alınca
+  // süzgeç kendiliğinden onu da sunuyor.
+  const sablonlar = [
+    ...new Set(gruplar.map((g) => g.sablon).filter((x): x is string => x !== null)),
+  ].sort()
   const q = foldForSearch(ara.trim())
   const suzulmus = gruplar.filter((g) => {
     if (fHat !== '' && g.pipeline !== fHat) return false
@@ -117,7 +127,14 @@ export const VarlikKutuphanesi = ({
     if (fDurum === 'kusurlu' && g.saglam) return false
     if (fTaze && Date.now() - new Date(g.createdAt).getTime() > BIR_HAFTA) return false
     if (!aralikta(g.createdAt, fBas, fSon)) return false
-    if (q !== '' && !foldForSearch(`${g.konu} ${g.pipeline} ${g.runId}`).includes(q)) return false
+    if (fSablon !== '' && g.sablon !== fSablon) return false
+    // ⚠ Arama şablonu DA kapsıyor: sütun eklenip arama kapsanmasaydı "dizin" yazıp
+    // hiçbir şey bulamamak, sütunun orada olmamasından daha kafa karıştırıcı olurdu.
+    if (
+      q !== '' &&
+      !foldForSearch(`${g.konu} ${g.pipeline} ${g.sablon ?? ''} ${g.runId}`).includes(q)
+    )
+      return false
     return true
   })
 
@@ -159,6 +176,17 @@ export const VarlikKutuphanesi = ({
           <select value={fHat} onChange={(e) => setFHat(e.target.value)}>
             <option value="">hepsi</option>
             {hatlar.map((h) => (
+              <option key={h} value={h}>
+                {h}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          şablon{' '}
+          <select value={fSablon} onChange={(e) => setFSablon(e.target.value)}>
+            <option value="">hepsi</option>
+            {sablonlar.map((h) => (
               <option key={h} value={h}>
                 {h}
               </option>
@@ -252,6 +280,10 @@ export const VarlikKutuphanesi = ({
                   }}
                 />
                 <strong>{g.konu === '' ? g.runId.slice(0, 16) : g.konu}</strong>
+                {/* ⚠ ŞABLON HATTIN ÖNÜNDE: bir karoselin hangi tasarımdan geldiği,
+                    hangi hattan geldiğinden daha ayırt edici — on üretimin onu da
+                    aynı hattan (`instagram-karosel`) çıkıyor. */}
+                <span className="olcum">{g.sablon ?? '— şablon yok'}</span>
                 <span className="olcum">{g.pipeline}</span>
                 <span className="olcum">{g.varliklar.length} slayt</span>
                 <span className="olcum">{tamTarih(g.createdAt)}</span>
