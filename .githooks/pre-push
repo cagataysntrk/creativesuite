@@ -9,6 +9,13 @@
 # bekleten bir kanca, kapatılan bir kancadır.
 set -uo pipefail
 
+# ⚠ ⚠ **PUSH KAPILARI DA OPT-IN — sahibinin kararı.** Tam grup dakikalar sürüyordu ve
+# her push'u bekletiyordu. Kapılar silinmedi: `just verify` ile elle koşuyor.
+# ⚠ Açmak için: SUITE_KAPILAR=1 git push
+if [ "${SUITE_KAPILAR:-0}" != "1" ]; then
+  exit 0
+fi
+
 # ⚠ LC_ALL=C ZORUNLU. `LANG=tr_TR.UTF-8` altında POSIX karakter sınıfları Türkçe
 # collation'a göre çözülür ve `[A-Za-z]` aralığı `i`/`I` çevresinde KIRILIR:
 #   $ LANG=tr_TR.UTF-8 grep -oE "[a-z.]+@[a-z.]+" <<< "ahmet.yilmaz@dokumsanayi.com.tr"

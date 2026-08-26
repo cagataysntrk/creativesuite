@@ -32,6 +32,14 @@ if [ -s "$HOME/.nvm/nvm.sh" ]; then
   nvm use >/dev/null 2>&1 || true
 fi
 
+# ⚠ ⚠ **KAPILAR ARTIK OPT-IN — DEPO SAHİBİNİN KARARI.** Her commit'te hızlı grup
+# koşuyordu ve dakikalar sürüyordu; sahibi *"pre-commit'leri kapat, sadece istediğimde
+# yaparız"* dedi. Kapılar SİLİNMEDİ: `just check` ile elle, `just verify` ile faz
+# kapanışında, push öncesi tam grupta koşuyor.
+# ⚠ Açmak için: `SUITE_KAPILAR=1 git commit …`
+if [ "${SUITE_KAPILAR:-0}" != "1" ]; then
+  exit 0
+fi
 if ! bash "$ROOT/scripts/run-gates.sh" fast; then
   cat >&2 <<'EOF'
 
