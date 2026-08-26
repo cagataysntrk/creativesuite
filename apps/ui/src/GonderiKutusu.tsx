@@ -60,6 +60,34 @@ export const GonderiKutusu = ({
   const [gecmis, setGecmis] = useState<readonly Olay[]>([])
   const [mesaj, setMesaj] = useState<string | null>(null)
 
+  const paketle = async (): Promise<void> => {
+    setMesaj('paketleniyor…')
+    try {
+      const j = (await (
+        await fetch(`/api/kosu/${runId}/yayin-paketi`, { method: 'POST' })
+      ).json()) as {
+        ok?: boolean
+        klasor?: string
+        slayt?: number
+        eksik?: readonly string[]
+        hata?: string
+      }
+      if (j.ok !== true) {
+        setMesaj(`✗ ${j.hata ?? 'paketlenemedi'}`)
+        return
+      }
+      // ⚠ Eksikler SAYILIYOR ve söyleniyor: metinsiz bir paketi "hazır" sanmak, yayıncıya
+      // boş açıklamayla yüklenen bir gönderi demekti.
+      const eksik = j.eksik ?? []
+      setMesaj(
+        `✓ ${String(j.slayt ?? 0)} slayt → ${j.klasor ?? ''}` +
+          (eksik.length === 0 ? '' : ` · ⚠ ${String(eksik.length)} eksik: ${eksik.join(' · ')}`)
+      )
+    } catch {
+      setMesaj('✗ sunucuya ulaşılamıyor')
+    }
+  }
+
   const gecmisiCek = useCallback(async (): Promise<void> => {
     try {
       const j = (await (await fetch(`/api/yayin-takvimi/${runId}`)).json()) as {
@@ -150,6 +178,12 @@ export const GonderiKutusu = ({
         </button>
         <button type="button" onClick={() => void karar('geri-al')}>
           ↺ kararı geri al
+        </button>
+        {/* ⚠ ⚠ **YAYIN BURADAN YAPILMIYOR — paket ÇIKIYOR.** Instagram/LinkedIn/X
+            API'lerinde zamanlama yok; yayını bulut aracıyla insan yapıyor. Panelin işi
+            karoselleri SIRAYLA ve metinleri platform başına bir klasöre koymak. */}
+        <button type="button" onClick={() => void paketle()}>
+          ⬇ yayın paketi çıkar
         </button>
       </div>
       {mesaj === null ? null : <p className="olcum">{mesaj}</p>}

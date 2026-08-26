@@ -203,6 +203,7 @@ export const YayinAkisi = (): React.JSX.Element => {
   const [mesaj, setMesaj] = useState<string | null>(null)
   const [acik, setAcik] = useState<string | null>(null)
   const [gunAcik, setGunAcik] = useState<string | null>(null)
+  const [paketMesaj, setPaketMesaj] = useState<string | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
     setHata(null)
@@ -242,6 +243,32 @@ export const YayinAkisi = (): React.JSX.Element => {
     },
     [yukle]
   )
+
+  /**
+   * Takvimdeki HER gönderiyi klasöre çıkarır.
+   *
+   * ⚠ Yalnız takvimde olanlar: kapıda bekleyen bir üretimi paketlemek, onaylanmamış bir
+   * tasarımı yayıncıya taşımak olurdu.
+   */
+  const paketle = async (): Promise<void> => {
+    setPaketMesaj('paketleniyor…')
+    try {
+      const j = (await (await fetch('/api/yayin-paketleri', { method: 'POST' })).json()) as {
+        ok?: boolean
+        kok?: string
+        paket?: readonly { ok: boolean }[]
+      }
+      const n = (j.paket ?? []).filter((x) => x.ok).length
+      const kotu = (j.paket ?? []).length - n
+      setPaketMesaj(
+        n === 0
+          ? '⊘ paketlenecek gönderi yok — önce takvime ekle'
+          : `✓ ${String(n)} gönderi ${j.kok ?? ''} altına yazıldı${kotu === 0 ? '' : ` · ${String(kotu)} başarısız`}`
+      )
+    } catch {
+      setPaketMesaj('✗ sunucuya ulaşılamıyor')
+    }
+  }
 
   if (hata !== null) return <p className="ret-mesaji">⊘ {hata}</p>
   if (veri === null) return <p className="bos">yükleniyor…</p>
@@ -308,10 +335,24 @@ export const YayinAkisi = (): React.JSX.Element => {
         )}
       </div>
 
+      {/* ⚠ ⚠ **YAYIN BU PANELDEN YAPILMIYOR — paket ÇIKIYOR.** Araştırma gösterdi ki
+          Instagram/LinkedIn/X API'lerinde zamanlama yok ve kendi zamanlayıcımız Yasa
+          12'ye çarpıyor (makine kapalıyken gönderi gitmez). Depo sahibi kararı verdi:
+          yayını bulut aracıyla elle yapacak. Panelin işi ayın planını KUSURSUZ bir
+          klasöre çıkarmak — karoseller sırayla, metinler platform başına. */}
+      <div className="filtre-cubuk">
+        <button type="button" onClick={() => void paketle()}>
+          ⬇ ayın planını klasöre çıkar
+        </button>
+        {paketMesaj === null ? null : <span className="olcum">{paketMesaj}</span>}
+      </div>
+
       <p className="olcum">
-        {veri.hazir} yayına hazır · {veri.elleGonderiler.length} elle planlanmış ·{' '}
-        {veri.cikarilan.length} çıkarılmış · {veri.kapida.length} kapıda ·{' '}
-        {veri.gecmis.length + veri.elleYayinlanan.length} yayınlanmış
+        {/* ⚠ Başlık TAKVİM dilinde: bu ekranın sorusu "ne zaman yayınlanıyor", "kaç
+            koşu var" değil. Takvime giremeyenler aşağıda ayrı sayılıyor. */}
+        {veri.plan.gonderiler.length + veri.elleGonderiler.length} planlanmış ·{' '}
+        {veri.gecmis.length + veri.elleYayinlanan.length} yayınlanmış · {veri.cikarilan.length}{' '}
+        çıkarılmış · {veri.hazir} yayına hazır
         {veri.sablonsuz === 0 ? '' : ` · ${String(veri.sablonsuz)} onaylı koşu şablonsuz`}
         {/* ⚠ Elenen SAYILIYOR: gizlenen bir şeyin sayısı görünmezse "3 hazır" diyen
             bir başlık, elenmiş on üç üretimi yok sayar. */}
@@ -447,22 +488,42 @@ export const YayinAkisi = (): React.JSX.Element => {
         </section>
       )}
 
-      <section className="akis-hafta">
-        <h3>kapıda bekleyen</h3>
-        {veri.kapida.length === 0 ? (
-          <p className="bos">kapıda bekleyen koşu yok.</p>
-        ) : (
+      {/* ⚠ ⚠ **KAPI KUYRUĞU BU EKRANDAN ÇIKTI.** Depo sahibi: *"takvimde kapıda bekleyen
+          değil, planlanmış ve yayınlanmış olanlar olacak sadece"* — ve haklıydı: on
+          satırlık bir onay kuyruğu ekranın altını kaplıyordu ve takvim bir onay ekranı
+          gibi görünüyordu. Kuyruk artık **Koşular ve varlıklar**ta, kapı süzgeciyle.
+          ⚠ ⚠ **AMA SAYI DURUYOR ve bir BAĞLANTI oldu.** Sessizce kaldırsaydım takvim boş
+          olduğunda insan *"neden boş"* sorusunu cevapsız bulurdu. Takvime giremeyenler
+          sayılıyor ve nereye bakılacağı yazıyor. */}
+      {veri.kapida.length === 0 &&
+      (veri.yolda ?? []).length === 0 &&
+      veri.sablonsuz === 0 ? null : (
+        <section className="akis-hafta">
+          <h3>takvime giremeyenler</h3>
           <ul className="akis-gonderiler">
-            {veri.kapida.map((k) => (
-              <li key={k.runId}>
-                <span className="olcum">{k.kapi}</span>
-                <strong>{k.sablon}</strong>
-                <a href={`#/kosu/${k.runId}`}>{k.konu === '' ? k.runId.slice(4, 16) : k.konu}</a>
+            {veri.kapida.length === 0 ? null : (
+              <li>
+                <strong>{veri.kapida.length}</strong>
+                <span>üretim insan onayı bekliyor — onaylanmadan takvime giremez</span>
+                <a href="#/gecmis">↗ Koşular ve varlıklar&apos;ta onayla</a>
               </li>
-            ))}
+            )}
+            {(veri.yolda ?? []).length === 0 ? null : (
+              <li>
+                <strong>{(veri.yolda ?? []).length}</strong>
+                <span>üretim hattın ortasında durdu — sürdürülmesi gerekiyor</span>
+                <a href="#/gecmis">↗ koşuyu aç ve sürdür</a>
+              </li>
+            )}
+            {veri.sablonsuz === 0 ? null : (
+              <li>
+                <strong>{veri.sablonsuz}</strong>
+                <span>onaylı üretimin şablonu yok — çeşitlilik kuralı uygulanamıyor</span>
+              </li>
+            )}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
 
       <section className="akis-hafta">
         <h3>yayınlanmış</h3>
