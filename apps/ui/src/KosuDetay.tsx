@@ -263,6 +263,15 @@ export const KosuDetay = ({
     [d, runId, yukle]
   )
 
+  // ⚠ Kapı karar ALDI mı: `kapilar` listesi kararlardan türüyor ve onay yazılır
+  // yazılmaz `onaylandi` oluyor — `bekleyenKapi` ise hat manifesti yeniden yazana
+  // kadar bayat kalıyor. Hangi kapıda olduğumuzu birinciden, karar verilip
+  // verilmediğini İKİNCİDEN soruyoruz.
+  const karariVerilmis =
+    d !== null &&
+    d.bekleyenKapi !== null &&
+    (d.kapilar ?? []).some((k) => k.ad === d.bekleyenKapi && k.durum !== 'bekliyor')
+
   if (hata !== null) return <p className="giris-not">{hata}</p>
   if (d === null) return <p className="giris-not">yükleniyor…</p>
 
@@ -438,7 +447,15 @@ export const KosuDetay = ({
         </div>
       )}
 
-      {d.bekleyenKapi === null ? null : (
+      {/* ⚠ ⚠ **ONAY DÜĞMESİ ONAYDAN SONRA YERİNDE KALIYORDU — ve sebebi ÖLÇÜLDÜ.**
+          Panel yalnız `bekleyenKapi`ya bakıyordu; o alan `manifest.awaitingGate`ten
+          geliyor ve karar yazıldığında DEĞİŞMİYOR — hat manifesti yeniden yazana kadar
+          aynı kapıyı gösteriyor ve o iş dakikalar sürüyor. Yani insan onaylıyor, ekran
+          hiç değişmiyor, insan bir daha basıyor.
+          ⚠ Doğru ölçüt KARARIN KENDİSİ: `kapilar` listesi `decisions`tan türüyor ve
+          onaylanan kapı anında `onaylandi` oluyor. Kuyruk da aynı kuralı kullanıyor
+          (`decisions.some(d => d.gate === gate)`) — panel onunla AYNI şeyi sormalıydı. */}
+      {d.bekleyenKapi === null || karariVerilmis ? null : (
         <div className="kapi-kutusu">
           <strong>{d.bekleyenKapi}</strong> kapısında bekliyor.
           <div className="kapi-dugmeler">
@@ -714,6 +731,16 @@ export const KosuDetay = ({
       <section className="giris-blok">
         <YayinOnizleme runId={runId} />
       </section>
+
+      {/* ⚠ Karar verilmişse SESSİZ kalınmıyor: düğmeleri kaldırıp yerine hiçbir şey
+          koymamak, ekranın "bir şey kayboldu" gibi okunmasına yol açardı. Hattın
+          sürdüğü AÇIKÇA yazıyor. */}
+      {!karariVerilmis ? null : (
+        <div className="kapi-kutusu">
+          <strong>{d.bekleyenKapi}</strong> kapısında karar verildi — hat sürüyor. Bu ekran kendini
+          tazeliyor; sonraki kapı açılınca düğmeler geri gelecek.
+        </div>
+      )}
 
       {d.kusurlar.length === 0 ? null : (
         <section className="giris-blok">

@@ -1234,3 +1234,134 @@ tr[data-tiklanir] {
   border-inline-start: 2px solid var(--role-line-hair);
   padding-inline-start: 12px;
 }
+
+/* ── TAKVİM IZGARASI (FAZ-19.13 · UX-5) ─────────────────────────────────────
+   ⚠ Liste değil IZGARA: hangi gün boş, hangi gün dolu ve iki gönderi arasında
+   kaç gün var — üçü de ancak yan yana günlerde görünüyor. Renkler rol
+   değişkenlerinden, ölçüler 4px temel biriminde. */
+.takvim {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-block-start: 16px;
+}
+.takvim-baslik {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+  padding-block: 4px;
+  text-align: center;
+}
+.takvim-gun {
+  min-height: 96px;
+  border: 1px solid var(--role-line-hair);
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+/* ⚠ Komşu ayın günleri SOLUK ama GÖRÜNÜR: gizlemek ızgarayı bozar, tam
+   parlaklıkta bırakmak "bu ay" algısını siler. */
+.takvim-disari {
+  opacity: 0.35;
+}
+.takvim-tarih {
+  font:
+    600 11px/1 ui-monospace,
+    monospace;
+  opacity: 0.7;
+}
+.takvim-oge {
+  display: block;
+  text-align: start;
+  background: var(--role-surface);
+  border: 1px solid var(--role-line-hair);
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+/* ⚠ Elle konan gönderi AYIRT EDİLİYOR: takvimde hangisinin insan kararı olduğu
+   görünmezse "bunu ben mi koydum" sorusu doğar. */
+.takvim-elle {
+  border-color: var(--role-accent);
+}
+.takvim-sablon {
+  display: block;
+  font:
+    600 10px/1.3 ui-monospace,
+    monospace;
+}
+.takvim-konu {
+  display: block;
+  font-size: 10.5px;
+  line-height: 1.3;
+  opacity: 0.75;
+  overflow: hidden;
+}
+.gonderi-kutusu {
+  margin-block-start: 16px;
+  border: 1px solid var(--role-accent);
+  border-radius: 8px;
+  padding: 12px;
+}
+.gonderi-kutusu h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+/* ── TAKVİM: bugün, seçili gün, ekleme ve platform rozeti ───────────────────
+   ⚠ BUGÜN vurgulanmazsa "hangi hafta içindeyiz" sorusu her bakışta yeniden
+   soruluyor; ay ızgarasında tarih tek başına bunu söylemiyor. */
+.takvim-bugun {
+  border-color: var(--role-accent);
+}
+.takvim-secili {
+  background: var(--role-surface);
+}
+/* ⚠ Ekleme düğmesi SOLUK ama HER GÜNDE var: yalnız üzerine gelince belirseydi
+   takvimin ekleyebildiği hiç keşfedilmezdi. */
+.takvim-ekle {
+  margin-block-start: auto;
+  align-self: stretch;
+  background: none;
+  border: 1px dashed var(--role-line-hair);
+  border-radius: 4px;
+  color: var(--role-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0.25;
+  padding-block: 4px;
+}
+.takvim-gun:hover .takvim-ekle {
+  opacity: 1;
+}
+.takvim-ekle:focus-visible {
+  opacity: 1;
+}
+.takvim-platform {
+  display: block;
+  font:
+    600 9px/1.4 ui-monospace,
+    monospace;
+  letter-spacing: 0.06em;
+  opacity: 0.55;
+}
+
+/* ⚠ Yayınlanmış gönderi SÖNÜK ve ✓ ile: planlanmışla aynı görünseydi takvime bakan
+   biri yayınlanmışı yeniden yayınlayabilirdi — geri alınamayan bir hata. */
+.takvim-yayinlandi {
+  border-color: var(--role-state-ok);
+  opacity: 0.6;
+}
+
+/* ⚠ Kimlik ve iki düğme TEK SATIRDA: alt alta düştüklerinde satır 79px oluyordu ve on
+   satırlık bir liste bir ekrana sığmıyordu — ölçüldü, tahmin edilmedi. */
+.kosu-kimlik {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}

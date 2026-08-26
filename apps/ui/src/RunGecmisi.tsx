@@ -34,6 +34,8 @@ interface Ozet {
   readonly donmusPlanVar: boolean
   /** İnsan "bunu beğenmedim" dedi — kayıt duruyor, liste temizleniyor. */
   readonly elendi: { readonly at: string; readonly sebep: string } | null
+  readonly sablon: string | null
+  readonly konu: string | null
 }
 
 interface Adim {
@@ -116,6 +118,13 @@ export const RunGecmisi = ({
   const [fBas, setFBas] = useState('')
   const [fSon, setFSon] = useState('')
   const [siralama, setSiralama] = useState<Siralama>('yeni')
+  // ⚠ ⚠ **BU İKİ SÜZGEÇ "ONAYLAR" EKRANINI GEREKSİZ KILDI.** Ayrı bir onay ekranı
+  // vardı çünkü koşu listesinde *hangi kapı* ve *hangi şablon* sorulamıyordu. Depo
+  // sahibi: *"onaylar sekmesi aşırı işlevsiz, zaten onayı koşu detayında yönetiyoruz;
+  // koşular ve varlıklar sekmelerine filtre ve özellikler ekleyerek onaylar sekmesini
+  // kaldırıp bu sekmeleri canlandırabiliriz"*.
+  const [fKapi, setFKapi] = useState('')
+  const [fSablon, setFSablon] = useState('')
   // ⚠ Çoklu seçim: on koşuyu tek tek elemek, elemeyi kullanılmaz yapardı.
   const [secilenler, setSecilenler] = useState<readonly string[]>([])
   const [detay, setDetay] = useState<Detay | null>(null)
@@ -196,6 +205,10 @@ export const RunGecmisi = ({
   if (liste === null) return <p>yükleniyor…</p>
 
   const hatlar = [...new Set(liste.map((r) => r.pipeline))].sort()
+  // ⚠ Seçenekler VERİDEN türüyor: sabit bir kapı listesi yazsaydım yeni bir kapı
+  // eklendiğinde süzgeç onu sessizce göstermez, "hiç yok" derdi.
+  const kapilar = [...new Set(liste.map((r) => r.awaitingGate).filter((x) => x !== null))].sort()
+  const sablonlar = [...new Set(liste.map((r) => r.sablon).filter((x) => x !== null))].sort()
   const yediGunOnce = Date.now() - 7 * 24 * 3600 * 1000
   const durumu = (r: Ozet): string =>
     !r.manifestSaglam
@@ -209,7 +222,17 @@ export const RunGecmisi = ({
     .filter((r) => fHat === '' || r.pipeline === fHat)
     .filter((r) => fDurum === '' || durumu(r) === fDurum)
     .filter((r) => !fTaze || new Date(r.createdAt).getTime() >= yediGunOnce)
-    .filter((r) => ara.trim() === '' || `${r.runId} ${r.pipeline}`.includes(ara.trim()))
+    .filter((r) => fKapi === '' || r.awaitingGate === fKapi)
+    .filter((r) => fSablon === '' || r.sablon === fSablon)
+    // ⚠ Arama artık KONUYU da tarıyor: bir koşuyu kimliğinden değil konusundan
+    // hatırlıyoruz ve `run_01a0…` yazarak arama yapan kimse yok.
+    .filter(
+      (r) =>
+        ara.trim() === '' ||
+        `${r.runId} ${r.pipeline} ${r.sablon ?? ''} ${r.konu ?? ''}`
+          .toLocaleLowerCase('tr')
+          .includes(ara.trim().toLocaleLowerCase('tr'))
+    )
     // ⚠ ⚠ **SİLMEK YOK, ELEMEK VAR.** `derived/runs` türetilemez ve silinmez (Yasa 11 ·
     // R-52); ama beğenilmeyen çıktının listeyi doldurması da bir maliyet — insan
     // aradığını bulamıyor. Eleme ikisini uzlaştırıyor: kayıt DURUYOR, liste temizleniyor.
@@ -220,19 +243,25 @@ export const RunGecmisi = ({
   // cevabını sabit bir sıralama gizliyordu.
   const sirali = tariheGore(suzulmusHam, (r) => r.createdAt, siralama)
   const suzulmus = sirali
+  // ⚠ ⚠ **SAYILAR LİSTEYLE AYNI TABANDAN.** İlk sürüm ham listeyi sayıyordu ve başlık
+  // *"202 koşu · 113 kapıda"* derken tabloda 2 satır vardı: elenenler sayılıyor ama
+  // gösterilmiyordu. Gösterilmeyeni saymak, insanı olmayan 111 satırı aramaya yollar.
+  const taban = elenenler ? liste : liste.filter((r) => r.elendi === null)
   const sayim = {
-    kapida: liste.filter((r) => durumu(r) === 'kapida').length,
-    durdu: liste.filter((r) => durumu(r) === 'durdu').length,
-    kusurlu: liste.filter((r) => durumu(r) === 'kusurlu').length,
+    kapida: taban.filter((r) => durumu(r) === 'kapida').length,
+    durdu: taban.filter((r) => durumu(r) === 'durdu').length,
+    kusurlu: taban.filter((r) => durumu(r) === 'kusurlu').length,
+    elenmis: liste.length - taban.length,
   }
 
   return (
     <section>
       <h1>Çalıştırma geçmişi</h1>
       <p className="giris-not">
-        {liste.length} koşu · {sayim.kapida} kapıda · {sayim.durdu} durdu · {sayim.kusurlu} kusurlu
+        {taban.length} koşu · {sayim.kapida} kapıda · {sayim.durdu} durdu · {sayim.kusurlu} kusurlu
         manifest
-        {suzulmus.length === liste.length ? null : <> · süzülen {suzulmus.length}</>}
+        {sayim.elenmis === 0 ? null : <> · {sayim.elenmis} elenmiş gizli</>}
+        {suzulmus.length === taban.length ? null : <> · süzülen {suzulmus.length}</>}
       </p>
 
       <div className="filtre-cubuk">
@@ -255,6 +284,28 @@ export const RunGecmisi = ({
             <option value="durdu">durdu</option>
             <option value="tamam">tamamlandı</option>
             <option value="kusurlu">kusurlu manifest</option>
+          </select>
+        </label>
+        <label>
+          bekleyen kapı{' '}
+          <select value={fKapi} onChange={(e) => setFKapi(e.target.value)}>
+            <option value="">hepsi</option>
+            {kapilar.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          şablon{' '}
+          <select value={fSablon} onChange={(e) => setFSablon(e.target.value)}>
+            <option value="">hepsi</option>
+            {sablonlar.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
           </select>
         </label>
         <label>
@@ -324,6 +375,8 @@ export const RunGecmisi = ({
                 />
               </th>
               <th>çalıştırma</th>
+              <th>şablon</th>
+              <th>konu</th>
               <th>tarih</th>
               <th>hat</th>
               <th>bilgi ağacı</th>
@@ -350,11 +403,17 @@ export const RunGecmisi = ({
                     }
                   />
                 </td>
-                <td>
+                <td className="kosu-kimlik">
                   {/* ⚠ İki ayrı hedef, iki ayrı tıklama: satır köken/tekrar
                       ayrıntısını açıyor, düğme KOŞU ekranına götürüyor. Tek
                       tıklamaya iki anlam yüklemek, ikisini de belirsiz yapardı. */}
-                  {r.runId}
+                  {/* ⚠ ⚠ **KİMLİK KISALDI.** Tam `run_01a03e9e-7d62-7560-b44d-0cb7225e2883`
+                      hücreyi üç satıra yayıyordu ve iki düğmeyi aşağı itiyordu; on satırlık
+                      bir liste bir ekrana sığmıyordu. Kimliğin tamamı `title`da ve satır
+                      zaten tıklanabilir — okunmayan otuz altı karakter yer kaplıyordu. */}
+                  <span className="mono" title={r.runId}>
+                    {r.runId.slice(4, 12)}…{r.runId.slice(-4)}
+                  </span>
                   {ac === undefined ? null : (
                     <button
                       type="button"
@@ -382,6 +441,10 @@ export const RunGecmisi = ({
                 </td>
                 {/* ⚠ TAM tarih: gün, ay, yıl, saat, dakika. "3 saat önce" iki koşuyu
                     karşılaştırmayı imkânsız kılar ve liste ekranında asıl iş odur. */}
+                {/* ⚠ Şablon ve konu KİMLİKTEN HEMEN SONRA: satıra bakan insanın ilk
+                    iki sorusu bunlar ve on sütun ötede sorulmuş sayılmıyorlar. */}
+                <td>{r.sablon ?? '—'}</td>
+                <td>{r.konu === null || r.konu === '' ? '—' : r.konu}</td>
                 <td className="mono">{tamTarih(r.createdAt)}</td>
                 <td>{r.pipeline}</td>
                 <td className="mono">{kisaSha(r.corpusCommit)}</td>
@@ -391,9 +454,15 @@ export const RunGecmisi = ({
                   {r.sapmaYuzde === null ? '—' : `${r.sapmaYuzde.toFixed(1)}%`}
                   {r.onemli ? ' ✗ sapma' : ''}
                 </td>
+                {/* ⚠ Kapıda bekleyen bir koşu için "durdu: gorsel-yargi" GÜRÜLTÜ: hat
+                    durmadı, İNSANI bekliyor. Bekleyen kapı varsa o söyleniyor; durduğu
+                    adım ancak gerçekten durmuşsa. */}
                 <td>
-                  {r.stoppedAt !== null ? `durdu: ${r.stoppedAt}` : 'tamamlandı'}
-                  {r.awaitingGate !== null ? ` · kapı bekliyor: ${r.awaitingGate}` : ''}
+                  {r.awaitingGate !== null
+                    ? `⏸ ${r.awaitingGate}`
+                    : r.stoppedAt !== null
+                      ? `durdu: ${r.stoppedAt}`
+                      : '✓ tamamlandı'}
                   {r.manifestSaglam ? '' : ' · manifest KUSURLU'}
                 </td>
               </tr>

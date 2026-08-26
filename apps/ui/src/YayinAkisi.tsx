@@ -1,38 +1,69 @@
 // HEDEF: apps/ui/src/YayinAkisi.tsx
 //
-// Yayın akışı — hazır · planlanmış · geçmiş (FAZ-19.12 · madde 5).
+// Yayın takvimi — GERÇEK bir takvim, liste değil (FAZ-19.13 · UX-5, UX-6).
 //
-// ⚠ ⚠ **TAKVİM KURALI YAZILMIŞTI ama EKRANI YOKTU.** `yayin-plani.ts` ölçülmüş bir
-// sorundan doğdu (ardışık aynı şablon 5/18, dengesizlik 4,0×), testi vardı, kimse
-// çağırmıyordu. Bu depoda tekrar eden zincir kopukluğu: modül var, ulaşan yok.
+// ⚠ ⚠ **İLK SÜRÜM LİSTEYDİ ve depo sahibi haklı olarak reddetti:** *"yayın sayfasını
+// daha takvim merkezli UI/UX'e kavuştur, dikkatlice mükemmel olmalı"*. Hafta başlıkları
+// altında satırlar bir takvim DEĞİL bir rapordu: hangi gün boş, hangi gün dolu, iki
+// gönderi arasında kaç gün var — hiçbiri görünmüyordu. Takvimin işi tam olarak bu üç
+// soruyu TEK BAKIŞTA cevaplamak.
 //
-// ⚠ ⚠ **ÜÇ DURUM AYRI GÖSTERİLİYOR ve karıştırmak bir kayıp olurdu:** kapıda BEKLEYEN
-// (insan kararı lazım), yayına HAZIR (onaylandı, sıraya girecek), YAYINLANMIŞ (bitti).
-// Tek listede toplamak *"şu an ne yapmam gerekiyor"* sorusunu cevapsız bırakırdı.
+// ⚠ ⚠ **HER GÖNDERİDE CRUD var** (*"manuel düzenleme silme geri alma değiştirme platform
+// seçme vs her şey olmalı"*). Kararlar `derived/yayin-takvimi.ndjson` defterine EKLEMELİ
+// yazılıyor: üçüncü kez tarih değiştirsen üçü de duruyor ve sonuncusu geçerli. "Çıkar"
+// bile bir OLAY — üretim yerinde kalıyor, yalnız sıradan çıkıyor (Yasa 10).
 //
-// ⚠ ⚠ **BAŞLANGIÇ TARİHİ PANELDEN GİDİYOR, SUNUCUDAN DEĞİL (R-06).** Sunucu `new Date()`
-// çağırsaydı aynı istek iki gün üst üste iki farklı takvim verirdi ve *"bu planı
-// onayladım"* demek anlamsızlaşırdı. Bugünü bilen taraf tarayıcı; kural sunucuda.
+// ⚠ ⚠ **ELLE KARAR PLANLAYICIYI EZMİYOR, ONDAN AYRILIYOR.** Elle tarih verilen üretim
+// otomatik plana hiç girmiyor; kalanı planlayıcı dolduruyor ve çeşitlilik kuralını
+// (üst üste aynı şablon yok) orada uyguluyor. İkisini birbirinin alternatifi yapmak,
+// ya otomatiği ya eli işe yaramaz kılardı.
 //
-// ⛔ **BU EKRAN HİÇBİR ŞEY YAYINLAMIYOR.** Takvim bir ÖNERİ: ne zaman, hangi sırayla.
-// Gönderim `PUBLISH` fiilinin işi ve depo sahibinin duran talimatı gereği bugün hiç
-// yapılmıyor.
+// ⛔ **BU EKRAN HİÇBİR ŞEY GÖNDERMİYOR.** *"Elle yayınladım"* bile bir KAYIT: insan
+// uygulamadan paylaştığını sisteme söylüyor, sistem paylaşmıyor.
 
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 
-interface PlanliYayin {
+const PLATFORMLAR = [
+  { id: 'instagram', kisa: 'IG' },
+  { id: 'facebook', kisa: 'FB' },
+  { id: 'linkedin', kisa: 'in' },
+  { id: 'x', kisa: 'X' },
+] as const
+
+interface Gonderi {
   readonly runId: string
   readonly sablon: string
   readonly tarih: string
-  readonly hafta: number
+  readonly konu?: string
+  readonly platformlar?: readonly string[]
+  readonly elle?: boolean
+  readonly yayinlandi?: boolean
+}
+
+interface HazirKosu {
+  readonly runId: string
+  readonly sablon: string
+  readonly konu: string
+  /** `otomatik` | `planla` | `cikar` | `elle-yayinlandi` */
+  readonly durum: string
 }
 
 interface Akis {
   readonly ok: boolean
   readonly hazir: number
-  /** Şablonu bilinmediği için planlanamayan onaylı koşu sayısı. */
+  readonly elenmis: number
+  readonly hazirListe: readonly HazirKosu[]
   readonly sablonsuz: number
+  readonly konular: Readonly<Record<string, string>>
+  readonly elleGonderiler: readonly Gonderi[]
+  readonly cikarilan: readonly {
+    readonly runId: string
+    readonly sablon: string
+    readonly konu: string
+    readonly not: string
+  }[]
+  readonly elleYayinlanan: readonly Gonderi[]
   readonly kapida: readonly {
     readonly runId: string
     readonly sablon: string
@@ -46,20 +77,240 @@ interface Akis {
     readonly zaman: string
   }[]
   readonly plan: {
-    readonly gonderiler: readonly PlanliYayin[]
+    readonly gonderiler: readonly Gonderi[]
     readonly uyarilar: readonly { readonly tur: string; readonly aciklama: string }[]
     readonly dagilim: Readonly<Record<string, number>>
   }
 }
 
-/** Bugünün ISO tarihi — takvimin başlangıcı için varsayılan. */
 const bugun = (): string => new Date().toISOString().slice(0, 10)
+
+/**
+ * Bir ayın ızgarası — pazartesi başlangıçlı, tam haftalar.
+ *
+ * ⚠ ⚠ **UTC ŞART.** Yerel saat diliminde `new Date(y, a, g)` yaz saati geçişinde bir gün
+ * kaydırabiliyor ve takvim sessizce yanlış güne hizalanır. Aynı ders `yayin-plani.ts`te
+ * bir kez öğrenildi.
+ * ⚠ Pazartesi başlangıç: `getUTCDay()` pazarı 0 veriyor, biz haftanın SONU sayıyoruz.
+ */
+const ayIzgarasi = (yil: number, ay: number): readonly string[] => {
+  const ilk = new Date(Date.UTC(yil, ay, 1))
+  const kaydir = (ilk.getUTCDay() + 6) % 7
+  const gunler: string[] = []
+  for (let i = 0; i < 42; i++) {
+    const t = new Date(Date.UTC(yil, ay, 1 - kaydir + i))
+    gunler.push(t.toISOString().slice(0, 10))
+  }
+  // ⚠ Son hafta tamamen sonraki aya düşüyorsa gösterilmiyor: boş bir satır takvimi
+  // uzatıyor ve "burada bir şey var mı" diye baktırıyor.
+  const sonHafta = gunler.slice(35)
+  return sonHafta.every((g) => Number(g.slice(5, 7)) !== ay + 1) ? gunler.slice(0, 35) : gunler
+}
+
+const AY_ADI = [
+  'Ocak',
+  'Şubat',
+  'Mart',
+  'Nisan',
+  'Mayıs',
+  'Haziran',
+  'Temmuz',
+  'Ağustos',
+  'Eylül',
+  'Ekim',
+  'Kasım',
+  'Aralık',
+]
+
+/**
+ * Bir gönderinin CRUD kutusu — tarih, platform, çıkar, elle yayınlandı, geri al.
+ *
+ * ⚠ ⚠ **GEÇMİŞ DE GÖSTERİLİYOR.** *"Bu neden 12'sine alındı"* sorusunun cevabı defterde
+ * duruyor ve buraya yazılmazsa kimse bakmaz. Ekleme kolay, geri alma zor: geri almanın
+ * NEYİ geri aldığını görmeden basılan düğme bir tahmindir.
+ */
+const GonderiKutusu = ({
+  runId,
+  konu,
+  kapat,
+  karar,
+}: {
+  readonly runId: string
+  readonly konu: string
+  readonly kapat: () => void
+  readonly karar: (
+    runId: string,
+    k: 'planla' | 'cikar' | 'elle-yayinlandi' | 'geri-al',
+    ek?: { tarih?: string; platformlar?: readonly string[]; not?: string }
+  ) => Promise<void>
+}): React.JSX.Element => {
+  const [tarih, setTarih] = useState(bugun)
+  const [secili, setSecili] = useState<readonly string[]>(PLATFORMLAR.map((p) => p.id))
+  const [gecmis, setGecmis] = useState<
+    readonly { karar: string; tarih: string; at: string; not: string }[]
+  >([])
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const j = (await (await fetch(`/api/yayin-takvimi/${runId}`)).json()) as {
+          olaylar?: readonly { karar: string; tarih: string; at: string; not: string }[]
+        }
+        setGecmis(j.olaylar ?? [])
+      } catch {
+        setGecmis([])
+      }
+    })()
+  }, [runId])
+
+  return (
+    <section className="gonderi-kutusu">
+      <h3>
+        {konu}{' '}
+        <button type="button" onClick={kapat}>
+          ✕
+        </button>
+      </h3>
+      <div className="filtre-cubuk">
+        <label>
+          tarih <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} />
+        </label>
+        {PLATFORMLAR.map((p) => (
+          <label key={p.id}>
+            <input
+              type="checkbox"
+              checked={secili.includes(p.id)}
+              onChange={(e) =>
+                setSecili(e.target.checked ? [...secili, p.id] : secili.filter((x) => x !== p.id))
+              }
+            />{' '}
+            {p.kisa}
+          </label>
+        ))}
+      </div>
+      <div className="kapi-dugmeler">
+        <button
+          type="button"
+          onClick={() => void karar(runId, 'planla', { tarih, platformlar: secili })}
+        >
+          ✓ bu tarihe planla
+        </button>
+        <button
+          type="button"
+          onClick={() => void karar(runId, 'elle-yayinlandi', { tarih, platformlar: secili })}
+        >
+          ⇪ elle yayınladım
+        </button>
+        <button
+          type="button"
+          onClick={() => void karar(runId, 'cikar', { not: 'takvimden çıkarıldı' })}
+        >
+          ⌫ takvimden çıkar
+        </button>
+        <button type="button" onClick={() => void karar(runId, 'geri-al')}>
+          ↺ kararı geri al
+        </button>
+        <a href={`#/kosu/${runId}`}>↗ koşuyu aç</a>
+      </div>
+      {gecmis.length === 0 ? (
+        <p className="bos">bu gönderi için elle karar yok — otomatik takvimde.</p>
+      ) : (
+        <ul className="akis-gonderiler">
+          {gecmis.map((o, i) => (
+            <li key={`${o.at}-${String(i)}`}>
+              <span className="olcum">{o.at.slice(0, 16).replace('T', ' ')}</span>
+              <strong>{o.karar}</strong>
+              <span className="olcum">{o.tarih}</span>
+              <span>{o.not}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+/**
+ * Bir GÜNÜN kutusu — o tarihe hangi üretim konacak.
+ *
+ * ⚠ ⚠ **BU KUTU OLMADAN TAKVİM SALT-OKUNURDU.** İlk sürümde yalnız planlayıcının
+ * koyduğu gönderiye tıklanabiliyordu; boş bir güne bir üretim KOYMAK imkânsızdı.
+ * Depo sahibi *"istediğim tarihe özel planlama da olmalı"* dedi ve haklıydı: ekleme
+ * yapamayan bir takvim bir rapordur.
+ *
+ * ⚠ Aday listesi yalnız YAYINA HAZIR olanlar — kapıda bekleyen bir üretimi tarihe
+ * bağlamak, olmayan bir şeyi planlamaktır. Kapıdakiler ekranın altında AYRI duruyor.
+ */
+const GunKutusu = ({
+  tarih,
+  adaylar,
+  kapat,
+  karar,
+}: {
+  readonly tarih: string
+  readonly adaylar: readonly HazirKosu[]
+  readonly kapat: () => void
+  readonly karar: (
+    runId: string,
+    k: 'planla' | 'cikar' | 'elle-yayinlandi' | 'geri-al',
+    ek?: { tarih?: string; platformlar?: readonly string[]; not?: string }
+  ) => Promise<void>
+}): React.JSX.Element => {
+  const [secili, setSecili] = useState<readonly string[]>(PLATFORMLAR.map((p) => p.id))
+  return (
+    <section className="gonderi-kutusu">
+      <h3>
+        {tarih} — bu güne gönderi koy{' '}
+        <button type="button" onClick={kapat}>
+          ✕
+        </button>
+      </h3>
+      <div className="filtre-cubuk">
+        {PLATFORMLAR.map((p) => (
+          <label key={p.id}>
+            <input
+              type="checkbox"
+              checked={secili.includes(p.id)}
+              onChange={(e) =>
+                setSecili(e.target.checked ? [...secili, p.id] : secili.filter((x) => x !== p.id))
+              }
+            />{' '}
+            {p.kisa}
+          </label>
+        ))}
+      </div>
+      {adaylar.length === 0 ? (
+        <p className="bos">yayına hazır üretim yok — kapıdakiler önce onaylanmalı.</p>
+      ) : (
+        <ul className="akis-gonderiler">
+          {adaylar.map((a) => (
+            <li key={a.runId}>
+              <strong>{a.sablon}</strong>
+              <span>{a.konu === '' ? a.runId.slice(4, 16) : a.konu}</span>
+              {a.durum === 'otomatik' ? null : <span className="olcum">{a.durum}</span>}
+              <button
+                type="button"
+                onClick={() => void karar(a.runId, 'planla', { tarih, platformlar: secili })}
+              >
+                ✓ bu güne koy
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
 
 export const YayinAkisi = (): React.JSX.Element => {
   const [haftadaKac, setHaftadaKac] = useState(3)
   const [baslangic, setBaslangic] = useState(bugun)
+  const [ayKaydir, setAyKaydir] = useState(0)
   const [veri, setVeri] = useState<Akis | null>(null)
   const [hata, setHata] = useState<string | null>(null)
+  const [mesaj, setMesaj] = useState<string | null>(null)
+  const [acik, setAcik] = useState<string | null>(null)
+  const [gunAcik, setGunAcik] = useState<string | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
     setHata(null)
@@ -76,21 +327,63 @@ export const YayinAkisi = (): React.JSX.Element => {
     } catch (e) {
       setHata(String(e))
     }
-    // ⚠ `haftadaKac` ve `baslangic` bağımlılık listesinde: bu depoda eksik bir liste
-    // bir kez panelin şablon seçimini sessizce yok saymıştı.
   }, [haftadaKac, baslangic])
 
   useEffect(() => {
     void yukle()
   }, [yukle])
 
-  const haftalar = [...new Set(veri?.plan.gonderiler.map((g) => g.hafta) ?? [])].sort(
-    (a, b) => a - b
+  const karar = useCallback(
+    async (
+      runId: string,
+      k: 'planla' | 'cikar' | 'elle-yayinlandi' | 'geri-al',
+      ek: { tarih?: string; platformlar?: readonly string[]; not?: string } = {}
+    ): Promise<void> => {
+      const r = await fetch('/api/yayin-takvimi', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ runId, karar: k, ...ek }),
+      })
+      const j = (await r.json()) as { ok?: boolean; hata?: string }
+      setMesaj(j.ok === true ? `✓ ${k}` : `✗ ${j.hata ?? 'yazılamadı'}`)
+      await yukle()
+    },
+    [yukle]
   )
+
+  if (hata !== null) return <p className="ret-mesaji">⊘ {hata}</p>
+  if (veri === null) return <p className="bos">yükleniyor…</p>
+
+  const bugunSabit = bugun()
+  const b = new Date(`${baslangic}T00:00:00Z`)
+  const gosterilen = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + ayKaydir, 1))
+  const yil = gosterilen.getUTCFullYear()
+  const ay = gosterilen.getUTCMonth()
+  const gunler = ayIzgarasi(yil, ay)
+
+  // ⚠ Otomatik ve elle gönderiler AYNI ızgaraya, AYRI rozetle giriyor: takvimde
+  // hangisinin insan kararı olduğu görünmezse "bunu ben mi koydum" sorusu doğar.
+  const gune: Record<string, Gonderi[]> = {}
+  for (const g of [...veri.plan.gonderiler, ...veri.elleGonderiler]) (gune[g.tarih] ??= []).push(g)
+  // ⚠ ⚠ **YAYINLANMIŞ ile PLANLANMIŞ aynı görünmemeli.** İlk sürümde ikisi de aynı
+  // kutuydu ve takvime bakan biri yayınlanmış bir gönderiyi yeniden yayınlayabilirdi —
+  // geri alınamayan bir hata. Ayrım rozetle değil DURUMLA yapılıyor.
+  for (const g of veri.elleYayinlanan)
+    (gune[g.tarih] ??= []).push({ ...g, elle: true, yayinlandi: true })
+
+  // ⚠ ⚠ **BOŞ DİZE de eksiktir.** İlk sürüm `y ?? …` yazıyordu; `??` yalnız `null`
+  // ve `undefined`da yedeğe düşüyor, `''` geçip gidiyordu — ve takvimde elle
+  // planlanan gönderi KONUSUZ göründü. Ekrana bakmasam fark etmezdim.
+  const konuAl = (runId: string, y?: string): string => {
+    const d = (y ?? '').trim()
+    if (d !== '') return d
+    const k = (veri.konular[runId] ?? '').trim()
+    return k === '' ? runId.slice(4, 16) : k
+  }
 
   return (
     <div className="ekran">
-      <h2>Yayın akışı</h2>
+      <h2>Yayın takvimi</h2>
 
       <div className="filtre-cubuk">
         <label>
@@ -107,118 +400,184 @@ export const YayinAkisi = (): React.JSX.Element => {
           başlangıç{' '}
           <input type="date" value={baslangic} onChange={(e) => setBaslangic(e.target.value)} />
         </label>
+        <button type="button" onClick={() => setAyKaydir(ayKaydir - 1)}>
+          ‹ önceki ay
+        </button>
+        <strong>
+          {AY_ADI[ay]} {yil}
+        </strong>
+        <button type="button" onClick={() => setAyKaydir(ayKaydir + 1)}>
+          sonraki ay ›
+        </button>
+        {ayKaydir === 0 ? null : (
+          <button type="button" onClick={() => setAyKaydir(0)}>
+            bugüne dön
+          </button>
+        )}
       </div>
 
-      {hata !== null ? <p className="ret-mesaji">⊘ {hata}</p> : null}
-      {veri === null ? (
-        <p className="bos">yükleniyor…</p>
-      ) : (
-        <>
-          <p className="olcum">
-            {veri.hazir} yayına hazır · {veri.kapida.length} kapıda · {veri.gecmis.length}{' '}
-            yayınlanmış
-            {/* ⚠ Planlanamayanı SAYIYORUZ: "3 hazır" demek, 5 koşunun sessizce
-                kaybolduğu bir ekranda yanıltıcı bir doğruluk olurdu. */}
-            {veri.sablonsuz === 0
-              ? ''
-              : ` · ${String(veri.sablonsuz)} onaylı koşu şablonsuz (katalog öncesi) — takvime giremiyor`}
-          </p>
+      <p className="olcum">
+        {veri.hazir} yayına hazır · {veri.elleGonderiler.length} elle planlanmış ·{' '}
+        {veri.cikarilan.length} çıkarılmış · {veri.kapida.length} kapıda ·{' '}
+        {veri.gecmis.length + veri.elleYayinlanan.length} yayınlanmış
+        {veri.sablonsuz === 0 ? '' : ` · ${String(veri.sablonsuz)} onaylı koşu şablonsuz`}
+        {/* ⚠ Elenen SAYILIYOR: gizlenen bir şeyin sayısı görünmezse "3 hazır" diyen
+            bir başlık, elenmiş on üç üretimi yok sayar. */}
+        {veri.elenmis === 0 ? '' : ` · ${String(veri.elenmis)} elenmiş gizli`}
+      </p>
+      {mesaj === null ? null : <p className="olcum">{mesaj}</p>}
 
-          {veri.plan.uyarilar.length === 0 ? null : (
-            <ul className="akis-uyarilar">
-              {veri.plan.uyarilar.map((u) => (
-                <li key={u.aciklama} className="is-uyari">
-                  ⚠ {u.aciklama}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {/* ── TAKVİM: hafta hafta ─────────────────────────────────────── */}
-          {veri.hazir === 0 ? (
-            <p className="bos">
-              yayına hazır üretim yok — bir koşu `insan-onayi` kapısından geçince burada belirir.
-            </p>
-          ) : (
-            haftalar.map((h) => (
-              <section key={h} className="akis-hafta">
-                <h3>{h}. hafta</h3>
-                <ul className="akis-gonderiler">
-                  {veri.plan.gonderiler
-                    .filter((g) => g.hafta === h)
-                    .map((g) => (
-                      <li key={g.runId}>
-                        <span className="olcum">{g.tarih}</span>
-                        {/* ⚠ Şablon rozeti ŞART: çeşitlilik kuralının çalıştığını
-                            gözle görmenin tek yolu şablonları yan yana görmek. */}
-                        <strong>{g.sablon}</strong>
-                        <a href={`#/kosu/${g.runId}`}>{g.runId.slice(4, 16)}</a>
-                      </li>
-                    ))}
-                </ul>
-              </section>
-            ))
-          )}
-
-          {/* ── DAĞILIM: denge gözle görünsün ───────────────────────────── */}
-          {Object.keys(veri.plan.dagilim).length === 0 ? null : (
-            <section className="akis-dagilim">
-              <h3>şablon dağılımı</h3>
-              <ul>
-                {Object.entries(veri.plan.dagilim)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([s, n]) => (
-                    <li key={s}>
-                      <span className="olcum">{s}</span> {n}
-                    </li>
-                  ))}
-              </ul>
-            </section>
-          )}
-
-          {/* ── KAPIDA BEKLEYENLER ──────────────────────────────────────── */}
-          <section className="akis-hafta">
-            <h3>kapıda bekleyen</h3>
-            {veri.kapida.length === 0 ? (
-              <p className="bos">kapıda bekleyen koşu yok.</p>
-            ) : (
-              <ul className="akis-gonderiler">
-                {veri.kapida.map((k) => (
-                  <li key={k.runId}>
-                    <span className="olcum">{k.kapi}</span>
-                    <strong>{k.sablon}</strong>
-                    <a href={`#/kosu/${k.runId}`}>
-                      {k.konu === '' ? k.runId.slice(4, 16) : k.konu}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          {/* ── GEÇMİŞ ──────────────────────────────────────────────────── */}
-          <section className="akis-hafta">
-            <h3>yayınlanmış</h3>
-            {veri.gecmis.length === 0 ? (
-              // ⚠ "Hiç yayınlanmadı" AÇIKÇA yazılıyor: boş bir liste, defterin
-              // okunamadığıyla karıştırılabilirdi.
-              <p className="bos">henüz hiçbir üretim yayınlanmadı.</p>
-            ) : (
-              <ul className="akis-gonderiler">
-                {veri.gecmis.map((g) => (
-                  <li key={g.runId}>
-                    <span className="olcum">{g.zaman.slice(0, 10)}</span>
-                    <strong>{g.sablon}</strong>
-                    <a href={`#/kosu/${g.runId}`}>
-                      {g.konu === '' ? g.runId.slice(4, 16) : g.konu}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </>
+      {veri.plan.uyarilar.length === 0 ? null : (
+        <ul className="akis-uyarilar">
+          {veri.plan.uyarilar.map((u) => (
+            <li key={u.aciklama} className="is-uyari">
+              ⚠ {u.aciklama}
+            </li>
+          ))}
+        </ul>
       )}
+
+      <div className="takvim">
+        {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((g) => (
+          <div key={g} className="takvim-baslik">
+            {g}
+          </div>
+        ))}
+        {gunler.map((t) => {
+          const buAy = Number(t.slice(5, 7)) === ay + 1
+          const liste = gune[t] ?? []
+          const sinif = [
+            'takvim-gun',
+            buAy ? '' : 'takvim-disari',
+            t === bugunSabit ? 'takvim-bugun' : '',
+            t === gunAcik ? 'takvim-secili' : '',
+          ]
+            .filter((x) => x !== '')
+            .join(' ')
+          return (
+            <div key={t} className={sinif}>
+              <span className="takvim-tarih">{t.slice(8)}</span>
+              {liste.map((g) => (
+                <button
+                  key={g.runId}
+                  type="button"
+                  className={[
+                    'takvim-oge',
+                    g.elle === true ? 'takvim-elle' : '',
+                    g.yayinlandi === true ? 'takvim-yayinlandi' : '',
+                  ]
+                    .filter((x) => x !== '')
+                    .join(' ')}
+                  onClick={() => {
+                    setGunAcik(null)
+                    setAcik(acik === g.runId ? null : g.runId)
+                  }}
+                  title={konuAl(g.runId, g.konu)}
+                >
+                  <span className="takvim-sablon">
+                    {g.yayinlandi === true ? '✓ ' : ''}
+                    {g.sablon}
+                  </span>
+                  <span className="takvim-konu">{konuAl(g.runId, g.konu)}</span>
+                  <span className="takvim-platform">
+                    {(g.platformlar ?? PLATFORMLAR.map((x) => x.id))
+                      .map((id) => PLATFORMLAR.find((x) => x.id === id)?.kisa ?? id)
+                      .join(' ')}
+                  </span>
+                </button>
+              ))}
+              {/* ⚠ BOŞ GÜN de tıklanabilir: takvimin ekleyemediği bir takvim rapordur. */}
+              <button
+                type="button"
+                className="takvim-ekle"
+                onClick={() => {
+                  setAcik(null)
+                  setGunAcik(gunAcik === t ? null : t)
+                }}
+                title={`${t} gününe gönderi koy`}
+              >
+                +
+              </button>
+            </div>
+          )
+        })}
+      </div>
+
+      {gunAcik === null ? null : (
+        <GunKutusu
+          tarih={gunAcik}
+          adaylar={veri.hazirListe ?? []}
+          kapat={() => setGunAcik(null)}
+          karar={karar}
+        />
+      )}
+
+      {acik === null ? null : (
+        <GonderiKutusu runId={acik} konu={konuAl(acik)} kapat={() => setAcik(null)} karar={karar} />
+      )}
+
+      {veri.cikarilan.length === 0 ? null : (
+        <section className="akis-hafta">
+          <h3>takvimden çıkarılanlar</h3>
+          <ul className="akis-gonderiler">
+            {veri.cikarilan.map((x) => (
+              <li key={x.runId}>
+                <strong>{x.sablon}</strong>
+                <span>{x.konu === '' ? x.runId.slice(4, 16) : x.konu}</span>
+                {x.not === '' ? null : <span className="olcum">{x.not}</span>}
+                <button type="button" onClick={() => void karar(x.runId, 'geri-al')}>
+                  ↺ geri al
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="akis-hafta">
+        <h3>kapıda bekleyen</h3>
+        {veri.kapida.length === 0 ? (
+          <p className="bos">kapıda bekleyen koşu yok.</p>
+        ) : (
+          <ul className="akis-gonderiler">
+            {veri.kapida.map((k) => (
+              <li key={k.runId}>
+                <span className="olcum">{k.kapi}</span>
+                <strong>{k.sablon}</strong>
+                <a href={`#/kosu/${k.runId}`}>{k.konu === '' ? k.runId.slice(4, 16) : k.konu}</a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="akis-hafta">
+        <h3>yayınlanmış</h3>
+        {veri.gecmis.length === 0 && veri.elleYayinlanan.length === 0 ? (
+          <p className="bos">henüz hiçbir üretim yayınlanmadı.</p>
+        ) : (
+          <ul className="akis-gonderiler">
+            {veri.elleYayinlanan.map((g) => (
+              <li key={g.runId}>
+                <span className="olcum">{g.tarih}</span>
+                <strong>{g.sablon}</strong>
+                <span className="olcum">elle</span>
+                <a href={`#/kosu/${g.runId}`}>{konuAl(g.runId, g.konu)}</a>
+                <button type="button" onClick={() => void karar(g.runId, 'geri-al')}>
+                  ↺ geri al
+                </button>
+              </li>
+            ))}
+            {veri.gecmis.map((g) => (
+              <li key={g.runId}>
+                <span className="olcum">{g.zaman.slice(0, 10)}</span>
+                <strong>{g.sablon}</strong>
+                <a href={`#/kosu/${g.runId}`}>{g.konu === '' ? g.runId.slice(4, 16) : g.konu}</a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   )
 }

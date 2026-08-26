@@ -63,17 +63,39 @@ const EKRAN: Readonly<Record<string, Ekran>> = {
  * varlık → bütçe → sağlık. Alfabetik bir liste, işin sırasını gizlerdi.
  */
 const NAV: readonly (readonly [Ekran, string])[] = [
-  ['kuyruk', 'Onaylar'],
   ['calistir', 'Üret'],
   ['gecmis', 'Koşular'],
   ['varliklar', 'Varlıklar'],
   // ⚠ Yayın akışı VARLIKLARDAN SONRA: günlük sıra onay → üret → koşular → varlık →
   // YAYIN. Takvim, üretilen şeyin nereye gittiği; varlıktan önce koymak sırayı bozardı.
   ['yayin-akisi', 'Yayın'],
-  ['butce', 'Bütçe'],
-  ['uyum', 'Uyum'],
-  ['doktor', 'Doktor'],
 ]
+
+// ⚠ ⚠ **`butce` DE ÜST GEZİNMEDEN ÇIKTI** — depo sahibi: *"bütçeyi de yukardan
+// kaldır"*. Maliyet zaten durum şeridinde HER EKRANDA duruyor (`maliyet $…`, `kota`);
+// ayrı bir sekme aynı sayıyı ikinci kez göstermek için bir tıklama istiyordu. Ayrıntı
+// gerektiğinde palette (⌘K) ve `#/butce` adresinde.
+//
+// ⚠ ⚠ **`kuyruk` (Onaylar) DA ÜST GEZİNMEDEN ÇIKTI.** Depo sahibi: *"onaylar sekmesi
+// aşırı işlevsiz; zaten onayı koşu detayında yönetiyoruz. Koşular ve varlıklar
+// sekmelerine filtre ve özellikler ekleyerek onaylar sekmesini kaldırıp bu sekmeleri
+// canlandırabiliriz"*.
+//
+// ⚠ ⚠ **YETENEĞİ ÖNCE TAŞIDIM, SONRA SEKMEYİ KALDIRDIM — tersi kayıp olurdu.** O ekranın
+// tek yaptığı, kapıda bekleyen koşuları şablon ve konusuyla listelemekti. İkisi de artık
+// **Koşular**ta: `kapı` ve `şablon` süzgeçleri, şablon/konu sütunları, ve konuyu da
+// tarayan arama. Kaldırmadan önce taşımasaydım "sadeleştirme" diye bir yetenek silinirdi.
+//
+// ⚠ SİLİNMEDİ: klavyeyle çalışan toplu gözden geçirme akışı (`j`/`k`/`a`/`r`) hâlâ
+// palette ve adresi çalışıyor — bir oturumda on koşu gözden geçirmek için hâlâ en hızlı yol.
+//
+// ⚠ ⚠ **`uyum` ve `doktor` ÜST GEZİNMEDEN ÇIKTI, SİLİNMEDİ.** Depo sahibi: *"uyum
+// sayfası gereksiz"* ve *"doktor gereksiz, orada fazlalık yapıyor, daha gizli bi yere
+// alınabilir"*. İkisi de günlük akışın parçası değil: `uyum` bir denetim raporu,
+// `doktor` bir ay ihmalden sonra açılacak ekran (§16). Her gün bakılmayan bir şeyi her
+// gün göstermek, her gün bakılanı zorlaştırıyor.
+// ⚠ SİLİNMEDİ (Yasa 10): ikisi de palette duruyor (⌘K) ve adresleri çalışıyor.
+// `ui-navigasyon` kapısı zaten her ekranın palete bağlı olmasını zorluyor.
 
 // Nabız aralığı SUNUCUDAN öğrenilir. Buraya bir sabit yazmak, sunucu nabzını
 // değiştirdiği gün UI'ın sessizce yanlış ölçmesi demekti (iki gerçek).

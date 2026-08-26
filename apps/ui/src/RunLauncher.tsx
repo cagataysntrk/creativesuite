@@ -97,9 +97,18 @@ export const RunLauncher = ({
   // ⚠ Varsayılan `firma` — bugünkü davranış. Yeni bir seçenek eklemek, var olan
   // davranışı sessizce değiştirmemeli.
   const [icerikKipi, setIcerikKipi] = useState('firma')
-  // ⚠ Varsayılan yalnız `instagram` — bugünkü davranış. Dört platforma birden
-  // göndermek insanın AÇIK kararı olmalı, bir varsayılanın yan etkisi değil.
-  const [platformlar, setPlatformlar] = useState<readonly string[]>(['instagram'])
+  // ⚠ ⚠ **VARSAYILAN DÖRDÜ BİRDEN — depo sahibinin kararı.** *"Her gönderi için yayın
+  // 4 platformda da standart, anormal bi durum olmadıkça varsayılan dördü de."* İlk
+  // sürüm yalnız `instagram` seçiyordu ve gerekçesi *"dört platforma göndermek insanın
+  // AÇIK kararı olmalı"* idi — ama sahibi o kararı ZATEN verdi ve varsayılan olarak
+  // verdi. Her koşuda üç kutu işaretlemek, verilmiş bir kararı her seferinde yeniden
+  // sordurmak olurdu.
+  const [platformlar, setPlatformlar] = useState<readonly string[]>([
+    'instagram',
+    'facebook',
+    'linkedin',
+    'x',
+  ])
   const [sablonlar, setSablonlar] = useState<
     readonly { id: string; ad: string; kullanilabilir: boolean }[]
   >([])
