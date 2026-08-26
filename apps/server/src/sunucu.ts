@@ -1601,7 +1601,28 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
 
   app.get('/api/performans', (c) => {
     const yayinlar = readLedger(o.repoRoot)
-    if (!yayinlar.ok) return c.json({ hata: yayinlar.error }, 422)
+    if (!yayinlar.ok) {
+      // ⚠ ⚠ **DEFTER YOKLUĞU BİR HATA DEĞİL, BOŞ DURUM — ve bunu UÇTAN UCA KAPISI
+      // buldu.** Hiç yayın yapılmamış bir depoda `published.ndjson` hiç yazılmıyor ve
+      // uç 422 dönüyordu: panel ekranı kırık istek + konsol hatasıyla açıyor, yani
+      // ÇALIŞAN bir sistem BOZUK görünüyordu. Bu depoda aynı sınıfın üçüncü örneği
+      // ("boş liste, defterin okunamadığıyla karıştırılabilirdi").
+      // ⚠ AYRIM KORUNUYOR: defter YOKSA boş pano + `defterYok: true`; defter VARSA ama
+      // OKUNAMIYORSA hâlâ 422. İkisini birleştirmek, bozuk bir defteri "hiç yayın yok"
+      // diye göstermek olurdu ve o gerçek bir kayıp.
+      if (yayinlar.error.kind === 'ledger_missing')
+        return c.json({
+          pano: performansPanosu({
+            yayinlar: [],
+            olcumler: [],
+            bugun: o.simdi().slice(0, 10),
+            metrik: c.req.query('metrik') ?? 'reach',
+          }),
+          olcumHatasi: null,
+          defterYok: true,
+        })
+      return c.json({ hata: yayinlar.error }, 422)
+    }
     const olcumler = readInsights(o.repoRoot)
     return c.json({
       pano: performansPanosu({
