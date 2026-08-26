@@ -76,10 +76,21 @@ describe('katalog varyantları', () => {
     }
   })
 
+  // ⚠ ⚠ **DAĞARCIK GÜNCELLENDİ — `rim light` ÇIKTI, ÇÜNKÜ ARTIK YASAK.** Bu liste
+  // serinin ortak üslubunu ölçüyor ve eski ev üslubundan kalmıştı. İki sorun vardı:
+  //  1. `rim light` burada İZİNLİ görünüyordu ama FAZ-18.3 onu ölçerek yasaklamıştı
+  //     (hale kesme sırasında özneye yapışıyor) ve `gorsel-brief` kapısı reddediyor —
+  //     iki kural birbiriyle ÇELİŞİYORDU.
+  //  2. Depo sahibi *"sabit monokrom saçmalıklar"* deyince brief'ler 3B nesneye geçti;
+  //     `donen`in malzemesi fırçalanmış metal oldu ve ortak sözcük düştü. Kural haklı
+  //     olarak kırmızı döndü: seri bütünlüğü üsluptan gelir ve o üslup ADLANDIRILMALI.
+  // ⚠ Kural gevşetilmedi, dağarcık BUGÜNKÜ ortak dile göre yeniden yazıldı.
   it('görsel DİLİ hâlâ ortak — seri bütünlüğü üsluptan geliyor', () => {
     for (const s of gorselli) {
       for (const v of s.gorsel?.varyantlar ?? []) {
-        expect(v).toMatch(/monochrome|matte|studio|natural light|rim light/)
+        expect(v, `${s.id}: "${v}" ortak üslup sözcüğü taşımıyor`).toMatch(
+          /monochrome|matte|studio|natural light|clay/
+        )
       }
     }
   })

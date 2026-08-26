@@ -235,6 +235,58 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
       kusurlar.push(
         `${yer}: üst başlık bir SAYAÇ ("${y.ustBaslik}") — numaralı etiket yasak, kartın konusunu adlandır`
       )
+    // ⚠ ⚠ **PANO ÖGE SAYISI KOMPOZİSYONUN PARÇASI — ve `dizin` bunu üretimde kaybetti.**
+    // O şablonun kimliği *"dört maddenin dördü HER kartta"* ve ok güzergâhı madde
+    // satırlarına varacak şekilde hizalı. Gerçek bir koşuda model listeleri İKİ maddeye
+    // indirdi: deste kimliğini kaybetti ve üç okun üçü de boşluğa indi.
+    // ⚠ Tip zaten sabitleniyordu; sayı sabitlenmiyordu. Sözleşmenin bir yarısı yine
+    // eksikti — bu turda beşinci kez aynı sınıf.
+    // ⚠ ⚠ **KURAL ÖNCE FAZLA GENİŞ YAZILDI ve kendi testi düzeltti.** İlk hâli HER pano
+    // tipinde sayıyı sabitliyordu; oysa bir grafiğin üç mü dört mü çubuk taşıyacağı
+    // İÇERİĞİN kararı ve mevcut bir test bunu haklı olarak savunuyordu. Sabit olması
+    // gereken yer dar ve YAPISAL: taşıyıcısı OK olan deste, oklarını pano satırlarına
+    // vardırıyor (`tasiyici-verisi`: ok sayısı = madde sayısı − 1). Orada sayı bir
+    // tercih değil, geometrinin kendisi.
+    // ⚠ Test kurguları bant taşımayabiliyor: alan istemli okunuyor.
+    const rotali = (ornek.bant as { tip?: string } | undefined)?.tip === 'ok'
+    const beklenen = rotali ? panoOgeSayisi(o.panel) : null
+    const gelen = rotali
+      ? panoOgeSayisi(y.panel as KatalogOrnegi['kartlar'][number]['panel'])
+      : null
+    if (beklenen !== null && gelen !== null && gelen !== beklenen)
+      kusurlar.push(
+        `${yer}: pano ${String(gelen)} öge taşıyor, şablon TAM ${String(beklenen)} istiyor — ` +
+          'öge sayısı kompozisyonun parçası; taşıyıcı oklar o satırlara varıyor'
+      )
+    // ⚠ ⚠ **ROTALI DESTEDE HER KARTTA TAM BİR YANIK MADDE OLMALI.** Ok o maddeye
+    // iniyor; hiçbiri yanık değilse ok hedefsiz kalır, birden fazlaysa hangisine
+    // indiği belirsizleşir. Üretimde tam olarak birincisi oldu: model `aktif` alanını
+    // hiç doldurmadı (şemada yoktu), dört kartta da bütün maddeler sönük kaldı.
+    if (rotali && gelen !== null) {
+      const liste = y.panel as { tip?: string; ogeler?: readonly { aktif?: boolean }[] } | null
+      if (liste?.tip === 'liste') {
+        const yanik = (liste.ogeler ?? []).filter((x) => x.aktif === true).length
+        if (yanik !== 1)
+          kusurlar.push(
+            `${yer}: listede ${String(yanik)} yanık madde var, TAM 1 olmalı — ` +
+              'güzergâhın oku yanık maddeye iniyor, yoksa hedefsiz kalıyor'
+          )
+      }
+    }
+    // ⚠ ⚠ **HER ÇUBUĞU TARALI BİR GRAFİK, GRAFİK DEĞİLDİR.** Tarama "bu değer ölçülmedi,
+    // öngörülüyor" demek; hepsi taralıysa ayrım YOK olur ve okuyucu bütün seriyi uydurma
+    // sanır. Gerçek bir koşuda (`veri-hikayesi`) tam olarak bu oldu — üç panonun üçünde
+    // de bütün çubuklar taralıydı. İstem artık anlamı söylüyor; bu iddia da onu ölçüyor,
+    // çünkü söylenen bir kural ile ölçülen bir kural aynı şey değildir.
+    // ⚠ Şekil DARALTILARAK okunuyor: uyarlama panelinin tipi gevşek ve `satirlar` her
+    // panel tipinde yok. Doğrudan erişmek, olmayan bir alana güvenmek olurdu.
+    const pano = y.panel as { tip?: string; satirlar?: readonly { tahmin?: boolean }[] } | null
+    const cubuklar = pano?.tip === 'cubuklar' ? (pano.satirlar ?? []) : []
+    if (cubuklar.length > 1 && cubuklar.every((r) => r.tahmin === true))
+      kusurlar.push(
+        `${yer}: panodaki ${String(cubuklar.length)} çubuğun HEPSİ tahmin işaretli — ` +
+          'tarama "ölçülmedi" demek, hepsi taralıysa ayrım kalmıyor ve seri uydurma okunuyor'
+      )
     // ⚠ Örnek işareti kalmışsa kaynak GİRİLMEMİŞ demektir (Yasa 8).
     if (y.rayaOrta.includes(ORNEK_ISARETI))
       kusurlar.push(`${yer}: kaynak hâlâ "${y.rayaOrta}" — şablonun örnek işareti değiştirilmeli`)
@@ -377,7 +429,34 @@ export const uyarla = (ornek: KatalogOrnegi, u: Uyarlama): UyarlamaSonucu => {
  * tipi var. Değiştirilemeyen bir şeyi tarif etmek, modele orada bir seçim varmış gibi
  * gösterir ve o seçimi yapmaya çalışır.
  */
+/**
+ * Panonun ÖGE SAYISI — istemde ve doğrulamada AYNI kaynaktan.
+ *
+ * ⚠ İki yerde hesaplanan bir sayı iki farklı sonuç verir: model bir sayıya uyarken
+ * başka bir sayıda reddedilir.
+ */
+const panoOgeSayisi = (panel: KatalogOrnegi['kartlar'][number]['panel']): number | null => {
+  // ⚠ `null` DEĞİL, `undefined` da gelebilir: panel alanı istemli ve testlerde kart
+  // panelsiz kuruluyor. Yalnız `null` denetlemek, bu turda TypeError ile on bir testi
+  // birden düşürdü.
+  const p = panel as
+    { tip?: string; ogeler?: readonly unknown[]; satirlar?: readonly unknown[] } | null | undefined
+  if (p === null || p === undefined) return null
+  if (p.tip === 'liste' || p.tip === 'sayilar' || p.tip === 'etiketler')
+    return (p.ogeler ?? []).length
+  if (p.tip === 'cubuklar') return (p.satirlar ?? []).length
+  return null
+}
+
+const panoAdedi = (panel: KatalogOrnegi['kartlar'][number]['panel']): string => {
+  const n = panoOgeSayisi(panel)
+  return n === null ? '' : `, TAM ${String(n)} öge`
+}
+
 export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: string): string => {
+  // ⚠ Bütçe DOĞRULAYICIYLA AYNI kaynaktan: iki yerde hesaplanan bir sayı, iki farklı
+  // sonuç verir ve model bir sınıra uyarken başka bir sınırda reddedilir.
+  const butce = kelimeButcesi(ornek)
   // ⚠ ⚠ **ÖRNEK BAŞLIĞIN METNİ İSTEME GİRMİYOR — YALNIZ ŞEKLİ.** İstem zaten
   // "başlıkları konuya göre yeniden yaz, aynen bırakmak reddedilir" diyordu ve model
   // İKİ AYRI KOŞUDA dördü de aynen döndürdü; `uyarla` haklı olarak reddetti ve hat
@@ -392,7 +471,15 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
   const ustBasligiVar = ornek.kartlar.some((k) => k.ustBaslik.trim() !== '')
   const kartlar = ornek.kartlar
     .map((k, i) => {
-      const p = k.panel === null ? 'panel yok' : `panel: ${k.panel.tip} (tipi DEĞİŞTİRİLEMEZ)`
+      // ⚠ ⚠ **TİP SABİTLENİYORDU, SAYI SABİTLENMİYORDU — ve `dizin` bunu üretimde
+      // kaybetti.** O şablonun kimliği *"dört maddenin dördü HER kartta"*; gerçek bir
+      // koşuda model listeleri İKİ maddeye indirdi ve deste kimliğini kaybetti. Üstelik
+      // ok güzergâhı madde satırlarına varacak şekilde hizalı — madde sayısı değişince
+      // oklar boşluğa iniyor. Sayı bir tercih değil, KOMPOZİSYONUN parçası.
+      const p =
+        k.panel === null
+          ? 'panel yok'
+          : `panel: ${k.panel.tip} (tipi DEĞİŞTİRİLEMEZ${panoAdedi(k.panel)})`
       const kelimeler = k.baslik.split(/\s+/).filter((w) => w !== '')
       const vurguSirasi = kelimeler.findIndex((w) => w.includes('**'))
       const vurgu =
@@ -401,7 +488,17 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
       // koyduğumuz her alan doldurulmayı ister ve doldurulan alan çizilmese bile
       // modelin dikkatini böler.
       const etiket = k.ustBaslik.trim() === '' ? `kart ${i + 1}` : k.ustBaslik
-      return `${i + 1}. ${etiket} — başlık: ${kelimeler.length} kelime, ${vurgu} · ${p}`
+      // ⚠ ⚠ **GÖVDE BÜTÇESİ DE SÖYLENİYOR — çünkü söylenmeyen sınır KOŞUYU ÖLDÜRÜYOR.**
+      // `alinti` gerçek bir koşuda `duzen-provasi`nda düştü: `metin-payi-yuksek`, yani
+      // metin kadrajın %30 tavanını aştı. Şablonun kimliği *"tek iri serif söz"* ve
+      // taslağındaki gövde kısa; model bunu bilmeden uzun yazdı ve karosel hiç
+      // üretilmedi. Denetim tavanı ÖLÇÜYORDU, istem SÖYLEMİYORDU.
+      // ⚠ Bütçe yine taslaktan okunuyor, uydurulmuyor: şablonun kendi gövdesi ne kadarsa
+      // o. +%25 tolerans, Türkçenin eklerine pay.
+      const govdeBut = Math.round([...k.govde].length * 1.25)
+      const govdeNot =
+        k.govde.trim() === '' ? 'gövde yok' : `gövde: en fazla ${String(govdeBut)} karakter`
+      return `${i + 1}. ${etiket} — başlık: ${kelimeler.length} kelime, ${vurgu} · ${govdeNot} · ${p}`
     })
     .join('\n')
   return [
@@ -413,6 +510,22 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     'vurgunun yeri ve panel tipi.',
     'Kompozisyonu değiştirme; yalnız metni ve',
     `panel verisini değiştir. Kart sayısı SABİT: tam ${ornek.kartlar.length} kart üret.`,
+    // ⚠ ⚠ **HARF BÜTÇESİ İSTEME YAZILMAZSA MODEL UYAMAZ — VE KOŞU ÖLÜR.** Doğrulayıcı
+    // bu bütçeyi zaten ölçüyordu ama istem yalnız KELİME SAYISINI söylüyordu; model
+    // harf sınırını bilmeden yazıyor, `kompozit` uyarlamayı reddediyor ve hat
+    // ADAPTATION_REJECTED ile duruyor. Gerçek bir koşuda (`editoryal`) model
+    // "ertelenir" yazdı — 9 harf, bütçe 8 — ve karosel hiç üretilmedi.
+    // ⚠ Türkçe eklemeli: uzun kelime kural, istisna değil. Bilinmeyen bir sınırı
+    // rastgele tutturmasını beklemek, koşuyu zara bağlamaktır.
+    `En uzun başlık kelimesi EN FAZLA ${String(butce)} harf olabilir — bu şablonun kolon`,
+    'genişliği ondan geliyor ve TEK bir uzun kelime bütün karoselin puntosunu düşürür.',
+    'Daha uzun bir kelime yazmak zorunda kalıyorsan onu KISALT ya da başka bir kelime seç.',
+    // ⚠ ⚠ **CÜMLE DÜZENİ — İngilizce başlık alışkanlığı Türkçeye taşınıyor.** Gerçek bir
+    // koşuda (`akan-alan`) model "Vardiya Hafızasına Güvenen Hat Döngüye Giremez" yazdı:
+    // her kelimenin baş harfi büyük. Türkçede bu bir başlık düzeni değil; üstelik öteki
+    // desteler cümle düzeninde yazıyor ve seri tek hesapta yan yana duruyor.
+    'Başlıkları CÜMLE DÜZENİNDE yaz: yalnız ilk harf ve özel adlar büyük.',
+    'Her kelimenin baş harfini büyütme — bu İngilizce başlık alışkanlığı, Türkçede değil.',
     'Kaynak metinde daha fazla madde varsa BİRLEŞTİR; daha az varsa madde UYDURMA —',
     'içeriği kartlara dağıtmak senin işin.',
     '',
@@ -508,11 +621,29 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
     'PANEL ŞEKİLLERİ — kartın taşıdığı tipe göre, tip DEĞİŞTİRİLEMEZ:',
     '  "panel": { "tip": "cubuklar", "baslik": "PANEL BAŞLIĞI", "satirlar": [',
     '      { "etiket": "2019", "deger": 34, "not": "kısa not", "tahmin": false } ] }',
+    // ⚠ ⚠ **ŞEKİL VERİLİYORDU, ANLAM VERİLMİYORDU — ve üretimde bunun bedeli ödendi.**
+    // `veri-hikayesi` gerçek bir koşuda ÜÇ panosunun ÜÇÜNDE de her çubuğu
+    // `tahmin: true` yaptı; render onları taralı çiziyor ve okuyucu altı yıllık verinin
+    // TAMAMINI uydurma sanıyor. Model alanı görüyordu ama ne demek olduğunu değil.
+    // ⚠ Aynı sınıf hata bu turda dördüncü kez: harf bütçesi söylenmiyordu, gövde
+    // bütçesi söylenmiyordu, aksan alanı derinliği sabitti. Şema bir sözleşmedir;
+    // sözleşmenin yarısı şekil, yarısı ANLAMDIR.
+    '`tahmin` alanı: değer ÖLÇÜLMEDİ, öngörülüyor demektir — o çubuk TARALI çizilir.',
+    'Kaynak metin bir değeri açıkça öngörü/hedef diye vermiyorsa `false` bırak.',
+    'Bütün satırları `true` yapma: her çubuğu taralı bir grafik hiçbir şey ayırt etmez.',
     '  "panel": { "tip": "sayilar", "ogeler": [',
     '      { "deger": "48", "birim": "%", "alt": "neyin oranı" } ] }',
     '  "panel": { "tip": "vafel", "baslik": "PANEL BAŞLIĞI", "dolu": 7, "toplam": 10 }',
     '  "panel": { "tip": "liste", "baslik": "PANEL BAŞLIĞI", "ogeler": [',
-    '      { "no": "01", "ad": "madde metni" } ] }',
+    '      { "no": "01", "ad": "madde metni", "aktif": false } ] }',
+    // ⚠ ⚠ **`aktif` ŞEMADA HİÇ YOKTU — ve `dizin` bunu üretimde kaybetti.** O şablonun
+    // kimliği "dört maddenin dördü HER kartta, biri YANIK": yanık madde o kartın
+    // anlattığı adım ve güzergâhın oku TAM ORAYA iniyor. Model alanı görmediği için
+    // hiçbir satırı işaretlemedi; dört kartta da bütün maddeler sönük kaldı ve üç okun
+    // ucu hedefsiz boşlukta bitti. Gözle bakınca "oklar bozuk" görünüyordu; sebep
+    // okların geometrisi değil, ŞEMANIN EKSİĞİYDİ.
+    '`aktif` alanı: o kartın anlattığı madde. Kartta TAM BİR tane `true` olur, geri kalanı',
+    '`false` — güzergâhın oku yanık maddeye iner, hiçbiri yanık değilse ok hedefsiz kalır.',
     '  "panel": { "tip": "etiketler", "ogeler": ["2019", "2021", "2023"] }',
     '`deger` SAYI, `no` ve `deger` (sayilar tipinde) METİN — tırnakları örnekteki gibi bırak.',
   ].join('\n')

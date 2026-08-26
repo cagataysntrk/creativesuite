@@ -167,9 +167,24 @@ export const localRembg: ProviderAdapter = {
     // şekil, üreticiyle tüketici arasında sessiz uyuşmazlık demekti (D-227).
     // ⚠ Çıktı zaten base64: yeniden kodlanmıyor, yalnız boşluklardan arındırılıyor.
     const b64Cikti = sonuc.stdout.trim()
+    // ⚠ ⚠ **SAYDAM PAY TAŞINIYOR — "kesildi mi" sorusunun ÖLÇÜLEBİLİR cevabı.** Gerçek
+    // bir koşuda (`donen`) model tek nesne yerine bir DOKU üretti; `rembg`in kesecek
+    // bir şeyi olmadı, saydam pay %0,0 ve %3,9 çıktı ve slayta KÖŞELİ BİR DİKDÖRTGEN
+    // düştü. Aynı koşuda gerçek bir kesik nesne %41,4 verdi. Yani kusur görünür ama
+    // hiçbir yerde SAYI değildi.
+    // ⚠ Ölçüm betikte yapılıyor (PNG'yi çözebilen tek taraf orası) ve buradan yalnız
+    // OKUNUYOR: TS tarafına bir görüntü kütüphanesi eklemek (R-75) bunun için
+    // gereksiz bir bağımlılıktı.
+    const payEslesme = /saydam-pay=([0-9.]+)/.exec(sonuc.stderr)
+    const saydamPay = payEslesme === null ? null : Number(payEslesme[1])
     sonuclar.set(handle.externalId, {
       state: 'succeeded',
-      output: { format: 'base64', data: b64Cikti, matlandi: true },
+      output: {
+        format: 'base64',
+        data: b64Cikti,
+        matlandi: true,
+        ...(saydamPay === null || !Number.isFinite(saydamPay) ? {} : { saydamPay }),
+      },
     })
     return ok(handle)
   },

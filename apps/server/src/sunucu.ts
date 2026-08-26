@@ -1008,7 +1008,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       '.JPG': 'image/jpeg',
       '.jpeg': 'image/jpeg',
       '.webp': 'image/webp',
-      '.svg': 'image/svg+xml',
+      // ⚠ ⚠ **`.svg` BİLEREK YOK — bir güvenlik incelemesi bunu yakaladı.** İlk yazımda
+      // `image/svg+xml` eşlemesi vardı. Bu depodaki varlıklar MODEL ÜRETİMİ ve SVG
+      // çalıştırılabilir bir belgedir: uygulamanın KENDİ kaynağından `image/svg+xml`
+      // olarak servis edilen bir SVG, içindeki betiği panelin oturumuyla çalıştırır.
+      // Bugün blob deposunda tek bir SVG yok (248 png · 4 jpg · 65 bin); yarın olursa
+      // `application/octet-stream` ile iner, çalışmaz.
     }
     // ⚠ `toLowerCase()` YOK: `turkish-case` kapısı çıplak kullanımı reddediyor ve
     // haklı — Türkçe'de 'I'.toLowerCase() 'i' değil 'ı'dır. Uzantı zaten ASCII ve
@@ -1017,6 +1022,9 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     return new Response(new Uint8Array(readFileSync(join(dizin, ad))), {
       headers: {
         'content-type': TIP[uzanti] ?? 'application/octet-stream',
+        // ⚠ Tarayıcı içeriği KOKLAMASIN: octet-stream olarak inen bir byte dizisini
+        // HTML sanıp çalıştırmasının önündeki tek engel bu başlık.
+        'x-content-type-options': 'nosniff',
         'cache-control': 'no-store',
       },
     })

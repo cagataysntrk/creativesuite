@@ -18,6 +18,7 @@ taşıyor ve oraya sızan tek bir karakter çıktıyı bozar.
 """
 
 import base64
+import io
 import os
 import sys
 
@@ -55,6 +56,24 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001 — sınır: hata METİN olarak dışarı çıkar
         sys.stderr.write(f"rembg hatasi: {e}\n")
         return 3
+    # ⚠ ⚠ **SAYDAM PAY STDERR'E YAZILIYOR ve bu bir ÜRETİM ÖLÇÜMÜDÜR.** Gerçek bir
+    # koşuda (`donen`) model tek nesne yerine bir DOKU üretti — granül mozaiği, numune
+    # tepsisi. `rembg`in kesecek bir şeyi olmadı, saydam pay %0,0 ve %3,9 çıktı ve
+    # slayta KÖŞELİ BİR DİKDÖRTGEN düştü. Aynı koşuda gerçek bir nesne %41,4 verdi.
+    # ⚠ Yani "kesildi mi" sorusunun cevabı ölçülebilir ve tek yer burası: PNG'yi
+    # çözebilen tek taraf bu betik. TS tarafına bir görüntü kütüphanesi eklemek
+    # (R-75) bunun için gereksiz bir bağımlılık olurdu.
+    try:
+        from PIL import Image  # noqa: PLC0415 — yalnız ölçüm için
+
+        im = Image.open(io.BytesIO(cikti))
+        if im.mode in ("RGBA", "LA"):
+            alfa = im.getchannel("A")
+            h = alfa.histogram()
+            pay = sum(h[:16]) / float(im.size[0] * im.size[1])
+            sys.stderr.write("saydam-pay=%.4f\n" % pay)
+    except Exception:  # noqa: BLE001 — ölçüm başarısızsa kesme yine de geçerli
+        pass
     sys.stdout.write(base64.b64encode(cikti).decode("ascii"))
     return 0
 

@@ -3206,6 +3206,127 @@ export const metinMaskesi = (): string => `(() => {
   return sayi
 })()`
 
+/**
+ * AKSAN ALANI METNI TASIR — derinlik SABIT DEGIL, olculuyor.
+ *
+ * ⚠ ⚠ **SABIT BIR YUZDE, DEGISKEN BIR METNI TASIYAMAZ — ve bu URETIMDE oldurdu.**
+ * `alinti` gercek bir kosuda `duzen-provasi`nda DUSTU: kart 2 icin
+ * `metin-zemine-karisiyor`. O kartin aksan alani %52 derinlikte SABITTI ve uzerindeki
+ * metin KNOCKOUT renkle yaziliyor. Uretilen baslik katalogdakinden uzun olunca sardi,
+ * dibi alanin ALTINA tasti ve knockout metin kagit zeminde GORUNMEZ kaldi. Katalog
+ * ornegi geciyordu cunku metni kisaydi — kusur veride degil VARSAYIMDAYDI.
+ *
+ * ⚠ ⚠ **AYRI BIR SAYFA ADIMI ve bunu bir kapi soyledi.** Once `puntoOlcumu`nun icine
+ * yazildi; `panorama-tipo` kirmizi dondu: o fonksiyon `getBoundingClientRect`
+ * KULLANAMAZ, cunku sutun sinirini olcerse kendini olcen bir sinama olur. Kural dar
+ * degil dogruydu — is buraya, punto oturduktan SONRA kosan kendi adimina tasindi.
+ *
+ * ⚠ Alan basligi kapsar, GOVDEYE DEGMEZ: knockout yalniz goz kasi ve basliga
+ * uygulaniyor; govde normal renkte ve alanin uzerinde okunmaz olur (`aksan-rolu` uc
+ * destede birden bunu soyledi). Sinir iki metnin ARASINA kilitleniyor.
+ */
+export const aksanAlaniOlcumu = (): string => `(() => {
+    for (const kart of document.querySelectorAll('.kart.aksan-alan')) {
+      const kb = kart.getBoundingClientRect()
+      if (kb.height <= 0) continue
+      let dip = 0
+      for (const e of kart.querySelectorAll('.ust-baslik, .baslik')) {
+        const r = e.getBoundingClientRect()
+        if (r.height < 4) continue
+        const alt = r.bottom - kb.top
+        if (alt > dip) dip = alt
+      }
+      if (dip <= 0) continue
+      // ⚠ ⚠ **ALAN BASLIGI KAPSAR, GOVDEYE DEGMEZ — ve bunu kendi kapim soyledi.**
+      // Ilk surumde alan yalnizca basligin dibine gore buyuyordu; aksan-rolu uc
+      // destede birden kirmizi dondu: govde alanin USTUNE dusmuyor. Kural dogru —
+      // knockout YALNIZ goz kasi ve basliga uygulaniyor, govde normal renkte yaziliyor
+      // ve alanin uzerinde okunmaz hale geliyor.
+      // ⚠ Sinir bu yuzden IKI metnin ARASINA kilitleniyor: basligin dibinden asagi,
+      // govdenin tepesinden yukari. Ikisi cakisirsa tam ortasi aliniyor.
+      let govdeUst = kb.height
+      for (const e of kart.querySelectorAll('.govde, .panel, .kapanis')) {
+        const r = e.getBoundingClientRect()
+        if (r.height < 4) continue
+        const ust = r.top - kb.top
+        if (ust > dip && ust < govdeUst) govdeUst = ust
+      }
+      const enAz = dip + kb.height * 0.05
+      const enCok = govdeUst - kb.height * 0.03
+      const px = enAz <= enCok ? enAz : (dip + govdeUst) / 2
+      const gereken = (px / kb.height) * 100
+      const simdiki = parseFloat(getComputedStyle(kart).getPropertyValue('--aksan-dibi'))
+      if (!Number.isFinite(simdiki) || gereken > simdiki) {
+        kart.style.setProperty('--aksan-dibi', Math.min(100, gereken).toFixed(1) + '%')
+      }
+    }
+})()`
+
+/**
+ * OK UCU YANIK SATIRA NISAN ALIR — koordinat sabit, icerik degisken.
+ *
+ * ⚠ ⚠ **KATALOG ORNEGINDE HIZALIYDI, URETIMDE KAYIYORDU.** Guzergahin uc oku sablonun
+ * kendi taslagindaki satir yuksekliklerine gore yazildi; uretilen metin baska
+ * uzunlukta olunca liste baska yukseklige oturuyor ve oklarin ucu BOSLUKTA bitiyor.
+ * Gercek bir kosuda uc okun ucu de hicbir maddeye varmadi. Ayni sinif kusur aksan
+ * alaninda da vardi: sabit bir yuzde, degisken bir metni tasiyamaz.
+ *
+ * ⚠ ⚠ **OK YENIDEN CIZILMIYOR, KAYDIRILIYOR — ve sebebi malzeme.** Oklar
+ * `perfect-freehand` ile elle cizilmis DOLGU konturlari; tarayicida yeniden uretmek
+ * o kutuphaneyi sayfaya sokmak demekti (R-75). Sekli bozmadan yapilabilecek tek sey
+ * dikeyde otelemek: ucun indigi yuksekligi degistirir, cizginin karakterini degistirmez.
+ *
+ * ⚠ Hedef, okun BITTIGI karttaki YANIK satir: sonuk satirlar guzergahin daha varmadigi
+ * adimlar ve oraya nisan almak rotayi yalan soyletirdi.
+ */
+export const okNisaniOlcumu = (): string => `(() => {
+  const svg = document.querySelector('svg.bant-ok')
+  if (!svg) return 0
+  const kutu = svg.getBoundingClientRect()
+  if (kutu.height <= 0) return 0
+  const vb = svg.viewBox.baseVal
+  const yollar = Array.from(svg.querySelectorAll('path'))
+  let tasinan = 0
+  for (const yol of yollar) {
+    if (!yol.getTotalLength) continue
+    const L = yol.getTotalLength()
+    if (!(L > 0)) continue
+    // Ucun yeri: yol boyunca EN SAGDAKI nokta. Kontur uctan donup geri geldigi icin
+    // basit bir "son nokta" dogru cevap vermiyor.
+    let ucX = -1e9
+    let ucY = 0
+    for (let i = 0; i <= 80; i += 1) {
+      const nk = yol.getPointAtLength((L * i) / 80)
+      if (nk.x > ucX) { ucX = nk.x; ucY = nk.y }
+    }
+    // viewBox -> ekran
+    const ekranX = kutu.left + (ucX / vb.width) * kutu.width
+    const ekranY = kutu.top + (ucY / vb.height) * kutu.height
+    // Ucun DUSTUGU kart
+    let hedef = null
+    for (const kart of document.querySelectorAll('.kart')) {
+      const kb = kart.getBoundingClientRect()
+      if (ekranX >= kb.left - 2 && ekranX <= kb.right + 2) { hedef = kart; break }
+    }
+    if (hedef === null) continue
+    // O karttaki YANIK satir
+    let satir = null
+    for (const e of hedef.querySelectorAll('.liste-satir')) {
+      if (!e.classList.contains('sonuk')) { satir = e; break }
+    }
+    if (satir === null) continue
+    const sb = satir.getBoundingClientRect()
+    if (sb.height <= 0) continue
+    const istenen = sb.top + sb.height / 2
+    const farkEkran = istenen - ekranY
+    if (Math.abs(farkEkran) < 2) continue
+    const farkVb = (farkEkran / kutu.height) * vb.height
+    yol.setAttribute('transform', 'translate(0 ' + farkVb.toFixed(2) + ')')
+    tasinan += 1
+  }
+  return tasinan
+})()`
+
 export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
   const t = doc.tipografi ?? VARSAYILAN_TIPO
   // Kart iç yüksekliği: üst/alt dolgu (68 + 190) düşülüyor. Başlık bloğunun payı %44 —
@@ -3338,6 +3459,8 @@ export const renderPanorama = async (
     // ⚠ ⚠ **PUNTODAN SONRA: knockout kutunun SON hâlini ölçmek zorunda.** Punto oturtma
     // metni büyütüp küçültüyor; önce koşan bir maske, kaymış bir kutuyu ölçerdi.
     await page.evaluate(knockoutOlcumu())
+    await page.evaluate(aksanAlaniOlcumu())
+    await page.evaluate(okNisaniOlcumu())
     // ⚠ Maske EN SON: kutular punto ve knockout oturduktan sonra kesinleşiyor.
     await page.evaluate(metinMaskesi())
     for (const [i, yol] of ciktiYollari.entries()) {

@@ -229,10 +229,33 @@ export const SAHNE: KatalogSablonu = {
       // işleminden sonra da kalıyor — düz `#040404` zeminimizin üstünde beyaz bir bulut
       // gibi duruyor. Markanın dizayn sistemi glow'u ve "atmosferik renk"i yasaklıyor;
       // brief onu İSTEMEYE devam ederse yasak yalnız CSS'te geçerli olur.
-      'single subject, plain solid black background free of gradient or surface ' +
-      'detail, one soft key light from the side, matte finish, muted achromatic ' +
-      'palette, the subject reaching past one edge of the frame, every surface in ' +
-      'frame plain and unmarked',
+      // ⚠ ⚠ **"MONOKROM ÇİZİM" GİTTİ, 3B NESNE GELDİ.** Depo sahibi çıktıya bakıp
+      // *"sabit monokrom saçmalıklar üretip duruyor"* dedi ve haklıydı: tarif
+      // `muted achromatic palette` + `monochrome illustration with ink hatching`
+      // istiyordu; model ne yaparsa yapsın sonuç gri bir çizimdi.
+      // ⚠ Siyah zemin KALIYOR ve sebebi kayıtlı: alfa o zeminden türetiliyor
+      // (`gorsel-kirp`). Şeffaflık RİCA edilmiyor, yapıya gömülü.
+      // ⚠ Bu şablonun malzemesi ENDÜSTRİYEL: koyu gövde + tek kobalt yüzey. Renk
+      // markadan geliyor (mavi 262°), süsten değil.
+      'a single industrial object rendered in 3d, matte charcoal body with one ' +
+      'cobalt blue accent surface, plain solid black background free of gradient ' +
+      'or surface detail, one soft key light from the side, soft contact shadow, ' +
+      // ⚠ ⚠ **BURAYA "no text" YAZILAMAZ ve bunu ÜRETİMDE ödedim.** İlk yazımda
+      // 'no text and no logo' ekledim; R-20 muhafızı `no text` alt dizesini arıyor ve
+      // brief'i `suffix_hand_written` ile REDDETTİ — gerçek bir koşuda dört yuvanın
+      // İKİSİ boş kaldı, slaytlarda yer tutucu göründü. Ek zaten kurucunun kendisi
+      // tarafından TEK kaynaktan ekleniyor (`buildImagePrompt`); elle yazılanı
+      // reddetmesi kuralın amacı. Aynı tuzak bu dosyada `no texture` için zaten yazılı;
+      // ben onu okumuş olmama rağmen aynı yere bastım.
+      // ⚠ ⚠ **"YÜZEYLER SADE" GERİ KONDU — DÜŞÜRÜNCE KUSUR AYNEN GERİ GELDİ.** Tarifi
+      // 3B'ye çevirirken `every surface in frame plain and unmarked` ibaresini
+      // düşürmüştüm; gerçek koşuda (`run_01a03afc`) model LCD ekranlı ölçüm cihazları
+      // çizdi ve ekranları UYDURMA rakamlarla doldurdu — Yasa 8'in ta kendisi. Kayıt
+      // zaten bu dosyadaydı: *"üstü yazı taşımaya müsait bir özne İSTENMEZ"* ve
+      // *"olumsuzlama görsel modelinde zayıf bir garantidir"*. Garanti ÖZNE SEÇİMİNE
+      // gömülüyor: ekran, kadran, gösterge İSTENMİYOR.
+      'every surface in frame plain and unmarked, no screens dials or gauges, ' +
+      'the object reaching past one edge of the frame',
     // ⚠ ⚠ **VARYANTLAR ARTIK YALNIZ POZ DEĞİL, ÖZNE TÜRÜ DE (T4 · T10).** Depo sahibi:
     // *"adam imgeleri sadece adam değil, konu neyse onun 3B görseli de olabilir"* ve
     // *"figürler aynı ailenin klonları gibi"*. İnsan pozu döndürmek çeşitlilik değil,
@@ -282,8 +305,8 @@ export const SAHNE: KatalogSablonu = {
     // dikine kesmeli ki iki slayda bölündüğünde her iki yarı da kendi başına okunsun.
     // Yatay yayılan bir özne, kesimde ikiye ayrılınca iki yarım nesne veriyor.
     varyantlar: [
-      'framed head-on and centred, upright subject filling the frame vertically, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
-      'three quarter angle, upright subject filling the frame vertically, high contrast monochrome illustration with visible ink hatching, matte surfaces only, no humanoid robot and no chrome',
+      'framed head-on and centred, upright object filling the frame vertically, studio 3d render, matte surfaces only, no humanoid robot and no chrome',
+      'three quarter angle, upright object filling the frame vertically, studio 3d render, matte surfaces only, no humanoid robot and no chrome',
     ],
   },
   baslikPayi: 1,
@@ -316,21 +339,27 @@ export const MEMPHIS: KatalogSablonu = {
     adet: 'slayt-basina',
     kirpma: 'kesik',
     briefTemeli:
-      'single person, waist up, plain solid black background free of surface detail, ' +
-      'one soft key light, matte finish, muted achromatic palette, lively posture, ' +
-      'clothing plain and unmarked',
+      // ⚠ ⚠ **KİŞİ DEĞİL NESNE, ÇİZİM DEĞİL 3B KİL.** Bu şablonun dili geometrik,
+      // zemini kâğıt; ona uyan malzeme mat kil. Varyantlardan biri zaten
+      // `isometric 3d clay render` diyordu — üslup şablonun içinde vardı, temel tarif
+      // onu taşımıyordu.
+      // ⚠ Aksan AMBER (80°): kâğıt zeminde mavi, metnin kendi vurgusuyla yarışırdı.
+      'a single object rendered as an isometric 3d clay model, warm off white matte ' +
+      'body with one amber accent plane, plain solid black background free of ' +
+      'surface detail, soft even light, soft contact shadow, every surface in frame ' +
+      'plain and unmarked, no screens dials or gauges',
     // ⚠ Varyant KADRAJ ve MALZEME söylüyor; özneyi konu belirliyor (bkz. `SAHNE`).
     varyantlar: [
-      'seated pose or resting position, leaning into the frame, matte surfaces with visible weave, one soft key light',
-      'isometric 3d clay render of the subject, matte pastel material, soft contact shadow',
-      'caught mid movement, side profile, grainy film look, matte surfaces',
+      'resting on its base, leaning into the frame, chalky matte clay, one soft key light',
+      'isometric view from the upper left, matte pastel clay, soft contact shadow',
+      'tilted mid air as if just set down, compact silhouette, chalky matte surface',
       // ⚠ ⚠ **ÜÇ → ALTI: yuva sayısı = varyant sayısı (`katalog-kabul.test.ts`).** Yuva
       // üçten altıya çıkınca bu değişmez kırmızı döndü ve düzeltmenin yarım kaldığını
       // söyledi: altı yuva üç varyantla dolarsa dördüncü ve beşinci slaytta AYNI poz
       // tekrar eder — `memphis`in kimliği ise her karede başka bir duruş.
       // ⚠ Varyant KADRAJ ve MALZEME söyler, özneyi konu belirler.
-      'standing three quarter turn, weight on one leg, hands relaxed, matte woven fabric, single soft light from above',
-      'crouched low toward the ground, compact silhouette, chalky matte surface, soft even light',
+      'three quarter turn, weight on one edge, matte clay with a fine grain, soft light from above',
+      'seen from low down looking up, compact silhouette, chalky matte surface, soft even light',
       // ⚠ ⚠ **ALTINCI VARYANT KALDIRILDI — kapanış kartı özne taşımıyor artık.** Yukarıda
       // "üç → altı" yazıyor; şimdi altı → beş. Aynı değişmez iki kez, iki yönde çalıştı.
     ],
@@ -367,15 +396,24 @@ export const DONEN: KatalogSablonu = {
     // (`gorsel-kirp`), yani kesik ürün elimizdeydi; daire artık bir leke katmanı.
     kirpma: 'kesik',
     briefTemeli:
-      'single product, centred, plain solid black background free of gradient or ' +
-      'surface detail, one soft key light, matte finish, muted achromatic palette, ' +
-      'every surface in frame plain and unmarked',
+      // ⚠ ⚠ **ÜRÜN RENDER'I — bu şablonun işi zaten bir nesneyi DÖNDÜRMEK.** Daire
+      // maskesi içinde aynı nesne üç açıdan görünüyor; malzeme parlak olunca dönüş
+      // okunuyor, mat monokromda okunmuyordu.
+      // ⚠ ⚠ **"RIM LIGHT" YAZILAMAZ ve bunu ben yazmıştım.** FAZ-18.3 ölçtü: rim light
+      // isteyen bir brief öznenin ARKASINA parlak bir hale koyuyor ve o hale kesme
+      // (`gorsel-kirp`) sırasında özneye yapışıyor. Karar kayıtlıydı: TEK YUMUŞAK
+      // ANAHTAR IŞIK. Parlaklık ışıktan değil MALZEMEDEN isteniyor — malzeme kesmeyi
+      // bozmuyor.
+      'a single product rendered in 3d, brushed metal and matte navy body, one soft ' +
+      'key light, plain solid black background free of gradient or surface detail, ' +
+      'soft contact shadow, every surface in frame plain and unmarked, no screens ' +
+      'dials or gauges',
     // ⚠ Görsel dili varyanta da yazılıyor: `briefTemeli` stüdyo ışığını söylüyor ama
     // varyant onu tekrar etmezse model kadrajı değiştirirken üslubu da kaydırıyor.
     varyantlar: [
-      'front elevation, centred in frame, one soft key light, matte surfaces',
-      'three quarter angle from the upper left, one soft key light, matte surfaces',
-      'close macro of the surface detail, one soft key light, matte surfaces',
+      'front elevation, centred in frame, studio 3d render, one soft key light, brushed metal sheen',
+      'three quarter angle from the upper left, studio 3d render, one soft key light, brushed metal sheen',
+      'close macro of the surface detail, studio 3d render, one soft key light, brushed metal sheen',
       // ⚠ ⚠ **DÖRDÜNCÜ VARYANT KALDIRILDI — kapanış kartı özne taşımıyor artık.**
       // `katalog-kabul` değişmezi (yuva = varyant) bunu ISIRARAK söyledi: yuva üçe indi,
       // varyant dörtte kaldı. Bir sözleşme yarım güncellenirse sessiz kalmıyor.
@@ -418,9 +456,14 @@ export const EDITORYAL: KatalogSablonu = {
     // ile reddedilirdi. Boş bırakılan yarının NEDEN boş olduğunu söylemeye gerek yok:
     // brief kadrajı tarif eder, sayfanın geri kalanını değil.
     briefTemeli:
+      // ⚠ ⚠ **BU ŞABLON 3B'YE ÇEVRİLMİYOR ve sebebi KİMLİĞİ.** `editoryal`in tarifi
+      // *"tam kaplama fotoğraf"*; görseli bir nesne değil bir SAHNE ve tuval boyunca
+      // uzanan bir kolon şeridi. Kesik bir 3B nesneye çevirmek şablonu silerdi.
+      // ⚠ Ama `muted achromatic` buradan da kalktı: şikâyet monokromluktu, fotoğraf
+      // olması değil. Palet sakin kalıyor, tek sıcak nota giriyor.
       'wide shot, single subject, one soft key light, matte finish, right half of the ' +
-      'frame left empty, muted achromatic palette, every surface in frame plain and ' +
-      'unmarked',
+      'frame left empty, restrained palette with a single warm amber note, every ' +
+      'surface in frame plain and unmarked',
     // ⚠ ⚠ **ÜÇ YUVA, ÜÇ VARYANT.** İki varyant kalsaydı üçüncü görsel adımının brief'i
     // BOŞ döner, adım atlanır ve üçüncü yuva yer tutucu kalırdı — ilan ile gerçek yine
     // ayrışırdı. `katalog-ornek.test.ts` artık eşitliği zorluyor.

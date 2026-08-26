@@ -76,7 +76,17 @@ describe('kadraj — altı şablon', () => {
       // KIRMIZI döndü — ama kırılan şey render değil, ZAMANLAYICIYDI. Kardeş render
       // testleri (`duzen-provasi.test.ts`) zaten 60_000 taşıyor; buradaki eksikti.
       // Gevşetme değil hizalama: yanlış alarm veren kapı beş gün içinde görmezden gelinir.
-    }, 60_000)
+      // ⚠ ⚠ **TAVAN 60 → 120 s: TASARIM DEĞİL SAYAÇ.** Kapı grubunda paralel yük altında
+      // `veri-hikayesi` 60007 ms sonunda düştü; tek başına hepsi geçiyor ve dosyanın tamamı
+      // 92 s sürüyor. Bu iddia HER desteyi tarayıcıda tek tek açıyor ve desteler bu turda
+      // ağırlaştı: alan sınırı noktaları arttı, beşinci görsel yuvası eklendi.
+      // ⚠ Bir zaman aşımını kırmızı kapı sanıp tasarımı değiştirmek, bu fazda bir kez
+      // daha yapılacak hataydı — ölçüldü, sayaç yükseltildi.
+      // ⚠ ⚠ **YORUMDA KESME İŞARETİ YOK ve bu ZORUNLU:** `denetim-tavani` kaynağı naif
+      // tarıyor; bir kesme işareti onun için dize başlangıcıdır ve kapanış parantezini
+      // yutuyor. İlk yazımda ms + kesme işareti yazdım, kapı testi zaman aşımı yok diye
+      // reddetti — kapı haklıydı, yorumun kendisi ölçümü bozuyordu.
+    }, 120_000)
   }
 })
 
@@ -87,7 +97,17 @@ describe('sözleşmeler — kural CSS’te duruyor mu', () => {
     expect(DIKIS_BANDI).toBe(93)
     expect(EZICI_PAY).toBe(0.4)
     expect(ZEMINDEN_AYRISMA).toBe(120)
-  }, 60_000)
+    // ⚠ ⚠ **TAVAN 60 → 120 s: TASARIM DEĞİL SAYAÇ.** Kapı grubunda paralel yük altında
+    // `veri-hikayesi` 60007 ms sonunda düştü; tek başına hepsi geçiyor ve dosyanın tamamı
+    // 92 s sürüyor. Bu iddia HER desteyi tarayıcıda tek tek açıyor ve desteler bu turda
+    // ağırlaştı: alan sınırı noktaları arttı, beşinci görsel yuvası eklendi.
+    // ⚠ Bir zaman aşımını kırmızı kapı sanıp tasarımı değiştirmek, bu fazda bir kez
+    // daha yapılacak hataydı — ölçüldü, sayaç yükseltildi.
+    // ⚠ ⚠ **YORUMDA KESME İŞARETİ YOK ve bu ZORUNLU:** `denetim-tavani` kaynağı naif
+    // tarıyor; bir kesme işareti onun için dize başlangıcıdır ve kapanış parantezini
+    // yutuyor. İlk yazımda ms + kesme işareti yazdım, kapı testi zaman aşımı yok diye
+    // reddetti — kapı haklıydı, yorumun kendisi ölçümü bozuyordu.
+  }, 120_000)
 
   it('tanım ögeleri akışın DIŞINDA — sahneyi kaydıramazlar', () => {
     expect(panoramaHtml(kapak())).toContain(FILTRE_TANIM_CSS.trim())
@@ -120,7 +140,17 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     expect(r.ok).toBe(true)
     if (!r.ok) return
     expect(suzgec(r.value, 'dikis-bandinda').length).toBeGreaterThan(0)
-  }, 60_000)
+    // ⚠ ⚠ **TAVAN 60 → 120 s: TASARIM DEĞİL SAYAÇ.** Kapı grubunda paralel yük altında
+    // `veri-hikayesi` 60007 ms sonunda düştü; tek başına hepsi geçiyor ve dosyanın tamamı
+    // 92 s sürüyor. Bu iddia HER desteyi tarayıcıda tek tek açıyor ve desteler bu turda
+    // ağırlaştı: alan sınırı noktaları arttı, beşinci görsel yuvası eklendi.
+    // ⚠ Bir zaman aşımını kırmızı kapı sanıp tasarımı değiştirmek, bu fazda bir kez
+    // daha yapılacak hataydı — ölçüldü, sayaç yükseltildi.
+    // ⚠ ⚠ **YORUMDA KESME İŞARETİ YOK ve bu ZORUNLU:** `denetim-tavani` kaynağı naif
+    // tarıyor; bir kesme işareti onun için dize başlangıcıdır ve kapanış parantezini
+    // yutuyor. İlk yazımda ms + kesme işareti yazdım, kapı testi zaman aşımı yok diye
+    // reddetti — kapı haklıydı, yorumun kendisi ölçümü bozuyordu.
+  }, 120_000)
 
   // ⚠ ⚠ **BU KUSUR SENTETİK OLARAK ÜRETİLEMİYOR ve denemesi öğreticiydi:** `tema-uyum`
   // listeden düşürülünce görsel HAM çiziliyor ve ham hâli düzeltilmişten biraz KOYU —
@@ -144,7 +174,17 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     const bulgu = suzgec(r.value, 'krom-seridine-giriyor')
     expect(bulgu.length).toBeGreaterThan(0)
     expect(bulgu[0]).toContain('px')
-  }, 60_000)
+    // ⚠ ⚠ **TAVAN 60 → 120 s: TASARIM DEĞİL SAYAÇ.** Kapı grubunda paralel yük altında
+    // `veri-hikayesi` 60007 ms sonunda düştü; tek başına hepsi geçiyor ve dosyanın tamamı
+    // 92 s sürüyor. Bu iddia HER desteyi tarayıcıda tek tek açıyor ve desteler bu turda
+    // ağırlaştı: alan sınırı noktaları arttı, beşinci görsel yuvası eklendi.
+    // ⚠ Bir zaman aşımını kırmızı kapı sanıp tasarımı değiştirmek, bu fazda bir kez
+    // daha yapılacak hataydı — ölçüldü, sayaç yükseltildi.
+    // ⚠ ⚠ **YORUMDA KESME İŞARETİ YOK ve bu ZORUNLU:** `denetim-tavani` kaynağı naif
+    // tarıyor; bir kesme işareti onun için dize başlangıcıdır ve kapanış parantezini
+    // yutuyor. İlk yazımda ms + kesme işareti yazdım, kapı testi zaman aşımı yok diye
+    // reddetti — kapı haklıydı, yorumun kendisi ölçümü bozuyordu.
+  }, 120_000)
 
   // 🧪 ⚠ **KASTEN İHLAL** (R-71): kaynak satırı boşaltılıyor. Düzeltmeden önce bu hâl
   // SESSİZDİ — boş bir `<span>` çiziliyor, slayt kusursuz görünüyor ve kaynağını
@@ -165,7 +205,17 @@ describe('kasten ihlal — ölçüm gerçekten kırmızıya dönüyor mu (R-71)'
     const bulgu = r.value.filter((k) => k.tur === 'kaynak-yok')
     expect(bulgu.length).toBe(1)
     expect(bulgu[0]?.kart).toBe(1)
-  }, 60_000)
+    // ⚠ ⚠ **TAVAN 60 → 120 s: TASARIM DEĞİL SAYAÇ.** Kapı grubunda paralel yük altında
+    // `veri-hikayesi` 60007 ms sonunda düştü; tek başına hepsi geçiyor ve dosyanın tamamı
+    // 92 s sürüyor. Bu iddia HER desteyi tarayıcıda tek tek açıyor ve desteler bu turda
+    // ağırlaştı: alan sınırı noktaları arttı, beşinci görsel yuvası eklendi.
+    // ⚠ Bir zaman aşımını kırmızı kapı sanıp tasarımı değiştirmek, bu fazda bir kez
+    // daha yapılacak hataydı — ölçüldü, sayaç yükseltildi.
+    // ⚠ ⚠ **YORUMDA KESME İŞARETİ YOK ve bu ZORUNLU:** `denetim-tavani` kaynağı naif
+    // tarıyor; bir kesme işareti onun için dize başlangıcıdır ve kapanış parantezini
+    // yutuyor. İlk yazımda ms + kesme işareti yazdım, kapı testi zaman aşımı yok diye
+    // reddetti — kapı haklıydı, yorumun kendisi ölçümü bozuyordu.
+  }, 120_000)
 
   it('kutup zinciri: açık kartın görseli açık tema kimliğini ÇAĞIRIYOR', () => {
     expect(islemZinciri(['tema-uyum'], true)).toContain(ACIK_TEMA_KIMLIGI)

@@ -81,6 +81,32 @@ describe('dikiş 1: hat dosyası → üretim yolu', () => {
     expect(adimlar.indexOf('kompozit')).toBeLessThan(adimlar.indexOf('render'))
   })
 
+  // ⚠ ⚠ **HATTIN KAPASİTESİ, KATALOĞUN İLANINDAN AZ OLAMAZ — ve bu boşluk ÜRETİMDE
+  // görüldü.** `memphis` gerçek bir koşuda altı slayt üretti ve BEŞİNCİ slaytta yer
+  // tutucu kaldı: katalog o şablon için beş varyant ilan ediyor, hat ise dört
+  // `gorsel-uret` adımı taşıyordu. Hattaki not *"Tavan 4: kataloğun en çok yuva
+  // isteyen şablonu (donen) dört istiyor"* diyordu ve O GÜN DOĞRUYDU — sonra `donen`
+  // üçe indi, `memphis` beşe çıktı ve tavan sessizce bayatladı.
+  // ⚠ İlan ile kapasite İKİ AYRI dosyada yaşıyor; ikisini birbirine bağlayan tek şey
+  // bu kapı. Yarın altıncı varyant eklenirse kapı aynı gün kırmızı döner.
+  it('hattın görsel adımı sayısı, kataloğun en çok varyantından AZ DEĞİL', () => {
+    const r = loadPipeline(join(REPO, 'registry/pipelines'), 'instagram-karosel')
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const adim = r.value.steps.filter((s) => /^gorsel-uret(-\d+)?$/.test(s.id)).length
+    const enCok = Math.max(
+      ...KATALOG.map((s) => (s.gorsel === null ? 0 : (s.gorsel.varyantlar ?? []).length))
+    )
+    const isteyen = KATALOG.filter(
+      (s) => s.gorsel !== null && (s.gorsel.varyantlar ?? []).length === enCok
+    ).map((s) => s.id)
+    expect(
+      adim,
+      `katalog en çok ${String(enCok)} varyant istiyor (${isteyen.join(', ')}) ama hat ` +
+        `${String(adim)} görsel adımı taşıyor — fazla yuva her koşuda YER TUTUCU kalır`
+    ).toBeGreaterThanOrEqual(enCok)
+  })
+
   // ⚠ `renderPanorama`nın çağıranı SAYILIYOR: sıfırdan büyük olmalı. Bu testin ilk
   // hâli sıfır sayardı ve mimarinin tamamı erişilemez durumdaydı.
   it('`renderPanorama` üretim kodundan çağrılıyor — sıfır çağıran DEĞİL', () => {

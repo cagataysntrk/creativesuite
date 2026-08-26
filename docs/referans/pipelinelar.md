@@ -83,7 +83,7 @@ Toplam **11** hat.
 
 ## `instagram-karosel` — Instagram karoseli — katalog merkezli
 
-29 adım · 18 yetenek isteyen · 3 insan kapısı
+32 adım · 21 yetenek isteyen · 3 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -106,12 +106,15 @@ Toplam **11** hat.
 | `gorsel-brief-4` | `GENERATE` | `text.generate` | bilgi-sec, kompozit, duzen-provasi | — | ✓ |
 | `gorsel-uret-4` | `GENERATE` | `image.generate` | gorsel-brief-4, kompozit | — | ✓ |
 | `gorsel-kirp-4` | `GENERATE` | `image.matte` | gorsel-uret-4 | — | ✓ |
+| `gorsel-brief-5` | `GENERATE` | `text.generate` | bilgi-sec, kompozit, duzen-provasi | — | ✓ |
+| `gorsel-uret-5` | `GENERATE` | `image.generate` | gorsel-brief-5, kompozit | — | ✓ |
+| `gorsel-kirp-5` | `GENERATE` | `image.matte` | gorsel-uret-5 | — | ✓ |
 | `yuva-doldur` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4 | — | — |
 | `render` | `RENDER` | — | yuva-doldur | — | — |
 | `gorsel-yargi` | `GENERATE` | `image.critique` | render | tasarim-onayi | — |
 | `tasarim-yargi` | `GENERATE` | `design.critique` | render | — | — |
 | `duzelt` | `GENERATE` | `text.generate` | render, sablon-uyarla | — | ✓ |
-| `kompozit-son` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4, duzelt | — | — |
+| `kompozit-son` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4, gorsel-uret-5, gorsel-kirp-5, duzelt | — | — |
 | `render-son` | `RENDER` | — | kompozit-son | — | — |
 | `kalite` | `VALIDATE` | — | render-son, gorsel-yargi, tasarim-yargi, gorsel-uret | — | — |
 | `onay` | `PROPOSE` | — | kalite | insan-onayi | — |

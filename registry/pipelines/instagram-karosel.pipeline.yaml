@@ -260,6 +260,45 @@ steps:
   # yerine YER TUTUCU çıktı. Sebep sıralamaydı: panorama belgesi görselden ÖNCE
   # kuruluyor ve görselin belgeye dönecek yolu yoktu. `instagram-post` bunu aynı
   # şekilde çözüyor — yeni bir fiil de yeni bir gövde de gerekmedi.
+  # 5c) BEŞİNCİ YUVA — katalog beş varyant ilan ediyordu, hat dört üretiyordu.
+  #
+  # ⚠ ⚠ **BU EKSİK ÜRETİMDE GÖRÜLDÜ.** `memphis` gerçek bir koşuda altı slayt üretti ve
+  # BEŞİNCİ slaytta yer tutucu kaldı ("KESİK ÖZNE — 5"): katalog o şablon için beş
+  # varyant ilan ediyor, hat ise dört `gorsel-uret` adımı taşıyordu. Yukarıdaki not
+  # *"Tavan 4: kataloğun en çok yuva isteyen şablonu (donen) dört istiyor"* diyordu ve
+  # O GÜN DOĞRUYDU — `donen` sonra üçe indi, `memphis` beşe çıktı ve tavan bayatladı.
+  # ⚠ İlan ile kapasite arasındaki bu boşluk artık `katalog-dikis` kapısında ölçülüyor:
+  # hattın görsel adımı sayısı, kataloğun en çok varyant isteyen şablonundan AZ OLAMAZ.
+  # ⚠ Fazlalık adım para harcamıyor: sıra varyant sayısını aşınca brief BOŞ döner ve
+  # `gorsel-uret-5` atlanır.
+  - id: gorsel-brief-5
+    verb: GENERATE
+    capability: text.generate
+    needs: [bilgi-sec, kompozit, duzen-provasi]
+    constraints:
+      gorsel_brief: true
+      gorsel_sira: 5
+      max_chars: 600
+      optional: true
+
+  - id: gorsel-uret-5
+    verb: GENERATE
+    capability: image.generate
+    needs: [gorsel-brief-5, kompozit]
+    constraints:
+      optional: true
+      gorsel_sira: 5
+      aspect: '4:5'
+      no_text: true
+      max_cost_usd_micros: 20000
+
+  - id: gorsel-kirp-5
+    verb: GENERATE
+    capability: image.matte
+    needs: [gorsel-uret-5]
+    constraints:
+      optional: true
+
   - id: yuva-doldur
     verb: COMPOSE
     needs:
@@ -338,6 +377,8 @@ steps:
         gorsel-kirp-3,
         gorsel-uret-4,
         gorsel-kirp-4,
+        gorsel-uret-5,
+        gorsel-kirp-5,
         duzelt,
       ]
     constraints:

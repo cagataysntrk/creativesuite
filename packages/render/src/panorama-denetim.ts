@@ -24,6 +24,8 @@ import {
   EZICI_PAY,
   ZEMINDEN_AYRISMA,
   panoramaHtml,
+  aksanAlaniOlcumu,
+  okNisaniOlcumu,
   knockoutOlcumu,
   metinMaskesi,
   puntoOlcumu,
@@ -1108,6 +1110,8 @@ export const panoramaDenetle = async (
     // ölçüldü: fontsuz/logosuz/puntosuz ölçüm hem gerçek kusuru kaçırdı hem olmayanı
     // uydurdu.
     await page.evaluate(knockoutOlcumu())
+    await page.evaluate(aksanAlaniOlcumu())
+    await page.evaluate(okNisaniOlcumu())
     await page.evaluate(metinMaskesi())
     // ⚠ ⚠ **GÖRSELLERİN ÇÖZÜLMESİ BEKLENİYOR — beklenmediğinde ölçüm SESSİZCE boş
     // dönüyordu.** `naturalWidth` yüklenmemiş bir `<img>`de 0 ve döngü `continue` ile

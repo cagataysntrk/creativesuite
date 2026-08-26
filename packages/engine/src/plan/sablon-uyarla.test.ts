@@ -1,6 +1,7 @@
 // Şablon uyarlama — kompozisyon KİLİTLİ, içerik serbest (FAZ-15.7 · D-268).
 
 import { describe, expect, it } from 'vitest'
+import { ORNEKLER } from '@suite/render'
 import { ornekBul, type KatalogOrnegi } from '@suite/render'
 import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from './sablon-uyarla.js'
 
@@ -307,5 +308,20 @@ describe('kelime bütçesi', () => {
     const istem = uyarlamaIstemi(ornek, 'veri-hikayesi', 'konu')
     expect(istem).toContain('EN FAZLA 8 kelime')
     expect(istem).toContain('en fazla 28 kelime')
+  })
+})
+
+// ⚠ ⚠ **İSTEM, DOĞRULAYICININ ÖLÇTÜĞÜ SINIRI SÖYLEMEK ZORUNDA.** `editoryal` gerçek bir
+// koşuda ADAPTATION_REJECTED ile ÖLDÜ: model "ertelenir" yazdı (9 harf), şablonun
+// bütçesi 8. Doğrulayıcı bütçeyi ölçüyordu ama istem yalnız KELİME SAYISINI söylüyordu —
+// model bilmediği bir sınıra uyamaz ve karosel hiç üretilmez.
+// ⚠ Türkçe eklemeli: uzun kelime kural, istisna değil. Söylenmeyen bir sınır, koşuyu
+// zara bağlar.
+describe('uyarlama istemi — sınırı SÖYLÜYOR', () => {
+  it('istem harf bütçesini AÇIKÇA yazıyor', () => {
+    for (const [id, o] of Object.entries(ORNEKLER)) {
+      const istem = uyarlamaIstemi(o, id, 'deneme konusu')
+      expect(istem, `${id}: istem harf bütçesini söylemiyor`).toMatch(/EN FAZLA \d+ harf/)
+    }
   })
 })

@@ -464,6 +464,32 @@ describe('varlık byte ucu', () => {
     })
   }
 
+  // ⚠ ⚠ **SVG ÇALIŞTIRILABİLİR BİR BELGEDİR ve bu varlıklar MODEL ÜRETİMİ.** Uç bir
+  // ara sürümde `.svg` için `image/svg+xml` döndürüyordu; bir güvenlik incelemesi
+  // yakaladı. Panelin kendi kaynağından o tiple servis edilen bir SVG, içindeki betiği
+  // kullanıcının oturumuyla çalıştırır. Bu kapı, uzantı listesine bir gün SVG
+  // eklenirse aynı gün kırmızı döner.
+  it('svg ÇALIŞTIRILABİLİR tiple servis EDİLMİYOR', async () => {
+    const { kok, digest } = kurBlob('.svg', '<svg xmlns="http://www.w3.org/2000/svg"/>')
+    const s = kurSunucu({
+      repoRoot: kok,
+      query: SORGU,
+      kalpAtisiMs: 50,
+      debounceMs: 10,
+      simdi: () => 'S',
+    })
+    try {
+      const r = await s.app.request(`/api/varlik/sha256:${digest}`)
+      expect(r.headers.get('content-type'), 'svg çalıştırılabilir tiple dönüyor').not.toContain(
+        'svg'
+      )
+      expect(r.headers.get('x-content-type-options'), 'nosniff yok').toBe('nosniff')
+    } finally {
+      s.kapat()
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
   // ⚠ Kapı boşa dönmesin: olmayan bir digest GERÇEKTEN 404 vermeli. Aksi hâlde
   // yukarıdaki üç yeşil, ucun her şeye 200 döndürmesinden de gelebilirdi.
   it('olmayan varlık 404 veriyor', async () => {
