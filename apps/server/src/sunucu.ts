@@ -871,9 +871,18 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // ⚠ Doğru kaynak kütüphane: varlığın deposunda GERÇEKTEN hangi anahtarla durduğunu
     // yalnız o biliyor. Sıra `createdAt`ten geliyor — slaytlar üretildikleri sırayla
     // yazılıyor ve karoselin sırası tam olarak o.
+    // ⚠ ⚠ **SIRA `teslimat.index`TEN, `createdAt`TEN DEĞİL — ve önizleme de bu yüzden
+    // YANLIŞ sıralıyordu.** Zaman damgaları milisaniyede eşitleniyor: `dizin` koşusunda
+    // 1. ve 2. slayt aynı milisaniyede yazılmış ve sıraları ters. Teslimat damgası
+    // üretim anında basılıyor ve bir slaytın teslimattaki yerini SÖYLÜYOR (D-248).
+    // Yayın önizlemesinde yanlış sıra, yayın anında yanlış karosel demekti.
     const slaytlar = [...kutuphane(o.repoRoot).varliklar]
       .filter((v) => v.sourceRunId === runId)
-      .sort((a, b2) => a.createdAt.localeCompare(b2.createdAt))
+      .sort((a, b2) =>
+        a.teslimat !== null && b2.teslimat !== null
+          ? a.teslimat.index - b2.teslimat.index
+          : a.createdAt.localeCompare(b2.createdAt)
+      )
       .map((v) => ({ digest: v.digest, alt: v.konu }))
     const secili = kosuSablonu(o.repoRoot, runId)
     return c.json({

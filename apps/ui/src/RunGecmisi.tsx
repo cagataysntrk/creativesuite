@@ -44,6 +44,19 @@ interface Varlik {
   readonly digest: string
   readonly sourceRunId: string
   readonly konu: string
+  readonly createdAt: string
+  /**
+   * Teslimat damgası — karoselin KAÇINCI parçası (D-248).
+   *
+   * ⚠ ⚠ **KAROSELİN SIRASI BURADAN GELİR, BAŞKA HİÇBİR YERDEN.** Damga üretim anında
+   * basılıyor ve retrofit imkânsız (Yasa 7 · R-11); `index` bir slaytın teslimattaki
+   * yeridir ve tek doğru odur.
+   */
+  readonly teslimat: {
+    readonly index: number
+    readonly total: number
+    readonly role: string
+  } | null
   /** Bayttan okunan ölçü, `1080x1440` gibi. `null` = okunamadı. */
   readonly olcu: string | null
   readonly yayinlandi: boolean
@@ -382,7 +395,21 @@ export const RunGecmisi = ({
     l.push(v)
     slaytHaritasi.set(v.sourceRunId, l)
   }
-  for (const l of slaytHaritasi.values()) l.sort((a, b) => a.digest.localeCompare(b.digest))
+  // ⚠ ⚠ **SIRA `teslimat.index`TEN — ve bu ÖLÇÜLEREK öğrenildi.** Ben `digest`e göre
+  // sıralamıştım: sha256 rastgele bir sıradır ve karosel her koşuda BAŞKA türlü diziliyordu.
+  // Depo sahibi gördü: *"veri hikâyesinde karosel sırası bozulmuş, kavis'te de, birçoğunda
+  // öyle... bu sıra asla bozulmamalı"*.
+  // ⚠ ⚠ **`createdAt` DE YETMİYOR.** Sunucu listeyi en yeni önce veriyor (yani karosel
+  // TERS geliyor) ve dahası zaman damgaları milisaniyede EŞİTLENİYOR: `dizin` koşusunda
+  // 1. ve 2. slayt aynı milisaniyede yazılmış ve sıraları ters. Ölçüldü, varsayılmadı.
+  // ⚠ Damgasız varlık için `createdAt` yedeği duruyor — damga öncesi üretilenler kalıcı
+  // olarak sırasız ve bunu gizlemiyoruz, ama elde olanla en iyisini yapıyoruz.
+  for (const l of slaytHaritasi.values())
+    l.sort((a, b) =>
+      a.teslimat !== null && b.teslimat !== null
+        ? a.teslimat.index - b.teslimat.index
+        : a.createdAt.localeCompare(b.createdAt)
+    )
 
   /**
    * Bir koşunun slaytlarının ORTAK ölçüsü.
@@ -839,6 +866,14 @@ export const RunGecmisi = ({
                         rel="noreferrer"
                       >
                         <img src={`/api/varlik/${v.digest}`} alt={v.konu} loading="lazy" />
+                        {/* ⚠ ⚠ **SIRA GÖRÜNÜR.** Bozuk bir sıra ancak slaytlar okununca
+                            fark ediliyordu; numara yazınca bir bakışta görülüyor — ve
+                            bir daha sessizce bozulamaz. */}
+                        {v.teslimat === null ? null : (
+                          <span className="slayt-sira">
+                            {v.teslimat.index + 1}/{v.teslimat.total}
+                          </span>
+                        )}
                       </a>
                     ))}
                   </div>
