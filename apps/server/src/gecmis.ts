@@ -85,6 +85,19 @@ export interface CalistirmaOzeti {
   readonly sapmaYuzde: number | null
   readonly onemli: boolean
   readonly awaitingGate: string | null
+  /**
+   * O kapı için karar ZATEN yazılmış mı.
+   *
+   * ⚠ ⚠ **`awaitingGate` KARAR YAZILINCA DEĞİŞMİYOR** ve bu ekranda bir yanılsama
+   * üretiyordu: depo sahibi *"varlık sayfasında da onaya bassam da hâlâ tasarım onayı
+   * yazıyor"* dedi. Alan `manifest.awaitingGate`ten geliyor ve hat manifesti yeniden
+   * yazana kadar aynı kapıyı gösteriyor — o iş dakikalar sürüyor. Yani insan onaylıyor,
+   * ekran hiç değişmiyor, insan bir daha basıyor.
+   *
+   * ⚠ Doğru ölçüt KARARIN KENDİSİ: `decisions` listesi anında doluyor. Aynı kusur koşu
+   * detayında bir kez çözülmüştü ve buraya taşınmamıştı — bu depoda tekrar eden sınıf.
+   */
+  readonly kapiKarariVerildi: boolean
   readonly stoppedAt: string | null
   readonly kararSayisi: number
   /**
@@ -190,6 +203,7 @@ const ozetle = (m: RunManifest, donmusPlanVar: boolean): CalistirmaOzeti => {
     sapmaYuzde: v.variancePercent,
     onemli: v.significant,
     awaitingGate: m.awaitingGate ?? null,
+    kapiKarariVerildi: m.awaitingGate != null && m.decisions.some((d) => d.gate === m.awaitingGate),
     stoppedAt: m.stoppedAt ?? null,
     kararSayisi: m.decisions.length,
     elendi: null,

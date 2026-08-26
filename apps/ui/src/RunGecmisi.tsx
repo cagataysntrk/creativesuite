@@ -76,6 +76,13 @@ interface Ozet {
   readonly sapmaYuzde: number | null
   readonly onemli: boolean
   readonly awaitingGate: string | null
+  /**
+   * O kapı için karar ZATEN yazılmış mı — `awaitingGate` karar yazılınca DEĞİŞMİYOR.
+   *
+   * ⚠ Manifest yeniden yazılana kadar aynı kapıyı gösteriyor ve o iş dakikalar sürüyor;
+   * ekran onaylanmış bir koşuyu hâlâ "bekliyor" diye gösteriyordu.
+   */
+  readonly kapiKarariVerildi: boolean
   readonly stoppedAt: string | null
   readonly kararSayisi: number
   readonly manifestSaglam: boolean
@@ -792,7 +799,14 @@ export const RunGecmisi = ({
                     )}
                     {/* ⚠ Bekleyen kapı VERİ tarafında: "bu koşu ne durumda" sorusunun
                       cevabı, "ne yapabilirim" sorusundan önce gelir. */}
-                    {r.awaitingGate === null ? null : (
+                    {/* ⚠ ⚠ **KARAR VERİLDİYSE "BEKLİYOR" DEMİYOR.** `awaitingGate` karar
+                        yazılınca DEĞİŞMİYOR — manifest yeniden yazılana kadar aynı kapıyı
+                        gösteriyor ve o iş dakikalar sürüyor. Ekran onaylanmış bir koşuyu
+                        hâlâ *"tasarım onayı bekliyor"* diye gösteriyordu; depo sahibi
+                        gördü: *"onaya bassam da hâlâ tasarım onayı yazıyor"*. */}
+                    {r.awaitingGate === null ? null : r.kapiKarariVerildi ? (
+                      <span className="is-hat">✓ {r.awaitingGate} — karar verildi</span>
+                    ) : (
                       <span className="is-uyari">⏸ {r.awaitingGate}</span>
                     )}
                   </div>
@@ -808,7 +822,7 @@ export const RunGecmisi = ({
                     )}
                     {/* ⚠ ⚠ **KARAR SLAYTLARIN YANINDA:** onay kararı slaytlara BAKARAK
                       veriliyor ve slaytlar bu kartın içinde. */}
-                    {r.awaitingGate === null ? null : (
+                    {r.awaitingGate === null || r.kapiKarariVerildi ? null : (
                       <>
                         <button
                           type="button"
