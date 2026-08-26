@@ -150,7 +150,7 @@ const GunKutusu = ({
 }): React.JSX.Element => {
   const [secili, setSecili] = useState<readonly string[]>(PLATFORMLAR.map((p) => p.id))
   return (
-    <section className="gonderi-kutusu">
+    <section className="gonderi-kutusu gun-kutusu">
       <h3>
         {tarih} — bu güne gönderi koy{' '}
         <button type="button" onClick={kapat}>

@@ -247,6 +247,110 @@ const sayfaAc = async () => {
   await p.close()
 }
 
+// ── 3: EKRANLAR İŞE YARIYOR MU (FAZ-19.13) ──────────────────────────────────
+//
+// ⚠ ⚠ **BU BÖLÜM BİR ŞİKÂYETTEN DOĞDU ve şikâyet HAKLIYDI.** Kapının ilk iki bölümü
+// *"ekran açılıyor mu, konsol temiz mi"* diye soruyordu ve hepsi yeşildi — depo sahibi
+// aynı anda *"panel aşırı işlevsiz, hiçbir şey çalışmıyor"* diyordu. İkisi de doğruydu:
+// açılan bir ekran işleyen bir ekran DEĞİLDİR. Bir kapı ölçmediği şeyi güvenceye alamaz
+// ve ölçmediğini ölçüyormuş gibi görünmesi, hiç ölçmemekten kötüdür.
+//
+// ⛔ Bu bölüm HİÇBİR ŞEY YAZMIYOR: yalnız okuma ve durum değiştirmeyen tıklamalar.
+// Yazma yolları `yayin-takvimi.test.ts`te sınanıyor — gerçek deftere yazan bir kapı,
+// her koşusunda sahibin takvimine çöp bırakırdı.
+{
+  const { p } = await sayfaAc()
+
+  // YAYIN — takvim bir IZGARA mı, ekleme yapılabiliyor mu.
+  await p.goto(`${PANEL}/#/yayin-akisi`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
+  await p.waitForTimeout(3000)
+  const baslik = await p.locator('.takvim-baslik').count()
+  if (baslik !== 7) bildir('yayın', `takvim ${String(baslik)} sütun başlığı — yedi olmalı`)
+  const gun = await p.locator('.takvim-gun').count()
+  if (gun !== 35 && gun !== 42)
+    bildir('yayın', `takvim ${String(gun)} gün hücresi — 35 ya da 42 olmalı`)
+  if ((await p.locator('.takvim-bugun').count()) !== 1) bildir('yayın', 'bugün VURGULANMIYOR')
+  // ⚠ Ekleme düğmesi HER günde: takvimin ekleyemediği bir takvim rapordur.
+  if ((await p.locator('.takvim-ekle').count()) !== gun)
+    bildir('yayın', 'ekleme düğmesi her günde YOK')
+  // ⚠ ⚠ **İKİ AYRI KUTU VAR ve bu kapı ilk koşusunda ikisini KARIŞTIRDI.** Boş güne
+  // tıklayınca *"bu güne hangi üretim konsun"* (`gun-kutusu`), var olan bir gönderiye
+  // tıklayınca *"bu gönderinin kararları"* (`gonderi-kutusu`) açılıyor. İkisi aynı
+  // sınıfı taşıyordu; kapı yanlış kutuda dört düğme arayıp kusur bildirdi — ve haklıydı:
+  // ayırt edilemeyen iki kutu insanı da karıştırır. Sınıf o yüzden ayrıldı.
+  await p.locator('.takvim-ekle').first().click({ force: true })
+  await p.waitForTimeout(900)
+  if ((await p.locator('.gun-kutusu').count()) === 0)
+    bildir('yayın', 'boş güne tıklayınca gün kutusu AÇILMIYOR')
+
+  // KOŞULAR — süzgeçler gerçekten süzüyor mu.
+  await p.goto(`${PANEL}/#/gecmis`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
+  await p.waitForTimeout(3000)
+  const basliklar = await p.locator('table thead th').allTextContents()
+  for (const sutun of ['şablon', 'konu']) {
+    if (!basliklar.some((x) => x.trim() === sutun)) bildir('koşular', `"${sutun}" sütunu YOK`)
+  }
+  const oncesi = await p.locator('table tbody tr').count()
+  const kapiSecici = p.getByLabel(/^bekleyen kapı/)
+  const kapiSecenek = await kapiSecici.locator('option').count()
+  if (kapiSecenek < 2) bildir('koşular', 'bekleyen kapı süzgeci BOŞ')
+  else {
+    const ilkKapi = await kapiSecici.locator('option').nth(1).getAttribute('value')
+    await kapiSecici.selectOption(ilkKapi ?? '')
+    await p.waitForTimeout(700)
+    const sonrasi = await p.locator('table tbody tr').count()
+    // ⚠ Süzgeç seçildiğinde satır sayısı DEĞİŞMİYORSA süzgeç kozmetiktir. Eşit olması
+    // meşru olabilir (hepsi aynı kapıda) — o yüzden ARTMASI kusur sayılıyor.
+    if (sonrasi > oncesi) bildir('koşular', 'kapı süzgeci satır sayısını ARTIRDI — süzmüyor')
+  }
+
+  // VARLIKLAR — karar slaytların yanında mı.
+  await p.goto(`${PANEL}/#/varliklar`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
+  await p.waitForTimeout(3500)
+  const grup = await p.locator('.grup').count()
+  if (grup === 0) bildir('varlıklar', 'hiç gönderi grubu çizilmedi')
+  else {
+    if ((await p.locator('.grup button:has-text("takvim")').count()) !== grup)
+      bildir('varlıklar', 'takvim düğmesi her kartta YOK')
+    const kapida = await p.locator('.grup .is-uyari').filter({ hasText: '⏸' }).count()
+    const onay = await p.locator('.grup button:has-text("onayla")').count()
+    if (kapida !== onay)
+      bildir('varlıklar', `${String(kapida)} kapı rozeti ama ${String(onay)} onay düğmesi`)
+  }
+
+  // KOŞU DETAYI — platform başına metin paneli.
+  const ilkKosu = await p
+    .locator('.grup button.hizli:has-text("aç")')
+    .first()
+    .click()
+    .then(
+      () => p.waitForTimeout(3500),
+      () => undefined
+    )
+  void ilkKosu
+  const platformSatiri = await p.locator('.metin-platformlari > li').count()
+  if (platformSatiri !== 4)
+    bildir('koşu detayı', `${String(platformSatiri)} platform satırı — dört olmalı`)
+  // ⚠ Karar kutusu koşu detayında HER ZAMAN var: takvimde gönderi olmayabilir (hiçbir
+  // üretim onaylanmamışsa takvim boştur) ama dört düğme burada her koşuda sınanabilir.
+  if ((await p.locator('.gonderi-kutusu').count()) === 0)
+    bildir('koşu detayı', 'takvim kutusu YOK — özel tarih planlanamaz')
+  else {
+    for (const dugme of [
+      'bu tarihe planla',
+      'elle yayınladım',
+      'takvimden çıkar',
+      'kararı geri al',
+    ]) {
+      if ((await p.locator(`.gonderi-kutusu button:has-text("${dugme}")`).count()) === 0)
+        bildir('koşu detayı', `"${dugme}" düğmesi YOK`)
+    }
+    if ((await p.locator('.gonderi-kutusu input[type=checkbox]').count()) !== 4)
+      bildir('koşu detayı', 'dört platform kutucuğu YOK')
+  }
+  await p.close()
+}
+
 await tarayici.close()
 
 if (kusurlar.length > 0) {
@@ -255,5 +359,7 @@ if (kusurlar.length > 0) {
   process.exit(1)
 }
 console.log(
-  '  ' + String(EKRANLAR.length) + ' ekran + editör gezildi · konsol hatası yok · kırık istek yok'
+  '  ' +
+    String(EKRANLAR.length) +
+    ' ekran + editör gezildi · konsol hatası yok · kırık istek yok · yayın/koşular/varlıklar/koşu-detayı İŞLEVSEL'
 )
