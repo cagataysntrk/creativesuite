@@ -34,7 +34,7 @@ import {
   selectSearch,
   type SelectQuery,
 } from '@suite/corpus'
-import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
+import { RUNS_DIR, discoveryPlanPath, fileHistory, spawnProcess } from '@suite/kernel'
 import { KATALOG, MUZIK_KURALI, PLATFORMLAR, platformDenetle } from '@suite/contracts'
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
@@ -1234,6 +1234,32 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // (a) her platformun DURUMU — metin var mı, sınırı aşıyor mu, kanca katlanmanın
   // önünde mi; (b) o platform İÇİN TEK BAŞINA istem, insan istediği modelde üretip
   // yapıştırsın diye. Üçüncüsü aşağıdaki yazma ucu.
+  /**
+   * `just yayin-metni …` çalıştırır ve çıktısını çağırana taşır.
+   *
+   * ⚠ ⚠ **ÇIKTI OLDUĞU GİBİ TAŞINIYOR — özetlenmiyor.** Betik "6 slayt, tavan 4" gibi
+   * gerçek uyarılar yazıyor ve onları yutan bir uç, kusuru yayın anına ertelerdi.
+   */
+  const metinUret = async (
+    argv: readonly string[]
+  ): Promise<{ ok: boolean; cikti?: string; hata?: string }> => {
+    // ⚠ ⚠ **ÇEKİRDEĞİN SPAWN'I — ve `chokepoints` kapısı bunu YAKALADI.** İlk yazımda
+    // `node:child_process`ten doğrudan `spawn` çağırdım; kapı reddetti ve haklıydı:
+    // ikinci bir spawn noktası, iptal yayılımının (AbortSignal) delindiği yerdir.
+    const r = await spawnProcess('just', argv, {
+      cwd: o.repoRoot,
+      ...(o.saglayiciEnv === undefined ? {} : { env: o.saglayiciEnv }),
+      // ⚠ Model çağrısı ~10 sn; tavan cömert ama SONSUZ DEĞİL: asılı bir süreç
+      // paneli süresiz bekletirdi.
+      timeoutMs: 5 * 60_000,
+    })
+    const cikti = `${r.stdout}\n${r.stderr}`.trim()
+    if (r.timedOut) return { ok: false, hata: 'üretim 5 dakikada bitmedi' }
+    return r.code === 0
+      ? { ok: true, cikti: cikti.slice(0, 800) }
+      : { ok: false, hata: cikti.slice(-500) || `çıkış kodu ${String(r.code)}` }
+  }
+
   app.get('/api/kosu/:runId/yayin-metinleri', (c) => {
     const runId = c.req.param('runId')
     if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
@@ -1292,6 +1318,31 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // aynı soruyu iki yerde iki türlü cevaplamak olurdu.
   // ⚠ Doğrulama BURADA: 281 karakterlik bir X metnini yayın anında öğrenmek, dört görsel
   // ve bir insan onayı harcandıktan sonra öğrenmektir.
+  // ⚠ ⚠ **ÜRETİM SUNUCUDA DEĞİL, BETİKTE — ve fark mimari.** Sunucuya bir model yolu
+  // koymak, hangi çağrının ne harcadığını iki ayrı yerde anlatmak olurdu. Betik hattın
+  // kullandığı `text.generate` adaptörünü çağırıyor; maliyeti sıfır (abonelik).
+  // ⚠ Süreç ARKA PLANA atılmıyor: üretim ~10 saniye ve panel sonucu bekleyip gösteriyor.
+  // Arka plana atsaydım "üretildi mi" sorusunu ikinci bir yoklama uçu gerektirirdi.
+  app.post('/api/kosu/:runId/yayin-metni-uret', async (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const g = (await c.req.json().catch(() => ({}))) as { platform?: string; hepsi?: boolean }
+    const hepsi = g.hepsi === true
+    const p = PLATFORMLAR.find((x) => x.id === g.platform)
+    if (!hepsi && p === undefined)
+      return c.json({ ok: false, hata: `bilinmeyen platform: ${String(g.platform)}` }, 400)
+    // ⚠ Argümanlar DİZİ olarak geçiyor: kabuk yorumlaması hiç yok, enjeksiyon yok.
+    const argv = [
+      'yayin-metni',
+      '--run',
+      runId,
+      ...(hepsi ? ['--hepsi'] : ['--platform', p?.id ?? '']),
+    ]
+    const r = await metinUret(argv)
+    if (r.ok) yayinla('degisim')
+    return c.json(r, r.ok ? 200 : 400)
+  })
+
   app.post('/api/kosu/:runId/yayin-metni', async (c) => {
     const runId = c.req.param('runId')
     if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)

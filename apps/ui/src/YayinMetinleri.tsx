@@ -43,6 +43,36 @@ export const YayinMetinleri = ({ runId }: { readonly runId: string }): React.JSX
   const [taslak, setTaslak] = useState('')
   const [mesaj, setMesaj] = useState<string | null>(null)
   const [istemAcik, setIstemAcik] = useState<string | null>(null)
+  const [uretiliyor, setUretiliyor] = useState<string | null>(null)
+
+  /**
+   * Metni ÜRETİR — model çağrısı sunucudan değil, hattın kullandığı adaptörden.
+   *
+   * ⚠ ⚠ **PANEL MODELİ DOĞRUDAN ÇAĞIRMIYOR ve bu bir sınır.** Sunucuya bir model yolu
+   * koymak, hangi çağrının ne harcadığını iki ayrı yerde anlatmak olurdu. Uç bir betik
+   * çalıştırıyor, betik `text.generate` adaptörünü çağırıyor — hattın çağırdığının aynısı.
+   * ⚠ Maliyeti sıfır (abonelik), o yüzden bütçe defterine girmiyor.
+   */
+  const uret = async (platform: string | null): Promise<void> => {
+    setUretiliyor(platform ?? 'hepsi')
+    setMesaj('⏳ model çalışıyor…')
+    try {
+      const j = (await (
+        await fetch(`/api/kosu/${runId}/yayin-metni-uret`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(platform === null ? { hepsi: true } : { platform }),
+        })
+      ).json()) as { ok?: boolean; cikti?: string; hata?: string }
+      // ⚠ Betiğin çıktısı OLDUĞU GİBİ gösteriliyor: "6 slayt, tavan 4" gibi gerçek
+      // uyarıları yutan bir arayüz, kusuru yayın anına ertelerdi.
+      setMesaj(j.ok === true ? (j.cikti ?? '✓ üretildi') : `✗ ${j.hata ?? 'üretilemedi'}`)
+      if (j.ok === true) await yukle()
+    } catch {
+      setMesaj('✗ sunucuya ulaşılamıyor')
+    }
+    setUretiliyor(null)
+  }
 
   const yukle = useCallback(async (): Promise<void> => {
     try {
@@ -88,6 +118,16 @@ export const YayinMetinleri = ({ runId }: { readonly runId: string }): React.JSX
           şey yazar, ama karoselle ilgisi olmayan bir şey yazar.
         </p>
       )}
+      {/* ⚠ ⚠ **DÖRDÜ TEK ÇAĞRIDA da var, tek tek de.** Dört metni tek bağlamda üretmek
+          aynı gönderiye tek ses veriyor; ama biri kötüyse dördünü yeniden üretmek üç iyi
+          metni riske atardı. İkisi de gerekiyor. */}
+      {veri.kartMetniVar ? (
+        <div className="kapi-dugmeler">
+          <button type="button" disabled={uretiliyor !== null} onClick={() => void uret(null)}>
+            {uretiliyor === 'hepsi' ? '⏳ üretiliyor…' : '⚡ dördünü birden üret'}
+          </button>
+        </div>
+      ) : null}
       {mesaj === null ? null : <p className="olcum">{mesaj}</p>}
       <ul className="metin-platformlari">
         {veri.platformlar.map((p) => (
@@ -112,12 +152,21 @@ export const YayinMetinleri = ({ runId }: { readonly runId: string }): React.JSX
                 {p.metin === '' ? '✎ metin yaz' : '✎ düzenle'}
               </button>
               {p.istem === null ? null : (
-                <button
-                  type="button"
-                  onClick={() => setIstemAcik(istemAcik === p.id ? null : p.id)}
-                >
-                  ⧉ bu platformun istemi
-                </button>
+                <>
+                  <button
+                    type="button"
+                    disabled={uretiliyor !== null}
+                    onClick={() => void uret(p.id)}
+                  >
+                    {uretiliyor === p.id ? '⏳ üretiliyor…' : '⚡ üret'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIstemAcik(istemAcik === p.id ? null : p.id)}
+                  >
+                    ⧉ istem
+                  </button>
+                </>
               )}
             </div>
             {p.kusurlar.length === 0 ? null : <p className="is-uyari">{p.kusurlar.join(' · ')}</p>}
@@ -154,8 +203,8 @@ export const YayinMetinleri = ({ runId }: { readonly runId: string }): React.JSX
                     ve düzenlenebilir görünmesi onu yazılıyor sanmaya yol açardı. */}
                 <textarea readOnly value={p.istem} aria-label={`${p.ad} istemi`} />
                 <p className="giris-not">
-                  Bu istemi istediğin modele ver, dönen metni yukarıdan yapıştır. Panel modele
-                  gitmiyor: sağlayıcıya giden tek yol hattın kendisi.
+                  ⚡ düğmesi bu istemi hattın kendi sağlayıcısına gönderiyor. İstem burada, başka
+                  bir modelde denemek ya da elle düzenleyip yapıştırmak istersen diye.
                 </p>
               </div>
             ) : null}

@@ -18,6 +18,11 @@ default:
 uret *args:
     @./node_modules/.bin/tsc -b && node scripts/uret.mjs {{args}}
 
+# Platform başına yayın açıklaması üretir (FAZ-19.13). Model çağrısı hattın kullandığı
+# `text.generate` adaptöründen geçer; maliyeti sıfırdır (abonelik).
+yayin-metni *args:
+    @./node_modules/.bin/tsc -b && node scripts/yayin-metni.mjs {{args}}
+
 # Görsel şablon düzenleyici (D-301). Tarayıcıda aç: metne tıkla, görseli sürükle.
 # Aynı render motoru — gördüğün şey ihraç edilen şeydir. Prototip: katalog dosyasına yazmaz.
 duzenle:
