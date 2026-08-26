@@ -1433,3 +1433,12 @@ tr[data-tiklanir] {
     monospace;
   padding: 4px;
 }
+
+/* ⚠ Konu satırda TAŞMIYOR: uzun bir konu iş listesini iki katına çıkarıyordu ve altı
+   satırlık liste bir ekrana sığmıyordu. Kırpma `title` ile telafi ediliyor. */
+.giris-konu {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 480px;
+}

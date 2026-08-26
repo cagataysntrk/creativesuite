@@ -16,6 +16,18 @@ import { Asama, ASAMALAR } from './Asama.js'
 interface Bekleyen {
   readonly runId: string
   readonly pipeline: string
+  /**
+   * Hangi şablon ve ne hakkında — gözden geçirmenin İLK İKİ sorusu.
+   *
+   * ⚠ ⚠ **BU İKİSİ EKRANDA YOKTU ve satırlar birbirinin AYNISIYDI:** beş satır da
+   * *"✓ metin ● tasarım ○ yayın · instagram-karosel · 18 sa bekliyor"* diyordu. On
+   * üretimin onu da aynı hattan çıkıyor; hat adı hiçbir şey ayırt etmiyor. Sunucu bu
+   * alanları ZATEN gönderiyordu, ekran çizmiyordu.
+   * ⚠ Aynı kusur koşu listesinde ve varlık ekranında da vardı — bu, bu deponun tekrar
+   * eden sınıfı: kimlik taşımayan satır, tıklanmadan hiçbir şey ifade etmiyor.
+   */
+  readonly sablon: string | null
+  readonly konu: string | null
   readonly gate: string
   readonly createdAt: string
   readonly manifestSaglam: boolean
@@ -47,6 +59,15 @@ export function Giris({
 }): React.JSX.Element {
   const [bekleyenler, setBekleyenler] = useState<readonly Bekleyen[] | null>(null)
   const [varliklar, setVarliklar] = useState<readonly Varlik[]>([])
+  const [yaklasan, setYaklasan] = useState<
+    readonly {
+      readonly runId: string
+      readonly sablon: string
+      readonly konu: string
+      readonly tarih: string
+      readonly elle?: boolean
+    }[]
+  >([])
   const [editorAcik, setEditorAcik] = useState<boolean | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
@@ -63,6 +84,39 @@ export function Giris({
       setVarliklar(r.varliklar ?? [])
     } catch {
       // Varlıklar ikincil: kuyruk yine görünsün.
+    }
+    // ⚠ Takvim İKİNCİL: uç düşerse kuyruk yine görünüyor. Bir ekranın bir isteğe
+    // bağlı olarak tamamen boş kalması, o isteğin sessizce kritikleşmesi demek.
+    try {
+      const bugun = new Date().toISOString().slice(0, 10)
+      const a2 = (await (
+        await fetch(`/api/yayin-akisi?haftadaKac=3&baslangic=${bugun}`)
+      ).json()) as {
+        plan?: {
+          gonderiler?: readonly { runId: string; sablon: string; tarih: string; konu?: string }[]
+        }
+        elleGonderiler?: readonly { runId: string; sablon: string; tarih: string; konu?: string }[]
+        konular?: Record<string, string>
+      }
+      const hepsi = [
+        ...(a2.plan?.gonderiler ?? []).map((g) => ({ ...g, elle: false })),
+        ...(a2.elleGonderiler ?? []).map((g) => ({ ...g, elle: true })),
+      ]
+      // ⚠ GEÇMİŞ tarihler elenmiyor, SIRALANIYOR: dünkü bir planlı gönderi hâlâ
+      // yayınlanmamışsa onu gizlemek, kaçırılmış bir işi görünmez yapardı.
+      setYaklasan(
+        hepsi
+          .map((g) => ({
+            runId: g.runId,
+            sablon: g.sablon,
+            tarih: g.tarih,
+            konu: (g.konu ?? a2.konular?.[g.runId] ?? '').trim(),
+            elle: g.elle,
+          }))
+          .sort((x, y) => x.tarih.localeCompare(y.tarih))
+      )
+    } catch {
+      setYaklasan([])
     }
     try {
       await fetch(`${EDITOR}/rampa`, { mode: 'no-cors' })
@@ -104,8 +158,11 @@ export function Giris({
           <span>bayat — bir günden eski</span>
         </button>
         <button type="button" onClick={() => ekranaGit('gecmis')}>
-          <strong>{varliklar.length}</strong>
-          <span>üretilmiş varlık</span>
+          {/* ⚠ ⚠ **BİRİM YANLIŞTI: 45 "varlık" 45 gönderi değil, 10 karoselin 45
+              SLAYTI.** Ekranda 45 görünce insan kırk beş gönderi ürettiğini sanıyordu.
+              Sayılan şeyin ne olduğu, sayının kendisi kadar önemli. */}
+          <strong>{new Set(varliklar.map((v) => v.sourceRunId)).size}</strong>
+          <span>üretilmiş karosel · {varliklar.length} slayt</span>
         </button>
         <button type="button" onClick={() => ekranaGit('calistir')}>
           <strong>+</strong>
@@ -140,9 +197,42 @@ export function Giris({
               <li key={b.runId}>
                 <button type="button" className="satir-ac" onClick={() => ac(b.runId)}>
                   <Asama kapi={b.gate} />
-                  <span className="is-hat">{b.pipeline}</span>
+                  <span className="is-hat">{b.sablon ?? b.pipeline}</span>
+                  <span className="giris-konu">
+                    {b.konu === null || b.konu === '' ? b.runId.slice(4, 16) : b.konu}
+                  </span>
                   <span className="olcum">{bekleme(b.createdAt)} bekliyor</span>
                   {b.manifestSaglam ? null : <span className="is-uyari">⊘ kusurlu manifest</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* ⚠ ⚠ **BU BLOK YOKTU ve panelin İŞİ tam olarak buydu.** Depo sahibi kararı
+          verdi: bu depo bir yayın aracı değil, bir HATIRLATICI ve PLANLAYICI. Komuta
+          ekranı ise takvimden hiç söz etmiyordu — hatırlatıcının ana ekranı neyin ne
+          zaman çıkacağını söylemiyorsa hatırlatmıyor demektir. */}
+      <section className="giris-blok">
+        <h2>Sıradaki yayınlar</h2>
+        {yaklasan.length === 0 ? (
+          <p className="giris-not">
+            Takvimde planlanmış gönderi yok. <a href="#/yayin-akisi">↗ Yayın takvimine git</a>
+          </p>
+        ) : (
+          <ul className="is-listesi">
+            {yaklasan.slice(0, 5).map((g) => (
+              <li key={`${g.tarih}-${g.runId}`}>
+                <button type="button" className="satir-ac" onClick={() => ac(g.runId)}>
+                  <span className="olcum">{g.tarih}</span>
+                  <span className="is-hat">{g.sablon}</span>
+                  <span className="giris-konu">
+                    {g.konu === '' ? g.runId.slice(4, 16) : g.konu}
+                  </span>
+                  {/* ⚠ Elle planlanmış gönderi AYIRT EDİLİYOR: hangisinin insan kararı
+                      olduğu görünmezse "bunu ben mi koydum" sorusu doğar. */}
+                  {g.elle === true ? <span className="olcum">elle</span> : null}
                 </button>
               </li>
             ))}
