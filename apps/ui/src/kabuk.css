@@ -1118,3 +1118,68 @@ tr[data-tiklanir] {
   overflow-wrap: anywhere;
   resize: vertical;
 }
+
+/* ── YAYIN ÖNİZLEMESİ (FAZ-19.12 · madde 4) ─────────────────────────────────
+   ⚠ ⚠ **KATLANMA NOKTASI GÖRSEL.** Instagram'a 2.200 karakter yazılabilir ama
+   akışta ilk ~125'i görünür; sayıyı yazmak yetmiyor, metnin NEREDE kesildiğini
+   görmek gerekiyor. Kesimden sonrası soluk ve araya bir çizgi giriyor. */
+.onizleme-slaytlar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-block: 8px;
+}
+.onizleme-slaytlar figure {
+  margin: 0;
+  position: relative;
+  flex: none;
+}
+.onizleme-slaytlar img {
+  width: 108px;
+  height: 144px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+.onizleme-sira {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-start: 4px;
+  background: var(--role-bg);
+  color: var(--role-text);
+  font:
+    600 10px/1 ui-monospace,
+    monospace;
+  padding: 4px;
+  border-radius: 4px;
+}
+.onizleme-platform {
+  margin-block-start: 16px;
+}
+.onizleme-platform h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.onizleme-metin {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  max-width: 62ch;
+}
+.onizleme-kesim {
+  display: block;
+  border-top: 1px dashed currentColor;
+  opacity: 0.45;
+  margin-block: 4px;
+}
+.onizleme-gizli {
+  opacity: 0.42;
+}
+.onizleme-uyarilar {
+  margin-block-start: 12px;
+  padding-inline-start: 16px;
+  font-size: 12.5px;
+}

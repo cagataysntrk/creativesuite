@@ -35,7 +35,9 @@ import {
   type SelectQuery,
 } from '@suite/corpus'
 import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
-import { KATALOG } from '@suite/contracts'
+import { KATALOG, PLATFORMLAR } from '@suite/contracts'
+// ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
+import { kosuSablonu } from './kosu-sablonu.js'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
 import {
   COLUMN_LABELS,
@@ -611,6 +613,61 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // metin-onayi` gösteriyordu ve insan bunu onaylayacaktı — NEYİ onayladığını
   // görmeden. Ölçüldü: ekranda `img` sayısı SIFIR, metin yok. Bir kapı, kararın
   // dayanağını göstermiyorsa kapı değil bir gecikmedir (D-310 ailesi).
+  // ── YAYIN ÖNİZLEMESİ: dört platform (FAZ-19.12 · madde 4) ────────────────
+  //
+  // ⚠ ⚠ **SINIRLAR BURADAN VERİLİYOR, PANELDE YAZILMIYOR.** `apps/ui` tarayıcı
+  // katmanı ve `@suite/contracts`e uzanamıyor (`rings` kapısı). Platform listesi için
+  // `yayin-platformlari` kapısıyla korunan bir KOPYA kabul edildi — ama SINIR SAYILARI
+  // için kopya kabul edilemez: dört sayı yerine bir uç, ve sayı değiştiğinde panel
+  // kendiliğinden doğruyu gösteriyor. Kopyayı ancak zorunlu olduğunda taşıyoruz.
+  //
+  // ⚠ Metinler koşunun `yayin-metni` adımından okunuyor. Adım koşmadıysa `metinler`
+  // BOŞ dönüyor ve bu dürüst: önizleme "henüz üretilmedi" diyebilmeli, uydurma bir
+  // örnek metin gösteremez.
+  app.get('/api/kosu/:runId/yayin-onizleme', (c) => {
+    const runId = c.req.param('runId')
+    const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps/yayin-metni.json')
+    let metinler: Record<string, string> = {}
+    let uyarilar: readonly string[] = []
+    if (existsSync(yol)) {
+      try {
+        const d = JSON.parse(readFileSync(yol, 'utf8')) as {
+          yayinMetinleri?: Record<string, string>
+          yayinUyarilari?: readonly string[]
+        }
+        metinler = d.yayinMetinleri ?? {}
+        uyarilar = d.yayinUyarilari ?? []
+      } catch {
+        // Bozuk adım çıktısı önizlemeyi düşürmesin; boş metin "üretilmedi" demek.
+      }
+    }
+    // ── SLAYT SIRASI ─────────────────────────────────────────────────────
+    //
+    // ⚠ ⚠ **DIGEST `render.json`DAN OKUNMUYOR ve bu ÖLÇÜLEREK öğrenildi.** İlk sürüm
+    // adım çıktısındaki `assets[].digest`i kullandı ve dört isteğin dördü de 404
+    // döndü: `render.json`daki digest DAMGALAMA ÖNCESİ baytın özeti, blob deposu ise
+    // damgalanmış baytın özetiyle anahtarlıyor. Aynı tuzağa bu depoda bir kez daha
+    // düşülmüştü (devir belgesinde bir koşu yanlış etiketlenmişti).
+    // ⚠ Doğru kaynak kütüphane: varlığın deposunda GERÇEKTEN hangi anahtarla durduğunu
+    // yalnız o biliyor. Sıra `createdAt`ten geliyor — slaytlar üretildikleri sırayla
+    // yazılıyor ve karoselin sırası tam olarak o.
+    const slaytlar = [...kutuphane(o.repoRoot).varliklar]
+      .filter((v) => v.sourceRunId === runId)
+      .sort((a, b2) => a.createdAt.localeCompare(b2.createdAt))
+      .map((v) => ({ digest: v.digest, alt: v.konu }))
+    const secili = kosuSablonu(o.repoRoot, runId)
+    return c.json({
+      ok: true,
+      runId,
+      sablon: secili.gercek ?? secili.istenen,
+      konu: secili.konu,
+      slaytlar,
+      metinler,
+      uyarilar,
+      platformlar: PLATFORMLAR,
+    })
+  })
+
   app.get('/api/kosu/:runId/icerik', (c) => {
     const runId = c.req.param('runId')
     const m = readManifest(o.repoRoot, runId as never)

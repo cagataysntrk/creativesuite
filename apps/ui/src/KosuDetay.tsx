@@ -8,6 +8,7 @@
 
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
+import { YayinOnizleme } from './YayinOnizleme.js'
 
 interface Icerik {
   readonly runId: string
@@ -705,6 +706,13 @@ export const KosuDetay = ({
             </tbody>
           </table>
         )}
+      </section>
+
+      {/* ⚠ ⚠ **ÖNİZLEME KUSURLARDAN ÖNCE.** Depo sahibi bu ekranda önce *"doğru sıra
+          ile mi paylaşılacak"* sorusunu soruyor; kusur listesi ondan sonra gelen bir
+          ayrıntı. Sıra ekranda da anlamı taşıyor. */}
+      <section className="giris-blok">
+        <YayinOnizleme runId={runId} />
       </section>
 
       {d.kusurlar.length === 0 ? null : (
