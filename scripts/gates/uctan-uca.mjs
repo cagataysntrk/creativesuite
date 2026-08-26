@@ -286,6 +286,10 @@ const sayfaAc = async () => {
   // KOŞULAR — süzgeçler gerçekten süzüyor mu.
   await p.goto(`${PANEL}/#/gecmis`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
   await p.waitForTimeout(3000)
+  // ⚠ Sütunlar TABLO görünümünde: varsayılan kart görünümünde tablo yok ve kapı ilk
+  // koşusunda "şablon sütunu YOK" dedi — kendi yanlış pozitifi.
+  await p.getByLabel(/^görünüm/).selectOption('tablo')
+  await p.waitForTimeout(1000)
   const basliklar = await p.locator('table thead th').allTextContents()
   for (const sutun of ['şablon', 'konu']) {
     if (!basliklar.some((x) => x.trim() === sutun)) bildir('koşular', `"${sutun}" sütunu YOK`)
@@ -302,20 +306,83 @@ const sayfaAc = async () => {
     // ⚠ Süzgeç seçildiğinde satır sayısı DEĞİŞMİYORSA süzgeç kozmetiktir. Eşit olması
     // meşru olabilir (hepsi aynı kapıda) — o yüzden ARTMASI kusur sayılıyor.
     if (sonrasi > oncesi) bildir('koşular', 'kapı süzgeci satır sayısını ARTIRDI — süzmüyor')
+    // ⚠ ⚠ **SÜZGEÇ GERİ ALINIYOR — kapı kendi izini bıraktı ve sonraki bölümü düşürdü.**
+    // Seçilen kapı (`insan-onayi`) yalnız elenmiş koşularda var; elenenler gizliyken
+    // liste boşalıyor ve bir sonraki bölüm *"hiç kart çizilmedi"* diyordu. Kendi
+    // bıraktığı durumu ölçen bir kapı, kendi yanlış pozitifini üretir.
+    await kapiSecici.selectOption('')
+    await p.waitForTimeout(700)
   }
 
-  // VARLIKLAR — karar slaytların yanında mı.
-  await p.goto(`${PANEL}/#/varliklar`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
+  // ── BİRLEŞİK EKRAN: koşu ekranı VARLIK ekranını da kapsıyor mu ────────────
+  //
+  // ⚠ ⚠ **BİRLEŞMENİN TEK GERÇEK RİSKİ KAYIPTI.** Varlık ekranı yalnız varlık ÜRETMİŞ
+  // koşuları görüyordu; koşu ekranı hepsini. Birleşimi varlık listesi üzerine kursaydım
+  // 192 koşu sessizce düşerdi ve düştüğü hiçbir yerde yazmazdı. Kapı tam olarak bunu
+  // sınıyor: ekrandaki kart sayısı ile API'nin koşu sayısı EŞİT mi.
+  await p.goto(`${PANEL}/#/gecmis`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
   await p.waitForTimeout(3500)
+  // ⚠ ⚠ **GÖRÜNÜM AÇIKÇA SEÇİLİYOR — kapı kendi izini bıraktı.** Önceki bölüm tabloya
+  // geçiyor; `goto` bir hash değişimi ve tek sayfa uygulamasında React durumu SİLİNMİYOR,
+  // yani ekran hâlâ tablo. Kapı "kart çizilmedi" dedi ve haklıydı: kendi bıraktığı
+  // durumu ölçüyordu. Bir kapı, önceki adımının izini temizlemekle yükümlüdür.
+  await p.getByLabel(/^görünüm/).selectOption('kart')
+  await p.waitForTimeout(1200)
   const grup = await p.locator('.grup').count()
-  if (grup === 0) bildir('varlıklar', 'hiç gönderi grubu çizilmedi')
+  if (grup === 0) bildir('birleşik', 'kart görünümünde hiç kart çizilmedi')
   else {
-    if ((await p.locator('.grup button:has-text("takvim")').count()) !== grup)
-      bildir('varlıklar', 'takvim düğmesi her kartta YOK')
-    const kapida = await p.locator('.grup .is-uyari').filter({ hasText: '⏸' }).count()
-    const onay = await p.locator('.grup button:has-text("onayla")').count()
+    for (const [ad, sec] of [
+      ['takvim', 'takvim'],
+      ['adımlar', 'adımlar'],
+      ['ele', 'ele'],
+    ]) {
+      if ((await p.locator(`.kart-eylem button:has-text("${sec}")`).count()) !== grup)
+        bildir('birleşik', `${ad} düğmesi her kartta YOK`)
+    }
+    const kapida = await p.locator('.kart-bilgi .is-uyari').filter({ hasText: '⏸' }).count()
+    const onay = await p.locator('.kart-eylem button:has-text("onayla")').count()
     if (kapida !== onay)
-      bildir('varlıklar', `${String(kapida)} kapı rozeti ama ${String(onay)} onay düğmesi`)
+      bildir('birleşik', `${String(kapida)} kapı rozeti ama ${String(onay)} onay düğmesi`)
+
+    // ⚠ ⚠ **HİÇBİR KOŞU DÜŞMÜYOR MU** — birleşimin asıl sınaması.
+    const api = await p.evaluate(async () => {
+      const c = await (await fetch('/api/calistirmalar')).json()
+      return c.calistirmalar.length
+    })
+    const kutu = p.getByLabel(/elenenleri/)
+    await kutu.check()
+    await p.waitForTimeout(2500)
+    const hepsi = await p.locator('.grup').count()
+    if (hepsi !== api)
+      bildir('birleşik', `API ${String(api)} koşu diyor, ekranda ${String(hepsi)} kart — KAYIP VAR`)
+    // ⚠ Varlığı olmayan koşu DÜŞMEMELİ, "slayt üretmedi" demeli.
+    if ((await p.locator('.grup .bos:has-text("slayt üretmedi")').count()) === 0)
+      bildir(
+        'birleşik',
+        'varlıksız koşu hiç görünmüyor — eski varlık ekranının kusuru geri gelmiş olabilir'
+      )
+    await kutu.uncheck()
+    await p.waitForTimeout(1500)
+
+    // ⚠ Ayrıntı KARTIN İÇİNDE açılıyor mu: sayfanın dibinde açılan bir ayrıntı,
+    // yirminci kartta hiç açılmamış gibi görünür.
+    const kart = p.locator('.grup').first()
+    await kart.locator('button:has-text("adımlar")').click()
+    await p.waitForTimeout(2600)
+    if ((await kart.locator('article').count()) === 0)
+      bildir('birleşik', 'adımlar kartın İÇİNDE açılmıyor')
+    for (const b of ['Tekrar', 'İstasyon zinciri', 'İnsan kararları', 'Donmuş kayıt kümesi']) {
+      if ((await kart.locator(`h3:has-text("${b}")`).count()) === 0)
+        bildir('birleşik', `ayrıntıda "${b}" bölümü KAYIP`)
+    }
+    // ⚠ Tablo görünümü de kaybolmamalı: iki yoğunluk, tek veri.
+    await p.getByLabel(/^görünüm/).selectOption('tablo')
+    await p.waitForTimeout(1200)
+    if ((await p.locator('table tbody tr').count()) === 0) bildir('birleşik', 'tablo görünümü BOŞ')
+    if ((await p.locator('.grup').count()) !== 0)
+      bildir('birleşik', 'tabloya geçince kartlar duruyor')
+    await p.getByLabel(/^görünüm/).selectOption('kart')
+    await p.waitForTimeout(900)
   }
 
   // KOŞU DETAYI — platform başına metin paneli.
@@ -361,5 +428,5 @@ if (kusurlar.length > 0) {
 console.log(
   '  ' +
     String(EKRANLAR.length) +
-    ' ekran + editör gezildi · konsol hatası yok · kırık istek yok · yayın/koşular/varlıklar/koşu-detayı İŞLEVSEL'
+    ' ekran + editör gezildi · konsol hatası yok · kırık istek yok · yayın/birleşik-liste/koşu-detayı İŞLEVSEL · hiçbir koşu düşmüyor'
 )

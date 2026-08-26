@@ -1388,3 +1388,29 @@ tr[data-tiklanir] {
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* ── BİRLEŞİK KART: veri solda, eylem sağda (FAZ-19.13 · UX-11) ─────────────
+   ⚠ İlk sürümde ikisi tek satırda karışıktı: kapısı olan kartta düğme sayısı artıyor,
+   "adımlar" alt satıra düşüyor ve aynı düğme her kartta BAŞKA yerde duruyordu. Göz her
+   kartta yeniden arıyordu — ölçüldü, ekrana bakılarak. */
+.grup-basi {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+.kart-bilgi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.kart-eylem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+}

@@ -64,13 +64,27 @@ const EKRAN: Readonly<Record<string, Ekran>> = {
  */
 const NAV: readonly (readonly [Ekran, string])[] = [
   ['calistir', 'Üret'],
-  ['gecmis', 'Koşular'],
-  ['varliklar', 'Varlıklar'],
+  ['gecmis', 'Koşular ve varlıklar'],
   // ⚠ Yayın akışı VARLIKLARDAN SONRA: günlük sıra onay → üret → koşular → varlık →
   // YAYIN. Takvim, üretilen şeyin nereye gittiği; varlıktan önce koymak sırayı bozardı.
   ['yayin-akisi', 'Yayın'],
 ]
 
+// ⚠ ⚠ **`varliklar` ÜST GEZİNMEDEN ÇIKTI — ÇÜNKÜ KOŞULARLA BİRLEŞTİ.** Depo sahibi:
+// *"koşular ile varlıkları mükemmelce birleştirsek mi, çünkü zaten varlıklarda basınca
+// koşu detayı açılıyor... tek merkezden yönetmiş oluruz"*. İki ekran aynı şeyin iki
+// yüzüydü ve ikisini eşit tutmak sürekli bir emekti: bir süzgeç birine eklenip ötekine
+// unutuluyordu.
+//
+// ⚠ ⚠ **BİRLEŞİM KOŞU LİSTESİ ÜZERİNE KURULDU, VARLIK LİSTESİ ÜZERİNE DEĞİL — ve fark
+// 216 koşu.** Varlık ekranı yalnız varlık ÜRETMİŞ koşuları görüyordu (10); koşu ekranı
+// hepsini (226). Tersini yapsaydım 216 koşu sessizce düşerdi ve düşmüş olduğu hiçbir
+// yerde yazmazdı. Varlığı olmayan koşu yerinde duruyor ve *"henüz slayt üretmedi"* diyor.
+//
+// ⚠ İki YOĞUNLUK tek ekranda: kart görünümü slaytlarla (bir tasarıma karar vermek için
+// ona BAKMAK gerekiyor), tablo görünümü yoğun ve maliyetli. Ayrı EKRAN yapmak iki ayrı
+// süzgeç seti demekti; ayrı GÖRÜNÜM yapmak aynı listeyi iki türlü okumak.
+//
 // ⚠ ⚠ **`butce` DE ÜST GEZİNMEDEN ÇIKTI** — depo sahibi: *"bütçeyi de yukardan
 // kaldır"*. Maliyet zaten durum şeridinde HER EKRANDA duruyor (`maliyet $…`, `kota`);
 // ayrı bir sekme aynı sayıyı ikinci kez göstermek için bir tıklama istiyordu. Ayrıntı

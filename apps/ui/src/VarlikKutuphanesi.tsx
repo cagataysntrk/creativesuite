@@ -61,7 +61,7 @@ const BIR_HAFTA = 7 * 24 * 60 * 60 * 1000
  * katmanı ve `@suite/contracts`i import etmesi `rings` kapısına takılıyor. Sayı iki
  * yerde yazılı olduğu için `paylasim-olcusu` kapısı ikisinin AYNI kaldığını sınıyor.
  */
-const PAYLASIM_OLCUSU = '1080x1440'
+export const PAYLASIM_OLCUSU = '1080x1440'
 
 export const VarlikKutuphanesi = ({
   ac,

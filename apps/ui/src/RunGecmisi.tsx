@@ -11,8 +11,32 @@
 // koymak, hangisinin olduğunu kullanıcının bilmemesi demekti.
 
 import { useEffect, useState } from 'react'
+import { GonderiKutusu } from './GonderiKutusu.js'
+import { PAYLASIM_OLCUSU } from './VarlikKutuphanesi.js'
 import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 import { usdBicimle } from './baglanti.js'
+
+/**
+ * Bir SLAYT — koşunun ürettiği damgalı varlık.
+ *
+ * ⚠ ⚠ **BU EKRAN ARTIK KOŞU VE VARLIK EKRANININ İKİSİ BİRDEN.** Depo sahibi: *"koşular
+ * ile varlıkları mükemmelce birleştirsek mi... tek merkezden yönetmiş oluruz"*. İki
+ * ekran aynı şeyin iki yüzüydü — biri koşuyu, öteki koşunun ÜRETTİĞİNİ gösteriyordu — ve
+ * ikisini eşit tutmak sürekli bir emekti: bir süzgeç birine eklenip ötekine unutuluyordu.
+ *
+ * ⚠ ⚠ **BİRLEŞMENİN TEHLİKESİ KAYIPTI ve tam tersinden kuruldu.** Varlık ekranı YALNIZ
+ * varlık üretmiş koşuları görüyordu (10); koşu ekranı hepsini (226). Birleşimi varlık
+ * listesi üzerine kursaydım 216 koşu sessizce düşerdi. O yüzden taban KOŞU listesi ve
+ * varlıklar ona EKLENİYOR: varlığı olmayan koşu yerinde duruyor, "henüz varlık yok" der.
+ */
+interface Varlik {
+  readonly digest: string
+  readonly sourceRunId: string
+  readonly konu: string
+  /** Bayttan okunan ölçü, `1080x1440` gibi. `null` = okunamadı. */
+  readonly olcu: string | null
+  readonly yayinlandi: boolean
+}
 
 interface Ozet {
   readonly runId: string
@@ -128,6 +152,19 @@ export const RunGecmisi = ({
   // ⚠ Çoklu seçim: on koşuyu tek tek elemek, elemeyi kullanılmaz yapardı.
   const [secilenler, setSecilenler] = useState<readonly string[]>([])
   const [detay, setDetay] = useState<Detay | null>(null)
+  // ── varlık tarafı (eski Varlıklar ekranından) ────────────────────────────
+  const [varliklar, setVarliklar] = useState<readonly Varlik[]>([])
+  const [elleSlaytlar, setElleSlaytlar] = useState<Readonly<Record<string, string[]>>>({})
+  const [karantina, setKarantina] = useState(0)
+  const [takvimAcik, setTakvimAcik] = useState<string | null>(null)
+  const [onayMesaj, setOnayMesaj] = useState<string | null>(null)
+  const [karantinaSebep, setKarantinaSebep] = useState<string | null>(null)
+  // ⚠ ⚠ **İKİ GÖRÜNÜM, TEK VERİ ve TEK SÜZGEÇ.** Kart görünümü slaytları gösteriyor —
+  // bir tasarıma karar vermek için ona BAKMAK gerekiyor. Tablo görünümü on koşuyu tek
+  // ekranda ve maliyetiyle gösteriyor — "bu hafta ne oldu" sorusu için. İkisini ayrı
+  // EKRAN yapmak, iki ayrı süzgeç seti ve sonsuz bir eşitleme emeği demekti; ikisini
+  // ayrı GÖRÜNÜM yapmak aynı listeyi iki yoğunlukta okumak.
+  const [gorunum, setGorunum] = useState<'kart' | 'tablo'>('kart')
   const [tekrarSonuc, setTekrarSonuc] = useState<string | null>(null)
 
   /**
@@ -154,6 +191,91 @@ export const RunGecmisi = ({
       .then((r) => r.json() as Promise<{ calistirmalar: readonly Ozet[] }>)
       .then((j) => setListe(j.calistirmalar))
       .catch(() => setListe([]))
+    // ⚠ İKİ UÇ, TEK LİSTE. Varlıkları sunucuda koşulara katmak da olurdu ama iki uç iki
+    // ayrı soruya cevap veriyor ve ayrı ayrı da kullanılıyorlar; birleştirme EKRANDA.
+    // ⚠ Varlık isteği düşerse liste yine çiziliyor: slaytsız bir liste, listesiz bir
+    // ekrandan iyidir.
+    void fetch('/api/varliklar')
+      .then(
+        (r) =>
+          r.json() as Promise<{
+            varliklar?: Varlik[]
+            elleSlaytlar?: Record<string, string[]>
+            karantina?: number
+          }>
+      )
+      .then((j) => {
+        setVarliklar(j.varliklar ?? [])
+        setElleSlaytlar(j.elleSlaytlar ?? {})
+        setKarantina(j.karantina ?? 0)
+      })
+      .catch(() => setVarliklar([]))
+  }
+
+  /**
+   * Kapıyı BURADAN geçirir — slaytlara bakarken.
+   *
+   * ⚠ ⚠ **RED GEREKÇE İSTİYOR, ONAY İSTEMİYOR** ve bu asimetri kasıtlı (§4.5): gerekçesiz
+   * bir *"hayır"* sonraki koşuya hiçbir bilgi taşımaz; sistem reddedildiğini bilir, nedenini
+   * bilmez ve aynı öneriyi tekrar getirir.
+   * ⚠ Onay bir kapı kararıdır, bir yayın DEĞİL: hattı sürdürüyor, hiçbir şey yayınlamıyor.
+   */
+  const kapiyiGec = async (runId: string, kapi: string, onay: boolean): Promise<void> => {
+    const gerekce = onay ? '' : (prompt(`${kapi} REDDEDİLİYOR. Neden? (zorunlu)`) ?? '')
+    if (!onay && gerekce.trim() === '') return
+    try {
+      const r = await fetch(
+        `/api/kuyruk/${encodeURIComponent(runId)}/${encodeURIComponent(kapi)}`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ karar: onay ? 'approved' : 'rejected', gerekce }),
+        }
+      )
+      const j = (await r.json()) as { ok?: boolean; hata?: string }
+      setOnayMesaj(
+        j.ok === true
+          ? `✓ ${kapi} ${onay ? 'onaylandı' : 'reddedildi'}`
+          : `✗ ${j.hata ?? 'yazılamadı'}`
+      )
+    } catch {
+      setOnayMesaj('✗ sunucuya ulaşılamıyor')
+    }
+    listeyiCek()
+  }
+
+  /**
+   * Seçilen koşuların SLAYTLARINI karantinaya alır.
+   *
+   * ⚠ ⚠ **ELEME İLE KARANTİNA AYRI ŞEYLER ve ikisi de burada.** Eleme koşuyu LİSTEDEN
+   * çıkarır (kayıt durur); karantina VARLIĞI yayın havuzundan çıkarır (byte durur, taşınır).
+   * Bir üretimin tasarımı kötüyse karantina, koşusu ilgisizse eleme. İkisini tek düğmeye
+   * indirmek, ikisinden birini yapamaz hâle getirirdi.
+   * ⚠ Sebep ZORUNLU — sunucu da zorluyor (D-155).
+   */
+  const karantinaYap = async (): Promise<void> => {
+    const sebep = (karantinaSebep ?? '').trim()
+    if (sebep === '') return
+    const digestler = varliklar
+      .filter((v) => secilenler.includes(v.sourceRunId))
+      .map((v) => v.digest)
+    if (digestler.length === 0) {
+      setOnayMesaj('✗ seçilen koşuların hiç varlığı yok — karantinaya alınacak bir şey yok')
+      setKarantinaSebep(null)
+      return
+    }
+    const r = await fetch('/api/varliklar/karantina', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ digestler, sebep }),
+    })
+    const j = (await r.json()) as { ok?: boolean; hata?: string }
+    setOnayMesaj(
+      j.ok === true ? `⌫ ${String(digestler.length)} slayt karantinada` : `✗ ${j.hata ?? 'olmadı'}`
+    )
+    setKarantinaSebep(null)
+    setSecilenler([])
+    listeyiCek()
   }
 
   useEffect(listeyiCek, [])
@@ -241,6 +363,36 @@ export const RunGecmisi = ({
   // ⚠ Sıralama artık SEÇİLEBİLİR. Varsayılan yine en yeni önce: geçmiş ekranında insan
   // en son ne olduğuna bakar. Ama "ilk koşular ne yapmıştı" da meşru bir soru ve
   // cevabını sabit bir sıralama gizliyordu.
+  // ⚠ ⚠ **KOŞU → SLAYTLAR.** Sıra `createdAt`ten: slaytlar üretildikleri sırayla yazılıyor
+  // ve karoselin sırası tam olarak o. Digest'e göre sıralamak, kapağı ortaya atardı.
+  const slaytHaritasi = new Map<string, Varlik[]>()
+  for (const v of varliklar) {
+    const l = slaytHaritasi.get(v.sourceRunId) ?? []
+    l.push(v)
+    slaytHaritasi.set(v.sourceRunId, l)
+  }
+  for (const l of slaytHaritasi.values()) l.sort((a, b) => a.digest.localeCompare(b.digest))
+
+  /**
+   * Bir koşunun slaytlarının ORTAK ölçüsü.
+   *
+   * ⚠ ⚠ **TEK SLAYTA BAKMAK YETMEZ.** Instagram karoselin oranını İLK slayttan alıyor ve
+   * gerisini ona göre KIRPIYOR; ayrışan bir slayt sessizce kırpılır. O yüzden ölçü ancak
+   * HEPSİ aynıysa ilan ediliyor, değilse `karışık` — ve `karışık` bir uyarıdır.
+   */
+  const olcusu = (runId: string): string | null => {
+    const l = slaytHaritasi.get(runId) ?? []
+    if (l.length === 0) return null
+    const hepsi = [...new Set(l.map((v) => v.olcu))]
+    return hepsi.length === 1 ? (hepsi[0] ?? null) : 'karışık'
+  }
+  // ⚠ Grup "yayınlandı" ancak HEPSİ yayınlandıysa: karoselin üç slaydı yayınlanmışsa o
+  // gönderi yayınlanmamıştır, YARIM kalmıştır.
+  const yayinlandiMi = (runId: string): boolean => {
+    const l = slaytHaritasi.get(runId) ?? []
+    return l.length > 0 && l.every((v) => v.yayinlandi)
+  }
+
   const sirali = tariheGore(suzulmusHam, (r) => r.createdAt, siralama)
   const suzulmus = sirali
   // ⚠ ⚠ **SAYILAR LİSTEYLE AYNI TABANDAN.** İlk sürüm ham listeyi sayıyordu ve başlık
@@ -252,19 +404,175 @@ export const RunGecmisi = ({
     durdu: taban.filter((r) => durumu(r) === 'durdu').length,
     kusurlu: taban.filter((r) => durumu(r) === 'kusurlu').length,
     elenmis: liste.length - taban.length,
+    // ⚠ *"Kaç koşu gerçekten bir şey ÜRETTİ"* ayrı bir soru ve cevabı hiçbir yerde
+    // yazmıyordu: 226 koşunun 10'u slayt üretmiş, gerisi yolda düşmüş.
+    slaytli: taban.filter((r) => (slaytHaritasi.get(r.runId) ?? []).length > 0).length,
+    yayinlanmis: taban.filter((r) => yayinlandiMi(r.runId)).length,
   }
+
+  /**
+   * Koşunun AYRINTISI — adımlar, kararlar, tekrar, donmuş kayıt kümesi.
+   *
+   * ⚠ ⚠ **KARTIN İÇİNDE AÇILIYOR, SAYFANIN DİBİNDE DEĞİL.** İlk sürümde ayrıntı listenin
+   * ALTINDA çiziliyordu: yirminci kartın "adımlar"ına basan insan hiçbir şey olmamış
+   * sanıyor, çünkü açılan şey ekranın dışında. Açılan bir şey görülmüyorsa açılmamıştır.
+   * ⚠ Tek gövde, iki çağıran (kart ve tablo): kopyalasaydım biri düzelir öteki unuturdu.
+   */
+  const ayrinti = (): React.JSX.Element | null =>
+    detay === null ? null : (
+      <article>
+        <h2>{detay.ozet.runId}</h2>
+        <p className="mono">
+          {detay.ozet.brandId} · {detay.ozet.eraId} · corpus {kisaSha(detay.ozet.corpusCommit)} ·
+          registry {kisaSha(detay.ozet.registryCommit)} · {detay.ozet.createdAt}
+        </p>
+
+        <h3>Tekrar</h3>
+        {/* Uyarı düğmelerin ÜSTÜNDE: tıkladıktan sonra okunan bir uyarı, uyarı değildir. */}
+        <p role="note">{detay.tekrar.uyari}</p>
+        <div>
+          <button
+            type="button"
+            disabled={!detay.tekrar.rerun.mumkun}
+            onClick={() => void tekrarla(detay.ozet.runId, 'rerun')}
+          >
+            rerun — {detay.tekrar.rerun.ne}
+          </button>
+          {detay.tekrar.rerun.neden === null ? null : <p>{detay.tekrar.rerun.neden}</p>}
+          <button
+            type="button"
+            disabled={!detay.tekrar.replay.mumkun}
+            onClick={() => void tekrarla(detay.ozet.runId, 'replay')}
+          >
+            replay — {detay.tekrar.replay.ne}
+          </button>
+          {tekrarSonuc === null ? null : (
+            <p role="status" className="mono">
+              {tekrarSonuc}
+            </p>
+          )}
+        </div>
+
+        <h4>Donmuş plan ile bugünün dünyası arasındaki fark</h4>
+        {!detay.tekrar.sapmaOlculdu ? (
+          // "Ölçülmedi" ile "fark yok" AYRI sonuçlardır (§12.6). Boş liste göstermek
+          // ikincisini ima ederdi.
+          <p>ölçülemedi — donmuş plan ya da bugünün sağlayıcı tanımı okunamadı</p>
+        ) : detay.tekrar.sapmalar.length === 0 ? (
+          <p>fark yok — replay bugün aynı planı üretir</p>
+        ) : (
+          <ul>
+            {detay.tekrar.sapmalar.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        )}
+
+        <h4>rerun bile aynı eseri vermeyebilir</h4>
+        {detay.tekrar.belirsizAdimlar.length === 0 ? (
+          <p>dış dünyaya bağlı adım yok — bu çalıştırma yeniden üretilebilir</p>
+        ) : (
+          <ul>
+            {detay.tekrar.belirsizAdimlar.map((b) => (
+              <li key={b.stepId}>
+                <span className="mono">{b.stepId}</span> · {b.verb} ·{' '}
+                {b.seedli ? 'seed var' : 'seed YOK'} — {b.neden}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <h3>İstasyon zinciri</h3>
+        <ol>
+          {detay.adimlar.map((a) => (
+            <li key={a.stepId}>
+              <span className="mono">{a.stepId}</span> · {a.verb} · {a.lane} ·{' '}
+              {a.capability ?? 'yetenek yok'} · {a.providerId ?? 'sağlayıcı yok'} ·{' '}
+              {a.model ?? 'model yok'} · seed {a.seed === null ? '—' : a.seed} ·{' '}
+              <span className="mono">
+                {a.gercekMikros === null ? 'koşmadı' : usdBicimle(a.gercekMikros)}
+              </span>{' '}
+              / tahmin <span className="mono">{usdBicimle(a.tahminUstMikros)}</span> ·{' '}
+              {a.sureMs === null ? '—' : `${a.sureMs} ms`} · {a.status}
+              {/* Kaybeden adaylar da görünür: yönlendirmeyi sihirden yönetişime
+                      çeviren şey, altı ay sonra "neden bu model" sorusunun cevabıdır. */}
+              {a.adaylar.filter((k) => !k.selected).length === 0 ? null : (
+                <ul>
+                  {a.adaylar
+                    .filter((k) => !k.selected)
+                    .map((k) => (
+                      <li key={k.providerId}>
+                        {k.providerId} elendi — {k.rejectionReason ?? 'gerekçe yazılmamış'}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ol>
+
+        <h3>İnsan kararları</h3>
+        {detay.kararlar.length === 0 ? (
+          <p>insan kararı yok</p>
+        ) : (
+          <ul>
+            {detay.kararlar.map((k) => (
+              <li key={`${k.gate}-${k.at}`}>
+                {k.gate} · {k.decision} · {k.at}
+                {k.note === null ? '' : ` — ${k.note}`}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <h3>Enjekte edilen bağlam</h3>
+        {detay.baglam.length === 0 ? (
+          <p>bağlam manifesti boş</p>
+        ) : (
+          <ul>
+            {detay.baglam.map((b) => (
+              <li key={b.section}>
+                {b.section} · <span className="mono">{b.tokens}</span> token · {b.kayitlar.length}{' '}
+                kayıt
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <h3>Donmuş kayıt kümesi</h3>
+        <p>
+          {detay.donmusKayitlar.length === 0
+            ? 'donmuş plan yok — rerun hangi kayıtlarla koşacağını bilemez'
+            : `${detay.donmusKayitlar.length} kayıt · rerun tam olarak bunlarla koşar`}
+        </p>
+      </article>
+    )
 
   return (
     <section>
-      <h1>Çalıştırma geçmişi</h1>
+      <h1>Koşular ve varlıklar</h1>
       <p className="giris-not">
-        {taban.length} koşu · {sayim.kapida} kapıda · {sayim.durdu} durdu · {sayim.kusurlu} kusurlu
-        manifest
+        {taban.length} koşu · {sayim.kapida} kapıda · {sayim.durdu} durdu · {sayim.slaytli} slayt
+        üretmiş · {sayim.yayinlanmis} yayınlanmış · {sayim.kusurlu} kusurlu manifest
+        {karantina === 0 ? null : <> · {karantina} karantinada</>}
         {sayim.elenmis === 0 ? null : <> · {sayim.elenmis} elenmiş gizli</>}
         {suzulmus.length === taban.length ? null : <> · süzülen {suzulmus.length}</>}
       </p>
+      {onayMesaj === null ? null : <p className="giris-not">{onayMesaj}</p>}
 
       <div className="filtre-cubuk">
+        {/* ⚠ Görünüm anahtarı EN BAŞTA: hangi yoğunlukta okuduğun, neyi süzdüğünden
+            önce gelen bir karar. */}
+        <label>
+          görünüm{' '}
+          <select
+            value={gorunum}
+            onChange={(e) => setGorunum(e.target.value === 'tablo' ? 'tablo' : 'kart')}
+          >
+            <option value="kart">kart — slaytlarla</option>
+            <option value="tablo">tablo — yoğun</option>
+          </select>
+        </label>
         <label>
           hat{' '}
           <select value={fHat} onChange={(e) => setFHat(e.target.value)}>
@@ -348,9 +656,41 @@ export const RunGecmisi = ({
           <button type="button" onClick={() => void topluEle()}>
             ✕ seçilenleri ele
           </button>
+          {/* ⚠ ⚠ **ELEME İLE KARANTİNA AYRI.** Eleme koşuyu LİSTEDEN çıkarır (kayıt
+              durur); karantina VARLIĞI yayın havuzundan çıkarır (byte durur, taşınır).
+              Tasarımı kötüyse karantina, koşusu ilgisizse eleme — ikisini tek düğmeye
+              indirmek, ikisinden birini yapamaz hâle getirirdi. */}
+          <button type="button" onClick={() => setKarantinaSebep('')}>
+            ⌫ slaytları karantinaya al
+          </button>
           <button type="button" onClick={() => setSecilenler([])}>
             seçimi temizle
           </button>
+        </div>
+      )}
+
+      {karantinaSebep === null ? null : (
+        <div className="gerekce-kutusu">
+          <label htmlFor="karantina-sebep">
+            karantina sebebi (zorunlu — byte silinmez, taşınır ve defterde iz kalır)
+          </label>
+          <textarea
+            id="karantina-sebep"
+            value={karantinaSebep}
+            onChange={(e) => setKarantinaSebep(e.target.value)}
+          />
+          <div className="kapi-dugmeler">
+            <button
+              type="button"
+              disabled={karantinaSebep.trim() === ''}
+              onClick={() => void karantinaYap()}
+            >
+              {secilenler.length} koşunun slaytlarını karantinaya al
+            </button>
+            <button type="button" onClick={() => setKarantinaSebep(null)}>
+              vazgeç
+            </button>
+          </div>
         </div>
       )}
 
@@ -360,6 +700,163 @@ export const RunGecmisi = ({
             ? 'Henüz çalıştırma yok — geçmiş boş bir liste, bir hata değil.'
             : 'Bu süzgeçle koşu yok — filtreyi gevşet.'}
         </p>
+      ) : gorunum === 'kart' ? (
+        <ul className="grup-listesi">
+          {suzulmus.map((r) => {
+            const slaytlar = slaytHaritasi.get(r.runId) ?? []
+            const elle = elleSlaytlar[r.runId] ?? []
+            const olcu = olcusu(r.runId)
+            return (
+              <li key={r.runId} className="grup">
+                <div className="grup-basi">
+                  <div className="kart-bilgi">
+                    <input
+                      type="checkbox"
+                      aria-label={`${r.runId} seç`}
+                      checked={secilenler.includes(r.runId)}
+                      onChange={(e) =>
+                        setSecilenler(
+                          e.target.checked
+                            ? [...secilenler, r.runId]
+                            : secilenler.filter((x) => x !== r.runId)
+                        )
+                      }
+                    />
+                    <strong>
+                      {r.konu === null || r.konu === '' ? r.runId.slice(4, 16) : r.konu}
+                    </strong>
+                    {/* ⚠ ŞABLON HATTIN ÖNÜNDE: bir karoselin hangi tasarımdan geldiği,
+                      hangi hattan geldiğinden daha ayırt edici — on üretimin onu da
+                      aynı hattan çıkıyor. */}
+                    <span className="olcum">{r.sablon ?? '— şablon yok'}</span>
+                    {/* ⚠ Ölçü BAYTTAN okundu, beyandan değil. Kural dışıysa uyarı
+                      rengiyle: yanlış oran yayın anında — görseller harcandıktan
+                      sonra — kırpılır. */}
+                    {olcu === null ? null : (
+                      <span className={olcu === PAYLASIM_OLCUSU ? 'olcum' : 'is-uyari'}>
+                        {olcu}
+                      </span>
+                    )}
+                    <span className="olcum">{r.pipeline}</span>
+                    <span className="olcum">
+                      {slaytlar.length === 0 ? 'slayt yok' : `${String(slaytlar.length)} slayt`}
+                    </span>
+                    <span className="olcum">{tamTarih(r.createdAt)}</span>
+                    <span className={yayinlandiMi(r.runId) ? 'is-hat' : 'bos'}>
+                      {yayinlandiMi(r.runId) ? '✓ yayınlandı' : 'yayınlanmadı'}
+                    </span>
+                    {r.manifestSaglam ? null : <span className="is-uyari">⊘ kusurlu manifest</span>}
+                    {r.elendi === null ? null : (
+                      <span className="is-uyari">✕ elendi: {r.elendi.sebep}</span>
+                    )}
+                    {elle.length === 0 ? null : (
+                      <span className="is-uyari">✎ {elle.length} slayt elle düzenlendi</span>
+                    )}
+                    {/* ⚠ Bekleyen kapı VERİ tarafında: "bu koşu ne durumda" sorusunun
+                      cevabı, "ne yapabilirim" sorusundan önce gelir. */}
+                    {r.awaitingGate === null ? null : (
+                      <span className="is-uyari">⏸ {r.awaitingGate}</span>
+                    )}
+                  </div>
+                  {/* ⚠ ⚠ **VERİ SOLDA, EYLEM SAĞDA — ve bu bir süs değil.** İlk sürümde
+                      ikisi tek satırda karışıktı: kapısı olan kartta düğme sayısı artıyor,
+                      "adımlar" alt satıra düşüyor ve aynı düğme her kartta BAŞKA yerde
+                      duruyordu. Göz her kartta yeniden arıyordu. */}
+                  <div className="kart-eylem">
+                    {ac === undefined ? null : (
+                      <button type="button" className="hizli" onClick={() => ac(r.runId)}>
+                        aç →
+                      </button>
+                    )}
+                    {/* ⚠ ⚠ **KARAR SLAYTLARIN YANINDA:** onay kararı slaytlara BAKARAK
+                      veriliyor ve slaytlar bu kartın içinde. */}
+                    {r.awaitingGate === null ? null : (
+                      <>
+                        <button
+                          type="button"
+                          className="hizli"
+                          onClick={() => void kapiyiGec(r.runId, r.awaitingGate as string, true)}
+                        >
+                          ✓ onayla
+                        </button>
+                        <button
+                          type="button"
+                          className="hizli"
+                          onClick={() => void kapiyiGec(r.runId, r.awaitingGate as string, false)}
+                        >
+                          ✕ reddet
+                        </button>
+                      </>
+                    )}
+                    <button
+                      type="button"
+                      className="hizli"
+                      onClick={() => setTakvimAcik(takvimAcik === r.runId ? null : r.runId)}
+                    >
+                      {takvimAcik === r.runId ? '▲ takvim' : '▼ takvim'}
+                    </button>
+                    <button type="button" className="hizli" onClick={() => void ele(r)}>
+                      {r.elendi === null ? '✕ ele' : '↩ elemeyi geri al'}
+                    </button>
+                    {/* ⚠ Ayrıntı AYNI kartta açılıyor: adımlar, kararlar, tekrar ve
+                      donmuş kayıt kümesi başka bir ekranda değil, burada. */}
+                    <button
+                      type="button"
+                      className="hizli"
+                      onClick={() => setSecili(secili === r.runId ? null : r.runId)}
+                    >
+                      {secili === r.runId ? '▲ adımlar' : '▼ adımlar'}
+                    </button>
+                  </div>
+                </div>
+                {takvimAcik === r.runId ? (
+                  <GonderiKutusu
+                    runId={r.runId}
+                    konu={r.konu === null || r.konu === '' ? r.runId.slice(4, 16) : r.konu}
+                  />
+                ) : null}
+                {secili === r.runId ? ayrinti() : null}
+                {slaytlar.length === 0 ? (
+                  <p className="bos">bu koşu henüz slayt üretmedi</p>
+                ) : (
+                  <div className="kosu-slaytlar">
+                    {slaytlar.map((v) => (
+                      <a
+                        key={v.digest}
+                        href={`/api/varlik/${v.digest}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <img src={`/api/varlik/${v.digest}`} alt={v.konu} loading="lazy" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+                {/* ⚠ ⚠ **ELLE DÜZENLENMİŞ HÂL DE BURADA — ama damgalıların YERİNE
+                    geçmiyor.** Damgasız bir slayt uyum iddiası taşımıyor ve yayına
+                    aday değil (Yasa 7 · R-33); ikisini karıştırmak, damgasız bir
+                    varlığı yayınlanabilir sanmak olurdu. */}
+                {elle.length === 0 ? null : (
+                  <>
+                    <p className="olcum">✎ elle düzenlenmiş sürüm — damgasız, yayına aday değil</p>
+                    <div className="kosu-slaytlar">
+                      {elle.map((ad) => (
+                        <a
+                          key={ad}
+                          href={`/api/kosu/${r.runId}/elle/${ad}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <img src={`/api/kosu/${r.runId}/elle/${ad}`} alt={ad} loading="lazy" />
+                        </a>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </li>
+            )
+          })}
+        </ul>
       ) : (
         <table>
           <thead>
@@ -472,135 +969,9 @@ export const RunGecmisi = ({
       )}
 
       {secili !== null && detay === null ? <p>çalıştırma okunuyor…</p> : null}
-
-      {detay === null ? null : (
-        <article>
-          <h2>{detay.ozet.runId}</h2>
-          <p className="mono">
-            {detay.ozet.brandId} · {detay.ozet.eraId} · corpus {kisaSha(detay.ozet.corpusCommit)} ·
-            registry {kisaSha(detay.ozet.registryCommit)} · {detay.ozet.createdAt}
-          </p>
-
-          <h3>Tekrar</h3>
-          {/* Uyarı düğmelerin ÜSTÜNDE: tıkladıktan sonra okunan bir uyarı, uyarı değildir. */}
-          <p role="note">{detay.tekrar.uyari}</p>
-          <div>
-            <button
-              type="button"
-              disabled={!detay.tekrar.rerun.mumkun}
-              onClick={() => void tekrarla(detay.ozet.runId, 'rerun')}
-            >
-              rerun — {detay.tekrar.rerun.ne}
-            </button>
-            {detay.tekrar.rerun.neden === null ? null : <p>{detay.tekrar.rerun.neden}</p>}
-            <button
-              type="button"
-              disabled={!detay.tekrar.replay.mumkun}
-              onClick={() => void tekrarla(detay.ozet.runId, 'replay')}
-            >
-              replay — {detay.tekrar.replay.ne}
-            </button>
-            {tekrarSonuc === null ? null : (
-              <p role="status" className="mono">
-                {tekrarSonuc}
-              </p>
-            )}
-          </div>
-
-          <h4>Donmuş plan ile bugünün dünyası arasındaki fark</h4>
-          {!detay.tekrar.sapmaOlculdu ? (
-            // "Ölçülmedi" ile "fark yok" AYRI sonuçlardır (§12.6). Boş liste göstermek
-            // ikincisini ima ederdi.
-            <p>ölçülemedi — donmuş plan ya da bugünün sağlayıcı tanımı okunamadı</p>
-          ) : detay.tekrar.sapmalar.length === 0 ? (
-            <p>fark yok — replay bugün aynı planı üretir</p>
-          ) : (
-            <ul>
-              {detay.tekrar.sapmalar.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-          )}
-
-          <h4>rerun bile aynı eseri vermeyebilir</h4>
-          {detay.tekrar.belirsizAdimlar.length === 0 ? (
-            <p>dış dünyaya bağlı adım yok — bu çalıştırma yeniden üretilebilir</p>
-          ) : (
-            <ul>
-              {detay.tekrar.belirsizAdimlar.map((b) => (
-                <li key={b.stepId}>
-                  <span className="mono">{b.stepId}</span> · {b.verb} ·{' '}
-                  {b.seedli ? 'seed var' : 'seed YOK'} — {b.neden}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h3>İstasyon zinciri</h3>
-          <ol>
-            {detay.adimlar.map((a) => (
-              <li key={a.stepId}>
-                <span className="mono">{a.stepId}</span> · {a.verb} · {a.lane} ·{' '}
-                {a.capability ?? 'yetenek yok'} · {a.providerId ?? 'sağlayıcı yok'} ·{' '}
-                {a.model ?? 'model yok'} · seed {a.seed === null ? '—' : a.seed} ·{' '}
-                <span className="mono">
-                  {a.gercekMikros === null ? 'koşmadı' : usdBicimle(a.gercekMikros)}
-                </span>{' '}
-                / tahmin <span className="mono">{usdBicimle(a.tahminUstMikros)}</span> ·{' '}
-                {a.sureMs === null ? '—' : `${a.sureMs} ms`} · {a.status}
-                {/* Kaybeden adaylar da görünür: yönlendirmeyi sihirden yönetişime
-                    çeviren şey, altı ay sonra "neden bu model" sorusunun cevabıdır. */}
-                {a.adaylar.filter((k) => !k.selected).length === 0 ? null : (
-                  <ul>
-                    {a.adaylar
-                      .filter((k) => !k.selected)
-                      .map((k) => (
-                        <li key={k.providerId}>
-                          {k.providerId} elendi — {k.rejectionReason ?? 'gerekçe yazılmamış'}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ol>
-
-          <h3>İnsan kararları</h3>
-          {detay.kararlar.length === 0 ? (
-            <p>insan kararı yok</p>
-          ) : (
-            <ul>
-              {detay.kararlar.map((k) => (
-                <li key={`${k.gate}-${k.at}`}>
-                  {k.gate} · {k.decision} · {k.at}
-                  {k.note === null ? '' : ` — ${k.note}`}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h3>Enjekte edilen bağlam</h3>
-          {detay.baglam.length === 0 ? (
-            <p>bağlam manifesti boş</p>
-          ) : (
-            <ul>
-              {detay.baglam.map((b) => (
-                <li key={b.section}>
-                  {b.section} · <span className="mono">{b.tokens}</span> token · {b.kayitlar.length}{' '}
-                  kayıt
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h3>Donmuş kayıt kümesi</h3>
-          <p>
-            {detay.donmusKayitlar.length === 0
-              ? 'donmuş plan yok — rerun hangi kayıtlarla koşacağını bilemez'
-              : `${detay.donmusKayitlar.length} kayıt · rerun tam olarak bunlarla koşar`}
-          </p>
-        </article>
-      )}
+      {/* ⚠ Tablo görünümünde ayrıntı listenin ALTINDA: satır dar, içine bir makale
+          sığmıyor. Kart görünümünde kartın İÇİNDE — orada yer var. */}
+      {gorunum === 'tablo' ? ayrinti() : null}
     </section>
   )
 }
