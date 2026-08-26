@@ -118,12 +118,19 @@ export const temizle = (svg) => {
   const t = ham
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '')
-    .replace(/<(script|foreignObject|iframe|embed|object)\b[^>]*\/?>/gi, '')
-    .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
-    .replace(/\son\w+\s*=\s*'[^']*'/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<(script|foreignObject|iframe|embed|object|style)\b[^>]*\/?>/gi, '')
+    // ⚠ ⚠ **SMIL ÇALIŞMA ANINDA NİTELİK YAZIYOR — statik tarama onu göremez.**
+    // `<animate attributeName="href" values="javascript:…"/>` belgede hiçbir yasak
+    // dize taşımadan, animasyon başlayınca `href`i o değere çeviriyor.
+    .replace(/<(animate|animateTransform|animateMotion|set)\b[\s\S]*?(?:\/>|<\/\1>)/gi, '')
+    // ⚠ ⚠ **TIRNAKSIZ DEĞER: İLK SÜRÜMÜN AÇIĞI ve beni kendi SINAMAM yanılttı.**
+    // Regex `"…"` ya da `'…'` şart koşuyordu; `onload=alert(1)` hiç eşleşmiyordu.
+    // Sınamada yalnız tırnaklı hâlleri denemiştim — yani testi saldırıya göre değil
+    // TEMİZLEYİCİYE göre yazmışım. Bedava yeşil tam olarak budur.
+    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
     // Dış başvuru: `href`/`xlink:href` yalnız belge içi (`#…`) kalabilir.
-    .replace(/\s(?:xlink:)?href\s*=\s*"(?!#)[^"]*"/gi, '')
-    .replace(/\s(?:xlink:)?href\s*=\s*'(?!#)[^']*'/gi, '')
+    .replace(/\s(?:xlink:)?href\s*=\s*(?:"(?!#)[^"]*"|'(?!#)[^']*'|(?!#)[^\s>]+)/gi, '')
     .replace(/javascript:/gi, '')
   return { ok: true, svg: t }
 }
@@ -174,16 +181,46 @@ export const pngYap = async (
   // taşımayan bir kökte `var(--role-accent)` ÇÖZÜLMEZ, `color` geçersiz olur ve tarayıcı
   // devralınan siyahı çizer. İlk sürüm tam bunu yaptı: iki farklı renkle konan iki ikon
   // BİREBİR aynı bayt çıktı — hata mesajı yok, uyarı yok, yalnız yanlış renk.
-  const sayfa = `<!doctype html><meta charset="utf-8"><style>
+  //
+  // ⚠ ⚠ **SVG SAYFAYA GÖMÜLMÜYOR, `<img>` İÇİNDE YÜKLENİYOR — ve bu bir REGEX'İN
+  // YERİNE GEÇEN YAPISAL GARANTİ.** İlk sürüm temizlenmiş SVG'yi doğrudan DOM'a
+  // basıyordu ve temizleyicinin üç açığı vardı (tırnaksız olay niteliği · `<style>`
+  // `@import` · SMIL `<animate>`). Kara listeye bir tur daha eklemek aynı sınıfı
+  // dördüncü kez davet ederdi: tarayıcı `<img>` bağlamında SVG betiğini ÇALIŞTIRMAZ,
+  // dış kaynak çekmez, olay dinleyicisi kurmaz. Temizleyici ikinci katman olarak
+  // duruyor — bu depoda R-20 da tek fonksiyona güvenmiyor, iki katmanla zorluyor.
+  //
+  // ⚠ `<img>`e giden SVG ayrı bir belge: sayfanın `color`unu DEVRALMAZ, yani
+  // `currentColor` orada siyah kalırdı. O yüzden renk sayfada ÇÖZÜLÜP metne yazılıyor.
+  // ⚠ Çözülen değer PARSE EDİLMİYOR, olduğu gibi taşınıyor: `oklch(…)` da `rgb(…)` da
+  // geçerli bir SVG boyası. `oklch`i elle hex'e çevirmeye çalışmak bu depoda zaten bir
+  // kez yanlış ölçüme yol açtı.
+  const kabuk = `<!doctype html><meta charset="utf-8"><style>
 ${tokenCss}
   html,body{margin:0;background:transparent}
-  #k{width:${String(genislik)}px;height:${String(yukseklik)}px;display:grid;place-items:center;
-     ${renk === '' ? '' : 'color:' + renk + ';'}}
-  #k svg{width:88%;height:88%}
-</style><body data-surface="kreatif"><div id="k">${svg}</div></body>`
+  #k{width:${String(genislik)}px;height:${String(yukseklik)}px;display:grid;place-items:center}
+  #k img{width:88%;height:88%;object-fit:contain}
+  #prob{position:absolute;left:-9999px${renk === '' ? '' : ';color:' + renk}}
+</style><body data-surface="kreatif"><span id="prob"></span><div id="k"></div></body>`
   const r = await withPage(async (p) => {
     await p.setViewportSize({ width: genislik, height: yukseklik })
-    await p.setContent(sayfa, { waitUntil: 'load' })
+    await p.setContent(kabuk, { waitUntil: 'load' })
+    const cozulen =
+      renk === '' ? '' : await p.evaluate('getComputedStyle(document.querySelector("#prob")).color')
+    const boyali =
+      cozulen === '' ? svg : svg.replace(/currentColor/g, String(cozulen).replace(/"/g, ''))
+    // ⚠ ⚠ **TARAYICI GÖVDESİ DİZE, OK FONKSİYONU DEĞİL — ve sebebi lint kapısı.**
+    // İlk sürüm `p.evaluate(([b]) => { document… })` yazıyordu; `document` Node
+    // kapsamında YOK ve `no-undef` haklı olarak kırmızı döndü. Çözüm globals listesine
+    // `document` eklemek DEĞİL — o, gerçek bir denetimi bütün betikler için susturmak
+    // olurdu. Deponun kendi düzeni zaten bu: `puntoOlcumu` da gövdesini dize veriyor.
+    // ⚠ Ters tırnak yok (R-98 · `olcum-ters-tirnak`): gövde düz dize birleştirmesiyle.
+    await p.evaluate(
+      '(() => { const im = document.createElement("img");' +
+        ' im.src = "data:image/svg+xml;base64," + ' +
+        JSON.stringify(Buffer.from(boyali, 'utf8').toString('base64')) +
+        '; document.querySelector("#k").appendChild(im); return im.decode() })()'
+    )
     const png = await p.locator('#k').screenshot({ omitBackground: true })
     return png.toString('base64')
   })
