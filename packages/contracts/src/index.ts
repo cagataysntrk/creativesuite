@@ -130,6 +130,7 @@ export type { KaroselTuvali, Placement, SafeArea, SafeBand } from './placement.j
 export { TUVAL_3_4, TUVAL_4_5, VARSAYILAN_TUVAL } from './placement.js'
 // Yayın platformları ve GERÇEK sınırları — araştırıldı, uydurulmadı (madde 3).
 export {
+  MUZIK_KURALI,
   PLATFORMLAR,
   kusurEngelliyorMu,
   platformBul,

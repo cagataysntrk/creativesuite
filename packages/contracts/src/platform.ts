@@ -53,8 +53,16 @@ export const PLATFORMLAR: readonly PlatformSiniri[] = [
     ad: 'Instagram',
     metinTavani: 2200,
     katlanmaOncesi: 125,
-    karoselTavani: 20,
-    kaynak: 'Instagram açıklama sınırı 2.200; akışta ilk ~125 karakter görünür (2026-08)',
+    // ⚠ ⚠ **20 YAZMIŞTIM ve YANLIŞTI — ikincil kaynaktan aldım, birincil kaynağa
+    // bakmadım.** Meta'nın kendi belgesi kelimesi kelimesine *"Carousels are limited to
+    // 10 images"* diyor. 20, UYGULAMANIN sınırı; API 10'da kesiyor ve biz API ile
+    // yayınlıyoruz. On bir slaytlık bir karosel yayın anında reddedilirdi — yani on bir
+    // görsel ve bir insan onayı harcandıktan SONRA. Bu depoda "ölçmeden yazma" kuralı
+    // tam bu yüzden var ve ben onu bir kez daha çiğnedim.
+    karoselTavani: 10,
+    kaynak:
+      'Instagram açıklama sınırı 2.200; akışta ilk ~125 karakter görünür. Karosel API ' +
+      'ile 10 ("Carousels are limited to 10 images", Meta Content Publishing, 2026-08)',
   },
   {
     id: 'facebook',
@@ -85,6 +93,43 @@ export const PLATFORMLAR: readonly PlatformSiniri[] = [
     kaynak: 'X ücretsiz katman 280 (Premium 25.000); görsel tavanı 4 (2026-08)',
   },
 ]
+
+/**
+ * Müzik ve REKLAM — depo sahibinin koyduğu şart: *"müzik reklam vermemize engel
+ * olmamalı"*.
+ *
+ * ⚠ ⚠ **ASIL KURAL "MÜZİK VAR MI" DEĞİL, "HANGİ KÜTÜPHANEDEN".** Araştırıldı: normal
+ * (trend) müzik kütüphanesinden bir parça kullanılan gönderi ORGANİK olarak yayınlanıyor
+ * ama öne çıkarılmak istendiğinde Meta sesi TARAYIP tanıtımı engelliyor. Yani sorun
+ * yayın anında değil, REKLAM anında ortaya çıkıyor — ve o an kreatif çoktan üretilmiş
+ * oluyor. §17'de ElevenLabs'ın *"ticari lisansı YOK"* diye reddedilmesiyle aynı sınıf.
+ *
+ * ⚠ ⚠ **BU SİSTEM MÜZİĞİ EKLEYEMİYOR ve eklemeyecek.** Meta Content Publishing API
+ * karosele müzik eklemiyor; 2026'dan beri fotoğraf karoseline müzik eklenebiliyor ama
+ * YALNIZ mobil uygulamadan, son düzenleme ekranından ve yayından sonra DEĞİŞTİRİLEMİYOR.
+ * Yani müzik bir insan adımı; sistemin işi onu HATIRLATMAK ve kuralı yazılı tutmak.
+ */
+export interface MuzikKurali {
+  /** Sistem müziği kendisi ekleyebiliyor mu. */
+  readonly apiEkleyebilir: boolean
+  /** Reklamı engellemeyen kaynaklar. */
+  readonly reklamGuvenli: readonly string[]
+  /** Reklamı engelleyen kaynak. */
+  readonly reklamiEngeller: string
+  readonly not: string
+}
+
+export const MUZIK_KURALI: MuzikKurali = {
+  apiEkleyebilir: false,
+  // ⚠ İşletme hesaplarının TİCARİ kütüphanesi ve ÖZGÜN ses güvenli; ikisi de haklara
+  // sahip olduğun sesi kullanmak demek.
+  reklamGuvenli: ['ticari müzik kütüphanesi (işletme hesabı)', 'özgün ses'],
+  reklamiEngeller: 'normal/trend müzik kütüphanesi',
+  not:
+    'Müzik karosele YALNIZ mobil uygulamadan eklenebiliyor ve yayından sonra ' +
+    'değiştirilemiyor. Trend kütüphaneden bir parça seçilirse gönderi organik yayınlanır ' +
+    'ama ÖNE ÇIKARILAMAZ: Meta öne çıkarma anında sesi tarayıp tanıtımı reddediyor.',
+}
 
 export const platformBul = (id: string): PlatformSiniri | null =>
   PLATFORMLAR.find((p) => p.id === id) ?? null

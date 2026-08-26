@@ -35,7 +35,7 @@ import {
   type SelectQuery,
 } from '@suite/corpus'
 import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
-import { KATALOG, PLATFORMLAR } from '@suite/contracts'
+import { KATALOG, MUZIK_KURALI, PLATFORMLAR } from '@suite/contracts'
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
 // ⚠ Takvim kuralı `@suite/engine`de: çeşitlilik ve denge orada ÖLÇÜLDÜ.
@@ -751,6 +751,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       metinler,
       uyarilar,
       platformlar: PLATFORMLAR,
+      // ⚠ ⚠ **MÜZİK KURALI ÖNİZLEMEDE, çünkü müziği İNSAN ekliyor.** API karosele
+      // müzik eklemiyor; 2026'dan beri fotoğraf karoseline müzik eklenebiliyor ama
+      // yalnız mobil uygulamadan ve yayından sonra değiştirilemiyor. Kural kâğıtta
+      // kalırsa ihlal edilir: trend kütüphaneden seçilen bir parça gönderiyi organik
+      // yayınlatır ama ÖNE ÇIKARILAMAZ hâle getirir ve bu ancak reklam anında görülür.
+      muzik: MUZIK_KURALI,
     })
   })
 

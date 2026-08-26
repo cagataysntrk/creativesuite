@@ -41,6 +41,12 @@ interface Onizleme {
   readonly metinler: Readonly<Record<string, string>>
   readonly uyarilar: readonly string[]
   readonly platformlar: readonly PlatformSiniri[]
+  readonly muzik?: {
+    readonly apiEkleyebilir: boolean
+    readonly reklamGuvenli: readonly string[]
+    readonly reklamiEngeller: string
+    readonly not: string
+  }
 }
 
 /**
@@ -156,6 +162,23 @@ export const YayinOnizleme = ({ runId }: { readonly runId: string }): React.JSX.
           </article>
         )
       })}
+
+      {/* ── MÜZİK ve REKLAM ────────────────────────────────────────────
+          ⚠ ⚠ **DEPO SAHİBİNİN ŞARTI: müzik reklam vermeyi engellememeli.** Asıl kural
+          "müzik var mı" değil, HANGİ KÜTÜPHANEDEN: trend kütüphaneden bir parça
+          gönderiyi organik yayınlatır ama ÖNE ÇIKARILAMAZ hâle getirir — Meta öne
+          çıkarma anında sesi tarayıp tanıtımı reddediyor. Sorun yayın anında değil
+          REKLAM anında çıkıyor ve o an kreatif çoktan üretilmiş olur.
+          ⚠ Bu kutu bir HATIRLATMA, bir denetim değil: müziği sistem eklemiyor, insan
+          uygulamada ekliyor. Sistemin yapabileceği tek şey kuralı göz hizasında
+          tutmak. */}
+      {veri.muzik === undefined ? null : (
+        <p className="onizleme-muzik">
+          <strong>müzik</strong> — {veri.muzik.reklamGuvenli.join(' ya da ')} kullan.{' '}
+          <span className="is-uyari">{veri.muzik.reklamiEngeller}</span> seçilirse gönderi
+          yayınlanır ama ÖNE ÇIKARILAMAZ. {veri.muzik.not}
+        </p>
+      )}
 
       {veri.uyarilar.length === 0 ? null : (
         <ul className="onizleme-uyarilar">

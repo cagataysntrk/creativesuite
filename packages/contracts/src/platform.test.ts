@@ -11,6 +11,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
+  MUZIK_KURALI,
   PLATFORMLAR,
   kusurEngelliyorMu,
   platformBul,
@@ -41,13 +42,42 @@ describe('platform sınırları', () => {
   it('araştırılan sayılar YERİNDE', () => {
     expect(bul('instagram').metinTavani, 'Instagram açıklama sınırı').toBe(2200)
     expect(bul('instagram').katlanmaOncesi, 'akışta görünen kısım').toBe(125)
-    expect(bul('instagram').karoselTavani, 'karosel slayt tavanı').toBe(20)
+    // ⚠ ⚠ **20 DEĞİL 10 — ve kapı bir süre YANLIŞ sayıyı korudu.** 20 uygulamanın
+    // sınırı; Meta Content Publishing belgesi API için kelimesi kelimesine *"Carousels
+    // are limited to 10 images"* diyor ve biz API ile yayınlıyoruz. Yanlış bir tavanı
+    // korumak, korumamaktan kötüdür: on bir slaytlık karosel yayın anında reddedilir.
+    expect(bul('instagram').karoselTavani, 'API karosel tavanı — uygulamanınki DEĞİL').toBe(10)
     expect(bul('linkedin').metinTavani).toBe(3000)
     expect(
       bul('x').metinTavani,
       "X'in 25.000'i Premium'a bağlı; abonesiz hesapta 281 karakter REDDEDİLİR"
     ).toBe(280)
     expect(bul('x').karoselTavani, "X'te görsel tavanı").toBe(4)
+  })
+
+  // ── MÜZİK ve REKLAM ──────────────────────────────────────────────────────
+  //
+  // ⚠ ⚠ **DEPO SAHİBİNİN ŞARTI: *"müzik reklam vermemize engel olmamalı"*.** Asıl kural
+  // "müzik var mı" değil, "hangi kütüphaneden": trend kütüphaneden bir parça gönderiyi
+  // organik yayınlatır ama ÖNE ÇIKARILAMAZ — Meta öne çıkarma anında sesi tarayıp
+  // tanıtımı reddediyor. Sorun yayın anında değil REKLAM anında çıkıyor ve o an kreatif
+  // çoktan üretilmiş olur.
+  it('müzik kuralı reklamı engelleyen kaynağı ADIYLA söylüyor', () => {
+    expect(MUZIK_KURALI.reklamiEngeller).toMatch(/trend/)
+    expect(
+      MUZIK_KURALI.reklamGuvenli.join(' '),
+      'ticari kütüphane ve özgün ses güvenli — ikisi de hakkına sahip olduğun ses'
+    ).toMatch(/ticari.*özgün|özgün.*ticari/s)
+  })
+
+  it('sistem müziği KENDİSİ ekleyemiyor ve bunu ilan ediyor', () => {
+    // ⚠ Meta Content Publishing API karosele müzik EKLEMİYOR; 2026'dan beri fotoğraf
+    // karoseline müzik eklenebiliyor ama yalnız MOBİL uygulamadan. `true` yazmak,
+    // yapılamayan bir şeyi yapılabilir ilan etmek olurdu.
+    expect(MUZIK_KURALI.apiEkleyebilir).toBe(false)
+    expect(MUZIK_KURALI.not, 'yayından sonra değiştirilemediği söylenmeli').toMatch(
+      /değiştirilemiyor/
+    )
   })
 
   it('bilinmeyen platform `null` — sessizce varsayılana düşmüyor', () => {
