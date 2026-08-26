@@ -1183,3 +1183,44 @@ tr[data-tiklanir] {
   padding-inline-start: 16px;
   font-size: 12.5px;
 }
+
+/* ── YAYIN AKIŞI (FAZ-19.12 · madde 5) ──────────────────────────────────────
+   ⚠ Renkler rol değişkenlerinden, ölçüler 4px temel biriminde: `ui-tema` kapısı
+   ikisini de zorluyor ve önceki turda ikisini birden ihlal etmiştim.
+   ⚠ Bu yoruma rol deseni YAZILMIYOR: `token-cagrisi` kapısı düz metni de bir
+   ÇAĞRI sayıyor ve haklı — çağrıya benzeyen bir yorum, taramayı kör eder. */
+.akis-hafta {
+  margin-block-start: 24px;
+}
+.akis-hafta h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+.akis-gonderiler {
+  margin: 0;
+  padding-inline-start: 0;
+  list-style: none;
+}
+.akis-gonderiler li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding-block: 4px;
+  border-block-end: 1px solid var(--role-line-hair);
+}
+.akis-gonderiler li strong {
+  min-width: 120px;
+}
+.akis-uyarilar {
+  margin-block-start: 12px;
+  padding-inline-start: 16px;
+  font-size: 12.5px;
+}
+.akis-dagilim ul {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-inline-start: 0;
+  list-style: none;
+  margin: 0;
+}

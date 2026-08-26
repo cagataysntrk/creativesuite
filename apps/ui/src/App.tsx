@@ -21,6 +21,7 @@ import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
 import { ButceEkrani } from './ButceEkrani.js'
 import { VarlikKutuphanesi } from './VarlikKutuphanesi.js'
+import { YayinAkisi } from './YayinAkisi.js'
 import { RunGecmisi } from './RunGecmisi.js'
 import { StratejiSagligi } from './StratejiSagligi.js'
 import { Doktor } from './Doktor.js'
@@ -46,6 +47,7 @@ const EKRAN: Readonly<Record<string, Ekran>> = {
   sema: 'sema',
   butce: 'butce',
   varliklar: 'varliklar',
+  'yayin-akisi': 'yayin-akisi',
   gecmis: 'gecmis',
   saglik: 'saglik',
   doktor: 'doktor',
@@ -65,6 +67,9 @@ const NAV: readonly (readonly [Ekran, string])[] = [
   ['calistir', 'Üret'],
   ['gecmis', 'Koşular'],
   ['varliklar', 'Varlıklar'],
+  // ⚠ Yayın akışı VARLIKLARDAN SONRA: günlük sıra onay → üret → koşular → varlık →
+  // YAYIN. Takvim, üretilen şeyin nereye gittiği; varlıktan önce koymak sırayı bozardı.
+  ['yayin-akisi', 'Yayın'],
   ['butce', 'Bütçe'],
   ['uyum', 'Uyum'],
   ['doktor', 'Doktor'],
@@ -214,6 +219,8 @@ export const App = (): React.JSX.Element => {
           <ButceEkrani />
         ) : ekran === 'varliklar' ? (
           <VarlikKutuphanesi ac={kosuAc} />
+        ) : ekran === 'yayin-akisi' ? (
+          <YayinAkisi />
         ) : ekran === 'gecmis' ? (
           <RunGecmisi ac={kosuAc} />
         ) : ekran === 'saglik' ? (

@@ -38,6 +38,8 @@ import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
 import { KATALOG, PLATFORMLAR } from '@suite/contracts'
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
+// ⚠ Takvim kuralı `@suite/engine`de: çeşitlilik ve denge orada ÖLÇÜLDÜ.
+import { yayinPlaniKur } from '@suite/engine'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
 import {
   COLUMN_LABELS,
@@ -613,6 +615,90 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // metin-onayi` gösteriyordu ve insan bunu onaylayacaktı — NEYİ onayladığını
   // görmeden. Ölçüldü: ekranda `img` sayısı SIFIR, metin yok. Bir kapı, kararın
   // dayanağını göstermiyorsa kapı değil bir gecikmedir (D-310 ailesi).
+  // ── YAYIN AKIŞI: hazır · planlanmış · geçmiş (FAZ-19.12 · madde 5) ───────
+  //
+  // ⚠ ⚠ **`yayin-plani.ts` YAZILMIŞTI ama EKRANI YOKTU.** Modül var, test var, ulaşan
+  // yok — bu depoda tekrar eden zincir kopukluğu (`logoVarliklari` aynı sınıftandı:
+  // yazılmış, test edilmiş, tek çağıranı editör önizlemesiydi). Uç o kopukluğu
+  // kapatıyor.
+  //
+  // ⚠ ⚠ **TARİH İSTEKTEN GELİYOR, SUNUCUDAN DEĞİL (R-06).** `new Date()` çağırsaydım
+  // aynı istek iki gün üst üste iki farklı takvim verirdi ve "bu planı onayladım" demek
+  // anlamsızlaşırdı. Panel bugünün tarihini yazıyor; sunucu onu kullanıyor.
+  //
+  // ⚠ *"Yayına hazır"* ÖLÇÜLDÜ, varsayılmadı: `insan-onayi` kapısından `approved`
+  // almış ve yayın defterinde OLMAYAN koşu. Bugün 8 tane var, yayın defteri boş.
+  app.get('/api/yayin-akisi', (c) => {
+    const haftadaKac = Number(c.req.query('haftadaKac') ?? '3')
+    const baslangic = c.req.query('baslangic') ?? ''
+    // ⚠ Tarih biçimi DOĞRULANIYOR: geçersiz bir dize `Date`e verilince `Invalid Date`
+    // üretiyor ve takvim sessizce `NaN-NaN-NaN` doluyordu.
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(baslangic))
+      return c.json({ ok: false, hata: 'baslangic YYYY-MM-DD olmalı' }, 400)
+
+    const k = kutuphane(o.repoRoot)
+    const yayinlanmisSet = new Set(
+      k.varliklar.filter((v) => v.yayinlandi).map((v) => v.sourceRunId)
+    )
+    let sablonsuz = 0
+    const hazir: { runId: string; sablon: string; hazirlanmaZamani: string; konu: string }[] = []
+    const gecmis: { runId: string; sablon: string; konu: string; zaman: string }[] = []
+    const kapida: { runId: string; sablon: string; konu: string; kapi: string }[] = []
+
+    for (const d of readdirSync(join(o.repoRoot, RUNS_DIR), { withFileTypes: true })) {
+      if (!d.isDirectory()) continue
+      const m = readManifest(o.repoRoot, d.name as never)
+      if (m === null) continue
+      const kararlar = m.decisions ?? []
+      if (kararlar.some((x) => x.decision === 'rejected')) continue
+      const s2 = kosuSablonu(o.repoRoot, d.name)
+      const sablon = s2.gercek ?? s2.istenen
+      // ⚠ ⚠ **ŞABLONSUZ KOŞU TAKVİME GİRMİYOR — ama SESSİZCE değil, SAYILARAK.**
+      // Katalog öncesi üretimlerin `sablon-uyarla` adımı yok; çeşitlilik kuralı
+      // şablona dayandığı için onları planlayamıyoruz. İlk sürüm `continue` deyip
+      // geçiyordu ve ekran *"3 yayına hazır"* diyordu — oysa 8 onaylı koşu var.
+      // Sessiz düşüş bu depoda tekrar eden kusur: eksik olan görünmüyordu.
+      //
+      // ⚠ ⚠ **YALNIZ ONAYLI OLANLAR SAYILIYOR ve bu düzeltme EKRANDA görüldü.** İlk
+      // sayaç şablonsuz HER koşuyu topluyordu ve ekran *"85 onaylı koşu şablonsuz"*
+      // diyordu — oysa onaylı olan 5. Yarım kalmış, hiç kapıya varmamış koşuları
+      // "takvime giremiyor" diye raporlamak, olmayan bir kaybı varmış gibi gösterirdi.
+      if (sablon === null) {
+        if (kararlar.some((x) => x.gate === 'insan-onayi' && x.decision === 'approved'))
+          sablonsuz += 1
+        continue
+      }
+      const konu = s2.konu ?? ''
+      if (yayinlanmisSet.has(d.name)) {
+        gecmis.push({ runId: d.name, sablon, konu, zaman: m.createdAt })
+        continue
+      }
+      if (kararlar.some((x) => x.gate === 'insan-onayi' && x.decision === 'approved')) {
+        hazir.push({ runId: d.name, sablon, hazirlanmaZamani: m.createdAt, konu })
+        continue
+      }
+      const g = m.awaitingGate ?? ''
+      if (g !== '') kapida.push({ runId: d.name, sablon, konu, kapi: g })
+    }
+
+    // ⚠ Geçmişteki son şablonlar planın penceresine giriyor: takvimin ilk gönderisi,
+    // en son yayınlananla aynı şablonsa bu da bir "üst üste" ihlalidir.
+    const oncekiSablonlar = [...gecmis]
+      .sort((a2, b2) => b2.zaman.localeCompare(a2.zaman))
+      .map((x) => x.sablon)
+    const plan = yayinPlaniKur(hazir, { haftadaKac, baslangic, oncekiSablonlar })
+    return c.json({
+      ok: true,
+      hazir: hazir.length,
+      // ⚠ Kaç koşunun neden planlanamadığı EKRANDA: "3 hazır" demek, 5 koşunun
+      // sessizce kaybolduğu bir ekranda yanıltıcı bir doğruluk olurdu.
+      sablonsuz,
+      kapida,
+      gecmis: gecmis.sort((a2, b2) => b2.zaman.localeCompare(a2.zaman)),
+      plan,
+    })
+  })
+
   // ── YAYIN ÖNİZLEMESİ: dört platform (FAZ-19.12 · madde 4) ────────────────
   //
   // ⚠ ⚠ **SINIRLAR BURADAN VERİLİYOR, PANELDE YAZILMIYOR.** `apps/ui` tarayıcı

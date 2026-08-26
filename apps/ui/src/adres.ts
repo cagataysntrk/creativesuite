@@ -18,6 +18,8 @@ export type Ekran =
   | 'sema'
   | 'butce'
   | 'varliklar'
+  // Yayın akışı: hazır · planlanmış · geçmiş (madde 5).
+  | 'yayin-akisi'
   | 'gecmis'
   | 'saglik'
   | 'doktor'
@@ -44,6 +46,7 @@ const EKRANLAR = [
   'sema',
   'butce',
   'varliklar',
+  'yayin-akisi',
   'gecmis',
   'saglik',
   'doktor',

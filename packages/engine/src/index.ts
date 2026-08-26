@@ -136,6 +136,15 @@ export {
   type KonuAdayi,
 } from './plan/konu-sec.js'
 export { baglamKayitlari, type BaglamKaydiGirdisi } from './plan/baglam-kaydi.js'
+// Yayın takvimi — çeşitlilik ve denge ÖLÇÜLEN sorundan doğdu (madde 10).
+export {
+  TEKRAR_PENCERESI,
+  yayinPlaniKur,
+  type PlanUyarisi,
+  type PlanliYayin,
+  type YayinAdayi,
+  type YayinPlani,
+} from './plan/yayin-plani.js'
 // Yayın saati: hat ÖNERİR (FAZ-17.3), insan seçer ve seçim koşu defterine yazılır.
 export {
   EN_AZ_GOZLEM,
