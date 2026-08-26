@@ -826,13 +826,20 @@ tr[data-tiklanir] {
  * 62 satırlık bir liste filtresiz okunamaz: "hangi karosel metin onayında"
  * sorusu göz taramasıyla cevaplanıyordu.
  */
+/* ⚠ ⚠ **SARMAYAN BİR SÜZGEÇ ÇUBUĞU BÜTÜN SAYFAYI GERİYOR.** Ölçüldü: 900 px genişlikte
+   gövde 1567 px'e taşıyordu ve suçlu on bir süzgeçlik bu çubuktu — `flex` sarmadığı için
+   kendi genişliğini 1519 px'e dayatıyor, `main` de onu takip ediyordu. Yani yatay kaydırma
+   bir kart ya da bir görselden değil, SÜZGEÇTEN geliyordu.
+   ⚠ `min-width: 0` şart: taşan bir flex ögesi varsayılan olarak küçülmeyi reddediyor. */
 .filtre-cubuk {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-4);
   align-items: center;
   padding: var(--space-2) 0;
   color: var(--role-text-muted);
   border-block-end: 1px solid var(--role-line-hair);
+  min-width: 0;
 }
 
 .filtre-cubuk select {

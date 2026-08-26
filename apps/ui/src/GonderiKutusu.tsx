@@ -64,7 +64,16 @@ export const GonderiKutusu = ({
   readonly otomatikTarih?: string
 }): React.JSX.Element => {
   const [tarih, setTarih] = useState(bugun)
-  const [secili, setSecili] = useState<readonly string[]>(PLATFORMLAR.map((p) => p.id))
+  /**
+   * ⚠ ⚠ **VARSAYILAN IG + LINKEDIN — dördü değil, ve bu bir DARALTMA kararıydı.** Depo
+   * sahibi önce *"her gönderi için yayın 4 platformda da standart"* dedi, sonra hesaplar
+   * bağlanınca daralttı: *"şimdilik sadece LinkedIn ve Insta'ya paylaşacağız."* Dördünü
+   * işaretli bırakmak, her gönderide iki kutucuk kaldırmak demekti — ve unutulan bir
+   * kutucuk, metni olmayan bir platforma planlama üretirdi.
+   * ⚠ Facebook ve X KALDIRILMADI, yalnız varsayılan dışına çıktı: hesap bağlanınca tek
+   * tıklamayla geri geliyor.
+   */
+  const [secili, setSecili] = useState<readonly string[]>(['instagram', 'linkedin'])
   const [gecmis, setGecmis] = useState<readonly Olay[]>([])
   const [mesaj, setMesaj] = useState<string | null>(null)
 
