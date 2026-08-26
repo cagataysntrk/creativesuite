@@ -1280,6 +1280,12 @@
       "decision": "approved",
       "at": "2026-08-26T04:53:26.430Z",
       "note": null
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "approved",
+      "at": "2026-08-26T19:36:27.378Z",
+      "note": null
     }
   ],
   "context": [

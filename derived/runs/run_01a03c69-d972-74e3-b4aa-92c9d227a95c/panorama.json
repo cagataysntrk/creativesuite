@@ -68,9 +68,9 @@
   "gorseller": [],
   "kartlar": [
     {
-      "ustBaslik": "TEK ÖLÇÜM",
-      "baslik": "Bir ölçüm **olay** olur",
-      "govde": "Aylık tarama o günü gösterir, önceki kayıt yoksa kıyas yapılamaz.",
+      "ustBaslik": "RİTİM",
+      "baslik": "Ölçüm sorunla **birlikte** kaybolur",
+      "govde": "Sorun bitince ölçüm durur, iş yine amirin hafızasına kalır.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",
@@ -79,23 +79,23 @@
       "dikey": "orta"
     },
     {
-      "ustBaslik": "ARALIK",
-      "baslik": "Sonraki ölçüm aylar sonra",
-      "govde": "Aradaki süre hakkında hiçbir bilgi yok.",
+      "ustBaslik": "ÖLÇÜ",
+      "baslik": "Sabah raporu sıfırdan kurulur",
+      "govde": "Önceki ayın verisi kimseye ulaşmaz.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",
       "panel": {
         "tip": "vafel",
-        "baslik": "YILDA BİR KIYAS",
+        "baslik": "VERİ KATMANI",
         "dolu": 1,
-        "toplam": 12
+        "toplam": 4
       }
     },
     {
-      "ustBaslik": "HİSSİYAT",
-      "baslik": "Sayı bunu yalanlar",
-      "govde": "Vardiya amiri iyi hissediyor ama veri bunu doğrulamıyor.",
+      "ustBaslik": "SAPMA",
+      "baslik": "Bir kerelik kurulum",
+      "govde": "Ölçüm bundan sonra kendiliğinden tekrarlanır.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",
@@ -105,9 +105,9 @@
       "aksanRolu": "yok"
     },
     {
-      "ustBaslik": "RUTİN",
-      "baslik": "Ölçüm **rutine** dönüşür",
-      "govde": "Düzenli tekrar kararı geçmişe dayandırır.",
+      "ustBaslik": "SÜREKLİLİK",
+      "baslik": "Sistemi **canlı** görün",
+      "govde": "Verinizi görün, demo isteyin.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",

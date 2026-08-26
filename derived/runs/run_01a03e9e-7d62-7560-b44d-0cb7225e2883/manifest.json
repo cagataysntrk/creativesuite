@@ -8,292 +8,6 @@
   "createdAt": "2026-08-26T15:10:24.210Z",
   "steps": [
     {
-      "stepId": "cozumle",
-      "verb": "RESOLVE",
-      "status": "ok",
-      "lane": "free",
-      "capability": null,
-      "providerId": null,
-      "model": null,
-      "seed": null,
-      "params": {
-        "sablon": "editoryal",
-        "son_kullanilan": "veri-hikayesi,sahne,dizin",
-        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
-        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti"
-      },
-      "estimatedCost": {
-        "low": {
-          "micros": "0",
-          "currency": "USD"
-        },
-        "high": {
-          "micros": "0",
-          "currency": "USD"
-        }
-      },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
-      "candidates": [],
-      "startedAt": "2026-08-26T15:10:25.129Z",
-      "finishedAt": "2026-08-26T15:10:25.129Z",
-      "output": {
-        "brandId": "brd_upcytech"
-      }
-    },
-    {
-      "stepId": "konu-sec",
-      "verb": "GENERATE",
-      "status": "ok",
-      "lane": "free",
-      "capability": "text.generate",
-      "providerId": "claude-code",
-      "model": null,
-      "seed": null,
-      "params": {
-        "sablon": "editoryal",
-        "son_kullanilan": "veri-hikayesi,sahne,dizin",
-        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
-        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
-        "konu_sec": true,
-        "max_chars": 400
-      },
-      "estimatedCost": {
-        "low": {
-          "micros": "0",
-          "currency": "USD"
-        },
-        "high": {
-          "micros": "0",
-          "currency": "USD"
-        }
-      },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
-      "candidates": [
-        {
-          "providerId": "claude-code",
-          "capability": "text.generate",
-          "selected": true,
-          "rejectionReason": null,
-          "estimatedCost": {
-            "low": {
-              "micros": "0",
-              "currency": "USD"
-            },
-            "high": {
-              "micros": "0",
-              "currency": "USD"
-            }
-          }
-        }
-      ],
-      "startedAt": "2026-08-26T15:10:25.129Z",
-      "finishedAt": "2026-08-26T15:10:25.130Z",
-      "output": {
-        "atlandi": true,
-        "sebep": "prompt-yok"
-      }
-    },
-    {
-      "stepId": "bilgi-sec",
-      "verb": "SELECT",
-      "status": "ok",
-      "lane": "free",
-      "capability": null,
-      "providerId": null,
-      "model": null,
-      "seed": null,
-      "params": {
-        "sablon": "editoryal",
-        "son_kullanilan": "veri-hikayesi,sahne,dizin",
-        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
-        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti"
-      },
-      "estimatedCost": {
-        "low": {
-          "micros": "0",
-          "currency": "USD"
-        },
-        "high": {
-          "micros": "0",
-          "currency": "USD"
-        }
-      },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
-      "candidates": [],
-      "startedAt": "2026-08-26T15:10:25.130Z",
-      "finishedAt": "2026-08-26T15:10:25.132Z",
-      "output": null
-    },
-    {
-      "stepId": "metin-uret",
-      "verb": "GENERATE",
-      "status": "ok",
-      "lane": "free",
-      "capability": "text.generate",
-      "providerId": "claude-code",
-      "model": null,
-      "seed": null,
-      "params": {
-        "sablon": "editoryal",
-        "son_kullanilan": "veri-hikayesi,sahne,dizin",
-        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
-        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
-        "locale": "tr-TR",
-        "max_chars": 2200
-      },
-      "estimatedCost": {
-        "low": {
-          "micros": "0",
-          "currency": "USD"
-        },
-        "high": {
-          "micros": "0",
-          "currency": "USD"
-        }
-      },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
-      "candidates": [
-        {
-          "providerId": "claude-code",
-          "capability": "text.generate",
-          "selected": true,
-          "rejectionReason": null,
-          "estimatedCost": {
-            "low": {
-              "micros": "0",
-              "currency": "USD"
-            },
-            "high": {
-              "micros": "0",
-              "currency": "USD"
-            }
-          }
-        }
-      ],
-      "startedAt": "2026-08-26T15:10:25.132Z",
-      "finishedAt": "2026-08-26T15:10:25.133Z",
-      "output": {
-        "lines": [
-          "Sahada ayrıştırma yapılmazsa veri baştan kayıp",
-          "1. Atık sahaya karışık girer, hangi malzemenin nereden geldiğini **hiçbir kayıt** göstermez.",
-          "2. Ayrıştırma sahada yapılmayınca veri katmanı da o an kurulmamış olur; sonradan eklenen etiket gerçek kaynağı taşımaz.",
-          "3. Karışık gelen malzeme satışta değer kaybeder, ama bu kayıp hiçbir raporda görünmez.",
-          "4. Veri **sahada kurulur**, sonradan tamamlanmaz.",
-          "5. Sahanızın verisini birlikte kuralım, demo isteyin.",
-          "AKIŞ: Sahada İlk Ayrıştırma",
-          "- Kabul | Yük sahaya girer, kaynağı kaydedilir",
-          "- Ayrım | Malzeme türüne göre ayrılır",
-          "- Etiketleme | Her parti kaynağıyla eşleşir",
-          "- Değerlendirme | Ayrışan malzeme doğru hatta yönlenir"
-        ]
-      }
-    },
-    {
-      "stepId": "sablon-uyarla",
-      "verb": "GENERATE",
-      "status": "ok",
-      "lane": "free",
-      "capability": "text.generate",
-      "providerId": "claude-code",
-      "model": null,
-      "seed": null,
-      "params": {
-        "sablon": "editoryal",
-        "son_kullanilan": "veri-hikayesi,sahne,dizin",
-        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
-        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
-        "sablon_uyarla": true,
-        "max_chars": 4000,
-        "gorsel_uretilebilir": true
-      },
-      "estimatedCost": {
-        "low": {
-          "micros": "0",
-          "currency": "USD"
-        },
-        "high": {
-          "micros": "0",
-          "currency": "USD"
-        }
-      },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
-      "candidates": [
-        {
-          "providerId": "claude-code",
-          "capability": "text.generate",
-          "selected": true,
-          "rejectionReason": null,
-          "estimatedCost": {
-            "low": {
-              "micros": "0",
-              "currency": "USD"
-            },
-            "high": {
-              "micros": "0",
-              "currency": "USD"
-            }
-          }
-        }
-      ],
-      "startedAt": "2026-08-26T15:10:25.133Z",
-      "finishedAt": "2026-08-26T15:11:09.609Z",
-      "output": null
-    },
-    {
-      "stepId": "kompozit",
-      "verb": "COMPOSE",
-      "status": "ok",
-      "lane": "free",
-      "capability": null,
-      "providerId": null,
-      "model": null,
-      "seed": null,
-      "params": {
-        "sablon": "editoryal",
-        "son_kullanilan": "veri-hikayesi,sahne,dizin",
-        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
-        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
-        "katalog": true
-      },
-      "estimatedCost": {
-        "low": {
-          "micros": "0",
-          "currency": "USD"
-        },
-        "high": {
-          "micros": "0",
-          "currency": "USD"
-        }
-      },
-      "actualCost": {
-        "micros": "0",
-        "currency": "USD"
-      },
-      "candidates": [],
-      "startedAt": "2026-08-26T15:11:09.610Z",
-      "finishedAt": "2026-08-26T15:11:09.613Z",
-      "output": {
-        "sablonId": "editoryal",
-        "ritimHedefi": "akan-alan",
-        "ritimTuttu": true
-      }
-    },
-    {
       "stepId": "duzen-provasi",
       "verb": "RENDER",
       "status": "ok",
@@ -1276,6 +990,290 @@
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a03e9e-7d62-7560-b44d-0cb7225e2883/slayt-04.jpg"
         ]
       }
+    },
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "editoryal",
+        "son_kullanilan": "veri-hikayesi,sahne,dizin",
+        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-26T20:29:12.861Z",
+      "finishedAt": "2026-08-26T20:29:12.861Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "editoryal",
+        "son_kullanilan": "veri-hikayesi,sahne,dizin",
+        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T20:29:12.861Z",
+      "finishedAt": "2026-08-26T20:29:12.862Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "editoryal",
+        "son_kullanilan": "veri-hikayesi,sahne,dizin",
+        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-26T20:29:12.863Z",
+      "finishedAt": "2026-08-26T20:29:12.864Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "editoryal",
+        "son_kullanilan": "veri-hikayesi,sahne,dizin",
+        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T20:29:12.864Z",
+      "finishedAt": "2026-08-26T20:30:19.027Z",
+      "output": {
+        "lines": [
+          "İlk ayrıştırma kararı sahada mı kayıtlı",
+          "1. Yük sahaya girer, ayrıştırma kararı o anda verilir ama **hiçbir yere yazılmaz**, yalnızca hafızada kalır.",
+          "2. Aynı tür malzeme üç hafta sonra farklı bir vardiyada gelir ve **farklı sınıflanır**, çünkü ilk kararın gerekçesi hiçbir kayıtta durmuyor.",
+          "3. Saha raporu haftada bir Excel'e elle aktarılır ve o tabloda **hangi kararın neden** alındığı kaybolur, yalnızca toplam rakam kalır.",
+          "4. Sahadaki ilk kararı kayıt altına alınca veri katmanı **kaynağında kurulur**.",
+          "5. Sahadaki ilk ayrıştırmayı demo'da birlikte kayıt altına alalım.",
+          "AKIŞ: Sahadan Karara",
+          "- Kayıt | Karar sahada anında yazılır",
+          "- Doğrulama | Aynı yük tekrar kontrol edilir",
+          "- Aktarım | Veri sahadan sisteme akar",
+          "- Rapor | Karar yönetime kanıtla ulaşır"
+        ]
+      }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "editoryal",
+        "son_kullanilan": "veri-hikayesi,sahne,dizin",
+        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T20:30:19.028Z",
+      "finishedAt": "2026-08-26T20:36:09.599Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "editoryal",
+        "son_kullanilan": "veri-hikayesi,sahne,dizin",
+        "topic": "atık toplama sahasında ilk ayrıştırmanın önemi",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-26T20:36:09.600Z",
+      "finishedAt": "2026-08-26T20:36:09.626Z",
+      "output": null,
+      "error": {
+        "kind": "validation",
+        "code": "TEKRAR_URETIM",
+        "message": "error.verb.tekrar_uretim"
+      }
     }
   ],
   "decisions": [
@@ -1283,6 +1281,12 @@
       "gate": "metin-onayi",
       "decision": "approved",
       "at": "2026-08-26T15:10:24.270Z",
+      "note": null
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "approved",
+      "at": "2026-08-26T20:29:11.878Z",
       "note": null
     }
   ],
@@ -1313,6 +1317,6 @@
     }
   ],
   "contextRetentionDays": 90,
-  "awaitingGate": "tasarim-onayi",
-  "stoppedAt": "gorsel-yargi"
+  "awaitingGate": null,
+  "stoppedAt": "kompozit"
 }
