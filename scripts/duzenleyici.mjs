@@ -726,7 +726,19 @@ const sunucu = createServer(async (req, res) => {
       anlikGoruntuAl(id)
       if (d.tur === 'gorsel') {
         const g = calisan[id].gorseller[d.i]
-        if (g) Object.assign(g, { x: d.x, y: d.y, genislik: d.genislik })
+        // ⚠ ⚠ **YALNIZ GELEN ALAN YAZILIYOR — verilmeyeni SIFIRLAMAK yerine dokunmuyoruz.**
+        // İlk sürüm üç alanı koşulsuz atıyordu; köşe tutamacı yükseklik de gönderince
+        // taşıma hareketi (yalnız x/y yollayan) yüksekliği `undefined` yapardı. Kısmi
+        // güncelleme bu depoda tekrar eden bir tuzak: `tipo` da tek nesne olduğu için
+        // aynı dersi öğrenmişti.
+        if (g) {
+          for (const alan of ['x', 'y', 'genislik', 'yukseklik']) {
+            if (typeof d[alan] === 'number') g[alan] = d[alan]
+          }
+          // Döndürme tutamacı: nötr değer alanı SİLİYOR (madde 2'nin kuralı).
+          if (d.donusZ === null || d.donusZ === 0) delete g.donusZ
+          else if (typeof d.donusZ === 'number') g.donusZ = d.donusZ
+        }
       } else if (d.tur === 'ayar') {
         // ⚠ Nötr ayar SİLİNİYOR, sıfır olarak yazılmıyor: `{dx:0,dy:0,olcek:1}` kataloga
         // gürültü olarak düşerdi ve şablonun "hiç ayar yok" hâli okunmaz olurdu.

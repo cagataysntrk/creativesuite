@@ -850,6 +850,146 @@ function bagla(d, doc) {
       d.addEventListener('pointermove', surukle)
       d.addEventListener('pointerup', birak)
     })
+
+    // ── FARE TUTAMAÇLARI (madde 13) ────────────────────────────────────────
+    //
+    // ⚠ ⚠ **SHIFT+SÜRÜKLE KEŞFEDİLEMEZDİ.** Ölçekleme vardı ama yalnız kısayolu
+    // BİLEN kullanabiliyordu ve döndürme hiç yoktu. Depo sahibi: *"tıklanan ögeye
+    // mouse ile büyütme döndürme vs gibi işlemler yapılabilmeli"*. Görünen bir
+    // tutamaç, yazılı olmayan bir kısayoldan iyidir.
+    //
+    // ⚠ ⚠ **TUTAMAÇ `<img>`İN İÇİNE KONAMAZ — çocuğu olmayan bir ögedir.** Kaplama
+    // KARDEŞ olarak ekleniyor ve görselin kutusunu izliyor.
+    // ⚠ Kaplama yalnız EDİTÖRÜN iframe'inde yaşıyor: `cek()` her çizimde `srcdoc`u
+    // yeniden kuruyor, yani kaplama render'a, denetime ve dışa aktarmaya HİÇ girmiyor.
+    // Belgeye sızan bir düzenleme aracı, düzenlediği şeyi bozardı.
+    if (secili !== null && secili.alan === 'gorsel' && secili.i === i) {
+      const kaplama = d.createElement('div')
+      kaplama.setAttribute('data-duzenleyici', 'tutamac')
+      kaplama.setAttribute('aria-hidden', 'true')
+      // ⚠ ⚠ **`offset*` KULLANILIYOR, `getBoundingClientRect` DEĞİL — ve bunu bir
+      // ÖLÇÜM öğretti.** İlk sürüm sınır kutusunu okuyordu; döndürülmüş bir ögenin
+      // sınır kutusu DÖNDÜRÜLMÜŞ kutudur, yerleşim kutusu değil. Sonuç Playwright'ta
+      // görüldü: 90 derece döndürünce nesne yerinden OYNADI (x 15 → 10,65 · y 13 →
+      // 26,06). `offsetLeft/Top/Width/Height` yerleşim değerleridir ve `transform`dan
+      // etkilenmez — döndürmek artık taşımıyor.
+      // ⚠ Kaplama ögenin transform'unu AYNEN alıyor: yoksa tutamaçlar döndürülmüş
+      // şeklin değil, onu çevreleyen eksen hizalı kutunun köşelerinde dururdu.
+      const yerlestir = () => {
+        kaplama.style.cssText =
+          'position:absolute;pointer-events:none;z-index:9999;' +
+          'left:' +
+          e.offsetLeft +
+          'px;top:' +
+          e.offsetTop +
+          'px;' +
+          'width:' +
+          e.offsetWidth +
+          'px;height:' +
+          e.offsetHeight +
+          'px;' +
+          'transform:' +
+          (e.style.transform || 'none') +
+          ';' +
+          'outline:1px solid rgba(90,169,230,.9)'
+      }
+      yerlestir()
+      const tut = (etiket, konum, imlec) => {
+        const t = d.createElement('div')
+        t.textContent = etiket
+        t.style.cssText =
+          'position:absolute;pointer-events:auto;cursor:' +
+          imlec +
+          ';' +
+          'width:22px;height:22px;border-radius:50%;background:#5aa9e6;color:#06202f;' +
+          'font:12px/22px ui-sans-serif,system-ui;text-align:center;font-weight:700;' +
+          'box-shadow:0 1px 4px #0009;' +
+          konum
+        kaplama.appendChild(t)
+        return t
+      }
+      // Köşe: ORANTILI ölçek. Yalnız genişliği değiştirmek (eski Shift davranışı)
+      // nesneyi eziyordu; köşe tutamacı iki ekseni birden ölçekler.
+      const kose = tut('⤡', 'right:-11px;bottom:-11px', 'nwse-resize')
+      // Döndürme kolu ÜSTTE ve ögeden AYRI: köşeye komşu bir döndürme tutamacı,
+      // ölçeklemek isteyeni döndürüyordu.
+      const don = tut('↻', 'left:calc(50% - 11px);top:-38px', 'grab')
+
+      const olcekli = doc.slaytGenisligi * doc.kartlar.length
+      // ⚠ ⚠ **KONUM GÖNDERİLMİYOR — yalnız DEĞİŞEN alan.** Tutamaçlar ögeyi taşımıyor;
+      // konumu yeniden hesaplayıp göndermek, hesabın her hatasını bir kaymaya çevirirdi
+      // (ilk sürümde tam bu oldu). Sunucu artık kısmi güncelleme yapıyor: gelmeyen alana
+      // dokunmuyor.
+      const yazTutamac = (ek) => {
+        yaz({ tur: 'gorsel', i, ...ek })
+      }
+
+      kose.addEventListener('pointerdown', (ev) => {
+        ev.preventDefault()
+        ev.stopPropagation()
+        const b0 = { width: e.offsetWidth, height: e.offsetHeight }
+        const x0 = ev.clientX
+        const oran = b0.height / b0.width
+        // ⚠ ⚠ **SÜRÜKLERKEN YAZILMIYOR, BİTİNCE TEK YAZILIYOR.** Panel her yazmada
+        // baştan kuruluyor (`mufettisiKur`) ve iframe yeniden çiziliyor; her karede
+        // yazsaydık tutamaç elimizden KOPARDI ve hareket yarıda kalırdı. Bu tam olarak
+        // bu turda bir Playwright testini düşüren şeydi — kusur testte değil, bu
+        // desende olurdu.
+        const surukleK = (m) => {
+          const en = Math.max(40, b0.width + (m.clientX - x0))
+          e.style.width = en + 'px'
+          e.style.height = en * oran + 'px'
+          yerlestir()
+        }
+        const birakK = () => {
+          d.removeEventListener('pointermove', surukleK)
+          d.removeEventListener('pointerup', birakK)
+          // ⚠ `offsetWidth/Height`: döndürülmüş bir ögede sınır kutusu yerleşim
+          // kutusundan BÜYÜKTÜR ve her ölçeklemede bir kez daha büyürdü.
+          yazTutamac({
+            genislik: +((e.offsetWidth / olcekli) * 100).toFixed(2),
+            yukseklik: +((e.offsetHeight / doc.yukseklik) * 100).toFixed(2),
+          })
+        }
+        d.addEventListener('pointermove', surukleK)
+        d.addEventListener('pointerup', birakK)
+      })
+
+      don.addEventListener('pointerdown', (ev) => {
+        ev.preventDefault()
+        ev.stopPropagation()
+        const b0 = e.getBoundingClientRect()
+        const mx = b0.left + b0.width / 2
+        const my = b0.top + b0.height / 2
+        // ⚠ Başlangıç açısı ÇIKARILIYOR: tutamacı kavradığın an nesne sıçramasın.
+        const aci = (m) => (Math.atan2(m.clientY - my, m.clientX - mx) * 180) / Math.PI
+        const a0 = aci(ev)
+        const baslangic = (doc.gorseller[i] || {}).donusZ || 0
+        let son = baslangic
+        const surukleD = (m) => {
+          son = Math.round(baslangic + (aci(m) - a0))
+          son = Math.max(-180, Math.min(180, son))
+          const p = /perspective\([^)]*\)/.exec(e.style.transform || '')
+          e.style.transform =
+            (p ? p[0] + ' ' : '') +
+            (e.style.transform || '')
+              .replace(/perspective\([^)]*\)\s*/, '')
+              .replace(/rotateZ\([^)]*\)/, '') +
+            ' rotateZ(' +
+            son +
+            'deg)'
+          yerlestir()
+        }
+        const birakD = () => {
+          d.removeEventListener('pointermove', surukleD)
+          d.removeEventListener('pointerup', birakD)
+          yazTutamac({ donusZ: son === 0 ? null : son })
+        }
+        d.addEventListener('pointermove', surukleD)
+        d.addEventListener('pointerup', birakD)
+      })
+      ;(e.offsetParent || d.body).appendChild(kaplama)
+    }
   })
 }
 
