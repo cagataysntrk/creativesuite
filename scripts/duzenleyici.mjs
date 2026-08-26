@@ -223,6 +223,40 @@ const KABUK = (
   #mufettis h3{font-size:11px;letter-spacing:.14em;opacity:.55;margin:16px 0 8px;
     font-weight:700}
   #mufettis h3:first-child{margin-top:0}
+  /* ── WEBDEN ARAMA MODALI (madde 12) ────────────────────────────────────────
+     ⚠ ⚠ **SONUÇLAR ESKİDEN SAĞ PANELİN EN DİBİNDEYDİ.** Depo sahibi: *"webden
+     görseli ara diyince nereye geliyor sonuçlar göremiyorum"*. 288 px'lik müfettiş
+     sütununda, sekiz kaydırağın ve iki metin kutusunun ALTINDA, kaydırmadan
+     görünmüyorlardı — arama çalışıyordu ama sonucu yoktu.
+     ⚠ Modal tuvalin ÜSTÜNE geliyor: aranan şey görselin kendisi ve küçük bir
+     kutuda ikon seçmek, seçmemekle aynı şey. */
+  #ara-perde{position:fixed;inset:0;background:#05070aee;z-index:50;display:none;
+    align-items:center;justify-content:center;padding:32px}
+  #ara-perde.acik{display:flex}
+  #ara-kutu{background:var(--ui);border:1px solid var(--kenar);border-radius:12px;
+    width:min(980px,100%);max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
+  #ara-baslik{display:flex;gap:10px;align-items:center;padding:14px 16px;
+    border-bottom:1px solid var(--kenar)}
+  #ara-baslik input[type=search]{flex:1;background:#0d0f12;color:var(--metin);
+    border:1px solid var(--kenar);border-radius:7px;padding:9px 12px;font:inherit}
+  #ara-durum{padding:8px 16px;font-size:12.5px;opacity:.75;border-bottom:1px solid var(--kenar)}
+  #ara-izgara{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
+    gap:10px;padding:14px 16px;overflow:auto;flex:1}
+  .ara-oge{background:#1b1f26;border:1px solid var(--kenar);border-radius:9px;padding:8px;
+    display:flex;flex-direction:column;gap:6px;align-items:center;cursor:pointer}
+  .ara-oge:hover{border-color:var(--vurgu)}
+  .ara-oge img{width:56px;height:56px}
+  .ara-oge small{font-size:10px;opacity:.6;text-align:center;line-height:1.25;
+    word-break:break-word}
+  .ara-oge .kova{font-size:10.5px;padding:3px 7px;border-radius:5px}
+  /* ⚠ KOVA: seçilen ögeler burada birikiyor ki *"diğerleri istendiği zaman
+     denenebilsin"*. Arama kapanınca sonuçlar kayboluyordu; bir sonrakini denemek
+     için baştan aramak gerekiyordu. */
+  #kova-serit{display:flex;gap:6px;flex-wrap:wrap;margin-block-start:6px}
+  #kova-serit .kova-oge{background:#1b1f26;border:1px solid var(--kenar);border-radius:7px;
+    padding:4px;cursor:pointer;position:relative}
+  #kova-serit .kova-oge:hover{border-color:var(--vurgu)}
+  #kova-serit img{width:34px;height:34px;display:block}
   #mufettis label{display:block;font-size:12px;margin:0 0 9px}
   #mufettis label span{display:flex;justify-content:space-between;opacity:.72;
     margin-bottom:3px}
@@ -313,6 +347,24 @@ const KABUK = (
 </div>
 <div id="mesaj"></div>
 <div id="kusur">ölçüm bekleniyor…</div>
+<!-- ⚠ Modal iskeleti BURADA, kabukta: istemci onu her açılışta yeniden kurmak
+     yerine yalnız dolduruyor. Bir kez kurulan yapı, her seferinde kurulan
+     yapıdan az bozulur. -->
+<div id="ara-perde">
+  <div id="ara-kutu">
+    <div id="ara-baslik">
+      <strong style="font-size:13px">webden tasarım ögesi</strong>
+      <input type="search" id="ara-sorgu" placeholder="ingilizce ara: recycle, gear, conveyor, chart…">
+      <label style="font-size:12px;display:flex;gap:5px;align-items:center;white-space:nowrap">
+        <input type="checkbox" id="ara-genis"> şablon havası dışı
+      </label>
+      <button id="ara-git" class="birincil">ara</button>
+      <button id="ara-kapat">✕</button>
+    </div>
+    <div id="ara-durum">bir şey ara — sonuçlar burada çıkacak</div>
+    <div id="ara-izgara"></div>
+  </div>
+</div>
 <script type="module" src="/istemci.js"></script>`
 
 // ── ölçüm: denetim tarayıcıda koşuyor, ayrı bir motor yok ────────────────────

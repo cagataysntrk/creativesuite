@@ -162,6 +162,111 @@ const baslikEkle = (kok, metin) => {
   kok.appendChild(h)
 }
 
+// ── WEBDEN ARAMA: modal + kova (madde 12) ───────────────────────────────────
+//
+// ⚠ ⚠ **KOVA MODÜL DÜZEYİNDE, müfettişin İÇİNDE DEĞİL.** `mufettisiKur` her
+// düzenlemede paneli baştan kuruyor; kova onun içinde yaşasaydı bir kaydırağı
+// oynatmak toplanan adayları silerdi.
+const kova = []
+
+/** Önizleme adresi — editörün kendi metin rengiyle, koyu tezgâhta siyah ikon görünmez. */
+const ikonUrl = (tam, boy = 56) =>
+  'https://api.iconify.design/' + tam.replace(':', '/') + '.svg?height=' + boy + '&color=%23e6e8ec'
+
+/** Seçili adayı yuvaya indirir — sunucu temizler, rasterler, lisansı yazar. */
+async function yuvayaKoy(i, o, renk) {
+  mesaj('… ' + o.tam + ' rasterleniyor')
+  const r = await fetch('/gorsel-ara-koy?id=' + id, {
+    method: 'POST',
+    body: JSON.stringify({ i, renk, ...o }),
+  })
+  mesaj(await r.text())
+  $('#ara-perde').classList.remove('acik')
+  await cek()
+}
+
+/**
+ * Arama modalını açar.
+ *
+ * ⚠ Yuva indisi ve renk KAPANIŞLA taşınıyor, modal DOM'una yazılmıyor: modal tek ve
+ * kalıcı, seçili yuva ise her tıklamada değişiyor. Durumu DOM'a yazmak, iki yuva
+ * arasında geçince eski indisi kullanmak demekti.
+ */
+function aramaAc(i, renkAl) {
+  const perde = $('#ara-perde')
+  const izgara = $('#ara-izgara')
+  const durum = $('#ara-durum')
+  perde.classList.add('acik')
+  $('#ara-sorgu').focus()
+
+  const ara = async () => {
+    const q = $('#ara-sorgu').value.trim()
+    if (q === '') {
+      durum.textContent = '✗ sorgu boş'
+      return
+    }
+    izgara.replaceChildren()
+    // ⚠ ⚠ **"ARANIYOR" YAZISI ŞART.** Iconify çağrısı bir saniyeyi geçebiliyor ve
+    // sessiz bir boşluk "bozuk" diye okunuyor. Depo sahibi tam bunu sordu:
+    // *"aranıyor bulundu seçenekler vs diye"*.
+    durum.textContent = '… webde aranıyor: ' + q
+    const r = await fetch('/gorsel-ara?id=' + id, {
+      method: 'POST',
+      body: JSON.stringify({ q, tumSetler: $('#ara-genis').checked }),
+    })
+    const j = await r.json()
+    if (j.ok !== true) {
+      durum.textContent = '✗ ' + (j.hata ?? 'arama başarısız')
+      return
+    }
+    durum.textContent =
+      '✓ ' +
+      j.ogeler.length +
+      '/' +
+      j.toplam +
+      ' sonuç' +
+      (j.suzgec.length > 0 ? ' · şablon havası: ' + j.suzgec.join(', ') : ' · süzgeç yok') +
+      ' — tıkla yuvaya insin, ⊕ ile kovaya at'
+    for (const o of j.ogeler) {
+      const d = document.createElement('div')
+      d.className = 'ara-oge'
+      const im = document.createElement('img')
+      im.src = ikonUrl(o.tam)
+      im.loading = 'lazy'
+      d.appendChild(im)
+      const ad = document.createElement('small')
+      ad.textContent = o.setAdi + '\n' + o.lisans
+      d.appendChild(ad)
+      const kv = document.createElement('button')
+      kv.className = 'kova'
+      kv.textContent = '⊕ kova'
+      kv.onclick = (ev) => {
+        ev.stopPropagation()
+        // ⚠ Aynı öge iki kez eklenmiyor: kova bir liste değil bir KÜME gibi
+        // davranmalı, yoksa üç arama sonunda aynı ikon dört kez duruyor.
+        if (!kova.some((x) => x.tam === o.tam)) kova.push(o)
+        durum.textContent = '⊕ kovaya atıldı: ' + o.tam + ' · kovada ' + kova.length + ' aday'
+        mufettisiKur(sonDoc)
+      }
+      d.appendChild(kv)
+      d.onclick = () => void yuvayaKoy(i, o, renkAl())
+      izgara.appendChild(d)
+    }
+  }
+
+  $('#ara-git').onclick = () => void ara()
+  $('#ara-sorgu').onkeydown = (ev) => {
+    if (ev.key === 'Enter') void ara()
+    if (ev.key === 'Escape') perde.classList.remove('acik')
+  }
+  $('#ara-kapat').onclick = () => perde.classList.remove('acik')
+  // ⚠ Perdeye tıklayınca kapanıyor ama KUTUYA tıklayınca kapanmıyor: ilk sürümde
+  // bir ikona basmak modalı kapatıyordu çünkü tıklama perdeye kabarıyordu.
+  perde.onclick = (ev) => {
+    if (ev.target === perde) perde.classList.remove('acik')
+  }
+}
+
 function mufettisiKur(doc) {
   const kok = $('#mufettis')
   kok.innerHTML = ''
@@ -322,87 +427,58 @@ function mufettisiKur(doc) {
     kok.appendChild(uret)
 
     // ⚠ ⚠ **WEBDEN TASARIM ÖGESİ — FOTOĞRAF DEĞİL.** Depo sahibi: *"fotoğraf değil
-    // görsel ögeler ikon svg tasarım vs alakalı şeyler… bir görsel yuvasına tıklayıp
-    // webden ara denip aranabilecek"*. Sonuçlar Iconify'dan: açık kaynak setler ve
-    // SVG, yani doğası gereği arkaplansız ve çerçevesiz.
+    // görsel ögeler ikon svg tasarım vs alakalı şeyler"*. Sonuçlar Iconify'dan: açık
+    // kaynak setler ve SVG, yani doğası gereği arkaplansız ve çerçevesiz.
+    //
+    // ⚠ ⚠ **SONUÇLAR MODALA TAŞINDI ve sebebi bir ŞİKÂYET.** *"webden görseli ara
+    // deyince nereye geliyor sonuçlar göremiyorum"*. İlk sürüm ızgarayı bu panelin
+    // dibine koyuyordu: 288 px'lik sütunda, sekiz kaydırağın ve iki metin kutusunun
+    // ALTINDA, kaydırmadan görünmüyordu. Arama çalışıyordu ama sonucu yoktu — bir
+    // özelliğin görünmemesi, olmamasıyla aynı şey.
+    //
     // ⚠ ⚠ **ÖNİZLEME `<img>` İLE YÜKLENİYOR ve bu bir GÜVENLİK kararı.** Uzak SVG
     // `<script>` taşıyabilir; `innerHTML` ile gömseydik editöre betik enjeksiyonu
     // açardık. Tarayıcı `<img>` bağlamında SVG betiğini çalıştırmaz. Yuvaya konan şey
     // ise SVG bile değil — sunucuda temizlenip rasterlenmiş saydam PNG.
-    const sorgu = document.createElement('input')
-    sorgu.type = 'search'
-    sorgu.placeholder = 'ingilizce ara: recycle, gear, conveyor, chart…'
-    sorgu.style.inlineSize = '100%'
-    const genis = document.createElement('input')
-    genis.type = 'checkbox'
-    // ⚠ Süzgeç VARSAYILAN AÇIK: şablonun havasına yakın setler önce geliyor
-    // (*"her şablonun kendi havasına temasına uygun"*). Ama bir YARGI olduğu için
-    // kapatılabiliyor — yargıyı duvara çevirmek bu depoda defalarca geri tepti.
-    const izgara = document.createElement('div')
-    izgara.style.cssText =
-      'display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-block-start:6px'
-    // Rampadan renk: serbest hex YOK (R-35). Boş = ögenin kendi rengi.
     let seciliRenk = ''
     kok.appendChild(secim('öge rengi (rampadan)', '', ['', ...rampa], (v) => (seciliRenk = v)))
 
-    const koy = async (o) => {
-      mesaj('… ' + o.tam + ' rasterleniyor')
-      const r = await fetch('/gorsel-ara-koy?id=' + id, {
-        method: 'POST',
-        body: JSON.stringify({ i: secili.i, renk: seciliRenk, ...o }),
-      })
-      mesaj(await r.text())
-      await cek()
-    }
-    const arama = async () => {
-      const q = sorgu.value.trim()
-      if (q === '') return mesaj('✗ sorgu boş')
-      izgara.replaceChildren()
-      mesaj('… webde aranıyor')
-      const r = await fetch('/gorsel-ara?id=' + id, {
-        method: 'POST',
-        body: JSON.stringify({ q, tumSetler: genis.checked }),
-      })
-      const j = await r.json()
-      if (j.ok !== true) return mesaj('✗ ' + (j.hata ?? 'arama başarısız'))
-      for (const o of j.ogeler) {
-        const d = document.createElement('button')
-        d.style.cssText =
-          'padding:4px;background:#1c1f26;border:1px solid var(--kenar);border-radius:6px;cursor:pointer'
-        const im = document.createElement('img')
-        // ⚠ Doğrudan Iconify'dan, `<img>` içinde — betik çalışmaz. Önizleme rengi
-        // editörün kendi metin rengi: koyu tezgâhta siyah ikon görünmezdi.
-        im.src =
-          'https://api.iconify.design/' + o.tam.replace(':', '/') + '.svg?height=40&color=%23e6e8ec'
-        im.width = 40
-        im.height = 40
-        im.loading = 'lazy'
-        d.appendChild(im)
-        d.title =
-          o.setAdi + ' · ' + o.ad + '\nlisans: ' + o.lisans + (o.yazar ? ' · ' + o.yazar : '')
-        d.onclick = () => void koy(o)
-        izgara.appendChild(d)
-      }
-      mesaj(
-        '✓ ' +
-          j.ogeler.length +
-          '/' +
-          j.toplam +
-          ' sonuç' +
-          (j.suzgec.length > 0 ? ' · süzgeç: ' + j.suzgec.join(', ') : ' · süzgeç yok') +
-          ' — birine tıkla, yuvaya insin'
-      )
-    }
-    sorgu.onkeydown = (ev) => {
-      if (ev.key === 'Enter') void arama()
-    }
     const arabtn = document.createElement('button')
     arabtn.textContent = '🔎 webden ara'
-    arabtn.onclick = () => void arama()
-    kok.appendChild(el('webden tasarım ögesi (ikon · SVG)', sorgu))
-    kok.appendChild(el('şablon havası dışına da bak', genis))
-    kok.appendChild(arabtn)
-    kok.appendChild(izgara)
+    arabtn.onclick = () => aramaAc(secili.i, () => seciliRenk)
+    kok.appendChild(el('webden tasarım ögesi (ikon · SVG)', arabtn))
+
+    // ── KOVA: toplanan ögeler, arama kapanınca KAYBOLMUYOR ──────────────────
+    //
+    // ⚠ ⚠ *"bunlar bi bucket içine konulur sağdaki menüden bucket istendiği zaman
+    // açılıp denenebilir diğerleri"*. Aramayı kapatınca sonuçlar gidiyordu; ikinci
+    // adayı denemek için baştan aramak gerekiyordu. Kova arama TURLARI arasında
+    // yaşıyor: üç ayrı sorgudan toplanan adaylar yan yana denenebiliyor.
+    // ⚠ Bellekte duruyor, diske YAZILMIYOR: kova bir kararın kendisi değil, karar
+    // verirken tutulan bir not. Kalıcı olsaydı ilk turun artıkları aylar sonra
+    // karşımıza çıkardı.
+    if (kova.length > 0) {
+      const serit = document.createElement('div')
+      serit.id = 'kova-serit'
+      for (const o of kova) {
+        const d = document.createElement('div')
+        d.className = 'kova-oge'
+        d.title = o.setAdi + ' · ' + o.ad + '\nlisans: ' + o.lisans + '\n(tıkla → yuvaya koy)'
+        const im = document.createElement('img')
+        im.src = ikonUrl(o.tam)
+        d.appendChild(im)
+        d.onclick = () => void yuvayaKoy(secili.i, o, seciliRenk)
+        serit.appendChild(d)
+      }
+      const bosalt = document.createElement('button')
+      bosalt.textContent = '⌫ kovayı boşalt'
+      bosalt.onclick = () => {
+        kova.length = 0
+        mufettisiKur(sonDoc)
+      }
+      kok.appendChild(el('kova (' + kova.length + ' aday)', serit))
+      kok.appendChild(bosalt)
+    }
 
     // ⚠ ⚠ **GÖRSELİ SİLME YOKTU.** Metin ögesinin silme düğmesi vardı, görselinki
     // yoktu: beğenilmeyen bir görseli kaldırmanın tek yolu üstüne başkasını üretmekti.
