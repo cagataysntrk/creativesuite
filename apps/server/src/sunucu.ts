@@ -38,6 +38,8 @@ import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
 import { KATALOG, MUZIK_KURALI, PLATFORMLAR } from '@suite/contracts'
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
+// ⚠ Takvim defteri: insanin elle verdigi kararlar burada yasiyor (UX-6).
+import { gecerliKararlar, takvimOlaylari, takvimeYaz } from './yayin-takvimi.js'
 // ⚠ Takvim kuralı `@suite/engine`de: çeşitlilik ve denge orada ÖLÇÜLDÜ.
 import { yayinPlaniKur } from '@suite/engine'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
@@ -82,7 +84,7 @@ import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
-import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle } from './gecmis.js'
+import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle, elemeKaydi } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
 import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
 
@@ -641,6 +643,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       k.varliklar.filter((v) => v.yayinlandi).map((v) => v.sourceRunId)
     )
     let sablonsuz = 0
+    let elenmis = 0
     const hazir: { runId: string; sablon: string; hazirlanmaZamani: string; konu: string }[] = []
     const gecmis: { runId: string; sablon: string; konu: string; zaman: string }[] = []
     const kapida: { runId: string; sablon: string; konu: string; kapi: string }[] = []
@@ -651,6 +654,19 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       if (m === null) continue
       const kararlar = m.decisions ?? []
       if (kararlar.some((x) => x.decision === 'rejected')) continue
+      // ⚠ ⚠ **ELENMİŞ KOŞU TAKVİME GİRMİYOR — ve bu ÖLÇÜLEREK bulundu.** Bu ekran
+      // yalnız kapı reddine bakıyordu; `elendi.json`u hiç okumuyordu. Sonuç: insanın
+      // *"bunu beğenmedim"* dediği on üç koşu takvimde planlanmış duruyordu ve üçü
+      // *"yayına hazır"* diye sayılıyordu. İki ayrı "hayır" vardı — kapı reddi ve
+      // eleme — ve ekran yalnız birini biliyordu.
+      //
+      // ⚠ Sayılıyor, sessizce düşmüyor: gizlenen bir şeyin sayısı ekranda durmazsa
+      // *"3 hazır"* diyen bir başlık, 13 üretimi görünmez kılar. Aynı ders bu ekranda
+      // `sablonsuz` için bir kez öğrenildi.
+      if (elemeKaydi(o.repoRoot, d.name) !== null) {
+        elenmis += 1
+        continue
+      }
       const s2 = kosuSablonu(o.repoRoot, d.name)
       const sablon = s2.gercek ?? s2.istenen
       // ⚠ ⚠ **ŞABLONSUZ KOŞU TAKVİME GİRMİYOR — ama SESSİZCE değil, SAYILARAK.**
@@ -686,16 +702,118 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const oncekiSablonlar = [...gecmis]
       .sort((a2, b2) => b2.zaman.localeCompare(a2.zaman))
       .map((x) => x.sablon)
-    const plan = yayinPlaniKur(hazir, { haftadaKac, baslangic, oncekiSablonlar })
+
+    // ⚠ ⚠ **ELLE KARARLAR PLANLAYICIYI EZMİYOR, ONDAN AYRILIYOR.** Elle tarih verilen
+    // ya da takvimden çıkarılan üretimler otomatik plana GİRMİYOR; kalanı planlayıcı
+    // dolduruyor. İkisini birbirinin alternatifi yapmak, ya otomatiği ya eli işe
+    // yaramaz kılardı — depo sahibi ikisini birden istedi.
+    const elle = gecerliKararlar(o.repoRoot)
+    const otomatigeKalan = hazir.filter((h) => !elle.has(h.runId))
+    const plan = yayinPlaniKur(otomatigeKalan, { haftadaKac, baslangic, oncekiSablonlar })
+
+    // Elle planlananlar takvime kendi tarihleriyle giriyor.
+    const elleGonderiler = hazir
+      .filter((h) => elle.get(h.runId)?.karar === 'planla')
+      .map((h) => {
+        const k = elle.get(h.runId) as NonNullable<ReturnType<typeof elle.get>>
+        return {
+          runId: h.runId,
+          sablon: h.sablon,
+          konu: h.konu,
+          tarih: k.tarih,
+          platformlar: k.platformlar,
+          elle: true,
+        }
+      })
+    const cikarilan = hazir
+      .filter((h) => elle.get(h.runId)?.karar === 'cikar')
+      .map((h) => ({
+        runId: h.runId,
+        sablon: h.sablon,
+        konu: h.konu,
+        not: elle.get(h.runId)?.not ?? '',
+      }))
+    const elleYayinlanan = hazir
+      .filter((h) => elle.get(h.runId)?.karar === 'elle-yayinlandi')
+      .map((h) => ({
+        runId: h.runId,
+        sablon: h.sablon,
+        konu: h.konu,
+        tarih: elle.get(h.runId)?.tarih ?? '',
+      }))
+
+    // ⚠ ⚠ **HAZIR OLANLARIN LİSTESİ de gidiyor, yalnız SAYISI değil.** İlk sürüm
+    // sayıyı gönderiyordu ve takvimde boş bir güne tıklayıp oraya gönderi KOYMAK
+    // imkânsızdı: yalnız planlayıcının koyduğu düzenlenebiliyordu. Depo sahibi
+    // *"istediğim tarihe özel planlama da olmalı"* dedi — takvimin ekleyemediği bir
+    // takvim, bir rapordur.
+    const durumu = (runId: string): string => elle.get(runId)?.karar ?? 'otomatik'
+    const hazirListe = hazir.map((h) => ({
+      runId: h.runId,
+      sablon: h.sablon,
+      konu: h.konu,
+      durum: durumu(h.runId),
+    }))
+
     return c.json({
       ok: true,
       hazir: hazir.length,
+      elenmis,
+      hazirListe,
+      elleGonderiler,
+      cikarilan,
+      elleYayinlanan,
+      // ⚠ Konu takvimde de görünüyor: bir gönderiyi tarihinden değil KONUSUNDAN
+      // tanıyoruz ve takvimde koşu kimliği tek başına hiçbir şey söylemiyor.
+      konular: Object.fromEntries(hazir.map((h) => [h.runId, h.konu])),
       // ⚠ Kaç koşunun neden planlanamadığı EKRANDA: "3 hazır" demek, 5 koşunun
       // sessizce kaybolduğu bir ekranda yanıltıcı bir doğruluk olurdu.
       sablonsuz,
       kapida,
       gecmis: gecmis.sort((a2, b2) => b2.zaman.localeCompare(a2.zaman)),
       plan,
+    })
+  })
+
+  // ── TAKVİM CRUD: elle planla · çıkar · elle yayınlandı · geri al ─────────
+  //
+  // ⚠ ⚠ **TEK UÇ, DÖRT KARAR — dört ayrı uç DEĞİL.** Hepsi aynı deftere aynı biçimde
+  // yazıyor; ayrı uçlar dört ayrı doğrulama ve dört ayrı yazma yolu demekti ve biri
+  // güncellenip öteki unutulurdu. Karar bir ALAN, bir adres değil.
+  // ⚠ Zaman SUNUCUDAN alınıyor ama TEK yerden (`o.simdi()`): gövdeden gelen bir zaman
+  // damgası, geçmişe kayıt yazmayı mümkün kılardı.
+  app.post('/api/yayin-takvimi', async (c) => {
+    const g = (await c.req.json().catch(() => ({}))) as {
+      runId?: string
+      karar?: string
+      tarih?: string
+      platformlar?: readonly string[]
+      not?: string
+    }
+    // ⚠ `exactOptionalPropertyTypes` açık: isteğe bağlı bir alana AÇIKÇA `undefined`
+    // geçmek derleme hatası. Gövdede olmayan alan hiç YAZILMIYOR — "verilmedi" ile
+    // "boş verildi" arasındaki farkı koruyan tam da bu ayar.
+    const r = takvimeYaz(o.repoRoot, {
+      runId: g.runId ?? '',
+      karar: g.karar ?? '',
+      ...(g.tarih === undefined ? {} : { tarih: g.tarih }),
+      ...(g.platformlar === undefined ? {} : { platformlar: g.platformlar }),
+      ...(g.not === undefined ? {} : { not: g.not }),
+      simdi: o.simdi(),
+    })
+    if (!r.ok) return c.json(r, 400)
+    yayinla('degisim')
+    return c.json(r)
+  })
+
+  // Bir koşunun takvim GEÇMİŞİ — "bu neden 12'sine alındı" sorusunun cevabı.
+  app.get('/api/yayin-takvimi/:runId', (c) => {
+    const runId = c.req.param('runId')
+    const hepsi = takvimOlaylari(o.repoRoot)
+    return c.json({
+      ok: true,
+      olaylar: hepsi.olaylar.filter((x) => x.runId === runId),
+      bozukSatir: hepsi.bozuk,
     })
   })
 

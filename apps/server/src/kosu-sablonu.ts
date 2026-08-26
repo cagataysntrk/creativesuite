@@ -27,7 +27,7 @@ export interface KosuSablonu {
   readonly gercek: string | null
   /** İnsanın ya da panelin İSTEDİĞİ şablon; sistem seçtiyse `null`. */
   readonly istenen: string | null
-  /** Koşu konusu. */
+  /** Koşu konusu — hattın SEÇTİĞİ konu, istenen konu boşsa bile. */
   readonly konu: string | null
 }
 
@@ -55,9 +55,16 @@ export const kosuSablonu = (repoRoot: string, runId: string): KosuSablonu => {
     uyarlama?: { sablonId?: unknown }
   } | null
   const par = oku(join(dizin, 'kosu-parametreleri.json')) as Record<string, unknown> | null
+  // ⚠ ⚠ **KONU DA ŞABLONLA AYNI KUSURU TAŞIYORDU.** `kosu-parametreleri.json`daki
+  // `topic` yalnız insan bir konu YAZDIYSA dolu; hat konuyu kendi seçtiğinde alan BOŞ
+  // kalıyor ve gerçek konu `konu-sec` adımının çıktısında duruyor. Sonuç ekranda
+  // görüldü: takvimdeki gönderi ŞABLON adıyla duruyordu, KONUSU yoktu — ve bir
+  // gönderiyi tarihinden değil konusundan tanıyoruz. Şablonda öğrenilen ders,
+  // konuda bir kez daha öğrenildi: seçimi YAPAN adımın çıktısı tek doğrudur.
+  const konuAdimi = oku(join(dizin, 'steps/konu-sec.json')) as { konu?: unknown } | null
   return {
     gercek: dize(adim?.uyarlama?.sablonId),
     istenen: dize(par?.['sablon']),
-    konu: dize(par?.['topic']),
+    konu: dize(konuAdimi?.konu) ?? dize(par?.['topic']),
   }
 }

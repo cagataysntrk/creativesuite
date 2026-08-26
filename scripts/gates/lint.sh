@@ -23,8 +23,15 @@ ESLINT="$ROOT/node_modules/.bin/eslint"
 [ -x "$ESLINT" ] || { echo "✗ eslint kurulu değil — 'pnpm install' çalıştır"; exit 1; }
 
 # Kapı boş geçmesin: yapılandırma gerçekten dosya eşlemeli.
+#
+# ⚠ ⚠ **BU GÜVENCENİN KENDİSİ BOŞ GEÇİYORDU.** `console.log(sayı)` node'da stdout bir
+# TTY olduğunda sayıyı RENKLENDİRİYOR: değişkene `\e[33m541\e[39m` giriyordu ve alttaki
+# `[ "$n" -lt 1 ]` her koşuda *"integer expression expected"* deyip başarısız oluyordu —
+# yani "ESLint hiçbir dosyaya bakmadı" uyarısı HİÇ tetiklenemezdi. Kapının boş
+# geçmesini engelleyen kontrol, sessizce kendisi boş geçiyordu.
+# `process.stdout.write` biçimlendirme yapmıyor; sayı ham gelir.
 n=$("$ESLINT" --no-warn-ignored . --format json 2>/dev/null | node -e \
-  'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log(JSON.parse(s).length)}catch{console.log(0)}})')
+  'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{let k=0;try{k=JSON.parse(s).length}catch{k=0}process.stdout.write(String(k))})')
 if [ "${n:-0}" -lt 1 ]; then
   echo "✗ ESLint hiçbir dosyaya bakmadı — 'ignores' fazla geniş, kapı boş geçiyor"
   exit 1

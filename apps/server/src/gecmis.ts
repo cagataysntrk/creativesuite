@@ -20,6 +20,7 @@ import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'no
 import { join } from 'node:path'
 import { RUNS_DIR, costSummary, inspectManifest, type RunManifest } from '@suite/kernel'
 import type { RunId } from '@suite/contracts'
+import { kosuSablonu } from './kosu-sablonu.js'
 import {
   costVariance,
   planStale,
@@ -95,6 +96,20 @@ export interface CalistirmaOzeti {
    * Eleme ikisini uzlaştırıyor: kayıt DURUYOR, liste temizleniyor.
    */
   readonly elendi: { readonly at: string; readonly sebep: string } | null
+  /**
+   * Hangi şablondan ve hangi konuda — gözden geçirmenin İLK İKİ sorusu.
+   *
+   * ⚠ ⚠ **BU İKİSİ LİSTEDE YOKTU ve o yüzden ayrı bir "Onaylar" ekranı vardı.** Koşu
+   * listesi `run_01a0160e · tasarim-onayi` diyordu; hangi şablon, ne hakkında —
+   * ikisini de söylemiyordu, yani satır tıklanmadan hiçbir şey ifade etmiyordu.
+   * Depo sahibi *"koşular ve varlıklar sekmelerine filtre ve özellikler ekleyerek
+   * onaylar sekmesini kaldırıp bu sekmeleri canlandırabiliriz"* dedi.
+   *
+   * ⚠ ÖLÇÜLDÜ, varsayılmadı: 226 koşu için üç dosya okuması 3,6 ms — koşu başına
+   * 0,02 ms. Listeyi yavaşlatmıyor.
+   */
+  readonly sablon: string | null
+  readonly konu: string | null
   /** Manifest kusursuz mu (D-155). Kusurluysa çıktı yayınlanamaz. */
   readonly manifestSaglam: boolean
   /** Donmuş plan diskte var mı — **`rerun`un tek ön koşulu**. */
@@ -180,6 +195,10 @@ const ozetle = (m: RunManifest, donmusPlanVar: boolean): CalistirmaOzeti => {
     elendi: null,
     manifestSaglam: inspectManifest(m).length === 0,
     donmusPlanVar,
+    // ⚠ `ozetle` manifesti okuyor; şablon ve konu ADIM ÇIKTILARINDA ve manifestte yok.
+    // Boş bırakıp çağıranın doldurması, "manifestten okunuyor" yanılgısını önlüyor.
+    sablon: null,
+    konu: null,
   }
 }
 
@@ -258,9 +277,14 @@ export const calistirmalar = (repoRoot: string): readonly CalistirmaOzeti[] => {
   for (const id of runIdleri(repoRoot)) {
     const m = readManifest(repoRoot, id as RunId)
     if (m === null) continue
+    const kimlik = kosuSablonu(repoRoot, id)
     out.push({
       ...ozetle(m, readFrozenPlan(repoRoot, id as RunId) !== null),
       elendi: elemeKaydi(repoRoot, id),
+      // ⚠ Tek kaynak: şablonu ve konuyu SEÇİMİ YAPAN adımdan okuyor (kosu-sablonu.ts).
+      // Burada ikinci bir okuyucu yazmak, bu depoda iki kez ısırmış bir sınıftır.
+      sablon: kimlik.gercek ?? kimlik.istenen,
+      konu: kimlik.konu,
     })
   }
   return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
