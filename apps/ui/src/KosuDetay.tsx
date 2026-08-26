@@ -229,6 +229,30 @@ export const KosuDetay = ({
     void yukle()
   }, [d, runId, yayinAniTaslak, yukle])
 
+  /**
+   * Duran hattı sürdürür — İKİ yerden çağrılıyor, tek gövde.
+   *
+   * ⚠ ⚠ **İKİNCİ SÜRDÜRME SUNUCUDA REDDEDİLİYOR** (*"ZATEN koşuyor — ikinci sürdürme
+   * defteri bozar"*), o yüzden düğmeyi koşan bir hatta da göstermek güvenli. Gizlemek
+   * ise tehlikeliydi: karar verilmiş ama durmuş bir koşuda ekran *"hat sürüyor"* deyip
+   * hiçbir eylem sunmuyordu.
+   */
+  const surdur = useCallback(async (): Promise<void> => {
+    setMesaj('sürdürülüyor…')
+    try {
+      const r = await fetch(`/api/kosu/${runId}/surdur`, { method: 'POST' })
+      const j = (await r.json()) as { ok?: boolean; hata?: string }
+      setMesaj(
+        j.ok === true
+          ? '✓ sürdürülüyor — bu ekran kendini tazeliyor'
+          : `✗ sürdürülemedi: ${j.hata ?? 'bilinmeyen'}`
+      )
+    } catch {
+      setMesaj('✗ sunucuya ulaşılamıyor')
+    }
+    void yukle()
+  }, [runId, yukle])
+
   const karar = useCallback(
     async (k: 'approved' | 'rejected', not: string): Promise<void> => {
       if (d?.bekleyenKapi == null) return
@@ -351,22 +375,7 @@ export const KosuDetay = ({
             korunur, biten adımlar tekrar koşmaz.
           </p>
           <div className="kapi-dugmeler">
-            <button
-              type="button"
-              onClick={() => {
-                void (async () => {
-                  setMesaj('sürdürülüyor…')
-                  const r = await fetch(`/api/kosu/${runId}/surdur`, { method: 'POST' })
-                  const j = (await r.json()) as { ok?: boolean; hata?: string }
-                  setMesaj(
-                    j.ok === true
-                      ? '✓ sürdürülüyor — bu ekran kendini tazeliyor'
-                      : `✗ sürdürülemedi: ${j.hata ?? 'bilinmeyen'}`
-                  )
-                  void yukle()
-                })()
-              }}
-            >
+            <button type="button" onClick={() => void surdur()}>
               ↻ sürdür
             </button>
           </div>
@@ -457,6 +466,31 @@ export const KosuDetay = ({
           ⚠ Doğru ölçüt KARARIN KENDİSİ: `kapilar` listesi `decisions`tan türüyor ve
           onaylanan kapı anında `onaylandi` oluyor. Kuyruk da aynı kuralı kullanıyor
           (`decisions.some(d => d.gate === gate)`) — panel onunla AYNI şeyi sormalıydı. */}
+      {/* ⚠ ⚠ **BU KUTU SAYFANIN 2500 PX AŞAĞISINDAYDI.** Onaylayan insan tepede hiçbir
+          şey görmüyor, "oldu mu" diye tekrar basıyordu — düğmeleri gizlemek yetmiyor,
+          YERİNE ne olduğunu söylemek gerekiyor ve söylenen şey görülebilecek yerde olmalı.
+          ⚠ ⚠ **VE "HAT SÜRÜYOR" HER ZAMAN DOĞRU DEĞİL.** Karar verilmiş ama adım hata
+          verip durmuşsa hat sürmüyor ve ekran yalan söylüyordu; `kavis` üretimi tam olarak
+          bu haldeydi — onaylı, durmuş, yapılacak hiçbir şey yok. Sürdürme düğmesi artık
+          burada da; sunucu ikinci sürdürmeyi zaten reddediyor ("ZATEN koşuyor"), yani
+          düğme koşan bir hattı bozmuyor. */}
+      {!karariVerilmis ? null : (
+        <div className="kapi-kutusu">
+          {/* ⚠ ⚠ **"HAT SÜRÜYOR" DEMİYORUZ — çünkü BİLMİYORUZ.** İlk yazımda öyle
+              yazdım ve yanlıştı: `kavis` üretimi onaylıydı ve DURMUŞTU, ekran ise hat
+              sürüyor diyordu. Panelin elinde koşan bir süreç olup olmadığının cevabı
+              yok; olmayan bir bilgiyi iddia etmek, insanı beklemeye yollamaktır. */}
+          <strong>{d.bekleyenKapi}</strong> kapısında karar verildi
+          {d.durum === 'durdu' ? ' — ama hat DURDU.' : '.'} Adım defterinde ilerleme görünmüyorsa
+          sürdür.
+          <div className="kapi-dugmeler">
+            <button type="button" onClick={() => void surdur()}>
+              ↻ sürdür
+            </button>
+          </div>
+        </div>
+      )}
+
       {d.bekleyenKapi === null || karariVerilmis ? null : (
         <div className="kapi-kutusu">
           <strong>{d.bekleyenKapi}</strong> kapısında bekliyor.
@@ -750,13 +784,6 @@ export const KosuDetay = ({
       {/* ⚠ Karar verilmişse SESSİZ kalınmıyor: düğmeleri kaldırıp yerine hiçbir şey
           koymamak, ekranın "bir şey kayboldu" gibi okunmasına yol açardı. Hattın
           sürdüğü AÇIKÇA yazıyor. */}
-      {!karariVerilmis ? null : (
-        <div className="kapi-kutusu">
-          <strong>{d.bekleyenKapi}</strong> kapısında karar verildi — hat sürüyor. Bu ekran kendini
-          tazeliyor; sonraki kapı açılınca düğmeler geri gelecek.
-        </div>
-      )}
-
       {d.kusurlar.length === 0 ? null : (
         <section className="giris-blok">
           <h3>Ölçülen kusurlar</h3>

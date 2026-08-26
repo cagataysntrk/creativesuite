@@ -47,6 +47,7 @@ export const GonderiKutusu = ({
   konu,
   kapat,
   sonra,
+  otomatikTarih,
 }: {
   readonly runId: string
   readonly konu: string
@@ -54,11 +55,30 @@ export const GonderiKutusu = ({
   readonly kapat?: () => void
   /** Karar yazıldıktan sonra çağrılır: çağıran kendi listesini tazeler. */
   readonly sonra?: () => void | Promise<void>
+  /**
+   * Otomatik planlayıcının bu gönderi için SEÇTİĞİ tarih — biliniyorsa.
+   *
+   * ⚠ ⚠ **"OTOMATİĞE BIRAK" DEDİĞİNDE NE OLACAĞINI GÖRMEDEN SEÇEMEZSİN.** Boş bir
+   * "otomatik" seçeneği, insana kapalı kutu imzalatmaktır. Bilinmiyorsa söylenmiyor.
+   */
+  readonly otomatikTarih?: string
 }): React.JSX.Element => {
   const [tarih, setTarih] = useState(bugun)
   const [secili, setSecili] = useState<readonly string[]>(PLATFORMLAR.map((p) => p.id))
   const [gecmis, setGecmis] = useState<readonly Olay[]>([])
   const [mesaj, setMesaj] = useState<string | null>(null)
+
+  /**
+   * ŞU AN geçerli olan karar — defterin son sözü.
+   *
+   * ⚠ `geri-al` kararı KALDIRIYOR: kayıt defterde duruyor ama gönderi otomatik takvime
+   * dönüyor. O yüzden "geçerli karar" son `geri-al`dan SONRAKİ son karardır.
+   */
+  const sonKarar = ((): Olay | null => {
+    let k: Olay | null = null
+    for (const o of gecmis) k = o.karar === 'geri-al' ? null : o
+    return k
+  })()
 
   const paketle = async (): Promise<void> => {
     setMesaj('paketleniyor…')
@@ -145,6 +165,29 @@ export const GonderiKutusu = ({
           </>
         )}
       </h3>
+      {/* ⚠ ⚠ **ŞU AN NE OLDUĞU EN ÜSTTE.** Depo sahibi *"otomatik takvime ekleme ile
+          manuel aynı yerde olmalı, istediğine basabilir kişi"* dedi — ama iki düğme
+          koymak yetmiyor: insan hangisinin ŞU AN geçerli olduğunu görmeden seçemez. */}
+      <p className={sonKarar === null ? 'bos' : 'olcum'}>
+        {sonKarar === null
+          ? `şu an: OTOMATİK takvimde${otomatikTarih === undefined || otomatikTarih === '' ? '' : ` — planlayıcı ${otomatikTarih} diyor`}`
+          : sonKarar.karar === 'planla'
+            ? `şu an: ELLE ${sonKarar.tarih} tarihine planlanmış`
+            : sonKarar.karar === 'elle-yayinlandi'
+              ? `şu an: ${sonKarar.tarih} tarihinde ELLE YAYINLANDI olarak işaretli`
+              : 'şu an: takvimden ÇIKARILMIŞ'}
+      </p>
+
+      {/* ⚠ ⚠ **İKİ SEÇENEK YAN YANA ve ikisi de TEK TIKLAMA.** "Otomatiğe bırak" aslında
+          elle kararı geri almak; adı *"kararı geri al"*dı ve kimse bunun otomatik demek
+          olduğunu anlamıyordu. Aynı eylem, doğru adla artık bir SEÇENEK. */}
+      <div className="kapi-dugmeler">
+        <button type="button" disabled={sonKarar === null} onClick={() => void karar('geri-al')}>
+          ⤺ otomatiğe bırak
+        </button>
+        <span className="olcum">ya da</span>
+      </div>
+
       <div className="filtre-cubuk">
         <label>
           tarih <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} />
@@ -175,9 +218,6 @@ export const GonderiKutusu = ({
         </button>
         <button type="button" onClick={() => void karar('cikar', { not: 'takvimden çıkarıldı' })}>
           ⌫ takvimden çıkar
-        </button>
-        <button type="button" onClick={() => void karar('geri-al')}>
-          ↺ kararı geri al
         </button>
         {/* ⚠ ⚠ **YAYIN BURADAN YAPILMIYOR — paket ÇIKIYOR.** Instagram/LinkedIn/X
             API'lerinde zamanlama yok; yayını bulut aracıyla insan yapıyor. Panelin işi
