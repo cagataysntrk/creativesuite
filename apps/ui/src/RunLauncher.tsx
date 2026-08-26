@@ -80,6 +80,9 @@ export const RunLauncher = ({
   // Var olan bir yeteneğin arayüzü yoksa, kullanıcı için o yetenek YOKTUR.
   // ⚠ Boş = "hat seçsin": seçim bir zorunluluk değil, bir HAK.
   const [sablon, setSablon] = useState('')
+  // ⚠ Varsayılan `firma` — bugünkü davranış. Yeni bir seçenek eklemek, var olan
+  // davranışı sessizce değiştirmemeli.
+  const [icerikKipi, setIcerikKipi] = useState('firma')
   const [sablonlar, setSablonlar] = useState<
     readonly { id: string; ad: string; kullanilabilir: boolean }[]
   >([])
@@ -179,6 +182,7 @@ export const RunLauncher = ({
             konu: sistemSecsin && konuSecebilir ? '' : konu,
             konuyuSistemSecsin: sistemSecsin && konuSecebilir,
             sablon,
+            icerikKipi,
             planDigest: digest,
           }),
         })
@@ -203,7 +207,8 @@ export const RunLauncher = ({
     // `"sablon":""`. DOM ile isteğin AYRIŞTIĞI yer tam olarak bu satırdı.
     // ⚠ `konuSecebilir` de aynı listede yoktu: hat değişince konu-seçebilirliği
     // değişiyor ama işleyici eski cevabı taşıyordu.
-    [hat, konu, sablon, sistemSecsin, konuSecebilir, baslayinca]
+    // ⚠ `icerikKipi` de BURADA: yukarıdaki ders bir kez ödendi, ikincisi olmasın.
+    [hat, konu, sablon, icerikKipi, sistemSecsin, konuSecebilir, baslayinca]
   )
 
   if (sonuc === null) return <p>plan kuruluyor…</p>
@@ -339,6 +344,20 @@ export const RunLauncher = ({
       {/* ⚠ Şablon seçimi OPSİYONEL: boş bırakılırsa hat kendi seçer (ritim ölçümü +
           son kullanılanlardan kaçınma). Zorunlu kılmak, insanı her koşuda katalog
           bilgisine mahkûm ederdi; hiç sunmamak ise var olan bir yeteneği gizliyordu. */}
+      {/* ⚠ ⚠ **İÇERİK KİPİ: üretilenin NEREDEN geldiği.** Depo sahibi iki seçenek
+          istedi — firma içeriği (ürün/firma tanıtımı) ve genel içerik. Genel kipin
+          kapsamı KASTEN geniş ve kapalı bir liste değil; tarif istemde yaşıyor
+          (`kipTarifi`), burada değil — iki yerde yazılan bir kural bir yerde unutulur.
+          ⚠ Kip koşunun defterine yazılıyor: altı ay sonra "bu iddia bizim kaydımızdan
+          mı geliyordu" sorusunun cevabı olsun diye. */}
+      <label className="giris-alan">
+        içerik kipi{' '}
+        <select value={icerikKipi} onChange={(e) => setIcerikKipi(e.target.value)}>
+          <option value="firma">firma — ürün ve firma tanıtımı, marka kayıtlarından</option>
+          <option value="genel">genel — bilgi veren içerik, kapsam geniş</option>
+        </select>
+      </label>
+
       {sablonlar.length === 0 ? null : (
         <label className="giris-alan">
           şablon{' '}

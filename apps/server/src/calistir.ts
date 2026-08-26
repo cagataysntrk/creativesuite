@@ -138,6 +138,13 @@ export interface BaslatGirdisi {
    * şeyi ikinci bir yoldan yapmak olurdu.
    */
   readonly sablon?: string
+  /**
+   * İçerik kipi — `firma` (marka kayıtları) ya da `genel` (bilgi veren içerik).
+   *
+   * ⚠ Aynı yol: serbest parametre (`--icerik-kipi <kip>`), motor onu her adımın
+   * kısıtlarına ekliyor. Yeni bir bayrak açmak, aynı zinciri ikinci kez kurmak olurdu.
+   */
+  readonly icerikKipi?: string
   readonly env: Readonly<Record<string, string>>
   /** Test bunu değiştirir; üretimde gerçekten `just` koşar. */
   readonly komut?: string
@@ -167,6 +174,11 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
   const runId = newId('RunId') as RunId
 
   const sablonArgv = (g.sablon ?? '').trim() === '' ? [] : ['--sablon', (g.sablon ?? '').trim()]
+  // ⚠ ⚠ **YALNIZ TANINAN KİP GEÇİYOR.** Gövdeden gelen serbest bir dizeyi komut
+  // satırına koymak, panelin yazdığı her şeyi çalıştırma parametresine çevirirdi.
+  // Varsayılan `firma` olduğu için tanınmayan değer sessizce bugünkü davranışa düşüyor
+  // — ve `firma` zaten bayrak istemiyor.
+  const kipArgv = (g.icerikKipi ?? '').trim() === 'genel' ? ['--icerik-kipi', 'genel'] : []
   const argv =
     g.konu.trim() === ''
       ? [
@@ -174,12 +186,23 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
           g.pipelineId,
           '--konu-sec',
           ...sablonArgv,
+          ...kipArgv,
           '--run',
           runId,
           '--plan-digest',
           g.planDigest,
         ]
-      : ['uret', g.pipelineId, g.konu, ...sablonArgv, '--run', runId, '--plan-digest', g.planDigest]
+      : [
+          'uret',
+          g.pipelineId,
+          g.konu,
+          ...sablonArgv,
+          ...kipArgv,
+          '--run',
+          runId,
+          '--plan-digest',
+          g.planDigest,
+        ]
   akibetiIzle(
     g.repoRoot,
     runId,

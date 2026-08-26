@@ -18,6 +18,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { browseRecords, type SelectQuery } from '@suite/corpus'
+import { kipTarifi, type IcerikKipi } from '@suite/contracts'
 import type { Db } from '@suite/kernel'
 import { RUNS_DIR } from '@suite/kernel'
 
@@ -206,10 +207,43 @@ export const konuAdaylari = (g: KonuAdayGirdisi): readonly KonuAdayi[] => {
 export const konuSecPromptu = (g: {
   readonly adaylar: readonly KonuAdayi[]
   readonly islenmisSayisi: number
+  readonly kip?: IcerikKipi
 }): string | null => {
-  if (g.adaylar.length === 0) return null
+  const kip = g.kip ?? 'firma'
+  // ⚠ ⚠ **GENEL KİPTE ADAY LİSTESİ BİR KISIT DEĞİL, BİR BAĞLAM.** Firma kipinde liste
+  // seçimin TAMAMI ("birini seç, uydurma"); genel kipte aynı liste yalnız markanın
+  // hangi dünyada durduğunu gösteriyor ve model listenin DIŞINA çıkabiliyor. Aynı
+  // veriyi iki farklı rolde kullanmak, iki ayrı istem yazmaktan az bozulur.
+  // ⚠ Genel kipte boş liste de MEŞRU: kayıt olmadan da konu önerilebilir.
+  if (kip === 'firma' && g.adaylar.length === 0) return null
+  if (kip === 'genel') {
+    return [
+      'Bir Instagram karoseli için KONU ÖNERECEKSİN.',
+      '',
+      ...kipTarifi('genel'),
+      '',
+      ...(g.adaylar.length === 0
+        ? []
+        : [
+            'Markanın kendi kayıtlarından bazı başlıklar — konuyu SINIRLAMAZLAR, yalnız',
+            'markanın hangi dünyada durduğunu gösterirler:',
+            ...g.adaylar.slice(0, 8).map((a) => `  · ${a.baslik}`),
+            '',
+          ]),
+      `Geçmişte ${String(g.islenmisSayisi)} konu işlendi — onları TEKRARLAMA.`,
+      'Seçerken sırayla şunu sor:',
+      '  · bunu okuyan biri bilmediği bir şey öğrenir mi?',
+      '  · gösterilecek somut bir şey var mı, yoksa yalnız laf mı olur?',
+      '  · markanın dünyasına değiyor mu — zorlamadan?',
+      '',
+      'YALNIZ şu JSON ile cevapla, başka hiçbir şey yazma:',
+      '{"konu": "<tek cümlelik konu, Türkçe>", "gerekce": "<tek cümle>"}',
+    ].join('\n')
+  }
   return [
     'Bir Instagram karoseli için KONU seçeceksin.',
+    '',
+    ...kipTarifi('firma'),
     '',
     'Aşağıdakiler markanın KENDİ kayıtlarının başlıkları — ürünler, strateji notları,',
     'kanıtlar. BİRİNİ seç: yeni bir konu UYDURMA, listede olmayan bir şey yazma.',
@@ -264,7 +298,8 @@ export interface KonuSecimi {
  */
 export const konuSecimiCozumle = (
   metin: string,
-  adaylar: readonly (string | KonuAdayi)[]
+  adaylar: readonly (string | KonuAdayi)[],
+  kip: IcerikKipi = 'firma'
 ): KonuSecimi | null => {
   const basliklar = adaylar.map((a) => (typeof a === 'string' ? a : a.baslik))
   // ⚠ ⚠ **AÇGÖZLÜ EŞLEŞME İKİ NESNEYİ BİRDEN YUTUYORDU.** Gerçek koşuda model önce
@@ -321,6 +356,16 @@ export const konuSecimiCozumle = (
   // ── başlık yolu: eski istemle üretilmiş kayıtlar ve numara yerine başlık
   // yazmakta ısrar eden çıktılar için ───────────────────────────────────────
   if (typeof o.konu !== 'string') return null
+  // ⚠ ⚠ **GENEL KİPTE KONU SERBEST — doğrulanacak bir liste YOK.** Firma kipinde
+  // adaylara karşı doğrulama bir güvenlik önlemi: listede olmayan konu, kayda
+  // dayanmayan konudur ve `SELECT` onunla hiçbir şey bulamaz. Genel kipte kısıt
+  // KASTEN yok; aynı doğrulamayı orada uygulamak, kipi adı var kendi yok bir
+  // seçeneğe çevirirdi.
+  // ⚠ Boş dize yine reddediliyor: serbestlik, cevapsızlığı kabul etmek değil.
+  if (kip === 'genel') {
+    const serbest = o.konu.trim()
+    return serbest === '' ? null : { konu: serbest, gerekce }
+  }
   // ⚠ **KENDİ BİÇİMİMİZE toleranslıyız, UYDURMAYA değil.** Model listede gösterdiğimiz
   // süslemeleri (baştaki `[tür]`, sondaki `(tür: …)`, satır numarası) kopyalayabiliyor
   // ve bu bir hata değil, istemi harfiyen uygulaması. Temizlik yalnız BİZİM

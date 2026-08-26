@@ -1608,6 +1608,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       planDigest?: string
       konuyuSistemSecsin?: boolean
       sablon?: string
+      icerikKipi?: string
     }
     // ⚠ ⚠ **EMEKLİ HAT BAŞLATILAMAZ — ve buradaki açık GİZLEMEKLE kapanmış SANILIYORDU.**
     // `/api/hatlar` emeklileri zaten gizliyor, ama gizlemek engellemek değil: bu uç
@@ -1652,6 +1653,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // ⚠ Konusuz başlatma AÇIKÇA istenir. Boş konuyu sessizce "sistem seçsin" saymak,
       // yanlışlıkla boş bırakılan bir alanı onay yerine koymak olurdu.
       konuyuSistemSecsin: govde.konuyuSistemSecsin === true,
+      ...(govde.icerikKipi === 'genel' ? { icerikKipi: 'genel' } : {}),
       planDigest: govde.planDigest ?? '',
       env: o.saglayiciEnv ?? o.env ?? {},
     })

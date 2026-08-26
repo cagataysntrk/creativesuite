@@ -9,7 +9,14 @@
 // çalıştırma öncesi maliyet tahminini yalan yapardı.
 
 import type { AppError, Result, ToleranceReading, VerbName } from '@suite/contracts'
-import { ZERO_USD, err, ok, VARSAYILAN_TUVAL, goruntuOlcusu } from '@suite/contracts'
+import {
+  ZERO_USD,
+  err,
+  ok,
+  VARSAYILAN_TUVAL,
+  goruntuOlcusu,
+  icerikKipiCozumle,
+} from '@suite/contracts'
 import {
   asciiLower,
   getVerb,
@@ -214,12 +221,20 @@ export const selectBody = (deps: SelectDeps): Verb =>
     const q = konuAl(input)
     if (q === '') return err(hata('validation', 'MISSING_TOPIC', ctx))
     const kayitlar = deps.select(q, 8)
+    const kip = icerikKipiCozumle(input.constraints['icerik_kipi'])
     if (kayitlar.length === 0) {
-      // Sessizce boş bağlamla devam etmek yasak: bağlamsız üretilen metin markadan
-      // değil modelin genel bilgisinden gelir ve bunu çıktıya bakarak ayırt etmek zor.
-      return err(hata('not_found', 'NO_CONTEXT', ctx, { topic: q }))
+      // ⚠ ⚠ **FİRMA KİPİNDE HÂLÂ YASAK ve gerekçe DEĞİŞMEDİ:** sessizce boş bağlamla
+      // devam etmek, markadan değil modelin genel bilgisinden gelen bir metni marka
+      // metni gibi göstermektir ve bunu çıktıya bakarak ayırt etmek zor.
+      if (kip === 'firma') return err(hata('not_found', 'NO_CONTEXT', ctx, { topic: q }))
+      // ⚠ ⚠ **GENEL KİPTE MEŞRU — ama SESSİZ DEĞİL.** Tehlike genel içeriğin kendisi
+      // değil, marka kaydından gelen içerikten AYIRT EDİLEMEMESİYDİ. Kip koşunun
+      // defterine yazılıyor ve bağlamsızlık burada AÇIKÇA işaretleniyor: altı ay sonra
+      // *"bu iddia bizim kaydımızdan mı geliyordu"* sorusunun bir cevabı var.
+      // ⚠ Yasa 8 muaf DEĞİL: kaynaksız sayısal iddia bu kipte de yayınlanamaz.
+      return ok({ costs: [], data: { records: [], icerikKipi: kip, baglamsiz: true } })
     }
-    return ok({ costs: [], data: { records: kayitlar } })
+    return ok({ costs: [], data: { records: kayitlar, icerikKipi: kip } })
   })
 
 // ── COMPOSE: SAF. Kayıtlar → belge modeli ───────────────────────────────────
@@ -1840,7 +1855,13 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       typeof input.constraints['islenmis_konu_sayisi'] === 'number'
         ? input.constraints['islenmis_konu_sayisi']
         : 0
-    return konuSecPromptu({ adaylar, islenmisSayisi: islenmis }) ?? ''
+    return (
+      konuSecPromptu({
+        adaylar,
+        islenmisSayisi: islenmis,
+        kip: icerikKipiCozumle(input.constraints['icerik_kipi']),
+      }) ?? ''
+    )
   }
   const kacinilacak =
     typeof input.constraints['kacinilacak'] === 'string'
@@ -2752,7 +2773,11 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       // Sağlayıcı yanıt şekli TEK geçitten (`duzMetin`) okunuyor — `{result}`,
       // `{text}`, `{content}` ve normalize `{lines}` biçimlerinin hepsi orada tanınır.
       const ciktiMetni = duzMetin(sonuc.value.data) ?? ''
-      const secim = konuSecimiCozumle(ciktiMetni, adaylar)
+      const secim = konuSecimiCozumle(
+        ciktiMetni,
+        adaylar,
+        icerikKipiCozumle(input.constraints['icerik_kipi'])
+      )
       if (secim === null) {
         // ⚠ Ham çıktının başı hataya giriyor: "ayrıştıramadım" tek başına teşhis
         // ettirmez ve bu adım tam olarak bu yüzden bir kez körlemesine hata verdi.
