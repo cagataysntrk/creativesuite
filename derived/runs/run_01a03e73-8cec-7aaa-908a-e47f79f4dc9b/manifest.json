@@ -1,11 +1,11 @@
 {
-  "runId": "run_01a03ddc-ede5-744d-9abd-1450c40c984e",
+  "runId": "run_01a03e73-8cec-7aaa-908a-e47f79f4dc9b",
   "brandId": "brd_upcytech",
   "eraId": "imalat-2026",
   "pipeline": "instagram-karosel",
-  "corpusCommit": "c203f7e9b2485e5411cdc63a6b5c5a19b2e97983",
-  "registryCommit": "c203f7e9b2485e5411cdc63a6b5c5a19b2e97983",
-  "createdAt": "2026-08-26T11:39:00.378Z",
+  "corpusCommit": "d7266caeaa2d7ca6ae41ccff428c0a3b37911d50",
+  "registryCommit": "d7266caeaa2d7ca6ae41ccff428c0a3b37911d50",
+  "createdAt": "2026-08-26T14:23:27.661Z",
   "steps": [
     {
       "stepId": "cozumle",
@@ -17,8 +17,9 @@
       "model": null,
       "seed": null,
       "params": {
+        "sablon": "veri-hikayesi",
         "son_kullanilan": "sahne,dizin,karsilastirma",
-        "topic": "sablon tasima sinamasi",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
         "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil"
       },
       "estimatedCost": {
@@ -36,8 +37,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T11:38:05.041Z",
-      "finishedAt": "2026-08-26T11:38:05.041Z",
+      "startedAt": "2026-08-26T14:23:28.608Z",
+      "finishedAt": "2026-08-26T14:23:28.608Z",
       "output": {
         "brandId": "brd_upcytech"
       }
@@ -45,15 +46,16 @@
     {
       "stepId": "konu-sec",
       "verb": "GENERATE",
-      "status": "skipped",
+      "status": "ok",
       "lane": "free",
       "capability": "text.generate",
       "providerId": "claude-code",
       "model": null,
       "seed": null,
       "params": {
+        "sablon": "veri-hikayesi",
         "son_kullanilan": "sahne,dizin,karsilastirma",
-        "topic": "sablon tasima sinamasi",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
         "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil",
         "konu_sec": true,
         "max_chars": 400
@@ -90,8 +92,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T11:38:05.042Z",
-      "finishedAt": "2026-08-26T11:38:05.043Z",
+      "startedAt": "2026-08-26T14:23:28.608Z",
+      "finishedAt": "2026-08-26T14:23:28.609Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -107,8 +109,9 @@
       "model": null,
       "seed": null,
       "params": {
+        "sablon": "veri-hikayesi",
         "son_kullanilan": "sahne,dizin,karsilastirma",
-        "topic": "sablon tasima sinamasi",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
         "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil"
       },
       "estimatedCost": {
@@ -126,8 +129,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T11:38:05.044Z",
-      "finishedAt": "2026-08-26T11:38:05.045Z",
+      "startedAt": "2026-08-26T14:23:28.609Z",
+      "finishedAt": "2026-08-26T14:23:28.611Z",
       "output": null
     },
     {
@@ -140,8 +143,9 @@
       "model": null,
       "seed": null,
       "params": {
+        "sablon": "veri-hikayesi",
         "son_kullanilan": "sahne,dizin,karsilastirma",
-        "topic": "sablon tasima sinamasi",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
         "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil",
         "locale": "tr-TR",
         "max_chars": 2200
@@ -178,33 +182,126 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T11:38:05.046Z",
-      "finishedAt": "2026-08-26T11:39:00.376Z",
+      "startedAt": "2026-08-26T14:23:28.611Z",
+      "finishedAt": "2026-08-26T14:23:28.612Z",
       "output": {
         "lines": [
-          "Verisi olmayan firmada da başlarız",
-          "1. Sabah raporu Excel'de birleştiriliyor ya da hiç yok, dünün cevabı **vardiya amirinin hafızasında**.",
-          "2. Diğer araçlar bir veritabanı ister; yoksa iş orada biter, biz **veri katmanını** kurarız.",
-          "3. Kantardan satışa uçtan uca bir tesis sürecini taşıyan bir yazılım yazdık; **upcyman.com** üzerinde çalışıyor.",
-          "4. Demo, veritabanı değil **konuşma** ile başlar; hazır olmanız gerekmez.",
-          "5. **upcyman.com**'u gezin, demo için yazın.",
-          "KARŞILAŞTIRMA: Veri olmayan / veri olan",
-          "ÖNCE: Veri yok",
-          "- Excel ve vardiya defteri",
-          "- Cevap hafızada kalıyor",
-          "SONRA: Veri kurulu",
-          "- Kayıt karara dönüşüyor",
-          "- Kök neden izlenebiliyor"
+          "Fire oranının altı yıllık seyri kayıp",
+          "1. Excel'de yalnızca bu ayın raporu var, geçmiş yıllar **farklı dosyalarda** kayboldu.",
+          "2. Vardiya değiştiğinde eski dosya kapanıyor, yeni dosya açılıyor; aralarındaki bağlantı **hiçbir yerde** tutulmuyor.",
+          "3. Fire oranı yükseldiğinde önceki yılla karşılaştırma istendiğinde cevap **vardiya amirinin hafızasına** kalıyor.",
+          "4. Kaydı olmayan bir trend, var olmayan bir trenddir.",
+          "5. Verinizi tek yerde toplayalım, seyri birlikte görelim.",
+          "KARŞILAŞTIRMA: Fire oranını izlemek",
+          "ÖNCE: Excel ve hafıza",
+          "- Aylık kopuk rapor",
+          "- Geçmiş yıl kayıp",
+          "- Vardiya amirine bağlı",
+          "SONRA: Sürekli kayıt",
+          "- Yıllar birleşik görünür",
+          "- Seyir tek ekranda",
+          "- Karar veriye dayalı"
         ]
+      }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T14:23:28.612Z",
+      "finishedAt": "2026-08-26T14:25:40.068Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-26T14:25:40.069Z",
+      "finishedAt": "2026-08-26T14:25:40.073Z",
+      "output": null,
+      "error": {
+        "kind": "validation",
+        "code": "ADAPTATION_REJECTED",
+        "message": "error.verb.adaptation_rejected"
       }
     }
   ],
   "decisions": [
     {
       "gate": "metin-onayi",
-      "decision": "rejected",
-      "at": "2026-08-26T14:22:55.756Z",
-      "note": "sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali"
+      "decision": "approved",
+      "at": "2026-08-26T14:23:27.719Z",
+      "note": null
     }
   ],
   "context": [
@@ -234,6 +331,6 @@
     }
   ],
   "contextRetentionDays": 90,
-  "awaitingGate": "metin-onayi",
-  "stoppedAt": "sablon-uyarla"
+  "awaitingGate": null,
+  "stoppedAt": "kompozit"
 }

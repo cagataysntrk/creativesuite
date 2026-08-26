@@ -1,0 +1,371 @@
+{
+  "runId": "run_01a03e77-98fd-79db-b337-7c7a868ba058",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "d7266caeaa2d7ca6ae41ccff428c0a3b37911d50",
+  "registryCommit": "d7266caeaa2d7ca6ae41ccff428c0a3b37911d50",
+  "createdAt": "2026-08-26T14:28:00.648Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-26T14:28:01.766Z",
+      "finishedAt": "2026-08-26T14:28:01.766Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T14:28:01.767Z",
+      "finishedAt": "2026-08-26T14:28:01.767Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-26T14:28:01.768Z",
+      "finishedAt": "2026-08-26T14:28:01.769Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T14:28:01.770Z",
+      "finishedAt": "2026-08-26T14:28:01.770Z",
+      "output": {
+        "lines": [
+          "Fire oranı altı yılda nereye gitti",
+          "1. Kimse bu eğriyi tek bakışta göremiyor çünkü kayıt vardiya defterlerine, Excel dosyalarına ve hafızalara **dağılmış durumda**",
+          "2. Geçen ayın fire kaydı bir Excel sekmesinde, geçen yılınki başka bir dosyada, daha eskisi kimsenin **hatırlamadığı** bir klasörde duruyor",
+          "3. Bir eğilimin var olup olmadığını sormak, farklı dosyaları yan yana açıp **elle karşılaştırmak** demek oluyor",
+          "4. Kayıt tek yerde tutulduğunda eğilim sormaya gerek kalmıyor, **ekranda kendiliğinden** duruyor",
+          "5. Hattınızın verisini gösterin, **altı yıllık eğilimi** birlikte çıkaralım",
+          "AKIŞ: Fire eğilimini görünür kılma",
+          "- Kaynakları bağla | Vardiya ve Excel verisini birleştir",
+          "- Geçmişi topla | Eski kayıtları tek yere taşı",
+          "- Eğilimi çıkar | Zaman içindeki değişimi göster",
+          "- Ekranda tut | Güncel eğilimi sürekli izle"
+        ]
+      }
+    },
+    {
+      "stepId": "sablon-uyarla",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "sablon_uyarla": true,
+        "max_chars": 4000,
+        "gorsel_uretilebilir": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T14:28:01.770Z",
+      "finishedAt": "2026-08-26T14:31:35.474Z",
+      "output": null
+    },
+    {
+      "stepId": "kompozit",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-26T14:31:35.474Z",
+      "finishedAt": "2026-08-26T14:31:35.476Z",
+      "output": {
+        "sablonId": "veri-hikayesi",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "duzen-provasi",
+      "verb": "RENDER",
+      "status": "failed",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "veri-hikayesi",
+        "son_kullanilan": "sahne,dizin,karsilastirma",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor · mukerrer akan-alan sinamasi — on uretim setine dahil degil, varliklari karantinada · panel surdurme sinamasi — urun degil · sinama kosusu, urun degil — sablon tasima duzeltmesini dogrulamak icin baslatildi; panelde on uretim disinda satir kalmamali · ikinci sahne kosusu — sablon parametresi yazilmadan baslatildi, sistem sahne sectiveri-hikayesi yerine; gercek veri-hikayesi kosusu yerine gecti",
+        "prova": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": null,
+      "candidates": [],
+      "startedAt": "2026-08-26T14:31:35.489Z",
+      "finishedAt": "2026-08-26T14:31:47.114Z",
+      "output": null,
+      "error": {
+        "kind": "validation",
+        "code": "LAYOUT_REJECTED",
+        "message": "error.verb.layout_rejected"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "gate": "metin-onayi",
+      "decision": "approved",
+      "at": "2026-08-26T14:28:00.715Z",
+      "note": null
+    }
+  ],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": null,
+  "stoppedAt": "duzen-provasi"
+}
