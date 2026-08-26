@@ -65,6 +65,15 @@ export interface VarlikSatiri {
   readonly harcananMikros: string
   /** Yayın defterinde var mı. Defter yoksa `false` — ve `defterYok` ayrı bildirilir. */
   readonly yayinlandi: boolean
+  /**
+   * Üreten koşu hangi kapıda bekliyor — `null` ise beklemiyor.
+   *
+   * ⚠ ⚠ **VARLIK EKRANINDAN ONAY VERİLEBİLSİN DİYE.** Depo sahibi: *"varlıklar içinden
+   * de hızlıca yayın onayları vs yönetilebilmeli"*. Karar SLAYTLARA BAKARAK veriliyor
+   * ve slaytlar burada; bakılan yerle karar verilen yeri ayırmak, her onayda bir ekran
+   * değiştirmek demekti.
+   */
+  readonly bekleyenKapi: string | null
   /** Manifest kusursuz mu (D-155). Kusurluysa varlık zaten yayınlanamaz. */
   readonly manifestSaglam: boolean
   /**
@@ -251,6 +260,7 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
       lane,
       harcananMikros: harcanan.toString(),
       yayinlandi,
+      bekleyenKapi: m?.awaitingGate ?? null,
       manifestSaglam: m === null ? false : /^[0-9a-f]{40}$/.test(m.corpusCommit),
       teslimat: meta.deliverable ?? null,
     })

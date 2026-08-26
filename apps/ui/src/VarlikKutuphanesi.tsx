@@ -12,6 +12,7 @@
 import type React from 'react'
 import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 import { useCallback, useEffect, useState } from 'react'
+import { GonderiKutusu } from './GonderiKutusu.js'
 // ⚠ ⚠ **ARAMA KATLAMASI ELLE YAPILMAZ.** `toLocaleLowerCase('tr')` yazdım ve
 // `turkish-case` kapısı reddetti — haklıydı: doğru locale'i vermek yetmiyor, case
 // dönüştüren TEK yer olmak gerekiyor (R-21). İkinci bir katlayıcı, `İ`/`ı` çiftini
@@ -30,6 +31,7 @@ interface Varlik {
   /** Varlığın BAYTTAN okunan ölçüsü, `1080x1440` gibi. `null` = okunamadı. */
   readonly olcu: string | null
   readonly yayinlandi: boolean
+  readonly bekleyenKapi: string | null
   readonly manifestSaglam: boolean
 }
 
@@ -45,6 +47,8 @@ interface Grup {
   readonly createdAt: string
   readonly yayinlandi: boolean
   readonly saglam: boolean
+  /** Üreten koşunun beklediği kapı — buradan onaylanabilsin diye. */
+  readonly bekleyenKapi: string | null
   readonly varliklar: readonly Varlik[]
 }
 
@@ -81,6 +85,9 @@ export const VarlikKutuphanesi = ({
   const [siralama, setSiralama] = useState<Siralama>('yeni')
   /** Koşu → editörde düzenlenmiş slayt dosyaları. Boşsa o koşuda elle iş yok. */
   const [elleSlaytlar, setElleSlaytlar] = useState<Readonly<Record<string, string[]>>>({})
+  // ⚠ Takvim kutusu HER kartta açık dursaydı liste okunamazdı: tek seferde bir gönderi.
+  const [takvimAcik, setTakvimAcik] = useState<string | null>(null)
+  const [onayMesaj, setOnayMesaj] = useState<string | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
     const r = (await (await fetch('/api/varliklar')).json()) as {
@@ -92,6 +99,39 @@ export const VarlikKutuphanesi = ({
     setElleSlaytlar(r.elleSlaytlar ?? {})
     setKarantina(r.karantina ?? 0)
   }, [])
+
+  /**
+   * Kapıyı BURADAN geçirir — slaytlara bakarken.
+   *
+   * ⚠ ⚠ **RED GEREKÇE İSTİYOR, ONAY İSTEMİYOR** ve bu asimetri kasıtlı (§4.5): gerekçesiz
+   * bir *"hayır"* sonraki koşuya hiçbir bilgi taşımaz, sistem reddedildiğini bilir ama
+   * nedenini bilmez ve aynı öneriyi tekrar getirir.
+   * ⚠ Onay bir GİT KAYDI değil bir kapı kararıdır; hattı sürdürüyor, hiçbir şey
+   * yayınlamıyor (Yasa 2 · ⛔ yayın yok).
+   */
+  const kapiyiGec = async (runId: string, kapi: string, onay: boolean): Promise<void> => {
+    const gerekce = onay ? '' : (prompt(`${kapi} REDDEDİLİYOR. Neden? (zorunlu)`) ?? '')
+    if (!onay && gerekce.trim() === '') return
+    try {
+      const r = await fetch(
+        `/api/kuyruk/${encodeURIComponent(runId)}/${encodeURIComponent(kapi)}`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ karar: onay ? 'approved' : 'rejected', gerekce }),
+        }
+      )
+      const j = (await r.json()) as { ok?: boolean; hata?: string }
+      setOnayMesaj(
+        j.ok === true
+          ? `✓ ${kapi} ${onay ? 'onaylandı' : 'reddedildi'}`
+          : `✗ ${j.hata ?? 'yazılamadı'}`
+      )
+    } catch {
+      setOnayMesaj('✗ sunucuya ulaşılamıyor')
+    }
+    await yukle()
+  }
 
   useEffect(() => {
     void yukle()
@@ -128,6 +168,7 @@ export const VarlikKutuphanesi = ({
         // yayınlanmışsa o gönderi yayınlanmamıştır, yarım kalmıştır.
         yayinlandi: sirali.every((v) => v.yayinlandi),
         saglam: sirali.every((v) => v.manifestSaglam),
+        bekleyenKapi: ilk.bekleyenKapi,
         varliklar: sirali,
       }
     })
@@ -280,6 +321,7 @@ export const VarlikKutuphanesi = ({
       )}
 
       {mesaj === null ? null : <p className="giris-not">{mesaj}</p>}
+      {onayMesaj === null ? null : <p className="giris-not">{onayMesaj}</p>}
 
       {suzulmus.length === 0 ? (
         <p className="bos">süzgece uyan gönderi yok</p>
@@ -324,7 +366,48 @@ export const VarlikKutuphanesi = ({
                     aç →
                   </button>
                 )}
+                {/* ⚠ ⚠ **KARAR SLAYTLARIN YANINDA.** Depo sahibi: *"varlıklar içinden de
+                    hızlıca yayın onayları vs yönetilebilmeli"*. Onay kararı slaytlara
+                    BAKARAK veriliyor ve slaytlar bu kartın içinde — kararı başka bir
+                    ekrana götürmek, her onayda bir ekran değiştirmek demekti.
+                    ⚠ Red gerekçe istiyor, onay istemiyor: gerekçesiz bir "hayır"
+                    sonraki koşuya hiçbir bilgi taşımaz (§4.5). */}
+                {g.bekleyenKapi === null ? null : (
+                  <>
+                    <span className="is-uyari">⏸ {g.bekleyenKapi}</span>
+                    <button
+                      type="button"
+                      className="hizli"
+                      onClick={() => void kapiyiGec(g.runId, g.bekleyenKapi as string, true)}
+                    >
+                      ✓ onayla
+                    </button>
+                    <button
+                      type="button"
+                      className="hizli"
+                      onClick={() => void kapiyiGec(g.runId, g.bekleyenKapi as string, false)}
+                    >
+                      ✕ reddet
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  className="hizli"
+                  onClick={() => setTakvimAcik(takvimAcik === g.runId ? null : g.runId)}
+                >
+                  {takvimAcik === g.runId ? '▲ takvim' : '▼ takvim'}
+                </button>
               </div>
+              {/* ⚠ Takvim kutusu AYNI dosyadan (`GonderiKutusu.tsx`) — koşu detayı ve
+                  yayın ekranı da onu çağırıyor. Üç kopya, üç ayrı doğrulama demekti. */}
+              {takvimAcik === g.runId ? (
+                <GonderiKutusu
+                  runId={g.runId}
+                  konu={g.konu === '' ? g.runId.slice(4, 16) : g.konu}
+                  sonra={yukle}
+                />
+              ) : null}
               <div className="kosu-slaytlar">
                 {g.varliklar.map((v) => (
                   <a

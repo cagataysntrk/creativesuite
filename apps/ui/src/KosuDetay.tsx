@@ -8,6 +8,7 @@
 
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
+import { GonderiKutusu } from './GonderiKutusu.js'
 import { YayinOnizleme } from './YayinOnizleme.js'
 
 interface Icerik {
@@ -496,6 +497,17 @@ export const KosuDetay = ({
         </div>
       )}
       {mesaj === null ? null : <p className="giris-not">{mesaj}</p>}
+
+      {/* ⚠ ⚠ **TAKVİM KARARI KOŞUNUN İÇİNDE.** Depo sahibi: *"istediğim tarihe özel
+          planlama da olmalı koşu detayında; istediğim gibi istediğimi manuel de
+          paylaşabilirim platformları seçerek"*. Kutuyu takvim ekranından buraya
+          KOPYALAMADIM — `GonderiKutusu.tsx` tek kaynak ve ikisi de onu çağırıyor;
+          kopyalasaydım biri düzelir öteki unutulurdu (bu depoda iki kez ısırdı).
+          ⚠ Kutu HER durumda görünüyor, yalnız son kapıda değil: bir üretimi henüz
+          onaylamadan takvimde bir güne ayırmak meşru bir istek — ve takvim ekranı
+          onaylanmamışı zaten planlamıyor, yani karar orada bir NİYET olarak duruyor.
+          ⛔ Hiçbir düğme bir şey GÖNDERMİYOR; *"elle yayınladım"* bir kayıttır. */}
+      <GonderiKutusu runId={runId} konu={d.konu ?? runId.slice(4, 16)} />
 
       <section className="giris-blok">
         <h3>

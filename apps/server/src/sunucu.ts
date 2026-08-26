@@ -647,6 +647,17 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const hazir: { runId: string; sablon: string; hazirlanmaZamani: string; konu: string }[] = []
     const gecmis: { runId: string; sablon: string; konu: string; zaman: string }[] = []
     const kapida: { runId: string; sablon: string; konu: string; kapi: string }[] = []
+    // ⚠ ⚠ **DÖRDÜNCÜ BİR DURUM VAR ve ekran onu HİÇ göstermiyordu.** Ekran üç kutu
+    // biliyordu: yayına hazır, kapıda bekleyen, yayınlanmış. Ama bir koşu son kapısını
+    // geçip hattın ortasında DURABİLİYOR: `awaitingGate` null, `insan-onayi` yok,
+    // elenmemiş, yayınlanmamış. Öyle bir koşu dört kutunun hiçbirine girmiyor ve
+    // ekrandan sessizce düşüyordu — ölçüldü: `editoryal` üretimi tam olarak böyle
+    // kayboldu (tasarım onayı alınmış, `kompozit` adımında durmuş).
+    //
+    // ⚠ Bu, bu depoda dördüncü kez aynı sınıf: şablonsuz koşular, elenmiş koşular ve
+    // konusuz gönderiler de sessizce düşüyordu. Kural artık açık — bir koşu HİÇBİR
+    // kutuya girmiyorsa o bir kutu eksikliğidir, koşu eksikliği değil.
+    const yolda: { runId: string; sablon: string; konu: string; durdugu: string }[] = []
 
     for (const d of readdirSync(join(o.repoRoot, RUNS_DIR), { withFileTypes: true })) {
       if (!d.isDirectory()) continue
@@ -694,7 +705,11 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         continue
       }
       const g = m.awaitingGate ?? ''
-      if (g !== '') kapida.push({ runId: d.name, sablon, konu, kapi: g })
+      if (g !== '') {
+        kapida.push({ runId: d.name, sablon, konu, kapi: g })
+        continue
+      }
+      yolda.push({ runId: d.name, sablon, konu, durdugu: m.stoppedAt ?? 'bilinmiyor' })
     }
 
     // ⚠ Geçmişteki son şablonlar planın penceresine giriyor: takvimin ilk gönderisi,
@@ -759,6 +774,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       ok: true,
       hazir: hazir.length,
       elenmis,
+      yolda,
       hazirListe,
       elleGonderiler,
       cikarilan,

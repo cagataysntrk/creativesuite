@@ -23,13 +23,7 @@
 
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
-
-const PLATFORMLAR = [
-  { id: 'instagram', kisa: 'IG' },
-  { id: 'facebook', kisa: 'FB' },
-  { id: 'linkedin', kisa: 'in' },
-  { id: 'x', kisa: 'X' },
-] as const
+import { GonderiKutusu, PLATFORMLAR } from './GonderiKutusu.js'
 
 interface Gonderi {
   readonly runId: string
@@ -64,6 +58,12 @@ interface Akis {
     readonly not: string
   }[]
   readonly elleYayinlanan: readonly Gonderi[]
+  readonly yolda: readonly {
+    readonly runId: string
+    readonly sablon: string
+    readonly konu: string
+    readonly durdugu: string
+  }[]
   readonly kapida: readonly {
     readonly runId: string
     readonly sablon: string
@@ -121,114 +121,6 @@ const AY_ADI = [
   'Kasım',
   'Aralık',
 ]
-
-/**
- * Bir gönderinin CRUD kutusu — tarih, platform, çıkar, elle yayınlandı, geri al.
- *
- * ⚠ ⚠ **GEÇMİŞ DE GÖSTERİLİYOR.** *"Bu neden 12'sine alındı"* sorusunun cevabı defterde
- * duruyor ve buraya yazılmazsa kimse bakmaz. Ekleme kolay, geri alma zor: geri almanın
- * NEYİ geri aldığını görmeden basılan düğme bir tahmindir.
- */
-const GonderiKutusu = ({
-  runId,
-  konu,
-  kapat,
-  karar,
-}: {
-  readonly runId: string
-  readonly konu: string
-  readonly kapat: () => void
-  readonly karar: (
-    runId: string,
-    k: 'planla' | 'cikar' | 'elle-yayinlandi' | 'geri-al',
-    ek?: { tarih?: string; platformlar?: readonly string[]; not?: string }
-  ) => Promise<void>
-}): React.JSX.Element => {
-  const [tarih, setTarih] = useState(bugun)
-  const [secili, setSecili] = useState<readonly string[]>(PLATFORMLAR.map((p) => p.id))
-  const [gecmis, setGecmis] = useState<
-    readonly { karar: string; tarih: string; at: string; not: string }[]
-  >([])
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        const j = (await (await fetch(`/api/yayin-takvimi/${runId}`)).json()) as {
-          olaylar?: readonly { karar: string; tarih: string; at: string; not: string }[]
-        }
-        setGecmis(j.olaylar ?? [])
-      } catch {
-        setGecmis([])
-      }
-    })()
-  }, [runId])
-
-  return (
-    <section className="gonderi-kutusu">
-      <h3>
-        {konu}{' '}
-        <button type="button" onClick={kapat}>
-          ✕
-        </button>
-      </h3>
-      <div className="filtre-cubuk">
-        <label>
-          tarih <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} />
-        </label>
-        {PLATFORMLAR.map((p) => (
-          <label key={p.id}>
-            <input
-              type="checkbox"
-              checked={secili.includes(p.id)}
-              onChange={(e) =>
-                setSecili(e.target.checked ? [...secili, p.id] : secili.filter((x) => x !== p.id))
-              }
-            />{' '}
-            {p.kisa}
-          </label>
-        ))}
-      </div>
-      <div className="kapi-dugmeler">
-        <button
-          type="button"
-          onClick={() => void karar(runId, 'planla', { tarih, platformlar: secili })}
-        >
-          ✓ bu tarihe planla
-        </button>
-        <button
-          type="button"
-          onClick={() => void karar(runId, 'elle-yayinlandi', { tarih, platformlar: secili })}
-        >
-          ⇪ elle yayınladım
-        </button>
-        <button
-          type="button"
-          onClick={() => void karar(runId, 'cikar', { not: 'takvimden çıkarıldı' })}
-        >
-          ⌫ takvimden çıkar
-        </button>
-        <button type="button" onClick={() => void karar(runId, 'geri-al')}>
-          ↺ kararı geri al
-        </button>
-        <a href={`#/kosu/${runId}`}>↗ koşuyu aç</a>
-      </div>
-      {gecmis.length === 0 ? (
-        <p className="bos">bu gönderi için elle karar yok — otomatik takvimde.</p>
-      ) : (
-        <ul className="akis-gonderiler">
-          {gecmis.map((o, i) => (
-            <li key={`${o.at}-${String(i)}`}>
-              <span className="olcum">{o.at.slice(0, 16).replace('T', ' ')}</span>
-              <strong>{o.karar}</strong>
-              <span className="olcum">{o.tarih}</span>
-              <span>{o.not}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  )
-}
 
 /**
  * Bir GÜNÜN kutusu — o tarihe hangi üretim konacak.
@@ -423,6 +315,9 @@ export const YayinAkisi = (): React.JSX.Element => {
         {veri.sablonsuz === 0 ? '' : ` · ${String(veri.sablonsuz)} onaylı koşu şablonsuz`}
         {/* ⚠ Elenen SAYILIYOR: gizlenen bir şeyin sayısı görünmezse "3 hazır" diyen
             bir başlık, elenmiş on üç üretimi yok sayar. */}
+        {(veri.yolda ?? []).length === 0
+          ? ''
+          : ` · ${String((veri.yolda ?? []).length)} hattın ortasında`}
         {veri.elenmis === 0 ? '' : ` · ${String(veri.elenmis)} elenmiş gizli`}
       </p>
       {mesaj === null ? null : <p className="olcum">{mesaj}</p>}
@@ -513,7 +408,7 @@ export const YayinAkisi = (): React.JSX.Element => {
       )}
 
       {acik === null ? null : (
-        <GonderiKutusu runId={acik} konu={konuAl(acik)} kapat={() => setAcik(null)} karar={karar} />
+        <GonderiKutusu runId={acik} konu={konuAl(acik)} kapat={() => setAcik(null)} sonra={yukle} />
       )}
 
       {veri.cikarilan.length === 0 ? null : (
@@ -528,6 +423,24 @@ export const YayinAkisi = (): React.JSX.Element => {
                 <button type="button" onClick={() => void karar(x.runId, 'geri-al')}>
                   ↺ geri al
                 </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ⚠ ⚠ **HATTIN ORTASINDA DURANLAR.** Ne kapıda ne hazır: son kapısını geçmiş
+          ama bir adımda durmuş koşular. Bunlar hiçbir kutuya girmiyordu ve ekrandan
+          sessizce düşüyorlardı — `editoryal` üretimi tam olarak böyle kayboldu. */}
+      {(veri.yolda ?? []).length === 0 ? null : (
+        <section className="akis-hafta">
+          <h3>hattın ortasında duran</h3>
+          <ul className="akis-gonderiler">
+            {(veri.yolda ?? []).map((y) => (
+              <li key={y.runId}>
+                <span className="olcum">durdu: {y.durdugu}</span>
+                <strong>{y.sablon}</strong>
+                <a href={`#/kosu/${y.runId}`}>{y.konu === '' ? y.runId.slice(4, 16) : y.konu}</a>
               </li>
             ))}
           </ul>
