@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-26T04:23:14.410Z",
+  "komut": "just uret instagram-carousel --devam run_01a00656-0e81-7c07-9714-5cc8909606a4",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "  ✗ 'instagram-carousel' EMEKLİ bir hat ve KOŞTURULMUYOR.\n    Yerine: 'instagram-karosel'\n    Yasa 10: dosya silinmedi, id çözülüyor, geçmiş koşular okunuyor —\n    yalnız YENİ İŞ başlatmıyor. Çıktısı güncel tasarım değildi.\nerror: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": ""
+}

@@ -1,0 +1,241 @@
+{
+  "runId": "run_01a03c4b-a8c9-734a-9506-af0ed853f364",
+  "brandId": "brd_upcytech",
+  "eraId": "imalat-2026",
+  "pipeline": "instagram-karosel",
+  "corpusCommit": "c203f7e9b2485e5411cdc63a6b5c5a19b2e97983",
+  "registryCommit": "c203f7e9b2485e5411cdc63a6b5c5a19b2e97983",
+  "createdAt": "2026-08-26T04:21:00.544Z",
+  "steps": [
+    {
+      "stepId": "cozumle",
+      "verb": "RESOLVE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "dizin,veri-hikayesi,akan-alan",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-26T04:19:47.436Z",
+      "finishedAt": "2026-08-26T04:19:47.436Z",
+      "output": {
+        "brandId": "brd_upcytech"
+      }
+    },
+    {
+      "stepId": "konu-sec",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "dizin,veri-hikayesi,akan-alan",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor",
+        "konu_sec": true,
+        "max_chars": 400
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T04:19:47.437Z",
+      "finishedAt": "2026-08-26T04:19:47.446Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "bilgi-sec",
+      "verb": "SELECT",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "dizin,veri-hikayesi,akan-alan",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-26T04:19:47.446Z",
+      "finishedAt": "2026-08-26T04:19:47.448Z",
+      "output": null
+    },
+    {
+      "stepId": "metin-uret",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "son_kullanilan": "dizin,veri-hikayesi,akan-alan",
+        "topic": "geri kazanım hattında fire oranının altı yıllık seyri",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor",
+        "locale": "tr-TR",
+        "max_chars": 2200
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-26T04:19:47.448Z",
+      "finishedAt": "2026-08-26T04:21:00.543Z",
+      "output": {
+        "lines": [
+          "Yılların **fire seyri** nerede yazılı?",
+          "Geçen yılın firesiyle bu yılınkini gerçekten karşılaştırabiliyor musun, yoksa **vardiya amirinin** hafızasına mı güveniyorsun?",
+          "Geçmiş yıllardaki **fire kaydı** bugün hâlâ okunabilir, tutarlı bir dosyada mı duruyor, yoksa kapanmış vardiya defterlerinin içinde mi kayboldu?",
+          "Her yılın tablosu farklı biçimde tutuluyor, **sütun başlıkları** değişiyor ve aynı şeyi ölçüp ölçmedikleri hiçbir zaman netleşmiyor.",
+          "Seyri hafızadan çıkarıp **bir kayda** taşımak artık mümkün, değil mi?",
+          "Hattınızın **fire seyrini** bize gösterin, birlikte inceleyelim.",
+          "KARŞILAŞTIRMA: Fire seyrini izleme",
+          "ÖNCE: Kayıt dağınık",
+          "- Vardiya defterinde kalıyor",
+          "- Yıllar arası karşılaştırılamıyor",
+          "- Kök neden hafızada kalıyor",
+          "SONRA: Kayıt kurulu",
+          "- Her vardiya aynı yere düşüyor",
+          "- Yıllar birbirine bağlanabiliyor",
+          "- Seyir bir bakışta görülüyor"
+        ]
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "gate": "metin-onayi",
+      "decision": "approved",
+      "at": "2026-08-26T04:21:27.405Z",
+      "note": null
+    }
+  ],
+  "context": [
+    {
+      "recordId": "rec_pos_veri_karar_2026",
+      "section": "konum",
+      "tokens": 590,
+      "reason": "konum bölümü · positioning · sıra 1/2"
+    },
+    {
+      "recordId": "rec_msg_veri_karar_2026",
+      "section": "mesaj",
+      "tokens": 465,
+      "reason": "mesaj bölümü · messaging · sıra 1/2"
+    },
+    {
+      "recordId": "rec_persona_uretim_muduru",
+      "section": "persona",
+      "tokens": 363,
+      "reason": "persona bölümü · persona · sıra 1/2"
+    },
+    {
+      "recordId": "rec_proof_upcyman",
+      "section": "kanit",
+      "tokens": 338,
+      "reason": "kanit bölümü · proof_asset · sıra 1/3"
+    }
+  ],
+  "contextRetentionDays": 90,
+  "awaitingGate": "metin-onayi",
+  "stoppedAt": "sablon-uyarla"
+}

@@ -200,7 +200,14 @@
       }
     }
   ],
-  "decisions": [],
+  "decisions": [
+    {
+      "gate": "metin-onayi",
+      "decision": "rejected",
+      "at": "2026-08-26T04:18:29.509Z",
+      "note": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor"
+    }
+  ],
   "context": [
     {
       "recordId": "rec_pos_veri_karar_2026",

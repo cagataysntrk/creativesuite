@@ -1122,6 +1122,12 @@
       "decision": "approved",
       "at": "2026-08-25T22:07:27.296Z",
       "note": null
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "rejected",
+      "at": "2026-08-26T04:18:29.548Z",
+      "note": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor"
     }
   ],
   "context": [
