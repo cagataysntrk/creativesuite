@@ -155,6 +155,18 @@ export {
   type YayinSaatiOnerisi,
 } from './plan/yayin-saati.js'
 export { yayinAniOku, yayinAniYaz, yayinAniYolu, type YayinAniKaydi } from './yayin-ani.js'
+// Yayın metni: istem ve çözümleme. Panel TEK PLATFORMLUK istem üretebilsin diye dışa
+// açıldı — bir platformun metni eksik ya da kötüyse yalnız onu yeniden istemek gerekiyor
+// ve dört metni yeniden üretmek üç iyi metni de riske atardı.
+export {
+  kusuruYaz,
+  yayinMetniCozumle,
+  yayinMetniIstemi,
+  type MetinKusuru,
+  type YayinMetinleri,
+  type YayinMetniGirdisi,
+  type YayinMetniSonucu,
+} from './plan/yayin-metni.js'
 export {
   kosuParametreleri,
   kacinilacakGerekceler,

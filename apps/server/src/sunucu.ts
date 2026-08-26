@@ -21,7 +21,7 @@ import {
   renameSync,
   writeFileSync,
 } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import {
@@ -35,13 +35,13 @@ import {
   type SelectQuery,
 } from '@suite/corpus'
 import { RUNS_DIR, discoveryPlanPath, fileHistory } from '@suite/kernel'
-import { KATALOG, MUZIK_KURALI, PLATFORMLAR } from '@suite/contracts'
+import { KATALOG, MUZIK_KURALI, PLATFORMLAR, platformDenetle } from '@suite/contracts'
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
 // ⚠ Takvim defteri: insanin elle verdigi kararlar burada yasiyor (UX-6).
 import { gecerliKararlar, takvimOlaylari, takvimeYaz } from './yayin-takvimi.js'
 // ⚠ Takvim kuralı `@suite/engine`de: çeşitlilik ve denge orada ÖLÇÜLDÜ.
-import { yayinPlaniKur } from '@suite/engine'
+import { kusuruYaz, yayinMetniIstemi, yayinPlaniKur } from '@suite/engine'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
 import {
   COLUMN_LABELS,
@@ -1161,6 +1161,134 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   //
   // ⚠ Adım çıktısı defteri, tekrar oynatmanın da kaynağı: düzenleme buraya yazılınca
   // `sablon-uyarla` ve sonrası düzenlenmiş metni görüyor — ayrı bir yol açmaya gerek yok.
+  // ── PLATFORM BAŞINA YAYIN METNİ (FAZ-19.13 · UX-10) ──────────────────────
+  //
+  // ⚠ ⚠ **DÖRT METİN TEK ÇAĞRIDA ÜRETİLİYOR — ve bu doğru.** Aynı gönderinin dört sesi
+  // olmasın diye tek bağlam, tek çağrı. Ama depo sahibi haklı bir boşluğa bastı:
+  // *"gönderi metni üretilmemişse her platform için ayrı ayrı üretilebilir olsun"*.
+  // Biri eksik ya da kötüyse dördünü birden yeniden üretmek, üç iyi metni de riske
+  // atmak demek.
+  //
+  // ⚠ ⚠ **SUNUCU MODEL ÇAĞIRMIYOR ve bu bilinçli.** Sağlayıcıya giden tek yol çekirdek
+  // üzerinden CLI; ikinci bir yol açmak, hangi çağrının ne harcadığını iki ayrı yerde
+  // anlatmak olurdu — `chokepoints.json`un tam yasakladığı şey. Bu uç iki şey veriyor:
+  // (a) her platformun DURUMU — metin var mı, sınırı aşıyor mu, kanca katlanmanın
+  // önünde mi; (b) o platform İÇİN TEK BAŞINA istem, insan istediği modelde üretip
+  // yapıştırsın diye. Üçüncüsü aşağıdaki yazma ucu.
+  app.get('/api/kosu/:runId/yayin-metinleri', (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const dizin = join(o.repoRoot, RUNS_DIR, runId)
+    const oku = (ad: string): Record<string, unknown> | null => {
+      const y = join(dizin, 'steps', ad)
+      if (!existsSync(y)) return null
+      try {
+        return JSON.parse(readFileSync(y, 'utf8')) as Record<string, unknown>
+      } catch {
+        return null
+      }
+    }
+    const adim = oku('yayin-metni.json')
+    const metinler = (adim?.['yayinMetinleri'] ?? {}) as Record<string, string>
+    const kartAdimi = oku('metin-uret.json')
+    const satirlar = Array.isArray(kartAdimi?.['lines']) ? (kartAdimi['lines'] as string[]) : []
+    const kimlik = kosuSablonu(o.repoRoot, runId)
+    const slaytSayisi = kutuphane(o.repoRoot).varliklar.filter(
+      (v) => v.sourceRunId === runId
+    ).length
+    const girdi = {
+      konu: kimlik.konu ?? '',
+      kartMetni: satirlar.join('\n'),
+      slaytSayisi,
+    }
+    return c.json({
+      ok: true,
+      runId,
+      konu: kimlik.konu,
+      // ⚠ Kart metni YOKSA istem üretilemez ve bunu SÖYLÜYORUZ: konusuz bir istemle
+      // model yine bir şey yazar, ama karoselle ilgisi olmayan bir şey yazar.
+      kartMetniVar: satirlar.length > 0,
+      platformlar: PLATFORMLAR.map((p) => {
+        const m = (metinler[p.id] ?? '').trim()
+        return {
+          id: p.id,
+          ad: p.ad,
+          metin: m,
+          uzunluk: [...m].length,
+          tavan: p.metinTavani,
+          katlanmaOncesi: p.katlanmaOncesi,
+          // ⚠ Kusur ve uyarı AYRI: tavan aşımı yayını REDDETTİRİR, katlanma noktasını
+          // aşmak yalnız kancanın "devamı" arkasında kalması demek.
+          kusurlar:
+            m === '' ? [] : platformDenetle(m, slaytSayisi, p).map((k) => kusuruYaz(k, p.ad)),
+          // ⚠ TEK PLATFORMLUK istem: dört metni yeniden üretmeden birini yenilemek için.
+          istem: satirlar.length === 0 ? null : yayinMetniIstemi({ ...girdi, platformlar: [p.id] }),
+        }
+      }),
+    })
+  })
+
+  // ⚠ ⚠ **YAZMA DA PLATFORM BAŞINA — ve ÖNCEKİ HÂL DURUYOR.** `metin-uret` düzenlemesi
+  // (`oncekiSatirlar`) ile aynı desen: kanıt silinmiyor, ekleniyor. Farklı desen yazmak
+  // aynı soruyu iki yerde iki türlü cevaplamak olurdu.
+  // ⚠ Doğrulama BURADA: 281 karakterlik bir X metnini yayın anında öğrenmek, dört görsel
+  // ve bir insan onayı harcandıktan sonra öğrenmektir.
+  app.post('/api/kosu/:runId/yayin-metni', async (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const g = (await c.req.json().catch(() => ({}))) as { platform?: string; metin?: string }
+    const p = PLATFORMLAR.find((x) => x.id === g.platform)
+    if (p === undefined)
+      return c.json({ ok: false, hata: `bilinmeyen platform: ${String(g.platform)}` }, 400)
+    const metin = String(g.metin ?? '').trim()
+    if (metin === '') return c.json({ ok: false, hata: 'metin boş' }, 400)
+
+    const slaytSayisi = kutuphane(o.repoRoot).varliklar.filter(
+      (v) => v.sourceRunId === runId
+    ).length
+    const kusurlar = platformDenetle(metin, slaytSayisi, p)
+    // ⚠ ⚠ **ENGELLEYEN kusur yazmayı DURDURUYOR, uyarı durdurmuyor.** Tavanı aşan bir
+    // metni deftere yazmak, yayın anında reddedilecek bir şeyi "hazır" saymak olurdu.
+    const engel = kusurlar.filter((k) => k.tur !== 'kanca-katlanmanin-otesinde')
+    if (engel.length > 0)
+      return c.json({ ok: false, hata: engel.map((k) => kusuruYaz(k, p.ad)).join(' · ') }, 400)
+
+    const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps', 'yayin-metni.json')
+    try {
+      const eski = existsSync(yol)
+        ? (JSON.parse(readFileSync(yol, 'utf8')) as Record<string, unknown>)
+        : {}
+      const mevcut = (eski['yayinMetinleri'] ?? {}) as Record<string, string>
+      if ((mevcut[p.id] ?? '') === metin) return c.json({ ok: true, degisti: false })
+      const onceki = (eski['oncekiMetinler'] ?? {}) as Record<string, string[]>
+      mkdirSync(dirname(yol), { recursive: true })
+      writeFileSync(
+        yol,
+        JSON.stringify({
+          ...eski,
+          yayinMetinleri: { ...mevcut, [p.id]: metin },
+          elleDuzenlendi: true,
+          oncekiMetinler: {
+            ...onceki,
+            [p.id]: [
+              ...(onceki[p.id] ?? []),
+              ...(mevcut[p.id] === undefined ? [] : [mevcut[p.id]]),
+            ],
+          },
+        }),
+        'utf8'
+      )
+      yayinla('degisim')
+      return c.json({
+        ok: true,
+        degisti: true,
+        uyarilar: kusurlar.map((k) => kusuruYaz(k, p.ad)),
+      })
+    } catch (e) {
+      return c.json({ ok: false, hata: `yazılamadı: ${String(e)}` }, 500)
+    }
+  })
+
   app.post('/api/kosu/:runId/metin', async (c) => {
     const runId = c.req.param('runId')
     if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'gecersiz run' }, 400)

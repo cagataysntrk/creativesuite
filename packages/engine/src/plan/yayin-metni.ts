@@ -21,7 +21,13 @@
 // ⚠ Yasa 8 burada da geçerli: kaynaksız sayısal iddia yayınlanamaz. Açıklama metni
 // karoselde olmayan bir sayıyı ORTAYA ATAMAZ.
 
-import { PLATFORMLAR, platformBul, platformDenetle, type PlatformId } from '@suite/contracts'
+import {
+  PLATFORMLAR,
+  platformBul,
+  platformDenetle,
+  type PlatformId,
+  type PlatformKusuru,
+} from '@suite/contracts'
 
 export interface YayinMetniGirdisi {
   readonly konu: string
@@ -69,6 +75,23 @@ export const yayinMetniIstemi = (g: YayinMetniGirdisi): string | null => {
     '{' + secili.map((p) => `"${p.id}": "<metin>"`).join(', ') + '}',
   ].join('\n')
 }
+
+/**
+ * Bir kusuru insan cümlesine çevirir.
+ *
+ * ⚠ ⚠ **DIŞA AÇILDI ÇÜNKÜ İKİNCİ BİR OKUYUCU DOĞDU.** Panel platform başına metin
+ * durumunu gösteriyor ve aynı cümleleri orada yeniden yazmak, bu depoda üç kez ısırmış
+ * sınıf: iki yazıcı, aynı kusuru iki farklı şekilde anlatır ve biri düzeltilince öteki
+ * unutulur. `tur` alanı veridir, cümle SUNUMDUR — ve sunum tek yerde.
+ */
+export const kusuruYaz = (k: PlatformKusuru, adi: string): string =>
+  k.tur === 'metin-tavani-asildi'
+    ? `${adi}: metin ${String(k.uzunluk)} karakter, tavan ${String(k.tavan)}`
+    : k.tur === 'karosel-tavani-asildi'
+      ? `${adi}: ${String(k.slayt)} slayt, tavan ${String(k.tavan)}`
+      : k.tur === 'metin-bos'
+        ? `${adi}: metin boş`
+        : `${adi}: kanca ilk ~${String(k.katlanmaOncesi)} karakteri aşıyor`
 
 export type YayinMetinleri = Partial<Record<PlatformId, string>>
 
@@ -137,14 +160,7 @@ export const yayinMetniCozumle = (ham: string, g: YayinMetniGirdisi): YayinMetni
     }
     metinler[id] = m.trim()
     for (const k of platformDenetle(m, g.slaytSayisi, p)) {
-      const satir =
-        k.tur === 'metin-tavani-asildi'
-          ? `${p.ad}: metin ${String(k.uzunluk)} karakter, tavan ${String(k.tavan)}`
-          : k.tur === 'karosel-tavani-asildi'
-            ? `${p.ad}: ${String(k.slayt)} slayt, tavan ${String(k.tavan)}`
-            : k.tur === 'metin-bos'
-              ? `${p.ad}: metin boş`
-              : `${p.ad}: kanca ilk ~${String(k.katlanmaOncesi)} karakteri aşıyor`
+      const satir = kusuruYaz(k, p.ad)
       if (k.tur === 'kanca-katlanmanin-otesinde') uyarilar.push({ platform: id, aciklama: satir })
       else kusurlar.push({ platform: id, aciklama: satir })
     }

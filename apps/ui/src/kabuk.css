@@ -1365,3 +1365,26 @@ tr[data-tiklanir] {
   gap: 8px;
   white-space: nowrap;
 }
+
+/* ── PLATFORM BAŞINA YAYIN METNİ (FAZ-19.13 · UX-10) ────────────────────────
+   ⚠ Dört platform ALT ALTA ve her biri kendi kutusunda: yan yana koymak dört metni
+   dört sütuna sıkıştırır ve hiçbiri okunmaz — metin okunmak için var. */
+.metin-platformlari {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.metin-platformlari > li {
+  border: 1px solid var(--role-line-hair);
+  border-radius: 8px;
+  padding: 8px;
+}
+.metin-platform-basi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}

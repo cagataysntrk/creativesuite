@@ -9,6 +9,7 @@
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { GonderiKutusu } from './GonderiKutusu.js'
+import { YayinMetinleri } from './YayinMetinleri.js'
 import { YayinOnizleme } from './YayinOnizleme.js'
 
 interface Icerik {
@@ -508,6 +509,8 @@ export const KosuDetay = ({
           onaylanmamışı zaten planlamıyor, yani karar orada bir NİYET olarak duruyor.
           ⛔ Hiçbir düğme bir şey GÖNDERMİYOR; *"elle yayınladım"* bir kayıttır. */}
       <GonderiKutusu runId={runId} konu={d.konu ?? runId.slice(4, 16)} />
+
+      <YayinMetinleri runId={runId} />
 
       <section className="giris-blok">
         <h3>
