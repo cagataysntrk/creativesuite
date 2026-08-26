@@ -150,6 +150,32 @@ export interface PanoramaGorseli {
   readonly genislik: number
   readonly yukseklik: number
   readonly kirpma: 'kesik' | 'daire' | 'tam'
+  /**
+   * Katman (0–9). Verilmezse CSS varsayılanı 4.
+   *
+   * ⚠ ⚠ **ALAN TİPTE YOKTU ve `(g as { z?: number }).z` diye CAST'LE okunuyordu.**
+   * Editör onu yazıyor, panorama okuyor, arada hiçbir sözleşme yok — yani alanın adı
+   * bir yerde değişse derleyici susardı. Bu depoda beyanla gerçeğin ayrışması dört kez
+   * bedel ödetti; `z` beşincisi olmadan tipe alındı.
+   */
+  readonly z?: number
+  /**
+   * Dönüş — **yatay** (`donusY`), **dikey** (`donusX`) ve **düzlem içi** (`donusZ`), derece.
+   *
+   * ⚠ ⚠ **DÜZ BİR PNG DÖNDÜRÜLÜNCE GİZLİ YÜZÜ GÖRÜNMEZ ve bunu söylemek ZORUNDAYIM.**
+   * Depo sahibi *"3B ögeler 360 derece dikey ve yatay döndürülebilsin"* dedi. Yuvadaki
+   * varlık bir 3B model değil, tek açıdan render edilmiş DÜZ bir görüntü. `rotateX` ve
+   * `rotateY` perspektif eğimi verir — nesne yatar, yan döner, uzaklaşan kenarı
+   * küçülür — ve yerleştirmede gerçekten işe yarar. Ama nesnenin arkası YOKTUR:
+   * 90°'ye yaklaştıkça görüntü bir kâğıt gibi incelir ve 90°'de kaybolur.
+   * ⚠ Gerçek 360° için nesnenin N açıdan ÜRETİLMESİ gerekir (aynı istem, dönen kadraj)
+   * ve o ayrı bir iştir — bu alan onu ikame etmiyor, ikame ettiğini de söylemiyor.
+   * ⚠ Aralık ±180 ile sınırlı: 360 ile 0 aynı görüntü, ikisini birden sunmak
+   * kaydırağın yarısını ölü bölgeye çevirirdi.
+   */
+  readonly donusX?: number
+  readonly donusY?: number
+  readonly donusZ?: number
 }
 
 /** Bir kartın veri paneli — slayda özgü görsel biçim. */
@@ -1964,17 +1990,37 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
   // UZANAMAZDI — kesintisizliğin taşıyıcısı tam olarak o uzanma.
   // ⚠ `src` boşsa yer tutucu: görsel sağlayıcısı yokken kompozisyon yine görülebilir
   // olmalı, yoksa eksik bir tasarım tam sanılır.
+  /** Dereceyi ±180'e kırpar — 360 ile 0 aynı görüntü, ötesi ölü bölge. */
+  const sinirla = (d: number): number => Math.max(-180, Math.min(180, d))
+
   const gorseller = doc.gorseller
     .map((g) => {
       // ⚠ ⚠ **KATMAN GÖRSELDE DE AYARLANABİLİR.** Metin görsellerin üstüne alındı
       // (D-304) çünkü altta kalınca okunmuyordu; ama referans tasarımlarda bir figürün
       // kolu bazen başlığın ÖNÜNDEN geçer. Sabit bir sıra o kararı elden alıyordu.
       // Varsayılan yine 4 (CSS'te); `z` verilmişse o kazanıyor.
-      const kat = (g as { readonly z?: number }).z
+      const kat = g.z
+      const enPx = (g.genislik / 100) * toplam
+      // ⚠ ⚠ **PERSPEKTİF ÖGENİN GENİŞLİĞİNDEN TÜREİYOR, sabit DEĞİL.** Sabit bir
+      // `perspective` değeri `memphis`in 74 px'lik şeridinde nesneyi katlar,
+      // `sahne`nin 216 px'lik yuvasında hiç eğmez — aynı derece iki yuvada iki farklı
+      // şey yapardı. Genişliğin 2,5 katı doğal bir bakış mesafesi veriyor ve oran
+      // korunduğu için 10 derece her yuvada 10 derece gibi görünüyor.
+      const donus = [
+        g.donusX === undefined ? '' : `rotateX(${sinirla(g.donusX)}deg)`,
+        g.donusY === undefined ? '' : `rotateY(${sinirla(g.donusY)}deg)`,
+        g.donusZ === undefined ? '' : `rotateZ(${sinirla(g.donusZ)}deg)`,
+      ]
+        .filter((x) => x !== '')
+        .join(' ')
       const stil =
         `left:${(g.x / 100) * toplam}px;top:${g.y}%;` +
-        `width:${(g.genislik / 100) * toplam}px;height:${g.yukseklik}%` +
-        (kat === undefined ? '' : `;z-index:${Math.min(9, Math.max(0, kat))}`)
+        `width:${String(enPx)}px;height:${g.yukseklik}%` +
+        (kat === undefined ? '' : `;z-index:${Math.min(9, Math.max(0, kat))}`) +
+        // ⚠ Dönüş YOKSA `transform` hiç yazılmıyor: boş bir `transform` bile ögeyi
+        // kendi yığın bağlamına sokar ve `z-index` davranışını sessizce değiştirir.
+        // Var olan on destede tek bir piksel bile kaymamalı.
+        (donus === '' ? '' : `;transform:perspective(${String(Math.round(enPx * 2.5))}px) ${donus}`)
       if (g.src === '')
         return (
           `<div class="gorsel-yer ${g.kirpma}" style="${stil}" aria-hidden="true">` +

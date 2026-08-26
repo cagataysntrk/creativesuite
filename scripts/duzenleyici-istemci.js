@@ -373,6 +373,30 @@ function mufettisiKur(doc) {
         yazG('z', v)
       )
     )
+    // ── DÖNÜŞ (madde 2) ────────────────────────────────────────────────────
+    //
+    // ⚠ ⚠ **DÜZ BİR PNG DÖNDÜRÜLÜNCE GİZLİ YÜZÜ GÖRÜNMEZ.** Depo sahibi *"3B ögeler
+    // 360 derece dikey ve yatay döndürülebilsin"* dedi; yuvadaki varlık bir 3B model
+    // değil, tek açıdan render edilmiş düz bir görüntü. Bu kaydıraklar perspektif
+    // eğimi veriyor — nesne yatar, yan döner, uzaklaşan kenarı küçülür — ve
+    // yerleştirmede gerçekten işe yarıyor. Ama 90°'ye yaklaştıkça görüntü bir kâğıt
+    // gibi incelir. Gerçek 360° için nesnenin N açıdan ÜRETİLMESİ gerekir.
+    // ⚠ Etiketler bunu SÖYLÜYOR: "yatay çevir" ve "dikey yatır", "döndür" değil.
+    // Adı 360° olan bir kaydırak, olmadığı şeyi vaat ederdi.
+    for (const a of [
+      { ad: 'donusY', etiket: 'yatay çevir (°)' },
+      { ad: 'donusX', etiket: 'dikey yatır (°)' },
+      { ad: 'donusZ', etiket: 'düzlemde döndür (°)' },
+    ]) {
+      kok.appendChild(
+        kaydirak(g[a.ad] ?? 0, { etiket: a.etiket, min: -180, max: 180, adim: 1 }, (v) =>
+          // ⚠ Sıfır SİLİNİYOR, yazılmıyor: nötr bir değeri belgeye basmak katalog
+          // taslağını gereksiz alanla şişirir ve `transform` yokken de öge kendi
+          // yığın bağlamına girer. Aynı kural `ayar`da da uygulanıyor.
+          yazG(a.ad, v === 0 ? undefined : v)
+        )
+      )
+    }
     kok.appendChild(
       secim('kırpma', g.kirpma ?? '', ['', 'kesik', 'daire'], (v) => yazG('kirpma', v))
     )

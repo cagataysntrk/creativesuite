@@ -746,7 +746,18 @@ const sunucu = createServer(async (req, res) => {
         }
       } else if (d.tur === 'gorsel-alan') {
         const g = calisan[id].gorseller[d.i]
-        if (g) calisan[id].gorseller[d.i] = { ...g, [d.alan]: d.deger }
+        if (g) {
+          // ⚠ ⚠ **NÖTR DEĞER SİLİNİYOR, `undefined` YAZILMIYOR — aynı ders `kart-alan`da
+          // zaten öğrenilmişti.** `{ ...g, donusY: undefined }` anahtarı VAR ama değeri
+          // yok bir nesne üretiyor; JSON'a yazılırken düşüyor ama bellekteki nesne
+          // "alanı olan" bir görsel gibi davranıyor. Dönüş sıfırken `transform` hiç
+          // yazılmamalı: boş bir `transform` bile ögeyi kendi yığın bağlamına sokar ve
+          // `z-index` davranışını sessizce değiştirir.
+          const yeni = { ...g }
+          if (d.deger === undefined || d.deger === null) delete yeni[d.alan]
+          else yeni[d.alan] = d.deger
+          calisan[id].gorseller[d.i] = yeni
+        }
       } else if (d.tur === 'bant-tip') {
         // ⚠ ⚠ **SÜS KAPATILABİLİR.** `sus-metni-kesiyor` ölçülüyor ama metinle
         // düzelmiyor (borç D23); insanın elindeki tek gerçek çare süsü kaldırmak.
