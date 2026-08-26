@@ -8,6 +8,20 @@
 // hissettirir; oysa aralık onu zaten söylüyordu (§8.3).
 
 import { useCallback, useEffect, useState } from 'react'
+
+/**
+ * Yayın platformları — panelde gösterilen liste.
+ *
+ * ⚠ Sunucudaki `PLATFORMLAR`dan TÜREİLMİYOR ve bu bilinçli: `apps/ui` tarayıcı katmanı,
+ * `@suite/contracts`e uzanmak `rings` kapısına takılıyor. `yayin-platformlari` kapısı
+ * iki listenin AYNI kaldığını zorluyor.
+ */
+const PLATFORM_SECENEKLERI = [
+  { id: 'instagram', ad: 'Instagram' },
+  { id: 'facebook', ad: 'Facebook' },
+  { id: 'linkedin', ad: 'LinkedIn' },
+  { id: 'x', ad: 'X' },
+] as const
 import { usdBicimle } from './baglanti.js'
 
 interface FrozenStep {
@@ -83,6 +97,9 @@ export const RunLauncher = ({
   // ⚠ Varsayılan `firma` — bugünkü davranış. Yeni bir seçenek eklemek, var olan
   // davranışı sessizce değiştirmemeli.
   const [icerikKipi, setIcerikKipi] = useState('firma')
+  // ⚠ Varsayılan yalnız `instagram` — bugünkü davranış. Dört platforma birden
+  // göndermek insanın AÇIK kararı olmalı, bir varsayılanın yan etkisi değil.
+  const [platformlar, setPlatformlar] = useState<readonly string[]>(['instagram'])
   const [sablonlar, setSablonlar] = useState<
     readonly { id: string; ad: string; kullanilabilir: boolean }[]
   >([])
@@ -183,6 +200,7 @@ export const RunLauncher = ({
             konuyuSistemSecsin: sistemSecsin && konuSecebilir,
             sablon,
             icerikKipi,
+            platformlar,
             planDigest: digest,
           }),
         })
@@ -208,7 +226,7 @@ export const RunLauncher = ({
     // ⚠ `konuSecebilir` de aynı listede yoktu: hat değişince konu-seçebilirliği
     // değişiyor ama işleyici eski cevabı taşıyordu.
     // ⚠ `icerikKipi` de BURADA: yukarıdaki ders bir kez ödendi, ikincisi olmasın.
-    [hat, konu, sablon, icerikKipi, sistemSecsin, konuSecebilir, baslayinca]
+    [hat, konu, sablon, icerikKipi, platformlar, sistemSecsin, konuSecebilir, baslayinca]
   )
 
   if (sonuc === null) return <p>plan kuruluyor…</p>
@@ -344,6 +362,32 @@ export const RunLauncher = ({
       {/* ⚠ Şablon seçimi OPSİYONEL: boş bırakılırsa hat kendi seçer (ritim ölçümü +
           son kullanılanlardan kaçınma). Zorunlu kılmak, insanı her koşuda katalog
           bilgisine mahkûm ederdi; hiç sunmamak ise var olan bir yeteneği gizliyordu. */}
+      {/* ⚠ ⚠ **PLATFORM ÇOKLU SEÇİLİYOR.** Depo sahibi: *"üretilen insta karosel bile
+          olsa yayın adımına gelince hangi platformlarda yayınlanmak istendiği
+          seçilebilsin"*. Her platformun metni AYRI üretiliyor (`yayin-metni` adımı) ve
+          her biri kendi sınırına karşı doğrulanıyor.
+          ⚠ Onay kutusu, açılır liste DEĞİL: `select multiple`da kaç şeyin seçili olduğu
+          tek bakışta görünmüyor ve yanlışlıkla tek seçime düşürmek bir tıklama.
+          ⛔ Seçim yalnız HAZIRLIK — gönderim insan onayından sonra ve bugün hiç
+          yapılmıyor. */}
+      <fieldset className="giris-alan">
+        <legend>yayın platformları</legend>
+        {PLATFORM_SECENEKLERI.map((p) => (
+          <label key={p.id} style={{ marginInlineEnd: '12px' }}>
+            <input
+              type="checkbox"
+              checked={platformlar.includes(p.id)}
+              onChange={(e) =>
+                setPlatformlar(
+                  e.target.checked ? [...platformlar, p.id] : platformlar.filter((x) => x !== p.id)
+                )
+              }
+            />{' '}
+            {p.ad}
+          </label>
+        ))}
+      </fieldset>
+
       {/* ⚠ ⚠ **İÇERİK KİPİ: üretilenin NEREDEN geldiği.** Depo sahibi iki seçenek
           istedi — firma içeriği (ürün/firma tanıtımı) ve genel içerik. Genel kipin
           kapsamı KASTEN geniş ve kapalı bir liste değil; tarif istemde yaşıyor

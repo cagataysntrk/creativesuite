@@ -1609,6 +1609,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       konuyuSistemSecsin?: boolean
       sablon?: string
       icerikKipi?: string
+      platformlar?: readonly string[]
     }
     // ⚠ ⚠ **EMEKLİ HAT BAŞLATILAMAZ — ve buradaki açık GİZLEMEKLE kapanmış SANILIYORDU.**
     // `/api/hatlar` emeklileri zaten gizliyor, ama gizlemek engellemek değil: bu uç
@@ -1654,6 +1655,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // yanlışlıkla boş bırakılan bir alanı onay yerine koymak olurdu.
       konuyuSistemSecsin: govde.konuyuSistemSecsin === true,
       ...(govde.icerikKipi === 'genel' ? { icerikKipi: 'genel' } : {}),
+      // ⚠ Liste sunucuda SÜZÜLMÜYOR, olduğu gibi geçiyor: tanınmayan bir ad burada
+      // sessizce atılsaydı `linkedn` yazan biri hiçbir uyarı almadan tek platforma
+      // düşerdi. Doğrulama `PUBLISH`te ve orada AÇIK bir hata veriyor.
+      ...(Array.isArray(govde.platformlar) && govde.platformlar.length > 0
+        ? { platformlar: govde.platformlar.join(',') }
+        : {}),
       planDigest: govde.planDigest ?? '',
       env: o.saglayiciEnv ?? o.env ?? {},
     })

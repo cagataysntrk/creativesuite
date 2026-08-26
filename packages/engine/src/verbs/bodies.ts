@@ -17,6 +17,7 @@ import {
   goruntuOlcusu,
   icerikKipiCozumle,
   PLATFORMLAR,
+  type PlatformId,
 } from '@suite/contracts'
 import {
   asciiLower,
@@ -50,6 +51,7 @@ import {
 } from '@suite/render'
 import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../plan/sablon-uyarla.js'
 import { BENZERLIK_TAVANI, gecmisUretimler, ozgunlukDenetle } from '../plan/ozgunluk.js'
+import { yayinMetniCozumle, yayinMetniIstemi } from '../plan/yayin-metni.js'
 import { ritimTuttuMu, sablonSec } from '../plan/sablon-sec.js'
 import { konuSecPromptu, konuSecimiCozumle, type KonuAdayi } from '../plan/konu-sec.js'
 import { duzeltilebilir, duzeltmeIstemi, type DenetimKusuru } from '../plan/denetim-turu.js'
@@ -1913,6 +1915,30 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       }) ?? ''
     )
   }
+  // ── yayın metni: platform BAŞINA açıklama (madde 3) ──────────────────────
+  //
+  // ⚠ Kart metni `sablon-uyarla` ya da `duzelt` çıktısından geliyor — SONUNCUSU, yani
+  // düzeltme turu koştuysa düzeltilmiş hâli. Bu dosyada "en son üreticiye bak" bir
+  // desen ve üç kez unutulduğunda yapılan iş sessizce çöpe gitti.
+  if (input.constraints['yayin_metni'] === true) {
+    const uyarlamalar = Object.values(input.inputs).filter(
+      (v): v is { readonly uyarlama: Uyarlama } =>
+        v !== null && typeof v === 'object' && (v as { uyarlama?: unknown }).uyarlama !== undefined
+    )
+    const son = uyarlamalar[uyarlamalar.length - 1]
+    const kartMetni = (son?.uyarlama.kartlar ?? [])
+      .flatMap((k) => [k.baslik, k.govde])
+      .filter((x): x is string => typeof x === 'string' && x !== '')
+      .join(' ')
+    return (
+      yayinMetniIstemi({
+        konu: konuAl(input),
+        kartMetni,
+        slaytSayisi: (son?.uyarlama.kartlar ?? []).length,
+        platformlar: seciliPlatformlar(input.constraints),
+      }) ?? ''
+    )
+  }
   const kacinilacak =
     typeof input.constraints['kacinilacak'] === 'string'
       ? input.constraints['kacinilacak']
@@ -2841,6 +2867,48 @@ export const generateBody = (deps: GenerateDeps): Verb =>
       konuCiktisi = secim
     }
 
+    // ── yayın metni: çözümle ve HER metni kendi sınırına karşı sına ───────
+    //
+    // ⚠ ⚠ **DOĞRULAMA BURADA, YAYINDA DEĞİL.** 281 karakterlik bir X metnini yayın
+    // anında öğrenmek, dört görsel ve bir insan onayı harcandıktan sonra öğrenmek
+    // demek. R-90 aynı dersi JPEG ile bir kez verdi.
+    // ⚠ Uyarılar çıktıda TAŞINIYOR ama koşuyu durdurmuyor: uzun bir kanca metni
+    // geçersiz kılmaz, yalnız akışta görünmez. İnsan onay ekranında görsün diye.
+    let yayinMetniCiktisi: {
+      readonly yayinMetinleri: Record<string, string>
+      readonly yayinUyarilari: readonly string[]
+    } | null = null
+    if (input.constraints['yayin_metni'] === true) {
+      const uyarlamalarYM = Object.values(input.inputs).filter(
+        (v): v is { readonly uyarlama: Uyarlama } =>
+          v !== null &&
+          typeof v === 'object' &&
+          (v as { uyarlama?: unknown }).uyarlama !== undefined
+      )
+      const sonYM = uyarlamalarYM[uyarlamalarYM.length - 1]
+      const kartlarYM = sonYM?.uyarlama.kartlar ?? []
+      const c = yayinMetniCozumle(duzMetin(sonuc.value.data) ?? '', {
+        konu: konuAl(input),
+        kartMetni: kartlarYM
+          .flatMap((k) => [k.baslik, k.govde])
+          .filter((x): x is string => typeof x === 'string' && x !== '')
+          .join(' '),
+        slaytSayisi: kartlarYM.length,
+        platformlar: seciliPlatformlar(input.constraints),
+      })
+      if (c === null) return err(hata('validation', 'YAYIN_METNI_COZULEMEDI', ctx))
+      if (c.kusurlar.length > 0)
+        return err(
+          hata('validation', 'YAYIN_METNI_SINIRI_ASIYOR', ctx, {
+            kusurlar: c.kusurlar.map((k) => k.aciklama),
+          })
+        )
+      yayinMetniCiktisi = {
+        yayinMetinleri: c.metinler as Record<string, string>,
+        yayinUyarilari: c.uyarilar.map((k) => k.aciklama),
+      }
+    }
+
     let uyarlamaCiktisi: { readonly uyarlama: Uyarlama } | null = null
     // ⚠ ⚠ **DÜZELTME TURU ÇIKTISINI KİMSE OKUMUYORDU.** `duzelt` adımı bir uyarlama
     // ÜRETİYOR ama çıktısı `{lines}` olarak kalıyordu; `composeBody` `{uyarlama}`
@@ -2873,17 +2941,22 @@ export const generateBody = (deps: GenerateDeps): Verb =>
         },
       ],
       data:
-        konuCiktisi !== null
-          ? { ...konuCiktisi, raw: sonuc.value.data }
-          : uyarlamaCiktisi !== null
-            ? { ...uyarlamaCiktisi, raw: sonuc.value.data }
-            : tasarim !== null
-              ? { ...tasarim, raw: sonuc.value.data }
-              : yargi !== null
-                ? { ...yargi, raw: sonuc.value.data }
-                : metin === null
-                  ? sonuc.value.data
-                  : { ...metin, raw: sonuc.value.data },
+        // ⚠ Yayın metni EN BAŞTA: kendi kısıtı (`yayin_metni`) varsa öteki dalların
+        // hiçbiri koşmuyor ve zincirin sonuna eklemek onu ulaşılmaz kılardı — bu
+        // dosyada `duzelt` çıktısı tam böyle okunmadan kalmıştı.
+        yayinMetniCiktisi !== null
+          ? { ...yayinMetniCiktisi, raw: sonuc.value.data }
+          : konuCiktisi !== null
+            ? { ...konuCiktisi, raw: sonuc.value.data }
+            : uyarlamaCiktisi !== null
+              ? { ...uyarlamaCiktisi, raw: sonuc.value.data }
+              : tasarim !== null
+                ? { ...tasarim, raw: sonuc.value.data }
+                : yargi !== null
+                  ? { ...yargi, raw: sonuc.value.data }
+                  : metin === null
+                    ? sonuc.value.data
+                    : { ...metin, raw: sonuc.value.data },
     })
   })
 
@@ -2926,6 +2999,42 @@ export interface PublishBodyDeps {
 // tekrar eden sınıf: biri güncellenir, öteki unutulur. `threads` listeye AYRICA
 // ekleniyor: kayıtlı bir yetenek, sınır tablosunda olmaması silinmesini gerektirmez.
 const DESTEKLENEN_PLATFORMLAR: readonly string[] = [...PLATFORMLAR.map((p) => p.id), 'threads']
+
+/**
+ * Seçilen platformlar — çalıştırma parametresinden.
+ *
+ * ⚠ ⚠ **VİRGÜLLE AYRILMIŞ DİZE, DİZİ DEĞİL.** Çalıştırma parametreleri
+ * `Record<string, string>`; motor onları her adımın kısıtına yayıyor. Diziyi JSON
+ * olarak gömmek de olurdu ama `--platformlar instagram,x` komut satırında okunabilir
+ * kalıyor ve bu depoda parametreler ELLE de yazılıyor.
+ * ⚠ Verilmezse `instagram`: bugünkü davranış sürüyor. Yeni bir seçenek eklemek, var
+ * olanı sessizce değiştirmemeli.
+ * ⚠ Tanınmayan ad SESSİZCE atılmıyor — atılsaydı `--platformlar linkedn` yazan biri
+ * hiçbir uyarı almadan tek platforma düşerdi. Doğrulama `PUBLISH`te.
+ */
+/**
+ * `yayin-metni` çıktısından bu platformun metnini alır.
+ *
+ * ⚠ Bulunamazsa boş dize dönüyor ve bu SESSİZ bir düşüş DEĞİL: `PUBLISH` boş açıklamayı
+ * kendi doğrulamasında görüyor. Burada hata vermek, açıklamasız yayını meşru gören
+ * çağrıları (elle `caption` verilen koşular) da kırardı.
+ */
+const yayinMetniAl = (inputs: Readonly<Record<string, unknown>>, platform: string): string => {
+  for (const v of Object.values(inputs)) {
+    const m = (v as { yayinMetinleri?: Record<string, unknown> } | null)?.yayinMetinleri
+    if (m !== undefined && typeof m[platform] === 'string') return m[platform]
+  }
+  return ''
+}
+
+const seciliPlatformlar = (k: Readonly<Record<string, unknown>>): readonly PlatformId[] => {
+  const ham = k['platformlar']
+  if (typeof ham !== 'string' || ham.trim() === '') return ['instagram']
+  return ham
+    .split(',')
+    .map((x) => x.trim())
+    .filter((x) => x !== '') as readonly PlatformId[]
+}
 
 /**
  * `PUBLISH`in bir varlıkta aradığı anahtarlar — **TEK tanım**.
@@ -3005,7 +3114,13 @@ export const publishBody = (deps: PublishBodyDeps): Verb =>
       platform,
       placementId: String(input.constraints['placementId'] ?? ''),
       assets: varliklar,
-      caption: String(input.constraints['caption'] ?? ''),
+      // ⚠ ⚠ **AÇIKLAMA ARTIK ÜRETİLİYOR ve PLATFORMA ÖZGÜ.** `caption` kısıtı hattın
+      // hiçbir yerinde yazılmıyordu — her yayın boş açıklamayla gidecekti. `yayin-metni`
+      // adımı dört metni birden üretiyor; burada bu platformunki seçiliyor.
+      // ⚠ Elle verilen `caption` hâlâ KAZANIYOR: insan bir metni bilerek geçiyorsa
+      // üretilenin onu ezmesi, kararı elden almak olurdu.
+      caption:
+        String(input.constraints['caption'] ?? '') || yayinMetniAl(input.inputs, platform) || '',
       runId: ctx.runId,
       now: ctx.clock.nowIso(),
     }

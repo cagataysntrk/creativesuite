@@ -83,7 +83,7 @@ Toplam **11** hat.
 
 ## `instagram-karosel` — Instagram karoseli — katalog merkezli
 
-32 adım · 21 yetenek isteyen · 3 insan kapısı
+33 adım · 22 yetenek isteyen · 3 insan kapısı
 
 | adım | fiil | yetenek | bağımlı | kapı | isteğe bağlı |
 |---|---|---|---|---|---|
@@ -117,8 +117,9 @@ Toplam **11** hat.
 | `kompozit-son` | `COMPOSE` | — | metin-uret, sablon-uyarla, gorsel-uret, gorsel-kirp, gorsel-uret-2, gorsel-kirp-2, gorsel-uret-3, gorsel-kirp-3, gorsel-uret-4, gorsel-kirp-4, gorsel-uret-5, gorsel-kirp-5, duzelt | — | — |
 | `render-son` | `RENDER` | — | kompozit-son | — | — |
 | `kalite` | `VALIDATE` | — | render-son, gorsel-yargi, tasarim-yargi, gorsel-uret | — | — |
-| `onay` | `PROPOSE` | — | kalite | insan-onayi | — |
-| `yayinla` | `PUBLISH` | — | onay | — | — |
+| `yayin-metni` | `GENERATE` | `text.generate` | kalite | — | — |
+| `onay` | `PROPOSE` | — | kalite, yayin-metni | insan-onayi | — |
+| `yayinla` | `PUBLISH` | — | onay, yayin-metni | — | — |
 
 ## `instagram-post` — Instagram tek görsel postu
 

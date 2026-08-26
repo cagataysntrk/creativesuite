@@ -395,13 +395,30 @@ steps:
     verb: VALIDATE
     needs: [render-son, gorsel-yargi, tasarim-yargi, gorsel-uret]
 
+  # ⚠ ⚠ **AÇIKLAMA METNİ BUGÜNE KADAR HİÇ ÜRETİLMİYORDU.** `PUBLISH` `caption` kısıtını
+  # okuyor ve o kısıt hattın hiçbir yerinde yazılmıyordu — her yayın boş açıklamayla
+  # gidecekti. Modül var, alan var, üreteni yoktu.
+  # ⚠ DÖRT METİN TEK ÇAĞRIDA: dört ayrı adım dört çağrı, dört fiyat ve dört başarısızlık
+  # noktası demekti; üstelik metinler birbirinden habersiz yazılır, aynı gönderinin dört
+  # sesi olurdu.
+  # ⚠ `kalite`den SONRA: metin son hâliyle (düzeltme turu dâhil) yazılıyor.
+  - id: yayin-metni
+    verb: GENERATE
+    capability: text.generate
+    needs: [kalite]
+    constraints:
+      yayin_metni: true
+      max_chars: 3000
+
   - id: onay
     verb: PROPOSE
-    needs: [kalite]
+    needs: [kalite, yayin-metni]
     gate: insan-onayi
 
+  # ⚠ ⚠ **PLATFORM ARTIK ÇALIŞTIRMA PARAMETRESİ, HAT KISITI DEĞİL.** Sabit `instagram`
+  # yazmak, aynı karoseli LinkedIn'e göndermek için ikinci bir YAML yazmak demekti.
+  # Seçim insanın; hat yalnız hangi platformların DESTEKLENDİĞİNİ biliyor.
+  # ⚠ Varsayılan hâlâ `instagram`: parametre verilmezse bugünkü davranış sürüyor.
   - id: yayinla
     verb: PUBLISH
-    needs: [onay]
-    constraints:
-      platform: instagram
+    needs: [onay, yayin-metni]

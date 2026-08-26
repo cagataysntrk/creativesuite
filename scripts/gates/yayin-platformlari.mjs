@@ -1,0 +1,71 @@
+// GROUP: fast
+//
+// PLATFORM LİSTESİ İKİ YERDE YAZILI — ve AYNI kalmak zorunda (FAZ-19.12 · madde 3).
+//
+// ⚠ ⚠ **KOPYA BİLİNÇLİ, ÇÜNKÜ `apps/ui` TARAYICI KATMANI.** Tek kaynak
+// `packages/contracts/src/platform.ts`; panel onu import EDEMİYOR — `rings` kapısı
+// `apps/ui`nin `@suite/contracts`e uzanmasını engelliyor ve bu depoda bir kez denenip
+// haklı olarak kırmızı döndü.
+//
+// ⚠ Kopyayı kaldırmak yerine BAĞLIYORUZ. Ayrışmanın bedeli somut: panelde `x` seçilir,
+// sözleşmede `x` yoksa koşu `UNSUPPORTED_PLATFORM` ile ölür — ve bu ancak üretim
+// başladıktan sonra görünür. Ters yönde ise sözleşmede olan bir platform panelde hiç
+// sunulmaz; yetenek var, ulaşan yok (bu depoda tekrar eden zincir kopukluğu).
+//
+// ⚠ Kapı METNİ okuyor, modülü çalıştırmıyor: `apps/ui`yi node'da import etmek TSX ve
+// tarayıcı globalleri gerektirirdi.
+
+import { readFileSync } from 'node:fs'
+
+const oku = (yol) => {
+  try {
+    return readFileSync(yol, 'utf8')
+  } catch (e) {
+    console.error('✗ okunamadı: ' + yol + ' — ' + String(e?.message ?? e))
+    process.exit(1)
+  }
+}
+
+// ── 1: sözleşmedeki platform kimlikleri ─────────────────────────────────────
+const sozlesme = oku('packages/contracts/src/platform.ts')
+const tip = /export type PlatformId =([^\n]*(?:\n\s*\|[^\n]*)*)/.exec(sozlesme)?.[1] ?? ''
+const sozlesmeIdler = [...tip.matchAll(/'([a-z]+)'/g)].map((m) => m[1]).sort()
+if (sozlesmeIdler.length === 0) {
+  console.error('✗ `PlatformId` okunamadı — sözleşme yeniden adlandırılmış olabilir')
+  process.exit(1)
+}
+
+// ── 2: panelin sunduğu seçenekler ───────────────────────────────────────────
+const panel = oku('apps/ui/src/RunLauncher.tsx')
+const blok = /const PLATFORM_SECENEKLERI = \[([\s\S]*?)\] as const/.exec(panel)?.[1]
+if (blok === undefined) {
+  console.error('✗ `PLATFORM_SECENEKLERI` panelde bulunamadı — platform seçimi kaybolmuş olabilir')
+  process.exit(1)
+}
+const panelIdler = [...blok.matchAll(/id:\s*'([a-z]+)'/g)].map((m) => m[1]).sort()
+
+// ── 3: ikisi AYNI olmak zorunda ─────────────────────────────────────────────
+const eksik = sozlesmeIdler.filter((x) => !panelIdler.includes(x))
+const fazla = panelIdler.filter((x) => !sozlesmeIdler.includes(x))
+if (eksik.length > 0 || fazla.length > 0) {
+  console.error(
+    '✗ platform listesi AYRIŞMIŞ:\n' +
+      '    sözleşme (PlatformId)     : ' +
+      sozlesmeIdler.join(', ') +
+      '\n' +
+      '    panel (PLATFORM_SECENEKLERI): ' +
+      panelIdler.join(', ') +
+      '\n' +
+      (eksik.length > 0
+        ? '  Sözleşmede VAR panelde YOK: ' + eksik.join(', ') + ' — yetenek var, ulaşan yok.\n'
+        : '') +
+      (fazla.length > 0
+        ? '  Panelde VAR sözleşmede YOK: ' +
+          fazla.join(', ') +
+          ' — seçilirse koşu UNSUPPORTED_PLATFORM ile ölür, üretim başladıktan SONRA.\n'
+        : '')
+  )
+  process.exit(1)
+}
+
+console.log('  yayın platformları ' + sozlesmeIdler.join(', ') + ' · sözleşme ile panel aynı')

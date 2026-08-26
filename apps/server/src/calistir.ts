@@ -145,6 +145,8 @@ export interface BaslatGirdisi {
    * kısıtlarına ekliyor. Yeni bir bayrak açmak, aynı zinciri ikinci kez kurmak olurdu.
    */
   readonly icerikKipi?: string
+  /** Yayın platformları, virgülle — `instagram,linkedin` gibi. Boşsa `instagram`. */
+  readonly platformlar?: string
   readonly env: Readonly<Record<string, string>>
   /** Test bunu değiştirir; üretimde gerçekten `just` koşar. */
   readonly komut?: string
@@ -179,6 +181,11 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
   // Varsayılan `firma` olduğu için tanınmayan değer sessizce bugünkü davranışa düşüyor
   // — ve `firma` zaten bayrak istemiyor.
   const kipArgv = (g.icerikKipi ?? '').trim() === 'genel' ? ['--icerik-kipi', 'genel'] : []
+  // ⚠ Yalnız harf ve virgül geçiyor: gövdeden gelen serbest bir dizeyi komut satırına
+  // koymak, panelin yazdığı her şeyi çalıştırma parametresine çevirirdi.
+  const platformArgv = /^[a-z,]+$/.test((g.platformlar ?? '').trim())
+    ? ['--platformlar', (g.platformlar ?? '').trim()]
+    : []
   const argv =
     g.konu.trim() === ''
       ? [
@@ -187,6 +194,7 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
           '--konu-sec',
           ...sablonArgv,
           ...kipArgv,
+          ...platformArgv,
           '--run',
           runId,
           '--plan-digest',
@@ -198,6 +206,7 @@ export const calistirmaBaslat = (g: BaslatGirdisi): BaslatSonuc => {
           g.konu,
           ...sablonArgv,
           ...kipArgv,
+          ...platformArgv,
           '--run',
           runId,
           '--plan-digest',
