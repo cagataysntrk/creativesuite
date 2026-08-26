@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
-# GROUP: fast
+# GROUP: all
+#
+# ⚠ ⚠ **TEST KAPISI `fast`TAN `all`A ALINDI — DEPO SAHİBİNİN KARARI.** Pre-commit her
+# commit'te bütün paketi koşuyordu ve bu dakikalar sürüyor: bir commit için üç-beş
+# dakika beklemek, küçük adımlarla çalışmayı imkânsız kılıyor. Sahibi: *"precommit
+# testlerini zorunlu yapma, sadece istediğimde yaparız, bu işi baltalıyor — zaten bu
+# testleri geliştirirken çalıştırıyoruz."*
+#
+# ⚠ **KAPI KALDIRILMADI, YERİ DEĞİŞTİ.** `all` grubu `just verify` ve push öncesi
+# koşuyor; yani testler hâlâ zorunlu, sadece HER COMMIT'te değil. Yapısal kapılar
+# (biçim, tip, commit-msg, sızıntı, darboğaz) `fast`ta kaldı çünkü onlar saniyeler
+# sürüyor ve yakaladıkları şey geri alınamaz (§14).
+# ⚠ Tek tek koşmak için: `just gate tests`
 # Vitest — tek koşucu (§15 · FAZ-1.10).
 #
 # Kapı boş geçmesin diye İKİ eşik var: en az bir test dosyası ve en az bir geçen test.
