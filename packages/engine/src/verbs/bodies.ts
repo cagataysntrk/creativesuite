@@ -9,7 +9,7 @@
 // çalıştırma öncesi maliyet tahminini yalan yapardı.
 
 import type { AppError, Result, ToleranceReading, VerbName } from '@suite/contracts'
-import { ZERO_USD, err, ok, VARSAYILAN_TUVAL } from '@suite/contracts'
+import { ZERO_USD, err, ok, VARSAYILAN_TUVAL, goruntuOlcusu } from '@suite/contracts'
 import {
   asciiLower,
   getVerb,
@@ -1007,6 +1007,28 @@ export const renderBody = (deps: RenderDeps): Verb =>
       panoramaBelgesiniYaz(deps.outDir, doc)
       const r = await renderPanorama(doc, yollar)
       if (!r.ok) return err(hata('render_failed', 'PANORAMA_FAILED', ctx, { error: r.error }))
+      // ⚠ ⚠ **YAZILAN BAYT ÖLÇÜLÜYOR — BEYAN DEĞİL.** Depo sahibi: *"paylaşımların
+      // 1080x1440 olması kesin kural artık, sistem doğrulamalı kontrol etmeli"*.
+      // `VARSAYILAN_TUVAL` zaten 1080×1440 diyordu ve doğruydu; ama hiçbir şey ÇIKTIYI
+      // sınamıyordu. Bu depoda tekrar eden sınıf tam bu — `kirpma: 'tam'` beyanı da
+      // doğruydu ve okunmuyordu. **Bir sayı ancak ölçüldüğü yerde bağlar.**
+      // ⚠ Burada durmak UCUZ: yayın anında reddedilmek dört görsel ve bir insan onayı
+      // harcandıktan SONRA olur (R-90'ın JPEG dersiyle aynı aile).
+      // ⚠ Ölçülemeyen bayt GEÇMİŞ SAYILMIYOR: okunamadıysa kusurdur, yoksa sınama
+      // bedava yeşile döner.
+      for (const [i, yol] of yollar.entries()) {
+        const olcu = goruntuOlcusu(readFileSync(yol))
+        if (olcu === null)
+          return err(hata('render_failed', 'SLAYT_OLCUSU_OKUNAMADI', ctx, { slayt: i + 1, yol }))
+        if (olcu.genislik !== doc.slaytGenisligi || olcu.yukseklik !== doc.yukseklik)
+          return err(
+            hata('render_failed', 'SLAYT_OLCUSU_TUTMUYOR', ctx, {
+              slayt: i + 1,
+              beklenen: `${String(doc.slaytGenisligi)}x${String(doc.yukseklik)}`,
+              olculen: `${String(olcu.genislik)}x${String(olcu.yukseklik)}`,
+            })
+          )
+      }
       // ⚠ ⚠ **DENETİM RENDER'DAN SONRA, AYNI ADIMDA.** Ayrı bir fiil açmak dokuz fiil
       // yasasını (R-02) delerdi; ayrı bir adım açmak render'ı iki kez koştururdu. Denetim
       // bir yan etki değil bir ÖLÇÜM: aynı tarayıcıda, aynı belgeyle, ek maliyetsiz.

@@ -128,6 +128,8 @@ export type { ToleranceStatus, ToleranceReading, QaReport } from './tolerance.js
 export type { KaroselTuvali, Placement, SafeArea, SafeBand } from './placement.js'
 // Karosel tuvali TEK sözleşme sabiti (R-91): `1350` altı ayrı dosyada kopyalanmıştı.
 export { TUVAL_3_4, TUVAL_4_5, VARSAYILAN_TUVAL } from './placement.js'
+// Görüntü ölçüsü BAYTTAN okunuyor — beyandan değil (madde 8).
+export { goruntuOlcusu, type GoruntuOlcusu } from './goruntu-olcu.js'
 
 // Keşif planı — motor ile inceleme ekranı ortak sözlüğü (D-177).
 export type {

@@ -27,6 +27,8 @@ interface Varlik {
   readonly konu: string
   /** Üreten koşunun şablonu. `null` = koşu `sablon-uyarla`ya varmadan düştü. */
   readonly sablon: string | null
+  /** Varlığın BAYTTAN okunan ölçüsü, `1080x1440` gibi. `null` = okunamadı. */
+  readonly olcu: string | null
   readonly yayinlandi: boolean
   readonly manifestSaglam: boolean
 }
@@ -38,6 +40,8 @@ interface Grup {
   readonly pipeline: string
   readonly konu: string
   readonly sablon: string | null
+  /** Gruptaki TÜM slaytların ölçüsü aynıysa o ölçü; ayrışıyorsa `karisik`. */
+  readonly olcu: string | null
   readonly createdAt: string
   readonly yayinlandi: boolean
   readonly saglam: boolean
@@ -45,6 +49,15 @@ interface Grup {
 }
 
 const BIR_HAFTA = 7 * 24 * 60 * 60 * 1000
+
+/**
+ * Paylaşımın ZORUNLU ölçüsü — depo sahibinin kuralı.
+ *
+ * ⚠ Sunucudaki `VARSAYILAN_TUVAL`den TÜRETİLMİYOR ve bu bilinçli: burası tarayıcı
+ * katmanı ve `@suite/contracts`i import etmesi `rings` kapısına takılıyor. Sayı iki
+ * yerde yazılı olduğu için `paylasim-olcusu` kapısı ikisinin AYNI kaldığını sınıyor.
+ */
+const PAYLASIM_OLCUSU = '1080x1440'
 
 export const VarlikKutuphanesi = ({
   ac,
@@ -103,6 +116,13 @@ export const VarlikKutuphanesi = ({
         pipeline: ilk.pipeline,
         konu: ilk.konu,
         sablon: ilk.sablon,
+        // ⚠ ⚠ **TEK SLAYTA BAKMAK YETMEZ.** Instagram karoselin oranını İLK slayttan
+        // alıyor ve gerisini ona göre KIRPIYOR; yani ayrışan bir slayt sessizce
+        // kırpılır. Grup ancak HEPSİ aynıysa bir ölçü ilan ediyor.
+        olcu: (() => {
+          const hepsi = [...new Set(sirali.map((v) => v.olcu))]
+          return hepsi.length === 1 ? (hepsi[0] ?? null) : 'karışık'
+        })(),
         createdAt: ilk.createdAt,
         // ⚠ Grup "yayınlandı" ancak HEPSİ yayınlandıysa: karoselin üç slaydı
         // yayınlanmışsa o gönderi yayınlanmamıştır, yarım kalmıştır.
@@ -284,6 +304,11 @@ export const VarlikKutuphanesi = ({
                     hangi hattan geldiğinden daha ayırt edici — on üretimin onu da
                     aynı hattan (`instagram-karosel`) çıkıyor. */}
                 <span className="olcum">{g.sablon ?? '— şablon yok'}</span>
+                {/* ⚠ Ölçü BAYTTAN okundu, beyandan değil. Kural dışıysa uyarı rengiyle:
+                    yanlış oran yayın anında — görseller harcandıktan sonra — kırpılır. */}
+                <span className={g.olcu === PAYLASIM_OLCUSU ? 'olcum' : 'is-uyari'}>
+                  {g.olcu ?? 'ölçü okunamadı'}
+                </span>
                 <span className="olcum">{g.pipeline}</span>
                 <span className="olcum">{g.varliklar.length} slayt</span>
                 <span className="olcum">{tamTarih(g.createdAt)}</span>

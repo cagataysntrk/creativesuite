@@ -25,6 +25,8 @@ import { readManifest } from '@suite/engine'
 // kaynağından geliyor; ayrışma yapısal olarak imkânsız.
 import type { BlobMeta, DeliverableRef } from '@suite/engine'
 
+import { closeSync, openSync, readSync } from 'node:fs'
+import { goruntuOlcusu } from '@suite/contracts'
 import { kosuSablonu } from './kosu-sablonu.js'
 
 export interface VarlikSatiri {
@@ -49,6 +51,14 @@ export interface VarlikSatiri {
    * boş kalıyor ve bir kez yanlış etikete yol açtı.
    */
   readonly sablon: string | null
+  /**
+   * Varlığın GERÇEK ölçüsü, baytından okunmuş. `null` = okunamadı.
+   *
+   * ⚠ ⚠ **BEYAN DEĞİL BAYT.** Depo sahibi: *"1080x1440 olması kesin kural artık, bunu da
+   * göstermeli sistem doğrulamalı"*. `VARSAYILAN_TUVAL` zaten doğruyu söylüyordu; eksik
+   * olan çıktının kendisine bakmaktı. Ekranda beyanı göstermek hiçbir şey doğrulamaz.
+   */
+  readonly olcu: string | null
   /** Bu varlığı üreten adımın şeridi. `null` = adım bulunamadı. */
   readonly lane: 'free' | 'premium' | null
   /** Üreten adımın GERÇEK maliyeti, USD mikro dize. */
@@ -173,6 +183,24 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
   // okumak aynı on dosyayı kırk beş kez açmak olurdu. Manifest zaten böyle önbelleklenmiş;
   // yeni okuyucu aynı düzeni izliyor, kendi düzenini icat etmiyor.
   const sablonOnbellek = new Map<string, string | null>()
+  // ⚠ Yalnız BAŞLIK okunuyor, dosyanın tamamı değil: 45 varlığın toplamı 30 MB'ın
+  // üzerinde ve ölçü ilk kilobaytta yazılı. Tam okumak listeyi her açılışta 30 MB
+  // okumaya çevirirdi — ölçüm için gereken bayt kadarını oku.
+  const olcuOku = (yol: string): string | null => {
+    try {
+      const fd = openSync(yol, 'r')
+      try {
+        const bas = Buffer.alloc(65_536)
+        const n = readSync(fd, bas, 0, bas.length, 0)
+        const o = goruntuOlcusu(bas.subarray(0, n))
+        return o === null ? null : `${String(o.genislik)}x${String(o.yukseklik)}`
+      } finally {
+        closeSync(fd)
+      }
+    } catch {
+      return null
+    }
+  }
   const sablonu = (kok: string, runId: string): string | null => {
     const v = sablonOnbellek.get(runId)
     if (v !== undefined) return v
@@ -219,6 +247,7 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
       pipeline: m?.pipeline ?? '',
       konu,
       sablon: sablonu(repoRoot, meta.sourceRunId),
+      olcu: olcuOku(metaYolu.replace(/\.meta\.json$/, '')),
       lane,
       harcananMikros: harcanan.toString(),
       yayinlandi,
