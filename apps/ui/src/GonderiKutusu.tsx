@@ -52,6 +52,13 @@ interface Olay {
 
 const bugun = (): string => new Date().toISOString().slice(0, 10)
 
+interface YayinBilgisi {
+  readonly yayinlandi: boolean
+  readonly kaynak: 'defter' | 'elle' | 'hedef' | null
+  readonly tarih: string
+  readonly aciklama: string
+}
+
 export const GonderiKutusu = ({
   runId,
   konu,
@@ -104,6 +111,14 @@ export const GonderiKutusu = ({
   /** İnsan kutucuklara DOKUNDU mu — dokunduysa otomatik düzeltme durur. */
   const [eldeSecildi, setEldeSecildi] = useState(false)
   const [gecmis, setGecmis] = useState<readonly Olay[]>([])
+  /**
+   * Yayın durumu — SUNUCUDAN, üç defterin birleşik cevabı (`yayinlanmis.ts`).
+   *
+   * ⚠ ⚠ **KUTU BUNU BİLMİYORDU ve düğmeler açık duruyordu.** Sunucu yayınlanmış bir
+   * gönderiyi 409 ile reddediyordu; ekran ise reddedileceğini tıklayana kadar
+   * söylemiyordu. Doğru olan bir kapı, görünmeyen bir kapı olarak işe yaramaz.
+   */
+  const [yayin, setYayin] = useState<YayinBilgisi | null>(null)
   const [mesaj, setMesaj] = useState<string | null>(null)
   /**
    * Metni olan platformlar — çağıran vermezse KUTU KENDİ ÖĞRENİYOR.
@@ -170,10 +185,13 @@ export const GonderiKutusu = ({
     try {
       const j = (await (await fetch(`/api/yayin-takvimi/${runId}`)).json()) as {
         olaylar?: readonly Olay[]
+        yayin?: YayinBilgisi
       }
       setGecmis(j.olaylar ?? [])
+      setYayin(j.yayin ?? null)
     } catch {
       setGecmis([])
+      setYayin(null)
     }
   }, [runId])
 
@@ -329,10 +347,21 @@ export const GonderiKutusu = ({
           detayında <strong>⚡ üret</strong> ile metni üret.
         </p>
       )}
+      {/* ⚠ ⚠ **YAYINLANMIŞ GÖNDERİ KİLİTLİ — ve sebebi yazılı.** Depo sahibi: *"aynı
+          şey tekrar paylaşılmamalı kesinlikle."* Kapı sunucuda (409) ama burada da
+          GÖRÜNÜYOR: tıklanabilir görünen bir düğme, tıklandıktan sonra öğrenilen bir
+          kuraldır. Kilit KALICI değil — yanlış işaretlendiyse "otomatiğe bırak"
+          kararı geri alıyor. */}
+      {yayin?.yayinlandi === true ? (
+        <p className="is-uyari">
+          ✓ <strong>YAYINLANDI</strong> — {yayin.aciklama}. Bu gönderi yeniden planlanamaz ve hedefe
+          gönderilemez. Yanlışsa <strong>otomatiğe bırak</strong> ile kararı geri al.
+        </p>
+      ) : null}
       <div className="kapi-dugmeler">
         <button
           type="button"
-          disabled={eksikMetin.length > 0}
+          disabled={eksikMetin.length > 0 || yayin?.yayinlandi === true}
           onClick={() => void karar('planla', { tarih, platformlar: secili })}
         >
           ✓ bu tarihe planla
@@ -345,15 +374,22 @@ export const GonderiKutusu = ({
             Metricool bağlandığında bu düğme onu çağıracak — kod değişmeden, çünkü
             fark hedefte, düğmede değil.
             ⛔ Hiçbir hedef YAYINLAMIYOR; zamanlıyor / paketliyor. */}
-        <button type="button" onClick={() => void hedefeGonder()}>
+        <button
+          type="button"
+          disabled={yayin?.yayinlandi === true}
+          onClick={() => void hedefeGonder()}
+        >
           ⇄ hedefe gönder — paketi çıkar
         </button>
         {/* ⛔ Sistem GÖNDERMİYOR: bu düğme insanın uygulamadan paylaştığını KAYDEDİYOR. */}
+        {/* ⚠ Sistem GÖNDERMİYOR: bu düğme insanın uygulamadan paylaştığını KAYDEDİYOR
+            — ve o kayıt gönderiyi kilitliyor, bir daha yayına giremiyor. */}
         <button
           type="button"
+          disabled={yayin?.yayinlandi === true}
           onClick={() => void karar('elle-yayinlandi', { tarih, platformlar: secili })}
         >
-          ⇪ elle yayınladım
+          ⇪ yayınlandı olarak işaretle
         </button>
         <button type="button" onClick={() => void karar('cikar', { not: 'takvimden çıkarıldı' })}>
           ⌫ takvimden çıkar

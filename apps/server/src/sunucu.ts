@@ -93,6 +93,7 @@ import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kosununSlaytlari, kutuphane, yenidenKullanilabilir } from './kutuphane.js'
+import { yayinDurumu, yayinlanmisMi } from './yayinlanmis.js'
 import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle, elemeKaydi } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
 import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
@@ -703,9 +704,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       }
     }
 
-    const yayinlanmisSet = new Set(
-      k.varliklar.filter((v) => v.yayinlandi).map((v) => v.sourceRunId)
-    )
+    // ⚠ ⚠ **ELLE YAYINLANAN GÖNDERİ `hazir` LİSTESİNDE KALIYORDU** — yani yeniden
+    // planlanabiliyor, yeniden hedefe gönderilebiliyordu. Yayınlanmışlık üç ayrı
+    // defterde yazılıydı ve hiçbiri ötekini bilmiyordu; `yayinlanmis.ts` üçünü tek
+    // cevaba bağladı.
+    const yayinlanmisMiRun = (runId: string): boolean =>
+      yayinDurumu(o.repoRoot, runId, k).yayinlandi
     let sablonsuz = 0
     let elenmis = 0
     const hazir: {
@@ -784,7 +788,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         continue
       }
       const konu = s2.konu ?? ''
-      if (yayinlanmisSet.has(d.name)) {
+      if (yayinlanmisMiRun(d.name)) {
         gecmis.push({ runId: d.name, sablon, konu, zaman: m.createdAt })
         continue
       }
@@ -1014,6 +1018,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const h = hedef.hazir()
     if (!h.ok) return c.json({ ok: false, hata: `${hedef.ad} hazır değil: ${h.sebep}` }, 400)
 
+    // ⚠ ⚠ **YAYINLANMIŞ GÖNDERİ HEDEFE GİTMEZ.** Depo sahibi: *"aynı şey tekrar
+    // paylaşılmamalı kesinlikle."* Bu bir uyarı değil bir RET: uyarı tıklandıktan
+    // sonra okunur ve gönderi çoktan ikinci kez gitmiştir.
+    const yayinKapisi = yayinlanmisMi(o.repoRoot, runId, kutuphane(o.repoRoot))
+    if (yayinKapisi.engelli) return c.json({ ok: false, hata: yayinKapisi.hata }, 409)
+
     const karar = gecerliKararlar(o.repoRoot).get(runId)
     if (karar === undefined || karar.karar !== 'planla')
       return c.json(
@@ -1081,6 +1091,18 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // ⚠ `cikar` ve `geri-al` metin İSTEMİYOR: bir şeyi takvimden çıkarmak için metnine
     // ihtiyaç yok. `elle-yayinlandi` de istemiyor — o bir KAYIT, bir planlama değil.
     const karar = String(g.karar ?? '')
+    // ⚠ ⚠ **YAYINLANMIŞ GÖNDERİ YENİDEN PLANLANAMAZ.** *"Aynı şey tekrar
+    // paylaşılmamalı kesinlikle."* Yeniden planlamak, ikinci paylaşımın ilk adımıdır.
+    // ⚠ `geri-al` ve `cikar` SERBEST: biri yanlış işareti düzeltiyor, öteki gönderiyi
+    // sıradan alıyor. Yayın kaydını düzeltmenin yolunu kapatmak, bir yazım hatasını
+    // kalıcı kılardı.
+    if (
+      (karar === 'planla' || karar === 'elle-yayinlandi') &&
+      kosuKimligiGecerli(String(g.runId ?? ''))
+    ) {
+      const kapi = yayinlanmisMi(o.repoRoot, String(g.runId), kutuphane(o.repoRoot))
+      if (kapi.engelli) return c.json({ ok: false, hata: kapi.hata }, 409)
+    }
     if (karar === 'planla' && kosuKimligiGecerli(String(g.runId ?? ''))) {
       const yol = join(o.repoRoot, RUNS_DIR, String(g.runId), 'steps/yayin-metni.json')
       let metinler: Record<string, string> = {}
@@ -1160,6 +1182,13 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       ok: true,
       olaylar: hepsi.olaylar.filter((x) => x.runId === runId),
       bozukSatir: hepsi.bozuk,
+      // ⚠ ⚠ **YAYIN DURUMU DEFTERLE BİRLİKTE GİDİYOR.** Karar kutusu yalnız takvim
+      // defterini okuyordu; hattın yayın defterini ve hedefin bildirdiği durumu
+      // GÖRMÜYORDU. Yani ekranda "planla" düğmesi açık duruyor, sunucu 409 ile
+      // reddediyordu — kapının doğru olması yetmiyor, GÖRÜNMESİ de gerekiyor.
+      yayin: kosuKimligiGecerli(runId)
+        ? yayinDurumu(o.repoRoot, runId, kutuphane(o.repoRoot))
+        : { yayinlandi: false, kaynak: null, tarih: '', aciklama: '' },
     })
   })
 

@@ -437,6 +437,16 @@ export const YayinAkisi = (): React.JSX.Element => {
       return sk === undefined ? g : { ...g, senkron: sk }
     })
     .sort((a, b) => a.tarih.localeCompare(b.tarih))
+  // ⚠ ⚠ **TARİHİ GEÇMİŞ AMA İŞARETLENMEMİŞ GÖNDERİLER BİR SORU — ve ekran onu SORMUYORDU.**
+  // Depo sahibi: *"tarihi gelip yayınlananlar yayınlandı olarak işaretlenmeli… böylece
+  // yayınlananlar belli olur ve tekrar yayına girmez."*
+  //
+  // ⚠ ⚠ **OTOMATİK İŞARETLEME YOK ve bu KASITLI.** *"12 Eylül'e planlıydı, bugün 15'i,
+  // demek yayınlandı"* diyen bir kural YALAN söyler: makine kapalı olmuş olabilir
+  // (Yasa 12), insan o gün paylaşmamış olabilir. Geçmiş tarih bir OLGU değil bir
+  // SORUDUR; ekran onu soru olarak soruyor, cevabı insan veriyor.
+  const gecikmis = planlanan.filter((g) => g.tarih !== '' && g.tarih < bugunSabit)
+  const bekleyen = planlanan.filter((g) => !(g.tarih !== '' && g.tarih < bugunSabit))
   const yayinlanan: readonly Gonderi[] = [
     ...veri.elleYayinlanan.map((g) => ({ ...g, yayinlandi: true, elle: true })),
     ...veri.gecmis.map((g) => ({
@@ -661,9 +671,33 @@ export const YayinAkisi = (): React.JSX.Element => {
           koşular ve çıkarılanlar da buradaydı — ekran bir takvim değil bir envanterdi.
           ⚠ Görsel ŞART: bir gönderiyi tarihinden değil NEYE BENZEDİĞİNDEN tanıyoruz. */}
 
+      {gecikmis.length === 0 ? null : (
+        <section className="akis-hafta">
+          <h3>tarihi geçti — yayınlandı mı?</h3>
+          {/* ⚠ Sistem KENDİ İŞARETLEMİYOR: yayınlandığını yalnız insan (ya da hedef)
+              bilir. Kartı açıp *"yayınlandı olarak işaretle"* demek, o gönderiyi
+              yayına kapatıyor — bir daha planlanamıyor, hedefe gönderilemiyor. */}
+          <p className="is-uyari">
+            {gecikmis.length} gönderinin tarihi geçmiş ama yayınlandı işareti yok. Kartı aç ve{' '}
+            <strong>yayınlandı olarak işaretle</strong> — işaretlenen gönderi bir daha yayına
+            giremez.
+          </p>
+          <ul className="gonderi-listesi">
+            {gecikmis.map((g) => (
+              <GonderiKarti
+                key={`g-${g.runId}`}
+                g={g}
+                ac={() => setAcik(acik === g.runId ? null : g.runId)}
+                secili={acik === g.runId}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="akis-hafta">
         <h3>planlananlar</h3>
-        {planlanan.length === 0 ? (
+        {bekleyen.length === 0 ? (
           <p className="bos">
             Takvimde gönderi yok.
             {veri.planlanamaz.metinYok === 0
@@ -672,7 +706,7 @@ export const YayinAkisi = (): React.JSX.Element => {
           </p>
         ) : (
           <ul className="gonderi-listesi">
-            {planlanan.map((g) => (
+            {bekleyen.map((g) => (
               <GonderiKarti
                 key={`p-${g.runId}`}
                 g={g}

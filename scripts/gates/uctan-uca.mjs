@@ -410,7 +410,10 @@ const sayfaAc = async () => {
     // KANITI: kapı gerçekten o düğmeyi arıyormuş.
     for (const dugme of [
       'bu tarihe planla',
-      'elle yayınladım',
+      // ⚠ Ad DEĞİŞTİ: düğme artık *"yayınlandı olarak işaretle"*. Eski adı ("elle
+      // yayınladım") bir EYLEM ima ediyordu; oysa sistem hiçbir şey göndermiyor,
+      // insanın paylaştığını KAYDEDİYOR — ve o kayıt gönderiyi yayına kapatıyor.
+      'yayınlandı olarak işaretle',
       'takvimden çıkar',
       'otomatiğe bırak',
       'hedefe gönder',
