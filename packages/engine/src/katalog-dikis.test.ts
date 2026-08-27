@@ -207,6 +207,51 @@ describe('dikiş 2: metin → şablon seçimi → uyarlama istemi', () => {
   it('metin gelmemişse istem boş dönüyor', () => {
     expect(promptTuret('text.generate', girdi({ sablon_uyarla: true }, {}))).toBe('')
   })
+
+  // ── KİP YAZANA ULAŞIYOR MU (FAZ-19.13) ───────────────────────────────────
+  //
+  // ⚠ ⚠ **BU DİKİŞ SESSİZCE KOPUKTU ve semptomu depo sahibi gördü:** *"genel zaten
+  // aslında bunun içindi… ama yapmıyor gibi."* Ölçüldü: `kipTarifi` yalnız
+  // `konuSecPromptu`ndan çağrılıyordu. Yani kip KONUYU seçiyor, METNİ yazan istem onu
+  // hiç görmüyordu — öğretici bir konu seçilip tanıtım diliyle yazılıyordu. Kip,
+  // yazana ulaşmadığı sürece kozmetiktir.
+  it('GENEL kipte istem ÖĞRETİCİ BİÇİMLERİ söylüyor', () => {
+    const p = promptTuret(
+      'text.generate',
+      girdi(
+        { sablon_uyarla: true, topic: 'Tekstil atığı', icerik_kipi: 'genel' },
+        { m: { lines: liste } }
+      )
+    )
+    expect(p, 'kip adı').toContain('İÇERİK KİPİ: GENEL')
+    expect(p, 'bu bir ders').toContain('BİÇİM:')
+    for (const kalip of ['NEDİR', 'NASIL YAPILIR', 'ESKİ / YENİ', 'HABERİNİZ VAR MI'])
+      expect(p, `öğretici kalıp: ${kalip}`).toContain(kalip)
+    // ⚠ Yasa 8 genel kipte de tekrarlanıyor: kaynak baskısının en düşük olduğu yer.
+    expect(p, 'uydurma sayı yasağı').toContain('UYDURMA')
+  })
+
+  it('FİRMA kipte istem MARKANIN KAYDINI işaret ediyor, öğretici kalıpları DEĞİL', () => {
+    const p = promptTuret(
+      'text.generate',
+      girdi(
+        { sablon_uyarla: true, topic: 'Tekstil atığı', icerik_kipi: 'firma' },
+        { m: { lines: liste } }
+      )
+    )
+    expect(p).toContain('İÇERİK KİPİ: FİRMA')
+    // ⚠ Firma kipinde "bilmediğin bir şey öğret" demek, kayıtta olmayanı uydurmaya
+    // davettir: kalıplar oraya GİRMEMELİ.
+    expect(p, 'öğretici kalıp listesi firma kipinde YOK').not.toContain('HABERİNİZ VAR MI')
+  })
+
+  it('kip VERİLMEZSE firma — eski çağıranlar bugünkü davranışta kalıyor', () => {
+    const p = promptTuret(
+      'text.generate',
+      girdi({ sablon_uyarla: true, topic: 'Tekstil atığı' }, { m: { lines: liste } })
+    )
+    expect(p).toContain('İÇERİK KİPİ: FİRMA')
+  })
 })
 
 // ⚠ ⚠ **BU DİKİŞ GERÇEK BİR KOŞUDA SESSİZCE KOPUKTU.** Hat uçtan uca YEŞİL koştu ve

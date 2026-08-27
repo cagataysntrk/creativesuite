@@ -21,6 +21,7 @@
 // artık o şablon değil.
 
 import { kapsamDisiKarakterler, type KatalogOrnegi } from '@suite/render'
+import { kipTarifi, type IcerikKipi } from '@suite/contracts'
 import type { Kart, Panel } from '@suite/render'
 
 /** Uyarlamanın yazabildiği TEK şey — kompozisyon alanı yok. */
@@ -453,7 +454,24 @@ const panoAdedi = (panel: KatalogOrnegi['kartlar'][number]['panel']): string => 
   return n === null ? '' : `, TAM ${String(n)} öge`
 }
 
-export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: string): string => {
+export const uyarlamaIstemi = (
+  ornek: KatalogOrnegi,
+  sablonId: string,
+  konu: string,
+  /**
+   * İçerik kipi — YAZANIN da bilmesi gereken şey.
+   *
+   * ⚠ ⚠ **KİP BURAYA HİÇ ULAŞMIYORDU ve semptomu depo sahibi gördü:** *"genel zaten
+   * aslında bunun içindi… ama yapmıyor gibi."* Ölçüldü: `kipTarifi` yalnız
+   * `konuSecPromptu`ndan çağrılıyordu, yani kip KONUYU seçiyor ama METNİ yazan istem
+   * onu hiç görmüyordu. Öğretici bir konu seçip tanıtım diliyle yazmak, kipi
+   * kozmetiğe çevirir.
+   *
+   * ⚠ İsteğe bağlı ve varsayılan `firma`: kipi geçirmeyen eski çağıranlar bugünkü
+   * davranışta kalıyor.
+   */
+  kip: IcerikKipi = 'firma'
+): string => {
   // ⚠ Bütçe DOĞRULAYICIYLA AYNI kaynaktan: iki yerde hesaplanan bir sayı, iki farklı
   // sonuç verir ve model bir sınıra uyarken başka bir sınırda reddedilir.
   const butce = kelimeButcesi(ornek)
@@ -504,6 +522,11 @@ export const uyarlamaIstemi = (ornek: KatalogOrnegi, sablonId: string, konu: str
   return [
     `Konu: ${konu}`,
     `Şablon: ${sablonId} · ${ornek.kartlar.length} kart`,
+    '',
+    // ⚠ ⚠ **KİP TARİFİ EN ÜSTTE — kompozisyon kurallarından ÖNCE.** İstemin geri kalanı
+    // harf bütçesi, vurgu yeri, panel tipi: hepsi BİÇİM. Neyin yazılacağını söyleyen tek
+    // bölüm bu ve sonda kalırsa on satırlık sınır listesinin altında kaybolur.
+    ...kipTarifi(kip),
     '',
     'Aşağıdaki kart iskeletini bu konuya göre DOLDUR. Başlıkların METNİ sana verilmedi:',
     'her başlığı Kaynak metinden yola çıkarak SEN yazacaksın; verilen şey yalnız uzunluğu,',

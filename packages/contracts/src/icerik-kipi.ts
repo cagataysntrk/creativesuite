@@ -44,6 +44,22 @@ export const kipTarifi = (kip: IcerikKipi): readonly string[] =>
         'akraba her konu. Bu bir MENÜ DEĞİL, bir yön: listede olmayan ama aynı dünyaya',
         'ait bir konu da seçilebilir.',
         'Amaç ürün ya da firma tanıtımı DEĞİL, gerçekten BİLGİ VEREN bir içerik.',
+        // ⚠ ⚠ **BU SATIR TEK BAŞINA YETMEDİ ve depo sahibi ölçtü: *"genel zaten
+        // aslında bunun içindi… ama yapmıyor gibi."*** Sebep yapısaldı: kip yalnız
+        // KONUYU seçiyordu, YAZANA hiç ulaşmıyordu (`uyarlamaIstemi` kipi almıyordu).
+        // Bir amaç cümlesi, biçimi söylemeden biçim üretmiyor. Öğreticiliğin BİÇİMLERİ
+        // artık burada ve ikisine de gidiyor.
+        //
+        // ⚠ Biçimler bir MENÜ DEĞİL, bir repertuvar: konu hangisini gerektiriyorsa o.
+        'BİÇİM: bu bir DERS, bir duyuru değil. Şu kalıplardan konuya uyanı seç:',
+        '  · NEDİR — bir kavramı sıfırdan, bilmeyen birine anlat.',
+        '  · NE İŞE YARAR — neyi çözüyor, olmadığında ne oluyor.',
+        '  · NASIL YAPILIR — adım adım, okuyan uygulayabilsin.',
+        '  · ESKİ / YENİ — dün böyle yapılıyordu, bugün böyle; ne değişti.',
+        '  · BUNDAN HABERİNİZ VAR MI — çoğu kişinin bilmediği, doğrulanabilir bir olgu.',
+        '  · ŞUNU YAPMAK ŞUNU KAZANDIRIR — bir davranış, karşılığı olan somut bir sonuç.',
+        'Okuyan karoseli kapattığında YAPABİLECEĞİ ya da ANLATABİLECEĞİ bir şey kalmalı.',
+        'Havalı ama boş cümle yazma: "dönüşümün anahtarı" gibi bir söz hiçbir şey öğretmez.',
         // ⚠ Yasa 8 burada tekrarlanıyor çünkü genel kipte kaynak baskısı en düşük ve
         // uydurma sayı riski en yüksek. İstemin sustuğu yerde model doldurur.
         'Sayı, yüzde, tarih ya da sıralama UYDURMA. Elinde kaynağı olmayan sayısal bir',
@@ -53,4 +69,7 @@ export const kipTarifi = (kip: IcerikKipi): readonly string[] =>
         'İÇERİK KİPİ: FİRMA.',
         'Konu markanın KENDİ kayıtlarından gelir: ürünler, strateji notları, kanıtlar.',
         'Ürün tanıtımı, firma tanıtımı ve markanın söylemeye yetkili olduğu iddialar.',
+        // ⚠ Firma kipinde de anlatım ÖĞRETİCİ olabilir ama kaynak MARKANIN kaydıdır:
+        // burada "bilmediğin bir şey öğret" demek, kayıtta olmayanı uydurmaya davettir.
+        'Anlatım açıklayıcı olsun; ama söylenen her şey markanın kaydına dayanmalı.',
       ]

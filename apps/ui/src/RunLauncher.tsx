@@ -403,7 +403,14 @@ export const RunLauncher = ({
         içerik kipi{' '}
         <select value={icerikKipi} onChange={(e) => setIcerikKipi(e.target.value)}>
           <option value="firma">firma — ürün ve firma tanıtımı, marka kayıtlarından</option>
-          <option value="genel">genel — bilgi veren içerik, kapsam geniş</option>
+          {/* ⚠ ⚠ **ETİKET NE OLDUĞUNU SÖYLÜYOR, ne olmadığını değil.** Eski etiket
+              *"bilgi veren içerik, kapsam geniş"* diyordu ve depo sahibi ölçtü:
+              *"genel zaten aslında bunun içindi… ama yapmıyor gibi."* Sebep etikette
+              değildi (kip yazana hiç ulaşmıyordu) ama etiket de neyin çıkacağını
+              anlatmıyordu. */}
+          <option value="genel">
+            genel — ÖĞRETİCİ içerik: nedir · nasıl · eski/yeni · biliyor muydunuz
+          </option>
         </select>
       </label>
 

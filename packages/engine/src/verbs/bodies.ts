@@ -2050,7 +2050,14 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     const s = sablonSecimiIcin(input)
     if (!s.ok) return ''
     return [
-      uyarlamaIstemi(s.ornek, s.sablonId, konu),
+      // ⚠ Kip YAZANA da geçiyor: konuyu seçip biçimi söylememek, kipi kozmetiğe
+      // çevirir (`uyarlamaIstemi`in kendi yorumu).
+      uyarlamaIstemi(
+        s.ornek,
+        s.sablonId,
+        konu,
+        icerikKipiCozumle(input.constraints['icerik_kipi'])
+      ),
       '',
       'Kaynak metin:',
       ...s.satirlar.map((t) => `- ${t}`),
