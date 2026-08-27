@@ -96,6 +96,8 @@ const kur = (o: {
     elle?: boolean
     teslimat?: { id: string; index: number; total: number; role: string; kind?: string }
   }[]
+  /** Editör beyanı — `slaytlar.json`. Koşu → güncel digest listesi. */
+  beyan?: Record<string, string[]>
   manifestler?: ReturnType<typeof manifest>[]
   karantina?: number
   yayinlanan?: string[]
@@ -105,6 +107,18 @@ const kur = (o: {
     const d = join(kok, 'derived/blobs', v.digest.slice(7, 9))
     mkdirSync(d, { recursive: true })
     writeFileSync(join(d, `${v.digest.slice(7)}.meta.json`), JSON.stringify(meta(v)))
+  }
+  for (const [runId, digestler] of Object.entries(o.beyan ?? {})) {
+    const d = join(kok, RUNS_DIR, runId)
+    mkdirSync(d, { recursive: true })
+    writeFileSync(
+      join(d, 'slaytlar.json'),
+      JSON.stringify({
+        at: '2026-08-27T15:00:00.000Z',
+        kaynak: 'editor',
+        slaytlar: digestler.map((digest, sira) => ({ sira, digest })),
+      })
+    )
   }
   for (const m of o.manifestler ?? []) {
     const d = join(kok, RUNS_DIR, m.runId)
@@ -558,6 +572,59 @@ describe('varlık emekliliği (D-301)', () => {
         'ikisi de görünür kalıyor'
       ).toBe(true)
       expect(kosununSlaytlari(k, 'run_i')).toHaveLength(2)
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('EDİTÖR BEYANI zaman damgasını EZİYOR — editör her zaman baskın', () => {
+    // ⚠ ⚠ **BU TEST BİR KUSURDAN DOĞDU ve kusuru depo sahibi gördü:** *"editörde 3.
+    // yuvayı sildim, json yazdırdım — ama panelde hâlâ eskisi var. Editör her zaman
+    // baskın gelmeli!!"* Sebep ölçüldü: `storeBlob` AYNI BAYT ikinci kez geldiğinde
+    // sidecar'ı ezmiyor (doğru: para ilk üretimde harcandı), yani bir slaydı ÖNCEKİ
+    // hâline döndürmek `createdAt`i GERİ alıyor. Gerçek koşuda 12:28'lik bayt geri
+    // geldi, 14:35'teki ARA sürüm "en yeni" göründü ve ekranda kaldı.
+    //
+    // Zaman damgası güncelliğin VEKİLİYDİ; artık beyan var.
+    const kok = kur({
+      varliklar: [
+        // Ara sürüm EN YENİ zaman damgasını taşıyor…
+        { digest: 'sha256:ara', runId: 'run_e', createdAt: YENI, teslimat: parca(0, 1, 'dlv_e') },
+        // …ama editörün son kaydettiği bayt DAHA ESKİ görünüyor (dedupe).
+        { digest: 'sha256:son', runId: 'run_e', createdAt: ESKI, teslimat: parca(0, 1, 'dlv_e') },
+      ],
+      beyan: { run_e: ['sha256:son'] },
+    })
+    try {
+      const k = kutuphane(kok)
+      expect(
+        k.varliklar.map((v) => v.digest),
+        'beyan edilen bayt güncel — zaman damgası ne derse desin'
+      ).toEqual(['sha256:son'])
+      expect(
+        k.emekliVarliklar.map((v) => v.digest),
+        'ara sürüm emekli'
+      ).toEqual(['sha256:ara'])
+      expect(kosununSlaytlari(k, 'run_e').map((v) => v.digest)).toEqual(['sha256:son'])
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('BEYAN YOKSA eski kural geçerli — hiç düzenlenmemiş koşu kaybolmuyor', () => {
+    // ⚠ Beyansız bir koşuyu "slaytsız" saymak, on üretimin dokuzunu kaybetmek olurdu.
+    const kok = kur({
+      varliklar: [
+        { digest: 'sha256:a0', runId: 'run_f', createdAt: ESKI, teslimat: parca(0, 1, 'dlv_f') },
+        { digest: 'sha256:b0', runId: 'run_f', createdAt: YENI, teslimat: parca(0, 1, 'dlv_f') },
+      ],
+    })
+    try {
+      const k = kutuphane(kok)
+      expect(
+        k.varliklar.map((v) => v.digest),
+        'en yeni kazanıyor'
+      ).toEqual(['sha256:b0'])
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }

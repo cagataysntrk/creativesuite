@@ -567,10 +567,29 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   app.get('/api/calistirmalar', (c) => {
     const k = kutuphane(o.repoRoot)
     const bugun = o.simdi().slice(0, 10)
+    // ⚠ ⚠ **EKSİK METİN LİSTEDE GÖRÜNÜYOR — ve görünmüyordu.** Depo sahibi: *"run içine
+    // girmeden metin ürettirme olmalı, tek tuşla eksik olan metinleri
+    // üretebilmeliyiz."* Hangi metnin eksik olduğunu bilmeden düğme koymak, her koşuda
+    // bir model çağrısı denemek olurdu.
+    const eksikMetin = (runId: string): readonly string[] => {
+      const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps/yayin-metni.json')
+      let m: Record<string, string> = {}
+      if (existsSync(yol)) {
+        try {
+          m =
+            (JSON.parse(readFileSync(yol, 'utf8')) as { yayinMetinleri?: Record<string, string> })
+              .yayinMetinleri ?? {}
+        } catch {
+          // Bozuk adım çıktısı = metin YOK.
+        }
+      }
+      return VARSAYILAN_PLATFORMLAR.filter((x) => (m[x] ?? '').trim() === '')
+    }
     return c.json({
       calistirmalar: calistirmalar(o.repoRoot).map((r) => ({
         ...r,
         gonderi: gonderiDurumu(o.repoRoot, r.runId, k, bugun),
+        eksikMetin: eksikMetin(r.runId),
       })),
     })
   })
@@ -1671,7 +1690,48 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   app.post('/api/kosu/:runId/yayin-metni-uret', async (c) => {
     const runId = c.req.param('runId')
     if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
-    const g = (await c.req.json().catch(() => ({}))) as { platform?: string; hepsi?: boolean }
+    const g = (await c.req.json().catch(() => ({}))) as {
+      platform?: string
+      hepsi?: boolean
+      eksik?: boolean
+    }
+
+    // ── YALNIZ EKSİK OLANLAR (FAZ-19.13) ────────────────────────────────────
+    //
+    // ⚠ ⚠ **`--hepsi` YAZILMIŞ METNİ EZİYORDU ve tek toplu seçenek oydu.** Depo sahibi:
+    // *"run içine girmeden metin ürettirme olmalı, tek tuşla EKSİK olan metinleri
+    // üretebilmeliyiz."* Eksiği doldurmak ile hepsini yeniden yazmak aynı şey değil:
+    // ikincisi insanın elle düzelttiği bir metni sessizce modele geri verirdi.
+    //
+    // ⚠ Hangi platformlar? `VARSAYILAN_PLATFORMLAR` — dört platformun dördüne birden
+    // metin üretmek, kullanılmayacak iki metin için kota harcamak olurdu (D-261).
+    if (g.eksik === true) {
+      const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps/yayin-metni.json')
+      let mevcut: Record<string, string> = {}
+      if (existsSync(yol)) {
+        try {
+          mevcut =
+            (JSON.parse(readFileSync(yol, 'utf8')) as { yayinMetinleri?: Record<string, string> })
+              .yayinMetinleri ?? {}
+        } catch {
+          // Bozuk adım çıktısı = metin YOK. "Herhalde vardır" yok.
+        }
+      }
+      const eksikler = VARSAYILAN_PLATFORMLAR.filter((x) => (mevcut[x] ?? '').trim() === '')
+      if (eksikler.length === 0)
+        return c.json({ ok: true, uretilen: [], not: 'eksik metin yok — hepsi yazılı' })
+      const uretilen: string[] = []
+      for (const id of eksikler) {
+        const r = await metinUret(['yayin-metni', '--run', runId, '--platform', id])
+        // ⚠ Bir platform düşerse ÖTEKİLER denenmeye devam ediyor ama sonuç GİZLENMİYOR:
+        // yarım kalan bir toplu iş, tamamlanmış sanılan bir toplu işten iyidir.
+        if (r.ok) uretilen.push(id)
+        else return c.json({ ok: false, hata: r.hata ?? 'üretilemedi', uretilen }, 400)
+      }
+      yayinla('degisim')
+      return c.json({ ok: true, uretilen })
+    }
+
     const hepsi = g.hepsi === true
     const p = PLATFORMLAR.find((x) => x.id === g.platform)
     if (!hepsi && p === undefined)

@@ -236,6 +236,40 @@ const manifestBul = (
   return m
 }
 
+/**
+ * Koşunun EDİTÖR BEYANI — karoselin şu anki baytları (`slaytlar.json`).
+ *
+ * ⚠ ⚠ **BU BEYAN BİR VEKİLİN ÇÖKMESİNDEN DOĞDU.** Güncellik blob'un `createdAt`inden
+ * okunuyordu; `storeBlob` aynı baytı ikinci kez alınca sidecar'ı EZMİYOR (doğru: para
+ * ilk üretimde harcandı) ve bir slaydı önceki hâline döndürmek zaman damgasını GERİ
+ * alıyor. Gerçek koşuda ölçüldü: editör 4. slaydı eski hâline döndürdü, damga 12:28'de
+ * kaldı ve 14:35'teki ARA sürüm "en yeni" görünüp ekranda kaldı. Depo sahibi gördü:
+ * *"editör her zaman baskın gelmeli!!"*
+ *
+ * ⚠ Zaman damgası güncelliğin VEKİLİYDİ; artık beyan var. Hangi baytların karoseli
+ * oluşturduğunu tahmin etmeye gerek yok — editör biliyor ve yazıyor.
+ *
+ * ⚠ Beyan YOKSA `null`: hattın ürettiği ve hiç düzenlenmemiş koşularda dosya yok ve
+ * eski (zaman damgalı) kural geçerli kalıyor. Beyansız bir koşuyu "slaytsız" saymak,
+ * on üretimin dokuzunu kaybetmek olurdu.
+ */
+const editorBeyani = (repoRoot: string, runId: string): ReadonlySet<string> | null => {
+  const y = join(repoRoot, RUNS_DIR, runId, 'slaytlar.json')
+  if (!existsSync(y)) return null
+  try {
+    const d = JSON.parse(readFileSync(y, 'utf8')) as {
+      slaytlar?: readonly { digest?: unknown }[]
+    }
+    const s = new Set<string>()
+    for (const x of d.slaytlar ?? []) if (typeof x.digest === 'string') s.add(x.digest)
+    // ⚠ BOŞ beyan `null` sayılıyor: sıfır slayt ilan eden bir dosya, bozuk bir yazma
+    // olabilir ve bütün karoseli görünmez kılardı.
+    return s.size === 0 ? null : s
+  } catch {
+    return null
+  }
+}
+
 export const kutuphane = (repoRoot: string): Kutuphane => {
   const yayin = yayinlananlar(repoRoot)
   const onbellek = new Map<string, RunManifest | null>()
@@ -351,7 +385,7 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
     const guncelDigest = sirali[0]?.digest ?? ''
     for (const eskisi of sirali.slice(1)) emekli.set(eskisi.digest, guncelDigest)
   }
-  const tumu: VarlikSatiri[] = varliklar.map((v) => {
+  const tumu: VarlikSatiri[] = varliklar.map((v): VarlikSatiri => {
     const sonraki = emekli.get(v.digest)
     return sonraki === undefined ? v : { ...v, guncel: false, sonrakiDigest: sonraki }
   })
@@ -359,6 +393,25 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
   // `guncel` bayrağını koyuyordu; koşu ekranı süzdü, Komuta ekranı süzmedi ve emekli
   // slaytlar sayaca girdi. Bayrak DURUYOR (bir satıra bakınca durumu okunsun diye) ama
   // artık kimsenin ona bakması gerekmiyor.
+  // ⚠ ⚠ **EDİTÖR BEYANI ZAMAN DAMGASINI EZİYOR.** Beyanı olan bir koşuda güncel olanlar
+  // YALNIZ ilan edilenlerdir; ilan edilmeyen her bayt emeklidir — kaç saniye önce
+  // yazıldığından bağımsız olarak. *"Editör her zaman baskın gelmeli."*
+  const beyanlar = new Map<string, ReadonlySet<string> | null>()
+  const beyan = (runId: string): ReadonlySet<string> | null => {
+    const v = beyanlar.get(runId)
+    if (v !== undefined) return v
+    const b = editorBeyani(repoRoot, runId)
+    beyanlar.set(runId, b)
+    return b
+  }
+  const beyanliTumu: VarlikSatiri[] = tumu.map((v) => {
+    const b = beyan(v.sourceRunId)
+    if (b === null) return v
+    const ilanli = b.has(v.digest)
+    return ilanli === v.guncel ? v : { ...v, guncel: ilanli, sonrakiDigest: ilanli ? null : '' }
+  })
+  tumu.length = 0
+  tumu.push(...beyanliTumu)
   const emekliler = tumu.filter((v) => !v.guncel)
   varliklar.length = 0
   varliklar.push(...tumu.filter((v) => v.guncel))

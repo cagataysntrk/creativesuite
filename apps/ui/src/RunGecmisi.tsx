@@ -115,6 +115,8 @@ interface Ozet {
    * kopyalama işi değil, TEK KAYNAK işidir.
    * ⚠ İsteğe bağlı: eski bir sunucuyla konuşulursa ekran çökmemeli.
    */
+  /** Metni YAZILMAMIŞ varsayılan platformlar — tek tuşla üretilebilsin diye. */
+  readonly eksikMetin?: readonly string[]
   readonly gonderi?: {
     readonly asama: 'yayinlandi' | 'zamanlandi' | 'planlandi' | 'cikarildi' | 'planlanmadi'
     readonly tarih: string
@@ -235,6 +237,8 @@ export const RunGecmisi = ({
   // ayrı GÖRÜNÜM yapmak aynı listeyi iki yoğunlukta okumak.
   const [gorunum, setGorunum] = useState<'kart' | 'tablo'>('kart')
   const [tekrarSonuc, setTekrarSonuc] = useState<string | null>(null)
+  /** Metin üretimi koşan koşu — düğme iki kez basılmasın (model çağrısı pahalı). */
+  const [metinUreten, setMetinUreten] = useState<string | null>(null)
 
   /**
    * İki AYRI uç, iki AYRI eylem. Tek bir "tekrar" çağrısı yapıp sunucuda ayırmak,
@@ -472,6 +476,40 @@ export const RunGecmisi = ({
   // Cevap artık sunucudan geliyor.
   const yayinlandiMi = (runId: string): boolean =>
     liste.find((r) => r.runId === runId)?.gonderi?.yayin.yayinlandi === true
+
+  /**
+   * EKSİK gönderi metinlerini üretir — koşuyu AÇMADAN.
+   *
+   * ⚠ ⚠ **DEPO SAHİBİ: *"run içine girmeden metin ürettirme olmalı, tek tuşla eksik
+   * olan metinleri üretebilmeliyiz ilgili varlık için."*** Metin üretmek için koşu
+   * detayına girmek gerekiyordu; on koşuda on kez girip çıkmak demekti.
+   *
+   * ⚠ ⚠ **YALNIZ EKSİK OLANLAR.** Sunucunun `hepsi` seçeneği var ama o YAZILMIŞ metni
+   * eziyor: insanın elle düzelttiği bir metni sessizce modele geri vermek, düzeltmeyi
+   * yok saymaktır.
+   */
+  const eksikMetinUret = async (runId: string): Promise<void> => {
+    setMetinUreten(runId)
+    setTekrarSonuc('⚡ eksik gönderi metinleri üretiliyor…')
+    try {
+      const j = (await (
+        await fetch(`/api/kosu/${runId}/yayin-metni-uret`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ eksik: true }),
+        })
+      ).json()) as { ok?: boolean; uretilen?: readonly string[]; not?: string; hata?: string }
+      setTekrarSonuc(
+        j.ok === true
+          ? `✓ ${j.not ?? `${String((j.uretilen ?? []).length)} metin üretildi: ${(j.uretilen ?? []).join(' · ')}`}`
+          : `✗ ${j.hata ?? 'üretilemedi'}`
+      )
+      if (j.ok === true) listeyiCek()
+    } catch {
+      setTekrarSonuc('✗ sunucuya ulaşılamıyor')
+    }
+    setMetinUreten(null)
+  }
 
   const sirali = tariheGore(suzulmusHam, (r) => r.createdAt, siralama)
   const suzulmus = sirali
@@ -885,6 +923,21 @@ export const RunGecmisi = ({
                     {ac === undefined ? null : (
                       <button type="button" className="hizli" onClick={() => ac(r.runId)}>
                         aç →
+                      </button>
+                    )}
+                    {/* ⚠ Düğme YALNIZ eksik varsa: eksik olmayan bir koşuda "üret"
+                        demek, yazılmış metni ezmeyi teklif etmektir. */}
+                    {(r.eksikMetin ?? []).length === 0 ? null : (
+                      <button
+                        type="button"
+                        className="hizli"
+                        disabled={metinUreten !== null}
+                        title={`metni yazılmamış: ${(r.eksikMetin ?? []).join(' · ')}`}
+                        onClick={() => void eksikMetinUret(r.runId)}
+                      >
+                        {metinUreten === r.runId
+                          ? '⏳ metin üretiliyor…'
+                          : `⚡ eksik metin (${String((r.eksikMetin ?? []).length)})`}
                       </button>
                     )}
                     {/* ⚠ ⚠ **KARAR SLAYTLARIN YANINDA:** onay kararı slaytlara BAKARAK

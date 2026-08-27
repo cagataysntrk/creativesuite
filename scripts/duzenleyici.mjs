@@ -227,7 +227,41 @@ const slaytlariDepolaVeEmeklet = (dizin, runId, yollar, doc, kusurlar) => {
   // ⚠ Dizin de kalkıyor: boş bir dizin bırakmak, bir dahaki `git status`ta aynı soruyu
   // sordurur. Depo temiz kalmalı (repo-hygiene kapısı).
   rmSync(gecici, { recursive: true, force: true })
-  return { ok: true, saklanan, atlanan, ifsa, insan }
+
+  // ── EDİTÖR BASKINDIR: bu kayıt karoselin ŞU ANKİ hâlini İLAN EDİYOR ────────
+  //
+  // ⚠ ⚠ **BU DOSYA BİR KUSURDAN DOĞDU ve kusuru depo sahibi gördü:** *"editörde 3.
+  // yuvayı sildim, json yazdırdım, güncellendi — ama panelde hâlâ eskisi var. Editör
+  // her zaman baskın gelmeli!!"* Sebep ölçüldü: güncellik blob'un `createdAt`inden
+  // okunuyordu ve `storeBlob` AYNI BAYT ikinci kez geldiğinde sidecar'ı EZMİYOR (doğru
+  // davranış — para ilk üretimde harcandı). Bir slaydı önceki hâline geri döndürünce
+  // bayt eskiden var olan bir blob'a eşitleniyor, `createdAt` 12:28'de kalıyor ve
+  // 14:35'teki ARA sürüm "en yeni" görünüp ekranda kalıyordu.
+  //
+  // ⚠ ⚠ **ZAMAN DAMGASI GÜNCELLİĞİN VEKİLİYDİ; ARTIK BEYAN VAR.** Hangi baytların
+  // karoseli oluşturduğunu tahmin etmeye gerek yok: EDİTÖR BİLİYOR ve yazıyor. Vekil
+  // bir ölçü, bir gün vekillik ettiği şeyden ayrışır — burada ayrıştı.
+  //
+  // ⚠ Emeklilik hâlâ SİLME DEĞİL (Yasa 10): eski baytlar diskte, sidecar'ları yerinde.
+  try {
+    writeFileSync(
+      join(dizin, 'slaytlar.json'),
+      JSON.stringify(
+        {
+          at: simdi,
+          kaynak: 'editor',
+          slaytlar: saklanan.map((x) => ({ sira: x.sira - 1, digest: x.digest })),
+        },
+        null,
+        2
+      ) + '\n'
+    )
+  } catch {
+    // ⚠ Yazılamazsa SESSİZ kalmıyor: çağıran `beyanYazildi: false` görüyor ve
+    // güncellik eski (zaman damgalı) kurala düşüyor — yanlış ama görünür.
+    return { ok: true, saklanan, atlanan, ifsa, insan, beyanYazildi: false }
+  }
+  return { ok: true, saklanan, atlanan, ifsa, insan, beyanYazildi: true }
 }
 
 /**
@@ -1902,6 +1936,9 @@ const sunucu = createServer(async (req, res) => {
             (dep.ifsa
               ? ''
               : '\n⚠ AI ifşa şeridi ÖLÇÜLEMEDİ ya da görünmüyor — yayın kapısı durdurur') +
+            (dep.beyanYazildi === false
+              ? '\n⚠ `slaytlar.json` YAZILAMADI — panel eski sürümü gösterebilir'
+              : '') +
             (dep.atlanan.length === 0
               ? ''
               : '\n⚠ atlanan slayt: ' + dep.atlanan.join(' · ') + ' (eşleşen teslimat yuvası yok)')
