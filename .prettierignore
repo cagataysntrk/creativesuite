@@ -15,3 +15,8 @@ schemas/
 # Marka token'larından ÜRETİLEN dosyalar (R-65): üreteç ile biçimlendirici aynı
 # dosyaya sahip olamaz — prettier CSS'i yeniden akıtınca kapı 'güncel değil' diyor.
 brand/*/derived-tokens/
+
+# ⚠ ⚠ Üretilmiş VERİ dosyası, kaynak değil — `just gorsel-katalog` yazıyor ve insan
+# okumuyor. Biçimlendirilmiş hâli 740 KB ve `repo-hygiene` kapısının 512 KB tavanını
+# aşıyor; iki kapı birbiriyle çakışıyordu. Girintisiz 452 KB.
+scripts/gorsel-katalog.json

@@ -170,8 +170,28 @@ const baslikEkle = (kok, metin) => {
 const kova = []
 
 /** Önizleme adresi — editörün kendi metin rengiyle, koyu tezgâhta siyah ikon görünmez. */
+/**
+ * Önizleme adresi — HER ZAMAN kendi sunucumuz üzerinden.
+ *
+ * ⚠ ⚠ **DOĞRUDAN DIŞ ADRES KULLANMIYORUZ ve sebebi ÖLÇÜLDÜ.** Depo sahibi: *"modal
+ * içinde görseller önizlenmiyor, ancak ekleyince görünüyor."* Ekleme sunucudan geçiyor
+ * ve çalışıyor; önizleme tarayıcıdan gidiyordu ve gitmiyordu. Görmeden seçilemeyen bir
+ * liste, olmayan bir listedir.
+ * ⚠ Iconify'dan PNG isteniyor, SVG değil: vekil `image/svg+xml` sunmayı reddediyor —
+ * kendi kaynağımızdan sunulan bir SVG içindeki betiği editörün oturumuyla çalıştırır.
+ */
+const vekil = (url) => '/gorsel-onizleme?url=' + encodeURIComponent(url)
 const ikonUrl = (tam, boy = 56) =>
-  'https://api.iconify.design/' + tam.replace(':', '/') + '.svg?height=' + boy + '&color=%23e6e8ec'
+  // ⚠ ⚠ **SVG, PNG DEĞİL — ölçüldü: Iconify'ın `.png` ucu 404 veriyor.** İlk düzeltmemde
+  // PNG istedim ve önizlemeler yine boş kaldı; kaynak PNG sunmuyorsa istemek çare değil.
+  // Vekil SVG'yi temizleyip sertleştirilmiş başlıklarla veriyor.
+  vekil(
+    'https://api.iconify.design/' +
+      tam.replace(':', '/') +
+      '.svg?height=' +
+      boy * 2 +
+      '&color=%23e6e8ec'
+  )
 
 /** Seçili adayı yuvaya indirir — sunucu temizler, rasterler, lisansı yazar. */
 async function yuvayaKoy(i, o, renk) {
@@ -237,7 +257,14 @@ function aramaAc(i, renkAl) {
       // veriyor; Iconify ise ad'dan adres kuruyor. İlk sürüm hepsine `ikonUrl` uyguladı
       // ve 3D sonuçların önizlemesi BOŞ çıktı — sonuç listesi doluydu ama hiçbiri
       // görünmüyordu. Boş bir küçük resim, olmayan bir sonuçtan daha kötüdür.
-      im.src = o.pngUrl ?? ikonUrl(o.tam)
+      im.src = o.pngUrl === undefined ? ikonUrl(o.tam) : vekil(o.pngUrl)
+      // ⚠ ⚠ **YÜKLENMEYEN ÖNİZLEME SESSİZ KALMIYOR.** Boş bir kare, insanın "bu sonuç
+      // bozuk mu, ağ mı yok" diye tahmin etmesine yol açıyordu. Artık kart uyarı
+      // rengine dönüyor ve sebebi `title`da.
+      im.onerror = () => {
+        d.classList.add('ara-oge-kirik')
+        d.title = 'önizleme yüklenemedi — ' + (o.ad ?? o.tam)
+      }
       im.loading = 'lazy'
       im.alt = o.ad ?? o.tam
       d.appendChild(im)
@@ -485,6 +512,46 @@ function mufettisiKur(doc) {
     // ise SVG bile değil — sunucuda temizlenip rasterlenmiş saydam PNG.
     let seciliRenk = ''
     kok.appendChild(secim('öge rengi (rampadan)', '', ['', ...rampa], (v) => (seciliRenk = v)))
+
+    // ⚠ ⚠ **GÖRSEL EFEKTLERİ — depo sahibinin isteği:** *"görselleri saydamlaştırma,
+    // blurlama, çeşitli görsel efektler eklemek için şeyler lazım, böylece daha da iyi
+    // sonuçlar alabiliriz."* Efekt YUVA BAŞINA: aile işlemleri (`matlama`, `duotone`)
+    // şablonun karakteri ve hepsine aynı uygulanıyor; bunlar TEK yerleştirmenin ayarı.
+    // ⚠ Varsayılanlar "değişiklik yok" değeri: 100 parlaklık, 100 doygunluk, 0 bulanık.
+    // Sıfır ile "verilmedi" ayrı şeyler ve belgeye yalnız DEĞİŞENİ yazıyoruz.
+    const ef = { ...(g.efekt ?? {}) }
+    const efektYaz = (alan, deger, notr) => {
+      if (deger === notr) delete ef[alan]
+      else ef[alan] = deger
+      // ⚠ Boş efekt nesnesi yerine `null`: belgede `efekt: {}` bırakmak "efekt var ama
+      // hepsi nötr" demek olurdu ve sonraki okuyucu onu ayırt edemezdi.
+      yazG('efekt', Object.keys(ef).length === 0 ? null : ef)
+    }
+    kok.appendChild(
+      kaydirak(ef.saydamlik ?? 100, { etiket: 'saydamlık %', min: 10, max: 100, adim: 1 }, (v) =>
+        efektYaz('saydamlik', Math.round(v), 100)
+      )
+    )
+    kok.appendChild(
+      kaydirak(ef.bulanik ?? 0, { etiket: 'bulanıklık px', min: 0, max: 24, adim: 1 }, (v) =>
+        efektYaz('bulanik', Math.round(v), 0)
+      )
+    )
+    kok.appendChild(
+      kaydirak(ef.parlaklik ?? 100, { etiket: 'parlaklık %', min: 40, max: 180, adim: 1 }, (v) =>
+        efektYaz('parlaklik', Math.round(v), 100)
+      )
+    )
+    kok.appendChild(
+      kaydirak(ef.doygunluk ?? 100, { etiket: 'doygunluk %', min: 0, max: 200, adim: 1 }, (v) =>
+        efektYaz('doygunluk', Math.round(v), 100)
+      )
+    )
+    kok.appendChild(
+      kaydirak(ef.gri ?? 0, { etiket: 'gri tonlama %', min: 0, max: 100, adim: 1 }, (v) =>
+        efektYaz('gri', Math.round(v), 0)
+      )
+    )
 
     const arabtn = document.createElement('button')
     arabtn.textContent = '🔎 webden 3D öge ara'

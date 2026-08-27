@@ -234,6 +234,7 @@ const KABUK = (
     align-items:center;justify-content:center;padding:32px}
   #ara-perde.acik{display:flex}
   .ara-oge{position:relative}
+  .ara-oge-kirik{border-color:#7a3b3b !important;opacity:.5}
   /* ⚠ 3D rozeti köşede: küçük resimde düz ikon ile 3D render'ı ayırt etmek gerekiyor. */
   .ara-rozet{position:absolute;top:4px;left:4px;background:#0b0f14cc;border:1px solid #2a3441;
     border-radius:4px;color:#8fd0ff;font:600 9px/1 ui-monospace,monospace;padding:3px 4px}
@@ -989,6 +990,94 @@ const sunucu = createServer(async (req, res) => {
     // sonuç SVG — yani doğası gereği arkaplansız ve çerçevesiz. Elenen kaynakların
     // listesi (`svgrepo` 429 · `poly.pizza` anahtar istiyor · `openverse` fotoğraf
     // getiriyor) modülün başında; bir daha denenmesin diye yazılı.
+    // ── ÖNİZLEME VEKİLİ (FAZ-19.13) ────────────────────────────────────────
+    //
+    // ⚠ ⚠ **BU BİR KUSURDAN DOĞDU ve teşhisi depo sahibi verdi:** *"web arama modal
+    // içinde görseller önizlenmiyor, o yüzden seçemiyorum, ancak ekleyince görünüyor."*
+    // İkisi arasındaki fark kim çekiyor: EKLEME sunucudan geçiyor ve çalışıyor,
+    // ÖNİZLEME tarayıcıdan gidiyordu ve gitmiyordu. Yani tarayıcı dış hostlara
+    // ulaşamıyor; sunucu ulaşıyor. Görmeden seçilemeyen bir liste, olmayan bir listedir.
+    //
+    // ⚠ ⚠ **AÇIK VEKİL DEĞİL — HOST BEYAZ LİSTESİ var.** `?url=` alan bir vekil,
+    // beyaz liste olmadan bu makineyi başkasının ağına açan bir delik olurdu (SSRF).
+    // Yalnız katalogda adı geçen üç host geçiyor.
+    if (u.pathname === '/gorsel-onizleme') {
+      const hedef = u.searchParams.get('url') ?? ''
+      const IZINLI = [
+        'api.iconify.design',
+        'raw.githubusercontent.com',
+        'upload.wikimedia.org',
+        'commons.wikimedia.org',
+      ]
+      let host = ''
+      try {
+        const uu = new URL(hedef)
+        if (uu.protocol !== 'https:') throw new Error('yalnız https')
+        host = uu.hostname
+      } catch {
+        res.writeHead(400)
+        return res.end('gecersiz adres')
+      }
+      if (!IZINLI.includes(host)) {
+        res.writeHead(403)
+        return res.end('izinli host degil: ' + host)
+      }
+      try {
+        // ⚠ ⚠ **`user-agent` ŞART — Wikimedia anonim ve tanımsız istekleri REDDEDİYOR.**
+        // Ölçüldü: başlıksız istek 400 dönüyor ve önizleme boş kalıyor. Diğer hostlar
+        // umursamıyor ama tek bir başlık üçünü de mutlu ediyor.
+        const r = await fetch(hedef, {
+          signal: AbortSignal.timeout(15_000),
+          headers: { 'user-agent': 'creativesuite/1.0 (yerel editör)' },
+        })
+        if (!r.ok) {
+          res.writeHead(502)
+          return res.end('kaynak ' + String(r.status))
+        }
+        const tip = r.headers.get('content-type') ?? ''
+        // ⚠ ⚠ **`image/svg+xml` OLARAK SUNULMUYOR.** Bir SVG çalıştırılabilir bir belge ve
+        // KENDİ kaynağımızdan sunulursa içindeki betik editörün oturumuyla çalışır. Panel
+        // sunucusunda aynı karar bir kez verildi (`/api/varlik/:digest`); burada tekrar
+        // ediliyor. SVG düz metin olarak iniyor ve `<img>` içinde çizilmiyor — o yüzden
+        // Iconify önizlemesi PNG olarak isteniyor (aşağıda).
+        if (!tip.startsWith('image/')) {
+          res.writeHead(415)
+          return res.end('desteklenmeyen tip: ' + tip)
+        }
+        // ⚠ ⚠ **SVG GEÇİYOR AMA TEMİZLENEREK ve SERTLEŞTİRİLEREK.** İlk sürüm SVG'yi
+        // tamamen reddediyordu ve Iconify önizlemeleri BOŞ çıktı — çünkü Iconify'ın PNG
+        // ucu YOK (ölçüldü: `.png` 404). Reddetmek güvenliydi ama ekranı boşalttı;
+        // görmeden seçilemeyen bir liste, olmayan bir listedir.
+        //
+        // ⚠ Üç kat koruma: (1) `temizle` betiği, olay niteliğini, dış başvuruyu ve
+        // `<foreignObject>`i söküyor; (2) `default-src 'none'` ile doğrudan gezinilse
+        // bile hiçbir şey yükleyemiyor; (3) `sandbox` betik çalıştırmayı kapatıyor.
+        // `<img>` bağlamında zaten çalışmıyor — bunlar doğrudan adrese gidilme hâli için.
+        if (tip.includes('svg')) {
+          const ham = await r.text()
+          const temiz = webAra.temizle(ham)
+          res.writeHead(200, {
+            'content-type': 'image/svg+xml',
+            'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+            'x-content-type-options': 'nosniff',
+            'cache-control': 'public, max-age=86400',
+          })
+          return res.end(temiz)
+        }
+        const bayt = Buffer.from(await r.arrayBuffer())
+        if (bayt.length > 5 * 1024 * 1024) {
+          res.writeHead(413)
+          return res.end('cok buyuk')
+        }
+        // ⚠ Önbellek: aynı arama iki kez yapıldığında ikinci kez ağa çıkmıyor.
+        res.writeHead(200, { 'content-type': tip, 'cache-control': 'public, max-age=86400' })
+        return res.end(bayt)
+      } catch (e) {
+        res.writeHead(502)
+        return res.end('cekilemedi: ' + String(e?.message ?? e))
+      }
+    }
+
     if (u.pathname === '/gorsel-ara') {
       const d = JSON.parse(await govde(req))
       const k = kaynak[id]

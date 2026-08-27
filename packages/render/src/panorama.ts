@@ -160,6 +160,29 @@ export interface PanoramaGorseli {
    */
   readonly z?: number
   /**
+   * Yuva BAŞINA görsel efekti — insanın editörde verdiği ince ayar.
+   *
+   * ⚠ ⚠ **AİLE İŞLEMLERİNDEN AYRI ve bilinçli.** `gorselIslemleri` bir ŞABLON AİLESİNİN
+   * karakteri (matlama, duotone, temas gölgesi) ve her görsele aynı uygulanıyor. Bu ise
+   * TEK bir yerleştirmenin ayarı: bir portre fazla keskin geldi, bir dünya görseli fon
+   * olarak arkada dursun isteniyor. İkisini tek alana sıkıştırmak, ailenin karakterini
+   * tek bir yerleştirmenin ayarıyla ezilebilir yapardı.
+   *
+   * ⚠ Verilmeyen alan UYGULANMIYOR: `0` ile "verilmedi" ayrı şeyler.
+   */
+  readonly efekt?: {
+    /** Saydamlık, 0–100. `100` tam opak. */
+    readonly saydamlik?: number
+    /** Bulanıklık, piksel. Fon olarak kullanılan görselde derinlik yaratıyor. */
+    readonly bulanik?: number
+    /** Parlaklık, yüzde. `100` değişiklik yok. */
+    readonly parlaklik?: number
+    /** Doygunluk, yüzde. `0` gri, `100` değişiklik yok. */
+    readonly doygunluk?: number
+    /** Gri tonlama, yüzde. Marka rampasına oturmayan bir fotoğrafı sakinleştiriyor. */
+    readonly gri?: number
+  }
+  /**
    * Dönüş — **yatay** (`donusY`), **dikey** (`donusX`) ve **düzlem içi** (`donusZ`), derece.
    *
    * ⚠ ⚠ **DÜZ BİR PNG DÖNDÜRÜLÜNCE GİZLİ YÜZÜ GÖRÜNMEZ ve bunu söylemek ZORUNDAYIM.**
@@ -2039,8 +2062,33 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
       const altKart = doc.kartlar[kartIndeks]
       const acikKart = altKart !== undefined && !koyuMu(kartinZemini(altKart), doc.tokenCss)
       const zincir = islemZinciri(doc.gorselIslemleri ?? [], acikKart)
+      // ⚠ ⚠ **YUVA EFEKTİ AİLE ZİNCİRİNDEN SONRA.** Aile ne yaptıysa onun ÜSTÜNE
+      // biniyor; önce gelseydi `tema-uyum`un renk derecelendirmesi insanın verdiği ayarı
+      // ezerdi. Sıra bir tercih değil, filtrelerin sırayla uygulanmasının sonucu.
+      // ⚠ `saydamlik` `filter` değil `opacity` olarak yazılıyor: `filter: opacity()` iç
+      // içe filtrelerle beklenmedik biçimde birleşiyor, ayrı bildirim tahmin edilebilir.
+      const e = g.efekt
+      const efektler =
+        e === undefined
+          ? []
+          : [
+              e.bulanik === undefined || e.bulanik <= 0 ? '' : `blur(${String(e.bulanik)}px)`,
+              e.parlaklik === undefined || e.parlaklik === 100
+                ? ''
+                : `brightness(${String(e.parlaklik)}%)`,
+              e.doygunluk === undefined || e.doygunluk === 100
+                ? ''
+                : `saturate(${String(e.doygunluk)}%)`,
+              e.gri === undefined || e.gri <= 0 ? '' : `grayscale(${String(e.gri)}%)`,
+            ].filter((x) => x !== '')
+      const tamZincir = [zincir, ...efektler].filter((x) => x !== '').join(' ')
+      const opak =
+        e?.saydamlik === undefined || e.saydamlik >= 100
+          ? ''
+          : `;opacity:${String(e.saydamlik / 100)}`
       return (
-        `<img class="gorsel ${g.kirpma}" style="${stil}${zincir === '' ? '' : `;filter:${zincir}`}" ` +
+        `<img class="gorsel ${g.kirpma}" style="${stil}${opak}` +
+        `${tamZincir === '' ? '' : `;filter:${tamZincir}`}" ` +
         `src="${kacir(g.src)}" alt="${kacir(g.alt)}">`
       )
     })

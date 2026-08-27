@@ -193,6 +193,18 @@ export const sade = (x) =>
  * kazanım"* ve *"hat"* ayrı ayrı eşleşiyor. Yalnız tam ifadeye bakmak, iki kelimelik
  * her aramayı boşa çıkarırdı.
  */
+/**
+ * CLDR'dan türetilen TÜRKÇE → İNGİLİZCE sözlük (katalogda).
+ *
+ * ⚠ ⚠ **BU OLMADAN TÜRKÇE ARAMA YALNIZ FLUENT'TE ÇALIŞIYORDU.** Depo sahibi ölçtü:
+ * *"`car` yazınca diğerleri göründü, `araba` yazınca sadece Fluent Emoji geldi."*
+ * Iconify ve Commons Türkçe bilmiyor; onlara İngilizce sorgu gitmek zorunda.
+ */
+let SOZLUK = {}
+export const sozlugeBagla = (s) => {
+  SOZLUK = s ?? {}
+}
+
 export const genislet = (sorgu) => {
   const s = sade(sorgu)
   const cikti = new Set([s])
@@ -201,8 +213,12 @@ export const genislet = (sorgu) => {
     if (a === '') continue
     if (s === a || s.includes(a) || a.includes(s)) for (const d of degerler) cikti.add(sade(d))
   }
+  // ⚠ Tam ifade önce: *"geri dönüşüm"* iki ayrı kelime olarak da eşleşiyor ama
+  // BİRLİKTE aradığı şey başka.
+  for (const en of SOZLUK[s] ?? []) cikti.add(sade(en))
   for (const kelime of s.split(' ').filter((x) => x.length > 2)) {
     cikti.add(kelime)
+    for (const en of SOZLUK[kelime] ?? []) cikti.add(sade(en))
     for (const [anahtar, degerler] of Object.entries(KAVRAM)) {
       if (sade(anahtar).includes(kelime)) for (const d of degerler) cikti.add(sade(d))
     }

@@ -14,6 +14,7 @@
 import { writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { sade } from './gorsel-tr.mjs'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
 const HEDEF = join(REPO, 'scripts/gorsel-katalog.json')
@@ -24,19 +25,12 @@ const gh = async (u) => {
   return r.json()
 }
 
-// ── 3dicons (CC0) ───────────────────────────────────────────────────────────
-//
-// ⚠ Slug'lar deponun `content/3dicons-meta/*.md` adlarından; PNG'ler CDN'de ve
-// adresleme deseni `{açı}/{stil}/{ad}-{açı}-{stil}.png`. Ölçüldü: katalogdaki her ad
-// için 3 açı × 4 stilin ON İKİSİ de var.
-const ucD = async () => {
-  const kok = await gh('https://api.github.com/repos/realvjy/3dicons/git/trees/develop?recursive=1')
-  const adlar = kok.tree
-    .filter((x) => x.path.startsWith('content/3dicons-meta/') && x.path.endsWith('.md'))
-    .map((x) => x.path.replace('content/3dicons-meta/', '').replace('.md', ''))
-    .sort()
-  return adlar.map((ad) => ({ ad, etiket: ad.replace(/-/g, ' ') }))
-}
+// ⚠ ⚠ **3dicons KALDIRILDI — sebebi lisans ya da kalite DEĞİL, ERİŞİM.** Varlıkları
+// `pub-…r2.dev` altında ve o hostun DNS'i YALNIZ IPv6 (AAAA) döndürüyor; bu makinede
+// IPv6 yolu yok ve `fetch` her denemede düşüyor. Ölçüldü: sunucudan da tarayıcıdan da
+// erişilemiyor. Erişilemeyen bir kaynağı listede tutmak, her aramada kırık önizleme
+// üretmek demekti. IPv6 açılırsa deseni şuydu:
+//   https://pub-821312cfd07a4061bf7b99c1f23ed29b.r2.dev/v1/{açı}/{stil}/{ad}-{açı}-{stil}.png
 
 /**
  * Unicode CLDR'ın TÜRKÇE emoji ek açıklamaları.
@@ -95,12 +89,17 @@ const emojiAdlari = async () => {
   return harita
 }
 
-/** Karşılaştırma için sade ad: küçük harf, yalnız harf ve rakam. */
-const sadeAd = (x) =>
-  x
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
+/**
+ * Karşılaştırma için sade ad.
+ *
+ * ⚠ ⚠ **İLK SÜRÜM TÜRKÇE HARFLERİ SİLİYORDU** ve sözlüğün yarısını sessizce boşa
+ * çıkardı: `dünya` → `d nya`, `ağaç` → `a a`. Ölçüldü — *"dünya"*, *"ağaç"*, *"ev"*
+ * aramaları sözlükte KARŞILIKSIZDI. Aynı ders R-21 ile bir kez öğrenilmişti: ASCII
+ * varsayımı Türkçe metinde sessizce bozuluyor.
+ * ⚠ Katlama `gorsel-tr.mjs`teki `sade` ile AYNI olmak zorunda: sözlük bir katlamayla
+ * kurulup başka biriyle sorgulanırsa hiçbir zaman eşleşmez.
+ */
+const sadeAd = (x) => sade(x)
 
 // ── Fluent Emoji 3D (MIT) ───────────────────────────────────────────────────
 //
@@ -131,21 +130,102 @@ const fluent = async (adHarita, trHarita) => {
   return ogeler
 }
 
-const [trHarita, adHarita] = await Promise.all([turkceAnahtarlar(), emojiAdlari()])
+/**
+ * TÜRKÇE → İNGİLİZCE sözlük — CLDR'dan TÜRETİLİYOR, elle yazılmıyor.
+ *
+ * ⚠ ⚠ **BİR KUSURDAN DOĞDU, teşhisi depo sahibinin:** *"`car` yazınca diğerleri göründü,
+ * `araba` yazınca sadece Fluent Emoji geldi."* Sebebi: Türkçe anahtarlar YALNIZ Fluent
+ * kataloğundaydı; Iconify ve Commons Türkçe bilmiyor ve onlara giden sorgu hâlâ Türkçeydi.
+ * Elle sözlük yazmak yüzlerce kelime demekti ve yine eksik kalırdı.
+ *
+ * ⚠ CLDR'ın Türkçesi ile İngilizcesi AYNI emoji üzerinden eşleşiyor: `🚗` → tr `araba,
+ * otomobil` · en `car, automobile`. Sözlük zaten oradaydı, yalnız birleştirilmemişti.
+ */
+const trEnSozluk = (trH, adH, enH) => {
+  // ⚠ ⚠ **ASIL ÖLÇÜT KISALIK — ölçülerek anlaşıldı.** İlk puanlama emojinin KENDİ adını
+  // anahtar kelimelerin üstüne koyuyordu; sonuç: `araba` → *"oncoming bus"*, `para` →
+  // *"money mouth face"*, `grafik` → *"chart increasing with yen"*. Hepsi doğru emojiye
+  // bağlıydı ama hiçbiri ARANAN kelime değildi. Iconify'a *"money mouth face"* yollamak
+  // sıfır sonuç demek; *"money"* yollamak yüzlerce. Tek kelimelik bir ad, dört kelimelik
+  // bir addan her zaman daha iyi bir SORGUDUR.
+  const aday = new Map()
+  const ekle = (emoji, kelime, adMi) => {
+    const k = sadeAd(kelime)
+    if (k === '' || k.length < 2) return
+    // ⚠ ⚠ **SAYISAL ADAYLAR ATILIYOR.** CLDR saat emojilerine `10`, `11`, `30` gibi
+    // anahtarlar veriyor ve kalbe `143` (argo). Bunlar geçerli birer anahtar ama BERBAT
+    // birer görsel sorgusu: Iconify'a `12` yollamak anlamsız bir sonuç kümesi getirir.
+    if (/^[0-9\s]+$/.test(k)) return
+    const puan = 30 - (k.split(' ').length - 1) * 6 + (adMi ? 1 : 0)
+    const l = aday.get(emoji) ?? new Map()
+    l.set(k, Math.max(l.get(k) ?? 0, puan))
+    aday.set(emoji, l)
+  }
+  for (const [ad, emoji] of adH) ekle(emoji, ad, true)
+  for (const [emoji, kelimeler] of enH) for (const k of kelimeler) ekle(emoji, k, false)
+  // ⚠ ⚠ **PUANLAR SON BİRLEŞTİRMEYE KADAR TAŞINIYOR.** İlk sürüm her emojinin
+  // İngilizcesini sırayla ekleyip ilk altısını alıyordu; aynı Türkçe kelimeyi birden çok
+  // emoji paylaşınca (🚗 🚌 🚙 hepsi *"araba"* geçiyor) İLK GELEN emoji slotları
+  // kapıyordu ve `araba` → *"bus"* çıkıyordu. Sıralama emoji sırasına değil PUANA bağlı
+  // olmalı; yoksa sözlük doğru ama işe yaramaz.
+  const sozluk = new Map()
+  for (const [emoji, trKelimeler] of trH) {
+    const l = aday.get(emoji)
+    if (l === undefined) continue
+    for (const t of trKelimeler) {
+      const anahtar = sadeAd(t)
+      // ⚠ Tek harfli ve üç kelimeden uzun ifadeler atlanıyor: ilki gürültü, ikincisi
+      // (*"bir fikrim var"*) bir kelime değil bir cümle ve sorguya girmiyor.
+      if (anahtar.length < 2 || anahtar.split(' ').length > 3) continue
+      const havuz = sozluk.get(anahtar) ?? new Map()
+      for (const [k, p] of l) havuz.set(k, Math.max(havuz.get(k) ?? 0, p))
+      sozluk.set(anahtar, havuz)
+    }
+  }
+  return Object.fromEntries(
+    [...sozluk.entries()]
+      .map(([k, havuz]) => [
+        k,
+        [...havuz.entries()]
+          .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+          .map((x) => x[0])
+          .slice(0, 4),
+      ])
+      .sort()
+  )
+}
+
+/** CLDR İNGİLİZCE anahtarlar — sözlüğün öbür yakası. */
+const ingilizceAnahtarlar = async () => {
+  const r = await fetch(
+    'https://raw.githubusercontent.com/unicode-org/cldr/main/common/annotations/en.xml',
+    { headers: { 'user-agent': 'creativesuite-katalog' } }
+  )
+  const xml = r.ok ? await r.text() : ''
+  const harita = new Map()
+  for (const m of xml.matchAll(/<annotation cp="([^"]+)"(?: type="tts")?>([^<]+)<\/annotation>/g)) {
+    const kelimeler = m[2]
+      .split('|')
+      .map((x) => x.trim())
+      .filter(Boolean)
+    harita.set(m[1], [...new Set([...(harita.get(m[1]) ?? []), ...kelimeler])])
+  }
+  return harita
+}
+
+const [trHarita, adHarita, enHarita] = await Promise.all([
+  turkceAnahtarlar(),
+  emojiAdlari(),
+  ingilizceAnahtarlar(),
+])
 console.log(`  CLDR tr: ${String(trHarita.size)} kayıt · emoji adı: ${String(adHarita.size)} kayıt`)
-const [d3, fl] = await Promise.all([ucD(), fluent(adHarita, trHarita)])
+const fl = await fluent(adHarita, trHarita)
+const sozluk = trEnSozluk(trHarita, adHarita, enHarita)
+console.log(`  TR→EN sözlük: ${String(Object.keys(sozluk).length)} kelime`)
 const katalog = {
   kuruldu: process.argv[2] ?? '',
+  sozluk,
   kaynaklar: {
-    '3dicons': {
-      ad: '3dicons',
-      lisans: 'CC0-1.0',
-      not: '3D render, saydam PNG · 3 açı × 4 stil',
-      kok: 'https://pub-821312cfd07a4061bf7b99c1f23ed29b.r2.dev/v1',
-      acilar: ['iso', 'front', 'dynamic'],
-      stiller: ['color', 'gradient', 'clay', 'premium'],
-      ogeler: d3,
-    },
     fluent: {
       ad: 'Fluent Emoji 3D',
       lisans: 'MIT',
@@ -155,7 +235,11 @@ const katalog = {
     },
   },
 }
-writeFileSync(HEDEF, JSON.stringify(katalog, null, 1), 'utf8')
+// ⚠ ⚠ **GİRİNTİSİZ YAZILIYOR — `repo-hygiene` kapısı 512 KB tavan koyuyor.** Girintili
+// hâli 740 KB'ydi ve kapı haklı olarak reddetti: bu bir kaynak dosya değil bir VERİ
+// dosyası, insan onu okumuyor. Girintiyi atmak dosyayı yarıya indiriyor ve okunabilirlik
+// kaybı yok — `just gorsel-katalog` ile yeniden üretilebiliyor.
+writeFileSync(HEDEF, JSON.stringify(katalog), 'utf8')
 console.log(
-  `✓ katalog: 3dicons ${String(d3.length)} · fluent ${String(fl.length)} → scripts/gorsel-katalog.json`
+  `✓ katalog: fluent ${String(fl.length)} · sözlük ${String(Object.keys(sozluk).length)} → scripts/gorsel-katalog.json`
 )

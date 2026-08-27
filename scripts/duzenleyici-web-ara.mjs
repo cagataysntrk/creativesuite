@@ -25,7 +25,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { UC_D_TR, genislet, sade } from './gorsel-tr.mjs'
+import { genislet, sade, sozlugeBagla } from './gorsel-tr.mjs'
 
 const KOK = 'https://api.iconify.design'
 
@@ -35,6 +35,10 @@ const KOK = 'https://api.iconify.design'
 const KATALOG = JSON.parse(
   readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'gorsel-katalog.json'), 'utf8')
 )
+// ⚠ Sözlük katalogda ve modül yüklenirken bağlanıyor: `genislet` onu global bir durum
+// olarak taşıyor çünkü her aramada 5258 kelimelik bir nesneyi parametre olarak geçirmek
+// her çağırana bunu hatırlatmak demekti.
+sozlugeBagla(KATALOG.sozluk ?? {})
 
 /**
  * Şablonun havasına yakın set süzgeci.
@@ -114,36 +118,6 @@ const katalogAra = (sorgu, adet) => {
     return en
   }
 
-  // ── 3dicons ──
-  const d3 = KATALOG.kaynaklar['3dicons']
-  for (const o of d3.ogeler) {
-    const tr = UC_D_TR[o.ad] ?? []
-    const p = puanla([sade(o.ad), sade(o.etiket), ...tr.map(sade)])
-    if (p === 0) continue
-    // ⚠ Varsayılan `iso/color`: ölçüldü, on iki bileşimin hepsi var ama `iso` açısı
-    // izometrik ve karosel tuvalinde en okunaklısı; renk stili de en canlısı.
-    sonuc.push({
-      tur: 'png',
-      kaynak: '3dicons',
-      tam: `3dicons:${o.ad}`,
-      ad: o.ad,
-      setAdi: d3.ad,
-      etiket: [o.etiket, ...tr].join(' · '),
-      lisans: d3.lisans,
-      spdx: d3.lisans,
-      pngUrl: `${d3.kok}/iso/color/${o.ad}-iso-color.png`,
-      // ⚠ Çeşitler sonuçta taşınıyor: insan aynı nesneyi başka açı/stille isteyebilir
-      // ve ikinci bir arama yapmak zorunda kalmamalı.
-      cesitler: d3.acilar.flatMap((a) =>
-        d3.stiller.map((st) => ({
-          etiket: `${a}/${st}`,
-          pngUrl: `${d3.kok}/${a}/${st}/${o.ad}-${a}-${st}.png`,
-        }))
-      ),
-      puan: p,
-    })
-  }
-
   // ── Fluent Emoji 3D ──
   const fl = KATALOG.kaynaklar.fluent
   for (const o of fl.ogeler) {
@@ -166,6 +140,78 @@ const katalogAra = (sorgu, adet) => {
   }
 
   return sonuc.sort((a, b) => b.puan - a.puan).slice(0, adet)
+}
+
+/**
+ * WIKIMEDIA COMMONS — gerçek görseller, tarihî portreler, 3D render'lar.
+ *
+ * ⚠ ⚠ **BU KAYNAK BİR İSTEKTEN DOĞDU:** *"sadece ikon değil, 3d gerçek görsellerin
+ * kütüphanesi gibi arkaplansız şeyler var mı, mesela Fatih Sultan Mehmet ya da 3d bi
+ * dünya görseli gibi."* İkon kütüphaneleri bunu veremez — nesne değil KAVRAM taşıyorlar.
+ * Commons'ta Gentile Bellini'nin Fatih portresi de var, NASA'nın dünya render'ı da.
+ *
+ * ⚠ ⚠ **SONUÇLAR ÇOĞUNLUKLA ARKAPLANLI ve bunu GİZLEMİYORUZ.** İkon kaynakları saydam
+ * PNG veriyor; Commons bir fotoğraf arşivi. Editörde arkaplan silici var (`local-rembg`)
+ * ve bu sonuçlar `arkaplanVar: true` ile işaretleniyor — insan ne aldığını bilerek alsın.
+ * ⚠ PNG öncelikli sıralanıyor: saydamlık garantisi değil ama saydam olanlar PNG.
+ *
+ * ⚠ Sorgu HEM Türkçe HEM İngilizce gidiyor: Commons Türkçe içerik de taşıyor (*"Fatih
+ * Sultan Mehmet"* doğrudan buluyor) ama İngilizce kütüphanesi çok daha geniş.
+ */
+const commonsAra = async (sorgu, adet) => {
+  const genis = genislet(sorgu)
+  const ingilizce = genis.find((x) => /^[a-z0-9 ]+$/.test(x) && x !== sade(sorgu))
+  // ⚠ İki sorgu tek istekte: Commons `OR` desteklemiyor ama boşlukla ayrılmış terimler
+  // zaten OR gibi davranıyor ve ikisini birden vermek isabeti artırıyor.
+  const q = ingilizce === undefined ? sorgu : `${sorgu} ${ingilizce}`
+  const u = new URL('https://commons.wikimedia.org/w/api.php')
+  u.searchParams.set('action', 'query')
+  u.searchParams.set('format', 'json')
+  u.searchParams.set('generator', 'search')
+  u.searchParams.set('gsrnamespace', '6')
+  u.searchParams.set('gsrlimit', String(Math.min(adet, 20)))
+  u.searchParams.set('gsrsearch', q)
+  u.searchParams.set('prop', 'imageinfo')
+  u.searchParams.set('iiprop', 'url|size|mime|extmetadata')
+  u.searchParams.set('iiurlwidth', '240')
+  try {
+    const r = await fetch(u, {
+      signal: AbortSignal.timeout(12_000),
+      // ⚠ Commons anonim istemcilerden tanımlayıcı bir `user-agent` istiyor; vermeyen
+      // istekler kısıtlanıyor.
+      headers: { 'user-agent': 'creativesuite/1.0 (yerel editör)' },
+    })
+    if (!r.ok) return []
+    const j = await r.json()
+    return Object.values(j.query?.pages ?? {})
+      .map((x) => {
+        const bilgi = x.imageinfo?.[0]
+        if (bilgi === undefined) return null
+        const ad = String(x.title ?? '').replace(/^File:/, '')
+        const lisans = bilgi.extmetadata?.LicenseShortName?.value ?? 'bilinmiyor'
+        return {
+          tur: 'png',
+          kaynak: 'commons',
+          tam: `commons:${ad}`,
+          ad,
+          setAdi: 'Wikimedia Commons',
+          etiket: ad.replace(/\.[a-z]+$/i, '').replace(/[_-]/g, ' '),
+          lisans: String(lisans).replace(/<[^>]+>/g, ''),
+          spdx: '',
+          // ⚠ KÜÇÜK resim önizleme için, TAM boy yuvaya konmak için: 8192×8192 bir
+          // dosyayı önizlemede indirmek modalı dakikalarca bekletirdi.
+          pngUrl: String(bilgi.thumburl ?? bilgi.url ?? ''),
+          tamUrl: String(bilgi.url ?? ''),
+          arkaplanVar: !String(bilgi.mime ?? '').includes('png'),
+          cesitler: [],
+          puan: String(bilgi.mime ?? '').includes('png') ? 60 : 50,
+        }
+      })
+      .filter((x) => x !== null && x.pngUrl !== '')
+  } catch {
+    // ⚠ Commons düşerse arama düşmüyor: katalog ve Iconify yerinde.
+    return []
+  }
 }
 
 export const setleri = (sablonId) => {
@@ -191,7 +237,9 @@ export const ara = async (sorgu, { sablonId = '', tumSetler = false, adet = 24 }
   // ⚠ ⚠ **KATALOG ÖNCE ve AĞDAN BAĞIMSIZ.** 3D sonuçlar diskteki katalogdan geliyor;
   // Iconify düşse bile arama boş dönmüyor. Depo sahibinin şikâyeti *"çok sade ve zayıf"*
   // idi ve asıl cevap bu: 3D render, saydam, renkli 1715 öğe.
-  const katalog = katalogAra(temiz, Math.max(8, Math.floor(adet / 2)))
+  const katalog = katalogAra(temiz, Math.max(8, Math.floor(adet / 3)))
+  // ⚠ Commons AĞDAN geliyor ve düşebilir; `Promise.all` yerine kendi içinde yutuyor.
+  const commons = await commonsAra(temiz, Math.max(6, Math.floor(adet / 3)))
 
   const setler = tumSetler ? [] : setleri(sablonId)
   // ⚠ ⚠ **ICONIFY'A TÜRKÇE SORGU GİTMEZ — o Türkçe bilmiyor.** İlk sürüm ham sorguyu
@@ -243,8 +291,10 @@ export const ara = async (sorgu, { sablonId = '', tumSetler = false, adet = 24 }
   // insanın istediği belli. Iconify sonuçları altta duruyor, kaybolmuyor.
   return {
     ok: true,
-    ogeler: [...katalog, ...ogeler],
-    toplam: (j.total ?? ogeler.length) + katalog.length,
+    // ⚠ Sıra: 3D katalog · gerçek görsel · ikon. Aranan şey *"görsel öge"* ve düz bir
+    // çizgi ikonu en son gelmeli.
+    ogeler: [...katalog, ...commons, ...ogeler],
+    toplam: (j.total ?? ogeler.length) + katalog.length + commons.length,
     suzgec: setler,
     ...(agHatasi === '' ? {} : { uyari: agHatasi }),
   }
@@ -340,7 +390,11 @@ export const svgCek = async (tam) => {
 export const hazirPngCek = async (url) => {
   if (!/^https:\/\/[\w.-]+\//.test(String(url))) return { ok: false, hata: 'geçersiz adres' }
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(20_000) })
+    const r = await fetch(url, {
+      signal: AbortSignal.timeout(20_000),
+      // ⚠ Wikimedia tanımsız istekleri reddediyor; aynı başlık vekilde de var.
+      headers: { 'user-agent': 'creativesuite/1.0 (yerel editör)' },
+    })
     if (!r.ok) return { ok: false, hata: 'kaynak ' + String(r.status) }
     const tip = r.headers.get('content-type') ?? ''
     // ⚠ İçerik TİPİ denetleniyor: adresin `.png` ile bitmesi bir söz, bir kanıt değil.
