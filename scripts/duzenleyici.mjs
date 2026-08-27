@@ -233,6 +233,10 @@ const KABUK = (
   #ara-perde{position:fixed;inset:0;background:#05070aee;z-index:50;display:none;
     align-items:center;justify-content:center;padding:32px}
   #ara-perde.acik{display:flex}
+  .ara-oge{position:relative}
+  /* ⚠ 3D rozeti köşede: küçük resimde düz ikon ile 3D render'ı ayırt etmek gerekiyor. */
+  .ara-rozet{position:absolute;top:4px;left:4px;background:#0b0f14cc;border:1px solid #2a3441;
+    border-radius:4px;color:#8fd0ff;font:600 9px/1 ui-monospace,monospace;padding:3px 4px}
   #ara-kutu{background:var(--ui);border:1px solid var(--kenar);border-radius:12px;
     width:min(980px,100%);max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
   #ara-baslik{display:flex;gap:10px;align-items:center;padding:14px 16px;
@@ -354,7 +358,7 @@ const KABUK = (
   <div id="ara-kutu">
     <div id="ara-baslik">
       <strong style="font-size:13px">webden tasarım ögesi</strong>
-      <input type="search" id="ara-sorgu" placeholder="ingilizce ara: recycle, gear, conveyor, chart…">
+      <input type="search" id="ara-sorgu" placeholder="türkçe ara: geri kazanım, ölçüm, fabrika, veri, ampul…">
       <label style="font-size:12px;display:flex;gap:5px;align-items:center;white-space:nowrap">
         <input type="checkbox" id="ara-genis"> şablon havası dışı
       </label>
@@ -1035,6 +1039,62 @@ const sunucu = createServer(async (req, res) => {
       // bekleyince koyma sessizce *"ikon kimliği geçersiz: "* diyordu, BOŞ bir adla.
       // Sözleşme tek yerden, arama ne veriyorsa koyma onu okur.
       const tam = String(d.tam ?? d.ikon ?? '')
+
+      // ⚠ ⚠ **İKİ AYRI YOL: RASTER ve VEKTÖR.** 3dicons ve Fluent Emoji hazır PNG
+      // veriyor — SVG temizleyicisine ve rasterleme sayfasına ihtiyaç YOK, çünkü bayt
+      // zaten bir görüntü ve betik taşımıyor. Iconify SVG veriyor ve o yol olduğu gibi
+      // duruyor. İkisini tek yola zorlamak, ya PNG'yi gereksiz bir tarayıcıdan
+      // geçirmek ya da SVG'yi temizlemeden koymak olurdu.
+      const hazirUrl = String(d.pngUrl ?? '')
+      if (hazirUrl !== '') {
+        const h = await webAra.hazirPngCek(hazirUrl)
+        if (!h.ok) return res.end('✗ ' + h.hata)
+        const adH = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'
+        writeFileSync(join(k.dizin, adH), Buffer.from(h.b64, 'base64'))
+        // ⚠ Kaynak damgası AYNI ANDA: bir varlığın nereden geldiği yuvaya girerken
+        // bilinmiyorsa altı ay sonra hiç bilinmeyecek (Yasa 7).
+        writeFileSync(
+          join(k.dizin, adH.replace(/\.png$/, '.kaynak.json')),
+          JSON.stringify(
+            {
+              ikon: tam,
+              set: String(d.kaynak ?? ''),
+              lisans: String(d.lisans ?? ''),
+              spdx: String(d.spdx ?? ''),
+              url: hazirUrl,
+              bayt: h.bayt,
+              tur: 'raster',
+            },
+            null,
+            1
+          ),
+          'utf8'
+        )
+        anlikGoruntuAl(id)
+        // ⚠ ⚠ **KIRPMA `kesik`e ÇEKİLİYOR — SVG yolundaki kararın AYNISI.** 3D render
+        // kare bir tuvalde geliyor; 4:5 bir yuvada `tam` ile konursa kenarları kırpılır
+        // ve nesnenin bir parçası kaybolur. Aynı kural iki yolda ayrı yazılsaydı biri
+        // düzelir öteki unuturdu.
+        calisan[id].gorseller[d.i] = {
+          ...g,
+          src: 'data:image/png;base64,' + h.b64,
+          kirpma: 'kesik',
+        }
+        return res.end(
+          '✓ ' +
+            tam +
+            ' → ' +
+            adH +
+            '\n  kaynak: ' +
+            String(d.setAdi ?? d.kaynak ?? '?') +
+            ' · lisans: ' +
+            String(d.lisans ?? '?') +
+            ' · ' +
+            String(Math.round(h.bayt / 1024)) +
+            ' KB'
+        )
+      }
+
       const s = await webAra.svgCek(tam)
       if (!s.ok) return res.end('✗ ' + s.hata)
       // ⚠ ⚠ **BİLİNMEYEN ROL SESSİZCE SİYAH ÇİZİYORDU — artık REDDEDİLİYOR.** Sınamada

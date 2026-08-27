@@ -175,7 +175,9 @@ const ikonUrl = (tam, boy = 56) =>
 
 /** Seçili adayı yuvaya indirir — sunucu temizler, rasterler, lisansı yazar. */
 async function yuvayaKoy(i, o, renk) {
-  mesaj('… ' + o.tam + ' rasterleniyor')
+  // ⚠ Hazır PNG rasterlenmiyor, İNDİRİLİYOR: mesaj da onu söylemeli, yoksa insan
+  // olmayan bir işi bekler.
+  mesaj('… ' + o.tam + (o.tur === 'png' ? ' indiriliyor' : ' rasterleniyor'))
   const r = await fetch('/gorsel-ara-koy?id=' + id, {
     method: 'POST',
     body: JSON.stringify({ i, renk, ...o }),
@@ -231,12 +233,29 @@ function aramaAc(i, renkAl) {
       const d = document.createElement('div')
       d.className = 'ara-oge'
       const im = document.createElement('img')
-      im.src = ikonUrl(o.tam)
+      // ⚠ ⚠ **İKİ AYRI ÖNİZLEME KAYNAĞI.** 3dicons ve Fluent Emoji hazır PNG adresi
+      // veriyor; Iconify ise ad'dan adres kuruyor. İlk sürüm hepsine `ikonUrl` uyguladı
+      // ve 3D sonuçların önizlemesi BOŞ çıktı — sonuç listesi doluydu ama hiçbiri
+      // görünmüyordu. Boş bir küçük resim, olmayan bir sonuçtan daha kötüdür.
+      im.src = o.pngUrl ?? ikonUrl(o.tam)
       im.loading = 'lazy'
+      im.alt = o.ad ?? o.tam
       d.appendChild(im)
+      // ⚠ 3D rozeti: aranan şey *"görsel öge"* ve düz ikon ile 3D render arasındaki fark
+      // küçük resimde her zaman belli olmuyor.
+      if (o.tur === 'png') {
+        const rz = document.createElement('span')
+        rz.className = 'ara-rozet'
+        rz.textContent = '3D'
+        d.appendChild(rz)
+      }
       const ad = document.createElement('small')
-      ad.textContent = o.setAdi + '\n' + o.lisans
+      // ⚠ Etiket TÜRKÇE anahtarları da taşıyor: insan neden bu sonucun çıktığını
+      // görebilmeli, yoksa arama bir kara kutu olur.
+      ad.textContent =
+        (o.setAdi ?? '') + '\n' + (o.etiket ?? o.ad ?? '').slice(0, 60) + '\n' + (o.lisans ?? '')
       d.appendChild(ad)
+      d.title = (o.ad ?? o.tam) + ' — ' + (o.etiket ?? '')
       const kv = document.createElement('button')
       kv.className = 'kova'
       kv.textContent = '⊕ kova'
@@ -468,9 +487,9 @@ function mufettisiKur(doc) {
     kok.appendChild(secim('öge rengi (rampadan)', '', ['', ...rampa], (v) => (seciliRenk = v)))
 
     const arabtn = document.createElement('button')
-    arabtn.textContent = '🔎 webden ara'
+    arabtn.textContent = '🔎 webden 3D öge ara'
     arabtn.onclick = () => aramaAc(secili.i, () => seciliRenk)
-    kok.appendChild(el('webden tasarım ögesi (ikon · SVG)', arabtn))
+    kok.appendChild(el('webden tasarım ögesi (3D render · ikon)', arabtn))
 
     // ── KOVA: toplanan ögeler, arama kapanınca KAYBOLMUYOR ──────────────────
     //

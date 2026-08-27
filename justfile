@@ -18,6 +18,11 @@ default:
 uret *args:
     @./node_modules/.bin/tsc -b && node scripts/uret.mjs {{args}}
 
+# Görsel arama kataloğunu tazeler (FAZ-19.13): 3dicons CC0 + Fluent Emoji 3D MIT,
+# Türkçe anahtarlar Unicode CLDR'dan. Ağa çıkar; katalog commit'lidir, arama anında değil.
+gorsel-katalog:
+    @node scripts/gorsel-katalog-kur.mjs "$(date -u +%Y-%m-%d)"
+
 # Platform başına yayın açıklaması üretir (FAZ-19.13). Model çağrısı hattın kullandığı
 # `text.generate` adaptöründen geçer; maliyeti sıfırdır (abonelik).
 yayin-metni *args:
