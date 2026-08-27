@@ -10,6 +10,7 @@
 // Tıklanamayan bir gösterge, bir rapordur; komuta merkezi rapor değildir.
 
 import type React from 'react'
+import { karoselSirasi } from './karosel.js'
 import { useCallback, useEffect, useState } from 'react'
 import { Asama, ASAMALAR } from './Asama.js'
 
@@ -38,6 +39,8 @@ interface Varlik {
   readonly sourceRunId: string
   readonly pipeline?: string
   readonly createdAt: string
+  /** Teslimattaki yeri — karoselin sırası BURADAN gelir (D-248). */
+  readonly teslimat?: { readonly index: number } | null
 }
 
 const EDITOR = 'http://localhost:4321'
@@ -141,10 +144,9 @@ export function Giris({
   // ⚠ Son karosel = son koşunun varlıkları, ÜRETİM SIRASINDA. Tek tek digest listesi
   // "hangi gönderi" sorusunu cevaplamıyordu; bir karosel bir SETtir.
   const sonRun = varliklar[0]?.sourceRunId
-  const sonSet = varliklar
-    .filter((v) => v.sourceRunId === sonRun)
-    .slice()
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  // ⚠ ⚠ **BU SATIR `createdAt` İLE SIRALIYORDU ve karoseli ters çevirebiliyordu.**
+  // Kural artık `karosel.ts`te — panelde tek yer.
+  const sonSet = karoselSirasi(varliklar.filter((v) => v.sourceRunId === sonRun))
 
   return (
     <div className="giris">

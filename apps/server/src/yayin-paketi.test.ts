@@ -150,6 +150,53 @@ describe('yayın paketi', () => {
     expect(readdirSync(join(kok, r.klasor)).filter((f) => f.endsWith('.png')).length).toBe(1)
   })
 
+  it('ESKİ PAKET İÇİNDE KALMIYOR — klasör önce temizleniyor', () => {
+    // ⚠ ⚠ **DEPO SAHİBİ: *"değişen şey paket olarak dışa alınmalıdır"*.** Klasör adı
+    // tarih + şablon + konudan türüyor, yani aynı koşu ikinci kez paketlenince AYNI
+    // klasöre düşüyor. Kopyalama yalnız bu turda üretilen adları eziyordu; bir önceki
+    // paketten kalan beşinci slayt ya da artık seçilmeyen bir platformun metni yerinde
+    // kalıyordu. İçinde eski sürüm duran bir klasör, değişmiş bir paket değildir.
+    const kok = kur()
+    const dijestler = [blobYaz(kok, 1), blobYaz(kok, 2)]
+    const paketle = (n: number) =>
+      yayinPaketiYaz(kok, {
+        runId: RUN,
+        slaytlar: dijestler.slice(0, n).map((d, i) => ({
+          digest: `sha256:${d}`,
+          sira: i,
+          toplam: n,
+          rol: i === 0 ? 'kapak' : 'kapanis',
+          olcu: '1080x1440',
+          createdAt: '2026-08-20T10:00:00.000Z',
+        })),
+        metinler: { instagram: 'ilk metin', linkedin: 'ikinci metin' },
+        tarih: '2026-09-12',
+        platformlar: ['instagram', 'linkedin'],
+      })
+
+    const ilk = paketle(2)
+    expect(ilk.ok).toBe(true)
+    if (!ilk.ok) return
+    const klasor = join(kok, ilk.klasor)
+    expect(
+      readdirSync(klasor)
+        .filter((f) => f.endsWith('.png'))
+        .sort()
+    ).toEqual(['01.png', '02.png'])
+    expect(existsSync(join(klasor, 'linkedin.txt'))).toBe(true)
+
+    // İkinci paket: tek slayt, tek platform. Eskisinden kalan HİÇBİR ŞEY olmamalı.
+    const ikinci = paketle(1)
+    expect(ikinci.ok).toBe(true)
+    if (!ikinci.ok) return
+    expect(
+      readdirSync(klasor).filter((f) => f.endsWith('.png')),
+      'ikinci slayt YAYINCIYA GİTMEMELİ — o karosel artık iki slaytlık değil'
+    ).toEqual(['01.png'])
+    // ⚠ `linkedin.txt` hâlâ yazılıyor çünkü platform seçili; asıl sınama slayt.
+    expect(existsSync(join(klasor, 'GONDERI.md')), 'künye yeniden yazıldı').toBe(true)
+  })
+
   it('slaytsız koşu REDDEDİLİYOR — paketlenecek bir şey yok', () => {
     const kok = kur()
     const r = yayinPaketiYaz(kok, {

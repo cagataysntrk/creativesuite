@@ -25,7 +25,7 @@
 // ⚠ Klasör TÜRETİLMİŞTİR (Yasa 11): silinebilir, yeniden üretilir. Doğruluk
 // `derived/blobs` + koşu defteridir.
 
-import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { PLATFORMLAR, slug } from '@suite/contracts'
 import { kusuruYaz } from '@suite/engine'
@@ -96,6 +96,20 @@ export const yayinPaketiYaz = (repoRoot: string, g: PaketGirdisi): PaketSonucu =
   const ad = `${g.tarih}__${slug(sablon)}__${slug(konu === '' ? g.runId.slice(4, 16) : konu).slice(0, 60)}`
   const klasor = join(repoRoot, PAKET_KOK, ad)
   mkdirSync(klasor, { recursive: true })
+  // ⚠ ⚠ **ESKİ PAKET ÜSTÜNE YAZILMIYORDU, İÇİNE YAZILIYORDU.** Klasör adı tarih +
+  // şablon + konudan türüyor, yani AYNI koşu ikinci kez paketlenince aynı klasöre
+  // düşüyor. `copyFileSync` yalnız bu turda üretilen dosyaları eziyor; bir önceki
+  // paketten kalan `05.png` ya da artık seçilmeyen bir platformun `x.txt`si YERİNDE
+  // kalıyordu. Depo sahibi: *"değişen şey paket olarak dışa alınmalıdır"* — içinde
+  // eski sürüm duran bir klasör, değişmiş bir paket değildir.
+  //
+  // ⚠ Yalnız BU YAZICININ ürettiği adlar siliniyor: klasöre insan bir şey koyduysa
+  // (bir not, bir kapak taslağı) onu silmek, kendi çöpümüzü temizlerken başkasının
+  // işini atmak olurdu.
+  const yonetilen = /^(\d{2}\.(png|jpg|jpeg|webp)|[a-z]+\.txt|GONDERI\.md)$/
+  for (const f of readdirSync(klasor)) {
+    if (yonetilen.test(f)) rmSync(join(klasor, f), { force: true })
+  }
 
   // ── slaytlar, TESLİMAT SIRASINDA ───────────────────────────────────────────
   const sirali = [...g.slaytlar].sort((a, b) => a.sira - b.sira)

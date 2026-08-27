@@ -365,7 +365,7 @@ const ESKI = '2026-08-20T10:00:00.000Z'
 const YENI = '2026-08-21T10:00:00.000Z'
 
 describe('varlık emekliliği (D-301)', () => {
-  it('aynı yuvanın YENİ sürümü eskisini emekli ediyor — ama eskisi listede DURUYOR', () => {
+  it('aynı yuvanın YENİ sürümü eskisini emekli ediyor — ama eskisi KAYBOLMUYOR', () => {
     const kok = kur({
       varliklar: [
         { digest: 'sha256:a0', runId: 'run_e', createdAt: ESKI, teslimat: parca(0, 2, 'dlv_e') },
@@ -382,8 +382,10 @@ describe('varlık emekliliği (D-301)', () => {
     })
     try {
       const k = kutuphane(kok)
-      expect(k.varliklar, 'üç bayt da diskte ve listede').toHaveLength(3)
-      const eski = k.varliklar.find((v) => v.digest === 'sha256:a0')
+      // ⚠ Üç bayt da DİSKTE (Yasa 10) ama listeler ayrı: `varliklar` yalnız güncel,
+      // emekli olan kendi listesinde ve hangi sürümün onu emekli ettiği YAZILI.
+      expect(k.varliklar.length + k.emekliVarliklar.length, 'üç bayt da duruyor').toBe(3)
+      const eski = k.emekliVarliklar.find((v) => v.digest === 'sha256:a0')
       expect(eski?.guncel, 'eski sürüm emekli').toBe(false)
       expect(eski?.sonrakiDigest, 'onu emekli edenin adresi YAZILI').toBe('sha256:b0')
       expect(k.varliklar.find((v) => v.digest === 'sha256:b0')?.guncel).toBe(true)
@@ -497,6 +499,46 @@ describe('varlık emekliliği (D-301)', () => {
       expect(s, 'tek slayt — iki sürüm yan yana DURMUYOR').toHaveLength(1)
       expect(s[0]?.digest).toBe('sha256:b0')
       expect(s[0]?.elleDuzenlendi, 've düzenlenmiş olan olduğu YAZILI').toBe(true)
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('EMEKLİ SÜRÜM `varliklar` LİSTESİNDE HİÇ YOK — süzmek çağıranın işi değil', () => {
+    // ⚠ ⚠ **BU TEST BİR KUSURDAN DOĞDU ve kusuru depo sahibi buldu.** İlk sürüm emekli
+    // satırları listede bırakıp `guncel: false` bayrağı koyuyordu; süzmeyi ÇAĞIRANA
+    // bırakıyordu. Koşu ekranı süzdü, Komuta ekranı süzmedi ve sayaç *"45 slayt"*
+    // yerine emeklileriyle 76 gösterdi. *"Eskiler nasıl hâlâ görünebilir?"*
+    //
+    // Bir kuralı her çağıranın hatırlaması gereken bir şey yapmak, bir gün birinin
+    // unutması demektir. Kural artık YAPIDA: emekli satır listeden çıkıyor.
+    const kok = kur({
+      varliklar: [
+        { digest: 'sha256:a0', runId: 'run_j', createdAt: ESKI, teslimat: parca(0, 2, 'dlv_j') },
+        { digest: 'sha256:a1', runId: 'run_j', createdAt: ESKI, teslimat: parca(1, 2, 'dlv_j') },
+        {
+          digest: 'sha256:b0',
+          runId: 'run_j',
+          createdAt: YENI,
+          elle: true,
+          teslimat: parca(0, 2, 'dlv_j'),
+        },
+      ],
+    })
+    try {
+      const k = kutuphane(kok)
+      expect(k.varliklar, 'üç bayt var ama listede İKİ yuva').toHaveLength(2)
+      expect(
+        k.varliklar.every((v) => v.guncel),
+        'listede emekli satır YOK'
+      ).toBe(true)
+      expect(
+        k.varliklar.some((v) => v.digest === 'sha256:a0'),
+        'emekli kapak listeye SIZMAMALI'
+      ).toBe(false)
+      // ⚠ Ama SİLİNMEDİ: karantina ve uyum denetimi onu görmek zorunda.
+      expect(k.emekliVarliklar.map((v) => v.digest)).toEqual(['sha256:a0'])
+      expect(k.emekliVarliklar[0]?.sonrakiDigest).toBe('sha256:b0')
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }

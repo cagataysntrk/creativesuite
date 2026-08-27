@@ -11,6 +11,7 @@
 // koymak, hangisinin olduğunu kullanıcının bilmemesi demekti.
 
 import { useEffect, useState } from 'react'
+import { karoselSirasi } from './karosel.js'
 import { GonderiKutusu } from './GonderiKutusu.js'
 import { aralikta, tamTarih, tariheGore, type Siralama } from './tarih.js'
 import { usdBicimle } from './baglanti.js'
@@ -198,6 +199,9 @@ export const RunGecmisi = ({
   const [detay, setDetay] = useState<Detay | null>(null)
   // ── varlık tarafı (eski Varlıklar ekranından) ────────────────────────────
   const [varliklar, setVarliklar] = useState<readonly Varlik[]>([])
+  // ⚠ Ekranda GÖSTERİLMİYOR — yalnız karantina için: silinmedikleri hâlde listede
+  // olmayan baytlar, karantinaya alınırken de unutulmamalı.
+  const [emekliVarliklar, setEmekliVarliklar] = useState<readonly Varlik[]>([])
   const [karantina, setKarantina] = useState(0)
   const [takvimAcik, setTakvimAcik] = useState<string | null>(null)
   const [onayMesaj, setOnayMesaj] = useState<string | null>(null)
@@ -243,11 +247,13 @@ export const RunGecmisi = ({
         (r) =>
           r.json() as Promise<{
             varliklar?: Varlik[]
+            emekliVarliklar?: Varlik[]
             karantina?: number
           }>
       )
       .then((j) => {
         setVarliklar(j.varliklar ?? [])
+        setEmekliVarliklar(j.emekliVarliklar ?? [])
         setKarantina(j.karantina ?? 0)
       })
       .catch(() => setVarliklar([]))
@@ -297,7 +303,10 @@ export const RunGecmisi = ({
   const karantinaYap = async (): Promise<void> => {
     const sebep = (karantinaSebep ?? '').trim()
     if (sebep === '') return
-    const digestler = varliklar
+    // ⚠ ⚠ **EMEKLİ BAYTLAR DA KARANTİNAYA GİDİYOR.** Ekranda görünmüyorlar ama
+    // diskteler (Yasa 10): bir koşuyu karantinaya alıp eski sürümlerini dışarıda
+    // bırakmak, "bu üretim kullanılamaz" demenin yarısını yapmak olurdu.
+    const digestler = [...varliklar, ...emekliVarliklar]
       .filter((v) => secilenler.includes(v.sourceRunId))
       .map((v) => v.digest)
     if (digestler.length === 0) {
@@ -406,30 +415,18 @@ export const RunGecmisi = ({
   // cevabını sabit bir sıralama gizliyordu.
   // ⚠ ⚠ **KOŞU → SLAYTLAR.** Sıra `createdAt`ten: slaytlar üretildikleri sırayla yazılıyor
   // ve karoselin sırası tam olarak o. Digest'e göre sıralamak, kapağı ortaya atardı.
+  // ⚠ Emekli sürümleri burada SÜZMÜYORUZ: `/api/varliklar` artık onları hiç
+  // vermiyor (`kutuphane.ts`). İki yerde tutulan bir güvence, bir gün birinin
+  // unutulduğu bir güvencedir — Komuta ekranında tam olarak bu oldu.
   const slaytHaritasi = new Map<string, Varlik[]>()
   for (const v of varliklar) {
-    // ⚠ Emekli sürüm karosele GİRMİYOR: düzenlenmiş bir karosel sekiz slayt görünür
-    // ve hangi dördünün yayına gideceği belirsiz kalırdı.
-    if (v.guncel === false) continue
     const l = slaytHaritasi.get(v.sourceRunId) ?? []
     l.push(v)
     slaytHaritasi.set(v.sourceRunId, l)
   }
-  // ⚠ ⚠ **SIRA `teslimat.index`TEN — ve bu ÖLÇÜLEREK öğrenildi.** Ben `digest`e göre
-  // sıralamıştım: sha256 rastgele bir sıradır ve karosel her koşuda BAŞKA türlü diziliyordu.
-  // Depo sahibi gördü: *"veri hikâyesinde karosel sırası bozulmuş, kavis'te de, birçoğunda
-  // öyle... bu sıra asla bozulmamalı"*.
-  // ⚠ ⚠ **`createdAt` DE YETMİYOR.** Sunucu listeyi en yeni önce veriyor (yani karosel
-  // TERS geliyor) ve dahası zaman damgaları milisaniyede EŞİTLENİYOR: `dizin` koşusunda
-  // 1. ve 2. slayt aynı milisaniyede yazılmış ve sıraları ters. Ölçüldü, varsayılmadı.
-  // ⚠ Damgasız varlık için `createdAt` yedeği duruyor — damga öncesi üretilenler kalıcı
-  // olarak sırasız ve bunu gizlemiyoruz, ama elde olanla en iyisini yapıyoruz.
-  for (const l of slaytHaritasi.values())
-    l.sort((a, b) =>
-      a.teslimat !== null && b.teslimat !== null
-        ? a.teslimat.index - b.teslimat.index
-        : a.createdAt.localeCompare(b.createdAt)
-    )
+  // ⚠ Sıra `karosel.ts`ten — panelde tek yer. Gerekçenin tamamı orada: bu kural bu
+  // depoda sekiz kez yazıldı ve iki kopyası yanlıştı.
+  for (const [k, l] of slaytHaritasi) slaytHaritasi.set(k, karoselSirasi(l))
 
   /**
    * Bir koşunun slaytlarının ORTAK ölçüsü.

@@ -146,7 +146,26 @@ export interface TeslimatSatiri {
 }
 
 export interface Kutuphane {
+  /**
+   * **YALNIZ GÜNCEL varlıklar.** Emekli sürümler bu listede YOK.
+   *
+   * ⚠ ⚠ **BU LİSTE ÖNCE HER ŞEYİ VERİYORDU ve süzmeyi ÇAĞIRANA bırakıyordu.** Sonuç
+   * kaçınılmazdı: koşu ekranı süzüyordu, Komuta ekranı süzmüyordu ve *"45 slayt"*
+   * yerine emeklileriyle birlikte 76 sayıyordu. Depo sahibi gördü: *"eskiler nasıl
+   * hâlâ görünebilir, engellenmeli."*
+   *
+   * Bir kuralı her çağıranın hatırlaması gereken bir şey yapmak, bir gün birinin
+   * unutması demektir — bu depoda tekrar eden sınıf. Kural artık YAPIDA: emekli satır
+   * bu listeden ÇIKIYOR, dolayısıyla hiçbir ekran onu yanlışlıkla gösteremiyor.
+   */
   readonly varliklar: readonly VarlikSatiri[]
+  /**
+   * Emekli sürümler — diskte duruyor (Yasa 10), listede DEĞİL.
+   *
+   * ⚠ Ayrı bir alanda çünkü SİLİNMEDİLER: karantina ve uyum denetimi onları da
+   * görmek zorunda. "Ekranda yok" ile "yok" ayrı şeyler.
+   */
+  readonly emekliVarliklar: readonly VarlikSatiri[]
   /** Teslimat bazında gruplanmış görünüm — listenin asıl okunma birimi. */
   readonly teslimatlar: readonly TeslimatSatiri[]
   /**
@@ -336,8 +355,13 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
     const sonraki = emekli.get(v.digest)
     return sonraki === undefined ? v : { ...v, guncel: false, sonrakiDigest: sonraki }
   })
+  // ⚠ ⚠ **AYIRMA BURADA, ÇAĞIRANDA DEĞİL.** İlk sürüm ikisini tek listede tutup
+  // `guncel` bayrağını koyuyordu; koşu ekranı süzdü, Komuta ekranı süzmedi ve emekli
+  // slaytlar sayaca girdi. Bayrak DURUYOR (bir satıra bakınca durumu okunsun diye) ama
+  // artık kimsenin ona bakması gerekmiyor.
+  const emekliler = tumu.filter((v) => !v.guncel)
   varliklar.length = 0
-  varliklar.push(...tumu)
+  varliklar.push(...tumu.filter((v) => v.guncel))
 
   // ── teslimat gruplaması (D-248) ────────────────────────────────────────────
   //
@@ -348,9 +372,6 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
   const gruplar = new Map<string, VarlikSatiri[]>()
   for (const v of varliklar) {
     if (v.teslimat === null) continue
-    // ⚠ Emekli sürüm teslimata GİRMİYOR: dört slaytlık bir post, ikisi düzenlendiği
-    // için altı parçalı görünürdü ve `eksikParca` ölçüsü anlamını yitirirdi.
-    if (!v.guncel) continue
     const mevcut = gruplar.get(v.teslimat.deliverableId)
     if (mevcut === undefined) gruplar.set(v.teslimat.deliverableId, [v])
     else mevcut.push(v)
@@ -388,6 +409,7 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
 
   return {
     varliklar,
+    emekliVarliklar: emekliler,
     teslimatlar,
     damgasizVarlik: damgasiz.length,
     karantina: dosyalariGez(join(repoRoot, 'derived/karantina')).length,
@@ -411,7 +433,7 @@ export const yenidenKullanilabilir = (repoRoot: string, runId: string): boolean 
  *
  * Kural üç parçalı ve üçü de zorunlu:
  *   1. **O koşunun** varlıkları (`sourceRunId`),
- *   2. **emekli olmayanlar** (editörde düzenlenmişse eskisi düşer — D-301),
+ *   2. emekli olmayanlar — bu artık `Kutuphane.varliklar`ın kendi güvencesi (D-301),
  *   3. **`teslimat.index` sırasında** (`createdAt` DEĞİL: slaytlar aynı milisaniyede
  *      yazılabiliyor ve o zaman sıra rastgele oluyor — D-248).
  *
@@ -421,7 +443,7 @@ export const yenidenKullanilabilir = (repoRoot: string, runId: string): boolean 
  */
 export const kosununSlaytlari = (k: Kutuphane, runId: string): readonly VarlikSatiri[] =>
   k.varliklar
-    .filter((v) => v.sourceRunId === runId && v.guncel)
+    .filter((v) => v.sourceRunId === runId)
     .slice()
     .sort((a, b) =>
       a.teslimat !== null && b.teslimat !== null
