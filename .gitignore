@@ -110,3 +110,7 @@ derived/duzenleyici-*.json
 # Yayın paketleri: yayıncıya yüklenecek klasörler (FAZ-19.13). TÜRETİLMİŞ (Yasa 11) —
 # doğruluk `derived/blobs` + koşu defteri; klasör silinir, yeniden üretilir.
 derived/yayin-paketleri/
+
+# Playwright MCP'nin yazdığı anlık görüntü/konsol dosyaları: tarayıcıyla doğrulama
+# yaparken doğuyor ve TÜRETİLMİŞ (Yasa 11) — kanıt olarak rapora giriyor, depoya değil.
+.playwright-mcp/

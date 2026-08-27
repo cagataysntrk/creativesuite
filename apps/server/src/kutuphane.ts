@@ -84,6 +84,38 @@ export interface VarlikSatiri {
    * gizlemiyor. "Bilinmiyor" ile "birinci slayt" ayrı şeyler.
    */
   readonly teslimat: DeliverableRef | null
+  /**
+   * Bu varlık, teslimattaki O YUVANIN **şu anki** hâli mi (D-301).
+   *
+   * ⚠ ⚠ **EDİTÖRDE DÜZENLENEN SLAYT ESKİSİNİ GÖRÜNMEZ KILMIYORDU.** Depo sahibi:
+   * *"editörde düzenleyince artık eskisi görünmemeli yenisi görünmeli sadece çünkü
+   * eskisi ile sürekli karışıyor. mesela düzenlenmiş halini yayına alamıyorum
+   * önizlemede de eskisi görünüyor."* Düzenleme yeni bir bayt üretiyor; iki bayt aynı
+   * yuvayı (`deliverableId` + `index`) dolduruyor ve okuyan taraf hangisinin geçerli
+   * olduğunu SORMUYORDU.
+   *
+   * ⚠ **Eski sürüm SİLİNMİYOR** (Yasa 10 · Yasa 11): dosyası da sidecar'ı da yerinde
+   * duruyor, `sonrakiDigest` ile hangisinin onu emekli ettiği yazılı. Emeklilik bir
+   * SIRALAMA, bir silme değil — `kosu-belgesi.ts`teki seçim kuralıyla aynı ilke.
+   *
+   * ⚠ Teslimat damgası OLMAYAN varlık `true`: onu emekli edebilecek bir yuva yok.
+   * "Bilinmiyor"u "eski" saymak, D-248 öncesi bütün varlıkları gizlerdi.
+   */
+  readonly guncel: boolean
+  /** Bu varlığı emekli eden yeni sürümün digest'i. `null` = güncel olan bu. */
+  readonly sonrakiDigest: string | null
+  /**
+   * Bu bayt EDİTÖRDE kaydedilerek doğdu mu (`compliance.elleDuzenlendi`).
+   *
+   * ⚠ ⚠ **PANELİN "elle düzenlenmiş sürüm" BÖLÜMÜ BUNA BAKIYOR.** O bölüm koşu
+   * dizinindeki damgasız `slayt-NN-elle.png` dosyalarını gösteriyordu; artık editör
+   * kaydı damgalanıp depoya girdiği için AYNI görüntü iki kez çıkardı — *"eskisi ile
+   * sürekli karışıyor"*un yeni bir biçimi. Damgalı sürüm elle düzenlemeden doğduysa
+   * damgasız kopyayı ayrıca göstermeye gerek yok.
+   * ⚠ Bu değişiklikten ÖNCE düzenlenmiş koşularda `false` kalıyor ve damgasız bölüm
+   * görünmeye devam ediyor: yapılmış bir işi gizlemek, onu kaybetmek olurdu.
+   */
+  readonly elleDuzenlendi: boolean
 }
 
 /**
@@ -263,11 +295,49 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
       bekleyenKapi: m?.awaitingGate ?? null,
       manifestSaglam: m === null ? false : /^[0-9a-f]{40}$/.test(m.corpusCommit),
       teslimat: meta.deliverable ?? null,
+      // Aşağıdaki geçiş dolduruyor: bir satırın güncel olup olmadığı KOMŞULARINA
+      // bakmadan bilinemez, o yüzden burada varsayılan.
+      guncel: true,
+      sonrakiDigest: null,
+      elleDuzenlendi: meta.compliance?.['elleDuzenlendi'] === true,
     })
   }
 
   // En YENİ üstte: kütüphaneye "en son ne ürettim" diye bakılır.
   varliklar.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+
+  // ── EMEKLİLİK: bir yuvanın en yeni bayt'ı geçerlidir (D-301) ──────────────
+  //
+  // ⚠ ⚠ **SIRALAMA `createdAt` İLE BİTMİYOR ve bunu bir kez öğrendik.** Aynı koşunun
+  // slaytları AYNI milisaniyede yazılabiliyor (yayın önizlemesinde tam bu yüzden ters
+  // sıra çıkmıştı). Burada eşitlik farklı bir yuvada değil, AYNI yuvada olur — yani
+  // aynı anda yazılmış iki sürüm. O hâlde `digest` ile kırılıyor: keyfi ama
+  // DETERMİNİST; her okumada aynı sürüm güncel çıkıyor.
+  const yuvalar = new Map<string, VarlikSatiri[]>()
+  for (const v of varliklar) {
+    if (v.teslimat === null) continue
+    const anahtar = `${v.teslimat.deliverableId}#${String(v.teslimat.index)}`
+    const mevcut = yuvalar.get(anahtar)
+    if (mevcut === undefined) yuvalar.set(anahtar, [v])
+    else mevcut.push(v)
+  }
+  const emekli = new Map<string, string>()
+  for (const grup of yuvalar.values()) {
+    if (grup.length < 2) continue
+    const sirali = [...grup].sort((a, b) =>
+      a.createdAt === b.createdAt
+        ? b.digest.localeCompare(a.digest)
+        : b.createdAt.localeCompare(a.createdAt)
+    )
+    const guncelDigest = sirali[0]?.digest ?? ''
+    for (const eskisi of sirali.slice(1)) emekli.set(eskisi.digest, guncelDigest)
+  }
+  const tumu: VarlikSatiri[] = varliklar.map((v) => {
+    const sonraki = emekli.get(v.digest)
+    return sonraki === undefined ? v : { ...v, guncel: false, sonrakiDigest: sonraki }
+  })
+  varliklar.length = 0
+  varliklar.push(...tumu)
 
   // ── teslimat gruplaması (D-248) ────────────────────────────────────────────
   //
@@ -278,6 +348,9 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
   const gruplar = new Map<string, VarlikSatiri[]>()
   for (const v of varliklar) {
     if (v.teslimat === null) continue
+    // ⚠ Emekli sürüm teslimata GİRMİYOR: dört slaytlık bir post, ikisi düzenlendiği
+    // için altı parçalı görünürdü ve `eksikParca` ölçüsü anlamını yitirirdi.
+    if (!v.guncel) continue
     const mevcut = gruplar.get(v.teslimat.deliverableId)
     if (mevcut === undefined) gruplar.set(v.teslimat.deliverableId, [v])
     else mevcut.push(v)
@@ -326,3 +399,46 @@ export const kutuphane = (repoRoot: string): Kutuphane => {
 /** `derived/runs/<id>` var mı — Reuse'ün ön koşulu. */
 export const yenidenKullanilabilir = (repoRoot: string, runId: string): boolean =>
   existsSync(join(repoRoot, RUNS_DIR, runId, 'manifest.json'))
+
+/**
+ * Bir koşunun KAROSELİ — güncel slaytlar, teslimat sırasında.
+ *
+ * ⚠ ⚠ **BU KURALIN DÖRT AYRI KOPYASI VARDI ve dördü de aynı satırlarda yazılmıştı:**
+ * yayın paketi, hedefe gönderme, yayın önizlemesi ve koşu detayı. Bir tanesi
+ * `createdAt` ile sıralıyordu ve karoseli TERS ÇEVİRİYORDU — yayın önizlemesinde
+ * yanlış sıra, yayın anında yanlış karosel demek. Kopyalanan bir kural, kopyalarından
+ * birinin yanlış olduğu bir kuraldır.
+ *
+ * Kural üç parçalı ve üçü de zorunlu:
+ *   1. **O koşunun** varlıkları (`sourceRunId`),
+ *   2. **emekli olmayanlar** (editörde düzenlenmişse eskisi düşer — D-301),
+ *   3. **`teslimat.index` sırasında** (`createdAt` DEĞİL: slaytlar aynı milisaniyede
+ *      yazılabiliyor ve o zaman sıra rastgele oluyor — D-248).
+ *
+ * ⚠ Teslimat damgası olmayan varlıklarda (D-248 öncesi) sıra `createdAt`e düşüyor:
+ * ölçülmemiş bir sırayı uydurmaktansa üretim sırasına güvenmek daha az yanlış — ama
+ * bu bir GERİ DÜŞÜŞ, kural değil.
+ */
+export const kosununSlaytlari = (k: Kutuphane, runId: string): readonly VarlikSatiri[] =>
+  k.varliklar
+    .filter((v) => v.sourceRunId === runId && v.guncel)
+    .slice()
+    .sort((a, b) =>
+      a.teslimat !== null && b.teslimat !== null
+        ? a.teslimat.index - b.teslimat.index
+        : a.createdAt.localeCompare(b.createdAt)
+    )
+
+/**
+ * Koşunun DAMGASIZ `-elle.png` dosyaları ekranda gösterilmeli mi (D-301).
+ *
+ * ⚠ ⚠ **AYNI GÖRÜNTÜ İKİ BÖLÜMDE ÇIKIYORDU.** Editör kaydı artık damgalanıp depoya
+ * giriyor; damgasız kopyayı ayrıca göstermek *"eskisi ile sürekli karışıyor"*un yeni
+ * biçimiydi. Ama bu değişiklikten ÖNCE düzenlenmiş koşularda damgalı sürüm yok ve
+ * orada bölüm duruyor — yapılmış bir işi gizlemek, onu kaybetmektir.
+ *
+ * ⚠ Kural SUNUCUDA: iki ekran (koşu detayı ve varlık listesi) aynı soruyu soruyor ve
+ * ikisinin ayrı cevap vermesi bu deponun en sık tekrar eden hatası.
+ */
+export const damgasizElleGosterilsin = (k: Kutuphane, runId: string): boolean =>
+  !kosununSlaytlari(k, runId).some((v) => v.elleDuzenlendi)

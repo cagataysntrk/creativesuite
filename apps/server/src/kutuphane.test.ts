@@ -3,7 +3,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { RUNS_DIR, publishedLedgerPath } from '@suite/kernel'
-import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
+import {
+  damgasizElleGosterilsin,
+  kosununSlaytlari,
+  kutuphane,
+  yenidenKullanilabilir,
+} from './kutuphane.js'
 
 /** `.meta.json` biçimi diskteki GERÇEK dosyadan okundu (D-163) — uydurulmadı. */
 const meta = (o: {
@@ -11,6 +16,7 @@ const meta = (o: {
   runId: string
   bytes?: number
   createdAt?: string
+  elle?: boolean
   teslimat?: { id: string; index: number; total: number; role: string; kind?: string }
 }) => ({
   digest: o.digest,
@@ -40,6 +46,7 @@ const meta = (o: {
     basis: { kind: 'prompt_forbids_people', promptDigest: 'sha256:x' },
     aiGenerated: false,
     disclosureRequired: false,
+    ...(o.elle === true ? { elleDuzenlendi: true } : {}),
   },
   sourceRunId: o.runId,
   createdAt: o.createdAt ?? '2026-08-16T10:00:00.000Z',
@@ -90,6 +97,8 @@ const kur = (o: {
   varliklar?: {
     digest: string
     runId: string
+    createdAt?: string
+    elle?: boolean
     teslimat?: { id: string; index: number; total: number; role: string; kind?: string }
   }[]
   manifestler?: ReturnType<typeof manifest>[]
@@ -339,6 +348,182 @@ describe('teslimat gruplaması', () => {
       const k = kutuphane(kok)
       expect(k.teslimatlar).toHaveLength(2)
       expect(k.teslimatlar.map((t) => t.parcaSayisi).sort()).toEqual([1, 2])
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+})
+
+// ── EMEKLİLİK: düzenlenen slayt eskisini görünmez kılıyor mu (D-301) ─────────
+//
+// ⚠ ⚠ **BU BLOK BİR ŞİKÂYETTEN DOĞDU.** Depo sahibi: *"editörde düzenleyince artık
+// eskisi görünmemeli yenisi görünmeli sadece çünkü eskisi ile sürekli karışıyor.
+// mesela düzenlenmiş halini yayına alamıyorum önizlemede de eskisi görünüyor."*
+// Editör kaydı depoya girmiyordu; girince de iki bayt aynı yuvayı doldurdu ve
+// okuyan taraf hangisinin geçerli olduğunu SORMUYORDU.
+//
+// ⚠ ⚠ **VE ASIL SINAMA: ESKİSİ DİSKTE DURUYOR MU.** Emeklilik silme değildir
+// (Yasa 10 · Yasa 11): satır listede kalıyor, `guncel: false` ve `sonrakiDigest`
+// ile — hangi sürümün onu emekli ettiği okunabilsin diye.
+
+const ESKI = '2026-08-20T10:00:00.000Z'
+const YENI = '2026-08-21T10:00:00.000Z'
+
+describe('varlık emekliliği (D-301)', () => {
+  it('aynı yuvanın YENİ sürümü eskisini emekli ediyor — ama eskisi listede DURUYOR', () => {
+    const kok = kur({
+      varliklar: [
+        { digest: 'sha256:a0', runId: 'run_e', createdAt: ESKI, teslimat: parca(0, 2, 'dlv_e') },
+        { digest: 'sha256:a1', runId: 'run_e', createdAt: ESKI, teslimat: parca(1, 2, 'dlv_e') },
+        // Editörde 1. slayt düzenlendi: aynı yuva, yeni bayt.
+        {
+          digest: 'sha256:b0',
+          runId: 'run_e',
+          createdAt: YENI,
+          elle: true,
+          teslimat: parca(0, 2, 'dlv_e'),
+        },
+      ],
+    })
+    try {
+      const k = kutuphane(kok)
+      expect(k.varliklar, 'üç bayt da diskte ve listede').toHaveLength(3)
+      const eski = k.varliklar.find((v) => v.digest === 'sha256:a0')
+      expect(eski?.guncel, 'eski sürüm emekli').toBe(false)
+      expect(eski?.sonrakiDigest, 'onu emekli edenin adresi YAZILI').toBe('sha256:b0')
+      expect(k.varliklar.find((v) => v.digest === 'sha256:b0')?.guncel).toBe(true)
+      expect(k.varliklar.find((v) => v.digest === 'sha256:a1')?.guncel, 'dokunulmayan yuva').toBe(
+        true
+      )
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('KAROSEL emekli sürümü taşımıyor ve SIRASI teslimattan', () => {
+    const kok = kur({
+      varliklar: [
+        { digest: 'sha256:a0', runId: 'run_e', createdAt: ESKI, teslimat: parca(0, 2, 'dlv_e') },
+        { digest: 'sha256:a1', runId: 'run_e', createdAt: ESKI, teslimat: parca(1, 2, 'dlv_e') },
+        {
+          digest: 'sha256:b0',
+          runId: 'run_e',
+          createdAt: YENI,
+          elle: true,
+          teslimat: parca(0, 2, 'dlv_e'),
+        },
+      ],
+    })
+    try {
+      const s = kosununSlaytlari(kutuphane(kok), 'run_e')
+      // ⚠ İKİ slayt: üç bayt var ama yuva iki tane. Üç dönseydi karosel iki kapakla
+      // yayına giderdi.
+      expect(
+        s.map((v) => v.digest),
+        'yeni kapak + eski gövde, teslimat sırasında'
+      ).toEqual(['sha256:b0', 'sha256:a1'])
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('teslimat SAYISI şişmiyor — dört slaytlık post altı parça görünmüyor', () => {
+    const kok = kur({
+      varliklar: [
+        ...[0, 1, 2, 3].map((i) => ({
+          digest: `sha256:c${String(i)}`,
+          runId: 'run_f',
+          createdAt: ESKI,
+          teslimat: parca(i, 4, 'dlv_f'),
+        })),
+        ...[0, 1].map((i) => ({
+          digest: `sha256:d${String(i)}`,
+          runId: 'run_f',
+          createdAt: YENI,
+          elle: true,
+          teslimat: parca(i, 4, 'dlv_f'),
+        })),
+      ],
+    })
+    try {
+      const k = kutuphane(kok)
+      expect(k.teslimatlar).toHaveLength(1)
+      expect(k.teslimatlar[0]?.parcaSayisi, 'altı değil DÖRT').toBe(4)
+      expect(k.teslimatlar[0]?.eksikParca).toBe(false)
+      expect(k.teslimatlar[0]?.kapakDigest, 'kapak DÜZENLENMİŞ olan').toBe('sha256:d0')
+    } finally {
+      rmSync(kok, { recursive: true, force: true })
+    }
+  })
+
+  it('AYNI ANDA yazılmış iki sürümde seçim DETERMİNİST — her okumada aynı', () => {
+    // Aynı koşunun slaytları aynı milisaniyede yazılabiliyor (ölçüldü). Eşitlik aynı
+    // yuvada olursa `digest` kırıyor: keyfi ama HER OKUMADA AYNI.
+    const kur2 = () =>
+      kur({
+        varliklar: [
+          { digest: 'sha256:a0', runId: 'run_g', createdAt: ESKI, teslimat: parca(0, 1, 'dlv_g') },
+          { digest: 'sha256:b0', runId: 'run_g', createdAt: ESKI, teslimat: parca(0, 1, 'dlv_g') },
+        ],
+      })
+    const k1 = kur2()
+    const k2 = kur2()
+    try {
+      const a = kosununSlaytlari(kutuphane(k1), 'run_g').map((v) => v.digest)
+      const b = kosununSlaytlari(kutuphane(k2), 'run_g').map((v) => v.digest)
+      expect(a).toHaveLength(1)
+      expect(a, 'iki ayrı okuma AYNI sürümü seçiyor').toEqual(b)
+    } finally {
+      rmSync(k1, { recursive: true, force: true })
+      rmSync(k2, { recursive: true, force: true })
+    }
+  })
+
+  it('DAMGASIZ `-elle.png` bölümü: damgalı elle sürüm varsa GİZLENİYOR', () => {
+    const damgali = kur({
+      varliklar: [
+        {
+          digest: 'sha256:b0',
+          runId: 'run_h',
+          createdAt: YENI,
+          elle: true,
+          teslimat: parca(0, 1, 'dlv_h'),
+        },
+      ],
+    })
+    const damgasiz = kur({
+      varliklar: [
+        { digest: 'sha256:a0', runId: 'run_h', createdAt: ESKI, teslimat: parca(0, 1, 'dlv_h') },
+      ],
+    })
+    try {
+      expect(
+        damgasizElleGosterilsin(kutuphane(damgali), 'run_h'),
+        'aynı görüntü iki bölümde çıkmasın'
+      ).toBe(false)
+      // ⚠ Bu değişiklikten ÖNCE düzenlenmiş koşularda damga yok: bölüm DURUYOR,
+      // çünkü yapılmış bir işi gizlemek onu kaybetmektir.
+      expect(damgasizElleGosterilsin(kutuphane(damgasiz), 'run_h')).toBe(true)
+    } finally {
+      rmSync(damgali, { recursive: true, force: true })
+      rmSync(damgasiz, { recursive: true, force: true })
+    }
+  })
+
+  it('teslimat damgası OLMAYAN varlık emekli SAYILMIYOR — "bilinmiyor" ≠ "eski"', () => {
+    const kok = kur({
+      varliklar: [
+        { digest: 'sha256:x0', runId: 'run_i', createdAt: ESKI },
+        { digest: 'sha256:x1', runId: 'run_i', createdAt: YENI },
+      ],
+    })
+    try {
+      const k = kutuphane(kok)
+      expect(
+        k.varliklar.every((v) => v.guncel),
+        'ikisi de görünür kalıyor'
+      ).toBe(true)
+      expect(kosununSlaytlari(k, 'run_i')).toHaveLength(2)
     } finally {
       rmSync(kok, { recursive: true, force: true })
     }

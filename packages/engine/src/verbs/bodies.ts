@@ -44,6 +44,7 @@ import {
   withOturum,
   renderWithinLimit,
   type LayoutName,
+  ifsaGorunurMu,
   ornekBul,
   panoramaDenetle,
   renderPanorama,
@@ -53,11 +54,11 @@ import { uyarla, uyarlamaIstemi, type Uyarlama, type UyarlamaKarti } from '../pl
 import { BENZERLIK_TAVANI, gecmisUretimler, ozgunlukDenetle } from '../plan/ozgunluk.js'
 import { yayinMetniCozumle, yayinMetniIstemi } from '../plan/yayin-metni.js'
 import { ritimTuttuMu, sablonSec } from '../plan/sablon-sec.js'
+import { gorselBriefIstemi, varyantEki } from '../plan/gorsel-brief.js'
 import { konuSecPromptu, konuSecimiCozumle, type KonuAdayi } from '../plan/konu-sec.js'
 import { duzeltilebilir, duzeltmeIstemi, type DenetimKusuru } from '../plan/denetim-turu.js'
 import { yayinGozlemleri, yayinSaatiOner } from '../plan/yayin-saati.js'
 import { yayinAniOku } from '../yayin-ani.js'
-import { sablonBul } from '@suite/contracts'
 import type { KatalogOrnegi } from '@suite/render'
 import {
   duzMetin,
@@ -1117,11 +1118,10 @@ export const renderBody = (deps: RenderDeps): Verb =>
           // ⚠ Kusurlar SUSTURULMUYOR: `kalite` adımı ve insan onay kapısı bunları görüyor.
           kusurlar,
           // ⚠ ⚠ **İFŞA BİR OLGU OLARAK YAZILIYOR — beyan olarak değil** (§11.3 · D-311).
-          // `visibleDisclosure: true` yazan bir sidecar, kimsenin bakmadığı bir
-          // kutucuğun işaretlenmesidir (D-23). Bu değer ÖLÇÜMDEN geliyor: belge ifşa
-          // taşıdığını söylüyor VE denetim her slaytta onu görünür buldu. Biri bile
-          // eksikse `false` — ve o hâlde yayın kapısı doğru biçimde durduruyor.
-          ifsaGorunur: doc.aiIfsasi === true && kusurlar.every((k) => k.tur !== 'ifsa-gorunmuyor'),
+          // Kural artık `panorama-denetim.ts`te, ölçümün YANINDA: editörde kaydedilen
+          // slaytlar da damgalanmaya başlayınca aynı satır ikinci kez yazılacaktı ve
+          // bu depoda ayrışan ikinci kopya hep aynı sınıftan çıkıyor.
+          ifsaGorunur: ifsaGorunurMu(doc.aiIfsasi === true, kusurlar),
           images: doc.gorseller.map((g) => ({ alt: g.alt })),
           // ⚠ ⚠ **BU ANAHTAR YOKTU ve KATALOG YOLU HİÇ YAYINLANAMIYORDU.** Panelden
           // koşan `run_01a01876` üç kapıyı da geçti, kalite yeşil, dört slayt
@@ -2007,9 +2007,10 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       const sira =
         typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : 1
       const sid = katalogSablonuId(input.inputs)
-      const vs = sid === null ? [] : (sablonBul(sid)?.gorsel?.varyantlar ?? [])
-      const varyant = vs[sira - 1]
-      return varyant === undefined ? d : `${d}, ${varyant}`
+      // ⚠ Kadraj eki `plan/gorsel-brief.ts`ten: editör de aynı eki basıyor ve iki kopya
+      // bir gün ayrışırdı.
+      const varyant = sid === null ? '' : varyantEki(sid, sira)
+      return varyant === '' ? d : `${d}, ${varyant}`
     }
     return ''
   }
@@ -2071,65 +2072,22 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
   if (input.constraints['gorsel_brief'] === true) {
     const sablonId = katalogSablonuId(input.inputs)
     if (sablonId !== null) {
-      const kayit = sablonBul(sablonId)
-      if (kayit?.gorsel === undefined || kayit.gorsel === null) return ''
-      // ⚠ Brief İNGİLİZCE ve BÜYÜK HARFSİZ: R-20 muhafızı büyük harfli öbeği "metin
-      // çizdirme isteği" sayıyor ve iki kez reddetti (katalog.ts kaydı).
-      // ⚠ ⚠ **OLUMSUZLAMA YASAK — ve bunu GERÇEK BİR KOŞU öğretti.** İlk sürüm brief'e
-      // *"do not ask for any lettering…"* diye bir talimat koyuyordu; model bunu
-      // brief'in içine kopyaladı ve R-20 muhafızı `lettering` alt dizesini yakalayıp
-      // görsel adımını REDDETTİ. Muhafız olumsuzlamayı anlamıyor: `no texture` içindeki
-      // `no text` için de aynı yanlış pozitif kayıtlı (katalog.ts). Kırmızı bir kapının
-      // kuralı aynı turda gevşetilmez (R-76) — brief YENİDEN YAZILDI.
-      //
-      // ⚠ Çözüm yapısal: brief yalnız KADRAJDA NE OLDUĞUNU söylüyor. İstenmeyen şeyi
-      // adıyla anmayan bir istem, o adı çıktıya sızdıramaz.
+      // ⚠ ⚠ **BU İSTEM ARTIK `plan/gorsel-brief.ts`TE — ve sebebi editör.** Depo
+      // sahibi editörde boş kalan yuvalara aynı kaliteyle görsel üretilmesini istedi;
+      // istemi oraya kopyalamak, aynı kuralın ikinci bir sürümünü doğururdu. Gerekçe
+      // yorumlarının tamamı o dosyada, kurucunun yanında.
       // ⚠ ⚠ **SIRA: KAÇINCI GÖRSEL.** Hat görsel adımlarını AÇARAK çoğaltıyor (`duzelt`
-      // ile aynı gerekçe: DAG döngü taşımıyor) ve her adım kendi sırasını kısıtta taşıyor.
+      // ile aynı gerekçe: DAG döngü taşımıyor) ve her adım sırasını kısıtta taşıyor.
       // Sıra yoksa 1: tek görselli eski hatlar değişmeden çalışıyor.
       const sira =
         typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : 1
-      // Uyarlama adımının seçtiği üslup — yoksa şablonun varsayılanı (boş dize).
-      const gorselDili = uyarlamaDili(input.inputs)
-      const varyantlar = kayit.gorsel.varyantlar ?? []
-      // ⚠ ⚠ **FAZLALIK SIRA BOŞ İSTEM DÖNDÜRÜR ve adım ATLANIR.** Şablonun iki yuvası
-      // varsa üçüncü görsel adımı koşmamalı: koşarsa para harcanır, görsel üretilir ve
-      // hiçbir yuvaya girmez — bu deponun "modül var, çıktı var, tüketen yok" sınıfının
-      // ta kendisi. Atlama makinesi zaten var; yeni bir kaçış yolu açmaya gerek yok.
-      if (sira > 1 && sira > varyantlar.length) return ''
-      const varyant = varyantlar[sira - 1]
-      // ⚠ ⚠ **ÖZNEYE AGENT KARAR VERİYOR — ve bunu ÇIKTI KALİTESİ dayattı.** Depo
-      // sahibi: *"insanlar ya da görseller hep bozuk; AI modeller normalde çok daha iyi
-      // sonuç veriyor. İlla adam illa görsel olacak diye bir şey yok, konuya uygun
-      // olmalı. Biz ne istediğimizde net olalım, çıktı zaten güzel gelir."*
-      //
-      // Eski istem özneyi DİKTE ediyordu (`a worker with arms open wide`). Konu "veri
-      // katmanı" olsa bile model bir işçi çizmek zorundaydı; konuya ait olmayan bir
-      // figürü zorlamak, modelin en kötü çalıştığı yerdir — bozuk eller, bozuk yüzler,
-      // anlamsız sahneler. Artık şablon GÖRSEL DİLİ ve KADRAJI söylüyor, özneyi konu
-      // belirliyor: bir kişi, bir makine parçası, bir malzeme, soyut bir hacim.
-      //
-      // ⚠ Seri bütünlüğü ÜSLUPTAN geliyor, özneden değil: dört slaytın dördü de aynı
-      // ışığı, aynı mat yüzeyi, aynı mürekkep taramasını taşıyor.
-      return [
-        'write one short image generation brief in english, lowercase only.',
-        'YOU choose what to depict — the topic decides, not a template:',
-        '  · if the topic is about people and their work, a single figure is right.',
-        '  · if it is about a machine, a material or a measurement, show THAT thing.',
-        '  · if it is abstract, show a physical object that stands for it.',
-        'choose the one subject a reader would recognise instantly for this topic.',
-        `keep this technical base: ${kayit.gorsel.briefTemeli}`,
-        // ⚠ ⚠ **ÜSLUBU DA KONU SEÇİYOR — ama KOŞU BAŞINA BİR KEZ.** Şablon her varyantta
-        // *"monochrome ink hatching"* diyordu ve konu ne olursa olsun çıktı siyah-beyaz
-        // mürekkepti. Dil artık uyarlama adımında bir kez seçiliyor ve dört slayt onu
-        // paylaşıyor: seri bütünlüğü korunuyor, ama üslup konuya ait.
-        ...(gorselDili === '' ? [] : [`visual language for this whole set: ${gorselDili}`]),
-        // ⚠ Varyant KADRAJI söylüyor, ÖZNEYİ değil: aynı konudan N özdeş görsel çıkmasın.
-        ...(varyant === undefined ? [] : [`frame it like this: ${varyant}`]),
-        `topic: ${konu}`,
-        'describe only the subject, the lighting and the background surface.',
-        'answer with the brief sentence alone.',
-      ].join('\n')
+      return gorselBriefIstemi({
+        sablonId,
+        sira,
+        konu,
+        // Uyarlama adımının seçtiği üslup — yoksa şablonun varsayılanı (boş dize).
+        gorselDili: uyarlamaDili(input.inputs),
+      })
     }
   }
 

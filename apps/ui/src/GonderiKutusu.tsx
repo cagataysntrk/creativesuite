@@ -166,34 +166,6 @@ export const GonderiKutusu = ({
     }
   }
 
-  const paketle = async (): Promise<void> => {
-    setMesaj('paketleniyor…')
-    try {
-      const j = (await (
-        await fetch(`/api/kosu/${runId}/yayin-paketi`, { method: 'POST' })
-      ).json()) as {
-        ok?: boolean
-        klasor?: string
-        slayt?: number
-        eksik?: readonly string[]
-        hata?: string
-      }
-      if (j.ok !== true) {
-        setMesaj(`✗ ${j.hata ?? 'paketlenemedi'}`)
-        return
-      }
-      // ⚠ Eksikler SAYILIYOR ve söyleniyor: metinsiz bir paketi "hazır" sanmak, yayıncıya
-      // boş açıklamayla yüklenen bir gönderi demekti.
-      const eksik = j.eksik ?? []
-      setMesaj(
-        `✓ ${String(j.slayt ?? 0)} slayt → ${j.klasor ?? ''}` +
-          (eksik.length === 0 ? '' : ` · ⚠ ${String(eksik.length)} eksik: ${eksik.join(' · ')}`)
-      )
-    } catch {
-      setMesaj('✗ sunucuya ulaşılamıyor')
-    }
-  }
-
   const gecmisiCek = useCallback(async (): Promise<void> => {
     try {
       const j = (await (await fetch(`/api/yayin-takvimi/${runId}`)).json()) as {
@@ -365,13 +337,16 @@ export const GonderiKutusu = ({
         >
           ✓ bu tarihe planla
         </button>
-        {/* ⚠ ⚠ **HEDEFE GÖNDER — bugün YEREL, yarın MCP.** Yerel hedef paket klasörü
-            üretiyor ve *"gönderildi"* DEMİYOR: hiçbir yere gitmedi, klasör diskte.
-            Metricool hedefi bağlandığında bu düğme onu çağıracak ve rozet gerçek bir
-            "eşitlendi" gösterecek — panelin hiçbir yeri değişmeden.
-            ⛔ Hiçbir hedef YAYINLAMIYOR; zamanlıyor. */}
+        {/* ⚠ ⚠ **BU DÜĞME BİR ZAMANLAR İKİYDİ ve ikisi AYNI ŞEYİ YAPIYORDU.** Depo
+            sahibi: *"hedefe gönder ve yayın paketini çıkar aynı şeyi yapıyor neden iki
+            farklı butona ??"* — ve haklıydı: yerel hedefin `gonder`i zaten `paketle`yi
+            çağırıyor. İki düğme, tek eylemin iki adı; hangisine basılacağı bilinemez.
+            ⚠ Bugün tek hedef YEREL PAKET olduğu için etiket ikisini de söylüyor.
+            Metricool bağlandığında bu düğme onu çağıracak — kod değişmeden, çünkü
+            fark hedefte, düğmede değil.
+            ⛔ Hiçbir hedef YAYINLAMIYOR; zamanlıyor / paketliyor. */}
         <button type="button" onClick={() => void hedefeGonder()}>
-          ⇄ hedefe gönder
+          ⇄ hedefe gönder — paketi çıkar
         </button>
         {/* ⛔ Sistem GÖNDERMİYOR: bu düğme insanın uygulamadan paylaştığını KAYDEDİYOR. */}
         <button
@@ -382,12 +357,6 @@ export const GonderiKutusu = ({
         </button>
         <button type="button" onClick={() => void karar('cikar', { not: 'takvimden çıkarıldı' })}>
           ⌫ takvimden çıkar
-        </button>
-        {/* ⚠ ⚠ **YAYIN BURADAN YAPILMIYOR — paket ÇIKIYOR.** Instagram/LinkedIn/X
-            API'lerinde zamanlama yok; yayını bulut aracıyla insan yapıyor. Panelin işi
-            karoselleri SIRAYLA ve metinleri platform başına bir klasöre koymak. */}
-        <button type="button" onClick={() => void paketle()}>
-          ⬇ yayın paketi çıkar
         </button>
       </div>
       {/* ⚠ Senkron durumu KUTUDA, geçmişin içinde kaybolmasın diye: "gönderdim mi"

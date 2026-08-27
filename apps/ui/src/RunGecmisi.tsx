@@ -60,6 +60,19 @@ interface Varlik {
   /** Bayttan okunan ölçü, `1080x1440` gibi. `null` = okunamadı. */
   readonly olcu: string | null
   readonly yayinlandi: boolean
+  /**
+   * Bu bayt teslimattaki o yuvanın ŞU ANKİ hâli mi (D-301).
+   *
+   * ⚠ ⚠ **Depo sahibi: *"editörde düzenleyince artık eskisi görünmemeli yenisi
+   * görünmeli sadece çünkü eskisi ile sürekli karışıyor."*** Emekli sürüm diskte
+   * duruyor (Yasa 10) ama listede DEĞİL: iki sürümü yan yana göstermek, hangisinin
+   * yayına gideceğini her bakışta yeniden sordurdu.
+   * ⚠ Alan YOKSA `true` sayılıyor: eski bir sunucu sürümüyle konuşulduğunda listeyi
+   * boşaltmak, eksik bilgiyi "hepsi emekli" diye okumak olurdu.
+   */
+  readonly guncel?: boolean
+  /** Bu damgalı bayt editörde kaydedilerek mi doğdu (D-301). */
+  readonly elleDuzenlendi?: boolean
 }
 
 interface Ozet {
@@ -398,6 +411,9 @@ export const RunGecmisi = ({
   // ve karoselin sırası tam olarak o. Digest'e göre sıralamak, kapağı ortaya atardı.
   const slaytHaritasi = new Map<string, Varlik[]>()
   for (const v of varliklar) {
+    // ⚠ Emekli sürüm karosele GİRMİYOR: düzenlenmiş bir karosel sekiz slayt görünür
+    // ve hangi dördünün yayına gideceği belirsiz kalırdı.
+    if (v.guncel === false) continue
     const l = slaytHaritasi.get(v.sourceRunId) ?? []
     l.push(v)
     slaytHaritasi.set(v.sourceRunId, l)
@@ -749,6 +765,9 @@ export const RunGecmisi = ({
         <ul className="grup-listesi">
           {suzulmus.map((r) => {
             const slaytlar = slaytHaritasi.get(r.runId) ?? []
+            // ⚠ Damgasız kopyanın gösterilip gösterilmeyeceğine SUNUCU karar
+            // veriyor (`damgasizElleGosterilsin`): aynı soruyu iki ekranın ayrı
+            // cevaplaması bu deponun en sık tekrar eden hatası.
             const elle = elleSlaytlar[r.runId] ?? []
             const olcu = olcusu(r.runId)
             return (

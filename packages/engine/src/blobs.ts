@@ -13,7 +13,15 @@
 // bağımlılığı ve "kurtarma `git clone` + `cat`" (§16) vaadini kırar.
 
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { dirname, extname, join } from 'node:path'
 
 export interface BlobRef {
@@ -148,6 +156,53 @@ export const storeBlob = (input: StoreInput): StoreResult => {
     ref: { digest: `sha256:${hex}`, path: hedef, bytes: buf.length },
     deduplicated: varDi,
   }
+}
+
+/**
+ * Depodaki bütün sidecar dosyaları — `derived/blobs/<ab>/<sha>.<ext>.meta.json`.
+ *
+ * ⚠ ⚠ **BU YÜRÜYÜŞÜN ÜÇÜNCÜ KOPYASI YAZILMAK ÜZEREYDİ.** `kutuphane.ts` bir tane
+ * taşıyor, `uyum-uc.ts` ikincisini — yorumunda *"aynı desen, aynı sidecar biçimi"*
+ * yazıyor, yani kopya olduğunu BİLEREK. Editör damgalamaya başlayınca üçüncüsü
+ * gerekecekti. Depo dizilimi (`<ab>` dağılımı) burada tanımlı olduğuna göre okuyucusu
+ * da burada olmalı: dağılım değişirse tek yer değişir.
+ *
+ * ⚠ Depo YOKSA boş dizi — "hiç varlık yok" ile "depo kurulmamış" ayrı sorular ama
+ * ikisinin de cevabı boş liste; çağıran dizini kendisi sorabilir.
+ */
+export const blobSidecarYollari = (blobRoot: string): readonly string[] => {
+  const out: string[] = []
+  const yur = (d: string): void => {
+    if (!existsSync(d)) return
+    for (const ad of readdirSync(d)) {
+      const t = join(d, ad)
+      if (statSync(t).isDirectory()) yur(t)
+      else if (ad.endsWith('.meta.json')) out.push(t)
+    }
+  }
+  yur(blobRoot)
+  return out
+}
+
+/**
+ * Bir çalıştırmanın ÜRETTİĞİ varlıklar — sidecar'ı o koşuyu gösterenler.
+ *
+ * ⚠ ⚠ **AYNI İÇERİK İKİNCİ KEZ GELİRSE SİDECAR EZİLMİYOR** (`storeBlob`), yani bir
+ * blob'un `sourceRunId`'si İLK üretenidir. Bu okuyucu o yüzden "bu koşunun ürettiği"
+ * diyor, "bu koşuda kullanılan" demiyor — ikisi aynı şey değil ve karıştırmak
+ * maliyet defteriyle çelişirdi.
+ */
+export const kosununBloblari = (
+  blobRoot: string,
+  runId: string
+): readonly { readonly dosya: string; readonly meta: BlobMeta }[] => {
+  const out: { dosya: string; meta: BlobMeta }[] = []
+  for (const sidecar of blobSidecarYollari(blobRoot)) {
+    const dosya = sidecar.replace(/\.meta\.json$/, '')
+    const meta = readBlobMeta(dosya)
+    if (meta !== null && meta.sourceRunId === runId) out.push({ dosya, meta })
+  }
+  return out
 }
 
 export const readBlobMeta = (blobFile: string): BlobMeta | null => {

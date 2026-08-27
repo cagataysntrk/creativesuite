@@ -220,6 +220,8 @@ export {
 export {
   storeBlob,
   readBlobMeta,
+  blobSidecarYollari,
+  kosununBloblari,
   verifyBlob,
   blobPath,
   metaPath,
@@ -331,6 +333,15 @@ export {
   type SablonSecimi,
   type SecimKosullari,
 } from './plan/sablon-sec.js'
+
+// ⚠ Koşunun şablonu/konusu/görsel dili — kuyruk, kütüphane ve EDİTÖRÜN paylaştığı
+// tek cevap. `apps/server`da yaşarken editör ona erişemiyordu ve üçüncü kopya
+// yazılmak üzereydi.
+export { kosuSablonu, type KosuSablonu } from './kosu-sablonu.js'
+
+// ⚠ Görsel brief istemi HAT ile EDİTÖRÜN paylaştığı tek kurucu (D-268 · FAZ-19.13):
+// editöre kopyalamak, aynı kuralın iki sürümünü doğururdu.
+export { gorselBriefIstemi, varyantEki, type GorselBriefGirdisi } from './plan/gorsel-brief.js'
 export {
   uyarla,
   uyarlamaIstemi,

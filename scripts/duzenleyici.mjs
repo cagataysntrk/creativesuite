@@ -13,7 +13,16 @@
 // tasarımdan büyük bir bağımlılık olurdu.
 
 import { createServer } from 'node:http'
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -50,8 +59,38 @@ const webAra = await import(join(REPO, 'scripts/duzenleyici-web-ara.mjs'))
 // ⚠ Chromium TEK yerden açılıyor (`chokepoints.json` → `chromium-baslatan`): rasterleme
 // `withPage`i ödünç alıyor, kendi `chromium.launch()`unu YAZMIYOR (R-30).
 const { withPage } = await import(join(REPO, 'packages/render/dist/browser.js'))
+// ⚠ ⚠ **EDİTÖRDE KAYDEDİLEN SLAYT DEPOYA GİRMİYORDU ve yapılan iş yayına ULAŞMIYORDU.**
+// Depo sahibi: *"editörde düzenleyince artık eskisi görünmemeli yenisi görünmeli sadece
+// çünkü eskisi ile sürekli karışıyor. mesela düzenlenmiş halini yayına alamıyorum
+// önizlemede de eskisi görünüyor."* Sebep tekti: `/kaydet` yalnız `panorama-elle.json`
+// ve `slayt-NN-elle.png` yazıyordu; kütüphane, yayın önizlemesi ve yayın paketi ise
+// içerik-adresli DEPOYU okuyor. Diskteki dosya vardı, okuyan yoktu.
+//
+// ⚠ ⚠ **DAMGA VE İDDİA UYDURULMUYOR.** Yeni bayt yeni bir varlıktır; damgasını üretim
+// anında alması gerekiyor (7. yasa) ve uyum iddiası da o anda KURULUYOR — kopyalanmıyor.
+// Dayanak `human_reviewed`: bu görsele bir insan bakarak kaydetti, hattın istemi değil.
+const { assertCompliance, ifsaGorunurMu, stampAsset } = await import(
+  join(REPO, 'packages/render/dist/index.js')
+)
+const {
+  duzMetin,
+  gorselBriefIstemi,
+  kosuSablonu: kosuKimligiOku,
+  kosununBloblari,
+  storeBlob,
+  varyantEki,
+} = await import(join(REPO, 'packages/engine/dist/index.js'))
+// ⚠ Saat TEK yerden (`chokepoints.json` → `saat`): editör `new Date()` çağırsaydı
+// darboğaz kapısı haklı olarak kırmızıya dönerdi ve defterler yeniden oynatılamazdı.
+const { systemClock } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 const { descriptors: TANIMLAYICILAR } = loadDescriptors(join(REPO, 'registry/providers'))
-const SAGLAYICI_ORTAMI = saglayiciOrtami(TANIMLAYICILAR, readEnv, ['CF_ACCOUNT_ID'])
+// ⚠ `CLAUDE_CODE_BIN` de kapsamda: boş yuva doldurma brief'i METİN sağlayıcısından
+// alıyor (hattaki `gorsel-brief` adımının aynısı) ve o adaptör ikilinin yolunu ortamdan
+// okuyor. Listede olmayan bir anahtar, adaptöre HİÇ ulaşmıyor.
+const SAGLAYICI_ORTAMI = saglayiciOrtami(TANIMLAYICILAR, readEnv, [
+  'CF_ACCOUNT_ID',
+  'CLAUDE_CODE_BIN',
+])
 
 const f = fontCss(join(REPO, 'brand/brd_upcytech/fonts'))
 const tokenCss = readFileSync(join(REPO, 'brand/brd_upcytech/derived-tokens/tokens.css'), 'utf8')
@@ -63,6 +102,288 @@ const stamp = {
   definitionDigest: 'sha256:duzenleyici',
   contextManifest: 'ctx',
   sourceRunId: 'run_duzenleyici',
+}
+
+/**
+ * Düzenlemeyi YAPAN insan — uyum iddiasının `human_reviewed` dayanağı için.
+ *
+ * ⚠ ⚠ **İSİMSİZ ONAY ONAY DEĞİLDİR** (`claim.ts`: `reviewer_unnamed`). Denetimde
+ * *"kim baktı"* sorusunun bir cevabı olmalı; `"editör"` yazmak o soruyu cevaplamıyor,
+ * geçiştiriyor. Kimlik `.git/config`ten okunuyor: commit'leri imzalayan kim ise
+ * düzenlemeyi de o yapıyor ve ikinci bir kimlik alanı icat etmeye gerek yok.
+ *
+ * ⚠ Dosya OKUNUYOR, `git` ÇAĞRILMIYOR: `git-cagiran` darboğazı (§3.8) tek bir git
+ * çağrı noktası tanıyor ve editör orası değil.
+ *
+ * ⚠ Kimlik YOKSA `null` — ve o hâlde damgalama HİÇ yapılmıyor. Uydurma bir isimle
+ * kurulan iddia, iddianın kendisini değersizleştirirdi.
+ */
+const duzenleyenInsan = () => {
+  try {
+    const cfg = readFileSync(join(REPO, '.git/config'), 'utf8')
+    const ad = /^\s*name\s*=\s*(.+)$/m.exec(cfg.split('[user]')[1] ?? '')?.[1]?.trim()
+    return ad === undefined || ad === '' ? null : ad
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Düzenlenmiş slaytları DEPOYA alır — eskisini emekli ederek (D-301 · Yasa 10).
+ *
+ * ⚠ ⚠ **YALNIZ VAR OLAN BİR YUVAYI DOLDURUYOR.** Teslimat kimliği burada
+ * UYDURULMUYOR: koşunun mevcut varlıklarının damgasından okunuyor. `dlv_` kuralını
+ * ikinci kez yazmak, kural değişince editörün sessizce ayrı bir teslimat üretmesi
+ * demekti. Koşunun damgalı varlığı yoksa hiçbir şey saklanmıyor ve bu SÖYLENİYOR —
+ * sessizce geçmek, "kaydettim ama yayına giremezsin"i gizlemek olurdu.
+ *
+ * ⚠ ⚠ **KAYNAK DOSYA KOPYALANIYOR, TAŞINMIYOR.** `storeBlob` kaynağı `rename` ile
+ * TAŞIYOR (içerik-adresli depoda atomiklik için). Doğrudan `slayt-NN-elle.png`
+ * verilseydi koşu dizinindeki düzenlenmiş PNG kaybolurdu — panelin *"elle
+ * düzenlenmiş"* bölümü ve editörün kendi önizlemesi boşalırdı.
+ *
+ * ⚠ ⚠ **İFŞA ÖLÇÜLEREK yazılıyor**, `ifsaGorunurMu` ile — hattın kullandığı AYNI
+ * yüklem. Düzenleme sırasında ifşa şeridinin üstü örtülmüş olabilir; onu ölçmeden
+ * `visibleDisclosure: true` yazmak, kimsenin bakmadığı bir kutucuğu işaretlemektir.
+ */
+const slaytlariDepolaVeEmeklet = (dizin, runId, yollar, doc, kusurlar) => {
+  const insan = duzenleyenInsan()
+  if (insan === null) return { ok: false, sebep: 'git kimliği okunamadı — damgalanmadı' }
+
+  const oncekiler = kosununBloblari(join(REPO, 'derived/blobs'), runId).filter(
+    (b) => b.meta.deliverable !== undefined
+  )
+  if (oncekiler.length === 0)
+    return { ok: false, sebep: 'bu koşunun damgalı varlığı yok — emekli edilecek sürüm bulunamadı' }
+
+  // Yuva başına EN YENİ sürüm: koşu daha önce de düzenlenmişse yeni sürüm sonuncunun
+  // üstüne biner, ilkinin üstüne değil.
+  const yuva = new Map()
+  for (const b of oncekiler) {
+    const i = b.meta.deliverable.index
+    const v = yuva.get(i)
+    if (v === undefined || v.meta.createdAt < b.meta.createdAt) yuva.set(i, b)
+  }
+
+  const simdi = systemClock.nowIso()
+  const ifsa = ifsaGorunurMu(doc.aiIfsasi === true, kusurlar)
+  const gecici = join(REPO, 'derived/duzenleyici-gecici')
+  mkdirSync(gecici, { recursive: true })
+
+  const saklanan = []
+  const atlanan = []
+  for (const [sira, yol] of yollar.entries()) {
+    const onceki = yuva.get(sira)
+    if (onceki === undefined) {
+      atlanan.push(sira + 1)
+      continue
+    }
+    const iddia = assertCompliance({
+      basis: { kind: 'human_reviewed', reviewer: insan, reviewedAt: simdi },
+      // ⚠ Görselin AI üretimi olup olmadığı ÖNCEKİ varlıktan geliyor: düzenleme
+      // kompozisyonu değiştiriyor, görselin kaynağını değil.
+      aiGenerated: onceki.meta.compliance?.aiGenerated === true,
+    })
+    if (!iddia.ok) {
+      atlanan.push(sira + 1)
+      continue
+    }
+    const kopya = join(gecici, 'slayt-' + String(sira + 1).padStart(2, '0') + '.png')
+    copyFileSync(yol, kopya)
+    const d = stampAsset(kopya, { stamp: onceki.meta.stamp, claim: iddia.value })
+    if (!d.ok) {
+      rmSync(kopya, { force: true })
+      atlanan.push(sira + 1)
+      continue
+    }
+    const b = storeBlob({
+      deliverable: onceki.meta.deliverable,
+      sourcePath: kopya,
+      blobRoot: join(REPO, 'derived/blobs'),
+      stamp: onceki.meta.stamp,
+      compliance: {
+        ...iddia.value,
+        stamped: true,
+        visibleDisclosure: ifsa,
+        // ⚠ Soy kütüğü YAZILI: bu bayt neyin yerine geçti ve nasıl doğdu. Emeklilik
+        // bir silme değil, bir SIRALAMA (Yasa 10) — ve sıra okunabilir olmalı.
+        elleDuzenlendi: true,
+        oncekiDigest: onceki.meta.digest,
+      },
+      sourceRunId: runId,
+      createdAt: simdi,
+    })
+    // ⚠ ⚠ **KOPYA HER HÂLDE SİLİNİYOR — ve ilk sürüm bunu KAÇIRDI.** `storeBlob`
+    // kaynağı yalnız blob YENİYSE taşıyor; aynı bayt ikinci kez geldiğinde (değişmemiş
+    // bir slaydı yeniden kaydetmek) dosya olduğu yerde KALIYOR. İlk denemede geçici
+    // dizinde 5 MB birikti ve `git status`ta göründü — sessizce büyüyen bir çöp.
+    rmSync(kopya, { force: true })
+    if (b.ok) saklanan.push({ sira: sira + 1, digest: b.ref.digest, ayni: b.deduplicated })
+    else atlanan.push(sira + 1)
+  }
+  // ⚠ Dizin de kalkıyor: boş bir dizin bırakmak, bir dahaki `git status`ta aynı soruyu
+  // sordurur. Depo temiz kalmalı (repo-hygiene kapısı).
+  rmSync(gecici, { recursive: true, force: true })
+  return { ok: true, saklanan, atlanan, ifsa, insan }
+}
+
+/**
+ * Koşunun ÜRETİM KİMLİĞİ — brief kurmak için gereken üç şey, kendi defterinden.
+ *
+ * ⚠ Üçü de ADIM ÇIKTISINDAN okunuyor, koşu parametresinden değil: parametre `sablon`
+ * alanını ancak panel/CLI yazdıysa taşıyor ve bu tam olarak bir kez yanlış rapora yol
+ * açtı (`kosuSablonu`nun yorumunda yazılı).
+ */
+const kosuKimligi = (runId) => {
+  // ⚠ ⚠ **BU FONKSİYONUN İLK HÂLİ KENDİ OKUYUCUSUNU YAZIYORDU ve ilk gerçek koşuda
+  // ayrıştı:** konuyu yalnız `konu-sec` adımından okuyordu, o adım konu verilmiş
+  // koşularda ATLANIYOR ve gerçek konu `kosu-parametreleri.json`da duruyor. Editör
+  // *"bu koşunun konusu defterinde yok"* dedi — oysa vardı. Aynı sorunun cevabı
+  // `@suite/engine`de zaten yazılıydı; kopya yerine o çağrılıyor.
+  const k = kosuKimligiOku(REPO, runId)
+  return {
+    sablonId: k.gercek ?? k.istenen ?? '',
+    gorselDili: k.gorselDili ?? '',
+    konu: k.konu ?? '',
+  }
+}
+
+/**
+ * Bir yuvanın KAYNAK KÜNYESİNİ siler — görsel artık webden gelmiyorsa.
+ *
+ * ⚠ ⚠ **BU BİR YANLIŞ ATIF KUSURUYDU ve ilk denemede ÖLÇÜLDÜ.** Webden eklenen görsel
+ * yanına `gorsel-NN-elle.kaynak.json` yazıyor (lisans, URL, set). Aynı yuvaya sonradan
+ * ÜRETİLEN bir görsel yazılınca künye yerinde kalıyordu: gerçek koşuda üretilmiş bir
+ * spektrofotometre, *"A Brouhot car in Paris, 1910 · Public domain"* künyesiyle
+ * duruyordu. Kaynaksız iddia yayınlanamaz (Yasa 8) — YANLIŞ kaynaklı iddia daha kötü:
+ * denetlenebilir görünür ve denetlenince çöker.
+ *
+ * ⚠ `/arkaplan-sil` bu fonksiyonu ÇAĞIRMIYOR ve çağırmamalı: arka plan silmek görselin
+ * kaynağını değiştirmiyor, yalnız zeminini kaldırıyor.
+ */
+const kaynakKunyesiniSil = (dizin, sira) => {
+  const y = join(dizin, 'gorsel-' + String(sira).padStart(2, '0') + '-elle.kaynak.json')
+  if (existsSync(y)) rmSync(y, { force: true })
+}
+
+/**
+ * Arka planı siler — `/arkaplan-sil` ile AYNI yerel model, tek yerden.
+ *
+ * ⚠ ⚠ **İKİNCİ BİR TEKNİK EKLENMİYOR.** Bu dosya `/arkaplan-sil`de zaten `rembg`
+ * çağırıyordu; boş yuva doldurma da aynı adımı istiyor (hattaki `gorsel-kirp`).
+ * Ayrı yazsaydım biri düzeltilir öteki unutulurdu — bu deponun tekrar eden sınıfı.
+ *
+ * ⚠ Kurulu değilse `null` ve bu SÖYLENİYOR: *"arka plan silinemedi"* ile *"arka plan
+ * silmeye gerek yoktu"* ayrı şeyler ve ikincisi bir yalan olurdu (rembg adaptörünün
+ * kendi yorumu da aynı cümleyi kuruyor).
+ */
+const arkaplaniSil = async (b64) => {
+  const { spawnSync } = await import('node:child_process')
+  const python = join(REPO, '.venv-gorsel/bin/python')
+  if (!existsSync(python)) return { ok: false, sebep: '.venv-gorsel yok — `just setup`' }
+  const r = spawnSync(python, [join(REPO, 'scripts/gorsel/arkaplan-sil.py')], {
+    input: b64,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  })
+  if (r.status !== 0) return { ok: false, sebep: String(r.stderr ?? '').slice(0, 160) }
+  return { ok: true, b64: String(r.stdout).trim() }
+}
+
+/**
+ * Bir istemden görsel üretir — `/gorsel-uret` ile AYNI sağlayıcı yolu.
+ *
+ * ⚠ İstem R-20 MUHAFIZINDAN geçiyor (`adapter.validate`): istemi kim yazdıysa yazsın,
+ * metin isteyen bir istem Türkçe tipografiyi bozuyor. "Model yazdı" bir muafiyet
+ * sebebi değil — insanın yazdığı için de olmadığı gibi.
+ */
+const gorselUret = async (istem, anahtar) => {
+  const adapter = adapterById('cloudflare-workers-ai')
+  if (adapter === null) return { ok: false, sebep: 'sağlayıcı bulunamadı' }
+  if (!adapter.available(SAGLAYICI_ORTAMI))
+    return { ok: false, sebep: 'anahtar yok — tezgâhı `just dev` ile (sops altında) başlat' }
+  const dogrulanan = adapter.validate({
+    capability: 'image.generate',
+    lane: 'free',
+    prompt: istem,
+    constraints: { aspect: '4:5' },
+    idempotencyKey: anahtar,
+  })
+  if (!dogrulanan.ok)
+    return {
+      ok: false,
+      sebep: 'istem reddedildi (R-20): ' + JSON.stringify(dogrulanan.error.details ?? {}),
+    }
+  const is = await adapter.start(dogrulanan.value, {
+    correlationId: 'cor_editor',
+    env: SAGLAYICI_ORTAMI,
+  })
+  if (!is.ok) return { ok: false, sebep: 'çağrı başlamadı: ' + JSON.stringify(is.error.code ?? '') }
+  let durum = await adapter.status(is.value)
+  for (let i = 0; i < 60 && durum.ok && durum.value.state === 'running'; i++) {
+    await new Promise((c) => setTimeout(c, 1000))
+    durum = await adapter.status(is.value)
+  }
+  if (!durum.ok || durum.value.state !== 'succeeded')
+    return {
+      ok: false,
+      sebep: 'üretim başarısız: ' + JSON.stringify(durum.ok ? durum.value.state : durum.error.code),
+    }
+  const cikti = durum.value.output ?? {}
+  const b64 = typeof cikti.image_base64 === 'string' ? cikti.image_base64 : String(cikti.data ?? '')
+  return b64 === '' ? { ok: false, sebep: 'sağlayıcı byte döndürmedi' } : { ok: true, b64 }
+}
+
+/**
+ * Brief'i METİN MODELİNDEN alır — hattaki `gorsel-brief` adımının birebir aynısı.
+ *
+ * ⚠ ⚠ **İSTEM `plan/gorsel-brief.ts`TEN, BURADA YAZILMIYOR.** Kopyalasaydım editör bir
+ * gün hattan farklı bir görsel dili üretirdi ve fark ancak çıktıya bakınca görülürdü.
+ * ⚠ Boş dönen istem = bu yuvaya brief YOK (şablon görsel istemiyor ya da sıra varyant
+ * sayısını aşıyor) ve o hâlde üretim de yapılmıyor: kullanılmayacak bir görsel için
+ * kota harcamak D-261'in birebir tekrarı olurdu.
+ */
+const briefUret = async (kimlik, sira) => {
+  const istem = gorselBriefIstemi({
+    sablonId: kimlik.sablonId,
+    sira,
+    konu: kimlik.konu,
+    gorselDili: kimlik.gorselDili,
+  })
+  if (istem === '')
+    return { ok: false, bosYuva: true, sebep: 'bu şablon bu yuvaya görsel istemiyor' }
+  const adaptor = adapterById('claude-code')
+  if (adaptor === null) return { ok: false, sebep: '`claude-code` adaptörü yok' }
+  if (!adaptor.available(SAGLAYICI_ORTAMI))
+    return { ok: false, sebep: '`claude` PATH üzerinde yok — yerel önkoşul sağlanmadı' }
+  const girdi = {
+    capability: 'text.generate',
+    lane: 'free',
+    prompt: istem,
+    constraints: {},
+    idempotencyKey: 'editor-brief:' + kimlik.sablonId + ':' + String(sira),
+  }
+  const dogrulama = adaptor.validate(girdi)
+  if (!dogrulama.ok) return { ok: false, sebep: 'brief istemi reddedildi' }
+  const baslat = await adaptor.start(dogrulama.value, {
+    env: SAGLAYICI_ORTAMI,
+    correlationId: girdi.idempotencyKey,
+    signal: undefined,
+  })
+  if (!baslat.ok) return { ok: false, sebep: 'brief sağlayıcısı başlatılamadı' }
+  const durum = await adaptor.status(baslat.value)
+  if (!durum.ok || durum.value.state !== 'succeeded')
+    return { ok: false, sebep: 'brief üretilemedi' }
+  // ⚠ Zarfı HATTIN çıkarıcısı açıyor: Claude Code cevabı `{"type":"result","result":…}`
+  // zarfında veriyor ve kendi çıkarıcımı yazmak hattınkinden ayrışan ikinci bir okuma
+  // olurdu (`yayin-metni.mjs` bunu bir kez öğrendi).
+  const ham = (duzMetin(durum.value.output) ?? '').trim()
+  if (ham === '') return { ok: false, sebep: 'brief boş döndü' }
+  // ⚠ ⚠ **KADRAJ EKİ BRIEF'İN ÜSTÜNE, MODELDEN GEÇMEDEN.** Gerçek koşu: dört ayrı
+  // brief adımı, her birinde farklı kadraj satırı ve çıkan dört fotoğraf BİREBİR
+  // AYNIYDI — model kadrajı düzlüyor. Garanti yapıya gömülü olmak zorunda.
+  const varyant = varyantEki(kimlik.sablonId, sira)
+  return { ok: true, istem: varyant === '' ? ham : ham + ', ' + varyant, brief: ham }
 }
 
 /**
@@ -864,6 +1185,9 @@ const sunucu = createServer(async (req, res) => {
       // ürettiği yerinde kalıyor — slaytlarda zaten uyguladığımız kural.
       const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.' + uz
       writeFileSync(join(k.dizin, ad), Buffer.from(d.veri, 'base64'))
+      // ⚠ İnsanın yüklediği dosya da webden GELMİYOR: eski künye kalırsa yüklenen
+      // fotoğraf başkasının lisansıyla etiketlenmiş olurdu.
+      kaynakKunyesiniSil(k.dizin, d.i + 1)
       calisan[id].gorseller[d.i] = {
         ...g,
         src: 'data:' + (d.mime ?? 'image/png') + ';base64,' + d.veri,
@@ -976,9 +1300,121 @@ const sunucu = createServer(async (req, res) => {
       if (b64 === '') return res.end('✗ sağlayıcı byte döndürmedi')
       const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'
       writeFileSync(join(k.dizin, ad), Buffer.from(b64, 'base64'))
+      kaynakKunyesiniSil(k.dizin, d.i + 1)
       anlikGoruntuAl(id)
       calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + b64 }
       return res.end('✓ ' + (d.i + 1) + '. yuvaya üretildi → ' + ad)
+    }
+
+    // ── BOŞ YUVALARI DOLDUR — TEK TUŞLA, HATTIN ADIMLARIYLA (FAZ-19.13) ────
+    //
+    // ⚠ ⚠ **BU BİR ŞİKÂYETTEN DOĞDU.** Depo sahibi: *"bazen bazı görseller kötü
+    // üretiliyor özellikle arkaplanlı görsel üretmek zaten yasak yani görsel değil 3d
+    // obje 3d görsel üretmek zorunda ama bazen bunun sınırlarını korumuyor. bu durumda
+    // editörde ben o üretilen görseli siliyorum o alanlar boş kalıyor. bir tuş ile boş
+    // yuvalara uygun görsel üret diye basınca otomatik üretmeli mükemmelce şablona ve
+    // konuya uygun olarak."* Eskiden tek çare her yuvaya elle İngilizce istem yazmaktı
+    // — yani şablonun kendi brief temelini ve koşunun görsel dilini insanın ezberden
+    // yeniden kurması. Elle yazılan istem, hattın ürettiğinden başka bir şey üretir.
+    //
+    // ⚠ ⚠ **ÜÇ ADIM, HATTAKİYLE AYNI SIRA:** brief (`gorsel-brief`) → üretim
+    // (`gorsel-uret`) → arka plan silme (`gorsel-kirp`). Üçüncüsü atlanamaz: depo
+    // sahibinin şikâyetinin ta kendisi arkaplanlı görsel ve model *rica ile* siyah
+    // zemin çizmiyor — bu üç gerçek koşuda ölçüldü (D-274). Silme bir RİCA değil,
+    // bir İŞLEM.
+    //
+    // ⚠ Yalnız BOŞ yuvalar: dolu bir yuvanın üstüne üretmek, insanın beğendiği
+    // görseli parayla silmek olurdu. Belirli bir yuva isteniyorsa `{i}` veriliyor.
+    if (u.pathname === '/yuvalari-doldur') {
+      const d = JSON.parse((await govde(req)) || '{}')
+      const k = kaynak[id]
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
+      if (k?.tur !== 'kosu') return res.end('✗ şablona görsel üretilmez — bir koşu seç (Yasa 13).')
+      const kimlik = kosuKimligi(k.ad)
+      if (kimlik.sablonId === '')
+        return res.end('✗ bu koşunun şablonu defterinde yok — brief kurulamaz')
+      if (kimlik.konu === '')
+        return res.end('✗ bu koşunun konusu defterinde yok — konusuz brief bir tahmindir')
+
+      const gorseller = calisan[id].gorseller ?? []
+      const hedefler =
+        typeof d.i === 'number'
+          ? [d.i]
+          : gorseller
+              .map((g, i) => (typeof g?.src === 'string' && g.src !== '' ? -1 : i))
+              .filter((i) => i >= 0)
+      if (hedefler.length === 0) return res.end('✓ boş yuva yok — doldurulacak bir şey bulunamadı')
+
+      const satirlar = ['⚙ ' + hedefler.length + ' boş yuva · şablon ' + kimlik.sablonId]
+      let basarili = 0
+      for (const i of hedefler) {
+        const g = gorseller[i]
+        if (g === undefined) {
+          satirlar.push('✗ ' + (i + 1) + '. yuva yok')
+          continue
+        }
+        const b = await briefUret(kimlik, i + 1)
+        if (!b.ok) {
+          satirlar.push((b.bosYuva === true ? '· ' : '✗ ') + (i + 1) + '. yuva: ' + b.sebep)
+          continue
+        }
+        const uretim = await gorselUret(b.istem, 'editor-doldur:' + id + ':' + String(i))
+        if (!uretim.ok) {
+          satirlar.push('✗ ' + (i + 1) + '. yuva: ' + uretim.sebep)
+          continue
+        }
+        // ⚠ ⚠ **ARKA PLAN SİLME BAŞARISIZSA GÖRSEL YİNE KONUYOR — ama SÖYLENEREK.**
+        // Sessizce arkaplanlı bir kare koymak, şikâyetin kaynağını geri getirirdi;
+        // hiç koymamak ise üretilmiş (ve ödenmiş) bir görseli çöpe atardı.
+        const kirpma = await arkaplaniSil(uretim.b64)
+        const son = kirpma.ok ? kirpma.b64 : uretim.b64
+        const ad = 'gorsel-' + String(i + 1).padStart(2, '0') + '-elle.png'
+        writeFileSync(join(k.dizin, ad), Buffer.from(son, 'base64'))
+        // ⚠ Webden gelen bir görselin künyesi bu yuvada duruyorsa SİLİNİYOR: üretilmiş
+        // bir görsele başkasının lisansını iliştirmek yanlış bir atıftır.
+        kaynakKunyesiniSil(k.dizin, i + 1)
+        anlikGoruntuAl(id)
+        calisan[id].gorseller[i] = { ...g, src: 'data:image/png;base64,' + son }
+        basarili += 1
+        satirlar.push(
+          '✓ ' +
+            (i + 1) +
+            '. yuva → ' +
+            ad +
+            (kirpma.ok ? ' (arka plan silindi)' : ' ⚠ ARKA PLAN SİLİNEMEDİ: ' + kirpma.sebep)
+        )
+        satirlar.push('   brief: ' + b.brief.slice(0, 110))
+      }
+      if (basarili === 0) {
+        satirlar.push('✗ hiçbir yuva doldurulamadı')
+        return res.end(satirlar.join('\n'))
+      }
+      satirlar.push('✓ ' + basarili + " yuva dolduruldu — kaydetmeyi UNUTMA (JSON'u yaz)")
+      // ⚠ ⚠ **DOLU YUVA "OLDU" DEMEK DEĞİL — ve bunu İLK GERÇEK DENEME öğretti.**
+      // Üç yuvası doldurulan koşuda denetim `metin-gorsel-cakisiyor` ölçtü: gövde
+      // metninin %100'ü görselin üstündeydi. Yuvalar boşken o kusur ÇIKAMIYORDU, yani
+      // düzen görsellerle hiç sınanmamıştı. Doldurup susmak, ölçülmüş bir kusuru
+      // "hazır" diye teslim etmek olurdu.
+      // ⚠ Ölçüm ücretsiz (`local-chromium`) ve ZATEN kurulu: yeni bir motor değil,
+      // doğru anda çağrılan bir ölçüm.
+      const olculen = await olcum(id)
+      const cakisma = olculen.filter((x) => String(x.tur).startsWith('metin-gorsel'))
+      satirlar.push(
+        olculen.length === 0
+          ? '✓ denetim temiz — kusur yok'
+          : '⚠ denetim ' +
+              olculen.length +
+              ' kusur ölçtü' +
+              (cakisma.length === 0
+                ? ''
+                : ' · ' +
+                  cakisma.length +
+                  ' tanesi METİN-GÖRSEL ÇAKIŞMASI: görselin' +
+                  ' ölçeğini/konumunu küçült ya da kartın metin kolonunu değiştir')
+      )
+      for (const x of olculen.slice(0, 6))
+        satirlar.push('   · ' + x.tur + (x.kart === null ? '' : ' (kart ' + x.kart + ')'))
+      return res.end(satirlar.join('\n'))
     }
 
     // ── WEBDEN TASARIM ÖGESİ ARAMA (FAZ-19.11) ─────────────────────────────
@@ -1334,6 +1770,35 @@ const sunucu = createServer(async (req, res) => {
         )
         const r = await renderPanorama(d, yollar)
         if (!r.ok) return res.end('✗ render başarısız: ' + JSON.stringify(r.error))
+
+        // ⚠ ⚠ **DEPOYA ALMA KAYDETMENİN PARÇASI, AYRI BİR DÜĞME DEĞİL.** Ayrı olsaydı
+        // insan kaydeder, depoya almayı unutur ve yayın önizlemesinde yine ESKİSİNİ
+        // görürdü — şikâyetin ta kendisi. Kaydetmek "bu hâli geçerli kıl" demektir.
+        const kusurlar = await olcum(id)
+        const dep = slaytlariDepolaVeEmeklet(k.dizin, k.ad, yollar, d, kusurlar)
+        // ⚠ Kaydetme cevabı ölçümü de SÖYLÜYOR: bir kusur, kaydedildikten sonra
+        // öğrenilirse yayın önizlemesine kadar gider.
+        const kusurSatiri =
+          kusurlar.length === 0
+            ? '✓ denetim temiz — kusur yok'
+            : '⚠ denetim ' +
+              kusurlar.length +
+              ' kusur ölçtü: ' +
+              [...new Set(kusurlar.map((x) => String(x.tur)))].join(' · ')
+        const depSatiri = !dep.ok
+          ? '⚠ depoya alınmadı: ' + dep.sebep + ' — düzenleme yalnız -elle.png olarak duruyor'
+          : '✓ ' +
+            dep.saklanan.length +
+            ' slayt depoya alındı ve eskisi emekli edildi (bakan: ' +
+            dep.insan +
+            ')' +
+            (dep.ifsa
+              ? ''
+              : '\n⚠ AI ifşa şeridi ÖLÇÜLEMEDİ ya da görünmüyor — yayın kapısı durdurur') +
+            (dep.atlanan.length === 0
+              ? ''
+              : '\n⚠ atlanan slayt: ' + dep.atlanan.join(' · ') + ' (eşleşen teslimat yuvası yok)')
+
         return res.end(
           '✓ ' +
             yollar.length +
@@ -1344,7 +1809,11 @@ const sunucu = createServer(async (req, res) => {
             yollar.map((y) => y.split('/').pop()).join(' · ') +
             '\n' +
             '✓ belge: ' +
-            jsonYolu
+            jsonYolu +
+            '\n' +
+            depSatiri +
+            '\n' +
+            kusurSatiri
         )
       }
 

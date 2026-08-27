@@ -272,11 +272,28 @@ export const KosuDetay = ({
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ kapi: yenidenAcik, gerekce: g2 }),
       })
-      const j = (await r.json()) as { ok?: boolean; hata?: string }
+      const j = (await r.json()) as {
+        ok?: boolean
+        hata?: string
+        duzenlenebilir?: boolean
+        editorId?: string
+      }
+      // ⚠ ⚠ **DÜĞME ARTIK EDİTÖRÜ AÇIYOR — SÖZ VERMEKLE KALMIYOR.** Depo sahibi:
+      // *"yeniden tasarıma aç işlemi çalışmıyor editörde aç gelmiyor tasarıma
+      // açılmıyor."* Eski hâl yalnız bir cümle yazıyordu ve insan editörü elle
+      // bulup koşuyu listeden aramak zorundaydı — yani düğme adının vaat ettiği
+      // şeyi YAPMIYORDU.
+      // ⚠ Açılabilirlik SUNUCUDAN ölçülerek geliyor: panorama belgesi olmayan bir
+      // koşu için sekme açmak, "açılamıyor" diyen boş bir sayfa demekti.
+      if (j.ok === true && j.duzenlenebilir === true) {
+        window.open(`${EDITOR}/?id=${j.editorId ?? `kosu:${runId}`}`, '_blank', 'noreferrer')
+      }
       setMesaj(
-        j.ok === true
-          ? '✎ yeniden açıldı ve takvimden çıkarıldı — editörde düzelt ya da Tekrar bölümünden yeniden üret'
-          : `✗ ${j.hata ?? 'yeniden açılamadı'}`
+        j.ok !== true
+          ? `✗ ${j.hata ?? 'yeniden açılamadı'}`
+          : j.duzenlenebilir === true
+            ? '✎ yeniden açıldı, takvimden çıkarıldı — editör yeni sekmede açıldı'
+            : '✎ yeniden açıldı ve takvimden çıkarıldı — bu koşunun panorama belgesi YOK, editörde açılamıyor; Tekrar bölümünden yeniden üret'
       )
       if (j.ok === true) {
         setYenidenAcik(null)
@@ -564,6 +581,14 @@ export const KosuDetay = ({
             <button type="button" onClick={() => setYenidenAcik(d.bekleyenKapi)}>
               ✎ tasarımı yeniden aç
             </button>
+            {/* ⚠ ⚠ **BU BAĞLANTI YALNIZ KAPI BEKLERKEN VARDI ve onaydan sonra
+                KAYBOLUYORDU.** Oysa "tasarımı değiştirmek" isteği tam olarak onaydan
+                SONRA geliyor: karar verilmiş, çıktıya bakılmış, bir şey düzeltilecek.
+                Onay, editörü kilitlemek için bir sebep değil — kararın kendisi
+                defterde duruyor ve `edited` kaydı zaten yazılıyor. */}
+            <a href={`${EDITOR}/?id=kosu:${runId}`} target="_blank" rel="noreferrer">
+              ✎ bu koşuyu editörde aç
+            </a>
           </div>
         </div>
       )}

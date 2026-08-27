@@ -65,6 +65,7 @@ import {
   safeBand,
   specAgeDays,
   panoramaDisaAktar,
+  kosuBelgeYolu,
   kosuBelgesiniOku,
 } from '@suite/render'
 import { hatDurumlari, loadPipeline } from '@suite/registry'
@@ -91,7 +92,12 @@ import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
-import { kutuphane, yenidenKullanilabilir } from './kutuphane.js'
+import {
+  damgasizElleGosterilsin,
+  kosununSlaytlari,
+  kutuphane,
+  yenidenKullanilabilir,
+} from './kutuphane.js'
 import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle, elemeKaydi } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
 import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
@@ -539,6 +545,9 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const runIdler = [...new Set(k.varliklar.map((v) => v.sourceRunId))]
     const elle: Record<string, readonly string[]> = {}
     for (const runId of runIdler) {
+      // ⚠ Damgalı sürüm zaten elle düzenlemeden doğduysa damgasız kopya GÖSTERİLMİYOR:
+      // aynı görüntü iki bölümde çıkıyordu.
+      if (!damgasizElleGosterilsin(k, runId)) continue
       const liste = elleDuzenlenmisSlaytlar(o.repoRoot, runId)
       if (liste.length > 0) elle[runId] = liste
     }
@@ -650,21 +659,15 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     tarih?: string,
     platformlar?: readonly string[]
   ): ReturnType<typeof yayinPaketiYaz> => {
-    const slaytlar = kutuphane(o.repoRoot)
-      .varliklar.filter((v) => v.sourceRunId === runId)
-      .map((v) => ({
-        digest: v.digest,
-        sira: v.teslimat?.index ?? 0,
-        toplam: v.teslimat?.total ?? 0,
-        rol: v.teslimat?.role ?? 'bilinmiyor',
-        olcu: v.olcu,
-        createdAt: v.createdAt,
-      }))
-      .sort((a2, b2) =>
-        a2.toplam > 0 && b2.toplam > 0
-          ? a2.sira - b2.sira
-          : a2.createdAt.localeCompare(b2.createdAt)
-      )
+    // ⚠ Sıra ve emeklilik `kosununSlaytlari`ndan — bu dosyada dört kopyası vardı.
+    const slaytlar = kosununSlaytlari(kutuphane(o.repoRoot), runId).map((v) => ({
+      digest: v.digest,
+      sira: v.teslimat?.index ?? 0,
+      toplam: v.teslimat?.total ?? 0,
+      rol: v.teslimat?.role ?? 'bilinmiyor',
+      olcu: v.olcu,
+      createdAt: v.createdAt,
+    }))
     const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps/yayin-metni.json')
     let metinler: Record<string, string> = {}
     if (existsSync(yol)) {
@@ -703,16 +706,11 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
      * Bir gönderiyi tarihinden ya da şablon adından değil, NEYE BENZEDİĞİNDEN tanıyoruz;
      * görselsiz bir takvim satırı bir muhasebe kaydıdır.
      * ⚠ Sıra `teslimat.index`ten — `createdAt` milisaniyede eşitlenebiliyor (ölçüldü).
+     * ⚠ Emekli sürüm GİRMİYOR: takvimde eski tasarımın görünmesi, düzeltmenin hiç
+     * yapılmamış gibi durması demekti.
      */
     const slaytlariAl = (runId: string): readonly string[] =>
-      k.varliklar
-        .filter((v) => v.sourceRunId === runId)
-        .sort((a, b2) =>
-          a.teslimat !== null && b2.teslimat !== null
-            ? a.teslimat.index - b2.teslimat.index
-            : a.createdAt.localeCompare(b2.createdAt)
-        )
-        .map((v) => v.digest)
+      kosununSlaytlari(k, runId).map((v) => v.digest)
 
     /**
      * Bu koşunun HANGİ platformlar için gönderi metni var.
@@ -1067,14 +1065,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         // Bozuk adım çıktısı = metin YOK. "Herhalde vardır" yok.
       }
     }
-    const slaytlar = kutuphane(o.repoRoot)
-      .varliklar.filter((v) => v.sourceRunId === runId)
-      .sort((a2, b2) =>
-        a2.teslimat !== null && b2.teslimat !== null
-          ? a2.teslimat.index - b2.teslimat.index
-          : a2.createdAt.localeCompare(b2.createdAt)
-      )
-      .map((v) => v.digest)
+    const slaytlar = kosununSlaytlari(kutuphane(o.repoRoot), runId).map((v) => v.digest)
 
     const r = await hedef.gonder({
       runId,
@@ -1247,14 +1238,10 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // 1. ve 2. slayt aynı milisaniyede yazılmış ve sıraları ters. Teslimat damgası
     // üretim anında basılıyor ve bir slaytın teslimattaki yerini SÖYLÜYOR (D-248).
     // Yayın önizlemesinde yanlış sıra, yayın anında yanlış karosel demekti.
-    const slaytlar = [...kutuphane(o.repoRoot).varliklar]
-      .filter((v) => v.sourceRunId === runId)
-      .sort((a, b2) =>
-        a.teslimat !== null && b2.teslimat !== null
-          ? a.teslimat.index - b2.teslimat.index
-          : a.createdAt.localeCompare(b2.createdAt)
-      )
-      .map((v) => ({ digest: v.digest, alt: v.konu }))
+    const slaytlar = kosununSlaytlari(kutuphane(o.repoRoot), runId).map((v) => ({
+      digest: v.digest,
+      alt: v.konu,
+    }))
     const secili = kosuSablonu(o.repoRoot, runId)
     return c.json({
       ok: true,
@@ -1390,10 +1377,13 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // tarayıcısı için doğru) ama bir KAROSEL sıralı okunur: panelde 04 · 03 · 02 · 01
       // görünüyordu ve "seri bütünlüğü var mı" sorusu ters sırada cevaplanamaz.
       // `createdAt` artan: slaytlar zaten sırayla yazılıyor.
-      varliklar: [...kutuphane(o.repoRoot).varliklar]
-        .filter((v) => v.sourceRunId === runId)
-        .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-        .map((v) => ({ digest: v.digest, bytes: v.bytes })),
+      // ⚠ ⚠ **BU SATIR `createdAt` İLE SIRALIYORDU ve karoseli ters çevirebiliyordu.**
+      // Aynı milisaniyede yazılmış iki slaydın sırası rastgele oluyor; sıranın tek
+      // ölçülmüş kaynağı `teslimat.index`. Kural artık tek yerde.
+      varliklar: kosununSlaytlari(kutuphane(o.repoRoot), runId).map((v) => ({
+        digest: v.digest,
+        bytes: v.bytes,
+      })),
       // ── ELLE DÜZENLENMİŞ slaytlar (D-301) ────────────────────────────────
       //
       // ⚠ ⚠ **EDİTÖRDE YAZILAN ŞEY PANELDE GÖRÜNMÜYORDU.** `just duzenle` düzenlemeyi
@@ -1405,7 +1395,9 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // ⚠ Ayrı bir bölüm olarak veriliyor, damgalı varlıkların yerine GEÇMİYOR: elle
       // düzenlenmiş bir slayt henüz uyum iddiası taşımıyor ve yayına aday değil.
       // Karıştırmak, damgasız bir varlığı yayınlanabilir sanmak olurdu.
-      elleSlaytlar: elleDuzenlenmisSlaytlar(o.repoRoot, runId),
+      elleSlaytlar: damgasizElleGosterilsin(kutuphane(o.repoRoot), runId)
+        ? elleDuzenlenmisSlaytlar(o.repoRoot, runId)
+        : [],
       // Panelden yüklenmiş görseller: hat bunları `elle_gorsel_<sıra>` ile kullanır.
       yuklenenGorseller: yuklenenGorseller(o.repoRoot, runId),
       // ── canlı takip (FAZ-17.3) ──────────────────────────────────────────
@@ -1599,9 +1591,9 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const kartAdimi = oku('metin-uret.json')
     const satirlar = Array.isArray(kartAdimi?.['lines']) ? (kartAdimi['lines'] as string[]) : []
     const kimlik = kosuSablonu(o.repoRoot, runId)
-    const slaytSayisi = kutuphane(o.repoRoot).varliklar.filter(
-      (v) => v.sourceRunId === runId
-    ).length
+    // ⚠ Emekli sürümler SAYILMIYOR: düzenlenmiş bir karosel sekiz slayt görünürdü ve
+    // metin istemine yanlış bir sayı giderdi.
+    const slaytSayisi = kosununSlaytlari(kutuphane(o.repoRoot), runId).length
     const girdi = {
       konu: kimlik.konu ?? '',
       kartMetni: satirlar.join('\n'),
@@ -1674,9 +1666,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const metin = String(g.metin ?? '').trim()
     if (metin === '') return c.json({ ok: false, hata: 'metin boş' }, 400)
 
-    const slaytSayisi = kutuphane(o.repoRoot).varliklar.filter(
-      (v) => v.sourceRunId === runId
-    ).length
+    const slaytSayisi = kosununSlaytlari(kutuphane(o.repoRoot), runId).length
     const kusurlar = platformDenetle(metin, slaytSayisi, p)
     // ⚠ ⚠ **ENGELLEYEN kusur yazmayı DURDURUYOR, uyarı durdurmuyor.** Tavanı aşan bir
     // metni deftere yazmak, yayın anında reddedilecek bir şeyi "hazır" saymak olurdu.
@@ -2454,12 +2444,30 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       simdi: o.simdi(),
     })
     yayinla('degisim')
+    // ⚠ ⚠ **"YENİDEN AÇ" HİÇBİR ŞEY AÇMIYORDU.** Depo sahibi: *"yeniden tasarıma aç
+    // işlemi çalışmıyor editörde aç gelmiyor tasarıma açılmıyor."* Cevap iki satır
+    // METİN döndürüyordu — *"editörde düzelt"* yazıyor ama nereyi açacağını
+    // söylemiyordu. Bir düğmenin adı bir eylem vaat ediyorsa, eylemi yapmak zorunda.
+    //
+    // ⚠ ⚠ **VE AÇILABİLİRLİK ÖLÇÜLÜYOR, VARSAYILMIYOR.** Editör yalnız panorama
+    // belgesi olan koşuyu açabiliyor (D-302 öncesi koşularda o dosya YOK). Ölçmeden
+    // bağlantı vermek, sekmesi açılıp *"bu belge açılamıyor"* diyen bir düğme demekti.
+    const belgeYolu = kosuBelgeYolu(join(o.repoRoot, RUNS_DIR, runId))
     return c.json({
       ok: true,
       kapi,
+      duzenlenebilir: belgeYolu !== null,
+      // ⚠ Editörün adresi PANELDE biliniyor (`EDITOR`), burada değil: sunucu editörün
+      // portunu bilmek zorunda değil ve bilseydi iki yerde tutulan bir sabit olurdu.
+      editorId: `kosu:${runId}`,
       // ⚠ Yollar CEVAPTA: "yeniden açtım, şimdi ne yapacağım" sorusu hemen geliyor.
       yollar: [
-        { ad: 'editörde düzelt', not: 'görsel editörde slaytları elle düzelt (damgasız sürüm)' },
+        belgeYolu === null
+          ? {
+              ad: 'tasarımı yeniden üret',
+              not: 'bu koşunun panorama belgesi yok — editörde açılamıyor, yalnız yeniden üretilebilir',
+            }
+          : { ad: 'editörde düzelt', not: 'görsel editörde slaytları elle düzelt' },
         { ad: 'tasarımı yeniden üret', uc: `/api/calistirmalar/${runId}/rerun` },
       ],
     })

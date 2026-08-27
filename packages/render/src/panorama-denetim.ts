@@ -1638,3 +1638,20 @@ export const kusurMetni = (kusurlar: readonly Kusur[]): string =>
     : kusurlar
         .map((k) => `- ${k.kart === null ? 'belge' : `kart ${k.kart}`}: ${k.aciklama}`)
         .join('\n')
+
+/**
+ * İfşa GÖRÜNÜR mü — belge iddia ediyor VE denetim her slaytta buldu mu (§11.3 · D-311).
+ *
+ * ⚠ ⚠ **BU KURAL İKİNCİ BİR YERE KOPYALANACAKTI ve o an burası doğdu.** Kural
+ * `bodies.ts`in içinde tek satır olarak yaşıyordu; editörde kaydedilen slaytlar da
+ * damgalanmaya başlayınca aynı satır ikinci kez yazılmak zorundaydı. Bu depoda aynı
+ * yüklemin iki kopyası bir kez daha ayrıştı (`gorselleriGom`) — bir daha olmasın diye
+ * kural buraya, ölçümün yanına taşındı.
+ *
+ * ⚠ ⚠ **İDDİA DEĞİL, İKİ OLGUNUN BİRLEŞİMİ.** `visibleDisclosure: true` yazan bir
+ * sidecar, kimsenin bakmadığı bir kutucuğun işaretlenmesidir (D-23): belge ifşa
+ * taşıdığını SÖYLÜYOR olmalı ve denetim onu her slaytta GÖRMÜŞ olmalı. Biri bile
+ * eksikse `false` — ve o hâlde yayın kapısı doğru biçimde durduruyor.
+ */
+export const ifsaGorunurMu = (aiIfsasi: boolean, kusurlar: readonly Kusur[]): boolean =>
+  aiIfsasi && kusurlar.every((k) => k.tur !== 'ifsa-gorunmuyor')

@@ -664,6 +664,33 @@ function mufettisiKur(doc) {
     kok.appendChild(el('yuva', yuva))
     kok.appendChild(el('istem', gistem))
     kok.appendChild(guret)
+
+    // ⚠ ⚠ **BOŞ YUVALARI TEK TUŞLA DOLDUR.** Depo sahibi: *"bazen bazı görseller kötü
+    // üretiliyor… editörde ben o üretilen görseli siliyorum o alanlar boş kalıyor. bir
+    // tuş ile boş yuvalara uygun görsel üret diye basınca otomatik üretmeli mükemmelce
+    // şablona ve konuya uygun olarak."* Elle istem yazmak, şablonun brief temelini ve
+    // koşunun görsel dilini insanın ezberden yeniden kurması demekti — ve öyle yazılan
+    // istem hattın ürettiğinden başka bir şey üretir.
+    // ⚠ Düğme, üstündeki elle istem alanının YERİNE geçmiyor: biri hattın kurduğu
+    // brief'i tekrarlıyor, öteki insanın aklındaki başka bir şeyi istiyor.
+    const bosSayisi = (doc.gorseller ?? []).filter(
+      (x) => !(typeof x.src === 'string' && x.src !== '')
+    ).length
+    const doldur = document.createElement('button')
+    doldur.className = 'birincil'
+    doldur.textContent = '✨ boş yuvalara ŞABLONA UYGUN üret (' + bosSayisi + ')'
+    doldur.disabled = bosSayisi === 0
+    doldur.onclick = async () => {
+      doldur.disabled = true
+      // ⚠ Süre SÖYLENİYOR: brief + üretim + arka plan silme yuva başına ~30 sn ve
+      // sessiz bir bekleme, asılmış bir tezgâhtan ayırt edilemez.
+      mesaj('… ' + bosSayisi + ' yuva: brief → üretim → arka plan silme (yuva başına ~30 sn)')
+      const r = await fetch('/yuvalari-doldur?id=' + id, { method: 'POST', body: '{}' })
+      mesaj(await r.text())
+      doldur.disabled = false
+      await cek()
+    }
+    kok.appendChild(doldur)
   }
 
   // ── kart ──
