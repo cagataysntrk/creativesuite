@@ -23,6 +23,7 @@
 // `too_many` ile reddediyor; ayrıştırıcı da aynı sınırı uyguluyor ki geçersiz bir blok
 // hiç kurulmasın.
 import { islevTavanlari, yayTalimati } from '@suite/contracts'
+import { kipTarifi, type IcerikKipi } from '@suite/contracts'
 import { MAX_DUGUM } from '@suite/render'
 
 /** Prompt'a giren kayıt — `SELECT` çıktısının şekli. */
@@ -34,6 +35,20 @@ export interface PromptKaydi {
 export interface PromptGirdisi {
   readonly konu: string
   readonly kayitlar: readonly PromptKaydi[]
+  /**
+   * İçerik kipi — **metni yazan istemin de bilmesi gereken şey.**
+   *
+   * ⚠ ⚠ **BU ALAN YOKTU ve `genel` kip ÜÇ AYRI ŞEKİLDE bozuluyordu.** Depo sahibi
+   * gerçek bir çıktı yapıştırdı: altı satırın beşi SORU, sonuncusu satış çağrısı —
+   * *"ne yargı var ne bilgi, soru sorup duruyor."* Üç sebep birden ölçüldü:
+   *   1. `kipTarifi` bu isteme HİÇ ulaşmıyordu (öğretici biçim talimatı yok),
+   *   2. istem *"yalnız buradaki bilgiyi kullan"* diyerek modeli MARKA KAYITLARINA
+   *      hapsediyordu — genel bir konuda anlatacak genel bir şey kalmıyordu,
+   *   3. ritim kuralı `memphis` hedefini seçmişti: *"satırların EN AZ YARISI soru
+   *      işaretiyle bitecek."*
+   * Model yanlış davranmadı; istem tam olarak bunu istedi.
+   */
+  readonly kip?: IcerikKipi
   readonly locale?: string
   readonly maxChars?: number
   /** Geçmiş redlerin gerekçesi — negatif kısıt (D-191). */
@@ -142,7 +157,14 @@ const BICIM: Readonly<Record<string, readonly string[]>> = {
     '- Numara satırın ilk karakteri olacak; başka bir şey yazma.',
   ],
   memphis: [
-    '- 2. satırdan itibaren satırların EN AZ YARISI soru işaretiyle BİTECEK.',
+    // ⚠ ⚠ **CEVAPSIZ SORU ÖĞRETMİYOR — ve bu bir üretim çıktısıyla ölçüldü.** Kural
+    // yalnız *"yarısı soruyla bitecek"* diyordu; gerçek koşuda altı satırın beşi soru
+    // oldu ve karosel hiçbir şey söylemedi. Depo sahibi: *"ne yargı var ne bilgi,
+    // soru sorup duruyor."* Soru bir GİRİŞTİR, bir içerik değil.
+    '- Soru sorduğun her satırda CEVABI da ver: soru cümlesini kendi cevabı izlesin',
+    '  ya da aynı satır soruyu sorup yanıtlasın.',
+    '- ARDA ARDA iki soru satırı yazma; her sorunun karşısında bir olgu dursun.',
+    '- 2. satırdan itibaren satırların en fazla YARISI soruyla başlasın.',
     '- Sorular retorik değil, okurun kendine soracağı türden olacak.',
   ],
   sahne: ['- Rakam ve numara KULLANMA; satırlar bir hikâyenin evreleri olacak.'],
@@ -228,15 +250,33 @@ const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): reado
 export const icerikPromptu = (g: PromptGirdisi): string | null => {
   const baglam = baglamBloku(g.kayitlar)
   if (g.konu.trim() === '' || baglam === '') return null
+  const genel = g.kip === 'genel'
 
   const satirlar = [
-    'Aşağıdaki marka bilgisine dayanarak bir sosyal medya gönderisi metni yaz.',
+    // ⚠ ⚠ **AÇILIŞ CÜMLESİ KİPE GÖRE DEĞİŞİYOR ve eskiden değişmiyordu.** Genel kipte
+    // de *"marka bilgisine dayanarak"* yazıyordu; model genel bir konuda anlatacak
+    // genel bir şey bulamayıp marka konumlandırma notlarını soruya çevirdi ve son
+    // satıra satış çağrısı koydu. Gerçek çıktıydı, varsayım değil.
+    genel
+      ? 'Bir sosyal medya karoseli için ÖĞRETİCİ bir metin yaz.'
+      : 'Aşağıdaki marka bilgisine dayanarak bir sosyal medya gönderisi metni yaz.',
     '',
     `KONU: ${g.konu.trim()}`,
     '',
-    'MARKA BİLGİSİ (yalnız buradaki bilgiyi kullan):',
+    // ⚠ ⚠ **GENEL KİPTE KAYITLAR BİR KISIT DEĞİL, BİR BAĞLAM** — `konuSecPromptu`
+    // aynı ayrımı zaten yapıyordu, yazan istem yapmıyordu. Aynı veriyi iki farklı
+    // rolde kullanmak, iki ayrı istem yazmaktan az bozulur.
+    ...(genel
+      ? [
+          'MARKANIN DÜNYASI (konuyu SINIRLAMAZ — yalnız kimin konuştuğunu gösterir;',
+          'buradaki cümleleri TEKRARLAMA, satış diline ÇEVİRME):',
+        ]
+      : ['MARKA BİLGİSİ (yalnız buradaki bilgiyi kullan):']),
     baglam,
     '',
+    // ⚠ Öğreticiliğin BİÇİMLERİ tek kaynaktan (`kipTarifi`) — konu seçimi, uyarlama ve
+    // bu istem aynı tarifi okuyor. Üç yerde yazılan bir kural iki yerde unutulur.
+    ...(g.kip === undefined ? [] : [...kipTarifi(g.kip), '']),
     'BİÇİM (karosel — her satır BİR slayt olur, sırayla):',
     // ⚠ **Uzunluk disiplini prompt'ta olmak ZORUNDA.** Modelden serbest metin isteyip
     // sonra sayfalayıcıya "böl" demek, ilk slayta 12 satırlık bir metin duvarı
@@ -285,6 +325,16 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     '  yasak — kaynağı olmayan sayı yayınlanamaz.',
     '- "devrim niteliğinde", "çığır açan", "sektör lideri" gibi abartı terimleri kullanma.',
     '- Emoji kullanma. Hashtag kullanma.',
+    // ⚠ ⚠ **SON SATIR SATIŞ ÇAĞRISI OLUYORDU.** Gerçek çıktının son satırı *"Verisi
+    // dağınık olan imalatçıyla konuşalım"* idi — markanın satış cümlesi. Öğretici bir
+    // karoselin son satırı, okurun ELİNDE KALAN şeydir; bir randevu talebi değil.
+    ...(genel
+      ? [
+          '- Son satır bir SATIŞ ÇAĞRISI DEĞİL: okurun elinde kalan kuralı ya da',
+          '  yapabileceği ilk adımı yaz. "…ile konuşalım", "bize ulaşın" yazma.',
+          '- Marka adını ve ürün adını ANMA; bu metin bir ders, bir tanıtım değil.',
+        ]
+      : []),
     ...(g.maxChars === undefined ? [] : [`- En fazla ${g.maxChars} karakter.`]),
     ...(g.kacinilacak === undefined || g.kacinilacak.trim() === ''
       ? []

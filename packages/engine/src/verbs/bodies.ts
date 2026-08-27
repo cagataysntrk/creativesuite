@@ -2020,6 +2020,9 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
   const girdi = {
     konu,
     kayitlar,
+    // ⚠ Kip METNİ YAZAN isteme de geçiyor: konuyu seçip biçimi söylememek, kipi
+    // kozmetiğe çevirir. Bu eksik gerçek bir çıktıyla ölçüldü (`metin-akisi.ts`).
+    kip: icerikKipiCozumle(input.constraints['icerik_kipi']),
     ...(typeof input.constraints['locale'] === 'string'
       ? { locale: input.constraints['locale'] }
       : {}),
