@@ -301,6 +301,9 @@ export const YayinAkisi = (): React.JSX.Element => {
   const [acik, setAcik] = useState<string | null>(null)
   const [gunAcik, setGunAcik] = useState<string | null>(null)
   const [paketMesaj, setPaketMesaj] = useState<string | null>(null)
+  const [surukleniyor, setSurukleniyor] = useState<string | null>(null)
+  const [surukleHedef, setSurukleHedef] = useState<string | null>(null)
+  const [tasimaMesaj, setTasimaMesaj] = useState<string | null>(null)
 
   const yukle = useCallback(async (): Promise<void> => {
     setHata(null)
@@ -364,6 +367,41 @@ export const YayinAkisi = (): React.JSX.Element => {
       )
     } catch {
       setPaketMesaj('✗ sunucuya ulaşılamıyor')
+    }
+  }
+
+  /**
+   * Bir gönderiyi başka bir güne taşır.
+   *
+   * ⚠ ⚠ **PLATFORM SEÇİMİ KORUNUYOR.** Taşıma yalnız TARİHİ değiştiriyor; platformları
+   * sıfırlamak, insanın verdiği ikinci bir kararı sessizce iptal etmek olurdu. Elle
+   * kararı yoksa varsayılan geçerli.
+   * ⚠ Metinsiz gönderi taşınamıyor ve sebebi EKRANDA: sunucu reddediyor, biz de o reddi
+   * olduğu gibi gösteriyoruz — sürükleyip bıraktıktan sonra hiçbir şey olmaması, en kötü
+   * geri bildirimdir.
+   */
+  const tariheTasi = async (runId: string, tarih: string): Promise<void> => {
+    if (veri === null) return
+    const mevcut = [...veri.plan.gonderiler, ...veri.elleGonderiler].find((x) => x.runId === runId)
+    if (mevcut?.tarih === tarih) return
+    setTasimaMesaj('taşınıyor…')
+    try {
+      const j = (await (
+        await fetch('/api/yayin-takvimi', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            runId,
+            karar: 'planla',
+            tarih,
+            ...(mevcut?.platformlar === undefined ? {} : { platformlar: mevcut.platformlar }),
+          }),
+        })
+      ).json()) as { ok?: boolean; hata?: string }
+      setTasimaMesaj(j.ok === true ? `✓ ${tarih} tarihine taşındı` : `✗ ${j.hata ?? 'taşınamadı'}`)
+      if (j.ok === true) await yukle()
+    } catch {
+      setTasimaMesaj('✗ sunucuya ulaşılamıyor')
     }
   }
 
@@ -473,6 +511,9 @@ export const YayinAkisi = (): React.JSX.Element => {
           ⬇ ayın planını klasöre çıkar
         </button>
         {paketMesaj === null ? null : <span className="olcum">{paketMesaj}</span>}
+        {/* ⚠ Taşıma sonucu ızgaranın ÜSTÜNDE: bırakılan yerde bir şey olmadıysa sebebi
+            görünmeli, yoksa insan bir daha sürükler ve yine olmaz. */}
+        {tasimaMesaj === null ? null : <span className="olcum">{tasimaMesaj}</span>}
       </div>
 
       <p className="olcum">
@@ -517,16 +558,52 @@ export const YayinAkisi = (): React.JSX.Element => {
             .filter((x) => x !== '')
             .join(' ')
           return (
-            <div key={t} className={sinif}>
+            <div
+              key={t}
+              className={`${sinif}${surukleHedef === t ? ' takvim-hedef' : ''}`}
+              // ⚠ ⚠ **SÜRÜKLEME TAKVİMİN DOĞAL DİLİ.** Depo sahibi: *"takvimde elle
+              // sürükleyerek yer değiştirmek istiyorum."* Bir ızgarada bir şeyi başka bir
+              // güne taşımak, tarih alanına yazmaktan daha doğrudan — ve karar kutusunu
+              // açmayı gerektirmiyor. Kutu duruyor: sürükleme HIZLI yol, tek yol değil.
+              onDragOver={(e) => {
+                if (surukleniyor === null) return
+                // ⚠ `preventDefault` OLMADAN tarayıcı bırakmaya izin vermiyor — sessizce
+                // hiçbir şey olmuyor ve sebebi görünmüyor.
+                e.preventDefault()
+                setSurukleHedef(t)
+              }}
+              onDragLeave={() => setSurukleHedef((x) => (x === t ? null : x))}
+              onDrop={(e) => {
+                e.preventDefault()
+                setSurukleHedef(null)
+                if (surukleniyor !== null) void tariheTasi(surukleniyor, t)
+                setSurukleniyor(null)
+              }}
+            >
               <span className="takvim-tarih">{t.slice(8)}</span>
               {liste.map((g) => (
                 <button
                   key={g.runId}
                   type="button"
+                  // ⚠ ⚠ **YAYINLANMIŞ GÖNDERİ SÜRÜKLENMİYOR.** Yayınlanmış bir şeyin
+                  // tarihini değiştirmek geçmişi değiştirmektir; olan olmuştur.
+                  draggable={g.yayinlandi !== true}
+                  onDragStart={(e) => {
+                    if (g.yayinlandi === true) return
+                    setSurukleniyor(g.runId)
+                    e.dataTransfer.effectAllowed = 'move'
+                    // ⚠ Firefox bir veri yükü olmadan sürüklemeyi başlatmıyor.
+                    e.dataTransfer.setData('text/plain', g.runId)
+                  }}
+                  onDragEnd={() => {
+                    setSurukleniyor(null)
+                    setSurukleHedef(null)
+                  }}
                   className={[
                     'takvim-oge',
                     g.elle === true ? 'takvim-elle' : '',
                     g.yayinlandi === true ? 'takvim-yayinlandi' : '',
+                    surukleniyor === g.runId ? 'takvim-suruklenen' : '',
                   ]
                     .filter((x) => x !== '')
                     .join(' ')}

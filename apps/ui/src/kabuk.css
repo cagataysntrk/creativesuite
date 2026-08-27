@@ -1484,3 +1484,18 @@ tr[data-tiklanir] {
   text-align: start;
   width: 100%;
 }
+
+/* ── TAKVİMDE SÜRÜKLE-BIRAK (FAZ-19.13) ─────────────────────────────────────
+   ⚠ Bırakma hedefi GÖRÜNÜR olmalı: nereye bırakacağını göstermeyen bir sürükleme,
+   insanı deneme yanılmaya iter. */
+.takvim-hedef {
+  border-color: var(--role-accent);
+  background: var(--role-surface);
+}
+/* ⚠ Sürüklenen öge SOLUK: elindeki şeyin hangisi olduğu, bıraktığın yer kadar önemli. */
+.takvim-suruklenen {
+  opacity: 0.4;
+}
+.takvim-oge[draggable='true'] {
+  cursor: grab;
+}

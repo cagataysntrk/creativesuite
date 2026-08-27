@@ -35,7 +35,13 @@ import {
   type SelectQuery,
 } from '@suite/corpus'
 import { RUNS_DIR, discoveryPlanPath, fileHistory, spawnProcess } from '@suite/kernel'
-import { KATALOG, MUZIK_KURALI, PLATFORMLAR, platformDenetle } from '@suite/contracts'
+import {
+  KATALOG,
+  MUZIK_KURALI,
+  PLATFORMLAR,
+  VARSAYILAN_PLATFORMLAR,
+  platformDenetle,
+} from '@suite/contracts'
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
 // ⚠ Takvim defteri: insanin elle verdigi kararlar burada yasiyor (UX-6).
@@ -1128,10 +1134,35 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
           // Bozuk adım çıktısı = metin YOK sayılıyor. "Herhalde vardır" yok.
         }
       }
-      const istenen =
-        (g.platformlar ?? []).length === 0
-          ? PLATFORMLAR.map((x) => x.id)
-          : (g.platformlar as readonly string[])
+      // ⚠ ⚠ **BOŞ SEÇİM "DÖRDÜ DE" DEMEK DEĞİL — ve bu bir kusurdu.** Panelin varsayılanı
+      // IG+LinkedIn'ken sunucu boş seçimi dört platform sayıyordu; takvimde bir gönderiyi
+      // sürükleyince hiç seçilmemiş Facebook ve X metinleri aranıyor ve taşıma
+      // reddediliyordu. Varsayılan artık sözleşmede TEK yerde.
+      //
+      // ⚠ ⚠ **VE VARSAYILAN, METNİ OLANLARLA KESİŞİYOR.** Otomatik planlanmış bir
+      // gönderinin platform seçimi yok; onu bir güne taşımak TARİH kararıdır, platform
+      // kararı değil. Metni olmayan bir platform yüzünden taşımayı engellemek, insanın
+      // vermediği bir kararı ona fatura etmek olurdu. Kesişim BOŞSA reddediliyor —
+      // hiçbir platforma metni olmayan bir gönderi gerçekten planlanamaz.
+      const varsayilan = VARSAYILAN_PLATFORMLAR.filter(
+        (id) => String(metinler[id] ?? '').trim() !== ''
+      )
+      const acikSecim = (g.platformlar ?? []).length > 0
+      const istenen: readonly string[] = acikSecim
+        ? (g.platformlar as readonly string[])
+        : varsayilan
+      if (istenen.length === 0)
+        return c.json(
+          {
+            ok: false,
+            hata: 'hiçbir platformun gönderi metni yok — önce üret (koşu detayında ⚡ üret)',
+            eksikPlatformlar: VARSAYILAN_PLATFORMLAR,
+          },
+          400
+        )
+      // ⚠ Türetilen seçim DEFTERE yazılıyor: "hangi platformlara planlandı" sorusunun
+      // cevabı boş bir alan değil, açık bir liste olmalı.
+      if (!acikSecim) g.platformlar = istenen
       const eksik = istenen.filter((id) => String(metinler[id] ?? '').trim() === '')
       if (eksik.length > 0) {
         const adlar = eksik.map((id) => PLATFORMLAR.find((x) => x.id === id)?.ad ?? id)
@@ -2383,6 +2414,55 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     })
     yayinla('degisim')
     return c.json({ ok: true, an })
+  })
+
+  /**
+   * Onaylanmış bir kapıyı YENİDEN AÇAR — tasarım değişecekse.
+   *
+   * ⚠ ⚠ **DEPO SAHİBİNİN SORUSU:** *"Diyelim ki tasarım onayı verdik ama sonra tasarımı
+   * değiştirmek istedik, ne yapacağız?"* Cevap "onayı sil" olamaz: kararlar kanıttır ve
+   * silinmez. Cevap "hiçbir şey yapamazsın" da olamaz: fikir değiştirmek gerçek bir olay.
+   *
+   * ⚠ ⚠ **BU UÇ HATTI GERİ SARMIYOR ve bunu SÖYLÜYOR.** Onaydan sonraki adımlar zaten
+   * koştu; onları geri almak diye bir şey yok. Bu ucun yaptığı üç şey:
+   *   1. Kararı deftere yazar (`edited` + gerekçe) — önceki onay yerinde kalır
+   *   2. Gönderiyi TAKVİMDEN ÇIKARIR — tasarımı yeniden açılan bir iş planlı kalamaz
+   *   3. İnsana iki gerçek yolu söyler: editörde düzelt, ya da yeniden üret
+   * Yapamadığını yapıyormuş gibi göstermek, en pahalı yanılsama olurdu.
+   */
+  app.post('/api/kosu/:runId/yeniden-ac', async (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const govde = (await c.req.json().catch(() => ({}))) as { kapi?: string; gerekce?: string }
+    const kapi = String(govde.kapi ?? 'tasarim-onayi')
+    const gerekce = String(govde.gerekce ?? '').trim()
+    const r = kararVer({
+      repoRoot: o.repoRoot,
+      runId,
+      gate: kapi,
+      karar: 'edited',
+      gerekce,
+      at: o.simdi(),
+    })
+    if (!r.ok) return c.json(r, 409)
+
+    // ⚠ Takvimden çıkarma AYNI gerekçeyle: iki defterde aynı sebep, tek olay.
+    takvimeYaz(o.repoRoot, {
+      runId,
+      karar: 'cikar',
+      not: `tasarım yeniden açıldı: ${gerekce}`,
+      simdi: o.simdi(),
+    })
+    yayinla('degisim')
+    return c.json({
+      ok: true,
+      kapi,
+      // ⚠ Yollar CEVAPTA: "yeniden açtım, şimdi ne yapacağım" sorusu hemen geliyor.
+      yollar: [
+        { ad: 'editörde düzelt', not: 'görsel editörde slaytları elle düzelt (damgasız sürüm)' },
+        { ad: 'tasarımı yeniden üret', uc: `/api/calistirmalar/${runId}/rerun` },
+      ],
+    })
   })
 
   app.post('/api/kuyruk/:runId/:gate', async (c) => {

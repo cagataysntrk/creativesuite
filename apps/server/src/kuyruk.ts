@@ -125,7 +125,11 @@ export interface KararGirdisi {
   readonly repoRoot: string
   readonly runId: string
   readonly gate: string
-  readonly karar: 'approved' | 'rejected'
+  /**
+   * ⚠ `edited` = onaylanmış bir kapıyı YENİDEN AÇMA. Onayı silmiyor, üstüne yazıyor.
+   * Gerekçe zorunlu.
+   */
+  readonly karar: 'approved' | 'rejected' | 'edited'
   readonly gerekce: string
   readonly at: string
 }
@@ -147,8 +151,30 @@ export const kararVer = (g: KararGirdisi): KararSonuc => {
       hata: 'red GEREKÇE ister — gerekçesiz red, sonraki çalıştırmaya bilgi taşımaz',
     }
   }
-  if ((m.decisions ?? []).some((d) => d.gate === g.gate)) {
+  // ⚠ ⚠ **`edited` BİR EZME DEĞİL, BİR EKLEMEDİR — ve bu ayrım depo sahibinin sorusundan
+  // doğdu:** *"diyelim ki tasarım onayı verdik ama sonra tasarımı değiştirmek istedik,
+  // ne yapacağız?"* Onayı SİLMEK yasak (kararlar kanıttır); ama onaydan sonra fikir
+  // değişmesi gerçek bir olay ve hiçbir yerde yazmıyordu. `edited` o olayı yazıyor:
+  // önceki onay defterde DURUYOR, üstüne *"sonra yeniden açıldı"* ekleniyor.
+  //
+  // ⚠ GEREKÇE ZORUNLU — reddle aynı sebeple: onaylanmış bir tasarımı yeniden açmanın
+  // nedeni yazılmazsa, altı ay sonra "bu neden değişti" sorusu cevapsız kalır.
+  if (g.karar === 'edited' && g.gerekce.trim() === '') {
+    return {
+      ok: false,
+      hata: 'tasarımı yeniden açmak GEREKÇE ister — onaylanmış bir işi neden geri açtığın yazılmalı',
+    }
+  }
+  if (g.karar !== 'edited' && (m.decisions ?? []).some((d) => d.gate === g.gate)) {
     return { ok: false, hata: `'${g.gate}' kapısı için karar zaten var — kararlar EZİLMEZ` }
+  }
+  // ⚠ Yeniden açma ancak ONAYLANMIŞ bir kapıda anlamlı: hiç karar verilmemiş bir kapı
+  // zaten açık, "yeniden açmak" diye bir şey yok.
+  if (
+    g.karar === 'edited' &&
+    !(m.decisions ?? []).some((d) => d.gate === g.gate && d.decision === 'approved')
+  ) {
+    return { ok: false, hata: `'${g.gate}' kapısı onaylanmamış — yeniden açılacak bir karar yok` }
   }
 
   const yeni: HumanDecision = {

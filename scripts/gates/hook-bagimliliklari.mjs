@@ -58,7 +58,20 @@ for (const dosya of readdirSync(DIZIN).filter((f) => f.endsWith('.tsx'))) {
     // değildir; `bekleyenler?: Bekleyen[]` de öyle. Alet ikisini de "kullanıyor" sayıp
     // gerçek kusuru yanlış pozitiflerin arasında kaybediyordu.
     const govde0 = tam.slice(0, son)
-    const govde = govde0.replace(/\bas \{[^}]*\}/g, ' ').replace(/:\s*\{[^}]*\}/g, ' ')
+    // ⚠ ⚠ **METİN DİZELERİ TARANMAZ — TÜRKÇE YÜZÜNDEN YANLIŞ POZİTİF ÜRETİYORDU.**
+    // `'editörde düzelt'` içindeki `d`, ASCII `\w` sınıfı `ü`yü harf saymadığı için
+    // TEK BAŞINA bir değişken gibi görünüyordu ve alet *"`d` okuyor, listede YOK"*
+    // dedi. Bu R-21'in (`'i'.toUpperCase()` → `I`) düzenli ifade tarafındaki ikizi:
+    // ASCII varsayımı Türkçe metinde sessizce bozuluyor.
+    //
+    // ⚠ Şablon dizesindeki `${...}` KORUNUYOR: orası gerçek bir değer okuması. Düz
+    // tırnaklı dizeler ise ifade taşıyamaz, tamamen atılıyor.
+    const dizesiz = govde0
+      .replace(/`(?:[^`\\$]|\\.|\$(?!\{))*`/g, ' ')
+      .replace(/`/g, ' ')
+      .replace(/'(?:[^'\\]|\\.)*'/g, ' ')
+      .replace(/"(?:[^"\\]|\\.)*"/g, ' ')
+    const govde = dizesiz.replace(/\bas \{[^}]*\}/g, ' ').replace(/:\s*\{[^}]*\}/g, ' ')
     // ⚠ ⚠ **KAPSAM DAR VE BİLİNÇLİ: yalnız İSTEK GÖVDESİ kuran hook'lar.** Geniş
     // hâli `apps/ui`da 17 bulgu veriyordu ve çoğu görüntüleme amaçlı okumalardı —
     // gerçek kusuru gürültünün içinde kaybediyordu. Bu depoda kuralı gereğinden geniş

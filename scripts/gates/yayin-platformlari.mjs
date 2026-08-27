@@ -68,4 +68,49 @@ if (eksik.length > 0 || fazla.length > 0) {
   process.exit(1)
 }
 
-console.log('  yayın platformları ' + sozlesmeIdler.join(', ') + ' · sözleşme ile panel aynı')
+// ── VARSAYILAN SEÇİM de eşit mi ────────────────────────────────────────────
+//
+// ⚠ ⚠ **BU DENETİM BİR KUSURDAN DOĞDU.** Panelin varsayılanı `instagram + linkedin`di ama
+// sunucu, boş bir seçimi *"dördü de"* sayıyordu. Sonuç: takvimde bir gönderiyi başka bir
+// güne sürükleyince sunucu hiç seçilmemiş Facebook ve X metinlerini arıyor ve taşımayı
+// reddediyordu — ve sebebi ekranda "Instagram metni yok" gibi görünüyordu, oysa asıl
+// sebep iki farklı varsayılandı.
+//
+// ⚠ Liste EŞİTLİĞİ değil, ÜYE eşitliği sınanıyor: sıra bir anlam taşımıyor.
+const sozVars = /export const VARSAYILAN_PLATFORMLAR: readonly PlatformId\[\] = \[([^\]]*)\]/.exec(
+  sozlesme
+)?.[1]
+const panelKutusu = oku('apps/ui/src/GonderiKutusu.tsx')
+const panelVars = /export const VARSAYILAN_PLATFORMLAR: readonly string\[\] = \[([^\]]*)\]/.exec(
+  panelKutusu
+)?.[1]
+if (sozVars === undefined || panelVars === undefined) {
+  console.error(
+    '✗ `VARSAYILAN_PLATFORMLAR` bulunamadı — ' +
+      (sozVars === undefined ? 'sözleşmede' : 'panelde') +
+      '. Varsayılan seçim iki yerde tutuluyor ve eşit kalmak zorunda.'
+  )
+  process.exit(1)
+}
+const ayikla = (x) => [...x.matchAll(/'([a-z]+)'/g)].map((m) => m[1]).sort()
+const sozVarsIdler = ayikla(sozVars)
+const panelVarsIdler = ayikla(panelVars)
+if (sozVarsIdler.join(',') !== panelVarsIdler.join(',')) {
+  console.error(
+    '✗ VARSAYILAN seçim AYRIŞMIŞ:\n' +
+      '    sözleşme: ' +
+      sozVarsIdler.join(', ') +
+      '\n    panel   : ' +
+      panelVarsIdler.join(', ') +
+      '\n  Ayrışınca panelin planladığı ile sunucunun denetlediği farklı olur ve\n' +
+      '  taşıma/planlama hiç seçilmemiş bir platform yüzünden reddedilir.'
+  )
+  process.exit(1)
+}
+
+console.log(
+  '  yayın platformları ' +
+    sozlesmeIdler.join(', ') +
+    ' · sözleşme ile panel aynı · varsayılan ' +
+    sozVarsIdler.join('+')
+)

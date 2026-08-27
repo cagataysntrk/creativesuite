@@ -119,6 +119,20 @@ export interface MuzikKurali {
   readonly not: string
 }
 
+/**
+ * Platform seçimi YAPILMAMIŞ bir gönderinin varsayılanı.
+ *
+ * ⚠ ⚠ **BU SABİT BİR KUSURDAN DOĞDU.** Panel varsayılanı `instagram + linkedin`di ama
+ * sunucu, boş bir seçimi *"dördü de"* sayıyordu. Sonuç: takvimde bir gönderiyi
+ * sürükleyince sunucu Facebook ve X metinlerini de arıyor ve reddediyordu — hiç
+ * seçilmemiş platformlar yüzünden. Aynı sorunun iki yerde ayrı cevaplanması, bu deponun
+ * tekrar eden sınıfı.
+ *
+ * ⚠ Panel `@suite/contracts`i import EDEMİYOR (`rings` kapısı); oradaki kopyayı
+ * `yayin-platformlari` kapısı bu sabitle EŞİT tutuyor.
+ */
+export const VARSAYILAN_PLATFORMLAR: readonly PlatformId[] = ['instagram', 'linkedin']
+
 export const MUZIK_KURALI: MuzikKurali = {
   apiEkleyebilir: false,
   // ⚠ İşletme hesaplarının TİCARİ kütüphanesi ve ÖZGÜN ses güvenli; ikisi de haklara

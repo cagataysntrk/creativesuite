@@ -106,6 +106,8 @@ export const KosuDetay = ({
   const [d, setD] = useState<Icerik | null>(null)
   const [hata, setHata] = useState<string | null>(null)
   const [gerekce, setGerekce] = useState<string | null>(null)
+  const [yenidenAcik, setYenidenAcik] = useState<string | null>(null)
+  const [yenidenGerekce, setYenidenGerekce] = useState('')
   const [mesaj, setMesaj] = useState<string | null>(null)
   const [yukleme, setYukleme] = useState<string | null>(null)
   // ⚠ ⚠ **ADIM DEFTERİ "NE OLDU"YU SÖYLÜYOR, GÜNLÜK "NE OLUYOR"U.** Manifest ancak bir
@@ -252,6 +254,39 @@ export const KosuDetay = ({
     }
     void yukle()
   }, [runId, yukle])
+
+  /**
+   * Onaylanmış bir kapıyı YENİDEN AÇAR — tasarım değişecekse.
+   *
+   * ⚠ ⚠ Önceki onay SİLİNMİYOR: deftere `edited` ekleniyor ve gerekçe orada kalıyor.
+   * Kararlar kanıttır; ama onaydan sonra fikir değişmesi de gerçek bir olay ve hiçbir
+   * yerde yazmıyordu.
+   * ⚠ Gönderi takvimden ÇIKIYOR: tasarımı yeniden açılan bir iş planlı kalamaz.
+   */
+  const yenidenAc = useCallback(async (): Promise<void> => {
+    const g2 = yenidenGerekce.trim()
+    if (g2 === '' || yenidenAcik === null) return
+    try {
+      const r = await fetch(`/api/kosu/${runId}/yeniden-ac`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ kapi: yenidenAcik, gerekce: g2 }),
+      })
+      const j = (await r.json()) as { ok?: boolean; hata?: string }
+      setMesaj(
+        j.ok === true
+          ? '✎ yeniden açıldı ve takvimden çıkarıldı — editörde düzelt ya da Tekrar bölümünden yeniden üret'
+          : `✗ ${j.hata ?? 'yeniden açılamadı'}`
+      )
+      if (j.ok === true) {
+        setYenidenAcik(null)
+        setYenidenGerekce('')
+      }
+    } catch {
+      setMesaj('✗ sunucuya ulaşılamıyor')
+    }
+    void yukle()
+  }, [runId, yenidenAcik, yenidenGerekce, yukle])
 
   const karar = useCallback(
     async (k: 'approved' | 'rejected', not: string): Promise<void> => {
@@ -474,6 +509,42 @@ export const KosuDetay = ({
           bu haldeydi — onaylı, durmuş, yapılacak hiçbir şey yok. Sürdürme düğmesi artık
           burada da; sunucu ikinci sürdürmeyi zaten reddediyor ("ZATEN koşuyor"), yani
           düğme koşan bir hattı bozmuyor. */}
+      {/* ⚠ ⚠ **HATTI GERİ SARMIYOR ve SARIYORMUŞ GİBİ DE YAPMIYOR.** Onaydan sonraki
+          adımlar zaten koştu. Bu kutunun yaptığı: kararı deftere yazmak ve gönderiyi
+          takvimden çıkarmak. Tasarımı gerçekten değiştirmenin iki yolu var ve ikisi de
+          burada YAZILI — yapamadığını yapıyormuş gibi göstermek en pahalı yanılsamadır. */}
+      {yenidenAcik === null ? null : (
+        <div className="gerekce-kutusu">
+          <label htmlFor="yeniden-gerekce">
+            <strong>{yenidenAcik}</strong> yeniden açılıyor. Neden? (zorunlu — onaylanmış bir işi
+            neden geri açtığın defterde kalır)
+          </label>
+          <textarea
+            id="yeniden-gerekce"
+            value={yenidenGerekce}
+            onChange={(e) => setYenidenGerekce(e.target.value)}
+          />
+          <p className="giris-not">
+            ⚠ Bu, hattı GERİ SARMIYOR — onaydan sonraki adımlar zaten koştu. Yaptığı: kararı deftere
+            yazmak, gönderiyi takvimden çıkarmak. Tasarımı gerçekten değiştirmek için ya{' '}
+            <strong>görsel editörde</strong> slaytları düzelt (damgasız sürüm), ya da yukarıdaki{' '}
+            <strong>Tekrar</strong> bölümünden yeniden üret.
+          </p>
+          <div className="kapi-dugmeler">
+            <button
+              type="button"
+              disabled={yenidenGerekce.trim() === ''}
+              onClick={() => void yenidenAc()}
+            >
+              ✎ yeniden aç ve takvimden çıkar
+            </button>
+            <button type="button" onClick={() => setYenidenAcik(null)}>
+              vazgeç
+            </button>
+          </div>
+        </div>
+      )}
+
       {!karariVerilmis ? null : (
         <div className="kapi-kutusu">
           {/* ⚠ ⚠ **"HAT SÜRÜYOR" DEMİYORUZ — çünkü BİLMİYORUZ.** İlk yazımda öyle
@@ -486,6 +557,12 @@ export const KosuDetay = ({
           <div className="kapi-dugmeler">
             <button type="button" onClick={() => void surdur()}>
               ↻ sürdür
+            </button>
+            {/* ⚠ ⚠ **ONAYDAN SONRA FİKİR DEĞİŞTİRME.** Kararı silmek yasak (kanıttır),
+                hiçbir şey yapamamak da kabul edilemez — üçüncü yol: kararı DEFTERE yaz,
+                gönderiyi takvimden çıkar, ve iki gerçek yolu göster. */}
+            <button type="button" onClick={() => setYenidenAcik(d.bekleyenKapi)}>
+              ✎ tasarımı yeniden aç
             </button>
           </div>
         </div>

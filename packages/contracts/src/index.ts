@@ -132,6 +132,7 @@ export { TUVAL_3_4, TUVAL_4_5, VARSAYILAN_TUVAL } from './placement.js'
 export {
   MUZIK_KURALI,
   PLATFORMLAR,
+  VARSAYILAN_PLATFORMLAR,
   kusurEngelliyorMu,
   platformBul,
   platformDenetle,
