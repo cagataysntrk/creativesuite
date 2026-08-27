@@ -125,22 +125,12 @@ steps:
       gorsel_sira: 1
       aspect: '4:5'
       no_text: true
-      # ⚠ ⚠ **PREMIUM ŞERİT — depo sahibi: *"cloudflare kötü bi görsel üreticisi, gemini
-      # nano banana kullansak, fallback olarak cloudflare kalır."*** Bu adımlar `lane`
-      # beyan ETMİYORDU ve beyansız her adım `free` şeride düşüyor; yani ücretli bir
-      # görsel sağlayıcısı aday listesine bile giremiyordu. Gerçek koşuda ölçüldü
-      # (`run_01a04540`): şerit=free, sağlayıcı=cloudflare-workers-ai.
-      #
-      # ⚠ **TAVAN 20000'DEN 50000'E ÇIKTI ve bu bir DUVARDI.** Gemini görsel başı
-      # 0.039 $ = 39000 mikro; eski tavan 20000'di, yani şerit düzelse bile aday
-      # `cost_exceeds_max` ile elenirdi. 50000 baş payı bırakıyor.
-      #
-      # ⚠ **BEDAVA ÇIKTI KAYBOLMUYOR.** Cloudflare artık premium şeritte de aday ve
-      # YEDEK sırada duruyor: ücretli sağlayıcı kota yerse (bugün yiyor — bedava
-      # katmanda görsel kotası `limit: 0`) zincir ona geçiyor ve karosel görselsiz
-      # kalmıyor.
-      lane: premium
-      max_cost_usd_micros: 50000
+      # ⚠ ⚠ **BEDAVA ŞERİT — ve buraya bir tur PREMIUM yazılıp GERİ ALINDI.** Gemini
+      # birincil yapılmak istendi; ölçüm gösterdi ki bedava katmanda Google'ın görsel
+      # kotası `limit: 0` (36 çağrının 36'sı 429). Sağlayıcı kapatıldı, şerit de geri
+      # döndü: adayı olmayan bir premium şerit, okuyanı yanıltan boş bir dolambaçtır.
+      # Gemini açılırsa `gemini-image.provider.yaml` içinde `enabled: true` yeter.
+      max_cost_usd_micros: 20000
 
   # 5) ARKA PLAN SİLİNİYOR — kesik özne artık RİCA değil, İŞLEM (D-274 · FAZ-15.11).
   #
@@ -199,9 +189,8 @@ steps:
       gorsel_sira: 2
       aspect: '4:5'
       no_text: true
-      # ⚠ Premium şerit + 50000 mikro tavan — gerekçe `gorsel-uret` adımında yazılı.
-      lane: premium
-      max_cost_usd_micros: 50000
+      # ⚠ Bedava şerit — gerekçe `gorsel-uret` adımında yazılı.
+      max_cost_usd_micros: 20000
 
   - id: gorsel-kirp-2
     verb: GENERATE
@@ -231,9 +220,8 @@ steps:
       gorsel_sira: 3
       aspect: '4:5'
       no_text: true
-      # ⚠ Premium şerit + 50000 mikro tavan — gerekçe `gorsel-uret` adımında yazılı.
-      lane: premium
-      max_cost_usd_micros: 50000
+      # ⚠ Bedava şerit — gerekçe `gorsel-uret` adımında yazılı.
+      max_cost_usd_micros: 20000
 
   - id: gorsel-kirp-3
     verb: GENERATE
@@ -263,9 +251,8 @@ steps:
       gorsel_sira: 4
       aspect: '4:5'
       no_text: true
-      # ⚠ Premium şerit + 50000 mikro tavan — gerekçe `gorsel-uret` adımında yazılı.
-      lane: premium
-      max_cost_usd_micros: 50000
+      # ⚠ Bedava şerit — gerekçe `gorsel-uret` adımında yazılı.
+      max_cost_usd_micros: 20000
 
   - id: gorsel-kirp-4
     verb: GENERATE
@@ -311,9 +298,8 @@ steps:
       gorsel_sira: 5
       aspect: '4:5'
       no_text: true
-      # ⚠ Premium şerit + 50000 mikro tavan — gerekçe `gorsel-uret` adımında yazılı.
-      lane: premium
-      max_cost_usd_micros: 50000
+      # ⚠ Bedava şerit — gerekçe `gorsel-uret` adımında yazılı.
+      max_cost_usd_micros: 20000
 
   - id: gorsel-kirp-5
     verb: GENERATE

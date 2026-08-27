@@ -277,6 +277,34 @@ export interface MetinAyari {
   /** Punto çarpanı. Sınır 0,5–2. */
   readonly olcek?: number
   /**
+   * Kutu genişliği, px. Sınır 120–1080. Verilmezse şablonun sütunu geçerli.
+   *
+   * ⚠ ⚠ **BU ALAN BİR ŞİKÂYETTEN DOĞDU:** *"editörde yazıların kutucukları sağa sola
+   * yukarı aşağı genişletilebilmeli, bazen sığmıyor, elle manuel genişlemeli."* Ve
+   * şikâyet yapısaldı: metin alanları kartın flex sütununda `max-width` ile şablonun
+   * `baslikSutunu` oranına KAPATILMIŞ durumda. Punto çarpanı (`olcek`) o duvarı
+   * aşamıyor — yazıyı küçültüyor, kutuyu genişletmiyor. Uzun bir Türkçe başlık
+   * (birleşik kelimeler + ekler) o sütuna sığmadığında tek çare puntoyu düşürmekti ve
+   * o da kartın tipografik ritmini bozuyordu.
+   *
+   * ⚠ **`max-width` DE EZİLİYOR, yalnız `width` yazmak YETMEZ.** Şablon sütunu bir
+   * `max-width` bildirimi; sadece `width` verseydik kutu o tavanın üstüne çıkamaz ve
+   * tutamacı sağa sürüklemek HİÇBİR ŞEY yapmazdı.
+   *
+   * ⚠ Sınır kozmetik değil: `dx/dy` ile aynı gerekçe. Denetim (`kart-disi`,
+   * `kesim-uzeri-metin`) taşmayı yakalıyor ama yakalamak önlemek değildir.
+   */
+  readonly en?: number
+  /**
+   * Kutu yüksekliği, px. Sınır 24–1350.
+   *
+   * ⚠ ⚠ **`min-height` YAZILIYOR, `height` DEĞİL — ve bu ayrım şikâyetin kendisinden
+   * geliyor.** Dert *"sığmıyor"*; sabit bir `height` sığmayan metni KESERDİ, yani
+   * şikâyeti çözmek yerine görünmez kılardı. `min-height` kutuya taban veriyor: insan
+   * boşluk açabiliyor, metin uzarsa kutu yine de büyüyor ve hiçbir harf kaybolmuyor.
+   */
+  readonly boy?: number
+  /**
    * Katman — `z-index`. Verilmezse şablonun sırası geçerli (metin 6, görsel 4).
    *
    * ⚠ ⚠ **KATMAN BİR TASARIM KARARI, bir kaza düzeltmesi değil.** Metin görsellerin
@@ -577,6 +605,16 @@ export const ayarStili = (ayar: MetinAyari | undefined): string => {
   const parcalar: string[] = []
   if (dx !== 0 || dy !== 0) parcalar.push(`transform:translate(${dx}px,${dy}px)`)
   if (olcek !== 1) parcalar.push(`--ayar-olcek:${olcek}`)
+  // ⚠ ⚠ **`max-width` DE YAZILIYOR ve tek başına `width` YETMEZ.** Metin alanları
+  // kartın flex sütununda şablonun `baslikSutunu` oranıyla `max-width`e kapatılmış;
+  // yalnız `width` verseydik kutu o tavanın üstüne çıkamaz, tutamacı sağa sürüklemek
+  // hiçbir şey yapmazdı. Tavanı da ezmek, "elle genişlet" isteğinin tam karşılığı.
+  if (ayar.en !== undefined) {
+    const en = kis(ayar.en, 120, 1080)
+    parcalar.push(`width:${en}px`, `max-width:${en}px`)
+  }
+  // ⚠ `min-height`: sabit yükseklik sığmayan metni KESERDİ — şikâyet zaten "sığmıyor"du.
+  if (ayar.boy !== undefined) parcalar.push(`min-height:${kis(ayar.boy, 24, 1350)}px`)
   if (ayar.z !== undefined) parcalar.push(`z-index:${kis(ayar.z, 0, 9)}`)
   return parcalar.length === 0 ? '' : ` style="${parcalar.join(';')}"`
 }
@@ -3470,7 +3508,25 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
     // Artık her başlık KENDİ çarpanıyla sınırlanıyor ve tavan ikisinin küçüğü.
     let sinirPunto = 1e9
     for (const b of basliklar) {
-      const sinir = ${sutunSiniri}
+      // ⚠ ⚠ **ELLE VERİLEN KUTU GENİŞLİĞİ SINIRIN KENDİSİDİR — ve bunu bir RENDER
+      // ÖLÇÜMÜ öğretti.** Kutu ölçüsü (\`ayar.en\`) eklendiğinde bu satır hâlâ şablonun
+      // sütununu kullanıyordu: \`ayarStili\` ögeye \`width:860px\` yazıyor, \`scrollWidth\`
+      // artık 860 döndürüyor ve \`860 <= 304\` HİÇBİR puntoda sağlanmıyor. İkili arama
+      // tabana çöküyor ve başlık 20 px'e iniyordu. Gerçek çıktı çizilip BAKILDIĞINDA
+      // görüldü — editör önizlemesi puntoyu kendi hesaplamadığı için sorunu göstermiyordu.
+      //
+      // ⚠ Sınır CSS'e YAZILAN sayıdan okunuyor, ögenin ÇİZİLMİŞ kutusundan değil: bu
+      // fonksiyonun kendi dokümanı bunu söylüyor — iki tarafı aynı kaynaktan gelen bir
+      // ölçüm asla kırmızıya dönmez.
+      //
+      // ⚠ ⚠ **BU CÜMLE İKİ KEZ KIRDI ve ikisi de yorumun KENDİSİNDEN geldi.**
+      // Önce o ölçüm API'sini adıyla anıyordu ve panorama-tipo kapısı haklı olarak
+      // kırmızıya döndü: kapı betiğin İÇİNDE o adı arıyor. Sonra düzeltirken yoruma
+      // ters tırnak koydum ve bu metin bir ŞABLON DİZESİNİN içinde olduğu için dize
+      // erkenden kapandı, dosya derlenmedi. Bu blokta ne o ad geçebilir ne ters tırnak.
+      // Kapı gevşetilmiyor — cümle değişiyor (R-76).
+      const elleEn = parseFloat(b.style.maxWidth)
+      const sinir = Number.isFinite(elleEn) && elleEn > 0 ? elleEn : ${sutunSiniri}
       const carpan = b.closest('.kart') && b.closest('.kart').classList.contains('ilk')
         ? 1 : ${String(GOVDE_BASLIK_CARPANI)}
       let alt = 20, ust = 168

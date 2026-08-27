@@ -1,0 +1,11 @@
+{
+  "provider": "cloudflare-workers-ai",
+  "captured_at": "2026-08-28",
+  "verified": true,
+  "verified_by": "measured",
+  "measurement": "MODEL DEĞİŞTİ: sdxl-lightning/flux-1-schnell → flux-2-klein-4b (dört oranda da). Sebep bir YARIŞTIRMA: gerçek koşunun gerçek brief'i altı Cloudflare modeline verildi ve çıktılara BAKILDI. sdxl-lightning kadran çevresine UYDURMA HARFLER çizdi (Yasa 3 riski), kadrajı kenardan kenara doldurdu (arka plan silici kesecek kenar bulamaz) ve brief'in üç dişlisini vermedi. flux-2-klein-4b brief'i takip etti: üç iç içe dişli, saf siyah zemin, harf yok, özne ortada ve dört kenarda boşluk. Adaptör üzerinden dört oran da ölçüldü: 1:1 1024x1024, 4:5 1024x1280, 9:16 1072x1920, 16:9 1920x1072 — dosya ölçüsü defterdeki ölçüyle BİREBİR aynı.",
+  "unitMicros": 0,
+  "sourceUrl": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
+  "openRisk": "V-14 AÇIK ve artık SAYISI VAR. Bedava tavan günde 10.000 neuron. Resmî tabloya göre flux-2-klein-4b çıktı başına 26,05 neuron/512x512 tile; 1024x1280 = 5 tile → ~130 neuron, yani günde ~76 görsel. Karşılaştırma için ölçülen alternatifler: phoenix-1.0 ~2.900 ve lucid-origin ~3.400 neuron/görsel — ikisi de TEK karoseli (4-5 görsel) bitiremeden günlük tavanı aşıyor; flux-1-schnell ~58 neuron ama 1024x1024 sabit. Tavan aşıldığında ne olduğu (istek reddi mi, Workers Paid faturası mı) hâlâ ÖLÇÜLMEDİ. Ayrıca TOHUM ONURLANDIRILMIYOR: aynı tohumla iki çağrı farklı görsel verdi, yani R-06 determinizmi bu modelde sağlanmıyor.",
+  "_not": "DEĞİŞMEZ anlık görüntü. Fiyat değişirse YENİ dosya açılır, bu düzenlenmez — eski çalıştırmanın maliyeti hâlâ açıklanabilir olmalı."
+}

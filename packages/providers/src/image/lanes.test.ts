@@ -10,11 +10,34 @@ import { NO_TEXT_SUFFIX } from './prompt.js'
 /** İstek gövdelerini yakalar: modele NE gönderildiği testin asıl konusu. */
 const gonderilen: { url: string; body: unknown }[] = []
 
+/**
+ * `multipart/form-data` gövdesini alan sözlüğüne çevirir.
+ *
+ * ⚠ ⚠ **MOCK ÖNCE `request.json()` ÇAĞIRIYORDU ve model değişince beş test birden
+ * düştü.** Sebep testte değil ÖNCÜLDE: Cloudflare görsel modeli `flux-2-klein-4b`
+ * oldu ve o uç `multipart/form-data` istiyor. Gövdeyi JSON sanan bir mock, gerçek
+ * uçtan farklı bir sözleşme kaydeder — bu dosyanın komşusundaki ders birebir bu:
+ * *"bir cassette, sağlayıcının davranışını değil senin varsayımını kaydeder."*
+ */
+const multipartCoz = (metin: string): Record<string, string> => {
+  const sonuc: Record<string, string> = {}
+  for (const parca of metin.split(/--[^\r\n]+\r\n/)) {
+    const m = /name="([^"]+)"\r\n\r\n([\s\S]*?)\r\n$/.exec(parca)
+    if (m?.[1] !== undefined && m[2] !== undefined) sonuc[m[1]] = m[2]
+  }
+  return sonuc
+}
+
 const server = mockServer(
   http.post(
     'https://api.cloudflare.com/client/v4/accounts/:hesap/ai/run/*',
     async ({ request }) => {
-      gonderilen.push({ url: request.url, body: await request.clone().json() })
+      const tur = request.headers.get('content-type') ?? ''
+      const ham = await request.clone().text()
+      gonderilen.push({
+        url: request.url,
+        body: tur.startsWith('multipart/') ? multipartCoz(ham) : JSON.parse(ham),
+      })
       return HttpResponse.json({ success: true, result: { image: 'BASE64GORSEL' } })
     }
   ),
@@ -156,7 +179,7 @@ describe('bedava şerit — senkron uç', () => {
   // boyut gönderilmez), diğerleri → sdxl-lightning (ham JPEG, boyut gönderilir).
   // İlk sürümde tek yol vardı ve gerçek uç onu reddediyordu.
 
-  it('JSON tel biçimi (1:1 · flux) base64 çözülüyor', async () => {
+  it('base64 çözülüyor — yanıt `{result:{image}}` şeklinde geliyor', async () => {
     const v = cloudflareImage.validate(girdi({ constraints: { aspect: '1:1' } }))
     expect(v.ok).toBe(true)
     if (!v.ok) return
@@ -170,26 +193,38 @@ describe('bedava şerit — senkron uç', () => {
     }
   })
 
-  it('1:1 isteğinde BOYUT GÖNDERİLMİYOR — gerçek uç fazladan alanı reddediyor', async () => {
-    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '1:1' } }))
-    if (!v.ok) return
-    await cloudflareImage.start(v.value, ctx(CF_ENV))
-    const govde = (gonderilen.at(-1)?.body ?? {}) as Record<string, unknown>
-    expect(govde['prompt']).toBeTypeOf('string')
-    // Bu iki satır bir YORUM değil bir ÖLÇÜM: `width`/`height` sızarsa gerçek uç
-    // `5006 Additional properties not allowed` ile sekiz isteğin sekizini de düşürür.
-    expect(govde['width']).toBeUndefined()
-    expect(govde['height']).toBeUndefined()
-  })
-
-  it('ham tel biçimi (4:5 · sdxl) boyutu GÖNDERİYOR', async () => {
+  it('istek `multipart/form-data` gidiyor — uç JSON gövdeyi REDDEDİYOR', async () => {
+    // ⚠ ⚠ **BU BİR ÖLÇÜM.** JSON gövde gönderilince gerçek uç şunu diyor:
+    // `AiError: Bad input: required properties at '/' are 'multipart'`. Model şeması
+    // da doğruluyor: girdi `{multipart:{body,contentType}}`.
     const v = cloudflareImage.validate(girdi({ constraints: { aspect: '4:5' } }))
     expect(v.ok).toBe(true)
     if (!v.ok) return
     await cloudflareImage.start(v.value, ctx(CF_ENV))
-    const govde = (gonderilen.at(-1)?.body ?? {}) as Record<string, unknown>
-    expect(govde['width']).toBe(1024)
-    expect(govde['height']).toBe(1280)
+    const govde = (gonderilen.at(-1)?.body ?? {}) as Record<string, string>
+    expect(govde['prompt']).toBeTypeOf('string')
+    expect(govde['width']).toBe('1024')
+    expect(govde['height']).toBe('1280')
+  })
+
+  it("ÖLÇÜ 16'nın katına yuvarlanıyor — defter dönen ölçüyü yazsın", async () => {
+    // ⚠ ⚠ **MODEL SESSİZCE YUVARLIYOR ve bu ÖLÇÜLDÜ:** 1080 istendiğinde 1072 geliyor.
+    // İstenen ölçüyü deftere yazıp farklı bir ölçü döndürmek defteri yalancı yapardı,
+    // o yüzden yuvarlamayı ÖNCE biz yapıyoruz.
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '9:16' } }))
+    expect(v.ok).toBe(true)
+    if (!v.ok) return
+    const h = await cloudflareImage.start(v.value, ctx(CF_ENV))
+    expect(h.ok).toBe(true)
+    if (!h.ok) return
+    const govde = (gonderilen.at(-1)?.body ?? {}) as Record<string, string>
+    expect(govde['width'], '1080 değil 1072 isteniyor').toBe('1072')
+    const s2 = await cloudflareImage.status(h.value)
+    if (s2.ok && s2.value.state === 'succeeded') {
+      const o = s2.value.output as { width: number; height: number }
+      expect(o.width, 'defter istenen ölçüyü yazıyor').toBe(1072)
+      expect(o.height).toBe(1920)
+    }
   })
 
   it('bozuk yanıt sessizce kabul EDİLMİYOR', async () => {

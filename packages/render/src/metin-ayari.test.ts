@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { ORNEKLER } from './katalog-ornek.js'
-import { ayarStili, panoramaHtml, type PanoramaBelgesi } from './panorama.js'
+import { ayarStili, panoramaHtml, puntoOlcumu, type PanoramaBelgesi } from './panorama.js'
 
 const DAMGA = {
   brandId: 'brd_t',
@@ -48,6 +48,52 @@ describe('metin ince ayarı', () => {
     expect(ayarStili({ dx: 5000, dy: -5000 })).toContain('translate(260px,-260px)')
     expect(ayarStili({ olcek: 9 })).toContain('--ayar-olcek:2')
     expect(ayarStili({ olcek: 0.01 })).toContain('--ayar-olcek:0.5')
+  })
+
+  it('KUTU ÖLÇÜSÜ stile giriyor — genişlik ile TAVAN birlikte', () => {
+    // ⚠ ⚠ **`max-width` OLMADAN `width` HİÇBİR ŞEY YAPMAZ.** Metin alanları kartın
+    // flex sütununda şablonun `baslikSutunu` oranıyla `max-width`e kapatılmış; yalnız
+    // `width` yazsaydık tutamacı sağa sürüklemek kutuyu genişletmezdi. Şikâyet buydu:
+    // *"bazen sığmıyor, elle manuel genişlemeli."*
+    const st = ayarStili({ en: 900 })
+    expect(st).toContain('width:900px')
+    expect(st, 'şablonun sütun tavanı da eziliyor').toContain('max-width:900px')
+  })
+
+  it('yükseklik `min-height` yazıyor — sabit yükseklik metni KESERDİ', () => {
+    // Dert "sığmıyor"du; `height` sığmayanı keser, yani şikâyeti görünmez kılardı.
+    const st = ayarStili({ boy: 400 })
+    expect(st).toContain('min-height:400px')
+    expect(st, 'sabit yükseklik YOK').not.toContain('height:400px;')
+  })
+
+  it('KUTU SINIRI kısıyor — kart dışına taşan ölçü kabul edilmiyor', () => {
+    expect(ayarStili({ en: 9000 })).toContain('width:1080px')
+    expect(ayarStili({ en: 1 })).toContain('width:120px')
+    expect(ayarStili({ boy: 99_999 })).toContain('min-height:1350px')
+    expect(ayarStili({ boy: 0 })).toContain('min-height:24px')
+  })
+
+  it('kutu ölçüsü kaydırmayı ve çarpanı EZMİYOR — hepsi birlikte yaşıyor', () => {
+    // Editör tutamacı ölçü yazarken `dx/dy/olcek`i de taşıyor; ikisi aynı stilde
+    // buluşmazsa insan kutuyu genişletince yazı yerinden sıçrardı.
+    const st = ayarStili({ dx: 30, dy: -10, olcek: 1.2, en: 800, boy: 200 })
+    expect(st).toContain('translate(30px,-10px)')
+    expect(st).toContain('--ayar-olcek:1.2')
+    expect(st).toContain('width:800px')
+    expect(st).toContain('min-height:200px')
+  })
+
+  it('PUNTO ÖLÇÜMÜ elle verilen kutu genişliğini OKUYOR', () => {
+    // ⚠ ⚠ **BU TEST BİR RENDER KUSURUNDAN DOĞDU ve kusuru ÇİZİP BAKMAK gösterdi.**
+    // Punto ölçümü sınırı şablonun `baslikSutunu` oranından alıyordu. `ayarStili`
+    // ögeye `width:860px` yazınca `scrollWidth` 860 döndürmeye başlıyor ve
+    // `860 <= 304` HİÇBİR puntoda sağlanmıyor: ikili arama tabana çöküyor, başlık
+    // 20 px'e iniyordu. Editör önizlemesi puntoyu kendi hesaplamadığı için sorunu
+    // GÖSTERMİYORDU — yalnız gerçek çıktı gösterdi.
+    const betik = puntoOlcumu(belge({}))
+    expect(betik, "sınır ögenin kendi max-width'inden okunuyor").toContain('b.style.maxWidth')
+    expect(betik).toContain('Number.isFinite(elleEn)')
   })
 
   it('render ayarı gerçekten basıyor', () => {

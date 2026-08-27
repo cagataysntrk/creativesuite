@@ -49,13 +49,70 @@ const ID = 'cloudflare-workers-ai'
  *   · sdxl-lightning → ham JPEG gövdesi, `width`/`height` KABUL EDİYOR
  * Model seçimi adaptörün işidir (D-32): hat yetenek ister, model adı yazmaz.
  */
-const MODELLER: Record<Aspect, { readonly path: string; readonly tel: 'json' | 'raw' }> = {
-  // 1:1'de flux tercih ediliyor: aynı bedava katmanda daha iyi çıktı veriyor.
-  '1:1': { path: '@cf/black-forest-labs/flux-1-schnell', tel: 'json' },
-  '4:5': { path: '@cf/bytedance/stable-diffusion-xl-lightning', tel: 'raw' },
-  '9:16': { path: '@cf/bytedance/stable-diffusion-xl-lightning', tel: 'raw' },
-  '16:9': { path: '@cf/bytedance/stable-diffusion-xl-lightning', tel: 'raw' },
+const MODELLER: Record<
+  Aspect,
+  { readonly path: string; readonly tel: 'json' | 'raw' | 'multipart' }
+> = {
+  // ⚠ ⚠ **TEK MODEL, DÖRT ORAN — ve bu bir YARIŞTIRMANIN sonucu.** Depo sahibi:
+  // *"üretilen görseller aşırı kalitesiz geliyorlar hâlâ… promptlar çok kötü gidiyor,
+  // konudan bağımsız şeyler geliyor."* Şikâyet ölçüldü ve BRIEF'TE DEĞİL MODELDEYDİ:
+  // gerçek koşunun gerçek brief'i (*"üç iç içe dişli, düz siyah zemin, kadrajın üçte
+  // ikisi"*) altı Cloudflare modeline aynen verildi ve çıktılara BAKILDI.
+  //
+  //   · sdxl-lightning  → kadran çevresinde UYDURMA HARFLER (Yasa 3 riski), kadraj
+  //                        kenardan kenara dolu, arka plan silici kesecek kenar
+  //                        bulamıyor, brief'in üç dişlisi yok
+  //   · flux-2-klein-4b → brief'in üç dişlisi VAR, saf siyah zemin, harf yok, özne
+  //                        ortada ve dört kenarda boşluk
+  //   · phoenix-1.0     → brief'e sadık ama görsel başı ~2.900 neuron
+  //   · lucid-origin    → en temiz ayrım ama ~3.400 neuron
+  //
+  // ⚠ ⚠ **SEÇİMİ KALİTE DEĞİL, KALİTE + KOTA BİRLİKTE yaptı.** Bedava günlük tavan
+  // 10.000 neuron. Phoenix/Lucid görsel başı ~3.000 neuron yiyor: TEK bir karosel
+  // (4-5 görsel) günlük tavanı bitiremeden aşıyor. flux-2-klein-4b 1024×1280'de
+  // ~130 neuron — günde ~76 görsel. Depo sahibi de bunu seçti: *"flux-2-klein-4b
+  // bunu kullanalım."*
+  //
+  // ⚠ ⚠ **TEL BİÇİMİ ÜÇÜNCÜ BİR ŞEKİL: `multipart`.** JSON gövde gönderince uç
+  // `AiError: Bad input: required properties at '/' are 'multipart'` diyor. Model
+  // şeması bunu doğruluyor: girdi `{multipart:{body,contentType}}`. Yani istek
+  // `multipart/form-data` olarak gitmek ZORUNDA — varsayım değil, ölçüm.
+  '1:1': { path: '@cf/black-forest-labs/flux-2-klein-4b', tel: 'multipart' },
+  '4:5': { path: '@cf/black-forest-labs/flux-2-klein-4b', tel: 'multipart' },
+  '9:16': { path: '@cf/black-forest-labs/flux-2-klein-4b', tel: 'multipart' },
+  '16:9': { path: '@cf/black-forest-labs/flux-2-klein-4b', tel: 'multipart' },
 }
+
+/**
+ * Ölçü 16'nın katına AŞAĞI yuvarlanıyor.
+ *
+ * ⚠ ⚠ **MODEL SESSİZCE YUVARLIYOR ve bu ÖLÇÜLDÜ.** 1080 istendiğinde 1072 geliyor
+ * (9:16 ve 16:9'da). İstenen ölçüyü deftere yazıp farklı bir ölçü döndürmek, defteri
+ * yalancı yapardı: `JobStatus.width/height` çıktının GERÇEK ölçüsü olmalı. Çözüm
+ * yuvarlamayı ÖNCE bizim yapmamız — istenen ile dönen o zaman aynı sayı oluyor.
+ */
+const on16 = (n: number): number => Math.floor(n / 16) * 16
+
+/**
+ * `multipart/form-data` gövdesi — yalnız METİN alanlar.
+ *
+ * ⚠ Sınır dizesi ÇAĞRI BAŞINA sabit değil, idempotency anahtarından türüyor: rastgele
+ * bir sınır `rng` darboğazını (§3.8) atlatmak olurdu ve aynı istek iki kez farklı
+ * bayt üretirdi.
+ */
+const multipartGovde = (
+  alanlar: Readonly<Record<string, string>>,
+  sinir: string
+): { readonly govde: string; readonly contentType: string } => ({
+  govde:
+    Object.entries(alanlar)
+      .map(
+        ([ad, deger]) =>
+          `--${sinir}\r\nContent-Disposition: form-data; name="${ad}"\r\n\r\n${deger}\r\n`
+      )
+      .join('') + `--${sinir}--\r\n`,
+  contentType: `multipart/form-data; boundary=${sinir}`,
+})
 
 /** Ortam değişkeninin ADI — değeri asla (R-51). */
 const ACCOUNT_ENV = 'CF_ACCOUNT_ID'
@@ -127,8 +184,28 @@ export const cloudflareImage: ProviderAdapter = {
     }
 
     const aspect = vi.constraints['aspect'] as Aspect
-    const boyut = ASPECT_PIXELS[aspect]
+    // ⚠ Ölçü 16'nın katına yuvarlanıyor: model bunu zaten yapıyor ve yapmasaydık
+    // deftere istenen ölçüyü, diske dönen ölçüyü yazardık (1080 istenip 1072 geliyor).
+    const boyut = { w: on16(ASPECT_PIXELS[aspect].w), h: on16(ASPECT_PIXELS[aspect].h) }
     const model = MODELLER[aspect]
+    const tohum = typeof vi.constraints['seed'] === 'number' ? String(vi.constraints['seed']) : null
+    const mp =
+      model.tel !== 'multipart'
+        ? null
+        : multipartGovde(
+            {
+              prompt: vi.prompt,
+              width: String(boyut.w),
+              height: String(boyut.h),
+              // ⚠ ⚠ **TOHUM GÖNDERİLİYOR ama GARANTİ DEĞİL — ölçüldü.** Aynı tohumla
+              // iki çağrı FARKLI görsel verdi; model tohumu onurlandırmıyor. Yine de
+              // gönderiliyor: sözleşmede var, bedeli yok ve model bir gün onurlandırırsa
+              // kod değişmeden çalışır. Ama R-06 determinizmi bu modelde SAĞLANMIYOR ve
+              // bunu yazmamak, olmayan bir garantiyi varmış gibi bırakmak olurdu.
+              ...(tohum === null ? {} : { seed: tohum }),
+            },
+            `sinir${vi.idempotencyKey.replace(/[^A-Za-z0-9]/g, '')}`
+          )
 
     const yanit = await httpFetch(
       {
@@ -136,7 +213,7 @@ export const cloudflareImage: ProviderAdapter = {
         method: 'POST',
         headers: {
           authorization: `Bearer ${token}`,
-          'content-type': 'application/json',
+          'content-type': mp === null ? 'application/json' : mp.contentType,
           // Idempotency anahtarı BAŞLIKTA gider: sağlayıcı onu onurlandırmasa bile
           // kayıt/replay ve sağlayıcı destek talebi için izlenebilirlik sağlar (R-44).
           'idempotency-key': vi.idempotencyKey,
@@ -156,18 +233,19 @@ export const cloudflareImage: ProviderAdapter = {
         //
         // ⚠ Determinizm bozulmuyor (R-06): tohum çağıranın kısıtından geliyor, yani
         // yuva sırasının saf bir fonksiyonu. Aynı koşu her tekrarda aynı dört görseli verir.
-        body: JSON.stringify(
-          model.tel === 'raw'
-            ? {
-                prompt: vi.prompt,
-                width: boyut.w,
-                height: boyut.h,
-                ...(typeof vi.constraints['seed'] === 'number'
-                  ? { seed: vi.constraints['seed'] }
-                  : {}),
-              }
-            : { prompt: vi.prompt }
-        ),
+        body:
+          mp !== null
+            ? mp.govde
+            : JSON.stringify(
+                model.tel === 'raw'
+                  ? {
+                      prompt: vi.prompt,
+                      width: boyut.w,
+                      height: boyut.h,
+                      ...(tohum === null ? {} : { seed: Number(tohum) }),
+                    }
+                  : { prompt: vi.prompt }
+              ),
         signal: ctx.signal,
       },
       ctx.correlationId as AppError['correlationId']
@@ -176,6 +254,9 @@ export const cloudflareImage: ProviderAdapter = {
 
     // İki tel biçimi, tek çıkış: base64. Adaptörün işi tam olarak bu — sağlayıcının
     // şekli sınırı geçmez (R-43).
+    // ⚠ `multipart` istekte GİDEN biçimdir, DÖNENDE değil: yanıt `json` ile aynı
+    // şekilde geliyor (`{result:{image:<base64>}}`) ve model şeması da öyle diyor.
+    // İki şeyi tek adla anmak, bu depoda üç kez üretici/tüketici ayrışması doğurdu.
     let base64: string
     if (model.tel === 'raw') {
       base64 = Buffer.from(await yanit.value.arrayBuffer()).toString('base64')

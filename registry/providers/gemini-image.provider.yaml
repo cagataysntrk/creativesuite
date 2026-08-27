@@ -19,7 +19,17 @@
 id: gemini-image
 title: Google Gemini görsel (nano banana · premium şerit)
 adapter: gemini-image
-enabled: true
+# ⛔ ⛔ **KAPALI — depo sahibi: *"gemini işini geri al yani devre dışı bırak, zaten
+# çalışmıyorlar da, flux ile cloudflare ile devam edelim."*** Ölçüm bunu doğruluyor:
+# 6 anahtar × 6 görsel modeli = 36 çağrının 36'sı HTTP 429, gerekçe `limit: 0`.
+#
+# ⚠ SİLİNMİYOR, KAPATILIYOR (Yasa 10: emeklilik silme değildir). Adaptör, testleri ve
+# altı anahtar kasada duruyor; faturalandırma açıldığı gün BU SATIR `true` olur ve
+# başka hiçbir değişiklik gerekmez. Silseydik aynı ölçümü altı ay sonra baştan yapmak
+# gerekirdi.
+#
+# ⚠ Açmak için: aistudio.google.com/api-keys → o anahtarın projesi → Upgrade.
+enabled: false
 
 # Görsel başı beyan — BEYAN, ölçüm değil. `pricing_snapshot` yok, yani doğrulanmamış.
 # ⚠ ⚠ **FORMÜL SABİT, `num_images` ÇARPANI YOK — ve bunu GERÇEK `just plan` öğretti.**

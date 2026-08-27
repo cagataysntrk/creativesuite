@@ -10,10 +10,10 @@ Toplam **8** tanımlayıcı.
 |---|---|---|---|---|---|---|
 | `chatterbox` | Chatterbox Multilingual V3 (yerel, MIT) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
 | `claude-code` | Claude Code (headless) | `claude-code` | ✅ aktif | `image.critique`<br>`design.critique`<br>`text.generate` | free | `_pricing/claude-code-2026-08-19.json` |
-| `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ✅ aktif | `image.generate` | free, premium | `_pricing/cloudflare-2026-08-16.json` |
+| `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ✅ aktif | `image.generate` | free, premium | `_pricing/cloudflare-2026-08-28.json` |
 | `elevenlabs` | ElevenLabs (premium şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | premium | — |
 | `fal-flux` | FLUX (fal) | `fal-flux` | ⏸ kapalı | `image.generate` | premium | `_pricing/fal-2026-08-15.json` ⚠ doğrulanmamış |
-| `gemini-image` | Google Gemini görsel (nano banana · premium şerit) | `gemini-image` | ✅ aktif | `image.generate` | premium | `_pricing/gemini-image-2026-08-28.json` |
+| `gemini-image` | Google Gemini görsel (nano banana · premium şerit) | `gemini-image` | ⏸ kapalı | `image.generate` | premium | `_pricing/gemini-image-2026-08-28.json` |
 | `gemini-tts` | Gemini TTS (bedava şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
 | `local-rembg` | Yerel arka plan silici (BRIA RMBG, CPU) | `local-rembg` | ✅ aktif | `image.matte` | free | `_pricing/local-rembg-2026-08-19.json` |
 

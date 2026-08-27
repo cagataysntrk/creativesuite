@@ -158,7 +158,7 @@ describe('kelimesiz metin istekleri (İ1 · D-148)', () => {
 // sabit bir varsayılan kullanıyor. `flux-1-schnell` ise fazladan alan görünce isteği
 // tümden reddediyor, o yüzden ayrım telde.
 describe('tohum yalnız kabul eden modele gidiyor', () => {
-  it('`seed` yalnız `raw` dalında gövdeye giriyor', () => {
+  it('`seed` KABUL EDEN dala giriyor — ve garanti sayılmıyor', () => {
     // ⚠ ⚠ **`URL.pathname` DEĞİL, `fileURLToPath`.** Depo yolu "İndirilenler" içeriyor ve
     // `pathname` onu yüzde-kodluyor (`%C4%B0ndirilenler`): dosya bulunamıyor. Türkçe yol
     // bu depoda bir kenar durum değil, VARSAYILAN durum.
@@ -166,12 +166,15 @@ describe('tohum yalnız kabul eden modele gidiyor', () => {
     // ⚠ İlk sürüm kaynağı `model.tel === 'raw'` dizesinden dilimliyordu ve o dize dosyada
     // İKİ KEZ geçiyor (biri gövde kurucu, biri yanıt çözücü): dilim yanlış yerden başladı
     // ve test kendi hatasıyla kırmızı verdi. Artık YALNIZ gövde ifadesi ayıklanıyor.
-    const bas = kaynak.indexOf('body: JSON.stringify(')
-    const govde = kaynak.slice(bas, kaynak.indexOf('\n        ),', bas))
-    const ayrac = govde.indexOf(': { prompt: vi.prompt }')
-    expect(ayrac).toBeGreaterThan(0)
-    // `raw` dalı (ayraçtan ÖNCE) tohumu taşır; `json` dalı (SONRA) taşımaz.
-    expect(govde.slice(0, ayrac)).toContain("constraints['seed']")
-    expect(govde.slice(ayrac)).not.toContain('seed')
+    // ⚠ ⚠ **ÖNCÜL DEĞİŞTİ: artık dört oran da `multipart` ve tohum ORADA gidiyor.**
+    // Eski test `raw`/`json` dallarını ayırıyordu; model `flux-2-klein-4b` olunca o
+    // iki dal görsel yolunda kalmadı. İddia aynı: tohum GÖVDEYE giriyor ve yalnız
+    // kısıttan geliyor, uydurulmuyor.
+    expect(kaynak).toContain("typeof vi.constraints['seed'] === 'number'")
+    expect(kaynak, 'tohum multipart alanı olarak gidiyor').toContain('{ seed: tohum }')
+    // ⚠ ⚠ **VE BİR GARANTİ OLMADIĞI YAZILI.** Ölçüldü: aynı tohumla iki çağrı FARKLI
+    // görsel verdi. Bunu yazmayan bir kod, olmayan bir determinizmi varmış gibi
+    // bırakırdı — bu depoda "hesaplanıp hiç tüketilmeyen değer" sınıfının kardeşi.
+    expect(kaynak).toContain('R-06 determinizmi bu modelde SAĞLANMIYOR')
   })
 })

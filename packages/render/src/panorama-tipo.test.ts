@@ -287,8 +287,13 @@ describe('punto ölçümü', () => {
   it('sütun sınırı ÖLÇÜLMÜYOR, sabit olarak gömülüyor', () => {
     const kod = puntoOlcumu(belge())
     expect(kod).not.toContain('getBoundingClientRect')
-    // 1080 × 0,86 − 128 = 801
-    expect(kod).toContain('const sinir = 801')
+    // 1080 × 0,86 − 128 = 801 — şablonun sütunu, YEDEK değer olarak.
+    //
+    // ⚠ ⚠ **ARTIK BİR YEDEK, çünkü kutu ölçüsü ELLE VERİLEBİLİYOR.** Depo sahibi
+    // metin kutularını sürükleyerek genişletebiliyor; o zaman sınır şablonun sütunu
+    // değil, ögeye YAZILAN genişliktir. Testin asıl iddiası değişmedi ve üstteki satır
+    // onu koruyor: sınır ÇİZİLMİŞ kutudan okunmuyor, CSS'e yazılan sayıdan okunuyor.
+    expect(kod).toContain('? elleEn : 801')
   })
 
   it('pay puntoyu çarpıyor — `editoryal` fısıldayabiliyor', () => {

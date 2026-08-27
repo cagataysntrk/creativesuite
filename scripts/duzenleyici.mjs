@@ -1181,11 +1181,30 @@ const sunucu = createServer(async (req, res) => {
         const k = calisan[id].kartlar[d.i]
         if (k) {
           const ayar = { ...(k.ayar ?? {}) }
+          // Mevcut ayar: kısmi güncellemede korunacak alanların kaynağı.
+          const a = ayar[d.alan] ?? {}
           const yeni = {}
           if (d.dx) yeni.dx = d.dx
           if (d.dy) yeni.dy = d.dy
           if (d.olcek !== undefined && d.olcek !== 1) yeni.olcek = d.olcek
           if (d.z !== undefined && d.z !== null) yeni.z = d.z
+          // ⚠ ⚠ **KUTU ÖLÇÜSÜ — depo sahibi: *"yazıların kutucukları sağa sola yukarı
+          // aşağı genişletilebilmeli, bazen sığmıyor."*** Punto çarpanı bu derdi
+          // çözmüyordu: yazıyı küçültüyor, kutuyu genişletmiyor. Şablonun sütunu bir
+          // `max-width` duvarı ve onu ancak kutu ölçüsü aşabiliyor.
+          //
+          // ⚠ Kısmi güncelleme: GELMEYEN alana dokunulmuyor. Taşıma hareketi yalnız
+          // dx/dy yolluyor; koşulsuz atama, taşırken genişliği SİLERDİ. Bu tuzak bu
+          // dosyada `gorsel` dalında bir kez yaşandı ve yorumu hemen üstte duruyor.
+          // ⚠ ⚠ **ÜÇ HÂL, ÜÇ DAVRANIŞ ve ikisini karıştırmak veri kaybettirir.**
+          //   · sayı geldi        → yaz
+          //   · `null` geldi      → SİL (şablona dön). Silmenin bir ADI olmak zorunda.
+          //   · hiç gelmedi       → DOKUNMA. Taşıma hareketi yalnız dx/dy yolluyor;
+          //                         koşulsuz atama, taşırken genişliği silerdi.
+          if (typeof d.en === 'number') yeni.en = d.en
+          else if (d.en !== null && a.en !== undefined) yeni.en = a.en
+          if (typeof d.boy === 'number') yeni.boy = d.boy
+          else if (d.boy !== null && a.boy !== undefined) yeni.boy = a.boy
           if (Object.keys(yeni).length === 0) delete ayar[d.alan]
           else ayar[d.alan] = yeni
           const kalan = { ...k }

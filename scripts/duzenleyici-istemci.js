@@ -362,6 +362,87 @@ function mufettisiKur(doc) {
         yazAyar('olcek', v)
       )
     )
+    // ── KUTU ÖLÇÜSÜ: PANELDE HER ZAMAN ────────────────────────────────────
+    //
+    // ⚠ ⚠ **DEPO SAHİBİ İKİ KEZ SÖYLEDİ ve ikincisi ilkini netleştirdi:** *"sağdaki
+    // panelde tıklayınca kutucuk ayarlarına eklensin bu yatay ve dikey uzatma, ama bu
+    // KUTUCUĞU uzatmalı illa YAZIYI büyütmemeli, çünkü bazen yazı sığmıyor kutucuğu
+    // büyütmek gerekiyor."* Ayrım kritik: `olcek` yazıyı büyütür, `en/boy` KUTUYU.
+    // Sığmayan bir yazıyı puntoyla çözmek, kartın tipografik ritmini bozar.
+    //
+    // ⚠ ⚠ **İLK SÜRÜM KAYDIRAKLARI YALNIZ ÖLÇÜ VARKEN ÇİZİYORDU** — gerekçesi
+    // *"şablonun kendi genişliğini panel ölçmüyor, dürüst bir başlangıç değeri yok"*du.
+    // Gerekçe yanlıştı: `secili.e` seçili ögenin KENDİSİ ve `offsetWidth` tam da o
+    // ölçüyü veriyor. Yani kaydırak şablonun gerçek genişliğinden başlayabiliyor ve
+    // insanın önce tutamaç bulması gerekmiyor.
+    // ⚠ ⚠ **`secili.e` ÖLÇÜLEMEZ ve bu ÖLÇÜLEREK görüldü.** Panel her yazmadan sonra
+    // yeniden kuruluyor, iframe de `srcdoc` ile baştan çiziliyor; `secili.e` o anda
+    // BELGEDEN KOPMUŞ bir düğüm ve kopuk düğümün `offsetWidth`i 0. Ölçüm: kaydıraklar
+    // gerçek 304×444 yerine yedek 600/200 gösterdi. Ölçü CANLI belgeden alınıyor.
+    const SINIF = {
+      ustBaslik: 'ust-baslik',
+      baslik: 'baslik',
+      govde: 'govde',
+      elYazisi: 'el-yazisi',
+      panel: 'panel',
+    }
+    const canliOge = () => {
+      const belge = $('#pano')?.contentDocument
+      const kart = belge?.querySelectorAll('section.kart')[secili.i]
+      const sinif = SINIF[secili.alan]
+      return sinif === undefined || kart == null ? null : kart.querySelector('.' + sinif)
+    }
+    const canli = canliOge()
+    const olculenEn = Math.round(canli?.offsetWidth ?? 0)
+    const olculenBoy = Math.round(canli?.offsetHeight ?? 0)
+    const yazOlcu = (k, v) =>
+      yaz({
+        tur: 'ayar',
+        i: secili.i,
+        alan: secili.alan,
+        dx: a.dx ?? 0,
+        dy: a.dy ?? 0,
+        // ⚠ Punto ÇARPANI aynen taşınıyor: kutuyu büyütmek yazıyı büyütmemeli.
+        olcek: a.olcek ?? 1,
+        en: k === 'en' ? v : (a.en ?? null),
+        boy: k === 'boy' ? v : (a.boy ?? null),
+      })
+    kok.appendChild(
+      kaydirak(
+        a.en ?? (olculenEn > 0 ? olculenEn : 600),
+        { etiket: 'kutu genişliği (px) — yatay uzatma', min: 120, max: 1080, adim: 4 },
+        (v) => yazOlcu('en', v)
+      )
+    )
+    kok.appendChild(
+      kaydirak(
+        a.boy ?? (olculenBoy > 0 ? olculenBoy : 200),
+        { etiket: 'kutu yüksekliği (px) — dikey uzatma', min: 24, max: 1350, adim: 4 },
+        (v) => yazOlcu('boy', v)
+      )
+    )
+    // ⚠ ⚠ **GERİ DÖNÜŞ YOLU OLMAK ZORUNDA.** Kutuyu genişletmek kolay; şablonun haline
+    // dönmek, alan kataloğdan SİLİNMEDİKÇE imkânsızdı. Aynı ilke bu depoda *"planlandı"*
+    // düğmesinde de yazıldı: bir tık geri alınamıyorsa o tık bir tuzaktır.
+    if (a.en !== undefined || a.boy !== undefined) {
+      const geri = document.createElement('button')
+      geri.textContent = '⟲ kutu ölçüsünü şablona döndür'
+      geri.onclick = () =>
+        yaz({
+          tur: 'ayar',
+          i: secili.i,
+          alan: secili.alan,
+          dx: a.dx ?? 0,
+          dy: a.dy ?? 0,
+          olcek: a.olcek ?? 1,
+          // ⚠ `null` = SİL. `undefined` gönderseydik sunucu "gelmedi" sayıp KORURDU —
+          // kısmi güncellemenin bedeli, silmenin bir ADI olması zorunluluğu.
+          en: null,
+          boy: null,
+        })
+      kok.appendChild(geri)
+    }
+
     // ⚠ Katman: öne/arkaya. Sabit bir sıra, "figürün kolu başlığın önünden geçsin"
     // gibi bir tasarım kararını elden alıyordu (D-304 metni üste aldı, hepsini değil).
     kok.appendChild(
@@ -950,6 +1031,116 @@ function bagla(d, doc) {
       d.addEventListener('pointermove', surukle)
       d.addEventListener('pointerup', birak)
     })
+
+    // ── KUTU TUTAMAÇLARI: sağ kenar · alt kenar · köşe ──────────────────────
+    //
+    // ⚠ ⚠ **DEPO SAHİBİ: *"editörde yazıların kutucukları sağa sola yukarı aşağı
+    // genişletilebilmeli, bazen sığmıyor, elle manuel genişlemeli."*** Punto çarpanı
+    // (Shift+sürükle) bu derdi ÇÖZMÜYORDU: yazıyı küçültüyor, kutuyu genişletmiyor.
+    // Metin alanları kartın flex sütununda şablonun `baslikSutunu` oranıyla
+    // `max-width`e kapatılmış; uzun bir Türkçe başlık oraya sığmayınca tek çare
+    // puntoyu düşürmekti ve o da kartın tipografik ritmini bozuyordu.
+    //
+    // ⚠ Tutamaçlar YALNIZ SEÇİLİ ögede: her metin alanında üç kol, kartı okunmaz bir
+    // kontrol tarlasına çevirirdi. Görsel tutamaçlarıyla aynı kural.
+    // ⚠ Kaplama yalnız editörün iframe'inde yaşıyor (`cek()` her çizimde `srcdoc`u
+    // yeniden kuruyor) — render'a, denetime ve dışa aktarmaya HİÇ girmiyor.
+    if (secili !== null && secili.alan === alan && secili.i === i) {
+      const kaplama = d.createElement('div')
+      kaplama.setAttribute('data-duzenleyici', 'tutamac')
+      kaplama.setAttribute('aria-hidden', 'true')
+      // ⚠ `offset*` kullanılıyor, `getBoundingClientRect` değil: kaydırma payı
+      // (`dx/dy`) bir `transform` ve sınır kutusunu taşır — yerleşim kutusunu değil.
+      // Aynı ders görsel tutamaçlarında ölçülerek öğrenildi.
+      const yerlestir = () => {
+        kaplama.style.cssText =
+          'position:absolute;pointer-events:none;z-index:99;' +
+          'left:' +
+          e.offsetLeft +
+          'px;top:' +
+          e.offsetTop +
+          'px;' +
+          'width:' +
+          e.offsetWidth +
+          'px;height:' +
+          e.offsetHeight +
+          'px;' +
+          'transform:' +
+          (d.defaultView.getComputedStyle(e).transform || 'none') +
+          ';'
+      }
+      yerlestir()
+      const tut = (isaret, konum, imlec) => {
+        const t = d.createElement('div')
+        t.setAttribute('data-duzenleyici', 'tutamac')
+        t.style.cssText =
+          'position:absolute;pointer-events:auto;cursor:' +
+          imlec +
+          ';' +
+          'width:18px;height:18px;border-radius:50%;background:#e6b45a;color:#2f1f06;' +
+          'font:11px/18px ui-sans-serif,system-ui;text-align:center;font-weight:700;' +
+          'box-shadow:0 1px 4px #0009;' +
+          konum
+        t.textContent = isaret
+        kaplama.appendChild(t)
+        return t
+      }
+      const sag = tut('↔', 'right:-9px;top:calc(50% - 9px)', 'ew-resize')
+      const alt = tut('↕', 'left:calc(50% - 9px);bottom:-9px', 'ns-resize')
+      const kose = tut('⤡', 'right:-9px;bottom:-9px', 'nwse-resize')
+
+      // ⚠ ⚠ **SÜRÜKLERKEN YAZILMIYOR, BİTİNCE TEK YAZILIYOR.** Her yazmada müfettiş
+      // baştan kuruluyor ve iframe yeniden çiziliyor; her karede yazsaydık tutamaç
+      // elimizden KOPARDI. Görsel tutamaçlarında bu bir Playwright testini düşürmüştü.
+      const kolBagla = (kol, eksenX, eksenY) => {
+        kol.addEventListener('pointerdown', (ev) => {
+          ev.preventDefault()
+          ev.stopPropagation()
+          const en0 = e.offsetWidth,
+            boy0 = e.offsetHeight
+          const x0 = ev.clientX,
+            y0 = ev.clientY
+          let sonEn = en0,
+            sonBoy = boy0
+          const surukleK = (m) => {
+            if (eksenX) {
+              sonEn = Math.min(1080, Math.max(120, en0 + (m.clientX - x0)))
+              // ⚠ İkisi birden: şablonun sütunu bir `max-width` duvarı ve yalnız
+              // `width` yazmak o duvarı aşmaz — kol sağa çekilir, hiçbir şey olmaz.
+              e.style.width = sonEn + 'px'
+              e.style.maxWidth = sonEn + 'px'
+            }
+            if (eksenY) {
+              sonBoy = Math.min(1350, Math.max(24, boy0 + (m.clientY - y0)))
+              // ⚠ `minHeight`: sabit yükseklik sığmayan metni KESERDİ ve şikâyet
+              // zaten "sığmıyor"du.
+              e.style.minHeight = sonBoy + 'px'
+            }
+            yerlestir()
+          }
+          const birakK = () => {
+            d.removeEventListener('pointermove', surukleK)
+            d.removeEventListener('pointerup', birakK)
+            const ek = { tur: 'ayar', i, alan }
+            if (eksenX) ek.en = Math.round(sonEn)
+            if (eksenY) ek.boy = Math.round(sonBoy)
+            // Kaydırma ve punto AYNEN korunuyor: sunucu kısmi güncelleme yapıyor ama
+            // `dx/dy/olcek` gelmezse nötr sayılıp SİLİNİR — o yüzden taşınıyorlar.
+            const m2 = (doc.kartlar[i] && doc.kartlar[i].ayar && doc.kartlar[i].ayar[alan]) || {}
+            ek.dx = m2.dx || 0
+            ek.dy = m2.dy || 0
+            ek.olcek = m2.olcek || 1
+            yaz(ek)
+          }
+          d.addEventListener('pointermove', surukleK)
+          d.addEventListener('pointerup', birakK)
+        })
+      }
+      kolBagla(sag, true, false)
+      kolBagla(alt, false, true)
+      kolBagla(kose, true, true)
+      if (e.parentNode) e.parentNode.appendChild(kaplama)
+    }
   })
   d.querySelectorAll('.gorsel,.gorsel-yer').forEach((e, i) => {
     // ⚠ Görsel de SEÇİLEBİLİR: müfettiş onun alanlarını (kırpma, alt metin, kutu)

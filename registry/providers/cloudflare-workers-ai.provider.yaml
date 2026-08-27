@@ -6,6 +6,11 @@
 #
 # ✅ `enabled: true` (2026-08-16): anahtarlar kasada ve GERÇEK çağrı ölçüldü —
 # HTTP 200, 1024x1024 JPEG, metinsiz. Cassette değil, gerçek uç nokta.
+#
+# ⚠ ⚠ **MODEL DEĞİŞTİ (2026-08-28): `flux-2-klein-4b`.** Depo sahibi *"üretilen
+# görseller aşırı kalitesiz"* dedi; altı model yarıştırıldı ve şikâyet doğrulandı —
+# eski `sdxl-lightning` kadran çevresine UYDURMA HARFLER çiziyor ve kadrajı kenardan
+# kenara dolduruyordu. Gerekçenin tamamı fiyat anlık görüntüsünde.
 # ⚠ V-14 açık: kota AŞIMI davranışı hesabın planına bağlı ve ölçülmedi.
 id: cloudflare-workers-ai
 title: Cloudflare Workers AI (bedava şerit)
@@ -15,7 +20,7 @@ enabled: true
 # Bedava katman: sıfır. Bu sıfır bir BİLGİSİZLİK değil bir OLGU — `unreported` ile
 # ayrımı tam olarak bu (§8.3). Kota aşımının nasıl faturalandığı ayrı bir soru (V-14).
 cost_formula: '0'
-pricing_snapshot: _pricing/cloudflare-2026-08-16.json
+pricing_snapshot: _pricing/cloudflare-2026-08-28.json
 
 # Bedava katman TİCARİ kullanıma açık (§7.5 · FAZ-5.4) — bu dosyanın başındaki
 # gerekçenin makine-okunur hâli. Beyan olmadan bedava şerit kullanılamaz.
