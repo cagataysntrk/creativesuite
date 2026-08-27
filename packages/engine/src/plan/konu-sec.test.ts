@@ -77,10 +77,20 @@ describe('konu seçimi çözümleme', () => {
   // cümlesini kurdu. Doğrulama haklıydı — ama İSTEM yanlış soruyu soruyordu.
   // Kopyalanması istenen her başlık, kopyalanırken bozulabilir.
 
-  it('istem NUMARA istiyor — kopyalanacak bir başlık vermiyor', () => {
+  // ⚠ ⚠ **BU İDDİANIN ÖNCÜLÜ DEĞİŞTİ.** Eskiden konu LİSTEDEN seçiliyordu ve cevap bir
+  // NUMARAYDI — gerekçesi geçerliydi: başlığı yeniden yazdırmak tire/büyük harf riski
+  // taşıyor. Ama depo sahibi havuzun kendisini kaldırttı: *"12 konu ile sınırlamak
+  // sürekli aynı içeriklerin üretilmesine sebep olur."* Konu artık kayıtlardan
+  // TÜRETİLİYOR ve bir numarayla ifade edilemez.
+  //
+  // ⚠ Kopyalama riski KAYBOLMADI, TAŞINDI: kopyalanan şey artık başlık değil DAYANAK
+  // numarası — ve numara kopyalanamaz, ya listededir ya değildir.
+  it('istem KONU + DAYANAK istiyor — konu türetiliyor, kaynağı denetleniyor', () => {
     const p = konuSecPromptu({ adaylar: ADAYLAR, islenmisSayisi: 4 }) ?? ''
-    expect(p).toContain('"secim"')
-    expect(p).not.toContain('"konu":')
+    expect(p).toContain('"konu"')
+    expect(p).toContain('"dayanak"')
+    expect(p, 'kayıtlar bir MENÜ değil').toContain('MENÜ DEĞİL')
+    expect(p, 'dayanaksız konu reddedilecek').toContain('en az bir numara')
   })
 
   it('numarayla seçim başlığa çevriliyor', () => {

@@ -441,8 +441,18 @@ export const RunLauncher = ({
         <p className="ret-mesaji">⊘ {adayHata}</p>
       ) : (
         <details className="aday-listesi">
+          {/* ⚠ ⚠ **BU LİSTE BİR MENÜ SANILIYORDU ve öyle YAZIYORDU.** Depo sahibi:
+              *"genel seçsem de 12 aday diyor… böyle bir havuz olmamalı, tamamen esnek
+              olmalı."* Haklıydı iki kez: `genel` kipte liste zaten yalnız BAĞLAM, ve
+              `firma` kipte de artık bir menü değil — konu kayıtlardan TÜRETİLİYOR,
+              onlardan SEÇİLMİYOR. Ekranın *"N aday · seçimi konu-sec yapacak"* demesi,
+              kaldırdığımız kısıtı hâlâ varmış gibi gösteriyordu. */}
           <summary>
-            {adaylar.length} aday · seçimi `konu-sec` adımı yapacak, gerekçesi deftere yazılacak
+            {icerikKipi === 'genel'
+              ? `markanın dünyası (${String(adaylar.length)} kayıt) — konuyu SINIRLAMAZ, ` +
+                'yalnız kimin konuştuğunu gösterir'
+              : `markanın kayıtları (${String(adaylar.length)}) — konu bunlara DAYANARAK ` +
+                'kurulacak, birebir seçilmeyecek'}
           </summary>
           <ul>
             {adaylar.map((a) => (

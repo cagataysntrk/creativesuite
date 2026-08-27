@@ -112,9 +112,13 @@ const KONU_SEC = process.argv.includes('--konu-sec')
 // ⚠ Defter yolu `RUNS_DIR`den geliyor, elle yazılmıyor: `chokepoints` kapısı
 // defterin yerini bilen ikinci bir yer istemiyor (§13 · D-38).
 const { RUNS_DIR } = await import(join(REPO, 'packages/kernel/dist/manifest.js'))
-const { kosuParametreleri, konuAdaylari, islenmisKonular, kosudaGorselUretildi } = await import(
-  join(REPO, 'packages/engine/dist/index.js')
-)
+const {
+  kosuParametreleri,
+  konuAdaylari,
+  islenmisKonular,
+  yayinlananKonular,
+  kosudaGorselUretildi,
+} = await import(join(REPO, 'packages/engine/dist/index.js'))
 
 const serbestParam = {}
 for (let i = 3; i < process.argv.length - 1; i++) {
@@ -847,9 +851,20 @@ const KOSU_PARAMLARI = (() => {
               process.exit(1)
             }
             console.log(`  konu seçimi hatta bırakıldı — ${adaylar.length} aday`)
+            // ⚠ ⚠ **YAYINLANANLAR AYRI BİR SİNYAL — ve ayrımı depo sahibi koydu:**
+            // *"geçmişte yayınlanmış dikkat et, üretilmiş değil; yakın zamanda
+            // yayınlananlara özellikle benzememeli."* `islenmisKonular` her koşuyu
+            // sayıyor (reddedilmiş, elenmiş dahil); takipçinin hafızası ise yalnız
+            // yayınlananlardan oluşuyor.
+            // ⚠ KISIT olarak geçiyor, adım diskten okumuyor: plan onu donduruyor
+            // (R-07) ve replay aynı seçimi veriyor.
+            const yayinlanan = yayinlananKonular(REPO)
             return {
               konu_adaylari: JSON.stringify(adaylar),
               islenmis_konu_sayisi: String(islenmisKonular(REPO).size),
+              ...(yayinlanan.length === 0
+                ? {}
+                : { yayinlanan_konular: yayinlanan.slice(0, 12).join('\n') }),
             }
           })()
         : {}),

@@ -132,6 +132,7 @@ export {
   konuSecPromptu,
   konuSecimiCozumle,
   islenmisKonular,
+  yayinlananKonular,
   type KonuSecimi,
   type KonuAdayi,
 } from './plan/konu-sec.js'

@@ -1915,6 +1915,12 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
         adaylar,
         islenmisSayisi: islenmis,
         kip: icerikKipiCozumle(input.constraints['icerik_kipi']),
+        // ⚠ Yayınlananlar KISITTAN geliyor, diskten değil: plan onu donduruyor (R-07)
+        // ve replay aynı seçimi veriyor. Kimin doldurduğu `calistir.ts`te.
+        ...(typeof input.constraints['yayinlanan_konular'] === 'string' &&
+        input.constraints['yayinlanan_konular'] !== ''
+          ? { yayinlananKonular: input.constraints['yayinlanan_konular'].split('\n') }
+          : {}),
       }) ?? ''
     )
   }

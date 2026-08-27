@@ -30,13 +30,16 @@ describe('içerik kipi', () => {
   })
 
   // ── FİRMA: kayda bağlı, uydurma YASAK ────────────────────────────────────
-  it('firma kipi konuyu KAYITLARA bağlıyor', () => {
+  // ⚠ ⚠ **HAVUZ KALKTI, GROUNDING KALDI — ve fark bu testin ölçtüğü şey.** Depo sahibi:
+  // *"firma belli, ürünler belli, ne olduğu belli — istediği gibi konu seçsin, niye 12
+  // ile sınırlı."* Konu artık kayıtlardan TÜRETİLİYOR; ama hangi kayda dayandığını
+  // SÖYLEMEK zorunda ve numara denetleniyor. Serbestlik konuda, kaynakta değil.
+  it('firma kipi konuyu KAYITLARA bağlıyor — ama havuza HAPSETMİYOR', () => {
     const p = konuSecPromptu({ adaylar: ADAYLAR, islenmisSayisi: 3, kip: 'firma' }) ?? ''
     expect(p).toContain('KENDİ')
     expect(p, 'firma kipinde uydurma yasağı istemde YAZILI olmalı').toMatch(/UYDURMA/)
-    expect(p, 'firma kipinde cevap NUMARA — başlık kopyalatmak tire/harf riski taşır').toContain(
-      'secim'
-    )
+    expect(p, 'kayıtlar bir MENÜ değil, bilgi tabanı').toContain('MENÜ DEĞİL')
+    expect(p, 'dayanak ZORUNLU — kaynaksız konu üretime girmemeli').toContain('dayanak')
   })
 
   it('firma kipinde aday yoksa istem YOK — boş listeyle konu seçilemez', () => {
