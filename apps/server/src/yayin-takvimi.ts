@@ -20,6 +20,7 @@
 // ⚠ Zaman ÇAĞIRANDAN geliyor (R-06): sunucu `new Date()` çağırsaydı aynı istek iki
 // kez farklı kayıt üretirdi ve defter yeniden oynatılamazdı.
 
+import { VARSAYILAN_YAYIN_SAATI, yayinSaatiGecerli } from '@suite/contracts'
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
@@ -47,6 +48,16 @@ export interface TakvimOlayi {
   readonly karar: TakvimKarari
   /** ISO `YYYY-MM-DD`. `cikar` ve `geri-al` için boş olabilir. */
   readonly tarih: string
+  /**
+   * Yayın saati `HH:MM` — Türkiye saati. Boşsa varsayılan geçerli.
+   *
+   * ⚠ ⚠ **TAKVİMDE SAAT HİÇ YOKTU.** Depo sahibi: *"yayın saati yok??? o da otomatik
+   * ayarlanmalı."* Tarihi olup saati olmayan bir plan, yayıncıya *"o gün bir ara"*
+   * demektir — ve Metricool'a zamanlama gönderirken bir saat vermek ZORUNLU.
+   * ⚠ Alan İSTEĞE BAĞLI: defter ekli, eski kayıtlarda yok ve okuyucu varsayılana
+   * düşüyor. Zorunlu kılmak defterdeki her eski satırı ayrıştırılamaz yapardı.
+   */
+  readonly saat?: string
   /** Bu gönderi hangi platformlara gidecek. Boşsa koşunun kendi seçimi geçerli. */
   readonly platformlar: readonly string[]
   /** ISO zaman damgası — çağıran verir (R-06). */
@@ -156,6 +167,8 @@ export const takvimeYaz = (
     readonly runId: string
     readonly karar: string
     readonly tarih?: string
+    /** `HH:MM`. Verilmezse varsayılan yazılıyor — plan saatsiz kalmasın. */
+    readonly saat?: string
     readonly platformlar?: readonly string[]
     readonly not?: string
     /** `senkron` kaydının yapısal hâli — ayrıştırma yerine ALAN. */
@@ -171,10 +184,17 @@ export const takvimeYaz = (
     return { ok: false, hata: `${g.karar} için tarih YYYY-MM-DD olmalı` }
   if (!/^run_[0-9a-f-]+$/.test(g.runId)) return { ok: false, hata: `geçersiz runId: ${g.runId}` }
 
+  // ⚠ ⚠ **SAAT DOĞRULANIYOR ve VARSAYILANA DÜŞÜYOR.** Geçersiz bir saat deftere
+  // girerse Metricool'a gönderilecek zaman `NaN` olur ve bunu ancak yayın gününde
+  // fark ederiz. Boş saat ise bir hata değil: varsayılan sözleşme devreye giriyor.
+  const saat = (g.saat ?? '').trim()
+  if (saat !== '' && !yayinSaatiGecerli(saat))
+    return { ok: false, hata: `saat HH:MM olmalı: ${saat}` }
   const olay: TakvimOlayi = {
     runId: g.runId,
     karar: g.karar as TakvimKarari,
     tarih,
+    saat: saat === '' ? VARSAYILAN_YAYIN_SAATI : saat,
     platformlar: g.platformlar ?? [],
     at: g.simdi,
     not: g.not ?? '',
@@ -184,4 +204,45 @@ export const takvimeYaz = (
   mkdirSync(dirname(y), { recursive: true })
   appendFileSync(y, JSON.stringify(olay) + '\n', 'utf8')
   return { ok: true, olay }
+}
+
+/**
+ * Son kararı GERİ ALIR — bir öncekini yeniden yazarak.
+ *
+ * ⚠ ⚠ **DEFTER EKLİ; GERİ ALMAK SİLMEK DEĞİL, ÖNCEKİNİ TEKRAR YAZMAKTIR.** Depo sahibi:
+ * *"takvimde düzenleme geri alınabilmeli."* Sürükleyip yanlış güne bıraktığında ya da
+ * yanlış işaretlediğinde tek çare, doğru değeri hatırlayıp elle yeniden girmekti — ve
+ * "önceki neydi" sorusunun cevabı yalnız defterde yazılıydı, ekranda değil.
+ *
+ * ⚠ ⚠ **`geri-al` KARARIYLA KARIŞTIRILMAMALI.** O karar, koşuyu OTOMATİK takvime
+ * bırakıyor (elle karar kalmıyor). Bu işlem ise bir ADIM geri gidiyor: 12'sine
+ * planlanmış bir gönderi 19'una taşındıysa, geri alma onu 12'sine döndürür — otomatiğe
+ * değil. İkisi ayrı ihtiyaç ve ikisi de duruyor.
+ *
+ * ⚠ Geri alınacak bir şey yoksa (tek karar ya da hiç karar) `null`: uydurulmuş bir
+ * "önceki hâl" yazmak, olmayan bir kararı varmış gibi göstermek olurdu.
+ */
+export const geriAlinacak = (
+  repoRoot: string,
+  runId: string
+): {
+  readonly karar: TakvimKarari
+  readonly tarih: string
+  readonly saat: string
+  readonly platformlar: readonly string[]
+} | null => {
+  // ⚠ `senkron` ATLANIYOR: bir hedefe iletilmiş olmak takvimdeki yeri değiştirmiyor,
+  // dolayısıyla geri alınacak bir "önceki hâl" de değil (`gecerliKararlar` ile aynı).
+  const kararlar = takvimOlaylari(repoRoot).olaylar.filter(
+    (o) => o.runId === runId && o.karar !== 'senkron'
+  )
+  if (kararlar.length < 2) return null
+  const onceki = kararlar[kararlar.length - 2]
+  if (onceki === undefined) return null
+  return {
+    karar: onceki.karar,
+    tarih: onceki.tarih,
+    saat: onceki.saat ?? '',
+    platformlar: onceki.platformlar,
+  }
 }

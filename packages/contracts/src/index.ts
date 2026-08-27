@@ -133,6 +133,8 @@ export {
   MUZIK_KURALI,
   PLATFORMLAR,
   VARSAYILAN_PLATFORMLAR,
+  VARSAYILAN_YAYIN_SAATI,
+  yayinSaatiGecerli,
   kusurEngelliyorMu,
   platformBul,
   platformDenetle,

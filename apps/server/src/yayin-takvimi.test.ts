@@ -13,7 +13,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { gecerliKararlar, takvimOlaylari, takvimeYaz } from './yayin-takvimi.js'
+import { gecerliKararlar, geriAlinacak, takvimOlaylari, takvimeYaz } from './yayin-takvimi.js'
 
 const kok = (): string => mkdtempSync(join(tmpdir(), 'takvim-'))
 const R1 = 'run_01a03e9e-7d62-7560-b44d-0cb7225e2883'
@@ -116,5 +116,56 @@ describe('yayın takvimi defteri', () => {
     const r = kok()
     takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-12', simdi: AN })
     expect(takvimOlaylari(r).olaylar[0]?.at, 'sunucu kendi saatini SORMAMALI').toBe(AN)
+  })
+
+  // ── SAAT (FAZ-19.13) ─────────────────────────────────────────────────────
+  it('saat verilmezse VARSAYILAN yazılıyor — plan saatsiz kalmıyor', () => {
+    // ⚠ Depo sahibi: *"yayın saati yok??? o da otomatik ayarlanmalı."* Tarihi olup
+    // saati olmayan bir plan, yayıncıya "o gün bir ara" demektir.
+    const r = kok()
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-12', simdi: AN })
+    expect(gecerliKararlar(r).get(R1)?.saat).toBe('10:00')
+  })
+
+  it('verilen saat KORUNUYOR, geçersiz saat REDDEDİLİYOR', () => {
+    const r = kok()
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-12', saat: '19:30', simdi: AN })
+    expect(gecerliKararlar(r).get(R1)?.saat).toBe('19:30')
+    for (const s of ['25:00', '9:5', 'akşam', '19.30']) {
+      expect(
+        takvimeYaz(r, { runId: R2, karar: 'planla', tarih: '2026-09-12', saat: s, simdi: AN }).ok,
+        s
+      ).toBe(false)
+    }
+  })
+
+  // ── GERİ ALMA (FAZ-19.13) ────────────────────────────────────────────────
+  //
+  // ⚠ ⚠ **Depo sahibi: *"takvimde düzenleme geri alınabilmeli."*** Sürükleyip yanlış
+  // güne bırakınca tek çare doğru tarihi HATIRLAYIP elle girmekti.
+  it('GERİ ALINACAK önceki karar bulunuyor', () => {
+    const r = kok()
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-12', saat: '10:00', simdi: AN })
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-19', saat: '19:30', simdi: AN })
+    const o = geriAlinacak(r, R1)
+    expect(o?.tarih, 'bir ADIM geri: 19 → 12').toBe('2026-09-12')
+    expect(o?.saat).toBe('10:00')
+  })
+
+  it('TEK karar varsa geri alınacak bir şey YOK — uydurulmuş önceki hâl yazılmıyor', () => {
+    const r = kok()
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-12', simdi: AN })
+    expect(geriAlinacak(r, R1)).toBeNull()
+    expect(geriAlinacak(r, R2), 'hiç kararı olmayan koşu').toBeNull()
+  })
+
+  it('`senkron` kaydı geri almayı KAYDIRMIYOR — o bir karar değil', () => {
+    // ⚠ Hedefe iletilmiş olmak takvimdeki yeri değiştirmiyor; onu bir adım saymak,
+    // geri almayı yanlış karara döndürürdü.
+    const r = kok()
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-12', simdi: AN })
+    takvimeYaz(r, { runId: R1, karar: 'senkron', not: 'metricool:esitlendi', simdi: AN })
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-19', simdi: AN })
+    expect(geriAlinacak(r, R1)?.tarih).toBe('2026-09-12')
   })
 })

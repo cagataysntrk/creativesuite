@@ -188,3 +188,22 @@ export const platformDenetle = (
 /** Kusur ret sebebi mi, yoksa yalnız uyarı mı. */
 export const kusurEngelliyorMu = (k: PlatformKusuru): boolean =>
   k.tur !== 'kanca-katlanmanin-otesinde'
+
+/**
+ * Varsayılan yayın saati — **ölçüm değil, SÖZLEŞME** (FAZ-19.13).
+ *
+ * ⚠ ⚠ **BU BİR ÖNERİ DEĞİL, BİR VARSAYILAN — ve fark ekranda da yazılı.** Depo sahibi:
+ * *"yayın saati yok??? o da otomatik ayarlanmalı."* Otomatik bir saat gerekiyordu ama
+ * `yayinSaatiOner` ölçüm olmadan saat ÖNERMİYOR ve bu doğru davranış: ölçülmemiş bir
+ * saati "en iyi saat" diye sunmak, kimsenin bakmadığı bir kutucuğu işaretlemektir
+ * (D-23). Çözüm ikisini AYIRMAK: ölçüm varsa öneri kazanır, yoksa bu sözleşme
+ * kullanılır ve *"varsayılan"* diye adlandırılır.
+ *
+ * ⚠ Saat 10:00 seçildi çünkü bir seçim yapmak gerekiyordu ve iş saatinin başı,
+ * yayının o gün içinde düzeltilebileceği tek dilim. **Bu sayı ÖLÇÜLMEDİ** ve ilk beş
+ * yayının etkileşimi ölçüldüğünde `yayinSaatiOner` onu devralacak.
+ */
+export const VARSAYILAN_YAYIN_SAATI = '10:00'
+
+/** `HH:MM` biçimi — deftere geçersiz bir saat girmesin. */
+export const yayinSaatiGecerli = (v: string): boolean => /^([01]\d|2[0-3]):[0-5]\d$/.test(v)

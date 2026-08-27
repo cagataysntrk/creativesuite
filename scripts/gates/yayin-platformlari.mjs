@@ -108,9 +108,38 @@ if (sozVarsIdler.join(',') !== panelVarsIdler.join(',')) {
   process.exit(1)
 }
 
+// ── VARSAYILAN YAYIN SAATİ de iki yerde (FAZ-19.13) ─────────────────────────
+//
+// ⚠ ⚠ **AYNI SINIFTAN ÜÇÜNCÜ KOPYA.** `rings` kapısı `apps/ui`nin sözleşmeden import
+// etmesini yasaklıyor, o yüzden saat de iki yerde yazılı. Platform varsayılanı bir kez
+// ayrıştı ve takvim kutucuğu aylarca yanlış gösterdi; saat için aynı bedeli ödemeye
+// gerek yok — kapı ikisini karşılaştırıyor.
+const sozSaat = /export const VARSAYILAN_YAYIN_SAATI = '([^']+)'/.exec(sozlesme)?.[1]
+const panelSaat = /export const VARSAYILAN_YAYIN_SAATI = '([^']+)'/.exec(panelKutusu)?.[1]
+if (sozSaat === undefined || panelSaat === undefined) {
+  console.error(
+    '✗ `VARSAYILAN_YAYIN_SAATI` bulunamadı — ' +
+      (sozSaat === undefined ? 'sözleşmede' : 'panelde') +
+      '. Varsayılan saat iki yerde tutuluyor ve eşit kalmak zorunda.'
+  )
+  process.exit(1)
+}
+if (sozSaat !== panelSaat) {
+  console.error(
+    '✗ VARSAYILAN SAAT AYRIŞMIŞ:\n    sözleşme: ' +
+      sozSaat +
+      '\n    panel   : ' +
+      panelSaat +
+      '\n  Ayrışınca panelin gösterdiği saat ile deftere yazılan saat farklı olur.'
+  )
+  process.exit(1)
+}
+
 console.log(
   '  yayın platformları ' +
     sozlesmeIdler.join(', ') +
     ' · sözleşme ile panel aynı · varsayılan ' +
-    sozVarsIdler.join('+')
+    sozVarsIdler.join('+') +
+    ' · saat ' +
+    sozSaat
 )

@@ -45,7 +45,13 @@ import {
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
 // ⚠ Takvim defteri: insanin elle verdigi kararlar burada yasiyor (UX-6).
-import { gecerliKararlar, takvimOlaylari, takvimeYaz, sonSenkron } from './yayin-takvimi.js'
+import {
+  gecerliKararlar,
+  geriAlinacak,
+  takvimOlaylari,
+  takvimeYaz,
+  sonSenkron,
+} from './yayin-takvimi.js'
 // ⚠ Takvim kuralı `@suite/engine`de: çeşitlilik ve denge orada ÖLÇÜLDÜ.
 import { kusuruYaz, yayinMetniIstemi, yayinPlaniKur } from '@suite/engine'
 import { PAKET_KOK, yayinPaketiYaz } from './yayin-paketi.js'
@@ -1129,6 +1135,8 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       runId?: string
       karar?: string
       tarih?: string
+      /** `HH:MM` — verilmezse defter varsayılanı yazıyor. */
+      saat?: string
       platformlar?: readonly string[]
       not?: string
     }
@@ -1222,6 +1230,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       runId: g.runId ?? '',
       karar: g.karar ?? '',
       ...(g.tarih === undefined ? {} : { tarih: g.tarih }),
+      ...(g.saat === undefined ? {} : { saat: g.saat }),
       ...(g.platformlar === undefined ? {} : { platformlar: g.platformlar }),
       ...(g.not === undefined ? {} : { not: g.not }),
       simdi: o.simdi(),
@@ -1229,6 +1238,41 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     if (!r.ok) return c.json(r, 400)
     yayinla('degisim')
     return c.json(r)
+  })
+
+  // ── TAKVİMDE GERİ ALMA (FAZ-19.13) ───────────────────────────────────────
+  //
+  // ⚠ ⚠ **DEPO SAHİBİ: *"takvimde düzenleme geri alınabilmeli."*** Sürükleyip yanlış
+  // güne bırakınca ya da yanlış işaretleyince tek çare, doğru değeri HATIRLAYIP elle
+  // yeniden girmekti — ve "önceki neydi" sorusunun cevabı yalnız defterde yazılıydı.
+  //
+  // ⚠ Geri alma bir SİLME değil, bir YAZMA: önceki karar deftere yeniden ekleniyor ve
+  // ikisi de görünür kalıyor (Yasa 10). "Şu an ne geçerli" ile "ne oldu" ayrı sorular.
+  app.post('/api/yayin-takvimi/:runId/geri-al', (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const onceki = geriAlinacak(o.repoRoot, runId)
+    if (onceki === null)
+      return c.json({ ok: false, hata: 'geri alınacak bir önceki karar yok — bu ilk karar' }, 400)
+    const r = takvimeYaz(o.repoRoot, {
+      runId,
+      karar: onceki.karar,
+      tarih: onceki.tarih,
+      ...(onceki.saat === '' ? {} : { saat: onceki.saat }),
+      platformlar: onceki.platformlar,
+      not: 'geri alındı — önceki karara dönüldü',
+      simdi: o.simdi(),
+    })
+    if (!r.ok) return c.json(r, 400)
+    yayinla('degisim')
+    return c.json({ ok: true, donulen: onceki })
+  })
+
+  /** Geri alınacak bir şey VAR MI — düğme ölü görünmesin diye. */
+  app.get('/api/yayin-takvimi/:runId/geri-al', (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    return c.json({ ok: true, onceki: geriAlinacak(o.repoRoot, runId) })
   })
 
   // Bir koşunun takvim GEÇMİŞİ — "bu neden 12'sine alındı" sorusunun cevabı.

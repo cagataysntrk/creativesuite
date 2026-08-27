@@ -218,6 +218,17 @@ export const RunGecmisi = ({
   // durumları çok net görünmeli varlıklarda."* Görünmek yetmiyor; 202 koşuda
   // *"hangileri planlı"* sorusu bir süzgeç olmadan cevaplanamıyor.
   const [fYayin, setFYayin] = useState('')
+  /**
+   * Yayınlananlar listede GÖRÜNMÜYOR — arşivde.
+   *
+   * ⚠ ⚠ **Depo sahibi: *"yayınlananlar varlıklarda yayınlandı olarak arşivlenmeli,
+   * görünmemeli, girip bakılabilmeli sadece."*** Ve haklı: yayınlanmış bir gönderi
+   * üzerinde yapılacak iş kalmadı; listede durması, yapılacak işi olan gönderilerin
+   * arasına ölü satır karıştırmak.
+   * ⚠ SİLİNMİYOR, GİZLENİYOR (Yasa 10): tek tık uzakta ve sayısı yazılı — gizlenen
+   * şeyin kaç tane olduğunu söylemeyen bir arşiv, kaybolmuş bir arşivdir.
+   */
+  const [arsivAcik, setArsivAcik] = useState(false)
   // ⚠ Çoklu seçim: on koşuyu tek tek elemek, elemeyi kullanılmaz yapardı.
   const [secilenler, setSecilenler] = useState<readonly string[]>([])
   const [detay, setDetay] = useState<Detay | null>(null)
@@ -423,6 +434,9 @@ export const RunGecmisi = ({
     .filter((r) => fKapi === '' || r.awaitingGate === fKapi)
     .filter((r) => fSablon === '' || r.sablon === fSablon)
     .filter((r) => fYayin === '' || (r.gonderi?.asama ?? 'planlanmadi') === fYayin)
+    // ⚠ Süzgeç AÇIKÇA "yayınlandı" diyorsa arşiv kendiliğinden açılıyor: iki kontrolün
+    // birbirini iptal etmesi, kullanıcının aradığını bulamaması demekti.
+    .filter((r) => arsivAcik || fYayin === 'yayinlandi' || r.gonderi?.asama !== 'yayinlandi')
     // ⚠ Arama artık KONUYU da tarıyor: bir koşuyu kimliğinden değil konusundan
     // hatırlıyoruz ve `run_01a0…` yazarak arama yapan kimse yok.
     .filter(
@@ -527,6 +541,9 @@ export const RunGecmisi = ({
     slaytli: taban.filter((r) => (slaytHaritasi.get(r.runId) ?? []).length > 0).length,
     yayinlanmis: taban.filter((r) => yayinlandiMi(r.runId)).length,
   }
+  // ⚠ Arşiv sayısı SÜZGEÇLERDEN ÖNCEKİ tabandan: "kaç tanesi gizli" sorusunun cevabı,
+  // o an hangi süzgecin açık olduğuna bağlı olmamalı.
+  const arsivSayisi = liste.filter((r) => r.gonderi?.asama === 'yayinlandi').length
 
   /**
    * Koşunun AYRINTISI — adımlar, kararlar, tekrar, donmuş kayıt kümesi.
@@ -759,6 +776,21 @@ export const RunGecmisi = ({
             onChange={(e) => setElenenler(e.target.checked)}
           />{' '}
           elenenleri de göster
+        </label>
+        {/* ⚠ ⚠ **YAYINLANANLAR ARŞİVDE, LİSTEDE DEĞİL.** Depo sahibi: *"yayınlananlar
+            varlıklarda yayınlandı olarak arşivlenmeli, görünmemeli, girip
+            bakılabilmeli sadece."* Yayınlanmış bir gönderi üzerinde yapılacak iş
+            kalmadı; listede durması, işi olan gönderilerin arasına ölü satır
+            karıştırmak.
+            ⚠ SAYISI YAZILI: gizlenen şeyin kaç tane olduğunu söylemeyen bir arşiv,
+            kaybolmuş bir arşivdir. */}
+        <label>
+          <input
+            type="checkbox"
+            checked={arsivAcik}
+            onChange={(e) => setArsivAcik(e.target.checked)}
+          />{' '}
+          yayınlanmış {arsivSayisi} gönderiyi de göster
         </label>
         {/* ⚠ Tarih aralığı: "şu iki gün arasında ne oldu" sorusunun cevabı ekranda
             YOKTU. Boş uç = sınırsız; iki ucu da doldurmak zorunda değilsin. */}

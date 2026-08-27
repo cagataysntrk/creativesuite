@@ -294,10 +294,13 @@ export const gonderiDurumu = (
       platformlar,
       // ⚠ Yerel paket ÇIKARILDIYSA bu da söyleniyor: *"planlandı"* ile *"paketi hazır"*
       // ayrı iki iş ve ikisini birden bilmek insanın sıradaki adımını belirliyor.
+      // ⚠ SAAT de etikette: tarihi olup saati olmayan bir plan, yayıncıya "o gün bir
+      // ara" demektir. Varsayılan saat de yazılıyor — gizli bir varsayılan, varsayılan
+      // olduğunu söylemeyen bir karardır.
       etiket:
         s?.hedef?.id === 'yerel'
-          ? `◔ planlandı · ${karar.tarih} · yerel paket hazır`
-          : `◔ planlandı · ${karar.tarih}`,
+          ? `◔ planlandı · ${karar.tarih} ${karar.saat ?? ''} · yerel paket hazır`
+          : `◔ planlandı · ${karar.tarih} ${karar.saat ?? ''}`,
       yayin: y,
     }
 
