@@ -1,0 +1,21 @@
+{"runId":"run_01a044dc-c0ba-7a0e-83c4-e99ee382b895","karar":"sira","konum":1,"at":"2026-08-27T20:19:40.557Z","not":"sıraya alındı"}
+{"runId":"run_01a044d1-9e03-7ca4-b96a-4b99417ff030","karar":"sira","konum":2,"at":"2026-08-27T20:19:40.585Z","not":"sıraya alındı"}
+{"runId":"run_01a0447a-9adc-7449-bd80-1afa65978676","karar":"sira","konum":3,"at":"2026-08-27T20:19:40.619Z","not":"sıraya alındı"}
+{"runId":"run_01a0447a-9adc-7449-bd80-1afa65978676","karar":"sira","konum":0,"at":"2026-08-27T20:19:40.681Z","not":"elle taşındı: 3 → 1"}
+{"runId":"run_01a044d1-9e03-7ca4-b96a-4b99417ff030","karar":"sira","konum":-1,"at":"2026-08-27T20:54:28.097Z","not":"elle taşındı: 3 → 1"}
+{"runId":"run_01a044dc-c0ba-7a0e-83c4-e99ee382b895","karar":"planlandi","konum":0,"at":"2026-08-27T21:04:09.693Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a044dc-c0ba-7a0e-83c4-e99ee382b895","karar":"cikar","konum":0,"at":"2026-08-27T21:04:27.210Z","not":"planlama geri alındı — sıraya yeniden alınabilir"}
+{"runId":"run_01a044dc-c0ba-7a0e-83c4-e99ee382b895","karar":"sira","konum":1,"at":"2026-08-27T21:04:28.801Z","not":"sıraya alındı"}
+{"runId":"run_01a044dc-c0ba-7a0e-83c4-e99ee382b895","karar":"cikar","konum":0,"at":"2026-08-27T21:16:35.500Z","not":"sıradan çıkarıldı"}
+{"runId":"run_01a04407-32f9-7169-85e9-daec5f70ff70","karar":"sira","konum":1,"at":"2026-08-27T21:16:47.996Z","not":"sıraya alındı"}
+{"runId":"run_01a03c5d-00cf-759a-91c0-b49da954832c","karar":"sira","konum":2,"at":"2026-08-27T21:16:53.890Z","not":"sıraya alındı"}
+{"runId":"run_01a03c5f-9c33-7ea7-b6ac-dee6c9bb6fea","karar":"sira","konum":3,"at":"2026-08-27T21:16:55.782Z","not":"sıraya alındı"}
+{"runId":"run_01a03c64-7b1e-7cb2-b4b8-c9e393e10d73","karar":"sira","konum":4,"at":"2026-08-27T21:16:58.052Z","not":"sıraya alındı"}
+{"runId":"run_01a03c69-d972-74e3-b4aa-92c9d227a95c","karar":"sira","konum":5,"at":"2026-08-27T21:16:59.492Z","not":"sıraya alındı"}
+{"runId":"run_01a03c6c-22d9-7a65-bf8f-0eae38874756","karar":"sira","konum":6,"at":"2026-08-27T21:17:01.517Z","not":"sıraya alındı"}
+{"runId":"run_01a03c6d-221e-733c-aa3e-c444d5855049","karar":"sira","konum":7,"at":"2026-08-27T21:17:03.207Z","not":"sıraya alındı"}
+{"runId":"run_01a03db4-b406-7972-998d-9b7279a793cb","karar":"sira","konum":8,"at":"2026-08-27T21:17:04.875Z","not":"sıraya alındı"}
+{"runId":"run_01a03e7d-5855-7c19-b0a9-d367ea0d2e57","karar":"sira","konum":9,"at":"2026-08-27T21:17:06.315Z","not":"sıraya alındı"}
+{"runId":"run_01a03e9e-7d62-7560-b44d-0cb7225e2883","karar":"sira","konum":10,"at":"2026-08-27T21:17:08.061Z","not":"sıraya alındı"}
+{"runId":"run_01a043e7-2f28-76df-83c8-1aabb0a002c3","karar":"sira","konum":11,"at":"2026-08-27T21:17:09.466Z","not":"sıraya alındı"}
+{"runId":"run_01a04407-32f9-7169-85e9-daec5f70ff70","karar":"sira","konum":-2,"at":"2026-08-27T21:17:37.909Z","not":"elle taşındı: 3 → 1"}
