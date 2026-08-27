@@ -274,7 +274,16 @@ export const GonderiKutusu = ({
       body: JSON.stringify({ runId, karar: k, ...ek }),
     })
     const j = (await r.json()) as { ok?: boolean; hata?: string }
-    setMesaj(j.ok === true ? `✓ ${k}` : `✗ ${j.hata ?? 'yazılamadı'}`)
+    // ⚠ ⚠ **HAM OLAY ADI EKRANA YAZILMAZ.** *"✓ geri-al"* diye bir cümle yok; insan
+    // *"otomatiğe bırak"*a bastı ve karşılığında defterin iç adını gördü. Olay adı VERİ,
+    // ekrandaki cümle SUNUM — ve sunum insanın bastığı düğmenin dilinde olmalı.
+    const soylenen: Record<string, string> = {
+      planla: 'bu tarihe planlandı',
+      cikar: 'takvimden çıkarıldı',
+      'elle-yayinlandi': 'elle yayınlandı olarak işaretlendi',
+      'geri-al': 'otomatiğe bırakıldı',
+    }
+    setMesaj(j.ok === true ? `✓ ${soylenen[k] ?? k}` : `✗ ${j.hata ?? 'yazılamadı'}`)
     await gecmisiCek()
     await sonra?.()
   }
@@ -394,14 +403,31 @@ export const GonderiKutusu = ({
           {gecmis.map((o, i) => (
             <li key={`${o.at}-${String(i)}`}>
               <span className="olcum">{o.at.slice(0, 16).replace('T', ' ')}</span>
-              <strong>{o.karar}</strong>
+              {/* ⚠ Defterin iç adı yerine insan cümlesi: `geri-al` bir kayıt türü,
+                  "otomatiğe bırakıldı" ise olan şey. */}
+              <strong>
+                {o.karar === 'geri-al'
+                  ? 'otomatiğe bırakıldı'
+                  : o.karar === 'elle-yayinlandi'
+                    ? 'elle yayınlandı'
+                    : o.karar === 'cikar'
+                      ? 'takvimden çıkarıldı'
+                      : o.karar === 'senkron'
+                        ? 'hedefe gönderildi'
+                        : 'planlandı'}
+              </strong>
               <span className="olcum">{o.tarih}</span>
               <span className="olcum">
                 {(o.platformlar ?? [])
                   .map((id) => PLATFORMLAR.find((p) => p.id === id)?.kisa ?? id)
                   .join(' ')}
               </span>
-              <span>{o.not}</span>
+              {/* ⚠ ⚠ **KLASÖR YOLU KISALTILIYOR.** Tam yol satırı iki katına çıkarıyordu
+                  ve defterin okunmasını zorlaştırıyordu; aranan bilgi *"gitti mi"*, yolun
+                  tamamı değil. Tamamı `title`da. */}
+              <span className="giris-konu" title={o.not}>
+                {o.not.length > 90 ? `${o.not.slice(0, 88)}…` : o.not}
+              </span>
             </li>
           ))}
         </ul>
