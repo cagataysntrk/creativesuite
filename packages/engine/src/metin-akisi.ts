@@ -145,8 +145,23 @@ const HEDEF_SATIR = 6
 const RITIM: Readonly<Record<string, string>> = {
   'veri-hikayesi': 'yıl yıl sayısal seyir (her satırda rakam)',
   'akan-alan': 'numaralı adım ritmi (1. 2. 3. …)',
-  memphis: 'soru ritmi (satırların çoğu soruyla biter)',
+  memphis: 'soru ritmi (soru sorulur ve CEVAPLANIR)',
   sahne: 'düz anlatı (rakamsız, hikâye)',
+  // ⚠ ⚠ **TABLO DÖRTTE KALMIŞTI ve bu ÜRETİMİ İKİ KEZ YAZDIRIYORDU.** Rotasyon
+  // yalnız dört şablonu tanıdığı için, kalan altısı ancak METİN YAZILDIKTAN SONRA
+  // şekle bakılarak seçilebiliyordu — yani her koşuda bir şekil sondası. Depo sahibi
+  // israfı gördü: *"metin boşa gidiyor."* Ölçüm doğruladı: ilk metnin uyarlamaya
+  // aynen geçen satır sayısı dört koşuda 0 · 1 · 0 · 1.
+  //
+  // ⚠ Şekiller UYDURULMADI, kataloğun kendi taslaklarından OKUNDU: her şablonun
+  // örnek kartları o şablonun metninin nasıl aktığını zaten gösteriyor. Şablon
+  // TASARIMINA dokunulmadı — burada yazılan, tasarımın metne dair ilan ettiği şey.
+  donen: 'dört dönüşlü seri (aynı düzen, her kart bir varyasyon)',
+  editoryal: 'sessiz editoryal akış (üst başlıksız, tek bakış)',
+  kavis: 'tekrar ve sapma (aynı hareket, ölçülen fark)',
+  alinti: 'söz ve karşı söz (alıntı · itiraz · soru)',
+  karsilastirma: 'önce/sonra (durum · değişim · sonuç)',
+  dizin: 'numaralı adım listesi (ADIM 01…04, her kart bir madde)',
 }
 
 /**
@@ -184,6 +199,34 @@ const BICIM: Readonly<Record<string, readonly string[]>> = {
     '- Sorular retorik değil, okurun kendine soracağı türden olacak.',
   ],
   sahne: ['- Rakam ve numara KULLANMA; satırlar bir hikâyenin evreleri olacak.'],
+  // ⚠ Aşağıdaki altı kural da kataloğun taslaklarından okundu; her biri o şablonun
+  // metninin SAYILABİLİR şeklini söylüyor — bir üslup tarifi değil.
+  donen: [
+    '- Her satır AYNI şeyin başka bir hâlini anlatacak: aynı düzen, değişen bir öge.',
+    '- Son satır diziyi KAPATACAK: "işte bu yüzden" demeden, sonucu söyleyerek.',
+  ],
+  editoryal: [
+    '- Üst başlık YOK; her satır kendi başına duran bir cümle olacak.',
+    '- Rakam ve numara kullanma; ton sakin, iddia net.',
+  ],
+  kavis: [
+    '- İlk satır bir TEKRARI, ortadakiler ölçüyü ve SAPMAYI, son satır sürekliliği',
+    '  anlatacak.',
+    '- Rakam kullanma; fark niteliksel anlatılacak.',
+  ],
+  alinti: [
+    '- 1. satır bir SÖZ olacak (tırnaksız, kısa ve kesin).',
+    '- 2. satır o sözün SINIRINI söyleyecek: doğru ama eksik kalan yanı.',
+    '- 3. satır bir SORU olacak ve okuru karar vermeye çağıracak.',
+  ],
+  karsilastirma: [
+    '- 1. satır ÖNCEKİ durumu, son satır SONRAKİ durumu anlatacak.',
+    '- Aradaki satırlar neyin değiştiğini söyleyecek — sırayla, atlamadan.',
+  ],
+  dizin: [
+    '- 2. satırdan itibaren her satır bir ADIM olacak; adımlar sırayla ilerleyecek.',
+    '- Her adım tek bir iş anlatacak: "önce şunu yap" diyebilecek kadar somut.',
+  ],
 }
 
 /**
@@ -230,6 +273,42 @@ export const kaynaktaSayiVar = (kayitlar: readonly PromptKaydi[]): boolean => {
   return sayilar.size >= EN_AZ_SAYI
 }
 
+/**
+ * ROTASYONUN sıradaki şablonu — **metin yazılmadan ÖNCE bilinebilir.**
+ *
+ * ⚠ ⚠ **BU FONKSİYON BİR MİMARİ KARARIN TAŞIYICISI.** Depo sahibi israfı gördü:
+ * *"üretim başlatınca bir metin üretiyor ama bunu şablon seçmeden yaptığı için, sonra
+ * şablon seçince farklı bi metinle o şablonu doldurmak zorunda kalıyor."* Ölçüm
+ * doğruladı: ilk metnin uyarlamaya AYNEN geçen satır sayısı dört koşuda 0 · 1 · 0 · 1.
+ *
+ * ⚠ ⚠ **ROTASYON ZATEN METİNDEN ÖNCE KARAR VERİYORDU — kimse sonucu KULLANMIYORDU.**
+ * `ritimTalimati` modele *"bu sefer şu şekilde yaz"* diyor, model yazıyor, sonra
+ * `sablonSec` yazılanın ŞEKLİNE bakıp *"demek ki şu şablon"* diyor. Yani cevap baştan
+ * belliydi ve bir model çağrısı onu yeniden keşfetmeye harcanıyordu.
+ *
+ * ⚠ Rotasyon artık kataloğun ONUNU birden tanıyor (`RITIM`); dörtte kaldığı sürece
+ * şekil sondası gerçekten gerekliydi, çünkü kalan altı şablon başka türlü seçilemezdi.
+ *
+ * ⚠ `null` = rotasyon bir hedef bulamadı (hepsi yakın geçmişte kullanılmış ya da
+ * kaynakta sayı yok ve yalnız sayı isteyen ritimler kalmış). O hâlde ESKİ yol geçerli:
+ * metin serbest yazılır, şekle bakılıp seçilir. Kaçış kapısı kapatılmadı.
+ */
+export const rotasyonHedefi = (
+  sonSablonlar: readonly string[],
+  sayiVar: boolean
+): string | null => {
+  // ⚠ ⚠ **İLK KOŞU SERBEST ve bu KASITLI — beş test bunu koruyordu.** Geçmiş yokken
+  // rotasyonun döndüreceği bir "sıradaki" yok; ilk sırayı hedef saymak, ilk karoseli
+  // her zaman aynı şablona mahkûm ederdi. Geçmiş yoksa ESKİ yol geçerli: metin serbest
+  // yazılır, şekle bakılıp seçilir. Bir tur israf, kalıcı bir tekdüzelikten ucuz.
+  if (sonSablonlar.length === 0) return null
+  return (
+    Object.keys(RITIM).find(
+      (id) => !sonSablonlar.includes(id) && (sayiVar || !SAYI_ISTEYEN.has(id))
+    ) ?? null
+  )
+}
+
 const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): readonly string[] => {
   const kullanilan = sonSablonlar.map((s) => RITIM[s]).filter((r): r is string => r !== undefined)
   if (kullanilan.length === 0) return []
@@ -248,10 +327,8 @@ const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): reado
   // Kaynakta sayı yoksa sayısal ritim ELENİR — sırayla bir sonraki aday alınır.
   // Elenmesi gereken şey talimat değil HEDEF: "sayı iste ama zorlama" demek,
   // ölçülemeyen bir kurala geri dönmek olurdu.
-  const hedefId = Object.keys(RITIM).find(
-    (id) => !sonSablonlar.includes(id) && (sayiVar || !SAYI_ISTEYEN.has(id))
-  )
-  if (hedefId === undefined) return []
+  const hedefId = rotasyonHedefi(sonSablonlar, sayiVar)
+  if (hedefId === null) return []
   const bicim = BICIM[hedefId] ?? []
   return [
     '',
@@ -269,10 +346,29 @@ const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): reado
  * ⚠ Tabloda olmayan şablonlar (dizin, karsilastirma, alinti…) için boş: uydurulmuş
  * bir biçim kuralı, modele o şablonun taşımadığı bir şekli dayatırdı.
  */
-const sablonBicimi = (sablonId: string): readonly string[] => {
+const sablonBicimi = (
+  sablonId: string,
+  sonSablonlar: readonly string[] = []
+): readonly string[] => {
   const b = BICIM[sablonId]
   if (b === undefined) return []
-  return ['', `BİÇİM KURALI — bu metin ${sablonId} şablonu için yazılıyor:`, ...b]
+  // ⚠ ⚠ **RİTMİN ADI DA BASILIYOR — ve bunu bir test korudu.** Yalnız mekanik kuralları
+  // yazmak, modelin *"ne tür bir metin bu"* sorusuna cevapsız kalması demekti; rotasyon
+  // anlatısı (`BU SEFER: düz anlatı`) o cevabı veriyordu ve şablon adına geçerken
+  // kaybolmuştu. İkisi birlikte: ne tür ve hangi sayılabilir kurallarla.
+  // ⚠ ⚠ **SON KOŞULARIN RİTMİ DE YAZILI — ve bunu bir test korudu.** *"Bu sefer şunu
+  // yaz"* demek yetmiyor; modelin NEDEN başka bir şey istendiğini görmesi, aynı şekle
+  // geri dönme eğilimini kırıyor (D-309: iki üslup denemesi de bu yüzden tutmadı).
+  const kullanilan = sonSablonlar.map((x) => RITIM[x]).filter((r): r is string => r !== undefined)
+  return [
+    '',
+    `BİÇİM KURALI — bu metin ${sablonId} şablonu için yazılıyor.`,
+    ...(kullanilan.length === 0 ? [] : [`Son karoseller ${kullanilan.join(', ')} biçimindeydi.`]),
+    `BU SEFER: ${RITIM[sablonId] ?? ''}`,
+    ...b,
+    'Bu bir üslup tercihi değil, sayılabilir bir kural: metnin şekli kompozisyona',
+    'oturmak zorunda ve aynı şekil her seferinde aynı tasarımı dolduruyor.',
+  ]
 }
 
 export const icerikPromptu = (g: PromptGirdisi): string | null => {
@@ -333,7 +429,7 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // biçimini istemek gerekiyor. İkisini birden söylemek modele çelişki vermekti.
     ...(g.sablonId === undefined
       ? ritimTalimati(g.sonSablonlar ?? [], kaynaktaSayiVar(g.kayitlar))
-      : sablonBicimi(g.sablonId)),
+      : sablonBicimi(g.sablonId, g.sonSablonlar ?? [])),
     '- Satırları numaralama, madde işareti koyma.',
     // ⚠ **VURGU — karoselin en büyük tipografik eksiği** (FAZ-12.1). Bugüne kadar her
     // satır aynı ağırlıkta okunuyordu; referanslarda bir ifade her zaman öne çıkar.

@@ -114,8 +114,21 @@ if (sozVarsIdler.join(',') !== panelVarsIdler.join(',')) {
 // etmesini yasaklıyor, o yüzden saat de iki yerde yazılı. Platform varsayılanı bir kez
 // ayrıştı ve takvim kutucuğu aylarca yanlış gösterdi; saat için aynı bedeli ödemeye
 // gerek yok — kapı ikisini karşılaştırıyor.
-const sozSaat = /export const VARSAYILAN_YAYIN_SAATI = '([^']+)'/.exec(sozlesme)?.[1]
-const panelSaat = /export const VARSAYILAN_YAYIN_SAATI = '([^']+)'/.exec(panelKutusu)?.[1]
+const saatOku = (metin, ad) => new RegExp(`export const ${ad} = '([^']+)'`).exec(metin)?.[1]
+const sozSaat = saatOku(sozlesme, 'VARSAYILAN_YAYIN_SAATI')
+const panelSaat = saatOku(panelKutusu, 'VARSAYILAN_YAYIN_SAATI')
+// ⚠ BUGÜNÜN saati de iki yerde: aynı sınıftan dördüncü kopya, aynı kapı.
+const sozBugun = saatOku(sozlesme, 'BUGUN_YAYIN_SAATI')
+const panelBugun = saatOku(panelKutusu, 'BUGUN_YAYIN_SAATI')
+if (sozBugun !== panelBugun) {
+  console.error(
+    '✗ BUGÜNÜN VARSAYILAN SAATİ AYRIŞMIŞ:\n    sözleşme: ' +
+      String(sozBugun) +
+      '\n    panel   : ' +
+      String(panelBugun)
+  )
+  process.exit(1)
+}
 if (sozSaat === undefined || panelSaat === undefined) {
   console.error(
     '✗ `VARSAYILAN_YAYIN_SAATI` bulunamadı — ' +
@@ -141,5 +154,8 @@ console.log(
     ' · sözleşme ile panel aynı · varsayılan ' +
     sozVarsIdler.join('+') +
     ' · saat ' +
-    sozSaat
+    sozSaat +
+    ' (bugün ' +
+    String(sozBugun) +
+    ')'
 )

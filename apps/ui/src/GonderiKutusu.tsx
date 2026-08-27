@@ -49,7 +49,15 @@ export const VARSAYILAN_PLATFORMLAR: readonly string[] = ['instagram', 'linkedin
  * ⚠ **Bu bir ÖLÇÜM DEĞİL, bir sözleşme.** Gerekçesi `packages/contracts/src/platform.ts`
  * içinde: ölçüm biriktiğinde `yayinSaatiOner` onu devralacak.
  */
-export const VARSAYILAN_YAYIN_SAATI = '10:00'
+export const VARSAYILAN_YAYIN_SAATI = '20:00'
+
+/**
+ * BUGÜNE planlanan gönderinin saati — depo sahibinin kararı.
+ *
+ * ⚠ Bugüne planlananda 20:00 çoktan geçmiş ya da hazırlanmaya vakit bırakmayacak kadar
+ * yakın olabiliyor; bir saatlik fark planı bugün de uygulanabilir kılıyor.
+ */
+export const BUGUN_YAYIN_SAATI = '21:00'
 
 export type TakvimKarari = 'planla' | 'cikar' | 'elle-yayinlandi' | 'geri-al'
 
@@ -113,7 +121,8 @@ export const GonderiKutusu = ({
    * yayıncıya *"o gün bir ara"* demektir ve Metricool'a zamanlama gönderirken saat
    * ZORUNLU.
    */
-  const [saat, setSaat] = useState(VARSAYILAN_YAYIN_SAATI)
+  const [saat, setSaat] = useState(BUGUN_YAYIN_SAATI)
+  const [saatEldeSecildi, setSaatEldeSecildi] = useState(false)
   /**
    * ⚠ ⚠ **VARSAYILAN IG + LINKEDIN — dördü değil, ve bu bir DARALTMA kararıydı.** Depo
    * sahibi önce *"her gönderi için yayın 4 platformda da standart"* dedi, sonra hesaplar
@@ -278,6 +287,20 @@ export const GonderiKutusu = ({
   const metinli = metinliPlatformlar ?? kendiMetinler ?? undefined
 
   /**
+   * Tarih değişince saat KENDİLİĞİNDEN düzeliyor — ama insan dokunmadıysa.
+   *
+   * ⚠ ⚠ **BUGÜN 21:00, ÖTEKİ GÜNLER 20:00** (depo sahibinin kararı). Tarihi yarına
+   * alıp saati 21:00'de bırakmak, kullanıcının hiç seçmediği bir saati seçilmiş gibi
+   * göstermekti.
+   * ⚠ İnsan saati ELLE seçtiyse dokunulmuyor: verdiği kararı sessizce iptal etmek,
+   * platform seçiminde bir kez yapılan hatanın aynısı olurdu.
+   */
+  useEffect(() => {
+    if (saatEldeSecildi) return
+    setSaat(tarih === bugun() ? BUGUN_YAYIN_SAATI : VARSAYILAN_YAYIN_SAATI)
+  }, [tarih, saatEldeSecildi])
+
+  /**
    * Metin durumu öğrenilince seçim KENDİLİĞİNDEN düzeliyor — ama insan dokunmadıysa.
    *
    * ⚠ ⚠ **İNSANIN SEÇİMİNİ EZMEK YASAK.** İnsan bilerek metinsiz bir platformu
@@ -379,13 +402,19 @@ export const GonderiKutusu = ({
           <input
             type="time"
             value={saat}
-            onChange={(e) =>
+            onChange={(e) => {
+              // ⚠ İnsan saati ELLE seçtiyse tarih değişince ÜSTÜNE YAZILMIYOR: verdiği
+              // kararı sessizce iptal etmek, platform seçiminde bir kez yapılan hatanın
+              // aynısı olurdu.
+              setSaatEldeSecildi(true)
               setSaat(e.target.value === '' ? VARSAYILAN_YAYIN_SAATI : e.target.value)
-            }
+            }}
           />
         </label>
         <span className="olcum">
-          {saat === VARSAYILAN_YAYIN_SAATI ? 'varsayılan saat — ölçüm yok' : 'elle seçildi'}
+          {saatEldeSecildi
+            ? 'elle seçildi'
+            : `varsayılan saat${tarih === bugun() ? ' (bugün)' : ''} — ölçüm yok`}
         </span>
         {/* ⚠ ⚠ **METNİ OLMAYAN PLATFORM İŞARETLENEBİLİR ama UYARIYLA.** Kapatmak
             (`disabled`) yanlış olurdu: insan önce planlayıp sonra metni üretmek

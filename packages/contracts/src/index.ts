@@ -134,6 +134,8 @@ export {
   PLATFORMLAR,
   VARSAYILAN_PLATFORMLAR,
   VARSAYILAN_YAYIN_SAATI,
+  BUGUN_YAYIN_SAATI,
+  varsayilanYayinSaati,
   yayinSaatiGecerli,
   kusurEngelliyorMu,
   platformBul,

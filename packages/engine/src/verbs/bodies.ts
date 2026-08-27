@@ -65,6 +65,8 @@ import {
   duzMetin,
   gorselBriefPromptu,
   icerikPromptu,
+  kaynaktaSayiVar,
+  rotasyonHedefi,
   metneCevir,
   istemSizintisi,
   type PromptKaydi,
@@ -2028,9 +2030,20 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     // SIFIR — ilk üretim pratikte bir ŞEKİL SONDASI ve tam bir model çağrısına mal
     // oluyor. `sablon` kısıtı zaten HER adımın kısıtlarına giriyor (`run.ts` çalıştırma
     // parametrelerini birleştiriyor); eksik olan onu OKUMAKTI.
-    ...(typeof input.constraints['sablon'] === 'string' && input.constraints['sablon'] !== ''
-      ? { sablonId: input.constraints['sablon'] }
-      : {}),
+    // ⚠ ⚠ **ŞABLON METİNDEN ÖNCE BELLİ — açıkça verilmediyse ROTASYONDAN.** Rotasyon
+    // zaten metin yazılmadan önce *"bu sefer şu şekilde yaz"* diyordu; sonra
+    // `sablonSec` yazılanın şekline bakıp aynı cevabı yeniden keşfediyordu. Bir model
+    // çağrısı, baştan bilinen bir cevabı bulmaya harcanıyordu.
+    // ⚠ Rotasyon hedef bulamazsa (`null`) ESKİ yol geçerli: metin serbest yazılır,
+    // şekle bakılıp seçilir. Kaçış kapısı kapatılmadı.
+    ...(() => {
+      const acik = input.constraints['sablon']
+      if (typeof acik === 'string' && acik !== '') return { sablonId: acik }
+      const gecmis = input.constraints['son_kullanilan']
+      const son = typeof gecmis === 'string' && gecmis !== '' ? gecmis.split(',') : []
+      const hedef = rotasyonHedefi(son, kaynaktaSayiVar(kayitlar))
+      return hedef === null ? {} : { sablonId: hedef }
+    })(),
     ...(typeof input.constraints['locale'] === 'string'
       ? { locale: input.constraints['locale'] }
       : {}),
@@ -2245,11 +2258,51 @@ export const sablonSecimiIcin = (
   const gecmisMetni = input.constraints['son_kullanilan']
   const sonKullanilan =
     typeof gecmisMetni === 'string' && gecmisMetni !== '' ? gecmisMetni.split(',') : []
-  const secim = sablonSec(satirlar, {
+  const kosullar = {
     gorselUretilebilir: input.constraints['gorsel_uretilebilir'] !== false,
-    ...(istenen === undefined ? {} : { istenen }),
     ...(sonKullanilan.length === 0 ? {} : { sonKullanilan }),
+  }
+  // ⚠ ⚠ **METİN HANGİ ŞABLON İÇİN YAZILDIYSA O DENENİYOR — ve ikisi AYNI fonksiyondan
+  // türüyor.** `metin-uret` rotasyon hedefini `rotasyonHedefi()` ile buluyor ve metni
+  // ona göre yazıyor; burada aynı çağrı aynı cevabı veriyor. İki taraf ayrı ayrı karar
+  // verseydi, metin bir şablon için yazılıp başka bir şablona giydirilirdi — düzeltmeye
+  // çalıştığımız israfın ta kendisi.
+  const rotasyon =
+    istenen === undefined
+      ? rotasyonHedefi(sonKullanilan, kaynaktaSayiVar(kayitlariTopla(input.inputs)))
+      : null
+  // ⚠ ⚠ **ROTASYON HEDEFİ BİR DAYATMA DEĞİL, BİR ÖNCELİK.** Metin o şekle uymadıysa
+  // (model tutturamadı) hedef NEGATİF puan alıyor ve ŞEKLE BAKAN eski seçim devreye
+  // giriyor. Dayatsaydık, uymayan bir metni uymayan bir kompozisyona giydirirdik;
+  // hiç denemeseydik israf geri gelirdi.
+  const dogal = sablonSec(satirlar, {
+    ...kosullar,
+    ...(istenen === undefined ? {} : { istenen }),
   })
+  // ⚠ ⚠ **ROTASYON `istenen` DEĞİL — ve bu ayrımı bir test korudu.** `istenen` *"hat
+  // AÇIKÇA istedi"* demek ve seçim gerekçesini o cümleyle değiştiriyor; rotasyon ise
+  // bir SIRA. `istenen` diye geçirince gerekçeden *"son koşularda kullanılan X elendi"*
+  // anlatısı düşüyordu — yani NEDEN bu şablon sorusunun cevabı kayboluyordu.
+  // Bunun yerine doğal seçim koşuyor ve rotasyon hedefi YALNIZ puanı olumluysa öne
+  // alınıyor.
+  const rotasyonPuani = rotasyon === null ? undefined : dogal.puanlar.find((p) => p.id === rotasyon)
+  const rotasyonSecim =
+    rotasyon !== null && rotasyonPuani !== undefined && rotasyonPuani.puan > 0
+      ? sablonSec(satirlar, { ...kosullar, istenen: rotasyon })
+      : null
+  // ⚠ ⚠ **GEREKÇE ROTASYONU DA ELEMEYİ DE SÖYLÜYOR.** `sablonSec`, `istenen` verilince
+  // gerekçeyi *"hat açıkça istedi"* diye yazıyor — ama rotasyon hat DEĞİL, bir sıra ve
+  // o cümle *"son koşularda kullanılan X elendi"* anlatısını yutuyordu. Gerekçe iki
+  // soruya birden cevap vermek zorunda: neden BU şablon, ve neden ÖTEKİLER değil.
+  const secim =
+    rotasyonSecim !== null && rotasyonSecim.ok
+      ? {
+          ...rotasyonSecim,
+          neden: `rotasyon sırası: ${String(rotasyon)} (${rotasyonPuani?.neden ?? ''})${
+            dogal.ok ? ` · şekle bakan seçim: ${dogal.neden}` : ''
+          }`,
+        }
+      : dogal
   if (!secim.ok)
     return {
       ok: false,

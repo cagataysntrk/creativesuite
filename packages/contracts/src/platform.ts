@@ -199,11 +199,30 @@ export const kusurEngelliyorMu = (k: PlatformKusuru): boolean =>
  * (D-23). Çözüm ikisini AYIRMAK: ölçüm varsa öneri kazanır, yoksa bu sözleşme
  * kullanılır ve *"varsayılan"* diye adlandırılır.
  *
- * ⚠ Saat 10:00 seçildi çünkü bir seçim yapmak gerekiyordu ve iş saatinin başı,
- * yayının o gün içinde düzeltilebileceği tek dilim. **Bu sayı ÖLÇÜLMEDİ** ve ilk beş
- * yayının etkileşimi ölçüldüğünde `yayinSaatiOner` onu devralacak.
+ * ⚠ Saat 20:00 — depo sahibinin kararı. **Bu sayı ÖLÇÜLMEDİ** ve ilk beş yayının
+ * etkileşimi ölçüldüğünde `yayinSaatiOner` onu devralacak.
  */
-export const VARSAYILAN_YAYIN_SAATI = '10:00'
+export const VARSAYILAN_YAYIN_SAATI = '20:00'
+
+/**
+ * BUGÜNE planlanan gönderinin saati — depo sahibinin kararı: *"sadece bugünki 21.00
+ * olsun."*
+ *
+ * ⚠ ⚠ **BUGÜN ÖTEKİ GÜNLERDEN FARKLI ve sebebi mekanik.** Yarına planlanan bir gönderi
+ * için 20:00 daha uzakta; bugüne planlananda o saat çoktan geçmiş ya da hazırlanmaya
+ * vakit bırakmayacak kadar yakın olabiliyor. Bir saatlik fark, planı bugün de
+ * uygulanabilir kılıyor.
+ */
+export const BUGUN_YAYIN_SAATI = '21:00'
+
+/**
+ * Bir tarihe düşen VARSAYILAN saat.
+ *
+ * ⚠ Bugün ÇAĞIRANDAN geliyor (R-06): sözleşme kendi saatini sorsaydı aynı defter iki
+ * makinede iki farklı saat yazardı ve plan yeniden oynatılamazdı.
+ */
+export const varsayilanYayinSaati = (tarih: string, bugun: string): string =>
+  tarih === bugun ? BUGUN_YAYIN_SAATI : VARSAYILAN_YAYIN_SAATI
 
 /** `HH:MM` biçimi — deftere geçersiz bir saat girmesin. */
 export const yayinSaatiGecerli = (v: string): boolean => /^([01]\d|2[0-3]):[0-5]\d$/.test(v)

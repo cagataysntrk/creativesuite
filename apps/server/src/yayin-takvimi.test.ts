@@ -124,7 +124,16 @@ describe('yayın takvimi defteri', () => {
     // saati olmayan bir plan, yayıncıya "o gün bir ara" demektir.
     const r = kok()
     takvimeYaz(r, { runId: R1, karar: 'planla', tarih: '2026-09-12', simdi: AN })
-    expect(gecerliKararlar(r).get(R1)?.saat).toBe('10:00')
+    expect(gecerliKararlar(r).get(R1)?.saat).toBe('20:00')
+  })
+
+  it('BUGÜNE planlanan gönderi 21:00 — depo sahibinin kararı', () => {
+    // ⚠ Bugüne planlananda 20:00 çoktan geçmiş ya da hazırlanmaya vakit bırakmayacak
+    // kadar yakın olabiliyor. Bugün ÇAĞIRANDAN geliyor (R-06): defter yeniden
+    // oynatılabilir kalsın.
+    const r = kok()
+    takvimeYaz(r, { runId: R1, karar: 'planla', tarih: AN.slice(0, 10), simdi: AN })
+    expect(gecerliKararlar(r).get(R1)?.saat).toBe('21:00')
   })
 
   it('verilen saat KORUNUYOR, geçersiz saat REDDEDİLİYOR', () => {

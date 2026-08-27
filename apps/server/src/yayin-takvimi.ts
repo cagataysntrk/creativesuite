@@ -20,7 +20,7 @@
 // ⚠ Zaman ÇAĞIRANDAN geliyor (R-06): sunucu `new Date()` çağırsaydı aynı istek iki
 // kez farklı kayıt üretirdi ve defter yeniden oynatılamazdı.
 
-import { VARSAYILAN_YAYIN_SAATI, yayinSaatiGecerli } from '@suite/contracts'
+import { varsayilanYayinSaati, yayinSaatiGecerli } from '@suite/contracts'
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
@@ -194,7 +194,9 @@ export const takvimeYaz = (
     runId: g.runId,
     karar: g.karar as TakvimKarari,
     tarih,
-    saat: saat === '' ? VARSAYILAN_YAYIN_SAATI : saat,
+    // ⚠ Varsayılan TARİHE bağlı: bugüne planlanan gönderi 21:00, ötekiler 20:00.
+    // Bugün ÇAĞIRANDAN (`g.simdi`) geliyor — defter yeniden oynatılabilir kalsın (R-06).
+    saat: saat === '' ? varsayilanYayinSaati(tarih, g.simdi.slice(0, 10)) : saat,
     platformlar: g.platformlar ?? [],
     at: g.simdi,
     not: g.not ?? '',

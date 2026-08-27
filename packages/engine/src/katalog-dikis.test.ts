@@ -433,8 +433,28 @@ describe('dikiş 2g: geçmiş ritim METİN istemine giriyor', () => {
     expect(p).toContain('yalnız MARKA BİLGİSİ içinde geçenlerden')
   })
 
-  it('içerikten seçilemeyen şablon ritim önermiyor', () => {
+  // ⚠ ⚠ **BU TESTİN ÖNCÜLÜ DEĞİŞTİ ve değişikliği bilerek yaptım.** Eskiden `donen` ve
+  // `editoryal` ritim tablosunda YOKTU; onlar kullanılmışsa rotasyonun söyleyeceği bir
+  // şey kalmıyordu ve talimat düşüyordu. Tablo artık kataloğun ONUNU birden tanıyor —
+  // rotasyonun dört şablonda kalması, kalan altısının ancak METİN YAZILDIKTAN SONRA
+  // seçilebilmesi demekti ve her koşuya bir şekil sondası mal oluyordu.
+  // Yeni değişmez: hedef, YAKIN GEÇMİŞTE KULLANILANLARDAN BİRİ OLAMAZ.
+  it('rotasyon yakın geçmişte kullanılanı TEKRAR ETMİYOR', () => {
     const p = kayitli({ topic: 'Tekstil atığı', son_kullanilan: 'donen,editoryal' })
+    expect(p).not.toBe('')
+    expect(p).toContain('BİÇİM KURALI')
+    const hedef = p.split('\n').find((x) => x.startsWith('BU SEFER:')) ?? ''
+    expect(hedef, 'hedef var').not.toBe('')
+    for (const kullanilan of ['dört dönüşlü seri', 'sessiz editoryal akış'])
+      expect(hedef, `tekrar YOK: ${kullanilan}`).not.toContain(kullanilan)
+  })
+
+  it('HEPSİ kullanılmışsa rotasyon susuyor — eski yol devreye giriyor', () => {
+    // ⚠ Kaçış kapısı kapatılmadı: rotasyon hedef bulamazsa metin serbest yazılır ve
+    // şekle bakılıp seçilir.
+    const hepsi =
+      'veri-hikayesi,akan-alan,memphis,sahne,donen,editoryal,kavis,alinti,karsilastirma,dizin'
+    const p = kayitli({ topic: 'Tekstil atığı', son_kullanilan: hepsi })
     expect(p).not.toBe('')
     expect(p).not.toContain('BİÇİM KURALI')
   })
