@@ -1720,16 +1720,16 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       const eksikler = VARSAYILAN_PLATFORMLAR.filter((x) => (mevcut[x] ?? '').trim() === '')
       if (eksikler.length === 0)
         return c.json({ ok: true, uretilen: [], not: 'eksik metin yok — hepsi yazılı' })
-      const uretilen: string[] = []
-      for (const id of eksikler) {
-        const r = await metinUret(['yayin-metni', '--run', runId, '--platform', id])
-        // ⚠ Bir platform düşerse ÖTEKİLER denenmeye devam ediyor ama sonuç GİZLENMİYOR:
-        // yarım kalan bir toplu iş, tamamlanmış sanılan bir toplu işten iyidir.
-        if (r.ok) uretilen.push(id)
-        else return c.json({ ok: false, hata: r.hata ?? 'üretilemedi', uretilen }, 400)
-      }
+      // ⚠ ⚠ **TEK ÇAĞRI, İKİ PLATFORM — ve bu bir ÖLÇÜMDEN geldi.** İlk sürüm platform
+      // başına bir kez çağırıyordu. Ölçüm: tek platform 11,8 sn ve bunun yalnız 0,5
+      // sn'si bizim tarafımız; `claude` CLI'sinin kendi tabanı 5,9 sn ve her çağrıda
+      // ~46 bin jetonluk oturum bağlamını yeniden yüklüyor. Yani maliyet ÇAĞRI BAŞINA
+      // sabit; iki platform için iki kez çağırmak o sabiti iki kez ödemekti.
+      // Depo sahibi sordu: *"metin üretimi neden bu kadar yavaş?"*
+      const r = await metinUret(['yayin-metni', '--run', runId, '--platform', eksikler.join(',')])
+      if (!r.ok) return c.json({ ok: false, hata: r.hata ?? 'üretilemedi', uretilen: [] }, 400)
       yayinla('degisim')
-      return c.json({ ok: true, uretilen })
+      return c.json({ ok: true, uretilen: eksikler })
     }
 
     const hepsi = g.hepsi === true

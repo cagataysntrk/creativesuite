@@ -80,7 +80,24 @@ const konu = (konuAdimi?.konu ?? par.topic ?? '').trim()
 const sablonAdimi = oku('steps/render.json') ?? oku('steps/yuva-doldur.json')
 const slaytSayisi = Array.isArray(sablonAdimi?.assets) ? sablonAdimi.assets.length : satirlar.length
 
-const secili = hepsi ? PLATFORMLAR.map((p) => p.id) : [platform]
+// ⚠ ⚠ **TEK ÇAĞRIDA BİRDEN ÇOK PLATFORM — ve sebebi ÖLÇÜLDÜ.** Depo sahibi: *"metin
+// üretimi neden bu kadar yavaş?"* Ölçüm: tek platform için tam komut 11,8 sn; bunun
+// 0,5 sn'si `tsc -b` + modül yüklemesi, GERİ KALANI `claude` CLI'si. CLI'nin kendi
+// tabanı (dört jetonluk bir cevap için) 5,9 sn ve her çağrıda ~46 bin jetonluk oturum
+// bağlamını yeniden yüklüyor (`cache_creation 21875` + `cache_read 24432` ölçüldü).
+//
+// Yani maliyet ÇAĞRI BAŞINA sabit. İki platform için iki kez çağırmak, o sabiti iki kez
+// ödemek demekti (~24 sn). İstem zaten `platformlar` listesi alıyor ve model ikisini
+// birden yazabiliyor — eksik olan yalnızca virgüllü argümandı.
+//
+// ⚠ `--hepsi` ile aynı şey DEĞİL: o dört platformu da yeniden yazıyor ve insanın elle
+// düzelttiği metni eziyor. Bu, İSTENEN alt kümeyi tek çağrıda üretiyor.
+const secili = hepsi
+  ? PLATFORMLAR.map((p) => p.id)
+  : String(platform)
+      .split(',')
+      .map((x) => x.trim())
+      .filter((x) => x !== '')
 const bilinmeyen = secili.filter((id) => !PLATFORMLAR.some((p) => p.id === id))
 if (bilinmeyen.length > 0) {
   console.log(`✗ bilinmeyen platform: ${bilinmeyen.join(', ')}`)
