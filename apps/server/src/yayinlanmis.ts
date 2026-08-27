@@ -41,6 +41,21 @@ export type YayinKaynagi =
   | 'elle'
   /** Hedef (Metricool…) gönderinin YAYINLANDIĞINI bildirdi. */
   | 'hedef'
+  /**
+   * Hedefte ZAMANLANDI ve tarihi GEÇTİ — yani yayınlanmış olmalı.
+   *
+   * ⚠ ⚠ **BU TEK ÇIKARIM, ÖTEKİ ÜÇÜ ÖLÇÜM — ve farkı gizlemiyoruz.** Metricool
+   * gönderiyi kabul ettiyse o gün yayınlar; makinenin açık olması gerekmiyor, çünkü
+   * gönderi artık bizde değil. Depo sahibi kararı verdi: *"metricool planlaması
+   * yapıldıysa o tarihi geldiğinde otomatik yayınlandı diyebilir çünkü yayınlanır,
+   * manuel düzeltiriz gerekirse."*
+   *
+   * ⚠ ⚠ **YEREL PAKET BUNA GİRMİYOR.** `yerel` hedefi bir klasör üretiyor ve o klasörü
+   * kimse yayınlamıyor. Tarihi geçmiş bir yerel paketi yayın saymak, indirilmiş bir
+   * dosyayı paylaşılmış sanmak — ve gerçekten yayınlanmamış bir gönderiyi yayına
+   * KAPATMAK olurdu.
+   */
+  | 'zamanlanmis'
 
 export interface YayinDurumu {
   readonly yayinlandi: boolean
@@ -71,13 +86,28 @@ const YAYINLANMADI: YayinDurumu = {
 const YAYIN_DURUMLARI: readonly string[] = ['yayinlandi', 'published']
 
 /**
+ * Hedefin gönderiyi ZAMANLADIĞI anlamına gelen durumlar.
+ *
+ * ⚠ `planlandi` burada YOK: yerel paket onu yazıyor ve o bir klasörden ibaret.
+ * ⚠ Beyaz liste: bilinmeyen bir durum adı zamanlama SAYILMIYOR — emin olmadığımız bir
+ * zamanlamadan çıkarılan bir yayın, iki kat tahmindir.
+ */
+const ZAMANLANDI: readonly string[] = ['esitlendi', 'gonderildi', 'scheduled']
+
+/**
  * Bir koşunun yayın durumu — üç defterin BİRLEŞİK cevabı.
  *
  * ⚠ Sıra önemli: hattın kendi defteri en güçlü kanıt (digest yazılı), sonra hedefin
  * bildirdiği durum, sonra insanın beyanı. Üçü de aynı soruyu cevaplıyor ama farklı
  * güçte: ilki bir OLGU, sonuncusu bir BEYAN.
  */
-export const yayinDurumu = (repoRoot: string, runId: string, k: Kutuphane): YayinDurumu => {
+export const yayinDurumu = (
+  repoRoot: string,
+  runId: string,
+  k: Kutuphane,
+  /** Bugünün tarihi `YYYY-MM-DD` — ÇAĞIRANDAN (R-06). Boşsa çıkarım yapılmıyor. */
+  bugun = ''
+): YayinDurumu => {
   // 1) Hattın defteri — digest düzeyinde.
   //
   // ⚠ ⚠ **EMEKLİ SÜRÜMLER DE SAYILIYOR ve bu KASITLI.** Bir karoselin eski sürümü
@@ -110,7 +140,24 @@ export const yayinDurumu = (repoRoot: string, runId: string, k: Kutuphane): Yayi
     }
   }
 
-  // 3) İnsanın beyanı.
+  // 3) Hedefte ZAMANLANDI ve tarihi geçti — ÇIKARIM (ölçüm değil, ve öyle deniyor).
+  if (s?.hedef !== undefined && ZAMANLANDI.includes(s.hedef.durum) && s.hedef.id !== 'yerel') {
+    const t = s.tarih.trim()
+    // ⚠ Bugün ÇAĞIRANDAN geliyor (R-06): sunucu kendi saatini sorsaydı aynı defter iki
+    // makinede iki farklı cevap verirdi ve *"yayınlandı mı"* yeniden oynatılamazdı.
+    // ⚠ `bugun` boşsa çıkarım YAPILMIYOR: tarihsiz bir karşılaştırma her şeyi geçmiş
+    // sayardı.
+    if (t !== '' && bugun !== '' && t <= bugun) {
+      return {
+        yayinlandi: true,
+        kaynak: 'zamanlanmis',
+        tarih: t,
+        aciklama: `${s.hedef.id} ${t} tarihine zamanlamıştı ve o tarih geçti — yayınlanmış sayılıyor`,
+      }
+    }
+  }
+
+  // 4) İnsanın beyanı.
   const karar = gecerliKararlar(repoRoot).get(runId)
   if (karar?.karar === 'elle-yayinlandi') {
     return {
@@ -138,16 +185,128 @@ export const yayinDurumu = (repoRoot: string, runId: string, k: Kutuphane): Yayi
 export const yayinlanmisMi = (
   repoRoot: string,
   runId: string,
-  k: Kutuphane
+  k: Kutuphane,
+  bugun = ''
 ): { readonly engelli: false } | { readonly engelli: true; readonly hata: string } => {
-  const d = yayinDurumu(repoRoot, runId, k)
+  const d = yayinDurumu(repoRoot, runId, k, bugun)
   if (!d.yayinlandi) return { engelli: false }
   return {
     engelli: true,
     hata:
       `bu gönderi ZATEN YAYINLANDI — ${d.aciklama}. ` +
-      (d.kaynak === 'elle'
-        ? 'Yanlış işaretlendiyse önce "otomatiğe bırak" ile kararı geri al.'
+      (d.kaynak === 'elle' || d.kaynak === 'zamanlanmis'
+        ? 'Yanlışsa "otomatiğe bırak" ile kararı geri al.'
         : 'Aynı karoseli ikinci kez yayınlamak geri alınamaz.'),
+  }
+}
+
+/** Bir gönderinin YAYIN AKIŞINDAKİ yeri — ekranda tek satırda okunacak hâli. */
+export type GonderiAsamasi =
+  /** Yayınlandı (ölçüldü ya da zamanlamadan çıkarıldı). */
+  | 'yayinlandi'
+  /** Bir hedefe iletildi ve hedef tutuyor — tarihi henüz gelmedi. */
+  | 'zamanlandi'
+  /** Takvimde bir tarihe planlı ama henüz hiçbir hedefe gitmedi. */
+  | 'planlandi'
+  /** İnsan takvimden çıkardı. */
+  | 'cikarildi'
+  /** Hiçbir karar yok — otomatik takvimde ya da hiç sırada değil. */
+  | 'planlanmadi'
+
+export interface GonderiDurumu {
+  readonly asama: GonderiAsamasi
+  /** İlgili tarih (`YYYY-MM-DD`) — bilinmiyorsa boş. */
+  readonly tarih: string
+  /** Hangi hedefe gitti (`yerel`, `metricool`…). Gitmediyse boş. */
+  readonly hedef: string
+  readonly platformlar: readonly string[]
+  /** Tek cümlelik, ekrana OLDUĞU GİBİ yazılabilir hâl. */
+  readonly etiket: string
+  readonly yayin: YayinDurumu
+}
+
+/**
+ * Gönderinin tam durumu — **koşu ekranı ile yayın ekranının paylaştığı tek cevap.**
+ *
+ * ⚠ ⚠ **İKİ EKRAN AYNI SORUYU AYRI AYRI CEVAPLIYORDU.** Yayın ekranı takvim defterini
+ * okuyup bölümlere ayırıyordu; koşu/varlık ekranı yayın durumunu HİÇ bilmiyordu ve
+ * onaylanmış bir tasarımın planlı mı, zamanlanmış mı, yayında mı olduğu orada
+ * görünmüyordu. Depo sahibi: *"planlanmış olanlar ve durumları çok net görünmeli
+ * varlıklarda. ve yayın ve varlıklar tam senkron olmalı."* Senkron bir kopyalama işi
+ * değil, TEK KAYNAK işidir.
+ *
+ * ⚠ Etiket burada kuruluyor, ekranda değil: iki ekranın aynı durumu iki farklı cümleyle
+ * yazması, aynı ayrışmanın kelime hâli olurdu.
+ */
+export const gonderiDurumu = (
+  repoRoot: string,
+  runId: string,
+  k: Kutuphane,
+  bugun = ''
+): GonderiDurumu => {
+  const y = yayinDurumu(repoRoot, runId, k, bugun)
+  const karar = gecerliKararlar(repoRoot).get(runId)
+  const s = sonSenkron(repoRoot).get(runId)
+  const platformlar = karar?.platformlar ?? []
+
+  if (y.yayinlandi) {
+    return {
+      asama: 'yayinlandi',
+      tarih: y.tarih,
+      hedef: s?.hedef?.id ?? '',
+      platformlar,
+      // ⚠ Çıkarım ile ölçüm ekranda da AYRI görünüyor: *"yayınlanmış sayılıyor"* ile
+      // *"yayınlandı"* aynı cümle değil ve insan hangisi olduğunu bilmeli.
+      etiket:
+        y.kaynak === 'zamanlanmis'
+          ? `✓ yayınlanmış sayılıyor · ${y.tarih}`
+          : `✓ yayınlandı${y.tarih === '' ? '' : ` · ${y.tarih}`}`,
+      yayin: y,
+    }
+  }
+
+  if (s?.hedef !== undefined && ZAMANLANDI.includes(s.hedef.durum) && s.hedef.id !== 'yerel') {
+    return {
+      asama: 'zamanlandi',
+      tarih: s.tarih,
+      hedef: s.hedef.id,
+      platformlar,
+      etiket: `⇄ ${s.hedef.id} planlaması tamamlandı · ${s.tarih || 'tarihsiz'}`,
+      yayin: y,
+    }
+  }
+
+  if (karar?.karar === 'cikar')
+    return {
+      asama: 'cikarildi',
+      tarih: '',
+      hedef: '',
+      platformlar,
+      etiket: '⌫ takvimden çıkarıldı',
+      yayin: y,
+    }
+
+  if (karar?.karar === 'planla')
+    return {
+      asama: 'planlandi',
+      tarih: karar.tarih,
+      hedef: s?.hedef?.id ?? '',
+      platformlar,
+      // ⚠ Yerel paket ÇIKARILDIYSA bu da söyleniyor: *"planlandı"* ile *"paketi hazır"*
+      // ayrı iki iş ve ikisini birden bilmek insanın sıradaki adımını belirliyor.
+      etiket:
+        s?.hedef?.id === 'yerel'
+          ? `◔ planlandı · ${karar.tarih} · yerel paket hazır`
+          : `◔ planlandı · ${karar.tarih}`,
+      yayin: y,
+    }
+
+  return {
+    asama: 'planlanmadi',
+    tarih: '',
+    hedef: '',
+    platformlar,
+    etiket: '— planlanmadı',
+    yayin: y,
   }
 }

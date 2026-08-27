@@ -52,6 +52,25 @@ export interface TakvimOlayi {
   /** ISO zaman damgası — çağıran verir (R-06). */
   readonly at: string
   readonly not: string
+  /**
+   * `senkron` kaydının YAPISAL hâli — hedef ne dedi.
+   *
+   * ⚠ ⚠ **BU ALAN BİR AYRIŞTIRICIYI ÖLDÜRMEK İÇİN EKLENDİ.** Durum önce `not`
+   * dizesinin içine gömülüyordu (`metricool:esitlendi:post_991 — …`) ve okuyan taraf
+   * onu `split(':')` ile çözüyordu. Bir gün biri nota iki nokta üst üste yazsa okuma
+   * sessizce yanlış cevap verirdi — ve o cevap *"bu gönderi yayınlandı mı"* sorusunun
+   * cevabıydı. Ayrıştırılan bir alan, alan değildir.
+   *
+   * ⚠ Eski kayıtlarda YOK ve öyle kalacak (defter ekli): okuyucu `undefined`ı
+   * "hedef tutmuyor" sayıyor — bilinmeyeni yayın saymak, bu deponun kaçındığı şey.
+   */
+  readonly hedef?: {
+    readonly id: string
+    readonly durum: string
+    readonly disKimlik: string
+    /** Gönderiyi platformun KENDİSİ mi tutuyor (yalnız Facebook `true` olabilir). */
+    readonly platformTutuyor: boolean
+  }
 }
 
 const YOL = 'derived/yayin-takvimi.ndjson'
@@ -139,6 +158,8 @@ export const takvimeYaz = (
     readonly tarih?: string
     readonly platformlar?: readonly string[]
     readonly not?: string
+    /** `senkron` kaydının yapısal hâli — ayrıştırma yerine ALAN. */
+    readonly hedef?: TakvimOlayi['hedef']
     /** ISO zaman — çağıran verir (R-06). */
     readonly simdi: string
   }
@@ -157,6 +178,7 @@ export const takvimeYaz = (
     platformlar: g.platformlar ?? [],
     at: g.simdi,
     not: g.not ?? '',
+    ...(g.hedef === undefined ? {} : { hedef: g.hedef }),
   }
   const y = defterYolu(repoRoot)
   mkdirSync(dirname(y), { recursive: true })

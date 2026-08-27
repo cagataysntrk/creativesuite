@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { Kutuphane, VarlikSatiri } from './kutuphane.js'
 import { takvimeYaz } from './yayin-takvimi.js'
-import { yayinDurumu, yayinlanmisMi } from './yayinlanmis.js'
+import { gonderiDurumu, yayinDurumu, yayinlanmisMi } from './yayinlanmis.js'
 
 const RUN = 'run_01a03e9e-7d62-7560-b44d-0cb7225e2883'
 const AN = '2026-09-12T09:00:00.000Z'
@@ -132,5 +132,68 @@ describe('yayınlanmışlık — üç defter, tek cevap', () => {
     expect(yayinlanmisMi(r, RUN, k).engelli).toBe(true)
     takvimeYaz(r, { runId: RUN, karar: 'geri-al', simdi: AN })
     expect(yayinlanmisMi(r, RUN, k).engelli, 'karar geri alındı, kapı AÇILDI').toBe(false)
+  })
+
+  // ── HEDEFTE ZAMANLANDI + TARİHİ GEÇTİ = yayınlanmış SAYILIYOR ────────────
+  //
+  // ⚠ ⚠ **BU TEK ÇIKARIM ve depo sahibi kararı verdi:** *"metricool planlaması
+  // yapıldıysa o tarihi geldiğinde otomatik yayınlandı diyebilir çünkü yayınlanır,
+  // manuel düzeltiriz gerekirse."* Ölçüm değil çıkarım olduğu ekranda da yazılı.
+
+  const zamanla = (r: string, durum: string, tarih: string, hedefId = 'metricool'): void => {
+    takvimeYaz(r, {
+      runId: RUN,
+      karar: 'senkron',
+      tarih,
+      not: `${hedefId}:${durum}`,
+      hedef: { id: hedefId, durum, disKimlik: 'post_991', platformTutuyor: false },
+      simdi: AN,
+    })
+  }
+
+  it('METRICOOL zamanladı + tarih GEÇTİ → yayınlanmış SAYILIYOR', () => {
+    const r = kok()
+    zamanla(r, 'esitlendi', '2026-09-12')
+    const k = kutuphane({ guncel: [{ digest: 'sha256:a', yayinlandi: false }] })
+    const d = yayinDurumu(r, RUN, k, '2026-09-15')
+    expect(d.yayinlandi).toBe(true)
+    expect(d.kaynak).toBe('zamanlanmis')
+    expect(yayinlanmisMi(r, RUN, k, '2026-09-15').engelli).toBe(true)
+  })
+
+  it('METRICOOL zamanladı ama tarih GELMEDİ → yayınlanmadı', () => {
+    const r = kok()
+    zamanla(r, 'esitlendi', '2026-09-20')
+    const k = kutuphane({ guncel: [{ digest: 'sha256:a', yayinlandi: false }] })
+    expect(yayinDurumu(r, RUN, k, '2026-09-15').yayinlandi).toBe(false)
+    expect(gonderiDurumu(r, RUN, k, '2026-09-15').asama).toBe('zamanlandi')
+  })
+
+  it('YEREL paket tarihi geçse de yayın SAYILMIYOR — o klasörü kimse yayınlamıyor', () => {
+    // ⚠ Bu ayrım olmasaydı, indirilmiş bir klasör yüzünden gerçekten yayınlanmamış bir
+    // gönderi yayına KAPANIRDI.
+    const r = kok()
+    zamanla(r, 'planlandi', '2026-09-12', 'yerel')
+    const k = kutuphane({ guncel: [{ digest: 'sha256:a', yayinlandi: false }] })
+    expect(yayinDurumu(r, RUN, k, '2026-09-15').yayinlandi).toBe(false)
+  })
+
+  it('BUGÜN verilmezse çıkarım YAPILMIYOR — tarihsiz karşılaştırma her şeyi geçmiş sayardı', () => {
+    const r = kok()
+    zamanla(r, 'esitlendi', '2026-09-12')
+    const k = kutuphane({ guncel: [{ digest: 'sha256:a', yayinlandi: false }] })
+    expect(yayinDurumu(r, RUN, k).yayinlandi).toBe(false)
+  })
+
+  it('GÖNDERİ DURUMU her aşamayı adlandırıyor — iki ekran aynı cümleyi okuyor', () => {
+    const r = kok()
+    const k = kutuphane({ guncel: [{ digest: 'sha256:a', yayinlandi: false }] })
+    expect(gonderiDurumu(r, RUN, k, '2026-09-15').asama, 'karar yok').toBe('planlanmadi')
+    takvimeYaz(r, { runId: RUN, karar: 'planla', tarih: '2026-09-20', simdi: AN })
+    const p = gonderiDurumu(r, RUN, k, '2026-09-15')
+    expect(p.asama).toBe('planlandi')
+    expect(p.etiket, 'tarih ETİKETTE — ekran onu kendi kurmuyor').toContain('2026-09-20')
+    takvimeYaz(r, { runId: RUN, karar: 'cikar', simdi: AN })
+    expect(gonderiDurumu(r, RUN, k, '2026-09-15').asama).toBe('cikarildi')
   })
 })

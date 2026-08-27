@@ -93,7 +93,7 @@ import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kosununSlaytlari, kutuphane, yenidenKullanilabilir } from './kutuphane.js'
-import { yayinDurumu, yayinlanmisMi } from './yayinlanmis.js'
+import { gonderiDurumu, yayinDurumu, yayinlanmisMi } from './yayinlanmis.js'
 import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle, elemeKaydi } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
 import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
@@ -557,7 +557,23 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   //
   // Liste ucu donmuş planın VARLIĞINI de bildirir: `rerun` düğmesinin etkin olup
   // olmayacağı diskteki bir dosyaya bağlı ve UI bunu tahmin etmemeli.
-  app.get('/api/calistirmalar', (c) => c.json({ calistirmalar: calistirmalar(o.repoRoot) }))
+  // ⚠ ⚠ **KOŞU LİSTESİ YAYIN DURUMUNU TAŞIYOR — ve taşımıyordu.** Depo sahibi:
+  // *"tasarım onayı verilmiş olanların da yayın durumunu gösterelim net şekilde…
+  // planlanmış olanlar ve durumları çok net görünmeli varlıklarda. ve yayın ve
+  // varlıklar tam senkron olmalı."* İki ekran aynı soruyu ayrı ayrı cevaplıyordu;
+  // senkron bir kopyalama işi değil, TEK KAYNAK işidir (`gonderiDurumu`).
+  // ⚠ Kütüphane BİR KEZ okunuyor: koşu başına yeniden okumak 200 koşuda depoyu 200
+  // kez gezmek olurdu.
+  app.get('/api/calistirmalar', (c) => {
+    const k = kutuphane(o.repoRoot)
+    const bugun = o.simdi().slice(0, 10)
+    return c.json({
+      calistirmalar: calistirmalar(o.repoRoot).map((r) => ({
+        ...r,
+        gonderi: gonderiDurumu(o.repoRoot, r.runId, k, bugun),
+      })),
+    })
+  })
 
   // Detay: zaman çizgisi + rerun/replay karşılaştırması. Dünya durumu BURADA kurulur —
   // kurulamazsa `null` geçer ve ekran "sapma ölçülmedi" der, "sapma yok" demez (D-175).
@@ -708,8 +724,9 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // planlanabiliyor, yeniden hedefe gönderilebiliyordu. Yayınlanmışlık üç ayrı
     // defterde yazılıydı ve hiçbiri ötekini bilmiyordu; `yayinlanmis.ts` üçünü tek
     // cevaba bağladı.
+    const bugunTarihi = o.simdi().slice(0, 10)
     const yayinlanmisMiRun = (runId: string): boolean =>
-      yayinDurumu(o.repoRoot, runId, k).yayinlandi
+      yayinDurumu(o.repoRoot, runId, k, bugunTarihi).yayinlandi
     let sablonsuz = 0
     let elenmis = 0
     const hazir: {
@@ -1021,7 +1038,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // ⚠ ⚠ **YAYINLANMIŞ GÖNDERİ HEDEFE GİTMEZ.** Depo sahibi: *"aynı şey tekrar
     // paylaşılmamalı kesinlikle."* Bu bir uyarı değil bir RET: uyarı tıklandıktan
     // sonra okunur ve gönderi çoktan ikinci kez gitmiştir.
-    const yayinKapisi = yayinlanmisMi(o.repoRoot, runId, kutuphane(o.repoRoot))
+    const yayinKapisi = yayinlanmisMi(
+      o.repoRoot,
+      runId,
+      kutuphane(o.repoRoot),
+      o.simdi().slice(0, 10)
+    )
     if (yayinKapisi.engelli) return c.json({ ok: false, hata: yayinKapisi.hata }, 409)
 
     const karar = gecerliKararlar(o.repoRoot).get(runId)
@@ -1061,8 +1083,19 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     takvimeYaz(o.repoRoot, {
       runId,
       karar: 'senkron',
+      // ⚠ ⚠ **TARİH DE YAZILIYOR ve eksikti.** Hedefte zamanlanmış bir gönderinin
+      // hangi güne zamanlandığı, *"tarihi geldi mi"* sorusunun tek dayanağı. Kayıt
+      // tarihsizken o soru cevapsızdı.
+      tarih: karar.tarih,
       platformlar: karar.platformlar,
       not: `${hedef.id}:${r.durum}${r.disKimlik === '' ? '' : `:${r.disKimlik}`} — ${r.not}`,
+      // ⚠ Durum ARTIK BİR ALAN, notun içinden ayrıştırılan bir dize değil.
+      hedef: {
+        id: hedef.id,
+        durum: r.durum,
+        disKimlik: r.disKimlik,
+        platformTutuyor: r.platformTutuyor,
+      },
       simdi: o.simdi(),
     })
     yayinla('degisim')
@@ -1100,7 +1133,12 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       (karar === 'planla' || karar === 'elle-yayinlandi') &&
       kosuKimligiGecerli(String(g.runId ?? ''))
     ) {
-      const kapi = yayinlanmisMi(o.repoRoot, String(g.runId), kutuphane(o.repoRoot))
+      const kapi = yayinlanmisMi(
+        o.repoRoot,
+        String(g.runId),
+        kutuphane(o.repoRoot),
+        o.simdi().slice(0, 10)
+      )
       if (kapi.engelli) return c.json({ ok: false, hata: kapi.hata }, 409)
     }
     if (karar === 'planla' && kosuKimligiGecerli(String(g.runId ?? ''))) {
@@ -1187,7 +1225,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // GÖRMÜYORDU. Yani ekranda "planla" düğmesi açık duruyor, sunucu 409 ile
       // reddediyordu — kapının doğru olması yetmiyor, GÖRÜNMESİ de gerekiyor.
       yayin: kosuKimligiGecerli(runId)
-        ? yayinDurumu(o.repoRoot, runId, kutuphane(o.repoRoot))
+        ? yayinDurumu(o.repoRoot, runId, kutuphane(o.repoRoot), o.simdi().slice(0, 10))
         : { yayinlandi: false, kaynak: null, tarih: '', aciklama: '' },
     })
   })

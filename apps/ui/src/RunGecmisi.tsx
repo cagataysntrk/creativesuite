@@ -105,6 +105,24 @@ interface Ozet {
   readonly elendi: { readonly at: string; readonly sebep: string } | null
   readonly sablon: string | null
   readonly konu: string | null
+  /**
+   * Gönderinin YAYIN AKIŞINDAKİ yeri — sunucudan, tek kaynaktan (`yayinlanmis.ts`).
+   *
+   * ⚠ ⚠ **BU EKRAN YAYIN DURUMUNU HİÇ BİLMİYORDU.** Yayınlanmışlığı varlık
+   * digest'lerinden kendi hesaplıyordu; elle işaretlenmiş ya da hedefte zamanlanmış
+   * bir gönderiyi göremiyordu. Depo sahibi: *"planlanmış olanlar ve durumları çok net
+   * görünmeli varlıklarda. ve yayın ve varlıklar tam senkron olmalı."* Senkron bir
+   * kopyalama işi değil, TEK KAYNAK işidir.
+   * ⚠ İsteğe bağlı: eski bir sunucuyla konuşulursa ekran çökmemeli.
+   */
+  readonly gonderi?: {
+    readonly asama: 'yayinlandi' | 'zamanlandi' | 'planlandi' | 'cikarildi' | 'planlanmadi'
+    readonly tarih: string
+    readonly hedef: string
+    readonly platformlar: readonly string[]
+    readonly etiket: string
+    readonly yayin: { readonly yayinlandi: boolean; readonly kaynak: string | null }
+  }
 }
 
 interface Adim {
@@ -194,6 +212,10 @@ export const RunGecmisi = ({
   // kaldırıp bu sekmeleri canlandırabiliriz"*.
   const [fKapi, setFKapi] = useState('')
   const [fSablon, setFSablon] = useState('')
+  // ⚠ ⚠ **YAYIN DURUMU SÜZGECİ — depo sahibinin isteği:** *"planlanmış olanlar ve
+  // durumları çok net görünmeli varlıklarda."* Görünmek yetmiyor; 202 koşuda
+  // *"hangileri planlı"* sorusu bir süzgeç olmadan cevaplanamıyor.
+  const [fYayin, setFYayin] = useState('')
   // ⚠ Çoklu seçim: on koşuyu tek tek elemek, elemeyi kullanılmaz yapardı.
   const [secilenler, setSecilenler] = useState<readonly string[]>([])
   const [detay, setDetay] = useState<Detay | null>(null)
@@ -396,6 +418,7 @@ export const RunGecmisi = ({
     .filter((r) => !fTaze || new Date(r.createdAt).getTime() >= yediGunOnce)
     .filter((r) => fKapi === '' || r.awaitingGate === fKapi)
     .filter((r) => fSablon === '' || r.sablon === fSablon)
+    .filter((r) => fYayin === '' || (r.gonderi?.asama ?? 'planlanmadi') === fYayin)
     // ⚠ Arama artık KONUYU da tarıyor: bir koşuyu kimliğinden değil konusundan
     // hatırlıyoruz ve `run_01a0…` yazarak arama yapan kimse yok.
     .filter(
@@ -443,10 +466,12 @@ export const RunGecmisi = ({
   }
   // ⚠ Grup "yayınlandı" ancak HEPSİ yayınlandıysa: karoselin üç slaydı yayınlanmışsa o
   // gönderi yayınlanmamıştır, YARIM kalmıştır.
-  const yayinlandiMi = (runId: string): boolean => {
-    const l = slaytHaritasi.get(runId) ?? []
-    return l.length > 0 && l.every((v) => v.yayinlandi)
-  }
+  // ⚠ ⚠ **BU YÜKLEM DOKUZUNCU KOPYAYDI ve eksikti.** Yayınlanmışlığı varlık
+  // digest'lerinden hesaplıyordu; elle işaretlenmiş ya da hedefte zamanlanmış bir
+  // gönderi burada "yayınlanmadı" görünüyordu — yayın ekranıyla ayrışmanın kendisi.
+  // Cevap artık sunucudan geliyor.
+  const yayinlandiMi = (runId: string): boolean =>
+    liste.find((r) => r.runId === runId)?.gonderi?.yayin.yayinlandi === true
 
   const sirali = tariheGore(suzulmusHam, (r) => r.createdAt, siralama)
   const suzulmus = sirali
@@ -672,6 +697,17 @@ export const RunGecmisi = ({
           </select>
         </label>
         <label>
+          yayın durumu{' '}
+          <select value={fYayin} onChange={(e) => setFYayin(e.target.value)}>
+            <option value="">hepsi</option>
+            <option value="planlandi">◔ planlandı</option>
+            <option value="zamanlandi">⇄ hedefte zamanlandı</option>
+            <option value="yayinlandi">✓ yayınlandı</option>
+            <option value="cikarildi">⌫ takvimden çıkarıldı</option>
+            <option value="planlanmadi">— planlanmadı</option>
+          </select>
+        </label>
+        <label>
           <input type="checkbox" checked={fTaze} onChange={(e) => setFTaze(e.target.checked)} /> son
           7 gün
         </label>
@@ -796,8 +832,24 @@ export const RunGecmisi = ({
                       {slaytlar.length === 0 ? 'slayt yok' : `${String(slaytlar.length)} slayt`}
                     </span>
                     <span className="olcum">{tamTarih(r.createdAt)}</span>
-                    <span className={yayinlandiMi(r.runId) ? 'is-hat' : 'bos'}>
-                      {yayinlandiMi(r.runId) ? '✓ yayınlandı' : 'yayınlanmadı'}
+                    {/* ⚠ ⚠ **YAYIN DURUMU TEK SATIRDA ve TAM.** Eskiden yalnız
+                        "yayınlandı / yayınlanmadı" vardı: planlı mı, hangi tarihe,
+                        hedefe gitti mi — hiçbiri görünmüyordu. Etiketi SUNUCU
+                        kuruyor; iki ekranın aynı durumu iki farklı cümleyle yazması
+                        ayrışmanın kelime hâli olurdu. */}
+                    <span
+                      className={
+                        r.gonderi === undefined
+                          ? 'bos'
+                          : r.gonderi.asama === 'yayinlandi'
+                            ? 'is-hat'
+                            : r.gonderi.asama === 'planlanmadi'
+                              ? 'bos'
+                              : 'olcum'
+                      }
+                      title={r.gonderi?.platformlar.join(' · ') ?? ''}
+                    >
+                      {r.gonderi?.etiket ?? (yayinlandiMi(r.runId) ? '✓ yayınlandı' : '—')}
                     </span>
                     {r.manifestSaglam ? null : <span className="is-uyari">⊘ kusurlu manifest</span>}
                     {r.elendi === null ? null : (
