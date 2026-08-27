@@ -63,7 +63,7 @@
   },
   "gorseller": [
     {
-      "src": "gorsel-01.png",
+      "src": "gorsel-01-elle.png",
       "alt": "geniş plan",
       "x": 0,
       "y": 0,
@@ -72,22 +72,23 @@
       "kirpma": "tam"
     },
     {
-      "src": "gorsel-02.png",
+      "src": "gorsel-02-elle.png",
       "alt": "yakın plan",
-      "x": 37.7,
-      "y": 0,
+      "x": 39.99,
+      "y": -0.74,
       "genislik": 10,
       "yukseklik": 93,
       "kirpma": "tam"
     },
     {
-      "src": "gorsel-03.png",
+      "src": "gorsel-03-elle.png",
       "alt": "kapanış karesi",
-      "x": 90,
-      "y": 0,
+      "x": 70.5,
+      "y": 5.01,
       "genislik": 10,
-      "yukseklik": 93,
-      "kirpma": "tam"
+      "yukseklik": 85,
+      "kirpma": "tam",
+      "donusZ": -12
     }
   ],
   "kartlar": [
@@ -121,7 +122,7 @@
       "rayaOrta": "upcyman.com",
       "panel": null,
       "zemin": "var(--ramp-marka-ink-200)",
-      "kolon": "sag",
+      "kolon": "sol",
       "aksanRolu": "yok"
     },
     {
@@ -135,7 +136,8 @@
       "zemin": "var(--ramp-marka-ink-950)",
       "kapanis": {
         "cagri": "Bakışı **birlikte** kuralım."
-      }
+      },
+      "kolon": "sag"
     }
   ],
   "aiIfsasi": true

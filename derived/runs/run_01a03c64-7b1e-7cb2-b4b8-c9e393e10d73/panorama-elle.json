@@ -57,12 +57,12 @@
     {
       "src": "gorsel-01-elle.png",
       "alt": "ürün — 1",
-      "x": 0.74,
-      "y": 22.75,
-      "genislik": 48.43,
-      "yukseklik": 62.78,
+      "x": -18.4,
+      "y": 22.6,
+      "genislik": 82.1,
+      "yukseklik": 68.5,
       "kirpma": "kesik",
-      "donusZ": -1,
+      "donusZ": -8,
       "efekt": {
         "parlaklik": 81,
         "doygunluk": 183,
@@ -72,17 +72,17 @@
     {
       "src": "gorsel-02-elle.png",
       "alt": "ürün — 2",
-      "x": 34,
-      "y": 22,
-      "genislik": 13,
-      "yukseklik": 54,
+      "x": 39.86,
+      "y": 13.21,
+      "genislik": 15.67,
+      "yukseklik": 65.07,
       "kirpma": "kesik"
     },
     {
       "src": "gorsel-03-elle.png",
       "alt": "ürün — 3",
-      "x": 59.12,
-      "y": 25,
+      "x": 78.66,
+      "y": 26.02,
       "genislik": 13,
       "yukseklik": 54,
       "kirpma": "kesik"
