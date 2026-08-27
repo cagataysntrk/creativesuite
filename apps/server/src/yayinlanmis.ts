@@ -31,7 +31,7 @@
 // `yayinlandi` olarak basıyor. İkinci bir okuyucu, defterin biçimi değişince
 // ayrışacak ikinci bir ayrıştırıcı demekti.
 import { gecerliKararlar, sonSenkron } from './yayin-takvimi.js'
-import { siradakiYer } from './yayin-sirasi.js'
+import { planlananlar, planlanmisMi, siradakiYer } from './yayin-sirasi.js'
 import type { Kutuphane } from './kutuphane.js'
 
 /** Yayınlanmışlığın DAYANAĞI — hangi defter söylüyor. */
@@ -57,6 +57,15 @@ export type YayinKaynagi =
    * KAPATMAK olurdu.
    */
   | 'zamanlanmis'
+  /**
+   * PLANLANDI — hedefe hazırlandı ve oraya kondu.
+   *
+   * ⚠ ⚠ **DEPO SAHİBİ: *"planlandı yayınlandı anlamında kullanacağız."*** Gönderi
+   * hedefin takvimine kondu; oradan çıkması artık bizim elimizde değil. İkinci kez
+   * yayına sokmak, aynı şeyi iki kez paylaşmaktır.
+   * ⚠ Sonradan *"paylaştım"* işaretlemek isteğe bağlı — kapı zaten kapalı.
+   */
+  | 'planlandi'
 
 export interface YayinDurumu {
   readonly yayinlandi: boolean
@@ -158,7 +167,18 @@ export const yayinDurumu = (
     }
   }
 
-  // 4) İnsanın beyanı.
+  // 4) PLANLANDI — hedefe kondu (kuyruk defteri).
+  if (planlanmisMi(repoRoot, runId)) {
+    const p = planlananlar(repoRoot).find((x) => x.runId === runId)
+    return {
+      yayinlandi: true,
+      kaynak: 'planlandi',
+      tarih: (p?.at ?? '').slice(0, 10),
+      aciklama: 'hedefe kondu — planlandı olarak işaretlendi',
+    }
+  }
+
+  // 5) İnsanın beyanı.
   const karar = gecerliKararlar(repoRoot).get(runId)
   if (karar?.karar === 'elle-yayinlandi') {
     return {
@@ -216,6 +236,8 @@ export type GonderiAsamasi =
    * doğru kalıyor.
    */
   | 'sirada'
+  /** Hedefe kondu — kuyruktan düştü, yayına kapalı. */
+  | 'planlandi'
   /** İnsan takvimden çıkardı. */
   | 'cikarildi'
   /** Hiçbir karar yok — otomatik takvimde ya da hiç sırada değil. */
@@ -261,17 +283,22 @@ export const gonderiDurumu = (
 
   if (y.yayinlandi) {
     return {
-      asama: 'yayinlandi',
+      asama: y.kaynak === 'planlandi' ? 'planlandi' : 'yayinlandi',
       tarih: y.tarih,
       sira: 0,
       hedef: s?.hedef?.id ?? '',
       platformlar,
       // ⚠ Çıkarım ile ölçüm ekranda da AYRI görünüyor: *"yayınlanmış sayılıyor"* ile
       // *"yayınlandı"* aynı cümle değil ve insan hangisi olduğunu bilmeli.
+      // ⚠ ⚠ **ÜÇ AYRI CÜMLE, ÜÇ AYRI DAYANAK.** *"Planlandı"* hedefe konmuş demek,
+      // *"yayınlanmış sayılıyor"* bir çıkarım, *"yayınlandı"* bir ölçüm. Üçünü aynı
+      // cümleyle yazmak, insanın hangisi olduğunu bilmeden karar vermesi demekti.
       etiket:
-        y.kaynak === 'zamanlanmis'
-          ? `✓ yayınlanmış sayılıyor · ${y.tarih}`
-          : `✓ yayınlandı${y.tarih === '' ? '' : ` · ${y.tarih}`}`,
+        y.kaynak === 'planlandi'
+          ? `✓ planlandı — hedefe kondu${y.tarih === '' ? '' : ` · ${y.tarih}`}`
+          : y.kaynak === 'zamanlanmis'
+            ? `✓ yayınlanmış sayılıyor · ${y.tarih}`
+            : `✓ yayınlandı${y.tarih === '' ? '' : ` · ${y.tarih}`}`,
       yayin: y,
     }
   }

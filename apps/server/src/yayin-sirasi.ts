@@ -36,6 +36,22 @@ export type SiraKarari =
   | 'sira'
   /** Sıradan çıkarıldı. Üretim duruyor, yalnız kuyruktan alındı. */
   | 'cikar'
+  /**
+   * PLANLANDI — hedefe hazırlandı ve oraya kondu (Metricool takvimine vb.).
+   *
+   * ⚠ ⚠ **BU "YAYINLANDI" ANLAMINA GELİYOR ve kararı depo sahibi verdi:** *"planlandı
+   * yayınlandı anlamında kullanacağız… planlandıya basınca o sıradan düşecek,
+   * planlananlar içine girecek. Mesele o sıranın temiz olması, yenilerin o sıraya
+   * girmesi."*
+   *
+   * ⚠ ⚠ **NEDEN SIRADAN DÜŞÜYOR:** kuyruk *"sırada ne var"* sorusunun cevabı. Hedefe
+   * konmuş bir gönderi o sorunun cevabı değil — orada durursa kuyruk her gün biraz
+   * daha yalan söyler ve bir süre sonra kimse ona bakmaz.
+   *
+   * ⚠ Sonradan *"paylaştım"* işaretlemek İSTEĞE BAĞLI: `elle-yayinlandi` kaydı ayrıca
+   * yazılabilir ama zorunlu değil. Planlanmış bir gönderi zaten yayına kapalı.
+   */
+  | 'planlandi'
 
 export interface SiraOlayi {
   readonly runId: string
@@ -104,7 +120,9 @@ export const yayinSirasi = (repoRoot: string): readonly SiraSatiri[] => {
   const son = new Map<string, { konum: number; not: string }>()
   const giris = new Map<string, string>()
   for (const o of siraOlaylari(repoRoot).olaylar) {
-    if (o.karar === 'cikar') {
+    // ⚠ `planlandi` de kuyruktan DÜŞÜRÜYOR: hedefe konmuş bir gönderi *"sırada ne
+    // var"* sorusunun cevabı değil. Kayıt duruyor (Yasa 10), yalnız kuyrukta değil.
+    if (o.karar === 'cikar' || o.karar === 'planlandi') {
       son.delete(o.runId)
       continue
     }
@@ -128,6 +146,29 @@ export const siradakiYer = (repoRoot: string, runId: string): number | null => {
   const i = yayinSirasi(repoRoot).findIndex((x) => x.runId === runId)
   return i < 0 ? null : i + 1
 }
+
+/**
+ * PLANLANMIŞ gönderiler — hedefe kondu, kuyruktan düştü.
+ *
+ * ⚠ Sonradan sıraya geri alınırsa (`sira` kaydı) listeden çıkıyor: son söz kazanıyor.
+ * ⚠ Sıra: en son planlanan başta — *"az önce ne yaptım"* en sık sorulan soru.
+ */
+export const planlananlar = (
+  repoRoot: string
+): readonly { readonly runId: string; readonly at: string; readonly not: string }[] => {
+  const m = new Map<string, { at: string; not: string }>()
+  for (const o of siraOlaylari(repoRoot).olaylar) {
+    if (o.karar === 'planlandi') m.set(o.runId, { at: o.at, not: o.not })
+    else m.delete(o.runId)
+  }
+  return [...m.entries()]
+    .map(([runId, v]) => ({ runId, at: v.at, not: v.not }))
+    .sort((a, b) => b.at.localeCompare(a.at))
+}
+
+/** Bu koşu PLANLANMIŞ mı — hedefe kondu mu. */
+export const planlanmisMi = (repoRoot: string, runId: string): boolean =>
+  planlananlar(repoRoot).some((x) => x.runId === runId)
 
 export type SiraYazmaSonucu =
   | { readonly ok: true; readonly olay: SiraOlayi; readonly sira: number }
@@ -154,6 +195,11 @@ export const siraninSonunaEkle = (
   g: { readonly runId: string; readonly not?: string; readonly simdi: string }
 ): SiraYazmaSonucu => {
   if (!/^run_[0-9a-f-]+$/.test(g.runId)) return { ok: false, hata: `geçersiz runId: ${g.runId}` }
+  // ⚠ ⚠ **PLANLANMIŞ GÖNDERİ SIRAYA GERİ GİRMİYOR.** Depo sahibi: *"planlandı
+  // yayınlandı anlamında kullanacağız."* Hedefe konmuş bir gönderiyi kuyruğa geri
+  // koymak, aynı şeyi ikinci kez yayına sokmaya davettir.
+  if (planlanmisMi(repoRoot, g.runId))
+    return { ok: false, hata: 'bu gönderi planlanmış — hedefe kondu, sıraya geri alınmaz' }
   const mevcut = yayinSirasi(repoRoot)
   const zaten = mevcut.findIndex((x) => x.runId === g.runId)
   if (zaten >= 0) return { ok: false, hata: `bu gönderi zaten sırada (${String(zaten + 1)}. sıra)` }
@@ -226,6 +272,64 @@ export const siradanCikar = (
     konum: 0,
     at: g.simdi,
     not: g.not ?? 'sıradan çıkarıldı',
+  }
+  yaz(repoRoot, olay)
+  return { ok: true, olay, sira: 0 }
+}
+
+/**
+ * PLANLANDI olarak işaretler — kuyruktan düşürür.
+ *
+ * ⚠ ⚠ **BU BİR SİLME DEĞİL, BİR AŞAMA.** Depo sahibi: *"planlandıya basınca o sıradan
+ * düşecek, planlananlar içine girecek."* Gönderi kayboluyor değil, YER DEĞİŞTİRİYOR —
+ * ve nereye gittiği ekranda yazılı.
+ *
+ * ⚠ Sırada olmayan bir gönderi de planlanabiliyor: insan bir üretimi kuyruğa hiç
+ * sokmadan doğrudan hedefe koymuş olabilir ve o da gerçek bir olay.
+ */
+export const planlandiIsaretle = (
+  repoRoot: string,
+  g: { readonly runId: string; readonly not?: string; readonly simdi: string }
+): SiraYazmaSonucu => {
+  if (!/^run_[0-9a-f-]+$/.test(g.runId)) return { ok: false, hata: `geçersiz runId: ${g.runId}` }
+  if (planlanmisMi(repoRoot, g.runId)) return { ok: false, hata: 'bu gönderi zaten planlanmış' }
+  const olay: SiraOlayi = {
+    runId: g.runId,
+    karar: 'planlandi',
+    konum: 0,
+    at: g.simdi,
+    not: g.not ?? 'hedefe kondu — planlandı',
+  }
+  yaz(repoRoot, olay)
+  return { ok: true, olay, sira: 0 }
+}
+
+/**
+ * PLANLAMAYI GERİ ALIR — yanlış tıklama kalıcı olmamalı.
+ *
+ * ⚠ ⚠ **BU BOŞLUK BİR DÜĞME EKLERKEN GÖRÜLDÜ.** *"Planlandı"* gönderiyi yayına
+ * kapatıyor (`yayinlanmisMi`) ve sıraya geri alınmasını engelliyor; geri alma yolu
+ * olmayınca tek bir yanlış tıklama bir üretimi kalıcı olarak yayın dışı bırakırdı.
+ * Bu depoda aynı ilke iki kez yazıldı: *"yanlışlıkla işaretledim"* düzeltilebilir bir
+ * hata olmalı; *"yanlışlıkla ikinci kez paylaştım"* değil.
+ *
+ * ⚠ Geri alma bir SİLME değil bir YAZMA: `cikar` kaydı planlanmışlığı kaldırıyor,
+ * planlama kaydı defterde duruyor (Yasa 10) ve *"bu neden geri alındı"* sorulabilir.
+ * ⚠ Gönderi sıraya OTOMATİK dönmüyor: nereye gideceği insanın kararı, ve sessizce
+ * kuyruğun sonuna eklemek o kararı onun yerine vermek olurdu.
+ */
+export const planlamayiGeriAl = (
+  repoRoot: string,
+  g: { readonly runId: string; readonly not?: string; readonly simdi: string }
+): SiraYazmaSonucu => {
+  if (!planlanmisMi(repoRoot, g.runId))
+    return { ok: false, hata: 'bu gönderi planlanmış değil — geri alınacak bir şey yok' }
+  const olay: SiraOlayi = {
+    runId: g.runId,
+    karar: 'cikar',
+    konum: 0,
+    at: g.simdi,
+    not: g.not ?? 'planlama geri alındı — sıraya yeniden alınabilir',
   }
   yaz(repoRoot, olay)
   return { ok: true, olay, sira: 0 }

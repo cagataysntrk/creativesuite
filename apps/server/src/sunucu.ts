@@ -100,6 +100,9 @@ import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kosununSlaytlari, kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 import {
+  planlamayiGeriAl,
+  planlananlar,
+  planlandiIsaretle,
   siraOlaylari,
   siradaTasi,
   siradanCikar,
@@ -603,6 +606,13 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         ...r,
         gonderi: gonderiDurumu(o.repoRoot, r.runId, k, bugun),
         eksikMetin: eksikMetin(r.runId),
+        // ⚠ ⚠ **SLAYTLAR LİSTEDE — depo sahibi: *"sıraya alınabilir dediklerinde de
+        // görseller görünmeli ki seçilebilsin."*** Bir karoseli konusundan değil
+        // NEYE BENZEDİĞİNDEN tanıyoruz; görselsiz bir liste, her satırda bir tık daha
+        // istiyor.
+        // ⚠ Ek maliyet YOK: `kutuphane` zaten okunmuş, `kosununSlaytlari` bellekte
+        // süzüyor.
+        slaytlar: kosununSlaytlari(k, r.runId).map((v) => v.digest),
       })),
     })
   })
@@ -1312,7 +1322,25 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         yayin: yayinDurumu(o.repoRoot, x.runId, k, bugun),
       }
     })
-    return c.json({ ok: true, sira, bozukSatir: siraOlaylari(o.repoRoot).bozuk })
+    // ⚠ Planlananlar AYNI uçtan: iki ayrı istek, iki ayrı anlık görüntü demektir ve
+    // ekran bir gönderiyi hem sırada hem planlanmış gösterebilirdi.
+    const planli = planlananlar(o.repoRoot).map((x) => {
+      const kimlik = kosuSablonu(o.repoRoot, x.runId)
+      return {
+        runId: x.runId,
+        at: x.at,
+        not: x.not,
+        konu: kimlik.konu ?? '',
+        sablon: kimlik.gercek ?? kimlik.istenen ?? '',
+        slaytlar: kosununSlaytlari(k, x.runId).map((v) => v.digest),
+      }
+    })
+    return c.json({
+      ok: true,
+      sira,
+      planlananlar: planli,
+      bozukSatir: siraOlaylari(o.repoRoot).bozuk,
+    })
   })
 
   app.post('/api/yayin-sirasi', async (c) => {
@@ -1342,6 +1370,35 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       hedefSira: Number(g.hedefSira),
       simdi: o.simdi(),
     })
+    if (!r.ok) return c.json(r, 400)
+    yayinla('degisim')
+    return c.json(r)
+  })
+
+  // ⚠ ⚠ **PLANLANDI = hedefe kondu ve kuyruktan düştü.** Depo sahibi: *"planlandıya
+  // basınca o sıradan düşecek, planlananlar içine girecek… mesele o sıranın temiz
+  // olması."* Kuyruk *"sırada ne var"* sorusunun cevabı; hedefe konmuş bir gönderi o
+  // sorunun cevabı değil.
+  app.post('/api/yayin-sirasi/:runId/planlandi', async (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const g = (await c.req.json().catch(() => ({}))) as { not?: string }
+    const r = planlandiIsaretle(o.repoRoot, {
+      runId,
+      ...(g.not === undefined ? {} : { not: g.not }),
+      simdi: o.simdi(),
+    })
+    if (!r.ok) return c.json(r, 400)
+    yayinla('degisim')
+    return c.json(r)
+  })
+
+  // ⚠ Yanlış tıklama KALICI OLMAMALI: *"planlandı"* gönderiyi yayına kapatıyor ve geri
+  // alma yolu olmadan tek bir tık bir üretimi kalıcı olarak yayın dışı bırakırdı.
+  app.post('/api/yayin-sirasi/:runId/planlandi-geri-al', (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const r = planlamayiGeriAl(o.repoRoot, { runId, simdi: o.simdi() })
     if (!r.ok) return c.json(r, 400)
     yayinla('degisim')
     return c.json(r)

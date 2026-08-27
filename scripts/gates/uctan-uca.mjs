@@ -271,10 +271,18 @@ const sayfaAc = async () => {
   await p.goto(`${PANEL}/#/yayin-akisi`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
   await p.waitForTimeout(3000)
   const bolumler = await p.locator('.akis-hafta h3').allTextContents()
-  // ⚠ Üç bölüm: sırada · sıraya alınabilir · yayınlananlar. Dördüncüsü yok ve olmamalı:
-  // ekranın işi kuyruğu göstermek, envanter olmak değil.
-  if (bolumler.length !== 3)
-    bildir('yayın', `sıra ekranında ${String(bolumler.length)} bölüm — üç olmalı`)
+  // ⚠ ⚠ **DÖRT BÖLÜM — ve dördüncüsü SONRADAN GELDİ.** Depo sahibi: *"planlandı olarak
+  // işaretleme de olmalı… planlandıya basınca o sıradan düşecek planlananlar içine
+  // girecek."* Kapı üç bölüm bekliyordu ve dördüncü eklenince KIRMIZIYA döndü — doğru
+  // sebeple: sayıyı sabitleyen bir kapı, ekranın büyüdüğünü haber verir. Sayı burada
+  // güncelleniyor, gevşetilmiyor; *"kaç bölüm olduğu önemsiz"* demek bu kapıyı çöpe
+  // atmak olurdu.
+  if (bolumler.length !== 4)
+    bildir('yayın', `sıra ekranında ${String(bolumler.length)} bölüm — dört olmalı`)
+  for (const ad of ['planlananlar', 'yayınlananlar']) {
+    if (!bolumler.some((x) => x.startsWith(ad)))
+      bildir('yayın', `"${ad}" bölümü YOK — kuyruktan düşen gönderi kaybolur`)
+  }
   if (!bolumler.some((x) => x.startsWith('sırada')))
     bildir('yayın', '"sırada" bölümü YOK — kuyruk görünmüyor')
   // ⚠ ⚠ **TARİH GÖRÜNMEMELİ.** Kaldırılan şey ekranda kalırsa kaldırılmamış demektir;
@@ -288,6 +296,25 @@ const sayfaAc = async () => {
   if (siraSatirlari > 1) {
     const yukari = await siraBolumu.locator('button:has-text("yukarı")').count()
     if (yukari !== siraSatirlari) bildir('yayın', 'taşıma düğmesi her satırda YOK')
+    // ⚠ ⚠ **MOUSE İLE TAŞIMA — depo sahibi: *"sırayı elle mouse ile tutup düzenleme
+    // olmalı."*** Düğmeler kaldı ama sürükleme ASIL yol; `draggable` yoksa sahibin
+    // istediği hareket ekranda YOK demektir ve bunu yalnız öznitelik söyleyebilir.
+    const surukle = await siraBolumu.locator('.gonderi-listesi > li[draggable="true"]').count()
+    if (surukle !== siraSatirlari)
+      bildir('yayın', `${String(siraSatirlari - surukle)} satır mouse ile taşınamıyor`)
+  }
+
+  // ⚠ ⚠ **SIRAYA ALINABİLİR HER SATIR GÖRSEL TAŞIMALI.** Depo sahibi: *"sıraya
+  // alınabilir dediklerinde de görseller görünmeli ki seçilebilsin."* Ve bu satır
+  // eklenirken bir kusur ölçüldü: 57 adayın 44'ü hiç karosel üretmemiş koşulardı, yani
+  // liste var olmayan bir şeyi yayına almaya davet ediyordu. Görselsiz bir satır artık
+  // listede olmamalı — kapı bunu SAYARAK doğruluyor, ekrana bakarak değil.
+  const alinabilirBolumu = p.locator('.akis-hafta').nth(1)
+  const adaySatir = await alinabilirBolumu.locator('.gonderi-listesi > li').count()
+  if (adaySatir > 0) {
+    const gorselli = await alinabilirBolumu.locator('.gonderi-listesi > li:has(img)').count()
+    if (gorselli !== adaySatir)
+      bildir('yayın', `sıraya alınabilirlerde ${String(adaySatir - gorselli)} satır GÖRSELSİZ`)
   }
 
   // KOŞULAR — süzgeçler gerçekten süzüyor mu.

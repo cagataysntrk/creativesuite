@@ -14,6 +14,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
+  planlamayiGeriAl,
+  planlananlar,
+  planlandiIsaretle,
+  planlanmisMi,
   siraOlaylari,
   siradaTasi,
   siradakiYer,
@@ -103,5 +107,81 @@ describe('yayın sırası', () => {
 
   it('geçersiz runId reddediliyor', () => {
     expect(siraninSonunaEkle(kok(), { runId: '../../etc', simdi: AN(1) }).ok).toBe(false)
+  })
+
+  // ── PLANLANDI: hedefe kondu, sıradan düştü (depo sahibinin kararı) ────────
+  //
+  // ⚠ ⚠ **"PLANLANDI YAYINLANDI ANLAMINA GELİYOR."** Depo sahibi: *"planlandıya basınca
+  // o sıradan düşecek, planlananlar içine girecek… mesele o sıranın temiz olması,
+  // yenilerin o sıraya girmesi."* Kuyruk *"sırada ne var"* sorusunun cevabı; hedefe
+  // konmuş bir gönderi orada durursa kuyruk her gün biraz daha yalan söyler.
+  it('PLANLANDI gönderiyi sıradan DÜŞÜRÜYOR — kuyruk temiz kalıyor', () => {
+    const r = kok()
+    kur(r, 3)
+    expect(planlandiIsaretle(r, { runId: R(2), simdi: AN(5) }).ok).toBe(true)
+    expect(sirali(r), 'kuyrukta yok').toEqual([R(1), R(3)])
+    expect(planlanmisMi(r, R(2))).toBe(true)
+    expect(planlananlar(r).map((x) => x.runId)).toEqual([R(2)])
+  })
+
+  it('PLANLANMIŞ gönderi sıraya GERİ ALINMIYOR — ikinci kez yayına davettir', () => {
+    const r = kok()
+    kur(r, 2)
+    planlandiIsaretle(r, { runId: R(1), simdi: AN(5) })
+    const y = siraninSonunaEkle(r, { runId: R(1), simdi: AN(6) })
+    expect(y.ok).toBe(false)
+    if (!y.ok) expect(y.hata).toContain('planlanmış')
+  })
+
+  it('AYNI gönderi iki kez PLANLANMIYOR', () => {
+    const r = kok()
+    kur(r, 1)
+    planlandiIsaretle(r, { runId: R(1), simdi: AN(5) })
+    expect(planlandiIsaretle(r, { runId: R(1), simdi: AN(6) }).ok).toBe(false)
+  })
+
+  it('SIRADA OLMAYAN bir gönderi de planlanabiliyor', () => {
+    // ⚠ İnsan bir üretimi kuyruğa hiç sokmadan doğrudan hedefe koymuş olabilir ve o da
+    // gerçek bir olay: reddetmek, olanı kaydetmemek olurdu.
+    const r = kok()
+    expect(planlandiIsaretle(r, { runId: R(7), simdi: AN(5) }).ok).toBe(true)
+    expect(planlanmisMi(r, R(7))).toBe(true)
+  })
+
+  it('PLANLANANLAR en yenisi başta — "az önce ne yaptım" en sık sorulan soru', () => {
+    const r = kok()
+    kur(r, 3)
+    planlandiIsaretle(r, { runId: R(1), simdi: AN(5) })
+    planlandiIsaretle(r, { runId: R(3), simdi: AN(7) })
+    expect(planlananlar(r).map((x) => x.runId)).toEqual([R(3), R(1)])
+  })
+
+  it('KAYIT SİLİNMİYOR — planlanan da defterde (Yasa 10)', () => {
+    const r = kok()
+    kur(r, 2)
+    planlandiIsaretle(r, { runId: R(1), simdi: AN(5) })
+    expect(siraOlaylari(r).olaylar.length).toBe(3)
+  })
+
+  it('PLANLAMA GERİ ALINABİLİYOR — yanlış tıklama kalıcı olmamalı', () => {
+    // ⚠ "Planlandı" gönderiyi yayına kapatıyor; geri alma yolu olmadan tek bir tık bir
+    // üretimi kalıcı olarak yayın dışı bırakırdı. Bu depoda aynı ilke iki kez yazıldı:
+    // "yanlışlıkla işaretledim" düzeltilebilir olmalı, "yanlışlıkla paylaştım" değil.
+    const r = kok()
+    kur(r, 2)
+    planlandiIsaretle(r, { runId: R(1), simdi: AN(5) })
+    expect(planlanmisMi(r, R(1))).toBe(true)
+    expect(planlamayiGeriAl(r, { runId: R(1), simdi: AN(6) }).ok).toBe(true)
+    expect(planlanmisMi(r, R(1)), 'planlanmışlık kalktı').toBe(false)
+    // ⚠ Sıraya OTOMATİK dönmüyor: nereye gideceği insanın kararı.
+    expect(sirali(r), 'kuyruğa kendiliğinden dönmüyor').toEqual([R(2)])
+    expect(siraninSonunaEkle(r, { runId: R(1), simdi: AN(7) }).ok, 'artık alınabilir').toBe(true)
+    expect(sirali(r)).toEqual([R(2), R(1)])
+  })
+
+  it('planlanmamış bir gönderide geri alma REDDEDİLİYOR', () => {
+    const r = kok()
+    kur(r, 1)
+    expect(planlamayiGeriAl(r, { runId: R(1), simdi: AN(5) }).ok).toBe(false)
   })
 })

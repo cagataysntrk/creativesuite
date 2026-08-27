@@ -28,12 +28,22 @@ interface SiraSatiri {
   readonly yayin: { readonly yayinlandi: boolean; readonly aciklama: string }
 }
 
+interface PlanliSatir {
+  readonly runId: string
+  readonly at: string
+  readonly konu: string
+  readonly sablon: string
+  readonly slaytlar: readonly string[]
+}
+
 interface HazirSatir {
   readonly runId: string
   readonly konu: string | null
   readonly sablon: string | null
   readonly gonderi?: { readonly asama: string; readonly etiket: string }
   readonly eksikMetin?: readonly string[]
+  /** Karoselin slaytları — seçim GÖRSELLE yapılır. */
+  readonly slaytlar?: readonly string[]
 }
 
 const Slaytlar = ({ d }: { readonly d: readonly string[] }): React.JSX.Element =>
@@ -54,14 +64,29 @@ const Slaytlar = ({ d }: { readonly d: readonly string[] }): React.JSX.Element =
 
 export const YayinSirasi = (): React.JSX.Element => {
   const [sira, setSira] = useState<readonly SiraSatiri[]>([])
+  const [planli, setPlanli] = useState<readonly PlanliSatir[]>([])
+  /**
+   * Sürüklenen satırın runId'si — fare ile sıralama.
+   *
+   * ⚠ ⚠ **DEPO SAHİBİ: *"sırayı elle mouse ile tutup düzenleme olmalı."*** Ok
+   * düğmeleri tek tek taşıyor ve beş sıra yukarı çıkarmak beş tık demek. Sürükleme
+   * hedefe TEK hareketle götürüyor.
+   * ⚠ Ok düğmeleri KALDIRILMADI: sürükleme fare ister ve yanlışlıkla tetiklenebilir;
+   * ikisi bir arada, biri ötekinin yedeği.
+   */
+  const [suruklenen, setSuruklenen] = useState<string | null>(null)
   const [hepsi, setHepsi] = useState<readonly HazirSatir[]>([])
   const [acik, setAcik] = useState<string | null>(null)
   const [mesaj, setMesaj] = useState<string | null>(null)
 
   const cek = useCallback(async (): Promise<void> => {
     try {
-      const s = (await (await fetch('/api/yayin-sirasi')).json()) as { sira?: SiraSatiri[] }
+      const s = (await (await fetch('/api/yayin-sirasi')).json()) as {
+        sira?: SiraSatiri[]
+        planlananlar?: PlanliSatir[]
+      }
       setSira(s.sira ?? [])
+      setPlanli(s.planlananlar ?? [])
       const c = (await (await fetch('/api/calistirmalar')).json()) as {
         calistirmalar?: HazirSatir[]
       }
@@ -95,13 +120,24 @@ export const YayinSirasi = (): React.JSX.Element => {
   // gönderiyi listelemek, *"aynı şey tekrar paylaşılmamalı"* kuralına tıklanabilir bir
   // davet koymak olurdu — sunucu reddediyor ama ekran onu hiç önermemeli.
   const siradakiler = new Set(sira.map((x) => x.runId))
-  const alinabilir = hepsi.filter(
+  const aday = hepsi.filter(
     (r) =>
       !siradakiler.has(r.runId) &&
       r.gonderi?.asama !== 'yayinlandi' &&
+      r.gonderi?.asama !== 'planlandi' &&
       (r.sablon ?? '') !== '' &&
       r.gonderi !== undefined
   )
+  // ⚠ ⚠ **KAROSELİ OLMAYAN KOŞU SIRAYA ALINAMAZ — ve bu kusuru GÖRSELLERİ AÇMAK
+  // ORTAYA ÇIKARDI.** Depo sahibi *"görseller görünmeli ki seçilebilsin"* dedi;
+  // görseller açılınca 57 satırın 44'ünün BOŞ geldiği görüldü. Sebep tahmin değil,
+  // ölçüm: o koşular dört adımda durmuş, `teslimat` boş, yani ORTADA KAROSEL YOK.
+  // Liste, var olmayan bir şeyi yayına almaya davet ediyordu.
+  //
+  // ⚠ Eleme SESSİZ DEĞİL: kaç koşunun neden düştüğü yazılıyor. Sessiz kısaltma
+  // *"hepsi bu"* diye okunur ve bu depoda o hata daha önce yapıldı.
+  const alinabilir = aday.filter((r) => (r.slaytlar ?? []).length > 0)
+  const karoselsiz = aday.length - alinabilir.length
   const yayinlanmis = hepsi.filter((r) => r.gonderi?.asama === 'yayinlandi')
 
   return (
@@ -111,7 +147,8 @@ export const YayinSirasi = (): React.JSX.Element => {
           onu deneyerek öğrenmesini beklemektir. */}
       <p className="giris-not">
         Tarih YOK — yalnız sıra. Yeni eklenen <strong>sona</strong> gelir; sıra kendiliğinden
-        değişmez, yalnız buradan elle taşınır.
+        değişmez. Satırı <strong>fareyle sürükleyerek</strong> ya da ok düğmeleriyle taşı.{' '}
+        <strong>Planlandı</strong> dediğinde gönderi sıradan düşer ve yayına kapanır.
       </p>
       {mesaj === null ? null : <p className="olcum">{mesaj}</p>}
 
@@ -125,6 +162,20 @@ export const YayinSirasi = (): React.JSX.Element => {
               <li
                 key={g.runId}
                 className={acik === g.runId ? 'gonderi-satiri secili' : 'gonderi-satiri'}
+                draggable
+                onDragStart={() => setSuruklenen(g.runId)}
+                onDragEnd={() => setSuruklenen(null)}
+                // ⚠ `preventDefault` ŞART: olmadan tarayıcı bırakmayı hiç kabul etmiyor
+                // ve sürükleme sessizce çalışmıyor gibi görünüyor.
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  // ⚠ Kendi üstüne bırakmak bir taşıma DEĞİL: sunucu da reddediyor ama
+                  // gereksiz bir istek ve ekranda bir hata mesajı üretirdi.
+                  if (suruklenen === null || suruklenen === g.runId) return
+                  void cagir(`/api/yayin-sirasi/${suruklenen}/tasi`, { hedefSira: g.sira })
+                  setSuruklenen(null)
+                }}
               >
                 <button
                   type="button"
@@ -172,6 +223,17 @@ export const YayinSirasi = (): React.JSX.Element => {
                   >
                     ⇈ başa
                   </button>
+                  {/* ⚠ ⚠ **PLANLANDI = hedefe kondu ve SIRADAN DÜŞER.** Depo sahibi:
+                      *"planlandı yayınlandı anlamında kullanacağız… mesele o sıranın
+                      temiz olması."* Sonradan "paylaştım" işaretlemek isteğe bağlı;
+                      gönderi zaten yayına kapalı. */}
+                  <button
+                    type="button"
+                    className="birincil"
+                    onClick={() => void cagir(`/api/yayin-sirasi/${g.runId}/planlandi`)}
+                  >
+                    ✓ planlandı (hedefe kondu)
+                  </button>
                   <button
                     type="button"
                     onClick={() => void cagir(`/api/yayin-sirasi/${g.runId}/cikar`)}
@@ -194,6 +256,11 @@ export const YayinSirasi = (): React.JSX.Element => {
 
       <section className="akis-hafta">
         <h3>sıraya alınabilir ({alinabilir.length})</h3>
+        {karoselsiz === 0 ? null : (
+          <p className="ipucu">
+            {karoselsiz} koşu karosel üretmediği için listede yok — yayına alınacak bir görseli yok.
+          </p>
+        )}
         {alinabilir.length === 0 ? (
           <p className="bos">Sıraya alınacak üretim yok.</p>
         ) : (
@@ -218,6 +285,45 @@ export const YayinSirasi = (): React.JSX.Element => {
                 <a className="satir-ac" href={`#/kosu/${r.runId}`}>
                   ↗ aç
                 </a>
+                {/* ⚠ ⚠ **GÖRSEL ŞART — depo sahibi: *"sıraya alınabilir dediklerinde de
+                    görseller görünmeli ki seçilebilsin."*** Bir karoseli konusundan
+                    değil NEYE BENZEDİĞİNDEN tanıyoruz; sırayı KURAN ekranda karar
+                    veriliyor ve görselsiz bir liste o kararı her satırda bir tık
+                    ötesine itiyor. */}
+                <Slaytlar d={r.slaytlar ?? []} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="akis-hafta">
+        <h3>planlananlar ({planli.length})</h3>
+        {/* ⚠ Bu bölüm bir ARŞİV değil bir AŞAMA: gönderiler hedefin takviminde ve
+            oradan çıkması bizim elimizde değil. Kuyruktan düştüler ama kaybolmadılar. */}
+        {planli.length === 0 ? (
+          <p className="bos">Henüz hedefe konmuş gönderi yok.</p>
+        ) : (
+          <ul className="gonderi-listesi">
+            {planli.map((r) => (
+              <li key={r.runId} className="gonderi-satiri">
+                <span className="is-hat">✓ planlandı</span>
+                <span className="olcum">{r.at.slice(0, 16).replace('T', ' ')}</span>
+                <span className="olcum">{r.sablon}</span>
+                <span className="giris-konu">{r.konu === '' ? r.runId.slice(4, 16) : r.konu}</span>
+                <a className="satir-ac" href={`#/kosu/${r.runId}`}>
+                  ↗ aç
+                </a>
+                {/* ⚠ Yanlış tıklama KALICI OLMAMALI: "planlandı" gönderiyi yayına
+                    kapatıyor; geri alma yolu olmadan tek bir tık bir üretimi kalıcı
+                    olarak yayın dışı bırakırdı. */}
+                <button
+                  type="button"
+                  onClick={() => void cagir(`/api/yayin-sirasi/${r.runId}/planlandi-geri-al`)}
+                >
+                  ↶ planlamayı geri al
+                </button>
+                <Slaytlar d={r.slaytlar} />
               </li>
             ))}
           </ul>
