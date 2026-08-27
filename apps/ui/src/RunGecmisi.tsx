@@ -198,7 +198,6 @@ export const RunGecmisi = ({
   const [detay, setDetay] = useState<Detay | null>(null)
   // ── varlık tarafı (eski Varlıklar ekranından) ────────────────────────────
   const [varliklar, setVarliklar] = useState<readonly Varlik[]>([])
-  const [elleSlaytlar, setElleSlaytlar] = useState<Readonly<Record<string, string[]>>>({})
   const [karantina, setKarantina] = useState(0)
   const [takvimAcik, setTakvimAcik] = useState<string | null>(null)
   const [onayMesaj, setOnayMesaj] = useState<string | null>(null)
@@ -244,13 +243,11 @@ export const RunGecmisi = ({
         (r) =>
           r.json() as Promise<{
             varliklar?: Varlik[]
-            elleSlaytlar?: Record<string, string[]>
             karantina?: number
           }>
       )
       .then((j) => {
         setVarliklar(j.varliklar ?? [])
-        setElleSlaytlar(j.elleSlaytlar ?? {})
         setKarantina(j.karantina ?? 0)
       })
       .catch(() => setVarliklar([]))
@@ -765,10 +762,6 @@ export const RunGecmisi = ({
         <ul className="grup-listesi">
           {suzulmus.map((r) => {
             const slaytlar = slaytHaritasi.get(r.runId) ?? []
-            // ⚠ Damgasız kopyanın gösterilip gösterilmeyeceğine SUNUCU karar
-            // veriyor (`damgasizElleGosterilsin`): aynı soruyu iki ekranın ayrı
-            // cevaplaması bu deponun en sık tekrar eden hatası.
-            const elle = elleSlaytlar[r.runId] ?? []
             const olcu = olcusu(r.runId)
             return (
               <li key={r.runId} className="grup">
@@ -813,9 +806,15 @@ export const RunGecmisi = ({
                     {r.elendi === null ? null : (
                       <span className="is-uyari">✕ elendi: {r.elendi.sebep}</span>
                     )}
-                    {elle.length === 0 ? null : (
-                      <span className="is-uyari">✎ {elle.length} slayt elle düzenlendi</span>
-                    )}
+                    {/* ⚠ ⚠ **DÜZENLENMİŞLİK ARTIK DAMGADAN OKUNUYOR, dizinden değil.**
+                        Rozet koşu dizinindeki `-elle.png` dosyalarını sayıyordu ve o
+                        dosyalar damgalı sürümün YANINDA ayrı bir "damgasız" bölüm
+                        olarak da görünüyordu. Depo sahibi: *"sistemde ikilik olmamalı
+                        değiştirdiysek değişmiştir!!"* Bölüm kalktı; rozet damgalı
+                        varlığın kendi künyesini okuyor. */}
+                    {slaytlar.some((v) => v.elleDuzenlendi === true) ? (
+                      <span className="olcum">✎ elle düzenlendi</span>
+                    ) : null}
                     {/* ⚠ Bekleyen kapı VERİ tarafında: "bu koşu ne durumda" sorusunun
                       cevabı, "ne yapabilirim" sorusundan önce gelir. */}
                     {/* ⚠ ⚠ **KARAR VERİLDİYSE "BEKLİYOR" DEMİYOR.** `awaitingGate` karar
@@ -910,27 +909,6 @@ export const RunGecmisi = ({
                       </a>
                     ))}
                   </div>
-                )}
-                {/* ⚠ ⚠ **ELLE DÜZENLENMİŞ HÂL DE BURADA — ama damgalıların YERİNE
-                    geçmiyor.** Damgasız bir slayt uyum iddiası taşımıyor ve yayına
-                    aday değil (Yasa 7 · R-33); ikisini karıştırmak, damgasız bir
-                    varlığı yayınlanabilir sanmak olurdu. */}
-                {elle.length === 0 ? null : (
-                  <>
-                    <p className="olcum">✎ elle düzenlenmiş sürüm — damgasız, yayına aday değil</p>
-                    <div className="kosu-slaytlar">
-                      {elle.map((ad) => (
-                        <a
-                          key={ad}
-                          href={`/api/kosu/${r.runId}/elle/${ad}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <img src={`/api/kosu/${r.runId}/elle/${ad}`} alt={ad} loading="lazy" />
-                        </a>
-                      ))}
-                    </div>
-                  </>
                 )}
               </li>
             )

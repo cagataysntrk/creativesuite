@@ -3,12 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { RUNS_DIR, publishedLedgerPath } from '@suite/kernel'
-import {
-  damgasizElleGosterilsin,
-  kosununSlaytlari,
-  kutuphane,
-  yenidenKullanilabilir,
-} from './kutuphane.js'
+import { kosununSlaytlari, kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 
 /** `.meta.json` biçimi diskteki GERÇEK dosyadan okundu (D-163) — uydurulmadı. */
 const meta = (o: {
@@ -479,9 +474,15 @@ describe('varlık emekliliği (D-301)', () => {
     }
   })
 
-  it('DAMGASIZ `-elle.png` bölümü: damgalı elle sürüm varsa GİZLENİYOR', () => {
-    const damgali = kur({
+  it('EDİTÖR KAYDI damgalı geliyor — damgasız ikinci bir sürüm YOK', () => {
+    // ⚠ ⚠ **DEPO SAHİBİ: *"sistemde ikilik olmamalı değiştirdiysek değişmiştir!!"***
+    // Bir sürüm paneldeki damgalı listede, kopyası ayrı bir "elle düzenlenmiş —
+    // damgasız" bölümünde duruyordu ve hangisinin yayına gideceği her bakışta
+    // yeniden soruluyordu. Damgasız bölüm KALDIRILDI; editör kaydı damgalanıp
+    // depoya giriyor ve eskisini emekli ediyor. Tek liste, tek doğru.
+    const kok = kur({
       varliklar: [
+        { digest: 'sha256:a0', runId: 'run_h', createdAt: ESKI, teslimat: parca(0, 1, 'dlv_h') },
         {
           digest: 'sha256:b0',
           runId: 'run_h',
@@ -491,22 +492,13 @@ describe('varlık emekliliği (D-301)', () => {
         },
       ],
     })
-    const damgasiz = kur({
-      varliklar: [
-        { digest: 'sha256:a0', runId: 'run_h', createdAt: ESKI, teslimat: parca(0, 1, 'dlv_h') },
-      ],
-    })
     try {
-      expect(
-        damgasizElleGosterilsin(kutuphane(damgali), 'run_h'),
-        'aynı görüntü iki bölümde çıkmasın'
-      ).toBe(false)
-      // ⚠ Bu değişiklikten ÖNCE düzenlenmiş koşularda damga yok: bölüm DURUYOR,
-      // çünkü yapılmış bir işi gizlemek onu kaybetmektir.
-      expect(damgasizElleGosterilsin(kutuphane(damgasiz), 'run_h')).toBe(true)
+      const s = kosununSlaytlari(kutuphane(kok), 'run_h')
+      expect(s, 'tek slayt — iki sürüm yan yana DURMUYOR').toHaveLength(1)
+      expect(s[0]?.digest).toBe('sha256:b0')
+      expect(s[0]?.elleDuzenlendi, 've düzenlenmiş olan olduğu YAZILI').toBe(true)
     } finally {
-      rmSync(damgali, { recursive: true, force: true })
-      rmSync(damgasiz, { recursive: true, force: true })
+      rmSync(kok, { recursive: true, force: true })
     }
   })
 

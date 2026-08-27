@@ -35,7 +35,6 @@ interface Icerik {
   readonly kusurlar: readonly { readonly tur?: string; readonly aciklama?: string }[]
   readonly varliklar: readonly { readonly digest: string; readonly bytes: number }[]
   /** Editörde elle düzenlenip koşu dizinine yazılmış slaytlar (D-301). */
-  readonly elleSlaytlar: readonly string[]
   /** Panelden yüklenmiş görseller — hat bunları üretim YERİNE kullanır. */
   readonly yuklenenGorseller: readonly string[]
   readonly adimlar: readonly {
@@ -747,20 +746,6 @@ export const KosuDetay = ({
               {(d.yuklenenGorseller ?? []).map((ad) => (
                 <a key={ad} href={`/api/kosu/${runId}/elle/${ad}`} target="_blank" rel="noreferrer">
                   <img src={`/api/kosu/${runId}/elle/${ad}`} alt={`yüklenen ${ad}`} />
-                </a>
-              ))}
-            </div>
-          </>
-        )}
-        {(d.elleSlaytlar ?? []).length === 0 ? null : (
-          <>
-            <h4>
-              Elle düzenlenmiş ({(d.elleSlaytlar ?? []).length}) — damgasız, yayına aday değil
-            </h4>
-            <div className="kosu-slaytlar">
-              {(d.elleSlaytlar ?? []).map((ad) => (
-                <a key={ad} href={`/api/kosu/${runId}/elle/${ad}`} target="_blank" rel="noreferrer">
-                  <img src={`/api/kosu/${runId}/elle/${ad}`} alt={`elle düzenlenmiş ${ad}`} />
                 </a>
               ))}
             </div>

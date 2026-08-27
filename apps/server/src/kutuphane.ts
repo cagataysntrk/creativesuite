@@ -428,17 +428,3 @@ export const kosununSlaytlari = (k: Kutuphane, runId: string): readonly VarlikSa
         ? a.teslimat.index - b.teslimat.index
         : a.createdAt.localeCompare(b.createdAt)
     )
-
-/**
- * Koşunun DAMGASIZ `-elle.png` dosyaları ekranda gösterilmeli mi (D-301).
- *
- * ⚠ ⚠ **AYNI GÖRÜNTÜ İKİ BÖLÜMDE ÇIKIYORDU.** Editör kaydı artık damgalanıp depoya
- * giriyor; damgasız kopyayı ayrıca göstermek *"eskisi ile sürekli karışıyor"*un yeni
- * biçimiydi. Ama bu değişiklikten ÖNCE düzenlenmiş koşularda damgalı sürüm yok ve
- * orada bölüm duruyor — yapılmış bir işi gizlemek, onu kaybetmektir.
- *
- * ⚠ Kural SUNUCUDA: iki ekran (koşu detayı ve varlık listesi) aynı soruyu soruyor ve
- * ikisinin ayrı cevap vermesi bu deponun en sık tekrar eden hatası.
- */
-export const damgasizElleGosterilsin = (k: Kutuphane, runId: string): boolean =>
-  !kosununSlaytlari(k, runId).some((v) => v.elleDuzenlendi)

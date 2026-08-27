@@ -92,12 +92,7 @@ import { bekleyenler, kararVer } from './kuyruk.js'
 import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
-import {
-  damgasizElleGosterilsin,
-  kosununSlaytlari,
-  kutuphane,
-  yenidenKullanilabilir,
-} from './kutuphane.js'
+import { kosununSlaytlari, kutuphane, yenidenKullanilabilir } from './kutuphane.js'
 import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle, elemeKaydi } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
 import { calistirmaBaslat, calistirmaSurdur, kosuyorMu, tekrarBaslat } from './calistir.js'
@@ -240,24 +235,6 @@ const hatEmekliMi = (
  * tarafında kendi kopyasını taşıyor ve o ayrı bir modül sınırı.
  */
 const kosuKimligiGecerli = (runId: string): boolean => /^run_[0-9a-f-]{8,64}$/.test(runId)
-
-/**
- * Elle düzenlenmiş slaytlar — `just duzenle` koşu dizinine yazıyor.
- *
- * ⚠ Dizin okunamıyorsa BOŞ liste: düzenleme yokluğu bir hata değil, olağan hâl.
- */
-const elleDuzenlenmisSlaytlar = (repoRoot: string, runId: string): readonly string[] => {
-  // ⚠ Kimlik DIŞ GİRDİ ve yola giriyor: biçim beyaz listeyle sınırlı (aynı gerekçe
-  // `gecmis.ts`teki eleme yolunda yazılı — orada yazma, burada okuma).
-  if (!kosuKimligiGecerli(runId)) return []
-  try {
-    return readdirSync(join(repoRoot, RUNS_DIR, runId))
-      .filter((f) => /^slayt-\d{2}-elle\.png$/.test(f))
-      .sort()
-  } catch {
-    return []
-  }
-}
 
 /**
  * İstenen şablon KATALOGDA var mı — yoksa `null` ve seçim yokmuş gibi davranılıyor.
@@ -542,16 +519,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // sanmak olurdu — bu ayrım bir kolaylık değil, uyum iddiasının kendisi (R-33).
   app.get('/api/varliklar', (c) => {
     const k = kutuphane(o.repoRoot)
-    const runIdler = [...new Set(k.varliklar.map((v) => v.sourceRunId))]
-    const elle: Record<string, readonly string[]> = {}
-    for (const runId of runIdler) {
-      // ⚠ Damgalı sürüm zaten elle düzenlemeden doğduysa damgasız kopya GÖSTERİLMİYOR:
-      // aynı görüntü iki bölümde çıkıyordu.
-      if (!damgasizElleGosterilsin(k, runId)) continue
-      const liste = elleDuzenlenmisSlaytlar(o.repoRoot, runId)
-      if (liste.length > 0) elle[runId] = liste
-    }
-    return c.json({ ...k, elleSlaytlar: elle })
+    return c.json(k)
   })
 
   // ── doctor: bir ay ihmalden sonra açılacak İLK ekran (§13, §16 · FAZ-4.17) ─
@@ -1292,16 +1260,15 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         createdAt: kunye?.createdAt ?? '',
         bekleyenKapi: null,
         kapilar: kunye === null ? [] : hatKapilari(o.repoRoot, kunye.pipeline, [], null),
-        // ⚠ ⚠ **BU İKİ ALAN EKSİKTİ ve panel SİYAH EKRAN veriyordu.** Manifest dalı
-        // onları döndürüyordu, künye dalı döndürmüyordu; ekran `d.elleSlaytlar.length`
-        // okuyunca `TypeError: Cannot read properties of undefined` fırlıyor ve React
-        // ağacı komple düşüyordu — beyaz/siyah bir sayfa. F5'te düzelmesinin sebebi de
+        // ⚠ ⚠ **BU ALAN EKSİKTİ ve panel SİYAH EKRAN veriyordu.** Manifest dalı onu
+        // döndürüyordu, künye dalı döndürmüyordu; ekran uzunluğunu okuyunca
+        // `TypeError: Cannot read properties of undefined` fırlıyor ve React ağacı
+        // komple düşüyordu — beyaz/siyah bir sayfa. F5'te düzelmesinin sebebi de
         // buydu: o ana kadar manifest yazılmış oluyor ve dal değişiyordu.
         //
         // **İki dal AYNI ŞEKLİ döndürmek zorunda.** Bir uç, hangi dalından çıktığına
         // göre farklı alanlar veriyorsa tüketici her alanı savunmak zorunda kalır ve
         // bir gün birini unutur — bugün olan tam olarak buydu.
-        elleSlaytlar: [],
         yuklenenGorseller: [],
         // ⚠ Yayın saati alanları BU DALDA da var: iki dalın anahtar kümesi ayrışırsa
         // ekran bir dalda `undefined` okur ve React ağacı düşer — bu hata bu dosyada
@@ -1395,9 +1362,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       // ⚠ Ayrı bir bölüm olarak veriliyor, damgalı varlıkların yerine GEÇMİYOR: elle
       // düzenlenmiş bir slayt henüz uyum iddiası taşımıyor ve yayına aday değil.
       // Karıştırmak, damgasız bir varlığı yayınlanabilir sanmak olurdu.
-      elleSlaytlar: damgasizElleGosterilsin(kutuphane(o.repoRoot), runId)
-        ? elleDuzenlenmisSlaytlar(o.repoRoot, runId)
-        : [],
+
       // Panelden yüklenmiş görseller: hat bunları `elle_gorsel_<sıra>` ile kullanır.
       yuklenenGorseller: yuklenenGorseller(o.repoRoot, runId),
       // ── canlı takip (FAZ-17.3) ──────────────────────────────────────────
@@ -1459,7 +1424,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // okuyucusuna çevirirdi.
   app.get('/api/kosu/:runId/elle/:ad', (c) => {
     const ad = c.req.param('ad')
-    if (!/^(slayt-\d{2}-elle\.png|elle-gorsel-\d{2}\.(png|jpg))$/.test(ad)) {
+    if (!/^elle-gorsel-\d{2}\.(png|jpg)$/.test(ad)) {
       return c.json({ ok: false, hata: 'gecersiz ad' }, 400)
     }
     const runId = c.req.param('runId')

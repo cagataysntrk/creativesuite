@@ -1037,9 +1037,9 @@ describe('konu seçebilen hatlar', () => {
 
 // ── içerik ucu: İKİ DAL AYNI ŞEKLİ döndürür ────────────────────────────────
 //
-// ⚠ ⚠ **PANEL SİYAH EKRAN VERİYORDU.** Manifest dalı `elleSlaytlar`/`yuklenenGorseller`
-// döndürüyor, künye dalı (koşu daha yeni başladı) döndürmüyordu. Ekran
-// `d.elleSlaytlar.length` okuyunca `TypeError` fırlıyor ve React ağacı komple düşüyordu:
+// ⚠ ⚠ **PANEL SİYAH EKRAN VERİYORDU.** Manifest dalı `yuklenenGorseller` döndürüyor,
+// künye dalı (koşu daha yeni başladı) döndürmüyordu. Ekran alanın uzunluğunu
+// okuyunca `TypeError` fırlıyor ve React ağacı komple düşüyordu:
 // boş bir sayfa. F5'te düzelmesinin sebebi manifestin o ana kadar yazılmış olmasıydı —
 // yani hata adreste değil, ŞEKİLDEYDİ.
 //
