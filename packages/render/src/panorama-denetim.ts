@@ -1655,3 +1655,26 @@ export const kusurMetni = (kusurlar: readonly Kusur[]): string =>
  */
 export const ifsaGorunurMu = (aiIfsasi: boolean, kusurlar: readonly Kusur[]): boolean =>
   aiIfsasi && kusurlar.every((k) => k.tur !== 'ifsa-gorunmuyor')
+
+/**
+ * Bir görselin HANGİ SLAYDA düştüğü — 0 tabanlı kart indeksi (D-268 · FAZ-19.13).
+ *
+ * ⚠ ⚠ **BU EŞLEME BİR EKSİKTEN DOĞDU.** Görsel brief'i yalnız KONUYU biliyordu; o
+ * görselin hangi slayda düştüğünü ve o slaydın NE SÖYLEDİĞİNİ bilmiyordu. Depo sahibi:
+ * *"tüm yuvalara üretme işi metne uygun konuya uygun mükemmelce yapılmalı rastgele
+ * görsel değil!!!"* Slaydın metnini brief'e verebilmek için önce hangi slayt olduğunu
+ * bilmek gerekiyordu.
+ *
+ * ⚠ Konum PANORAMA koordinatında (0–100), slayt koordinatında değil — kart genişliği
+ * `100 / kartSayisi`. Bu kural burada, geometrinin yanında: iki okuyucu (hat ve editör)
+ * onu ayrı ayrı hesaplasaydı biri gün gelip ötekinden ayrışırdı.
+ *
+ * ⚠ ORTA NOKTA kullanılıyor, sol kenar değil: kesim çizgisini aşan bir görsel iki
+ * slayda birden değiyor ve *"ait olduğu"* slayt ağırlığının çoğunun bulunduğu slayttır.
+ */
+export const gorselinKarti = (x: number, genislik: number, kartSayisi: number): number => {
+  if (kartSayisi < 1) return 0
+  const kartEni = 100 / kartSayisi
+  const orta = x + genislik / 2
+  return Math.min(kartSayisi - 1, Math.max(0, Math.floor(orta / kartEni)))
+}

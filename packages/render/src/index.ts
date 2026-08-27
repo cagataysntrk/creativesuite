@@ -330,6 +330,7 @@ export type { Durak, ZeminKatmani, ZeminResetesi } from './zemin.js'
 // üretim (D-268) yalnız kâğıt üstünde kalırdı.
 export { ORNEKLER, ornekBul } from './katalog-ornek.js'
 export {
+  gorselinKarti,
   ifsaGorunurMu,
   kusurMetni,
   panoramaDenetle,

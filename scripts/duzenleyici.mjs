@@ -59,6 +59,9 @@ const webAra = await import(join(REPO, 'scripts/duzenleyici-web-ara.mjs'))
 // ⚠ Chromium TEK yerden açılıyor (`chokepoints.json` → `chromium-baslatan`): rasterleme
 // `withPage`i ödünç alıyor, kendi `chromium.launch()`unu YAZMIYOR (R-30).
 const { withPage } = await import(join(REPO, 'packages/render/dist/browser.js'))
+// ⚠ Yuva → slayt eşlemesi geometrinin yanında (`panorama-denetim.ts`): editör kendi
+// hesabını yapsaydı hat ile ayrışırdı ve iki taraf farklı slaydın metnini gönderirdi.
+const { gorselinKarti } = await import(join(REPO, 'packages/render/dist/panorama-denetim.js'))
 // ⚠ ⚠ **EDİTÖRDE KAYDEDİLEN SLAYT DEPOYA GİRMİYORDU ve yapılan iş yayına ULAŞMIYORDU.**
 // Depo sahibi: *"editörde düzenleyince artık eskisi görünmemeli yenisi görünmeli sadece
 // çünkü eskisi ile sürekli karışıyor. mesela düzenlenmiş halini yayına alamıyorum
@@ -277,18 +280,35 @@ const kaynakKunyesiniSil = (dizin, sira) => {
  * silmeye gerek yoktu"* ayrı şeyler ve ikincisi bir yalan olurdu (rembg adaptörünün
  * kendi yorumu da aynı cümleyi kuruyor).
  */
-const arkaplaniSil = async (b64) => {
+const gorselBetigi = async (betik, b64, argv = []) => {
   const { spawnSync } = await import('node:child_process')
   const python = join(REPO, '.venv-gorsel/bin/python')
   if (!existsSync(python)) return { ok: false, sebep: '.venv-gorsel yok — `just setup`' }
-  const r = spawnSync(python, [join(REPO, 'scripts/gorsel/arkaplan-sil.py')], {
+  const r = spawnSync(python, [join(REPO, 'scripts/gorsel/' + betik), ...argv], {
     input: b64,
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
   })
   if (r.status !== 0) return { ok: false, sebep: String(r.stderr ?? '').slice(0, 160) }
-  return { ok: true, b64: String(r.stdout).trim() }
+  return { ok: true, b64: String(r.stdout).trim(), olcum: String(r.stderr ?? '').trim() }
 }
+
+const arkaplaniSil = (b64) => gorselBetigi('arkaplan-sil.py', b64)
+
+/**
+ * AKILLI KIRPMA — saydam kenarları atar, özneyi kadraja oturtur.
+ *
+ * ⚠ ⚠ **BU BİR ÖLÇÜMDEN DOĞDU.** Arka plan silindikten sonra özne kadrajın ortasında
+ * küçük bir ada olarak kalıyor: gerçek çıktıda tuvalin **%30'u BOŞTU**. O boşluk
+ * slayta olduğu gibi girince yuva doluymuş gibi görünüyor ama özne minicik kalıyor —
+ * tasarım değil kaza gibi okunuyor. Depo sahibi: *"görseli akıllıca kırpma kesme
+ * çerçeveleme vs gibi şeyler de olmalı."*
+ *
+ * ⚠ Kesilecek yer TAHMİN edilmiyor, alfa kanalının sınırlayıcı kutusundan ÖLÇÜLÜYOR:
+ * *"kenardan %10 at"* diyen bir kural, öznesi köşede olan bir görselde özneyi keserdi.
+ */
+const otomatikKirp = (b64, oran) =>
+  gorselBetigi('otomatik-kirp.py', b64, oran === undefined ? [] : ['--oran=' + oran])
 
 /**
  * Bir istemden görsel üretir — `/gorsel-uret` ile AYNI sağlayıcı yolu.
@@ -343,12 +363,29 @@ const gorselUret = async (istem, anahtar) => {
  * sayısını aşıyor) ve o hâlde üretim de yapılmıyor: kullanılmayacak bir görsel için
  * kota harcamak D-261'in birebir tekrarı olurdu.
  */
-const briefUret = async (kimlik, sira) => {
+const briefUret = async (kimlik, sira, doc) => {
+  // ⚠ ⚠ **BRIEF ARTIK O SLAYDIN METNİNİ TAŞIYOR.** Depo sahibi: *"tüm yuvalara üretme
+  // işi metne uygun konuya uygun mükemmelce yapılmalı rastgele görsel değil!!!"*
+  // Editör belgeyi ELİNDE tutuyor — kartların metni tam orada duruyordu ve brief onu
+  // hiç sormuyordu. Konu bütün karosel için aynı; slayt metni her slayt için farklı.
+  const kartlar = doc.kartlar ?? []
+  const yuva = (doc.gorseller ?? [])[sira - 1]
+  const kartNo =
+    yuva === undefined || kartlar.length === 0
+      ? -1
+      : gorselinKarti(yuva.x, yuva.genislik, kartlar.length)
+  const kart = kartNo < 0 ? undefined : kartlar[kartNo]
   const istem = gorselBriefIstemi({
     sablonId: kimlik.sablonId,
     sira,
     konu: kimlik.konu,
     gorselDili: kimlik.gorselDili,
+    kartMetni:
+      kart === undefined
+        ? ''
+        : [kart.ustBaslik ?? '', kart.baslik ?? '', kart.govde ?? ''].join('\n').trim(),
+    seriBasliklari: kartlar.map((x) => String(x.baslik ?? '')),
+    kartNo: kartNo + 1,
   })
   if (istem === '')
     return { ok: false, bosYuva: true, sebep: 'bu şablon bu yuvaya görsel istemiyor' }
@@ -1212,25 +1249,68 @@ const sunucu = createServer(async (req, res) => {
       const g = calisan[id].gorseller[d.i]
       if (g === undefined || typeof g.src !== 'string' || !g.src.startsWith('data:'))
         return res.end('✗ ' + (d.i + 1) + '. yuvada görsel yok')
-      const { spawnSync } = await import('node:child_process')
-      const python = join(REPO, '.venv-gorsel/bin/python')
-      if (!existsSync(python)) return res.end('✗ .venv-gorsel yok — `just setup` çalıştır')
       const b64 = g.src.slice(g.src.indexOf(',') + 1)
-      const r = spawnSync(python, [join(REPO, 'scripts/gorsel/arkaplan-sil.py')], {
-        input: b64,
-        encoding: 'utf8',
-        maxBuffer: 64 * 1024 * 1024,
-      })
-      if (r.status !== 0)
-        return res.end('✗ silme başarısız: ' + String(r.stderr ?? '').slice(0, 200))
-      const yeni = 'data:image/png;base64,' + String(r.stdout).trim()
+      // ⚠ Çağrı ortak yardımcıdan (`arkaplaniSil`): bu dosyada betiği iki ayrı yerden
+      // çağırmak, bir gün birinin argümanı değişip ötekinin kalması demekti.
+      const r = await arkaplaniSil(b64)
+      if (!r.ok) return res.end('✗ silme başarısız: ' + r.sebep)
       writeFileSync(
         join(k.dizin, 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'),
-        Buffer.from(String(r.stdout).trim(), 'base64')
+        Buffer.from(r.b64, 'base64')
       )
       anlikGoruntuAl(id)
-      calisan[id].gorseller[d.i] = { ...g, src: yeni }
-      return res.end('✓ ' + (d.i + 1) + '. görselin arka planı silindi')
+      calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + r.b64 }
+      const pay = /saydam-pay=([0-9.]+)/.exec(r.olcum ?? '')?.[1]
+      return res.end(
+        '✓ ' +
+          (d.i + 1) +
+          '. görselin arka planı silindi' +
+          (pay === undefined ? '' : ' · %' + Math.round(Number(pay) * 100) + ' saydam')
+      )
+    }
+
+    // ── AKILLI KIRPMA: saydam kenarları at, özneyi kadraja otur (FAZ-19.13) ──
+    //
+    // ⚠ ⚠ **BU BİR ÖLÇÜMDEN DOĞDU.** Arka planı silinmiş bir görselde tuvalin %30'u
+    // BOŞ çıktı (gerçek çıktıda ölçüldü): yuvaya "dolu" giriyor ama özne minicik
+    // kalıyor. Depo sahibi: *"görseli akıllıca kırpma kesme çerçeveleme vs gibi
+    // şeyler de olmalı."*
+    // ⚠ Kesilecek yer alfa kanalından ÖLÇÜLÜYOR, tahmin edilmiyor.
+    // ⚠ `oran` verilirse kutu o orana GENİŞLETİLİYOR, sıkıştırılmıyor: sıkıştırmak
+    // 3B nesneyi bozar ve bozulmuş bir nesne tasarım hatası gibi okunur.
+    if (u.pathname === '/otomatik-kirp') {
+      const d = JSON.parse(await govde(req))
+      const k = kaynak[id]
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' })
+      if (k?.tur !== 'kosu') return res.end('✗ akıllı kırpma yalnız KOŞU modunda')
+      const g = calisan[id].gorseller[d.i]
+      if (g === undefined || typeof g.src !== 'string' || !g.src.startsWith('data:'))
+        return res.end('✗ ' + (d.i + 1) + '. yuvada görsel yok')
+      const r = await otomatikKirp(g.src.slice(g.src.indexOf(',') + 1), d.oran)
+      if (!r.ok) return res.end('✗ kırpma başarısız: ' + r.sebep)
+      if ((r.olcum ?? '').includes('alfa-yok'))
+        return res.end(
+          '⚠ bu görselin alfa kanalı YOK — önce "✂ arka planı sil".\n' +
+            '  Kesilecek yeri söyleyen tek şey alfa; onsuz kırpmak tahmin olurdu.'
+        )
+      writeFileSync(
+        join(k.dizin, 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'),
+        Buffer.from(r.b64, 'base64')
+      )
+      kaynakKunyesiniSil(k.dizin, d.i + 1)
+      anlikGoruntuAl(id)
+      calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + r.b64 }
+      const m = /kirpma-orani=([0-9.]+) kutu=(\d+x\d+)/.exec(r.olcum ?? '')
+      return res.end(
+        m === null
+          ? '✓ ' + (d.i + 1) + '. görsel kırpıldı'
+          : '✓ ' +
+              (d.i + 1) +
+              '. görsel kırpıldı — %' +
+              Math.round(Number(m[1]) * 100) +
+              ' boş kenar kesildi, yeni kutu ' +
+              m[2]
+      )
     }
 
     // ── EDİTÖRDEN GÖRSEL ÜRETME (FAZ-17.3) ─────────────────────────────────
@@ -1353,7 +1433,7 @@ const sunucu = createServer(async (req, res) => {
           satirlar.push('✗ ' + (i + 1) + '. yuva yok')
           continue
         }
-        const b = await briefUret(kimlik, i + 1)
+        const b = await briefUret(kimlik, i + 1, calisan[id])
         if (!b.ok) {
           satirlar.push((b.bosYuva === true ? '· ' : '✗ ') + (i + 1) + '. yuva: ' + b.sebep)
           continue
@@ -1367,7 +1447,29 @@ const sunucu = createServer(async (req, res) => {
         // Sessizce arkaplanlı bir kare koymak, şikâyetin kaynağını geri getirirdi;
         // hiç koymamak ise üretilmiş (ve ödenmiş) bir görseli çöpe atardı.
         const kirpma = await arkaplaniSil(uretim.b64)
-        const son = kirpma.ok ? kirpma.b64 : uretim.b64
+        // ⚠ ⚠ **KIRPMA ZİNCİRİN PARÇASI, AYRI BİR DÜĞME DEĞİL.** Arka planı silinmiş
+        // ama kadrajının üçte biri boş bir görsel yuvaya "dolu" girer ve özne minicik
+        // kalır. Doldurmanın amacı BİTMİŞ bir sonuç; yarısında bırakmak insanı her
+        // yuvada ikinci bir düğmeye mahkûm ederdi.
+        // ⚠ Silme başarısızsa kırpma da YAPILMIYOR: alfası olmayan bir görselde
+        // kesilecek yeri tahmin etmek gerekirdi.
+        // ⚠ ⚠ **KIRPMA YUVANIN ORANINI BİLMEK ZORUNDA — ve ilk sürüm bilmiyordu.**
+        // Sıkı sınırlayıcı kutuya kesmek özneyi 1:5 gibi bir şeride çeviriyordu;
+        // yuva ise kendi oranını istiyor ve `object-fit` aradaki farkı ya kırparak ya
+        // boşluk bırakarak kapatıyor — ikisi de tasarımı bozuyor. Kutu yuvanın
+        // oranına GENİŞLETİLİYOR (sıkıştırılmıyor: 3B nesneyi bozardı).
+        // ⚠ Oran belgeden ÖLÇÜLÜYOR: `genislik` tuval genişliğinin, `yukseklik`
+        // tuval yüksekliğinin yüzdesi — ikisi farklı eksende, o yüzden piksele
+        // çevrilmeden bölünemezler.
+        const tuvalEni = (calisan[id].slaytGenisligi ?? 1080) * (calisan[id].kartlar ?? []).length
+        const tuvalBoyu = calisan[id].yukseklik ?? 1350
+        const yuvaEn = Math.max(1, Math.round((g.genislik / 100) * tuvalEni))
+        const yuvaBoy = Math.max(1, Math.round((g.yukseklik / 100) * tuvalBoyu))
+        const kirp = kirpma.ok
+          ? await otomatikKirp(kirpma.b64, `${yuvaEn}:${yuvaBoy}`)
+          : { ok: false, sebep: '' }
+        const son = kirp.ok ? kirp.b64 : kirpma.ok ? kirpma.b64 : uretim.b64
+        const kirpOlcum = /kirpma-orani=([0-9.]+)/.exec(kirp.olcum ?? '')?.[1]
         const ad = 'gorsel-' + String(i + 1).padStart(2, '0') + '-elle.png'
         writeFileSync(join(k.dizin, ad), Buffer.from(son, 'base64'))
         // ⚠ Webden gelen bir görselin künyesi bu yuvada duruyorsa SİLİNİYOR: üretilmiş
@@ -1381,7 +1483,12 @@ const sunucu = createServer(async (req, res) => {
             (i + 1) +
             '. yuva → ' +
             ad +
-            (kirpma.ok ? ' (arka plan silindi)' : ' ⚠ ARKA PLAN SİLİNEMEDİ: ' + kirpma.sebep)
+            (kirpma.ok
+              ? ' (arka plan silindi' +
+                (kirpOlcum === undefined
+                  ? ')'
+                  : ' · %' + Math.round(Number(kirpOlcum) * 100) + ' boş kenar kesildi)')
+              : ' ⚠ ARKA PLAN SİLİNEMEDİ: ' + kirpma.sebep)
         )
         satirlar.push('   brief: ' + b.brief.slice(0, 110))
       }

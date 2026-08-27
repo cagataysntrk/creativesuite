@@ -61,7 +61,8 @@ export const disaMime = (b: DisaBicim): string => MIME[b]
  */
 const yazdirmaHtml = (doc: PanoramaBelgesi): string => {
   const n = doc.kartlar.length
-  const ic = panoramaHtml(doc)
+  // ⚠ Dışa aktarma da SON ÇIKTIDIR: boş yuvanın kesikli kutusu PDF'e girmemeli.
+  const ic = panoramaHtml(doc, { yerTutucu: false })
   const pencereler = Array.from(
     { length: n },
     (_, i) =>
@@ -121,7 +122,7 @@ export const panoramaDisaAktar = async (
     }
 
     if (secim.tarz === 'butun') {
-      await hazirla(panoramaHtml(doc), toplam)
+      await hazirla(panoramaHtml(doc, { yerTutucu: false }), toplam)
       if (secim.bicim === 'pdf') {
         const bayt = await page.pdf({
           width: `${toplam}px`,
@@ -147,7 +148,7 @@ export const panoramaDisaAktar = async (
 
     // dilim + png/jpg: sahne kaydırılıp her slayt ayrı çekiliyor — `renderPanorama` ile
     // AYNI teknik. İkinci bir dilimleme yolu, iki farklı kesim demekti.
-    await hazirla(panoramaHtml(doc), doc.slaytGenisligi)
+    await hazirla(panoramaHtml(doc, { yerTutucu: false }), doc.slaytGenisligi)
     const parcalar: DisaParca[] = []
     for (let i = 0; i < n; i++) {
       await page.evaluate(

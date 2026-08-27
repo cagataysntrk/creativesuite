@@ -35,6 +35,36 @@ export interface GorselBriefGirdisi {
    * paylaşıyor: seri bütünlüğü korunuyor, ama üslup konuya ait.
    */
   readonly gorselDili: string
+  /**
+   * Bu görselin DÜŞTÜĞÜ SLAYDIN kendi metni — üst başlık · başlık · gövde.
+   *
+   * ⚠ ⚠ **BU ALAN YOKTU ve üretilen görsel SLAYDI HİÇ BİLMİYORDU.** Depo sahibi:
+   * *"tüm yuvalara üretme işi metne uygun konuya uygun mükemmelce yapılmalı rastgele
+   * görsel değil!!!"* Ve haklıydı: brief yalnız KONUYU taşıyordu, yani dört slaytın
+   * dördü de aynı soruyu cevaplıyordu. Kadraj varyantı görselleri birbirinden ayırıyor
+   * ama İÇERİKTEN ayırmıyor — sonuç, konuya uzaktan uygun ama o slayda ait olmayan bir
+   * görsel. Bir karoselde her slayt başka bir şey SÖYLÜYOR; görseli de öyle olmalı.
+   *
+   * ⚠ Boş bırakılabilir: metinsiz bir slayt (kapak deseni, kapanış) için konu yeter.
+   */
+  readonly kartMetni: string
+  /**
+   * Karoselin BÜTÜNÜ — komşu slaytların başlıkları, sırayla.
+   *
+   * ⚠ Bir slaydın görseli komşusunun tekrarı OLMAMALI. Model neyin zaten söylendiğini
+   * bilmeden aynı nesneyi iki kez çizer; gerçek koşuda dört slaytta iki kez aynı
+   * ölçüm cihazı çıktı. Kadraj farkı bunu çözmüyor, çünkü sorun kadrajda değil ÖZNEDE.
+   */
+  readonly seriBasliklari: readonly string[]
+  /**
+   * Bu görselin düştüğü slaydın SIRASI (1 tabanlı). `0` = bilinmiyor.
+   *
+   * ⚠ ⚠ **YUVA SIRASI İLE SLAYT SIRASI AYNI ŞEY DEĞİL — ve ilk yazımda karıştırdım.**
+   * `sira` kaçıncı GÖRSEL YUVASI olduğunu söylüyor; bir slaytta iki yuva olabilir ya
+   * da bir slaytta hiç olmayabilir. Seri listesinde *"bu slayt"* işaretini yuva
+   * numarasıyla koymak, yanlış slaydı işaretlerdi.
+   */
+  readonly kartNo: number
 }
 
 /**
@@ -52,19 +82,65 @@ export const gorselBriefIstemi = (g: GorselBriefGirdisi): string => {
   const varyantlar = kayit.gorsel.varyantlar ?? []
   if (g.sira > 1 && g.sira > varyantlar.length) return ''
   const varyant = varyantlar[g.sira - 1]
+  // ⚠ Komşu başlıklar SIRALI veriliyor ve bu slaydın kendisi işaretli: model neyin
+  // zaten söylendiğini görmeden aynı nesneyi iki kez çizer.
+  const seri = g.seriBasliklari
+    .map((b, i) => `  ${String(i + 1)}. ${b}${i + 1 === g.kartNo ? '  ← THIS ONE' : ''}`)
+    .filter((x) => x.trim() !== '')
   return [
     'write one short image generation brief in english, lowercase only.',
     'YOU choose what to depict — the topic decides, not a template:',
     '  · if the topic is about people and their work, a single figure is right.',
     '  · if it is about a machine, a material or a measurement, show THAT thing.',
     '  · if it is abstract, show a physical object that stands for it.',
-    'choose the one subject a reader would recognise instantly for this topic.',
+    // ⚠ ⚠ **ÖZNEYİ SLAYDIN METNİ SEÇİYOR, KONU DEĞİL.** Konu bütün karosel için
+    // aynı; slayt metni her slayt için farklı. Yalnız konuya bakan bir brief, dört
+    // slayta dört kez aynı soruyu sorar ve birbirine benzeyen dört görsel üretir.
+    ...(g.kartMetni.trim() === ''
+      ? ['choose the one subject a reader would recognise instantly for this topic.']
+      : [
+          'THIS SLIDE SAYS (turkish):',
+          ...g.kartMetni
+            .split('\n')
+            .map((x) => x.trim())
+            .filter((x) => x !== '')
+            .map((x) => `  ${x}`),
+          'depict what THIS slide is about — not the general topic.',
+          'the object must be the one a reader would point at while reading these lines.',
+        ]),
+    ...(seri.length < 2
+      ? []
+      : [
+          // ⚠ Seri BÜTÜNÜ: komşusunun çizdiğini tekrar çizmek karoseli tekdüze yapıyor.
+          'the full carousel, in order (do NOT repeat a neighbour subject):',
+          ...seri,
+        ]),
     `keep this technical base: ${kayit.gorsel.briefTemeli}`,
     ...(g.gorselDili === '' ? [] : [`visual language for this whole set: ${g.gorselDili}`]),
     // ⚠ Varyant KADRAJI söylüyor, ÖZNEYİ değil: aynı konudan N özdeş görsel çıkmasın.
     ...(varyant === undefined ? [] : [`frame it like this: ${varyant}`]),
-    `topic: ${g.konu}`,
-    'describe only the subject, the lighting and the background surface.',
+    // ⚠ ⚠ **BU SATIR ÖNCE `context` KELİMESİNİ TAŞIYORDU ve dikiş kapısı yakaladı.**
+    // R-20 muhafızı `text` ALT DİZESİNİ arıyor: `con-text-` onu tetikliyor. Aynı
+    // yanlış pozitif bu depoda `no texture` içindeki `no text` ile de yaşandı ve
+    // katalog kaydında yazılı. Muhafız gevşetilmiyor (R-76) — cümle değişiyor.
+    `overall topic, for orientation: ${g.konu}`,
+    // ⚠ ⚠ **ARKA PLAN SİLİNMEYE HAZIR OLMAK ZORUNDA.** Depo sahibi: *"her şey 3d
+    // olarak arkaplansız hale gelmeye hazır olarak üretilebilir."* Yerel silici
+    // (BRIA RMBG) tek, net, ayrık bir özneyi temiz kesiyor; sahneye gömülmüş ya da
+    // kadrajı taşan bir özneyi kesemiyor — üç gerçek koşuda ölçüldü (D-274).
+    // ⚠ ⚠ **BU ÜÇ SATIR BİR ÖLÇÜMDEN DOĞDU.** İlk sürüm yalnız *"tek özne, kadrajın
+    // içinde"* diyordu ve model MAKRO bir kadraj seçti: granül örneği bütün tuvali
+    // dolduruyor, arka plan silici kesecek bir kenar bulamıyor. Ölçüm ikisini birden
+    // gösterdi: `matlama-tutmuyor` kusuru ve akıllı kırpmada `%0 boş kenar`.
+    // Kesilebilir bir görsel, ÇEVRESİNDE BOŞLUK OLAN bir görseldir.
+    //
+    // ⚠ İstenmeyen şey ADIYLA ANILMIYOR (olumsuzlama R-20 muhafızında yanlış pozitif
+    // üretiyor): *"makro çekme"* demek yerine *"uzaktan, çevresi boş"* deniyor.
+    'show the whole object from a short distance, with empty ground on all four sides.',
+    'the object occupies about two thirds of the frame and touches no edge.',
+    'render it as a physical three-dimensional object with real material and volume,',
+    'the kind of render a product studio would deliver: crisp, deliberate, memorable.',
+    'describe only the subject, its material, and the lighting.',
     'answer with the brief sentence alone.',
   ].join('\n')
 }

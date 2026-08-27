@@ -619,6 +619,44 @@ function mufettisiKur(doc) {
       await cek()
     }
     kok.appendChild(el('arka plan', sil))
+
+    // ⚠ ⚠ **AKILLI KIRPMA — bir ölçümden doğdu.** Arka planı silinmiş bir görselde
+    // tuvalin %30'u BOŞ çıktı (gerçek çıktıda ölçüldü): yuvaya "dolu" giriyor ama
+    // özne minicik kalıyor. Depo sahibi: *"görseli akıllıca kırpma kesme çerçeveleme
+    // vs gibi şeyler de olmalı."*
+    // ⚠ Kesilecek yer alfa kanalından ÖLÇÜLÜYOR, tahmin edilmiyor — o yüzden düğme
+    // "arka planı sil"in YANINDA: alfası olmayan görselde kırpacak bir şey yok.
+    const kirp = document.createElement('button')
+    kirp.textContent = '⬚ akıllı kırp'
+    kirp.onclick = async () => {
+      kirp.disabled = true
+      mesaj('… saydam kenarlar ölçülüyor')
+      const r = await fetch('/otomatik-kirp?id=' + id, {
+        method: 'POST',
+        body: JSON.stringify({ i: secili.i }),
+      })
+      mesaj(await r.text())
+      kirp.disabled = false
+      await cek()
+    }
+    // ⚠ Oranlı kırpma AYRI bir düğme: yuvanın oranına oturtmak isteyen biri onu
+    // AÇIKÇA seçmeli. Sessizce her kırpmayı 4:5'e zorlamak, kare bir nesneyi
+    // dikeye yayarak boş kenar geri getirirdi.
+    const kirpOran = document.createElement('button')
+    kirpOran.textContent = '⬚ 4:5 oranına kırp'
+    kirpOran.onclick = async () => {
+      kirpOran.disabled = true
+      mesaj('… 4:5 kutusuna oturtuluyor')
+      const r = await fetch('/otomatik-kirp?id=' + id, {
+        method: 'POST',
+        body: JSON.stringify({ i: secili.i, oran: '4:5' }),
+      })
+      mesaj(await r.text())
+      kirpOran.disabled = false
+      await cek()
+    }
+    kok.appendChild(el('kırpma', kirp))
+    kok.appendChild(kirpOran)
   }
 
   // ── MODELDEN ÜRET: seçim GEREKTİRMEZ ────────────────────────────────────

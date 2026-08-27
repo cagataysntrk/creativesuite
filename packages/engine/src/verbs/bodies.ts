@@ -44,6 +44,7 @@ import {
   withOturum,
   renderWithinLimit,
   type LayoutName,
+  gorselinKarti,
   ifsaGorunurMu,
   ornekBul,
   panoramaDenetle,
@@ -2081,12 +2082,27 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       // Sıra yoksa 1: tek görselli eski hatlar değişmeden çalışıyor.
       const sira =
         typeof input.constraints['gorsel_sira'] === 'number' ? input.constraints['gorsel_sira'] : 1
+      // ⚠ ⚠ **YUVA → SLAYT eşlemesi `gorselinKarti` ile, burada HESAPLANMIYOR.**
+      // Konum panorama koordinatında (0–100) ve kart genişliği `100/kartSayisi`;
+      // bu kural render tarafında, geometrinin yanında duruyor.
+      const kartlar = uyarlamaKartlari(input.inputs)
+      const ornek = ornekBul(sablonId)
+      const yuva = ornek?.gorseller[sira - 1]
+      const kartNo =
+        yuva === undefined || kartlar.length === 0
+          ? -1
+          : gorselinKarti(yuva.x, yuva.genislik, kartlar.length)
+      const kart = kartNo < 0 ? undefined : kartlar[kartNo]
       return gorselBriefIstemi({
         sablonId,
         sira,
         konu,
         // Uyarlama adımının seçtiği üslup — yoksa şablonun varsayılanı (boş dize).
         gorselDili: uyarlamaDili(input.inputs),
+        kartMetni:
+          kart === undefined ? '' : [kart.ustBaslik, kart.baslik, kart.govde].join('\n').trim(),
+        seriBasliklari: kartlar.map((x) => x.baslik),
+        kartNo: kartNo + 1,
       })
     }
   }
@@ -2279,6 +2295,34 @@ const uyarlamaDili = (inputs: Readonly<Record<string, unknown>>): string => {
       : []
   })
   return diller[diller.length - 1] ?? ''
+}
+
+/**
+ * Uyarlamanın KARTLARI — her slaydın kendi metni.
+ *
+ * ⚠ ⚠ **BRIEF SLAYDI HİÇ BİLMİYORDU.** İstem yalnız KONUYU taşıyordu; konu bütün
+ * karosel için aynı olduğundan dört slayta dört kez aynı soru soruluyor ve birbirine
+ * benzeyen dört görsel çıkıyordu. Depo sahibi: *"rastgele görsel değil!!!"* Kartların
+ * metni `sablon-uyarla` adımının çıktısında zaten duruyordu; kimse okumuyordu.
+ *
+ * ⚠ `uyarlamaDili` ile AYNI şekli arıyor: iki ayrı okuma yazsaydık biri gün gelip
+ * öteki alanın adı değişince sessizce boş dönerdi.
+ */
+const uyarlamaKartlari = (
+  inputs: Readonly<Record<string, unknown>>
+): readonly { readonly ustBaslik: string; readonly baslik: string; readonly govde: string }[] => {
+  for (const v of [...Object.values(inputs)].reverse()) {
+    if (v === null || typeof v !== 'object') continue
+    const u = (v as { uyarlama?: { kartlar?: unknown } }).uyarlama
+    const k = u?.kartlar
+    if (!Array.isArray(k) || k.length === 0) continue
+    return k.map((x) => {
+      const y = (x ?? {}) as Record<string, unknown>
+      const d = (a: string): string => (typeof y[a] === 'string' ? (y[a] as string) : '')
+      return { ustBaslik: d('ustBaslik'), baslik: d('baslik'), govde: d('govde') }
+    })
+  }
+  return []
 }
 
 /**

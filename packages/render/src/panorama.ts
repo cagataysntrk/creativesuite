@@ -1612,7 +1612,28 @@ const egriDibi = (
 ): number => Math.round(olc(120) + ((100 - araDeger(noktalar, x)) / 100) * olc(560))
 
 /** Panoramanın tam HTML'i — tek sayfa, `slaytSayisi × slaytGenisligi` genişlikte. */
-export const panoramaHtml = (doc: PanoramaBelgesi): string => {
+export interface PanoramaHtmlSecenek {
+  /**
+   * Boş görsel yuvasına YER TUTUCU çizilsin mi.
+   *
+   * ⚠ ⚠ **BU BAYRAK BİR ŞİKÂYETTEN DOĞDU.** Depo sahibi: *"bir görsel yuvasını boş
+   * bırakınca 'yuva 3' gibi etiket ve çerçeve ile basılıyor, hiç yokmuş gibi render
+   * olmalı!! bilerek boş bırakıyorum, o sadece editörde görünmeli."* Ve haklı: yer
+   * tutucu bir DÜZENLEME YARDIMI, bir tasarım ögesi değil. Yayına giden karoselde
+   * kesikli bir kutu, tasarımın parçası sanılır.
+   *
+   * ⚠ ⚠ **AMA VARSAYILAN `true` ve bu KASITLI.** Yer tutucu üç yerde iş yapıyor:
+   * düzen provası (`duzen-provasi`) metin–görsel çakışmasını görsel KUTUSU üzerinden
+   * ölçüyor, denetim eksik görseli yakalıyor, editör insana neyin boş olduğunu
+   * gösteriyor. Varsayılanı `false` yapmak bu üç ölçümü sessizce kör ederdi —
+   * *"sessizce boş bırakmak, eksik bir tasarımı tam sanmaya yol açar"* (bu dosyanın
+   * kendi yorumu). Yalnız SON çıktı onu kapatıyor.
+   */
+  readonly yerTutucu?: boolean
+}
+
+export const panoramaHtml = (doc: PanoramaBelgesi, secenek?: PanoramaHtmlSecenek): string => {
+  const yerTutucuCiz = secenek?.yerTutucu !== false
   const n = doc.kartlar.length
   const G = doc.slaytGenisligi
   // ⚠ Taban AÇIYA sabit, piksele değil: tuval genişledikçe piksel karşılığı büyüyor.
@@ -2044,11 +2065,13 @@ export const panoramaHtml = (doc: PanoramaBelgesi): string => {
         // kendi yığın bağlamına sokar ve `z-index` davranışını sessizce değiştirir.
         // Var olan on destede tek bir piksel bile kaymamalı.
         (donus === '' ? '' : `;transform:perspective(${String(Math.round(enPx * 2.5))}px) ${donus}`)
+      // ⚠ Boş yuva SON ÇIKTIDA hiç çizilmiyor (`yerTutucu: false`): bilerek boş
+      // bırakılmış bir yuvanın kesikli kutusu, tasarımın parçası sanılıyordu.
       if (g.src === '')
-        return (
-          `<div class="gorsel-yer ${g.kirpma}" style="${stil}" aria-hidden="true">` +
-          `<span>${kacir(g.alt)}</span></div>`
-        )
+        return yerTutucuCiz
+          ? `<div class="gorsel-yer ${g.kirpma}" style="${stil}" aria-hidden="true">` +
+              `<span>${kacir(g.alt)}</span></div>`
+          : ''
       // ⚠ ⚠ **ZİNCİR GÖRSEL BAŞINA SEÇİLİYOR — belge başına DEĞİL.** Görseller kartların
       // DIŞINDA, ayrı bir katmanda yaşıyor ve hiçbir kartın rengini miras almıyorlar.
       // Yani "bu özne açık bir kâğıdın mı yoksa koyu bir mürekkebin mi üstünde duruyor"
@@ -3543,7 +3566,13 @@ export const renderPanorama = async (
     oturum === undefined ? withPage(fn) : oturum.sayfaIle(fn)
   return calistir(async (page) => {
     await page.setViewportSize({ width: doc.slaytGenisligi, height: doc.yukseklik })
-    await page.setContent(panoramaHtml(doc), { waitUntil: 'load' })
+    // ⚠ ⚠ **SON ÇIKTIDA YER TUTUCU YOK.** Depo sahibi: *"bilerek boş bırakıyorum, o
+    // sadece editörde görünmeli."* Kesikli kutu bir düzenleme yardımı; yayına giden
+    // karoselde tasarımın parçası sanılıyordu.
+    // ⚠ Denetim (`panoramaDenetle`) ve düzen provası kendi sayfalarını VARSAYILANLA
+    // kuruyor, yani yer tutucu ORADA duruyor: eksik bir görseli yakalayan ölçüm
+    // körleşmiyor, yalnız çıktı temizleniyor.
+    await page.setContent(panoramaHtml(doc, { yerTutucu: false }), { waitUntil: 'load' })
     await page.evaluate('(async () => { await document.fonts.ready; return true })()')
     // ⚠ ⚠ **PUNTO FONTLAR YÜKLENDİKTEN SONRA ÖLÇÜLÜYOR — ÖNCE DEĞİL.** Yedek fontla
     // ölçülen bir tavan yanlış olurdu ve `Ğ Ş İ` gliflerinin gerçek genişliğini hiç
