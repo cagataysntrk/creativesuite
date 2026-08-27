@@ -37,8 +37,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T04:47:27.373Z",
-      "finishedAt": "2026-08-26T04:47:27.373Z",
+      "startedAt": "2026-08-27T12:01:40.511Z",
+      "finishedAt": "2026-08-27T12:01:40.512Z",
       "output": {
         "brandId": "brd_upcytech"
       }
@@ -92,8 +92,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:47:27.374Z",
-      "finishedAt": "2026-08-26T04:47:27.375Z",
+      "startedAt": "2026-08-27T12:01:40.513Z",
+      "finishedAt": "2026-08-27T12:01:40.519Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -129,8 +129,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T04:47:27.375Z",
-      "finishedAt": "2026-08-26T04:47:27.376Z",
+      "startedAt": "2026-08-27T12:01:40.520Z",
+      "finishedAt": "2026-08-27T12:01:40.529Z",
       "output": null
     },
     {
@@ -182,22 +182,16 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:47:27.377Z",
-      "finishedAt": "2026-08-26T04:47:27.377Z",
+      "startedAt": "2026-08-27T12:01:40.529Z",
+      "finishedAt": "2026-08-27T12:02:29.625Z",
       "output": {
         "lines": [
-          "Granül partisi renkte kararlı mı, kimse bilmiyor",
-          "Renk ölçümü yapan yoksa karar **operatörün gözüne** kalır; aynı parti bir vardiyada kabul, diğerinde ret görür.",
-          "Sabah vardiyası bir partiyi geçirir, akşam vardiyası aynı partiyi geri çevirir; ikisinin de elinde **ölçüm kaydı** yoktur, yalnızca göz kararı vardır.",
-          "Ret edilen parti depoda bekler, kimse hangi ölçütle reddedildiğini yazılı olarak gösteremez; itiraz geldiğinde tartışma **vardiyanın hafızasına** kalır.",
-          "Renk kararlılığı **bir ölçüm** olur, bir kayıt olarak kalır, kimsenin hafızasına muhtaç kalmaz.",
-          "Granül verinizi gösterin, renk kararlılığını nasıl ölçtüğümüzü birlikte görün.",
-          "AKIŞ: Renk kararlılığı ölçümü",
-          "- Numune al | Partiden temsilci örnek çıkar",
-          "- Renk ölç | Cihazla nesnel renk değeri kaydet",
-          "- Kayda geç | Ölçümü partiyle birlikte sakla",
-          "- Karşılaştır | Önceki partilerle sapmayı göster",
-          "- Karar ver | Kabul ya da ret gerekçeli olsun"
+          "Aynı reçete, her seferinde **farklı renk**",
+          "Geri kazanılmış granülün renk kararlılığı **gözle kontrol** ediliyor; hangi partinin sapıp hangisinin geçtiği hiçbir yerde kayıt altına alınmıyor.",
+          "Renk sapması olan bir parti fark edilmeden sevk edildiğinde, müşteri şikayeti geldiğinde hangi granülün karıştığını **geriye dönük** çıkarmak mümkün olmuyor.",
+          "Vardiya değiştiğinde ölçüt de değişiyor: bir operatörün uygun dediği renk bir başkasına sapmış görünüyor, çünkü ortak bir referans kaydı yok.",
+          "Renk kararlılığı artık **her partiye bağlı** bir ölçüm olarak kayda geçiyor.",
+          "Granül hattınızın renk verisini birlikte kaydetmeye başlayalım — demo isteyin."
         ]
       }
     },
@@ -251,8 +245,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:47:27.377Z",
-      "finishedAt": "2026-08-26T04:48:13.991Z",
+      "startedAt": "2026-08-27T12:02:29.626Z",
+      "finishedAt": "2026-08-27T12:03:23.415Z",
       "output": null
     },
     {
@@ -286,8 +280,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T04:48:13.992Z",
-      "finishedAt": "2026-08-26T04:48:13.995Z",
+      "startedAt": "2026-08-27T12:03:23.416Z",
+      "finishedAt": "2026-08-27T12:03:23.442Z",
       "output": {
         "sablonId": "donen",
         "ritimHedefi": "veri-hikayesi",
@@ -325,8 +319,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T04:48:14.013Z",
-      "finishedAt": "2026-08-26T04:48:18.622Z",
+      "startedAt": "2026-08-27T12:03:23.455Z",
+      "finishedAt": "2026-08-27T12:03:28.242Z",
       "output": {
         "provaGecti": true
       }
@@ -381,11 +375,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:48:18.622Z",
-      "finishedAt": "2026-08-26T04:48:24.038Z",
+      "startedAt": "2026-08-27T12:03:28.242Z",
+      "finishedAt": "2026-08-27T12:03:34.314Z",
       "output": {
         "lines": [
-          "a single pile of grayish recycled plastic granules on a matte black surface, one soft key light casting a gentle gradient across the pile, plain black background free of gradient or surface detail, soft contact shadow, shallow depth of field, single muted accent color"
+          "a single spectrophotometer rendered in 3d, brushed metal and matte navy body, one soft key light, plain solid black background free of gradient or surface detail, soft contact shadow, every surface in frame plain and unmarked, no screens dials or gauges, matte 3d clay render, soft studio light, muted single accent, front elevation, centred in frame, studio 3d render, one soft key light, brushed metal sheen"
         ]
       }
     },
@@ -441,8 +435,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:48:24.038Z",
-      "finishedAt": "2026-08-26T04:48:39.414Z",
+      "startedAt": "2026-08-27T12:03:34.315Z",
+      "finishedAt": "2026-08-27T12:03:42.551Z",
       "output": {
         "format": "base64",
         "width": 1024,
@@ -497,8 +491,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:48:39.417Z",
-      "finishedAt": "2026-08-26T04:48:56.101Z",
+      "startedAt": "2026-08-27T12:03:42.560Z",
+      "finishedAt": "2026-08-27T12:04:00.684Z",
       "output": {
         "format": "base64"
       }
@@ -554,11 +548,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:48:56.111Z",
-      "finishedAt": "2026-08-26T04:49:02.735Z",
+      "startedAt": "2026-08-27T12:04:00.689Z",
+      "finishedAt": "2026-08-27T12:04:07.691Z",
       "output": {
         "lines": [
-          "a single injection-molded color chip rack in matte navy plastic, holding rows of small recycled-granule color swatches, three quarter angle from the upper left, one soft key light with brushed metal sheen, soft contact shadow, plain solid black background free of gradient or surface detail"
+          "a single injection-molded polymer disc in brushed metal and matte navy, showing a subtle radial gradient of grey tones across its surface, three quarter angle from the upper left, studio 3d render, one soft key light, plain solid black background free of gradient or surface detail, soft contact shadow, every surface in frame plain and unmarked, no screens dials or gauges"
         ]
       }
     },
@@ -614,8 +608,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:02.735Z",
-      "finishedAt": "2026-08-26T04:49:07.482Z",
+      "startedAt": "2026-08-27T12:04:07.692Z",
+      "finishedAt": "2026-08-27T12:04:17.589Z",
       "output": {
         "format": "base64",
         "width": 1024,
@@ -670,8 +664,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:07.486Z",
-      "finishedAt": "2026-08-26T04:49:24.146Z",
+      "startedAt": "2026-08-27T12:04:17.592Z",
+      "finishedAt": "2026-08-27T12:04:40.631Z",
       "output": {
         "format": "base64"
       }
@@ -727,11 +721,11 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:24.155Z",
-      "finishedAt": "2026-08-26T04:49:31.082Z",
+      "startedAt": "2026-08-27T12:04:40.639Z",
+      "finishedAt": "2026-08-27T12:04:47.151Z",
       "output": {
         "lines": [
-          "macro of recycled plastic granules in muted grey-green tones scattered across a plain surface, one soft key light casting subtle shadows, shallow depth of field, plain solid black background free of gradient or surface detail"
+          "a single grey plastic granule sample tray rendered in 3d, brushed metal edge and matte navy body, one soft key light raking across the granule texture, plain solid black background free of gradient or surface detail, soft contact shadow, close macro of the surface detail, studio 3d render, muted single accent, every surface in frame plain and unmarked, no screens dials or gauges"
         ]
       }
     },
@@ -787,8 +781,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:31.083Z",
-      "finishedAt": "2026-08-26T04:49:38.595Z",
+      "startedAt": "2026-08-27T12:04:47.151Z",
+      "finishedAt": "2026-08-27T12:04:53.181Z",
       "output": {
         "format": "base64",
         "width": 1024,
@@ -843,8 +837,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:38.602Z",
-      "finishedAt": "2026-08-26T04:49:55.551Z",
+      "startedAt": "2026-08-27T12:04:53.183Z",
+      "finishedAt": "2026-08-27T12:05:11.079Z",
       "output": {
         "format": "base64"
       }
@@ -900,8 +894,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:55.566Z",
-      "finishedAt": "2026-08-26T04:49:55.567Z",
+      "startedAt": "2026-08-27T12:05:11.083Z",
+      "finishedAt": "2026-08-27T12:05:11.084Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -910,7 +904,7 @@
     {
       "stepId": "gorsel-uret-4",
       "verb": "GENERATE",
-      "status": "skipped",
+      "status": "ok",
       "lane": "free",
       "capability": "image.generate",
       "providerId": "cloudflare-workers-ai",
@@ -959,8 +953,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:55.567Z",
-      "finishedAt": "2026-08-26T04:49:55.567Z",
+      "startedAt": "2026-08-27T12:05:11.085Z",
+      "finishedAt": "2026-08-27T12:05:11.088Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -969,7 +963,7 @@
     {
       "stepId": "gorsel-kirp-4",
       "verb": "GENERATE",
-      "status": "skipped",
+      "status": "ok",
       "lane": "free",
       "capability": "image.matte",
       "providerId": "local-rembg",
@@ -1014,8 +1008,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:55.567Z",
-      "finishedAt": "2026-08-26T04:49:55.568Z",
+      "startedAt": "2026-08-27T12:05:11.088Z",
+      "finishedAt": "2026-08-27T12:05:11.088Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -1072,8 +1066,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:55.568Z",
-      "finishedAt": "2026-08-26T04:49:55.568Z",
+      "startedAt": "2026-08-27T12:05:11.088Z",
+      "finishedAt": "2026-08-27T12:05:11.089Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -1082,7 +1076,7 @@
     {
       "stepId": "gorsel-uret-5",
       "verb": "GENERATE",
-      "status": "skipped",
+      "status": "ok",
       "lane": "free",
       "capability": "image.generate",
       "providerId": "cloudflare-workers-ai",
@@ -1131,8 +1125,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:55.568Z",
-      "finishedAt": "2026-08-26T04:49:55.569Z",
+      "startedAt": "2026-08-27T12:05:11.089Z",
+      "finishedAt": "2026-08-27T12:05:11.090Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -1141,7 +1135,7 @@
     {
       "stepId": "gorsel-kirp-5",
       "verb": "GENERATE",
-      "status": "skipped",
+      "status": "ok",
       "lane": "free",
       "capability": "image.matte",
       "providerId": "local-rembg",
@@ -1186,8 +1180,8 @@
           }
         }
       ],
-      "startedAt": "2026-08-26T04:49:55.569Z",
-      "finishedAt": "2026-08-26T04:49:55.569Z",
+      "startedAt": "2026-08-27T12:05:11.090Z",
+      "finishedAt": "2026-08-27T12:05:11.090Z",
       "output": {
         "atlandi": true,
         "sebep": "prompt-yok"
@@ -1224,8 +1218,8 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T04:49:55.569Z",
-      "finishedAt": "2026-08-26T04:49:55.570Z",
+      "startedAt": "2026-08-27T12:05:11.090Z",
+      "finishedAt": "2026-08-27T12:05:11.120Z",
       "output": {
         "sablonId": "donen",
         "ritimHedefi": "veri-hikayesi",
@@ -1264,17 +1258,10 @@
         "currency": "USD"
       },
       "candidates": [],
-      "startedAt": "2026-08-26T04:49:55.664Z",
-      "finishedAt": "2026-08-26T04:50:04.097Z",
+      "startedAt": "2026-08-27T12:05:11.163Z",
+      "finishedAt": "2026-08-27T12:05:19.228Z",
       "output": {
-        "kusurlar": [
-          {
-            "tur": "matlama-tutmuyor",
-            "kart": null,
-            "alan": null,
-            "aciklama": "kesik görselin köşesi OPAK (alfa 254/255) ve parlaklık 109/255 — arka plan silinmemiş, luma anahtarı da kesmeyecek"
-          }
-        ],
+        "kusurlar": [],
         "ifsaGorunur": true,
         "panoramaGenisligi": 1080,
         "slides": [
@@ -1284,6 +1271,406 @@
           "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a03c64-7b1e-7cb2-b4b8-c9e393e10d73/slayt-04.jpg"
         ]
       }
+    },
+    {
+      "stepId": "gorsel-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "image.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "donen",
+        "son_kullanilan": "memphis,sahne,akan-alan",
+        "topic": "geri kazanılmış granülün renk kararlılığını ölçmek",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "image.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-27T12:05:19.229Z",
+      "finishedAt": "2026-08-27T12:06:21.635Z",
+      "output": {
+        "bulgular": [
+          {
+            "slayt": 1,
+            "bolge": [
+              378,
+              893,
+              415,
+              145
+            ],
+            "kategori": "tipografi",
+            "siddet": "kritik",
+            "aciklama": "Ürünün ön tarafındaki beyaz kağıt/etiket üzerinde anlamsız, okunamayan sahte yazı ve rakamlar var."
+          },
+          {
+            "slayt": 1,
+            "bolge": [
+              505,
+              598,
+              140,
+              42
+            ],
+            "kategori": "tipografi",
+            "siddet": "uyari",
+            "aciklama": "Cihazın LCD ekranında çözünmeyen, anlamsız simge ve karakter kalıntıları görünüyor."
+          }
+        ],
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "tasarim-yargi",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "design.critique",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "donen",
+        "son_kullanilan": "memphis,sahne,akan-alan",
+        "topic": "geri kazanılmış granülün renk kararlılığını ölçmek",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "design.critique",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-27T12:06:21.636Z",
+      "finishedAt": "2026-08-27T12:06:52.005Z",
+      "output": {
+        "bulgular": [],
+        "puanlar": [
+          {
+            "kategori": "denge",
+            "puan": 4,
+            "gerekce": "Sol üstteki metin bloğu ile sağ alandaki ürün ve gradyan panel, eğri çizgi boyunca birbirini dengeliyor."
+          },
+          {
+            "kategori": "hiyerarsi",
+            "puan": 4,
+            "gerekce": "Göz önce serif başlığa, sonra ürün görseline, en son alt metne gidiyor ve bu sıralama net."
+          },
+          {
+            "kategori": "bosluk",
+            "puan": 4,
+            "gerekce": "Başlık ile ürün arasındaki geniş boşluk nefes alanı yaratıyor ve kompozisyonu sıkışık hissettirmiyor."
+          },
+          {
+            "kategori": "tutarlilik",
+            "puan": 4,
+            "gerekce": "Serif başlık ve sans-serif etiket/gövde metni ayrımı ile mavi vurgu rengi (kelime, çizgi, alt bant) tutarlı bir sistem oluşturuyor."
+          },
+          {
+            "kategori": "okunabilirlik",
+            "puan": 5,
+            "gerekce": "Açık renkli tipografi koyu zemin üzerinde her katmanda rahat okunuyor."
+          },
+          {
+            "kategori": "carpicilik",
+            "puan": 3,
+            "gerekce": "Sağdaki gradyan panel düz ve nötr kaldığı için akışta durdurma gücü, başlık ve üründen daha zayıf."
+          }
+        ],
+        "toplam": 4,
+        "reddedilen": []
+      }
+    },
+    {
+      "stepId": "duzelt",
+      "verb": "GENERATE",
+      "status": "skipped",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "donen",
+        "son_kullanilan": "memphis,sahne,akan-alan",
+        "topic": "geri kazanılmış granülün renk kararlılığını ölçmek",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor",
+        "sablon_duzelt": true,
+        "max_chars": 4000,
+        "optional": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-27T12:06:52.005Z",
+      "finishedAt": "2026-08-27T12:06:52.007Z",
+      "output": {
+        "atlandi": true,
+        "sebep": "prompt-yok"
+      }
+    },
+    {
+      "stepId": "kompozit-son",
+      "verb": "COMPOSE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "donen",
+        "son_kullanilan": "memphis,sahne,akan-alan",
+        "topic": "geri kazanılmış granülün renk kararlılığını ölçmek",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor",
+        "katalog": true
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-27T12:06:52.007Z",
+      "finishedAt": "2026-08-27T12:06:52.031Z",
+      "output": {
+        "sablonId": "donen",
+        "ritimHedefi": "veri-hikayesi",
+        "ritimTuttu": false
+      }
+    },
+    {
+      "stepId": "render-son",
+      "verb": "RENDER",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "donen",
+        "son_kullanilan": "memphis,sahne,akan-alan",
+        "topic": "geri kazanılmış granülün renk kararlılığını ölçmek",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor",
+        "width": 1080,
+        "height": 1350
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-27T12:06:52.071Z",
+      "finishedAt": "2026-08-27T12:07:03.975Z",
+      "output": {
+        "kusurlar": [],
+        "ifsaGorunur": true,
+        "panoramaGenisligi": 1080,
+        "slides": [
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a03c64-7b1e-7cb2-b4b8-c9e393e10d73/slayt-01.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a03c64-7b1e-7cb2-b4b8-c9e393e10d73/slayt-02.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a03c64-7b1e-7cb2-b4b8-c9e393e10d73/slayt-03.jpg",
+          "/home/cagataysntrk/İndirilenler/projeler/creativesuite/derived/runs/run_01a03c64-7b1e-7cb2-b4b8-c9e393e10d73/slayt-04.jpg"
+        ]
+      }
+    },
+    {
+      "stepId": "kalite",
+      "verb": "VALIDATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": null,
+      "providerId": null,
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "donen",
+        "son_kullanilan": "memphis,sahne,akan-alan",
+        "topic": "geri kazanılmış granülün renk kararlılığını ölçmek",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor"
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [],
+      "startedAt": "2026-08-27T12:07:03.975Z",
+      "finishedAt": "2026-08-27T12:07:03.976Z",
+      "output": {
+        "kusurSayisi": 0,
+        "bulgular": [],
+        "gecti": true,
+        "slaytSayisi": 4
+      }
+    },
+    {
+      "stepId": "yayin-metni",
+      "verb": "GENERATE",
+      "status": "ok",
+      "lane": "free",
+      "capability": "text.generate",
+      "providerId": "claude-code",
+      "model": null,
+      "seed": null,
+      "params": {
+        "sablon": "donen",
+        "son_kullanilan": "memphis,sahne,akan-alan",
+        "topic": "geri kazanılmış granülün renk kararlılığını ölçmek",
+        "kacinilacak": "sifirdan baslangic: sablon gelistirme turunun test kosusu, urun degil — varliklari karantinada, defteri duruyor",
+        "yayin_metni": true,
+        "max_chars": 3000
+      },
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      },
+      "actualCost": {
+        "micros": "0",
+        "currency": "USD"
+      },
+      "candidates": [
+        {
+          "providerId": "claude-code",
+          "capability": "text.generate",
+          "selected": true,
+          "rejectionReason": null,
+          "estimatedCost": {
+            "low": {
+              "micros": "0",
+              "currency": "USD"
+            },
+            "high": {
+              "micros": "0",
+              "currency": "USD"
+            }
+          }
+        }
+      ],
+      "startedAt": "2026-08-27T12:07:03.976Z",
+      "finishedAt": "2026-08-27T12:07:17.274Z",
+      "output": null
     }
   ],
   "decisions": [
@@ -1291,6 +1678,12 @@
       "gate": "metin-onayi",
       "decision": "approved",
       "at": "2026-08-26T04:47:26.358Z",
+      "note": null
+    },
+    {
+      "gate": "tasarim-onayi",
+      "decision": "approved",
+      "at": "2026-08-27T12:01:39.409Z",
       "note": null
     }
   ],
@@ -1321,6 +1714,6 @@
     }
   ],
   "contextRetentionDays": 90,
-  "awaitingGate": "tasarim-onayi",
-  "stoppedAt": "gorsel-yargi"
+  "awaitingGate": "insan-onayi",
+  "stoppedAt": "onay"
 }

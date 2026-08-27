@@ -5,7 +5,7 @@
   "eraId": "imalat-2026",
   "corpusCommit": "c203f7e9b2485e5411cdc63a6b5c5a19b2e97983",
   "registryCommit": "c203f7e9b2485e5411cdc63a6b5c5a19b2e97983",
-  "frozenAt": "2026-08-26T04:47:27.370Z",
+  "frozenAt": "2026-08-27T12:01:40.502Z",
   "order": [
     "cozumle",
     "konu-sec",
@@ -37,6 +37,7 @@
     "kompozit-son",
     "render-son",
     "kalite",
+    "yayin-metni",
     "onay",
     "yayinla"
   ],
@@ -764,6 +765,30 @@
       }
     },
     {
+      "stepId": "yayin-metni",
+      "verb": "GENERATE",
+      "capability": "text.generate",
+      "metered": true,
+      "providerId": "claude-code",
+      "confidence": "green",
+      "descriptorDigest": "dbc671aa7",
+      "params": {
+        "yayin_metni": true,
+        "max_chars": 3000
+      },
+      "seed": null,
+      "estimatedCost": {
+        "low": {
+          "micros": "0",
+          "currency": "USD"
+        },
+        "high": {
+          "micros": "0",
+          "currency": "USD"
+        }
+      }
+    },
+    {
       "stepId": "onay",
       "verb": "PROPOSE",
       "capability": null,
@@ -792,9 +817,7 @@
       "providerId": null,
       "confidence": null,
       "descriptorDigest": null,
-      "params": {
-        "platform": "instagram"
-      },
+      "params": {},
       "seed": null,
       "estimatedCost": {
         "low": {
@@ -823,5 +846,5 @@
     "currency": "USD"
   },
   "varyantSayisi": 1,
-  "digest": "sha256:49393b34e5830801e385e8fe020833b18fd0e25644dbb5db0dad669b6651bf90"
+  "digest": "sha256:48839a803b7cfc163c9bc6d192bf838cd8b833beee2f8746cf445e180f145b95"
 }

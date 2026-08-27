@@ -42,7 +42,7 @@
   ],
   "gorseller": [
     {
-      "src": "gorsel-01.png",
+      "src": "gorsel-01-elle.png",
       "alt": "ürün — 1",
       "x": 8,
       "y": 26,
@@ -51,7 +51,7 @@
       "kirpma": "kesik"
     },
     {
-      "src": "gorsel-02.png",
+      "src": "gorsel-02-elle.png",
       "alt": "ürün — 2",
       "x": 34,
       "y": 22,
@@ -60,7 +60,7 @@
       "kirpma": "kesik"
     },
     {
-      "src": "gorsel-03.png",
+      "src": "gorsel-03-elle.png",
       "alt": "ürün — 3",
       "x": 59,
       "y": 25,
@@ -71,9 +71,9 @@
   ],
   "kartlar": [
     {
-      "ustBaslik": "GÖZ KARARI",
-      "baslik": "Karar hep **göze** kalıyor",
-      "govde": "Sabah kabul eder, akşam aynı partiyi geri çevirir.",
+      "ustBaslik": "RENK",
+      "baslik": "Aynı reçete, **farklı** renk",
+      "govde": "Renk kararlılığı yalnızca gözle kontrol ediliyor.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",
@@ -81,9 +81,9 @@
       "zemin": "var(--role-bg)"
     },
     {
-      "ustBaslik": "HAFIZA",
-      "baslik": "Kayıt yok, tartışma hafızada",
-      "govde": "Reddedilen parti depoda bekler, ret gerekçesi yazılı değildir.",
+      "ustBaslik": "KAYIT",
+      "baslik": "Kayıt yok, iz kaybolur",
+      "govde": "Sapan parti sevk edilince şikayette hangi granül olduğu bulunamıyor.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",
@@ -92,9 +92,9 @@
       "kolon": "orta"
     },
     {
-      "ustBaslik": "SÜREÇ",
-      "baslik": "Ölçüm akışa dönüşür",
-      "govde": "Numune alınır, ölçülür, kaydedilir, karşılaştırılır.",
+      "ustBaslik": "VARDİYA",
+      "baslik": "Vardiyada ölçüt değişiyor",
+      "govde": "Operatöre göre uygun renk farklı görünür, ortak referans yok.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",
@@ -104,9 +104,9 @@
       "aksanRolu": "yok"
     },
     {
-      "ustBaslik": "DAVET",
-      "baslik": "Artık **ölçüm** konuşur",
-      "govde": "Granülünüzü gösterin, ölçümü birlikte görelim.",
+      "ustBaslik": "ÇÖZÜM",
+      "baslik": "Artık **partiye** bağlı",
+      "govde": "Granül hattınızın renk verisini birlikte kaydedelim, demo isteyin.",
       "hayalet": "",
       "rayaSol": "",
       "rayaOrta": "upcyman.com",
