@@ -30,6 +30,16 @@ export const PLATFORMLAR = [
   { id: 'x', kisa: 'X' },
 ] as const
 
+/**
+ * Platform seçimi YAPILMAMIŞ bir gönderinin varsayılanı.
+ *
+ * ⚠ ⚠ **TEK KAYNAK — üç yerde ayrı ayrı yazılıydı ve biri geride kaldı.** Takvim
+ * kutucuğu, karar kutusu ve koşu başlatıcı üçü de kendi varsayılanını taşıyordu; sahip
+ * IG+LinkedIn'e daraltınca ikisi güncellendi, takvim kutucuğu hâlâ *"IG FB in X"*
+ * gösteriyordu. Bu deponun tekrar eden sınıfı: aynı soru iki yerde ayrı cevaplanıyor.
+ */
+export const VARSAYILAN_PLATFORMLAR: readonly string[] = ['instagram', 'linkedin']
+
 export type TakvimKarari = 'planla' | 'cikar' | 'elle-yayinlandi' | 'geri-al'
 
 interface Olay {
@@ -48,6 +58,8 @@ export const GonderiKutusu = ({
   kapat,
   sonra,
   otomatikTarih,
+  metinliPlatformlar,
+  senkron,
 }: {
   readonly runId: string
   readonly konu: string
@@ -62,6 +74,18 @@ export const GonderiKutusu = ({
    * "otomatik" seçeneği, insana kapalı kutu imzalatmaktır. Bilinmiyorsa söylenmiyor.
    */
   readonly otomatikTarih?: string
+  /**
+   * Gönderi metni ÜRETİLMİŞ platformlar.
+   *
+   * ⚠ ⚠ **BU OLMADAN KUTU KÖR SEÇİM YAPTIRIYORDU.** Varsayılan IG+LinkedIn'di; metni
+   * yalnız X ve LinkedIn'de olan bir gönderide *"bu tarihe planla"*ya basınca sunucu
+   * haklı olarak reddediyordu — ama insan bunu ANCAK bastıktan sonra öğreniyordu.
+   * Reddi doğru yerde vermek yetmez; reddi ÖNGÖRÜLEBİLİR yapmak gerekiyor.
+   * ⚠ Verilmezse denetim yapılmıyor (koşu detayı henüz taşımıyor olabilir).
+   */
+  readonly metinliPlatformlar?: readonly string[]
+  /** Bu gönderi hedefe iletildi mi — defterin son senkron kaydı. */
+  readonly senkron?: string
 }): React.JSX.Element => {
   const [tarih, setTarih] = useState(bugun)
   /**
@@ -73,9 +97,24 @@ export const GonderiKutusu = ({
    * ⚠ Facebook ve X KALDIRILMADI, yalnız varsayılan dışına çıktı: hesap bağlanınca tek
    * tıklamayla geri geliyor.
    */
-  const [secili, setSecili] = useState<readonly string[]>(['instagram', 'linkedin'])
+  // ⚠ ⚠ **VARSAYILAN SEÇİM, METNİ OLANLARLA KESİŞİYOR.** Metni olmayan bir platformu
+  // işaretli başlatmak, insana reddedilecek bir seçim sunmaktır. Kesişim boşsa metni
+  // olan HER platform seçiliyor — hiçbiri yoksa boş, ve o zaman uyarı görünüyor.
+  const [secili, setSecili] = useState<readonly string[]>(VARSAYILAN_PLATFORMLAR)
+  /** İnsan kutucuklara DOKUNDU mu — dokunduysa otomatik düzeltme durur. */
+  const [eldeSecildi, setEldeSecildi] = useState(false)
   const [gecmis, setGecmis] = useState<readonly Olay[]>([])
   const [mesaj, setMesaj] = useState<string | null>(null)
+  /**
+   * Metni olan platformlar — çağıran vermezse KUTU KENDİ ÖĞRENİYOR.
+   *
+   * ⚠ ⚠ **ÇAĞIRANIN HATIRLAMASINA BIRAKMAK KUSUR ÜRETTİ.** Takvim ekranı bu bilgiyi
+   * geçiyordu, koşu detayı geçmiyordu; sonuç: koşu detayında kutu Instagram'ı işaretli
+   * başlatıyor, insan *"bu tarihe planla"*ya basıyor ve sunucu haklı olarak reddediyordu.
+   * Üç çağıran varsa üçünün de hatırlaması gereken bir şey, er geç birinde unutulur.
+   * Kutu kendi geçmişini zaten çekiyor; bunu da çekmesi aynı sınıf.
+   */
+  const [kendiMetinler, setKendiMetinler] = useState<readonly string[] | null>(null)
 
   /**
    * ŞU AN geçerli olan karar — defterin son sözü.
@@ -85,9 +124,47 @@ export const GonderiKutusu = ({
    */
   const sonKarar = ((): Olay | null => {
     let k: Olay | null = null
-    for (const o of gecmis) k = o.karar === 'geri-al' ? null : o
+    for (const o of gecmis) {
+      // ⚠ ⚠ **`senkron` BİR KARAR DEĞİL, BİR OLAY — ve bunu atlamayı UNUTTUM.** Sunucuda
+      // `gecerliKararlar` onu atlıyordu, panelde atlamıyordum: hedefe gönderdikten sonra
+      // ekran *"takvimden ÇIKARILMIŞ"* diyordu, çünkü son olay bir karar sanılıp
+      // bilinmeyen tür `cikar` dalına düşüyordu. Aynı kuralın iki yerde ayrı yazılması —
+      // bu deponun tekrar eden sınıfı, bir kez daha.
+      if (o.karar === 'senkron') continue
+      k = o.karar === 'geri-al' ? null : o
+    }
     return k
   })()
+
+  /**
+   * Gönderiyi hedefe iletir.
+   *
+   * ⚠ Hedef seçimi YOK çünkü bugün tek hedef var. İkinci hedef eklendiğinde buraya bir
+   * seçici gelecek; şimdi koymak, tek seçenekli bir menü göstermek olurdu.
+   */
+  const hedefeGonder = async (): Promise<void> => {
+    setMesaj('⇄ hedefe iletiliyor…')
+    try {
+      const j = (await (
+        await fetch('/api/yayin-senkron', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ runId, hedef: 'yerel' }),
+        })
+      ).json()) as { ok?: boolean; durum?: string; not?: string; hedef?: string; hata?: string }
+      setMesaj(
+        j.ok === true
+          ? `⇄ ${j.hedef ?? ''} · ${j.durum ?? ''} — ${j.not ?? ''}`
+          : `✗ ${j.hata ?? 'iletilemedi'}`
+      )
+      if (j.ok === true) {
+        await gecmisiCek()
+        await sonra?.()
+      }
+    } catch {
+      setMesaj('✗ sunucuya ulaşılamıyor')
+    }
+  }
 
   const paketle = async (): Promise<void> => {
     setMesaj('paketleniyor…')
@@ -132,11 +209,44 @@ export const GonderiKutusu = ({
     void gecmisiCek()
   }, [gecmisiCek])
 
+  useEffect(() => {
+    if (metinliPlatformlar !== undefined) return
+    void (async () => {
+      try {
+        const j = (await (await fetch(`/api/kosu/${runId}/yayin-metinleri`)).json()) as {
+          platformlar?: readonly { id: string; metin: string }[]
+        }
+        setKendiMetinler(
+          (j.platformlar ?? []).filter((x) => x.metin.trim() !== '').map((x) => x.id)
+        )
+      } catch {
+        // Uç düşerse denetim yapılmıyor — sunucu yine reddeder, yalnız uyarı erken gelmez.
+        setKendiMetinler(null)
+      }
+    })()
+  }, [runId, metinliPlatformlar])
+
   /**
    * ⚠ ⚠ **SON KARARIN PLATFORMLARI GERİ YÜKLENİYOR.** İlk sürüm her açılışta dördünü
    * de işaretliyordu; yalnız Instagram'a planlanmış bir gönderiyi açıp tarihini
    * değiştiren biri, farkında olmadan dört platforma geri alıyordu.
    */
+  /** Metni olan platformlar: çağıranınki, yoksa kutunun kendi öğrendiği. */
+  const metinli = metinliPlatformlar ?? kendiMetinler ?? undefined
+
+  /**
+   * Metin durumu öğrenilince seçim KENDİLİĞİNDEN düzeliyor — ama insan dokunmadıysa.
+   *
+   * ⚠ ⚠ **İNSANIN SEÇİMİNİ EZMEK YASAK.** İnsan bilerek metinsiz bir platformu
+   * işaretlediyse (önce planlayıp sonra metni üretmek isteyebilir) onu geri almak, verdiği
+   * kararı sessizce iptal etmek olurdu. `eldeSecildi` o çizgiyi çiziyor.
+   */
+  useEffect(() => {
+    if (eldeSecildi || metinli === undefined) return
+    const kesisim = VARSAYILAN_PLATFORMLAR.filter((id) => metinli.includes(id))
+    setSecili(kesisim.length > 0 ? kesisim : metinli)
+  }, [metinli, eldeSecildi])
+
   useEffect(() => {
     const son = [...gecmis]
       .reverse()
@@ -145,6 +255,14 @@ export const GonderiKutusu = ({
     if (son.platformlar !== undefined && son.platformlar.length > 0) setSecili(son.platformlar)
     if (son.tarih !== '') setTarih(son.tarih)
   }, [gecmis])
+
+  /** Seçili ama metni OLMAYAN platformlar — planlamayı engelleyenler. */
+  const eksikMetin =
+    metinli === undefined
+      ? []
+      : secili
+          .filter((id) => !metinli.includes(id))
+          .map((id) => PLATFORMLAR.find((p) => p.id === id)?.kisa ?? id)
 
   const karar = async (
     k: TakvimKarari,
@@ -201,22 +319,50 @@ export const GonderiKutusu = ({
         <label>
           tarih <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} />
         </label>
-        {PLATFORMLAR.map((p) => (
-          <label key={p.id}>
-            <input
-              type="checkbox"
-              checked={secili.includes(p.id)}
-              onChange={(e) =>
-                setSecili(e.target.checked ? [...secili, p.id] : secili.filter((x) => x !== p.id))
-              }
-            />{' '}
-            {p.kisa}
-          </label>
-        ))}
+        {/* ⚠ ⚠ **METNİ OLMAYAN PLATFORM İŞARETLENEBİLİR ama UYARIYLA.** Kapatmak
+            (`disabled`) yanlış olurdu: insan önce planlayıp sonra metni üretmek
+            isteyebilir. Ama ne olacağını BİLEREK seçmeli — sunucu o seçimi reddedecek
+            ve sebebini o an değil, düğmeye bastıktan sonra öğrenmek kötü bir sıra. */}
+        {PLATFORMLAR.map((p) => {
+          const metinVar = metinli === undefined || metinli.includes(p.id)
+          return (
+            <label key={p.id} className={metinVar ? undefined : 'is-uyari'}>
+              <input
+                type="checkbox"
+                checked={secili.includes(p.id)}
+                onChange={(e) => {
+                  setEldeSecildi(true)
+                  setSecili(e.target.checked ? [...secili, p.id] : secili.filter((x) => x !== p.id))
+                }}
+              />{' '}
+              {p.kisa}
+              {metinVar ? '' : ' ⚠ metinsiz'}
+            </label>
+          )
+        })}
       </div>
+      {/* ⚠ Uyarı düğmenin ÜSTÜNDE: tıkladıktan sonra okunan bir uyarı, uyarı değildir. */}
+      {eksikMetin.length === 0 ? null : (
+        <p className="is-uyari">
+          ⚠ {eksikMetin.join(', ')} için gönderi metni YOK — bu seçimle planlama reddedilecek. Koşu
+          detayında <strong>⚡ üret</strong> ile metni üret.
+        </p>
+      )}
       <div className="kapi-dugmeler">
-        <button type="button" onClick={() => void karar('planla', { tarih, platformlar: secili })}>
+        <button
+          type="button"
+          disabled={eksikMetin.length > 0}
+          onClick={() => void karar('planla', { tarih, platformlar: secili })}
+        >
           ✓ bu tarihe planla
+        </button>
+        {/* ⚠ ⚠ **HEDEFE GÖNDER — bugün YEREL, yarın MCP.** Yerel hedef paket klasörü
+            üretiyor ve *"gönderildi"* DEMİYOR: hiçbir yere gitmedi, klasör diskte.
+            Metricool hedefi bağlandığında bu düğme onu çağıracak ve rozet gerçek bir
+            "eşitlendi" gösterecek — panelin hiçbir yeri değişmeden.
+            ⛔ Hiçbir hedef YAYINLAMIYOR; zamanlıyor. */}
+        <button type="button" onClick={() => void hedefeGonder()}>
+          ⇄ hedefe gönder
         </button>
         {/* ⛔ Sistem GÖNDERMİYOR: bu düğme insanın uygulamadan paylaştığını KAYDEDİYOR. */}
         <button
@@ -235,6 +381,9 @@ export const GonderiKutusu = ({
           ⬇ yayın paketi çıkar
         </button>
       </div>
+      {/* ⚠ Senkron durumu KUTUDA, geçmişin içinde kaybolmasın diye: "gönderdim mi"
+          sorusu en sık sorulanlardan ve cevabı bir tık ötede olmamalı. */}
+      {senkron === undefined || senkron === '' ? null : <p className="olcum">⇄ {senkron}</p>}
       {mesaj === null ? null : <p className="olcum">{mesaj}</p>}
       {/* ⚠ Geçmiş GÖSTERİLİYOR: geri almanın NEYİ geri aldığını görmeden basılan düğme
           bir tahmindir. Ekleme kolay, geri alma zor. */}

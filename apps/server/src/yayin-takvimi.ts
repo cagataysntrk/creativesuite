@@ -33,6 +33,14 @@ export type TakvimKarari =
   | 'elle-yayinlandi'
   /** Önceki karar geri alındı — üretim otomatik takvime döner. */
   | 'geri-al'
+  /**
+   * Gönderi bir HEDEFE iletildi (yerel paket, Metricool…).
+   *
+   * ⚠ ⚠ **BU BİR İNSAN KARARI DEĞİL, BİR OLAY** — ve aynı deftere yazılıyor çünkü aynı
+   * gönderinin hikâyesi. `gecerliKararlar` onu ATLIYOR: bir senkron kaydı gönderinin
+   * tarihini ya da takvimdeki yerini değiştirmiyor.
+   */
+  | 'senkron'
 
 export interface TakvimOlayi {
   readonly runId: string
@@ -87,8 +95,27 @@ export const takvimOlaylari = (
 export const gecerliKararlar = (repoRoot: string): ReadonlyMap<string, TakvimOlayi> => {
   const m = new Map<string, TakvimOlayi>()
   for (const o of takvimOlaylari(repoRoot).olaylar) {
+    // ⚠ ⚠ **SENKRON KAYDI KARARI EZMİYOR.** Bir gönderinin hedefe iletilmiş olması
+    // takvimdeki yerini değiştirmez; ikisi ayrı sorular. İlk sürümde `else` dalına
+    // düşseydi, senkrondan sonra gönderi tarihini kaybederdi.
+    if (o.karar === 'senkron') continue
     if (o.karar === 'geri-al') m.delete(o.runId)
     else m.set(o.runId, o)
+  }
+  return m
+}
+
+/**
+ * Bir koşunun SON senkron kaydı — hedefe gitti mi, hangi durumda.
+ *
+ * ⚠ Karar `geri-al` ile sıfırlanınca senkron kaydı da geçersiz sayılıyor: takvimden
+ * çıkarılmış bir gönderinin "eşitlendi" rozeti taşıması yanıltıcı olurdu.
+ */
+export const sonSenkron = (repoRoot: string): ReadonlyMap<string, TakvimOlayi> => {
+  const m = new Map<string, TakvimOlayi>()
+  for (const o of takvimOlaylari(repoRoot).olaylar) {
+    if (o.karar === 'geri-al') m.delete(o.runId)
+    else if (o.karar === 'senkron') m.set(o.runId, o)
   }
   return m
 }
@@ -116,7 +143,7 @@ export const takvimeYaz = (
     readonly simdi: string
   }
 ): YazmaSonucu => {
-  const gecerli: readonly string[] = ['planla', 'cikar', 'elle-yayinlandi', 'geri-al']
+  const gecerli: readonly string[] = ['planla', 'cikar', 'elle-yayinlandi', 'geri-al', 'senkron']
   if (!gecerli.includes(g.karar)) return { ok: false, hata: `bilinmeyen karar: ${g.karar}` }
   const tarih = (g.tarih ?? '').trim()
   if ((g.karar === 'planla' || g.karar === 'elle-yayinlandi') && !/^\d{4}-\d{2}-\d{2}$/.test(tarih))

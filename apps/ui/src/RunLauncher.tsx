@@ -8,6 +8,7 @@
 // hissettirir; oysa aralık onu zaten söylüyordu (§8.3).
 
 import { useCallback, useEffect, useState } from 'react'
+import { VARSAYILAN_PLATFORMLAR } from './GonderiKutusu.js'
 
 /**
  * Yayın platformları — panelde gösterilen liste.
@@ -103,7 +104,7 @@ export const RunLauncher = ({
   // Insta'ya paylaşacağız."*
   // ⚠ Facebook ve X SİLİNMEDİ, yalnız varsayılan dışına çıktı: hesap bağlanınca tek
   // tıklamayla geri geliyor. Varsayılan bir tercih beyanıdır, bir yetenek sınırı değil.
-  const [platformlar, setPlatformlar] = useState<readonly string[]>(['instagram', 'linkedin'])
+  const [platformlar, setPlatformlar] = useState<readonly string[]>(VARSAYILAN_PLATFORMLAR)
   const [sablonlar, setSablonlar] = useState<
     readonly { id: string; ad: string; kullanilabilir: boolean }[]
   >([])

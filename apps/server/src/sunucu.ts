@@ -39,10 +39,11 @@ import { KATALOG, MUZIK_KURALI, PLATFORMLAR, platformDenetle } from '@suite/cont
 // ⚠ Şablonun TEK kaynağı: parametre dosyası sistem seçince boş kalıyor (madde 1).
 import { kosuSablonu } from './kosu-sablonu.js'
 // ⚠ Takvim defteri: insanin elle verdigi kararlar burada yasiyor (UX-6).
-import { gecerliKararlar, takvimOlaylari, takvimeYaz } from './yayin-takvimi.js'
+import { gecerliKararlar, takvimOlaylari, takvimeYaz, sonSenkron } from './yayin-takvimi.js'
 // ⚠ Takvim kuralı `@suite/engine`de: çeşitlilik ve denge orada ÖLÇÜLDÜ.
 import { kusuruYaz, yayinMetniIstemi, yayinPlaniKur } from '@suite/engine'
 import { PAKET_KOK, yayinPaketiYaz } from './yayin-paketi.js'
+import { PLATFORM_ZAMANLAYABILIR, hedefBul, hedefler, yerelHedef } from './yayin-hedefi.js'
 import type { DiscoveryOpView, HaltedRecord, ToleranceReading } from '@suite/contracts'
 import {
   COLUMN_LABELS,
@@ -689,14 +690,71 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       return c.json({ ok: false, hata: 'baslangic YYYY-MM-DD olmalı' }, 400)
 
     const k = kutuphane(o.repoRoot)
+    /**
+     * Bir koşunun slaytları — TESLİMAT SIRASINDA.
+     *
+     * ⚠ ⚠ **TAKVİMDE GÖRSEL ŞART.** Depo sahibi: *"bunlar da görselleriyle görünmeli"*.
+     * Bir gönderiyi tarihinden ya da şablon adından değil, NEYE BENZEDİĞİNDEN tanıyoruz;
+     * görselsiz bir takvim satırı bir muhasebe kaydıdır.
+     * ⚠ Sıra `teslimat.index`ten — `createdAt` milisaniyede eşitlenebiliyor (ölçüldü).
+     */
+    const slaytlariAl = (runId: string): readonly string[] =>
+      k.varliklar
+        .filter((v) => v.sourceRunId === runId)
+        .sort((a, b2) =>
+          a.teslimat !== null && b2.teslimat !== null
+            ? a.teslimat.index - b2.teslimat.index
+            : a.createdAt.localeCompare(b2.createdAt)
+        )
+        .map((v) => v.digest)
+
+    /**
+     * Bu koşunun HANGİ platformlar için gönderi metni var.
+     *
+     * ⚠ ⚠ **METİNSİZ GÖNDERİ PLANLANAMAZ** — depo sahibinin kuralı: *"gönderi metni
+     * olmayan şeyler nasıl planlanıyor, gönderi metni zorunlu olmalı!!"* Ve haklı:
+     * metinsiz planlanan bir gönderi, yayın gününde metinsiz kalıyor ve o gün metin
+     * yazmak için vakit yok. Şart üretim anına çekildi.
+     */
+    const metinleriAl = (runId: string): readonly string[] => {
+      const y = join(o.repoRoot, RUNS_DIR, runId, 'steps/yayin-metni.json')
+      if (!existsSync(y)) return []
+      try {
+        const d = JSON.parse(readFileSync(y, 'utf8')) as {
+          yayinMetinleri?: Record<string, string>
+        }
+        return Object.entries(d.yayinMetinleri ?? {})
+          .filter(([, m]) => String(m).trim() !== '')
+          .map(([id]) => id)
+      } catch {
+        return []
+      }
+    }
+
     const yayinlanmisSet = new Set(
       k.varliklar.filter((v) => v.yayinlandi).map((v) => v.sourceRunId)
     )
     let sablonsuz = 0
     let elenmis = 0
-    const hazir: { runId: string; sablon: string; hazirlanmaZamani: string; konu: string }[] = []
+    const hazir: {
+      runId: string
+      sablon: string
+      hazirlanmaZamani: string
+      konu: string
+      slaytlar: readonly string[]
+      metinler: readonly string[]
+      /** Hangi kapıda bekliyor — planlamayı ENGELLEMİYOR, ama satırda görünüyor. */
+      kapi: string
+    }[] = []
     const gecmis: { runId: string; sablon: string; konu: string; zaman: string }[] = []
-    const kapida: { runId: string; sablon: string; konu: string; kapi: string }[] = []
+    const kapida: {
+      runId: string
+      sablon: string
+      konu: string
+      kapi: string
+      metinYok: boolean
+      slaytYok: boolean
+    }[] = []
     // ⚠ ⚠ **DÖRDÜNCÜ BİR DURUM VAR ve ekran onu HİÇ göstermiyordu.** Ekran üç kutu
     // biliyordu: yayına hazır, kapıda bekleyen, yayınlanmış. Ama bir koşu son kapısını
     // geçip hattın ortasında DURABİLİYOR: `awaitingGate` null, `insan-onayi` yok,
@@ -708,6 +766,14 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // konusuz gönderiler de sessizce düşüyordu. Kural artık açık — bir koşu HİÇBİR
     // kutuya girmiyorsa o bir kutu eksikliğidir, koşu eksikliği değil.
     const yolda: { runId: string; sablon: string; konu: string; durdugu: string }[] = []
+    /** Müdahale isteyen koşular — kapıda BEKLEYEN değil, DURMUŞ olanlar. */
+    const hatali: {
+      runId: string
+      sablon: string
+      konu: string
+      slaytlar: readonly string[]
+      sebep: string
+    }[] = []
 
     for (const d of readdirSync(join(o.repoRoot, RUNS_DIR), { withFileTypes: true })) {
       if (!d.isDirectory()) continue
@@ -750,16 +816,59 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         gecmis.push({ runId: d.name, sablon, konu, zaman: m.createdAt })
         continue
       }
-      if (kararlar.some((x) => x.gate === 'insan-onayi' && x.decision === 'approved')) {
-        hazir.push({ runId: d.name, sablon, hazirlanmaZamani: m.createdAt, konu })
-        continue
-      }
+      const slaytlar = slaytlariAl(d.name)
+      const metinler = metinleriAl(d.name)
       const g = m.awaitingGate ?? ''
-      if (g !== '') {
-        kapida.push({ runId: d.name, sablon, konu, kapi: g })
+
+      // ⚠ ⚠ **TAKVİME GİRME ŞARTI DEĞİŞTİ ve eskisi YANLIŞTI.** Önce `insan-onayi`
+      // aranıyordu; sonuç: on üretimin hiçbiri geçmemişti ve takvim BOŞTU. Depo sahibi
+      // gördü — *"yayın takvimi boş görünüyor"*. Onay hattın SON kapısı; planlama ise
+      // ondan önce yapılan bir iş. Yayın gününü onaydan sonra düşünmek, planlamayı
+      // yayın gününe ertelemek demekti.
+      //
+      // ⚠ ⚠ **YENİ ŞART: SLAYT + GÖNDERİ METNİ.** Depo sahibi: *"gönderi metni olmayan
+      // şeyler nasıl planlanıyor, gönderi metni zorunlu olmalı!!"* Metinsiz planlanan
+      // bir gönderi, yayın gününde metinsiz kalır ve o gün metin yazacak vakit yoktur.
+      if (slaytlar.length > 0 && metinler.length > 0) {
+        hazir.push({
+          runId: d.name,
+          sablon,
+          hazirlanmaZamani: m.createdAt,
+          konu,
+          slaytlar,
+          metinler,
+          kapi: g,
+        })
         continue
       }
-      yolda.push({ runId: d.name, sablon, konu, durdugu: m.stoppedAt ?? 'bilinmiyor' })
+
+      // ⚠ ⚠ **HATALI ve BEKLEYEN AYRI.** Bir koşu kapıda İNSANI bekliyorsa o bir hata
+      // değil, bir sıradır. Hattın ortasında durmuşsa ya da manifesti kusurluysa o bir
+      // HATADIR ve müdahale ister. İkisini aynı kutuya koymak, sırayı hata gibi
+      // gösterip gerçek hatayı içinde kaybederdi.
+      if (g === '') {
+        hatali.push({
+          runId: d.name,
+          sablon,
+          konu,
+          slaytlar,
+          sebep:
+            m.stoppedAt === undefined || m.stoppedAt === null
+              ? 'hat durdu — sebep defterde yok'
+              : `${m.stoppedAt} adımında durdu`,
+        })
+        continue
+      }
+      kapida.push({
+        runId: d.name,
+        sablon,
+        konu,
+        kapi: g,
+        // ⚠ Neden planlanamadığı SATIRDA: "kapıda" demek yetmiyor, metni de yoksa
+        // onay geldiğinde yine planlanamayacak.
+        metinYok: metinler.length === 0,
+        slaytYok: slaytlar.length === 0,
+      })
     }
 
     // ⚠ Geçmişteki son şablonlar planın penceresine giriyor: takvimin ilk gönderisi,
@@ -775,8 +884,27 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const elle = gecerliKararlar(o.repoRoot)
     const otomatigeKalan = hazir.filter((h) => !elle.has(h.runId))
     const plan = yayinPlaniKur(otomatigeKalan, { haftadaKac, baslangic, oncekiSablonlar })
+    // ⚠ ⚠ **OTOMATİK PLANIN GÖNDERİLERİ DE SLAYT TAŞIYOR.** Planlayıcı yalnız kimlik ve
+    // tarih döndürüyor; görseli ekranda göstermek için burada birleştiriliyor. İki ayrı
+    // gönderi biçimi (elle görselli, otomatik görselsiz) ekranda iki ayrı kod yolu
+    // demekti — ve biri düzelip öteki unutulurdu.
+    const planSlaytli = {
+      ...plan,
+      gonderiler: plan.gonderiler.map((gd) => {
+        const h = hazir.find((x) => x.runId === gd.runId)
+        return {
+          ...gd,
+          konu: h?.konu ?? '',
+          slaytlar: h?.slaytlar ?? [],
+          metinler: h?.metinler ?? [],
+          elle: false,
+        }
+      }),
+    }
 
     // Elle planlananlar takvime kendi tarihleriyle giriyor.
+    // ⚠ Slaytlar HER gönderiyle taşınıyor: takvimde ve altındaki listelerde görsel
+    // gösterilecek ve ikinci bir istek atmak, on gönderi için on istek demekti.
     const elleGonderiler = hazir
       .filter((h) => elle.get(h.runId)?.karar === 'planla')
       .map((h) => {
@@ -788,6 +916,8 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
           tarih: k.tarih,
           platformlar: k.platformlar,
           elle: true,
+          slaytlar: h.slaytlar,
+          metinler: h.metinler,
         }
       })
     const cikarilan = hazir
@@ -797,6 +927,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         sablon: h.sablon,
         konu: h.konu,
         not: elle.get(h.runId)?.not ?? '',
+        slaytlar: h.slaytlar,
       }))
     const elleYayinlanan = hazir
       .filter((h) => elle.get(h.runId)?.karar === 'elle-yayinlandi')
@@ -805,6 +936,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
         sablon: h.sablon,
         konu: h.konu,
         tarih: elle.get(h.runId)?.tarih ?? '',
+        slaytlar: h.slaytlar,
       }))
 
     // ⚠ ⚠ **HAZIR OLANLARIN LİSTESİ de gidiyor, yalnız SAYISI değil.** İlk sürüm
@@ -825,6 +957,22 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       hazir: hazir.length,
       elenmis,
       yolda,
+      hatali,
+      // ⚠ ⚠ **SENKRON DURUMU GÖNDERİYLE BİRLİKTE GELİYOR.** Ayrı bir uç olsaydı panel
+      // on gönderi için on istek atardı; ve iki isteğin arasında durum değişirse ekran
+      // kendiyle çelişirdi.
+      senkron: Object.fromEntries(
+        [...sonSenkron(o.repoRoot).entries()].map(([runId, olay]) => [runId, olay.not])
+      ),
+      // ⚠ ⚠ **PLANLANAMAYANLAR SAYILIYOR ama LİSTELENMİYOR.** Depo sahibi: *"takvimin
+      // altındaki şeyler sadece planlananlar, yayınlananlar ya da hata verenler
+      // olabilir; başka şeyler olamaz."* Ama sayıyı da gizleyemem: takvim boşken
+      // *"neden boş"* sorusu cevapsız kalırdı. Sayı başlıkta, liste yok.
+      planlanamaz: {
+        toplam: kapida.length,
+        metinYok: kapida.filter((x) => x.metinYok).length,
+        slaytYok: kapida.filter((x) => x.slaytYok).length,
+      },
       hazirListe,
       elleGonderiler,
       cikarilan,
@@ -837,7 +985,7 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       sablonsuz,
       kapida,
       gecmis: gecmis.sort((a2, b2) => b2.zaman.localeCompare(a2.zaman)),
-      plan,
+      plan: planSlaytli,
     })
   })
 
@@ -848,6 +996,107 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
   // güncellenip öteki unutulurdu. Karar bir ALAN, bir adres değil.
   // ⚠ Zaman SUNUCUDAN alınıyor ama TEK yerden (`o.simdi()`): gövdeden gelen bir zaman
   // damgası, geçmişe kayıt yazmayı mümkün kılardı.
+  // ⚠ Yerel hedef `paketle`yi kullanıyor — paket üretme yolu TEK, ve hedef onu
+  // çağırıyor. İkinci bir paketleyici yazmak aynı klasörü iki türlü üretirdi.
+  const hedefListesi = hedefler(
+    yerelHedef((runId, tarih, platformlar) => {
+      const r = paketle(runId, tarih, platformlar)
+      return r.ok ? { ok: true, klasor: r.klasor, eksik: r.eksik } : { ok: false, hata: r.hata }
+    })
+  )
+
+  // ── YAYIN HEDEFLERİ (FAZ-19.13 · UX-20) ──────────────────────────────────
+  //
+  // ⚠ ⚠ **HEDEF BİR YUVA.** Bugün yalnız `yerel` var (paket klasörü üretir, insan
+  // yükler). Metricool MCP hedefi aynı arayüze takılacak ve panelin hiçbir yeri
+  // değişmeyecek — `yayin-hedefi.ts`teki yorum nasıl yazılacağını anlatıyor.
+  app.get('/api/yayin-hedefleri', (c) =>
+    c.json({
+      ok: true,
+      hedefler: hedefListesi.map((h: (typeof hedefListesi)[number]) => ({
+        id: h.id,
+        ad: h.ad,
+        ...h.hazir(),
+        platformlar: h.platformlar(),
+      })),
+      // ⚠ Hangi platformu PLATFORMUN KENDİSİ zamanlıyor — "eşitlendi" rozetinin iki
+      // farklı gerçeği anlatmasını engelleyen ayrım.
+      platformZamanlayabilir: PLATFORM_ZAMANLAYABILIR,
+    })
+  )
+
+  /**
+   * Planlanmış bir gönderiyi HEDEFE iletir.
+   *
+   * ⚠ ⚠ **YALNIZ PLANLANMIŞ gönderi gönderilebilir.** Tarihi olmayan bir gönderiyi bir
+   * zamanlayıcıya vermek, "ne zaman" sorusunu hedefe devretmektir.
+   * ⛔ Hiçbir hedef YAYINLAMIYOR — zamanlıyor. Yayın anı gönderinin tarihidir.
+   */
+  app.post('/api/yayin-senkron', async (c) => {
+    const g = (await c.req.json().catch(() => ({}))) as { runId?: string; hedef?: string }
+    const runId = String(g.runId ?? '')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const hedef = hedefBul(hedefListesi, String(g.hedef ?? 'yerel'))
+    if (hedef === null)
+      return c.json({ ok: false, hata: `bilinmeyen hedef: ${String(g.hedef)}` }, 400)
+    const h = hedef.hazir()
+    if (!h.ok) return c.json({ ok: false, hata: `${hedef.ad} hazır değil: ${h.sebep}` }, 400)
+
+    const karar = gecerliKararlar(o.repoRoot).get(runId)
+    if (karar === undefined || karar.karar !== 'planla')
+      return c.json(
+        { ok: false, hata: 'bu gönderi takvimde planlanmış değil — önce bir tarihe planla' },
+        400
+      )
+
+    const kimlik = kosuSablonu(o.repoRoot, runId)
+    const yol = join(o.repoRoot, RUNS_DIR, runId, 'steps/yayin-metni.json')
+    let metinler: Record<string, string> = {}
+    if (existsSync(yol)) {
+      try {
+        metinler =
+          (JSON.parse(readFileSync(yol, 'utf8')) as { yayinMetinleri?: Record<string, string> })
+            .yayinMetinleri ?? {}
+      } catch {
+        // Bozuk adım çıktısı = metin YOK. "Herhalde vardır" yok.
+      }
+    }
+    const slaytlar = kutuphane(o.repoRoot)
+      .varliklar.filter((v) => v.sourceRunId === runId)
+      .sort((a2, b2) =>
+        a2.teslimat !== null && b2.teslimat !== null
+          ? a2.teslimat.index - b2.teslimat.index
+          : a2.createdAt.localeCompare(b2.createdAt)
+      )
+      .map((v) => v.digest)
+
+    const r = await hedef.gonder({
+      runId,
+      tarih: karar.tarih,
+      platformlar: karar.platformlar,
+      metinler,
+      slaytlar,
+      konu: kimlik.konu ?? '',
+      sablon: kimlik.gercek ?? kimlik.istenen ?? '',
+    })
+    if (!r.ok) return c.json({ ok: false, hata: r.hata }, 400)
+
+    // ⚠ Sonuç DEFTERE yazılıyor: "gönderdim mi" sorusunun cevabı altı ay sonra da
+    // duruyor ve hangi hedefe gittiği de yazıyor.
+    takvimeYaz(o.repoRoot, {
+      runId,
+      karar: 'senkron',
+      platformlar: karar.platformlar,
+      not: `${hedef.id}:${r.durum}${r.disKimlik === '' ? '' : `:${r.disKimlik}`} — ${r.not}`,
+      simdi: o.simdi(),
+    })
+    yayinla('degisim')
+    // ⚠ `ok` iki kez yazılmasın: `r` zaten `ok: true` taşıyor.
+    const { ok: _yoksay, ...kalan } = r
+    void _yoksay
+    return c.json({ ok: true, ...kalan, hedef: hedef.id })
+  })
+
   app.post('/api/yayin-takvimi', async (c) => {
     const g = (await c.req.json().catch(() => ({}))) as {
       runId?: string
@@ -856,6 +1105,47 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
       platformlar?: readonly string[]
       not?: string
     }
+    // ⚠ ⚠ **METİNSİZ PLANLAMA REDDEDİLİYOR — depo sahibinin kuralı.** *"Gönderi metni
+    // olmayan şeyler nasıl planlanıyor? Gönderi metni zorunlu olmalı!!"* Ve haklı:
+    // metinsiz planlanan bir gönderi, yayın gününde metinsiz kalıyor ve o gün metin
+    // yazacak vakit yok. Şart üretim anına çekildi.
+    //
+    // ⚠ ⚠ **PLATFORM BAŞINA denetleniyor, "herhangi bir metin var mı" diye DEĞİL.**
+    // Instagram'a ve LinkedIn'e planlanan bir gönderide yalnız Instagram metni varsa,
+    // LinkedIn yayın gününde boş açıklamayla gider. Eksik olan hangisiyse o söyleniyor.
+    // ⚠ `cikar` ve `geri-al` metin İSTEMİYOR: bir şeyi takvimden çıkarmak için metnine
+    // ihtiyaç yok. `elle-yayinlandi` de istemiyor — o bir KAYIT, bir planlama değil.
+    const karar = String(g.karar ?? '')
+    if (karar === 'planla' && kosuKimligiGecerli(String(g.runId ?? ''))) {
+      const yol = join(o.repoRoot, RUNS_DIR, String(g.runId), 'steps/yayin-metni.json')
+      let metinler: Record<string, string> = {}
+      if (existsSync(yol)) {
+        try {
+          metinler =
+            (JSON.parse(readFileSync(yol, 'utf8')) as { yayinMetinleri?: Record<string, string> })
+              .yayinMetinleri ?? {}
+        } catch {
+          // Bozuk adım çıktısı = metin YOK sayılıyor. "Herhalde vardır" yok.
+        }
+      }
+      const istenen =
+        (g.platformlar ?? []).length === 0
+          ? PLATFORMLAR.map((x) => x.id)
+          : (g.platformlar as readonly string[])
+      const eksik = istenen.filter((id) => String(metinler[id] ?? '').trim() === '')
+      if (eksik.length > 0) {
+        const adlar = eksik.map((id) => PLATFORMLAR.find((x) => x.id === id)?.ad ?? id)
+        return c.json(
+          {
+            ok: false,
+            hata: `gönderi metni YOK: ${adlar.join(', ')} — planlamadan önce üret (koşu detayında ⚡ üret)`,
+            eksikPlatformlar: eksik,
+          },
+          400
+        )
+      }
+    }
+
     // ⚠ `exactOptionalPropertyTypes` açık: isteğe bağlı bir alana AÇIKÇA `undefined`
     // geçmek derleme hatası. Gövdede olmayan alan hiç YAZILMIYOR — "verilmedi" ile
     // "boş verildi" arasındaki farkı koruyan tam da bu ayar.

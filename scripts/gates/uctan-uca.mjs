@@ -402,11 +402,16 @@ const sayfaAc = async () => {
   if ((await p.locator('.gonderi-kutusu').count()) === 0)
     bildir('koşu detayı', 'takvim kutusu YOK — özel tarih planlanamaz')
   else {
+    // ⚠ ⚠ **"KARARI GERİ AL" ADINI DEĞİŞTİRDİ ve kapı bunu yakaladı — doğru olarak.**
+    // O düğme aslında *"otomatiğe bırak"* demekti ve kimse bunu anlamıyordu; adı
+    // düzeltildi. Kapının kırmızıya dönmesi bir kusur değil, adlandırma değişikliğinin
+    // KANITI: kapı gerçekten o düğmeyi arıyormuş.
     for (const dugme of [
       'bu tarihe planla',
       'elle yayınladım',
       'takvimden çıkar',
-      'kararı geri al',
+      'otomatiğe bırak',
+      'hedefe gönder',
     ]) {
       if ((await p.locator(`.gonderi-kutusu button:has-text("${dugme}")`).count()) === 0)
         bildir('koşu detayı', `"${dugme}" düğmesi YOK`)

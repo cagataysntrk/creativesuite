@@ -23,7 +23,7 @@
 
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
-import { GonderiKutusu, PLATFORMLAR } from './GonderiKutusu.js'
+import { GonderiKutusu, PLATFORMLAR, VARSAYILAN_PLATFORMLAR } from './GonderiKutusu.js'
 
 interface Gonderi {
   readonly runId: string
@@ -33,6 +33,20 @@ interface Gonderi {
   readonly platformlar?: readonly string[]
   readonly elle?: boolean
   readonly yayinlandi?: boolean
+  /** Slayt digest'leri, TESLİMAT SIRASINDA. Takvimde ve listelerde görsel. */
+  readonly slaytlar?: readonly string[]
+  /** Gönderi metni ÜRETİLMİŞ platformlar. Boşsa bu gönderi planlanamaz. */
+  readonly metinler?: readonly string[]
+  /** Hedefe iletildi mi — defterin son senkron kaydının özeti. */
+  readonly senkron?: string
+}
+
+interface Hatali {
+  readonly runId: string
+  readonly sablon: string
+  readonly konu: string
+  readonly slaytlar: readonly string[]
+  readonly sebep: string
 }
 
 interface HazirKosu {
@@ -47,6 +61,21 @@ interface Akis {
   readonly ok: boolean
   readonly hazir: number
   readonly elenmis: number
+  readonly hatali: readonly Hatali[]
+  /**
+   * Takvime GİREMEYENLER — sayılıyor ama LİSTELENMİYOR.
+   *
+   * ⚠ ⚠ Depo sahibi: *"takvimin altındaki şeyler sadece planlananlar, yayınlananlar ya
+   * da hata verenler olabilir; başka şeyler olamaz."* Ama sayıyı gizlemek de olmaz:
+   * takvim boşken *"neden boş"* sorusu cevapsız kalırdı. Sayı BAŞLIKTA, liste yok.
+   */
+  /** koşu → son senkron kaydının notu. Yoksa gönderi hedefe gitmemiş. */
+  readonly senkron?: Readonly<Record<string, string>>
+  readonly planlanamaz: {
+    readonly toplam: number
+    readonly metinYok: number
+    readonly slaytYok: number
+  }
   readonly hazirListe: readonly HazirKosu[]
   readonly sablonsuz: number
   readonly konular: Readonly<Record<string, string>>
@@ -194,6 +223,74 @@ const GunKutusu = ({
   )
 }
 
+/**
+ * Takvimin altındaki bir gönderi satırı — GÖRSELLİ.
+ *
+ * ⚠ ⚠ **GÖRSEL ŞART, SÜS DEĞİL.** Depo sahibi: *"bunlar da görselleriyle görünmeli ve
+ * basınca run detay açılmalı."* Bir gönderiyi tarihinden ya da şablon adından değil,
+ * NEYE BENZEDİĞİNDEN tanıyoruz; görselsiz bir satır bir muhasebe kaydıdır.
+ *
+ * ⚠ ⚠ **İKİ AYRI TIKLAMA, İKİ AYRI HEDEF.** Satıra tıklamak KARAR kutusunu açıyor
+ * (tarih/platform/çıkar); *"↗ koşuyu aç"* koşu detayına götürüyor. Tek tıklamaya iki
+ * anlam yüklemek ikisini de belirsiz yapardı.
+ */
+const GonderiKarti = ({
+  g,
+  ac,
+  secili,
+  hata,
+}: {
+  readonly g: Gonderi
+  readonly ac: () => void
+  readonly secili: boolean
+  readonly hata?: string
+}): React.JSX.Element => (
+  <li className={secili ? 'gonderi-satiri secili' : 'gonderi-satiri'}>
+    <button type="button" className="gonderi-ozet" onClick={ac}>
+      {/* ⚠ TARİH EN BAŞTA ve HER gönderide: depo sahibi *"hepsi hangi tarihe planlandı
+          ise görünmesi lazım"* dedi. Tarihsiz bir planlama bir planlama değildir. */}
+      <span className="olcum">{g.tarih === '' ? '—' : g.tarih}</span>
+      <strong>{g.sablon}</strong>
+      <span className="giris-konu">
+        {g.konu === undefined || g.konu === '' ? g.runId.slice(4, 16) : g.konu}
+      </span>
+      {g.elle === true ? <span className="olcum">elle</span> : null}
+      {g.yayinlandi === true ? <span className="is-hat">✓ yayınlandı</span> : null}
+      {g.senkron === undefined || g.senkron === '' ? null : (
+        <span className="olcum">⇄ {g.senkron.split(' — ')[0]}</span>
+      )}
+      {hata === undefined ? null : <span className="is-uyari">⚠ {hata}</span>}
+      {/* ⚠ Platform seçimi yoksa VARSAYILAN gösteriliyor, boş bırakılmıyor: gönderinin
+          nereye gideceğini söylemeyen bir satır, o soruyu tıklamaya erteler. */}
+      <span className="takvim-platform">
+        {(g.platformlar === undefined || g.platformlar.length === 0
+          ? VARSAYILAN_PLATFORMLAR
+          : g.platformlar
+        )
+          .map((id) => PLATFORMLAR.find((p) => p.id === id)?.kisa ?? id)
+          .join(' ')}
+      </span>
+    </button>
+    <a className="satir-ac" href={`#/kosu/${g.runId}`}>
+      ↗ koşuyu aç
+    </a>
+    {(g.slaytlar ?? []).length === 0 ? (
+      <p className="bos">slayt yok</p>
+    ) : (
+      <div className="kosu-slaytlar">
+        {(g.slaytlar ?? []).map((d, i) => (
+          <a key={d} href={`/api/varlik/${d}`} target="_blank" rel="noreferrer">
+            <img src={`/api/varlik/${d}`} alt={`${g.sablon} ${String(i + 1)}`} loading="lazy" />
+            <span className="slayt-sira">
+              {i + 1}/{(g.slaytlar ?? []).length}
+            </span>
+          </a>
+        ))}
+      </div>
+    )}
+  </li>
+)
+
 export const YayinAkisi = (): React.JSX.Element => {
   const [haftadaKac, setHaftadaKac] = useState(3)
   const [baslangic, setBaslangic] = useState(bugun)
@@ -293,6 +390,37 @@ export const YayinAkisi = (): React.JSX.Element => {
   // ⚠ ⚠ **BOŞ DİZE de eksiktir.** İlk sürüm `y ?? …` yazıyordu; `??` yalnız `null`
   // ve `undefined`da yedeğe düşüyor, `''` geçip gidiyordu — ve takvimde elle
   // planlanan gönderi KONUSUZ göründü. Ekrana bakmasam fark etmezdim.
+  // ⚠ ⚠ **PLANLANANLAR TEK LİSTE: otomatik + elle birlikte, TARİHE göre.** İkisini ayrı
+  // kutulara koymak *"bu hafta ne çıkıyor"* sorusunu iki listeyi birleştirerek
+  // cevaplatırdı. Hangisinin insan kararı olduğu satırdaki `elle` rozetinden görünüyor.
+  const planlanan = [...veri.plan.gonderiler, ...veri.elleGonderiler]
+    .map((g) => {
+      const sk = (veri.senkron ?? {})[g.runId]
+      return sk === undefined ? g : { ...g, senkron: sk }
+    })
+    .sort((a, b) => a.tarih.localeCompare(b.tarih))
+  const yayinlanan: readonly Gonderi[] = [
+    ...veri.elleYayinlanan.map((g) => ({ ...g, yayinlandi: true, elle: true })),
+    ...veri.gecmis.map((g) => ({
+      runId: g.runId,
+      sablon: g.sablon,
+      konu: g.konu,
+      tarih: g.zaman.slice(0, 10),
+      yayinlandi: true,
+    })),
+  ].sort((a, b) => b.tarih.localeCompare(a.tarih))
+
+  // ⚠ ⚠ **OTOMATİK PLANLAYICININ SEÇTİĞİ TARİH karar kutusuna taşınıyor.** *"Otomatiğe
+  // bırak"* deyince ne olacağını görmeden seçemezsin; boş bir "otomatik" seçeneği insana
+  // kapalı kutu imzalatmaktır.
+  const otomatikTarihler: Record<string, string> = {}
+  for (const gd of veri.plan.gonderiler) otomatikTarihler[gd.runId] = gd.tarih
+
+  // ⚠ Hangi platformun metni VAR — karar kutusu kör seçim yaptırmasın diye.
+  const metinHaritasi: Record<string, readonly string[]> = {}
+  for (const gd of [...veri.plan.gonderiler, ...veri.elleGonderiler])
+    if (gd.metinler !== undefined) metinHaritasi[gd.runId] = gd.metinler
+
   const konuAl = (runId: string, y?: string): string => {
     const d = (y ?? '').trim()
     if (d !== '') return d
@@ -348,17 +476,15 @@ export const YayinAkisi = (): React.JSX.Element => {
       </div>
 
       <p className="olcum">
-        {/* ⚠ Başlık TAKVİM dilinde: bu ekranın sorusu "ne zaman yayınlanıyor", "kaç
-            koşu var" değil. Takvime giremeyenler aşağıda ayrı sayılıyor. */}
-        {veri.plan.gonderiler.length + veri.elleGonderiler.length} planlanmış ·{' '}
-        {veri.gecmis.length + veri.elleYayinlanan.length} yayınlanmış · {veri.cikarilan.length}{' '}
-        çıkarılmış · {veri.hazir} yayına hazır
-        {veri.sablonsuz === 0 ? '' : ` · ${String(veri.sablonsuz)} onaylı koşu şablonsuz`}
-        {/* ⚠ Elenen SAYILIYOR: gizlenen bir şeyin sayısı görünmezse "3 hazır" diyen
-            bir başlık, elenmiş on üç üretimi yok sayar. */}
-        {(veri.yolda ?? []).length === 0
+        {/* ⚠ Başlık TAKVİM dilinde: bu ekranın sorusu "ne zaman yayınlanıyor", "kaç koşu
+            var" değil. */}
+        {planlanan.length} planlanmış · {yayinlanan.length} yayınlanmış ·{' '}
+        {(veri.hatali ?? []).length} hata veren · {veri.cikarilan.length} çıkarılmış
+        {/* ⚠ ⚠ **PLANLANAMAYANLARIN SAYISI BURADA, LİSTESİ YOK.** Takvim boşken "neden
+            boş" sorusu cevapsız kalmasın; ama ekran da bir envantere dönüşmesin. */}
+        {veri.planlanamaz === undefined || veri.planlanamaz.metinYok === 0
           ? ''
-          : ` · ${String((veri.yolda ?? []).length)} hattın ortasında`}
+          : ` · ${String(veri.planlanamaz.metinYok)} üretim METİNSİZ — planlanamaz`}
         {veri.elenmis === 0 ? '' : ` · ${String(veri.elenmis)} elenmiş gizli`}
       </p>
       {mesaj === null ? null : <p className="olcum">{mesaj}</p>}
@@ -416,7 +542,10 @@ export const YayinAkisi = (): React.JSX.Element => {
                   </span>
                   <span className="takvim-konu">{konuAl(g.runId, g.konu)}</span>
                   <span className="takvim-platform">
-                    {(g.platformlar ?? PLATFORMLAR.map((x) => x.id))
+                    {(g.platformlar === undefined || g.platformlar.length === 0
+                      ? VARSAYILAN_PLATFORMLAR
+                      : g.platformlar
+                    )
                       .map((id) => PLATFORMLAR.find((x) => x.id === id)?.kisa ?? id)
                       .join(' ')}
                   </span>
@@ -448,110 +577,99 @@ export const YayinAkisi = (): React.JSX.Element => {
         />
       )}
 
-      {acik === null ? null : (
-        <GonderiKutusu runId={acik} konu={konuAl(acik)} kapat={() => setAcik(null)} sonra={yukle} />
-      )}
-
-      {veri.cikarilan.length === 0 ? null : (
-        <section className="akis-hafta">
-          <h3>takvimden çıkarılanlar</h3>
-          <ul className="akis-gonderiler">
-            {veri.cikarilan.map((x) => (
-              <li key={x.runId}>
-                <strong>{x.sablon}</strong>
-                <span>{x.konu === '' ? x.runId.slice(4, 16) : x.konu}</span>
-                {x.not === '' ? null : <span className="olcum">{x.not}</span>}
-                <button type="button" onClick={() => void karar(x.runId, 'geri-al')}>
-                  ↺ geri al
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* ⚠ ⚠ **HATTIN ORTASINDA DURANLAR.** Ne kapıda ne hazır: son kapısını geçmiş
-          ama bir adımda durmuş koşular. Bunlar hiçbir kutuya girmiyordu ve ekrandan
-          sessizce düşüyorlardı — `editoryal` üretimi tam olarak böyle kayboldu. */}
-      {(veri.yolda ?? []).length === 0 ? null : (
-        <section className="akis-hafta">
-          <h3>hattın ortasında duran</h3>
-          <ul className="akis-gonderiler">
-            {(veri.yolda ?? []).map((y) => (
-              <li key={y.runId}>
-                <span className="olcum">durdu: {y.durdugu}</span>
-                <strong>{y.sablon}</strong>
-                <a href={`#/kosu/${y.runId}`}>{y.konu === '' ? y.runId.slice(4, 16) : y.konu}</a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* ⚠ ⚠ **KAPI KUYRUĞU BU EKRANDAN ÇIKTI.** Depo sahibi: *"takvimde kapıda bekleyen
-          değil, planlanmış ve yayınlanmış olanlar olacak sadece"* — ve haklıydı: on
-          satırlık bir onay kuyruğu ekranın altını kaplıyordu ve takvim bir onay ekranı
-          gibi görünüyordu. Kuyruk artık **Koşular ve varlıklar**ta, kapı süzgeciyle.
-          ⚠ ⚠ **AMA SAYI DURUYOR ve bir BAĞLANTI oldu.** Sessizce kaldırsaydım takvim boş
-          olduğunda insan *"neden boş"* sorusunu cevapsız bulurdu. Takvime giremeyenler
-          sayılıyor ve nereye bakılacağı yazıyor. */}
-      {veri.kapida.length === 0 &&
-      (veri.yolda ?? []).length === 0 &&
-      veri.sablonsuz === 0 ? null : (
-        <section className="akis-hafta">
-          <h3>takvime giremeyenler</h3>
-          <ul className="akis-gonderiler">
-            {veri.kapida.length === 0 ? null : (
-              <li>
-                <strong>{veri.kapida.length}</strong>
-                <span>üretim insan onayı bekliyor — onaylanmadan takvime giremez</span>
-                <a href="#/gecmis">↗ Koşular ve varlıklar&apos;ta onayla</a>
-              </li>
-            )}
-            {(veri.yolda ?? []).length === 0 ? null : (
-              <li>
-                <strong>{(veri.yolda ?? []).length}</strong>
-                <span>üretim hattın ortasında durdu — sürdürülmesi gerekiyor</span>
-                <a href="#/gecmis">↗ koşuyu aç ve sürdür</a>
-              </li>
-            )}
-            {veri.sablonsuz === 0 ? null : (
-              <li>
-                <strong>{veri.sablonsuz}</strong>
-                <span>onaylı üretimin şablonu yok — çeşitlilik kuralı uygulanamıyor</span>
-              </li>
-            )}
-          </ul>
-        </section>
-      )}
+      {/* ⚠ ⚠ **TAKVİMİN ALTINDA YALNIZ ÜÇ KUTU VAR: planlanan · yayınlanan · hata veren.**
+          Depo sahibi: *"takvimin altındaki şeyler sadece planlananlar, yayınlananlar
+          olabilir ya da hata verenler; başka şeyler olamaz, bunlar da görselleriyle
+          görünmeli ve basınca run detay açılmalı."* Önceki sürümde kapı kuyruğu, şablonsuz
+          koşular ve çıkarılanlar da buradaydı — ekran bir takvim değil bir envanterdi.
+          ⚠ Görsel ŞART: bir gönderiyi tarihinden değil NEYE BENZEDİĞİNDEN tanıyoruz. */}
 
       <section className="akis-hafta">
-        <h3>yayınlanmış</h3>
-        {veri.gecmis.length === 0 && veri.elleYayinlanan.length === 0 ? (
-          <p className="bos">henüz hiçbir üretim yayınlanmadı.</p>
+        <h3>planlananlar</h3>
+        {planlanan.length === 0 ? (
+          <p className="bos">
+            Takvimde gönderi yok.
+            {veri.planlanamaz.metinYok === 0
+              ? ''
+              : ` ${String(veri.planlanamaz.metinYok)} üretimin gönderi metni yok — metin olmadan planlanamaz.`}
+          </p>
         ) : (
-          <ul className="akis-gonderiler">
-            {veri.elleYayinlanan.map((g) => (
-              <li key={g.runId}>
-                <span className="olcum">{g.tarih}</span>
-                <strong>{g.sablon}</strong>
-                <span className="olcum">elle</span>
-                <a href={`#/kosu/${g.runId}`}>{konuAl(g.runId, g.konu)}</a>
-                <button type="button" onClick={() => void karar(g.runId, 'geri-al')}>
-                  ↺ geri al
-                </button>
-              </li>
-            ))}
-            {veri.gecmis.map((g) => (
-              <li key={g.runId}>
-                <span className="olcum">{g.zaman.slice(0, 10)}</span>
-                <strong>{g.sablon}</strong>
-                <a href={`#/kosu/${g.runId}`}>{g.konu === '' ? g.runId.slice(4, 16) : g.konu}</a>
-              </li>
+          <ul className="gonderi-listesi">
+            {planlanan.map((g) => (
+              <GonderiKarti
+                key={`p-${g.runId}`}
+                g={g}
+                ac={() => setAcik(acik === g.runId ? null : g.runId)}
+                secili={acik === g.runId}
+              />
             ))}
           </ul>
         )}
       </section>
+
+      <section className="akis-hafta">
+        <h3>yayınlananlar</h3>
+        {yayinlanan.length === 0 ? (
+          <p className="bos">henüz hiçbir üretim yayınlanmadı.</p>
+        ) : (
+          <ul className="gonderi-listesi">
+            {yayinlanan.map((g) => (
+              <GonderiKarti
+                key={`y-${g.runId}`}
+                g={g}
+                ac={() => setAcik(acik === g.runId ? null : g.runId)}
+                secili={acik === g.runId}
+              />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* ⚠ ⚠ **HATA VEREN ve KAPIDA BEKLEYEN AYRI ŞEYLER.** Kapıda bekleyen bir koşu hata
+          değil, SIRADIR — ve o sıra bu ekranda değil, Koşular ekranında. Burada yalnız
+          MÜDAHALE isteyenler: hattın ortasında durmuş olanlar. */}
+      {(veri.hatali ?? []).length === 0 ? null : (
+        <section className="akis-hafta">
+          <h3>hata verenler</h3>
+          <ul className="gonderi-listesi">
+            {(veri.hatali ?? []).map((h) => (
+              <GonderiKarti
+                key={`h-${h.runId}`}
+                g={{
+                  runId: h.runId,
+                  sablon: h.sablon,
+                  konu: h.konu,
+                  tarih: '',
+                  slaytlar: h.slaytlar,
+                }}
+                hata={h.sebep}
+                ac={() => setAcik(acik === h.runId ? null : h.runId)}
+                secili={acik === h.runId}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ⚠ Karar kutusu listelerin ALTINDA tek bir yerde: her kartın içine gömmek aynı
+          kutuyu on kez çizmek ve on ayrı durum tutmak demekti. */}
+      {acik === null ? null : (
+        <GonderiKutusu
+          runId={acik}
+          konu={konuAl(acik)}
+          kapat={() => setAcik(null)}
+          sonra={yukle}
+          {...(otomatikTarihler[acik] === undefined
+            ? {}
+            : { otomatikTarih: otomatikTarihler[acik] })}
+          {...(metinHaritasi[acik] === undefined
+            ? {}
+            : { metinliPlatformlar: metinHaritasi[acik] })}
+          {...((veri.senkron ?? {})[acik] === undefined
+            ? {}
+            : { senkron: (veri.senkron ?? {})[acik] })}
+        />
+      )}
     </div>
   )
 }
