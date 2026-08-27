@@ -97,11 +97,27 @@ describe.each([
     expect(gonderilen).toHaveLength(0)
   })
 
-  it('yanlış şerit reddediliyor — sessizce diğerine düşmüyor', () => {
-    const oteki = lane === 'free' ? 'premium' : 'free'
-    const v = adapter.validate(girdi({ lane: oteki }))
-    expect(v.ok).toBe(false)
-    if (!v.ok) expect(v.error.code).toBe('LANE_UNSUPPORTED')
+  it('BEYAN EDİLMEYEN şerit reddediliyor — sessizce diğerine düşmüyor', () => {
+    // ⚠ ⚠ **BU TEST "her adaptörün TEK şeridi var" varsayıyordu ve öncül DEĞİŞTİ.**
+    // Cloudflare artık iki şeritte de aday: premium bir koşuda ücretli sağlayıcı
+    // düşerse yönlendiricinin düşebileceği bir aday kalsın diye (yedek zinciri).
+    // İddia aynı kaldı — *"beyan edilmeyen şeride sessizce düşülmez"* — ama artık
+    // adaptörün KENDİ BEYANINDAN türetiliyor, sabit bir "öteki şerit"ten değil.
+    // Beyanı okuyan bir test, beyan değişince kendiliğinden doğru kalır.
+    const beyan = adapter.capabilities().find((c) => c.name === 'image.generate')?.lanes ?? []
+    const disarida = (['free', 'premium'] as const).filter((x) => !beyan.includes(x))
+    if (disarida.length === 0) {
+      // İki şeridi de beyan eden adaptörde reddedilecek şerit YOK — ve bunu sessizce
+      // atlamak yerine BEYANIN kendisi doğrulanıyor: "test bir şey ölçmedi" ile
+      // "ölçtü ve geçti" ayrı şeyler.
+      expect(beyan.slice().sort()).toEqual(['free', 'premium'])
+      return
+    }
+    for (const oteki of disarida) {
+      const v = adapter.validate(girdi({ lane: oteki }))
+      expect(v.ok, oteki).toBe(false)
+      if (!v.ok) expect(v.error.code).toBe('LANE_UNSUPPORTED')
+    }
   })
 
   it('`no_text: false` AÇIKÇA reddediliyor', () => {

@@ -200,4 +200,46 @@ describe('bütçe tavanı — Başlat KİLİTLİ, gerekçe Türkçe', () => {
     expect(d.winner!.cost.high.micros).toBe(62_500n)
     expect(lease(b, d.winner!.cost.high).ok).toBe(false)
   })
+
+  it('PREMIUM şeritte bedava sağlayıcı YEDEK, ücretli KAZANIR', () => {
+    // ⚠ ⚠ **ÖLÇÜLEN KUSUR: premium şerit `free` ile AYNI sağlayıcıyı seçiyordu.**
+    // Skorun %60'ı maliyet ve maliyet "grup içinde en ucuz = 1.0" diye hesaplanıyor;
+    // bedava aday hep 1.0 alıyor, ücretli aday 0'a yakın. Kalite ise henüz ölçülmediği
+    // için herkeste sabit 50. Sonuç: ücretli sağlayıcı premium şeritte bile ASLA
+    // kazanamıyordu ve `premium` bir etiketten ibaretti.
+    const d = route(
+      istek({ lane: 'premium', prefer: 'cost' }),
+      [aday('bedava', { lanes: ['free', 'premium'] }), aday('ucretli', { lanes: ['premium'] })],
+      {
+        bedava: fiyat('bedava', { costFormula: '0' }),
+        ucretli: fiyat('ucretli', { costFormula: '0.039 * num_images' }),
+      }
+    )
+    expect(d.winner?.providerId, 'ücretli kazandı').toBe('ucretli')
+    // ⚠ Bedava aday ELENMİYOR, yedeğe düşüyor: ücretli sağlayıcı kota yerse zincir
+    // ona geçiyor ve premium bir koşu görselsiz kalmıyor.
+    expect(
+      d.fallbacks.map((f) => f.providerId),
+      'bedava aday YEDEK'
+    ).toEqual(['bedava'])
+    expect(
+      d.rejected.map((r) => r.providerId),
+      'hiçbiri elenmedi'
+    ).toEqual([])
+  })
+
+  it('FREE şeritte davranış DEĞİŞMEDİ — ucuz olan kazanmaya devam ediyor', () => {
+    // Şerit kuralı yalnız premium'a dokunuyor; bedava şeritte ücretli aday zaten
+    // şerit uyuşmazlığıyla eleniyor ve en ucuz kazanıyor.
+    const d = route(
+      istek({ lane: 'free', prefer: 'cost' }),
+      [aday('bedava', { lanes: ['free', 'premium'] }), aday('ucretli', { lanes: ['premium'] })],
+      {
+        bedava: fiyat('bedava', { costFormula: '0' }),
+        ucretli: fiyat('ucretli', { costFormula: '0.039 * num_images' }),
+      }
+    )
+    expect(d.winner?.providerId).toBe('bedava')
+    expect(d.rejected.map((r) => r.providerId)).toEqual(['ucretli'])
+  })
 })

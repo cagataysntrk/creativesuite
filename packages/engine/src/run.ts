@@ -54,6 +54,7 @@ import { runVerb } from './run-verb.js'
 import { resolveVerb, type VerbImplementations } from './verbs/registry.js'
 import { route, type ProviderPricing, type RoutingDecision } from './router/route.js'
 import { rejectionMessage } from './router/reasons.js'
+import { yedegeGec, yedekZinciri } from './router/yedek.js'
 import {
   writeFrozenPlan,
   writeManifest,
@@ -623,6 +624,14 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
       readonly error: AppError | null
     }
 
+    // ⚠ ⚠ **İŞİ KİM YAPTI — kazanan DEĞİL, KOŞAN.** Yedek zinciri geldikten sonra
+    // manifest hâlâ `kazanan.providerId` yazıyordu: iş `p2` yaptığı hâlde deftere `p1`
+    // düşüyordu. Bunu bir test yakaladı ve haklıydı — defterin var olma sebebi *"altı ay
+    // sonra neden bu sağlayıcı sorusunun cevabı yazılı olsun"* (§13). Kaybedeni yapan
+    // olarak kaydetmek, defteri bir yalana çevirir; üstelik maliyet mutabakatı da yanlış
+    // sağlayıcıya bakar.
+    let kosanSaglayici: string | null = null
+
     if (verb.metered && s.capability === null) {
       // **Yerel metered adım.** `RENDER` para harcamaz ama kaynak harcar ve süre de bir
       // maliyettir (§8.3) — o yüzden metered. Ama yönlendirilemez: `R-30` tek render
@@ -724,77 +733,129 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
           }),
         }
       } else {
-        const spec: StepSpec = {
-          runId: input.runId,
-          stepId,
-          verb: verbAdi,
-          capability: s.capability ?? '',
-          providerId: kazanan.providerId,
-          metered: true,
-          idempotencyKey: idempotencyKey({
+        // ⚠ ⚠ **YEDEK ZİNCİRİ — `fallbacks` ARTIK OKUNUYOR.** `route()` bu listeyi
+        // baştan beri üretiyordu ve yalnız `plan.ts` onu EKRANA yazıyordu; çalışma
+        // anında hiç kimse okumuyordu. Yani kazanan sağlayıcı düştüğünde adım
+        // `failed` yazılıyor, görsel adımları `optional` olduğu için hat devam ediyor
+        // ve karosel GÖRSELSİZ bitiyordu. Vaat edilen yedek, bir ekran metniydi.
+        const zincir = yedekZinciri(
+          kazanan.providerId,
+          (yonlendirme?.fallbacks ?? []).map((f) => f.providerId)
+        )
+        // Denenen her sağlayıcı ve DÜŞME SEBEBİ kayda giriyor: sessiz bir yedeğe geçiş,
+        // "neden bu sağlayıcı" sorusunu altı ay sonra cevapsız bırakırdı (§13).
+        const yedekIzi: { readonly providerId: string; readonly sebep: string }[] = []
+        // ⚠ Döngü sonucu AYRI bir değişkende toplanıyor: `sonuc`u doğrudan yazmak,
+        // derleyiciye "bu döngü en az bir kez döner" diye söz vermek olurdu ve o söz
+        // tipte değil YORUMDA kalırdı.
+        let adimSonucu: {
+          ok: boolean
+          outcome: CallOutcome | null
+          error: AppError | null
+        } | null = null
+
+        for (const [deneme, saglayiciId] of zincir.entries()) {
+          const spec: StepSpec = {
             runId: input.runId,
-            stepId: id,
+            stepId,
             verb: verbAdi,
             capability: s.capability ?? '',
-            providerId: kazanan.providerId,
-            model: null,
-            seed: null,
-            params: s.constraints,
-            corpusCommit: input.corpusCommit,
-            inputDigest: digest(id, JSON.stringify(ciktilar[s.needs[0] ?? ''] ?? null)),
-          }),
-          estimateHigh: tahmin.high,
+            providerId: saglayiciId,
+            metered: true,
+            idempotencyKey: idempotencyKey({
+              runId: input.runId,
+              stepId: id,
+              verb: verbAdi,
+              capability: s.capability ?? '',
+              // ⚠ Idempotency anahtarı DENENEN sağlayıcıyı taşıyor: yedeğe geçiş yeni bir
+              // çağrıdır ve kazananın anahtarıyla gönderilirse sağlayıcı onu tekrar sanar.
+              providerId: saglayiciId,
+              model: null,
+              seed: null,
+              params: s.constraints,
+              corpusCommit: input.corpusCommit,
+              inputDigest: digest(id, JSON.stringify(ciktilar[s.needs[0] ?? ''] ?? null)),
+            }),
+            estimateHigh: tahmin.high,
+          }
+          const r = await runStep(
+            {
+              db: input.db,
+              breaker,
+              clock,
+              rng,
+              ...(input.limiter === undefined ? {} : { limiter: input.limiter }),
+              ...(input.sleep === undefined ? {} : { sleep: input.sleep }),
+              ciktiVar,
+            },
+            spec,
+            bState,
+            async (c) => {
+              // Seçilen sağlayıcı ve motorun tutamak köprüsü gövdeye AKTARILIR.
+              // Aktarılmasaydı gövde hangi sağlayıcının kazandığını bilemez ve
+              // `providerCall`ı kuramazdı — B8'in kökü buydu (D-141).
+              let tutamak: string | null = null
+              const o = await fiiliCagir(verb, {
+                constraints: s.constraints,
+                inputs: ciktilar,
+                // Yetenek adımın verisi — gövde kurulumundan değil buradan gelir (D-241).
+                ...(s.capability === null ? {} : { capability: s.capability }),
+                needs: s.needs,
+                providerId: saglayiciId,
+                noteHandle: (id: string) => {
+                  tutamak = id
+                  c.noteHandle(id)
+                },
+                resumeExternalId: c.resumeExternalId,
+              })
+              return o.ok
+                ? {
+                    ok: true as const,
+                    value: {
+                      amount: o.value.costs.reduce<Money>(
+                        (t, c2) => usd(t.micros + c2.amount.micros),
+                        ZERO_USD
+                      ),
+                      chargeStatus: 'charged' as const,
+                      externalId: tutamak,
+                      data: o.value.data,
+                    },
+                  }
+                : { ok: false as const, error: o.error }
+            },
+            correlationId,
+            signal
+          )
+          bState = r.budget
+          adimSonucu = { ok: r.error === null, outcome: r.outcome, error: r.error }
+          kosanSaglayici = saglayiciId
+
+          if (r.error === null) break
+          yedekIzi.push({ providerId: saglayiciId, sebep: `${r.error.kind}/${r.error.code}` })
+          // ⚠ ⚠ **HER HATA YEDEĞİ HAK ETMEZ.** İstem R-20'ye takıldıysa ikinci sağlayıcı
+          // da reddeder; bütçe tavanı dolduysa yedeğe geçmek tavanı DELMEK olur; iptal
+          // bir karardır. Ayrım `yedegeGec`te ve orada test ediliyor.
+          if (!yedegeGec(r.error)) break
+          const kalan = zincir.length - deneme - 1
+          if (kalan === 0) break
+          input.iz?.(
+            `  ↻ ${id}: ${saglayiciId} düştü (${r.error.code}) — yedeğe geçiliyor: ` +
+              `${zincir[deneme + 1] ?? ''}`
+          )
         }
-        const r = await runStep(
-          {
-            db: input.db,
-            breaker,
-            clock,
-            rng,
-            ...(input.limiter === undefined ? {} : { limiter: input.limiter }),
-            ...(input.sleep === undefined ? {} : { sleep: input.sleep }),
-            ciktiVar,
-          },
-          spec,
-          bState,
-          async (c) => {
-            // Seçilen sağlayıcı ve motorun tutamak köprüsü gövdeye AKTARILIR.
-            // Aktarılmasaydı gövde hangi sağlayıcının kazandığını bilemez ve
-            // `providerCall`ı kuramazdı — B8'in kökü buydu (D-141).
-            let tutamak: string | null = null
-            const o = await fiiliCagir(verb, {
-              constraints: s.constraints,
-              inputs: ciktilar,
-              // Yetenek adımın verisi — gövde kurulumundan değil buradan gelir (D-241).
-              ...(s.capability === null ? {} : { capability: s.capability }),
-              needs: s.needs,
-              providerId: kazanan.providerId,
-              noteHandle: (id: string) => {
-                tutamak = id
-                c.noteHandle(id)
-              },
-              resumeExternalId: c.resumeExternalId,
-            })
-            return o.ok
-              ? {
-                  ok: true as const,
-                  value: {
-                    amount: o.value.costs.reduce<Money>(
-                      (t, c2) => usd(t.micros + c2.amount.micros),
-                      ZERO_USD
-                    ),
-                    chargeStatus: 'charged' as const,
-                    externalId: tutamak,
-                    data: o.value.data,
-                  },
-                }
-              : { ok: false as const, error: o.error }
-          },
-          correlationId,
-          signal
-        )
-        bState = r.budget
-        sonuc = { ok: r.error === null, outcome: r.outcome, error: r.error }
+        // Zincir boş olamaz (`yedekZinciri` en az kazananı döndürür); yine de `null`
+        // durumu ADIYLA karşılanıyor — imkânsız sayılan bir hâli sessiz bırakmak, bu
+        // deponun defalarca kaydettiği hata sınıfı.
+        sonuc = adimSonucu ?? {
+          ok: false,
+          outcome: null,
+          error: hata('NO_PROVIDER', correlationId, { capability: s.capability, zincir }),
+        }
+        if (yedekIzi.length > 0 && sonuc.ok)
+          input.iz?.(
+            `  ✓ ${id}: yedek sağlayıcı başardı — düşenler: ` +
+              yedekIzi.map((y) => `${y.providerId} (${y.sebep})`).join(' · ')
+          )
       }
     } else {
       const o = await fiiliCagir(verb, {
@@ -879,8 +940,11 @@ export const runPipeline = async (input: RunInput): Promise<RunReport> => {
         : 'failed',
       lane: s.constraints['lane'] === 'premium' ? 'premium' : 'free',
       capability: s.capability,
+      // ⚠ Yedeğe geçildiyse deftere KOŞAN sağlayıcı düşer, kazanan değil.
       providerId:
-        kazanan?.providerId ?? (defterdenSaglayicisiz ? (oncekiKayit?.providerId ?? null) : null),
+        kosanSaglayici ??
+        kazanan?.providerId ??
+        (defterdenSaglayicisiz ? (oncekiKayit?.providerId ?? null) : null),
       model: null,
       seed: null,
       params: s.constraints,

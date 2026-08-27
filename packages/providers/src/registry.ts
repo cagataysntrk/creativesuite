@@ -12,12 +12,16 @@ import type { Lane, ProviderAdapter } from './types.js'
 import { claudeCode } from './claude-code.js'
 import { cloudflareImage } from './image/cloudflare.js'
 import { falImage } from './image/fal.js'
+import { geminiImage } from './image/gemini.js'
 import { localRembg } from './image/rembg.js'
 
 export const ADAPTERS: readonly ProviderAdapter[] = [
   claudeCode,
   cloudflareImage,
   falImage,
+  // ⚠ Gemini görsel (nano banana) — ÜCRETLİ şerit. Bedava katmanda görsel kotası SIFIR
+  // ölçüldü (6 anahtarın 6'sında `limit: 0`), o yüzden `free` şeritte aday değil.
+  geminiImage,
   // ⚠ Yerel arka plan silici (D-274). `image.matte` yeteneğinin TEK adayı; yönlendirici
   // yine de listeliyor ve kurulu değilse SEBEBİYLE yazıyor — sessiz atlama yok.
   localRembg,

@@ -242,11 +242,32 @@ export const route = (
   const gecikmeler = gecenler.map((p) => p.latencySeconds).filter((s): s is number => s !== null)
   const enHizli = gecikmeler.length > 0 ? Math.min(...gecikmeler) : 1
 
+  // ⚠ ⚠ **PREMIUM ŞERİTTE BEDAVA SAĞLAYICI YEDEKTİR — ve bu bir KUSURUN düzeltmesi.**
+  // Ölçülen: premium şerit `free` şeritle AYNI sağlayıcıyı seçiyordu. Sebep yapısal —
+  // skorun %60'ı maliyet ve maliyet bileşeni "grup içinde en ucuz = 1.0" diye
+  // hesaplanıyor; bedava bir aday her zaman 1.0 alıyor, ücretli aday 0'a yakın. Kalite
+  // ise henüz ölçülmediği için HERKESTE sabit 50. Sonuç: ücretli bir sağlayıcı premium
+  // şeritte bile ASLA kazanamıyordu ve `premium` bir etiketten ibaretti.
+  //
+  // ⚠ **BU BİR KALİTE İDDİASI DEĞİL, ŞERİT TANIMI.** "Gemini daha iyidir" demiyoruz —
+  // öyle bir ölçüm yok ve uydurulmaz. Denen şey: `premium` seçmek PARA HARCAMAYI
+  // seçmektir; bedava adayı premium şeritte kazandırmak, kullanıcının kararını sessizce
+  // geri almaktır. Bedava aday listeden ATILMIYOR, YEDEĞE düşüyor — ücretli sağlayıcı
+  // kota yer ya da arızalanırsa zincir ona geçiyor (`yedek.ts`).
+  //
+  // ⚠ `free` şeritte hiçbir şey değişmiyor: orada zaten ücretli aday elenmiş oluyor.
+  const odemeli = (p: { readonly cost: MoneyRange }): number =>
+    req.lane === 'premium' && p.cost.high.micros === 0n ? 1 : 0
+
   const skorlu = gecenler
     .map((p) => ({ ...p, score: skorla(p, enUcuz, enHizli, req.prefer) }))
-    // Beraberlikte `providerId` ile kırılıyor: sıralama DETERMİNİSTİK olmalı, yoksa
-    // aynı plan iki kez farklı sağlayıcı seçer ve `just plan` yalan söyler.
-    .sort((a, b) => b.score - a.score || a.providerId.localeCompare(b.providerId))
+    // Önce şerit grubu (premium'da ücretliler önde), sonra skor. Beraberlikte
+    // `providerId` ile kırılıyor: sıralama DETERMİNİSTİK olmalı, yoksa aynı plan iki
+    // kez farklı sağlayıcı seçer ve `just plan` yalan söyler.
+    .sort(
+      (a, b) =>
+        odemeli(a) - odemeli(b) || b.score - a.score || a.providerId.localeCompare(b.providerId)
+    )
 
   return {
     winner: skorlu[0] ?? null,

@@ -4,15 +4,16 @@
 > Kaynak: `registry/providers/*.provider.yaml`. Elle yapılan düzenleme
 > `just docs` çalıştığında kaybolur; `docs-drift` kapısı sapmayı yakalar.
 
-Toplam **7** tanımlayıcı.
+Toplam **8** tanımlayıcı.
 
 | id | başlık | adaptör | durum | yetenek | şerit | fiyat anlık görüntüsü |
 |---|---|---|---|---|---|---|
 | `chatterbox` | Chatterbox Multilingual V3 (yerel, MIT) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
 | `claude-code` | Claude Code (headless) | `claude-code` | ✅ aktif | `image.critique`<br>`design.critique`<br>`text.generate` | free | `_pricing/claude-code-2026-08-19.json` |
-| `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ✅ aktif | `image.generate` | free | `_pricing/cloudflare-2026-08-16.json` |
+| `cloudflare-workers-ai` | Cloudflare Workers AI (bedava şerit) | `cloudflare-workers-ai` | ✅ aktif | `image.generate` | free, premium | `_pricing/cloudflare-2026-08-16.json` |
 | `elevenlabs` | ElevenLabs (premium şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | premium | — |
 | `fal-flux` | FLUX (fal) | `fal-flux` | ⏸ kapalı | `image.generate` | premium | `_pricing/fal-2026-08-15.json` ⚠ doğrulanmamış |
+| `gemini-image` | Google Gemini görsel (nano banana · premium şerit) | `gemini-image` | ✅ aktif | `image.generate` | premium | `_pricing/gemini-image-2026-08-28.json` |
 | `gemini-tts` | Gemini TTS (bedava şerit) | `pending` ⚠ gövde yok | ⏸ kapalı | `audio.tts` | free | — |
 | `local-rembg` | Yerel arka plan silici (BRIA RMBG, CPU) | `local-rembg` | ✅ aktif | `image.matte` | free | `_pricing/local-rembg-2026-08-19.json` |
 
@@ -36,7 +37,7 @@ Toplam **7** tanımlayıcı.
 
 ### `cloudflare-workers-ai`
 
-- **image.generate** — şerit: free
+- **image.generate** — şerit: free, premium
   - `aspect`: `1:1` · `4:5` · `9:16` · `16:9`
   - `no_text`: `true`
 
@@ -47,6 +48,12 @@ Toplam **7** tanımlayıcı.
   - `clone`: `true` · `false`
 
 ### `fal-flux`
+
+- **image.generate** — şerit: premium
+  - `aspect`: `1:1` · `4:5` · `9:16` · `16:9`
+  - `no_text`: `true`
+
+### `gemini-image`
 
 - **image.generate** — şerit: premium
   - `aspect`: `1:1` · `4:5` · `9:16` · `16:9`

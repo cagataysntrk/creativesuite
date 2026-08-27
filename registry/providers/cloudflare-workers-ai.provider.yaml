@@ -25,7 +25,9 @@ auth_env: CF_API_TOKEN
 
 capabilities:
   - name: image.generate
-    lanes: [free]
+    # ⚠ İki şerit: premium bir koşuda ücretli sağlayıcı düşerse yönlendiricinin
+    # düşebileceği bir aday kalsın. Premium "para harcamak zorunlu" demek değil.
+    lanes: [free, premium]
     supports:
       aspect: ['1:1', '4:5', '9:16', '16:9']
       no_text: [true]

@@ -1,0 +1,46 @@
+# Google Gemini görsel üretimi — "nano banana" (ücretli şerit).
+#
+# ⚠ ⚠ **ŞERİT `paid` ve bu bir ÖLÇÜMÜN sonucu.** Depo sahibi altı API anahtarı verip
+# *"biri biterse öteki fallback olur"* dedi; öncül, her anahtarın kendi günlük görsel
+# kotası olduğuydu. 2026-08-28'de altı anahtarın altısı da ölçüldü:
+#   · metin modeli (gemini-3.6-flash) → 6/6 HTTP 200
+#   · görsel modelleri (2.5-flash-image · 3-pro-image · 3.1-flash-image) → 6/6 HTTP 429
+#   · gerekçe: "limit: 0, model: gemini-3-pro-image"
+# `limit: 0` "kotan bitti" değil "bedava katmanda görsel üretimi SIFIR" demektir.
+# Anahtar sayısı çarpan değil: 6 × 0 = 0. Faturalandırma açık bir proje şart.
+#
+# Bu yüzden `free_tier_commercial: false` — bedava katman görsel ÜRETMİYOR; onu bedava
+# şeride koymak, yönlendiriciye her koşuda 429 yedirmek olurdu.
+#
+# ⚠ `enabled: true`: anahtarlar kasada ve `available()` onları görüyor. Ama başarılı
+# yanıt şekli GERÇEK UÇTAN doğrulanmadı (200 alınamadı) — bu yüzden fiyat anlık
+# görüntüsü YOK ve kalite beyanı yapılmıyor. Faturalandırma açılınca ilk iş gerçek bir
+# çağrı ölçmek: cassette sağlayıcının davranışını değil bizim varsayımımızı kaydeder.
+id: gemini-image
+title: Google Gemini görsel (nano banana · premium şerit)
+adapter: gemini-image
+enabled: true
+
+# Görsel başı beyan — BEYAN, ölçüm değil. `pricing_snapshot` yok, yani doğrulanmamış.
+# ⚠ ⚠ **FORMÜL SABİT, `num_images` ÇARPANI YOK — ve bunu GERÇEK `just plan` öğretti.**
+# İlk yazım `0.039 * num_images`di ve sentetik denememde çalışıyordu çünkü parametreyi
+# ELLE veriyordum. Hattın görsel adımlarında öyle bir kısıt YOK; gerçek planda formül
+# `unknown_identifier` ile patladı ve aday **sessizce değil ama tümden** elendi:
+#   `elendi gemini-image: maliyet formülü hesaplanamadı (unknown_identifier)`
+# Yani şerit ve tavan düzeltildikten sonra bile Cloudflare kazanmaya devam ediyordu.
+# Bu adımlar çağrı başına BİR görsel üretiyor; formül de onu söylüyor.
+cost_formula: '0.039'
+pricing_snapshot: _pricing/gemini-image-2026-08-28.json
+
+# Bedava katman görsel üretmiyor (yukarıdaki ölçüm). Beyan olmadan bedava şerit
+# kullanılamaz; burada beyan AÇIKÇA "hayır".
+free_tier_commercial: false
+
+auth_env: GEMINI_API_KEYS
+
+capabilities:
+  - name: image.generate
+    lanes: [premium]
+    supports:
+      aspect: ['1:1', '4:5', '9:16', '16:9']
+      no_text: [true]

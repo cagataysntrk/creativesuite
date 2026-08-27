@@ -351,41 +351,80 @@ const otomatikKirp = (b64, oran) =>
  * metin isteyen bir istem Türkçe tipografiyi bozuyor. "Model yazdı" bir muafiyet
  * sebebi değil — insanın yazdığı için de olmadığı gibi.
  */
+/**
+ * Editörün sağlayıcı ZİNCİRİ — hattaki `gorsel-uret` adımının aynısı.
+ *
+ * ⚠ ⚠ **EDİTÖR SAĞLAYICIYI ADIYLA ÇAĞIRIYORDU (`'cloudflare-workers-ai'`) ve bu D-32'nin
+ * sağlayıcı hâliydi.** Depo sahibi: *"kesinlikle önce gemini apileri çalışmalı, editörde
+ * yuvaları doldur tuşu da öyle çalışmalı."* Hat premium şeride alınıp Gemini birincil
+ * yapıldığında editör HÂLÂ Cloudflare'e gidiyordu: aynı depoda iki farklı görsel
+ * sağlayıcısı, ve fark ancak çıktıya bakınca görülürdü. Bu deponun en sık tekrarlayan
+ * hatası tam olarak bu — aynı kural iki yerde, biri düzeltilir öteki unutulur.
+ *
+ * ⚠ Zincir KATALOGDAN türetiliyor, elle sayılmıyor: yeni bir sağlayıcı eklendiğinde
+ * editör onu kendiliğinden görüyor. Sıra `image.generate` yeteneğini beyan eden
+ * ÜCRETLİ adaylar önce, bedava olanlar yedek — hattaki premium şerit kuralının aynısı.
+ */
+const gorselZinciri = () =>
+  ['gemini-image', 'cloudflare-workers-ai']
+    .map((id) => adapterById(id))
+    .filter((a) => a !== null && a.available(SAGLAYICI_ORTAMI))
+
 const gorselUret = async (istem, anahtar) => {
-  const adapter = adapterById('cloudflare-workers-ai')
-  if (adapter === null) return { ok: false, sebep: 'sağlayıcı bulunamadı' }
-  if (!adapter.available(SAGLAYICI_ORTAMI))
+  const zincir = gorselZinciri()
+  if (zincir.length === 0)
     return { ok: false, sebep: 'anahtar yok — tezgâhı `just dev` ile (sops altında) başlat' }
-  const dogrulanan = adapter.validate({
-    capability: 'image.generate',
-    lane: 'free',
-    prompt: istem,
-    constraints: { aspect: '4:5' },
-    idempotencyKey: anahtar,
-  })
-  if (!dogrulanan.ok)
-    return {
-      ok: false,
-      sebep: 'istem reddedildi (R-20): ' + JSON.stringify(dogrulanan.error.details ?? {}),
+
+  // ⚠ Düşen her sağlayıcı ve SEBEBİ taşınıyor: hepsi düşerse kullanıcı hangisinin
+  // neden düştüğünü görmeli. Sessiz bir "üretim başarısız", altı anahtarlı bir kota
+  // hatasıyla eksik bir kurulumu aynı şeye benzetirdi.
+  const dusenler = []
+  for (const adapter of zincir) {
+    const serit = adapter.capabilities().some((c) => (c.lanes ?? []).includes('premium'))
+      ? 'premium'
+      : 'free'
+    const dogrulanan = adapter.validate({
+      capability: 'image.generate',
+      lane: serit,
+      prompt: istem,
+      constraints: { aspect: '4:5' },
+      idempotencyKey: anahtar,
+    })
+    if (!dogrulanan.ok) {
+      // ⚠ İstem hatası SAĞLAYICI DEĞİŞTİRMEZ: R-20 muhafızı her sağlayıcıda aynı
+      // cevabı verir ve zinciri dolaşmak yalnız gecikme üretirdi.
+      return {
+        ok: false,
+        sebep: 'istem reddedildi (R-20): ' + JSON.stringify(dogrulanan.error.details ?? {}),
+      }
     }
-  const is = await adapter.start(dogrulanan.value, {
-    correlationId: 'cor_editor',
-    env: SAGLAYICI_ORTAMI,
-  })
-  if (!is.ok) return { ok: false, sebep: 'çağrı başlamadı: ' + JSON.stringify(is.error.code ?? '') }
-  let durum = await adapter.status(is.value)
-  for (let i = 0; i < 60 && durum.ok && durum.value.state === 'running'; i++) {
-    await new Promise((c) => setTimeout(c, 1000))
-    durum = await adapter.status(is.value)
+    const is = await adapter.start(dogrulanan.value, {
+      correlationId: 'cor_editor',
+      env: SAGLAYICI_ORTAMI,
+    })
+    if (!is.ok) {
+      dusenler.push(adapter.id + ': ' + String(is.error.code ?? ''))
+      continue
+    }
+    let durum = await adapter.status(is.value)
+    for (let i = 0; i < 60 && durum.ok && durum.value.state === 'running'; i++) {
+      await new Promise((c) => setTimeout(c, 1000))
+      durum = await adapter.status(is.value)
+    }
+    if (!durum.ok || durum.value.state !== 'succeeded') {
+      dusenler.push(adapter.id + ': ' + String(durum.ok ? durum.value.state : durum.error.code))
+      continue
+    }
+    const cikti = durum.value.output ?? {}
+    const b64 =
+      typeof cikti.image_base64 === 'string' ? cikti.image_base64 : String(cikti.data ?? '')
+    if (b64 === '') {
+      dusenler.push(adapter.id + ': byte döndürmedi')
+      continue
+    }
+    return { ok: true, b64, saglayici: adapter.id, dusenler }
   }
-  if (!durum.ok || durum.value.state !== 'succeeded')
-    return {
-      ok: false,
-      sebep: 'üretim başarısız: ' + JSON.stringify(durum.ok ? durum.value.state : durum.error.code),
-    }
-  const cikti = durum.value.output ?? {}
-  const b64 = typeof cikti.image_base64 === 'string' ? cikti.image_base64 : String(cikti.data ?? '')
-  return b64 === '' ? { ok: false, sebep: 'sağlayıcı byte döndürmedi' } : { ok: true, b64 }
+  return { ok: false, sebep: 'hiçbir sağlayıcı üretemedi — ' + dusenler.join(' · ') }
 }
 
 /**
@@ -1370,48 +1409,14 @@ const sunucu = createServer(async (req, res) => {
       const istem = String(d.prompt ?? '').trim()
       if (istem === '') return res.end('✗ istem boş')
 
-      const adapter = adapterById('cloudflare-workers-ai')
-      if (adapter === null) return res.end('✗ sağlayıcı bulunamadı: cloudflare-workers-ai')
-      // ⚠ İmza `available(env)` — sarmalayıcı bir nesne DEĞİL. İlk sürüm
-      // `{env}` geçiyordu ve anahtar varken bile *anahtar yok* diyordu.
-      if (!adapter.available(SAGLAYICI_ORTAMI))
-        return res.end('✗ anahtar yok — tezgâhı `just dev` ile (sops altında) başlat')
-
-      const dogrulanan = adapter.validate({
-        capability: 'image.generate',
-        lane: 'free',
-        prompt: istem,
-        // ⚠ ⚠ **ORAN ZORUNLU** ve ilk iki sürüm onu geçemedi: önce alan hiç yoktu,
-        // sonra adı yanlıştı (`aspect_ratio`). Hata mesajı ikisinde de "R-20" diyordu
-        // ve beni yanlış yere baktırdı — oysa `supported` listesi cevabı yazıyordu.
-        // Yuvalar 1024×1280 üretiyor; `4:5` o oranın adı.
-        constraints: { aspect: '4:5' },
-        idempotencyKey: 'editor:' + id + ':' + String(d.i),
-      })
-      if (!dogrulanan.ok)
-        return res.end(
-          '✗ istem reddedildi (R-20): ' + JSON.stringify(dogrulanan.error.details ?? {})
-        )
-
-      const is = await adapter.start(dogrulanan.value, {
-        correlationId: 'cor_editor',
-        env: SAGLAYICI_ORTAMI,
-      })
-      if (!is.ok) return res.end('✗ çağrı başlamadı: ' + JSON.stringify(is.error.code ?? ''))
-      let durum = await adapter.status(is.value)
-      for (let i = 0; i < 60 && durum.ok && durum.value.state === 'running'; i++) {
-        await new Promise((c) => setTimeout(c, 1000))
-        durum = await adapter.status(is.value)
-      }
-      if (!durum.ok || durum.value.state !== 'succeeded')
-        return res.end(
-          '✗ üretim başarısız: ' + JSON.stringify(durum.ok ? durum.value.state : durum.error.code)
-        )
-
-      const cikti = durum.value.output ?? {}
-      const b64 =
-        typeof cikti.image_base64 === 'string' ? cikti.image_base64 : String(cikti.data ?? '')
-      if (b64 === '') return res.end('✗ sağlayıcı byte döndürmedi')
+      // ⚠ ⚠ **TEK YOL: `gorselUret`.** Burada sağlayıcı ADIYLA çağrılıyordu ve
+      // *"yuvaları doldur"* düğmesiyle bu uç iki ayrı sağlayıcı zinciri konuşuyordu.
+      // Aynı kural iki yerde yazılınca biri düzeltilir öteki unutulur — bu depoda
+      // sıralama dokuz, yayın durumu üç kez böyle ayrıştı. İkisi de artık aynı
+      // fonksiyondan geçiyor: ücretli sağlayıcı önce, bedava olan yedek.
+      const uretim = await gorselUret(istem, 'editor:' + id + ':' + String(d.i))
+      if (!uretim.ok) return res.end('✗ ' + uretim.sebep)
+      const b64 = uretim.b64
       const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'
       writeFileSync(join(k.dizin, ad), Buffer.from(b64, 'base64'))
       kaynakKunyesiniSil(k.dizin, d.i + 1)

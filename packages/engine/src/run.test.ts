@@ -357,6 +357,95 @@ describe('bütçe tavanı hattı KİLİTLİYOR (D-17)', () => {
     expect(diskten?.steps[0]?.estimatedCost.high.micros).toBe(25_000n)
   })
 
+  it('KAZANAN kota yerse YEDEK sağlayıcı deneniyor ve adım BAŞARIYOR', async () => {
+    // ⚠ ⚠ **BU BOŞLUK GERÇEKTİ.** `route()` `fallbacks` listesini baştan beri
+    // üretiyordu, `plan.ts` onu ekrana *"yedek: … (skor N)"* diye yazıyordu ve
+    // ÇALIŞMA ANINDA HİÇ KİMSE OKUMUYORDU. Kazanan sağlayıcı düştüğünde adım `failed`
+    // yazılıyor, görsel adımları `optional` olduğu için hat devam ediyor ve karosel
+    // GÖRSELSİZ bitiyordu. Vaat edilen yedek bir ekran metniydi.
+    const denenen: string[] = []
+    const kotaliSaglayici = sahte('GENERATE', async (ctx: VerbContext, input: unknown) => {
+      const pid = (input as { providerId?: string }).providerId ?? ''
+      denenen.push(pid)
+      if (pid === 'p1')
+        return err({
+          kind: 'provider_rate_limit' as never,
+          code: 'ALL_KEYS_EXHAUSTED',
+          userMessageKey: 'e',
+          correlationId: ctx.correlationId,
+          costIncurred: ZERO_USD,
+          retryable: false,
+        })
+      return ok({
+        costs: [
+          {
+            verb: 'GENERATE' as const,
+            capability: 'image.generate',
+            providerId: pid,
+            amount: usd(0n),
+            kind: 'actual' as const,
+          },
+        ],
+        data: { url: 'yedekten' },
+      })
+    })
+
+    const r = await kos(uretimHat, {
+      verbs: { RESOLVE: basarili('RESOLVE', {}), GENERATE: kotaliSaglayici },
+      // İki aday: p1 kaliteli (kazanır) ama kotası dolu, p2 yedek.
+      candidatesFor: () => [...aday('p1'), ...aday('p2')],
+      pricing: { ...fiyat('p1', '0'), ...fiyat('p2', '0') },
+    })
+
+    // ⚠ ⚠ **ÖLÇÜLEN: `['p1','p1','p1','p2']`.** Kazanan ÜÇ kez deneniyor, sonra zincir
+    // yedeğe geçiyor. Üç deneme yedek zincirinden değil ADIM-İÇİ yeniden denemeden
+    // geliyor (`runStep`) ve doğru: kota hatası geçici olabilir, aynı sağlayıcıya
+    // geri dönmek yedeğe geçmekten ucuzdur. İki katman birbirini bozmuyor —
+    // önce "bu sağlayıcı toparlar mı", sonra "başka sağlayıcı var mı".
+    //
+    // ⚠ Beklenti ÖLÇÜLENE göre yazıldı, ölçüm beklentiye göre değil: ilk yazımda
+    // `['p1','p2']` bekledim ve test kırmızıya döndü. Kırmızıyı düzeltmenin yolu
+    // gerçeği yazmaktı, adım-içi yeniden denemeyi kapatmak değil.
+    expect(denenen.at(-1), 'son deneme YEDEK sağlayıcı').toBe('p2')
+    expect(
+      denenen.filter((x) => x === 'p2'),
+      'yedek bir kez denendi'
+    ).toHaveLength(1)
+    expect(new Set(denenen), 'iki sağlayıcı da denendi').toEqual(new Set(['p1', 'p2']))
+    expect(r.errors, 'adım yedekle BAŞARDI').toHaveLength(0)
+    expect(r.manifest.steps[1]?.status).toBe('ok')
+    // Manifest YEDEĞİ yazıyor, kazananı değil: altı ay sonra "neden p2" sorusunun
+    // cevabı defterde olmalı (§13).
+    expect(r.manifest.steps[1]?.providerId).toBe('p2')
+  })
+
+  it('İSTEM hatasında yedeğe GEÇİLMİYOR — aynı duvara iki kez çarpılmıyor', async () => {
+    // ⚠ İstem R-20'ye takıldıysa ikinci sağlayıcı da reddeder; yedeğe geçmek yalnız
+    // gecikme ve —ücretli bir yedekse— boşa harcanan para üretirdi.
+    const denenen: string[] = []
+    const gecersiz = sahte('GENERATE', async (ctx: VerbContext, input: unknown) => {
+      denenen.push((input as { providerId?: string }).providerId ?? '')
+      return err({
+        kind: 'validation' as never,
+        code: 'TEXT_IN_IMAGE_PROMPT',
+        userMessageKey: 'e',
+        correlationId: ctx.correlationId,
+        costIncurred: ZERO_USD,
+        retryable: false,
+      })
+    })
+
+    const r = await kos(uretimHat, {
+      verbs: { RESOLVE: basarili('RESOLVE', {}), GENERATE: gecersiz },
+      candidatesFor: () => [...aday('p1'), ...aday('p2')],
+      pricing: { ...fiyat('p1', '0'), ...fiyat('p2', '0') },
+    })
+
+    // Yedek sağlayıcıya HİÇ gidilmedi: `validation` hatası yedeği hak etmiyor.
+    expect(new Set(denenen), 'YALNIZ kazanan denendi').toEqual(new Set(['p1']))
+    expect(r.errors.length, 'adım düştü ve sebebi taşındı').toBeGreaterThan(0)
+  })
+
   it('donmuş plan YOKSA yönlendirici normal çalışır — davranış değişmedi', async () => {
     const r = await kos(uretimHat, {
       verbs: {

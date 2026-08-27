@@ -86,6 +86,7 @@ bilinmeyen bir anahtar, sızdığında döndürülemez.
 | `TELEGRAM_BOT_TOKEN` | Telegram | BotFather → `/revoke` | **V-18: yer tutucu** |
 | `ELEVENLABS_API_KEY` | ElevenLabs | `elevenlabs.io` → Profile → API Key | premium TTS şeridi |
 | `GEMINI_API_KEY` | Google AI Studio | `aistudio.google.com/apikey` | bedava TTS/metin şeridi |
+| `GEMINI_API_KEYS` | Google AI Studio | `aistudio.google.com/apikey` → her anahtarı ayrı ayrı sil/yeniden üret | **görsel şeridi — virgülle ayrılmış ÇOKLU anahtar.** ⚠ Bu altı anahtar sohbete DÜZ METİN yapıştırıldı (2026-08-28) ve o kayıt silinmez: fırsat bulunca hepsini yenile. ⚠ Görsel için faturalandırma ŞART — bedava katmanda kota `limit: 0` ölçüldü. |
 | `RESEARCH_SRC` | — | araştırma arşivi yolu, **sır değil** | rotasyon yok |
 | `SUITE_BRAND` | — | yapılandırma, sır değil | rotasyon yok |
 | `BRAND_ID` | — | çalıştırma parametresi, sır değil | rotasyon yok |

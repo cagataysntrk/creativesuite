@@ -1,0 +1,11 @@
+{
+  "provider": "gemini-image",
+  "captured_at": "2026-08-28",
+  "verified": true,
+  "verified_by": "measured",
+  "measurement": "İKİ BAĞIMSIZ KAYNAK aynı şeyi söylüyor. (1) Gerçek çağrı, altı anahtar: metin modeli (gemini-3.6-flash) 6/6 HTTP 200; görsel modelleri (gemini-2.5-flash-image · gemini-3-pro-image · gemini-3.1-flash-image) 6/6 HTTP 429, gerekçe 'Quota exceeded ... limit: 0'. (2) Resmî fiyat sayfası: Gemini 2.5 Flash Image (Nano Banana) satırında Free Tier hem girdi hem çıktı için 'Not available'. Yani bedava katmanda görsel üretimi YOK — kota bitmiş değil, hiç verilmemiş. Birim fiyat ölçülemedi çünkü faturalandırma kapalıyken 200 alınamıyor; birim fiyat SAYFADAN alındı.",
+  "unitMicros": 39000,
+  "sourceUrl": "https://ai.google.dev/gemini-api/docs/pricing",
+  "openRisk": "BAŞARILI YANIT ŞEKLİ ÖLÇÜLMEDİ. Faturalandırma açık bir projede 200 alınana kadar `inlineData` sözleşmesi bir VARSAYIMDIR — komşu cloudflare.ts tam bu noktada 'cassette senin varsayımını kaydeder' dersini taşıyor. Faturalandırma açılınca ilk iş gerçek bir çağrı ölçmek ve bu dosyanın yerine YENİ bir anlık görüntü açmak. Ayrıca ucuz alternatifler ölçülmedi: Flex katmanı 0.0195 $/görsel (yarı fiyat) ve gemini-3.1-flash-lite-image daha da ucuz.",
+  "_not": "DEĞİŞMEZ anlık görüntü. Fiyat değişirse YENİ dosya açılır, bu düzenlenmez — eski çalıştırmanın maliyeti hâlâ açıklanabilir olmalı."
+}

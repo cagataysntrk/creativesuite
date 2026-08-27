@@ -61,7 +61,15 @@ const MODELLER: Record<Aspect, { readonly path: string; readonly tel: 'json' | '
 const ACCOUNT_ENV = 'CF_ACCOUNT_ID'
 const TOKEN_ENV = 'CF_API_TOKEN'
 
-const CAPS: readonly CapabilityDecl[] = [imageCapability(['free'])]
+// ⚠ ⚠ **İKİ ŞERİTTE DE ADAY — ve bu bir YEDEK ZİNCİRİ kararı.** Cloudflare bedava
+// şeridin varsayılanı; premium şeride de konmasının sebebi şu: premium bir koşuda
+// ücretli sağlayıcı düşerse (kota, arıza, anahtar) yönlendiricinin düşebileceği BAŞKA
+// bir aday kalmıyordu ve koşu GÖRSELSİZ bitiyordu. Yani premium bir koşu, bedava bir
+// koşunun ürettiğini üretemiyordu — savunulamaz bir sonuç.
+//
+// ⚠ Premium ŞERİT "para harcamak ZORUNLU" demek değil, "para harcanabilir" demek
+// (§8.2). Skorlamada ücretli sağlayıcı kalitesiyle kazanır; Cloudflare yedek kalır.
+const CAPS: readonly CapabilityDecl[] = [imageCapability(['free', 'premium'])]
 
 /**
  * Sonuçlar süreç-içi. Kalıcılık defterin işi (`derived/runs`, §3.5): adaptör kendi
@@ -93,7 +101,7 @@ export const cloudflareImage: ProviderAdapter = {
   capabilities: () => CAPS,
 
   validate: (input: ProviderInput): Result<ValidatedInput, AppError> =>
-    validateImageInput(input, ['free']),
+    validateImageInput(input, ['free', 'premium']),
 
   // SENKRON (R-42). Bedava katman: aralık sıfır. Kota aşımı ayrı bir sorun ve
   // `available()` onu göremez — bu yüzden V-14 açık duruyor.
