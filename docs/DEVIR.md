@@ -45,6 +45,29 @@ Bu depo 4–6 slaytlık karosel üretiyor. Metricool'un pazarlama sayfası ve Py
 README'si bu soruyu **cevaplamıyor** (yalnız *"Schedule a post (o multipost)"*
 diyor, o da çoklu **ağ** demek, çoklu görsel değil). Şemaya bakmadan varsayma.
 
+### ⚠ YUVA HAZIR — yalnız adaptörü yaz
+
+`apps/server/src/yayin-hedefi.ts` bir **arayüz** olarak kuruldu. Bugün `yerel` hedef
+çalışıyor (paket klasörü üretir, insan yükler). Metricool hedefi aynı arayüze takılacak
+ve **panelin hiçbir yeri değişmeyecek**:
+
+```ts
+{ id: 'metricool', ad: 'Metricool',
+  hazir: () => MCP araçları var mı,
+  platformlar: () => ['instagram', 'linkedin'],   // sahibin bağladıkları
+  gonder: async (g) => post_schedule_post çağrısı → { disKimlik: post id } }
+```
+
+Sonra `hedefler()` listesine ekle. Panelde *"⇄ hedefe gönder"* düğmesi zaten var ve
+senkron rozeti zaten çiziliyor.
+
+⚠ **`platformTutuyor` alanını doğru doldur.** Yalnız Facebook `true` olabilir —
+Instagram/LinkedIn/X'te bir KUYRUK tutuyor, platform değil. Bu ayrımı bozmak,
+Instagram'da var olmayan bir güvenceyi varmış gibi göstermektir.
+
+⚠ **Karosel almıyorsa `hazir: false` döndür** — sessizce tek görsele DÜŞME. Yerel hedef
+devrede kalır ve sahip elle yükler.
+
 ### Karar ağacı
 
 | `post_schedule_post` ne alıyorsa | Ne yapılacak |
@@ -122,8 +145,18 @@ SAHİP VERMEDİ** — önceki oturumun Playwright testleri yazdı. Sahibe bildir
 İkisinde de karara bağlı gerçek hat çıktısı olduğu için sökülmedi. Sahip
 isterse `git revert` ile geri alınabilir.
 
-⚠ **Takvim BOŞ ve bu doğru**: hiçbir üretim `insan-onayi`ndan geçmedi, yani
-yayına hazır sıfır. Panel bunu "takvime giremeyenler" kutusunda açıklıyor.
+⚠ **TAKVİME GİRME ŞARTI DEĞİŞTİ**: artık `insan-onayi` değil, **slayt + gönderi
+metni**. Onay hattın son kapısı; planlama ondan önce yapılan bir iş. Metinsiz planlama
+sunucuda REDDEDİLİYOR ve karar kutusu metinsiz platformu önceden `⚠ metinsiz` diye
+işaretleyip düğmeyi kapatıyor.
+
+Bugün iki üretimin metni var (`veri-hikayesi`: x/linkedin/facebook, `editoryal`:
+instagram) ve ikisi de takvimde. Kalan sekizin metni yok — `⚡ üret` ile üretilir
+(`just yayin-metni --run <id> --hepsi`).
+
+⚠ Takvimin altında **yalnız üç kutu** var: planlananlar · yayınlananlar · hata verenler.
+Hepsi slaytlarıyla ve sıra numarasıyla; satıra tıklamak karar kutusunu, `↗ koşuyu aç`
+koşu detayını açıyor.
 
 ---
 
