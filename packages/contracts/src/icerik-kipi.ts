@@ -60,10 +60,19 @@ export const kipTarifi = (kip: IcerikKipi): readonly string[] =>
         '  · ŞUNU YAPMAK ŞUNU KAZANDIRIR — bir davranış, karşılığı olan somut bir sonuç.',
         'Okuyan karoseli kapattığında YAPABİLECEĞİ ya da ANLATABİLECEĞİ bir şey kalmalı.',
         'Havalı ama boş cümle yazma: "dönüşümün anahtarı" gibi bir söz hiçbir şey öğretmez.',
-        // ⚠ Yasa 8 burada tekrarlanıyor çünkü genel kipte kaynak baskısı en düşük ve
-        // uydurma sayı riski en yüksek. İstemin sustuğu yerde model doldurur.
-        'Sayı, yüzde, tarih ya da sıralama UYDURMA. Elinde kaynağı olmayan sayısal bir',
-        'iddia yazma; anlatmak istediğini niteliksel olarak anlat.',
+        // ⚠ ⚠ **YASAK DARALTILDI ve gerekçesi R-32'de yazılı (depo sahibinin kararı).**
+        // Eski hâli *"sayı UYDURMA, sayısal iddia YAZMA"* diyordu ve `genel` kipte bu,
+        // sayısal ritmi imkânsız kılıyordu: istem aynı anda *"her satırda sayı"* ve
+        // *"sayı yazma"* diyordu. Model çelişkiyi gördü ve üretmeyi doğru biçimde
+        // REDDETTİ — çelişki modelde değil kuraldaydı.
+        //
+        // ⚠ Sınır KAYNAKTA, rakamda değil: genel bilgi serbest, markanın sonucu
+        // hakkında uydurulmuş istatistik yasak. *"Bir vardiya sekiz saattir"* bir
+        // ders; *"fire %37 azalır"* kaynaksız bir iddia ve ilk soruda çöker.
+        'Sayı kullanabilirsin — ama yalnız GENEL olarak bilinen, doğrulanabilir',
+        'büyüklükler (süreler, standart numaraları, yaygın eşikler).',
+        'Markanın ya da bir ürünün SONUCU hakkında istatistik UYDURMA:',
+        '"%37 azalır", "3 kat hızlanır" gibi bir iddia kaynaksız yazılamaz.',
       ]
     : [
         'İÇERİK KİPİ: FİRMA.',

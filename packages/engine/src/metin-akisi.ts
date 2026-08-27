@@ -181,7 +181,11 @@ const RITIM: Readonly<Record<string, string>> = {
 const BICIM: Readonly<Record<string, readonly string[]>> = {
   'veri-hikayesi': [
     '- 2. satırdan itibaren HER satır en az bir SAYI içerecek (yıl, oran, adet).',
-    '- Sayılar yalnız MARKA BİLGİSİ içinde geçenlerden alınacak.',
+    // ⚠ ⚠ **SAYININ KAYNAĞI BURADA YAZILI DEĞİL — KİPE GÖRE `sablonBicimi` basıyor.**
+    // Bu satır her iki kipte de *"yalnız marka bilgisinden"* diyordu; `genel` kipte
+    // marka kaydı KAYNAK değil BAĞLAM ve orada sayı aramak istemi kendi kendisiyle
+    // çelişkiye sokuyordu. Model çelişkiyi gördü ve üretmeyi doğru biçimde REDDETTİ
+    // (R-32'nin kip ayrımı bu ölçümden doğdu).
   ],
   'akan-alan': [
     '- 2. satırdan itibaren her satır `1.` `2.` `3.` `4.` ile BAŞLAYACAK.',
@@ -295,7 +299,16 @@ export const kaynaktaSayiVar = (kayitlar: readonly PromptKaydi[]): boolean => {
  */
 export const rotasyonHedefi = (
   sonSablonlar: readonly string[],
-  sayiVar: boolean
+  /**
+   * Kaynakta VERİ sayısı var mı — yalnız `firma` kipinde bağlayıcı.
+   *
+   * ⚠ ⚠ **KİP AYRIMI R-32'DE YAZILI (depo sahibinin kararı).** `genel` kipte içerik
+   * markanın kaydına değil alanın genel bilgisine dayanıyor; sayısal ritmi marka
+   * kaydında sayı olmadığı için elemek, *"bir vardiya sekiz saattir"* diyebilmek için
+   * marka kaydında sekiz aramak olurdu. `firma` kipinde kural DEĞİŞMEDİ.
+   */
+  sayiVar: boolean,
+  kip: IcerikKipi = 'firma'
 ): string | null => {
   // ⚠ ⚠ **İLK KOŞU SERBEST ve bu KASITLI — beş test bunu koruyordu.** Geçmiş yokken
   // rotasyonun döndüreceği bir "sıradaki" yok; ilk sırayı hedef saymak, ilk karoseli
@@ -304,7 +317,7 @@ export const rotasyonHedefi = (
   if (sonSablonlar.length === 0) return null
   return (
     Object.keys(RITIM).find(
-      (id) => !sonSablonlar.includes(id) && (sayiVar || !SAYI_ISTEYEN.has(id))
+      (id) => !sonSablonlar.includes(id) && (kip === 'genel' || sayiVar || !SAYI_ISTEYEN.has(id))
     ) ?? null
   )
 }
@@ -348,7 +361,8 @@ const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): reado
  */
 const sablonBicimi = (
   sablonId: string,
-  sonSablonlar: readonly string[] = []
+  sonSablonlar: readonly string[] = [],
+  kip: IcerikKipi = 'firma'
 ): readonly string[] => {
   const b = BICIM[sablonId]
   if (b === undefined) return []
@@ -366,6 +380,20 @@ const sablonBicimi = (
     ...(kullanilan.length === 0 ? [] : [`Son karoseller ${kullanilan.join(', ')} biçimindeydi.`]),
     `BU SEFER: ${RITIM[sablonId] ?? ''}`,
     ...b,
+    // ⚠ ⚠ **SAYININ KAYNAĞI KİPE GÖRE DEĞİŞİYOR (R-32 · depo sahibinin kararı).**
+    // `firma`da yalnız marka kaydı; `genel`de alanın genel bilgisi — çünkü genel kipte
+    // marka kaydı KAYNAK değil BAĞLAM ve orada sayı aramak istemi kendi kendisiyle
+    // çelişkiye sokuyordu. Model bunu gördü ve üretmeyi doğru biçimde REDDETTİ.
+    // ⚠ Uydurulmuş SONUÇ istatistiği ikisinde de yasak: sınır kaynakta, rakamda değil.
+    ...(sablonId !== 'veri-hikayesi'
+      ? []
+      : kip === 'genel'
+        ? [
+            '- Sayılar GENEL olarak bilinen, doğrulanabilir büyüklükler olacak',
+            '  (süreler, standart numaraları, yaygın eşikler).',
+            '- Markanın sonucu hakkında istatistik UYDURMA ("fire %37 azalır" gibi).',
+          ]
+        : ['- Sayılar yalnız MARKA BİLGİSİ içinde geçenlerden alınacak.']),
     'Bu bir üslup tercihi değil, sayılabilir bir kural: metnin şekli kompozisyona',
     'oturmak zorunda ve aynı şekil her seferinde aynı tasarımı dolduruyor.',
   ]
@@ -429,7 +457,7 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // biçimini istemek gerekiyor. İkisini birden söylemek modele çelişki vermekti.
     ...(g.sablonId === undefined
       ? ritimTalimati(g.sonSablonlar ?? [], kaynaktaSayiVar(g.kayitlar))
-      : sablonBicimi(g.sablonId, g.sonSablonlar ?? [])),
+      : sablonBicimi(g.sablonId, g.sonSablonlar ?? [], g.kip ?? 'firma')),
     '- Satırları numaralama, madde işareti koyma.',
     // ⚠ **VURGU — karoselin en büyük tipografik eksiği** (FAZ-12.1). Bugüne kadar her
     // satır aynı ağırlıkta okunuyordu; referanslarda bir ifade her zaman öne çıkar.

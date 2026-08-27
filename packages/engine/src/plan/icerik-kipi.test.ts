@@ -54,13 +54,20 @@ describe('içerik kipi', () => {
     expect(p, 'listede olmayan konunun da seçilebildiği söylenmeli').toMatch(/listede olmayan/)
   })
 
-  it('genel kipte YASA 8 duruyor — kaynaksız sayısal iddia yasak', () => {
+  // ⚠ ⚠ **BU İDDİANIN ÖNCÜLÜ DEĞİŞTİ ve gerekçesi R-32'de yazılı.** Eski hâli genel
+  // kipte HER rakamı yasaklıyordu (*"Sayı, yüzde, tarih ya da sıralama UYDURMA"*) ve
+  // bu, sayısal ritmi imkânsız kılıyordu: istem aynı anda *"her satırda sayı"* ve
+  // *"sayı yazma"* diyordu. Model çelişkiyi gördü ve üretmeyi doğru biçimde REDDETTİ.
+  // Depo sahibi ayrımı verdi: *"firma için sayı uydurmak yasak, genel için sayı
+  // kullanılabilir."*
+  //
+  // ⚠ YASA 8 KALKMADI, DARALDI: sınır kaynakta, rakamda değil. Genel bilgi serbest;
+  // markanın ya da ürünün SONUCU hakkında uydurulmuş istatistik hâlâ yasak.
+  it('genel kipte YASA 8 duruyor — uydurulmuş SONUÇ istatistiği yasak', () => {
     const p = konuSecPromptu({ adaylar: ADAYLAR, islenmisSayisi: 3, kip: 'genel' }) ?? ''
-    expect(
-      p,
-      'genel kipte kaynak baskısı en düşük, uydurma sayı riski en yüksek — ' +
-        'istemin sustuğu yerde model doldurur'
-    ).toMatch(/Sayı, yüzde, tarih ya da sıralama UYDURMA/)
+    expect(p, 'sınır kaynakta: genel bilgi serbest').toMatch(/GENEL olarak bilinen, doğrulanabilir/)
+    expect(p, 'uydurulmuş sonuç istatistiği yasak').toMatch(/istatistik UYDURMA/)
+    expect(p, 'örnekle gösteriliyor — soyut bir yasak uygulanamaz').toMatch(/%37 azalır/)
   })
 
   it('genel kipte aday YOKSA da istem üretiliyor', () => {

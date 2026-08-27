@@ -2041,7 +2041,11 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
       if (typeof acik === 'string' && acik !== '') return { sablonId: acik }
       const gecmis = input.constraints['son_kullanilan']
       const son = typeof gecmis === 'string' && gecmis !== '' ? gecmis.split(',') : []
-      const hedef = rotasyonHedefi(son, kaynaktaSayiVar(kayitlar))
+      const hedef = rotasyonHedefi(
+        son,
+        kaynaktaSayiVar(kayitlar),
+        icerikKipiCozumle(input.constraints['icerik_kipi'])
+      )
       return hedef === null ? {} : { sablonId: hedef }
     })(),
     ...(typeof input.constraints['locale'] === 'string'
@@ -2269,7 +2273,11 @@ export const sablonSecimiIcin = (
   // çalıştığımız israfın ta kendisi.
   const rotasyon =
     istenen === undefined
-      ? rotasyonHedefi(sonKullanilan, kaynaktaSayiVar(kayitlariTopla(input.inputs)))
+      ? rotasyonHedefi(
+          sonKullanilan,
+          kaynaktaSayiVar(kayitlariTopla(input.inputs)),
+          icerikKipiCozumle(input.constraints['icerik_kipi'])
+        )
       : null
   // ⚠ ⚠ **ROTASYON HEDEFİ BİR DAYATMA DEĞİL, BİR ÖNCELİK.** Metin o şekle uymadıysa
   // (model tutturamadı) hedef NEGATİF puan alıyor ve ŞEKLE BAKAN eski seçim devreye

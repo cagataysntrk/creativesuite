@@ -144,6 +144,24 @@ font ailesi, `notdef` = 0). Piksel referansı içerik-adresli depoda.
 ### R-32 · kaynaksiz-iddia-yok · BLOCKING · FAZ-3.10
 Sayısal iddia içeren hiçbir metin `claim_source` olmadan yayınlanamaz.
 
+**Kip ayrımı (FAZ-19.13 · depo sahibinin kararı):** yasak **MARKA ADINA yapılan**
+sayısal iddiaya bakar, her rakama değil.
+
+- **`firma` kipi — DEĞİŞMEDİ.** Sayı yalnız markanın kendi kaydından gelebilir.
+  Kayıtta olmayan bir oran, bir kat, bir süre uydurulamaz: o iddia markanın ağzından
+  çıkmış sayılır ve ilk soruda çöker.
+- **`genel` kipi — sayı KULLANILABİLİR.** Genel/öğretici içerik markanın kaydına değil
+  alanın genel bilgisine dayanıyor; *"bir vardiya sekiz saattir"* demek için marka
+  kaydında sekiz aramak anlamsız. Yasak burada da duruyor ama daraltılmış hâliyle:
+  **markanın sonucu hakkında uydurulmuş istatistik** yazılamaz (*"fire %37 azalır"*).
+  Genel olarak bilinen, doğrulanabilir büyüklükler serbest.
+
+**Neden değişti:** rotasyon `veri-hikayesi`yi seçtiğinde istem *"her satırda sayı"* ile
+*"sayı uydurma"*yı aynı anda söylüyordu ve model — doğru biçimde — REDDETTİ: *"tek çıkış
+sayı uydurmak olurdu, ki bu promptun kendi kuralıyla çelişiyor."* Çelişki modelde değil
+kuraldaydı: `genel` kipi marka kaydını KAYNAK değil BAĞLAM sayıyor, ama sayı kuralı
+hâlâ kaynak muamelesi yapıyordu.
+
 ### R-33 · sentetik-insan-yok · BLOCKING · FAZ-3.11
 `containsSyntheticPerson=false` iddiası olmayan varlık onaylanamaz.
 **Neden:** Reklam Yönetmeliği Md. 27/12, 1 Ağu 2026'dan yürürlükte.
