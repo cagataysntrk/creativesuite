@@ -224,7 +224,9 @@ const sayfaAc = async () => {
       }),
     })
   )
-  const araDugmesi = p.locator('button:has-text("webden ara")').first()
+  // ⚠ Düğme adı *"webden 3D öge ara"* oldu (3dicons + Fluent Emoji eklendi); kapı
+  // ORTAK parçayı arıyor ki bir sonraki ad değişikliğinde yine yanlış alarm vermesin.
+  const araDugmesi = p.locator('button:has-text("webden")').first()
   if ((await araDugmesi.count()) === 0) bildir('editör', 'webden arama düğmesi yok')
   else {
     await araDugmesi.click()
