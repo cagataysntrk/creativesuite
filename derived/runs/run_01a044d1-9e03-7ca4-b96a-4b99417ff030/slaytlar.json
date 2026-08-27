@@ -1,0 +1,22 @@
+{
+  "at": "2026-08-27T20:10:49.203Z",
+  "kaynak": "editor",
+  "slaytlar": [
+    {
+      "sira": 0,
+      "digest": "sha256:f01824cf4c214bb798fdbe9d2eb3d413dd36741fb93595427870fa08c3d5ac7b"
+    },
+    {
+      "sira": 1,
+      "digest": "sha256:f1661c25360461bdb623fc64b86b9d27ced699645d21daf3085b8d14b013408b"
+    },
+    {
+      "sira": 2,
+      "digest": "sha256:4e6e4af4ad135753bfb08d4a24643565568feb6ab88fb284a9c3843f9ea2f1c3"
+    },
+    {
+      "sira": 3,
+      "digest": "sha256:b7d6f89a4d972cd1d3a661c713fbc5adcaf2fd13d09be425ca5c0725adb1baef"
+    }
+  ]
+}

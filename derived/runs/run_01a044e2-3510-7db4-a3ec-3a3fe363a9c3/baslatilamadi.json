@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-27T20:21:11.863Z",
+  "komut": "just uret instagram-karosel --konu-sec --sablon dizin --icerik-kipi genel --platformlar instagram,linkedin --run run_01a044e2-3510-7db4-a3ec-3a3fe363a9c3 --plan-digest sha256:7a281b1420c93d92849afc63e044d03cf19708a027ec24db171bb7d363242b99",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "apps/ui/src/GonderiKutusu.tsx(124,10): error TS6133: 'saat' is declared but its value is never read.\napps/ui/src/GonderiKutusu.tsx(125,27): error TS6133: 'setSaatEldeSecildi' is declared but its value is never read.\n"
+}

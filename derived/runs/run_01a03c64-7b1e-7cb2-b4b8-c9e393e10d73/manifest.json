@@ -1685,6 +1685,12 @@
       "decision": "approved",
       "at": "2026-08-27T12:01:39.409Z",
       "note": null
+    },
+    {
+      "gate": "insan-onayi",
+      "decision": "rejected",
+      "at": "2026-08-27T15:03:52.425Z",
+      "note": "tasarım hatası"
     }
   ],
   "context": [
