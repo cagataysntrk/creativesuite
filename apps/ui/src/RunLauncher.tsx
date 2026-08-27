@@ -414,11 +414,18 @@ export const RunLauncher = ({
         </select>
       </label>
 
+      {/* ⚠ ⚠ **ŞABLON SEÇMEK BİR MODEL ÇAĞRISI KAZANDIRIYOR — ve bu ÖLÇÜLDÜ.** Şablon
+          verilmezse hat önce şekil sondası olarak bir metin yazıyor, şekle bakıp
+          şablonu seçiyor, sonra metni O ŞABLONA GÖRE YENİDEN yazıyor. Dört gerçek
+          koşuda ilk metnin 10 · 7 · 11 · 14 satırından uyarlamaya aynen geçen satır
+          sayısı 0 · 1 · 0 · 1 — yani ilk üretim pratikte çöpe gidiyor.
+          ⚠ Seçenek KALDIRILMADI: şablonu hattın seçmesi, çeşitliliği ritim
+          rotasyonuna bırakmanın tek yolu ve o rotasyon ölçülmüş bir ihtiyaç. */}
       {sablonlar.length === 0 ? null : (
         <label className="giris-alan">
           şablon{' '}
           <select value={sablon} onChange={(e) => setSablon(e.target.value)}>
-            <option value="">✨ hat seçsin (ritme ve geçmişe bakar)</option>
+            <option value="">✨ hat seçsin — metin iki kez yazılır (bir çağrı fazla)</option>
             {sablonlar
               .filter((s) => s.kullanilabilir)
               .map((s) => (

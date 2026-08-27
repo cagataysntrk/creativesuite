@@ -2023,6 +2023,14 @@ export const promptTuret = (yetenek: string, input: BodyInput): string => {
     // ⚠ Kip METNİ YAZAN isteme de geçiyor: konuyu seçip biçimi söylememek, kipi
     // kozmetiğe çevirir. Bu eksik gerçek bir çıktıyla ölçüldü (`metin-akisi.ts`).
     kip: icerikKipiCozumle(input.constraints['icerik_kipi']),
+    // ⚠ ⚠ **ŞABLON BELLİYSE METİN ONUN İÇİN YAZILIYOR.** Depo sahibi ölçtü: şablon
+    // seçilmeden yazılan metnin uyarlamaya AYNEN geçen satır sayısı dörtte üç koşuda
+    // SIFIR — ilk üretim pratikte bir ŞEKİL SONDASI ve tam bir model çağrısına mal
+    // oluyor. `sablon` kısıtı zaten HER adımın kısıtlarına giriyor (`run.ts` çalıştırma
+    // parametrelerini birleştiriyor); eksik olan onu OKUMAKTI.
+    ...(typeof input.constraints['sablon'] === 'string' && input.constraints['sablon'] !== ''
+      ? { sablonId: input.constraints['sablon'] }
+      : {}),
     ...(typeof input.constraints['locale'] === 'string'
       ? { locale: input.constraints['locale'] }
       : {}),

@@ -24,7 +24,7 @@
 // hiç kurulmasın.
 import { islevTavanlari, yayTalimati } from '@suite/contracts'
 import { kipTarifi, type IcerikKipi } from '@suite/contracts'
-import { MAX_DUGUM } from '@suite/render'
+import { MAX_DUGUM, ORNEKLER } from '@suite/render'
 
 /** Prompt'a giren kayıt — `SELECT` çıktısının şekli. */
 export interface PromptKaydi {
@@ -49,6 +49,22 @@ export interface PromptGirdisi {
    * Model yanlış davranmadı; istem tam olarak bunu istedi.
    */
   readonly kip?: IcerikKipi
+  /**
+   * Şablon BELLİYSE kimliği — metin O ŞABLON İÇİN yazılır.
+   *
+   * ⚠ ⚠ **BU ALAN BİR İSRAFI KAPATIYOR ve israf ÖLÇÜLDÜ.** Depo sahibi: *"üretim
+   * başlatınca bir metin üretiyor ama bunu şablon seçmeden yaptığı için, sonra şablon
+   * seçince farklı bir metinle o şablonu doldurmak zorunda kalıyor — bu da metnin
+   * boşa gitmesi demek."* Ölçüm onu doğruladı: dört gerçek koşuda `metin-uret`in
+   * 10 · 7 · 11 · 14 satırından uyarlamaya AYNEN geçen satır sayısı 0 · 1 · 0 · 1.
+   * Yani ilk metin pratikte bir ŞEKİL SONDASI ve tam bir model çağrısına mal oluyor.
+   *
+   * ⚠ Şablon verilmezse alan boş kalıyor ve iki fazlı akış AYNEN duruyor: seçim
+   * içeriğin şekline bakıyor ve o şekil ancak metin yazıldıktan sonra ölçülebiliyor
+   * (hat dosyasının kendi gerekçesi). Bu alan o gerekçeyi KALDIRMIYOR — insan ya da
+   * hat şablonu ZATEN söylediyse sondaya gerek olmadığını söylüyor.
+   */
+  readonly sablonId?: string
   readonly locale?: string
   readonly maxChars?: number
   /** Geçmiş redlerin gerekçesi — negatif kısıt (D-191). */
@@ -247,10 +263,26 @@ const ritimTalimati = (sonSablonlar: readonly string[], sayiVar: boolean): reado
   ]
 }
 
+/**
+ * Şablonun kendi BİÇİM kuralı — ritim tablosunda varsa.
+ *
+ * ⚠ Tabloda olmayan şablonlar (dizin, karsilastirma, alinti…) için boş: uydurulmuş
+ * bir biçim kuralı, modele o şablonun taşımadığı bir şekli dayatırdı.
+ */
+const sablonBicimi = (sablonId: string): readonly string[] => {
+  const b = BICIM[sablonId]
+  if (b === undefined) return []
+  return ['', `BİÇİM KURALI — bu metin ${sablonId} şablonu için yazılıyor:`, ...b]
+}
+
 export const icerikPromptu = (g: PromptGirdisi): string | null => {
   const baglam = baglamBloku(g.kayitlar)
   if (g.konu.trim() === '' || baglam === '') return null
   const genel = g.kip === 'genel'
+  // ⚠ Kart sayısı KATALOGDAN okunuyor, uydurulmuyor: şablonun kaç kartı varsa metin o
+  // kadar satır olmalı.
+  const ornek = g.sablonId === undefined ? undefined : ORNEKLER[g.sablonId]
+  const hedefSatir = ornek?.kartlar.length ?? HEDEF_SATIR
 
   const satirlar = [
     // ⚠ ⚠ **AÇILIŞ CÜMLESİ KİPE GÖRE DEĞİŞİYOR ve eskiden değişmiyordu.** Genel kipte
@@ -292,15 +324,31 @@ export const icerikPromptu = (g: PromptGirdisi): string | null => {
     // Elle yazılsaydı ölçüm ile prompt yeniden iki ayrı yerde tanımlanmış olurdu ve
     // `tasarim-olcum.ts`in eski yorumu (*"icerikPromptu ile AYNI sayılar"*) yine bir
     // temenni olarak kalırdı.
-    ...yayTalimati(HEDEF_SATIR),
-    ...ritimTalimati(g.sonSablonlar ?? [], kaynaktaSayiVar(g.kayitlar)),
+    // ⚠ ⚠ **SATIR SAYISI ŞABLONDAN — sabit 6'dan DEĞİL.** Şablon belliyse kart sayısı
+    // da belli; altı satır yazıp dört karta sıkıştırmak, iki satırı çöpe atmak
+    // demekti. Şablon yoksa eski sabit duruyor.
+    ...yayTalimati(hedefSatir),
+    // ⚠ Şablon belliyse ritim ROTASYONDAN değil ŞABLONDAN geliyor: rotasyon bir
+    // sonraki şablonu çeşitlendirmek için var; şablon zaten seçilmişse onun kendi
+    // biçimini istemek gerekiyor. İkisini birden söylemek modele çelişki vermekti.
+    ...(g.sablonId === undefined
+      ? ritimTalimati(g.sonSablonlar ?? [], kaynaktaSayiVar(g.kayitlar))
+      : sablonBicimi(g.sablonId)),
     '- Satırları numaralama, madde işareti koyma.',
     // ⚠ **VURGU — karoselin en büyük tipografik eksiği** (FAZ-12.1). Bugüne kadar her
     // satır aynı ağırlıkta okunuyordu; referanslarda bir ifade her zaman öne çıkar.
     // Sınır dar: her şeyin vurgulandığı bir metinde hiçbir şey vurgulanmamıştır.
     '- Her satırda EN FAZLA bir ifadeyi `**iki üç kelime**` ile işaretle. Satırın',
     '  taşıdığı fikir orada olsun. Bazı satırlarda hiç işaretleme olmayabilir.',
-    `- Toplam ${HEDEF_SATIR} satır. Bir KANIT satırını atlayıp ${HEDEF_SATIR - 1} satır da yazabilirsin.`,
+    ...(g.sablonId === undefined
+      ? [
+          `- Toplam ${String(hedefSatir)} satır. Bir KANIT satırını atlayıp ${String(hedefSatir - 1)} satır da yazabilirsin.`,
+        ]
+      : [
+          // ⚠ Şablon belliyse sayı SABİT: kart sayısı kompozisyonun parçası, bir
+          // tercih değil. Bir satır eksik yazmak bir kartı boş bırakmak olurdu.
+          `- Toplam TAM ${String(hedefSatir)} satır — ${g.sablonId} şablonu bu kadar kart taşıyor.`,
+        ]),
     '',
     // ⚠ **Örnek ve sayım talimatı ÖLÇÜLEREK eklendi.** Yalnız "en fazla 8 kelime"
     // yazmak yetmedi: gerçek koşuda kapak 21, gövde 40 kelime geldi ve tasarım kapısı

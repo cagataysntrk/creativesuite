@@ -245,6 +245,41 @@ describe('dikiş 2: metin → şablon seçimi → uyarlama istemi', () => {
     expect(p, 'öğretici kalıp listesi firma kipinde YOK').not.toContain('HABERİNİZ VAR MI')
   })
 
+  // ── ŞABLON BELLİYSE METİN ONUN İÇİN YAZILIYOR (FAZ-19.13) ────────────────
+  //
+  // ⚠ ⚠ **BU BİR İSRAFI KAPATIYOR ve israf ÖLÇÜLDÜ.** Depo sahibi: *"üretim başlatınca
+  // bir metin üretiyor ama bunu şablon seçmeden yaptığı için, sonra şablon seçince
+  // farklı bir metinle o şablonu doldurmak zorunda kalıyor — bu da metnin boşa gitmesi
+  // demek."* Dört gerçek koşuda `metin-uret`in 10 · 7 · 11 · 14 satırından uyarlamaya
+  // AYNEN geçen satır: 0 · 1 · 0 · 1. İlk üretim pratikte bir ŞEKİL SONDASI ve tam bir
+  // model çağrısına mal oluyor.
+  //
+  // ⚠ Şablon VERİLMEZSE iki fazlı akış AYNEN duruyor: seçim içeriğin şekline bakıyor ve
+  // o şekil ancak metin yazıldıktan sonra ölçülebiliyor (hat dosyasının gerekçesi).
+  it('ŞABLON KISITI metin istemine geçiyor — satır sayısı KATALOGDAN', () => {
+    const p = promptTuret(
+      'text.generate',
+      girdi(
+        { topic: 'Fabrikada veri toplama', sablon: 'donen' },
+        { m: { records: [{ id: 'r', text: 'Ana mesaj: veri kurulur, karara çevrilir.' }] } }
+      )
+    )
+    expect(p, 'kart sayısı şablondan').toContain('Toplam TAM 4 satır')
+    expect(p, 'hangi şablon olduğu yazılı').toContain('donen')
+  })
+
+  it('ŞABLON YOKSA sabit hedef ve rotasyon ritmi — eski akış bozulmuyor', () => {
+    const p = promptTuret(
+      'text.generate',
+      girdi(
+        { topic: 'Fabrikada veri toplama' },
+        { m: { records: [{ id: 'r', text: 'Ana mesaj: veri kurulur, karara çevrilir.' }] } }
+      )
+    )
+    expect(p).toContain('Toplam 6 satır')
+    expect(p, 'şablona özel biçim kuralı YOK').not.toContain('şablonu için yazılıyor')
+  })
+
   it('kip VERİLMEZSE firma — eski çağıranlar bugünkü davranışta kalıyor', () => {
     const p = promptTuret(
       'text.generate',
