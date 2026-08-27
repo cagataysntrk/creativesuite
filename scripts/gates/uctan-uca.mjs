@@ -262,27 +262,33 @@ const sayfaAc = async () => {
 {
   const { p } = await sayfaAc()
 
-  // YAYIN — takvim bir IZGARA mı, ekleme yapılabiliyor mu.
+  // YAYIN — SIRA bir liste mi, elle taşınabiliyor mu (FAZ-19.14).
+  //
+  // ⚠ ⚠ **TAKVİM IZGARASI KALDIRILDI ve bu kapı onu arıyordu.** Depo sahibi: *"takvim
+  // ve tarih planlamayı devre dışı bırakmamız lazım, sadece yayın sırası."* Kapının
+  // eski hâli yedi sütun başlığı ve 35 gün hücresi sayıyordu; kaldırılmış bir yapıyı
+  // aramaya devam eden bir kapı, kırmızıya doğru sebeple değil YANLIŞ sebeple döner.
   await p.goto(`${PANEL}/#/yayin-akisi`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
   await p.waitForTimeout(3000)
-  const baslik = await p.locator('.takvim-baslik').count()
-  if (baslik !== 7) bildir('yayın', `takvim ${String(baslik)} sütun başlığı — yedi olmalı`)
-  const gun = await p.locator('.takvim-gun').count()
-  if (gun !== 35 && gun !== 42)
-    bildir('yayın', `takvim ${String(gun)} gün hücresi — 35 ya da 42 olmalı`)
-  if ((await p.locator('.takvim-bugun').count()) !== 1) bildir('yayın', 'bugün VURGULANMIYOR')
-  // ⚠ Ekleme düğmesi HER günde: takvimin ekleyemediği bir takvim rapordur.
-  if ((await p.locator('.takvim-ekle').count()) !== gun)
-    bildir('yayın', 'ekleme düğmesi her günde YOK')
-  // ⚠ ⚠ **İKİ AYRI KUTU VAR ve bu kapı ilk koşusunda ikisini KARIŞTIRDI.** Boş güne
-  // tıklayınca *"bu güne hangi üretim konsun"* (`gun-kutusu`), var olan bir gönderiye
-  // tıklayınca *"bu gönderinin kararları"* (`gonderi-kutusu`) açılıyor. İkisi aynı
-  // sınıfı taşıyordu; kapı yanlış kutuda dört düğme arayıp kusur bildirdi — ve haklıydı:
-  // ayırt edilemeyen iki kutu insanı da karıştırır. Sınıf o yüzden ayrıldı.
-  await p.locator('.takvim-ekle').first().click({ force: true })
-  await p.waitForTimeout(900)
-  if ((await p.locator('.gun-kutusu').count()) === 0)
-    bildir('yayın', 'boş güne tıklayınca gün kutusu AÇILMIYOR')
+  const bolumler = await p.locator('.akis-hafta h3').allTextContents()
+  // ⚠ Üç bölüm: sırada · sıraya alınabilir · yayınlananlar. Dördüncüsü yok ve olmamalı:
+  // ekranın işi kuyruğu göstermek, envanter olmak değil.
+  if (bolumler.length !== 3)
+    bildir('yayın', `sıra ekranında ${String(bolumler.length)} bölüm — üç olmalı`)
+  if (!bolumler.some((x) => x.startsWith('sırada')))
+    bildir('yayın', '"sırada" bölümü YOK — kuyruk görünmüyor')
+  // ⚠ ⚠ **TARİH GÖRÜNMEMELİ.** Kaldırılan şey ekranda kalırsa kaldırılmamış demektir;
+  // yayınlanmış gönderilerin tarihi meşru, o yüzden yalnız SIRA bölümü taranıyor.
+  const siraBolumu = p.locator('.akis-hafta').first()
+  const siraMetni = await siraBolumu.innerText()
+  if (/\d{4}-\d{2}-\d{2}/.test(siraMetni))
+    bildir('yayın', 'SIRA bölümünde tarih var — takvim kaldırıldı, tarih kalmamalı')
+  // ⚠ Kuyruk boşsa taşıma düğmesi de yok: boş bir kuyruk bir kusur değil.
+  const siraSatirlari = await siraBolumu.locator('.gonderi-listesi > li').count()
+  if (siraSatirlari > 1) {
+    const yukari = await siraBolumu.locator('button:has-text("yukarı")').count()
+    if (yukari !== siraSatirlari) bildir('yayın', 'taşıma düğmesi her satırda YOK')
+  }
 
   // KOŞULAR — süzgeçler gerçekten süzüyor mu.
   await p.goto(`${PANEL}/#/gecmis`, { waitUntil: 'domcontentloaded', timeout: 20_000 })
@@ -333,7 +339,7 @@ const sayfaAc = async () => {
   if (grup === 0) bildir('birleşik', 'kart görünümünde hiç kart çizilmedi')
   else {
     for (const [ad, sec] of [
-      ['takvim', 'takvim'],
+      ['yayın', 'yayın'],
       ['adımlar', 'adımlar'],
       ['ele', 'ele'],
     ]) {
@@ -350,8 +356,12 @@ const sayfaAc = async () => {
       const c = await (await fetch('/api/calistirmalar')).json()
       return c.calistirmalar.length
     })
-    const kutu = p.getByLabel(/elenenleri/)
-    await kutu.check()
+    await p.getByLabel(/elenenleri/).check()
+    // ⚠ ⚠ **İKİ SÜZGEÇ VAR ARTIK ve kapı birini bilmiyordu.** Yayınlananlar arşivde
+    // (depo sahibi: *"yayınlananlar varlıklarda arşivlenmeli, görünmemeli"*); ikisini
+    // birden açmadan sayılan kart API'den az çıkıyor ve kapı KAYIP sanıyor. Kayıp yok,
+    // GİZLİ var — ve ikisi ayrı şeyler.
+    await p.getByLabel(/yayınlanmış/).check()
     await p.waitForTimeout(2500)
     const hepsi = await p.locator('.grup').count()
     if (hepsi !== api)
@@ -362,7 +372,10 @@ const sayfaAc = async () => {
         'birleşik',
         'varlıksız koşu hiç görünmüyor — eski varlık ekranının kusuru geri gelmiş olabilir'
       )
-    await kutu.uncheck()
+    // ⚠ İki süzgeç de kapatılıyor: biri açık kalırsa sonraki iddialar farklı bir
+    // listeyi ölçer ve kapı yanlış sebeple kırmızıya döner.
+    await p.getByLabel(/elenenleri/).uncheck()
+    await p.getByLabel(/yayınlanmış/).uncheck()
     await p.waitForTimeout(1500)
 
     // ⚠ Ayrıntı KARTIN İÇİNDE açılıyor mu: sayfanın dibinde açılan bir ayrıntı,
@@ -408,13 +421,16 @@ const sayfaAc = async () => {
     // O düğme aslında *"otomatiğe bırak"* demekti ve kimse bunu anlamıyordu; adı
     // düzeltildi. Kapının kırmızıya dönmesi bir kusur değil, adlandırma değişikliğinin
     // KANITI: kapı gerçekten o düğmeyi arıyormuş.
+    // ⚠ ⚠ **"bu tarihe planla" KALDIRILDI (FAZ-19.14).** Depo sahibi takvimi devre dışı
+    // bıraktırdı: *"sadece yayın sırası belirleyeceğiz, tarihsiz."* Sıraya alma artık
+    // Yayın ekranında; karar kutusunda tarih düğmesi aramak, kaldırılmış bir kısıtı
+    // kapının aramaya devam etmesi olurdu.
     for (const dugme of [
-      'bu tarihe planla',
       // ⚠ Ad DEĞİŞTİ: düğme artık *"yayınlandı olarak işaretle"*. Eski adı ("elle
       // yayınladım") bir EYLEM ima ediyordu; oysa sistem hiçbir şey göndermiyor,
       // insanın paylaştığını KAYDEDİYOR — ve o kayıt gönderiyi yayına kapatıyor.
       'yayınlandı olarak işaretle',
-      'takvimden çıkar',
+      'sıradan çıkar',
       'otomatiğe bırak',
       'hedefe gönder',
     ]) {

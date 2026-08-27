@@ -99,6 +99,13 @@ import { kuruCalistir, semaListesi } from './sema.js'
 import { butcePanosu, tavanYaz } from './butce-uc.js'
 import { YARDIM, parseCallback, parseKomut } from './telegram.js'
 import { kosununSlaytlari, kutuphane, yenidenKullanilabilir } from './kutuphane.js'
+import {
+  siraOlaylari,
+  siradaTasi,
+  siradanCikar,
+  siraninSonunaEkle,
+  yayinSirasi,
+} from './yayin-sirasi.js'
 import { gonderiDurumu, yayinDurumu, yayinlanmisMi } from './yayinlanmis.js'
 import { calistirmaDetayi, calistirmalar, elemeyiGeriAl, kosuyuEle, elemeKaydi } from './gecmis.js'
 import { aktifEra, stratejiPanosu } from './strateji-uc.js'
@@ -900,7 +907,16 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     // dolduruyor. İkisini birbirinin alternatifi yapmak, ya otomatiği ya eli işe
     // yaramaz kılardı — depo sahibi ikisini birden istedi.
     const elle = gecerliKararlar(o.repoRoot)
-    const otomatigeKalan = hazir.filter((h) => !elle.has(h.runId))
+    // ⚠ ⚠ **OTOMATİK PLANLAYICI DEVRE DIŞI — kararı depo sahibi verdi (FAZ-19.14).**
+    // *"Takvim ve tarih planlamayı devre dışı bırakmamız lazım. Sadece yayın sırası
+    // belirleyeceğiz ve bu değişmeyecek, sadece manuel değişebilecek."* Planlayıcı her
+    // çağrıda sırayı YENİDEN hesaplıyordu: aynı gönderi bir gün ikinci, ertesi gün
+    // beşinciydi ve kimse neden değiştiğini bilmiyordu. Sıra artık bir hesap değil bir
+    // KARAR (`yayin-sirasi.ts`).
+    //
+    // ⚠ Fonksiyon SİLİNMEDİ, ÇAĞRILMIYOR: testleri ve gerekçesi duruyor, tarih tabanlı
+    // planlamaya dönülürse yerinde. Silmek, bir kararı geri alınamaz kılardı.
+    const otomatigeKalan: typeof hazir = []
     const plan = yayinPlaniKur(otomatigeKalan, { haftadaKac, baslangic, oncekiSablonlar })
     // ⚠ ⚠ **OTOMATİK PLANIN GÖNDERİLERİ DE SLAYT TAŞIYOR.** Planlayıcı yalnız kimlik ve
     // tarih döndürüyor; görseli ekranda göstermek için burada birleştiriliyor. İki ayrı
@@ -1273,6 +1289,76 @@ export const kurSunucu = (o: SunucuSecenekleri): Sunucu => {
     const runId = c.req.param('runId')
     if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
     return c.json({ ok: true, onceki: geriAlinacak(o.repoRoot, runId) })
+  })
+
+  // ── YAYIN SIRASI: tarihsiz kuyruk (FAZ-19.14 · UX-22) ────────────────────
+  //
+  // ⚠ ⚠ **TAKVİM DEVRE DIŞI ve kararı depo sahibi verdi:** *"takvim ve tarih planlamayı
+  // devre dışı bırakmamız lazım. Sadece yayın sırası belirleyeceğiz… yeni eklenen sona
+  // gelecek sadece. Takvim eşitlemek saçmalık — yayına hazır demek, sıraya sokmak,
+  // tarihsiz, ve pushlamak önemli."* Tarih bir söz veriyordu ve tutamıyordu.
+  app.get('/api/yayin-sirasi', (c) => {
+    const k = kutuphane(o.repoRoot)
+    const bugun = o.simdi().slice(0, 10)
+    const sira = yayinSirasi(o.repoRoot).map((x, i) => {
+      const kimlik = kosuSablonu(o.repoRoot, x.runId)
+      return {
+        sira: i + 1,
+        runId: x.runId,
+        konu: kimlik.konu ?? '',
+        sablon: kimlik.gercek ?? kimlik.istenen ?? '',
+        slaytlar: kosununSlaytlari(k, x.runId).map((v) => v.digest),
+        not: x.not,
+        yayin: yayinDurumu(o.repoRoot, x.runId, k, bugun),
+      }
+    })
+    return c.json({ ok: true, sira, bozukSatir: siraOlaylari(o.repoRoot).bozuk })
+  })
+
+  app.post('/api/yayin-sirasi', async (c) => {
+    const g = (await c.req.json().catch(() => ({}))) as { runId?: string; not?: string }
+    const runId = String(g.runId ?? '')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    // ⚠ Yayınlanmış gönderi SIRAYA GİRMİYOR: *"aynı şey tekrar paylaşılmamalı."*
+    const kapi = yayinlanmisMi(o.repoRoot, runId, kutuphane(o.repoRoot), o.simdi().slice(0, 10))
+    if (kapi.engelli) return c.json({ ok: false, hata: kapi.hata }, 409)
+    const r = siraninSonunaEkle(o.repoRoot, {
+      runId,
+      ...(g.not === undefined ? {} : { not: g.not }),
+      simdi: o.simdi(),
+    })
+    if (!r.ok) return c.json(r, 400)
+    yayinla('degisim')
+    return c.json(r)
+  })
+
+  // ⚠ Taşıma ELLE — sırayı kendiliğinden değiştiren hiçbir yol yok.
+  app.post('/api/yayin-sirasi/:runId/tasi', async (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const g = (await c.req.json().catch(() => ({}))) as { hedefSira?: number }
+    const r = siradaTasi(o.repoRoot, {
+      runId,
+      hedefSira: Number(g.hedefSira),
+      simdi: o.simdi(),
+    })
+    if (!r.ok) return c.json(r, 400)
+    yayinla('degisim')
+    return c.json(r)
+  })
+
+  app.post('/api/yayin-sirasi/:runId/cikar', async (c) => {
+    const runId = c.req.param('runId')
+    if (!kosuKimligiGecerli(runId)) return c.json({ ok: false, hata: 'geçersiz koşu kimliği' }, 400)
+    const g = (await c.req.json().catch(() => ({}))) as { not?: string }
+    const r = siradanCikar(o.repoRoot, {
+      runId,
+      ...(g.not === undefined ? {} : { not: g.not }),
+      simdi: o.simdi(),
+    })
+    if (!r.ok) return c.json(r, 400)
+    yayinla('degisim')
+    return c.json(r)
   })
 
   // Bir koşunun takvim GEÇMİŞİ — "bu neden 12'sine alındı" sorusunun cevabı.

@@ -118,7 +118,7 @@ interface Ozet {
   /** Metni YAZILMAMIŞ varsayılan platformlar — tek tuşla üretilebilsin diye. */
   readonly eksikMetin?: readonly string[]
   readonly gonderi?: {
-    readonly asama: 'yayinlandi' | 'zamanlandi' | 'planlandi' | 'cikarildi' | 'planlanmadi'
+    readonly asama: 'yayinlandi' | 'zamanlandi' | 'sirada' | 'cikarildi' | 'planlanmadi'
     readonly tarih: string
     readonly hedef: string
     readonly platformlar: readonly string[]
@@ -755,11 +755,11 @@ export const RunGecmisi = ({
           yayın durumu{' '}
           <select value={fYayin} onChange={(e) => setFYayin(e.target.value)}>
             <option value="">hepsi</option>
-            <option value="planlandi">◔ planlandı</option>
+            <option value="sirada">↓ sırada</option>
             <option value="zamanlandi">⇄ hedefte zamanlandı</option>
             <option value="yayinlandi">✓ yayınlandı</option>
-            <option value="cikarildi">⌫ takvimden çıkarıldı</option>
-            <option value="planlanmadi">— planlanmadı</option>
+            <option value="cikarildi">⌫ sıradan çıkarıldı</option>
+            <option value="planlanmadi">— sıraya alınmadı</option>
           </select>
         </label>
         <label>
@@ -997,7 +997,7 @@ export const RunGecmisi = ({
                       className="hizli"
                       onClick={() => setTakvimAcik(takvimAcik === r.runId ? null : r.runId)}
                     >
-                      {takvimAcik === r.runId ? '▲ takvim' : '▼ takvim'}
+                      {takvimAcik === r.runId ? '▲ yayın' : '▼ yayın'}
                     </button>
                     <button type="button" className="hizli" onClick={() => void ele(r)}>
                       {r.elendi === null ? '✕ ele' : '↩ elemeyi geri al'}

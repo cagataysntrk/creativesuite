@@ -113,16 +113,6 @@ export const GonderiKutusu = ({
   /** Bu gönderi hedefe iletildi mi — defterin son senkron kaydı. */
   readonly senkron?: string
 }): React.JSX.Element => {
-  const [tarih, setTarih] = useState(bugun)
-  /**
-   * Yayın saati — **her zaman dolu.** Depo sahibi: *"yayın saati yok??? o da otomatik
-   * ayarlanmalı."* Varsayılan sözleşmeden geliyor (`VARSAYILAN_YAYIN_SAATI`); ölçüm
-   * biriktiğinde `yayinSaatiOner` onu devralacak. Boş bırakılamıyor: saatsiz bir plan,
-   * yayıncıya *"o gün bir ara"* demektir ve Metricool'a zamanlama gönderirken saat
-   * ZORUNLU.
-   */
-  const [saat, setSaat] = useState(BUGUN_YAYIN_SAATI)
-  const [saatEldeSecildi, setSaatEldeSecildi] = useState(false)
   /**
    * ⚠ ⚠ **VARSAYILAN IG + LINKEDIN — dördü değil, ve bu bir DARALTMA kararıydı.** Depo
    * sahibi önce *"her gönderi için yayın 4 platformda da standart"* dedi, sonra hesaplar
@@ -287,20 +277,6 @@ export const GonderiKutusu = ({
   const metinli = metinliPlatformlar ?? kendiMetinler ?? undefined
 
   /**
-   * Tarih değişince saat KENDİLİĞİNDEN düzeliyor — ama insan dokunmadıysa.
-   *
-   * ⚠ ⚠ **BUGÜN 21:00, ÖTEKİ GÜNLER 20:00** (depo sahibinin kararı). Tarihi yarına
-   * alıp saati 21:00'de bırakmak, kullanıcının hiç seçmediği bir saati seçilmiş gibi
-   * göstermekti.
-   * ⚠ İnsan saati ELLE seçtiyse dokunulmuyor: verdiği kararı sessizce iptal etmek,
-   * platform seçiminde bir kez yapılan hatanın aynısı olurdu.
-   */
-  useEffect(() => {
-    if (saatEldeSecildi) return
-    setSaat(tarih === bugun() ? BUGUN_YAYIN_SAATI : VARSAYILAN_YAYIN_SAATI)
-  }, [tarih, saatEldeSecildi])
-
-  /**
    * Metin durumu öğrenilince seçim KENDİLİĞİNDEN düzeliyor — ama insan dokunmadıysa.
    *
    * ⚠ ⚠ **İNSANIN SEÇİMİNİ EZMEK YASAK.** İnsan bilerek metinsiz bir platformu
@@ -318,8 +294,9 @@ export const GonderiKutusu = ({
       .reverse()
       .find((o) => o.karar === 'planla' || o.karar === 'elle-yayinlandi')
     if (son === undefined) return
+    // ⚠ Tarih geri yüklenmiyor: takvim kalktı (FAZ-19.14) ve geri yüklenecek bir tarih
+    // alanı yok. Platform seçimi duruyor — o hâlâ bir karar.
     if (son.platformlar !== undefined && son.platformlar.length > 0) setSecili(son.platformlar)
-    if (son.tarih !== '') setTarih(son.tarih)
   }, [gecmis])
 
   /** Seçili ama metni OLMAYAN platformlar — planlamayı engelleyenler. */
@@ -332,7 +309,7 @@ export const GonderiKutusu = ({
 
   const karar = async (
     k: TakvimKarari,
-    ek: { tarih?: string; saat?: string; platformlar?: readonly string[]; not?: string } = {}
+    ek: { tarih?: string; platformlar?: readonly string[]; not?: string } = {}
   ): Promise<void> => {
     const r = await fetch('/api/yayin-takvimi', {
       method: 'POST',
@@ -345,7 +322,7 @@ export const GonderiKutusu = ({
     // ekrandaki cümle SUNUM — ve sunum insanın bastığı düğmenin dilinde olmalı.
     const soylenen: Record<string, string> = {
       planla: 'bu tarihe planlandı',
-      cikar: 'takvimden çıkarıldı',
+      cikar: 'sıradan çıkarıldı',
       'elle-yayinlandi': 'elle yayınlandı olarak işaretlendi',
       'geri-al': 'otomatiğe bırakıldı',
     }
@@ -391,31 +368,12 @@ export const GonderiKutusu = ({
       </div>
 
       <div className="filtre-cubuk">
-        <label>
-          tarih <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} />
-        </label>
-        {/* ⚠ ⚠ **SAAT EKRANDA HİÇ YOKTU.** Varsayılan dolu geliyor ve değiştirilebilir;
-            varsayılan olduğu yandaki notta yazılı — gizli bir varsayılan, varsayılan
-            olduğunu söylemeyen bir karardır. */}
-        <label>
-          saat{' '}
-          <input
-            type="time"
-            value={saat}
-            onChange={(e) => {
-              // ⚠ İnsan saati ELLE seçtiyse tarih değişince ÜSTÜNE YAZILMIYOR: verdiği
-              // kararı sessizce iptal etmek, platform seçiminde bir kez yapılan hatanın
-              // aynısı olurdu.
-              setSaatEldeSecildi(true)
-              setSaat(e.target.value === '' ? VARSAYILAN_YAYIN_SAATI : e.target.value)
-            }}
-          />
-        </label>
-        <span className="olcum">
-          {saatEldeSecildi
-            ? 'elle seçildi'
-            : `varsayılan saat${tarih === bugun() ? ' (bugün)' : ''} — ölçüm yok`}
-        </span>
+        {/* ⚠ ⚠ **TARİH VE SAAT KALDIRILDI (FAZ-19.14).** Depo sahibi: *"takvim ve tarih
+            planlamayı devre dışı bırakmamız lazım, sadece yayın sırası."* Tarih bir söz
+            veriyordu ve tutamıyordu; sıra yalnız NE'DEN SONRA'yı söylüyor. Yayın anını
+            hedefe gönderirken ya da elle işaretlerken insan belirliyor.
+            ⚠ Alanlar SİLİNDİ, gizlenmedi: gizlenen bir alan bir gün geri gelir ve
+            kimse neden orada olduğunu bilmez. */}
         {/* ⚠ ⚠ **METNİ OLMAYAN PLATFORM İŞARETLENEBİLİR ama UYARIYLA.** Kapatmak
             (`disabled`) yanlış olurdu: insan önce planlayıp sonra metni üretmek
             isteyebilir. Ama ne olacağını BİLEREK seçmeli — sunucu o seçimi reddedecek
@@ -457,13 +415,9 @@ export const GonderiKutusu = ({
         </p>
       ) : null}
       <div className="kapi-dugmeler">
-        <button
-          type="button"
-          disabled={eksikMetin.length > 0 || yayin?.yayinlandi === true}
-          onClick={() => void karar('planla', { tarih, saat, platformlar: secili })}
-        >
-          ✓ bu tarihe planla
-        </button>
+        {/* ⚠ ⚠ **"BU TARİHE PLANLA" KALDIRILDI.** Sıraya alma artık Yayın ekranında ve
+            TARİHSİZ; burada bir tarih düğmesi bırakmak, kaldırdığımız takvimi ikinci
+            bir yerden geri getirmekti. */}
         {/* ⚠ ⚠ **BU DÜĞME BİR ZAMANLAR İKİYDİ ve ikisi AYNI ŞEYİ YAPIYORDU.** Depo
             sahibi: *"hedefe gönder ve yayın paketini çıkar aynı şeyi yapıyor neden iki
             farklı butona ??"* — ve haklıydı: yerel hedefin `gonder`i zaten `paketle`yi
@@ -485,12 +439,12 @@ export const GonderiKutusu = ({
         <button
           type="button"
           disabled={yayin?.yayinlandi === true}
-          onClick={() => void karar('elle-yayinlandi', { tarih, saat, platformlar: secili })}
+          onClick={() => void karar('elle-yayinlandi', { tarih: bugun(), platformlar: secili })}
         >
           ⇪ yayınlandı olarak işaretle
         </button>
-        <button type="button" onClick={() => void karar('cikar', { not: 'takvimden çıkarıldı' })}>
-          ⌫ takvimden çıkar
+        <button type="button" onClick={() => void karar('cikar', { not: 'sıradan çıkarıldı' })}>
+          ⌫ sıradan çıkar
         </button>
         {/* ⚠ ⚠ **GERİ ALMA — `otomatiğe bırak`tan FARKLI.** O, elle kararı tümden
             kaldırıp gönderiyi otomatik takvime bırakıyor. Bu ise BİR ADIM geri

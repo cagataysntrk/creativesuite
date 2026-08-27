@@ -15,6 +15,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { Kutuphane, VarlikSatiri } from './kutuphane.js'
 import { takvimeYaz } from './yayin-takvimi.js'
+import { siradanCikar, siraninSonunaEkle } from './yayin-sirasi.js'
 import { gonderiDurumu, yayinDurumu, yayinlanmisMi } from './yayinlanmis.js'
 
 const RUN = 'run_01a03e9e-7d62-7560-b44d-0cb7225e2883'
@@ -185,14 +186,21 @@ describe('yayınlanmışlık — üç defter, tek cevap', () => {
     expect(yayinDurumu(r, RUN, k).yayinlandi).toBe(false)
   })
 
+  // ⚠ ⚠ **BU İDDİANIN ÖNCÜLÜ DEĞİŞTİ — TAKVİM KALKTI (FAZ-19.14).** Depo sahibi:
+  // *"takvim ve tarih planlamayı devre dışı bırakmamız lazım, sadece yayın sırası."*
+  // `planlandi` aşaması bir TARİH ima ediyordu; yerine `sirada` geldi ve kaçıncı
+  // olduğunu söylüyor. Tarih yalnız YAYINLANMIŞ gönderilerde anlamlı kaldı.
   it('GÖNDERİ DURUMU her aşamayı adlandırıyor — iki ekran aynı cümleyi okuyor', () => {
     const r = kok()
     const k = kutuphane({ guncel: [{ digest: 'sha256:a', yayinlandi: false }] })
     expect(gonderiDurumu(r, RUN, k, '2026-09-15').asama, 'karar yok').toBe('planlanmadi')
-    takvimeYaz(r, { runId: RUN, karar: 'planla', tarih: '2026-09-20', simdi: AN })
+    expect(siraninSonunaEkle(r, { runId: RUN, simdi: AN }).ok).toBe(true)
     const p = gonderiDurumu(r, RUN, k, '2026-09-15')
-    expect(p.asama).toBe('planlandi')
-    expect(p.etiket, 'tarih ETİKETTE — ekran onu kendi kurmuyor').toContain('2026-09-20')
+    expect(p.asama).toBe('sirada')
+    expect(p.sira, 'kaçıncı olduğu ETİKETTE değil ALANDA da var').toBe(1)
+    expect(p.etiket, 'sıra numarası etikette — ekran onu kendi kurmuyor').toContain('1. sırada')
+    expect(p.etiket, 'tarih YOK').not.toMatch(/\d{4}-\d{2}-\d{2}/)
+    expect(siradanCikar(r, { runId: RUN, simdi: AN }).ok).toBe(true)
     takvimeYaz(r, { runId: RUN, karar: 'cikar', simdi: AN })
     expect(gonderiDurumu(r, RUN, k, '2026-09-15').asama).toBe('cikarildi')
   })

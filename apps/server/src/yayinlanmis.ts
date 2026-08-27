@@ -31,6 +31,7 @@
 // `yayinlandi` olarak basıyor. İkinci bir okuyucu, defterin biçimi değişince
 // ayrışacak ikinci bir ayrıştırıcı demekti.
 import { gecerliKararlar, sonSenkron } from './yayin-takvimi.js'
+import { siradakiYer } from './yayin-sirasi.js'
 import type { Kutuphane } from './kutuphane.js'
 
 /** Yayınlanmışlığın DAYANAĞI — hangi defter söylüyor. */
@@ -206,8 +207,15 @@ export type GonderiAsamasi =
   | 'yayinlandi'
   /** Bir hedefe iletildi ve hedef tutuyor — tarihi henüz gelmedi. */
   | 'zamanlandi'
-  /** Takvimde bir tarihe planlı ama henüz hiçbir hedefe gitmedi. */
-  | 'planlandi'
+  /**
+   * Yayın SIRASINDA — tarihsiz, kaçıncı olduğu belli.
+   *
+   * ⚠ ⚠ **ESKİ ADI `planlandi`YDI ve bir TARİH ima ediyordu.** Depo sahibi takvimi
+   * kaldırttı: *"sadece yayın sırası belirleyeceğiz, tarihsiz."* Tarih bir söz
+   * veriyordu ve tutamıyordu; sıra yalnız NE'DEN SONRA'yı söylüyor ve o her zaman
+   * doğru kalıyor.
+   */
+  | 'sirada'
   /** İnsan takvimden çıkardı. */
   | 'cikarildi'
   /** Hiçbir karar yok — otomatik takvimde ya da hiç sırada değil. */
@@ -215,8 +223,10 @@ export type GonderiAsamasi =
 
 export interface GonderiDurumu {
   readonly asama: GonderiAsamasi
-  /** İlgili tarih (`YYYY-MM-DD`) — bilinmiyorsa boş. */
+  /** İlgili tarih (`YYYY-MM-DD`) — yalnız YAYINLANMIŞ gönderilerde dolu. */
   readonly tarih: string
+  /** Kuyruktaki yeri (1 tabanlı). Sırada değilse `0`. */
+  readonly sira: number
   /** Hangi hedefe gitti (`yerel`, `metricool`…). Gitmediyse boş. */
   readonly hedef: string
   readonly platformlar: readonly string[]
@@ -253,6 +263,7 @@ export const gonderiDurumu = (
     return {
       asama: 'yayinlandi',
       tarih: y.tarih,
+      sira: 0,
       hedef: s?.hedef?.id ?? '',
       platformlar,
       // ⚠ Çıkarım ile ölçüm ekranda da AYRI görünüyor: *"yayınlanmış sayılıyor"* ile
@@ -269,6 +280,7 @@ export const gonderiDurumu = (
     return {
       asama: 'zamanlandi',
       tarih: s.tarih,
+      sira: siradakiYer(repoRoot, runId) ?? 0,
       hedef: s.hedef.id,
       platformlar,
       etiket: `⇄ ${s.hedef.id} planlaması tamamlandı · ${s.tarih || 'tarihsiz'}`,
@@ -276,40 +288,44 @@ export const gonderiDurumu = (
     }
   }
 
+  // ⚠ ⚠ **SIRA TAKVİMİN YERİNİ ALDI.** Eski dal `planla` kararına ve bir TARİHE
+  // bakıyordu; artık tek soru *"kuyrukta kaçıncı"*. Takvim defteri okunmaya devam
+  // ediyor ama yalnız YAYIN işareti için (`yayinDurumu`) — planlama için değil.
+  const sira = siradakiYer(repoRoot, runId)
+  if (sira !== null)
+    return {
+      asama: 'sirada',
+      tarih: '',
+      sira,
+      hedef: s?.hedef?.id ?? '',
+      platformlar,
+      // ⚠ Yerel paket ÇIKARILDIYSA bu da söyleniyor: *"sırada"* ile *"paketi hazır"*
+      // ayrı iki iş ve ikisini birden bilmek insanın sıradaki adımını belirliyor.
+      etiket:
+        s?.hedef?.id === 'yerel'
+          ? `↓ ${String(sira)}. sırada · yerel paket hazır`
+          : `↓ ${String(sira)}. sırada`,
+      yayin: y,
+    }
+
   if (karar?.karar === 'cikar')
     return {
       asama: 'cikarildi',
       tarih: '',
+      sira: 0,
       hedef: '',
       platformlar,
-      etiket: '⌫ takvimden çıkarıldı',
-      yayin: y,
-    }
-
-  if (karar?.karar === 'planla')
-    return {
-      asama: 'planlandi',
-      tarih: karar.tarih,
-      hedef: s?.hedef?.id ?? '',
-      platformlar,
-      // ⚠ Yerel paket ÇIKARILDIYSA bu da söyleniyor: *"planlandı"* ile *"paketi hazır"*
-      // ayrı iki iş ve ikisini birden bilmek insanın sıradaki adımını belirliyor.
-      // ⚠ SAAT de etikette: tarihi olup saati olmayan bir plan, yayıncıya "o gün bir
-      // ara" demektir. Varsayılan saat de yazılıyor — gizli bir varsayılan, varsayılan
-      // olduğunu söylemeyen bir karardır.
-      etiket:
-        s?.hedef?.id === 'yerel'
-          ? `◔ planlandı · ${karar.tarih} ${karar.saat ?? ''} · yerel paket hazır`
-          : `◔ planlandı · ${karar.tarih} ${karar.saat ?? ''}`,
+      etiket: '⌫ sıradan çıkarıldı',
       yayin: y,
     }
 
   return {
     asama: 'planlanmadi',
     tarih: '',
+    sira: 0,
     hedef: '',
     platformlar,
-    etiket: '— planlanmadı',
+    etiket: '— sıraya alınmadı',
     yayin: y,
   }
 }

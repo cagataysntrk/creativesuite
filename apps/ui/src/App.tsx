@@ -20,7 +20,7 @@ import { YerlesimEkrani } from './YerlesimEkrani.js'
 import { DiscoveryEkrani } from './DiscoveryEkrani.js'
 import { SemaEkrani } from './SemaEkrani.js'
 import { ButceEkrani } from './ButceEkrani.js'
-import { YayinAkisi } from './YayinAkisi.js'
+import { YayinSirasi } from './YayinSirasi.js'
 import { RunGecmisi } from './RunGecmisi.js'
 import { StratejiSagligi } from './StratejiSagligi.js'
 import { Doktor } from './Doktor.js'
@@ -252,7 +252,7 @@ export const App = (): React.JSX.Element => {
         ) : ekran === 'butce' ? (
           <ButceEkrani />
         ) : ekran === 'yayin-akisi' ? (
-          <YayinAkisi />
+          <YayinSirasi />
         ) : ekran === 'gecmis' ? (
           <RunGecmisi ac={kosuAc} />
         ) : ekran === 'saglik' ? (
