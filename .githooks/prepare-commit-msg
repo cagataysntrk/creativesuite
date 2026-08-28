@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# prepare-commit-msg — çalıştırma künyesinin EKSİK satırlarını doldurur.
+#
+# ⚠ ⚠ **BU HOOK BİR ŞİKÂYETTEN DOĞDU.** Depo sahibi: *"Git: ✗ commit-msg: çalıştırma
+# commit'i 'Run: <run_id>' satırı taşımalı. Push atmaya çalışınca IDE'den sürekli bir
+# hata veriyor sistem."* Kapı doğru çalışıyordu; sorun kapının İSTEDİĞİ ŞEYİ elle
+# yazdırmasıydı. Panelden bir koşu üretilir, `derived/runs/` altına on beş dosya düşer
+# ve insan IDE'de commit kutusuna 36 karakterlik bir koşu kimliğini ELLE kopyalamak
+# zorunda kalır. Her seferinde.
+#
+# ⚠ ⚠ **KAPI GEVŞETİLMEDİ — ve gevşetmek yanlış cevap olurdu.** `Run:` satırı defterin
+# var olma sebebi: altı ay sonra *"bu değişikliği hangi koşu üretti"* sorusunun cevabı.
+# Kuralı kaldırmak soruyu cevapsız bırakırdı. Değişen şey, cevabın NEREDEN geldiği:
+# artık insanın hafızasından değil, commit'in KENDİ dosya yollarından okunuyor.
+# Elle yazılan bir kimlik yanlış yazılabilir; yoldan okunan yazılamaz.
+#
+# ⚠ **YALNIZ EKSİK OLAN EKLENİYOR.** İnsanın (ya da agent'in) yazdığı bir satır asla
+# ezilmiyor: `Actor: agent` yazılmışsa öyle kalıyor. Bir hook'un insanın yazdığını
+# sessizce değiştirmesi, bu depodaki *"sessiz düzeltme yok"* kuralının ihlalidir.
+#
+# ⚠ **KONU SATIRI YAZILMIYOR.** Boş bir mesaja *"koşu defteri güncellendi"* gibi bir
+# özet uydurmak, defteri anlamsız satırlarla doldururdu. Künye makine tarafından
+# bilinebilir; NE OLDUĞU yalnız insan tarafından bilinir.
+set -euo pipefail
+
+MSG_FILE="$1"
+KAYNAK="${2:-}"
+
+# ⚠ Birleştirme ve squash mesajları git'in KENDİ ürettiği metinler; künye eklemek
+# onları bozar ve o commit'ler zaten bir çalıştırmayı temsil etmiyor.
+case "$KAYNAK" in
+  merge|squash) exit 0 ;;
+esac
+
+KOK="$(git rev-parse --show-toplevel)"
+# shellcheck source=/dev/null
+. "$KOK/.githooks/_ortak.sh"
+
+calistirma_commiti_mi || exit 0
+
+GOVDE="$(cat "$MSG_FILE")"
+# Yorum satırları (#) ve makas çizgisinin ALTI mesajın parçası değil: künyeyi oraya
+# yazmak, git'in onu kesip atması demekti.
+ANLAMLI="$(printf '%s\n' "$GOVDE" | sed '/^#/d')"
+
+EKLER=""
+ekle() { EKLER="${EKLER}$1"$'\n'; }
+
+if ! printf '%s' "$ANLAMLI" | grep -qE '^Run: '; then
+  mapfile -t KOSULAR < <(kosu_kimlikleri)
+  if [ "${#KOSULAR[@]}" -gt 0 ]; then
+    # ⚠ ⚠ **ÇOK KOŞULU COMMIT GERÇEK: geçmişte 197 koşuya dokunan bir commit var.**
+    # Hepsini yazmak mesajı okunmaz yapar, birini seçmek keyfî olur. İlk beşi yazılıyor
+    # ve kalanın SAYISI açıkça söyleniyor — sessiz kısaltma *"hepsi bu"* diye okunur ve
+    # bu depoda o hata daha önce yapıldı.
+    for k in "${KOSULAR[@]:0:5}"; do ekle "Run: $k"; done
+    if [ "${#KOSULAR[@]}" -gt 5 ]; then
+      ekle "Run-not: ve $(( ${#KOSULAR[@]} - 5 )) koşu daha — tamamı: git show --name-only"
+    fi
+  fi
+fi
+
+# ⚠ `Actor` TESPİT ediliyor (`commit_aktoru`), sabit yazılmıyor: gerekçe `_ortak.sh`te.
+printf '%s' "$ANLAMLI" | grep -qE '^Actor: ' || ekle "Actor: $(commit_aktoru)"
+
+# ⚠ Varsayılan `propose` — üç seçeneğin EN ZAYIF iddiası. `approve` yazmak, insanın
+# vermediği bir onayı deftere geçirmek olurdu; bir künye alanının varsayılanı, yanlış
+# olduğunda en az zarar veren değer olmalı.
+printf '%s' "$ANLAMLI" | grep -qE '^Kind: ' || ekle "Kind: propose"
+
+[ -n "$EKLER" ] || exit 0
+
+# ⚠ ⚠ **`Run:` TÜRETİLEMEDİYSE HİÇBİR ŞEY YAZILMIYOR.** Yalnız `corpus/` ya da `brand/`
+# değişen bir commit'te koşu kimliği yollardan okunamaz. O durumda `Actor`/`Kind`
+# eklemek, commit'i kapıdan geçirmeye BİR ADIM kala bırakır ve insan neyin eksik
+# olduğunu ancak ikinci denemede görür. Kapı zaten net söylüyor; yarım yardım,
+# yardım değildir.
+if ! printf '%s\n%s' "$ANLAMLI" "$EKLER" | grep -qE '^Run: '; then
+  exit 0
+fi
+
+# ⚠ ⚠ **KÜNYE YORUMLARDAN ÖNCE GİRİYOR ve dosyanın sonuna yazmak BİR HATAYDI.**
+# `git commit -v` mesaj dosyasının altına bir makas çizgisi (`# ---- >8 ----`) ve diff
+# koyuyor; git o çizginin ALTINDAKİ HER ŞEYİ siliyor. Sona yazılan künye o diff'le
+# birlikte çöpe giderdi ve kapı yine *"Run: satırı taşımalı"* derdi — yani hook hiçbir
+# şey yapmamış gibi görünürdü. Künye ilk yorum satırının ÖNÜNE, mesajın kendi gövdesine
+# giriyor.
+# ⚠ `awk` kullanılıyor, `python3` değil: bir git hook'u her commit'te koşuyor ve
+# yorumlayıcısı eksikse commit ATILAMAZ. `awk` POSIX; bir hook'a yeni bağımlılık
+# eklemek, 40 satır yazmaktan pahalıdır.
+awk -v ekler="$EKLER" '
+  BEGIN { yazildi = 0 }
+  # İlk yorum satırı gövdenin bittiği yer: künye ONUN ÖNÜNE giriyor.
+  /^#/ && !yazildi {
+    printf "\n%s", ekler
+    yazildi = 1
+  }
+  { print }
+  # Hiç yorum satırı yoksa (örn. `-m` ile verilen mesaj) künye SONA giriyor.
+  END { if (!yazildi) printf "\n%s", ekler }
+' "$MSG_FILE" > "$MSG_FILE.yeni"
+mv "$MSG_FILE.yeni" "$MSG_FILE"

@@ -20,6 +20,13 @@ set -euo pipefail
 # Bu, `'i'.toUpperCase()` → `I` hatasının (R-21) kabuk seviyesindeki kardeşidir.
 export LC_ALL=C
 
+# ⚠ ⚠ **SINIFLANDIRMA ORTAK DOSYADA.** `prepare-commit-msg` künyeyi doldurmak için AYNI
+# soruyu soruyor (*"bu commit çalıştırma sınıfında mı"*). İki hook'a ayrı ayrı yazmak,
+# bu deponun en sık tekrar eden hatasıydı: aynı kural iki yerde, biri düzeltilir öteki
+# unutulur.
+# shellcheck source=/dev/null
+. "$(git rev-parse --show-toplevel)/.githooks/_ortak.sh"
+
 MSG_FILE="$1"
 BODY="$(grep -v '^#' "$MSG_FILE" || true)"
 SUBJECT="$(printf '%s\n' "$BODY" | sed '/^[[:space:]]*$/d' | head -n1)"
@@ -38,24 +45,21 @@ fi
 LEN=$(printf '%s' "$SUBJECT" | wc -m | tr -d ' ')
 [ "$LEN" -le 72 ] || fail "konu satırı $LEN karakter, en fazla 72 olmalı."
 
-# ── 4. Commit sınıfını dosya yollarından belirle ──────────────────────────────
+# ── 4. Commit sınıfını dosya yollarından belirle (yüklem `_ortak.sh`te) ───────
 FILES="$(git diff --cached --name-only || true)"
-RUNTIME_ONLY=1
-if [ -z "$FILES" ]; then
-  RUNTIME_ONLY=0
-else
-  while IFS= read -r f; do
-    [ -z "$f" ] && continue
-    case "$f" in
-      corpus/*|brand/*|derived/runs/*) ;;
-      *) RUNTIME_ONLY=0 ;;
-    esac
-  done <<< "$FILES"
-fi
 
-if [ "$RUNTIME_ONLY" -eq 1 ]; then
+if calistirma_commiti_mi; then
+  # ⚠ ⚠ **HATA METNİ ARTIK NEDEN DOLDURULMADIĞINI DA SÖYLÜYOR.** `prepare-commit-msg`
+  # künyeyi koşu yollarından türetip kendisi yazıyor; buraya düşmüşse iki sebep var ve
+  # ikisi de kullanıcıya FARKLI şey yaptırır: ya hook kurulu değil (`just setup`), ya da
+  # commit hiç koşu dizinine dokunmuyor (yalnız `corpus/`/`brand/`) ve türetilecek bir
+  # kimlik yok. *"Satır eksik"* demek, çözülebilir iki sorunu tek bir çıkmaza çevirirdi.
   printf '%s' "$BODY" | grep -qE '^Run: [a-z0-9_-]+$' \
-    || fail "çalıştırma commit'i 'Run: <run_id>' satırı taşımalı."
+    || fail "çalıştırma commit'i 'Run: <run_id>' satırı taşımalı.
+   Normalde 'prepare-commit-msg' bunu koşu yollarından TÜRETİP yazar. Yazmadıysa:
+     · hook kurulu değil       → 'git config core.hooksPath' .githooks demiyor: just setup
+     · koşu dizini değişmemiş  → yalnız corpus/ ya da brand/ değişti, kimlik yollardan
+                                 okunamıyor; 'Run:' satırını elle yaz."
   printf '%s' "$BODY" | grep -qE '^Actor: (human|agent)$' \
     || fail "çalıştırma commit'i 'Actor: human' veya 'Actor: agent' taşımalı."
   printf '%s' "$BODY" | grep -qE '^Kind: (propose|approve|discovery-apply)$' \
