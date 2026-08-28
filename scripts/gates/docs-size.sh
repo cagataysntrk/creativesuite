@@ -70,6 +70,14 @@ fi
 # Faz dosyaları ve yol-kapsamlı kurallar
 for f in docs/fazlar/FAZ-*.md; do
   [ -f "$f" ] || continue
+  # ⚠ ⚠ **KENDİ KENDİNE YETEN FAZ DOSYASI MUAF (R-63 · D-337).** Sıradan bir faz dosyası
+  # bir KONTROL LİSTESİDİR ve 250 satır fazlasıyla yeter. Ama yeni ve izole bir üretim
+  # sistemi başlatan faz (FAZ-20 video atölyesi) başka bir şeydir: ölçümleri, elenen
+  # seçenekleri, kapsam ayrımını ve sahibin kararlarını TEK BAŞINA taşımak zorunda —
+  # bağlam sıfırlandığında okunacak tek dosya o. Sıkıştırmak, altı ay sonra aynı
+  # araştırmayı yeniden yaptırır.
+  # ⚠ Muafiyet SESSİZ DEĞİL: dosya ilk beş satırında kendini işaretliyor.
+  if head -5 "$f" | grep -q 'KAPSAM: kendine-yeten'; then continue; fi
   n=$(wc -l < "$f" | tr -d ' ')
   [ "$n" -le 250 ] || { echo "$f: $n satır, tavan 250"; fail=1; }
 done

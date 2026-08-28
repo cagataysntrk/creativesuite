@@ -840,7 +840,7 @@ zor iş."* Bunlar bağımlılık değil, **çözülmüş problem kaynağı**.
 | **MoneyPrinterTurbo** | 118k | MIT | stok arama entegrasyonu; **altyazıyı TTS zaman damgalarından üretme** (GPU'suz); Edge TTS bağlama biçimi |
 | **@remotion/captions** | — | MIT | kelime zamanlaması → ekranda altyazı; çözülmüş bir problem |
 | **@remotion/transitions** | — | özel | geçiş kataloğu — **referans olarak okunacak**, kod alınmayacak |
-| **ffmpeg-analyse-video-skill** | 27 | — | üretilen videoyu **geri okuma**: kare çıkar, görüyle zaman damgalı özet. FAZ-20.13'ün aracı |
+| **ffmpeg-analyse-video-skill** | 27 | — | üretilen videoyu **geri okuma**: kare çıkar, görüyle zaman damgalı özet. FAZ-20.9'un aracı |
 | **rrweb** | 2.1.1 | MIT | oturumu olay akışı olarak kaydet → sonsuz yeniden çekim, sıfır maliyet |
 
 ⚠ **AGPL notu:** depo private, dağıtım yok, ticari ürün yok — sahibin kararı: *"agpl

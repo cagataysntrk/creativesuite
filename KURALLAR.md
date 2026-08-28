@@ -269,6 +269,12 @@ Her `§N` / `R-nn` / `D-nn` / `V-nn` / `FAZ-N.x` / `LOOP§X` hedefte var olmalı
 `CLAUDE.md` 200 · `KURALLAR.md` **480** · `KARARLAR.md` 600 · `DURUM.md` 120 ·
 `ANAYASA.md` 1400 · **ANAYASA alt bölümü (`### §N.M`) 60** · `FAZ-N.md` 250 ·
 `.claude/rules/*.md` 120 satır.
+⚠ **KENDİ KENDİNE YETEN faz dosyası bu tavandan MUAF** (D-337): dosyanın ilk beş
+satırında `> KAPSAM: kendine-yeten` işareti varsa tavan uygulanmaz. Muafiyet dar: yeni
+ve İZOLE bir üretim sistemi başlatan faz, bağlam sıfırlansa da tek başına devam
+ettirebilmeli — 250 satır bunu taşımıyor ve sıkıştırma, altı ay sonra yeniden
+araştırmaya mal oluyor. Sıradan bir faz dosyası bir kontrol listesidir ve 250 satır
+fazlasıyla yeter.
 ANAYASA'da asıl tavan **alt bölümdür**: belge baştan sona okunmaz ve maliyet **o
 bölümün** boyudur. **Boş bir bölüm uzun bir bölümden pahalıdır** — kuralı bulamayan onu
 yok sanmaz, kendi uydurur (D-230).
