@@ -95,7 +95,7 @@ just setup        # araç zinciri kontrolü
 Refs: FAZ-N.x · §bölüm
 ```
 
-**Çalıştırma** (yalnız `corpus/` `brand/` `derived/runs/`):
+**Çalıştırma** (yalnız `corpus/` `brand/` `derived/runs/` `derived/*.ndjson`):
 ```
 <özet>
 

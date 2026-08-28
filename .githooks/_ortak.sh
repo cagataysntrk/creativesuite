@@ -26,6 +26,17 @@ calistirma_commiti_mi() {
     [ -z "$f" ] && continue
     case "$f" in
       corpus/*|brand/*|derived/runs/*) ;;
+      # ⚠ ⚠ **`derived/` KÖKÜNDEKİ DEFTERLER DE ÇALIŞTIRMA VERİSİ.** Bu satır sonradan
+      # eklendi ve sebebi ölçüldü: `yayin-sirasi.ndjson`, `yayin-takvimi.ndjson` ve
+      # `metricool-itilenler.ndjson` izlenmeye alındığında (2026-08-28) hiçbir commit
+      # sınıfına girmiyorlardı. Geliştirme sayılınca `Refs:` isteniyor ve aynı commit
+      # `derived/runs/` de taşıyorsa D-156 reddediyor; çalıştırma sayılmıyorlardı çünkü
+      # liste yalnız `derived/runs/` diyordu. Sonuç: bir koşunun bıraktığı durum tek
+      # commit'e sığmıyordu.
+      # ⚠ Bunlar TÜRETİLEMEZ (D-38 sınıfı): insan kararlarını taşıyorlar — hangi karosel
+      # sıraya alındı, hangisi planlandı, hangisi itildi. `derived/`in gerisi (blobs,
+      # index, ingest) gitignore'lu ve buraya hiç gelmiyor.
+      derived/*.ndjson) ;;
       *) return 1 ;;
     esac
   done <<< "$dosyalar"

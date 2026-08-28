@@ -4,7 +4,7 @@
 # İki commit sınıfı:
 #   geliştirme : packages/ apps/ scripts/ docs/ .githooks/ ve kök yapılandırma
 #                → "<tip>(<kapsam>): <özet>" + "Refs: FAZ-N.x · §bölüm"
-#   çalıştırma : YALNIZ corpus/ brand/ derived/runs/
+#   çalıştırma : YALNIZ corpus/ brand/ derived/runs/ derived/*.ndjson
 #                → "Run: <run_id>" + "Actor: human|agent" + "Kind: propose|approve|discovery-apply"
 #                → "Refs:" YASAK (onay kuyruğu her turda faz adımı taşımaz)
 #
