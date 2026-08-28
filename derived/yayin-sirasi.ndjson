@@ -19,3 +19,16 @@
 {"runId":"run_01a03e9e-7d62-7560-b44d-0cb7225e2883","karar":"sira","konum":10,"at":"2026-08-27T21:17:08.061Z","not":"sıraya alındı"}
 {"runId":"run_01a043e7-2f28-76df-83c8-1aabb0a002c3","karar":"sira","konum":11,"at":"2026-08-27T21:17:09.466Z","not":"sıraya alındı"}
 {"runId":"run_01a04407-32f9-7169-85e9-daec5f70ff70","karar":"sira","konum":-2,"at":"2026-08-27T21:17:37.909Z","not":"elle taşındı: 3 → 1"}
+{"runId":"run_01a04407-32f9-7169-85e9-daec5f70ff70","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:25.678Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a044d1-9e03-7ca4-b96a-4b99417ff030","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:26.992Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a0447a-9adc-7449-bd80-1afa65978676","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:28.079Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03c5d-00cf-759a-91c0-b49da954832c","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:28.583Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03c5f-9c33-7ea7-b6ac-dee6c9bb6fea","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:29.080Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03c64-7b1e-7cb2-b4b8-c9e393e10d73","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:29.531Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03c69-d972-74e3-b4aa-92c9d227a95c","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:29.927Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03c6c-22d9-7a65-bf8f-0eae38874756","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:30.303Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03c6d-221e-733c-aa3e-c444d5855049","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:30.680Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03db4-b406-7972-998d-9b7279a793cb","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:30.951Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03e7d-5855-7c19-b0a9-d367ea0d2e57","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:31.246Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a03e9e-7d62-7560-b44d-0cb7225e2883","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:31.485Z","not":"hedefe kondu — planlandı"}
+{"runId":"run_01a043e7-2f28-76df-83c8-1aabb0a002c3","karar":"planlandi","konum":0,"at":"2026-08-28T15:59:31.719Z","not":"hedefe kondu — planlandı"}

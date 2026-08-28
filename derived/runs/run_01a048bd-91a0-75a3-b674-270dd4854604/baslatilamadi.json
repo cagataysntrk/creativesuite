@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-28T15:03:23.785Z",
+  "komut": "just uret instagram-karosel --devam run_01a048bd-91a0-75a3-b674-270dd4854604",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n✗ run_01a048bd-91a0-75a3-b674-270dd4854604: hiç kapı kararı yok — önce: just onay run_01a048bd-91a0-75a3-b674-270dd4854604 onayla\n"
+}

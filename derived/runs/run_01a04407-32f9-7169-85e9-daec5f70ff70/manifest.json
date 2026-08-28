@@ -1821,6 +1821,12 @@
       "decision": "approved",
       "at": "2026-08-27T16:52:51.366Z",
       "note": null
+    },
+    {
+      "gate": "insan-onayi",
+      "decision": "approved",
+      "at": "2026-08-28T16:02:36.065Z",
+      "note": null
     }
   ],
   "context": [

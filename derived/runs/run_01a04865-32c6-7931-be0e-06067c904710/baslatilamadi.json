@@ -1,0 +1,10 @@
+{
+  "at": "2026-08-28T14:18:44.583Z",
+  "komut": "just uret instagram-karosel --devam run_01a04865-32c6-7931-be0e-06067c904710",
+  "code": 1,
+  "signal": null,
+  "timedOut": false,
+  "aborted": false,
+  "stderr": "error: recipe `uret` failed on line 19 with exit code 1\n",
+  "stdout": "  bütçe tavanı: çalıştırma 250000 mikro · aylık 5000000 mikro\n  run_01a04865-32c6-7931-be0e-06067c904710 sürdürülüyor · 1 kapı kararı · donmuş girdiler yeniden kullanılıyor (corpus 07f70103)\n  parametreler kaynak koşudan okundu (10 alan)\n  geçmiş red gerekçeleri negatif kısıt olarak enjekte ediliyor\n  14:18:39  ▶ cozumle [eaad8481]\n  14:18:39    ↳ cozumle çıktı [3a1e6f24]\n  14:18:39  ▶ konu-sec [0221ecdb]\n  14:18:39    ↺ konu-sec çıktısı defterden okundu\n  14:18:39  ▶ bilgi-sec [860c4614]\n  14:18:39    ↳ bilgi-sec çıktı [4780d8a6]\n  14:18:39  ▶ metin-uret [f070edf6]\n  14:18:39    ↺ metin-uret çıktısı defterden okundu\n  14:18:39  ▶ sablon-uyarla [16dfb27a]\n  14:18:39    ↺ sablon-uyarla çıktısı defterden okundu\n  14:18:39  ▶ kompozit [38119d4b]\n  14:18:39    ↳ kompozit çıktı [037a7594]\n  14:18:39  ▶ duzen-provasi [d6b4aacb]\n  çalıştırma run_01a04865-32c6-7931-be0e-06067c904710  ·  instagram-karosel\n\n  ✓ cozumle        RESOLVE   —                      $0.0000\n  ✓ konu-sec       GENERATE  claude-code            $0.0000\n  ✓ bilgi-sec      SELECT    —                      $0.0000\n  ✓ metin-uret     GENERATE  claude-code            $0.0000\n  ✓ sablon-uyarla  GENERATE  claude-code            $0.0000\n  ✓ kompozit       COMPOSE   —                      $0.0000\n  ✗ duzen-provasi  RENDER    —                      —\n      LAYOUT_REJECTED: {\"ozet\":\"düzen provası 1 kusur buldu: kart 3 · metin-gorsel-cakisiyor\",\"kusurlar\":[{\"kart\":3,\"tur\":\"metin-gorsel-cakisiyor\"}]}\n\n  ✗ duzen-provasi adımında durdu\n  manifest: derived/runs/run_01a04865-32c6-7931-be0e-06067c904710/manifest.json\n\n"
+}

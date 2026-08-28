@@ -1,0 +1,229 @@
+{
+  "slaytGenisligi": 1080,
+  "yukseklik": 1440,
+  "yerlesim": "ust",
+  "tipografi": {
+    "baslikPayi": 0.98,
+    "baslikAgirlik": 500,
+    "baslikGenislik": 125,
+    "satirAraligi": 1.18,
+    "harfArasi": -0.01,
+    "govdeOrani": 0.34,
+    "baslikSutunu": 0.8,
+    "panelPayi": 1.7
+  },
+  "zemin": "var(--ramp-palet-kagit-taban)",
+  "aksan": "var(--ramp-palet-kagit-oksit)",
+  "yuzey": "halftone",
+  "hayaletKonumu": {
+    "ust": 30,
+    "olcek": 1.4,
+    "guc": 7
+  },
+  "bant": {
+    "tip": "olcek",
+    "y": 88,
+    "aralik": 4.17,
+    "duraklar": [
+      {
+        "x": 8,
+        "etiket": "01"
+      },
+      {
+        "x": 25,
+        "etiket": "02"
+      },
+      {
+        "x": 42,
+        "etiket": "03"
+      },
+      {
+        "x": 58,
+        "etiket": "04"
+      },
+      {
+        "x": 75,
+        "etiket": "05"
+      },
+      {
+        "x": 92,
+        "etiket": "06"
+      }
+    ]
+  },
+  "gorselIslemleri": [
+    "tema-uyum",
+    "temas-golgesi"
+  ],
+  "gorseller": [
+    {
+      "src": "gorsel-01.png",
+      "alt": "kesik özne — 1",
+      "x": 4.33,
+      "y": 54,
+      "genislik": 6.9,
+      "yukseklik": 39,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-02.png",
+      "alt": "kesik özne — 2",
+      "x": 21,
+      "y": 49,
+      "genislik": 7.8,
+      "yukseklik": 44,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-03.png",
+      "alt": "kesik özne — 3",
+      "x": 37.67,
+      "y": 45,
+      "genislik": 8.5,
+      "yukseklik": 48,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "gorsel-04.png",
+      "alt": "kesik özne — 4",
+      "x": 54.33,
+      "y": 44,
+      "genislik": 8.7,
+      "yukseklik": 49,
+      "kirpma": "kesik"
+    },
+    {
+      "src": "",
+      "alt": "kesik özne — 5",
+      "x": 71,
+      "y": 47,
+      "genislik": 8.2,
+      "yukseklik": 46,
+      "kirpma": "kesik"
+    }
+  ],
+  "kartlar": [
+    {
+      "ustBaslik": "VARSAYIM",
+      "baslik": "Makine çalışmak **üretmek** demek değil",
+      "govde": "Çoğu tesis bu ayrımı hiç tutmaz.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": null,
+      "zemin": "var(--ramp-marka-kagit)"
+    },
+    {
+      "ustBaslik": "MALİYET",
+      "baslik": "Gizli kayıp nerede saklanır",
+      "govde": "Kullanılabilirlik, performans ve kalite çarpılınca hattın gizli kaybı ortaya çıkar.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": {
+        "tip": "etiketler",
+        "ogeler": [
+          "Kullanılabilirlik",
+          "Performans",
+          "Kalite"
+        ]
+      },
+      "zemin": "var(--ramp-marka-kagit-0)",
+      "kolon": "orta"
+    },
+    {
+      "ustBaslik": "AYRIŞTIRMA",
+      "baslik": "Kaybı üçe nasıl ayırırız",
+      "govde": "Duruş süresi, hız kaybı ve hatalı ürün ayrı ayrı ölçülür.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": {
+        "tip": "liste",
+        "baslik": "ÜÇ BİLEŞEN",
+        "ogeler": [
+          {
+            "no": "01",
+            "ad": "Kullanılabilirlik: çalışma süresi",
+            "aktif": true
+          },
+          {
+            "no": "02",
+            "ad": "Performans: hız oranı",
+            "aktif": false
+          },
+          {
+            "no": "03",
+            "ad": "Kalite: satılabilir oran",
+            "aktif": false
+          }
+        ]
+      },
+      "zemin": "var(--ramp-marka-kagit)",
+      "kolon": "sag"
+    },
+    {
+      "ustBaslik": "DÖNGÜ",
+      "baslik": "Üç adımda hesapla",
+      "govde": "Çalışma süresini planlanan süreye, hızı hedefe, üretimi satılabilire böl.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": null,
+      "zemin": "var(--ramp-marka-kagit-0)",
+      "aksanRolu": "yok"
+    },
+    {
+      "ustBaslik": "ÖMÜR",
+      "baslik": "Bugün bir vardiya ölç",
+      "govde": "Duruş, hız ve hata verisini yan yana kaydet.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": {
+        "tip": "sayilar",
+        "ogeler": [
+          {
+            "deger": "85",
+            "birim": "%",
+            "alt": "dünya standardı eşiği"
+          },
+          {
+            "deger": "60",
+            "birim": "%",
+            "alt": "çoğu tesisin ortalaması"
+          }
+        ]
+      },
+      "zemin": "var(--ramp-marka-kagit)",
+      "kolon": "orta"
+    },
+    {
+      "ustBaslik": "YAPILACAK",
+      "baslik": "Bugün **ölç** karşılaştır",
+      "govde": "Bir vardiyalık veriyi üç bileşene ayır, skorunu hesapla ve tekrarla.",
+      "hayalet": "",
+      "rayaSol": "",
+      "rayaOrta": "upcyman.com",
+      "panel": null,
+      "zemin": "var(--ramp-marka-ink-950)",
+      "kapanis": {
+        "cagri": "Sırayı **birlikte** kuralım."
+      }
+    }
+  ],
+  "aiIfsasi": true,
+  "tokenCss": "/* ÜRETİLMİŞ — elle düzenleme (R-65). Kaynak: brand/<id>/tokens/ */\n:root {\n  --comp-status-bar-bg: var(--role-surface);\n  --comp-status-bar-text: var(--role-text-muted);\n  --comp-tolerance-limit: var(--role-state-warn);\n  --comp-tolerance-out: var(--role-state-error);\n  --comp-tolerance-track: var(--role-line-hair);\n  --ramp-gray-100: oklch(0.93 0.004 250);\n  --ramp-gray-200: oklch(0.84 0.006 250);\n  --ramp-gray-300: oklch(0.76 0.006 250);\n  --ramp-gray-50: oklch(0.97 0.004 250);\n  --ramp-gray-500: oklch(0.58 0.008 250);\n  --ramp-gray-800: oklch(0.28 0.010 250);\n  --ramp-gray-900: oklch(0.21 0.010 250);\n  --ramp-gray-950: oklch(0.16 0.010 250);\n  --ramp-marka-ink-1000: oklch(0.105 0.014 250);\n  --ramp-marka-ink-200: oklch(0.920 0.006 75);\n  --ramp-marka-ink-450: oklch(0.680 0.005 75);\n  --ramp-marka-ink-500: oklch(0.655 0.005 75);\n  --ramp-marka-ink-60: oklch(0.950 0.006 75);\n  --ramp-marka-ink-600: oklch(0.520 0.008 250);\n  --ramp-marka-ink-650: oklch(0.485 0.008 250);\n  --ramp-marka-ink-850: oklch(0.270 0.010 250);\n  --ramp-marka-ink-880: oklch(0.190 0.012 250);\n  --ramp-marka-ink-900: oklch(0.205 0.012 250);\n  --ramp-marka-ink-950: oklch(0.165 0.013 250);\n  --ramp-marka-kagit: oklch(0.985 0 0);\n  --ramp-marka-kagit-0: oklch(1 0 0);\n  --ramp-marka-mavi-200: oklch(0.850 0.070 262);\n  --ramp-marka-mavi-300: oklch(0.760 0.117 262);\n  --ramp-marka-mavi-500: oklch(0.600 0.206 262);\n  --ramp-marka-mavi-600: oklch(0.530 0.234 262);\n  --ramp-palet-beton-amber: oklch(0.780 0.140 80);\n  --ramp-palet-beton-murekkep: oklch(0.140 0.006 75);\n  --ramp-palet-beton-taban: oklch(0.380 0.009 75);\n  --ramp-palet-beton-yuzey: oklch(0.480 0.010 75);\n  --ramp-palet-celik-bakir: oklch(0.580 0.146 45);\n  --ramp-palet-celik-ink: oklch(0.880 0.007 250);\n  --ramp-palet-celik-taban: oklch(0.200 0.010 250);\n  --ramp-palet-celik-yuzey: oklch(0.280 0.012 250);\n  --ramp-palet-gece-magenta: oklch(0.600 0.221 350);\n  --ramp-palet-gece-mavi-kilcal: oklch(0.530 0.220 262);\n  --ramp-palet-gece-taban: oklch(0.140 0.008 250);\n  --ramp-palet-gece-yuzey: oklch(0.200 0.010 250);\n  --ramp-palet-kagit-murekkep: oklch(0.200 0.007 75);\n  --ramp-palet-kagit-oksit: oklch(0.520 0.174 32);\n  --ramp-palet-kagit-taban: oklch(0.950 0.004 75);\n  --ramp-palet-kagit-yuzey: oklch(0.880 0.006 75);\n  --ramp-palet-murekkep-alan: oklch(0.360 0.130 262);\n  --ramp-palet-murekkep-ink: oklch(0.930 0.029 262);\n  --ramp-palet-murekkep-mavi: oklch(0.600 0.185 262);\n  --ramp-palet-murekkep-taban: oklch(0.160 0.101 262);\n  --ramp-palet-murekkep-yuzey: oklch(0.240 0.102 262);\n  --ramp-signal-danger: oklch(0.58 0.160 25);\n  --ramp-signal-ok: oklch(0.65 0.120 150);\n  --ramp-signal-warn: oklch(0.72 0.140 75);\n  --role-accent: var(--ramp-marka-mavi-500);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='console'] {\n  --role-accent: var(--ramp-marka-mavi-500);\n  --role-bg: var(--ramp-gray-950);\n  --role-line-hair: var(--ramp-gray-800);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-900);\n  --role-text: var(--ramp-gray-50);\n  --role-text-muted: var(--ramp-gray-500);\n}\n\n[data-surface='kreatif'] {\n  --role-accent: var(--ramp-marka-mavi-500);\n  --role-bg: var(--ramp-marka-ink-1000);\n  --role-kart-acik: var(--ramp-marka-kagit-0);\n  --role-kart-koyu: var(--ramp-marka-ink-950);\n  --role-line-edge: var(--ramp-marka-ink-880);\n  --role-line-hair: var(--ramp-marka-ink-850);\n  --role-line-hair-acik: var(--ramp-marka-ink-200);\n  --role-metin-koyu: var(--ramp-marka-ink-60);\n  --role-soluk-acik: var(--ramp-marka-ink-600);\n  --role-soluk-koyu: var(--ramp-marka-ink-450);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-marka-kagit);\n  --role-text: var(--ramp-marka-ink-880);\n  --role-text-muted: var(--ramp-marka-ink-600);\n  --role-vurgu: var(--ramp-marka-mavi-500);\n  --role-vurgu-acik: var(--ramp-marka-mavi-600);\n}\n\n[data-surface='studio'] {\n  --role-accent: var(--ramp-marka-mavi-600);\n  --role-bg: var(--ramp-gray-300);\n  --role-line-hair: var(--ramp-gray-200);\n  --role-state-error: var(--ramp-signal-danger);\n  --role-state-ok: var(--ramp-signal-ok);\n  --role-state-warn: var(--ramp-signal-warn);\n  --role-surface: var(--ramp-gray-50);\n  --role-text: var(--ramp-gray-950);\n  --role-text-muted: var(--ramp-gray-500);\n}\n",
+  "logo": {
+    "koyu": "data:image/png;base64,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",
+    "acik": "data:image/png;base64,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"
+  },
+  "stamp": {
+    "brandId": "brd_upcytech",
+    "eraId": "imalat-2026",
+    "kitVersion": "kit-1",
+    "definitionDigest": "sha256:faz3",
+    "contextManifest": "ctx_run_01a048e6-0b75-7caf-b394-3db244d7b0f9",
+    "sourceRunId": "run_01a048e6-0b75-7caf-b394-3db244d7b0f9"
+  }
+}
