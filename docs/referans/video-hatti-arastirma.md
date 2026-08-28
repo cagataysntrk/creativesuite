@@ -369,3 +369,125 @@ alanı, Türkçe büyük harf, zemin kontrastı. Video hattı bunların **hepsin
 O yüzden FAZ-20.1 (ölçüm) atlanmamalı. Bu turda öğrendiğim şey tam buydu: `min-height`
 bir taban olduğu için oturma ölçümü tabana çöktü ve bir şablonu tek başına okunmaz
 yaptı — ve bunu ancak **çizip bakınca** gördüm.
+
+---
+
+# EK A · Ürün ve depo taraması (2026-08-28)
+
+Depo sahibinin verdiği yirmi kalem tek tek bakıldı. Karar ölçütü **bu deponun
+kısıtları**, ürünün kendi kalitesi değil: 6 GB VRAM · Cloudflare'de video modeli yok ·
+Türkçe · yerel öncelikli · Yasa 12 (bir ay ihmal edilse de çalışır).
+
+## A.1 · Alındı — doğrudan işimize yarıyor
+
+### HyperFrames · `heygen-com/hyperframes` · ★42 962 · Apache-2.0
+Katman A'nın motoru. Bu depoda **zaten kanıtlanmış** (`motion/kanit`, altı mp4).
+**Yerele çekildi** (bu turda): `vendor/hyperframes/` içinde 0.7.109 ve 0.8.17 npm
+tarball'ları + depo dışında tam ayna klon. Gerekçe sahibin kendi cümlesi: *"bi gün priv
+yaparlarsa."*
+
+### OpenMontage · `calesthio/OpenMontage` · ★53 045 · AGPL-3.0
+**Bu taramanın en değerli bulgusu.** Ajanla sürülen açık kaynak video üretim sistemi;
+on bir hat, her biri `research → proposal → script → scene_plan → assets → edit →
+compose` akışını izliyor ve her aşamanın bir *"director skill"*i (markdown talimat
+dosyası) var — bizim `docs/kurallar/` yaklaşımımızın birebir eşi.
+
+⭐ **`Documentary Montage` hattı bizim en büyük boşluğumuzu kapatıyor:** CLIP ile
+indekslenmiş **ücretsiz** stok arşivinden (Pexels, Archive.org, NASA, Wikimedia,
+Unsplash) tematik montaj — kendi tanımıyla *"paid generation API'siz gerçek görüntülü
+videolar"*. Yerel GPU yok ve Cloudflare video üretmiyorken, gerçek görüntüye ulaşmanın
+tek bedava yolu bu.
+
+Ön koşullar: Python 3.10+ · ffmpeg · Node 18+ · bir AI kodlama asistanı. **Dördü de
+bu makinede var.**
+
+⚠ **AGPL-3.0 — kodu bu depoya KOPYALANMAZ.** Ticari ürün değiliz, kullanmak serbest;
+ama AGPL bulaşıcıdır ve kopyalanan kod bütün depoyu kapsamına alır. Doğru kullanım:
+**ayrı süreç olarak çalıştır**, fikirlerini ve hat şemasını al.
+
+### MoneyPrinterTurbo · `harry0703/MoneyPrinterTurbo` · ★117 944 · MIT
+README'nin kendi cümlesi bizim donanım ölçümümüzün aynısı: *"bulut LLM, bulut TTS ve
+çevrimiçi materyale dayanıyorsan CPU ve RAM GPU'dan daha önemli."*
+
+Üç şeyi hazır getiriyor:
+- **Edge TTS** — Microsoft'un ücretsiz TTS'i, **API anahtarı gerektirmiyor**, Türkçe
+  sesleri var. `melotts`in Türkçe kalitesini ölçmeden önce denenecek ilk şey bu.
+- **Pexels · Pixabay · Coverr** ücretsiz stok entegrasyonu
+- Altyazıyı **TTS zaman damgalarından** üretiyor — GPU'suz, hızlı
+
+MIT olduğu için **kod ödünç alınabilir** (AGPL'in aksine).
+
+### ffmpeg-analyse-video-skill · `fabriqaai/ffmpeg-analyse-video-skill` · ★27
+Küçük ama tam yerine oturuyor: ffmpeg ile kare çıkarıp görüyle **zaman damgalı özet**
+üretiyor. Bu, karosel hattındaki *"ÇİZ ve PNG'ye BAK"* kuralının video karşılığı —
+ürettiğimiz videoyu geri okuyup *"gerçekten ne oldu"* diye sormak. FAZ-20.9'un
+(video denetimi) doğal aracı.
+
+## A.2 · Denenecek — ölçüm borcu var
+
+| ne | ★ | lisans | neden ilginç | ölçülecek |
+|---|---|---|---|---|
+| **pireel** `pireel/pireel` | 1 083 | AGPL-3.0 | MCP üzerinden **ajanla sürülebilen** açık CapCut alternatifi; çok izli zaman çizelgesi | insan onayı kapımızla eşleşir mi — hat taslak üretir, insan ince ayar yapar |
+| **OpenChatCut** `0xsline/OpenChatCut` | 1 428 | AGPL-3.0 | yerel-öncelikli, konuşarak video düzenleme | pireel ile aynı niş; ikisinden **biri** seçilir |
+| **openart.ai** | — | SaaS | 100+ model, ücretsiz katman, görsel+video+müzik | ücretsiz katmanın **video kotası** ve çıktı hakları doğrulanmadı; API'siz ise Suno gibi elle kullanılır |
+| **Phosphene** `mrbizarro/Phosphene` | 190 | MIT | Hailuo H3 + LTX-2.5'i **yerelde** koşturuyor (Mac) | bizde Mac yok ama bellek yönetimi tekniği okunmaya değer |
+
+## A.3 · Elendi — ve gerekçesi ölçüm
+
+| ne | gerekçe |
+|---|---|
+| **Raylight** | Çok-GPU paralelliği (FSDP/USP). Referans kurulum **4 × 22 GB RTX 2080 Ti**. Bizde 1 × 6 GB. |
+| **MiniMax H3 / Hailuo** (yerel) | Aynı sebep — `Eanya-Tonic/2080ti-minimax-h3` dört kart kullanıyor. API olarak ücretli: Katman B'nin **seçeneği**, varsayılanı değil. |
+| **LongCat-Video** (Meituan, ★7 698, MIT) | Tek-GPU çıkarım yolu var ama bu sınıf bir model 6 GB'a sığmıyor. Barındırılmış API'si yok. |
+| **Voicebox** | Meta ağırlıkları **hiç yayımlamadı**. `SpeechifyInc/Meta-voicebox` (★596, MIT) 2023'ten beri güncellenmemiş. Türkçe için Edge TTS ve ElevenLabs zaten önde. |
+| **flick.tech** | Sosyal medya pazarlama platformu — video üretimi değil. Konu dışı. |
+| **OpenGenerativeAI** | Bu adla ciddi bir proje **bulunamadı** (en yükseği ★1). Muhtemelen ad yanlış hatırlandı — netleştirilmeli. |
+
+## A.4 · Kapalı kutu ama FİKİR kaynağı
+
+Hattımıza giremezler (API'siz ya da kapalı) — ama üçü de bizim yapmak istediğimiz şeyin
+ticari hâli ve mimarileri okunmaya değer.
+
+- **poko.video** — *"repo, PDF ya da PowerPoint'i motion videoya çevir; ajan senaryo
+  yazar, sahneleri kurar ve **makinende yerelde render eder**"*. **Mimarisi bizimkine
+  en yakın olan.** Aynı bahis: ajan + yerel deterministik render.
+- **motion.so** — *"motion design için frontier agent; videoyu tarif et, tasarlasın,
+  animasyonlasın ve render etsin"*. Doğrudan rakip/referans.
+- **vidrush.ai** — uzun form için *"araştırma, senaryo, seslendirme, görüntü, kurgu,
+  kapak"* — FAZ-20 akışının ticari eşi.
+- **ChatCut** — `ChatCut-Inc/agent-plugin` (★827) var, yani ürün **ajanla sürülebiliyor**;
+  ürün sitesi bu taramada yanıt vermedi.
+
+## A.5 · Doğrulanamadı
+
+`motionpromo` · `clipmasters` · `joy ai video editor` · `vimax` · `chatcut.com` —
+siteler yanıt vermedi ya da boş döndü. Tahmin yazmaktansa boş bırakıyorum; adları
+netleştirirsen tekrar bakılır.
+
+## A.6 · Bu taramanın mimariye etkisi
+
+Ana rapordaki iki katmanlı yapı **değişmiyor** ama Katman B'nin içi doldu. Yerel üretim
+imkânsızken *"çekilmiş görünmesi gereken"* saniyeler için üç yol var ve üçü de bedava:
+
+```
+B1) Cloudflare kare görsel + Katman A'da 2.5B deterministik hareket   (zaten planlı)
+B2) ÜCRETSİZ STOK ARŞİVİ + anlamsal arama  ← YENİ, OpenMontage'ın yolu
+    Pexels · Pixabay · Coverr · Archive.org · NASA · Wikimedia
+B3) ücretli video API'si                                              (son çare)
+```
+
+**B2 sanayi konularında B1'den güçlü olabilir.** "Titreşim sensörü", "konveyör bandı",
+"vardiya" gibi konularda gerçek fabrika görüntüsü, üretilmiş bir 3B nesneden daha
+inandırıcı. Ve kota harcamıyor.
+
+⚠ **Yasa 7 burada da geçerli:** stok arşivinden gelen her karenin kaynağı ve lisansı
+üretim anında damgalanmalı — karoseldeki `.kaynak.json` deseninin aynısı. Sonradan
+retrofit imkânsız.
+
+### Faz haritasına etkisi
+
+- **FAZ-20.1'e eklendi:** Edge TTS Türkçe kalitesi ölçülecek (melotts'tan önce).
+- **FAZ-20.6 ikiye ayrıldı:** B1 (üretilmiş nesne + 2.5B hareket) ve **B2 (stok arşivi
+  + anlamsal arama)**. B2 önce ölçülecek: daha ucuz ve sanayi konusunda muhtemelen
+  daha güçlü.
+- **FAZ-20.9'a araç geldi:** `ffmpeg-analyse-video-skill` — üretilen videoyu geri okuma.
