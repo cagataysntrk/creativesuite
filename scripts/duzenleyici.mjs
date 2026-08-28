@@ -27,9 +27,15 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..')
-const { panoramaHtml, renderPanorama } = await import(
-  join(REPO, 'packages/render/dist/panorama.js')
-)
+const {
+  aksanAlaniOlcumu,
+  knockoutOlcumu,
+  metinMaskesi,
+  okNisaniOlcumu,
+  panoramaHtml,
+  puntoOlcumu,
+  renderPanorama,
+} = await import(join(REPO, 'packages/render/dist/panorama.js'))
 // ⚠ Dışa aktarma AYNI motordan (R-30): editör kendi çıktıcısını yazsaydı panelin
 // indirdiğiyle editörün indirdiği iki farklı dosya olurdu.
 const { panoramaDisaAktar } = await import(join(REPO, 'packages/render/dist/disa-aktar.js'))
@@ -1318,6 +1324,28 @@ const sunucu = createServer(async (req, res) => {
     if (u.pathname === '/pano')
       return json({
         html: panoramaHtml(belge(id)),
+        // ⚠ ⚠ **ÖLÇÜM GEÇİŞLERİ DE GİDİYOR — ve bunlar OLMADAN önizleme YALAN SÖYLÜYORDU.**
+        // Bu dosyanın başlığı *"aynı render motoru, ikinci bir önizleme değil"* diyor ve
+        // HTML için doğruydu: `panoramaHtml` paylaşılıyor. Ama `renderPanorama` o HTML'i
+        // kurduktan SONRA beş geçiş daha koşuyor ve en büyüğü (`puntoOlcumu`) CSS'in kart
+        // başına hesapladığı puntoları TEK ölçülmüş değerle değiştiriyor. Editör o
+        // geçişleri hiç koşmuyordu.
+        //
+        // ⚠ ⚠ **FARK ÖLÇÜLDÜ ve küçük değil.** Aynı belgede editör 132/127/111/133 px
+        // gösteriyor, render hepsini 110/79/79/79'a çekiyor; başlıklar 39–103 px
+        // kayıyor, gövdeler aynı kadar ters yöne. Depo sahibi: *"editörde böyle görünen
+        // yazılar varlıklarda kayıyor, bu ciddi bir problem."* Haklıydı — insan bir
+        // düzeni onaylıyor, yayına başka bir düzen gidiyordu.
+        //
+        // ⚠ Geçişler SUNUCUDA üretiliyor, istemcide değil: betikleri istemciye yeniden
+        // yazdırmak, aynı kuralın ikinci kopyası olurdu.
+        gecisler: [
+          puntoOlcumu(belge(id)),
+          knockoutOlcumu(),
+          aksanAlaniOlcumu(),
+          okNisaniOlcumu(),
+          metinMaskesi(),
+        ],
         doc: calisan[id],
         // ⚠ Derinlik İSTEMCİYE bildiriliyor: "geri al" düğmesi tıklanabilir görünüp
         // hiçbir şey yapmıyorsa kullanıcı düzenlemenin kaydedildiğini sanır.

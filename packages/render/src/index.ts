@@ -310,6 +310,8 @@ export {
   knockoutOlcumu,
   metinMaskesi,
   puntoOlcumu,
+  okNisaniOlcumu,
+  aksanAlaniOlcumu,
   renderPanorama,
   VARSAYILAN_TIPO,
 } from './panorama.js'

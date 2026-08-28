@@ -48,7 +48,7 @@ let sonDoc = null
 
 async function cek() {
   const r = await fetch('/pano?id=' + id)
-  const { html, doc, geri, ileri } = await r.json()
+  const { html, doc, geri, ileri, gecisler } = await r.json()
   sonDoc = doc
   yiginiGoster(geri ?? 0, ileri ?? 0)
   const fr = $('#pano')
@@ -75,7 +75,26 @@ async function cek() {
     e.textContent = String(n + 1).padStart(2, '0')
     kl.appendChild(e)
   }
-  fr.onload = () => {
+  fr.onload = async () => {
+    // ⚠ ⚠ **RENDER'IN ÖLÇÜM GEÇİŞLERİ BURADA DA KOŞUYOR — yoksa önizleme YALAN SÖYLER.**
+    // `panoramaHtml` iki tarafta ortak ama `renderPanorama` o HTML'i kurduktan SONRA beş
+    // geçiş daha koşuyor; en büyüğü CSS'in kart başına hesapladığı puntoları TEK ölçülmüş
+    // değerle değiştiriyor. Editör onları koşmuyordu ve fark ÖLÇÜLDÜ: aynı belgede
+    // editör 132/127/111/133 px gösteriyor, render 110/79/79/79'a çekiyor — başlıklar
+    // 39–103 px kayıyor. İnsan bir düzeni onaylıyor, yayına başka bir düzen gidiyordu.
+    //
+    // ⚠ ⚠ **FONTLAR BEKLENİYOR — punto ölçümü ondan ÖNCE koşarsa yanlış ölçer.** Yedek
+    // fontla ölçülen bir tavan `Ğ Ş İ` gliflerinin gerçek genişliğini hiç görmez;
+    // `renderPanorama` da tam bu sırayla bekliyor.
+    const p = fr.contentWindow
+    try {
+      await p.document.fonts.ready
+      for (const betik of gecisler ?? []) p.eval(betik)
+    } catch (e) {
+      // ⚠ Geçiş düşerse önizleme yine çiziliyor ama SESSİZ değil: sessiz bir düşüş,
+      // düzeltmeden önceki duruma geri döner ve kimse fark etmez.
+      mesaj('⚠ ölçüm geçişi koşmadı — önizleme render ile aynı olmayabilir: ' + e.message)
+    }
     bagla(fr.contentDocument, doc)
     mufettisiKur(doc)
     olc()

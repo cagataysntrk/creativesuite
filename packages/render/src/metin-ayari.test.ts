@@ -96,6 +96,24 @@ describe('metin ince ayarı', () => {
     expect(betik).toContain('Number.isFinite(elleEn)')
   })
 
+  it('PUNTO ÖLÇÜMÜ elle punto çarpanını da hesaba katıyor', () => {
+    // ⚠ ⚠ **BU KUSUR YAYINA GİDEN BİR SLAYTTA GÖRÜLDÜ:** başlık `Duruşlar` yerine
+    // `Duruşla` çıktı — son harf kartın sağ kenarında KESİLDİ. Sebep: CSS puntoyu İKİ
+    // çarpanla çarpıyor (gövde çarpanı 0,82 VE insanın verdiği punto çarpanı), ölçüm
+    // ise yalnız birincisini biliyordu. İnsan çarpanı 1,37 yapınca ölçüm "sığıyor"
+    // dediği boyutu buluyor, render onu 1,37 ile çarpıyor ve metin taşıyor.
+    //
+    // Aynı belgede ölçüldü — eski formül başlığı %16 şişiriyordu:
+    //   kart 1: 156 → 134 · kart 2: 150 → 129 · kart 3: 131 → 113 · kart 4: 157 → 136
+    //
+    // ⚠ Bu fonksiyonun KENDİ dokümanı *"kendi çarpanını bilmeyen oturma ölçümü hiçbir
+    // şey kanıtlamaz"* diyor ve gövde çarpanı için uygulanmıştı; ikinci çarpanda aynı
+    // ders yeniden öğrenildi.
+    const betik = puntoOlcumu(belge({}))
+    expect(betik, 'elle çarpan okunuyor').toContain('--ayar-olcek')
+    expect(betik, 'çarpana dahil ediliyor').toContain('* olcek')
+  })
+
   it('render ayarı gerçekten basıyor', () => {
     expect(SAHNE).toBeDefined()
     const html = panoramaHtml(belge({ baslik: { dx: 30, olcek: 1.25 } }))

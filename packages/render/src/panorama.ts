@@ -3527,8 +3527,20 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
       // Kapı gevşetilmiyor — cümle değişiyor (R-76).
       const elleEn = parseFloat(b.style.maxWidth)
       const sinir = Number.isFinite(elleEn) && elleEn > 0 ? elleEn : ${sutunSiniri}
-      const carpan = b.closest('.kart') && b.closest('.kart').classList.contains('ilk')
-        ? 1 : ${String(GOVDE_BASLIK_CARPANI)}
+      // ⚠ ⚠ **ELLE PUNTO ÇARPANI DA ÇARPANIN PARÇASI — bu ölçüm onu KAÇIRIYORDU.**
+      // Bu fonksiyonun kendi dokümanı *"kendi çarpanını bilmeyen oturma ölçümü hiçbir
+      // şey kanıtlamaz"* diyor ve gövde çarpanını hesaba katıyor. Ama CSS puntoyu İKİ
+      // çarpanla çarpıyor: gövde çarpanı VE insanın editörde verdiği punto çarpanı.
+      // İnsan çarpanı 1,5 yapınca ölçüm *"sığıyor"* dediği boyutu buluyor, render onu
+      // 1,5 ile çarpıyor ve başlık TAŞIYOR — altındaki gövde aşağı itiliyor. Depo
+      // sahibi: *"özellikle punto değiştirince, kutucuğu genişletince oldu."*
+      // Aynı ders, ikinci çarpanda tekrar öğrenildi.
+      //
+      // ⚠ Yorumda TERS TIRNAK YOK: bu metin bir şablon dizesinin içinde ve iki satır
+      // yukarıdaki uyarı tam bunu söylüyordu — yine de düştüm, ikinci kez.
+      const olcek = parseFloat(getComputedStyle(b).getPropertyValue('--ayar-olcek')) || 1
+      const carpan = (b.closest('.kart') && b.closest('.kart').classList.contains('ilk')
+        ? 1 : ${String(GOVDE_BASLIK_CARPANI)}) * olcek
       let alt = 20, ust = 168
       // 18 tur ikili arama: 148 px aralıkta 0,001 px çözünürlük — fazlası gereksiz.
       for (let k = 0; k < 18; k += 1) {
