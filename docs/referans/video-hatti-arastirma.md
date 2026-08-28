@@ -812,3 +812,64 @@ kurulacak mimari bir tahmindir.
 Bu turda öğrenilen ders tam da bu: `min-height` bir taban olduğu için oturma ölçümü
 tabana çöktü, bir şablonu tek başına okunmaz yaptı ve bunu ancak **çizip bakınca**
 gördüm. Video bu hatanın yirmi katını barındırıyor — çünkü zaman var.
+
+---
+
+# EK C · Kullanılacak açık kaynaklar — kesin liste
+
+Sürüm ve lisanslar 2026-08-28'de **doğrulandı**, tahmin yok. *Nasıl* sütunu önemli:
+bir bağımlılığı kurmakla kodunu ödünç almak aynı şey değil.
+
+## C.1 · Çekirdek — hattın gövdesi
+
+| ne | sürüm | lisans | nasıl | ne için |
+|---|---|---|---|---|
+| **hyperframes** | 0.8.17 | Apache-2.0 | `npx`, npm'den | **render motoru** — HTML ver, video al |
+| **ffmpeg** | 6.1.1 | LGPL/GPL | kurulu | kodlama, birleştirme, miksaj, kare çıkarma |
+| **playwright** | 1.62.1 | Apache-2.0 | kurulu | Chromium; yazılım tanıtımında ekran kaydı |
+
+## C.2 · Ses
+
+| ne | sürüm | lisans | nasıl | ne için |
+|---|---|---|---|---|
+| **edge-tts** | 7.2.8 | LGPL-3.0 | ayrı süreç | Türkçe seslendirme — **API anahtarı yok**, `tr-TR-EmelNeural` · `tr-TR-AhmetNeural` |
+| **faster-whisper** | 1.2.1 | MIT | kütüphane | Türkçe altyazı, `word_timestamps=True` — yerel, kotasız |
+| **Freesound** | — | CC0 süzgeci | varlık | ses efekti kütüphanesi (üretim değil, küratörlük) |
+| ACE-Step v1.5 | — | Apache-2.0 | **deney** | müzik üretimi — 6 GB'de koşar mı FAZ-20.1(d) |
+
+## C.3 · Görüntü kaynağı
+
+| ne | lisans | nasıl | ne için |
+|---|---|---|---|
+| **Pexels · Pixabay · Coverr** | kendi ücretsiz lisansları | API | stok görüntü — birincil yol |
+| **Archive.org · Wikimedia · NASA** | kamu malı / CC | API | arşiv görüntüsü |
+| **open-clip-torch** | 3.3.0 · MIT | kütüphane | **anlamsal eşleme** — "titreşim sensörü" → doğru klip |
+| **rembg** | 2.0.81 · MIT | zaten kurulu | arka plan silme (karosel hattı kullanıyor) |
+| **Pillow** | 12.3.0 | zaten kurulu | akıllı kırpma (`otomatik-kirp.py`) |
+
+## C.4 · Kod ödünç alınacaklar — kurulmuyor, OKUNUYOR
+
+Sahibin kararı: *"open source'lardan müthiş faydalanmak lazım, kod yazmak kontrol etmek
+zor iş."* Bunlar bağımlılık değil, **çözülmüş problem kaynağı**.
+
+| ne | ★ | lisans | ne alınacak |
+|---|---|---|---|
+| **OpenMontage** | 53k | AGPL-3.0 | `Documentary Montage` hattının yolu: CLIP indeksli ücretsiz arşivden tematik montaj. Aşama akışı (`research → script → scene_plan → assets → edit → compose`) ve *"director skill"* deseni |
+| **MoneyPrinterTurbo** | 118k | MIT | stok arama entegrasyonu; **altyazıyı TTS zaman damgalarından üretme** (GPU'suz); Edge TTS bağlama biçimi |
+| **@remotion/captions** | — | MIT | kelime zamanlaması → ekranda altyazı; çözülmüş bir problem |
+| **@remotion/transitions** | — | özel | geçiş kataloğu — **referans olarak okunacak**, kod alınmayacak |
+| **ffmpeg-analyse-video-skill** | 27 | — | üretilen videoyu **geri okuma**: kare çıkar, görüyle zaman damgalı özet. FAZ-20.13'ün aracı |
+| **rrweb** | 2.1.1 | MIT | oturumu olay akışı olarak kaydet → sonsuz yeniden çekim, sıfır maliyet |
+
+⚠ **AGPL notu:** depo private, dağıtım yok, ticari ürün yok — sahibin kararı: *"agpl
+bizi bağlamaz."* Kayıt için yazıldı, tartışma kapandı.
+
+## C.5 · Kullanılmayacaklar — ve gerekçesi
+
+| ne | neden |
+|---|---|
+| Remotion (motor olarak) | React ister; `panorama.ts`in bir yıllık CSS bilgisi taşınamaz. Yalnız MIT parçaları okunacak. |
+| Wan 2.2 · HunyuanVideo · LongCat · MiniMax H3 (yerel) | 6 GB VRAM, asgari 14–16 GB |
+| Raylight | çok-GPU; referans kurulum 4 × 22 GB |
+| Voicebox | Meta ağırlıkları hiç yayımlamadı |
+| WhisperX | Türkçe hizalama modeli varsayılanda yok; `faster-whisper` zaten yetiyor |
