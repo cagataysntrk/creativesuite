@@ -113,7 +113,7 @@ if (istem === null) {
 
 // ── sağlayıcı: hattın kullandığı adaptör ───────────────────────────────────
 const { descriptors } = loadDescriptors(join(REPO, 'registry/providers'))
-const ORTAM = saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID', 'CLAUDE_CODE_BIN'])
+const ORTAM = saglayiciOrtami(descriptors, readEnv)
 const adaptor = adapterById('claude-code')
 if (adaptor === null) {
   console.log('✗ `claude-code` adaptörü bulunamadı')

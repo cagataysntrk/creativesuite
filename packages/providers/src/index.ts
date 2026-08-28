@@ -56,7 +56,7 @@ export {
   validateImageInput,
   type Aspect,
 } from './image/lanes.js'
-export { cloudflareImage } from './image/cloudflare.js'
+export { cloudflareImage, cfHesaplari, type CfKimlik } from './image/cloudflare.js'
 export { falImage, FAL_UNIT_MICROS, FAL_UNIT_USD } from './image/fal.js'
 
 // INGEST araştırma şelalesi (FAZ-6.5). Sınır `@suite/kernel/ingest/boundary`ta ve

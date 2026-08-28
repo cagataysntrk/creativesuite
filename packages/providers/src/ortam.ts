@@ -55,13 +55,38 @@ export const authEnvNames = (descriptors: readonly ProviderDescriptor[]): readon
  * bir `auth_env` beyan edebiliyor, oysa Cloudflare iki değişken istiyor. `ek` bunun
  * için var ve çağıran açıkça verir — sessiz bir varsayım yerine görünür bir parametre.
  */
+/**
+ * `auth_env` OLMAYAN yardımcı değişkenler — tanımlayıcı bunları beyan edemiyor.
+ *
+ * ⚠ ⚠ **BU LİSTE ALTI ÇAĞIRANDA ELLE SAYILIYORDU ve tam bu dosyanın dokümanı onun bir
+ * gün ayrışacağını yazıyordu.** Yedinci değişken (`CF_HESAPLAR`) eklenirken ayrışma
+ * gerçekleşti: altı yerin altısını da güncellemek gerekiyordu ve biri unutulsa o giriş
+ * noktasında sağlayıcı sessizce *"yerel önkoşul sağlanmadı"* derdi. Liste artık TEK
+ * yerde; çağıran hiçbir şey saymıyor.
+ *
+ * ⚠ Bunlar SIR DEĞİL demek değil — `CF_HESAPLAR` hesap:token çiftleri taşıyor ve kasada
+ * duruyor. Buradaki liste yalnız *"hangi adlar alt sürece geçsin"* diyor; değerler
+ * `sops exec-env`den geliyor ve bu modül onları OKUMUYOR.
+ */
+export const YARDIMCI_DEGISKENLER: readonly string[] = [
+  // Cloudflare iki değişken istiyor; tanımlayıcı tek `auth_env` beyan edebiliyor.
+  'CF_ACCOUNT_ID',
+  // Çok hesaplı yedek zinciri: "hesap:token,hesap:token". Bir hesabın günlük kotası
+  // dolduğunda sıradakine geçiliyor.
+  'CF_HESAPLAR',
+  // Yerel ikilinin yolu — `claude-code` adaptörü onu çalıştırıyor.
+  'CLAUDE_CODE_BIN',
+]
+
 export const saglayiciOrtami = (
   descriptors: readonly ProviderDescriptor[],
   oku: (ad: string) => string | undefined,
   ek: readonly string[] = []
 ): Readonly<Record<string, string>> => {
   const sonuc: Record<string, string> = { PATH: oku('PATH') ?? '', HOME: oku('HOME') ?? '' }
-  for (const ad of [...authEnvNames(descriptors), ...ek]) {
+  // ⚠ Yardımcı değişkenler HER ZAMAN ekleniyor: çağıranın onları saymasına gerek yok
+  // ve saymayı unutması imkânsız. `ek` geriye dönük uyum için duruyor.
+  for (const ad of [...authEnvNames(descriptors), ...YARDIMCI_DEGISKENLER, ...ek]) {
     const v = oku(ad)
     if (v !== undefined && v !== '') sonuc[ad] = v
   }

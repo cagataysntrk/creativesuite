@@ -47,7 +47,7 @@ const { loadDescriptors, saglayiciOrtami } = await import(
 )
 const { readEnv } = await import(join(REPO, 'packages/kernel/dist/index.js'))
 const { descriptors } = loadDescriptors(join(REPO, 'registry/providers'))
-const SAGLAYICI_ORTAMI = saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID', 'CLAUDE_CODE_BIN'])
+const SAGLAYICI_ORTAMI = saglayiciOrtami(descriptors, readEnv)
 
 const PORT = Number(process.env['SUITE_PORT'] ?? 5177)
 

@@ -34,6 +34,20 @@ export const ASPECT_PIXELS: Record<Aspect, { readonly w: number; readonly h: num
   '16:9': { w: 1920, h: 1080 },
 }
 
+/**
+ * Bu HTTP kodunda SIRADAKİ KİMLİK denenmeli mi.
+ *
+ * ⚠ ⚠ **AYRIM KRİTİK: yanlış yapılırsa bütün hesaplar boşa yanar.** `429` (kota) ve
+ * `403` (kimlik kapalı/yetkisiz) kimliğe ÖZGÜ — başka bir hesap/anahtar başarabilir.
+ * `400` (bozuk istem) ve `500` ise kimlikten bağımsız: aynı isteği altı kez göndermek
+ * altı kez aynı cevabı alır, sadece daha yavaş ve altı kotayı da yakarak.
+ *
+ * ⚠ ⚠ **BU YÜKLEM İKİ ADAPTÖRDE AYRI AYRI YAZILMIŞTI** (`gemini.ts` anahtar rotasyonu,
+ * `cloudflare.ts` hesap rotasyonu). Bu deponun en sık tekrar eden hatası: aynı kural
+ * iki yerde, biri düzeltilir öteki unutulur. Kural burada, tek kopya.
+ */
+export const kimlikDegistir = (kod: number): boolean => kod === 429 || kod === 403
+
 export const imageCapability = (lanes: readonly Lane[]): CapabilityDecl => ({
   name: IMAGE_CAPABILITY,
   lanes,

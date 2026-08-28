@@ -26,6 +26,7 @@ import {
   ASPECT_PIXELS,
   assertNoTextSuffix,
   imageCapability,
+  kimlikDegistir,
   rangeFromUnit,
   validateImageInput,
   type Aspect,
@@ -118,6 +119,54 @@ const multipartGovde = (
 const ACCOUNT_ENV = 'CF_ACCOUNT_ID'
 const TOKEN_ENV = 'CF_API_TOKEN'
 
+/**
+ * ÇOK HESAP: `hesap:token,hesap:token` — değerler asla, yalnız ADI (R-51).
+ *
+ * ⚠ ⚠ **BU ALAN BİR KOTA KAZASINDAN DOĞDU.** Bedava katman GÜNDE 10.000 neuron veriyor
+ * ve bu ölçüldü: bir karosel (5 görsel × ~130 neuron) ~650 neuron, yani günde ~15
+ * karosel. Ama pahalı bir modeli bir kez denemek (`lucid-origin` ~3.400, `phoenix-1.0`
+ * ~2.900) tek çağrıda günün üçte birini yakıyor. Kota dolduğunda hat BEŞ görsel adımını
+ * da düşürüyor ve karosel görselsiz kalıyor — depo sahibinin gerçek koşusunda tam bu
+ * oldu (`run_01a04827`: iki adım kota hatası, üçü devre kesiciden `CIRCUIT_OPEN`).
+ *
+ * ⚠ Tek değişkende ÇİFT liste, çünkü Cloudflare iki değer istiyor ve tanımlayıcı tek
+ * `auth_env` beyan edebiliyor. Dördüncü hesap kasaya eklenir, kod değişmez.
+ */
+const HESAPLAR_ENV = 'CF_HESAPLAR'
+
+export interface CfKimlik {
+  readonly hesap: string
+  readonly token: string
+}
+
+/**
+ * Denenecek hesap zinciri: önce tekil değişkenler, sonra `CF_HESAPLAR` listesi.
+ *
+ * ⚠ Tekil `CF_ACCOUNT_ID`/`CF_API_TOKEN` ÖNDE ve destekten düşmedi: tek hesaplı bir
+ * kurulum (ve bütün mevcut testler) hiçbir şey değiştirmeden çalışmaya devam ediyor.
+ * ⚠ Aynı hesap iki kez denenmiyor — ikinci deneme birincinin cevabını tekrarlar,
+ * sadece süreyi ikiye katlayarak.
+ */
+export const cfHesaplari = (env: Readonly<Record<string, string>>): readonly CfKimlik[] => {
+  const hepsi: CfKimlik[] = []
+  const tekHesap = env[ACCOUNT_ENV] ?? ''
+  const tekToken = env[TOKEN_ENV] ?? ''
+  if (tekHesap !== '' && tekToken !== '') hepsi.push({ hesap: tekHesap, token: tekToken })
+  for (const parca of (env[HESAPLAR_ENV] ?? '').split(',')) {
+    const t = parca.trim()
+    if (t === '') continue
+    const ayrac = t.indexOf(':')
+    // ⚠ Ayraçsız ya da yarım bir giriş SESSİZCE ATLANMIYOR mu? Atlanıyor — ama bu
+    // bilinçli: kasaya elle yazılan listede sondaki virgül beklenen bir kaza ve yarım
+    // bir kimlikle çağrı yapmak, sağlayıcıya anlamsız bir 403 yedirmekten ibaret.
+    if (ayrac <= 0) continue
+    const kimlik = { hesap: t.slice(0, ayrac).trim(), token: t.slice(ayrac + 1).trim() }
+    if (kimlik.hesap === '' || kimlik.token === '') continue
+    if (!hepsi.some((x) => x.hesap === kimlik.hesap)) hepsi.push(kimlik)
+  }
+  return hepsi
+}
+
 // ⚠ ⚠ **İKİ ŞERİTTE DE ADAY — ve bu bir YEDEK ZİNCİRİ kararı.** Cloudflare bedava
 // şeridin varsayılanı; premium şeride de konmasının sebebi şu: premium bir koşuda
 // ücretli sağlayıcı düşerse (kota, arıza, anahtar) yönlendiricinin düşebileceği BAŞKA
@@ -165,7 +214,7 @@ export const cloudflareImage: ProviderAdapter = {
   estimate: (_vi: ValidatedInput): MoneyRange => rangeFromUnit(0n, 1),
 
   // SENKRON. Ağa çıkmaz; yalnız anahtarların TANIMLI olduğuna bakar.
-  available: (env) => (env[ACCOUNT_ENV] ?? '') !== '' && (env[TOKEN_ENV] ?? '') !== '',
+  available: (env) => cfHesaplari(env).length > 0,
 
   start: async (vi, ctx: ProviderContext): Promise<Result<JobHandle, AppError>> => {
     // İkinci savunma hattı: `validate()` atlanmış olabilir (test yardımcısı, replay,
@@ -173,12 +222,11 @@ export const cloudflareImage: ProviderAdapter = {
     const guvenli = assertNoTextSuffix(vi)
     if (!guvenli.ok) return err(guvenli.error)
 
-    const hesap = ctx.env[ACCOUNT_ENV] ?? ''
-    const token = ctx.env[TOKEN_ENV] ?? ''
-    if (hesap === '' || token === '') {
+    const hesaplar = cfHesaplari(ctx.env)
+    if (hesaplar.length === 0) {
       return err(
         hata('provider_auth', 'MISSING_CREDENTIALS', ctx.correlationId, {
-          needs: [ACCOUNT_ENV, TOKEN_ENV],
+          needs: [HESAPLAR_ENV, ACCOUNT_ENV, TOKEN_ENV],
         })
       )
     }
@@ -207,82 +255,162 @@ export const cloudflareImage: ProviderAdapter = {
             `sinir${vi.idempotencyKey.replace(/[^A-Za-z0-9]/g, '')}`
           )
 
-    const yanit = await httpFetch(
-      {
-        url: `https://api.cloudflare.com/client/v4/accounts/${hesap}/ai/run/${model.path}`,
-        method: 'POST',
-        headers: {
-          authorization: `Bearer ${token}`,
-          'content-type': mp === null ? 'application/json' : mp.contentType,
-          // Idempotency anahtarı BAŞLIKTA gider: sağlayıcı onu onurlandırmasa bile
-          // kayıt/replay ve sağlayıcı destek talebi için izlenebilirlik sağlar (R-44).
-          'idempotency-key': vi.idempotencyKey,
-        },
-        // **Boyut yalnız KABUL EDEN modele gönderilir.** flux-1-schnell fazladan
-        // alan görünce isteği tümden reddediyor — "göndersek de yok sayar" varsayımı
-        // ölçüldü ve yanlış çıktı.
-        // ⚠ ⚠ **`seed` YALNIZ `raw` TELİNDE ve bu bir ÖLÇÜM sonucu.** `flux-1-schnell`
-        // fazladan alan görünce isteği tümden reddediyor (width/height'ta ölçüldü);
-        // `stable-diffusion-xl-lightning` zaten boyut alıyor ve `seed`i de kabul ediyor.
-        //
-        // ⚠ ⚠ **TOHUM BURADA BİR SÜS DEĞİL, DÖRT ÖZDEŞ FOTOĞRAFIN İLACI.** Slayt başına
-        // görsele geçtikten sonra iki gerçek koşuda da dört çağrı BİREBİR AYNI kadrajı
-        // döndürdü. Sağlayıcı tohum göndermediğimizde kendi varsayılanını kullanıyor ve
-        // o varsayılan sabit: aynı ya da yakın istemler aynı görüntüye çöküyor. Kadraj
-        // tarifini güçlendirmek bir RİCA; tohum bir GARANTİ.
-        //
-        // ⚠ Determinizm bozulmuyor (R-06): tohum çağıranın kısıtından geliyor, yani
-        // yuva sırasının saf bir fonksiyonu. Aynı koşu her tekrarda aynı dört görseli verir.
-        body:
-          mp !== null
-            ? mp.govde
-            : JSON.stringify(
-                model.tel === 'raw'
-                  ? {
-                      prompt: vi.prompt,
-                      width: boyut.w,
-                      height: boyut.h,
-                      ...(tohum === null ? {} : { seed: Number(tohum) }),
-                    }
-                  : { prompt: vi.prompt }
-              ),
-        signal: ctx.signal,
-      },
-      ctx.correlationId as AppError['correlationId']
-    )
-    if (!yanit.ok) return err(yanit.error)
+    // ⚠ ⚠ **HESAP ZİNCİRİ: biri kotayı doldurursa sıradaki deneniyor.** Denenen hesabın
+    // SIRASI kayda giriyor, kimliği DEĞİL (R-51): *"ikinci hesap da kota yedi"* meşru
+    // bir hata ayrıntısı, hesap kimliğini yazmak sızıntı.
+    const denemeler: { readonly sira: number; readonly kod: number | string }[] = []
+    let base64 = ''
+    let sonHata: AppError | null = null
 
-    // İki tel biçimi, tek çıkış: base64. Adaptörün işi tam olarak bu — sağlayıcının
-    // şekli sınırı geçmez (R-43).
-    // ⚠ `multipart` istekte GİDEN biçimdir, DÖNENDE değil: yanıt `json` ile aynı
-    // şekilde geliyor (`{result:{image:<base64>}}`) ve model şeması da öyle diyor.
-    // İki şeyi tek adla anmak, bu depoda üç kez üretici/tüketici ayrışması doğurdu.
-    let base64: string
-    if (model.tel === 'raw') {
-      base64 = Buffer.from(await yanit.value.arrayBuffer()).toString('base64')
-      if (base64.length === 0) {
-        return err(
-          hata('provider_bad_response', 'MALFORMED_RESPONSE', ctx.correlationId, {
-            providerMessage: 'boş gövde',
-          })
+    for (const [i, kimlik] of hesaplar.entries()) {
+      const sonHesap = i + 1 >= hesaplar.length
+      const yanit = await httpFetch(
+        {
+          url: `https://api.cloudflare.com/client/v4/accounts/${kimlik.hesap}/ai/run/${model.path}`,
+          method: 'POST',
+          headers: {
+            authorization: `Bearer ${kimlik.token}`,
+            'content-type': mp === null ? 'application/json' : mp.contentType,
+            // Idempotency anahtarı BAŞLIKTA gider: sağlayıcı onu onurlandırmasa bile
+            // kayıt/replay ve sağlayıcı destek talebi için izlenebilirlik sağlar (R-44).
+            'idempotency-key': vi.idempotencyKey,
+          },
+          // **Boyut yalnız KABUL EDEN modele gönderilir.** flux-1-schnell fazladan
+          // alan görünce isteği tümden reddediyor — "göndersek de yok sayar" varsayımı
+          // ölçüldü ve yanlış çıktı.
+          // ⚠ ⚠ **`seed` YALNIZ `raw` TELİNDE ve bu bir ÖLÇÜM sonucu.** `flux-1-schnell`
+          // fazladan alan görünce isteği tümden reddediyor (width/height'ta ölçüldü);
+          // `stable-diffusion-xl-lightning` zaten boyut alıyor ve `seed`i de kabul ediyor.
+          //
+          // ⚠ ⚠ **TOHUM BURADA BİR SÜS DEĞİL, DÖRT ÖZDEŞ FOTOĞRAFIN İLACI.** Slayt başına
+          // görsele geçtikten sonra iki gerçek koşuda da dört çağrı BİREBİR AYNI kadrajı
+          // döndürdü. Sağlayıcı tohum göndermediğimizde kendi varsayılanını kullanıyor ve
+          // o varsayılan sabit: aynı ya da yakın istemler aynı görüntüye çöküyor. Kadraj
+          // tarifini güçlendirmek bir RİCA; tohum bir GARANTİ.
+          //
+          // ⚠ Determinizm bozulmuyor (R-06): tohum çağıranın kısıtından geliyor, yani
+          // yuva sırasının saf bir fonksiyonu. Aynı koşu her tekrarda aynı dört görseli verir.
+          body:
+            mp !== null
+              ? mp.govde
+              : JSON.stringify(
+                  model.tel === 'raw'
+                    ? {
+                        prompt: vi.prompt,
+                        width: boyut.w,
+                        height: boyut.h,
+                        ...(tohum === null ? {} : { seed: Number(tohum) }),
+                      }
+                    : { prompt: vi.prompt }
+                ),
+          signal: ctx.signal,
+        },
+        ctx.correlationId as AppError['correlationId']
+      )
+      // ⚠ AĞ düştüyse hesap değiştirmek anlamsız: sorun bizim tarafımızda ve sıradaki
+      // hesap aynı duvara çarpar.
+      if (!yanit.ok) return err(yanit.error)
+
+      // İki tel biçimi, tek çıkış: base64. Adaptörün işi tam olarak bu — sağlayıcının
+      // şekli sınırı geçmez (R-43).
+      // ⚠ `multipart` istekte GİDEN biçimdir, DÖNENDE değil: yanıt `json` ile aynı
+      // şekilde geliyor (`{result:{image:<base64>}}`) ve model şeması da öyle diyor.
+      // İki şeyi tek adla anmak, bu depoda üç kez üretici/tüketici ayrışması doğurdu.
+      // ⚠ ⚠ **HTTP DURUM KODU HİÇ BAKILMIYORDU — ve bu gerçek bir delikti.** `httpFetch`
+      // yalnız ağ düşerse `err` döner; 429, 500, 403 hepsi `ok: true` olarak geliyor ve
+      // durum kodu `Response`ın üstünde duruyor. `raw` dalı yalnız *"gövde boş mu"* diye
+      // bakıyordu, yani bir hata sayfasının baytları base64'lenip GÖRSEL diye
+      // döndürülebilirdi. Kardeş adaptörde (`gemini.ts`) bu kontrol vardı, burada yoktu.
+      const durum = yanit.value.status
+      if (durum < 200 || durum >= 300) {
+        denemeler.push({ sira: i + 1, kod: durum })
+        sonHata = hata(
+          durum === 429 ? 'provider_rate_limit' : 'provider_bad_response',
+          durum === 429 ? 'RATE_LIMITED' : 'HTTP_ERROR',
+          ctx.correlationId,
+          { status: durum, denemeler }
         )
+        // ⚠ Yalnız KİMLİĞE ÖZGÜ hatada sıradaki hesap deneniyor (kural `lanes.ts`te).
+        if (kimlikDegistir(durum) && !sonHesap) continue
+        return err(sonHata)
       }
-    } else {
-      const govde = (await yanit.value.json()) as {
-        success?: boolean
-        result?: { image?: string }
-        errors?: readonly { message?: string }[]
+
+      let cikan = ''
+      if (model.tel === 'raw') {
+        const ham = Buffer.from(await yanit.value.arrayBuffer())
+        // ⚠ ⚠ **BAYTIN GÖRÜNTÜ OLDUĞU DOĞRULANIYOR ve bunu GERÇEK BİR BOZULMA öğretti.**
+        // Depo sahibinin koşusunda `gorsel-01-elle.png` ve `gorsel-02-elle.png` 286 BAYT
+        // çıktı ve içleri şuydu:
+        //   `{"errors":[{"message":"AiError: you have used up your daily free allocation
+        //    of 10,000 neurons…"}],"success":false}`
+        // Yani kota hatası HTTP 200 ile döndü, `raw` dalı onu base64'ledi, *"boş değil"*
+        // diye geçirdi ve çağıran bir HATA METNİNİ `.png` olarak diske yazdı. Uzunluk
+        // kontrolü bir görüntü sınaması DEĞİLDİR.
+        //
+        // ⚠ Sihirli baytlar: PNG `89 50 4E 47`, JPEG `FF D8`. Bunlar dosyanın ilk
+        // baytları ve tek bir `content-type` başlığından daha güvenilir — başlık
+        // sağlayıcının İDDİASI, baytlar OLGU.
+        const gorseldir =
+          (ham[0] === 0x89 && ham[1] === 0x50 && ham[2] === 0x4e && ham[3] === 0x47) ||
+          (ham[0] === 0xff && ham[1] === 0xd8)
+        if (!gorseldir) {
+          return err(
+            hata('provider_bad_response', 'NOT_AN_IMAGE', ctx.correlationId, {
+              bayt: ham.length,
+              // ⚠ Gövdenin BAŞI taşınıyor (sağlayıcının hata metni okunabilsin) ama
+              // tamamı değil: yanıt şekli adaptör sınırını geçemez (R-43).
+              bas: ham.toString('utf8', 0, 160),
+            })
+          )
+        }
+        base64 = ham.toString('base64')
+      } else {
+        const govde = (await yanit.value.json()) as {
+          success?: boolean
+          result?: { image?: string }
+          errors?: readonly { message?: string; code?: number }[]
+        }
+        if (govde.success !== true || typeof govde.result?.image !== 'string') {
+          // ⚠ ⚠ **KOTA HATASI HTTP 200 İLE GELİYOR ve *"bozuk yanıt"* DEĞİLDİR.**
+          // Ölçüldü: günlük 10.000 neuron bitince uç `success:false` + `code: 4006`
+          // döndürüyor, durum kodu 200. İkisini aynı ada koymak, çözülebilir bir sorunu
+          // (*"yarın sıfırlanıyor"*) çözülemez bir sorun gibi gösterirdi — ve yedek
+          // zinciri de yanlış karar verirdi.
+          // ⚠ ⚠ **KOTA HATASI HTTP 200 İLE GELİYOR — durum kodu onu YAKALAYAMAZ.** Uç
+          // günlük tavan dolduğunda `success:false` + `code: 4006` döndürüyor ve HTTP 200
+          // diyor. Hesap rotasyonu bu dalda da olmak ZORUNDA: yalnız durum koduna bakan
+          // bir zincir ikinci hesabı HİÇ denemezdi.
+          const kota = (govde.errors ?? []).some((x) => x.code === 4006)
+          denemeler.push({ sira: i + 1, kod: kota ? 'kota' : 'bozuk-yanit' })
+          sonHata = hata(
+            kota ? 'provider_rate_limit' : 'provider_bad_response',
+            kota ? 'DAILY_QUOTA_EXHAUSTED' : 'MALFORMED_RESPONSE',
+            ctx.correlationId,
+            {
+              // Sağlayıcının hata METNİ taşınır ama sağlayıcı NESNESİ taşınmaz (R-43):
+              // yanıt şekli adaptör sınırını geçemez.
+              providerMessage: govde.errors?.[0]?.message ?? null,
+              denemeler,
+            }
+          )
+          if (kota && !sonHesap) continue
+          return err(sonHata)
+        }
+        cikan = govde.result.image
       }
-      if (govde.success !== true || typeof govde.result?.image !== 'string') {
-        return err(
-          hata('provider_bad_response', 'MALFORMED_RESPONSE', ctx.correlationId, {
-            // Sağlayıcının hata METNİ taşınır ama sağlayıcı NESNESİ taşınmaz (R-43):
-            // yanıt şekli adaptör sınırını geçemez.
-            providerMessage: govde.errors?.[0]?.message ?? null,
-          })
-        )
-      }
-      base64 = govde.result.image
+
+      base64 = cikan
+      break
+    }
+
+    // ⚠ ⚠ **BÜTÜN HESAPLAR TÜKENDİ.** Sessiz bir boş sonuç, yedek zincirinin (`yedek.ts`)
+    // devreye girmesini engeller ve koşu görselsiz biter — depo sahibinin `run_01a04827`
+    // koşusunda tam bu oldu.
+    if (base64 === '') {
+      return err(
+        sonHata ??
+          hata('internal', 'NO_ATTEMPT', ctx.correlationId, { hesapSayisi: hesaplar.length })
+      )
     }
 
     const handle: JobHandle = {

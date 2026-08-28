@@ -119,7 +119,7 @@ if (adapter === null) {
 }
 
 const { descriptors } = loadDescriptors(join(REPO, 'registry/providers'))
-const env = saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID'])
+const env = saglayiciOrtami(descriptors, readEnv)
 if ((env['CF_API_TOKEN'] ?? '') === '') {
   console.log('✗ CF_API_TOKEN ortamda yok — `sops exec-env` ile çalıştırın')
   process.exit(1)

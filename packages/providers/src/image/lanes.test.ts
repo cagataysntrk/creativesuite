@@ -3,7 +3,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { HttpResponse, http, mockServer } from '@suite/kernel/testing'
 import type { ProviderAdapter, ProviderInput } from '../types.js'
-import { cloudflareImage } from './cloudflare.js'
+import { cfHesaplari, cloudflareImage } from './cloudflare.js'
 import { falImage } from './fal.js'
 import { NO_TEXT_SUFFIX } from './prompt.js'
 
@@ -225,6 +225,150 @@ describe('bedava şerit — senkron uç', () => {
       expect(o.width, 'defter istenen ölçüyü yazıyor').toBe(1072)
       expect(o.height).toBe(1920)
     }
+  })
+
+  it('HESAP ZİNCİRİ: tekil değişkenler önce, `CF_HESAPLAR` sonra', () => {
+    const h = cfHesaplari({ CF_ACCOUNT_ID: 'a1', CF_API_TOKEN: 't1', CF_HESAPLAR: 'a2:t2,a3:t3' })
+    expect(h).toEqual([
+      { hesap: 'a1', token: 't1' },
+      { hesap: 'a2', token: 't2' },
+      { hesap: 'a3', token: 't3' },
+    ])
+  })
+
+  it('AYNI hesap iki kez denenmiyor, yarım giriş atlanıyor', () => {
+    // ⚠ Sondaki virgül ve ayraçsız giriş kasaya elle yazarken beklenen kaza; yarım bir
+    // kimlikle çağrı yapmak sağlayıcıya anlamsız bir 403 yedirmekten ibaret olurdu.
+    const h = cfHesaplari({
+      CF_ACCOUNT_ID: 'a1',
+      CF_API_TOKEN: 't1',
+      CF_HESAPLAR: 'a1:t1,bozuk,,a2:t2',
+    })
+    expect(h.map((x) => x.hesap)).toEqual(['a1', 'a2'])
+  })
+
+  it('KOTA DOLAN hesaptan SIRADAKİ hesaba geçiliyor (HTTP 200 + code 4006)', async () => {
+    // ⚠ ⚠ **BU SENARYO GERÇEK BİR KOŞUDA YAŞANDI** (`run_01a04827`): günlük 10.000
+    // neuron bitti, beş görsel adımının ikisi kota hatası aldı, üçü devre kesiciden
+    // `CIRCUIT_OPEN` yedi ve karosel GÖRSELSİZ kaldı. Kota hatası HTTP **200** ile
+    // geliyor — yalnız durum koduna bakan bir zincir ikinci hesabı hiç denemezdi.
+    let cagri = 0
+    server.use(
+      http.post('https://api.cloudflare.com/client/v4/accounts/:h/ai/run/*', () => {
+        cagri += 1
+        return cagri === 1
+          ? HttpResponse.json({
+              success: false,
+              errors: [{ code: 4006, message: 'daily free allocation' }],
+            })
+          : HttpResponse.json({ success: true, result: { image: 'IKINCIHESAP' } })
+      })
+    )
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '4:5' } }))
+    expect(v.ok).toBe(true)
+    if (!v.ok) return
+    const r = await cloudflareImage.start(v.value, ctx({ ...CF_ENV, CF_HESAPLAR: 'acc2:tok2' }))
+    expect(r.ok, 'ikinci hesap başardı').toBe(true)
+    expect(cagri, 'iki hesap denendi').toBe(2)
+    if (!r.ok) return
+    const s2 = await cloudflareImage.status(r.value)
+    if (s2.ok && s2.value.state === 'succeeded') {
+      expect((s2.value.output as { data: string }).data).toBe('IKINCIHESAP')
+    }
+  })
+
+  it('BÜTÜN hesaplar kota yerse hata AÇIKÇA dönüyor — sessiz boş sonuç yok', async () => {
+    // Sessiz bir boş sonuç, yedek zincirinin devreye girmesini engeller.
+    let cagri = 0
+    server.use(
+      http.post('https://api.cloudflare.com/client/v4/accounts/:h/ai/run/*', () => {
+        cagri += 1
+        return HttpResponse.json({ success: false, errors: [{ code: 4006, message: 'kota' }] })
+      })
+    )
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '4:5' } }))
+    if (!v.ok) return
+    const r = await cloudflareImage.start(v.value, ctx({ ...CF_ENV, CF_HESAPLAR: 'a2:t2,a3:t3' }))
+    expect(r.ok).toBe(false)
+    expect(cagri, 'üç hesabın üçü de denendi').toBe(3)
+    if (!r.ok) {
+      expect(r.error.code).toBe('DAILY_QUOTA_EXHAUSTED')
+      expect(r.error.kind, 'yedek zinciri devreye girebilsin').toBe('provider_rate_limit')
+    }
+  })
+
+  it('BOZUK İSTEM hatasında hesap DEĞİŞMİYOR — üç kota birden yanmasın', async () => {
+    // ⚠ 400 kimlikten bağımsız: aynı isteği üç kez göndermek üç kez aynı cevabı alır.
+    let cagri = 0
+    server.use(
+      http.post('https://api.cloudflare.com/client/v4/accounts/:h/ai/run/*', () => {
+        cagri += 1
+        return HttpResponse.text('bad input', { status: 400 })
+      })
+    )
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '4:5' } }))
+    if (!v.ok) return
+    const r = await cloudflareImage.start(v.value, ctx({ ...CF_ENV, CF_HESAPLAR: 'a2:t2,a3:t3' }))
+    expect(r.ok).toBe(false)
+    expect(cagri, 'YALNIZ ilk hesap denendi').toBe(1)
+  })
+
+  it('GÜNLÜK KOTA hatası "bozuk yanıt" değil KOTA olarak sınıflanıyor', async () => {
+    // ⚠ ⚠ **BU AYRIM GERÇEK BİR KOŞUDA ÖNEM KAZANDI.** Günlük 10.000 neuron bitince uç
+    // `success:false` + `code: 4006` döndürüyor — üstelik HTTP 200 ile. İkisini aynı ada
+    // koymak, çözülebilir bir sorunu (*"yarın 00:00 UTC'de sıfırlanıyor"*) çözülemez bir
+    // sorun gibi gösterirdi; yedek zinciri de yanlış karar verirdi.
+    server.use(
+      http.post('https://api.cloudflare.com/client/v4/accounts/:h/ai/run/*', () =>
+        HttpResponse.json({
+          success: false,
+          errors: [{ code: 4006, message: 'you have used up your daily free allocation' }],
+        })
+      )
+    )
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '1:1' } }))
+    expect(v.ok).toBe(true)
+    if (!v.ok) return
+    const r = await cloudflareImage.start(v.value, ctx(CF_ENV))
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.error.code).toBe('DAILY_QUOTA_EXHAUSTED')
+      expect(r.error.kind, 'yedek zinciri bunu kota sayabilmeli').toBe('provider_rate_limit')
+    }
+  })
+
+  it('HTTP HATA KODU yakalanıyor — 500 bir görsel değildir', async () => {
+    // ⚠ ⚠ **BU KONTROL YOKTU ve gerçek bir delikti.** `httpFetch` yalnız AĞ düşerse
+    // hata döndürür; 429/500/403 hepsi `ok: true` olarak gelir ve durum kodu
+    // `Response`ın üstündedir. Kardeş adaptörde (`gemini.ts`) bu kontrol vardı,
+    // burada yoktu.
+    server.use(
+      http.post('https://api.cloudflare.com/client/v4/accounts/:h/ai/run/*', () =>
+        HttpResponse.text('gateway error', { status: 500 })
+      )
+    )
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '4:5' } }))
+    expect(v.ok).toBe(true)
+    if (!v.ok) return
+    const r = await cloudflareImage.start(v.value, ctx(CF_ENV))
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.error.code).toBe('HTTP_ERROR')
+      expect(r.error.details?.['status']).toBe(500)
+    }
+  })
+
+  it('429 KOTA sayılıyor — yedek zinciri doğru karar versin', async () => {
+    server.use(
+      http.post('https://api.cloudflare.com/client/v4/accounts/:h/ai/run/*', () =>
+        HttpResponse.text('rate limited', { status: 429 })
+      )
+    )
+    const v = cloudflareImage.validate(girdi({ constraints: { aspect: '4:5' } }))
+    if (!v.ok) return
+    const r = await cloudflareImage.start(v.value, ctx(CF_ENV))
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.error.kind).toBe('provider_rate_limit')
   })
 
   it('bozuk yanıt sessizce kabul EDİLMİYOR', async () => {

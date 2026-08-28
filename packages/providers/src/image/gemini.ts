@@ -47,6 +47,7 @@ import {
   ASPECT_PIXELS,
   assertNoTextSuffix,
   imageCapability,
+  kimlikDegistir,
   rangeFromUnit,
   validateImageInput,
   type Aspect,
@@ -116,15 +117,12 @@ export const anahtarlar = (env: Readonly<Record<string, string>>): readonly stri
 ]
 
 /**
- * Bu HTTP kodunda SIRADAKİ ANAHTAR denenmeli mi.
+ * Bu HTTP kodunda SIRADAKİ ANAHTAR denenmeli mi — kural `lanes.ts`te, TEK kopya.
  *
- * ⚠ ⚠ **AYRIM BURADA ve yanlış yapılırsa altı anahtar da boşa yanar.** `429` (kota) ve
- * `403` (anahtar kapalı/yetkisiz) anahtara ÖZGÜ: başka bir anahtar başarabilir. `400`
- * (bozuk istem) ve `500` ise anahtardan bağımsız — aynı isteği altı kez göndermek altı
- * kez aynı cevabı alır, sadece daha yavaş. Kota hatasını "geçici ağ hatası" gibi
- * görüp beklemek de yanlış olurdu: `limit: 0` beklemekle geçmiyor.
+ * ⚠ Aynı yüklem `cloudflare.ts`in hesap rotasyonunda da gerekiyor; iki adaptöre ayrı
+ * yazmak, bu deponun en sık tekrar eden hatasını bir kez daha yapmaktı.
  */
-export const anahtarDegistir = (kod: number): boolean => kod === 429 || kod === 403
+export const anahtarDegistir = kimlikDegistir
 
 export const geminiImage: ProviderAdapter = {
   id: ID,

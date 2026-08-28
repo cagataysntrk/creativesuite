@@ -50,7 +50,7 @@ const sonuc = plan({
   // bile her sağlayıcıyı "yerel önkoşul sağlanmadı" diye eliyordu (D-237). Ortam
   // artık tanımlayıcıların `auth_env` beyanından türetiliyor; elle sayılan liste yok.
   // Okuyucu TEK: `readEnv` (secret-okuyucu darboğazı, §14).
-  env: saglayiciOrtami(descriptors, readEnv, ['CF_ACCOUNT_ID', 'CLAUDE_CODE_BIN']),
+  env: saglayiciOrtami(descriptors, readEnv),
   pricing: Object.fromEntries(
     descriptors
       .filter((d) => d.enabled)

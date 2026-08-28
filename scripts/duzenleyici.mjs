@@ -90,10 +90,9 @@ const { descriptors: TANIMLAYICILAR } = loadDescriptors(join(REPO, 'registry/pro
 // ⚠ `CLAUDE_CODE_BIN` de kapsamda: boş yuva doldurma brief'i METİN sağlayıcısından
 // alıyor (hattaki `gorsel-brief` adımının aynısı) ve o adaptör ikilinin yolunu ortamdan
 // okuyor. Listede olmayan bir anahtar, adaptöre HİÇ ulaşmıyor.
-const SAGLAYICI_ORTAMI = saglayiciOrtami(TANIMLAYICILAR, readEnv, [
-  'CF_ACCOUNT_ID',
-  'CLAUDE_CODE_BIN',
-])
+// ⚠ Yardımcı değişkenler (`CF_ACCOUNT_ID`, `CF_HESAPLAR`, `CLAUDE_CODE_BIN`) artık
+// `saglayiciOrtami`nın içinde beyan ediliyor — altı çağıran onları elle sayıyordu.
+const SAGLAYICI_ORTAMI = saglayiciOrtami(TANIMLAYICILAR, readEnv)
 
 const f = fontCss(join(REPO, 'brand/brd_upcytech/fonts'))
 const tokenCss = readFileSync(join(REPO, 'brand/brd_upcytech/derived-tokens/tokens.css'), 'utf8')
@@ -314,6 +313,53 @@ const kaynakKunyesiniSil = (dizin, sira) => {
  * silmeye gerek yoktu"* ayrı şeyler ve ikincisi bir yalan olurdu (rembg adaptörünün
  * kendi yorumu da aynı cümleyi kuruyor).
  */
+/**
+ * Bu bayt gerçekten bir GÖRÜNTÜ mü — yuvaya yazmadan önceki son savunma.
+ *
+ * ⚠ ⚠ **BU KONTROL BİR BOZULMADAN DOĞDU.** Depo sahibinin koşusunda
+ * `gorsel-01-elle.png` ve `gorsel-02-elle.png` 286 BAYT çıktı ve içleri şuydu:
+ *   `{"errors":[{"message":"AiError: you have used up your daily free allocation of
+ *    10,000 neurons…"}],"success":false}`
+ * Editör *"✓ yuva dolduruldu"* dedi, dosya adı geldi, ama görsel görünmedi — şikâyet
+ * birebir buydu: *"doldu diyor, görsel adı geliyor ama kendisi görünmüyor."*
+ *
+ * ⚠ Asıl delik adaptördeydi ve orada kapandı (durum kodu + sihirli bayt kontrolü). Bu
+ * kontrol İKİNCİ savunma hattı: yuvaya yazan beş ayrı yol var (üret, doldur, koy,
+ * ikon-raster, ikon-vektör) ve baytlar arada iki Python betiğinden de geçiyor. Yazma
+ * ANINDA bakmak, hangi yoldan gelirse gelsin bozuk baytı yakalar.
+ *
+ * ⚠ Sihirli baytlar başlıktan güvenilir: `content-type` sağlayıcının İDDİASI, ilk dört
+ * bayt OLGU. PNG `89 50 4E 47` · JPEG `FF D8` · WebP `RIFF....WEBP`.
+ */
+const gorselBaytiMi = (buf) =>
+  (buf.length > 8 &&
+    ((buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) ||
+      (buf[0] === 0xff && buf[1] === 0xd8) ||
+      (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP'))) ||
+  false
+
+/**
+ * Yuvaya görsel yazar — bayt DOĞRULANARAK.
+ *
+ * ⚠ Hata bir DEĞER olarak dönüyor, `throw` edilmiyor (§8.6): çağıran onu kullanıcıya
+ * gösterebilsin. Sessizce yazmamak, *"doldu"* diyen bir ekranla aynı yalan olurdu.
+ */
+const yuvayaYaz = (dizin, ad, b64) => {
+  const buf = Buffer.from(b64, 'base64')
+  if (!gorselBaytiMi(buf)) {
+    return {
+      ok: false,
+      sebep:
+        'gelen bayt bir görüntü DEĞİL (' +
+        buf.length +
+        ' bayt) — yuvaya yazılmadı: ' +
+        buf.toString('utf8', 0, 120).replace(/\s+/g, ' '),
+    }
+  }
+  writeFileSync(join(dizin, ad), buf)
+  return { ok: true }
+}
+
 const gorselBetigi = async (betik, b64, argv = []) => {
   const { spawnSync } = await import('node:child_process')
   const python = join(REPO, '.venv-gorsel/bin/python')
@@ -631,6 +677,60 @@ const belge = (id) => ({
   ...calisan[id],
 })
 
+/**
+ * Süreç, DİSKTEKİ koddan eski mi — bayat tezgâh uyarısı.
+ *
+ * ⚠ ⚠ **BU KONTROL, SAATLERCE GÖRÜNMEZ KALAN BİR TUZAKTAN DOĞDU.** Depo sahibi
+ * *"yuvayı doldur"* diyordu, ekran *"✓ 1. yuva dolduruldu"* diyordu ve slot boş
+ * geliyordu. Sebep koddaki bir kusur DEĞİLDİ — kusur çoktan düzeltilmişti; ama editör
+ * süreci **13 saat önce** başlamıştı ve düzeltmeleri hiç görmemişti. Eski sürüm kota
+ * hatasını base64'leyip `.png` diye diske yazıyordu.
+ *
+ * ⚠ Bir hata mesajı bu durumu ASLA gösteremez, çünkü koşan kodun kendisi eski. Tek
+ * çare dışarıdan bakmak: sürecin başlangıç anı ile dosyaların değişme anını
+ * karşılaştırmak. `tezgah.sh` port doluluğunu uyarıyordu ama süreç ayaktayken sessizdi.
+ *
+ * ⚠ Kontrol HER SAYFA ÇİZİMİNDE koşuyor, açılışta bir kez değil: kod düzenlenirken
+ * editör zaten açık duruyor ve asıl tehlikeli an tam o an.
+ */
+const IZLENEN_KAYNAKLAR = [
+  join(REPO, 'scripts/duzenleyici.mjs'),
+  join(REPO, 'scripts/duzenleyici-istemci.js'),
+  join(REPO, 'packages/providers/dist/index.js'),
+  join(REPO, 'packages/render/dist/index.js'),
+]
+
+/**
+ * Açılış anındaki dosya damgaları — SAAT KULLANILMIYOR.
+ *
+ * ⚠ ⚠ **İLK YAZIM `Date.now()` ÇAĞIRIYORDU ve `chokepoints` kapısı REDDETTİ** (saat
+ * darboğazı, §3.8: iki saat replay'i bozar). Kapı haklıydı ve zorladığı çözüm DAHA
+ * DOĞRU çıktı: *"başlangıçtan yeni mi"* değil, *"açılışta gördüğümden FARKLI mı"*
+ * soruluyor. Damga karşılaştırması saat istemiyor ve geri alınan bir değişikliği de
+ * yakalıyor — zaman karşılaştırması onu kaçırırdı.
+ */
+const ACILIS_DAMGALARI = new Map(
+  IZLENEN_KAYNAKLAR.map((f) => {
+    try {
+      return [f, statSync(f).mtimeMs]
+    } catch {
+      // Dosya yoksa damga da yok; sonradan doğarsa DEĞİŞİM sayılır ve bu doğru.
+      return [f, null]
+    }
+  })
+)
+
+const bayatKaynaklar = () =>
+  IZLENEN_KAYNAKLAR.filter((f) => {
+    let simdiki = null
+    try {
+      simdiki = statSync(f).mtimeMs
+    } catch {
+      simdiki = null
+    }
+    return simdiki !== ACILIS_DAMGALARI.get(f)
+  }).map((f) => f.replace(REPO + '/', ''))
+
 const KABUK = (
   id,
   elenmisDe = false
@@ -777,6 +877,17 @@ const KABUK = (
   <button class="birincil" id="kaydet">JSON'u yaz</button>
   <span id="ipucu">metne tıkla → düzenle · görseli sürükle → taşı · Shift+sürükle → ölçekle</span>
 </header>
+${
+  bayatKaynaklar().length === 0
+    ? ''
+    : `<div style="background:#7a1f1f;color:#fff;padding:10px 14px;font:600 13px ui-sans-serif;
+         border-bottom:2px solid #ff5a5a">
+       ⚠ BAYAT TEZGÂH — bu süreç ${bayatKaynaklar().length} dosyadan ESKİ ve onları
+       görmüyor: ${bayatKaynaklar().join(' · ')}.
+       Ne yaparsan yap eski kod koşuyor; düzeltmeler etkisiz.
+       <b>Tezgâhı yeniden başlat</b> (just dev).
+     </div>`
+}
 <div id="govde">
   <div id="tuval"><div id="sahne-sarmal"><iframe id="pano"></iframe><div id="kilavuz"></div></div></div>
   <aside id="mufettis"></aside>
@@ -1437,7 +1548,8 @@ const sunucu = createServer(async (req, res) => {
       if (!uretim.ok) return res.end('✗ ' + uretim.sebep)
       const b64 = uretim.b64
       const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'
-      writeFileSync(join(k.dizin, ad), Buffer.from(b64, 'base64'))
+      const yazim = yuvayaYaz(k.dizin, ad, b64)
+      if (!yazim.ok) return res.end('✗ ' + yazim.sebep)
       kaynakKunyesiniSil(k.dizin, d.i + 1)
       anlikGoruntuAl(id)
       calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + b64 }
@@ -1529,7 +1641,11 @@ const sunucu = createServer(async (req, res) => {
         const son = kirp.ok ? kirp.b64 : kirpma.ok ? kirpma.b64 : uretim.b64
         const kirpOlcum = /kirpma-orani=([0-9.]+)/.exec(kirp.olcum ?? '')?.[1]
         const ad = 'gorsel-' + String(i + 1).padStart(2, '0') + '-elle.png'
-        writeFileSync(join(k.dizin, ad), Buffer.from(son, 'base64'))
+        const yazim = yuvayaYaz(k.dizin, ad, son)
+        if (!yazim.ok) {
+          satirlar.push('✗ ' + (i + 1) + '. yuva: ' + yazim.sebep)
+          continue
+        }
         // ⚠ Webden gelen bir görselin künyesi bu yuvada duruyorsa SİLİNİYOR: üretilmiş
         // bir görsele başkasının lisansını iliştirmek yanlış bir atıftır.
         kaynakKunyesiniSil(k.dizin, i + 1)
