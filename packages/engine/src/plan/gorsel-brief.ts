@@ -19,7 +19,7 @@
 // YAZILDI ve yalnız KADRAJDA NE OLDUĞUNU söylüyor. İstenmeyen şeyi adıyla anmayan bir
 // istem, o adı çıktıya sızdıramaz.
 
-import { sablonBul } from '@suite/contracts'
+import { sablonBul, zeminKoyuMu } from '@suite/contracts'
 
 export interface GorselBriefGirdisi {
   /** Katalog şablonunun kimliği — `sablon-uyarla` adımının seçtiği. */
@@ -116,6 +116,25 @@ export const gorselBriefIstemi = (g: GorselBriefGirdisi): string => {
           ...seri,
         ]),
     `keep this technical base: ${kayit.gorsel.briefTemeli}`,
+    // ⚠ ⚠ **ÖZNENİN DEĞERİ KARTA GÖRE SEÇİLİYOR — ve bu satır olmadığı için iki gerçek
+    // karosel görünmez çıktı.** Brief düz siyah zemin istiyor (alfa oradan türetiliyor,
+    // doğru); ama kesildikten sonra öznenin nereye oturacağını soran kimse yoktu.
+    // Ölçüm: koyu kartta kömür rengi bir kulak, p90 luma farkı 47 (eşik 120); kâğıt
+    // kartta beyaz bir kumsaati, aynı kusur ters yönde. Zemin katalogda ZATEN yazılı
+    // (`KatalogSablonu.zemin`) ve bu fonksiyon `sablonBul`u zaten çağırıyordu — eksik
+    // olan tek şey onu okumaktı.
+    //
+    // ⚠ İstenmeyen şey ADIYLA ANILMIYOR (R-20 muhafızı olumsuzlamada yanlış pozitif
+    // veriyor): *"koyu olmasın"* demek yerine *"açık değerde olsun"* deniyor.
+    ...(zeminKoyuMu(kayit.zemin)
+      ? [
+          'the cut out object will sit on a very dark card, so give it a light value:',
+          'pale, bright or polished surfaces that stay readable against a near black surround.',
+        ]
+      : [
+          'the cut out object will sit on a bright pale card, so give it a deep value:',
+          'dark, rich or shadowed surfaces that stay readable against a near white surround.',
+        ]),
     ...(g.gorselDili === '' ? [] : [`visual language for this whole set: ${g.gorselDili}`]),
     // ⚠ Varyant KADRAJI söylüyor, ÖZNEYİ değil: aynı konudan N özdeş görsel çıkmasın.
     ...(varyant === undefined ? [] : [`frame it like this: ${varyant}`]),

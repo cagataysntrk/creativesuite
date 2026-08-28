@@ -332,6 +332,44 @@ function mufettisiKur(doc) {
     p.className = 'bos'
     p.textContent = 'görsel ' + (secili.i + 1) + ' — alanları aşağıda'
     kok.appendChild(p)
+
+    // ── BU GÖRSELİ HANGİ İSTEM ÜRETTİ ───────────────────────────────────────
+    //
+    // ⚠ ⚠ **DEPO SAHİBİ: *"editörde görsele tıklayınca sağ panelde promptu gör."***
+    // Model beklenmedik bir şey çizdiğinde ilk soru *"ona ne dedik"* oluyor. O cevap
+    // hattın defterinde vardı (`steps/gorsel-brief*.json`) ama editörde hiç yoktu ve
+    // editörden üretilen istem hiçbir yere yazılmıyordu — konsola basılıp kayboluyordu.
+    //
+    // ⚠ Sunucu KAYNAĞI da söylüyor (`hat` mı `editör` mü): `-elle` bir görsel hattınkini
+    // eziyor, o yüzden istemi de eziyor. Hangi istemin geçerli olduğunu göstermeden
+    // istem göstermek, yanlış cevabı güvenle vermek olurdu.
+    const kutu = document.createElement('div')
+    kutu.className = 'bos'
+    kutu.textContent = 'istem okunuyor…'
+    kok.appendChild(kutu)
+    fetch('/gorsel-istem?id=' + id + '&i=' + secili.i)
+      .then((r) => r.json())
+      .then((j) => {
+        if (j.ok !== true) {
+          kutu.textContent = '— ' + (j.sebep ?? 'istem yok')
+          return
+        }
+        kutu.textContent = ''
+        const b = document.createElement('b')
+        b.textContent = 'istem (' + j.kaynak + (j.saglayici ? ' · ' + j.saglayici : '') + ')'
+        const m = document.createElement('div')
+        m.textContent = j.istem
+        // ⚠ Uzun brief SARILIYOR ve seçilebilir: kopyalanamayan bir istem, hata
+        // ayıklarken yeniden yazılmak zorunda kalır.
+        m.style.cssText =
+          'white-space:pre-wrap;user-select:text;font:11px/1.45 ui-monospace,monospace;' +
+          'margin-top:4px;max-height:180px;overflow:auto;opacity:.85'
+        kutu.appendChild(b)
+        kutu.appendChild(m)
+      })
+      .catch(() => {
+        kutu.textContent = '✗ istem alınamadı'
+      })
   } else {
     const a = (doc.kartlar[secili.i]?.ayar ?? {})[secili.alan] ?? {}
     const yazAyar = (k, v) =>
@@ -484,11 +522,70 @@ function mufettisiKur(doc) {
     const g = doc.gorseller[secili.i] ?? {}
     const yazG = (alan, v) => yaz({ tur: 'gorsel-alan', i: secili.i, alan, deger: v })
     baslikEkle(kok, 'GÖRSEL ' + (secili.i + 1))
+
+    // ── TAM GÖRSELİ OTURT ───────────────────────────────────────────────────
+    //
+    // ⚠ ⚠ **DEPO SAHİBİ: *"tam görseli oturt diye bir buton, şablon sınırını
+    // aşabiliriz."*** Dert ölçülmüştü: yuva 432×1339 (oran 0,32), görsel 1024×1280
+    // (oran 0,80) ve `object-fit: cover` genişliğin %60'ını kesiyordu. Kesen bir
+    // kırpma adımı YOK — kesen, kutuyu doldurmaya çalışan tarayıcı.
+    //
+    // ⚠ ⚠ **ALAN KORUNUYOR, tek eksen zorlanmıyor.** Yalnız genişliği büyütmek kutuyu
+    // 432→1071 px yapar ve komşu metin kolonunu ezer; yalnız yüksekliği kısmak
+    // 1339→540 yapar ve görseli cüceleştirir. Alanı sabit tutup iki ekseni birden
+    // çözmek görsel ağırlığı korur: 432×1339 → 680×850.
+    // ⚠ Sınır şablonunkinden GENİŞ (%2–100 ve %5–200): sahibin istediği tam olarak
+    // şablon sınırını aşabilmek. Denetim taşmayı zaten ölçüyor; burada karar insanın.
+    {
+      const dugme = document.createElement('button')
+      dugme.textContent = '⛶ tam görseli oturt'
+      dugme.title = 'kutuyu görselin oranına getirir — kesme biter'
+      dugme.onclick = () => {
+        const belge = $('#pano')?.contentDocument
+        const oge = belge?.querySelectorAll('.gorsel,.gorsel-yer')[secili.i]
+        const gw = oge?.naturalWidth ?? 0
+        const gh = oge?.naturalHeight ?? 0
+        if (gw <= 0 || gh <= 0) {
+          mesaj('✗ görselin kendi ölçüsü okunamadı (henüz yüklenmemiş olabilir)')
+          return
+        }
+        const oran = gw / gh
+        const tuvalEn = (sonDoc.slaytGenisligi ?? 1080) * (sonDoc.kartlar ?? []).length
+        const tuvalBoy = sonDoc.yukseklik ?? 1350
+        const enPx = (g.genislik / 100) * tuvalEn
+        const boyPx = (g.yukseklik / 100) * tuvalBoy
+        const alan = Math.max(1, enPx * boyPx)
+        const yeniBoy = Math.sqrt(alan / oran)
+        const yeniEn = yeniBoy * oran
+        yaz({
+          tur: 'gorsel',
+          i: secili.i,
+          genislik: +((yeniEn / tuvalEn) * 100).toFixed(2),
+          yukseklik: +((yeniBoy / tuvalBoy) * 100).toFixed(2),
+        })
+        mesaj(
+          '⛶ kutu ' +
+            Math.round(enPx) +
+            '×' +
+            Math.round(boyPx) +
+            ' → ' +
+            Math.round(yeniEn) +
+            '×' +
+            Math.round(yeniBoy) +
+            ' (görsel oranı ' +
+            oran.toFixed(2) +
+            ') — kesme bitti'
+        )
+      }
+      kok.appendChild(dugme)
+    }
+
     for (const a of [
       { ad: 'x', etiket: 'sol (%)', min: -20, max: 100, adim: 0.1 },
       { ad: 'y', etiket: 'üst (%)', min: -20, max: 100, adim: 0.1 },
-      { ad: 'genislik', etiket: 'genişlik (%)', min: 2, max: 60, adim: 0.1 },
-      { ad: 'yukseklik', etiket: 'yükseklik (%)', min: 5, max: 120, adim: 0.5 },
+      // ⚠ Tavan şablonunkinden GENİŞ: sahibin isteği şablon sınırını aşabilmek.
+      { ad: 'genislik', etiket: 'genişlik (%)', min: 2, max: 100, adim: 0.1 },
+      { ad: 'yukseklik', etiket: 'yükseklik (%)', min: 5, max: 200, adim: 0.5 },
     ]) {
       if (g[a.ad] === undefined) continue
       kok.appendChild(kaydirak(g[a.ad], a, (v) => yazG(a.ad, v)))

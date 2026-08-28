@@ -339,6 +339,63 @@ const gorselBaytiMi = (buf) =>
   false
 
 /**
+ * Bir yuvanın görselini HANGİ İSTEM ürettiğini yazar.
+ *
+ * ⚠ ⚠ **DEPO SAHİBİ: *"yuvayı doldurunca gelen görsellerin hangi promptla üretildiği
+ * görülsün."*** Ve dert gerçek: model beklenmedik bir şey çizdiğinde tek soru *"ona ne
+ * dedik"* oluyor. Hat bu cevabı `steps/gorsel-brief*.json` içinde tutuyordu; editörden
+ * üretilen görselde ise istem hiçbir yere yazılmıyordu — konsola bir kez basılıp
+ * kayboluyordu. Aynı soru iki yolda iki farklı cevap veriyordu: birinde defter, ötekinde
+ * hiçbir şey.
+ *
+ * ⚠ Yan dosya, `.kaynak.json` ile aynı kalıp (Yasa 7: varlık üretim anında damgalanır).
+ * Sonradan retrofit imkânsız — istem üretildiği an yazılmazsa bir daha bilinmez.
+ */
+const istemKunyesiniYaz = (dizin, sira, istem, saglayici) => {
+  const ad = 'gorsel-' + String(sira).padStart(2, '0') + '-elle.istem.json'
+  try {
+    writeFileSync(
+      join(dizin, ad),
+      JSON.stringify({ istem, saglayici: saglayici ?? null, kaynak: 'editor' }, null, 2)
+    )
+  } catch {
+    // İstem künyesi yazılamazsa görsel yine de geçerli: künye bir KOLAYLIK, kanıt değil.
+  }
+}
+
+/**
+ * Bir yuvanın istemi — önce editörün yan dosyası, sonra HATTIN brief adımı.
+ *
+ * ⚠ Sıra önemli: `-elle` bir görsel hattınkini EZİYOR, o yüzden istem de öyle. Hattın
+ * brief'ini gösterip diskteki görselin editörden geldiğini söylememek, yanlış cevabı
+ * güvenle vermek olurdu.
+ */
+const yuvaninIstemi = (dizin, sira) => {
+  const yan = join(dizin, 'gorsel-' + String(sira).padStart(2, '0') + '-elle.istem.json')
+  if (existsSync(yan)) {
+    try {
+      const j = JSON.parse(readFileSync(yan, 'utf8'))
+      return { kaynak: 'editör', istem: String(j.istem ?? ''), saglayici: j.saglayici ?? null }
+    } catch {
+      /* bozuk yan dosya: hatta düşülüyor */
+    }
+  }
+  // Hattın brief adımı: 1. yuva `gorsel-brief.json`, sonrakiler `-2`, `-3`…
+  const adim = sira === 1 ? 'gorsel-brief.json' : 'gorsel-brief-' + String(sira) + '.json'
+  const yol = join(dizin, 'steps', adim)
+  if (!existsSync(yol)) return null
+  try {
+    const j = JSON.parse(readFileSync(yol, 'utf8'))
+    const satir = (j.lines ?? [])[0]
+    return typeof satir === 'string' && satir !== ''
+      ? { kaynak: 'hat', istem: satir, saglayici: null }
+      : null
+  } catch {
+    return null
+  }
+}
+
+/**
  * Yuvaya görsel yazar — bayt DOĞRULANARAK.
  *
  * ⚠ Hata bir DEĞER olarak dönüyor, `throw` edilmiyor (§8.6): çağıran onu kullanıcıya
@@ -1529,6 +1586,19 @@ const sunucu = createServer(async (req, res) => {
     //
     // ⚠ Sonuç `-elle` ekiyle diske yazılıyor: hattın ürettiği asıl görsel yerinde
     // kalıyor ve ikisi karşılaştırılabiliyor (aynı kural `/gorsel-koy`da da var).
+    // ⚠ ⚠ **DEPO SAHİBİ: *"editörde görsele tıklayınca sağ panelde promptu gör."***
+    // Model beklenmedik bir şey çizdiğinde ilk soru *"ona ne dedik"* oluyor ve o cevap
+    // şimdiye kadar yalnız hattın defterinde vardı, editörde hiç yoktu.
+    if (u.pathname === '/gorsel-istem') {
+      const k = kaynak[id]
+      const sira = Number(u.searchParams.get('i') ?? '0') + 1
+      if (k?.tur !== 'kosu') return json({ ok: false, sebep: 'yalnız koşu' })
+      const r = yuvaninIstemi(k.dizin, sira)
+      return json(
+        r === null ? { ok: false, sebep: 'bu yuvanın istemi kayıtlı değil' } : { ok: true, ...r }
+      )
+    }
+
     if (u.pathname === '/gorsel-uret') {
       const d = JSON.parse(await govde(req))
       const k = kaynak[id]
@@ -1550,6 +1620,8 @@ const sunucu = createServer(async (req, res) => {
       const ad = 'gorsel-' + String(d.i + 1).padStart(2, '0') + '-elle.png'
       const yazim = yuvayaYaz(k.dizin, ad, b64)
       if (!yazim.ok) return res.end('✗ ' + yazim.sebep)
+      // ⚠ İstem görselle AYNI ANDA yazılıyor (Yasa 7): sonradan retrofit imkânsız.
+      istemKunyesiniYaz(k.dizin, d.i + 1, istem, uretim.saglayici)
       kaynakKunyesiniSil(k.dizin, d.i + 1)
       anlikGoruntuAl(id)
       calisan[id].gorseller[d.i] = { ...g, src: 'data:image/png;base64,' + b64 }
@@ -1646,6 +1718,7 @@ const sunucu = createServer(async (req, res) => {
           satirlar.push('✗ ' + (i + 1) + '. yuva: ' + yazim.sebep)
           continue
         }
+        istemKunyesiniYaz(k.dizin, i + 1, b.istem, uretim.saglayici)
         // ⚠ Webden gelen bir görselin künyesi bu yuvada duruyorsa SİLİNİYOR: üretilmiş
         // bir görsele başkasının lisansını iliştirmek yanlış bir atıftır.
         kaynakKunyesiniSil(k.dizin, i + 1)

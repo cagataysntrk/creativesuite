@@ -111,6 +111,34 @@ export interface KatalogSablonu {
 const KANVAS = 'var(--role-bg)'
 const KAGIT = 'var(--role-surface)'
 const MUREKKEP = 'var(--role-line-edge)'
+/**
+ * Bu zemin KOYU mu — kesilmiş öznenin üstüne oturacağı kartın değeri.
+ *
+ * ⚠ ⚠ **BU YÜKLEM BİR GÖRÜNMEZLİK KUSURUNDAN DOĞDU.** Gerçek koşuda (`run_01a04827`)
+ * brief *"matte charcoal"* bir kulak istedi, arka plan silindi ve kömür rengi özne
+ * `oklch(0.19)` bir kartın üstüne oturdu. Denetim ölçtü: silüetin p90 luma farkı 47 ve
+ * 75 — eşik 120. *"Çizildi ama görünmüyor."* Aynı kusur ters yönde de var: kâğıt
+ * zeminli şablonda beyaz bir kumsaati açık gri kartta kayboluyor.
+ *
+ * ⚠ ⚠ **SEBEP ZİNCİRİN İKİ UCUNUN BİRBİRİNİ GÖRMEMESİYDİ.** Brief *"düz siyah zemin"*
+ * istiyor ve bu DOĞRU — alfa o siyahın parlaklığından türetiliyor. Ama kesildikten
+ * sonra öznenin nereye oturacağını soran kimse yoktu. "Siyah zeminde koyu nesne"
+ * matlama için mükemmel, yerleştirme için felaket.
+ *
+ * ⚠ Eşik 0,55: `panorama.ts`teki `koyuMu` ile aynı sayı ve aynı gerekçe (oklch açıklığı
+ * algısal, orta gri gerçekten 0,5 civarında). Orada CSS'ten çözülüyor; burada katalog
+ * yalnız ÜÇ sabit kullandığı için tablo yeterli ve `tokens.css` okumaya gerek yok.
+ * Ölçülen değerler (kreatif yüzeyinde, 2026-08-28):
+ *   KANVAS   `--role-bg`         oklch(0.105) → koyu
+ *   MUREKKEP `--role-line-edge`  oklch(0.190) → koyu
+ *   KAGIT    `--role-surface`    oklch(0.985) → açık
+ *
+ * ⚠ Bilinmeyen bir zemin KOYU sayılıyor: bu depodaki dokuz şablonun yedisi koyu ve
+ * yanlış tarafa düşen bir tahmin, açık zeminde açık özne üretir — ölçülmüş kusurun ta
+ * kendisi. Varsayılan, yanlış olduğunda en az zarar veren taraf olmalı.
+ */
+export const zeminKoyuMu = (zemin: string): boolean => zemin !== KAGIT
+
 const KART_KOYU = 'var(--role-kart-koyu)'
 const KART_ACIK = 'var(--role-kart-acik)'
 

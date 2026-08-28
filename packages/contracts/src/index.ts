@@ -51,6 +51,7 @@ export {
   EDITORYAL,
   kullanilabilirSablonlar,
   sablonBul,
+  zeminKoyuMu,
 } from './katalog.js'
 export type { Bolge, CizgiDili, Iskelet, IskeletKusuru, TipoIliskisi } from './iskelet.js'
 export { iskeletKusurlari } from './iskelet.js'
