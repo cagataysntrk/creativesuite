@@ -382,9 +382,9 @@ Türkçe · yerel öncelikli · Yasa 12 (bir ay ihmal edilse de çalışır).
 
 ### HyperFrames · `heygen-com/hyperframes` · ★42 962 · Apache-2.0
 Katman A'nın motoru. Bu depoda **zaten kanıtlanmış** (`motion/kanit`, altı mp4).
-**Yerele çekildi** (bu turda): `vendor/hyperframes/` içinde 0.7.109 ve 0.8.17 npm
-tarball'ları + depo dışında tam ayna klon. Gerekçe sahibin kendi cümlesi: *"bi gün priv
-yaparlarsa."*
+**Motor kararı bu (EK B, Karar 1).** `npx` ile npm'den koşuyor; yerele indirilmiyor —
+sahibin kararı: *"sadece locale indirme dedim… gerekirse indirir onu kopyalarız."*
+Gerekirse tek komut: `npm pack hyperframes@0.7.109`.
 
 ### OpenMontage · `calesthio/OpenMontage` · ★53 045 · AGPL-3.0
 **Bu taramanın en değerli bulgusu.** Ajanla sürülen açık kaynak video üretim sistemi;
@@ -491,3 +491,324 @@ retrofit imkânsız.
   + anlamsal arama)**. B2 önce ölçülecek: daha ucuz ve sanayi konusunda muhtemelen
   daha güçlü.
 - **FAZ-20.9'a araç geldi:** `ffmpeg-analyse-video-skill` — üretilen videoyu geri okuma.
+
+---
+
+# EK B · NİHAİ KARARLAR ve TAM YOL HARİTASI
+
+> Bu bölüm **§7'nin yerine geçer.** Oradaki faz haritası taslaktı; bu kesin.
+> Karar tarihi: 2026-08-28.
+
+## B.0 · Sahibin kapattığı sorular
+
+Bunlar tartışılmaz — karar verildi, gerekçesi yazıldı, bir daha açılmaz.
+
+| soru | karar | sahibin sözü |
+|---|---|---|
+| Lisans (AGPL vb.) | **Bağlamıyor.** Depo private, dağıtım yok, ticari ürün yok. | *"agpl bizi bağlamaz, biz zaten kendimize yapıyoz… repoyu public etmiyoruz"* |
+| Açık kaynak kullanımı | **Azami.** Hazır olanı al, yeniden yazma. | *"open source'lardan müthiş faydalanmak lazım, kod yazmak kontrol etmek zor iş"* |
+| HyperFrames kaynağı | **İndirilmiyor.** Tarball sigortası yeterli. | *"hyperframes'i boşver indirmeyi… gerekirse indirir onu kopyalarız"* |
+| Kalite çıtası | **Ödünsüz.** | *"gerçekten etkileyici tasarım, geçiş, efekt, ses, müzik… mükemmel olmalıyız"* |
+| Kapsam | **İki tür içerik** | *"hem şirketin yazılımlarını tanıtacak videolar hem de genel içerikler"* |
+
+⚠ Değişmeyen tek şey **Yasa 9** (onay ima eden yapay insan üretilmez — Reklam
+Yönetmeliği Md. 27/12) ve **Yasa 7** (her varlık üretim anında damgalanır). Bunlar
+lisans değil, yayın sorumluluğu.
+
+---
+
+## B.1 · Nihai teknoloji kararları
+
+### Karar 1 — Render motoru: **HyperFrames**
+
+`hyperframes` (HeyGen · Apache-2.0 · ★42 962 · *"Write HTML. Render video. Built for
+agents."*). `npx` ile npm'den koşar; **yerele indirilmiyor** — depo sahibinin kararı:
+*"sadece locale indirme dedim… gerekirse indirir onu kopyalarız."*
+
+**Neden HyperFrames — ve bu, bu deponun kendi şekline uyan karar:**
+
+Bu deponun bütün render bilgisi **HTML/CSS dizesi üretmek** üzerine kurulu.
+`panorama.ts` bir yılın dersini taşıyor: punto oturtma, dikiş bandı, aksan alanı,
+Türkçe büyük harf, zemin kontrastı — hepsi CSS kuralları ve DOM ölçümü olarak yazılı.
+HyperFrames tam olarak bunu yiyor: HTML ver, video al.
+
+⚠ ⚠ **BİR TUR REMOTION ÖNERDİM VE YANLIŞTI.** Gerekçem determinizmdi (`useCurrentFrame`
+kareyi saf girdi yapıyor, R-06'ya doğal uyuyor) ve teknik olarak doğru bir gözlemdi —
+ama **deponun mevcut şeklini görmezden geliyordu**. Remotion React bileşeni ister;
+`panorama.ts`in bütün tipografi bilgisini React'e taşımak, bir yılın dersini yeniden
+yazmak demekti. Doğru soru *"hangi motor daha iyi"* değil, *"hangi motor bu deponun
+zaten bildiği şeyi konuşuyor"*.
+
+Ve HyperFrames bu depoda **zaten kanıtlanmış**: `motion/kanit`ta altı gerçek mp4 var,
+marka token'ları tüketiliyor, GSAP CDN'i Yasa 12 gereği kaldırılmış, D-201
+`--player-ready-timeout 2000` kararını çoktan vermiş (6 sn'lik video 1 dk 34 sn'den
+8,3 sn'ye inmiş).
+
+**Remotion'dan yine de faydalanılacak — motor olarak değil, FİKİR olarak.** MIT
+lisanslı `@remotion/captions` kelime zamanlamasını altyazıya çevirmenin çözülmüş hâli;
+`@remotion/transitions` geçiş kataloğu için okunacak referans. Kod ödünç alınabilir,
+motor değişmez.
+
+⚠ **Determinizm bir ölçüm borcu olarak duruyor** (FAZ-20.1'e eklendi): HyperFrames
+CSS animasyonlu bir kompozisyonda kareleri nasıl örnekliyor, aynı kompozisyon iki kez
+render edilince bayt bayt aynı çıkıyor mu. R-06 bu deponun yasası; cevap "hayır" ise
+zamanı CSS'ten alıp kare numarasından türeten bir katman yazılır — motor yine değişmez.
+
+### Karar 2 — Görüntü kaynağı: üç yol, sırayla
+
+```
+1) STOK ARŞİVİ  (birincil, bedava, kotasız)
+   Pexels · Pixabay · Coverr · Archive.org · NASA · Wikimedia
+   → "gerçek fabrika, gerçek makine, gerçek el" gereken her yerde
+   → OpenMontage'ın Documentary Montage hattının yolu
+
+2) ÜRETİLMİŞ NESNE + 2.5B HAREKET  (marka denetimli)
+   Cloudflare flux-2-klein-4b → arka plan silme → alfa katman → derinlikli sahne
+   → karosel hattı bunu ZATEN üretiyor; hareket Remotion'da
+
+3) ÜCRETLİ VİDEO API'Sİ  (kapalı — açıkça seçilmedikçe koşmaz)
+```
+
+**Yerel AI video üretimi kapsam dışı** — 6 GB VRAM, asgari 14–16 GB. Ölçüldü, yazıldı,
+bir daha denenmeyecek.
+
+### Karar 3 — Ses
+
+| katman | karar | gerekçe |
+|---|---|---|
+| **seslendirme** | **Edge TTS** · `tr-TR-EmelNeural` (K) · `tr-TR-AhmetNeural` (E) | API anahtarı YOK, bedava, iki nöral Türkçe ses — bu turda doğrulandı |
+| **altyazı** | **faster-whisper** yerel, `language='tr'`, `word_timestamps=True` | 20 çekirdekte hızlı, kotasız; `@remotion/captions` kelime zamanlamasını tüketiyor |
+| **müzik** | **Küratörlü yerel kütüphane** (birincil) | ⚠ aşağıda |
+| **ses efekti** | **Freesound CC0 küratörlü paket** | aynı gerekçe |
+
+⚠ ⚠ **MÜZİK ÜRETİLMİYOR, SEÇİLİYOR — ve bu bilinçli bir kalite kararı.** Her koşuda
+yeni müzik üretmek çeşitlilik değil **tutarsızlık** getirir: marka sesi diye bir şey
+kalmaz. Yirmi–otuz parçalık, ruh haline göre etiketlenmiş küratörlü bir kütüphane
+(`gerilim · çözüm · teknik · sakin · atılım`) hem daha tutarlı hem kotasız hem Yasa 12
+uyumlu. Üretim (ACE-Step) bir **deney** olarak FAZ-20.1'de ölçülür, varsayılan değil.
+
+### Karar 4 — Yazılım tanıtım videoları: Playwright + rrweb
+
+Şirketin yazılımını tanıtan video, stok görüntüyle ya da üretilmiş nesneyle yapılamaz —
+**gerçek ekranı** göstermek gerekir. Zaten elimizde olan:
+
+- **Playwright** kurulu (karosel hattı onu kullanıyor) → gerçek tarayıcı, gerçek UI
+- Bölüm sınırları **senaryonun kendisinden** geliyor: hangi saniyede hangi özelliğin
+  gösterildiğini betik biliyor. Önceki araştırmanın notu: *"bu bedava, kesin ve hiç AI
+  gerektirmiyor"*
+- **rrweb** (önceki araştırmanın *"en yüksek kaldıraçlı OSS bulgusu"*): oturumu olay
+  akışı olarak kaydeder → sonsuz yeniden çekim, sıfır maliyet
+
+Sonra Remotion: yakınlaştırma, imleç vurgusu, çağrı balonları, altyazı, ritim.
+
+---
+
+## B.2 · İki üretim türü — aynı gramer, farklı malzeme
+
+| | **YAZILIM TANITIMI** (firma) | **GENEL İÇERİK** |
+|---|---|---|
+| görüntü | gerçek ekran kaydı (Playwright/rrweb) | stok arşivi + üretilmiş nesne |
+| ses | seslendirme ağırlıklı | müzik ağırlıklı, seslendirme seçenek |
+| sayı kullanımı | **kaynaktan** (R-32, firma kipi) | serbest (genel kipi) |
+| vuruş sayısı | 5–8 (özellik başına bir) | 3–5 |
+| süre | 30–60 sn | 8–30 sn |
+| çıkış | yatay 16:9 (LinkedIn) + dikey | dikey 9:16 öncelikli |
+
+Gramer aynı, malzeme farklı. İki ayrı hat değil, **bir hat iki kip** — karoselin
+`firma`/`genel` ayrımının birebir devamı.
+
+---
+
+## B.3 · "Mükemmel olmalıyız" — estetik sözleşmesi
+
+Bir çıta, ölçülebilir değilse çıta değildir. *"Etkileyici"* şu altı ölçüme çevriliyor
+ve hepsi FAZ-20.9'un kapısına giriyor:
+
+| # | kural | ölçüm |
+|---|---|---|
+| E1 | **Ölü kare yok** | Her karede ya hareket ya değişim var; 12 kareden uzun donma kusur. |
+| E2 | **Okuma süresi yeter** | Ekrandaki metin, Türkçe okuma hızıyla (≈15 karakter/sn) okunacak kadar duruyor. |
+| E3 | **Geçiş anlamlı** | Geçiş türü vuruş ilişkisinden türüyor: aynı fikir → kesme, karşıtlık → itme, zaman → kayma. Rastgele geçiş kusur. |
+| E4 | **Ses görüntüyle hizalı** | Kesme, müziğin vuruşuna ±80 ms içinde oturuyor. |
+| E5 | **Güvenli alan ihlali yok** | 9:16'da üst %14 / alt %35 / yan %6 içinde hiçbir metin ya da logo yok. |
+| E6 | **Kontrast eşiği** | Karoseldeki `gorsel-zemine-karismasin` kuralının video hâli — her karede. |
+
+⚠ E4 bu listenin en çok fark yaratanı ve en çok atlanan: **kesmenin müzikle hizalı
+olması**, bir videoyu amatörden profesyonele geçiren tek teknik ayrıntıdır. Küratörlü
+müzik kütüphanesi kararı (Karar 3) bunu mümkün kılıyor — parçanın BPM'i önceden
+biliniyorsa kesme noktaları hesaplanabilir. Üretilmiş müzikte bilinmez.
+
+---
+
+## B.4 · İzolasyon sözleşmesi
+
+Sahibin şartı: *"diğer pipeline asla zarar görmemeli."* Bu bir niyet değil, bir kapı
+olacak.
+
+```
+YENİ (video hattına ait, karosel bunlara HİÇ dokunmaz)
+  packages/motion/            → sahne, vuruş, gramer, kısıtlar
+  packages/motion-render/     → Remotion kökü, bileşenler, geçişler
+  registry/pipelines/video-*.pipeline.yaml
+  registry/providers/*.provider.yaml  (edge-tts, stok arşivi, faster-whisper)
+  scripts/gates/video-*.mjs
+  brand/brd_upcytech/muzik/   → küratörlü müzik + SFX kütüphanesi
+  derived/runs/<runId>/video/ → çıktılar
+
+PAYLAŞILAN — SALT OKUMA
+  brand/          marka tektir
+  packages/kernel çekirdek tektir
+  packages/contracts  fiiller ve şerit sözleşmesi
+
+PAYLAŞILAN — EKLEME YALNIZ
+  derived/runs/   defter tektir, her koşu kendi dizinine yazar
+
+DOKUNULMAZ
+  packages/render/    ⚠ karosel panoraması burada. TEK SATIR değişmeyecek.
+```
+
+**Kapı `video-izolasyon`:** video fazlarının hiçbir commit'i `packages/render/` altında
+değişiklik içeremez. Kasten ihlal edilip kırmızıya döndüğü görülmeden faz kapanmaz.
+
+---
+
+## B.5 · FAZ-20 — tam yol haritası
+
+On dört adım. Her adımın **kapısı** ve **kanıtı** var; kanıt görülmeden adım kapanmaz.
+
+### FAZ-20.1 · Ölçüm borçları (kod yok)
+
+Kod yazmadan ölçülecekler. Mimariyi bunlar belirliyor.
+
+| # | ölçüm | neden mimariyi belirliyor |
+|---|---|---|
+| a | **Remotion'da 1080×1920 · 30 fps · 20 sn render süresi** | 5 dakikaysa akış başka, 45 saniyeyse başka |
+| b | Edge TTS Türkçe kalitesi — iki sesi de dinle | yayına çıkar mı, ElevenLabs gerekir mi |
+| c | faster-whisper `tr` kelime zamanlaması doğruluğu | altyazı yerel mi kalır |
+| d | ACE-Step 6 GB'de koşuyor mu | müzik üretimi masada mı |
+| e | Pexels/Pixabay API kotaları ve arama kalitesi (sanayi terimleri) | stok yolu birincil olabilir mi |
+| f | Playwright video kaydı kalitesi (1080p, kare düşürme) | tanıtım videosu yolu kurulabilir mi |
+| **g** | **HyperFrames determinizmi:** aynı kompozisyon iki kez render edilince bayt bayt aynı mı | R-06 deponun yasası; hayırsa zamanı kare numarasından türeten ince bir katman gerekir |
+
+**Kapı:** yedi ölçümün yedisi `docs/kurallar/OLCUMLER.md`'ye yazılmadan FAZ-20.2 başlamaz.
+
+### FAZ-20.2 · İskelet ve izolasyon kapısı
+
+`packages/motion` + `packages/motion-render` doğuyor. Remotion kökü kuruluyor, marka
+token'ları bağlanıyor (`motion/components/marka.css` taşınıyor).
+
+**Kapı:** `video-izolasyon` — `packages/render/` değişmemiş. Kasten ihlal et, kırmızıyı gör.
+**Kanıt:** marka renkleriyle tek kare render edilmiş bir PNG.
+
+### FAZ-20.3 · Biçim ve güvenli alan sözleşmesi
+
+Dikey/yatay/kare, süre bütçesi, güvenli alanlar **tipte**. 9:16'nın alt %35'i karoselden
+en büyük fark ve tipte zorlanacak.
+
+**Kapı:** güvenli alan dışına metin koyan bir kompozisyon derleme hatası verir.
+
+### FAZ-20.4 · Hareket ilkelleri sözlüğü
+
+`gir · çık · tut · it · aç · say · kaydır · maskele`. Her ilkel Remotion'da saf bir
+fonksiyon: kare → stil. Süreler token'da.
+
+**Kanıt:** her ilkel için render edilmiş bir mp4, gözle bakılmış.
+**Kapı:** ilkel sayısı ≤ 10 — sözlük büyürse gramer olmaktan çıkar.
+
+### FAZ-20.5 · Geçiş sözlüğü (E3'ün karşılığı)
+
+`@remotion/transitions` üstüne, **anlam-güdümlü** seçim: aynı fikir → kesme,
+karşıtlık → itme, zaman akışı → kayma, ölçek değişimi → yakınlaşma.
+
+**Kapı:** geçiş türü vuruş ilişkisinden türetilmiş olacak; rastgele seçim reddedilir.
+
+### FAZ-20.6 · Vuruş grameri
+
+`kanca · iddia · kanıt · dönüş · kapanış`. Vuruş sayısı ve sırası **içerikten**.
+
+**Kapı (en önemlisi):** aynı konudan iki koşu **farklı vuruş dizisi** üretmeli.
+Tekdüzelik ölçülerek reddedilir — sahibin *"hepsi birbirinin aynısı olur"* korkusunun
+kapıya çevrilmiş hâli.
+
+### FAZ-20.7 · Kare render + ffmpeg kodlama
+
+Remotion → kare dizisi → ffmpeg → mp4. Kotasız, yerel.
+
+**Kapı:** çıktı gerçekten oynuyor, süresi beyan edilenle aynı, platform biçim
+sınırlarında (LinkedIn 3sn–30dk, 360–1920px, ±%5 oran).
+
+### FAZ-20.8 · Stok arşivi yolu (görüntü — birincil)
+
+Pexels/Pixabay/Coverr/Archive.org araması, anlamsal eşleme, indirme, önbellek.
+
+⚠ **Yasa 7:** her karenin kaynağı ve lisansı indirme anında damgalanır —
+karoseldeki `.kaynak.json` deseninin aynısı. Sonradan retrofit imkânsız.
+**Kapı:** damgasız hiçbir kare zaman çizelgesine giremez.
+
+### FAZ-20.9 · Üretilmiş nesne yolu + 2.5B hareket
+
+Karoselin ürettiği alfa kanallı nesneler derinlik katmanlarına. Ürün görseli yükleme de
+burada.
+
+**Kapı:** E6 (kontrast) — `gorsel-zemine-karismasin`ın video hâli, her karede.
+
+### FAZ-20.10 · Ses: müzik yatağı + SFX
+
+Küratörlü kütüphane, ruh hali etiketleri, **BPM meta verisi** (E4 için şart).
+Miksaj: seslendirme varken müzik ducking.
+
+**Kapı:** E4 — kesmeler müzik vuruşuna ±80 ms. Ve: sessiz video da geçerli çıktı.
+
+### FAZ-20.11 · Seslendirme + altyazı
+
+Edge TTS → faster-whisper → `@remotion/captions` → animasyonlu altyazı.
+
+**Kapı:** Türkçe `ı/İ` kutu çizmiyor; büyük harf dönüşümü yerel duyarlı (R-21);
+altyazı güvenli alan içinde.
+
+### FAZ-20.12 · Yazılım tanıtım yolu
+
+Playwright betiği panelde geziyor, bölüm sınırlarını **betik** koyuyor, rrweb olay
+akışı defterde. Remotion: yakınlaştırma, imleç vurgusu, çağrı balonu.
+
+**Kapı:** aynı betik iki kez koşturulduğunda **aynı bölüm sınırları** çıkıyor (R-06).
+
+### FAZ-20.13 · Video denetimi (E1–E6)
+
+Karoselin `panorama-denetim`inin video karşılığı. Altı estetik kuralı da ölçülüyor.
+`ffmpeg-analyse-video-skill` deseni: üretilen videoyu **geri okuyup** ne olduğunu sor.
+
+**Kapı:** kusurlu video yayın paketine giremez — *"yakalamak önlemek değildir"*.
+
+### FAZ-20.14 · Üret ekranı ikiye ayrılıyor + yayın paketi
+
+Karosel / Video seçimi; video seçilince biçim, süre, kip, ses, görsel kaynağı.
+Yayın paketi: kapak karesi, altyazı dosyası, platform başına biçim.
+
+**Kapı:** karosel akışı **hiç değişmemiş** — `uctan-uca` mevcut ölçümlerini aynen geçiyor.
+⛔ **YAYIN YOK**: paket çıkarılır, insan yükler.
+
+---
+
+## B.6 · Riskler
+
+| risk | erken uyarı | önlem |
+|---|---|---|
+| Render çok yavaş | FAZ-20.1(a) | süre bütçesi düşürülür, kare hızı 24'e iner |
+| Stok arşivinde sanayi görüntüsü zayıf | FAZ-20.1(e) | 2.5B yolu (20.9) birincil olur |
+| Edge TTS Türkçesi yayına yetmiyor | FAZ-20.1(b) | ElevenLabs'a düşülür (ücretli, açık seçim) |
+| Gramer yine tekdüze çıkıyor | FAZ-20.6 kapısı | ilkel sözlüğü genişletilir, vuruş türü eklenir |
+| HyperFrames determinist değil çıkıyor | FAZ-20.1(g) | zamanı kare numarasından türeten ince katman yazılır |
+| HyperFrames deposu kapanıyor | — | `npm pack hyperframes@<sürüm>` tek komut; o gün indirilir |
+| Video hattı karoseli bozuyor | `video-izolasyon` kapısı | her commit'te ölçülür |
+
+---
+
+## B.7 · Sıradaki adım
+
+**FAZ-20.1.** Altı ölçüm, kod yazmadan. Özellikle (a) render süresi — o sayı gelmeden
+kurulacak mimari bir tahmindir.
+
+Bu turda öğrenilen ders tam da bu: `min-height` bir taban olduğu için oturma ölçümü
+tabana çöktü, bir şablonu tek başına okunmaz yaptı ve bunu ancak **çizip bakınca**
+gördüm. Video bu hatanın yirmi katını barındırıyor — çünkü zaman var.
