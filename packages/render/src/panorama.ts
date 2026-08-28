@@ -3501,6 +3501,8 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
     const basliklar = Array.from(document.querySelectorAll('.baslik'))
     if (basliklar.length === 0) return 0
     let tavan = 168
+    // Kart başına ölçüm: global punto hesaplandıktan SONRA yalnız TAŞAN kart kısılıyor.
+    const olculer = []
     // ⚠ ⚠ **KENDİ ÇARPANINI BİLMEYEN OTURMA ÖLÇÜMÜ HİÇBİR ŞEY KANITLAMAZ.** Arama
     // "hepsine sığan" bir punto buluyordu; sonra kapak \`baslikPayi\` ile çarpılıyor,
     // gövde kartları ise \`GOVDE_BASLIK_CARPANI\` ile küçülüyordu. Yani ölçülen sayı
@@ -3539,8 +3541,24 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
       // ⚠ Yorumda TERS TIRNAK YOK: bu metin bir şablon dizesinin içinde ve iki satır
       // yukarıdaki uyarı tam bunu söylüyordu — yine de düştüm, ikinci kez.
       const olcek = parseFloat(getComputedStyle(b).getPropertyValue('--ayar-olcek')) || 1
-      const carpan = (b.closest('.kart') && b.closest('.kart').classList.contains('ilk')
-        ? 1 : ${String(GOVDE_BASLIK_CARPANI)}) * olcek
+      const carpan = b.closest('.kart') && b.closest('.kart').classList.contains('ilk')
+        ? 1 : ${String(GOVDE_BASLIK_CARPANI)}
+      // ⚠ ⚠ **ELLE VERİLEN KUTU YÜKSEKLİĞİ ÖLÇÜM SIRASINDA NÖTRLENİYOR — yoksa arama
+      // TABANA ÇÖKÜYOR.** Kutu yüksekliği min-height olarak yazılıyor (kasıtlı: sabit
+      // yükseklik sığmayan metni keserdi). Ama min-height bir TABAN ve scrollHeight
+      // ondan aşağı inemiyor: 752 px taban verilmiş bir başlıkta "blok yüksekliğine
+      // sığıyor mu" sorusu HİÇBİR puntoda evet cevabı alamıyor, ikili arama 20 px'e
+      // düşüyor ve sinirPunto bir MİNİMUM olduğu için o tek kart BÜTÜN karoseli aşağı
+      // çekiyor.
+      //
+      // ⚠ ⚠ **ÖLÇÜLDÜ:** donen koşusunda 3. kartın kutu yüksekliği 752, blok bütçesi
+      // 520; dört başlığın puntosu 25 · 23 · 20 · 30 çıktı — okunamaz. Depo sahibi:
+      // *"sadece donen üretiminde böyle oldu, yazılar büyümüyor."*
+      //
+      // ⚠ Nötrleme GEÇİCİ ve ölçümle sınırlı: insanın verdiği taban çizimde duruyor.
+      // Ölçülen şey METNİN kendi yüksekliği olmalı, insanın açtığı boşluğun değil.
+      const eskiTaban = b.style.minHeight
+      if (eskiTaban !== '') b.style.minHeight = '0px'
       let alt = 20, ust = 168
       // 18 tur ikili arama: 148 px aralıkta 0,001 px çözünürlük — fazlası gereksiz.
       for (let k = 0; k < 18; k += 1) {
@@ -3551,6 +3569,8 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
         if (sigiyor) alt = orta; else ust = orta
       }
       b.style.fontSize = ''
+      if (eskiTaban !== '') b.style.minHeight = eskiTaban
+      olculer.push({ b: b, alt: alt, carpan: carpan, olcek: olcek })
       if (alt < tavan) tavan = alt
       if (alt / carpan < sinirPunto) sinirPunto = alt / carpan
     }
@@ -3559,6 +3579,32 @@ export const puntoOlcumu = (doc: PanoramaBelgesi): string => {
     // BUYUTEBILIYOR ve o kadari editoryal kapaginda 2 px tasma olarak geri geldi.
     // Bir oturma olcumunun yazdigi sayi, olctugu sayidan buyuk olamaz.
     sahne.style.setProperty('--baslik-punto', (Math.floor(punto * 10) / 10).toFixed(1) + 'px')
+
+    // ⚠ ⚠ **ELLE PUNTO ÇARPANI KART BAŞINA KISILIYOR — GLOBAL DEĞERE KATILMIYOR.**
+    // Bu iki tur aldı ve ders ikinci turda netleşti.
+    //
+    // 1. tur: çarpan hiç hesaba katılmıyordu. Ölçüm "sığıyor" dediği boyutu buluyor,
+    //    CSS onu çarpanla çarpıyor ve metin TAŞIYOR — yayına giden bir slaytta başlık
+    //    "Duruşlar" yerine "Duruşla" çıktı, son harf kesildi.
+    // 2. tur: çarpanı global bölene kattım. Taşma bitti ama YENİ kusur doğdu: global
+    //    punto bütün kartların EN BÜYÜK çarpanlısına göre kısılıyor ve öteki kartlar
+    //    cüceleşiyor. donen koşusunda çarpanlar 1,26 · 1,45 · 1,73 · 1,88'di ve dört
+    //    başlık da okunamayacak kadar küçüldü. Depo sahibi: "sadece donen üretiminde
+    //    böyle oldu, yazılar büyümüyor."
+    //
+    // ⚠ ⚠ **KÖK MESELE ÖLÇEK UYUŞMAZLIĞI.** Başlık puntosu GLOBAL (kasıtlı: karosel tek
+    // bir tasarım ve slayttan slayda değişen bir başlık puntosu ritmi kırar), elle
+    // çarpan ise KART BAŞINA. Kart başına bir çarpanı global bir bölene katmak, bir
+    // kartın kararını bütün karosele ceza olarak yazmaktır. Taşma kart başına bir
+    // sorundur ve kart başına çözülür.
+    //
+    // ⚠ Kısma YALNIZ taşarsa: sığan kart hiç dokunulmadan ritmi koruyor. İnsan çarpanı
+    // elle verdiği için tekdüzeliği zaten kendisi bozmuş oluyor; burada yapılan tek şey
+    // o kararın metni karttan çıkarmasını önlemek.
+    for (const o of olculer) {
+      const nominal = punto * o.carpan * o.olcek
+      o.b.style.fontSize = nominal > o.alt ? o.alt + 'px' : ''
+    }
     // -- taban cizgisi izgarasi: RITIM METINDEN TURUYOR (R-100) ---------------
     //
     // ⚠ ⚠ TABAN SABIT BIR SAYI DEGIL ve faz plani oyle varsayiyordu (40 x 1,35 = 54).

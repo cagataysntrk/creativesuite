@@ -109,9 +109,41 @@ describe('metin ince ayarı', () => {
     // ⚠ Bu fonksiyonun KENDİ dokümanı *"kendi çarpanını bilmeyen oturma ölçümü hiçbir
     // şey kanıtlamaz"* diyor ve gövde çarpanı için uygulanmıştı; ikinci çarpanda aynı
     // ders yeniden öğrenildi.
+    // ⚠ Bu iddia BİR TUR SONRA daraldı: çarpan global bölene KATILMIYOR (o yol
+    // denendi ve öteki kartları cüceleştirdi), kart başına kısmada kullanılıyor.
     const betik = puntoOlcumu(belge({}))
     expect(betik, 'elle çarpan okunuyor').toContain('--ayar-olcek')
-    expect(betik, 'çarpana dahil ediliyor').toContain('* olcek')
+    expect(betik, 'kart başına kısmada kullanılıyor').toContain('punto * o.carpan * o.olcek')
+  })
+
+  it('KUTU YÜKSEKLİĞİ oturma ölçümünü ZEHİRLEMİYOR', () => {
+    // ⚠ ⚠ **BU KUSUR BİR ŞABLONU TEK BAŞINA OKUNMAZ YAPTI.** Kutu yüksekliği
+    // `min-height` olarak yazılıyor (kasıtlı — sabit yükseklik sığmayan metni keserdi).
+    // Ama `min-height` bir TABAN: `scrollHeight` ondan aşağı inemiyor. 752 px taban
+    // verilmiş bir başlıkta *"blok yüksekliğine sığıyor mu"* sorusu hiçbir puntoda evet
+    // cevabı alamıyor, ikili arama 20 px'e çöküyor ve `sinirPunto` bir MİNİMUM olduğu
+    // için o tek kart BÜTÜN karoseli aşağı çekiyor.
+    //
+    // Ölçüldü (`donen`, kart 3'ün kutu yüksekliği 752, blok bütçesi 520):
+    //   düzeltmeden önce: 25 · 23 · 20 · 30 px   ← okunamaz
+    //   düzeltmeden sonra: 136 · 110 · 150 · 166 px
+    //   `editoryal` ve `sahne` HİÇ değişmedi — kısma yalnız zehirlenen kartı kurtarıyor.
+    const betik = puntoOlcumu(belge({}))
+    expect(betik, 'taban ölçüm sırasında nötrleniyor').toContain("b.style.minHeight = '0px'")
+    expect(betik, 've geri konuyor').toContain('b.style.minHeight = eskiTaban')
+  })
+
+  it('ELLE ÇARPAN kart başına kısılıyor, global bölene KATILMIYOR', () => {
+    // ⚠ ⚠ **BU İKİ TUR ALDI.** Önce çarpan hiç hesaba katılmıyordu ve metin taşıyordu
+    // (`Duruşlar` → `Duruşla`). Sonra çarpanı global bölene kattım: taşma bitti ama
+    // global punto en büyük çarpanlı karta göre kısıldı ve öteki kartlar cüceleşti.
+    //
+    // Kök mesele ÖLÇEK UYUŞMAZLIĞI: başlık puntosu GLOBAL (karosel tek tasarım),
+    // elle çarpan KART BAŞINA. Kart başına bir çarpanı global bir bölene katmak, bir
+    // kartın kararını bütün karosele ceza yazmaktır.
+    const betik = puntoOlcumu(belge({}))
+    expect(betik, 'global bölen çarpansız').toContain('alt / carpan < sinirPunto')
+    expect(betik, 'kart başına kısma var').toContain('nominal > o.alt')
   })
 
   it('render ayarı gerçekten basıyor', () => {
