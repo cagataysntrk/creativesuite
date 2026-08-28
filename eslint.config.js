@@ -39,6 +39,11 @@ export default tseslint.config(
       '**/*.d.ts',
       'docs/**',
       'scripts/gates/**', // kapılar düz Node betiği; kendi disiplinleri var
+      // ⚠ ⚠ **`odunc/` ÖDÜNÇ ALINMIŞ KOD — `examples/` ile AYNI gerekçe.** Dışarıdan
+      // birebir alınan koda kendi biçim ve içe aktarma kurallarımızı dayatmak, onu
+      // güncellenemez yapar: bir sonraki sürümü çektiğimizde fark, gerçek değişiklik
+      // yerine bizim düzeltmelerimizle dolar. Künyesi `odunc/KAYNAK.md`de.
+      'odunc/**',
       // ⚠ ⚠ **`examples/` BİZİM KODUMUZ DEĞİL — referans malzemesi ve gitignore'lu.**
       // Depoya yeni bir referans projesi kopyalandığı an kapı, bizim yazmadığımız ve
       // düzeltemeyeceğimiz kodda 12 hata verip kırmızıya döndü. Bir kapının kendi

@@ -20,3 +20,8 @@ brand/*/derived-tokens/
 # okumuyor. Biçimlendirilmiş hâli 740 KB ve `repo-hygiene` kapısının 512 KB tavanını
 # aşıyor; iki kapı birbiriyle çakışıyordu. Girintisiz 452 KB.
 scripts/gorsel-katalog.json
+
+# ⚠ ⚠ **ÖDÜNÇ ALINMIŞ KOD — `examples/` ile aynı gerekçe.** Dışarıdan birebir alınan
+# koda biçim dayatmak onu güncellenemez yapar: bir sonraki sürümü çektiğimizde fark,
+# gerçek değişiklik yerine bizim biçimlendirmemizle dolar. Künye: `odunc/KAYNAK.md`.
+odunc/

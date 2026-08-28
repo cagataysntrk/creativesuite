@@ -640,155 +640,137 @@ biliniyorsa kesme noktaları hesaplanabilir. Üretilmiş müzikte bilinmez.
 
 ---
 
-## B.4 · İzolasyon sözleşmesi
+## B.4 · ⚠ MİMARİ DEĞİŞTİ — hat değil ATÖLYE
 
-Sahibin şartı: *"diğer pipeline asla zarar görmemeli."* Bu bir niyet değil, bir kapı
-olacak.
+**Bu bölüm B.5'in önceki hâlini geçersiz kılıyor.** Depo sahibi itiraz etti ve haklıydı:
+
+> *"Karoselde öyle yaptık diye bunda da böyle yapacağız diye şart mı var? Belki videoda
+> hat sadece işi zorlaştırır ve esnekliği öldürür."*
+
+İtiraz doğru ve sebebi yapısal:
+
+**Karosel TÜRETİLEBİLİR.** Katalog yerleşimi sabitliyor — dört slayt, on yuva. Girdiden
+çıktıya bir yol var, insan birkaç kapıda onaylıyor. Hat oraya oturuyor.
+
+**Video TÜRETİLMEZ, BULUNUR.** Bir hareketi denersin, bakarsın, easing'i değiştirirsin,
+tekrar bakarsın. Yirmi tur sürer. Her turu adım listesi, manifest kaydı ve yetenek
+yönlendirmesinden geçirmek, ürettiği değerin kat kat üstünde sürtünme demektir.
+
+Üstelik hattın karoselde kazandırdıklarının çoğu videoda **zaten yok**: sağlayıcı
+yönlendirmesi (sağlayıcılar sabit — HyperFrames ve ffmpeg yerel), bütçe tavanı (üretim
+bedava), yayın kuyruğu (aşağıda).
+
+### Yeni şekil
 
 ```
-YENİ (video hattına ait, karosel bunlara HİÇ dokunmaz)
-  packages/motion/            → sahne, vuruş, gramer, kısıtlar
-  packages/motion-render/     → Remotion kökü, bileşenler, geçişler
-  registry/pipelines/video-*.pipeline.yaml
-  registry/providers/*.provider.yaml  (edge-tts, stok arşivi, faster-whisper)
-  scripts/gates/video-*.mjs
-  brand/brd_upcytech/muzik/   → küratörlü müzik + SFX kütüphanesi
-  derived/runs/<runId>/video/ → çıktılar
-
-PAYLAŞILAN — SALT OKUMA
-  brand/          marka tektir
-  packages/kernel çekirdek tektir
-  packages/contracts  fiiller ve şerit sözleşmesi
-
-PAYLAŞILAN — EKLEME YALNIZ
-  derived/runs/   defter tektir, her koşu kendi dizinine yazar
-
-DOKUNULMAZ
-  packages/render/    ⚠ karosel panoraması burada. TEK SATIR değişmeyecek.
+derived/videolar/<id>/
+  kompozisyon.html     ← asıl iş burada (HyperFrames sözleşmesi)
+  varliklar/           ← stok klip · üretilmiş nesne · ses · müzik
+  render/              ← her deneme bir mp4
+  kunye.json           ← neyin nereden geldiği (Yasa 7)
 ```
 
-**Kapı `video-izolasyon`:** video fazlarının hiçbir commit'i `packages/render/` altında
-değişiklik içeremez. Kasten ihlal edilip kırmızıya döndüğü görülmeden faz kapanmaz.
+Ajan + `odunc/openmontage` becerileri burada çalışıyor: **render et, BAK, değiştir,
+tekrar.** Adım listesi yok, kapı yok, manifest yok.
 
----
+### Yayın: TAMAMEN ELLE
 
-## B.5 · FAZ-20 — tam yol haritası
+Depo sahibi: *"yayını siktir et, video yayınları manuel olacak tamamen."*
 
-On dört adım. Her adımın **kapısı** ve **kanıtı** var; kanıt görülmeden adım kapanmaz.
+Video yayın kuyruğuna **hiç girmiyor**. Çıktı bir klasördeki mp4; insan alır, kendisi
+paylaşır. Bu, izolasyonu neredeyse tam yapıyor.
 
-### FAZ-20.1 · Ölçüm borçları (kod yok)
+### Paylaşılan tek şey
 
-Kod yazmadan ölçülecekler. Mimariyi bunlar belirliyor.
+| paylaşılan | gerekçe |
+|---|---|
+| `brand/` | **marka tek** — token, font, renk. Salt okuma. |
+| `derived/blobs` (isteğe bağlı) | karoselin ürettiği alfa kanallı nesneler videoda kullanılabilir |
 
-| # | ölçüm | neden mimariyi belirliyor |
+| paylaşılmayan | |
+|---|---|
+| yayın kuyruğu · takvim | video elle yayınlanıyor |
+| adım listesi · manifest · kapılar | video döngüsel, adım adım değil |
+| yetenek→sağlayıcı yönlendirme | sağlayıcılar sabit |
+| `packages/render/` | ⚠ **tek satır değişmeyecek** |
+
+## B.5 · Yol haritası — atölye sırası
+
+Faz numarası yok: bu bir hat değil, bir atölye. Sıra **bağımlılığa** göre, tören yok.
+
+### 1 · Ölçüm (kod yok)
+
+| # | ölçüm | neden |
 |---|---|---|
-| a | **Remotion'da 1080×1920 · 30 fps · 20 sn render süresi** | 5 dakikaysa akış başka, 45 saniyeyse başka |
-| b | Edge TTS Türkçe kalitesi — iki sesi de dinle | yayına çıkar mı, ElevenLabs gerekir mi |
-| c | faster-whisper `tr` kelime zamanlaması doğruluğu | altyazı yerel mi kalır |
-| d | ACE-Step 6 GB'de koşuyor mu | müzik üretimi masada mı |
-| e | Pexels/Pixabay API kotaları ve arama kalitesi (sanayi terimleri) | stok yolu birincil olabilir mi |
-| f | Playwright video kaydı kalitesi (1080p, kare düşürme) | tanıtım videosu yolu kurulabilir mi |
-| **g** | **HyperFrames determinizmi:** aynı kompozisyon iki kez render edilince bayt bayt aynı mı | R-06 deponun yasası; hayırsa zamanı kare numarasından türeten ince bir katman gerekir |
+| a | HyperFrames'te 1080×1920 · 30 fps · 20 sn render süresi | döngü hızını bu belirliyor; 5 dakikaysa yirmi tur imkânsız |
+| b | Edge TTS Türkçe: iki sesi de dinle | yayına çıkar mı |
+| c | faster-whisper `tr` kelime zamanlaması | altyazı yerel mi kalır |
+| d | Pexels/Pixabay: sanayi terimleriyle arama kalitesi | stok yolu birincil olabilir mi |
+| e | Playwright video kaydı kalitesi | yazılım tanıtımı yolu |
 
-**Kapı:** yedi ölçümün yedisi `docs/kurallar/OLCUMLER.md`'ye yazılmadan FAZ-20.2 başlamaz.
+`odunc/openmontage/hyperframes-cli` ve `ffmpeg` becerileri (a) için okunacak.
 
-### FAZ-20.2 · İskelet ve izolasyon kapısı
+### 2 · İlk kompozisyon — marka bağlanmış tek kare
 
-`packages/motion` + `packages/motion-render` doğuyor. Remotion kökü kuruluyor, marka
-token'ları bağlanıyor (`motion/components/marka.css` taşınıyor).
+`odunc/openmontage/hyperframes-core/references/minimal-composition.md`'den başla,
+marka token'larını bağla, tek kare render et ve **BAK**.
 
-**Kapı:** `video-izolasyon` — `packages/render/` değişmemiş. Kasten ihlal et, kırmızıyı gör.
-**Kanıt:** marka renkleriyle tek kare render edilmiş bir PNG.
+**Kanıt:** marka renkleri ve fontuyla, güvenli alan içinde bir PNG.
 
-### FAZ-20.3 · Biçim ve güvenli alan sözleşmesi
+### 3 · Hareket ilkelleri — 38 tanesi markaya bağlanıyor
 
-Dikey/yatay/kare, süre bütçesi, güvenli alanlar **tipte**. 9:16'nın alt %35'i karoselden
-en büyük fark ve tipte zorlanacak.
+`odunc/openmontage/music-to-video/references/motion-primitives/` içinde 38 hazır ilkel
+var. ⚠ Gömülü renk ve font taşıyorlar (`--hg-violet`, `Inter`) — **hareketi al, rengi
+token'a bağla**.
 
-**Kapı:** güvenli alan dışına metin koyan bir kompozisyon derleme hatası verir.
+Öncelik sırası (sanayi/B2B tonuna uyanlar önce):
+`mask-reveal` · `typewriter-reveal` · `counting-punch` · `directional-fill` ·
+`iris-open` · `crash-zoom-in` · `blur-resolve` · `staggered-exit` · `outline-to-fill`
 
-### FAZ-20.4 · Hareket ilkelleri sözlüğü
+**Kanıt:** her ilkel için render edilmiş mp4, gözle bakılmış.
 
-`gir · çık · tut · it · aç · say · kaydır · maskele`. Her ilkel Remotion'da saf bir
-fonksiyon: kare → stil. Süreler token'da.
+### 4 · Vuruş grameri
 
-**Kanıt:** her ilkel için render edilmiş bir mp4, gözle bakılmış.
-**Kapı:** ilkel sayısı ≤ 10 — sözlük büyürse gramer olmaktan çıkar.
+`kanca · iddia · kanıt · dönüş · kapanış`. Vuruş sayısı içerikten.
+`odunc/openmontage/hyperframes-core/references/storyboard-format.md` okunacak —
+storyboard formatı zaten tanımlı.
 
-### FAZ-20.5 · Geçiş sözlüğü (E3'ün karşılığı)
+**Kanıt:** aynı konudan iki video, **farklı vuruş dizisi**.
 
-`@remotion/transitions` üstüne, **anlam-güdümlü** seçim: aynı fikir → kesme,
-karşıtlık → itme, zaman akışı → kayma, ölçek değişimi → yakınlaşma.
+### 5 · Ses
 
-**Kapı:** geçiş türü vuruş ilişkisinden türetilmiş olacak; rastgele seçim reddedilir.
+Edge TTS seslendirme · faster-whisper altyazı · küratörlü müzik (BPM meta verisiyle) ·
+Freesound CC0 efektler. `odunc/openmontage/text-to-speech`, `sound-effects`, `music`
+becerileri hazır.
 
-### FAZ-20.6 · Vuruş grameri
+**Kanıt:** kesme müzik vuruşuna ±80 ms içinde oturmuş bir video.
 
-`kanca · iddia · kanıt · dönüş · kapanış`. Vuruş sayısı ve sırası **içerikten**.
+### 6 · Görüntü: stok arşivi
 
-**Kapı (en önemlisi):** aynı konudan iki koşu **farklı vuruş dizisi** üretmeli.
-Tekdüzelik ölçülerek reddedilir — sahibin *"hepsi birbirinin aynısı olur"* korkusunun
-kapıya çevrilmiş hâli.
+Pexels/Pixabay/Coverr + `open-clip-torch` ile anlamsal eşleme.
+`odunc/openmontage/media-use` okunacak.
 
-### FAZ-20.7 · Kare render + ffmpeg kodlama
+⚠ **Yasa 7:** her karenin kaynağı ve lisansı indirme anında `kunye.json`a yazılır.
 
-Remotion → kare dizisi → ffmpeg → mp4. Kotasız, yerel.
+### 7 · Görüntü: üretilmiş nesne + 2.5B
 
-**Kapı:** çıktı gerçekten oynuyor, süresi beyan edilenle aynı, platform biçim
-sınırlarında (LinkedIn 3sn–30dk, 360–1920px, ±%5 oran).
+Karoselin alfa kanallı nesneleri derinlik katmanlarına. Ürün görseli yükleme de burada.
 
-### FAZ-20.8 · Stok arşivi yolu (görüntü — birincil)
+### 8 · Yazılım tanıtımı
 
-Pexels/Pixabay/Coverr/Archive.org araması, anlamsal eşleme, indirme, önbellek.
+`odunc/openmontage/playwright-recording` + `synthetic-screen-recording`.
+Bölüm sınırlarını **betik** koyuyor.
 
-⚠ **Yasa 7:** her karenin kaynağı ve lisansı indirme anında damgalanır —
-karoseldeki `.kaynak.json` deseninin aynısı. Sonradan retrofit imkânsız.
-**Kapı:** damgasız hiçbir kare zaman çizelgesine giremez.
+### 9 · Kalite gözü
 
-### FAZ-20.9 · Üretilmiş nesne yolu + 2.5B hareket
+`ffmpeg-analyse-video-skill` deseni: üretilen videoyu geri oku, ne olduğunu sor.
+E1–E6 (B.3) burada ölçülür — **kapı değil, geri bildirim**: atölyede kapı sürtünmedir,
+ölçüm faydadır.
 
-Karoselin ürettiği alfa kanallı nesneler derinlik katmanlarına. Ürün görseli yükleme de
-burada.
+### 10 · Üret ekranında video sekmesi
 
-**Kapı:** E6 (kontrast) — `gorsel-zemine-karismasin`ın video hâli, her karede.
-
-### FAZ-20.10 · Ses: müzik yatağı + SFX
-
-Küratörlü kütüphane, ruh hali etiketleri, **BPM meta verisi** (E4 için şart).
-Miksaj: seslendirme varken müzik ducking.
-
-**Kapı:** E4 — kesmeler müzik vuruşuna ±80 ms. Ve: sessiz video da geçerli çıktı.
-
-### FAZ-20.11 · Seslendirme + altyazı
-
-Edge TTS → faster-whisper → `@remotion/captions` → animasyonlu altyazı.
-
-**Kapı:** Türkçe `ı/İ` kutu çizmiyor; büyük harf dönüşümü yerel duyarlı (R-21);
-altyazı güvenli alan içinde.
-
-### FAZ-20.12 · Yazılım tanıtım yolu
-
-Playwright betiği panelde geziyor, bölüm sınırlarını **betik** koyuyor, rrweb olay
-akışı defterde. Remotion: yakınlaştırma, imleç vurgusu, çağrı balonu.
-
-**Kapı:** aynı betik iki kez koşturulduğunda **aynı bölüm sınırları** çıkıyor (R-06).
-
-### FAZ-20.13 · Video denetimi (E1–E6)
-
-Karoselin `panorama-denetim`inin video karşılığı. Altı estetik kuralı da ölçülüyor.
-`ffmpeg-analyse-video-skill` deseni: üretilen videoyu **geri okuyup** ne olduğunu sor.
-
-**Kapı:** kusurlu video yayın paketine giremez — *"yakalamak önlemek değildir"*.
-
-### FAZ-20.14 · Üret ekranı ikiye ayrılıyor + yayın paketi
-
-Karosel / Video seçimi; video seçilince biçim, süre, kip, ses, görsel kaynağı.
-Yayın paketi: kapak karesi, altyazı dosyası, platform başına biçim.
-
-**Kapı:** karosel akışı **hiç değişmemiş** — `uctan-uca` mevcut ölçümlerini aynen geçiyor.
-⛔ **YAYIN YOK**: paket çıkarılır, insan yükler.
-
----
+Karosel / Video. Video seçilince biçim, süre, kip, ses, görsel kaynağı.
+⛔ Yayın düğmesi **yok** — çıktı klasörü açılır.
 
 ## B.6 · Riskler
 
