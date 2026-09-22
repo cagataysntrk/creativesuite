@@ -171,6 +171,33 @@ Final QA'da ayrıca şunlar kontrol edilir:
 
 **Amaç:** “şablona uyan kısa slogan” değil; “şablonun görsel gücünü kullanan güçlü öğretici anlatı”.
 
+## 5A. AI 3B asset protokolü — sahne/seamless kullanım
+
+AI görseli kullanılıyorsa varsayılan amaç **tam post üretmek değil, kompozisyona girecek varlık üretmektir**.
+
+Kurallar:
+
+- AI modelinden metin, logo, UI, sayı veya hazır carousel istenmez.
+- Tercih edilen varlık: arka plansız veya sonradan güvenilir biçimde matla ayrıştırılabilen 3B endüstriyel nesne.
+- Malzeme dili: mat kömür / metal gövde + UpcyTech kobalt mavi vurgu.
+- Ekran, kadran, etiket veya üzerinde sahte veri üretmeye müsait yüzeylerden kaçınılır.
+- Görsel konuya doğrudan bağlı olmalıdır; rastgele “AI teknoloji küresi” kabul edilmez.
+- Varlık, mümkünse iki slayt arasındaki kesimi aşacak biçimde yerleştirilir; seamless etkisinin taşıyıcısı olur.
+- Slayt başına görsel doldurmak yasaktır. `sahne` ailesindeki prensip korunur: **görsel kesim başına / anlatı eşiği başına** kullanılır.
+- Görselin olmadığı slaytlarda tipografi ve panel yapısı taşıyıcı olmaya devam eder.
+- AI asset görünür biçimde kullanılıyorsa CreativeSuite'in AI-ifşa kuralı uygulanır.
+- Görsel üretici yanlışlıkla tam poster/infografik üretirse bu çıktı final olarak kullanılmaz; yalnızca asset kaynağı olarak yeniden işlenir veya yeniden üretilir.
+
+### Sahne ailesi için zorunlu seamless kural
+
+`sahne` veya ondan türeyen varyantta:
+
+1. en az iki 3B varlık slayt kesimini fiziksel olarak aşar;
+2. panorama boyunca ölçek/hairline veya başka bir sürekli taşıyıcı devam eder;
+3. 3B varlık metni kesmez;
+4. kompozisyon her slaytta tekil değil, panorama halinde tek iş gibi okunur;
+5. görsel, metnin söylediği analitik kavramı temsil eder.
+
 ## 6. Slayt başına QA
 
 Her slayt ayrı açılır ve kontrol edilir:
