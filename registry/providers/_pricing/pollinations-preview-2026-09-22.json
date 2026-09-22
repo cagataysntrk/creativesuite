@@ -1,0 +1,11 @@
+{
+  "provider": "pollinations-preview",
+  "captured_at": "2026-09-22",
+  "verified": true,
+  "verified_by": "live-smoke",
+  "measurement": "GitHub-hosted Ubuntu smoke test: unauthenticated image endpoint returned HTTP 200 and non-empty JPEG.",
+  "unitMicros": 0,
+  "sourceUrl": "https://gen.pollinations.ai/docs",
+  "openRisk": "Preview-only integration; before production/publishing, provider terms and long-term availability must be reviewed.",
+  "_not": "Experimental branch only."
+}
