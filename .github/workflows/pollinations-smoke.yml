@@ -1,0 +1,20 @@
+name: Pollinations smoke
+on:
+  push:
+    branches: [feat/just-chat-preview]
+    paths: [".github/workflows/pollinations-smoke.yml"]
+  workflow_dispatch: {}
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch AI image
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://image.pollinations.ai/prompt/premium%20isolated%203D%20industrial%20gearbox%20graphite%20metal%20cobalt%20blue%20accent%20no%20text?width=768&height=1024&nologo=true&seed=42'
+          code="$(curl -L --retry 2 --max-time 120 -sS -o /tmp/test.jpg -w '%{http_code}' "$URL")"
+          echo "HTTP=$code"
+          file /tmp/test.jpg || true
+          test "$code" = "200"
+          test -s /tmp/test.jpg
