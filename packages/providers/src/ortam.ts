@@ -76,6 +76,7 @@ export const YARDIMCI_DEGISKENLER: readonly string[] = [
   'CF_HESAPLAR',
   // Yerel ikilinin yolu — `claude-code` adaptörü onu çalıştırıyor.
   'CLAUDE_CODE_BIN',
+  'SUITE_CHAT_SEED_FILE',
 ]
 
 export const saglayiciOrtami = (
