@@ -21,6 +21,10 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           python -m pip install --quiet numpy
+      - name: Stage brand asset
+        run: |
+          mkdir -p motion/dima-launch/assets
+          cp brand/brd_upcytech/logo/isaret-acik.png motion/dima-launch/assets/upcy.png
       - name: Generate original score
         working-directory: motion/dima-launch
         run: python make_score.py
