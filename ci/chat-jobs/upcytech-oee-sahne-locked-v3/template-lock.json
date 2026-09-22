@@ -1,0 +1,41 @@
+{
+  "protocol": "Chat Agent Carousel Protocol V2 — TEMPLATE LOCKED",
+  "template": "sahne",
+  "sourcePanorama": "derived/runs/run_01a03afc-7d73-7e8c-a3b8-feb91909204f/panorama.json",
+  "sourceBlobSha": "74fd57ce5e7d11c6f815ee265d771e3cf9767e55",
+  "immutableFields": [
+    "slaytGenisligi",
+    "yukseklik",
+    "yerlesim",
+    "tipografi",
+    "zemin",
+    "aksan",
+    "gorselIslemleri",
+    "bant",
+    "tokenCss",
+    "logo",
+    "kartlar[].kolon",
+    "kartlar[].aksanRolu",
+    "kartlar[].aksanDibi",
+    "gorseller[].x",
+    "gorseller[].y",
+    "gorseller[].genislik",
+    "gorseller[].yukseklik",
+    "gorseller[].kirpma"
+  ],
+  "allowedChanges": [
+    "kartlar[].ustBaslik",
+    "kartlar[].baslik",
+    "kartlar[].govde",
+    "kartlar[].rayaSol",
+    "kartlar[].rayaOrta",
+    "kartlar[].kapanis.cagri",
+    "gorseller[].src",
+    "gorseller[].alt",
+    "stamp provenance"
+  ],
+  "noInventedComponents": true,
+  "noButtons": true,
+  "noEmoji": true,
+  "noFakeUi": true
+}

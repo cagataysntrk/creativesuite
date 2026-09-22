@@ -1,0 +1,11 @@
+{
+  "id": "upcytech-oee-sahne-locked-v3",
+  "template": "sahne",
+  "sourceRun": "run_01a03afc-7d73-7e8c-a3b8-feb91909204f",
+  "ratio": "3:4",
+  "width": 1080,
+  "height": 1440,
+  "publish": false,
+  "imageGeneration": true,
+  "templateLocked": true
+}
