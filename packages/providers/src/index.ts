@@ -14,6 +14,7 @@ export type {
   ProviderAdapter,
 } from './types.js'
 
+export { chatSeed } from './chat-seed.js'
 export { claudeCode } from './claude-code.js'
 // Ham liste DIŞA AÇILMAZ (§3.8). Açılsaydı her paket kendi sağlayıcı kümesini
 // kurabilirdi ve o küme yönlendiriciyi de maliyet defterini de atlardı. Dışarıya
