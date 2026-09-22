@@ -1,0 +1,63 @@
+{
+  "title": "Dima Vertical V4 Spectra",
+  "format": "9:16",
+  "resolution": "1080x1920",
+  "duration_sec": 22.4,
+  "fps": 30,
+  "scenes": [
+    {
+      "span": [
+        0,
+        3.2
+      ],
+      "intent": "hook",
+      "copy": "NEDEN?"
+    },
+    {
+      "span": [
+        3.2,
+        6.4
+      ],
+      "intent": "product_promise",
+      "copy": "Soruyu araştırmaya çevirir."
+    },
+    {
+      "span": [
+        6.4,
+        10.4
+      ],
+      "intent": "product_ui",
+      "copy": "M3’ün OEE’si neden düştü?"
+    },
+    {
+      "span": [
+        10.4,
+        14.6
+      ],
+      "intent": "research_loop",
+      "copy": "Bileşen → kırılım → olay → doğrulama"
+    },
+    {
+      "span": [
+        14.6,
+        18.6
+      ],
+      "intent": "business_output",
+      "copy": "Bulgu + Kanıt + Sonraki kontrol"
+    },
+    {
+      "span": [
+        18.6,
+        22.4
+      ],
+      "intent": "brand_resolve",
+      "copy": "Dima — Denetlenebilir iş analisti."
+    }
+  ],
+  "music": {
+    "bpm": 126,
+    "direction": "bright premium SaaS launch, punchier than V3",
+    "source": "original deterministic"
+  },
+  "claims_policy": "No customer ROI/performance claims."
+}
