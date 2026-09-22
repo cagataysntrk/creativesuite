@@ -60,8 +60,10 @@ jobs:
           if [ -d "$HOME/.cache/ms-playwright" ]; then
             cp -a "$HOME/.cache/ms-playwright/." .ci-tools/ms-playwright/
           fi
-          tar -czf /tmp/creativesuite-portable.tgz \
+          tar -cf /tmp/creativesuite-portable.tar \
             --exclude=.git \
+            --exclude=odunc \
+            --exclude=docs/research \
             --exclude=derived/runs/'run_*' \
             --exclude=derived/blobs \
             .
@@ -70,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: creativesuite-portable-${{ github.run_id }}
-          path: /tmp/creativesuite-portable.tgz
+          path: /tmp/creativesuite-portable.tar
           if-no-files-found: error
           retention-days: 3
 
