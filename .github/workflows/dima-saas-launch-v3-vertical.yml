@@ -1,0 +1,66 @@
+name: Dima SaaS Launch V3 Vertical
+on:
+  push:
+    branches: [work/dima-saas-launch-v3-vertical]
+    paths:
+      - "motion/dima-saas-launch-v3-vertical/**"
+      - ".github/workflows/dima-saas-launch-v3-vertical.yml"
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install media deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet numpy
+      - name: Stage brand asset
+        run: |
+          mkdir -p motion/dima-saas-launch-v3-vertical/assets
+          cp brand/brd_upcytech/logo/isaret-acik.png motion/dima-saas-launch-v3-vertical/assets/upcy.png
+      - name: Generate soundtrack
+        working-directory: motion/dima-saas-launch-v3-vertical
+        run: python make_music.py
+      - name: HyperFrames lint
+        working-directory: motion/dima-saas-launch-v3-vertical
+        run: npx --yes hyperframes@0.7.109 lint
+      - name: HyperFrames validate
+        working-directory: motion/dima-saas-launch-v3-vertical
+        run: npx --yes hyperframes@0.7.109 validate
+      - name: HyperFrames inspect
+        working-directory: motion/dima-saas-launch-v3-vertical
+        run: npx --yes hyperframes@0.7.109 inspect
+      - name: QA snapshots
+        working-directory: motion/dima-saas-launch-v3-vertical
+        run: npx --yes hyperframes@0.7.109 snapshot --at 1.8,5.7,9.6,13.5,17.4,21.3,24.2
+      - name: Render master
+        working-directory: motion/dima-saas-launch-v3-vertical
+        run: npx --yes hyperframes@0.7.109 render --fps 30 --quality high --player-ready-timeout 2000 --output dima-v3-silent.mp4
+      - name: Mux audio and previews
+        working-directory: motion/dima-saas-launch-v3-vertical
+        run: |
+          ffmpeg -y -loglevel error -i dima-v3-silent.mp4 -i assets/launch_score.wav -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 256k -shortest -movflags +faststart Dima_Vertical_Product_Launch_V3_1080x1920.mp4
+          ffmpeg -y -loglevel error -i Dima_Vertical_Product_Launch_V3_1080x1920.mp4 -vf "fps=10,scale=360:-2:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=96[p];[s1][p]paletteuse=dither=bayer" -t 9 Dima_Vertical_Product_Launch_V3_preview.gif
+          ffprobe -v error -show_entries format=duration,size,bit_rate -of json Dima_Vertical_Product_Launch_V3_1080x1920.mp4 > render-info.json
+          ffmpeg -hide_banner -i assets/launch_score.wav -af ebur128=peak=true -f null - 2> audio-analysis.txt || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dima-saas-launch-v3-vertical
+          path: |
+            motion/dima-saas-launch-v3-vertical/Dima_Vertical_Product_Launch_V3_1080x1920.mp4
+            motion/dima-saas-launch-v3-vertical/Dima_Vertical_Product_Launch_V3_preview.gif
+            motion/dima-saas-launch-v3-vertical/snapshots/
+            motion/dima-saas-launch-v3-vertical/storyboard.json
+            motion/dima-saas-launch-v3-vertical/music-meta.json
+            motion/dima-saas-launch-v3-vertical/audio-analysis.txt
+            motion/dima-saas-launch-v3-vertical/render-info.json
+            motion/dima-saas-launch-v3-vertical/index.html
+          if-no-files-found: error
+          retention-days: 30

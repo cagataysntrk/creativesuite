@@ -1,0 +1,17 @@
+{
+  "title":"Dima — Vertical SaaS Product Launch V3",
+  "format":"9:16",
+  "resolution":"1080x1920",
+  "duration_sec":25.2,
+  "fps":30,
+  "music":{"bpm":124,"direction":"bright premium SaaS launch","source":"original deterministic composition"},
+  "scenes":[
+    {"span":[0,3.87],"intent":"hook","copy":"VERİ VAR. Peki karar neden hâlâ zor?"},
+    {"span":[3.87,7.74],"intent":"problem","copy":"Dashboard görünürlük sağlar. Ama neden sorusu burada başlar."},
+    {"span":[7.74,11.61],"intent":"product_reveal","copy":"Dima soruyu araştırmaya çevirir."},
+    {"span":[11.61,15.48],"intent":"product_ui","copy":"M3’ün OEE’si neden düştü?"},
+    {"span":[15.48,19.35],"intent":"research","copy":"Bileşen → kırılım → olay → doğrulama"},
+    {"span":[19.35,23.22],"intent":"business_value","copy":"Bulgu + Kanıt + Sonraki kontrol"},
+    {"span":[23.22,25.2],"intent":"brand_resolve","copy":"Dima — Denetlenebilir iş analisti."}
+  ]
+}

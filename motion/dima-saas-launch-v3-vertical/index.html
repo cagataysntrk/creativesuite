@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080,height=1920,initial-scale=1"/>
+<title>Dima — Vertical Product Launch V3</title>
+<style>
+:root{
+  --ink:#080b10;--paper:#f7f9fc;--paper2:#eef3f8;--blue:#0b8fff;--blue2:#8dcfff;
+  --muted:#667487;--dark:#06101b;--dark2:#0a1727;--line:rgba(8,11,16,.09);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--paper)}
+.bg{position:absolute;inset:0;background:
+radial-gradient(circle at 82% 12%,rgba(11,143,255,.13),transparent 24%),
+radial-gradient(circle at 16% 83%,rgba(102,91,255,.07),transparent 24%),
+linear-gradient(180deg,#fbfcfe 0%,#eff4f9 100%)}
+.grid{position:absolute;inset:0;opacity:.20;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:72px 72px;mask-image:linear-gradient(to bottom,transparent,black 12%,black 88%,transparent)}
+.brand{position:absolute;left:58px;top:54px;z-index:40;display:flex;align-items:center;gap:12px;font-size:18px;font-weight:800;letter-spacing:.09em;color:#172233}
+.brand img{width:42px;height:42px;object-fit:contain}
+.chapter{position:absolute;right:58px;top:69px;z-index:40;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#8290a2}
+.scene{position:absolute;inset:0;opacity:0;pointer-events:none;will-change:opacity,transform,filter}
+.inner{position:absolute;inset:0;padding:220px 68px 150px;display:flex;flex-direction:column;justify-content:center}
+.kicker{font-size:18px;letter-spacing:.17em;text-transform:uppercase;font-weight:750;color:var(--blue);margin-bottom:26px}
+.hero{font-size:108px;line-height:.91;letter-spacing:-.069em;font-weight:670;margin:0;max-width:950px}
+.hero.xl{font-size:138px}.hero.md{font-size:94px}.hero .blue{color:var(--blue)}
+.sub{font-size:30px;line-height:1.38;letter-spacing:-.024em;color:#5f6b7b;margin-top:34px;max-width:900px}
+.darkScene{background:linear-gradient(155deg,var(--dark),#081624 52%,#06101b);color:#fff}
+.darkScene .sub{color:#aeb8c6}.darkScene .kicker{color:#8acbff}
+.wordline{display:flex;flex-wrap:wrap;gap:14px;margin-top:48px}
+.word{font-size:22px;padding:16px 20px;background:rgba(255,255,255,.74);border:1px solid rgba(8,11,16,.10);border-radius:16px;color:#334155}
+.word strong{color:var(--blue)}
+.stackTitle{font-size:44px;color:#8a96a6;letter-spacing:-.03em;margin-bottom:28px}
+.dashboard{position:absolute;left:64px;right:64px;top:300px;height:1010px;background:#fff;border:1px solid #e4e9f0;border-radius:34px;box-shadow:0 44px 110px rgba(28,52,82,.17);overflow:hidden}
+.dbTop{height:78px;border-bottom:1px solid #e8edf4;display:flex;align-items:center;padding:0 24px;gap:10px}
+.dot3{width:11px;height:11px;border-radius:50%;background:#dfe5ec}
+.dbTitle{font-size:16px;font-weight:650;color:#516073;margin-left:10px}
+.dbBody{display:grid;grid-template-columns:170px 1fr;height:932px}
+.dbNav{padding:22px 14px;border-right:1px solid #e8edf4}
+.nav{height:54px;margin:9px 0;border-radius:13px;background:#f6f8fb}.nav.active{background:#eaf4ff}
+.dbMain{padding:30px}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.metric{height:150px;border:1px solid #e5eaf1;background:#f7f9fc;border-radius:20px;padding:22px}
+.metric small{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:#8a96a6}.metric b{font-size:44px;display:block;margin-top:12px}
+.chart{height:330px;margin-top:18px;border:1px solid #e5eaf1;border-radius:22px;background:linear-gradient(#fff,#f7f9fc);overflow:hidden;position:relative}
+.chart svg{position:absolute;inset:0;width:100%;height:100%}
+.rows{display:flex;flex-direction:column;gap:14px;margin-top:18px}.row{height:88px;border-radius:18px;border:1px solid #e5eaf1;background:#f7f9fc}
+.overlayCopy{position:absolute;left:74px;right:74px;bottom:180px;background:rgba(7,15,26,.92);color:white;border-radius:28px;padding:32px 34px;backdrop-filter:blur(20px);box-shadow:0 30px 80px rgba(2,8,15,.28)}
+.overlayCopy .small{font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:#91cfff}.overlayCopy .big{font-size:48px;line-height:1.02;letter-spacing:-.045em;font-weight:630;margin-top:12px}
+.dimaCenter{display:flex;flex-direction:column;align-items:center;text-align:center}.dimaLogo{display:flex;align-items:center;gap:24px}.dimaLogo svg{width:145px;height:105px}.dimaWord{font-family:Georgia,"Times New Roman",serif;font-size:132px;line-height:.84;letter-spacing:-.055em}
+.dimaClaim{font-size:52px;line-height:1.06;letter-spacing:-.045em;margin-top:42px;max-width:880px}.dimaClaim .blue{color:#75c4ff}
+.askWrap{position:absolute;left:52px;right:52px;top:205px;height:1370px;background:rgba(255,255,255,.97);border:1px solid #e3e9f0;border-radius:34px;box-shadow:0 45px 120px rgba(22,53,91,.16);overflow:hidden}
+.askTop{height:82px;border-bottom:1px solid #e6ebf2;display:flex;align-items:center;padding:0 28px;gap:16px}
+.askMark{width:34px;height:34px;border-radius:11px;border:3px solid #111827}.askName{font-family:Georgia,"Times New Roman",serif;font-size:30px}.askMode{font-size:15px;color:#7f8b9a}
+.askGrid{display:grid;grid-template-columns:185px 1fr;height:1288px}
+.askSide{border-right:1px solid #e6ebf2;padding:24px 14px}.sideLab{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#8a96a5;margin:12px}.sideItem{padding:16px 12px;border-radius:12px;margin:5px 0;font-size:16px;color:#4b5a6d}.sideItem.active{background:#eaf4ff;color:#0879ee;font-weight:650}
+.askMain{padding:40px 34px}.qLabel{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:#8a96a5}.q{font-size:48px;line-height:1.03;letter-spacing:-.045em;font-weight:650;margin-top:12px}
+.answer{margin-top:28px;padding:24px 24px;border-radius:20px;background:#f7f9fc;border:1px solid #e5eaf1;color:#465569;font-size:20px;line-height:1.42}
+.branchStack{display:flex;flex-direction:column;gap:13px;margin-top:22px}.branch{height:95px;border-radius:18px;border:1px solid #e3e8ef;background:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between}.branch .lab{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:#8b97a5}.branch .val{font-size:24px;font-weight:620}.branch.active{border-color:#5caaff;background:#f5faff;box-shadow:inset 0 0 0 1px #5caaff}.branch.active .val{color:#0879ee}
+.searchFlow{position:absolute;inset:190px 68px 160px}.searchFlow h2{font-size:82px;line-height:.96;letter-spacing:-.058em;margin:0}.searchFlow p{font-size:26px;line-height:1.42;color:#afbac8;margin-top:28px;max-width:900px}
+.nodes{position:absolute;left:20px;right:20px;bottom:30px;height:880px}.wire{position:absolute;left:50%;top:30px;bottom:30px;width:2px;background:linear-gradient(#2097ff,rgba(32,151,255,.12))}
+.node{position:absolute;left:50%;transform:translateX(-50%);width:760px;height:150px;border:1px solid rgba(255,255,255,.14);border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04));display:flex;align-items:center;padding:0 30px;gap:24px;backdrop-filter:blur(14px)}
+.node:nth-child(2){top:25px}.node:nth-child(3){top:230px}.node:nth-child(4){top:435px}.node:nth-child(5){top:640px}
+.nNum{width:62px;height:62px;border-radius:50%;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:750;color:#9ed5ff}.nText{font-size:30px;letter-spacing:-.02em}.node.active{border-color:#3fa0ff;background:linear-gradient(180deg,rgba(11,143,255,.22),rgba(11,143,255,.07));box-shadow:0 0 80px rgba(11,143,255,.16)}
+.outcomes{position:absolute;inset:180px 58px 140px}.outcomes h2{font-size:78px;line-height:.98;letter-spacing:-.057em;margin:0 0 38px}
+.cards{display:flex;flex-direction:column;gap:20px}.card{height:310px;border:1px solid #e1e7ee;border-radius:28px;background:#fff;box-shadow:0 22px 65px rgba(42,67,98,.11);padding:34px;display:flex;flex-direction:column;justify-content:space-between}.cardNo{font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#8d9bae}.card h3{font-size:54px;letter-spacing:-.048em;line-height:1;margin:0}.card p{font-size:21px;line-height:1.35;color:#657386;margin:0}.cardBlue{background:linear-gradient(145deg,#138bff,#086bdc);color:#fff;border:none}.cardBlue .cardNo,.cardBlue p{color:#dcedff}
+.end{background:#07111e;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center}.endInner{display:flex;flex-direction:column;align-items:center}.end .dimaLogo svg{width:150px;height:110px}.end .dimaWord{font-size:138px}.endLine{font-size:47px;line-height:1.15;letter-spacing:-.043em;color:#cbd6e2;margin-top:44px}.endSub{font-size:15px;letter-spacing:.19em;text-transform:uppercase;color:#718399;margin-top:20px}
+.progress{position:absolute;left:54px;right:54px;bottom:46px;height:2px;background:rgba(19,31,48,.10);z-index:50}.progress i{display:block;height:100%;width:0;background:var(--blue)}.progress.dark{background:rgba(255,255,255,.11)}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="25.2" data-width="1080" data-height="1920">
+  <div class="bg"></div><div class="grid"></div>
+  <div class="brand" id="brand"><img src="assets/upcy.png"/>UPCYTECH</div>
+  <div class="chapter" id="chapter">DIMA / PRODUCT FILM</div>
+
+  <section class="scene" id="s0"><div class="inner">
+    <div class="kicker">Şirket verisi</div>
+    <h1 class="hero xl">VERİ<br/>VAR.</h1>
+    <h2 class="stackTitle">Peki karar neden hâlâ zor?</h2>
+    <div class="wordline"><div class="word">ERP</div><div class="word">MES</div><div class="word">Excel</div><div class="word">Bakım</div><div class="word"><strong>Operasyon</strong></div></div>
+  </div></section>
+
+  <section class="scene" id="s1">
+    <div class="dashboard" id="dash">
+      <div class="dbTop"><i class="dot3"></i><i class="dot3"></i><i class="dot3"></i><span class="dbTitle">Üretim performansı</span></div>
+      <div class="dbBody"><div class="dbNav"><div class="nav active"></div><div class="nav"></div><div class="nav"></div><div class="nav"></div></div><div class="dbMain">
+      <div class="metrics"><div class="metric"><small>OEE</small><b>—</b></div><div class="metric"><small>Duruş</small><b>—</b></div><div class="metric"><small>Kalite</small><b>—</b></div><div class="metric"><small>Hız</small><b>—</b></div></div>
+      <div class="chart"><svg viewBox="0 0 720 330" preserveAspectRatio="none"><path d="M0 244 C88 190 126 214 190 156 S310 120 365 178 S470 244 532 146 S628 94 720 120" fill="none" stroke="#0b8fff" stroke-width="6"/></svg></div>
+      <div class="rows"><div class="row"></div><div class="row"></div><div class="row"></div></div>
+      </div></div>
+    </div>
+    <div class="overlayCopy"><div class="small">Dashboard görünürlük sağlar</div><div class="big">Ama “neden?” sorusu<br/>burada başlar.</div></div>
+  </section>
+
+  <section class="scene darkScene" id="s2"><div class="inner dimaCenter">
+    <div class="dimaLogo"><svg viewBox="0 0 160 110" fill="none"><path d="M18 50C18 18 59 7 91 16C122 25 145 50 132 73C121 92 87 92 69 76C54 63 59 45 77 39C97 32 118 44 116 61C114 78 91 87 72 80C49 72 38 50 51 35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 77C70 91 91 96 104 84C114 75 111 65 103 61" stroke="white" stroke-width="8" stroke-linecap="round"/><path d="M104 84C109 92 107 101 99 105" stroke="white" stroke-width="8" stroke-linecap="round"/></svg><div class="dimaWord">Dima</div></div>
+    <div class="dimaClaim">Soruyu yalnız cevaplamaz.<br/><span class="blue">Araştırmaya çevirir.</span></div>
+  </div></section>
+
+  <section class="scene" id="s3">
+    <div class="askWrap" id="ask">
+      <div class="askTop"><div class="askMark"></div><div class="askName">Dima</div><div class="askMode">/ Ask</div></div>
+      <div class="askGrid"><div class="askSide"><div class="sideLab">Çalışma alanı</div><div class="sideItem active">Ask</div><div class="sideItem">Araştırmalar</div><div class="sideItem">Kanıtlar</div><div class="sideItem">Kayıtlar</div></div>
+      <div class="askMain"><div class="qLabel">Soru</div><div class="q">M3’ün OEE’si neden düştü?</div>
+      <div class="answer">Önce düşüşün hangi OEE bileşeninden geldiğini ayırıyorum. Sonra aynı dönemde makine, vardiya, ürün ve olay kayıtlarını karşılaştıracağım.</div>
+      <div class="branchStack"><div class="branch"><div><div class="lab">A</div><div class="val">Kullanılabilirlik</div></div></div><div class="branch active"><div><div class="lab">P</div><div class="val">Performans</div></div></div><div class="branch"><div><div class="lab">Q</div><div class="val">Kalite</div></div></div></div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="scene darkScene" id="s4"><div class="searchFlow">
+    <div class="kicker">Araştırma akışı</div><h2>Tek cevap değil.<br/>Kontrollü araştırma.</h2><p>Dima sonuç geldikçe araştırmayı daraltır: doğru bileşeni bulur, kırılımı değiştirir, olayları eşleştirir ve en güçlü hipotezi sınar.</p>
+    <div class="nodes"><div class="wire"></div><div class="node"><div class="nNum">1</div><div class="nText">Bileşeni ayır</div></div><div class="node"><div class="nNum">2</div><div class="nText">Kırılımı değiştir</div></div><div class="node"><div class="nNum">3</div><div class="nText">Olayları eşleştir</div></div><div class="node"><div class="nNum">4</div><div class="nText">Hipotezi doğrula</div></div></div>
+  </div></section>
+
+  <section class="scene" id="s5"><div class="outcomes">
+    <div class="kicker">Business çıktısı</div><h2>Karar için gereken<br/>üç şeyi birlikte getirir.</h2>
+    <div class="cards"><article class="card"><div class="cardNo">01 / Bulgu</div><h3>Ne değişti?</h3><p>İş sorusunu açıklayan, ölçülebilir ve bağlama oturan bulgu.</p></article><article class="card cardBlue"><div class="cardNo">02 / Kanıt</div><h3>Bunu nasıl biliyoruz?</h3><p>Sonucu destekleyen veri, karşılaştırma ve doğrulama izi.</p></article><article class="card"><div class="cardNo">03 / Sonraki kontrol</div><h3>Şimdi neye bakmalı?</h3><p>Belirsizliği azaltmak veya nedeni doğrulamak için sıradaki test.</p></article></div>
+  </div></section>
+
+  <section class="scene end" id="s6"><div class="endInner">
+    <div class="dimaLogo"><svg viewBox="0 0 160 110" fill="none"><path d="M18 50C18 18 59 7 91 16C122 25 145 50 132 73C121 92 87 92 69 76C54 63 59 45 77 39C97 32 118 44 116 61C114 78 91 87 72 80C49 72 38 50 51 35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 77C70 91 91 96 104 84C114 75 111 65 103 61" stroke="white" stroke-width="8" stroke-linecap="round"/><path d="M104 84C109 92 107 101 99 105" stroke="white" stroke-width="8" stroke-linecap="round"/></svg><div class="dimaWord">Dima</div></div>
+    <div class="endLine">Denetlenebilir iş analisti.</div><div class="endSub">Sor → Araştır → Kanıtla → Karar ver</div>
+  </div></section>
+
+  <div class="progress" id="pbar"><i id="progress"></i></div>
+</div>
+<script>
+var D=25.2,current=0;
+var windows=[['s0',0,4.15],['s1',3.55,8.15],['s2',7.55,11.85],['s3',11.25,15.8],['s4',15.15,19.75],['s5',19.05,23.45],['s6',22.85,25.2]];
+function clamp(x,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?1:b,x))}
+function ease(x){x=clamp(x);return x*x*(3-2*x)}
+function win(t,a,b){return Math.min(ease((t-a)/.42),ease((b-t)/.42))}
+function lerp(a,b,p){return a+(b-a)*p}
+function sceneStyle(el,o,t,a){var p=ease((t-a)/.58);el.style.opacity=o;el.style.transform='translateY('+lerp(28,0,p)+'px) scale('+lerp(1.018,1,p)+')';el.style.filter='blur('+lerp(11,0,p)+'px)'}
+function setTime(t){
+  t=clamp(t,0,D);current=t;
+  windows.forEach(function(s){sceneStyle(document.getElementById(s[0]),win(t,s[1],s[2]),t,s[1])});
+  var dark=(t>=7.65&&t<11.75)||(t>=15.25&&t<19.65)||(t>=22.95);
+  document.getElementById('brand').style.color=dark?'#fff':'#172233';
+  document.getElementById('chapter').style.color=dark?'#7890aa':'#8290a2';
+  document.getElementById('pbar').className='progress'+(dark?' dark':'');
+  document.getElementById('progress').style.width=(t/D*100)+'%';
+
+  document.querySelectorAll('#s0 .word').forEach(function(el,i){var p=ease((t-(1.05+i*.16))/.34);el.style.opacity=p;el.style.transform='translateY('+(24*(1-p))+'px)'});
+
+  var d=document.getElementById('dash'),pd=ease((t-3.9)/.62);
+  d.style.transform='perspective(1600px) rotateX('+lerp(8,0,pd)+'deg) translateY('+lerp(90,0,pd)+'px) scale('+lerp(.94,1,pd)+')';
+  var oc=document.querySelector('.overlayCopy'),po=ease((t-5.15)/.52);oc.style.opacity=po;oc.style.transform='translateY('+(45*(1-po))+'px)';
+
+  var logo=document.querySelector('#s2 .dimaLogo'),pl=ease((t-8.0)/.48);logo.style.opacity=pl;logo.style.transform='scale('+lerp(.82,1,pl)+')';
+  var claim=document.querySelector('#s2 .dimaClaim'),pc=ease((t-8.75)/.55);claim.style.opacity=pc;claim.style.transform='translateY('+(36*(1-pc))+'px)';
+
+  var ask=document.getElementById('ask'),pa=ease((t-11.55)/.72);
+  ask.style.transform='perspective(1500px) rotateX('+lerp(8,0,pa)+'deg) translateY('+lerp(90,0,pa)+'px) scale('+lerp(.94,1,pa)+')';
+  document.querySelectorAll('#s3 .branch').forEach(function(el,i){var p=ease((t-(12.75+i*.34))/.42);el.style.opacity=p;el.style.transform='translateX('+(30*(1-p))+'px)'});
+
+  document.querySelectorAll('.node').forEach(function(el,i){var st=16.0+i*.68,p=ease((t-st)/.42);el.style.opacity=.16+.84*p;el.style.transform='translateX(-50%) translateY('+(26*(1-p))+'px)';if(t>=st+.1)el.classList.add('active');else el.classList.remove('active')});
+
+  document.querySelectorAll('.card').forEach(function(el,i){var st=19.65+i*.38,p=ease((t-st)/.48);el.style.opacity=p;el.style.transform='translateY('+(46*(1-p))+'px) scale('+lerp(.97,1,p)+')'});
+
+  var endLogo=document.querySelector('#s6 .dimaLogo'),pe=ease((t-23.15)/.5);endLogo.style.opacity=pe;endLogo.style.transform='scale('+lerp(.84,1,pe)+')';
+}
+window.__setTime=setTime;
+var timeline={duration:function(){return D},seek:function(v){current=Number(v)||0;setTime(current);return this},totalTime:function(v){if(v!==undefined){current=Number(v)||0;setTime(current)}return current},progress:function(v){if(v!==undefined){current=Number(v)*D;setTime(current)}return current/D},pause:function(){return this},play:function(){return this}};
+window.__timelines={main:timeline};setTime(0);
+</script>
+</body></html>
