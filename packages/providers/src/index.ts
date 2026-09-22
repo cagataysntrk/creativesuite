@@ -16,6 +16,7 @@ export type {
 
 export { claudeCode } from './claude-code.js'
 export { chatHandoff } from './chat-handoff.js'
+export { pollinationsPreview } from './pollinations-preview.js'
 // Ham liste DIŞA AÇILMAZ (§3.8). Açılsaydı her paket kendi sağlayıcı kümesini
 // kurabilirdi ve o küme yönlendiriciyi de maliyet defterini de atlardı. Dışarıya
 // yalnız erişimciler açılır — kapı bu satırı bir kez zaten yakaladı.
