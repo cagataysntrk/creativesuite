@@ -1,0 +1,60 @@
+name: Dima HyperFrames launch film
+on:
+  push:
+    branches: [work/dima-hyperframes-launch-v1]
+    paths:
+      - "motion/dima-launch/**"
+      - ".github/workflows/dima-launch-film.yml"
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install ffmpeg and Python audio deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet numpy
+      - name: Generate original score
+        working-directory: motion/dima-launch
+        run: python make_score.py
+      - name: HyperFrames lint
+        working-directory: motion/dima-launch
+        run: npx --yes hyperframes@0.7.109 lint
+      - name: HyperFrames validate
+        working-directory: motion/dima-launch
+        run: npx --yes hyperframes@0.7.109 validate
+      - name: HyperFrames inspect
+        working-directory: motion/dima-launch
+        run: npx --yes hyperframes@0.7.109 inspect
+      - name: QA snapshots
+        working-directory: motion/dima-launch
+        run: npx --yes hyperframes@0.7.109 snapshot --at 1.2,3.6,6.0,8.8,12.4,16.2,19.8
+      - name: Render high-quality silent master
+        working-directory: motion/dima-launch
+        run: npx --yes hyperframes@0.7.109 render --fps 30 --quality high --player-ready-timeout 2000 --output dima-launch-silent.mp4
+      - name: Mux score and make preview
+        working-directory: motion/dima-launch
+        run: |
+          ffmpeg -y -i dima-launch-silent.mp4 -i assets/launch_score.wav -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 256k -shortest -movflags +faststart Dima_Product_Launch_1080x1920.mp4
+          ffmpeg -y -i Dima_Product_Launch_1080x1920.mp4 -vf "fps=12,scale=360:-2:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=96[p];[s1][p]paletteuse=dither=bayer" -t 8 Dima_Product_Launch_preview.gif
+          ffprobe -v error -show_entries format=duration,size -of json Dima_Product_Launch_1080x1920.mp4 > render-info.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dima-hyperframes-launch-v1
+          path: |
+            motion/dima-launch/Dima_Product_Launch_1080x1920.mp4
+            motion/dima-launch/Dima_Product_Launch_preview.gif
+            motion/dima-launch/snapshots/
+            motion/dima-launch/audiomap.json
+            motion/dima-launch/storyboard.json
+            motion/dima-launch/render-info.json
+            motion/dima-launch/index.html
+          if-no-files-found: error
+          retention-days: 30

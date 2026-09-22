@@ -1,0 +1,1 @@
+{"name":"dima-product-launch","private":true,"type":"module","scripts":{"preview":"npx --yes hyperframes@0.7.109 preview","check":"npx --yes hyperframes@0.7.109 check","render":"npx --yes hyperframes@0.7.109 render --player-ready-timeout 2000"}}
