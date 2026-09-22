@@ -43,6 +43,9 @@ jobs:
       - name: Build
         run: pnpm exec tsc -b
 
+      - name: Build derived corpus index
+        run: just reindex
+
       - name: Inspect non-secret runtime capabilities
         shell: bash
         env:
