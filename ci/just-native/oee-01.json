@@ -1,0 +1,5 @@
+{
+  "id": "upcytech-oee-native-just-01",
+  "command": "just uret instagram-karosel <topic> --sablon sahne",
+  "purpose": "Run the unmodified CreativeSuite production CLI on GitHub-hosted Ubuntu."
+}
