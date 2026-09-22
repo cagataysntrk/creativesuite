@@ -1,0 +1,110 @@
+name: Native just carousel probe
+
+on:
+  push:
+    branches:
+      - work/just-native-oee-01
+    paths:
+      - "ci/just-native/**"
+      - ".github/workflows/just-native-carousel.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  native-just:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.0.0 --activate
+          pnpm --version
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build
+        run: pnpm exec tsc -b
+
+      - name: Inspect non-secret runtime capabilities
+        shell: bash
+        env:
+          HAS_SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY != '' }}
+          HAS_ANTHROPIC: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          HAS_CF_TOKEN: ${{ secrets.CF_API_TOKEN != '' }}
+        run: |
+          echo "SOPS_AGE_KEY configured: ${HAS_SOPS_AGE_KEY}"
+          echo "ANTHROPIC_API_KEY configured: ${HAS_ANTHROPIC}"
+          echo "CF_API_TOKEN configured: ${HAS_CF_TOKEN}"
+          echo "just: $(just --version)"
+          echo "node: $(node -v)"
+          echo "pnpm: $(pnpm -v)"
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run CreativeSuite via JUST
+        id: uret
+        continue-on-error: true
+        shell: bash
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_HESAPLAR: ${{ secrets.CF_HESAPLAR }}
+          SUITE_CLAUDE_MODEL: claude-sonnet-5
+        run: |
+          set -o pipefail
+          just uret instagram-karosel "OEE düştüğünde aslında neyi araştırmalısınız? Önce OEE'nin kullanılabilirlik, performans ve kalite bileşenlerini ayır; sonra makine, vardiya, ürün ve zaman kırılımlarında kaybı daralt; olay verisini bağla; korelasyonu kök neden ilan etmeden karşı örnek ve eş koşulla doğrula. İçerik öğretici ve business odaklı olsun; Dima yalnız son bölümde yöntemin denetlenebilir analiz katmanı olarak bağlansın." --sablon sahne 2>&1 | tee /tmp/just-uret.log
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit ${PIPESTATUS[0]}
+
+      - name: Collect run state and logs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/native-just-artifact
+          cp /tmp/just-uret.log /tmp/native-just-artifact/just-uret.log 2>/dev/null || true
+          if [ -d derived/runs ]; then
+            find derived/runs -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr | head -3 > /tmp/native-just-artifact/latest-runs.txt || true
+            while read -r _ d; do
+              [ -d "$d" ] || continue
+              base="$(basename "$d")"
+              mkdir -p "/tmp/native-just-artifact/$base"
+              cp "$d/manifest.json" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
+              cp "$d/panorama.json" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
+              cp "$d/kosu-parametreleri.json" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
+              cp -r "$d/steps" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
+              cp "$d"/slayt-*.jpg "/tmp/native-just-artifact/$base/" 2>/dev/null || true
+            done < /tmp/native-just-artifact/latest-runs.txt
+          fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-just-oee-${{ github.run_id }}
+          path: /tmp/native-just-artifact
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Fail if just failed
+        if: steps.uret.outcome == 'failure'
+        run: exit 1
