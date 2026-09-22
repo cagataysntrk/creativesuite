@@ -1,0 +1,14 @@
+{
+  "id": "upcytech-oee-arastirma-01",
+  "brand": "UpcyTech",
+  "type": "instagram-carousel",
+  "ratio": "3:4",
+  "width": 1080,
+  "height": 1440,
+  "language": "tr-TR",
+  "topic": "OEE düştüğünde aslında neyi araştırmalısınız?",
+  "productMention": "Dima",
+  "publish": false,
+  "authoringMode": "chat-agent",
+  "imageGeneration": false
+}
