@@ -4,9 +4,6 @@ on:
   pull_request:
     paths:
       - "ci/chat-jobs/**"
-      - "scripts/chat-carousel-render.mjs"
-      - "packages/render/**"
-      - "packages/contracts/**"
   push:
     branches:
       - main
