@@ -9,6 +9,7 @@
 // `providers` kapısı ikisinin ayrışmadığını denetler.
 
 import type { Lane, ProviderAdapter } from './types.js'
+import { chatSeed } from './chat-seed.js'
 import { claudeCode } from './claude-code.js'
 import { cloudflareImage } from './image/cloudflare.js'
 import { falImage } from './image/fal.js'
@@ -16,6 +17,7 @@ import { geminiImage } from './image/gemini.js'
 import { localRembg } from './image/rembg.js'
 
 export const ADAPTERS: readonly ProviderAdapter[] = [
+  chatSeed,
   claudeCode,
   cloudflareImage,
   falImage,
