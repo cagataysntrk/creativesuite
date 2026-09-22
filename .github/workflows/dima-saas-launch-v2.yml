@@ -1,0 +1,88 @@
+name: Dima SaaS Launch V2
+
+on:
+  push:
+    branches: [work/dima-saas-launch-v2]
+    paths:
+      - "motion/dima-saas-launch-v2/**"
+      - ".github/workflows/dima-saas-launch-v2.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install media dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet numpy
+
+      - name: Stage UpcyTech brand asset
+        run: |
+          mkdir -p motion/dima-saas-launch-v2/assets
+          cp brand/brd_upcytech/logo/isaret-acik.png motion/dima-saas-launch-v2/assets/upcy.png
+
+      - name: Create original launch music
+        working-directory: motion/dima-saas-launch-v2
+        run: python make_music.py
+
+      - name: HyperFrames lint
+        working-directory: motion/dima-saas-launch-v2
+        run: npx --yes hyperframes@0.7.109 lint
+
+      - name: HyperFrames validate
+        working-directory: motion/dima-saas-launch-v2
+        run: npx --yes hyperframes@0.7.109 validate
+
+      - name: HyperFrames inspect
+        working-directory: motion/dima-saas-launch-v2
+        run: npx --yes hyperframes@0.7.109 inspect
+
+      - name: QA snapshots
+        working-directory: motion/dima-saas-launch-v2
+        run: npx --yes hyperframes@0.7.109 snapshot --at 2,6,10,14,18,22,26
+
+      - name: Render high-quality silent master
+        working-directory: motion/dima-saas-launch-v2
+        run: npx --yes hyperframes@0.7.109 render --fps 30 --quality high --player-ready-timeout 2000 --output dima-saas-v2-silent.mp4
+
+      - name: Mux music and export deliverables
+        working-directory: motion/dima-saas-launch-v2
+        run: |
+          ffmpeg -y -loglevel error -i dima-saas-v2-silent.mp4 -i assets/launch_score.wav             -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 256k -shortest -movflags +faststart             Dima_SaaS_Product_Launch_V2_1920x1080.mp4
+
+          ffmpeg -y -loglevel error -i Dima_SaaS_Product_Launch_V2_1920x1080.mp4             -vf "fps=10,scale=640:-2:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer"             -t 10 Dima_SaaS_Product_Launch_V2_preview.gif
+
+          ffprobe -v error -show_entries format=duration,size,bit_rate -of json             Dima_SaaS_Product_Launch_V2_1920x1080.mp4 > render-info.json
+
+          ffmpeg -hide_banner -i assets/launch_score.wav -af ebur128=peak=true -f null - 2> audio-analysis.txt || true
+
+      - name: Upload final artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dima-saas-launch-v2
+          path: |
+            motion/dima-saas-launch-v2/Dima_SaaS_Product_Launch_V2_1920x1080.mp4
+            motion/dima-saas-launch-v2/Dima_SaaS_Product_Launch_V2_preview.gif
+            motion/dima-saas-launch-v2/snapshots/
+            motion/dima-saas-launch-v2/storyboard.json
+            motion/dima-saas-launch-v2/music-meta.json
+            motion/dima-saas-launch-v2/audio-analysis.txt
+            motion/dima-saas-launch-v2/render-info.json
+            motion/dima-saas-launch-v2/index.html
+          if-no-files-found: error
+          retention-days: 30
