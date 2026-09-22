@@ -1,0 +1,14 @@
+id: pollinations-preview
+title: Pollinations preview image
+adapter: pollinations-preview
+enabled: true
+cost_formula: '0'
+pricing_snapshot: _pricing/pollinations-preview-2026-09-22.json
+free_tier_commercial: true
+auth_env: null
+capabilities:
+  - name: image.generate
+    lanes: [free]
+    supports:
+      aspect: ['4:5']
+      no_text: [true]
