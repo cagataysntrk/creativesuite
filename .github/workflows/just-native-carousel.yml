@@ -47,10 +47,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm install -g pnpm@11.0.0
           mkdir -p .ci-tools/bin .ci-tools/pnpm .ci-tools/ms-playwright
           cp "$(which just)" .ci-tools/bin/just
-          cp -a "$(npm root -g)/pnpm/." .ci-tools/pnpm/
+          cp -a "$HOME/.cache/node/corepack/v1/pnpm/11.21.0/." .ci-tools/pnpm/
           cat > .ci-tools/bin/pnpm <<'SH'
           #!/usr/bin/env bash
           set -euo pipefail
