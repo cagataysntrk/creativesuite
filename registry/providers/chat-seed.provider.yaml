@@ -1,0 +1,29 @@
+id: chat-seed
+title: ChatGPT seed bridge
+enabled: true
+adapter: chat-seed
+auth_env: null
+pricing_snapshot: null
+cost_formula: "0"
+free_tier_commercial: true
+noncommercial_ack: true
+capabilities:
+  - name: text.generate
+    lanes: [free]
+    supports:
+      locale: [tr-TR, en-US]
+      output_format: [text, json]
+  - name: reasoning.plan
+    lanes: [free]
+    supports:
+      locale: [tr-TR, en-US]
+  - name: image.critique
+    lanes: [free]
+    supports:
+      locale: [tr-TR]
+      output_format: [json]
+  - name: design.critique
+    lanes: [free]
+    supports:
+      locale: [tr-TR]
+      output_format: [json]
