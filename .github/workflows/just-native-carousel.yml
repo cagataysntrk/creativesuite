@@ -43,6 +43,38 @@ jobs:
       - name: Build
         run: pnpm exec tsc -b
 
+      - name: Build portable CreativeSuite bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install -g pnpm@11.0.0
+          mkdir -p .ci-tools/bin .ci-tools/pnpm .ci-tools/ms-playwright
+          cp "$(which just)" .ci-tools/bin/just
+          cp -a "$(npm root -g)/pnpm/." .ci-tools/pnpm/
+          cat > .ci-tools/bin/pnpm <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          HERE="$(cd "$(dirname "$0")" && pwd)"
+          exec node "$HERE/../pnpm/bin/pnpm.cjs" "$@"
+          SH
+          chmod +x .ci-tools/bin/pnpm .ci-tools/bin/just
+          if [ -d "$HOME/.cache/ms-playwright" ]; then
+            cp -a "$HOME/.cache/ms-playwright/." .ci-tools/ms-playwright/
+          fi
+          tar -czf /tmp/creativesuite-portable.tgz \
+            --exclude=.git \
+            --exclude=derived/runs/'run_*' \
+            --exclude=derived/blobs \
+            .
+
+      - name: Upload portable CreativeSuite bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: creativesuite-portable-${{ github.run_id }}
+          path: /tmp/creativesuite-portable.tgz
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Build derived corpus index
         run: just reindex
 
