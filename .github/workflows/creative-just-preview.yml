@@ -32,12 +32,19 @@ jobs:
         run: just reindex
 
       - name: JUST URET
-        run: just uret instagram-karosel-chat-preview "OEE düştüğünde aslında neyi araştırmalısınız?" --sablon sahne --icerik-kipi genel
+        shell: bash
+        run: |
+          set -euo pipefail
+          just uret instagram-karosel-chat-preview "OEE düştüğünde aslında neyi araştırmalısınız?" --sablon sahne --icerik-kipi genel | tee /tmp/uret.log
+          MANIFEST="$(grep -E 'manifest: derived/runs/.+/manifest.json' /tmp/uret.log | tail -1 | sed 's/.*manifest: //')"
+          test -n "${MANIFEST}"
+          RUN_DIR="${MANIFEST%/manifest.json}"
+          echo "RUN_DIR=${RUN_DIR}" >> "${GITHUB_ENV}"
       - name: collect
         shell: bash
         run: |
           set -euo pipefail
-          RUN_DIR="$(find derived/runs -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          test -n "${RUN_DIR}"
           mkdir -p .just-preview
           cp "${RUN_DIR}"/slayt-*.jpg .just-preview/ 2>/dev/null || true
           cp "${RUN_DIR}/panorama.json" .just-preview/ 2>/dev/null || true
