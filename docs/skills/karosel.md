@@ -54,7 +54,7 @@ cozumle → bilgi-sec → metin-uret → sablon-uyarla → kompozit
 - **Şablon SEÇİLİR, icat edilmez** (Yasa 13). Seçim içeriğin ölçülen şeklinden çıkar:
   zaman serisi → `veri-hikayesi`, numaralı ritim → `akan-alan`, soru ritmi → `memphis`,
   anlatı → `sahne`. Seçilemezse hat **DURUR** — sessizce varsayılana düşmez.
-- **Karosel tek geniş tuvalde çizilir** (N × 1080 × 1350) ve sonra dilimlenir.
+- **Karosel tek geniş tuvalde çizilir** (N × 1080 × 1440) ve sonra dilimlenir.
   Süreklilik bir efekt değil, tuvalin kendisi.
 - **Türkçe metin görsel modeline çizdirilmez** (Yasa 3). Model metinsiz üretir,
   metin gerçek fontla kompozit edilir.
