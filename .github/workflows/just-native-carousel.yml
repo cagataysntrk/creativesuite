@@ -60,6 +60,11 @@ jobs:
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Snapshot runs before JUST
+        shell: bash
+        run: |
+          find derived/runs -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort > /tmp/runs-before.txt || true
+
       - name: Run CreativeSuite via JUST
         id: uret
         continue-on-error: true
@@ -72,7 +77,7 @@ jobs:
           SUITE_CLAUDE_MODEL: claude-sonnet-5
         run: |
           set -o pipefail
-          just uret instagram-karosel "OEE düştüğünde aslında neyi araştırmalısınız? Önce OEE'nin kullanılabilirlik, performans ve kalite bileşenlerini ayır; sonra makine, vardiya, ürün ve zaman kırılımlarında kaybı daralt; olay verisini bağla; korelasyonu kök neden ilan etmeden karşı örnek ve eş koşulla doğrula. İçerik öğretici ve business odaklı olsun; Dima yalnız son bölümde yöntemin denetlenebilir analiz katmanı olarak bağlansın." --sablon sahne 2>&1 | tee /tmp/just-uret.log
+          just uret instagram-karosel "OEE düşüşünde aslında neyi araştırmalısınız? Önce kullanılabilirlik, performans ve kalite bileşenlerini ayır; sonra makine, vardiya, ürün ve zaman kırılımlarında kaybı daralt; olay verisini bağla; korelasyonu kök neden ilan etmeden karşı örnek ve eş koşulla doğrula. İçerik öğretici ve business odaklı olsun; Dima yalnız son bölümde yöntemin denetlenebilir analiz katmanı olarak bağlansın." --sablon sahne 2>&1 | tee /tmp/just-uret.log
           echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
           exit ${PIPESTATUS[0]}
 
@@ -83,17 +88,20 @@ jobs:
           mkdir -p /tmp/native-just-artifact
           cp /tmp/just-uret.log /tmp/native-just-artifact/just-uret.log 2>/dev/null || true
           if [ -d derived/runs ]; then
-            find derived/runs -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr | head -3 > /tmp/native-just-artifact/latest-runs.txt || true
-            while read -r _ d; do
+            find derived/runs -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort > /tmp/runs-after.txt || true
+            comm -13 /tmp/runs-before.txt /tmp/runs-after.txt > /tmp/native-just-artifact/new-runs.txt || true
+            while IFS= read -r base; do
+              [ -n "$base" ] || continue
+              d="derived/runs/$base"
               [ -d "$d" ] || continue
-              base="$(basename "$d")"
               mkdir -p "/tmp/native-just-artifact/$base"
               cp "$d/manifest.json" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
               cp "$d/panorama.json" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
               cp "$d/kosu-parametreleri.json" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
+              cp "$d/donmus-plan.json" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
               cp -r "$d/steps" "/tmp/native-just-artifact/$base/" 2>/dev/null || true
               cp "$d"/slayt-*.jpg "/tmp/native-just-artifact/$base/" 2>/dev/null || true
-            done < /tmp/native-just-artifact/latest-runs.txt
+            done < /tmp/native-just-artifact/new-runs.txt
           fi
 
       - name: Upload evidence
