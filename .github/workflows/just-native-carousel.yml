@@ -60,8 +60,6 @@ jobs:
           echo "node: $(node -v)"
           echo "pnpm: $(pnpm -v)"
 
-      - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
 
       - name: Snapshot runs before JUST
         shell: bash
@@ -77,12 +75,29 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_HESAPLAR: ${{ secrets.CF_HESAPLAR }}
-          SUITE_CLAUDE_MODEL: claude-sonnet-5
+          SUITE_CHAT_SEED_FILE: ${{ github.workspace }}/ci/just-native/oee-seed.json
         run: |
           set -o pipefail
-          just uret instagram-karosel "OEE düşüşünde aslında neyi araştırmalısınız? Önce kullanılabilirlik, performans ve kalite bileşenlerini ayır; sonra makine, vardiya, ürün ve zaman kırılımlarında kaybı daralt; olay verisini bağla; korelasyonu kök neden ilan etmeden karşı örnek ve eş koşulla doğrula. İçerik öğretici ve business odaklı olsun; Dima yalnız son bölümde yöntemin denetlenebilir analiz katmanı olarak bağlansın." --sablon sahne 2>&1 | tee /tmp/just-uret.log
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-          exit ${PIPESTATUS[0]}
+          RUN_ID="run_01a0c900-0000-7000-8000-000000000001"
+          mkdir -p "derived/runs/$RUN_ID"
+          cp ci/just-native/assets/elle-gorsel-01.png "derived/runs/$RUN_ID/elle-gorsel-01.png"
+          cp ci/just-native/assets/elle-gorsel-02.png "derived/runs/$RUN_ID/elle-gorsel-02.png"
+          TOPIC="OEE düşüşünde gerçek nedeni bulmak için hangi sırayla araştırma yapılmalı?"
+
+          just uret instagram-karosel "$TOPIC" --sablon sahne --run "$RUN_ID" 2>&1 | tee /tmp/just-uret.log
+          first_rc=${PIPESTATUS[0]}
+          if [[ "$first_rc" -ne 0 ]]; then exit "$first_rc"; fi
+
+          just onay "$RUN_ID" onayla "Kullanıcı native just üretimini ve bu post için ChatGPT editoryal akışını onayladı." --kapi metin-onayi
+          just uret instagram-karosel --devam "$RUN_ID" 2>&1 | tee -a /tmp/just-uret.log
+          second_rc=${PIPESTATUS[0]}
+          if [[ "$second_rc" -ne 0 ]]; then exit "$second_rc"; fi
+
+          just onay "$RUN_ID" onayla "Kullanıcı bu görevde tasarım üretiminin tamamlanmasını istedi; yayın yapılmayacak." --kapi tasarim-onayi
+          just uret instagram-karosel --devam "$RUN_ID" 2>&1 | tee -a /tmp/just-uret.log
+          final_rc=${PIPESTATUS[0]}
+          echo "exit_code=$final_rc" >> "$GITHUB_OUTPUT"
+          exit "$final_rc"
 
       - name: Collect run state and logs
         if: always()
