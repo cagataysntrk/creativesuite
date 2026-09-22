@@ -55,4 +55,5 @@ jobs:
           name: oee-just-preview-${{ github.run_id }}
           path: .just-preview/
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
