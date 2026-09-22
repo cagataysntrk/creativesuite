@@ -1,0 +1,14 @@
+id: chat-handoff
+title: ChatGPT handoff (file-backed)
+adapter: chat-handoff
+enabled: true
+cost_formula: '0'
+pricing_snapshot: _pricing/chat-handoff-2026-09-22.json
+free_tier_commercial: true
+auth_env: SUITE_CHAT_HANDOFF
+capabilities:
+  - name: text.generate
+    lanes: [free]
+    supports:
+      locale: ['tr-TR', 'en-US']
+      max_chars: [400, 600, 2200, 4000, 10000]

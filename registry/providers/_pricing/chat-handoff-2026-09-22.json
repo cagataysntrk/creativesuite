@@ -1,0 +1,11 @@
+{
+  "provider": "chat-handoff",
+  "captured_at": "2026-09-22",
+  "verified": true,
+  "verified_by": "structural",
+  "measurement": "ChatGPT oturumu çıktıyı dosyaya yazar; provider ağ/model çağrısı yapmaz.",
+  "unitMicros": 0,
+  "sourceUrl": "local-file-handoff",
+  "openRisk": "Preview amaçlıdır; ayrı model çağrısı yoktur.",
+  "_not": "Yayın sağlayıcısı değildir."
+}

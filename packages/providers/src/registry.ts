@@ -10,12 +10,14 @@
 
 import type { Lane, ProviderAdapter } from './types.js'
 import { claudeCode } from './claude-code.js'
+import { chatHandoff } from './chat-handoff.js'
 import { cloudflareImage } from './image/cloudflare.js'
 import { falImage } from './image/fal.js'
 import { geminiImage } from './image/gemini.js'
 import { localRembg } from './image/rembg.js'
 
 export const ADAPTERS: readonly ProviderAdapter[] = [
+  chatHandoff,
   claudeCode,
   cloudflareImage,
   falImage,

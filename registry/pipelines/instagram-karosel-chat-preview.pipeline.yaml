@@ -1,0 +1,77 @@
+id: instagram-karosel-chat-preview
+retired: false
+brand: brd_upcytech
+brand_era: imalat-2026
+default_budget_usd: '0.50'
+platforms: [instagram]
+free_tier_allowed: true
+
+steps:
+  - id: cozumle
+    verb: RESOLVE
+    needs: []
+  - id: bilgi-sec
+    verb: SELECT
+    needs: [cozumle]
+    constraints:
+      icerik_kipi: firma
+  - id: metin-uret
+    verb: GENERATE
+    needs: [bilgi-sec]
+    capability: text.generate
+    budget: { lane: free, max_usd: '0.00' }
+    constraints: { locale: tr-TR, max_chars: 2200 }
+  - id: sablon-uyarla
+    verb: GENERATE
+    needs: [bilgi-sec, metin-uret]
+    capability: text.generate
+    budget: { lane: free, max_usd: '0.00' }
+    constraints:
+      locale: tr-TR
+      max_chars: 4000
+      sablon_uyarla: true
+      gorsel_uretilebilir: true
+  - id: kompozit
+    verb: COMPOSE
+    needs: [metin-uret, sablon-uyarla]
+    constraints: { katalog: true }
+  - id: duzen-provasi
+    verb: RENDER
+    needs: [kompozit]
+    constraints: { width: 1080, height: 1440, prova: true }
+  - id: gorsel-brief
+    verb: GENERATE
+    needs: [sablon-uyarla]
+    capability: text.generate
+    budget: { lane: free, max_usd: '0.00' }
+    constraints: { locale: tr-TR, max_chars: 600, gorsel_brief: true, gorsel_sira: 1 }
+    optional: true
+  - id: gorsel-uret
+    verb: GENERATE
+    needs: [gorsel-brief]
+    capability: image.generate
+    budget: { lane: free, max_usd: '0.00' }
+    constraints: { aspect: '4:5', no_text: true, gorsel_sira: 1 }
+    optional: true
+  - id: gorsel-brief-2
+    verb: GENERATE
+    needs: [sablon-uyarla]
+    capability: text.generate
+    budget: { lane: free, max_usd: '0.00' }
+    constraints: { locale: tr-TR, max_chars: 600, gorsel_brief: true, gorsel_sira: 2 }
+    optional: true
+  - id: gorsel-uret-2
+    verb: GENERATE
+    needs: [gorsel-brief-2]
+    capability: image.generate
+    budget: { lane: free, max_usd: '0.00' }
+    constraints: { aspect: '4:5', no_text: true, gorsel_sira: 2 }
+    optional: true
+  - id: yuva-doldur
+    verb: COMPOSE
+    needs: [metin-uret, sablon-uyarla, gorsel-uret, gorsel-uret-2]
+    constraints: { katalog: true }
+  - id: render
+    verb: RENDER
+    needs: [yuva-doldur]
+    constraints: { width: 1080, height: 1440 }
