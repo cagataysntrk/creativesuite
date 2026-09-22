@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080,height=1920,initial-scale=1"/>
+<title>Dima — Decision Room</title>
+<style>
+:root{
+  --bg:#02060c;--bg2:#07111c;--ink:#f7fbff;--mut:#92a3b7;--blue:#1097ff;--blue2:#8ed1ff;--cyan:#70e2ff;--paper:#f5f8fb;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:var(--ink)}
+#space{position:absolute;inset:0;width:1080px;height:1920px}
+.scene{position:absolute;inset:0;opacity:0;will-change:opacity,transform,filter}
+.brand{position:absolute;left:50px;top:48px;z-index:70;display:flex;align-items:center;gap:12px;font-weight:800;font-size:17px;letter-spacing:.08em}
+.brand img{width:40px;height:40px;object-fit:contain}
+.chapter{position:absolute;right:50px;top:63px;z-index:70;font-size:12px;letter-spacing:.16em;color:#73859a;text-transform:uppercase}
+.kicker{font-size:16px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue2);font-weight:760;margin-bottom:24px}
+.hero{font-size:116px;line-height:.9;letter-spacing:-.074em;font-weight:690;margin:0}
+.hero .blue{color:var(--blue)}
+.sub{font-size:29px;line-height:1.4;letter-spacing:-.022em;color:#a8b6c5;margin-top:34px;max-width:900px}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:110px 62px}
+.qmark{font-size:260px;line-height:.8;font-weight:700;letter-spacing:-.08em;color:white;text-shadow:0 0 80px rgba(16,151,255,.22)}
+.question{font-size:56px;line-height:1.05;letter-spacing:-.052em;font-weight:650;max-width:880px;margin-top:44px}
+.orbit{position:absolute;left:50%;top:50%;width:860px;height:860px;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(255,255,255,.06)}
+.orbit:before,.orbit:after{content:"";position:absolute;inset:110px;border-radius:50%;border:1px solid rgba(16,151,255,.15)}.orbit:after{inset:255px;border-color:rgba(255,255,255,.08)}
+.shard{position:absolute;width:250px;height:112px;border-radius:24px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));backdrop-filter:blur(14px);box-shadow:0 18px 60px rgba(0,0,0,.22);display:flex;align-items:center;padding:0 22px;gap:16px}
+.shard i{width:12px;height:12px;border-radius:50%;background:var(--blue);box-shadow:0 0 24px rgba(16,151,255,.8)}
+.shard b{font-size:23px;letter-spacing:-.02em}.shard small{display:block;color:#8294a8;font-size:12px;letter-spacing:.10em;text-transform:uppercase;margin-top:4px}
+#sh1{left:74px;top:370px}#sh2{right:72px;top:455px}#sh3{left:90px;bottom:430px}#sh4{right:85px;bottom:350px}#sh5{left:415px;top:815px;width:250px}
+.core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:290px;height:290px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(128,214,255,.35),rgba(16,151,255,.12) 38%,rgba(16,151,255,.03) 60%,transparent 72%);border:1px solid rgba(122,210,255,.25);box-shadow:0 0 120px rgba(16,151,255,.20),inset 0 0 80px rgba(16,151,255,.08);display:flex;align-items:center;justify-content:center;text-align:center}
+.core span{font-family:Georgia,serif;font-size:60px;letter-spacing:-.05em}
+.room{position:absolute;inset:160px 44px 110px;background:linear-gradient(180deg,#08131f,#07111b);border:1px solid rgba(255,255,255,.10);border-radius:36px;box-shadow:0 50px 130px rgba(0,0,0,.34);overflow:hidden}
+.roomTop{height:86px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 28px;gap:14px}
+.roomMark{width:36px;height:36px;border:3px solid white;border-radius:12px}.roomName{font-family:Georgia,serif;font-size:32px}.roomMode{font-size:14px;color:#788ba0}
+.roomQ{padding:36px 34px 26px}.roomQ small{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#7594b0}.roomQ h2{font-size:50px;line-height:1.03;letter-spacing:-.05em;margin:12px 0 0}
+.timeline{position:absolute;left:34px;right:34px;top:265px;height:950px}
+.axis{position:absolute;left:36px;top:30px;bottom:40px;width:2px;background:linear-gradient(rgba(16,151,255,.15),#1697ff 48%,rgba(16,151,255,.12))}
+.event{position:absolute;left:0;right:0;height:145px;border:1px solid rgba(255,255,255,.10);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border-radius:26px;padding:24px 26px 22px 88px}
+.event:nth-child(2){top:10px}.event:nth-child(3){top:205px}.event:nth-child(4){top:400px}.event:nth-child(5){top:595px}
+.event:before{content:"";position:absolute;left:17px;top:47px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:#08131f}
+.event.active{border-color:#2f9eff;background:linear-gradient(180deg,rgba(16,151,255,.18),rgba(16,151,255,.045));box-shadow:0 0 90px rgba(16,151,255,.12)}
+.event.active:before{border-color:var(--blue);box-shadow:0 0 30px rgba(16,151,255,.45)}
+.evK{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#7791aa}.evV{font-size:27px;line-height:1.16;margin-top:10px;font-weight:620;letter-spacing:-.028em}.evS{font-size:16px;color:#8da0b4;margin-top:8px}
+.hyp{position:absolute;inset:180px 62px 130px}.hyp h2{font-size:84px;line-height:.95;letter-spacing:-.06em;margin:0}.hyp p{font-size:26px;line-height:1.4;color:#a7b5c4;margin-top:24px}
+.hypStack{position:absolute;left:0;right:0;bottom:60px;display:flex;flex-direction:column;gap:22px}
+.hypCard{height:200px;border-radius:30px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));padding:30px;display:grid;grid-template-columns:120px 1fr 110px;align-items:center;gap:24px}
+.hypNo{font-size:38px;color:#7190aa;font-weight:650}.hypText b{font-size:30px;display:block}.hypText span{font-size:18px;color:#8ea0b3;display:block;margin-top:8px}.hypState{font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:#8193a7;text-align:right}.hypCard.focus{border-color:#35a3ff;background:linear-gradient(180deg,rgba(16,151,255,.20),rgba(16,151,255,.05));box-shadow:0 0 100px rgba(16,151,255,.12)}.hypCard.focus .hypState{color:#9fd7ff}
+.record{position:absolute;left:54px;right:54px;top:190px;height:1370px;background:#f7f9fc;color:#0b111a;border-radius:34px;box-shadow:0 50px 120px rgba(0,0,0,.26);overflow:hidden}
+.recordTop{height:88px;border-bottom:1px solid #e3e8ee;display:flex;align-items:center;justify-content:space-between;padding:0 30px}.recordTop b{font-size:24px}.recordTop span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8290a2}
+.recBody{padding:36px}.recLabel{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8895a5}.recQuestion{font-size:46px;line-height:1.05;letter-spacing:-.045em;font-weight:650;margin-top:12px}
+.recSection{margin-top:34px;padding-top:26px;border-top:1px solid #e1e7ee}.recSection h3{font-size:18px;letter-spacing:.12em;text-transform:uppercase;color:#758396;margin:0 0 16px}.recBig{font-size:40px;line-height:1.15;letter-spacing:-.037em;font-weight:620}.recText{font-size:21px;line-height:1.42;color:#5f6d7f;margin-top:14px}.evidenceRow{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:18px}.evidence{height:125px;border:1px solid #e1e7ee;border-radius:18px;background:#fff;padding:18px}.evidence small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8a97a5}.evidence b{font-size:19px;display:block;margin-top:10px}.next{margin-top:28px;background:#eaf5ff;border:1px solid #abd7ff;border-radius:22px;padding:24px}.next small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#4183bd}.next b{font-size:26px;display:block;margin-top:10px;color:#0a66b8}
+.final{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 58px}.logo{display:flex;align-items:center;gap:24px}.logo svg{width:145px;height:105px}.wordmark{font-family:Georgia,serif;font-size:138px;letter-spacing:-.055em}.final h2{font-size:63px;line-height:1.04;letter-spacing:-.05em;margin:46px 0 0}.final p{font-size:25px;line-height:1.4;color:#9cafc1;max-width:830px;margin-top:24px}
+.scan{position:absolute;left:-120px;right:-120px;height:180px;background:linear-gradient(180deg,transparent,rgba(16,151,255,.09),transparent);filter:blur(24px);transform:rotate(-10deg);opacity:0}
+.progress{position:absolute;left:52px;right:52px;bottom:42px;height:2px;background:rgba(255,255,255,.10);z-index:80}.progress i{display:block;height:100%;background:var(--blue);width:0}
+</style>
+</head>
+<body><div id="root" data-composition-id="main" data-start="0" data-duration="24.6" data-width="1080" data-height="1920">
+<canvas id="space" width="1080" height="1920"></canvas><div class="brand"><img src="assets/upcy.png"/>UPCYTECH</div><div class="chapter">DIMA / DECISION ROOM</div><div class="scan" id="scan"></div>
+
+<section class="scene" id="s0"><div class="center"><div class="kicker">Bir iş sorusu</div><div class="qmark">?</div><div class="question">“Teslimatlar neden gecikiyor?”</div></div></section>
+
+<section class="scene" id="s1"><div class="orbit"></div>
+<div class="shard" id="sh1"><i></i><div><b>ERP</b><small>Sipariş & stok</small></div></div>
+<div class="shard" id="sh2"><i></i><div><b>MES</b><small>Üretim akışı</small></div></div>
+<div class="shard" id="sh3"><i></i><div><b>Bakım</b><small>Duruş kayıtları</small></div></div>
+<div class="shard" id="sh4"><i></i><div><b>Satın alma</b><small>Malzeme durumu</small></div></div>
+<div class="shard" id="sh5"><i></i><div><b>Vardiya</b><small>Saha notları</small></div></div>
+<div class="core"><span>Dima</span></div></section>
+
+<section class="scene" id="s2"><div class="room"><div class="roomTop"><div class="roomMark"></div><div class="roomName">Dima</div><div class="roomMode">/ Research</div></div><div class="roomQ"><small>Araştırma</small><h2>Teslimatlar neden gecikiyor?</h2></div>
+<div class="timeline"><div class="axis"></div>
+<div class="event"><div class="evK">01 / Üretim</div><div class="evV">Kapasite baskısı hangi ürün ailesinde yoğunlaşıyor?</div><div class="evS">Planlanan ve gerçekleşen üretim karşılaştırılıyor.</div></div>
+<div class="event"><div class="evK">02 / Malzeme</div><div class="evV">Gecikmeler malzeme bekleme ile aynı döneme denk geliyor mu?</div><div class="evS">Stok ve satın alma kayıtları zaman ekseninde eşleniyor.</div></div>
+<div class="event"><div class="evK">03 / Duruş</div><div class="evV">Plansız duruşlar teslimat sapmasını açıklıyor mu?</div><div class="evS">Makine ve bakım olayları karşılaştırılıyor.</div></div>
+<div class="event"><div class="evK">04 / Karşı örnek</div><div class="evV">Aynı koşulda zamanında çıkan siparişler neyi farklı yaptı?</div><div class="evS">İlk hipotez karşı örnekle sınanıyor.</div></div>
+</div></div></section>
+
+<section class="scene" id="s3"><div class="hyp"><div class="kicker">Alternatif açıklamalar</div><h2>İlk cevaba<br/>bağlanma.</h2><p>Dima neden adaylarını yan yana tutar ve hangisinin veriye daha iyi uyduğunu test eder.</p>
+<div class="hypStack"><div class="hypCard"><div class="hypNo">A</div><div class="hypText"><b>Kapasite</b><span>Üretim talebi karşılayamıyor olabilir.</span></div><div class="hypState">Test</div></div>
+<div class="hypCard focus"><div class="hypNo">B</div><div class="hypText"><b>Malzeme bekleme</b><span>Gecikme belirli girdilerde yoğunlaşıyor olabilir.</span></div><div class="hypState">Öncelikli</div></div>
+<div class="hypCard"><div class="hypNo">C</div><div class="hypText"><b>Plansız duruş</b><span>Makine olayları teslimat akışını bozuyor olabilir.</span></div><div class="hypState">Test</div></div></div></div></section>
+
+<section class="scene" id="s4"><div class="record"><div class="recordTop"><b>Araştırma kaydı</b><span>İzlenebilir</span></div><div class="recBody"><div class="recLabel">Soru</div><div class="recQuestion">Teslimatlar neden gecikiyor?</div>
+<div class="recSection"><h3>Bulgu biçimi</h3><div class="recBig">Tek bir neden yerine, doğrulanmış bir açıklama zinciri.</div><div class="recText">Sonuç; kullanılan veri, karşılaştırma ve belirsizlikle birlikte kaydedilir.</div></div>
+<div class="recSection"><h3>Kanıt katmanı</h3><div class="evidenceRow"><div class="evidence"><small>ERP</small><b>Sipariş zamanı</b></div><div class="evidence"><small>MES</small><b>Üretim akışı</b></div><div class="evidence"><small>Bakım</small><b>Duruş olayı</b></div></div></div>
+<div class="next"><small>Sonraki kontrol</small><b>Hipotezi eş koşuldaki siparişlerle yeniden test et.</b></div></div></div></section>
+
+<section class="scene" id="s5"><div class="final"><div class="logo"><svg viewBox="0 0 160 110" fill="none"><path d="M18 50C18 18 59 7 91 16C122 25 145 50 132 73C121 92 87 92 69 76C54 63 59 45 77 39C97 32 118 44 116 61C114 78 91 87 72 80C49 72 38 50 51 35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 77C70 91 91 96 104 84C114 75 111 65 103 61" stroke="white" stroke-width="8" stroke-linecap="round"/><path d="M104 84C109 92 107 101 99 105" stroke="white" stroke-width="8" stroke-linecap="round"/></svg><div class="wordmark">Dima</div></div><h2>Şirket verisini<br/>araştırılabilir hale getirir.</h2><p>İş sorusundan kanıta, kanıttan izlenebilir karar zeminine.</p></div></section>
+<div class="progress"><i id="progress"></i></div></div>
+
+<script>
+var D=24.6,cur=0,cv=document.getElementById('space'),ctx=cv.getContext('2d');
+var S=[['s0',0,3.6],['s1',3.0,7.4],['s2',6.8,12.4],['s3',11.8,16.5],['s4',15.9,21.0],['s5',20.4,24.6]];
+function cl(x,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?1:b,x))}
+function ez(x){x=cl(x);return x*x*(3-2*x)}
+function wn(t,a,b){return Math.min(ez((t-a)/.38),ez((b-t)/.38))}
+function field(t){ctx.clearRect(0,0,1080,1920);var g=ctx.createRadialGradient(540,900,80,540,900,1000);g.addColorStop(0,'#0b2034');g.addColorStop(.45,'#071321');g.addColorStop(1,'#02060b');ctx.fillStyle=g;ctx.fillRect(0,0,1080,1920);
+for(var i=0;i<95;i++){var x=(i*173)%1080,y=(i*257)%1920,r=i%13===0?2.8:1.1,a=.03+.025*Math.sin(t*1.7+i);ctx.beginPath();ctx.arc(x+Math.sin(t*.35+i)*8,y+Math.cos(t*.28+i)*7,r,0,Math.PI*2);ctx.fillStyle='rgba(130,207,255,'+a+')';ctx.fill()}
+[3,6.8,11.8,15.9,20.4].forEach(function(st){var d=t-st;if(d>=0&&d<.9){var q=d/.9;ctx.beginPath();ctx.arc(540,960,60+q*780,0,Math.PI*2);ctx.strokeStyle='rgba(16,151,255,'+(.22*(1-q))+')';ctx.lineWidth=2;ctx.stroke()}})}
+function st(el,o,t,a){var p=ez((t-a)/.55);el.style.opacity=o;el.style.transform='translateY('+(30*(1-p))+'px) scale('+(1.025-.025*p)+')';el.style.filter='blur('+(11*(1-p))+'px)'}
+function setTime(t){t=cl(t,0,D);cur=t;field(t);S.forEach(function(s){st(document.getElementById(s[0]),wn(t,s[1],s[2]),t,s[1])});document.getElementById('progress').style.width=(t/D*100)+'%';
+var sc=document.getElementById('scan'),q=(t%3.1)/3.1;sc.style.top=(150+q*1550)+'px';sc.style.opacity=.52*Math.sin(Math.PI*q);
+[['sh1',.00],['sh2',.14],['sh3',.28],['sh4',.42],['sh5',.56]].forEach(function(a){var el=document.getElementById(a[0]),p=ez((t-(3.35+a[1]))/.45);el.style.opacity=p;el.style.transform='translateY('+(35*(1-p))+'px) scale('+(0.94+.06*p)+')'});
+document.querySelectorAll('.event').forEach(function(el,i){var x=7.55+i*.78,p=ez((t-x)/.42);el.style.opacity=.18+.82*p;el.style.transform='translateX('+(35*(1-p))+'px)';if(t>x+.1)el.classList.add('active');else el.classList.remove('active')});
+document.querySelectorAll('.hypCard').forEach(function(el,i){var x=12.55+i*.44,p=ez((t-x)/.4);el.style.opacity=p;el.style.transform='translateY('+(34*(1-p))+'px)'});
+var rec=document.querySelector('.record'),pr=ez((t-16.2)/.7);rec.style.transform='perspective(1600px) rotateX('+(7*(1-pr))+'deg) translateY('+(100*(1-pr))+'px) scale('+(0.95+.05*pr)+')'}
+window.__setTime=setTime;
+var timeline={duration:function(){return D},seek:function(v){cur=Number(v)||0;setTime(cur);return this},totalTime:function(v){if(v!==undefined){cur=Number(v)||0;setTime(cur)}return cur},progress:function(v){if(v!==undefined){cur=Number(v)*D;setTime(cur)}return cur/D},pause:function(){return this},play:function(){return this}};
+window.__timelines={main:timeline};setTime(0);
+</script></body></html>

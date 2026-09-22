@@ -1,0 +1,63 @@
+{
+  "title": "Dima — Decision Room",
+  "format": "9:16",
+  "resolution": "1080x1920",
+  "duration_sec": 24.6,
+  "fps": 30,
+  "concept": "A business question pulls fragmented company signals into a single research space; Dima tests competing explanations and produces an auditable research record.",
+  "scenes": [
+    {
+      "span": [
+        0,
+        3
+      ],
+      "intent": "hook",
+      "copy": "Teslimatlar neden gecikiyor?"
+    },
+    {
+      "span": [
+        3,
+        6.8
+      ],
+      "intent": "fragmented_company_data",
+      "copy": "ERP / MES / Bakım / Satın alma / Vardiya"
+    },
+    {
+      "span": [
+        6.8,
+        11.8
+      ],
+      "intent": "research_room",
+      "copy": "Evidence timeline and iterative investigation"
+    },
+    {
+      "span": [
+        11.8,
+        15.9
+      ],
+      "intent": "competing_hypotheses",
+      "copy": "Kapasite / Malzeme / Plansız duruş"
+    },
+    {
+      "span": [
+        15.9,
+        20.4
+      ],
+      "intent": "research_record",
+      "copy": "Question / evidence / next control"
+    },
+    {
+      "span": [
+        20.4,
+        24.6
+      ],
+      "intent": "brand_resolve",
+      "copy": "Dima — şirket verisini araştırılabilir hale getirir."
+    }
+  ],
+  "music": {
+    "bpm": 118,
+    "direction": "minimal future-product groove; syncopated, precise, not 4-on-the-floor"
+  },
+  "claims_policy": "Illustrative workflow only; no customer outcome or ROI claim."
+}
