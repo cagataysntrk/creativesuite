@@ -48,11 +48,57 @@ GitHub:
 CreativeSuite:
 
 - marka/tasarım sözleşmesi,
-- panorama dili,
+- **katalogdaki gerçek karosel şablonları,**
+- seamless/panorama kompozisyon dili,
 - typography/layout ilkeleri,
 - mekanik QA ve render davranışı
 
 için kanonik referanstır.
+
+### Şablon önceliği — zorunlu
+
+Karosel üretiminde varsayılan yol **CreativeSuite katalog şablonlarından birini temel almaktır**.
+Şablonlar yalnız birer “hazır görünüm” değil, seamless kompozisyonun grameridir.
+
+Mevcut aileler arasında örneğin:
+
+- `veri-hikayesi`
+- `akan-alan`
+- `kavis`
+- `alinti`
+- `karsilastirma`
+- `dizin`
+- `sahne`
+- `memphis`
+- `donen`
+- `editoryal`
+
+bulunur.
+
+ChatGPT önce içeriğin anlatı tipini belirler, sonra buna en uygun katalog şablonunu seçer.
+**Generic kart dizisi ancak katalog grameri gerçekten yetersiz kalırsa fallback'tir.**
+
+Şablonun korunması gereken kısmı onun görsel grameridir:
+
+- seamless taşıyıcı;
+- panorama sürekliliği;
+- alan/eğri/ok/ölçek gibi kesimi aşan ana unsur;
+- yüzey ve palet ailesi;
+- grid ve tipografik hiyerarşi;
+- marka ritmi.
+
+Şablonun bağlayıcı OLMAYAN kısmı ise eski örneklerin sloganik içerik yoğunluğudur.
+Eski şablon örnekleri kısa sloganlar için yazılmış olsa bile ChatGPT:
+
+- başlık/gövde oranlarını değiştirebilir;
+- body metnini açıklayıcı hale getirebilir;
+- panel sayısını ve türünü uyarlayabilir;
+- 6–9 slayta genişletebilir;
+- listeleri, karşılaştırmaları, mini grafik ve mock-up'ları şablonun içine yerleştirebilir;
+- gerektiğinde aynı şablon ailesinin yeni bir varyantını türetebilir.
+
+Kural şudur: **içerik şablona ezdirilmez; şablon, öğretici içeriği taşıyacak biçimde adapte edilir.**
+Ancak adaptasyon yapılırken seamless kimlik ve katalog ailesinin temel kompozisyon mantığı kaybedilmez.
 
 ## 3. Render sırası
 
@@ -103,12 +149,27 @@ Varsayılan:
 - 1080×1440 px;
 - 3:4;
 - 6–9 slayt;
+- **CreativeSuite katalog şablonu tabanlı;**
+- **seamless panorama taşıyıcısı korunmuş;**
 - UpcyTech: beyaz / siyah / marka mavisi;
 - büyük ama dengeli tipografi;
 - gerçek okunabilir gövde metni;
 - fotoğraf veya AI görseli zorunlu değil;
 - bilgi tasarımı: kart, liste, matris, akış, basit chart, mock-up, vektörel işaret;
 - dekor yerine bilgi taşıyan görsel eleman.
+
+### Şablon adaptasyon kontrolü
+
+Final QA'da ayrıca şunlar kontrol edilir:
+
+1. Hangi katalog şablonu temel alındı?
+2. Seamless taşıyıcı gerçekten slaytlar arasında devam ediyor mu?
+3. Adaptasyon sırasında şablonun karakteri kaybolmuş mu?
+4. Şablon uğruna içerik gereksiz kısaltılmış mı?
+5. Uzun açıklama için grid/panel/typography yeterince yeniden ayarlanmış mı?
+6. Her slayt ayrı güzel olduğu kadar panorama halinde de tek iş gibi görünüyor mu?
+
+**Amaç:** “şablona uyan kısa slogan” değil; “şablonun görsel gücünü kullanan güçlü öğretici anlatı”.
 
 ## 6. Slayt başına QA
 
@@ -130,6 +191,20 @@ Her slayt ayrı açılır ve kontrol edilir:
 ## 7. Revizyon kuralı
 
 Render üzerinde piksel yaması yapılmaz.
+
+Bir şablon içerik yoğunluğunu taşımıyorsa ilk çözüm onu terk etmek değildir. Önce:
+
+- tipografi reçetesi,
+- grid oranları,
+- metin alanı genişliği/yüksekliği,
+- panel payı,
+- kolon yerleşimi,
+- seamless taşıyıcının geometrisi,
+- şablon varyantı
+
+kaynak seviyesinde adapte edilir.
+
+Yalnızca şablon ailesinin temel anlatı mantığı konuya gerçekten uymuyorsa başka katalog şablonuna geçilir.
 
 Sorun:
 
@@ -159,9 +234,14 @@ düzeltilir ve yeniden render edilir.
 
 Ayrıca bütün klasörü içeren tek ZIP verilir.
 
-## 9. İlk referans koşu
+## 9. İlk referans koşu ve düzeltme
 
 **upcytech-oee-arastirma-01**
+
+İlk koşu, içerik/QA döngüsünü doğruladı; fakat görsel olarak fazla serbest/generic kaldı.
+Bu nedenle V1 protokolü şu ek kararla sabitlendi:
+
+> Bundan sonraki karoseller CreativeSuite'in katalog şablonlarından birini **asıl görsel omurga** olarak kullanır. Serbest üretim yalnız fallback'tir. Şablonun sloganik örnek metin yoğunluğu kopyalanmaz; içerik, aynı seamless gramer içinde daha öğretici ve daha açıklayıcı hale getirilir.
 
 Konu: “OEE düştüğünde aslında neyi araştırmalısınız?”
 
@@ -186,3 +266,7 @@ Yeni bir oturum CreativeSuite/UpcyTech karoseli üretirken önce bu dosyayı ve:
 okur.
 
 Sonra **Chat Agent Carousel Protocol V1** akışını uygular; kullanıcıdan tekrar altyapıyı anlatmasını istemez.
+
+Yeni oturumun ilk tasarım sorusu şudur:
+
+> “Bu anlatı CreativeSuite katalogundaki hangi seamless şablon ailesiyle en iyi taşınır ve o şablonu öğretici içerik için nasıl adapte etmeliyim?”
