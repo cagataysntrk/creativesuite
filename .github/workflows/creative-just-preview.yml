@@ -28,6 +28,9 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm --filter @suite/render exec playwright install --with-deps chromium
+      - name: reindex
+        run: just reindex
+
       - name: JUST URET
         run: just uret instagram-karosel-chat-preview "OEE düştüğünde aslında neyi araştırmalısınız?" --sablon sahne --icerik-kipi genel
       - name: collect
