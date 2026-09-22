@@ -1,365 +1,129 @@
-name: Creative carousel remote runner
+name: Chat-controlled carousel render
 
 on:
+  pull_request:
+    paths:
+      - "ci/chat-jobs/**"
   push:
     branches:
       - main
-      - feat/creative-remote-runner
+      - "work/**"
     paths:
-      - "ci/creative-jobs/*.json"
+      - "ci/chat-jobs/**"
   workflow_dispatch:
     inputs:
-      action:
-        description: "start | approve-text | reject-text | approve-design | reject-design"
+      job_dir:
+        description: "ci/chat-jobs/<job-id>"
         required: true
-        type: choice
-        default: start
-        options:
-          - start
-          - approve-text
-          - reject-text
-          - approve-design
-          - reject-design
-      job_file:
-        description: "start için job JSON yolu"
-        required: false
-        type: string
-      job_id:
-        description: "onay/red için job kimliği"
-        required: false
-        type: string
-      note:
-        description: "opsiyonel insan notu; red için zorunlu"
-        required: false
         type: string
 
 permissions:
   contents: read
-  actions: write
-
-concurrency:
-  group: creative-carousel-${{ github.repository }}-${{ inputs.job_id || github.sha }}
-  cancel-in-progress: false
 
 jobs:
-  carousel:
-    runs-on: [self-hosted, linux, x64, creativesuite]
-    timeout-minutes: 60
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout control plane
-        if: github.event_name == 'push' || inputs.action == 'start'
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
           persist-credentials: false
 
-      - name: Resolve and validate start job
-        if: github.event_name == 'push' || inputs.action == 'start'
-        id: job
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build
+        run: pnpm exec tsc -b
+
+      - name: Resolve job directories
+        id: jobs
         shell: bash
         env:
-          MANUAL_JOB_FILE: ${{ inputs.job_file }}
+          MANUAL_JOB_DIR: ${{ inputs.job_dir }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
-            JOB_FILE="$(git diff-tree --no-commit-id --name-only -r "${GITHUB_SHA}" -- 'ci/creative-jobs/*.json' | tail -n 1)"
+          : > /tmp/jobs.txt
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            printf '%s\n' "${MANUAL_JOB_DIR}" >> /tmp/jobs.txt
+          elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'ci/chat-jobs/**/panorama.json' |
+              sed 's#/panorama.json$##' >> /tmp/jobs.txt
           else
-            JOB_FILE="${MANUAL_JOB_FILE}"
+            git diff --name-only "${BEFORE}" "${SHA}" -- 'ci/chat-jobs/**/panorama.json' |
+              sed 's#/panorama.json$##' >> /tmp/jobs.txt
           fi
-          if [[ -z "${JOB_FILE}" || ! -f "${JOB_FILE}" ]]; then
-            echo "Job dosyası bulunamadı: ${JOB_FILE:-<bos>}" >&2
+
+          sort -u /tmp/jobs.txt -o /tmp/jobs.txt
+          if [[ ! -s /tmp/jobs.txt ]]; then
+            echo "Render edilecek panorama.json bulunamadı." >&2
             exit 1
           fi
-          node - "${JOB_FILE}" "${GITHUB_OUTPUT}" <<'NODE'
-          const fs = require('node:fs')
-          const [file, out] = process.argv.slice(2)
-          const job = JSON.parse(fs.readFileSync(file, 'utf8'))
-          const allowedTemplates = new Set(['', 'veri-hikayesi', 'akan-alan', 'sahne', 'memphis', 'donen', 'editoryal'])
-          if (!/^[a-z0-9][a-z0-9-]{2,63}$/.test(job.id ?? '')) throw new Error('job.id slug olmali')
-          if (job.type !== 'instagram-karosel') throw new Error('yalniz instagram-karosel destekleniyor')
-          if (typeof job.topic !== 'string' || job.topic.trim().length < 8 || /[\r\n]/.test(job.topic)) throw new Error('topic tek satir ve anlamli olmali')
-          const template = job.template ?? ''
-          if (!allowedTemplates.has(template)) throw new Error('template katalogda yok')
-          if (job.publish !== false) throw new Error('remote runner publish=false ister; yayin bu akisin kapsami disinda')
-          fs.appendFileSync(out, `job_id=${job.id}\n`)
-          fs.appendFileSync(out, `topic=${job.topic.trim()}\n`)
-          fs.appendFileSync(out, `template=${template}\n`)
-          fs.appendFileSync(out, `job_file=${file}\n`)
-          NODE
 
-      - name: Prepare persistent job workspace
-        if: github.event_name == 'push' || inputs.action == 'start'
-        id: state
+          while IFS= read -r dir; do
+            [[ "${dir}" =~ ^ci/chat-jobs/[a-z0-9][a-z0-9-]{2,63}$ ]] || {
+              echo "Geçersiz job dizini: ${dir}" >&2
+              exit 1
+            }
+            [[ -f "${dir}/panorama.json" ]] || {
+              echo "panorama.json yok: ${dir}" >&2
+              exit 1
+            }
+          done < /tmp/jobs.txt
+
+          {
+            echo 'dirs<<EOF'
+            cat /tmp/jobs.txt
+            echo EOF
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Render and mechanical QA
         shell: bash
         env:
-          JOB_ID: ${{ steps.job.outputs.job_id }}
+          JOB_DIRS: ${{ steps.jobs.outputs.dirs }}
         run: |
           set -euo pipefail
-          STATE_DIR="${HOME}/.creativesuite-ci/jobs/${JOB_ID}"
-          if [[ -e "${STATE_DIR}" ]]; then
-            echo "State zaten var: ${STATE_DIR}. Aynı job id yeniden kullanılamaz." >&2
-            exit 1
-          fi
-          mkdir -p "$(dirname "${STATE_DIR}")"
-          mkdir -p "${STATE_DIR}"
-          cp -a "${GITHUB_WORKSPACE}/." "${STATE_DIR}/"
-          cp "${{ steps.job.outputs.job_file }}" "${STATE_DIR}/.ci-job.json"
-          printf '%s\n' "${STATE_DIR}" > "${STATE_DIR}/.ci-state-dir"
-          echo "state_dir=${STATE_DIR}" >> "${GITHUB_OUTPUT}"
+          mkdir -p .chat-artifacts
+          while IFS= read -r dir; do
+            [[ -n "${dir}" ]] || continue
+            id="$(basename "${dir}")"
+            node scripts/chat-carousel-render.mjs "${dir}" ".chat-artifacts/${id}"
+          done <<< "${JOB_DIRS}"
 
-      - name: Bootstrap CreativeSuite
-        if: github.event_name == 'push' || inputs.action == 'start'
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.state.outputs.state_dir }}
-        run: |
-          set -euo pipefail
-          cd "${STATE_DIR}"
-          corepack enable
-          pnpm install --frozen-lockfile
-          just setup
-
-      - name: Generate text draft to metin-onayi
-        if: github.event_name == 'push' || inputs.action == 'start'
-        id: draft
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.state.outputs.state_dir }}
-          TOPIC: ${{ steps.job.outputs.topic }}
-          TEMPLATE: ${{ steps.job.outputs.template }}
-        run: |
-          set -euo pipefail
-          cd "${STATE_DIR}"
-          before="$(mktemp)"
-          after="$(mktemp)"
-          find derived/runs -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort > "${before}" || true
-
-          cmd=(just uret instagram-karosel "${TOPIC}")
-          if [[ -n "${TEMPLATE}" ]]; then
-            cmd+=(--sablon "${TEMPLATE}")
-          fi
-          printf -v shell_cmd '%q ' "${cmd[@]}"
-          sops exec-env secrets/secrets.enc.yaml "${shell_cmd}"
-
-          find derived/runs -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort > "${after}"
-          mapfile -t created < <(comm -13 "${before}" "${after}")
-          if [[ "${#created[@]}" -ne 1 ]]; then
-            echo "Tam bir yeni run bekleniyordu, bulunan: ${#created[@]}" >&2
-            printf '%s\n' "${created[@]}" >&2
-            exit 1
-          fi
-          RUN_ID="${created[0]}"
-          printf '%s\n' "${RUN_ID}" > .ci-run-id
-          echo "run_id=${RUN_ID}" >> "${GITHUB_OUTPUT}"
-
-          if [[ ! -f "derived/runs/${RUN_ID}/steps/metin-uret.json" ]]; then
-            echo "metin-uret çıktısı yok" >&2
-            exit 1
-          fi
-          if ! grep -q '"awaitingGate"[[:space:]]*:[[:space:]]*"metin-onayi"' "derived/runs/${RUN_ID}/manifest.json"; then
-            echo "Hat metin-onayi kapısında durmadı; fail-closed." >&2
-            exit 1
-          fi
-
-      - name: Stage text review artifact
-        if: github.event_name == 'push' || inputs.action == 'start'
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.state.outputs.state_dir }}
-          RUN_ID: ${{ steps.draft.outputs.run_id }}
-          JOB_ID: ${{ steps.job.outputs.job_id }}
-        run: |
-          set -euo pipefail
-          OUT="${GITHUB_WORKSPACE}/.creative-artifacts/${JOB_ID}/text"
-          mkdir -p "${OUT}"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/steps/metin-uret.json" "${OUT}/"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/manifest.json" "${OUT}/"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/kosu-parametreleri.json" "${OUT}/"
-          cp "${STATE_DIR}/.ci-job.json" "${OUT}/job.json"
-          printf '%s\n' "${RUN_ID}" > "${OUT}/RUN_ID.txt"
-
-      - name: Upload text review artifact
-        if: github.event_name == 'push' || inputs.action == 'start'
+      - name: Upload review artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: creative-text-${{ steps.job.outputs.job_id }}
-          path: .creative-artifacts/${{ steps.job.outputs.job_id }}/text
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Resolve persisted state for human decision
-        if: github.event_name == 'workflow_dispatch' && inputs.action != 'start'
-        id: resume
-        shell: bash
-        env:
-          JOB_ID: ${{ inputs.job_id }}
-        run: |
-          set -euo pipefail
-          if [[ ! "${JOB_ID}" =~ ^[a-z0-9][a-z0-9-]{2,63}$ ]]; then
-            echo "Geçerli job_id gerekli" >&2
-            exit 1
-          fi
-          STATE_DIR="${HOME}/.creativesuite-ci/jobs/${JOB_ID}"
-          if [[ ! -d "${STATE_DIR}" || ! -f "${STATE_DIR}/.ci-run-id" ]]; then
-            echo "Persisted state yok: ${STATE_DIR}" >&2
-            exit 1
-          fi
-          RUN_ID="$(cat "${STATE_DIR}/.ci-run-id")"
-          echo "state_dir=${STATE_DIR}" >> "${GITHUB_OUTPUT}"
-          echo "run_id=${RUN_ID}" >> "${GITHUB_OUTPUT}"
-
-      - name: Apply explicit human text decision
-        if: github.event_name == 'workflow_dispatch' && (inputs.action == 'approve-text' || inputs.action == 'reject-text')
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.resume.outputs.state_dir }}
-          RUN_ID: ${{ steps.resume.outputs.run_id }}
-          ACTION: ${{ inputs.action }}
-          NOTE: ${{ inputs.note }}
-        run: |
-          set -euo pipefail
-          cd "${STATE_DIR}"
-          if [[ "${ACTION}" == "reject-text" && -z "${NOTE}" ]]; then
-            echo "Red için note zorunlu" >&2
-            exit 1
-          fi
-          if [[ "${ACTION}" == "approve-text" ]]; then
-            if [[ -n "${NOTE}" ]]; then
-              just onay "${RUN_ID}" onayla "${NOTE}" --kapi metin-onayi
-            else
-              just onay "${RUN_ID}" onayla --kapi metin-onayi
-            fi
-          else
-            just onay "${RUN_ID}" reddet "${NOTE}" --kapi metin-onayi
-          fi
-
-      - name: Continue through design render
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'approve-text'
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.resume.outputs.state_dir }}
-          RUN_ID: ${{ steps.resume.outputs.run_id }}
-        run: |
-          set -euo pipefail
-          cd "${STATE_DIR}"
-          sops exec-env secrets/secrets.enc.yaml "just uret instagram-karosel --devam ${RUN_ID}"
-          if ! grep -q '"awaitingGate"[[:space:]]*:[[:space:]]*"tasarim-onayi"' "derived/runs/${RUN_ID}/manifest.json"; then
-            echo "Hat tasarim-onayi kapısında durmadı; fail-closed." >&2
-            exit 1
-          fi
-
-      - name: Upload design review artifact
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'approve-text'
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.resume.outputs.state_dir }}
-          RUN_ID: ${{ steps.resume.outputs.run_id }}
-          JOB_ID: ${{ inputs.job_id }}
-        run: |
-          set -euo pipefail
-          OUT="${GITHUB_WORKSPACE}/.creative-artifacts/${JOB_ID}/design"
-          mkdir -p "${OUT}"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}"/slayt-*.jpg "${OUT}/"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/panorama.json" "${OUT}/" 2>/dev/null || true
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/manifest.json" "${OUT}/"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/steps/render.json" "${OUT}/" 2>/dev/null || true
-          printf '%s\n' "${RUN_ID}" > "${OUT}/RUN_ID.txt"
-
-      - name: Publish design review artifact to GitHub
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'approve-text'
-        uses: actions/upload-artifact@v4
-        with:
-          name: creative-design-${{ inputs.job_id }}
-          path: .creative-artifacts/${{ inputs.job_id }}/design
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Apply explicit human design decision
-        if: github.event_name == 'workflow_dispatch' && (inputs.action == 'approve-design' || inputs.action == 'reject-design')
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.resume.outputs.state_dir }}
-          RUN_ID: ${{ steps.resume.outputs.run_id }}
-          ACTION: ${{ inputs.action }}
-          NOTE: ${{ inputs.note }}
-        run: |
-          set -euo pipefail
-          cd "${STATE_DIR}"
-          if [[ "${ACTION}" == "reject-design" && -z "${NOTE}" ]]; then
-            echo "Red için note zorunlu" >&2
-            exit 1
-          fi
-          if [[ "${ACTION}" == "approve-design" ]]; then
-            if [[ -n "${NOTE}" ]]; then
-              just onay "${RUN_ID}" onayla "${NOTE}" --kapi tasarim-onayi
-            else
-              just onay "${RUN_ID}" onayla --kapi tasarim-onayi
-            fi
-          else
-            just onay "${RUN_ID}" reddet "${NOTE}" --kapi tasarim-onayi
-          fi
-
-      - name: Continue to final human publication gate
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'approve-design'
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.resume.outputs.state_dir }}
-          RUN_ID: ${{ steps.resume.outputs.run_id }}
-        run: |
-          set -euo pipefail
-          cd "${STATE_DIR}"
-          sops exec-env secrets/secrets.enc.yaml "just uret instagram-karosel --devam ${RUN_ID}"
-          if ! grep -q '"awaitingGate"[[:space:]]*:[[:space:]]*"insan-onayi"' "derived/runs/${RUN_ID}/manifest.json"; then
-            echo "Hat final insan-onayi kapısında durmadı; yayın güvenliği için fail-closed." >&2
-            exit 1
-          fi
-
-      - name: Package final JPEG and PNG delivery
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'approve-design'
-        shell: bash
-        env:
-          STATE_DIR: ${{ steps.resume.outputs.state_dir }}
-          RUN_ID: ${{ steps.resume.outputs.run_id }}
-          JOB_ID: ${{ inputs.job_id }}
-        run: |
-          set -euo pipefail
-          OUT="${GITHUB_WORKSPACE}/.creative-artifacts/${JOB_ID}/final"
-          mkdir -p "${OUT}/jpeg" "${OUT}/png" "${OUT}/meta"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}"/slayt-*.jpg "${OUT}/jpeg/"
-          for f in "${OUT}/jpeg/"*.jpg; do
-            base="$(basename "${f}" .jpg)"
-            ffmpeg -hide_banner -loglevel error -y -i "${f}" "${OUT}/png/${base}.png"
-          done
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/manifest.json" "${OUT}/meta/"
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/panorama.json" "${OUT}/meta/" 2>/dev/null || true
-          cp "${STATE_DIR}/derived/runs/${RUN_ID}/steps/yayin-metni.json" "${OUT}/meta/" 2>/dev/null || true
-          cp "${STATE_DIR}/.ci-job.json" "${OUT}/meta/job.json"
-          printf '%s\n' "${RUN_ID}" > "${OUT}/meta/RUN_ID.txt"
-          (
-            cd "${OUT}"
-            zip -qr "../${JOB_ID}-delivery.zip" jpeg png meta
-          )
-
-      - name: Upload final delivery
-        if: github.event_name == 'workflow_dispatch' && inputs.action == 'approve-design'
-        uses: actions/upload-artifact@v4
-        with:
-          name: creative-final-${{ inputs.job_id }}
-          path: |
-            .creative-artifacts/${{ inputs.job_id }}/final
-            .creative-artifacts/${{ inputs.job_id }}/${{ inputs.job_id }}-delivery.zip
+          name: chat-carousel-${{ github.run_id }}
+          path: .chat-artifacts/
           if-no-files-found: error
           retention-days: 30
 
-      - name: Safety statement
+      - name: Summary
         if: always()
         shell: bash
         run: |
           {
-            echo "### CreativeSuite remote runner"
+            echo "### Chat-controlled CreativeSuite render"
             echo
-            echo "- Bu workflow PUBLISH çağırmaz."
-            echo "- Son üretim, pipeline'ın `insan-onayi` kapısında bırakılır."
-            echo "- `approve-text` ve `approve-design` yalnız workflow_dispatch ile, yani GitHub UI'da insan eylemiyle çalışır."
+            echo "- GitHub runner: hosted Ubuntu; kullanıcının bilgisayarına bağlı değil."
+            echo "- LLM/API/provider çağrısı: yok."
+            echo "- Zekâ ve revizyon kararı: ChatGPT oturumu."
+            echo "- Render: CreativeSuite'in kendi Chromium panorama motoru."
+            echo "- Yayın: yok."
           } >> "${GITHUB_STEP_SUMMARY}"
