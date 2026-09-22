@@ -1,0 +1,19 @@
+{
+  "title":"Dima — SaaS Product Launch V2",
+  "reference_direction":"clean modern SaaS product launch; bold typography + modified product UI + upbeat beat-synced editing",
+  "format":"16:9",
+  "resolution":"1920x1080",
+  "duration_sec":28,
+  "fps":30,
+  "music":{"target_bpm":120,"source_priority":["ElevenLabs Music when configured","deterministic original fallback"],"voiceover":false},
+  "scenes":[
+    {"span":[0,4],"intent":"problem_hook","copy":"Veri her yerde. Karar hâlâ zor."},
+    {"span":[4,8],"intent":"old_world","copy":"Dashboard size ne olduğunu söyler."},
+    {"span":[8,12],"intent":"product_promise","copy":"Dima soruyu yalnız cevaplamaz. Araştırır."},
+    {"span":[12,16],"intent":"ui_demo","copy":"M3’ün OEE’si neden düştü?"},
+    {"span":[16,20],"intent":"research_loop","copy":"Bileşen → kırılım → olay → doğrulama"},
+    {"span":[20,24],"intent":"business_output","copy":"Bulgu + Kanıt + Sonraki kontrol"},
+    {"span":[24,28],"intent":"brand_resolve","copy":"Dima — Denetlenebilir iş analisti."}
+  ],
+  "claims_policy":"No customer ROI or performance claims. UI data is illustrative."
+}
