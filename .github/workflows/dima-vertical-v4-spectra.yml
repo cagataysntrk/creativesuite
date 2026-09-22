@@ -1,0 +1,72 @@
+name: Dima Vertical V4 Spectra
+on:
+  push:
+    branches: [work/dima-vertical-v4-spectra]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install media deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet numpy
+          mkdir -p motion/dima-vertical-v4-spectra/assets
+          cp brand/brd_upcytech/logo/isaret-acik.png motion/dima-vertical-v4-spectra/assets/upcy.png
+
+      - name: Generate soundtrack
+        working-directory: motion/dima-vertical-v4-spectra
+        run: python make_music.py
+
+      - name: HyperFrames lint
+        working-directory: motion/dima-vertical-v4-spectra
+        run: npx --yes hyperframes@0.7.109 lint
+
+      - name: HyperFrames validate
+        working-directory: motion/dima-vertical-v4-spectra
+        run: npx --yes hyperframes@0.7.109 validate
+
+      - name: HyperFrames inspect
+        working-directory: motion/dima-vertical-v4-spectra
+        run: npx --yes hyperframes@0.7.109 inspect
+
+      - name: QA snapshots
+        working-directory: motion/dima-vertical-v4-spectra
+        run: npx --yes hyperframes@0.7.109 snapshot --at 1.6,4.7,8.5,12.5,16.5,20.5
+
+      - name: Render master
+        working-directory: motion/dima-vertical-v4-spectra
+        run: npx --yes hyperframes@0.7.109 render --fps 30 --quality high --player-ready-timeout 2000 --output silent.mp4
+
+      - name: Mux and preview
+        working-directory: motion/dima-vertical-v4-spectra
+        run: |
+          ffmpeg -y -loglevel error -i silent.mp4 -i assets/score.wav -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 256k -shortest -movflags +faststart Dima_Vertical_Product_Launch_V4.mp4
+          ffmpeg -y -loglevel error -i Dima_Vertical_Product_Launch_V4.mp4 -vf "fps=10,scale=360:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer" -t 8 preview.gif
+          ffprobe -v error -show_entries format=duration,size,bit_rate -of json Dima_Vertical_Product_Launch_V4.mp4 > render-info.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dima-vertical-v4-spectra
+          path: |
+            motion/dima-vertical-v4-spectra/Dima_Vertical_Product_Launch_V4.mp4
+            motion/dima-vertical-v4-spectra/preview.gif
+            motion/dima-vertical-v4-spectra/snapshots/
+            motion/dima-vertical-v4-spectra/index.html
+            motion/dima-vertical-v4-spectra/storyboard.json
+            motion/dima-vertical-v4-spectra/music-meta.json
+            motion/dima-vertical-v4-spectra/render-info.json
+          if-no-files-found: error
+          retention-days: 30
