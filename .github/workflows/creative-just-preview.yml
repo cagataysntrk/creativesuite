@@ -27,7 +27,7 @@ jobs:
       - name: install
         run: |
           pnpm install --frozen-lockfile
-          pnpm exec playwright install --with-deps chromium
+          pnpm --filter @suite/render exec playwright install --with-deps chromium
       - name: JUST URET
         run: just uret instagram-karosel-chat-preview "OEE düştüğünde aslında neyi araştırmalısınız?" --sablon sahne --icerik-kipi genel
       - name: collect
