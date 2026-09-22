@@ -1,0 +1,11 @@
+{
+  "name":"dima-saas-launch-v2",
+  "private":true,
+  "type":"module",
+  "scripts":{
+    "lint":"npx --yes hyperframes@0.7.109 lint",
+    "validate":"npx --yes hyperframes@0.7.109 validate",
+    "inspect":"npx --yes hyperframes@0.7.109 inspect",
+    "render":"npx --yes hyperframes@0.7.109 render --player-ready-timeout 2000"
+  }
+}
